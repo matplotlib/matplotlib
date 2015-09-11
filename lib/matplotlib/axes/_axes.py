@@ -1265,9 +1265,9 @@ class Axes(_AxesBase):
 
         Return value is a list of lines that were added.
 
-        By default, each line is assigned a different color specified by a
-        'color cycle'.  To change this behavior, you can edit the
-        axes.color_cycle rcParam.
+        By default, each line is assigned a different style specified by a
+        'style cycle'.  To change this behavior, you can edit the
+        axes.prop_cycle rcParam.
 
         The following format string characters are accepted to control
         the line style or marker:
@@ -2824,6 +2824,14 @@ class Axes(_AxesBase):
                 right = [thisx + thiserr for (thisx, thiserr)
                          in cbook.safezip(x, xerr[1])]
             else:
+                # Check if xerr is scalar or symmetric. Asymmetric is handled
+                # above. This prevents Nx2 arrays from accidentally
+                # being accepted, when the user meant the 2xN transpose.
+                if not (len(xerr) == 1 or
+                        (len(xerr) == len(x) and not (
+                            iterable(xerr[0]) and len(xerr[0]) > 1))):
+                    raise ValueError("xerr must be a scalar, the same "
+                                     "dimensions as x, or 2xN.")
                 # using list comps rather than arrays to preserve units
                 left = [thisx - thiserr for (thisx, thiserr)
                         in cbook.safezip(x, xerr)]
@@ -2882,6 +2890,12 @@ class Axes(_AxesBase):
                 upper = [thisy + thiserr for (thisy, thiserr)
                          in cbook.safezip(y, yerr[1])]
             else:
+                # Check for scalar or symmetric, as in xerr.
+                if not (len(yerr) == 1 or
+                        (len(yerr) == len(y) and not (
+                            iterable(yerr[0]) and len(yerr[0]) > 1))):
+                    raise ValueError("yerr must be a scalar, the same "
+                                     "dimensions as y, or 2xN.")
                 # using list comps rather than arrays to preserve units
                 lower = [thisy - thiserr for (thisy, thiserr)
                          in cbook.safezip(y, yerr)]
@@ -2935,8 +2949,8 @@ class Axes(_AxesBase):
             l0, = self.plot(x, y, fmt, **kwargs)
 
         if ecolor is None:
-            if l0 is None:
-                ecolor = six.next(self._get_lines.color_cycle)
+            if l0 is None and 'color' in self._get_lines._prop_keys:
+                ecolor = six.next(self._get_lines.prop_cycler)['color']
             else:
                 ecolor = l0.get_color()
 
@@ -5829,8 +5843,8 @@ class Axes(_AxesBase):
 
         nx = len(x)  # number of datasets
 
-        if color is None:
-            color = [six.next(self._get_lines.color_cycle)
+        if color is None and 'color' in self._get_lines._prop_keys:
+            color = [six.next(self._get_lines.prop_cycler)['color']
                      for i in xrange(nx)]
         else:
             color = mcolors.colorConverter.to_rgba_array(color)

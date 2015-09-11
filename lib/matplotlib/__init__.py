@@ -121,7 +121,8 @@ import distutils.sysconfig
 from matplotlib.cbook import is_string_like, mplDeprecation
 from matplotlib.compat import subprocess
 from matplotlib.rcsetup import (defaultParams,
-                                validate_backend)
+                                validate_backend,
+                                cycler)
 
 import numpy
 from matplotlib.externals.six.moves.urllib.request import urlopen
@@ -826,6 +827,8 @@ _deprecated_map = {
     'svg.embed_char_paths': ('svg.fonttype',
                              lambda x: "path" if x else "none", None),
     'savefig.extension': ('savefig.format', lambda x: x, None),
+    'axes.color_cycle': ('axes.prop_cycle', lambda x: cycler('color', x),
+                         lambda x: [c.get('color', None) for c in x]),
     }
 
 _deprecated_ignore_map = {
@@ -989,6 +992,8 @@ def _open_file_or_url(fname):
     else:
         fname = os.path.expanduser(fname)
         encoding = locale.getdefaultlocale()[1]
+        if encoding is None:
+            encoding = "utf-8"
         with io.open(fname, encoding=encoding) as f:
             yield f
 
@@ -1005,23 +1010,30 @@ def _rc_params_in_file(fname, fail_on_error=False):
     cnt = 0
     rc_temp = {}
     with _open_file_or_url(fname) as fd:
-        for line in fd:
-            cnt += 1
-            strippedline = line.split('#', 1)[0].strip()
-            if not strippedline:
-                continue
-            tup = strippedline.split(':', 1)
-            if len(tup) != 2:
-                error_details = _error_details_fmt % (cnt, line, fname)
-                warnings.warn('Illegal %s' % error_details)
-                continue
-            key, val = tup
-            key = key.strip()
-            val = val.strip()
-            if key in rc_temp:
-                warnings.warn('Duplicate key in file "%s", line #%d' %
-                              (fname, cnt))
-            rc_temp[key] = (val, line, cnt)
+        try:
+            for line in fd:
+                cnt += 1
+                strippedline = line.split('#', 1)[0].strip()
+                if not strippedline:
+                    continue
+                tup = strippedline.split(':', 1)
+                if len(tup) != 2:
+                    error_details = _error_details_fmt % (cnt, line, fname)
+                    warnings.warn('Illegal %s' % error_details)
+                    continue
+                key, val = tup
+                key = key.strip()
+                val = val.strip()
+                if key in rc_temp:
+                    warnings.warn('Duplicate key in file "%s", line #%d' %
+                                  (fname, cnt))
+                rc_temp[key] = (val, line, cnt)
+        except UnicodeDecodeError:
+            warnings.warn(
+                ('Cannot decode configuration file %s with '
+                 'encoding %s, check LANG and LC_* variables')
+                % (fname, locale.getdefaultlocale()[1] or 'utf-8 (default)'))
+            raise
 
     config = RcParams()
 
@@ -1447,11 +1459,13 @@ default_test_modules = [
     'matplotlib.tests.test_subplots',
     'matplotlib.tests.test_table',
     'matplotlib.tests.test_text',
+    'matplotlib.tests.test_texmanager',
     'matplotlib.tests.test_ticker',
     'matplotlib.tests.test_tightlayout',
     'matplotlib.tests.test_transforms',
     'matplotlib.tests.test_triangulation',
     'matplotlib.tests.test_widgets',
+    'matplotlib.tests.test_cycles',
     'matplotlib.sphinxext.tests.test_tinypages',
     'mpl_toolkits.tests.test_mplot3d',
     'mpl_toolkits.tests.test_axes_grid1',

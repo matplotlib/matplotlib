@@ -58,12 +58,16 @@ class FigureCanvasQTAggBase(object):
 
     Public attribute
 
-      figure - A Figure instance
-   """
+        figure - A Figure instance
+    """
+
+    def __init__(self, figure):
+        super(FigureCanvasQTAggBase, self).__init__(figure=figure)
+        self._agg_draw_pending = False
 
     def drawRectangle(self, rect):
         self._drawRect = rect
-        self.draw_idle()
+        self.update()
 
     def paintEvent(self, e):
         """
@@ -71,10 +75,6 @@ class FigureCanvasQTAggBase(object):
         In Qt, all drawing should be done inside of here when a widget is
         shown onscreen.
         """
-        # If we have not rendered the Agg backend yet, do so now.
-        if not hasattr(self, 'renderer'):
-            FigureCanvasAgg.draw(self)
-
         # FigureCanvasQT.paintEvent(self, e)
         if DEBUG:
             print('FigureCanvasQtAgg.paintEvent: ', self,
@@ -136,20 +136,43 @@ class FigureCanvasQTAggBase(object):
             pixmap = QtGui.QPixmap.fromImage(qImage)
             p = QtGui.QPainter(self)
             p.drawPixmap(QtCore.QPoint(l, self.renderer.height-t), pixmap)
+
+            # draw the zoom rectangle to the QPainter
+            if self._drawRect is not None:
+                p.setPen(QtGui.QPen(QtCore.Qt.black, 1, QtCore.Qt.DotLine))
+                x, y, w, h = self._drawRect
+                p.drawRect(x, y, w, h)
             p.end()
             self.blitbox = None
-        self._drawRect = None
 
     def draw(self):
         """
-        Draw the figure with Agg, and queue a request
-        for a Qt draw.
+        Draw the figure with Agg, and queue a request for a Qt draw.
         """
-        # The Agg draw is done here; delaying it until the paintEvent
-        # causes problems with code that uses the result of the
-        # draw() to update plot elements.
+        # The Agg draw is done here; delaying causes problems with code that
+        # uses the result of the draw() to update plot elements.
         FigureCanvasAgg.draw(self)
         self.update()
+
+    def draw_idle(self):
+        """
+        Queue redraw of the Agg buffer and request Qt paintEvent.
+        """
+        # The Agg draw needs to be handled by the same thread matplotlib
+        # modifies the scene graph from. Post Agg draw request to the
+        # current event loop in order to ensure thread affinity and to
+        # accumulate multiple draw requests from event handling.
+        # TODO: queued signal connection might be safer than singleShot
+        if not self._agg_draw_pending:
+            self._agg_draw_pending = True
+            QtCore.QTimer.singleShot(0, self.__draw_idle_agg)
+
+    def __draw_idle_agg(self, *args):
+        try:
+            FigureCanvasAgg.draw(self)
+            self.update()
+        finally:
+            self._agg_draw_pending = False
 
     def blit(self, bbox=None):
         """
@@ -186,8 +209,7 @@ class FigureCanvasQTAgg(FigureCanvasQTAggBase,
     def __init__(self, figure):
         if DEBUG:
             print('FigureCanvasQtAgg: ', figure)
-        FigureCanvasQT.__init__(self, figure)
-        FigureCanvasAgg.__init__(self, figure)
+        super(FigureCanvasQTAgg, self).__init__(figure=figure)
         self._drawRect = None
         self.blitbox = None
         self.setAttribute(QtCore.Qt.WA_OpaquePaintEvent)

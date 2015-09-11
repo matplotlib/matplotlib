@@ -18,10 +18,15 @@ from __future__ import (absolute_import, division, print_function,
 
 from matplotlib.externals import six
 
+from functools import reduce
+import operator
 import os
 import warnings
 from matplotlib.fontconfig_pattern import parse_fontconfig_pattern
 from matplotlib.colors import is_color_like
+
+# Don't let the original cycler collide with our validating cycler
+from cycler import Cycler, cycler as ccycler
 
 #interactive_bk = ['gtk', 'gtkagg', 'gtkcairo', 'qt4agg',
 #                  'tkagg', 'wx', 'wxagg', 'cocoaagg', 'webagg']
@@ -60,8 +65,31 @@ class ValidateInStrings(object):
                          % (self.key, s, list(six.itervalues(self.valid))))
 
 
+def _listify_validator(scalar_validator, allow_stringlist=False):
+    def f(s):
+        if isinstance(s, six.string_types):
+            try:
+                return [scalar_validator(v.strip()) for v in s.split(',')
+                        if v.strip()]
+            except Exception:
+                if allow_stringlist:
+                    # Sometimes, a list of colors might be a single string
+                    # of single-letter colornames. So give that a shot.
+                    return [scalar_validator(v.strip()) for v in s if v.strip()]
+                else:
+                    raise
+        elif type(s) in (list, tuple):
+            return [scalar_validator(v) for v in s if v]
+        else:
+            msg = "'s' must be of type [ string | list | tuple ]"
+            raise ValueError(msg)
+    f.__doc__ = scalar_validator.__doc__
+    return f
+
+
 def validate_any(s):
     return s
+validate_anylist = _listify_validator(validate_any)
 
 
 def validate_path_exists(s):
@@ -106,6 +134,7 @@ def validate_float(s):
         return float(s)
     except ValueError:
         raise ValueError('Could not convert "%s" to float' % s)
+validate_floatlist = _listify_validator(validate_float)
 
 
 def validate_float_or_None(s):
@@ -122,6 +151,7 @@ def validate_float_or_None(s):
     except ValueError:
         raise ValueError('Could not convert "%s" to float or None' % s)
 
+
 def validate_dpi(s):
     """confirm s is string 'figure' or convert s to float or raise"""
     if s == 'figure':
@@ -132,12 +162,14 @@ def validate_dpi(s):
         raise ValueError('"%s" is not string "figure" or'
             ' could not convert "%s" to float' % (s, s))
 
+
 def validate_int(s):
     """convert s to int or raise"""
     try:
         return int(s)
     except ValueError:
         raise ValueError('Could not convert "%s" to int' % s)
+
 
 def validate_int_or_None(s):
     """if not None, tries to validate as an int"""
@@ -149,6 +181,7 @@ def validate_int_or_None(s):
         return int(s)
     except ValueError:
         raise ValueError('Could not convert "%s" to int' % s)
+
 
 def validate_fonttype(s):
     """
@@ -300,25 +333,17 @@ def validate_color(s):
     raise ValueError('%s does not look like a color arg%s' % (s, msg))
 
 
-def validate_colorlist(s):
-    'return a list of colorspecs'
-    if isinstance(s, six.string_types):
-        return [validate_color(c.strip()) for c in s.split(',')]
-    elif type(s) in (list, tuple):
-        return [validate_color(c) for c in s]
-    else:
-        msg = "'s' must be of type [ string | list | tuple ]"
-        raise ValueError(msg)
+def deprecate_axes_colorcycle(value):
+    warnings.warn("axes.color_cycle is deprecated.  Use axes.prop_cycle "
+                  "instead. Will be removed in 2.1.0")
+    return validate_colorlist(value)
 
-def validate_stringlist(s):
-    'return a list'
-    if isinstance(s, six.string_types):
-        return [six.text_type(v.strip()) for v in s.split(',') if v.strip()]
-    elif type(s) in (list, tuple):
-        return [six.text_type(v) for v in s if v]
-    else:
-        msg = "'s' must be of type [ string | list | tuple ]"
-        raise ValueError(msg)
+
+validate_colorlist = _listify_validator(validate_color, allow_stringlist=True)
+validate_colorlist.__doc__ = 'return a list of colorspecs'
+
+validate_stringlist = _listify_validator(six.text_type)
+validate_stringlist.__doc__ = 'return a list'
 
 validate_orientation = ValidateInStrings(
     'orientation', ['landscape', 'portrait'])
@@ -334,15 +359,20 @@ def validate_aspect(s):
 
 
 def validate_fontsize(s):
+    fontsizes = ['xx-small', 'x-small', 'small', 'medium', 'large',
+                 'x-large', 'xx-large', 'smaller', 'larger']
     if isinstance(s, six.string_types):
         s = s.lower()
-    if s in ['xx-small', 'x-small', 'small', 'medium', 'large', 'x-large',
-             'xx-large', 'smaller', 'larger']:
+    if s in fontsizes:
         return s
     try:
         return float(s)
     except ValueError:
-        raise ValueError('not a valid font size')
+        raise ValueError("%s is not a valid font size. Valid font sizes "
+                         "are %s." % (s, ", ".join(fontsizes)))
+
+
+validate_fontsizelist = _listify_validator(validate_fontsize)
 
 
 def validate_font_properties(s):
@@ -418,14 +448,17 @@ def validate_ps_distiller(s):
 validate_joinstyle = ValidateInStrings('joinstyle',
                                        ['miter', 'round', 'bevel'],
                                        ignorecase=True)
+validate_joinstylelist = _listify_validator(validate_joinstyle)
 
 validate_capstyle = ValidateInStrings('capstyle',
                                       ['butt', 'round', 'projecting'],
                                       ignorecase=True)
+validate_capstylelist = _listify_validator(validate_capstyle)
 
 validate_fillstyle = ValidateInStrings('markers.fillstyle',
                                        ['full', 'left', 'right', 'bottom',
                                         'top', 'none'])
+validate_fillstylelist = _listify_validator(validate_fillstyle)
 
 validate_negative_linestyle = ValidateInStrings('negative_linestyle',
                                                 ['solid', 'dashed'],
@@ -560,6 +593,168 @@ class ValidateInterval(object):
         return s
 
 validate_grid_axis = ValidateInStrings('axes.grid.axis', ['x', 'y', 'both'])
+
+
+def validate_hatch(s):
+    """
+    Validate a hatch pattern.
+    A hatch pattern string can have any sequence of the following
+    characters: ``\\ / | - + * . x o O``.
+
+    """
+    if not isinstance(s, six.text_type):
+        raise ValueError("Hatch pattern must be a string")
+    unique_chars = set(s)
+    unknown = (unique_chars -
+                set(['\\', '/', '|', '-', '+', '*', '.', 'x', 'o', 'O']))
+    if unknown:
+        raise ValueError("Unknown hatch symbol(s): %s" % list(unknown))
+    return s
+validate_hatchlist = _listify_validator(validate_hatch)
+
+
+_prop_validators = {
+        'color': validate_colorlist,
+        'linewidth': validate_floatlist,
+        'linestyle': validate_stringlist,
+        'facecolor': validate_colorlist,
+        'edgecolor': validate_colorlist,
+        'joinstyle': validate_joinstylelist,
+        'capstyle': validate_capstylelist,
+        'fillstyle': validate_fillstylelist,
+        'markerfacecolor': validate_colorlist,
+        'markersize': validate_floatlist,
+        'markeredgewidth': validate_floatlist,
+        'markeredgecolor': validate_colorlist,
+        'alpha': validate_floatlist,
+        'marker': validate_stringlist,
+        'hatch': validate_hatchlist,
+    }
+_prop_aliases = {
+        'c': 'color',
+        'lw': 'linewidth',
+        'ls': 'linestyle',
+        'fc': 'facecolor',
+        'ec': 'edgecolor',
+        'mfc': 'markerfacecolor',
+        'mec': 'markeredgecolor',
+        'mew': 'markeredgewidth',
+        'ms': 'markersize',
+    }
+
+
+def cycler(*args, **kwargs):
+    """
+    Creates a :class:`cycler.Cycler` object much like :func:`cycler.cycler`,
+    but includes input validation.
+
+    cyl(arg)
+    cyl(label, itr)
+    cyl(label1=itr1[, label2=itr2[, ...]])
+
+    Form 1 simply copies a given `Cycler` object.
+
+    Form 2 creates a `Cycler` from a label and an iterable.
+
+    Form 3 composes a `Cycler` as an inner product of the
+    pairs of keyword arguments. In other words, all of the
+    iterables are cycled simultaneously, as if through zip().
+
+    Parameters
+    ----------
+    arg : Cycler
+        Copy constructor for Cycler.
+
+    label : name
+        The property key. Must be a valid `Artist` property.
+        For example, 'color' or 'linestyle'. Aliases are allowed,
+        such as 'c' for 'color' and 'lw' for 'linewidth'.
+
+    itr : iterable
+        Finite-length iterable of the property values. These values
+        are validated and will raise a ValueError if invalid.
+
+    Returns
+    -------
+    cycler : Cycler
+        New :class:`cycler.Cycler` for the given properties
+
+    """
+    if args and kwargs:
+        raise TypeError("cycler() can only accept positional OR keyword "
+                        "arguments -- not both.")
+    elif not args and not kwargs:
+        raise TypeError("cycler() must have positional OR keyword arguments")
+
+    if len(args) == 1:
+        if not isinstance(args[0], Cycler):
+            raise TypeError("If only one positional argument given, it must "
+                            " be a Cycler instance.")
+
+        c = args[0]
+        unknowns = c.keys - (set(_prop_validators.keys()) |
+                             set(_prop_aliases.keys()))
+        if unknowns:
+            # This is about as much validation I can do
+            raise TypeError("Unknown artist properties: %s" % unknowns)
+        else:
+            return Cycler(c)
+    elif len(args) == 2:
+        pairs = [(args[0], args[1])]
+    elif len(args) > 2:
+        raise TypeError("No more than 2 positional arguments allowed")
+    else:
+        pairs = six.iteritems(kwargs)
+
+    validated = []
+    for prop, vals in pairs:
+        norm_prop = _prop_aliases.get(prop, prop)
+        validator = _prop_validators.get(norm_prop, None)
+        if validator is None:
+            raise TypeError("Unknown artist property: %s" % prop)
+        vals = validator(vals)
+        # We will normalize the property names as well to reduce
+        # the amount of alias handling code elsewhere.
+        validated.append((norm_prop, vals))
+
+    return reduce(operator.add, (ccycler(k, v) for k, v in validated))
+
+
+def validate_cycler(s):
+    'return a Cycler object from a string repr or the object itself'
+    if isinstance(s, six.string_types):
+        try:
+            # TODO: We might want to rethink this...
+            # While I think I have it quite locked down,
+            # it is execution of arbitrary code without
+            # sanitation.
+            # Combine this with the possibility that rcparams
+            # might come from the internet (future plans), this
+            # could be downright dangerous.
+            # I locked it down by only having the 'cycler()' function
+            # available. Imports and defs should not
+            # be possible. However, it is entirely possible that
+            # a security hole could open up via attributes to the
+            # function (this is why I decided against allowing the
+            # Cycler class object just to reduce the number of
+            # degrees of freedom (but maybe it is safer to use?).
+            # One possible hole I can think of (in theory) is if
+            # someone managed to hack the cycler module. But, if
+            # someone does that, this wouldn't make anything
+            # worse because we have to import the module anyway.
+            s = eval(s, {'cycler': cycler})
+        except BaseException as e:
+            raise ValueError("'%s' is not a valid cycler construction: %s" %
+                             (s, e))
+    # Should make sure what comes from the above eval()
+    # is a Cycler object.
+    if isinstance(s, Cycler):
+        cycler_inst = s
+    else:
+        raise ValueError("object was not a string or Cycler instance: %s" % s)
+
+    return cycler_inst
+
 
 # a map from key -> value, converter
 defaultParams = {
@@ -748,8 +943,13 @@ defaultParams = {
     'axes.formatter.useoffset': [True, validate_bool],
     'axes.unicode_minus': [True, validate_bool],
     'axes.color_cycle': [['b', 'g', 'r', 'c', 'm', 'y', 'k'],
-                         validate_colorlist],  # cycle of plot
-                                               # line colors
+                         deprecate_axes_colorcycle],  # cycle of plot
+                                                      # line colors
+    # This entry can be either a cycler object or a
+    # string repr of a cycler-object, which gets eval()'ed
+    # to create the object.
+    'axes.prop_cycle': [ccycler('color', 'bgrcmyk'),
+                        validate_cycler],
     'axes.xmargin': [0, ValidateInterval(0, 1,
                                          closedmin=True,
                                          closedmax=True)],  # margin added to xaxis

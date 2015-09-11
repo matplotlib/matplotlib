@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """
 The same (small) array, interpolated with three different
 interpolation methods.
@@ -46,18 +45,20 @@ performance or have very large images, interpolation='nearest' is
 suggested.
 
 """
-from pylab import *
-A = rand(5, 5)
-figure(1)
-imshow(A, interpolation='nearest')
-grid(True)
+import matplotlib.pyplot as plt
+import numpy as np
 
-figure(2)
-imshow(A, interpolation='bilinear')
-grid(True)
+A = np.random.rand(5, 5)
+plt.figure(1)
+plt.imshow(A, interpolation='nearest')
+plt.grid(True)
 
-figure(3)
-imshow(A, interpolation='bicubic')
-grid(True)
+plt.figure(2)
+plt.imshow(A, interpolation='bilinear')
+plt.grid(True)
 
-show()
+plt.figure(3)
+plt.imshow(A, interpolation='bicubic')
+plt.grid(True)
+
+plt.show()

@@ -252,8 +252,13 @@ class PkgConfig(object):
         if sys.platform == 'win32':
             self.has_pkgconfig = False
         else:
+            try:
+                self.pkg_config = os.environ['PKG_CONFIG']
+            except KeyError:
+                self.pkg_config = 'pkg-config'
+
             self.set_pkgconfig_path()
-            status, output = getstatusoutput("pkg-config --help")
+            status, output = getstatusoutput(self.pkg_config + " --help")
             self.has_pkgconfig = (status == 0)
             if not self.has_pkgconfig:
                 print("IMPORTANT WARNING:")
@@ -286,7 +291,7 @@ class PkgConfig(object):
 
         executable = alt_exec
         if self.has_pkgconfig:
-            executable = 'pkg-config {0}'.format(package)
+            executable = (self.pkg_config + ' {0}').format(package)
 
         use_defaults = True
 
@@ -330,7 +335,7 @@ class PkgConfig(object):
             return None
 
         status, output = getstatusoutput(
-            "pkg-config %s --modversion" % (package))
+            self.pkg_config + " %s --modversion" % (package))
         if status == 0:
             return output
         return None
@@ -1160,6 +1165,24 @@ class Pytz(SetupPackage):
 
     def get_install_requires(self):
         return ['pytz']
+
+
+class Cycler(SetupPackage):
+    name = "cycler"
+
+    def check(self):
+        try:
+            import cycler
+        except ImportError:
+            return (
+                "cycler was not found. "
+                "pip will attempt to install it "
+                "after matplotlib.")
+
+        return "using cycler version %s" % cycler.__version__
+
+    def get_install_requires(self):
+        return ['cycler']
 
 
 class Dateutil(SetupPackage):

@@ -11,3 +11,16 @@ A MultiCursor object can be disabled (and enabled) after it has been created wit
 Example::
 
   multi_cursor.active = False
+
+
+Improved RectangleSelector and new EllipseSelector Widget
+`````````````````````````````````````````````````````````
+
+Adds an `interactive` keyword which enables visible handles for manipulating the shape after it has been drawn.
+
+Adds keyboard modifiers for:
+
+- Moving the existing shape (default key = 'space')
+- Making the shape square (default 'shift')
+- Make the initial point the center of the shape (default 'control')
+- Square and center can be combined

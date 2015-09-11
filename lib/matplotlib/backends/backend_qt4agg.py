@@ -69,6 +69,7 @@ class FigureCanvasQTAgg(FigureCanvasQTAggBase,
         if DEBUG:
             print('FigureCanvasQtAgg: ', figure)
         FigureCanvasQT.__init__(self, figure)
+        FigureCanvasQTAggBase.__init__(self, figure)
         FigureCanvasAgg.__init__(self, figure)
         self._drawRect = None
         self.blitbox = None

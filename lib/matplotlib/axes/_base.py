@@ -32,6 +32,7 @@ import matplotlib.image as mimage
 from matplotlib.offsetbox import OffsetBox
 from matplotlib.artist import allow_rasterization
 from matplotlib.cbook import iterable
+from matplotlib.rcsetup import cycler
 
 rcParams = matplotlib.rcParams
 
@@ -138,7 +139,7 @@ class _process_plot_var_args(object):
     def __init__(self, axes, command='plot'):
         self.axes = axes
         self.command = command
-        self.set_color_cycle()
+        self.set_prop_cycle()
 
     def __getstate__(self):
         # note: it is not possible to pickle a itertools.cycle instance
@@ -146,15 +147,22 @@ class _process_plot_var_args(object):
 
     def __setstate__(self, state):
         self.__dict__ = state.copy()
-        self.set_color_cycle()
+        self.set_prop_cycle()
 
-    def set_color_cycle(self, clist=None):
-        if clist is None:
-            clist = rcParams['axes.color_cycle']
-        self.color_cycle = itertools.cycle(clist)
+    def set_prop_cycle(self, *args, **kwargs):
+        if not (args or kwargs) or (len(args) == 1 and args[0] is None):
+            prop_cycler = rcParams['axes.prop_cycle']
+            if prop_cycler is None and 'axes.color_cycle' in rcParams:
+                clist = rcParams['axes.color_cycle']
+                prop_cycler = cycler('color', clist)
+        else:
+            prop_cycler = cycler(*args, **kwargs)
+
+        self.prop_cycler = itertools.cycle(prop_cycler)
+        # This should make a copy
+        self._prop_keys = prop_cycler.keys
 
     def __call__(self, *args, **kwargs):
-
         if self.axes.xaxis is not None and self.axes.yaxis is not None:
             xunits = kwargs.pop('xunits', self.axes.xaxis.units)
 
@@ -177,21 +185,11 @@ class _process_plot_var_args(object):
 
     def set_lineprops(self, line, **kwargs):
         assert self.command == 'plot', 'set_lineprops only works with "plot"'
-        for key, val in six.iteritems(kwargs):
-            funcName = "set_%s" % key
-            if not hasattr(line, funcName):
-                raise TypeError('There is no line property "%s"' % key)
-            func = getattr(line, funcName)
-            func(val)
+        line.set(**kwargs)
 
     def set_patchprops(self, fill_poly, **kwargs):
         assert self.command == 'fill', 'set_patchprops only works with "fill"'
-        for key, val in six.iteritems(kwargs):
-            funcName = "set_%s" % key
-            if not hasattr(fill_poly, funcName):
-                raise TypeError('There is no patch property "%s"' % key)
-            func = getattr(fill_poly, funcName)
-            func(val)
+        fill_poly.set(**kwargs)
 
     def _xy_from_xy(self, x, y):
         if self.axes.xaxis is not None and self.axes.yaxis is not None:
@@ -229,24 +227,98 @@ class _process_plot_var_args(object):
             y = y[:, np.newaxis]
         return x, y
 
+    def _getdefaults(self, ignore, *kwargs):
+        """
+        Only advance the cycler if the cycler has information that
+        is not specified in any of the supplied tuple of dicts.
+        Ignore any keys specified in the `ignore` set.
+
+        Returns a copy of defaults dictionary if there are any
+        keys that are not found in any of the supplied dictionaries.
+        If the supplied dictionaries have non-None values for
+        everything the property cycler has, then just return
+        an empty dictionary. Ignored keys are excluded from the
+        returned dictionary.
+
+        """
+        prop_keys = self._prop_keys
+        if ignore is None:
+            ignore = set([])
+        prop_keys = prop_keys - ignore
+
+        if any(all(kw.get(k, None) is None for kw in kwargs)
+               for k in prop_keys):
+            # Need to copy this dictionary or else the next time around
+            # in the cycle, the dictionary could be missing entries.
+            default_dict = six.next(self.prop_cycler).copy()
+            for p in ignore:
+                default_dict.pop(p, None)
+        else:
+            default_dict = {}
+        return default_dict
+
+    def _setdefaults(self, defaults, *kwargs):
+        """
+        Given a defaults dictionary, and any other dictionaries,
+        update those other dictionaries with information in defaults if
+        none of the other dictionaries contains that information.
+
+        """
+        for k in defaults:
+            if all(kw.get(k, None) is None for kw in kwargs):
+                for kw in kwargs:
+                    kw[k] = defaults[k]
+
     def _makeline(self, x, y, kw, kwargs):
         kw = kw.copy()  # Don't modify the original kw.
         kwargs = kwargs.copy()
-        if kw.get('color', None) is None and kwargs.get('color', None) is None:
-            kwargs['color'] = kw['color'] = six.next(self.color_cycle)
-            # (can't use setdefault because it always evaluates
-            # its second argument)
-        seg = mlines.Line2D(x, y,
-                            **kw
-                            )
+        default_dict = self._getdefaults(None, kw, kwargs)
+        self._setdefaults(default_dict, kw, kwargs)
+        seg = mlines.Line2D(x, y, **kw)
         self.set_lineprops(seg, **kwargs)
         return seg
 
     def _makefill(self, x, y, kw, kwargs):
-        try:
-            facecolor = kw['color']
-        except KeyError:
-            facecolor = six.next(self.color_cycle)
+        kw = kw.copy()  # Don't modify the original kw.
+        kwargs = kwargs.copy()
+
+        # Ignore 'marker'-related properties as they aren't Polygon
+        # properties, but they are Line2D properties, and so they are
+        # likely to appear in the default cycler construction.
+        # This is done here to the defaults dictionary as opposed to the
+        # other two dictionaries because we do want to capture when a
+        # *user* explicitly specifies a marker which should be an error.
+        # We also want to prevent advancing the cycler if there are no
+        # defaults needed after ignoring the given properties.
+        ignores = set(['marker', 'markersize', 'markeredgecolor',
+                       'markerfacecolor', 'markeredgewidth'])
+        # Also ignore anything provided by *kwargs*.
+        for k, v in six.iteritems(kwargs):
+            if v is not None:
+                ignores.add(k)
+
+        # Only using the first dictionary to use as basis
+        # for getting defaults for back-compat reasons.
+        # Doing it with both seems to mess things up in
+        # various places (probably due to logic bugs elsewhere).
+        default_dict = self._getdefaults(ignores, kw)
+        self._setdefaults(default_dict, kw)
+
+        # Looks like we don't want "color" to be interpreted to
+        # mean both facecolor and edgecolor for some reason.
+        # So the "kw" dictionary is thrown out, and only its
+        # 'color' value is kept and translated as a 'facecolor'.
+        # This design should probably be revisited as it increases
+        # complexity.
+        facecolor = kw.get('color', None)
+
+        # Throw out 'color' as it is now handled as a facecolor
+        default_dict.pop('color', None)
+
+        # To get other properties set from the cycler
+        # modify the kwargs dictionary.
+        self._setdefaults(default_dict, kwargs)
+
         seg = mpatches.Polygon(np.hstack((x[:, np.newaxis],
                                           y[:, np.newaxis])),
                                facecolor=facecolor,
@@ -988,14 +1060,65 @@ class _AxesBase(martist.Artist):
         """clear the axes"""
         self.cla()
 
+    def set_prop_cycle(self, *args, **kwargs):
+        """
+        Set the property cycle for any future plot commands on this Axes.
+
+        set_prop_cycle(arg)
+        set_prop_cycle(label, itr)
+        set_prop_cycle(label1=itr1[, label2=itr2[, ...]])
+
+        Form 1 simply sets given `Cycler` object.
+
+        Form 2 creates and sets  a `Cycler` from a label and an iterable.
+
+        Form 3 composes and sets  a `Cycler` as an inner product of the
+        pairs of keyword arguments. In other words, all of the
+        iterables are cycled simultaneously, as if through zip().
+
+        Parameters
+        ----------
+        arg : Cycler
+            Set the given Cycler.
+            Can also be `None` to reset to the cycle defined by the
+            current style.
+
+        label : name
+            The property key. Must be a valid `Artist` property.
+            For example, 'color' or 'linestyle'. Aliases are allowed,
+            such as 'c' for 'color' and 'lw' for 'linewidth'.
+
+        itr : iterable
+            Finite-length iterable of the property values. These values
+            are validated and will raise a ValueError if invalid.
+
+        See Also
+        --------
+            :func:`cycler`      Convenience function for creating your
+                                own cyclers.
+
+        """
+        if args and kwargs:
+            raise TypeError("Cannot supply both positional and keyword "
+                            "arguments to this method.")
+        if len(args) == 1 and args[0] is None:
+            prop_cycle = None
+        else:
+            prop_cycle = cycler(*args, **kwargs)
+        self._get_lines.set_prop_cycle(prop_cycle)
+        self._get_patches_for_fill.set_prop_cycle(prop_cycle)
+
     def set_color_cycle(self, clist):
         """
         Set the color cycle for any future plot commands on this Axes.
 
         *clist* is a list of mpl color specifiers.
+
+        .. deprecated:: 1.5
         """
-        self._get_lines.set_color_cycle(clist)
-        self._get_patches_for_fill.set_color_cycle(clist)
+        cbook.warn_deprecated(
+                '1.5', name='set_color_cycle', alternative='set_prop_cycle')
+        self.set_prop_cycle('color', clist)
 
     def ishold(self):
         """return the HOLD status of the axes"""
@@ -2049,6 +2172,9 @@ class _AxesBase(martist.Artist):
                 y0, y1 = ylocator.view_limits(y0, y1)
             self.set_ybound(y0, y1)
 
+    def _get_axis_list(self):
+        return (self.xaxis, self.yaxis)
+
     # Drawing
 
     @allow_rasterization
@@ -2090,8 +2216,8 @@ class _AxesBase(martist.Artist):
                 self.xaxis.set_zorder(2.5)
                 self.yaxis.set_zorder(2.5)
         else:
-            artists.remove(self.xaxis)
-            artists.remove(self.yaxis)
+            for _axis in self._get_axis_list():
+                artists.remove(_axis)
 
         if inframe:
             artists.remove(self.title)
@@ -2757,7 +2883,9 @@ class _AxesBase(martist.Artist):
 
         ACCEPTS: sequence of strings
         """
-        ret = self.xaxis.set_ticklabels(labels, fontdict,
+        if fontdict is not None:
+            kwargs.update(fontdict)
+        ret = self.xaxis.set_ticklabels(labels,
                                         minor=minor, **kwargs)
         self.stale = True
         return ret
@@ -3017,7 +3145,9 @@ class _AxesBase(martist.Artist):
 
         ACCEPTS: sequence of strings
         """
-        return self.yaxis.set_ticklabels(labels, fontdict,
+        if fontdict is not None:
+            kwargs.update(fontdict)
+        return self.yaxis.set_ticklabels(labels,
                                          minor=minor, **kwargs)
 
     def xaxis_date(self, tz=None):
@@ -3135,6 +3265,167 @@ class _AxesBase(martist.Artist):
 
         """
         self._navigate_mode = b
+
+    def _get_view(self):
+        """
+        Save information required to reproduce the current view.
+
+        Called before a view is changed, such as during a pan or zoom
+        initiated by the user. You may return any information you deem
+        necessary to describe the view.
+
+        .. note::
+
+            Intended to be overridden by new projection types, but if not, the
+            default implementation saves the view limits. You *must* implement
+            :meth:`_set_view` if you implement this method.
+        """
+        xmin, xmax = self.get_xlim()
+        ymin, ymax = self.get_ylim()
+        return (xmin, xmax, ymin, ymax)
+
+    def _set_view(self, view):
+        """
+        Apply a previously saved view.
+
+        Called when restoring a view, such as with the navigation buttons.
+
+        .. note::
+
+            Intended to be overridden by new projection types, but if not, the
+            default implementation restores the view limits. You *must*
+            implement :meth:`_get_view` if you implement this method.
+        """
+        xmin, xmax, ymin, ymax = view
+        self.set_xlim((xmin, xmax))
+        self.set_ylim((ymin, ymax))
+
+    def _set_view_from_bbox(self, bbox, original_view, direction='in',
+                            mode=None, twinx=False, twiny=False):
+        """
+        Update view from a selection bbox.
+
+        .. note::
+
+            Intended to be overridden by new projection types, but if not, the
+            default implementation sets the view limits to the bbox directly.
+
+        Parameters
+        ----------
+
+        bbox : tuple
+            The selected bounding box limits, in *display* coordinates.
+
+        original_view : any
+            A view saved from before initiating the selection, the result of
+            calling :meth:`_get_view`.
+
+        direction : str
+            The direction to apply the bounding box.
+                * `'in'` - The bounding box describes the view directly, i.e.,
+                           it zooms in.
+                * `'out'` - The bounding box describes the size to make the
+                            existing view, i.e., it zooms out.
+
+        mode : str or None
+            The selection mode, whether to apply the bounding box in only the
+            `'x'` direction, `'y'` direction or both (`None`).
+
+        twinx : bool
+            Whether this axis is twinned in the *x*-direction.
+
+        twiny : bool
+            Whether this axis is twinned in the *y*-direction.
+        """
+
+        lastx, lasty, x, y = bbox
+
+        x0, y0, x1, y1 = original_view
+
+        # zoom to rect
+        inverse = self.transData.inverted()
+        lastx, lasty = inverse.transform_point((lastx, lasty))
+        x, y = inverse.transform_point((x, y))
+        Xmin, Xmax = self.get_xlim()
+        Ymin, Ymax = self.get_ylim()
+
+        if twinx:
+            x0, x1 = Xmin, Xmax
+        else:
+            if Xmin < Xmax:
+                if x < lastx:
+                    x0, x1 = x, lastx
+                else:
+                    x0, x1 = lastx, x
+                if x0 < Xmin:
+                    x0 = Xmin
+                if x1 > Xmax:
+                    x1 = Xmax
+            else:
+                if x > lastx:
+                    x0, x1 = x, lastx
+                else:
+                    x0, x1 = lastx, x
+                if x0 > Xmin:
+                    x0 = Xmin
+                if x1 < Xmax:
+                    x1 = Xmax
+
+        if twiny:
+            y0, y1 = Ymin, Ymax
+        else:
+            if Ymin < Ymax:
+                if y < lasty:
+                    y0, y1 = y, lasty
+                else:
+                    y0, y1 = lasty, y
+                if y0 < Ymin:
+                    y0 = Ymin
+                if y1 > Ymax:
+                    y1 = Ymax
+            else:
+                if y > lasty:
+                    y0, y1 = y, lasty
+                else:
+                    y0, y1 = lasty, y
+                if y0 > Ymin:
+                    y0 = Ymin
+                if y1 < Ymax:
+                    y1 = Ymax
+
+        if direction == 'in':
+            if mode == 'x':
+                self.set_xlim((x0, x1))
+            elif mode == 'y':
+                self.set_ylim((y0, y1))
+            else:
+                self.set_xlim((x0, x1))
+                self.set_ylim((y0, y1))
+        elif direction == 'out':
+            if self.get_xscale() == 'log':
+                alpha = np.log(Xmax / Xmin) / np.log(x1 / x0)
+                rx1 = pow(Xmin / x0, alpha) * Xmin
+                rx2 = pow(Xmax / x0, alpha) * Xmin
+            else:
+                alpha = (Xmax - Xmin) / (x1 - x0)
+                rx1 = alpha * (Xmin - x0) + Xmin
+                rx2 = alpha * (Xmax - x0) + Xmin
+            if self.get_yscale() == 'log':
+                alpha = np.log(Ymax / Ymin) / np.log(y1 / y0)
+                ry1 = pow(Ymin / y0, alpha) * Ymin
+                ry2 = pow(Ymax / y0, alpha) * Ymin
+            else:
+                alpha = (Ymax - Ymin) / (y1 - y0)
+                ry1 = alpha * (Ymin - y0) + Ymin
+                ry2 = alpha * (Ymax - y0) + Ymin
+
+            if mode == 'x':
+                self.set_xlim((rx1, rx2))
+            elif mode == 'y':
+                self.set_ylim((ry1, ry2))
+            else:
+                self.set_xlim((rx1, rx2))
+                self.set_ylim((ry1, ry2))
 
     def start_pan(self, x, y, button):
         """
