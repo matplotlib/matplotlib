@@ -5641,7 +5641,7 @@ class Axes(_AxesBase):
         self.autoscale_view(tight=True)
         return ret
 
-    #@unpack_labeled_data() # takes 2d data :-(
+    @unpack_labeled_data()
     def contour(self, *args, **kwargs):
         if not self._hold:
             self.cla()
@@ -5649,7 +5649,7 @@ class Axes(_AxesBase):
         return mcontour.QuadContourSet(self, *args, **kwargs)
     contour.__doc__ = mcontour.QuadContourSet.contour_doc
 
-    #@unpack_labeled_data() # takes 2d data :-(
+    @unpack_labeled_data()
     def contourf(self, *args, **kwargs):
         if not self._hold:
             self.cla()
