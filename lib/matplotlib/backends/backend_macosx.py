@@ -323,6 +323,7 @@ class FigureCanvasMac(_macosx.FigureCanvas, FigureCanvasBase):
         width /= dpi
         height /= dpi
         self.figure.set_size_inches(width, height)
+        FigureCanvasBase.resize_event(self)
 
     def _print_bitmap(self, filename, *args, **kwargs):
         # In backend_bases.py, print_figure changes the dpi of the figure.

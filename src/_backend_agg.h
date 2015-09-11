@@ -479,7 +479,7 @@ RendererAgg::draw_path(GCAgg &gc, PathIterator &path, agg::trans_affine &trans, 
 
     trans *= agg::trans_affine_scaling(1.0, -1.0);
     trans *= agg::trans_affine_translation(0.0, (double)height);
-    bool clip = !face.first && gc.has_hatchpath() && !path.has_curves();
+    bool clip = !face.first && !gc.has_hatchpath() && !path.has_curves();
     bool simplify = path.should_simplify() && clip;
     double snapping_linewidth = points_to_pixels(gc.linewidth);
     if (gc.color.a == 0.0) {

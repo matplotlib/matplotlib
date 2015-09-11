@@ -239,7 +239,6 @@ class FigureCanvasQT(QtWidgets.QWidget, FigureCanvasBase):
         super(FigureCanvasQT, self).__init__(figure=figure)
         self.figure = figure
         self.setMouseTracking(True)
-        self._idle = True
         w, h = self.get_width_height()
         self.resize(w, h)
 
@@ -414,23 +413,6 @@ class FigureCanvasQT(QtWidgets.QWidget, FigureCanvasBase):
         FigureCanvasBase.stop_event_loop_default(self)
 
     stop_event_loop.__doc__ = FigureCanvasBase.stop_event_loop_default.__doc__
-
-    def draw_idle(self):
-        # This cannot be a call to 'update', we need a slightly longer
-        # delay, otherwise mouse releases from zooming, panning, or
-        # lassoing might not finish processing and will not redraw properly.
-        # We use the guard flag to prevent infinite calls to 'draw_idle' which
-        # happens with the 'stale' figure & axes callbacks.
-        d = self._idle
-        self._idle = False
-
-        def idle_draw(*args):
-            try:
-                self.draw()
-            finally:
-                self._idle = True
-        if d:
-            QtCore.QTimer.singleShot(0, idle_draw)
 
 
 class MainWindow(QtWidgets.QMainWindow):
@@ -698,6 +680,9 @@ class NavigationToolbar2QT(NavigationToolbar2, QtWidgets.QToolBar):
 
         rect = [int(val)for val in (min(x0, x1), min(y0, y1), w, h)]
         self.canvas.drawRectangle(rect)
+
+    def remove_rubberband(self):
+        self.canvas.drawRectangle(None)
 
     def configure_subplots(self):
         image = os.path.join(matplotlib.rcParams['datapath'],

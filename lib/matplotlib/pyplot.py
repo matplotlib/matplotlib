@@ -24,6 +24,7 @@ import sys
 import warnings
 import types
 
+from cycler import cycler
 import matplotlib
 import matplotlib.colorbar
 from matplotlib import style
@@ -111,6 +112,7 @@ _backend_mod, new_figure_manager, draw_if_interactive, _show = pylab_setup()
 _IP_REGISTERED = None
 _INSTALL_FIG_OBSERVER = False
 
+
 def install_repl_displayhook():
     """
     Install a repl display hook so that any stale figure are automatically
@@ -127,27 +129,30 @@ def install_repl_displayhook():
     # see if we have IPython hooks around, if use them
 
     try:
-        from IPython import get_ipython
-        ip = get_ipython()
-        if ip is None:
-            raise _NotIPython()
+        if 'IPython' in sys.modules:
+            from IPython import get_ipython
+            ip = get_ipython()
+            if ip is None:
+                raise _NotIPython()
 
-        if _IP_REGISTERED:
-            return
+            if _IP_REGISTERED:
+                return
 
-        def post_execute():
-            if matplotlib.is_interactive():
-                draw_all()
+            def post_execute():
+                if matplotlib.is_interactive():
+                    draw_all()
 
-        # IPython >= 2
-        try:
-            ip.events.register('post_execute', post_execute)
-        except AttributeError:
-            # IPython 1.x
-            ip.register_post_execute(post_execute)
+            # IPython >= 2
+            try:
+                ip.events.register('post_execute', post_execute)
+            except AttributeError:
+                # IPython 1.x
+                ip.register_post_execute(post_execute)
 
-        _IP_REGISTERED = post_execute
-        _INSTALL_FIG_OBSERVER = False
+            _IP_REGISTERED = post_execute
+            _INSTALL_FIG_OBSERVER = False
+        else:
+            _INSTALL_FIG_OBSERVER = True
 
     # import failed or ipython is not running
     except (ImportError, _NotIPython):
@@ -394,7 +399,7 @@ def xkcd(scale=1, length=100, randomness=2):
         rcParams['grid.linewidth'] = 0.0
         rcParams['axes.grid'] = False
         rcParams['axes.unicode_minus'] = False
-        rcParams['axes.color_cycle'] = ['b', 'r', 'c', 'm']
+        rcParams['axes.prop_cycle'] = cycler('color', ['b', 'r', 'c', 'm'])
         rcParams['axes.edgecolor'] = 'black'
         rcParams['xtick.major.size'] = 8
         rcParams['xtick.major.width'] = 3

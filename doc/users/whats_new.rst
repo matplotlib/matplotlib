@@ -98,6 +98,16 @@ IPython's ``HTML`` display class::
     from IPython.display import HTML
     HTML(anim.to_html5_video())
 
+Prefixed pkg-config for building
+--------------------------------
+
+Handling of `pkg-config` has been fixed in so far as it is now possible to set
+it using the environment variable `PKG_CONFIG`. This is important if your
+toolchain is prefixed. This is done in a simpilar way as setting `CC` or `CXX`
+before building. An example follows.
+
+    export PKG_CONFIG=x86_64-pc-linux-gnu-pkg-config
+
 
 .. _whats-new-1-4:
 
