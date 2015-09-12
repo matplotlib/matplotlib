@@ -5680,7 +5680,7 @@ class Axes(_AxesBase):
 
     #### Data analysis
 
-    @unpack_labeled_data(replace_names=["x"], label_namer="x")
+    @unpack_labeled_data(replace_names=["x", 'weights'], label_namer="x")
     @docstring.dedent_interpd
     def hist(self, x, bins=10, range=None, normed=False, weights=None,
              cumulative=False, bottom=None, histtype='bar', align='mid',
