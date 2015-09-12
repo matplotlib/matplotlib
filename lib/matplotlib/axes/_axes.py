@@ -59,25 +59,15 @@ def _plot_args_replacer(args, data):
             return ["y", "c"]
         # it's data, but could be a color code like 'ro' or 'b--'
         # -> warn the user in that case...
-        arg2 = args[1]
-        if is_string_like(arg2) and len(arg2) <= 3:
-            # all possible linestyles and color codes -> see doc of plot
-            reserved_ls = ["-", "--", "-.", ":", ".", ",", "o", "v", "^", "<",
-                           ">", "1", "2", "3", "4", "s", "p", "*", "h", "H",
-                           "+", "x", "D", "d", "|", "_"]
-            reserved_cc = ["b", "r", "c", "m", "y", "k", "w"]
-            # remove the line style part
-            for ls in reserved_ls:
-                if ls in arg2:
-                    arg2 = arg2.replace(ls, '')
-                    continue
-            # can now only be a color code...
-            if arg2 in reserved_cc:
-                import warnings
-                msg = "Second argument is ambiguous: could be a color spec " \
-                      "but is in data. Using as data.\nEither rename the " \
-                      "entry in data or use three arguments to plot."
-                warnings.warn(msg, RuntimeWarning, stacklevel=3)
+        try:
+            _process_plot_format(args[1])
+        except ValueError:
+            pass
+        else:
+            msg = "Second argument is ambiguous: could be a color spec " \
+                  "but is in data. Using as data.\nEither rename the " \
+                  "entry in data or use three arguments to plot."
+            warnings.warn(msg, RuntimeWarning, stacklevel=3)
         return ["x", "y"]
     elif len(args) == 3:
         return ["x", "y", "c"]
