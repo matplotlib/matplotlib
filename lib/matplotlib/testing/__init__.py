@@ -1,8 +1,15 @@
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
-
+import warnings
 from contextlib import contextmanager
+
+from matplotlib.cbook import is_string_like, iterable
+
+
+def _is_list_like(obj):
+    """Returns whether the obj is iterable and not a string"""
+    return not is_string_like(obj) and iterable(obj)
 
 
 # stolen from pandas
@@ -34,16 +41,13 @@ def assert_produces_warning(expected_warning=Warning, filter_level="always",
 
     ..warn:: This is *not* thread-safe.
     """
-    import warnings
-    from matplotlib.cbook import is_list_like
-
     with warnings.catch_warnings(record=True) as w:
 
         if clear is not None:
             # make sure that we are clearning these warnings
             # if they have happened before
             # to guarantee that we will catch them
-            if not is_list_like(clear):
+            if not _is_list_like(clear):
                 clear = [clear]
             for m in clear:
                 try:
