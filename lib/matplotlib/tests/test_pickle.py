@@ -12,6 +12,7 @@ import numpy as np
 
 from matplotlib.testing.decorators import cleanup, image_comparison
 import matplotlib.pyplot as plt
+import matplotlib.transforms as mtransforms
 
 
 def depth_getter(obj,
@@ -250,6 +251,34 @@ def test_polar():
     pf = pickle.dumps(fig)
     pickle.loads(pf)
     plt.draw()
+
+
+class TransformBlob(object):
+    def __init__(self):
+        self.identity = mtransforms.IdentityTransform()
+        self.identity2 = mtransforms.IdentityTransform()
+        # Force use of the more complex composition.
+        self.composite = mtransforms.CompositeGenericTransform(
+            self.identity,
+            self.identity2)
+        # Check parent -> child links of TransformWrapper.
+        self.wrapper = mtransforms.TransformWrapper(self.composite)
+        # Check child -> parent links of TransformWrapper.
+        self.composite2 = mtransforms.CompositeGenericTransform(
+            self.wrapper,
+            self.identity)
+
+
+def test_transform():
+    obj = TransformBlob()
+    pf = pickle.dumps(obj)
+    del obj
+
+    obj = pickle.loads(pf)
+    # Check parent -> child links of TransformWrapper.
+    assert_equal(obj.wrapper._child, obj.composite)
+    # Check child -> parent links of TransformWrapper.
+    assert_equal(list(obj.wrapper._parents.values()), [obj.composite2])
 
 
 if __name__ == '__main__':
