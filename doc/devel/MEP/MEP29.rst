@@ -34,6 +34,7 @@ It contains a coordinate space made of 1 or more `Axis` and we can plot in this
 defined space.
 
 Some examples of axes:
+
 + 2D Cartesian (x, y)
 + 2D Polar (rho, theta)
 + 3D Cartesian (x, y, z)
@@ -63,6 +64,16 @@ As well as Axes 3D, Basemap should also welcome this change, with an
 anticipated structure of a base mapping class with a coordinate system in
 lat/lon coordinates, but with different mapping projections available for the
 conversion between the Axes coordinate system and the screen.
+
+The Colourbar
+-------------
+An often overlooked Axis, the colour axis exists and functions in the same way
+as the other spatial dimensions.  This becomes easier to visualise when we look
+consider the colourbar, existing as a number line just like the other axis
+components.  As well as conceptually similar, it also functions the same as the
+other axis: we can apply different scales, such as a log scale; draw
+tick-labels; ensure non-singularity of the data etcetera.
+
 
 Implementation
 ==============
