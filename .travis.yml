@@ -26,6 +26,7 @@ env:
     - secure: "dfjNqGKzQG5bu3FnDNwLG8H/C4QoieFo4PfFmZPdM2RY7WIzukwKFNT6kiDfOrpwt+2bR7FhzjOGlDECGtlGOtYPN8XuXGjhcP4a4IfakdbDfF+D3NPIpf5VlE6776k0VpvcZBTMYJKNFIMc7QPkOwjvNJ2aXyfe3hBuGlKJzQU="
     - BUILD_DOCS=false
     - NUMPY=numpy
+    - PANDAS=
     - NPROC=2
     - TEST_ARGS=--no-pep8
 
@@ -36,7 +37,7 @@ matrix:
     - python: 2.6
       env: NUMPY=numpy==1.6 MOCK=mock==1.0.1
     - python: 2.7
-      env: MOCK=mock
+      env: MOCK=mock PANDAS=pandas
     - python: 3.3
     - python: 3.4
     - python: 2.7
@@ -60,7 +61,7 @@ install:
     pip install --upgrade setuptools
   # Install only from travis wheelhouse
   - if [ -z "$PRE" ]; then
-        wheelhouse_pip_install python-dateutil $NUMPY pyparsing pillow sphinx!=1.3.0;
+        wheelhouse_pip_install python-dateutil $NUMPY $PANDAS pyparsing pillow sphinx!=1.3.0;
     else
         pip install $PRE python-dateutil $NUMPY pyparsing pillow sphinx!=1.3.0;
     fi
