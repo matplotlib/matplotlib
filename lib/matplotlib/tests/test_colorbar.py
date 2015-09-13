@@ -272,13 +272,13 @@ def test_colorbar_closed_patch():
     values = np.linspace(0, 10, 5)
 
     with rc_context({'axes.linewidth': 16}):
-        plt.colorbar(im, cax=ax2, cmap=cmap, orientation='horizontal',
+        plt.colorbar(im, cax=ax2, orientation='horizontal',
                      extend='both', extendfrac=0.5, values=values)
-        plt.colorbar(im, cax=ax3, cmap=cmap, orientation='horizontal',
+        plt.colorbar(im, cax=ax3,  orientation='horizontal',
                      extend='both', values=values)
-        plt.colorbar(im, cax=ax4, cmap=cmap, orientation='horizontal',
+        plt.colorbar(im, cax=ax4, orientation='horizontal',
                      extend='both', extendrect=True, values=values)
-        plt.colorbar(im, cax=ax5, cmap=cmap, orientation='horizontal',
+        plt.colorbar(im, cax=ax5, orientation='horizontal',
                      extend='neither', values=values)
 
 
@@ -292,9 +292,8 @@ def test_colorbar_ticks():
     Z = X * Y
     clevs = np.array([-12, -5, 0, 5, 12], dtype=float)
     colors = ['r', 'g', 'b', 'c']
-    cs = ax.contourf(X, Y, Z, clevs, colors=colors)
-    cbar = fig.colorbar(cs, ax=ax, extend='neither',
-                        orientation='horizontal', ticks=clevs)
+    cs = ax.contourf(X, Y, Z, clevs, colors=colors, extend='neither')
+    cbar = fig.colorbar(cs, ax=ax, orientation='horizontal')
     assert len(cbar.ax.xaxis.get_ticklocs()) == len(clevs)
 
 

@@ -1,0 +1,12 @@
+`ColorBar` raises TypeError rather than ignore user input
+`````````````````````````````````````````````````````````
+
+In ``__init__`` `ColorBar` ignores user supplied ``cmap`` and ``norm``
+keyword arguments in favor of retrieving those values from the
+``mappable`` passed in.  If those keywords are supplied, `ColorBar`
+will now raise a `TypeError` rather than silently dropping user supplied
+input.
+
+If ``mappable`` is a `contour.ContourSet` then a `TypeError` will be raised
+if the user provides any of
+``('alpha', 'boundaries', 'values', 'extend', 'filled')``

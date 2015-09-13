@@ -80,7 +80,7 @@ levels = np.arange(-1.2, 1.6, 0.2)
 CS = plt.contour(Z, levels,
                  origin='lower',
                  linewidths=2,
-                 extent=(-3, 3, -2, 2))
+                 extent=(-3, 3, -2, 2), extend='both')
 
 # Thicken the zero contour.
 zc = CS.collections[6]
@@ -92,7 +92,7 @@ plt.clabel(CS, levels[1::2],  # label every second level
            fontsize=14)
 
 # make a colorbar for the contour lines
-CB = plt.colorbar(CS, shrink=0.8, extend='both')
+CB = plt.colorbar(CS, shrink=0.8)
 
 plt.title('Lines with colorbar')
 #plt.hot()  # Now change the colormap for the contour lines and colorbar

@@ -889,18 +889,21 @@ class Colorbar(ColorbarBase):
         mappable.autoscale_None()
 
         self.mappable = mappable
+        kw = cbook.normalize_kwargs(kw, forbidden=('cmap', 'norm'))
         kw['cmap'] = cmap = mappable.cmap
-        kw['norm'] = norm = mappable.norm
+        kw['norm'] = mappable.norm
 
         if isinstance(mappable, contour.ContourSet):
             CS = mappable
+            override_list = ('alpha', 'boundaries', 'values', 'extend',
+                             'filled')
+            kw = cbook.normalize_kwargs(kw, forbidden=override_list)
             kw['alpha'] = mappable.get_alpha()
             kw['boundaries'] = CS._levels
             kw['values'] = CS.cvalues
             kw['extend'] = CS.extend
-            #kw['ticks'] = CS._levels
-            kw.setdefault('ticks', ticker.FixedLocator(CS.levels, nbins=10))
             kw['filled'] = CS.filled
+            kw.setdefault('ticks', ticker.FixedLocator(CS.levels, nbins=10))
             ColorbarBase.__init__(self, ax, **kw)
             if not CS.filled:
                 self.add_lines(CS)
@@ -909,7 +912,7 @@ class Colorbar(ColorbarBase):
                 kw.setdefault('extend', cmap.colorbar_extend)
 
             if isinstance(mappable, martist.Artist):
-                kw['alpha'] = mappable.get_alpha()
+                kw.setdefault('alpha', mappable.get_alpha())
 
             ColorbarBase.__init__(self, ax, **kw)
 
