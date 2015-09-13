@@ -107,7 +107,7 @@ def figure_edit(axes, parent=None):
         has_curve = bool(curves)
 
     datalist = [(general, "Axes", "")]
-    if has_curve and curves:
+    if has_curve:
         datalist.append((curves, "Curves", ""))
 
     def apply_callback(data):
