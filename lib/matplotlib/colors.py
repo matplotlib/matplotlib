@@ -964,7 +964,7 @@ class Normalize(object):
         return (self.vmin is not None and self.vmax is not None)
 
 
-class PiecewiseLinearNorm(Normalize):
+class DivergingNorm(Normalize):
     """
     A subclass of matplotlib.colors.Normalize.
 
@@ -993,7 +993,7 @@ class PiecewiseLinearNorm(Normalize):
         Examples
         --------
         >>> import matplotlib.colors as mcolors
-        >>> offset = mcolors.PiecewiseLinearNorm(vmin=-2., vcenter=0., vmax=4.)
+        >>> offset = mcolors.DivergingNorm(vmin=-2., vcenter=0., vmax=4.)
         >>> data = [-2., -1., 0., 1., 2., 3., 4.]
         >>> offset(data)
         array([0., 0.25, 0.5, 0.625, 0.75, 0.875, 1.0])
