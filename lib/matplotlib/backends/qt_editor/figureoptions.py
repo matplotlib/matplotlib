@@ -63,6 +63,12 @@ def figure_edit(axes, parent=None):
                ('(Re-)Generate automatic legend', False),
                ]
 
+    # Save the unit data
+    xconverter = axes.xaxis.converter
+    yconverter = axes.yaxis.converter
+    xunits = axes.xaxis.get_units()
+    yunits = axes.yaxis.get_units()
+
     if has_curve:
         # Get / Curves
         linedict = {}
@@ -121,6 +127,14 @@ def figure_edit(axes, parent=None):
         axes.set_xlabel(xlabel)
         axes.set_ylim(ymin, ymax)
         axes.set_ylabel(ylabel)
+
+        # Restore the unit data
+        axes.xaxis.converter = xconverter
+        axes.yaxis.converter = yconverter
+        axes.xaxis.set_units(xunits)
+        axes.yaxis.set_units(yunits)
+        axes.xaxis._update_axisinfo()
+        axes.yaxis._update_axisinfo()
 
         if has_curve:
             # Set / Curves
