@@ -75,7 +75,11 @@ class FigureCanvasQTAggBase(object):
         In Qt, all drawing should be done inside of here when a widget is
         shown onscreen.
         """
-        # FigureCanvasQT.paintEvent(self, e)
+        # if the canvas does not have a renderer, then give up and wait for
+        # FigureCanvasAgg.draw(self) to be called
+        if not hasattr(self, 'renderer'):
+            return
+
         if DEBUG:
             print('FigureCanvasQtAgg.paintEvent: ', self,
                   self.get_width_height())
