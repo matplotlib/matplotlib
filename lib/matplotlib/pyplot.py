@@ -25,6 +25,9 @@ import warnings
 import types
 
 from cycler import cycler
+
+from functools import wraps
+
 import matplotlib
 import matplotlib.colorbar
 from matplotlib import style
@@ -192,6 +195,146 @@ def uninstall_repl_displayhook():
 
 
 draw_all = _pylab_helpers.Gcf.draw_all
+
+_ENSURE_AX_DOC = """
+
+This function has been decorated by pyplot to have
+an implicit reference to the `plt.gca()` passed as the first argument.
+
+The wrapped function can be called as any of ::
+
+   {obj}{func}(*args, **kwargs)
+   {obj}{func}(ax, *args, **kwargs)
+   {obj}{func}(.., ax=ax)
+
+"""
+
+
+_ENSURE_AX_NEW_DOC = """
+
+This function has been decorated by pyplot to create a new
+axes if one is not explicitly passed.
+
+The wrapped function can be called as any of ::
+
+   {obj}{func}(*args, **kwargs)
+   {obj}{func}(ax, *args, **kwargs)
+   {obj}{func}(.., ax=ax)
+
+The first will make a new figure and axes, the other two
+will add to the axes passed in.
+
+"""
+
+
+def ensure_ax(func):
+    """Decorator to ensure that the function gets an `Axes` object.
+
+
+    The intent of this decorator is to simplify the writing of helper
+    plotting functions that are useful for both interactive and
+    programmatic usage.
+
+    The encouraged signature for third-party and user functions ::
+
+       def my_function(ax, data, style)
+
+    explicitly expects an Axes object as input rather than using
+    plt.gca() or creating axes with in the function body.  This
+    allows for great flexibility, but some find it verbose for
+    interactive use.  This decorator allows the Axes input to be
+    omitted in which case `plt.gca()` is passed into the function.
+    Thus ::
+
+       wrapped = ensure_ax(my_function)
+
+    can be called as any of ::
+
+       wrapped(data, style)
+       wrapped(ax, data, style)
+       wrapped(data, style, ax=plt.gca())
+
+
+    """
+    @wraps(func)
+    def inner(*args, **kwargs):
+        if 'ax' in kwargs:
+            ax = kwargs.pop('ax')
+        elif len(args) > 0 and isinstance(args[0], Axes):
+            ax = args[0]
+            args = args[1:]
+        else:
+            ax = gca()
+        return func(ax, *args, **kwargs)
+    pre_doc = inner.__doc__
+    if pre_doc is None:
+        pre_doc = ''
+    else:
+        pre_doc = dedent(pre_doc)
+    inner.__doc__ = pre_doc + _ENSURE_AX_DOC.format(func=func.__name__, obj='')
+
+    return inner
+
+
+def ensure_new_ax(func):
+    """Decorator to ensure that the function gets a new `Axes` object.
+
+    Same as ensure_ax expect that a new figure and axes are created
+    if an Axes is not explicitly passed.
+
+    """
+    @wraps(func)
+    def inner(*args, **kwargs):
+        if 'ax' in kwargs:
+            ax = kwargs.pop('ax')
+        elif len(args) > 0 and isinstance(args[0], Axes):
+            ax = args[0]
+            args = args[1:]
+        else:
+            ax = gna()
+        return func(ax, *args, **kwargs)
+    pre_doc = inner.__doc__
+    if pre_doc is None:
+        pre_doc = ''
+    else:
+        pre_doc = dedent(pre_doc)
+    inner.__doc__ = (pre_doc +
+                     _ENSURE_AX_NEW_DOC.format(func=func.__name__, obj=''))
+
+    return inner
+
+
+def ensure_ax_meth(func):
+    """
+    The same as ensure axes, but for class methods ::
+
+       class foo(object):
+           @ensure_ax_meth
+           def my_function(self, ax, style):
+
+    will allow you to call your objects plotting methods with
+    out explicitly passing in an `Axes` object.
+    """
+    @wraps(func)
+    def inner(*args, **kwargs):
+        s = args[0]
+        args = args[1:]
+        if 'ax' in kwargs:
+            ax = kwargs.pop('ax')
+        elif len(args) > 1 and isinstance(args[0], Axes):
+            ax = args[0]
+            args = args[1:]
+        else:
+            ax = gca()
+        return func(s, ax, *args, **kwargs)
+    pre_doc = inner.__doc__
+    if pre_doc is None:
+        pre_doc = ''
+    else:
+        pre_doc = dedent(pre_doc)
+    inner.__doc__ = pre_doc + _ENSURE_AX_DOC.format(func=func.__name__,
+                                                    obj='obj.')
+    return inner
 
 
 @docstring.copy_dedent(Artist.findobj)
@@ -1244,6 +1387,30 @@ def subplots(nrows=1, ncols=1, sharex=False, sharey=False, squeeze=True,
         ret = fig, axarr.reshape(nrows, ncols)
 
     return ret
+
+
+def gna(figsize=None, tight_layout=False):
+    """
+    Create a single new axes in a new figure.
+
+    This is a convenience function for working interactively
+    and should not be used in scripts.
+
+    Parameters
+    ----------
+    figsize : tuple, optional
+        Figure size in inches (w, h)
+
+    tight_layout : bool, optional
+        If tight layout shoudl be used.
+
+    Returns
+    -------
+    ax : Axes
+       New axes
+    """
+    _, ax = subplots(figsize=figsize, tight_layout=tight_layout)
+    return ax
 
 
 def subplot2grid(shape, loc, rowspan=1, colspan=1, **kwargs):

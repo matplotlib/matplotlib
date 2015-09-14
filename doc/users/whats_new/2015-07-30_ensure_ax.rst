@@ -1,0 +1,18 @@
+Decorators to ensure an Axes exists & ``plt.gna``
+-------------------------------------------------
+
+Added a top-level function to `pyplot` to create a single axes
+figure and return the `Axes` object.
+
+Added decorators ::
+
+  ensure_ax
+  ensure_ax_meth
+  ensure_new_ax
+
+which take a function or method that expects an `Axes` as the first
+positional argument and returns a function which allows the axes to be
+passed either as the first positional argument or as a kwarg.  If the
+`Axes` is not provided either gets the current axes (via `plt.gca()`)
+for `ensure_ax` and `ensure_ax_meth` or creating a new single-axes figure
+(via `plt.gna`) for `ensure_new_ax`
