@@ -17,3 +17,5 @@ recursive-include doc *
 recursive-include src  *.cpp *.c *.h *.m
 recursive-include lib *
 recursive-include extern *
+include versioneer.py
+include lib/matplotlib/_version.py

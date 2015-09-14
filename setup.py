@@ -52,8 +52,9 @@ from distutils.dist import Distribution
 import setupext
 from setupext import print_line, print_raw, print_message, print_status
 
-# Get the version from the source code
-__version__ = setupext.Matplotlib().check()
+# Get the version from versioneer
+import versioneer
+__version__ = versioneer.get_version()
 
 
 # These are the packages in the order we want to display them.  This
@@ -375,6 +376,5 @@ if __name__ == '__main__':
         # check for zip safety.
         zip_safe=False,
         cmdclass={'test': NoseTestCommand},
-
         **extra_args
     )
