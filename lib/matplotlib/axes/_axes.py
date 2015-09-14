@@ -11,6 +11,7 @@ import numpy as np
 from numpy import ma
 
 import matplotlib
+from matplotlib import unpack_labeled_data
 
 import matplotlib.cbook as cbook
 from matplotlib.cbook import mplDeprecation, STEP_LOOKUP_MAP
@@ -39,6 +40,7 @@ from matplotlib.container import BarContainer, ErrorbarContainer, StemContainer
 from matplotlib.axes._base import _AxesBase
 from matplotlib.axes._base import _process_plot_format
 
+
 rcParams = matplotlib.rcParams
 
 iterable = cbook.iterable
@@ -46,8 +48,38 @@ is_string_like = cbook.is_string_like
 is_sequence_of_strings = cbook.is_sequence_of_strings
 
 
+def _plot_args_replacer(args, data):
+    if len(args) == 1:
+        return ["y"]
+    elif len(args) == 2:
+        # this can be two cases: x,y or y,c
+        if not args[1] in data:
+            # this is not in data, so just assume that it is something which
+            # will not get replaced (color spec or array like).
+            return ["y", "c"]
+        # it's data, but could be a color code like 'ro' or 'b--'
+        # -> warn the user in that case...
+        try:
+            _process_plot_format(args[1])
+        except ValueError:
+            pass
+        else:
+            msg = "Second argument is ambiguous: could be a color spec " \
+                  "but is in data. Using as data.\nEither rename the " \
+                  "entry in data or use three arguments to plot."
+            warnings.warn(msg, RuntimeWarning, stacklevel=3)
+        return ["x", "y"]
+    elif len(args) == 3:
+        return ["x", "y", "c"]
+    else:
+        raise ValueError("Using arbitrary long args with data is not "
+                         "supported due to ambiguity of arguments.\nUse "
+                         "multiple plotting calls instead.")
+
+
 # The axes module contains all the wrappers to plotting functions.
 # All the other methods should go in the _AxesBase class.
+
 
 class Axes(_AxesBase):
     """
@@ -901,6 +933,7 @@ class Axes(_AxesBase):
         self.autoscale_view(scaley=False)
         return p
 
+    @unpack_labeled_data(replace_names=['y', 'xmin', 'xmax'], label_namer="y")
     @docstring.dedent
     def hlines(self, y, xmin, xmax, colors='k', linestyles='solid',
                label='', **kwargs):
@@ -979,6 +1012,8 @@ class Axes(_AxesBase):
 
         return coll
 
+    @unpack_labeled_data(replace_names=["x", "ymin", "ymax", "colors"],
+                         label_namer="x")
     @docstring.dedent_interpd
     def vlines(self, x, ymin, ymax, colors='k', linestyles='solid',
                label='', **kwargs):
@@ -1059,6 +1094,10 @@ class Axes(_AxesBase):
 
         return coll
 
+    @unpack_labeled_data(replace_names=["positions", "lineoffsets",
+                                        "linelengths", "linewidths",
+                                        "colors", "linestyles"],
+                         label_namer=None)
     @docstring.dedent_interpd
     def eventplot(self, positions, orientation='horizontal', lineoffsets=1,
                   linelengths=1, linewidths=None, colors=None,
@@ -1240,7 +1279,11 @@ class Axes(_AxesBase):
 
         return colls
 
-    #### Basic plotting
+    # ### Basic plotting
+    # The label_naming happens in `matplotlib.axes._base._plot_args`
+    @unpack_labeled_data(replace_names=["x", "y"],
+                         positional_parameter_names=_plot_args_replacer,
+                         label_namer=None)
     @docstring.dedent_interpd
     def plot(self, *args, **kwargs):
         """
@@ -1258,8 +1301,14 @@ class Axes(_AxesBase):
         If *x* and/or *y* is 2-dimensional, then the corresponding columns
         will be plotted.
 
-        An arbitrary number of *x*, *y*, *fmt* groups can be
-        specified, as in::
+        If used with labeled data, make sure that the color spec is not
+        included as an element in data, as otherwise the last case
+        ``plot("v","r", data={"v":..., "r":...)``
+        can be interpreted as the first case which would do ``plot(v, r)``
+        using the default line style and color.
+
+        If not used with labeled data (i.e., without a data argument),
+        an arbitrary number of *x*, *y*, *fmt* groups can be specified, as in::
 
             a.plot(x1, y1, 'g^', x2, y2, 'g-')
 
@@ -1385,6 +1434,7 @@ class Axes(_AxesBase):
         self.autoscale_view(scalex=scalex, scaley=scaley)
         return lines
 
+    @unpack_labeled_data(replace_names=["x", "y"], label_namer="y")
     @docstring.dedent_interpd
     def plot_date(self, x, y, fmt='o', tz=None, xdate=True, ydate=False,
                   **kwargs):
@@ -1458,6 +1508,7 @@ class Axes(_AxesBase):
 
         return ret
 
+    # @unpack_labeled_data() # let 'plot' do the unpacking..
     @docstring.dedent_interpd
     def loglog(self, *args, **kwargs):
         """
@@ -1519,6 +1570,7 @@ class Axes(_AxesBase):
 
         return l
 
+    # @unpack_labeled_data() # let 'plot' do the unpacking..
     @docstring.dedent_interpd
     def semilogx(self, *args, **kwargs):
         """
@@ -1571,6 +1623,7 @@ class Axes(_AxesBase):
         self._hold = b  # restore the hold
         return l
 
+    # @unpack_labeled_data() # let 'plot' do the unpacking..
     @docstring.dedent_interpd
     def semilogy(self, *args, **kwargs):
         """
@@ -1623,6 +1676,7 @@ class Axes(_AxesBase):
 
         return l
 
+    @unpack_labeled_data(replace_names=["x"], label_namer="x")
     @docstring.dedent_interpd
     def acorr(self, x, **kwargs):
         """
@@ -1684,6 +1738,7 @@ class Axes(_AxesBase):
         """
         return self.xcorr(x, x, **kwargs)
 
+    @unpack_labeled_data(replace_names=["x", "y"], label_namer="y")
     @docstring.dedent_interpd
     def xcorr(self, x, y, normed=True, detrend=mlab.detrend_none,
               usevlines=True, maxlags=10, **kwargs):
@@ -1773,6 +1828,7 @@ class Axes(_AxesBase):
 
     #### Specialized plotting
 
+    @unpack_labeled_data(replace_names=["x", "y"], label_namer="y")
     def step(self, x, y, *args, **kwargs):
         """
         Make a step plot.
@@ -1810,6 +1866,11 @@ class Axes(_AxesBase):
 
         return self.plot(x, y, *args, **kwargs)
 
+    @unpack_labeled_data(replace_names=["left", "height", "width", "bottom",
+                                        "color", "edgecolor", "linewidth",
+                                        "tick_label", "xerr", "yerr",
+                                        "ecolor"],
+                         label_namer=None)
     @docstring.dedent_interpd
     def bar(self, left, height, width=0.8, bottom=None, **kwargs):
         """
@@ -2236,6 +2297,7 @@ class Axes(_AxesBase):
                            bottom=bottom, orientation='horizontal', **kwargs)
         return patches
 
+    @unpack_labeled_data(label_namer=None)
     @docstring.dedent_interpd
     def broken_barh(self, xranges, yrange, **kwargs):
         """
@@ -2288,6 +2350,7 @@ class Axes(_AxesBase):
 
         return col
 
+    @unpack_labeled_data(replace_all_args=True, label_namer=None)
     def stem(self, *args, **kwargs):
         """
         Create a stem plot.
@@ -2375,6 +2438,8 @@ class Axes(_AxesBase):
 
         return stem_container
 
+    @unpack_labeled_data(replace_names=['x', 'explode', 'labels', 'colors'],
+                         label_namer=None)
     def pie(self, x, explode=None, labels=None, colors=None,
             autopct=None, pctdistance=0.6, shadow=False, labeldistance=1.1,
             startangle=None, radius=None, counterclock=True,
@@ -2594,6 +2659,8 @@ class Axes(_AxesBase):
         else:
             return slices, texts, autotexts
 
+    @unpack_labeled_data(replace_names=["x", "y", "xerr", "yerr"],
+                         label_namer="y")
     @docstring.dedent_interpd
     def errorbar(self, x, y, yerr=None, xerr=None,
                  fmt='', ecolor=None, elinewidth=None, capsize=None,
@@ -2971,6 +3038,7 @@ class Axes(_AxesBase):
 
         return errorbar_container  # (l0, caplines, barcols)
 
+    @unpack_labeled_data(label_namer=None)
     def boxplot(self, x, notch=None, sym=None, vert=None, whis=None,
                 positions=None, widths=None, patch_artist=None,
                 bootstrap=None, usermedians=None, conf_intervals=None,
@@ -3640,6 +3708,10 @@ class Axes(_AxesBase):
         return dict(whiskers=whiskers, caps=caps, boxes=boxes,
                     medians=medians, fliers=fliers, means=means)
 
+    @unpack_labeled_data(replace_names=["x", "y", "s", "linewidths",
+                                        "edgecolors", "c", 'facecolor',
+                                        'facecolors', 'color'],
+                         label_namer="y")
     @docstring.dedent_interpd
     def scatter(self, x, y, s=20, c=None, marker='o', cmap=None, norm=None,
                 vmin=None, vmax=None, alpha=None, linewidths=None,
@@ -3847,6 +3919,7 @@ class Axes(_AxesBase):
 
         return collection
 
+    @unpack_labeled_data(replace_names=["x", "y"], label_namer="y")
     @docstring.dedent_interpd
     def hexbin(self, x, y, C=None, gridsize=100, bins=None,
                xscale='linear', yscale='linear', extent=None,
@@ -4347,6 +4420,8 @@ class Axes(_AxesBase):
         return qk
     quiverkey.__doc__ = mquiver.QuiverKey.quiverkey_doc
 
+    # args can by a combination if X, Y, U, V, C and all should be replaced
+    @unpack_labeled_data(replace_all_args=True, label_namer=None)
     def quiver(self, *args, **kw):
         if not self._hold:
             self.cla()
@@ -4357,10 +4432,14 @@ class Axes(_AxesBase):
         return q
     quiver.__doc__ = mquiver.Quiver.quiver_doc
 
+    # args can by either Y or y1,y2,... and all should be replaced
+    @unpack_labeled_data(replace_all_args=True, label_namer=None)
     def stackplot(self, x, *args, **kwargs):
         return mstack.stackplot(self, x, *args, **kwargs)
     stackplot.__doc__ = mstack.stackplot.__doc__
 
+    @unpack_labeled_data(replace_names=["x", "y", "u", "v", "start_points"],
+                         label_namer=None)
     def streamplot(self, x, y, u, v, density=1, linewidth=None, color=None,
                    cmap=None, norm=None, arrowsize=1, arrowstyle='-|>',
                    minlength=0.1, transform=None, zorder=1, start_points=None):
@@ -4381,6 +4460,8 @@ class Axes(_AxesBase):
         return stream_container
     streamplot.__doc__ = mstream.streamplot.__doc__
 
+    # args can be some combination of X, Y, U, V, C and all should be replaced
+    @unpack_labeled_data(replace_all_args=True, label_namer=None)
     @docstring.dedent_interpd
     def barbs(self, *args, **kw):
         """
@@ -4397,6 +4478,8 @@ class Axes(_AxesBase):
         self.autoscale_view()
         return b
 
+    @unpack_labeled_data(replace_names=["x", "y"], label_namer=None,
+                        positional_parameter_names=["x", "y", "c"])
     @docstring.dedent_interpd
     def fill(self, *args, **kwargs):
         """
@@ -4448,6 +4531,8 @@ class Axes(_AxesBase):
         self.autoscale_view()
         return patches
 
+    @unpack_labeled_data(replace_names=["x", "y1", "y2", "where"],
+                         label_namer=None)
     @docstring.dedent_interpd
     def fill_between(self, x, y1, y2=0, where=None, interpolate=False,
                      step=None,
@@ -4601,6 +4686,8 @@ class Axes(_AxesBase):
         self.autoscale_view()
         return collection
 
+    @unpack_labeled_data(replace_names=["y", "x1", "x2", "where"],
+                         label_namer=None)
     @docstring.dedent_interpd
     def fill_betweenx(self, y, x1, x2=0, where=None,
                       step=None, **kwargs):
@@ -4725,7 +4812,7 @@ class Axes(_AxesBase):
         return collection
 
     #### plotting z(x,y): imshow, pcolor and relatives, contour
-
+    @unpack_labeled_data(label_namer=None)
     @docstring.dedent_interpd
     def imshow(self, X, cmap=None, norm=None, aspect=None,
                interpolation=None, alpha=None, vmin=None, vmax=None,
@@ -4930,6 +5017,7 @@ class Axes(_AxesBase):
             C = C[:Ny - 1, :Nx - 1]
         return X, Y, C
 
+    @unpack_labeled_data(label_namer=None)
     @docstring.dedent_interpd
     def pcolor(self, *args, **kwargs):
         """
@@ -5206,6 +5294,7 @@ class Axes(_AxesBase):
         self.add_collection(collection, autolim=False)
         return collection
 
+    @unpack_labeled_data(label_namer=None)
     @docstring.dedent_interpd
     def pcolormesh(self, *args, **kwargs):
         """
@@ -5354,6 +5443,7 @@ class Axes(_AxesBase):
         self.add_collection(collection, autolim=False)
         return collection
 
+    @unpack_labeled_data(label_namer=None)
     @docstring.dedent_interpd
     def pcolorfast(self, *args, **kwargs):
         """
@@ -5541,6 +5631,7 @@ class Axes(_AxesBase):
         self.autoscale_view(tight=True)
         return ret
 
+    @unpack_labeled_data()
     def contour(self, *args, **kwargs):
         if not self._hold:
             self.cla()
@@ -5548,6 +5639,7 @@ class Axes(_AxesBase):
         return mcontour.QuadContourSet(self, *args, **kwargs)
     contour.__doc__ = mcontour.QuadContourSet.contour_doc
 
+    @unpack_labeled_data()
     def contourf(self, *args, **kwargs):
         if not self._hold:
             self.cla()
@@ -5588,6 +5680,7 @@ class Axes(_AxesBase):
 
     #### Data analysis
 
+    @unpack_labeled_data(replace_names=["x", 'weights'], label_namer="x")
     @docstring.dedent_interpd
     def hist(self, x, bins=10, range=None, normed=False, weights=None,
              cumulative=False, bottom=None, histtype='bar', align='mid',
@@ -6134,6 +6227,7 @@ class Axes(_AxesBase):
         else:
             return n, bins, cbook.silent_list('Lists of Patches', patches)
 
+    @unpack_labeled_data(replace_names=["x", "y", "weights"], label_namer=None)
     @docstring.dedent_interpd
     def hist2d(self, x, y, bins=10, range=None, normed=False, weights=None,
                cmin=None, cmax=None, **kwargs):
@@ -6227,6 +6321,7 @@ class Axes(_AxesBase):
 
         return h, xedges, yedges, pc
 
+    @unpack_labeled_data(replace_names=["x"], label_namer=None)
     @docstring.dedent_interpd
     def psd(self, x, NFFT=None, Fs=None, Fc=None, detrend=None,
             window=None, noverlap=None, pad_to=None,
@@ -6351,6 +6446,7 @@ class Axes(_AxesBase):
         else:
             return pxx, freqs, line
 
+    @unpack_labeled_data(replace_names=["x", "y"], label_namer="y")
     @docstring.dedent_interpd
     def csd(self, x, y, NFFT=None, Fs=None, Fc=None, detrend=None,
             window=None, noverlap=None, pad_to=None,
@@ -6462,6 +6558,7 @@ class Axes(_AxesBase):
         else:
             return pxy, freqs, line
 
+    @unpack_labeled_data(replace_names=["x"], label_namer=None)
     @docstring.dedent_interpd
     def magnitude_spectrum(self, x, Fs=None, Fc=None, window=None,
                            pad_to=None, sides=None, scale=None,
@@ -6561,6 +6658,7 @@ class Axes(_AxesBase):
 
         return spec, freqs, lines[0]
 
+    @unpack_labeled_data(replace_names=["x"], label_namer=None)
     @docstring.dedent_interpd
     def angle_spectrum(self, x, Fs=None, Fc=None, window=None,
                        pad_to=None, sides=None, **kwargs):
@@ -6638,6 +6736,7 @@ class Axes(_AxesBase):
 
         return spec, freqs, lines[0]
 
+    @unpack_labeled_data(replace_names=["x"], label_namer=None)
     @docstring.dedent_interpd
     def phase_spectrum(self, x, Fs=None, Fc=None, window=None,
                        pad_to=None, sides=None, **kwargs):
@@ -6715,6 +6814,7 @@ class Axes(_AxesBase):
 
         return spec, freqs, lines[0]
 
+    @unpack_labeled_data(replace_names=["x", "y"], label_namer=None)
     @docstring.dedent_interpd
     def cohere(self, x, y, NFFT=256, Fs=2, Fc=0, detrend=mlab.detrend_none,
                window=mlab.window_hanning, noverlap=0, pad_to=None,
@@ -6782,6 +6882,7 @@ class Axes(_AxesBase):
 
         return cxy, freqs
 
+    @unpack_labeled_data(replace_names=["x"], label_namer=None)
     @docstring.dedent_interpd
     def specgram(self, x, NFFT=None, Fs=None, Fc=None, detrend=None,
                  window=None, noverlap=None,
@@ -7099,6 +7200,7 @@ class Axes(_AxesBase):
                                                  integer=True))
         return im
 
+    @unpack_labeled_data(replace_names=["dataset"], label_namer=None)
     def violinplot(self, dataset, positions=None, vert=True, widths=0.5,
                    showmeans=False, showextrema=True, showmedians=False,
                    points=100, bw_method=None):
