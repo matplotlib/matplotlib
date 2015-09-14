@@ -4932,13 +4932,13 @@ NavigationToolbar2_init(NavigationToolbar2 *self, PyObject *args, PyObject *kwds
 
     NSButton* buttons[7];
 
-    NSString* images[7] = {@"home.png",
-                           @"back.png",
-                           @"forward.png",
-                           @"move.png",
-                           @"zoom_to_rect.png",
-                           @"subplots.png",
-                           @"filesave.png"};
+    NSString* images[7] = {@"home.pdf",
+                           @"back.pdf",
+                           @"forward.pdf",
+                           @"move.pdf",
+                           @"zoom_to_rect.pdf",
+                           @"subplots.pdf",
+                           @"filesave.pdf"};
 
     NSString* tooltips[7] = {@"Reset original view",
                              @"Back to  previous view",
