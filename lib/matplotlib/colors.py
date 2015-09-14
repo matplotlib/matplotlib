@@ -57,6 +57,7 @@ import re
 import numpy as np
 from numpy import ma
 import matplotlib.cbook as cbook
+import operator
 
 cnames = {
     'aliceblue':            '#F0F8FF',
@@ -970,6 +971,125 @@ class PiecewiseLinearNorm(Normalize):
 
     Normalizes data into the ``[0.0, 1.0]`` interval.
     """
+    # TODO rewrite the internals of this class once we support OrderedDicts
+    # i.e. after we drop support for python 2.6
+    def __init__(self, stops=None):
+        """Normalize data linearly between the defined stop points.
+        Use this as more generic form of ``DivergingNorm``
+
+        Parameters
+        ----------
+        stops : dict-like, optional
+            Accepts a dictionary or anything that can get converted to a
+            dictionary which maps the space [0.0, 1.0] to data point, i.e. key
+            value pairs.
+
+        Examples
+        --------
+        Note this example is equivalent to the DivergingNorm example.
+        >>> import matplotlib.colors as mcolors
+        >>> offset = mcolors.PiecewiseLinearNorm({0.: -2., 0.5: 0., 1.=4.})
+        >>> data = [-2., -1., 0., 1., 2., 3., 4.]
+        >>> offset(data)
+        array([0., 0.25, 0.5, 0.625, 0.75, 0.875, 1.0])
+
+        """
+        self._set_stops(stops)
+
+    @property
+    def vmin(self):
+        try:
+            if self._stops[0][0] == 0:
+                return self._stops[0][1]
+        except IndexError:
+            return None
+
+    @vmin.setter
+    def vmin(self, vmin):
+        try:
+            if self._stops[0][0] == 0:
+                self._stops[0] = (self._stops[0][0], vmin)
+                return
+        except IndexError:
+            pass
+        self.append_stop(0., vmin)
+
+    @property
+    def vmax(self):
+        try:
+            if self._stops[-1][0] == 1:
+                return self._stops[-1][1]
+        except IndexError:
+            return None
+
+    @vmax.setter
+    def vmax(self, vmax):
+        try:
+            if self._stops[-1][0] == 1:
+                self._stops[-1] = (self._stops[-1][0], vmax)
+                return
+        except IndexError:
+            pass
+        self.append_stop(1., vmax)
+
+    # TODO Change this to a property when we drop 2.6 and use Ordered Dicts
+    def _set_stops(self, stops):
+        if not stops:
+            self._stops = []
+            return
+
+        stops = dict(stops)
+        self._stops = sorted(stops.items(), key=operator.itemgetter(0))
+        map_points, data_points = zip(*self._stops)
+        if not np.all(np.diff(data_points) > 0):
+            raise ValueError("stops must increase monotonically")
+
+    def append_stop(self, cmap_fraction, data_value):
+        i = -1
+        for i, (map_point, data_point) in enumerate(self._stops):
+            if map_point >= cmap_fraction:
+                d1 = data_point  # the current index
+                break
+        else:
+            i += 1  # the index to insert before
+            d1 = np.inf
+
+        if i > 0:
+            d0 = self._stops[i-1][1]
+        else:
+            d0 = -np.inf
+
+        if not (d0 < data_value < d1):
+            raise ValueError(('Stops must increase monotonically, due to the '
+                             + 'stops already set, the cmap_fraction specified'
+                             + ' (%f) means that the data_value must lie '
+                             + 'between %f and %f, but %f given') %
+                             (cmap_fraction, d0, d1, data_value))
+
+        self._stops.insert(i, (cmap_fraction, data_value))
+
+    def __call__(self, value, clip=None):
+        """Map value to the interval [0, 1]. The clip argument is unused."""
+
+        result, is_scalar = self.process_value(value)
+        self.autoscale_None(result)
+
+        map_points, data_points = zip(*self._stops)
+        result = ma.masked_array(np.interp(result, data_points, map_points),
+                                 mask=ma.getmask(result))
+        if is_scalar:
+            result = np.atleast_1d(result)[0]
+        return result
+
+    def autoscale_None(self, A):
+        """Ensures we have the upper and lower bounds set, using the data A"""
+        if len(self._stops) == 0 or self._stops[0][0] != 0:
+            self.append_stop(0., ma.min(A))
+        if self._stops[-1][0] != 1:
+            self.append_stop(1., ma.max(A))
+
+
+class DivergingNorm(PiecewiseLinearNorm):
     def __init__(self, vmin=None, vcenter=None, vmax=None):
         """Normalize data with an offset midpoint
 
@@ -997,53 +1117,14 @@ class PiecewiseLinearNorm(Normalize):
         >>> data = [-2., -1., 0., 1., 2., 3., 4.]
         >>> offset(data)
         array([0., 0.25, 0.5, 0.625, 0.75, 0.875, 1.0])
-
-        """
-
-        self.vmin = vmin
-        self.vcenter = vcenter
-        self.vmax = vmax
-
-    def __call__(self, value, clip=None):
-        """Map value to the interval [0, 1]. The clip argument is unused."""
-
-        result, is_scalar = self.process_value(value)
-
-        self.autoscale_None(result)
-        vmin, vcenter, vmax = self.vmin, self.vcenter, self.vmax
-        if vmin == vmax == vcenter:
-            result.fill(0)
-        elif not vmin <= vcenter <= vmax:
-            raise ValueError("minvalue must be less than or equal to "
-                             "centervalue which must be less than or "
-                             "equal to maxvalue")
-        else:
-            vmin = float(vmin)
-            vcenter = float(vcenter)
-            vmax = float(vmax)
-            # in degenerate cases, prefer the center value to the extremes
-            degen = (result == vcenter) if vcenter == vmax else None
-
-            x, y = [vmin, vcenter, vmax], [0, 0.5, 1]
-            result = ma.masked_array(np.interp(result, x, y),
-                                     mask=ma.getmask(result))
-            if degen is not None:
-                result[degen] = 0.5
-
-        if is_scalar:
-            result = np.atleast_1d(result)[0]
-        return result
-
-    def autoscale_None(self, A):
-        ' autoscale only None-valued vmin or vmax'
-        if self.vmin is None and np.size(A) > 0:
-            self.vmin = ma.min(A)
-
-        if self.vmax is None and np.size(A) > 0:
-            self.vmax = ma.max(A)
-
-        if self.vcenter is None:
-            self.vcenter = (self.vmax + self.vmin) * 0.5
+        stops = {}
+        if vmin is not None:
+            stops[0.] = vmin
+        if vcenter is not None:
+            stops[0.5] = vcenter
+        if vmax is not None:
+            stops[1.] = vmax
+        super(DivergingNorm, self).__init__(stops)
 
 
 class LogNorm(Normalize):
