@@ -9,17 +9,18 @@ choose the number of ticks and their spacing.
 In this case may be better to determine the tick label from the value
 at the tick. The following example shows how to do this.
 
-NB: You may want to combine the solution below with 
-`xaxis.set_major_locator(MaxNLocator(integer=True))` to ensure
-that tick values are always at integer values, and therefore always use
-the appropriate label.
+NB: The MaxNLocator is used here to ensure that the tick
+values take integer values. As such, we need to catch
+any IndexErrors in the format function where we have not
+defined a label for that particular tick
 
 """
 
 
 
 import matplotlib.pyplot as plt
-from matplotlib.ticker import FuncFormatter
+from matplotlib.ticker import FuncFormatter, MaxNLocator
+
 
 fig = plt.figure()
 ax = fig.add_subplot(111)
@@ -27,10 +28,15 @@ xs = range(26)
 ys = range(26)
 labels = list('abcdefghijklmnopqrstuvwxyz')
 
-def format_fn(tick_val, tick_pos): 
-    return labels[int(tick_val)]
+def format_fn(tick_val, tick_pos):
+    try:
+        return labels[int(tick_val)]
+    except IndexError:
+        # no label for this tick
+        return ''
 
 ax.xaxis.set_major_formatter(FuncFormatter(format_fn))
+ax.xaxis.set_major_locator(MaxNLocator(integer=True))
 
 ax.plot(xs, ys)
 plt.show()
