@@ -3300,7 +3300,7 @@ class _AxesBase(martist.Artist):
         self.set_xlim((xmin, xmax))
         self.set_ylim((ymin, ymax))
 
-    def _set_view_from_bbox(self, bbox, original_view, direction='in',
+    def _set_view_from_bbox(self, bbox, original_view=None, direction='in',
                             mode=None, twinx=False, twiny=False):
         """
         Update view from a selection bbox.
@@ -3318,7 +3318,8 @@ class _AxesBase(martist.Artist):
 
         original_view : any
             A view saved from before initiating the selection, the result of
-            calling :meth:`_get_view`.
+            calling :meth:`_get_view`. If set to none, _get_view will be called
+            to obtain current view state.
 
         direction : str
             The direction to apply the bounding box.
@@ -3340,7 +3341,10 @@ class _AxesBase(martist.Artist):
 
         lastx, lasty, x, y = bbox
 
-        x0, y0, x1, y1 = original_view
+        if(original_view is None):
+            original_view = self._getview()
+        else:
+            x0, x1, y0, y1 = original_view
 
         # zoom to rect
         inverse = self.transData.inverted()
