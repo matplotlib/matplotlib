@@ -53,7 +53,7 @@ Windows
 
 If you don't already have Python installed, we recommend using
 one of the `scipy-stack compatible Python distributions
-<http://www.scipy.org/install.html>`_ such as Python(x,y),
+<http://www.scipy.org/install.html>`_ such as WinPython, Python(x,y),
 Enthought Canopy, or Continuum Anaconda, which have matplotlib and
 many of its dependencies, plus other useful packages, preinstalled.
 
@@ -62,8 +62,9 @@ you will also need to install compatible versions of
 `setuptools <https://pypi.python.org/pypi/setuptools/>`_,
 `numpy <https://pypi.python.org/pypi/numpy/>`_,
 `python-dateutil <https://pypi.python.org/pypi/python-dateutil/>`_,
-`pytz <https://pypi.python.org/pypi/pytz>`_, and
-`pyparsing <https://pypi.python.org/pypi/pyparsing/>`_
+`pytz <https://pypi.python.org/pypi/pytz>`_,
+`pyparsing <https://pypi.python.org/pypi/pyparsing/>`_, and
+`cycler <https://pypi.python.org/pypi/Cycler>`_
 in addition to
 `matplotlib <http://matplotlib.org/downloads.html>`_.
 
