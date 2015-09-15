@@ -124,35 +124,11 @@ a multi-line `prop_cycle` parameter.
 .. plot:: mpl_examples/color/color_cycle_demo.py
 
 
-Allow Artists to Display Pixel Data in Cursor
----------------------------------------------
-
-Adds `get_pixel_data` and `format_pixel_data` methods to artists
-which can be used to add zdata to the cursor display
-in the status bar.  Also adds an implementation for Images.
-
-
-Auto-wrapping Text
-------------------
-
-Added the keyword argument "wrap" to Text, which automatically breaks
-long lines of text when being drawn.  Works for any rotated text,
-different modes of alignment, and for text that are either labels or
-titles.  This breaks at the ``Figure``, not ``Axes`` edge.
-
-.. plot::
-
-   fig, ax = plt.subplots()
-   fig.patch.set_color('.9')
-   ax.text(.5, .75,
-           "This is a really long string that should be wrapped so that "
-           "it does not go outside the figure.", wrap=True)
-
-New Color maps
+New Colormaps
 --------------
 
-All four of the color maps proposed as the new default are available
-as ``'viridis'`` (the new default), ``'magma'``, ``'plasma'``, and
+All four of the colormaps proposed as the new default are available
+as ``'viridis'`` (the new default in 2.0), ``'magma'``, ``'plasma'``, and
 ``'inferno'``
 
 .. plot::
@@ -176,6 +152,25 @@ as ``'viridis'`` (the new default), ``'magma'``, ``'plasma'``, and
        demo(ax, **sty)
 
    fig.tight_layout()
+
+
+Styles
+------
+
+Several new styles have been added, including many styles from the
+Seaborn project.  Additionally, in order to prep for the upcoming 2.0
+style-change release, a 'classic' and 'default' style has been added.
+For this release, the 'default' and 'classic' styles are identical.
+By using them now in your scripts, you can help ensure a smooth
+transition during future upgrades of matplotlib, so that you can
+upgrade to the snazzy new defaults when you are ready! ::
+
+    import matplotlib.style
+    matplotlib.style.use('classic')
+
+The 'default' style will give you matplotlib's latest plotting styles::
+
+    matplotlib.style.use('default')
 
 
 Widgets
@@ -216,9 +211,59 @@ Adds keyboard modifiers for:
 - Make the initial point the center of the shape (default 'control')
 - Square and center can be combined
 
+Allow Artists to Display Pixel Data in Cursor
+`````````````````````````````````````````````
+
+Adds `get_pixel_data` and `format_pixel_data` methods to artists
+which can be used to add zdata to the cursor display
+in the status bar.  Also adds an implementation for Images.
+
 
 New plotting features
 ---------------------
+
+
+Auto-wrapping Text
+------------------
+
+Added the keyword argument "wrap" to Text, which automatically breaks
+long lines of text when being drawn.  Works for any rotated text,
+different modes of alignment, and for text that are either labels or
+titles.  This breaks at the ``Figure``, not ``Axes`` edge.
+
+.. plot::
+
+   fig, ax = plt.subplots()
+   fig.patch.set_color('.9')
+   ax.text(.5, .75,
+           "This is a really long string that should be wrapped so that "
+           "it does not go outside the figure.", wrap=True)
+
+Contour plot corner masking
+```````````````````````````
+
+Ian Thomas rewrote the C++ code that calculates contours to add support for
+corner masking.  This is controlled by a new keyword argument
+``corner_mask`` in the functions :func:`~matplotlib.pyplot.contour` and
+:func:`~matplotlib.pyplot.contourf`.  The previous behaviour, which is now
+obtained using ``corner_mask=False``, was for a single masked point to
+completely mask out all four quads touching that point.  The new behaviour,
+obtained using ``corner_mask=True``, only masks the corners of those
+quads touching the point; any triangular corners comprising three unmasked
+points are contoured as usual.  If the ``corner_mask`` keyword argument is not
+specified, the default value is taken from rcParams.
+
+.. plot:: mpl_examples/pylab_examples/contour_corner_mask.py
+
+
+Mostly unified linestyles for `Line2D`, `Patch` and `Collection`
+`````````````````````````````````````````````````````````````````
+
+The handling of linestyles for Lines, Patches and Collections has been
+unified.  Now they all support defining linestyles with short symbols,
+like `"--"`, as well as with full names, like ``"dashed"``. Also the
+definition using a dash pattern (``(0., [3., 3.])``) is supported for all
+methods using `Line2D`, `Patch` or ``Collection``.
 
 
 Legend marker order
@@ -226,7 +271,6 @@ Legend marker order
 
 Added ability to place the label before the marker in a legend box with
 ``markerfirst`` keyword
-
 
 
 Support for legend for PolyCollection and stackplot
@@ -273,10 +317,9 @@ This is particularly useful for plotting pre-binned histograms.
 Square Plot
 ```````````
 
-
 Implemented square plots feature as a new parameter in the axis
 function. When argument 'square' is specified, equal scaling is set,
-and the limits are set such that xmax-xmin == ymax-ymin.
+and the limits are set such that ``xmax-xmin == ymax-ymin``.
 
 .. plot::
 
@@ -293,13 +336,14 @@ around the image.
 
 .. plot::
 
-   data = np.random.random( [500, 500] )
+   data = np.random.random([500, 500])
    plt.figimage(data, resize=True)
 
 Updated Figure.savefig()
 ````````````````````````
 
-Added support to save the figure with the same dpi as the figure on the screen using dpi='figure'
+Added support to save the figure with the same dpi as the figure on the
+screen using `dpi='figure'`.
 
 Example::
 
@@ -312,8 +356,8 @@ Updated Table and to control edge visibility
 ````````````````````````````````````````````
 
 Added the ability to toggle the visibility of lines in Tables.
-Functionality added to the table() factory function under the keyword
-argument "edges".  Values can be the strings "open", "closed",
+Functionality added to the :func:`pyplot.table` factory function under
+the keyword argument "edges".  Values can be the strings "open", "closed",
 "horizontal", "vertical" or combinations of the letters "L", "R", "T",
 "B" which represent left, right, top, and bottom respectively.
 
@@ -357,22 +401,6 @@ Added center and frame kwargs to pie
 These control where the center of the pie graph are and if
 the Axes frame is shown.
 
-Contour plot corner masking
-```````````````````````````
-
-Ian Thomas rewrote the C++ code that calculates contours to add support for
-corner masking.  This is controlled by a new keyword argument
-``corner_mask`` in the functions :func:`~matplotlib.pyplot.contour` and
-:func:`~matplotlib.pyplot.contourf`.  The previous behaviour, which is now
-obtained using ``corner_mask=False``, was for a single masked point to
-completely mask out all four quads touching that point.  The new behaviour,
-obtained using ``corner_mask=True``, only masks the corners of those
-quads touching the point; any triangular corners comprising three unmasked
-points are contoured as usual.  If the ``corner_mask`` keyword argument is not
-specified, the default value is taken from rcParams.
-
-.. plot:: mpl_examples/pylab_examples/contour_corner_mask.py
-
 Fixed 3D filled contour plot polygon rendering
 ``````````````````````````````````````````````
 
@@ -398,28 +426,39 @@ backends.
 
 DateFormatter strftime
 ``````````````````````
-Date formatters' (:class:`~matplotlib.dates.DateFormatter`)
+:class:`~matplotlib.dates.DateFormatter`s'
 :meth:`~matplotlib.dates.DateFormatter.strftime` method will format
 a :class:`datetime.datetime` object with the format string passed to
 the formatter's constructor. This method accepts datetimes with years
 before 1900, unlike :meth:`datetime.datetime.strftime`.
 
+
 Artist-level {get,set}_usetex for text
 ``````````````````````````````````````
 
-Add ``{get,set}_usetex`` methods to `text.Text` objects which allow
-artist-level control of LaTeX rendering vs the internal mathtex
+Add ``{get,set}_usetex`` methods to :class:`~matplotlib.text.Text` objects
+which allow artist-level control of LaTeX rendering vs the internal mathtex
 rendering.
+
+
+`ax.remove()` works as expected
+```````````````````````````````
+
+As with artists added to an :class:`~matplotlib.axes.Axes`,
+`Axes` objects can be removed from their figure via
+:meth:`~matplotlib.axes.Axes.remove()`.
+
 
 API Consistency fix within Locators set_params() function
 `````````````````````````````````````````````````````````
 
-set_params() function, which sets parameters within a Locator type
-instance, is now available to all Locator types. The implementation
+:meth:`~matplotlib.ticker.Locator.set_params` function, which sets parameters
+within a :class:`~matplotlib.ticker.Locator` type
+instance, is now available to all `Locator` types. The implementation
 also prevents unsafe usage by strictly defining the parameters that a
 user can set.
 
-To use, simply call ``set_params()`` on a Locator instance with desired arguments:
+To use, call ``set_params()`` on a `Locator` instance with desired arguments:
 ::
 
     loc = matplotlib.ticker.LogLocator()
@@ -428,12 +467,6 @@ To use, simply call ``set_params()`` on a Locator instance with desired argument
     # The below will error, as there is no such parameter for LogLocator
     # named foo
     # loc.set_params(foo='bar')
-
-`ax.remove()` works as expected
-```````````````````````````````
-
-As with artists added to as `Axes`, `Axes` can be removed from their
-figure via ``ax.remove()``
 
 
 Date Locators
@@ -452,15 +485,6 @@ The Date Locators can now be used easily without creating axes ::
     loc = YearLocator()
     values = loc.tick_values(t0, tf)
 
-Mostly unified linestyles for `Line2D`, `Patche` and `Collection`
-`````````````````````````````````````````````````````````````````
-
-The handling of linestyles for Lines, Patches and Collections has been
-unified.  Now they all support defining linestyles with short symbols,
-like `"--"`, as well as with full names, like ``"dashed"``. Also the
-definition using a dash pattern (``(0., [3., 3.])``) is supported for all
-methods using `Line2D`, `Patche` or ``Collection*``.
-
 OffsetBoxes now support clipping
 ````````````````````````````````
 
@@ -477,7 +501,7 @@ clipped to the bounds of the `DrawingArea`.
 OffsetBoxes now considered by tight_layout
 ``````````````````````````````````````````
 
-When `pyplot.tight_layout()` or `Figure.tight_layout()`
+When `~matplotlib.pyplot.tight_layout()` or `Figure.tight_layout()`
 or `GridSpec.tight_layout()` is called, `OffsetBoxes` that are
 anchored outside the axes will not get chopped out. The `OffsetBoxes` will
 also not get overlapped by other axes in case of multiple subplots.
@@ -506,18 +530,17 @@ Example::
   fignum_exists('figure') #true
 
 
-
 ToolManager
 -----------
 
-Federico Ariza wrote the new `matplotlib.backend_managers.ToolManager`
+Federico Ariza wrote the new `~matplotlib.backend_managers.ToolManager`
 that comes as replacement for `NavigationToolbar2`
 
 `ToolManager` offers a new way of looking at the user interactions
 with the figures.  Before we had the `NavigationToolbar2` with its own
 tools like `zoom/pan/home/save/...` and also we had the shortcuts like
 `yscale/grid/quit/....` `Toolmanager` relocate all those actions as
-`Tools` (located in `matplotlib.backend_tools`), and defines a way to
+`Tools` (located in `~matplotlib.backend_tools`), and defines a way to
 `access/trigger/reconfigure` them.
 
 The `Toolbars` are replaced for `ToolContainers` that are just GUI
@@ -526,8 +549,8 @@ backends include a `ToolContainer` called `toolbar`
 
 
 .. note::
-    At the moment we release this primarily for feedback purposes and should
-    get treated as experimental until further notice as API changes will occur.
+    At the moment, we release this primarily for feedback purposes and should
+    be treated as experimental until further notice as API changes will occur.
     For the moment the `ToolManager` works only with the `GTK3` and `Tk` backends.
     Make sure you use one of those.
     Port for the rest of the backends is comming soon.
@@ -586,112 +609,37 @@ that are called automatically whenever it is toggled.
 
 A full example is located in :ref:`user_interfaces-toolmanager`
 
-Styles
-------
-
-Several new styles have been added, including many styles from the
-Seaborn project.  Additionally, in order to prep for the upcoming 2.0
-style-change release, a 'classic' and 'default' style has been added.
-For this release, the 'default' and 'classic' styles are identical.
-By using them now in your scripts, you can help ensure a smooth
-transition during future upgrades of matplotlib, so that you can
-upgrade to the snazzy new defaults when you are ready! ::
-
-    import matplotlib.style
-    matplotlib.style.use('classic')
-
-The 'default' style will give you matplotlib's latest plotting styles::
-
-    matplotlib.style.use('default')
-
 
 
 Configuration (rcParams)
 ------------------------
 
+Some parameters have been added, others have been improved.
 
-Fixed labelpad in Axis3D
-````````````````````````
-
-Axis3D now looks at xaxis.labelpad (from rcParams or set by
-``set_xlabel('X LABEL', labelpad=30)`` or ``ax.zaxis.labelpad=20)`` to
-determine the position of axis labels in 3D plots.
-
-cbook.is_sequence_of_strings recognizes string objects
-``````````````````````````````````````````````````````
-
-This is primarily how pandas stores a sequence of strings ::
-
-    import pandas as pd
-    import matplotlib.cbook as cbook
-
-    a = np.array(['a', 'b', 'c'])
-    print(cbook.is_sequence_of_strings(a))  # True
-
-    a = np.array(['a', 'b', 'c'], dtype=object)
-    print(cbook.is_sequence_of_strings(a))  # True
-
-    s = pd.Series(['a', 'b', 'c'])
-    print(cbook.is_sequence_of_strings(s))  # True
-
-Previously, the last two prints returned false.
-
-Added ``errorbar.capsize`` key to rcParams
-``````````````````````````````````````````
-Controls the length of end caps on error bars. If set to zero, errorbars
-are turned off by default.
-
-Added ``xtick.minor.visible`` and ``ytick.minor.visible`` key to rcParams
-`````````````````````````````````````````````````````````````````````````
-Two new keys to control the minor ticks on x/y axis respectively, default set to ``False`` (no minor ticks on the axis).
-
-When ``True``, the minor ticks are shown and located via a ``mticker.AutoMinorLocator()``.
-
-Added "legend.framealpha" key to rcParams
-`````````````````````````````````````````
-Added a key and the corresponding logic to control the default transparency of
-legend frames. This feature was written into the docstring of axes.legend(),
-but not yet implemented.
-
-Added "figure.titlesize" and "figure.titleweight" keys to rcParams
-``````````````````````````````````````````````````````````````````
-
-Two new keys were added to rcParams to control the default font size
-and weight used by the figure title (as emitted by
-``pyplot.suptitle()``).
-
-Added ``legend.facecolor`` and ``legend.edgecolor`` keys to rcParams
-````````````````````````````````````````````````````````````````````
-
-The new keys control colors (background and edge) of legend patches.
-The value ``'inherit'`` for these rcParams falls uses the value of
-``axes.facecolor`` and ``axes.edgecolor``.
-
-
-``image.composite_image`` added to rcParams
-```````````````````````````````````````````
-Controls whether vector graphics backends (i.e. PDF, PS, and SVG) combine
-multiple images on a set of axes into a single composite image.  Saving each
-image individually can be useful if you generate vector graphics files in
-matplotlib and then edit the files further in Inkscape or other programs.
-
-Added ``markers.fillstyle`` key to rcParams
-```````````````````````````````````````````
-Controls the default fillstyle of markers. Possible values are ``'full'`` (the
-default), ``'left'``, ``'right'``, ``'bottom'``, ``'top'`` and ``'none'``.
-
-Added "toolmanager" to "toolbar" possible values
-````````````````````````````````````````````````
-
-The new value enables the use of ``ToolManager``.  Note at the moment we
-release this for feedback and should get treated as experimental until further
-notice.
-
-
-Added ``axes.labelpad``
-```````````````````````
-
-This new value controls the space between the axis and the label
+=========================  ==================================================
+ Parameter                  Description
+=========================  ==================================================
+`{x,y}axis.labelpad`        mplot3d now respects these parameters
+`axes.labelpad`             Default space between the axis and the label
+`errorbar.capsize`          Default length of end caps on error bars
+`{x,y}tick.minor.visible`   Default visibility of minor x/y ticks
+`legend.framealpha`         Default transparency of the legend frame box
+`legend.facecolor`          Default facecolor of legend frame box (or
+                            ``'inherit'`` from `axes.facecolor`)
+`legend.edgecolor`          Default edgecolor of legend frame box (or
+                            ``'inherit'`` from `axes.edgecolor`)
+`figure.titlesize`          Default font size for figure suptitles
+`figure.titleweight`        Default font weight for figure suptitles
+`image.composite_image`     Whether a vector graphics backend should composite
+                            several images into a single image or not when
+                            saving. Useful when needing to edit the files
+                            further in Inkscape or other programs.
+`markers.fillstyle`         Default fillstyle of markers. Possible values are
+                            ``'full'`` (the default), ``'left'``, ``'right'``,
+                            ``'bottom'``, ``'top'`` and ``'none'``
+`toolbar`                   Added ``'toolmanager'`` as a valid value, enabling
+                            the experimental ``ToolManager`` feature.
+=========================  ===================================================
 
 Backends
 --------
@@ -719,6 +667,26 @@ explained in the comment at the beginning of the example
 `examples\user_interfaces\embedding_in_wx2.py`.
 
 
+cbook.is_sequence_of_strings recognizes string objects
+------------------------------------------------------
+
+This is primarily how pandas stores a sequence of strings ::
+
+    import pandas as pd
+    import matplotlib.cbook as cbook
+
+    a = np.array(['a', 'b', 'c'])
+    print(cbook.is_sequence_of_strings(a))  # True
+
+    a = np.array(['a', 'b', 'c'], dtype=object)
+    print(cbook.is_sequence_of_strings(a))  # True
+
+    s = pd.Series(['a', 'b', 'c'])
+    print(cbook.is_sequence_of_strings(s))  # True
+
+Previously, the last two prints returned false.
+
+
 New ``close-figs`` argument for plot directive
 ----------------------------------------------
 
@@ -731,13 +699,14 @@ when using ``plot_directive``.
 Support for URL string arguments to ``imread``
 ----------------------------------------------
 
-The ``imread`` function now accepts URL strings that point to remote PNG
-files. This circumvents the generation of a HTTPResponse object directly.
+The :func:`~matplotlib.pyplot.imread` function now accepts URL strings that
+point to remote PNG files. This circumvents the generation of a
+HTTPResponse object directly.
 
 Display hook for animations in the IPython notebook
 ---------------------------------------------------
 
-`matplotlib.animation.Animation` instances gained a ``_repr_html_`` method
+`~matplotlib.animation.Animation` instances gained a ``_repr_html_`` method
 to support inline display of animations in the notebook. The method used
 to display is controlled by the ``animation.html`` rc parameter, which
 currently supports values of ``none`` and ``html5``. ``none`` is the
