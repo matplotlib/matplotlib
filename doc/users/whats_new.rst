@@ -121,7 +121,7 @@ You can even multiply cyclers, which is like using `itertools.product()`
 on two or more property cycles. Remember to use parentheses if writing
 a multi-line `prop_cycle` parameter.
 
-..plot:: mpl_examples/color/color_cycle_demo.py
+.. plot:: mpl_examples/color/color_cycle_demo.py
 
 
 Allow Artists to Display Pixel Data in Cursor
