@@ -62,9 +62,8 @@ you will also need to install compatible versions of
 `setuptools <https://pypi.python.org/pypi/setuptools/>`_,
 `numpy <https://pypi.python.org/pypi/numpy/>`_,
 `python-dateutil <https://pypi.python.org/pypi/python-dateutil/>`_,
-`pytz <https://pypi.python.org/pypi/pytz>`_,
-`pyparsing <https://pypi.python.org/pypi/pyparsing/>`_ and
-`six <https://pypi.python.org/pypi/six>`_
+`pytz <https://pypi.python.org/pypi/pytz>`_, and
+`pyparsing <https://pypi.python.org/pypi/pyparsing/>`_
 in addition to
 `matplotlib <http://matplotlib.org/downloads.html>`_.
 
@@ -191,19 +190,12 @@ Required Dependencies
 :term:`dateutil` 1.1 or later
     Provides extensions to python datetime handling.  If using pip,
     easy_install or installing from source, the installer will attempt
-    to download and install `python_dateutil` from PyPI.  Note that
-    `python_dateutil` also depends on `six`.  `pip` and other package
-    managers should handle installing that secondary dependency
-    automatically.
+    to download and install `python_dateutil` from PyPI.
 
 `pyparsing`
     Required for matplotlib's mathtext math rendering support.  If
     using pip, easy_install or installing from source, the installer
     will attempt to download and install `pyparsing` from PyPI.
-
-six 1.4 or later
-    Python 2/3 compatibility library.  This is also a dependency of
-    :term:`dateutil`.
 
 libpng 1.2 (or later)
     library for loading and saving :term:`PNG` files (`download
@@ -276,6 +268,11 @@ Required libraries that ship with matplotlib
 
 `ttconv`
    truetype font utility
+
+six 1.9.0
+    Python 2/3 compatibility library.  Do not use this in third-party
+    code.
+
 
 .. _build_linux:
 
