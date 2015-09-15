@@ -155,7 +155,7 @@ regardless of that parameter. Now the object can and does clip the child `Artist
 
 You can turn off the clipping on a per-child basis using `child.set_clip_on(False)`.
 
-Add salt to cilpPath id
+Add salt to clipPath id
 ```````````````````````
 
 Add salt to the hash used to determine the id of the ``clipPath``
@@ -292,7 +292,7 @@ Removed `Lena` images from sample_data
 ``````````````````````````````````````
 
 The ``lena.png`` and ``lena.jpg`` images have been removed from
-matplotlibs sample_data directory. The images are also no longer
+matplotlib's sample_data directory. The images are also no longer
 available from `matplotlib.cbook.get_sample_data`. We suggest using
 `matplotlib.cbook.get_sample_data('grace_hopper.png')` or
 `matplotlib.cbook.get_sample_data('grace_hopper.jpg')` instead.

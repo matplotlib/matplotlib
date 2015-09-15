@@ -112,7 +112,7 @@ Added ``axes.prop_cycle`` key to rcParams
 This is a more generic form of the now-deprecated ``axes.color_cycle`` param.
 Now, we can cycle more than just colors, but also linestyles, hatches,
 and just about any other artist property. Cycler notation is used for
-defining proprty cycles. Adding cyclers together will be like you are
+defining property cycles. Adding cyclers together will be like you are
 `zip()`-ing together two or more property cycles together::
 
     axes.prop_cycle: cycler('color', 'rgb') + cycler('lw', [1, 2, 3])
@@ -303,9 +303,9 @@ Added support to save the figure with the same dpi as the figure on the screen u
 
 Example::
 
-   f = plt.figure(dpi=25)				# dpi set to 25
+   f = plt.figure(dpi=25)               # dpi set to 25
    S = plt.scatter([1,2,3],[4,5,6])
-   f.savefig('output.png', dpi='figure')	# output savefig dpi set to 25 (same as figure)
+   f.savefig('output.png', dpi='figure')    # output savefig dpi set to 25 (same as figure)
 
 
 Updated Table and to control edge visibility
