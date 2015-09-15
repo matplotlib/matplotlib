@@ -214,8 +214,11 @@ def boilerplate_gen():
             has_data = 'data' in inspect.signature(base_func).parameters
             work_func = inspect.unwrap(base_func)
 
-            args, varargs, varkw, defaults = inspect.getargspec(work_func)
-
+            if six.PY2:
+                args, varargs, varkw, defaults = inspect.getargspec(work_func)
+            else:
+                (args, varargs, varkw, defaults, kwonlyargs, kwonlydefs,
+                    annotations) = inspect.getfullargspec(work_func)
             args.pop(0)  # remove 'self' argument
             if defaults is None:
                 defaults = ()
