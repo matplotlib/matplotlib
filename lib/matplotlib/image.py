@@ -1316,7 +1316,7 @@ def imread(fname, format=None):
     if cbook.is_string_like(fname):
         parsed = urlparse(fname)
         # If fname is a URL, download the data
-        if parsed.scheme != '':
+        if len(parsed.scheme) > 1:
             fd = BytesIO(urlopen(fname).read())
             return handler(fd)
         else:
