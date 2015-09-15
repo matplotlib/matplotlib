@@ -616,30 +616,43 @@ Configuration (rcParams)
 
 Some parameters have been added, others have been improved.
 
-=========================  ==================================================
- Parameter                  Description
-=========================  ==================================================
-`{x,y}axis.labelpad`        mplot3d now respects these parameters
-`axes.labelpad`             Default space between the axis and the label
-`errorbar.capsize`          Default length of end caps on error bars
-`{x,y}tick.minor.visible`   Default visibility of minor x/y ticks
-`legend.framealpha`         Default transparency of the legend frame box
-`legend.facecolor`          Default facecolor of legend frame box (or
-                            ``'inherit'`` from `axes.facecolor`)
-`legend.edgecolor`          Default edgecolor of legend frame box (or
-                            ``'inherit'`` from `axes.edgecolor`)
-`figure.titlesize`          Default font size for figure suptitles
-`figure.titleweight`        Default font weight for figure suptitles
-`image.composite_image`     Whether a vector graphics backend should composite
-                            several images into a single image or not when
-                            saving. Useful when needing to edit the files
-                            further in Inkscape or other programs.
-`markers.fillstyle`         Default fillstyle of markers. Possible values are
-                            ``'full'`` (the default), ``'left'``, ``'right'``,
-                            ``'bottom'``, ``'top'`` and ``'none'``
-`toolbar`                   Added ``'toolmanager'`` as a valid value, enabling
-                            the experimental ``ToolManager`` feature.
-=========================  ===================================================
++-------------------------+--------------------------------------------------+
+| Parameter               | Description                                      |
++=========================+==================================================+
+|`{x,y}axis.labelpad`     | mplot3d now respects these parameters            |
++-------------------------+--------------------------------------------------+
+|`axes.labelpad`          | Default space between the axis and the label     |
++-------------------------+--------------------------------------------------+
+|`errorbar.capsize`       | Default length of end caps on error bars         |
++-------------------------+--------------------------------------------------+
+|`{x,y}tick.minor.visible`| Default visibility of minor x/y ticks            |
++-------------------------+--------------------------------------------------+
+|`legend.framealpha`      | Default transparency of the legend frame box     |
++-------------------------+--------------------------------------------------+
+|`legend.facecolor`       | Default facecolor of legend frame box (or        |
+|                         | ``'inherit'`` from `axes.facecolor`)             |
++-------------------------+--------------------------------------------------+
+|`legend.edgecolor`       | Default edgecolor of legend frame box (or        |
+|                         | ``'inherit'`` from `axes.edgecolor`)             |
++-------------------------+--------------------------------------------------+
+|`figure.titlesize`       | Default font size for figure suptitles           |
++-------------------------+--------------------------------------------------+
+|`figure.titleweight`     | Default font weight for figure suptitles         |
++-------------------------+--------------------------------------------------+
+|`image.composite_image`  | Whether a vector graphics backend should         |
+|                         | composite several images into a single image or  |
+|                         | not when saving. Useful when needing to edit the |
+|                         | files further in Inkscape or other programs.     |
++-------------------------+--------------------------------------------------+
+|`markers.fillstyle`      | Default fillstyle of markers. Possible values    |
+|                         | are ``'full'`` (the default), ``'left'``,        |
+|                         | ``'right'``, ``'bottom'``, ``'top'`` and         |
+|                         | ``'none'``                                       |
++-------------------------+--------------------------------------------------+
+|`toolbar`                | Added ``'toolmanager'`` as a valid value,        |
+|                         | enabling the experimental ``ToolManager``        |
+|                         | feature.                                         |
++-------------------------+--------------------------------------------------+
 
 Backends
 --------
