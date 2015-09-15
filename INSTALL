@@ -182,7 +182,7 @@ themselves.
 Required Dependencies
 ^^^^^^^^^^^^^^^^^^^^^
 
-:term:`python` 2.6, 2.7, 3.3 or 3.4
+:term:`python` 2.6, 2.7, 3.3, 3.4, or 3.5
     `Download python <http://www.python.org/download/>`_.
 
 :term:`numpy` |minimum_numpy_version| (or later)
@@ -215,6 +215,9 @@ libpng 1.2 (or later)
 
 :term:`freetype` 2.3 or later
     library for reading true type font files.
+
+``cycler`` 0.9 or later
+   Composable cycle class used for constructing style-cycles
 
 
 Optional GUI framework
