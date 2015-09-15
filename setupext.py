@@ -13,6 +13,9 @@ import sys
 import warnings
 from textwrap import fill
 
+import versioneer
+
+
 PY3 = (sys.version_info[0] >= 3)
 
 
@@ -109,7 +112,7 @@ def extract_versions():
     """
     with open('lib/matplotlib/__init__.py') as fd:
         for line in fd.readlines():
-            if (line.startswith('__version__')):
+            if (line.startswith('__version__numpy__')):
                 exec(line.strip())
     return locals()
 
@@ -566,7 +569,7 @@ class Matplotlib(SetupPackage):
     name = "matplotlib"
 
     def check(self):
-        return extract_versions()['__version__']
+        return versioneer.get_version()
 
     def get_packages(self):
         return [

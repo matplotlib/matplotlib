@@ -129,7 +129,12 @@ import numpy
 from matplotlib.externals.six.moves.urllib.request import urlopen
 from matplotlib.externals.six.moves import reload_module as reload
 
-__version__ = str('1.5.dev1')
+# Get the version from the _version.py versioneer file. For a git checkout,
+# this is computed based on the number of commits since the last tag.
+from ._version import get_versions
+__version__ = str(get_versions()['version'])
+del get_versions
+
 __version__numpy__ = str('1.6')  # minimum required numpy version
 
 try:
