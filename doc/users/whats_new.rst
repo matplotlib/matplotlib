@@ -4,9 +4,6 @@
 What's new in matplotlib
 ************************
 
-This page just covers the highlights -- for the full story, see the
-`CHANGELOG <http://matplotlib.org/_static/CHANGELOG>`_
-
 For a list of all of the issues and pull requests since the last
 revision, see the :ref:`github-stats`.
 
