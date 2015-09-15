@@ -74,6 +74,31 @@ components.  As well as conceptually similar, it also functions the same as the
 other axis: we can apply different scales, such as a log scale; draw
 tick-labels; ensure non-singularity of the data etcetera.
 
+Comparing currently supported types of axes
+-------------------------------------------
+
++-----------------------+-------------------------------+---------------------------+-------------------+-------------------+
+| Axes                  | Coordinate System             | Plotting coordinates      | Axis.grid() works | Known Bugs        |
+|                       | (that we draw on the axis)    | (passed to plot methods)  |                   |                   |
++=======================+===============================+===========================+===================+===================+
+| Cartesian 2D          | x, y                          | Same as coord system      | Yes               | Twin Axes         |
++-----------------------+-------------------------------+---------------------------+-------------------+-------------------+
+| Skewed 2D             | x, y                          | Same as coord system      | Yes, but...       | MEP 22            |
+| (See skewt example)   |                               |                           | buggy with MEP 22 | Issue with 0      |
++-----------------------+-------------------------------+---------------------------+-------------------+-------------------+
+| Polar (2D)            | r, theta                      | Same as coord system      | Yes               | Lots of open bugs |
++-----------------------+-------------------------------+---------------------------+-------------------+-------------------+
+| Cartesian 3D          | x, y, z                       | Same as coord system      | Yes               | Lots of open bugs |
++-----------------------+-------------------------------+---------------------------+-------------------+-------------------+
+| Spherical Geometry    | latitude, longitude           | Uses the specified 2D     | No                |                   |
+| (2D plotting on the   | in degrees using              | projection coordinates    |                   |                   |
+| surface of a sphere   | drawmeridians and             |                           |                   |                   |
+| aka Basemap)          | drawparallels respectfully    |                           |                   |                   |
++-----------------------+-------------------------------+---------------------------+-------------------+-------------------+
+
+Note the GUI backends use the plotting coordinates when displaying the
+coordinates under the mouse cursor in the statusbar.  As far as I know, this
+only affects Basemap, but exists as a generic that requires a generic approach.
 
 Implementation
 ==============
