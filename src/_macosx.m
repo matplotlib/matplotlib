@@ -39,6 +39,9 @@
 #if __MAC_OS_X_VERSION_MIN_REQUIRED >= 1060
 #define COMPILING_FOR_10_6
 #endif
+#if __MAC_OS_X_VERSION_MIN_REQUIRED >= 1070
+#define COMPILING_FOR_10_7
+#endif
 #if __MAC_OS_X_VERSION_MIN_REQUIRED >= 10100
 #define COMPILING_FOR_10_10
 #endif
@@ -4883,9 +4886,12 @@ NavigationToolbar2_init(NavigationToolbar2 *self, PyObject *args, PyObject *kwds
 
     int i;
     NSRect rect;
+    NSSize size;
+    NSSize scale;
 
     const float gap = 2;
     const int height = 36;
+    const int imagesize = 24;
 
     const char* basedir;
 
@@ -4926,13 +4932,13 @@ NavigationToolbar2_init(NavigationToolbar2 *self, PyObject *args, PyObject *kwds
 
     NSButton* buttons[7];
 
-    NSString* images[7] = {@"home.png",
-                           @"back.png",
-                           @"forward.png",
-                           @"move.png",
-                           @"zoom_to_rect.png",
-                           @"subplots.png",
-                           @"filesave.png"};
+    NSString* images[7] = {@"home.pdf",
+                           @"back.pdf",
+                           @"forward.pdf",
+                           @"move.pdf",
+                           @"zoom_to_rect.pdf",
+                           @"subplots.pdf",
+                           @"filesave.pdf"};
 
     NSString* tooltips[7] = {@"Reset original view",
                              @"Back to  previous view",
@@ -4958,13 +4964,24 @@ NavigationToolbar2_init(NavigationToolbar2 *self, PyObject *args, PyObject *kwds
                                    NSMomentaryLightButton,
                                    NSMomentaryLightButton};
 
+    rect.origin.x = 0;
+    rect.origin.y = 0;
+    rect.size.width = imagesize;
+    rect.size.height = imagesize;
+#ifdef COMPILING_FOR_10_7
+    rect = [window convertRectToBacking: rect];
+#endif
+    size = rect.size;
+    scale.width = imagesize / size.width;
+    scale.height = imagesize / size.height;
+
     rect.size.width = 32;
     rect.size.height = 32;
     rect.origin.x = gap;
     rect.origin.y = 0.5*(height - rect.size.height);
+
     for (i = 0; i < 7; i++)
     {
-        const NSSize size = {24, 24};
         NSString* filename = [dir stringByAppendingPathComponent: images[i]];
         NSImage* image = [[NSImage alloc] initWithContentsOfFile: filename];
         buttons[i] = [[NSButton alloc] initWithFrame: rect];
@@ -4972,6 +4989,7 @@ NavigationToolbar2_init(NavigationToolbar2 *self, PyObject *args, PyObject *kwds
         [buttons[i] setBezelStyle: NSShadowlessSquareBezelStyle];
         [buttons[i] setButtonType: buttontypes[i]];
         [buttons[i] setImage: image];
+        [buttons[i] scaleUnitSquareToSize: scale];
         [buttons[i] setImagePosition: NSImageOnly];
         [buttons[i] setToolTip: tooltips[i]];
         [[window contentView] addSubview: buttons[i]];

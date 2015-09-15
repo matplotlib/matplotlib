@@ -604,6 +604,7 @@ class Matplotlib(SetupPackage):
                 'mpl-data/images/*.xpm',
                 'mpl-data/images/*.svg',
                 'mpl-data/images/*.gif',
+                'mpl-data/images/*.pdf',
                 'mpl-data/images/*.png',
                 'mpl-data/images/*.ppm',
                 'mpl-data/example/*.npy',
