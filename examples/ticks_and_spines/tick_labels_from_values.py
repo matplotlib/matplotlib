@@ -26,10 +26,9 @@ labels = list('abcdefghijklmnopqrstuvwxyz')
 
 
 def format_fn(tick_val, tick_pos):
-    try:
+    if int(tick_val) in xs:
         return labels[int(tick_val)]
-    except IndexError:
-        # no label for this tick
+    else:
         return ''
 ax.xaxis.set_major_formatter(FuncFormatter(format_fn))
 ax.xaxis.set_major_locator(MaxNLocator(integer=True))
