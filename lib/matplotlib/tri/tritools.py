@@ -257,7 +257,8 @@ class TriAnalyzer(object):
         tri_renum = self._total_to_compress_renum(tri_mask, ntri)
 
         # Valid nodes and renumbering
-        node_mask = (np.bincount(np.ravel(compressed_triangles)) == 0)
+        node_mask = (np.bincount(np.ravel(compressed_triangles),
+                                 minlength=self._triangulation.x.size) == 0)
         compressed_x = self._triangulation.x[~node_mask]
         compressed_y = self._triangulation.y[~node_mask]
         node_renum = self._total_to_compress_renum(node_mask)
