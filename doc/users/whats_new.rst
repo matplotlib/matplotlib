@@ -172,6 +172,74 @@ The 'default' style will give you matplotlib's latest plotting styles::
 
     matplotlib.style.use('default')
 
+Backends
+--------
+
+New backend selection
+`````````````````````
+
+The environment variable :envvar:`MPLBACKEND` can now be used to set the
+matplotlib backend.
+
+
+wx backend has been updated
+```````````````````````````
+
+The wx backend can now be used with both wxPython classic and
+`Phoenix <http://wxpython.org/Phoenix/docs/html/main.html>`__.
+
+wxPython classic has to be at least version 2.8.12 and works on Python 2.x. As
+of May 2015 no official release of wxPython Phoenix is available but a
+current snapshot will work on Python 2.7+ and 3.4+.
+
+If you have multiple versions of wxPython installed, then the user code is
+responsible setting the wxPython version.  How to do this is
+explained in the comment at the beginning of the example
+`examples\user_interfaces\embedding_in_wx2.py`.
+
+Configuration (rcParams)
+------------------------
+
+Some parameters have been added, others have been improved.
+
++-------------------------+--------------------------------------------------+
+| Parameter               | Description                                      |
++=========================+==================================================+
+|`{x,y}axis.labelpad`     | mplot3d now respects these parameters            |
++-------------------------+--------------------------------------------------+
+|`axes.labelpad`          | Default space between the axis and the label     |
++-------------------------+--------------------------------------------------+
+|`errorbar.capsize`       | Default length of end caps on error bars         |
++-------------------------+--------------------------------------------------+
+|`{x,y}tick.minor.visible`| Default visibility of minor x/y ticks            |
++-------------------------+--------------------------------------------------+
+|`legend.framealpha`      | Default transparency of the legend frame box     |
++-------------------------+--------------------------------------------------+
+|`legend.facecolor`       | Default facecolor of legend frame box (or        |
+|                         | ``'inherit'`` from `axes.facecolor`)             |
++-------------------------+--------------------------------------------------+
+|`legend.edgecolor`       | Default edgecolor of legend frame box (or        |
+|                         | ``'inherit'`` from `axes.edgecolor`)             |
++-------------------------+--------------------------------------------------+
+|`figure.titlesize`       | Default font size for figure suptitles           |
++-------------------------+--------------------------------------------------+
+|`figure.titleweight`     | Default font weight for figure suptitles         |
++-------------------------+--------------------------------------------------+
+|`image.composite_image`  | Whether a vector graphics backend should         |
+|                         | composite several images into a single image or  |
+|                         | not when saving. Useful when needing to edit the |
+|                         | files further in Inkscape or other programs.     |
++-------------------------+--------------------------------------------------+
+|`markers.fillstyle`      | Default fillstyle of markers. Possible values    |
+|                         | are ``'full'`` (the default), ``'left'``,        |
+|                         | ``'right'``, ``'bottom'``, ``'top'`` and         |
+|                         | ``'none'``                                       |
++-------------------------+--------------------------------------------------+
+|`toolbar`                | Added ``'toolmanager'`` as a valid value,        |
+|                         | enabling the experimental ``ToolManager``        |
+|                         | feature.                                         |
++-------------------------+--------------------------------------------------+
+
 
 Widgets
 -------
@@ -224,7 +292,7 @@ New plotting features
 
 
 Auto-wrapping Text
-------------------
+``````````````````
 
 Added the keyword argument "wrap" to Text, which automatically breaks
 long lines of text when being drawn.  Works for any rotated text,
@@ -327,7 +395,7 @@ and the limits are set such that ``xmax-xmin == ymax-ymin``.
    ax.axis('square')
 
 
-updated figimage to take optional resize parameter
+Updated figimage to take optional resize parameter
 ``````````````````````````````````````````````````
 
 Added the ability to plot simple 2D-Array using ``plt.figimage(X, resize=True)``.
@@ -339,8 +407,8 @@ around the image.
    data = np.random.random([500, 500])
    plt.figimage(data, resize=True)
 
-Updated Figure.savefig()
-````````````````````````
+Updated Figure.savefig() can now use figure's dpi
+`````````````````````````````````````````````````
 
 Added support to save the figure with the same dpi as the figure on the
 screen using `dpi='figure'`.
@@ -352,8 +420,8 @@ Example::
    f.savefig('output.png', dpi='figure')    # output savefig dpi set to 25 (same as figure)
 
 
-Updated Table and to control edge visibility
-````````````````````````````````````````````
+Updated Table to control edge visibility
+````````````````````````````````````````
 
 Added the ability to toggle the visibility of lines in Tables.
 Functionality added to the :func:`pyplot.table` factory function under
@@ -509,20 +577,21 @@ also not get overlapped by other axes in case of multiple subplots.
 Per-page pdf notes in multi-page pdfs (PdfPages)
 ````````````````````````````````````````````````
 
-Add a new method attach_note to the PdfPages class, allowing the
+Add a new method :meth:`~matplotlib.backends.backend_pdf.PdfPages.attach_note`
+to the PdfPages class, allowing the
 attachment of simple text notes to pages in a multi-page pdf of
 figures. The new note is visible in the list of pdf annotations in a
 viewer that has this facility (Adobe Reader, OSX Preview, Skim,
 etc.). Per default the note itself is kept off-page to prevent it to
 appear in print-outs.
 
-`PdfPages.attach_note` needs to be called before savefig in order to be
+`PdfPages.attach_note` needs to be called before `savefig()` in order to be
 added to the correct figure.
 
 Updated fignum_exists to take figure name
 `````````````````````````````````````````
 
-Added the ability to check the existence of a figure using it's name
+Added the ability to check the existence of a figure using its name
 instead of just the figure number.
 Example::
 
@@ -608,76 +677,6 @@ that are called automatically whenever it is toggled.
 
 
 A full example is located in :ref:`user_interfaces-toolmanager`
-
-
-
-Configuration (rcParams)
-------------------------
-
-Some parameters have been added, others have been improved.
-
-+-------------------------+--------------------------------------------------+
-| Parameter               | Description                                      |
-+=========================+==================================================+
-|`{x,y}axis.labelpad`     | mplot3d now respects these parameters            |
-+-------------------------+--------------------------------------------------+
-|`axes.labelpad`          | Default space between the axis and the label     |
-+-------------------------+--------------------------------------------------+
-|`errorbar.capsize`       | Default length of end caps on error bars         |
-+-------------------------+--------------------------------------------------+
-|`{x,y}tick.minor.visible`| Default visibility of minor x/y ticks            |
-+-------------------------+--------------------------------------------------+
-|`legend.framealpha`      | Default transparency of the legend frame box     |
-+-------------------------+--------------------------------------------------+
-|`legend.facecolor`       | Default facecolor of legend frame box (or        |
-|                         | ``'inherit'`` from `axes.facecolor`)             |
-+-------------------------+--------------------------------------------------+
-|`legend.edgecolor`       | Default edgecolor of legend frame box (or        |
-|                         | ``'inherit'`` from `axes.edgecolor`)             |
-+-------------------------+--------------------------------------------------+
-|`figure.titlesize`       | Default font size for figure suptitles           |
-+-------------------------+--------------------------------------------------+
-|`figure.titleweight`     | Default font weight for figure suptitles         |
-+-------------------------+--------------------------------------------------+
-|`image.composite_image`  | Whether a vector graphics backend should         |
-|                         | composite several images into a single image or  |
-|                         | not when saving. Useful when needing to edit the |
-|                         | files further in Inkscape or other programs.     |
-+-------------------------+--------------------------------------------------+
-|`markers.fillstyle`      | Default fillstyle of markers. Possible values    |
-|                         | are ``'full'`` (the default), ``'left'``,        |
-|                         | ``'right'``, ``'bottom'``, ``'top'`` and         |
-|                         | ``'none'``                                       |
-+-------------------------+--------------------------------------------------+
-|`toolbar`                | Added ``'toolmanager'`` as a valid value,        |
-|                         | enabling the experimental ``ToolManager``        |
-|                         | feature.                                         |
-+-------------------------+--------------------------------------------------+
-
-Backends
---------
-
-New backend selection
-`````````````````````
-
-The environment variable :envvar:`MPLBACKEND` can now be used to set the
-matplotlib backend.
-
-
-wx backend has been updated
-```````````````````````````
-
-The wx backend can now be used with both wxPython classic and
-`Phoenix <http://wxpython.org/Phoenix/docs/html/main.html>`__.
-
-wxPython classic has to be at least version 2.8.12 and works on Python 2.x. As
-of May 2015 no official release of wxPython Phoenix is available but a
-current snapshot will work on Python 2.7+ and 3.4+.
-
-If you have multiple versions of wxPython installed, then the user code is
-responsible setting the wxPython version.  How to do this is
-explained in the comment at the beginning of the example
-`examples\user_interfaces\embedding_in_wx2.py`.
 
 
 cbook.is_sequence_of_strings recognizes string objects
