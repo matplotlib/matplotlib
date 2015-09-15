@@ -3,6 +3,7 @@ from functools import partial
 
 import numpy as np
 import matplotlib.pyplot as plt
+import matplotlib.ticker as mticker
 from cycler import cycler
 from six.moves import zip
 
@@ -146,7 +147,7 @@ def stack_hist(ax, stacked_data, sty_cycle, bottoms=None,
     arts = {}
     for j, (data, label, sty) in loop_iter:
         if label is None:
-            label = 'default set {n}'.format(n=j)
+            label = 'dflt set {n}'.format(n=j)
         label = sty.pop('label', label)
         vals, edges = hist_func(data)
         if bottoms is None:
@@ -159,7 +160,7 @@ def stack_hist(ax, stacked_data, sty_cycle, bottoms=None,
                         label=label, **sty)
         bottoms = top
         arts[label] = ret
-    ax.legend()
+    ax.legend(fontsize=10)
     return arts
 
 
@@ -178,7 +179,7 @@ dict_data = {lab: d for lab, d in zip(list(c['label'] for c in label_cycle),
                                       stack_data)}
 
 # work with plain arrays
-fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(12, 6), tight_layout=True)
+fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(9, 4.5), tight_layout=True)
 arts = stack_hist(ax1, stack_data, color_cycle + label_cycle + hatch_cycle,
                   hist_func=hist_func)
 
@@ -192,7 +193,7 @@ ax2.set_ylabel('x')
 
 # work with labeled data
 
-fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(12, 6),
+fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(9, 4.5),
                                tight_layout=True, sharey=True)
 
 arts = stack_hist(ax1, dict_data, color_cycle + hatch_cycle,
@@ -200,7 +201,7 @@ arts = stack_hist(ax1, dict_data, color_cycle + hatch_cycle,
 
 arts = stack_hist(ax2, dict_data, color_cycle + hatch_cycle,
                   hist_func=hist_func, labels=['set 0', 'set 3'])
-
-ax1.set_ylabel('counts')
-ax1.set_xlabel('x')
-ax2.set_xlabel('x')
+ax1.xaxis.set_major_locator(mticker.MaxNLocator(5))
+ax1.set_xlabel('counts')
+ax1.set_ylabel('x')
+ax2.set_ylabel('x')
