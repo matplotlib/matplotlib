@@ -46,6 +46,10 @@ matrix:
       env: BUILD_DOCS=true MOCK=mock
     - python: "3.5.0rc4"
       env: PRE=--pre
+    - python: "nightly"
+      env: PRE=--pre
+  allow_failures:
+    - python: "nightly"
 
 before_install:
   - source tools/travis_tools.sh
