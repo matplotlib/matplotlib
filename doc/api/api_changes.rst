@@ -1350,7 +1350,7 @@ past tense, whereas methods that alter an object in place are named
 with a verb in the present tense.
 
 :mod:`matplotlib.transforms`
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+````````````````````````````
 
 ============================================================ ============================================================
 Old method                                                   New method
@@ -1415,7 +1415,7 @@ Old method                                                   New method
    :attr:`~matplotlib.transforms.Bbox.xmin`.
 
 :mod:`matplotlib.axes`
-~~~~~~~~~~~~~~~~~~~~~~
+``````````````````````
 
 ============================================================ ============================================================
 Old method                                                   New method
@@ -1443,7 +1443,7 @@ The :class:`Polar` class has moved to :mod:`matplotlib.projections.polar`.
    `Axes.toggle_log_lineary()` has been removed.
 
 :mod:`matplotlib.artist`
-~~~~~~~~~~~~~~~~~~~~~~~~~~
+````````````````````````
 
 ============================================================ ============================================================
 Old method                                                   New method
@@ -1457,7 +1457,7 @@ Old method                                                   New method
    the path immediately before clipping.
 
 :mod:`matplotlib.collections`
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+`````````````````````````````
 
 ============================================================ ============================================================
 Old method                                                   New method
@@ -1470,7 +1470,7 @@ Old method                                                   New method
    provided.
 
 :mod:`matplotlib.colors`
-~~~~~~~~~~~~~~~~~~~~~~~~
+````````````````````````
 
 ============================================================ ============================================================
 Old method                                                   New method
@@ -1481,7 +1481,7 @@ Old method                                                   New method
 ============================================================ ============================================================
 
 :mod:`matplotlib.contour`
-~~~~~~~~~~~~~~~~~~~~~~~~~
+`````````````````````````
 
 ============================================================ ============================================================
 Old method                                                   New method
@@ -1491,7 +1491,7 @@ Old method                                                   New method
 ============================================================ ============================================================
 
 :mod:`matplotlib.figure`
-~~~~~~~~~~~~~~~~~~~~~~~~
+````````````````````````
 
 ============================================================ ============================================================
 Old method                                                   New method
@@ -1500,7 +1500,7 @@ Old method                                                   New method
 ============================================================ ============================================================
 
 :mod:`matplotlib.patches`
-~~~~~~~~~~~~~~~~~~~~~~~~~
+`````````````````````````
 
 ============================================================ ============================================================
 Old method                                                   New method
@@ -1510,7 +1510,7 @@ Old method                                                   New method
 ============================================================ ============================================================
 
 :mod:`matplotlib.backend_bases`
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+```````````````````````````````
 
 ============================================================ ============================================================
 Old method                                                   New method
@@ -2301,7 +2301,7 @@ MATLAB interface
 ----------------
 
 dpi
-~~~
+```
 
 Several of the backends used a PIXELS_PER_INCH hack that I added to
 try and make images render consistently across backends.  This just
@@ -2312,7 +2312,7 @@ screen to get true sizes.
 
 
 pcolor and scatter
-~~~~~~~~~~~~~~~~~~
+``````````````````
 
 There are two changes to the MATLAB interface API, both involving the
 patch drawing commands.  For efficiency, pcolor and scatter have been
@@ -2353,7 +2353,7 @@ Using sizes in data coords caused several problems.  So you will need
 to adjust your size arguments accordingly or use scatter_classic.
 
 mathtext spacing
-~~~~~~~~~~~~~~~~
+````````````````
 
 For reasons not clear to me (and which I'll eventually fix) spacing no
 longer works in font groups.  However, I added three new spacing
@@ -2369,13 +2369,13 @@ Object interface - Application programmers
 ------------------------------------------
 
 Autoscaling
-~~~~~~~~~~~
+```````````
 
   The x and y axis instances no longer have autoscale view.  These are
   handled by axes.autoscale_view
 
 Axes creation
-~~~~~~~~~~~~~
+`````````````
 
     You should not instantiate your own Axes any more using the OO API.
     Rather, create a Figure as before and in place of::
@@ -2395,13 +2395,13 @@ Axes creation
       add_subplot(num, axisbg=defaultcolor, frameon=True)
 
 Artist methods
-~~~~~~~~~~~~~~
+``````````````
 
   If you define your own Artists, you need to rename the _draw method
   to draw
 
 Bounding boxes
-~~~~~~~~~~~~~~
+``````````````
 
    matplotlib.transforms.Bound2D is replaced by
    matplotlib.transforms.Bbox.  If you want to construct a bbox from
@@ -2425,7 +2425,7 @@ Bounding boxes
 
 
 Object constructors
-~~~~~~~~~~~~~~~~~~~
+```````````````````
 
   You no longer pass the bbox, dpi, or transforms to the various
   Artist constructors.  The old way or creating lines and rectangles
@@ -2455,7 +2455,7 @@ Object constructors
   set your own already, in which case it will eave it unchanged)
 
 Transformations
-~~~~~~~~~~~~~~~
+```````````````
 
   The entire transformation architecture has been rewritten.
   Previously the x and y transformations where stored in the xaxis and
