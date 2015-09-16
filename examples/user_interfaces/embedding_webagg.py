@@ -54,7 +54,7 @@ html_content = """
     <link rel="stylesheet" href="_static/css/boilerplate.css" type="text/css" />
     <link rel="stylesheet" href="_static/css/fbm.css" type="text/css" />
     <link rel="stylesheet" href="_static/jquery/css/themes/base/jquery-ui.min.css" >
-    <script src="_static/jquery/js/jquery-1.7.1.min.js"></script>
+    <script src="_static/jquery/js/jquery-1.11.3.min.js"></script>
     <script src="_static/jquery/js/jquery-ui.min.js"></script>
     <script src="mpl.js"></script>
 
