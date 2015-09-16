@@ -59,7 +59,7 @@ static PyObject *pixbuf_get_pixels_array(PyObject *self, PyObject *args)
         return NULL;
     }
 #else
-    PyArray_BASE(array) = py_pixbuf;
+    PyArray_BASE(array) = (PyObject *) py_pixbuf;
 #endif
     return PyArray_Return(array);
 }
