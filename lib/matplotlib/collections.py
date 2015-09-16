@@ -28,6 +28,7 @@ import matplotlib.backend_bases as backend_bases
 import matplotlib.path as mpath
 from matplotlib import _path
 import matplotlib.mlab as mlab
+from matplotlib.traitlets import validate
 
 
 CIRCLE_AREA_FACTOR = 1.0 / np.sqrt(np.pi)
@@ -665,8 +666,9 @@ class Collection(artist.Artist, cm.ScalarMappable):
         """alias for set_edgecolor"""
         return self.set_edgecolor(c)
 
-    def _alpha_validate(self, value, trait):
-        value = artist.Artist._alpha_validate(self, value, trait)
+    @validate('alpha')
+    def _alpha_validate(self, commit):
+        value = artist.Artist._alpha_validate(self, commit)
 
         try:
             self._facecolors = mcolors.colorConverter.to_rgba_array(

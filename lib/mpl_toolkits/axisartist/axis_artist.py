@@ -106,6 +106,7 @@ from matplotlib.collections import LineCollection
 from matplotlib import rcParams
 
 from matplotlib.artist import allow_rasterization
+from matplotlib.traitlets import observe, validate
 
 import warnings
 
@@ -1506,13 +1507,14 @@ class AxisArtist(martist.Artist):
         self.label.set(x=x, y=y)
         self.label.draw(renderer)
 
-
-    def _label_validate(self, value, trait):
-        self.label.set_text(value)
-        old = getattr(self, trait.name)
+    @validate('label')
+    def _label_validate(self, commit):
+        self.label.set_text(commit['value'])
+        old = getattr(self, commit['trait'].name)
         return old
 
-    def _label_changed(self): pass
+    @observe('label')
+    def _label_changed(self, change): pass
 
     #!DEPRECATED
     # def set_label(self, s):

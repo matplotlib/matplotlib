@@ -32,6 +32,8 @@ from matplotlib.markers import MarkerStyle
 from matplotlib.markers import TICKLEFT, TICKRIGHT, TICKUP, TICKDOWN
 from matplotlib.markers import CARETLEFT, CARETRIGHT, CARETUP, CARETDOWN
 
+from .traitlets import observe
+
 
 def segment_hits(cx, cy, x, y, radius):
     """
@@ -551,11 +553,12 @@ class Line2D(Artist):
         """return the markevery setting"""
         return self._markevery
 
-    def _picker_changed(self, name, new):
+    @observe('picker')
+    def _picker_changed(self, change):
         if six.callable(new):
-            self._contains = new
+            self._contains = change['new']
         else:
-            self.pickradius = new
+            self.pickradius = change['new']
 
     #!DEPRECATED
     # def set_picker(self, p):
@@ -581,8 +584,10 @@ class Line2D(Artist):
             bbox = bbox.padded(ms)
         return bbox
 
-    def _axes_changed(self, name, old, new):
-    	Artist._axes_changed(self, name, old, new)
+    @observe('axes')
+    def _axes_changed(self, change):
+        new = change['new']
+    	Artist._axes_changed(self, change)
         if new is not None:
             if new.xaxis is not None:
                 self._xcid = new.xaxis.callbacks.connect('units',
@@ -704,8 +709,9 @@ class Line2D(Artist):
             self._transform_path()
         return self._transformed_path
 
-    def _transform_changed(self):
-        Artist._transform_changed(self)
+    @observe('transform')
+    def _transform_changed(self, change):
+        Artist._transform_changed(self, change)
         self._invalidx = True
         self._invalidy = True
         self.stale = True

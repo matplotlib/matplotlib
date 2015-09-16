@@ -670,8 +670,8 @@ class Poly3DCollection(PolyCollection):
         self._edgecolors3d = PolyCollection.get_edgecolor(self)
     set_edgecolors = set_edgecolor
 
-    def _alpha_validate(self, value, trait):
-        value = artist.Artist._alpha_validate(self, value, trait)
+    def _alpha_validate(self, commit):
+        value = artist.Artist._alpha_validate(self, commit)
 
         try:
             self._facecolors = mcolors.colorConverter.to_rgba_array(

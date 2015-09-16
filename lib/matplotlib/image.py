@@ -33,6 +33,7 @@ from matplotlib._image import *
 
 from matplotlib.transforms import BboxBase, Bbox, IdentityTransform
 import matplotlib.transforms as mtransforms
+from matplotlib.traitlets import validate
 
 # map interpolation strings to module constants
 _interpd_ = {
@@ -142,8 +143,9 @@ class _AxesImageBase(martist.Artist, cm.ScalarMappable):
 
         return self._A.shape[:2]
 
-    def _alpha_validate(self, value, trait):
-        value = martist.Artist._alpha_validate(self, value, trait)
+    @validate('alpha')
+    def _alpha_validate(self, commit):
+        value = martist.Artist._alpha_validate(self, commit)
         self._imcache = None
         return value
 
@@ -981,8 +983,9 @@ class PcolorImage(martist.Artist, cm.ScalarMappable):
     def set_array(self, *args):
         raise NotImplementedError('Method not supported')
 
-    def _alpha_validate(self, value, trait):
-        value = martist.Artist._alpha_validate(self, value, trait)
+    @validate('alpha')
+    def _alpha_validate(self, commit):
+        value = martist.Artist._alpha_validate(self, commit)
         self.update_dict['array'] = True
         return value
 

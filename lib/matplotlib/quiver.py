@@ -32,7 +32,7 @@ import matplotlib.font_manager as font_manager
 import matplotlib.cbook as cbook
 from matplotlib.cbook import delete_masked_points
 from matplotlib.patches import CirclePolygon
-from .traitlets import Instance
+from .traitlets import Instance, observe
 import math
 
 
@@ -354,9 +354,10 @@ class QuiverKey(martist.Artist):
         else:
             raise ValueError('unrecognized coordinates')
 
-    def _figure_changed(self, name, old, new):
-        martist.Artist._figure_changed(self, name, old, new)
-        self.text.figure = new
+    @observe('figure')
+    def _figure_changed(self, change):
+        martist.Artist._figure_changed(self, change)
+        self.text.figure = change['new']
 
     def contains(self, mouseevent):
         # Maybe the dictionary should allow one to

@@ -17,7 +17,7 @@ from .path import Path
 
 from .traitlets import (Instance, Configurable, gTransformInstance, Bool, Undefined, Union,
                         BaseDescriptor, getargspec, PrivateMethodMixin, Float, TraitError,
-                        Unicode, Stringlike, Callable, Tuple, List)
+                        Unicode, Stringlike, Callable, Tuple, List, observe, validate, default)
 
 from urlparse import urlparse
 
@@ -90,92 +90,109 @@ class Artist(PrivateMethodMixin, Configurable):
 
     transform = gTransformInstance(IdentityTransform())
 
-    def _transform_changed(self):
+    @observe('transform')
+    def _transform_changed(self, change):
         self.pchanged()
         self.stale = True
 
-    def _transform_validate(self, value, trait):
+    @validate('transform')
+    def _transform_validate(self, commit):
         self.transform_set = True
-        return value
+        return commit['value']
 
-    def _transform_getter(self, value, trait):
-        if trait._conversion_method:
-            return value(self.axes)
-        return value
+    def _transform_getter(self, pull):
+        if pull['trait']._conversion_method:
+            return pull['value'](self.axes)
+        return pull['value']
 
     stale = Bool(True)
 
-    def _stale_validate(self, value, trait):
+    @validate('stale')
+    def _stale_validate(self, commit):
         if self.animated:
             return self.stale
-        return value
+        return commit['value']
 
-    def _stale_changed(self, name, new):
-        if new and self.stale_callback is not None:
-            self.stale_callback(self, new)
+    @observe('stale')
+    def _stale_changed(self, change):
+        if change['new'] and self.stale_callback is not None:
+            self.stale_callback(self, change['new'])
 
     transform_set = Bool(False)
 
-    def _axes_changed(self, name, old, new):
+    axes = Instance(str('matplotlib.axes.Axes'), allow_none=True)
+
+    @observe('axes')
+    def _axes_changed(self, change):
+        new, old = change['new'], change['old']
         if new and old not in (Undefined,None):
             raise ValueError("Can not reset the axes.  You are "
                              "probably trying to re-use an artist "
                              "in more than one Axes which is not "
                              "supported")
+
         if new not in (Undefined,None) and new is not self:
             self.stale_callback = _stale_axes_callback
 
-    axes = Instance(str('matplotlib.axes.Axes'), allow_none=True)
-
     figure = Instance(str('matplotlib.figure.FigureBase'), allow_none=True)
 
-    def _figure_changed(self, name, old, new):
-        if old not in (None, Undefined):
+    @observe('figure')
+    def _figure_changed(self, change):
+        if change['old'] not in (None, Undefined):
             raise RuntimeError("Can not put single artist in "
                                "more than one figure")
+        new = change['new']
         if new and new is not self:
             self.pchanged()
         self.stale = True
 
     visible = Bool(True)
 
-    def _visible_changed(self, name, new):
+    @observe('visible')
+    def _visible_changed(self, change):
         self.pchanged()
         self.stale = True
 
     animated = Bool(False)
 
-    def _animated_changed(self, name, new):
+    @observe('animated')
+    def _animated_changed(self, change):
         self.pchanged()
         self.stale = True
 
     # Float defaults to 0.0, must have None arg
     alpha = Float(None, allow_none=True)
 
-    def _alpha_validate(self, value, trait):
-        if 0>value>1:
+    @validate('alpha')
+    def _alpha_validate(self, commit):
+        if 0>commit['value']>1:
             msg = ("The '%s' trait of %s instance can only be"
-                   "transparent (0.0) through opaque (1.0)")
-            raise TraitError(msg % (trait.name, self.__class__))
-        return value
+                   " transparent (0.0) through opaque (1.0)")
+            repl = (commit['trait'].name, self.__class__.__name__)
+            raise TraitError(msg % repl)
+        return commit['value']
 
-    def _alpha_changed(self, name, new):
+    @observe('alpha')
+    def _alpha_changed(self, c):
         self.pchanged()
         self.stale = True
 
     rasterized = Bool(None, allow_none=True)
 
-    def _rasterized_changed(self, name, new):
-        if new and not hasattr(self.draw, "_supports_rasterization"):
+    @observe('rasterized')
+    def _rasterized_changed(self, change):
+        if change['new'] and not hasattr(self.draw, "_supports_rasterization"):
             warnings.warn("Rasterization of '%s' will be ignored" % self)
 
     pickable = Bool()
 
-    def _pickabe_validate(self, value, trait):
+    @validate('pickable')
+    def _pickabe_validate(self, commit):
         msg = "the '%s' trait of a %s instance is not assignable"
-        raise TraitError(msg % (trait.name, self.__class__.__name__))
+        repl = (commit['trait'].name, self.__class__.__name__)
+        raise TraitError(msg % repl)
 
-    def _pickable_getter(self):
+    def _pickable_getter(self, pull):
         return (self.figure is not None and
                 self.figure.canvas is not None and
                 self.picker is not None)
@@ -184,7 +201,8 @@ class Artist(PrivateMethodMixin, Configurable):
 
     clipbox = Instance(str('matplotlib.transforms.BboxBase'), allow_none=True)
 
-    def _clipbox_changed(self, name, old, new):
+    @observe('clipbox')
+    def _clipbox_changed(self, change):
         self.pchanged()
         self.stale = True
 
@@ -192,79 +210,103 @@ class Artist(PrivateMethodMixin, Configurable):
                       Instance(str('matplotlib.transforms.TransformedPath'))),
                       allow_none=True)
 
+    @default('clippath')
     def _clippath_default(self): pass
 
-    def _clippath_validate(self, value, trait):
+    @validate('clippath')
+    def _clippath_validate(self, commit):
+        value, trait = commit['value'], commit['trait']
         if isinstance(value, trait.trait_types[0].klass):
             value = TransformedPath(value.get_path(), value.transform)
         return value
 
-    def _clippath_changed(self, name, new, old):
+    @observe('clippath')
+    def _clippath_changed(self, change):
         self.pchanged()
         self.stale = True
 
     clipon = Bool(True)
 
-    def _clipon_changed(self, name, old, new):
+    @observe('clipon')
+    def _clipon_changed(self, change):
         self.pchanged()
         self.stale = True
 
     label = Stringlike('', allow_none=True)
 
-    def _label_changed(self, name, old, new):
+    @observe('label')
+    def _label_changed(self, change):
         self.pchanged()
 
     picker = Union((Bool(),Float(),Callable()), allow_none=True)
 
+    @default('picker')
     def _picker_default(self): pass
 
     _contains = Callable(None, allow_none=True)
 
     mouseover = Bool(False)
 
-    def _mouseover_validate(self, value, trait):
+    @validate('mouseover')
+    def _mouseover_validate(self, commit):
         ax = self.axes
         if ax:
-            if value:
+            if commit['value']:
                 ax.mouseover_set.add(self)
             else:
                 ax.mouseover_set.discard(self)
-        return value
+        return commit['value']
 
     agg_filter = Callable(None, allow_none=True)
 
-    def _agg_filter_changed(self):
+    @observe('agg_filter')
+    def _agg_filter_changed(self, change):
         self.stale = True
 
     snap = Bool(None, allow_none=True)
 
-    def _snap_getter(self, value, trait):
+    def _snap_getter(self, pull):
         if rcParams['path.snap']:
-            return value
+            return pull['value']
         else:
             return False
 
-    def _snap_changed(self):
+    @observe('snap')
+    def _snap_changed(self, change):
         self.stale = True
 
     sketch_scale = Float(None, allow_none=True)
 
-    def _sketch_scale_changed(self, name, new):
-        self.sketch_params = (new, self.sketch_length, self.sketch_randomness)
+    @observe('sketch_scale')
+    def _sketch_scale_changed(self, change):
+        new = change['new']
+        length = self.sketch_length
+        randomness = self.sketch_randomness
+        self.sketch_params = (new, length, randomness)
 
     sketch_length = Float(None, allow_none=True)
 
-    def _sketch_length_changed(self, name, new):
-        self.sketch_params = (self.sketch_scale, new, self.sketch_randomness)
+    @observe('sketch_length')
+    def _sketch_length_changed(self, change):
+        new = change['new']
+        scale = self.sketch_scale
+        randomness = self.sketch_randomness
+        self.sketch_params = (scale, new, randomness)
 
     sketch_randomness = Float(None, allow_none=True)
 
-    def _sketch_randomness_changed(self, name, new):
-        self.sketch_params = (self.sketch_scale, self.sketch_length, new)
+    @observe('sketch_randomness')
+    def _sketch_randomness_changed(self, change):
+        new = change['new']
+        scale = self.sketch_scale
+        length = self.sketch_length
+        self.sketch_params = (scale, length, new)
 
     sketch_params = Tuple(allow_none=True)
 
-    def _sketch_validate(self, value, trait):
+    @validate('sketch')
+    def _sketch_validate(self, commit):
+        value = commit['value']
         names = ('sketch_scale',
                  'sketch_length',
                  'sketch_randomness')
@@ -278,13 +320,15 @@ class Artist(PrivateMethodMixin, Configurable):
         for n,v in zip(names, params):
             self.private(n, v)
 
-    def _sketch_params_changed(self, name, new):
+    @observe('sketch_params')
+    def _sketch_params_changed(self, change):
         self.stale = True
 
     path_effects = List(Instance('matplotlib.patheffects.AbstractPathEffect'),
                         allow_none=True)
 
-    def _path_effects_changed(self):
+    @observe('path_effects')
+    def _path_effects_changed(self, change):
         self.stale = True
 
     url = Unicode(allow_none=True)
@@ -328,13 +372,11 @@ class Artist(PrivateMethodMixin, Configurable):
         self.path_effects = rcParams['path.effects']
 
     def __getstate__(self):
-        d = self.__dict__.copy()
+        d = super(Artist, self).__getstate__()
         # remove the unpicklable remove method, this will get re-added on load
         # (by the axes) if the artist lives on an axes.
         d['_remove_method'] = None
         d['stale_callback'] = None
-        # .private(name, value) forces _notify_trait into __dict__
-        d.pop('_notify_trait', None)
         return d
 
     def remove(self):

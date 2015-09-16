@@ -1813,8 +1813,7 @@ class RectangleSelector(_SelectorWidget):
         if self.active_handle is None or not self.interactive:
             # Clear previous rectangle before drawing new rectangle.
             self.update()
-
-        self.pchanged()
+        self.set_visible(self.visible)
         self.stale = True
 
     def _release(self, event):
@@ -1977,8 +1976,7 @@ class RectangleSelector(_SelectorWidget):
         self._corner_handles.set_data(*self.corners)
         self._edge_handles.set_data(*self.edge_centers)
         self._center_handle.set_data(*self.center)
-        self.pchanged()
-        self.stale = True
+        self.set_visible(self.visible)
         self.update()
 
     def draw_shape(self, extents):

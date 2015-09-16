@@ -8,14 +8,14 @@ try:
                            Dict, List, Instance, Union,
                            Unicode, Tuple, TraitError,
                            Undefined, BaseDescriptor,
-                           getargspec)
+                           getargspec, observe, default, validate)
 except ImportError:
     # IPython3 imports
     from IPython.utils.traitlets.config import Configurable, Config
     from IPython.utils.traitlets import (TraitType, Int, Float, Bool,
                             Dict, List, Instance, Union, Unicode,
                             Tuple, TraitError, Undefined, BaseDescriptor,
-                            getargspec)
+                            getargspec, observe, default, validate)
 
 import re
 import types
@@ -65,8 +65,6 @@ class PrivateMethodMixin(object):
             setattr(self, name, value)
             self._notify_trait = _notify_trait
             self._cross_validation_lock = False
-            if isinstance(_notify_trait, types.MethodType):
-                self.__dict__.pop('_notify_trait', None)
 
         if hasattr(trait, '__base_get__'):
             return trait.__base_get__(self)
@@ -92,59 +90,12 @@ class OnGetMixin(object):
         super_obj.__init__(*args, **kwargs)
 
     def __get__(self, obj, cls=None):
-        value = self.__base_get__(obj,cls)
-
-        if hasattr(obj, '_'+self.name+'_getter'):
-            meth = getattr(obj, '_'+self.name+'_getter')
-            if not callable(meth):
-                raise TraitError(("""a trait getter method
-                                   must be callable"""))
-            argspec = len(getargspec(meth)[0])
-            if isinstance(meth, types.MethodType):
-                argspec -= 1
-            if argspec==0:
-                args = ()
-            elif argspec==1:
-                args = (value,)
-            elif argspec==2:
-                args = (value, self)
-            elif argspec==3:
-                args = (value, self, cls)
-            else:
-                raise TraitError(("""a trait getter method must
-                                   have 3 or fewer arguments"""))
-            value = meth(*args)
-        
+        value = super(OnGetMixin,self).__get__(obj,cls)
+        method = getattr(obj, '_'+self.name+'_getter', None)
+        if value is not self and method is not None:
+            method = getattr(obj, '_'+self.name+'_getter')
+            value = method({'value': value, 'owner':obj, 'trait':self})
         return value
-
-    def __set__(self, obj, value):
-        if self.read_only:
-            raise TraitError('The "%s" trait is read-only.' % self.name)
-        elif hasattr(obj, '_'+self.name+'_setter'):
-            meth = getattr(obj, '_'+self.name+'_setter')
-            if not callable(meth):
-                raise TraitError(("""a trait setter method
-                                   must be callable"""))
-            argspec = len(getargspec(meth)[0])
-            if isinstance(meth, types.MethodType):
-                argspec -= 1
-            if argspec==0:
-                args = ()
-            elif argspec==1:
-                args = (value,)
-            elif argspec==2:
-                args = (obj._trait_values[self.name], value)
-            elif argspec==3:
-                args = (obj._trait_values[self.name], value, self)
-            else:
-                raise TraitError(("""a trait setter method must
-                                   have 2 or fewer arguments"""))
-            value = meth(*args)
-
-            if value is not obj._trait_values[self.name]:
-                self.set(obj, value)
-        else:
-            self.set(obj, value)
 
 
 class TransformInstance(TraitType):

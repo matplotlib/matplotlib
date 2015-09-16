@@ -40,7 +40,7 @@ from matplotlib.image import BboxImage
 from matplotlib.patches import bbox_artist as mbbox_artist
 from matplotlib.text import _AnnotationBase
 
-from .traitlets import gTransformInstance
+from .traitlets import gTransformInstance, observe
 
 DEBUG = False
 
@@ -172,21 +172,22 @@ class OffsetBox(martist.Artist):
         return state
 
     def __setstate__(self, state):
-        self.__dict__ = state
+        martist.Artist.__setstate__(self, state)
         from .cbook import _InstanceMethodPickler
         if isinstance(self._offset, _InstanceMethodPickler):
             self._offset = self._offset.get_instancemethod()
         self.stale = True
 
-    def _figure_changed(self, name, old, new):
+    @observe('figure')
+    def _figure_changed(self, change):
         """
         Set the figure
 
         accepts a class:`~matplotlib.figure.Figure` instance
         """
-        martist.Artist._figure_changed(self, name, old, new)
+        martist.Artist._figure_changed(self, change)
         for c in self.get_children():
-            c.figure = new
+            c.figure = change['new']
 
     #!DEPRICATED
     # def set_figure(self, fig):
@@ -199,9 +200,11 @@ class OffsetBox(martist.Artist):
     #     for c in self.get_children():
     #         c.set_figure(fig)
 
-    def _axes_changed(self, name, old, new):
+    @observe('axes')
+    def _axes_changed(self, change):
         # TODO deal with this better
-        martist.Artist._axes_changed(self, name, old, new)
+        new = change['new']
+        martist.Artist._axes_changed(self, change)
         for c in self.get_children():
             if c is not None:
                 c.axes = new
@@ -629,15 +632,17 @@ class DrawingArea(OffsetBox):
         self._clip_children = bool(val)
         self.stale = True
 
-    def _transform_getter(self):
+    def _transform_getter(self, pull):
         """
          Return the :class:`~matplotlib.transforms.Transform` applied
          to the children
          """
         return self.dpi_transform + self.offset_transform
 
-    def _transform_changed(self, name):
+    @observe('transform')
+    def _transform_changed(self, change):
         """Ignore setting"""
+        name = change['name']
         self._trait_values[name] = None
 
     #!DEPRECATED
@@ -821,8 +826,10 @@ class TextArea(OffsetBox):
         """
         return self._minimumdescent
 
-    def _transform_changed(self):
-        self.transform = None
+    @observe('transform')
+    def _transform_changed(self, change):
+        name = change['name']
+        self._trait_values[name] = None
 
     def set_offset(self, xy):
         """
@@ -930,13 +937,15 @@ class AuxTransformBox(OffsetBox):
         a.transform = self.transform
         self.stale = True
 
-    def _transform_getter(self):
+    def _transform_getter(self, pull):
         return self.aux_transform + \
                self.ref_offset_transform + \
                self.offset_transform
 
-    def _transform_changed(self):
-        self.transform = None
+    @observe('transform')
+    def _transform_changed(self, change):
+        name = change['name']
+        self._trait_values[name] = None
 
     # !DEPRECATED
     # def get_transform(self):
@@ -1508,11 +1517,13 @@ class AnnotationBbox(martist.Artist, _AnnotationBase):
             children.append(self.arrow_patch)
         return children
 
-    def _figure_changed(self, name, old, new):
+    @observe('figure')
+    def _figure_changed(self, change):
+        new = change['new']
         if self.arrow_patch is not None:
             self.arrow_patch.figure = new
         self.offsetbox.figure = new
-        martist.Artist._figure_changed(self, name, old, new)
+        martist.Artist._figure_changed(self, change)
 
     #!DEPRICATED
     # def set_figure(self, fig):

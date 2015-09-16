@@ -34,11 +34,14 @@ from matplotlib.offsetbox import OffsetBox
 from matplotlib.artist import allow_rasterization
 from matplotlib.cbook import iterable, index_of
 from matplotlib.rcsetup import cycler
+from matplotlib.traitlets import observe
 
 rcParams = matplotlib.rcParams
 
 is_string_like = cbook.is_string_like
 is_sequence_of_strings = cbook.is_sequence_of_strings
+
+
 
 
 def _process_plot_format(fmt):
@@ -567,7 +570,7 @@ class _AxesBase(martist.Artist):
                          right=rcParams['ytick.right'])
 
     def __setstate__(self, state):
-        self.__dict__ = state
+        martist.Artist.__setstate__(self, state)
         # put the _remove_method back on all artists contained within the axes
         for container_name in ['lines', 'collections', 'tables', 'patches',
                                'texts', 'images']:
@@ -593,11 +596,13 @@ class _AxesBase(martist.Artist):
         self.spines['right'].register_axis(self.yaxis)
         self._update_transScale()
 
-    def _figure_changed(self, name, old, new):
-        martist.Artist._figure_changed(self, name, old, new)
+    @observe('figure')
+    def _figure_changed(self, change):
+        martist.Artist._figure_changed(self, change)
 
-        self.bbox = mtransforms.TransformedBbox(self._position,
-                                                new.transFigure)
+        tbox = mtransforms.TransformedBbox
+        self.bbox = tbox(self._position,change['new'].transFigure)
+        
         # these will be updated later as data is added
         self.dataLim = mtransforms.Bbox.null()
         self.viewLim = mtransforms.Bbox.unit()

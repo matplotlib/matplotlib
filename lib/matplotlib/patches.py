@@ -25,8 +25,7 @@ from matplotlib.bezier import split_path_inout, get_cos_sin
 from matplotlib.bezier import make_path_regular, concatenate_paths
 
 from .transforms import IdentityTransform
-
-from .traitlets import gTransformInstance
+from .traitlets import gTransformInstance, validate
 
 
 # these are not available for the object inspector until after the
@@ -197,8 +196,8 @@ class Patch(artist.Artist):
         """
         return self.get_path().get_extents(self.transform)
 
-    def _transform_getter(self, value):
-        return self.get_patch_transform() + value
+    def _transform_getter(self, pull):
+        return self.get_patch_transform() + pull['value']
 
     # !DEPRECATED
     # def get_transform(self):
@@ -328,8 +327,9 @@ class Patch(artist.Artist):
         self.set_facecolor(c)
         self.set_edgecolor(c)
 
-    def _alpha_validate(self, value, trait):
-        value = artist.Artist._alpha_validate(self, value, trait)
+    @validate('alpha')
+    def _alpha_validate(self, commit):
+        value = artist.Artist._alpha_validate(self, commit)
         self.set_facecolor(self._original_facecolor)
         self.set_edgecolor(self._original_edgecolor)
         self.stale = True

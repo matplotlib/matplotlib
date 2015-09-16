@@ -35,7 +35,7 @@ from matplotlib import docstring
 from .text import Text
 from .transforms import Bbox
 from matplotlib.path import Path
-from .traitlets import Instance
+from .traitlets import Instance, observe
 
 
 class Cell(Rectangle):
@@ -76,9 +76,10 @@ class Cell(Rectangle):
     #     # the text does not get the transform!
     #     self.stale = True
 
-    def _figure_changed(self, name, old, new):
-        Rectangle._figure_changed(self, name, old, new)
-        self._text.figure = new
+    @observe('figure')
+    def _figure_changed(self, change):
+        Rectangle._figure_changed(self, change)
+        self._text.figure = change['new']
 
     #!DEPRICATED
     # def set_figure(self, fig):

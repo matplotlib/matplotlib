@@ -8,7 +8,7 @@ except ImportError:
     from IPython.utils.traitlets import TraitError, HasTraits
 
 from matplotlib.traitlets import (Color, exdict, OnGetMixin, PrivateMethodMixin,
-                                  Int, Configurable)
+                                  Int, Configurable, observe, validate)
 
 def test_exdict():
     e = exdict()
@@ -39,9 +39,13 @@ class PrivateMethodTestCase(TestCase):
 
             attr = Int(0)
             # callbacks shouldn't be envoked
-            def _attr_validate(self, value, trait):
+            @validate('attr')
+            def _attr_validate(self, commit):
+                # should never be reached
                 self.assertTrue(False)
-            def _attr_changed(self):
+            @observe('attr')
+            def _attr_changed(self, change):
+                # should never be reached
                 self.assertTrue(False)
 
         a = A()
@@ -65,18 +69,20 @@ class PrivateMethodTestCase(TestCase):
         class A(PrivateMethodMixin, Configurable):
 
             attr = Int(1)
-            def _attr_validate(self, value, trait):
-                return value+1
-            def _attr_changed(self, name, old, new):
+            @validate('attr')
+            def _attr_validate(self, commit):
+                return proposal['value']+1
+            @observe('attr')
+            def _attr_changed(self, change):
                 # `private` avoids infinite recursion
-                self.private(name, old+new)
+                new = change['old']+change['new']
+                self.private(change['name'], new)
 
         a = A()
         a.private('attr', 2)
         self.assertEqual(a.attr, 2)
         a.force_callbacks('attr')
         self.assertEqual(a.attr, 4)
-
 
 class ColorTestCase(TestCase):
     """Tests for the Color traits"""

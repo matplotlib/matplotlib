@@ -33,6 +33,8 @@ from matplotlib.artist import allow_rasterization
 from matplotlib.backend_bases import RendererBase
 from matplotlib.textpath import TextPath
 
+from .traitlets import observe
+
 
 def _process_text_args(override, fontdict=None, **kwargs):
     "Return an override dict.  See :func:`~pyplot.text' docstring for info"
@@ -580,8 +582,9 @@ class Text(Artist):
         if self._bbox_patch:
             bbox = self._bbox_patch.update(clipprops)
 
-    def _clipbox_changed(self, name, old, new):
-        super(Text, self)._clipbox_changed(name, old, new)
+    @observe('clipbox')
+    def _clipbox_changed(self, change):
+        super(Text, self)._clipbox_changed(change)
         self._update_clip_properties()
 
     #!DEPRECATED
@@ -618,8 +621,9 @@ class Text(Artist):
         super(Text, self).set_clip_path(path, transform)
         self._update_clip_properties()
 
-    def _clipon_changed(self, name, old, new):
-        super(Text, self)._clipon_changed(name, old, new)
+    @observe('clipon')
+    def _clipon_changed(self, change):
+        super(Text, self)._clipon_changed(change)
         self._update_clip_properties()
 
     #!DEPRECATED
@@ -1642,9 +1646,10 @@ class TextWithDash(Text):
         self._dashy = float(y)
         self.stale = True
 
-    def _transform_changed(self, name, new):
-        Text._transform_changed()
-        self.dashline.transform = new
+    @observe('transform')
+    def _transform_changed(self, change):
+        Text._transform_changed(self, change)
+        self.dashline.transform = change['new']
         self.stale = True
 
     #!DEPRECATED
@@ -1664,9 +1669,10 @@ class TextWithDash(Text):
     #     'return the figure instance the artist belongs to'
     #     return self.figure
 
-    def _figure_changed(self, name, old, new):
-        Text._figure_changed(self, name, old, new)
-        self.dashline.figure = new
+    @observe('figure')
+    def _figure_changed(self, change):
+        Text._figure_changed(self, change)
+        self.dashline.figure = change['new']
 
     #!DEPRICATED
     # def set_figure(self, fig):
@@ -2132,12 +2138,14 @@ class Annotation(Text, _AnnotationBase):
     def anncoords(self, coords):
         self._textcoords = coords
 
-    def _figure_changed(self, name, old, new):
+    @observe('figure')
+    def _figure_changed(self, change):
+        new = change['new']
         if self.arrow is not None:
             self.arrow.figure = new
         if self.arrow_patch is not None:
             self.arrow_patch.figure = new
-        Artist._figure_changed(self, name, old, new)
+        Artist._figure_changed(self, change)
 
     #!DEPRICATED
     # def set_figure(self, fig):

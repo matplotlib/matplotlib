@@ -8,6 +8,7 @@ import warnings
 import matplotlib.axes as maxes
 from matplotlib.artist import Artist
 from matplotlib.axis import XAxis, YAxis
+from matplotlib.traitlets import validate
 
 class SimpleChainedObjects(object):
     def __init__(self, objects):
@@ -106,7 +107,8 @@ class SimpleAxisArtist(Artist):
     major_ticklabels = property(_get_major_ticklabels)
     label = property(_get_label)
 
-    def _visible_validate(self, value, trait):
+    @validate('visible')
+    def _visible_validate(self, commit):
         self.toggle(all=b)
         self.line.visible = b
         self._axis.visible = True

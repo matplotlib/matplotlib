@@ -688,7 +688,7 @@ class Axis(artist.Artist):
         self.label.set_position((x, y))
         self.stale = True
 
-    def _transform_getter(self):
+    def _transform_getter(self, pull):
         return self._scale.get_transform()
 
     # !DEPRECATED
