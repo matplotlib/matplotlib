@@ -6,13 +6,11 @@ Using ax.set_xticks causes the tick labels to be set on the currently
 chosen ticks. However, you may want to allow matplotlib to dynamically
 choose the number of ticks and their spacing.
 
-In this case may be better to determine the tick label from the value
-at the tick. The following example shows how to do this.
+In this case it may be better to determine the tick label from the
+value at the tick. The following example shows how to do this.
 
-NB: The MaxNLocator is used here to ensure that the tick
-values take integer values. As such, we need to catch
-any IndexErrors in the format function where we have not
-defined a label for that particular tick
+NB: The MaxNLocator is used here to ensure that the tick values
+take integer values.
 
 """
 
