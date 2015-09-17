@@ -6,6 +6,7 @@ from __future__ import (absolute_import, division, print_function,
 from matplotlib.externals import six
 
 import os
+import sys
 from matplotlib import rcParams, verbose
 
 # Available APIs.
@@ -26,8 +27,18 @@ QT_API_ENV = os.environ.get('QT_API')
 
 if rcParams['backend'] == 'Qt5Agg':
     QT_RC_MAJOR_VERSION = 5
-else:
+elif rcParams['backend'] == 'Qt4Agg':
     QT_RC_MAJOR_VERSION = 4
+else:
+    # A different backend was specified, but we still got here because a Qt
+    # related file was imported.  This is allowed, so lets try and guess
+    # what we should be using.
+    if "PyQt5" in sys.modules:
+        # PyQt5 is actually used.
+        QT_RC_MAJOR_VERSION = 5
+    else:
+        # This is a fallback
+        QT_RC_MAJOR_VERSION = 4
 
 QT_API = None
 
@@ -47,8 +58,18 @@ if QT_API is None:
     # No ETS environment or incompatible so use rcParams.
     if rcParams['backend'] == 'Qt5Agg':
         QT_API = rcParams['backend.qt5']
-    else:
+    elif rcParams['backend'] == 'Qt4Agg':
         QT_API = rcParams['backend.qt4']
+    else:
+        # A different backend was specified, but we still got here because a Qt
+        # related file was imported.  This is allowed, so lets try and guess
+        # what we should be using.
+        if "PyQt5" in sys.modules:
+            # PyQt5 is actually used.
+            QT_API = rcParams['backend.qt5']
+        else:
+            # This is a fallback
+            QT_API = rcParams['backend.qt4']
 
 # We will define an appropriate wrapper for the differing versions
 # of file dialog.
