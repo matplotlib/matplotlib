@@ -68,8 +68,11 @@ you will also need to install compatible versions of
 in addition to
 `matplotlib <http://matplotlib.org/downloads.html>`_.
 
-In case Python is not installed for all users (not the default), the
-Microsoft Visual C++ 2008 (
+For Python 3.5 the `Visual C++ Redistributable for Visual Studio 2015
+<http://www.microsoft.com/en-us/download/details.aspx?id=48145>`_
+needs to be installed.
+In case Python 2.6 to 3.4 are not installed for all users (not the default), 
+the Microsoft Visual C++ 2008 (
 `64 bit <http://www.microsoft.com/download/en/details.aspx?id=15336>`__
 or
 `32 bit <http://www.microsoft.com/download/en/details.aspx?id=29>`__
