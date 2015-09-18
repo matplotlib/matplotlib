@@ -2165,3 +2165,22 @@ class PdfToPs(SetupPackage):
             pass
 
         raise CheckFailed()
+
+
+class OptionalPackageData(OptionalPackage):
+    config_category = "package_data"
+
+
+class Dlls(OptionalPackageData):
+    """
+    On Windows, this packages any DLL files that can be found in the 
+    lib/matplotlib/* directories.
+    """
+    name = "dlls"
+
+    def check_requirements(self):
+        if sys.platform != 'win32':
+            raise CheckFailed("Microsoft Windows only")
+
+    def get_package_data(self):
+        return {'': ['*.dll']}
