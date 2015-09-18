@@ -668,9 +668,11 @@ static PyObject *PyFT2Font_set_text(PyFT2Font *self, PyObject *args, PyObject *k
         return NULL;
     }
 
+    uint32_t* codepoints_array = NULL;
     if (size > 0) {
-        CALL_CPP("set_text", self->x->set_text(size, &codepoints[0], angle, flags, xys));
+        codepoints_array = &codepoints[0];
     }
+    CALL_CPP("set_text", self->x->set_text(size, codepoints_array, angle, flags, xys));
 
     return convert_xys_to_array(xys);
 }
