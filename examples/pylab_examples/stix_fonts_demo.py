@@ -8,10 +8,10 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 stests = [
-    r'$\mathcircled{123} \mathrm{\mathcircled{123}} \
-    \mathbf{\mathcircled{123}}$',
-    r'$\mathsf{Sans \Omega} \mathrm{\mathsf{Sans \Omega}} \
-    \mathbf{\mathsf{Sans \Omega}}$',
+    r'$\mathcircled{123} \mathrm{\mathcircled{123}}'
+    r' \mathbf{\mathcircled{123}}$',
+    r'$\mathsf{Sans \Omega} \mathrm{\mathsf{Sans \Omega}}'
+    r' \mathbf{\mathsf{Sans \Omega}}$',
     r'$\mathtt{Monospace}$',
     r'$\mathcal{CALLIGRAPHIC}$',
     r'$\mathbb{Blackboard \pi}$',
