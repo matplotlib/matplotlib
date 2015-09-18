@@ -24,8 +24,7 @@ from matplotlib.bezier import make_wedged_bezier2
 from matplotlib.bezier import split_path_inout, get_cos_sin
 from matplotlib.bezier import make_path_regular, concatenate_paths
 
-from .transforms import IdentityTransform
-from .traitlets import gTransformInstance, validate
+from .traitlets import validate, retrieve
 
 
 # these are not available for the object inspector until after the
@@ -69,8 +68,6 @@ class Patch(artist.Artist):
     zorder = 1
     validCap = ('butt', 'round', 'projecting')
     validJoin = ('miter', 'round', 'bevel')
-
-    transform = gTransformInstance(IdentityTransform())
 
     def __str__(self):
         return str(self.__class__).split('.')[-1]
@@ -196,6 +193,7 @@ class Patch(artist.Artist):
         """
         return self.get_path().get_extents(self.transform)
 
+    @retrieve('transform')
     def _transform_getter(self, pull):
         return self.get_patch_transform() + pull['value']
 

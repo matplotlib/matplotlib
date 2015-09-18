@@ -42,8 +42,6 @@ is_string_like = cbook.is_string_like
 is_sequence_of_strings = cbook.is_sequence_of_strings
 
 
-
-
 def _process_plot_format(fmt):
     """
     Process a MATLAB style color/line style format string.  Return a

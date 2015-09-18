@@ -8,7 +8,7 @@ except ImportError:
     from IPython.utils.traitlets import TraitError, HasTraits
 
 from matplotlib.traitlets import (Color, exdict, OnGetMixin, PrivateMethodMixin,
-                                  Int, Configurable, observe, validate)
+                                  Int, Configurable, observe, validate, retrieve)
 
 def test_exdict():
     e = exdict()
@@ -25,6 +25,7 @@ def test_getter():
     class A(PrivateMethodMixin, Configurable):
 
         attr = gInt(0)
+        @retrieve('attr')
         def _attr_getter(self, value, trait):
             return value + 1
 
@@ -59,6 +60,7 @@ class PrivateMethodTestCase(TestCase):
         class A(PrivateMethodMixin, Configurable):
 
             attr = gInt(0)
+            @retrieve('attr')
             def _attr_getter(self, value, trait):
                 return value + 1
 

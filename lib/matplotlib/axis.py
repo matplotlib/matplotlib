@@ -21,7 +21,7 @@ import matplotlib.units as munits
 import numpy as np
 import warnings
 
-from .traitlets import gTransformInstance, Instance
+from .traitlets import Instance, retrieve
 
 GRIDLINE_INTERPOLATION_STEPS = 180
 
@@ -619,8 +619,6 @@ class Axis(artist.Artist):
     """
     OFFSETTEXTPAD = 3
 
-    transform = gTransformInstance(None)
-
     label = Instance(mtext.Text, allow_none=True)
 
     def __str__(self):
@@ -688,6 +686,7 @@ class Axis(artist.Artist):
         self.label.set_position((x, y))
         self.stale = True
 
+    @retrieve('transform')
     def _transform_getter(self, pull):
         return self._scale.get_transform()
 

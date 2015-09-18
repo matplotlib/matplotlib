@@ -8,14 +8,16 @@ try:
                            Dict, List, Instance, Union,
                            Unicode, Tuple, TraitError,
                            Undefined, BaseDescriptor,
-                           getargspec, observe, default, validate)
+                           getargspec, observe, default,
+                           validate, EventHandler)
 except ImportError:
     # IPython3 imports
     from IPython.utils.traitlets.config import Configurable, Config
     from IPython.utils.traitlets import (TraitType, Int, Float, Bool,
                             Dict, List, Instance, Union, Unicode,
                             Tuple, TraitError, Undefined, BaseDescriptor,
-                            getargspec, observe, default, validate)
+                            getargspec, observe, default, validate,
+                            EventHandler)
 
 import re
 import types
@@ -81,24 +83,40 @@ class PrivateMethodMixin(object):
             raise TraitError(msg % (name, self.__class__.__name__))
         return trait
 
+def retrieve(name):
+    return RetrieveHandler(name)
+
+class RetrieveHandler(EventHandler):
+
+    def __init__(self, name):
+        self._name = name
+
+    def instance_init(self, inst):
+        if not hasattr(inst, '_retrieve_handlers'):
+            inst._retrieve_handlers = {}
+        if self._name in inst._retrieve_handlers:
+            raise TraitError("A retriever for the trait '%s' has "
+                             "already been registered" % self._name)
+        method = types.MethodType(self.func, inst)
+        inst._retrieve_handlers[self._name] = method
+
 class OnGetMixin(object):
 
-    def __init__(self, *args, **kwargs):
-        super_obj = super(OnGetMixin,self)
-        self.__base_get__ = super_obj.__get__
-        self.__base_set__ = super_obj.__set__
-        super_obj.__init__(*args, **kwargs)
-
     def __get__(self, obj, cls=None):
-        value = super(OnGetMixin,self).__get__(obj,cls)
-        method = getattr(obj, '_'+self.name+'_getter', None)
-        if value is not self and method is not None:
-            method = getattr(obj, '_'+self.name+'_getter')
+        if obj is None:
+            return self
+        value = super(OnGetMixin,self).get(obj, cls)
+        if self.name in obj._retrieve_handlers:
+            method = obj._retrieve_handlers[self.name]
             value = method({'value': value, 'owner':obj, 'trait':self})
         return value
 
+    def instance_init(self, inst):
+        if not hasattr(inst, '_retrieve_handlers'):
+            inst._retrieve_handlers = {}
+        super(OnGetMixin, self).instance_init(inst)
 
-class TransformInstance(TraitType):
+class TransformInstance(OnGetMixin, TraitType):
 
     info_text = ('a Transform instance or have an'
                  ' `_as_mpl_transform` method')
@@ -124,8 +142,6 @@ class TransformInstance(TraitType):
             self._conversion_method = True
             return value._as_mpl_transform
         trait.error(obj, value)
-
-class gTransformInstance(OnGetMixin,TransformInstance): pass
 
 #!Note : this is what the transform instance would
 # look like if getters were to be avoided entirely.

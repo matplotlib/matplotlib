@@ -15,9 +15,10 @@ from .transforms import (Bbox, IdentityTransform, TransformedBbox,
                          TransformedPatchPath, TransformedPath, Transform)
 from .path import Path
 
-from .traitlets import (Instance, Configurable, gTransformInstance, Bool, Undefined, Union,
+from .traitlets import (Instance, Configurable, TransformInstance, Bool, Undefined, Union,
                         BaseDescriptor, getargspec, PrivateMethodMixin, Float, TraitError,
-                        Unicode, Stringlike, Callable, Tuple, List, observe, validate, default)
+                        Unicode, Stringlike, Callable, Tuple, List, observe, validate, default,
+                        retrieve)
 
 from urlparse import urlparse
 
@@ -88,7 +89,7 @@ class Artist(PrivateMethodMixin, Configurable):
     aname = 'Artist'
     zorder = 0
 
-    transform = gTransformInstance(IdentityTransform())
+    transform = TransformInstance(None)
 
     @observe('transform')
     def _transform_changed(self, change):
@@ -100,6 +101,7 @@ class Artist(PrivateMethodMixin, Configurable):
         self.transform_set = True
         return commit['value']
 
+    @retrieve('transform')
     def _transform_getter(self, pull):
         if pull['trait']._conversion_method:
             return pull['value'](self.axes)
@@ -192,6 +194,7 @@ class Artist(PrivateMethodMixin, Configurable):
         repl = (commit['trait'].name, self.__class__.__name__)
         raise TraitError(msg % repl)
 
+    @retrieve('pickable')
     def _pickable_getter(self, pull):
         return (self.figure is not None and
                 self.figure.canvas is not None and
@@ -265,6 +268,7 @@ class Artist(PrivateMethodMixin, Configurable):
 
     snap = Bool(None, allow_none=True)
 
+    @retrieve('snap')
     def _snap_getter(self, pull):
         if rcParams['path.snap']:
             return pull['value']
