@@ -10,7 +10,11 @@
 static PyObject *convert_xys_to_array(std::vector<double> &xys)
 {
     npy_intp dims[] = {(npy_intp)xys.size() / 2, 2 };
-    return PyArray_SimpleNewFromData(2, dims, NPY_DOUBLE, &xys[0]);
+    if (dims[0] > 0) {
+        return PyArray_SimpleNewFromData(2, dims, NPY_DOUBLE, &xys[0]);
+    } else {
+        return PyArray_SimpleNew(2, dims, NPY_DOUBLE);
+    }
 }
 
 /**********************************************************************
@@ -664,7 +668,11 @@ static PyObject *PyFT2Font_set_text(PyFT2Font *self, PyObject *args, PyObject *k
         return NULL;
     }
 
-    CALL_CPP("set_text", self->x->set_text(size, &codepoints[0], angle, flags, xys));
+    uint32_t* codepoints_array = NULL;
+    if (size > 0) {
+        codepoints_array = &codepoints[0];
+    }
+    CALL_CPP("set_text", self->x->set_text(size, codepoints_array, angle, flags, xys));
 
     return convert_xys_to_array(xys);
 }
