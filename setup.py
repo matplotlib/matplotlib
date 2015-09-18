@@ -111,6 +111,8 @@ mpl_packages = [
     setupext.Ghostscript(),
     setupext.LaTeX(),
     setupext.PdfToPs()
+    'Optional package data',
+    setupext.Dlls(),
     ]
 
 
