@@ -707,7 +707,49 @@ class Figure(Artist):
             if manager is not None:
                 manager.resize(int(canvasw), int(canvash))
         self.stale = True
+    def set_size_cm(self, w, h=None, forward=False):
+        """
+        set_size_cm(w,h, forward=False)
 
+        Set the figure size in centimeters
+
+        Usage::
+
+             fig.set_size_cm(w,h)  # OR
+             fig.set_size_cm((w,h) )
+
+        optional kwarg *forward=True* will cause the canvas size to be
+        automatically updated; e.g., you can resize the figure window
+        from the shell
+
+        ACCEPTS: a w,h tuple with w,h in centimeters
+
+        See Also
+        --------
+
+        matplotlib.Figure.get_size_cm
+        """
+
+        # the width and height have been passed in as a tuple to the first
+        # argument, so unpack them
+        in_w = w*0.3937007874015748031496062992126
+        in_h = None
+        if h is None:
+            in_w, in_h = in_w
+        else:
+            in_h = h*0.3937007874015748031496062992126
+
+        dpival = self.dpi
+        self.bbox_inches.p1 = in_w, in_h
+
+        if forward:
+            dpival = self.dpi
+            canvasw = in_w * dpival
+            canvash = in_h * dpival
+            manager = getattr(self.canvas, 'manager', None)
+            if manager is not None:
+                manager.resize(int(canvasw), int(canvash))
+        self.stale = True
     def get_size_inches(self):
         """
         Returns the current size of the figure in inches (1in == 2.54cm)
@@ -724,7 +766,23 @@ class Figure(Artist):
         matplotlib.Figure.set_size_inches
         """
         return np.array(self.bbox_inches.p1)
+    def get_size_cm(self):
+        """
+        Returns the current size of the figure in centimeters
+        as an numpy array.
 
+        Returns
+        -------
+        size : ndarray
+           The size of the figure in centimeters
+
+        See Also
+        --------
+
+        matplotlib.Figure.set_size_cm
+        """
+        return np.array(self.bbox_inches.p1)*2.54
+        
     def get_edgecolor(self):
         'Get the edge color of the Figure rectangle'
         return self.patch.get_edgecolor()
