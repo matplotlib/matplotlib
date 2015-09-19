@@ -707,6 +707,7 @@ class Figure(Artist):
             if manager is not None:
                 manager.resize(int(canvasw), int(canvash))
         self.stale = True
+
     def set_size_cm(self, w, h=None, forward=False):
         """
         set_size_cm(w,h, forward=False)
@@ -750,6 +751,7 @@ class Figure(Artist):
             if manager is not None:
                 manager.resize(int(canvasw), int(canvash))
         self.stale = True
+
     def get_size_inches(self):
         """
         Returns the current size of the figure in inches (1in == 2.54cm)
@@ -766,6 +768,7 @@ class Figure(Artist):
         matplotlib.Figure.set_size_inches
         """
         return np.array(self.bbox_inches.p1)
+
     def get_size_cm(self):
         """
         Returns the current size of the figure in centimeters
@@ -782,7 +785,7 @@ class Figure(Artist):
         matplotlib.Figure.set_size_cm
         """
         return np.array(self.bbox_inches.p1)*2.54
-        
+
     def get_edgecolor(self):
         'Get the edge color of the Figure rectangle'
         return self.patch.get_edgecolor()
