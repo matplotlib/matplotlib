@@ -673,7 +673,7 @@ class Figure(Artist):
         set_size_inches(w,h, forward=False, metric=False)
 
         Set the figure size in inches (1in == 2.54cm)
-        
+
         Usage::
 
              fig.set_size_inches(w,h)  # OR
@@ -683,7 +683,7 @@ class Figure(Artist):
         automatically updated; e.g., you can resize the figure window
         from the shell
         optional kwarg *metric=True* will allow the use of measurement input in centimeters
-        
+
         ACCEPTS: a w,h tuple with w,h in inches (or cm if metric=True is specified)
 
         See Also
@@ -696,11 +696,11 @@ class Figure(Artist):
         # argument, so unpack them
         if h is None:
             w, h = w
-        
+
         if metric:
             w*=(1/2.54)
             h*=(1/2.54)
-        
+
         dpival = self.dpi
         self.bbox_inches.p1 = w, h
 
@@ -717,9 +717,9 @@ class Figure(Artist):
         """
         Returns the current size of the figure in inches (1in == 2.54cm)
         as an numpy array.
-        
+
         optional kwarg *metric=True* will return size in centimeters
-        
+
         Returns
         -------
         size : ndarray
