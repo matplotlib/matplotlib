@@ -24,6 +24,7 @@ from __future__ import (absolute_import, division, print_function,
 from matplotlib.externals import six
 from matplotlib.externals.six.moves import xrange
 
+from collections import namedtuple
 import errno
 import matplotlib
 import matplotlib.cbook as mpl_cbook
@@ -39,6 +40,9 @@ if six.PY3:
         return x
 
 _dvistate = mpl_cbook.Bunch(pre=0, outer=1, inpage=2, post_post=3, finale=4)
+Page = namedtuple('Page', 'text boxes height width descent')
+Text = namedtuple('Text', 'x y font glyph width')
+Box = namedtuple('Box', 'x y height width')
 
 class Dvi(object):
     """
@@ -107,7 +111,7 @@ class Dvi(object):
         minx, miny, maxx, maxy = np.inf, np.inf, -np.inf, -np.inf
         maxy_pure = -np.inf
         for elt in self.text + self.boxes:
-            if len(elt) == 4:   # box
+            if isinstance(elt, Box):
                 x,y,h,w = elt
                 e = 0           # zero depth
             else:               # glyph
@@ -121,9 +125,9 @@ class Dvi(object):
 
         if self.dpi is None:
             # special case for ease of debugging: output raw dvi coordinates
-            return mpl_cbook.Bunch(text=self.text, boxes=self.boxes,
-                                   width=maxx-minx, height=maxy_pure-miny,
-                                   descent=descent)
+            return Page(text=self.text, boxes=self.boxes,
+                        width=maxx-minx, height=maxy_pure-miny,
+                        descent=maxy-maxy_pure)
 
         d = self.dpi / (72.27 * 2**16) # from TeX's "scaled points" to dpi units
         if self.baseline is None:
@@ -131,14 +135,13 @@ class Dvi(object):
         else:
             descent = self.baseline
 
-        text =  [ ((x-minx)*d, (maxy-y)*d - descent, f, g, w*d)
+        text =  [ Text((x-minx)*d, (maxy-y)*d - descent, f, g, w*d)
                   for (x,y,f,g,w) in self.text ]
-        boxes = [ ((x-minx)*d, (maxy-y)*d - descent, h*d, w*d) for (x,y,h,w) in self.boxes ]
+        boxes = [ Box((x-minx)*d, (maxy-y)*d - descent, h*d, w*d)
+                  for (x,y,h,w) in self.boxes ]
 
-        return mpl_cbook.Bunch(text=text, boxes=boxes,
-                               width=(maxx-minx)*d,
-                               height=(maxy_pure-miny)*d,
-                               descent=descent)
+        return Page(text=text, boxes=boxes, width=(maxx-minx)*d,
+                    height=(maxy_pure-miny)*d, descent=descent)
 
     def _read(self):
         """
@@ -275,26 +278,26 @@ class Dvi(object):
             raise ValueError("misplaced put_char in dvi file")
         font = self.fonts[self.f]
         if font._vf is None:
-            self.text.append((self.h, self.v, font, char,
-                              font._width_of(char)))
+            self.text.append(Text(self.h, self.v, font, char,
+                                  font._width_of(char)))
         else:
             scale = font._scale
             for x, y, f, g, w in font._vf[char].text:
                 newf = DviFont(scale=_mul2012(scale, f._scale),
                                tfm=f._tfm, texname=f.texname, vf=f._vf)
-                self.text.append((self.h + _mul2012(x, scale),
-                                  self.v + _mul2012(y, scale),
-                                  newf, g, newf._width_of(g)))
-            self.boxes.extend([(self.h + _mul2012(x, scale),
-                                self.v + _mul2012(y, scale),
-                                _mul2012(a, scale), _mul2012(b, scale))
+                self.text.append(Text(self.h + _mul2012(x, scale),
+                                      self.v + _mul2012(y, scale),
+                                      newf, g, newf._width_of(g)))
+            self.boxes.extend([Box(self.h + _mul2012(x, scale),
+                                   self.v + _mul2012(y, scale),
+                                   _mul2012(a, scale), _mul2012(b, scale))
                                for x, y, a, b in font._vf[char].boxes])
 
     def _put_rule(self, a, b):
         if self.state != _dvistate.inpage:
             raise ValueError("misplaced put_rule in dvi file")
         if a > 0 and b > 0:
-            self.boxes.append((self.h, self.v, a, b))
+            self.boxes.append(Box(self.h, self.v, a, b))
 
     def _nop(self):
         pass
@@ -305,8 +308,8 @@ class Dvi(object):
         self.state = _dvistate.inpage
         self.h, self.v, self.w, self.x, self.y, self.z = 0, 0, 0, 0, 0, 0
         self.stack = []
-        self.text = []          # list of (x,y,fontnum,glyphnum)
-        self.boxes = []         # list of (x,y,width,height)
+        self.text = []          # list of Text objects
+        self.boxes = []         # list of Box objects
 
     def _eop(self):
         if self.state != _dvistate.inpage:
@@ -556,7 +559,7 @@ class Vf(Dvi):
         self.f = self._first_font
 
     def _finalize_packet(self):
-        self._chars[self._packet_char] = mpl_cbook.Bunch(
+        self._chars[self._packet_char] = Page(
             text=self.text, boxes=self.boxes, width = self._packet_width)
         self.state = _dvistate.outer
 
@@ -648,6 +651,10 @@ class Tfm(object):
             self.height[char] = _fix2comp(heights[ord(char_info[4*idx+1]) >> 4])
             self.depth[char] = _fix2comp(depths[ord(char_info[4*idx+1]) & 0xf])
 
+
+PsFont = namedtuple('Font', 'texname psname effects encoding filename')
+
+
 class PsfontsMap(object):
     """
     A psfonts.map formatted file, mapping TeX fonts to PS fonts.
@@ -697,10 +704,10 @@ class PsfontsMap(object):
             result = self._font[texname.decode('ascii')]
         fn, enc = result.filename, result.encoding
         if fn is not None and not fn.startswith('/'):
-            result.filename = find_tex_file(fn)
+            fn = find_tex_file(fn)
         if enc is not None and not enc.startswith('/'):
-            result.encoding = find_tex_file(result.encoding)
-        return result
+            enc = find_tex_file(result.encoding)
+        return result._replace(filename=fn, encoding=enc)
 
     def _parse(self, file):
         """Parse each line into words."""
@@ -775,7 +782,7 @@ class PsfontsMap(object):
         except ValueError:
             pass
 
-        self._font[texname] = mpl_cbook.Bunch(
+        self._font[texname] = PsFont(
             texname=texname, psname=psname, effects=effects,
             encoding=encoding, filename=filename)
 
