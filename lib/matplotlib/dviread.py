@@ -6,16 +6,16 @@ processing usetex text.
 
 Interface::
 
-  dvi = Dvi(filename, 72)
-  # iterate over pages (but only one page is supported for now):
-  for page in dvi:
-      w, h, d = page.width, page.height, page.descent
-      for x,y,font,glyph,width in page.text:
-          fontname = font.texname
-          pointsize = font.size
-          ...
-      for x,y,height,width in page.boxes:
-          ...
+  with Dvi(filename, 72) as dvi:
+      # iterate over pages (but only one page is supported for now):
+      for page in dvi:
+          w, h, d = page.width, page.height, page.descent
+          for x,y,font,glyph,width in page.text:
+              fontname = font.texname
+              pointsize = font.size
+              ...
+          for x,y,height,width in page.boxes:
+              ...
 
 """
 from __future__ import (absolute_import, division, print_function,
@@ -74,6 +74,12 @@ class Dvi(object):
                 height, depth, width = l
                 return float(depth)
         return None
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, etype, evalue, etrace):
+        self.close()
 
     def __iter__(self):
         """
@@ -910,15 +916,15 @@ if __name__ == '__main__':
     fname = sys.argv[1]
     try: dpi = float(sys.argv[2])
     except IndexError: dpi = None
-    dvi = Dvi(fname, dpi)
-    fontmap = PsfontsMap(find_tex_file('pdftex.map'))
-    for page in dvi:
-        print('=== new page ===')
-        fPrev = None
-        for x,y,f,c,w in page.text:
-            if f != fPrev:
-                print('font', f.texname, 'scaled', f._scale/pow(2.0,20))
-                fPrev = f
-            print(x,y,c, 32 <= c < 128 and chr(c) or '.', w)
-        for x,y,w,h in page.boxes:
-            print(x,y,'BOX',w,h)
+    with Dvi(fname, dpi) as dvi:
+        fontmap = PsfontsMap(find_tex_file('pdftex.map'))
+        for page in dvi:
+            print('=== new page ===')
+            fPrev = None
+            for x,y,f,c,w in page.text:
+                if f != fPrev:
+                    print('font', f.texname, 'scaled', f._scale/pow(2.0,20))
+                    fPrev = f
+                print(x,y,c, 32 <= c < 128 and chr(c) or '.', w)
+            for x,y,w,h in page.boxes:
+                print(x,y,'BOX',w,h)
