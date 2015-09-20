@@ -3341,8 +3341,8 @@ class _AxesBase(martist.Artist):
 
         lastx, lasty, x, y = bbox
 
-        if(original_view is None):
-            original_view = self._getview()
+        if original_view is None:
+            original_view = self._get_view()
         else:
             x0, x1, y0, y1 = original_view
 
