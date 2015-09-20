@@ -447,6 +447,10 @@ class array_view : public detail::array_view_accessors<array_view, T, ND>
 		    return 1;
 		}
             }
+	    if (PyArray_NDIM(tmp) > 0 && PyArray_DIM(tmp, 0) == 0) {
+		// accept dimension mismatch for empty arrays
+		return 1;
+	    }
 	    if (PyArray_NDIM(tmp) != ND) {
 		PyErr_Format(PyExc_ValueError,
 			     "Expected %d-dimensional array, got %d",
