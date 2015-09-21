@@ -3318,7 +3318,7 @@ class _AxesBase(martist.Artist):
 
         original_view : any
             A view saved from before initiating the selection, the result of
-            calling :meth:`_get_view`. If set to none, _get_view will be called
+            calling :meth:`_get_view`. If set to None, _get_view will be called
             to obtain current view state.
 
         direction : str
@@ -3341,17 +3341,17 @@ class _AxesBase(martist.Artist):
 
         lastx, lasty, x, y = bbox
 
-        if original_view is None:
-            original_view = self._get_view()
-        else:
-            x0, x1, y0, y1 = original_view
-
         # zoom to rect
         inverse = self.transData.inverted()
         lastx, lasty = inverse.transform_point((lastx, lasty))
         x, y = inverse.transform_point((x, y))
         Xmin, Xmax = self.get_xlim()
         Ymin, Ymax = self.get_ylim()
+
+        if original_view is not None:
+            x0, x1, y0, y1 = original_view
+        else:
+            x0, x1, y0, y1 = Xmin, Xmax, Ymin, Ymax
 
         if twinx:
             x0, x1 = Xmin, Xmax
