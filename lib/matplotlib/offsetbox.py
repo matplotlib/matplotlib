@@ -1342,7 +1342,7 @@ class OffsetImage(OffsetBox):
         zoom = self.get_zoom() 
         data = self.get_data()
         ny, nx = data.shape[:2]
-        w, h = dpi_cor nx * zoom, dpi_cor * ny * zoom
+        w, h = dpi_cor * nx * zoom, dpi_cor * ny * zoom
 
         return w, h, 0, 0
 
