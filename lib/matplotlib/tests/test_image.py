@@ -6,7 +6,7 @@ from matplotlib.externals import six
 import numpy as np
 
 from matplotlib.testing.decorators import image_comparison, knownfailureif, cleanup
-from matplotlib.image import BboxImage, imread
+from matplotlib.image import BboxImage, imread, NonUniformImage
 from matplotlib.transforms import Bbox
 from matplotlib import rcParams
 import matplotlib.pyplot as plt
@@ -440,6 +440,18 @@ def test_zoom_and_clip_upper_origin():
     ax.set_ylim(2.0, -0.5)
     ax.set_xlim(-0.5, 2.0)
 
+
+@cleanup
+def test_nonuniformimage_setcmap():
+    ax = plt.gca()
+    im = NonUniformImage(ax)
+    im.set_cmap('Blues')
+
+@cleanup
+def test_nonuniformimage_setnorm():
+    ax = plt.gca()
+    im = NonUniformImage(ax)
+    im.set_norm(plt.Normalize())
 
 if __name__=='__main__':
     import nose
