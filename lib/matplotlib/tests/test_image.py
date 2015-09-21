@@ -441,10 +441,17 @@ def test_zoom_and_clip_upper_origin():
     ax.set_xlim(-0.5, 2.0)
 
 
+@cleanup
 def test_nonuniformimage_setcmap():
     ax = plt.gca()
     im = NonUniformImage(ax)
     im.set_cmap('Blues')
+
+@cleanup
+def test_nonuniformimage_setnorm():
+    ax = plt.gca()
+    im = NonUniformImage(ax)
+    im.set_norm(plt.Normalize())
 
 if __name__=='__main__':
     import nose
