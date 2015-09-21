@@ -847,7 +847,7 @@ class NonUniformImage(AxesImage):
     def set_norm(self, norm):
         if self._A is not None:
             raise RuntimeError('Cannot change colors after loading data')
-        super(NonUniformImage, self).set_norm(self, norm)
+        super(NonUniformImage, self).set_norm(norm)
 
     def set_cmap(self, cmap):
         if self._A is not None:
