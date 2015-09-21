@@ -35,7 +35,7 @@ language: python
 matrix:
   include:
     - python: 2.6
-      env: NUMPY=numpy==1.6 MOCK=mock==1.0.1
+      env: NUMPY=numpy==1.6 MOCK=mock
     - python: 2.7
       env: MOCK=mock PANDAS=pandas
     - python: 3.3
