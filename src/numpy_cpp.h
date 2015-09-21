@@ -444,11 +444,14 @@ class array_view : public detail::array_view_accessors<array_view, T, ND>
                 m_shape = zeros;
                 m_strides = zeros;
 		if (PyArray_NDIM(tmp) == 0 && ND == 0) {
+		    m_arr = tmp;
 		    return 1;
 		}
             }
 	    if (PyArray_NDIM(tmp) > 0 && PyArray_DIM(tmp, 0) == 0) {
 		// accept dimension mismatch for empty arrays
+		Py_XDECREF(m_arr);
+		m_arr = tmp;
 		return 1;
 	    }
 	    if (PyArray_NDIM(tmp) != ND) {
