@@ -233,6 +233,8 @@ class NoseTestCommand(TestCommand):
                   argv=['nosetests'] + self.test_args,
                   exit=True)
 
+cmdclass = versioneer.get_cmdclass()
+cmdclass['test'] = NoseTestCommand
 
 # One doesn't normally see `if __name__ == '__main__'` blocks in a setup.py,
 # however, this is needed on Windows to avoid creating infinite subprocesses
@@ -375,6 +377,6 @@ if __name__ == '__main__':
         # Telling setuptools this prevents it from doing an automatic
         # check for zip safety.
         zip_safe=False,
-        cmdclass={'test': NoseTestCommand},
+        cmdclass=cmdclass,
         **extra_args
     )
