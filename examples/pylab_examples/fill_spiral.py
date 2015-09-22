@@ -1,24 +1,23 @@
-#!/usr/bin/env python
+import matplotlib.pyplot as plt
+import numpy as np
 
-from pylab import *
-
-theta = arange(0, 8*pi, 0.1)
+theta = np.arange(0, 8*np.pi, 0.1)
 a = 1
 b = .2
 
-for dt in arange(0, 2*pi, pi/2.0):
+for dt in np.arange(0, 2*np.pi, np.pi/2.0):
 
-    x = a*cos(theta + dt)*exp(b*theta)
-    y = a*sin(theta + dt)*exp(b*theta)
+    x = a*np.cos(theta + dt)*np.exp(b*theta)
+    y = a*np.sin(theta + dt)*np.exp(b*theta)
 
-    dt = dt + pi/4.0
+    dt = dt + np.pi/4.0
 
-    x2 = a*cos(theta + dt)*exp(b*theta)
-    y2 = a*sin(theta + dt)*exp(b*theta)
+    x2 = a*np.cos(theta + dt)*np.exp(b*theta)
+    y2 = a*np.sin(theta + dt)*np.exp(b*theta)
 
-    xf = concatenate((x, x2[::-1]))
-    yf = concatenate((y, y2[::-1]))
+    xf = np.concatenate((x, x2[::-1]))
+    yf = np.concatenate((y, y2[::-1]))
 
-    p1 = fill(xf, yf)
+    p1 = plt.fill(xf, yf)
 
-show()
+plt.show()
