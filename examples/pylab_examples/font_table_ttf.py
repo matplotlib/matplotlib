@@ -13,7 +13,6 @@ import os
 import matplotlib
 from matplotlib.ft2font import FT2Font
 from matplotlib.font_manager import FontProperties
-# from pylab import figure, table, show, axis, title
 import matplotlib.pyplot as plt
 
 import six
@@ -40,7 +39,7 @@ codes.sort()
 chars = [['' for c in range(16)] for r in range(16)]
 colors = [[(0.95, 0.95, 0.95) for c in range(16)] for r in range(16)]
 
-figure(figsize=(8, 4), dpi=120)
+plt.figure(figsize=(8, 4), dpi=120)
 for ccode, glyphind in codes:
     if ccode >= 256:
         continue
