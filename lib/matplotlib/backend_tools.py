@@ -389,7 +389,7 @@ class ToolQuit(ToolBase):
     def trigger(self, sender, event, data=None):
         try:
             manager = self.figure.canvas.manager
-        except:
+        except AttributeError:
             pass
         else:
             manager.destroy('window_destroy_event')
