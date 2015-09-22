@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 # -*- noplot -*-
 """
 matplotlib has support for freetype fonts.  Here's a little example
@@ -14,7 +13,7 @@ import os
 import matplotlib
 from matplotlib.ft2font import FT2Font
 from matplotlib.font_manager import FontProperties
-from pylab import figure, table, show, axis, title
+import matplotlib.pyplot as plt
 
 import six
 from six import unichr
@@ -40,7 +39,7 @@ codes.sort()
 chars = [['' for c in range(16)] for r in range(16)]
 colors = [[(0.95, 0.95, 0.95) for c in range(16)] for r in range(16)]
 
-figure(figsize=(8, 4), dpi=120)
+plt.figure(figsize=(8, 4), dpi=120)
 for ccode, glyphind in codes:
     if ccode >= 256:
         continue
@@ -49,19 +48,19 @@ for ccode, glyphind in codes:
     chars[r][c] = s
 
 lightgrn = (0.5, 0.8, 0.5)
-title(fontname)
-tab = table(cellText=chars,
-            rowLabels=labelr,
-            colLabels=labelc,
-            rowColours=[lightgrn]*16,
-            colColours=[lightgrn]*16,
-            cellColours=colors,
-            cellLoc='center',
-            loc='upper left')
+plt.title(fontname)
+tab = plt.table(cellText=chars,
+                rowLabels=labelr,
+                colLabels=labelc,
+                rowColours=[lightgrn]*16,
+                colColours=[lightgrn]*16,
+                cellColours=colors,
+                cellLoc='center',
+                loc='upper left')
 
 for key, cell in tab.get_celld().items():
     row, col = key
     if row > 0 and col > 0:
         cell.set_text_props(fontproperties=FontProperties(fname=fontname))
-axis('off')
-show()
+plt.axis('off')
+plt.show()
