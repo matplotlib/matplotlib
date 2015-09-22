@@ -72,7 +72,7 @@ t = np.arange(0.0, 1.0, 0.01)
 s = np.sin(2*2*np.pi*t)
 fig, ax = plt.subplots()
 
-# cursor = Cursor(ax)
+#cursor = Cursor(ax)
 cursor = SnaptoCursor(ax, t, s)
 plt.connect('motion_notify_event', cursor.mouse_move)
 
