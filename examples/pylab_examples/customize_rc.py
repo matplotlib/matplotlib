@@ -1,4 +1,3 @@
-
 """
 I'm not trying to make a good looking figure here, but just to show
 some examples of customizing rc params on the fly
@@ -26,26 +25,26 @@ Then as you are working interactively, you just need to do
 >>> rcdefaults()  # restore the defaults
 
 """
-from pylab import *
+import matplotlib.pyplot as plt
 
-subplot(311)
-plot([1, 2, 3])
+plt.subplot(311)
+plt.plot([1, 2, 3])
 
 # the axes attributes need to be set before the call to subplot
-rc('font', weight='bold')
-rc('xtick.major', size=5, pad=7)
-rc('xtick', labelsize=15)
+plt.rc('font', weight='bold')
+plt.rc('xtick.major', size=5, pad=7)
+plt.rc('xtick', labelsize=15)
 
 # using aliases for color, linestyle and linewidth; gray, solid, thick
-rc('grid', c='0.5', ls='-', lw=5)
-rc('lines', lw=2, color='g')
-subplot(312)
+plt.rc('grid', c='0.5', ls='-', lw=5)
+plt.rc('lines', lw=2, color='g')
+plt.subplot(312)
 
-plot([1, 2, 3])
-grid(True)
+plt.plot([1, 2, 3])
+plt.grid(True)
 
-rcdefaults()
-subplot(313)
-plot([1, 2, 3])
-grid(True)
-show()
+plt.rcdefaults()
+plt.subplot(313)
+plt.plot([1, 2, 3])
+plt.grid(True)
+plt.show()
