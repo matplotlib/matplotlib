@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 r = np.arange(0, 3.0, 0.01)
 theta = 2 * np.pi * r
 
-ax = plt.subplot(111, polar=True)
+ax = plt.subplot(111, projection='polar')
 ax.plot(theta, r, color='r', linewidth=3)
 ax.set_rmax(2.0)
 ax.grid(True)
