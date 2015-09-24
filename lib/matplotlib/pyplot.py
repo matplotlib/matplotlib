@@ -92,11 +92,15 @@ def _backend_selection():
         if not PyQt5.QtWidgets.qApp.startingUp():
             # The mainloop is running.
             rcParams['backend'] = 'qt5Agg'
-    elif ('gtk' in sys.modules
-            and backend not in ('GTK', 'GTKAgg', 'GTKCairo')
-            and 'gi.repository.GObject' not in sys.modules):
-        import gobject
-        if gobject.MainLoop().is_running():
+    elif ('gtk' in sys.modules and
+          backend not in ('GTK', 'GTKAgg', 'GTKCairo')):
+        if 'gi' in sys.modules:
+            from gi.repository import GObject
+            ml = GObject.MainLoop
+        else:
+            import gobject
+            ml = gobject.MainLoop
+        if ml().is_running():
             rcParams['backend'] = 'gtk' + 'Agg' * is_agg_backend
     elif 'Tkinter' in sys.modules and not backend == 'TkAgg':
         # import Tkinter
