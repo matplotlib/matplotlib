@@ -57,7 +57,7 @@ class SnaptoCursor(object):
 
         x, y = event.xdata, event.ydata
 
-        indx = searchsorted(self.x, [x])[0]
+        indx = np.searchsorted(self.x, [x])[0]
         x = self.x[indx]
         y = self.y[indx]
         # update the line positions
@@ -66,7 +66,7 @@ class SnaptoCursor(object):
 
         self.txt.set_text('x=%1.2f, y=%1.2f' % (x, y))
         print('x=%1.2f, y=%1.2f' % (x, y))
-        draw()
+        plt.draw()
 
 t = np.arange(0.0, 1.0, 0.01)
 s = np.sin(2*2*np.pi*t)
