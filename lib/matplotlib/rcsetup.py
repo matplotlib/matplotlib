@@ -1033,7 +1033,7 @@ defaultParams = {
     'legend.isaxes': [True, validate_bool],
 
     # the number of points in the legend line
-    'legend.numpoints': [2, validate_int],
+    'legend.numpoints': [1, validate_int],
     # the number of points in the legend line for scatter
     'legend.scatterpoints': [3, validate_int],
     'legend.fontsize': ['large', validate_fontsize],
