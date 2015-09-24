@@ -265,6 +265,19 @@ of the property cycle, if it exists.
 Timeline for removal has not been set.
 
 
+Bundled jquery
+--------------
+
+The version of jquery bundled with the webagg backend has been upgraded
+from 1.7.1 to 1.11.3.  If you are using the version of jquery bundled
+with webagg you will need to update you html files as such
+
+.. code-block:: diff
+
+   -    <script src="_static/jquery/js/jquery-1.7.1.min.js"></script>
+   +    <script src="_static/jquery/js/jquery-1.11.3.min.js"></script>
+
+
 Code Removed
 ------------
 
