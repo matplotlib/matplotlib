@@ -3827,6 +3827,7 @@ class Axes(_AxesBase):
         x = self.convert_xunits(x)
         y = self.convert_yunits(y)
 
+        x_shape = x.shape
         # np.ma.ravel yields an ndarray, not a masked array,
         # unless its argument is a masked array.
         x = np.ma.ravel(x)
@@ -3842,7 +3843,7 @@ class Axes(_AxesBase):
         # favor mapping, not rgb or rgba.
         try:
             c_array = np.asanyarray(c, dtype=float)
-            if c_array.shape == x.shape:
+            if c_array.shape == x_shape:
                 c = np.ma.ravel(c_array)
             else:
                 # Wrong shape; it must not be intended for mapping.
