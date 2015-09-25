@@ -6,7 +6,8 @@ import matplotlib.animation as animation
 
 import mplparsave
 
-#### THIS CODE COMES FROM MATPLOTLIB EXAMPLES: ########
+# THIS CODE COMES FROM
+# matplotlib/examples/animation/dynamic_pendulum_animated.py:
 
 G =  9.8 # acceleration due to gravity, in m/s^2
 L1 = 1.0 # length of pendulum 1 in m
@@ -84,27 +85,28 @@ def animate(i):
 
 ############## THIS CODE IS TO DEMONSTRATE HOW MPLPARSAVE WORKS ############
 
-# The first half of the frames...
-block1=np.arange(1, len(y)/2)
-# The second half of the frames...
-block2=np.arange(len(y)/2, len(y))
-# Two blocks in total will tell the recorder to run two processes in
-# parallel, one for each of the blocks, and stitch the two at the end.
-# More blocks will trigger more processes. One shouldn't run more than
-# the number of available cores.
-blocks=[block1, block2]
+def parsave():
+    # The first half of the frames...
+    block1=np.arange(1, len(y)/2)
+    # The second half of the frames...
+    block2=np.arange(len(y)/2, len(y))
+    # Two blocks in total will tell the recorder to run two processes in
+    # parallel, one for each of the blocks, and stitch the two at the end.
+    # More blocks will trigger more processes. One shouldn't run more than
+    # the number of available cores.
+    blocks=[block1, block2]
 
-# Set up the writer class (matplotlib proper). We use 'ffmpeg', but
-# any of the supported writers can be used.
-Writer = animation.writers['ffmpeg']
-writer = Writer(fps=30, bitrate=1800)
+    # Set up the writer class (matplotlib proper). We use 'ffmpeg', but
+    # any of the supported writers can be used.
+    Writer = animation.writers['ffmpeg']
+    writer = Writer(fps=30, bitrate=1800)
 
-# Record and stitch using ffmpeg as stitcher...
-mplparsave.Parsave.record("ffmpeg-pendulum.mp4", fig, animate, init,
-                          blocks, writer, mplparsave.Stitcher('ffmpeg'),
-                          interval=35)
+    # Record and stitch using ffmpeg as stitcher...
+    mplparsave.Parsave.record("ffmpeg-pendulum.mp4", fig, animate, init,
+                              blocks, writer, mplparsave.Stitcher('ffmpeg'),
+                              interval=35)
 
-# Record and stitch using mencoder as stitcher...
-mplparsave.Parsave.record("mencoder-pendulum.mp4", fig, animate, init,
-                          blocks, writer, mplparsave.Stitcher('mencoder'),
-                          interval=35)
+    # Record and stitch using mencoder as stitcher...
+    mplparsave.Parsave.record("mencoder-pendulum.mp4", fig, animate, init,
+                              blocks, writer, mplparsave.Stitcher('mencoder'),
+                              interval=35)

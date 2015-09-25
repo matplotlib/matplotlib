@@ -198,3 +198,10 @@ external matplotlib backend uses iTerm2 nightly build inline image display
 feature.
 
 .. image:: /_static/matplotlib_iterm2_demo.png
+
+mpl_parsave
+===========
+
+Provides a class, Parsave, to fascilitate recording of animations in parallel.
+That is, an animation is broken into blocks, blocks are recorded in parallel
+using multiprocessing, then stitch the blocks into a final movie.
