@@ -39,6 +39,7 @@ import matplotlib.colorbar as cbar
 
 from matplotlib.axes import Axes, SubplotBase, subplot_class_factory
 from matplotlib.blocking_input import BlockingMouseInput, BlockingKeyMouseInput
+from matplotlib.gridspec import GridSpec
 from matplotlib.legend import Legend
 from matplotlib.patches import Rectangle
 from matplotlib.projections import (get_projection_names,
@@ -1000,6 +1001,142 @@ class Figure(Artist):
         a._remove_method = lambda ax: self.delaxes(ax)
         self.stale = True
         return a
+
+    def add_subplots(self, nrows=1, ncols=1, sharex=False, sharey=False,
+                     squeeze=True, subplot_kw=None, gridspec_kw=None):
+        """
+        Add a set of subplots to this figure.
+
+        Keyword arguments:
+
+        *nrows* : int
+            Number of rows of the subplot grid.  Defaults to 1.
+
+        *ncols* : int
+            Number of columns of the subplot grid.  Defaults to 1.
+
+        *sharex* : string or bool
+            If *True*, the X axis will be shared amongst all subplots.  If
+            *True* and you have multiple rows, the x tick labels on all but
+            the last row of plots will have visible set to *False*
+            If a string must be one of "row", "col", "all", or "none".
+            "all" has the same effect as *True*, "none" has the same effect
+            as *False*.
+            If "row", each subplot row will share a X axis.
+            If "col", each subplot column will share a X axis and the x tick
+            labels on all but the last row will have visible set to *False*.
+
+        *sharey* : string or bool
+            If *True*, the Y axis will be shared amongst all subplots. If
+            *True* and you have multiple columns, the y tick labels on all but
+            the first column of plots will have visible set to *False*
+            If a string must be one of "row", "col", "all", or "none".
+            "all" has the same effect as *True*, "none" has the same effect
+            as *False*.
+            If "row", each subplot row will share a Y axis and the y tick
+            labels on all but the first column will have visible set to *False*.
+            If "col", each subplot column will share a Y axis.
+
+        *squeeze* : bool
+            If *True*, extra dimensions are squeezed out from the
+            returned axis object:
+
+            - if only one subplot is constructed (nrows=ncols=1), the
+            resulting single Axis object is returned as a scalar.
+
+            - for Nx1 or 1xN subplots, the returned object is a 1-d numpy
+            object array of Axis objects are returned as numpy 1-d
+            arrays.
+
+            - for NxM subplots with N>1 and M>1 are returned as a 2d
+            array.
+
+            If *False*, no squeezing at all is done: the returned axis
+            object is always a 2-d array containing Axis instances, even if it
+            ends up being 1x1.
+
+        *subplot_kw* : dict
+            Dict with keywords passed to the
+            :meth:`~matplotlib.figure.Figure.add_subplot` call used to
+            create each subplots.
+
+        *gridspec_kw* : dict
+            Dict with keywords passed to the
+            :class:`~matplotlib.gridspec.GridSpec` constructor used to create
+            the grid the subplots are placed on.
+
+        Returns:
+
+        ax : single axes object or array of axes objects
+            The addes axes.  The dimensions of the resulting array can be
+            controlled with the squeeze keyword, see above.
+
+        See the docstring of :func:`~pyplot.subplots' for examples
+        """
+
+        # for backwards compatibility
+        if isinstance(sharex, bool):
+            sharex = "all" if sharex else "none"
+        if isinstance(sharey, bool):
+            sharey = "all" if sharey else "none"
+        share_values = ["all", "row", "col", "none"]
+        if sharex not in share_values:
+            # This check was added because it is very easy to type
+            # `subplots(1, 2, 1)` when `subplot(1, 2, 1)` was intended.
+            # In most cases, no error will ever occur, but mysterious behavior
+            # will result because what was intended to be the subplot index is
+            # instead treated as a bool for sharex.
+            if isinstance(sharex, int):
+                warnings.warn(
+                    "sharex argument to add_subplots() was an integer. "
+                    "Did you intend to use add_subplot() (without 's')?")
+
+            raise ValueError("sharex [%s] must be one of %s" %
+                             (sharex, share_values))
+        if sharey not in share_values:
+            raise ValueError("sharey [%s] must be one of %s" %
+                             (sharey, share_values))
+        if subplot_kw is None:
+            subplot_kw = {}
+        if gridspec_kw is None:
+            gridspec_kw = {}
+
+        gs = GridSpec(nrows, ncols, **gridspec_kw)
+
+        # Create array to hold all axes.
+        axarr = np.empty((nrows, ncols), dtype=object)
+        for row in range(nrows):
+            for col in range(ncols):
+                shared_with = {"none": None, "all": axarr[0, 0],
+                               "row": axarr[row, 0], "col": axarr[0, col]}
+                subplot_kw["sharex"] = shared_with[sharex]
+                subplot_kw["sharey"] = shared_with[sharey]
+                axarr[row, col] = self.add_subplot(gs[row, col], **subplot_kw)
+
+        # turn off redundant tick labeling
+        if sharex in ["col", "all"] and nrows > 1:
+            # turn off all but the bottom row
+            for ax in axarr[:-1, :].flat:
+                for label in ax.get_xticklabels():
+                    label.set_visible(False)
+                ax.xaxis.offsetText.set_visible(False)
+
+        if sharey in ["row", "all"] and ncols > 1:
+            # turn off all but the first column
+            for ax in axarr[:, 1:].flat:
+                for label in ax.get_yticklabels():
+                    label.set_visible(False)
+                ax.yaxis.offsetText.set_visible(False)
+
+        if squeeze:
+            # Reshape the array to have the final desired dimension (nrow,ncol),
+            # though discarding unneeded dimensions that equal 1.  If we only have
+            # one subplot, just return it instead of a 1-element array.
+            return axarr.item() if axarr.size == 1 else axarr.squeeze()
+        else:
+            # returned axis array will be always 2-d, even if nrows=ncols=1
+            return axarr
+
 
     def clf(self, keep_observers=False):
         """
