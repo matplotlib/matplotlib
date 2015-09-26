@@ -31,14 +31,14 @@ elif rcParams['backend'] == 'Qt4Agg':
     QT_RC_MAJOR_VERSION = 4
 else:
     # A different backend was specified, but we still got here because a Qt
-    # related file was imported.  This is allowed, so lets try and guess
+    # related file was imported. This is allowed, so lets try and guess
     # what we should be using.
-    if "PyQt5" in sys.modules:
+    if "PyQt4" in sys.modules:
         # PyQt5 is actually used.
-        QT_RC_MAJOR_VERSION = 5
+        QT_RC_MAJOR_VERSION = 4
     else:
         # This is a fallback
-        QT_RC_MAJOR_VERSION = 4
+        QT_RC_MAJOR_VERSION = 5
 
 QT_API = None
 
@@ -62,14 +62,14 @@ if QT_API is None:
         QT_API = rcParams['backend.qt4']
     else:
         # A different backend was specified, but we still got here because a Qt
-        # related file was imported.  This is allowed, so lets try and guess
+        # related file was imported. This is allowed, so lets try and guess
         # what we should be using.
-        if "PyQt5" in sys.modules:
-            # PyQt5 is actually used.
-            QT_API = rcParams['backend.qt5']
+        if "PyQt4" in sys.modules:
+            # PyQt4 is actually used.
+            QT_API = rcParams['backend.qt4']
         else:
             # This is a fallback
-            QT_API = rcParams['backend.qt4']
+            QT_API = rcParams['backend.qt5']
 
 # We will define an appropriate wrapper for the differing versions
 # of file dialog.
