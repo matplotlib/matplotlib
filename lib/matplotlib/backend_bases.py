@@ -1685,7 +1685,7 @@ class FigureCanvasBase(object):
         #  - in interactive mode
         #  - not bunching `draw_idle` calls (ex not in IPython)
         self._is_idle_drawing = True
-
+        self._is_saving = False
         figure.set_canvas(self)
         self.figure = figure
         # a dictionary from event name to a dictionary that maps cid->func
@@ -1698,7 +1698,6 @@ class FigureCanvasBase(object):
         self.scroll_pick_id = self.mpl_connect('scroll_event', self.pick)
         self.mouse_grabber = None  # the axes currently grabbing mouse
         self.toolbar = None  # NavigationToolbar2 will set me
-        self._is_saving = False
         self._is_idle_drawing = False
 
     @contextmanager
