@@ -34,7 +34,7 @@ else:
     # related file was imported. This is allowed, so lets try and guess
     # what we should be using.
     if "PyQt4" in sys.modules:
-        # PyQt5 is actually used.
+        # PyQt4 is actually used.
         QT_RC_MAJOR_VERSION = 4
     else:
         # This is a fallback
