@@ -52,7 +52,15 @@ static PyObject *pixbuf_get_pixels_array(PyObject *self, PyObject *args)
 
     /* the array holds a ref to the pixbuf pixels through this wrapper*/
     Py_INCREF(py_pixbuf);
-    PyArray_SetBaseObject(array, (PyObject *)py_pixbuf);
+#if NPY_API_VERSION >= 0x00000007
+    if (PyArray_SetBaseObject(array, (PyObject *)py_pixbuf) == -1) {
+        Py_DECREF(py_pixbuf);
+        Py_DECREF(array);
+        return NULL;
+    }
+#else
+    PyArray_BASE(array) = (PyObject *) py_pixbuf;
+#endif
     return PyArray_Return(array);
 }
 
