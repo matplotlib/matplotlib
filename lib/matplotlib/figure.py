@@ -1007,71 +1007,71 @@ class Figure(Artist):
         """
         Add a set of subplots to this figure.
 
-        Keyword arguments:
+        Parameters
+        ----------
+        nrows : int, default: 1
+            Number of rows of the subplot grid.
 
-        *nrows* : int
-            Number of rows of the subplot grid.  Defaults to 1.
+        ncols : int, default: 1
+            Number of columns of the subplot grid.
 
-        *ncols* : int
-            Number of columns of the subplot grid.  Defaults to 1.
+        sharex : {"none", "all", "row", "col"} or bool, default: False
+            If *False*, or "none", each subplot has its own X axis.
 
-        *sharex* : string or bool
-            If *True*, the X axis will be shared amongst all subplots.  If
-            *True* and you have multiple rows, the x tick labels on all but
-            the last row of plots will have visible set to *False*
-            If a string must be one of "row", "col", "all", or "none".
-            "all" has the same effect as *True*, "none" has the same effect
-            as *False*.
-            If "row", each subplot row will share a X axis.
-            If "col", each subplot column will share a X axis and the x tick
-            labels on all but the last row will have visible set to *False*.
+            If *True*, or "all", all subplots will share an X axis, and the x
+            tick labels on all but the last row of plots will be invisible.
 
-        *sharey* : string or bool
-            If *True*, the Y axis will be shared amongst all subplots. If
-            *True* and you have multiple columns, the y tick labels on all but
-            the first column of plots will have visible set to *False*
-            If a string must be one of "row", "col", "all", or "none".
-            "all" has the same effect as *True*, "none" has the same effect
-            as *False*.
-            If "row", each subplot row will share a Y axis and the y tick
-            labels on all but the first column will have visible set to *False*.
-            If "col", each subplot column will share a Y axis.
+            If "col", each subplot column will share an X axis, and the x
+            tick labels on all but the last row of plots will be invisible.
 
-        *squeeze* : bool
-            If *True*, extra dimensions are squeezed out from the
-            returned axis object:
+            If "row", each subplot row will share an X axis.
 
-            - if only one subplot is constructed (nrows=ncols=1), the
-            resulting single Axis object is returned as a scalar.
+        sharey : {"none", "all", "row", "col"} or bool, default: False
+            If *False*, or "none", each subplot has its own Y axis.
+
+            If *True*, or "all", all subplots will share an Y axis, and the x
+            tick labels on all but the first column of plots will be invisible.
+
+            If "row", each subplot row will share an Y axis, and the x tick
+            labels on all but the first column of plots will be invisible.
+
+            If "col", each subplot column will share an Y axis.
+
+        squeeze : bool, default: True
+            If *True*, extra dimensions are squeezed out from the returned axes
+            array:
+
+            - if only one subplot is constructed (nrows=ncols=1), the resulting
+            single Axes object is returned as a scalar.
 
             - for Nx1 or 1xN subplots, the returned object is a 1-d numpy
-            object array of Axis objects are returned as numpy 1-d
-            arrays.
+            object array of Axes objects are returned as numpy 1-d arrays.
 
-            - for NxM subplots with N>1 and M>1 are returned as a 2d
-            array.
+            - for NxM subplots with N>1 and M>1 are returned as a 2d array.
 
-            If *False*, no squeezing at all is done: the returned axis
-            object is always a 2-d array containing Axis instances, even if it
-            ends up being 1x1.
+            If *False*, no squeezing at all is done: the returned axes object
+            is always a 2-d array of Axes instances, even if it ends up being
+            1x1.
 
-        *subplot_kw* : dict
+        subplot_kw : dict, default: {}
             Dict with keywords passed to the
-            :meth:`~matplotlib.figure.Figure.add_subplot` call used to
-            create each subplots.
+            :meth:`~matplotlib.figure.Figure.add_subplot` call used to create
+            each subplots.
 
-        *gridspec_kw* : dict
+        gridspec_kw : dict, default: {}
             Dict with keywords passed to the
             :class:`~matplotlib.gridspec.GridSpec` constructor used to create
             the grid the subplots are placed on.
 
-        Returns:
-
-        ax : single axes object or array of axes objects
+        Returns
+        -------
+        ax : single Axes object or array of Axes objects
             The addes axes.  The dimensions of the resulting array can be
             controlled with the squeeze keyword, see above.
 
-        See the docstring of :func:`~pyplot.subplots' for examples
+        See Also
+        --------
+        pyplot.subplots : pyplot API; docstring includes examples.
         """
 
         # for backwards compatibility
