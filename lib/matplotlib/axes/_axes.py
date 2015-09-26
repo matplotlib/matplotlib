@@ -3788,6 +3788,12 @@ class Axes(_AxesBase):
         which case all masks will be combined and only unmasked points
         will be plotted.
 
+        Fundamentally, scatter works with 1-D arrays; `x`, `y`, `s`,
+        and `c` may be input as 2-D arrays, but within scatter
+        they will be flattened. The exception is `c`, which
+        will be flattened only if its size matches the size of `x`
+        and `y`.
+
         Examples
         --------
         .. plot:: mpl_examples/shapes_and_collections/scatter_demo.py
@@ -3839,13 +3845,13 @@ class Axes(_AxesBase):
         # After this block, c_array will be None unless
         # c is an array for mapping.  The potential ambiguity
         # with a sequence of 3 or 4 numbers is resolved in
-        # favor mapping, not rgb or rgba.
+        # favor of mapping, not rgb or rgba.
         try:
             c_array = np.asanyarray(c, dtype=float)
-            if c_array.shape == x.shape:
+            if c_array.size == x.size:
                 c = np.ma.ravel(c_array)
             else:
-                # Wrong shape; it must not be intended for mapping.
+                # Wrong size; it must not be intended for mapping.
                 c_array = None
         except ValueError:
             # Failed to make a floating-point array; c must be color specs.
