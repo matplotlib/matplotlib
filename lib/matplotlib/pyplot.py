@@ -681,11 +681,11 @@ def draw():
     :class:`~matplotlib.figure.Figure` instance, :attr:`fig`, that
     was created using a :mod:`~matplotlib.pyplot` function, is::
 
-        fig.canvas.draw()
+        fig.canvas.draw_idle()
 
 
     """
-    get_current_fig_manager().canvas.draw()
+    get_current_fig_manager().canvas.draw_idle()
 
 
 @docstring.copy_dedent(Figure.savefig)
