@@ -1678,6 +1678,14 @@ class FigureCanvasBase(object):
                          'Tagged Image File Format')
 
     def __init__(self, figure):
+        # put this first to make sure that we prevent any attempts to
+        # re-draw while we are constructing the canvas.
+        # See issue #5094, this only trigged on saving a png when:
+        #  - using a non-agg backend
+        #  - in interactive mode
+        #  - not bunching `draw_idle` calls (ex not in IPython)
+        self._is_idle_drawing = True
+
         figure.set_canvas(self)
         self.figure = figure
         # a dictionary from event name to a dictionary that maps cid->func
