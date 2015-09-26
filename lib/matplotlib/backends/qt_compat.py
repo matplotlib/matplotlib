@@ -33,11 +33,11 @@ else:
     # A different backend was specified, but we still got here because a Qt
     # related file was imported. This is allowed, so lets try and guess
     # what we should be using.
-    if "PyQt4" in sys.modules:
-        # PyQt4 is actually used.
+    if "PyQt4" in sys.modules or "PySide" in sys.modules:
+        # PyQt4 or PySide is actually used.
         QT_RC_MAJOR_VERSION = 4
     else:
-        # This is a fallback
+        # This is a fallback: PyQt5
         QT_RC_MAJOR_VERSION = 5
 
 QT_API = None
@@ -64,11 +64,11 @@ if QT_API is None:
         # A different backend was specified, but we still got here because a Qt
         # related file was imported. This is allowed, so lets try and guess
         # what we should be using.
-        if "PyQt4" in sys.modules:
-            # PyQt4 is actually used.
+        if "PyQt4" in sys.modules or "PySide" in sys.modules:
+            # PyQt4 or PySide is actually used.
             QT_API = rcParams['backend.qt4']
         else:
-            # This is a fallback
+            # This is a fallback: PyQt5
             QT_API = rcParams['backend.qt5']
 
 # We will define an appropriate wrapper for the differing versions
