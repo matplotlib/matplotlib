@@ -2123,6 +2123,8 @@ class FigureCanvasBase(object):
             tight bbox is calculated.
 
         """
+        self._is_saving = True
+
         if format is None:
             # get format from filename, or from backend's default filetype
             if cbook.is_string_like(filename):
@@ -2216,7 +2218,6 @@ class FigureCanvasBase(object):
         else:
             _bbox_inches_restore = None
 
-        self._is_saving = True
         try:
             #result = getattr(self, method_name)(
             result = print_method(
