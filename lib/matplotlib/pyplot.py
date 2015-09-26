@@ -564,7 +564,7 @@ def _auto_draw_if_interactive(fig, val):
     fig : Figure
         A figure object which is assumed to be associated with a canvas
     """
-    if val and matplotlib.is_interactive():
+    if val and matplotlib.is_interactive() and not fig.canvas.is_saving():
         fig.canvas.draw_idle()
 
 
