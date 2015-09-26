@@ -1241,6 +1241,17 @@ def test_scatter_marker():
                 marker=mmarkers.MarkerStyle('o', fillstyle='top'))
 
 
+@image_comparison(baseline_images=['scatter_2D'], remove_text=True,
+                  extensions=['png'])
+def test_scatter_2D():
+    x = np.arange(3)
+    y = np.arange(2)
+    x, y = np.meshgrid(x, y)
+    z = x + y
+    fig, ax = plt.subplots()
+    ax.scatter(x, y, c=z, s=200, edgecolors='face')
+
+
 @cleanup
 def test_as_mpl_axes_api():
     # tests the _as_mpl_axes api
@@ -2150,17 +2161,17 @@ def test_errorbar():
 def test_errorbar_shape():
     fig = plt.figure()
     ax = fig.gca()
-    
+
     x = np.arange(0.1, 4, 0.5)
     y = np.exp(-x)
     yerr1 = 0.1 + 0.2*np.sqrt(x)
     yerr = np.vstack((yerr1, 2*yerr1)).T
     xerr = 0.1 + yerr
-    
+
     assert_raises(ValueError, ax.errorbar, x, y, yerr=yerr, fmt='o')
     assert_raises(ValueError, ax.errorbar, x, y, xerr=xerr, fmt='o')
     assert_raises(ValueError, ax.errorbar, x, y, yerr=yerr, xerr=xerr, fmt='o')
-    
+
 
 @image_comparison(baseline_images=['errorbar_limits'])
 def test_errorbar_limits():
