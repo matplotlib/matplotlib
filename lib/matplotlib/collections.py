@@ -80,9 +80,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
     # _offsets must be a Nx2 array!
     _offsets.shape = (0, 2)
     _transOffset = transforms.IdentityTransform()
-    _transforms = []
-
-
+    _transforms = np.empty((0, 3, 3))
 
     def __init__(self,
                  edgecolors=None,
@@ -1515,7 +1513,7 @@ class EllipseCollection(Collection):
         self._angles = np.asarray(angles).ravel() * (np.pi / 180.0)
         self._units = units
         self.set_transform(transforms.IdentityTransform())
-        self._transforms = []
+        self._transforms = np.empty((0, 3, 3))
         self._paths = [mpath.Path.unit_circle()]
 
     def _set_transforms(self):
