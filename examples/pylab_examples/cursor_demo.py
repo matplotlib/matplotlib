@@ -6,7 +6,7 @@ uses matplotlib to draw the cursor and may be a slow since this
 requires redrawing the figure with every mouse move.
 
 Faster cursoring is possible using native GUI drawing, as in
-wxcursor_demo.py. 
+wxcursor_demo.py.
 
 Also, mpldatacursor can be used to achieve a similar effect. See webpage:
 https://github.com/joferkington/mpldatacursor
