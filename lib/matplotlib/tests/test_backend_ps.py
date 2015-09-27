@@ -24,20 +24,19 @@ needs_tex = knownfailureif(
 
 
 def _test_savefig_to_stringio(format='ps', use_log=False):
+    fig, ax = plt.subplots()
     buffers = [
         six.moves.StringIO(),
         io.StringIO(),
         io.BytesIO()]
 
-    plt.figure()
-
     if use_log:
-        plt.yscale('log')
+        ax.set_yscale('log')
 
-    plt.plot([1, 2], [1, 2])
-    plt.title("Déjà vu")
+    ax.plot([1, 2], [1, 2])
+    ax.set_title("Déjà vu")
     for buffer in buffers:
-        plt.savefig(buffer, format=format)
+        fig.savefig(buffer, format=format)
 
     values = [x.getvalue() for x in buffers]
 
