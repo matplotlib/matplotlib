@@ -561,6 +561,21 @@ def test_nonsingular():
         assert_array_equal(out, zero_expansion)
 
 
+def test_invalid_arguments():
+    t = mtrans.Affine2D()
+    # There are two different exceptions, since the wrong number of
+    # dimensions is caught when constructing an array_view, and that
+    # raises a ValueError, and a wrong shape with a possible number
+    # of dimensions is caught by our CALL_CPP macro, which always
+    # raises the less precise RuntimeError.
+    assert_raises(ValueError, t.transform, 1)
+    assert_raises(ValueError, t.transform, [[[1]]])
+    assert_raises(RuntimeError, t.transform, [])
+    assert_raises(RuntimeError, t.transform, [1])
+    assert_raises(RuntimeError, t.transform, [[1]])
+    assert_raises(RuntimeError, t.transform, [[1, 2, 3]])
+
+
 if __name__ == '__main__':
     import nose
     nose.runmodule(argv=['-s', '--with-doctest'],  exit=False)
