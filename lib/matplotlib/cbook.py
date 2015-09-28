@@ -2244,21 +2244,6 @@ def _reshape_2D(X):
     return X
 
 
-def ensure_3d(arr):
-    """
-    Return a version of arr with ndim==3, with extra dimensions added
-    at the end of arr.shape as needed.
-    """
-    arr = np.asanyarray(arr)
-    if arr.ndim == 1:
-        arr = arr[:, None, None]
-    elif arr.ndim == 2:
-        arr = arr[:, :, None]
-    elif arr.ndim > 3 or arr.ndim < 1:
-        raise ValueError("cannot convert arr to 3-dimensional")
-    return arr
-
-
 def violin_stats(X, method, points=100):
     '''
     Returns a list of dictionaries of data which can be used to draw a series

@@ -48,7 +48,6 @@ except NameError:
     from sets import Set as set
 
 from .path import Path
-from .cbook import ensure_3d
 
 DEBUG = False
 # we need this later, but this is very expensive to set up
@@ -668,7 +667,7 @@ class BboxBase(TransformNode):
         bboxes is a sequence of :class:`BboxBase` objects
         """
         return count_bboxes_overlapping_bbox(
-            self, ensure_3d([np.array(x) for x in bboxes]))
+            self, np.atleast_3d([np.array(x) for x in bboxes]))
 
     def expanded(self, sw, sh):
         """

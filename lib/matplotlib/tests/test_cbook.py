@@ -376,11 +376,3 @@ def test_step_fails():
                   np.arange(12))
     assert_raises(ValueError, cbook._step_validation,
                   np.arange(12), np.arange(3))
-
-
-def test_ensure_3d():
-    assert_array_equal([[[1]], [[2]], [[3]]],
-                       cbook.ensure_3d([1, 2, 3]))
-    assert_array_equal([[[1], [2]], [[3], [4]]],
-                       cbook.ensure_3d([[1, 2], [3, 4]]))
-    assert_raises(ValueError, cbook.ensure_3d, [[[[1]]]])

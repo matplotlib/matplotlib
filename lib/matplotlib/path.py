@@ -24,7 +24,7 @@ import numpy as np
 from numpy import ma
 
 from matplotlib import _path
-from matplotlib.cbook import simple_linear_interpolation, maxdict, ensure_3d
+from matplotlib.cbook import simple_linear_interpolation, maxdict
 from matplotlib import rcParams
 
 
@@ -988,7 +988,7 @@ def get_path_collection_extents(
     if len(paths) == 0:
         raise ValueError("No paths provided")
     return Bbox.from_extents(*_path.get_path_collection_extents(
-        master_transform, paths, ensure_3d(transforms),
+        master_transform, paths, np.atleast_3d(transforms),
         offsets, offset_transform))
 
 
