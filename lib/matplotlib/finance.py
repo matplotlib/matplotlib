@@ -656,7 +656,7 @@ def _plot_day_summary(ax, quotes, ticksize=3,
 
 
 def candlestick_ochl(ax, quotes, width=0.2, colorup='k', colordown='r',
-                alpha=1.0):
+                alpha=1.0, coloredge=None):
 
     """
     Plot the time, open, close, high, low as a vertical line ranging
@@ -682,6 +682,8 @@ def candlestick_ochl(ax, quotes, width=0.2, colorup='k', colordown='r',
          the color of the rectangle where close <  open
     alpha : float
         the rectangle alpha level
+    coloregde : color (optional)
+        the color of the edge. default is color of the candlebody  
 
     Returns
     -------
@@ -692,11 +694,11 @@ def candlestick_ochl(ax, quotes, width=0.2, colorup='k', colordown='r',
     """
     return _candlestick(ax, quotes, width=width, colorup=colorup,
                         colordown=colordown,
-                        alpha=alpha, ochl=True)
+                        alpha=alpha, ochl=True, coloredge=coloredge)
 
 
 def candlestick_ohlc(ax, quotes, width=0.2, colorup='k', colordown='r',
-                alpha=1.0):
+                alpha=1.0, coloredge=None):
 
     """
     Plot the time, open, high, low, close as a vertical line ranging
@@ -722,6 +724,8 @@ def candlestick_ohlc(ax, quotes, width=0.2, colorup='k', colordown='r',
          the color of the rectangle where close <  open
     alpha : float
         the rectangle alpha level
+    coloregde : color (optional)
+        the color of the edge. default is color of the candlebody  
 
     Returns
     -------
@@ -732,11 +736,11 @@ def candlestick_ohlc(ax, quotes, width=0.2, colorup='k', colordown='r',
     """
     return _candlestick(ax, quotes, width=width, colorup=colorup,
                         colordown=colordown,
-                        alpha=alpha, ochl=False)
+                        alpha=alpha, ochl=False, coloredge=coloredge)
 
 
 def _candlestick(ax, quotes, width=0.2, colorup='k', colordown='r',
-                 alpha=1.0, ochl=True):
+                 alpha=1.0, ochl=True, coloredge=None):
 
     """
     Plot the time, open, high, low, close as a vertical line ranging
@@ -763,6 +767,8 @@ def _candlestick(ax, quotes, width=0.2, colorup='k', colordown='r',
         the rectangle alpha level
     ochl: bool
         argument to select between ochl and ohlc ordering of quotes
+    coloregde : color (optional)
+        the color of the edge. default is color of the candlebody  
 
     Returns
     -------
@@ -771,39 +777,45 @@ def _candlestick(ax, quotes, width=0.2, colorup='k', colordown='r',
         added and patches is a list of the rectangle patches added
 
     """
-
+    if coloredge is None:
+        coloredgeup = colorup
+        coloredgedown = colordown
+    else:
+        coloredgeup=coloredge
+        coloredgedown=coloredge
+        
     OFFSET = width / 2.0
 
     lines = []
     patches = []
+    
     for q in quotes:
         if ochl:
             t, open, close, high, low = q[:5]
         else:
             t, open, high, low, close = q[:5]
-
+                        
         if close >= open:
             color = colorup
             lower = open
-            height = close - open
+            height = close-open
+            vline = Line2D(xdata=(t, t), ydata=(low, high), color=coloredgeup, linewidth=0.5, antialiased=True, zorder=0)
         else:
             color = colordown
             lower = close
-            height = open - close
+            height = open-close
+            vline = Line2D(xdata=(t, t), ydata=(low, high), color=coloredgedown, linewidth=0.5, antialiased=True, zorder=0)
 
-        vline = Line2D(
-            xdata=(t, t), ydata=(low, high),
-            color=color,
-            linewidth=0.5,
-            antialiased=True,
-        )
-
+        if coloredge is None:
+            edgecolor = color
+            
         rect = Rectangle(
             xy=(t - OFFSET, lower),
             width=width,
             height=height,
             facecolor=color,
-            edgecolor=color,
+            edgecolor=coloredge,
+            zorder=1,
         )
         rect.set_alpha(alpha)
 
