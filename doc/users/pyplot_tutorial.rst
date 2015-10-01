@@ -32,7 +32,7 @@ same length as y but starts with 0.  Hence the x data are
 an arbitrary number of arguments.  For example, to plot x versus y,
 you can issue the command::
 
-    plt.plot([1,2,3,4], [1,4,9,16])
+    plt.plot([1, 2, 3, 4], [1, 4, 9, 16])
 
 For every x, y pair of arguments, there is an optional third argument
 which is the format string that indicates the color and line type of
@@ -75,7 +75,7 @@ several ways to set line properties
 
 
 * Use the setter methods of a ``Line2D`` instance.  ``plot`` returns a list
-  of ``Line2D`` objects; e.g., ``line1, line2 = plot(x1,y1,x2,y2)``.  In the code
+  of ``Line2D`` objects; e.g., ``line1, line2 = plot(x1, y1, x2, y2)``.  In the code
   below we will suppose that we have only
   one line so that the list returned is of length 1.  We use tuple unpacking with
   ``line,`` to get the first element of that list::
@@ -141,7 +141,7 @@ as argument
 
 .. sourcecode:: ipython
 
-    In [69]: lines = plt.plot([1,2,3])
+    In [69]: lines = plt.plot([1, 2, 3])
 
     In [70]: plt.setp(lines)
       alpha: float
@@ -174,7 +174,7 @@ will be created by default if you don't manually specify any axes.  The
 numcols, fignum`` where ``fignum`` ranges from 1 to
 ``numrows*numcols``.  The commas in the ``subplot`` command are
 optional if ``numrows*numcols<10``.  So ``subplot(211)`` is identical
-to ``subplot(2,1,1)``.  You can create an arbitrary number of subplots
+to ``subplot(2, 1, 1)``.  You can create an arbitrary number of subplots
 and axes.  If you want to place an axes manually, i.e., not on a
 rectangular grid, use the :func:`~matplotlib.pyplot.axes` command,
 which allows you to specify the location as ``axes([left, bottom,
@@ -192,22 +192,22 @@ as your heart desires::
     import matplotlib.pyplot as plt
     plt.figure(1)                # the first figure
     plt.subplot(211)             # the first subplot in the first figure
-    plt.plot([1,2,3])
+    plt.plot([1, 2, 3])
     plt.subplot(212)             # the second subplot in the first figure
-    plt.plot([4,5,6])
+    plt.plot([4, 5, 6])
 
 
     plt.figure(2)                # a second figure
-    plt.plot([4,5,6])            # creates a subplot(111) by default
+    plt.plot([4, 5, 6])          # creates a subplot(111) by default
 
     plt.figure(1)                # figure 1 current; subplot(212) still current
     plt.subplot(211)             # make subplot(211) in figure1 current
-    plt.title('Easy as 1,2,3')   # subplot 211 title
+    plt.title('Easy as 1, 2, 3') # subplot 211 title
 
 You can clear the current figure with :func:`~matplotlib.pyplot.clf`
 and the current axes with :func:`~matplotlib.pyplot.cla`.  If you find
-it annoying that states, like which figure is current, are being maintained for
-you behind the scenes, don't despair: this is just a thin
+it annoying that states (specifically the current figure and axes)
+are being maintained for you behind the scenes, don't despair: this is just a thin
 stateful wrapper around an object oriented API, which you can use
 instead (see :ref:`artist-tutorial`)
 
