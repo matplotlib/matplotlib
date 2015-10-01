@@ -910,7 +910,6 @@ class LogFormatter(Formatter):
             s = s.rstrip('0').rstrip('.')
         return s
 
-
 class LogFormatterExponent(LogFormatter):
     """
     Format values for log axis using ``exponent = log_base(value)``.
@@ -951,6 +950,14 @@ class LogFormatterMathtext(LogFormatter):
     Format values for log axis using ``exponent = log_base(value)``.
     """
 
+    def _non_decade_format(self, sign_string, base, fx, usetex):
+        'Return string for non-decade locations'
+            if usetex:
+                return (r'$%s%s^{%.2f}$') % (sign_string, base, fx)
+            else:
+                return ('$%s$' % _mathdefault('%s%s^{%.2f}' %
+                    (sign_string, base, fx)))
+
     def __call__(self, x, pos=None):
         """
         Return the format for tick value `x`.
@@ -981,13 +988,7 @@ class LogFormatterMathtext(LogFormatter):
         if not is_decade and self.labelOnlyBase:
             return ''
         elif not is_decade:
-            if usetex:
-                return (r'$%s%s^{%.2f}$') % \
-                                            (sign_string, base, fx)
-            else:
-                return ('$%s$' % _mathdefault(
-                    '%s%s^{%.2f}' %
-                    (sign_string, base, fx)))
+            return self._non_decade_format(sign_string, base, fx, usetex)
         else:
             if usetex:
                 return (r'$%s%s^{%d}$') % (sign_string,
@@ -998,6 +999,28 @@ class LogFormatterMathtext(LogFormatter):
                     '%s%s^{%d}' %
                     (sign_string, base, nearest_long(fx))))
 
+class LogFormatterSciNotation(LogFormatterMathtext):
+    """
+    Format values following scientific notation in a logarithmic axis
+    """
+
+    def __init__(self, base=10.0, labelOnlyBase=False):
+        super(LogFormatterSciNotation, self).__init__(base=base,
+                labelOnlyBase=labelOnlyBase)
+
+    def _non_decade_format(self, sign_string, base, fx, usetex):
+        'Return string for non-decade locations'
+        b = float(base)
+        exponent = math.floor(fx)
+        coeff = b ** fx / b ** exponent
+        if is_close_to_int(coeff):
+            coeff = nearest_long(coeff)
+        if usetex:
+            return (r'$%g\times%s^{%d}$') % \
+                                        (coeff, base, exponent)
+        else:
+            return (r'$\mathdefault{%g\times%s^{%d}}$') % \
+                                        (coeff, base, exponent)
 
 class LogitFormatter(Formatter):
     """
@@ -1249,6 +1272,11 @@ class Locator(TickHelper):
         # note: some locators return data limits, other return view limits,
         # hence there is no *one* interface to call self.tick_values.
         raise NotImplementedError('Derived must override')
+
+    def show_tick_label(self, locs):
+        """Return boolean array on whether to show a label for the given
+           locations"""
+        return np.ones(np.asarray(locs).size, dtype=np.bool)
 
     def raise_if_exceeds(self, locs):
         """raise a RuntimeError if Locator attempts to create more than
@@ -1893,6 +1921,33 @@ class LogLocator(Locator):
                 ticklocs = b ** decades
 
         return self.raise_if_exceeds(np.asarray(ticklocs))
+
+    def show_tick_label(self, ticklocs):
+        b = self._base
+
+        vmin, vmax = self.axis.get_view_interval()
+        vmin = math.log(vmin) / math.log(b)
+        vmax = math.log(vmax) / math.log(b)
+
+        numdec = abs(vmax - vmin)
+
+        if numdec > 3:
+            sublabel = set((1))
+        elif numdec > 2:
+            sublabel = set((1, 3))
+        elif numdec > 1:
+            sublabel = set((1, 2, 5))
+        else:
+            sublabel = set((1, 2, 4, 7))
+
+        label = np.ones(ticklocs.size, dtype=np.bool)
+        for i, loc in enumerate(ticklocs):
+            exponent = math.floor(math.log(abs(loc)) / math.log(b))
+            coeff = loc / b ** nearest_long(exponent)
+            if nearest_long(coeff) not in sublabel:
+                label[i] = False
+
+        return label
 
     def view_limits(self, vmin, vmax):
         'Try to choose the view limits intelligently'
