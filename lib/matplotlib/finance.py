@@ -683,7 +683,7 @@ def candlestick_ochl(ax, quotes, width=0.2, colorup='k', colordown='r',
     alpha : float
         the rectangle alpha level
     coloredge : color (optional)
-        the color of the edge. default is color of the candlebody  
+        the color of the edge. default is color of the candlebody
 
     Returns
     -------
@@ -725,7 +725,7 @@ def candlestick_ohlc(ax, quotes, width=0.2, colorup='k', colordown='r',
     alpha : float
         the rectangle alpha level
     coloredge : color (optional)
-        the color of the edge. default is color of the candlebody  
+        the color of the edge. default is color of the candlebody
 
     Returns
     -------
@@ -768,7 +768,7 @@ def _candlestick(ax, quotes, width=0.2, colorup='k', colordown='r',
     ochl: bool
         argument to select between ochl and ohlc ordering of quotes
     coloredge : color (optional)
-        the color of the edge. default is color of the candlebody  
+        the color of the edge. default is color of the candlebody
 
     Returns
     -------
@@ -819,11 +819,11 @@ def _candlestick(ax, quotes, width=0.2, colorup='k', colordown='r',
 
         rect = Rectangle(
             xy=(t - OFFSET, lower),
-            width = width,
-            height = height,
-            facecolor = color,
-            edgecolor = coloredge,
-            zorder = 1,
+            width=width,
+            height=height,
+            facecolor=color,
+            edgecolor=coloredge,
+            zorder=1,
         )
         rect.set_alpha(alpha)
 
