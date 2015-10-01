@@ -206,7 +206,7 @@ as your heart desires::
 
 You can clear the current figure with :func:`~matplotlib.pyplot.clf`
 and the current axes with :func:`~matplotlib.pyplot.cla`.  If you find
-it annoying that states (specifically the current figure and axes)
+it annoying that states (specifically the current image, figure and axes)
 are being maintained for you behind the scenes, don't despair: this is just a thin
 stateful wrapper around an object oriented API, which you can use
 instead (see :ref:`artist-tutorial`)
