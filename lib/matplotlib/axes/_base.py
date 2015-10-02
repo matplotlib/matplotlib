@@ -3216,9 +3216,13 @@ class _AxesBase(martist.Artist):
     def minorticks_on(self):
         'Add autoscaling minor ticks to the axes.'
         for ax in (self.xaxis, self.yaxis):
-            if ax.get_scale() == 'log':
+            scale = ax.get_scale()
+            if scale == 'log':
                 s = ax._scale
                 ax.set_minor_locator(mticker.LogLocator(s.base, s.subs))
+            elif scale == 'symlog':
+                s = ax._scale
+                ax.set_minor_locator(mticker.SymLogLocator(s.base, s.subs))
             else:
                 ax.set_minor_locator(mticker.AutoMinorLocator())
 
