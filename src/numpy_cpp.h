@@ -470,7 +470,7 @@ class array_view : public detail::array_view_accessors<array_view, T, ND>
 
     npy_intp dim(size_t i) const
     {
-        if (i > ND) {
+        if (i >= ND) {
             return 0;
         }
         return m_shape[i];
