@@ -1581,7 +1581,8 @@ class Axes3D(Axes):
 
         had_data = self.has_data()
 
-        Z = np.atleast_2d(Z)
+        if Z.ndim != 2:
+            raise ValueError("Argument Z must be 2-dimensional.")
         # TODO: Support masked arrays
         X, Y, Z = np.broadcast_arrays(X, Y, Z)
         rows, cols = Z.shape
