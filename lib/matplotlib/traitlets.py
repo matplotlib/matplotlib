@@ -68,9 +68,7 @@ class PrivateMethodMixin(object):
             self._notify_trait = _notify_trait
             self._cross_validation_lock = False
 
-        if hasattr(trait, '__base_get__'):
-            return trait.__base_get__(self)
-        return getattr(self, name)
+        return trait.get(self, None)
 
     def _retrieve_trait(self, name):
         try:
@@ -82,6 +80,7 @@ class PrivateMethodMixin(object):
             msg = "'%s' is not a traitlet of a %s instance"
             raise TraitError(msg % (name, self.__class__.__name__))
         return trait
+
 
 def retrieve(name):
     return RetrieveHandler(name)
@@ -97,8 +96,7 @@ class RetrieveHandler(EventHandler):
         if self._name in inst._retrieve_handlers:
             raise TraitError("A retriever for the trait '%s' has "
                              "already been registered" % self._name)
-        method = types.MethodType(self.func, inst)
-        inst._retrieve_handlers[self._name] = method
+        inst._retrieve_handlers[self._name] = self
 
 class OnGetMixin(object):
 
@@ -107,14 +105,16 @@ class OnGetMixin(object):
             return self
         value = super(OnGetMixin,self).get(obj, cls)
         if self.name in obj._retrieve_handlers:
-            method = obj._retrieve_handlers[self.name]
-            value = method({'value': value, 'owner':obj, 'trait':self})
+            handler = obj._retrieve_handlers[self.name]
+            pull = {'value': value, 'owner':obj, 'trait':self}
+            value = handler(obj, pull)
         return value
 
     def instance_init(self, inst):
         if not hasattr(inst, '_retrieve_handlers'):
             inst._retrieve_handlers = {}
         super(OnGetMixin, self).instance_init(inst)
+
 
 class TransformInstance(OnGetMixin, TraitType):
 
