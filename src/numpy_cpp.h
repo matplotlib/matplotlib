@@ -331,6 +331,9 @@ class array_view_accessors<AV, T, 3>
 
 };
 
+// When adding instantiations of array_view_accessors, remember to add entries
+// to zeros[] below.
+
 }
 
 static npy_intp zeros[] = { 0, 0, 0 };
