@@ -666,7 +666,8 @@ class BboxBase(TransformNode):
 
         bboxes is a sequence of :class:`BboxBase` objects
         """
-        return count_bboxes_overlapping_bbox(self, [np.array(x) for x in bboxes])
+        return count_bboxes_overlapping_bbox(
+            self, np.atleast_3d([np.array(x) for x in bboxes]))
 
     def expanded(self, sw, sh):
         """

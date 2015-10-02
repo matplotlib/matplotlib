@@ -439,11 +439,16 @@ static PyObject *Py_affine_transform(PyObject *self, PyObject *args, PyObject *k
         CALL_CPP("affine_transform", (affine_transform_2d(vertices, trans, result)));
         return result.pyobj();
     } catch (py::exception) {
-        numpy::array_view<double, 1> vertices(vertices_obj);
-        npy_intp dims[] = { vertices.dim(0) };
-        numpy::array_view<double, 1> result(dims);
-        CALL_CPP("affine_transform", (affine_transform_1d(vertices, trans, result)));
-        return result.pyobj();
+        PyErr_Clear();
+        try {
+            numpy::array_view<double, 1> vertices(vertices_obj);
+            npy_intp dims[] = { vertices.dim(0) };
+            numpy::array_view<double, 1> result(dims);
+            CALL_CPP("affine_transform", (affine_transform_1d(vertices, trans, result)));
+            return result.pyobj();
+        } catch (py::exception) {
+            return NULL;
+        }
     }
 }
 
