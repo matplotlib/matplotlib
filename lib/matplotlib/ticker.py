@@ -55,6 +55,10 @@ The Locator subclasses defined here are
 :class:`LogLocator`
     logarithmically ticks from min to max
 
+:class:`SymmetricalLogLocator`
+    locator for use with with the symlog norm, works like the `LogLocator` for
+    the part outside of the threshold and add 0 if inside the limits
+
 :class:`MultipleLocator`
     ticks and range are a multiple of base;
                   either integer or float
@@ -2004,4 +2008,5 @@ __all__ = ('TickHelper', 'Formatter', 'FixedFormatter',
            'LogFormatterExponent', 'LogFormatterMathtext', 'Locator',
            'IndexLocator', 'FixedLocator', 'NullLocator',
            'LinearLocator', 'LogLocator', 'AutoLocator',
-           'MultipleLocator', 'MaxNLocator', 'AutoMinorLocator',)
+           'MultipleLocator', 'MaxNLocator', 'AutoMinorLocator',
+           'SymmetricalLogLocator')
