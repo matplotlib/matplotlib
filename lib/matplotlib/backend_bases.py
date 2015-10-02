@@ -3076,7 +3076,7 @@ class NavigationToolbar2(object):
             else:
                 continue
 
-            a._set_view_from_bbox((lastx, lasty, x, y), view, direction,
+            a._set_view_from_bbox((lastx, lasty, x, y), direction,
                                   self._zoom_mode, twinx, twiny)
 
         self.draw()
