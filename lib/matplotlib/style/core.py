@@ -2,7 +2,7 @@ from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
 from matplotlib.externals import six
-
+from six.moves.urllib.error import URLError
 """
 Core functions and attributes for the matplotlib style library:
 
@@ -83,6 +83,8 @@ def use(style):
             try:
                 rc = rc_params_from_file(style, use_default_template=False)
                 mpl.rcParams.update(rc)
+            except URLError:
+                raise
             except IOError:
                 msg = ("'%s' not found in the style library and input is "
                        "not a valid URL or path. See `style.available` for "
