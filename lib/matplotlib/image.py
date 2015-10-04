@@ -1287,7 +1287,7 @@ def imread(fname, format=None):
         if cbook.is_string_like(fname):
             parsed = urlparse(fname)
             # If the string is a URL, assume png
-            if parsed.scheme != '':
+            if len(parsed.scheme) > 1:
                 ext = 'png'
             else:
                 basename, ext = os.path.splitext(fname)
