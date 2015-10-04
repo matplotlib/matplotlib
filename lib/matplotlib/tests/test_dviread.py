@@ -3,18 +3,21 @@ from __future__ import (absolute_import, division, print_function,
 
 from matplotlib.externals import six
 
-from nose.tools import assert_equal
+from nose.tools import assert_equal, with_setup
 import matplotlib.dviread as dr
 import os.path
+import json
+
 
 original_find_tex_file = dr.find_tex_file
 
-def setup():
+def setup_PsfontsMap():
     dr.find_tex_file = lambda x: x
 
-def teardown():
+def teardown_PsfontsMap():
     dr.find_tex_file = original_find_tex_file
 
+@with_setup(setup_PsfontsMap, teardown_PsfontsMap)
 def test_PsfontsMap():
     filename = os.path.join(
         os.path.dirname(__file__),
@@ -52,3 +55,16 @@ def test_PsfontsMap():
     assert_equal(entry.encoding, None)
     entry = fontmap['TeXfont9']
     assert_equal(entry.filename, '/absolute/font9.pfb')
+
+
+def test_dviread():
+    dir = os.path.join(os.path.dirname(__file__), 'baseline_images', 'dviread')
+    with open(os.path.join(dir, 'test.json')) as f:
+        correct = json.load(f)
+    with dr.Dvi(os.path.join(dir, 'test.dvi'), None) as dvi:
+        data = [{'text': [[t.x, t.y, unichr(t.glyph),
+                           unicode(t.font.texname), round(t.font.size, 2)]
+                          for t in page.text],
+                 'boxes': [[b.x, b.y, b.height, b.width] for b in page.boxes]}
+                for page in dvi]
+    assert_equal(data, correct)
