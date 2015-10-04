@@ -11,11 +11,14 @@ import json
 
 original_find_tex_file = dr.find_tex_file
 
+
 def setup_PsfontsMap():
     dr.find_tex_file = lambda x: x
 
+
 def teardown_PsfontsMap():
     dr.find_tex_file = original_find_tex_file
+
 
 @with_setup(setup_PsfontsMap, teardown_PsfontsMap)
 def test_PsfontsMap():

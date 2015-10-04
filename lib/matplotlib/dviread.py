@@ -74,10 +74,12 @@ def _arg_raw(dvi, delta):
     """Return *delta* without reading anything more from the dvi file"""
     return delta
 
+
 def _arg(bytes, signed, dvi, _):
     """Read *bytes* bytes, returning the bytes interpreted as a
     signed integer if *signed* is true, unsigned otherwise."""
     return dvi._arg(bytes, signed)
+
 
 def _arg_slen(dvi, delta):
     """Signed, length *delta*
@@ -88,11 +90,13 @@ def _arg_slen(dvi, delta):
         return None
     return dvi._arg(delta, True)
 
+
 def _arg_slen1(dvi, delta):
     """Signed, length *delta*+1
 
     Read *delta*+1 bytes, returning the bytes interpreted as signed."""
     return dvi._arg(delta+1, True)
+
 
 def _arg_ulen1(dvi, delta):
     """Unsigned length *delta*+1
@@ -100,12 +104,14 @@ def _arg_ulen1(dvi, delta):
     Read *delta*+1 bytes, returning the bytes interpreted as unsigned."""
     return dvi._arg(delta+1, False)
 
+
 def _arg_olen1(dvi, delta):
     """Optionally signed, length *delta*+1
 
     Read *delta*+1 bytes, returning the bytes interpreted as
     unsigned integer for 0<=*delta*<3 and signed if *delta*==3."""
-    return dvi._arg(delta+1, delta==3)
+    return dvi._arg(delta + 1, delta == 3)
+
 
 _arg_mapping = dict(raw=_arg_raw,
                     u1=partial(_arg, 1, False),
@@ -115,6 +121,7 @@ _arg_mapping = dict(raw=_arg_raw,
                     olen1=_arg_olen1,
                     slen1=_arg_slen1,
                     ulen1=_arg_ulen1)
+
 
 def _dispatch(table, min, max=None, state=None, args=('raw',)):
     """Decorator for dispatch by opcode. Sets the values in *table*
@@ -149,6 +156,7 @@ def _dispatch(table, min, max=None, state=None, args=('raw',)):
     """
     def decorate(method):
         get_args = [_arg_mapping[x] for x in args]
+
         @wraps(method)
         def wrapper(self, byte):
             if state is not None and self.state != state:
@@ -162,6 +170,7 @@ def _dispatch(table, min, max=None, state=None, args=('raw',)):
                 table[i] = wrapper
         return wrapper
     return decorate
+
 
 class Dvi(object):
     """
@@ -240,11 +249,11 @@ class Dvi(object):
         maxy_pure = -np.inf
         for elt in self.text + self.boxes:
             if isinstance(elt, Box):
-                x,y,h,w = elt
+                x, y, h, w = elt
                 e = 0           # zero depth
             else:               # glyph
-                x,y,font,g,w = elt
-                h,e = font._height_depth_of(g)
+                x, y, font, g, w = elt
+                h, e = font._height_depth_of(g)
             minx = min(minx, x)
             miny = min(miny, y - h)
             maxx = max(maxx, x + w)
@@ -257,16 +266,17 @@ class Dvi(object):
                         width=maxx-minx, height=maxy_pure-miny,
                         descent=maxy-maxy_pure)
 
-        d = self.dpi / (72.27 * 2**16) # from TeX's "scaled points" to dpi units
+        # convert from TeX's "scaled points" to dpi units
+        d = self.dpi / (72.27 * 2**16)
         if self.baseline is None:
             descent = (maxy - maxy_pure) * d
         else:
             descent = self.baseline
 
-        text =  [ Text((x-minx)*d, (maxy-y)*d - descent, f, g, w*d)
-                  for (x,y,f,g,w) in self.text ]
-        boxes = [ Box((x-minx)*d, (maxy-y)*d - descent, h*d, w*d)
-                  for (x,y,h,w) in self.boxes ]
+        text = [Text((x-minx)*d, (maxy-y)*d - descent, f, g, w*d)
+                for (x, y, f, g, w) in self.text]
+        boxes = [Box((x-minx)*d, (maxy-y)*d - descent, h*d, w*d)
+                 for (x, y, h, w) in self.boxes]
 
         return Page(text=text, boxes=boxes, width=(maxx-minx)*d,
                     height=(maxy_pure-miny)*d, descent=descent)
@@ -279,9 +289,9 @@ class Dvi(object):
         while True:
             byte = ord(self.file.read(1)[0])
             self.dtable[byte](self, byte)
-            if byte == 140: # end of page
+            if byte == 140:                         # end of page
                 return True
-            if self.state == _dvistate.post_post: # end of file
+            if self.state == _dvistate.post_post:   # end of file
                 self.close()
                 return False
 
@@ -434,7 +444,7 @@ class Dvi(object):
         if tfm is None:
             raise FileNotFoundError("missing font metrics file: %s" % fontname)
         if c != 0 and tfm.checksum != 0 and c != tfm.checksum:
-            raise ValueError('tfm checksum mismatch: %s'%n)
+            raise ValueError('tfm checksum mismatch: %s' % n)
 
         vf = _vffile(fontname)
 
@@ -444,7 +454,7 @@ class Dvi(object):
     def _pre(self, i, num, den, mag, k):
         comment = self.file.read(k)
         if i != 2:
-            raise ValueError("Unknown dvi format %d"%i)
+            raise ValueError("Unknown dvi format %d" % i)
         if num != 25400000 or den != 7227 * 2**16:
             raise ValueError("nonstandard units in dvi file")
             # meaning: TeX always uses those exact values, so it
@@ -471,6 +481,7 @@ class Dvi(object):
     @dispatch(min=250, max=255)
     def _malformed(self, offset):
         raise ValueError("unknown command: byte %d", 250 + offset)
+
 
 class DviFont(object):
     """
@@ -511,8 +522,8 @@ class DviFont(object):
             nchars = max(six.iterkeys(tfm.width)) + 1
         except ValueError:
             nchars = 0
-        self.widths = [ (1000*tfm.width.get(char, 0)) >> 20
-                        for char in xrange(nchars) ]
+        self.widths = [(1000*tfm.width.get(char, 0)) >> 20
+                       for char in xrange(nchars)]
 
     def __eq__(self, other):
         return self.__class__ == other.__class__ and \
@@ -541,12 +552,13 @@ class DviFont(object):
         """
 
         result = []
-        for metric,name in ((self._tfm.height, "height"),
-                            (self._tfm.depth, "depth")):
+        for metric, name in ((self._tfm.height, "height"),
+                             (self._tfm.depth, "depth")):
             value = metric.get(char, None)
             if value is None:
                 matplotlib.verbose.report(
-                    'No %s for char %d in font %s' % (name, char, self.texname),
+                    'No %s for char %d in font %s' % (
+                        name, char, self.texname),
                     'debug')
                 result.append(0)
             else:
@@ -615,11 +627,11 @@ class Vf(Dvi):
                 self.state = _dvistate.inpage
             elif byte == 242:       # a long packet
                 packet_len, packet_char, packet_width = \
-                            [ self._arg(x) for x in (4, 4, 4) ]
+                            [self._arg(x) for x in (4, 4, 4)]
                 self._init_packet(packet_len)
             elif 243 <= byte <= 246:
                 k = self._arg(byte - 242, byte == 246)
-                c, s, d, a, l = [ self._arg(x) for x in (4, 4, 4, 1, 1) ]
+                c, s, d, a, l = [self._arg(x) for x in (4, 4, 4, 1, 1)]
                 self._fnt_def_real(k, c, s, d, a, l)
                 if self._first_font is None:
                     self._first_font = k
@@ -668,12 +680,14 @@ def _fix2comp(num):
     else:
         return num
 
+
 def _mul2012(num1, num2):
     """
     Multiply two numbers in 20.12 fixed point format.
     """
     # Separated into a function because >> has surprising precedence
     return (num1*num2) >> 20
+
 
 class Tfm(object):
     """
@@ -724,12 +738,14 @@ class Tfm(object):
 
         self.width, self.height, self.depth = {}, {}, {}
         widths, heights, depths = \
-            [ struct.unpack(str('!%dI') % (len(x)/4), x)
-              for x in (widths, heights, depths) ]
+            [struct.unpack(str('!%dI') % (len(x)/4), x)
+             for x in (widths, heights, depths)]
         for idx, char in enumerate(xrange(bc, ec+1)):
-            self.width[char] = _fix2comp(widths[ord(char_info[4*idx])])
-            self.height[char] = _fix2comp(heights[ord(char_info[4*idx+1]) >> 4])
-            self.depth[char] = _fix2comp(depths[ord(char_info[4*idx+1]) & 0xf])
+            byte0 = ord(char_info[4*idx])
+            byte1 = ord(char_info[4*idx+1])
+            self.width[char] = _fix2comp(widths[byte0])
+            self.height[char] = _fix2comp(heights[byte1 >> 4])
+            self.depth[char] = _fix2comp(depths[byte1 & 0xf])
 
 
 PsFont = namedtuple('Font', 'texname psname effects encoding filename')
@@ -797,14 +813,15 @@ class PsfontsMap(object):
                 continue
             words, pos = [], 0
             while pos < len(line):
-                if line[pos] == '"': # double quoted word
+                if line[pos] == '"':   # double quoted word
                     pos += 1
                     end = line.index('"', pos)
                     words.append(line[pos:end])
                     pos = end + 1
-                else:                # ordinary word
+                else:                  # ordinary word
                     end = line.find(' ', pos+1)
-                    if end == -1: end = len(line)
+                    if end == -1:
+                        end = len(line)
                     words.append(line[pos:end])
                     pos = end
                 while pos < len(line) and line[pos] == ' ':
@@ -866,6 +883,7 @@ class PsfontsMap(object):
             texname=texname, psname=psname, effects=effects,
             encoding=encoding, filename=filename)
 
+
 class Encoding(object):
     """
     Parses a \*.enc file referenced from a psfonts.map style file.
@@ -881,9 +899,11 @@ class Encoding(object):
 
     def __init__(self, filename):
         with open(filename, 'rt') as file:
-            matplotlib.verbose.report('Parsing TeX encoding ' + filename, 'debug-annoying')
+            matplotlib.verbose.report('Parsing TeX encoding ' + filename,
+                                      'debug-annoying')
             self.encoding = self._parse(file)
-            matplotlib.verbose.report('Result: ' + repr(self.encoding), 'debug-annoying')
+            matplotlib.verbose.report('Result: ' + repr(self.encoding),
+                                      'debug-annoying')
 
     def __iter__(self):
         for name in self.encoding:
@@ -906,7 +926,7 @@ class Encoding(object):
                     line = line[line.index('[')+1:].strip()
 
             if state == 1:
-                if ']' in line: # ] def
+                if ']' in line:  # ] def
                     line = line[:line.index(']')]
                     state = 2
                 words = line.split()
@@ -919,6 +939,7 @@ class Encoding(object):
                         raise ValueError("Broken name in encoding file: " + w)
 
         return result
+
 
 def find_tex_file(filename, format=None):
     """
@@ -941,8 +962,8 @@ def find_tex_file(filename, format=None):
         cmd += ['--format=' + format]
     cmd += [filename]
 
-    matplotlib.verbose.report('find_tex_file(%s): %s' \
-                                  % (filename,cmd), 'debug')
+    matplotlib.verbose.report('find_tex_file(%s): %s'
+                              % (filename, cmd), 'debug')
     # stderr is unused, but reading it avoids a subprocess optimization
     # that breaks EINTR handling in some Python versions:
     # http://bugs.python.org/issue12493
@@ -961,6 +982,7 @@ def find_tex_file(filename, format=None):
 _tfmcache = {}
 _vfcache = {}
 
+
 def _fontfile(texname, class_, suffix, cache):
     try:
         return cache[texname]
@@ -976,29 +998,32 @@ def _fontfile(texname, class_, suffix, cache):
     cache[texname] = result
     return result
 
+
 def _tfmfile(texname):
     return _fontfile(texname, Tfm, '.tfm', _tfmcache)
 
+
 def _vffile(texname):
     return _fontfile(texname, Vf, '.vf', _vfcache)
-
 
 
 if __name__ == '__main__':
     import sys
     matplotlib.verbose.set_level('debug-annoying')
     fname = sys.argv[1]
-    try: dpi = float(sys.argv[2])
-    except IndexError: dpi = None
+    try:
+        dpi = float(sys.argv[2])
+    except IndexError:
+        dpi = None
     with Dvi(fname, dpi) as dvi:
         fontmap = PsfontsMap(find_tex_file('pdftex.map'))
         for page in dvi:
             print('=== new page ===')
             fPrev = None
-            for x,y,f,c,w in page.text:
+            for x, y, f, c, w in page.text:
                 if f != fPrev:
-                    print('font', f.texname, 'scaled', f._scale/pow(2.0,20))
+                    print('font', f.texname, 'scaled', f._scale/pow(2.0, 20))
                     fPrev = f
-                print(x,y,c, 32 <= c < 128 and chr(c) or '.', w)
-            for x,y,w,h in page.boxes:
-                print(x,y,'BOX',w,h)
+                print(x, y, c, 32 <= c < 128 and chr(c) or '.', w)
+            for x, y, w, h in page.boxes:
+                print(x, y, 'BOX', w, h)
