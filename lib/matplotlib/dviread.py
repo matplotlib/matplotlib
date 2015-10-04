@@ -174,19 +174,28 @@ def _dispatch(table, min, max=None, state=None, args=('raw',)):
 
 class Dvi(object):
     """
-    A dvi ("device-independent") file, as produced by TeX.
-    The current implementation only reads the first page and does not
-    even attempt to verify the postamble.
+    A reader for a dvi ("device-independent") file, as produced by TeX.
+    The current implementation can only iterate through pages in order,
+    and does not even attempt to verify the postamble.
+
+    This class can be used as a context manager to close the underlying
+    file upon exit. Pages can be read via iteration. Here is an overly
+    simple way to extract text without trying to detect whitespace::
+
+    >>> with matplotlib.dviread.Dvi('input.dvi', 72) as dvi:
+    >>>     for page in dvi:
+    >>>         print ''.join(unichr(t.glyph) for t in page.text)
     """
     # dispatch table
-    dtable = [None for _ in xrange(256)]
-    dispatch = partial(_dispatch, dtable)
+    _dtable = [None for _ in xrange(256)]
+    dispatch = partial(_dispatch, _dtable)
 
     def __init__(self, filename, dpi):
         """
-        Initialize the object. This takes the filename as input and
-        opens the file; actually reading the file happens when
-        iterating through the pages of the file.
+        Read the data from the file named *filename* and convert
+        TeX's internal units to units of *dpi* per inch.
+        *dpi* only sets the units and does not limit the resolution.
+        Use None to return TeX's internal units.
         """
         matplotlib.verbose.report('Dvi: ' + filename, 'debug')
         self.file = open(filename, 'rb')
@@ -288,7 +297,7 @@ class Dvi(object):
         """
         while True:
             byte = ord(self.file.read(1)[0])
-            self.dtable[byte](self, byte)
+            self._dtable[byte](self, byte)
             if byte == 140:                         # end of page
                 return True
             if self.state == _dvistate.post_post:   # end of file
@@ -616,7 +625,7 @@ class Vf(Dvi):
                     if byte in (139, 140) or byte >= 243:
                         raise ValueError(
                             "Inappropriate opcode %d in vf file" % byte)
-                    Dvi.dtable[byte](self, byte)
+                    Dvi._dtable[byte](self, byte)
                     continue
 
             # We are outside a packet
