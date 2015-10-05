@@ -74,7 +74,7 @@ The issue has been reported on the virtualenv bug tracker `here
 <https://github.com/pypa/virtualenv/issues/54>`__ and `here
 <https://github.com/pypa/virtualenv/issues/609>`__
 
-Until this is fixed a work around is needed. The best known work around,
+Until this is fixed a workaround is needed. The best known workaround,
 borrowed  from the `WX wiki
 <http://wiki.wxpython.org/wxPythonVirtualenvOnMac>`_, is to  use the non
 virtualenv python along with the PYTHONHOME environmental variable.  This can be
