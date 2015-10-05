@@ -20,9 +20,9 @@ figures have some issues with virtual environments. Everything below assumes
 some familiarity with the Matplotlib backends as found in :ref:`What is a
 backend? <what-is-a-backend>`.
 
-If you only use the ``IPython/Jupyter`` inline and ``notebook/nbagg`` backends
-and non interactive backends you should not have any issues and can ignore
-everything below.
+If you only use the ``IPython/Jupyter Notebook``'s ``inline`` and ``notebook``
+backends and non interactive backends you should not have any issues and can
+ignore everything below.
 
 GUI Frameworks
 ==============
@@ -44,12 +44,13 @@ and can be used directly within a virtual environment.
 Other frameworks are harder to install into a virtual environment. There are at
 least two possible ways to get access to these in a virtual environment.
 
-You can pass the ``--system-site-packages`` option to virtualenv when creating
-an environment. This adds all system wide packages to the virtual environment.
-However, this breaks the isolation between the virtual environment and the
-system install. If you use `virtualenvwrapper
-<https://virtualenvwrapper.readthedocs.org/>`_  this can be toggled with the
-``toggleglobalsitepackages`` command.
+One often suggested solution is to use the ``--system-site-packages`` option
+to virtualenv when creating an environment. This adds all system wide packages
+to the virtual environment. However, this breaks the isolation between the
+virtual environment and the system install. Among other issues it result in
+hard to debug problems with system packages shadowing the enviroment packages.
+If you use `virtualenvwrapper <https://virtualenvwrapper.readthedocs.org/>`_
+this can be toggled with the ``toggleglobalsitepackages`` command.
 
 Alternatively you can manually symlink the GUI frameworks into the environment.
 I.e. to use PyQt5 you should symlink ``PyQt5`` and ``sip`` from your system
@@ -76,7 +77,7 @@ The issue has been reported on the virtualenv bug tracker `here
 Until this is fixed a work around is needed. The best known work around,
 borrowed  from the `WX wiki
 <http://wiki.wxpython.org/wxPythonVirtualenvOnMac>`_, is to  use the non
-virualenv python along with the PYTHONHOME environmental variable.  This can be
+virtualenv python along with the PYTHONHOME environmental variable.  This can be
 implemented in a script as below. To use this modify ``PYVER`` and
 ``PATHTOPYTHON`` and put the script in the virtualenv bin directory i.e.
 ``PATHTOVENV/bin/frameworkpython``
@@ -94,7 +95,7 @@ implemented in a script as below. To use this modify ``PYVER`` and
   ENV=`$PYTHON -c "import os; print os.path.abspath(os.path.join(os.path.dirname(\"$0\"), '..'))"`
 
   # now run Python with the virtualenv set as Python's HOME
-  export PYTHONHOME=$ENV 
+  export PYTHONHOME=$ENV
   exec $PYTHON "$@"
 
 
