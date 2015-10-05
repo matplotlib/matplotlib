@@ -67,6 +67,7 @@ framework build to function correctly. Unfortunately virtualenv creates a non
 framework build even if created from a framework build of Python. From
 Matplotlib 1.5 onwards the ``macosx`` backend checks that a framework build is
 available and fails if a non framework build is found.
+WX has a similar check build-in.
 
 The issue has been reported on the virtualenv bug tracker `here
 <https://github.com/pypa/virtualenv/issues/54>`__ and `here
