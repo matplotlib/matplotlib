@@ -140,11 +140,6 @@ if _sip_imported:
             def _getSaveFileName(*args, **kwargs):
                 return QtGui.QFileDialog.getSaveFileName(*args, **kwargs), None
 
-    else:
-        raise RuntimeError("PyQt{4,5} bindings found despite sip importing\n"
-                           "Please install PyQt4 or PyQt5, uninstall sip or "
-                           "explicitly set the pyside backend.")
-
     # Alias PyQt-specific functions for PySide compatibility.
     QtCore.Signal = QtCore.pyqtSignal
     try:
