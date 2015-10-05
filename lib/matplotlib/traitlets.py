@@ -1,23 +1,14 @@
 from __future__ import (absolute_import, division,
                         print_function, unicode_literals)
 
-try:
-    # IPython4 imports
-    from traitlets.config import Configurable, Config
-    from traitlets import (TraitType, Int, Float, Bool,
-                           Dict, List, Instance, Union,
-                           Unicode, Tuple, TraitError,
-                           Undefined, BaseDescriptor,
-                           getargspec, observe, default,
-                           validate, EventHandler)
-except ImportError:
-    # IPython3 imports
-    from IPython.utils.traitlets.config import Configurable, Config
-    from IPython.utils.traitlets import (TraitType, Int, Float, Bool,
-                            Dict, List, Instance, Union, Unicode,
-                            Tuple, TraitError, Undefined, BaseDescriptor,
-                            getargspec, observe, default, validate,
-                            EventHandler)
+# IPython4 imports
+from traitlets.config import Configurable, Config
+from traitlets import (TraitType, Int, Float, Bool,
+                       Dict, List, Instance, Union,
+                       Unicode, Tuple, TraitError,
+                       Undefined, BaseDescriptor,
+                       getargspec, observe, default,
+                       validate, EventHandler)
 
 import re
 import types
@@ -68,6 +59,9 @@ class PrivateMethodMixin(object):
             self._notify_trait = _notify_trait
             self._cross_validation_lock = False
 
+            if isinstance(_notify_trait, types.MethodType):
+                self.__dict__.pop('_notify_trait')
+
         return trait.get(self, None)
 
     def _retrieve_trait(self, name):
@@ -93,10 +87,16 @@ class RetrieveHandler(EventHandler):
     def instance_init(self, inst):
         if not hasattr(inst, '_retrieve_handlers'):
             inst._retrieve_handlers = {}
-        if self._name in inst._retrieve_handlers:
-            raise TraitError("A retriever for the trait '%s' has "
-                             "already been registered" % self._name)
+        handler = inst._retrieve_handlers.get(self._name)
+        if handler and hasattr(handler, 'func'):
+                raise TraitError("A retriever for the trait '%s' has "
+                                 "already been registered" % self._name)
         inst._retrieve_handlers[self._name] = self
+
+    def __getstate__(self):
+        d = self.__dict__.copy()
+        d.pop('func', None)
+        return d
 
 class OnGetMixin(object):
 

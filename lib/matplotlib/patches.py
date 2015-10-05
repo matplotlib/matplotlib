@@ -211,7 +211,7 @@ class Patch(artist.Artist):
         maps data coordinates to physical coordinates.
         """
         trait = self.__class__.transform
-        return trait.__base_get__(self,None)
+        return trait.get(self, None)
 
     def get_patch_transform(self):
         """

@@ -27,7 +27,7 @@ def test_quiver_memory_leak():
     Q.remove()
 
     del Q
-    print(sys.getrefcount(ttX))
+
     assert sys.getrefcount(ttX) == 2
 
 
@@ -40,7 +40,7 @@ def test_quiver_key_memory_leak():
     qk = ax.quiverkey(Q, 0.5, 0.92, 2, r'$2 \frac{m}{s}$',
                       labelpos='W',
                       fontproperties={'weight': 'bold'})
-    #assert sys.getrefcount(qk) == 3
+    assert sys.getrefcount(qk) == 3
     qk.remove()
     assert sys.getrefcount(qk) == 2
 
