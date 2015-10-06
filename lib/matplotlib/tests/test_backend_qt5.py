@@ -4,7 +4,7 @@ from __future__ import (absolute_import, division, print_function,
 from matplotlib.externals import six
 
 from matplotlib import pyplot as plt
-from matplotlib.testing.decorators import cleanup
+from matplotlib.testing.decorators import cleanup, switch_backend
 from matplotlib.testing.decorators import knownfailureif
 from matplotlib._pylab_helpers import Gcf
 import copy
@@ -24,17 +24,19 @@ try:
     _, AltModifier, AltKey = MODIFIER_KEYS[ALT]
     _, SuperModifier, SuperKey = MODIFIER_KEYS[SUPER]
     _, ShiftModifier, ShiftKey = MODIFIER_KEYS[SHIFT]
-    HAS_QT = True
+    py_qt_ver = int(QtCore.PYQT_VERSION_STR.split('.')[0])
+    if py_qt_ver != 5:
+        HAS_QT = False
+    else:
+        HAS_QT = True
 except ImportError:
     HAS_QT = False
 
 
 @cleanup
 @knownfailureif(not HAS_QT)
+@switch_backend('Qt5Agg')
 def test_fig_close():
-    # force switch to the Qt5 backend
-    plt.switch_backend('Qt5Agg')
-
     # save the state of Gcf.figs
     init_figs = copy.copy(Gcf.figs)
 
@@ -50,6 +52,7 @@ def test_fig_close():
     assert(init_figs == Gcf.figs)
 
 
+@switch_backend('Qt5Agg')
 def assert_correct_key(qt_key, qt_mods, answer):
     """
     Make a figure
@@ -57,7 +60,6 @@ def assert_correct_key(qt_key, qt_mods, answer):
     Catch the event
     Assert sent and caught keys are the same
     """
-    plt.switch_backend('Qt5Agg')
     qt_canvas = plt.figure().canvas
 
     event = mock.Mock()
@@ -101,7 +103,7 @@ def test_control():
 def test_unicode_upper():
     assert_correct_key(QtCore.Qt.Key_Aacute,
                        ShiftModifier,
-                       unichr(193))
+                       chr(193))
 
 
 @cleanup
@@ -109,7 +111,7 @@ def test_unicode_upper():
 def test_unicode_lower():
     assert_correct_key(QtCore.Qt.Key_Aacute,
                        QtCore.Qt.NoModifier,
-                       unichr(225))
+                       chr(225))
 
 
 @cleanup
@@ -133,7 +135,7 @@ def test_control_alt():
 def test_modifier_order():
     assert_correct_key(QtCore.Qt.Key_Aacute,
                        (ControlModifier | AltModifier | SuperModifier),
-                       'ctrl+alt+super+' + unichr(225))
+                       'ctrl+alt+super+' + chr(225))
 
 
 @cleanup
