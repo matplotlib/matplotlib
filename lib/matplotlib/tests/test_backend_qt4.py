@@ -17,6 +17,7 @@ except ImportError:
 
 try:
     from matplotlib.backends.qt_compat import QtCore
+
     from matplotlib.backends.backend_qt4 import (MODIFIER_KEYS,
                                                  SUPER, ALT, CTRL, SHIFT)
 
@@ -24,7 +25,11 @@ try:
     _, AltModifier, AltKey = MODIFIER_KEYS[ALT]
     _, SuperModifier, SuperKey = MODIFIER_KEYS[SUPER]
     _, ShiftModifier, ShiftKey = MODIFIER_KEYS[SHIFT]
-    HAS_QT = True
+    py_qt_ver = int(QtCore.PYQT_VERSION_STR.split('.')[0])
+    if py_qt_ver != 4:
+        HAS_QT = False
+    else:
+        HAS_QT = True
 except ImportError:
     HAS_QT = False
 
@@ -33,7 +38,7 @@ except ImportError:
 @knownfailureif(not HAS_QT)
 @switch_backend('Qt4Agg')
 def test_fig_close():
-    #save the state of Gcf.figs
+    # save the state of Gcf.figs
     init_figs = copy.copy(Gcf.figs)
 
     # make a figure using pyplot interface
