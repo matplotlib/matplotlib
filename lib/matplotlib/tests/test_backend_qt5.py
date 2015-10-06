@@ -103,7 +103,7 @@ def test_control():
 def test_unicode_upper():
     assert_correct_key(QtCore.Qt.Key_Aacute,
                        ShiftModifier,
-                       chr(193))
+                       six.unichr(193))
 
 
 @cleanup
@@ -111,7 +111,7 @@ def test_unicode_upper():
 def test_unicode_lower():
     assert_correct_key(QtCore.Qt.Key_Aacute,
                        QtCore.Qt.NoModifier,
-                       chr(225))
+                       six.unichr(225))
 
 
 @cleanup
@@ -135,7 +135,7 @@ def test_control_alt():
 def test_modifier_order():
     assert_correct_key(QtCore.Qt.Key_Aacute,
                        (ControlModifier | AltModifier | SuperModifier),
-                       'ctrl+alt+super+' + chr(225))
+                       'ctrl+alt+super+' + six.unichr(225))
 
 
 @cleanup
