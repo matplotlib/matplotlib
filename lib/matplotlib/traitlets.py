@@ -46,23 +46,83 @@ class PrivateMethodMixin(object):
         if notify_trait:
             self._notify_trait(name, old, new)
 
+    @contextlib.contextmanager
+    def mute_trait_notifications(self):
+        """Context manager for bundling trait change notifications and cross
+        validation.
+        Use this when doing multiple trait assignments (init, config), to avoid
+        race conditions in trait notifiers requesting other trait values.
+        All trait notifications will fire after all values have been assigned.
+        """
+        if self._cross_validation_lock is True:
+            yield {}
+            return
+        else:
+            cache = {}
+            _notify_trait = self._notify_trait
+
+            def merge(previous, current):
+                """merges notifications of the form (name, old, value)"""
+                if previous is None:
+                    return current
+                else:
+                    return (current[0], previous[1], current[2])
+
+            def hold(*a):
+                cache[a[0]] = merge(cache.get(a[0]), a)
+
+            try:
+                self._notify_trait = hold
+                self._cross_validation_lock = True
+                yield cache
+                for name in list(cache.keys()):
+                    if hasattr(self, '_%s_validate' % name):
+                        cross_validate = getattr(self, '_%s_validate' % name)
+                        trait = getattr(self.__class__, name)
+                        value =trait._cross_validate(self, getattr(self, name))
+                        setattr(self, name, value)
+            except TraitError as e:
+                self._notify_trait = lambda *x: None
+                for name, value in cache.items():
+                    if value[1] is not Undefined:
+                        setattr(self, name, value[1])
+                    else:
+                        self._trait_values.pop(name)
+                cache.clear()
+                raise e
+            finally:
+                self._notify_trait = _notify_trait
+                self._cross_validation_lock = False
+                if isinstance(_notify_trait, types.MethodType):
+                    # FIXME: remove when support is bumped to 3.4.
+                    # when original method is restored,
+                    # remove the redundant value from __dict__
+                    # (only used to preserve pickleability on Python < 3.4)
+                    self.__dict__.pop('_notify_trait', None)
+
+    @contextlib.contextmanager
+    def hold_trait_notifications(self):
+        """Context manager for bundling trait change notifications and cross
+        validation.
+        Use this when doing multiple trait assignments (init, config), to avoid
+        race conditions in trait notifiers requesting other trait values.
+        All trait notifications will fire after all values have been assigned.
+        """
+        try:
+            with self.mute_trait_notifications() as cache:
+                yield
+        finally:
+            for v in cache.values():
+                self._notify_trait(*v)
+
     def private(self, name, value=Undefined):
         trait = self._retrieve_trait(name)
 
         if value is not Undefined:
-            stored = self._stored_trait_values
-            stored[name] = self.private(name)
-            self._cross_validation_lock = True
-            _notify_trait = self._notify_trait
-            self._notify_trait = lambda *a: None
-            setattr(self, name, value)
-            self._notify_trait = _notify_trait
-            self._cross_validation_lock = False
-
-            if isinstance(_notify_trait, types.MethodType):
-                self.__dict__.pop('_notify_trait')
-
-        return trait.get(self, None)
+            with self.mute_trait_notifications():
+                setattr(self, name, value)
+        else:
+            return trait.get(self, None)
 
     def _retrieve_trait(self, name):
         try:

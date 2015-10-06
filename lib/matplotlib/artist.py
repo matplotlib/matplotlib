@@ -232,6 +232,8 @@ class Artist(PrivateMethodMixin, Configurable):
 
     @observe('clipon')
     def _clipon_changed(self, change):
+        # This may result in the callbacks being hit twice, but ensures they
+        # are hit at least once
         self.pchanged()
         self.stale = True
 
@@ -283,50 +285,22 @@ class Artist(PrivateMethodMixin, Configurable):
 
     @observe('sketch_scale')
     def _sketch_scale_changed(self, change):
-        new = change['new']
-        length = self.sketch_length
-        randomness = self.sketch_randomness
-        self.sketch_params = (new, length, randomness)
-
-    sketch_length = Float(None, allow_none=True)
-
-    @observe('sketch_length')
-    def _sketch_length_changed(self, change):
-        new = change['new']
-        scale = self.sketch_scale
-        randomness = self.sketch_randomness
-        self.sketch_params = (scale, new, randomness)
-
-    sketch_randomness = Float(None, allow_none=True)
-
-    @observe('sketch_randomness')
-    def _sketch_randomness_changed(self, change):
-        new = change['new']
-        scale = self.sketch_scale
-        length = self.sketch_length
-        self.sketch_params = (scale, length, new)
-
-    sketch_params = Tuple(allow_none=True)
-
-    @validate('sketch')
-    def _sketch_validate(self, commit):
-        value = commit['value']
-        names = ('sketch_scale',
-                 'sketch_length',
-                 'sketch_randomness')
-
-        if value is None or value[0] is None:
-            for n in names:
-                self.private(n, None)
-            return None
-
-        params = (value[0], value[1] or 128.0, value[2] or 16.0)
-        for n,v in zip(names, params):
-            self.private(n, v)
-
-    @observe('sketch_params')
-    def _sketch_params_changed(self, change):
+        if self.sketch_scale is None:
+            with self.mute_trait_notifications():
+                setattr(self, 'sketch_length', None)
+                setattr(self, 'sketch_randomness', None)
         self.stale = True
+
+    sketch_length = Float(128.0, allow_none=True)
+    sketch_randomness = Float(16.0, allow_none=True)
+
+    @observe('sketch_length', 'sketch_randomness')
+    def _sketch_length_or_randomness_changed(self, change):
+        if self.sketch_scale is None and change['new'] is not None:
+            raise TraitError("Cannot set '%s' while 'sketch_scale'"
+                             " is None" % change['name'])
+        else:
+            self.stale = True
 
     path_effects = List(Instance('matplotlib.patheffects.AbstractPathEffect'),
                         allow_none=True)
@@ -372,7 +346,7 @@ class Artist(PrivateMethodMixin, Configurable):
         # self._url = None
         # self._gid = None
         # self._snap = None
-        self.sketch_params = rcParams['path.sketch']
+        self.set_sketch_params(all=rcParams['path.sketch'])
         self.path_effects = rcParams['path.effects']
 
     def __getstate__(self):
@@ -458,79 +432,31 @@ class Artist(PrivateMethodMixin, Configurable):
             return y
         return ax.yaxis.convert_units(y)
 
-    #!DEPRECATED
-    # def set_axes(self, axes):
-    #     """
-    #     Set the :class:`~matplotlib.axes.Axes` instance in which the
-    #     artist resides, if any.
+    def set_axes(self, axes):
+        """
+        Set the :class:`~matplotlib.axes.Axes` instance in which the
+        artist resides, if any.
 
-    #     This has been deprecated in mpl 1.5, please use the
-    #     axes property.  Will be removed in 1.7 or 2.0.
+        This has been deprecated in mpl 1.5, please use the
+        axes property.  Will be removed in 1.7 or 2.0.
 
-    #     ACCEPTS: an :class:`~matplotlib.axes.Axes` instance
-    #     """
-    #     warnings.warn(_get_axes_msg, mplDeprecation, stacklevel=1)
-    #     self.axes = axes
+        ACCEPTS: an :class:`~matplotlib.axes.Axes` instance
+        """
+        msg = _traitlets_deprecation_msg('axes')
+        warnings.warn(msg, mplDeprecation, stacklevel=1)
+        self.axes = axes
 
-    #!DEPRECATED
-    # def get_axes(self):
-    #     """
-    #     Return the :class:`~matplotlib.axes.Axes` instance the artist
-    #     resides in, or *None*.
+    def get_axes(self):
+        """
+        Return the :class:`~matplotlib.axes.Axes` instance the artist
+        resides in, or *None*.
 
-    #     This has been deprecated in mpl 1.5, please use the
-    #     axes property.  Will be removed in 1.7 or 2.0.
-    #     """
-    #     warnings.warn(_get_axes_msg, mplDeprecation, stacklevel=1)
-    #     return self.axes
-
-    #!DEPRECATED
-    # @property
-    # def axes(self):
-    #     """
-    #     The :class:`~matplotlib.axes.Axes` instance the artist
-    #     resides in, or *None*.
-    #     """
-    #     return self._axes
-
-    #!DEPRECATED
-	# @axes.setter
-    # def axes(self, new_axes):
-
-    #     if (new_axes is not None and
-    #             (self._axes is not None and new_axes != self._axes)):
-    #         raise ValueError("Can not reset the axes.  You are "
-    #                          "probably trying to re-use an artist "
-    #                          "in more than one Axes which is not "
-    #                          "supported")
-
-    #     self._axes = new_axes
-    #     if new_axes is not None and new_axes is not self:
-    #         self.add_callback(_stale_axes_callback)
-
-    #     return new_axes
-
-    #!DEPRECATED
-    # @property
-    # def stale(self):
-    #     """
-    #     If the artist is 'stale' and needs to be re-drawn for the output to
-    #     match the internal state of the artist.
-    #     """
-    #     return self._stale
-
-    #!DEPRECATED
-    # @stale.setter
-    # def stale(self, val):
-    #     # only trigger call-back stack on being marked as 'stale'
-    #     # when not already stale
-    #     # the draw process will take care of propagating the cleaning
-    #     # process
-    #     if not (self._stale == val):
-    #         self._stale = val
-    #         # only trigger propagation if marking as stale
-    #         if self._stale:
-    #             self.pchanged()
+        This has been deprecated in mpl 1.5, please use the
+        axes property.  Will be removed in 1.7 or 2.0.
+        """
+        msg = _traitlets_deprecation_msg('axes')
+        warnings.warn(msg, mplDeprecation, stacklevel=1)
+        return self.axes
 
     def get_window_extent(self, renderer):
         """
@@ -585,31 +511,34 @@ class Artist(PrivateMethodMixin, Configurable):
         for oid, func in six.iteritems(self._propobservers):
             func(self)
 
-    #!DEPRECATED
-    # def is_transform_set(self):
-    #     """
-    #     Returns *True* if :class:`Artist` has a transform explicitly
-    #     set.
-    #     """
-    #     return self.transform_set
+    def is_transform_set(self):
+        """
+        Returns *True* if :class:`Artist` has a transform explicitly
+        set.
+        """
+        msg = _traitlets_deprecation_msg('transform_set')
+        warnings.warn(msg, mplDeprecation, stacklevel=1)
+        return self.transform_set
 
-    #!DEPRECATED
-    # def set_transform(self, t):
-    #     """
-    #     Set the :class:`~matplotlib.transforms.Transform` instance
-    #     used by this artist.
+    def set_transform(self, t):
+        """
+        Set the :class:`~matplotlib.transforms.Transform` instance
+        used by this artist.
 
-    #     ACCEPTS: :class:`~matplotlib.transforms.Transform` instance
-    #     """
-    #     self.transform = t
+        ACCEPTS: :class:`~matplotlib.transforms.Transform` instance
+        """
+        msg = _traitlets_deprecation_msg('transform')
+        warnings.warn(msg, mplDeprecation, stacklevel=1)
+        self.transform = t
 
-    #!DEPRECATED
-    # def get_transform(self):
-    #     """
-    #     Return the :class:`~matplotlib.transforms.Transform`
-    #     instance used by this artist.
-    #     """
-    #     return self.transform
+    def get_transform(self):
+        """
+        Return the :class:`~matplotlib.transforms.Transform`
+        instance used by this artist.
+        """
+        msg = _traitlets_deprecation_msg('transform')
+        warnings.warn(msg, mplDeprecation, stacklevel=1)
+        return self.transform
 
     def hitlist(self, event):
         """
@@ -649,35 +578,37 @@ class Artist(PrivateMethodMixin, Configurable):
         warnings.warn("'%s' needs 'contains' method" % self.__class__.__name__)
         return False, {}
 
-    #!DEPRECATED
-    # def set_contains(self, picker):
-    #     """
-    #     Replace the contains test used by this artist. The new picker
-    #     should be a callable function which determines whether the
-    #     artist is hit by the mouse event::
+    def set_contains(self, picker):
+        """
+        Replace the contains test used by this artist. The new picker
+        should be a callable function which determines whether the
+        artist is hit by the mouse event::
 
-    #         hit, props = picker(artist, mouseevent)
+            hit, props = picker(artist, mouseevent)
 
-    #     If the mouse event is over the artist, return *hit* = *True*
-    #     and *props* is a dictionary of properties you want returned
-    #     with the contains test.
+        If the mouse event is over the artist, return *hit* = *True*
+        and *props* is a dictionary of properties you want returned
+        with the contains test.
 
-    #     ACCEPTS: a callable function
-    #     """
-    #     self._contains = picker
+        ACCEPTS: a callable function
+        """
+        msg = _traitlets_deprecation_msg('_contains')
+        warnings.warn(msg, mplDeprecation, stacklevel=1)
+        self._contains = picker
 
-    #!DEPRECATED
-    # def get_contains(self):
-    #     """
-    #     Return the _contains test used by the artist, or *None* for default.
-    #     """
-    #     return self._contains
+    def get_contains(self):
+        """
+        Return the _contains test used by the artist, or *None* for default.
+        """
+        msg = _traitlets_deprecation_msg('_contains')
+        warnings.warn(msg, mplDeprecation, stacklevel=1)
+        return self._contains
 
-    # def pickable(self):
-    #     'Return *True* if :class:`Artist` is pickable.'
-    #     return (self.figure is not None and
-    #             self.figure.canvas is not None and
-    #             self._picker is not None)
+    def pickable(self):
+        'Return *True* if :class:`Artist` is pickable.'
+        msg = _traitlets_deprecation_msg('pickable')
+        warnings.warn(msg, mplDeprecation, stacklevel=1)
+        return self.pickable
 
     def pick(self, mouseevent):
         """
@@ -712,46 +643,49 @@ class Artist(PrivateMethodMixin, Configurable):
                 # which do no have an axes property but children might
                 a.pick(mouseevent)
 
-    #!DEPRECATED
-    # def set_picker(self, picker):
-    #     """
-    #     Set the epsilon for picking used by this artist
+    def set_picker(self, picker):
+        """
+        Set the epsilon for picking used by this artist
 
-    #     *picker* can be one of the following:
+        *picker* can be one of the following:
 
-    #       * *None*: picking is disabled for this artist (default)
+          * *None*: picking is disabled for this artist (default)
 
-    #       * A boolean: if *True* then picking will be enabled and the
-    #         artist will fire a pick event if the mouse event is over
-    #         the artist
+          * A boolean: if *True* then picking will be enabled and the
+            artist will fire a pick event if the mouse event is over
+            the artist
 
-    #       * A float: if picker is a number it is interpreted as an
-    #         epsilon tolerance in points and the artist will fire
-    #         off an event if it's data is within epsilon of the mouse
-    #         event.  For some artists like lines and patch collections,
-    #         the artist may provide additional data to the pick event
-    #         that is generated, e.g., the indices of the data within
-    #         epsilon of the pick event
+          * A float: if picker is a number it is interpreted as an
+            epsilon tolerance in points and the artist will fire
+            off an event if it's data is within epsilon of the mouse
+            event.  For some artists like lines and patch collections,
+            the artist may provide additional data to the pick event
+            that is generated, e.g., the indices of the data within
+            epsilon of the pick event
 
-    #       * A function: if picker is callable, it is a user supplied
-    #         function which determines whether the artist is hit by the
-    #         mouse event::
+          * A function: if picker is callable, it is a user supplied
+            function which determines whether the artist is hit by the
+            mouse event::
 
-    #           hit, props = picker(artist, mouseevent)
+              hit, props = picker(artist, mouseevent)
 
-    #         to determine the hit test.  if the mouse event is over the
-    #         artist, return *hit=True* and props is a dictionary of
-    #         properties you want added to the PickEvent attributes.
+            to determine the hit test.  if the mouse event is over the
+            artist, return *hit=True* and props is a dictionary of
+            properties you want added to the PickEvent attributes.
 
-    #     ACCEPTS: [None|float|boolean|callable]
-    #     """
-    #     self._picker = picker
+        ACCEPTS: [None|float|boolean|callable]
+        """
+        msg = _traitlets_deprecation_msg('picker')
+        warnings.warn(msg, mplDeprecation, stacklevel=1)
+        self._picker = picker
 
-    #!DEPRECATED
-    # def get_picker(self):
-    #     'Return the picker object used by this artist'
-    #     return self._picker
+    def get_picker(self):
+        'Return the picker object used by this artist'
+        msg = _traitlets_deprecation_msg('picker')
+        warnings.warn(msg, mplDeprecation, stacklevel=1)
+        return self.picker
 
+    #!NOTE : should be a TraitType
     def is_figure_set(self):
         """
         Returns True if the artist is assigned to a
@@ -759,165 +693,188 @@ class Artist(PrivateMethodMixin, Configurable):
         """
         return self.figure is not None
 
-    #!DEPRECATED
-    # def get_url(self):
-    #     """
-    #     Returns the url
-    #     """
-    #     return self._url
+    def get_url(self):
+        """
+        Returns the url
+        """
+        msg = _traitlets_deprecation_msg('url')
+        warnings.warn(msg, mplDeprecation, stacklevel=1)
+        return self.url
 
-    #!DEPRECATED
-    # def set_url(self, url):
-    #     """
-    #     Sets the url for the artist
+    def set_url(self, url):
+        """
+        Sets the url for the artist
 
-    #     ACCEPTS: a url string
-    #     """
-    #     self._url = url
+        ACCEPTS: a url string
+        """
+        msg = _traitlets_deprecation_msg('url')
+        warnings.warn(msg, mplDeprecation, stacklevel=1)
+        self.url = url
 
-    #!DEPRECATED
-    # def get_gid(self):
-    #     """
-    #     Returns the group id
-    #     """
-    #     return self._gid
+    def get_gid(self):
+        """
+        Returns the group id
+        """
+        msg = _traitlets_deprecation_msg('gid')
+        warnings.warn(msg, mplDeprecation, stacklevel=1)
+        return self.gid
 
-    #!DEPRECATED
-    # def set_gid(self, gid):
-    #     """
-    #     Sets the (group) id for the artist
+    def set_gid(self, gid):
+        """
+        Sets the (group) id for the artist
 
-    #     ACCEPTS: an id string
-    #     """
-    #     self._gid = gid
+        ACCEPTS: an id string
+        """
+        msg = _traitlets_deprecation_msg('gid')
+        warnings.warn(msg, mplDeprecation, stacklevel=1)
+        self.gid = gid
 
-    #!DEPRECATED
-    # def get_snap(self):
-    #     """
-    #     Returns the snap setting which may be:
+    def get_snap(self):
+        """
+        Returns the snap setting which may be:
 
-    #       * True: snap vertices to the nearest pixel center
+          * True: snap vertices to the nearest pixel center
 
-    #       * False: leave vertices as-is
+          * False: leave vertices as-is
 
-    #       * None: (auto) If the path contains only rectilinear line
-    #         segments, round to the nearest pixel center
+          * None: (auto) If the path contains only rectilinear line
+            segments, round to the nearest pixel center
 
-    #     Only supported by the Agg and MacOSX backends.
-    #     """
-    #     if rcParams['path.snap']:
-    #         return self._snap
-    #     else:
-    #         return False
+        Only supported by the Agg and MacOSX backends.
+        """
+        msg = _traitlets_deprecation_msg('snap')
+        warnings.warn(msg, mplDeprecation, stacklevel=1)
+        return self.snap
 
-    #!DEPRECATED
-    # def set_snap(self, snap):
-    #     """
-    #     Sets the snap setting which may be:
+    def set_snap(self, snap):
+        """
+        Sets the snap setting which may be:
 
-    #       * True: snap vertices to the nearest pixel center
+          * True: snap vertices to the nearest pixel center
 
-    #       * False: leave vertices as-is
+          * False: leave vertices as-is
 
-    #       * None: (auto) If the path contains only rectilinear line
-    #         segments, round to the nearest pixel center
+          * None: (auto) If the path contains only rectilinear line
+            segments, round to the nearest pixel center
 
-    #     Only supported by the Agg and MacOSX backends.
-    #     """
-    #     self._snap = snap
-    #     self.stale = True
+        Only supported by the Agg and MacOSX backends.
+        """
+        msg = _traitlets_deprecation_msg('snap')
+        warnings.warn(msg, mplDeprecation, stacklevel=1)
+        self.snap = snap
 
-    #!DEPRECATED
-    # def get_sketch_params(self):
-    #     """
-    #     Returns the sketch parameters for the artist.
+    @property
+    def sketch_params(self):
+        return (self.sketch_scale,
+                self.sketch_length,
+                self.sketch_randomness)
 
-    #     Returns
-    #     -------
-    #     sketch_params : tuple or `None`
+    @sketch_params.setter
+    def sketch_params(self, value):
+        s, l, r = value
+        self.sketch_scale = scale
+        self.sketch_length = length
+        self.sketch_randomness = randomness
 
-    #     A 3-tuple with the following elements:
+    def get_sketch_params(self):
+        """
+        Returns the sketch parameters for the artist.
 
-    #       * `scale`: The amplitude of the wiggle perpendicular to the
-    #         source line.
+        Returns
+        -------
+        sketch_params : tuple or `None`
 
-    #       * `length`: The length of the wiggle along the line.
+        A 3-tuple with the following elements:
 
-    #       * `randomness`: The scale factor by which the length is
-    #         shrunken or expanded.
+          * `scale`: The amplitude of the wiggle perpendicular to the
+            source line.
 
-    #     May return `None` if no sketch parameters were set.
-    #     """
-    #     return self._sketch
+          * `length`: The length of the wiggle along the line.
 
-    #!DEPRECATED
-    # def set_sketch_params(self, scale=None, length=None, randomness=None):
-    #     """
-    #     Sets the sketch parameters.
+          * `randomness`: The scale factor by which the length is
+            shrunken or expanded.
 
-    #     Parameters
-    #     ----------
+        May return `None` if no sketch parameters were set.
+        """
+        msg = ("This has been deprecated to make way for IPython's Traitlets. Please"
+               " use the 'sketch_params' property or the TraitTypes it references.")
+        warnings.warn(msg, mplDeprecation, stacklevel=1)
+        return self.sketch_params
 
-    #     scale : float, optional
-    #         The amplitude of the wiggle perpendicular to the source
-    #         line, in pixels.  If scale is `None`, or not provided, no
-    #         sketch filter will be provided.
+    def set_sketch_params(self, scale=None, length=None, randomness=None, all=None):
+        """
+        Sets the sketch parameters.
 
-    #     length : float, optional
-    #          The length of the wiggle along the line, in pixels
-    #          (default 128.0)
+        Parameters
+        ----------
 
-    #     randomness : float, optional
-    #         The scale factor by which the length is shrunken or
-    #         expanded (default 16.0)
-    #     """
-    #     if scale is None:
-    #         self._sketch = None
-    #     else:
-    #         self._sketch = (scale, length or 128.0, randomness or 16.0)
-    #     self.stale = True
+        scale : float, optional
+            The amplitude of the wiggle perpendicular to the source
+            line, in pixels.  If scale is `None`, or not provided, no
+            sketch filter will be provided.
 
-    #!DEPRECATED
-    # def set_path_effects(self, path_effects):
-    #     """
-    #     set path_effects, which should be a list of instances of
-    #     matplotlib.patheffect._Base class or its derivatives.
-    #     """
-    #     self._path_effects = path_effects
-    #     self.stale = True
+        length : float, optional
+             The length of the wiggle along the line, in pixels
+             (default 128.0)
 
-    #!DEPRECATED
-    # def get_path_effects(self):
-    #     return self._path_effects
+        randomness : float, optional
+            The scale factor by which the length is shrunken or
+            expanded (default 16.0)
 
-    #!DEPRICATED
-    # def get_figure(self):
-    #     """
-    #     Return the :class:`~matplotlib.figure.Figure` instance the
-    #     artist belongs to.
-    #     """
-    #     return self.figure
+        all : tuple, list
+            A tuple containing scale, length, randomness in that order.
+            Providing this argument overrides values give to the explicit
+            arguments scale, length, and randomness.
+        """
+        if all is not None:
+            scale, length, randomness = all
+        self.sketch_scale = scale
+        self.sketch_length = length
+        self.sketch_randomness = randomness
 
-    # #!DEPRICATED
-    # def set_figure(self, fig):
-    #     """
-    #     Set the :class:`~matplotlib.figure.Figure` instance the artist
-    #     belongs to.
+    def set_path_effects(self, path_effects):
+        """
+        set path_effects, which should be a list of instances of
+        matplotlib.patheffect._Base class or its derivatives.
+        """
+        msg = _traitlets_deprecation_msg('path_effects')
+        warnings.warn(msg, mplDeprecation, stacklevel=1)
+        self.path_effects = path_effects
 
-    #     ACCEPTS: a :class:`matplotlib.figure.Figure` instance
-    #     """
-    #     self.figure = fig
+    def get_path_effects(self):
+        msg = _traitlets_deprecation_msg('path_effects')
+        warnings.warn(msg, mplDeprecation, stacklevel=1)
+        return self.path_effects
 
-    #!DEPRECATED
-    # def set_clip_box(self, clipbox):
-    #     """
-    #     Set the artist's clip :class:`~matplotlib.transforms.Bbox`.
+    def get_figure(self):
+        """
+        Return the :class:`~matplotlib.figure.Figure` instance the
+        artist belongs to.
+        """
+        msg = _traitlets_deprecation_msg('figure')
+        warnings.warn(msg, mplDeprecation, stacklevel=1)
+        return self.figure
 
-    #     ACCEPTS: a :class:`matplotlib.transforms.Bbox` instance
-    #     """
-    #     self.clipbox = clipbox
-    #     self.pchanged()
-    #     self.stale = True
+    def set_figure(self, fig):
+        """
+        Set the :class:`~matplotlib.figure.Figure` instance the artist
+        belongs to.
+
+        ACCEPTS: a :class:`matplotlib.figure.Figure` instance
+        """
+        msg = _traitlets_deprecation_msg('figure')
+        warnings.warn(msg, mplDeprecation, stacklevel=1)
+        self.figure = fig
+
+    def set_clip_box(self, clipbox):
+        """
+        Set the artist's clip :class:`~matplotlib.transforms.Bbox`.
+
+        ACCEPTS: a :class:`matplotlib.transforms.Bbox` instance
+        """
+        msg = _traitlets_deprecation_msg('clipbox')
+        warnings.warn(msg, mplDeprecation, stacklevel=1)
+        self.clipbox = clipbox
 
     def set_clip_path(self, path, transform=None):
         """
@@ -967,38 +924,44 @@ class Artist(PrivateMethodMixin, Configurable):
             print(type(path), type(transform))
             raise TypeError("Invalid arguments to set_clip_path")
 
-    #!DEPRECATED
-    # def get_alpha(self):
-    #     """
-    #     Return the alpha value used for blending - not supported on all
-    #     backends
-    #     """
-    #     return self._alpha
+    def get_alpha(self):
+        """
+        Return the alpha value used for blending - not supported on all
+        backends
+        """
+        msg = _traitlets_deprecation_msg('alpha')
+        warnings.warn(msg, mplDeprecation, stacklevel=1)
+        return self.alpha
 
-    #!DEPRECATED
-    # def get_visible(self):
-    #     "Return the artist's visiblity"
-    #     return self._visible
+    def get_visible(self):
+        "Return the artist's visiblity"
+        msg = _traitlets_deprecation_msg('visible')
+        warnings.warn(msg, mplDeprecation, stacklevel=1)
+        return self.visible
 
-    #!DEPRECATED
-    # def get_animated(self):
-    #     "Return the artist's animated state"
-    #     return self._animated
+    def get_animated(self):
+        "Return the artist's animated state"
+        msg = _traitlets_deprecation_msg('animated')
+        warnings.warn(msg, mplDeprecation, stacklevel=1)
+        return self.animated
 
-    #!DEPRECATED
-    # def get_clip_on(self):
-    #     'Return whether artist uses clipping'
-    #     return self._clipon
+    def get_clip_on(self):
+        'Return whether artist uses clipping'
+        msg = _traitlets_deprecation_msg('clipon')
+        warnings.warn(msg, mplDeprecation, stacklevel=1)
+        return self.clipon
 
-    #!DEPRECATED
-    # def get_clip_box(self):
-    #     'Return artist clipbox'
-    #     return self.clipbox
+    def get_clip_box(self):
+        'Return artist clipbox'
+        msg = _traitlets_deprecation_msg('clipbox')
+        warnings.warn(msg, mplDeprecation, stacklevel=1)
+        return self.clipbox
 
-    #!DEPRECATED
-    # def get_clip_path(self):
-    #     'Return artist clip path'
-    #     return self._clippath
+    def get_clip_path(self):
+        'Return artist clip path'
+        msg = _traitlets_deprecation_msg('clippath')
+        warnings.warn(msg, mplDeprecation, stacklevel=1)
+        return self.clippath
 
     def get_transformed_clip_path_and_affine(self):
         '''
@@ -1010,21 +973,18 @@ class Artist(PrivateMethodMixin, Configurable):
             return self.clippath.get_transformed_path_and_affine()
         return None, None
 
-    #!DEPRECATED
-    # def set_clip_on(self, b):
-    #     """
-    #     Set whether artist uses clipping.
+    def set_clip_on(self, b):
+        """
+        Set whether artist uses clipping.
 
-    #     When False artists will be visible out side of the axes which
-    #     can lead to unexpected results.
+        When False artists will be visible out side of the axes which
+        can lead to unexpected results.
 
-    #     ACCEPTS: [True | False]
-    #     """
-    #     self._clipon = b
-    #     # This may result in the callbacks being hit twice, but ensures they
-    #     # are hit at least once
-    #     self.pchanged()
-    #     self.stale = True
+        ACCEPTS: [True | False]
+        """
+        msg = _traitlets_deprecation_msg('clipon')
+        warnings.warn(msg, mplDeprecation, stacklevel=1)
+        self.clipon = b
 
     def _set_gc_clip(self, gc):
         'Set the clip properly for the gc'
@@ -1036,37 +996,37 @@ class Artist(PrivateMethodMixin, Configurable):
             gc.set_clip_rectangle(None)
             gc.set_clip_path(None)
 
-    #!DEPRECATED
-    # def get_rasterized(self):
-    #     "return True if the artist is to be rasterized"
-    #     return self._rasterized
+    def get_rasterized(self):
+        "return True if the artist is to be rasterized"
+        msg = _traitlets_deprecation_msg('rasterized')
+        warnings.warn(msg, mplDeprecation, stacklevel=1)
+        return self.rasterized
 
-    #!DEPRECATED
-    # def set_rasterized(self, rasterized):
-    #     """
-    #     Force rasterized (bitmap) drawing in vector backend output.
+    def set_rasterized(self, rasterized):
+        """
+        Force rasterized (bitmap) drawing in vector backend output.
 
-    #     Defaults to None, which implies the backend's default behavior
+        Defaults to None, which implies the backend's default behavior
 
-    #     ACCEPTS: [True | False | None]
-    #     """
-    #     if rasterized and not hasattr(self.draw, "_supports_rasterization"):
-    #         warnings.warn("Rasterization of '%s' will be ignored" % self)
+        ACCEPTS: [True | False | None]
+        """
+        msg = _traitlets_deprecation_msg('rasterized')
+        warnings.warn(msg, mplDeprecation, stacklevel=1)
+        self.rasterized = rasterized
 
-    #     self._rasterized = rasterized
+    def get_agg_filter(self):
+        "return filter function to be used for agg filter"
+        msg = _traitlets_deprecation_msg('agg_filter')
+        warnings.warn(msg, mplDeprecation, stacklevel=1)
+        return self.agg_filter
 
-    #!DEPRECATED
-    # def get_agg_filter(self):
-    #     "return filter function to be used for agg filter"
-    #     return self._agg_filter
-
-    # def set_agg_filter(self, filter_func):
-    #     """
-    #     set agg_filter fuction.
-
-    #     """
-    #     self._agg_filter = filter_func
-    #     self.stale = True
+    def set_agg_filter(self, filter_func):
+        """
+        set agg_filter fuction.
+        """
+        msg = _traitlets_deprecation_msg('agg_filter')
+        warnings.warn(msg, mplDeprecation, stacklevel=1)
+        self.agg_filter = filter_func
 
     def draw(self, renderer, *args, **kwargs):
         'Derived classes drawing method'
@@ -1074,39 +1034,36 @@ class Artist(PrivateMethodMixin, Configurable):
             return
         self.stale = False
 
-    #!DEPRECATED
-    # def set_alpha(self, alpha):
-    #     """
-    #     Set the alpha value used for blending - not supported on
-    #     all backends.
+    def set_alpha(self, alpha):
+        """
+        Set the alpha value used for blending - not supported on
+        all backends.
 
-    #     ACCEPTS: float (0.0 transparent through 1.0 opaque)
-    #     """
-    #     self._alpha = alpha
-    #     self.pchanged()
-    #     self.stale = True
+        ACCEPTS: float (0.0 transparent through 1.0 opaque)
+        """
+        msg = _traitlets_deprecation_msg('alpha')
+        warnings.warn(msg, mplDeprecation, stacklevel=1)
+        self.alpha = alpha
 
-    #!DEPRECATED
-    # def set_visible(self, b):
-    #     """
-    #     Set the artist's visiblity.
+    def set_visible(self, b):
+        """
+        Set the artist's visiblity.
 
-    #     ACCEPTS: [True | False]
-    #     """
-    #     self._visible = b
-    #     self.pchanged()
-    #     self.stale = True
+        ACCEPTS: [True | False]
+        """
+        msg = _traitlets_deprecation_msg('visible')
+        warnings.warn(msg, mplDeprecation, stacklevel=1)
+        self.visible = b
 
-    #!DEPRECATED
-    # def set_animated(self, b):
-    #     """
-    #     Set the artist's animation state.
+    def set_animated(self, b):
+        """
+        Set the artist's animation state.
 
-    #     ACCEPTS: [True | False]
-    #     """
-    #     self._animated = b
-    #     self.pchanged()
-    #     self.stale = True
+        ACCEPTS: [True | False]
+        """
+        msg = _traitlets_deprecation_msg('animated')
+        warnings.warn(msg, mplDeprecation, stacklevel=1)
+        self.animated = b
 
     def update(self, props):
         """
@@ -1121,13 +1078,13 @@ class Artist(PrivateMethodMixin, Configurable):
                 setattr(self, k, v)
             else:
                 #!DEPRICATED set_name access should eventually be removed
-                func = getattr(self, 'set_' + k, None)
-                if func is not None and six.callable(func):
-                    func(v)
+                klass = self.__class__
+                if isinstance(getattr(klass, k, None),BaseDescriptor):
+                    setattr(self, k, v)
                 else:
-                    klass = self.__class__
-                    if isinstance(getattr(klass, k, None),BaseDescriptor):
-                        setattr(self, k, v)
+                    func = getattr(self, 'set_' + k, None)
+                    if func is not None and six.callable(func):
+                        func(v)
                     else:
                         raise AttributeError('Unknown property %s' % k)
             changed = True
@@ -1136,26 +1093,23 @@ class Artist(PrivateMethodMixin, Configurable):
             self.pchanged()
             self.stale = True
 
-    #!DEPRECATED
-    # def get_label(self):
-    #     """
-    #     Get the label used for this artist in the legend.
-    #     """
-    #     return self._label
+    def get_label(self):
+        """
+        Get the label used for this artist in the legend.
+        """
+        msg = _traitlets_deprecation_msg('label')
+        warnings.warn(msg, mplDeprecation, stacklevel=1)
+        return self.label
 
-    #!DEPRECATED
-    # def set_label(self, s):
-    #     """
-    #     Set the label to *s* for auto legend.
+    def set_label(self, s):
+        """
+        Set the label to *s* for auto legend.
 
-    #     ACCEPTS: string or anything printable with '%s' conversion.
-    #     """
-    #     if s is not None:
-    #         self._label = '%s' % (s, )
-    #     else:
-    #         self._label = None
-    #     self.pchanged()
-    #     self.stale = True
+        ACCEPTS: string or anything printable with '%s' conversion.
+        """
+        msg = _traitlets_deprecation_msg('label')
+        warnings.warn(msg, mplDeprecation, stacklevel=1)
+        self.label = s
 
     def get_zorder(self):
         """
@@ -1176,17 +1130,16 @@ class Artist(PrivateMethodMixin, Configurable):
 
     def update_from(self, other):
         'Copy properties from *other* to *self*.'
-        self.private('transform', other.private('transform'))
-        self.transform_set = other.transform_set
-        self.private('visible', other.private('visible'))
-        self.private('alpha',other.alpha)
-        self.private('clipbox', other.clipbox)
-        self.private('clipon', other.clipon)
-        self.private('clippath', other.clippath)
-        self.private('label', other.label)
-        self.private('sketch_params',other.sketch_params)
-        self.force_callbacks('sketch_params', notify_trait=False)
-        self.private('path_effects', other.path_effects)
+        names = ('transform', 'transform_set', 'visible',
+                 'alpha', 'clipbox', 'clipon', 'clippath',
+                 'label', 'path_effects')
+
+        with self.mute_trait_notifications():
+            for n in names:
+                setattr(self, n, other.private(n))
+
+        self.set_sketch_params(all=other.sketch_params)
+
         self.pchanged()
         self.stale = True
 
@@ -1280,21 +1233,6 @@ class Artist(PrivateMethodMixin, Configurable):
             data = [data]
         return ', '.join('{:0.3g}'.format(item) for item in data if
                 isinstance(item, (np.floating, np.integer, int, float)))
-
-    # @property
-    # def mouseover(self):
-    #     return self._mouseover
-
-    # @mouseover.setter
-    # def mouseover(self, val):
-    #     val = bool(val)
-    #     self._mouseover = val
-    #     ax = self.axes
-    #     if ax:
-    #         if val:
-    #             ax.mouseover_set.add(self)
-    #         else:
-    #             ax.mouseover_set.discard(self)
 
 
 class ArtistInspector(object):
@@ -1772,5 +1710,7 @@ def kwdoc(a):
 
 docstring.interpd.update(Artist=kwdoc(Artist))
 
-_get_axes_msg = """This has been deprecated in mpl 1.5, please use the
-axes property.  A removal date has not been set."""
+def _traitlets_deprecation_msg(name):
+    msg = ("This has been deprecated to make way for IPython's Traitlets."
+           " Please use the '%s' TraitType and Traitlet event decorators.")
+    return msg % name
