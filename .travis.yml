@@ -63,9 +63,9 @@ install:
     pip install --upgrade setuptools
   # Install only from travis wheelhouse
   - if [ -z "$PRE" ]; then
-        wheelhouse_pip_install python-dateutil $NUMPY $PANDAS pyparsing!=2.0.4 pillow sphinx!=1.3.0 traitlets $MOCK;
+        wheelhouse_pip_install python-dateutil $NUMPY $PANDAS pyparsing!=2.0.4 pillow sphinx!=1.3.0 traitlets>=4.1.0 $MOCK;
     else
-        pip install $PRE python-dateutil $NUMPY pyparsing!=2.0.4 pillow sphinx!=1.3.0 traitlets;
+        pip install $PRE python-dateutil $NUMPY pyparsing!=2.0.4 pillow sphinx!=1.3.0 traitlets>=4.1.0;
     fi
   # Always install from pypi
   - pip install $PRE pep8 cycler coveralls coverage
