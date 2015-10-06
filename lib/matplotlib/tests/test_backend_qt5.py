@@ -1,12 +1,12 @@
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
-
 from matplotlib.externals import six
 
 from matplotlib import pyplot as plt
 from matplotlib.testing.decorators import cleanup, switch_backend
 from matplotlib.testing.decorators import knownfailureif
 from matplotlib._pylab_helpers import Gcf
+import matplotlib.style as mstyle
 import copy
 
 try:
@@ -16,7 +16,8 @@ except ImportError:
     import mock
 
 try:
-    from matplotlib.backends.qt_compat import QtCore
+    with mstyle.context({'backend': 'Qt5Agg'}):
+        from matplotlib.backends.qt_compat import QtCore, __version__
     from matplotlib.backends.backend_qt5 import (MODIFIER_KEYS,
                                                  SUPER, ALT, CTRL, SHIFT)
 
@@ -24,11 +25,10 @@ try:
     _, AltModifier, AltKey = MODIFIER_KEYS[ALT]
     _, SuperModifier, SuperKey = MODIFIER_KEYS[SUPER]
     _, ShiftModifier, ShiftKey = MODIFIER_KEYS[SHIFT]
-    py_qt_ver = int(QtCore.PYQT_VERSION_STR.split('.')[0])
-    if py_qt_ver != 5:
-        HAS_QT = False
-    else:
-        HAS_QT = True
+
+    py_qt_ver = int(__version__.split('.')[0])
+    HAS_QT = py_qt_ver == 5
+
 except ImportError:
     HAS_QT = False
 
