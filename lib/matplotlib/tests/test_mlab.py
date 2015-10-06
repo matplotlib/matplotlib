@@ -2768,7 +2768,7 @@ def test_griddata_nn():
                   [-0.1000099, 0.4999943, 1.0999964, 1.6999979],
                   [-0.3000128, 0.2999894, 0.8999913, 1.4999933]]
     zi = mlab.griddata(x, y, z, xi, yi, interp='nn')
-    np.testing.assert_array_almost_equal(zi, correct_zi)
+    np.testing.assert_array_almost_equal(zi, correct_zi, 5)
 
     # Decreasing xi or yi should raise ValueError.
     assert_raises(ValueError, mlab.griddata, x, y, z, xi[::-1], yi,
@@ -2779,7 +2779,7 @@ def test_griddata_nn():
     # Passing 2D xi and yi arrays to griddata.
     xi, yi = np.meshgrid(xi, yi)
     zi = mlab.griddata(x, y, z, xi, yi, interp='nn')
-    np.testing.assert_array_almost_equal(zi, correct_zi)
+    np.testing.assert_array_almost_equal(zi, correct_zi, 5)
 
     # Masking z array.
     z_masked = np.ma.array(z, mask=[False, False, False, True, False])
