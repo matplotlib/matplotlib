@@ -46,8 +46,8 @@ class CanvasFrame(wx.Frame):
 
         self.canvas = FigureCanvas(self, -1, self.figure)
 
-        self.change_plot(0)        
-        
+        self.change_plot(0)
+
         self.sizer = wx.BoxSizer(wx.VERTICAL)
         self.add_buttonbar()
         self.sizer.Add(self.canvas, 1, wx.LEFT | wx.TOP | wx.GROW)
