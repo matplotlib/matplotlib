@@ -139,24 +139,22 @@ if _sip_imported:
             # call to getapi() can fail in older versions of sip
             def _getSaveFileName(*args, **kwargs):
                 return QtGui.QFileDialog.getSaveFileName(*args, **kwargs), None
-
-    else:
-        raise RuntimeError("PyQt{4,5} bindings found despite sip importing\n"
-                           "Please install PyQt4 or PyQt5, uninstall sip or "
-                           "explicitly set the pyside backend.")
-
-    # Alias PyQt-specific functions for PySide compatibility.
-    QtCore.Signal = QtCore.pyqtSignal
     try:
-        QtCore.Slot = QtCore.pyqtSlot
-    except AttributeError:
-        # Not a perfect match but works in simple cases
-        QtCore.Slot = QtCore.pyqtSignature
+        # Alias PyQt-specific functions for PySide compatibility.
+        QtCore.Signal = QtCore.pyqtSignal
+        try:
+            QtCore.Slot = QtCore.pyqtSlot
+        except AttributeError:
+            # Not a perfect match but works in simple cases
+            QtCore.Slot = QtCore.pyqtSignature
 
-    QtCore.Property = QtCore.pyqtProperty
-    __version__ = QtCore.PYQT_VERSION_STR
+        QtCore.Property = QtCore.pyqtProperty
+        __version__ = QtCore.PYQT_VERSION_STR
+    except NameError:
+        # QtCore did not get imported, fall back to pyside
+        QT_API = QT_API_PYSIDE
 
-else:  # try importing pyside
+if QT_API == QT_API_PYSIDE:  # try importing pyside
     try:
         from PySide import QtCore, QtGui, __version__, __version_info__
     except ImportError:
