@@ -47,37 +47,38 @@ least two possible ways to get access to these in a virtual environment.
 One often suggested solution is to use the ``--system-site-packages`` option
 to virtualenv when creating an environment. This adds all system wide packages
 to the virtual environment. However, this breaks the isolation between the
-virtual environment and the system install. Among other issues it result in
-hard to debug problems with system packages shadowing the enviroment packages.
+virtual environment and the system install. Among other issues it results in
+hard to debug problems with system packages shadowing the environment packages.
 If you use `virtualenvwrapper <https://virtualenvwrapper.readthedocs.org/>`_
 this can be toggled with the ``toggleglobalsitepackages`` command.
 
-Alternatively you can manually symlink the GUI frameworks into the environment.
-I.e. to use PyQt5 you should symlink ``PyQt5`` and ``sip`` from your system
+Alternatively, you can manually symlink the GUI frameworks into the environment.
+I.e. to use PyQt5, you should symlink ``PyQt5`` and ``sip`` from your system
 site packages directory into the environment taking care that the environment
 and the systemwide install use the same python version.
 
 OSX
 ===
 
-On OSX two different types of Python Builds exists: a regular build and a
+On OSX, two different types of Python Builds exist: a regular build and a
 framework build. In order to interact correctly with OSX through some
-gui frameworks you need a framework build of Python.
+GUI frameworks you need a framework build of Python.
 At the time of writing the ``macosx``, ``WX`` and ``WXAgg`` backends require a
 framework build to function correctly. Unfortunately virtualenv creates a non
-framework build even if created from a framework build of Python. From
+framework build even if created from a framework build of Python. Conda
+environments are framework builds. From
 Matplotlib 1.5 onwards the ``macosx`` backend checks that a framework build is
 available and fails if a non framework build is found.
-WX has a similar check build-in.
+WX has a similar check build in.
 
 The issue has been reported on the virtualenv bug tracker `here
 <https://github.com/pypa/virtualenv/issues/54>`__ and `here
 <https://github.com/pypa/virtualenv/issues/609>`__
 
-Until this is fixed a workaround is needed. The best known workaround,
+Until this is fixed, a workaround is needed. The best known workaround,
 borrowed  from the `WX wiki
 <http://wiki.wxpython.org/wxPythonVirtualenvOnMac>`_, is to  use the non
-virtualenv python along with the PYTHONHOME environmental variable.  This can be
+virtualenv python along with the PYTHONHOME environment variable.  This can be
 implemented in a script as below. To use this modify ``PYVER`` and
 ``PATHTOPYTHON`` and put the script in the virtualenv bin directory i.e.
 ``PATHTOVENV/bin/frameworkpython``
