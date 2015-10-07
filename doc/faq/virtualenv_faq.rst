@@ -37,10 +37,10 @@ into the environment. In regular virtualenv environment various workarounds
 exist. Some of these are given here:
 
 * The ``TKAgg`` backend doesn't require any external dependencies and is
-normally always available.
+  normally always available.
 * The ``QT4`` framework ``PySide`` is pip installable.
 * The upcoming `WX Phoenix <http://wiki.wxpython.org/ProjectPhoenix>`_ toolkit
-is ``pip`` installable.
+  is ``pip`` installable.
 
 Other frameworks are harder to install into a virtual environment. There are at
 least two possible ways to get access to these in a virtual environment.
