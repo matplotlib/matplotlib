@@ -4976,7 +4976,7 @@ class Axes(_AxesBase):
         allmatch = kw.pop("allmatch", False)
 
         if len(args) == 1:
-            C = args[0]
+            C = np.asanyarray(args[0])
             numRows, numCols = C.shape
             if allmatch:
                 X, Y = np.meshgrid(np.arange(numCols), np.arange(numRows))
@@ -4986,7 +4986,7 @@ class Axes(_AxesBase):
             return X, Y, C
 
         if len(args) == 3:
-            X, Y, C = args
+            X, Y, C = [np.asanyarray(a) for a in args]
             numRows, numCols = C.shape
         else:
             raise TypeError(
