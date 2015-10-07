@@ -36,10 +36,11 @@ environments where you can install all Conda supported GUI frameworks directly
 into the environment. In regular virtualenv environment various workarounds
 exist. Some of these are given here:
 
-The ``TKAgg`` backend doesn't require any external dependencies and is normally
-always available. The ``QT4`` framework ``PySide`` and the upcoming `WX Phoenix
-<http://wiki.wxpython.org/ProjectPhoenix>`_ toolkit are ``pip`` installable
-and can be used directly within a virtual environment.
+* The ``TKAgg`` backend doesn't require any external dependencies and is
+normally always available.
+* The ``QT4`` framework ``PySide`` is pip installable.
+* The upcoming `WX Phoenix <http://wiki.wxpython.org/ProjectPhoenix>`_ toolkit
+is ``pip`` installable.
 
 Other frameworks are harder to install into a virtual environment. There are at
 least two possible ways to get access to these in a virtual environment.
