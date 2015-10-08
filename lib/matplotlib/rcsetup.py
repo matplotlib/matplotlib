@@ -387,7 +387,7 @@ def validate_font_properties(s):
 
 validate_fontset = ValidateInStrings(
     'fontset',
-    ['cm', 'stix', 'stixsans', 'custom'])
+    ['dejavusans', 'dejavuserif', 'cm', 'stix', 'stixsans', 'custom'])
 
 validate_mathtext_default = ValidateInStrings(
     'default',
@@ -886,10 +886,10 @@ defaultParams = {
     'mathtext.cal':            ['cursive', validate_font_properties],
     'mathtext.rm':             ['serif', validate_font_properties],
     'mathtext.tt':             ['monospace', validate_font_properties],
-    'mathtext.it':             ['serif:italic', validate_font_properties],
-    'mathtext.bf':             ['serif:bold', validate_font_properties],
-    'mathtext.sf':             ['sans\-serif', validate_font_properties],
-    'mathtext.fontset':        ['cm', validate_fontset],
+    'mathtext.it':             ['sans:italic', validate_font_properties],
+    'mathtext.bf':             ['sans:bold', validate_font_properties],
+    'mathtext.sf':             ['sans', validate_font_properties],
+    'mathtext.fontset':        ['dejavusans', validate_fontset],
     'mathtext.default':        ['it', validate_mathtext_default],
     'mathtext.fallback_to_cm': [True, validate_bool],
 
