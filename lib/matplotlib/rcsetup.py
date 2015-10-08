@@ -816,7 +816,7 @@ defaultParams = {
     'boxplot.flierprops.markerfacecolor': ['b', validate_color],
     'boxplot.flierprops.markeredgecolor': ['k', validate_color],
     'boxplot.flierprops.markersize': [6, validate_float],
-    'boxplot.flierprops.linestyle': ['-', six.text_type],
+    'boxplot.flierprops.linestyle': ['none', six.text_type],
     'boxplot.flierprops.linewidth': [1.0, validate_float],
 
     'boxplot.boxprops.color': ['b', validate_color],
