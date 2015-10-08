@@ -33,7 +33,7 @@ from matplotlib.artist import allow_rasterization
 from matplotlib.backend_bases import RendererBase
 from matplotlib.textpath import TextPath
 
-from .traitlets import observe
+from .traitlets import observe, _traitlets_deprecation_msg
 
 
 def _process_text_args(override, fontdict=None, **kwargs):
@@ -587,15 +587,15 @@ class Text(Artist):
         super(Text, self)._clipbox_changed(change)
         self._update_clip_properties()
 
-    #!DEPRECATED
-    # def set_clip_box(self, clipbox):
-    #     """
-    #     Set the artist's clip :class:`~matplotlib.transforms.Bbox`.
+    def set_clip_box(self, clipbox):
+        """
+        Set the artist's clip :class:`~matplotlib.transforms.Bbox`.
 
-    #     ACCEPTS: a :class:`matplotlib.transforms.Bbox` instance
-    #     """
-    #     super(Text, self).set_clip_box(clipbox)
-    #     self._update_clip_properties()
+        ACCEPTS: a :class:`matplotlib.transforms.Bbox` instance
+        """
+        msg = _traitlets_deprecation_msg('clipbox')
+        warnings.warn(msg, mplDeprecation, stacklevel=1)
+        self.clipbox = clipbox
 
     def set_clip_path(self, path, transform=None):
         """
@@ -626,18 +626,18 @@ class Text(Artist):
         super(Text, self)._clipon_changed(change)
         self._update_clip_properties()
 
-    #!DEPRECATED
-    # def set_clip_on(self, b):
-    #     """
-    #     Set whether artist uses clipping.
+    def set_clip_on(self, b):
+        """
+        Set whether artist uses clipping.
 
-    #     When False artists will be visible out side of the axes which
-    #     can lead to unexpected results.
+        When False artists will be visible out side of the axes which
+        can lead to unexpected results.
 
-    #     ACCEPTS: [True | False]
-    #     """
-    #     super(Text, self).set_clip_on(b)
-    #     self._update_clip_properties()
+        ACCEPTS: [True | False]
+        """
+        msg = _traitlets_deprecation_msg('clipon')
+        warnings.warn(msg, mplDeprecation, stacklevel=1)
+        self.clipon = b
 
     def get_wrap(self):
         """
@@ -1652,37 +1652,37 @@ class TextWithDash(Text):
         self.dashline.transform = change['new']
         self.stale = True
 
-    #!DEPRECATED
-    # def set_transform(self, t):
-    #     """
-    #     Set the :class:`matplotlib.transforms.Transform` instance used
-    #     by this artist.
+    def set_transform(self, t):
+        """
+        Set the :class:`matplotlib.transforms.Transform` instance used
+        by this artist.
 
-    #     ACCEPTS: a :class:`matplotlib.transforms.Transform` instance
-    #     """
-    #     Text.set_transform(self, t)
-    #     self.dashline.set_transform(t)
-    #     self.stale = True
+        ACCEPTS: a :class:`matplotlib.transforms.Transform` instance
+        """
+        msg = _traitlets_deprecation_msg('transform')
+        warnings.warn(msg, mplDeprecation, stacklevel=1)
+        self.transform = t
 
-    #!DEPRICATED
-    # def get_figure(self):
-    #     'return the figure instance the artist belongs to'
-    #     return self.figure
+    def get_figure(self):
+        'return the figure instance the artist belongs to'
+        msg = _traitlets_deprecation_msg('figure')
+        warnings.warn(msg, mplDeprecation, stacklevel=1)
+        return self.figure
 
     @observe('figure')
     def _figure_changed(self, change):
         Text._figure_changed(self, change)
         self.dashline.figure = change['new']
 
-    #!DEPRICATED
-    # def set_figure(self, fig):
-    #     """
-    #     Set the figure instance the artist belong to.
+    def set_figure(self, fig):
+        """
+        Set the figure instance the artist belong to.
 
-    #     ACCEPTS: a :class:`matplotlib.figure.Figure` instance
-    #     """
-    #     Text.set_figure(self, fig)
-    #     self.dashline.set_figure(fig)
+        ACCEPTS: a :class:`matplotlib.figure.Figure` instance
+        """
+        msg = _traitlets_deprecation_msg('figure')
+        warnings.warn(msg, mplDeprecation, stacklevel=1)
+        self.figure = fig
 
 docstring.interpd.update(TextWithDash=artist.kwdoc(TextWithDash))
 
@@ -2147,14 +2147,10 @@ class Annotation(Text, _AnnotationBase):
             self.arrow_patch.figure = new
         Artist._figure_changed(self, change)
 
-    #!DEPRICATED
-    # def set_figure(self, fig):
-
-    #     if self.arrow is not None:
-    #         self.arrow.set_figure(fig)
-    #     if self.arrow_patch is not None:
-    #         self.arrow_patch.set_figure(fig)
-    #     Artist.set_figure(self, fig)
+    def set_figure(self, fig):
+        msg = _traitlets_deprecation_msg('figure')
+        warnings.warn(msg, mplDeprecation, stacklevel=1)
+        self.figure = fig
 
     def update_positions(self, renderer):
         """"Update the pixel positions of the annotated point and the

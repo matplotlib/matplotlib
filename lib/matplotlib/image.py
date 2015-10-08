@@ -33,7 +33,7 @@ from matplotlib._image import *
 
 from matplotlib.transforms import BboxBase, Bbox, IdentityTransform
 import matplotlib.transforms as mtransforms
-from matplotlib.traitlets import validate
+from matplotlib.traitlets import validate, _traitlets_deprecation_msg
 
 # map interpolation strings to module constants
 _interpd_ = {
@@ -149,16 +149,16 @@ class _AxesImageBase(martist.Artist, cm.ScalarMappable):
         self._imcache = None
         return value
 
-    #!DEPRECATED
-    # def set_alpha(self, alpha):
-    #     """
-    #     Set the alpha value used for blending - not supported on
-    #     all backends
+    def set_alpha(self, alpha):
+        """
+        Set the alpha value used for blending - not supported on
+        all backends
 
-    #     ACCEPTS: float
-    #     """
-    #     martist.Artist.set_alpha(self, alpha)
-    #     self._imcache = None
+        ACCEPTS: float
+        """
+        msg = _traitlets_deprecation_msg('alpha')
+        warnings.warn(msg, mplDeprecation, stacklevel=1)
+        self.alpha = alpha
 
     def changed(self):
         """
@@ -989,16 +989,16 @@ class PcolorImage(martist.Artist, cm.ScalarMappable):
         self.update_dict['array'] = True
         return value
 
-    #!DEPRECATED
-    # def set_alpha(self, alpha):
-    #     """
-    #     Set the alpha value used for blending - not supported on
-    #     all backends
+    def set_alpha(self, alpha):
+        """
+        Set the alpha value used for blending - not supported on
+        all backends
 
-    #     ACCEPTS: float
-    #     """
-    #     martist.Artist.set_alpha(self, alpha)
-    #     self.update_dict['array'] = True
+        ACCEPTS: float
+        """
+        msg = _traitlets_deprecation_msg('alpha')
+        warnings.warn(msg, mplDeprecation, stacklevel=1)
+        self.alpha = alpha
 
 
 class FigureImage(martist.Artist, cm.ScalarMappable):

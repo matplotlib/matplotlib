@@ -35,7 +35,7 @@ from matplotlib import docstring
 from .text import Text
 from .transforms import Bbox
 from matplotlib.path import Path
-from .traitlets import Instance, observe
+from .traitlets import Instance, observe, _traitlets_deprecation_msg
 
 
 class Cell(Rectangle):
@@ -70,21 +70,20 @@ class Cell(Rectangle):
         Rectangle._transform_changed(self)
         self.stale = True
 
-    #!DEPRECATED
-    # def set_transform(self, trans):
-    #     Rectangle.set_transform(self, trans)
-    #     # the text does not get the transform!
-    #     self.stale = True
+    def set_transform(self, trans):
+        msg = _traitlets_deprecation_msg('transform')
+        warnings.warn(msg, mplDeprecation, stacklevel=1)
+        self.transform = trans
 
     @observe('figure')
     def _figure_changed(self, change):
         Rectangle._figure_changed(self, change)
         self._text.figure = change['new']
 
-    #!DEPRICATED
-    # def set_figure(self, fig):
-    #     Rectangle.set_figure(self, fig)
-    #     self._text.set_figure(fig)
+    def set_figure(self, fig):
+        msg = _traitlets_deprecation_msg('figure')
+        warnings.warn(msg, mplDeprecation, stacklevel=1)
+        self.figure = fig
 
     def get_text(self):
         'Return the cell Text intance'

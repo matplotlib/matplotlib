@@ -40,7 +40,7 @@ from matplotlib.image import BboxImage
 from matplotlib.patches import bbox_artist as mbbox_artist
 from matplotlib.text import _AnnotationBase
 
-from .traitlets import observe, retrieve
+from .traitlets import observe, retrieve, _traitlets_deprecation_msg
 
 DEBUG = False
 
@@ -189,16 +189,15 @@ class OffsetBox(martist.Artist):
         for c in self.get_children():
             c.figure = change['new']
 
-    #!DEPRICATED
-    # def set_figure(self, fig):
-    #     """
-    #     Set the figure
+    def set_figure(self, fig):
+        """
+        Set the figure
 
-    #     accepts a class:`~matplotlib.figure.Figure` instance
-    #     """
-    #     martist.Artist.set_figure(self, fig)
-    #     for c in self.get_children():
-    #         c.set_figure(fig)
+        accepts a class:`~matplotlib.figure.Figure` instance
+        """
+        msg = _traitlets_deprecation_msg('figure')
+        warnings.warn(msg, mplDeprecation, stacklevel=1)
+        self.figure = fig
 
     @observe('axes')
     def _axes_changed(self, change):
@@ -644,20 +643,21 @@ class DrawingArea(OffsetBox):
         name = change['name']
         self._trait_values[name] = None
 
-    #!DEPRECATED
-    # def get_transform(self):
-    #     """
-    #     Return the :class:`~matplotlib.transforms.Transform` applied
-    #     to the children
-    #     """
-    #     return self.transform
+    def get_transform(self):
+        """
+        Return the :class:`~matplotlib.transforms.Transform` applied
+        to the children
+        """
+        msg = _traitlets_deprecation_msg('transform')
+        warnings.warn(msg, mplDeprecation, stacklevel=1)
+        return self.transform
 
-    #!DEPRECATED
-    # def set_transform(self, t):
-    #     """
-    #     set_transform is ignored.
-    #     """
-    #     pass
+    def set_transform(self, t):
+        """
+        set_transform is ignored.
+        """
+        msg = _traitlets_deprecation_msg('transform')
+        warnings.warn(msg, mplDeprecation, stacklevel=1)
 
     def set_offset(self, xy):
         """
@@ -942,23 +942,23 @@ class AuxTransformBox(OffsetBox):
 
     @observe('transform')
     def _transform_changed(self, change):
-        name = change['name']
-        self._trait_values[name] = None
+        self._trait_values[change['name']] = None
 
-    # !DEPRECATED
-    # def get_transform(self):
-    #     """
-    #     Return the :class:`~matplotlib.transforms.Transform` applied
-    #     to the children
-    #     """
-    #     return 
+    def get_transform(self):
+        """
+        Return the :class:`~matplotlib.transforms.Transform` applied
+        to the children
+        """
+        msg = _traitlets_deprecation_msg('transform')
+        warnings.warn(msg, mplDeprecation, stacklevel=1)
+        return self.transform
 
-    #!DEPRECATED
-    # def set_transform(self, t):
-    #     """
-    #     set_transform is ignored.
-    #     """
-    #     pass
+    def set_transform(self, t):
+        """
+        set_transform is ignored.
+        """
+        msg = _traitlets_deprecation_msg('transform')
+        warnings.warn(msg, mplDeprecation, stacklevel=1)
 
     def set_offset(self, xy):
         """
@@ -1523,13 +1523,10 @@ class AnnotationBbox(martist.Artist, _AnnotationBase):
         self.offsetbox.figure = new
         martist.Artist._figure_changed(self, change)
 
-    #!DEPRICATED
-    # def set_figure(self, fig):
-
-    #     if self.arrow_patch is not None:
-    #         self.arrow_patch.set_figure(fig)
-    #     self.offsetbox.set_figure(fig)
-    #     martist.Artist.set_figure(self, fig)
+    def set_figure(self, fig):
+        msg = _traitlets_deprecation_msg('figure')
+        warnings.warn(msg, mplDeprecation, stacklevel=1)
+        self.figure = figure
 
     def set_fontsize(self, s=None):
         """

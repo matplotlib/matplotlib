@@ -24,7 +24,7 @@ from matplotlib.bezier import make_wedged_bezier2
 from matplotlib.bezier import split_path_inout, get_cos_sin
 from matplotlib.bezier import make_path_regular, concatenate_paths
 
-from .traitlets import validate, retrieve
+from .traitlets import validate, retrieve, _traitlets_deprecation_msg
 
 
 # these are not available for the object inspector until after the
@@ -333,23 +333,15 @@ class Patch(artist.Artist):
         self.stale = True
         return value
 
-    #!DEPRECATED
-    # def set_alpha(self, alpha):
-    #     """
-    #     Set the alpha tranparency of the patch.
+    def set_alpha(self, alpha):
+        """
+        Set the alpha tranparency of the patch.
 
-    #     ACCEPTS: float or None
-    #     """
-    #     if alpha is not None:
-    #         try:
-    #             float(alpha)
-    #         except TypeError:
-    #             raise TypeError('alpha must be a float or None')
-    #     artist.Artist.set_alpha(self, alpha)
-    #     # using self._fill and self._alpha
-    #     self.set_facecolor(self._original_facecolor)
-    #     self.set_edgecolor(self._original_edgecolor)
-    #     self.stale = True
+        ACCEPTS: float or None
+        """
+        msg = _traitlets_deprecation_msg('alpha')
+        warnings.warn(msg, mplDeprecation, stacklevel=1)
+        self.alpha = alpha
 
     def set_linewidth(self, w):
         """

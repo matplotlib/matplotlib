@@ -32,7 +32,7 @@ from matplotlib.markers import MarkerStyle
 from matplotlib.markers import TICKLEFT, TICKRIGHT, TICKUP, TICKDOWN
 from matplotlib.markers import CARETLEFT, CARETRIGHT, CARETUP, CARETDOWN
 
-from .traitlets import observe
+from .traitlets import observe, _traitlets_deprecation_msg
 
 
 def segment_hits(cx, cy, x, y, radius):
@@ -560,18 +560,15 @@ class Line2D(Artist):
         else:
             self.pickradius = change['new']
 
-    #!DEPRECATED
-    # def set_picker(self, p):
-    #     """Sets the event picker details for the line.
+    def set_picker(self, p):
+        """Sets the event picker details for the line.
 
-    #     ACCEPTS: float distance in points or callable pick function
-    #     ``fn(artist, event)``
-    #     """
-    #     if six.callable(p):
-    #         self._contains = p
-    #     else:
-    #         self.pickradius = p
-    #     self._picker = p
+        ACCEPTS: float distance in points or callable pick function
+        ``fn(artist, event)``
+        """
+        msg = _traitlets_deprecation_msg('picker')
+        warnings.warn(msg, mplDeprecation, stacklevel=1)
+        self.picker = p
 
     def get_window_extent(self, renderer):
         bbox = Bbox([[0, 0], [0, 0]])
@@ -595,19 +592,6 @@ class Line2D(Artist):
             if new.yaxis is not None:
                 self._ycid = new.yaxis.callbacks.connect('units',
                                     	               self.recache_always)
-
-    #!DEPRECATED
-    # @Artist.axes.setter
-    # def axes(self, ax):
-    #     # call the set method from the base-class property
-    #     Artist.axes.fset(self, ax)
-    #     # connect unit-related callbacks
-    #     if ax.xaxis is not None:
-    #         self._xcid = ax.xaxis.callbacks.connect('units',
-    #                                                 self.recache_always)
-    #     if ax.yaxis is not None:
-    #         self._ycid = ax.yaxis.callbacks.connect('units',
-    #                                                 self.recache_always)
 
     def set_data(self, *args):
         """
@@ -716,14 +700,15 @@ class Line2D(Artist):
         self._invalidy = True
         self.stale = True
 
-    #!DEPRECATED
-    # def set_transform(self, t):
-    #     """
-    #     set the Transformation instance used by this artist
+    def set_transform(self, t):
+        """
+        set the Transformation instance used by this artist
 
-    #     ACCEPTS: a :class:`matplotlib.transforms.Transform` instance
-    #     """
-    #     self.transform = t
+        ACCEPTS: a :class:`matplotlib.transforms.Transform` instance
+        """
+        msg = _traitlets_deprecation_msg('transform')
+        warnings.warn(msg, mplDeprecation, stacklevel=1)
+        self.transform = t
 
     def _is_sorted(self, x):
         """return True if x is sorted in ascending order"""

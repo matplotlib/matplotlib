@@ -28,7 +28,7 @@ import matplotlib.backend_bases as backend_bases
 import matplotlib.path as mpath
 from matplotlib import _path
 import matplotlib.mlab as mlab
-from matplotlib.traitlets import validate
+from matplotlib.traitlets import validate, _traitlets_deprecation_msg
 
 
 CIRCLE_AREA_FACTOR = 1.0 / np.sqrt(np.pi)
@@ -685,31 +685,16 @@ class Collection(artist.Artist, cm.ScalarMappable):
 
         return value
 
-    #!DEPRECATED
-    # def set_alpha(self, alpha):
-    #     """
-    #     Set the alpha tranparencies of the collection.  *alpha* must be
-    #     a float or *None*.
+    def set_alpha(self, alpha):
+        """
+        Set the alpha tranparencies of the collection.  *alpha* must be
+        a float or *None*.
 
-    #     ACCEPTS: float or None
-    #     """
-    #     if alpha is not None:
-    #         try:
-    #             float(alpha)
-    #         except TypeError:
-    #             raise TypeError('alpha must be a float or None')
-    #     artist.Artist.set_alpha(self, alpha)
-    #     try:
-    #         self._facecolors = mcolors.colorConverter.to_rgba_array(
-    #             self._facecolors_original, self._alpha)
-    #     except (AttributeError, TypeError, IndexError):
-    #         pass
-    #     try:
-    #         if self._edgecolors_original != str('face'):
-    #             self._edgecolors = mcolors.colorConverter.to_rgba_array(
-    #                 self._edgecolors_original, self._alpha)
-    #     except (AttributeError, TypeError, IndexError):
-    #         pass
+        ACCEPTS: float or None
+        """
+        msg = _traitlets_deprecation_msg('alpha')
+        warnings.warn(msg, mplDeprecation, stacklevel=1)
+        self.alpha = alpha
 
     def get_linewidths(self):
         return self._linewidths

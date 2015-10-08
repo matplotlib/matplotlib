@@ -106,7 +106,7 @@ from matplotlib.collections import LineCollection
 from matplotlib import rcParams
 
 from matplotlib.artist import allow_rasterization
-from matplotlib.traitlets import observe, validate
+from matplotlib.traitlets import observe, validate, _traitlets_deprecation_msg
 
 import warnings
 
@@ -1516,9 +1516,10 @@ class AxisArtist(martist.Artist):
     @observe('label')
     def _label_changed(self, change): pass
 
-    #!DEPRECATED
-    # def set_label(self, s):
-    #     self.label.set_text(s)
+    def set_label(self, s):
+        msg = _traitlets_deprecation_msg('label')
+        warnings.warn(msg, mplDeprecation, stacklevel=1)
+        self.label = s
 
 
     def get_tightbbox(self, renderer):
