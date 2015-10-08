@@ -139,6 +139,7 @@ from matplotlib.externals.six.moves import xrange
 import sys, os, shutil, io, re, textwrap
 from os.path import relpath
 import traceback
+import warnings
 
 if not six.PY3:
     import cStringIO
@@ -166,8 +167,15 @@ except ImportError:
 
 import matplotlib
 import matplotlib.cbook as cbook
-matplotlib.use('Agg')
-import matplotlib.pyplot as plt
+try:
+    with warnings.catch_warnings(record=True):
+        warnings.simplefilter("error", UserWarning)
+        matplotlib.use('Agg')
+except UserWarning:
+    import matplotlib.pyplot as plt
+    plt.switch_backend("Agg")
+else:
+    import matplotlib.pyplot as plt
 from matplotlib import _pylab_helpers
 
 __version__ = 2
