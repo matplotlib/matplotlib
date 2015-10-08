@@ -271,9 +271,9 @@ class Stringlike(Unicode):
     info_text = 'string or unicode interpretable'
 
     def validate(self, obj, value):
-        if not isinstance(value, (str,unicode)):
+        if not isinstance(value, six.text_type):
             if hasattr(value,'__unicode__'):
-                value = unicode(value)
+                value = six.text_type(value)
             elif hasattr(value, '__str__'):
                 value = str(value)
         return super(Stringlike,self).validate(obj,value)
@@ -385,7 +385,7 @@ class Color(TraitType):
         elif isinstance(value, str) and value in self.named_colors:
             value = self.validate(obj, self.named_colors[value])
             in_range = True
-            
+
         if in_range:
             # Convert to hex color string
             if self._metadata['as_hex']:
@@ -397,7 +397,7 @@ class Color(TraitType):
 
             # If no alpha provided, use default_alpha, also round the output
             if len(value) == 3:
-                value = tuple(np.round((value[0], value[1], value[2], 
+                value = tuple(np.round((value[0], value[1], value[2],
                              self._metadata['default_alpha']),5).tolist())
             elif len(value) == 4:
             # If no alpha provided, use default_alpha
@@ -406,3 +406,8 @@ class Color(TraitType):
             return value
 
         self.error(obj, value)
+
+def _traitlets_deprecation_msg(name):
+    msg = ("This has been deprecated to make way for IPython's Traitlets."
+           " Please use the '%s' TraitType and Traitlet event decorators.")
+    return msg % name

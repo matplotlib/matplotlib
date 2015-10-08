@@ -18,9 +18,8 @@ from .path import Path
 from .traitlets import (Instance, Configurable, TransformInstance, Bool, Undefined, Union,
                         BaseDescriptor, getargspec, PrivateMethodMixin, Float, TraitError,
                         Unicode, Stringlike, Callable, Tuple, List, observe, validate, default,
-                        retrieve)
+                        retrieve, _traitlets_deprecation_msg)
 
-from urlparse import urlparse
 
 # Note, matplotlib artists use the doc strings for set and get
 # methods to enable the introspection methods of setp and getp.  Every
@@ -1709,8 +1708,3 @@ def kwdoc(a):
         return '\n'.join(ArtistInspector(a).pprint_setters(leadingspace=2))
 
 docstring.interpd.update(Artist=kwdoc(Artist))
-
-def _traitlets_deprecation_msg(name):
-    msg = ("This has been deprecated to make way for IPython's Traitlets."
-           " Please use the '%s' TraitType and Traitlet event decorators.")
-    return msg % name

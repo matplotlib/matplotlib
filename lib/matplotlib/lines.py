@@ -31,7 +31,7 @@ from matplotlib.markers import MarkerStyle
 # really belong.
 from matplotlib.markers import TICKLEFT, TICKRIGHT, TICKUP, TICKDOWN
 from matplotlib.markers import CARETLEFT, CARETRIGHT, CARETUP, CARETDOWN
-
+from .cbook import mplDeprecation
 from .traitlets import observe, _traitlets_deprecation_msg
 
 
@@ -584,14 +584,14 @@ class Line2D(Artist):
     @observe('axes')
     def _axes_changed(self, change):
         new = change['new']
-    	Artist._axes_changed(self, change)
+        Artist._axes_changed(self, change)
         if new is not None:
             if new.xaxis is not None:
                 self._xcid = new.xaxis.callbacks.connect('units',
-                                                	   self.recache_always)
+                                                           self.recache_always)
             if new.yaxis is not None:
                 self._ycid = new.yaxis.callbacks.connect('units',
-                                    	               self.recache_always)
+                                                       self.recache_always)
 
     def set_data(self, *args):
         """

@@ -5,7 +5,7 @@ from __future__ import (absolute_import, division, print_function,
 
 from matplotlib.externals import six
 from matplotlib.externals.six.moves import map, zip
-
+import warnings
 import math
 
 import matplotlib as mpl
@@ -17,6 +17,7 @@ import matplotlib.colors as colors
 from matplotlib import docstring
 import matplotlib.transforms as transforms
 from matplotlib.path import Path
+from .cbook import mplDeprecation
 
 from matplotlib.bezier import split_bezier_intersecting_with_closedpath
 from matplotlib.bezier import get_intersection, inside_circle, get_parallels
