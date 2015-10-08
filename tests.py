@@ -47,7 +47,7 @@ def run(extra_args):
 
     nose.main(addplugins=[x() for x in plugins],
               defaultTest=default_test_modules,
-              argv=extra_args)
+              argv=sys.argv + extra_args)
 
 
 if __name__ == '__main__':
