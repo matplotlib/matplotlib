@@ -221,8 +221,9 @@ backend      : %(backend)s
 #mathtext.it  : serif:italic
 #mathtext.bf  : serif:bold
 #mathtext.sf  : sans
-#mathtext.fontset : cm # Should be 'cm' (Computer Modern), 'stix',
-                       # 'stixsans' or 'custom'
+#mathtext.fontset : dejavusans # Should be 'cm' (Computer Modern),
+                               # 'dejavusans', 'dejavuserif', 'stix',
+                               # 'stixsans' or 'custom'
 #mathtext.fallback_to_cm : True  # When True, use symbols from the Computer Modern
                                  # fonts when a symbol can not be found in one of
                                  # the custom math fonts.
