@@ -43,9 +43,10 @@ class CanvasFrame(wx.Frame):
 
         self.figure = Figure()
         self.axes = self.figure.add_subplot(111)
-        self.change_plot(0)
 
         self.canvas = FigureCanvas(self, -1, self.figure)
+
+        self.change_plot(0)
 
         self.sizer = wx.BoxSizer(wx.VERTICAL)
         self.add_buttonbar()
@@ -106,7 +107,7 @@ class CanvasFrame(wx.Frame):
         s = functions[plot_number][1](t)
         self.axes.clear()
         self.axes.plot(t, s)
-        self.Refresh()
+        self.canvas.draw()
 
 
 class MyApp(wx.App):
