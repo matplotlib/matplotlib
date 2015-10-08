@@ -70,6 +70,7 @@ install:
   # Always install from pypi
   - pip install $PRE pep8 cycler coveralls coverage
   - 'pip install git+https://github.com/jenshnielsen/nose.git@matplotlibnose'
+  - 'pip install https://github.com/ipython/traitlets/zipball/master#egg=traitlets'
 
   # We manually install humor sans using the package from Ubuntu 14.10. Unfortunatly humor sans is not
   # availible in the Ubuntu version used by Travis but we can manually install the deb from a later
