@@ -1932,7 +1932,7 @@ class LogLocator(Locator):
         numdec = abs(vmax - vmin)
 
         if numdec > 3:
-            sublabel = set((1))
+            sublabel = set((1,))
         elif numdec > 2:
             sublabel = set((1, 3))
         elif numdec > 1:
