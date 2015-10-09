@@ -187,13 +187,13 @@ class _process_plot_var_args(object):
 
     def _base_set_method(self, obj, k, v, e):
         #!DEPRICATED set_name access should be removed
-        func = getattr(obj, 'set_' + k, None)
-        if func is not None and six.callable(func):
-            func(v)
+        trait = getattr(obj.__class__, k, None)
+        if isinstance(trait, BaseDescriptor):
+            setattr(obj, k, v)
         else:
-            traittype = getattr(obj.__class__, k, None)
-            if isinstance(traittype, BaseDescriptor):
-                setattr(obj, k, v)
+            func = getattr(obj, 'set_' + k, None)
+            if func is not None and six.callable(func):
+                func(v)
             else:
                 raise e
 
