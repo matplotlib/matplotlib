@@ -124,7 +124,8 @@ def test_composite_image():
 @cleanup
 def test_patheffects():
     with matplotlib.rc_context():
-        matplotlib.rcParams['path.effects'] = [patheffects.withStroke(linewidth=4, foreground='w')]
+        matplotlib.rcParams['path.effects'] = [
+            patheffects.withStroke(linewidth=4, foreground='w')]
         fig, ax = plt.subplots()
         ax.plot([1, 2, 3])
         with io.BytesIO() as ps:
