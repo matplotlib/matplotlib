@@ -76,11 +76,9 @@ class PrivateMethodMixin(object):
                 self._cross_validation_lock = True
                 yield cache
                 for name in list(cache.keys()):
-                    if hasattr(self, '_%s_validate' % name):
-                        cross_validate = getattr(self, '_%s_validate' % name)
-                        trait = getattr(self.__class__, name)
-                        value = trait._cross_validate(self, getattr(self, name))
-                        setattr(self, name, value)
+                    trait = getattr(self.__class__, name)
+                    value = trait._cross_validate(self, getattr(self, name))
+                    setattr(self, name, value)
             except TraitError as e:
                 self._notify_trait = lambda *x: None
                 for name, value in cache.items():
@@ -230,20 +228,20 @@ class Stringlike(Unicode):
 
     def validate(self, obj, value):
         if not isinstance(value, six.text_type):
-            if hasattr(value,'__unicode__'):
+            if hasattr(value, '__unicode__'):
                 value = six.text_type(value)
             elif hasattr(value, '__str__'):
                 value = str(value)
-        return super(Stringlike,self).validate(obj,value)
+        return super(Stringlike, self).validate(obj, value)
 
 
 class Color(TraitType):
     """A trait representing a color, can be either in RGB, or RGBA format.
 
     Arguments:
-        force_rgb: bool: Force the return in RGB format instead of RGB. Default: False
-        as_hex: bool: Return the hex value instead. Default: False
-        default_alpha: float (0.0-1.0) or integer (0-255). Default alpha value (1.0)
+        force_rgb: bool: coerce to RGB. Default: False
+        as_hex: bool: coerce to hex value. Default: False
+        default_alpha: float (0.0-1.0) or integer (0-255). Default (1.0)
 
     Accepts:
         string: a valid hex color string (i.e. #FFFFFF). With 4 or 7 chars.
@@ -254,7 +252,7 @@ class Color(TraitType):
     Defaults: RGBA tuple, color black (0.0, 0.0, 0.0, 1.0)
 
     Return:
-       A tuple of floats (r,g,b,a), (r,g,b) or a hex color string. i.e. "#FFFFFF".
+       A tuple of floats (r,g,b,a), (r,g,b) or a hex color string.
 
     """
     metadata = {
@@ -276,8 +274,8 @@ class Color(TraitType):
         return as_float
 
     def _float_to_hex(self, value):
-        as_hex = '#%02x%02x%02x' % tuple([int(np.round(v * 255)) for v in\
-                                                                 value[:3]])
+        as_hex = '#%02x%02x%02x' % tuple([int(np.round(v * 255))
+                                          for v in value[:3]])
         return as_hex
 
     def _int_to_hex(self, value):
@@ -334,12 +332,13 @@ class Color(TraitType):
                 if is_all_int and in_range:
                     value = self._int_to_float(value)
 
-        elif isinstance(value, str) and len(value) in [4, 7] and value[0] == '#':
-            if self._re_color_hex.match(value):
-                value = self._hex_to_float(value)
-                in_range = np.prod([(0 <= v <= 1) for v in value])
-                if in_range:
-                    value = value
+        elif isinstance(value, str):
+            if len(value) in (4, 7) and value[0] == '#':
+                if self._re_color_hex.match(value):
+                    value = self._hex_to_float(value)
+                    in_range = np.prod([(0 <= v <= 1) for v in value])
+                    if in_range:
+                        value = value
 
         elif isinstance(value, str) and value in self.named_colors:
             value = self.validate(obj, self.named_colors[value])
@@ -357,7 +356,7 @@ class Color(TraitType):
             # If no alpha provided, use default_alpha, also round the output
             if len(value) == 3:
                 value = tuple(np.round((value[0], value[1], value[2],
-                             self._metadata['default_alpha']),5).tolist())
+                             self._metadata['default_alpha']), 5).tolist())
             elif len(value) == 4:
             # If no alpha provided, use default_alpha
                 value = tuple(np.round(value, 5).tolist())
@@ -365,6 +364,7 @@ class Color(TraitType):
             return value
 
         self.error(obj, value)
+
 
 def _traitlets_deprecation_msg(name):
     msg = ("This has been deprecated to make way for IPython's Traitlets."

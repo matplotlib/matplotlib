@@ -257,10 +257,10 @@ class Axes(_AxesBase):
 
         has_handler = mlegend.Legend.get_legend_handler
 
-        for handle in handles_original:
-            label = handle.label if hasattr(handle, 'label') else handle.get_label()
-            if label != '_nolegend_' and has_handler(handler_map, handle):
-                yield handle
+        for h in handles_original:
+            label = h.label if hasattr(h, 'label') else h.get_label()
+            if label != '_nolegend_' and has_handler(handler_map, h):
+                yield h
 
     def get_legend_handles_labels(self, legend_handler_map=None):
         """

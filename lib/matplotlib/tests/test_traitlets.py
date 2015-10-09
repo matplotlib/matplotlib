@@ -21,12 +21,11 @@ def test_exdict():
     e['attr'] = 2
     assert_equal(e.ex, {'attr': 1})
 
-def test_getter():
 
+def test_getter():
 
     class gInt(OnGetMixin, Int):
         pass
-
 
     class A(PrivateMethodMixin, Configurable):
 
@@ -36,7 +35,6 @@ def test_getter():
         def _attr_getter(self, value, trait):
             return value + 1
 
-
     assert_equal(A().attr, 1)
 
 
@@ -44,7 +42,6 @@ class PrivateMethodTestCase(TestCase):
     """Tests private attribute access, assignment, and callback forcing"""
 
     def test_private_assignment(self):
-
 
         class A(PrivateMethodMixin, Configurable):
 
@@ -61,7 +58,6 @@ class PrivateMethodTestCase(TestCase):
                 # should never be reached
                 self.assertTrue(False)
 
-
         a = A()
         a.private('attr', 1)
         self.assertEqual(a.attr, 1)
@@ -71,10 +67,10 @@ class PrivateMethodTestCase(TestCase):
         class gInt(OnGetMixin, Int):
             pass
 
-
         class A(PrivateMethodMixin, Configurable):
 
             attr = gInt(0)
+
             @retrieve('attr')
             def _attr_getter(self, value, trait):
                 return value + 1
@@ -126,10 +122,8 @@ class ColorTestCase(TestCase):
 
     def test_noargs(self):
 
-
         class A(HasTraits):
             color = Color()
-
 
         a = A()
         for values in self.black_values:
@@ -140,14 +134,11 @@ class ColorTestCase(TestCase):
             a.color = values
             assert_equal(a.color, (0.7451, 0.20784, 0.21569, 1.0))
         self._evaluate_invalids(a)
-        
 
     def test_hexcolor(self):
 
-
         class A(HasTraits):
             color = Color(as_hex=True)
-
 
         a = A()
 
@@ -163,10 +154,8 @@ class ColorTestCase(TestCase):
 
     def test_rgb(self):
 
-
         class A(HasTraits):
             color = Color(force_rgb=True)
-
 
         a = A()
 
@@ -183,13 +172,11 @@ class ColorTestCase(TestCase):
     def test_named(self):
         ncolors = {'hexblue': '#0000FF',
                    'floatbllue': (0.0, 0.0, 1.0),
-                   'intblue' : (0, 0, 255)}
-
+                   'intblue': (0, 0, 255)}
 
         class A(HasTraits):
             color = Color()
             color.named_colors = ncolors
-
 
         a = A()
 
@@ -199,10 +186,8 @@ class ColorTestCase(TestCase):
 
     def test_alpha(self):
 
-
         class A(HasTraits):
             color = Color(default_alpha=0.4)
-
 
         a = A()
 

@@ -239,6 +239,7 @@ class SubplotParams(object):
 
         setattr(self, s, val)
 
+
 # used solely for giving an empty figure class to
 # the "figure" attribute of an artist which performs
 # a type check (e.g `True if figure else False`)
