@@ -10,6 +10,7 @@ from matplotlib.externals import six
 
 import matplotlib
 import matplotlib.pyplot as plt
+from matplotlib import patheffects
 from matplotlib.testing.decorators import cleanup, knownfailureif
 
 
@@ -118,6 +119,17 @@ def test_composite_image():
         ps.seek(0)
         buff = ps.read()
         assert buff.count(six.b(' colorimage')) == 2
+
+
+@cleanup
+def test_patheffects():
+    with matplotlib.rc_context():
+        matplotlib.rcParams['path.effects'] = [
+            patheffects.withStroke(linewidth=4, foreground='w')]
+        fig, ax = plt.subplots()
+        ax.plot([1, 2, 3])
+        with io.BytesIO() as ps:
+            fig.savefig(ps, format='ps')
 
 
 if __name__ == '__main__':
