@@ -298,7 +298,7 @@ class Table(Artist):
         cell = CustomCell(xy, visible_edges=self.edges, *args, **kwargs)
         cell.figure = self.figure
         cell.transform = self.transform
-        
+
         self._cells[(row, col)] = cell
         self.stale = True
 

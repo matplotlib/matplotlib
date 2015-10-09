@@ -755,6 +755,7 @@ def _find_closest_point_on_path(lc, point):
 
     return (dmin, xcmin, legmin)
 
+
 class ContourSet(cm.ScalarMappable, ContourLabeler):
     """
     Store a set of contour lines or filled regions.

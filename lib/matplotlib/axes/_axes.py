@@ -258,7 +258,7 @@ class Axes(_AxesBase):
         has_handler = mlegend.Legend.get_legend_handler
 
         for handle in handles_original:
-            label = handle.label if hasattr(handle,'label') else handle.get_label()
+            label = handle.label if hasattr(handle, 'label') else handle.get_label()
             if label != '_nolegend_' and has_handler(handler_map, handle):
                 yield handle
 
@@ -274,10 +274,10 @@ class Axes(_AxesBase):
         """
         handles = []
         labels = []
-        for handle in self._get_legend_handles(legend_handler_map):
-            label = handle.label if hasattr(handle,'label') else handle.get_label()
+        for h in self._get_legend_handles(legend_handler_map):
+            label = h.label if hasattr(h, 'label') else h.get_label()
             if label and not label.startswith('_'):
-                handles.append(handle)
+                handles.append(h)
                 labels.append(label)
 
         return handles, labels

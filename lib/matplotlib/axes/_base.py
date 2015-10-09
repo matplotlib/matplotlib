@@ -515,7 +515,6 @@ class _AxesBase(martist.Artist):
         else:
             self.figure = fig
 
-
         self.set_axes_locator(kwargs.get("axes_locator", None))
 
         self.spines = self._gen_axes_spines()
@@ -599,7 +598,7 @@ class _AxesBase(martist.Artist):
         martist.Artist._figure_changed(self, change)
 
         tbox = mtransforms.TransformedBbox
-        self.bbox = tbox(self._position,change['new'].transFigure)
+        self.bbox = tbox(self._position, change['new'].transFigure)
         
         # these will be updated later as data is added
         self.dataLim = mtransforms.Bbox.null()

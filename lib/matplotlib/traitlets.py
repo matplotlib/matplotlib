@@ -21,7 +21,7 @@ import contextlib
 class PrivateMethodMixin(object):
 
     def __new__(cls, *args, **kwargs):
-        inst = super(PrivateMethodMixin,cls).__new__(cls, *args, **kwargs)
+        inst = super(PrivateMethodMixin, cls).__new__(cls, *args, **kwargs)
         inst._stored_trait_values = {}
         return inst
 
@@ -79,7 +79,7 @@ class PrivateMethodMixin(object):
                     if hasattr(self, '_%s_validate' % name):
                         cross_validate = getattr(self, '_%s_validate' % name)
                         trait = getattr(self.__class__, name)
-                        value =trait._cross_validate(self, getattr(self, name))
+                        value = trait._cross_validate(self, getattr(self, name))
                         setattr(self, name, value)
             except TraitError as e:
                 self._notify_trait = lambda *x: None
@@ -128,8 +128,9 @@ class PrivateMethodMixin(object):
         try:
             trait = getattr(self.__class__, name)
             if not isinstance(trait, BaseDescriptor):
-                msg = "'%s' is a standard attribute, not a traitlet, of a %s instance"
-                raise TraitError(msg % (name, self.__class__.__name__))
+                msg = ("'%s' is a standard attribute, not a traitlet, of a"
+                       " %s instance" % (name, self.__class__.__name__))
+                raise TraitError(msg)
         except AttributeError:
             msg = "'%s' is not a traitlet of a %s instance"
             raise TraitError(msg % (name, self.__class__.__name__))
@@ -138,6 +139,7 @@ class PrivateMethodMixin(object):
 
 def retrieve(name):
     return RetrieveHandler(name)
+
 
 class RetrieveHandler(EventHandler):
 
@@ -158,15 +160,16 @@ class RetrieveHandler(EventHandler):
         d.pop('func', None)
         return d
 
+
 class OnGetMixin(object):
 
     def __get__(self, obj, cls=None):
         if obj is None:
             return self
-        value = super(OnGetMixin,self).get(obj, cls)
+        value = super(OnGetMixin, self).get(obj, cls)
         if self.name in obj._retrieve_handlers:
             handler = obj._retrieve_handlers[self.name]
-            pull = {'value': value, 'owner':obj, 'trait':self}
+            pull = {'value': value, 'owner': obj, 'trait': self}
             value = handler(obj, pull)
         return value
 
@@ -182,7 +185,7 @@ class TransformInstance(OnGetMixin, TraitType):
                  ' `_as_mpl_transform` method')
 
     def __init__(self, *args, **kwargs):
-        super(TransformInstance,self).__init__(*args, **kwargs)
+        super(TransformInstance, self).__init__(*args, **kwargs)
         self._conversion_method = False
 
     def _validate(self, obj, value):
@@ -203,52 +206,6 @@ class TransformInstance(OnGetMixin, TraitType):
             return value._as_mpl_transform
         trait.error(obj, value)
 
-#!Note : this is what the transform instance would
-# look like if getters were to be avoided entirely.
-# `_name_validate` would handle "on set" events
-# while standard change handlers would accomodate
-# any "on get" requirements. This could be hairy
-# to implement, but in principle it seems possible.
-# For now though, getters will remain a crutch to
-# make it through testing.
-
-# class TransformInstance(TraitType):
-
-#     info_text = ('None, a Transform instance or have an'
-#                  ' `_as_mpl_transform` method')
-#     allow_none = True
-
-#     def __init__(self, *args, **kwargs):
-#         super(TransformInstance,self).__init__(*args, **kwargs)
-#         self._conversion_value = Undefined
-
-#     def __get__(self, obj, cls=None):
-#         value = super(TransformInstance,self).__get__(obj,cls)
-#         if self._conversion_value is not Undefined:
-#             return self._conversion_value
-#         return value
-
-#     def _validate(self, obj, value):
-#         if value is None:
-#             return IdentityTransform()
-#         if hasattr(self, 'validate'):
-#             value = self.validate(obj, value)
-#         if obj._cross_validation_lock is False:
-#             value = self._cross_validate(obj, value)
-#         return value
-
-#     def validate(self, obj, value):
-#         if isinstance(value, Transform):
-#             if self._conversion_value is not Undefined:
-#                 self._conversion_value = Undefined
-#             return value
-#         elif hasattr(value, '_as_mpl_transform'):
-#             method = value._as_mpl_transform
-#             try:
-#                 self._conversion_value = method(obj.axes)
-#             except:
-#                 self._conversion_value = None
-#         trait.error(obj, value)
 
 class Callable(TraitType):
     """A trait which is callable.
@@ -266,6 +223,7 @@ class Callable(TraitType):
         else:
             self.error(obj, value)
 
+
 class Stringlike(Unicode):
 
     info_text = 'string or unicode interpretable'
@@ -277,6 +235,7 @@ class Stringlike(Unicode):
             elif hasattr(value, '__str__'):
                 value = str(value)
         return super(Stringlike,self).validate(obj,value)
+
 
 class Color(TraitType):
     """A trait representing a color, can be either in RGB, or RGBA format.
@@ -300,11 +259,11 @@ class Color(TraitType):
     """
     metadata = {
         'force_rgb': False,
-        'as_hex' : False,
-        'default_alpha' : 1.0,
+        'as_hex': False,
+        'default_alpha': 1.0,
         }
     info_text = 'float, int, tuple of float or int, or a hex string color'
-    default_value = (0.0,0.0,0.0, metadata['default_alpha'])
+    default_value = (0.0, 0.0, 0.0, metadata['default_alpha'])
     named_colors = {}
     _re_color_hex = re.compile(r'#[a-fA-F0-9]{3}(?:[a-fA-F0-9]{3})?$')
 
@@ -327,26 +286,26 @@ class Color(TraitType):
 
     def _hex_to_float(self, value):
         if len(value) == 7:
-            split_hex = (value[1:3],value[3:5],value[5:7])
-            as_float = (np.array([int(v,16) for v in split_hex])/255.0).tolist()
+            split_hex = (value[1:3], value[3:5], value[5:7])
+            as_float = (np.array([int(v, 16) for v in split_hex]) / 255.0)
         elif len(value) == 4:
-            as_float = (np.array([int(v+v,16) for v in value[1:]])/255.0).tolist()
-        return as_float
+            as_float = (np.array([int(v+v, 16) for v in value[1:]]) / 255.0)
+        return as_float.tolist()
 
     def _float_to_shade(self, value):
         grade = value*255.0
-        return (grade,grade,grade)
+        return (grade, grade, grade)
 
     def _int_to_shade(self, value):
         grade = value/255.0
-        return (grade,grade,grade)
+        return (grade, grade, grade)
 
     def validate(self, obj, value):
         in_range = False
         if value is True:
             self.error(obj, value)
 
-        elif value is None or value is False or value in ['none','']:
+        elif value is None or value is False or value in ['none', '']:
             value = (0.0, 0.0, 0.0, 0.0)
             in_range = True
 
@@ -364,7 +323,7 @@ class Color(TraitType):
             else:
                 in_range = False
 
-        elif isinstance(value, (tuple, list)) and len(value) in (3,4):
+        elif isinstance(value, (tuple, list)) and len(value) in (3, 4):
             is_all_float = np.prod([isinstance(v, (float)) for v in value])
             in_range = np.prod([(0 <= v <= 1) for v in value])
             if is_all_float and in_range:
@@ -375,7 +334,7 @@ class Color(TraitType):
                 if is_all_int and in_range:
                     value = self._int_to_float(value)
 
-        elif isinstance(value, str) and len(value) in [4,7] and value[0] == '#':
+        elif isinstance(value, str) and len(value) in [4, 7] and value[0] == '#':
             if self._re_color_hex.match(value):
                 value = self._hex_to_float(value)
                 in_range = np.prod([(0 <= v <= 1) for v in value])
@@ -393,7 +352,7 @@ class Color(TraitType):
 
             # Ignores alpha and return rgb
             if self._metadata['force_rgb'] and in_range:
-                return tuple(np.round(value[:3],5).tolist())
+                return tuple(np.round(value[:3], 5).tolist())
 
             # If no alpha provided, use default_alpha, also round the output
             if len(value) == 3:
@@ -401,7 +360,7 @@ class Color(TraitType):
                              self._metadata['default_alpha']),5).tolist())
             elif len(value) == 4:
             # If no alpha provided, use default_alpha
-                value = tuple(np.round(value,5).tolist())
+                value = tuple(np.round(value, 5).tolist())
 
             return value
 

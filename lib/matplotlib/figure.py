@@ -239,10 +239,12 @@ class SubplotParams(object):
 
         setattr(self, s, val)
 
-# used solely for passing an empty figure class to
-# the "figure" attribute of an artist which will pass
-# a boolean test (e.g `True if figure else False`)
-class FigureBase(object): pass
+# used solely for giving an empty figure class to
+# the "figure" attribute of an artist which performs
+# a type check (e.g `True if figure else False`)
+class FigureBase(object):
+    pass
+
 
 class Figure(FigureBase, Artist):
 

@@ -459,9 +459,9 @@ class Quiver(mcollections.PolyCollection):
         # that can be easily warned because defining a property to raise it
         # will override the traittype defined at the class level.
         self.quiver_transform = kw.pop('transform', ax.transData)
-            
+
         kw.setdefault('facecolors', self.color)
-        kw.setdefault('linewidths', (0,))
+        kw.setdefault('linewidths', (0, ))
         mcollections.PolyCollection.__init__(self, [], offsets=self.XY,
                                              transOffset=self.quiver_transform,
                                              closed=False,

@@ -15,10 +15,11 @@ from .transforms import (Bbox, IdentityTransform, TransformedBbox,
                          TransformedPatchPath, TransformedPath, Transform)
 from .path import Path
 
-from .traitlets import (Instance, Configurable, TransformInstance, Bool, Undefined, Union,
-                        BaseDescriptor, getargspec, PrivateMethodMixin, Float, TraitError,
-                        Unicode, Stringlike, Callable, Tuple, List, observe, validate, default,
-                        retrieve, _traitlets_deprecation_msg)
+from .traitlets import (Instance, Configurable, TransformInstance, Bool,
+                        Undefined, Union, BaseDescriptor, getargspec,
+                        PrivateMethodMixin, Float, TraitError, Unicode,
+                        Stringlike, Callable, Tuple, List, observe, validate,
+                        default, retrieve, _traitlets_deprecation_msg)
 
 
 # Note, matplotlib artists use the doc strings for set and get
@@ -126,13 +127,13 @@ class Artist(PrivateMethodMixin, Configurable):
     @observe('axes')
     def _axes_changed(self, change):
         new, old = change['new'], change['old']
-        if new and old not in (Undefined,None):
+        if new and old not in (Undefined, None):
             raise ValueError("Can not reset the axes.  You are "
                              "probably trying to re-use an artist "
                              "in more than one Axes which is not "
                              "supported")
 
-        if new not in (Undefined,None) and new is not self:
+        if new not in (Undefined, None) and new is not self:
             self.stale_callback = _stale_axes_callback
 
     figure = Instance(str('matplotlib.figure.FigureBase'), allow_none=True)
@@ -166,7 +167,7 @@ class Artist(PrivateMethodMixin, Configurable):
 
     @validate('alpha')
     def _alpha_validate(self, commit):
-        if 0>commit['value']>1:
+        if 0 > commit['value'] > 1:
             msg = ("The '%s' trait of %s instance can only be"
                    " transparent (0.0) through opaque (1.0)")
             repl = (commit['trait'].name, self.__class__.__name__)
@@ -242,7 +243,7 @@ class Artist(PrivateMethodMixin, Configurable):
     def _label_changed(self, change):
         self.pchanged()
 
-    picker = Union((Bool(),Float(),Callable()), allow_none=True)
+    picker = Union((Bool(), Float(), Callable()), allow_none=True)
 
     @default('picker')
     def _picker_default(self): pass
@@ -795,12 +796,14 @@ class Artist(PrivateMethodMixin, Configurable):
 
         May return `None` if no sketch parameters were set.
         """
-        msg = ("This has been deprecated to make way for IPython's Traitlets. Please"
-               " use the 'sketch_params' property or the TraitTypes it references.")
+        msg = ("This has been deprecated to make way for IPython's"
+               " Traitlets. Please use the 'sketch_params' property"
+               " or the TraitTypes it references.")
         warnings.warn(msg, mplDeprecation, stacklevel=1)
         return self.sketch_params
 
-    def set_sketch_params(self, scale=None, length=None, randomness=None, all=None):
+    def set_sketch_params(self, scale=None, length=None,
+                            randomness=None, all=None):
         """
         Sets the sketch parameters.
 
@@ -1078,7 +1081,7 @@ class Artist(PrivateMethodMixin, Configurable):
             else:
                 #!DEPRICATED set_name access should eventually be removed
                 klass = self.__class__
-                if isinstance(getattr(klass, k, None),BaseDescriptor):
+                if isinstance(getattr(klass, k, None), BaseDescriptor):
                     setattr(self, k, v)
                 else:
                     func = getattr(self, 'set_' + k, None)
@@ -1164,7 +1167,7 @@ class Artist(PrivateMethodMixin, Configurable):
                 ret.extend([func(v)])
             else:
                 klass = self.__class__
-                if isinstance(getattr(klass, k, None),BaseDescriptor):
+                if isinstance(getattr(klass, k, None), BaseDescriptor):
                     ret.extend([setattr(self, k, v)])
                 else:
                     raise TypeError('There is no %s property "%s"' %
@@ -1600,15 +1603,16 @@ def getp(obj, property=None):
         print('\n'.join(ret))
         return
 
-    func = getattr(obj, 'get_' + property, None)
-    if func is not None and six.callable(func):
-        return func()
+    klass = obj.__class__
+    if isinstance(getattr(klass, property, None), BaseDescriptor):
+        return getattr(obj, property)
     else:
-        klass = obj.__class__
-        if isinstance(getattr(klass, property, None),BaseDescriptor):
-            return getattr(obj, property)
+        func = getattr(obj, 'get_' + property, None)
+        if func is not None and six.callable(func):
+            return func()
         else:
-            raise AttributeError('Unknown property %s for %s' % (property,str(obj)))
+            msg = 'Unknown property %s for %s'
+            raise AttributeError(msg % (property, str(obj)))
 
 # alias
 get = getp
@@ -1691,7 +1695,7 @@ def setp(obj, *args, **kwargs):
                 ret.extend([func(val)])
             else:
                 klass = o.__class__
-                if isinstance(getattr(klass, s, None),BaseDescriptor):
+                if isinstance(getattr(klass, s, None), BaseDescriptor):
                     ret.extend([setattr(o, s, val)])
                 else:
                     raise TypeError('There is no %s property "%s"' %

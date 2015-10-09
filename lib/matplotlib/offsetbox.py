@@ -586,6 +586,7 @@ class PaddedBox(OffsetBox):
         if self._drawFrame:
             self.patch.draw(renderer)
 
+
 class DrawingArea(OffsetBox):
     """
     The DrawingArea can contain any Artist as a child. The DrawingArea
