@@ -1,13 +1,8 @@
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
-from matplotlib.externals import six
-
-import io
-
-import numpy as np
 import matplotlib
-from matplotlib.testing.decorators import image_comparison, knownfailureif, cleanup
+from matplotlib.testing.decorators import image_comparison
 import matplotlib.pyplot as plt
 
 
