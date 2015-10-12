@@ -1012,18 +1012,26 @@ def mkdirs(newdir, mode=0o777):
         > mkdir -p NEWDIR
         > chmod MODE NEWDIR
     """
-    try:
-        if not os.path.exists(newdir):
-            parts = os.path.split(newdir)
-            for i in range(1, len(parts) + 1):
-                thispart = os.path.join(*parts[:i])
-                if not os.path.exists(thispart):
-                    os.makedirs(thispart, mode)
+    # this functionality is now in core python as of 3.2
+    if six.PY3:
+        os.makedirs(newdir, mode=mode, exist_ok=True)
+        return
 
-    except OSError as err:
-        # Reraise the error unless it's about an already existing directory
-        if err.errno != errno.EEXIST or not os.path.isdir(newdir):
-            raise
+
+    def _make_leaf(newdir, mode):
+        if os.path.exists(newdir):
+            return
+        try:
+            os.makedirs(thispart, mode)
+        except OSError as err:
+            # Reraise the error unless it's about an already existing directory
+            if err.errno != errno.EEXIST or not os.path.isdir(newdir):
+                raise
+
+    parts = os.path.split(newdir)
+    for i in range(1, len(parts) + 1):
+        thispart = os.path.join(*parts[:i])
+        _make_leaf(thispart, mode)
 
 
 class GetRealpathAndStat(object):
