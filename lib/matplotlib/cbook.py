@@ -1016,23 +1016,13 @@ def mkdirs(newdir, mode=0o777):
     if six.PY3:
         os.makedirs(newdir, mode=mode, exist_ok=True)
         return
-
-
-    def _make_leaf(newdir, mode):
-        if os.path.exists(newdir):
-            return
-        try:
-            os.makedirs(thispart, mode)
-        except OSError as err:
-            # Reraise the error unless it's about an already existing directory
-            if err.errno != errno.EEXIST or not os.path.isdir(newdir):
-                raise
-
-    parts = os.path.split(newdir)
-    for i in range(1, len(parts) + 1):
-        thispart = os.path.join(*parts[:i])
-        _make_leaf(thispart, mode)
-
+    # LPY DROP
+    # the rest of this function can be removed when we drop legacy python
+    try:
+        os.makedirs(newdir, mode=mode)
+    except OSError as exception:
+        if exception.errno != errno.EEXIST:
+            raise
 
 class GetRealpathAndStat(object):
     def __init__(self):
