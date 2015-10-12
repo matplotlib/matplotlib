@@ -673,10 +673,7 @@ Could not rename old TeX cache dir "%s": a suitable configuration
         else:
             # use dviread. It sometimes returns a wrong descent.
             dvifile = self.make_dvi(tex, fontsize)
-            dvi = dviread.Dvi(dvifile, 72 * dpi_fraction)
-            try:
+            with dviread.Dvi(dvifile, 72 * dpi_fraction) as dvi:
                 page = next(iter(dvi))
-            finally:
-                dvi.close()
             # A total height (including the descent) needs to be returned.
             return page.width, page.height + page.descent, page.descent

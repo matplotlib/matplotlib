@@ -1845,9 +1845,8 @@ class RendererPdf(RendererBase):
         texmanager = self.get_texmanager()
         fontsize = prop.get_size_in_points()
         dvifile = texmanager.make_dvi(s, fontsize)
-        dvi = dviread.Dvi(dvifile, 72)
-        page = six.next(iter(dvi))
-        dvi.close()
+        with dviread.Dvi(dvifile, 72) as dvi:
+            page = six.next(iter(dvi))
 
         # Gather font information and do some setup for combining
         # characters into strings. The variable seq will contain a
