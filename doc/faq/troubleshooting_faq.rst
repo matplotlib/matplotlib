@@ -70,7 +70,7 @@ directory by default::
 If you would like to use a different configuration directory, you can
 do so by specifying the location in your :envvar:`MPLCONFIGDIR`
 environment variable -- see
-:ref:`setting-linux-osx-environment-variables`.  Note that 
+:ref:`setting-linux-osx-environment-variables`.  Note that
 :envvar:`MPLCONFIGDIR` sets the location of both the configuration
 directory and the cache directory.
 
@@ -101,9 +101,8 @@ please provide the following information in your e-mail to the
         python -c `import matplotlib; print matplotlib.__version__`
 
   * where you obtained matplotlib (e.g., your Linux distribution's
-    packages or the matplotlib Sourceforge site, or
-    Anaconda_ or
-    `Enthought Canopy <https://www.enthought.com/products/canopy/>`_).
+    packages, github, PyPi, or Anaconda_ or `Enthought Canopy
+    <https://www.enthought.com/products/canopy/>`_).
 
 .. _Anaconda: https://store.continuum.io/cshop/anaconda/
 
@@ -168,9 +167,9 @@ simple test script in debug mode::
 
 and post :file:`build.out` and :file:`run.out` to the
 `matplotlib-devel
-<http://lists.sourceforge.net/mailman/listinfo/matplotlib-devel>`_
+<http://mail.python.org/mailman/listinfo/matplotlib-devel>`_
 mailing list (please do not post git problems to the `users list
-<http://lists.sourceforge.net/mailman/listinfo/matplotlib-users>`_).
+<https://mail.python.org/mailman/listinfo/matplotlib-users>`_).
 
 Of course, you will want to clearly describe your problem, what you
 are expecting and what you are getting, but often a clean build and

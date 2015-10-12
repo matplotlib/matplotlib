@@ -597,7 +597,7 @@ in these environments.  Most importantly, you need to decide what
 kinds of images you want to generate (PNG, PDF, SVG) and configure the
 appropriate default backend.  For 99% of users, this will be the Agg
 backend, which uses the C++
-`antigrain <http://agg.sourceforge.net/antigrain.com/index.html>`_
+`antigrain <http://antigrain.com>`_
 rendering engine to make nice PNGs.  The Agg backend is also
 configured to recognize requests to generate other output formats
 (PDF, PS, EPS, SVG).  The easiest way to configure matplotlib to use

@@ -366,7 +366,7 @@ if __name__ == '__main__':
         package_dir=package_dir,
         package_data=package_data,
         classifiers=classifiers,
-        download_url="https://downloads.sourceforge.net/project/matplotlib/matplotlib/matplotlib-{0}/matplotlib-{0}.tar.gz".format(__version__),
+        download_url="http://matplotlib.org/users/installing.html",
 
         # List third-party Python packages that we require
         install_requires=install_requires,
