@@ -1013,16 +1013,15 @@ def mkdirs(newdir, mode=0o777):
         > chmod MODE NEWDIR
     """
     # this functionality is now in core python as of 3.2
+    # LPY DROP
     if six.PY3:
         os.makedirs(newdir, mode=mode, exist_ok=True)
-        return
-    # LPY DROP
-    # the rest of this function can be removed when we drop legacy python
-    try:
-        os.makedirs(newdir, mode=mode)
-    except OSError as exception:
-        if exception.errno != errno.EEXIST:
-            raise
+    else:
+        try:
+            os.makedirs(newdir, mode=mode)
+        except OSError as exception:
+            if exception.errno != errno.EEXIST:
+                raise
 
 class GetRealpathAndStat(object):
     def __init__(self):
