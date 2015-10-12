@@ -1132,9 +1132,9 @@ def subplots(nrows=1, ncols=1, sharex=False, sharey=False, squeeze=True,
         plt.subplots(2, 2, sharex=True, sharey=True)
     """
     fig = figure(**fig_kw)
-    axs = fig.add_subplots(
-        nrows=nrows, ncols=ncols, sharex=sharex, sharey=sharey, squeeze=squeeze,
-        subplot_kw=subplot_kw, gridspec_kw=gridspec_kw)
+    axs = fig.subplots(nrows=nrows, ncols=ncols, sharex=sharex, sharey=sharey,
+                       squeeze=squeeze, subplot_kw=subplot_kw,
+                       gridspec_kw=gridspec_kw)
     return fig, axs
 
 

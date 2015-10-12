@@ -1002,8 +1002,8 @@ class Figure(Artist):
         self.stale = True
         return a
 
-    def add_subplots(self, nrows=1, ncols=1, sharex=False, sharey=False,
-                     squeeze=True, subplot_kw=None, gridspec_kw=None):
+    def subplots(self, nrows=1, ncols=1, sharex=False, sharey=False,
+                 squeeze=True, subplot_kw=None, gridspec_kw=None):
         """
         Add a set of subplots to this figure.
 
@@ -1029,10 +1029,10 @@ class Figure(Artist):
         sharey : {"none", "all", "row", "col"} or bool, default: False
             If *False*, or "none", each subplot has its own Y axis.
 
-            If *True*, or "all", all subplots will share an Y axis, and the x
+            If *True*, or "all", all subplots will share an Y axis, and the y
             tick labels on all but the first column of plots will be invisible.
 
-            If "row", each subplot row will share an Y axis, and the x tick
+            If "row", each subplot row will share an Y axis, and the y tick
             labels on all but the first column of plots will be invisible.
 
             If "col", each subplot column will share an Y axis.
@@ -1042,16 +1042,15 @@ class Figure(Artist):
             array:
 
             - if only one subplot is constructed (nrows=ncols=1), the resulting
-            single Axes object is returned as a scalar.
+              single Axes object is returned as a scalar.
 
             - for Nx1 or 1xN subplots, the returned object is a 1-d numpy
-            object array of Axes objects are returned as numpy 1-d arrays.
+              object array of Axes objects are returned as numpy 1-d arrays.
 
             - for NxM subplots with N>1 and M>1 are returned as a 2d array.
 
-            If *False*, no squeezing at all is done: the returned axes object
-            is always a 2-d array of Axes instances, even if it ends up being
-            1x1.
+            If *False*, no squeezing at all is done: the returned object is
+            always a 2-d array of Axes instances, even if it ends up being 1x1.
 
         subplot_kw : dict, default: {}
             Dict with keywords passed to the
@@ -1066,7 +1065,7 @@ class Figure(Artist):
         Returns
         -------
         ax : single Axes object or array of Axes objects
-            The addes axes.  The dimensions of the resulting array can be
+            The added axes.  The dimensions of the resulting array can be
             controlled with the squeeze keyword, see above.
 
         See Also
@@ -1114,14 +1113,13 @@ class Figure(Artist):
                 axarr[row, col] = self.add_subplot(gs[row, col], **subplot_kw)
 
         # turn off redundant tick labeling
-        if sharex in ["col", "all"] and nrows > 1:
+        if sharex in ["col", "all"]:
             # turn off all but the bottom row
             for ax in axarr[:-1, :].flat:
                 for label in ax.get_xticklabels():
                     label.set_visible(False)
                 ax.xaxis.offsetText.set_visible(False)
-
-        if sharey in ["row", "all"] and ncols > 1:
+        if sharey in ["row", "all"]:
             # turn off all but the first column
             for ax in axarr[:, 1:].flat:
                 for label in ax.get_yticklabels():
@@ -1129,14 +1127,12 @@ class Figure(Artist):
                 ax.yaxis.offsetText.set_visible(False)
 
         if squeeze:
-            # Reshape the array to have the final desired dimension (nrow,ncol),
-            # though discarding unneeded dimensions that equal 1.  If we only have
-            # one subplot, just return it instead of a 1-element array.
+            # Discarding unneeded dimensions that equal 1.  If we only have one
+            # subplot, just return it instead of a 1-element array.
             return axarr.item() if axarr.size == 1 else axarr.squeeze()
         else:
-            # returned axis array will be always 2-d, even if nrows=ncols=1
+            # Returned axis array will be always 2-d, even if nrows=ncols=1.
             return axarr
-
 
     def clf(self, keep_observers=False):
         """
