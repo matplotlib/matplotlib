@@ -16,7 +16,7 @@ Glossary
 
 
   dateutil
-      The `dateutil <http://labix.org/python-dateutil>`_ library
+      The `dateutil <https://dateutil.readthedocs.org>`_ library
       provides extensions to the standard datetime module
 
   EPS
