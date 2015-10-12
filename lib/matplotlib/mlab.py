@@ -3417,12 +3417,11 @@ def griddata(x, y, z, xi, yi, interp='nn'):
         try:
             from mpl_toolkits.natgrid import _natgrid
         except ImportError:
-            raise RuntimeError("To use interp='nn' (Natural Neighbor "
-                               "interpolation) in griddata, natgrid must be "
-                               "installed. Either install it from http://"
-                               "sourceforge.net/projects/matplotlib/files/"
-                               "matplotlib-toolkits, or use interp='linear' "
-                               "instead.")
+            raise RuntimeError(
+                "To use interp='nn' (Natural Neighbor interpolation) in "
+                "griddata, natgrid must be installed. Either install it "
+                "from http://github.com/matplotlib/natgrid or use "
+                "interp='linear' instead.")
 
         if xi.ndim == 2:
             # natgrid expects 1D xi and yi arrays.
