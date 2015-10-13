@@ -2000,9 +2000,9 @@ figures since the last call.  Eric has done a lot of testing on the
 user interface toolkits and versions and platforms he has access to,
 but it is not possible to test them all, so please report problems to
 the `mailing list
-<http://sourceforge.net/mailarchive/forum.php?forum_name=matplotlib-users>`_
+<http://mail.python.org/mailman/listinfo/matplotlib-users`_
 and `bug tracker
-<http://sourceforge.net/tracker/?group_id=80706&atid=560720>`_.
+<http://github.com/matplotlib/matplotlib/issues>`_.
 
 
 mplot3d graphs can be embedded in arbitrary axes
