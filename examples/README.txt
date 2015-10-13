@@ -17,16 +17,12 @@ directories found here:
   * animation - dynamic plots, see the tutorial at
     http://www.scipy.org/Cookbook/Matplotlib/Animations
 
-  * api - working with the matplotlib API directory.  See the
-    doc/artist_api_tut.txt in the matplotlib src directory ((PDF at
-    http://matplotlib.sf.net/pycon)
+  * api - working with the matplotlib API directory.
 
   * axes_grid - Examples related to the AxesGrid toolkit
 
   * event_handling - how to interact with your figure, mouse presses,
-    key presses, object picking, etc.  See the event handling tutorial
-    in the "doc" directory of the source distribution (PDF at
-    http://matplotlib.sf.net/pycon)
+    key presses, object picking, etc.
 
   * misc - some miscellaneous examples.  some demos for loading and
     working with record arrays

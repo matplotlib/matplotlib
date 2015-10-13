@@ -66,12 +66,12 @@ you will also need to install compatible versions of
 `pyparsing <https://pypi.python.org/pypi/pyparsing/>`_, and
 `cycler <https://pypi.python.org/pypi/Cycler>`_
 in addition to
-`matplotlib <http://matplotlib.org/downloads.html>`_.
+`matplotlib <http://pypi.python.org/pypi/matplotlib/>`_.
 
 For Python 3.5 the `Visual C++ Redistributable for Visual Studio 2015
 <http://www.microsoft.com/en-us/download/details.aspx?id=48145>`_
 needs to be installed.
-In case Python 2.6 to 3.4 are not installed for all users (not the default), 
+In case Python 2.6 to 3.4 are not installed for all users (not the default),
 the Microsoft Visual C++ 2008 (
 `64 bit <http://www.microsoft.com/download/en/details.aspx?id=15336>`__
 or
@@ -109,19 +109,18 @@ standard Python shell or IPython. It is enabled as the default backend
 for the official binaries.  GTK3 is not supported on Windows.
 
 The Windows installers (:file:`*.exe`) and wheels (:file:`*.whl`) on
-the `download page <http://matplotlib.org/downloads.html>`_ do not
-contain test data or example code.
-If you want to try the many demos that come in the matplotlib source
-distribution, download the :file:`*.tar.gz` file and look in the
-:file:`examples` subdirectory.
+the `PyPI download page <http://pypi.python.org/pypi/matplotlib/>`_ do
+not contain test data or example code.  If you want to try the many
+demos that come in the matplotlib source distribution, download the
+:file:`*.tar.gz` file and look in the :file:`examples` subdirectory.
 To run the test suite, copy the :file:`lib\matplotlib\tests` and
-:file:`lib\mpl_toolkits\tests` directories from the source distribution to
-:file:`sys.prefix\Lib\site-packages\matplotlib` and
-:file:`sys.prefix\Lib\site-packages\mpl_toolkits` respectively, and install
-`nose <https://pypi.python.org/pypi/nose>`_,
-`mock <https://pypi.python.org/pypi/mock>`_,
-Pillow, MiKTeX, GhostScript, ffmpeg, avconv, mencoder, ImageMagick, and
-`Inkscape <http://inkscape.org/>`_.
+:file:`lib\mpl_toolkits\tests` directories from the source
+distribution to :file:`sys.prefix\Lib\site-packages\matplotlib` and
+:file:`sys.prefix\Lib\site-packages\mpl_toolkits` respectively, and
+install `nose <https://pypi.python.org/pypi/nose>`_, `mock
+<https://pypi.python.org/pypi/mock>`_, Pillow, MiKTeX, GhostScript,
+ffmpeg, avconv, mencoder, ImageMagick, and `Inkscape
+<http://inkscape.org/>`_.
 
 
 
@@ -133,10 +132,10 @@ Installing from source
 If you are interested in contributing to matplotlib development,
 running the latest source code, or just like to build everything
 yourself, it is not difficult to build matplotlib from source.  Grab
-the latest *tar.gz* release file from `the download page
-<http://matplotlib.org/downloads.html>`_, or if you want
-to develop matplotlib or just need the latest bugfixed version, grab
-the latest git version :ref:`install-from-git`.
+the latest *tar.gz* release file from `the PyPI files page
+<https://pypi.python.org/pypi/matplotlib/>`_, or if you want to
+develop matplotlib or just need the latest bugfixed version, grab the
+latest git version :ref:`install-from-git`.
 
 The standard environment variables `CC`, `CXX`, `PKG_CONFIG` are respected.
 This means you can set them if your toolchain is prefixed. This may be used for

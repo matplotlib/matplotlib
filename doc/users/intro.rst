@@ -73,7 +73,7 @@ backends: PS creates `PostScript®
 <http://www.adobe.com/products/postscript/>`_ hardcopy, SVG
 creates `Scalable Vector Graphics <http://www.w3.org/Graphics/SVG/>`_
 hardcopy, Agg creates PNG output using the high quality `Anti-Grain
-Geometry <http://agg.sourceforge.net/antigrain.com/index.html>`_
+Geometry <http://antigrain.com/>`_
 library that ships with matplotlib, GTK embeds matplotlib in a
 `Gtk+ <http://www.gtk.org/>`_
 application, GTKAgg uses the Anti-Grain renderer to create a figure
@@ -92,5 +92,3 @@ embed matplotlib in a Gtk+ EEG application that runs on Windows, Linux
 and Macintosh OS X.
 
 .. [*] MATLAB is a registered trademark of The MathWorks, Inc.
-
-
