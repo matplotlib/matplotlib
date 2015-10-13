@@ -1815,7 +1815,7 @@ Gerald Storer made the Qt4 backend compatible with PySide as
 well as PyQT4.  At present, however, PySide does not support
 the PyOS_InputHook mechanism for handling gui events while
 waiting for text input, so it cannot be used with the new
-version 0.11 of `IPython <http://ipython.org>`_. Until this
+version 0.11 of `IPython <http://ipython.org>`__. Until this
 feature appears in PySide, IPython users should use
 the PyQT4 wrapper for QT4, which remains the matplotlib default.
 
@@ -2000,9 +2000,9 @@ figures since the last call.  Eric has done a lot of testing on the
 user interface toolkits and versions and platforms he has access to,
 but it is not possible to test them all, so please report problems to
 the `mailing list
-<http://mail.python.org/mailman/listinfo/matplotlib-users`_
+<http://mail.python.org/mailman/listinfo/matplotlib-users>`__
 and `bug tracker
-<http://github.com/matplotlib/matplotlib/issues>`_.
+<http://github.com/matplotlib/matplotlib/issues>`__.
 
 
 mplot3d graphs can be embedded in arbitrary axes
@@ -2044,7 +2044,7 @@ Much improved software carpentry
 
 The matplotlib trunk is probably in as good a shape as it has ever
 been, thanks to improved `software carpentry
-<http://software-carpentry.org/>`_.  We now have a `buildbot
+<http://software-carpentry.org/>`__.  We now have a `buildbot
 <http://buildbot.net/trac>`__ which runs a suite of `nose
 <http://code.google.com/p/python-nose/>`__ regression tests on every
 svn commit, auto-generating a set of images and comparing them against
