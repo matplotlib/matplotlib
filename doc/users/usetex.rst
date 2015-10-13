@@ -151,7 +151,7 @@ Troubleshooting
 * If you still need help, please see :ref:`reporting-problems`
 
 .. _LaTeX: http://www.tug.org
-.. _dvipng: http://sourceforge.net/projects/dvipng
+.. _dvipng: http://www.nongnu.org/dvipng/
 .. _Ghostscript: http://www.cs.wisc.edu/~ghost/
 .. _PSNFSS: http://www.ctan.org/tex-archive/macros/latex/required/psnfss/psnfss2e.pdf
 .. _Poppler: http://poppler.freedesktop.org/

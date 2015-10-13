@@ -26,8 +26,8 @@ as follows::
   Z = self.texmanager.get_rgba(s, size=12, dpi=80, rgb=(1,0,0))
 
 To enable tex rendering of all text in your matplotlib figure, set
-text.usetex in your matplotlibrc file (http://matplotlib.sf.net/matplotlibrc)
-or include these two lines in your script::
+text.usetex in your matplotlibrc file or include these two lines in
+your script::
 
   from matplotlib import rc
   rc('text', usetex=True)

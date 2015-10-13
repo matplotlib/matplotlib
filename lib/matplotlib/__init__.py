@@ -1076,8 +1076,9 @@ def _rc_params_in_file(fname, fail_on_error=False):
 Bad key "%s" on line %d in
 %s.
 You probably need to get an updated matplotlibrc file from
-http://matplotlib.sf.net/_static/matplotlibrc or from the matplotlib source
-distribution""" % (key, cnt, fname), file=sys.stderr)
+http://github.com/matplotlib/matplotlib/blob/master/matplotlibrc.template
+or from the matplotlib source distribution""" % (key, cnt, fname),
+                  file=sys.stderr)
 
     return config
 
