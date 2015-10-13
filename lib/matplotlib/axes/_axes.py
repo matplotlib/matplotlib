@@ -14,7 +14,7 @@ import matplotlib
 from matplotlib import unpack_labeled_data
 
 import matplotlib.cbook as cbook
-from matplotlib.cbook import (mplDeprecation, STEP_LOOKUP_MAP, is_sequence_of_strings,
+from matplotlib.cbook import (mplDeprecation, STEP_LOOKUP_MAP,
                               iterable, is_string_like)
 import matplotlib.collections as mcoll
 import matplotlib.colors as mcolors
@@ -2184,11 +2184,11 @@ class Axes(_AxesBase):
 
         if tick_labels is not None:
             tick_labels = make_iterable(tick_labels)
-            if not is_sequence_of_strings(tick_labels):
-                raise ValueError("tick_label must be a sequence of strings")
+            if isinstance(tick_labels, six.string_types):
+                tick_labels = [tick_labels]
             if len(tick_labels) == 1:
-                tick_labels *= tick_label_position
-            if len(tick_labels) != tick_label_position:
+                tick_labels *= nbars
+            if len(tick_labels) != nbars:
                 raise ValueError("incompatible sizes: argument 'tick_label' "
                                  "must be length %d or string" % nbars)
 
