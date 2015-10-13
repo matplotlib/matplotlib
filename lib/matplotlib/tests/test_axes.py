@@ -1055,6 +1055,12 @@ def test_bar_tick_label_single():
     ax.bar("a", "b" , tick_label='a', data=data)
 
 
+@cleanup
+def test_bar_ticklabel_fail():
+    fig, ax = plt.subplots()
+    ax.bar([], [])
+
+
 @image_comparison(baseline_images=['bar_tick_label_multiple'],
                   extensions=['png'])
 def test_bar_tick_label_multiple():
@@ -1081,6 +1087,7 @@ def test_hist_log():
     fig = plt.figure()
     ax = fig.add_subplot(111)
     ax.hist(data, fill=False, log=True)
+
 
 @image_comparison(baseline_images=['hist_bar_empty'], remove_text=True,
 	extensions=['png'])
