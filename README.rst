@@ -29,3 +29,13 @@ Or from the python interpreter::
 
 Consider reading http://matplotlib.org/devel/coding_guide.html#testing for
 more information.
+
+Contact
+=======
+matplotlib's communication channels include active mailing lists:
+
+* Matplotlib-announce (https://mail.python.org/mailman/listinfo/matplotlib-announce),
+* Matplotlib-devel (https://mail.python.org/mailman/listinfo/matplotlib-devel),
+* Matplotlib-users (https://mail.python.org/mailman/listinfo/matplotlib-users).
+
+The latter is probably a good starting point for general questions and discussions.
