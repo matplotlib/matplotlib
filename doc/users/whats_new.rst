@@ -756,7 +756,7 @@ activity, but this can be problematic for the red/green colorblind. A new,
 colorblind-friendly colormap is now available at :class:`matplotlib.cm.Wistia`.
 This colormap maintains the red/green symbolism while achieving deuteranopic
 legibility through brightness variations. See
-`here <https://github.com/wistia/heatmap-palette>`_
+`here <https://github.com/wistia/heatmap-palette>`__
 for more information.
 
 The nbagg backend
@@ -779,7 +779,7 @@ same way as any other matplotlib backend. Because figures require a connection
 to the IPython notebook server for their interactivity, once the notebook is
 saved, each figure will be rendered as a static image - thus allowing
 non-interactive viewing of figures on services such as
-`nbviewer <http://nbviewer.ipython.org/>`_.
+`nbviewer <http://nbviewer.ipython.org/>`__.
 
 
 
@@ -1231,7 +1231,7 @@ New plotting features
 ````````````````````````````
 To give your plots a sense of authority that they may be missing,
 Michael Droettboom (inspired by the work of many others in
-:ghpull:`1329`) has added an `xkcd-style <http://xkcd.com/>`_ sketch
+:ghpull:`1329`) has added an `xkcd-style <http://xkcd.com/>`__ sketch
 plotting mode.  To use it, simply call :func:`matplotlib.pyplot.xkcd`
 before creating your plot. For really fine control, it is also possible
 to modify each artist's sketch parameters individually with
@@ -1456,14 +1456,14 @@ Numpydoc docstrings
 ```````````````````
 Nelle Varoquaux has started an ongoing project to convert matplotlib's
 docstrings to numpydoc format.  See `MEP10
-<https://github.com/matplotlib/matplotlib/wiki/Mep10>`_ for more
+<https://github.com/matplotlib/matplotlib/wiki/Mep10>`__ for more
 information.
 
 Example reorganization
 ``````````````````````
 Tony Yu has begun work reorganizing the examples into more meaningful
 categories.  The new gallery page is the fruit of this ongoing work.
-See `MEP12 <https://github.com/matplotlib/matplotlib/wiki/MEP12>`_ for
+See `MEP12 <https://github.com/matplotlib/matplotlib/wiki/MEP12>`__ for
 more information.
 
 Examples now use subplots()
@@ -1943,7 +1943,7 @@ HTML5/Canvas backend
 ---------------------
 
 Simon Ratcliffe and Ludwig Schwardt have released an `HTML5/Canvas
-<http://code.google.com/p/mplh5canvas/>`_ backend for matplotlib.  The
+<http://code.google.com/p/mplh5canvas/>`__ backend for matplotlib.  The
 backend is almost feature complete, and they have done a lot of work
 comparing their html5 rendered images with our core renderer Agg.  The
 backend features client/server interactive navigation of matplotlib
@@ -2045,12 +2045,12 @@ Much improved software carpentry
 The matplotlib trunk is probably in as good a shape as it has ever
 been, thanks to improved `software carpentry
 <http://software-carpentry.org/>`_.  We now have a `buildbot
-<http://buildbot.net/trac>`_ which runs a suite of `nose
-<http://code.google.com/p/python-nose/>`_ regression tests on every
+<http://buildbot.net/trac>`__ which runs a suite of `nose
+<http://code.google.com/p/python-nose/>`__ regression tests on every
 svn commit, auto-generating a set of images and comparing them against
 a set of known-goods, sending emails to developers on failures with a
 pixel-by-pixel `image comparison
-<http://mpl.code.astraw.com/overview.html>`_.  Releases and release
+<http://mpl.code.astraw.com/overview.html>`__.  Releases and release
 bugfixes happen in branches, allowing active new feature development
 to happen in the trunk while keeping the release branches stable.
 Thanks to Andrew Straw, Michael Droettboom and other matplotlib
@@ -2061,7 +2061,7 @@ Bugfix marathon
 
 Eric Firing went on a bug fixing and closing marathon, closing over
 100 bugs on the `bug tracker
-<http://sourceforge.net/tracker/?group_id=80706&atid=560720>`_ with
+<http://sourceforge.net/tracker/?group_id=80706&atid=560720>`__ with
 help from Jae-Joon Lee, Michael Droettboom, Christoph Gohlke and
 Michiel de Hoon.
 
