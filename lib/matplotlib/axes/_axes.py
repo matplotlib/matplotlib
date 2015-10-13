@@ -14,7 +14,8 @@ import matplotlib
 from matplotlib import unpack_labeled_data
 
 import matplotlib.cbook as cbook
-from matplotlib.cbook import mplDeprecation, STEP_LOOKUP_MAP
+from matplotlib.cbook import (mplDeprecation, STEP_LOOKUP_MAP, is_sequence_of_strings,
+                              iterable, is_string_like)
 import matplotlib.collections as mcoll
 import matplotlib.colors as mcolors
 import matplotlib.contour as mcontour
@@ -42,10 +43,6 @@ from matplotlib.axes._base import _process_plot_format
 
 
 rcParams = matplotlib.rcParams
-
-iterable = cbook.iterable
-is_string_like = cbook.is_string_like
-is_sequence_of_strings = cbook.is_sequence_of_strings
 
 
 def _plot_args_replacer(args, data):
