@@ -1162,13 +1162,13 @@ class Artist(PrivateMethodMixin, Configurable):
         ret = []
         for k, v in sorted(kwargs.items(), reverse=True):
             k = k.lower()
-            func = getattr(self, 'set_'+k, None)
-            if func is not None and six.callable(func):
-                ret.extend([func(v)])
+            klass = self.__class__
+            if isinstance(getattr(klass, k, None), BaseDescriptor):
+                ret.extend([setattr(self, k, v)])
             else:
-                klass = self.__class__
-                if isinstance(getattr(klass, k, None), BaseDescriptor):
-                    ret.extend([setattr(self, k, v)])
+                func = getattr(self, 'set_'+k, None)
+                if func is not None and six.callable(func):
+                    ret.extend([func(v)])
                 else:
                     raise TypeError('There is no %s property "%s"' %
                                (self.__class__.__name__, k))
