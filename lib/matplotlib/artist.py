@@ -1689,14 +1689,15 @@ def setp(obj, *args, **kwargs):
     for o in objs:
         for s, val in funcvals:
             s = s.lower()
-            funcName = "set_%s" % s
-            func = getattr(o, 'set_'+s, None)
-            if func is not None and six.callable(func):
-                ret.extend([func(val)])
+                
+            klass = o.__class__
+            if isinstance(getattr(klass, s, None), BaseDescriptor):
+                ret.extend([setattr(o, s, val)])
             else:
-                klass = o.__class__
-                if isinstance(getattr(klass, s, None), BaseDescriptor):
-                    ret.extend([setattr(o, s, val)])
+                funcName = "set_%s" % s
+                func = getattr(o, 'set_'+s, None)
+                if func is not None and six.callable(func):
+                    ret.extend([func(val)])
                 else:
                     raise TypeError('There is no %s property "%s"' %
                                 (o.__class__.__name__, s))
