@@ -1704,7 +1704,7 @@ class XAxis(Axis):
             self.axes.transAxes, mtransforms.IdentityTransform())
         )
         self._set_artist_props(offsetText)
-        self.offset_text_position = 'bottom'
+        self._offset_text_position = 'bottom'
         return offsetText
 
     def _get_pixel_distance_along_axis(self, where, perturb):
@@ -1807,15 +1807,44 @@ class XAxis(Axis):
         Update the offset_text position based on the sequence of bounding
         boxes of all the ticklabels
         """
-        x, y = self.offsetText.get_position()
-        if not len(bboxes):
-            bottom = self.axes.bbox.ymin
+        x, _ = self.offsetText.get_position()
+        offsetpad = self.OFFSETTEXTPAD * self.figure.dpi / 72.0
+        if self.offset_text_position == 'bottom':
+            if not len(bboxes):
+                y = self.axes.bbox.ymin
+            else:
+                bbox = mtransforms.Bbox.union(bboxes)
+                y = bbox.y0
+            y -= offsetpad
         else:
-            bbox = mtransforms.Bbox.union(bboxes)
-            bottom = bbox.y0
-        self.offsetText.set_position(
-            (x, bottom - self.OFFSETTEXTPAD * self.figure.dpi / 72.0)
-        )
+            if not len(bboxes2):
+                y = self.axes.bbox.ymax
+            else:
+                bbox = mtransforms.Bbox.union(bboxes2)
+                y = bbox.y1
+            y += offsetpad
+        self.offsetText.set_position((x, y))
+
+    @property
+    def offset_text_position(self):
+        '''
+        The offset text position for exponent and offsets to labels
+
+        ACCEPTS: [ 'top' | 'bottom' ]
+        '''
+        return self._offset_text_position
+
+    @offset_text_position.setter
+    def offset_text_position(self, position):
+        valid_values = ('bottom', 'top')
+        if position not in valid_values:
+            raise ValueError("Position accepts only [ '{}' ]".format(
+                             "' | '".join(valid_values)))
+        self._offset_text_position = position
+        # For some reason vertical alignment bottom is actually top and top is
+        # bottom so swap what was selected
+        self.offsetText.set_va({'bottom': 'top', 'top': 'bottom'}[position])
+        self.stale = True
 
     def get_text_heights(self, renderer):
         """
@@ -1853,9 +1882,11 @@ class XAxis(Axis):
         if position == 'top':
             self.set_tick_params(which='both', top=True, labeltop=True,
                                  bottom=False, labelbottom=False)
+            self.offset_text_position = position
         elif position == 'bottom':
             self.set_tick_params(which='both', top=False, labeltop=False,
                                  bottom=True, labelbottom=True)
+            self.offset_text_position = position
         elif position == 'both':
             self.set_tick_params(which='both', top=True,
                                  bottom=True)
@@ -1865,6 +1896,7 @@ class XAxis(Axis):
         elif position == 'default':
             self.set_tick_params(which='both', top=True, labeltop=False,
                                  bottom=True, labelbottom=True)
+            self.offset_text_position = 'bottom'
         else:
             raise ValueError("invalid position: %s" % position)
         self.stale = True
@@ -2032,7 +2064,7 @@ class YAxis(Axis):
             self.axes.transAxes, mtransforms.IdentityTransform())
         )
         self._set_artist_props(offsetText)
-        self.offset_text_position = 'left'
+        self._offset_text_position = 'left'
         return offsetText
 
     def _get_pixel_distance_along_axis(self, where, perturb):
@@ -2129,25 +2161,35 @@ class YAxis(Axis):
         Update the offset_text position based on the sequence of bounding
         boxes of all the ticklabels
         """
-        x, y = self.offsetText.get_position()
+        _, y = self.offsetText.get_position()
+        x = {'left': 0, 'right': 1}[self.offset_text_position]
         top = self.axes.bbox.ymax
         self.offsetText.set_position(
             (x, top + self.OFFSETTEXTPAD * self.figure.dpi / 72.0)
         )
 
-    def set_offset_position(self, position):
-        x, y = self.offsetText.get_position()
-        if position == 'left':
-            x = 0
-        elif position == 'right':
-            x = 1
-        else:
-            msg = "Position accepts only [ 'left' | 'right' ]"
-            raise ValueError(msg)
+    @property
+    def offset_text_position(self):
+        '''
+        The offset text position for exponent and offsets to labels
 
+        ACCEPTS: [ 'left' | 'right' ]
+        '''
+        return self._offset_text_position
+
+    @offset_text_position.setter
+    def offset_text_position(self, position):
+        valid_values = ('left', 'right')
+        if position not in valid_values:
+            raise ValueError("Position accepts only [ '{}' ]".format(
+                             "' | '".join(valid_values)))
+        self._offset_text_position = position
         self.offsetText.set_ha(position)
-        self.offsetText.set_position((x, y))
         self.stale = True
+
+    def set_offset_position(self, position):
+        ''' Deprecated '''
+        self.offset_text_position = position
 
     def get_text_widths(self, renderer):
         bbox, bbox2 = self.get_ticklabel_extents(renderer)
@@ -2181,11 +2223,11 @@ class YAxis(Axis):
         if position == 'right':
             self.set_tick_params(which='both', right=True, labelright=True,
                                  left=False, labelleft=False)
-            self.set_offset_position(position)
+            self.offset_text_position = position
         elif position == 'left':
             self.set_tick_params(which='both', right=False, labelright=False,
                                  left=True, labelleft=True)
-            self.set_offset_position(position)
+            self.offset_text_position = position
         elif position == 'both':
             self.set_tick_params(which='both', right=True,
                                  left=True)
@@ -2195,6 +2237,7 @@ class YAxis(Axis):
         elif position == 'default':
             self.set_tick_params(which='both', right=True, labelright=False,
                                  left=True, labelleft=True)
+            self.offset_text_position = 'left'
         else:
             raise ValueError("invalid position: %s" % position)
         self.stale = True
