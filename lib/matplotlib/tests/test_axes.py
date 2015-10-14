@@ -3959,13 +3959,18 @@ def test_unicode_hist_label():
     ax.legend()
 
 
-@cleanup
+@image_comparison(baseline_images=['offsettext_top', 'offsettext_right'],
+                  extensions=['png'])
 def test_move_offsetlabel():
-    data = np.random.random(10) * 1e-22
+    data = np.arange(10) * 1e-22
+    fig, ax = plt.subplots()
+    ax.plot(data, np.arange(len(data)))
+    ax.xaxis.tick_top()
+
+    data = np.arange(10) * 1e-22
     fig, ax = plt.subplots()
     ax.plot(data)
     ax.yaxis.tick_right()
-    assert_equal((1, 0.5), ax.yaxis.offsetText.get_position())
 
 
 @image_comparison(baseline_images=['rc_spines'], extensions=['png'],
