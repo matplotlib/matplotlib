@@ -3643,14 +3643,14 @@ def test_twin_spines_on_top():
     ax2.fill_between(data[0], data[1]/1E3, color='#7FC97F', alpha=.5)
 
     # Reuse testcase from above for a labeled data test
-    data = {"x": data[0], "y": data[1]/1E3}
+    data = {"i": data[0], "j": data[1]/1E3}
     fig = plt.figure()
     ax1 = fig.add_subplot(1, 1, 1)
     ax2 = ax1.twinx()
-    ax1.plot("x", "y", color='#BEAED4', data=data)
-    ax1.fill_between("x", "y", color='#BEAED4', alpha=.8, data=data)
-    ax2.plot("x", "y", color='#7FC97F', data=data)
-    ax2.fill_between("x", "y", color='#7FC97F', alpha=.5, data=data)
+    ax1.plot("i", "j", color='#BEAED4', data=data)
+    ax1.fill_between("i", "j", color='#BEAED4', alpha=.8, data=data)
+    ax2.plot("i", "j", color='#7FC97F', data=data)
+    ax2.fill_between("i", "j", color='#7FC97F', alpha=.5, data=data)
 
 
 @cleanup
