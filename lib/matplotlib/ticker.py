@@ -910,6 +910,7 @@ class LogFormatter(Formatter):
             s = s.rstrip('0').rstrip('.')
         return s
 
+
 class LogFormatterExponent(LogFormatter):
     """
     Format values for log axis using ``exponent = log_base(value)``.
@@ -999,6 +1000,7 @@ class LogFormatterMathtext(LogFormatter):
                     '%s%s^{%d}' %
                     (sign_string, base, nearest_long(fx))))
 
+
 class LogFormatterSciNotation(LogFormatterMathtext):
     """
     Format values following scientific notation in a logarithmic axis
@@ -1021,6 +1023,7 @@ class LogFormatterSciNotation(LogFormatterMathtext):
         else:
             return (r'$\mathdefault{%g\times%s^{%d}}$') % \
                                         (coeff, base, exponent)
+
 
 class LogitFormatter(Formatter):
     """
@@ -1932,22 +1935,20 @@ class LogLocator(Locator):
         numdec = abs(vmax - vmin)
 
         if numdec > 3:
+            # Label only bases
             sublabel = set((1,))
-        elif numdec > 2:
-            sublabel = set((1, 3))
-        elif numdec > 1:
-            sublabel = set((1, 2, 5))
         else:
-            sublabel = set((1, 2, 4, 7))
+            # Add labels between bases at log-spaced coefficients
+            c = np.logspace(0, 1, (4 - int(numdec)) + 1, base=b)
+            sublabel = set(np.round(c))
 
-        label = np.ones(ticklocs.size, dtype=np.bool)
-        for i, loc in enumerate(ticklocs):
-            exponent = math.floor(math.log(abs(loc)) / math.log(b))
-            coeff = loc / b ** nearest_long(exponent)
-            if nearest_long(coeff) not in sublabel:
-                label[i] = False
+        fx = np.log(abs(ticklocs)) / np.log(b)
+        exponents = np.array([np.round(x) if is_close_to_int(x)
+                              else np.floor(x)
+                              for x in fx])
+        coeffs = np.round(ticklocs / b ** exponents)
 
-        return label
+        return [c in sublabel for c in coeffs]
 
     def view_limits(self, vmin, vmax):
         'Try to choose the view limits intelligently'
