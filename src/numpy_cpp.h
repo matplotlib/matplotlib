@@ -27,6 +27,13 @@
 
 #include <Python.h>
 #include <numpy/ndarrayobject.h>
+#include <stdexcept>
+
+#if defined(__GNUC__) || defined(__clang__)
+#define unlikely(x) __builtin_expect(!!(x), 0)
+#else
+#define unlikely(x) (x)
+#endif
 
 namespace numpy
 {
@@ -235,6 +242,9 @@ class array_view_accessors<AV, T, 1>
     T &operator()(npy_intp i)
     {
         AVC *self = static_cast<AVC *>(this);
+        if (unlikely(self->m_empty)) {
+            throw std::out_of_range("indexing into an array_view with no data");
+        }
 
         return *reinterpret_cast<T *>(self->m_data + self->m_strides[0] * i);
     }
@@ -242,6 +252,9 @@ class array_view_accessors<AV, T, 1>
     const T &operator()(npy_intp i) const
     {
         const AVC *self = static_cast<const AVC *>(this);
+        if (unlikely(self->m_empty)) {
+            throw std::out_of_range("indexing into an array_view with no data");
+        }
 
         return *reinterpret_cast<const T *>(self->m_data + self->m_strides[0] * i);
     }
@@ -249,6 +262,9 @@ class array_view_accessors<AV, T, 1>
     T &operator[](npy_intp i)
     {
         AVC *self = static_cast<AVC *>(this);
+        if (unlikely(self->m_empty)) {
+            throw std::out_of_range("indexing into an array_view with no data");
+        }
 
         return *reinterpret_cast<T *>(self->m_data + self->m_strides[0] * i);
     }
@@ -256,6 +272,9 @@ class array_view_accessors<AV, T, 1>
     const T &operator[](npy_intp i) const
     {
         const AVC *self = static_cast<const AVC *>(this);
+        if (unlikely(self->m_empty)) {
+            throw std::out_of_range("indexing into an array_view with no data");
+        }
 
         return *reinterpret_cast<const T *>(self->m_data + self->m_strides[0] * i);
     }
@@ -271,6 +290,9 @@ class array_view_accessors<AV, T, 2>
     T &operator()(npy_intp i, npy_intp j)
     {
         AVC *self = static_cast<AVC *>(this);
+        if (unlikely(self->m_empty)) {
+            throw std::out_of_range("indexing into an array_view with no data");
+        }
 
         return *reinterpret_cast<T *>(self->m_data + self->m_strides[0] * i +
                                       self->m_strides[1] * j);
@@ -279,6 +301,9 @@ class array_view_accessors<AV, T, 2>
     const T &operator()(npy_intp i, npy_intp j) const
     {
         const AVC *self = static_cast<const AVC *>(this);
+        if (unlikely(self->m_empty)) {
+            throw std::out_of_range("indexing into an array_view with no data");
+        }
 
         return *reinterpret_cast<const T *>(self->m_data + self->m_strides[0] * i +
                                             self->m_strides[1] * j);
@@ -287,6 +312,9 @@ class array_view_accessors<AV, T, 2>
     sub_t operator[](npy_intp i) const
     {
         const AVC *self = static_cast<const AVC *>(this);
+        if (unlikely(self->m_empty)) {
+            throw std::out_of_range("indexing into an array_view with no data");
+        }
 
         return sub_t(self->m_arr,
                      self->m_data + self->m_strides[0] * i,
@@ -305,6 +333,9 @@ class array_view_accessors<AV, T, 3>
     T &operator()(npy_intp i, npy_intp j, npy_intp k)
     {
         AVC *self = static_cast<AVC *>(this);
+        if (unlikely(self->m_empty)) {
+            throw std::out_of_range("indexing into an array_view with no data");
+        }
 
         return *reinterpret_cast<T *>(self->m_data + self->m_strides[0] * i +
                                       self->m_strides[1] * j + self->m_strides[2] * k);
@@ -313,6 +344,9 @@ class array_view_accessors<AV, T, 3>
     const T &operator()(npy_intp i, npy_intp j, npy_intp k) const
     {
         const AVC *self = static_cast<const AVC *>(this);
+        if (unlikely(self->m_empty)) {
+            throw std::out_of_range("indexing into an array_view with no data");
+        }
 
         return *reinterpret_cast<const T *>(self->m_data + self->m_strides[0] * i +
                                             self->m_strides[1] * j + self->m_strides[2] * k);
@@ -321,6 +355,9 @@ class array_view_accessors<AV, T, 3>
     sub_t operator[](npy_intp i) const
     {
         const AVC *self = static_cast<const AVC *>(this);
+        if (unlikely(self->m_empty)) {
+            throw std::out_of_range("indexing into an array_view with no data");
+        }
 
         return sub_t(self->m_arr,
                      self->m_data + self->m_strides[0] * i,
@@ -349,6 +386,9 @@ class array_view : public detail::array_view_accessors<array_view, T, ND>
     npy_intp *m_shape;
     npy_intp *m_strides;
     char *m_data;
+    // Flag for a limited kind of bounds checking,
+    // not the same as the empty() method which checks the outer dimension
+    bool m_empty;
 
   public:
     typedef T value_type;
@@ -361,6 +401,7 @@ class array_view : public detail::array_view_accessors<array_view, T, ND>
     {
         m_shape = zeros;
         m_strides = zeros;
+        m_empty = true;
     }
 
     array_view(PyObject *arr, bool contiguous = false) : m_arr(NULL), m_data(NULL)
@@ -377,6 +418,7 @@ class array_view : public detail::array_view_accessors<array_view, T, ND>
         m_data = other.m_data;
         m_shape = other.m_shape;
         m_strides = other.m_strides;
+        m_empty = other.m_empty;
     }
 
     array_view(PyArrayObject *arr, char *data, npy_intp *shape, npy_intp *strides)
@@ -386,6 +428,12 @@ class array_view : public detail::array_view_accessors<array_view, T, ND>
         m_data = data;
         m_shape = shape;
         m_strides = strides;
+        m_empty = (ND == 0);
+        for (size_t i = 0; i < ND; i++) {
+            if (shape[i] == 0) {
+                m_empty = true;
+            }
+        }
     }
 
     array_view(npy_intp shape[ND]) : m_arr(NULL), m_shape(NULL), m_strides(NULL), m_data(NULL)
@@ -416,6 +464,7 @@ class array_view : public detail::array_view_accessors<array_view, T, ND>
             m_data = other.m_data;
             m_shape = other.m_shape;
             m_strides = other.m_strides;
+            m_empty = other.m_empty;
         }
         return *this;
     }
@@ -430,6 +479,7 @@ class array_view : public detail::array_view_accessors<array_view, T, ND>
             m_data = NULL;
             m_shape = zeros;
             m_strides = zeros;
+            m_empty = true;
         } else {
             if (contiguous) {
                 tmp = (PyArrayObject *)PyArray_ContiguousFromAny(arr, type_num_of<T>::value, 0, ND);
@@ -446,10 +496,11 @@ class array_view : public detail::array_view_accessors<array_view, T, ND>
                 m_data = NULL;
                 m_shape = zeros;
                 m_strides = zeros;
-		if (PyArray_NDIM(tmp) == 0 && ND == 0) {
-		    m_arr = tmp;
-		    return 1;
-		}
+                if (PyArray_NDIM(tmp) == 0 && ND == 0) {
+                    m_arr = tmp;
+                    m_empty = true;
+                    return 1;
+                }
             }
 	    if (PyArray_NDIM(tmp) != ND) {
 		PyErr_Format(PyExc_ValueError,
@@ -466,6 +517,12 @@ class array_view : public detail::array_view_accessors<array_view, T, ND>
             m_shape = PyArray_DIMS(m_arr);
             m_strides = PyArray_STRIDES(m_arr);
             m_data = (char *)PyArray_BYTES(tmp);
+            m_empty = (ND == 0);
+            for (size_t i = 0; i < ND; i++) {
+                if (m_shape[i] == 0) {
+                    m_empty = true;
+                }
+            }
         }
 
         return 1;
