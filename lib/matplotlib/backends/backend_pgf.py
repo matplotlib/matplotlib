@@ -304,6 +304,11 @@ class LatexManager(object):
         return self._expect("\n*")
 
     def __init__(self):
+        # store references for __del__
+        self._os_path = os.path
+        self._shutil = shutil
+        self._debug = rcParams.get("pgf.debug", False)
+
         # create a tmp directory for running latex, remember to cleanup
         self.tmpdir = tempfile.mkdtemp(prefix="mpl_pgf_lm_")
         LatexManager._unclean_instances.add(self)
@@ -346,7 +351,7 @@ class LatexManager(object):
         self.str_cache = {}
 
     def _cleanup(self):
-        if not os.path.isdir(self.tmpdir):
+        if not self._os_path.isdir(self.tmpdir):
             return
         try:
             self.latex.communicate()
@@ -355,13 +360,13 @@ class LatexManager(object):
         except:
             pass
         try:
-            shutil.rmtree(self.tmpdir)
+            self._shutil.rmtree(self.tmpdir)
             LatexManager._unclean_instances.discard(self)
         except:
             sys.stderr.write("error deleting tmp directory %s\n" % self.tmpdir)
 
     def __del__(self):
-        if rcParams.get("pgf.debug", False):
+        if self._debug:
             print("deleting LatexManager")
         self._cleanup()
 
