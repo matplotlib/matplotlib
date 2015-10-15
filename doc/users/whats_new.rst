@@ -742,6 +742,13 @@ way as setting `CC` or `CXX` before building. An example follows.
 
     export PKG_CONFIG=x86_64-pc-linux-gnu-pkg-config
 
+AxesGrid toolkit
+----------------
+
+Twins of host axes (see `~mpl_toolkits.axes_grid1.host_subplot()` and its
+``twin*`` methods) now have ``remove()`` functionality. Some visibility changes
+made by the ``twin*`` methods were modified to faciliate this feature.
+
 .. _whats-new-1-4:
 
 new in matplotlib-1.4
