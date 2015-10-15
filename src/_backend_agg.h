@@ -922,22 +922,6 @@ inline void RendererAgg::_draw_path_collection_generic(GCAgg &gc,
     typedef agg::conv_curve<snapped_t> snapped_curve_t;
     typedef agg::conv_curve<clipped_t> curve_t;
 
-    if (offsets.dim(0) != 0 && offsets.dim(1) != 2) {
-        throw "Offsets array must be Nx2 or empty";
-    }
-
-    if (facecolors.dim(0) != 0 && facecolors.dim(1) != 4) {
-        throw "Facecolors array must be a Nx4 array or empty";
-    }
-
-    if (edgecolors.dim(0) != 0 && edgecolors.dim(1) != 4) {
-        throw "Edgecolors array must by Nx4 or empty";
-    }
-
-    if (transforms.dim(0) != 0 && (transforms.dim(1) != 3 || transforms.dim(2) != 3)) {
-        throw "Transforms array must by Nx3x3 or empty";
-    }
-
     size_t Npaths = path_generator.num_paths();
     size_t Noffsets = offsets.size();
     size_t N = std::max(Npaths, Noffsets);
@@ -1266,14 +1250,6 @@ inline void RendererAgg::draw_gouraud_triangle(GCAgg &gc,
     set_clipbox(gc.cliprect, theRasterizer);
     bool has_clippath = render_clippath(gc.clippath.path, gc.clippath.trans);
 
-    if (points.dim(0) != 3 || points.dim(1) != 2) {
-        throw "points must be a 3x2 array";
-    }
-
-    if (colors.dim(0) != 3 || colors.dim(1) != 4) {
-        throw "colors must be a 3x4 array";
-    }
-
     _draw_gouraud_triangle(points, colors, trans, has_clippath);
 }
 
@@ -1287,18 +1263,6 @@ inline void RendererAgg::draw_gouraud_triangles(GCAgg &gc,
     rendererBase.reset_clipping(true);
     set_clipbox(gc.cliprect, theRasterizer);
     bool has_clippath = render_clippath(gc.clippath.path, gc.clippath.trans);
-
-    if (points.dim(1) != 3 || points.dim(2) != 2) {
-        throw "points must be a Nx3x2 array";
-    }
-
-    if (colors.dim(1) != 3 || colors.dim(2) != 4) {
-        throw "colors must be a Nx3x4 array";
-    }
-
-    if (points.dim(0) != colors.dim(0)) {
-        throw "points and colors arrays must be the same length";
-    }
 
     for (int i = 0; i < points.dim(0); ++i) {
         typename PointArray::sub_t point = points[i];
