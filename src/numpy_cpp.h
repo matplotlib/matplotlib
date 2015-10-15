@@ -539,7 +539,17 @@ class array_view : public detail::array_view_accessors<array_view, T, ND>
 
     size_t size() const
     {
-        return (size_t)dim(0);
+        bool empty = (ND == 0);
+        for (size_t i = 0; i < ND; i++) {
+            if (m_shape[i] == 0) {
+                empty = true;
+            }
+        }
+        if (empty) {
+            return 0;
+        } else {
+            return (size_t)dim(0);
+        }
     }
 
     bool empty() const
