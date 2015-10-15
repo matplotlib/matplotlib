@@ -255,6 +255,7 @@ class HostAxesBase(object):
         # note that ax2.transData == tr + ax1.transData
         # Anthing you draw in ax2 will match the ticks and grids of ax1.
         self.parasites.append(ax2)
+        ax2._remove_method = lambda h: self.parasites.remove(h)
         return ax2
 
 
@@ -326,17 +327,16 @@ class HostAxesBase(object):
         ax2 = parasite_axes_class(self, sharex=self, frameon=False)
         self.parasites.append(ax2)
 
-        # for normal axes
-
-        self.axis["right"].toggle(all=False)
-        self.axis["right"].line.set_visible(True)
+        self.axis["right"].set_visible(False)
 
         ax2.axis["right"].set_visible(True)
-        ax2.axis["left","top", "bottom"].toggle(all=False)
-        ax2.axis["left","top", "bottom"].line.set_visible(False)
+        ax2.axis["left", "top", "bottom"].set_visible(False)
 
-        ax2.axis["right"].toggle(all=True)
-        ax2.axis["right"].line.set_visible(False)
+        def _remove_method(h):
+            self.parasites.remove(h)
+            self.axis["right"].set_visible(True)
+            self.axis["right"].toggle(ticklabels=False, label=False)
+        ax2._remove_method = _remove_method
 
         return ax2
 
@@ -360,15 +360,16 @@ class HostAxesBase(object):
         ax2 = parasite_axes_class(self, sharey=self, frameon=False)
         self.parasites.append(ax2)
 
-        self.axis["top"].toggle(all=False)
-        self.axis["top"].line.set_visible(True)
+        self.axis["top"].set_visible(False)
 
         ax2.axis["top"].set_visible(True)
-        ax2.axis["left","right", "bottom"].toggle(all=False)
-        ax2.axis["left","right", "bottom"].line.set_visible(False)
+        ax2.axis["left", "right", "bottom"].set_visible(False)
 
-        ax2.axis["top"].toggle(all=True)
-        ax2.axis["top"].line.set_visible(False)
+        def _remove_method(h):
+            self.parasites.remove(h)
+            self.axis["top"].set_visible(True)
+            self.axis["top"].toggle(ticklabels=False, label=False)
+        ax2._remove_method = _remove_method
 
         return ax2
 
@@ -399,43 +400,18 @@ class HostAxesBase(object):
                                                viewlim_mode="transform",
                                                )
         self.parasites.append(ax2)
+        ax2._remove_method = lambda h: self.parasites.remove(h)
 
+        self.axis["top", "right"].set_visible(False)
 
-        # for normal axes
-        #self.yaxis.tick_left()
-        #self.xaxis.tick_bottom()
-        #ax2.yaxis.tick_right()
-        #ax2.xaxis.set_visible(True)
-        #ax2.yaxis.set_visible(True)
+        ax2.axis["top", "right"].set_visible(True)
+        ax2.axis["left", "bottom"].set_visible(False)
 
-        #ax2.yaxis.set_label_position('right')
-        ##ax2.xaxis.tick_top()
-        #ax2.xaxis.set_label_position('top')
-
-
-        self.axis["top","right"].toggle(all=False)
-        self.axis["top","right"].line.set_visible(False)
-        #self.axis["left","bottom"].toggle(label=True)
-
-        ax2.axis["top","right"].set_visible(True)
-
-        ax2.axis["bottom","left"].toggle(all=False)
-        ax2.axis["bottom","left"].line.set_visible(False)
-
-        ax2.axis["top","right"].toggle(all=True)
-        ax2.axis["top","right"].line.set_visible(True)
-
-
-        # # for axisline axes
-        # self._axislines["right"].set_visible(False)
-        # self._axislines["top"].set_visible(False)
-        # ax2._axislines["left"].set_visible(False)
-        # ax2._axislines["bottom"].set_visible(False)
-
-        # ax2._axislines["right"].set_visible(True)
-        # ax2._axislines["top"].set_visible(True)
-        # ax2._axislines["right"].major_ticklabels.set_visible(True)
-        # ax2._axislines["top"].major_ticklabels.set_visible(True)
+        def _remove_method(h):
+            self.parasites.remove(h)
+            self.axis["top", "right"].set_visible(True)
+            self.axis["top", "right"].toggle(ticklabels=False, label=False)
+        ax2._remove_method = _remove_method
 
         return ax2
 
