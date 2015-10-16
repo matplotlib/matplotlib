@@ -3322,8 +3322,12 @@ class _AxesBase(martist.Artist):
         Parameters
         ----------
 
-        bbox : tuple
-            The selected bounding box limits, in *display* coordinates.
+        bbox : 4-tuple or 2 tuple
+            * If result is a 4 tuple, it is the selected bounding box limits,
+                in *display* coordinates.
+            * If result is a 3 tuple, it is an (xp, yp, scl) triple, where
+                (xp,yp) are the center of zoom and scl the scale factor to zoom
+                by
 
         direction : str
             The direction to apply the bounding box.
@@ -3342,15 +3346,48 @@ class _AxesBase(martist.Artist):
         twiny : bool
             Whether this axis is twinned in the *y*-direction.
         """
+        Xmin, Xmax = self.get_xlim()
+        Ymin, Ymax = self.get_ylim()
 
+        if(len(bbox) == 3):
+            # Zooming code
+            xp, yp, scl = bbox
+            print("in set view, for zooming with scale {}".format(scl))
+
+            # Should not happen
+            if(scl == 0):
+                scl = 1.
+
+            # direction = 'in'
+            if(scl > 1):
+                direction = 'in'
+            else:
+                direction = 'out'
+                scl = 1/scl
+
+            # get the limits of the axes
+            tranD2C = self.transData.transform
+            xmin, ymin = tranD2C((Xmin, Ymin))
+            xmax, ymax = tranD2C((Xmax, Ymax))
+
+            # set the range
+            xwidth = xmax - xmin
+            ywidth = ymax - ymin
+            xcen = (xmax + xmin)*.5
+            ycen = (ymax + ymin)*.5
+            xzc = (xp*(scl - 1) + xcen)/scl
+            yzc = (yp*(scl - 1) + ycen)/scl
+
+            bbox = [xzc - xwidth/2./scl, yzc - ywidth/2./scl, xzc +
+                    xwidth/2./scl, yzc + ywidth/2./scl]
+
+        # Just grab bounding box
         lastx, lasty, x, y = bbox
 
         # zoom to rect
         inverse = self.transData.inverted()
         lastx, lasty = inverse.transform_point((lastx, lasty))
         x, y = inverse.transform_point((x, y))
-        Xmin, Xmax = self.get_xlim()
-        Ymin, Ymax = self.get_ylim()
 
         if twinx:
             x0, x1 = Xmin, Xmax
