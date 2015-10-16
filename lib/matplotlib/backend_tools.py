@@ -16,8 +16,8 @@ from matplotlib import rcParams
 from matplotlib._pylab_helpers import Gcf
 import matplotlib.cbook as cbook
 from weakref import WeakKeyDictionary
-import numpy as np
 from matplotlib.externals import six
+import time
 import warnings
 
 
@@ -74,8 +74,8 @@ class ToolBase(object):
 
     def __init__(self, toolmanager, name):
         warnings.warn('Treat the new Tool classes introduced in v1.5 as ' +
-                       'experimental for now, the API will likely change in ' +
-                       'version 2.1, and some tools might change name')
+                      'experimental for now, the API will likely change in ' +
+                      'version 2.1, and some tools might change name')
         self._name = name
         self._figure = None
         self.toolmanager = toolmanager
@@ -599,6 +599,8 @@ class ZoomPanBase(ToolToggleBase):
         self._idRelease = None
         self._idScroll = None
         self.base_scale = 2.
+        self.scrollthresh = .5  # .5 second scroll threshold
+        self.lastscroll = time.time()-self.scrollthresh
 
     def enable(self, event):
         """Connect press/release events and lock the canvas"""
@@ -626,29 +628,30 @@ class ZoomPanBase(ToolToggleBase):
         # https://gist.github.com/tacaswell/3144287
         if event.inaxes is None:
             return
-        ax = event.inaxes
-        cur_xlim = ax.get_xlim()
-        cur_ylim = ax.get_ylim()
-        # set the range
-        cur_xrange = (cur_xlim[1] - cur_xlim[0])*.5
-        cur_yrange = (cur_ylim[1] - cur_ylim[0])*.5
-        xdata = event.xdata  # get event x location
-        ydata = event.ydata  # get event y location
+
         if event.button == 'up':
             # deal with zoom in
-            scale_factor = 1 / self.base_scale
+            scl = self.base_scale
         elif event.button == 'down':
             # deal with zoom out
-            scale_factor = self.base_scale
+            scl = 1/self.base_scale
         else:
             # deal with something that should never happen
-            scale_factor = 1
-        # set new limits
-        ax.set_xlim([xdata - cur_xrange*scale_factor,
-                     xdata + cur_xrange*scale_factor])
-        ax.set_ylim([ydata - cur_yrange*scale_factor,
-                     ydata + cur_yrange*scale_factor])
+            scl = 1
+
+        ax = event.inaxes
+        ax._set_view_from_bbox([event.x, event.y, scl])
+
+        # first check if last scroll was done within
+        # the timing threshold. If yes, delete previous view
+        if(time.time()-self.lastscroll < self.scrollthresh):
+            # remove the last view and push the current
+            self.toolmanager.get_tool(_views_positions).back()
+
         self.figure.canvas.draw_idle()  # force re-draw
+
+        self.lastscroll = time.time()
+        self.toolmanager.get_tool(_views_positions).push_current()
 
 
 class ToolZoom(ZoomPanBase):
