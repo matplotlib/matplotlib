@@ -3322,7 +3322,7 @@ class _AxesBase(martist.Artist):
         Parameters
         ----------
 
-        bbox : 4-tuple or 2 tuple
+        bbox : 4-tuple or 3 tuple
             * If result is a 4 tuple, it is the selected bounding box limits,
                 in *display* coordinates.
             * If result is a 3 tuple, it is an (xp, yp, scl) triple, where
@@ -3352,7 +3352,6 @@ class _AxesBase(martist.Artist):
         if(len(bbox) == 3):
             # Zooming code
             xp, yp, scl = bbox
-            print("in set view, for zooming with scale {}".format(scl))
 
             # Should not happen
             if(scl == 0):
@@ -3380,6 +3379,11 @@ class _AxesBase(martist.Artist):
 
             bbox = [xzc - xwidth/2./scl, yzc - ywidth/2./scl, xzc +
                     xwidth/2./scl, yzc + ywidth/2./scl]
+        elif(len(bbox) != 4):
+            # should be len 3 or 4 but nothing else
+            print("Warning in _set_view_from_bbox: bounding box is not a
+                  tuple of length 3 or\ 4. Ignoring the view change...\n");
+            return
 
         # Just grab bounding box
         lastx, lasty, x, y = bbox
