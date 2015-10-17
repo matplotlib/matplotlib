@@ -14,7 +14,8 @@ import matplotlib
 from matplotlib import unpack_labeled_data
 
 import matplotlib.cbook as cbook
-from matplotlib.cbook import mplDeprecation, STEP_LOOKUP_MAP
+from matplotlib.cbook import (mplDeprecation, STEP_LOOKUP_MAP,
+                              iterable, is_string_like)
 import matplotlib.collections as mcoll
 import matplotlib.colors as mcolors
 import matplotlib.contour as mcontour
@@ -42,10 +43,6 @@ from matplotlib.axes._base import _process_plot_format
 
 
 rcParams = matplotlib.rcParams
-
-iterable = cbook.iterable
-is_string_like = cbook.is_string_like
-is_sequence_of_strings = cbook.is_sequence_of_strings
 
 
 def _plot_args_replacer(args, data):
@@ -1983,9 +1980,6 @@ class Axes(_AxesBase):
         edgecolor = kwargs.pop('edgecolor', None)
         linewidth = kwargs.pop('linewidth', None)
 
-        tick_label = kwargs.pop('tick_label', None)
-        label_ticks_flag = tick_label is not None
-
         # Because xerr and yerr will be passed to errorbar,
         # most dimension checking and processing will be left
         # to the errorbar method.
@@ -2001,6 +1995,7 @@ class Axes(_AxesBase):
         orientation = kwargs.pop('orientation', 'vertical')
         log = kwargs.pop('log', False)
         label = kwargs.pop('label', '')
+        tick_labels = kwargs.pop('tick_label', None)
 
         def make_iterable(x):
             if not iterable(x):
@@ -2016,7 +2011,6 @@ class Axes(_AxesBase):
         _bottom = bottom
         bottom = make_iterable(bottom)
         linewidth = make_iterable(linewidth)
-        tick_label = make_iterable(tick_label)
 
         adjust_ylim = False
         adjust_xlim = False
@@ -2061,8 +2055,6 @@ class Axes(_AxesBase):
 
         if len(linewidth) < nbars:
             linewidth *= nbars
-        if len(tick_label) < nbars:
-            tick_label *= nbars
 
         if color is None:
             color = [None] * nbars
@@ -2095,9 +2087,6 @@ class Axes(_AxesBase):
         if len(bottom) != nbars:
             raise ValueError("incompatible sizes: argument 'bottom' "
                              "must be length %d or scalar" % nbars)
-        if len(tick_label) != nbars:
-            raise ValueError("incompatible sizes: argument 'tick_label' "
-                             "must be length %d or string" % nbars)
 
         patches = []
 
@@ -2193,9 +2182,18 @@ class Axes(_AxesBase):
         bar_container = BarContainer(patches, errorbar, label=label)
         self.add_container(bar_container)
 
-        if label_ticks_flag:
+        if tick_labels is not None:
+            tick_labels = make_iterable(tick_labels)
+            if isinstance(tick_labels, six.string_types):
+                tick_labels = [tick_labels]
+            if len(tick_labels) == 1:
+                tick_labels *= nbars
+            if len(tick_labels) != nbars:
+                raise ValueError("incompatible sizes: argument 'tick_label' "
+                                 "must be length %d or string" % nbars)
+
             tick_label_axis.set_ticks(tick_label_position)
-            tick_label_axis.set_ticklabels(tick_label)
+            tick_label_axis.set_ticklabels(tick_labels)
 
         return bar_container
 
