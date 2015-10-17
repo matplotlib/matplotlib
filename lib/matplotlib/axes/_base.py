@@ -487,14 +487,14 @@ class _AxesBase(martist.Artist):
             self._shared_x_axes.join(self, sharex)
             if sharex._adjustable == 'box':
                 sharex._adjustable = 'datalim'
-                #warnings.warn(
+                # warnings.warn(
                 #    'shared axes: "adjustable" is being changed to "datalim"')
             self._adjustable = 'datalim'
         if sharey is not None:
             self._shared_y_axes.join(self, sharey)
             if sharey._adjustable == 'box':
                 sharey._adjustable = 'datalim'
-                #warnings.warn(
+                # warnings.warn(
                 #    'shared axes: "adjustable" is being changed to "datalim"')
             self._adjustable = 'datalim'
         self.set_label(label)
@@ -1003,11 +1003,11 @@ class _AxesBase(martist.Artist):
 
         self.grid(False)  # Disable grid on init to use rcParameter
         self.grid(self._gridOn, which=rcParams['axes.grid.which'],
-                    axis=rcParams['axes.grid.axis'])
+                  axis=rcParams['axes.grid.axis'])
         props = font_manager.FontProperties(
-                    size=rcParams['axes.titlesize'],
-                    weight=rcParams['axes.titleweight']
-                )
+            size=rcParams['axes.titlesize'],
+            weight=rcParams['axes.titleweight']
+            )
 
         self.titleOffsetTrans = mtransforms.ScaledTranslation(
             0.0, 5.0 / 72.0, self.figure.dpi_scale_trans)
@@ -1122,7 +1122,7 @@ class _AxesBase(martist.Artist):
         .. deprecated:: 1.5
         """
         cbook.warn_deprecated(
-                '1.5', name='set_color_cycle', alternative='set_prop_cycle')
+            '1.5', name='set_color_cycle', alternative='set_prop_cycle')
         self.set_prop_cycle('color', clist)
 
     def ishold(self):
@@ -3381,8 +3381,8 @@ class _AxesBase(martist.Artist):
                     xwidth/2./scl, yzc + ywidth/2./scl]
         elif(len(bbox) != 4):
             # should be len 3 or 4 but nothing else
-            print("Warning in _set_view_from_bbox: bounding box is not a
-                  tuple of length 3 or\ 4. Ignoring the view change...\n");
+            print("Warning in _set_view_from_bbox: bounding box is not a\
+                  tuple of length 3 or\ 4. Ignoring the view change...\n")
             return
 
         # Just grab bounding box
