@@ -755,6 +755,8 @@ def matplotlib_fname():
 
     - `$PWD/matplotlibrc`
 
+    - `$MATPLOTLIBRC` if it is a file
+
     - `$MATPLOTLIBRC/matplotlibrc`
 
     - `$MPLCONFIGDIR/matplotlibrc`
@@ -787,6 +789,8 @@ def matplotlib_fname():
     if 'MATPLOTLIBRC' in os.environ:
         path = os.environ['MATPLOTLIBRC']
         if os.path.exists(path):
+            if os.path.isfile(path):
+                return path
             fname = os.path.join(path, 'matplotlibrc')
             if os.path.exists(fname):
                 return fname
