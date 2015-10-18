@@ -1358,7 +1358,7 @@ def subplot_tool(targetfig=None):
     return ret
 
 
-def tight_layout(pad=1.08, h_pad=None, w_pad=None, rect=None):
+def tight_layout(pad=None, h_pad=None, w_pad=None, rect=None):
     """
     Automatically adjust subplot parameters to give specified padding.
 
@@ -1366,9 +1366,10 @@ def tight_layout(pad=1.08, h_pad=None, w_pad=None, rect=None):
 
     pad : float
         padding between the figure edge and the edges of subplots, as a fraction of the font-size.
+        Defaults to rc ``figure.autolayout.pad``.
     h_pad, w_pad : float
         padding (height/width) between edges of adjacent subplots.
-        Defaults to `pad_inches`.
+        Defaults to `pad` if given or rc ``figure.autolayout.hpad``, ``figure.autolayout.wpad``.
     rect : if rect is given, it is interpreted as a rectangle
         (left, bottom, right, top) in the normalized figure
         coordinate that the whole subplots area (including

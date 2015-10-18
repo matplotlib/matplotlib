@@ -39,7 +39,7 @@ def auto_adjust_subplotpars(fig, renderer,
                             num1num2_list,
                             subplot_list,
                             ax_bbox_list=None,
-                            pad=1.08, h_pad=None, w_pad=None,
+                            pad=None, h_pad=None, w_pad=None,
                             rect=None):
     """
     Return a dictionary of subplot parameters so that spacing between
@@ -62,29 +62,38 @@ def auto_adjust_subplotpars(fig, renderer,
     pad : float
       padding between the figure edge and the edges of subplots, as a fraction
       of the font-size.
+      Defaults to rc ``figure.autolayout.pad``.
+
     h_pad, w_pad : float
       padding (height/width) between edges of adjacent subplots.
-        Defaults to `pad_inches`.
+      Defaults to `pad` if given or rc ``figure.autolayout.hpad``,
+      ``figure.autolayout.wpad``.
 
     rect
       [left, bottom, right, top] in normalized (0, 1) figure coordinates.
     """
     rows, cols = nrows_ncols
 
-    pad_inches = pad * FontProperties(
+    if h_pad is None:
+        if pad is not None:
+            h_pad = pad
+        else:
+            h_pad = rcParams["figure.autolayout.hpad"]
+    vpad_inches = h_pad * FontProperties(
                     size=rcParams["font.size"]).get_size_in_points() / 72.
 
-    if h_pad is not None:
-        vpad_inches = h_pad * FontProperties(
-                        size=rcParams["font.size"]).get_size_in_points() / 72.
-    else:
-        vpad_inches = pad_inches
+    if w_pad is None:
+        if pad is not None:
+            w_pad = pad
+        else:
+            w_pad = rcParams["figure.autolayout.wpad"]
+    hpad_inches = w_pad * FontProperties(
+                    size=rcParams["font.size"]).get_size_in_points() / 72.
 
-    if w_pad is not None:
-        hpad_inches = w_pad * FontProperties(
-                        size=rcParams["font.size"]).get_size_in_points() / 72.
-    else:
-        hpad_inches = pad_inches
+    if pad is None:
+        pad = rcParams["figure.autolayout.pad"]
+    pad_inches = pad * FontProperties(
+                    size=rcParams["font.size"]).get_size_in_points() / 72.
 
     if len(subplot_list) == 0:
         raise RuntimeError("")
@@ -261,7 +270,7 @@ def get_subplotspec_list(axes_list, grid_spec=None):
 
 
 def get_tight_layout_figure(fig, axes_list, subplotspec_list, renderer,
-                            pad=1.08, h_pad=None, w_pad=None, rect=None):
+                            pad=None, h_pad=None, w_pad=None, rect=None):
     """
     Return subplot parameters for tight-layouted-figure with specified
     padding.
@@ -280,10 +289,12 @@ def get_tight_layout_figure(fig, axes_list, subplotspec_list, renderer,
       *pad* : float
         padding between the figure edge and the edges of subplots,
         as a fraction of the font-size.
+        Defaults to rc ``figure.autolayout.pad``.
 
       *h_pad*, *w_pad* : float
         padding (height/width) between edges of adjacent subplots.
-        Defaults to `pad_inches`.
+        Defaults to `pad` if given or rc ``figure.autolayout.hpad``,
+        ``figure.autolayout.wpad``.
 
       *rect* : if rect is given, it is interpreted as a rectangle
         (left, bottom, right, top) in the normalized figure
@@ -366,9 +377,6 @@ def get_tight_layout_figure(fig, axes_list, subplotspec_list, renderer,
             right -= (1 - kwargs["right"])
         if top is not None:
             top -= (1 - kwargs["top"])
-
-        #if h_pad is None: h_pad = pad
-        #if w_pad is None: w_pad = pad
 
         kwargs = auto_adjust_subplotpars(fig, renderer,
                                          nrows_ncols=(max_nrows, max_ncols),
