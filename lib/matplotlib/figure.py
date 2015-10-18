@@ -1728,6 +1728,13 @@ class Figure(Artist):
                                          rect=rect)
 
         self.subplots_adjust(**kwargs)
+        self._tight_parameters.update(
+                (k, v) for k, v in (
+                        ('pad', pad),
+                        ('h_pad', h_pad),
+                        ('w_pad', w_pad),
+                        ('rect', rect),
+                ) if v is not None)
 
 
 def figaspect(arg):
