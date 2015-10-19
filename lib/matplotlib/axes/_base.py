@@ -3326,8 +3326,8 @@ class _AxesBase(martist.Artist):
             * If bbox is a 4 tuple, it is the selected bounding box limits,
                 in *display* coordinates.
             * If bbox is a 3 tuple, it is an (xp, yp, scl) triple, where
-                (xp,yp) are the center of zoom and scl the scale factor to zoom
-                by
+                (xp,yp) is the center of zooming and scl the scale factor to
+                zoom by.
 
         direction : str
             The direction to apply the bounding box.
@@ -3349,16 +3349,16 @@ class _AxesBase(martist.Artist):
         Xmin, Xmax = self.get_xlim()
         Ymin, Ymax = self.get_ylim()
 
-        if(len(bbox) == 3):
+        if len(bbox) == 3:
             # Zooming code
             xp, yp, scl = bbox
 
             # Should not happen
-            if(scl == 0):
+            if scl == 0:
                 scl = 1.
 
             # direction = 'in'
-            if(scl > 1):
+            if scl > 1:
                 direction = 'in'
             else:
                 direction = 'out'
@@ -3377,12 +3377,12 @@ class _AxesBase(martist.Artist):
             xzc = (xp*(scl - 1) + xcen)/scl
             yzc = (yp*(scl - 1) + ycen)/scl
 
-            bbox = [xzc - xwidth/2./scl, yzc - ywidth/2./scl, xzc +
-                    xwidth/2./scl, yzc + ywidth/2./scl]
-        elif(len(bbox) != 4):
+            bbox = [xzc - xwidth/2./scl, yzc - ywidth/2./scl, 
+                    xzc + xwidth/2./scl, yzc + ywidth/2./scl]
+        elif len(bbox) != 4:
             # should be len 3 or 4 but nothing else
-            print("Warning in _set_view_from_bbox: bounding box is not a\
-                  tuple of length 3 or\ 4. Ignoring the view change...\n")
+            warnings.warn('Warning in _set_view_from_bbox: bounding box is not a\
+                  tuple of length 3 or\ 4. Ignoring the view change...')
             return
 
         # Just grab bounding box
