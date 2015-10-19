@@ -358,7 +358,7 @@ void get_path_collection_extents(agg::trans_affine &master_transform,
                                  agg::trans_affine &offset_trans,
                                  extent_limits &extent)
 {
-    if (offsets.dim(0) != 0 && offsets.dim(1) != 2) {
+    if (offsets.size() != 0 && offsets.dim(1) != 2) {
         throw "Offsets array must be Nx2";
     }
 
@@ -416,7 +416,7 @@ void point_in_path_collection(double x,
         return;
     }
 
-    size_t Noffsets = offsets.dim(0);
+    size_t Noffsets = offsets.size();
     size_t N = std::max(Npaths, Noffsets);
     size_t Ntransforms = std::min(transforms.size(), N);
     size_t i;
@@ -692,11 +692,11 @@ clip_path_to_rect(PathIterator &path, agg::rect_d &rect, bool inside, std::vecto
 template <class VerticesArray, class ResultArray>
 void affine_transform_2d(VerticesArray &vertices, agg::trans_affine &trans, ResultArray &result)
 {
-    if (vertices.dim(0) != 0 && vertices.dim(1) != 2) {
+    if (vertices.size() != 0 && vertices.dim(1) != 2) {
         throw "Invalid vertices array.";
     }
 
-    size_t n = vertices.dim(0);
+    size_t n = vertices.size();
     double x;
     double y;
     double t0;

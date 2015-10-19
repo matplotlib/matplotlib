@@ -38,6 +38,10 @@ int convert_snap(PyObject *obj, void *snapp);
 int convert_offset_position(PyObject *obj, void *offsetp);
 int convert_sketch_params(PyObject *obj, void *sketchp);
 int convert_gcagg(PyObject *pygc, void *gcp);
+int convert_points(PyObject *pygc, void *pointsp);
+int convert_transforms(PyObject *pygc, void *transp);
+int convert_bboxes(PyObject *pygc, void *bboxp);
+int convert_colors(PyObject *pygc, void *colorsp);
 
 int convert_face(PyObject *color, GCAgg &gc, agg::rgba *rgba);
 }
