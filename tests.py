@@ -45,6 +45,10 @@ def run(extra_args):
     else:
         faulthandler.enable()
 
+    if not os.path.isdir(
+            os.path.join(os.path.dirname(matplotlib.__file__), 'tests')):
+        raise ImportError("matplotlib test data is not installed")
+
     nose.main(addplugins=[x() for x in plugins],
               defaultTest=default_test_modules,
               argv=sys.argv + extra_args)
