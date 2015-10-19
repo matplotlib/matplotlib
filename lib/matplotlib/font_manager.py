@@ -1405,10 +1405,9 @@ if USE_FONTCONFIG and sys.platform != 'win32':
 else:
     _fmcache = None
 
-    if not 'TRAVIS' in os.environ:
-        cachedir = get_cachedir()
-        if cachedir is not None:
-            _fmcache = os.path.join(cachedir, 'fontList.json')
+    cachedir = get_cachedir()
+    if cachedir is not None:
+        _fmcache = os.path.join(cachedir, 'fontList.json')
 
     fontManager = None
 
@@ -1419,9 +1418,13 @@ else:
 
     def _rebuild():
         global fontManager
+
         fontManager = FontManager()
+
         if _fmcache:
-            json_dump(fontManager, _fmcache)
+            with cbook.Locked(cachedir):
+                json_dump(fontManager, _fmcache)
+
         verbose.report("generated new fontManager")
 
     if _fmcache:

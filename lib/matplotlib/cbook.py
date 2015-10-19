@@ -2550,3 +2550,54 @@ except AttributeError:
 else:
     def _putmask(a, mask, values):
         return np.copyto(a, values, where=mask)
+
+
+class Locked(object):
+    """
+    Context manager to handle locks.
+
+    Based on code from conda.
+
+    (c) 2012-2013 Continuum Analytics, Inc. / http://continuum.io
+    All Rights Reserved
+
+    conda is distributed under the terms of the BSD 3-clause license.
+    Consult LICENSE.txt or http://opensource.org/licenses/BSD-3-Clause.
+    """
+    def __init__(self, path):
+        LOCKFN = '.matplotlib_lock'
+        self.path = path
+        self.end = "-" + str(os.getpid())
+        self.lock_path = os.path.join(self.path, LOCKFN + self.end)
+        self.pattern = os.path.join(self.path, LOCKFN + '-*')
+        self.remove = True
+
+    def __enter__(self):
+        retries = 10
+        sleeptime = 1
+        while retries:
+            files = glob.glob(self.pattern)
+            if files and not files[0].endswith(self.end):
+                time.sleep(sleeptime)
+                sleeptime *= 2
+                retries -= 1
+            else:
+                break
+        else:
+            raise RuntimeError(lockstr)
+
+        if not files:
+            try:
+                os.makedirs(self.lock_path)
+            except OSError:
+                pass
+        else:  # PID lock already here --- someone else will remove it.
+            self.remove = False
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        if self.remove:
+            for path in self.lock_path, self.path:
+                try:
+                    os.rmdir(path)
+                except OSError:
+                    pass
