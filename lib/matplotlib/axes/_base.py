@@ -3323,9 +3323,9 @@ class _AxesBase(martist.Artist):
         ----------
 
         bbox : 4-tuple or 3 tuple
-            * If result is a 4 tuple, it is the selected bounding box limits,
+            * If bbox is a 4 tuple, it is the selected bounding box limits,
                 in *display* coordinates.
-            * If result is a 3 tuple, it is an (xp, yp, scl) triple, where
+            * If bbox is a 3 tuple, it is an (xp, yp, scl) triple, where
                 (xp,yp) are the center of zoom and scl the scale factor to zoom
                 by
 
