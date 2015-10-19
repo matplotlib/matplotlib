@@ -32,7 +32,7 @@ class exception : public std::exception
     }                                                                                              \
     catch (const std::bad_alloc)                                                                   \
     {                                                                                              \
-        PyErr_Format(PyExc_MemoryError, "In %s: Out of memory", (name));                         \
+        PyErr_Format(PyExc_MemoryError, "In %s: Out of memory", (name));                           \
         {                                                                                          \
             cleanup;                                                                               \
         }                                                                                          \
@@ -40,7 +40,15 @@ class exception : public std::exception
     }                                                                                              \
     catch (const std::overflow_error &e)                                                           \
     {                                                                                              \
-        PyErr_Format(PyExc_OverflowError, "In %s: %s", (name), e.what());                        \
+        PyErr_Format(PyExc_OverflowError, "In %s: %s", (name), e.what());                          \
+        {                                                                                          \
+            cleanup;                                                                               \
+        }                                                                                          \
+        return (errorcode);                                                                        \
+    }                                                                                              \
+    catch (const std::out_of_range &e)                                                             \
+    {                                                                                              \
+        PyErr_Format(PyExc_IndexError, "In %s: %s", (name), e.what());                             \
         {                                                                                          \
             cleanup;                                                                               \
         }                                                                                          \
@@ -48,7 +56,7 @@ class exception : public std::exception
     }                                                                                              \
     catch (char const *e)                                                                          \
     {                                                                                              \
-        PyErr_Format(PyExc_RuntimeError, "In %s: %s", (name), e);                                \
+        PyErr_Format(PyExc_RuntimeError, "In %s: %s", (name), e);                                  \
         {                                                                                          \
             cleanup;                                                                               \
         }                                                                                          \

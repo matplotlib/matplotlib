@@ -27,6 +27,13 @@
 
 #include <Python.h>
 #include <numpy/ndarrayobject.h>
+#include <stdexcept>
+
+#if defined(__GNUC__) || defined(__clang__)
+#define unlikely(x) __builtin_expect(!!(x), 0)
+#else
+#define unlikely(x) (x)
+#endif
 
 namespace numpy
 {
@@ -235,6 +242,9 @@ class array_view_accessors<AV, T, 1>
     T &operator()(npy_intp i)
     {
         AVC *self = static_cast<AVC *>(this);
+        if (unlikely(self->m_data == NULL)) {
+            throw std::out_of_range("indexing into an array_view with no data");
+        }
 
         return *reinterpret_cast<T *>(self->m_data + self->m_strides[0] * i);
     }
@@ -242,6 +252,9 @@ class array_view_accessors<AV, T, 1>
     const T &operator()(npy_intp i) const
     {
         const AVC *self = static_cast<const AVC *>(this);
+        if (unlikely(self->m_data == NULL)) {
+            throw std::out_of_range("indexing into an array_view with no data");
+        }
 
         return *reinterpret_cast<const T *>(self->m_data + self->m_strides[0] * i);
     }
@@ -249,6 +262,9 @@ class array_view_accessors<AV, T, 1>
     T &operator[](npy_intp i)
     {
         AVC *self = static_cast<AVC *>(this);
+        if (unlikely(self->m_data == NULL)) {
+            throw std::out_of_range("indexing into an array_view with no data");
+        }
 
         return *reinterpret_cast<T *>(self->m_data + self->m_strides[0] * i);
     }
@@ -256,6 +272,9 @@ class array_view_accessors<AV, T, 1>
     const T &operator[](npy_intp i) const
     {
         const AVC *self = static_cast<const AVC *>(this);
+        if (unlikely(self->m_data == NULL)) {
+            throw std::out_of_range("indexing into an array_view with no data");
+        }
 
         return *reinterpret_cast<const T *>(self->m_data + self->m_strides[0] * i);
     }
@@ -271,6 +290,9 @@ class array_view_accessors<AV, T, 2>
     T &operator()(npy_intp i, npy_intp j)
     {
         AVC *self = static_cast<AVC *>(this);
+        if (unlikely(self->m_data == NULL)) {
+            throw std::out_of_range("indexing into an array_view with no data");
+        }
 
         return *reinterpret_cast<T *>(self->m_data + self->m_strides[0] * i +
                                       self->m_strides[1] * j);
@@ -279,6 +301,9 @@ class array_view_accessors<AV, T, 2>
     const T &operator()(npy_intp i, npy_intp j) const
     {
         const AVC *self = static_cast<const AVC *>(this);
+        if (unlikely(self->m_data == NULL)) {
+            throw std::out_of_range("indexing into an array_view with no data");
+        }
 
         return *reinterpret_cast<const T *>(self->m_data + self->m_strides[0] * i +
                                             self->m_strides[1] * j);
@@ -287,6 +312,9 @@ class array_view_accessors<AV, T, 2>
     sub_t operator[](npy_intp i) const
     {
         const AVC *self = static_cast<const AVC *>(this);
+        if (unlikely(self->m_data == NULL)) {
+            throw std::out_of_range("indexing into an array_view with no data");
+        }
 
         return sub_t(self->m_arr,
                      self->m_data + self->m_strides[0] * i,
@@ -305,6 +333,9 @@ class array_view_accessors<AV, T, 3>
     T &operator()(npy_intp i, npy_intp j, npy_intp k)
     {
         AVC *self = static_cast<AVC *>(this);
+        if (unlikely(self->m_data == NULL)) {
+            throw std::out_of_range("indexing into an array_view with no data");
+        }
 
         return *reinterpret_cast<T *>(self->m_data + self->m_strides[0] * i +
                                       self->m_strides[1] * j + self->m_strides[2] * k);
@@ -313,6 +344,9 @@ class array_view_accessors<AV, T, 3>
     const T &operator()(npy_intp i, npy_intp j, npy_intp k) const
     {
         const AVC *self = static_cast<const AVC *>(this);
+        if (unlikely(self->m_data == NULL)) {
+            throw std::out_of_range("indexing into an array_view with no data");
+        }
 
         return *reinterpret_cast<const T *>(self->m_data + self->m_strides[0] * i +
                                             self->m_strides[1] * j + self->m_strides[2] * k);
@@ -321,6 +355,9 @@ class array_view_accessors<AV, T, 3>
     sub_t operator[](npy_intp i) const
     {
         const AVC *self = static_cast<const AVC *>(this);
+        if (unlikely(self->m_data == NULL)) {
+            throw std::out_of_range("indexing into an array_view with no data");
+        }
 
         return sub_t(self->m_arr,
                      self->m_data + self->m_strides[0] * i,
@@ -381,9 +418,20 @@ class array_view : public detail::array_view_accessors<array_view, T, ND>
 
     array_view(PyArrayObject *arr, char *data, npy_intp *shape, npy_intp *strides)
     {
+	bool empty = (ND == 0);
+        for (size_t i = 0; i < ND; i++) {
+            if (shape[i] == 0) {
+                empty = true;
+            }
+        }
+
         m_arr = arr;
         Py_XINCREF(arr);
-        m_data = data;
+        if (empty) {
+            m_data = NULL;
+        } else {
+            m_data = data;
+        }
         m_shape = shape;
         m_strides = strides;
     }
@@ -446,10 +494,10 @@ class array_view : public detail::array_view_accessors<array_view, T, ND>
                 m_data = NULL;
                 m_shape = zeros;
                 m_strides = zeros;
-		if (PyArray_NDIM(tmp) == 0 && ND == 0) {
-		    m_arr = tmp;
-		    return 1;
-		}
+                if (PyArray_NDIM(tmp) == 0 && ND == 0) {
+                    m_arr = tmp;
+                    return 1;
+                }
             }
 	    if (PyArray_NDIM(tmp) != ND) {
 		PyErr_Format(PyExc_ValueError,
@@ -465,7 +513,17 @@ class array_view : public detail::array_view_accessors<array_view, T, ND>
             m_arr = tmp;
             m_shape = PyArray_DIMS(m_arr);
             m_strides = PyArray_STRIDES(m_arr);
-            m_data = (char *)PyArray_BYTES(tmp);
+            bool empty = (ND == 0);
+            for (size_t i = 0; i < ND; i++) {
+                if (m_shape[i] == 0) {
+                    empty = true;
+                }
+            }
+            if (empty) {
+                m_data = NULL;
+            } else {
+                m_data = (char *)PyArray_BYTES(tmp);
+            }
         }
 
         return 1;
@@ -481,7 +539,11 @@ class array_view : public detail::array_view_accessors<array_view, T, ND>
 
     size_t size() const
     {
-        return (size_t)dim(0);
+        if (m_data == NULL) {
+            return 0;
+        } else {
+            return (size_t)dim(0);
+        }
     }
 
     bool empty() const
