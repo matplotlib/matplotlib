@@ -717,10 +717,8 @@ class Line2D(Artist):
             i0, = self._x_filled.searchsorted([x0], 'left')
             i1, = self._x_filled.searchsorted([x1], 'right')
             subslice = slice(max(i0 - 1, 0), i1 + 1)
-            # Don't remake the Path unless it will be sufficiently smaller.
-            if subslice.start > 100 or len(self._x) - subslice.stop > 100:
-                self.ind_offset = subslice.start
-                self._transform_path(subslice)
+            self.ind_offset = subslice.start
+            self._transform_path(subslice)
 
         transf_path = self._get_transformed_path()
 
