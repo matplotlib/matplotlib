@@ -69,7 +69,7 @@ static PyObject *Py_points_in_path(PyObject *self, PyObject *args, PyObject *kwd
 
     if (!PyArg_ParseTuple(args,
                           "O&dO&O&:points_in_path",
-                          &points.converter,
+                          &convert_points,
                           &points,
                           &r,
                           &convert_path,
@@ -128,7 +128,7 @@ static PyObject *Py_points_on_path(PyObject *self, PyObject *args, PyObject *kwd
 
     if (!PyArg_ParseTuple(args,
                           "O&dO&O&:points_on_path",
-                          &points.converter,
+                          &convert_points,
                           &points,
                           &r,
                           &convert_path,
@@ -200,7 +200,10 @@ static PyObject *Py_update_path_extents(PyObject *self, PyObject *args, PyObject
     }
 
     if (minpos.dim(0) != 2) {
-        PyErr_SetString(PyExc_ValueError, "minpos must be of length 2");
+        PyErr_Format(PyExc_ValueError,
+                     "minpos must be of length 2, got %d",
+                     minpos.dim(0));
+        return NULL;
     }
 
     extent_limits e;
@@ -263,9 +266,9 @@ static PyObject *Py_get_path_collection_extents(PyObject *self, PyObject *args, 
                           &convert_trans_affine,
                           &master_transform,
                           &pathsobj,
-                          &transforms.converter,
+                          &convert_transforms,
                           &transforms,
-                          &offsets.converter,
+                          &convert_points,
                           &offsets,
                           &convert_trans_affine,
                           &offset_trans)) {
@@ -319,9 +322,9 @@ static PyObject *Py_point_in_path_collection(PyObject *self, PyObject *args, PyO
                           &convert_trans_affine,
                           &master_transform,
                           &pathsobj,
-                          &transforms.converter,
+                          &convert_transforms,
                           &transforms,
-                          &offsets.converter,
+                          &convert_points,
                           &offsets,
                           &convert_trans_affine,
                           &offset_trans,
@@ -464,7 +467,7 @@ static PyObject *Py_count_bboxes_overlapping_bbox(PyObject *self, PyObject *args
                           "O&O&:count_bboxes_overlapping_bbox",
                           &convert_rect,
                           &bbox,
-                          &bboxes.converter,
+                          &convert_bboxes,
                           &bboxes)) {
         return NULL;
     }
