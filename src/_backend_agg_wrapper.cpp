@@ -500,21 +500,21 @@ PyRendererAgg_draw_gouraud_triangles(PyRendererAgg *self, PyObject *args, PyObje
         return NULL;
     }
 
-    if (points.dim(1) != 3 || points.dim(2) != 2) {
+    if (points.size() != 0 && (points.dim(1) != 3 || points.dim(2) != 2)) {
         PyErr_Format(PyExc_ValueError,
                      "points must be a Nx3x2 array, got %dx%dx%d",
                      points.dim(0), points.dim(1), points.dim(2));
         return NULL;
     }
 
-    if (colors.dim(1) != 3 || colors.dim(2) != 4) {
+    if (colors.size() != 0 && (colors.dim(1) != 3 || colors.dim(2) != 4)) {
         PyErr_Format(PyExc_ValueError,
                      "colors must be a Nx3x4 array, got %dx%dx%d",
                      colors.dim(0), colors.dim(1), colors.dim(2));
         return NULL;
     }
 
-    if (points.dim(0) != colors.dim(0)) {
+    if (points.size() != colors.size()) {
         PyErr_Format(PyExc_ValueError,
                      "points and colors arrays must be the same length, got %d and %d",
                      points.dim(0), colors.dim(0));

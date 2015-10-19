@@ -79,7 +79,7 @@ static PyObject *Py_points_in_path(PyObject *self, PyObject *args, PyObject *kwd
         return NULL;
     }
 
-    npy_intp dims[] = { points.dim(0) };
+    npy_intp dims[] = { points.size() };
     numpy::array_view<bool, 1> results(dims);
 
     CALL_CPP("points_in_path", (points_in_path(points, r, path, trans, results)));
@@ -138,7 +138,7 @@ static PyObject *Py_points_on_path(PyObject *self, PyObject *args, PyObject *kwd
         return NULL;
     }
 
-    npy_intp dims[] = { points.dim(0) };
+    npy_intp dims[] = { points.size() };
     numpy::array_view<bool, 1> results(dims);
 
     CALL_CPP("points_on_path", (points_on_path(points, r, path, trans, results)));
@@ -437,7 +437,7 @@ static PyObject *Py_affine_transform(PyObject *self, PyObject *args, PyObject *k
 
     try {
         numpy::array_view<double, 2> vertices(vertices_obj);
-        npy_intp dims[] = { vertices.dim(0), 2 };
+        npy_intp dims[] = { vertices.size(), 2 };
         numpy::array_view<double, 2> result(dims);
         CALL_CPP("affine_transform", (affine_transform_2d(vertices, trans, result)));
         return result.pyobj();
@@ -445,7 +445,7 @@ static PyObject *Py_affine_transform(PyObject *self, PyObject *args, PyObject *k
         PyErr_Clear();
         try {
             numpy::array_view<double, 1> vertices(vertices_obj);
-            npy_intp dims[] = { vertices.dim(0) };
+            npy_intp dims[] = { vertices.size() };
             numpy::array_view<double, 1> result(dims);
             CALL_CPP("affine_transform", (affine_transform_1d(vertices, trans, result)));
             return result.pyobj();
