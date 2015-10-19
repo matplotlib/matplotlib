@@ -755,9 +755,9 @@ def matplotlib_fname():
 
     - `$PWD/matplotlibrc`
 
-    - environment variable `MATPLOTLIBRC`
+    - `$MATPLOTLIBRC/matplotlibrc`
 
-    - `$MPLCONFIGDIR/matplotlib`
+    - `$MPLCONFIGDIR/matplotlibrc`
 
     - On Linux,
 
