@@ -50,13 +50,15 @@ matplotlib uses :file:`matplotlibrc` configuration files to customize all kinds
 of properties, which we call `rc settings` or `rc parameters`. You can control
 the defaults of almost every property in matplotlib: figure size and dpi, line
 width, color and style, axes, axis and grid properties, text and font
-properties and so on. matplotlib looks for :file:`matplotlibrc` in three
+properties and so on. matplotlib looks for :file:`matplotlibrc` in four
 locations, in the following order:
 
 1. :file:`matplotlibrc` in the current working directory, usually used for
    specific customizations that you do not want to apply elsewhere.
 
-2. It next looks in a user-specific place, depending on your platform:
+2. :file:`$MATPLOTLIBRC` if it is a file, else :file:`$MATPLOTLIBRC/matplotlibrc`.
+
+3. It next looks in a user-specific place, depending on your platform:
 
    - On Linux, it looks in :file:`.config/matplotlib/matplotlibrc` (or
      `$XDG_CONFIG_HOME/matplotlib/matplotlibrc`) if you've customized
@@ -66,7 +68,7 @@ locations, in the following order:
 
    See :ref:`locating-matplotlib-config-dir`.
 
-3. :file:`{INSTALL}/matplotlib/mpl-data/matplotlibrc`, where
+4. :file:`{INSTALL}/matplotlib/mpl-data/matplotlibrc`, where
    :file:`{INSTALL}` is something like
    :file:`/usr/lib/python2.5/site-packages` on Linux, and maybe
    :file:`C:\\Python25\\Lib\\site-packages` on Windows. Every time you
