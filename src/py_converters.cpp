@@ -529,7 +529,7 @@ int convert_points(PyObject *obj, void *pointsp)
 
     points->set(obj);
 
-    if (points->dim(0) == 0) {
+    if (points->size() == 0) {
         return 1;
     }
 
@@ -553,7 +553,7 @@ int convert_transforms(PyObject *obj, void *transp)
 
     trans->set(obj);
 
-    if (trans->dim(0) == 0) {
+    if (trans->size() == 0) {
         return 1;
     }
 
@@ -577,7 +577,7 @@ int convert_bboxes(PyObject *obj, void *bboxp)
 
     bbox->set(obj);
 
-    if (bbox->dim(0) == 0) {
+    if (bbox->size() == 0) {
         return 1;
     }
 
@@ -601,7 +601,7 @@ int convert_colors(PyObject *obj, void *colorsp)
 
     colors->set(obj);
 
-    if (colors->dim(0) == 0) {
+    if (colors->size() == 0) {
         return 1;
     }
 
