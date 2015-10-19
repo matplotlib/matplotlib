@@ -479,6 +479,10 @@ class array_view : public detail::array_view_accessors<array_view, T, ND>
         return m_shape[i];
     }
 
+    /*
+       In most cases, code should use size() instead of dim(0), since
+       size() == 0 when any dimension is 0.
+    */
     size_t size() const
     {
         bool empty = (ND == 0);
