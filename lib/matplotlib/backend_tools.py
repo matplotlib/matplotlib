@@ -642,10 +642,9 @@ class ZoomPanBase(ToolToggleBase):
         ax = event.inaxes
         ax._set_view_from_bbox([event.x, event.y, scl])
 
-        # first check if last scroll was done within
-        # the timing threshold. If yes, delete previous view
-        if(time.time()-self.lastscroll < self.scrollthresh):
-            # remove the last view and push the current
+        # If last scroll was done within the timing threshold, delete the
+        # previous view
+        if (time.time()-self.lastscroll) < self.scrollthresh:
             self.toolmanager.get_tool(_views_positions).back()
 
         self.figure.canvas.draw_idle()  # force re-draw
