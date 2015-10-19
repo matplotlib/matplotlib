@@ -1488,6 +1488,9 @@ default_test_modules = [
 
 
 def verify_test_dependencies():
+    if not os.path.isdir(os.path.join(os.path.dirname(__file__), 'tests')):
+        raise ImportError("matplotlib test data is not installed")
+
     try:
         import nose
         try:
