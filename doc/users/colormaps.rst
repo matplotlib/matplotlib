@@ -13,8 +13,12 @@ colorspace for your data set. The best colormap for any given data set depends
 on many things including:
 
 - Whether representing form or metric data ([Ware]_)
-- Your knowledge of the data set (*e.g.*, is there a critical value from which the other values deviate?)
+
+- Your knowledge of the data set (*e.g.*, is there a critical value
+  from which the other values deviate?)
+
 - If there is an intuitive color scheme for the parameter you are plotting
+
 - If there is a standard in the field the audience may be expecting
 
 For many applications, a perceptually uniform colormap is the best
@@ -41,9 +45,19 @@ Classes of colormaps
 Colormaps are often split into several categories based on their function (see,
 *e.g.*, [Moreland]_):
 
-1. Sequential: change in lightness and often saturation of color incrementally, often using a single hue; should be used for representing information that has ordering.
-2. Diverging: change in lightness and possibly saturation of two different colors that meet in the middle at an unsaturated color; should be used when the information being plotted has a critical middle value, such as topography or when the data deviates around zero.
-3. Qualitative: often are miscellaneous colors; should be used to represent information which does not have ordering or relationships.
+1. Sequential: change in lightness and often saturation of color
+   incrementally, often using a single hue; should be used for
+   representing information that has ordering.
+
+2. Diverging: change in lightness and possibly saturation of two
+   different colors that meet in the middle at an unsaturated color;
+   should be used when the information being plotted has a critical
+   middle value, such as topography or when the data deviates around
+   zero.
+
+3. Qualitative: often are miscellaneous colors; should be used to
+   represent information which does not have ordering or
+   relationships.
 
 
 Lightness of matplotlib colormaps
