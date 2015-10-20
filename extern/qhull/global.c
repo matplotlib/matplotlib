@@ -1843,6 +1843,7 @@ void qh_initqhull_start2(FILE *infile, FILE *outfile, FILE *errfile) {
   time_t timedata;
   int seed;
 
+  qh_CPUclock; /* start the clock(for qh_clock).  One-shot. */
 #if qh_QHpointer
   memset((char *)qh_qh, 0, sizeof(qhT));   /* every field is 0, FALSE, NULL */
 #else
