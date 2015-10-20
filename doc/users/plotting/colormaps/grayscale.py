@@ -4,9 +4,12 @@ Uses lightness L* as a proxy for grayscale value.
 '''
 
 import colorconv as color
+
+from colormaps import cmaps
+
 #from skimage import color
-# we are using a local copy of colorconv from scikit-image to reduce dependencies. 
-# You should probably use the one from scikit-image in most cases. 
+# we are using a local copy of colorconv from scikit-image to reduce dependencies.
+# You should probably use the one from scikit-image in most cases.
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib import cm
@@ -24,27 +27,6 @@ mpl.rcParams['mathtext.bf'] = 'sans:bold'
 mpl.rcParams['mathtext.sf'] = 'sans'
 mpl.rcParams['mathtext.fallback_to_cm'] = 'True'
 
-# Have colormaps separated into categories:
-# http://matplotlib.org/examples/color/colormaps_reference.html
-
-cmaps = [('Sequential',     ['Blues', 'BuGn', 'BuPu',
-                             'GnBu', 'Greens', 'Greys', 'Oranges', 'OrRd',
-                             'PuBu', 'PuBuGn', 'PuRd', 'Purples', 'RdPu',
-                             'Reds', 'YlGn', 'YlGnBu', 'YlOrBr', 'YlOrRd']),
-         ('Sequential (2)', ['afmhot', 'autumn', 'bone', 'cool', 'copper',
-                             'gist_heat', 'gray', 'hot', 'inferno', 'magma',
-                             'pink', 'plasma', 'spring', 'summer', 'viridis',
-                             'winter']),
-         ('Diverging',      ['BrBG', 'bwr', 'coolwarm', 'PiYG', 'PRGn', 'PuOr',
-                             'RdBu', 'RdGy', 'RdYlBu', 'RdYlGn', 'Spectral',
-                             'seismic']),
-         ('Qualitative',    ['Accent', 'Dark2', 'Paired', 'Pastel1',
-                             'Pastel2', 'Set1', 'Set2', 'Set3']),
-         ('Miscellaneous',  ['gist_earth', 'terrain', 'ocean', 'gist_stern',
-                             'brg', 'CMRmap', 'cubehelix',
-                             'gnuplot', 'gnuplot2', 'gist_ncar',
-                             'nipy_spectral', 'jet', 'rainbow',
-                             'gist_rainbow', 'hsv', 'flag', 'prism'])]
 
 # indices to step through colormap
 x = np.linspace(0.0, 1.0, 100)

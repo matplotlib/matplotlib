@@ -1,14 +1,15 @@
 '''
-For each colormap, plot the lightness parameter L* from CIELAB colorspace 
-along the y axis vs index through the colormap. Colormaps are examined in 
+For each colormap, plot the lightness parameter L* from CIELAB colorspace
+along the y axis vs index through the colormap. Colormaps are examined in
 categories as in the original matplotlib gallery of colormaps.
 '''
 
 import colorconv as color
+from colormaps import cmaps
 #from skimage import color
 # we are using a local copy of colorconv from scikit-image to
 # reduce dependencies.
-# You should probably use the one from scikit-image in most cases. 
+# You should probably use the one from scikit-image in most cases.
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib import cm
@@ -25,28 +26,6 @@ mpl.rcParams['mathtext.it'] = 'sans:italic'
 mpl.rcParams['mathtext.bf'] = 'sans:bold'
 mpl.rcParams['mathtext.sf'] = 'sans'
 mpl.rcParams['mathtext.fallback_to_cm'] = 'True'
-
-# Have colormaps separated into categories:
-# http://matplotlib.org/examples/color/colormaps_reference.html
-
-cmaps = [('Sequential',     ['Blues', 'BuGn', 'BuPu',
-                             'GnBu', 'Greens', 'Greys', 'Oranges', 'OrRd',
-                             'PuBu', 'PuBuGn', 'PuRd', 'Purples', 'RdPu',
-                             'Reds', 'YlGn', 'YlGnBu', 'YlOrBr', 'YlOrRd']),
-         ('Sequential (2)', ['afmhot', 'autumn', 'bone', 'cool', 'copper',
-                             'gist_heat', 'gray', 'hot', 'inferno', 'magma',
-                             'pink', 'plasma', 'spring', 'summer', 'viridis',
-                             'winter']),
-         ('Diverging',      ['BrBG', 'bwr', 'coolwarm', 'PiYG', 'PRGn', 'PuOr',
-                             'RdBu', 'RdGy', 'RdYlBu', 'RdYlGn', 'Spectral',
-                             'seismic']),
-         ('Qualitative',    ['Accent', 'Dark2', 'Paired', 'Pastel1',
-                             'Pastel2', 'Set1', 'Set2', 'Set3']),
-         ('Miscellaneous',  ['gist_earth', 'terrain', 'ocean', 'gist_stern',
-                             'brg', 'CMRmap', 'cubehelix',
-                             'gnuplot', 'gnuplot2', 'gist_ncar',
-                             'nipy_spectral', 'jet', 'rainbow',
-                             'gist_rainbow', 'hsv', 'flag', 'prism'])]
 
 # indices to step through colormap
 x = np.linspace(0.0, 1.0, 100)
@@ -84,7 +63,17 @@ for cmap_category, cmap_list in cmaps:
             # Do separately for each category so each plot can be pretty
             # to make scatter markers change color along plot:
             # http://stackoverflow.com/questions/8202605/matplotlib-scatterplot-colour-as-a-function-of-a-third-variable
-            if cmap_category=='Sequential':
+            if cmap_category=='Perceptually Uniform Sequential':
+                dc = 1.15 # spacing between colormaps
+                ax.scatter(x+j*dc, lab[0,::-1,0], c=x, cmap=cmap,
+                           s=300, linewidths=0.)
+                if i==2:
+                    ax.axis([-0.1,4.1,0,100])
+                else:
+                    ax.axis([-0.1,4.7,0,100])
+                locs.append(x[-1]+j*dc) # store locations for colormap labels
+
+            elif cmap_category=='Sequential':
                 dc = 0.6 # spacing between colormaps
                 ax.scatter(x+j*dc, lab[0,::-1,0], c=x, cmap=cmap + '_r',
                            s=300, linewidths=0.)
