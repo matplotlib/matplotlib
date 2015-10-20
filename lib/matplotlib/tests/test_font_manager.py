@@ -24,6 +24,7 @@ def test_font_priority():
 
 def test_json_serialization():
     with tempfile.NamedTemporaryFile() as temp:
+        temp.close()
         json_dump(fontManager, temp.name)
         copy = json_load(temp.name)
     with warnings.catch_warnings():
