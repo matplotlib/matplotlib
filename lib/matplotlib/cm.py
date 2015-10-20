@@ -159,7 +159,7 @@ def get_cmap(name=None, lut=None):
         if lut is None:
             return cmap_d[name]
         else:
-            return cmap_d[name].reduce(lut)
+            return cmap_d[name].resample(lut)
     else:
         raise ValueError(
             "Colormap %s is not recognized. Possible values are: %s"
