@@ -748,7 +748,12 @@ def run(arguments, content, options, state_machine, state, lineno):
     # how to link to files from the RST file
     dest_dir_link = os.path.join(relpath(setup.confdir, rst_dir),
                                  source_rel_dir).replace(os.path.sep, '/')
-    build_dir_link = relpath(build_dir, rst_dir).replace(os.path.sep, '/')
+    try:
+        build_dir_link = relpath(build_dir, rst_dir).replace(os.path.sep, '/')
+    except ValueError:
+        # on Windows, relpath raises ValueError when path and start are on
+        # different mounts/drives
+        build_dir_link = build_dir
     source_link = dest_dir_link + '/' + output_base + source_ext
 
     # make figures
