@@ -659,6 +659,12 @@ class Colormap(object):
         return (np.alltrue(self._lut[:, 0] == self._lut[:, 1]) and
                 np.alltrue(self._lut[:, 0] == self._lut[:, 2]))
 
+    def reduce(self, lutsize):
+        """
+        Return a new color map with the *lutsize* entries.
+        """
+        raise NotImplementedError()
+
 
 class LinearSegmentedColormap(Colormap):
     """Colormap objects based on lookup tables using linear segments.
@@ -772,6 +778,12 @@ class LinearSegmentedColormap(Colormap):
 
         return LinearSegmentedColormap(name, cdict, N, gamma)
 
+    def reduce(self, lutsize):
+        """
+        Return a new color map with the *lutsize* entries.
+        """
+        return LinearSegmentedColormap(self.name, self._segmentdata, lutsize)
+
 
 class ListedColormap(Colormap):
     """Colormap object generated from a list of colors.
@@ -835,6 +847,12 @@ class ListedColormap(Colormap):
         self._lut[:-3] = rgba
         self._isinit = True
         self._set_extremes()
+
+    def reduce(self, lutsize):
+        """
+        Return a new color map with the *lutsize* entries.
+        """
+        return ListedColormap(self.name, self.colors, lutsize)
 
 
 class Normalize(object):
