@@ -163,7 +163,7 @@ def get_cmap(name=None, lut=None):
     else:
         raise ValueError(
             "Colormap %s is not recognized. Possible values are: %s"
-            % (name, ', '.join(cmap_d.keys())))
+            % (name, ', '.join(sorted(cmap_d.keys()))))
 
 
 class ScalarMappable(object):
