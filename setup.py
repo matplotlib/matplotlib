@@ -348,7 +348,7 @@ if __name__ == '__main__':
         version=__version__,
         description="Python plotting package",
         author="John D. Hunter, Michael Droettboom",
-        author_email="mdroe@stsci.edu",
+        author_email="matplotlib-users@python.org",
         url="http://matplotlib.org",
         long_description="""
         matplotlib strives to produce publication quality 2D graphics

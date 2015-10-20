@@ -6,9 +6,6 @@ See the `fontconfig pattern specification
 information.
 """
 
-# Author : Michael Droettboom <mdroe@stsci.edu>
-# License : matplotlib license (PSF compatible)
-
 # This class is defined here because it must be available in:
 #   - The old-style config framework (:file:`rcsetup.py`)
 #   - The traits-based config framework (:file:`mpltraits.py`)
