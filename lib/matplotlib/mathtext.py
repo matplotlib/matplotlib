@@ -13,9 +13,6 @@ The Bakoma distribution of the TeX Computer Modern fonts, and STIX
 fonts are supported.  There is experimental support for using
 arbitrary fonts, but results may vary without proper tweaking and
 metrics for those fonts.
-
-If you find TeX expressions that don't parse or render properly,
-please email mdroe@stsci.edu, but please check KNOWN ISSUES below first.
 """
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
