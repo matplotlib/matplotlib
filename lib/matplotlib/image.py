@@ -1304,7 +1304,7 @@ def imread(fname, format=None):
         im = pilread(fname)
         if im is None:
             raise ValueError('Only know how to handle extensions: %s; '
-                             'with PIL installed matplotlib can handle '
+                             'with pillow installed matplotlib can handle '
                              'more images' % list(six.iterkeys(handlers)))
         return im
 
@@ -1427,8 +1427,8 @@ def thumbnail(infile, thumbfile, scale=0.1, interpolation='bilinear',
     make a thumbnail of image in *infile* with output filename
     *thumbfile*.
 
-      *infile* the image file -- must be PNG or PIL readable if you
-         have `PIL <http://www.pythonware.com/products/pil/>`_ installed
+      *infile* the image file -- must be PNG or pillow-readable if you
+         have `pillow <http://python-pillow.github.io/>`_ installed
 
       *thumbfile*
         the thumbnail filename

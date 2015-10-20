@@ -171,10 +171,10 @@ class Button(AxesWidget):
         label : str
             The button text. Accepts string.
 
-        image : array, mpl image, PIL image
+        image : array, mpl image, pillow image
             The image to place in the button, if not *None*.
             Can be any legal arg to imshow (numpy array,
-            matplotlib Image instance, or PIL image).
+            matplotlib Image instance, or pillow image).
 
         color : color
             The color of the button when not activated
