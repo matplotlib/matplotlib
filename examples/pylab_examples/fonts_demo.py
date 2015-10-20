@@ -13,7 +13,7 @@ font0 = FontProperties()
 alignment = {'horizontalalignment': 'center', 'verticalalignment': 'baseline'}
 # Show family options
 
-families = ['serif', 'sans-serif', 'cursive', 'fantasy', 'monospace']
+families = ['serif', 'sans-serif', 'monospace']
 
 font1 = font0.copy()
 font1.set_size('large')
