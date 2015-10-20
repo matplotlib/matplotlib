@@ -17,11 +17,12 @@ on many things including:
 - If there is an intuitive color scheme for the parameter you are plotting
 - If there is a standard in the field the audience may be expecting
 
-For many applications, a perceptual colormap is the best choice --- one in which
-equal steps in data are perceived as equal steps in the color space. Researchers
-have found that the human brain perceives changes in the lightness parameter as
-changes in the data much better than, for example, changes in hue. Therefore,
-colormaps which have monotonically increasing lightness through the colormap
+For many applications, a perceptually uniform colormap is the best
+choice --- one in which equal steps in data are perceived as equal
+steps in the color space. Researchers have found that the human brain
+perceives changes in the lightness parameter as changes in the data
+much better than, for example, changes in hue. Therefore, colormaps
+which have monotonically increasing lightness through the colormap
 will be better interpreted by the viewer.
 
 Color can be represented in 3D space in various ways. One way to represent color
