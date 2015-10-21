@@ -1233,7 +1233,7 @@ class FuncTools32(SetupPackage):
                     "functools32 was not found. It is required for for"
                     "python versions prior to 3.2")
 
-            return "using functools32 version %s" % functools32.__version__
+            return "using functools32"
         else:
             return "Not required"
 
