@@ -13,8 +13,9 @@ Working with Matplotlib in Virtual environments
 Introduction
 ============
 
-When running :mod:`matplotlib` in a virtual environment you may discover a
-few issues. :mod:`matplotlib` itself has no issue with virtual environments.
+When running :mod:`matplotlib` in a
+`virtual environment <https://virtualenv.pypa.io/en/latest/>`_ you may discover
+a few issues. :mod:`matplotlib` itself has no issue with virtual environments.
 However, the GUI frameworks that :mod:`matplotlib` uses for interactive
 figures have some issues with virtual environments. Everything below assumes
 some familiarity with the Matplotlib backends as found in :ref:`What is a
@@ -106,3 +107,7 @@ framework build within the virtualenv. To run a script you can do
 ``frameworkpython test.py`` where ``test.py`` is a script that requires a
 framework build. To run an interactive ``IPython`` session with the framework
 build within the virtual environment you can do ``frameworkpython -m IPython``
+
+In addition
+`virtualenv-pythonw-osx <https://github.com/gldnspud/virtualenv-pythonw-osx>`_
+provides an alternative workaround which may be used to solve the issue.
