@@ -13,7 +13,7 @@ from matplotlib.backends.backend_agg import FigureCanvasAgg
 try:
     from PIL import Image
 except ImportError:
-    raise SystemExit("pillow must be installed to run this example")
+    raise SystemExit("Pillow must be installed to run this example")
 
 plt.plot([1, 2, 3])
 
