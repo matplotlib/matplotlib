@@ -49,12 +49,6 @@ def setup():
     rcParams['text.hinting'] = False
     rcParams['text.hinting_factor'] = 8
 
-    # Clear the font caches.  Otherwise, the hinting mode can travel
-    # from one test to another.
-    backend_agg.RendererAgg._fontd.clear()
-    backend_pdf.RendererPdf.truetype_font_cache.clear()
-    backend_svg.RendererSVG.fontd.clear()
-
 
 def assert_str_equal(reference_str, test_str,
                      format_str=('String {str1} and {str2} do not '
