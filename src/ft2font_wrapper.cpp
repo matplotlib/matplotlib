@@ -1640,15 +1640,18 @@ static PyTypeObject *PyFT2Font_init_type(PyObject *m, PyTypeObject *type)
 
 extern "C" {
 
-struct module_state
-{
-    int _dummy;
-};
-
 #if PY3K
-static struct PyModuleDef moduledef = { PyModuleDef_HEAD_INIT,       "ft2font", NULL,
-                                        sizeof(struct module_state), NULL,      NULL,
-                                        NULL,                        NULL,      NULL };
+static struct PyModuleDef moduledef = {
+    PyModuleDef_HEAD_INIT,
+    "ft2font",
+    NULL,
+    0,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL
+};
 
 #define INITERROR return NULL
 

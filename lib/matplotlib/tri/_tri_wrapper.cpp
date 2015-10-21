@@ -478,17 +478,12 @@ static PyTypeObject* PyTrapezoidMapTriFinder_init_type(PyObject* m, PyTypeObject
 
 extern "C" {
 
-struct module_state
-{
-    int _dummy;
-};
-
 #if PY3K
 static struct PyModuleDef moduledef = {
     PyModuleDef_HEAD_INIT,
     "_tri",
     NULL,
-    sizeof(struct module_state),
+    0,
     NULL,
     NULL,
     NULL,
