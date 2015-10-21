@@ -7,15 +7,16 @@ import numpy as np
 import matplotlib.pyplot as plt
 import colorconv as color
 #from skimage import color
-# we are using a local copy of colorconv from scikit-image to reduce dependencies. 
-# You should probably use the one from scikit-image in most cases. 
+# we are using a local copy of colorconv from scikit-image to reduce dependencies.
+# You should probably use the one from scikit-image in most cases.
 import matplotlib as mpl
 from matplotlib import cm
 
 
 mpl.rcParams.update({'font.size': 12})
-mpl.rcParams['font.sans-serif'] = ('Arev Sans, Bitstream Vera Sans,'
-'Lucida Grande, Verdana, Geneva, Lucid, Helvetica, Avant Garde, sans-serif')
+mpl.rcParams['font.sans-serif'] = ('Arev Sans, Bitstream Vera Sans, '
+                                   'Lucida Grande, Verdana, Geneva, Lucid, '
+                                   'Helvetica, Avant Garde, sans-serif')
 mpl.rcParams['mathtext.fontset'] = 'custom'
 mpl.rcParams['mathtext.cal'] = 'cursive'
 mpl.rcParams['mathtext.rm'] = 'sans'
@@ -161,7 +162,7 @@ for i in range(nrows):
 
 # common ylabel
 ax1.text(-0.3, 4.5, 'Steps through map indices',
-            rotation=90, transform=ax1.transAxes)
+         rotation=90, transform=ax1.transAxes)
 
 fig.subplots_adjust(hspace=0.0)
 plt.show()

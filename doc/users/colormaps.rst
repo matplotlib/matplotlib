@@ -109,14 +109,15 @@ These would not be good options for use as perceptual colormaps.
 Miscellaneous
 -------------
 
-Some of the miscellaneous colormaps have particular uses they have been created
-for. For example, gist_earth, ocean, and terrain all seem to be created for
-plotting topography (green/brown) and water depths (blue) together. We would
-expect to see a divergence in these colormaps, then, but multiple kinks may not
-be ideal, such as in gist_earth and terrain. CMRmap was created to convert well
-to grayscale, though it does appear to have some small kinks in :math:`L^*`.
-cubehelix was created to vary smoothly in both lightness and hue, but appears to
-have a small hump in the green hue area.
+Some of the miscellaneous colormaps have particular uses for which
+they have been created. For example, gist_earth, ocean, and terrain
+all seem to be created for plotting topography (green/brown) and water
+depths (blue) together. We would expect to see a divergence in these
+colormaps, then, but multiple kinks may not be ideal, such as in
+gist_earth and terrain. CMRmap was created to convert well to
+grayscale, though it does appear to have some small kinks in
+:math:`L^*`.  cubehelix was created to vary smoothly in both lightness
+and hue, but appears to have a small hump in the green hue area.
 
 The often-used jet colormap is included in this set of colormaps. We can see
 that the :math:`L^*` values vary widely throughout the colormap, making it a
@@ -141,17 +142,18 @@ might be better (see effort on this front at [mycarta-cubelaw]_).
 Grayscale conversion
 ====================
 
-Conversion to grayscale is important to pay attention to for printing
-publications that have color plots. If this is not paid attention to ahead of
-time, your readers may end up with indecipherable plots because the grayscale
-changes unpredictably through the colormap.
+It is important to pay attention to conversion to grayscale for color
+plots, since they may be printed on black and white printers.  If not
+carefully considered, your readers may end up with indecipherable
+plots because the grayscale changes unpredictably through the
+colormap.
 
 Conversion to grayscale is done in many different ways [bw]_. Some of the better
 ones use a linear combination of the rgb values of a pixel, but weighted
 according to how we perceive color intensity. A nonlinear method of conversion
 to grayscale is to use the :math:`L^*` values of the pixels. In general, similar
 principles apply for this question as they do for presenting one's information
-perceptually; that is, if a colormap is chosen that has monotonically increasing
+perceptually; that is, if a colormap is chosen that is monotonically increasing
 in :math:`L^*` values, it will print in a reasonable manner to grayscale.
 
 With this in mind, we see that the Sequential colormaps have reasonable
