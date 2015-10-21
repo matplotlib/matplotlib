@@ -50,8 +50,8 @@ else:
 from matplotlib.afm import AFM
 from matplotlib.cbook import Bunch, get_realpath_and_stat, \
     is_string_like, maxdict
-from matplotlib.ft2font import FT2Font, FT2Image, KERNING_DEFAULT, LOAD_FORCE_AUTOHINT, LOAD_NO_HINTING
-from matplotlib.font_manager import findfont, FontProperties
+from matplotlib.ft2font import FT2Image, KERNING_DEFAULT, LOAD_FORCE_AUTOHINT, LOAD_NO_HINTING
+from matplotlib.font_manager import findfont, FontProperties, get_font
 from matplotlib._mathtext_data import latex_to_bakoma, \
         latex_to_standard, tex2uni, latex_to_cmex, stix_virtual_fonts
 from matplotlib import get_data_path, rcParams
@@ -563,7 +563,7 @@ class TruetypeFonts(Fonts):
         self._fonts = {}
 
         filename = findfont(default_font_prop)
-        default_font = self.CachedFont(FT2Font(filename))
+        default_font = self.CachedFont(get_font(filename))
         self._fonts['default'] = default_font
         self._fonts['regular'] = default_font
 
@@ -576,10 +576,9 @@ class TruetypeFonts(Fonts):
             basename = self.fontmap[font]
         else:
             basename = font
-
         cached_font = self._fonts.get(basename)
         if cached_font is None and os.path.exists(basename):
-            font = FT2Font(basename)
+            font = get_font(basename)
             cached_font = self.CachedFont(font)
             self._fonts[basename] = cached_font
             self._fonts[font.postscript_name] = cached_font
