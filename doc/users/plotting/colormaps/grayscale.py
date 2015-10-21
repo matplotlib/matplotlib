@@ -16,8 +16,9 @@ from matplotlib import cm
 import matplotlib as mpl
 
 mpl.rcParams.update({'font.size': 14})
-mpl.rcParams['font.sans-serif'] = ('Arev Sans, Bitstream Vera Sans,'
-'Lucida Grande, Verdana, Geneva, Lucid, Helvetica, Avant Garde, sans-serif')
+mpl.rcParams['font.sans-serif'] = ('Arev Sans, Bitstream Vera Sans, '
+                                   'Lucida Grande, Verdana, Geneva, Lucid, '
+                                   'Helvetica, Avant Garde, sans-serif')
 mpl.rcParams['mathtext.fontset'] = 'custom'
 mpl.rcParams['mathtext.cal'] = 'cursive'
 mpl.rcParams['mathtext.rm'] = 'sans'
