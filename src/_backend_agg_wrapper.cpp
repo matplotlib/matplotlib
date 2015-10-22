@@ -725,17 +725,12 @@ static PyTypeObject *PyRendererAgg_init_type(PyObject *m, PyTypeObject *type)
 
 extern "C" {
 
-struct module_state
-{
-    int _dummy;
-};
-
 #if PY3K
 static struct PyModuleDef moduledef = {
     PyModuleDef_HEAD_INIT,
     "_backend_agg",
     NULL,
-    sizeof(struct module_state),
+    0,
     NULL,
     NULL,
     NULL,

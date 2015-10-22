@@ -478,20 +478,12 @@ static PyTypeObject* PyTrapezoidMapTriFinder_init_type(PyObject* m, PyTypeObject
 
 extern "C" {
 
-struct module_state
-{
-/* The Sun compiler can't handle empty structs */
-#if defined(__SUNPRO_C) || defined(_MSC_VER)
-    int _dummy;
-#endif
-};
-
 #if PY3K
 static struct PyModuleDef moduledef = {
     PyModuleDef_HEAD_INIT,
     "_tri",
     NULL,
-    sizeof(struct module_state),
+    0,
     NULL,
     NULL,
     NULL,

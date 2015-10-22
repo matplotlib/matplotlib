@@ -728,17 +728,12 @@ static PyMethodDef module_functions[] = {
 
 extern "C" {
 
-struct module_state
-{
-    int _dummy;
-};
-
 #if PY3K
 static struct PyModuleDef moduledef = {
     PyModuleDef_HEAD_INIT,
     "_image",
     NULL,
-    sizeof(struct module_state),
+    0,
     module_functions,
     NULL,
     NULL,
