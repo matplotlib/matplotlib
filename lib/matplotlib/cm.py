@@ -146,9 +146,8 @@ def get_cmap(name=None, lut=None):
     returned.
 
     If *lut* is not None it must be an integer giving the number of
-    entries desired in the lookup table, and *name* must be a
-    standard mpl colormap name with a corresponding data dictionary
-    in *datad*.
+    entries desired in the lookup table, and *name* must be a standard
+    mpl colormap name.
     """
     if name is None:
         name = mpl.rcParams['image.cmap']
@@ -159,12 +158,12 @@ def get_cmap(name=None, lut=None):
     if name in cmap_d:
         if lut is None:
             return cmap_d[name]
-        elif name in datad:
-            return _generate_cmap(name, lut)
+        else:
+            return cmap_d[name]._resample(lut)
     else:
         raise ValueError(
             "Colormap %s is not recognized. Possible values are: %s"
-            % (name, ', '.join(cmap_d.keys())))
+            % (name, ', '.join(sorted(cmap_d.keys()))))
 
 
 class ScalarMappable(object):
