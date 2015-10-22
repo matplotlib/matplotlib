@@ -108,17 +108,12 @@ static PyMethodDef module_methods[] = {
 
 extern "C" {
 
-    struct module_state
-    {
-        int _dummy;
-    };
-
 #if PY3K
     static struct PyModuleDef moduledef = {
         PyModuleDef_HEAD_INIT,
         "_gtkagg",
         NULL,
-        sizeof(struct module_state),
+        0,
         module_methods,
         NULL,
         NULL,
