@@ -659,7 +659,7 @@ class Colormap(object):
         return (np.alltrue(self._lut[:, 0] == self._lut[:, 1]) and
                 np.alltrue(self._lut[:, 0] == self._lut[:, 2]))
 
-    def resample(self, lutsize):
+    def _resample(self, lutsize):
         """
         Return a new color map with *lutsize* entries.
         """
@@ -778,7 +778,7 @@ class LinearSegmentedColormap(Colormap):
 
         return LinearSegmentedColormap(name, cdict, N, gamma)
 
-    def resample(self, lutsize):
+    def _resample(self, lutsize):
         """
         Return a new color map with *lutsize* entries.
         """
@@ -848,7 +848,7 @@ class ListedColormap(Colormap):
         self._isinit = True
         self._set_extremes()
 
-    def resample(self, lutsize):
+    def _resample(self, lutsize):
         """
         Return a new color map with *lutsize* entries.
         """
