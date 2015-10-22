@@ -207,7 +207,7 @@ class FigureCanvasWebAggCore(backend_agg.FigureCanvasAgg):
             # pixels can be compared in one numpy call, rather than
             # needing to compare each plane separately.
             buff = np.frombuffer(renderer.buffer_rgba(), dtype=np.uint32)
-            buff.shape = (int(renderer.height), int(renderer.width))
+            buff.shape = (renderer.height, renderer.width)
 
             # If any pixels have transparency, we need to force a full
             # draw as we cannot overlay new on top of old.
@@ -220,7 +220,7 @@ class FigureCanvasWebAggCore(backend_agg.FigureCanvasAgg):
                 self.set_image_mode('diff')
                 last_buffer = np.frombuffer(self._last_renderer.buffer_rgba(),
                                             dtype=np.uint32)
-                last_buffer.shape = (int(renderer.height), int(renderer.width))
+                last_buffer.shape = (renderer.height, renderer.width)
 
                 diff = buff != last_buffer
                 output = np.where(diff, buff, 0)
@@ -249,6 +249,7 @@ class FigureCanvasWebAggCore(backend_agg.FigureCanvasAgg):
         # so that we can do things such as produce a diff image
         # in get_diff_image
         _, _, w, h = self.figure.bbox.bounds
+        w, h = int(w), int(h)
         key = w, h, self.figure.dpi
         try:
             self._lastKey, self._renderer
