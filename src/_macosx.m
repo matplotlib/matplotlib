@@ -1770,8 +1770,8 @@ static PyObject*
 GraphicsContext_draw_quad_mesh (GraphicsContext* self, PyObject* args)
 {
     CGAffineTransform master;
-    size_t meshWidth;
-    size_t meshHeight;
+    int meshWidth;
+    int meshHeight;
     PyObject* coordinates;
     PyArrayObject* coordinates_arr = 0;
     PyObject* offsets;
@@ -1793,7 +1793,7 @@ GraphicsContext_draw_quad_mesh (GraphicsContext* self, PyObject* args)
         return NULL;
     }
 
-    if(!PyArg_ParseTuple(args, "O&IIOOO&OiO",
+    if(!PyArg_ParseTuple(args, "O&iiOOO&OiO",
                                _transformation_converter, &master,
                                &meshWidth,
                                &meshHeight,
@@ -1887,8 +1887,8 @@ GraphicsContext_draw_quad_mesh (GraphicsContext* self, PyObject* args)
     }
 
     size_t i = 0;
-    size_t iw = 0;
-    size_t ih = 0;
+    int iw = 0;
+    int ih = 0;
 
     /* Preset graphics context properties if possible */
     CGContextSetShouldAntialias(cr, antialiased);
