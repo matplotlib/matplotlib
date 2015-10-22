@@ -4,6 +4,7 @@ from __future__ import (absolute_import, division, print_function,
 from nose.tools import assert_equal
 from matplotlib.externals import six
 
+import sys
 import os
 import tempfile
 import warnings
@@ -24,9 +25,14 @@ def test_font_priority():
 
 def test_json_serialization():
     with tempfile.NamedTemporaryFile() as temp:
-        temp.close()
+        if sys.platform == 'win32':
+            # on Windows, an open NamedTemporaryFile can not be used
+            # to open the file a second time
+            temp.close()
         json_dump(fontManager, temp.name)
         copy = json_load(temp.name)
+        if sys.platform == 'win32':
+            os.remove(temp.name)
     with warnings.catch_warnings():
         warnings.filterwarnings('ignore', 'findfont: Font family.*not found')
         for prop in ({'family': 'STIXGeneral'},
