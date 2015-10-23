@@ -33,6 +33,22 @@ Optionally you can install:
 
   - `pep8 <http://pep8.readthedocs.org/en/latest>`_ to test coding standards
 
+Build matplotlib for image comparison tests
+-------------------------------------------
+
+matplotlib's test suite makes heavy use of image comparison tests,
+meaning the result of a plot is compared against a known good result.
+Unfortunately, different versions of freetype produce differently
+formed characters, causing these image comparisons to fail.  To make
+them reproducible, matplotlib can be built with a special local copy
+of freetype.  This is recommended for all matplotlib developers.
+
+Add the following content to a ``setup.cfg`` file at the root of the
+matplotlib source directory::
+
+  [test]
+  testing_freetype = True
+
 Running the tests
 -----------------
 
@@ -184,17 +200,6 @@ decorator:
    - `tol`: This is the image matching tolerance, the default `1e-3`.
      If some variation is expected in the image between runs, this
      value may be adjusted.
-
-Freetype version
-----------------
-
-Due to subtle differences in the font rendering under different
-version of freetype some care must be taken when generating the
-baseline images.  Currently (early 2015), almost all of the images
-were generated using ``freetype 2.5.3-21`` on Fedora 21 and only the
-fonts that ship with ``matplotlib`` (regenerated in PR #4031 / commit
-005cfde02751d274f2ab8016eddd61c3b3828446) and travis is using
-``freetype 2.4.8`` on ubuntu.
 
 Known failing tests
 -------------------

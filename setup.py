@@ -9,6 +9,7 @@ from __future__ import print_function, absolute_import
 from distribute_setup import use_setuptools
 use_setuptools()
 from setuptools.command.test import test as TestCommand
+from setuptools.command.build_ext import build_ext as BuildExtCommand
 
 import sys
 
@@ -239,8 +240,19 @@ class NoseTestCommand(TestCommand):
                   argv=['nosetests'] + self.test_args,
                   exit=True)
 
+
+class BuildExtraLibraries(BuildExtCommand):
+    def run(self):
+        for package in good_packages:
+            package.do_custom_build()
+
+        return super(BuildExtraLibraries, self).run()
+
+
 cmdclass = versioneer.get_cmdclass()
 cmdclass['test'] = NoseTestCommand
+cmdclass['build_ext'] = BuildExtraLibraries
+
 
 # One doesn't normally see `if __name__ == '__main__'` blocks in a setup.py,
 # however, this is needed on Windows to avoid creating infinite subprocesses
@@ -303,8 +315,6 @@ if __name__ == '__main__':
     # Now collect all of the information we need to build all of the
     # packages.
     for package in good_packages:
-        if isinstance(package, str):
-            continue
         packages.extend(package.get_packages())
         namespace_packages.extend(package.get_namespace_packages())
         py_modules.extend(package.get_py_modules())

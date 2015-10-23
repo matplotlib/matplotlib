@@ -7,6 +7,9 @@
 // From Python
 #include <structmember.h>
 
+#define STRINGIFY(s) XSTRINGIFY(s)
+#define XSTRINGIFY(s) #s
+
 static PyObject *convert_xys_to_array(std::vector<double> &xys)
 {
     npy_intp dims[] = {(npy_intp)xys.size() / 2, 2 };
@@ -1759,7 +1762,7 @@ PyMODINIT_FUNC initft2font(void)
     int error = FT_Init_FreeType(&_ft2Library);
 
     if (error) {
-        PyErr_SetString(PyExc_RuntimeError, "Could not find initialize the freetype2 library");
+        PyErr_SetString(PyExc_RuntimeError, "Could not initialize the freetype2 library");
         INITERROR;
     }
 
@@ -1772,6 +1775,10 @@ PyMODINIT_FUNC initft2font(void)
         if (PyModule_AddStringConstant(m, "__freetype_version__", version_string)) {
             INITERROR;
         }
+    }
+
+    if (PyModule_AddStringConstant(m, "__freetype_build_type__", STRINGIFY(FREETYPE_BUILD_TYPE))) {
+        INITERROR;
     }
 
     import_array();
