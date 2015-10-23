@@ -26,4 +26,10 @@ plt.xlabel('time (s)')
 plt.title('subplot 2')
 plt.ylabel('Undamped')
 
+<<<<<<< HEAD
 plt.show()
+=======
+tight_layout()
+
+show()
+>>>>>>> .

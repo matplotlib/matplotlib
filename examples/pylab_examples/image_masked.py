@@ -53,4 +53,6 @@ plt.title('With BoundaryNorm')
 plt.colorbar(im, extend='both', spacing='proportional',
              orientation='horizontal', shrink=0.8)
 
+plt.tight_layout()
+
 plt.show()
