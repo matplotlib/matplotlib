@@ -157,7 +157,7 @@ for fonts, chars in font_test_specs:
 def make_set(basename, fontset, tests, extensions=None):
     def make_test(filename, test):
         @image_comparison(baseline_images=[filename], extensions=extensions,
-                          tol=32)
+                          tol=1)
         def single_test():
             matplotlib.rcParams['mathtext.fontset'] = fontset
             fig = plt.figure(figsize=(5.25, 0.75))
