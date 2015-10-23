@@ -31,4 +31,6 @@ ax.set_title('Gaussian noise with horizontal colorbar')
 cbar = fig.colorbar(cax, ticks=[-1, 0, 1], orientation='horizontal')
 cbar.ax.set_xticklabels(['Low', 'Medium', 'High'])  # horizontal colorbar
 
+plt.tight_layout()
+
 plt.show()

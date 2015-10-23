@@ -48,4 +48,6 @@ plt.ylim(-2, 2)
 plt.title('tricontour (%d points)' % npts)
 print('tricontour seconds: %f' % (time.clock() - start))
 
+plt.tight_layout()
+
 plt.show()
