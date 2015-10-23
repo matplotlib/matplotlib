@@ -246,7 +246,7 @@ class BuildExtraLibraries(BuildExtCommand):
         for package in good_packages:
             package.do_custom_build()
 
-        return super(BuildExtraLibraries, self).run()
+        return BuildExtCommand.run(self)
 
 
 cmdclass = versioneer.get_cmdclass()
