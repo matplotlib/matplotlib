@@ -89,10 +89,10 @@ install:
       cp tmp/usr/share/fonts/truetype/humor-sans/Humor-Sans.ttf ~/.fonts
       cp Felipa-Regular.ttf ~/.fonts
       fc-cache -f -v
+    else
+      # Use the special local version of freetype for testing
+      cp .travis/setup.cfg .
     fi;
-
-  # Use the special local version of freetype for testing
-  - cp .travis/setup.cfg .
 
   - python setup.py install
 
