@@ -92,7 +92,7 @@ install:
     fi;
 
   # Use the special local version of freetype for testing
-  - echo '[test]\nlocal_freetype = True' > setup.cfg
+  - cp .travis/setup.cfg .
 
   - python setup.py install
 
