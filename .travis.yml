@@ -75,7 +75,7 @@ install:
   # version since is it basically just a .ttf file
   # The current Travis Ubuntu image is to old to search .local/share/fonts so we store fonts in .fonts
 
-  # We install ipython to use the console highlighting. From IPython 3 this depends on jsonschema and misture.
+  # We install ipython to use the console highlighting. From IPython 3 this depends on jsonschema and mistune.
   # Neihter is installed as a dependency of IPython since they are not used by the IPython console.
   - |
     if [[ $BUILD_DOCS == true ]]; then
@@ -90,6 +90,10 @@ install:
       cp Felipa-Regular.ttf ~/.fonts
       fc-cache -f -v
     fi;
+
+  # Use the special local version of freetype for testing
+  - echo '[test]\ntesting_freetype = True' > setup.cfg
+
   - python setup.py install
 
 script:
