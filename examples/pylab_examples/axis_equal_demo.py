@@ -29,4 +29,6 @@ plt.axis([-3, 3, -3, 3])
 plt.plot([0, 4], [0, 4])
 plt.title('still equal after adding line', fontsize=10)
 
+plt.tight_layout()
+
 plt.show()

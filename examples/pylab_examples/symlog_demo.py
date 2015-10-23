@@ -26,4 +26,6 @@ plt.yscale('symlog', linthreshy=0.015)
 plt.grid(True)
 plt.ylabel('symlog both')
 
+plt.tight_layout()
+
 plt.show()

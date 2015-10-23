@@ -17,15 +17,15 @@ plt.grid(True)
 
 plt.subplot(122)
 
-plt.text(0.29, 0.7, "Mat\nTTp\n123", size=18,
+plt.text(0.29, 0.1, "Mat\nTTp\n123", size=18,
          va="baseline", ha="right", multialignment="left",
          bbox=dict(fc="none"))
 
-plt.text(0.34, 0.7, "Mag\nTTT\n123", size=18,
+plt.text(0.34, 0.1, "Mag\nTTT\n123", size=18,
          va="baseline", ha="left", multialignment="left",
          bbox=dict(fc="none"))
 
-plt.text(0.95, 0.7, "Mag\nTTT$^{A^A}$\n123", size=18,
+plt.text(0.95, 0.1, "Mag\nTTT$^{A^A}$\n123", size=18,
          va="baseline", ha="right", multialignment="left",
          bbox=dict(fc="none"))
 
@@ -37,4 +37,7 @@ plt.title("test line spacing for multiline text")
 
 plt.subplots_adjust(bottom=0.25, top=0.8)
 plt.draw()
+
+plt.tight_layout()
+
 plt.show()

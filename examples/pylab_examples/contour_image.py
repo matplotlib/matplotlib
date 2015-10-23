@@ -101,7 +101,9 @@ plt.contour(Z, levels, hold='on', colors='k',
 plt.axis(v)
 ylim = plt.get(plt.gca(), 'ylim')
 plt.setp(plt.gca(), ylim=ylim[::-1])
-plt.title("Image, origin from rc, reversed y-axis")
+plt.title("Image,\norigin from rc,\nreversed y-axis")
 plt.colorbar(im)
+
+plt.tight_layout()
 
 plt.show()

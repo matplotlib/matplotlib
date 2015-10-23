@@ -18,4 +18,6 @@ middle_ax.legend()
 bottom_ax.stem([0.3, 1.5, 2.7], [1, 3.6, 2.7], label="stem test")
 bottom_ax.legend()
 
+plt.tight_layout()
+
 plt.show()

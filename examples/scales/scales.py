@@ -39,9 +39,11 @@ ax.grid(True)
 # logit
 ax = axs[1, 1]
 ax.plot(x, y)
+ax.set_yticks([0.1, 0.2, 0.3])
 ax.set_yscale('logit')
-ax.set_title('logit')
-ax.grid(True)
+#ax.set_title('logit')
+#ax.grid(True)
 
+#plt.tight_layout()
 
 plt.show()

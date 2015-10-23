@@ -21,8 +21,8 @@ h = plt.plot(np.arange(0, 10), np.arange(0, 10))
 plt.xlim([-10, 20])
 
 # Locations to plot text
-l1 = np.array((1, 1))
-l2 = np.array((5, 5))
+l1 = np.array((5, 6))
+l2 = np.array((3, 7))
 
 # Rotate angle
 angle = 45
