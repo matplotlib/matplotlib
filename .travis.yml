@@ -92,7 +92,7 @@ install:
     fi;
 
   # Use the special local version of freetype for testing
-  - echo '[test]\ntesting_freetype = True' > setup.cfg
+  - echo '[test]\nlocal_freetype = True' > setup.cfg
 
   - python setup.py install
 
