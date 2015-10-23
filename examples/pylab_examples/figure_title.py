@@ -31,5 +31,7 @@ plt.show()
 =======
 tight_layout()
 
+tight_layout()
+
 show()
 >>>>>>> .
