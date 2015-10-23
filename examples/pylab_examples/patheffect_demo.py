@@ -40,4 +40,6 @@ if 1:
     leg = ax3.legend([p1], ["Line 1"], fancybox=True, loc=2)
     leg.legendPatch.set_path_effects([PathEffects.withSimplePatchShadow()])
 
+    plt.tight_layout()
+
     plt.show()

@@ -24,7 +24,7 @@ def display_colorbar():
     fig.colorbar(im)
 
     ax.set_title('Using a colorbar with a shaded plot', size='x-large')
-
+    plt.tight_layout()
 
 def avoid_outliers():
     """Use a custom norm to control the displayed z-range of a shaded plot."""

@@ -122,5 +122,6 @@ ax4.set_ylabel('Depth (m)')
 # Reverse the y-axis so depth increases downward
 ax4.set_ylim(ax4.get_ylim()[::-1])
 
+plt.tight_layout()
 
 plt.show()

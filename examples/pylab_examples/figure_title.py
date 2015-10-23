@@ -26,4 +26,6 @@ xlabel('time (s)')
 title('subplot 2')
 ylabel('Undamped')
 
+tight_layout()
+
 show()

@@ -47,4 +47,6 @@ for i, color in enumerate(plt.rcParams['axes.color_cycle']):
 ax4.axis('equal')
 ax4.margins(0)
 
+plt.tight_layout()
+
 plt.show()
