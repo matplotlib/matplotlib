@@ -980,10 +980,10 @@ class FreeType(SetupPackage):
         subprocess.check_call(
             ['tar zxf {0}'.format(tarball)], shell=True, cwd='build')
         subprocess.check_call(
-            ['./configure --without-zlib --without-bzip2 --without-png'],
+            ['CFLAGS=-fPIC ./configure --without-zlib --without-bzip2 --without-png'],
             shell=True, cwd=src_path)
         subprocess.check_call(
-            ['make'], shell=True, cwd=src_path)
+            ['CFLAGS=-fPIC make'], shell=True, cwd=src_path)
 
 
 class FT2Font(SetupPackage):
