@@ -6049,7 +6049,9 @@ show(PyObject* self)
         [window orderFront:nil];
     }
     [pool release];
+    Py_BEGIN_ALLOW_THREADS
     [NSApp run];
+    Py_END_ALLOW_THREADS
     Py_INCREF(Py_None);
     return Py_None;
 }
