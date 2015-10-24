@@ -24,7 +24,8 @@ PY3 = (sys.version_info[0] >= 3)
 # of freetype.  It must match the value in
 # lib/matplotlib.__init__.py:validate_test_dependencies
 LOCAL_FREETYPE_VERSION = '2.5.2'
-
+# md5 hash of the freetype tarball
+LOCAL_FREETYPE_HASH = '004320381043d275c4e28bbacf05a1b7'
 
 if sys.platform != 'win32':
     if sys.version_info[0] < 3:
@@ -220,6 +221,21 @@ def make_extension(name, files, *args, **kwargs):
     ext.include_dirs.append('.')
 
     return ext
+
+
+def get_file_hash(filename):
+    """
+    Get the MD5 hash of a given filename.
+    """
+    import hashlib
+    BLOCKSIZE = 1 << 16
+    hasher = hashlib.md5()
+    with open(filename, 'rb') as fd:
+        buf = fd.read(BLOCKSIZE)
+        while len(buf) > 0:
+            hasher.update(buf)
+            buf = fd.read(BLOCKSIZE)
+    return hasher.hexdigest()
 
 
 class PkgConfig(object):
@@ -966,15 +982,18 @@ class FreeType(SetupPackage):
         tarball = 'freetype-{0}.tar.gz'.format(LOCAL_FREETYPE_VERSION)
         tarball_path = os.path.join('build', tarball)
         if not os.path.isfile(tarball_path):
-            print("Downloading {0}".format(tarball))
+            tarball_url = 'http://download.savannah.gnu.org/releases/freetype/{0}'.format(tarball)
+
+            print("Downloading {0}".format(tarball_url))
             if sys.version_info[0] == 2:
                 from urllib import urlretrieve
             else:
                 from urllib.request import urlretrieve
 
-            urlretrieve(
-                'http://download.savannah.gnu.org/releases/freetype/{0}'.format(tarball),
-                tarball_path)
+            urlretrieve(tarball_url, tarball_path)
+
+            if get_file_hash(tarball_path) != LOCAL_FREETYPE_HASH:
+                raise IOError("{0} does not match expected hash.".format(tarball))
 
         print("Building {0}".format(tarball))
         subprocess.check_call(
