@@ -445,6 +445,7 @@ class ToolViewsPositions(ToolBase):
     def __init__(self, *args, **kwargs):
         self.views = WeakKeyDictionary()
         self.positions = WeakKeyDictionary()
+        self.home_views = WeakKeyDictionary()
         ToolBase.__init__(self, *args, **kwargs)
 
     def add_figure(self):
@@ -452,22 +453,26 @@ class ToolViewsPositions(ToolBase):
         if self.figure not in self.views:
             self.views[self.figure] = cbook.Stack()
             self.positions[self.figure] = cbook.Stack()
+            self.home_views[self.figure] = WeakKeyDictionary()
             # Define Home
             self.push_current()
-            # Adding the clear method as axobserver, removes this burden from
-            # the backend
-            self.figure.add_axobserver(self.clear)
+            # Make sure we add a home view for new axes as they're added
+            self.figure.add_axobserver(lambda fig: self.update_home_views())
 
     def clear(self, figure):
         """Reset the axes stack"""
         if figure in self.views:
             self.views[figure].clear()
             self.positions[figure].clear()
+            self.home_views[figure].clear()
+            self.update_home_views()
 
     def update_view(self):
         """
-        Update the viewlim and position from the view and
-        position stack for each axes
+        Update the view limits and position for each axes from the current
+        stack position. If any axes are present in the figure that aren't in
+        the current stack position, use the home view limits for those axes and
+        don't update *any* positions.
         """
 
         views = self.views[self.figure]()
@@ -476,27 +481,63 @@ class ToolViewsPositions(ToolBase):
         pos = self.positions[self.figure]()
         if pos is None:
             return
-        for i, a in enumerate(self.figure.get_axes()):
-            a._set_view(views[i])
-            # Restore both the original and modified positions
-            a.set_position(pos[i][0], 'original')
-            a.set_position(pos[i][1], 'active')
+        home_views = self.home_views[self.figure]
+        all_axes = self.figure.get_axes()
+        for a in all_axes:
+            if a in views:
+                cur_view = views[a]
+            else:
+                cur_view = home_views[a]
+            a._set_view(cur_view)
+
+        if set(all_axes).issubset(pos.keys()):
+            for a in all_axes:
+                # Restore both the original and modified positions
+                a.set_position(pos[a][0], 'original')
+                a.set_position(pos[a][1], 'active')
 
         self.figure.canvas.draw_idle()
 
     def push_current(self):
-        """push the current view limits and position onto the stack"""
+        """
+        Push the current view limits and position onto their respective stacks
+        """
 
-        views = []
-        pos = []
+        views = WeakKeyDictionary()
+        pos = WeakKeyDictionary()
         for a in self.figure.get_axes():
-            views.append(a._get_view())
-            # Store both the original and modified positions
-            pos.append((
-                a.get_position(True).frozen(),
-                a.get_position().frozen()))
+            views[a] = a._get_view()
+            pos[a] = self._axes_pos(a)
         self.views[self.figure].push(views)
         self.positions[self.figure].push(pos)
+
+    def _axes_pos(self, ax):
+        """
+        Return the original and modified positions for the specified axes
+
+        Parameters
+        ----------
+        ax : (matplotlib.axes.AxesSubplot)
+        The axes to get the positions for
+
+        Returns
+        -------
+        limits : (tuple)
+        A tuple of the original and modified positions
+        """
+
+        return (ax.get_position(True).frozen(),
+                ax.get_position().frozen())
+
+    def update_home_views(self):
+        """
+        Make sure that self.home_views has an entry for all axes present in the
+        figure
+        """
+
+        for a in self.figure.get_axes():
+            if a not in self.home_views[self.figure]:
+                self.home_views[self.figure][a] = a._get_view()
 
     def refresh_locators(self):
         """Redraw the canvases, update the locators"""
