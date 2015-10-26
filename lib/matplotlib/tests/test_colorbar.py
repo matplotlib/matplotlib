@@ -11,9 +11,11 @@ from matplotlib.testing.decorators import image_comparison, cleanup
 import matplotlib.pyplot as plt
 from matplotlib import rcParams
 from matplotlib.colors import BoundaryNorm
+from matplotlib.colors import LogNorm
 from matplotlib.cm import get_cmap
 from matplotlib import cm
 from matplotlib.colorbar import ColorbarBase
+from nose.tools import assert_greater_equal
 
 
 def _get_cmap_norms():
@@ -254,7 +256,16 @@ def test_colorbarbase():
     ax = plt.gca()
     ColorbarBase(ax, plt.cm.bone)
 
-
+@cleanup
+def test_colorbar_lognorm_extension():
+    # Issue #5201: empty triangle plotted
+    # for logarithmic colorbar with vmin < 1.0
+    ax = plt.gca()
+    
+    cb = ColorbarBase(ax, norm=LogNorm(vmin=1, vmax=1000.0), orientation='vertical', extend='both')
+    
+    assert_greater_equal(cb._values[0], 0.0)
+    
 @image_comparison(
     baseline_images=['colorbar_closed_patch'],
     remove_text=True)
