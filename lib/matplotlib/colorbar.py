@@ -679,7 +679,6 @@ class ColorbarBase(cm.ScalarMappable):
                 b[-1] = 1.1 * b[-1]     
         self._process_values(b)
 
-
     def _find_range(self):
         '''
         Set :attr:`vmin` and :attr:`vmax` attributes to the first and
@@ -820,7 +819,6 @@ class ColorbarBase(cm.ScalarMappable):
         if self._extend_upper() and not self.extendrect:
             X[-1, :] = 0.5
         return X, Y
-
 
     def _locate(self, x):
         '''
