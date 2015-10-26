@@ -2266,9 +2266,6 @@ class Axes(_AxesBase):
             by their bottom edges (for horizontal bars). If `center`, interpret
             the `left` argument as the coordinates of the centers of the bars.
 
-        orientation : 'vertical' | 'horizontal', optional, default: 'vertical'
-            The orientation of the bars.
-
         log : boolean, optional, default: False
             If true, sets the axis to be log scale
 
