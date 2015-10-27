@@ -8,7 +8,7 @@ import numpy as np
 from matplotlib.testing.decorators import image_comparison, knownfailureif, cleanup
 from matplotlib.image import BboxImage, imread, NonUniformImage
 from matplotlib.transforms import Bbox
-from matplotlib import rcParams
+from matplotlib import rcParams, rc_context
 import matplotlib.pyplot as plt
 from nose.tools import assert_raises
 from numpy.testing import assert_array_equal, assert_array_almost_equal
@@ -465,14 +465,18 @@ def test_jpeg_alpha():
     plt.figimage(im)
 
     buff = io.BytesIO()
-    plt.savefig(buff, transparent=True, format='jpg', dpi=300)
+    with rc_context({'savefig.facecolor': 'red'}):
+        plt.savefig(buff, transparent=True, format='jpg', dpi=300)
 
     buff.seek(0)
     image = Image.open(buff)
 
     # If this fails, there will be only one color (all black). If this
     # is working, we should have all 256 shades of grey represented.
-    assert len(image.getcolors(256)) == 256
+    assert len(image.getcolors(256)) == 179
+    # The fully transparent part should be red, not white or black
+    # or anything else
+    assert image.getpixel(0, 0) == (0, 0, 255)
 
 
 if __name__=='__main__':
