@@ -65,8 +65,10 @@ def test_dviread():
     with open(os.path.join(dir, 'test.json')) as f:
         correct = json.load(f)
     with dr.Dvi(os.path.join(dir, 'test.dvi'), None) as dvi:
-        data = [{'text': [[t.x, t.y, six.unichr(t.glyph),
-                           six.text_type(t.font.texname), round(t.font.size, 2)]
+        data = [{'text': [[t.x, t.y,
+                           six.unichr(t.glyph),
+                           six.text_type(t.font.texname),
+                           round(t.font.size, 2)]
                           for t in page.text],
                  'boxes': [[b.x, b.y, b.height, b.width] for b in page.boxes]}
                 for page in dvi]
