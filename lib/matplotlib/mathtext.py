@@ -33,10 +33,10 @@ from numpy import inf, isinf
 import numpy as np
 
 import pyparsing
-from pyparsing import Combine, Group, Optional, Forward, \
-     Literal, OneOrMore, ZeroOrMore, ParseException, Empty, \
-     ParseResults, Suppress, oneOf, StringEnd, ParseFatalException, \
-     FollowedBy, Regex, ParserElement, QuotedString, ParseBaseException
+from pyparsing import (Combine, Group, Optional, Forward,
+     Literal, OneOrMore, ZeroOrMore, ParseException, Empty,
+     ParseResults, Suppress, oneOf, StringEnd, ParseFatalException,
+     FollowedBy, Regex, ParserElement, QuotedString, ParseBaseException)
 
 # Enable packrat parsing
 if (six.PY3 and
@@ -48,12 +48,14 @@ else:
     ParserElement.enablePackrat()
 
 from matplotlib.afm import AFM
-from matplotlib.cbook import Bunch, get_realpath_and_stat, \
-    is_string_like, maxdict
-from matplotlib.ft2font import FT2Image, KERNING_DEFAULT, LOAD_FORCE_AUTOHINT, LOAD_NO_HINTING
+from matplotlib.cbook import (Bunch, get_realpath_and_stat, is_string_like,
+                              maxdict)
+from matplotlib.ft2font import (FT2Image, KERNING_DEFAULT, LOAD_FORCE_AUTOHINT,
+                                LOAD_NO_HINTING)
 from matplotlib.font_manager import findfont, FontProperties, get_font
-from matplotlib._mathtext_data import latex_to_bakoma, \
-        latex_to_standard, tex2uni, latex_to_cmex, stix_virtual_fonts
+from matplotlib._mathtext_data import (latex_to_bakoma, latex_to_standard,
+                                       tex2uni, latex_to_cmex,
+                                       stix_virtual_fonts)
 from matplotlib import get_data_path, rcParams
 
 import matplotlib.colors as mcolors
@@ -547,23 +549,13 @@ class TruetypeFonts(Fonts):
     A generic base class for all font setups that use Truetype fonts
     (through FT2Font).
     """
-    class CachedFont:
-        def __init__(self, font):
-            self.font     = font
-            self.charmap  = font.get_charmap()
-            self.glyphmap = dict(
-                [(glyphind, ccode) for ccode, glyphind in six.iteritems(self.charmap)])
-
-        def __repr__(self):
-            return repr(self.font)
-
     def __init__(self, default_font_prop, mathtext_backend):
         Fonts.__init__(self, default_font_prop, mathtext_backend)
         self.glyphd = {}
         self._fonts = {}
 
         filename = findfont(default_font_prop)
-        default_font = self.CachedFont(get_font(filename))
+        default_font = get_font(filename)
         self._fonts['default'] = default_font
         self._fonts['regular'] = default_font
 
@@ -578,15 +570,14 @@ class TruetypeFonts(Fonts):
             basename = font
         cached_font = self._fonts.get(basename)
         if cached_font is None and os.path.exists(basename):
-            font = get_font(basename)
-            cached_font = self.CachedFont(font)
+            cached_font = get_font(basename)
             self._fonts[basename] = cached_font
-            self._fonts[font.postscript_name] = cached_font
-            self._fonts[font.postscript_name.lower()] = cached_font
+            self._fonts[cached_font.postscript_name] = cached_font
+            self._fonts[cached_font.postscript_name.lower()] = cached_font
         return cached_font
 
-    def _get_offset(self, cached_font, glyph, fontsize, dpi):
-        if cached_font.font.postscript_name == 'Cmex10':
+    def _get_offset(self, font, glyph, fontsize, dpi):
+        if font.postscript_name == 'Cmex10':
             return ((glyph.height/64.0/2.0) + (fontsize/3.0 * dpi/72.0))
         return 0.
 
@@ -596,17 +587,16 @@ class TruetypeFonts(Fonts):
         if bunch is not None:
             return bunch
 
-        cached_font, num, symbol_name, fontsize, slanted = \
+        font, num, symbol_name, fontsize, slanted = \
             self._get_glyph(fontname, font_class, sym, fontsize)
 
-        font = cached_font.font
         font.set_size(fontsize, dpi)
         glyph = font.load_char(
             num,
             flags=self.mathtext_backend.get_hinting_type())
 
         xmin, ymin, xmax, ymax = [val/64.0 for val in glyph.bbox]
-        offset = self._get_offset(cached_font, glyph, fontsize, dpi)
+        offset = self._get_offset(font, glyph, fontsize, dpi)
         metrics = Bunch(
             advance = glyph.linearHoriAdvance/65536.0,
             height  = glyph.height/64.0,
@@ -632,13 +622,13 @@ class TruetypeFonts(Fonts):
             )
         return result
 
-    def get_xheight(self, font, fontsize, dpi):
-        cached_font = self._get_font(font)
-        cached_font.font.set_size(fontsize, dpi)
-        pclt = cached_font.font.get_sfnt_table('pclt')
+    def get_xheight(self, fontname, fontsize, dpi):
+        font = self._get_font(fontname)
+        font.set_size(fontsize, dpi)
+        pclt = font.get_sfnt_table('pclt')
         if pclt is None:
             # Some fonts don't store the xHeight, so we do a poor man's xHeight
-            metrics = self.get_metrics(font, rcParams['mathtext.default'], 'x', fontsize, dpi)
+            metrics = self.get_metrics(fontname, rcParams['mathtext.default'], 'x', fontsize, dpi)
             return metrics.iceberg
         xHeight = (pclt['xHeight'] / 64.0) * (fontsize / 12.0) * (dpi / 100.0)
         return xHeight
@@ -690,28 +680,27 @@ class BakomaFonts(TruetypeFonts):
 
     def _get_glyph(self, fontname, font_class, sym, fontsize):
         symbol_name = None
+        font = None
         if fontname in self.fontmap and sym in latex_to_bakoma:
             basename, num = latex_to_bakoma[sym]
             slanted = (basename == "cmmi10") or sym in self._slanted_symbols
-            cached_font = self._get_font(basename)
-            if cached_font is not None:
-                symbol_name = cached_font.font.get_glyph_name(num)
-                num = cached_font.glyphmap[num]
+            font = self._get_font(basename)
         elif len(sym) == 1:
             slanted = (fontname == "it")
-            cached_font = self._get_font(fontname)
-            if cached_font is not None:
+            font = self._get_font(fontname)
+            if font is not None:
                 num = ord(sym)
-                gid = cached_font.charmap.get(num)
-                if gid is not None:
-                    symbol_name = cached_font.font.get_glyph_name(
-                        cached_font.charmap[num])
+
+        if font is not None:
+            gid = font.get_char_index(num)
+            if gid != 0:
+                symbol_name = font.get_glyph_name(gid)
 
         if symbol_name is None:
             return self._stix_fallback._get_glyph(
                 fontname, font_class, sym, fontsize)
 
-        return cached_font, num, symbol_name, fontsize, slanted
+        return font, num, symbol_name, fontsize, slanted
 
     # The Bakoma fonts contain many pre-sized alternatives for the
     # delimiters.  The AutoSizedChar class will use these alternatives
@@ -842,10 +831,10 @@ class UnicodeFonts(TruetypeFonts):
 
             slanted = (new_fontname == 'it') or sym in self._slanted_symbols
             found_symbol = False
-            cached_font = self._get_font(new_fontname)
-            if cached_font is not None:
+            font = self._get_font(new_fontname)
+            if font is not None:
                 try:
-                    glyphindex = cached_font.charmap[uniindex]
+                    glyphindex = font.get_char_index(uniindex)
                     found_symbol = True
                 except KeyError:
                     pass
@@ -859,19 +848,21 @@ class UnicodeFonts(TruetypeFonts):
             else:
                 if fontname in ('it', 'regular') and isinstance(self, StixFonts):
                     return self._get_glyph('rm', font_class, sym, fontsize)
-                warn("Font '%s' does not have a glyph for '%s' [U%x]" %
-                     (new_fontname, sym.encode('ascii', 'backslashreplace'), uniindex),
+                warn("Font '%s' does not have a glyph for '%s' [U+%x]" %
+                     (new_fontname,
+                      sym.encode('ascii', 'backslashreplace').decode('ascii'),
+                      uniindex),
                      MathTextWarning)
                 warn("Substituting with a dummy symbol.", MathTextWarning)
                 fontname = 'rm'
                 new_fontname = fontname
-                cached_font = self._get_font(fontname)
+                font = self._get_font(fontname)
                 uniindex = 0xA4 # currency character, for lack of anything better
-                glyphindex = cached_font.charmap[uniindex]
+                glyphindex = font.get_char_index(uniindex)
                 slanted = False
 
-        symbol_name = cached_font.font.get_glyph_name(glyphindex)
-        return cached_font, uniindex, symbol_name, fontsize, slanted
+        symbol_name = font.get_glyph_name(glyphindex)
+        return font, uniindex, symbol_name, fontsize, slanted
 
     def get_sized_alternatives_for_symbol(self, fontname, sym):
         if self.cm_fallback:
@@ -982,9 +973,9 @@ class StixFonts(UnicodeFonts):
         uniindex = fix_ups.get(uniindex, uniindex)
 
         for i in range(6):
-            cached_font = self._get_font(i)
-            glyphindex = cached_font.charmap.get(uniindex)
-            if glyphindex is not None:
+            font = self._get_font(i)
+            glyphindex = font.get_char_index(uniindex)
+            if glyphindex != 0:
                 alternatives.append((i, unichr_safe(uniindex)))
 
         # The largest size of the radical symbol in STIX has incorrect
@@ -1144,12 +1135,13 @@ class StandardPsFonts(Fonts):
                               font2, fontclass2, sym2, fontsize2, dpi)
 
     def get_xheight(self, font, fontsize, dpi):
-        cached_font = self._get_font(font)
-        return cached_font.get_xheight() * 0.001 * fontsize
+        font = self._get_font(font)
+        return font.get_xheight() * 0.001 * fontsize
 
     def get_underline_thickness(self, font, fontsize, dpi):
-        cached_font = self._get_font(font)
-        return cached_font.get_underline_thickness() * 0.001 * fontsize
+        font = self._get_font(font)
+        return font.get_underline_thickness() * 0.001 * fontsize
+
 
 ##############################################################################
 # TeX-LIKE BOX MODEL
@@ -1318,7 +1310,6 @@ class Char(Node):
         Node.__init__(self)
         self.c = c
         self.font_output = state.font_output
-        assert isinstance(state.font, (six.string_types, int))
         self.font = state.font
         self.font_class = state.font_class
         self.fontsize = state.fontsize

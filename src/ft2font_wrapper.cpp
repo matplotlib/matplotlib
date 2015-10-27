@@ -954,6 +954,27 @@ static PyObject *PyFT2Font_get_charmap(PyFT2Font *self, PyObject *args, PyObject
     return charmap;
 }
 
+
+const char *PyFT2Font_get_char_index__doc__ =
+    "get_char_index()\n"
+    "\n"
+    "Given a character code, returns a glyph index.\n";
+
+static PyObject *PyFT2Font_get_char_index(PyFT2Font *self, PyObject *args, PyObject *kwds)
+{
+    FT_UInt index;
+    FT_ULong ccode;
+
+    if (!PyArg_ParseTuple(args, "I:get_char_index", &ccode)) {
+        return NULL;
+    }
+
+    index = FT_Get_Char_Index(self->x->get_face(), ccode);
+
+    return PyLong_FromLong(index);
+}
+
+
 const char *PyFT2Font_get_sfnt__doc__ =
     "get_sfnt(name)\n"
     "\n"
@@ -1602,6 +1623,7 @@ static PyTypeObject *PyFT2Font_init_type(PyObject *m, PyTypeObject *type)
         {"draw_glyph_to_bitmap", (PyCFunction)PyFT2Font_draw_glyph_to_bitmap, METH_VARARGS|METH_KEYWORDS, PyFT2Font_draw_glyph_to_bitmap__doc__},
         {"get_glyph_name", (PyCFunction)PyFT2Font_get_glyph_name, METH_VARARGS, PyFT2Font_get_glyph_name__doc__},
         {"get_charmap", (PyCFunction)PyFT2Font_get_charmap, METH_NOARGS, PyFT2Font_get_charmap__doc__},
+        {"get_char_index", (PyCFunction)PyFT2Font_get_char_index, METH_VARARGS, PyFT2Font_get_char_index__doc__},
         {"get_sfnt", (PyCFunction)PyFT2Font_get_sfnt, METH_NOARGS, PyFT2Font_get_sfnt__doc__},
         {"get_name_index", (PyCFunction)PyFT2Font_get_name_index, METH_VARARGS, PyFT2Font_get_name_index__doc__},
         {"get_ps_font_info", (PyCFunction)PyFT2Font_get_ps_font_info, METH_NOARGS, PyFT2Font_get_ps_font_info__doc__},
