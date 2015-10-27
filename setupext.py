@@ -996,13 +996,16 @@ class FreeType(SetupPackage):
                 raise IOError("{0} does not match expected hash.".format(tarball))
 
         print("Building {0}".format(tarball))
+        cflags = 'CFLAGS="{0} -fPIC" '.format(os.environ.get('CFLAGS', ''))
+
         subprocess.check_call(
             ['tar zxf {0}'.format(tarball)], shell=True, cwd='build')
         subprocess.check_call(
-            ['CFLAGS=-fPIC ./configure --without-zlib --without-bzip2 --without-png'],
+            [cflags +
+             './configure --without-zlib --without-bzip2 --without-png'],
             shell=True, cwd=src_path)
         subprocess.check_call(
-            ['CFLAGS=-fPIC make'], shell=True, cwd=src_path)
+            [cflags + 'make'], shell=True, cwd=src_path)
 
 
 class FT2Font(SetupPackage):
