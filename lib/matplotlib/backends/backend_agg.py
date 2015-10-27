@@ -38,6 +38,7 @@ from matplotlib.ft2font import FT2Font, LOAD_FORCE_AUTOHINT, LOAD_NO_HINTING, \
 from matplotlib.mathtext import MathTextParser
 from matplotlib.path import Path
 from matplotlib.transforms import Bbox, BboxBase
+from matplotlib import colors as mcolors
 
 from matplotlib.backends._backend_agg import RendererAgg as _RendererAgg
 from matplotlib import _png
@@ -575,7 +576,10 @@ class FigureCanvasAgg(FigureCanvasBase):
             # The image is "pasted" onto a white background image to safely
             # handle any transparency
             image = Image.frombuffer('RGBA', size, buf, 'raw', 'RGBA', 0, 1)
-            background = Image.new('RGB', size, (255, 255, 255))
+            color = mcolors.colorConverter.to_rgb(
+                rcParams.get('savefig.facecolor', 'white'))
+            color = tuple([int(x * 255.0) for x in color])
+            background = Image.new('RGB', size, color)
             background.paste(image, image)
             options = restrict_dict(kwargs, ['quality', 'optimize',
                                              'progressive'])
