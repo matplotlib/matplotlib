@@ -463,11 +463,14 @@ static PyObject *PyFT2Font_new(PyTypeObject *type, PyObject *args, PyObject *kwd
     PyFT2Font *self;
     self = (PyFT2Font *)type->tp_alloc(type, 0);
     self->x = NULL;
+    self->fname = NULL;
     self->py_file = NULL;
     self->fp = NULL;
     self->close_file = 0;
     self->offset = 0;
     memset(&self->stream, 0, sizeof(FT_StreamRec));
+    self->mem = 0;
+    self->mem_size = 0;
     return (PyObject *)self;
 }
 
