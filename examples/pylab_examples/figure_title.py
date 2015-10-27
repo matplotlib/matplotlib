@@ -29,3 +29,4 @@ plt.ylabel('Undamped')
 plt.tight_layout()
 
 plt.show()
+
