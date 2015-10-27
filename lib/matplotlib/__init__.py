@@ -1513,7 +1513,7 @@ def _get_extra_test_plugins():
     from .testing.noseclasses import KnownFailure
     from nose.plugins import attrib
 
-    return [KnownFailure(), attrib.Plugin()]
+    return [KnownFailure, attrib.Plugin]
 
 
 def test(verbosity=1):
@@ -1532,7 +1532,7 @@ def test(verbosity=1):
         plugins = _get_extra_test_plugins()
         plugins.extend([plugin() for plugin in nose.plugins.builtin.plugins])
 
-        manager = PluginManager(plugins=plugins)
+        manager = PluginManager(plugins=[x() for x in plugins])
         config = nose.config.Config(verbosity=verbosity, plugins=manager)
 
         # Nose doesn't automatically instantiate all of the plugins in the

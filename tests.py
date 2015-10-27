@@ -31,7 +31,7 @@ def run(extra_args):
     plugins = matplotlib._get_extra_test_plugins()
     multiprocess._instantiate_plugins = plugins
 
-    nose.main(addplugins=plugins,
+    nose.main(addplugins=[x() for x in plugins],
               defaultTest=default_test_modules,
               argv=sys.argv + extra_args)
 
