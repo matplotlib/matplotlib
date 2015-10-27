@@ -38,20 +38,21 @@ class Divider(object):
     def __init__(self, fig, pos, horizontal, vertical,
                  aspect=None, anchor="C"):
         """
-        :param fig: matplotlib figure
-        :param pos: position (tuple of 4 floats) of the rectangle that
-                    will be divided.
-        :param horizontal: list of sizes
-                    (:mod:`~mpl_toolkits.axes_grid.axes_size`)
-                    for horizontal division
-        :param vertical: list of sizes
-                    (:mod:`~mpl_toolkits.axes_grid.axes_size`)
-                    for vertical division
-        :param aspect: if True, the overall rectangular area is reduced
-                    so that the relative part of the horizontal and
-                    vertical scales have the same scale.
-        :param anchor: Determine how the reduced rectangle is placed
-                       when aspect is True.
+        Parameters
+        ----------
+        fig : Figure
+        pos : tuple of 4 floats
+            position of the rectangle that will be divided
+        horizontal : list of :mod:`~mpl_toolkits.axes_grid.axes_size`
+            sizes for horizontal division
+        vertical : list of :mod:`~mpl_toolkits.axes_grid.axes_size`
+            sizes for vertical division
+        aspect : bool
+            if True, the overall rectangular area is reduced
+            so that the relative part of the horizontal and
+            vertical scales have the same scale.
+        anchor : {'C', 'SW', 'S', 'SE', 'E', 'NE', 'N', 'NW', 'W'}
+            placement of the reduced rectangle when *aspect* is True
         """
 
         self._fig = fig
@@ -110,8 +111,10 @@ class Divider(object):
         """
         set the position of the rectangle.
 
-        :param pos: position (tuple of 4 floats) of the rectangle that
-                    will be divided.
+        Parameters
+        ----------
+        pos : tuple of 4 floats
+            position of the rectangle that will be divided
         """
         self._pos = pos
 
@@ -121,7 +124,10 @@ class Divider(object):
 
     def set_anchor(self, anchor):
         """
-        :param anchor: anchor position
+        Parameters
+        ----------
+        anchor : {'C', 'SW', 'S', 'SE', 'E', 'NE', 'N', 'NW', 'W'}
+            anchor position
 
           =====  ============
           value  description
@@ -150,11 +156,10 @@ class Divider(object):
 
     def set_horizontal(self, h):
         """
-        :param horizontal: list of sizes
-                    (:mod:`~mpl_toolkits.axes_grid.axes_size`)
-                    for horizontal division
-
-        .
+        Parameters
+        ----------
+        h : list of :mod:`~mpl_toolkits.axes_grid.axes_size`
+            sizes for horizontal division
         """
         self._horizontal = h
 
@@ -164,11 +169,10 @@ class Divider(object):
 
     def set_vertical(self, v):
         """
-        :param horizontal: list of sizes
-                    (:mod:`~mpl_toolkits.axes_grid.axes_size`)
-                    for horizontal division
-
-        .
+        Parameters
+        ----------
+        v : list of :mod:`~mpl_toolkits.axes_grid.axes_size`
+            sizes for vertical division
         """
         self._vertical = v
 
@@ -178,7 +182,9 @@ class Divider(object):
 
     def set_aspect(self, aspect=False):
         """
-        :param anchor: True or False
+        Parameters
+        ----------
+        aspect : bool
         """
         self._aspect = aspect
 
@@ -200,13 +206,17 @@ class Divider(object):
 
     def locate(self, nx, ny, nx1=None, ny1=None, axes=None, renderer=None):
         """
-
-        :param nx, nx1: Integers specifying the column-position of the
-          cell. When nx1 is None, a single nx-th column is
-          specified. Otherwise location of columns spanning between nx
-          to nx1 (but excluding nx1-th column) is specified.
-
-        :param ny, ny1: same as nx and nx1, but for row positions.
+        Parameters
+        ----------
+        nx, nx1 : int
+            Integers specifying the column-position of the
+            cell. When *nx1* is None, a single *nx*-th column is
+            specified. Otherwise location of columns spanning between *nx*
+            to *nx1* (but excluding *nx1*-th column) is specified.
+        ny, ny1 : int
+            Same as *nx* and *nx1*, but for row positions.
+        axes
+        renderer
         """
 
         figW, figH = self._fig.get_size_inches()
@@ -246,16 +256,19 @@ class Divider(object):
 
     def new_locator(self, nx, ny, nx1=None, ny1=None):
         """
-        returns a new locator
+        Returns a new locator
         (:class:`mpl_toolkits.axes_grid.axes_divider.AxesLocator`) for
         specified cell.
 
-        :param nx, nx1: Integers specifying the column-position of the
-          cell. When nx1 is None, a single nx-th column is
-          specified. Otherwise location of columns spanning between nx
-          to nx1 (but excluding nx1-th column) is specified.
-
-        :param ny, ny1: same as nx and nx1, but for row positions.
+        Parameters
+        ----------
+        nx, nx1 : int
+            Integers specifying the column-position of the
+            cell. When *nx1* is None, a single *nx*-th column is
+            specified. Otherwise location of columns spanning between *nx*
+            to *nx1* (but excluding *nx1*-th column) is specified.
+        ny, ny1 : int
+            Same as *nx* and *nx1*, but for row positions.
         """
         return AxesLocator(self, nx, ny, nx1, ny1)
 
@@ -296,14 +309,16 @@ class AxesLocator(object):
     """
     def __init__(self, axes_divider, nx, ny, nx1=None, ny1=None):
         """
-        :param axes_divider: An instance of AxesDivider class.
-
-        :param nx, nx1: Integers specifying the column-position of the
-          cell. When nx1 is None, a single nx-th column is
-          specified. Otherwise location of columns spanning between nx
-          to nx1 (but excluding nx1-th column) is is specified.
-
-        :param ny, ny1: same as nx and nx1, but for row positions.
+        Parameters
+        ----------
+        axes_divider : AxesDivider
+        nx, nx1 : int
+            Integers specifying the column-position of the
+            cell. When *nx1* is None, a single *nx*-th column is
+            specified. Otherwise location of columns spanning between *nx*
+            to *nx1* (but excluding *nx1*-th column) is specified.
+        ny, ny1 : int
+            Same as *nx* and *nx1*, but for row positions.
         """
         self._axes_divider = axes_divider
 
@@ -349,16 +364,17 @@ class SubplotDivider(Divider):
 
     def __init__(self, fig, *args, **kwargs):
         """
-        *fig* is a :class:`matplotlib.figure.Figure` instance.
+        Parameters
+        ----------
+        fig : :class:`matplotlib.figure.Figure`
+        args : tuple (*numRows*, *numCols*, *plotNum*)
+            The array of subplots in the figure has dimensions *numRows*,
+            *numCols*, and *plotNum* is the number of the subplot
+            being created.  *plotNum* starts at 1 in the upper left
+            corner and increases to the right.
 
-        *args* is the tuple (*numRows*, *numCols*, *plotNum*), where
-        the array of subplots in the figure has dimensions *numRows*,
-        *numCols*, and where *plotNum* is the number of the subplot
-        being created.  *plotNum* starts at 1 in the upper left
-        corner and increases to the right.
-
-        If *numRows* <= *numCols* <= *plotNum* < 10, *args* can be the
-        decimal integer *numRows* * 100 + *numCols* * 10 + *plotNum*.
+            If *numRows* <= *numCols* <= *plotNum* < 10, *args* can be the
+            decimal integer *numRows* * 100 + *numCols* * 10 + *plotNum*.
         """
 
         self.figure = fig
@@ -485,7 +501,11 @@ class AxesDivider(Divider):
 
     def __init__(self, axes, xref=None, yref=None):
         """
-        :param axes: axes
+        Parameters
+        ----------
+        axes : :class:`~matplotlib.axes.Axes`
+        xref
+        yref
         """
         self._axes = axes
         if xref is None:
@@ -521,20 +541,23 @@ class AxesDivider(Divider):
         """
         Add a new axes on the right (or left) side of the main axes.
 
-        :param size: A width of the axes.
-          A :mod:`~mpl_toolkits.axes_grid.axes_size`
-          instance or if float or string is given, *from_any*
-          function is used to create one, with *ref_size* set to AxesX instance
-          of the current axes.
-        :param pad: pad between the axes. It takes same argument as *size*.
-        :param pack_start: If False, the new axes is appended at the end
-          of the list, i.e., it became the right-most axes. If True, it is
-          inserted at the start of the list, and becomes the left-most axes.
-
-        All extra keywords arguments are passed to the created axes.
-        If *axes_class* is given, the new axes will be created as an
-        instance of the given class. Otherwise, the same class of the
-        main axes will be used.
+        Parameters
+        ----------
+        size : :mod:`~mpl_toolkits.axes_grid.axes_size` or float or string
+            A width of the axes. If float or string is given, *from_any*
+            function is used to create the size, with *ref_size* set to AxesX
+            instance of the current axes.
+        pad : :mod:`~mpl_toolkits.axes_grid.axes_size` or float or string
+            Pad between the axes. It takes same argument as *size*.
+        pack_start : bool
+            If False, the new axes is appended at the end
+            of the list, i.e., it became the right-most axes. If True, it is
+            inserted at the start of the list, and becomes the left-most axes.
+        kwargs
+            All extra keywords arguments are passed to the created axes.
+            If *axes_class* is given, the new axes will be created as an
+            instance of the given class. Otherwise, the same class of the
+            main axes will be used.
         """
 
         if pad:
@@ -568,20 +591,23 @@ class AxesDivider(Divider):
         """
         Add a new axes on the top (or bottom) side of the main axes.
 
-        :param size: A height of the axes.
-          A :mod:`~mpl_toolkits.axes_grid.axes_size`
-          instance or if float or string is given, *from_any*
-          function is used to create one, with *ref_size* set to AxesX instance
-          of the current axes.
-        :param pad: pad between the axes. It takes same argument as *size*.
-        :param pack_start: If False, the new axes is appended at the end
-          of the list, i.e., it became the top-most axes. If True, it is
-          inserted at the start of the list, and becomes the bottom-most axes.
-
-        All extra keywords arguments are passed to the created axes.
-        If *axes_class* is given, the new axes will be created as an
-        instance of the given class. Otherwise, the same class of the
-        main axes will be used.
+        Parameters
+        ----------
+        size : :mod:`~mpl_toolkits.axes_grid.axes_size` or float or string
+            A height of the axes. If float or string is given, *from_any*
+            function is used to create the size, with *ref_size* set to AxesX
+            instance of the current axes.
+        pad : :mod:`~mpl_toolkits.axes_grid.axes_size` or float or string
+            Pad between the axes. It takes same argument as *size*.
+        pack_start : bool
+            If False, the new axes is appended at the end
+            of the list, i.e., it became the right-most axes. If True, it is
+            inserted at the start of the list, and becomes the left-most axes.
+        kwargs
+            All extra keywords arguments are passed to the created axes.
+            If *axes_class* is given, the new axes will be created as an
+            instance of the given class. Otherwise, the same class of the
+            main axes will be used.
         """
 
         if pad:
@@ -719,12 +745,15 @@ class HBoxDivider(SubplotDivider):
         (:class:`mpl_toolkits.axes_grid.axes_divider.AxesLocator`) for
         specified cell.
 
-        :param nx, nx1: Integers specifying the column-position of the
-          cell. When nx1 is None, a single nx-th column is
-          specified. Otherwise location of columns spanning between nx
-          to nx1 (but excluding nx1-th column) is specified.
-
-        :param ny, ny1: same as nx and nx1, but for row positions.
+        Parameters
+        ----------
+        nx, nx1 : int
+            Integers specifying the column-position of the
+            cell. When *nx1* is None, a single *nx*-th column is
+            specified. Otherwise location of columns spanning between *nx*
+            to *nx1* (but excluding *nx1*-th column) is specified.
+        ny, ny1 : int
+            Same as *nx* and *nx1*, but for row positions.
         """
         return AxesLocator(self, nx, 0, nx1, None)
 
@@ -732,13 +761,16 @@ class HBoxDivider(SubplotDivider):
                 y_equivalent_sizes, x_appended_sizes,
                 figW, figH):
         """
-
-        :param nx, nx1: Integers specifying the column-position of the
-          cell. When nx1 is None, a single nx-th column is
-          specified. Otherwise location of columns spanning between nx
-          to nx1 (but excluding nx1-th column) is specified.
-
-        :param ny, ny1: same as nx and nx1, but for row positions.
+        Parameters
+        ----------
+        x
+        y
+        w
+        h
+        y_equivalent_sizes
+        x_appended_sizes
+        figW
+        figH
         """
 
         equivalent_sizes = y_equivalent_sizes
@@ -764,13 +796,18 @@ class HBoxDivider(SubplotDivider):
 
     def locate(self, nx, ny, nx1=None, ny1=None, axes=None, renderer=None):
         """
-
-        :param nx, nx1: Integers specifying the column-position of the
-          cell. When nx1 is None, a single nx-th column is
-          specified. Otherwise location of columns spanning between nx
-          to nx1 (but excluding nx1-th column) is specified.
-
-        :param ny, ny1: same as nx and nx1, but for row positions.
+        Parameters
+        ----------
+        axes_divider : AxesDivider
+        nx, nx1 : int
+            Integers specifying the column-position of the
+            cell. When *nx1* is None, a single *nx*-th column is
+            specified. Otherwise location of columns spanning between *nx*
+            to *nx1* (but excluding *nx1*-th column) is specified.
+        ny, ny1 : int
+            Same as *nx* and *nx1*, but for row positions.
+        axes
+        renderer
         """
 
         figW, figH = self._fig.get_size_inches()
@@ -801,24 +838,30 @@ class VBoxDivider(HBoxDivider):
         (:class:`mpl_toolkits.axes_grid.axes_divider.AxesLocator`) for
         specified cell.
 
-        :param nx, nx1: Integers specifying the column-position of the
-          cell. When nx1 is None, a single nx-th column is
-          specified. Otherwise location of columns spanning between nx
-          to nx1 (but excluding nx1-th column) is specified.
-
-        :param ny, ny1: same as nx and nx1, but for row positions.
+        Parameters
+        ----------
+        ny, ny1 : int
+            Integers specifying the row-position of the
+            cell. When *ny1* is None, a single *ny*-th row is
+            specified. Otherwise location of rows spanning between *ny*
+            to *ny1* (but excluding *ny1*-th row) is specified.
         """
         return AxesLocator(self, 0, ny, None, ny1)
 
     def locate(self, nx, ny, nx1=None, ny1=None, axes=None, renderer=None):
         """
-
-        :param nx, nx1: Integers specifying the column-position of the
-          cell. When nx1 is None, a single nx-th column is
-          specified. Otherwise location of columns spanning between nx
-          to nx1 (but excluding nx1-th column) is specified.
-
-        :param ny, ny1: same as nx and nx1, but for row positions.
+        Parameters
+        ----------
+        axes_divider : AxesDivider
+        nx, nx1 : int
+            Integers specifying the column-position of the
+            cell. When *nx1* is None, a single *nx*-th column is
+            specified. Otherwise location of columns spanning between *nx*
+            to *nx1* (but excluding *nx1*-th column) is specified.
+        ny, ny1 : int
+            Same as *nx* and *nx1*, but for row positions.
+        axes
+        renderer
         """
 
         figW, figH = self._fig.get_size_inches()

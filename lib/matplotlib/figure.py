@@ -560,7 +560,6 @@ class Figure(Artist):
         ACCEPTS: a FigureCanvas instance
         """
         self.canvas = canvas
-        self.stale = True
 
     def hold(self, b=None):
         """

@@ -13,6 +13,9 @@ import sys
 import warnings
 from textwrap import fill
 
+import versioneer
+
+
 PY3 = (sys.version_info[0] >= 3)
 
 
@@ -109,7 +112,7 @@ def extract_versions():
     """
     with open('lib/matplotlib/__init__.py') as fd:
         for line in fd.readlines():
-            if (line.startswith('__version__')):
+            if (line.startswith('__version__numpy__')):
                 exec(line.strip())
     return locals()
 
@@ -566,7 +569,7 @@ class Matplotlib(SetupPackage):
     name = "matplotlib"
 
     def check(self):
-        return extract_versions()['__version__']
+        return versioneer.get_version()
 
     def get_packages(self):
         return [
@@ -601,13 +604,14 @@ class Matplotlib(SetupPackage):
                 'mpl-data/images/*.xpm',
                 'mpl-data/images/*.svg',
                 'mpl-data/images/*.gif',
+                'mpl-data/images/*.pdf',
                 'mpl-data/images/*.png',
                 'mpl-data/images/*.ppm',
                 'mpl-data/example/*.npy',
                 'mpl-data/matplotlibrc',
                 'backends/web_backend/*.*',
-                'backends/web_backend/jquery/js/*',
-                'backends/web_backend/jquery/css/themes/base/*.*',
+                'backends/web_backend/jquery/js/*.min.js',
+                'backends/web_backend/jquery/css/themes/base/*.min.css',
                 'backends/web_backend/jquery/css/themes/base/images/*',
                 'backends/web_backend/css/*.*',
                 'backends/Matplotlib.nib/*',

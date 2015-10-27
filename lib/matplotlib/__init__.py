@@ -129,7 +129,12 @@ import numpy
 from matplotlib.externals.six.moves.urllib.request import urlopen
 from matplotlib.externals.six.moves import reload_module as reload
 
-__version__ = str('1.5.dev1')
+# Get the version from the _version.py versioneer file. For a git checkout,
+# this is computed based on the number of commits since the last tag.
+from ._version import get_versions
+__version__ = str(get_versions()['version'])
+del get_versions
+
 __version__numpy__ = str('1.6')  # minimum required numpy version
 
 try:
@@ -750,9 +755,9 @@ def matplotlib_fname():
 
     - `$PWD/matplotlibrc`
 
-    - environment variable `MATPLOTLIBRC`
+    - `$MATPLOTLIBRC/matplotlibrc`
 
-    - `$MPLCONFIGDIR/matplotlib`
+    - `$MPLCONFIGDIR/matplotlibrc`
 
     - On Linux,
 
@@ -1071,8 +1076,9 @@ def _rc_params_in_file(fname, fail_on_error=False):
 Bad key "%s" on line %d in
 %s.
 You probably need to get an updated matplotlibrc file from
-http://matplotlib.sf.net/_static/matplotlibrc or from the matplotlib source
-distribution""" % (key, cnt, fname), file=sys.stderr)
+http://github.com/matplotlib/matplotlib/blob/master/matplotlibrc.template
+or from the matplotlib source distribution""" % (key, cnt, fname),
+                  file=sys.stderr)
 
     return config
 
@@ -1424,6 +1430,7 @@ default_test_modules = [
     'matplotlib.tests.test_backend_pgf',
     'matplotlib.tests.test_backend_ps',
     'matplotlib.tests.test_backend_qt4',
+    'matplotlib.tests.test_backend_qt5',
     'matplotlib.tests.test_backend_svg',
     'matplotlib.tests.test_basic',
     'matplotlib.tests.test_bbox_tight',
@@ -1465,6 +1472,7 @@ default_test_modules = [
     'matplotlib.tests.test_tightlayout',
     'matplotlib.tests.test_transforms',
     'matplotlib.tests.test_triangulation',
+    'matplotlib.tests.test_units',
     'matplotlib.tests.test_widgets',
     'matplotlib.tests.test_cycles',
     'matplotlib.tests.test_labeled_data_unpacking',
@@ -1476,6 +1484,9 @@ default_test_modules = [
 
 
 def verify_test_dependencies():
+    if not os.path.isdir(os.path.join(os.path.dirname(__file__), 'tests')):
+        raise ImportError("matplotlib test data is not installed")
+
     try:
         import nose
         try:

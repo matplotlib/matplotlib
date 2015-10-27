@@ -90,7 +90,7 @@ axpolar = []
 for i, case in enumerate(cases):
     row = (i // cols)
     col = i % cols
-    axpolar.append(fig4.add_subplot(gs[row, col], polar=True))
+    axpolar.append(fig4.add_subplot(gs[row, col], projection='polar'))
     axpolar[-1].set_title('markevery=%s' % str(case))
     axpolar[-1].plot(theta, r, 'o', ls='-', ms=4, markevery=case)
 fig4.tight_layout()

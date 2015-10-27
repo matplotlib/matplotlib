@@ -139,6 +139,7 @@ from matplotlib.externals.six.moves import xrange
 import sys, os, shutil, io, re, textwrap
 from os.path import relpath
 import traceback
+import warnings
 
 if not six.PY3:
     import cStringIO
@@ -166,8 +167,15 @@ except ImportError:
 
 import matplotlib
 import matplotlib.cbook as cbook
-matplotlib.use('Agg')
-import matplotlib.pyplot as plt
+try:
+    with warnings.catch_warnings(record=True):
+        warnings.simplefilter("error", UserWarning)
+        matplotlib.use('Agg')
+except UserWarning:
+    import matplotlib.pyplot as plt
+    plt.switch_backend("Agg")
+else:
+    import matplotlib.pyplot as plt
 from matplotlib import _pylab_helpers
 
 __version__ = 2
@@ -740,7 +748,12 @@ def run(arguments, content, options, state_machine, state, lineno):
     # how to link to files from the RST file
     dest_dir_link = os.path.join(relpath(setup.confdir, rst_dir),
                                  source_rel_dir).replace(os.path.sep, '/')
-    build_dir_link = relpath(build_dir, rst_dir).replace(os.path.sep, '/')
+    try:
+        build_dir_link = relpath(build_dir, rst_dir).replace(os.path.sep, '/')
+    except ValueError:
+        # on Windows, relpath raises ValueError when path and start are on
+        # different mounts/drives
+        build_dir_link = build_dir
     source_link = dest_dir_link + '/' + output_base + source_ext
 
     # make figures

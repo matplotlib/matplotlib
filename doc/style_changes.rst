@@ -10,7 +10,7 @@ upcoming 2.0 release!
 The new default color map will be 'viridis' (aka `option
 D <http://bids.github.io/colormap/>`_).  For an introduction to color
 theory and how 'viridis' was generated watch Nathaniel Smith and
-Stéfan van der Walt's talk from SciPy2015
+Stéfan van der Walt's talk from SciPy2015
 
 .. raw:: html
 

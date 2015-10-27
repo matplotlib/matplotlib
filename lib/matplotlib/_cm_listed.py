@@ -1036,3 +1036,6 @@ for (name, data) in (('magma', _magma_data),
                      ('viridis', _viridis_data)):
 
     cmaps[name] = ListedColormap(data, name=name)
+    # generate reversed colormap
+    name = name + '_r'
+    cmaps[name] = ListedColormap(list(reversed(data)), name=name)

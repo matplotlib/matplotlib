@@ -52,8 +52,9 @@ from distutils.dist import Distribution
 import setupext
 from setupext import print_line, print_raw, print_message, print_status
 
-# Get the version from the source code
-__version__ = setupext.Matplotlib().check()
+# Get the version from versioneer
+import versioneer
+__version__ = versioneer.get_version()
 
 
 # These are the packages in the order we want to display them.  This
@@ -232,6 +233,8 @@ class NoseTestCommand(TestCommand):
                   argv=['nosetests'] + self.test_args,
                   exit=True)
 
+cmdclass = versioneer.get_cmdclass()
+cmdclass['test'] = NoseTestCommand
 
 # One doesn't normally see `if __name__ == '__main__'` blocks in a setup.py,
 # however, this is needed on Windows to avoid creating infinite subprocesses
@@ -345,7 +348,7 @@ if __name__ == '__main__':
         version=__version__,
         description="Python plotting package",
         author="John D. Hunter, Michael Droettboom",
-        author_email="mdroe@stsci.edu",
+        author_email="matplotlib-users@python.org",
         url="http://matplotlib.org",
         long_description="""
         matplotlib strives to produce publication quality 2D graphics
@@ -363,7 +366,7 @@ if __name__ == '__main__':
         package_dir=package_dir,
         package_data=package_data,
         classifiers=classifiers,
-        download_url="https://downloads.sourceforge.net/project/matplotlib/matplotlib/matplotlib-{0}/matplotlib-{0}.tar.gz".format(__version__),
+        download_url="http://matplotlib.org/users/installing.html",
 
         # List third-party Python packages that we require
         install_requires=install_requires,
@@ -374,7 +377,6 @@ if __name__ == '__main__':
         # Telling setuptools this prevents it from doing an automatic
         # check for zip safety.
         zip_safe=False,
-        cmdclass={'test': NoseTestCommand},
-
+        cmdclass=cmdclass,
         **extra_args
     )

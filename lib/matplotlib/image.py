@@ -847,12 +847,12 @@ class NonUniformImage(AxesImage):
     def set_norm(self, norm):
         if self._A is not None:
             raise RuntimeError('Cannot change colors after loading data')
-        super(NonUniformImage, self).set_norm(self, norm)
+        super(NonUniformImage, self).set_norm(norm)
 
     def set_cmap(self, cmap):
         if self._A is not None:
             raise RuntimeError('Cannot change colors after loading data')
-        super(NonUniformImage, self).set_cmap(self, cmap)
+        super(NonUniformImage, self).set_cmap(cmap)
 
 
 class PcolorImage(martist.Artist, cm.ScalarMappable):
@@ -1287,7 +1287,7 @@ def imread(fname, format=None):
         if cbook.is_string_like(fname):
             parsed = urlparse(fname)
             # If the string is a URL, assume png
-            if parsed.scheme != '':
+            if len(parsed.scheme) > 1:
                 ext = 'png'
             else:
                 basename, ext = os.path.splitext(fname)
@@ -1304,7 +1304,7 @@ def imread(fname, format=None):
         im = pilread(fname)
         if im is None:
             raise ValueError('Only know how to handle extensions: %s; '
-                             'with PIL installed matplotlib can handle '
+                             'with Pillow installed matplotlib can handle '
                              'more images' % list(six.iterkeys(handlers)))
         return im
 
@@ -1316,7 +1316,7 @@ def imread(fname, format=None):
     if cbook.is_string_like(fname):
         parsed = urlparse(fname)
         # If fname is a URL, download the data
-        if parsed.scheme != '':
+        if len(parsed.scheme) > 1:
             fd = BytesIO(urlopen(fname).read())
             return handler(fd)
         else:
@@ -1427,8 +1427,8 @@ def thumbnail(infile, thumbfile, scale=0.1, interpolation='bilinear',
     make a thumbnail of image in *infile* with output filename
     *thumbfile*.
 
-      *infile* the image file -- must be PNG or PIL readable if you
-         have `PIL <http://www.pythonware.com/products/pil/>`_ installed
+      *infile* the image file -- must be PNG or Pillow-readable if you
+         have `Pillow <http://python-pillow.github.io/>`_ installed
 
       *thumbfile*
         the thumbnail filename

@@ -1781,7 +1781,11 @@ def _pprint_styles(_styles):
     _table = [["Class", "Name", "Attrs"]]
 
     for name, cls in sorted(_styles.items()):
-        args, varargs, varkw, defaults = inspect.getargspec(cls.__init__)
+        if six.PY2:
+            args, varargs, varkw, defaults = inspect.getargspec(cls.__init__)
+        else:
+            (args, varargs, varkw, defaults, kwonlyargs, kwonlydefs,
+                annotations) = inspect.getfullargspec(cls.__init__)
         if defaults:
             args = [(argname, argdefault)
                     for argname, argdefault in zip(args[1:], defaults)]

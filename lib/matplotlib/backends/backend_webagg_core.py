@@ -249,6 +249,7 @@ class FigureCanvasWebAggCore(backend_agg.FigureCanvasAgg):
         # so that we can do things such as produce a diff image
         # in get_diff_image
         _, _, w, h = self.figure.bbox.bounds
+        w, h = int(w), int(h)
         key = w, h, self.figure.dpi
         try:
             self._lastKey, self._renderer

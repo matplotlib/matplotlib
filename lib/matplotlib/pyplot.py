@@ -92,11 +92,15 @@ def _backend_selection():
         if not PyQt5.QtWidgets.qApp.startingUp():
             # The mainloop is running.
             rcParams['backend'] = 'qt5Agg'
-    elif ('gtk' in sys.modules
-            and backend not in ('GTK', 'GTKAgg', 'GTKCairo')
-            and 'gi.repository.GObject' not in sys.modules):
-        import gobject
-        if gobject.MainLoop().is_running():
+    elif ('gtk' in sys.modules and
+          backend not in ('GTK', 'GTKAgg', 'GTKCairo')):
+        if 'gi' in sys.modules:
+            from gi.repository import GObject
+            ml = GObject.MainLoop
+        else:
+            import gobject
+            ml = gobject.MainLoop
+        if ml().is_running():
             rcParams['backend'] = 'gtk' + 'Agg' * is_agg_backend
     elif 'Tkinter' in sys.modules and not backend == 'TkAgg':
         # import Tkinter
@@ -560,7 +564,7 @@ def _auto_draw_if_interactive(fig, val):
     fig : Figure
         A figure object which is assumed to be associated with a canvas
     """
-    if val and matplotlib.is_interactive():
+    if val and matplotlib.is_interactive() and not fig.canvas.is_saving():
         fig.canvas.draw_idle()
 
 
@@ -662,33 +666,27 @@ def clf():
 
 
 def draw():
-    """
-    Redraw the current figure.
+    """Redraw the current figure.
 
-    This is used in interactive mode to update a figure that
-    has been altered using one or more plot object method calls;
-    it is not needed if figure modification is done entirely
-    with pyplot functions, if a sequence of modifications ends
-    with a pyplot function, or if matplotlib is in non-interactive
-    mode and the sequence of modifications ends with :func:`show` or
-    :func:`savefig`.
+    This is used in interactive mode to update a figure that has been
+    altered, but not automatically re-drawn.  This should be only rarely
+    needed, but there may be ways to modify the state of a figure with
+    out marking it as `stale`.  Please report these cases as bugs.
 
     A more object-oriented alternative, given any
     :class:`~matplotlib.figure.Figure` instance, :attr:`fig`, that
     was created using a :mod:`~matplotlib.pyplot` function, is::
 
-        fig.canvas.draw()
-
-
+        fig.canvas.draw_idle()
     """
-    get_current_fig_manager().canvas.draw()
+    get_current_fig_manager().canvas.draw_idle()
 
 
 @docstring.copy_dedent(Figure.savefig)
 def savefig(*args, **kwargs):
     fig = gcf()
     res = fig.savefig(*args, **kwargs)
-    draw()   # need this if 'transparent=True' to reset colors
+    fig.canvas.draw_idle()   # need this if 'transparent=True' to reset colors
     return res
 
 

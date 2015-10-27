@@ -1,40 +1,39 @@
-'''
+"""
 Illustration of upper and lower limit symbols on errorbars
-'''
+"""
 
-from math import pi
-from numpy import array, arange, sin
-import pylab as P
+import numpy as np
+import matplotlib.pyplot as plt
 
-fig = P.figure()
-x = arange(10.0)
-y = sin(arange(10.0)/20.0*pi)
+fig = plt.figure(0)
+x = np.arange(10.0)
+y = np.sin(np.arange(10.0)/20.0*np.pi)
 
-P.errorbar(x, y, yerr=0.1, capsize=3)
+plt.errorbar(x, y, yerr=0.1, capsize=3)
 
-y = sin(arange(10.0)/20.0*pi) + 1
-P.errorbar(x, y, yerr=0.1, uplims=True)
+y = np.sin(np.arange(10.0)/20.0*np.pi) + 1
+plt.errorbar(x, y, yerr=0.1, uplims=True)
 
-y = sin(arange(10.0)/20.0*pi) + 2
-upperlimits = array([1, 0]*5)
-lowerlimits = array([0, 1]*5)
-P.errorbar(x, y, yerr=0.1, uplims=upperlimits, lolims=lowerlimits)
+y = np.sin(np.arange(10.0)/20.0*np.pi) + 2
+upperlimits = np.array([1, 0]*5)
+lowerlimits = np.array([0, 1]*5)
+plt.errorbar(x, y, yerr=0.1, uplims=upperlimits, lolims=lowerlimits)
 
-P.xlim(-1, 10)
+plt.xlim(-1, 10)
 
-fig = P.figure()
-x = arange(10.0)/10.0
+fig = plt.figure(1)
+x = np.arange(10.0)/10.0
 y = (x + 0.1)**2
 
-P.errorbar(x, y, xerr=0.1, xlolims=True)
+plt.errorbar(x, y, xerr=0.1, xlolims=True)
 y = (x + 0.1)**3
 
-P.errorbar(x + 0.6, y, xerr=0.1, xuplims=upperlimits, xlolims=lowerlimits)
+plt.errorbar(x + 0.6, y, xerr=0.1, xuplims=upperlimits, xlolims=lowerlimits)
 
 y = (x + 0.1)**4
-P.errorbar(x + 1.2, y, xerr=0.1, xuplims=True)
+plt.errorbar(x + 1.2, y, xerr=0.1, xuplims=True)
 
-P.xlim(-0.2, 2.4)
-P.ylim(-0.1, 1.3)
+plt.xlim(-0.2, 2.4)
+plt.ylim(-0.1, 1.3)
 
-P.show()
+plt.show()

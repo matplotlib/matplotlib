@@ -1110,7 +1110,11 @@ class ArtistInspector(object):
             o = getattr(self.o, name)
             if not six.callable(o):
                 continue
-            if len(inspect.getargspec(o)[0]) < 2:
+            if six.PY2:
+                nargs = len(inspect.getargspec(o)[0])
+            else:
+                nargs = len(inspect.getfullargspec(o)[0])
+            if nargs < 2:
                 continue
             func = o
             if self.is_alias(func):

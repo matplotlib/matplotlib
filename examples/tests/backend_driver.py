@@ -70,7 +70,8 @@ files['colors'] = [
     ]
 
 files['images'] = [
-    'imshow_demo.py',
+    'image_demo.py',
+    'contourf_log.py',
     ]
 
 files['statistics'] = [
@@ -135,7 +136,6 @@ files['pylab'] = [
     'contour_image.py',
     'contour_label_demo.py',
     'contourf_demo.py',
-    'contourf_log.py',
     'coords_demo.py',
     'coords_report.py',
     'csd_demo.py',

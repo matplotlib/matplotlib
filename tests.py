@@ -17,6 +17,7 @@ import matplotlib
 matplotlib.use('agg')
 
 import nose
+from nose.plugins import attrib
 from matplotlib.testing.noseclasses import KnownFailure
 from matplotlib import default_test_modules
 
@@ -27,7 +28,7 @@ if font_manager._fmcache is not None:
     while not os.path.exists(font_manager._fmcache):
         time.sleep(0.5)
 
-plugins = [KnownFailure]
+plugins = [KnownFailure, attrib.Plugin]
 
 # Nose doesn't automatically instantiate all of the plugins in the
 # child processes, so we have to provide the multiprocess plugin with
@@ -36,7 +37,7 @@ from nose.plugins import multiprocess
 multiprocess._instantiate_plugins = plugins
 
 
-def run():
+def run(extra_args):
     try:
         import faulthandler
     except ImportError:
@@ -44,15 +45,27 @@ def run():
     else:
         faulthandler.enable()
 
+    if not os.path.isdir(
+            os.path.join(os.path.dirname(matplotlib.__file__), 'tests')):
+        raise ImportError("matplotlib test data is not installed")
+
     nose.main(addplugins=[x() for x in plugins],
-              defaultTest=default_test_modules)
+              defaultTest=default_test_modules,
+              argv=sys.argv + extra_args)
+
 
 if __name__ == '__main__':
+    extra_args = []
+
     if '--no-pep8' in sys.argv:
         default_test_modules.remove('matplotlib.tests.test_coding_standards')
         sys.argv.remove('--no-pep8')
     elif '--pep8' in sys.argv:
         default_test_modules = ['matplotlib.tests.test_coding_standards']
         sys.argv.remove('--pep8')
+    if '--no-network' in sys.argv:
+        from matplotlib.testing import disable_internet
+        disable_internet.turn_off_internet()
+        extra_args.extend(['--eval-attr="not network"'])
 
-    run()
+    run(extra_args)

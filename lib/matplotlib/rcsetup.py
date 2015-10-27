@@ -79,7 +79,12 @@ def _listify_validator(scalar_validator, allow_stringlist=False):
                 else:
                     raise
         elif type(s) in (list, tuple):
-            return [scalar_validator(v) for v in s if v]
+            # The condition on this list comprehension will preserve the
+            # behavior of filtering out any empty strings (behavior was
+            # from the original validate_stringlist()), while allowing
+            # any non-string/text scalar values such as numbers and arrays.
+            return [scalar_validator(v) for v in s
+                    if not isinstance(v, six.string_types) or v]
         else:
             msg = "'s' must be of type [ string | list | tuple ]"
             raise ValueError(msg)
@@ -816,7 +821,7 @@ defaultParams = {
     'boxplot.flierprops.markerfacecolor': ['b', validate_color],
     'boxplot.flierprops.markeredgecolor': ['k', validate_color],
     'boxplot.flierprops.markersize': [6, validate_float],
-    'boxplot.flierprops.linestyle': ['-', six.text_type],
+    'boxplot.flierprops.linestyle': ['none', six.text_type],
     'boxplot.flierprops.linewidth': [1.0, validate_float],
 
     'boxplot.boxprops.color': ['b', validate_color],

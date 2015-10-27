@@ -35,7 +35,7 @@ plt.ylim(-0.25, 90)
 # Make sure your axis ticks are large enough to be easily read.
 # You don't want your viewers squinting to read your plot.
 plt.xticks(range(1970, 2011, 10), fontsize=14)
-plt.yticks(range(0, 91, 10), ['{}%'.format(x)
+plt.yticks(range(0, 91, 10), ['{0}%'.format(x)
                               for x in range(0, 91, 10)], fontsize=14)
 
 # Provide tick lines across the plot to help your viewers trace along

@@ -54,7 +54,7 @@ def add_matplotlib_text(ax):
 
 
 def add_polar_bar():
-    ax = fig.add_axes([0.025, 0.075, 0.2, 0.85], polar=True)
+    ax = fig.add_axes([0.025, 0.075, 0.2, 0.85], projection='polar')
 
     ax.axesPatch.set_alpha(axalpha)
     ax.set_axisbelow(True)

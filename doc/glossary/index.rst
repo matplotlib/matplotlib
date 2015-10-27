@@ -8,7 +8,7 @@ Glossary
 .. glossary::
 
   AGG
-      The Anti-Grain Geometry (`Agg <http://agg.sourceforge.net/antigrain.com/index.html>`_) rendering engine, capable of rendering
+      The Anti-Grain Geometry (`Agg <http://antigrain.com/>`_) rendering engine, capable of rendering
       high-quality images
 
   Cairo
@@ -16,7 +16,7 @@ Glossary
 
 
   dateutil
-      The `dateutil <http://labix.org/python-dateutil>`_ library
+      The `dateutil <https://dateutil.readthedocs.org>`_ library
       provides extensions to the standard datetime module
 
   EPS

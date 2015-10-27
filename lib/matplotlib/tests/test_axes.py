@@ -1055,6 +1055,12 @@ def test_bar_tick_label_single():
     ax.bar("a", "b" , tick_label='a', data=data)
 
 
+@cleanup
+def test_bar_ticklabel_fail():
+    fig, ax = plt.subplots()
+    ax.bar([], [])
+
+
 @image_comparison(baseline_images=['bar_tick_label_multiple'],
                   extensions=['png'])
 def test_bar_tick_label_multiple():
@@ -1081,6 +1087,7 @@ def test_hist_log():
     fig = plt.figure()
     ax = fig.add_subplot(111)
     ax.hist(data, fill=False, log=True)
+
 
 @image_comparison(baseline_images=['hist_bar_empty'], remove_text=True,
 	extensions=['png'])
@@ -1239,6 +1246,17 @@ def test_scatter_marker():
                 s=[60, 50, 40, 30],
                 edgecolors=['k', 'r', 'g', 'b'],
                 marker=mmarkers.MarkerStyle('o', fillstyle='top'))
+
+
+@image_comparison(baseline_images=['scatter_2D'], remove_text=True,
+                  extensions=['png'])
+def test_scatter_2D():
+    x = np.arange(3)
+    y = np.arange(2)
+    x, y = np.meshgrid(x, y)
+    z = x + y
+    fig, ax = plt.subplots()
+    ax.scatter(x, y, c=z, s=200, edgecolors='face')
 
 
 @cleanup
@@ -2150,17 +2168,17 @@ def test_errorbar():
 def test_errorbar_shape():
     fig = plt.figure()
     ax = fig.gca()
-    
+
     x = np.arange(0.1, 4, 0.5)
     y = np.exp(-x)
     yerr1 = 0.1 + 0.2*np.sqrt(x)
     yerr = np.vstack((yerr1, 2*yerr1)).T
     xerr = 0.1 + yerr
-    
+
     assert_raises(ValueError, ax.errorbar, x, y, yerr=yerr, fmt='o')
     assert_raises(ValueError, ax.errorbar, x, y, xerr=xerr, fmt='o')
     assert_raises(ValueError, ax.errorbar, x, y, yerr=yerr, xerr=xerr, fmt='o')
-    
+
 
 @image_comparison(baseline_images=['errorbar_limits'])
 def test_errorbar_limits():
@@ -3632,14 +3650,14 @@ def test_twin_spines_on_top():
     ax2.fill_between(data[0], data[1]/1E3, color='#7FC97F', alpha=.5)
 
     # Reuse testcase from above for a labeled data test
-    data = {"x": data[0], "y": data[1]/1E3}
+    data = {"i": data[0], "j": data[1]/1E3}
     fig = plt.figure()
     ax1 = fig.add_subplot(1, 1, 1)
     ax2 = ax1.twinx()
-    ax1.plot("x", "y", color='#BEAED4', data=data)
-    ax1.fill_between("x", "y", color='#BEAED4', alpha=.8, data=data)
-    ax2.plot("x", "y", color='#7FC97F', data=data)
-    ax2.fill_between("x", "y", color='#7FC97F', alpha=.5, data=data)
+    ax1.plot("i", "j", color='#BEAED4', data=data)
+    ax1.fill_between("i", "j", color='#BEAED4', alpha=.8, data=data)
+    ax2.plot("i", "j", color='#7FC97F', data=data)
+    ax2.fill_between("i", "j", color='#7FC97F', alpha=.5, data=data)
 
 
 @cleanup

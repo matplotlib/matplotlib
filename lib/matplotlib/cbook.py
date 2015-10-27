@@ -1012,19 +1012,16 @@ def mkdirs(newdir, mode=0o777):
         > mkdir -p NEWDIR
         > chmod MODE NEWDIR
     """
-    try:
-        if not os.path.exists(newdir):
-            parts = os.path.split(newdir)
-            for i in range(1, len(parts) + 1):
-                thispart = os.path.join(*parts[:i])
-                if not os.path.exists(thispart):
-                    os.makedirs(thispart, mode)
-
-    except OSError as err:
-        # Reraise the error unless it's about an already existing directory
-        if err.errno != errno.EEXIST or not os.path.isdir(newdir):
-            raise
-
+    # this functionality is now in core python as of 3.2
+    # LPY DROP
+    if six.PY3:
+        os.makedirs(newdir, mode=mode, exist_ok=True)
+    else:
+        try:
+            os.makedirs(newdir, mode=mode)
+        except OSError as exception:
+            if exception.errno != errno.EEXIST:
+                raise
 
 class GetRealpathAndStat(object):
     def __init__(self):
@@ -2190,6 +2187,21 @@ def is_math_text(s):
     even_dollars = (dollar_count > 0 and dollar_count % 2 == 0)
 
     return even_dollars
+
+
+def _check_1d(x):
+    '''
+    Converts a sequence of less than 1 dimension, to an array of 1
+    dimension; leaves everything else untouched.
+    '''
+    if not hasattr(x, 'shape') or len(x.shape) < 1:
+        return np.atleast_1d(x)
+    else:
+        try:
+            x[:, None]
+            return x
+        except (IndexError, TypeError):
+            return np.atleast_1d(x)
 
 
 def _reshape_2D(X):
