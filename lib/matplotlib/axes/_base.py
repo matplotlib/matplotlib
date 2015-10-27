@@ -4,6 +4,7 @@ from __future__ import (absolute_import, division, print_function,
 from matplotlib.externals import six
 from matplotlib.externals.six.moves import xrange
 
+from collections import OrderedDict
 import itertools
 import warnings
 import math
@@ -903,11 +904,11 @@ class _AxesBase(martist.Artist):
             Intended to be overridden by new projection types.
 
         """
-        return {
-            'left': mspines.Spine.linear_spine(self, 'left'),
-            'right': mspines.Spine.linear_spine(self, 'right'),
-            'bottom': mspines.Spine.linear_spine(self, 'bottom'),
-            'top': mspines.Spine.linear_spine(self, 'top'), }
+        return OrderedDict([
+            ('left', mspines.Spine.linear_spine(self, 'left')),
+            ('right', mspines.Spine.linear_spine(self, 'right')),
+            ('bottom', mspines.Spine.linear_spine(self, 'bottom')),
+            ('top', mspines.Spine.linear_spine(self, 'top'))])
 
     def cla(self):
         """Clear the current axes."""
