@@ -511,6 +511,10 @@ FT2Font::FT2Font(FT_Open_Args &open_args, long hinting_factor_) : image(), face(
         throw "Could not set the fontsize";
     }
 
+    if (open_args.stream != NULL) {
+        face->face_flags |= FT_FACE_FLAG_EXTERNAL_STREAM;
+    }
+
     static FT_Matrix transform = { 65536 / hinting_factor, 0, 0, 65536 };
     FT_Set_Transform(face, &transform, 0);
 }
