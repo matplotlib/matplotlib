@@ -3222,7 +3222,8 @@ class _AxesBase(martist.Artist):
                 ax.set_minor_locator(mticker.LogLocator(s.base, s.subs))
             elif scale == 'symlog':
                 s = ax._scale
-                ax.set_minor_locator(mticker.SymLogLocator(s.base, s.subs))
+                ax.set_minor_locator(
+                    mticker.SymmetricalLogLocator(s.base, s.subs))
             else:
                 ax.set_minor_locator(mticker.AutoMinorLocator())
 
