@@ -238,7 +238,7 @@ def test_polar_coord_annotations():
     ax.set_ylim(-20, 20)
 
 
-@image_comparison(baseline_images=['fill_units'], tol=18, extensions=['png'],
+@image_comparison(baseline_images=['fill_units'], extensions=['png'],
                   savefig_kwarg={'dpi': 60})
 def test_fill_units():
     from datetime import datetime
@@ -1046,7 +1046,7 @@ def test_markevery_polar():
 
 
 @image_comparison(baseline_images=['marker_edges'],
-                  remove_text=True, tol=3)
+                  remove_text=True)
 def test_marker_edges():
     x = np.linspace(0, 1, 10)
     fig = plt.figure()
@@ -1062,14 +1062,14 @@ def test_marker_edges():
 def test_bar_tick_label_single():
     # From 2516: plot bar with array of string labels for x axis
     ax = plt.gca()
-    ax.bar(0, 1 , tick_label='a')
+    ax.bar(0, 1, tick_label='0')
 
     # Reuse testcase from above for a labeled data test
     data = {"a": 0, "b": 1}
     fig = plt.figure()
     ax = fig.add_subplot(111)
     ax = plt.gca()
-    ax.bar("a", "b" , tick_label='a', data=data)
+    ax.bar("a", "b", tick_label='0', data=data)
 
 
 @cleanup
