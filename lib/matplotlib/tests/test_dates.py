@@ -71,7 +71,7 @@ def test_date_axhline():
     fig.subplots_adjust(left=0.25)
 
 
-@image_comparison(baseline_images=['date_axvline'], tol=16,
+@image_comparison(baseline_images=['date_axvline'],
                   extensions=['png'])
 def test_date_axvline():
     # test ax hline with date inputs
