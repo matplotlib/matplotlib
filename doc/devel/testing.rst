@@ -33,8 +33,8 @@ Optionally you can install:
 
   - `pep8 <http://pep8.readthedocs.org/en/latest>`_ to test coding standards
 
-Build matplotlib for image comparison tests
--------------------------------------------
+Building matplotlib for image comparison tests
+----------------------------------------------
 
 matplotlib's test suite makes heavy use of image comparison tests,
 meaning the result of a plot is compared against a known good result.
