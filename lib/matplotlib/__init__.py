@@ -1528,7 +1528,14 @@ default_test_modules = [
     ]
 
 
-def verify_test_dependencies():
+def _init_tests():
+    try:
+        import faulthandler
+    except ImportError:
+        pass
+    else:
+        faulthandler.enable()
+
     if not os.path.isdir(os.path.join(os.path.dirname(__file__), 'tests')):
         raise ImportError("matplotlib test data is not installed")
 
@@ -1563,37 +1570,36 @@ def verify_test_dependencies():
         raise
 
 
+def _get_extra_test_plugins():
+    from .testing.noseclasses import KnownFailure
+    from nose.plugins import attrib
+
+    return [KnownFailure, attrib.Plugin]
+
+
 def test(verbosity=1):
     """run the matplotlib test suite"""
-    verify_test_dependencies()
-    try:
-        import faulthandler
-    except ImportError:
-        pass
-    else:
-        faulthandler.enable()
+    _init_tests()
 
     old_backend = rcParams['backend']
     try:
         use('agg')
         import nose
         import nose.plugins.builtin
-        from .testing.noseclasses import KnownFailure
         from nose.plugins.manager import PluginManager
         from nose.plugins import multiprocess
 
         # store the old values before overriding
-        plugins = []
-        plugins.append(KnownFailure())
+        plugins = _get_extra_test_plugins()
         plugins.extend([plugin() for plugin in nose.plugins.builtin.plugins])
 
-        manager = PluginManager(plugins=plugins)
+        manager = PluginManager(plugins=[x() for x in plugins])
         config = nose.config.Config(verbosity=verbosity, plugins=manager)
 
         # Nose doesn't automatically instantiate all of the plugins in the
         # child processes, so we have to provide the multiprocess plugin with
         # a list.
-        multiprocess._instantiate_plugins = [KnownFailure]
+        multiprocess._instantiate_plugins = plugins
 
         success = nose.run(
             defaultTest=default_test_modules,
