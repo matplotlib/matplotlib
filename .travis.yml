@@ -39,7 +39,7 @@ matrix:
     - python: 3.4
     - python: 3.5
       env: PANDAS=pandas
-    - python: 2.7
+    - python: 3.5
       env: TEST_ARGS=--pep8
     - python: 2.7
       env: BUILD_DOCS=true MOCK=mock
