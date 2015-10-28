@@ -78,29 +78,38 @@ def figure_edit(axes, parent=None):
                 continue
             linedict[label] = line
         curves = []
-        linestyles = list(six.iteritems(LINESTYLES))
-        drawstyles = list(six.iteritems(DRAWSTYLES))
-        markers = list(six.iteritems(MARKERS))
+
+        def prepare_data(d, init):
+            """Prepare entry for FormLayout.
+            """
+            # List items in dict, dropping duplicate values, sorting by values.
+            kvs = [(k, v) for v, k in
+                   sorted({v: k for k, v in d.items()}.items())]
+            # Find the unique kept key with the same value as the init value.
+            canonical_init, = ({k for k, v in d.items() if v == d[init]}.
+                               intersection(k for k, v in kvs))
+            return [canonical_init] + kvs
+
         curvelabels = sorted(linedict.keys())
         for label in curvelabels:
             line = linedict[label]
             color = rgb2hex(colorConverter.to_rgb(line.get_color()))
             ec = rgb2hex(colorConverter.to_rgb(line.get_markeredgecolor()))
             fc = rgb2hex(colorConverter.to_rgb(line.get_markerfacecolor()))
-            curvedata = [('Label', label),
-                         sep,
-                         (None, '<b>Line</b>'),
-                         ('Line Style', [line.get_linestyle()] + linestyles),
-                         ('Draw Style', [line.get_drawstyle()] + drawstyles),
-                         ('Width', line.get_linewidth()),
-                         ('Color', color),
-                         sep,
-                         (None, '<b>Marker</b>'),
-                         ('Style', [line.get_marker()] + markers),
-                         ('Size', line.get_markersize()),
-                         ('Facecolor', fc),
-                         ('Edgecolor', ec),
-                         ]
+            curvedata = [
+                ('Label', label),
+                sep,
+                (None, '<b>Line</b>'),
+                ('Line Style', prepare_data(LINESTYLES, line.get_linestyle())),
+                ('Draw Style', prepare_data(DRAWSTYLES, line.get_drawstyle())),
+                ('Width', line.get_linewidth()),
+                ('Color', color),
+                sep,
+                (None, '<b>Marker</b>'),
+                ('Style', prepare_data(MARKERS, line.get_marker())),
+                ('Size', line.get_markersize()),
+                ('Facecolor', fc),
+                ('Edgecolor', ec)]
             curves.append([curvedata, label, ""])
 
         # make sure that there is at least one displayed curve
