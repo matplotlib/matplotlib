@@ -77,20 +77,13 @@ install:
     pip install --upgrade setuptools
   - |
     # Install dependencies from pypi
-    pip install $PRE python-dateutil $NUMPY pyparsing!=2.1.6 $PANDAS pep8 cycler coveralls coverage
+    pip install $PRE python-dateutil $NUMPY pyparsing!=2.1.6 $PANDAS pep8 cycler coveralls coverage $MOCK
     pip install $PRE -r doc-requirements.txt
 
     # Install nose from a build which has partial
     # support for python36 and suport for coverage output suppressing
     pip install git+https://github.com/jenshnielsen/nose.git@matplotlibnose
 
-  # Install mock on python 2. Python 2.6 requires mock 1.0.1
-  # Since later versions have dropped support
-  - |
-    if [[ -n "$MOCK"  ]]; then
-      echo $MOCK
-      pip install $MOCK
-    fi;
   # We manually install humor sans using the package from Ubuntu 14.10. Unfortunatly humor sans is not
   # availible in the Ubuntu version used by Travis but we can manually install the deb from a later
   # version since is it basically just a .ttf file
