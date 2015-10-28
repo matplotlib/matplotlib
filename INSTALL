@@ -208,7 +208,7 @@ libpng 1.2 (or later)
 `pytz`
     Used to manipulate time-zone aware datetimes.
 
-:term:`freetype` 2.3 or later
+:term:`FreeType` 2.3 or later
     library for reading true type font files.
 
 ``cycler`` 0.9 or later

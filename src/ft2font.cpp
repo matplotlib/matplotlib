@@ -25,8 +25,8 @@
  transform is placed on the font to shrink it back to the desired
  size.  While it is a bit surprising that the dpi setting affects
  hinting, whereas the global transform does not, this is documented
- behavior of freetype, and therefore hopefully unlikely to change.
- The freetype 2 tutorial says:
+ behavior of FreeType, and therefore hopefully unlikely to change.
+ The FreeType 2 tutorial says:
 
       NOTE: The transformation is applied to every glyph that is
       loaded through FT_Load_Glyph and is completely independent of

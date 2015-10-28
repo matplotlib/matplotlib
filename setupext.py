@@ -20,9 +20,9 @@ import versioneer
 PY3 = (sys.version_info[0] >= 3)
 
 
-# This is the version of freetype to use when building a local version
-# of freetype.  It must match the value in
-# lib/matplotlib.__init__.py:validate_test_dependencies
+# This is the version of FreeType to use when building a local
+# version.  It must match the value in
+# lib/matplotlib.__init__.py
 LOCAL_FREETYPE_VERSION = '2.5.2'
 # md5 hash of the freetype tarball
 LOCAL_FREETYPE_HASH = '004320381043d275c4e28bbacf05a1b7'
