@@ -47,7 +47,7 @@ Add the following content to a ``setup.cfg`` file at the root of the
 matplotlib source directory::
 
   [test]
-  testing_freetype = True
+  local_freetype = True
 
 Running the tests
 -----------------
