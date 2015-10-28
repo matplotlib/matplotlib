@@ -990,6 +990,8 @@ class FreeType(SetupPackage):
             else:
                 from urllib.request import urlretrieve
 
+            if not os.path.exists('build'):
+                os.makedirs('build')
             urlretrieve(tarball_url, tarball_path)
 
             if get_file_hash(tarball_path) != LOCAL_FREETYPE_HASH:
