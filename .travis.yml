@@ -34,13 +34,11 @@ language: python
 
 matrix:
   include:
-    - python: 2.6
-      env: NUMPY=numpy==1.6 MOCK=mock
     - python: 2.7
-      env: MOCK=mock PANDAS=pandas
-    - python: 3.3
+      env: MOCK=mock NUMPY=numpy==1.6
     - python: 3.4
     - python: 3.5
+      env: PANDAS=pandas
     - python: 2.7
       env: TEST_ARGS=--pep8
     - python: 2.7
