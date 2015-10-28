@@ -22,8 +22,8 @@ Glossary
   EPS
       Encapsulated Postscript (`EPS <http://en.wikipedia.org/wiki/Encapsulated_PostScript>`_)
 
-  freetype
-      `freetype <http://www.freetype.org/>`_ is a font rasterization
+  FreeType
+      `FreeType <http://www.freetype.org/>`_ is a font rasterization
       library used by matplotlib which supports TrueType, Type 1, and
       OpenType fonts.
 

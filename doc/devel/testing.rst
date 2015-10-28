@@ -38,10 +38,10 @@ Build matplotlib for image comparison tests
 
 matplotlib's test suite makes heavy use of image comparison tests,
 meaning the result of a plot is compared against a known good result.
-Unfortunately, different versions of freetype produce differently
+Unfortunately, different versions of FreeType produce differently
 formed characters, causing these image comparisons to fail.  To make
 them reproducible, matplotlib can be built with a special local copy
-of freetype.  This is recommended for all matplotlib developers.
+of FreeType.  This is recommended for all matplotlib developers.
 
 Add the following content to a ``setup.cfg`` file at the root of the
 matplotlib source directory::

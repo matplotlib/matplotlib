@@ -1499,7 +1499,7 @@ def _init_tests():
     if not os.path.isdir(os.path.join(os.path.dirname(__file__), 'tests')):
         raise ImportError("matplotlib test data is not installed")
 
-    # The version of freetype to install locally for running the
+    # The version of FreeType to install locally for running the
     # tests.  This must match the value in `setupext.py`
     LOCAL_FREETYPE_VERSION = '2.5.2'
 
@@ -1507,9 +1507,9 @@ def _init_tests():
     if (ft2font.__freetype_version__ != LOCAL_FREETYPE_VERSION or
         ft2font.__freetype_build_type__ != 'local'):
         warnings.warn(
-            "matplotlib is not built with the correct freetype version to run "
-            "tests.  Set local_freetype=True in setup.cfg and rebuild.  Expect "
-            "many image comparison failures below.")
+            "matplotlib is not built with the correct FreeType version to run "
+            "tests.  Set local_freetype=True in setup.cfg and rebuild. "
+            "Expect many image comparison failures below.")
 
     try:
         import nose
