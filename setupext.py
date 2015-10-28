@@ -1001,7 +1001,7 @@ class FreeType(SetupPackage):
         cflags = 'CFLAGS="{0} -fPIC" '.format(os.environ.get('CFLAGS', ''))
 
         subprocess.check_call(
-            ['tar zxf {0}'.format(tarball)], shell=True, cwd='build')
+            ['tar', 'zxf', tarball], cwd='build')
         subprocess.check_call(
             [cflags +
              './configure --without-zlib --without-bzip2 --without-png'],
