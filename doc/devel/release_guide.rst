@@ -6,27 +6,39 @@ Release Guide
 
 A guide for developers who are doing a matplotlib release.
 
-* Edit :file:`__init__.py` and bump the version number
 
 .. _release-testing:
 
 Testing
 =======
 
-* Run all of the regression tests by running ``python tests.py``
-  at the root of the source tree.
+We use `travis-ci <https://travis-ci.org/matplotlib/matplotlib>`__ for
+continuous integration.  When preparing for a release, the final
+tagged commit should be tested locally before it is uploaded.  In
+addition ::
 
-* Run :file:`unit/memleak_hawaii3.py` and make sure there are no
-  memory leaks
+  python unit/memleak_hawaii3.py
 
-* try some GUI examples, e.g., :file:`simple_plot.py` with GTKAgg, TkAgg, etc...
+should be run to check for memory leaks.  Optionally, make sure ::
 
-* remove font cache and tex cache from :file:`.matplotlib` and test
-  with and without cache on some example script
+   python examples/tests/backend_driver.py
 
-* Optionally, make sure :file:`examples/tests/backend_driver.py` runs
-  without errors and check the output of the PNG, PDF, PS and SVG
-  backends
+runs without errors and check the output of the PNG, PDF, PS and SVG
+backends.
+
+
+Github Stats
+============
+
+To make sure everyone's hard work gets credited, regenerate the github
+stats.  In the project root run ::
+
+  python tools/github_stats.py --since-tag $TAG --project 'matplotlib/matplotlib' --links > doc/users/github_stats.rst
+
+
+where `$TAG` is the tag of the last major release.  This will generate
+stats for all work done since that release.
+
 
 .. _release-branching:
 
@@ -113,8 +125,9 @@ Then, to upload the source tarball::
     rm -rf dist
     python setup.py sdist upload
 
-Documentation updates
-=====================
+
+Build and deploy Documentation
+==============================
 
 The built documentation exists in the `matplotlib.github.com
 <https://github.com/matplotlib/matplotlib.github.com/>`_ repository.
@@ -122,24 +135,17 @@ Pushing changes to master automatically updates the website.
 
 The documentation is organized by version.  At the root of the tree is
 always the documentation for the latest stable release.  Under that,
-there are directories containing the documentation for older versions
-as well as the bleeding edge release version called `dev` (usually
-based on what's on master in the github repository, but it may also
-temporarily be a staging area for proposed changes).  There is also a
-symlink directory with the name of the most recently released version
-that points to the root.  With each new release, these directories may
-need to be reorganized accordingly.  Any time these version
-directories are added or removed, the `versions.html` file (which
-contains a list of the available documentation versions for the user)
-must also be updated.
+there are directories containing the documentation for older versions.
+The documentation for current master are built on travis and push to
+the `devdocs <https://github.com/matplotlib/devdocs/>`__ repository.
+These are available `matplotlib.org/devdocs
+<http://matplotlib.org/devdocs>`__.  There is a symlink directory
+with the name of the most recently released version that points to the
+root.  With each new release, these directories may need to be
+reorganized accordingly.  Any time these version directories are added
+or removed, the `versions.html` file (which contains a list of the
+available documentation versions for the user) must also be updated.
 
-To make sure everyone's hard work gets credited, regenerate the github
-stats.  `cd` into the tools directory and run::
-
-  python github_stats.py $TAG > ../doc/users/github_stats.rst
-
-where `$TAG` is the tag of the last major release.  This will generate
-stats for all work done since that release.
 
 In the matplotlib source repository, build the documentation::
 
@@ -159,6 +165,8 @@ changes upstream::
 
   git commit -m "Updating for v1.0.1"
   git push upstream master
+
+
 
 Announcing
 ==========
