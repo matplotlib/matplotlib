@@ -5,7 +5,7 @@
 <svg height="432pt" version="1.1" viewBox="0 0 576 432" width="576pt" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
  <defs>
   <style type="text/css">
-*{stroke-linecap:butt;stroke-linejoin:round;}
+*{stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:100000;}
   </style>
  </defs>
  <g id="figure_1">
@@ -27,7 +27,11 @@ z
 " style="fill:#ffffff;"/>
    </g>
    <g id="line2d_1">
+<<<<<<< HEAD
     <path clip-path="url(#pc653b2bace)" d="M 166.86 181.44 
+=======
+    <path clip-path="url(#pd5f0fe065a)" d="M 166.86 181.44 
+>>>>>>> TST: new baseline images for non-autoranged boxplots
 L 200.34 181.44 
 L 200.34 181.44 
 L 191.97 181.44 
@@ -41,6 +45,7 @@ L 166.86 181.44
 " style="fill:none;stroke:#0000ff;stroke-linecap:square;"/>
    </g>
    <g id="line2d_2">
+<<<<<<< HEAD
     <path clip-path="url(#pc653b2bace)" d="M 183.6 181.44 
 L 183.6 216 
 " style="fill:none;stroke:#0000ff;stroke-dasharray:6.000000,6.000000;stroke-dashoffset:0.0;"/>
@@ -64,10 +69,51 @@ L 191.97 146.88
     <path clip-path="url(#pc653b2bace)" d="M 175.23 181.44 
 L 191.97 181.44 
 " style="fill:none;stroke:#ff0000;stroke-linecap:square;"/>
+=======
+    <path clip-path="url(#pd5f0fe065a)" d="M 183.6 181.44 
+L 183.6 181.44 
+" style="fill:none;stroke:#0000ff;stroke-dasharray:6.000000,6.000000;stroke-dashoffset:0.0;"/>
    </g>
-   <g id="line2d_7"/>
+   <g id="line2d_3">
+    <path clip-path="url(#pd5f0fe065a)" d="M 183.6 181.44 
+L 183.6 181.44 
+" style="fill:none;stroke:#0000ff;stroke-dasharray:6.000000,6.000000;stroke-dashoffset:0.0;"/>
+   </g>
+   <g id="line2d_4">
+    <path clip-path="url(#pd5f0fe065a)" d="M 175.23 181.44 
+L 191.97 181.44 
+" style="fill:none;stroke:#000000;stroke-linecap:square;"/>
+   </g>
+   <g id="line2d_5">
+    <path clip-path="url(#pd5f0fe065a)" d="M 175.23 181.44 
+L 191.97 181.44 
+" style="fill:none;stroke:#000000;stroke-linecap:square;"/>
+   </g>
+   <g id="line2d_6">
+    <path clip-path="url(#pd5f0fe065a)" d="M 175.23 181.44 
+L 191.97 181.44 
+" style="fill:none;stroke:#ff0000;stroke-linecap:square;"/>
+   </g>
+   <g id="line2d_7">
+    <defs>
+     <path d="M -3 0 
+L 3 0 
+M 0 3 
+L 0 -3 
+" id="m85caf736fe" style="stroke:#000000;stroke-width:0.5;"/>
+    </defs>
+    <g clip-path="url(#pd5f0fe065a)">
+     <use style="fill:#0000ff;stroke:#000000;stroke-width:0.5;" x="183.6" xlink:href="#m85caf736fe" y="216.0"/>
+     <use style="fill:#0000ff;stroke:#000000;stroke-width:0.5;" x="183.6" xlink:href="#m85caf736fe" y="146.88"/>
+    </g>
+>>>>>>> TST: new baseline images for non-autoranged boxplots
+   </g>
    <g id="line2d_8">
+<<<<<<< HEAD
     <path clip-path="url(#pc653b2bace)" d="M 390.06 181.44 
+=======
+    <path clip-path="url(#pd5f0fe065a)" d="M 390.06 181.44 
+>>>>>>> TST: new baseline images for non-autoranged boxplots
 L 423.54 181.44 
 L 423.54 181.44 
 L 415.17 181.44 
@@ -81,6 +127,7 @@ L 390.06 181.44
 " style="fill:none;stroke:#0000ff;stroke-linecap:square;"/>
    </g>
    <g id="line2d_9">
+<<<<<<< HEAD
     <path clip-path="url(#pc653b2bace)" d="M 406.8 181.44 
 L 406.8 216 
 " style="fill:none;stroke:#0000ff;stroke-dasharray:6.000000,6.000000;stroke-dashoffset:0.0;"/>
@@ -104,9 +151,40 @@ L 415.17 146.88
     <path clip-path="url(#pc653b2bace)" d="M 398.43 181.44 
 L 415.17 181.44 
 " style="fill:none;stroke:#ff0000;stroke-linecap:square;"/>
+=======
+    <path clip-path="url(#pd5f0fe065a)" d="M 406.8 181.44 
+L 406.8 181.44 
+" style="fill:none;stroke:#0000ff;stroke-dasharray:6.000000,6.000000;stroke-dashoffset:0.0;"/>
    </g>
-   <g id="line2d_14"/>
+   <g id="line2d_10">
+    <path clip-path="url(#pd5f0fe065a)" d="M 406.8 181.44 
+L 406.8 181.44 
+" style="fill:none;stroke:#0000ff;stroke-dasharray:6.000000,6.000000;stroke-dashoffset:0.0;"/>
+   </g>
+   <g id="line2d_11">
+    <path clip-path="url(#pd5f0fe065a)" d="M 398.43 181.44 
+L 415.17 181.44 
+" style="fill:none;stroke:#000000;stroke-linecap:square;"/>
+   </g>
+   <g id="line2d_12">
+    <path clip-path="url(#pd5f0fe065a)" d="M 398.43 181.44 
+L 415.17 181.44 
+" style="fill:none;stroke:#000000;stroke-linecap:square;"/>
+   </g>
+   <g id="line2d_13">
+    <path clip-path="url(#pd5f0fe065a)" d="M 398.43 181.44 
+L 415.17 181.44 
+" style="fill:none;stroke:#ff0000;stroke-linecap:square;"/>
+   </g>
+   <g id="line2d_14">
+    <g clip-path="url(#pd5f0fe065a)">
+     <use style="fill:#0000ff;stroke:#000000;stroke-width:0.5;" x="406.8" xlink:href="#m85caf736fe" y="216.0"/>
+     <use style="fill:#0000ff;stroke:#000000;stroke-width:0.5;" x="406.8" xlink:href="#m85caf736fe" y="146.88"/>
+    </g>
+>>>>>>> TST: new baseline images for non-autoranged boxplots
+   </g>
    <g id="patch_3">
+<<<<<<< HEAD
     <path d="M 72 388.8 
 L 72 43.2 
 " style="fill:none;stroke:#000000;stroke-linecap:square;stroke-linejoin:miter;"/>
@@ -114,6 +192,15 @@ L 72 43.2
    <g id="patch_4">
     <path d="M 518.4 388.8 
 L 518.4 43.2 
+=======
+    <path d="M 518.4 388.8 
+L 518.4 43.2 
+" style="fill:none;stroke:#000000;stroke-linecap:square;stroke-linejoin:miter;"/>
+   </g>
+   <g id="patch_4">
+    <path d="M 72 388.8 
+L 72 43.2 
+>>>>>>> TST: new baseline images for non-autoranged boxplots
 " style="fill:none;stroke:#000000;stroke-linecap:square;stroke-linejoin:miter;"/>
    </g>
    <g id="patch_5">
@@ -132,20 +219,34 @@ L 518.4 43.2
       <defs>
        <path d="M 0 0 
 L 0 -4 
+<<<<<<< HEAD
 " id="md896a425d7" style="stroke:#000000;stroke-width:0.500000;"/>
       </defs>
       <g>
        <use style="stroke:#000000;stroke-width:0.500000;" x="183.6" xlink:href="#md896a425d7" y="388.8"/>
+=======
+" id="m9412c4578c" style="stroke:#000000;stroke-width:0.5;"/>
+      </defs>
+      <g>
+       <use style="stroke:#000000;stroke-width:0.5;" x="183.6" xlink:href="#m9412c4578c" y="388.8"/>
+>>>>>>> TST: new baseline images for non-autoranged boxplots
       </g>
      </g>
      <g id="line2d_16">
       <defs>
        <path d="M 0 0 
 L 0 4 
+<<<<<<< HEAD
 " id="me12a3a8566" style="stroke:#000000;stroke-width:0.500000;"/>
       </defs>
       <g>
        <use style="stroke:#000000;stroke-width:0.500000;" x="183.6" xlink:href="#me12a3a8566" y="43.2"/>
+=======
+" id="m99f775e861" style="stroke:#000000;stroke-width:0.5;"/>
+      </defs>
+      <g>
+       <use style="stroke:#000000;stroke-width:0.5;" x="183.6" xlink:href="#m99f775e861" y="43.2"/>
+>>>>>>> TST: new baseline images for non-autoranged boxplots
       </g>
      </g>
      <g id="text_1">
@@ -173,12 +274,20 @@ z
     <g id="xtick_2">
      <g id="line2d_17">
       <g>
+<<<<<<< HEAD
        <use style="stroke:#000000;stroke-width:0.500000;" x="406.8" xlink:href="#md896a425d7" y="388.8"/>
+=======
+       <use style="stroke:#000000;stroke-width:0.5;" x="406.8" xlink:href="#m9412c4578c" y="388.8"/>
+>>>>>>> TST: new baseline images for non-autoranged boxplots
       </g>
      </g>
      <g id="line2d_18">
       <g>
+<<<<<<< HEAD
        <use style="stroke:#000000;stroke-width:0.500000;" x="406.8" xlink:href="#me12a3a8566" y="43.2"/>
+=======
+       <use style="stroke:#000000;stroke-width:0.5;" x="406.8" xlink:href="#m99f775e861" y="43.2"/>
+>>>>>>> TST: new baseline images for non-autoranged boxplots
       </g>
      </g>
      <g id="text_2">
@@ -206,7 +315,11 @@ Q 53.21875 48.921875 51.53125 44.890625
 Q 49.859375 40.875 45.40625 35.40625 
 Q 44.1875 33.984375 37.640625 27.21875 
 Q 31.109375 20.453125 19.1875 8.296875 
+<<<<<<< HEAD
 " id="DejaVuSans-32"/>
+=======
+" id="BitstreamVeraSans-Roman-32"/>
+>>>>>>> TST: new baseline images for non-autoranged boxplots
       </defs>
       <g transform="translate(402.982500 401.918125)scale(0.120000 -0.120000)">
        <use xlink:href="#DejaVuSans-32"/>
@@ -220,20 +333,34 @@ Q 31.109375 20.453125 19.1875 8.296875
       <defs>
        <path d="M 0 0 
 L 4 0 
+<<<<<<< HEAD
 " id="m57755297b5" style="stroke:#000000;stroke-width:0.500000;"/>
       </defs>
       <g>
        <use style="stroke:#000000;stroke-width:0.500000;" x="72.0" xlink:href="#m57755297b5" y="354.24"/>
+=======
+" id="md2bdd89ecf" style="stroke:#000000;stroke-width:0.5;"/>
+      </defs>
+      <g>
+       <use style="stroke:#000000;stroke-width:0.5;" x="72.0" xlink:href="#md2bdd89ecf" y="354.24"/>
+>>>>>>> TST: new baseline images for non-autoranged boxplots
       </g>
      </g>
      <g id="line2d_20">
       <defs>
        <path d="M 0 0 
 L -4 0 
+<<<<<<< HEAD
 " id="mb7f6c3044e" style="stroke:#000000;stroke-width:0.500000;"/>
       </defs>
       <g>
        <use style="stroke:#000000;stroke-width:0.500000;" x="518.4" xlink:href="#mb7f6c3044e" y="354.24"/>
+=======
+" id="mbc0df95c53" style="stroke:#000000;stroke-width:0.5;"/>
+      </defs>
+      <g>
+       <use style="stroke:#000000;stroke-width:0.5;" x="518.4" xlink:href="#mbc0df95c53" y="354.24"/>
+>>>>>>> TST: new baseline images for non-autoranged boxplots
       </g>
      </g>
      <g id="text_3">
@@ -244,7 +371,11 @@ L 73.1875 35.5
 L 73.1875 27.203125 
 L 10.59375 27.203125 
 z
+<<<<<<< HEAD
 " id="DejaVuSans-2212"/>
+=======
+" id="BitstreamVeraSans-Roman-2212"/>
+>>>>>>> TST: new baseline images for non-autoranged boxplots
        <path d="M 37.796875 64.3125 
 L 12.890625 25.390625 
 L 37.796875 25.390625 
@@ -272,12 +403,20 @@ z
     <g id="ytick_2">
      <g id="line2d_21">
       <g>
+<<<<<<< HEAD
        <use style="stroke:#000000;stroke-width:0.500000;" x="72.0" xlink:href="#m57755297b5" y="285.12"/>
+=======
+       <use style="stroke:#000000;stroke-width:0.5;" x="72.0" xlink:href="#md2bdd89ecf" y="285.12"/>
+>>>>>>> TST: new baseline images for non-autoranged boxplots
       </g>
      </g>
      <g id="line2d_22">
       <g>
+<<<<<<< HEAD
        <use style="stroke:#000000;stroke-width:0.500000;" x="518.4" xlink:href="#mb7f6c3044e" y="285.12"/>
+=======
+       <use style="stroke:#000000;stroke-width:0.5;" x="518.4" xlink:href="#mbc0df95c53" y="285.12"/>
+>>>>>>> TST: new baseline images for non-autoranged boxplots
       </g>
      </g>
      <g id="text_4">
@@ -291,12 +430,20 @@ z
     <g id="ytick_3">
      <g id="line2d_23">
       <g>
+<<<<<<< HEAD
        <use style="stroke:#000000;stroke-width:0.500000;" x="72.0" xlink:href="#m57755297b5" y="216.0"/>
+=======
+       <use style="stroke:#000000;stroke-width:0.5;" x="72.0" xlink:href="#md2bdd89ecf" y="216.0"/>
+>>>>>>> TST: new baseline images for non-autoranged boxplots
       </g>
      </g>
      <g id="line2d_24">
       <g>
+<<<<<<< HEAD
        <use style="stroke:#000000;stroke-width:0.500000;" x="518.4" xlink:href="#mb7f6c3044e" y="216.0"/>
+=======
+       <use style="stroke:#000000;stroke-width:0.5;" x="518.4" xlink:href="#mbc0df95c53" y="216.0"/>
+>>>>>>> TST: new baseline images for non-autoranged boxplots
       </g>
      </g>
      <g id="text_5">
@@ -320,7 +467,11 @@ Q 19.53125 -1.421875 13.0625 8.265625
 Q 6.59375 17.96875 6.59375 36.375 
 Q 6.59375 54.828125 13.0625 64.515625 
 Q 19.53125 74.21875 31.78125 74.21875 
+<<<<<<< HEAD
 " id="DejaVuSans-30"/>
+=======
+" id="BitstreamVeraSans-Roman-30"/>
+>>>>>>> TST: new baseline images for non-autoranged boxplots
       </defs>
       <g transform="translate(60.365000 219.311250)scale(0.120000 -0.120000)">
        <use xlink:href="#DejaVuSans-30"/>
@@ -330,12 +481,20 @@ Q 19.53125 74.21875 31.78125 74.21875
     <g id="ytick_4">
      <g id="line2d_25">
       <g>
+<<<<<<< HEAD
        <use style="stroke:#000000;stroke-width:0.500000;" x="72.0" xlink:href="#m57755297b5" y="146.88"/>
+=======
+       <use style="stroke:#000000;stroke-width:0.5;" x="72.0" xlink:href="#md2bdd89ecf" y="146.88"/>
+>>>>>>> TST: new baseline images for non-autoranged boxplots
       </g>
      </g>
      <g id="line2d_26">
       <g>
+<<<<<<< HEAD
        <use style="stroke:#000000;stroke-width:0.500000;" x="518.4" xlink:href="#mb7f6c3044e" y="146.88"/>
+=======
+       <use style="stroke:#000000;stroke-width:0.5;" x="518.4" xlink:href="#mbc0df95c53" y="146.88"/>
+>>>>>>> TST: new baseline images for non-autoranged boxplots
       </g>
      </g>
      <g id="text_6">
@@ -348,12 +507,20 @@ Q 19.53125 74.21875 31.78125 74.21875
     <g id="ytick_5">
      <g id="line2d_27">
       <g>
+<<<<<<< HEAD
        <use style="stroke:#000000;stroke-width:0.500000;" x="72.0" xlink:href="#m57755297b5" y="77.76"/>
+=======
+       <use style="stroke:#000000;stroke-width:0.5;" x="72.0" xlink:href="#md2bdd89ecf" y="77.76"/>
+>>>>>>> TST: new baseline images for non-autoranged boxplots
       </g>
      </g>
      <g id="line2d_28">
       <g>
+<<<<<<< HEAD
        <use style="stroke:#000000;stroke-width:0.500000;" x="518.4" xlink:href="#mb7f6c3044e" y="77.76"/>
+=======
+       <use style="stroke:#000000;stroke-width:0.5;" x="518.4" xlink:href="#mbc0df95c53" y="77.76"/>
+>>>>>>> TST: new baseline images for non-autoranged boxplots
       </g>
      </g>
      <g id="text_7">
@@ -367,7 +534,11 @@ Q 19.53125 74.21875 31.78125 74.21875
   </g>
  </g>
  <defs>
+<<<<<<< HEAD
   <clipPath id="pc653b2bace">
+=======
+  <clipPath id="pd5f0fe065a">
+>>>>>>> TST: new baseline images for non-autoranged boxplots
    <rect height="345.6" width="446.4" x="72.0" y="43.2"/>
   </clipPath>
  </defs>
