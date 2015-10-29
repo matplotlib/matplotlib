@@ -3052,7 +3052,8 @@ class Axes(_AxesBase):
                 meanline=None, showmeans=None, showcaps=None,
                 showbox=None, showfliers=None, boxprops=None, labels=None,
                 flierprops=None, medianprops=None, meanprops=None,
-                capprops=None, whiskerprops=None, manage_xticks=True):
+                capprops=None, whiskerprops=None, manage_xticks=True,
+                autorange=False):
         """
         Make a box and whisker plot.
 
@@ -3216,7 +3217,7 @@ class Axes(_AxesBase):
         if bootstrap is None:
             bootstrap = rcParams['boxplot.bootstrap']
         bxpstats = cbook.boxplot_stats(x, whis=whis, bootstrap=bootstrap,
-                                       labels=labels)
+                                       labels=labels, autorange=autorange)
         if notch is None:
             notch = rcParams['boxplot.notch']
         if vert is None:
