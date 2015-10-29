@@ -23,9 +23,9 @@ PY3 = (sys.version_info[0] >= 3)
 # This is the version of FreeType to use when building a local
 # version.  It must match the value in
 # lib/matplotlib.__init__.py
-LOCAL_FREETYPE_VERSION = '2.5.2'
+LOCAL_FREETYPE_VERSION = '2.6.1'
 # md5 hash of the freetype tarball
-LOCAL_FREETYPE_HASH = '004320381043d275c4e28bbacf05a1b7'
+LOCAL_FREETYPE_HASH = '348e667d728c597360e4a87c16556597'
 
 if sys.platform != 'win32':
     if sys.version_info[0] < 3:
@@ -1003,9 +1003,8 @@ class FreeType(SetupPackage):
         subprocess.check_call(
             ['tar', 'zxf', tarball], cwd='build')
         subprocess.check_call(
-            [cflags +
-             './configure --without-zlib --without-bzip2 --without-png'],
-            shell=True, cwd=src_path)
+            [cflags + './configure --with-zlib=no --with-bzip2=no '
+             '--with-png=no --with-harfbuzz=no'], shell=True, cwd=src_path)
         subprocess.check_call(
             [cflags + 'make'], shell=True, cwd=src_path)
 
