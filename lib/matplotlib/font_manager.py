@@ -63,6 +63,12 @@ from matplotlib.compat import subprocess
 from matplotlib.fontconfig_pattern import \
     parse_fontconfig_pattern, generate_fontconfig_pattern
 
+try:
+    from functools import lru_cache
+except ImportError:
+    from functools32 import lru_cache
+
+
 USE_FONTCONFIG = False
 verbose = matplotlib.verbose
 
@@ -733,7 +739,7 @@ class FontProperties(object):
         Return the name of the font that best matches the font
         properties.
         """
-        return ft2font.FT2Font(findfont(self)).family_name
+        return get_font(findfont(self)).family_name
 
     def get_style(self):
         """
@@ -1316,7 +1322,6 @@ class FontManager(object):
             _lookup_cache[fontext].set(prop, result)
         return result
 
-
 _is_opentype_cff_font_cache = {}
 def is_opentype_cff_font(filename):
     """
@@ -1336,6 +1341,10 @@ def is_opentype_cff_font(filename):
 
 fontManager = None
 _fmcache = None
+
+
+get_font = lru_cache(64)(ft2font.FT2Font)
+
 
 # The experimental fontconfig-based backend.
 if USE_FONTCONFIG and sys.platform != 'win32':

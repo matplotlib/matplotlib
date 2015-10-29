@@ -1221,6 +1221,29 @@ class Dateutil(SetupPackage):
         return [dateutil]
 
 
+class FuncTools32(SetupPackage):
+    name = "functools32"
+
+    def check(self):
+        if sys.version_info[:2] < (3, 2):
+            try:
+                import functools32
+            except ImportError:
+                return (
+                    "functools32 was not found. It is required for for"
+                    "python versions prior to 3.2")
+
+            return "using functools32"
+        else:
+            return "Not required"
+
+    def get_install_requires(self):
+        if sys.version_info[:2] < (3, 2):
+            return ['functools32']
+        else:
+            return []
+
+
 class Tornado(OptionalPackage):
     name = "tornado"
 
