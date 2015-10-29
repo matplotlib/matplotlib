@@ -19,8 +19,8 @@ from matplotlib.backends.backend_mixed import MixedModeRenderer
 from matplotlib.cbook import is_string_like, is_writable_file_like, maxdict
 from matplotlib.colors import rgb2hex
 from matplotlib.figure import Figure
-from matplotlib.font_manager import findfont, FontProperties
-from matplotlib.ft2font import FT2Font, KERNING_DEFAULT, LOAD_NO_HINTING
+from matplotlib.font_manager import findfont, FontProperties, get_font
+from matplotlib.ft2font import KERNING_DEFAULT, LOAD_NO_HINTING
 from matplotlib.mathtext import MathTextParser
 from matplotlib.path import Path
 from matplotlib import _path
@@ -326,15 +326,8 @@ class RendererSVG(RendererBase):
                 .translate(0.0, self.height))
 
     def _get_font(self, prop):
-        key = hash(prop)
-        font = self.fontd.get(key)
-        if font is None:
-            fname = findfont(prop)
-            font = self.fontd.get(fname)
-            if font is None:
-                font = FT2Font(fname)
-                self.fontd[fname] = font
-            self.fontd[key] = font
+        fname = findfont(prop)
+        font = get_font(fname)
         font.clear()
         size = prop.get_size_in_points()
         font.set_size(size, 72.0)
@@ -495,7 +488,7 @@ class RendererSVG(RendererBase):
         writer = self.writer
         writer.start('defs')
         for font_fname, chars in six.iteritems(self._fonts):
-            font = FT2Font(font_fname)
+            font = get_font(font_fname)
             font.set_size(72, 72)
             sfnt = font.get_sfnt()
             writer.start('font', id=sfnt[(1, 0, 0, 4)])
