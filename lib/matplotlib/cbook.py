@@ -1760,13 +1760,14 @@ def delete_masked_points(*args):
     return margs
 
 
-def boxplot_stats(X, whis=1.5, bootstrap=None, labels=None):
-    '''
-    Returns list of dictionaries of staticists to be use to draw a series of
-    box and whisker plots. See the `Returns` section below to the required
-    keys of the dictionary. Users can skip this function and pass a user-
-    defined set of dictionaries to the new `axes.bxp` method instead of
-    relying on MPL to do the calcs.
+def boxplot_stats(X, whis=1.5, autorange=False, bootstrap=None,
+                  labels=None):
+    """
+    Returns list of dictionaries of staticists to be use to draw a
+    series of box and whisker plots. See the `Returns` section below to
+    the required keys of the dictionary. Users can skip this function
+    and pass a user-defined set of dictionaries to the new `axes.bxp`
+    method instead of relying on MPL to do the calcs.
 
     Parameters
     ----------
@@ -1908,7 +1909,7 @@ def boxplot_stats(X, whis=1.5, bootstrap=None, labels=None):
 
         # interquartile range
         stats['iqr'] = q3 - q1
-        if stats['iqr'] == 0:
+        if stats['iqr'] == 0 and autorange:
             whis = 'range'
 
         # conf. interval around median
