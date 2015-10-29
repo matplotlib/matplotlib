@@ -1,3 +1,5 @@
+.. _github-stats:
+
 Github Stats
 ============
 
