@@ -1785,7 +1785,7 @@ def test_boxplot_sym():
     ax.set_ylim((-30, 30))
 
 
-@image_comparison(baseline_images=['boxplot_autorange_whiskers'])
+@image_comparison(baseline_images=['boxplot_autorange_false_whiskers'])
 def test_boxplot_autorange_whiskers():
     x = np.ones(140)
     x = np.hstack([0, x, 2])
