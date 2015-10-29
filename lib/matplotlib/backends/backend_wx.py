@@ -834,9 +834,6 @@ class FigureCanvasWx(FigureCanvasBase, wx.Panel):
                 # not called from OnPaint use a ClientDC
                 drawDC = wx.ClientDC(self)
 
-            # ensure that canvas has no 'left' over stuff when resizing frame
-            drawDC.Clear()
-
             # following is for 'WX' backend on Windows
             # the bitmap can not be in use by another DC,
             # see GraphicsContextWx._cache
