@@ -876,6 +876,7 @@ class UnicodeFonts(TruetypeFonts):
                 fontname, sym)
         return [(fontname, sym)]
 
+
 class DejaVuFonts(UnicodeFonts):
     use_cmex = False
 
@@ -885,6 +886,7 @@ class DejaVuFonts(UnicodeFonts):
             self.cm_fallback = StixFonts(*args, **kwargs)
         else:
             self.cm_fallback = StixSansFonts(*args, **kwargs)
+        self.bakoma = BakomaFonts(*args, **kwargs)
         TruetypeFonts.__init__(self, *args, **kwargs)
         self.fontmap = {}
         # Include Stix sized alternatives for glyphs
@@ -899,6 +901,16 @@ class DejaVuFonts(UnicodeFonts):
             fullpath = findfont(name)
             self.fontmap[key] = fullpath
             self.fontmap[name] = fullpath
+
+    def _get_glyph(self, fontname, font_class, sym, fontsize):
+        """ Override prime symbol to use Bakoma """
+        if sym == r'\prime':
+            return self.bakoma._get_glyph(fontname,
+                    font_class, sym, fontsize)
+        else:
+            return super(DejaVuFonts, self)._get_glyph(fontname,
+                    font_class, sym, fontsize)
+
 
 class DejaVuSerifFonts(DejaVuFonts):
     """
