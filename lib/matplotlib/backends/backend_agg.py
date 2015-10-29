@@ -32,8 +32,8 @@ from matplotlib.backend_bases import RendererBase,\
      FigureManagerBase, FigureCanvasBase
 from matplotlib.cbook import is_string_like, maxdict, restrict_dict
 from matplotlib.figure import Figure
-from matplotlib.font_manager import findfont
-from matplotlib.ft2font import FT2Font, LOAD_FORCE_AUTOHINT, LOAD_NO_HINTING, \
+from matplotlib.font_manager import findfont, get_font
+from matplotlib.ft2font import LOAD_FORCE_AUTOHINT, LOAD_NO_HINTING, \
      LOAD_DEFAULT, LOAD_NO_AUTOHINT
 from matplotlib.mathtext import MathTextParser
 from matplotlib.path import Path
@@ -82,7 +82,6 @@ class RendererAgg(RendererBase):
     # renderer at a time
 
     lock = threading.RLock()
-    _fontd = maxdict(50)
     def __init__(self, width, height, dpi):
         if __debug__: verbose.report('RendererAgg.__init__', 'debug-annoying')
         RendererBase.__init__(self)
@@ -192,6 +191,7 @@ class RendererAgg(RendererBase):
 
         flags = get_hinting_flag()
         font = self._get_agg_font(prop)
+
         if font is None: return None
         if len(s) == 1 and ord(s) > 127:
             font.load_char(ord(s), flags=flags)
@@ -273,18 +273,10 @@ class RendererAgg(RendererBase):
         if __debug__: verbose.report('RendererAgg._get_agg_font',
                                      'debug-annoying')
 
-        key = hash(prop)
-        font = RendererAgg._fontd.get(key)
-
-        if font is None:
-            fname = findfont(prop)
-            font = RendererAgg._fontd.get(fname)
-            if font is None:
-                font = FT2Font(
-                    fname,
-                    hinting_factor=rcParams['text.hinting_factor'])
-                RendererAgg._fontd[fname] = font
-            RendererAgg._fontd[key] = font
+        fname = findfont(prop)
+        font = get_font(
+            fname,
+            hinting_factor=rcParams['text.hinting_factor'])
 
         font.clear()
         size = prop.get_size_in_points()

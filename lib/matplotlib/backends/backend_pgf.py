@@ -36,10 +36,9 @@ from matplotlib.compat.subprocess import check_output
 system_fonts = []
 if sys.platform.startswith('win'):
     from matplotlib import font_manager
-    from matplotlib.ft2font import FT2Font
     for f in font_manager.win32InstalledFonts():
         try:
-            system_fonts.append(FT2Font(str(f)).family_name)
+            system_fonts.append(font_manager.get_font(str(f)).family_name)
         except:
             pass # unknown error, skip this font
 else:
