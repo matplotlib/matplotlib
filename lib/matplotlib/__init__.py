@@ -1501,7 +1501,7 @@ def _init_tests():
 
     # The version of FreeType to install locally for running the
     # tests.  This must match the value in `setupext.py`
-    LOCAL_FREETYPE_VERSION = '2.5.2'
+    LOCAL_FREETYPE_VERSION = '2.6.1'
 
     from matplotlib import ft2font
     if (ft2font.__freetype_version__ != LOCAL_FREETYPE_VERSION or
