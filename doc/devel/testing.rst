@@ -265,7 +265,7 @@ Using tox
 
 `Tox <http://tox.testrun.org/>`_ is a tool for running tests against
 multiple Python environments, including multiple versions of Python
-(e.g., 2.6, 2.7, 3.2, etc.) and even different Python implementations
+(e.g., 2.7, 3.4, 3.5) and even different Python implementations
 altogether (e.g., CPython, PyPy, Jython, etc.)
 
 Testing all versions of Python (2.6, 2.7, 3.*) requires
