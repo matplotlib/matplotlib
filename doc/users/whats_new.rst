@@ -8,7 +8,7 @@ For a list of all of the issues and pull requests since the last
 revision, see the :ref:`github-stats`.
 
 .. note::
-   matplotlib 1.5 supports Python 2.6, 2.7, 3.3, 3.4, and 3.5
+   matplotlib 1.5 supports Python 2.7, 3.4, and 3.5
 
    matplotlib 1.4 supports Python 2.6, 2.7, 3.3, and 3.4
 

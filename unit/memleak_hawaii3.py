@@ -8,16 +8,16 @@ matplotlib.use('PDF')
 
 from matplotlib.cbook import report_memory
 import numpy as np
-from pylab import figure, show, close
-
+import matplotlib.pyplot as plt
 # take a memory snapshot on indStart and compare it with indEnd
 
 rand = np.random.rand
 
 indStart, indEnd = 200, 401
+mem_size, coll_count = [], []
 for i in range(indEnd):
 
-    fig = figure(1)
+    fig = plt.figure(1)
     fig.clf()
 
     t1 = np.arange(0.0, 2.0, 0.01)
@@ -39,13 +39,23 @@ for i in range(indEnd):
     ax.pcolor(10 * rand(50, 50))
 
     fig.savefig('tmp%d' % i, dpi=75)
-    close(1)
+    plt.close(1)
 
-    gc.collect()
+    coll = gc.collect()
     val = report_memory(i)
     print(i, val)
     if i == indStart:
         start = val  # wait a few cycles for memory usage to stabilize
+    mem_size.append(val)
+    coll_count.append(coll)
 
 end = val
-print('Average memory consumed per loop: %1.4fk bytes\n' % ((end - start) / float(indEnd - indStart)))
+print('Average memory consumed per loop: %1.4fk bytes\n' %
+      ((end - start) / float(indEnd - indStart)))
+fig, ax = plt.subplots()
+ax2 = ax.twinx()
+ax.plot(mem_size, 'r')
+ax.set_ylabel('memory size', color='r')
+ax2.plot(coll_count, 'k')
+ax2.set_ylabel('collect count', color='k')
+fig.savefig('report')

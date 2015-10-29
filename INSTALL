@@ -71,12 +71,12 @@ in addition to
 For Python 3.5 the `Visual C++ Redistributable for Visual Studio 2015
 <http://www.microsoft.com/en-us/download/details.aspx?id=48145>`_
 needs to be installed.
-In case Python 2.6 to 3.4 are not installed for all users (not the default),
+In case Python 2.7 to 3.4 are not installed for all users (not the default),
 the Microsoft Visual C++ 2008 (
 `64 bit <http://www.microsoft.com/download/en/details.aspx?id=15336>`__
 or
 `32 bit <http://www.microsoft.com/download/en/details.aspx?id=29>`__
-for Python 2.6 to 3.2) or Microsoft Visual C++ 2010 (
+for Python 2.7 to 3.2) or Microsoft Visual C++ 2010 (
 `64 bit <http://www.microsoft.com/en-us/download/details.aspx?id=14632>`__
 or
 `32 bit <http://www.microsoft.com/en-us/download/details.aspx?id=5555>`__
@@ -184,7 +184,7 @@ themselves.
 Required Dependencies
 ^^^^^^^^^^^^^^^^^^^^^
 
-:term:`python` 2.6, 2.7, 3.3, 3.4, or 3.5
+:term:`python` 2.7, 3.4, or 3.5
     `Download python <http://www.python.org/download/>`_.
 
 :term:`numpy` |minimum_numpy_version| (or later)
