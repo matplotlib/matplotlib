@@ -253,8 +253,8 @@ Mathtext_examples
 Below is a sampling of the many TeX expressions now supported by matplotlib's
 internal mathtext engine.  The mathtext module provides TeX style mathematical
 expressions using `FreeType <http://www.freetype.org/>`_
-and the BaKoMa computer modern or `STIX <http://www.stixfonts.org>`_ fonts.
-See the :mod:`matplotlib.mathtext` module for additional details.
+and the DejaVu, BaKoMa computer modern, or `STIX <http://www.stixfonts.org>`_
+fonts.  See the :mod:`matplotlib.mathtext` module for additional details.
 
 .. plot:: mpl_examples/pylab_examples/mathtext_examples.py
 

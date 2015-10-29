@@ -29,7 +29,7 @@ if len(sys.argv) > 1:
     fontname = sys.argv[1]
 else:
     fontname = os.path.join(matplotlib.get_data_path(),
-                            'fonts', 'ttf', 'Vera.ttf')
+                            'fonts', 'ttf', 'DejaVuSans.ttf')
 
 font = FT2Font(fontname)
 codes = list(font.get_charmap().items())
