@@ -1238,7 +1238,7 @@ class Tornado(OptionalPackage):
 
 class Pyparsing(SetupPackage):
     name = "pyparsing"
-
+    # pyparsing 2.0.4 has broken python 3 support.
     def is_ok(self):
         # pyparsing 2.0.0 bug, but it may be patched in distributions
         try:
@@ -1274,9 +1274,9 @@ class Pyparsing(SetupPackage):
 
     def get_install_requires(self):
         if self.is_ok():
-            return ['pyparsing>=1.5.6']
+            return ['pyparsing>=1.5.6,!=2.0.4']
         else:
-            return ['pyparsing>=1.5.6,!=2.0.0']
+            return ['pyparsing>=1.5.6,!=2.0.0,!=2.0.4']
 
 
 class BackendAgg(OptionalBackendPackage):
