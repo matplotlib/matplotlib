@@ -1,11 +1,9 @@
 #!/usr/bin/env python
 """Simple tools to query github.com and gather stats about issues.
 
-The tool is copied from IPython rev 59f77d02558ed9b42303d04a22c49a230f5c7159
+To generate a report for IPython 2.0, run:
 
-To generate a report for Matplotlib 1.4.0, run:
-
-    python github_stats.py --since-tag v1.3.0
+    python github_stats.py --milestone 2.0 --since-tag rel-1.0.0
 """
 #-----------------------------------------------------------------------------
 # Imports
@@ -97,17 +95,15 @@ def sorted_by_field(issues, field='closed_at', reverse=False):
 
 
 def report(issues, show_urls=False):
-    """Summary report about a list of issues, printing number and title.
-    """
-    # titles may have unicode in them, so we must encode everything below
+    """Summary report about a list of issues, printing number and title."""
     if show_urls:
         for i in issues:
             role = 'ghpull' if 'merged_at' in i else 'ghissue'
             print(u'* :%s:`%d`: %s' % (role, i['number'],
-                                        i['title'].replace(u'`', u'\`').replace(u'*',u'\*').replace(u'_',u'\_')))
+                                        i['title'].replace(u'`', u'``')))
     else:
         for i in issues:
-            print(u'* %d: %s' % (i['number'], i['title'].replace(u'`', u'\`').replace(u'*',u'\*').replace(u'_',u'\_')))
+            print(u'* %d: %s' % (i['number'], i['title'].replace(u'`', u'``')))
 
 #-----------------------------------------------------------------------------
 # Main script
@@ -115,7 +111,8 @@ def report(issues, show_urls=False):
 
 if __name__ == "__main__":
     # deal with unicode
-    sys.stdout = codecs.getwriter('utf8')(sys.stdout)
+    if sys.version_info < (3,):
+        sys.stdout = codecs.getwriter('utf8')(sys.stdout)
     
     # Whether to add reST urls for all issues in printout.
     show_urls = True
@@ -130,8 +127,11 @@ if __name__ == "__main__":
     parser.add_argument('--days', type=int,
         help="The number of days of data to summarize (use this or --since-tag)."
     )
-    parser.add_argument('--project', type=str, default="matplotlib/matplotlib",
+    parser.add_argument('--project', type=str, default="ipython/ipython",
         help="The project to summarize."
+    )
+    parser.add_argument('--links', action='store_true', default=False,
+        help="Include links to all closed Issues and PRs in the output."
     )
     
     opts = parser.parse_args()
@@ -142,9 +142,9 @@ if __name__ == "__main__":
         since = datetime.utcnow() - timedelta(days=opts.days)
     else:
         if not tag:
-            tag = check_output(['git', 'describe', '--abbrev=0']).strip()
+            tag = check_output(['git', 'describe', '--abbrev=0']).strip().decode('utf8')
         cmd = ['git', 'log', '-1', '--format=%ai', tag]
-        tagday, tz = check_output(cmd).strip().rsplit(' ', 1)
+        tagday, tz = check_output(cmd).strip().decode('utf8').rsplit(' ', 1)
         since = datetime.strptime(tagday, "%Y-%m-%d %H:%M:%S")
         h = int(tz[1:3])
         m = int(tz[3:])
@@ -185,11 +185,6 @@ if __name__ == "__main__":
     print()
     since_day = since.strftime("%Y/%m/%d")
     today = datetime.today().strftime("%Y/%m/%d")
-    print(".. _github-stats:")
-    print()
-    print('Github stats')
-    print('============')
-    print()
     print("GitHub stats for %s - %s (tag: %s)" % (since_day, today, tag))
     print()
     print("These lists are automatically generated, and may be incomplete or contain duplicates.")
@@ -215,17 +210,23 @@ if __name__ == "__main__":
     all_authors.extend([ u'* ' + a.split(' <')[0] for a in with_email ])
     unique_authors = sorted(set(all_authors), key=lambda s: s.lower())
 
+    print("We closed %d issues and merged %d pull requests." % (n_issues, n_pulls))
+    if milestone:
+        print("The full list can be seen `on GitHub <https://github.com/%s/milestone/%s>`__"
+            % (project, milestone)
+        )
+    
+    print()
     print("The following %i authors contributed %i commits." % (len(unique_authors), ncommits))
     print()
     print('\n'.join(unique_authors))
     
-    print()
-    print("We closed %d issues and merged %d pull requests;\n"
-          "this is the full list (generated with the script \n"
-          ":file:`tools/github_stats.py`):" % (n_pulls, n_issues))
-    print()
-    print('Pull Requests (%d):\n' % n_pulls)
-    report(pulls, show_urls)
-    print()
-    print('Issues (%d):\n' % n_issues)
-    report(issues, show_urls)
+    if opts.links:
+        print()
+        print("GitHub issues and pull requests:")
+        print()
+        print('Pull Requests (%d):\n' % n_pulls)
+        report(pulls, show_urls)
+        print()
+        print('Issues (%d):\n' % n_issues)
+        report(issues, show_urls)

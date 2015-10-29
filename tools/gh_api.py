@@ -103,6 +103,7 @@ def get_pull_request(project, num, auth=False):
         header = make_auth_header()
     else:
         header = None
+    print("fetching %s" % url, file=sys.stderr)
     response = requests.get(url, headers=header)
     response.raise_for_status()
     return json.loads(response.text, object_hook=Obj)
@@ -161,6 +162,7 @@ def get_issues_list(project, auth=False, **params):
     return pages
 
 def get_milestones(project, auth=False, **params):
+    params.setdefault('state', 'all')
     url = "https://api.github.com/repos/{project}/milestones".format(project=project)
     if auth:
         headers = make_auth_header()
