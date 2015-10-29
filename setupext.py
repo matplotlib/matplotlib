@@ -2173,7 +2173,7 @@ class OptionalPackageData(OptionalPackage):
 
 class Dlls(OptionalPackageData):
     """
-    On Windows, this packages any DLL files that can be found in the 
+    On Windows, this packages any DLL files that can be found in the
     lib/matplotlib/* directories.
     """
     name = "dlls"
@@ -2184,3 +2184,15 @@ class Dlls(OptionalPackageData):
 
     def get_package_data(self):
         return {'': ['*.dll']}
+
+    @classmethod
+    def get_config(cls):
+        """
+        Look at `setup.cfg` and return one of ["auto", True, False] indicating
+        if the package is at default state ("auto"), forced by the user (True)
+        or opted-out (False).
+        """
+        try:
+            return config.getboolean(cls.config_category, cls.name)
+        except:
+            return False  # <-- default
