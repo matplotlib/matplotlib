@@ -2503,17 +2503,22 @@ class Parser(object):
                     break
             # Binary operators at start of string should not be spaced
             if (c in self._binary_operators and
-                    (len(s[:loc].split()) == 0 or prev_char == '{')):
+                    (len(s[:loc].split()) == 0 or prev_char == '{' or
+                        prev_char in self._left_delim)):
                 return [char]
             else:
-                return [Hlist( [self._make_space(0.2),
-                                char,
-                                self._make_space(0.2)] ,
+                return [Hlist([self._make_space(0.2),
+                               char,
+                               self._make_space(0.2)] ,
                                do_kern = True)]
         elif c in self._punctuation_symbols:
-            return [Hlist( [char,
-                            self._make_space(0.2)] ,
-                           do_kern = True)]
+            # Do not space dots as decimal separators
+            if (c == '.' and s[loc - 1].isdigit() and s[loc + 1].isdigit()):
+                return [char]
+            else:
+                return [Hlist([char,
+                               self._make_space(0.2)],
+                               do_kern = True)]
         return [char]
 
     snowflake = symbol
