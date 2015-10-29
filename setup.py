@@ -67,6 +67,7 @@ mpl_packages = [
     'Required dependencies and extensions',
     setupext.Numpy(),
     setupext.Dateutil(),
+    setupext.FuncTools32(),
     setupext.Pytz(),
     setupext.Cycler(),
     setupext.Tornado(),

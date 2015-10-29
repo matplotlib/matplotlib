@@ -214,6 +214,10 @@ libpng 1.2 (or later)
 ``cycler`` 0.9 or later
    Composable cycle class used for constructing style-cycles
 
+`functools32`
+    Required for compatibility if running on versions of Python before
+    Python 3.2.
+
 
 Optional GUI framework
 ^^^^^^^^^^^^^^^^^^^^^^
