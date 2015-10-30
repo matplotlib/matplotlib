@@ -28,13 +28,13 @@ import threading
 import numpy as np
 from math import radians, cos, sin
 from matplotlib import verbose, rcParams
-from matplotlib.backend_bases import RendererBase,\
-     FigureManagerBase, FigureCanvasBase
+from matplotlib.backend_bases import (RendererBase, FigureManagerBase,
+                                      FigureCanvasBase)
 from matplotlib.cbook import is_string_like, maxdict, restrict_dict
 from matplotlib.figure import Figure
 from matplotlib.font_manager import findfont, get_font
-from matplotlib.ft2font import LOAD_FORCE_AUTOHINT, LOAD_NO_HINTING, \
-     LOAD_DEFAULT, LOAD_NO_AUTOHINT
+from matplotlib.ft2font import (LOAD_FORCE_AUTOHINT, LOAD_NO_HINTING,
+                                LOAD_DEFAULT, LOAD_NO_AUTOHINT)
 from matplotlib.mathtext import MathTextParser
 from matplotlib.path import Path
 from matplotlib.transforms import Bbox, BboxBase
