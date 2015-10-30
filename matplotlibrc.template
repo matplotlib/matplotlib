@@ -88,7 +88,7 @@ backend      : %(backend)s
 #lines.dash_capstyle : butt          # butt|round|projecting
 #lines.solid_joinstyle : miter       # miter|round|bevel
 #lines.solid_capstyle : projecting   # butt|round|projecting
-#lines.antialiased : True         # render lines in antialised (no jaggies)
+#lines.antialiased : True         # render lines in antialiased (no jaggies)
 
 #markers.fillstyle: full # full|left|right|bottom|top|none
 
@@ -100,7 +100,7 @@ backend      : %(backend)s
 #patch.linewidth        : 1.0     # edge width in points
 #patch.facecolor        : blue
 #patch.edgecolor        : black
-#patch.antialiased      : True    # render patches in antialised (no jaggies)
+#patch.antialiased      : True    # render patches in antialiased (no jaggies)
 
 ### FONT
 #
