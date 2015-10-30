@@ -1136,7 +1136,6 @@ int convert_to_string(PathIterator &path,
 
     *buffersize = path.total_vertices() * (precision + 5) * 4;
     if (*buffersize == 0) {
-        *buffer = NULL;
         return 0;
     }
 
