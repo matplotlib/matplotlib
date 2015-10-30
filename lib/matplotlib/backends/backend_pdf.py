@@ -29,18 +29,18 @@ from math import ceil, cos, floor, pi, sin
 import matplotlib
 from matplotlib import __version__, rcParams
 from matplotlib._pylab_helpers import Gcf
-from matplotlib.backend_bases import RendererBase, GraphicsContextBase,\
-    FigureManagerBase, FigureCanvasBase
+from matplotlib.backend_bases import (RendererBase, GraphicsContextBase,
+                                      FigureManagerBase, FigureCanvasBase)
 from matplotlib.backends.backend_mixed import MixedModeRenderer
-from matplotlib.cbook import Bunch, is_string_like, \
-    get_realpath_and_stat, is_writable_file_like, maxdict
+from matplotlib.cbook import (Bunch, is_string_like, get_realpath_and_stat,
+                              is_writable_file_like, maxdict)
 from matplotlib.figure import Figure
 from matplotlib.font_manager import findfont, is_opentype_cff_font, get_font
 from matplotlib.afm import AFM
 import matplotlib.type1font as type1font
 import matplotlib.dviread as dviread
-from matplotlib.ft2font import FIXED_WIDTH, ITALIC, LOAD_NO_SCALE, \
-    LOAD_NO_HINTING, KERNING_UNFITTED
+from matplotlib.ft2font import (FIXED_WIDTH, ITALIC, LOAD_NO_SCALE,
+                                LOAD_NO_HINTING, KERNING_UNFITTED)
 from matplotlib.mathtext import MathTextParser
 from matplotlib.transforms import Affine2D, BboxBase
 from matplotlib.path import Path
