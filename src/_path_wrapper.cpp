@@ -638,8 +638,9 @@ static PyObject *Py_convert_to_string(PyObject *self, PyObject *args, PyObject *
     PyObject *codesobj;
     char *codes[5];
     int postfix;
-    char *buffer;
+    char *buffer = NULL;
     size_t buffersize;
+    PyObject *result;
     int status;
 
     if (!PyArg_ParseTuple(args,
@@ -702,10 +703,14 @@ static PyObject *Py_convert_to_string(PyObject *self, PyObject *args, PyObject *
     }
 
     if (buffersize == 0) {
-        return PyBytes_FromString("");
+        result = PyBytes_FromString("");
     } else {
-        return PyBytes_FromStringAndSize(buffer, buffersize);
+        result = PyBytes_FromStringAndSize(buffer, buffersize);
     }
+
+    free(buffer);
+
+    return result;
 }
 
 extern "C" {
