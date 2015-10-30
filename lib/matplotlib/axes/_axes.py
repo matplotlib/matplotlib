@@ -1388,7 +1388,7 @@ class Axes(_AxesBase):
         If you make multiple lines with one plot command, the kwargs
         apply to all those lines, e.g.::
 
-            plot(x1, y1, x2, y2, antialised=False)
+            plot(x1, y1, x2, y2, antialiased=False)
 
         Neither line will be antialiased.
 

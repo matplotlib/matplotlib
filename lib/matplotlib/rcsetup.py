@@ -789,7 +789,7 @@ defaultParams = {
     'lines.marker':          ['None', six.text_type],     # black
     'lines.markeredgewidth': [0.5, validate_float],
     'lines.markersize':      [6, validate_float],    # markersize, in points
-    'lines.antialiased':     [True, validate_bool],  # antialised (no jaggies)
+    'lines.antialiased':     [True, validate_bool],  # antialiased (no jaggies)
     'lines.dash_joinstyle':  ['round', validate_joinstyle],
     'lines.solid_joinstyle': ['round', validate_joinstyle],
     'lines.dash_capstyle':   ['butt', validate_capstyle],
@@ -802,7 +802,7 @@ defaultParams = {
     'patch.linewidth':   [1.0, validate_float],  # line width in points
     'patch.edgecolor':   ['k', validate_color],  # black
     'patch.facecolor':   ['b', validate_color],  # blue
-    'patch.antialiased': [True, validate_bool],  # antialised (no jaggies)
+    'patch.antialiased': [True, validate_bool],  # antialiased (no jaggies)
 
     ## Boxplot properties
     'boxplot.notch': [False, validate_bool],
