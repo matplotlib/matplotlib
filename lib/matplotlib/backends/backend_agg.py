@@ -26,7 +26,7 @@ from matplotlib.externals import six
 
 import threading
 import numpy as np
-
+from math import radians, cos, sin
 from matplotlib import verbose, rcParams
 from matplotlib.backend_bases import RendererBase,\
      FigureManagerBase, FigureCanvasBase
@@ -174,10 +174,10 @@ class RendererAgg(RendererBase):
         ox, oy, width, height, descent, font_image, used_characters = \
             self.mathtext_parser.parse(s, self.dpi, prop)
 
-        xd = descent * np.sin(np.deg2rad(angle))
-        yd = descent * np.cos(np.deg2rad(angle))
-        x = np.round(x + ox + xd)
-        y = np.round(y - oy + yd)
+        xd = descent * sin(radians(angle))
+        yd = descent * cos(radians(angle))
+        x = round(x + ox + xd)
+        y = round(y - oy + yd)
         self._renderer.draw_text_image(font_image, x, y + 1, angle, gc)
 
     def draw_text(self, gc, x, y, s, prop, angle, ismath=False, mtext=None):
@@ -204,12 +204,12 @@ class RendererAgg(RendererBase):
         xo, yo = font.get_bitmap_offset()
         xo /= 64.0
         yo /= 64.0
-        xd = -d * np.sin(np.deg2rad(angle))
-        yd = d * np.cos(np.deg2rad(angle))
+        xd = -d * sin(radians(angle))
+        yd = d * cos(radians(angle))
 
         #print x, y, int(x), int(y), s
         self._renderer.draw_text_image(
-            font, np.round(x - xd + xo), np.round(y + yd + yo) + 1, angle, gc)
+            font, round(x - xd + xo), round(y + yd + yo) + 1, angle, gc)
 
     def get_text_width_height_descent(self, s, prop, ismath):
         """
@@ -254,10 +254,10 @@ class RendererAgg(RendererBase):
         Z = np.array(Z * 255.0, np.uint8)
 
         w, h, d = self.get_text_width_height_descent(s, prop, ismath)
-        xd = d * np.sin(np.deg2rad(angle))
-        yd = d * np.cos(np.deg2rad(angle))
-        x = np.round(x + xd)
-        y = np.round(y + yd)
+        xd = d * sin(radians(angle))
+        yd = d * cos(radians(angle))
+        x = round(x + xd)
+        y = round(y + yd)
 
         self._renderer.draw_text_image(Z, x, y, angle, gc)
 
