@@ -1161,7 +1161,6 @@ class SubplotTool(Widget):
             self.targetfig.canvas.draw()
 
 
-
 class Cursor(AxesWidget):
     """
     A horizontal and vertical line that spans the axes and moves with
