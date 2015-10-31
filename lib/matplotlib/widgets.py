@@ -678,10 +678,6 @@ class TextBox(AxesWidget):
                self.params_to_disable += [key]
         
         self.text = initial
-        
-        
-        
-        
         self.label = ax.text(0.0,0.5, label,
                              verticalalignment='center',
                              horizontalalignment='right',
@@ -699,7 +695,6 @@ class TextBox(AxesWidget):
         self.cursor = self.ax.vlines(0, 0, 0)    #because this is initialized, _render_cursor 
         self.cursor.set_visible(False)           #can assume that cursor exists
         
-        
         self.connect_event('button_press_event', self._click)
         self.connect_event('button_release_event', self._release)
         self.connect_event('motion_notify_event', self._motion)
@@ -714,10 +709,7 @@ class TextBox(AxesWidget):
         self._lastcolor = color
         
         self.capturekeystrokes = False        
-    
-    
-
-                
+           
     def _make_text_disp(self, string):
         return self.ax.text(self.DIST_FROM_LEFT, 0.5, string,
                              verticalalignment='center',
@@ -733,8 +725,7 @@ class TextBox(AxesWidget):
         no_text = False
         if(widthtext == "" or widthtext == " " or widthtext == "  "):
             no_text = widthtext == ""
-            widthtext = ","
-        
+            widthtext = ","   
         
         wt_disp = self._make_text_disp(widthtext)
         
@@ -746,8 +737,7 @@ class TextBox(AxesWidget):
         if no_text:
             bb[1, 0] = bb[0, 0]        
         #hack done
-        self.cursor.set_visible(False)
-        
+        self.cursor.set_visible(False)   
         
         self.cursor = self.ax.vlines(bb[1, 0], bb[0, 1], bb[1, 1])
         self.ax.figure.canvas.draw()
@@ -832,7 +822,6 @@ class TextBox(AxesWidget):
             self.cursor_index = len(self.text)
             self._rendercursor()
 
-
     def _motion(self, event):
         if self.ignore(event):
             return
@@ -856,6 +845,7 @@ class TextBox(AxesWidget):
         self.change_observers[cid] = func
         self.cnt += 1
         return cid
+        
     def on_submit(self, func):
         """
         When the user hits enter or leaves the submision box, call this *func* with event
@@ -866,6 +856,7 @@ class TextBox(AxesWidget):
         self.submit_observers[cid] = func
         self.cnt += 1
         return cid
+        
     def disconnect(self, cid):
         """remove the observer with connection id *cid*"""
         try:
