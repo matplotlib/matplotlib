@@ -15,6 +15,9 @@ import matplotlib.pyplot as plt
 from matplotlib.tests import assert_str_equal
 from matplotlib.testing.decorators import cleanup
 import matplotlib.colors as mcolors
+# from nose.tools import assert_true, assert_raises, assert_equal
+# from nose.plugins.skip import SkipTest
+# import nose
 from itertools import chain
 import numpy as np
 from matplotlib.rcsetup import (validate_bool_maybe_none,
@@ -410,3 +413,4 @@ def test_rcparams_reset_after_fail():
                 pass
 
         assert mpl.rcParams['text.usetex'] is False
+

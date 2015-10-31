@@ -2790,11 +2790,11 @@ def test_griddata_nn():
                                   np.ma.getmask(correct_zi_masked))
 
 
-# *****************************************************************
+#*****************************************************************
 # These Tests where taken from SCIPY with some minor modifications
 # this can be retreived from:
 # https://github.com/scipy/scipy/blob/master/scipy/stats/tests/test_kdeoth.py
-# *****************************************************************
+#*****************************************************************
 
 class gaussian_kde_tests():
 
@@ -3008,3 +3008,4 @@ def test_psd_onesided_norm():
                     sides='onesided')
     Su_1side = np.append([Su[0]], Su[1:4] + Su[4:][::-1])
     assert_allclose(P, Su_1side, atol=1e-06)
+

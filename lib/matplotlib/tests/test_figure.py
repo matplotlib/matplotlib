@@ -202,8 +202,3 @@ def test_figaspect():
     assert h / w == 0.5
     w, h = plt.figaspect(np.zeros((2, 2)))
     assert h / w == 1
-
-
-if __name__ == "__main__":
-    import nose
-    nose.runmodule(argv=['-s', '--with-doctest'], exit=False)

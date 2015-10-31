@@ -5,6 +5,10 @@ import six
 from six.moves import xrange
 from itertools import chain
 import io
+
+# from nose.tools import assert_equal, pytest.raises, assert_false, assert_true
+from nose.plugins.skip import SkipTest
+
 import datetime
 
 import numpy as np
@@ -356,7 +360,7 @@ def test_shaped_data():
     plt.plot(y2)
 
     plt.subplot(413)
-    pytest.raises(ValueError, plt.plot(y1, y2))
+    pytest.raises(ValueError, plt.plot, y1, y2)
 
     plt.subplot(414)
     plt.plot(xdata[:, 1], xdata[1, :], 'o')
@@ -2199,6 +2203,7 @@ def test_errorbar():
 
     fig.suptitle('Variable errorbars')
 
+
     # Reuse te first testcase from above for a labeled data test
     data = {"x": x, "y": y}
     fig = plt.figure()
@@ -3026,17 +3031,17 @@ def test_specgram_angle_freqs():
     spec13 = ax13.specgram(y, NFFT=NFFT, Fs=Fs, noverlap=noverlap,
                            pad_to=pad_to, sides='twosided', mode='angle')
 
-    pytest.raises(ValueError, ax11.specgram(y, NFFT=NFFT, Fs=Fs,
+    pytest.raises(ValueError, ax11.specgram, y, NFFT=NFFT, Fs=Fs,
                   noverlap=noverlap, pad_to=pad_to, sides='default',
-                  mode='phase', scale='dB'))
+                  mode='phase', scale='dB')
 
-    pytest.raises(ValueError, ax12.specgram(y, NFFT=NFFT, Fs=Fs,
+    pytest.raises(ValueError, ax12.specgram, y, NFFT=NFFT, Fs=Fs,
                   noverlap=noverlap, pad_to=pad_to, sides='onesided',
-                  mode='phase', scale='dB'))
+                  mode='phase', scale='dB')
 
-    pytest.raises(ValueError, ax13.specgram(y, NFFT=NFFT, Fs=Fs,
+    pytest.raises(ValueError, ax13.specgram, y, NFFT=NFFT, Fs=Fs,
                   noverlap=noverlap, pad_to=pad_to, sides='twosided',
-                  mode='phase', scale='dB'))
+                  mode='phase', scale='dB')
 
 
 @image_comparison(baseline_images=['specgram_angle_noise'],
@@ -3073,17 +3078,17 @@ def test_specgram_noise_angle():
     spec13 = ax13.specgram(y, NFFT=NFFT, Fs=Fs, noverlap=noverlap,
                            pad_to=pad_to, sides='twosided', mode='angle')
 
-    pytest.raises(ValueError, ax11.specgram(y, NFFT=NFFT, Fs=Fs,
+    pytest.raises(ValueError, ax11.specgram, y, NFFT=NFFT, Fs=Fs,
                   noverlap=noverlap, pad_to=pad_to, sides='default',
-                  mode='phase', scale='dB'))
+                  mode='phase', scale='dB')
 
-    pytest.raises(ValueError, ax12.specgram(y, NFFT=NFFT, Fs=Fs,
+    pytest.raises(ValueError, ax12.specgram, y, NFFT=NFFT, Fs=Fs,
                   noverlap=noverlap, pad_to=pad_to, sides='onesided',
-                  mode='phase', scale='dB'))
+                  mode='phase', scale='dB')
 
-    pytest.raises(ValueError, ax13.specgram(y, NFFT=NFFT, Fs=Fs,
+    pytest.raises(ValueError, ax13.specgram, y, NFFT=NFFT, Fs=Fs,
                   noverlap=noverlap, pad_to=pad_to, sides='twosided',
-                  mode='phase', scale='dB'))
+                  mode='phase', scale='dB')
 
 
 @image_comparison(baseline_images=['specgram_phase_freqs'],
@@ -3128,17 +3133,17 @@ def test_specgram_freqs_phase():
     spec13 = ax13.specgram(y, NFFT=NFFT, Fs=Fs, noverlap=noverlap,
                            pad_to=pad_to, sides='twosided', mode='phase')
 
-    pytest.raises(ValueError, ax11.specgram(y, NFFT=NFFT, Fs=Fs,
+    pytest.raises(ValueError, ax11.specgram, y, NFFT=NFFT, Fs=Fs,
                   noverlap=noverlap, pad_to=pad_to, sides='default',
-                  mode='phase', scale='dB'))
+                  mode='phase', scale='dB')
 
-    pytest.raises(ValueError, ax12.specgram(y, NFFT=NFFT, Fs=Fs,
+    pytest.raises(ValueError, ax12.specgram, y, NFFT=NFFT, Fs=Fs,
                   noverlap=noverlap, pad_to=pad_to, sides='onesided',
-                  mode='phase', scale='dB'))
+                  mode='phase', scale='dB')
 
-    pytest.raises(ValueError, ax13.specgram(y, NFFT=NFFT, Fs=Fs,
+    pytest.raises(ValueError, ax13.specgram, y, NFFT=NFFT, Fs=Fs,
                   noverlap=noverlap, pad_to=pad_to, sides='twosided',
-                  mode='phase', scale='dB'))
+                  mode='phase', scale='dB')
 
 
 @image_comparison(baseline_images=['specgram_phase_noise'],
@@ -3178,17 +3183,17 @@ def test_specgram_noise_phase():
                            pad_to=pad_to, sides='twosided',
                            mode='phase', )
 
-    pytest.raises(ValueError, ax11.specgram(y, NFFT=NFFT, Fs=Fs,
+    pytest.raises(ValueError, ax11.specgram, y, NFFT=NFFT, Fs=Fs,
                   noverlap=noverlap, pad_to=pad_to, sides='default',
-                  mode='phase', scale='dB'))
+                  mode='phase', scale='dB')
 
-    pytest.raises(ValueError, ax12.specgram(y, NFFT=NFFT, Fs=Fs,
+    pytest.raises(ValueError, ax12.specgram, y, NFFT=NFFT, Fs=Fs,
                   noverlap=noverlap, pad_to=pad_to, sides='onesided',
-                  mode='phase', scale='dB'))
+                  mode='phase', scale='dB')
 
-    pytest.raises(ValueError, ax13.specgram(y, NFFT=NFFT, Fs=Fs,
+    pytest.raises(ValueError, ax13.specgram, y, NFFT=NFFT, Fs=Fs,
                   noverlap=noverlap, pad_to=pad_to, sides='twosided',
-                  mode='phase', scale='dB'))
+                  mode='phase', scale='dB')
 
 
 @image_comparison(baseline_images=['psd_freqs'], remove_text=True,
@@ -4360,3 +4365,4 @@ def test_pandas_indexing_hist():
     ser_2 = ser_1.iloc[1:]
     fig, axes = plt.subplots()
     axes.hist(ser_2)
+
