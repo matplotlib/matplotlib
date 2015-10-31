@@ -1,4 +1,4 @@
-w.. _whats-new:
+.. _whats-new:
 
 ************************
 What's new in matplotlib
