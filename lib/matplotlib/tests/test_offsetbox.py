@@ -1,8 +1,8 @@
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
-import nose
-from nose.tools import assert_true, assert_false
+# import nose
+# from nose.tools import assert_true, assert_false
 from matplotlib.testing.decorators import image_comparison, cleanup
 import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
@@ -78,9 +78,9 @@ def test_offsetbox_clip_children():
     ax.add_artist(anchored_box)
 
     fig.canvas.draw()
-    assert_false(fig.stale)
+    assert not fig.stale
     da.clip_children = True
-    assert_true(fig.stale)
+    assert fig.stale
 
 if __name__ == '__main__':
     nose.runmodule(argv=['-s', '--with-doctest'], exit=False)

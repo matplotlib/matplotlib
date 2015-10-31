@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 import matplotlib.transforms as transforms
 import matplotlib.path as path
 
-from nose.tools import assert_equal
+# from nose.tools import assert_equal
 
 import numpy as np
 import os
@@ -63,7 +63,7 @@ def test_get_default_filename():
         fig = plt.figure()
         canvas = FigureCanvasBase(fig)
         filename = canvas.get_default_filename()
-        assert_equal(filename, 'image.png')
+        assert filename == 'image.png'
     finally:
         shutil.rmtree(test_dir)
 
@@ -81,7 +81,7 @@ def test_get_default_filename_already_exists():
         open(os.path.join(test_dir, 'image.png'), 'w').close()
 
         filename = canvas.get_default_filename()
-        assert_equal(filename, 'image-1.png')
+        assert filename == 'image-1.png'
     finally:
         shutil.rmtree(test_dir)
 

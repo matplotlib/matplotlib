@@ -10,8 +10,9 @@ from datetime import datetime
 import numpy as np
 from numpy.testing.utils import (assert_array_equal, assert_approx_equal,
                                  assert_array_almost_equal)
-from nose.tools import (assert_equal, assert_not_equal, raises, assert_true,
-                        assert_raises)
+import pytest
+# from nose.tools import (assert_equal, assert_not_equal, raises, assert_true,
+#                         assert_raises)
 
 import matplotlib.cbook as cbook
 import matplotlib.colors as mcolors
@@ -20,20 +21,20 @@ from matplotlib.cbook import delete_masked_points as dmp
 
 def test_is_string_like():
     y = np.arange(10)
-    assert_equal(cbook.is_string_like(y), False)
+    assert cbook.is_string_like(y) == False
     y.shape = 10, 1
-    assert_equal(cbook.is_string_like(y), False)
+    assert cbook.is_string_like(y) == False
     y.shape = 1, 10
-    assert_equal(cbook.is_string_like(y), False)
+    assert cbook.is_string_like(y) == False
 
     assert cbook.is_string_like("hello world")
-    assert_equal(cbook.is_string_like(10), False)
+    assert cbook.is_string_like(10) == False
 
     y = ['a', 'b', 'c']
-    assert_equal(cbook.is_string_like(y), False)
+    assert cbook.is_string_like(y) == False
 
     y = np.array(y)
-    assert_equal(cbook.is_string_like(y), False)
+    assert cbook.is_string_like(y) == False
 
     y = np.array(y, dtype=object)
     assert cbook.is_string_like(y)
@@ -50,17 +51,17 @@ def test_is_sequence_of_strings():
 def test_restrict_dict():
     d = {'foo': 'bar', 1: 2}
     d1 = cbook.restrict_dict(d, ['foo', 1])
-    assert_equal(d1, d)
+    assert d1 == d
     d2 = cbook.restrict_dict(d, ['bar', 2])
-    assert_equal(d2, {})
+    assert not d2   # making sure the dict d2 is not empty
     d3 = cbook.restrict_dict(d, {'foo': 1})
-    assert_equal(d3, {'foo': 'bar'})
+    assert d3 == {'foo': 'bar'}
     d4 = cbook.restrict_dict(d, {})
-    assert_equal(d4, {})
+    assert not d4
     d5 = cbook.restrict_dict(d, set(['foo', 2]))
-    assert_equal(d5, {'foo': 'bar'})
+    assert d5 == {'foo': 'bar'}
     # check that d was not modified
-    assert_equal(d, {'foo': 'bar', 1: 2})
+    assert d == {'foo': 'bar', 1: 2}
 
 
 class Test_delete_masked_points(object):
@@ -167,17 +168,17 @@ class Test_boxplot_stats(object):
         }
 
     def test_form_main_list(self):
-        assert_true(isinstance(self.std_results, list))
+        assert isinstance(self.std_results, list)
 
     def test_form_each_dict(self):
         for res in self.std_results:
-            assert_true(isinstance(res, dict))
+            assert isinstance(res, dict)
 
     def test_form_dict_keys(self):
         for res in self.std_results:
             keys = sorted(list(res.keys()))
             for key in keys:
-                assert_true(key in self.known_keys)
+                assert key in self.known_keys
 
     def test_results_baseline(self):
         res = self.std_results[0]
@@ -370,14 +371,10 @@ def test_to_midstep():
 
 
 def test_step_fails():
-    assert_raises(ValueError, cbook._step_validation,
-                  np.arange(12).reshape(3, 4), 'a')
-    assert_raises(ValueError, cbook._step_validation,
-                  np.arange(12), 'a')
-    assert_raises(ValueError, cbook._step_validation,
-                  np.arange(12))
-    assert_raises(ValueError, cbook._step_validation,
-                  np.arange(12), np.arange(3))
+    pytest.raise(ValueError, cbook._step_validation(np.arange(12).reshape(3, 4), 'a'))
+    pytest.raise(ValueError, cbook._step_validation(np.arange(12), 'a'))
+    pytest.raise(ValueError, cbook._step_validation(np.arange(12)))
+    pytest.raise(ValueError, cbook._step_validation(np.arange(12), np.arange(3)))
 
 
 def test_grouper():

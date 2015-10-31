@@ -15,9 +15,9 @@ import matplotlib.pyplot as plt
 from matplotlib.tests import assert_str_equal
 from matplotlib.testing.decorators import cleanup, knownfailureif
 import matplotlib.colors as mcolors
-from nose.tools import assert_true, assert_raises, assert_equal
-from nose.plugins.skip import SkipTest
-import nose
+# from nose.tools import assert_true, assert_raises, assert_equal
+# from nose.plugins.skip import SkipTest
+# import nose
 from itertools import chain
 import numpy as np
 from matplotlib.rcsetup import (validate_bool_maybe_none,
@@ -164,13 +164,13 @@ def test_Bug_2543():
             from copy import deepcopy
             _deep_copy = deepcopy(mpl.rcParams)
         # real test is that this does not raise
-        assert_true(validate_bool_maybe_none(None) is None)
-        assert_true(validate_bool_maybe_none("none") is None)
+        assert validate_bool_maybe_none(None) is None
+        assert validate_bool_maybe_none("none") is None
         _fonttype = mpl.rcParams['svg.fonttype']
-        assert_true(_fonttype == mpl.rcParams['svg.embed_char_paths'])
+        assert _fonttype == mpl.rcParams['svg.embed_char_paths']
         with mpl.rc_context():
             mpl.rcParams['svg.embed_char_paths'] = False
-            assert_true(mpl.rcParams['svg.fonttype'] == "none")
+            assert mpl.rcParams['svg.fonttype'] == "none"
 
 
 @cleanup
@@ -195,7 +195,7 @@ def _legend_rcparam_helper(param_dict, target, get_func):
         _, ax = plt.subplots()
         ax.plot(range(3), label='test')
         leg = ax.legend()
-        assert_equal(getattr(leg.legendPatch, get_func)(), target)
+        assert getattr(leg.legendPatch, get_func)() == target
 
 
 def test_legend_facecolor():
@@ -248,20 +248,20 @@ def test_Issue_1713():
 def _validation_test_helper(validator, arg, target):
     res = validator(arg)
     if isinstance(target, np.ndarray):
-        assert_true(np.all(res == target))
+        assert np.all(res == target)
     elif not isinstance(target, Cycler):
-        assert_equal(res, target)
+        assert res == target
     else:
         # Cyclers can't simply be asserted equal. They don't implement __eq__
-        assert_equal(list(res), list(target))
+        assert list(res) == list(target)
 
 
 def _validation_fail_helper(validator, arg, exception_type):
     if sys.version_info[:2] < (2, 7):
         raise nose.SkipTest("assert_raises as context manager not "
                             "supported with Python < 2.7")
-    with assert_raises(exception_type):
-        validator(arg)
+    ptest.raise(exception_type,validator(arg))
+
 
 
 def test_validators():

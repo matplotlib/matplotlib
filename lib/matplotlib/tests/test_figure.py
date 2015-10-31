@@ -3,8 +3,9 @@ from __future__ import (absolute_import, division, print_function,
 
 from matplotlib.externals import six
 from matplotlib.externals.six.moves import xrange
+import pytest
 
-from nose.tools import assert_equal, assert_true
+# from nose.tools import assert_equal, assert_true
 from matplotlib.testing.decorators import image_comparison, cleanup
 from matplotlib.axes import Axes
 import matplotlib.pyplot as plt
@@ -23,14 +24,14 @@ def test_figure_label():
     plt.figure(0)
     plt.figure(1)
     plt.figure(3)
-    assert_equal(plt.get_fignums(), [0, 1, 3, 4, 5])
-    assert_equal(plt.get_figlabels(), ['', 'today', '', 'tomorrow', ''])
+    assert plt.get_fignums() == [0, 1, 3, 4, 5]
+    assert plt.get_figlabels() == ['', 'today', '', 'tomorrow', '']
     plt.close(10)
     plt.close()
     plt.close(5)
     plt.close('tomorrow')
-    assert_equal(plt.get_fignums(), [0, 1])
-    assert_equal(plt.get_figlabels(), ['', 'today'])
+    assert plt.get_fignums() == [0, 1]
+    assert plt.get_figlabels() == ['', 'today']
 
 
 @cleanup
@@ -40,14 +41,14 @@ def test_fignum_exists():
     plt.figure(2)
     plt.figure('three')
     plt.figure()
-    assert_equal(plt.fignum_exists('one'), True)
-    assert_equal(plt.fignum_exists(2), True)
-    assert_equal(plt.fignum_exists('three'), True)
-    assert_equal(plt.fignum_exists(4), True)
+    assert plt.fignum_exists('one')
+    assert plt.fignum_exists(2)
+    assert plt.fignum_exists('three')
+    assert plt.fignum_exists(4)
     plt.close('one')
     plt.close(4)
-    assert_equal(plt.fignum_exists('one'), False)
-    assert_equal(plt.fignum_exists(4), False)
+    assert plt.fignum_exists('one') == False
+    assert plt.fignum_exists(4) == False
 
 
 @image_comparison(baseline_images=['figure_today'])
@@ -70,25 +71,25 @@ def test_gca():
     fig = plt.figure()
 
     ax1 = fig.add_axes([0, 0, 1, 1])
-    assert_true(fig.gca(projection='rectilinear') is ax1)
-    assert_true(fig.gca() is ax1)
+    assert fig.gca(projection='rectilinear') is ax1
+    assert fig.gca() is ax1
 
     ax2 = fig.add_subplot(121, projection='polar')
-    assert_true(fig.gca() is ax2)
-    assert_true(fig.gca(polar=True)is ax2)
+    assert fig.gca() is ax2
+    assert fig.gca(polar=True)is ax2
 
     ax3 = fig.add_subplot(122)
-    assert_true(fig.gca() is ax3)
+    assert fig.gca() is ax3
 
     # the final request for a polar axes will end up creating one
     # with a spec of 111.
-    assert_true(fig.gca(polar=True) is not ax3)
-    assert_true(fig.gca(polar=True) is not ax2)
-    assert_equal(fig.gca().get_geometry(), (1, 1, 1))
+    assert fig.gca(polar=True) is not ax3
+    assert fig.gca(polar=True) is not ax2
+    assert fig.gca().get_geometry(), (1, 1, 1)
 
     fig.sca(ax1)
-    assert_true(fig.gca(projection='rectilinear') is ax1)
-    assert_true(fig.gca() is ax1)
+    assert fig.gca(projection='rectilinear') is ax1
+    assert fig.gca() is ax1
 
 
 @image_comparison(baseline_images=['figure_suptitle'])
@@ -165,21 +166,21 @@ def test_set_fig_size():
 
     # check figwidth
     fig.set_figwidth(5)
-    assert_equal(fig.get_figwidth(), 5)
+    assert fig.get_figwidth() == 5
 
     # check figheight
     fig.set_figheight(1)
-    assert_equal(fig.get_figheight(), 1)
+    assert fig.get_figheight() == 1
 
     # check using set_size_inches
     fig.set_size_inches(2, 4)
-    assert_equal(fig.get_figwidth(), 2)
-    assert_equal(fig.get_figheight(), 4)
+    assert fig.get_figwidth() == 2
+    assert fig.get_figheight() == 4
 
     # check using tuple to first argument
     fig.set_size_inches((1, 3))
-    assert_equal(fig.get_figwidth(), 1)
-    assert_equal(fig.get_figheight(), 3)
+    assert fig.get_figwidth() == 1
+    assert fig.get_figheight() == 3
 
 
 @cleanup
@@ -189,7 +190,7 @@ def test_axes_remove():
     for ax in axes.ravel()[:-1]:
         assert ax in fig.axes
     assert axes[-1, -1] not in fig.axes
-    assert_equal(len(fig.axes), 3)
+    assert len(fig.axes) == 3
 
 
 def test_figaspect():

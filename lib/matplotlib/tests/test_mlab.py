@@ -8,8 +8,8 @@ import tempfile
 from numpy.testing import assert_allclose, assert_array_equal
 import numpy.ma.testutils as matest
 import numpy as np
-from nose.tools import (assert_equal, assert_almost_equal, assert_not_equal,
-                        assert_true, assert_raises)
+# from nose.tools import (assert_equal, assert_almost_equal, assert_not_equal,
+#                         assert_true, assert_raises)
 
 import matplotlib.mlab as mlab
 import matplotlib.cbook as cbook
@@ -34,11 +34,11 @@ class general_testcase(CleanupTestCase):
     def test_prctile(self):
         # test odd lengths
         x = [1, 2, 3]
-        assert_equal(mlab.prctile(x, 50), np.median(x))
+        assert mlab.prctile(x, 50) == np.median(x)
 
         # test even lengths
         x = [1, 2, 3, 4]
-        assert_equal(mlab.prctile(x, 50), np.median(x))
+        assert mlab.prctile(x, 50) == np.median(x)
 
         # derived from email sent by jason-sage to MPL-user on 20090914
         ob1 = [1, 1, 2, 2, 1, 2, 4, 3, 2, 2, 2, 3,
@@ -88,7 +88,7 @@ class spacing_testcase(CleanupTestCase):
         res = mlab.logspace(xmin, xmax, N)
         targ = np.logspace(np.log10(xmin), np.log10(xmax), N)
         assert_array_equal(targ, res)
-        assert_equal(res.size, 0)
+        assert res.size == 0
 
     def test_logspace_single(self):
         xmin = .03
@@ -97,7 +97,7 @@ class spacing_testcase(CleanupTestCase):
         res = mlab.logspace(xmin, xmax, N)
         targ = np.logspace(np.log10(xmin), np.log10(xmax), N)
         assert_array_equal(targ, res)
-        assert_equal(res.size, 1)
+        assert res.size == 1
 
 
 class stride_testcase(CleanupTestCase):
@@ -123,137 +123,137 @@ class stride_testcase(CleanupTestCase):
 
     def test_stride_windows_2D_ValueError(self):
         x = np.arange(10)[np.newaxis]
-        assert_raises(ValueError, mlab.stride_windows, x, 5)
+        pytest.raise(ValueError, mlab.stride_windows( x, 5))
 
     def test_stride_windows_0D_ValueError(self):
         x = np.array(0)
-        assert_raises(ValueError, mlab.stride_windows, x, 5)
+        pytest.raise(ValueError, mlab.stride_windows( x, 5))
 
     def test_stride_windows_noverlap_gt_n_ValueError(self):
         x = np.arange(10)
-        assert_raises(ValueError, mlab.stride_windows, x, 2, 3)
+        pytest.raise(ValueError, mlab.stride_windows(x, 2, 3)
 
     def test_stride_windows_noverlap_eq_n_ValueError(self):
         x = np.arange(10)
-        assert_raises(ValueError, mlab.stride_windows, x, 2, 2)
+        pytest.raise(ValueError, mlab.stride_windows(x, 2, 2))
 
     def test_stride_windows_n_gt_lenx_ValueError(self):
         x = np.arange(10)
-        assert_raises(ValueError, mlab.stride_windows, x, 11)
+        pytest.raise(ValueError, mlab.stride_windows(x, 11))
 
     def test_stride_windows_n_lt_1_ValueError(self):
         x = np.arange(10)
-        assert_raises(ValueError, mlab.stride_windows, x, 0)
+        pytest.raise(ValueError, mlab.stride_windows(x, 0))
 
     def test_stride_repeat_2D_ValueError(self):
         x = np.arange(10)[np.newaxis]
-        assert_raises(ValueError, mlab.stride_repeat, x, 5)
+        pytest.raise(ValueError, mlab.stride_repeat(x, 5))
 
     def test_stride_repeat_axis_lt_0_ValueError(self):
         x = np.array(0)
-        assert_raises(ValueError, mlab.stride_repeat, x, 5, axis=-1)
+        pytest.raise(ValueError, mlab.stride_repeat(x, 5, axis=-1))
 
     def test_stride_repeat_axis_gt_1_ValueError(self):
         x = np.array(0)
-        assert_raises(ValueError, mlab.stride_repeat, x, 5, axis=2)
+        pytest.raise(ValueError, mlab.stride_repeat(x, 5, axis=2))
 
     def test_stride_repeat_n_lt_1_ValueError(self):
         x = np.arange(10)
-        assert_raises(ValueError, mlab.stride_repeat, x, 0)
+        pytest.raise(ValueError, mlab.stride_repeat(x, 0))
 
     def test_stride_repeat_n1_axis0(self):
         x = np.arange(10)
         y = mlab.stride_repeat(x, 1)
-        assert_equal((1, ) + x.shape, y.shape)
+        assert (1, ) + x.shape == y.shape
         assert_array_equal(x, y.flat)
-        assert_true(self.get_base(y) is x)
+        assert self.get_base(y) is x
 
     def test_stride_repeat_n1_axis1(self):
         x = np.arange(10)
         y = mlab.stride_repeat(x, 1, axis=1)
-        assert_equal(x.shape + (1, ), y.shape)
+        assert x.shape + (1, ) == y.shape
         assert_array_equal(x, y.flat)
-        assert_true(self.get_base(y) is x)
+        assert self.get_base(y) is x
 
     def test_stride_repeat_n5_axis0(self):
         x = np.arange(10)
         y = mlab.stride_repeat(x, 5)
         yr = np.repeat(x[np.newaxis], 5, axis=0)
-        assert_equal(yr.shape, y.shape)
+        assert yr.shape == y.shape
         assert_array_equal(yr, y)
-        assert_equal((5, ) + x.shape, y.shape)
-        assert_true(self.get_base(y) is x)
+        assert (5, ) + x.shape == y.shape
+        assert self.get_base(y) is x
 
     def test_stride_repeat_n5_axis1(self):
         x = np.arange(10)
         y = mlab.stride_repeat(x, 5, axis=1)
         yr = np.repeat(x[np.newaxis], 5, axis=0).T
-        assert_equal(yr.shape, y.shape)
+        assert yr.shape == y.shape
         assert_array_equal(yr, y)
-        assert_equal(x.shape + (5, ), y.shape)
-        assert_true(self.get_base(y) is x)
+        assert x.shape + (5, ) == y.shape
+        assert self.get_base(y) is x
 
     def test_stride_windows_n1_noverlap0_axis0(self):
         x = np.arange(10)
         y = mlab.stride_windows(x, 1)
         yt = self.calc_window_target(x, 1)
-        assert_equal(yt.shape, y.shape)
+        assert yt.shape == y.shape
         assert_array_equal(yt, y)
-        assert_equal((1, ) + x.shape, y.shape)
-        assert_true(self.get_base(y) is x)
+        assert (1, ) + x.shape == y.shape
+        assert self.get_base(y) is x
 
     def test_stride_windows_n1_noverlap0_axis1(self):
         x = np.arange(10)
         y = mlab.stride_windows(x, 1, axis=1)
         yt = self.calc_window_target(x, 1).T
-        assert_equal(yt.shape, y.shape)
+        assert yt.shape == y.shape
         assert_array_equal(yt, y)
-        assert_equal(x.shape + (1, ), y.shape)
-        assert_true(self.get_base(y) is x)
+        assert x.shape + (1, ) == y.shape
+        assert self.get_base(y) is x
 
     def test_stride_windows_n5_noverlap0_axis0(self):
         x = np.arange(100)
         y = mlab.stride_windows(x, 5)
         yt = self.calc_window_target(x, 5)
-        assert_equal(yt.shape, y.shape)
+        assert yt.shape == y.shape
         assert_array_equal(yt, y)
-        assert_equal((5, 20), y.shape)
-        assert_true(self.get_base(y) is x)
+        assert (5, 20) == y.shape
+        assert self.get_base(y) is x
 
     def test_stride_windows_n5_noverlap0_axis1(self):
         x = np.arange(100)
         y = mlab.stride_windows(x, 5, axis=1)
         yt = self.calc_window_target(x, 5).T
-        assert_equal(yt.shape, y.shape)
+        assert yt.shape == y.shape
         assert_array_equal(yt, y)
-        assert_equal((20, 5), y.shape)
-        assert_true(self.get_base(y) is x)
+        assert (20, 5) == y.shape
+        assert self.get_base(y) is x
 
     def test_stride_windows_n15_noverlap2_axis0(self):
         x = np.arange(100)
         y = mlab.stride_windows(x, 15, 2)
         yt = self.calc_window_target(x, 15, 2)
-        assert_equal(yt.shape, y.shape)
+        assert yt.shape == y.shape
         assert_array_equal(yt, y)
-        assert_equal((15, 7), y.shape)
-        assert_true(self.get_base(y) is x)
+        assert (15, 7) == y.shape
+        assert self.get_base(y) is x
 
     def test_stride_windows_n15_noverlap2_axis1(self):
         x = np.arange(100)
         y = mlab.stride_windows(x, 15, 2, axis=1)
         yt = self.calc_window_target(x, 15, 2).T
-        assert_equal(yt.shape, y.shape)
+        assert yt.shape == y.shape
         assert_array_equal(yt, y)
-        assert_equal((7, 15), y.shape)
-        assert_true(self.get_base(y) is x)
+        assert (7, 15) == y.shape
+        assert self.get_base(y) is x
 
     def test_stride_windows_n13_noverlapn3_axis0(self):
         x = np.arange(100)
         y = mlab.stride_windows(x, 13, -3)
         yt = self.calc_window_target(x, 13, -3)
-        assert_equal(yt.shape, y.shape)
+        assert yt.shape == y.shape
         assert_array_equal(yt, y)
-        assert_equal((13, 6), y.shape)
+        assert (13, 6) == y.shape
         assert_true(self.get_base(y) is x)
 
     def test_stride_windows_n13_noverlapn3_axis1(self):
@@ -262,8 +262,8 @@ class stride_testcase(CleanupTestCase):
         yt = self.calc_window_target(x, 13, -3).T
         assert_equal(yt.shape, y.shape)
         assert_array_equal(yt, y)
-        assert_equal((6, 13), y.shape)
-        assert_true(self.get_base(y) is x)
+        assert (6, 13) == y.shape
+        assert self.get_base(y) is x
 
     def test_stride_windows_n32_noverlap0_axis0_unflatten(self):
         n = 32
@@ -271,7 +271,7 @@ class stride_testcase(CleanupTestCase):
         x1 = np.tile(x, (21, 1))
         x2 = x1.flatten()
         y = mlab.stride_windows(x2, n)
-        assert_equal(y.shape, x1.T.shape)
+        assert y.shape == x1.T.shape
         assert_array_equal(y, x1.T)
 
     def test_stride_windows_n32_noverlap0_axis1_unflatten(self):
@@ -280,7 +280,7 @@ class stride_testcase(CleanupTestCase):
         x1 = np.tile(x, (21, 1))
         x2 = x1.flatten()
         y = mlab.stride_windows(x2, n, axis=1)
-        assert_equal(y.shape, x1.shape)
+        assert y.shape == x1.shape
         assert_array_equal(y, x1)
 
     def test_stride_ensure_integer_type(self):
@@ -337,7 +337,7 @@ class csv_testcase(CleanupTestCase):
                                     (str('y'), np.float)])
 
         # the bad recarray should trigger a ValueError for having ndim > 1.
-        assert_raises(ValueError, mlab.rec2csv, bad, self.fd)
+        pytest.raise(ValueError, mlab.rec2csv( bad, self.fd))
 
     def test_csv2rec_names_with_comments(self):
         self.fd.write('# comment\n1,2,3\n4,5,6\n')
@@ -399,25 +399,25 @@ class window_testcase(CleanupTestCase):
     def test_apply_window_1D_axis1_ValueError(self):
         x = self.sig_rand
         window = mlab.window_hanning
-        assert_raises(ValueError, mlab.apply_window, x, window, axis=1,
-                      return_window=False)
+        pytest.raise(ValueError, mlab.apply_window( x, window, axis=1,
+                      return_window=False))
 
     def test_apply_window_1D_els_wrongsize_ValueError(self):
         x = self.sig_rand
         window = mlab.window_hanning(np.ones(x.shape[0]-1))
-        assert_raises(ValueError, mlab.apply_window, x, window)
+        pytest.raise(ValueError, mlab.apply_window(x, window))
 
     def test_apply_window_0D_ValueError(self):
         x = np.array(0)
         window = mlab.window_hanning
-        assert_raises(ValueError, mlab.apply_window, x, window, axis=1,
-                      return_window=False)
+        pytest.raise(ValueError, mlab.apply_window(x, window, axis=1,
+                      return_window=False))
 
     def test_apply_window_3D_ValueError(self):
         x = self.sig_rand[np.newaxis][np.newaxis]
         window = mlab.window_hanning
-        assert_raises(ValueError, mlab.apply_window, x, window, axis=1,
-                      return_window=False)
+        pytest.raise(ValueError, mlab.apply_window(x, window, axis=1,
+                      return_window=False))
 
     def test_apply_window_hanning_1D(self):
         x = self.sig_rand
@@ -425,8 +425,8 @@ class window_testcase(CleanupTestCase):
         window1 = mlab.window_hanning(np.ones(x.shape[0]))
         y, window2 = mlab.apply_window(x, window, return_window=True)
         yt = window(x)
-        assert_equal(yt.shape, y.shape)
-        assert_equal(x.shape, y.shape)
+        assert yt.shape == y.shape
+        assert x.shape == y.shape
         assert_allclose(yt, y, atol=1e-06)
         assert_array_equal(window1, window2)
 
@@ -435,8 +435,8 @@ class window_testcase(CleanupTestCase):
         window = mlab.window_hanning
         y = mlab.apply_window(x, window, axis=0, return_window=False)
         yt = window(x)
-        assert_equal(yt.shape, y.shape)
-        assert_equal(x.shape, y.shape)
+        assert yt.shape == y.shape
+        assert x.shape == y.shape
         assert_allclose(yt, y, atol=1e-06)
 
     def test_apply_window_hanning_els_1D_axis0(self):
@@ -445,8 +445,8 @@ class window_testcase(CleanupTestCase):
         window1 = mlab.window_hanning
         y = mlab.apply_window(x, window, axis=0, return_window=False)
         yt = window1(x)
-        assert_equal(yt.shape, y.shape)
-        assert_equal(x.shape, y.shape)
+        assert yt.shape == y.shape
+        assert x.shape == y.shape
         assert_allclose(yt, y, atol=1e-06)
 
     def test_apply_window_hanning_2D_axis0(self):
@@ -456,8 +456,8 @@ class window_testcase(CleanupTestCase):
         yt = np.zeros_like(x)
         for i in range(x.shape[1]):
             yt[:, i] = window(x[:, i])
-        assert_equal(yt.shape, y.shape)
-        assert_equal(x.shape, y.shape)
+        assert yt.shape == y.shape
+        assert x.shape == y.shape
         assert_allclose(yt, y, atol=1e-06)
 
     def test_apply_window_hanning_els1_2D_axis0(self):
@@ -468,8 +468,8 @@ class window_testcase(CleanupTestCase):
         yt = np.zeros_like(x)
         for i in range(x.shape[1]):
             yt[:, i] = window1(x[:, i])
-        assert_equal(yt.shape, y.shape)
-        assert_equal(x.shape, y.shape)
+        assert yt.shape == y.shape
+        assert x.shape == y.shape
         assert_allclose(yt, y, atol=1e-06)
 
     def test_apply_window_hanning_els2_2D_axis0(self):
@@ -480,8 +480,8 @@ class window_testcase(CleanupTestCase):
         yt = np.zeros_like(x)
         for i in range(x.shape[1]):
             yt[:, i] = window1*x[:, i]
-        assert_equal(yt.shape, y.shape)
-        assert_equal(x.shape, y.shape)
+        assert yt.shape == y.shape
+        assert x.shape == y.shape
         assert_allclose(yt, y, atol=1e-06)
         assert_array_equal(window1, window2)
 
@@ -491,8 +491,8 @@ class window_testcase(CleanupTestCase):
         window1 = mlab.window_hanning(np.ones(x.shape[0]))
         y, window2 = mlab.apply_window(x, window, axis=0, return_window=True)
         yt = mlab.apply_window(x, window1, axis=0, return_window=False)
-        assert_equal(yt.shape, y.shape)
-        assert_equal(x.shape, y.shape)
+        assert yt.shape == y.shape
+        assert x.shape == y.shape
         assert_allclose(yt, y, atol=1e-06)
         assert_array_equal(window1, window2)
 
@@ -503,8 +503,8 @@ class window_testcase(CleanupTestCase):
         yt = np.zeros_like(x)
         for i in range(x.shape[0]):
             yt[i, :] = window(x[i, :])
-        assert_equal(yt.shape, y.shape)
-        assert_equal(x.shape, y.shape)
+        assert yt.shape == y.shape
+        assert x.shape == y.shape
         assert_allclose(yt, y, atol=1e-06)
 
     def test_apply_window_hanning_2D__els1_axis1(self):
@@ -515,8 +515,8 @@ class window_testcase(CleanupTestCase):
         yt = np.zeros_like(x)
         for i in range(x.shape[0]):
             yt[i, :] = window1(x[i, :])
-        assert_equal(yt.shape, y.shape)
-        assert_equal(x.shape, y.shape)
+        assert yt.shape == y.shape
+        assert x.shape == y.shape
         assert_allclose(yt, y, atol=1e-06)
 
     def test_apply_window_hanning_2D_els2_axis1(self):
@@ -527,8 +527,8 @@ class window_testcase(CleanupTestCase):
         yt = np.zeros_like(x)
         for i in range(x.shape[0]):
             yt[i, :] = window1 * x[i, :]
-        assert_equal(yt.shape, y.shape)
-        assert_equal(x.shape, y.shape)
+        assert yt.shape == y.shape
+        assert x.shape == y.shape
         assert_allclose(yt, y, atol=1e-06)
         assert_array_equal(window1, window2)
 
@@ -538,8 +538,8 @@ class window_testcase(CleanupTestCase):
         window1 = mlab.window_hanning(np.ones(x.shape[1]))
         y = mlab.apply_window(x, window, axis=1, return_window=False)
         yt = mlab.apply_window(x, window1, axis=1, return_window=False)
-        assert_equal(yt.shape, y.shape)
-        assert_equal(x.shape, y.shape)
+        assert yt.shape == y.shape
+        assert x.shape == y.shape
         assert_allclose(yt, y, atol=1e-06)
 
     def test_apply_window_stride_windows_hanning_2D_n13_noverlapn3_axis0(self):
@@ -548,8 +548,8 @@ class window_testcase(CleanupTestCase):
         yi = mlab.stride_windows(x, n=13, noverlap=2, axis=0)
         y = mlab.apply_window(yi, window, axis=0, return_window=False)
         yt = self.check_window_apply_repeat(x, window, 13, 2)
-        assert_equal(yt.shape, y.shape)
-        assert_not_equal(x.shape, y.shape)
+        assert yt.shape == y.shape
+        assert x.shape != y.shape
         assert_allclose(yt, y, atol=1e-06)
 
     def test_apply_window_hanning_2D_stack_axis1(self):
@@ -625,31 +625,31 @@ class detrend_testcase(CleanupTestCase):
         input = 0.
         targ = input
         res = mlab.detrend_none(input)
-        assert_equal(input, targ)
+        assert input == targ
 
     def test_detrend_none_0D_zeros_axis1(self):
         input = 0.
         targ = input
         res = mlab.detrend_none(input, axis=1)
-        assert_equal(input, targ)
+        assert input == targ
 
     def test_detrend_str_none_0D_zeros(self):
         input = 0.
         targ = input
         res = mlab.detrend(input, key='none')
-        assert_equal(input, targ)
+        assert input == targ
 
     def test_detrend_detrend_none_0D_zeros(self):
         input = 0.
         targ = input
         res = mlab.detrend(input, key=mlab.detrend_none)
-        assert_equal(input, targ)
+        assert input == targ
 
     def test_detrend_none_0D_off(self):
         input = 5.5
         targ = input
         res = mlab.detrend_none(input)
-        assert_equal(input, targ)
+        assert input == targ
 
     def test_detrend_none_1D_off(self):
         input = self.sig_off
@@ -673,7 +673,7 @@ class detrend_testcase(CleanupTestCase):
         input = self.sig_base + self.sig_slope + self.sig_off
         targ = input.tolist()
         res = mlab.detrend_none(input.tolist())
-        assert_equal(res, targ)
+        assert res == targ
 
     def test_detrend_none_2D(self):
         arri = [self.sig_base,
@@ -1096,43 +1096,43 @@ class detrend_testcase(CleanupTestCase):
 
     def test_detrend_bad_key_str_ValueError(self):
         input = self.sig_slope[np.newaxis]
-        assert_raises(ValueError, mlab.detrend, input, key='spam')
+        pytest.raise(ValueError, mlab.detrend(input, key='spam'))
 
     def test_detrend_bad_key_var_ValueError(self):
         input = self.sig_slope[np.newaxis]
-        assert_raises(ValueError, mlab.detrend, input, key=5)
+        pytest.raise(ValueError, mlab.detrend(input, key=5))
 
     def test_detrend_mean_0D_d0_ValueError(self):
         input = 5.5
-        assert_raises(ValueError, mlab.detrend_mean, input, axis=0)
+        pytest.raise(ValueError, mlab.detrend_mean(input, axis=0))
 
     def test_detrend_0D_d0_ValueError(self):
         input = 5.5
-        assert_raises(ValueError, mlab.detrend, input, axis=0)
+        pytest.raise(ValueError, mlab.detrend(input, axis=0))
 
     def test_detrend_mean_1D_d1_ValueError(self):
         input = self.sig_slope
-        assert_raises(ValueError, mlab.detrend_mean, input, axis=1)
+        pytest.raise(ValueError, mlab.detrend_mean(input, axis=1))
 
     def test_detrend_1D_d1_ValueError(self):
         input = self.sig_slope
-        assert_raises(ValueError, mlab.detrend, input, axis=1)
+        pytest.raise(ValueError, mlab.detrend(input, axis=1))
 
     def test_demean_1D_d1_ValueError(self):
         input = self.sig_slope
-        assert_raises(ValueError, mlab.demean, input, axis=1)
+        pytest.raise(ValueError, mlab.demean(input, axis=1))
 
     def test_detrend_mean_2D_d2_ValueError(self):
         input = self.sig_slope[np.newaxis]
-        assert_raises(ValueError, mlab.detrend_mean, input, axis=2)
+        pytest.raise(ValueError, mlab.detrend_mean(input, axis=2))
 
     def test_detrend_2D_d2_ValueError(self):
         input = self.sig_slope[np.newaxis]
-        assert_raises(ValueError, mlab.detrend, input, axis=2)
+        pytest.raise(ValueError, mlab.detrend(input, axis=2))
 
     def test_demean_2D_d2_ValueError(self):
         input = self.sig_slope[np.newaxis]
-        assert_raises(ValueError, mlab.demean, input, axis=2)
+        pytest.raise(ValueError, mlab.demean(input, axis=2))
 
     def test_detrend_linear_0D_zeros(self):
         input = 0.
@@ -1196,7 +1196,7 @@ class detrend_testcase(CleanupTestCase):
 
     def test_detrend_linear_2D_ValueError(self):
         input = self.sig_slope[np.newaxis]
-        assert_raises(ValueError, mlab.detrend_linear, input)
+        pytest.raise(ValueError, mlab.detrend_linear(input))
 
     def test_detrend_str_linear_2d_slope_off_axis0(self):
         arri = [self.sig_off,
@@ -1397,13 +1397,13 @@ class spectral_testcase_nosig_real_onesided(CleanupTestCase):
         self.NFFT_density_real = NFFT_density_real
 
     def check_freqs(self, vals, targfreqs, resfreqs, fstims):
-        assert_true(resfreqs.argmin() == 0)
-        assert_true(resfreqs.argmax() == len(resfreqs)-1)
+        assert resfreqs.argmin() == 0
+        assert resfreqs.argmax() == len(resfreqs)-1
         assert_allclose(resfreqs, targfreqs, atol=1e-06)
         for fstim in fstims:
             i = np.abs(resfreqs - fstim).argmin()
-            assert_true(vals[i] > vals[i+2])
-            assert_true(vals[i] > vals[i-2])
+            assert vals[i] > vals[i+2]
+            assert vals[i] > vals[i-2]
 
     def check_maxfreq(self, spec, fsp, fstims):
         # skip the test if there are no frequencies
@@ -1431,58 +1431,58 @@ class spectral_testcase_nosig_real_onesided(CleanupTestCase):
 
     def test_spectral_helper_raises_complex_same_data(self):
         # test that mode 'complex' cannot be used if x is not y
-        assert_raises(ValueError, mlab._spectral_helper,
-                      x=self.y, y=self.y+1, mode='complex')
+        pytest.raise(ValueError, mlab._spectral_helper(
+                      x=self.y, y=self.y+1, mode='complex'))
 
     def test_spectral_helper_raises_magnitude_same_data(self):
         # test that mode 'magnitude' cannot be used if x is not y
-        assert_raises(ValueError, mlab._spectral_helper,
-                      x=self.y, y=self.y+1, mode='magnitude')
+        pytest.raise(ValueError, mlab._spectral_helper(
+                      x=self.y, y=self.y+1, mode='magnitude'))
 
     def test_spectral_helper_raises_angle_same_data(self):
         # test that mode 'angle' cannot be used if x is not y
-        assert_raises(ValueError, mlab._spectral_helper,
-                      x=self.y, y=self.y+1, mode='angle')
+        pytest.raise(ValueError, mlab._spectral_helper(
+                      x=self.y, y=self.y+1, mode='angle'))
 
     def test_spectral_helper_raises_phase_same_data(self):
         # test that mode 'phase' cannot be used if x is not y
-        assert_raises(ValueError, mlab._spectral_helper,
-                      x=self.y, y=self.y+1, mode='phase')
+        pytest.raise(ValueError, mlab._spectral_helper(
+                      x=self.y, y=self.y+1, mode='phase'))
 
     def test_spectral_helper_raises_unknown_mode(self):
         # test that unknown value for mode cannot be used
-        assert_raises(ValueError, mlab._spectral_helper,
-                      x=self.y, mode='spam')
+        pytest.raise(ValueError, mlab._spectral_helper(
+                      x=self.y, mode='spam'))
 
     def test_spectral_helper_raises_unknown_sides(self):
         # test that unknown value for sides cannot be used
-        assert_raises(ValueError, mlab._spectral_helper,
-                      x=self.y, y=self.y, sides='eggs')
+        pytest.raise(ValueError, mlab._spectral_helper(
+                      x=self.y, y=self.y, sides='eggs'))
 
     def test_spectral_helper_raises_noverlap_gt_NFFT(self):
         # test that noverlap cannot be larger than NFFT
-        assert_raises(ValueError, mlab._spectral_helper,
-                      x=self.y, y=self.y, NFFT=10, noverlap=20)
+        pytest.raise(ValueError, mlab._spectral_helper(
+                      x=self.y, y=self.y, NFFT=10, noverlap=20))
 
     def test_spectral_helper_raises_noverlap_eq_NFFT(self):
         # test that noverlap cannot be equal to NFFT
-        assert_raises(ValueError, mlab._spectral_helper,
-                      x=self.y, NFFT=10, noverlap=10)
+        pytest.raise(ValueError, mlab._spectral_helper(
+                      x=self.y, NFFT=10, noverlap=10))
 
     def test_spectral_helper_raises_winlen_ne_NFFT(self):
         # test that the window length cannot be different from NFFT
-        assert_raises(ValueError, mlab._spectral_helper,
-                      x=self.y, y=self.y, NFFT=10, window=np.ones(9))
+        pytest.raise(ValueError, mlab._spectral_helper(
+                      x=self.y, y=self.y, NFFT=10, window=np.ones(9)))
 
     def test_single_spectrum_helper_raises_mode_default(self):
         # test that mode 'default' cannot be used with _single_spectrum_helper
-        assert_raises(ValueError, mlab._single_spectrum_helper,
-                      x=self.y, mode='default')
+        pytest.raise(ValueError, mlab._single_spectrum_helper(
+                      x=self.y, mode='default'))
 
     def test_single_spectrum_helper_raises_mode_psd(self):
         # test that mode 'psd' cannot be used with _single_spectrum_helper
-        assert_raises(ValueError, mlab._single_spectrum_helper,
-                      x=self.y, mode='psd')
+        pytest.raise(ValueError, mlab._single_spectrum_helper(
+                      x=self.y, mode='psd'))
 
     def test_spectral_helper_psd(self):
         freqs = self.freqs_density
@@ -1497,8 +1497,8 @@ class spectral_testcase_nosig_real_onesided(CleanupTestCase):
         assert_allclose(fsp, freqs, atol=1e-06)
         assert_allclose(t, self.t_density, atol=1e-06)
 
-        assert_equal(spec.shape[0], freqs.shape[0])
-        assert_equal(spec.shape[1], self.t_specgram.shape[0])
+        assert spec.shape[0] == freqs.shape[0]
+        assert spec.shape[1] == self.t_specgram.shape[0]
 
     def test_spectral_helper_magnitude_specgram(self):
         freqs = self.freqs_specgram
@@ -1513,8 +1513,8 @@ class spectral_testcase_nosig_real_onesided(CleanupTestCase):
         assert_allclose(fsp, freqs, atol=1e-06)
         assert_allclose(t, self.t_specgram, atol=1e-06)
 
-        assert_equal(spec.shape[0], freqs.shape[0])
-        assert_equal(spec.shape[1], self.t_specgram.shape[0])
+        assert spec.shape[0] == freqs.shape[0]
+        assert spec.shape[1] == self.t_specgram.shape[0]
 
     def test_spectral_helper_magnitude_magnitude_spectrum(self):
         freqs = self.freqs_spectrum
@@ -1529,8 +1529,8 @@ class spectral_testcase_nosig_real_onesided(CleanupTestCase):
         assert_allclose(fsp, freqs, atol=1e-06)
         assert_allclose(t, self.t_spectrum, atol=1e-06)
 
-        assert_equal(spec.shape[0], freqs.shape[0])
-        assert_equal(spec.shape[1], 1)
+        assert spec.shape[0] == freqs.shape[0]
+        assert spec.shape[1] == 1
 
     def test_csd(self):
         freqs = self.freqs_density
@@ -1541,7 +1541,7 @@ class spectral_testcase_nosig_real_onesided(CleanupTestCase):
                              pad_to=self.pad_to_density,
                              sides=self.sides)
         assert_allclose(fsp, freqs, atol=1e-06)
-        assert_equal(spec.shape, freqs.shape)
+        assert spec.shape == freqs.shape
 
     def test_psd(self):
         freqs = self.freqs_density
@@ -1551,7 +1551,7 @@ class spectral_testcase_nosig_real_onesided(CleanupTestCase):
                              noverlap=self.nover_density,
                              pad_to=self.pad_to_density,
                              sides=self.sides)
-        assert_equal(spec.shape, freqs.shape)
+        assert spec.shape == freqs.shape
         self.check_freqs(spec, freqs, fsp, self.fstims)
 
     def test_psd_detrend_mean_func_offset(self):
@@ -1587,8 +1587,8 @@ class spectral_testcase_nosig_real_onesided(CleanupTestCase):
         assert_array_equal(fsp_b, fsp_c)
         assert_allclose(spec_g, spec_c, atol=1e-08)
         # these should not be almost equal
-        assert_raises(AssertionError,
-                      assert_allclose, spec_b, spec_c, atol=1e-08)
+        pytest.raise(AssertionError,
+                      assert_allclose(spec_b, spec_c, atol=1e-08))
 
     def test_psd_detrend_mean_str_offset(self):
         if self.NFFT_density is None:
@@ -1623,8 +1623,8 @@ class spectral_testcase_nosig_real_onesided(CleanupTestCase):
         assert_array_equal(fsp_b, fsp_c)
         assert_allclose(spec_g, spec_c, atol=1e-08)
         # these should not be almost equal
-        assert_raises(AssertionError,
-                      assert_allclose, spec_b, spec_c, atol=1e-08)
+        pytest.raise(AssertionError,
+                      assert_allclose(spec_b, spec_c, atol=1e-08))
 
     def test_psd_detrend_linear_func_trend(self):
         if self.NFFT_density is None:
@@ -1659,8 +1659,8 @@ class spectral_testcase_nosig_real_onesided(CleanupTestCase):
         assert_array_equal(fsp_b, fsp_c)
         assert_allclose(spec_g, spec_c, atol=1e-08)
         # these should not be almost equal
-        assert_raises(AssertionError,
-                      assert_allclose, spec_b, spec_c, atol=1e-08)
+        pytest.raise(AssertionError,
+                      assert_allclose(spec_b, spec_c, atol=1e-08))
 
     def test_psd_detrend_linear_str_trend(self):
         if self.NFFT_density is None:
@@ -1695,8 +1695,8 @@ class spectral_testcase_nosig_real_onesided(CleanupTestCase):
         assert_array_equal(fsp_b, fsp_c)
         assert_allclose(spec_g, spec_c, atol=1e-08)
         # these should not be almost equal
-        assert_raises(AssertionError,
-                      assert_allclose, spec_b, spec_c, atol=1e-08)
+        pytest.raise(AssertionError,
+                      assert_allclose(spec_b, spec_c, atol=1e-08))
 
     def test_psd_window_hanning(self):
         if self.NFFT_density is None:
@@ -1739,8 +1739,8 @@ class spectral_testcase_nosig_real_onesided(CleanupTestCase):
         assert_array_equal(fsp_b, fsp_c)
         assert_allclose(spec_g, spec_c, atol=1e-08)
         # these should not be almost equal
-        assert_raises(AssertionError,
-                      assert_allclose, spec_b, spec_c, atol=1e-08)
+        pytest.raise(AssertionError,
+                      assert_allclose(spec_b, spec_c, atol=1e-08))
 
     def test_psd_window_hanning_detrend_linear(self):
         if self.NFFT_density is None:
@@ -1788,8 +1788,8 @@ class spectral_testcase_nosig_real_onesided(CleanupTestCase):
         assert_array_equal(fsp_b, fsp_c)
         assert_allclose(spec_g, spec_c, atol=1e-08)
         # these should not be almost equal
-        assert_raises(AssertionError,
-                      assert_allclose, spec_b, spec_c, atol=1e-08)
+        pytest.raise(AssertionError,
+                      assert_allclose(spec_b, spec_c, atol=1e-08))
 
     def test_psd_windowarray(self):
         freqs = self.freqs_density
@@ -1801,7 +1801,7 @@ class spectral_testcase_nosig_real_onesided(CleanupTestCase):
                              sides=self.sides,
                              window=np.ones(self.NFFT_density_real))
         assert_allclose(fsp, freqs, atol=1e-06)
-        assert_equal(spec.shape, freqs.shape)
+        assert spec.shape == freqs.shape
 
     def test_psd_windowarray_scale_by_freq(self):
         freqs = self.freqs_density
@@ -1844,7 +1844,7 @@ class spectral_testcase_nosig_real_onesided(CleanupTestCase):
                                           sides=self.sides,
                                           pad_to=self.pad_to_spectrum)
         assert_allclose(fsp, freqs, atol=1e-06)
-        assert_equal(spec.shape, freqs.shape)
+        assert spec.shape == freqs.shape
 
     def test_magnitude_spectrum(self):
         freqs = self.freqs_spectrum
@@ -1852,7 +1852,7 @@ class spectral_testcase_nosig_real_onesided(CleanupTestCase):
                                             Fs=self.Fs,
                                             sides=self.sides,
                                             pad_to=self.pad_to_spectrum)
-        assert_equal(spec.shape, freqs.shape)
+        assert spec.shape == freqs.shape
         self.check_maxfreq(spec, fsp, self.fstims)
         self.check_freqs(spec, freqs, fsp, self.fstims)
 
@@ -1863,7 +1863,7 @@ class spectral_testcase_nosig_real_onesided(CleanupTestCase):
                                         sides=self.sides,
                                         pad_to=self.pad_to_spectrum)
         assert_allclose(fsp, freqs, atol=1e-06)
-        assert_equal(spec.shape, freqs.shape)
+        assert spec.shape == freqs.shape
 
     def test_phase_spectrum(self):
         freqs = self.freqs_spectrum
@@ -1872,7 +1872,7 @@ class spectral_testcase_nosig_real_onesided(CleanupTestCase):
                                         sides=self.sides,
                                         pad_to=self.pad_to_spectrum)
         assert_allclose(fsp, freqs, atol=1e-06)
-        assert_equal(spec.shape, freqs.shape)
+        assert spec.shape == freqs.shape
 
     def test_specgram_auto(self):
         freqs = self.freqs_specgram
@@ -1887,8 +1887,8 @@ class spectral_testcase_nosig_real_onesided(CleanupTestCase):
         assert_allclose(fsp, freqs, atol=1e-06)
         assert_allclose(t, self.t_specgram, atol=1e-06)
 
-        assert_equal(spec.shape[0], freqs.shape[0])
-        assert_equal(spec.shape[1], self.t_specgram.shape[0])
+        assert spec.shape[0] == freqs.shape[0]
+        assert spec.shape[1] == self.t_specgram.shape[0]
 
         # since we are using a single freq, all time slices
         # should be about the same
@@ -1911,8 +1911,8 @@ class spectral_testcase_nosig_real_onesided(CleanupTestCase):
         assert_allclose(fsp, freqs, atol=1e-06)
         assert_allclose(t, self.t_specgram, atol=1e-06)
 
-        assert_equal(spec.shape[0], freqs.shape[0])
-        assert_equal(spec.shape[1], self.t_specgram.shape[0])
+        assert spec.shape[0] == freqs.shape[0]
+        assert spec.shape[1] == self.t_specgram.shape[0]
 
         # since we are using a single freq, all time slices
         # should be about the same
@@ -1935,8 +1935,8 @@ class spectral_testcase_nosig_real_onesided(CleanupTestCase):
         assert_allclose(fsp, freqs, atol=1e-06)
         assert_allclose(t, self.t_specgram, atol=1e-06)
 
-        assert_equal(spec.shape[0], freqs.shape[0])
-        assert_equal(spec.shape[1], self.t_specgram.shape[0])
+        assert spec.shape[0] == freqs.shape[0]
+        assert spec.shape[1] == self.t_specgram.shape[0]
         # since we are using a single freq, all time slices
         # should be about the same
         if np.abs(spec.max()) != 0:
@@ -1957,8 +1957,8 @@ class spectral_testcase_nosig_real_onesided(CleanupTestCase):
         assert_allclose(fsp, freqs, atol=1e-06)
         assert_allclose(t, self.t_specgram, atol=1e-06)
 
-        assert_equal(spec.shape[0], freqs.shape[0])
-        assert_equal(spec.shape[1], self.t_specgram.shape[0])
+        assert spec.shape[0] == freqs.shape[0]
+        assert spec.shape[1] == self.t_specgram.shape[0]
 
         self.check_freqs(specm, freqs, fsp, self.fstims)
 
@@ -1975,8 +1975,8 @@ class spectral_testcase_nosig_real_onesided(CleanupTestCase):
         assert_allclose(fsp, freqs, atol=1e-06)
         assert_allclose(t, self.t_specgram, atol=1e-06)
 
-        assert_equal(spec.shape[0], freqs.shape[0])
-        assert_equal(spec.shape[1], self.t_specgram.shape[0])
+        assert spec.shape[0] == freqs.shape[0]
+        assert spec.shape[1] == self.t_specgram.shape[0]
         # since we are using a single freq, all time slices
         # should be about the same
         if np.abs(spec.max()) != 0:
@@ -1997,8 +1997,8 @@ class spectral_testcase_nosig_real_onesided(CleanupTestCase):
         assert_allclose(fsp, freqs, atol=1e-06)
         assert_allclose(t, self.t_specgram, atol=1e-06)
 
-        assert_equal(spec.shape[0], freqs.shape[0])
-        assert_equal(spec.shape[1], self.t_specgram.shape[0])
+        assert spec.shape[0] == freqs.shape[0]
+        assert spec.shape[1] == self.t_specgram.shape[0]
 
     def test_specgram_phase(self):
         freqs = self.freqs_specgram
@@ -2014,8 +2014,8 @@ class spectral_testcase_nosig_real_onesided(CleanupTestCase):
         assert_allclose(fsp, freqs, atol=1e-06)
         assert_allclose(t, self.t_specgram, atol=1e-06)
 
-        assert_equal(spec.shape[0], freqs.shape[0])
-        assert_equal(spec.shape[1], self.t_specgram.shape[0])
+        assert spec.shape[0] == freqs.shape[0]
+        assert spec.shape[1] == self.t_specgram.shape[0]
 
     def test_psd_csd_equal(self):
         freqs = self.freqs_density
@@ -2771,10 +2771,10 @@ def test_griddata_nn():
     np.testing.assert_array_almost_equal(zi, correct_zi, 5)
 
     # Decreasing xi or yi should raise ValueError.
-    assert_raises(ValueError, mlab.griddata, x, y, z, xi[::-1], yi,
-                  interp='nn')
-    assert_raises(ValueError, mlab.griddata, x, y, z, xi, yi[::-1],
-                  interp='nn')
+    pytest.raise(ValueError, mlab.griddata(x, y, z, xi[::-1], yi,
+                  interp='nn'))
+    pytest.raise(ValueError, mlab.griddata(x, y, z, xi, yi[::-1],
+                  interp='nn'))
 
     # Passing 2D xi and yi arrays to griddata.
     xi, yi = np.meshgrid(xi, yi)
@@ -2844,17 +2844,17 @@ class gaussian_kde_tests():
 class gaussian_kde_custom_tests(object):
     def test_no_data(self):
         """Pass no data into the GaussianKDE class."""
-        assert_raises(ValueError, mlab.GaussianKDE, [])
+        pytest.raise(ValueError, mlab.GaussianKDE,([]))
 
     def test_single_dataset_element(self):
         """Pass a single dataset element into the GaussianKDE class."""
-        assert_raises(ValueError, mlab.GaussianKDE, [42])
+        pytest.raise(ValueError, mlab.GaussianKDE([42]))
 
     def test_silverman_multidim_dataset(self):
         """Use a multi-dimensional array as the dataset and test silverman's
         output"""
         x1 = np.array([[1, 2, 3], [4, 5, 6], [7, 8, 9]])
-        assert_raises(np.linalg.LinAlgError, mlab.GaussianKDE, x1, "silverman")
+        pytest.raise(np.linalg.LinAlgError, mlab.GaussianKDE(x1, "silverman"))
 
     def test_silverman_singledim_dataset(self):
         """Use a single dimension list as the dataset and test silverman's
@@ -2868,7 +2868,7 @@ class gaussian_kde_custom_tests(object):
         """Use a multi-dimensional array as the dataset and test scott's output
         """
         x1 = np.array([[1, 2, 3], [4, 5, 6], [7, 8, 9]])
-        assert_raises(np.linalg.LinAlgError, mlab.GaussianKDE, x1, "scott")
+        pytest.raise(np.linalg.LinAlgError, mlab.GaussianKDE(x1, "scott"))
 
     def test_scott_singledim_dataset(self):
         """Use a single-dimensional array as the dataset and test scott's
@@ -2881,7 +2881,7 @@ class gaussian_kde_custom_tests(object):
     def test_scalar_empty_dataset(self):
         """Use an empty array as the dataset and test the scalar's cov factor
         """
-        assert_raises(ValueError, mlab.GaussianKDE, [], bw_method=5)
+        pytest.raise(ValueError, mlab.GaussianKDE([], bw_method=5))
 
     def test_scalar_covariance_dataset(self):
         """Use a dataset and test a scalar's cov factor
@@ -2891,7 +2891,7 @@ class gaussian_kde_custom_tests(object):
         multidim_data = [np.random.randn(n_basesample) for i in range(5)]
 
         kde = mlab.GaussianKDE(multidim_data, bw_method=0.5)
-        assert_equal(kde.covariance_factor(), 0.5)
+        assert kde.covariance_factor() == 0.5
 
     def test_callable_covariance_dataset(self):
         """Use a multi-dimensional array as the dataset and test the callable's
@@ -2903,7 +2903,7 @@ class gaussian_kde_custom_tests(object):
         def callable_fun(x):
             return 0.55
         kde = mlab.GaussianKDE(multidim_data, bw_method=callable_fun)
-        assert_equal(kde.covariance_factor(), 0.55)
+        assert kde.covariance_factor() == 0.55
 
     def test_callable_singledim_dataset(self):
         """Use a single-dimensional array as the dataset and test the
@@ -2921,7 +2921,7 @@ class gaussian_kde_custom_tests(object):
         np.random.seed(8765678)
         n_basesample = 50
         data = np.random.randn(n_basesample)
-        assert_raises(ValueError, mlab.GaussianKDE, data, bw_method="invalid")
+        pytest.raise(ValueError, mlab.GaussianKDE(data, bw_method="invalid"))
 
 
 class gaussian_kde_evaluate_tests(object):
@@ -2947,7 +2947,7 @@ class gaussian_kde_evaluate_tests(object):
         multidim_data = np.random.randn(n_basesample)
         kde = mlab.GaussianKDE(multidim_data)
         x2 = [[1], [2], [3]]
-        assert_raises(ValueError, kde.evaluate, x2)
+        pytest.raise(ValueError, kde.evaluate(x2))
 
     def test_evaluate_dim_and_num(self):
         """ Tests if evaluated against a one by one array"""
@@ -2963,7 +2963,7 @@ class gaussian_kde_evaluate_tests(object):
         x1 = np.arange(3, 10, 2)
         x2 = [np.arange(3, 10, 2), np.arange(3, 10, 2)]
         kde = mlab.GaussianKDE(x1)
-        assert_raises(ValueError, kde.evaluate, x2)
+        pytest.raise(ValueError, kde.evaluate(x2))
 
     def test_evaluate_equal_dim_and_num_lt(self):
         """Test when line 3810 fails"""
@@ -2980,22 +2980,22 @@ def test_contiguous_regions():
     # Starts and ends with True
     mask = [True]*a + [False]*b + [True]*c
     expected = [(0, a), (a+b, a+b+c)]
-    assert_equal(mlab.contiguous_regions(mask), expected)
+    assert mlab.contiguous_regions(mask) == expected
     d, e = 6, 7
     # Starts with True ends with False
     mask = mask + [False]*e
-    assert_equal(mlab.contiguous_regions(mask), expected)
+    assert mlab.contiguous_regions(mask) == expected
     # Starts with False ends with True
     mask = [False]*d + mask[:-e]
     expected = [(d, d+a), (d+a+b, d+a+b+c)]
-    assert_equal(mlab.contiguous_regions(mask), expected)
+    assert mlab.contiguous_regions(mask) == expected
     # Starts and ends with False
     mask = mask + [False]*e
-    assert_equal(mlab.contiguous_regions(mask), expected)
+    assert mlab.contiguous_regions(mask) == expected
     # No True in mask
-    assert_equal(mlab.contiguous_regions([False]*5), [])
+    assert mlab.contiguous_regions([False]*5) == []
     # Empty mask
-    assert_equal(mlab.contiguous_regions([]), [])
+    assert (mlab.contiguous_regions([]) == []
 
 
 def test_psd_onesided_norm():

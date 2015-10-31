@@ -6,9 +6,11 @@ from __future__ import (absolute_import, division, print_function,
 
 from matplotlib.externals import six
 import itertools
+import matplotlib as mpl
 import matplotlib.lines as mlines
 import nose
 from nose.tools import assert_true, assert_raises
+import pytest
 from timeit import repeat
 import numpy as np
 
@@ -58,7 +60,7 @@ def test_invisible_Line_rendering():
 
     slowdown_factor = (t_unvisible_line/t_no_line)
     slowdown_threshold = 2 # trying to avoid false positive failures
-    assert_true(slowdown_factor < slowdown_threshold)
+    assert slowdown_factor < slowdown_threshold
 
 
 @cleanup
@@ -113,9 +115,8 @@ def test_valid_linestyles():
         raise nose.SkipTest("assert_raises as context manager "
                             "not supported with Python < 2.7")
 
-    line = mlines.Line2D([], [])
-    with assert_raises(ValueError):
-        line.set_linestyle('aardvark')
+    line = mpl.lines.Line2D([], [])
+    pytest.raise(ValueErrorline.set_linestyle('aardvark'))
 
 
 @image_comparison(baseline_images=['line_collection_dashes'], remove_text=True)
@@ -156,10 +157,11 @@ def test_marker_fill_styles():
 
 
 def test_nan_is_sorted():
-    line = mlines.Line2D([],[])
-    assert_true(line._is_sorted(np.array([1, 2, 3])))
-    assert_true(line._is_sorted(np.array([1, np.nan, 3])))
-    assert_true(not line._is_sorted([3, 5] + [np.nan] * 100 + [0, 2]))
+    # Exercises issue from PR #2744 (NaN throwing warning in _is_sorted)
+    line = mpl.lines.Line2D([],[])
+    assert line._is_sorted(np.array([1,2,3]))
+    assert line._is_sorted(np.array([1,np.nan,3]))
+    assert not line._is_sorted([3, 5] + [np.nan] * 100 + [0, 2])
 
 
 if __name__ == '__main__':

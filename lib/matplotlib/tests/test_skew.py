@@ -7,7 +7,7 @@ from __future__ import (absolute_import, division, print_function,
 import itertools
 from matplotlib.externals import six
 
-from nose.tools import assert_true
+# from nose.tools import assert_true
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.testing.decorators import cleanup, image_comparison

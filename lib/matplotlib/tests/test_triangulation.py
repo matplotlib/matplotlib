@@ -6,7 +6,7 @@ from matplotlib.externals import six
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.tri as mtri
-from nose.tools import assert_equal, assert_raises, assert_true, assert_false
+# from nose.tools import assert_equal, assert_raises, assert_true, assert_false
 from numpy.testing import assert_array_equal, assert_array_almost_equal,\
     assert_array_less
 import numpy.ma.testutils as matest
@@ -37,14 +37,14 @@ def test_delaunay():
     assert_array_almost_equal(triang.y, y)
 
     # Triangles - integers.
-    assert_equal(len(triang.triangles), ntriangles)
-    assert_equal(np.min(triang.triangles), 0)
-    assert_equal(np.max(triang.triangles), npoints-1)
+    assert len(triang.triangles) == ntriangles
+    assert np.min(triang.triangles) == 0
+    assert np.max(triang.triangles) == npoints-1
 
     # Edges - integers.
-    assert_equal(len(triang.edges), nedges)
-    assert_equal(np.min(triang.edges), 0)
-    assert_equal(np.max(triang.edges), npoints-1)
+    assert len(triang.edges) == nedges
+    assert np.min(triang.edges) == 0
+    assert np.max(triang.edges) == npoints-1
 
     # Neighbors - integers.
     # Check that neighbors calculated by C++ triangulation class are the same
@@ -84,7 +84,7 @@ def test_delaunay_points_in_line():
     # that delaunay code fails gracefully.
     x = np.linspace(0.0, 10.0, 11)
     y = np.linspace(0.0, 10.0, 11)
-    assert_raises(RuntimeError, mtri.Triangulation, x, y)
+    pytest.raise(RuntimeError, mtri.Triangulation(x, y))
 
     # Add an extra point not on the line and the triangulation is OK.
     x = np.append(x, 2.0)
@@ -94,16 +94,16 @@ def test_delaunay_points_in_line():
 
 def test_delaunay_insufficient_points():
     # Triangulation should raise a ValueError if passed less than 3 points.
-    assert_raises(ValueError, mtri.Triangulation, [], [])
-    assert_raises(ValueError, mtri.Triangulation, [1], [5])
-    assert_raises(ValueError, mtri.Triangulation, [1, 2], [5, 6])
+    pytest.raise(ValueError, mtri.Triangulation([], []))
+    pytest.raise(ValueError, mtri.Triangulation([1], [5]))
+    pytest.raise(ValueError, mtri.Triangulation([1, 2], [5, 6]))
 
     # Triangulation should also raise a ValueError if passed duplicate points
     # such that there are less than 3 unique points.
-    assert_raises(ValueError, mtri.Triangulation, [1, 2, 1], [5, 6, 5])
-    assert_raises(ValueError, mtri.Triangulation, [1, 2, 2], [5, 6, 6])
-    assert_raises(ValueError, mtri.Triangulation, [1, 1, 1, 2, 1, 2],
-                  [5, 5, 5, 6, 5, 6])
+    pytest.raise(ValueError, mtri.Triangulation([1, 2, 1], [5, 6, 5]))
+    pytest.raise(ValueError, mtri.Triangulation([1, 2, 2], [5, 6, 6]))
+    pytest.raise(ValueError, mtri.Triangulation([1, 1, 1, 2, 1, 2],
+                  [5, 5, 5, 6, 5, 6]))
 
 
 def test_delaunay_robust():
@@ -147,7 +147,7 @@ def test_delaunay_robust():
     # overlapping triangles; qhull is OK.
     triang = mtri.Triangulation(tri_points[:, 0], tri_points[:, 1])
     for test_point in test_points:
-        assert_equal(tris_contain_point(triang, test_point), 1)
+        assert tris_contain_point(triang, test_point) == 1
 
     # If ignore the first point of tri_points, matplotlib.delaunay throws a
     # KeyError when calculating the convex hull; qhull is OK.
@@ -281,7 +281,7 @@ def test_trifinder():
     assert_array_equal(tris, [-1, 0, 1, -1])
 
     triang.set_mask([1, 0])
-    assert_equal(trifinder, triang.get_trifinder())
+    assert trifinder == triang.get_trifinder()
     tris = trifinder(xs, ys)
     assert_array_equal(tris, [-1, -1, 1, -1])
 
@@ -966,10 +966,10 @@ def test_trirefiner_fortran_contiguous_triangles():
     # github issue 4180.  Test requires two arrays of triangles that are
     # identical except that one is C-contiguous and one is fortran-contiguous.
     triangles1 = np.array([[2, 0, 3], [2, 1, 0]])
-    assert_false(np.isfortran(triangles1))
+    assert not np.isfortran(triangles1)
 
     triangles2 = np.array(triangles1, copy=True, order='F')
-    assert_true(np.isfortran(triangles2))
+    assert np.isfortran(triangles2)
 
     x = np.array([0.39, 0.59, 0.43, 0.32])
     y = np.array([33.99, 34.01, 34.19, 34.18])

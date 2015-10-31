@@ -2,8 +2,8 @@ from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
 from matplotlib.externals import six
-import nose.tools
-from nose.tools import assert_raises
+# import nose.tools
+# from nose.tools import assert_raises
 from numpy.testing import assert_almost_equal
 import numpy as np
 import matplotlib
@@ -52,7 +52,7 @@ def test_AutoMinorLocator():
 
 def test_LogLocator():
     loc = mticker.LogLocator(numticks=5)
-    assert_raises(ValueError, loc.tick_values, 0, 1000)
+    pytest.raise(ValueError, loc.tick_values(0, 1000))
 
     test_value = np.array([1.00000000e-05, 1.00000000e-03, 1.00000000e-01,
                            1.00000000e+01, 1.00000000e+03, 1.00000000e+05,
@@ -71,8 +71,8 @@ def test_LinearLocator_set_params():
     """
     loc = mticker.LinearLocator(numticks=2)
     loc.set_params(numticks=8, presets={(0, 1): []})
-    nose.tools.assert_equal(loc.numticks, 8)
-    nose.tools.assert_equal(loc.presets, {(0, 1): []})
+    assert loc.numticks == 8
+    assert loc.presets == {(0, 1): []}
 
 
 def test_LogLocator_set_params():
@@ -84,10 +84,10 @@ def test_LogLocator_set_params():
     """
     loc = mticker.LogLocator()
     loc.set_params(numticks=8, numdecs=8, subs=[2.0], base=8)
-    nose.tools.assert_equal(loc.numticks, 8)
-    nose.tools.assert_equal(loc.numdecs, 8)
-    nose.tools.assert_equal(loc.base, 8)
-    nose.tools.assert_equal(loc.subs, [2.0])
+    assert loc.numticks == 8
+    assert loc.numdecs == 8
+    assert loc.base == 8
+    assert loc.subs == [2.0]
 
 
 def test_NullLocator_set_params():
@@ -98,7 +98,7 @@ def test_NullLocator_set_params():
     loc = mticker.NullLocator()
     with warnings.catch_warnings(record=True) as w:
         loc.set_params()
-        nose.tools.assert_equal(len(w), 1)
+        assert len(w) == 1
 
 
 def test_MultipleLocator_set_params():
@@ -109,7 +109,7 @@ def test_MultipleLocator_set_params():
     """
     mult = mticker.MultipleLocator(base=0.7)
     mult.set_params(base=1.7)
-    nose.tools.assert_equal(mult._base, 1.7)
+    assert mult._base == 1.7
 
 
 def test_LogitLocator_set_params():
@@ -119,7 +119,7 @@ def test_LogitLocator_set_params():
     """
     loc = mticker.LogitLocator()  # Defaults to false.
     loc.set_params(minor=True)
-    nose.tools.assert_true(loc.minor)
+    assert loc.minor
 
 
 def test_FixedLocator_set_params():
@@ -130,7 +130,7 @@ def test_FixedLocator_set_params():
     """
     fixed = mticker.FixedLocator(range(0, 24), nbins=5)
     fixed.set_params(nbins=7)
-    nose.tools.assert_equal(fixed.nbins, 7)
+    assert fixed.nbins == 7
 
 
 def test_IndexLocator_set_params():
@@ -141,8 +141,8 @@ def test_IndexLocator_set_params():
     """
     index = mticker.IndexLocator(base=3, offset=4)
     index.set_params(base=7, offset=7)
-    nose.tools.assert_equal(index._base, 7)
-    nose.tools.assert_equal(index.offset, 7)
+    assert index._base == 7
+    assert index.offset == 7
 
 
 def test_SymmetricalLogLocator_set_params():
@@ -155,8 +155,8 @@ def test_SymmetricalLogLocator_set_params():
     # since we only test for the params change. I will pass empty transform
     sym = mticker.SymmetricalLogLocator(None)
     sym.set_params(subs=[2.0], numticks=8)
-    nose.tools.assert_equal(sym._subs, [2.0])
-    nose.tools.assert_equal(sym.numticks, 8)
+    assert sym._subs == [2.0]
+    assert sym.numticks == 8
 
 
 def _logfe_helper(formatter, base, locs, i, expected_result):
@@ -185,7 +185,7 @@ def test_LogFormatterExponent():
     # Should be a blank string for non-integer powers if labelOnlyBase=True
     formatter = mticker.LogFormatterExponent(base=10, labelOnlyBase=True)
     formatter.axis = FakeAxis()
-    nose.tools.assert_equal(formatter(10**0.1), '')
+    assert formatter(10**0.1) == ''
 
     # Otherwise, non-integer powers should be nicely formatted
     locs = np.array([0.1, 0.00001, np.pi, 0.2, -0.2, -0.00001])
@@ -354,17 +354,17 @@ def test_use_offset():
     for use_offset in [True, False]:
         with matplotlib.rc_context({'axes.formatter.useoffset': use_offset}):
             tmp_form = mticker.ScalarFormatter()
-            nose.tools.assert_equal(use_offset, tmp_form.get_useOffset())
+            assert use_offset == tmp_form.get_useOffset()
 
 
 def test_formatstrformatter():
     # test % style formatter
     tmp_form = mticker.FormatStrFormatter('%05d')
-    nose.tools.assert_equal('00002', tmp_form(2))
+    assert '00002' == tmp_form(2)
 
     # test str.format() style formatter
     tmp_form = mticker.StrMethodFormatter('{x:05d}')
-    nose.tools.assert_equal('00002', tmp_form(2))
+    assert '00002' == tmp_form(2)
 
 if __name__ == '__main__':
     import nose

@@ -6,7 +6,7 @@ from six.moves import xrange
 from itertools import chain
 import io
 
-from nose.tools import assert_equal, assert_raises, assert_false, assert_true
+# from nose.tools import assert_equal, pytest.raises, assert_false, assert_true
 from nose.plugins.skip import SkipTest
 
 import datetime
@@ -120,22 +120,22 @@ def test_twinx_cla():
     ax2 = ax.twinx()
     ax3 = ax2.twiny()
     plt.draw()
-    assert_false(ax2.xaxis.get_visible())
-    assert_false(ax2.patch.get_visible())
+    assert ax2.xaxis.get_visible() == False
+    assert x2.patch.get_visible() == False
     ax2.cla()
     ax3.cla()
 
-    assert_false(ax2.xaxis.get_visible())
-    assert_false(ax2.patch.get_visible())
-    assert_true(ax2.yaxis.get_visible())
+    assert ax2.xaxis.get_visible()  == False
+    assert ax2.patch.get_visible() == False
+    assert ax2.yaxis.get_visible() == True
 
-    assert_true(ax3.xaxis.get_visible())
-    assert_false(ax3.patch.get_visible())
-    assert_false(ax3.yaxis.get_visible())
+    assert ax3.xaxis.get_visible() == True
+    assert ax3.patch.get_visible() == False
+    assert ax3.yaxis.get_visible() == False
 
-    assert_true(ax.xaxis.get_visible())
-    assert_true(ax.patch.get_visible())
-    assert_true(ax.yaxis.get_visible())
+    assert ax.xaxis.get_visible() == True
+    assert ax.patch.get_visible() == True
+    assert ax.yaxis.get_visible() == True
 
 
 @image_comparison(baseline_images=["minorticks_on_rcParams_both"], extensions=['png'])
@@ -355,7 +355,7 @@ def test_shaped_data():
     plt.plot(y2)
 
     plt.subplot(413)
-    assert_raises(ValueError, plt.plot, (y1, y2))
+    pytest.raises(ValueError, plt.plot, (y1, y2))
 
     plt.subplot(414)
     plt.plot(xdata[:, 1], xdata[1, :], 'o')
@@ -401,7 +401,7 @@ def test_polar_wrap():
 @image_comparison(baseline_images=['polar_units', 'polar_units_2'])
 def test_polar_units():
     import matplotlib.testing.jpl_units as units
-    from nose.tools import assert_true
+    # from nose.tools import assert_true
     units.register()
 
     pi = np.pi
@@ -426,7 +426,8 @@ def test_polar_units():
     # make sure runits and theta units work
     y1 = [y*km for y in y1]
     plt.polar(x2, y1, color="blue", thetaunits="rad", runits="km")
-    assert_true(isinstance(plt.gca().get_xaxis().get_major_formatter(), units.UnitDblFormatter))
+    assert isinstance(plt.gca().get_xaxis().get_major_formatter(),
+                      units.UnitDblFormatter)  == True
 
 
 @image_comparison(baseline_images=['polar_rmin'])
@@ -844,11 +845,11 @@ def test_pcolorargs():
     Z = np.sqrt(X**2 + Y**2)/5
 
     _, ax = plt.subplots()
-    assert_raises(TypeError, ax.pcolormesh, y, x, Z)
-    assert_raises(TypeError, ax.pcolormesh, X, Y, Z.T)
-    assert_raises(TypeError, ax.pcolormesh, x, y, Z[:-1, :-1],
+    pytest.raises(TypeError, ax.pcolormesh, y, x, Z)
+    pytest.raises(TypeError, ax.pcolormesh, X, Y, Z.T)
+    pytest.raises(TypeError, ax.pcolormesh, x, y, Z[:-1, :-1],
                   shading="gouraud")
-    assert_raises(TypeError, ax.pcolormesh, X, Y, Z[:-1, :-1],
+    pytest.raises(TypeError, ax.pcolormesh, X, Y, Z[:-1, :-1],
                   shading="gouraud")
 
 
@@ -1725,7 +1726,7 @@ def test_bxp_bad_widths():
 
     fig, ax = plt.subplots()
     ax.set_yscale('log')
-    assert_raises(ValueError, ax.bxp, logstats, widths=[1])
+    pytest.raises(ValueError, ax.bxp, logstats, widths=[1])
 
 
 @cleanup
@@ -1737,7 +1738,7 @@ def test_bxp_bad_positions():
 
     fig, ax = plt.subplots()
     ax.set_yscale('log')
-    assert_raises(ValueError, ax.bxp, logstats, positions=[2, 3])
+    pytest.raises(ValueError, ax.bxp, logstats, positions=[2, 3])
 
 
 @image_comparison(baseline_images=['boxplot', 'boxplot'], tol=1)
@@ -1893,7 +1894,7 @@ def test_boxplot_bad_medians_1():
     x = np.linspace(-7, 7, 140)
     x = np.hstack([-25, x, 25])
     fig, ax = plt.subplots()
-    assert_raises(ValueError, ax.boxplot, x,  usermedians=[1, 2])
+    pytest.raises(ValueError, ax.boxplot, x,  usermedians=[1, 2])
 
 
 @cleanup
@@ -1901,7 +1902,7 @@ def test_boxplot_bad_medians_2():
     x = np.linspace(-7, 7, 140)
     x = np.hstack([-25, x, 25])
     fig, ax = plt.subplots()
-    assert_raises(ValueError, ax.boxplot, [x, x],  usermedians=[[1, 2], [1, 2]])
+    pytest.raises(ValueError, ax.boxplot, [x, x],  usermedians=[[1, 2], [1, 2]])
 
 
 @cleanup
@@ -1909,7 +1910,7 @@ def test_boxplot_bad_ci_1():
     x = np.linspace(-7, 7, 140)
     x = np.hstack([-25, x, 25])
     fig, ax = plt.subplots()
-    assert_raises(ValueError, ax.boxplot, [x, x],
+    pytest.raises(ValueError, ax.boxplot, [x, x],
                   conf_intervals=[[1, 2]])
 
 
@@ -1918,7 +1919,7 @@ def test_boxplot_bad_ci_2():
     x = np.linspace(-7, 7, 140)
     x = np.hstack([-25, x, 25])
     fig, ax = plt.subplots()
-    assert_raises(ValueError, ax.boxplot, [x, x],
+    pytest.raises(ValueError, ax.boxplot, [x, x],
                   conf_intervals=[[1, 2], [1]])
 
 
@@ -2102,7 +2103,7 @@ def test_violinplot_bad_positions():
     # First 9 digits of frac(sqrt(47))
     np.random.seed(855654600)
     data = [np.random.normal(size=100) for i in range(4)]
-    assert_raises(ValueError, ax.violinplot, data, positions=range(5))
+    pytest.raises(ValueError, ax.violinplot, data, positions=range(5))
 
 
 @cleanup
@@ -2111,7 +2112,7 @@ def test_violinplot_bad_widths():
     # First 9 digits of frac(sqrt(53))
     np.random.seed(280109889)
     data = [np.random.normal(size=100) for i in range(4)]
-    assert_raises(ValueError, ax.violinplot, data, positions=range(4),
+    pytest.raises(ValueError, ax.violinplot, data, positions=range(4),
                   widths=[1, 2, 3])
 
 
@@ -2194,9 +2195,9 @@ def test_errorbar_shape():
     yerr = np.vstack((yerr1, 2*yerr1)).T
     xerr = 0.1 + yerr
 
-    assert_raises(ValueError, ax.errorbar, x, y, yerr=yerr, fmt='o')
-    assert_raises(ValueError, ax.errorbar, x, y, xerr=xerr, fmt='o')
-    assert_raises(ValueError, ax.errorbar, x, y, yerr=yerr, xerr=xerr, fmt='o')
+    pytest.raises(ValueError, ax.errorbar, x, y, yerr=yerr, fmt='o')
+    pytest.raises(ValueError, ax.errorbar, x, y, xerr=xerr, fmt='o')
+    pytest.raises(ValueError, ax.errorbar, x, y, yerr=yerr, xerr=xerr, fmt='o')
 
 
 @image_comparison(baseline_images=['errorbar_limits'])
@@ -2601,8 +2602,8 @@ def test_eventplot_problem_kwargs():
                                 linestyle=['dashdot', 'dotted'])
 
         # check that three IgnoredKeywordWarnings were raised
-        assert_equal(len(w), 3)
-        assert_true(all(issubclass(wi.category, IgnoredKeywordWarning)
+        assert len(w) == 3
+        assert all(issubclass(wi.category, IgnoredKeywordWarning)
                     for wi in w))
 
 
@@ -2744,7 +2745,7 @@ def test_mixed_collection():
 def test_subplot_key_hash():
     ax = plt.subplot(np.float64(5.5), np.int64(1), np.float64(1.2))
     ax.twinx()
-    assert_equal((5, 1, 0, None), ax.get_subplotspec().get_geometry())
+    assert ax.get_subplotspec().get_geometry() == (5, 1, 0, None)
 
 
 @image_comparison(baseline_images=['specgram_freqs',
@@ -2991,15 +2992,15 @@ def test_specgram_angle_freqs():
     spec13 = ax13.specgram(y, NFFT=NFFT, Fs=Fs, noverlap=noverlap,
                            pad_to=pad_to, sides='twosided', mode='angle')
 
-    assert_raises(ValueError, ax11.specgram, y, NFFT=NFFT, Fs=Fs,
+    pytest.raises(ValueError, ax11.specgram, y, NFFT=NFFT, Fs=Fs,
                   noverlap=noverlap, pad_to=pad_to, sides='default',
                   mode='phase', scale='dB')
 
-    assert_raises(ValueError, ax12.specgram, y, NFFT=NFFT, Fs=Fs,
+    pytest.raises(ValueError, ax12.specgram, y, NFFT=NFFT, Fs=Fs,
                   noverlap=noverlap, pad_to=pad_to, sides='onesided',
                   mode='phase', scale='dB')
 
-    assert_raises(ValueError, ax13.specgram, y, NFFT=NFFT, Fs=Fs,
+    pytest.raises(ValueError, ax13.specgram, y, NFFT=NFFT, Fs=Fs,
                   noverlap=noverlap, pad_to=pad_to, sides='twosided',
                   mode='phase', scale='dB')
 
@@ -3038,15 +3039,15 @@ def test_specgram_noise_angle():
     spec13 = ax13.specgram(y, NFFT=NFFT, Fs=Fs, noverlap=noverlap,
                            pad_to=pad_to, sides='twosided', mode='angle')
 
-    assert_raises(ValueError, ax11.specgram, y, NFFT=NFFT, Fs=Fs,
+    pytest.raises(ValueError, ax11.specgram, y, NFFT=NFFT, Fs=Fs,
                   noverlap=noverlap, pad_to=pad_to, sides='default',
                   mode='phase', scale='dB')
 
-    assert_raises(ValueError, ax12.specgram, y, NFFT=NFFT, Fs=Fs,
+    pytest.raises(ValueError, ax12.specgram, y, NFFT=NFFT, Fs=Fs,
                   noverlap=noverlap, pad_to=pad_to, sides='onesided',
                   mode='phase', scale='dB')
 
-    assert_raises(ValueError, ax13.specgram, y, NFFT=NFFT, Fs=Fs,
+    pytest.raises(ValueError, ax13.specgram, y, NFFT=NFFT, Fs=Fs,
                   noverlap=noverlap, pad_to=pad_to, sides='twosided',
                   mode='phase', scale='dB')
 
@@ -3093,15 +3094,15 @@ def test_specgram_freqs_phase():
     spec13 = ax13.specgram(y, NFFT=NFFT, Fs=Fs, noverlap=noverlap,
                            pad_to=pad_to, sides='twosided', mode='phase')
 
-    assert_raises(ValueError, ax11.specgram, y, NFFT=NFFT, Fs=Fs,
+    pytest.raises(ValueError, ax11.specgram, y, NFFT=NFFT, Fs=Fs,
                   noverlap=noverlap, pad_to=pad_to, sides='default',
                   mode='phase', scale='dB')
 
-    assert_raises(ValueError, ax12.specgram, y, NFFT=NFFT, Fs=Fs,
+    pytest.raises(ValueError, ax12.specgram, y, NFFT=NFFT, Fs=Fs,
                   noverlap=noverlap, pad_to=pad_to, sides='onesided',
                   mode='phase', scale='dB')
 
-    assert_raises(ValueError, ax13.specgram, y, NFFT=NFFT, Fs=Fs,
+    pytest.raises(ValueError, ax13.specgram, y, NFFT=NFFT, Fs=Fs,
                   noverlap=noverlap, pad_to=pad_to, sides='twosided',
                   mode='phase', scale='dB')
 
@@ -3143,15 +3144,15 @@ def test_specgram_noise_phase():
                            pad_to=pad_to, sides='twosided',
                            mode='phase', )
 
-    assert_raises(ValueError, ax11.specgram, y, NFFT=NFFT, Fs=Fs,
+    pytest.raises(ValueError, ax11.specgram, y, NFFT=NFFT, Fs=Fs,
                   noverlap=noverlap, pad_to=pad_to, sides='default',
                   mode='phase', scale='dB')
 
-    assert_raises(ValueError, ax12.specgram, y, NFFT=NFFT, Fs=Fs,
+    pytest.raises(ValueError, ax12.specgram, y, NFFT=NFFT, Fs=Fs,
                   noverlap=noverlap, pad_to=pad_to, sides='onesided',
                   mode='phase', scale='dB')
 
-    assert_raises(ValueError, ax13.specgram, y, NFFT=NFFT, Fs=Fs,
+    pytest.raises(ValueError, ax13.specgram, y, NFFT=NFFT, Fs=Fs,
                   noverlap=noverlap, pad_to=pad_to, sides='twosided',
                   mode='phase', scale='dB')
 
@@ -3915,17 +3916,17 @@ def test_margins():
     fig1, ax1 = plt.subplots(1, 1)
     ax1.plot(data)
     ax1.margins(1)
-    assert_equal(ax1.margins(), (1, 1))
+    assert ax1.margins() == (1, 1)
 
     fig2, ax2 = plt.subplots(1, 1)
     ax2.plot(data)
     ax2.margins(1, 0.5)
-    assert_equal(ax2.margins(), (1, 0.5))
+    assert ax2.margins() == (1, 0.5)
 
     fig3, ax3 = plt.subplots(1, 1)
     ax3.plot(data)
     ax3.margins(x=1, y=0.5)
-    assert_equal(ax3.margins(), (1, 0.5))
+    assert ax3.margins() == (1, 0.5)
 
 
 @cleanup
@@ -3945,7 +3946,7 @@ def test_pathological_hexbin():
         fig, ax = plt.subplots(1, 1)
         ax.hexbin(mylist, mylist)
         fig.savefig(out)
-        assert_equal(len(w), 0)
+        assert len(w) == 0
 
 
 @cleanup
@@ -3960,7 +3961,7 @@ def test_color_alias():
     # issues 4157 and 4162
     fig, ax = plt.subplots()
     line = ax.plot([0, 1], c='lime')[0]
-    assert_equal('lime', line.get_color())
+    assert line.get_color() == 'lime'
 
 
 @cleanup
@@ -3991,7 +3992,7 @@ def test_move_offsetlabel():
     fig, ax = plt.subplots()
     ax.plot(data)
     ax.yaxis.tick_right()
-    assert_equal((1, 0.5), ax.yaxis.offsetText.get_position())
+    assert ax.yaxis.offsetText.get_position() == (1, 0.5)
 
 
 @image_comparison(baseline_images=['rc_spines'], extensions=['png'],
@@ -4052,11 +4053,11 @@ def test_rc_tick():
 def test_bar_negative_width():
     fig, ax = plt.subplots()
     res = ax.bar(range(1, 5), range(1, 5), width=-1)
-    assert_equal(len(res), 4)
+    assert len(res) == 4
     for indx, b in enumerate(res):
-        assert_equal(b._x, indx)
-        assert_equal(b._width, 1)
-        assert_equal(b._height, indx + 1)
+        assert b._x == indx
+        assert b._width == 1
+        assert b._height == indx + 1
 
 
 @cleanup
@@ -4067,15 +4068,15 @@ def test_square_plot():
     ax.plot(x, y, 'mo')
     ax.axis('square')
     xlim, ylim = ax.get_xlim(), ax.get_ylim()
-    assert_true(np.diff(xlim) == np.diff(ylim))
-    assert_true(ax.get_aspect() == 'equal')
+    assert np.diff(xlim) == np.diff(ylim) == True
+    assert ax.get_aspect() == 'equal' == True
 
 
 @cleanup
 def test_no_None():
     fig, ax = plt.subplots()
-    assert_raises(ValueError, plt.plot, None)
-    assert_raises(ValueError, plt.plot, None, None)
+    pytest.raises(ValueError, plt.plot, None)
+    pytest.raises(ValueError, plt.plot, None, None)
 
 
 @cleanup
@@ -4097,15 +4098,15 @@ def test_shared_scale():
     axs[0, 0].set_yscale("log")
 
     for ax in axs.flat:
-        assert_equal(ax.get_yscale(), 'log')
-        assert_equal(ax.get_xscale(), 'log')
+        assert ax.get_yscale() == 'log'
+        assert ax.get_xscale() == 'log'
 
     axs[1, 1].set_xscale("linear")
     axs[1, 1].set_yscale("linear")
 
     for ax in axs.flat:
-        assert_equal(ax.get_yscale(), 'linear')
-        assert_equal(ax.get_xscale(), 'linear')
+        assert ax.get_yscale() == 'linear'
+        assert ax.get_xscale() == 'linear'
 
 
 @cleanup
