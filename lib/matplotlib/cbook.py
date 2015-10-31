@@ -191,20 +191,7 @@ def deprecated(since, message='', name='', alternative='', pending=False,
         import textwrap
 
         if isinstance(func, classmethod):
-            try:
-                func = func.__func__
-            except AttributeError:
-                # classmethods in Python2.6 and below lack the __func__
-                # attribute so we need to hack around to get it
-                method = func.__get__(None, object)
-                if hasattr(method, '__func__'):
-                    func = method.__func__
-                elif hasattr(method, 'im_func'):
-                    func = method.im_func
-                else:
-                    # Nothing we can do really...  just return the original
-                    # classmethod
-                    return func
+            func = func.__func__
             is_classmethod = True
         else:
             is_classmethod = False
