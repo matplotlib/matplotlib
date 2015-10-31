@@ -1,4 +1,4 @@
-.. _whats-new:
+w.. _whats-new:
 
 ************************
 What's new in matplotlib
@@ -243,6 +243,13 @@ Some parameters have been added, others have been improved.
 
 Widgets
 -------
+
+Added TextBox Widget
+
+````````````````````
+Added a widget that allows text entry by reading key events when it is active. 
+Text caret in text box is visible when it is active, can be moved using arrow keys but not mouse
+
 
 Active state of Selectors
 `````````````````````````
