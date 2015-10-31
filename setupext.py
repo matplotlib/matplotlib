@@ -529,13 +529,13 @@ class Python(SetupPackage):
 
         if major < 2:
             raise CheckFailed(
-                "Requires Python 2.6 or later")
-        elif major == 2 and minor1 < 6:
+                "Requires Python 2.7 or later")
+        elif major == 2 and minor1 < 7:
             raise CheckFailed(
-                "Requires Python 2.6 or later (in the 2.x series)")
-        elif major == 3 and minor1 < 1:
+                "Requires Python 2.7 or later (in the 2.x series)")
+        elif major == 3 and minor1 < 4:
             raise CheckFailed(
-                "Requires Python 3.1 or later (in the 3.x series)")
+                "Requires Python 3.4 or later (in the 3.x series)")
 
         return sys.version
 
