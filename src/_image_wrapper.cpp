@@ -177,8 +177,8 @@ static PyObject *PyImage_color_conv(PyImage *self, PyObject *args, PyObject *kwd
                      free(buff));
 
     PyObject *result = PyByteArray_FromStringAndSize((const char *)buff, size);
+    free(buff);
     if (result == NULL) {
-        free(buff);
         return NULL;
     }
 
