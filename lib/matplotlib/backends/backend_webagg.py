@@ -39,7 +39,7 @@ from matplotlib import backend_bases
 from matplotlib.figure import Figure
 from matplotlib._pylab_helpers import Gcf
 from . import backend_webagg_core as core
-from .backend_nbagg import TimerTornado
+from .backend_webagg_core import TimerTornado
 
 
 def new_figure_manager(num, *args, **kwargs):
