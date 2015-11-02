@@ -346,7 +346,7 @@ class FigureCanvasWebAggCore(backend_agg.FigureCanvasAgg):
 
     def handle_resize(self, event):
         x, y = event.get('width', 800), event.get('height', 800)
-        x, y = int(x) * 2, int(y) * 2
+        x, y = int(x) * self._dpi_ratio, int(y) * self._dpi_ratio
         fig = self.figure
         # An attempt at approximating the figure size in pixels.
         fig.set_size_inches(x / fig.dpi, y / fig.dpi)
