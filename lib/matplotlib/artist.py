@@ -89,17 +89,27 @@ class Artist(PrivateMethodMixin, Configurable):
     aname = 'Artist'
     zorder = 0
 
-    transform = TransformInstance(None)
+    transform_set = Bool(False, allow_none=True)
+    transform = TransformInstance()
+
+    @default('transform')
+    def _transform_default(self):
+        # intermediat value for `transform_set`
+        # to inform validation of default setup
+        self.transform_set = None
+        return None
+
+    @validate('transform')
+    def _transform_validate(self, commit):
+        # check to see if this validation is for default setup
+        was_set = False if self.transform_set is None else True
+        self.transform_set = was_set
+        return commit['value']
 
     @observe('transform')
     def _transform_changed(self, change):
         self.pchanged()
         self.stale = True
-
-    @validate('transform')
-    def _transform_validate(self, commit):
-        self.transform_set = True
-        return commit['value']
 
     @retrieve('transform')
     def _transform_getter(self, pull):
@@ -119,8 +129,6 @@ class Artist(PrivateMethodMixin, Configurable):
     def _stale_changed(self, change):
         if change['new'] and self.stale_callback is not None:
             self.stale_callback(self, change['new'])
-
-    transform_set = Bool(False)
 
     axes = Instance(str('matplotlib.axes.Axes'), allow_none=True)
 
@@ -252,15 +260,14 @@ class Artist(PrivateMethodMixin, Configurable):
 
     mouseover = Bool(False)
 
-    @validate('mouseover')
-    def _mouseover_validate(self, commit):
+    @observe('mouseover')
+    def _mouseover_changed(self, change):
         ax = self.axes
         if ax:
-            if commit['value']:
+            if change['new']:
                 ax.mouseover_set.add(self)
             else:
                 ax.mouseover_set.discard(self)
-        return commit['value']
 
     agg_filter = Callable(None, allow_none=True)
 
