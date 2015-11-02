@@ -789,11 +789,8 @@ inline void RendererAgg::draw_text_image(GCAgg &gc, ImageArray &image, int x, in
         }
 
         for (int yi = text.y1; yi < text.y2; ++yi) {
-            for (int xi = text.x1; xi < text.x2; ++xi) {
-                typename ImageArray::value_type pixel = image(
-                        yi - (y - image.dim(0)), xi - x);
-                pixFmt.blend_pixel(xi, yi, gc.color, pixel);
-            }
+            pixFmt.blend_solid_hspan(text.x1, yi, (text.x2 - text.x1), gc.color,
+                                     &image(yi - (y - image.dim(0)), text.x1 - x));
         }
     }
 }
