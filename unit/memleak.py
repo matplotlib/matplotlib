@@ -3,7 +3,10 @@
 from __future__ import print_function
 
 import gc
-import tracemalloc
+try:
+    import tracemalloc
+except ImportError:
+    raise ImportError("This script requires Python 3.4 or later")
 
 import numpy as np
 
