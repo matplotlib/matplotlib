@@ -18,8 +18,10 @@ def run_memleak_test(bench, iterations, report):
 
     malloc_arr = np.empty((endi,), dtype=np.int64)
     rss_arr = np.empty((endi,), dtype=np.int64)
+    rss_peaks = np.empty((endi,), dtype=np.int64)
     nobjs_arr = np.empty((endi,), dtype=np.int64)
     garbage_arr = np.empty((endi,), dtype=np.int64)
+    rss_peak = 0
 
     for i in range(endi):
         bench()
@@ -34,11 +36,14 @@ def run_memleak_test(bench, iterations, report):
 
         malloc_arr[i] = malloc
         rss_arr[i] = rss
+        if rss > rss_peak:
+            rss_peak = rss
+        rss_peaks[i] = rss_peak
         nobjs_arr[i] = nobjs
         garbage_arr[i] = garbage
 
     print('Average memory consumed per loop: %1.4f bytes\n' %
-          (np.sum(rss_arr[starti+1:] - rss_arr[starti:-1]) / float(endi - starti)))
+          (np.sum(rss_peaks[starti+1:] - rss_peaks[starti:-1]) / float(endi - starti)))
 
     from matplotlib import pyplot as plt
     fig, (ax1, ax2) = plt.subplots(2)
