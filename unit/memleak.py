@@ -3,20 +3,24 @@
 from __future__ import print_function
 
 import gc
+
 try:
     import tracemalloc
 except ImportError:
     raise ImportError("This script requires Python 3.4 or later")
 
+try:
+    import psutil
+except ImportError:
+    raise ImportError("This script requires psutil")
+
 import numpy as np
 
 
 def run_memleak_test(bench, iterations, report):
-    from matplotlib.cbook import report_memory
-
     tracemalloc.start()
 
-    starti = min(10, iterations / 2)
+    starti = min(50, iterations / 2)
     endi = iterations
 
     malloc_arr = np.empty((endi,), dtype=np.int64)
@@ -24,18 +28,23 @@ def run_memleak_test(bench, iterations, report):
     rss_peaks = np.empty((endi,), dtype=np.int64)
     nobjs_arr = np.empty((endi,), dtype=np.int64)
     garbage_arr = np.empty((endi,), dtype=np.int64)
+    open_files_arr = np.empty((endi,), dtype=np.int64)
     rss_peak = 0
+
+    p = psutil.Process()
 
     for i in range(endi):
         bench()
 
         gc.collect()
-        rss = report_memory()
+
+        rss = p.memory_info().rss
         malloc, peak = tracemalloc.get_traced_memory()
         nobjs = len(gc.get_objects())
         garbage = len(gc.garbage)
-        print("{0: 4d}: pymalloc {1: 10d}, rss {2: 10d}, nobjs {3: 10d}, garbage {4: 10d}".format(
-            i, malloc, rss, nobjs, garbage))
+        open_files = len(p.open_files())
+        print("{0: 4d}: pymalloc {1: 10d}, rss {2: 10d}, nobjs {3: 10d}, garbage {4: 4d}, files: {5: 4d}".format(
+            i, malloc, rss, nobjs, garbage, open_files))
 
         malloc_arr[i] = malloc
         rss_arr[i] = rss
@@ -44,23 +53,27 @@ def run_memleak_test(bench, iterations, report):
         rss_peaks[i] = rss_peak
         nobjs_arr[i] = nobjs
         garbage_arr[i] = garbage
+        open_files_arr[i] = open_files
 
     print('Average memory consumed per loop: %1.4f bytes\n' %
           (np.sum(rss_peaks[starti+1:] - rss_peaks[starti:-1]) / float(endi - starti)))
 
     from matplotlib import pyplot as plt
-    fig, (ax1, ax2) = plt.subplots(2)
-    ax3 = ax1.twinx()
-    ax1.plot(malloc_arr[5:], 'r')
-    ax3.plot(rss_arr[5:], 'b')
+    fig, (ax1, ax2, ax3) = plt.subplots(3)
+    ax1b = ax1.twinx()
+    ax1.plot(malloc_arr, 'r')
+    ax1b.plot(rss_arr, 'b')
     ax1.set_ylabel('pymalloc', color='r')
-    ax3.set_ylabel('rss', color='b')
+    ax1b.set_ylabel('rss', color='b')
 
-    ax4 = ax2.twinx()
-    ax2.plot(nobjs_arr[5:], 'r')
-    ax4.plot(garbage_arr[5:], 'b')
+    ax2b = ax2.twinx()
+    ax2.plot(nobjs_arr, 'r')
+    ax2b.plot(garbage_arr, 'b')
     ax2.set_ylabel('total objects', color='r')
-    ax4.set_ylabel('garbage objects', color='b')
+    ax2b.set_ylabel('garbage objects', color='b')
+
+    ax3.plot(open_files_arr)
+    ax3.set_ylabel('open file handles')
 
     if not report.endswith('.pdf'):
         report = report + '.pdf'
