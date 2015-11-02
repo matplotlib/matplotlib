@@ -1439,19 +1439,10 @@ def restrict_dict(d, keys):
 
 
 def report_memory(i=0):  # argument may go away
-    'return the memory consumed by process'
+    'return the memory, in bytes, consumed by process'
     from matplotlib.compat.subprocess import Popen, PIPE
     pid = os.getpid()
-    if sys.platform == 'sunos5':
-        try:
-            a2 = Popen('ps -p %d -o osz' % pid, shell=True,
-                       stdout=PIPE).stdout.readlines()
-        except OSError:
-            raise NotImplementedError(
-                "report_memory works on Sun OS only if "
-                "the 'ps' program is found")
-        mem = int(a2[-1].strip())
-    elif sys.platform.startswith('linux'):
+    if sys.platform.startswith('linux'):
         try:
             a2 = Popen('ps -p %d -o rss,sz' % pid, shell=True,
                        stdout=PIPE).stdout.readlines()
@@ -1459,7 +1450,7 @@ def report_memory(i=0):  # argument may go away
             raise NotImplementedError(
                 "report_memory works on Linux only if "
                 "the 'ps' program is found")
-        mem = int(a2[1].split()[1])
+        mem = int(a2[1].split()[1]) * 1024
     elif sys.platform.startswith('darwin'):
         try:
             a2 = Popen('ps -p %d -o rss,vsz' % pid, shell=True,
@@ -1468,7 +1459,7 @@ def report_memory(i=0):  # argument may go away
             raise NotImplementedError(
                 "report_memory works on Mac OS only if "
                 "the 'ps' program is found")
-        mem = int(a2[1].split()[0])
+        mem = int(a2[1].split()[0]) * 1024
     elif sys.platform.startswith('win'):
         try:
             a2 = Popen(["tasklist", "/nh", "/fi", "pid eq %d" % pid],
@@ -1477,7 +1468,7 @@ def report_memory(i=0):  # argument may go away
             raise NotImplementedError(
                 "report_memory works on Windows only if "
                 "the 'tasklist' program is found")
-        mem = int(a2.strip().split()[-2].replace(',', ''))
+        mem = int(a2.strip().split()[-2].replace(',', '')) * 1024
     else:
         raise NotImplementedError(
             "We don't have a memory monitor for %s" % sys.platform)
