@@ -2523,4 +2523,4 @@ class Lasso(AxesWidget):
             self.ax.draw_artist(self.line)
             self.canvas.blit(self.ax.bbox)
         else:
-            self.canvas.draw_idle()time the 
+            self.canvas.draw_idle()
