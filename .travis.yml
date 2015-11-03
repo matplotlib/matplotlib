@@ -75,11 +75,9 @@ install:
   # version since is it basically just a .ttf file
   # The current Travis Ubuntu image is to old to search .local/share/fonts so we store fonts in .fonts
 
-  # We install ipython to use the console highlighting. From IPython 3 this depends on jsonschema and mistune.
-  # Neihter is installed as a dependency of IPython since they are not used by the IPython console.
   - |
     if [[ $BUILD_DOCS == true ]]; then
-      pip install $PRE numpydoc ipython jsonschema mistune
+      pip install $PRE numpydoc ipython
       pip install -q $PRE linkchecker
       wget https://github.com/google/fonts/blob/master/ofl/felipa/Felipa-Regular.ttf?raw=true -O Felipa-Regular.ttf
       wget http://mirrors.kernel.org/ubuntu/pool/universe/f/fonts-humor-sans/fonts-humor-sans_1.0-1_all.deb
