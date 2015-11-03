@@ -328,8 +328,13 @@ def _image_directories(func):
         subdir = os.path.splitext(os.path.split(script_name)[1])[0]
     else:
         mods = module_name.split('.')
-        mods.pop(0) # <- will be the name of the package being tested (in
-                    # most cases "matplotlib")
+        if len(mods) >= 3:
+            mods.pop(0)
+            # mods[0] will be the name of the package being tested (in
+            # most cases "matplotlib") However if this is a
+            # namespace package pip installed and run via the nose
+            # multiprocess plugin or as a specific test this may be
+            # missing. See https://github.com/matplotlib/matplotlib/issues/3314
         assert mods.pop(0) == 'tests'
         subdir = os.path.join(*mods)
 
