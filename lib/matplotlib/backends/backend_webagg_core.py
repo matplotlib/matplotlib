@@ -272,73 +272,82 @@ class FigureCanvasWebAggCore(backend_agg.FigureCanvasAgg):
 
     def handle_event(self, event):
         e_type = event['type']
+        handler = getattr(self, 'handle_{0}'.format(e_type),
+                          self.handle_unknown_event)
+        return handler(event)
+
+    def handle_unknown_event(self, event):
+        warnings.warn('Unhandled message type {0}. {1}'.format(
+            event['type'], event))
+
+    def handle_ack(self, event):
+        # Network latency tends to decrease if traffic is flowing
+        # in both directions.  Therefore, the browser sends back
+        # an "ack" message after each image frame is received.
+        # This could also be used as a simple sanity check in the
+        # future, but for now the performance increase is enough
+        # to justify it, even if the server does nothing with it.
+        pass
+
+    def handle_draw(self, event):
+        self.draw()
+
+    def _handle_mouse(self, event):
+        x = event['x']
+        y = event['y']
+        y = self.get_renderer().height - y
+
+        # Javascript button numbers and matplotlib button numbers are
+        # off by 1
+        button = event['button'] + 1
+
+        # The right mouse button pops up a context menu, which
+        # doesn't work very well, so use the middle mouse button
+        # instead.  It doesn't seem that it's possible to disable
+        # the context menu in recent versions of Chrome.  If this
+        # is resolved, please also adjust the docstring in MouseEvent.
+        if button == 2:
+            button = 3
+
+        e_type = event['type']
         guiEvent = event.get('guiEvent', None)
+        if e_type == 'button_press':
+            self.button_press_event(x, y, button, guiEvent=guiEvent)
+        elif e_type == 'button_release':
+            self.button_release_event(x, y, button, guiEvent=guiEvent)
+        elif e_type == 'motion_notify':
+            self.motion_notify_event(x, y, guiEvent=guiEvent)
+        elif e_type == 'figure_enter':
+            self.enter_notify_event(xy=(x, y), guiEvent=guiEvent)
+        elif e_type == 'figure_leave':
+            self.leave_notify_event()
+        elif e_type == 'scroll':
+            self.scroll_event(x, y, event['step'], guiEvent=guiEvent)
+    handle_button_press = handle_button_release = handle_motion_notify = \
+        handle_figure_enter = handle_figure_leave = handle_scroll = \
+        _handle_mouse
 
-        if e_type == 'ack':
-            # Network latency tends to decrease if traffic is flowing
-            # in both directions.  Therefore, the browser sends back
-            # an "ack" message after each image frame is received.
-            # This could also be used as a simple sanity check in the
-            # future, but for now the performance increase is enough
-            # to justify it, even if the server does nothing with it.
-            pass
-        elif e_type == 'draw':
-            self.draw()
-        elif e_type in ('button_press', 'button_release', 'motion_notify',
-                        'figure_enter', 'figure_leave', 'scroll'):
-            x = event['x']
-            y = event['y']
-            y = self.get_renderer().height - y
+    def _handle_key(self, event):
+        key = _handle_key(event['key'])
+        e_type = event['type']
+        guiEvent = event.get('guiEvent', None)
+        if e_type == 'key_press':
+            self.key_press_event(key, guiEvent=guiEvent)
+        elif e_type == 'key_release':
+            self.key_release_event(key, guiEvent=guiEvent)
+    handle_key_press = handle_key_release = _handle_key
 
-            # Javascript button numbers and matplotlib button numbers are
-            # off by 1
-            button = event['button'] + 1
+    def handle_toolbar_button(self, event):
+        # TODO: Be more suspicious of the input
+        getattr(self.toolbar, event['name'])()
 
-            # The right mouse button pops up a context menu, which
-            # doesn't work very well, so use the middle mouse button
-            # instead.  It doesn't seem that it's possible to disable
-            # the context menu in recent versions of Chrome.  If this
-            # is resolved, please also adjust the docstring in MouseEvent.
-            if button == 2:
-                button = 3
-
-            if e_type == 'button_press':
-                self.button_press_event(x, y, button, guiEvent=guiEvent)
-            elif e_type == 'button_release':
-                self.button_release_event(x, y, button, guiEvent=guiEvent)
-            elif e_type == 'motion_notify':
-                self.motion_notify_event(x, y, guiEvent=guiEvent)
-            elif e_type == 'figure_enter':
-                self.enter_notify_event(xy=(x, y), guiEvent=guiEvent)
-            elif e_type == 'figure_leave':
-                self.leave_notify_event()
-            elif e_type == 'scroll':
-                self.scroll_event(x, y, event['step'], guiEvent=guiEvent)
-        elif e_type in ('key_press', 'key_release'):
-            key = _handle_key(event['key'])
-            if e_type == 'key_press':
-                self.key_press_event(key, guiEvent=guiEvent)
-            elif e_type == 'key_release':
-                self.key_release_event(key, guiEvent=guiEvent)
-        elif e_type == 'toolbar_button':
-            # TODO: Be more suspicious of the input
-            getattr(self.toolbar, event['name'])()
-        elif e_type == 'refresh':
-            figure_label = self.figure.get_label()
-            if not figure_label:
-                figure_label = "Figure {0}".format(self.manager.num)
-            self.send_event('figure_label', label=figure_label)
-            self._force_full = True
-            self.draw_idle()
-
-        else:
-            handler = getattr(self, 'handle_{0}'.format(e_type), None)
-            if handler is None:
-                import warnings
-                warnings.warn('Unhandled message type {0}. {1}'.format(
-                                                        e_type, event))
-            else:
-                return handler(event)
+    def handle_refresh(self, event):
+        figure_label = self.figure.get_label()
+        if not figure_label:
+            figure_label = "Figure {0}".format(self.manager.num)
+        self.send_event('figure_label', label=figure_label)
+        self._force_full = True
+        self.draw_idle()
 
     def handle_resize(self, event):
         x, y = event.get('width', 800), event.get('height', 800)
