@@ -459,7 +459,9 @@ class FigureManagerWebAgg(backend_bases.FigureManagerBase):
         return toolbar
 
     def resize(self, w, h):
-        self._send_event('resize', size=(w / self.canvas._dpi_ratio, h / self.canvas._dpi_ratio))
+        self._send_event(
+            'resize',
+            size=(w / self.canvas._dpi_ratio, h / self.canvas._dpi_ratio))
 
     def set_window_title(self, title):
         self._send_event('figure_label', label=title)
