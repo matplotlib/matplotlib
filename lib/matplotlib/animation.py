@@ -771,7 +771,8 @@ class Animation(object):
         with writer.saving(self._fig, filename, dpi):
             for anim in all_anim:
                 # Clear the initial frame
-                anim._init_draw()
+                if anim._init_func:
+                    anim._init_draw()
             for data in zip(*[a.new_saved_frame_seq()
                               for a in all_anim]):
                 for anim, d in zip(all_anim, data):
