@@ -536,4 +536,3 @@ def _azimuth2math(azimuth, elevation):
     theta = np.radians((90 - azimuth) % 360)
     phi = np.radians(90 - elevation)
     return theta, phi
-

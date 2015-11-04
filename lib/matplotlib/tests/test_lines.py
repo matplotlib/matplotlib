@@ -10,6 +10,7 @@ import matplotlib as mpl
 import matplotlib.lines as mlines
 from timeit import repeat
 import numpy as np
+
 import matplotlib.pyplot as plt
 from matplotlib.testing.decorators import cleanup, image_comparison
 import sys
@@ -155,7 +156,9 @@ def test_marker_fill_styles():
 
 
 def test_nan_is_sorted():
+    # Exercises issue from PR #2744 (NaN throwing warning in _is_sorted)
     line = mlines.Line2D([],[])
-    assert_true(line._is_sorted(np.array([1, 2, 3])))
-    assert_true(line._is_sorted(np.array([1, np.nan, 3])))
-    assert_true(not line._is_sorted([3, 5] + [np.nan] * 100 + [0, 2]))
+    assert line._is_sorted(np.array([1,2,3]))
+    assert line._is_sorted(np.array([1,np.nan,3]))
+    assert not line._is_sorted([3, 5] + [np.nan] * 100 + [0, 2])
+

@@ -12,7 +12,6 @@ import matplotlib.ticker as mticker
 from matplotlib.testing.decorators import cleanup
 
 import warnings
-import pytest
 
 
 def test_MaxNLocator():

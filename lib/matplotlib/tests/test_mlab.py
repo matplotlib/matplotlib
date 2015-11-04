@@ -3008,4 +3008,3 @@ def test_psd_onesided_norm():
                     sides='onesided')
     Su_1side = np.append([Su[0]], Su[1:4] + Su[4:][::-1])
     assert_allclose(P, Su_1side, atol=1e-06)
-
