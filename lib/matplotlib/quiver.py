@@ -1009,7 +1009,8 @@ class Barbs(mcollections.PolyCollection):
 
         *pivot* specifies the point on the barb around which the
         entire barb should be rotated.  Right now, valid options are
-        'head' and 'middle'.
+        'tip' and 'middle'. Can also be a number, which shifts the start
+        of the barb that many units from the origin.
 
         *sizes* is a dictionary of coefficients specifying the ratio
         of a given feature to the length of the barb. These features
@@ -1032,7 +1033,7 @@ class Barbs(mcollections.PolyCollection):
 
         *flip* is a flag indicating whether the features should be flipped to
         the other side of the barb (useful for winds in the southern
-        hemisphere.
+        hemisphere).
 
         This function returns list of arrays of vertices, defining a polygon
         for each of the wind barbs.  These polygons have been rotated to
