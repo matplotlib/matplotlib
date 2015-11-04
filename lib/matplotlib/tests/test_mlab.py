@@ -123,43 +123,43 @@ class stride_testcase(CleanupTestCase):
 
     def test_stride_windows_2D_ValueError(self):
         x = np.arange(10)[np.newaxis]
-        pytest.raise(ValueError, mlab.stride_windows( x, 5))
+        pytest.raises(ValueError, mlab.stride_windows( x, 5))
 
     def test_stride_windows_0D_ValueError(self):
         x = np.array(0)
-        pytest.raise(ValueError, mlab.stride_windows( x, 5))
+        pytest.raises(ValueError, mlab.stride_windows( x, 5))
 
     def test_stride_windows_noverlap_gt_n_ValueError(self):
         x = np.arange(10)
-        pytest.raise(ValueError, mlab.stride_windows(x, 2, 3)
+        pytest.raises(ValueError, mlab.stride_windows(x, 2, 3)
 
     def test_stride_windows_noverlap_eq_n_ValueError(self):
         x = np.arange(10)
-        pytest.raise(ValueError, mlab.stride_windows(x, 2, 2))
+        pytest.raises(ValueError, mlab.stride_windows(x, 2, 2))
 
     def test_stride_windows_n_gt_lenx_ValueError(self):
         x = np.arange(10)
-        pytest.raise(ValueError, mlab.stride_windows(x, 11))
+        pytest.raises(ValueError, mlab.stride_windows(x, 11))
 
     def test_stride_windows_n_lt_1_ValueError(self):
         x = np.arange(10)
-        pytest.raise(ValueError, mlab.stride_windows(x, 0))
+        pytest.raises(ValueError, mlab.stride_windows(x, 0))
 
     def test_stride_repeat_2D_ValueError(self):
         x = np.arange(10)[np.newaxis]
-        pytest.raise(ValueError, mlab.stride_repeat(x, 5))
+        pytest.raises(ValueError, mlab.stride_repeat(x, 5))
 
     def test_stride_repeat_axis_lt_0_ValueError(self):
         x = np.array(0)
-        pytest.raise(ValueError, mlab.stride_repeat(x, 5, axis=-1))
+        pytest.raises(ValueError, mlab.stride_repeat(x, 5, axis=-1))
 
     def test_stride_repeat_axis_gt_1_ValueError(self):
         x = np.array(0)
-        pytest.raise(ValueError, mlab.stride_repeat(x, 5, axis=2))
+        pytest.raises(ValueError, mlab.stride_repeat(x, 5, axis=2))
 
     def test_stride_repeat_n_lt_1_ValueError(self):
         x = np.arange(10)
-        pytest.raise(ValueError, mlab.stride_repeat(x, 0))
+        pytest.raises(ValueError, mlab.stride_repeat(x, 0))
 
     def test_stride_repeat_n1_axis0(self):
         x = np.arange(10)
@@ -337,7 +337,7 @@ class csv_testcase(CleanupTestCase):
                                     (str('y'), np.float)])
 
         # the bad recarray should trigger a ValueError for having ndim > 1.
-        pytest.raise(ValueError, mlab.rec2csv( bad, self.fd))
+        pytest.raises(ValueError, mlab.rec2csv( bad, self.fd))
 
     def test_csv2rec_names_with_comments(self):
         self.fd.write('# comment\n1,2,3\n4,5,6\n')
@@ -399,24 +399,24 @@ class window_testcase(CleanupTestCase):
     def test_apply_window_1D_axis1_ValueError(self):
         x = self.sig_rand
         window = mlab.window_hanning
-        pytest.raise(ValueError, mlab.apply_window( x, window, axis=1,
+        pytest.raises(ValueError, mlab.apply_window( x, window, axis=1,
                       return_window=False))
 
     def test_apply_window_1D_els_wrongsize_ValueError(self):
         x = self.sig_rand
         window = mlab.window_hanning(np.ones(x.shape[0]-1))
-        pytest.raise(ValueError, mlab.apply_window(x, window))
+        pytest.raises(ValueError, mlab.apply_window(x, window))
 
     def test_apply_window_0D_ValueError(self):
         x = np.array(0)
         window = mlab.window_hanning
-        pytest.raise(ValueError, mlab.apply_window(x, window, axis=1,
+        pytest.raises(ValueError, mlab.apply_window(x, window, axis=1,
                       return_window=False))
 
     def test_apply_window_3D_ValueError(self):
         x = self.sig_rand[np.newaxis][np.newaxis]
         window = mlab.window_hanning
-        pytest.raise(ValueError, mlab.apply_window(x, window, axis=1,
+        pytest.raises(ValueError, mlab.apply_window(x, window, axis=1,
                       return_window=False))
 
     def test_apply_window_hanning_1D(self):
@@ -1096,43 +1096,43 @@ class detrend_testcase(CleanupTestCase):
 
     def test_detrend_bad_key_str_ValueError(self):
         input = self.sig_slope[np.newaxis]
-        pytest.raise(ValueError, mlab.detrend(input, key='spam'))
+        pytest.raises(ValueError, mlab.detrend(input, key='spam'))
 
     def test_detrend_bad_key_var_ValueError(self):
         input = self.sig_slope[np.newaxis]
-        pytest.raise(ValueError, mlab.detrend(input, key=5))
+        pytest.raises(ValueError, mlab.detrend(input, key=5))
 
     def test_detrend_mean_0D_d0_ValueError(self):
         input = 5.5
-        pytest.raise(ValueError, mlab.detrend_mean(input, axis=0))
+        pytest.raises(ValueError, mlab.detrend_mean(input, axis=0))
 
     def test_detrend_0D_d0_ValueError(self):
         input = 5.5
-        pytest.raise(ValueError, mlab.detrend(input, axis=0))
+        pytest.raises(ValueError, mlab.detrend(input, axis=0))
 
     def test_detrend_mean_1D_d1_ValueError(self):
         input = self.sig_slope
-        pytest.raise(ValueError, mlab.detrend_mean(input, axis=1))
+        pytest.raises(ValueError, mlab.detrend_mean(input, axis=1))
 
     def test_detrend_1D_d1_ValueError(self):
         input = self.sig_slope
-        pytest.raise(ValueError, mlab.detrend(input, axis=1))
+        pytest.raises(ValueError, mlab.detrend(input, axis=1))
 
     def test_demean_1D_d1_ValueError(self):
         input = self.sig_slope
-        pytest.raise(ValueError, mlab.demean(input, axis=1))
+        pytest.raises(ValueError, mlab.demean(input, axis=1))
 
     def test_detrend_mean_2D_d2_ValueError(self):
         input = self.sig_slope[np.newaxis]
-        pytest.raise(ValueError, mlab.detrend_mean(input, axis=2))
+        pytest.raises(ValueError, mlab.detrend_mean(input, axis=2))
 
     def test_detrend_2D_d2_ValueError(self):
         input = self.sig_slope[np.newaxis]
-        pytest.raise(ValueError, mlab.detrend(input, axis=2))
+        pytest.raises(ValueError, mlab.detrend(input, axis=2))
 
     def test_demean_2D_d2_ValueError(self):
         input = self.sig_slope[np.newaxis]
-        pytest.raise(ValueError, mlab.demean(input, axis=2))
+        pytest.raises(ValueError, mlab.demean(input, axis=2))
 
     def test_detrend_linear_0D_zeros(self):
         input = 0.
@@ -1196,7 +1196,7 @@ class detrend_testcase(CleanupTestCase):
 
     def test_detrend_linear_2D_ValueError(self):
         input = self.sig_slope[np.newaxis]
-        pytest.raise(ValueError, mlab.detrend_linear(input))
+        pytest.raises(ValueError, mlab.detrend_linear(input))
 
     def test_detrend_str_linear_2d_slope_off_axis0(self):
         arri = [self.sig_off,
@@ -1431,57 +1431,57 @@ class spectral_testcase_nosig_real_onesided(CleanupTestCase):
 
     def test_spectral_helper_raises_complex_same_data(self):
         # test that mode 'complex' cannot be used if x is not y
-        pytest.raise(ValueError, mlab._spectral_helper(
+        pytest.raises(ValueError, mlab._spectral_helper(
                       x=self.y, y=self.y+1, mode='complex'))
 
     def test_spectral_helper_raises_magnitude_same_data(self):
         # test that mode 'magnitude' cannot be used if x is not y
-        pytest.raise(ValueError, mlab._spectral_helper(
+        pytest.raises(ValueError, mlab._spectral_helper(
                       x=self.y, y=self.y+1, mode='magnitude'))
 
     def test_spectral_helper_raises_angle_same_data(self):
         # test that mode 'angle' cannot be used if x is not y
-        pytest.raise(ValueError, mlab._spectral_helper(
+        pytest.raises(ValueError, mlab._spectral_helper(
                       x=self.y, y=self.y+1, mode='angle'))
 
     def test_spectral_helper_raises_phase_same_data(self):
         # test that mode 'phase' cannot be used if x is not y
-        pytest.raise(ValueError, mlab._spectral_helper(
+        pytest.raises(ValueError, mlab._spectral_helper(
                       x=self.y, y=self.y+1, mode='phase'))
 
     def test_spectral_helper_raises_unknown_mode(self):
         # test that unknown value for mode cannot be used
-        pytest.raise(ValueError, mlab._spectral_helper(
+        pytest.raises(ValueError, mlab._spectral_helper(
                       x=self.y, mode='spam'))
 
     def test_spectral_helper_raises_unknown_sides(self):
         # test that unknown value for sides cannot be used
-        pytest.raise(ValueError, mlab._spectral_helper(
+        pytest.raises(ValueError, mlab._spectral_helper(
                       x=self.y, y=self.y, sides='eggs'))
 
     def test_spectral_helper_raises_noverlap_gt_NFFT(self):
         # test that noverlap cannot be larger than NFFT
-        pytest.raise(ValueError, mlab._spectral_helper(
+        pytest.raises(ValueError, mlab._spectral_helper(
                       x=self.y, y=self.y, NFFT=10, noverlap=20))
 
     def test_spectral_helper_raises_noverlap_eq_NFFT(self):
         # test that noverlap cannot be equal to NFFT
-        pytest.raise(ValueError, mlab._spectral_helper(
+        pytest.raises(ValueError, mlab._spectral_helper(
                       x=self.y, NFFT=10, noverlap=10))
 
     def test_spectral_helper_raises_winlen_ne_NFFT(self):
         # test that the window length cannot be different from NFFT
-        pytest.raise(ValueError, mlab._spectral_helper(
+        pytest.raises(ValueError, mlab._spectral_helper(
                       x=self.y, y=self.y, NFFT=10, window=np.ones(9)))
 
     def test_single_spectrum_helper_raises_mode_default(self):
         # test that mode 'default' cannot be used with _single_spectrum_helper
-        pytest.raise(ValueError, mlab._single_spectrum_helper(
+        pytest.raises(ValueError, mlab._single_spectrum_helper(
                       x=self.y, mode='default'))
 
     def test_single_spectrum_helper_raises_mode_psd(self):
         # test that mode 'psd' cannot be used with _single_spectrum_helper
-        pytest.raise(ValueError, mlab._single_spectrum_helper(
+        pytest.raises(ValueError, mlab._single_spectrum_helper(
                       x=self.y, mode='psd'))
 
     def test_spectral_helper_psd(self):
@@ -1587,7 +1587,7 @@ class spectral_testcase_nosig_real_onesided(CleanupTestCase):
         assert_array_equal(fsp_b, fsp_c)
         assert_allclose(spec_g, spec_c, atol=1e-08)
         # these should not be almost equal
-        pytest.raise(AssertionError,
+        pytest.raises(AssertionError,
                       assert_allclose(spec_b, spec_c, atol=1e-08))
 
     def test_psd_detrend_mean_str_offset(self):
@@ -1623,7 +1623,7 @@ class spectral_testcase_nosig_real_onesided(CleanupTestCase):
         assert_array_equal(fsp_b, fsp_c)
         assert_allclose(spec_g, spec_c, atol=1e-08)
         # these should not be almost equal
-        pytest.raise(AssertionError,
+        pytest.raises(AssertionError,
                       assert_allclose(spec_b, spec_c, atol=1e-08))
 
     def test_psd_detrend_linear_func_trend(self):
@@ -1659,7 +1659,7 @@ class spectral_testcase_nosig_real_onesided(CleanupTestCase):
         assert_array_equal(fsp_b, fsp_c)
         assert_allclose(spec_g, spec_c, atol=1e-08)
         # these should not be almost equal
-        pytest.raise(AssertionError,
+        pytest.raises(AssertionError,
                       assert_allclose(spec_b, spec_c, atol=1e-08))
 
     def test_psd_detrend_linear_str_trend(self):
@@ -1695,7 +1695,7 @@ class spectral_testcase_nosig_real_onesided(CleanupTestCase):
         assert_array_equal(fsp_b, fsp_c)
         assert_allclose(spec_g, spec_c, atol=1e-08)
         # these should not be almost equal
-        pytest.raise(AssertionError,
+        pytest.raises(AssertionError,
                       assert_allclose(spec_b, spec_c, atol=1e-08))
 
     def test_psd_window_hanning(self):
@@ -1739,7 +1739,7 @@ class spectral_testcase_nosig_real_onesided(CleanupTestCase):
         assert_array_equal(fsp_b, fsp_c)
         assert_allclose(spec_g, spec_c, atol=1e-08)
         # these should not be almost equal
-        pytest.raise(AssertionError,
+        pytest.raises(AssertionError,
                       assert_allclose(spec_b, spec_c, atol=1e-08))
 
     def test_psd_window_hanning_detrend_linear(self):
@@ -1788,7 +1788,7 @@ class spectral_testcase_nosig_real_onesided(CleanupTestCase):
         assert_array_equal(fsp_b, fsp_c)
         assert_allclose(spec_g, spec_c, atol=1e-08)
         # these should not be almost equal
-        pytest.raise(AssertionError,
+        pytest.raises(AssertionError,
                       assert_allclose(spec_b, spec_c, atol=1e-08))
 
     def test_psd_windowarray(self):
@@ -2771,9 +2771,9 @@ def test_griddata_nn():
     np.testing.assert_array_almost_equal(zi, correct_zi, 5)
 
     # Decreasing xi or yi should raise ValueError.
-    pytest.raise(ValueError, mlab.griddata(x, y, z, xi[::-1], yi,
+    pytest.raises(ValueError, mlab.griddata(x, y, z, xi[::-1], yi,
                   interp='nn'))
-    pytest.raise(ValueError, mlab.griddata(x, y, z, xi, yi[::-1],
+    pytest.raises(ValueError, mlab.griddata(x, y, z, xi, yi[::-1],
                   interp='nn'))
 
     # Passing 2D xi and yi arrays to griddata.
@@ -2844,17 +2844,17 @@ class gaussian_kde_tests():
 class gaussian_kde_custom_tests(object):
     def test_no_data(self):
         """Pass no data into the GaussianKDE class."""
-        pytest.raise(ValueError, mlab.GaussianKDE,([]))
+        pytest.raises(ValueError, mlab.GaussianKDE,([]))
 
     def test_single_dataset_element(self):
         """Pass a single dataset element into the GaussianKDE class."""
-        pytest.raise(ValueError, mlab.GaussianKDE([42]))
+        pytest.raises(ValueError, mlab.GaussianKDE([42]))
 
     def test_silverman_multidim_dataset(self):
         """Use a multi-dimensional array as the dataset and test silverman's
         output"""
         x1 = np.array([[1, 2, 3], [4, 5, 6], [7, 8, 9]])
-        pytest.raise(np.linalg.LinAlgError, mlab.GaussianKDE(x1, "silverman"))
+        pytest.raises(np.linalg.LinAlgError, mlab.GaussianKDE(x1, "silverman"))
 
     def test_silverman_singledim_dataset(self):
         """Use a single dimension list as the dataset and test silverman's
@@ -2868,7 +2868,7 @@ class gaussian_kde_custom_tests(object):
         """Use a multi-dimensional array as the dataset and test scott's output
         """
         x1 = np.array([[1, 2, 3], [4, 5, 6], [7, 8, 9]])
-        pytest.raise(np.linalg.LinAlgError, mlab.GaussianKDE(x1, "scott"))
+        pytest.raises(np.linalg.LinAlgError, mlab.GaussianKDE(x1, "scott"))
 
     def test_scott_singledim_dataset(self):
         """Use a single-dimensional array as the dataset and test scott's
@@ -2881,7 +2881,7 @@ class gaussian_kde_custom_tests(object):
     def test_scalar_empty_dataset(self):
         """Use an empty array as the dataset and test the scalar's cov factor
         """
-        pytest.raise(ValueError, mlab.GaussianKDE([], bw_method=5))
+        pytest.raises(ValueError, mlab.GaussianKDE([], bw_method=5))
 
     def test_scalar_covariance_dataset(self):
         """Use a dataset and test a scalar's cov factor
@@ -2921,7 +2921,7 @@ class gaussian_kde_custom_tests(object):
         np.random.seed(8765678)
         n_basesample = 50
         data = np.random.randn(n_basesample)
-        pytest.raise(ValueError, mlab.GaussianKDE(data, bw_method="invalid"))
+        pytest.raises(ValueError, mlab.GaussianKDE(data, bw_method="invalid"))
 
 
 class gaussian_kde_evaluate_tests(object):
@@ -2947,7 +2947,7 @@ class gaussian_kde_evaluate_tests(object):
         multidim_data = np.random.randn(n_basesample)
         kde = mlab.GaussianKDE(multidim_data)
         x2 = [[1], [2], [3]]
-        pytest.raise(ValueError, kde.evaluate(x2))
+        pytest.raises(ValueError, kde.evaluate(x2))
 
     def test_evaluate_dim_and_num(self):
         """ Tests if evaluated against a one by one array"""
@@ -2963,7 +2963,7 @@ class gaussian_kde_evaluate_tests(object):
         x1 = np.arange(3, 10, 2)
         x2 = [np.arange(3, 10, 2), np.arange(3, 10, 2)]
         kde = mlab.GaussianKDE(x1)
-        pytest.raise(ValueError, kde.evaluate(x2))
+        pytest.raises(ValueError, kde.evaluate(x2))
 
     def test_evaluate_equal_dim_and_num_lt(self):
         """Test when line 3810 fails"""

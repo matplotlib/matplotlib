@@ -371,10 +371,10 @@ def test_to_midstep():
 
 
 def test_step_fails():
-    pytest.raise(ValueError, cbook._step_validation(np.arange(12).reshape(3, 4), 'a'))
-    pytest.raise(ValueError, cbook._step_validation(np.arange(12), 'a'))
-    pytest.raise(ValueError, cbook._step_validation(np.arange(12)))
-    pytest.raise(ValueError, cbook._step_validation(np.arange(12), np.arange(3)))
+    pytest.raises(ValueError, cbook._step_validation(np.arange(12).reshape(3, 4), 'a'))
+    pytest.raises(ValueError, cbook._step_validation(np.arange(12), 'a'))
+    pytest.raises(ValueError, cbook._step_validation(np.arange(12)))
+    pytest.raises(ValueError, cbook._step_validation(np.arange(12), np.arange(3)))
 
 
 def test_grouper():
