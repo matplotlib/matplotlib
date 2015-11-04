@@ -3008,7 +3008,7 @@ class Axes(_AxesBase):
                     caplines.extend(self.plot(xup, yup, 'k_', **plot_kw))
 
         if not barsabove and plot_line:
-            l0, = self.plot(x, y, fmt, **kwargs)
+            l0, = self.plot(x, y, fmt, label='_nolegend_', **kwargs)
 
         if ecolor is None:
             if l0 is None and 'color' in self._get_lines._prop_keys:
