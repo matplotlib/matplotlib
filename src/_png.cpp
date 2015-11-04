@@ -83,7 +83,42 @@ static void flush_png_data(png_structp png_ptr)
     Py_XDECREF(result);
 }
 
-const char *Py_write_png__doc__ = "write_png(buffer, file, dpi=0)";
+const char *Py_write_png__doc__ =
+    "write_png(buffer, file, dpi=0, compression=6, filter=auto)\n"
+    "\n"
+    "Parameters\n"
+    "----------\n"
+    "buffer : numpy array of image data\n"
+    "    Must be an MxNxD array of dtype uint8.\n"
+    "    - if D is 1, the image is greyscale\n"
+    "    - if D is 3, the image is RGB\n"
+    "    - if D is 4, the image is RGBA\n"
+    "\n"
+    "file : str path, file-like object or None\n"
+    "    - If a str, must be a file path\n"
+    "    - If a file-like object, must write bytes\n"
+    "    - If None, a byte string containing the PNG data will be returned\n"
+    "\n"
+    "dpi : float\n"
+    "    The dpi to store in the file metadata.\n"
+    "\n"
+    "compression : int\n"
+    "    The level of lossless zlib compression to apply.  0 indicates no\n"
+    "    compression.  Values 1-9 indicate low/fast through high/slow\n"
+    "    compression.  Default is 6.\n"
+    "\n"
+    "filter : int\n"
+    "    Filter to apply.  Must be one of the constants: PNG_FILTER_NONE,\n"
+    "    PNG_FILTER_SUB, PNG_FILTER_UP, PNG_FILTER_AVG, PNG_FILTER_PAETH.\n"
+    "    See the PNG standard for more information.\n"
+    "    If not provided, libpng will try to automatically determine the\n"
+    "    best filter on a line-by-line basis.\n"
+    "\n"
+    "Returns\n"
+    "-------\n"
+    "buffer : bytes or None\n"
+    "    Byte string containing the PNG content if None was passed in for\n"
+    "    file, otherwise None is returned.\n";
 
 static PyObject *Py_write_png(PyObject *self, PyObject *args, PyObject *kwds)
 {
@@ -546,21 +581,46 @@ exit:
     }
 }
 
-const char *Py_read_png_float__doc__ = "read_png_float(file)";
+const char *Py_read_png_float__doc__ =
+    "read_png_float(file)\n"
+    "\n"
+    "Read in a PNG file, converting values to floating-point doubles\n"
+    "in the range (0, 1)\n"
+    "\n"
+    "Parameters\n"
+    "----------\n"
+    "file : str path or file-like object\n";
 
 static PyObject *Py_read_png_float(PyObject *self, PyObject *args, PyObject *kwds)
 {
     return _read_png(args, true);
 }
 
-const char *Py_read_png_int__doc__ = "read_png_int(file)";
+const char *Py_read_png_int__doc__ =
+    "read_png_int(file)\n"
+    "\n"
+    "Read in a PNG file with original integer values.\n"
+    "\n"
+    "Parameters\n"
+    "----------\n"
+    "file : str path or file-like object\n";
 
 static PyObject *Py_read_png_int(PyObject *self, PyObject *args, PyObject *kwds)
 {
     return _read_png(args, false);
 }
 
-const char *Py_read_png__doc__ = "read_png(file)";
+const char *Py_read_png__doc__ =
+    "read_png(file)\n"
+    "\n"
+    "Read in a PNG file, converting values to floating-point doubles\n"
+    "in the range (0, 1)\n"
+    "\n"
+    "Alias for read_png_float()\n"
+    "\n"
+    "Parameters\n"
+    "----------\n"
+    "file : str path or file-like object\n";
 
 static PyMethodDef module_methods[] = {
     {"write_png", (PyCFunction)Py_write_png, METH_VARARGS|METH_KEYWORDS, Py_write_png__doc__},
