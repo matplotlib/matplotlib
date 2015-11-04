@@ -355,7 +355,7 @@ def test_shaped_data():
     plt.plot(y2)
 
     plt.subplot(413)
-    pytest.raises(ValueError, plt.plot, (y1, y2))
+    pytest.raises(ValueError, plt.plot(y1, y2))
 
     plt.subplot(414)
     plt.plot(xdata[:, 1], xdata[1, :], 'o')
@@ -845,12 +845,12 @@ def test_pcolorargs():
     Z = np.sqrt(X**2 + Y**2)/5
 
     _, ax = plt.subplots()
-    pytest.raises(TypeError, ax.pcolormesh, y, x, Z)
-    pytest.raises(TypeError, ax.pcolormesh, X, Y, Z.T)
-    pytest.raises(TypeError, ax.pcolormesh, x, y, Z[:-1, :-1],
-                  shading="gouraud")
-    pytest.raises(TypeError, ax.pcolormesh, X, Y, Z[:-1, :-1],
-                  shading="gouraud")
+    pytest.raises(TypeError, ax.pcolormesh(y, x, Z))
+    pytest.raises(TypeError, ax.pcolormesh(X, Y, Z.T))
+    pytest.raises(TypeError, ax.pcolormesh(x, y, Z[:-1, :-1],
+                  shading="gouraud"))
+    pytest.raises(TypeError, ax.pcolormesh(X, Y, Z[:-1, :-1],
+                  shading="gouraud"))
 
 
 @image_comparison(baseline_images=['canonical'])
@@ -1726,7 +1726,7 @@ def test_bxp_bad_widths():
 
     fig, ax = plt.subplots()
     ax.set_yscale('log')
-    pytest.raises(ValueError, ax.bxp, logstats, widths=[1])
+    pytest.raises(ValueError, ax.bxp(logstats, widths=[1]))
 
 
 @cleanup
@@ -1738,7 +1738,7 @@ def test_bxp_bad_positions():
 
     fig, ax = plt.subplots()
     ax.set_yscale('log')
-    pytest.raises(ValueError, ax.bxp, logstats, positions=[2, 3])
+    pytest.raises(ValueError, ax.bxp(logstats, positions=[2, 3]))
 
 
 @image_comparison(baseline_images=['boxplot', 'boxplot'], tol=1)
@@ -1894,7 +1894,7 @@ def test_boxplot_bad_medians_1():
     x = np.linspace(-7, 7, 140)
     x = np.hstack([-25, x, 25])
     fig, ax = plt.subplots()
-    pytest.raises(ValueError, ax.boxplot, x,  usermedians=[1, 2])
+    pytest.raises(ValueError, ax.boxplot(x,  usermedians=[1, 2]))
 
 
 @cleanup
@@ -1902,7 +1902,7 @@ def test_boxplot_bad_medians_2():
     x = np.linspace(-7, 7, 140)
     x = np.hstack([-25, x, 25])
     fig, ax = plt.subplots()
-    pytest.raises(ValueError, ax.boxplot, [x, x],  usermedians=[[1, 2], [1, 2]])
+    pytest.raises(ValueError, ax.boxplot([x, x],  usermedians=[[1, 2], [1, 2]]))
 
 
 @cleanup
@@ -1910,8 +1910,8 @@ def test_boxplot_bad_ci_1():
     x = np.linspace(-7, 7, 140)
     x = np.hstack([-25, x, 25])
     fig, ax = plt.subplots()
-    pytest.raises(ValueError, ax.boxplot, [x, x],
-                  conf_intervals=[[1, 2]])
+    pytest.raises(ValueError, ax.boxplot([x, x],
+                  conf_intervals=[[1, 2]]))
 
 
 @cleanup
@@ -1919,8 +1919,8 @@ def test_boxplot_bad_ci_2():
     x = np.linspace(-7, 7, 140)
     x = np.hstack([-25, x, 25])
     fig, ax = plt.subplots()
-    pytest.raises(ValueError, ax.boxplot, [x, x],
-                  conf_intervals=[[1, 2], [1]])
+    pytest.raises(ValueError, ax.boxplot([x, x],
+                  conf_intervals=[[1, 2], [1]]))
 
 
 @image_comparison(baseline_images=['boxplot_mod_artists_after_plotting'],
@@ -2103,7 +2103,7 @@ def test_violinplot_bad_positions():
     # First 9 digits of frac(sqrt(47))
     np.random.seed(855654600)
     data = [np.random.normal(size=100) for i in range(4)]
-    pytest.raises(ValueError, ax.violinplot, data, positions=range(5))
+    pytest.raises(ValueError, ax.violinplot(data, positions=range(5)))
 
 
 @cleanup
@@ -2112,8 +2112,8 @@ def test_violinplot_bad_widths():
     # First 9 digits of frac(sqrt(53))
     np.random.seed(280109889)
     data = [np.random.normal(size=100) for i in range(4)]
-    pytest.raises(ValueError, ax.violinplot, data, positions=range(4),
-                  widths=[1, 2, 3])
+    pytest.raises(ValueError, ax.violinplot(data, positions=range(4),
+                  widths=[1, 2, 3]))
 
 
 @cleanup
@@ -2195,9 +2195,9 @@ def test_errorbar_shape():
     yerr = np.vstack((yerr1, 2*yerr1)).T
     xerr = 0.1 + yerr
 
-    pytest.raises(ValueError, ax.errorbar, x, y, yerr=yerr, fmt='o')
-    pytest.raises(ValueError, ax.errorbar, x, y, xerr=xerr, fmt='o')
-    pytest.raises(ValueError, ax.errorbar, x, y, yerr=yerr, xerr=xerr, fmt='o')
+    pytest.raises(ValueError, ax.errorbar(x, y, yerr=yerr, fmt='o'))
+    pytest.raises(ValueError, ax.errorbar(x, y, xerr=xerr, fmt='o'))
+    pytest.raises(ValueError, ax.errorbar(x, y, yerr=yerr, xerr=xerr, fmt='o'))
 
 
 @image_comparison(baseline_images=['errorbar_limits'])
@@ -2992,17 +2992,17 @@ def test_specgram_angle_freqs():
     spec13 = ax13.specgram(y, NFFT=NFFT, Fs=Fs, noverlap=noverlap,
                            pad_to=pad_to, sides='twosided', mode='angle')
 
-    pytest.raises(ValueError, ax11.specgram, y, NFFT=NFFT, Fs=Fs,
+    pytest.raises(ValueError, ax11.specgram(y, NFFT=NFFT, Fs=Fs,
                   noverlap=noverlap, pad_to=pad_to, sides='default',
-                  mode='phase', scale='dB')
+                  mode='phase', scale='dB'))
 
-    pytest.raises(ValueError, ax12.specgram, y, NFFT=NFFT, Fs=Fs,
+    pytest.raises(ValueError, ax12.specgram(y, NFFT=NFFT, Fs=Fs,
                   noverlap=noverlap, pad_to=pad_to, sides='onesided',
-                  mode='phase', scale='dB')
+                  mode='phase', scale='dB'))
 
-    pytest.raises(ValueError, ax13.specgram, y, NFFT=NFFT, Fs=Fs,
+    pytest.raises(ValueError, ax13.specgram(y, NFFT=NFFT, Fs=Fs,
                   noverlap=noverlap, pad_to=pad_to, sides='twosided',
-                  mode='phase', scale='dB')
+                  mode='phase', scale='dB'))
 
 
 @image_comparison(baseline_images=['specgram_angle_noise'],
@@ -3039,17 +3039,17 @@ def test_specgram_noise_angle():
     spec13 = ax13.specgram(y, NFFT=NFFT, Fs=Fs, noverlap=noverlap,
                            pad_to=pad_to, sides='twosided', mode='angle')
 
-    pytest.raises(ValueError, ax11.specgram, y, NFFT=NFFT, Fs=Fs,
+    pytest.raises(ValueError, ax11.specgram(y, NFFT=NFFT, Fs=Fs,
                   noverlap=noverlap, pad_to=pad_to, sides='default',
-                  mode='phase', scale='dB')
+                  mode='phase', scale='dB'))
 
-    pytest.raises(ValueError, ax12.specgram, y, NFFT=NFFT, Fs=Fs,
+    pytest.raises(ValueError, ax12.specgram(y, NFFT=NFFT, Fs=Fs,
                   noverlap=noverlap, pad_to=pad_to, sides='onesided',
-                  mode='phase', scale='dB')
+                  mode='phase', scale='dB'))
 
-    pytest.raises(ValueError, ax13.specgram, y, NFFT=NFFT, Fs=Fs,
+    pytest.raises(ValueError, ax13.specgram(y, NFFT=NFFT, Fs=Fs,
                   noverlap=noverlap, pad_to=pad_to, sides='twosided',
-                  mode='phase', scale='dB')
+                  mode='phase', scale='dB'))
 
 
 @image_comparison(baseline_images=['specgram_phase_freqs'],
@@ -3094,17 +3094,17 @@ def test_specgram_freqs_phase():
     spec13 = ax13.specgram(y, NFFT=NFFT, Fs=Fs, noverlap=noverlap,
                            pad_to=pad_to, sides='twosided', mode='phase')
 
-    pytest.raises(ValueError, ax11.specgram, y, NFFT=NFFT, Fs=Fs,
+    pytest.raises(ValueError, ax11.specgram(y, NFFT=NFFT, Fs=Fs,
                   noverlap=noverlap, pad_to=pad_to, sides='default',
-                  mode='phase', scale='dB')
+                  mode='phase', scale='dB'))
 
-    pytest.raises(ValueError, ax12.specgram, y, NFFT=NFFT, Fs=Fs,
+    pytest.raises(ValueError, ax12.specgram(y, NFFT=NFFT, Fs=Fs,
                   noverlap=noverlap, pad_to=pad_to, sides='onesided',
-                  mode='phase', scale='dB')
+                  mode='phase', scale='dB'))
 
-    pytest.raises(ValueError, ax13.specgram, y, NFFT=NFFT, Fs=Fs,
+    pytest.raises(ValueError, ax13.specgram(y, NFFT=NFFT, Fs=Fs,
                   noverlap=noverlap, pad_to=pad_to, sides='twosided',
-                  mode='phase', scale='dB')
+                  mode='phase', scale='dB'))
 
 
 @image_comparison(baseline_images=['specgram_phase_noise'],
@@ -3144,17 +3144,17 @@ def test_specgram_noise_phase():
                            pad_to=pad_to, sides='twosided',
                            mode='phase', )
 
-    pytest.raises(ValueError, ax11.specgram, y, NFFT=NFFT, Fs=Fs,
+    pytest.raises(ValueError, ax11.specgram(y, NFFT=NFFT, Fs=Fs,
                   noverlap=noverlap, pad_to=pad_to, sides='default',
-                  mode='phase', scale='dB')
+                  mode='phase', scale='dB'))
 
-    pytest.raises(ValueError, ax12.specgram, y, NFFT=NFFT, Fs=Fs,
+    pytest.raises(ValueError, ax12.specgram(y, NFFT=NFFT, Fs=Fs,
                   noverlap=noverlap, pad_to=pad_to, sides='onesided',
-                  mode='phase', scale='dB')
+                  mode='phase', scale='dB'))
 
-    pytest.raises(ValueError, ax13.specgram, y, NFFT=NFFT, Fs=Fs,
+    pytest.raises(ValueError, ax13.specgram(y, NFFT=NFFT, Fs=Fs,
                   noverlap=noverlap, pad_to=pad_to, sides='twosided',
-                  mode='phase', scale='dB')
+                  mode='phase', scale='dB'))
 
 
 @image_comparison(baseline_images=['psd_freqs'], remove_text=True,
@@ -4075,8 +4075,8 @@ def test_square_plot():
 @cleanup
 def test_no_None():
     fig, ax = plt.subplots()
-    pytest.raises(ValueError, plt.plot, None)
-    pytest.raises(ValueError, plt.plot, None, None)
+    pytest.raises(ValueError, plt.plot(None))
+    pytest.raises(ValueError, plt.plot(None, None))
 
 
 @cleanup
