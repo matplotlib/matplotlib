@@ -249,7 +249,7 @@ class Test_boxplot_stats(object):
         results = cbook.boxplot_stats(self.data, labels=labels)
         res = results[0]
         for lab, res in zip(labels, results):
-            assert_equal(res['label'], lab)
+            assert res['label'] == lab
 
         results = cbook.boxplot_stats(self.data)
         for res in results:
@@ -275,12 +275,12 @@ class Test_callback_registry(object):
         return self.callbacks.connect(s, func)
 
     def is_empty(self):
-        assert_equal(self.callbacks._func_cid_map, {})
-        assert_equal(self.callbacks.callbacks, {})
+        assert self.callbacks._func_cid_map() == {}
+        assert self.callbacks.callbacks() == {}
 
     def is_not_empty(self):
-        assert_not_equal(self.callbacks._func_cid_map, {})
-        assert_not_equal(self.callbacks.callbacks, {})
+        assert self.callbacks._func_cid_map() != {}
+        assert self.callbacks.callbacks != {}
 
     def test_callback_complete(self):
         # ensure we start with an empty registry
@@ -291,15 +291,15 @@ class Test_callback_registry(object):
 
         # test that we can add a callback
         cid1 = self.connect(self.signal, mini_me.dummy)
-        assert_equal(type(cid1), int)
+        assert type(cid1) is int
         self.is_not_empty()
 
         # test that we don't add a second callback
         cid2 = self.connect(self.signal, mini_me.dummy)
-        assert_equal(cid1, cid2)
+        assert cid1 == cid2
         self.is_not_empty()
-        assert_equal(len(self.callbacks._func_cid_map), 1)
-        assert_equal(len(self.callbacks.callbacks), 1)
+        assert len(self.callbacks._func_cid_map) == 1
+        assert len(self.callbacks.callbacks) == 1
 
         del mini_me
 

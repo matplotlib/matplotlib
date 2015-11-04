@@ -120,4 +120,4 @@ def test_customcell():
     for t, c in zip(types, codes):
         cell = CustomCell((0, 0), visible_edges=t, width=1, height=1)
         code = tuple(s for _, s in cell.get_path().iter_segments())
-        assert_equal(c, code)
+        assert c == code

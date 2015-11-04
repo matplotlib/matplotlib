@@ -2604,7 +2604,7 @@ def test_eventplot_problem_kwargs():
         # check that three IgnoredKeywordWarnings were raised
         assert len(w) == 3
         assert all(issubclass(wi.category, IgnoredKeywordWarning)
-                    for wi in w))
+                    for wi in w)
 
 
 @cleanup

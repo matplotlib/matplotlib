@@ -101,13 +101,13 @@ def test_PathEffect_points_to_pixels():
 
     # Confirm that using a path effects renderer maintains point sizes
     # appropriately. Otherwise rendered font would be the wrong size.
-    assert_equal(renderer.points_to_pixels(15),
-                 pe_renderer.points_to_pixels(15))
+    assert renderer.points_to_pixels(15) ==
+                 pe_renderer.points_to_pixels(15)
 
 
 def test_SimplePatchShadow_offset():
     pe = path_effects.SimplePatchShadow(offset=(4, 5))
-    assert_equal(pe._offset, (4, 5))
+    assert pe._offset == (4, 5)
 
 
 @image_comparison(baseline_images=['collection'])

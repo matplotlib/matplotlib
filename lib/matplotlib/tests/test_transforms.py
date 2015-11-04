@@ -264,9 +264,9 @@ class BasicTransformTests(unittest.TestCase):
 #        self.stack2_subset.write_graphviz(file('stack2_subset.dot', 'w'))
 
     def test_transform_depth(self):
-        assert_equal(self.stack1.depth, 4)
-        assert_equal(self.stack2.depth, 4)
-        assert_equal(self.stack2_subset.depth, 3)
+        assert self.stack1.depth == 4
+        assert self.stack2.depth == 4
+        assert self.stack2_subset.depth == 3
 
     def test_left_to_right_iteration(self):
         stack3 = (self.ta1 + (self.tn1 + (self.ta2 + self.tn2))) + self.ta3
@@ -288,10 +288,10 @@ class BasicTransformTests(unittest.TestCase):
         self.assertEqual(self.stack1 - self.stack2_subset, self.ta1)
         self.assertEqual(self.stack2 - self.stack2_subset, self.ta1)
 
-        assert_equal((self.stack2_subset - self.stack2),
-                     self.ta1.inverted(),
-                     )
-        assert_equal((self.stack2_subset - self.stack2).depth, 1)
+        assert (self.stack2_subset - self.stack2) ==
+                     self.ta1.inverted()
+
+        assert (self.stack2_subset - self.stack2).depth == 1
 
         assert_raises(ValueError, self.stack1.__sub__, self.stack2)
 
@@ -498,7 +498,7 @@ def test_bbox_intersection():
     # r3 contains r2
     assert_bbox_eq(inter(r1, r3), r3)
     # no intersection
-    assert_equal(inter(r1, r4), None)
+    assert inter(r1, r4) is None
     # single point
     assert_bbox_eq(inter(r1, r5), bbox_from_ext(1, 1, 1, 1))
 
@@ -508,11 +508,11 @@ def test_bbox_as_strings():
     assert_bbox_eq(b, eval(repr(b), {'Bbox': mtrans.Bbox}))
     asdict = eval(str(b), {'Bbox': dict})
     for k, v in asdict.items():
-        assert_equal(getattr(b, k), v)
+        assert getattr(b, k) == v
     fmt = '.1f'
     asdict = eval(format(b, fmt), {'Bbox': dict})
     for k, v in asdict.items():
-        assert_equal(eval(format(getattr(b, k), fmt)), v)
+        assert eval(format(getattr(b, k), fmt)) == v
 
 
 def test_transform_single_point():

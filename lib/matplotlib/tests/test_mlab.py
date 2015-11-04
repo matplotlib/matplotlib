@@ -260,7 +260,7 @@ class stride_testcase(CleanupTestCase):
         x = np.arange(100)
         y = mlab.stride_windows(x, 13, -3, axis=1)
         yt = self.calc_window_target(x, 13, -3).T
-        assert_equal(yt.shape, y.shape)
+        assert yt.shape == y.shape
         assert_array_equal(yt, y)
         assert (6, 13) == y.shape
         assert self.get_base(y) is x
