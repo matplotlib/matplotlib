@@ -22,6 +22,7 @@ import time
 import warnings
 
 import numpy as np
+import tornado
 
 from matplotlib.backends import backend_agg
 from matplotlib.figure import Figure
