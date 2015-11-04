@@ -1054,7 +1054,10 @@ class Barbs(mcollections.PolyCollection):
             full_height = -full_height
 
         endx = 0.0
-        endy = pivot_points[pivot.lower()]
+        try:
+            endy = float(pivot)
+        except ValueError:
+            endy = pivot_points[pivot.lower()]
 
         # Get the appropriate angle for the vector components.  The offset is
         # due to the way the barb is initially drawn, going down the y-axis.
