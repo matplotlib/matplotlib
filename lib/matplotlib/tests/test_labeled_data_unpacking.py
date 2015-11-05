@@ -51,13 +51,17 @@ all_funcs = [plot_func, plot_func_varags]
 def test_compiletime_checks():
     """test decorator invocations -> no replacements"""
 
-    def func(ax, x, y): pass
+    def func(ax, x, y):
+        pass
 
-    def func_args(ax, x, y, *args): pass
+    def func_args(ax, x, y, *args):
+        pass
 
-    def func_kwargs(ax, x, y, **kwargs): pass
+    def func_kwargs(ax, x, y, **kwargs):
+        pass
 
-    def func_no_ax_args(*args, **kwargs): pass
+    def func_no_ax_args(*args, **kwargs):
+        pass
 
     # this is ok
     unpack_labeled_data(replace_names=["x", "y"])(func)
@@ -126,7 +130,7 @@ def test_label_problems_at_runtime():
         func(None, x="a", y="b")
 
     # This sets a label although the function can't handle it.
-    assert_raises(TypeError, f)
+    pytest.raises(TypeError, f())
 
 
 def test_function_call_without_data():
