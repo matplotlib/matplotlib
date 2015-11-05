@@ -1,15 +1,10 @@
 # Demo of using multiprocessing for generating data in one process and plotting
 # in another.
 # Written by Robert Cimrman
-# Requires >= Python 2.6 for the multiprocessing module or having the
-# standalone processing module installed
 
 from __future__ import print_function
 import time
-try:
-    from multiprocessing import Process, Pipe
-except ImportError:
-    from processing import Process, Pipe
+from multiprocessing import Process, Pipe
 import numpy as np
 
 import matplotlib
