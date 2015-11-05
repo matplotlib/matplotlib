@@ -569,13 +569,12 @@ def test_invalid_arguments():
     # raises a ValueError, and a wrong shape with a possible number
     # of dimensions is caught by our CALL_CPP macro, which always
     # raises the less precise RuntimeError.
-    assert_raises(ValueError, t.transform, 1)
-    assert_raises(ValueError, t.transform, [[[1]]])
-    assert_raises(RuntimeError, t.transform, [])
-    assert_raises(RuntimeError, t.transform, [1])
-    assert_raises(RuntimeError, t.transform, [[1]])
-    assert_raises(RuntimeError, t.transform, [[1, 2, 3]])
-
+    pytest.raises(ValueError, t.transform(1))
+    pytest.raises(ValueError, t.transform([[[1]]]))
+    pytest.raises(RuntimeError, t.transform([]))
+    pytest.raises(RuntimeError, t.transform([1]))
+    pytest.raises(RuntimeError, t.transform([[1]]))
+    pytest.raises(RuntimeError, t.transform([[1, 2, 3]]))
 
 def test_transformed_path():
     points = [(0, 0), (1, 0), (1, 1), (0, 1)]
