@@ -63,5 +63,4 @@ for style in ('Italic',
 
 print(dir(font))
 
-cmap = font.get_charmap()
 print(font.get_kerning)
