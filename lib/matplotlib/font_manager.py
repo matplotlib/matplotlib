@@ -55,7 +55,6 @@ except NameError:
 from collections import Iterable
 import matplotlib
 from matplotlib import afm
-from matplotlib import ft2font
 from matplotlib import rcParams, get_cachedir
 from matplotlib.cbook import is_string_like
 import matplotlib.cbook as cbook
@@ -67,6 +66,8 @@ try:
     from functools import lru_cache
 except ImportError:
     from functools32 import lru_cache
+
+import freetypy as ft
 
 
 USE_FONTCONFIG = False
@@ -393,34 +394,26 @@ def ttfFontProperty(font):
     A function for populating the :class:`FontKey` by extracting
     information from the TrueType font file.
 
-    *font* is a :class:`FT2Font` instance.
+    *font* is a :class:`freetypy.Face` instance.
     """
     name = font.family_name
 
     #  Styles are: italic, oblique, and normal (default)
 
-    sfnt = font.get_sfnt()
-    sfnt2 = sfnt.get((1,0,0,2))
-    sfnt4 = sfnt.get((1,0,0,4))
-    if sfnt2:
-        sfnt2 = sfnt2.decode('macroman').lower()
-    else:
-        sfnt2 = ''
-    if sfnt4:
-        sfnt4 = sfnt4.decode('macroman').lower()
-    else:
-        sfnt4 = ''
-    if sfnt4.find('oblique') >= 0:
-        style = 'oblique'
-    elif sfnt4.find('italic') >= 0:
-        style = 'italic'
-    elif sfnt2.find('regular') >= 0:
-        style = 'normal'
-    elif font.style_flags & ft2font.ITALIC:
-        style = 'italic'
-    else:
-        style = 'normal'
+    names = font.sfnt_names
+    subfamily = names.get_name(ft.TT_NAME_ID.FONT_SUBFAMILY).string
+    full_name = names.get_name(ft.TT_NAME_ID.FULL_NAME).string
 
+    if full_name.find('oblique') >= 0:
+        style = 'oblique'
+    elif full_name.find('italic') >= 0:
+        style = 'italic'
+    elif subfamily.find('regular') >= 0:
+        style = 'normal'
+    elif font.style_flags & ft.STYLE_FLAG.ITALIC:
+        style = 'italic'
+    else:
+        style = 'normal'
 
     #  Variants are: small-caps and normal (default)
 
@@ -436,11 +429,11 @@ def ttfFontProperty(font):
 
     weight = None
     for w in six.iterkeys(weight_dict):
-        if sfnt4.find(w) >= 0:
+        if full_name.find(w) >= 0:
             weight = w
             break
     if not weight:
-        if font.style_flags & ft2font.BOLD:
+        if font.style_flags & ft.STYLE_FLAG.BOLD:
             weight = 700
         else:
             weight = 400
@@ -453,12 +446,12 @@ def ttfFontProperty(font):
     #  Relative stretches are: wider, narrower
     #  Child value is: inherit
 
-    if sfnt4.find('narrow') >= 0 or sfnt4.find('condensed') >= 0 or \
-           sfnt4.find('cond') >= 0:
+    if (full_name.find('narrow') >= 0 or full_name.find('condensed') >= 0 or
+        full_name.find('cond') >= 0):
         stretch = 'condensed'
-    elif sfnt4.find('demi cond') >= 0:
+    elif full_name.find('demi cond') >= 0:
         stretch = 'semi-condensed'
-    elif sfnt4.find('wide') >= 0 or sfnt4.find('expanded') >= 0:
+    elif full_name.find('wide') >= 0 or full_name.find('expanded') >= 0:
         stretch = 'expanded'
     else:
         stretch = 'normal'
@@ -471,15 +464,15 @@ def ttfFontProperty(font):
     #  Percentage values are in 'em's.  Most robust specification.
 
     #  !!!!  Incomplete
-    if font.scalable:
+    if font.is_scalable:
         size = 'scalable'
     else:
-        size = str(float(font.get_fontsize()))
+        size = str(float(font.size))
 
     #  !!!!  Incomplete
     size_adjust = None
 
-    return FontEntry(font.fname, name, style, variant, weight, stretch, size)
+    return FontEntry(font.filename, name, style, variant, weight, stretch, size)
 
 
 def afmFontProperty(fontpath, font):
@@ -559,7 +552,7 @@ def createFontList(fontfiles, fontext='ttf'):
     fontlist = []
     #  Add fonts from list of known font files.
     seen = {}
-    for fpath in fontfiles:
+    for i, fpath in enumerate(fontfiles):
         verbose.report('createFontDict: %s' % (fpath), 'debug')
         fname = os.path.split(fpath)[1]
         if fname in seen:  continue
@@ -584,7 +577,7 @@ def createFontList(fontfiles, fontext='ttf'):
                 continue
         else:
             try:
-                font = ft2font.FT2Font(fpath)
+                font = ft.Face(fpath)
             except RuntimeError:
                 verbose.report("Could not open font file %s"%fpath)
                 continue
@@ -1350,7 +1343,7 @@ fontManager = None
 _fmcache = None
 
 
-get_font = lru_cache(64)(ft2font.FT2Font)
+get_font = lru_cache(64)(ft.Face)
 
 
 # The experimental fontconfig-based backend.
