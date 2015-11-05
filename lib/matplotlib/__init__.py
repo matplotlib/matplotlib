@@ -197,10 +197,11 @@ if not hasattr(sys, 'argv'):  # for modpython
 
 
 major, minor1, minor2, s, tmp = sys.version_info
-_python26 = (major == 2 and minor1 >= 6) or major >= 3
+_python27 = (major == 2 and minor1 >= 7)
+_python34 = (major == 3 and minor1 >= 4)
 
-if not _python26:
-    raise ImportError('matplotlib requires Python 2.6 or later')
+if not (_python27 or _python34):
+    raise ImportError('matplotlib requires Python 2.7 or 3.4 or later')
 
 
 if not compare_versions(numpy.__version__, __version__numpy__):

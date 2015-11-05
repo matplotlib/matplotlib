@@ -9,6 +9,7 @@ import multiprocessing
 import os
 import re
 import subprocess
+from subprocess import check_output
 import sys
 import warnings
 from textwrap import fill
@@ -17,32 +18,6 @@ import versioneer
 
 
 PY3 = (sys.version_info[0] >= 3)
-
-
-try:
-    from subprocess import check_output
-except ImportError:
-    # check_output is not available in Python 2.6
-    def check_output(*popenargs, **kwargs):
-        """
-        Run command with arguments and return its output as a byte
-        string.
-
-        Backported from Python 2.7 as it's implemented as pure python
-        on stdlib.
-        """
-        process = subprocess.Popen(
-            stdout=subprocess.PIPE, *popenargs, **kwargs)
-        output, unused_err = process.communicate()
-        retcode = process.poll()
-        if retcode:
-            cmd = kwargs.get("args")
-            if cmd is None:
-                cmd = popenargs[0]
-            error = subprocess.CalledProcessError(retcode, cmd)
-            error.output = output
-            raise error
-        return output
 
 
 if sys.platform != 'win32':
@@ -554,13 +529,13 @@ class Python(SetupPackage):
 
         if major < 2:
             raise CheckFailed(
-                "Requires Python 2.6 or later")
-        elif major == 2 and minor1 < 6:
+                "Requires Python 2.7 or later")
+        elif major == 2 and minor1 < 7:
             raise CheckFailed(
-                "Requires Python 2.6 or later (in the 2.x series)")
-        elif major == 3 and minor1 < 1:
+                "Requires Python 2.7 or later (in the 2.x series)")
+        elif major == 3 and minor1 < 4:
             raise CheckFailed(
-                "Requires Python 3.1 or later (in the 3.x series)")
+                "Requires Python 3.4 or later (in the 3.x series)")
 
         return sys.version
 

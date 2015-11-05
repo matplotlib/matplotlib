@@ -235,23 +235,6 @@ class LatexManagerFactory(object):
             LatexManagerFactory.previous_instance = new_inst
             return new_inst
 
-class WeakSet(object):
-    # TODO: Poor man's weakref.WeakSet.
-    #       Remove this once python 2.6 support is dropped from matplotlib.
-
-    def __init__(self):
-        self.weak_key_dict = weakref.WeakKeyDictionary()
-
-    def add(self, item):
-        self.weak_key_dict[item] = None
-
-    def discard(self, item):
-        if item in self.weak_key_dict:
-            del self.weak_key_dict[item]
-
-    def __iter__(self):
-        return six.iterkeys(self.weak_key_dict)
-
 
 class LatexManager(object):
     """
@@ -259,7 +242,7 @@ class LatexManager(object):
     determining the metrics of text elements. The LaTeX environment can be
     modified by setting fonts and/or a custem preamble in the rc parameters.
     """
-    _unclean_instances = WeakSet()
+    _unclean_instances = weakref.WeakSet()
 
     @staticmethod
     def _build_latex_header():
