@@ -288,8 +288,7 @@ class BasicTransformTests(unittest.TestCase):
         self.assertEqual(self.stack1 - self.stack2_subset, self.ta1)
         self.assertEqual(self.stack2 - self.stack2_subset, self.ta1)
 
-        assert self.stack2_subset - self.stack2 ==
-                     self.ta1.inverted()
+        assert self.stack2_subset - self.stack2 == self.ta1.inverted()
 
         assert (self.stack2_subset - self.stack2).depth == 1
 
