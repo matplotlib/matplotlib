@@ -1107,7 +1107,7 @@ class StandardPsFonts(Fonts):
                                 directory=self.basepath)
         with open(filename, 'rb') as fd:
             default_font = AFM(fd)
-        default_font.fname = filename
+        default_font.filename = filename
 
         self.fonts['default'] = default_font
         self.fonts['regular'] = default_font
