@@ -1623,7 +1623,7 @@ class spectral_testcase_nosig_real_onesided(CleanupTestCase):
         assert_allclose(spec_g, spec_c, atol=1e-08)
         # these should not be almost equal
         pytest.raises(AssertionError,
-                      assert_allclose, spec_b, spec_c, atol=1e-08)
+                      assert_allclose(spec_b, spec_c, atol=1e-08))
 
     def test_psd_detrend_linear_func_trend(self):
         if self.NFFT_density is None:
@@ -2790,11 +2790,11 @@ def test_griddata_nn():
                                   np.ma.getmask(correct_zi_masked))
 
 
-#*****************************************************************
+# *****************************************************************
 # These Tests where taken from SCIPY with some minor modifications
 # this can be retreived from:
 # https://github.com/scipy/scipy/blob/master/scipy/stats/tests/test_kdeoth.py
-#*****************************************************************
+# *****************************************************************
 
 class gaussian_kde_tests():
 
