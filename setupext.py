@@ -20,53 +20,6 @@ PY3min = (sys.version_info[0] >= 3)
 PY32min = (PY3min and sys.version_info[1] >= 2 or sys.version_info[0] > 3)
 
 
-def _get_home():
-    """Find user's home directory if possible.
-    Otherwise, returns None.
-
-    :see:
-        http://mail.python.org/pipermail/python-list/2005-February/325395.html
-    """
-    try:
-        if not PY3min and sys.platform == 'win32':
-            path = os.path.expanduser(b"~").decode(sys.getfilesystemencoding())
-        else:
-            path = os.path.expanduser("~")
-    except ImportError:
-        # This happens on Google App Engine (pwd module is not present).
-        pass
-    else:
-        if os.path.isdir(path):
-            return path
-    for evar in ('HOME', 'USERPROFILE', 'TMP'):
-        path = os.environ.get(evar)
-        if path is not None and os.path.isdir(path):
-            return path
-    return None
-
-
-def _get_xdg_cache_dir():
-    """
-    Returns the XDG cache directory, according to the `XDG
-    base directory spec
-    <http://standards.freedesktop.org/basedir-spec/basedir-spec-latest.html>`_.
-    """
-    path = os.environ.get('XDG_CACHE_HOME')
-    if path is None:
-        path = _get_home()
-        if path is not None:
-            path = os.path.join(path, '.cache', 'matplotlib')
-    return path
-
-
-# This is the version of FreeType to use when building a local
-# version.  It must match the value in
-# lib/matplotlib.__init__.py and also needs to be changed below in the
-# embedded windows build script (grep for "REMINDER" in this file)
-LOCAL_FREETYPE_VERSION = '2.6.1'
-# md5 hash of the freetype tarball
-LOCAL_FREETYPE_HASH = '348e667d728c597360e4a87c16556597'
-
 if sys.platform != 'win32':
     if not PY3min:
         from commands import getstatusoutput
@@ -107,9 +60,6 @@ if os.path.exists(setup_cfg):
         options['basedirlist'] = [
             x.strip() for x in
             config.get("directories", "basedirlist").split(',')]
-
-    if config.has_option('test', 'local_freetype'):
-        options['local_freetype'] = config.getboolean("test", "local_freetype")
 else:
     config = None
 
@@ -282,21 +232,6 @@ def make_extension(name, files, *args, **kwargs):
     ext.include_dirs.append('.')
 
     return ext
-
-
-def get_file_hash(filename):
-    """
-    Get the MD5 hash of a given filename.
-    """
-    import hashlib
-    BLOCKSIZE = 1 << 16
-    hasher = hashlib.md5()
-    with open(filename, 'rb') as fd:
-        buf = fd.read(BLOCKSIZE)
-        while len(buf) > 0:
-            hasher.update(buf)
-            buf = fd.read(BLOCKSIZE)
-    return hasher.hexdigest()
 
 
 class PkgConfig(object):

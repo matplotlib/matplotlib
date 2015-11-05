@@ -14,6 +14,7 @@ import unittest
 
 import nose
 import numpy as np
+import freetypy as ft
 
 import matplotlib as mpl
 import matplotlib.style
@@ -164,8 +165,6 @@ def cleanup(style=None):
 
 
 def check_freetype_version(ver):
-    import freetypy as ft
-
     if ver is None:
         return True
 
@@ -263,7 +262,7 @@ class ImageComparisonTest(CleanupTest):
                         if not check_freetype_version(self._freetype_version):
                             raise KnownFailureTest(
                                 "Mismatched version of freetype.  Test requires '%s', you have '%s'" %
-                                (self._freetype_version, ft2font.__freetype_version__))
+                                (self._freetype_version, ft.__freetype_version__))
                         raise
 
                 yield (do_test,)

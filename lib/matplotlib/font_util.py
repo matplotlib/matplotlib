@@ -14,7 +14,7 @@ import freetypy as ft
 
 import numpy as np
 
-from matplotlib import ceil
+from math import ceil
 
 
 def draw_glyph_to_bitmap(image, x, y, glyph):

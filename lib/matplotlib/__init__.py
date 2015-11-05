@@ -1536,11 +1536,11 @@ def _init_tests():
     # tests.  This must match the value in `setupext.py`
     LOCAL_FREETYPE_VERSION = '2.6.1'
 
-    from matplotlib import ft2font
-    if (ft2font.__freetype_version__ != LOCAL_FREETYPE_VERSION or
-        ft2font.__freetype_build_type__ != 'local'):
+    import freetypy as ft
+    if (ft.__freetype_version__ != LOCAL_FREETYPE_VERSION or
+        ft.__freetype_build_type__ != 'local'):
         warnings.warn(
-            "matplotlib is not built with the correct FreeType version to run "
+            "freetypy is not built with the correct FreeType version to run "
             "tests.  Set local_freetype=True in setup.cfg and rebuild. "
             "Expect many image comparison failures below.")
 
