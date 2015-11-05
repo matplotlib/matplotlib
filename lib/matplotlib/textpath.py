@@ -173,7 +173,6 @@ class TextToPath(object):
 
         # Mostly copied from backend_svg.py.
 
-        cmap = font.get_charmap()
         lastgind = None
 
         currx = 0
@@ -192,7 +191,7 @@ class TextToPath(object):
 
         for c in s:
             ccode = ord(c)
-            gind = cmap.get(ccode)
+            gind = font.get_char_index(ccode)
             if gind is None:
                 ccode = ord('?')
                 gind = 0
