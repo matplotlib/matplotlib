@@ -13,6 +13,7 @@ import numpy.ma.testutils as matest
 from matplotlib.testing.decorators import cleanup, image_comparison
 import matplotlib.cm as cm
 from matplotlib.path import Path
+import pytest
 
 
 def test_delaunay():

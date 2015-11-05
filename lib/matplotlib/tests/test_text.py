@@ -16,6 +16,7 @@ from matplotlib.testing.decorators import image_comparison, cleanup
 from matplotlib.figure import Figure
 from matplotlib.text import Annotation, Text
 from matplotlib.backends.backend_agg import RendererAgg
+import pytest
 
 
 @image_comparison(baseline_images=['font_styles'])
@@ -291,8 +292,7 @@ def test_get_rotation_raises():
     if sys.version_info[:2] < (2, 7):
         raise SkipTest("assert_raises as context manager "
                        "not supported with Python < 2.7")
-    with assert_raises(ValueError):
-        text.get_rotation('hozirontal')
+    pytest.raises(ValueError, text.get_rotation, 'hozirontal')
 
 
 def test_get_rotation_none():

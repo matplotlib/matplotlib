@@ -4069,8 +4069,9 @@ def test_square_plot():
     ax.plot(x, y, 'mo')
     ax.axis('square')
     xlim, ylim = ax.get_xlim(), ax.get_ylim()
-    assert np.diff(xlim) == np.diff(ylim) == True
-    assert ax.get_aspect() == 'equal' == True
+    assert np.diff(xlim)
+    assert np.diff(ylim)
+    assert ax.get_aspect() == 'equal'
 
 
 @cleanup
