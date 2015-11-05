@@ -104,6 +104,8 @@ class MovieWriter(object):
     frame_format: string
         The format used in writing frame data, defaults to 'rgba'
     '''
+    args_key = None
+
     def __init__(self, fps=5, codec=None, bitrate=None, extra_args=None,
                  metadata=None):
         '''
@@ -142,10 +144,12 @@ class MovieWriter(object):
         else:
             self.bitrate = bitrate
 
-        if extra_args is None:
+        if extra_args is None and self.args_key is not None:
             self.extra_args = list(rcParams[self.args_key])
-        else:
+        elif extra_args:
             self.extra_args = extra_args
+        else:
+            self.extra_args = []
 
         if metadata is None:
             self.metadata = dict()
