@@ -762,7 +762,6 @@ grestore
             ps_name = ps_name.encode('ascii', 'replace').decode('ascii')
             self.set_font(ps_name, prop.get_size_in_points())
 
-            cmap = font.get_charmap()
             lastgind = None
             #print 'text', s
             lines = []
@@ -770,7 +769,7 @@ grestore
             thisy = 0
             for c in s:
                 ccode = ord(c)
-                gind = cmap.get(ccode)
+                gind = font.get_char_index(ccode)
                 if gind is None:
                     ccode = ord('?')
                     name = '.notdef'
@@ -1138,10 +1137,9 @@ class FigureCanvasPS(FigureCanvasBase):
                 for font_filename, chars in six.itervalues(ps_renderer.used_characters):
                     if len(chars):
                         font = get_font(font_filename)
-                        cmap = font.get_charmap()
                         glyph_ids = []
                         for c in chars:
-                            gind = cmap.get(c) or 0
+                            gind = font.get_char_index(c)
                             glyph_ids.append(gind)
 
                         fonttype = rcParams['ps.fonttype']
