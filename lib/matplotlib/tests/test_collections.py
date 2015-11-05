@@ -266,7 +266,7 @@ def test__EventCollection__set_orientation():
     new_orientation = 'vertical'
     coll.set_orientation(new_orientation)
     assert new_orientation == coll.get_orientation()
-    assert_ not coll.is_horizontal()
+    assert not coll.is_horizontal()
     check_segments(coll,
                    props['positions'],
                    props['linelength'],

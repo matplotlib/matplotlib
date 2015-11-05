@@ -161,7 +161,7 @@ AAj1//+nPwAA/////w=="""
     assert segs[0][1] == Path.MOVETO
 
 @cleanup
-@raises(OverflowError)
+@pytest.mark.xfail(raises=OverflowError)
 def test_throw_rendering_complexity_exceeded():
     rcParams['path.simplify'] = False
     xx = np.arange(200000)

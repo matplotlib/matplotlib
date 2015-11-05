@@ -25,6 +25,7 @@ import matplotlib.markers as mmarkers
 from numpy.testing import assert_array_equal
 import warnings
 from matplotlib.cbook import IgnoredKeywordWarning
+import pytest
 
 # Note: Some test cases are run twice: once normally and once with labeled data
 #       These two must be defined in the same test function or need to have
@@ -120,22 +121,22 @@ def test_twinx_cla():
     ax2 = ax.twinx()
     ax3 = ax2.twiny()
     plt.draw()
-    assert ax2.xaxis.get_visible() == False
-    assert x2.patch.get_visible() == False
+    assert not ax2.xaxis.get_visible()
+    assert not x2.patch.get_visible()
     ax2.cla()
     ax3.cla()
 
-    assert ax2.xaxis.get_visible()  == False
-    assert ax2.patch.get_visible() == False
-    assert ax2.yaxis.get_visible() == True
+    assert not ax2.xaxis.get_visible()
+    assert not ax2.patch.get_visible()
+    assert ax2.yaxis.get_visible()
 
-    assert ax3.xaxis.get_visible() == True
-    assert ax3.patch.get_visible() == False
-    assert ax3.yaxis.get_visible() == False
+    assert ax3.xaxis.get_visible()
+    assert not ax3.patch.get_visible()
+    assert not ax3.yaxis.get_visible()
 
-    assert ax.xaxis.get_visible() == True
-    assert ax.patch.get_visible() == True
-    assert ax.yaxis.get_visible() == True
+    assert ax.xaxis.get_visible()
+    assert ax.patch.get_visible()
+    assert ax.yaxis.get_visible()
 
 
 @image_comparison(baseline_images=["minorticks_on_rcParams_both"], extensions=['png'])
