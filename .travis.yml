@@ -82,7 +82,7 @@ install:
   # version since is it basically just a .ttf file
   # The current Travis Ubuntu image is to old to search .local/share/fonts so we store fonts in .fonts
 
-  # We install ipython to use the console highlighting. From IPython 3 this depends on jsonschema and misture.
+  # We install ipython to use the console highlighting. From IPython 3 this depends on jsonschema and mistune.
   # Neihter is installed as a dependency of IPython since they are not used by the IPython console.
   - |
     if [[ $BUILD_DOCS == true ]]; then
@@ -96,7 +96,11 @@ install:
       cp tmp/usr/share/fonts/truetype/humor-sans/Humor-Sans.ttf ~/.fonts
       cp Felipa-Regular.ttf ~/.fonts
       fc-cache -f -v
+    else
+      # Use the special local version of freetype for testing
+      cp .travis/setup.cfg .
     fi;
+
   - python setup.py install
 
 script:
