@@ -29,7 +29,7 @@ from matplotlib.rcsetup import (validate_bool_maybe_none,
                                 validate_cycler,
                                 validate_hatch,
                                 validate_hist_bins)
-
+import pytest
 
 mpl.rc('text', usetex=False)
 mpl.rc('lines', linewidth=22)
@@ -260,7 +260,7 @@ def _validation_fail_helper(validator, arg, exception_type):
     if sys.version_info[:2] < (2, 7):
         raise nose.SkipTest("assert_raises as context manager not "
                             "supported with Python < 2.7")
-    pytest.raise(exception_type,validator(arg))
+    pytest.raises(exception_type,validator, arg)
 
 
 

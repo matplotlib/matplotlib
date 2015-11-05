@@ -7,6 +7,7 @@ import numpy as np
 import matplotlib
 from matplotlib.testing.decorators import image_comparison, knownfailureif, cleanup
 import matplotlib.pyplot as plt
+import pytest
 
 from pylab import *
 import numpy as np

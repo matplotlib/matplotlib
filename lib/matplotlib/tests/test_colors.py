@@ -16,6 +16,7 @@ import matplotlib.cbook as cbook
 import matplotlib.pyplot as plt
 from matplotlib.testing.decorators import (image_comparison,
                                            cleanup, knownfailureif)
+import pytest
 
 
 def test_colormap_endian():

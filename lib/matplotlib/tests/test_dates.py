@@ -215,8 +215,7 @@ def test_date_formatter_callable():
 
     formatter = mdates.AutoDateFormatter(locator)
     formatter.scaled[-10] = callable_formatting_function
-    assert formatter([datetime.datetime(2014, 12, 25)]) ==
-                 ['25-12//2014']
+    assert formatter([datetime.datetime(2014, 12, 25)]) == ['25-12//2014']
 
 
 def test_drange():
