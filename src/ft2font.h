@@ -1,6 +1,6 @@
 /* -*- mode: c++; c-basic-offset: 4 -*- */
 
-/* A python interface to freetype2 */
+/* A python interface to FreeType */
 #ifndef _FT2FONT_H
 #define _FT2FONT_H
 #include <vector>
@@ -21,7 +21,7 @@ extern "C" {
 #define FIXED_MAJOR(val) (long)((val & 0xffff000) >> 16)
 #define FIXED_MINOR(val) (long)(val & 0xffff)
 
-// the freetype string rendered into a width, height buffer
+// the FreeType string rendered into a width, height buffer
 class FT2Image
 {
   public:
