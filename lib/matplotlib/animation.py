@@ -101,8 +101,20 @@ class MovieWriter(object):
     The use of the context manager ensures that setup and cleanup are
     performed as necessary.
 
-    frame_format: string
+    Attributes
+    ----------
+
+    frame_format : string
         The format used in writing frame data, defaults to 'rgba'
+
+    args_key : str
+        Key used to look up default `extra_args` in rcParams.  Subclasses
+        should over-ride this value
+
+    exec_key : str
+        Key to look up path to binary in rcParams.  Subclasses should either
+        override this attribute at the class level or override the classmethod
+        ``bin_path``.
     '''
     args_key = None
 
@@ -125,7 +137,7 @@ class MovieWriter(object):
         extra_args: list of strings or None
             A list of extra string arguments to be passed to the underlying
             movie utiltiy. The default is None, which passes the additional
-            argurments in the 'animation.extra_args' rcParam.
+            argurments in the `self.args_key` rcParam.
         metadata: dict of string:string or None
             A dictionary of keys and values for metadata to include in the
             output file. Some keys that may be of use include:
