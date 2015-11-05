@@ -16,6 +16,7 @@ from matplotlib import style
 from matplotlib.style.core import USER_LIBRARY_PATHS, STYLE_EXTENSION
 
 from matplotlib.externals import six
+from six.moves.urllib.error import URLError
 
 PARAM = 'image.cmap'
 VALUE = 'pink'
@@ -59,9 +60,12 @@ def test_use():
 
 @attr('network')
 def test_use_url():
-    with temp_style('test', DUMMY_SETTINGS):
-        with style.context('https://gist.github.com/adrn/6590261/raw'):
-            assert mpl.rcParams['axes.facecolor'] == "#adeade"
+    try:
+        with temp_style('test', DUMMY_SETTINGS):
+            with style.context('https://gist.github.com/adrn/6590261/raw'):
+                assert mpl.rcParams['axes.facecolor'] == "#adeade"
+    except URLError:
+        raise SkipTest("Probably on a system that does not allow internet")
 
 
 def test_context():
