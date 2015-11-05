@@ -940,20 +940,6 @@ class FontProperties(object):
         """Return a deep copy of self"""
         return FontProperties(_init = self)
 
-def ttfdict_to_fnames(d):
-    """
-    flatten a ttfdict to all the filenames it contains
-    """
-    fnames = []
-    for named in six.itervalues(d):
-        for styled in six.itervalues(named):
-            for variantd in six.itervalues(styled):
-                for weightd in six.itervalues(variantd):
-                    for stretchd in six.itervalues(weightd):
-                        for fname in six.itervalues(stretchd):
-                            fnames.append(fname)
-    return fnames
-
 class JSONEncoder(json.JSONEncoder):
     def default(self, o):
         if isinstance(o, FontManager):

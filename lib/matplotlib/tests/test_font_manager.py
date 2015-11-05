@@ -21,12 +21,6 @@ def test_font_priority():
             FontProperties(family=["sans-serif"]))
     assert_equal(os.path.basename(font), 'cmmi10.ttf')
 
-    # Smoketest get_charmap, which isn't used internally anymore
-    font = get_font(font)
-    cmap = font.get_charmap()
-    assert len(cmap) == 131
-    assert cmap[8729] == 30
-
 
 def test_json_serialization():
     # on windows, we can't open a file twice, so save the name and unlink

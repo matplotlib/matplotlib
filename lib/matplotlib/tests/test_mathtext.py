@@ -187,13 +187,6 @@ make_set('mathfont', 'stixsans', font_tests, ['png'])
 make_set('mathfont', 'dejavusans', font_tests, ['png'])
 make_set('mathfont', 'dejavuserif', font_tests, ['png'])
 
-def test_fontinfo():
-    import matplotlib.font_manager as font_manager
-    import matplotlib.ft2font as ft2font
-    fontpath = font_manager.findfont("DejaVu Sans")
-    font = ft2font.FT2Font(fontpath)
-    table = font.get_sfnt_table("head")
-    assert table['version'] == (1, 0)
 
 def test_mathtext_exceptions():
     errors = [
