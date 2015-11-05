@@ -154,13 +154,13 @@ def test_remove():
     im = ax.imshow(np.arange(36).reshape(6, 6))
     ln, = ax.plot(range(5))
 
-    assert fig.stale == True
-    assert ax.stale == True
+    assert fig.stale
+    assert ax.stale
 
     fig.canvas.draw()
-    assert fig.stale == False
-    assert ax.stale == False
-    assert ln.stale == False
+    assert not fig.stale
+    assert not ax.stale
+    assert not ln.stale
 
     assert im in ax.mouseover_set
     assert ln not in ax.mouseover_set

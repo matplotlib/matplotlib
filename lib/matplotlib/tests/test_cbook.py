@@ -21,20 +21,20 @@ from matplotlib.cbook import delete_masked_points as dmp
 
 def test_is_string_like():
     y = np.arange(10)
-    assert cbook.is_string_like(y) == False
+    assert not cbook.is_string_like(y)
     y.shape = 10, 1
-    assert cbook.is_string_like(y) == False
+    assert not cbook.is_string_like(y)
     y.shape = 1, 10
-    assert cbook.is_string_like(y) == False
+    assert not cbook.is_string_like(y)
 
     assert cbook.is_string_like("hello world")
-    assert cbook.is_string_like(10) == False
+    assert not cbook.is_string_like(10)
 
     y = ['a', 'b', 'c']
-    assert cbook.is_string_like(y) == False
+    assert not cbook.is_string_like(y)
 
     y = np.array(y)
-    assert cbook.is_string_like(y) == False
+    assert not cbook.is_string_like(y)
 
     y = np.array(y, dtype=object)
     assert cbook.is_string_like(y)
@@ -371,10 +371,14 @@ def test_to_midstep():
 
 
 def test_step_fails():
-    pytest.raises(ValueError, cbook._step_validation(np.arange(12).reshape(3, 4), 'a'))
-    pytest.raises(ValueError, cbook._step_validation(np.arange(12), 'a'))
-    pytest.raises(ValueError, cbook._step_validation(np.arange(12)))
-    pytest.raises(ValueError, cbook._step_validation(np.arange(12), np.arange(3)))
+    pytest.raises(ValueError,
+                  cbook._step_validation(np.arange(12).reshape(3, 4), 'a'))
+    pytest.raises(ValueError,
+                  cbook._step_validation(np.arange(12), 'a'))
+    pytest.raises(ValueError,
+                  cbook._step_validation(np.arange(12)))
+    pytest.raises(ValueError,
+                  cbook._step_validation(np.arange(12), np.arange(3)))
 
 
 def test_grouper():
