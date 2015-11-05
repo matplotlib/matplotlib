@@ -1425,51 +1425,6 @@ def restrict_dict(d, keys):
     return dict([(k, v) for (k, v) in six.iteritems(d) if k in keys])
 
 
-def report_memory(i=0):  # argument may go away
-    'return the memory consumed by process'
-    from matplotlib.compat.subprocess import Popen, PIPE
-    pid = os.getpid()
-    if sys.platform == 'sunos5':
-        try:
-            a2 = Popen('ps -p %d -o osz' % pid, shell=True,
-                       stdout=PIPE).stdout.readlines()
-        except OSError:
-            raise NotImplementedError(
-                "report_memory works on Sun OS only if "
-                "the 'ps' program is found")
-        mem = int(a2[-1].strip())
-    elif sys.platform.startswith('linux'):
-        try:
-            a2 = Popen('ps -p %d -o rss,sz' % pid, shell=True,
-                       stdout=PIPE).stdout.readlines()
-        except OSError:
-            raise NotImplementedError(
-                "report_memory works on Linux only if "
-                "the 'ps' program is found")
-        mem = int(a2[1].split()[1])
-    elif sys.platform.startswith('darwin'):
-        try:
-            a2 = Popen('ps -p %d -o rss,vsz' % pid, shell=True,
-                       stdout=PIPE).stdout.readlines()
-        except OSError:
-            raise NotImplementedError(
-                "report_memory works on Mac OS only if "
-                "the 'ps' program is found")
-        mem = int(a2[1].split()[0])
-    elif sys.platform.startswith('win'):
-        try:
-            a2 = Popen(["tasklist", "/nh", "/fi", "pid eq %d" % pid],
-                       stdout=PIPE).stdout.read()
-        except OSError:
-            raise NotImplementedError(
-                "report_memory works on Windows only if "
-                "the 'tasklist' program is found")
-        mem = int(a2.strip().split()[-2].replace(',', ''))
-    else:
-        raise NotImplementedError(
-            "We don't have a memory monitor for %s" % sys.platform)
-    return mem
-
 _safezip_msg = 'In safezip, len(args[0])=%d but len(args[%d])=%d'
 
 
@@ -1499,58 +1454,6 @@ def safe_masked_invalid(x):
     except TypeError:
         return x
     return xm
-
-
-class MemoryMonitor(object):
-    def __init__(self, nmax=20000):
-        self._nmax = nmax
-        self._mem = np.zeros((self._nmax,), np.int32)
-        self.clear()
-
-    def clear(self):
-        self._n = 0
-        self._overflow = False
-
-    def __call__(self):
-        mem = report_memory()
-        if self._n < self._nmax:
-            self._mem[self._n] = mem
-            self._n += 1
-        else:
-            self._overflow = True
-        return mem
-
-    def report(self, segments=4):
-        n = self._n
-        segments = min(n, segments)
-        dn = int(n / segments)
-        ii = list(xrange(0, n, dn))
-        ii[-1] = n - 1
-        print()
-        print('memory report: i, mem, dmem, dmem/nloops')
-        print(0, self._mem[0])
-        for i in range(1, len(ii)):
-            di = ii[i] - ii[i - 1]
-            if di == 0:
-                continue
-            dm = self._mem[ii[i]] - self._mem[ii[i - 1]]
-            print('%5d %5d %3d %8.3f' % (ii[i], self._mem[ii[i]],
-                                         dm, dm / float(di)))
-        if self._overflow:
-            print("Warning: array size was too small for the number of calls.")
-
-    def xy(self, i0=0, isub=1):
-        x = np.arange(i0, self._n, isub)
-        return x, self._mem[i0:self._n:isub]
-
-    def plot(self, i0=0, isub=1, fig=None):
-        if fig is None:
-            from .pylab import figure
-            fig = figure()
-
-        ax = fig.add_subplot(111)
-        ax.plot(*self.xy(i0, isub))
-        fig.canvas.draw()
 
 
 def print_cycles(objects, outstream=sys.stdout, show_progress=False):
