@@ -3062,116 +3062,115 @@ class Axes(_AxesBase):
 
         Parameters
         ----------
+        x : Array or a sequence of vectors.
+           The input data.
 
-          x : Array or a sequence of vectors.
-            The input data.
+        notch : bool, default = False
+           If False, produces a rectangular box plot.
+           If True, will produce a notched box plot
 
-          notch : bool, default = False
-            If False, produces a rectangular box plot.
-            If True, will produce a notched box plot
+        sym : str or None, default = None
+           The default symbol for flier points.
+           Enter an empty string ('') if you don't want to show fliers.
+           If `None`, then the fliers default to 'b+'  If you want more
+           control use the flierprops kwarg.
 
-          sym : str or None, default = None
-            The default symbol for flier points.
-            Enter an empty string ('') if you don't want to show fliers.
-            If `None`, then the fliers default to 'b+'  If you want more
-            control use the flierprops kwarg.
+        vert : bool, default = True
+           If True (default), makes the boxes vertical.
+           If False, makes horizontal boxes.
 
-          vert : bool, default = True
-            If True (default), makes the boxes vertical.
-            If False, makes horizontal boxes.
+        whis : float, sequence (default = 1.5) or string
+           As a float, determines the reach of the whiskers past the first
+           and third quartiles (e.g., Q3 + whis*IQR, IQR = interquartile
+           range, Q3-Q1). Beyond the whiskers, data are considered outliers
+           and are plotted as individual points. Set this to an unreasonably
+           high value to force the whiskers to show the min and max values.
+           Alternatively, set this to an ascending sequence of percentile
+           (e.g., [5, 95]) to set the whiskers at specific percentiles of
+           the data. Finally, *whis* can be the string 'range' to force the
+           whiskers to the min and max of the data. In the edge case that
+           the 25th and 75th percentiles are equivalent, *whis* will be
+           automatically set to 'range'.
 
-          whis : float, sequence (default = 1.5) or string
-            As a float, determines the reach of the whiskers past the first
-            and third quartiles (e.g., Q3 + whis*IQR, IQR = interquartile
-            range, Q3-Q1). Beyond the whiskers, data are considered outliers
-            and are plotted as individual points. Set this to an unreasonably
-            high value to force the whiskers to show the min and max values.
-            Alternatively, set this to an ascending sequence of percentile
-            (e.g., [5, 95]) to set the whiskers at specific percentiles of
-            the data. Finally, *whis* can be the string 'range' to force the
-            whiskers to the min and max of the data. In the edge case that
-            the 25th and 75th percentiles are equivalent, *whis* will be
-            automatically set to 'range'.
+        bootstrap : None (default) or integer
+           Specifies whether to bootstrap the confidence intervals
+           around the median for notched boxplots. If bootstrap==None,
+           no bootstrapping is performed, and notches are calculated
+           using a Gaussian-based asymptotic approximation  (see McGill, R.,
+           Tukey, J.W., and Larsen, W.A., 1978, and Kendall and Stuart,
+           1967). Otherwise, bootstrap specifies the number of times to
+           bootstrap the median to determine it's 95% confidence intervals.
+           Values between 1000 and 10000 are recommended.
 
-          bootstrap : None (default) or integer
-            Specifies whether to bootstrap the confidence intervals
-            around the median for notched boxplots. If bootstrap==None,
-            no bootstrapping is performed, and notches are calculated
-            using a Gaussian-based asymptotic approximation  (see McGill, R.,
-            Tukey, J.W., and Larsen, W.A., 1978, and Kendall and Stuart,
-            1967). Otherwise, bootstrap specifies the number of times to
-            bootstrap the median to determine it's 95% confidence intervals.
-            Values between 1000 and 10000 are recommended.
+        usermedians : array-like or None (default)
+           An array or sequence whose first dimension (or length) is
+           compatible with *x*. This overrides the medians computed by
+           matplotlib for each element of *usermedians* that is not None.
+           When an element of *usermedians* == None, the median will be
+           computed by matplotlib as normal.
 
-          usermedians : array-like or None (default)
-            An array or sequence whose first dimension (or length) is
-            compatible with *x*. This overrides the medians computed by
-            matplotlib for each element of *usermedians* that is not None.
-            When an element of *usermedians* == None, the median will be
-            computed by matplotlib as normal.
+        conf_intervals : array-like or None (default)
+           Array or sequence whose first dimension (or length) is compatible
+           with *x* and whose second dimension is 2. When the current element
+           of *conf_intervals* is not None, the notch locations computed by
+           matplotlib are overridden (assuming notch is True). When an
+           element of *conf_intervals* is None, boxplot compute notches the
+           method specified by the other kwargs (e.g., *bootstrap*).
 
-          conf_intervals : array-like or None (default)
-            Array or sequence whose first dimension (or length) is compatible
-            with *x* and whose second dimension is 2. When the current element
-            of *conf_intervals* is not None, the notch locations computed by
-            matplotlib are overridden (assuming notch is True). When an
-            element of *conf_intervals* is None, boxplot compute notches the
-            method specified by the other kwargs (e.g., *bootstrap*).
+        positions : array-like, default = [1, 2, ..., n]
+           Sets the positions of the boxes. The ticks and limits
+           are automatically set to match the positions.
 
-          positions : array-like, default = [1, 2, ..., n]
-            Sets the positions of the boxes. The ticks and limits
-            are automatically set to match the positions.
+        widths : array-like, default = 0.5
+           Either a scalar or a vector and sets the width of each box. The
+           default is 0.5, or ``0.15*(distance between extreme positions)``
+           if that is smaller.
 
-          widths : array-like, default = 0.5
-            Either a scalar or a vector and sets the width of each box. The
-            default is 0.5, or ``0.15*(distance between extreme positions)``
-            if that is smaller.
+        labels : sequence or None (default)
+           Labels for each dataset. Length must be compatible with
+           dimensions  of *x*
 
-          labels : sequence or None (default)
-                Labels for each dataset. Length must be compatible with
-                dimensions  of *x*
+        patch_artist : bool, default = False
+           If False produces boxes with the Line2D artist
+           If True produces boxes with the Patch artist
 
-          patch_artist : bool, default = False
-            If False produces boxes with the Line2D artist
-            If True produces boxes with the Patch artist
+        showmeans : bool, default = False
+           If True, will toggle one the rendering of the means
 
-          showmeans : bool, default = False
-            If True, will toggle one the rendering of the means
+        showcaps : bool, default = True
+           If True, will toggle one the rendering of the caps
 
-          showcaps : bool, default = True
-            If True, will toggle one the rendering of the caps
+        showbox : bool, default = True
+           If True, will toggle one the rendering of box
 
-          showbox : bool, default = True
-            If True, will toggle one the rendering of box
+        showfliers : bool, default = True
+           If True, will toggle one the rendering of the fliers
 
-          showfliers : bool, default = True
-            If True, will toggle one the rendering of the fliers
+        boxprops : dict or None (default)
+           If provided, will set the plotting style of the boxes
 
-          boxprops : dict or None (default)
-            If provided, will set the plotting style of the boxes
+        whiskerprops : dict or None (default)
+           If provided, will set the plotting style of the whiskers
 
-          whiskerprops : dict or None (default)
-            If provided, will set the plotting style of the whiskers
+        capprops : dict or None (default)
+           If provided, will set the plotting style of the caps
 
-          capprops : dict or None (default)
-            If provided, will set the plotting style of the caps
+        flierprops : dict or None (default)
+           If provided, will set the plotting style of the fliers
 
-          flierprops : dict or None (default)
-            If provided, will set the plotting style of the fliers
+        medianprops : dict or None (default)
+           If provided, will set the plotting style of the medians
 
-          medianprops : dict or None (default)
-            If provided, will set the plotting style of the medians
-
-          meanprops : dict or None (default)
+        meanprops : dict or None (default)
             If provided, will set the plotting style of the means
 
-          meanline : bool, default = False
+        meanline : bool, default = False
             If True (and *showmeans* is True), will try to render the mean
             as a line spanning the full width of the box according to
             *meanprops*. Not recommended if *shownotches* is also True.
             Otherwise, means will be shown as points.
 
-          manage_xticks : bool, default = True
+        manage_xticks : bool, default = True
             If the function should adjust the xlim and xtick locations.
 
         Returns
@@ -4977,7 +4976,7 @@ class Axes(_AxesBase):
         allmatch = kw.pop("allmatch", False)
 
         if len(args) == 1:
-            C = args[0]
+            C = np.asanyarray(args[0])
             numRows, numCols = C.shape
             if allmatch:
                 X, Y = np.meshgrid(np.arange(numCols), np.arange(numRows))
@@ -4987,7 +4986,7 @@ class Axes(_AxesBase):
             return X, Y, C
 
         if len(args) == 3:
-            X, Y, C = args
+            X, Y, C = [np.asanyarray(a) for a in args]
             numRows, numCols = C.shape
         else:
             raise TypeError(
