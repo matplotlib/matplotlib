@@ -74,8 +74,6 @@ mpl_packages = [
     setupext.Tornado(),
     setupext.Pyparsing(),
     setupext.LibAgg(),
-    setupext.FreeType(),
-    setupext.FT2Font(),
     setupext.Png(),
     setupext.Qhull(),
     setupext.Image(),
