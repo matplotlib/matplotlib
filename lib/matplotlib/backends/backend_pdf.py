@@ -883,13 +883,12 @@ end"""
             # Make the "Differences" array, sort the ccodes < 255 from
             # the multi-byte ccodes, and build the whole set of glyph ids
             # that we need from this font.
-            cmap = font.get_charmap()
             glyph_ids = []
             differences = []
             multi_byte_chars = set()
             for c in characters:
                 ccode = c
-                gind = cmap.get(ccode) or 0
+                gind = font.get_char_index(ccode)
                 glyph_ids.append(gind)
                 glyph_name = font.get_glyph_name(gind)
                 if ccode <= 255:
@@ -999,12 +998,11 @@ end"""
             # Make the 'W' (Widths) array, CidToGidMap and ToUnicode CMap
             # at the same time
             cid_to_gid_map = ['\u0000'] * 65536
-            cmap = font.get_charmap()
             widths = []
             max_ccode = 0
             for c in characters:
                 ccode = c
-                gind = cmap.get(ccode) or 0
+                gind = font.get_char_index(ccode)
                 glyph = font.load_char(ccode, flags=LOAD_NO_HINTING)
                 widths.append((ccode, glyph.horiAdvance / 6))
                 if ccode < 65536:
@@ -2011,7 +2009,6 @@ class RendererPdf(RendererBase):
             between chunks of 1-byte characters and 2-byte characters.
             Only used for Type 3 fonts."""
             chunks = [(a, ''.join(b)) for a, b in chunks]
-            cmap = font.get_charmap()
 
             # Do the rotation and global translation as a single matrix
             # concatenation up front
@@ -2041,7 +2038,7 @@ class RendererPdf(RendererBase):
                     lastgind = None
                     for c in chunk:
                         ccode = ord(c)
-                        gind = cmap.get(ccode)
+                        gind = font.get_char_index(ccode)
                         if gind is not None:
                             if mode == 2 and chunk_type == 2:
                                 glyph_name = font.get_glyph_name(gind)
