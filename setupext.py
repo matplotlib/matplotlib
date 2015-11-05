@@ -20,6 +20,13 @@ import versioneer
 PY3 = (sys.version_info[0] >= 3)
 
 
+# This is the version of FreeType to use when building a local
+# version.  It must match the value in
+# lib/matplotlib.__init__.py
+LOCAL_FREETYPE_VERSION = '2.6.1'
+# md5 hash of the freetype tarball
+LOCAL_FREETYPE_HASH = '348e667d728c597360e4a87c16556597'
+
 if sys.platform != 'win32':
     if sys.version_info[0] < 3:
         from commands import getstatusoutput
@@ -47,22 +54,19 @@ if os.path.exists(setup_cfg):
     config = configparser.SafeConfigParser()
     config.read(setup_cfg)
 
-    try:
+    if config.has_option('status', 'suppress'):
         options['display_status'] = not config.getboolean("status", "suppress")
-    except:
-        pass
 
-    try:
+    if config.has_option('rc_options', 'backend'):
         options['backend'] = config.get("rc_options", "backend")
-    except:
-        pass
 
-    try:
+    if config.has_option('directories', 'basedirlist'):
         options['basedirlist'] = [
             x.strip() for x in
             config.get("directories", "basedirlist").split(',')]
-    except:
-        pass
+
+    if config.has_option('test', 'local_freetype'):
+        options['local_freetype'] = config.get("test", "local_freetype")
 else:
     config = None
 
@@ -217,6 +221,21 @@ def make_extension(name, files, *args, **kwargs):
     ext.include_dirs.append('.')
 
     return ext
+
+
+def get_file_hash(filename):
+    """
+    Get the MD5 hash of a given filename.
+    """
+    import hashlib
+    BLOCKSIZE = 1 << 16
+    hasher = hashlib.md5()
+    with open(filename, 'rb') as fd:
+        buf = fd.read(BLOCKSIZE)
+        while len(buf) > 0:
+            hasher.update(buf)
+            buf = fd.read(BLOCKSIZE)
+    return hasher.hexdigest()
 
 
 class PkgConfig(object):
@@ -448,6 +467,14 @@ class SetupPackage(object):
 
         return 'version %s' % version
 
+    def do_custom_build(self):
+        """
+        If a package needs to do extra custom things, such as building a
+        third-party library, before building an extension, it should
+        override this method.
+        """
+        pass
+
 
 class OptionalPackage(SetupPackage):
     optional = True
@@ -461,10 +488,9 @@ class OptionalPackage(SetupPackage):
         if the package is at default state ("auto"), forced by the user (True)
         or opted-out (False).
         """
-        try:
-            return config.getboolean(cls.config_category, cls.name)
-        except:
-            return "auto"
+        if config is not None and config.has_option(cls.config_category, cls.name):
+            return config.get(cls.config_category, cls.name)
+        return "auto"
 
     def check(self):
         """
@@ -872,6 +898,9 @@ class FreeType(SetupPackage):
     name = "freetype"
 
     def check(self):
+        if options.get('local_freetype'):
+            return "Using local version for testing"
+
         if sys.platform == 'win32':
             check_include_file(get_include_dirs(), 'ft2build.h', 'freetype')
             return 'Using unknown version found on system.'
@@ -917,15 +946,67 @@ class FreeType(SetupPackage):
                 return '.'.join([major, minor, patch])
 
     def add_flags(self, ext):
-        pkg_config.setup_extension(
-            ext, 'freetype2',
-            default_include_dirs=[
-                'include/freetype2', 'freetype2',
-                'lib/freetype2/include',
-                'lib/freetype2/include/freetype2'],
-            default_library_dirs=[
-                'freetype2/lib'],
-            default_libraries=['freetype', 'z'])
+        if options.get('local_freetype'):
+            src_path = os.path.join(
+                'build', 'freetype-{0}'.format(LOCAL_FREETYPE_VERSION))
+            # Statically link to the locally-built freetype.
+            # This is certainly broken on Windows.
+            ext.include_dirs.insert(0, os.path.join(src_path, 'include'))
+            ext.extra_objects.insert(
+                0, os.path.join(src_path, 'objs', '.libs', 'libfreetype.a'))
+            ext.define_macros.append(('FREETYPE_BUILD_TYPE', 'local'))
+        else:
+            pkg_config.setup_extension(
+                ext, 'freetype2',
+                default_include_dirs=[
+                    'include/freetype2', 'freetype2',
+                    'lib/freetype2/include',
+                    'lib/freetype2/include/freetype2'],
+                default_library_dirs=[
+                    'freetype2/lib'],
+                default_libraries=['freetype', 'z'])
+            ext.define_macros.append(('FREETYPE_BUILD_TYPE', 'system'))
+
+    def do_custom_build(self):
+        # We're using a system freetype
+        if not options.get('local_freetype'):
+            return
+
+        src_path = os.path.join(
+            'build', 'freetype-{0}'.format(LOCAL_FREETYPE_VERSION))
+
+        # We've already built freetype
+        if os.path.isfile(os.path.join(src_path, 'objs', '.libs', 'libfreetype.a')):
+            return
+
+        tarball = 'freetype-{0}.tar.gz'.format(LOCAL_FREETYPE_VERSION)
+        tarball_path = os.path.join('build', tarball)
+        if not os.path.isfile(tarball_path):
+            tarball_url = 'http://download.savannah.gnu.org/releases/freetype/{0}'.format(tarball)
+
+            print("Downloading {0}".format(tarball_url))
+            if sys.version_info[0] == 2:
+                from urllib import urlretrieve
+            else:
+                from urllib.request import urlretrieve
+
+            if not os.path.exists('build'):
+                os.makedirs('build')
+            urlretrieve(tarball_url, tarball_path)
+
+            if get_file_hash(tarball_path) != LOCAL_FREETYPE_HASH:
+                raise IOError("{0} does not match expected hash.".format(tarball))
+
+        print("Building {0}".format(tarball))
+        cflags = 'CFLAGS="{0} -fPIC" '.format(os.environ.get('CFLAGS', ''))
+
+        subprocess.check_call(
+            ['tar', 'zxf', tarball], cwd='build')
+        subprocess.check_call(
+            [cflags + './configure --with-zlib=no --with-bzip2=no '
+             '--with-png=no --with-harfbuzz=no'], shell=True, cwd=src_path)
+        subprocess.check_call(
+            [cflags + 'make'], shell=True, cwd=src_path)
 
 
 class FT2Font(SetupPackage):

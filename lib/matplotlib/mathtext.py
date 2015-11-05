@@ -113,7 +113,7 @@ class MathtextBackend(object):
       - :meth:`render_rect_filled`
       - :meth:`get_results`
 
-    And optionally, if you need to use a Freetype hinting style:
+    And optionally, if you need to use a FreeType hinting style:
 
       - :meth:`get_hinting_type`
     """
@@ -150,7 +150,7 @@ class MathtextBackend(object):
 
     def get_hinting_type(self):
         """
-        Get the Freetype hinting type to use with this particular
+        Get the FreeType hinting type to use with this particular
         backend.
         """
         return LOAD_NO_HINTING

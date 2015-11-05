@@ -39,6 +39,7 @@ dist
 .eggs
 # tox testing tool
 .tox
+setup.cfg
 
 # OS generated files #
 ######################
