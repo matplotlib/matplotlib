@@ -1,8 +1,6 @@
 """
 font data tables for truetype and afm computer modern fonts
 """
-# this dict maps symbol names to fontnames, glyphindex.  To get the
-# glyph index from the character code, you have to use get_charmap
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
