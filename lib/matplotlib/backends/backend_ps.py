@@ -29,7 +29,6 @@ from matplotlib.cbook import is_string_like, get_realpath_and_stat, \
 from matplotlib.figure import Figure
 
 from matplotlib.font_manager import findfont, is_opentype_cff_font, get_font
-from matplotlib.ft2font import KERNING_DEFAULT, LOAD_NO_HINTING
 from matplotlib.ttconv import convert_ttf_to_ps
 from matplotlib.mathtext import MathTextParser
 from matplotlib._mathtext_data import uni2type1
@@ -40,6 +39,7 @@ from matplotlib.transforms import Affine2D
 
 from matplotlib.backends.backend_mixed import MixedModeRenderer
 
+import freetypy as ft
 
 import numpy as np
 import binascii
@@ -238,7 +238,7 @@ class RendererPS(RendererBase):
     def track_characters(self, font, s):
         """Keeps track of which characters are required from
         each font."""
-        realpath, stat_key = get_realpath_and_stat(font.fname)
+        realpath, stat_key = get_realpath_and_stat(font.filename)
         used_characters = self.used_characters.setdefault(
             stat_key, (realpath, set()))
         used_characters[1].update([ord(x) for x in s])
@@ -288,7 +288,8 @@ class RendererPS(RendererBase):
             self.linedash = (offset, seq)
 
     def set_font(self, fontname, fontsize, store=1):
-        if rcParams['ps.useafm']: return
+        if rcParams['ps.useafm']:
+            return
         if (fontname,fontsize) != (self.fontname,self.fontsize):
             out = ("/%s findfont\n"
                    "%1.3f scalefont\n"
@@ -365,13 +366,10 @@ class RendererPS(RendererBase):
             return w, h, d
 
         font = self._get_font_ttf(prop)
-        font.set_text(s, 0.0, flags=LOAD_NO_HINTING)
-        w, h = font.get_width_height()
-        w /= 64.0  # convert from subpixels
-        h /= 64.0
-        d = font.get_descent()
-        d /= 64.0
-        #print s, w, h
+        layout = ft.Layout(font, s, load_flags=ft.LOAD.NO_HINTING)
+        w = layout.ink_bbox.width
+        h = layout.ink_bbox.height
+        d = layout.ink_bbox.y_min
         return w, h, d
 
     def flipy(self):
@@ -397,9 +395,8 @@ class RendererPS(RendererBase):
     def _get_font_ttf(self, prop):
         fname = findfont(prop)
         font = get_font(fname)
-        font.clear()
         size = prop.get_size_in_points()
-        font.set_size(size, 72.0)
+        font.set_char_size(size, size, 72, 72)
         return font
 
     def _rgb(self, rgba):
@@ -719,17 +716,11 @@ grestore
 
         else:
             font = self._get_font_ttf(prop)
-            font.set_text(s, 0, flags=LOAD_NO_HINTING)
+            layout = ft.Layout(font, s, load_flags=ft.LOAD.NO_HINTING)
             self.track_characters(font, s)
 
             self.set_color(*gc.get_rgb())
-            sfnt = font.get_sfnt()
-            try:
-                ps_name = sfnt[(1,0,0,6)].decode('macroman')
-            except KeyError:
-                ps_name = sfnt[(3,1,0x0409,6)].decode(
-                    'utf-16be')
-            ps_name = ps_name.encode('ascii', 'replace').decode('ascii')
+            ps_name = font.get_postscript_name()
             self.set_font(ps_name, prop.get_size_in_points())
 
             lastgind = None
@@ -745,18 +736,19 @@ grestore
                     name = '.notdef'
                     gind = 0
                 else:
-                    name = font.get_glyph_name(gind)
-                glyph = font.load_char(ccode, flags=LOAD_NO_HINTING)
+                    name = font.get_char_name(ccode)
+                glyph = font.load_char_unicode(
+                    ccode, load_flags=ft.LOAD.NO_HINTING)
 
                 if lastgind is not None:
-                    kern = font.get_kerning(lastgind, gind, KERNING_DEFAULT)
+                    kern = font.get_kerning(lastgind, gind, ft.KERNING.DEFAULT).x
                 else:
                     kern = 0
                 lastgind = gind
-                thisx += kern/64.0
+                thisx += kern
 
                 lines.append('%f %f m /%s glyphshow'%(thisx, thisy, name))
-                thisx += glyph.linearHoriAdvance/65536.0
+                thisx += glyph.linear_hori_advance
 
 
             thetext = '\n'.join(lines)

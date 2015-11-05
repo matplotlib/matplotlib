@@ -11,6 +11,8 @@ import os, base64, tempfile, gzip, io, sys, codecs, re
 
 import numpy as np
 
+import freetypy as ft
+
 from hashlib import md5
 import uuid
 
@@ -22,7 +24,6 @@ from matplotlib.cbook import is_string_like, is_writable_file_like, maxdict
 from matplotlib.colors import rgb2hex
 from matplotlib.figure import Figure
 from matplotlib.font_manager import findfont, FontProperties, get_font
-from matplotlib.ft2font import KERNING_DEFAULT, LOAD_NO_HINTING
 from matplotlib.mathtext import MathTextParser
 from matplotlib.path import Path
 from matplotlib import _path
@@ -338,9 +339,8 @@ class RendererSVG(RendererBase):
     def _get_font(self, prop):
         fname = findfont(prop)
         font = get_font(fname)
-        font.clear()
         size = prop.get_size_in_points()
-        font.set_size(size, 72.0)
+        font.set_char_size(size, size, 72, 72)
         return font
 
     def _get_hatch(self, gc, rgbFace):
@@ -503,31 +503,24 @@ class RendererSVG(RendererBase):
         writer.start('defs')
         for font_fname, chars in six.iteritems(self._fonts):
             font = get_font(font_fname)
-            font.set_size(72, 72)
-            sfnt = font.get_sfnt()
-            writer.start('font', id=sfnt[(1, 0, 0, 4)])
+            font.set_char_size(72, 72, 72, 72)
+            full_name = font.sfnt_names.get_name(ft.TT_NAME_ID.FULL_NAME).string
+            writer.start('font', id=full_name)
             writer.element(
                 'font-face',
                 attrib={
                     'font-family': font.family_name,
                     'font-style': font.style_name.lower(),
                     'units-per-em': '72',
-                    'bbox': ' '.join(
-                        short_float_fmt(x / 64.0) for x in font.bbox)})
+                    'bbox': ' '.join(short_float_fmt(x) for x in font.bbox)})
             for char in chars:
-                glyph = font.load_char(char, flags=LOAD_NO_HINTING)
-                verts, codes = font.get_path()
-                path = Path(verts, codes)
-                path_data = self._convert_path(path)
-                # name = font.get_glyph_name(char)
+                glyph = font.load_char_unicode(char, load_flags=ft.LOAD.NO_HINTING)
                 writer.element(
                     'glyph',
-                    d=path_data,
+                    d=glyph.outline.to_string(b'M', b'L', b'Q', b'C'),
                     attrib={
-                        # 'glyph-name': name,
                         'unicode': unichr(char),
-                        'horiz-adv-x':
-                        short_float_fmt(glyph.linearHoriAdvance / 65536.0)})
+                        'horiz-adv-x': short_float_fmt(glyph.linear_hori_advance)})
             writer.end('font')
         writer.end('defs')
 
@@ -1011,7 +1004,6 @@ class RendererSVG(RendererBase):
 
         if not ismath:
             font = self._get_font(prop)
-            font.set_text(s, 0.0, flags=LOAD_NO_HINTING)
 
             fontsize = prop.get_size_in_points()
 
@@ -1064,7 +1056,7 @@ class RendererSVG(RendererBase):
                 writer.element('text', s, attrib=attrib)
 
             if rcParams['svg.fonttype'] == 'svgfont':
-                fontset = self._fonts.setdefault(font.fname, set())
+                fontset = self._fonts.setdefault(font.filename, set())
                 for c in s:
                     fontset.add(ord(c))
         else:
@@ -1103,7 +1095,7 @@ class RendererSVG(RendererBase):
 
             if rcParams['svg.fonttype'] == 'svgfont':
                 for font, fontsize, thetext, new_x, new_y, metrics in svg_glyphs:
-                    fontset = self._fonts.setdefault(font.fname, set())
+                    fontset = self._fonts.setdefault(font.filename, set())
                     fontset.add(thetext)
 
             for style, chars in six.iteritems(spans):

@@ -32,6 +32,8 @@ from warnings import warn
 from numpy import inf, isinf
 import numpy as np
 
+import freetypy as ft
+
 import pyparsing
 from pyparsing import (Combine, Group, Optional, Forward,
      Literal, OneOrMore, ZeroOrMore, ParseException, Empty,
@@ -50,9 +52,7 @@ else:
 from matplotlib.afm import AFM
 from matplotlib.cbook import (Bunch, get_realpath_and_stat, is_string_like,
                               maxdict)
-from matplotlib.ft2font import (FT2Image, KERNING_DEFAULT, LOAD_FORCE_AUTOHINT,
-                                LOAD_NO_HINTING)
-from matplotlib.font_manager import findfont, FontProperties, get_font
+from matplotlib.font_manager import findfont, FontProperties, get_font, get_font
 from matplotlib._mathtext_data import (latex_to_bakoma, latex_to_standard,
                                        tex2uni, latex_to_cmex,
                                        stix_virtual_fonts)
@@ -61,8 +61,7 @@ from matplotlib import get_data_path, rcParams
 import matplotlib.colors as mcolors
 import matplotlib._png as _png
 
-####################
-
+from matplotlib import font_util
 
 
 ##############################################################################
@@ -158,7 +157,7 @@ class MathtextBackend(object):
         Get the FreeType hinting type to use with this particular
         backend.
         """
-        return LOAD_NO_HINTING
+        return ft.LOAD.NO_HINTING
 
 class MathtextBackendAgg(MathtextBackend):
     """
@@ -182,7 +181,8 @@ class MathtextBackendAgg(MathtextBackend):
     def set_canvas_size(self, w, h, d):
         MathtextBackend.set_canvas_size(self, w, h, d)
         if self.mode != 'bbox':
-            self.image = FT2Image(ceil(w), ceil(h + max(d, 0)))
+            self.image = np.zeros(
+                (int(ceil(h + max(d, 0))), int(ceil(w))), dtype=np.uint8)
 
     def render_glyph(self, ox, oy, info):
         if self.mode == 'bbox':
@@ -191,9 +191,8 @@ class MathtextBackendAgg(MathtextBackend):
                               ox + info.metrics.xmax,
                               oy - info.metrics.ymin)
         else:
-            info.font.draw_glyph_to_bitmap(
-                self.image, ox, oy - info.metrics.iceberg, info.glyph,
-                antialiased=rcParams['text.antialiased'])
+            font_util.draw_glyph_to_bitmap(
+                self.image, ox, oy - ceil(info.metrics.iceberg), info.glyph)
 
     def render_rect_filled(self, x1, y1, x2, y2):
         if self.mode == 'bbox':
@@ -205,7 +204,7 @@ class MathtextBackendAgg(MathtextBackend):
                 y = int(center - (height + 1) / 2.0)
             else:
                 y = int(y1)
-            self.image.draw_rect_filled(int(x1), y, ceil(x2), y + height)
+            self.image[y:y+height+1, int(x1):int(ceil(x2)+1)] = 255
 
     def get_results(self, box, used_characters):
         self.mode = 'bbox'
@@ -290,7 +289,7 @@ class MathtextBackendPdf(MathtextBackend):
         self.rects = []
 
     def render_glyph(self, ox, oy, info):
-        filename = info.font.fname
+        filename = info.font.filename
         oy = self.height - oy + info.offset
         self.glyphs.append(
             (ox, oy, filename, info.fontsize,
@@ -500,7 +499,7 @@ class Fonts(object):
           - *dpi*: The dpi to draw at.
         """
         info = self._get_info(facename, font_class, sym, fontsize, dpi)
-        realpath, stat_key = get_realpath_and_stat(info.font.fname)
+        realpath, stat_key = get_realpath_and_stat(info.font.filename)
         used_characters = self.used_characters.setdefault(
             stat_key, (realpath, set()))
         used_characters[1].add(info.num)
@@ -553,8 +552,7 @@ class Fonts(object):
 
 class TruetypeFonts(Fonts):
     """
-    A generic base class for all font setups that use Truetype fonts
-    (through FT2Font).
+    A generic base class for all font setups that use Truetype fonts.
     """
     def __init__(self, default_font_prop, mathtext_backend):
         Fonts.__init__(self, default_font_prop, mathtext_backend)
@@ -579,13 +577,13 @@ class TruetypeFonts(Fonts):
         if cached_font is None and os.path.exists(basename):
             cached_font = get_font(basename)
             self._fonts[basename] = cached_font
-            self._fonts[cached_font.postscript_name] = cached_font
-            self._fonts[cached_font.postscript_name.lower()] = cached_font
+            self._fonts[cached_font.get_postscript_name()] = cached_font
+            self._fonts[cached_font.get_postscript_name().lower()] = cached_font
         return cached_font
 
     def _get_offset(self, font, glyph, fontsize, dpi):
-        if font.postscript_name == 'Cmex10':
-            return ((glyph.height/64.0/2.0) + (fontsize/3.0 * dpi/72.0))
+        if font.get_postscript_name() == 'Cmex10':
+            return ((glyph.metrics.height/2.0) + (fontsize/3.0 * dpi/72.0))
         return 0.
 
     def _get_info(self, fontname, font_class, sym, fontsize, dpi, math=True):
@@ -597,47 +595,47 @@ class TruetypeFonts(Fonts):
         font, num, symbol_name, fontsize, slanted = \
             self._get_glyph(fontname, font_class, sym, fontsize, math)
 
-        font.set_size(fontsize, dpi)
-        glyph = font.load_char(
-            num,
-            flags=self.mathtext_backend.get_hinting_type())
+        font.set_char_size(float(fontsize), 0, int(dpi), int(dpi))
+        glyph = font.load_char_unicode(
+            num, self.mathtext_backend.get_hinting_type())
 
-        xmin, ymin, xmax, ymax = [val/64.0 for val in glyph.bbox]
+        xmin, ymin, xmax, ymax = glyph.get_cbox(ft.GLYPH_BBOX.SUBPIXELS)
         offset = self._get_offset(font, glyph, fontsize, dpi)
+
         metrics = Bunch(
-            advance = glyph.linearHoriAdvance/65536.0,
-            height  = glyph.height/64.0,
-            width   = glyph.width/64.0,
+            advance = glyph.linear_hori_advance,
+            height  = glyph.metrics.height,
+            width   = glyph.metrics.width,
             xmin    = xmin,
             xmax    = xmax,
-            ymin    = ymin+offset,
-            ymax    = ymax+offset,
+            ymin    = ymin + offset,
+            ymax    = ymax + offset,
             # iceberg is the equivalent of TeX's "height"
-            iceberg = glyph.horiBearingY/64.0 + offset,
+            iceberg = glyph.metrics.hori_bearing_y + offset,
             slanted = slanted
             )
 
         result = self.glyphd[key] = Bunch(
             font            = font,
             fontsize        = fontsize,
-            postscript_name = font.postscript_name,
+            postscript_name = font.get_postscript_name(),
             metrics         = metrics,
             symbol_name     = symbol_name,
             num             = num,
             glyph           = glyph,
             offset          = offset
             )
+
         return result
 
     def get_xheight(self, fontname, fontsize, dpi):
         font = self._get_font(fontname)
-        font.set_size(fontsize, dpi)
-        pclt = font.get_sfnt_table('pclt')
-        if pclt is None:
-            # Some fonts don't store the xHeight, so we do a poor man's xHeight
+        font.set_char_size(float(fontsize), float(fontsize), int(dpi), int(dpi))
+        pclt = getattr(font, 'tt_pclt', None)
+        if pclt is None: # Some fonts don't store the xHeight, so we do a poor man's xHeight
             metrics = self.get_metrics(fontname, rcParams['mathtext.default'], 'x', fontsize, dpi)
             return metrics.iceberg
-        xHeight = (pclt['xHeight'] / 64.0) * (fontsize / 12.0) * (dpi / 100.0)
+        xHeight = pclt.x_height/64.0 * (fontsize / 12.0) * (dpi / 100.0)
         return xHeight
 
     def get_underline_thickness(self, font, fontsize, dpi):
@@ -652,7 +650,8 @@ class TruetypeFonts(Fonts):
             info1 = self._get_info(font1, fontclass1, sym1, fontsize1, dpi)
             info2 = self._get_info(font2, fontclass2, sym2, fontsize2, dpi)
             font = info1.font
-            return font.get_kerning(info1.num, info2.num, KERNING_DEFAULT) / 64.0
+            x = font.get_kerning(info1.num, info2.num, ft.KERNING.DEFAULT)
+            return x.x
         return Fonts.get_kern(self, font1, fontclass1, sym1, fontsize1,
                               font2, fontclass2, sym2, fontsize2, dpi)
 
@@ -699,9 +698,9 @@ class BakomaFonts(TruetypeFonts):
                 num = ord(sym)
 
         if font is not None:
-            gid = font.get_char_index(num)
+            gid = font.get_char_index_unicode(num)
             if gid != 0:
-                symbol_name = font.get_glyph_name(gid)
+                symbol_name = font.get_char_name(num)
 
         if symbol_name is None:
             return self._stix_fallback._get_glyph(
@@ -840,7 +839,7 @@ class UnicodeFonts(TruetypeFonts):
             found_symbol = False
             font = self._get_font(new_fontname)
             if font is not None:
-                glyphindex = font.get_char_index(uniindex)
+                glyphindex = font.get_char_index_unicode(uniindex)
                 if glyphindex != 0:
                     found_symbol = True
 
@@ -869,10 +868,10 @@ class UnicodeFonts(TruetypeFonts):
                 new_fontname = fontname
                 font = self._get_font(fontname)
                 uniindex = 0xA4 # currency character, for lack of anything better
-                glyphindex = font.get_char_index(uniindex)
+                glyphindex = font.get_char_index_unicode(uniindex)
                 slanted = False
 
-        symbol_name = font.get_glyph_name(glyphindex)
+        symbol_name = font.get_char_name(uniindex)
         return font, uniindex, symbol_name, fontsize, slanted
 
     def get_sized_alternatives_for_symbol(self, fontname, sym):
@@ -1059,7 +1058,7 @@ class StixFonts(UnicodeFonts):
 
         for i in range(6):
             font = self._get_font(i)
-            glyphindex = font.get_char_index(uniindex)
+            glyphindex = font.get_char_index_unicode(uniindex)
             if glyphindex != 0:
                 alternatives.append((i, unichr_safe(uniindex)))
 
@@ -1478,7 +1477,7 @@ class Char(Node):
         if self.c == ' ':
             self.width = metrics.advance
         else:
-            self.width = metrics.width
+            self.width = metrics.advance
         self.height = metrics.iceberg
         self.depth = -(metrics.iceberg - metrics.height)
 

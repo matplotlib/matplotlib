@@ -12,7 +12,6 @@ Features that are implemented
  * alpha blending
  * DPI scaling properly - everything scales properly (dashes, linewidths, etc)
  * draw polygon
- * freetype2 w/ ft2font
 
 TODO:
 
@@ -24,17 +23,17 @@ from __future__ import (absolute_import, division, print_function,
 
 from matplotlib.externals import six
 
+import freetypy as ft
+
 import threading
 import numpy as np
 from math import radians, cos, sin
 from matplotlib import verbose, rcParams
 from matplotlib.backend_bases import (RendererBase, FigureManagerBase,
                                       FigureCanvasBase)
-from matplotlib.cbook import is_string_like, maxdict, restrict_dict
+from matplotlib.cbook import is_string_like, restrict_dict
 from matplotlib.figure import Figure
 from matplotlib.font_manager import findfont, get_font
-from matplotlib.ft2font import (LOAD_FORCE_AUTOHINT, LOAD_NO_HINTING,
-                                LOAD_DEFAULT, LOAD_NO_AUTOHINT)
 from matplotlib.mathtext import MathTextParser
 from matplotlib.path import Path
 from matplotlib.transforms import Bbox, BboxBase
@@ -42,6 +41,8 @@ from matplotlib import colors as mcolors
 
 from matplotlib.backends._backend_agg import RendererAgg as _RendererAgg
 from matplotlib import _png
+
+from matplotlib import font_util
 
 try:
     from PIL import Image
@@ -51,14 +52,15 @@ except ImportError:
 
 backend_version = 'v2.2'
 
+
 def get_hinting_flag():
     mapping = {
-        True: LOAD_FORCE_AUTOHINT,
-        False: LOAD_NO_HINTING,
-        'either': LOAD_DEFAULT,
-        'native': LOAD_NO_AUTOHINT,
-        'auto': LOAD_FORCE_AUTOHINT,
-        'none': LOAD_NO_HINTING
+        True: ft.LOAD.FORCE_AUTOHINT,
+        False: ft.LOAD.NO_HINTING,
+        'either': ft.LOAD.DEFAULT,
+        'native': ft.LOAD.NO_AUTOHINT,
+        'auto': ft.LOAD.FORCE_AUTOHINT,
+        'none': ft.LOAD.NO_HINTING
         }
     return mapping[rcParams['text.hinting']]
 
@@ -193,24 +195,19 @@ class RendererAgg(RendererBase):
         font = self._get_agg_font(prop)
 
         if font is None: return None
-        if len(s) == 1 and ord(s) > 127:
-            font.load_char(ord(s), flags=flags)
-        else:
-            # We pass '0' for angle here, since it will be rotated (in raster
-            # space) in the following call to draw_text_image).
-            font.set_text(s, 0, flags=flags)
-        font.draw_glyphs_to_bitmap(antialiased=rcParams['text.antialiased'])
-        d = font.get_descent() / 64.0
+
+        layout = ft.Layout(font, s)
+        bm = font_util.draw_layout_to_bitmap(layout, font)
+        d = layout.ink_bbox.y_min
         # The descent needs to be adjusted for the angle
-        xo, yo = font.get_bitmap_offset()
-        xo /= 64.0
-        yo /= 64.0
+        xo = layout.ink_bbox.x_min
+        yo = 0
         xd = -d * sin(radians(angle))
         yd = d * cos(radians(angle))
 
         #print x, y, int(x), int(y), s
         self._renderer.draw_text_image(
-            font, round(x - xd + xo), round(y + yd + yo) + 1, angle, gc)
+            bm, int(round(x - xd + xo)), int(round(y + yd + yo)) + 1, angle, gc)
 
     def get_text_width_height_descent(self, s, prop, ismath):
         """
@@ -237,12 +234,10 @@ class RendererAgg(RendererBase):
 
         flags = get_hinting_flag()
         font = self._get_agg_font(prop)
-        font.set_text(s, 0.0, flags=flags)  # the width and height of unrotated string
-        w, h = font.get_width_height()
-        d = font.get_descent()
-        w /= 64.0  # convert from subpixels
-        h /= 64.0
-        d /= 64.0
+        layout = ft.Layout(font, s, load_flags=flags)  # the width and height of unrotated string
+        w = layout.ink_bbox.width
+        h = layout.ink_bbox.height
+        d = layout.ink_bbox.y_min
         return w, h, d
 
     def draw_tex(self, gc, x, y, s, prop, angle, ismath='TeX!', mtext=None):
@@ -274,13 +269,10 @@ class RendererAgg(RendererBase):
                                      'debug-annoying')
 
         fname = findfont(prop)
-        font = get_font(
-            fname,
-            hinting_factor=rcParams['text.hinting_factor'])
+        font = get_font(fname)
 
-        font.clear()
         size = prop.get_size_in_points()
-        font.set_size(size, self.dpi)
+        font.set_char_size(float(size), float(size), int(self.dpi), int(self.dpi))
 
         return font
 

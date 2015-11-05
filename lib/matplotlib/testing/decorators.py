@@ -22,7 +22,6 @@ import matplotlib.testing
 from matplotlib import cbook
 from matplotlib import ticker
 from matplotlib import pyplot as plt
-from matplotlib import ft2font
 from matplotlib import rcParams
 from matplotlib.testing.noseclasses import KnownFailureTest, \
      KnownFailureDidNotFailTest, ImageComparisonFailure
@@ -165,6 +164,8 @@ def cleanup(style=None):
 
 
 def check_freetype_version(ver):
+    import freetypy as ft
+
     if ver is None:
         return True
 
@@ -172,9 +173,10 @@ def check_freetype_version(ver):
     if isinstance(ver, six.string_types):
         ver = (ver, ver)
     ver = [version.StrictVersion(x) for x in ver]
-    found = version.StrictVersion(ft2font.__freetype_version__)
+    found = version.StrictVersion(ft.__freetype_version__)
 
     return found >= ver[0] and found <= ver[1]
+
 
 class ImageComparisonTest(CleanupTest):
     @classmethod
