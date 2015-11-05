@@ -14,7 +14,7 @@ import numpy as np
 import matplotlib.mlab as mlab
 import matplotlib.cbook as cbook
 from matplotlib.testing.decorators import knownfailureif, CleanupTestCase
-
+import pytest
 
 try:
     from mpl_toolkits.natgrid import _natgrid
@@ -123,23 +123,23 @@ class stride_testcase(CleanupTestCase):
 
     def test_stride_windows_2D_ValueError(self):
         x = np.arange(10)[np.newaxis]
-        pytest.raises(ValueError, mlab.stride_windows( x, 5))
+        pytest.raises(ValueError, mlab.stride_windows, x, 5)
 
     def test_stride_windows_0D_ValueError(self):
         x = np.array(0)
-        pytest.raises(ValueError, mlab.stride_windows( x, 5))
+        pytest.raises(ValueError, mlab.stride_windows, x, 5)
 
     def test_stride_windows_noverlap_gt_n_ValueError(self):
         x = np.arange(10)
-        pytest.raises(ValueError, mlab.stride_windows(x, 2, 3)
+        pytest.raises(ValueError, mlab.stride_windows, x, 2, 3)
 
     def test_stride_windows_noverlap_eq_n_ValueError(self):
         x = np.arange(10)
-        pytest.raises(ValueError, mlab.stride_windows(x, 2, 2))
+        pytest.raises(ValueError, mlab.stride_windows, x, 2, 2)
 
     def test_stride_windows_n_gt_lenx_ValueError(self):
         x = np.arange(10)
-        pytest.raises(ValueError, mlab.stride_windows(x, 11))
+        pytest.raises(ValueError, mlab.stride_windows, x, 11)
 
     def test_stride_windows_n_lt_1_ValueError(self):
         x = np.arange(10)
@@ -254,7 +254,7 @@ class stride_testcase(CleanupTestCase):
         assert yt.shape == y.shape
         assert_array_equal(yt, y)
         assert (13, 6) == y.shape
-        assert_true(self.get_base(y) is x)
+        assert self.get_base(y) is x
 
     def test_stride_windows_n13_noverlapn3_axis1(self):
         x = np.arange(100)
@@ -337,7 +337,7 @@ class csv_testcase(CleanupTestCase):
                                     (str('y'), np.float)])
 
         # the bad recarray should trigger a ValueError for having ndim > 1.
-        pytest.raises(ValueError, mlab.rec2csv( bad, self.fd))
+        pytest.raises(ValueError, mlab.rec2csv, bad, self.fd)
 
     def test_csv2rec_names_with_comments(self):
         self.fd.write('# comment\n1,2,3\n4,5,6\n')
@@ -399,8 +399,8 @@ class window_testcase(CleanupTestCase):
     def test_apply_window_1D_axis1_ValueError(self):
         x = self.sig_rand
         window = mlab.window_hanning
-        pytest.raises(ValueError, mlab.apply_window( x, window, axis=1,
-                      return_window=False))
+        pytest.raises(ValueError, mlab.apply_window, x, window, axis=1,
+                      return_window=False)
 
     def test_apply_window_1D_els_wrongsize_ValueError(self):
         x = self.sig_rand
@@ -2790,11 +2790,11 @@ def test_griddata_nn():
                                   np.ma.getmask(correct_zi_masked))
 
 
-#*****************************************************************
+# *****************************************************************
 # These Tests where taken from SCIPY with some minor modifications
 # this can be retreived from:
 # https://github.com/scipy/scipy/blob/master/scipy/stats/tests/test_kdeoth.py
-#*****************************************************************
+# *****************************************************************
 
 class gaussian_kde_tests():
 
@@ -2844,17 +2844,17 @@ class gaussian_kde_tests():
 class gaussian_kde_custom_tests(object):
     def test_no_data(self):
         """Pass no data into the GaussianKDE class."""
-        pytest.raises(ValueError, mlab.GaussianKDE,([]))
+        pytest.raises(ValueError, mlab.GaussianKDE, [])
 
     def test_single_dataset_element(self):
         """Pass a single dataset element into the GaussianKDE class."""
-        pytest.raises(ValueError, mlab.GaussianKDE([42]))
+        pytest.raises(ValueError, mlab.GaussianKDE, [42])
 
     def test_silverman_multidim_dataset(self):
         """Use a multi-dimensional array as the dataset and test silverman's
         output"""
         x1 = np.array([[1, 2, 3], [4, 5, 6], [7, 8, 9]])
-        pytest.raises(np.linalg.LinAlgError, mlab.GaussianKDE(x1, "silverman"))
+        pytest.raises(np.linalg.LinAlgError, mlab.GaussianKDE, x1, "silverman")
 
     def test_silverman_singledim_dataset(self):
         """Use a single dimension list as the dataset and test silverman's
@@ -2995,7 +2995,7 @@ def test_contiguous_regions():
     # No True in mask
     assert mlab.contiguous_regions([False]*5) == []
     # Empty mask
-    assert (mlab.contiguous_regions([]) == []
+    assert mlab.contiguous_regions([]) == []
 
 
 def test_psd_onesided_norm():

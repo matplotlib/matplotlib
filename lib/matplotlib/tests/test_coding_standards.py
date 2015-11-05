@@ -140,7 +140,7 @@ def assert_pep8_conformance(module=matplotlib, exclude_files=None,
                "{0}".format('\n'.join(reporter._global_deferred_print)))
     else:
         msg = "Found code syntax errors (and warnings)."
-    assert_equal(result.total_errors, 0, msg)
+    assert result.total_errors == 0, msg
 
     # If we've been using the exclusions reporter, check that we didn't
     # exclude files unnecessarily.

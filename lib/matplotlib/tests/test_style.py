@@ -16,6 +16,7 @@ from matplotlib import style
 from matplotlib.style.core import USER_LIBRARY_PATHS, STYLE_EXTENSION
 
 from matplotlib.externals import six
+import pytest
 
 PARAM = 'image.cmap'
 VALUE = 'pink'
@@ -133,7 +134,7 @@ def test_context_with_badparam():
     with style.context({PARAM: other_value}):
         assert mpl.rcParams[PARAM] == other_value
         x = style.context([d])
-        assert_raises(KeyError, x.__enter__)
+        pytest.raises(KeyError, x.__enter__())
         assert mpl.rcParams[PARAM] == other_value
 
 
