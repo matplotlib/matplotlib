@@ -542,7 +542,6 @@ class FigureCanvasAgg(FigureCanvasBase):
         if kwargs.get('flatten', False):
             img = img.buffer_rgba()
             w, h = int(renderer.width), int(renderer.height)
-            img = renderer._renderer.buffer_rgba()
             img = np.array(memoryview(img)).reshape((h, w, 4))
             img = mimage.flatten_rgba(img)
         try:
