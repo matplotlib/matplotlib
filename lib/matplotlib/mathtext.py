@@ -833,11 +833,9 @@ class UnicodeFonts(TruetypeFonts):
             found_symbol = False
             font = self._get_font(new_fontname)
             if font is not None:
-                try:
-                    glyphindex = font.get_char_index(uniindex)
+                glyphindex = font.get_char_index(uniindex)
+                if glyphindex != 0:
                     found_symbol = True
-                except KeyError:
-                    pass
 
         if not found_symbol:
             if self.cm_fallback:
