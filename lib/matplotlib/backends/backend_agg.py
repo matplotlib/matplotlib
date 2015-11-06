@@ -508,14 +508,49 @@ class FigureCanvasAgg(FigureCanvasBase):
         else:
             fileobj = filename_or_obj
             close = False
+        img = renderer._renderer.buffer_rgba()
+
+        # Flatten RGBA if used with fileformat that doesn't handle trnasparency
+        if kwargs.get('flatten', False):
+            w, h = int(renderer.width), int(renderer.height)
+            img = np.array(memoryview(img)).reshape((w, h, 4))
+            img = self.flatten_rgba(img)
+
         try:
-            fileobj.write(renderer._renderer.buffer_rgba())
+            fileobj.write(img)
         finally:
             if close:
                 filename_or_obj.close()
         renderer.dpi = original_dpi
     print_rgba = print_raw
 
+    def flatten_rgba(self, src, bg=None):
+        """
+        Flatten an RGBA image `src` with a background color `bg`.
+        The resulting image will have an alpha channel, but no
+        transparency.  This is useful when interfacing with
+        file formats that don't support transparency or only support
+        boolean transparency.
+        """
+        if bg is None:
+            bg = mcolors.colorConverter.to_rgb(
+                     rcParams.get('savefig.facecolor', 'white'))
+            bg = tuple([int(x * 255.0) for x in bg]) 
+       
+        # Numpy images have dtype=uint8 which will overflow 
+        src = src.astype(dtype = np.uint16)
+
+        alpha = src[:,:,3]
+        src_rgb = src[:,:,:3]
+        h, w, _ = src.shape
+
+        result = np.empty((h,w,4))
+        result[:,:,0] = (255 - alpha)*bg[0] + alpha*src_rgb[:,:,0]
+        result[:,:,1] = (255 - alpha)*bg[1] + alpha*src_rgb[:,:,1]
+        result[:,:,2] = (255 - alpha)*bg[2] + alpha*src_rgb[:,:,2]
+        result = (result/255).astype(np.uint8)
+        return result
+        
     def print_png(self, filename_or_obj, *args, **kwargs):
         FigureCanvasAgg.draw(self)
         renderer = self.get_renderer()
@@ -528,7 +563,14 @@ class FigureCanvasAgg(FigureCanvasBase):
             close = False
 
         try:
-            _png.write_png(renderer._renderer, filename_or_obj, self.figure.dpi)
+            if kwargs.get('flatten', False):
+                w, h = int(renderer.width), int(renderer.height)
+                img = renderer._renderer.buffer_rgba()
+                img = np.array(memoryview(img))
+                img = self.flatten_rgba(img).reshape((h, w, 4))
+                _png.write_png(img, filename_or_obj, self.figure.dpi)
+            else:
+                _png.write_png(renderer._renderer, filename_or_obj, self.figure.dpi)
         finally:
             if close:
                 filename_or_obj.close()
