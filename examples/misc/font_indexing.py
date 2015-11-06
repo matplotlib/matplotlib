@@ -9,7 +9,7 @@ from matplotlib.ft2font import FT2Font, KERNING_DEFAULT, KERNING_UNFITTED, KERNI
 
 
 #fname = '/usr/share/fonts/sfd/FreeSans.ttf'
-fname = matplotlib.get_data_path() + '/fonts/ttf/Vera.ttf'
+fname = matplotlib.get_data_path() + '/fonts/ttf/DejaVuSans.ttf'
 font = FT2Font(fname)
 font.set_charmap(0)
 

@@ -14,7 +14,7 @@ ytick.color: .15
 axes.axisbelow: True
 image.cmap: Greys
 font.family: sans-serif
-font.sans-serif: Arial, Liberation Sans, Bitstream Vera Sans, sans-serif
+font.sans-serif: Arial, Liberation Sans, DejaVu Sans, Bitstream Vera Sans, sans-serif
 grid.linestyle: -
 lines.solid_capstyle: round
 

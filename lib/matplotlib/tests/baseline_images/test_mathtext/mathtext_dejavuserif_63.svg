@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+  "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Created with matplotlib (http://matplotlib.org/) -->
+<svg height="54pt" version="1.1" viewBox="0 0 378 54" width="378pt" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+ <defs>
+  <style type="text/css">
+*{stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:100000;}
+  </style>
+ </defs>
+ <g id="figure_1">
+  <g id="patch_1">
+   <path d="M 0 54 
+L 378 54 
+L 378 0 
+L 0 0 
+z
+" style="fill:#ffffff;"/>
+  </g>
+  <g id="text_1">
+   <!-- $\left( \xi \left( 1 - \xi \right) \right)$ -->
+   <defs>
+    <path d="M 14.203125 0 
+L 14.203125 5.171875 
+L 26.90625 5.171875 
+L 26.90625 65.828125 
+L 12.203125 56.296875 
+L 12.203125 62.703125 
+L 29.984375 74.21875 
+L 36.71875 74.21875 
+L 36.71875 5.171875 
+L 49.421875 5.171875 
+L 49.421875 0 
+z
+" id="DejaVuSerif-31"/>
+    <path d="M 8.59375 103.59375 
+L 8.59375 106.59375 
+Q 19.796875 96 26.34375 80.34375 
+Q 32.90625 64.703125 32.90625 45.09375 
+Q 32.90625 25.796875 26.34375 9.9375 
+Q 19.796875 -5.90625 8.59375 -16.40625 
+L 8.59375 -13.40625 
+Q 24.796875 6.40625 24.796875 45.09375 
+Q 24.796875 83.796875 8.59375 103.59375 
+" id="STIXSizeOneSym-Regular-29"/>
+    <path d="M 38.203125 -13.40625 
+L 38.203125 -16.40625 
+Q 27 -5.796875 20.453125 9.84375 
+Q 13.90625 25.5 13.90625 45.09375 
+Q 13.90625 64.40625 20.453125 80.25 
+Q 27 96.09375 38.203125 106.59375 
+L 38.203125 103.59375 
+Q 22 83.796875 22 45.09375 
+Q 22 6.40625 38.203125 -13.40625 
+" id="STIXSizeOneSym-Regular-28"/>
+    <path d="M 43.84375 40.625 
+L 42.828125 35.40625 
+Q 29.78125 35.40625 24.5625 32.375 
+Q 15.375 27.046875 13.96875 19.671875 
+Q 12.546875 12.453125 15.1875 7.03125 
+Q 16.84375 3.515625 27.9375 3.515625 
+Q 43.265625 3.5625 43.265625 -7.171875 
+Q 43.265625 -12.75 37.15625 -17.140625 
+Q 32.03125 -20.84375 22.703125 -20.84375 
+L 23.734375 -15.578125 
+Q 33.5 -15.578125 35.015625 -7.90625 
+Q 36.28125 -1.421875 26.765625 -1.421875 
+Q 10.984375 -1.421875 6.5 4.390625 
+Q 1.65625 10.59375 3.46875 19.671875 
+Q 4.984375 27.484375 16.703125 35.40625 
+Q 18.953125 36.921875 27 38.28125 
+Q 14.65625 42.484375 16.703125 53.03125 
+Q 19.046875 65.046875 36.078125 69.96875 
+L 17.4375 69.96875 
+L 16.0625 62.9375 
+L 10.9375 62.9375 
+L 13.484375 75.984375 
+L 59.125 75.984375 
+L 57.953125 70.015625 
+Q 30.171875 68.171875 27.09375 52.4375 
+Q 24.90625 41.0625 43.84375 40.625 
+" id="DejaVuSerif-Italic-3be"/>
+    <path d="M 10.59375 35.296875 
+L 73.1875 35.296875 
+L 73.1875 27.390625 
+L 10.59375 27.390625 
+z
+" id="DejaVuSerif-2212"/>
+   </defs>
+   <g transform="translate(162.36 30.36)scale(0.12 -0.12)">
+    <use transform="translate(0.0 -7.21875)scale(0.790015243902439)" xlink:href="#STIXSizeOneSym-Regular-28"/>
+    <use transform="translate(36.97198486328125 0.671875)" xlink:href="#DejaVuSerif-Italic-3be"/>
+    <use transform="translate(92.05010986328125 -7.21875)scale(0.7872205284552846)" xlink:href="#STIXSizeOneSym-Regular-28"/>
+    <use transform="translate(128.9051055908203 0.671875)" xlink:href="#DejaVuSerif-31"/>
+    <use transform="translate(211.4929962158203 0.671875)" xlink:href="#DejaVuSerif-2212"/>
+    <use transform="translate(314.2469024658203 0.671875)" xlink:href="#DejaVuSerif-Italic-3be"/>
+    <use transform="translate(369.3250274658203 -7.21875)scale(0.7872205284552846)" xlink:href="#STIXSizeOneSym-Regular-29"/>
+    <use transform="translate(406.1800231933594 -7.21875)scale(0.790015243902439)" xlink:href="#STIXSizeOneSym-Regular-29"/>
+   </g>
+  </g>
+ </g>
+</svg>

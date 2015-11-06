@@ -25,8 +25,8 @@ ytext = plt.ylabel('Damped oscillation')
 xtext = plt.xlabel('time (s)')
 
 plt.setp(ttext, size='large', color='r', style='italic')
-plt.setp(xtext, size='medium', name=['Courier', 'Bitstream Vera Sans Mono'],
+plt.setp(xtext, size='medium', name=['Courier', 'DejaVu Sans Mono'],
      weight='bold', color='g')
-plt.setp(ytext, size='medium', name=['Helvetica', 'Bitstream Vera Sans'],
+plt.setp(ytext, size='medium', name=['Helvetica', 'DejaVu Sans'],
      weight='light', color='b')
 plt.show()

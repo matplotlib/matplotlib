@@ -387,7 +387,7 @@ def validate_font_properties(s):
 
 validate_fontset = ValidateInStrings(
     'fontset',
-    ['cm', 'stix', 'stixsans', 'custom'])
+    ['dejavusans', 'dejavuserif', 'cm', 'stix', 'stixsans', 'custom'])
 
 validate_mathtext_default = ValidateInStrings(
     'default',
@@ -851,13 +851,13 @@ defaultParams = {
     'font.stretch':    ['normal', six.text_type],
     'font.weight':     ['normal', six.text_type],
     'font.size':       [12, validate_float],      # Base font size in points
-    'font.serif':      [['Bitstream Vera Serif', 'DejaVu Serif',
+    'font.serif':      [['DejaVu Serif', 'Bitstream Vera Serif',
                          'New Century Schoolbook', 'Century Schoolbook L',
                          'Utopia', 'ITC Bookman', 'Bookman',
                          'Nimbus Roman No9 L', 'Times New Roman',
                          'Times', 'Palatino', 'Charter', 'serif'],
                         validate_stringlist],
-    'font.sans-serif': [['Bitstream Vera Sans', 'DejaVu Sans',
+    'font.sans-serif': [['DejaVu Sans', 'Bitstream Vera Sans',
                          'Lucida Grande', 'Verdana', 'Geneva', 'Lucid',
                          'Arial', 'Helvetica', 'Avant Garde', 'sans-serif'],
                         validate_stringlist],
@@ -867,7 +867,7 @@ defaultParams = {
     'font.fantasy':    [['Comic Sans MS', 'Chicago', 'Charcoal', 'Impact'
                          'Western', 'Humor Sans', 'fantasy'],
                         validate_stringlist],
-    'font.monospace':  [['Bitstream Vera Sans Mono', 'DejaVu Sans Mono',
+    'font.monospace':  [['DejaVu Sans Mono', 'Bitstream Vera Sans Mono',
                          'Andale Mono', 'Nimbus Mono L', 'Courier New',
                          'Courier', 'Fixed', 'Terminal', 'monospace'],
                         validate_stringlist],
@@ -884,12 +884,12 @@ defaultParams = {
     'text.antialiased':    [True, validate_bool],
 
     'mathtext.cal':            ['cursive', validate_font_properties],
-    'mathtext.rm':             ['serif', validate_font_properties],
+    'mathtext.rm':             ['sans', validate_font_properties],
     'mathtext.tt':             ['monospace', validate_font_properties],
-    'mathtext.it':             ['serif:italic', validate_font_properties],
-    'mathtext.bf':             ['serif:bold', validate_font_properties],
-    'mathtext.sf':             ['sans\-serif', validate_font_properties],
-    'mathtext.fontset':        ['cm', validate_fontset],
+    'mathtext.it':             ['sans:italic', validate_font_properties],
+    'mathtext.bf':             ['sans:bold', validate_font_properties],
+    'mathtext.sf':             ['sans', validate_font_properties],
+    'mathtext.fontset':        ['dejavusans', validate_fontset],
     'mathtext.default':        ['it', validate_mathtext_default],
     'mathtext.fallback_to_cm': [True, validate_bool],
 
