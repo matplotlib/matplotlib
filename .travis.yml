@@ -119,7 +119,7 @@ script:
   - |
     if [[ $BUILD_DOCS == false ]]; then
       export MPL_REPO_DIR=$PWD  # needed for pep8-conformance test of the examples
-#      gdb -return-child-result -batch -ex r -ex bt --args python tests.py $NOSE_ARGS $TEST_ARGS
+      #      gdb -return-child-result -batch -ex r -ex bt --args python tests.py $NOSE_ARGS $TEST_ARGS
       py.test --pep8 --cov=matplotlib ./lib/matplotlib/tests
 
     else
