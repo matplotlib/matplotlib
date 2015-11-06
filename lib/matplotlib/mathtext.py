@@ -833,18 +833,22 @@ class UnicodeFonts(TruetypeFonts):
             found_symbol = False
             font = self._get_font(new_fontname)
             if font is not None:
-                try:
-                    glyphindex = font.get_char_index(uniindex)
+                glyphindex = font.get_char_index(uniindex)
+                if glyphindex != 0:
                     found_symbol = True
-                except KeyError:
-                    pass
 
         if not found_symbol:
             if self.cm_fallback:
-                warn("Substituting with a symbol from Computer Modern.",
-                     MathTextWarning)
-                return self.cm_fallback._get_glyph(
-                    fontname, 'it', sym, fontsize)
+                if isinstance(self.cm_fallback, BakomaFonts):
+                    warn("Substituting with a symbol from Computer Modern.",
+                         MathTextWarning)
+                if (fontname in ('it', 'regular') and
+                        isinstance(self.cm_fallback, StixFonts)):
+                    return self.cm_fallback._get_glyph(
+                            'rm', font_class, sym, fontsize)
+                else:
+                    return self.cm_fallback._get_glyph(
+                        fontname, 'it', sym, fontsize)
             else:
                 if fontname in ('it', 'regular') and isinstance(self, StixFonts):
                     return self._get_glyph('rm', font_class, sym, fontsize)
@@ -869,6 +873,68 @@ class UnicodeFonts(TruetypeFonts):
             return self.cm_fallback.get_sized_alternatives_for_symbol(
                 fontname, sym)
         return [(fontname, sym)]
+
+
+class DejaVuFonts(UnicodeFonts):
+    use_cmex = False
+
+    def __init__(self, *args, **kwargs):
+        # This must come first so the backend's owner is set correctly
+        if isinstance(self, DejaVuSerifFonts):
+            self.cm_fallback = StixFonts(*args, **kwargs)
+        else:
+            self.cm_fallback = StixSansFonts(*args, **kwargs)
+        self.bakoma = BakomaFonts(*args, **kwargs)
+        TruetypeFonts.__init__(self, *args, **kwargs)
+        self.fontmap = {}
+        # Include Stix sized alternatives for glyphs
+        self._fontmap.update({
+                 0 : 'STIXGeneral',
+                 1 : 'STIXSizeOneSym',
+                 2 : 'STIXSizeTwoSym',
+                 3 : 'STIXSizeThreeSym',
+                 4 : 'STIXSizeFourSym',
+                 5 : 'STIXSizeFiveSym'})
+        for key, name in six.iteritems(self._fontmap):
+            fullpath = findfont(name)
+            self.fontmap[key] = fullpath
+            self.fontmap[name] = fullpath
+
+    def _get_glyph(self, fontname, font_class, sym, fontsize):
+        """ Override prime symbol to use Bakoma """
+        if sym == r'\prime':
+            return self.bakoma._get_glyph(fontname,
+                    font_class, sym, fontsize)
+        else:
+            return super(DejaVuFonts, self)._get_glyph(fontname,
+                    font_class, sym, fontsize)
+
+
+class DejaVuSerifFonts(DejaVuFonts):
+    """
+    A font handling class for the DejaVu Serif fonts
+
+    If a glyph is not found it will fallback to Stix Serif
+    """
+    _fontmap = { 'rm'  : 'DejaVu Serif',
+                 'it'  : 'DejaVu Serif:italic',
+                 'bf'  : 'DejaVu Serif:weight=bold',
+                 'sf'  : 'DejaVu Sans',
+                 'tt'  : 'DejaVu Sans Mono',
+                 }
+
+class DejaVuSansFonts(DejaVuFonts):
+    """
+    A font handling class for the DejaVu Sans fonts
+
+    If a glyph is not found it will fallback to Stix Sans
+    """
+    _fontmap = { 'rm'  : 'DejaVu Sans',
+                 'it'  : 'DejaVu Sans:italic',
+                 'bf'  : 'DejaVu Sans:weight=bold',
+                 'sf'  : 'DejaVu Sans',
+                 'tt'  : 'DejaVu Sans Mono',
+                 }
 
 class StixFonts(UnicodeFonts):
     """
@@ -1178,46 +1244,54 @@ NUM_SIZE_LEVELS = 6
 SCRIPT_SPACE    = {'cm': 0.075,
                    'stix': 0.10,
                    'stixsans': 0.05,
-                   'arevsans': 0.05}
+                   'dejavuserif': 0.05,
+                   'dejavusans': 0.05}
 ## Percentage of x-height that sub/superscripts drop below the baseline
 SUBDROP         = {'cm': 0.2,
                    'stix': 0.4,
                    'stixsans': 0.4,
-                   'arevsans': 0.4}
+                   'dejavuserif': 0.4,
+                   'dejavusans': 0.4}
 # Percentage of x-height that superscripts are raised from the baseline
 SUP1            = {'cm': 0.45,
                    'stix': 0.8,
                    'stixsans': 0.8,
-                   'arevsans': 0.7}
+                   'dejavuserif': 0.7,
+                   'dejavusans': 0.7}
 # Percentage of x-height that subscripts drop below the baseline
 SUB1            = {'cm': 0.2,
                    'stix': 0.3,
                    'stixsans': 0.3,
-                   'arevsans': 0.3}
+                   'dejavuserif': 0.3,
+                   'dejavusans': 0.3}
 # Percentage of x-height that subscripts drop below the baseline when a
 # superscript is present
 SUB2            = {'cm': 0.3,
                    'stix': 0.6,
                    'stixsans': 0.5,
-                   'arevsans': 0.5}
+                   'dejavuserif': 0.5,
+                   'dejavusans': 0.5}
 # Percentage of x-height that sub/supercripts are offset relative to the
 # nucleus edge for non-slanted nuclei
 DELTA           = {'cm': 0.075,
                    'stix': 0.05,
                    'stixsans': 0.025,
-                   'arevsans': 0.025}
+                   'dejavuserif': 0.025,
+                   'dejavusans': 0.025}
 # Additional percentage of last character height above 2/3 of the x-height that
 # supercripts are offset relative to the subscript for slanted nuclei
 DELTASLANTED    = {'cm': 0.3,
                    'stix': 0.3,
                    'stixsans': 0.6,
-                   'arevsans': 0.2}
+                   'dejavuserif': 0.2,
+                   'dejavusans': 0.2}
 # Percentage of x-height that supercripts and subscripts are offset for
 # integrals
 DELTAINTEGRAL   = {'cm': 0.3,
                    'stix': 0.3,
                    'stixsans': 0.3,
-                   'arevsans': 0.3}
+                   'dejavuserif': 0.1,
+                   'dejavusans': 0.1}
 
 class MathTextWarning(Warning):
     pass
@@ -2676,19 +2750,6 @@ class Parser(object):
             return nucleus.is_slanted()
         return False
 
-    def _get_fontset_name(self):
-        fs = rcParams['mathtext.fontset']
-        # If a custom fontset is used, check if it is Arev Sans, otherwise use
-        # CM parameters.
-        if fs == 'custom':
-            if (rcParams['mathtext.rm'] == 'sans' and
-                    rcParams['font.sans-serif'][0].lower() == 'Arev Sans'.lower()):
-                fs = 'arevsans'
-            else:
-                fs = 'cm'
-
-        return fs
-
     def subsuper(self, s, loc, toks):
         assert(len(toks)==1)
 
@@ -2811,7 +2872,9 @@ class Parser(object):
 
         # Handle regular sub/superscripts
 
-        fs = self._get_fontset_name()
+        fs = rcParams['mathtext.fontset']
+        if fs == 'custom':
+            fs = 'dejavusans'
 
         lc_height   = last_char.height
         lc_baseline = 0
@@ -3056,10 +3119,12 @@ class MathTextParser(object):
         }
 
     _font_type_mapping = {
-        'cm'       : BakomaFonts,
-        'stix'     : StixFonts,
-        'stixsans' : StixSansFonts,
-        'custom'   : UnicodeFonts
+        'cm'          : BakomaFonts,
+        'dejavuserif' : DejaVuSerifFonts,
+        'dejavusans'  : DejaVuSansFonts,
+        'stix'        : StixFonts,
+        'stixsans'    : StixSansFonts,
+        'custom'      : UnicodeFonts
         }
 
     def __init__(self, output):
@@ -3100,8 +3165,8 @@ class MathTextParser(object):
                 font_output = fontset_class(prop, backend)
             else:
                 raise ValueError(
-                    "mathtext.fontset must be either 'cm', 'stix', "
-                    "'stixsans', or 'custom'")
+                    "mathtext.fontset must be either 'cm', 'dejavuserif', "
+                    "'dejavusans', 'stix', 'stixsans', or 'custom'")
 
         fontsize = prop.get_size_in_points()
 

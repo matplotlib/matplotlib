@@ -14,17 +14,6 @@ from matplotlib import cm
 
 
 mpl.rcParams.update({'font.size': 12})
-mpl.rcParams['font.sans-serif'] = ('Arev Sans, Bitstream Vera Sans, '
-                                   'Lucida Grande, Verdana, Geneva, Lucid, '
-                                   'Helvetica, Avant Garde, sans-serif')
-mpl.rcParams['mathtext.fontset'] = 'custom'
-mpl.rcParams['mathtext.cal'] = 'cursive'
-mpl.rcParams['mathtext.rm'] = 'sans'
-mpl.rcParams['mathtext.tt'] = 'monospace'
-mpl.rcParams['mathtext.it'] = 'sans:italic'
-mpl.rcParams['mathtext.bf'] = 'sans:bold'
-mpl.rcParams['mathtext.sf'] = 'sans'
-mpl.rcParams['mathtext.fallback_to_cm'] = 'True'
 
 
 ### Red, original Albers plot
