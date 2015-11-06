@@ -542,13 +542,14 @@ class FigureCanvasAgg(FigureCanvasBase):
 
         alpha = src[:,:,3]
         src_rgb = src[:,:,:3]
-        h, w, _ = src.shape
+        w, h, _ = src.shape
 
-        result = np.empty((h,w,4))
+        result = np.empty((w, h, 4))
         result[:,:,0] = (255 - alpha)*bg[0] + alpha*src_rgb[:,:,0]
         result[:,:,1] = (255 - alpha)*bg[1] + alpha*src_rgb[:,:,1]
         result[:,:,2] = (255 - alpha)*bg[2] + alpha*src_rgb[:,:,2]
         result = (result/255).astype(np.uint8)
+        result[:,:,3] = 255
         return result
         
     def print_png(self, filename_or_obj, *args, **kwargs):
@@ -566,8 +567,8 @@ class FigureCanvasAgg(FigureCanvasBase):
             if kwargs.get('flatten', False):
                 w, h = int(renderer.width), int(renderer.height)
                 img = renderer._renderer.buffer_rgba()
-                img = np.array(memoryview(img))
-                img = self.flatten_rgba(img).reshape((h, w, 4))
+                img = np.array(memoryview(img)).reshape((h,w,4))
+                img = self.flatten_rgba(img)
                 _png.write_png(img, filename_or_obj, self.figure.dpi)
             else:
                 _png.write_png(renderer._renderer, filename_or_obj, self.figure.dpi)
