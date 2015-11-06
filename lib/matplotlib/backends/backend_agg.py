@@ -585,8 +585,8 @@ class FigureCanvasAgg(FigureCanvasBase):
 
             if kwargs.pop("dryrun", False):
                 return
-            # The image is "pasted" onto a white background image to safely
-            # handle any transparency
+
+            # Flatten RGBA image to safely handle transparent regions
             buf = mimage.flatten_rgba(buf)
             img = Image.frombuffer('RGBA', (w, h), buf, 'raw', 'RGBA', 0, 1)
 
