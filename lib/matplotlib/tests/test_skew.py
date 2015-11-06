@@ -106,7 +106,7 @@ class SkewXAxes(Axes):
     name = 'skewx'
 
     def _init_axis(self):
-        #Taken from Axes and modified to use our modified X-axis
+        # Taken from Axes and modified to use our modified X-axis
         self.xaxis = SkewXAxis(self)
         self.spines['top'].register_axis(self.xaxis)
         self.spines['bottom'].register_axis(self.xaxis)
@@ -128,7 +128,7 @@ class SkewXAxes(Axes):
         """
         rot = 30
 
-        #Get the standard transform setup from the Axes base class
+        # Get the standard transform setup from the Axes base class
         Axes._set_lim_and_transforms(self)
 
         # Need to put the skew in the middle, after the scale and limits,
