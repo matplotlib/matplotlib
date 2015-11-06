@@ -1048,7 +1048,7 @@ class FontManager(object):
 
         self.ttffiles = findSystemFonts(paths) + findSystemFonts()
         self.defaultFamily = {
-            'ttf': 'Bitstream Vera Sans',
+            'ttf': 'DejaVu Sans',
             'afm': 'Helvetica'}
         self.defaultFont = {}
 
@@ -1231,7 +1231,7 @@ class FontManager(object):
         font is given a similarity score to the target font
         properties.  The first font with the highest score is
         returned.  If no matches below a certain threshold are found,
-        the default font (usually Vera Sans) is returned.
+        the default font (usually DejaVu Sans) is returned.
 
         `directory`, is specified, will only return fonts from the
         given directory (or subdirectory of that directory).
@@ -1240,7 +1240,7 @@ class FontManager(object):
         perform the O(n) nearest neighbor search.
 
         If `fallback_to_default` is True, will fallback to the default
-        font family (usually "Bitstream Vera Sans" or "Helvetica") if
+        font family (usually "DejaVu Sans" or "Helvetica") if
         the first lookup hard-fails.
 
         See the `W3C Cascading Style Sheet, Level 1
