@@ -34,5 +34,6 @@ plt.errorbar(x, y, xerr=0.1*x, yerr=5.0 + 0.75*y)
 ax.set_ylim(ymin=0.1)
 ax.set_title('Errorbars go negative')
 
+plt.tight_layout()
 
 plt.show()

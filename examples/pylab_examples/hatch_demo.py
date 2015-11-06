@@ -28,4 +28,6 @@ ax3.add_patch(Polygon([[0, 0], [4, 1.1], [6, 2.5], [2, 1.4]], closed=True,
 ax3.set_xlim((0, 6))
 ax3.set_ylim((0, 2.5))
 
+plt.tight_layout()
+
 plt.show()

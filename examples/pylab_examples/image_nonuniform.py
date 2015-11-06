@@ -4,7 +4,7 @@ an axes method interface; either a separate interface, or a
 generalization of imshow.
 '''
 
-from matplotlib.pyplot import figure, show
+from matplotlib.pyplot import figure, show, tight_layout
 import numpy as np
 from matplotlib.image import NonUniformImage
 from matplotlib import cm
@@ -56,5 +56,7 @@ ax.images.append(im)
 ax.set_xlim(-64, 64)
 ax.set_ylim(-4, 4)
 ax.set_title(interp)
+
+tight_layout()
 
 show()
