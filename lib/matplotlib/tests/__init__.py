@@ -45,7 +45,7 @@ def setup():
     # tests and are not necessarily the default values as specified in
     # rcsetup.py
     rcdefaults()  # Start with all defaults
-    rcParams['font.family'] = 'Bitstream Vera Sans'
+    rcParams['font.family'] = 'DejaVu Sans'
     rcParams['text.hinting'] = False
     rcParams['text.hinting_factor'] = 8
 

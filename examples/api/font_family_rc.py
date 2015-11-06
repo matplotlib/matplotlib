@@ -11,7 +11,7 @@ param, e.g.,::
 and for the font.family you set a list of font styles to try to find
 in order::
 
-  rcParams['font.sans-serif'] = ['Tahoma', 'Bitstream Vera Sans',
+  rcParams['font.sans-serif'] = ['Tahoma', 'DejaVu Sans',
                                  'Lucida Grande', 'Verdana']
 
 """

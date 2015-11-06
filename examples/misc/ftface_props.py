@@ -12,7 +12,7 @@ import matplotlib.ft2font as ft
 
 
 #fname = '/usr/local/share/matplotlib/VeraIt.ttf'
-fname = matplotlib.get_data_path() + '/fonts/ttf/VeraIt.ttf'
+fname = matplotlib.get_data_path() + '/fonts/ttf/DejaVuSans-Oblique.ttf'
 #fname = '/usr/local/share/matplotlib/cmr10.ttf'
 
 font = ft.FT2Font(fname)
