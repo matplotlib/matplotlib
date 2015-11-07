@@ -788,9 +788,11 @@ inline void RendererAgg::draw_text_image(GCAgg &gc, ImageArray &image, int x, in
             text.clip(clip);
         }
 
-        for (int yi = text.y1; yi < text.y2; ++yi) {
-            pixFmt.blend_solid_hspan(text.x1, yi, (text.x2 - text.x1), gc.color,
-                                     &image(yi - (y - image.dim(0)), text.x1 - x));
+        if (text.x2 > text.x1) {
+            for (int yi = text.y1; yi < text.y2; ++yi) {
+                pixFmt.blend_solid_hspan(text.x1, yi, (text.x2 - text.x1), gc.color,
+                                         &image((yi - y) - image.dim(0), text.x1 - x));
+            }
         }
     }
 }
