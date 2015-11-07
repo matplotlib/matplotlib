@@ -489,8 +489,8 @@ def test_flatten():
     print("num colors [png, not flattened]: ", len(png_im.getcolors(256)))
 
     assert len(jpg_im.getcolors(256)) >= 175 and len(jpg_im.getcolors(256)) <= 185
-    assert len(pngF_im.getcolor(256)) == 256
-    assert len(png_im.getcolor(256)) == 256
+    assert len(pngF_im.getcolors(256)) == 256
+    assert len(png_im.getcolors(256)) == 256
 
     # The fully transparent part should be red, not white or black
     # or anything else when flattened.
