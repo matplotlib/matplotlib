@@ -120,7 +120,6 @@ script:
     if [[ $BUILD_DOCS == false ]]; then
       export MPL_REPO_DIR=$PWD  # needed for pep8-conformance test of the examples
       #      gdb -return-child-result -batch -ex r -ex bt --args python tests.py $NOSE_ARGS $TEST_ARGS
-      py.test --pep8 --cov=matplotlib ./lib/matplotlib/tests
       py.test --pep8 --cov=matplotlib `python -c "import os ; import inspect ; import matplotlib; print( os.path.dirname(inspect.getfile(matplotlib)) )"`
     else
       cd doc
