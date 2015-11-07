@@ -514,7 +514,7 @@ class FigureCanvasAgg(FigureCanvasBase):
         # Flatten RGBA if used with fileformat that doesn't handle trnasparency
         if kwargs.get('flatten', False):
             w, h = int(renderer.width), int(renderer.height)
-            img = np.array(memoryview(img)).reshape((w, h, 4))
+            img = np.array(memoryview(img)).reshape((h, w, 4))
             img = mimage.flatten_rgba(img)
 
         try:
@@ -581,7 +581,7 @@ class FigureCanvasAgg(FigureCanvasBase):
                 should be stored as a progressive JPEG file.
             """
             buf, (w, h) = self.print_to_buffer()
-            buf = np.array(memoryview(buf)).reshape((w, h, 4))
+            buf = np.array(memoryview(buf)).reshape((h, w, 4))
 
             if kwargs.pop("dryrun", False):
                 return
