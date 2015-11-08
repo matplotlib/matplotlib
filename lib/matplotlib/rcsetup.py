@@ -825,7 +825,7 @@ defaultParams = {
     'verbose.fileo': ['sys.stdout', six.text_type],
 
     # line props
-    'lines.linewidth':       [1.0, validate_float],  # line width in points
+    'lines.linewidth':       [2.5, validate_float],  # line width in points
     'lines.linestyle':       ['-', six.text_type],             # solid line
     'lines.color':           ['b', validate_color],  # blue
     'lines.marker':          ['None', six.text_type],     # black
@@ -1096,9 +1096,9 @@ defaultParams = {
     'ytick.labelsize':   ['medium', validate_fontsize],
     'ytick.direction':   ['in', six.text_type],            # direction of yticks
 
-    'grid.color':        ['k', validate_color],       # grid color
-    'grid.linestyle':    [':', six.text_type],       # dotted
-    'grid.linewidth':    [0.5, validate_float],     # in points
+    'grid.color':        ['#b0b0b0', validate_color],  # grid color
+    'grid.linestyle':    ['-', six.text_type],      # solid
+    'grid.linewidth':    [1.0, validate_float],     # in points
     'grid.alpha':        [1.0, validate_float],
 
 
