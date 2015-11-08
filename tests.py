@@ -41,7 +41,7 @@ def run(extra_args):
 
     argv = sys.argv + extra_args
     for test_module in default_test_modules:
-        pytest.main(' '.join(argv[1:]) + ' ' + " --pyargs %s" % test_module)
+        pytest.main(" --pyargs %s" % test_module)
 
 if __name__ == '__main__':
     extra_args = []
