@@ -947,7 +947,8 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
                     edgecolors='none',
                     alpha=self.alpha,
                     transform=self.get_transform(),
-                    zorder=zorder)
+                    zorder=zorder,
+                    margins=False)
                 self.ax.add_collection(col, autolim=False)
                 self.collections.append(col)
         else:
@@ -968,7 +969,8 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
                     linestyles=[lstyle],
                     alpha=self.alpha,
                     transform=self.get_transform(),
-                    zorder=zorder)
+                    zorder=zorder,
+                    margins=False)
                 col.set_label('_nolegend_')
                 self.ax.add_collection(col, autolim=False)
                 self.collections.append(col)
