@@ -22,6 +22,7 @@ from matplotlib import cbook
 from matplotlib import ticker
 from matplotlib import pyplot as plt
 from matplotlib import ft2font
+from matplotlib import rcParams
 from matplotlib.testing.noseclasses import KnownFailureTest, \
      KnownFailureDidNotFailTest, ImageComparisonFailure
 from matplotlib.testing.compare import comparable_formats, compare_images, \
@@ -109,18 +110,27 @@ class CleanupTestCase(unittest.TestCase):
                     cls.original_settings)
 
 
-def cleanup(func):
-    @functools.wraps(func)
-    def wrapped_function(*args, **kwargs):
-        original_units_registry = matplotlib.units.registry.copy()
-        original_settings = mpl.rcParams.copy()
-        try:
-            func(*args, **kwargs)
-        finally:
-            _do_cleanup(original_units_registry,
-                        original_settings)
+def cleanup(style=None):
+    def make_cleanup(func):
+        @functools.wraps(func)
+        def wrapped_function(*args, **kwargs):
+            original_units_registry = matplotlib.units.registry.copy()
+            original_settings = mpl.rcParams.copy()
+            matplotlib.style.use(style)
+            try:
+                func(*args, **kwargs)
+            finally:
+                _do_cleanup(original_units_registry,
+                            original_settings)
 
-    return wrapped_function
+        return wrapped_function
+
+    if isinstance(style, six.string_types):
+        return make_cleanup
+    else:
+        result = make_cleanup(style)
+        style = 'classic'
+        return result
 
 
 def check_freetype_version(ver):
@@ -138,6 +148,7 @@ def check_freetype_version(ver):
 class ImageComparisonTest(CleanupTest):
     @classmethod
     def setup_class(cls):
+        CleanupTest.setup_class()
         cls._initial_settings = mpl.rcParams.copy()
         try:
             matplotlib.style.use(cls._style)
@@ -146,11 +157,8 @@ class ImageComparisonTest(CleanupTest):
             mpl.rcParams.clear()
             mpl.rcParams.update(cls._initial_settings)
             raise
-        # Because the setup of a CleanupTest might involve
-        # modifying a few rcparams, this setup should come
-        # last prior to running the image test.
-        CleanupTest.setup_class()
         cls.original_settings = cls._initial_settings
+        matplotlib.tests.set_font_settings_for_testing()
         cls._func()
 
     @classmethod
