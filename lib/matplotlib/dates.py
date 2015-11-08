@@ -114,7 +114,7 @@ from __future__ import (absolute_import, division, print_function,
 
 from matplotlib.externals import six
 from matplotlib.externals.six.moves import xrange, zip
-
+from matplotlib import rcParams
 import re
 import time
 import math
@@ -629,12 +629,12 @@ class AutoDateFormatter(ticker.Formatter):
     format string.  The default looks like this::
 
         self.scaled = {
-           365.0  : '%Y',
-           30.    : '%b %Y',
-           1.0    : '%b %d %Y',
-           1./24. : '%H:%M:%S',
-           1. / (24. * 60.): '%H:%M:%S.%f',
-           }
+            DAYS_PER_YEAR: rcParams['date.autoformat.year'],
+            DAYS_PER_MONTH: rcParams['date.autoformat.month'],
+            1.0: rcParams['date.autoformat.day'],
+            1. / HOURS_PER_DAY: rcParams['date.autoformat.hour'],
+            1. / (MINUTES_PER_DAY): rcParams['date.autoformat.minute'],
+            1. / (SEC_PER_DAY): rcParams['date.autoformat.second']}
 
 
     The algorithm picks the key in the dictionary that is >= the
@@ -685,11 +685,12 @@ class AutoDateFormatter(ticker.Formatter):
         self._tz = tz
         self.defaultfmt = defaultfmt
         self._formatter = DateFormatter(self.defaultfmt, tz)
-        self.scaled = {DAYS_PER_YEAR: '%Y',
-                       DAYS_PER_MONTH: '%b %Y',
-                       1.0: '%b %d %Y',
-                       1. / HOURS_PER_DAY: '%H:%M:%S',
-                       1. / (MINUTES_PER_DAY): '%H:%M:%S.%f'}
+        self.scaled = {DAYS_PER_YEAR: rcParams['date.autoformatter.year'],
+                       DAYS_PER_MONTH: rcParams['date.autoformatter.month'],
+                       1.0: rcParams['date.autoformatter.day'],
+                       1. / HOURS_PER_DAY: rcParams['date.autoformatter.hour'],
+                       1. / (MINUTES_PER_DAY): rcParams['date.autoformatter.minute'],
+                       1. / (SEC_PER_DAY): rcParams['date.autoformatter.second'],}
 
     def __call__(self, x, pos=None):
         locator_unit_scale = float(self._locator._get_unit())
