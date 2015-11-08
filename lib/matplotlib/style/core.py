@@ -34,9 +34,25 @@ STYLE_EXTENSION = 'mplstyle'
 STYLE_FILE_PATTERN = re.compile('([\S]+).%s$' % STYLE_EXTENSION)
 
 
+# A list of rcParams that should not be applied from styles
+STYLE_BLACKLIST = set([
+    'interactive', 'backend', 'backend.qt4', 'webagg.port',
+    'webagg.port_retries', 'webagg.open_in_browser', 'backend_fallback',
+    'toolbar', 'timezone', 'datapath', 'figure.max_open_warning',
+    'savefig.directory', 'tk.window_focus', 'hardcopy.docstring'])
+
+
+def _blacklist_style_params(d):
+    return dict((k, v) for (k, v) in d.items() if k not in STYLE_BLACKLIST)
+
+
 def is_style_file(filename):
     """Return True if the filename looks like a style file."""
     return STYLE_FILE_PATTERN.match(filename) is not None
+
+
+def _apply_style(d):
+    mpl.rcParams.use(blacklist_style_params(d))
 
 
 def use(style):
@@ -71,18 +87,18 @@ def use(style):
 
     for style in styles:
         if not cbook.is_string_like(style):
-            mpl.rcParams.update(style)
+            _apply_style(style)
             continue
         elif style == 'default':
             mpl.rcdefaults()
             continue
 
         if style in library:
-            mpl.rcParams.update(library[style])
+            _apply_style(library[style])
         else:
             try:
                 rc = rc_params_from_file(style, use_default_template=False)
-                mpl.rcParams.update(rc)
+                _apply_style(rc)
             except IOError:
                 msg = ("'%s' not found in the style library and input is "
                        "not a valid URL or path. See `style.available` for "
