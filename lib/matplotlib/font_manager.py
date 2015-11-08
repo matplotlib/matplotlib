@@ -1074,7 +1074,7 @@ class FontManager(object):
 
         for fname in self.ttffiles:
             verbose.report('trying fontname %s' % fname, 'debug')
-            if fname.lower().find('vera.ttf')>=0:
+            if fname.lower().find('DejaVuSans.ttf')>=0:
                 self.defaultFont['ttf'] = fname
                 break
         else:
@@ -1316,7 +1316,7 @@ class FontManager(object):
                 return self.findfont(default_prop, fontext, directory, False)
             else:
                 # This is a hard fail -- we can't find anything reasonable,
-                # so just return the vera.ttf
+                # so just return the DejuVuSans.ttf
                 warnings.warn(
                     'findfont: Could not match %s. Returning %s' %
                     (prop, self.defaultFont[fontext]),
