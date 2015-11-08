@@ -12,11 +12,13 @@
 import os
 import sys
 import time
-import pytest
-from matplotlib import default_test_modules
 
 import matplotlib
 matplotlib.use('agg')
+
+# import nose
+import pytest
+from matplotlib import default_test_modules
 
 
 def run(extra_args):
