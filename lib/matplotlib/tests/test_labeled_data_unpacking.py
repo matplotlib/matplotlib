@@ -346,10 +346,8 @@ def test_positional_parameter_names_as_function():
 
     # the normal case...
     data = {"x": "X", "hy1": "Y"}
-    assert funcy(None, "x", "hy1", data=data) ==
-                 "('X', 'Y') | {}"
-    assert funcy(None, "x", "hy1", "c", data=data) ==
-                 "('X', 'Y', 'c') | {}"
+    assert funcy(None, "x", "hy1", data=data) == "('X', 'Y') | {}"
+    assert funcy(None, "x", "hy1", "c", data=data) == "('X', 'Y', 'c') | {}"
 
     # no arbitrary long args with data
     def f():

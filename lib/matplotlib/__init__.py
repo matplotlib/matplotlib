@@ -1515,21 +1515,22 @@ def _init_tests():
             "Expect many image comparison failures below.")
 
     try:
-        import nose
+        # import nose
         try:
             from unittest import mock
         except:
             import mock
     except ImportError:
-        print("matplotlib.test requires nose and mock to run.")
+        print("matplotlib.test requires mock to run. nose is currently being removed")
         raise
 
 
 def _get_extra_test_plugins():
-    from .testing.noseclasses import KnownFailure
-    from nose.plugins import attrib
+    # from .testing.noseclasses import KnownFailure
+    # from nose.plugins import attrib
 
-    return [KnownFailure, attrib.Plugin]
+    #return [KnownFailure, attrib.Plugin]
+    pass
 
 
 def _get_nose_env():

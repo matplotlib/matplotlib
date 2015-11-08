@@ -16,12 +16,13 @@ import time
 import matplotlib
 matplotlib.use('agg')
 
-import nose
+# import nose
+import pytest
 from matplotlib import default_test_modules
 
 
 def run(extra_args):
-    from nose.plugins import multiprocess
+    # from nose.plugins import multiprocess
 
     env = matplotlib._get_nose_env()
 
@@ -30,13 +31,17 @@ def run(extra_args):
     # Nose doesn't automatically instantiate all of the plugins in the
     # child processes, so we have to provide the multiprocess plugin with
     # a list.
-    plugins = matplotlib._get_extra_test_plugins()
-    multiprocess._instantiate_plugins = plugins
+    # plugins = matplotlib._get_extra_test_plugins()
+    # multiprocess._instantiate_plugins = plugins
 
-    nose.main(addplugins=[x() for x in plugins],
-              defaultTest=default_test_modules,
-              argv=sys.argv + extra_args,
-              env=env)
+    # nose.main(addplugins=[x() for x in plugins],
+    #           defaultTest=default_test_modules,
+    #           argv=sys.argv + extra_args,
+    #           env=env)
+
+    argv = sys.argv + extra_args
+    for test_module in default_test_modules:
+        pytest.main(' '.join(argv[1:]) + ' ' + " --pyargs %s" % test_module)
 
 if __name__ == '__main__':
     extra_args = []
