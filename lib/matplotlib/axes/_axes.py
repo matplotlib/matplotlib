@@ -2104,16 +2104,21 @@ class Axes(_AxesBase):
             if yerr is not None:
                 yerr = self.convert_yunits(yerr)
 
-        if align == 'edge':
-            pass
-        elif align == 'center':
+        margins = {}
+
+        if orientation == 'vertical':
+            margins = {'bottom': False}
+        elif orientation == 'horizontal':
+            margins = {'left': False}
+
+        if align == 'center':
             if orientation == 'vertical':
                 left = [left[i] - width[i] / 2. for i in xrange(len(left))]
             elif orientation == 'horizontal':
                 bottom = [bottom[i] - height[i] / 2.
                           for i in xrange(len(bottom))]
 
-        else:
+        elif align != 'edge':
             raise ValueError('invalid alignment: %s' % align)
 
         args = zip(left, bottom, width, height, color, edgecolor, linewidth)
@@ -2129,7 +2134,8 @@ class Axes(_AxesBase):
                 facecolor=c,
                 edgecolor=e,
                 linewidth=lw,
-                label='_nolegend_'
+                label='_nolegend_',
+                margins=margins
                 )
             r.update(kwargs)
             r.get_path()._interpolation_steps = 100
@@ -5267,7 +5273,7 @@ class Axes(_AxesBase):
 
         kwargs.setdefault('snap', False)
 
-        collection = mcoll.PolyCollection(verts, **kwargs)
+        collection = mcoll.PolyCollection(verts, margins=False, **kwargs)
 
         collection.set_alpha(alpha)
         collection.set_array(C)
@@ -5302,9 +5308,9 @@ class Axes(_AxesBase):
         maxy = np.amax(y)
 
         corners = (minx, miny), (maxx, maxy)
+        self.add_collection(collection, autolim=False)
         self.update_datalim(corners)
         self.autoscale_view()
-        self.add_collection(collection, autolim=False)
         return collection
 
     @unpack_labeled_data(label_namer=None)
@@ -5419,7 +5425,8 @@ class Axes(_AxesBase):
 
         collection = mcoll.QuadMesh(
             Nx - 1, Ny - 1, coords,
-            antialiased=antialiased, shading=shading, **kwargs)
+            antialiased=antialiased, shading=shading, margins=False,
+            **kwargs)
         collection.set_alpha(alpha)
         collection.set_array(C)
         if norm is not None and not isinstance(norm, mcolors.Normalize):
@@ -5451,9 +5458,9 @@ class Axes(_AxesBase):
         maxy = np.amax(Y)
 
         corners = (minx, miny), (maxx, maxy)
+        self.add_collection(collection, autolim=False)
         self.update_datalim(corners)
         self.autoscale_view()
-        self.add_collection(collection, autolim=False)
         return collection
 
     @unpack_labeled_data(label_namer=None)
@@ -5603,7 +5610,8 @@ class Axes(_AxesBase):
             # The QuadMesh class can also be changed to
             # handle relevant superclass kwargs; the initializer
             # should do much more than it does now.
-            collection = mcoll.QuadMesh(nc, nr, coords, 0, edgecolors="None")
+            collection = mcoll.QuadMesh(nc, nr, coords, 0, edgecolors="None",
+                                        margins=False)
             collection.set_alpha(alpha)
             collection.set_array(C)
             collection.set_cmap(cmap)
@@ -5649,7 +5657,9 @@ class Axes(_AxesBase):
         if not self._hold:
             self.cla()
         kwargs['filled'] = False
-        return mcontour.QuadContourSet(self, *args, **kwargs)
+        contours = mcontour.QuadContourSet(self, *args, **kwargs)
+        self.autoscale_view()
+        return contours
     contour.__doc__ = mcontour.QuadContourSet.contour_doc
 
     @unpack_labeled_data()
@@ -5657,7 +5667,9 @@ class Axes(_AxesBase):
         if not self._hold:
             self.cla()
         kwargs['filled'] = True
-        return mcontour.QuadContourSet(self, *args, **kwargs)
+        contours = mcontour.QuadContourSet(self, *args, **kwargs)
+        self.autoscale_view()
+        return contours
     contourf.__doc__ = mcontour.QuadContourSet.contour_doc
 
     def clabel(self, CS, *args, **kwargs):
@@ -6037,6 +6049,11 @@ class Axes(_AxesBase):
             else:
                 n = [m[slc].cumsum()[slc] for m in n]
 
+        if orientation == 'horizontal':
+            margins = {'left': False}
+        else:
+            margins = {'bottom': False}
+
         patches = []
 
         if histtype.startswith('bar'):
@@ -6177,14 +6194,16 @@ class Axes(_AxesBase):
                     patches.append(self.fill(
                         x, y,
                         closed=True,
-                        facecolor=c))
+                        facecolor=c,
+                        margins=margins))
             else:
                 for x, y, c in reversed(list(zip(xvals, yvals, color))):
                     split = 2 * len(bins)
                     patches.append(self.fill(
                         x[:split], y[:split],
                         closed=False, edgecolor=c,
-                        fill=False))
+                        fill=False,
+                        margins=margins))
 
             # we return patches, so put it back in the expected order
             patches.reverse()

@@ -71,8 +71,10 @@ def stackplot(axes, x, *args, **kwargs):
     stack = np.cumsum(y, axis=0)
 
     r = []
+    margins = {}
     if baseline == 'zero':
         first_line = 0.
+        margins['bottom'] = False
 
     elif baseline == 'sym':
         first_line = -np.sum(y, 0) * 0.5
@@ -83,6 +85,7 @@ def stackplot(axes, x, *args, **kwargs):
         first_line = (y * (m - 0.5 - np.arange(0, m)[:, None])).sum(0)
         first_line /= -m
         stack += first_line
+        margins['bottom'] = False
 
     elif baseline == 'weighted_wiggle':
         m, n = y.shape
@@ -97,6 +100,8 @@ def stackplot(axes, x, *args, **kwargs):
         center = np.cumsum(center.sum(0))
         first_line = center - 0.5 * total
         stack += first_line
+        margins['bottom'] = False
+
     else:
         errstr = "Baseline method %s not recognised. " % baseline
         errstr += "Expected 'zero', 'sym', 'wiggle' or 'weighted_wiggle'"
@@ -110,6 +115,7 @@ def stackplot(axes, x, *args, **kwargs):
     r.append(axes.fill_between(x, first_line, stack[0, :],
                                facecolor=color,
                                label= six.next(labels, None),
+                               margins=margins,
                                **kwargs))
 
     # Color between array i-1 and array i
@@ -121,5 +127,6 @@ def stackplot(axes, x, *args, **kwargs):
         r.append(axes.fill_between(x, stack[i, :], stack[i + 1, :],
                                    facecolor=color,
                                    label= six.next(labels, None),
+                                   margins=margins,
                                    **kwargs))
     return r

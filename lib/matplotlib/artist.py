@@ -118,6 +118,8 @@ class Artist(object):
         self._sketch = rcParams['path.sketch']
         self._path_effects = rcParams['path.effects']
 
+        self._margins = {}
+
     def __getstate__(self):
         d = self.__dict__.copy()
         # remove the unpicklable remove method, this will get re-added on load
@@ -897,6 +899,89 @@ class Artist(object):
         self.zorder = level
         self.pchanged()
         self.stale = True
+
+    def get_top_margin(self):
+        """
+        Get whether a margin should be applied to the top of the Artist.
+        """
+        return self._margins.get('top', True)
+
+    def set_top_margin(self, margin):
+        """
+        Set whether a margin should be applied to the top of the Artist.
+        """
+        if margin != self._margins.get('top', True):
+            self.stale = True
+        self._margins['top'] = margin
+
+    def get_bottom_margin(self):
+        """
+        Get whether a margin should be applied to the bottom of the Artist.
+        """
+        return self._margins.get('bottom', True)
+
+    def set_bottom_margin(self, margin):
+        """
+        Set whether a margin should be applied to the bottom of the Artist.
+        """
+        if margin != self._margins.get('bottom', True):
+            self.stale = True
+        self._margins['bottom'] = margin
+
+    def get_left_margin(self):
+        """
+        Get whether a margin should be applied to the left of the Artist.
+        """
+        return self._margins.get('left', True)
+
+    def set_left_margin(self, margin):
+        """
+        Set whether a margin should be applied to the left of the Artist.
+        """
+        if margin != self._margins.get('left', True):
+            self.stale = True
+        self._margins['left'] = margin
+
+    def get_right_margin(self):
+        """
+        Get whether a margin should be applied to the right of the Artist.
+        """
+        return self._margins.get('right', True)
+
+    def set_right_margin(self, margin):
+        """
+        Set whether a margin should be applied to the right of the Artist.
+        """
+        if margin != self._margins.get('right', True):
+            self.stale = True
+        self._margins['right'] = margin
+
+    def get_margins(self):
+        """
+        Returns a dictionary describing whether a margin should be applied on
+        each of the sides (top, bottom, left and right).
+        """
+        return self._margins
+
+    def set_margins(self, margins):
+        """
+        Set the dictionary describing whether a margin should be applied on
+        each of the sides (top, bottom, left and right).  Missing keys are
+        assumed to be `True`.  If `True` or `False` are passed in, all
+        sides are set to that value.
+        """
+        if margins in (True, False):
+            margins = {
+                'top': margins,
+                'bottom': margins,
+                'left': margins,
+                'right': margins
+            }
+
+        if margins != self._margins:
+            self.stale = True
+
+        self._margins = margins
 
     def update_from(self, other):
         'Copy properties from *other* to *self*.'
