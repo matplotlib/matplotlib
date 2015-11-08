@@ -212,6 +212,13 @@ axes.spines.top     : True
 polaraxes.grid      : True    # display grid on polar axes
 axes3d.grid         : True    # display grid on 3d axes
 
+date.autoformatter.year   :'%Y'
+date.autoformatter.month  :'%b %Y'
+date.autoformatter.day    :'%b %d %Y'
+date.autoformatter.hour   :'%H:%M:%S'
+date.autoformatter.minute :'%H:%M:%S.%f'
+date.autoformatter.second :'%H:%M:%S.%f'
+
 ### TICKS
 # see http://matplotlib.org/api/axis_api.html#matplotlib.axis.Tick
 xtick.major.size     : 4      # major tick size in points
@@ -418,7 +425,7 @@ pdf.use14corefonts : False
 pgf.debug           : False
 pgf.texsystem       : xelatex
 pgf.rcfonts         : True
-pgf.preamble        : 
+pgf.preamble        :
 
 # svg backend params
 svg.image_inline : True       # write raster image data directly into the svg file

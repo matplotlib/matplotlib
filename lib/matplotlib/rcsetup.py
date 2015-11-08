@@ -965,6 +965,13 @@ defaultParams = {
     'polaraxes.grid': [True, validate_bool],  # display polar grid or
                                                      # not
     'axes3d.grid': [True, validate_bool],  # display 3d grid
+    # TODO validate that these are valid datetime format strings
+    'date.autoformatter.year': ['%Y', six.text_type],
+    'date.autoformatter.month': ['%Y-%m', six.text_type],
+    'date.autoformatter.day': ['%Y-%m-%d', six.text_type],
+    'date.autoformatter.hour': ['%H:%M', six.text_type],
+    'date.autoformatter.minute': ['%H:%M:%S', six.text_type],
+    'date.autoformatter.second': ['%H:%M:%S.%f', six.text_type],
 
     #legend properties
     'legend.fancybox': [False, validate_bool],
