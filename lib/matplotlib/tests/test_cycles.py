@@ -159,10 +159,9 @@ def test_invalid_input_forms():
     with assert_raises((TypeError, ValueError)):
         ax.set_prop_cycle('linewidth', 1)
     with assert_raises((TypeError, ValueError)):
-        ax.set_prop_cycle('linewidth', {'1':1, '2':2})
+        ax.set_prop_cycle('linewidth', {'1': 1, '2': 2})
     with assert_raises((TypeError, ValueError)):
         ax.set_prop_cycle(linewidth=1, color='r')
-
 
 
 if __name__ == '__main__':
