@@ -959,6 +959,7 @@ class _AxesBase(martist.Artist):
             self.xaxis.set_minor_locator(minl)
         else:
             self.xaxis._set_scale('linear')
+            self.viewLim.intervalx = (0, 1)
 
         if self._sharey is not None:
             self.yaxis.major = self._sharey.yaxis.major
@@ -982,6 +983,7 @@ class _AxesBase(martist.Artist):
             self.yaxis.set_minor_locator(minl)
         else:
             self.yaxis._set_scale('linear')
+            self.viewLim.intervaly = (0, 1)
 
         # update the minor locator for x and y axis based on rcParams
         if (rcParams['xtick.minor.visible']):
@@ -1071,6 +1073,7 @@ class _AxesBase(martist.Artist):
         if self._sharey:
             self.yaxis.set_visible(yaxis_visible)
             self.patch.set_visible(patch_visible)
+
         self.stale = True
 
     def clear(self):
