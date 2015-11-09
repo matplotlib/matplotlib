@@ -280,10 +280,15 @@ def test_validators():
                      ('aardvark, ,', ['aardvark']),
                      (['a', 'b'], ['a', 'b']),
                      (('a', 'b'), ['a', 'b']),
-                     ((1, 2), ['1', '2'])),
-            'fail': ((dict(), ValueError),
-                     (1, ValueError),)
-            },
+                     (iter(['a', 'b']), ['a', 'b']),
+                     (np.array(['a', 'b']), ['a', 'b']),
+                     ((1, 2), ['1', '2']),
+                     (np.array([1, 2]), ['1', '2']),
+                    ),
+         'fail': ((dict(), ValueError),
+                  (1, ValueError),
+                 )
+        },
         {'validator': validate_nseq_int(2),
          'success': ((_, [1, 2])
                      for _ in ('1, 2', [1.5, 2.5], [1, 2],
@@ -352,6 +357,8 @@ def test_validators():
                      ('r, ,', ['r']),
                      (['', 'g', 'blue'], ['g', 'blue']),
                      ([np.array([1, 0, 0]), np.array([0, 1, 0])],
+                         np.array([[1, 0, 0], [0, 1, 0]])),
+                     (np.array([[1, 0, 0], [0, 1, 0]]),
                          np.array([[1, 0, 0], [0, 1, 0]])),
                     ),
          'fail': (('fish', ValueError),
