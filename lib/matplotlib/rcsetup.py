@@ -1027,7 +1027,7 @@ defaultParams = {
     'legend.fancybox': [False, validate_bool],
 
     # at some point, legend.loc should be changed to 'best'
-    'legend.loc': ['upper right', validate_legend_loc],
+    'legend.loc': ['best', validate_legend_loc],
 
     # this option is internally ignored - it never served any useful purpose
     'legend.isaxes': [True, validate_bool],
