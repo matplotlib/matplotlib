@@ -383,6 +383,7 @@ backend      : $TEMPLATE_BACKEND
 ### Legend
 #legend.fancybox      : False  # if True, use a rounded box for the
                                # legend, else a rectangle
+#legend.loc           : best
 #legend.isaxes        : True
 #legend.numpoints     : 1      # the number of points in the legend line
 #legend.fontsize      : large
