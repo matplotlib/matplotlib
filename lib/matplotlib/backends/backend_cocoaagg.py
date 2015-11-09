@@ -178,7 +178,7 @@ class PlotView(NibClassBuilder.AutoBaseClass):
     def windowDidResize_(self, sender):
         w,h = self.bounds().size
         dpi = self.canvas.figure.dpi
-        self.canvas.figure.set_size_inches(w / dpi, h / dpi)
+        self.canvas.figure.set_size_inches(w / dpi, h / dpi, forward=False)
         self.canvas.draw()
         self.updatePlot()
 
