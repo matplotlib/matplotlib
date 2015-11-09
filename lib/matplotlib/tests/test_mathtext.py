@@ -104,6 +104,7 @@ math_tests = [
     r'testing$^{123}$',
     ' '.join('$\\' + p + '$' for p in sorted(mathtext.Parser._snowflake)),
     r'$6-2$; $-2$; $ -2$; ${-2}$; ${  -2}$; $20^{+3}_{-2}$',
+    r'$\overline{\omega}^x \frac{1}{2}_0^x$', # github issue #5444
 ]
 
 digits = "0123456789"
