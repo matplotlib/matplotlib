@@ -61,7 +61,7 @@ def is_style_file(filename):
 
 
 def _apply_style(d):
-    mpl.rcParams.use(_remove_blacklisted_style_params(d))
+    mpl.rcParams.update(_remove_blacklisted_style_params(d))
 
 
 def use(style):
