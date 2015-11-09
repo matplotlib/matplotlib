@@ -285,7 +285,7 @@ class FigureCanvasGTK3 (Gtk.DrawingArea, FigureCanvasBase):
         dpival = self.figure.dpi
         winch = allocation.width / dpival
         hinch = allocation.height / dpival
-        self.figure.set_size_inches(winch, hinch)
+        self.figure.set_size_inches(winch, hinch, forward=False)
         FigureCanvasBase.resize_event(self)
         self.draw_idle()
 
@@ -318,7 +318,7 @@ class FigureCanvasGTK3 (Gtk.DrawingArea, FigureCanvasBase):
 
         # resize the figure (in inches)
         dpi = self.figure.dpi
-        self.figure.set_size_inches (w/dpi, h/dpi)
+        self.figure.set_size_inches(w/dpi, h/dpi, forward=False)
         self._need_redraw = True
 
         return False  # finish event propagation?
