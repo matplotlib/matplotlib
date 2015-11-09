@@ -18,6 +18,7 @@ Core functions and attributes for the matplotlib style library:
 import os
 import re
 import contextlib
+import warnings
 
 import matplotlib as mpl
 from matplotlib import cbook
@@ -42,8 +43,16 @@ STYLE_BLACKLIST = set([
     'savefig.directory', 'tk.window_focus', 'hardcopy.docstring'])
 
 
-def _blacklist_style_params(d):
-    return dict((k, v) for (k, v) in d.items() if k not in STYLE_BLACKLIST)
+def _remove_blacklisted_style_params(d):
+    o = {}
+    for key, val in d.items():
+        if key in STYLE_BLACKLIST:
+            warnings.warn(
+                "Style includes a parameter, '{0}', that is not related to "
+                "style.  Ignoring".format(key))
+        else:
+            o[key] = val
+    return o
 
 
 def is_style_file(filename):
@@ -52,7 +61,7 @@ def is_style_file(filename):
 
 
 def _apply_style(d):
-    mpl.rcParams.use(blacklist_style_params(d))
+    mpl.rcParams.use(_remove_blacklisted_style_params(d))
 
 
 def use(style):
