@@ -25,8 +25,8 @@
  transform is placed on the font to shrink it back to the desired
  size.  While it is a bit surprising that the dpi setting affects
  hinting, whereas the global transform does not, this is documented
- behavior of freetype, and therefore hopefully unlikely to change.
- The freetype 2 tutorial says:
+ behavior of FreeType, and therefore hopefully unlikely to change.
+ The FreeType 2 tutorial says:
 
       NOTE: The transformation is applied to every glyph that is
       loaded through FT_Load_Glyph and is completely independent of
@@ -509,6 +509,10 @@ FT2Font::FT2Font(FT_Open_Args &open_args, long hinting_factor_) : image(), face(
     error = FT_Set_Char_Size(face, 12 * 64, 0, 72 * (unsigned int)hinting_factor, 72);
     if (error) {
         throw "Could not set the fontsize";
+    }
+
+    if (open_args.stream != NULL) {
+        face->face_flags |= FT_FACE_FLAG_EXTERNAL_STREAM;
     }
 
     static FT_Matrix transform = { 65536 / hinting_factor, 0, 0, 65536 };

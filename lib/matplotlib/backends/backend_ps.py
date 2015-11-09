@@ -28,8 +28,8 @@ from matplotlib.cbook import is_string_like, get_realpath_and_stat, \
     is_writable_file_like, maxdict, file_requires_unicode
 from matplotlib.figure import Figure
 
-from matplotlib.font_manager import findfont, is_opentype_cff_font
-from matplotlib.ft2font import FT2Font, KERNING_DEFAULT, LOAD_NO_HINTING
+from matplotlib.font_manager import findfont, is_opentype_cff_font, get_font
+from matplotlib.ft2font import KERNING_DEFAULT, LOAD_NO_HINTING
 from matplotlib.ttconv import convert_ttf_to_ps
 from matplotlib.mathtext import MathTextParser
 from matplotlib._mathtext_data import uni2type1
@@ -199,7 +199,6 @@ class RendererPS(RendererBase):
     context instance that controls the colors/styles.
     """
 
-    fontd = maxdict(50)
     afmfontd = maxdict(50)
 
     def __init__(self, width, height, pswriter, imagedpi=72):
@@ -393,15 +392,8 @@ class RendererPS(RendererBase):
         return font
 
     def _get_font_ttf(self, prop):
-        key = hash(prop)
-        font = self.fontd.get(key)
-        if font is None:
-            fname = findfont(prop)
-            font = self.fontd.get(fname)
-            if font is None:
-                font = FT2Font(fname)
-                self.fontd[fname] = font
-            self.fontd[key] = font
+        fname = findfont(prop)
+        font = get_font(fname)
         font.clear()
         size = prop.get_size_in_points()
         font.set_size(size, 72.0)
@@ -770,7 +762,6 @@ grestore
             ps_name = ps_name.encode('ascii', 'replace').decode('ascii')
             self.set_font(ps_name, prop.get_size_in_points())
 
-            cmap = font.get_charmap()
             lastgind = None
             #print 'text', s
             lines = []
@@ -778,7 +769,7 @@ grestore
             thisy = 0
             for c in s:
                 ccode = ord(c)
-                gind = cmap.get(ccode)
+                gind = font.get_char_index(ccode)
                 if gind is None:
                     ccode = ord('?')
                     name = '.notdef'
@@ -1145,11 +1136,10 @@ class FigureCanvasPS(FigureCanvasBase):
             if not rcParams['ps.useafm']:
                 for font_filename, chars in six.itervalues(ps_renderer.used_characters):
                     if len(chars):
-                        font = FT2Font(font_filename)
-                        cmap = font.get_charmap()
+                        font = get_font(font_filename)
                         glyph_ids = []
                         for c in chars:
-                            gind = cmap.get(c) or 0
+                            gind = font.get_char_index(c)
                             glyph_ids.append(gind)
 
                         fonttype = rcParams['ps.fonttype']

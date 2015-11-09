@@ -14,7 +14,7 @@ lines.dash_joinstyle : round        # miter|round|bevel
 lines.dash_capstyle : butt          # butt|round|projecting
 lines.solid_joinstyle : round       # miter|round|bevel
 lines.solid_capstyle : projecting   # butt|round|projecting
-lines.antialiased : True         # render lines in antialised (no jaggies)
+lines.antialiased : True         # render lines in antialiased (no jaggies)
 
 ### Marker props
 markers.fillstyle: full
@@ -27,7 +27,7 @@ markers.fillstyle: full
 patch.linewidth        : 1.0     # edge width in points
 patch.facecolor        : b
 patch.edgecolor        : k
-patch.antialiased      : True    # render patches in antialised (no jaggies)
+patch.antialiased      : True    # render patches in antialiased (no jaggies)
 
 ### FONT
 #

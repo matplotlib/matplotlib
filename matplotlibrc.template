@@ -88,7 +88,7 @@ backend      : %(backend)s
 #lines.dash_capstyle : butt          # butt|round|projecting
 #lines.solid_joinstyle : miter       # miter|round|bevel
 #lines.solid_capstyle : projecting   # butt|round|projecting
-#lines.antialiased : True         # render lines in antialised (no jaggies)
+#lines.antialiased : True         # render lines in antialiased (no jaggies)
 
 #markers.fillstyle: full # full|left|right|bottom|top|none
 
@@ -100,7 +100,7 @@ backend      : %(backend)s
 #patch.linewidth        : 1.0     # edge width in points
 #patch.facecolor        : blue
 #patch.edgecolor        : black
-#patch.antialiased      : True    # render patches in antialised (no jaggies)
+#patch.antialiased      : True    # render patches in antialiased (no jaggies)
 
 ### FONT
 #
@@ -195,10 +195,10 @@ backend      : %(backend)s
 
 #text.hinting : auto   # May be one of the following:
                        #   'none': Perform no hinting
-                       #   'auto': Use freetype's autohinter
+                       #   'auto': Use FreeType's autohinter
                        #   'native': Use the hinting information in the
                        #             font file, if available, and if your
-                       #             freetype library supports it
+                       #             FreeType library supports it
                        #   'either': Use the native hinting information,
                        #             or the autohinter if none is available.
                        # For backward compatibility, this value may also be
@@ -357,9 +357,9 @@ backend      : %(backend)s
 #image.lut    : 256               # the size of the colormap lookup table
 #image.origin : upper             # lower | upper
 #image.resample  : False
-#image.composite_image : True     # When True, all the images on a set of axes are 
-                                  # combined into a single composite image before 
-                                  # saving a figure as a vector graphics file, 
+#image.composite_image : True     # When True, all the images on a set of axes are
+                                  # combined into a single composite image before
+                                  # saving a figure as a vector graphics file,
                                   # such as a PDF.
 
 ### CONTOUR PLOTS

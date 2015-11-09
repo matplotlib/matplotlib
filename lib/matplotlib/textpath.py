@@ -13,11 +13,11 @@ import numpy as np
 from matplotlib.path import Path
 from matplotlib import rcParams
 import matplotlib.font_manager as font_manager
-from matplotlib.ft2font import FT2Font, KERNING_DEFAULT, LOAD_NO_HINTING
+from matplotlib.ft2font import KERNING_DEFAULT, LOAD_NO_HINTING
 from matplotlib.ft2font import LOAD_TARGET_LIGHT
 from matplotlib.mathtext import MathTextParser
 import matplotlib.dviread as dviread
-from matplotlib.font_manager import FontProperties
+from matplotlib.font_manager import FontProperties, get_font
 from matplotlib.transforms import Affine2D
 from matplotlib.externals.six.moves.urllib.parse import quote as urllib_quote
 
@@ -54,7 +54,7 @@ class TextToPath(object):
         find a ttf font.
         """
         fname = font_manager.findfont(prop)
-        font = FT2Font(fname)
+        font = get_font(fname)
         font.set_size(self.FONT_SCALE, self.DPI)
 
         return font
@@ -173,7 +173,6 @@ class TextToPath(object):
 
         # Mostly copied from backend_svg.py.
 
-        cmap = font.get_charmap()
         lastgind = None
 
         currx = 0
@@ -192,7 +191,7 @@ class TextToPath(object):
 
         for c in s:
             ccode = ord(c)
-            gind = cmap.get(ccode)
+            gind = font.get_char_index(ccode)
             if gind is None:
                 ccode = ord('?')
                 gind = 0
@@ -313,10 +312,8 @@ class TextToPath(object):
         else:
             dvifile = texmanager.make_dvi(s, self.FONT_SCALE)
             dvi = dviread.Dvi(dvifile, self.DPI)
-        try:
+        with dvi:
             page = next(iter(dvi))
-        finally:
-            dvi.close()
 
         if glyph_map is None:
             glyph_map = dict()
@@ -336,7 +333,7 @@ class TextToPath(object):
             font_bunch = self.tex_font_map[dvifont.texname]
 
             if font_and_encoding is None:
-                font = FT2Font(font_bunch.filename)
+                font = get_font(font_bunch.filename)
 
                 for charmap_name, charmap_code in [("ADOBE_CUSTOM",
                                                     1094992451),

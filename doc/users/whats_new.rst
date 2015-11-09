@@ -8,7 +8,7 @@ For a list of all of the issues and pull requests since the last
 revision, see the :ref:`github-stats`.
 
 .. note::
-   matplotlib 1.5 supports Python 2.6, 2.7, 3.3, 3.4, and 3.5
+   matplotlib 1.5 supports Python 2.7, 3.4, and 3.5
 
    matplotlib 1.4 supports Python 2.6, 2.7, 3.3, and 3.4
 
@@ -741,6 +741,13 @@ is important if your toolchain is prefixed. This is done in a simpilar
 way as setting `CC` or `CXX` before building. An example follows.
 
     export PKG_CONFIG=x86_64-pc-linux-gnu-pkg-config
+
+AxesGrid toolkit
+----------------
+
+Twins of host axes (see `~mpl_toolkits.axes_grid1.host_subplot()` and its
+``twin*`` methods) now have ``remove()`` functionality. Some visibility changes
+made by the ``twin*`` methods were modified to faciliate this feature.
 
 .. _whats-new-1-4:
 

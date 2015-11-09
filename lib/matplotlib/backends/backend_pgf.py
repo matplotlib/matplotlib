@@ -36,10 +36,9 @@ from matplotlib.compat.subprocess import check_output
 system_fonts = []
 if sys.platform.startswith('win'):
     from matplotlib import font_manager
-    from matplotlib.ft2font import FT2Font
     for f in font_manager.win32InstalledFonts():
         try:
-            system_fonts.append(FT2Font(str(f)).family_name)
+            system_fonts.append(font_manager.get_font(str(f)).family_name)
         except:
             pass # unknown error, skip this font
 else:
@@ -236,23 +235,6 @@ class LatexManagerFactory(object):
             LatexManagerFactory.previous_instance = new_inst
             return new_inst
 
-class WeakSet(object):
-    # TODO: Poor man's weakref.WeakSet.
-    #       Remove this once python 2.6 support is dropped from matplotlib.
-
-    def __init__(self):
-        self.weak_key_dict = weakref.WeakKeyDictionary()
-
-    def add(self, item):
-        self.weak_key_dict[item] = None
-
-    def discard(self, item):
-        if item in self.weak_key_dict:
-            del self.weak_key_dict[item]
-
-    def __iter__(self):
-        return six.iterkeys(self.weak_key_dict)
-
 
 class LatexManager(object):
     """
@@ -260,7 +242,7 @@ class LatexManager(object):
     determining the metrics of text elements. The LaTeX environment can be
     modified by setting fonts and/or a custem preamble in the rc parameters.
     """
-    _unclean_instances = WeakSet()
+    _unclean_instances = weakref.WeakSet()
 
     @staticmethod
     def _build_latex_header():

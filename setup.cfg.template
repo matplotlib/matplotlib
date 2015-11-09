@@ -8,6 +8,13 @@
 # This can be a single directory or a comma-delimited list of directories.
 #basedirlist = /usr
 
+[test]
+# If you plan to develop matplotlib and run or add to the test suite,
+# set this to True.  It will download and build a specific version of
+# FreeType, and then use that to build the ft2font extension.  This
+# ensures that test images are exactly reproducible.
+#local_freetype = False
+
 [status]
 # To suppress display of the dependencies and their versions
 # at the top of the build log, uncomment the following line:
@@ -83,3 +90,9 @@
 #
 #backend = Agg
 #
+
+[package_data]
+# Package additional files found in the lib/matplotlib directories.
+#
+# On Windows, package DLL files.
+#dlls = True

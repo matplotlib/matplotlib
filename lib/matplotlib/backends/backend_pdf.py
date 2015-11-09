@@ -29,18 +29,18 @@ from math import ceil, cos, floor, pi, sin
 import matplotlib
 from matplotlib import __version__, rcParams
 from matplotlib._pylab_helpers import Gcf
-from matplotlib.backend_bases import RendererBase, GraphicsContextBase,\
-    FigureManagerBase, FigureCanvasBase
+from matplotlib.backend_bases import (RendererBase, GraphicsContextBase,
+                                      FigureManagerBase, FigureCanvasBase)
 from matplotlib.backends.backend_mixed import MixedModeRenderer
-from matplotlib.cbook import Bunch, is_string_like, \
-    get_realpath_and_stat, is_writable_file_like, maxdict
+from matplotlib.cbook import (Bunch, is_string_like, get_realpath_and_stat,
+                              is_writable_file_like, maxdict)
 from matplotlib.figure import Figure
-from matplotlib.font_manager import findfont, is_opentype_cff_font
+from matplotlib.font_manager import findfont, is_opentype_cff_font, get_font
 from matplotlib.afm import AFM
 import matplotlib.type1font as type1font
 import matplotlib.dviread as dviread
-from matplotlib.ft2font import FT2Font, FIXED_WIDTH, ITALIC, LOAD_NO_SCALE, \
-    LOAD_NO_HINTING, KERNING_UNFITTED
+from matplotlib.ft2font import (FIXED_WIDTH, ITALIC, LOAD_NO_SCALE,
+                                LOAD_NO_HINTING, KERNING_UNFITTED)
 from matplotlib.mathtext import MathTextParser
 from matplotlib.transforms import Affine2D, BboxBase
 from matplotlib.path import Path
@@ -757,7 +757,7 @@ class PdfFile(object):
         if 0:
             flags |= 1 << 18
 
-        ft2font = FT2Font(fontfile)
+        ft2font = get_font(fontfile)
 
         descriptor = {
             'Type':        Name('FontDescriptor'),
@@ -817,7 +817,7 @@ end"""
     def embedTTF(self, filename, characters):
         """Embed the TTF font from the named file into the document."""
 
-        font = FT2Font(filename)
+        font = get_font(filename)
         fonttype = rcParams['pdf.fonttype']
 
         def cvt(length, upe=font.units_per_EM, nearest=True):
@@ -883,13 +883,12 @@ end"""
             # Make the "Differences" array, sort the ccodes < 255 from
             # the multi-byte ccodes, and build the whole set of glyph ids
             # that we need from this font.
-            cmap = font.get_charmap()
             glyph_ids = []
             differences = []
             multi_byte_chars = set()
             for c in characters:
                 ccode = c
-                gind = cmap.get(ccode) or 0
+                gind = font.get_char_index(ccode)
                 glyph_ids.append(gind)
                 glyph_name = font.get_glyph_name(gind)
                 if ccode <= 255:
@@ -999,12 +998,11 @@ end"""
             # Make the 'W' (Widths) array, CidToGidMap and ToUnicode CMap
             # at the same time
             cid_to_gid_map = ['\u0000'] * 65536
-            cmap = font.get_charmap()
             widths = []
             max_ccode = 0
             for c in characters:
                 ccode = c
-                gind = cmap.get(ccode) or 0
+                gind = font.get_char_index(ccode)
                 glyph = font.load_char(ccode, flags=LOAD_NO_HINTING)
                 widths.append((ccode, glyph.horiAdvance / 6))
                 if ccode < 65536:
@@ -1526,7 +1524,6 @@ end"""
 
 
 class RendererPdf(RendererBase):
-    truetype_font_cache = maxdict(50)
     afm_font_cache = maxdict(50)
 
     def __init__(self, file, image_dpi):
@@ -1845,9 +1842,8 @@ class RendererPdf(RendererBase):
         texmanager = self.get_texmanager()
         fontsize = prop.get_size_in_points()
         dvifile = texmanager.make_dvi(s, fontsize)
-        dvi = dviread.Dvi(dvifile, 72)
-        page = six.next(iter(dvi))
-        dvi.close()
+        with dviread.Dvi(dvifile, 72) as dvi:
+            page = six.next(iter(dvi))
 
         # Gather font information and do some setup for combining
         # characters into strings. The variable seq will contain a
@@ -2012,7 +2008,6 @@ class RendererPdf(RendererBase):
             between chunks of 1-byte characters and 2-byte characters.
             Only used for Type 3 fonts."""
             chunks = [(a, ''.join(b)) for a, b in chunks]
-            cmap = font.get_charmap()
 
             # Do the rotation and global translation as a single matrix
             # concatenation up front
@@ -2042,7 +2037,7 @@ class RendererPdf(RendererBase):
                     lastgind = None
                     for c in chunk:
                         ccode = ord(c)
-                        gind = cmap.get(ccode)
+                        gind = font.get_char_index(ccode)
                         if gind is not None:
                             if mode == 2 and chunk_type == 2:
                                 glyph_name = font.get_glyph_name(gind)
@@ -2127,15 +2122,8 @@ class RendererPdf(RendererBase):
         return font
 
     def _get_font_ttf(self, prop):
-        key = hash(prop)
-        font = self.truetype_font_cache.get(key)
-        if font is None:
-            filename = findfont(prop)
-            font = self.truetype_font_cache.get(filename)
-            if font is None:
-                font = FT2Font(filename)
-                self.truetype_font_cache[filename] = font
-            self.truetype_font_cache[key] = font
+        filename = findfont(prop)
+        font = get_font(filename)
         font.clear()
         font.set_size(prop.get_size_in_points(), 72)
         return font
