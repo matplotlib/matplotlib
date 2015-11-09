@@ -66,6 +66,7 @@ def shade_other_data():
     ax.imshow(rgb)
     ax.set_title('Shade by one variable, color by another', size='x-large')
 
+
 display_colorbar()
 avoid_outliers()
 shade_other_data()
