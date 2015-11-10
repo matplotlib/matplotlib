@@ -262,6 +262,10 @@ class MovieWriter(object):
         Check to see if a MovieWriter subclass is actually available by
         running the commandline tool.
         '''
+        if platform.system() == 'Windows' and cls.bin_path() == 'convert':
+            # On Windows, the full path to convert must be specified in
+            # matplotlibrc since convert is also the name of a system tool.
+            return False
         try:
             p = subprocess.Popen(cls.bin_path(),
                              shell=False,
