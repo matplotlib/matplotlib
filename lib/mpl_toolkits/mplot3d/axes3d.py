@@ -2477,7 +2477,7 @@ class Axes3D(Axes):
 
             *X*, *Y*, *Z*:
                 The x, y and z coordinates of the arrow locations (default is
-                tip of arrow; see *pivot* kwarg)
+                tail of arrow; see *pivot* kwarg)
 
             *U*, *V*, *W*:
                 The x, y and z components of the arrow vectors
@@ -2499,7 +2499,8 @@ class Axes3D(Axes):
 
             *pivot*: [ 'tail' | 'middle' | 'tip' ]
                 The part of the arrow that is at the grid point; the arrow
-                rotates about this point, hence the name *pivot*.
+                rotates about this point, hence the name *pivot*. 
+                Default is 'tail'
 
         Any additional keyword arguments are delegated to
         :class:`~matplotlib.collections.LineCollection`
@@ -2508,6 +2509,7 @@ class Axes3D(Axes):
         def calc_arrow(uvw, angle=15):
             """
             To calculate the arrow head. uvw should be a unit vector.
+            We normalize it here:
             """
             # get unit direction vector perpendicular to (u,v,w)
             norm = np.linalg.norm(uvw[:2])
@@ -2540,7 +2542,7 @@ class Axes3D(Axes):
         # arrow length ratio to the shaft length
         arrow_length_ratio = kwargs.pop('arrow_length_ratio', 0.3)
         # pivot point
-        pivot = kwargs.pop('pivot', 'tip')
+        pivot = kwargs.pop('pivot', 'tail')
 
         # handle args
         argi = 6
@@ -2601,7 +2603,7 @@ class Axes3D(Axes):
         # If any row of UVW is all zeros, don't make a quiver for it
         mask = norm > 1e-10
         XYZ = XYZ[mask]
-        UVW = UVW[mask] / norm[mask].reshape((-1, 1))
+        UVW = UVW[mask]
 
         if len(XYZ) > 0:
             # compute the shaft lines all at once with an outer product
