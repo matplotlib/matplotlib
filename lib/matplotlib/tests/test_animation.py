@@ -6,6 +6,7 @@ from matplotlib.externals import six
 import os
 import tempfile
 import numpy as np
+from numpy.testing import assert_equal
 from nose import with_setup
 from matplotlib import pyplot as plt
 from matplotlib import animation
@@ -14,10 +15,87 @@ from matplotlib.testing.decorators import cleanup
 from matplotlib.testing.decorators import CleanupTest
 
 
+class NullMovieWriter(animation.AbstractMovieWriter):
+    """
+    A minimal MovieWriter.  It doesn't actually write anything.
+    It just saves the arguments that were given to the setup() and
+    grab_frame() methods as attributes, and counts how many times
+    grab_frame() is called.
+
+    This class doesn't have an __init__ method with the appropriate
+    signature, and it doesn't define an isAvailable() method, so
+    it cannot be added to the 'writers' registry.
+    """
+
+    def setup(self, fig, outfile, dpi, *args):
+        self.fig = fig
+        self.outfile = outfile
+        self.dpi = dpi
+        self.args = args
+        self._count = 0
+
+    def grab_frame(self, **savefig_kwargs):
+        self.savefig_kwargs = savefig_kwargs
+        self._count += 1
+
+    def finish(self):
+        pass
+
+
+def test_null_movie_writer():
+    # Test running an animation with NullMovieWriter.
+
+    fig = plt.figure()
+
+    def init():
+        pass
+
+    def animate(i):
+        pass
+
+    num_frames = 5
+    filename = "unused.null"
+    fps = 30
+    dpi = 50
+    savefig_kwargs = dict(foo=0)
+
+    anim = animation.FuncAnimation(fig, animate, init_func=init,
+                                   frames=num_frames)
+    writer = NullMovieWriter()
+    anim.save(filename, fps=fps, dpi=dpi, writer=writer,
+              savefig_kwargs=savefig_kwargs)
+
+    assert_equal(writer.fig, fig)
+    assert_equal(writer.outfile, filename)
+    assert_equal(writer.dpi, dpi)
+    assert_equal(writer.args, ())
+    assert_equal(writer.savefig_kwargs, savefig_kwargs)
+    assert_equal(writer._count, num_frames)
+
+
+@animation.writers.register('null')
+class RegisteredNullMovieWriter(NullMovieWriter):
+
+    # To be able to add NullMovieWriter to the 'writers' registry,
+    # we must define an __init__ method with a specific signature,
+    # and we must define the class method isAvailable().
+    # (These methods are not actually required to use an instance
+    # of this class as the 'writer' argument of Animation.save().)
+
+    def __init__(self, fps=None, codec=None, bitrate=None,
+                 extra_args=None, metadata=None):
+        pass
+
+    @classmethod
+    def isAvailable(self):
+        return True
+
+
 WRITER_OUTPUT = dict(ffmpeg='mp4', ffmpeg_file='mp4',
                      mencoder='mp4', mencoder_file='mp4',
                      avconv='mp4', avconv_file='mp4',
-                     imagemagick='gif', imagemagick_file='gif')
+                     imagemagick='gif', imagemagick_file='gif',
+                     null='null')
 
 
 # Smoke test for saving animations.  In the future, we should probably
