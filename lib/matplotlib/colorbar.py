@@ -402,7 +402,7 @@ class ColorbarBase:
                  boundaries=None,
                  orientation='vertical',
                  ticklocation='auto',
-                 extend='neither',
+                 extend=None,
                  spacing='uniform',  # uniform or proportional
                  ticks=None,
                  format=None,
@@ -430,8 +430,11 @@ class ColorbarBase:
             cmap = cm.get_cmap()
         if norm is None:
             norm = colors.Normalize()
-        elif hasattr(norm, 'extend') and norm.extend != 'neither':
-            extend = norm.extend
+        if extend is None:
+            if hasattr(norm, 'extend'):
+                extend = norm.extend
+            else:
+                extend = 'neither'
         self.alpha = alpha
         self.cmap = cmap
         self.norm = norm
