@@ -150,18 +150,14 @@ def test_valid_input_forms():
 @cleanup
 def test_invalid_input_forms():
     fig, ax = plt.subplots()
-    with assert_raises((TypeError, ValueError)):
-        ax.set_prop_cycle(1)
-    with assert_raises((TypeError, ValueError)):
-        ax.set_prop_cycle([1, 2])
-    with assert_raises((TypeError, ValueError)):
-        ax.set_prop_cycle('color', 'fish')
-    with assert_raises((TypeError, ValueError)):
-        ax.set_prop_cycle('linewidth', 1)
-    with assert_raises((TypeError, ValueError)):
-        ax.set_prop_cycle('linewidth', {'1': 1, '2': 2})
-    with assert_raises((TypeError, ValueError)):
-        ax.set_prop_cycle(linewidth=1, color='r')
+    assert_raises((TypeError, ValueError), ax.set_prop_cycle, 1)
+    assert_raises((TypeError, ValueError), ax.set_prop_cycle, [1, 2])
+    assert_raises((TypeError, ValueError), ax.set_prop_cycle, 'color', 'fish')
+    assert_raises((TypeError, ValueError), ax.set_prop_cycle, 'linewidth', 1)
+    assert_raises((TypeError, ValueError), ax.set_prop_cycle,
+            'linewidth', {'1': 1, '2': 2})
+    assert_raises((TypeError, ValueError), ax.set_prop_cycle,
+            linewidth=1, color='r')
 
 
 if __name__ == '__main__':
