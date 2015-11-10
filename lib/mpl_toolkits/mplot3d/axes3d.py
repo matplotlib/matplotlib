@@ -2543,6 +2543,8 @@ class Axes3D(Axes):
         arrow_length_ratio = kwargs.pop('arrow_length_ratio', 0.3)
         # pivot point
         pivot = kwargs.pop('pivot', 'tail')
+        # normalize
+        pivot = kwargs.pop('normalize', False)
 
         # handle args
         argi = 6
@@ -2603,7 +2605,10 @@ class Axes3D(Axes):
         # If any row of UVW is all zeros, don't make a quiver for it
         mask = norm > 1e-10
         XYZ = XYZ[mask]
-        UVW = UVW[mask]
+        if normalize == True:
+            UVW = UVW[mask]/ norm[mask].reshape((-1, 1))
+        else:
+            UVW = UVW[mask]
 
         if len(XYZ) > 0:
             # compute the shaft lines all at once with an outer product
