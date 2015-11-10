@@ -2544,7 +2544,7 @@ class Axes3D(Axes):
         # pivot point
         pivot = kwargs.pop('pivot', 'tail')
         # normalize
-        pivot = kwargs.pop('normalize', False)
+        normalize = kwargs.pop('normalize', False)
 
         # handle args
         argi = 6
@@ -2605,8 +2605,8 @@ class Axes3D(Axes):
         # If any row of UVW is all zeros, don't make a quiver for it
         mask = norm > 1e-10
         XYZ = XYZ[mask]
-        if normalize == True:
-            UVW = UVW[mask]/ norm[mask].reshape((-1, 1))
+        if normalize:
+            UVW = UVW[mask] / norm[mask].reshape((-1, 1))
         else:
             UVW = UVW[mask]
 
