@@ -66,7 +66,7 @@ commands, such as:
 ========================  ===========
 
 Additional arguments are passed on to nosetests. See the nose 
-doumentation for supported arguments. Some of the more important ones are given
+documentation for supported arguments. Some of the more important ones are given
 here:
 
 =============================  ===========
