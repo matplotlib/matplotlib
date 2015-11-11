@@ -4983,6 +4983,7 @@ class Axes(_AxesBase):
             else:
                 X, Y = np.meshgrid(np.arange(numCols + 1),
                                    np.arange(numRows + 1))
+            C = cbook.safe_masked_invalid(C)
             return X, Y, C
 
         if len(args) == 3:
@@ -5015,6 +5016,7 @@ class Axes(_AxesBase):
                                 ' X (%d) and/or Y (%d); see help(%s)' % (
                                     C.shape, Nx, Ny, funcname))
             C = C[:Ny - 1, :Nx - 1]
+        C = cbook.safe_masked_invalid(C)
         return X, Y, C
 
     @unpack_labeled_data(label_namer=None)
