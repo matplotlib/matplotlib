@@ -903,7 +903,7 @@ defaultParams = {
     'mathtext.fallback_to_cm': [True, validate_bool],
 
     'image.aspect':        ['equal', validate_aspect],  # equal, auto, a number
-    'image.interpolation': ['bilinear', six.text_type],
+    'image.interpolation': ['nearest', six.text_type],
     'image.cmap':          ['jet', six.text_type],        # one of gray, jet, etc
     'image.lut':           [256, validate_int],  # lookup table
     'image.origin':        ['upper', six.text_type],  # lookup table
