@@ -52,43 +52,40 @@ matplotlib source directory::
 Running the tests
 -----------------
 
-Running the tests is simple. Make sure you have nose installed and run
-the setup script's ``test`` command::
+Running the tests is simple. Make sure you have nose installed and run::
 
-   python setup.py test
+   python tests.py
 
 in the root directory of the distribution. The script takes a set of
 commands, such as:
 
 ========================  ===========
-``--pep8-only``           pep8 checks
-``--omit-pep8``           Do not perform pep8 checks
-``--nocapture``           do not capture stdout (nosetests)
-``--nose-verbose``        be verbose (nosetests)
-``--processes``           number of processes (nosetests)
-``--process-timeout``     process timeout (nosetests)
-``--with-coverage``       with coverage
-``--detailed-error-msg``  detailed error message (nosetest)
-``--tests``               comma separated selection of tests (nosetest)
+``--pep8``                pep8 checks
+``--no-pep8``             Do not perform pep8 checks
+``--no-network``          Disable tests that require network access
 ========================  ===========
 
-Additionally it is possible to run only coding standard test or disable them:
+Additional arguments are passed on to nosetests. See the nose 
+documentation for supported arguments. Some of the more important ones are given
+here:
 
-===================  ===========
-``--pep8``           run only PEP8 checks
-``--no-pep8``        disable PEP8 checks
-===================  ===========
+=============================  ===========
+``--verbose``                  Be more verbose
+``--processes=NUM``            Run tests in parallel over NUM processes
+``--process-timeout=SECONDS``  Set timeout for results from test runner process
+``--nocapture``                Do not capture stdout
+=============================  ===========
 
 To run a single test from the command line, you can provide a
 dot-separated path to the module followed by the function separated by
 a colon, e.g., (this is assuming the test is installed)::
 
-  python setup.py test --tests=matplotlib.tests.test_simplification:test_clipping
+  python tests.py matplotlib.tests.test_simplification:test_clipping
 
 If you want to run the full test suite, but want to save wall time try
 running the tests in parallel::
 
-  python setup.py test --nocapture --nose-verbose --processes=5 --process-timeout=300
+  python tests.py --nocapture --nose-verbose --processes=5 --process-timeout=300
 
 
 An alternative implementation that does not look at command line
@@ -100,9 +97,10 @@ matplotlib library function :func:`matplotlib.test`::
 
 .. hint::
 
-   You might need to install nose for this::
+   To run the tests you need to install nose and mock if using python 2.7::
 
       pip install nose
+      pip install mock
 
 
 .. _`nosetest arguments`: http://nose.readthedocs.org/en/latest/usage.html

@@ -22,6 +22,11 @@ from functools import reduce
 import operator
 import os
 import warnings
+try:
+    import collections.abc as abc
+except ImportError:
+    # python 2
+    import collections as abc
 from matplotlib.fontconfig_pattern import parse_fontconfig_pattern
 from matplotlib.colors import is_color_like
 
@@ -78,7 +83,11 @@ def _listify_validator(scalar_validator, allow_stringlist=False):
                     return [scalar_validator(v.strip()) for v in s if v.strip()]
                 else:
                     raise
-        elif type(s) in (list, tuple):
+        # We should allow any generic sequence type, including generators,
+        # Numpy ndarrays, and pandas data structures.  However, unordered
+        # sequences, such as sets, should be allowed but discouraged unless the
+        # user desires pseudorandom behavior.
+        elif isinstance(s, abc.Iterable) and not isinstance(s, abc.Mapping):
             # The condition on this list comprehension will preserve the
             # behavior of filtering out any empty strings (behavior was
             # from the original validate_stringlist()), while allowing
@@ -86,7 +95,7 @@ def _listify_validator(scalar_validator, allow_stringlist=False):
             return [scalar_validator(v) for v in s
                     if not isinstance(v, six.string_types) or v]
         else:
-            msg = "'s' must be of type [ string | list | tuple ]"
+            msg = "{0!r} must be of type: string or non-dictionary iterable.".format(s)
             raise ValueError(msg)
     f.__doc__ = scalar_validator.__doc__
     return f
