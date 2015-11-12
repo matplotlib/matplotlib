@@ -81,14 +81,27 @@ def figure_edit(axes, parent=None):
 
         def prepare_data(d, init):
             """Prepare entry for FormLayout.
+
+            `d` is a mapping of shorthands to style names (a single style may
+            have multiple shorthands, in particular the shorthands `None`,
+            `"None"`, `"none"` and `""` are synonyms); `init` is one shorthand
+            of the initial style.
+
+            This function returns an list suitable for initializing a
+            FormLayout combobox, namely `[initial_name, (shorthand,
+            style_name), (shorthand, style_name), ...]`.
             """
-            # List items in dict, dropping duplicate values, sorting by values.
-            kvs = [(k, v) for v, k in
-                   sorted({v: k for k, v in d.items()}.items())]
-            # Find the unique kept key with the same value as the init value.
-            canonical_init, = ({k for k, v in d.items() if v == d[init]}.
-                               intersection(k for k, v in kvs))
-            return [canonical_init] + kvs
+            # Drop duplicate shorthands from dict (by overwriting them during
+            # the dict comprehension).
+            name2short = {name: short for short, name in d.items()}
+            # Convert back to {shorthand: name}.
+            short2name = {short: name for name, short in name2short.items()}
+            # Find the kept shorthand for the style specified by init.
+            canonical_init = name2short[d[init]]
+            # Sort by representation and prepend the initial value.
+            return ([canonical_init] +
+                    sorted(short2name.items(),
+                           key=lambda short_and_name: short_and_name[1]))
 
         curvelabels = sorted(linedict.keys())
         for label in curvelabels:
