@@ -121,7 +121,7 @@ def test_rcparams_update():
     rc = mpl.RcParams({'figure.figsize': (3.5, 42)})
     bad_dict = {'figure.figsize': (3.5, 42, 1)}
     # make sure validation happens on input
-    with assert_raises(ValueError):
+    with pytest.raises(ValueError):
 
         with warnings.catch_warnings():
             warnings.filterwarnings('ignore',
@@ -134,7 +134,7 @@ def test_rcparams_init():
     if sys.version_info[:2] < (2, 7):
         raise nose.SkipTest("assert_raises as context manager "
                             "not supported with Python < 2.7")
-    with assert_raises(ValueError):
+    with pytest.raises(ValueError):
         with warnings.catch_warnings():
             warnings.filterwarnings('ignore',
                                 message='.*(validate)',
@@ -180,11 +180,11 @@ def test_Bug_2543_newer_python():
     if sys.version_info[:2] < (2, 7):
         raise nose.SkipTest("assert_raises as context manager not supported with Python < 2.7")
     from matplotlib.rcsetup import validate_bool_maybe_none, validate_bool
-    with assert_raises(ValueError):
+    with pytest.raises(ValueError):
         validate_bool_maybe_none("blah")
-    with assert_raises(ValueError):
+    with pytest.raises(ValueError):
         validate_bool(None)
-    with assert_raises(ValueError):
+    with pytest.raises(ValueError):
         with mpl.rc_context():
             mpl.rcParams['svg.fonttype'] = True
 
