@@ -358,5 +358,4 @@ def test_positional_parameter_names_as_function():
     # it as data...
     data = {"x": "X", "y": "Y", "ro": "!!"}
     with assert_produces_warning(RuntimeWarning):
-        assert funcy(None, "y", "ro", data=data) ==
-                     "('Y', '!!') | {}"
+        assert funcy(None, "y", "ro", data=data) == "('Y', '!!') | {}"
