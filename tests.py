@@ -40,8 +40,7 @@ def run(extra_args):
     #           env=env)
 
     argv = sys.argv + extra_args
-    for test_module in default_test_modules:
-        pytest.main(test_module)
+    pytest.main(['--pyargs'] + argv[1:] + default_test_modules)
 
 if __name__ == '__main__':
     extra_args = []
