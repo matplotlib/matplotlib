@@ -68,7 +68,7 @@ install:
     fi
   # Always install from pypi
   - pip install $PRE pep8 cycler coveralls coverage
-  - 'pip install https://github.com/tacaswell/nose/zipball/mnt_py36_compat#egg=nose'
+  - 'pip install git+https://github.com/jenshnielsen/nose.git@matplotlibnose'
 
   # We manually install humor sans using the package from Ubuntu 14.10. Unfortunatly humor sans is not
   # availible in the Ubuntu version used by Travis but we can manually install the deb from a later
