@@ -19,6 +19,7 @@ from nose.tools import assert_raises, assert_equal
 from matplotlib.testing.decorators import image_comparison, cleanup
 import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
+import pytest
 
 
 @image_comparison(baseline_images=['date_empty'], extensions=['png'])
@@ -105,7 +106,7 @@ def test_too_many_date_ticks():
     ax.set_xlim((t0, tf), auto=True)
     ax.plot([], [])
     ax.xaxis.set_major_locator(mdates.DayLocator())
-    assert_raises(RuntimeError, fig.savefig, 'junk.png')
+    pytest.raises(RuntimeError, fig.savefig, 'junk.png')
 
 
 @image_comparison(baseline_images=['RRuleLocator_bounds'], extensions=['png'])
@@ -263,7 +264,7 @@ def test_empty_date_with_year_formatter():
     ax.xaxis.set_major_formatter(yearFmt)
 
     with tempfile.TemporaryFile() as fh:
-        assert_raises(ValueError, fig.savefig, fh)
+        pytest.raises(ValueError, fig.savefig, fh)
 
 
 def test_auto_date_locator():
