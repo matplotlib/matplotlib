@@ -9,6 +9,7 @@ import numpy as np
 from numpy.testing import assert_equal
 from matplotlib import pyplot as plt
 from matplotlib import animation
+# from matplotlib.testing.noseclasses import KnownFailureTest
 from matplotlib.testing.decorators import cleanup
 from matplotlib.testing.decorators import CleanupTest
 import pytest
