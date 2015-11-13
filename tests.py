@@ -25,7 +25,8 @@ def run(extra_args):
 
     env = {"NOSE_WITH_COVERAGE": 1,
            'NOSE_COVER_PACKAGE': 'matplotlib',
-           'NOSE_COVER_HTML': 1}
+           'NOSE_COVER_HTML': 1,
+           'NOSE_COVER_NO_PRINT': 1}
 
     matplotlib._init_tests()
 
