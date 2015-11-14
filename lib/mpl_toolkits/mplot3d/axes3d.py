@@ -2501,6 +2501,11 @@ class Axes3D(Axes):
                 The part of the arrow that is at the grid point; the arrow
                 rotates about this point, hence the name *pivot*. 
                 Default is 'tail'
+                
+            *normalize*: [False | True]
+                When True, all of the arrows will be the same length. This 
+                defaults to False, where the arrows will be different lengths
+                depending on the values of u,v,w. 
 
         Any additional keyword arguments are delegated to
         :class:`~matplotlib.collections.LineCollection`
