@@ -7,13 +7,14 @@ from nose.tools import assert_equal
 
 from matplotlib.testing.decorators import knownfailureif
 from pylab import *
+import pytest
 
 
 def test_simple():
     assert 1 + 1 == 2
 
 
-@knownfailureif(True)
+@pytest.mark.xfail
 def test_simple_knownfail():
     # Test the known fail mechanism.
     assert 1 + 1 == 3
