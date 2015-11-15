@@ -29,6 +29,7 @@ env:
     - PANDAS=
     - NPROC=2
     - TEST_ARGS=--no-pep8
+    - NOSE_ARGS="--processes=$NPROC --process-timeout=300"
 
 language: python
 
@@ -38,7 +39,7 @@ matrix:
       env: MOCK=mock NUMPY=numpy==1.6
     - python: 3.4
     - python: 3.5
-      env: PANDAS=pandas
+      env: PANDAS=pandas NOSE_ARGS=--with-coverage
     - python: 3.5
       env: TEST_ARGS=--pep8
     - python: 2.7
@@ -102,7 +103,7 @@ script:
   - |
     if [[ $BUILD_DOCS == false ]]; then
       export MPL_REPO_DIR=$PWD  # needed for pep8-conformance test of the examples
-      gdb -return-child-result -batch -ex r -ex bt --args python tests.py --processes=$NPROC --process-timeout=300 $TEST_ARGS
+      gdb -return-child-result -batch -ex r -ex bt --args python tests.py $NOSE_ARGS $TEST_ARGS
     else
       cd doc
       python make.py html --small --warningsaserrors
@@ -163,8 +164,6 @@ after_success:
         fi
       fi
   fi
-  if [[ $BUILD_DOCS == false && $TEST_ARGS != "--pep8" ]]; then
-     # account for us running the test out-of-repo and coveralls expects in-repo
-     # tests
+  if [[ $NOSE_ARGS="--with-coverage" ]]; then
      coveralls
   fi

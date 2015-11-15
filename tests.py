@@ -23,10 +23,7 @@ from matplotlib import default_test_modules
 def run(extra_args):
     from nose.plugins import multiprocess
 
-    env = {"NOSE_WITH_COVERAGE": 1,
-           'NOSE_COVER_PACKAGE': 'matplotlib',
-           'NOSE_COVER_HTML': 1,
-           'NOSE_COVER_NO_PRINT': 1}
+    env = matplotlib._get_nose_env()
 
     matplotlib._init_tests()
 
