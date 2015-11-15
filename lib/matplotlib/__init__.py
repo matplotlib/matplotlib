@@ -1536,7 +1536,7 @@ def _get_nose_env():
     return env
 
 
-def test(verbosity=1):
+def test(verbosity=1, coverage=False):
     """run the matplotlib test suite"""
     _init_tests()
 
@@ -1560,9 +1560,14 @@ def test(verbosity=1):
         # a list.
         multiprocess._instantiate_plugins = plugins
 
+        env = _get_nose_env()
+        if coverage:
+            env['NOSE_WITH_COVERAGE'] = 1
+
         success = nose.run(
             defaultTest=default_test_modules,
             config=config,
+            env=env,
         )
     finally:
         if old_backend.lower() != 'agg':
