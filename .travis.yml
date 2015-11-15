@@ -100,6 +100,7 @@ script:
   # Travis VM to run out of memory (since so many copies of inkscape and
   # ghostscript are running at the same time).
   - echo Testing using $NPROC processes
+  - echo The following args are passed to nose $NOSE_ARGS
   - |
     if [[ $BUILD_DOCS == false ]]; then
       export MPL_REPO_DIR=$PWD  # needed for pep8-conformance test of the examples
