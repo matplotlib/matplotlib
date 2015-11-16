@@ -111,6 +111,23 @@ class CleanupTestCase(unittest.TestCase):
 
 
 def cleanup(style=None):
+    """
+    A decorator to ensure that any global state is reset before
+    running a test.
+
+    Parameters
+    ----------
+    style : str, optional
+        The name of the style to apply.
+    """
+
+    # If cleanup is used without arguments, `style` will be a
+    # callable, and we pass it directly to the wrapper generator.  If
+    # cleanup if called with an argument, it is a string naming a
+    # style, and the function will be passed as an argument to what we
+    # return.  This is a confusing, but somewhat standard, pattern for
+    # writing a decorator with optional arguments.
+
     def make_cleanup(func):
         @functools.wraps(func)
         def wrapped_function(*args, **kwargs):
