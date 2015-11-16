@@ -843,7 +843,7 @@ defaultParams = {
     ## patch props
     'patch.linewidth':   [None, validate_float_or_None],  # line width in points
     'patch.edgecolor':   ['k', validate_color],  # black
-    'patch.facecolor':   ['b', validate_color],  # blue
+    'patch.facecolor':   ['#1f77b4', validate_color],  # blue
     'patch.antialiased': [True, validate_bool],  # antialiased (no jaggies)
 
     ## Histogram properties

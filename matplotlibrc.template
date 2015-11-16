@@ -100,7 +100,7 @@ backend      : $TEMPLATE_BACKEND
 #patch.linewidth        : None     # edge width in points.
                                    # If None, use axes.linewidth when patch
                                    # is not filled.
-#patch.facecolor        : b
+#patch.facecolor        : #1f77b4
 #patch.edgecolor        : black
 #patch.antialiased      : True    # render patches in antialiased (no jaggies)
 
