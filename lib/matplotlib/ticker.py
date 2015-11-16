@@ -1472,6 +1472,48 @@ class MaxNLocator(Locator):
             return dmin, dmax
 
 
+class AutoSpacedLocator(MaxNLocator):
+    """
+    Behaves like a MaxNLocator, except N is automatically determined
+    from the length of the axis.
+    """
+    def __init__(self, *args, **kwargs):
+        """
+        Keyword args:
+
+        *steps*
+            Sequence of nice numbers starting with 1 and ending with 10;
+            e.g., [1, 2, 4, 5, 10]
+
+        *integer*
+            If True, ticks will take only integer values.
+
+        *symmetric*
+            If True, autoscaling will result in a range symmetric
+            about zero.
+
+        *prune*
+            ['lower' | 'upper' | 'both' | None]
+            Remove edge ticks -- useful for stacked or ganged plots
+            where the upper tick of one axes overlaps with the lower
+            tick of the axes above it.
+            If prune=='lower', the smallest tick will
+            be removed.  If prune=='upper', the largest tick will be
+            removed.  If prune=='both', the largest and smallest ticks
+            will be removed.  If prune==None, no ticks will be removed.
+
+        """
+        if 'nbins' in kwargs:
+            raise ValueError(
+                'AutoSpacedLocator does not take nbins as an argument')
+        self.set_params(**self.default_params)
+        self.set_params(**kwargs)
+
+    def __call__(self):
+        self._nbins = self.axis.get_tick_space()
+        return super(AutoSpacedLocator, self).__call__()
+
+
 def decade_down(x, base=10):
     'floor x to the nearest lower decade'
     if x == 0.0:
@@ -1899,9 +1941,9 @@ class LogitLocator(Locator):
         return self.raise_if_exceeds(np.array(ticklocs))
 
 
-class AutoLocator(MaxNLocator):
+class AutoLocator(AutoSpacedLocator):
     def __init__(self):
-        MaxNLocator.__init__(self, nbins=9, steps=[1, 2, 5, 10])
+        AutoSpacedLocator.__init__(self, steps=[1, 2, 5, 10])
 
 
 class AutoMinorLocator(Locator):
