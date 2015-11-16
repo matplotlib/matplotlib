@@ -1529,7 +1529,14 @@ def _get_extra_test_plugins():
     return [KnownFailure, attrib.Plugin]
 
 
-def test(verbosity=1):
+def _get_nose_env():
+    env = {'NOSE_COVER_PACKAGE': 'matplotlib',
+           'NOSE_COVER_HTML': 1,
+           'NOSE_COVER_NO_PRINT': 1}
+    return env
+
+
+def test(verbosity=1, coverage=False):
     """run the matplotlib test suite"""
     _init_tests()
 
@@ -1553,9 +1560,14 @@ def test(verbosity=1):
         # a list.
         multiprocess._instantiate_plugins = plugins
 
+        env = _get_nose_env()
+        if coverage:
+            env['NOSE_WITH_COVERAGE'] = 1
+
         success = nose.run(
             defaultTest=default_test_modules,
             config=config,
+            env=env,
         )
     finally:
         if old_backend.lower() != 'agg':
