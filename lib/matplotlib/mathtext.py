@@ -1240,58 +1240,115 @@ GROW_FACTOR     = 1.0 / SHRINK_FACTOR
 # The number of different sizes of chars to use, beyond which they will not
 # get any smaller
 NUM_SIZE_LEVELS = 6
-# Percentage of x-height of additional horiz. space after sub/superscripts
-SCRIPT_SPACE    = {'cm': 0.075,
-                   'stix': 0.10,
-                   'stixsans': 0.05,
-                   'dejavuserif': 0.05,
-                   'dejavusans': 0.05}
-## Percentage of x-height that sub/superscripts drop below the baseline
-SUBDROP         = {'cm': 0.2,
-                   'stix': 0.4,
-                   'stixsans': 0.4,
-                   'dejavuserif': 0.4,
-                   'dejavusans': 0.4}
-# Percentage of x-height that superscripts are raised from the baseline
-SUP1            = {'cm': 0.45,
-                   'stix': 0.8,
-                   'stixsans': 0.8,
-                   'dejavuserif': 0.7,
-                   'dejavusans': 0.7}
-# Percentage of x-height that subscripts drop below the baseline
-SUB1            = {'cm': 0.2,
-                   'stix': 0.3,
-                   'stixsans': 0.3,
-                   'dejavuserif': 0.3,
-                   'dejavusans': 0.3}
-# Percentage of x-height that subscripts drop below the baseline when a
-# superscript is present
-SUB2            = {'cm': 0.3,
-                   'stix': 0.6,
-                   'stixsans': 0.5,
-                   'dejavuserif': 0.5,
-                   'dejavusans': 0.5}
-# Percentage of x-height that sub/supercripts are offset relative to the
-# nucleus edge for non-slanted nuclei
-DELTA           = {'cm': 0.075,
-                   'stix': 0.05,
-                   'stixsans': 0.025,
-                   'dejavuserif': 0.025,
-                   'dejavusans': 0.025}
-# Additional percentage of last character height above 2/3 of the x-height that
-# supercripts are offset relative to the subscript for slanted nuclei
-DELTASLANTED    = {'cm': 0.3,
-                   'stix': 0.3,
-                   'stixsans': 0.6,
-                   'dejavuserif': 0.2,
-                   'dejavusans': 0.2}
-# Percentage of x-height that supercripts and subscripts are offset for
-# integrals
-DELTAINTEGRAL   = {'cm': 0.3,
-                   'stix': 0.3,
-                   'stixsans': 0.3,
-                   'dejavuserif': 0.1,
-                   'dejavusans': 0.1}
+
+
+class FontConstantsBase(object):
+    """
+    A set of constants that controls how certain things, such as sub-
+    and superscripts are laid out.  These are all metrics that can't
+    be reliably retrieved from the font metrics in the font itself.
+    """
+    # Percentage of x-height of additional horiz. space after sub/superscripts
+    script_space = 0.05
+
+    # Percentage of x-height that sub/superscripts drop below the baseline
+    subdrop = 0.4
+
+    # Percentage of x-height that superscripts are raised from the baseline
+    sup1 = 0.7
+
+    # Percentage of x-height that subscripts drop below the baseline
+    sub1 = 0.3
+
+    # Percentage of x-height that subscripts drop below the baseline when a
+    # superscript is present
+    sub2 = 0.5
+
+    # Percentage of x-height that sub/supercripts are offset relative to the
+    # nucleus edge for non-slanted nuclei
+    delta = 0.025
+
+    # Additional percentage of last character height above 2/3 of the
+    # x-height that supercripts are offset relative to the subscript
+    # for slanted nuclei
+    delta_slanted = 0.2
+
+    # Percentage of x-height that supercripts and subscripts are offset for
+    # integrals
+    delta_integral = 0.1
+
+
+class ComputerModernFontConstants(FontConstantsBase):
+    script_space = 0.075
+    subdrop = 0.2
+    sup1 = 0.45
+    sub1 = 0.2
+    sub2 = 0.3
+    delta = 0.075
+    delta_slanted = 0.3
+    delta_integral = 0.3
+
+
+class STIXFontConstants(FontConstantsBase):
+    script_space = 0.1
+    sup1 = 0.8
+    sub2 = 0.6
+    delta = 0.05
+    delta_slanted = 0.3
+    delta_integral = 0.3
+
+
+class STIXSansFontConstants(FontConstantsBase):
+    script_space = 0.05
+    sup1 = 0.8
+    delta_slanted = 0.6
+    delta_integral = 0.3
+
+
+class DejaVuSerifFontConstants(FontConstantsBase):
+    pass
+
+
+class DejaVuSansFontConstants(FontConstantsBase):
+    pass
+
+
+# Maps font family names to the FontConstantBase subclass to use
+_font_constant_mapping = {
+    'DejaVu Sans': DejaVuSansFontConstants,
+    'DejaVu Sans Mono': DejaVuSansFontConstants,
+    'DejaVu Serif': DejaVuSerifFontConstants,
+    'cmb10': ComputerModernFontConstants,
+    'cmex10': ComputerModernFontConstants,
+    'cmmi10': ComputerModernFontConstants,
+    'cmr10': ComputerModernFontConstants,
+    'cmss10': ComputerModernFontConstants,
+    'cmsy10': ComputerModernFontConstants,
+    'cmtt10': ComputerModernFontConstants,
+    'STIXGeneral': STIXFontConstants,
+    'STIXNonUnicode': STIXFontConstants,
+    'STIXSizeFiveSym': STIXFontConstants,
+    'STIXSizeFourSym': STIXFontConstants,
+    'STIXSizeThreeSym': STIXFontConstants,
+    'STIXSizeTwoSym': STIXFontConstants,
+    'STIXSizeOneSym': STIXFontConstants,
+    # Map the fonts we used to ship, just for good measure
+    'Bitstream Vera Sans': DejaVuSansFontConstants,
+    'Bitstream Vera': DejaVuSansFontConstants,
+    }
+
+
+def _get_font_constant_set(state):
+    constants = _font_constant_mapping.get(
+        state.font_output._get_font(state.font).family_name,
+        FontConstantsBase)
+    # STIX sans isn't really its own fonts, just different code points
+    # in the STIX fonts, so we have to detect this one separately.
+    if (constants is STIXFontConstants and
+            isinstance(state.font_output, StixSansFonts)):
+        return STIXSansFontConstants
+    return constants
+
 
 class MathTextWarning(Warning):
     pass
@@ -2873,25 +2930,24 @@ class Parser(object):
             nucleus = Hlist([nucleus])
 
         # Handle regular sub/superscripts
-
-        fs = rcParams['mathtext.fontset']
-        if fs == 'custom':
-            fs = 'dejavusans'
-
+        constants = _get_font_constant_set(state)
         lc_height   = last_char.height
         lc_baseline = 0
         if self.is_dropsub(last_char):
             lc_baseline = last_char.depth
 
         # Compute kerning for sub and super
-        superkern = DELTA[fs] * xHeight
-        subkern = DELTA[fs] * xHeight
+        superkern = constants.delta * xHeight
+        subkern = constants.delta * xHeight
         if self.is_slanted(last_char):
-            superkern += DELTA[fs] * xHeight
-            superkern += DELTASLANTED[fs] * (lc_height - xHeight * 2. / 3.)
+            superkern += constants.delta * xHeight
+            superkern += (constants.delta_slanted *
+                          (lc_height - xHeight * 2. / 3.))
             if self.is_dropsub(last_char):
-                subkern = (3 * DELTA[fs] - DELTAINTEGRAL[fs]) * lc_height
-                superkern = (3 * DELTA[fs] + DELTAINTEGRAL[fs]) * lc_height
+                subkern = (3 * constants.delta -
+                           constants.delta_integral) * lc_height
+                superkern = (3 * constants.delta +
+                             constants.delta_integral) * lc_height
             else:
                 subkern = 0
 
@@ -2900,26 +2956,26 @@ class Parser(object):
             x = Hlist([Kern(subkern), sub])
             x.shrink()
             if self.is_dropsub(last_char):
-                shift_down = lc_baseline + SUBDROP[fs] * xHeight
+                shift_down = lc_baseline + constants.subdrop * xHeight
             else:
-                shift_down = SUB1[fs] * xHeight
+                shift_down = constants.sub1 * xHeight
             x.shift_amount = shift_down
         else:
             x = Hlist([Kern(superkern), super])
             x.shrink()
             if self.is_dropsub(last_char):
-                shift_up = lc_height - SUBDROP[fs] * xHeight
+                shift_up = lc_height - constants.subdrop * xHeight
             else:
-                shift_up = SUP1[fs] * xHeight
+                shift_up = constants.sup1 * xHeight
             if sub is None:
                 x.shift_amount = -shift_up
             else: # Both sub and superscript
                 y = Hlist([Kern(subkern),sub])
                 y.shrink()
                 if self.is_dropsub(last_char):
-                    shift_down = lc_baseline + SUBDROP[fs] * xHeight
+                    shift_down = lc_baseline + constants.subdrop * xHeight
                 else:
-                    shift_down = SUB2[fs] * xHeight
+                    shift_down = constants.sub2 * xHeight
                 # If sub and superscript collide, move super up
                 clr = (2.0 * rule_thickness -
                        ((shift_up - x.depth) - (y.height - shift_down)))
@@ -2931,8 +2987,9 @@ class Parser(object):
                 x.shift_amount = shift_down
 
         if not self.is_dropsub(last_char):
-            x.width += SCRIPT_SPACE[fs] * xHeight
+            x.width += constants.script_space * xHeight
         result = Hlist([nucleus, x])
+
         return [result]
 
     def _genfrac(self, ldelim, rdelim, rule, style, num, den):
