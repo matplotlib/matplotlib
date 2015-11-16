@@ -295,6 +295,12 @@ static PyObject* PyTriContourGenerator_create_filled_contour(PyTriContourGenerat
         return NULL;
     }
 
+    if (lower_level >= upper_level)
+    {
+        PyErr_SetString(PyExc_ValueError,
+            "filled contour levels must be increasing");
+    }
+
     PyObject* result;
     CALL_CPP("create_filled_contour",
              (result = self->ptr->create_filled_contour(lower_level,
