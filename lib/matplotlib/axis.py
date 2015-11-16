@@ -1665,6 +1665,13 @@ class Axis(artist.Artist):
             tz = pytz.timezone(tz)
         self.update_units(datetime.datetime(2009, 1, 1, 0, 0, 0, 0, tz))
 
+    def get_tick_space(self):
+        """
+        Return the estimated number of ticks that can fit on the axis.
+        """
+        # Must be overridden in the subclass
+        raise NotImplementedError()
+
 
 class XAxis(Axis):
     __name__ = 'xaxis'
@@ -1987,6 +1994,18 @@ class XAxis(Axis):
             if not viewMutated:
                 self.axes.viewLim.intervalx = xmin, xmax
         self.stale = True
+
+    def get_tick_space(self):
+        if self._tick_space is None:
+            ends = self.axes.transAxes.transform([[0, 0], [1, 0]])
+            length = ((ends[1][0] - ends[0][0]) / self.axes.figure.dpi) * 72.0
+            tick = self._get_tick(True)
+            # There is a heuristic here that the aspect ratio of tick text
+            # is no more than 2:1
+            size = tick.label1.get_size() * 3
+            size *= np.cos(np.deg2rad(tick.label1.get_rotation()))
+            self._tick_space = np.floor(length / size)
+        return self._tick_space
 
 
 class YAxis(Axis):
@@ -2318,3 +2337,13 @@ class YAxis(Axis):
             if not viewMutated:
                 self.axes.viewLim.intervaly = ymin, ymax
         self.stale = True
+
+    def get_tick_space(self):
+        # TODO: cache this computation
+        ends = self.axes.transAxes.transform([[0, 0], [0, 1]])
+        length = ((ends[1][1] - ends[0][1]) / self.axes.figure.dpi) * 72.0
+        tick = self._get_tick(True)
+        # Having a spacing of at least 2 just looks good.
+        size = tick.label1.get_size() * 2.0
+        size *= np.cos(np.deg2rad(tick.label1.get_rotation()))
+        return np.floor(length / size)
