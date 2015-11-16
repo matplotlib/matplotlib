@@ -1703,6 +1703,16 @@ class _AxesBase(martist.Artist):
         line._remove_method = lambda h: self.lines.remove(h)
         return line
 
+    def _add_text(self, txt):
+        """
+
+        """
+        self._set_artist_props(txt)
+        self.texts.append(txt)
+        txt._remove_method = lambda h: self.texts.remove(h)
+        self.stale = True
+        return txt
+
     def _update_line_limits(self, line):
         """
         Figures out the data limit of the given line, updating self.dataLim.
