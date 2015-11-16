@@ -16,8 +16,8 @@ import numpy as np
 
 import matplotlib as mpl
 import matplotlib.style
-import matplotlib.tests
 import matplotlib.units
+import matplotlib.testing
 from matplotlib import cbook
 from matplotlib import ticker
 from matplotlib import pyplot as plt
@@ -84,7 +84,7 @@ class CleanupTest(object):
     def setup_class(cls):
         cls.original_units_registry = matplotlib.units.registry.copy()
         cls.original_settings = mpl.rcParams.copy()
-        matplotlib.tests.setup()
+        matplotlib.testing.setup()
 
     @classmethod
     def teardown_class(cls):
@@ -371,7 +371,7 @@ def switch_backend(backend):
         def backend_switcher(*args, **kwargs):
             try:
                 prev_backend = mpl.get_backend()
-                matplotlib.tests.setup()
+                matplotlib.testing.setup()
                 plt.switch_backend(backend)
                 result = func(*args, **kwargs)
             finally:
