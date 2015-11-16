@@ -1191,8 +1191,12 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
             self.levels = lev
         if self.filled and len(self.levels) < 2:
             raise ValueError("Filled contours require at least 2 levels.")
+
         if len(self.levels) > 1 and np.amin(np.diff(self.levels)) <= 0.0:
-            raise ValueError("Contour levels must be increasing")
+            if hasattr(self, '_corner_mask') and self._corner_mask == 'legacy':
+                warnings.warn("Contour levels are not increasing")
+            else:
+                raise ValueError("Contour levels must be increasing")
 
     def _process_levels(self):
         """
@@ -1444,15 +1448,15 @@ class QuadContourSet(ContourSet):
             else:
                 contour_generator = args[0]._contour_generator
         else:
+            self._corner_mask = kwargs.get('corner_mask', None)
+            if self._corner_mask is None:
+                self._corner_mask = mpl.rcParams['contour.corner_mask']
+
             x, y, z = self._contour_args(args, kwargs)
 
             _mask = ma.getmask(z)
             if _mask is ma.nomask or not _mask.any():
                 _mask = None
-
-            self._corner_mask = kwargs.get('corner_mask', None)
-            if self._corner_mask is None:
-                self._corner_mask = mpl.rcParams['contour.corner_mask']
 
             if self._corner_mask == 'legacy':
                 cbook.warn_deprecated('1.5',
