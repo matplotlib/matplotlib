@@ -1191,6 +1191,8 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
             self.levels = lev
         if self.filled and len(self.levels) < 2:
             raise ValueError("Filled contours require at least 2 levels.")
+        if len(self.levels) > 1 and np.amin(np.diff(self.levels)) <= 0.0:
+            raise ValueError("Contour levels must be increasing")
 
     def _process_levels(self):
         """
@@ -1674,13 +1676,15 @@ class QuadContourSet(ContourSet):
           contour(Z,V)
           contour(X,Y,Z,V)
 
-        draw contour lines at the values specified in sequence *V*
+        draw contour lines at the values specified in sequence *V*,
+        which must be in increasing order.
 
         ::
 
           contourf(..., V)
 
-        fill the ``len(V)-1`` regions between the values in *V*
+        fill the ``len(V)-1`` regions between the values in *V*,
+        which must be in increasing order.
 
         ::
 
@@ -1743,8 +1747,8 @@ class QuadContourSet(ContourSet):
 
           *levels*: [level0, level1, ..., leveln]
             A list of floating point numbers indicating the level
-            curves to draw; e.g., to draw just the zero contour pass
-            ``levels=[0]``
+            curves to draw, in increasing order; e.g., to draw just
+            the zero contour pass ``levels=[0]``
 
           *origin*: [ *None* | 'upper' | 'lower' | 'image' ]
             If *None*, the first value of *Z* will correspond to the

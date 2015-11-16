@@ -9,6 +9,7 @@ import numpy as np
 from matplotlib import mlab
 from matplotlib.testing.decorators import cleanup, image_comparison
 from matplotlib import pyplot as plt
+from nose.tools import assert_raises
 
 import re
 
@@ -262,6 +263,14 @@ def test_corner_mask():
     for corner_mask in [False, True]:
         fig = plt.figure()
         plt.contourf(z, corner_mask=corner_mask)
+
+
+@cleanup
+def test_contourf_decreasing_levels():
+    # github issue 5477.
+    z = [[0.1, 0.3], [0.5, 0.7]]
+    plt.figure()
+    assert_raises(ValueError, plt.contourf, z, [1.0, 0.0])
 
 
 if __name__ == '__main__':
