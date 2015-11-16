@@ -940,7 +940,7 @@ defaultParams = {
 
     'image.aspect':        ['equal', validate_aspect],  # equal, auto, a number
     'image.interpolation': ['nearest', six.text_type],
-    'image.cmap':          ['jet', six.text_type],        # one of gray, jet, etc
+    'image.cmap':          ['viridis', six.text_type],        # one of gray, jet, etc
     'image.lut':           [256, validate_int],  # lookup table
     'image.origin':        ['upper', six.text_type],  # lookup table
     'image.resample':      [False, validate_bool],
