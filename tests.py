@@ -23,6 +23,8 @@ from matplotlib import default_test_modules
 def run(extra_args):
     from nose.plugins import multiprocess
 
+    env = matplotlib._get_nose_env()
+
     matplotlib._init_tests()
 
     # Nose doesn't automatically instantiate all of the plugins in the
@@ -33,8 +35,8 @@ def run(extra_args):
 
     nose.main(addplugins=[x() for x in plugins],
               defaultTest=default_test_modules,
-              argv=sys.argv + extra_args)
-
+              argv=sys.argv + extra_args,
+              env=env)
 
 if __name__ == '__main__':
     extra_args = []

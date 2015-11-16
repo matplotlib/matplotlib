@@ -73,3 +73,10 @@ result_images
 
 *.swp
 setup.cfg
+
+# Coverage generated files #
+############################
+
+.coverage
+.coverage.*
+cover/
