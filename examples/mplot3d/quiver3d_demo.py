@@ -14,6 +14,6 @@ v = -np.cos(np.pi * x) * np.sin(np.pi * y) * np.cos(np.pi * z)
 w = (np.sqrt(2.0 / 3.0) * np.cos(np.pi * x) * np.cos(np.pi * y) *
      np.sin(np.pi * z))
 
-ax.quiver(x, y, z, u, v, w, length=0.1)
+ax.quiver(x, y, z, u, v, w, length=0.1, normalize=True)
 
 plt.show()
