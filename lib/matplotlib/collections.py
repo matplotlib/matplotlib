@@ -88,6 +88,10 @@ class Collection(artist.Artist, cm.ScalarMappable):
     #: Each kind of collection defines this based on its arguments.
     _transforms = np.empty((0, 3, 3))
 
+    # Whether to draw an edge by default.  Set on a
+    # subclass-by-subclass basis.
+    _edge_default = False
+
     def __init__(self,
                  edgecolors=None,
                  facecolors=None,
@@ -476,7 +480,15 @@ class Collection(artist.Artist, cm.ScalarMappable):
         ACCEPTS: float or sequence of floats
         """
         if lw is None:
-            lw = mpl.rcParams['patch.linewidth']
+            if (self._edge_default or
+                mpl.rcParams['_internal.classic_mode'] or
+                not self._is_filled):
+                lw = mpl.rcParams['patch.linewidth']
+                if lw is None:
+                    lw = mpl.rcParams['lines.linewidth']
+            else:
+                lw = 0
+
         self._linewidths = self._get_value(lw)
         self.stale = True
 
@@ -1046,6 +1058,8 @@ class LineCollection(Collection):
     number of segments.
     """
 
+    _edge_default = True
+
     def __init__(self, segments,     # Can be None.
                  linewidths=None,
                  colors=None,
@@ -1216,6 +1230,8 @@ class EventCollection(LineCollection):
     an axis, such as time or length.  Events do not have an amplitude.  They
     are displayed as v
     '''
+
+    _edge_default = True
 
     def __init__(self,
                  positions,     # Can be None.

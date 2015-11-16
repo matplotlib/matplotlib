@@ -325,7 +325,7 @@ class _process_plot_var_args(object):
         seg = mpatches.Polygon(np.hstack((x[:, np.newaxis],
                                           y[:, np.newaxis])),
                                facecolor=facecolor,
-                               fill=True,
+                               fill=kwargs.get('fill', True),
                                closed=kw['closed'])
         self.set_patchprops(seg, **kwargs)
         return seg

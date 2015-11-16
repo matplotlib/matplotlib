@@ -813,7 +813,7 @@ defaultParams = {
     'lines.linestyle':       ['-', six.text_type],             # solid line
     'lines.color':           ['b', validate_color],  # blue
     'lines.marker':          ['None', six.text_type],     # black
-    'lines.markeredgewidth': [0.5, validate_float],
+    'lines.markeredgewidth': [1.0, validate_float],
     'lines.markersize':      [6, validate_float],    # markersize, in points
     'lines.antialiased':     [True, validate_bool],  # antialiased (no jaggies)
     'lines.dash_joinstyle':  ['round', validate_joinstyle],
@@ -825,7 +825,7 @@ defaultParams = {
     'markers.fillstyle': ['full', validate_fillstyle],
 
     ## patch props
-    'patch.linewidth':   [1.0, validate_float],  # line width in points
+    'patch.linewidth':   [None, validate_float_or_None],  # line width in points
     'patch.edgecolor':   ['k', validate_color],  # black
     'patch.facecolor':   ['b', validate_color],  # blue
     'patch.antialiased': [True, validate_bool],  # antialiased (no jaggies)
@@ -1035,7 +1035,7 @@ defaultParams = {
     'legend.markerscale': [1.0, validate_float],
     'legend.shadow': [False, validate_bool],
     'legend.facecolor': ['inherit', validate_color_or_inherit],
-    'legend.edgecolor': ['inherit', validate_color_or_inherit],
+    'legend.edgecolor': ['k', validate_color_or_inherit],
 
     # tick properties
     'xtick.top':         [True, validate_bool],   # draw ticks on the top side
