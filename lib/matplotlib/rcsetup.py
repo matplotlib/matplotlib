@@ -1070,8 +1070,8 @@ defaultParams = {
     'xtick.bottom':      [True, validate_bool],   # draw ticks on the bottom side
     'xtick.major.size':  [4, validate_float],    # major xtick size in points
     'xtick.minor.size':  [2, validate_float],    # minor xtick size in points
-    'xtick.major.width': [0.5, validate_float],  # major xtick width in points
-    'xtick.minor.width': [0.5, validate_float],  # minor xtick width in points
+    'xtick.major.width': [1.0, validate_float],  # major xtick width in points
+    'xtick.minor.width': [1.0, validate_float],  # minor xtick width in points
     'xtick.major.pad':   [4, validate_float],    # distance to label in points
     'xtick.minor.pad':   [4, validate_float],    # distance to label in points
     'xtick.color':       ['k', validate_color],  # color of the xtick labels
@@ -1079,14 +1079,14 @@ defaultParams = {
 
     # fontsize of the xtick labels
     'xtick.labelsize':   ['medium', validate_fontsize],
-    'xtick.direction':   ['in', six.text_type],            # direction of xticks
+    'xtick.direction':   ['out', six.text_type],            # direction of xticks
 
     'ytick.left':        [True, validate_bool],  # draw ticks on the left side
     'ytick.right':       [True, validate_bool],  # draw ticks on the right side
     'ytick.major.size':  [4, validate_float],     # major ytick size in points
     'ytick.minor.size':  [2, validate_float],     # minor ytick size in points
-    'ytick.major.width': [0.5, validate_float],   # major ytick width in points
-    'ytick.minor.width': [0.5, validate_float],   # minor ytick width in points
+    'ytick.major.width': [1.0, validate_float],   # major ytick width in points
+    'ytick.minor.width': [1.0, validate_float],   # minor ytick width in points
     'ytick.major.pad':   [4, validate_float],     # distance to label in points
     'ytick.minor.pad':   [4, validate_float],     # distance to label in points
     'ytick.color':       ['k', validate_color],   # color of the ytick labels
@@ -1094,7 +1094,7 @@ defaultParams = {
 
     # fontsize of the ytick labels
     'ytick.labelsize':   ['medium', validate_fontsize],
-    'ytick.direction':   ['in', six.text_type],            # direction of yticks
+    'ytick.direction':   ['out', six.text_type],            # direction of yticks
 
     'grid.color':        ['#b0b0b0', validate_color],  # grid color
     'grid.linestyle':    ['-', six.text_type],      # solid

@@ -347,31 +347,29 @@ backend      : $TEMPLATE_BACKEND
 
 ### TICKS
 # see http://matplotlib.org/api/axis_api.html#matplotlib.axis.Tick
-
 #xtick.top            : True   # draw ticks on the top side
 #xtick.bottom         : True   # draw ticks on the bottom side
 #xtick.major.size     : 4      # major tick size in points
 #xtick.minor.size     : 2      # minor tick size in points
-#xtick.major.width    : 0.5    # major tick width in points
-#xtick.minor.width    : 0.5    # minor tick width in points
+#xtick.major.width    : 1.0    # major tick width in points
+#xtick.minor.width    : 1.0    # minor tick width in points
 #xtick.major.pad      : 4      # distance to major tick label in points
 #xtick.minor.pad      : 4      # distance to the minor tick label in points
 #xtick.color          : k      # color of the tick labels
 #xtick.labelsize      : medium # fontsize of the tick labels
-#xtick.direction      : in     # direction: in, out, or inout
-
+#xtick.direction      : out    # direction: in, out, or inout
 
 #ytick.left           : True   # draw ticks on the left side
 #ytick.right          : True   # draw ticks on the right side
 #ytick.major.size     : 4      # major tick size in points
 #ytick.minor.size     : 2      # minor tick size in points
-#ytick.major.width    : 0.5    # major tick width in points
-#ytick.minor.width    : 0.5    # minor tick width in points
+#ytick.major.width    : 1.0    # major tick width in points
+#ytick.minor.width    : 1.0    # minor tick width in points
 #ytick.major.pad      : 4      # distance to major tick label in points
 #ytick.minor.pad      : 4      # distance to the minor tick label in points
 #ytick.color          : k      # color of the tick labels
 #ytick.labelsize      : medium # fontsize of the tick labels
-#ytick.direction      : in     # direction: in, out, or inout
+#ytick.direction      : out    # direction: in, out, or inout
 
 
 ### GRIDS
