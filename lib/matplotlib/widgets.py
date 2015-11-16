@@ -476,7 +476,7 @@ class CheckButtons(AxesWidget):
     """
     A GUI neutral radio button.
 
-    For the check buttons to remain responsive you much keep a
+    For the check buttons to remain responsive you must keep a
     reference to this object.
 
     The following attributes are exposed
