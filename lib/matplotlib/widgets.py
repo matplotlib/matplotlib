@@ -3,7 +3,7 @@ GUI Neutral widgets
 ===================
 
 Widgets that are designed to work for any of the GUI backends.
-All of these widgets require you to predefine an :class:`matplotlib.axes.Axes`
+All of these widgets require you to predefine a :class:`matplotlib.axes.Axes`
 instance and pass that as the first arg.  matplotlib doesn't try to
 be too smart with respect to layout -- you will have to figure out how
 wide and tall you want your Axes to be to accommodate your widget.
@@ -30,9 +30,9 @@ class LockDraw(object):
     desirable under all circumstances, like when the toolbar is in
     zoom-to-rect mode and drawing a rectangle.  The module level "lock"
     allows someone to grab the lock and prevent other widgets from
-    drawing.  Use ``matplotlib.widgets.lock(someobj)`` to pr
+    drawing.  Use ``matplotlib.widgets.lock(someobj)`` to prevent
+    other widgets from drawing while you're interacting with the canvas.
     """
-    # FIXME: This docstring ends abruptly without...
 
     def __init__(self):
         self._owner = None
