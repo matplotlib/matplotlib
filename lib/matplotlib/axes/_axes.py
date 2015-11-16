@@ -1986,7 +1986,7 @@ class Axes(_AxesBase):
         xerr = kwargs.pop('xerr', None)
         yerr = kwargs.pop('yerr', None)
         error_kw = kwargs.pop('error_kw', dict())
-        ecolor = kwargs.pop('ecolor', None)
+        ecolor = kwargs.pop('ecolor', 'k')
         capsize = kwargs.pop('capsize', rcParams["errorbar.capsize"])
         error_kw.setdefault('ecolor', ecolor)
         error_kw.setdefault('capsize', capsize)
@@ -3875,6 +3875,7 @@ class Axes(_AxesBase):
             marker_obj.get_transform())
         if not marker_obj.is_filled():
             edgecolors = 'face'
+            linewidths = rcParams['lines.linewidth']
 
         offsets = np.dstack((x, y))
 
@@ -4018,9 +4019,9 @@ class Axes(_AxesBase):
            the alpha value for the patches
 
         *linewidths*: [ *None* | scalar ]
-           If *None*, defaults to rc lines.linewidth. Note that this
-           is a tuple, and if you set the linewidths argument you
-           must set it as a sequence of floats, as required by
+           If *None*, defaults to 1.0. Note that this is a tuple, and
+           if you set the linewidths argument you must set it as a
+           sequence of floats, as required by
            :class:`~matplotlib.collections.RegularPolyCollection`.
 
         Other keyword arguments controlling the Collection properties:
@@ -4213,6 +4214,8 @@ class Axes(_AxesBase):
 
         if edgecolors == 'none':
             edgecolors = 'face'
+        if linewidths is None:
+            linewidths = [1.0]
 
         if xscale == 'log' or yscale == 'log':
             polygons = np.expand_dims(polygon, 0) + np.expand_dims(offsets, 1)
