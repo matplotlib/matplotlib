@@ -1017,7 +1017,9 @@ defaultParams = {
     'legend.facecolor': ['inherit', validate_color_or_inherit],
     'legend.edgecolor': ['inherit', validate_color_or_inherit],
 
-    ## tick properties
+    # tick properties
+    'xtick.top':         [True, validate_bool],   # draw ticks on the top side
+    'xtick.bottom':      [True, validate_bool],   # draw ticks on the bottom side
     'xtick.major.size':  [4, validate_float],    # major xtick size in points
     'xtick.minor.size':  [2, validate_float],    # minor xtick size in points
     'xtick.major.width': [0.5, validate_float],  # major xtick width in points
@@ -1031,6 +1033,8 @@ defaultParams = {
     'xtick.labelsize':   ['medium', validate_fontsize],
     'xtick.direction':   ['in', six.text_type],            # direction of xticks
 
+    'ytick.left':        [True, validate_bool],  # draw ticks on the left side
+    'ytick.right':       [True, validate_bool],  # draw ticks on the right side
     'ytick.major.size':  [4, validate_float],     # major ytick size in points
     'ytick.minor.size':  [2, validate_float],     # minor ytick size in points
     'ytick.major.width': [0.5, validate_float],   # major ytick width in points
