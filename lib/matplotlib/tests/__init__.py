@@ -21,7 +21,6 @@ if not os.path.exists(os.path.join(
         'test data.')
 
 
-
 def assert_str_equal(reference_str, test_str,
                      format_str=('String {str1} and {str2} do not '
                                  'match:\n{differences}')):
