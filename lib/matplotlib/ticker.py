@@ -1487,7 +1487,7 @@ class AutoSpacedLocator(MaxNLocator):
         self.set_params(**kwargs)
 
     def __call__(self):
-        self._nbins = self.axis.get_tick_space()
+        self._nbins = max(self.axis.get_tick_space(), 3)
         return super(AutoSpacedLocator, self).__call__()
 
 
