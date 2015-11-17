@@ -508,7 +508,8 @@ class _AxesBase(martist.Artist):
         if axisbg is None:
             axisbg = rcParams['axes.facecolor']
         else:
-            cbook.warn_deprecated('2.0', name='axisbg', alternative='facecolor')
+            cbook.warn_deprecated(
+                '2.0', name='axisbg', alternative='facecolor')
         self._axisbg = axisbg
         self._frameon = frameon
         self._axisbelow = rcParams['axes.axisbelow']
