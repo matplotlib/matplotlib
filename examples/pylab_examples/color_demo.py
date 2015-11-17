@@ -16,8 +16,8 @@ See help(colors) for more info.
 import matplotlib.pyplot as plt
 import numpy as np
 
-plt.subplot(111, axisbg='darkslategray')
-#subplot(111, axisbg='#ababab')
+plt.subplot(111, facecolor='darkslategray')
+#subplot(111, facecolor='#ababab')
 t = np.arange(0.0, 2.0, 0.01)
 s = np.sin(2*np.pi*t)
 plt.plot(t, s, 'y')
