@@ -998,8 +998,12 @@ defaultParams = {
     # This entry can be either a cycler object or a
     # string repr of a cycler-object, which gets eval()'ed
     # to create the object.
-    'axes.prop_cycle': [ccycler('color', 'bgrcmyk'),
-                        validate_cycler],
+    'axes.prop_cycle': [
+        ccycler('color',
+                ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728',
+                 '#9467bd', '#8c564b', '#e377c2', '#7f7f7f',
+                 '#bcbd22', '#17becf']),
+        validate_cycler],
     # If 'data', axes limits are set close to the data.
     # If 'round_numbers' axes limits are set to the nearest round numbers.
     'axes.autolimit_mode': [
