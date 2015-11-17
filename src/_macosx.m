@@ -6265,8 +6265,10 @@ static PyTypeObject TimerType = {
 static bool verify_framework(void)
 {
 #ifdef COMPILING_FOR_10_6
+    NSAutoreleasePool* pool = [[NSAutoreleasePool alloc] init];
     NSRunningApplication* app = [NSRunningApplication currentApplication];
     NSApplicationActivationPolicy activationPolicy = [app activationPolicy];
+    [pool release];
     switch (activationPolicy) {
         case NSApplicationActivationPolicyRegular:
         case NSApplicationActivationPolicyAccessory:
@@ -6381,6 +6383,7 @@ void init_macosx(void)
 
     PyOS_InputHook = wait_for_stdin;
 
+    NSAutoreleasePool* pool = [[NSAutoreleasePool alloc] init];
     WindowServerConnectionManager* connectionManager = [WindowServerConnectionManager sharedManager];
     NSWorkspace* workspace = [NSWorkspace sharedWorkspace];
     NSNotificationCenter* notificationCenter = [workspace notificationCenter];
@@ -6388,6 +6391,7 @@ void init_macosx(void)
                            selector: @selector(launch:)
                                name: NSWorkspaceDidLaunchApplicationNotification
                              object: nil];
+    [pool release];
 #if PY3K
     return module;
 #endif
