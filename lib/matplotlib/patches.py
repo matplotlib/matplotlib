@@ -1134,6 +1134,8 @@ class FancyArrow(Polygon):
     Like Arrow, but lets you set head width and head height independently.
     """
 
+    _edge_default = True
+
     def __str__(self):
         return "FancyArrow()"
 
@@ -2465,6 +2467,7 @@ class FancyBboxPatch(Patch):
 
         self._mutation_scale = mutation_scale
         self._mutation_aspect = mutation_aspect
+
         self.stale = True
 
     @docstring.dedent_interpd
@@ -3951,6 +3954,7 @@ class FancyArrowPatch(Patch):
     """
     A fancy arrow patch. It draws an arrow using the :class:ArrowStyle.
     """
+    _edge_default = True
 
     def __str__(self):
 
