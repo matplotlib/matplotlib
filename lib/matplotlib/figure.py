@@ -851,7 +851,7 @@ class Figure(Artist):
 
             rect = l,b,w,h
             fig.add_axes(rect)
-            fig.add_axes(rect, frameon=False, axisbg='g')
+            fig.add_axes(rect, frameon=False, facecolor='g')
             fig.add_axes(rect, polar=True)
             fig.add_axes(rect, projection='polar')
             fig.add_axes(ax)
@@ -932,7 +932,7 @@ class Figure(Artist):
             fig.add_subplot(1,1,1)
 
             # add subplot with red background
-            fig.add_subplot(212, axisbg='r')
+            fig.add_subplot(212, facecolor='r')
 
             # add a polar subplot
             fig.add_subplot(111, projection='polar')
