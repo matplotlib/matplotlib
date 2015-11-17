@@ -15,7 +15,7 @@ Changes in 2.0.0
 ================
 
 Color of Axes
-`````````````
+-------------
 
 The ``axisbg`` and ``axis_bgcolor`` properties on ``Axes`` have been
 deprecated in favor of ``facecolor``.
