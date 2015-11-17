@@ -5684,7 +5684,7 @@ class Axes(_AxesBase):
 
     @unpack_labeled_data(replace_names=["x", 'weights'], label_namer="x")
     @docstring.dedent_interpd
-    def hist(self, x, bins=10, range=None, normed=False, weights=None,
+    def hist(self, x, bins=None, range=None, normed=False, weights=None,
              cumulative=False, bottom=None, histtype='bar', align='mid',
              orientation='vertical', rwidth=None, log=False,
              color=None, label=None, stacked=False,
@@ -5710,14 +5710,16 @@ class Axes(_AxesBase):
             Input values, this takes either a single array or a sequency of
             arrays which are not required to be of the same length
 
-        bins : integer or array_like, optional
+        bins : integer or array_like or 'auto', optional
             If an integer is given, `bins + 1` bin edges are returned,
             consistently with :func:`numpy.histogram` for numpy version >=
             1.3.
 
             Unequally spaced bins are supported if `bins` is a sequence.
 
-            default is 10
+            If Numpy 1.11 is installed, may also be ``'auto'``.
+
+            Default is taken from the rcParam ``hist.bins``.
 
         range : tuple or None, optional
             The lower and upper range of the bins. Lower and upper outliers
@@ -5878,6 +5880,9 @@ class Axes(_AxesBase):
 
         if np.isscalar(x):
             x = [x]
+
+        if bins is None:
+            bins = rcParams['hist.bins']
 
         # xrange becomes range after 2to3
         bin_range = range
