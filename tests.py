@@ -40,7 +40,7 @@ def run(extra_args):
     #           env=env)
 
     argv = sys.argv + extra_args
-    pytest.main(['--pyargs'] + default_test_modules)
+    pytest.main(['--pyargs', '--cov=matplotlib'] + default_test_modules)
 
 if __name__ == '__main__':
     extra_args = []
