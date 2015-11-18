@@ -77,7 +77,6 @@ mpl_packages = [
     setupext.Png(),
     setupext.Qhull(),
     setupext.Image(),
-    setupext.TTConv(),
     setupext.Path(),
     setupext.ContourLegacy(),
     setupext.Contour(),

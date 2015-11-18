@@ -508,6 +508,11 @@ backend      : $TEMPLATE_BACKEND
 #savefig.transparent : False    # setting that controls whether figures are saved with a
                                 # transparent background by default
 
+
+# FONTS
+#font.subset : True   # Only write out the used characters in a font when True,
+                      # otherwise, write out the entire font.
+
 # tk backend params
 #tk.window_focus   : False    # Maintain shell focus for TkAgg
 
@@ -519,12 +524,10 @@ backend      : $TEMPLATE_BACKEND
                                           # xpdf intended for production of publication quality files,
                                           # but requires ghostscript, xpdf and ps2eps
 #ps.distiller.res  : 6000      # dpi
-#ps.fonttype       : 3         # Output Type 3 (Type3) or Type 42 (TrueType)
 
 # pdf backend params
 #pdf.compression   : 6 # integer from 0 to 9
                        # 0 disables compression (good for debugging)
-#pdf.fonttype       : 3         # Output Type 3 (Type3) or Type 42 (TrueType)
 
 # svg backend params
 #svg.image_inline : True       # write raster image data directly into the svg file

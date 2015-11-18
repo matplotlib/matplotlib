@@ -951,22 +951,6 @@ class Qhull(SetupPackage):
             ext.sources.extend(glob.glob('extern/qhull/*.c'))
 
 
-class TTConv(SetupPackage):
-    name = "ttconv"
-
-    def get_extension(self):
-        sources = [
-            'src/_ttconv.cpp',
-            'extern/ttconv/pprdrv_tt.cpp',
-            'extern/ttconv/pprdrv_tt2.cpp',
-            'extern/ttconv/ttutil.cpp'
-            ]
-        ext = make_extension('matplotlib.ttconv', sources)
-        Numpy().add_flags(ext)
-        ext.include_dirs.append('extern')
-        return ext
-
-
 class Path(SetupPackage):
     name = "path"
 

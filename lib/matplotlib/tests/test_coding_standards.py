@@ -165,7 +165,6 @@ def test_pep8_conformance_installed_files():
                      '_contour.py',
                      '_png.py',
                      '_path.py',
-                     'ttconv.py',
                      '_gtkagg.py',
                      '_backend_gdk.py',
                      'pyparsing*',

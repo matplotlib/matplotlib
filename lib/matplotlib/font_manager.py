@@ -1322,22 +1322,6 @@ class FontManager(object):
             _lookup_cache[fontext].set(prop, result)
         return result
 
-_is_opentype_cff_font_cache = {}
-def is_opentype_cff_font(filename):
-    """
-    Returns True if the given font is a Postscript Compact Font Format
-    Font embedded in an OpenType wrapper.  Used by the PostScript and
-    PDF backends that can not subset these fonts.
-    """
-    if os.path.splitext(filename)[1].lower() == '.otf':
-        result = _is_opentype_cff_font_cache.get(filename)
-        if result is None:
-            with open(filename, 'rb') as fd:
-                tag = fd.read(4)
-            result = (tag == 'OTTO')
-            _is_opentype_cff_font_cache[filename] = result
-        return result
-    return False
 
 fontManager = None
 _fmcache = None
