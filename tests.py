@@ -46,11 +46,12 @@ if __name__ == '__main__':
     extra_args = []
 
     if '--no-pep8' in sys.argv:
-        default_test_modules.remove('matplotlib.tests.test_coding_standards')
-        sys.argv.remove('--no-pep8')
+        # default_test_modules.remove('matplotlib.tests.test_coding_standards')
+        # sys.argv.remove('--no-pep8')
+        pass
     elif '--pep8' in sys.argv:
-        default_test_modules = ['matplotlib.tests.test_coding_standards']
-        sys.argv.remove('--pep8')
+        default_test_modules = ['--pep8 -m pep8']
+        # sys.argv.remove('--pep8')
     if '--no-network' in sys.argv:
         from matplotlib.testing import disable_internet
         disable_internet.turn_off_internet()
