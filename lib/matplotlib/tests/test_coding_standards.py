@@ -177,7 +177,6 @@ def test_pep8_conformance_installed_files():
                           'cbook.py',
                           'collections.py',
                           'font_manager.py',
-                          'fontconfig_pattern.py',
                           'gridspec.py',
                           'legend_handler.py',
                           'mathtext.py',

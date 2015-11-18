@@ -27,7 +27,7 @@ try:
 except ImportError:
     # python 2
     import collections as abc
-from matplotlib.fontconfig_pattern import parse_fontconfig_pattern
+import fcpy
 from matplotlib.colors import is_color_like
 
 # Don't let the original cycler collide with our validating cycler
@@ -389,7 +389,7 @@ validate_fontsizelist = _listify_validator(validate_fontsize)
 
 
 def validate_font_properties(s):
-    parse_fontconfig_pattern(s)
+    fcpy.Pattern(s)
     return s
 
 
@@ -921,6 +921,7 @@ defaultParams = {
     ## font props
     'font.family':     [['sans-serif'], validate_stringlist],  # used by text object
     'font.style':      ['normal', six.text_type],
+    # TODO: Deprecate me
     'font.variant':    ['normal', six.text_type],
     'font.stretch':    ['normal', six.text_type],
     'font.weight':     ['normal', six.text_type],
