@@ -5,6 +5,7 @@ from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
 from matplotlib import docstring
+from matplotlib.externals import six
 from matplotlib.offsetbox import AnchoredOffsetbox
 from matplotlib.patches import Patch, Rectangle
 from matplotlib.path import Path
@@ -157,8 +158,9 @@ class BboxPatch(Patch):
         bbox : `matplotlib.transforms.Bbox`
             Bbox to use for the extents of this patch.
 
-        The kwargs are Patch properties:
-        %(Patch)s
+        **kwargs
+            Patch properties. Valid arguments include:
+            %(Patch)s
         """
         if "transform" in kwargs:
             raise ValueError("transform should not be set")
@@ -302,8 +304,9 @@ class BboxConnector(Patch):
                 'lower left'   : 3,
                 'lower right'  : 4
 
-        The kwargs are Patch properties for the line drawn:
-        %(Patch)s
+        **kwargs
+            Patch properties for the line drawn. Valid arguments include:
+            %(Patch)s
         """
         if "transform" in kwargs:
             raise ValueError("transform should not be set")
@@ -355,8 +358,9 @@ class BboxConnectorPatch(BboxConnector):
                 'lower left'   : 3,
                 'lower right'  : 4
 
-        The kwargs are Patch properties for the line drawn:
-        %(Patch)s
+        **kwargs
+            Patch properties for the line drawn:
+            %(Patch)s
         """
         if "transform" in kwargs:
             raise ValueError("transform should not be set")
@@ -564,8 +568,9 @@ def mark_inset(parent_axes, inset_axes, loc1, loc2, **kwargs):
         Corners to use for connecting the inset axes and the area in the
         parent axes.
 
-    The kwargs are Patch properties for the lines and box drawn:
-    %(Patch)s
+    **kwargs
+        Patch properties for the lines and box drawn:
+        %(Patch)s
 
     Returns
     -------
