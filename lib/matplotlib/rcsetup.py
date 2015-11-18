@@ -813,6 +813,9 @@ defaultParams = {
     'patch.facecolor':   ['b', validate_color],  # blue
     'patch.antialiased': [True, validate_bool],  # antialiased (no jaggies)
 
+    ## Histogram properties
+    'hist.bins': [10, validate_any],
+
     ## Boxplot properties
     'boxplot.notch': [False, validate_bool],
     'boxplot.vertical': [True, validate_bool],
