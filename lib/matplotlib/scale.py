@@ -6,11 +6,13 @@ from matplotlib.externals import six
 import numpy as np
 from numpy import ma
 
+from matplotlib import rcParams
 from matplotlib.cbook import dedent
 from matplotlib.ticker import (NullFormatter, ScalarFormatter,
                                LogFormatterMathtext, LogitFormatter)
 from matplotlib.ticker import (NullLocator, LogLocator, AutoLocator,
-                               SymmetricalLogLocator, LogitLocator)
+                               SymmetricalLogLocator, LogitLocator,
+                               ClassicAutoLocator)
 from matplotlib.transforms import Transform, IdentityTransform
 from matplotlib import docstring
 
@@ -71,7 +73,11 @@ class LinearScale(ScaleBase):
         Set the locators and formatters to reasonable defaults for
         linear scaling.
         """
-        axis.set_major_locator(AutoLocator())
+        if rcParams['_internal.classic_mode']:
+            locator = ClassicAutoLocator()
+        else:
+            locator = AutoLocator()
+        axis.set_major_locator(locator)
         axis.set_major_formatter(ScalarFormatter())
         axis.set_minor_locator(NullLocator())
         axis.set_minor_formatter(NullFormatter())

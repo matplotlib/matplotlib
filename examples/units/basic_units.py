@@ -328,8 +328,12 @@ class BasicUnitConverter(units.ConversionInterface):
                 label=unit.fullname,
             )
         elif unit == degrees:
+            if rcParams['_internal.classic_mode']:
+                locator = ticker.ClassicAutoLocator()
+            else:
+                locator = ticker.AutoLocator()
             return units.AxisInfo(
-                majloc=ticker.AutoLocator(),
+                majloc=locator,
                 majfmt=ticker.FormatStrFormatter(r'$%i^\circ$'),
                 label=unit.fullname,
             )

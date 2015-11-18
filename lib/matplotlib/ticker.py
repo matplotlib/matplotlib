@@ -1946,6 +1946,12 @@ class AutoLocator(AutoSpacedLocator):
         AutoSpacedLocator.__init__(self, steps=[1, 2, 5, 10])
 
 
+class ClassicAutoLocator(MaxNLocator):
+    # Used only for classic style
+    def __init__(self):
+        MaxNLocator.__init__(self, nbins=9, steps=[1, 2, 5, 10])
+
+
 class AutoMinorLocator(Locator):
     """
     Dynamically find minor tick positions based on the positions of
