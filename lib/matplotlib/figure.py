@@ -1758,7 +1758,7 @@ def figaspect(arg):
     Thanks to Fernando Perez for this function
     """
 
-    isarray = hasattr(arg, 'shape')
+    isarray = hasattr(arg, 'shape') and not np.isscalar(arg)
 
     # min/max sizes to respect when autoscaling.  If John likes the idea, they
     # could become rc parameters, for now they're hardwired.
