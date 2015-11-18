@@ -29,6 +29,8 @@ patch.facecolor        : b
 patch.edgecolor        : k
 patch.antialiased      : True    # render patches in antialiased (no jaggies)
 
+hist.bins              : 10
+
 ### FONT
 #
 # font properties used by text.Text.  See
