@@ -376,6 +376,11 @@ backend      : %(backend)s
 ### ERRORBAR PLOTS
 #errorbar.capsize : 3             # length of end cap on error bars in pixels
 
+### HISTOGRAM PLOTS
+#hist.bins : 10                   # The default number of histogram bins.
+                                  # If Numpy 1.11 or later is
+                                  # installed, may also be `auto`
+
 ### Agg rendering
 ### Warning: experimental, 2008/10/10
 #agg.path.chunksize : 0           # 0 to disable; values in the range
