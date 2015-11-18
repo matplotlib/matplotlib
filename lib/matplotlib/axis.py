@@ -711,7 +711,10 @@ class Axis(artist.Artist):
 
     def cla(self):
         'clear the current axis'
-        self.set_major_locator(mticker.AutoLocator())
+        if rcParams['_internal.classic_mode']:
+            self.set_major_locator(mticker.ClassicAutoLocator())
+        else:
+            self.set_major_locator(mticker.AutoLocator())
         self.set_major_formatter(mticker.ScalarFormatter())
         self.set_minor_locator(mticker.NullLocator())
         self.set_minor_formatter(mticker.NullFormatter())
