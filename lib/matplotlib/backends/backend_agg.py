@@ -115,9 +115,9 @@ class RendererAgg(RendererBase):
 
     def _get_hinting_flag(self):
         if rcParams['text.hinting']:
-            return LOAD_FORCE_AUTOHINT
+            return ft.LOAD.FORCE_AUTOHINT
         else:
-            return LOAD_NO_HINTING
+            return ft.LOAD.NO_HINTING
 
     # for filtering to work with rasterization, methods needs to be wrapped.
     # maybe there is better way to do it.
@@ -194,11 +194,12 @@ class RendererAgg(RendererBase):
         flags = get_hinting_flag()
         font = self._get_agg_font(prop)
 
-        if font is None: return None
+        if font is None:
+            return None
 
         layout = ft.Layout(font, s)
-        bm = font_util.draw_layout_to_bitmap(layout, font)
-        d = layout.ink_bbox.y_min
+        bm = font_util.draw_layout_to_bitmap(layout, font, flags)
+        d = -layout.ink_bbox.y_min
         # The descent needs to be adjusted for the angle
         xo = layout.ink_bbox.x_min
         yo = 0
@@ -207,7 +208,7 @@ class RendererAgg(RendererBase):
 
         #print x, y, int(x), int(y), s
         self._renderer.draw_text_image(
-            bm, int(round(x - xd + xo)), int(round(y + yd + yo)) + 1, angle, gc)
+            bm, int(round(x - xd + xo)), int(round(y + yd + yo)), angle, gc)
 
     def get_text_width_height_descent(self, s, prop, ismath):
         """
@@ -235,9 +236,9 @@ class RendererAgg(RendererBase):
         flags = get_hinting_flag()
         font = self._get_agg_font(prop)
         layout = ft.Layout(font, s, load_flags=flags)  # the width and height of unrotated string
-        w = layout.ink_bbox.width
-        h = layout.ink_bbox.height
-        d = layout.ink_bbox.y_min
+        w = layout.layout_bbox.width
+        h = layout.ink_bbox.y_max - layout.ink_bbox.y_min
+        d = -layout.ink_bbox.y_min
         return w, h, d
 
     def draw_tex(self, gc, x, y, s, prop, angle, ismath='TeX!', mtext=None):

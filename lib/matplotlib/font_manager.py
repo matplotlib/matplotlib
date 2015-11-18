@@ -348,7 +348,17 @@ class FontProperties(object):
             family = [six.text_type(family)]
         elif (not is_string_like(family) and isinstance(family, Iterable)):
             family = [six.text_type(f) for f in family]
-        self._pattern.set('family', family)
+
+        families = []
+        for entry in family:
+            if entry in font_family_aliases:
+                if entry.startswith('sans'):
+                    entry = 'sans-serif'
+                families.extend(rcParams['font.' + entry])
+            else:
+                families.append(entry)
+
+        self._pattern.set('family', families)
     set_name = set_family
 
     def set_style(self, style):
