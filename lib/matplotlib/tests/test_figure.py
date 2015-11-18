@@ -8,6 +8,7 @@ from nose.tools import assert_equal, assert_true
 from matplotlib.testing.decorators import image_comparison, cleanup
 from matplotlib.axes import Axes
 import matplotlib.pyplot as plt
+import numpy as np
 
 
 @cleanup
@@ -189,6 +190,17 @@ def test_axes_remove():
         assert ax in fig.axes
     assert axes[-1, -1] not in fig.axes
     assert_equal(len(fig.axes), 3)
+
+
+def test_figaspect():
+    w, h = plt.figaspect(np.float64(2) / np.float64(1))
+    assert h / w == 2
+    w, h = plt.figaspect(2)
+    assert h / w == 2
+    w, h = plt.figaspect(np.zeros((1, 2)))
+    assert h / w == 0.5
+    w, h = plt.figaspect(np.zeros((2, 2)))
+    assert h / w == 1
 
 
 if __name__ == "__main__":
