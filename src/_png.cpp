@@ -328,10 +328,10 @@ static void _read_png_data(PyObject *py_file_obj, png_bytep data, png_size_t len
     Py_ssize_t bufflen;
     if (read_method) {
         result = PyObject_CallFunction(read_method, (char *)"i", length);
-    }
-    if (PyBytes_AsStringAndSize(result, &buffer, &bufflen) == 0) {
-        if (bufflen == (Py_ssize_t)length) {
-            memcpy(data, buffer, length);
+        if (PyBytes_AsStringAndSize(result, &buffer, &bufflen) == 0) {
+            if (bufflen == (Py_ssize_t)length) {
+                memcpy(data, buffer, length);
+            }
         }
     }
     Py_XDECREF(read_method);
