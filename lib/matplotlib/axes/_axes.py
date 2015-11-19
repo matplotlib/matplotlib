@@ -2806,15 +2806,32 @@ class Axes(_AxesBase):
 
         if fmt is None:
             fmt = 'none'
-            msg = ('Use of None object as fmt keyword argument to '
-                   + 'suppress plotting of data values is deprecated '
-                   + 'since 1.4; use the string "none" instead.')
+            msg = ('Use of None object as fmt keyword argument to ' +
+                   'suppress plotting of data values is deprecated ' +
+                   'since 1.4; use the string "none" instead.')
             warnings.warn(msg, mplDeprecation, stacklevel=1)
 
         plot_line = (fmt.lower() != 'none')
-
         label = kwargs.pop("label", None)
 
+        fmt_style_kwargs = {k: v for k, v in
+                            zip(('linestyle', 'marker', 'color'),
+                                _process_plot_format(fmt)) if v is not None}
+
+        if ('color' in kwargs or 'color' in fmt_style_kwargs or
+                ecolor is not None):
+            base_style = {}
+            if 'color' in kwargs:
+                base_style['color'] = kwargs.pop('color')
+        else:
+            base_style = six.next(self._get_lines.prop_cycler)
+
+        base_style['label'] = '_nolegend_'
+        base_style.update(fmt_style_kwargs)
+        if 'color' not in base_style:
+            base_style['color'] = 'b'
+        if ecolor is None:
+            ecolor = base_style['color']
         # make sure all the args are iterable; use lists not arrays to
         # preserve units
         if not iterable(x):
@@ -2836,12 +2853,18 @@ class Axes(_AxesBase):
         # Instead of using zorder, the line plot is being added
         # either here, or after all the errorbar plot elements.
         if barsabove and plot_line:
-            l0, = self.plot(x, y, fmt, label="_nolegend_", **kwargs)
+            # in python3.5+ this can be simplified
+            eb_style = dict(base_style)
+            eb_style.update(**kwargs)
+            l0 = mlines.Line2D(x, y, **eb_style)
+            self.add_line(l0)
 
         barcols = []
         caplines = []
 
-        lines_kw = {'label': '_nolegend_'}
+        lines_kw = dict(base_style)
+        lines_kw.pop('marker', None)
+        lines_kw.pop('linestyle', None)
         if elinewidth:
             lines_kw['linewidth'] = elinewidth
         else:
@@ -2853,25 +2876,16 @@ class Axes(_AxesBase):
                 lines_kw[key] = kwargs[key]
 
         # arrays fine here, they are booleans and hence not units
-        if not iterable(lolims):
-            lolims = np.asarray([lolims] * len(x), bool)
-        else:
-            lolims = np.asarray(lolims, bool)
+        def _bool_asarray_helper(d, expected):
+            if not iterable(d):
+                return np.asarray([d] * expected, bool)
+            else:
+                return np.asarray(d, bool)
 
-        if not iterable(uplims):
-            uplims = np.array([uplims] * len(x), bool)
-        else:
-            uplims = np.asarray(uplims, bool)
-
-        if not iterable(xlolims):
-            xlolims = np.array([xlolims] * len(x), bool)
-        else:
-            xlolims = np.asarray(xlolims, bool)
-
-        if not iterable(xuplims):
-            xuplims = np.array([xuplims] * len(x), bool)
-        else:
-            xuplims = np.asarray(xuplims, bool)
+        lolims = _bool_asarray_helper(lolims, len(x))
+        uplims = _bool_asarray_helper(uplims, len(x))
+        xlolims = _bool_asarray_helper(xlolims, len(x))
+        xuplims = _bool_asarray_helper(xuplims, len(x))
 
         everymask = np.arange(len(x)) % errorevery == 0
 
@@ -2886,7 +2900,11 @@ class Axes(_AxesBase):
             ys = [thisy for thisy, b in zip(ys, mask) if b]
             return xs, ys
 
-        plot_kw = {'label': '_nolegend_'}
+        plot_kw = dict(base_style)
+        # eject any marker information from format string
+        plot_kw.pop('marker', None)
+        plot_kw.pop('ls', None)
+        plot_kw['linestyle'] = 'none'
         if capsize is None:
             capsize = rcParams["errorbar.capsize"]
         if capsize > 0:
@@ -2904,6 +2922,7 @@ class Axes(_AxesBase):
                     'zorder', 'rasterized'):
             if key in kwargs:
                 plot_kw[key] = kwargs[key]
+        plot_kw['color'] = ecolor
 
         def extract_err(err, data):
             '''private function to compute error bars
@@ -2951,8 +2970,10 @@ class Axes(_AxesBase):
                 lo, ro = xywhere(left, right, noxlims & everymask)
                 barcols.append(self.hlines(yo, lo, ro, **lines_kw))
                 if capsize > 0:
-                    caplines.extend(self.plot(lo, yo, 'k|', **plot_kw))
-                    caplines.extend(self.plot(ro, yo, 'k|', **plot_kw))
+                    caplines.append(mlines.Line2D(lo, yo, marker='|',
+                                                  **plot_kw))
+                    caplines.append(mlines.Line2D(ro, yo, marker='|',
+                                                  **plot_kw))
 
             if xlolims.any():
                 yo, _ = xywhere(y, right, xlolims & everymask)
@@ -2963,12 +2984,13 @@ class Axes(_AxesBase):
                     marker = mlines.CARETLEFTBASE
                 else:
                     marker = mlines.CARETRIGHTBASE
-                caplines.extend(
-                    self.plot(rightup, yup, ls='None', marker=marker,
-                              **plot_kw))
+                caplines.append(
+                    mlines.Line2D(rightup, yup, ls='None', marker=marker,
+                                  **plot_kw))
                 if capsize > 0:
                     xlo, ylo = xywhere(x, y, xlolims & everymask)
-                    caplines.extend(self.plot(xlo, ylo, 'k|', **plot_kw))
+                    caplines.append(mlines.Line2D(xlo, ylo, marker='|',
+                                                  **plot_kw))
 
             if xuplims.any():
                 yo, _ = xywhere(y, right, xuplims & everymask)
@@ -2979,12 +3001,13 @@ class Axes(_AxesBase):
                     marker = mlines.CARETRIGHTBASE
                 else:
                     marker = mlines.CARETLEFTBASE
-                caplines.extend(
-                    self.plot(leftlo,  ylo, ls='None', marker=marker,
-                              **plot_kw))
+                caplines.append(
+                    mlines.Line2D(leftlo, ylo, ls='None', marker=marker,
+                                  **plot_kw))
                 if capsize > 0:
                     xup, yup = xywhere(x, y, xuplims & everymask)
-                    caplines.extend(self.plot(xup, yup, 'k|', **plot_kw))
+                    caplines.append(mlines.Line2D(xup, yup, marker='|',
+                                                  **plot_kw))
 
         if yerr is not None:
             lower, upper = extract_err(yerr, y)
@@ -2996,8 +3019,10 @@ class Axes(_AxesBase):
                 lo, uo = xywhere(lower, upper, noylims & everymask)
                 barcols.append(self.vlines(xo, lo, uo, **lines_kw))
                 if capsize > 0:
-                    caplines.extend(self.plot(xo, lo, 'k_', **plot_kw))
-                    caplines.extend(self.plot(xo, uo, 'k_', **plot_kw))
+                    caplines.append(mlines.Line2D(xo, lo, marker='_',
+                                                  **plot_kw))
+                    caplines.append(mlines.Line2D(xo, uo, marker='_',
+                                                  **plot_kw))
 
             if lolims.any():
                 xo, _ = xywhere(x, lower, lolims & everymask)
@@ -3008,12 +3033,13 @@ class Axes(_AxesBase):
                     marker = mlines.CARETDOWNBASE
                 else:
                     marker = mlines.CARETUPBASE
-                caplines.extend(
-                    self.plot(xup, upperup, ls='None', marker=marker,
-                              **plot_kw))
+                caplines.append(
+                    mlines.Line2D(xup, upperup, ls='None', marker=marker,
+                                  **plot_kw))
                 if capsize > 0:
                     xlo, ylo = xywhere(x, y, lolims & everymask)
-                    caplines.extend(self.plot(xlo, ylo, 'k_', **plot_kw))
+                    caplines.append(mlines.Line2D(xlo, ylo, marker='_',
+                                                  **plot_kw))
 
             if uplims.any():
                 xo, _ = xywhere(x, lower, uplims & everymask)
@@ -3024,15 +3050,22 @@ class Axes(_AxesBase):
                     marker = mlines.CARETUPBASE
                 else:
                     marker = mlines.CARETDOWNBASE
-                caplines.extend(
-                    self.plot(xlo, lowerlo, ls='None', marker=marker,
-                              **plot_kw))
+                caplines.append(
+                    mlines.Line2D(xlo, lowerlo, ls='None', marker=marker,
+                                  **plot_kw))
                 if capsize > 0:
                     xup, yup = xywhere(x, y, uplims & everymask)
-                    caplines.extend(self.plot(xup, yup, 'k_', **plot_kw))
+                    caplines.append(mlines.Line2D(xup, yup, marker='_',
+                                                  **plot_kw))
+        for l in caplines:
+            self.add_line(l)
 
         if not barsabove and plot_line:
-            l0, = self.plot(x, y, fmt, label='_nolegend_', **kwargs)
+            # in python3.5+ this can be simplified
+            eb_style = dict(base_style)
+            eb_style.update(**kwargs)
+            l0 = mlines.Line2D(x, y, **eb_style)
+            self.add_line(l0)
 
         if ecolor is None:
             if l0 is None:
@@ -3041,8 +3074,6 @@ class Axes(_AxesBase):
                 ecolor = l0.get_color()
 
         for l in barcols:
-            l.set_color(ecolor)
-        for l in caplines:
             l.set_color(ecolor)
 
         self.autoscale_view()
