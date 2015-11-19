@@ -329,7 +329,7 @@ boxplot.flierprops.linestyle: none
 boxplot.flierprops.linewidth: 1.0
 boxplot.flierprops.marker: +
 boxplot.flierprops.markeredgecolor: k
-boxplot.flierprops.markerfacecolor: b
+boxplot.flierprops.markerfacecolor: auto
 boxplot.flierprops.markersize: 6.0
 boxplot.meanline: False
 boxplot.meanprops.color: r
