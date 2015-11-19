@@ -65,7 +65,6 @@ static ATSUTextLayout layout = NULL;
 
 /* Various NSApplicationDefined event subtypes */
 #define STOP_EVENT_LOOP 2
-#define WINDOW_CLOSING 3
 
 /* Path definitions */
 #define STOP      0
@@ -173,7 +172,7 @@ static int run(bool* done)
             [NSApp sendEvent: event];
         }
         CFRunLoopRun();
-    } while (!interrupted && !done);
+    } while (!interrupted && !(*done));
     [pool release];
     if (py_sigint_handler) PyOS_setsig(SIGINT, py_sigint_handler);
     if (sigint_socket) CFSocketInvalidate(sigint_socket);
@@ -5482,16 +5481,6 @@ static WindowServerConnectionManager *sharedWindowServerConnectionManager = nil;
 - (BOOL)windowShouldClose:(NSNotification*)notification
 {
     NSWindow* window = [self window];
-    NSEvent* event = [NSEvent otherEventWithType: NSApplicationDefined
-                                        location: NSZeroPoint
-                                   modifierFlags: 0
-                                       timestamp: 0.0
-                                    windowNumber: 0
-                                         context: nil
-                                         subtype: WINDOW_CLOSING
-                                           data1: 0
-                                           data2: 0];
-    [NSApp postEvent: event atStart: true];
     if ([window respondsToSelector: @selector(closeButtonPressed)])
     { BOOL closed = [((Window*) window) closeButtonPressed];
       /* If closed, the window has already been closed via the manager. */
@@ -6046,9 +6035,34 @@ static WindowServerConnectionManager *sharedWindowServerConnectionManager = nil;
 }
 @end
 
+static void
+_observer_callback(CFRunLoopObserverRef observer, CFRunLoopActivity activity, void *info)
+{
+    bool* done = info;
+    NSArray *windowsArray = [NSApp windows];
+    if([windowsArray count]==0) *done = true;
+}
+
 static PyObject*
 show(PyObject* self)
 {
+    int interrupted = 0;
+    bool done = false;
+    CFRunLoopRef runloop = CFRunLoopGetCurrent();
+    CFRunLoopObserverRef observer;
+    CFRunLoopObserverContext context;
+    context.version = 0;
+    context.info = &done;
+    context.retain = NULL;
+    context.release = NULL;
+    context.copyDescription = NULL;
+    observer = CFRunLoopObserverCreate(kCFAllocatorDefault,
+                                       kCFRunLoopBeforeWaiting,
+                                       true,
+                                       0,
+                                       _observer_callback,
+                                       &context);
+    CFRunLoopAddObserver(runloop, observer, kCFRunLoopDefaultMode);
     [NSApp activateIgnoringOtherApps: YES];
     NSAutoreleasePool* pool = [[NSAutoreleasePool alloc] init];
     NSArray *windowsArray = [NSApp windows];
@@ -6059,8 +6073,13 @@ show(PyObject* self)
     }
     [pool release];
     Py_BEGIN_ALLOW_THREADS
-    [NSApp run];
+    interrupted = run(&done);
     Py_END_ALLOW_THREADS
+    CFRunLoopRemoveObserver(runloop, observer, kCFRunLoopDefaultMode);
+    if (interrupted) {
+        PyErr_SetString(PyExc_KeyboardInterrupt, "");
+        return NULL;
+    }
     Py_INCREF(Py_None);
     return Py_None;
 }
