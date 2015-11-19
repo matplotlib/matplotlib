@@ -83,7 +83,10 @@ static ATSUTextLayout layout = NULL;
 static void
 _stdin_callback(CFReadStreamRef stream, CFStreamEventType eventType, void* info)
 {
-    CFRunLoopRef runloop = info;
+    /* eventType==kCFStreamEventHasBytesAvailable */
+    CFRunLoopRef runloop = CFRunLoopGetCurrent();
+    bool* done = info;
+    *done = true;
     CFRunLoopStop(runloop);
 }
 
@@ -117,6 +120,70 @@ static CGEventRef _eventtap_callback(CGEventTapProxy proxy, CGEventType type, CG
     return event;
 }
 
+static int run(bool* done)
+{
+    int error;
+    int channel[2];
+    int interrupted = 0;
+    CFRunLoopRef runloop = CFRunLoopGetCurrent();
+    CFSocketRef sigint_socket = NULL;
+    PyOS_sighandler_t py_sigint_handler = NULL;
+    error = socketpair(AF_UNIX, SOCK_STREAM, 0, channel);
+    if (error==0)
+    {
+        CFSocketContext context;
+        context.version = 0;
+        context.info = &interrupted;
+        context.retain = NULL;
+        context.release = NULL;
+        context.copyDescription = NULL;
+        fcntl(channel[0], F_SETFL, O_WRONLY | O_NONBLOCK);
+        sigint_socket = CFSocketCreateWithNative(
+            kCFAllocatorDefault,
+            channel[1],
+            kCFSocketReadCallBack,
+            _sigint_callback,
+            &context);
+        if (sigint_socket)
+        {
+            CFRunLoopSourceRef source;
+            source = CFSocketCreateRunLoopSource(kCFAllocatorDefault,
+                                                 sigint_socket,
+                                                 0);
+            CFRelease(sigint_socket);
+            if (source)
+            {
+                CFRunLoopAddSource(runloop, source, kCFRunLoopDefaultMode);
+                CFRelease(source);
+                sigint_fd = channel[0];
+                py_sigint_handler = PyOS_setsig(SIGINT, _sigint_handler);
+            }
+        }
+    }
+
+    NSEvent* event;
+    NSAutoreleasePool* pool = [[NSAutoreleasePool alloc] init];
+    do {
+        while (true) {
+            event = [NSApp nextEventMatchingMask: NSAnyEventMask
+                                       untilDate: [NSDate distantPast]
+                                          inMode: NSDefaultRunLoopMode
+                                         dequeue: YES];
+            if (!event) break;
+            [NSApp sendEvent: event];
+        }
+        CFRunLoopRun();
+    } while (!interrupted && !done);
+    [pool release];
+    if (py_sigint_handler) PyOS_setsig(SIGINT, py_sigint_handler);
+    if (sigint_socket) CFSocketInvalidate(sigint_socket);
+    if (error==0) {
+        close(channel[0]);
+        close(channel[1]);
+    }
+    return interrupted;
+}
+
 static int wait_for_stdin(void)
 {
     int interrupted = 0;
@@ -137,75 +204,18 @@ static int wait_for_stdin(void)
     /* This is possible because of how PyOS_InputHook is called from Python */
     {
 #endif
-        int error;
-        int channel[2];
-        CFSocketRef sigint_socket = NULL;
-        PyOS_sighandler_t py_sigint_handler = NULL;
+        bool done = false;
         CFStreamClientContext clientContext = {0, NULL, NULL, NULL, NULL};
-        clientContext.info = runloop;
+        clientContext.info = &done;
         CFReadStreamSetClient(stream,
                               kCFStreamEventHasBytesAvailable,
                               _stdin_callback,
                               &clientContext);
         CFReadStreamScheduleWithRunLoop(stream, runloop, kCFRunLoopDefaultMode);
-        error = socketpair(AF_UNIX, SOCK_STREAM, 0, channel);
-        if (error==0)
-        {
-            CFSocketContext context;
-            context.version = 0;
-            context.info = &interrupted;
-            context.retain = NULL;
-            context.release = NULL;
-            context.copyDescription = NULL;
-            fcntl(channel[0], F_SETFL, O_WRONLY | O_NONBLOCK);
-            sigint_socket = CFSocketCreateWithNative(
-                kCFAllocatorDefault,
-                channel[1],
-                kCFSocketReadCallBack,
-                _sigint_callback,
-                &context);
-            if (sigint_socket)
-            {
-                CFRunLoopSourceRef source;
-                source = CFSocketCreateRunLoopSource(kCFAllocatorDefault,
-                                                     sigint_socket,
-                                                     0);
-                CFRelease(sigint_socket);
-                if (source)
-                {
-                    CFRunLoopAddSource(runloop, source, kCFRunLoopDefaultMode);
-                    CFRelease(source);
-                    sigint_fd = channel[0];
-                    py_sigint_handler = PyOS_setsig(SIGINT, _sigint_handler);
-                }
-            }
-        }
-
-        NSEvent* event;
-        NSAutoreleasePool* pool = [[NSAutoreleasePool alloc] init];
-        while (true) {
-            while (true) {
-                event = [NSApp nextEventMatchingMask: NSAnyEventMask
-                                           untilDate: [NSDate distantPast]
-                                              inMode: NSDefaultRunLoopMode
-                                             dequeue: YES];
-                if (!event) break;
-                [NSApp sendEvent: event];
-            }
-            CFRunLoopRun();
-            if (interrupted || CFReadStreamHasBytesAvailable(stream)) break;
-        }
-        [pool release];
-
-        if (py_sigint_handler) PyOS_setsig(SIGINT, py_sigint_handler);
+        interrupted = run(&done);
         CFReadStreamUnscheduleFromRunLoop(stream,
                                           runloop,
                                           kCFRunLoopCommonModes);
-        if (sigint_socket) CFSocketInvalidate(sigint_socket);
-        if (error==0) {
-            close(channel[0]);
-            close(channel[1]);
-        }
 #ifdef PYOSINPUTHOOK_REPETITIVE
     }
 #endif
