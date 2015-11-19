@@ -77,7 +77,12 @@ The issue has been reported on the virtualenv bug tracker `here
 <https://github.com/pypa/virtualenv/issues/54>`__ and `here
 <https://github.com/pypa/virtualenv/issues/609>`__
 
-Until this is fixed, a workaround is needed. The best known workaround,
+Until this is fixed, one of the following workarounds.
+
+``PYTHONHOME`` Script
+---------------------
+
+The best known workaround,
 borrowed  from the `WX wiki
 <http://wiki.wxpython.org/wxPythonVirtualenvOnMac>`_, is to  use the non
 virtualenv python along with the PYTHONHOME environment variable.  This can be
@@ -107,6 +112,21 @@ framework build within the virtualenv. To run a script you can do
 ``frameworkpython test.py`` where ``test.py`` is a script that requires a
 framework build. To run an interactive ``IPython`` session with the framework
 build within the virtual environment you can do ``frameworkpython -m IPython``
+
+``PYTHONHOME`` Alias
+--------------------
+
+Alternatively you can define an alias in your ``.bashrc`` using
+
+.. code:: bash
+
+  alias frameworkpython='PYTHONHOME=$VIRTUAL_ENV /usr/local/bin/python'
+
+This alias can then be used in all of your virtualenvs without having to
+fix every single one of them.
+
+PythonW Compiler
+----------------
 
 In addition
 `virtualenv-pythonw-osx <https://github.com/gldnspud/virtualenv-pythonw-osx>`_
