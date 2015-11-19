@@ -361,7 +361,7 @@ def _image_directories(func):
             # multiprocess plugin or as a specific test this may be
             # missing. See https://github.com/matplotlib/matplotlib/issues/3314
         if mods[0] != 'tests':
-            raise ValueError(
+            raise AssertionError(
                 "Test does not live in a submodule named 'tests'. Please make "
                 "sure that there is a parent directory named 'tests' and that "
                 "it contains a __init__.py file (can be empty).")
