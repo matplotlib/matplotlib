@@ -921,7 +921,7 @@ class SubplotTool(Widget):
 
 class Cursor(AxesWidget):
     """
-    A horizontal and vertical line that spans the axes that and moves with
+    A horizontal and vertical line that spans the axes and moves with
     the pointer.  You can turn off the hline or vline respectively with
     the following attributes:
 
