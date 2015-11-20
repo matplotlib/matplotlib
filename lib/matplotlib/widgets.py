@@ -139,8 +139,7 @@ class Button(AxesWidget):
     """
     A GUI neutral button.
 
-    For the button to remain responsive
-    you must keep a reference to it.
+    For the button to remain responsive you must keep a reference to it.
 
     The following attributes are accessible
 
