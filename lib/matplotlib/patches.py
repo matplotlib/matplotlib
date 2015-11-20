@@ -142,10 +142,6 @@ class Patch(artist.Artist):
 
         Returns T/F, {}
         """
-        # This is a general version of contains that should work on any
-        # patch with a path.  However, patches that have a faster
-        # algebraic solution to hit-testing should override this
-        # method.
         if six.callable(self._contains):
             return self._contains(self, mouseevent)
         if radius is None:
