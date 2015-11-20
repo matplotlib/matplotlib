@@ -77,7 +77,7 @@ The issue has been reported on the virtualenv bug tracker `here
 <https://github.com/pypa/virtualenv/issues/54>`__ and `here
 <https://github.com/pypa/virtualenv/issues/609>`__
 
-Until this is fixed, one of the following workarounds.
+Until this is fixed, one of the following workarounds must be used:
 
 ``PYTHONHOME`` Script
 ---------------------
