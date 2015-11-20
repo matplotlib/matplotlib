@@ -331,6 +331,8 @@ static void _read_png_data(PyObject *py_file_obj, png_bytep data, png_size_t len
         if (PyBytes_AsStringAndSize(result, &buffer, &bufflen) == 0) {
             if (bufflen == (Py_ssize_t)length) {
                 memcpy(data, buffer, length);
+            } else {
+                PyErr_SetString(PyExc_IOError, "read past end of file");
             }
         }
     }
