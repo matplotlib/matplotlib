@@ -322,7 +322,7 @@ boxplot.capprops.color: k
 boxplot.capprops.linestyle: -
 boxplot.capprops.linewidth: 1.0
 boxplot.flierprops.color: b
-boxplot.flierprops.linestyle: -
+boxplot.flierprops.linestyle: none
 boxplot.flierprops.linewidth: 1.0
 boxplot.flierprops.marker: +
 boxplot.flierprops.markeredgecolor: k
