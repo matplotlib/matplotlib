@@ -1550,7 +1550,7 @@ def test(verbosity=1, coverage=False):
 
         # store the old values before overriding
         plugins = _get_extra_test_plugins()
-        plugins.extend([plugin() for plugin in nose.plugins.builtin.plugins])
+        plugins.extend([plugin for plugin in nose.plugins.builtin.plugins])
 
         manager = PluginManager(plugins=[x() for x in plugins])
         config = nose.config.Config(verbosity=verbosity, plugins=manager)
