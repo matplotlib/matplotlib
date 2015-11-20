@@ -2608,7 +2608,7 @@ class Axes3D(Axes):
         norm = np.sqrt(np.sum(UVW**2, axis=1))
 
         # If any row of UVW is all zeros, don't make a quiver for it
-        mask = norm > 1e-10
+        mask = norm > 0
         XYZ = XYZ[mask]
         if normalize:
             UVW = UVW[mask] / norm[mask].reshape((-1, 1))
