@@ -911,7 +911,7 @@ class Artist(PrivateMethodMixin, Configurable):
                 self.clippath = None
                 success = True
             elif isinstance(path, Patch):
-                self._clippath = TransformedPatchPath(path)
+                self.clippath = TransformedPatchPath(path)
                 success = True
             elif isinstance(path, tuple):
                 path, transform = path
@@ -923,7 +923,7 @@ class Artist(PrivateMethodMixin, Configurable):
             self.clippath = TransformedPath(path, transform)
             success = True
         elif isinstance(path, TransformedPatchPath):
-            self._clippath = path
+            self.clippath = path
             success = True
         elif isinstance(path, TransformedPath):
             self.clippath = path

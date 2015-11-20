@@ -109,6 +109,7 @@ class SimpleAxisArtist(Artist):
 
     @validate('visible')
     def _visible_validate(self, commit):
+        b = commit['value']
         self.toggle(all=b)
         self.line.visible = b
         self._axis.visible = True
