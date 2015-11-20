@@ -299,10 +299,7 @@ class RendererSVG(RendererBase):
         writer = self.writer
         default_style = generate_css({
             'stroke-linejoin': 'round',
-            'stroke-linecap': 'butt',
-            # Disable the miter limit.  100000 seems to be close to
-            # the maximum that renderers support before breaking.
-            'stroke-miterlimit': '100000'})
+            'stroke-linecap': 'butt'})
         writer.start('defs')
         writer.start('style', type='text/css')
         writer.data('*{%s}\n' % default_style)
