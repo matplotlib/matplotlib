@@ -525,6 +525,7 @@ class FigureCanvasAgg(FigureCanvasBase):
             close = True
         else:
             close = False
+
         try:
             _png.write_png(renderer._renderer, filename_or_obj, self.figure.dpi)
         finally:
