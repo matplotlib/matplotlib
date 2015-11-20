@@ -120,7 +120,7 @@ Alternatively you can define an alias in your ``.bashrc`` using
 
 .. code:: bash
 
-  alias frameworkpython='PYTHONHOME=$VIRTUAL_ENV /usr/local/bin/python'
+  alias frameworkpython='[[ ! -z "$VIRTUAL_ENV" ]] && PYTHONHOME=$VIRTUAL_ENV /usr/local/bin/python || /usr/local/bin/python'
 
 This alias can then be used in all of your virtualenvs without having to
 fix every single one of them.
