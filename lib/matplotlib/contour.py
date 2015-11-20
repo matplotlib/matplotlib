@@ -1233,9 +1233,9 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
         # normed range:
         finfo = np.finfo(float)
         if self.extend in ('both', 'min'):
-            self.layers[0] = finfo.min
+            self.layers[0] = self.vmin - finfo.eps
         if self.extend in ('both', 'max'):
-            self.layers[-1] = finfo.max
+            self.layers[-1] = self.vmax + finfo.eps
 
     def _process_colors(self):
         """
