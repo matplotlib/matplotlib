@@ -838,21 +838,21 @@ def axes(*args, **kwargs):
     - ``axes(h)`` where *h* is an axes instance makes *h* the current
       axis.  An :class:`~matplotlib.axes.Axes` instance is returned.
 
-    =======   ==============   ==============================================
-    kwarg     Accepts          Description
-    =======   ==============   ==============================================
-    facecolor color            the axes background color
-    frameon   [True|False]     display the frame?
-    sharex    otherax          current axes shares xaxis attribute
-                               with otherax
-    sharey    otherax          current axes shares yaxis attribute
-                               with otherax
-    polar     [True|False]     use a polar axes?
-    aspect    [str | num]      ['equal', 'auto'] or a number.  If a number
-                               the ratio of x-unit/y-unit in screen-space.
-                               Also see
-                               :meth:`~matplotlib.axes.Axes.set_aspect`.
-    =======   ==============   ==============================================
+    =========   ==============   ==============================================
+    kwarg       Accepts          Description
+    =========   ==============   ==============================================
+    facecolor   color            the axes background color
+    frameon     [True|False]     display the frame?
+    sharex      otherax          current axes shares xaxis attribute
+                                 with otherax
+    sharey      otherax          current axes shares yaxis attribute
+                                 with otherax
+    polar       [True|False]     use a polar axes?
+    aspect      [str | num]      ['equal', 'auto'] or a number.  If a number
+                                 the ratio of x-unit/y-unit in screen-space.
+                                 Also see
+                                 :meth:`~matplotlib.axes.Axes.set_aspect`.
+    =========   ==============   ==============================================
 
     Examples:
 
