@@ -113,16 +113,22 @@ framework build within the virtualenv. To run a script you can do
 framework build. To run an interactive ``IPython`` session with the framework
 build within the virtual environment you can do ``frameworkpython -m IPython``
 
-``PYTHONHOME`` Alias
---------------------
+``PYTHONHOME`` Function
+-----------------------
 
-Alternatively you can define an alias in your ``.bashrc`` using
+Alternatively you can define a function in your ``.bashrc`` using
 
 .. code:: bash
 
-  alias frameworkpython='[[ ! -z "$VIRTUAL_ENV" ]] && PYTHONHOME=$VIRTUAL_ENV /usr/local/bin/python || /usr/local/bin/python'
+  function frameworkpython {
+      if [[ ! -z "$VIRTUAL_ENV" ]]; then
+          PYTHONHOME=$VIRTUAL_ENV /usr/local/bin/python "$@"
+      else
+          /usr/local/bin/python "$@"
+      fi
+  }
 
-This alias can then be used in all of your virtualenvs without having to
+This function can then be used in all of your virtualenvs without having to
 fix every single one of them.
 
 PythonW Compiler
