@@ -2533,8 +2533,9 @@ class Axes3D(Axes):
             Rpos = np.array([[c+(x**2)*(1-c), x*y*(1-c), y*s],
                              [y*x*(1-c), c+(y**2)*(1-c), -x*s],
                              [-y*s, x*s, c]])
-            # opposite rotation negates everything but the diagonal
-            Rneg = Rpos * (np.eye(3)*2 - 1)
+            # opposite rotation negates all the sin terms
+            Rneg = Rpos.copy()
+            Rneg[[0,1,2,2],[2,2,0,1]] = -Rneg[[0,1,2,2],[2,2,0,1]]
 
             # multiply them to get the rotated vector
             return Rpos.dot(uvw), Rneg.dot(uvw)
