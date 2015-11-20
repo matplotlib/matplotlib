@@ -104,6 +104,7 @@ class MercatorLatitudeScale(mscale.ScaleBase):
         output_dims = 1
         is_separable = True
         has_inverse = True
+
         def __init__(self, thresh):
             mtransforms.Transform.__init__(self)
             self.thresh = thresh
