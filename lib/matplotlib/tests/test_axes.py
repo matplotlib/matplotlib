@@ -3925,6 +3925,48 @@ def test_margins():
 
 
 @cleanup
+def test_view_limits_with_margins():
+    '''Tests that autoscale_view correctly calculates the new view limits
+    with a nonzero margin, for various kinds of plots.
+
+    The test uses a linear plot, a logarithmic plot, a symlog plot,
+    and a polar plot as an example of a nonlinear coordinate transformation.'''
+
+    fig1, ax1 = plt.subplots(1, 1)
+    data = [0.1, 1]
+    ax1.plot(data, data)
+    ax1.margins(0.5)
+    np.testing.assert_array_almost_equal(ax1.get_xbound(), (-0.35, 1.45))
+    np.testing.assert_array_almost_equal(ax1.get_ybound(), (-0.35, 1.45))
+
+    fig2, ax2 = plt.subplots(1, 1)
+    data = [0.1, 1]
+    ax2.loglog(data, data)
+    ax2.margins(0.5)
+    np.testing.assert_array_almost_equal(ax2.get_xbound(), (0.1 / np.sqrt(10), np.sqrt(10)))
+    np.testing.assert_array_almost_equal(ax2.get_ybound(), (0.1 / np.sqrt(10), np.sqrt(10)))
+
+    fig3, ax3 = plt.subplots(1, 1)
+    DATAMAX = 10
+    data = np.linspace(-DATAMAX, DATAMAX, 101)
+    ax3.plot(data, data)
+    BASE = 10
+    ax3.set_xscale('symlog', linthreshx=1, linscalex=1, basex=BASE)
+    ax3.set_yscale('symlog', linthreshy=1, linscaley=1, basey=BASE)
+    MARGIN = 0.5
+    ax3.margins(MARGIN)
+    # To understand the following line, see the implementation of
+    # matplotlib.scale.SymmetricalLogTransform.transform_non_affine()
+    BOUND = DATAMAX * BASE ** (2 * (1 + BASE / (BASE - 1)) * MARGIN)
+    np.testing.assert_array_almost_equal(ax3.get_xbound(), (-BOUND, BOUND))
+    np.testing.assert_array_almost_equal(ax3.get_ybound(), (-BOUND, BOUND))
+
+    ax4 = plt.subplot(111, polar=True)
+    data = np.linspace(0, 2*np.pi, 51)
+    ax4.plot(data, data)
+    assert_raises(NotImplementedError, ax4.margins, 0.5)
+
+@cleanup
 def test_length_one_hist():
     fig, ax = plt.subplots()
     ax.hist(1)

@@ -3915,7 +3915,11 @@ class Axes(_AxesBase):
             self.set_ymargin(0.05)
 
         self.add_collection(collection)
-        self.autoscale_view()
+        try:
+            self.autoscale_view()
+        except NotImplementedError:
+            # This happens if the axes are not separable.
+            pass
 
         return collection
 
