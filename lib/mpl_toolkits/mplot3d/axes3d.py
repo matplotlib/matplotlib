@@ -11,6 +11,7 @@ Module containing Axes3D, an object which can plot 3D objects on a
 """
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
+from contextlib import contextmanager
 import math
 
 from matplotlib.externals import six
@@ -342,7 +343,7 @@ class Axes3D(Axes):
         .. versionadded :: 1.1.0
             This function was added, but not tested. Please report any bugs.
         """
-        self._autoscalez_on = b
+        self._autoscaleZon = b
 
     def set_zmargin(self, m) :
         """
@@ -438,25 +439,29 @@ class Axes3D(Axes):
         .. versionadded :: 1.1.0
             This function was added, but not tested. Please report any bugs.
         """
-        if enable is None:
-            scalex = True
-            scaley = True
-            scalez = True
-        else:
-            scalex = False
-            scaley = False
-            scalez = False
+        orig_autoscale = (
+            self._autoscaleXon, self._autoscaleYon, self._autoscaleZon)
+        if enable is not None:
             if axis in ['x', 'both']:
                 self._autoscaleXon = bool(enable)
-                scalex = self._autoscaleXon
             if axis in ['y', 'both']:
                 self._autoscaleYon = bool(enable)
-                scaley = self._autoscaleYon
             if axis in ['z', 'both']:
                 self._autoscaleZon = bool(enable)
-                scalez = self._autoscaleZon
-        self.autoscale_view(tight=tight, scalex=scalex, scaley=scaley,
-                                         scalez=scalez)
+        self.autoscale_view(tight=tight,
+                            scalex=self._autoscaleXon,
+                            scaley=self._autoscaleYon,
+                            scalez=self._autoscaleZon)
+
+        @contextmanager
+        def restore_autoscaling():
+            try:
+                yield
+            finally:
+                self._autoscaleXon, self._autoscaleYon, self._autoscaleZon = (
+                    orig_autoscale)
+
+        return restore_autoscaling()
 
     def auto_scale_xyz(self, X, Y, Z=None, had_data=None):
         x, y, z = list(map(np.asarray, (X, Y, Z)))
