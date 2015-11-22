@@ -6026,6 +6026,7 @@ show(PyObject* self)
     NSWindow *window;
     while ((window = [enumerator nextObject])) {
         [window orderFront:nil];
+        [[window contentView] setNeedsDisplay: YES];
     }
     [pool release];
     Py_BEGIN_ALLOW_THREADS
