@@ -63,9 +63,6 @@ static ATSUTextLayout layout = NULL;
 #endif
 
 
-/* Various NSApplicationDefined event subtypes */
-#define STOP_EVENT_LOOP 2
-
 /* Path definitions */
 #define STOP      0
 #define MOVETO    1
@@ -3758,74 +3755,50 @@ FigureCanvas_write_bitmap(FigureCanvas* self, PyObject* args)
     return Py_None;
 }
 
+static void
+_timer_callback(CFRunLoopTimerRef timer, void *info)
+{
+    CFRunLoopRef runloop = CFRunLoopGetCurrent();
+    bool* done = info;
+    *done = true;
+    CFRunLoopStop(runloop);
+}
+
 static PyObject*
 FigureCanvas_start_event_loop(FigureCanvas* self, PyObject* args, PyObject* keywords)
 {
     float timeout = 0.0;
-
+    bool done = false;
+    int interrupted = 0;
+    CFRunLoopTimerRef timer;
+    CFAbsoluteTime time;
+    CFRunLoopTimerContext context;
+    CFRunLoopRef runloop = CFRunLoopGetCurrent();
     static char* kwlist[] = {"timeout", NULL};
     if(!PyArg_ParseTupleAndKeywords(args, keywords, "f", kwlist, &timeout))
         return NULL;
 
-    int error;
-    int interrupted = 0;
-    int channel[2];
-    CFSocketRef sigint_socket = NULL;
-    PyOS_sighandler_t py_sigint_handler = NULL;
-
-    CFRunLoopRef runloop = CFRunLoopGetCurrent();
-
-    error = pipe(channel);
-    if (error==0)
-    {
-        CFSocketContext context = {0, NULL, NULL, NULL, NULL};
-        fcntl(channel[1], F_SETFL, O_WRONLY | O_NONBLOCK);
-
-        context.info = &interrupted;
-        sigint_socket = CFSocketCreateWithNative(kCFAllocatorDefault,
-                                                 channel[0],
-                                                 kCFSocketReadCallBack,
-                                                 _sigint_callback,
-                                                 &context);
-        if (sigint_socket)
-        {
-            CFRunLoopSourceRef source;
-            source = CFSocketCreateRunLoopSource(kCFAllocatorDefault,
-                                                 sigint_socket,
-                                                 0);
-            CFRelease(sigint_socket);
-            if (source)
-            {
-                CFRunLoopAddSource(runloop, source, kCFRunLoopDefaultMode);
-                CFRelease(source);
-                sigint_fd = channel[1];
-                py_sigint_handler = PyOS_setsig(SIGINT, _sigint_handler);
-            }
-        }
-        else
-            close(channel[0]);
+    time = CFAbsoluteTimeGetCurrent() + timeout;
+    context.version = 0;
+    context.info = &done;
+    context.retain = NULL;
+    context.release = NULL;
+    context.copyDescription = NULL;
+    timer = CFRunLoopTimerCreate(kCFAllocatorDefault,
+                                 time,
+                                 0,
+                                 0,
+                                 0,
+                                 _timer_callback,
+                                 &context);
+    CFRunLoopAddTimer(runloop, timer, kCFRunLoopDefaultMode);
+    CFRelease(timer);
+    interrupted = run(&done);
+    CFRunLoopRemoveTimer(runloop, timer, kCFRunLoopDefaultMode);
+    if (interrupted) {
+        PyErr_SetString(PyExc_KeyboardInterrupt, "");
+        return NULL;
     }
-
-    NSAutoreleasePool* pool = [[NSAutoreleasePool alloc] init];
-    NSDate* date =
-        (timeout > 0.0) ? [NSDate dateWithTimeIntervalSinceNow: timeout]
-                        : [NSDate distantFuture];
-    while (true)
-    {   NSEvent* event = [NSApp nextEventMatchingMask: NSAnyEventMask
-                                            untilDate: date
-                                               inMode: NSDefaultRunLoopMode
-                                              dequeue: YES];
-       if (!event || [event type]==NSApplicationDefined) break;
-       [NSApp sendEvent: event];
-    }
-    [pool release];
-
-    if (py_sigint_handler) PyOS_setsig(SIGINT, py_sigint_handler);
-
-    if (sigint_socket) CFSocketInvalidate(sigint_socket);
-    if (error==0) close(channel[1]);
-    if (interrupted) raise(SIGINT);
-
     Py_INCREF(Py_None);
     return Py_None;
 }
@@ -3833,16 +3806,8 @@ FigureCanvas_start_event_loop(FigureCanvas* self, PyObject* args, PyObject* keyw
 static PyObject*
 FigureCanvas_stop_event_loop(FigureCanvas* self)
 {
-    NSEvent* event = [NSEvent otherEventWithType: NSApplicationDefined
-                                        location: NSZeroPoint
-                                   modifierFlags: 0
-                                       timestamp: 0.0
-                                    windowNumber: 0
-                                         context: nil
-                                         subtype: STOP_EVENT_LOOP
-                                           data1: 0
-                                           data2: 0];
-    [NSApp postEvent: event atStart: true];
+    CFRunLoopRef runloop = CFRunLoopGetCurrent();
+    CFRunLoopStop(runloop);
     Py_INCREF(Py_None);
     return Py_None;
 }
@@ -5301,16 +5266,6 @@ static WindowServerConnectionManager *sharedWindowServerConnectionManager = nil;
     return YES;
 }
 
-- (void)close
-{
-    [super close];
-    NSArray *windowsArray = [NSApp windows];
-    if([windowsArray count]==0) [NSApp stop: self];
-    /* This is needed for show(), which should exit from [NSApp run]
-     * after all windows are closed.
-     */
-}
-
 - (void)dealloc
 {
     PyGILState_STATE gstate;
@@ -5481,11 +5436,9 @@ static WindowServerConnectionManager *sharedWindowServerConnectionManager = nil;
 - (BOOL)windowShouldClose:(NSNotification*)notification
 {
     NSWindow* window = [self window];
-    if ([window respondsToSelector: @selector(closeButtonPressed)])
-    { BOOL closed = [((Window*) window) closeButtonPressed];
+    BOOL closed = [((Window*) window) closeButtonPressed];
       /* If closed, the window has already been closed via the manager. */
-      if (closed) return NO;
-    }
+    if (closed) return NO;
     return YES;
 }
 
@@ -6048,6 +6001,9 @@ show(PyObject* self)
 {
     int interrupted = 0;
     bool done = false;
+    NSAutoreleasePool* pool;
+    NSArray *windowsArray;
+    NSEnumerator *enumerator;
     CFRunLoopRef runloop = CFRunLoopGetCurrent();
     CFRunLoopObserverRef observer;
     CFRunLoopObserverContext context;
@@ -6064,9 +6020,9 @@ show(PyObject* self)
                                        &context);
     CFRunLoopAddObserver(runloop, observer, kCFRunLoopDefaultMode);
     [NSApp activateIgnoringOtherApps: YES];
-    NSAutoreleasePool* pool = [[NSAutoreleasePool alloc] init];
-    NSArray *windowsArray = [NSApp windows];
-    NSEnumerator *enumerator = [windowsArray objectEnumerator];
+    pool = [[NSAutoreleasePool alloc] init];
+    windowsArray = [NSApp windows];
+    enumerator = [windowsArray objectEnumerator];
     NSWindow *window;
     while ((window = [enumerator nextObject])) {
         [window orderFront:nil];
@@ -6077,6 +6033,13 @@ show(PyObject* self)
     Py_END_ALLOW_THREADS
     CFRunLoopRemoveObserver(runloop, observer, kCFRunLoopDefaultMode);
     if (interrupted) {
+        pool = [[NSAutoreleasePool alloc] init];
+        windowsArray = [NSApp windows];
+        enumerator = [windowsArray objectEnumerator];
+        while ((window = [enumerator nextObject])) {
+            [window orderOut:nil];
+        }
+        [pool release];
         PyErr_SetString(PyExc_KeyboardInterrupt, "");
         return NULL;
     }
