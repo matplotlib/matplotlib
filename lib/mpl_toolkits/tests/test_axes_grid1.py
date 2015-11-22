@@ -73,11 +73,11 @@ def test_twin_axes_empty_and_removed():
         h = host_subplot(len(modifiers)+1, len(generators), i)
         t = getattr(h, gen)()
         if "twin invisible" in mod:
-            t.axis[:].set_visible(False)
+            t.axis[:].visible = False
         if "twin removed" in mod:
             t.remove()
         if "host invisible" in mod:
-            h.axis[:].set_visible(False)
+            h.axis[:].visible = False
         h.text(0.5, 0.5, gen + ("\n" + mod if mod else ""),
             horizontalalignment="center", verticalalignment="center")
     plt.subplots_adjust(wspace=0.5, hspace=1)

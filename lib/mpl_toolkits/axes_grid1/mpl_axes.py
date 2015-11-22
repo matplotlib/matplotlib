@@ -12,11 +12,17 @@ from matplotlib.traitlets import validate
 
 class SimpleChainedObjects(object):
     def __init__(self, objects):
-        self._objects = objects
+        s = super(SimpleChainedObjects, self)
+        s.__setattr__('_objects', objects)
 
     def __getattr__(self, k):
         _a = SimpleChainedObjects([getattr(a, k) for a in self._objects])
         return _a
+
+    def __setattr__(self, k, v):
+        s = super(SimpleChainedObjects, self)
+        for a in s.__getattribute__('_objects'):
+            setattr(a, k, v)
 
     def __call__(self, *kl, **kwargs):
         for m in self._objects:
