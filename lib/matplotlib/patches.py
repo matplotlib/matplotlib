@@ -142,14 +142,13 @@ class Patch(artist.Artist):
 
         Returns T/F, {}
         """
-        # This is a general version of contains that should work on any
-        # patch with a path.  However, patches that have a faster
-        # algebraic solution to hit-testing should override this
-        # method.
         if six.callable(self._contains):
             return self._contains(self, mouseevent)
         if radius is None:
-            radius = self.get_linewidth()
+            if cbook.is_numlike(self._picker):
+                radius = self._picker
+            else:
+                radius = self.get_linewidth()
         inside = self.get_path().contains_point(
             (mouseevent.x, mouseevent.y), self.get_transform(), radius)
         return inside, {}
@@ -160,7 +159,10 @@ class Patch(artist.Artist):
         (transformed with its transform attribute).
         """
         if radius is None:
-            radius = self.get_linewidth()
+            if cbook.is_numlike(self._picker):
+                radius = self._picker
+            else:
+                radius = self.get_linewidth()
         return self.get_path().contains_point(point,
                                               self.get_transform(),
                                               radius)
@@ -669,15 +671,6 @@ class Rectangle(Patch):
     def get_patch_transform(self):
         self._update_patch_transform()
         return self._rect_transform
-
-    def contains(self, mouseevent):
-        # special case the degenerate rectangle
-        if self._width == 0 or self._height == 0:
-            return False, {}
-
-        x, y = self.get_transform().inverted().transform_point(
-            (mouseevent.x, mouseevent.y))
-        return (x >= 0.0 and x <= 1.0 and y >= 0.0 and y <= 1.0), {}
 
     def get_x(self):
         "Return the left coord of the rectangle"
@@ -1415,12 +1408,6 @@ class Ellipse(Patch):
     def get_patch_transform(self):
         self._recompute_transform()
         return self._patch_transform
-
-    def contains(self, ev):
-        if ev.x is None or ev.y is None:
-            return False, {}
-        x, y = self.get_transform().inverted().transform_point((ev.x, ev.y))
-        return (x * x + y * y) <= 1.0, {}
 
 
 class Circle(Ellipse):
