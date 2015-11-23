@@ -85,7 +85,6 @@ class Artist(PrivateMethodMixin, Configurable):
     Abstract base class for someone who renders into a
     :class:`FigureCanvas`.
     """
-
     aname = 'Artist'
     zorder = 0
 
@@ -1088,7 +1087,8 @@ class Artist(PrivateMethodMixin, Configurable):
             else:
                 #!DEPRICATED set_name access should eventually be removed
                 klass = self.__class__
-                if isinstance(getattr(klass, k, None), BaseDescriptor):
+                trait = getattr(klass, k, None)
+                if isinstance(trait, BaseDescriptor):
                     setattr(self, k, v)
                 else:
                     func = getattr(self, 'set_' + k, None)
@@ -1096,7 +1096,7 @@ class Artist(PrivateMethodMixin, Configurable):
                         func(v)
                     else:
                         raise AttributeError('Unknown property %s' % k)
-            changed = True
+                    changed = True
         self.eventson = store
         if changed:
             self.pchanged()
@@ -1696,7 +1696,7 @@ def setp(obj, *args, **kwargs):
     for o in objs:
         for s, val in funcvals:
             s = s.lower()
-                
+
             klass = o.__class__
             if isinstance(getattr(klass, s, None), BaseDescriptor):
                 ret.extend([setattr(o, s, val)])
