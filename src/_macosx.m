@@ -351,6 +351,9 @@ static void _draw_hatch(void *info, CGContextRef cr)
                                         rect,
                                         SNAP_FALSE,
                                         1.0,
+                                        0,
+                                        0,
+                                        0,
                                         0);
     Py_DECREF(transform);
     if (!iterator)
@@ -743,6 +746,9 @@ GraphicsContext_set_clip_path (GraphicsContext* self, PyObject* args)
                                         rect,
                                         SNAP_AUTO,
                                         1.0,
+                                        0,
+                                        0,
+                                        0,
                                         0);
     Py_DECREF(transform);
     if (!iterator)
@@ -971,8 +977,11 @@ GraphicsContext_draw_path (GraphicsContext* self, PyObject* args)
 {
     PyObject* path;
     PyObject* transform;
-    PyObject* rgbFace;
+    PyObject* rgbFace = NULL;
     float linewidth;
+    double sketch_scale = 0;
+    double sketch_length = 0;
+    double sketch_randomness = 0;
 
     int n;
 
@@ -987,11 +996,14 @@ GraphicsContext_draw_path (GraphicsContext* self, PyObject* args)
         return NULL;
     }
 
-    if(!PyArg_ParseTuple(args, "OOf|O",
+    if(!PyArg_ParseTuple(args, "OOf|Oddd",
                                &path,
                                &transform,
                                &linewidth,
-                               &rgbFace)) return NULL;
+                               &rgbFace,
+                               &sketch_scale,
+                               &sketch_length,
+                               &sketch_randomness)) return NULL;
 
     if(rgbFace==Py_None) rgbFace = NULL;
 
@@ -1002,7 +1014,10 @@ GraphicsContext_draw_path (GraphicsContext* self, PyObject* args)
                                   rect,
                                   SNAP_AUTO,
                                   linewidth,
-                                  rgbFace == NULL);
+                                  rgbFace == NULL,
+                                  sketch_scale,
+                                  sketch_length,
+                                  sketch_randomness);
     if (!iterator)
     {
         PyErr_SetString(PyExc_RuntimeError,
@@ -1094,6 +1109,9 @@ GraphicsContext_draw_path (GraphicsContext* self, PyObject* args)
                                       rect,
                                       SNAP_AUTO,
                                       linewidth,
+                                      0,
+                                      0,
+                                      0,
                                       0);
         if (!iterator)
         {
@@ -1175,6 +1193,9 @@ GraphicsContext_draw_markers (GraphicsContext* self, PyObject* args)
                                  rect,
                                  mode,
                                  linewidth,
+                                 0,
+                                 0,
+                                 0,
                                  0);
     if (!iterator)
     {
@@ -1197,6 +1218,9 @@ GraphicsContext_draw_markers (GraphicsContext* self, PyObject* args)
                                  rect,
                                  SNAP_TRUE,
                                  1.0,
+                                 0,
+                                 0,
+                                 0,
                                  0);
     if (!iterator)
     {
@@ -1504,6 +1528,9 @@ GraphicsContext_draw_path_collection (GraphicsContext* self, PyObject* args)
                                         practice, so this hardcoding
                                         is probably ok for now.  --
                                         MGD */
+                                     0,
+                                     0,
+                                     0,
                                      0);
         if (!iterator)
         {

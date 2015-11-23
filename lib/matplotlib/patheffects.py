@@ -192,9 +192,7 @@ class Stroke(AbstractPathEffect):
         """
         # Do not modify the input! Use copy instead.
 
-        gc0 = renderer.new_gc()
-        gc0.copy_properties(gc)
-
+        gc0 = renderer.new_gc_copy(gc)
         gc0 = self._update_gc(gc0, self._gc)
         trans = self._offset_transform(renderer, affine)
         renderer.draw_path(gc0, tpath, trans, rgbFace)
@@ -264,8 +262,8 @@ class SimplePatchShadow(AbstractPathEffect):
         """
         # IMPORTANT: Do not modify the input - we copy everything instead.
         affine0 = self._offset_transform(renderer, affine)
-        gc0 = renderer.new_gc()
-        gc0.copy_properties(gc)
+        orig_sketch = gc.get_sketch_params()
+        gc0 = renderer.new_gc_copy(gc)
 
         if self._shadow_rgbFace is None:
             r,g,b = (rgbFace or (1., 1., 1.))[:3]
@@ -341,8 +339,7 @@ class SimpleLineShadow(AbstractPathEffect):
         """
         # IMPORTANT: Do not modify the input - we copy everything instead.
         affine0 = self._offset_transform(renderer, affine)
-        gc0 = renderer.new_gc()
-        gc0.copy_properties(gc)
+        gc0 = renderer.new_gc_copy(gc)
 
         if self._shadow_color is None:
             r,g,b = (gc0.get_foreground() or (1., 1., 1.))[:3]

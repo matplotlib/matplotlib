@@ -454,8 +454,7 @@ class RendererBase(object):
         if Noffsets:
             toffsets = offsetTrans.transform(offsets)
 
-        gc0 = self.new_gc()
-        gc0.copy_properties(gc)
+        gc0 = self.new_gc_copy(gc)
 
         if Nfacecolors == 0:
             rgbFace = None
@@ -714,6 +713,11 @@ class RendererBase(object):
         Return an instance of a :class:`GraphicsContextBase`
         """
         return GraphicsContextBase()
+
+    def new_gc_copy(self, gc):
+        gc0 = self.new_gc()
+        gc0.copy_properties(gc)
+        return gc0
 
     def points_to_pixels(self, points):
         """
