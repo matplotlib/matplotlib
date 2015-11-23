@@ -7,7 +7,7 @@ import numpy as np
 
 matplotlib.rc('grid', ls='-', lw=2, color='k')
 fig = plt.figure(figsize=(1, 1), dpi=72)
-plt.axes([0.025, 0.025, 0.95, 0.95], axisbg='#bfd1d4')
+plt.axes([0.025, 0.025, 0.95, 0.95], facecolor='#bfd1d4')
 
 t = np.arange(0, 2, 0.05)
 s = np.sin(2*np.pi*t)

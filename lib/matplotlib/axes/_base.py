@@ -436,8 +436,6 @@ class _AxesBase(martist.Artist):
           *aspect*           [ 'auto' | 'equal' | aspect_ratio ]
           *autoscale_on*     [ *True* | *False* ] whether or not to
                              autoscale the *viewlim*
-          *axis_bgcolor*     any matplotlib color, see
-                             :func:`~matplotlib.pyplot.colors`
           *axisbelow*        draw the grids and ticks below the other
                              artists
           *cursor_props*     a (*float*, *color*) tuple
@@ -509,6 +507,9 @@ class _AxesBase(martist.Artist):
 
         if axisbg is None:
             axisbg = rcParams['axes.facecolor']
+        else:
+            cbook.warn_deprecated(
+                '2.0', name='axisbg', alternative='facecolor')
         self._axisbg = axisbg
         self._frameon = frameon
         self._axisbelow = rcParams['axes.axisbelow']
@@ -1068,6 +1069,14 @@ class _AxesBase(martist.Artist):
     def clear(self):
         """clear the axes"""
         self.cla()
+
+    def get_facecolor(self):
+        return self.patch.get_facecolor()
+    get_fc = get_facecolor
+
+    def set_facecolor(self, color):
+        return self.patch.set_facecolor(color)
+    set_fc = set_facecolor
 
     def set_prop_cycle(self, *args, **kwargs):
         """
@@ -2624,10 +2633,12 @@ class _AxesBase(martist.Artist):
         self.axison = True
         self.stale = True
 
+    @cbook.deprecated('2.0', alternative='get_facecolor')
     def get_axis_bgcolor(self):
         """Return the axis background color"""
         return self._axisbg
 
+    @cbook.deprecated('2.0', alternative='set_facecolor')
     def set_axis_bgcolor(self, color):
         """
         set the axes background color
@@ -2635,7 +2646,9 @@ class _AxesBase(martist.Artist):
         ACCEPTS: any matplotlib color - see
         :func:`~matplotlib.pyplot.colors`
         """
-
+        warnings.warn(
+            "set_axis_bgcolor is deprecated.  Use set_facecolor instead.",
+            cbook.mplDeprecation)
         self._axisbg = color
         self.patch.set_facecolor(color)
         self.stale = True

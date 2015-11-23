@@ -49,10 +49,10 @@ k = 1
 for i in range(red.shape[1]):
 
     # LHS: additive
-    ax1 = fig.add_subplot(nrows,2,i*2+1, axisbg=tuple(rgb_add[0,i,:]))
+    ax1 = fig.add_subplot(nrows,2,i*2+1, facecolor=tuple(rgb_add[0,i,:]))
 
     # RHS: multiplicative
-    ax2 = fig.add_subplot(nrows,2,i*2+2, axisbg=tuple(rgb_geometric[0,i,:]))
+    ax2 = fig.add_subplot(nrows,2,i*2+2, facecolor=tuple(rgb_geometric[0,i,:]))
 
     # ylabels
     if i!=0:
@@ -122,10 +122,10 @@ k = 1
 for i in range(nrows):
 
     # LHS: additive
-    ax1 = fig.add_subplot(nrows,ncols,i*2+1, axisbg=tuple(rgb_add[0,i,:]))
+    ax1 = fig.add_subplot(nrows,ncols,i*2+1, facecolor=tuple(rgb_add[0,i,:]))
 
     # middle: multiplicative
-    ax2 = fig.add_subplot(nrows,ncols,i*2+2, axisbg=tuple(rgb_geometric[0,i,:]))
+    ax2 = fig.add_subplot(nrows,ncols,i*2+2, facecolor=tuple(rgb_geometric[0,i,:]))
 
     # ylabels
     if i!=0:
