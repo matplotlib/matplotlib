@@ -325,7 +325,7 @@ def test_image_composite_background():
     arr = np.arange(12).reshape(4, 3)
     ax.imshow(arr, extent=[0, 2, 15, 0])
     ax.imshow(arr, extent=[4, 6, 15, 0])
-    ax.set_axis_bgcolor((1, 0, 0, 0.5))
+    ax.set_facecolor((1, 0, 0, 0.5))
     ax.set_xlim([0, 12])
 
 @image_comparison(baseline_images=['image_composite_alpha'], remove_text=True)
@@ -349,7 +349,7 @@ def test_image_composite_alpha():
     ax.imshow(arr2, extent=[0, 5, 1, 2])
     ax.imshow(arr2, extent=[0, 5, 2, 3], alpha=0.6)
     ax.imshow(arr2, extent=[0, 5, 3, 4], alpha=0.3)
-    ax.set_axis_bgcolor((0, 0.5, 0, 1))
+    ax.set_facecolor((0, 0.5, 0, 1))
     ax.set_xlim([0, 5])
     ax.set_ylim([5, 0])
 

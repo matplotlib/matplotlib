@@ -14,6 +14,8 @@ import numpy as np
 from numpy import ma
 from numpy import arange
 
+import warnings
+
 import matplotlib
 from matplotlib.testing.decorators import image_comparison, cleanup
 import matplotlib.pyplot as plt
@@ -4108,7 +4110,6 @@ def test_shared_scale():
 def test_violin_point_mass():
     """Violin plot should handle point mass pdf gracefully."""
     plt.violinplot(np.array([0, 0]))
-
 
 
 @cleanup

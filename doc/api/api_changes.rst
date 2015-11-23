@@ -11,6 +11,15 @@ sources of the changes you are experiencing.
 For new features that were added to matplotlib, please see
 :ref:`whats-new`.
 
+Changes in 2.0.0
+================
+
+Color of Axes
+-------------
+
+The ``axisbg`` and ``axis_bgcolor`` properties on ``Axes`` have been
+deprecated in favor of ``facecolor``.
+
 Changes in 1.5.0
 ================
 
