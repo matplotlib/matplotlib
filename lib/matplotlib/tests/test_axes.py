@@ -14,6 +14,8 @@ import numpy as np
 from numpy import ma
 from numpy import arange
 
+import warnings
+
 import matplotlib
 from matplotlib.testing.decorators import image_comparison, cleanup
 import matplotlib.pyplot as plt
@@ -4087,6 +4089,17 @@ def test_shared_scale():
 def test_violin_point_mass():
     """Violin plot should handle point mass pdf gracefully."""
     plt.violinplot(np.array([0, 0]))
+
+
+@cleanup
+def test_axisbg_warning():
+    fig = plt.figure()
+    with warnings.catch_warnings(record=True) as w:
+        ax = matplotlib.axes.Axes(fig, [0, 0, 1, 1], axisbg='r')
+    assert len(w) == 1
+    assert (str(w[0].message).startswith(
+            ("The axisbg attribute was deprecated in version 2.0.")))
+
 
 if __name__ == '__main__':
     import nose
