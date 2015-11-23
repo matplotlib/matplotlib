@@ -4118,6 +4118,23 @@ def test_axisbg_warning():
             ("The axisbg attribute was deprecated in version 2.0.")))
 
 
+@cleanup
+def test_autoscale():
+    plt.plot([0, 1], [0, 1])
+    assert_equal(plt.xlim(), (0, 1))
+    plt.autoscale(False)
+    plt.plot([2, 3], [2, 3])
+    assert_equal(plt.xlim(), (0, 1))
+    plt.autoscale(True)
+    plt.plot([1, 2], [1, 2])
+    assert_equal(plt.xlim(), (0, 3))
+    with plt.autoscale(False):
+        plt.plot([3, 4], [3, 4])
+    assert_equal(plt.xlim(), (0, 3))
+    plt.plot([4, 5], [4, 5])
+    assert_equal(plt.xlim(), (0, 5))
+
+
 if __name__ == '__main__':
     import nose
     import sys
