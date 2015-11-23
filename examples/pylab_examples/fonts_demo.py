@@ -7,7 +7,7 @@ which requires less typing.  See examples/fonts_demo_kw.py
 from matplotlib.font_manager import FontProperties
 import matplotlib.pyplot as plt
 
-plt.subplot(111, axisbg='w')
+plt.subplot(111, facecolor='w')
 
 font0 = FontProperties()
 alignment = {'horizontalalignment': 'center', 'verticalalignment': 'baseline'}

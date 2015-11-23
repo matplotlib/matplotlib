@@ -831,28 +831,28 @@ def axes(*args, **kwargs):
 
     - ``axes()`` by itself creates a default full ``subplot(111)`` window axis.
 
-    - ``axes(rect, axisbg='w')`` where *rect* = [left, bottom, width,
-      height] in normalized (0, 1) units.  *axisbg* is the background
+    - ``axes(rect, facecolor='w')`` where *rect* = [left, bottom, width,
+      height] in normalized (0, 1) units.  *facecolor* is the background
       color for the axis, default white.
 
     - ``axes(h)`` where *h* is an axes instance makes *h* the current
       axis.  An :class:`~matplotlib.axes.Axes` instance is returned.
 
-    =======   ==============   ==============================================
-    kwarg     Accepts          Description
-    =======   ==============   ==============================================
-    axisbg    color            the axes background color
-    frameon   [True|False]     display the frame?
-    sharex    otherax          current axes shares xaxis attribute
-                               with otherax
-    sharey    otherax          current axes shares yaxis attribute
-                               with otherax
-    polar     [True|False]     use a polar axes?
-    aspect    [str | num]      ['equal', 'auto'] or a number.  If a number
-                               the ratio of x-unit/y-unit in screen-space.
-                               Also see
-                               :meth:`~matplotlib.axes.Axes.set_aspect`.
-    =======   ==============   ==============================================
+    =========   ==============   ==============================================
+    kwarg       Accepts          Description
+    =========   ==============   ==============================================
+    facecolor   color            the axes background color
+    frameon     [True|False]     display the frame?
+    sharex      otherax          current axes shares xaxis attribute
+                                 with otherax
+    sharey      otherax          current axes shares yaxis attribute
+                                 with otherax
+    polar       [True|False]     use a polar axes?
+    aspect      [str | num]      ['equal', 'auto'] or a number.  If a number
+                                 the ratio of x-unit/y-unit in screen-space.
+                                 Also see
+                                 :meth:`~matplotlib.axes.Axes.set_aspect`.
+    =========   ==============   ==============================================
 
     Examples:
 
@@ -968,7 +968,7 @@ def subplot(*args, **kwargs):
           # first, the plot (and its axes) previously created, will be removed
           plt.subplot(211)
           plt.plot(range(12))
-          plt.subplot(212, axisbg='y') # creates 2nd subplot with yellow background
+          plt.subplot(212, facecolor='y') # creates 2nd subplot with yellow background
 
        If you do not want this behavior, use the
        :meth:`~matplotlib.figure.Figure.add_subplot` method or the
@@ -976,7 +976,7 @@ def subplot(*args, **kwargs):
 
     Keyword arguments:
 
-      *axisbg*:
+      *facecolor*:
         The background color of the subplot, which can be any valid
         color specifier.  See :mod:`matplotlib.colors` for more
         information.
@@ -1824,7 +1824,7 @@ def colors():
     The example below creates a subplot with a dark
     slate gray background::
 
-       subplot(111, axisbg=(0.1843, 0.3098, 0.3098))
+       subplot(111, facecolor=(0.1843, 0.3098, 0.3098))
 
     Here is an example that creates a pale turquoise title::
 
