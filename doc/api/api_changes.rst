@@ -11,6 +11,19 @@ sources of the changes you are experiencing.
 For new features that were added to matplotlib, please see
 :ref:`whats-new`.
 
+Changes in 2.1.0
+================
+
+Code changes
+------------
+
+autoscale is now a context manager
+``````````````````````````````````
+
+Instead of returning None, ``plt.autoscale`` and ``Axes.autoscale``
+now return a context manager, which allows one to restore the previous
+autoscaling status upon exiting the block.
+
 Changes in 2.0.0
 ================
 

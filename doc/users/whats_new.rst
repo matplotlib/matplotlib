@@ -23,6 +23,18 @@ revision, see the :ref:`github-stats`.
 .. contents:: Table of Contents
    :depth: 3
 
+.. _whats-new-2-1:
+
+new in matplotlib-2.1
+=====================
+
+autoscale is now a context manager
+----------------------------------
+
+Instead of returning None, ``plt.autoscale`` and ``Axes.autoscale``
+now return a context manager, which allows one to restore the previous
+autoscaling status upon exiting the block.
+
 .. _whats-new-1-5:
 
 new in matplotlib-1.5

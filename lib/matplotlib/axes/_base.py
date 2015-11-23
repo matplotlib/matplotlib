@@ -2109,13 +2109,8 @@ class _AxesBase(martist.Artist):
 
             with axes.autoscale(enable): ...
 
-        or::
-
-            @axes.autoscale(enable)
-            def func(): ...
-
         will keep the autoscale status to `enable` for the duration of the
-        block or function and then restore it to its original value.
+        block only.
         """
         orig_autoscale = self._autoscaleXon, self._autoscaleYon
         if enable is not None:
