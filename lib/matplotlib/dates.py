@@ -1561,7 +1561,7 @@ class DateConverter(units.ConversionInterface):
             x = x.ravel()
 
         try:
-            x = x[0]
+            x = next(iter(x))
         except (TypeError, IndexError):
             pass
 
