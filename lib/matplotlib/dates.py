@@ -113,7 +113,7 @@ from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
 from matplotlib.externals import six
-from matplotlib.externals.six.moves import xrange, zip
+from matplotlib.externals.six.moves import zip
 from matplotlib import rcParams
 import re
 import time
@@ -689,8 +689,10 @@ class AutoDateFormatter(ticker.Formatter):
                        DAYS_PER_MONTH: rcParams['date.autoformatter.month'],
                        1.0: rcParams['date.autoformatter.day'],
                        1. / HOURS_PER_DAY: rcParams['date.autoformatter.hour'],
-                       1. / (MINUTES_PER_DAY): rcParams['date.autoformatter.minute'],
-                       1. / (SEC_PER_DAY): rcParams['date.autoformatter.second'],}
+                       1. / (MINUTES_PER_DAY):
+                           rcParams['date.autoformatter.minute'],
+                       1. / (SEC_PER_DAY):
+                           rcParams['date.autoformatter.second']}
 
     def __call__(self, x, pos=None):
         locator_unit_scale = float(self._locator._get_unit())
