@@ -770,6 +770,23 @@ def validate_cycler(s):
     return cycler_inst
 
 
+def validate_hist_bins(s):
+    if isinstance(s, six.text_type) and s == 'auto':
+        return s
+    try:
+        return int(s)
+    except (TypeError, ValueError):
+        pass
+
+    try:
+        return validate_floatlist(s)
+    except ValueError:
+        pass
+
+    raise ValueError("'hist.bins' must be 'auto', an int or " +
+                     "a sequence of floats")
+
+
 # a map from key -> value, converter
 defaultParams = {
     'backend':           ['Agg', validate_backend],  # agg is certainly
@@ -814,7 +831,7 @@ defaultParams = {
     'patch.antialiased': [True, validate_bool],  # antialiased (no jaggies)
 
     ## Histogram properties
-    'hist.bins': [10, validate_any],
+    'hist.bins': [10, validate_hist_bins],
 
     ## Boxplot properties
     'boxplot.notch': [False, validate_bool],

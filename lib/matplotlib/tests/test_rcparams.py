@@ -27,7 +27,8 @@ from matplotlib.rcsetup import (validate_bool_maybe_none,
                                 validate_nseq_int,
                                 validate_nseq_float,
                                 validate_cycler,
-                                validate_hatch)
+                                validate_hatch,
+                                validate_hist_bins)
 
 
 mpl.rc('text', usetex=False)
@@ -363,7 +364,17 @@ def test_validators():
                     ),
          'fail': (('fish', ValueError),
                  ),
-        }
+        },
+        {'validator': validate_hist_bins,
+         'success': (('auto', 'auto'),
+                     ('10', 10),
+                     ('1, 2, 3', [1, 2, 3]),
+                     ([1, 2, 3], [1, 2, 3]),
+                     (np.arange(15), np.arange(15))
+                     ),
+         'fail': (('aardvark', ValueError),
+                  )
+         }
     )
 
     for validator_dict in validation_tests:
