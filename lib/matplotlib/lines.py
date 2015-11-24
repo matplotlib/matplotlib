@@ -346,6 +346,7 @@ class Line2D(Artist):
         self.set_markersize(markersize)
 
         self._dashSeq = None
+        self._dashOffset = 0
 
         self._markeredgecolor = None
         self._markeredgewidth = None
@@ -1028,6 +1029,7 @@ class Line2D(Artist):
                 raise ValueError()
 
             self.set_dashes(ls[1])
+            self._dashOffset = ls[0]
             self._linestyle = "--"
             return
 
@@ -1198,7 +1200,7 @@ class Line2D(Artist):
     def _draw_dashed(self, renderer, gc, path, trans):
         gc.set_linestyle('dashed')
         if self._dashSeq is not None:
-            gc.set_dashes(0, self._dashSeq)
+            gc.set_dashes(self._dashOffset, self._dashSeq)
 
         renderer.draw_path(gc, path, trans)
 
@@ -1222,6 +1224,7 @@ class Line2D(Artist):
         self._markeredgecolor = other._markeredgecolor
         self._markeredgewidth = other._markeredgewidth
         self._dashSeq = other._dashSeq
+        self._dashOffset = other._dashOffset
         self._dashcapstyle = other._dashcapstyle
         self._dashjoinstyle = other._dashjoinstyle
         self._solidcapstyle = other._solidcapstyle
