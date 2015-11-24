@@ -1,3 +1,5 @@
+import warnings
+
 from matplotlib.testing.decorators import image_comparison, cleanup
 import matplotlib.pyplot as plt
 import numpy as np
@@ -145,6 +147,30 @@ def test_valid_input_forms():
                       color=np.array(['k', 'w']),
                       ls=np.array(['-', '--']))
     assert True
+
+
+@cleanup
+def test_cycle_reset():
+    fig, ax = plt.subplots()
+
+    # Can't really test a reset because only a cycle object is stored
+    # but we can test the first item of the cycle.
+    prop = next(ax._get_lines.prop_cycler)
+    ax.set_prop_cycle(linewidth=[10, 9, 4])
+    assert prop != next(ax._get_lines.prop_cycler)
+    ax.set_prop_cycle(None)
+    got = next(ax._get_lines.prop_cycler)
+    assert prop == got, "expected %s, got %s" % (prop, got)
+
+    fig, ax = plt.subplots()
+    # Need to double-check the old set/get_color_cycle(), too
+    with warnings.catch_warnings():
+        prop = next(ax._get_lines.prop_cycler)
+        ax.set_color_cycle(['c', 'm', 'y', 'k'])
+        assert prop != next(ax._get_lines.prop_cycler)
+        ax.set_color_cycle(None)
+        got = next(ax._get_lines.prop_cycler)
+        assert prop == got, "expected %s, got %s" % (prop, got)
 
 
 @cleanup
