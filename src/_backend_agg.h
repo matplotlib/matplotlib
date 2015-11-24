@@ -960,6 +960,7 @@ inline void RendererAgg::_draw_path_collection_generic(GCAgg &gc,
                                       subtrans(1, 1),
                                       subtrans(0, 2),
                                       subtrans(1, 2));
+            trans *= master_transform;
         } else {
             trans = master_transform;
         }
