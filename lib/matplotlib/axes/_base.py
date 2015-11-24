@@ -4,6 +4,7 @@ from __future__ import (absolute_import, division, print_function,
 from matplotlib.externals import six
 from matplotlib.externals.six.moves import xrange
 
+from contextlib import contextmanager
 import itertools
 import warnings
 import math
@@ -2103,22 +2104,31 @@ class _AxesBase(martist.Artist):
             The *tight* setting is retained for future autoscaling
             until it is explicitly changed.
 
+        This returns a context-manager/decorator that allows temporarily
+        setting the autoscale status, i.e.::
 
-        Returns None.
+            with axes.autoscale(enable): ...
+
+        will keep the autoscale status to `enable` for the duration of the
+        block only.
         """
-        if enable is None:
-            scalex = True
-            scaley = True
-        else:
-            scalex = False
-            scaley = False
+        orig_autoscale = self._autoscaleXon, self._autoscaleYon
+        if enable is not None:
             if axis in ['x', 'both']:
                 self._autoscaleXon = bool(enable)
-                scalex = self._autoscaleXon
             if axis in ['y', 'both']:
                 self._autoscaleYon = bool(enable)
-                scaley = self._autoscaleYon
-        self.autoscale_view(tight=tight, scalex=scalex, scaley=scaley)
+        self.autoscale_view(
+            tight=tight, scalex=self._autoscaleXon, scaley=self._autoscaleYon)
+
+        @contextmanager
+        def restore_autoscaling():
+            try:
+                yield
+            finally:
+                self._autoscaleXon, self._autoscaleYon = orig_autoscale
+
+        return restore_autoscaling()
 
     def autoscale_view(self, tight=None, scalex=True, scaley=True):
         """
