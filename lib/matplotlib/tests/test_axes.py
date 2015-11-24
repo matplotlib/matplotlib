@@ -4102,10 +4102,12 @@ def test_shared_scale():
         assert_equal(ax.get_yscale(), 'linear')
         assert_equal(ax.get_xscale(), 'linear')
 
+
 @cleanup
 def test_violin_point_mass():
     """Violin plot should handle point mass pdf gracefully."""
     plt.violinplot(np.array([0, 0]))
+
 
 
 @cleanup
@@ -4116,6 +4118,17 @@ def test_axisbg_warning():
     assert len(w) == 1
     assert (str(w[0].message).startswith(
             ("The axisbg attribute was deprecated in version 2.0.")))
+
+
+@image_comparison(baseline_images=["dash_offset"], remove_text=True)
+def test_dash_offset():
+    fig, ax = plt.subplots()
+    x = np.linspace(0, 10)
+    y = np.ones_like(x)
+    for j in range(0, 100, 2):
+        ax.plot(x, j*y, ls=(j, (10, 10)), lw=5, color='k')
+    plt.show()
+
 
 
 if __name__ == '__main__':
