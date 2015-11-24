@@ -7,6 +7,7 @@ from itertools import chain
 import io
 
 from nose.tools import assert_equal, assert_raises, assert_false, assert_true
+from nose.plugins.skip import SkipTest
 
 import datetime
 
@@ -4181,6 +4182,23 @@ def test_remove_shared_axes():
 def test_broken_barh_empty():
     fig, ax = plt.subplots()
     ax.broken_barh([], (.1, .5))
+
+
+@cleanup
+def test_pandas_indexing_dates():
+    try:
+        import pandas as pd
+    except ImportError:
+        raise SkipTest("Pandas not installed")
+
+    dates = np.arange('2005-02', '2005-03', dtype='datetime64[D]')
+    values = np.sin(np.array(range(len(dates))))
+    df = pd.DataFrame({'dates': dates, 'values': values})
+
+    ax = plt.gca()
+
+    without_zero_index = df[np.array(df.index) % 2 == 1].copy()
+    ax.plot('dates', 'values', data=without_zero_index)
 
 
 if __name__ == '__main__':
