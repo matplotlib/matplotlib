@@ -279,6 +279,25 @@ def test_contourf_decreasing_levels():
     assert_equal(len(w), 2)
 
 
+@cleanup
+def test_vminvmax_warning():
+    z = [[0.1, 0.3], [0.5, 0.7]]
+    plt.figure()
+    cs = plt.contourf(z, [0.0, 1.0])
+
+    with warnings.catch_warnings(record=True) as w:
+        cs.vmin
+    assert len(w) == 1
+    assert (str(w[0].message).startswith(
+            ("vmin is deprecated and will be removed in 2.2 ")))
+
+    with warnings.catch_warnings(record=True) as w:
+        cs.vmax
+    assert len(w) == 1
+    assert (str(w[0].message).startswith(
+            ("vmax is deprecated and will be removed in 2.2 ")))
+
+
 if __name__ == '__main__':
     import nose
     nose.runmodule(argv=['-s', '--with-doctest'], exit=False)
