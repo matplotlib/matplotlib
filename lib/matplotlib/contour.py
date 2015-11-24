@@ -27,6 +27,7 @@ import matplotlib.mathtext as mathtext
 import matplotlib.patches as mpatches
 import matplotlib.texmanager as texmanager
 import matplotlib.transforms as mtrans
+from matplotlib.cbook import mplDeprecation
 
 # Import needed for adding manual selection capability to clabel
 from matplotlib.blocking_input import BlockingContourLabeler
@@ -1198,6 +1199,20 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
             else:
                 raise ValueError("Contour levels must be increasing")
 
+    @property
+    def vmin(self):
+        warnings.warn("vmin is deprecated and will be removed in 2.2 "
+                      "and not replaced.",
+                      mplDeprecation)
+        return getattr(self, '_vmin', None)
+
+    @property
+    def vmax(self):
+        warnings.warn("vmax is deprecated and will be removed in 2.2 "
+                      "and not replaced.",
+                      mplDeprecation)
+        return getattr(self, '_vmax', None)
+
     def _process_levels(self):
         """
         Assign values to :attr:`layers` based on :attr:`levels`,
@@ -1207,10 +1222,9 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
         a line is a thin layer.  No extended levels are needed
         with line contours.
         """
-        # The following attributes are no longer needed, and
-        # should be deprecated and removed to reduce confusion.
-        self.vmin = np.amin(self.levels)
-        self.vmax = np.amax(self.levels)
+        # following are deprecated and will be removed in 2.2
+        self._vmin = np.amin(self.levels)
+        self._vmax = np.amax(self.levels)
 
         # Make a private _levels to include extended regions; we
         # want to leave the original levels attribute unchanged.
