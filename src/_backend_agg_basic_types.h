@@ -63,6 +63,7 @@ class Dashes
             }
             stroke.add_dash(val0, val1);
         }
+        stroke.dash_start(get_dash_offset() * dpi / 72.0);
     }
 };
 
