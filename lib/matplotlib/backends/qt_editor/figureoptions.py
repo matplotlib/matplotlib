@@ -46,8 +46,8 @@ def figure_edit(axes, parent=None):
     has_curve = len(axes.get_lines()) > 0
 
     # Get / General
-    xmin, xmax = axes.get_xlim()
-    ymin, ymax = axes.get_ylim()
+    xmin, xmax = map(float, axes.get_xlim())
+    ymin, ymax = map(float, axes.get_ylim())
     general = [('Title', axes.get_title()),
                sep,
                (None, "<b>X-Axis</b>"),
