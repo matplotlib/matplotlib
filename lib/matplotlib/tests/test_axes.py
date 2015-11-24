@@ -4125,8 +4125,7 @@ def test_autoscale():
     plt.autoscale(False)
     plt.plot([2, 3], [2, 3])
     assert_equal(plt.xlim(), (0, 1))
-    plt.autoscale(True)
-    plt.plot([1, 2], [1, 2])
+    plt.autoscale(None)
     assert_equal(plt.xlim(), (0, 3))
     with plt.autoscale(False):
         plt.plot([3, 4], [3, 4])
