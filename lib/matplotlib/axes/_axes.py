@@ -5,6 +5,7 @@ from matplotlib.externals import six
 from matplotlib.externals.six.moves import reduce, xrange, zip, zip_longest
 
 import math
+import itertools
 import warnings
 
 import numpy as np
@@ -2446,7 +2447,7 @@ class Axes(_AxesBase):
         Call signature::
 
           pie(x, explode=None, labels=None,
-              colors=('b', 'g', 'r', 'c', 'm', 'y', 'k', 'w'),
+              colors=None,
               autopct=None, pctdistance=0.6, shadow=False,
               labeldistance=1.1, startangle=None, radius=None,
               counterclock=True, wedgeprops=None, textprops=None,
@@ -2554,8 +2555,16 @@ class Axes(_AxesBase):
             raise ValueError("'label' must be of length 'x'")
         if len(x) != len(explode):
             raise ValueError("'explode' must be of length 'x'")
-        if colors is None:
+        if ((colors is None) and
+            ('color' in self._get_patches_for_fill._prop_keys)):
+            def get_next_color():
+                return six.next(self._get_patches_for_fill.prop_cycler)['color']
+        elif colors is None:
             colors = ('b', 'g', 'r', 'c', 'm', 'y', 'k', 'w')
+        if colors is not None:
+            color_cycler = itertools.cycle(colors)
+            def get_next_color():
+                return six.next(color_cycler)
 
         if radius is None:
             radius = 1
@@ -2591,7 +2600,7 @@ class Axes(_AxesBase):
 
             w = mpatches.Wedge((x, y), radius, 360. * min(theta1, theta2),
                             360. * max(theta1, theta2),
-                            facecolor=colors[i % len(colors)],
+                            facecolor=get_next_color(),
                             **wedgeprops)
             slices.append(w)
             self.add_patch(w)
