@@ -36,8 +36,7 @@ XY = np.array([[left, left, right, right], [bottom, top, top, bottom]]).T
 barpath = path.Path.make_compound_path_from_polys(XY)
 
 # make a patch out of it
-patch = patches.PathPatch(
-    barpath, facecolor='blue', edgecolor='gray', alpha=0.8)
+patch = patches.PathPatch(barpath, facecolor='blue')
 ax.add_patch(patch)
 
 # update the view limits

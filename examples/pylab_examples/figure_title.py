@@ -14,16 +14,18 @@ t3 = np.arange(0.0, 2.0, 0.01)
 
 
 plt.subplot(121)
-plt.plot(t1, f(t1), 'bo', t2, f(t2), 'k')
+plt.plot(t1, f(t1), 'o', t2, f(t2), '-')
 plt.title('subplot 1')
 plt.ylabel('Damped oscillation')
 plt.suptitle('This is a somewhat long figure title', fontsize=16)
 
 
 plt.subplot(122)
-plt.plot(t3, np.cos(2*np.pi*t3), 'r--')
+plt.plot(t3, np.cos(2*np.pi*t3), '--')
 plt.xlabel('time (s)')
 plt.title('subplot 2')
 plt.ylabel('Undamped')
+
+plt.subplots_adjust(left=0.2, wspace=0.8, top=0.8)
 
 plt.show()

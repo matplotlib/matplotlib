@@ -19,9 +19,10 @@ plt.hist2d(data[:, 0], data[:, 1], bins=100)
 
 for i, gamma in enumerate(gammas):
     plt.subplot(xgrid, ygrid, i + 2)
-    plt.title('Power law normalization\n$(\gamma=%1.1f)$' % gamma)
+    plt.title('Power law\n$(\gamma=%1.1f)$' % gamma)
     plt.hist2d(data[:, 0], data[:, 1],
                bins=100, norm=mcolors.PowerNorm(gamma))
 
-plt.subplots_adjust(hspace=0.39)
+plt.subplots_adjust(hspace=0.8)
+plt.savefig("test.png")
 plt.show()

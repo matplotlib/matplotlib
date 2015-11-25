@@ -35,22 +35,22 @@ plt.title('Triangular grid')
 # Plot linear interpolation to quad grid.
 plt.subplot(222)
 plt.contourf(xi, yi, zi_lin)
-plt.plot(xi, yi, 'k-', alpha=0.5)
-plt.plot(xi.T, yi.T, 'k-', alpha=0.5)
+plt.plot(xi, yi, 'k-', lw=0.5, alpha=0.5)
+plt.plot(xi.T, yi.T, 'k-', lw=0.5, alpha=0.5)
 plt.title("Linear interpolation")
 
 # Plot cubic interpolation to quad grid, kind=geom
 plt.subplot(223)
 plt.contourf(xi, yi, zi_cubic_geom)
-plt.plot(xi, yi, 'k-', alpha=0.5)
-plt.plot(xi.T, yi.T, 'k-', alpha=0.5)
+plt.plot(xi, yi, 'k-', lw=0.5, alpha=0.5)
+plt.plot(xi.T, yi.T, 'k-', lw=0.5, alpha=0.5)
 plt.title("Cubic interpolation,\nkind='geom'")
 
 # Plot cubic interpolation to quad grid, kind=min_E
 plt.subplot(224)
 plt.contourf(xi, yi, zi_cubic_min_E)
-plt.plot(xi, yi, 'k-', alpha=0.5)
-plt.plot(xi.T, yi.T, 'k-', alpha=0.5)
+plt.plot(xi, yi, 'k-', lw=0.5, alpha=0.5)
+plt.plot(xi.T, yi.T, 'k-', lw=0.5, alpha=0.5)
 plt.title("Cubic interpolation,\nkind='min_E'")
 
 plt.tight_layout()

@@ -25,6 +25,5 @@ Fs = int(1.0/dt)  # the sampling frequency
 ax1 = plt.subplot(211)
 plt.plot(t, x)
 plt.subplot(212, sharex=ax1)
-Pxx, freqs, bins, im = plt.specgram(x, NFFT=NFFT, Fs=Fs, noverlap=900,
-                                cmap=plt.cm.gist_heat)
+Pxx, freqs, bins, im = plt.specgram(x, NFFT=NFFT, Fs=Fs, noverlap=900)
 plt.show()
