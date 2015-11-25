@@ -2868,6 +2868,10 @@ class Axes(_AxesBase):
             ys = [thisy for thisy, b in zip(ys, mask) if b]
             return xs, ys
 
+        # Set an explicit color so the color cycle doesn't advance.  It
+        # will be set to the correct color where `ecolor` is handled
+        # below.
+        kwargs['color'] = 'k'
         plot_kw = {'label': '_nolegend_'}
         if capsize is None:
             capsize = rcParams["errorbar.capsize"]
@@ -2882,7 +2886,8 @@ class Axes(_AxesBase):
             plot_kw['markeredgewidth'] = capthick
         # For backwards-compat, allow explicit setting of
         # 'mew' or 'markeredgewidth' to over-ride capthick.
-        for key in ('markeredgewidth', 'mew', 'transform', 'alpha', 'zorder'):
+        for key in ('markeredgewidth', 'mew', 'transform', 'alpha', 'zorder',
+                    'color'):
             if key in kwargs:
                 plot_kw[key] = kwargs[key]
 
@@ -3019,16 +3024,15 @@ class Axes(_AxesBase):
         if not barsabove and plot_line:
             l0, = self.plot(x, y, fmt, label='_nolegend_', **kwargs)
 
-        if ecolor is None:
-            if l0 is None and 'color' in self._get_lines._prop_keys:
-                ecolor = six.next(self._get_lines.prop_cycler)['color']
-            else:
-                ecolor = l0.get_color()
+        if 'color' in self._get_lines._prop_keys:
+            ecolor = six.next(self._get_lines.prop_cycler)['color']
 
         for l in barcols:
             l.set_color(ecolor)
         for l in caplines:
             l.set_color(ecolor)
+        if l0 is not None:
+            l0.set_color(ecolor)
 
         self.autoscale_view()
         self._hold = holdstate
