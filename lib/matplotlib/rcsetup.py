@@ -22,6 +22,11 @@ from functools import reduce
 import operator
 import os
 import warnings
+try:
+    import collections.abc as abc
+except ImportError:
+    # python 2
+    import collections as abc
 from matplotlib.fontconfig_pattern import parse_fontconfig_pattern
 from matplotlib.colors import is_color_like
 
@@ -78,10 +83,19 @@ def _listify_validator(scalar_validator, allow_stringlist=False):
                     return [scalar_validator(v.strip()) for v in s if v.strip()]
                 else:
                     raise
-        elif type(s) in (list, tuple):
-            return [scalar_validator(v) for v in s if v]
+        # We should allow any generic sequence type, including generators,
+        # Numpy ndarrays, and pandas data structures.  However, unordered
+        # sequences, such as sets, should be allowed but discouraged unless the
+        # user desires pseudorandom behavior.
+        elif isinstance(s, abc.Iterable) and not isinstance(s, abc.Mapping):
+            # The condition on this list comprehension will preserve the
+            # behavior of filtering out any empty strings (behavior was
+            # from the original validate_stringlist()), while allowing
+            # any non-string/text scalar values such as numbers and arrays.
+            return [scalar_validator(v) for v in s
+                    if not isinstance(v, six.string_types) or v]
         else:
-            msg = "'s' must be of type [ string | list | tuple ]"
+            msg = "{0!r} must be of type: string or non-dictionary iterable.".format(s)
             raise ValueError(msg)
     f.__doc__ = scalar_validator.__doc__
     return f
@@ -382,7 +396,7 @@ def validate_font_properties(s):
 
 validate_fontset = ValidateInStrings(
     'fontset',
-    ['cm', 'stix', 'stixsans', 'custom'])
+    ['dejavusans', 'dejavuserif', 'cm', 'stix', 'stixsans', 'custom'])
 
 validate_mathtext_default = ValidateInStrings(
     'default',
@@ -784,7 +798,7 @@ defaultParams = {
     'lines.marker':          ['None', six.text_type],     # black
     'lines.markeredgewidth': [0.5, validate_float],
     'lines.markersize':      [6, validate_float],    # markersize, in points
-    'lines.antialiased':     [True, validate_bool],  # antialised (no jaggies)
+    'lines.antialiased':     [True, validate_bool],  # antialiased (no jaggies)
     'lines.dash_joinstyle':  ['round', validate_joinstyle],
     'lines.solid_joinstyle': ['round', validate_joinstyle],
     'lines.dash_capstyle':   ['butt', validate_capstyle],
@@ -797,7 +811,10 @@ defaultParams = {
     'patch.linewidth':   [1.0, validate_float],  # line width in points
     'patch.edgecolor':   ['k', validate_color],  # black
     'patch.facecolor':   ['b', validate_color],  # blue
-    'patch.antialiased': [True, validate_bool],  # antialised (no jaggies)
+    'patch.antialiased': [True, validate_bool],  # antialiased (no jaggies)
+
+    ## Histogram properties
+    'hist.bins': [10, validate_any],
 
     ## Boxplot properties
     'boxplot.notch': [False, validate_bool],
@@ -816,7 +833,7 @@ defaultParams = {
     'boxplot.flierprops.markerfacecolor': ['b', validate_color],
     'boxplot.flierprops.markeredgecolor': ['k', validate_color],
     'boxplot.flierprops.markersize': [6, validate_float],
-    'boxplot.flierprops.linestyle': ['-', six.text_type],
+    'boxplot.flierprops.linestyle': ['none', six.text_type],
     'boxplot.flierprops.linewidth': [1.0, validate_float],
 
     'boxplot.boxprops.color': ['b', validate_color],
@@ -846,13 +863,13 @@ defaultParams = {
     'font.stretch':    ['normal', six.text_type],
     'font.weight':     ['normal', six.text_type],
     'font.size':       [12, validate_float],      # Base font size in points
-    'font.serif':      [['Bitstream Vera Serif', 'DejaVu Serif',
+    'font.serif':      [['DejaVu Serif', 'Bitstream Vera Serif',
                          'New Century Schoolbook', 'Century Schoolbook L',
                          'Utopia', 'ITC Bookman', 'Bookman',
                          'Nimbus Roman No9 L', 'Times New Roman',
                          'Times', 'Palatino', 'Charter', 'serif'],
                         validate_stringlist],
-    'font.sans-serif': [['Bitstream Vera Sans', 'DejaVu Sans',
+    'font.sans-serif': [['DejaVu Sans', 'Bitstream Vera Sans',
                          'Lucida Grande', 'Verdana', 'Geneva', 'Lucid',
                          'Arial', 'Helvetica', 'Avant Garde', 'sans-serif'],
                         validate_stringlist],
@@ -862,7 +879,7 @@ defaultParams = {
     'font.fantasy':    [['Comic Sans MS', 'Chicago', 'Charcoal', 'Impact'
                          'Western', 'Humor Sans', 'fantasy'],
                         validate_stringlist],
-    'font.monospace':  [['Bitstream Vera Sans Mono', 'DejaVu Sans Mono',
+    'font.monospace':  [['DejaVu Sans Mono', 'Bitstream Vera Sans Mono',
                          'Andale Mono', 'Nimbus Mono L', 'Courier New',
                          'Courier', 'Fixed', 'Terminal', 'monospace'],
                         validate_stringlist],
@@ -879,12 +896,12 @@ defaultParams = {
     'text.antialiased':    [True, validate_bool],
 
     'mathtext.cal':            ['cursive', validate_font_properties],
-    'mathtext.rm':             ['serif', validate_font_properties],
+    'mathtext.rm':             ['sans', validate_font_properties],
     'mathtext.tt':             ['monospace', validate_font_properties],
-    'mathtext.it':             ['serif:italic', validate_font_properties],
-    'mathtext.bf':             ['serif:bold', validate_font_properties],
-    'mathtext.sf':             ['sans\-serif', validate_font_properties],
-    'mathtext.fontset':        ['cm', validate_fontset],
+    'mathtext.it':             ['sans:italic', validate_font_properties],
+    'mathtext.bf':             ['sans:bold', validate_font_properties],
+    'mathtext.sf':             ['sans', validate_font_properties],
+    'mathtext.fontset':        ['dejavusans', validate_fontset],
     'mathtext.default':        ['it', validate_mathtext_default],
     'mathtext.fallback_to_cm': [True, validate_bool],
 
@@ -1003,7 +1020,9 @@ defaultParams = {
     'legend.facecolor': ['inherit', validate_color_or_inherit],
     'legend.edgecolor': ['inherit', validate_color_or_inherit],
 
-    ## tick properties
+    # tick properties
+    'xtick.top':         [True, validate_bool],   # draw ticks on the top side
+    'xtick.bottom':      [True, validate_bool],   # draw ticks on the bottom side
     'xtick.major.size':  [4, validate_float],    # major xtick size in points
     'xtick.minor.size':  [2, validate_float],    # minor xtick size in points
     'xtick.major.width': [0.5, validate_float],  # major xtick width in points
@@ -1017,6 +1036,8 @@ defaultParams = {
     'xtick.labelsize':   ['medium', validate_fontsize],
     'xtick.direction':   ['in', six.text_type],            # direction of xticks
 
+    'ytick.left':        [True, validate_bool],  # draw ticks on the left side
+    'ytick.right':       [True, validate_bool],  # draw ticks on the right side
     'ytick.major.size':  [4, validate_float],     # major ytick size in points
     'ytick.minor.size':  [2, validate_float],     # minor ytick size in points
     'ytick.major.width': [0.5, validate_float],   # major ytick width in points

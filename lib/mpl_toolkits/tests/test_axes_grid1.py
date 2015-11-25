@@ -3,9 +3,11 @@ from __future__ import (absolute_import, division, print_function,
 
 from matplotlib.externals import six
 
+import matplotlib
 import matplotlib.pyplot as plt
 from matplotlib.testing.decorators import image_comparison
-from mpl_toolkits.axes_grid1 import make_axes_locatable
+from mpl_toolkits.axes_grid1 import make_axes_locatable, host_subplot
+from itertools import product
 import numpy as np
 
 
@@ -49,6 +51,36 @@ def test_divider_append_axes():
     axHistbot.xaxis.set_ticklabels(())
     axHistleft.yaxis.set_ticklabels(())
     axHistright.yaxis.set_ticklabels(())
+
+
+@image_comparison(baseline_images=['twin_axes_empty_and_removed'],
+    extensions=["png"])
+def test_twin_axes_empty_and_removed():
+    # Purely cosmetic font changes (avoid overlap)
+    matplotlib.rcParams.update({"font.size": 8})
+    matplotlib.rcParams.update({"xtick.labelsize": 8})
+    matplotlib.rcParams.update({"ytick.labelsize": 8})
+    generators = [ "twinx", "twiny", "twin" ]
+    modifiers = [ "", "host invisible", "twin removed", "twin invisible",
+        "twin removed\nhost invisible" ]
+    # Unmodified host subplot at the beginning for reference
+    h = host_subplot(len(modifiers)+1, len(generators), 2)
+    h.text(0.5, 0.5, "host_subplot", horizontalalignment="center",
+        verticalalignment="center")
+    # Host subplots with various modifications (twin*, visibility) applied
+    for i, (mod, gen) in enumerate(product(modifiers, generators),
+        len(generators)+1):
+        h = host_subplot(len(modifiers)+1, len(generators), i)
+        t = getattr(h, gen)()
+        if "twin invisible" in mod:
+            t.axis[:].set_visible(False)
+        if "twin removed" in mod:
+            t.remove()
+        if "host invisible" in mod:
+            h.axis[:].set_visible(False)
+        h.text(0.5, 0.5, gen + ("\n" + mod if mod else ""),
+            horizontalalignment="center", verticalalignment="center")
+    plt.subplots_adjust(wspace=0.5, hspace=1)
 
 if __name__ == '__main__':
     import nose

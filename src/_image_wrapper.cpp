@@ -177,8 +177,8 @@ static PyObject *PyImage_color_conv(PyImage *self, PyObject *args, PyObject *kwd
                      free(buff));
 
     PyObject *result = PyByteArray_FromStringAndSize((const char *)buff, size);
+    free(buff);
     if (result == NULL) {
-        free(buff);
         return NULL;
     }
 
@@ -728,17 +728,12 @@ static PyMethodDef module_functions[] = {
 
 extern "C" {
 
-struct module_state
-{
-    int _dummy;
-};
-
 #if PY3K
 static struct PyModuleDef moduledef = {
     PyModuleDef_HEAD_INIT,
     "_image",
     NULL,
-    sizeof(struct module_state),
+    0,
     module_functions,
     NULL,
     NULL,

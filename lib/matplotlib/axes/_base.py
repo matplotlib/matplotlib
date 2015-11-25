@@ -436,8 +436,6 @@ class _AxesBase(martist.Artist):
           *aspect*           [ 'auto' | 'equal' | aspect_ratio ]
           *autoscale_on*     [ *True* | *False* ] whether or not to
                              autoscale the *viewlim*
-          *axis_bgcolor*     any matplotlib color, see
-                             :func:`~matplotlib.pyplot.colors`
           *axisbelow*        draw the grids and ticks below the other
                              artists
           *cursor_props*     a (*float*, *color*) tuple
@@ -487,14 +485,14 @@ class _AxesBase(martist.Artist):
             self._shared_x_axes.join(self, sharex)
             if sharex._adjustable == 'box':
                 sharex._adjustable = 'datalim'
-                #warnings.warn(
+                # warnings.warn(
                 #    'shared axes: "adjustable" is being changed to "datalim"')
             self._adjustable = 'datalim'
         if sharey is not None:
             self._shared_y_axes.join(self, sharey)
             if sharey._adjustable == 'box':
                 sharey._adjustable = 'datalim'
-                #warnings.warn(
+                # warnings.warn(
                 #    'shared axes: "adjustable" is being changed to "datalim"')
             self._adjustable = 'datalim'
         self.set_label(label)
@@ -509,6 +507,9 @@ class _AxesBase(martist.Artist):
 
         if axisbg is None:
             axisbg = rcParams['axes.facecolor']
+        else:
+            cbook.warn_deprecated(
+                '2.0', name='axisbg', alternative='facecolor')
         self._axisbg = axisbg
         self._frameon = frameon
         self._axisbelow = rcParams['axes.axisbelow']
@@ -543,6 +544,10 @@ class _AxesBase(martist.Artist):
         if self.yaxis is not None:
             self._ycid = self.yaxis.callbacks.connect('units finalize',
                                                       self.relim)
+        self.tick_params(top=rcParams['xtick.top'],
+                         bottom=rcParams['xtick.bottom'],
+                         left=rcParams['ytick.left'],
+                         right=rcParams['ytick.right'])
 
     def __setstate__(self, state):
         self.__dict__ = state
@@ -1003,11 +1008,11 @@ class _AxesBase(martist.Artist):
 
         self.grid(False)  # Disable grid on init to use rcParameter
         self.grid(self._gridOn, which=rcParams['axes.grid.which'],
-                    axis=rcParams['axes.grid.axis'])
+                  axis=rcParams['axes.grid.axis'])
         props = font_manager.FontProperties(
-                    size=rcParams['axes.titlesize'],
-                    weight=rcParams['axes.titleweight']
-                )
+            size=rcParams['axes.titlesize'],
+            weight=rcParams['axes.titleweight']
+            )
 
         self.titleOffsetTrans = mtransforms.ScaledTranslation(
             0.0, 5.0 / 72.0, self.figure.dpi_scale_trans)
@@ -1064,6 +1069,14 @@ class _AxesBase(martist.Artist):
     def clear(self):
         """clear the axes"""
         self.cla()
+
+    def get_facecolor(self):
+        return self.patch.get_facecolor()
+    get_fc = get_facecolor
+
+    def set_facecolor(self, color):
+        return self.patch.set_facecolor(color)
+    set_fc = set_facecolor
 
     def set_prop_cycle(self, *args, **kwargs):
         """
@@ -1122,7 +1135,7 @@ class _AxesBase(martist.Artist):
         .. deprecated:: 1.5
         """
         cbook.warn_deprecated(
-                '1.5', name='set_color_cycle', alternative='set_prop_cycle')
+            '1.5', name='set_color_cycle', alternative='set_prop_cycle')
         self.set_prop_cycle('color', clist)
 
     def ishold(self):
@@ -2620,10 +2633,12 @@ class _AxesBase(martist.Artist):
         self.axison = True
         self.stale = True
 
+    @cbook.deprecated('2.0', alternative='get_facecolor')
     def get_axis_bgcolor(self):
         """Return the axis background color"""
         return self._axisbg
 
+    @cbook.deprecated('2.0', alternative='set_facecolor')
     def set_axis_bgcolor(self, color):
         """
         set the axes background color
@@ -2631,7 +2646,9 @@ class _AxesBase(martist.Artist):
         ACCEPTS: any matplotlib color - see
         :func:`~matplotlib.pyplot.colors`
         """
-
+        warnings.warn(
+            "set_axis_bgcolor is deprecated.  Use set_facecolor instead.",
+            cbook.mplDeprecation)
         self._axisbg = color
         self.patch.set_facecolor(color)
         self.stale = True
@@ -3216,9 +3233,14 @@ class _AxesBase(martist.Artist):
     def minorticks_on(self):
         'Add autoscaling minor ticks to the axes.'
         for ax in (self.xaxis, self.yaxis):
-            if ax.get_scale() == 'log':
+            scale = ax.get_scale()
+            if scale == 'log':
                 s = ax._scale
                 ax.set_minor_locator(mticker.LogLocator(s.base, s.subs))
+            elif scale == 'symlog':
+                s = ax._scale
+                ax.set_minor_locator(
+                    mticker.SymmetricalLogLocator(s.base, s.subs))
             else:
                 ax.set_minor_locator(mticker.AutoMinorLocator())
 
@@ -3305,7 +3327,7 @@ class _AxesBase(martist.Artist):
         self.set_xlim((xmin, xmax))
         self.set_ylim((ymin, ymax))
 
-    def _set_view_from_bbox(self, bbox, original_view, direction='in',
+    def _set_view_from_bbox(self, bbox, direction='in',
                             mode=None, twinx=False, twiny=False):
         """
         Update view from a selection bbox.
@@ -3318,12 +3340,12 @@ class _AxesBase(martist.Artist):
         Parameters
         ----------
 
-        bbox : tuple
-            The selected bounding box limits, in *display* coordinates.
-
-        original_view : any
-            A view saved from before initiating the selection, the result of
-            calling :meth:`_get_view`.
+        bbox : 4-tuple or 3 tuple
+            * If bbox is a 4 tuple, it is the selected bounding box limits,
+                in *display* coordinates.
+            * If bbox is a 3 tuple, it is an (xp, yp, scl) triple, where
+                (xp,yp) is the center of zooming and scl the scale factor to
+                zoom by.
 
         direction : str
             The direction to apply the bounding box.
@@ -3342,17 +3364,52 @@ class _AxesBase(martist.Artist):
         twiny : bool
             Whether this axis is twinned in the *y*-direction.
         """
+        Xmin, Xmax = self.get_xlim()
+        Ymin, Ymax = self.get_ylim()
 
+        if len(bbox) == 3:
+            # Zooming code
+            xp, yp, scl = bbox
+
+            # Should not happen
+            if scl == 0:
+                scl = 1.
+
+            # direction = 'in'
+            if scl > 1:
+                direction = 'in'
+            else:
+                direction = 'out'
+                scl = 1/scl
+
+            # get the limits of the axes
+            tranD2C = self.transData.transform
+            xmin, ymin = tranD2C((Xmin, Ymin))
+            xmax, ymax = tranD2C((Xmax, Ymax))
+
+            # set the range
+            xwidth = xmax - xmin
+            ywidth = ymax - ymin
+            xcen = (xmax + xmin)*.5
+            ycen = (ymax + ymin)*.5
+            xzc = (xp*(scl - 1) + xcen)/scl
+            yzc = (yp*(scl - 1) + ycen)/scl
+
+            bbox = [xzc - xwidth/2./scl, yzc - ywidth/2./scl,
+                    xzc + xwidth/2./scl, yzc + ywidth/2./scl]
+        elif len(bbox) != 4:
+            # should be len 3 or 4 but nothing else
+            warnings.warn('Warning in _set_view_from_bbox: bounding box is not a\
+                  tuple of length 3 or 4. Ignoring the view change...')
+            return
+
+        # Just grab bounding box
         lastx, lasty, x, y = bbox
-
-        x0, y0, x1, y1 = original_view
 
         # zoom to rect
         inverse = self.transData.inverted()
         lastx, lasty = inverse.transform_point((lastx, lasty))
         x, y = inverse.transform_point((x, y))
-        Xmin, Xmax = self.get_xlim()
-        Ymin, Ymax = self.get_ylim()
 
         if twinx:
             x0, x1 = Xmin, Xmax

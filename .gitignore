@@ -39,6 +39,7 @@ dist
 .eggs
 # tox testing tool
 .tox
+setup.cfg
 
 # OS generated files #
 ######################
@@ -71,3 +72,11 @@ texput.aux
 result_images
 
 *.swp
+setup.cfg
+
+# Coverage generated files #
+############################
+
+.coverage
+.coverage.*
+cover/

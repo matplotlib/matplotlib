@@ -8,7 +8,7 @@ import numpy as np
 from matplotlib.testing.decorators import image_comparison, knownfailureif, cleanup
 from matplotlib.image import BboxImage, imread, NonUniformImage
 from matplotlib.transforms import Bbox
-from matplotlib import rcParams
+from matplotlib import rcParams, rc_context
 import matplotlib.pyplot as plt
 from nose.tools import assert_raises
 from numpy.testing import assert_array_equal, assert_array_almost_equal
@@ -325,7 +325,7 @@ def test_image_composite_background():
     arr = np.arange(12).reshape(4, 3)
     ax.imshow(arr, extent=[0, 2, 15, 0])
     ax.imshow(arr, extent=[4, 6, 15, 0])
-    ax.set_axis_bgcolor((1, 0, 0, 0.5))
+    ax.set_facecolor((1, 0, 0, 0.5))
     ax.set_xlim([0, 12])
 
 @image_comparison(baseline_images=['image_composite_alpha'], remove_text=True)
@@ -349,7 +349,7 @@ def test_image_composite_alpha():
     ax.imshow(arr2, extent=[0, 5, 1, 2])
     ax.imshow(arr2, extent=[0, 5, 2, 3], alpha=0.6)
     ax.imshow(arr2, extent=[0, 5, 3, 4], alpha=0.3)
-    ax.set_axis_bgcolor((0, 0.5, 0, 1))
+    ax.set_facecolor((0, 0.5, 0, 1))
     ax.set_xlim([0, 5])
     ax.set_ylim([5, 0])
 
@@ -452,6 +452,34 @@ def test_nonuniformimage_setnorm():
     ax = plt.gca()
     im = NonUniformImage(ax)
     im.set_norm(plt.Normalize())
+
+@knownfailureif(not HAS_PIL)
+@cleanup
+def test_jpeg_alpha():
+    plt.figure(figsize=(1, 1), dpi=300)
+    # Create an image that is all black, with a gradient from 0-1 in
+    # the alpha channel from left to right.
+    im = np.zeros((300, 300, 4), dtype=np.float)
+    im[..., 3] = np.linspace(0.0, 1.0, 300)
+
+    plt.figimage(im)
+
+    buff = io.BytesIO()
+    with rc_context({'savefig.facecolor': 'red'}):
+        plt.savefig(buff, transparent=True, format='jpg', dpi=300)
+
+    buff.seek(0)
+    image = Image.open(buff)
+
+    # If this fails, there will be only one color (all black). If this
+    # is working, we should have all 256 shades of grey represented.
+    print("num colors: ", len(image.getcolors(256)))
+    assert len(image.getcolors(256)) >= 175 and len(image.getcolors(256)) <= 185
+    # The fully transparent part should be red, not white or black
+    # or anything else
+    print("corner pixel: ", image.getpixel((0, 0)))
+    assert image.getpixel((0, 0)) == (254, 0, 0)
+
 
 if __name__=='__main__':
     import nose

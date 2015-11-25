@@ -80,9 +80,13 @@ class Collection(artist.Artist, cm.ScalarMappable):
     # _offsets must be a Nx2 array!
     _offsets.shape = (0, 2)
     _transOffset = transforms.IdentityTransform()
-    _transforms = []
-
-
+    #: Either a list of 3x3 arrays or an Nx3x3 array of transforms, suitable
+    #: for the `all_transforms` argument to
+    #: :meth:`~matplotlib.backend_bases.RendererBase.draw_path_collection`;
+    #: each 3x3 array is used to initialize an
+    #: :class:`~matplotlib.transforms.Affine2D` object.
+    #: Each kind of collection defines this based on its arguments.
+    _transforms = np.empty((0, 3, 3))
 
     def __init__(self,
                  edgecolors=None,
@@ -1515,7 +1519,7 @@ class EllipseCollection(Collection):
         self._angles = np.asarray(angles).ravel() * (np.pi / 180.0)
         self._units = units
         self.set_transform(transforms.IdentityTransform())
-        self._transforms = []
+        self._transforms = np.empty((0, 3, 3))
         self._paths = [mpath.Path.unit_circle()]
 
     def _set_transforms(self):

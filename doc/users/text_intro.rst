@@ -3,22 +3,25 @@
 Text introduction
 =================
 
-matplotlib has excellent text support, including mathematical
-expressions, truetype support for raster and vector outputs, newline
-separated text with arbitrary rotations, and unicode support.  Because
-we embed the fonts directly in the output documents, e.g., for postscript
+matplotlib has extensive text support, including support for
+mathematical expressions, truetype support for raster and 
+vector outputs, newline separated text with arbitrary 
+rotations, and unicode support.  Because it embeds
+fonts directly in output documents, e.g., for postscript
 or PDF, what you see on the screen is what you get in the hardcopy.
-`freetype2 <http://www.freetype.org/>`_ support
+`FreeType <http://www.freetype.org/>`_ support
 produces very nice, antialiased fonts, that look good even at small
 raster sizes.  matplotlib includes its own
-:mod:`matplotlib.font_manager`, thanks to Paul Barrett, which
-implements a cross platform, W3C compliant font finding algorithm.
+:mod:`matplotlib.font_manager` (thanks to Paul Barrett), which
+implements a cross platform, `W3C <http://www.w3.org/>`
+compliant font finding algorithm.
 
-You have total control over every text property (font size, font
-weight, text location and color, etc) with sensible defaults set in
-the rc file.  And significantly for those interested in mathematical
+The user has a great deal of control over text properties (font size, font
+weight, text location and color, etc.) with sensible defaults set in
+the `rc file <http://matplotlib.org/users/customizing.html>`.
+And significantly, for those interested in mathematical
 or scientific figures, matplotlib implements a large number of TeX
-math symbols and commands, to support :ref:`mathematical expressions
+math symbols and commands, supporting :ref:`mathematical expressions
 <mathtext-tutorial>` anywhere in your figure.
 
 
@@ -31,10 +34,10 @@ interface
 * :func:`~matplotlib.pyplot.text` - add text at an arbitrary location to the ``Axes``;
   :meth:`matplotlib.axes.Axes.text` in the API.
 
-* :func:`~matplotlib.pyplot.xlabel` - add an axis label to the x-axis;
+* :func:`~matplotlib.pyplot.xlabel` - add a label to the x-axis;
   :meth:`matplotlib.axes.Axes.set_xlabel` in the API.
 
-* :func:`~matplotlib.pyplot.ylabel` - add an axis label to the y-axis;
+* :func:`~matplotlib.pyplot.ylabel` - add a label to the y-axis;
   :meth:`matplotlib.axes.Axes.set_ylabel` in the API.
 
 * :func:`~matplotlib.pyplot.title` - add a title to the ``Axes``;

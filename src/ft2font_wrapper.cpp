@@ -7,6 +7,9 @@
 // From Python
 #include <structmember.h>
 
+#define STRINGIFY(s) XSTRINGIFY(s)
+#define XSTRINGIFY(s) #s
+
 static PyObject *convert_xys_to_array(std::vector<double> &xys)
 {
     npy_intp dims[] = {(npy_intp)xys.size() / 2, 2 };
@@ -460,11 +463,14 @@ static PyObject *PyFT2Font_new(PyTypeObject *type, PyObject *args, PyObject *kwd
     PyFT2Font *self;
     self = (PyFT2Font *)type->tp_alloc(type, 0);
     self->x = NULL;
+    self->fname = NULL;
     self->py_file = NULL;
     self->fp = NULL;
     self->close_file = 0;
     self->offset = 0;
     memset(&self->stream, 0, sizeof(FT_StreamRec));
+    self->mem = 0;
+    self->mem_size = 0;
     return (PyObject *)self;
 }
 
@@ -954,6 +960,27 @@ static PyObject *PyFT2Font_get_charmap(PyFT2Font *self, PyObject *args, PyObject
     return charmap;
 }
 
+
+const char *PyFT2Font_get_char_index__doc__ =
+    "get_char_index()\n"
+    "\n"
+    "Given a character code, returns a glyph index.\n";
+
+static PyObject *PyFT2Font_get_char_index(PyFT2Font *self, PyObject *args, PyObject *kwds)
+{
+    FT_UInt index;
+    FT_ULong ccode;
+
+    if (!PyArg_ParseTuple(args, "I:get_char_index", &ccode)) {
+        return NULL;
+    }
+
+    index = FT_Get_Char_Index(self->x->get_face(), ccode);
+
+    return PyLong_FromLong(index);
+}
+
+
 const char *PyFT2Font_get_sfnt__doc__ =
     "get_sfnt(name)\n"
     "\n"
@@ -1032,6 +1059,8 @@ static PyObject *PyFT2Font_get_name_index(PyFT2Font *self, PyObject *args, PyObj
 
     CALL_CPP("get_name_index", name_index = self->x->get_name_index(glyphname));
 
+    PyMem_Free(glyphname);
+
     return PyLong_FromLong(name_index);
 }
 
@@ -1084,6 +1113,8 @@ static PyObject *PyFT2Font_get_sfnt_table(PyFT2Font *self, PyObject *args, PyObj
             break;
         }
     }
+
+    PyMem_Free(tagname);
 
     void *table = FT_Get_Sfnt_Table(self->x->get_face(), (FT_Sfnt_Tag)tag);
     if (!table) {
@@ -1602,6 +1633,7 @@ static PyTypeObject *PyFT2Font_init_type(PyObject *m, PyTypeObject *type)
         {"draw_glyph_to_bitmap", (PyCFunction)PyFT2Font_draw_glyph_to_bitmap, METH_VARARGS|METH_KEYWORDS, PyFT2Font_draw_glyph_to_bitmap__doc__},
         {"get_glyph_name", (PyCFunction)PyFT2Font_get_glyph_name, METH_VARARGS, PyFT2Font_get_glyph_name__doc__},
         {"get_charmap", (PyCFunction)PyFT2Font_get_charmap, METH_NOARGS, PyFT2Font_get_charmap__doc__},
+        {"get_char_index", (PyCFunction)PyFT2Font_get_char_index, METH_VARARGS, PyFT2Font_get_char_index__doc__},
         {"get_sfnt", (PyCFunction)PyFT2Font_get_sfnt, METH_NOARGS, PyFT2Font_get_sfnt__doc__},
         {"get_name_index", (PyCFunction)PyFT2Font_get_name_index, METH_VARARGS, PyFT2Font_get_name_index__doc__},
         {"get_ps_font_info", (PyCFunction)PyFT2Font_get_ps_font_info, METH_NOARGS, PyFT2Font_get_ps_font_info__doc__},
@@ -1640,15 +1672,18 @@ static PyTypeObject *PyFT2Font_init_type(PyObject *m, PyTypeObject *type)
 
 extern "C" {
 
-struct module_state
-{
-    int _dummy;
-};
-
 #if PY3K
-static struct PyModuleDef moduledef = { PyModuleDef_HEAD_INIT,       "ft2font", NULL,
-                                        sizeof(struct module_state), NULL,      NULL,
-                                        NULL,                        NULL,      NULL };
+static struct PyModuleDef moduledef = {
+    PyModuleDef_HEAD_INIT,
+    "ft2font",
+    NULL,
+    0,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL
+};
 
 #define INITERROR return NULL
 
@@ -1730,7 +1765,7 @@ PyMODINIT_FUNC initft2font(void)
     int error = FT_Init_FreeType(&_ft2Library);
 
     if (error) {
-        PyErr_SetString(PyExc_RuntimeError, "Could not find initialize the freetype2 library");
+        PyErr_SetString(PyExc_RuntimeError, "Could not initialize the freetype2 library");
         INITERROR;
     }
 
@@ -1743,6 +1778,10 @@ PyMODINIT_FUNC initft2font(void)
         if (PyModule_AddStringConstant(m, "__freetype_version__", version_string)) {
             INITERROR;
         }
+    }
+
+    if (PyModule_AddStringConstant(m, "__freetype_build_type__", STRINGIFY(FREETYPE_BUILD_TYPE))) {
+        INITERROR;
     }
 
     import_array();

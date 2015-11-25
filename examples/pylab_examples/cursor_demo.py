@@ -1,17 +1,19 @@
-#!/usr/bin/env python
 # -*- noplot -*-
 
 """
-
 This example shows how to use matplotlib to provide a data cursor.  It
 uses matplotlib to draw the cursor and may be a slow since this
 requires redrawing the figure with every mouse move.
 
 Faster cursoring is possible using native GUI drawing, as in
-wxcursor_demo.py
+wxcursor_demo.py.
+
+Also, mpldatacursor can be used to achieve a similar effect. See webpage:
+https://github.com/joferkington/mpldatacursor
 """
 from __future__ import print_function
-from pylab import *
+import matplotlib.pyplot as plt
+import numpy as np
 
 
 class Cursor(object):
@@ -33,7 +35,7 @@ class Cursor(object):
         self.ly.set_xdata(x)
 
         self.txt.set_text('x=%1.2f, y=%1.2f' % (x, y))
-        draw()
+        plt.draw()
 
 
 class SnaptoCursor(object):
@@ -58,7 +60,7 @@ class SnaptoCursor(object):
 
         x, y = event.xdata, event.ydata
 
-        indx = searchsorted(self.x, [x])[0]
+        indx = min(np.searchsorted(self.x, [x])[0], len(self.x) - 1)
         x = self.x[indx]
         y = self.y[indx]
         # update the line positions
@@ -67,16 +69,16 @@ class SnaptoCursor(object):
 
         self.txt.set_text('x=%1.2f, y=%1.2f' % (x, y))
         print('x=%1.2f, y=%1.2f' % (x, y))
-        draw()
+        plt.draw()
 
-t = arange(0.0, 1.0, 0.01)
-s = sin(2*2*pi*t)
-fig, ax = subplots()
+t = np.arange(0.0, 1.0, 0.01)
+s = np.sin(2*2*np.pi*t)
+fig, ax = plt.subplots()
 
-cursor = Cursor(ax)
-#cursor = SnaptoCursor(ax, t, s)
-connect('motion_notify_event', cursor.mouse_move)
+#cursor = Cursor(ax)
+cursor = SnaptoCursor(ax, t, s)
+plt.connect('motion_notify_event', cursor.mouse_move)
 
 ax.plot(t, s, 'o')
-axis([0, 1, -1, 1])
-show()
+plt.axis([0, 1, -1, 1])
+plt.show()

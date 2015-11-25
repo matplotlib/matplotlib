@@ -666,7 +666,8 @@ class BboxBase(TransformNode):
 
         bboxes is a sequence of :class:`BboxBase` objects
         """
-        return count_bboxes_overlapping_bbox(self, [np.array(x) for x in bboxes])
+        return count_bboxes_overlapping_bbox(
+            self, np.atleast_3d([np.array(x) for x in bboxes]))
 
     def expanded(self, sw, sh):
         """
@@ -1533,6 +1534,10 @@ class TransformWrapper(Transform):
             msg = ("'child' must be an instance of"
                    " 'matplotlib.transform.Transform'")
             raise ValueError(msg)
+        self._init(child)
+        self.set_children(child)
+
+    def _init(self, child):
         Transform.__init__(self)
         self.input_dims = child.input_dims
         self.output_dims = child.output_dims
@@ -1548,12 +1553,18 @@ class TransformWrapper(Transform):
             return str(self._child)
 
     def __getstate__(self):
-        # only store the child
-        return {'child': self._child}
+        # only store the child and parents
+        return {
+            'child': self._child,
+            # turn the weakkey dictionary into a normal dictionary
+            'parents': dict(six.iteritems(self._parents))
+        }
 
     def __setstate__(self, state):
         # re-initialise the TransformWrapper with the state's child
-        self.__init__(state['child'])
+        self._init(state['child'])
+        # turn the normal dictionary back into a WeakValueDictionary
+        self._parents = WeakValueDictionary(state['parents'])
 
     def __repr__(self):
         return "TransformWrapper(%r)" % self._child
@@ -1564,7 +1575,6 @@ class TransformWrapper(Transform):
 
     def _set(self, child):
         self._child = child
-        self.set_children(child)
 
         self.transform = child.transform
         self.transform_affine = child.transform_affine
@@ -1593,6 +1603,7 @@ class TransformWrapper(Transform):
                    " output dimensions as the current child.")
             raise ValueError(msg)
 
+        self.set_children(child)
         self._set(child)
 
         self._invalid = 0
@@ -2702,6 +2713,46 @@ class TransformedPath(TransformNode):
 
     def get_affine(self):
         return self._transform.get_affine()
+
+
+class TransformedPatchPath(TransformedPath):
+    """
+    A :class:`TransformedPatchPath` caches a non-affine transformed copy of
+    the :class:`~matplotlib.path.Patch`. This cached copy is automatically
+    updated when the non-affine part of the transform or the patch changes.
+    """
+    def __init__(self, patch):
+        """
+        Create a new :class:`TransformedPatchPath` from the given
+        :class:`~matplotlib.path.Patch`.
+        """
+        TransformNode.__init__(self)
+
+        transform = patch.get_transform()
+        self._patch = patch
+        self._transform = transform
+        self.set_children(transform)
+        self._path = patch.get_path()
+        self._transformed_path = None
+        self._transformed_points = None
+
+    def _revalidate(self):
+        patch_path = self._patch.get_path()
+        # Only recompute if the invalidation includes the non_affine part of
+        # the transform, or the Patch's Path has changed.
+        if (self._transformed_path is None or self._path != patch_path or
+                (self._invalid & self.INVALID_NON_AFFINE ==
+                    self.INVALID_NON_AFFINE)):
+            self._path = patch_path
+            self._transformed_path = \
+                self._transform.transform_path_non_affine(patch_path)
+            self._transformed_points = \
+                Path._fast_from_codes_and_verts(
+                    self._transform.transform_non_affine(patch_path.vertices),
+                    None,
+                    {'interpolation_steps': patch_path._interpolation_steps,
+                     'should_simplify': patch_path.should_simplify})
+        self._invalid = 0
 
 
 def nonsingular(vmin, vmax, expander=0.001, tiny=1e-15, increasing=True):

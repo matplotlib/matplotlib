@@ -22,6 +22,7 @@ from itertools import chain
 import numpy as np
 from matplotlib.rcsetup import (validate_bool_maybe_none,
                                 validate_stringlist,
+                                validate_colorlist,
                                 validate_bool,
                                 validate_nseq_int,
                                 validate_nseq_float,
@@ -245,7 +246,9 @@ def test_Issue_1713():
 
 def _validation_test_helper(validator, arg, target):
     res = validator(arg)
-    if not isinstance(target, Cycler):
+    if isinstance(target, np.ndarray):
+        assert_true(np.all(res == target))
+    elif not isinstance(target, Cycler):
         assert_equal(res, target)
     else:
         # Cyclers can't simply be asserted equal. They don't implement __eq__
@@ -277,10 +280,15 @@ def test_validators():
                      ('aardvark, ,', ['aardvark']),
                      (['a', 'b'], ['a', 'b']),
                      (('a', 'b'), ['a', 'b']),
-                     ((1, 2), ['1', '2'])),
-            'fail': ((dict(), ValueError),
-                     (1, ValueError),)
-            },
+                     (iter(['a', 'b']), ['a', 'b']),
+                     (np.array(['a', 'b']), ['a', 'b']),
+                     ((1, 2), ['1', '2']),
+                     (np.array([1, 2]), ['1', '2']),
+                    ),
+         'fail': ((dict(), ValueError),
+                  (1, ValueError),
+                 )
+        },
         {'validator': validate_nseq_int(2),
          'success': ((_, [1, 2])
                      for _ in ('1, 2', [1.5, 2.5], [1, 2],
@@ -343,6 +351,19 @@ def test_validators():
                   (8, ValueError),
                   ('X', ValueError)),
         },
+        {'validator': validate_colorlist,
+         'success': (('r,g,b', ['r', 'g', 'b']),
+                     (['r', 'g', 'b'], ['r', 'g', 'b']),
+                     ('r, ,', ['r']),
+                     (['', 'g', 'blue'], ['g', 'blue']),
+                     ([np.array([1, 0, 0]), np.array([0, 1, 0])],
+                         np.array([[1, 0, 0], [0, 1, 0]])),
+                     (np.array([[1, 0, 0], [0, 1, 0]]),
+                         np.array([[1, 0, 0], [0, 1, 0]])),
+                    ),
+         'fail': (('fish', ValueError),
+                 ),
+        }
     )
 
     for validator_dict in validation_tests:

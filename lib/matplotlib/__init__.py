@@ -197,10 +197,11 @@ if not hasattr(sys, 'argv'):  # for modpython
 
 
 major, minor1, minor2, s, tmp = sys.version_info
-_python26 = (major == 2 and minor1 >= 6) or major >= 3
+_python27 = (major == 2 and minor1 >= 7)
+_python34 = (major == 3 and minor1 >= 4)
 
-if not _python26:
-    raise ImportError('matplotlib requires Python 2.6 or later')
+if not (_python27 or _python34):
+    raise ImportError('matplotlib requires Python 2.7 or 3.4 or later')
 
 
 if not compare_versions(numpy.__version__, __version__numpy__):
@@ -755,9 +756,11 @@ def matplotlib_fname():
 
     - `$PWD/matplotlibrc`
 
-    - environment variable `MATPLOTLIBRC`
+    - `$MATPLOTLIBRC` if it is a file
 
-    - `$MPLCONFIGDIR/matplotlib`
+    - `$MATPLOTLIBRC/matplotlibrc`
+
+    - `$MPLCONFIGDIR/matplotlibrc`
 
     - On Linux,
 
@@ -787,6 +790,8 @@ def matplotlib_fname():
     if 'MATPLOTLIBRC' in os.environ:
         path = os.environ['MATPLOTLIBRC']
         if os.path.exists(path):
+            if os.path.isfile(path):
+                return path
             fname = os.path.join(path, 'matplotlibrc')
             if os.path.exists(fname):
                 return fname
@@ -1076,8 +1081,9 @@ def _rc_params_in_file(fname, fail_on_error=False):
 Bad key "%s" on line %d in
 %s.
 You probably need to get an updated matplotlibrc file from
-http://matplotlib.sf.net/_static/matplotlibrc or from the matplotlib source
-distribution""" % (key, cnt, fname), file=sys.stderr)
+http://github.com/matplotlib/matplotlib/blob/master/matplotlibrc.template
+or from the matplotlib source distribution""" % (key, cnt, fname),
+                  file=sys.stderr)
 
     return config
 
@@ -1429,6 +1435,7 @@ default_test_modules = [
     'matplotlib.tests.test_backend_pgf',
     'matplotlib.tests.test_backend_ps',
     'matplotlib.tests.test_backend_qt4',
+    'matplotlib.tests.test_backend_qt5',
     'matplotlib.tests.test_backend_svg',
     'matplotlib.tests.test_basic',
     'matplotlib.tests.test_bbox_tight',
@@ -1481,7 +1488,29 @@ default_test_modules = [
     ]
 
 
-def verify_test_dependencies():
+def _init_tests():
+    try:
+        import faulthandler
+    except ImportError:
+        pass
+    else:
+        faulthandler.enable()
+
+    if not os.path.isdir(os.path.join(os.path.dirname(__file__), 'tests')):
+        raise ImportError("matplotlib test data is not installed")
+
+    # The version of FreeType to install locally for running the
+    # tests.  This must match the value in `setupext.py`
+    LOCAL_FREETYPE_VERSION = '2.6.1'
+
+    from matplotlib import ft2font
+    if (ft2font.__freetype_version__ != LOCAL_FREETYPE_VERSION or
+        ft2font.__freetype_build_type__ != 'local'):
+        warnings.warn(
+            "matplotlib is not built with the correct FreeType version to run "
+            "tests.  Set local_freetype=True in setup.cfg and rebuild. "
+            "Expect many image comparison failures below.")
+
     try:
         import nose
         try:
@@ -1493,41 +1522,52 @@ def verify_test_dependencies():
         raise
 
 
-def test(verbosity=1):
+def _get_extra_test_plugins():
+    from .testing.noseclasses import KnownFailure
+    from nose.plugins import attrib
+
+    return [KnownFailure, attrib.Plugin]
+
+
+def _get_nose_env():
+    env = {'NOSE_COVER_PACKAGE': 'matplotlib',
+           'NOSE_COVER_HTML': 1,
+           'NOSE_COVER_NO_PRINT': 1}
+    return env
+
+
+def test(verbosity=1, coverage=False):
     """run the matplotlib test suite"""
-    verify_test_dependencies()
-    try:
-        import faulthandler
-    except ImportError:
-        pass
-    else:
-        faulthandler.enable()
+    _init_tests()
 
     old_backend = rcParams['backend']
     try:
         use('agg')
         import nose
         import nose.plugins.builtin
-        from .testing.noseclasses import KnownFailure
         from nose.plugins.manager import PluginManager
         from nose.plugins import multiprocess
 
         # store the old values before overriding
-        plugins = []
-        plugins.append(KnownFailure())
-        plugins.extend([plugin() for plugin in nose.plugins.builtin.plugins])
+        plugins = _get_extra_test_plugins()
+        plugins.extend([plugin for plugin in nose.plugins.builtin.plugins])
 
-        manager = PluginManager(plugins=plugins)
+        manager = PluginManager(plugins=[x() for x in plugins])
         config = nose.config.Config(verbosity=verbosity, plugins=manager)
 
         # Nose doesn't automatically instantiate all of the plugins in the
         # child processes, so we have to provide the multiprocess plugin with
         # a list.
-        multiprocess._instantiate_plugins = [KnownFailure]
+        multiprocess._instantiate_plugins = plugins
+
+        env = _get_nose_env()
+        if coverage:
+            env['NOSE_WITH_COVERAGE'] = 1
 
         success = nose.run(
             defaultTest=default_test_modules,
             config=config,
+            env=env,
         )
     finally:
         if old_backend.lower() != 'agg':

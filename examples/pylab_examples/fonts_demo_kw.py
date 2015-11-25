@@ -7,7 +7,7 @@ from matplotlib.font_manager import FontProperties
 import matplotlib.pyplot as plt
 import numpy as np
 
-plt.subplot(111, axisbg='w')
+plt.subplot(111, facecolor='w')
 alignment = {'horizontalalignment': 'center', 'verticalalignment': 'baseline'}
 
 # Show family options

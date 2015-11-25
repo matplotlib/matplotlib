@@ -331,6 +331,9 @@ class array_view_accessors<AV, T, 3>
 
 };
 
+// When adding instantiations of array_view_accessors, remember to add entries
+// to zeros[] below.
+
 }
 
 static npy_intp zeros[] = { 0, 0, 0 };
@@ -443,13 +446,18 @@ class array_view : public detail::array_view_accessors<array_view, T, ND>
                 m_data = NULL;
                 m_shape = zeros;
                 m_strides = zeros;
-            } else if (PyArray_NDIM(tmp) != ND) {
-                PyErr_Format(PyExc_ValueError,
-                             "Expected %d-dimensional array, got %d",
-                             ND,
-                             PyArray_NDIM(tmp));
-                Py_DECREF(tmp);
-                return 0;
+		if (PyArray_NDIM(tmp) == 0 && ND == 0) {
+		    m_arr = tmp;
+		    return 1;
+		}
+            }
+	    if (PyArray_NDIM(tmp) != ND) {
+		PyErr_Format(PyExc_ValueError,
+			     "Expected %d-dimensional array, got %d",
+			     ND,
+			     PyArray_NDIM(tmp));
+		Py_DECREF(tmp);
+		return 0;
             }
 
             /* Copy some of the data to the view object for faster access */
@@ -465,15 +473,29 @@ class array_view : public detail::array_view_accessors<array_view, T, ND>
 
     npy_intp dim(size_t i) const
     {
-        if (i > ND) {
+        if (i >= ND) {
             return 0;
         }
         return m_shape[i];
     }
 
+    /*
+       In most cases, code should use size() instead of dim(0), since
+       size() == 0 when any dimension is 0.
+    */
     size_t size() const
     {
-        return (size_t)dim(0);
+        bool empty = (ND == 0);
+        for (size_t i = 0; i < ND; i++) {
+            if (m_shape[i] == 0) {
+                empty = true;
+            }
+        }
+        if (empty) {
+            return 0;
+        } else {
+            return (size_t)dim(0);
+        }
     }
 
     bool empty() const

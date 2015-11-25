@@ -7,6 +7,7 @@ from matplotlib import pyplot as plt
 from matplotlib.testing.decorators import cleanup, switch_backend
 from matplotlib.testing.decorators import knownfailureif
 from matplotlib._pylab_helpers import Gcf
+import matplotlib.style as mstyle
 import copy
 
 try:
@@ -16,7 +17,9 @@ except ImportError:
     import mock
 
 try:
-    from matplotlib.backends.qt_compat import QtCore
+    with mstyle.context({'backend': 'Qt4Agg'}):
+        from matplotlib.backends.qt_compat import QtCore
+
     from matplotlib.backends.backend_qt4 import (MODIFIER_KEYS,
                                                  SUPER, ALT, CTRL, SHIFT)
 
@@ -24,7 +27,14 @@ try:
     _, AltModifier, AltKey = MODIFIER_KEYS[ALT]
     _, SuperModifier, SuperKey = MODIFIER_KEYS[SUPER]
     _, ShiftModifier, ShiftKey = MODIFIER_KEYS[SHIFT]
-    HAS_QT = True
+
+    try:
+        py_qt_ver = int(QtCore.PYQT_VERSION_STR.split('.')[0])
+    except AttributeError:
+        py_qt_ver = QtCore.__version_info__[0]
+    print(py_qt_ver)
+    HAS_QT = py_qt_ver == 4
+
 except ImportError:
     HAS_QT = False
 
@@ -33,7 +43,7 @@ except ImportError:
 @knownfailureif(not HAS_QT)
 @switch_backend('Qt4Agg')
 def test_fig_close():
-    #save the state of Gcf.figs
+    # save the state of Gcf.figs
     init_figs = copy.copy(Gcf.figs)
 
     # make a figure using pyplot interface

@@ -1,0 +1,203 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+  "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Created with matplotlib (http://matplotlib.org/) -->
+<svg height="54pt" version="1.1" viewBox="0 0 378 54" width="378pt" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+ <defs>
+  <style type="text/css">
+*{stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:100000;}
+  </style>
+ </defs>
+ <g id="figure_1">
+  <g id="patch_1">
+   <path d="M 0 54 
+L 378 54 
+L 378 0 
+L 0 0 
+z
+" style="fill:#ffffff;"/>
+  </g>
+  <g id="text_1">
+   <!-- $\sqrt{1+\sqrt{1+\sqrt{1+\sqrt{1+\sqrt{1+\sqrt{1+\sqrt{1+x}}}}}}}$ -->
+   <defs>
+    <path d="M 14.203125 0 
+L 14.203125 5.171875 
+L 26.90625 5.171875 
+L 26.90625 65.828125 
+L 12.203125 56.296875 
+L 12.203125 62.703125 
+L 29.984375 74.21875 
+L 36.71875 74.21875 
+L 36.71875 5.171875 
+L 49.421875 5.171875 
+L 49.421875 0 
+z
+" id="DejaVuSerif-31"/>
+    <path d="M 45.796875 62.703125 
+L 45.796875 35.296875 
+L 73.1875 35.296875 
+L 73.1875 27.390625 
+L 45.796875 27.390625 
+L 45.796875 0 
+L 37.984375 0 
+L 37.984375 27.390625 
+L 10.59375 27.390625 
+L 10.59375 35.296875 
+L 37.984375 35.296875 
+L 37.984375 62.703125 
+z
+" id="DejaVuSerif-2b"/>
+    <path d="M 96.296875 97.296875 
+L 48.5 -25.90625 
+L 45.296875 -25.90625 
+L 25.09375 27.09375 
+Q 22.90625 33 18.90625 33 
+Q 15.796875 33 12.40625 29.90625 
+L 11.203125 31.90625 
+L 26.796875 44.296875 
+L 28.703125 44.296875 
+L 49.09375 -9.296875 
+L 49.5 -9.296875 
+L 90.90625 97.296875 
+z
+" id="STIXGeneral-Regular-221a"/>
+    <path d="M 6.390625 0 
+L 0.296875 0 
+L 23.1875 24.90625 
+L 11.671875 46.6875 
+L 5.28125 46.6875 
+L 6.25 51.90625 
+L 19.4375 51.90625 
+L 30.21875 31.6875 
+L 48.828125 51.90625 
+L 54.9375 51.90625 
+L 32.46875 27.484375 
+L 44.34375 5.171875 
+L 51.125 5.171875 
+L 50.140625 0 
+L 36.53125 0 
+L 25.484375 20.703125 
+z
+" id="DejaVuSerif-Italic-78"/>
+    <path d="M 115.703125 205.59375 
+L 56.703125 -40.40625 
+L 50.796875 -40.40625 
+L 25.796875 62.796875 
+Q 24.796875 66.796875 23.390625 68.890625 
+Q 22 71 19.40625 71 
+Q 16.09375 71 12.5 68.203125 
+L 11 70.90625 
+L 29.296875 83.59375 
+L 32.09375 83.59375 
+L 56 -15.296875 
+L 56.703125 -15.296875 
+L 109.59375 205.59375 
+z
+" id="STIXSizeTwoSym-Regular-221a"/>
+    <path d="M 111 256.5 
+L 56.796875 -51 
+L 51.09375 -51 
+L 28.59375 75.40625 
+Q 27.40625 81.90625 25.90625 84.90625 
+Q 24.40625 87.90625 21.5 87.90625 
+Q 16.90625 87.90625 13 84.59375 
+L 11.203125 88 
+L 33.203125 101.90625 
+L 37.09375 101.90625 
+L 57 -9.90625 
+L 57.40625 -9.90625 
+L 104.296875 256.5 
+z
+" id="STIXSizeThreeSym-Regular-221a"/>
+    <path d="M 108.90625 155.203125 
+L 52.703125 -29.5 
+L 48.5 -29.5 
+L 25.40625 45.59375 
+Q 24.296875 49.203125 22.890625 50.796875 
+Q 21.5 52.40625 19.203125 52.40625 
+Q 15.796875 52.40625 12.40625 49.703125 
+L 11.203125 51.703125 
+L 27.59375 64.296875 
+L 30.09375 64.296875 
+L 52.796875 -9.40625 
+L 53.203125 -9.40625 
+L 103.203125 155.203125 
+z
+" id="STIXSizeOneSym-Regular-221a"/>
+   </defs>
+   <g transform="translate(56.94 44.664375)scale(0.12 -0.12)">
+    <use transform="translate(0.0 55.546875)scale(1.0711382113821137)" xlink:href="#STIXSizeThreeSym-Regular-221a"/>
+    <use transform="translate(127.76651000976562 0.625)" xlink:href="#DejaVuSerif-31"/>
+    <use transform="translate(210.35440063476562 0.625)" xlink:href="#DejaVuSerif-2b"/>
+    <use transform="translate(313.1083068847656 49.078125)scale(0.951117886178862)" xlink:href="#STIXSizeThreeSym-Regular-221a"/>
+    <use transform="translate(427.96278381347656 0.28125)" xlink:href="#DejaVuSerif-31"/>
+    <use transform="translate(510.55067443847656 0.28125)" xlink:href="#DejaVuSerif-2b"/>
+    <use transform="translate(613.3045806884766 42.609375)scale(0.833130081300813)" xlink:href="#STIXSizeThreeSym-Regular-221a"/>
+    <use transform="translate(715.5160827636719 0.3125)" xlink:href="#DejaVuSerif-31"/>
+    <use transform="translate(798.1039733886719 0.3125)" xlink:href="#DejaVuSerif-2b"/>
+    <use transform="translate(900.8578796386719 36.265625)scale(0.8871951219512195)" xlink:href="#STIXSizeTwoSym-Regular-221a"/>
+    <use transform="translate(1013.1128845214844 0.0)" xlink:href="#DejaVuSerif-31"/>
+    <use transform="translate(1095.7007751464844 0.0)" xlink:href="#DejaVuSerif-2b"/>
+    <use transform="translate(1198.4546813964844 28.90625)scale(0.9817274342272228)" xlink:href="#STIXSizeOneSym-Regular-221a"/>
+    <use transform="translate(1314.6728057861328 -0.328125)" xlink:href="#DejaVuSerif-31"/>
+    <use transform="translate(1397.2606964111328 -0.328125)" xlink:href="#DejaVuSerif-2b"/>
+    <use transform="translate(1500.0146026611328 22.6875)scale(0.7753151171643685)" xlink:href="#STIXSizeOneSym-Regular-221a"/>
+    <use transform="translate(1594.4320831298828 -0.453125)" xlink:href="#DejaVuSerif-31"/>
+    <use transform="translate(1677.0199737548828 -0.453125)" xlink:href="#DejaVuSerif-2b"/>
+    <use transform="translate(1779.7738800048828 21.828125)scale(0.8560558021559924)" xlink:href="#STIXGeneral-Regular-221a"/>
+    <use transform="translate(1871.733871459961 0.03125)" xlink:href="#DejaVuSerif-31"/>
+    <use transform="translate(1954.321762084961 0.03125)" xlink:href="#DejaVuSerif-2b"/>
+    <use transform="translate(2057.075668334961 0.03125)" xlink:href="#DejaVuSerif-Italic-78"/>
+    <path d="M 115.26651 323.5 
+L 115.26651 329.75 
+L 2200.972153 329.75 
+L 2200.972153 323.5 
+L 115.26651 323.5 
+z
+"/>
+    <path d="M 415.462784 286.25 
+L 415.462784 292.5 
+L 2188.472153 292.5 
+L 2188.472153 286.25 
+L 415.462784 286.25 
+z
+"/>
+    <path d="M 703.016083 249 
+L 703.016083 255.25 
+L 2175.972153 255.25 
+L 2175.972153 249 
+L 703.016083 249 
+z
+"/>
+    <path d="M 1000.612885 212.75 
+L 1000.612885 219 
+L 2163.472153 219 
+L 2163.472153 212.75 
+L 1000.612885 212.75 
+z
+"/>
+    <path d="M 1302.172806 174.5 
+L 1302.172806 180.75 
+L 2150.972153 180.75 
+L 2150.972153 174.5 
+L 1302.172806 174.5 
+z
+"/>
+    <path d="M 1581.932083 137.25 
+L 1581.932083 143.5 
+L 2138.472153 143.5 
+L 2138.472153 137.25 
+L 1581.932083 137.25 
+z
+"/>
+    <path d="M 1859.233871 99 
+L 1859.233871 105.25 
+L 2125.972153 105.25 
+L 2125.972153 99 
+L 1859.233871 99 
+z
+"/>
+   </g>
+  </g>
+ </g>
+</svg>

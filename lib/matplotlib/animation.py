@@ -405,6 +405,12 @@ class FFMpegBase(object):
         # The %dk adds 'k' as a suffix so that ffmpeg treats our bitrate as in
         # kbps
         args = ['-vcodec', self.codec]
+        # For h264, the default format is yuv444p, which is not compatible
+        # with quicktime (and others). Specifying yuv420p fixes playback on
+        # iOS,as well as HTML5 video in firefox and safari (on both Win and
+        # OSX). Also fixes internet explorer. This is as of 2015/10/29.
+        if self.codec == 'h264' and '-pix_fmt' not in self.extra_args:
+            args.extend(['-pix_fmt', 'yuv420p'])
         if self.bitrate > 0:
             args.extend(['-b', '%dk' % self.bitrate])
         if self.extra_args:
@@ -440,7 +446,8 @@ class FFMpegFileWriter(FileMovieWriter, FFMpegBase):
     def _args(self):
         # Returns the command line parameters for subprocess to use
         # ffmpeg to create a movie using a collection of temp images
-        return [self.bin_path(), '-i', self._base_temp_name(),
+        return [self.bin_path(), '-r', str(self.fps),
+                '-i', self._base_temp_name(),
                 '-vframes', str(self._frame_counter),
                 '-r', str(self.fps)] + self.output_args
 
@@ -765,7 +772,8 @@ class Animation(object):
         with writer.saving(self._fig, filename, dpi):
             for anim in all_anim:
                 # Clear the initial frame
-                anim._init_draw()
+                if anim._init_func:
+                    anim._init_draw()
             for data in zip(*[a.new_saved_frame_seq()
                               for a in all_anim]):
                 for anim, d in zip(all_anim, data):

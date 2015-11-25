@@ -766,9 +766,8 @@ void VoronoiDiagramGenerator::out_vertex(struct Site *v)
 
 void VoronoiDiagramGenerator::out_site(struct Site *s)
 {
-    if(!triangulate & plot & !debug)
+    if(!triangulate && plot && !debug)
         circle (s->coord.x, s->coord.y, cradius);
-    
 }
 
 
@@ -932,7 +931,10 @@ bool VoronoiDiagramGenerator::voronoi(int triangulate)
 
     if(!retval)
         return false;
-    
+
+    newintstar.x = 0;
+    newintstar.y = 0;
+
     newsite = nextone();
     while(1)
     {

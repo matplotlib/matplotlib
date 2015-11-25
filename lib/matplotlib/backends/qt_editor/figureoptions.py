@@ -46,8 +46,8 @@ def figure_edit(axes, parent=None):
     has_curve = len(axes.get_lines()) > 0
 
     # Get / General
-    xmin, xmax = axes.get_xlim()
-    ymin, ymax = axes.get_ylim()
+    xmin, xmax = map(float, axes.get_xlim())
+    ymin, ymax = map(float, axes.get_ylim())
     general = [('Title', axes.get_title()),
                sep,
                (None, "<b>X-Axis</b>"),
@@ -78,29 +78,51 @@ def figure_edit(axes, parent=None):
                 continue
             linedict[label] = line
         curves = []
-        linestyles = list(six.iteritems(LINESTYLES))
-        drawstyles = list(six.iteritems(DRAWSTYLES))
-        markers = list(six.iteritems(MARKERS))
+
+        def prepare_data(d, init):
+            """Prepare entry for FormLayout.
+
+            `d` is a mapping of shorthands to style names (a single style may
+            have multiple shorthands, in particular the shorthands `None`,
+            `"None"`, `"none"` and `""` are synonyms); `init` is one shorthand
+            of the initial style.
+
+            This function returns an list suitable for initializing a
+            FormLayout combobox, namely `[initial_name, (shorthand,
+            style_name), (shorthand, style_name), ...]`.
+            """
+            # Drop duplicate shorthands from dict (by overwriting them during
+            # the dict comprehension).
+            name2short = {name: short for short, name in d.items()}
+            # Convert back to {shorthand: name}.
+            short2name = {short: name for name, short in name2short.items()}
+            # Find the kept shorthand for the style specified by init.
+            canonical_init = name2short[d[init]]
+            # Sort by representation and prepend the initial value.
+            return ([canonical_init] +
+                    sorted(short2name.items(),
+                           key=lambda short_and_name: short_and_name[1]))
+
         curvelabels = sorted(linedict.keys())
         for label in curvelabels:
             line = linedict[label]
             color = rgb2hex(colorConverter.to_rgb(line.get_color()))
             ec = rgb2hex(colorConverter.to_rgb(line.get_markeredgecolor()))
             fc = rgb2hex(colorConverter.to_rgb(line.get_markerfacecolor()))
-            curvedata = [('Label', label),
-                         sep,
-                         (None, '<b>Line</b>'),
-                         ('Line Style', [line.get_linestyle()] + linestyles),
-                         ('Draw Style', [line.get_drawstyle()] + drawstyles),
-                         ('Width', line.get_linewidth()),
-                         ('Color', color),
-                         sep,
-                         (None, '<b>Marker</b>'),
-                         ('Style', [line.get_marker()] + markers),
-                         ('Size', line.get_markersize()),
-                         ('Facecolor', fc),
-                         ('Edgecolor', ec),
-                         ]
+            curvedata = [
+                ('Label', label),
+                sep,
+                (None, '<b>Line</b>'),
+                ('Line Style', prepare_data(LINESTYLES, line.get_linestyle())),
+                ('Draw Style', prepare_data(DRAWSTYLES, line.get_drawstyle())),
+                ('Width', line.get_linewidth()),
+                ('Color', color),
+                sep,
+                (None, '<b>Marker</b>'),
+                ('Style', prepare_data(MARKERS, line.get_marker())),
+                ('Size', line.get_markersize()),
+                ('Facecolor', fc),
+                ('Edgecolor', ec)]
             curves.append([curvedata, label, ""])
 
         # make sure that there is at least one displayed curve

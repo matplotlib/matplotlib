@@ -1887,8 +1887,8 @@ GraphicsContext_draw_quad_mesh (GraphicsContext* self, PyObject* args)
     }
 
     size_t i = 0;
-    size_t iw = 0;
-    size_t ih = 0;
+    int iw = 0;
+    int ih = 0;
 
     /* Preset graphics context properties if possible */
     CGContextSetShouldAntialias(cr, antialiased);
@@ -3740,7 +3740,7 @@ FigureCanvas_write_bitmap(FigureCanvas* self, PyObject* args)
         return NULL;
     }
 
-    data = [rep representationUsingType:filetype properties:nil];
+    data = [rep representationUsingType:filetype properties:[NSDictionary dictionary]];
 
     [data writeToFile: filename atomically: YES];
     [pool release];
@@ -4575,7 +4575,7 @@ NavigationToolbar_get_active (NavigationToolbar* self)
     }
     NSMenu* menu = [button menu];
     NSArray* items = [menu itemArray];
-    unsigned int n = [items count];
+    size_t n = [items count];
     int* states = calloc(n, sizeof(int));
     if (!states)
     {
@@ -4597,14 +4597,13 @@ NavigationToolbar_get_active (NavigationToolbar* self)
             m++;
         }
     }
-    int j = 0;
+    Py_ssize_t list_index = 0;
     PyObject* list = PyList_New(m);
-    for (i = 0; i < n; i++)
+    for (size_t state_index = 0; state_index < n; state_index++)
     {
-        if(states[i]==1)
+        if(states[state_index]==1)
         {
-            PyList_SET_ITEM(list, j, PyLong_FromLong(i));
-            j++;
+            PyList_SET_ITEM(list, list_index++, PyLong_FromSize_t(state_index));
         }
     }
     free(states);
@@ -6049,7 +6048,9 @@ show(PyObject* self)
         [window orderFront:nil];
     }
     [pool release];
+    Py_BEGIN_ALLOW_THREADS
     [NSApp run];
+    Py_END_ALLOW_THREADS
     Py_INCREF(Py_None);
     return Py_None;
 }
@@ -6263,8 +6264,10 @@ static PyTypeObject TimerType = {
 static bool verify_framework(void)
 {
 #ifdef COMPILING_FOR_10_6
+    NSAutoreleasePool* pool = [[NSAutoreleasePool alloc] init];
     NSRunningApplication* app = [NSRunningApplication currentApplication];
     NSApplicationActivationPolicy activationPolicy = [app activationPolicy];
+    [pool release];
     switch (activationPolicy) {
         case NSApplicationActivationPolicyRegular:
         case NSApplicationActivationPolicyAccessory:
@@ -6283,7 +6286,9 @@ static bool verify_framework(void)
         "not be able to function correctly if Python is not installed as a "
         "framework. See the Python documentation for more information on "
         "installing Python as a framework on Mac OS X. Please either reinstall "
-        "Python as a framework, or try one of the other backends.");
+        "Python as a framework, or try one of the other backends. If you are "
+        "Working with Matplotlib in a virtual enviroment see 'Working with "
+        "Matplotlib in Virtual environments' in the Matplotlib FAQ");
     return false;
 }
 
@@ -6377,6 +6382,7 @@ void init_macosx(void)
 
     PyOS_InputHook = wait_for_stdin;
 
+    NSAutoreleasePool* pool = [[NSAutoreleasePool alloc] init];
     WindowServerConnectionManager* connectionManager = [WindowServerConnectionManager sharedManager];
     NSWorkspace* workspace = [NSWorkspace sharedWorkspace];
     NSNotificationCenter* notificationCenter = [workspace notificationCenter];
@@ -6384,6 +6390,7 @@ void init_macosx(void)
                            selector: @selector(launch:)
                                name: NSWorkspaceDidLaunchApplicationNotification
                              object: nil];
+    [pool release];
 #if PY3K
     return module;
 #endif

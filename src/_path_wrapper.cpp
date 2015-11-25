@@ -69,7 +69,7 @@ static PyObject *Py_points_in_path(PyObject *self, PyObject *args, PyObject *kwd
 
     if (!PyArg_ParseTuple(args,
                           "O&dO&O&:points_in_path",
-                          &points.converter,
+                          &convert_points,
                           &points,
                           &r,
                           &convert_path,
@@ -79,7 +79,7 @@ static PyObject *Py_points_in_path(PyObject *self, PyObject *args, PyObject *kwd
         return NULL;
     }
 
-    npy_intp dims[] = { points.dim(0) };
+    npy_intp dims[] = { (npy_intp)points.size() };
     numpy::array_view<bool, 1> results(dims);
 
     CALL_CPP("points_in_path", (points_in_path(points, r, path, trans, results)));
@@ -128,7 +128,7 @@ static PyObject *Py_points_on_path(PyObject *self, PyObject *args, PyObject *kwd
 
     if (!PyArg_ParseTuple(args,
                           "O&dO&O&:points_on_path",
-                          &points.converter,
+                          &convert_points,
                           &points,
                           &r,
                           &convert_path,
@@ -138,7 +138,7 @@ static PyObject *Py_points_on_path(PyObject *self, PyObject *args, PyObject *kwd
         return NULL;
     }
 
-    npy_intp dims[] = { points.dim(0) };
+    npy_intp dims[] = { (npy_intp)points.size() };
     numpy::array_view<bool, 1> results(dims);
 
     CALL_CPP("points_on_path", (points_on_path(points, r, path, trans, results)));
@@ -200,7 +200,10 @@ static PyObject *Py_update_path_extents(PyObject *self, PyObject *args, PyObject
     }
 
     if (minpos.dim(0) != 2) {
-        PyErr_SetString(PyExc_ValueError, "minpos must be of length 2");
+        PyErr_Format(PyExc_ValueError,
+                     "minpos must be of length 2, got %d",
+                     minpos.dim(0));
+        return NULL;
     }
 
     extent_limits e;
@@ -263,9 +266,9 @@ static PyObject *Py_get_path_collection_extents(PyObject *self, PyObject *args, 
                           &convert_trans_affine,
                           &master_transform,
                           &pathsobj,
-                          &transforms.converter,
+                          &convert_transforms,
                           &transforms,
-                          &offsets.converter,
+                          &convert_points,
                           &offsets,
                           &convert_trans_affine,
                           &offset_trans)) {
@@ -319,9 +322,9 @@ static PyObject *Py_point_in_path_collection(PyObject *self, PyObject *args, PyO
                           &convert_trans_affine,
                           &master_transform,
                           &pathsobj,
-                          &transforms.converter,
+                          &convert_transforms,
                           &transforms,
-                          &offsets.converter,
+                          &convert_points,
                           &offsets,
                           &convert_trans_affine,
                           &offset_trans,
@@ -434,16 +437,21 @@ static PyObject *Py_affine_transform(PyObject *self, PyObject *args, PyObject *k
 
     try {
         numpy::array_view<double, 2> vertices(vertices_obj);
-        npy_intp dims[] = { vertices.dim(0), 2 };
+        npy_intp dims[] = { (npy_intp)vertices.size(), 2 };
         numpy::array_view<double, 2> result(dims);
         CALL_CPP("affine_transform", (affine_transform_2d(vertices, trans, result)));
         return result.pyobj();
     } catch (py::exception) {
-        numpy::array_view<double, 1> vertices(vertices_obj);
-        npy_intp dims[] = { vertices.dim(0) };
-        numpy::array_view<double, 1> result(dims);
-        CALL_CPP("affine_transform", (affine_transform_1d(vertices, trans, result)));
-        return result.pyobj();
+        PyErr_Clear();
+        try {
+            numpy::array_view<double, 1> vertices(vertices_obj);
+            npy_intp dims[] = { (npy_intp)vertices.size() };
+            numpy::array_view<double, 1> result(dims);
+            CALL_CPP("affine_transform", (affine_transform_1d(vertices, trans, result)));
+            return result.pyobj();
+        } catch (py::exception) {
+            return NULL;
+        }
     }
 }
 
@@ -459,7 +467,7 @@ static PyObject *Py_count_bboxes_overlapping_bbox(PyObject *self, PyObject *args
                           "O&O&:count_bboxes_overlapping_bbox",
                           &convert_rect,
                           &bbox,
-                          &bboxes.converter,
+                          &convert_bboxes,
                           &bboxes)) {
         return NULL;
     }
@@ -630,8 +638,9 @@ static PyObject *Py_convert_to_string(PyObject *self, PyObject *args, PyObject *
     PyObject *codesobj;
     char *codes[5];
     int postfix;
-    char *buffer;
+    char *buffer = NULL;
     size_t buffersize;
+    PyObject *result;
     int status;
 
     if (!PyArg_ParseTuple(args,
@@ -694,10 +703,14 @@ static PyObject *Py_convert_to_string(PyObject *self, PyObject *args, PyObject *
     }
 
     if (buffersize == 0) {
-        return PyBytes_FromString("");
+        result = PyBytes_FromString("");
     } else {
-        return PyBytes_FromStringAndSize(buffer, buffersize);
+        result = PyBytes_FromStringAndSize(buffer, buffersize);
     }
+
+    free(buffer);
+
+    return result;
 }
 
 extern "C" {
@@ -722,17 +735,12 @@ extern "C" {
         {NULL}
     };
 
-    struct module_state
-    {
-        int _dummy;
-    };
-
 #if PY3K
     static struct PyModuleDef moduledef = {
         PyModuleDef_HEAD_INIT,
         "_path",
         NULL,
-        sizeof(struct module_state),
+        0,
         module_functions,
         NULL,
         NULL,

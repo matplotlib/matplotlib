@@ -7,10 +7,11 @@ Pyplot tutorial
 :mod:`matplotlib.pyplot` is a collection of command style functions
 that make matplotlib  work like MATLAB.
 Each ``pyplot`` function makes
-some change to a figure: e.g., create a figure, create a plotting area
-in a figure, plot some lines in a plotting area, decorate the plot
-with labels, etc....  :mod:`matplotlib.pyplot` is stateful, in that it
-keeps track of the current figure and plotting area, and the plotting
+some change to a figure: e.g., creates a figure, creates a plotting area
+in a figure, plots some lines in a plotting area, decorates the plot
+with labels, etc.  In :mod:`matplotlib.pyplot` various states are preserved
+across function calls, so that it keeps track of things like
+the current figure and plotting area, and the plotting
 functions are directed to the current axes (please note that "axes" here
 and in most places in the documentation refers to the *axes*
 `part of a figure <http://matplotlib.org/faq/usage_faq.html#parts-of-a-figure>`__
@@ -31,7 +32,7 @@ same length as y but starts with 0.  Hence the x data are
 an arbitrary number of arguments.  For example, to plot x versus y,
 you can issue the command::
 
-    plt.plot([1,2,3,4], [1,4,9,16])
+    plt.plot([1, 2, 3, 4], [1, 4, 9, 16])
 
 For every x, y pair of arguments, there is an optional third argument
 which is the format string that indicates the color and line type of
@@ -73,10 +74,11 @@ several ways to set line properties
       plt.plot(x, y, linewidth=2.0)
 
 
-* Use the setter methods of the ``Line2D`` instance.  ``plot`` returns a list
-  of lines; e.g., ``line1, line2 = plot(x1,y1,x2,y2)``.  Below I have only
-  one line so it is a list of length 1.  I use tuple unpacking in the
-  ``line, = plot(x, y, 'o')`` to get the first element of the list::
+* Use the setter methods of a ``Line2D`` instance.  ``plot`` returns a list
+  of ``Line2D`` objects; e.g., ``line1, line2 = plot(x1, y1, x2, y2)``.  In the code
+  below we will suppose that we have only
+  one line so that the list returned is of length 1.  We use tuple unpacking with
+  ``line,`` to get the first element of that list::
 
       line, = plt.plot(x, y, '-')
       line.set_antialiased(False) # turn off antialising
@@ -139,7 +141,7 @@ as argument
 
 .. sourcecode:: ipython
 
-    In [69]: lines = plt.plot([1,2,3])
+    In [69]: lines = plt.plot([1, 2, 3])
 
     In [70]: plt.setp(lines)
       alpha: float
@@ -172,14 +174,14 @@ will be created by default if you don't manually specify any axes.  The
 numcols, fignum`` where ``fignum`` ranges from 1 to
 ``numrows*numcols``.  The commas in the ``subplot`` command are
 optional if ``numrows*numcols<10``.  So ``subplot(211)`` is identical
-to ``subplot(2,1,1)``.  You can create an arbitrary number of subplots
+to ``subplot(2, 1, 1)``.  You can create an arbitrary number of subplots
 and axes.  If you want to place an axes manually, i.e., not on a
 rectangular grid, use the :func:`~matplotlib.pyplot.axes` command,
 which allows you to specify the location as ``axes([left, bottom,
 width, height])`` where all values are in fractional (0 to 1)
 coordinates.  See :ref:`pylab_examples-axes_demo` for an example of
 placing axes manually and :ref:`pylab_examples-subplots_demo` for an
-example with lots-o-subplots.
+example with lots of subplots.
 
 
 You can create multiple figures by using multiple
@@ -190,25 +192,26 @@ as your heart desires::
     import matplotlib.pyplot as plt
     plt.figure(1)                # the first figure
     plt.subplot(211)             # the first subplot in the first figure
-    plt.plot([1,2,3])
+    plt.plot([1, 2, 3])
     plt.subplot(212)             # the second subplot in the first figure
-    plt.plot([4,5,6])
+    plt.plot([4, 5, 6])
 
 
     plt.figure(2)                # a second figure
-    plt.plot([4,5,6])            # creates a subplot(111) by default
+    plt.plot([4, 5, 6])          # creates a subplot(111) by default
 
     plt.figure(1)                # figure 1 current; subplot(212) still current
     plt.subplot(211)             # make subplot(211) in figure1 current
-    plt.title('Easy as 1,2,3')   # subplot 211 title
+    plt.title('Easy as 1, 2, 3') # subplot 211 title
 
 You can clear the current figure with :func:`~matplotlib.pyplot.clf`
 and the current axes with :func:`~matplotlib.pyplot.cla`.  If you find
-this statefulness, annoying, don't despair, this is just a thin
+it annoying that states (specifically the current image, figure and axes)
+are being maintained for you behind the scenes, don't despair: this is just a thin
 stateful wrapper around an object oriented API, which you can use
 instead (see :ref:`artist-tutorial`)
 
-If you are making a long sequence of figures, you need to be aware of one
+If you are making lots of figures, you need to be aware of one
 more thing: the memory required for a figure is not completely
 released until the figure is explicitly closed with
 :func:`~matplotlib.pyplot.close`.  Deleting all references to the
@@ -266,7 +269,7 @@ Annotating text
 ---------------
 
 The uses of the basic :func:`~matplotlib.pyplot.text` command above
-place text at an arbitrary position on the Axes.  A common use case of
+place text at an arbitrary position on the Axes.  A common use for
 text is to annotate some feature of the plot, and the
 :func:`~matplotlib.pyplot.annotate` method provides helper
 functionality to make annotations easy.  In an annotation, there are

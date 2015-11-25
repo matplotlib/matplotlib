@@ -340,15 +340,15 @@ PyRendererAgg_draw_path_collection(PyRendererAgg *self, PyObject *args, PyObject
                           &convert_trans_affine,
                           &master_transform,
                           &pathobj,
-                          &transforms.converter,
+                          &convert_transforms,
                           &transforms,
-                          &offsets.converter,
+                          &convert_points,
                           &offsets,
                           &convert_trans_affine,
                           &offset_trans,
-                          &facecolors.converter,
+                          &convert_colors,
                           &facecolors,
-                          &edgecolors.converter,
+                          &convert_colors,
                           &edgecolors,
                           &linewidths.converter,
                           &linewidths,
@@ -411,14 +411,14 @@ static PyObject *PyRendererAgg_draw_quad_mesh(PyRendererAgg *self, PyObject *arg
                           &mesh_height,
                           &coordinates.converter,
                           &coordinates,
-                          &offsets.converter,
+                          &convert_points,
                           &offsets,
                           &convert_trans_affine,
                           &offset_trans,
-                          &facecolors.converter,
+                          &convert_colors,
                           &facecolors,
                           &antialiased,
-                          &edgecolors.converter,
+                          &convert_colors,
                           &edgecolors)) {
         return NULL;
     }
@@ -459,6 +459,21 @@ PyRendererAgg_draw_gouraud_triangle(PyRendererAgg *self, PyObject *args, PyObjec
         return NULL;
     }
 
+    if (points.dim(0) != 3 || points.dim(1) != 2) {
+        PyErr_Format(PyExc_ValueError,
+                     "points must be a 3x2 array, got %dx%d",
+                     points.dim(0), points.dim(1));
+        return NULL;
+    }
+
+    if (colors.dim(0) != 3 || colors.dim(1) != 4) {
+        PyErr_Format(PyExc_ValueError,
+                     "colors must be a 3x4 array, got %dx%d",
+                     colors.dim(0), colors.dim(1));
+        return NULL;
+    }
+
+
     CALL_CPP("draw_gouraud_triangle", (self->x->draw_gouraud_triangle(gc, points, colors, trans)));
 
     Py_RETURN_NONE;
@@ -482,6 +497,27 @@ PyRendererAgg_draw_gouraud_triangles(PyRendererAgg *self, PyObject *args, PyObje
                           &colors,
                           &convert_trans_affine,
                           &trans)) {
+        return NULL;
+    }
+
+    if (points.size() != 0 && (points.dim(1) != 3 || points.dim(2) != 2)) {
+        PyErr_Format(PyExc_ValueError,
+                     "points must be a Nx3x2 array, got %dx%dx%d",
+                     points.dim(0), points.dim(1), points.dim(2));
+        return NULL;
+    }
+
+    if (colors.size() != 0 && (colors.dim(1) != 3 || colors.dim(2) != 4)) {
+        PyErr_Format(PyExc_ValueError,
+                     "colors must be a Nx3x4 array, got %dx%dx%d",
+                     colors.dim(0), colors.dim(1), colors.dim(2));
+        return NULL;
+    }
+
+    if (points.size() != colors.size()) {
+        PyErr_Format(PyExc_ValueError,
+                     "points and colors arrays must be the same length, got %d and %d",
+                     points.dim(0), colors.dim(0));
         return NULL;
     }
 
@@ -689,17 +725,12 @@ static PyTypeObject *PyRendererAgg_init_type(PyObject *m, PyTypeObject *type)
 
 extern "C" {
 
-struct module_state
-{
-    int _dummy;
-};
-
 #if PY3K
 static struct PyModuleDef moduledef = {
     PyModuleDef_HEAD_INIT,
     "_backend_agg",
     NULL,
-    sizeof(struct module_state),
+    0,
     NULL,
     NULL,
     NULL,

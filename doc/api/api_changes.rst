@@ -11,6 +11,15 @@ sources of the changes you are experiencing.
 For new features that were added to matplotlib, please see
 :ref:`whats-new`.
 
+Changes in 2.0.0
+================
+
+Color of Axes
+-------------
+
+The ``axisbg`` and ``axis_bgcolor`` properties on ``Axes`` have been
+deprecated in favor of ``facecolor``.
+
 Changes in 1.5.0
 ================
 
@@ -1545,7 +1554,7 @@ New methods:
 
   * :meth:`draw_markers(self, gc, marker_path, marker_trans, path,
     trans, rgbFace)
-    <matplotlib.backend_bases.RendererBase.draw_markers`
+    <matplotlib.backend_bases.RendererBase.draw_markers>`
 
   * :meth:`draw_path_collection(self, master_transform, cliprect,
     clippath, clippath_trans, paths, all_transforms, offsets,

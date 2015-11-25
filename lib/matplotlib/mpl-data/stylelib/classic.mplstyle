@@ -14,7 +14,7 @@ lines.dash_joinstyle : round        # miter|round|bevel
 lines.dash_capstyle : butt          # butt|round|projecting
 lines.solid_joinstyle : round       # miter|round|bevel
 lines.solid_capstyle : projecting   # butt|round|projecting
-lines.antialiased : True         # render lines in antialised (no jaggies)
+lines.antialiased : True         # render lines in antialiased (no jaggies)
 
 ### Marker props
 markers.fillstyle: full
@@ -27,7 +27,7 @@ markers.fillstyle: full
 patch.linewidth        : 1.0     # edge width in points
 patch.facecolor        : b
 patch.edgecolor        : k
-patch.antialiased      : True    # render patches in antialised (no jaggies)
+patch.antialiased      : True    # render patches in antialiased (no jaggies)
 
 ### FONT
 #
@@ -76,11 +76,11 @@ font.stretch        : normal
 # relative to font.size, using the following values: xx-small, x-small,
 # small, medium, large, x-large, xx-large, larger, or smaller
 font.size           : 12.0
-font.serif     : Bitstream Vera Serif, DejaVu Serif, New Century Schoolbook, Century Schoolbook L, Utopia, ITC Bookman, Bookman, Nimbus Roman No9 L, Times New Roman, Times, Palatino, Charter, serif
-font.sans-serif: Bitstream Vera Sans, DejaVu Sans, Lucida Grande, Verdana, Geneva, Lucid, Arial, Helvetica, Avant Garde, sans-serif
+font.serif     : DejaVu Serif, New Century Schoolbook, Century Schoolbook L, Utopia, ITC Bookman, Bookman, Nimbus Roman No9 L, Times New Roman, Times, Palatino, Charter, serif
+font.sans-serif: DejaVu Sans, Lucida Grande, Verdana, Geneva, Lucid, Arial, Helvetica, Avant Garde, sans-serif
 font.cursive   : Apple Chancery, Textile, Zapf Chancery, Sand, Script MT, Felipa, cursive
 font.fantasy   : Comic Sans MS, Chicago, Charcoal, ImpactWestern, Humor Sans, fantasy
-font.monospace : Bitstream Vera Sans Mono, DejaVu Sans Mono, Andale Mono, Nimbus Mono L, Courier New, Courier, Fixed, Terminal, monospace
+font.monospace : DejaVu Sans Mono, Andale Mono, Nimbus Mono L, Courier New, Courier, Fixed, Terminal, monospace
 
 ### TEXT
 # text properties used by text.Text.  See
@@ -214,6 +214,9 @@ axes3d.grid         : True    # display grid on 3d axes
 
 ### TICKS
 # see http://matplotlib.org/api/axis_api.html#matplotlib.axis.Tick
+
+xtick.top            : True   # draw ticks on the top side
+xtick.bottom         : True   # draw ticks on the bottom side
 xtick.major.size     : 4      # major tick size in points
 xtick.minor.size     : 2      # minor tick size in points
 xtick.minor.visible  : False
@@ -225,6 +228,8 @@ xtick.color          : k      # color of the tick labels
 xtick.labelsize      : medium # fontsize of the tick labels
 xtick.direction      : in     # direction: in, out, or inout
 
+ytick.left           : True   # draw ticks on the left side
+ytick.right          : True   # draw ticks on the right side
 ytick.major.size     : 4      # major tick size in points
 ytick.minor.size     : 2      # minor tick size in points
 ytick.minor.visible  : False
@@ -317,7 +322,7 @@ boxplot.capprops.color: k
 boxplot.capprops.linestyle: -
 boxplot.capprops.linewidth: 1.0
 boxplot.flierprops.color: b
-boxplot.flierprops.linestyle: -
+boxplot.flierprops.linestyle: none
 boxplot.flierprops.linewidth: 1.0
 boxplot.flierprops.marker: +
 boxplot.flierprops.markeredgecolor: k
@@ -418,7 +423,7 @@ pdf.use14corefonts : False
 pgf.debug           : False
 pgf.texsystem       : xelatex
 pgf.rcfonts         : True
-pgf.preamble        : 
+pgf.preamble        :
 
 # svg backend params
 svg.image_inline : True       # write raster image data directly into the svg file

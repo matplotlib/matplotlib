@@ -14,6 +14,8 @@ import numpy as np
 from numpy import ma
 from numpy import arange
 
+import warnings
+
 import matplotlib
 from matplotlib.testing.decorators import image_comparison, cleanup
 import matplotlib.pyplot as plt
@@ -738,6 +740,21 @@ def test_symlog2():
     ax.set_ylim(-0.1, 0.1)
 
 
+@cleanup
+def test_pcolorargs():
+    # Smoketest to catch issue found in gh:5205
+    x = [-1.5, -1.0, -0.5, 0.0, 0.5, 1.0, 1.5]
+    y = [-1.5, -1.25, -1.0, -0.75, -0.5, -0.25, 0,
+         0.25, 0.5, 0.75, 1.0, 1.25, 1.5]
+    X, Y = np.meshgrid(x, y)
+    Z = np.hypot(X, Y)
+
+    plt.pcolor(Z)
+    plt.pcolor(list(Z))
+    plt.pcolor(x, y, Z)
+    plt.pcolor(X, Y, list(Z))
+
+
 @image_comparison(baseline_images=['pcolormesh'], remove_text=True)
 def test_pcolormesh():
     n = 12
@@ -1055,6 +1072,12 @@ def test_bar_tick_label_single():
     ax.bar("a", "b" , tick_label='a', data=data)
 
 
+@cleanup
+def test_bar_ticklabel_fail():
+    fig, ax = plt.subplots()
+    ax.bar([], [])
+
+
 @image_comparison(baseline_images=['bar_tick_label_multiple'],
                   extensions=['png'])
 def test_bar_tick_label_multiple():
@@ -1081,6 +1104,7 @@ def test_hist_log():
     fig = plt.figure()
     ax = fig.add_subplot(111)
     ax.hist(data, fill=False, log=True)
+
 
 @image_comparison(baseline_images=['hist_bar_empty'], remove_text=True,
 	extensions=['png'])
@@ -3643,14 +3667,14 @@ def test_twin_spines_on_top():
     ax2.fill_between(data[0], data[1]/1E3, color='#7FC97F', alpha=.5)
 
     # Reuse testcase from above for a labeled data test
-    data = {"x": data[0], "y": data[1]/1E3}
+    data = {"i": data[0], "j": data[1]/1E3}
     fig = plt.figure()
     ax1 = fig.add_subplot(1, 1, 1)
     ax2 = ax1.twinx()
-    ax1.plot("x", "y", color='#BEAED4', data=data)
-    ax1.fill_between("x", "y", color='#BEAED4', alpha=.8, data=data)
-    ax2.plot("x", "y", color='#7FC97F', data=data)
-    ax2.fill_between("x", "y", color='#7FC97F', alpha=.5, data=data)
+    ax1.plot("i", "j", color='#BEAED4', data=data)
+    ax1.fill_between("i", "j", color='#BEAED4', alpha=.8, data=data)
+    ax2.plot("i", "j", color='#7FC97F', data=data)
+    ax2.fill_between("i", "j", color='#7FC97F', alpha=.5, data=data)
 
 
 @cleanup
@@ -4003,6 +4027,23 @@ def test_rc_grid():
 
 
 @cleanup
+def test_rc_tick():
+    d = {'xtick.bottom': False, 'xtick.top': True,
+         'ytick.left': True, 'ytick.right': False}
+    with plt.rc_context(rc=d):
+        fig = plt.figure()
+        ax1 = fig.add_subplot(1, 1, 1)
+        xax = ax1.xaxis
+        yax = ax1.yaxis
+        # tick1On bottom/left
+        assert xax._major_tick_kw['tick1On'] == False
+        assert xax._major_tick_kw['tick2On'] == True
+
+        assert yax._major_tick_kw['tick1On'] == True
+        assert yax._major_tick_kw['tick2On'] == False
+
+
+@cleanup
 def test_bar_negative_width():
     fig, ax = plt.subplots()
     res = ax.bar(range(1, 5), range(1, 5), width=-1)
@@ -4061,10 +4102,34 @@ def test_shared_scale():
         assert_equal(ax.get_yscale(), 'linear')
         assert_equal(ax.get_xscale(), 'linear')
 
+
 @cleanup
 def test_violin_point_mass():
     """Violin plot should handle point mass pdf gracefully."""
     plt.violinplot(np.array([0, 0]))
+
+
+
+@cleanup
+def test_axisbg_warning():
+    fig = plt.figure()
+    with warnings.catch_warnings(record=True) as w:
+        ax = matplotlib.axes.Axes(fig, [0, 0, 1, 1], axisbg='r')
+    assert len(w) == 1
+    assert (str(w[0].message).startswith(
+            ("The axisbg attribute was deprecated in version 2.0.")))
+
+
+@image_comparison(baseline_images=["dash_offset"], remove_text=True)
+def test_dash_offset():
+    fig, ax = plt.subplots()
+    x = np.linspace(0, 10)
+    y = np.ones_like(x)
+    for j in range(0, 100, 2):
+        ax.plot(x, j*y, ls=(j, (10, 10)), lw=5, color='k')
+    plt.show()
+
+
 
 if __name__ == '__main__':
     import nose

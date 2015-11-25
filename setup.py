@@ -9,6 +9,7 @@ from __future__ import print_function, absolute_import
 from distribute_setup import use_setuptools
 use_setuptools()
 from setuptools.command.test import test as TestCommand
+from setuptools.command.build_ext import build_ext as BuildExtCommand
 
 import sys
 
@@ -67,6 +68,7 @@ mpl_packages = [
     'Required dependencies and extensions',
     setupext.Numpy(),
     setupext.Dateutil(),
+    setupext.FuncTools32(),
     setupext.Pytz(),
     setupext.Cycler(),
     setupext.Tornado(),
@@ -110,7 +112,9 @@ mpl_packages = [
     setupext.DviPng(),
     setupext.Ghostscript(),
     setupext.LaTeX(),
-    setupext.PdfToPs()
+    setupext.PdfToPs(),
+    'Optional package data',
+    setupext.Dlls(),
     ]
 
 
@@ -119,8 +123,11 @@ classifiers = [
     'Intended Audience :: Science/Research',
     'License :: OSI Approved :: Python Software Foundation License',
     'Programming Language :: Python',
-    'Programming Language :: Python :: 2',
+    'Programming Language :: Python :: 2.7',
     'Programming Language :: Python :: 3',
+    'Programming Language :: Python :: 3.3',
+    'Programming Language :: Python :: 3.4',
+    'Programming Language :: Python :: 3.5',
     'Topic :: Scientific/Engineering :: Visualization',
     ]
 
@@ -233,8 +240,19 @@ class NoseTestCommand(TestCommand):
                   argv=['nosetests'] + self.test_args,
                   exit=True)
 
+
+class BuildExtraLibraries(BuildExtCommand):
+    def run(self):
+        for package in good_packages:
+            package.do_custom_build()
+
+        return BuildExtCommand.run(self)
+
+
 cmdclass = versioneer.get_cmdclass()
 cmdclass['test'] = NoseTestCommand
+cmdclass['build_ext'] = BuildExtraLibraries
+
 
 # One doesn't normally see `if __name__ == '__main__'` blocks in a setup.py,
 # however, this is needed on Windows to avoid creating infinite subprocesses
@@ -297,8 +315,6 @@ if __name__ == '__main__':
     # Now collect all of the information we need to build all of the
     # packages.
     for package in good_packages:
-        if isinstance(package, str):
-            continue
         packages.extend(package.get_packages())
         namespace_packages.extend(package.get_namespace_packages())
         py_modules.extend(package.get_py_modules())
@@ -348,7 +364,7 @@ if __name__ == '__main__':
         version=__version__,
         description="Python plotting package",
         author="John D. Hunter, Michael Droettboom",
-        author_email="mdroe@stsci.edu",
+        author_email="matplotlib-users@python.org",
         url="http://matplotlib.org",
         long_description="""
         matplotlib strives to produce publication quality 2D graphics
@@ -366,7 +382,7 @@ if __name__ == '__main__':
         package_dir=package_dir,
         package_data=package_data,
         classifiers=classifiers,
-        download_url="https://downloads.sourceforge.net/project/matplotlib/matplotlib/matplotlib-{0}/matplotlib-{0}.tar.gz".format(__version__),
+        download_url="http://matplotlib.org/users/installing.html",
 
         # List third-party Python packages that we require
         install_requires=install_requires,

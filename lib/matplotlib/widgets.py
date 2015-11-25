@@ -1,9 +1,9 @@
 """
-GUI Neutral widgets
+GUI neutral widgets
 ===================
 
 Widgets that are designed to work for any of the GUI backends.
-All of these widgets require you to predefine an :class:`matplotlib.axes.Axes`
+All of these widgets require you to predefine a :class:`matplotlib.axes.Axes`
 instance and pass that as the first arg.  matplotlib doesn't try to
 be too smart with respect to layout -- you will have to figure out how
 wide and tall you want your Axes to be to accommodate your widget.
@@ -30,9 +30,9 @@ class LockDraw(object):
     desirable under all circumstances, like when the toolbar is in
     zoom-to-rect mode and drawing a rectangle.  The module level "lock"
     allows someone to grab the lock and prevent other widgets from
-    drawing.  Use ``matplotlib.widgets.lock(someobj)`` to pr
+    drawing.  Use ``matplotlib.widgets.lock(someobj)`` to prevent
+    other widgets from drawing while you're interacting with the canvas.
     """
-    # FIXME: This docstring ends abruptly without...
 
     def __init__(self):
         self._owner = None
@@ -124,7 +124,7 @@ class AxesWidget(Widget):
         """Connect callback with an event.
 
         This should be used in lieu of `figure.canvas.mpl_connect` since this
-        function stores call back ids for later clean up.
+        function stores callback ids for later clean up.
         """
         cid = self.canvas.mpl_connect(event, callback)
         self.cids.append(cid)
@@ -139,8 +139,7 @@ class Button(AxesWidget):
     """
     A GUI neutral button.
 
-    For the button to remain responsive
-    you must keep a reference to it.
+    For the button to remain responsive you must keep a reference to it.
 
     The following attributes are accessible
 
@@ -171,10 +170,10 @@ class Button(AxesWidget):
         label : str
             The button text. Accepts string.
 
-        image : array, mpl image, PIL image
+        image : array, mpl image, Pillow Image
             The image to place in the button, if not *None*.
             Can be any legal arg to imshow (numpy array,
-            matplotlib Image instance, or PIL image).
+            matplotlib Image instance, or Pillow Image).
 
         color : color
             The color of the button when not activated
@@ -198,7 +197,7 @@ class Button(AxesWidget):
         self.connect_event('button_release_event', self._release)
         self.connect_event('motion_notify_event', self._motion)
         ax.set_navigate(False)
-        ax.set_axis_bgcolor(color)
+        ax.set_facecolor(color)
         ax.set_xticks([])
         ax.set_yticks([])
         self.color = color
@@ -237,16 +236,17 @@ class Button(AxesWidget):
         else:
             c = self.color
         if c != self._lastcolor:
-            self.ax.set_axis_bgcolor(c)
+            self.ax.set_facecolor(c)
             self._lastcolor = c
             if self.drawon:
                 self.ax.figure.canvas.draw()
 
     def on_clicked(self, func):
         """
-        When the button is clicked, call this *func* with event
+        When the button is clicked, call this *func* with event.
 
-        A connection id is returned which can be used to disconnect
+        A connection id is returned. It can be used to disconnect 
+        the button from its callback.
         """
         cid = self.cnt
         self.observers[cid] = func
@@ -265,8 +265,8 @@ class Slider(AxesWidget):
     """
     A slider representing a floating point range.
 
-    For the slider
-    to remain responsive you must maintain a reference to it.
+    For the slider to remain responsive you must maintain a 
+    reference to it.
 
     The following attributes are defined
       *ax*        : the slider :class:`matplotlib.axes.Axes` instance
@@ -304,10 +304,10 @@ class Slider(AxesWidget):
         """
         Create a slider from *valmin* to *valmax* in axes *ax*.
 
-        additional kwargs are passed on to ``self.poly`` which is the
-        :class:`matplotlib.patches.Rectangle` which draws the slider
-        knob.  See the :class:`matplotlib.patches.Rectangle` documentation
-        valid property names (e.g., *facecolor*, *edgecolor*, *alpha*, ...)
+        Additional kwargs are passed on to ``self.poly`` which is the
+        :class:`matplotlib.patches.Rectangle` that draws the slider
+        knob.  See the :class:`matplotlib.patches.Rectangle` documentation for
+        valid property names (e.g., *facecolor*, *edgecolor*, *alpha*, ...).
 
         Parameters
         ----------
@@ -476,7 +476,7 @@ class CheckButtons(AxesWidget):
     """
     A GUI neutral radio button.
 
-    For the check buttons to remain responsive you much keep a
+    For the check buttons to remain responsive you must keep a
     reference to this object.
 
     The following attributes are exposed
@@ -523,7 +523,7 @@ class CheckButtons(AxesWidget):
             ys = [0.5]
 
         cnt = 0
-        axcolor = ax.get_axis_bgcolor()
+        axcolor = ax.get_facecolor()
 
         self.labels = []
         self.lines = []
@@ -624,12 +624,12 @@ class CheckButtons(AxesWidget):
 
 class RadioButtons(AxesWidget):
     """
-    A GUI neutral radio button
+    A GUI neutral radio button.
 
     For the buttons to remain responsive
-    you much keep a reference to this object.
+    you must keep a reference to this object.
 
-    The following attributes are exposed
+    The following attributes are exposed:
 
      *ax*
         The :class:`matplotlib.axes.Axes` instance the buttons are in
@@ -671,7 +671,7 @@ class RadioButtons(AxesWidget):
         dy = 1. / (len(labels) + 1)
         ys = np.linspace(1 - dy, dy, len(labels))
         cnt = 0
-        axcolor = ax.get_axis_bgcolor()
+        axcolor = ax.get_facecolor()
 
         self.labels = []
         self.circles = []
@@ -740,7 +740,7 @@ class RadioButtons(AxesWidget):
             if i == index:
                 color = self.activecolor
             else:
-                color = self.ax.get_axis_bgcolor()
+                color = self.ax.get_facecolor()
             p.set_facecolor(color)
 
         if self.drawon:
@@ -772,16 +772,16 @@ class RadioButtons(AxesWidget):
 
 class SubplotTool(Widget):
     """
-    A tool to adjust to subplot params of a :class:`matplotlib.figure.Figure`
+    A tool to adjust the subplot params of a :class:`matplotlib.figure.Figure`.
     """
     def __init__(self, targetfig, toolfig):
         """
         *targetfig*
-            The figure instance to adjust
+            The figure instance to adjust.
 
         *toolfig*
             The figure instance to embed the subplot tool into. If
-            None, a default figure will be created. If you are using
+            *None*, a default figure will be created. If you are using
             this from the GUI
         """
         # FIXME: The docstring seems to just abruptly end without...
@@ -921,9 +921,9 @@ class SubplotTool(Widget):
 
 class Cursor(AxesWidget):
     """
-    A horizontal and vertical line span the axes that and move with
-    the pointer.  You can turn off the hline or vline spectively with
-    the attributes
+    A horizontal and vertical line that spans the axes and moves with
+    the pointer.  You can turn off the hline or vline respectively with
+    the following attributes:
 
       *horizOn*
         Controls the visibility of the horizontal line
@@ -933,7 +933,7 @@ class Cursor(AxesWidget):
 
     and the visibility of the cursor itself with the *visible* attribute.
 
-    For the cursor to remain responsive you much keep a reference to
+    For the cursor to remain responsive you must keep a reference to
     it.
     """
     def __init__(self, ax, horizOn=True, vertOn=True, useblit=False,
@@ -1018,7 +1018,7 @@ class MultiCursor(Widget):
     Provide a vertical (default) and/or horizontal line cursor shared between
     multiple axes.
 
-    For the cursor to remain responsive you much keep a reference to
+    For the cursor to remain responsive you must keep a reference to
     it.
 
     Example usage::
@@ -1366,7 +1366,7 @@ class SpanSelector(_SelectorWidget):
     """
     Select a min/max range of the x or y axes for a matplotlib Axes.
 
-    For the selector to remain responsive you much keep a reference to
+    For the selector to remain responsive you must keep a reference to
     it.
 
     Example usage::
@@ -1630,7 +1630,7 @@ class RectangleSelector(_SelectorWidget):
     """
     Select a rectangular region of an axes.
 
-    For the cursor to remain responsive you much keep a reference to
+    For the cursor to remain responsive you must keep a reference to
     it.
 
     Example usage::
@@ -2045,7 +2045,7 @@ class EllipseSelector(RectangleSelector):
     """
     Select an elliptical region of an axes.
 
-    For the cursor to remain responsive you much keep a reference to
+    For the cursor to remain responsive you must keep a reference to
     it.
 
     Example usage::
@@ -2115,7 +2115,7 @@ class EllipseSelector(RectangleSelector):
 class LassoSelector(_SelectorWidget):
     """Selection curve of an arbitrary shape.
 
-    For the selector to remain responsive you much keep a reference to
+    For the selector to remain responsive you must keep a reference to
     it.
 
     The selected path can be used in conjunction with

@@ -104,6 +104,7 @@ math_tests = [
     r'testing$^{123}$',
     ' '.join('$\\' + p + '$' for p in sorted(mathtext.Parser._snowflake)),
     r'$6-2$; $-2$; $ -2$; ${-2}$; ${  -2}$; $20^{+3}_{-2}$',
+    r'$\overline{\omega}^x \frac{1}{2}_0^x$', # github issue #5444
 ]
 
 digits = "0123456789"
@@ -177,15 +178,19 @@ def make_set(basename, fontset, tests, extensions=None):
 make_set('mathtext', 'cm', math_tests)
 make_set('mathtext', 'stix', math_tests)
 make_set('mathtext', 'stixsans', math_tests)
+make_set('mathtext', 'dejavusans', math_tests)
+make_set('mathtext', 'dejavuserif', math_tests)
 
 make_set('mathfont', 'cm', font_tests, ['png'])
 make_set('mathfont', 'stix', font_tests, ['png'])
 make_set('mathfont', 'stixsans', font_tests, ['png'])
+make_set('mathfont', 'dejavusans', font_tests, ['png'])
+make_set('mathfont', 'dejavuserif', font_tests, ['png'])
 
 def test_fontinfo():
     import matplotlib.font_manager as font_manager
     import matplotlib.ft2font as ft2font
-    fontpath = font_manager.findfont("Bitstream Vera Sans")
+    fontpath = font_manager.findfont("DejaVu Sans")
     font = ft2font.FT2Font(fontpath)
     table = font.get_sfnt_table("head")
     assert table['version'] == (1, 0)

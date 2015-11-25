@@ -15,7 +15,7 @@ import matplotlib
 from matplotlib.figure import Figure
 
 
-from .backend_qt5agg import FigureCanvasQTAggBase
+from .backend_qt5agg import FigureCanvasQTAggBase as _FigureCanvasQTAggBase
 
 from .backend_agg import FigureCanvasAgg
 from .backend_qt4 import QtCore
@@ -52,6 +52,11 @@ def new_figure_manager_given_figure(num, figure):
     """
     canvas = FigureCanvasQTAgg(figure)
     return FigureManagerQT(canvas, num)
+
+
+class FigureCanvasQTAggBase(_FigureCanvasQTAggBase):
+    def __init__(self, figure):
+        self._agg_draw_pending = False
 
 
 class FigureCanvasQTAgg(FigureCanvasQTAggBase,

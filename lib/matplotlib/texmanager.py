@@ -26,8 +26,8 @@ as follows::
   Z = self.texmanager.get_rgba(s, size=12, dpi=80, rgb=(1,0,0))
 
 To enable tex rendering of all text in your matplotlib figure, set
-text.usetex in your matplotlibrc file (http://matplotlib.sf.net/matplotlibrc)
-or include these two lines in your script::
+text.usetex in your matplotlibrc file or include these two lines in
+your script::
 
   from matplotlib import rc
   rc('text', usetex=True)
@@ -673,10 +673,7 @@ Could not rename old TeX cache dir "%s": a suitable configuration
         else:
             # use dviread. It sometimes returns a wrong descent.
             dvifile = self.make_dvi(tex, fontsize)
-            dvi = dviread.Dvi(dvifile, 72 * dpi_fraction)
-            try:
+            with dviread.Dvi(dvifile, 72 * dpi_fraction) as dvi:
                 page = next(iter(dvi))
-            finally:
-                dvi.close()
             # A total height (including the descent) needs to be returned.
             return page.width, page.height + page.descent, page.descent

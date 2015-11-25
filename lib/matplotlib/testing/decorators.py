@@ -16,12 +16,13 @@ import numpy as np
 
 import matplotlib as mpl
 import matplotlib.style
-import matplotlib.tests
 import matplotlib.units
+import matplotlib.testing
 from matplotlib import cbook
 from matplotlib import ticker
 from matplotlib import pyplot as plt
 from matplotlib import ft2font
+from matplotlib import rcParams
 from matplotlib.testing.noseclasses import KnownFailureTest, \
      KnownFailureDidNotFailTest, ImageComparisonFailure
 from matplotlib.testing.compare import comparable_formats, compare_images, \
@@ -84,7 +85,7 @@ class CleanupTest(object):
     def setup_class(cls):
         cls.original_units_registry = matplotlib.units.registry.copy()
         cls.original_settings = mpl.rcParams.copy()
-        matplotlib.tests.setup()
+        matplotlib.testing.setup()
 
     @classmethod
     def teardown_class(cls):
@@ -109,18 +110,44 @@ class CleanupTestCase(unittest.TestCase):
                     cls.original_settings)
 
 
-def cleanup(func):
-    @functools.wraps(func)
-    def wrapped_function(*args, **kwargs):
-        original_units_registry = matplotlib.units.registry.copy()
-        original_settings = mpl.rcParams.copy()
-        try:
-            func(*args, **kwargs)
-        finally:
-            _do_cleanup(original_units_registry,
-                        original_settings)
+def cleanup(style=None):
+    """
+    A decorator to ensure that any global state is reset before
+    running a test.
 
-    return wrapped_function
+    Parameters
+    ----------
+    style : str, optional
+        The name of the style to apply.
+    """
+
+    # If cleanup is used without arguments, `style` will be a
+    # callable, and we pass it directly to the wrapper generator.  If
+    # cleanup if called with an argument, it is a string naming a
+    # style, and the function will be passed as an argument to what we
+    # return.  This is a confusing, but somewhat standard, pattern for
+    # writing a decorator with optional arguments.
+
+    def make_cleanup(func):
+        @functools.wraps(func)
+        def wrapped_function(*args, **kwargs):
+            original_units_registry = matplotlib.units.registry.copy()
+            original_settings = mpl.rcParams.copy()
+            matplotlib.style.use(style)
+            try:
+                func(*args, **kwargs)
+            finally:
+                _do_cleanup(original_units_registry,
+                            original_settings)
+
+        return wrapped_function
+
+    if isinstance(style, six.string_types):
+        return make_cleanup
+    else:
+        result = make_cleanup(style)
+        style = 'classic'
+        return result
 
 
 def check_freetype_version(ver):
@@ -138,6 +165,7 @@ def check_freetype_version(ver):
 class ImageComparisonTest(CleanupTest):
     @classmethod
     def setup_class(cls):
+        CleanupTest.setup_class()
         cls._initial_settings = mpl.rcParams.copy()
         try:
             matplotlib.style.use(cls._style)
@@ -146,11 +174,8 @@ class ImageComparisonTest(CleanupTest):
             mpl.rcParams.clear()
             mpl.rcParams.update(cls._initial_settings)
             raise
-        # Because the setup of a CleanupTest might involve
-        # modifying a few rcparams, this setup should come
-        # last prior to running the image test.
-        CleanupTest.setup_class()
         cls.original_settings = cls._initial_settings
+        matplotlib.testing.set_font_settings_for_testing()
         cls._func()
 
     @classmethod
@@ -328,8 +353,13 @@ def _image_directories(func):
         subdir = os.path.splitext(os.path.split(script_name)[1])[0]
     else:
         mods = module_name.split('.')
-        mods.pop(0) # <- will be the name of the package being tested (in
-                    # most cases "matplotlib")
+        if len(mods) >= 3:
+            mods.pop(0)
+            # mods[0] will be the name of the package being tested (in
+            # most cases "matplotlib") However if this is a
+            # namespace package pip installed and run via the nose
+            # multiprocess plugin or as a specific test this may be
+            # missing. See https://github.com/matplotlib/matplotlib/issues/3314
         assert mods.pop(0) == 'tests'
         subdir = os.path.join(*mods)
 
@@ -366,7 +396,7 @@ def switch_backend(backend):
         def backend_switcher(*args, **kwargs):
             try:
                 prev_backend = mpl.get_backend()
-                matplotlib.tests.setup()
+                matplotlib.testing.setup()
                 plt.switch_backend(backend)
                 result = func(*args, **kwargs)
             finally:

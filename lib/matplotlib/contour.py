@@ -27,6 +27,7 @@ import matplotlib.mathtext as mathtext
 import matplotlib.patches as mpatches
 import matplotlib.texmanager as texmanager
 import matplotlib.transforms as mtrans
+from matplotlib.cbook import mplDeprecation
 
 # Import needed for adding manual selection capability to clabel
 from matplotlib.blocking_input import BlockingContourLabeler
@@ -1192,6 +1193,26 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
         if self.filled and len(self.levels) < 2:
             raise ValueError("Filled contours require at least 2 levels.")
 
+        if len(self.levels) > 1 and np.amin(np.diff(self.levels)) <= 0.0:
+            if hasattr(self, '_corner_mask') and self._corner_mask == 'legacy':
+                warnings.warn("Contour levels are not increasing")
+            else:
+                raise ValueError("Contour levels must be increasing")
+
+    @property
+    def vmin(self):
+        warnings.warn("vmin is deprecated and will be removed in 2.2 "
+                      "and not replaced.",
+                      mplDeprecation)
+        return getattr(self, '_vmin', None)
+
+    @property
+    def vmax(self):
+        warnings.warn("vmax is deprecated and will be removed in 2.2 "
+                      "and not replaced.",
+                      mplDeprecation)
+        return getattr(self, '_vmax', None)
+
     def _process_levels(self):
         """
         Assign values to :attr:`layers` based on :attr:`levels`,
@@ -1201,10 +1222,9 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
         a line is a thin layer.  No extended levels are needed
         with line contours.
         """
-        # The following attributes are no longer needed, and
-        # should be deprecated and removed to reduce confusion.
-        self.vmin = np.amin(self.levels)
-        self.vmax = np.amax(self.levels)
+        # following are deprecated and will be removed in 2.2
+        self._vmin = np.amin(self.levels)
+        self._vmax = np.amax(self.levels)
 
         # Make a private _levels to include extended regions; we
         # want to leave the original levels attribute unchanged.
@@ -1442,15 +1462,15 @@ class QuadContourSet(ContourSet):
             else:
                 contour_generator = args[0]._contour_generator
         else:
+            self._corner_mask = kwargs.get('corner_mask', None)
+            if self._corner_mask is None:
+                self._corner_mask = mpl.rcParams['contour.corner_mask']
+
             x, y, z = self._contour_args(args, kwargs)
 
             _mask = ma.getmask(z)
             if _mask is ma.nomask or not _mask.any():
                 _mask = None
-
-            self._corner_mask = kwargs.get('corner_mask', None)
-            if self._corner_mask is None:
-                self._corner_mask = mpl.rcParams['contour.corner_mask']
 
             if self._corner_mask == 'legacy':
                 cbook.warn_deprecated('1.5',
@@ -1674,13 +1694,15 @@ class QuadContourSet(ContourSet):
           contour(Z,V)
           contour(X,Y,Z,V)
 
-        draw contour lines at the values specified in sequence *V*
+        draw contour lines at the values specified in sequence *V*,
+        which must be in increasing order.
 
         ::
 
           contourf(..., V)
 
-        fill the ``len(V)-1`` regions between the values in *V*
+        fill the ``len(V)-1`` regions between the values in *V*,
+        which must be in increasing order.
 
         ::
 
@@ -1743,8 +1765,8 @@ class QuadContourSet(ContourSet):
 
           *levels*: [level0, level1, ..., leveln]
             A list of floating point numbers indicating the level
-            curves to draw; e.g., to draw just the zero contour pass
-            ``levels=[0]``
+            curves to draw, in increasing order; e.g., to draw just
+            the zero contour pass ``levels=[0]``
 
           *origin*: [ *None* | 'upper' | 'lower' | 'image' ]
             If *None*, the first value of *Z* will correspond to the

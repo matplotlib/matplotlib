@@ -1,6 +1,6 @@
 # -*- noplot -*-
 """
-matplotlib has support for freetype fonts.  Here's a little example
+matplotlib has support for FreeType fonts.  Here's a little example
 using the 'table' command to build a font table that shows the glyphs
 by character code.
 
@@ -29,7 +29,7 @@ if len(sys.argv) > 1:
     fontname = sys.argv[1]
 else:
     fontname = os.path.join(matplotlib.get_data_path(),
-                            'fonts', 'ttf', 'Vera.ttf')
+                            'fonts', 'ttf', 'DejaVuSans.ttf')
 
 font = FT2Font(fontname)
 codes = list(font.get_charmap().items())

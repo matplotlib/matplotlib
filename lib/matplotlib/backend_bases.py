@@ -1678,6 +1678,8 @@ class FigureCanvasBase(object):
                          'Tagged Image File Format')
 
     def __init__(self, figure):
+        self._is_idle_drawing = True
+        self._is_saving = False
         figure.set_canvas(self)
         self.figure = figure
         # a dictionary from event name to a dictionary that maps cid->func
@@ -1690,7 +1692,6 @@ class FigureCanvasBase(object):
         self.scroll_pick_id = self.mpl_connect('scroll_event', self.pick)
         self.mouse_grabber = None  # the axes currently grabbing mouse
         self.toolbar = None  # NavigationToolbar2 will set me
-        self._is_saving = False
         self._is_idle_drawing = False
 
     @contextmanager
@@ -2122,6 +2123,8 @@ class FigureCanvasBase(object):
             tight bbox is calculated.
 
         """
+        self._is_saving = True
+
         if format is None:
             # get format from filename, or from backend's default filetype
             if cbook.is_string_like(filename):
@@ -2215,7 +2218,6 @@ class FigureCanvasBase(object):
         else:
             _bbox_inches_restore = None
 
-        self._is_saving = True
         try:
             #result = getattr(self, method_name)(
             result = print_method(
@@ -3074,7 +3076,7 @@ class NavigationToolbar2(object):
             else:
                 continue
 
-            a._set_view_from_bbox((lastx, lasty, x, y), view, direction,
+            a._set_view_from_bbox((lastx, lasty, x, y), direction,
                                   self._zoom_mode, twinx, twiny)
 
         self.draw()

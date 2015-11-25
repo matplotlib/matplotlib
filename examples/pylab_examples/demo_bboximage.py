@@ -25,7 +25,7 @@ if __name__ == "__main__":
     a = np.linspace(0, 1, 256).reshape(1, -1)
     a = np.vstack((a, a))
 
-    maps = sorted(m for m in plt.cm.datad if not m.endswith("_r"))
+    maps = sorted(m for m in plt.cm.cmap_d if not m.endswith("_r"))
     #nmaps = len(maps) + 1
 
     #fig.subplots_adjust(top=0.99, bottom=0.01, left=0.2, right=0.99)

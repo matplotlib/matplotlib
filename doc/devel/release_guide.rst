@@ -13,7 +13,7 @@ A guide for developers who are doing a matplotlib release.
 Testing
 =======
 
-* Run all of the regression tests by running ``python setup.py test`` script
+* Run all of the regression tests by running ``python tests.py``
   at the root of the source tree.
 
 * Run :file:`unit/memleak_hawaii3.py` and make sure there are no
@@ -90,84 +90,13 @@ Packaging
   :file:`release/win32` which you can use this to prepare the windows
   releases.
 
-Posting files
-=============
-
-Our current method is for the release manager to collect all of the
-binaries from the platform builders and post the files online on
-Sourceforge.  It is also possible that those building the binaries
-could upload to directly to Sourceforge.  We also post a source
-tarball to PyPI, since ``pip`` no longer trusts files downloaded from
-other sites.
-
-There are many ways to upload files to Sourceforge (`scp`, `rsync`,
-`sftp`, and a web interface) described in `Sourceforge Release File
-System documentation
-<https://sourceforge.net/apps/trac/sourceforge/wiki/Release%20files%20for%20download>`_.
-Below, we will use `sftp`.
-
-1. Create a directory containing all of the release files and `cd` to it.
-
-2. `sftp` to Sourceforge::
-
-     sftp USERNAME@frs.sourceforge.net:/home/frs/project/matplotlib/matplotlib
-
-3. Make a new directory for the release and move to it::
-
-     mkdir matplotlib-1.1.0rc1
-     cd matplotlib-1.1.0rc1
-
-4. Upload all of the files in the current directory on your local machine::
-
-     put *
-
-If this release is a final release, the default download for the
-matplotlib project should also be updated.  Login to Sourceforge and
-visit the `matplotlib files page
-<https://sourceforge.net/projects/matplotlib/files/matplotlib/>`_.
-Navigate to the tarball of the release you just updated, click on
-"Details" icon (it looks like a lower case ``i``), and make it the
-default download for all platforms.
-
-There is a list of direct links to downloads on matplotlib's main
-website.  This needs to be manually generated and updated every time
-new files are posted.
-
-1. Clone the matplotlib documentation repository and `cd` into it::
-
-     git clone git@github.com:matplotlib/matplotlib.github.com.git
-     cd matplotlib.github.com
-
-2. Update the list of downloads that you want to display by editing
-   the `downloads.txt` file.  Generally, this should contain the last two
-   final releases and any active release candidates.
-
-3. Update the downloads webpage by running the `update_downloads.py`
-   script.  This script requires `paramiko` (for `sftp` support) and
-   `jinja2` for templating.  Both of these dependencies can be
-   installed using pip::
-
-     pip install paramiko
-     pip install jinja2
-
-   Then update the download page::
-
-     ./update_downloads.py
-
-   You will be prompted for your Sourceforge username and password.
-
-4. Commit the changes and push them up to github::
-
-     git commit -m "Updating download list"
-     git push
 
 Update PyPI
 ===========
 
-Once the tarball has been posted on Sourceforge, you can register a
-link to the new release on PyPI.  This should only be done with final
-(non-release-candidate) releases, since doing so will hide any
-available stable releases.
+This step tells PyPI about the release and uploads a source
+tarball. This should only be done with final (non-release-candidate)
+releases, since doing so will hide any available stable releases.
 
 You may need to set up your `.pypirc` file as described in the
 `distutils register command documentation

@@ -20,7 +20,7 @@ Testing
 
 After installation, you can launch the test suite::
 
-  python setup.py test
+  python tests.py
 
 Or from the python interpreter::
 
@@ -28,4 +28,17 @@ Or from the python interpreter::
   matplotlib.test()
 
 Consider reading http://matplotlib.org/devel/coding_guide.html#testing for
-more information.
+more information. Note that the test suite requires nose and on python 2.7 mock
+which are not installed by default. Please install with pip or your package
+manager of choice.
+
+Contact
+=======
+matplotlib's communication channels include active mailing lists:
+
+* `Users <https://mail.python.org/mailman/listinfo/matplotlib-users>`_ mailing list: matplotlib-users@python.org
+* `Announcement  <https://mail.python.org/mailman/listinfo/matplotlib-announce>`_ mailing list: matplotlib-announce@python.org
+* `Development <https://mail.python.org/mailman/listinfo/matplotlib-devel>`_ mailing list: matplotlib-devel@python.org
+
+
+The first is a good starting point for general questions and discussions.

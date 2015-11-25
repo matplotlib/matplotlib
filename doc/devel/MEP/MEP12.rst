@@ -11,6 +11,7 @@ Status
 **Progress**
 
 Initial changes added in 1.3. Conversion of the gallery is on-going.
+29 September 2015 - The last `pylab_examples` where `pylab` is imported has been converted over to use `matplotlib pyplot` and `numpy`.
 
 Branches and Pull requests
 ==========================

@@ -215,7 +215,7 @@ def test_quiver3d():
     w = (np.sqrt(2.0 / 3.0) * np.cos(np.pi * x) * np.cos(np.pi * y) *
             np.sin(np.pi * z))
 
-    ax.quiver(x, y, z, u, v, w, length=0.1)
+    ax.quiver(x, y, z, u, v, w, length=0.1, pivot='tip', normalize=True)
 
 @image_comparison(baseline_images=['quiver3d_empty'], remove_text=True)
 def test_quiver3d_empty():
@@ -229,7 +229,7 @@ def test_quiver3d_empty():
     w = (np.sqrt(2.0 / 3.0) * np.cos(np.pi * x) * np.cos(np.pi * y) *
             np.sin(np.pi * z))
 
-    ax.quiver(x, y, z, u, v, w, length=0.1)
+    ax.quiver(x, y, z, u, v, w, length=0.1, pivot='tip', normalize=True)
 
 @image_comparison(baseline_images=['quiver3d_masked'], remove_text=True)
 def test_quiver3d_masked():
@@ -247,7 +247,7 @@ def test_quiver3d_masked():
     u = np.ma.masked_where((-0.4 < x) & (x < 0.1), u, copy=False)
     v = np.ma.masked_where((0.1 < y) & (y < 0.7), v, copy=False)
 
-    ax.quiver(x, y, z, u, v, w, length=0.1)
+    ax.quiver(x, y, z, u, v, w, length=0.1, pivot='tip', normalize=True)
 
 @image_comparison(baseline_images=['quiver3d_pivot_middle'], remove_text=True,
                   extensions=['png'])
@@ -262,7 +262,7 @@ def test_quiver3d_pivot_middle():
     w = (np.sqrt(2.0 / 3.0) * np.cos(np.pi * x) * np.cos(np.pi * y) *
             np.sin(np.pi * z))
 
-    ax.quiver(x, y, z, u, v, w, length=0.1, pivot='middle')
+    ax.quiver(x, y, z, u, v, w, length=0.1, pivot='middle', normalize=True)
 
 @image_comparison(baseline_images=['quiver3d_pivot_tail'], remove_text=True,
                   extensions=['png'])
@@ -277,7 +277,7 @@ def test_quiver3d_pivot_tail():
     w = (np.sqrt(2.0 / 3.0) * np.cos(np.pi * x) * np.cos(np.pi * y) *
             np.sin(np.pi * z))
 
-    ax.quiver(x, y, z, u, v, w, length=0.1, pivot='tail')
+    ax.quiver(x, y, z, u, v, w, length=0.1, pivot='tail', normalize=True)
 
 
 @image_comparison(baseline_images=['axes3d_labelpad'], extensions=['png'])
@@ -311,7 +311,17 @@ def test_axes3d_cla():
     ax.set_axis_off()
     ax.cla()  # make sure the axis displayed is 3D (not 2D)
 
+@cleanup
+def test_plotsurface_1d_raises():
+    x = np.linspace(0.5, 10, num=100)
+    y = np.linspace(0.5, 10, num=100)
+    X, Y = np.meshgrid(x, y)
+    z = np.random.randn(100)
 
+    fig = plt.figure(figsize=(14,6))
+    ax = fig.add_subplot(1, 2, 1, projection='3d')
+    assert_raises(ValueError, ax.plot_surface, X, Y, z)
+    
 if __name__ == '__main__':
     import nose
     nose.runmodule(argv=['-s', '--with-doctest'], exit=False)

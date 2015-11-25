@@ -118,7 +118,15 @@ you will see that the x tick labels are all squashed together.
 
    import matplotlib.cbook as cbook
    datafile = cbook.get_sample_data('goog.npy')
-   r = np.load(datafile).view(np.recarray)
+   try:
+       # Python3 cannot load python2 .npy files with datetime(object) arrays
+       # unless the encoding is set to bytes. Hovever this option was
+       # not added until numpy 1.10 so this example will only work with
+       # python 2 or with numpy 1.10 and later.
+       r = np.load(datafile, encoding='bytes').view(np.recarray)
+   except TypeError:
+       # Old Numpy
+       r = np.load(datafile).view(np.recarray)
    plt.figure()
    plt.plot(r.date, r.close)
    plt.title('Default date handling can cause overlapping labels')
@@ -179,8 +187,14 @@ right.
 
    # load up some sample financial data
    datafile = cbook.get_sample_data('goog.npy')
-   r = np.load(datafile).view(np.recarray)
-
+   try:
+       # Python3 cannot load python2 .npy files with datetime(object) arrays
+       # unless the encoding is set to bytes. Hovever this option was
+       # not added until numpy 1.10 so this example will only work with
+       # python 2 or with numpy 1.10 and later.
+       r = np.load(datafile, encoding='bytes').view(np.recarray)
+   except TypeError:
+       r = np.load(datafile).view(np.recarray)
    # create two subplots with the shared x and y axes
    fig, (ax1, ax2) = plt.subplots(1,2, sharex=True, sharey=True)
 
@@ -363,4 +377,3 @@ argument takes a dictionary with keys that are Patch properties.
    # place a text box in upper left in axes coords
    ax.text(0.05, 0.95, textstr, transform=ax.transAxes, fontsize=14,
            verticalalignment='top', bbox=props)
-

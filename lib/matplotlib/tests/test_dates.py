@@ -199,7 +199,7 @@ def test_date_formatter_strftime():
             expanded_formatter = mdates.DateFormatter(locale_d_fmt)
             assert_equal(locale_formatter.strftime(dt),
                          expanded_formatter.strftime(dt))
-        except ImportError:
+        except (ImportError, AttributeError):
             pass
 
     for year in range(1, 3000, 71):
