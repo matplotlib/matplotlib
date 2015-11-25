@@ -33,7 +33,7 @@ import tempfile
 from matplotlib.cbook import iterable, is_string_like
 from matplotlib.compat import subprocess
 from matplotlib import verbose
-from matplotlib import rcParams
+from matplotlib import rcParams, rcParamsDefault
 
 # Process creation flag for subprocess to prevent it raising a terminal
 # window. See for example:
@@ -262,9 +262,7 @@ class MovieWriter(object):
         Check to see if a MovieWriter subclass is actually available by
         running the commandline tool.
         '''
-        if platform.system() == 'Windows' and cls.bin_path() == 'convert':
-            # On Windows, the full path to convert must be specified in
-            # matplotlibrc since convert is also the name of a system tool.
+        if not cls.bin_path():
             return False
         try:
             p = subprocess.Popen(cls.bin_path(),
@@ -548,6 +546,27 @@ class ImageMagickBase(object):
     @property
     def output_args(self):
         return [self.outfile]
+
+    @classmethod
+    def _init_from_registry(cls):
+        if sys.platform != 'win32' or rcParams[cls.exec_key] != 'convert':
+            return
+        from matplotlib.externals.six.moves import winreg
+        for flag in (0, winreg.KEY_WOW64_32KEY, winreg.KEY_WOW64_64KEY):
+            try:
+                hkey = winreg.OpenKeyEx(winreg.HKEY_LOCAL_MACHINE,
+                                        'Software\\Imagemagick\\Current',
+                                        0, winreg.KEY_QUERY_VALUE | flag)
+                binpath = winreg.QueryValueEx(hkey, 'BinPath')[0]
+                winreg.CloseKey(hkey)
+                binpath += '\\convert.exe'
+                break
+            except Exception:
+                binpath = ''
+        rcParams[cls.exec_key] = rcParamsDefault[cls.exec_key] = binpath
+
+
+ImageMagickBase._init_from_registry()
 
 
 @writers.register('imagemagick')
