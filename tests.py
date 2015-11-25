@@ -22,36 +22,21 @@ from matplotlib import default_test_modules
 
 
 def run(extra_args):
-    # from nose.plugins import multiprocess
-
-    env = matplotlib._get_nose_env()
-
     matplotlib._init_tests()
 
-    # Nose doesn't automatically instantiate all of the plugins in the
-    # child processes, so we have to provide the multiprocess plugin with
-    # a list.
-    # plugins = matplotlib._get_extra_test_plugins()
-    # multiprocess._instantiate_plugins = plugins
-
-    # nose.main(addplugins=[x() for x in plugins],
-    #           defaultTest=default_test_modules,
-    #           argv=sys.argv + extra_args,
-    #           env=env)
-
     argv = sys.argv + extra_args
-    pytest.main(['--pyargs', '--cov=matplotlib'] + default_test_modules)
+    # pytest.main(['--pyargs', '--cov=matplotlib'] + default_test_modules)
+    print(argv + ['--pyargs'] + default_test_modules)
+    pytest.main(argv + ['--pyargs'] + default_test_modules)
 
 if __name__ == '__main__':
+    # extra_args = ['--cov=matplotlib']
     extra_args = []
 
-    if '--no-pep8' in sys.argv:
-        # default_test_modules.remove('matplotlib.tests.test_coding_standards')
-        # sys.argv.remove('--no-pep8')
-        pass
-    elif '--pep8' in sys.argv:
-        default_test_modules = ['--pep8 -m pep8']
-        # sys.argv.remove('--pep8')
+    if '--pep8' in sys.argv:
+        extra_args.extend(['--pep8'])
+        extra_args.extend(['-m pep8'])
+        sys.argv.remove('--pep8')
     if '--no-network' in sys.argv:
         from matplotlib.testing import disable_internet
         disable_internet.turn_off_internet()
