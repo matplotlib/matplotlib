@@ -30,8 +30,9 @@ from matplotlib.markers import MarkerStyle
 # Imported here for backward compatibility, even though they don't
 # really belong.
 from matplotlib.markers import TICKLEFT, TICKRIGHT, TICKUP, TICKDOWN
-from matplotlib.markers import CARETLEFT, CARETRIGHT, CARETUP, CARETDOWN
-
+from matplotlib.markers import (
+    CARETLEFT, CARETRIGHT, CARETUP, CARETDOWN,
+    CARETLEFTBASE, CARETRIGHTBASE, CARETUPBASE, CARETDOWNBASE)
 
 def segment_hits(cx, cy, x, y, radius):
     """
