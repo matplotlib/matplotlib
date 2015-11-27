@@ -6,7 +6,7 @@ import os
 
 from nose.tools import assert_equal
 from nose.plugins.skip import SkipTest
-from matplotlib.testing.noseclasses import KnownFailureTest
+import pytest
 
 try:
     import pep8
@@ -261,7 +261,7 @@ def test_pep8_conformance_examples():
             fp, tail = os.path.split(fp)
 
     if mpldir is None:
-        raise KnownFailureTest("can not find the examples, set env "
+        raise pytest.xfail("can not find the examples, set env "
                                "MPL_REPO_DIR to point to the top-level path "
                                "of the source tree")
 
