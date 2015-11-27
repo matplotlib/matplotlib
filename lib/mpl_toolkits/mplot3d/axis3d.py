@@ -13,6 +13,7 @@ import copy
 
 from matplotlib import lines as mlines, axis as maxis, \
         patches as mpatches
+from matplotlib import rcParams
 from . import art3d
 from . import proj3d
 
@@ -46,6 +47,7 @@ def tick_update_position(tick, tickxs, tickys, labelpos):
             label.set_position(labelpos)
 
     tick.tick1On, tick.tick2On = True, False
+    tick.tick1line.set_linewidth(rcParams['xtick.major.width'])
     tick.tick1line.set_linestyle('-')
     tick.tick1line.set_marker('')
     tick.tick1line.set_data(tickxs, tickys)
