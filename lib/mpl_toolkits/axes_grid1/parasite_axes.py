@@ -332,7 +332,13 @@ class HostAxesBase(object):
         ax2.axis["right"].set_visible(True)
         ax2.axis["left", "top", "bottom"].set_visible(False)
 
+        # We need to chain together the remove method supplied by the Figure
+        # and the one we build ourselves.
+        ax2.figure.add_axes(ax2)
+        figure_remove_method = ax2._remove_method
+
         def _remove_method(h):
+            figure_remove_method(h)
             self.parasites.remove(h)
             self.axis["right"].set_visible(True)
             self.axis["right"].toggle(ticklabels=False, label=False)
@@ -365,7 +371,13 @@ class HostAxesBase(object):
         ax2.axis["top"].set_visible(True)
         ax2.axis["left", "right", "bottom"].set_visible(False)
 
+        # We need to chain together the remove method supplied by the Figure
+        # and the one we build ourselves.
+        ax2.figure.add_axes(ax2)
+        figure_remove_method = ax2._remove_method
+
         def _remove_method(h):
+            figure_remove_method(h)
             self.parasites.remove(h)
             self.axis["top"].set_visible(True)
             self.axis["top"].toggle(ticklabels=False, label=False)
@@ -407,7 +419,13 @@ class HostAxesBase(object):
         ax2.axis["top", "right"].set_visible(True)
         ax2.axis["left", "bottom"].set_visible(False)
 
+        # We need to chain together the remove method supplied by the Figure
+        # and the one we build ourselves.
+        ax2.figure.add_axes(ax2)
+        figure_remove_method = ax2._remove_method
+
         def _remove_method(h):
+            figure_remove_method(h)
             self.parasites.remove(h)
             self.axis["top", "right"].set_visible(True)
             self.axis["top", "right"].toggle(ticklabels=False, label=False)
