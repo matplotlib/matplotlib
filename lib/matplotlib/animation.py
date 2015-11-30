@@ -27,7 +27,12 @@ import os
 import platform
 import sys
 import itertools
-import base64
+try:
+    # python3
+    from base64 import encodebytes
+except ImportError:
+    # python2
+    from base64 import encodestring as encodebytes
 import contextlib
 import tempfile
 from matplotlib.cbook import iterable, is_string_like
@@ -928,7 +933,7 @@ class Animation(object):
 
             # Now open and base64 encode
             with open(f.name, 'rb') as video:
-                vid64 = base64.encodebytes(video.read())
+                vid64 = encodebytes(video.read())
                 self._base64_video = vid64.decode('ascii')
                 self._video_size = 'width="{0}" height="{1}"'.format(
                         *writer.frame_size)
