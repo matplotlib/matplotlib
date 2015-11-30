@@ -34,6 +34,7 @@ from matplotlib.markers import (
     CARETLEFT, CARETRIGHT, CARETUP, CARETDOWN,
     CARETLEFTBASE, CARETRIGHTBASE, CARETUPBASE, CARETDOWNBASE)
 
+
 def segment_hits(cx, cy, x, y, radius):
     """
     Determine if any line segments are within radius of a
