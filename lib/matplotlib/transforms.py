@@ -1552,10 +1552,14 @@ class TransformWrapper(Transform):
         def __str__(self):
             return str(self._child)
 
+    # NOTE: Transform.__[gs]etstate__ should be sufficient when using only
+    # Python 3.4+.
     def __getstate__(self):
-        # only store the child and parents
+        # only store the child information and parents
         return {
             'child': self._child,
+            'input_dims': self.input_dims,
+            'output_dims': self.output_dims,
             # turn the weakkey dictionary into a normal dictionary
             'parents': dict(six.iteritems(self._parents))
         }
@@ -1563,6 +1567,9 @@ class TransformWrapper(Transform):
     def __setstate__(self, state):
         # re-initialise the TransformWrapper with the state's child
         self._init(state['child'])
+        # The child may not be unpickled yet, so restore its information.
+        self.input_dims = state['input_dims']
+        self.output_dims = state['output_dims']
         # turn the normal dictionary back into a WeakValueDictionary
         self._parents = WeakValueDictionary(state['parents'])
 
