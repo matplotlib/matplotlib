@@ -14,6 +14,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib import cm
 import matplotlib as mpl
+from colorspacious import cspace_converter
 
 mpl.rcParams.update({'font.size': 12})
 
@@ -46,8 +47,8 @@ for cmap_category, cmap_list in cmaps:
             # Get rgb values for colormap
             rgb = cm.get_cmap(cmap)(x)[np.newaxis,:,:3]
 
-            # Get colormap in CIE LAB. We want the L here.
-            lab = color.rgb2lab(rgb)
+            # Get colormap in CAM02-UCS colorspace. We want the lightness.
+            lab = cspace_converter("sRGB1", "CAM02-UCS")(rgb)
 
             # Plot colormap L values
             # Do separately for each category so each plot can be pretty
@@ -55,7 +56,7 @@ for cmap_category, cmap_list in cmaps:
             # http://stackoverflow.com/questions/8202605/matplotlib-scatterplot-colour-as-a-function-of-a-third-variable
             if cmap_category=='Perceptually Uniform Sequential':
                 dc = 1.15 # spacing between colormaps
-                ax.scatter(x+j*dc, lab[0,::-1,0], c=x, cmap=cmap,
+                ax.scatter(x+j*dc, lab[0,:,0], c=x, cmap=cmap,
                            s=300, linewidths=0.)
                 if i==2:
                     ax.axis([-0.1,4.1,0,100])
@@ -65,7 +66,9 @@ for cmap_category, cmap_list in cmaps:
 
             elif cmap_category=='Sequential':
                 dc = 0.6 # spacing between colormaps
-                ax.scatter(x+j*dc, lab[0,::-1,0], c=x, cmap=cmap + '_r',
+                # These colormaps all start at high lightness but we want them
+                # reversed to look nice in the plot, so reverse the order.
+                ax.scatter(x+j*dc, lab[0,::-1,0], c=x[::-1], cmap=cmap,
                            s=300, linewidths=0.)
                 if i==2:
                     ax.axis([-0.1,4.1,0,100])
