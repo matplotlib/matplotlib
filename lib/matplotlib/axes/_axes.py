@@ -3354,7 +3354,7 @@ class Axes(_AxesBase):
           - ``q1``: The first quartile (25th percentile) (scalar
             float).
 
-          - ``q3``: The first quartile (50th percentile) (scalar
+          - ``q3``: The third quartile (75th percentile) (scalar
             float).
 
           - ``whislo``: Lower bound of the lower whisker (scalar
@@ -7272,27 +7272,27 @@ class Axes(_AxesBase):
               :class:`matplotlib.collections.PolyCollection` instances
               containing the filled area of each violin.
 
-            - ``means``: A
+            - ``cmeans``: A
               :class:`matplotlib.collections.LineCollection` instance
               created to identify the mean values of each of the
               violin's distribution.
 
-            - ``mins``: A
+            - ``cmins``: A
               :class:`matplotlib.collections.LineCollection` instance
               created to identify the bottom of each violin's
               distribution.
 
-            - ``maxes``: A
+            - ``cmaxes``: A
               :class:`matplotlib.collections.LineCollection` instance
               created to identify the top of each violin's
               distribution.
 
-            - ``bars``: A
+            - ``cbars``: A
               :class:`matplotlib.collections.LineCollection` instance
               created to identify the centers of each violin's
               distribution.
 
-            - ``medians``: A
+            - ``cmedians``: A
               :class:`matplotlib.collections.LineCollection` instance
               created to identify the median values of each of the
               violin's distribution.
@@ -7378,27 +7378,27 @@ class Axes(_AxesBase):
               :class:`matplotlib.collections.PolyCollection` instances
               containing the filled area of each violin.
 
-            - ``means``: A
+            - ``cmeans``: A
               :class:`matplotlib.collections.LineCollection` instance
               created to identify the mean values of each of the
               violin's distribution.
 
-            - ``mins``: A
+            - ``cmins``: A
               :class:`matplotlib.collections.LineCollection` instance
               created to identify the bottom of each violin's
               distribution.
 
-            - ``maxes``: A
+            - ``cmaxes``: A
               :class:`matplotlib.collections.LineCollection` instance
               created to identify the top of each violin's
               distribution.
 
-            - ``bars``: A
+            - ``cbars``: A
               :class:`matplotlib.collections.LineCollection` instance
               created to identify the centers of each violin's
               distribution.
 
-            - ``medians``: A
+            - ``cmedians``: A
               :class:`matplotlib.collections.LineCollection` instance
               created to identify the median values of each of the
               violin's distribution.
