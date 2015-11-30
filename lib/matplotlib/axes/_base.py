@@ -2220,7 +2220,8 @@ class _AxesBase(martist.Artist):
                         minpos = getattr(bb, minpos)
                         transform = axis.get_transform()
                         inverse_trans = transform.inverted()
-                        x0, x1 = axis._scale.limit_range_for_scale(x0, x1, minpos)
+                        x0, x1 = axis._scale.limit_range_for_scale(
+                            x0, x1, minpos)
                         x0t, x1t = transform.transform([x0, x1])
                         delta = (x1t - x0t) * margin
                         if do_lower_margin:
