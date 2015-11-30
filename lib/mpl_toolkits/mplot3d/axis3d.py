@@ -47,7 +47,6 @@ def tick_update_position(tick, tickxs, tickys, labelpos):
             label.set_position(labelpos)
 
     tick.tick1On, tick.tick2On = True, False
-    tick.tick1line.set_linewidth(rcParams['xtick.major.width'])
     tick.tick1line.set_linestyle('-')
     tick.tick1line.set_marker('')
     tick.tick1line.set_data(tickxs, tickys)
@@ -85,11 +84,18 @@ class Axis(maxis.XAxis):
         self._axinfo.update({'label' : {'va': 'center',
                                         'ha': 'center'},
                              'tick' : {'inward_factor': 0.2,
-                                       'outward_factor': 0.1},
-                             'axisline': {'linewidth': 0.75,
-                                          'color': (0, 0, 0, 1)},
-                             'grid' : {'color': (0.9, 0.9, 0.9, 1),
-                                       'linewidth': 1.0},
+                                       'outward_factor': 0.1,
+                                       'linewidth': rcParams.get(
+                                           adir + 'tick.major.width',
+                                           rcParams['xtick.major.width']),
+                                       'color': rcParams.get(
+                                           adir + 'tick.color',
+                                           rcParams['xtick.color'])},
+                             'axisline': {'linewidth': rcParams['axes.linewidth'],
+                                          'color': rcParams['axes.edgecolor']},
+                             'grid' : {'color': rcParams['grid.color'],
+                                       'linewidth': rcParams['grid.linewidth'],
+                                       'linestyle': rcParams['grid.linestyle']},
                             })
 
 
@@ -377,6 +383,10 @@ class Axis(maxis.XAxis):
             if self.axes._draw_grid:
                 self.gridlines.set_segments(lines)
                 self.gridlines.set_color([info['grid']['color']] * len(lines))
+                self.gridlines.set_linewidth(
+                    [info['grid']['linewidth']] * len(lines))
+                self.gridlines.set_linestyle(
+                    [info['grid']['linestyle']] * len(lines))
                 self.gridlines.draw(renderer, project=True)
 
         # Draw ticks
@@ -416,6 +426,8 @@ class Axis(maxis.XAxis):
                     renderer.M)
 
             tick_update_position(tick, (x1, x2), (y1, y2), (lx, ly))
+            tick.tick1line.set_linewidth(info['tick']['linewidth'])
+            tick.tick1line.set_color(info['tick']['color'])
             tick.set_label1(label)
             tick.set_label2(label)
             tick.draw(renderer)
