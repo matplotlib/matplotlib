@@ -14,6 +14,7 @@ import matplotlib.colors as mcolors
 import matplotlib.cm as cm
 import matplotlib.cbook as cbook
 import matplotlib.pyplot as plt
+from matplotlib.sankey import Sankey
 from matplotlib.testing.decorators import (image_comparison,
                                            cleanup, knownfailureif)
 
@@ -534,6 +535,53 @@ def _azimuth2math(azimuth, elevation):
     theta = np.radians((90 - azimuth) % 360)
     phi = np.radians(90 - elevation)
     return theta, phi
+
+
+@image_comparison(baseline_images=["color_cycle"], extensions=['png'],
+                  style='default')
+def test_color_cycle():
+    # Test that various plot types are using the color cycle
+
+    fig, [[ax1, ax2], [ax3, ax4]] = plt.subplots(2, 2)
+
+    ax1.pie([1, 2, 3, 4])
+
+    sankey = Sankey(ax=ax2, scale=0.01, offset=0.2, head_angle=180,
+                    format='%.0f', unit='%')
+    sankey.add(flows=[25, 0, 60, -10, -20, -5, -15, -10, -40],
+               labels=['', '', '', 'First', 'Second', 'Third', 'Fourth',
+                       'Fifth', 'Hurray!'],
+               orientations=[-1, 1, 0, 1, 1, 1, -1, -1, 0],
+               pathlengths=[0.25, 0.25, 0.25, 0.25, 0.25, 0.6, 0.25, 0.25,
+                            0.25],
+               patchlabel="Widget\nA")  # Arguments to matplotlib.patches.PathPatch()
+    diagrams = sankey.finish()
+
+    x = np.arange(0.5, 5.5, 0.5)
+    y = np.exp(-x)
+    xerr = 0.1
+    yerr = 0.2
+
+    # standard error bars
+    ax3.errorbar(x, y, xerr=xerr, yerr=yerr)
+
+    # including upper limits
+    uplims = np.zeros(x.shape)
+    uplims[[1, 5, 9]] = True
+    ax3.errorbar(x, y + 0.5, xerr=xerr, yerr=yerr, uplims=uplims)
+
+    # including lower limits
+    lolims = np.zeros(x.shape)
+    lolims[[2, 4, 8]] = True
+    ax3.errorbar(x, y + 1.0, xerr=xerr, yerr=yerr, lolims=lolims)
+
+    # including upper and lower limits
+    ax3.errorbar(x, y + 1.5, marker='o', ms=8, xerr=xerr, yerr=yerr,
+                 lolims=lolims, uplims=uplims)
+
+    ax4.plot([1, 2, 3])
+    ax4.plot([4, 5, 6])
+    ax4.plot([7, 8, 9])
 
 
 if __name__ == '__main__':
