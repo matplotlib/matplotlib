@@ -2558,11 +2558,14 @@ class Axes(_AxesBase):
         if ((colors is None) and
             ('color' in self._get_patches_for_fill._prop_keys)):
             def get_next_color():
-                return six.next(self._get_patches_for_fill.prop_cycler)['color']
+                return six.next(
+                    self._get_patches_for_fill.prop_cycler)['color']
         elif colors is None:
             colors = ('b', 'g', 'r', 'c', 'm', 'y', 'k', 'w')
+
         if colors is not None:
             color_cycler = itertools.cycle(colors)
+
             def get_next_color():
                 return six.next(color_cycler)
 

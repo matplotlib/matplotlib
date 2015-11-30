@@ -554,7 +554,7 @@ def test_color_cycle():
                orientations=[-1, 1, 0, 1, 1, 1, -1, -1, 0],
                pathlengths=[0.25, 0.25, 0.25, 0.25, 0.25, 0.6, 0.25, 0.25,
                             0.25],
-               patchlabel="Widget\nA")  # Arguments to matplotlib.patches.PathPatch()
+               patchlabel="Widget\nA")
     diagrams = sankey.finish()
 
     x = np.arange(0.5, 5.5, 0.5)
