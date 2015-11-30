@@ -21,7 +21,7 @@ __all__ = ['streamplot']
 
 def streamplot(axes, x, y, u, v, density=1, linewidth=None, color=None,
                cmap=None, norm=None, arrowsize=1, arrowstyle='-|>',
-               minlength=0.1, transform=None, zorder=1, start_points=None):
+               minlength=0.1, transform=None, zorder=2, start_points=None):
     """Draws streamlines of a vector flow.
 
     *x*, *y* : 1d arrays
