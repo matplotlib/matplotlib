@@ -3354,7 +3354,7 @@ class Axes(_AxesBase):
           - ``q1``: The first quartile (25th percentile) (scalar
             float).
 
-          - ``q3``: The first quartile (50th percentile) (scalar
+          - ``q3``: The third quartile (75th percentile) (scalar
             float).
 
           - ``whislo``: Lower bound of the lower whisker (scalar
