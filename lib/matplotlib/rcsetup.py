@@ -982,14 +982,18 @@ defaultParams = {
     # This entry can be either a cycler object or a
     # string repr of a cycler-object, which gets eval()'ed
     # to create the object.
-    'axes.prop_cycle': [ccycler('color', 'bgrcmyk'),
-                        validate_cycler],
-    'axes.xmargin': [0, ValidateInterval(0, 1,
-                                         closedmin=True,
-                                         closedmax=True)],  # margin added to xaxis
-    'axes.ymargin': [0, ValidateInterval(0, 1,
-                                         closedmin=True,
-                                         closedmax=True)],# margin added to yaxis
+    'axes.prop_cycle': [
+        ccycler('color',
+                ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728',
+                 '#9467bd', '#8c564b', '#e377c2', '#7f7f7f',
+                 '#bcbd22', '#17becf']),
+        validate_cycler],
+    'axes.xmargin': [0.05, ValidateInterval(0, 1,
+                                            closedmin=True,
+                                            closedmax=True)],  # margin added to xaxis
+    'axes.ymargin': [0.05, ValidateInterval(0, 1,
+                                            closedmin=True,
+                                            closedmax=True)],# margin added to yaxis
 
     'polaraxes.grid': [True, validate_bool],  # display polar grid or
                                                      # not
@@ -1208,7 +1212,14 @@ defaultParams = {
     'animation.convert_path':  ['convert', six.text_type],
      # Additional arguments for mencoder movie writer (using pipes)
 
-    'animation.convert_args':  [[], validate_stringlist]}
+    'animation.convert_args':  [[], validate_stringlist],
+
+    # Classic (pre 2.0) compatibility mode
+    # This is used for things that are hard to make backward compatible
+    # with a sane rcParam alone.  This does *not* turn on classic mode
+    # altogether.  For that use `matplotlib.style.use('classic')`.
+    '_internal.classic_mode': [False, validate_bool]
+}
 
 
 if __name__ == '__main__':
