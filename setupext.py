@@ -142,7 +142,10 @@ def get_include_dirs():
     """
     Returns a list of standard include directories on this platform.
     """
-    return [os.path.join(d, 'include') for d in get_base_dirs()]
+    include_dirs = [os.path.join(d, 'include') for d in get_base_dirs()]
+    include_dirs.extend(
+        os.environ.get('CPLUS_INCLUDE_PATH', '').split(os.pathsep))
+    return include_dirs
 
 
 def is_min_version(found, minversion):
@@ -463,7 +466,8 @@ class SetupPackage(object):
             ext = make_extension('test', [])
             pkg_config.setup_extension(ext, package)
 
-        check_include_file(ext.include_dirs, include_file, package)
+        check_include_file(
+            ext.include_dirs + get_include_dirs(), include_file, package)
 
         return 'version %s' % version
 
