@@ -1208,7 +1208,14 @@ defaultParams = {
     'animation.convert_path':  ['convert', six.text_type],
      # Additional arguments for mencoder movie writer (using pipes)
 
-    'animation.convert_args':  [[], validate_stringlist]}
+    'animation.convert_args':  [[], validate_stringlist],
+
+    # Classic (pre 2.0) compatibility mode
+    # This is used for things that are hard to make backward compatible
+    # with a sane rcParam alone.  This does *not* turn on classic mode
+    # altogether.  For that use `matplotlib.style.use('classic')`.
+    '_internal.classic_mode': [False, validate_bool]
+}
 
 
 if __name__ == '__main__':
