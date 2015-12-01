@@ -4191,6 +4191,12 @@ def test_axes_margins():
     assert ax.get_ybound() == (-0.5, 9.5)
 
 
+@image_comparison(baseline_images=["auto_numticks"], style='default',
+                  extensions=['png'])
+def test_auto_numticks():
+    fig, axes = plt.subplots(4, 4)
+
+
 if __name__ == '__main__':
     import nose
     import sys
