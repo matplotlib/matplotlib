@@ -845,21 +845,46 @@ class Artist(object):
         """
         store = self.eventson
         self.eventson = False
-        changed = False
+        try:
+            ret = [self._update_property(k, v)
+                   for k, v in sorted(props.items(), reverse=True)]
+        finally:
+            self.eventson = store
 
-        for k, v in six.iteritems(props):
-            if k in ['axes']:
-                setattr(self, k, v)
-            else:
-                func = getattr(self, 'set_' + k, None)
-                if func is None or not six.callable(func):
-                    raise AttributeError('Unknown property %s' % k)
-                func(v)
-            changed = True
-        self.eventson = store
-        if changed:
+        if len(ret):
             self.pchanged()
             self.stale = True
+        return ret
+
+    def _update_property(self, k, v):
+        """helper function for set, update, setp
+
+        This function takes care of sorting out if this should be done
+        through a `set_*` method or a property.
+
+        Parameters
+        ----------
+        k : str
+            The property to update
+
+        v : obj
+            The value to assign to the property
+
+        Returns
+        -------
+        ret : obj or None
+            If using a `set_*` method return it's return, else return None.
+        """
+        k = k.lower()
+        # white list attributes we want to be able to update through
+        # art.update, art.set, setp
+        if k in ['axes']:
+            return setattr(self, k, v)
+        else:
+            func = getattr(self, 'set_' + k, None)
+            if func is None or not six.callable(func):
+                raise AttributeError('Unknown property %s' % k)
+            return func(v)
 
     def get_label(self):
         """
@@ -919,23 +944,9 @@ class Artist(object):
         return ArtistInspector(self).properties()
 
     def set(self, **kwargs):
+        """A property batch setter. Pass *kwargs* to set properties.
         """
-        A property batch setter. Pass *kwargs* to set properties.
-        Will handle property name collisions (e.g., if both
-        'color' and 'facecolor' are specified, the property
-        with higher priority gets set last).
-
-        """
-        ret = []
-        for k, v in sorted(kwargs.items(), reverse=True):
-            k = k.lower()
-            funcName = "set_%s" % k
-            func = getattr(self, funcName, None)
-            if func is None:
-               raise TypeError('There is no %s property "%s"' %
-                               (self.__class__.__name__, k))
-            ret.extend([func(v)])
-        return ret
+        return self.update(kwargs)
 
     def findobj(self, match=None, include_self=True):
         """
@@ -1453,18 +1464,10 @@ def setp(obj, *args, **kwargs):
     funcvals = []
     for i in range(0, len(args) - 1, 2):
         funcvals.append((args[i], args[i + 1]))
-    funcvals.extend(sorted(kwargs.items(), reverse=True))
-
-    ret = []
-    for o in objs:
-        for s, val in funcvals:
-            s = s.lower()
-            funcName = "set_%s" % s
-            func = getattr(o, funcName, None)
-            if func is None:
-                raise TypeError('There is no %s property "%s"' %
-                                (o.__class__.__name__, s))
-            ret.extend([func(val)])
+    # do the *args one at a time to ensure order
+    ret = [o.update({s: val}) for s, val in funcvals for o in objs]
+    # apply kwargs in bulk
+    ret.extend([o.update(kwargs) for o in objs])
     return [x for x in cbook.flatten(ret)]
 
 
