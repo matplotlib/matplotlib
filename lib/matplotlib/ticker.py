@@ -1477,7 +1477,7 @@ class AutoSpacedLocator(MaxNLocator):
     Behaves like a MaxNLocator, except N is automatically determined
     from the length of the axis.
     """
-    def __init__(self, *args, **kwargs):
+    def __init__(self, steps=None, integer=False, symmetric=False, prune=None):
         """
         Keyword args:
 
@@ -1503,11 +1503,9 @@ class AutoSpacedLocator(MaxNLocator):
             will be removed.  If prune==None, no ticks will be removed.
 
         """
-        if 'nbins' in kwargs:
-            raise ValueError(
-                'AutoSpacedLocator does not take nbins as an argument')
         self.set_params(**self.default_params)
-        self.set_params(**kwargs)
+        self.set_params(steps=steps, integer=integer, symmetric=symmetric,
+                        prune=prune)
 
     def __call__(self):
         self._nbins = self.axis.get_tick_space()
