@@ -138,6 +138,9 @@ def setup(app):
         'math_symbol_table', math_symbol_table_directive,
         False, (0, 1, 0))
 
+    metadata = {'parallel_read_safe': True, 'parallel_write_safe': True}
+    return metadata
+
 if __name__ == "__main__":
     # Do some verification of the tables
     from matplotlib import _mathtext_data
