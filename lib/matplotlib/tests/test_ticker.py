@@ -159,20 +159,28 @@ def test_SymmetricalLogLocator_set_params():
     nose.tools.assert_equal(sym.numticks, 8)
 
 
+def _logfe_helper(formatter, base, locs, i, expected_result):
+    vals = base**locs
+    labels = [formatter(x, pos) for (x, pos) in zip(vals, i)]
+    nose.tools.assert_equal(labels, expected_result)
+
+
 def test_LogFormatterExponent():
     class FakeAxis(object):
         """Allow Formatter to be called without having a "full" plot set up."""
+        def __init__(self, vmin=1, vmax=10):
+            self.vmin = vmin
+            self.vmax = vmax
+
         def get_view_interval(self):
-            return 1, 10
+            return self.vmin, self.vmax
 
     i = np.arange(-3, 4, dtype=float)
     expected_result = ['-3', '-2', '-1', '0', '1', '2', '3']
-    for base in [2, 5, 10, np.pi, np.e]:
+    for base in [2, 5.0, 10.0, np.pi, np.e]:
         formatter = mticker.LogFormatterExponent(base=base)
-        formatter.axis = FakeAxis()
-        vals = base**i
-        labels = [formatter(x, pos) for (x, pos) in zip(vals, i)]
-        nose.tools.assert_equal(labels, expected_result)
+        formatter.axis = FakeAxis(1, base**4)
+        yield _logfe_helper, formatter, base, i, i, expected_result
 
     # Should be a blank string for non-integer powers if labelOnlyBase=True
     formatter = mticker.LogFormatterExponent(base=10, labelOnlyBase=True)
@@ -185,10 +193,15 @@ def test_LogFormatterExponent():
     expected_result = ['0.1', '1e-05', '3.14', '0.2', '-0.2', '-1e-05']
     for base in [2, 5, 10, np.pi, np.e]:
         formatter = mticker.LogFormatterExponent(base, labelOnlyBase=False)
-        formatter.axis = FakeAxis()
-        vals = base**locs
-        labels = [formatter(x, pos) for (x, pos) in zip(vals, i)]
-        nose.tools.assert_equal(labels, expected_result)
+        formatter.axis = FakeAxis(1, base**10)
+        yield _logfe_helper, formatter, base, locs, i, expected_result
+
+    expected_result = ['3', '5', '12', '42']
+    locs = np.array([3, 5, 12, 42], dtype='float')
+    for base in [2, 5.0, 10.0, np.pi, np.e]:
+        formatter = mticker.LogFormatterExponent(base, labelOnlyBase=False)
+        formatter.axis = FakeAxis(1, base**50)
+        yield _logfe_helper, formatter, base, locs, i, expected_result
 
 
 def test_use_offset():
