@@ -1,0 +1,14 @@
+diff --git setup.py setup.py
+index 8af8b6d..4e4f9d2 100644
+--- setup.py
++++ setup.py
+@@ -57,6 +57,9 @@
+ import versioneer
+ __version__ = versioneer.get_version()
+ 
++# For conda builds...
++with open("__conda_version__.txt", "w") as f:
++    f.write(__version__)
+ 
+ # These are the packages in the order we want to display them.  This
+ # list may contain strings to create section headers for the display.
