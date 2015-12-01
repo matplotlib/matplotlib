@@ -731,13 +731,15 @@ class LogFormatter(Formatter):
         else:
             fmt = '%1.3f'
         s = fmt % x
-        #print d, x, fmt, s
+
         tup = s.split('e')
         if len(tup) == 2:
             mantissa = tup[0].rstrip('0').rstrip('.')
-            sign = tup[1][0].replace('+', '')
-            exponent = tup[1][1:].lstrip('0')
-            s = '%se%s%s' % (mantissa, sign, exponent)
+            exponent = int(tup[1])
+            if exponent:
+                s = '%se%d' % (mantissa, exponent)
+            else:
+                s = mantissa
         else:
             s = s.rstrip('0').rstrip('.')
         return s
