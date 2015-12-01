@@ -481,8 +481,8 @@ class Collection(artist.Artist, cm.ScalarMappable):
         """
         if lw is None:
             if (self._edge_default or
-                mpl.rcParams['_internal.classic_mode'] or
-                not self._is_filled):
+                    mpl.rcParams['_internal.classic_mode'] or
+                    not self._is_filled):
                 lw = mpl.rcParams['patch.linewidth']
                 if lw is None:
                     lw = mpl.rcParams['lines.linewidth']
