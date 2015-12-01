@@ -87,6 +87,7 @@ class Axis(maxis.XAxis):
                              'axisline': {'linewidth': 0.75,
                                           'color': (0, 0, 0, 1)},
                              'grid' : {'color': (0.9, 0.9, 0.9, 1),
+                                       'linestyle': '-',
                                        'linewidth': 1.0},
                             })
 
@@ -375,6 +376,7 @@ class Axis(maxis.XAxis):
             if self.axes._draw_grid:
                 self.gridlines.set_segments(lines)
                 self.gridlines.set_color([info['grid']['color']] * len(lines))
+                self.gridlines.set_linestyle([info['grid']['linestyle']])
                 self.gridlines.draw(renderer, project=True)
 
         # Draw ticks
