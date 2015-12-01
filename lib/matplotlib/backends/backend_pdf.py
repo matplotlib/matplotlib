@@ -935,8 +935,9 @@ end"""
         max_ccode = 0
         for ccode in characters:
             gind = font.get_char_index_unicode(ccode)
-            glyph = font.load_char_unicode(ccode, load_flags=ft.LOAD.NO_HINTING)
-            widths.append((ccode, glyph.linear_hori_advance * 64.))
+            glyph = font.load_char_unicode(
+                ccode, load_flags=ft.LOAD.NO_HINTING|ft.LOAD.NO_SCALE)
+            widths.append((ccode, glyph.linear_hori_advance * 64. * 1.3))
             if ccode < 65536:
                 cid_to_gid_map[ccode] = unichr(gind)
             max_ccode = max(ccode, max_ccode)
@@ -1808,10 +1809,11 @@ class RendererPdf(RendererBase):
             d *= scale / 1000
         else:
             font = self._get_font_ttf(prop)
-            layout = ft.Layout(font, s, load_flags=ft.LOAD.NO_HINTING)
-            w = layout.ink_bbox.width
+            layout = ft.Layout(
+                font, s, load_flags=ft.LOAD.NO_HINTING)
+            w = layout.layout_bbox.width
             h = layout.ink_bbox.height
-            d = layout.ink_bbox.y_min
+            d = -layout.ink_bbox.y_min
         return w, h, d
 
     def _get_font_afm(self, prop):
@@ -1835,8 +1837,9 @@ class RendererPdf(RendererBase):
     def _get_font_ttf(self, prop):
         filename = findfont(prop)
         font = get_font(filename)
-        font.set_char_size(prop.get_size_in_points(), prop.get_size_in_points(),
-                           72, 72)
+        font.set_char_size(
+            prop.get_size_in_points(), prop.get_size_in_points(),
+            72, 72)
         return font
 
     def flipy(self):

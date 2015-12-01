@@ -115,8 +115,8 @@ class TextToPath(object):
         layout = ft.Layout(font, s)
         w = layout.ink_bbox.width
         h = layout.ink_bbox.height
-        d = layout.ink_bbox.y_min
-        return w * scale, h * scale, d * scale
+        d = -layout.ink_bbox.y_min
+        return w, h, d
 
     def get_text_path(self, prop, s, ismath=False, usetex=False):
         """
@@ -170,14 +170,6 @@ class TextToPath(object):
         provided ttf font.
         """
 
-        # Mostly copied from backend_svg.py.
-
-        lastgind = None
-
-        currx = 0
-        xpositions = []
-        glyph_ids = []
-
         if glyph_map is None:
             glyph_map = OrderedDict()
 
@@ -186,43 +178,19 @@ class TextToPath(object):
         else:
             glyph_map_new = glyph_map
 
-        # I'm not sure if I get kernings right. Needs to be verified. -JJL
+        layout = ft.Layout(font, s)
 
-        for c in s:
+        result = []
+        for gind, c, pos in zip(np.asarray(layout.glyph_indices), s,
+                                np.asarray(layout.points)):
             ccode = ord(c)
-            gind = font.get_char_index_unicode(c)
-            if gind is None:
-                ccode = ord('?')
-                gind = 0
-
-            if lastgind is not None:
-                kern = font.get_kerning(lastgind, gind, ft.KERNING.DEFAULT).x
-            else:
-                kern = 0
-
-            glyph = font.load_char_unicode(ccode, ft.LOAD.NO_HINTING)
-            horiz_advance = (glyph.linear_hori_advance)
-
             char_id = self._get_char_id(font, ccode)
             if char_id not in glyph_map:
+                glyph = font.load_glyph(gind, ft.LOAD.NO_HINTING)
                 glyph_map_new[char_id] = self.glyph_to_path(glyph)
+            result.append((char_id, pos[0], pos[1], 1))
 
-            currx += kern
-
-            xpositions.append(currx)
-            glyph_ids.append(char_id)
-
-            currx += horiz_advance
-
-            lastgind = gind
-
-        ypositions = [0] * len(xpositions)
-        sizes = [1.] * len(xpositions)
-
-        rects = []
-
-        return (list(zip(glyph_ids, xpositions, ypositions, sizes)),
-                     glyph_map_new, rects)
+        return (result, glyph_map_new, [])
 
     def get_glyphs_mathtext(self, prop, s, glyph_map=None,
                             return_new_glyphs_only=False):
