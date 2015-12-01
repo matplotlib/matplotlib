@@ -10,3 +10,9 @@ The behavior of `matplotlib.Artist.update` is slightly changed to now
 sort by key name and returns a list of the returned values from the
 setter methods to avoid changing the API of
 `matplotlib.Artist.set` and `matplotlib.artist.setp`.
+
+The keys passed into `matplotlib.Artist.update` are now converted to
+all lower case before being processed, to match the behavior of
+`matplotlib.Artist.set` and `matplotlib.artist.setp`.  This should not
+break any user code because there are no set methods with capitals in
+the names, however going forward this puts a constraint naming properties.
