@@ -1507,6 +1507,12 @@ class AutoSpacedLocator(MaxNLocator):
         self.set_params(steps=steps, integer=integer, symmetric=symmetric,
                         prune=prune)
 
+    def set_params(self, **kwargs):
+        if 'nbins' in kwargs:
+            raise TypeError(
+                "set_params got an unexpected keyword argument 'nbins'")
+        return super(AutoSpacedLocator, self).set_params(**kwargs)
+
     def __call__(self):
         self._nbins = self.axis.get_tick_space()
         return super(AutoSpacedLocator, self).__call__()
