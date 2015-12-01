@@ -2,6 +2,7 @@ from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
 from matplotlib.externals import six
+from collections import OrderedDict
 
 import re
 import warnings
@@ -1451,17 +1452,16 @@ def setp(obj, *args, **kwargs):
     if not cbook.iterable(obj):
         objs = [obj]
     else:
-        objs = cbook.flatten(obj)
+        objs = list(cbook.flatten(obj))
 
     if len(args) % 2:
         raise ValueError('The set args must be string, value pairs')
 
-    funcvals = []
+    # put args into ordereddict to maintain order
+    funcvals = OrderedDict()
     for i in range(0, len(args) - 1, 2):
-        funcvals.append((args[i], args[i + 1]))
-    # do the *args one at a time to ensure order
-    ret = [o.update({s: val}) for s, val in funcvals for o in objs]
-    # apply kwargs in bulk
+        funcvals[args[i]] = args[i + 1]
+    ret = [o.update(funcvals) for o in objs]
     ret.extend([o.update(kwargs) for o in objs])
     return [x for x in cbook.flatten(ret)]
 
