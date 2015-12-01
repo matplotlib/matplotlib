@@ -872,7 +872,7 @@ class Artist(object):
         self.eventson = False
         try:
             ret = [_update_property(self, k, v)
-                   for k, v in sorted(props.items(), reverse=True)]
+                   for k, v in props.items()]
         finally:
             self.eventson = store
 
