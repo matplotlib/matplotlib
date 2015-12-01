@@ -6,6 +6,7 @@ import matplotlib.units as units
 import matplotlib.ticker as ticker
 from matplotlib.axes import Axes
 from matplotlib.cbook import iterable
+from matplotlib import rcParams
 
 
 class ProxyDelegate(object):
