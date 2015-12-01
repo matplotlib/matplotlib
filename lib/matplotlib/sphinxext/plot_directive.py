@@ -280,6 +280,9 @@ def setup(app):
 
     app.connect(str('doctree-read'), mark_plot_labels)
 
+    metadata = {'parallel_read_safe': True, 'parallel_write_safe': True}
+    return metadata
+
 #------------------------------------------------------------------------------
 # Doctest handling
 #------------------------------------------------------------------------------
