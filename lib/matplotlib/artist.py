@@ -83,6 +83,10 @@ class Artist(object):
 
     aname = 'Artist'
     zorder = 0
+    # order of precedence when bulk setting/updating properties
+    # via update.  The keys should be property names and the values
+    # integers
+    _prop_order = dict(color=-1)
 
     def __init__(self):
         self._stale = True
@@ -942,7 +946,11 @@ class Artist(object):
     def set(self, **kwargs):
         """A property batch setter. Pass *kwargs* to set properties.
         """
-        return self.update(kwargs)
+        props = OrderedDict(
+            sorted(kwargs.items(), reverse=True,
+                   key=lambda x: (self._prop_order.get(x[0], 0), x[0])))
+
+        return self.update(props)
 
     def findobj(self, match=None, include_self=True):
         """
@@ -1461,8 +1469,9 @@ def setp(obj, *args, **kwargs):
     funcvals = OrderedDict()
     for i in range(0, len(args) - 1, 2):
         funcvals[args[i]] = args[i + 1]
+
     ret = [o.update(funcvals) for o in objs]
-    ret.extend([o.update(kwargs) for o in objs])
+    ret.extend([o.set(**kwargs) for o in objs])
     return [x for x in cbook.flatten(ret)]
 
 
