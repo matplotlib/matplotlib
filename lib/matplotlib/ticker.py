@@ -768,7 +768,8 @@ class LogFormatterExponent(LogFormatter):
         elif abs(fx) < 1:
             s = '%1.0g' % fx
         else:
-            s = self.pprint_val(fx, d)
+            fd = math.log(abs(d)) / math.log(b)
+            s = self.pprint_val(fx, fd)
         if sign == -1:
             s = '-%s' % s
 
