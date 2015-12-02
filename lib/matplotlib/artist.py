@@ -802,9 +802,7 @@ class Artist(PrivateMethodMixin, Configurable):
 
         May return `None` if no sketch parameters were set.
         """
-        msg = ("This has been deprecated to make way for IPython's"
-               " Traitlets. Please use the 'sketch_params' property"
-               " or the TraitTypes it references.")
+        msg =  _traitlets_deprecation_msg('sketch_params')
         warnings.warn(msg, mplDeprecation, stacklevel=1)
         return self.sketch_params
 
