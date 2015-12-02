@@ -2340,11 +2340,11 @@ class Axes(_AxesBase):
         """
         # process the unit information
         if len(xranges):
-            xdata = xranges[0]
+            xdata = six.next(iter(xranges))
         else:
             xdata = None
         if len(yrange):
-            ydata = yrange[0]
+            ydata = six.next(iter(yranges))
         else:
             ydata = None
         self._process_unit_info(xdata=xdata,
