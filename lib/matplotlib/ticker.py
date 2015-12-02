@@ -1389,7 +1389,9 @@ class MaxNLocator(Locator):
     def set_params(self, **kwargs):
         """Set parameters within this locator."""
         if 'nbins' in kwargs:
-            self._nbins = int(kwargs['nbins'])
+            self._nbins = kwargs['nbins']
+            if self._nbins != 'auto':
+                self._nbins = int(self._nbins)
         if 'trim' in kwargs:
             self._trim = kwargs['trim']
         if 'integer' in kwargs:
