@@ -914,6 +914,8 @@ class Artist(object):
             self.stale = True
         self._margins['top'] = margin
 
+    top_margin = property(get_top_margin, set_top_margin)
+
     def get_bottom_margin(self):
         """
         Get whether a margin should be applied to the bottom of the Artist.
@@ -927,6 +929,8 @@ class Artist(object):
         if margin != self._margins.get('bottom', True):
             self.stale = True
         self._margins['bottom'] = margin
+
+    bottom_margin = property(get_bottom_margin, set_bottom_margin)
 
     def get_left_margin(self):
         """
@@ -942,6 +946,8 @@ class Artist(object):
             self.stale = True
         self._margins['left'] = margin
 
+    left_margin = property(get_left_margin, set_left_margin)
+
     def get_right_margin(self):
         """
         Get whether a margin should be applied to the right of the Artist.
@@ -955,6 +961,8 @@ class Artist(object):
         if margin != self._margins.get('right', True):
             self.stale = True
         self._margins['right'] = margin
+
+    right_margin = property(get_right_margin, set_right_margin)
 
     def get_margins(self):
         """
@@ -982,6 +990,8 @@ class Artist(object):
             self.stale = True
 
         self._margins = margins
+
+    margins = property(get_margins, set_margins)
 
     def update_from(self, other):
         'Copy properties from *other* to *self*.'

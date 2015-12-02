@@ -2155,7 +2155,7 @@ class _AxesBase(martist.Artist):
             for artist_set in [self.collections, self.patches, self.lines,
                                self.artists, self.images]:
                 for artist in artist_set:
-                    artist_margins = artist.get_margins()
+                    artist_margins = artist.margins
                     for key in ['left', 'right', 'top', 'bottom']:
                         margins[key] &= artist_margins.get(key, True)
 
@@ -2164,7 +2164,7 @@ class _AxesBase(martist.Artist):
                     for artist_set in [axes.collections, axes.patches,
                                        axes.lines, axes.artists, axes.images]:
                         for artist in artist_set:
-                            artist_margins = artist.get_margins()
+                            artist_margins = artist.margins
                             for key in ['left', 'right']:
                                 margins[key] &= artist_margins.get(key, True)
 
@@ -2173,7 +2173,7 @@ class _AxesBase(martist.Artist):
                     for artist_set in [axes.collections, axes.patches,
                                        axes.lines, axes.artists, axes.images]:
                         for artist in artist_set:
-                            artist_margins = artist.get_margins()
+                            artist_margins = artist.margins
                             for key in ['top', 'bottom']:
                                 margins[key] &= artist_margins.get(key, True)
         else:
