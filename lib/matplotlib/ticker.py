@@ -1337,7 +1337,7 @@ class MaxNLocator(Locator):
     """
     Select no more than N intervals at nice locations.
     """
-    default_params = dict(nbins=None,
+    default_params = dict(nbins='auto',
                           steps=None,
                           trim=True,
                           integer=False,
@@ -1350,7 +1350,7 @@ class MaxNLocator(Locator):
 
         *nbins*
             Maximum number of intervals; one less than max number of
-            ticks.  If `None`, the number of bins will be
+            ticks.  If the string `'auto'`, the number of bins will be
             automatically determined based on the length of the axis.
 
         *steps*
@@ -1418,7 +1418,7 @@ class MaxNLocator(Locator):
 
     def bin_boundaries(self, vmin, vmax):
         nbins = self._nbins
-        if nbins is None:
+        if nbins == 'auto':
             nbins = self.axis.get_tick_space()
         scale, offset = scale_range(vmin, vmax, nbins)
         if self._integer:
@@ -1908,7 +1908,7 @@ class AutoLocator(MaxNLocator):
         if rcParams['_internal.classic_mode']:
             nbins = 9
         else:
-            nbins = None
+            nbins = 'auto'
         MaxNLocator.__init__(self, nbins=nbins, steps=[1, 2, 5, 10])
 
 
