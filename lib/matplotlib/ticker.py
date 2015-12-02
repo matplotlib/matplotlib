@@ -1337,7 +1337,7 @@ class MaxNLocator(Locator):
     """
     Select no more than N intervals at nice locations.
     """
-    default_params = dict(nbins=10,
+    default_params = dict(nbins=None,
                           steps=None,
                           trim=True,
                           integer=False,
@@ -1349,7 +1349,9 @@ class MaxNLocator(Locator):
         Keyword args:
 
         *nbins*
-            Maximum number of intervals; one less than max number of ticks.
+            Maximum number of intervals; one less than max number of
+            ticks.  If `None`, the number of bins will be
+            automatically determined based on the length of the axis.
 
         *steps*
             Sequence of nice numbers starting with 1 and ending with 10;
@@ -1416,6 +1418,8 @@ class MaxNLocator(Locator):
 
     def bin_boundaries(self, vmin, vmax):
         nbins = self._nbins
+        if nbins is None:
+            nbins = self.axis.get_tick_space()
         scale, offset = scale_range(vmin, vmax, nbins)
         if self._integer:
             scale = max(1, scale)
@@ -1470,52 +1474,6 @@ class MaxNLocator(Locator):
             return np.take(self.bin_boundaries(dmin, dmax), [0, -1])
         else:
             return dmin, dmax
-
-
-class AutoSpacedLocator(MaxNLocator):
-    """
-    Behaves like a MaxNLocator, except N is automatically determined
-    from the length of the axis.
-    """
-    def __init__(self, steps=None, integer=False, symmetric=False, prune=None):
-        """
-        Keyword args:
-
-        *steps*
-            Sequence of nice numbers starting with 1 and ending with 10;
-            e.g., [1, 2, 4, 5, 10]
-
-        *integer*
-            If True, ticks will take only integer values.
-
-        *symmetric*
-            If True, autoscaling will result in a range symmetric
-            about zero.
-
-        *prune*
-            ['lower' | 'upper' | 'both' | None]
-            Remove edge ticks -- useful for stacked or ganged plots
-            where the upper tick of one axes overlaps with the lower
-            tick of the axes above it.
-            If prune=='lower', the smallest tick will
-            be removed.  If prune=='upper', the largest tick will be
-            removed.  If prune=='both', the largest and smallest ticks
-            will be removed.  If prune==None, no ticks will be removed.
-
-        """
-        self.set_params(**self.default_params)
-        self.set_params(steps=steps, integer=integer, symmetric=symmetric,
-                        prune=prune)
-
-    def set_params(self, **kwargs):
-        if 'nbins' in kwargs:
-            raise TypeError(
-                "set_params got an unexpected keyword argument 'nbins'")
-        return super(AutoSpacedLocator, self).set_params(**kwargs)
-
-    def __call__(self):
-        self._nbins = self.axis.get_tick_space()
-        return super(AutoSpacedLocator, self).__call__()
 
 
 def decade_down(x, base=10):
@@ -1945,15 +1903,13 @@ class LogitLocator(Locator):
         return self.raise_if_exceeds(np.array(ticklocs))
 
 
-class AutoLocator(AutoSpacedLocator):
+class AutoLocator(MaxNLocator):
     def __init__(self):
-        AutoSpacedLocator.__init__(self, steps=[1, 2, 5, 10])
-
-
-class ClassicAutoLocator(MaxNLocator):
-    # Used only for classic style
-    def __init__(self):
-        MaxNLocator.__init__(self, nbins=9, steps=[1, 2, 5, 10])
+        if rcParams['_internal.classic_mode']:
+            nbins = 9
+        else:
+            nbins = None
+        MaxNLocator.__init__(self, nbins=nbins, steps=[1, 2, 5, 10])
 
 
 class AutoMinorLocator(Locator):

@@ -711,10 +711,7 @@ class Axis(artist.Artist):
 
     def cla(self):
         'clear the current axis'
-        if rcParams['_internal.classic_mode']:
-            self.set_major_locator(mticker.ClassicAutoLocator())
-        else:
-            self.set_major_locator(mticker.AutoLocator())
+        self.set_major_locator(mticker.AutoLocator())
         self.set_major_formatter(mticker.ScalarFormatter())
         self.set_minor_locator(mticker.NullLocator())
         self.set_minor_formatter(mticker.NullFormatter())
@@ -2006,7 +2003,7 @@ class XAxis(Axis):
             length = ((ends[1][0] - ends[0][0]) / self.axes.figure.dpi) * 72.0
             tick = self._get_tick(True)
             # There is a heuristic here that the aspect ratio of tick text
-            # is no more than 2:1
+            # is no more than 3:1
             size = tick.label1.get_size() * 3
             size *= np.cos(np.deg2rad(tick.label1.get_rotation()))
             self._tick_space = np.floor(length / size)
