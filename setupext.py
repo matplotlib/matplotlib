@@ -171,9 +171,15 @@ def get_base_dirs():
     """
     if options['basedirlist']:
         return options['basedirlist']
-
+    
+    win_bases = ['win32_static', ]
+    # on windows, we also add the <installdir>\Library of the local interperter, as 
+    # conda installs libs/includes there
+    if os.getenv('CONDA_DEFAULT_ENV'):
+        win_bases.append(os.path.join(os.getenv('CONDA_DEFAULT_ENV'), "Library"))
+    
     basedir_map = {
-        'win32': ['win32_static', ],
+        'win32': win_bases,
         'darwin': ['/usr/local/', '/usr', '/usr/X11',
                    '/opt/X11', '/opt/local'],
         'sunos5': [os.getenv('MPLIB_BASE') or '/usr/local', ],
