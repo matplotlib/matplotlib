@@ -25,7 +25,7 @@ def to_texstring(s):
 for i, (stylename, styleclass) in enumerate(sorted(styles.items())):
     x = 3.2 + (i//nrow)*4
     y = (figheight - 0.7 - i % nrow)  # /figheight
-    p = mpatches.Circle((x, y), 0.2, fc="w")
+    p = mpatches.Circle((x, y), 0.2)
     ax.add_patch(p)
 
     ax.annotate(to_texstring(stylename), (x, y),
@@ -37,7 +37,7 @@ for i, (stylename, styleclass) in enumerate(sorted(styles.items())):
                                 patchB=p,
                                 shrinkA=5,
                                 shrinkB=5,
-                                fc="w", ec="k",
+                                fc="k", ec="k",
                                 connectionstyle="arc3,rad=-0.05",
                                 ),
                 bbox=dict(boxstyle="square", fc="w"))
