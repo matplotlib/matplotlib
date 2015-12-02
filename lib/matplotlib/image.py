@@ -171,6 +171,7 @@ class _AxesImageBase(martist.Artist, cm.ScalarMappable):
         bbox instance).  Image will be clipped if the extents is
         significantly larger than the viewlim.
         """
+
         xmin, xmax, ymin, ymax = image_extents
         dxintv = xmax-xmin
         dyintv = ymax-ymin
@@ -190,28 +191,28 @@ class _AxesImageBase(martist.Artist, cm.ScalarMappable):
             ix0 = max(0, int(x0 - self._filterrad))
             x1 = (viewlim.x1-xmin)/dxintv * numcols
             ix1 = min(numcols, int(x1 + self._filterrad))
-            xslice = slice(ix0, ix1)
+            xslice = slice(ix0, ix1, max(1, int((ix1 - ix0) / viewlim.width)))
             xmin_old = xmin
             xmin = xmin_old + ix0*dxintv/numcols
             xmax = xmin_old + ix1*dxintv/numcols
             dxintv = xmax - xmin
             sx = dxintv/viewlim.width
         else:
-            xslice = slice(0, numcols)
+            xslice = slice(0, numcols, max(1, int(numcols / viewlim.width)))
 
         if sy > 2:
             y0 = (viewlim.y0-ymin)/dyintv * numrows
             iy0 = max(0, int(y0 - self._filterrad))
             y1 = (viewlim.y1-ymin)/dyintv * numrows
             iy1 = min(numrows, int(y1 + self._filterrad))
-            yslice = slice(iy0, iy1)
+            yslice = slice(iy0, iy1, max(1, int((iy1 - iy0) / viewlim.height)))
             ymin_old = ymin
             ymin = ymin_old + iy0*dyintv/numrows
             ymax = ymin_old + iy1*dyintv/numrows
             dyintv = ymax - ymin
             sy = dyintv/viewlim.height
         else:
-            yslice = slice(0, numrows)
+            yslice = slice(0, numrows, max(1, int(numcols / viewlim.height)))
 
         if xslice != self._oldxslice or yslice != self._oldyslice:
             self._imcache = None
@@ -222,12 +223,14 @@ class _AxesImageBase(martist.Artist, cm.ScalarMappable):
             A = self._A
             if self.origin == 'upper':
                 A = A[::-1]
+            A = A[yslice, xslice]
 
             if A.dtype == np.uint8 and A.ndim == 3:
-                im = _image.frombyte(A[yslice, xslice, :], 0)
+                im = _image.frombyte(A, 0)
                 im.is_grayscale = False
             else:
-                if self._rgbacache is None:
+                # Always recompute rgba for now.
+                if self._rgbacache is None or True:
                     x = self.to_rgba(A, bytes=False)
                     # Avoid side effects: to_rgba can return its argument
                     # unchanged.
@@ -239,7 +242,7 @@ class _AxesImageBase(martist.Artist, cm.ScalarMappable):
                     self._rgbacache = x
                 else:
                     x = self._rgbacache
-                im = _image.frombyte(x[yslice, xslice, :], 0)
+                im = _image.frombyte(x, 0)
                 if self._A.ndim == 2:
                     im.is_grayscale = self.cmap.is_gray()
                 else:
