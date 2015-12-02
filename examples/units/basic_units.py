@@ -6,7 +6,6 @@ import matplotlib.units as units
 import matplotlib.ticker as ticker
 from matplotlib.axes import Axes
 from matplotlib.cbook import iterable
-from matplotlib import rcParams
 
 
 class ProxyDelegate(object):
@@ -329,12 +328,8 @@ class BasicUnitConverter(units.ConversionInterface):
                 label=unit.fullname,
             )
         elif unit == degrees:
-            if rcParams['_internal.classic_mode']:
-                locator = ticker.ClassicAutoLocator()
-            else:
-                locator = ticker.AutoLocator()
             return units.AxisInfo(
-                majloc=locator,
+                majloc=ticker.AutoLocator(),
                 majfmt=ticker.FormatStrFormatter(r'$%i^\circ$'),
                 label=unit.fullname,
             )
