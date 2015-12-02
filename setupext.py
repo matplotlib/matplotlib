@@ -172,9 +172,12 @@ def get_base_dirs():
     if options['basedirlist']:
         return options['basedirlist']
     
+    if os.environ.get('MPLBASEDIRLIST'):
+        return os.environ.get('MPLBASEDIRLIST').split(os.pathsep)
+
     win_bases = ['win32_static', ]
-    # on windows, we also add the <installdir>\Library of the local interperter, as 
-    # conda installs libs/includes there
+    # on conda windows, we also add the <installdir>\Library of the local interperter, 
+    # as conda installs libs/includes there
     if os.getenv('CONDA_DEFAULT_ENV'):
         win_bases.append(os.path.join(os.getenv('CONDA_DEFAULT_ENV'), "Library"))
     
@@ -194,8 +197,11 @@ def get_include_dirs():
     Returns a list of standard include directories on this platform.
     """
     include_dirs = [os.path.join(d, 'include') for d in get_base_dirs()]
-    include_dirs.extend(
-        os.environ.get('CPLUS_INCLUDE_PATH', '').split(os.pathsep))
+    if sys.platform != 'win32':
+        # gcc includes this dir automatically, so also look for headers in 
+        # these dirs
+        include_dirs.extend(
+            os.environ.get('CPLUS_INCLUDE_PATH', '').split(os.pathsep))
     return include_dirs
 
 
