@@ -164,14 +164,15 @@ class _AxesImageBase(martist.Artist, cm.ScalarMappable):
     def make_image(self, magnification=1.0):
         raise RuntimeError('The make_image method must be overridden.')
 
-    def _get_unsampled_image(self, A, image_extents, viewlim):
+    def _get_unsampled_image(self, image_extents, viewlim):
         """
-        convert numpy array A with given extents ([x1, x2, y1, y2] in
-        data coordinate) into the Image, given the viewlim (should be a
+        convert self._A with given extents ([x1, x2, y1, y2] in
+        data coordinates) into the Image, given the viewlim (a
         bbox instance).  Image will be clipped if the extents is
         significantly larger than the viewlim.
         """
 
+        A = self._A
         xmin, xmax, ymin, ymax = image_extents
         dxintv = xmax-xmin
         dyintv = ymax-ymin
@@ -185,34 +186,34 @@ class _AxesImageBase(martist.Artist, cm.ScalarMappable):
             sy = 1.0
         else:
             sy = dyintv/viewlim.height
-        numrows, numcols = A.shape[:2]
+        ny, nx = A.shape[:2]
         if sx > 2:
-            x0 = (viewlim.x0-xmin)/dxintv * numcols
+            x0 = (viewlim.x0 - xmin) / dxintv * nx
             ix0 = max(0, int(x0 - self._filterrad))
-            x1 = (viewlim.x1-xmin)/dxintv * numcols
-            ix1 = min(numcols, int(x1 + self._filterrad))
+            x1 = (viewlim.x1 - xmin) / dxintv * nx
+            ix1 = min(nx, int(x1 + self._filterrad))
             xslice = slice(ix0, ix1, max(1, int((ix1 - ix0) / viewlim.width)))
             xmin_old = xmin
-            xmin = xmin_old + ix0*dxintv/numcols
-            xmax = xmin_old + ix1*dxintv/numcols
+            xmin = xmin_old + ix0 * dxintv / nx
+            xmax = xmin_old + ix1 * dxintv / nx
             dxintv = xmax - xmin
-            sx = dxintv/viewlim.width
+            sx = dxintv / viewlim.width
         else:
-            xslice = slice(0, numcols, max(1, int(numcols / viewlim.width)))
+            xslice = slice(0, nx, max(1, int(nx / viewlim.width)))
 
         if sy > 2:
-            y0 = (viewlim.y0-ymin)/dyintv * numrows
+            y0 = (viewlim.y0 - ymin) / dyintv * ny
             iy0 = max(0, int(y0 - self._filterrad))
-            y1 = (viewlim.y1-ymin)/dyintv * numrows
-            iy1 = min(numrows, int(y1 + self._filterrad))
+            y1 = (viewlim.y1 - ymin) / dyintv * ny
+            iy1 = min(ny, int(y1 + self._filterrad))
             yslice = slice(iy0, iy1, max(1, int((iy1 - iy0) / viewlim.height)))
             ymin_old = ymin
-            ymin = ymin_old + iy0*dyintv/numrows
-            ymax = ymin_old + iy1*dyintv/numrows
+            ymin = ymin_old + iy0 * dyintv / ny
+            ymax = ymin_old + iy1 * dyintv / ny
             dyintv = ymax - ymin
-            sy = dyintv/viewlim.height
+            sy = dyintv / viewlim.height
         else:
-            yslice = slice(0, numrows, max(1, int(numcols / viewlim.height)))
+            yslice = slice(0, ny, max(1, int(nx / viewlim.height)))
 
         if xslice != self._oldxslice or yslice != self._oldyslice:
             self._imcache = None
@@ -220,29 +221,34 @@ class _AxesImageBase(martist.Artist, cm.ScalarMappable):
             self._oldyslice = yslice
 
         if self._imcache is None:
-            A = self._A
             if self.origin == 'upper':
                 A = A[::-1]
-            A = A[yslice, xslice]
 
             if A.dtype == np.uint8 and A.ndim == 3:
-                im = _image.frombyte(A, 0)
+                im = _image.frombyte(A[yslice, xslice, :], 0)
                 im.is_grayscale = False
             else:
-                # Always recompute rgba for now.
-                if self._rgbacache is None or True:
-                    x = self.to_rgba(A, bytes=False)
-                    # Avoid side effects: to_rgba can return its argument
-                    # unchanged.
-                    if np.may_share_memory(x, A):
-                        x = x.copy()
-                    # premultiply the colors
-                    x[..., 0:3] *= x[..., 3:4]
-                    x = (x * 255).astype(np.uint8)
-                    self._rgbacache = x
-                else:
-                    x = self._rgbacache
-                im = _image.frombyte(x, 0)
+                # Transform A (ny, nx) into A' (ny - ystep + 1, nx - xstep + 1,
+                # ystep, xstep) such that A[y, x, :, :] represents the block of
+                # data points that will be downsampled into a single value.
+                view_shape = (ny - yslice.step + 1, nx - xslice.step + 1,
+                              yslice.step, xslice.step)
+                view_strides = A.strides * 2
+                A = np.lib.index_tricks.as_strided(A, view_shape, view_strides)
+                A = A[yslice, xslice]
+                # This is where downsampling happens.
+                A = A[:, :, 0, 0] # or A = A.mean(axis=(-1, -2)), or etc.
+                # FIXME Restore rgbacache?
+                rgba = self.to_rgba(A, bytes=False)
+                # Avoid side effects: to_rgba can return its argument
+                # unchanged.
+                if np.may_share_memory(rgba, A):
+                    rgba = rgba.copy()
+                # premultiply the colors
+                rgba[..., 0:3] *= rgba[..., 3:4]
+                rgba = (rgba * 255).astype(np.uint8)
+                self._rgbacache = rgba
+                im = _image.frombyte(rgba, 0)
                 if self._A.ndim == 2:
                     im.is_grayscale = self.cmap.is_gray()
                 else:
@@ -336,8 +342,8 @@ class _AxesImageBase(martist.Artist, cm.ScalarMappable):
         viewLim_in_ic = Bbox.from_extents(x1_, y1_, x2_, y2_)
 
         # get the image, sliced if necessary. This is done in the ic.
-        im, xmin, ymin, dxintv, dyintv, sx, sy = \
-            self._get_unsampled_image(self._A, extent_in_ic, viewLim_in_ic)
+        im, xmin, ymin, dxintv, dyintv, sx, sy = self._get_unsampled_image(
+            extent_in_ic, viewLim_in_ic)
 
         if im is None:
             return  # I'm not if this check is required. -JJL
@@ -622,9 +628,8 @@ class AxesImage(_AxesImageBase):
         transformed_viewLim = mtransforms.TransformedBbox(self.axes.viewLim,
                                                           trans)
 
-        im, xmin, ymin, dxintv, dyintv, sx, sy = \
-            self._get_unsampled_image(self._A, [_x1, _x2, _y1, _y2],
-                                      transformed_viewLim)
+        im, xmin, ymin, dxintv, dyintv, sx, sy = self._get_unsampled_image(
+            [_x1, _x2, _y1, _y2], transformed_viewLim)
 
         fc = self.axes.patch.get_facecolor()
         bg = mcolors.colorConverter.to_rgba(fc, 0)
