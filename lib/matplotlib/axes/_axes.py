@@ -1986,7 +1986,7 @@ class Axes(_AxesBase):
         xerr = kwargs.pop('xerr', None)
         yerr = kwargs.pop('yerr', None)
         error_kw = kwargs.pop('error_kw', dict())
-        ecolor = kwargs.pop('ecolor', None)
+        ecolor = kwargs.pop('ecolor', 'k')
         capsize = kwargs.pop('capsize', rcParams["errorbar.capsize"])
         error_kw.setdefault('ecolor', ecolor)
         error_kw.setdefault('capsize', capsize)
@@ -3762,11 +3762,16 @@ class Axes(_AxesBase):
             If None, defaults to (lines.linewidth,).
 
         edgecolors : color or sequence of color, optional, default: None
-            If None, defaults to (patch.edgecolor).
+            If None, defaults to 'face'
+
             If 'face', the edge color will always be the same as
-            the face color.  If it is 'none', the patch boundary will not
-            be drawn.  For non-filled markers, the `edgecolors` kwarg
-            is ignored; color is determined by `c`.
+            the face color.
+
+            If it is 'none', the patch boundary will not
+            be drawn.
+
+            For non-filled markers, the `edgecolors` kwarg
+            is ignored and forced to 'face' internally.
 
         Returns
         -------
@@ -3823,6 +3828,9 @@ class Axes(_AxesBase):
             else:
                 c = 'b'  # The original default
 
+        if edgecolors is None and not rcParams['_internal.classic_mode']:
+            edgecolors = 'face'
+
         self._process_unit_info(xdata=x, ydata=y, kwargs=kwargs)
         x = self.convert_xunits(x)
         y = self.convert_yunits(y)
@@ -3875,6 +3883,7 @@ class Axes(_AxesBase):
             marker_obj.get_transform())
         if not marker_obj.is_filled():
             edgecolors = 'face'
+            linewidths = rcParams['lines.linewidth']
 
         offsets = np.dstack((x, y))
 
@@ -4018,9 +4027,9 @@ class Axes(_AxesBase):
            the alpha value for the patches
 
         *linewidths*: [ *None* | scalar ]
-           If *None*, defaults to rc lines.linewidth. Note that this
-           is a tuple, and if you set the linewidths argument you
-           must set it as a sequence of floats, as required by
+           If *None*, defaults to 1.0. Note that this is a tuple, and
+           if you set the linewidths argument you must set it as a
+           sequence of floats, as required by
            :class:`~matplotlib.collections.RegularPolyCollection`.
 
         Other keyword arguments controlling the Collection properties:
@@ -4213,6 +4222,8 @@ class Axes(_AxesBase):
 
         if edgecolors == 'none':
             edgecolors = 'face'
+        if linewidths is None:
+            linewidths = [1.0]
 
         if xscale == 'log' or yscale == 'log':
             polygons = np.expand_dims(polygon, 0) + np.expand_dims(offsets, 1)

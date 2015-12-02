@@ -67,6 +67,10 @@ class Patch(artist.Artist):
     validCap = ('butt', 'round', 'projecting')
     validJoin = ('miter', 'round', 'bevel')
 
+    # Whether to draw an edge by default.  Set on a
+    # subclass-by-subclass basis.
+    _edge_default = False
+
     def __str__(self):
         return str(self.__class__).split('.')[-1]
 
@@ -110,11 +114,12 @@ class Patch(artist.Artist):
         else:
             self.set_edgecolor(edgecolor)
             self.set_facecolor(facecolor)
+
+        self.set_fill(fill)
         self.set_linewidth(linewidth)
         self.set_linestyle(linestyle)
         self.set_antialiased(antialiased)
         self.set_hatch(hatch)
-        self.set_fill(fill)
         self.set_capstyle(capstyle)
         self.set_joinstyle(joinstyle)
         self._combined_transform = transforms.IdentityTransform()
@@ -339,7 +344,14 @@ class Patch(artist.Artist):
         ACCEPTS: float or None for default
         """
         if w is None:
-            w = mpl.rcParams['patch.linewidth']
+            if (not self._fill or
+                self._edge_default or
+                mpl.rcParams['_internal.classic_mode']):
+                w = mpl.rcParams['patch.linewidth']
+                if w is None:
+                    w = mpl.rcParams['axes.linewidth']
+            else:
+                w = 0
 
         self._linewidth = float(w)
 
@@ -848,6 +860,8 @@ class PathPatch(Patch):
     """
     A general polycurve path patch.
     """
+    _edge_default = True
+
     def __str__(self):
         return "Poly((%g, %g) ...)" % tuple(self._path.vertices[0])
 
@@ -1119,6 +1133,8 @@ class FancyArrow(Polygon):
     """
     Like Arrow, but lets you set head width and head height independently.
     """
+
+    _edge_default = True
 
     def __str__(self):
         return "FancyArrow()"
@@ -2397,6 +2413,8 @@ class FancyBboxPatch(Patch):
 
     """
 
+    _edge_default = True
+
     def __str__(self):
         return self.__class__.__name__ \
                            + "(%g,%g;%gx%g)" % (self._x, self._y,
@@ -2449,6 +2467,7 @@ class FancyBboxPatch(Patch):
 
         self._mutation_scale = mutation_scale
         self._mutation_aspect = mutation_aspect
+
         self.stale = True
 
     @docstring.dedent_interpd
@@ -3935,6 +3954,7 @@ class FancyArrowPatch(Patch):
     """
     A fancy arrow patch. It draws an arrow using the :class:ArrowStyle.
     """
+    _edge_default = True
 
     def __str__(self):
 
