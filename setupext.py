@@ -957,7 +957,10 @@ class FreeType(SetupPackage):
             return "Using local version for testing"
 
         if sys.platform == 'win32':
-            check_include_file(get_include_dirs(), 'ft2build.h', 'freetype')
+            try:
+                check_include_file(get_include_dirs(), 'ft2build.h', 'freetype')
+            except CheckFailed:
+                check_include_file(get_include_dirs(), 'freetype2\\ft2build.h', 'freetype')
             return 'Using unknown version found on system.'
 
         status, output = getstatusoutput("freetype-config --ftversion")
