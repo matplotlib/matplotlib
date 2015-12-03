@@ -3,8 +3,6 @@ Show what matplotlib colormaps look like in grayscale.
 Uses lightness L* as a proxy for grayscale value.
 '''
 
-import colorconv as color
-
 from colormaps import cmaps
 
 #from skimage import color
@@ -14,6 +12,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib import cm
 import matplotlib as mpl
+from colorspacious import cspace_converter
 
 mpl.rcParams.update({'font.size': 14})
 
@@ -37,8 +36,8 @@ def plot_color_gradients(cmap_category, cmap_list):
         # Get rgb values for colormap
         rgb = cm.get_cmap(plt.get_cmap(name))(x)[np.newaxis,:,:3]
 
-        # Get colormap in CIE LAB. We want the L here.
-        lab = color.rgb2lab(rgb)
+        # Get colormap in CAM02-UCS colorspace. We want the lightness.
+        lab = cspace_converter("sRGB1", "CAM02-UCS")(rgb)
         L = lab[0,:,0]
         L = np.float32(np.vstack((L, L, L)))
 
