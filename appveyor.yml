@@ -92,3 +92,7 @@ after_test:
 artifacts:
   - path: dist\*
     name: packages
+    
+  - path: result_images\*
+    name: test result images
+    type: zip
