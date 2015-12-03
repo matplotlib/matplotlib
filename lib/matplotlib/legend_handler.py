@@ -577,12 +577,12 @@ class HandlerTuple(HandlerBase):
 
     ndivide : int, optional
         The number of sections to divide the legend area into.  If 0,
-        use the length of the input tuple.
+        use the length of the input tuple. Default is 1.
 
 
     pad : float, optional
         If None, fall back to `legend.borderpad` as the default.
-        In units of fraction of font size.
+        In units of fraction of font size. Default is None.
 
 
 
