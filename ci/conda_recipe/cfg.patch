@@ -1,0 +1,13 @@
+diff --git setup.cfg.template setup.cfg.template
+index ba4cde3..8d8b7c5 100644
+--- setup.cfg.template
++++ setup.cfg.template
+@@ -63,7 +63,7 @@
+ #macosx = auto
+ #pyside = auto
+ #qt4agg = auto
+-#tkagg = auto
++tkagg = True
+ #windowing = auto
+ #wxagg = auto
+ 
