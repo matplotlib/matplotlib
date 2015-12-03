@@ -1,0 +1,57 @@
+# stolen from https://github.com/conda/conda-recipes/tree/master/matplotlib
+
+package:
+  name: matplotlib-test
+  version: 1.5.0.9
+
+source:
+  path: ../../
+  
+  patches:
+    # off for now until there is a way to get the dlls tkagg...
+    #- setupext.patch
+    # - cfg.patch 
+    - cfg_notests.patch
+    - cfg_qt4agg.patch    [not osx]
+    - rctmp_pyside.patch  [not osx]
+    - osx-tk.patch        [osx]
+    - condaversion.patch
+
+requirements:
+  build:
+    - python
+    - setuptools
+    - numpy
+    - python-dateutil
+    - freetype >=2.5,<2.6
+    - pyparsing
+    - pytz
+    - py2cairo            [linux and py2k]
+    - tornado
+    - libpng
+    - zlib                [win]
+    - msinttypes          # this package is from the conda-forge channel!
+    - pyqt                [not osx]
+    - cycler
+    #- functools32         [py27] # this is actually not available
+
+  run:
+    - python
+    - numpy
+    - python-dateutil
+    - freetype            [unix]
+    - pytz
+    - pyparsing
+    - py2cairo            [linux and py2k]
+    - libpng              [unix]
+    - pyqt                [not osx]
+    - cycler
+    
+test:
+  requires:
+    - nose
+    - mock
+
+about:
+  home: http://matplotlib.sourceforge.net/
+  license: PSF-based (http://matplotlib.sourceforge.net/users/license.html)
