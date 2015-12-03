@@ -5,7 +5,7 @@
 <svg height="54pt" version="1.1" viewBox="0 0 378 54" width="378pt" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
  <defs>
   <style type="text/css">
-*{stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:100000;}
+*{stroke-linecap:butt;stroke-linejoin:round;}
   </style>
  </defs>
  <g id="figure_1">
@@ -20,6 +20,12 @@ z
   <g id="text_1">
    <!-- $x\leftarrow y\ x\forall y\ x-y$ -->
    <defs>
+    <path d="M 10.59375 35.296875 
+L 73.1875 35.296875 
+L 73.1875 27.390625 
+L 10.59375 27.390625 
+z
+" id="DejaVuSerif-2212"/>
     <path d="M 57.515625 51.46875 
 Q 52.6875 23.53125 44.1875 8.796875 
 Q 31.734375 -12.84375 21.734375 -19.34375 
@@ -43,20 +49,6 @@ L 43.109375 46.234375
 L 44.140625 51.46875 
 z
 " id="DejaVuSerif-Italic-79"/>
-    <path d="M 39.546875 39.890625 
-L 20.796875 39.890625 
-L 30.171875 14.203125 
-z
-M 26.953125 0 
-L 0.4375 72.90625 
-L 8.796875 72.90625 
-L 17.921875 47.796875 
-L 42.4375 47.796875 
-L 51.5625 72.90625 
-L 59.90625 72.90625 
-L 33.40625 0 
-z
-" id="DejaVuSerif-2200"/>
     <path d="M 6.390625 0 
 L 0.296875 0 
 L 23.1875 24.90625 
@@ -75,12 +67,6 @@ L 36.53125 0
 L 25.484375 20.703125 
 z
 " id="DejaVuSerif-Italic-78"/>
-    <path d="M 10.59375 35.296875 
-L 73.1875 35.296875 
-L 73.1875 27.390625 
-L 10.59375 27.390625 
-z
-" id="DejaVuSerif-2212"/>
     <path d="M 78.078125 36.28125 
 L 78.078125 28.375 
 L 15.1875 28.375 
@@ -93,17 +79,31 @@ L 24.609375 52.734375
 L 15.1875 36.28125 
 z
 " id="DejaVuSerif-2190"/>
+    <path d="M 39.546875 39.890625 
+L 20.796875 39.890625 
+L 30.171875 14.203125 
+z
+M 26.953125 0 
+L 0.4375 72.90625 
+L 8.796875 72.90625 
+L 17.921875 47.796875 
+L 42.4375 47.796875 
+L 51.5625 72.90625 
+L 59.90625 72.90625 
+L 33.40625 0 
+z
+" id="DejaVuSerif-2200"/>
    </defs>
-   <g transform="translate(146.64 30.046875)scale(0.12 -0.12)">
-    <use transform="translate(0.0 0.09375)" xlink:href="#DejaVuSerif-Italic-78"/>
-    <use transform="translate(75.361328125 0.09375)" xlink:href="#DejaVuSerif-2190"/>
-    <use transform="translate(178.115234375 0.09375)" xlink:href="#DejaVuSerif-Italic-79"/>
-    <use transform="translate(266.2171318359375 0.09375)" xlink:href="#DejaVuSerif-Italic-78"/>
-    <use transform="translate(322.6136162109375 0.09375)" xlink:href="#DejaVuSerif-2200"/>
-    <use transform="translate(382.9651787109375 0.09375)" xlink:href="#DejaVuSerif-Italic-79"/>
-    <use transform="translate(471.067076171875 0.09375)" xlink:href="#DejaVuSerif-Italic-78"/>
-    <use transform="translate(546.428404296875 0.09375)" xlink:href="#DejaVuSerif-2212"/>
-    <use transform="translate(649.182310546875 0.09375)" xlink:href="#DejaVuSerif-Italic-79"/>
+   <g transform="translate(146.640000 30.046875)scale(0.120000 -0.120000)">
+    <use transform="translate(0.000000 0.093750)" xlink:href="#DejaVuSerif-Italic-78"/>
+    <use transform="translate(75.361328 0.093750)" xlink:href="#DejaVuSerif-2190"/>
+    <use transform="translate(178.115234 0.093750)" xlink:href="#DejaVuSerif-Italic-79"/>
+    <use transform="translate(266.217132 0.093750)" xlink:href="#DejaVuSerif-Italic-78"/>
+    <use transform="translate(322.613616 0.093750)" xlink:href="#DejaVuSerif-2200"/>
+    <use transform="translate(382.965179 0.093750)" xlink:href="#DejaVuSerif-Italic-79"/>
+    <use transform="translate(471.067076 0.093750)" xlink:href="#DejaVuSerif-Italic-78"/>
+    <use transform="translate(546.428404 0.093750)" xlink:href="#DejaVuSerif-2212"/>
+    <use transform="translate(649.182311 0.093750)" xlink:href="#DejaVuSerif-Italic-79"/>
    </g>
   </g>
  </g>
