@@ -17,11 +17,3 @@ if errorlevel 1 exit 1
 
 rd /s /q %SP_DIR%\dateutil
 rd /s /q %SP_DIR%\numpy
-
-if "%ARCH%"=="64" (
-    set PLAT=win-amd64
-) else (
-    set PLAT=win32
-)
-
-::copy C:\Tcl%ARCH%\bin\t*.dll %SP_DIR%\matplotlib-%PKG_VERSION%-py%PY_VER%-%PLAT%.egg\matplotlib\backends
