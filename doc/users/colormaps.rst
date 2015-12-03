@@ -126,19 +126,6 @@ extension on this idea at [mycarta-jet]_.
 
 .. plot:: users/plotting/colormaps/lightness.py
 
-
-:math:`L^*` function
-====================
-
-There are multiple approaches to finding the best function for :math:`L^*`
-across a colormap. Linear gives reasonable results (*e.g.*, [mycarta-banding]_,
-[mycarta-lablinear]_). However, the Weber-Fechner law, and more generally and
-recently, Stevens' Law, indicates that a logarithmic or geometric relationship
-might be better (see effort on this front at [mycarta-cubelaw]_).
-
-.. plot:: users/plotting/colormaps/Lfunction.py
-
-
 Grayscale conversion
 ====================
 
