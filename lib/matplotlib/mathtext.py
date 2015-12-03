@@ -906,6 +906,15 @@ class DejaVuFonts(UnicodeFonts):
             return self.bakoma._get_glyph(fontname,
                     font_class, sym, fontsize)
         else:
+            # check whether the glyph is available in the display font
+            uniindex = get_unicode_index(sym)
+            font = self._get_font('ex')
+            if font is not None:
+                glyphindex = font.get_char_index(uniindex)
+                if glyphindex != 0:
+                    return super(DejaVuFonts, self)._get_glyph('ex',
+                            font_class, sym, fontsize)
+            # otherwise return regular glyph
             return super(DejaVuFonts, self)._get_glyph(fontname,
                     font_class, sym, fontsize)
 
@@ -921,6 +930,7 @@ class DejaVuSerifFonts(DejaVuFonts):
                  'bf'  : 'DejaVu Serif:weight=bold',
                  'sf'  : 'DejaVu Sans',
                  'tt'  : 'DejaVu Sans Mono',
+                 'ex'  : 'DejaVu Serif Display',
                  }
 
 class DejaVuSansFonts(DejaVuFonts):
@@ -934,6 +944,7 @@ class DejaVuSansFonts(DejaVuFonts):
                  'bf'  : 'DejaVu Sans:weight=bold',
                  'sf'  : 'DejaVu Sans',
                  'tt'  : 'DejaVu Sans Mono',
+                 'ex'  : 'DejaVu Sans Display',
                  }
 
 class StixFonts(UnicodeFonts):
