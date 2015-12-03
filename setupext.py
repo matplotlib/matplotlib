@@ -1594,14 +1594,22 @@ class BackendTkAgg(OptionalBackendPackage):
 
     def add_flags(self, ext):
         if sys.platform == 'win32':
-            major, minor1, minor2, s, tmp = sys.version_info
-            if sys.version_info[0:2] < (3, 4):
-                ext.include_dirs.extend(['win32_static/include/tcl85'])
+            if os.getenv('CONDA_DEFAULT_ENV'):
+                # We are in conda and conda builds against tcl85 for all versions
+                # includes are directly in the conda\library\include dir and
+                # libs in DLL or lib 
+                ext.include_dirs.extend(['include'])
                 ext.libraries.extend(['tk85', 'tcl85'])
+                ext.library_dirs.extend(['dlls']) # or lib?
             else:
-                ext.include_dirs.extend(['win32_static/include/tcl86'])
-                ext.libraries.extend(['tk86t', 'tcl86t'])
-            ext.library_dirs.extend([os.path.join(sys.prefix, 'dlls')])
+                major, minor1, minor2, s, tmp = sys.version_info
+                if sys.version_info[0:2] < (3, 4):
+                    ext.include_dirs.extend(['win32_static/include/tcl85'])
+                    ext.libraries.extend(['tk85', 'tcl85'])
+                else:
+                    ext.include_dirs.extend(['win32_static/include/tcl86'])
+                    ext.libraries.extend(['tk86t', 'tcl86t'])
+                ext.library_dirs.extend([os.path.join(sys.prefix, 'dlls')])
 
         elif sys.platform == 'darwin':
             # this config section lifted directly from Imaging - thanks to
