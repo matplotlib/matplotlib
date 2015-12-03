@@ -4009,12 +4009,15 @@ def test_rc_spines():
 def test_rc_grid():
     fig = plt.figure()
     rc_dict0 = {
+        'axes.grid': True,
         'axes.grid.axis': 'both'
     }
     rc_dict1 = {
+        'axes.grid': True,
         'axes.grid.axis': 'x'
     }
     rc_dict2 = {
+        'axes.grid': True,
         'axes.grid.axis': 'y'
     }
     dict_list = [rc_dict0, rc_dict1, rc_dict2]
