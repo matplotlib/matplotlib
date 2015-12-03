@@ -4,9 +4,7 @@ if errorlevel 1 exit 1
 copy %LIBRARY_LIB%\libpng_static.lib lib\png.lib
 if errorlevel 1 exit 1
 
-set LIB=%LIB%;.\lib
-set LIBPATH=%LIBPATH%;.\lib
-set INCLUDE=%LIBRARY_INC%;%LIBRARY_INC%\freetype2;%INCLUDE%
+set MPLBASEDIRLIST=%LIBRARY_PREFIX%;.
 
 :: debug...
 set

@@ -56,18 +56,11 @@ install:
   - activate test-environment
   # This is needed for the installer to find the dlls...
   - set LIBRARY_LIB=%CONDA_DEFAULT_ENV%\Library\lib
-  - dir %LIBRARY_LIB%
   - cmd: 'mkdir lib || cmd /c "exit /b 0"'
   - copy %LIBRARY_LIB%\zlibstatic.lib lib\z.lib 
   - copy %LIBRARY_LIB%\libpng_static.lib lib\png.lib
-  - set LIB=%LIBRARY_LIB%;.\lib
-  - set LIBPATH=%LIBRARY_LIB%;.\lib
-  - set LIB_INC=%CONDA_DEFAULT_ENV%\Library\include
-  - set INCLUDE=%LIB_INC%;%LIB_INC%\freetype2;WhateverInclude
-  - set CPLUS_INCLUDE_PATH=%LIB_INC%\freetype2;%LIB_INC%;WhateverCPLUS
-  - dir %LIB_INC%
-  - dir %LIB_INC%\freetype2
-    # Show the installed packages + versions
+  - set MPLBASEDIRLIST=%CONDA_DEFAULT_ENV%\Library\;.
+  # Show the installed packages + versions
   - conda list
 
 test_script:
@@ -87,12 +80,6 @@ after_test:
   # is set dynamically. This unfortunately mean that conda build --output
   # doesn't really work.
   - cmd: '%CMD_IN_ENV% conda config --get channels'
-  # These vars get included in the conda env, so cleanup out current conda env
-  - set LIB=
-  - set LIBPATH=
-  - set INCLUDE=
-  - set LIB_INC=
-  - set
   # we can't build conda packages on 27 due to missing functools32, which is a recent 
   # additional dependency for matplotlib
   - cmd: if [%CONDA_PY%] NEQ [27] %CMD_IN_ENV% conda build .\ci\conda_recipe
