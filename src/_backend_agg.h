@@ -516,6 +516,7 @@ inline void RendererAgg::draw_markers(GCAgg &gc,
 
     // Deal with the difference in y-axis direction
     marker_trans *= agg::trans_affine_scaling(1.0, -1.0);
+
     trans *= agg::trans_affine_scaling(1.0, -1.0);
     trans *= agg::trans_affine_translation(0.5, (double)height + 0.5);
 
@@ -526,6 +527,13 @@ inline void RendererAgg::draw_markers(GCAgg &gc,
                                marker_path.total_vertices(),
                                points_to_pixels(gc.linewidth));
     curve_t marker_path_curve(marker_path_snapped);
+
+    if (!marker_path_snapped.is_snapping()) {
+        // If the path snapper isn't in effect, at least make sure the marker
+        // at (0, 0) is in the center of a pixel.  This, importantly, makes
+        // the circle markers look centered around the point they refer to.
+        marker_trans *= agg::trans_affine_translation(0.5, 0.5);
+    }
 
     transformed_path_t path_transformed(path, trans);
     nan_removed_t path_nan_removed(path_transformed, false, false);
