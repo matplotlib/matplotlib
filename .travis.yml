@@ -50,7 +50,7 @@ matrix:
     - python: "nightly"
 
 before_install:
-  - source tools/travis_tools.sh
+  - source ci/travis/travis_tools.sh
   # Install into our own pristine virtualenv
   - virtualenv --python=python venv
   - source venv/bin/activate
@@ -90,7 +90,7 @@ install:
       fc-cache -f -v
     else
       # Use the special local version of freetype for testing
-      cp .travis/setup.cfg .
+      cp ci/travis/setup.cfg .
     fi;
 
   - pip install -e .
@@ -130,10 +130,10 @@ after_success:
   if [[ $TRAVIS_PULL_REQUEST == false && $TRAVIS_REPO_SLUG == 'matplotlib/matplotlib' && $BUILD_DOCS == true && $TRAVIS_BRANCH == 'master' ]]; then
     cd $TRAVIS_BUILD_DIR
     echo "Uploading documentation"
-    openssl aes-256-cbc -K $encrypted_cc802e084cd0_key -iv $encrypted_cc802e084cd0_iv -in .travis/matplotlibDeployKey.enc -out .travis/matplotlibDeployKey -d
+    openssl aes-256-cbc -K $encrypted_cc802e084cd0_key -iv $encrypted_cc802e084cd0_iv -in ci/travis/matplotlibDeployKey.enc -out ci/travis/matplotlibDeployKey -d
     eval `ssh-agent -s`
-    chmod 600 .travis/matplotlibDeployKey
-    ssh-add .travis/matplotlibDeployKey
+    chmod 600 ci/travis/matplotlibDeployKey
+    ssh-add ci/travis/matplotlibDeployKey
     cd ..
     git clone git@github.com:matplotlib/devdocs.git
     cd devdocs
@@ -154,12 +154,12 @@ after_success:
      [[ $TRAVIS_REPO_SLUG == 'matplotlib/matplotlib' ]] && \
      [[ $TRAVIS_BRANCH == 'master' ]]; then
       cd $TRAVIS_BUILD_DIR
-      python .travis/travis_after_all.py
+      python ci/travis/travis_after_all.py
       export $(cat .to_export_back)
       if [ "$BUILD_LEADER" = "YES" ]; then
         if [ "$BUILD_AGGREGATE_STATUS" = "others_succeeded" ]; then
           echo "All Succeeded! Triggering OSX build..."
-          ./.travis/build_children.sh
+          ./ci/travis/build_children.sh
         else
           echo "Some Failed; no OSX build"
         fi
