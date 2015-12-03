@@ -52,7 +52,7 @@ install:
   # this is now the downloaded conda...
   - conda info -a
   # same things as in tools/conda_recipe
-  - cmd: conda create -y -q -n test-environment python=%PYTHON_VERSION% pip setuptools numpy python-dateutil freetype=2.5 msinttypes pyparsing pytz tornado libpng zlib pyqt cycler nose mock
+  - cmd: conda create -y -q -n test-environment python=%PYTHON_VERSION% pip setuptools numpy python-dateutil freetype=2.5 msinttypes tk pyparsing pytz tornado libpng zlib pyqt cycler nose mock
   - activate test-environment
   # This is needed for the installer to find the dlls...
   - set LIBRARY_LIB=%CONDA_DEFAULT_ENV%\Library\lib

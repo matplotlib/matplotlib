@@ -1,4 +1,5 @@
 # stolen from https://github.com/conda/conda-recipes/tree/master/matplotlib
+# selectors [py27] and comments need to be `# [selector] comment` not `[sel] # comment`
 
 package:
   name: matplotlib-test
@@ -6,15 +7,16 @@ package:
 
 source:
   path: ../../
-  
+
   patches:
-    # off for now until there is a way to get the dlls tkagg...
-    #- setupext.patch
-    # - cfg.patch 
+    # don't run nosetest
     - cfg_notests.patch
+    # nake Qt4Agg the default backend
     - cfg_qt4agg.patch    [not osx]
     - rctmp_pyside.patch  [not osx]
+    # tk work on OSX
     - osx-tk.patch        [osx]
+    # dynamic version from git
     - condaversion.patch
 
 requirements:
@@ -33,7 +35,8 @@ requirements:
     - msinttypes          # this package is from the conda-forge channel!
     - pyqt                [not osx]
     - cycler
-    #- functools32         [py27] # this is actually not available
+    - tk
+    #- functools32         [py27] # this is currently not available
 
   run:
     - python
@@ -46,7 +49,8 @@ requirements:
     - libpng              [unix]
     - pyqt                [not osx]
     - cycler
-    
+    - tk
+
 test:
   requires:
     - nose
