@@ -18,6 +18,7 @@ import matplotlib as mpl
 import matplotlib.patches as mpatches
 import matplotlib.transforms as mtrans
 
+from matplotlib.legend_handler import HandlerTuple
 
 @image_comparison(baseline_images=['legend_auto1'], remove_text=True)
 def test_legend_auto1():
@@ -75,6 +76,21 @@ def test_labels_first():
     ax.plot(np.ones(10)*5, ':x', label="x")
     ax.plot(np.arange(20, 10, -1), 'd', label="diamond")
     ax.legend(loc=0, markerfirst=False)
+
+
+@image_comparison(baseline_images=['legend_multiple_keys'], extensions=['png'],
+                  remove_text=True)
+def test_multiple_keys():
+    # test legend entries with multiple keys
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+    p1, = ax.plot([1, 2, 3], '-o')
+    p2, = ax.plot([2, 3, 4], '-x')
+    p3, = ax.plot([3, 4, 5], '-d')
+    ax.legend([(p1, p2), (p2, p1), p3], ['two keys', 'pad=0', 'one key'],
+              numpoints=1,
+              handler_map={(p1, p2): HandlerTuple(ndivide=0),
+                           (p2, p1): HandlerTuple(ndivide=0, pad=0)})
 
 
 @image_comparison(baseline_images=['rgba_alpha'],
