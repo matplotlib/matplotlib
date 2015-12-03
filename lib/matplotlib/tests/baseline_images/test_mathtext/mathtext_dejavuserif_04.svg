@@ -5,7 +5,7 @@
 <svg height="54pt" version="1.1" viewBox="0 0 378 54" width="378pt" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
  <defs>
   <style type="text/css">
-*{stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:100000;}
+*{stroke-linecap:butt;stroke-linejoin:round;}
   </style>
  </defs>
  <g id="figure_1">
@@ -62,9 +62,9 @@ L 25.484375 20.703125
 z
 " id="DejaVuSerif-Italic-78"/>
    </defs>
-   <g transform="translate(182.22 30.046875)scale(0.12 -0.12)">
-    <use transform="translate(0.0 0.09375)" xlink:href="#DejaVuSerif-Italic-78"/>
-    <use transform="translate(56.396484375 0.09375)" xlink:href="#DejaVuSerif-Italic-79"/>
+   <g transform="translate(182.220000 30.046875)scale(0.120000 -0.120000)">
+    <use transform="translate(0.000000 0.093750)" xlink:href="#DejaVuSerif-Italic-78"/>
+    <use transform="translate(56.396484 0.093750)" xlink:href="#DejaVuSerif-Italic-79"/>
    </g>
   </g>
  </g>
