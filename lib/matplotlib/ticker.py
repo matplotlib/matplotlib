@@ -168,6 +168,19 @@ if six.PY3:
     long = int
 
 
+def _mathdefault(s):
+    """
+    For backward compatibility, in classic mode we display
+    sub/superscripted text in a mathdefault block.  As of 2.0, the
+    math font already matches the default font, so we don't need to do
+    that anymore.
+    """
+    if rcParams['_internal.classic_mode']:
+        return '\\mathdefault{%s}' % s
+    else:
+        return '{%s}' % s
+
+
 class _DummyAxis(object):
     def __init__(self, minpos=0):
         self.dataLim = mtransforms.Bbox.unit()
@@ -510,9 +523,8 @@ class ScalarFormatter(Formatter):
                     sciNotStr = '1e%d' % self.orderOfMagnitude
             if self._useMathText:
                 if sciNotStr != '':
-                    sciNotStr = r'\times\mathdefault{%s}' % sciNotStr
-                s = ''.join(('$', sciNotStr,
-                             r'\mathdefault{', offsetStr, '}$'))
+                    sciNotStr = r'\times%s' % _mathdefault(sciNotStr)
+                s = ''.join(('$', sciNotStr, _mathdefault(offsetStr), '$'))
             elif self._usetex:
                 if sciNotStr != '':
                     sciNotStr = r'\times%s' % sciNotStr
@@ -613,7 +625,7 @@ class ScalarFormatter(Formatter):
         if self._usetex:
             self.format = '$%s$' % self.format
         elif self._useMathText:
-            self.format = '$\mathdefault{%s}$' % self.format
+            self.format = '$%s$' % _mathdefault(self.format)
 
     def pprint_val(self, x):
         xp = (x - self.offset) / (10. ** self.orderOfMagnitude)
@@ -790,7 +802,7 @@ class LogFormatterMathtext(LogFormatter):
             if usetex:
                 return '$0$'
             else:
-                return '$\mathdefault{0}$'
+                return '$%s$' % _mathdefault('0')
 
         fx = math.log(abs(x)) / math.log(b)
         is_decade = is_close_to_int(fx)
@@ -810,17 +822,18 @@ class LogFormatterMathtext(LogFormatter):
                 return (r'$%s%s^{%.2f}$') % \
                                             (sign_string, base, fx)
             else:
-                return ('$\mathdefault{%s%s^{%.2f}}$') % \
-                                            (sign_string, base, fx)
+                return ('$%s$' % _mathdefault(
+                    '%s%s^{%.2f}' %
+                    (sign_string, base, fx)))
         else:
             if usetex:
                 return (r'$%s%s^{%d}$') % (sign_string,
                                            base,
                                            nearest_long(fx))
             else:
-                return (r'$\mathdefault{%s%s^{%d}}$') % (sign_string,
-                                                         base,
-                                                         nearest_long(fx))
+                return ('$%s$' % _mathdefault(
+                    '%s%s^{%d}' %
+                    (sign_string, base, nearest_long(fx))))
 
 
 class LogitFormatter(Formatter):
