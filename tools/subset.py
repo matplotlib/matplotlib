@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 #
 # Copyright 2010-2012, Google Inc.
 # Author: Mikhail Kashkin (mkashkin@gmail.com)
@@ -117,11 +117,11 @@ def subset_font_raw(font_in, font_out, unicodes, opts):
         print("Clear()", file=pe)
 
     if '--move-display' in opts:
+        print("Moving display glyphs into unicode ranges...")
         font.familyname += " Display"
         font.fullname += " Display"
         font.fontname += "Display"
         font.appendSFNTName('English (US)', 'Family', font.familyname)
-        font.appendSFNTName('English (US)', 'UniqueID', font.familyname)
         font.appendSFNTName('English (US)', 16, font.familyname)
         font.appendSFNTName('English (US)', 17, 'Display')
         font.appendSFNTName('English (US)', 'Fullname', font.fullname)
@@ -135,17 +135,6 @@ def subset_font_raw(font_in, font_out, unicodes, opts):
                     newgl = glname.replace('.display','')
                     font.selection.select(newgl)
                     font.paste()
-                    print(font[newgl].glyphname)
-                    # print(newgl)
-                    # if newgl.startswith('uni'):
-                        # newgl = int(newgl[3:], base=16)
-                    # else:
-                        # newgl = fontforge.unicodeFromName(newgl)
-
-                    # new = font.createChar(newgl)
-                    # new = font[glname]
-                    # print(new)
-                    # font[glname.replace('.display','')] = font[glname]
                 font.selection.select(glname)
                 font.cut()
 
