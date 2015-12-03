@@ -31,11 +31,15 @@ def test_font_priority():
 def test_json_serialization():
     # on windows, we can't open a file twice, so save the name and unlink
     # manually...
-    with tempfile.NamedTemporaryFile(delete=False) as temp:
-        name = temp.name
-    json_dump(fontManager, name)
-    copy = json_load(name)
-    os.remove(name)
+    try:
+        name = None
+        with tempfile.NamedTemporaryFile(delete=False) as temp:
+            name = temp.name
+        json_dump(fontManager, name)
+        copy = json_load(name)
+    finally:
+        if name and os.path.exists(name):
+            os.remove(name)
     with warnings.catch_warnings():
         warnings.filterwarnings('ignore', 'findfont: Font family.*not found')
         for prop in ({'family': 'STIXGeneral'},
