@@ -126,9 +126,18 @@ def get_base_dirs():
     """
     if options['basedirlist']:
         return options['basedirlist']
+    
+    if os.environ.get('MPLBASEDIRLIST'):
+        return os.environ.get('MPLBASEDIRLIST').split(os.pathsep)
 
+    win_bases = ['win32_static', ]
+    # on conda windows, we also add the <installdir>\Library of the local interperter, 
+    # as conda installs libs/includes there
+    if os.getenv('CONDA_DEFAULT_ENV'):
+        win_bases.append(os.path.join(os.getenv('CONDA_DEFAULT_ENV'), "Library"))
+    
     basedir_map = {
-        'win32': ['win32_static', ],
+        'win32': win_bases,
         'darwin': ['/usr/local/', '/usr', '/usr/X11',
                    '/opt/X11', '/opt/local'],
         'sunos5': [os.getenv('MPLIB_BASE') or '/usr/local', ],
@@ -143,8 +152,11 @@ def get_include_dirs():
     Returns a list of standard include directories on this platform.
     """
     include_dirs = [os.path.join(d, 'include') for d in get_base_dirs()]
-    include_dirs.extend(
-        os.environ.get('CPLUS_INCLUDE_PATH', '').split(os.pathsep))
+    if sys.platform != 'win32':
+        # gcc includes this dir automatically, so also look for headers in 
+        # these dirs
+        include_dirs.extend(
+            os.environ.get('CPLUS_INCLUDE_PATH', '').split(os.pathsep))
     return include_dirs
 
 
@@ -906,7 +918,10 @@ class FreeType(SetupPackage):
             return "Using local version for testing"
 
         if sys.platform == 'win32':
-            check_include_file(get_include_dirs(), 'ft2build.h', 'freetype')
+            try:
+                check_include_file(get_include_dirs(), 'ft2build.h', 'freetype')
+            except CheckFailed:
+                check_include_file(get_include_dirs(), 'freetype2\\ft2build.h', 'freetype')
             return 'Using unknown version found on system.'
 
         status, output = getstatusoutput("freetype-config --ftversion")
@@ -1579,14 +1594,22 @@ class BackendTkAgg(OptionalBackendPackage):
 
     def add_flags(self, ext):
         if sys.platform == 'win32':
-            major, minor1, minor2, s, tmp = sys.version_info
-            if sys.version_info[0:2] < (3, 4):
-                ext.include_dirs.extend(['win32_static/include/tcl85'])
+            if os.getenv('CONDA_DEFAULT_ENV'):
+                # We are in conda and conda builds against tcl85 for all versions
+                # includes are directly in the conda\library\include dir and
+                # libs in DLL or lib 
+                ext.include_dirs.extend(['include'])
                 ext.libraries.extend(['tk85', 'tcl85'])
+                ext.library_dirs.extend(['dlls']) # or lib?
             else:
-                ext.include_dirs.extend(['win32_static/include/tcl86'])
-                ext.libraries.extend(['tk86t', 'tcl86t'])
-            ext.library_dirs.extend([os.path.join(sys.prefix, 'dlls')])
+                major, minor1, minor2, s, tmp = sys.version_info
+                if sys.version_info[0:2] < (3, 4):
+                    ext.include_dirs.extend(['win32_static/include/tcl85'])
+                    ext.libraries.extend(['tk85', 'tcl85'])
+                else:
+                    ext.include_dirs.extend(['win32_static/include/tcl86'])
+                    ext.libraries.extend(['tk86t', 'tcl86t'])
+                ext.library_dirs.extend([os.path.join(sys.prefix, 'dlls')])
 
         elif sys.platform == 'darwin':
             # this config section lifted directly from Imaging - thanks to

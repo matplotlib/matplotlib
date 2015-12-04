@@ -1,0 +1,104 @@
+# With infos from 
+# http://tjelvarolsson.com/blog/how-to-continuously-test-your-python-code-on-windows-using-appveyor/
+# https://packaging.python.org/en/latest/appveyor/
+# https://github.com/rmcgibbo/python-appveyor-conda-example
+
+# Backslashes in quotes need to be escaped: \ -> "\\"
+
+environment:
+
+  global:
+    # SDK v7.0 MSVC Express 2008's SetEnv.cmd script will fail if the
+    # /E:ON and /V:ON options are not enabled in the batch script intepreter
+    # See: http://stackoverflow.com/a/13751649/163740
+    CMD_IN_ENV: "cmd /E:ON /V:ON /C .\\ci\\appveyor\\run_with_env.cmd"
+
+  matrix:
+    - PYTHON: "C:\\Python34_64"
+      PYTHON_VERSION: "3.4"
+      PYTHON_ARCH: "64"
+      CONDA_PY: "34"
+      CONDA_NPY: "110"
+
+    - PYTHON: "C:\\Python35_64"
+      PYTHON_VERSION: "3.5"
+      PYTHON_ARCH: "64"
+      CONDA_PY: "35"
+      CONDA_NPY: "110"
+
+    - PYTHON: "C:\\Python27_64"
+      PYTHON_VERSION: "2.7"
+      PYTHON_ARCH: "64"
+      CONDA_PY: "27"
+      CONDA_NPY: "18"
+    
+    - PYTHON: "C:\\Python27_32"
+      PYTHON_VERSION: "2.7"
+      PYTHON_ARCH: "32"
+      CONDA_PY: "27"
+      CONDA_NPY: "18"
+      
+# We always use a 64-bit machine, but can build x86 distributions
+# with the PYTHON_ARCH variable (which is used by CMD_IN_ENV).
+platform:
+    - x64
+
+# all our python builds have to happen in tests_script...
+build: false
+
+init:
+  - "ECHO %PYTHON_VERSION% %PYTHON%"
+
+install:
+  - powershell .\ci\appveyor\install.ps1
+  - SET PATH=%PYTHON%;%PYTHON%\Scripts;%PATH%
+  - cmd: conda config --set show_channel_urls yes
+  # for msinttypes
+  - cmd: conda config --add channels conda-forge
+  # this is now the downloaded conda...
+  - conda info -a
+  # same things as in tools/conda_recipe
+  - cmd: conda create -y -q -n test-environment python=%PYTHON_VERSION% pip setuptools numpy python-dateutil freetype=2.5 msinttypes tk pyparsing pytz tornado libpng zlib pyqt cycler nose mock
+  - activate test-environment
+  # This is needed for the installer to find the dlls...
+  - set LIBRARY_LIB=%CONDA_DEFAULT_ENV%\Library\lib
+  - cmd: 'mkdir lib || cmd /c "exit /b 0"'
+  - copy %LIBRARY_LIB%\zlibstatic.lib lib\z.lib 
+  - copy %LIBRARY_LIB%\libpng_static.lib lib\png.lib
+  - set MPLBASEDIRLIST=%CONDA_DEFAULT_ENV%\Library\;.
+  # Show the installed packages + versions
+  - conda list
+
+test_script:
+  # Now build the thing..
+  - '%CMD_IN_ENV% python setup.py develop'
+  # tests
+  # for now, just let them pass to get the after_test parts...
+  - python tests.py || cmd /c "exit /b 0"
+
+after_test:
+  # After the tests were a success, build packages (wheels and conda)
+  
+  # There is a bug in wheels which prevents building wheels when the package uses namespaces
+  - cmd: '%CMD_IN_ENV% python setup.py bdist_wheel'
+  # Note also that our setup.py script, which is called by conda-build, writes
+  # a __conda_version__.txt file, so the version number on the binary package
+  # is set dynamically. This unfortunately mean that conda build --output
+  # doesn't really work.
+  - cmd: '%CMD_IN_ENV% conda config --get channels'
+  # we can't build conda packages on 27 due to missing functools32, which is a recent 
+  # additional dependency for matplotlib
+  - cmd: if [%CONDA_PY%] NEQ [27] %CMD_IN_ENV% conda build .\ci\conda_recipe
+  # Move the conda package into the dist directory, to register it
+  # as an "artifact" for Appveyor. 
+  - cmd: 'copy /Y %PYTHON%\conda-bld\win-32\*.bz2 dist || cmd /c "exit /b 0"'
+  - cmd: 'copy /Y %PYTHON%\conda-bld\win-64\*.bz2 dist || cmd /c "exit /b 0"'
+  - cmd: dir .\dist\
+
+artifacts:
+  - path: dist\*
+    name: packages
+    
+  - path: result_images\*
+    name: test result images
+    type: zip
