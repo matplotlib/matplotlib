@@ -240,7 +240,14 @@ class SubplotParams(object):
         setattr(self, s, val)
 
 
-class Figure(Artist):
+# used solely for giving an empty figure class to
+# the "figure" attribute of an artist which performs
+# a type check (e.g `True if figure else False`)
+class FigureBase(object):
+    pass
+
+
+class Figure(FigureBase, Artist):
 
     """
     The Figure instance supports callbacks through a *callbacks*
@@ -308,7 +315,7 @@ class Figure(Artist):
         # as it makes no sense for a figure to be _in_ an axes
         # this is used by the property methods in the artist base class
         # which are over-ridden in this class
-        del self._axes
+        # del self._axes
         self.callbacks = cbook.CallbackRegistry()
 
         if figsize is None:
@@ -468,7 +475,7 @@ class Figure(Artist):
                             label.set_rotation(rotation)
                     else:
                         for label in ax.get_xticklabels():
-                            label.set_visible(False)
+                            label.visible = False
                         ax.set_xlabel('')
 
         if allsubplots:
@@ -493,7 +500,8 @@ class Figure(Artist):
 
         Returns True,{}
         """
-        if six.callable(self._contains):
+        # self._contains should already be callable
+        if self._contains is not None:
             return self._contains(self, mouseevent)
         # inside = mouseevent.x >= 0 and mouseevent.y >= 0
         inside = self.bbox.contains(mouseevent.x, mouseevent.y)
@@ -660,7 +668,7 @@ class Figure(Artist):
         im.stale_callback = _stale_figure_callback
 
         im.set_array(X)
-        im.set_alpha(alpha)
+        im.alpha = alpha
         if norm is None:
             im.set_clim(vmin, vmax)
         self.images.append(im)
@@ -897,7 +905,7 @@ class Figure(Artist):
 
         if isinstance(args[0], Axes):
             a = args[0]
-            if a.get_figure() is not self:
+            if a.figure is not self:
                 msg = "The Axes must have been created in the present figure"
                 raise ValueError(msg)
         else:
@@ -976,7 +984,7 @@ class Figure(Artist):
         if isinstance(args[0], SubplotBase):
 
             a = args[0]
-            if a.get_figure() is not self:
+            if a.figure is not self:
                 msg = ("The Subplot must have been created in the present"
                        " figure")
                 raise ValueError(msg)
@@ -1187,7 +1195,7 @@ class Figure(Artist):
         """
 
         # draw the figure bounding box, perhaps none for white figure
-        if not self.get_visible():
+        if not self.visible:
             return
 
         renderer.open_group('figure')
@@ -1229,7 +1237,7 @@ class Figure(Artist):
             # make a composite image blending alpha
             # list of (_image.Image, ox, oy)
             mag = renderer.get_image_magnification()
-            ims = [(im.make_image(mag), im.ox, im.oy, im.get_alpha())
+            ims = [(im.make_image(mag), im.ox, im.oy, im.alpha)
                    for im in self.images]
 
             im = _image.from_images(int(self.bbox.height * mag),
@@ -1242,7 +1250,7 @@ class Figure(Artist):
             def draw_composite():
                 gc = renderer.new_gc()
                 gc.set_clip_rectangle(self.bbox)
-                gc.set_clip_path(self.get_clip_path())
+                gc.set_clip_path(self.clippath)
                 renderer.draw_image(gc, l, b, im)
                 gc.restore()
 
@@ -1260,7 +1268,7 @@ class Figure(Artist):
         for a in self.legends:
             dsu.append((a.get_zorder(), a, a.draw, [renderer]))
 
-        dsu = [row for row in dsu if not row[1].get_animated()]
+        dsu = [row for row in dsu if not row[1].animated]
         dsu.sort(key=itemgetter(0))
         for zorder, a, func, args in dsu:
             func(*args)
@@ -1417,9 +1425,9 @@ class Figure(Artist):
 
     def _set_artist_props(self, a):
         if a != self:
-            a.set_figure(self)
+            a.figure = self
         a.stale_callback = _stale_figure_callback
-        a.set_transform(self.transFigure)
+        a.transform = self.transFigure
 
     @docstring.dedent_interpd
     def gca(self, **kwargs):
@@ -1528,7 +1536,7 @@ class Figure(Artist):
                           "and is unlikely to function correctly." %
                           (version, ))
 
-        self.__dict__ = state
+        Artist.__setstate__(self, state)
 
         # re-initialise some of the unstored state information
         self._axobservers = []
@@ -1545,8 +1553,8 @@ class Figure(Artist):
             # XXX The following is a copy and paste from pyplot. Consider
             # factoring to pylab_helpers
 
-            if self.get_label():
-                mgr.set_window_title(self.get_label())
+            if self.label:
+                mgr.set_window_title(self.label)
 
             # make this figure current on button press event
             def make_active(event):
@@ -1793,9 +1801,9 @@ class Figure(Artist):
 
     def get_default_bbox_extra_artists(self):
         bbox_artists = [artist for artist in self.get_children()
-                        if artist.get_visible()]
+                        if artist.visible]
         for ax in self.axes:
-            if ax.get_visible():
+            if ax.visible:
                 bbox_artists.extend(ax.get_default_bbox_extra_artists())
         # we don't want the figure's patch to influence the bbox calculation
         bbox_artists.remove(self.patch)
@@ -1811,7 +1819,7 @@ class Figure(Artist):
 
         bb = []
         for ax in self.axes:
-            if ax.get_visible():
+            if ax.visible:
                 bb.append(ax.get_tightbbox(renderer))
 
         if len(bb) == 0:

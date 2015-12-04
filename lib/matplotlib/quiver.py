@@ -32,6 +32,7 @@ import matplotlib.font_manager as font_manager
 import matplotlib.cbook as cbook
 from matplotlib.cbook import delete_masked_points
 from matplotlib.patches import CirclePolygon
+from .traitlets import Instance, observe
 import math
 
 
@@ -230,6 +231,8 @@ class QuiverKey(martist.Artist):
     valign = {'N': 'bottom', 'S': 'top', 'E': 'center', 'W': 'center'}
     pivot = {'N': 'mid', 'S': 'mid', 'E': 'tip', 'W': 'tail'}
 
+    label = Instance(mtext.Text, allow_none=True)
+
     def __init__(self, Q, X, Y, U, label, **kw):
         martist.Artist.__init__(self)
         self.Q = Q
@@ -238,7 +241,8 @@ class QuiverKey(martist.Artist):
         self.U = U
         self.coord = kw.pop('coordinates', 'axes')
         self.color = kw.pop('color', None)
-        self.label = label
+        #!DEPRECATED : self.label is no longer valid
+        self.keylabel = label
         self._labelsep_inches = kw.pop('labelsep', 0.1)
         self.labelsep = (self._labelsep_inches * Q.ax.figure.dpi)
 
@@ -304,12 +308,12 @@ class QuiverKey(martist.Artist):
             self.vector = mcollections.PolyCollection(
                                         self.verts,
                                         offsets=[(self.X, self.Y)],
-                                        transOffset=self.get_transform(),
+                                        transOffset=self.transform,
                                         **kw)
             if self.color is not None:
                 self.vector.set_color(self.color)
-            self.vector.set_transform(self.Q.get_transform())
-            self.vector.set_figure(self.get_figure())
+            self.vector.transform = self.Q.transform
+            self.vector.figure = self.figure
             self._initialized = True
 
     def _text_x(self, x):
@@ -332,7 +336,7 @@ class QuiverKey(martist.Artist):
     def draw(self, renderer):
         self._init()
         self.vector.draw(renderer)
-        x, y = self.get_transform().transform_point((self.X, self.Y))
+        x, y = self.transform.transform_point((self.X, self.Y))
         self.text.set_x(self._text_x(x))
         self.text.set_y(self._text_y(y))
         self.text.draw(renderer)
@@ -340,19 +344,20 @@ class QuiverKey(martist.Artist):
 
     def _set_transform(self):
         if self.coord == 'data':
-            self.set_transform(self.Q.ax.transData)
+            self.transform = self.Q.ax.transData
         elif self.coord == 'axes':
-            self.set_transform(self.Q.ax.transAxes)
+            self.transform = self.Q.ax.transAxes
         elif self.coord == 'figure':
-            self.set_transform(self.Q.ax.figure.transFigure)
+            self.transform = self.Q.ax.figure.transFigure
         elif self.coord == 'inches':
-            self.set_transform(self.Q.ax.figure.dpi_scale_trans)
+            self.transform = self.Q.ax.figure.dpi_scale_trans
         else:
             raise ValueError('unrecognized coordinates')
 
-    def set_figure(self, fig):
-        martist.Artist.set_figure(self, fig)
-        self.text.set_figure(fig)
+    @observe('figure')
+    def _figure_changed(self, change):
+        martist.Artist._figure_changed(self, change)
+        self.text.figure = change['new']
 
     def contains(self, mouseevent):
         # Maybe the dictionary should allow one to
@@ -449,11 +454,16 @@ class Quiver(mcollections.PolyCollection):
             pivot = 'middle'
         self.pivot = pivot
 
-        self.transform = kw.pop('transform', ax.transData)
+        #!DEPRECATED : this was self.transform, which now conflicts with
+        # the traitlet assigned to that same name. This isn't really something
+        # that can be easily warned because defining a property to raise it
+        # will override the traittype defined at the class level.
+        self.quiver_transform = kw.pop('transform', ax.transData)
+
         kw.setdefault('facecolors', self.color)
-        kw.setdefault('linewidths', (0,))
+        kw.setdefault('linewidths', (0, ))
         mcollections.PolyCollection.__init__(self, [], offsets=self.XY,
-                                             transOffset=self.transform,
+                                             transOffset=self.quiver_transform,
                                              closed=False,
                                              **kw)
         self.polykw = kw
@@ -513,7 +523,7 @@ class Quiver(mcollections.PolyCollection):
             self._initialized = True
 
     def get_datalim(self, transData):
-        trans = self.get_transform()
+        trans = self.transform
         transOffset = self.get_offset_transform()
         full_transform = (trans - transData) + (transOffset - transData)
         XY = full_transform.transform(self.XY)
@@ -592,7 +602,7 @@ class Quiver(mcollections.PolyCollection):
         dx = self._dots_per_unit(self.units)
         self._trans_scale = dx  # pixels per arrow width unit
         trans = transforms.Affine2D().scale(dx)
-        self.set_transform(trans)
+        self.transform = trans
         return trans
 
     def _angles_lengths(self, U, V, eps=1):
@@ -929,7 +939,7 @@ class Barbs(mcollections.PolyCollection):
         mcollections.PolyCollection.__init__(self, [], (barb_size,),
                                              offsets=xy,
                                              transOffset=transform, **kw)
-        self.set_transform(transforms.IdentityTransform())
+        self.transform = transforms.IdentityTransform()
 
         self.set_UVC(u, v, c)
 

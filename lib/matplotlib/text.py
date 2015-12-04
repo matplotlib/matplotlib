@@ -33,6 +33,8 @@ from matplotlib.artist import allow_rasterization
 from matplotlib.backend_bases import RendererBase
 from matplotlib.textpath import TextPath
 
+from .traitlets import observe, _traitlets_deprecation_msg
+
 
 def _process_text_args(override, fontdict=None, **kwargs):
     "Return an override dict.  See :func:`~pyplot.text' docstring for info"
@@ -96,8 +98,8 @@ docstring.interpd.update(Text="""
                                pad in points; if a boxstyle is supplied as
                                a string, then pad is instead a fraction
                                of the font size
-    clip_box                   a matplotlib.transform.Bbox instance
-    clip_on                    [True | False]
+    clipbox                   a matplotlib.transform.Bbox instance
+    clipon                    [True | False]
     color                      any matplotlib color
     family                     ['serif' | 'sans-serif' | 'cursive' |
                                 'fantasy' | 'monospace']
@@ -257,10 +259,11 @@ class Text(Artist):
 
         Returns True or False.
         """
-        if six.callable(self._contains):
+        # self._contains should already be callable
+        if self._contains is not None:
             return self._contains(self, mouseevent)
 
-        if not self.get_visible() or self._renderer is None:
+        if not self.visible or self._renderer is None:
             return False, {}
 
         l, b, w, h = self.get_window_extent().bounds
@@ -282,7 +285,7 @@ class Text(Artist):
     def _get_xy_display(self):
         'get the (possibly unit converted) transformed x, y in display coords'
         x, y = self.get_unitless_position()
-        return self.get_transform().transform_point((x, y))
+        return self.transform.transform_point((x, y))
 
     def _get_multialignment(self):
         if self._multialignment is not None:
@@ -321,7 +324,7 @@ class Text(Artist):
         self._horizontalalignment = other._horizontalalignment
         self._fontproperties = other._fontproperties.copy()
         self._rotation = other._rotation
-        self._picker = other._picker
+        self.private('picker', other.picker)
         self._linespacing = other._linespacing
         self.stale = True
 
@@ -535,7 +538,7 @@ class Text(Artist):
 
         if self._bbox_patch:
 
-            trans = self.get_transform()
+            trans = self.transform
 
             # don't use self.get_unitless_position here, which refers to text
             # position in Text, and dash position in TextWithDash:
@@ -549,7 +552,7 @@ class Text(Artist):
             theta = np.deg2rad(self.get_rotation())
             tr = mtransforms.Affine2D().rotate(theta)
             tr = tr.translate(posx + x_box, posy + y_box)
-            self._bbox_patch.set_transform(tr)
+            self._bbox_patch.transform = tr
             fontsize_in_pixel = renderer.points_to_pixels(self.get_size())
             self._bbox_patch.set_mutation_scale(fontsize_in_pixel)
 
@@ -564,18 +567,25 @@ class Text(Artist):
         theta = np.deg2rad(self.get_rotation())
         tr = mtransforms.Affine2D().rotate(theta)
         tr = tr.translate(posx + x_box, posy + y_box)
-        self._bbox_patch.set_transform(tr)
+        self._bbox_patch.transform = tr
         fontsize_in_pixel = renderer.points_to_pixels(self.get_size())
         self._bbox_patch.set_mutation_scale(fontsize_in_pixel)
         self._bbox_patch.draw(renderer)
 
     def _update_clip_properties(self):
-        clipprops = dict(clip_box=self.clipbox,
-                         clip_path=self._clippath,
-                         clip_on=self._clipon)
+        clipprops = dict(clipbox=self.clipbox,
+                         #!Note : point to review if set_clip_path
+                         # method is deprecated
+                         clip_path=self.clippath,
+                         clipon=self.clipon)
 
         if self._bbox_patch:
             bbox = self._bbox_patch.update(clipprops)
+
+    @observe('clipbox')
+    def _clipbox_changed(self, change):
+        super(Text, self)._clipbox_changed(change)
+        self._update_clip_properties()
 
     def set_clip_box(self, clipbox):
         """
@@ -583,8 +593,9 @@ class Text(Artist):
 
         ACCEPTS: a :class:`matplotlib.transforms.Bbox` instance
         """
-        super(Text, self).set_clip_box(clipbox)
-        self._update_clip_properties()
+        msg = _traitlets_deprecation_msg('clipbox')
+        warnings.warn(msg, mplDeprecation, stacklevel=1)
+        self.clipbox = clipbox
 
     def set_clip_path(self, path, transform=None):
         """
@@ -610,6 +621,11 @@ class Text(Artist):
         super(Text, self).set_clip_path(path, transform)
         self._update_clip_properties()
 
+    @observe('clipon')
+    def _clipon_changed(self, change):
+        super(Text, self)._clipon_changed(change)
+        self._update_clip_properties()
+
     def set_clip_on(self, b):
         """
         Set whether artist uses clipping.
@@ -619,8 +635,9 @@ class Text(Artist):
 
         ACCEPTS: [True | False]
         """
-        super(Text, self).set_clip_on(b)
-        self._update_clip_properties()
+        msg = _traitlets_deprecation_msg('clipon')
+        warnings.warn(msg, mplDeprecation, stacklevel=1)
+        self.clipon = b
 
     def get_wrap(self):
         """
@@ -639,8 +656,8 @@ class Text(Artist):
         Returns the maximum line width for wrapping text based on the
         current orientation.
         """
-        x0, y0 = self.get_transform().transform(self.get_position())
-        figure_box = self.get_figure().get_window_extent()
+        x0, y0 = self.transform.transform(self.get_position())
+        figure_box = self.figure.get_window_extent()
 
         # Calculate available width based on text alignment
         alignment = self.get_horizontalalignment()
@@ -738,16 +755,16 @@ class Text(Artist):
         """
         if renderer is not None:
             self._renderer = renderer
-        if not self.get_visible():
+        if not self.visible:
             return
         if self.get_text().strip() == '':
             return
 
-        renderer.open_group('text', self.get_gid())
+        renderer.open_group('text', self.gid)
 
         with _wrap_text(self) as textobj:
             bbox, info, descent = textobj._get_layout(renderer)
-            trans = textobj.get_transform()
+            trans = textobj.transform
 
             # don't use textobj.get_position here, which refers to text
             # position in Text, and dash position in TextWithDash:
@@ -764,8 +781,8 @@ class Text(Artist):
 
             gc = renderer.new_gc()
             gc.set_foreground(textobj.get_color())
-            gc.set_alpha(textobj.get_alpha())
-            gc.set_url(textobj._url)
+            gc.set_alpha(textobj.alpha)
+            gc.set_url(textobj.url)
             textobj._set_gc_clip(gc)
 
             angle = textobj.get_rotation()
@@ -779,10 +796,10 @@ class Text(Artist):
                     y = canvash - y
                 clean_line, ismath = textobj.is_math_text(line)
 
-                if textobj.get_path_effects():
+                if textobj.path_effects:
                     from matplotlib.patheffects import PathEffectRenderer
                     textrenderer = PathEffectRenderer(
-                                        textobj.get_path_effects(), renderer)
+                                        textobj.path_effects, renderer)
                 else:
                     textrenderer = renderer
 
@@ -944,7 +961,7 @@ class Text(Artist):
         was used must be specified as the *dpi* argument.
         '''
         #return _unit_box
-        if not self.get_visible():
+        if not self.visible:
             return Bbox.unit()
         if dpi is not None:
             dpi_orig = self.figure.dpi
@@ -960,7 +977,7 @@ class Text(Artist):
 
         bbox, info, descent = self._get_layout(self._renderer)
         x, y = self.get_unitless_position()
-        x, y = self.get_transform().transform_point((x, y))
+        x, y = self.transform.transform_point((x, y))
         bbox = bbox.translated(x, y)
         if dpi is not None:
             self.figure.dpi = dpi_orig
@@ -1435,7 +1452,7 @@ class TextWithDash(Text):
         theta = np.pi * (angle / 180.0 + dashdirection - 1)
         cos_theta, sin_theta = np.cos(theta), np.sin(theta)
 
-        transform = self.get_transform()
+        transform = self.transform
 
         # Compute the dash end points
         # The 'c' prefix is for canvas coordinates
@@ -1629,6 +1646,12 @@ class TextWithDash(Text):
         self._dashy = float(y)
         self.stale = True
 
+    @observe('transform')
+    def _transform_changed(self, change):
+        Text._transform_changed(self, change)
+        self.dashline.transform = change['new']
+        self.stale = True
+
     def set_transform(self, t):
         """
         Set the :class:`matplotlib.transforms.Transform` instance used
@@ -1636,13 +1659,20 @@ class TextWithDash(Text):
 
         ACCEPTS: a :class:`matplotlib.transforms.Transform` instance
         """
-        Text.set_transform(self, t)
-        self.dashline.set_transform(t)
-        self.stale = True
+        msg = _traitlets_deprecation_msg('transform')
+        warnings.warn(msg, mplDeprecation, stacklevel=1)
+        self.transform = t
 
     def get_figure(self):
         'return the figure instance the artist belongs to'
+        msg = _traitlets_deprecation_msg('figure')
+        warnings.warn(msg, mplDeprecation, stacklevel=1)
         return self.figure
+
+    @observe('figure')
+    def _figure_changed(self, change):
+        Text._figure_changed(self, change)
+        self.dashline.figure = change['new']
 
     def set_figure(self, fig):
         """
@@ -1650,8 +1680,9 @@ class TextWithDash(Text):
 
         ACCEPTS: a :class:`matplotlib.figure.Figure` instance
         """
-        Text.set_figure(self, fig)
-        self.dashline.set_figure(fig)
+        msg = _traitlets_deprecation_msg('figure')
+        warnings.warn(msg, mplDeprecation, stacklevel=1)
+        self.figure = fig
 
 docstring.interpd.update(TextWithDash=artist.kwdoc(TextWithDash))
 
@@ -2107,13 +2138,19 @@ class Annotation(Text, _AnnotationBase):
     def anncoords(self, coords):
         self._textcoords = coords
 
-    def set_figure(self, fig):
-
+    @observe('figure')
+    def _figure_changed(self, change):
+        new = change['new']
         if self.arrow is not None:
-            self.arrow.set_figure(fig)
+            self.arrow.figure = new
         if self.arrow_patch is not None:
-            self.arrow_patch.set_figure(fig)
-        Artist.set_figure(self, fig)
+            self.arrow_patch.figure = new
+        Artist._figure_changed(self, change)
+
+    def set_figure(self, fig):
+        msg = _traitlets_deprecation_msg('figure')
+        warnings.warn(msg, mplDeprecation, stacklevel=1)
+        self.figure = fig
 
     def update_positions(self, renderer):
         """"Update the pixel positions of the annotated point and the
@@ -2127,7 +2164,7 @@ class Annotation(Text, _AnnotationBase):
         patch.
         """
         # generate transformation,
-        self.set_transform(self._get_xy_transform(renderer, self.anncoords))
+        self.transform = self._get_xy_transform(renderer, self.anncoords)
 
         ox0, oy0 = self._get_xy_display()
         ox1, oy1 = xy_pixel
@@ -2225,8 +2262,8 @@ class Annotation(Text, _AnnotationBase):
                                   width=w,
                                   height=h,
                                   )
-                    r.set_transform(mtransforms.IdentityTransform())
-                    r.set_clip_on(False)
+                    r.transform = mtransforms.IdentityTransform()
+                    r.clipon = False
 
                     self.arrow_patch.set_patchA(r)
 
@@ -2238,7 +2275,7 @@ class Annotation(Text, _AnnotationBase):
 
         if renderer is not None:
             self._renderer = renderer
-        if not self.get_visible():
+        if not self.visible:
             return
 
         xy_pixel = self._get_position_xy(renderer)
@@ -2272,7 +2309,7 @@ class Annotation(Text, _AnnotationBase):
         irrelevant.
 
         '''
-        if not self.get_visible():
+        if not self.visible:
             return Bbox.unit()
         arrow = self.arrow
         arrow_patch = self.arrow_patch

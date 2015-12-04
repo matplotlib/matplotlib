@@ -21,6 +21,8 @@ import matplotlib.units as munits
 import numpy as np
 import warnings
 
+from .traitlets import Instance, retrieve
+
 GRIDLINE_INTERPOLATION_STEPS = 180
 
 
@@ -97,7 +99,7 @@ class Tick(artist.Artist):
             else:
                 gridOn = False
 
-        self.set_figure(axes.figure)
+        self.figure = axes.figure
         self.axes = axes
 
         name = self.__name__.lower()
@@ -191,7 +193,8 @@ class Tick(artist.Artist):
         This function always returns false.  It is more useful to test if the
         axis as a whole contains the mouse rather than the set of tick marks.
         """
-        if six.callable(self._contains):
+        # self._contains should already be callable
+        if self._contains is not None:
             return self._contains(self, mouseevent)
         return False, {}
 
@@ -234,7 +237,7 @@ class Tick(artist.Artist):
 
     @allow_rasterization
     def draw(self, renderer):
-        if not self.get_visible():
+        if not self.visible:
             return
         renderer.open_group(self.__name__)
         midPoint = mtransforms.interval_contains(self.get_view_interval(),
@@ -277,7 +280,7 @@ class Tick(artist.Artist):
         self.stale = True
 
     def _set_artist_props(self, a):
-        a.set_figure(self.figure)
+        a.figure = self.figure
 
     def get_view_interval(self):
         'return the view Interval instance for the axis this tick is ticking'
@@ -293,9 +296,9 @@ class Tick(artist.Artist):
             self._base_pad = kw.pop('pad', self._base_pad)
             self.apply_tickdir(kw.pop('tickdir', self._tickdir))
             trans = self._get_text1_transform()[0]
-            self.label1.set_transform(trans)
+            self.label1.transform = trans
             trans = self._get_text2_transform()[0]
-            self.label2.set_transform(trans)
+            self.label2.transform = trans
             self.tick1line.set_marker(self._tickmarkers[0])
             self.tick2line.set_marker(self._tickmarkers[1])
         tick_kw = dict([kv for kv in six.iteritems(kw)
@@ -371,7 +374,7 @@ class XTick(Tick):
             verticalalignment=vert,
             horizontalalignment=horiz,
             )
-        t.set_transform(trans)
+        t.transform = trans
         self._set_artist_props(t)
         return t
 
@@ -387,7 +390,7 @@ class XTick(Tick):
             verticalalignment=vert,
             horizontalalignment=horiz,
             )
-        t.set_transform(trans)
+        t.transform = trans
         self._set_artist_props(t)
         return t
 
@@ -398,7 +401,7 @@ class XTick(Tick):
                           linestyle='None', marker=self._tickmarkers[0],
                           markersize=self._size,
                           markeredgewidth=self._width, zorder=self._zorder)
-        l.set_transform(self.axes.get_xaxis_transform(which='tick1'))
+        l.transform = self.axes.get_xaxis_transform(which='tick1')
         self._set_artist_props(l)
         return l
 
@@ -413,7 +416,7 @@ class XTick(Tick):
                           markeredgewidth=self._width,
                           zorder=self._zorder)
 
-        l.set_transform(self.axes.get_xaxis_transform(which='tick2'))
+        l.transform = self.axes.get_xaxis_transform(which='tick2')
         self._set_artist_props(l)
         return l
 
@@ -426,7 +429,7 @@ class XTick(Tick):
                           linewidth=rcParams['grid.linewidth'],
                           alpha=rcParams['grid.alpha'],
                           markersize=0)
-        l.set_transform(self.axes.get_xaxis_transform(which='grid'))
+        l.transform = self.axes.get_xaxis_transform(which='grid')
         l.get_path()._interpolation_steps = GRIDLINE_INTERPOLATION_STEPS
         self._set_artist_props(l)
 
@@ -506,7 +509,7 @@ class YTick(Tick):
             verticalalignment=vert,
             horizontalalignment=horiz,
             )
-        t.set_transform(trans)
+        t.transform = trans
         self._set_artist_props(t)
         return t
 
@@ -521,7 +524,7 @@ class YTick(Tick):
             verticalalignment=vert,
             horizontalalignment=horiz,
             )
-        t.set_transform(trans)
+        t.transform = trans
         self._set_artist_props(t)
         return t
 
@@ -536,7 +539,7 @@ class YTick(Tick):
                           markersize=self._size,
                           markeredgewidth=self._width,
                           zorder=self._zorder)
-        l.set_transform(self.axes.get_yaxis_transform(which='tick1'))
+        l.transform = self.axes.get_yaxis_transform(which='tick1')
         self._set_artist_props(l)
         return l
 
@@ -550,7 +553,7 @@ class YTick(Tick):
                           markersize=self._size,
                           markeredgewidth=self._width,
                           zorder=self._zorder)
-        l.set_transform(self.axes.get_yaxis_transform(which='tick2'))
+        l.transform = self.axes.get_yaxis_transform(which='tick2')
         self._set_artist_props(l)
         return l
 
@@ -564,7 +567,7 @@ class YTick(Tick):
                           alpha=rcParams['grid.alpha'],
                           markersize=0)
 
-        l.set_transform(self.axes.get_yaxis_transform(which='grid'))
+        l.transform = self.axes.get_yaxis_transform(which='grid')
         l.get_path()._interpolation_steps = GRIDLINE_INTERPOLATION_STEPS
         self._set_artist_props(l)
         return l
@@ -616,6 +619,8 @@ class Axis(artist.Artist):
     """
     OFFSETTEXTPAD = 3
 
+    label = Instance(mtext.Text, allow_none=True)
+
     def __str__(self):
         return self.__class__.__name__ \
             + "(%f,%f)" % tuple(self.axes.transAxes.transform_point((0, 0)))
@@ -625,7 +630,7 @@ class Axis(artist.Artist):
         Init the axis with the parent Axes instance
         """
         artist.Artist.__init__(self)
-        self.set_figure(axes.figure)
+        self.figure = axes.figure
 
         # Keep track of setting to the default value, this allows use to know
         # if any of the following values is explicitly set by the user, so as
@@ -677,12 +682,17 @@ class Axis(artist.Artist):
         if transform is None:
             transform = self.axes.transAxes
 
-        self.label.set_transform(transform)
+        self.label.transform = transform
         self.label.set_position((x, y))
         self.stale = True
 
-    def get_transform(self):
+    @retrieve('transform')
+    def _transform_getter(self, pull):
         return self._scale.get_transform()
+
+    # !DEPRECATED
+    # def get_transform(self):
+    #     return self._scale.get_transform()
 
     def get_scale(self):
         return self._scale.name
@@ -883,7 +893,7 @@ class Axis(artist.Artist):
     def _set_artist_props(self, a):
         if a is None:
             return
-        a.set_figure(self.figure)
+        a.figure = self.figure
 
     def iter_ticks(self):
         """
@@ -1054,10 +1064,10 @@ class Axis(artist.Artist):
         ticklabelBoxes2 = []
 
         for tick in ticks:
-            if tick.label1On and tick.label1.get_visible():
+            if tick.label1On and tick.label1.visible:
                 extent = tick.label1.get_window_extent(renderer)
                 ticklabelBoxes.append(extent)
-            if tick.label2On and tick.label2.get_visible():
+            if tick.label2On and tick.label2.visible:
                 extent = tick.label2.get_window_extent(renderer)
                 ticklabelBoxes2.append(extent)
         return ticklabelBoxes, ticklabelBoxes2
@@ -1067,7 +1077,7 @@ class Axis(artist.Artist):
         Return a bounding box that encloses the axis. It only accounts
         tick labels, axis label, and offsetText.
         """
-        if not self.get_visible():
+        if not self.visible:
             return
 
         ticks_to_draw = self._update_ticks(renderer)
@@ -1082,7 +1092,7 @@ class Axis(artist.Artist):
         bb = []
 
         for a in [self.label, self.offsetText]:
-            if a.get_visible():
+            if a.visible:
                 bb.append(a.get_window_extent(renderer))
 
         bb.extend(ticklabelBoxes)
@@ -1099,7 +1109,7 @@ class Axis(artist.Artist):
     def draw(self, renderer, *args, **kwargs):
         'Draw the axis lines, grid lines, tick lines and labels'
 
-        if not self.get_visible():
+        if not self.visible:
             return
         renderer.open_group(__name__)
 
@@ -1673,7 +1683,8 @@ class XAxis(Axis):
     def contains(self, mouseevent):
         """Test whether the mouse event occured in the x axis.
         """
-        if six.callable(self._contains):
+        # self._contains should already be callable
+        if self._contains is not None:
             return self._contains(self, mouseevent)
 
         x, y = mouseevent.x, mouseevent.y
@@ -1707,8 +1718,8 @@ class XAxis(Axis):
                            verticalalignment='top',
                            horizontalalignment='center')
 
-        label.set_transform(mtransforms.blended_transform_factory(
-            self.axes.transAxes, mtransforms.IdentityTransform()))
+        label.transform = mtransforms.blended_transform_factory(
+            self.axes.transAxes, mtransforms.IdentityTransform())
 
         self._set_artist_props(label)
         self.label_position = 'bottom'
@@ -1722,8 +1733,8 @@ class XAxis(Axis):
                                 color=rcParams['xtick.color'],
                                 verticalalignment='top',
                                 horizontalalignment='right')
-        offsetText.set_transform(mtransforms.blended_transform_factory(
-            self.axes.transAxes, mtransforms.IdentityTransform())
+        offsetText.transform = mtransforms.blended_transform_factory(
+            self.axes.transAxes, mtransforms.IdentityTransform()
         )
         self._set_artist_props(offsetText)
         self.offset_text_position = 'bottom'
@@ -1797,7 +1808,7 @@ class XAxis(Axis):
         if self.label_position == 'bottom':
             try:
                 spine = self.axes.spines['bottom']
-                spinebbox = spine.get_transform().transform_path(
+                spinebbox = spine.transform.transform_path(
                     spine.get_path()).get_extents()
             except KeyError:
                 # use axes if spine doesn't exist
@@ -1812,7 +1823,7 @@ class XAxis(Axis):
         else:
             try:
                 spine = self.axes.spines['top']
-                spinebbox = spine.get_transform().transform_path(
+                spinebbox = spine.transform.transform_path(
                     spine.get_path()).get_extents()
             except KeyError:
                 # use axes if spine doesn't exist
@@ -1998,7 +2009,8 @@ class YAxis(Axis):
 
         Returns *True* | *False*
         """
-        if six.callable(self._contains):
+        #self.contains should already be callable
+        if self._contains is not None:
             return self._contains(self, mouseevent)
 
         x, y = mouseevent.x, mouseevent.y
@@ -2034,8 +2046,8 @@ class YAxis(Axis):
                            horizontalalignment='center',
                            rotation='vertical',
                            rotation_mode='anchor')
-        label.set_transform(mtransforms.blended_transform_factory(
-            mtransforms.IdentityTransform(), self.axes.transAxes))
+        label.transform = mtransforms.blended_transform_factory(
+            mtransforms.IdentityTransform(), self.axes.transAxes)
 
         self._set_artist_props(label)
         self.label_position = 'left'
@@ -2050,8 +2062,8 @@ class YAxis(Axis):
                                 color=rcParams['ytick.color'],
                                 verticalalignment='baseline',
                                 horizontalalignment='left')
-        offsetText.set_transform(mtransforms.blended_transform_factory(
-            self.axes.transAxes, mtransforms.IdentityTransform())
+        offsetText.transform = mtransforms.blended_transform_factory(
+            self.axes.transAxes, mtransforms.IdentityTransform()
         )
         self._set_artist_props(offsetText)
         self.offset_text_position = 'left'
@@ -2119,7 +2131,7 @@ class YAxis(Axis):
         if self.label_position == 'left':
             try:
                 spine = self.axes.spines['left']
-                spinebbox = spine.get_transform().transform_path(
+                spinebbox = spine.transform.transform_path(
                     spine.get_path()).get_extents()
             except KeyError:
                 # use axes if spine doesn't exist
@@ -2134,7 +2146,7 @@ class YAxis(Axis):
         else:
             try:
                 spine = self.axes.spines['right']
-                spinebbox = spine.get_transform().transform_path(
+                spinebbox = spine.transform.transform_path(
                     spine.get_path()).get_extents()
             except KeyError:
                 # use axes if spine doesn't exist

@@ -260,6 +260,7 @@ class GridSpec(GridSpecBase):
         """
         from matplotlib.figure import SubplotParams
         import copy
+
         if fig is None:
             kw = dict([(k, rcParams["figure.subplot."+k]) \
                        for k in self._AllowedKeys])

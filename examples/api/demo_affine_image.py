@@ -39,7 +39,7 @@ if 1:
     Z = get_image()
     im1 = imshow_affine(ax1, Z, interpolation='none', cmap=cm.jet,
                         origin='lower',
-                        extent=[-2, 4, -3, 2], clip_on=True)
+                        extent=[-2, 4, -3, 2], clipon=True)
 
     trans_data2 = mtransforms.Affine2D().rotate_deg(30) + ax1.transData
     im1.set_transform(trans_data2)
@@ -58,7 +58,7 @@ if 1:
 
     im2 = ax2.imshow(Z, interpolation='none', cmap=cm.jet,
                      origin='lower',
-                     extent=[-2, 4, -3, 2], clip_on=True)
+                     extent=[-2, 4, -3, 2], clipon=True)
     im2._image_skew_coordinate = (3, -2)
 
     plt.show()

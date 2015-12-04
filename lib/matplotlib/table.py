@@ -35,6 +35,7 @@ from matplotlib import docstring
 from .text import Text
 from .transforms import Bbox
 from matplotlib.path import Path
+from .traitlets import Instance, observe, _traitlets_deprecation_msg
 
 
 class Cell(Rectangle):
@@ -55,7 +56,7 @@ class Cell(Rectangle):
         # Call base
         Rectangle.__init__(self, xy, width=width, height=height,
                            edgecolor=edgecolor, facecolor=facecolor)
-        self.set_clip_on(False)
+        self.clipon = False
 
         # Create text object
         if loc is None:
@@ -63,16 +64,26 @@ class Cell(Rectangle):
         self._loc = loc
         self._text = Text(x=xy[0], y=xy[1], text=text,
                           fontproperties=fontproperties)
-        self._text.set_clip_on(False)
+        self._text.clipon = False
 
-    def set_transform(self, trans):
-        Rectangle.set_transform(self, trans)
-        # the text does not get the transform!
+    def _transform_set(self):
+        Rectangle._transform_changed(self)
         self.stale = True
 
+    def set_transform(self, trans):
+        msg = _traitlets_deprecation_msg('transform')
+        warnings.warn(msg, mplDeprecation, stacklevel=1)
+        self.transform = trans
+
+    @observe('figure')
+    def _figure_changed(self, change):
+        Rectangle._figure_changed(self, change)
+        self._text.figure = change['new']
+
     def set_figure(self, fig):
-        Rectangle.set_figure(self, fig)
-        self._text.set_figure(fig)
+        msg = _traitlets_deprecation_msg('figure')
+        warnings.warn(msg, mplDeprecation, stacklevel=1)
+        self.figure = fig
 
     def get_text(self):
         'Return the cell Text intance'
@@ -99,7 +110,7 @@ class Cell(Rectangle):
 
     @allow_rasterization
     def draw(self, renderer):
-        if not self.get_visible():
+        if not self.visible:
             return
         # draw the rectangle
         Rectangle.draw(self, renderer)
@@ -260,13 +271,13 @@ class Table(Artist):
             loc = 'bottom'
         if is_string_like(loc):
             loc = self.codes.get(loc, 1)
-        self.set_figure(ax.figure)
-        self._axes = ax
+        self.figure = ax.figure
+        self.axes = ax
         self._loc = loc
         self._bbox = bbox
 
         # use axes coords
-        self.set_transform(ax.transAxes)
+        self.transform = ax.transAxes
 
         self._texts = []
         self._cells = {}
@@ -276,7 +287,7 @@ class Table(Artist):
         self._autoFontsize = True
         self.update(kwargs)
 
-        self.set_clip_on(False)
+        self.clipon = False
 
         self._cachedRenderer = None
 
@@ -285,10 +296,9 @@ class Table(Artist):
         xy = (0, 0)
 
         cell = CustomCell(xy, visible_edges=self.edges, *args, **kwargs)
-        cell.set_figure(self.figure)
-        cell.set_transform(self.get_transform())
+        cell.figure = self.figure
+        cell.transform = self.transform
 
-        cell.set_clip_on(False)
         self._cells[(row, col)] = cell
         self.stale = True
 
@@ -303,7 +313,7 @@ class Table(Artist):
 
     def _approx_text_height(self):
         return (self.FONTSIZE / 72.0 * self.figure.dpi /
-                self._axes.bbox.height * 1.2)
+                self.axes.bbox.height * 1.2)
 
     @allow_rasterization
     def draw(self, renderer):
@@ -315,7 +325,7 @@ class Table(Artist):
             raise RuntimeError('No renderer defined')
         self._cachedRenderer = renderer
 
-        if not self.get_visible():
+        if not self.visible:
             return
         renderer.open_group('table')
         self._update_positions(renderer)
@@ -338,14 +348,15 @@ class Table(Artist):
                  if pos[0] >= 0 and pos[1] >= 0]
 
         bbox = Bbox.union(boxes)
-        return bbox.inverse_transformed(self.get_transform())
+        return bbox.inverse_transformed(self.transform)
 
     def contains(self, mouseevent):
         """Test whether the mouse event occurred in the table.
 
         Returns T/F, {}
         """
-        if six.callable(self._contains):
+        # self._contains should already be callable
+        if self._contains is not None:
             return self._contains(self, mouseevent)
 
         # TODO: Return index of the cell containing the cursor so that the user

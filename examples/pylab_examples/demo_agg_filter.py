@@ -214,7 +214,7 @@ def filtered_text(ax):
     for t in cl:
         t.set_color("k")
         # to force TextPath (i.e., same font in all backends)
-        t.set_path_effects([Normal()])
+        t.path_effects = [Normal()]
 
     # Add white glows to improve visibility of labels.
     white_glows = FilteredArtistList(cl, GrowFilter(3))
@@ -254,7 +254,7 @@ def drop_shadow_line(ax):
         # adjust zorder of the shadow lines so that it is drawn below the
         # original lines
         shadow.set_zorder(l.get_zorder() - 0.5)
-        shadow.set_agg_filter(gauss)
+        shadow.agg_filter = gauss
         shadow.set_rasterized(True)  # to support mixed-mode renderers
 
     ax.set_xlim(0., 1.)
@@ -298,7 +298,7 @@ def light_filter_pie(ax):
 
     light_filter = LightFilter(9)
     for p in pies[0]:
-        p.set_agg_filter(light_filter)
+        p.agg_filter = light_filter
         p.set_rasterized(True)  # to support mixed-mode renderers
         p.set(ec="none",
               lw=2)

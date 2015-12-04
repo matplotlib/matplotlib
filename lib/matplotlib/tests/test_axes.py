@@ -118,22 +118,22 @@ def test_twinx_cla():
     ax2 = ax.twinx()
     ax3 = ax2.twiny()
     plt.draw()
-    assert_false(ax2.xaxis.get_visible())
-    assert_false(ax2.patch.get_visible())
+    assert_false(ax2.xaxis.visible)
+    assert_false(ax2.patch.visible)
     ax2.cla()
     ax3.cla()
 
-    assert_false(ax2.xaxis.get_visible())
-    assert_false(ax2.patch.get_visible())
-    assert_true(ax2.yaxis.get_visible())
+    assert_false(ax2.xaxis.visible)
+    assert_false(ax2.patch.visible)
+    assert_true(ax2.yaxis.visible)
 
-    assert_true(ax3.xaxis.get_visible())
-    assert_false(ax3.patch.get_visible())
-    assert_false(ax3.yaxis.get_visible())
+    assert_true(ax3.xaxis.visible)
+    assert_false(ax3.patch.visible)
+    assert_false(ax3.yaxis.visible)
 
-    assert_true(ax.xaxis.get_visible())
-    assert_true(ax.patch.get_visible())
-    assert_true(ax.yaxis.get_visible())
+    assert_true(ax.xaxis.visible)
+    assert_true(ax.patch.visible)
+    assert_true(ax.yaxis.visible)
 
 
 @image_comparison(baseline_images=["minorticks_on_rcParams_both"], extensions=['png'])
@@ -221,7 +221,7 @@ def test_polar_coord_annotations():
     ax = fig.add_subplot(111, aspect='equal')
 
     ax.add_artist(el)
-    el.set_clip_box(ax.bbox)
+    el.clipbox = ax.bbox
 
     ax.annotate('the top',
                 xy=(np.pi/2., 10.),      # theta, radius
@@ -231,7 +231,7 @@ def test_polar_coord_annotations():
                 arrowprops=dict(facecolor='black', shrink=0.05),
                 horizontalalignment='left',
                 verticalalignment='baseline',
-                clip_on=True,  # clip to the axes bounding box
+                clipon=True,  # clip to the axes bounding box
                 )
 
     ax.set_xlim(-20, 20)
@@ -640,7 +640,7 @@ def test_imshow_clip():
     c = ax.contour(r, [N/4])
     x = c.collections[0]
     clipPath = x.get_paths()[0]
-    clipTransform = x.get_transform()
+    clipTransform = x.transform
 
     from matplotlib.transforms import TransformedPath
     clip_path = TransformedPath(clipPath, clipTransform)
@@ -3605,9 +3605,9 @@ def test_twin_spines():
 
     def make_patch_spines_invisible(ax):
         ax.set_frame_on(True)
-        ax.patch.set_visible(False)
+        ax.patch.visible = False
         for sp in six.itervalues(ax.spines):
-            sp.set_visible(False)
+            sp.visible = False
 
     fig = plt.figure(figsize=(4, 3))
     fig.subplots_adjust(right=0.75)
@@ -3624,7 +3624,7 @@ def test_twin_spines():
     # and spines invisible.
     make_patch_spines_invisible(par2)
     # Second, show the right spine.
-    par2.spines["right"].set_visible(True)
+    par2.spines["right"].visible = True
 
     p1, = host.plot([0, 1, 2], [0, 1, 2], "b-")
     p2, = par1.plot([0, 1, 2], [0, 3, 2], "r-")
@@ -3739,7 +3739,7 @@ def test_relim_visible_only():
     l = ax.plot(x2, y2)
     assert ax.get_xlim() == x2
     assert ax.get_ylim() == y2
-    l[0].set_visible(False)
+    l[0].visible = False
     assert ax.get_xlim() == x2
     assert ax.get_ylim() == y2
 

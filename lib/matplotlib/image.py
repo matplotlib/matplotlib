@@ -33,6 +33,7 @@ from matplotlib._image import *
 
 from matplotlib.transforms import BboxBase, Bbox, IdentityTransform
 import matplotlib.transforms as mtransforms
+from matplotlib.traitlets import validate, _traitlets_deprecation_msg
 
 # map interpolation strings to module constants
 _interpd_ = {
@@ -107,7 +108,7 @@ class _AxesImageBase(martist.Artist, cm.ScalarMappable):
         """
         martist.Artist.__init__(self)
         cm.ScalarMappable.__init__(self, norm, cmap)
-        self._mouseover = True
+        self.mouseover = True
         if origin is None:
             origin = rcParams['image.origin']
         self.origin = origin
@@ -142,6 +143,12 @@ class _AxesImageBase(martist.Artist, cm.ScalarMappable):
 
         return self._A.shape[:2]
 
+    @validate('alpha')
+    def _alpha_validate(self, commit):
+        value = martist.Artist._alpha_validate(self, commit)
+        self._imcache = None
+        return value
+
     def set_alpha(self, alpha):
         """
         Set the alpha value used for blending - not supported on
@@ -149,8 +156,9 @@ class _AxesImageBase(martist.Artist, cm.ScalarMappable):
 
         ACCEPTS: float
         """
-        martist.Artist.set_alpha(self, alpha)
-        self._imcache = None
+        msg = _traitlets_deprecation_msg('alpha')
+        warnings.warn(msg, mplDeprecation, stacklevel=1)
+        self.alpha = alpha
 
     def changed(self):
         """
@@ -285,7 +293,7 @@ class _AxesImageBase(martist.Artist, cm.ScalarMappable):
         draw unsampled image. The renderer should support a draw_image method
         with scale parameter.
         """
-        trans = self.get_transform()  # axes.transData
+        trans = self.transform  # axes.transData
 
         # convert the coordinates to the intermediate coordinate (ic).
         # The transformation from the ic to the canvas is a pure
@@ -353,8 +361,8 @@ class _AxesImageBase(martist.Artist, cm.ScalarMappable):
                                      # is required by backends. There
                                      # may be better solution -JJL
 
-        im._url = self.get_url()
-        im._gid = self.get_gid()
+        im.url = self.url
+        im.gid = self.gid
 
         renderer.draw_image(gc, xmin, ymin, im, dxintv, dyintv,
                             trans_ic_to_canvas)
@@ -368,7 +376,7 @@ class _AxesImageBase(martist.Artist, cm.ScalarMappable):
 
     @allow_rasterization
     def draw(self, renderer, *args, **kwargs):
-        if not self.get_visible():
+        if not self.visible:
             return
         if (self.axes.get_xscale() != 'linear' or
                 self.axes.get_yscale() != 'linear'):
@@ -377,7 +385,7 @@ class _AxesImageBase(martist.Artist, cm.ScalarMappable):
         l, b, widthDisplay, heightDisplay = self.axes.bbox.bounds
         gc = renderer.new_gc()
         self._set_gc_clip(gc)
-        gc.set_alpha(self.get_alpha())
+        gc.set_alpha(self.alpha)
 
         if self._check_unsampled_image(renderer):
             self._draw_unsampled_image(renderer, gc)
@@ -389,8 +397,8 @@ class _AxesImageBase(martist.Artist, cm.ScalarMappable):
             im = self.make_image(renderer.get_image_magnification())
             if im is None:
                 return
-            im._url = self.get_url()
-            im._gid = self.get_gid()
+            im.url = self.url
+            im.gid = self.gid
             renderer.draw_image(gc, l, b, im)
         gc.restore()
         self.stale = False
@@ -399,7 +407,8 @@ class _AxesImageBase(martist.Artist, cm.ScalarMappable):
         """
         Test whether the mouse event occured within the image.
         """
-        if six.callable(self._contains):
+        # self._contains should already be callable
+        if self._contains is not None:
             return self._contains(self, mouseevent)
         # TODO: make sure this is consistent with patch and patch
         # collection on nonlinear transformed coordinates.
@@ -609,7 +618,7 @@ class AxesImage(_AxesImageBase):
 
         # image is created in the canvas coordinate.
         x1, x2, y1, y2 = self.get_extent()
-        trans = self.get_transform()
+        trans = self.transform
         xy = trans.transform(np.array([(x1, y1),
                                        (x2, y2),
                                        ]))
@@ -923,13 +932,13 @@ class PcolorImage(martist.Artist, cm.ScalarMappable):
 
     @allow_rasterization
     def draw(self, renderer, *args, **kwargs):
-        if not self.get_visible():
+        if not self.visible:
             return
         im = self.make_image(renderer.get_image_magnification())
         gc = renderer.new_gc()
         gc.set_clip_rectangle(self.axes.bbox.frozen())
-        gc.set_clip_path(self.get_clip_path())
-        gc.set_alpha(self.get_alpha())
+        gc.set_clip_path(self.clippath)
+        gc.set_alpha(self.alpha)
         renderer.draw_image(gc,
                             round(self.axes.bbox.xmin),
                             round(self.axes.bbox.ymin),
@@ -974,6 +983,12 @@ class PcolorImage(martist.Artist, cm.ScalarMappable):
     def set_array(self, *args):
         raise NotImplementedError('Method not supported')
 
+    @validate('alpha')
+    def _alpha_validate(self, commit):
+        value = martist.Artist._alpha_validate(self, commit)
+        self.update_dict['array'] = True
+        return value
+
     def set_alpha(self, alpha):
         """
         Set the alpha value used for blending - not supported on
@@ -981,8 +996,9 @@ class PcolorImage(martist.Artist, cm.ScalarMappable):
 
         ACCEPTS: float
         """
-        martist.Artist.set_alpha(self, alpha)
-        self.update_dict['array'] = True
+        msg = _traitlets_deprecation_msg('alpha')
+        warnings.warn(msg, mplDeprecation, stacklevel=1)
+        self.alpha = alpha
 
 
 class FigureImage(martist.Artist, cm.ScalarMappable):
@@ -1016,7 +1032,8 @@ class FigureImage(martist.Artist, cm.ScalarMappable):
 
     def contains(self, mouseevent):
         """Test whether the mouse event occured within the image."""
-        if six.callable(self._contains):
+        # self._contains should already be callable
+        if self._contains is not None:
             return self._contains(self, mouseevent)
         xmin, xmax, ymin, ymax = self.get_extent()
         xdata, ydata = mouseevent.x, mouseevent.y
@@ -1084,14 +1101,14 @@ class FigureImage(martist.Artist, cm.ScalarMappable):
 
     @allow_rasterization
     def draw(self, renderer, *args, **kwargs):
-        if not self.get_visible():
+        if not self.visible:
             return
         # todo: we should be able to do some cacheing here
         im = self.make_image(renderer.get_image_magnification())
         gc = renderer.new_gc()
         gc.set_clip_rectangle(self.figure.bbox)
-        gc.set_clip_path(self.get_clip_path())
-        gc.set_alpha(self.get_alpha())
+        gc.set_clip_path(self.clippath)
+        gc.set_alpha(self.alpha)
         renderer.draw_image(gc, round(self.ox), round(self.oy), im)
         gc.restore()
         self.stale = False
@@ -1147,7 +1164,7 @@ class BboxImage(_AxesImageBase):
 
     def get_window_extent(self, renderer=None):
         if renderer is None:
-            renderer = self.get_figure()._cachedRenderer
+            renderer = self.figure._cachedRenderer
 
         if isinstance(self.bbox, BboxBase):
             return self.bbox
@@ -1158,10 +1175,11 @@ class BboxImage(_AxesImageBase):
 
     def contains(self, mouseevent):
         """Test whether the mouse event occured within the image."""
-        if six.callable(self._contains):
+        # self._contains should already be callable
+        if self._contains is not None:
             return self._contains(self, mouseevent)
 
-        if not self.get_visible():  # or self.get_figure()._renderer is None:
+        if not self.visible:  # or self.figure._renderer is None:
             return False, {}
 
         x, y = mouseevent.x, mouseevent.y
@@ -1232,7 +1250,7 @@ class BboxImage(_AxesImageBase):
 
     @allow_rasterization
     def draw(self, renderer, *args, **kwargs):
-        if not self.get_visible():
+        if not self.visible:
             return
         # todo: we should be able to do some cacheing here
         image_mag = renderer.get_image_magnification()
@@ -1240,7 +1258,7 @@ class BboxImage(_AxesImageBase):
         x0, y0, x1, y1 = self.get_window_extent(renderer).extents
         gc = renderer.new_gc()
         self._set_gc_clip(gc)
-        gc.set_alpha(self.get_alpha())
+        gc.set_alpha(self.alpha)
 
         l = np.min([x0, x1])
         b = np.min([y0, y1])

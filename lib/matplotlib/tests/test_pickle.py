@@ -193,7 +193,7 @@ def test_complete():
     # make sure there is now a figure manager
     assert_not_equal(plt._pylab_helpers.Gcf.figs, {})
 
-    assert_equal(fig.get_label(), 'Figure with a label?')
+    assert_equal(fig.label, 'Figure with a label?')
 
 
 @cleanup

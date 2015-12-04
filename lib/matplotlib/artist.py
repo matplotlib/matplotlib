@@ -15,6 +15,13 @@ from .transforms import (Bbox, IdentityTransform, TransformedBbox,
                          TransformedPatchPath, TransformedPath, Transform)
 from .path import Path
 
+from .traitlets import (Instance, Configurable, TransformInstance, Bool,
+                        Undefined, Union, BaseDescriptor, getargspec,
+                        PrivateMethodMixin, Float, TraitError, Unicode,
+                        Stringlike, Callable, Tuple, List, observe, validate,
+                        default, retrieve, _traitlets_deprecation_msg)
+
+
 # Note, matplotlib artists use the doc strings for set and get
 # methods to enable the introspection methods of setp and getp.  Every
 # set_* method should have a docstring containing the line
@@ -31,7 +38,6 @@ from .path import Path
 # as far as I can see - see
 # http://groups.google.com/groups?hl=en&lr=&threadm=mailman.5090.1098044946.5135.python-list%40python.org&rnum=1&prev=/groups%3Fq%3D__doc__%2Bauthor%253Ajdhunter%2540ace.bsd.uchicago.edu%26hl%3Den%26btnG%3DGoogle%2BSearch
 
-
 def allow_rasterization(draw):
     """
     Decorator for Artist.draw method. Provides routines
@@ -41,18 +47,18 @@ def allow_rasterization(draw):
     renderer.
     """
     def before(artist, renderer):
-        if artist.get_rasterized():
+        if artist.rasterized:
             renderer.start_rasterizing()
 
-        if artist.get_agg_filter() is not None:
+        if artist.agg_filter is not None:
             renderer.start_filter()
 
     def after(artist, renderer):
 
-        if artist.get_agg_filter() is not None:
-            renderer.stop_filter(artist.get_agg_filter())
+        if artist.agg_filter is not None:
+            renderer.stop_filter(artist.agg_filter)
 
-        if artist.get_rasterized():
+        if artist.rasterized:
             renderer.stop_rasterizing()
 
     # the axes class has a second argument inframe for its draw method.
@@ -74,52 +80,283 @@ def _stale_axes_callback(self, val):
         self.axes.stale = val
 
 
-class Artist(object):
+class Artist(PrivateMethodMixin, Configurable):
     """
     Abstract base class for someone who renders into a
     :class:`FigureCanvas`.
     """
-
     aname = 'Artist'
     zorder = 0
 
-    def __init__(self):
-        self._stale = True
-        self.stale_callback = None
-        self._axes = None
-        self.figure = None
+    transform_set = Bool(False, allow_none=True)
+    transform = TransformInstance()
 
-        self._transform = None
-        self._transformSet = False
-        self._visible = True
-        self._animated = False
-        self._alpha = None
-        self.clipbox = None
-        self._clippath = None
-        self._clipon = True
-        self._label = ''
-        self._picker = None
-        self._contains = None
-        self._rasterized = None
-        self._agg_filter = None
-        self._mouseover = False
-        self.eventson = False  # fire events only if eventson
+    @default('transform')
+    def _transform_default(self):
+        # intermediat value for `transform_set`
+        # to inform validation of default setup
+        self.transform_set = None
+        return None
+
+    @validate('transform')
+    def _transform_validate(self, commit):
+        # check to see if this validation is for default setup
+        was_set = False if self.transform_set is None else True
+        self.transform_set = was_set
+        return commit['value']
+
+    @observe('transform')
+    def _transform_changed(self, change):
+        self.pchanged()
+        self.stale = True
+
+    @retrieve('transform')
+    def _transform_getter(self, pull):
+        if pull['trait']._conversion_method:
+            return pull['value'](self.axes)
+        return pull['value']
+
+    stale = Bool(True)
+
+    @validate('stale')
+    def _stale_validate(self, commit):
+        if self.animated:
+            return self.stale
+        return commit['value']
+
+    @observe('stale')
+    def _stale_changed(self, change):
+        if change['new'] and self.stale_callback is not None:
+            self.stale_callback(self, change['new'])
+
+    axes = Instance(str('matplotlib.axes.Axes'), allow_none=True)
+
+    @observe('axes')
+    def _axes_changed(self, change):
+        new, old = change['new'], change['old']
+        if new and old not in (Undefined, None):
+            raise ValueError("Can not reset the axes.  You are "
+                             "probably trying to re-use an artist "
+                             "in more than one Axes which is not "
+                             "supported")
+
+        if new not in (Undefined, None) and new is not self:
+            self.stale_callback = _stale_axes_callback
+
+    figure = Instance(str('matplotlib.figure.FigureBase'), allow_none=True)
+
+    @observe('figure')
+    def _figure_changed(self, change):
+        if change['old'] not in (None, Undefined):
+            raise RuntimeError("Can not put single artist in "
+                               "more than one figure")
+        new = change['new']
+        if new and new is not self:
+            self.pchanged()
+        self.stale = True
+
+    visible = Bool(True)
+
+    @observe('visible')
+    def _visible_changed(self, change):
+        self.pchanged()
+        self.stale = True
+
+    animated = Bool(False)
+
+    @observe('animated')
+    def _animated_changed(self, change):
+        self.pchanged()
+        self.stale = True
+
+    # Float defaults to 0.0, must have None arg
+    alpha = Float(None, allow_none=True)
+
+    @validate('alpha')
+    def _alpha_validate(self, commit):
+        if 0 > commit['value'] > 1:
+            msg = ("The '%s' trait of %s instance can only be"
+                   " transparent (0.0) through opaque (1.0)")
+            repl = (commit['trait'].name, self.__class__.__name__)
+            raise TraitError(msg % repl)
+        return commit['value']
+
+    @observe('alpha')
+    def _alpha_changed(self, c):
+        self.pchanged()
+        self.stale = True
+
+    rasterized = Bool(None, allow_none=True)
+
+    @observe('rasterized')
+    def _rasterized_changed(self, change):
+        if change['new'] and not hasattr(self.draw, "_supports_rasterization"):
+            warnings.warn("Rasterization of '%s' will be ignored" % self)
+
+    pickable = Bool()
+
+    @validate('pickable')
+    def _pickabe_validate(self, commit):
+        msg = "the '%s' trait of a %s instance is not assignable"
+        repl = (commit['trait'].name, self.__class__.__name__)
+        raise TraitError(msg % repl)
+
+    @retrieve('pickable')
+    def _pickable_getter(self, pull):
+        return (self.figure is not None and
+                self.figure.canvas is not None and
+                self.picker is not None)
+
+    eventson = Bool(False)
+
+    clipbox = Instance(str('matplotlib.transforms.BboxBase'), allow_none=True)
+
+    @observe('clipbox')
+    def _clipbox_changed(self, change):
+        self.pchanged()
+        self.stale = True
+
+    clippath = Union((Instance(str('matplotlib.patches.Patch')),
+                      Instance(str('matplotlib.transforms.TransformedPath'))),
+                      allow_none=True)
+
+    @default('clippath')
+    def _clippath_default(self): pass
+
+    @validate('clippath')
+    def _clippath_validate(self, commit):
+        value, trait = commit['value'], commit['trait']
+        if isinstance(value, trait.trait_types[0].klass):
+            value = TransformedPath(value.get_path(), value.transform)
+        return value
+
+    @observe('clippath')
+    def _clippath_changed(self, change):
+        self.pchanged()
+        self.stale = True
+
+    clipon = Bool(True)
+
+    @observe('clipon')
+    def _clipon_changed(self, change):
+        # This may result in the callbacks being hit twice, but ensures they
+        # are hit at least once
+        self.pchanged()
+        self.stale = True
+
+    label = Stringlike('', allow_none=True)
+
+    @observe('label')
+    def _label_changed(self, change):
+        self.pchanged()
+
+    picker = Union((Bool(), Float(), Callable()), allow_none=True)
+
+    @default('picker')
+    def _picker_default(self): pass
+
+    _contains = Callable(None, allow_none=True)
+
+    mouseover = Bool(False)
+
+    @observe('mouseover')
+    def _mouseover_changed(self, change):
+        ax = self.axes
+        if ax:
+            if change['new']:
+                ax.mouseover_set.add(self)
+            else:
+                ax.mouseover_set.discard(self)
+
+    agg_filter = Callable(None, allow_none=True)
+
+    @observe('agg_filter')
+    def _agg_filter_changed(self, change):
+        self.stale = True
+
+    snap = Bool(None, allow_none=True)
+
+    @retrieve('snap')
+    def _snap_getter(self, pull):
+        if rcParams['path.snap']:
+            return pull['value']
+        else:
+            return False
+
+    @observe('snap')
+    def _snap_changed(self, change):
+        self.stale = True
+
+    sketch_scale = Float(None, allow_none=True)
+
+    @observe('sketch_scale')
+    def _sketch_scale_changed(self, change):
+        if self.sketch_scale is None:
+            with self.mute_trait_notifications():
+                setattr(self, 'sketch_length', None)
+                setattr(self, 'sketch_randomness', None)
+        self.stale = True
+
+    sketch_length = Float(128.0, allow_none=True)
+    sketch_randomness = Float(16.0, allow_none=True)
+
+    @observe('sketch_length', 'sketch_randomness')
+    def _sketch_length_or_randomness_changed(self, change):
+        if self.sketch_scale is None and change['new'] is not None:
+            raise TraitError("Cannot set '%s' while 'sketch_scale'"
+                             " is None" % change['name'])
+        else:
+            self.stale = True
+
+    path_effects = List(Instance('matplotlib.patheffects.AbstractPathEffect'),
+                        allow_none=True)
+
+    @observe('path_effects')
+    def _path_effects_changed(self, change):
+        self.stale = True
+
+    url = Unicode(allow_none=True)
+
+    gid = Unicode(allow_none=True)
+
+    def __init__(self):
+        # self._stale = True
+        # self._axes = None
+        # self.figure = None
+
+        # self._transform = None
+        # self._transformSet = False
+        self.stale_callback = None
+
+        # self._visible = True
+        # self._animated = False
+        # self._alpha = None
+        # self.clipbox = None
+        # self._clippath = None
+        # self._clipon = True
+        # self._label = ''
+        # self._picker = None
+        # self._contains = None
+        # self._rasterized = None
+        # self._agg_filter = None
+        # self._mouseover = False
+        # self.eventson = False  # fire events only if eventson
         self._oid = 0  # an observer id
         self._propobservers = {}  # a dict from oids to funcs
-        try:
-            self.axes = None
-        except AttributeError:
-            # Handle self.axes as a read-only property, as in Figure.
-            pass
+        # try:
+        #     self.axes = None
+        # except AttributeError:
+        #     # Handle self.axes as a read-only property, as in Figure.
+        #     pass
         self._remove_method = None
-        self._url = None
-        self._gid = None
-        self._snap = None
-        self._sketch = rcParams['path.sketch']
-        self._path_effects = rcParams['path.effects']
+        # self._url = None
+        # self._gid = None
+        # self._snap = None
+        self.set_sketch_params(all=rcParams['path.sketch'])
+        self.path_effects = rcParams['path.effects']
 
     def __getstate__(self):
-        d = self.__dict__.copy()
+        d = super(Artist, self).__getstate__()
         # remove the unpicklable remove method, this will get re-added on load
         # (by the axes) if the artist lives on an axes.
         d['_remove_method'] = None
@@ -160,9 +397,13 @@ class Artist(object):
                 _ax_flag = True
 
             if self.figure:
-                self.figure = None
+                self.private('figure', None)
                 if not _ax_flag:
-                    self.figure = True
+                    from matplotlib.figure import FigureBase
+                    # was originally self.private(figure, True)
+                    # which won't pass validation. For the moment,
+                    # use an empty base class to pass validation.
+                    self.private('figure', FigureBase())
 
         else:
             raise NotImplementedError('cannot remove artist')
@@ -207,7 +448,8 @@ class Artist(object):
 
         ACCEPTS: an :class:`~matplotlib.axes.Axes` instance
         """
-        warnings.warn(_get_axes_msg, mplDeprecation, stacklevel=1)
+        msg = _traitlets_deprecation_msg('axes')
+        warnings.warn(msg, mplDeprecation, stacklevel=1)
         self.axes = axes
 
     def get_axes(self):
@@ -218,53 +460,9 @@ class Artist(object):
         This has been deprecated in mpl 1.5, please use the
         axes property.  Will be removed in 1.7 or 2.0.
         """
-        warnings.warn(_get_axes_msg, mplDeprecation, stacklevel=1)
+        msg = _traitlets_deprecation_msg('axes')
+        warnings.warn(msg, mplDeprecation, stacklevel=1)
         return self.axes
-
-    @property
-    def axes(self):
-        """
-        The :class:`~matplotlib.axes.Axes` instance the artist
-        resides in, or *None*.
-        """
-        return self._axes
-
-    @axes.setter
-    def axes(self, new_axes):
-
-        if (new_axes is not None and
-                (self._axes is not None and new_axes != self._axes)):
-            raise ValueError("Can not reset the axes.  You are "
-                             "probably trying to re-use an artist "
-                             "in more than one Axes which is not "
-                             "supported")
-
-        self._axes = new_axes
-        if new_axes is not None and new_axes is not self:
-            self.stale_callback = _stale_axes_callback
-
-        return new_axes
-
-    @property
-    def stale(self):
-        """
-        If the artist is 'stale' and needs to be re-drawn for the output to
-        match the internal state of the artist.
-        """
-        return self._stale
-
-    @stale.setter
-    def stale(self, val):
-        self._stale = val
-
-        # if the artist is animated it does not take normal part in the
-        # draw stack and is not expected to be drawn as part of the normal
-        # draw loop (when not saving) so do not propagate this change
-        if self.get_animated():
-            return
-
-        if val and self.stale_callback is not None:
-            self.stale_callback(self, val)
 
     def get_window_extent(self, renderer):
         """
@@ -324,7 +522,9 @@ class Artist(object):
         Returns *True* if :class:`Artist` has a transform explicitly
         set.
         """
-        return self._transformSet
+        msg = _traitlets_deprecation_msg('transform_set')
+        warnings.warn(msg, mplDeprecation, stacklevel=1)
+        return self.transform_set
 
     def set_transform(self, t):
         """
@@ -333,22 +533,18 @@ class Artist(object):
 
         ACCEPTS: :class:`~matplotlib.transforms.Transform` instance
         """
-        self._transform = t
-        self._transformSet = True
-        self.pchanged()
-        self.stale = True
+        msg = _traitlets_deprecation_msg('transform')
+        warnings.warn(msg, mplDeprecation, stacklevel=1)
+        self.transform = t
 
     def get_transform(self):
         """
         Return the :class:`~matplotlib.transforms.Transform`
         instance used by this artist.
         """
-        if self._transform is None:
-            self._transform = IdentityTransform()
-        elif (not isinstance(self._transform, Transform)
-              and hasattr(self._transform, '_as_mpl_transform')):
-            self._transform = self._transform._as_mpl_transform(self.axes)
-        return self._transform
+        msg = _traitlets_deprecation_msg('transform')
+        warnings.warn(msg, mplDeprecation, stacklevel=1)
+        return self.transform
 
     def hitlist(self, event):
         """
@@ -382,7 +578,8 @@ class Artist(object):
         selection, such as which points are contained in the pick radius.  See
         individual artists for details.
         """
-        if six.callable(self._contains):
+        #self._contains should already be callable
+        if self._contains is not None:
             return self._contains(self, mouseevent)
         warnings.warn("'%s' needs 'contains' method" % self.__class__.__name__)
         return False, {}
@@ -401,19 +598,23 @@ class Artist(object):
 
         ACCEPTS: a callable function
         """
+        msg = _traitlets_deprecation_msg('_contains')
+        warnings.warn(msg, mplDeprecation, stacklevel=1)
         self._contains = picker
 
     def get_contains(self):
         """
         Return the _contains test used by the artist, or *None* for default.
         """
+        msg = _traitlets_deprecation_msg('_contains')
+        warnings.warn(msg, mplDeprecation, stacklevel=1)
         return self._contains
 
     def pickable(self):
         'Return *True* if :class:`Artist` is pickable.'
-        return (self.figure is not None and
-                self.figure.canvas is not None and
-                self._picker is not None)
+        msg = _traitlets_deprecation_msg('pickable')
+        warnings.warn(msg, mplDeprecation, stacklevel=1)
+        return self.pickable
 
     def pick(self, mouseevent):
         """
@@ -425,8 +626,8 @@ class Artist(object):
         the artist and the artist has picker set
         """
         # Pick self
-        if self.pickable():
-            picker = self.get_picker()
+        if self.pickable:
+            picker = self.picker
             if six.callable(picker):
                 inside, prop = picker(self, mouseevent)
             else:
@@ -480,12 +681,17 @@ class Artist(object):
 
         ACCEPTS: [None|float|boolean|callable]
         """
+        msg = _traitlets_deprecation_msg('picker')
+        warnings.warn(msg, mplDeprecation, stacklevel=1)
         self._picker = picker
 
     def get_picker(self):
         'Return the picker object used by this artist'
-        return self._picker
+        msg = _traitlets_deprecation_msg('picker')
+        warnings.warn(msg, mplDeprecation, stacklevel=1)
+        return self.picker
 
+    #!NOTE : should be a TraitType
     def is_figure_set(self):
         """
         Returns True if the artist is assigned to a
@@ -497,7 +703,9 @@ class Artist(object):
         """
         Returns the url
         """
-        return self._url
+        msg = _traitlets_deprecation_msg('url')
+        warnings.warn(msg, mplDeprecation, stacklevel=1)
+        return self.url
 
     def set_url(self, url):
         """
@@ -505,13 +713,17 @@ class Artist(object):
 
         ACCEPTS: a url string
         """
-        self._url = url
+        msg = _traitlets_deprecation_msg('url')
+        warnings.warn(msg, mplDeprecation, stacklevel=1)
+        self.url = url
 
     def get_gid(self):
         """
         Returns the group id
         """
-        return self._gid
+        msg = _traitlets_deprecation_msg('gid')
+        warnings.warn(msg, mplDeprecation, stacklevel=1)
+        return self.gid
 
     def set_gid(self, gid):
         """
@@ -519,7 +731,9 @@ class Artist(object):
 
         ACCEPTS: an id string
         """
-        self._gid = gid
+        msg = _traitlets_deprecation_msg('gid')
+        warnings.warn(msg, mplDeprecation, stacklevel=1)
+        self.gid = gid
 
     def get_snap(self):
         """
@@ -534,10 +748,9 @@ class Artist(object):
 
         Only supported by the Agg and MacOSX backends.
         """
-        if rcParams['path.snap']:
-            return self._snap
-        else:
-            return False
+        msg = _traitlets_deprecation_msg('snap')
+        warnings.warn(msg, mplDeprecation, stacklevel=1)
+        return self.snap
 
     def set_snap(self, snap):
         """
@@ -552,8 +765,22 @@ class Artist(object):
 
         Only supported by the Agg and MacOSX backends.
         """
-        self._snap = snap
-        self.stale = True
+        msg = _traitlets_deprecation_msg('snap')
+        warnings.warn(msg, mplDeprecation, stacklevel=1)
+        self.snap = snap
+
+    @property
+    def sketch_params(self):
+        return (self.sketch_scale,
+                self.sketch_length,
+                self.sketch_randomness)
+
+    @sketch_params.setter
+    def sketch_params(self, value):
+        s, l, r = value
+        self.sketch_scale = scale
+        self.sketch_length = length
+        self.sketch_randomness = randomness
 
     def get_sketch_params(self):
         """
@@ -575,9 +802,12 @@ class Artist(object):
 
         May return `None` if no sketch parameters were set.
         """
-        return self._sketch
+        msg =  _traitlets_deprecation_msg('sketch_params')
+        warnings.warn(msg, mplDeprecation, stacklevel=1)
+        return self.sketch_params
 
-    def set_sketch_params(self, scale=None, length=None, randomness=None):
+    def set_sketch_params(self, scale=None, length=None,
+                            randomness=None, all=None):
         """
         Sets the sketch parameters.
 
@@ -596,29 +826,39 @@ class Artist(object):
         randomness : float, optional
             The scale factor by which the length is shrunken or
             expanded (default 16.0)
+
+        all : tuple, list
+            A tuple containing scale, length, randomness in that order.
+            Providing this argument overrides values give to the explicit
+            arguments scale, length, and randomness.
         """
-        if scale is None:
-            self._sketch = None
-        else:
-            self._sketch = (scale, length or 128.0, randomness or 16.0)
-        self.stale = True
+        if all is not None:
+            scale, length, randomness = all
+        self.sketch_scale = scale
+        self.sketch_length = length
+        self.sketch_randomness = randomness
 
     def set_path_effects(self, path_effects):
         """
         set path_effects, which should be a list of instances of
         matplotlib.patheffect._Base class or its derivatives.
         """
-        self._path_effects = path_effects
-        self.stale = True
+        msg = _traitlets_deprecation_msg('path_effects')
+        warnings.warn(msg, mplDeprecation, stacklevel=1)
+        self.path_effects = path_effects
 
     def get_path_effects(self):
-        return self._path_effects
+        msg = _traitlets_deprecation_msg('path_effects')
+        warnings.warn(msg, mplDeprecation, stacklevel=1)
+        return self.path_effects
 
     def get_figure(self):
         """
         Return the :class:`~matplotlib.figure.Figure` instance the
         artist belongs to.
         """
+        msg = _traitlets_deprecation_msg('figure')
+        warnings.warn(msg, mplDeprecation, stacklevel=1)
         return self.figure
 
     def set_figure(self, fig):
@@ -628,21 +868,9 @@ class Artist(object):
 
         ACCEPTS: a :class:`matplotlib.figure.Figure` instance
         """
-        # if this is a no-op just return
-        if self.figure is fig:
-            return
-        # if we currently have a figure (the case of both `self.figure`
-        # and `fig` being none is taken care of above) we then user is
-        # trying to change the figure an artist is associated with which
-        # is not allowed for the same reason as adding the same instance
-        # to more than one Axes
-        if self.figure is not None:
-            raise RuntimeError("Can not put single artist in "
-                               "more than one figure")
+        msg = _traitlets_deprecation_msg('figure')
+        warnings.warn(msg, mplDeprecation, stacklevel=1)
         self.figure = fig
-        if self.figure and self.figure is not self:
-            self.pchanged()
-        self.stale = True
 
     def set_clip_box(self, clipbox):
         """
@@ -650,27 +878,22 @@ class Artist(object):
 
         ACCEPTS: a :class:`matplotlib.transforms.Bbox` instance
         """
+        msg = _traitlets_deprecation_msg('clipbox')
+        warnings.warn(msg, mplDeprecation, stacklevel=1)
         self.clipbox = clipbox
-        self.pchanged()
-        self.stale = True
 
     def set_clip_path(self, path, transform=None):
         """
         Set the artist's clip path, which may be:
-
           * a :class:`~matplotlib.patches.Patch` (or subclass) instance
-
           * a :class:`~matplotlib.path.Path` instance, in which case
              an optional :class:`~matplotlib.transforms.Transform`
              instance may be provided, which will be applied to the
              path before using it for clipping.
-
           * *None*, to remove the clipping path
-
         For efficiency, if the path happens to be an axis-aligned
         rectangle, this method will set the clipping box to the
         corresponding rectangle and set the clipping path to *None*.
-
         ACCEPTS: [ (:class:`~matplotlib.path.Path`,
         :class:`~matplotlib.transforms.Transform`) |
         :class:`~matplotlib.patches.Patch` | None ]
@@ -681,62 +904,70 @@ class Artist(object):
         if transform is None:
             if isinstance(path, Rectangle):
                 self.clipbox = TransformedBbox(Bbox.unit(),
-                                               path.get_transform())
-                self._clippath = None
+                                               path.transform)
+                self.clippath = None
                 success = True
             elif isinstance(path, Patch):
-                self._clippath = TransformedPatchPath(path)
+                self.clippath = TransformedPatchPath(path)
                 success = True
             elif isinstance(path, tuple):
                 path, transform = path
 
         if path is None:
-            self._clippath = None
+            self.clippath = None
             success = True
         elif isinstance(path, Path):
-            self._clippath = TransformedPath(path, transform)
+            self.clippath = TransformedPath(path, transform)
             success = True
         elif isinstance(path, TransformedPatchPath):
-            self._clippath = path
+            self.clippath = path
             success = True
         elif isinstance(path, TransformedPath):
-            self._clippath = path
+            self.clippath = path
             success = True
 
         if not success:
             print(type(path), type(transform))
             raise TypeError("Invalid arguments to set_clip_path")
-        # this may result in the callbacks being hit twice, but grantees they
-        # will be hit at least once
-        self.pchanged()
-        self.stale = True
 
     def get_alpha(self):
         """
         Return the alpha value used for blending - not supported on all
         backends
         """
-        return self._alpha
+        msg = _traitlets_deprecation_msg('alpha')
+        warnings.warn(msg, mplDeprecation, stacklevel=1)
+        return self.alpha
 
     def get_visible(self):
         "Return the artist's visiblity"
-        return self._visible
+        msg = _traitlets_deprecation_msg('visible')
+        warnings.warn(msg, mplDeprecation, stacklevel=1)
+        return self.visible
 
     def get_animated(self):
         "Return the artist's animated state"
-        return self._animated
+        msg = _traitlets_deprecation_msg('animated')
+        warnings.warn(msg, mplDeprecation, stacklevel=1)
+        return self.animated
 
     def get_clip_on(self):
         'Return whether artist uses clipping'
-        return self._clipon
+        msg = _traitlets_deprecation_msg('clipon')
+        warnings.warn(msg, mplDeprecation, stacklevel=1)
+        return self.clipon
 
     def get_clip_box(self):
         'Return artist clipbox'
+        msg = _traitlets_deprecation_msg('clipbox')
+        warnings.warn(msg, mplDeprecation, stacklevel=1)
         return self.clipbox
 
     def get_clip_path(self):
         'Return artist clip path'
-        return self._clippath
+        msg = _traitlets_deprecation_msg('clippath')
+        warnings.warn(msg, mplDeprecation, stacklevel=1)
+        return self.clippath
 
     def get_transformed_clip_path_and_affine(self):
         '''
@@ -744,8 +975,8 @@ class Artist(object):
         transformation applied, and the remaining affine part of its
         transformation.
         '''
-        if self._clippath is not None:
-            return self._clippath.get_transformed_path_and_affine()
+        if self.clippath is not None:
+            return self.clippath.get_transformed_path_and_affine()
         return None, None
 
     def set_clip_on(self, b):
@@ -757,25 +988,25 @@ class Artist(object):
 
         ACCEPTS: [True | False]
         """
-        self._clipon = b
-        # This may result in the callbacks being hit twice, but ensures they
-        # are hit at least once
-        self.pchanged()
-        self.stale = True
+        msg = _traitlets_deprecation_msg('clipon')
+        warnings.warn(msg, mplDeprecation, stacklevel=1)
+        self.clipon = b
 
     def _set_gc_clip(self, gc):
         'Set the clip properly for the gc'
-        if self._clipon:
+        if self.clipon:
             if self.clipbox is not None:
                 gc.set_clip_rectangle(self.clipbox)
-            gc.set_clip_path(self._clippath)
+            gc.set_clip_path(self.clippath)
         else:
             gc.set_clip_rectangle(None)
             gc.set_clip_path(None)
 
     def get_rasterized(self):
         "return True if the artist is to be rasterized"
-        return self._rasterized
+        msg = _traitlets_deprecation_msg('rasterized')
+        warnings.warn(msg, mplDeprecation, stacklevel=1)
+        return self.rasterized
 
     def set_rasterized(self, rasterized):
         """
@@ -785,26 +1016,27 @@ class Artist(object):
 
         ACCEPTS: [True | False | None]
         """
-        if rasterized and not hasattr(self.draw, "_supports_rasterization"):
-            warnings.warn("Rasterization of '%s' will be ignored" % self)
-
-        self._rasterized = rasterized
+        msg = _traitlets_deprecation_msg('rasterized')
+        warnings.warn(msg, mplDeprecation, stacklevel=1)
+        self.rasterized = rasterized
 
     def get_agg_filter(self):
         "return filter function to be used for agg filter"
-        return self._agg_filter
+        msg = _traitlets_deprecation_msg('agg_filter')
+        warnings.warn(msg, mplDeprecation, stacklevel=1)
+        return self.agg_filter
 
     def set_agg_filter(self, filter_func):
         """
         set agg_filter fuction.
-
         """
-        self._agg_filter = filter_func
-        self.stale = True
+        msg = _traitlets_deprecation_msg('agg_filter')
+        warnings.warn(msg, mplDeprecation, stacklevel=1)
+        self.agg_filter = filter_func
 
     def draw(self, renderer, *args, **kwargs):
         'Derived classes drawing method'
-        if not self.get_visible():
+        if not self.visible:
             return
         self.stale = False
 
@@ -815,9 +1047,9 @@ class Artist(object):
 
         ACCEPTS: float (0.0 transparent through 1.0 opaque)
         """
-        self._alpha = alpha
-        self.pchanged()
-        self.stale = True
+        msg = _traitlets_deprecation_msg('alpha')
+        warnings.warn(msg, mplDeprecation, stacklevel=1)
+        self.alpha = alpha
 
     def set_visible(self, b):
         """
@@ -825,9 +1057,9 @@ class Artist(object):
 
         ACCEPTS: [True | False]
         """
-        self._visible = b
-        self.pchanged()
-        self.stale = True
+        msg = _traitlets_deprecation_msg('visible')
+        warnings.warn(msg, mplDeprecation, stacklevel=1)
+        self.visible = b
 
     def set_animated(self, b):
         """
@@ -835,9 +1067,9 @@ class Artist(object):
 
         ACCEPTS: [True | False]
         """
-        if self._animated != b:
-            self._animated = b
-            self.pchanged()
+        msg = _traitlets_deprecation_msg('animated')
+        warnings.warn(msg, mplDeprecation, stacklevel=1)
+        self.animated = b
 
     def update(self, props):
         """
@@ -847,16 +1079,22 @@ class Artist(object):
         store = self.eventson
         self.eventson = False
         changed = False
-
         for k, v in six.iteritems(props):
             if k in ['axes']:
                 setattr(self, k, v)
             else:
-                func = getattr(self, 'set_' + k, None)
-                if func is None or not six.callable(func):
-                    raise AttributeError('Unknown property %s' % k)
-                func(v)
-            changed = True
+                #!DEPRICATED set_name access should eventually be removed
+                klass = self.__class__
+                trait = getattr(klass, k, None)
+                if isinstance(trait, BaseDescriptor):
+                    setattr(self, k, v)
+                else:
+                    func = getattr(self, 'set_' + k, None)
+                    if func is not None and six.callable(func):
+                        func(v)
+                    else:
+                        raise AttributeError('Unknown property %s' % k)
+                    changed = True
         self.eventson = store
         if changed:
             self.pchanged()
@@ -866,7 +1104,9 @@ class Artist(object):
         """
         Get the label used for this artist in the legend.
         """
-        return self._label
+        msg = _traitlets_deprecation_msg('label')
+        warnings.warn(msg, mplDeprecation, stacklevel=1)
+        return self.label
 
     def set_label(self, s):
         """
@@ -874,12 +1114,9 @@ class Artist(object):
 
         ACCEPTS: string or anything printable with '%s' conversion.
         """
-        if s is not None:
-            self._label = '%s' % (s, )
-        else:
-            self._label = None
-        self.pchanged()
-        self.stale = True
+        msg = _traitlets_deprecation_msg('label')
+        warnings.warn(msg, mplDeprecation, stacklevel=1)
+        self.label = s
 
     def get_zorder(self):
         """
@@ -900,16 +1137,16 @@ class Artist(object):
 
     def update_from(self, other):
         'Copy properties from *other* to *self*.'
-        self._transform = other._transform
-        self._transformSet = other._transformSet
-        self._visible = other._visible
-        self._alpha = other._alpha
-        self.clipbox = other.clipbox
-        self._clipon = other._clipon
-        self._clippath = other._clippath
-        self._label = other._label
-        self._sketch = other._sketch
-        self._path_effects = other._path_effects
+        names = ('transform', 'transform_set', 'visible',
+                 'alpha', 'clipbox', 'clipon', 'clippath',
+                 'label', 'path_effects')
+
+        with self.mute_trait_notifications():
+            for n in names:
+                setattr(self, n, other.private(n))
+
+        self.set_sketch_params(all=other.sketch_params)
+
         self.pchanged()
         self.stale = True
 
@@ -930,12 +1167,16 @@ class Artist(object):
         ret = []
         for k, v in sorted(kwargs.items(), reverse=True):
             k = k.lower()
-            funcName = "set_%s" % k
-            func = getattr(self, funcName, None)
-            if func is None:
-               raise TypeError('There is no %s property "%s"' %
+            klass = self.__class__
+            if isinstance(getattr(klass, k, None), BaseDescriptor):
+                ret.extend([setattr(self, k, v)])
+            else:
+                func = getattr(self, 'set_'+k, None)
+                if func is not None and six.callable(func):
+                    ret.extend([func(v)])
+                else:
+                    raise TypeError('There is no %s property "%s"' %
                                (self.__class__.__name__, k))
-            ret.extend([func(v)])
         return ret
 
     def findobj(self, match=None, include_self=True):
@@ -999,21 +1240,6 @@ class Artist(object):
             data = [data]
         return ', '.join('{:0.3g}'.format(item) for item in data if
                 isinstance(item, (np.floating, np.integer, int, float)))
-
-    @property
-    def mouseover(self):
-        return self._mouseover
-
-    @mouseover.setter
-    def mouseover(self, val):
-        val = bool(val)
-        self._mouseover = val
-        ax = self.axes
-        if ax:
-            if val:
-                ax.mouseover_set.add(self)
-            else:
-                ax.mouseover_set.discard(self)
 
 
 class ArtistInspector(object):
@@ -1382,8 +1608,16 @@ def getp(obj, property=None):
         print('\n'.join(ret))
         return
 
-    func = getattr(obj, 'get_' + property)
-    return func()
+    klass = obj.__class__
+    if isinstance(getattr(klass, property, None), BaseDescriptor):
+        return getattr(obj, property)
+    else:
+        func = getattr(obj, 'get_' + property, None)
+        if func is not None and six.callable(func):
+            return func()
+        else:
+            msg = 'Unknown property %s for %s'
+            raise AttributeError(msg % (property, str(obj)))
 
 # alias
 get = getp
@@ -1460,12 +1694,18 @@ def setp(obj, *args, **kwargs):
     for o in objs:
         for s, val in funcvals:
             s = s.lower()
-            funcName = "set_%s" % s
-            func = getattr(o, funcName, None)
-            if func is None:
-                raise TypeError('There is no %s property "%s"' %
+
+            klass = o.__class__
+            if isinstance(getattr(klass, s, None), BaseDescriptor):
+                ret.extend([setattr(o, s, val)])
+            else:
+                funcName = "set_%s" % s
+                func = getattr(o, 'set_'+s, None)
+                if func is not None and six.callable(func):
+                    ret.extend([func(val)])
+                else:
+                    raise TypeError('There is no %s property "%s"' %
                                 (o.__class__.__name__, s))
-            ret.extend([func(val)])
     return [x for x in cbook.flatten(ret)]
 
 
@@ -1478,6 +1718,3 @@ def kwdoc(a):
         return '\n'.join(ArtistInspector(a).pprint_setters(leadingspace=2))
 
 docstring.interpd.update(Artist=kwdoc(Artist))
-
-_get_axes_msg = """This has been deprecated in mpl 1.5, please use the
-axes property.  A removal date has not been set."""

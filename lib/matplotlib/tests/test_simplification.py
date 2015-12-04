@@ -62,7 +62,7 @@ def test_noise():
     p1 = ax.plot(x, solid_joinstyle='round', linewidth=2.0)
 
     path = p1[0].get_path()
-    transform = p1[0].get_transform()
+    transform = p1[0].transform
     path = transform.transform_path(path)
     simplified = list(path.iter_segments(simplify=(800, 600)))
 
@@ -78,7 +78,7 @@ def test_sine_plus_noise():
     p1 = ax.plot(x, solid_joinstyle='round', linewidth=2.0)
 
     path = p1[0].get_path()
-    transform = p1[0].get_transform()
+    transform = p1[0].transform
     path = transform.transform_path(path)
     simplified = list(path.iter_segments(simplify=(800, 600)))
 
@@ -113,7 +113,7 @@ def test_fft_peaks():
     p1 = ax.plot(abs(fft(sin(2*pi*.01*t)*blackman(len(t)))))
 
     path = p1[0].get_path()
-    transform = p1[0].get_transform()
+    transform = p1[0].transform
     path = transform.transform_path(path)
     simplified = list(path.iter_segments(simplify=(800, 600)))
 

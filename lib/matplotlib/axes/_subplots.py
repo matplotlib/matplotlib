@@ -34,8 +34,7 @@ class SubplotBase(object):
         If *numRows* <= *numCols* <= *plotNum* < 10, *args* can be the
         decimal integer *numRows* * 100 + *numCols* * 10 + *plotNum*.
         """
-
-        self.figure = fig
+        self.private('figure', fig)
 
         if len(args) == 1:
             if isinstance(args[0], SubplotSpec):
@@ -135,10 +134,10 @@ class SubplotBase(object):
         lastrow = self.is_last_row()
         firstcol = self.is_first_col()
         for label in self.get_xticklabels():
-            label.set_visible(lastrow)
+            label.visible = lastrow
 
         for label in self.get_yticklabels():
-            label.set_visible(firstcol)
+            label.visible = firstcol
 
     def _make_twin_axes(self, *kl, **kwargs):
         """

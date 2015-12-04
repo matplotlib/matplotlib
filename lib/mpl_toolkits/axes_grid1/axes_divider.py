@@ -470,7 +470,6 @@ class SubplotDivider(Divider):
 
     def update_params(self):
         'update the subplot position from fig.subplotpars'
-
         self.figbox = self.get_subplotspec().get_position(self.figure)
 
     def get_geometry(self):
@@ -517,7 +516,7 @@ class AxesDivider(Divider):
         else:
             self._yref = yref
 
-        Divider.__init__(self, fig=axes.get_figure(), pos=None,
+        Divider.__init__(self, fig=axes.figure, pos=None,
                          horizontal=[self._xref], vertical=[self._yref],
                          aspect=None, anchor="C")
 
@@ -532,7 +531,7 @@ class AxesDivider(Divider):
             else:
                 axes_class = type(axes)
 
-        ax = axes_class(axes.get_figure(),
+        ax = axes_class(axes.figure,
                         axes.get_position(original=True), **kwargs)
 
         return ax

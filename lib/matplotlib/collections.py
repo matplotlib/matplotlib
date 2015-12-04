@@ -28,6 +28,7 @@ import matplotlib.backend_bases as backend_bases
 import matplotlib.path as mpath
 from matplotlib import _path
 import matplotlib.mlab as mlab
+from matplotlib.traitlets import observe, _traitlets_deprecation_msg
 
 
 CIRCLE_AREA_FACTOR = 1.0 / np.sqrt(np.pi)
@@ -139,7 +140,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
             else:
                 self._uniform_offsets = offsets
 
-        self._path_effects = None
+        self.path_effects = None
         self.update(kwargs)
         self._paths = None
 
@@ -185,7 +186,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
         return t
 
     def get_datalim(self, transData):
-        transform = self.get_transform()
+        transform = self.transform
         transOffset = self.get_offset_transform()
         offsets = self._offsets
         paths = self.get_paths()
@@ -220,7 +221,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
     def _prepare_points(self):
         """Point prep for drawing and hit testing"""
 
-        transform = self.get_transform()
+        transform = self.transform
         transOffset = self.get_offset_transform()
         offsets = self._offsets
         paths = self.get_paths()
@@ -260,9 +261,9 @@ class Collection(artist.Artist, cm.ScalarMappable):
 
     @allow_rasterization
     def draw(self, renderer):
-        if not self.get_visible():
+        if not self.visible:
             return
-        renderer.open_group(self.__class__.__name__, self.get_gid())
+        renderer.open_group(self.__class__.__name__, self.gid)
 
         self.update_scalarmappable()
 
@@ -270,17 +271,17 @@ class Collection(artist.Artist, cm.ScalarMappable):
 
         gc = renderer.new_gc()
         self._set_gc_clip(gc)
-        gc.set_snap(self.get_snap())
+        gc.set_snap(self.snap)
 
         if self._hatch:
             gc.set_hatch(self._hatch)
 
-        if self.get_sketch_params() is not None:
-            gc.set_sketch_params(*self.get_sketch_params())
+        if self.sketch_params is not None:
+            gc.set_sketch_params(*self.sketch_params)
 
-        if self.get_path_effects():
+        if self.path_effects:
             from matplotlib.patheffects import PathEffectRenderer
-            renderer = PathEffectRenderer(self.get_path_effects(), renderer)
+            renderer = PathEffectRenderer(self.path_effects, renderer)
 
         # If the collection is made up of a single shape/color/stroke,
         # it can be rendered once and blitted multiple times, using
@@ -344,24 +345,25 @@ class Collection(artist.Artist, cm.ScalarMappable):
         Returns True | False, ``dict(ind=itemlist)``, where every
         item in itemlist contains the event.
         """
+        # self._contains should already be callable
         if six.callable(self._contains):
             return self._contains(self, mouseevent)
 
-        if not self.get_visible():
+        if not self.visible:
             return False, {}
 
-        if self._picker is True:  # the Boolean constant, not just nonzero or 1
+        if self.picker is True:  # the Boolean constant, not just nonzero or 1
             pickradius = self._pickradius
         else:
             try:
-                pickradius = float(self._picker)
+                pickradius = float(self.picker)
             except TypeError:
                 # This should not happen if "contains" is called via
                 # pick, the normal route; the check is here in case
                 # it is called through some unanticipated route.
                 warnings.warn(
                     "Collection picker %s could not be converted to float"
-                    % self._picker)
+                    % self.picker)
                 pickradius = self._pickradius
 
         transform, transOffset, offsets, paths = self._prepare_points()
@@ -621,7 +623,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
         if c is None:
             c = mpl.rcParams['patch.facecolor']
         self._facecolors_original = c
-        self._facecolors = mcolors.colorConverter.to_rgba_array(c, self._alpha)
+        self._facecolors = mcolors.colorConverter.to_rgba_array(c, self.alpha)
         self.stale = True
 
     def set_facecolors(self, c):
@@ -669,12 +671,30 @@ class Collection(artist.Artist, cm.ScalarMappable):
         if c is None:
             c = mpl.rcParams['patch.edgecolor']
         self._edgecolors_original = c
-        self._edgecolors = mcolors.colorConverter.to_rgba_array(c, self._alpha)
+        self._edgecolors = mcolors.colorConverter.to_rgba_array(c, self.alpha)
         self.stale = True
 
     def set_edgecolors(self, c):
         """alias for set_edgecolor"""
         return self.set_edgecolor(c)
+
+    @observe('alpha')
+    def _alpha_changed(self, change):
+        artist.Artist._alpha_changed(self, change)
+
+        value = change['new']
+        try:
+            self._facecolors = mcolors.colorConverter.to_rgba_array(
+                self._facecolors_original, value)
+        except (AttributeError, TypeError, IndexError):
+            pass
+        try:
+            if (not isinstance(self._edgecolors_original, six.string_types)
+                             or self._edgecolors_original != str('face')):
+                self._edgecolors = mcolors.colorConverter.to_rgba_array(
+                    self._edgecolors_original, value)
+        except (AttributeError, TypeError, IndexError):
+            pass
 
     def set_alpha(self, alpha):
         """
@@ -683,24 +703,9 @@ class Collection(artist.Artist, cm.ScalarMappable):
 
         ACCEPTS: float or None
         """
-        if alpha is not None:
-            try:
-                float(alpha)
-            except TypeError:
-                raise TypeError('alpha must be a float or None')
-        artist.Artist.set_alpha(self, alpha)
-        try:
-            self._facecolors = mcolors.colorConverter.to_rgba_array(
-                self._facecolors_original, self._alpha)
-        except (AttributeError, TypeError, IndexError):
-            pass
-        try:
-            if (not isinstance(self._edgecolors_original, six.string_types)
-                             or self._edgecolors_original != str('face')):
-                self._edgecolors = mcolors.colorConverter.to_rgba_array(
-                    self._edgecolors_original, self._alpha)
-        except (AttributeError, TypeError, IndexError):
-            pass
+        msg = _traitlets_deprecation_msg('alpha')
+        warnings.warn(msg, mplDeprecation, stacklevel=1)
+        self.alpha = alpha
 
     def get_linewidths(self):
         return self._linewidths
@@ -722,9 +727,9 @@ class Collection(artist.Artist, cm.ScalarMappable):
         if not self.check_update("array"):
             return
         if self._is_filled:
-            self._facecolors = self.to_rgba(self._A, self._alpha)
+            self._facecolors = self.to_rgba(self._A, self.alpha)
         elif self._is_stroked:
-            self._edgecolors = self.to_rgba(self._A, self._alpha)
+            self._edgecolors = self.to_rgba(self._A, self.alpha)
         self.stale = True
 
     def get_fill(self):
@@ -1014,7 +1019,7 @@ class RegularPolyCollection(_CollectionWithSizes):
         self._numsides = numsides
         self._paths = [self._path_generator(numsides)]
         self._rotation = rotation
-        self.set_transform(transforms.IdentityTransform())
+        self.transform = transforms.IdentityTransform()
 
     def get_numsides(self):
         return self._numsides
@@ -1493,7 +1498,7 @@ class CircleCollection(_CollectionWithSizes):
         """
         Collection.__init__(self, **kwargs)
         self.set_sizes(sizes)
-        self.set_transform(transforms.IdentityTransform())
+        self.transform = transforms.IdentityTransform()
         self._paths = [mpath.Path.unit_circle()]
 
 
@@ -1534,7 +1539,7 @@ class EllipseCollection(Collection):
         self._heights = 0.5 * np.asarray(heights).ravel()
         self._angles = np.asarray(angles).ravel() * (np.pi / 180.0)
         self._units = units
-        self.set_transform(transforms.IdentityTransform())
+        self.transform = transforms.IdentityTransform()
         self._transforms = np.empty((0, 3, 3))
         self._paths = [mpath.Path.unit_circle()]
 
@@ -1579,7 +1584,7 @@ class EllipseCollection(Collection):
         if self._units == 'xy':
             m = ax.transData.get_affine().get_matrix().copy()
             m[:2, 2:] = 0
-            self.set_transform(_affine(m))
+            self.transform = _affine(m)
 
     @allow_rasterization
     def draw(self, renderer):
@@ -1637,7 +1642,7 @@ class PatchCollection(Collection):
         self.set_paths(patches)
 
     def set_paths(self, patches):
-        paths = [p.get_transform().transform_path(p.get_path())
+        paths = [p.transform.transform_path(p.get_path())
                  for p in patches]
         self._paths = paths
 
@@ -1689,10 +1694,10 @@ class TriMesh(Collection):
 
     @allow_rasterization
     def draw(self, renderer):
-        if not self.get_visible():
+        if not self.visible:
             return
         renderer.open_group(self.__class__.__name__)
-        transform = self.get_transform()
+        transform = self.transform
 
         # Get a list of triangles and the color at each vertex.
         tri = self._triangulation
@@ -1772,7 +1777,7 @@ class QuadMesh(Collection):
         self.stale = True
 
     def get_datalim(self, transData):
-        return (self.get_transform() - transData).transform_bbox(self._bbox)
+        return (self.transform - transData).transform_bbox(self._bbox)
 
     @staticmethod
     def convert_mesh_to_paths(meshWidth, meshHeight, coordinates):
@@ -1844,10 +1849,10 @@ class QuadMesh(Collection):
 
     @allow_rasterization
     def draw(self, renderer):
-        if not self.get_visible():
+        if not self.visible:
             return
-        renderer.open_group(self.__class__.__name__, self.get_gid())
-        transform = self.get_transform()
+        renderer.open_group(self.__class__.__name__, self.gid)
+        transform = self.transform
         transOffset = self.get_offset_transform()
         offsets = self._offsets
 

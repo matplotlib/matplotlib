@@ -20,7 +20,7 @@ def add_inner_title(ax, title, loc, size=None, **kwargs):
                       pad=0., borderpad=0.5,
                       frameon=False, **kwargs)
     ax.add_artist(at)
-    at.txt._text.set_path_effects([withStroke(foreground="w", linewidth=3)])
+    at.txt._text.path_effects = [withStroke(foreground="w", linewidth=3)]
     return at
 
 if 1:

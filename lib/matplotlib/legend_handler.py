@@ -76,7 +76,7 @@ class HandlerBase(object):
         self._update_prop(legend_handle, orig_handle)
 
         legend._set_artist_props(legend_handle)
-        legend_handle.set_clip_box(None)
+        legend_handle.clipbox = None
         legend_handle.set_clip_path(None)
 
     def adjust_drawing_area(self, legend, orig_handle,
@@ -116,7 +116,7 @@ class HandlerBase(object):
                  fontsize)
         artists = self.create_artists(legend, orig_handle,
                                       xdescent, ydescent, width, height,
-                                      fontsize, handlebox.get_transform())
+                                      fontsize, handlebox.transform)
 
         # create_artists will return a list of artists.
         for a in artists:
@@ -207,8 +207,8 @@ class HandlerLine2D(HandlerNpoints):
         # correspondence.
         legline._legmarker = legline_marker
 
-        legline.set_transform(trans)
-        legline_marker.set_transform(trans)
+        legline.transform = trans
+        legline_marker.transform = trans
 
         return [legline, legline_marker]
 
@@ -250,7 +250,7 @@ class HandlerPatch(HandlerBase):
         p = self._create_patch(legend, orig_handle,
                                xdescent, ydescent, width, height, fontsize)
         self.update_prop(p, orig_handle, legend)
-        p.set_transform(trans)
+        p.transform = trans
         return [p]
 
 
@@ -282,7 +282,7 @@ class HandlerLineCollection(HandlerLine2D):
         legline = Line2D(xdata, ydata)
 
         self.update_prop(legline, orig_handle, legend)
-        legline.set_transform(trans)
+        legline.transform = trans
 
         return [legline]
 
@@ -327,9 +327,9 @@ class HandlerRegularPolyCollection(HandlerNpointsYoffsets):
 
         self._update_prop(legend_handle, orig_handle)
 
-        legend_handle.set_figure(legend.figure)
+        legend_handle.figure = legend.figure
         #legend._set_artist_props(legend_handle)
-        legend_handle.set_clip_box(None)
+        legend_handle.clipbox = None
         legend_handle.set_clip_path(None)
 
     def create_collection(self, orig_handle, sizes, offsets, transOffset):
@@ -434,8 +434,8 @@ class HandlerErrorbar(HandlerLine2D):
         # when plotlines are None (only errorbars are drawn), we just
         # make legline invisible.
         if plotlines is None:
-            legline.set_visible(False)
-            legline_marker.set_visible(False)
+            legline.visible = False
+            legline_marker.visible = False
         else:
             self.update_prop(legline, plotlines, legend)
 
@@ -495,7 +495,7 @@ class HandlerErrorbar(HandlerLine2D):
         artists.append(legline_marker)
 
         for artist in artists:
-            artist.set_transform(trans)
+            artist.transform = trans
 
         return artists
 
@@ -558,7 +558,7 @@ class HandlerStem(HandlerNpointsYoffsets):
         artists.append(leg_baseline)
 
         for artist in artists:
-            artist.set_transform(trans)
+            artist.transform = trans
 
         return artists
 
@@ -609,14 +609,14 @@ class HandlerPolyCollection(HandlerBase):
         legend_handle.set_hatch(orig_handle.get_hatch())
         legend_handle.set_linewidth(get_first(orig_handle.get_linewidths()))
         legend_handle.set_linestyle(get_first(orig_handle.get_linestyles()))
-        legend_handle.set_transform(get_first(orig_handle.get_transforms()))
-        legend_handle.set_figure(orig_handle.get_figure())
-        legend_handle.set_alpha(orig_handle.get_alpha())
+        legend_handle.transform = get_first(orig_handle.get_transforms())
+        legend_handle.figure = orig_handle.figure
+        legend_handle.alpha = orig_handle.alpha
 
     def create_artists(self, legend, orig_handle,
                        xdescent, ydescent, width, height, fontsize, trans):
         p = Rectangle(xy=(-xdescent, -ydescent),
                       width=width, height=height)
         self.update_prop(p, orig_handle, legend)
-        p.set_transform(trans)
+        p.transform = trans
         return [p]

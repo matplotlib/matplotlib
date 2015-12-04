@@ -31,6 +31,8 @@ from matplotlib.markers import MarkerStyle
 # really belong.
 from matplotlib.markers import TICKLEFT, TICKRIGHT, TICKUP, TICKDOWN
 from matplotlib.markers import CARETLEFT, CARETRIGHT, CARETUP, CARETDOWN
+from .cbook import mplDeprecation
+from .traitlets import observe, _traitlets_deprecation_msg
 
 
 def segment_hits(cx, cy, x, y, radius):
@@ -235,8 +237,8 @@ class Line2D(Artist):
     validJoin = ('miter', 'round', 'bevel')
 
     def __str__(self):
-        if self._label != "":
-            return "Line2D(%s)" % (self._label)
+        if self.label != "":
+            return "Line2D(%s)" % (self.label)
         elif self._x is None:
             return "Line2D()"
         elif len(self._x) > 3:
@@ -367,8 +369,8 @@ class Line2D(Artist):
         self.update(kwargs)
         self.pickradius = pickradius
         self.ind_offset = 0
-        if is_numlike(self._picker):
-            self.pickradius = self._picker
+        if is_numlike(self.picker):
+            self.pickradius = self.picker
 
         self._xorig = np.asarray([])
         self._yorig = np.asarray([])
@@ -405,7 +407,8 @@ class Line2D(Artist):
 
         TODO: sort returned indices by distance
         """
-        if six.callable(self._contains):
+        # self._contains should already be callable
+        if self._contains is not None:
             return self._contains(self, mouseevent)
 
         if not is_numlike(self.pickradius):
@@ -453,8 +456,8 @@ class Line2D(Artist):
         ind += self.ind_offset
 
         # Debugging message
-        if False and self._label != '':
-            print("Checking line", self._label,
+        if False and self.label != '':
+            print("Checking line", self.label,
                   "at", mouseevent.x, mouseevent.y)
             print('xt', xt)
             print('yt', yt)
@@ -550,21 +553,26 @@ class Line2D(Artist):
         """return the markevery setting"""
         return self._markevery
 
+    @observe('picker')
+    def _picker_changed(self, change):
+        if six.callable(new):
+            self._contains = change['new']
+        else:
+            self.pickradius = change['new']
+
     def set_picker(self, p):
         """Sets the event picker details for the line.
 
         ACCEPTS: float distance in points or callable pick function
         ``fn(artist, event)``
         """
-        if six.callable(p):
-            self._contains = p
-        else:
-            self.pickradius = p
-        self._picker = p
+        msg = _traitlets_deprecation_msg('picker')
+        warnings.warn(msg, mplDeprecation, stacklevel=1)
+        self.picker = p
 
     def get_window_extent(self, renderer):
         bbox = Bbox([[0, 0], [0, 0]])
-        trans_data_to_xy = self.get_transform().transform
+        trans_data_to_xy = self.transform.transform
         bbox.update_from_data_xy(trans_data_to_xy(self.get_xydata()),
                                  ignore=True)
         # correct for marker size, if any
@@ -573,18 +581,17 @@ class Line2D(Artist):
             bbox = bbox.padded(ms)
         return bbox
 
-    @Artist.axes.setter
-    def axes(self, ax):
-        # call the set method from the base-class property
-        Artist.axes.fset(self, ax)
-        if ax is not None:
-            # connect unit-related callbacks
-            if ax.xaxis is not None:
-                self._xcid = ax.xaxis.callbacks.connect('units',
-                                                        self.recache_always)
-            if ax.yaxis is not None:
-                self._ycid = ax.yaxis.callbacks.connect('units',
-                                                        self.recache_always)
+    @observe('axes')
+    def _axes_changed(self, change):
+        new = change['new']
+        Artist._axes_changed(self, change)
+        if new is not None:
+            if new.xaxis is not None:
+                self._xcid = new.xaxis.callbacks.connect('units',
+                                                           self.recache_always)
+            if new.yaxis is not None:
+                self._ycid = new.yaxis.callbacks.connect('units',
+                                                       self.recache_always)
 
     def set_data(self, *args):
         """
@@ -643,7 +650,7 @@ class Line2D(Artist):
                 self.axes.name == 'rectilinear' and
                 self.axes.get_xscale() == 'linear' and
                 self._markevery is None and
-                self.get_clip_on() is True):
+                self.clipon is True):
             self._subslice = True
             nanmask = np.isnan(x)
             if nanmask.any():
@@ -675,7 +682,7 @@ class Line2D(Artist):
             _path = Path(self._xy[subslice, :], _interpolation_steps=_steps)
         else:
             _path = self._path
-        self._transformed_path = TransformedPath(_path, self.get_transform())
+        self._transformed_path = TransformedPath(_path, self.transform)
 
     def _get_transformed_path(self):
         """
@@ -686,16 +693,22 @@ class Line2D(Artist):
             self._transform_path()
         return self._transformed_path
 
+    @observe('transform')
+    def _transform_changed(self, change):
+        Artist._transform_changed(self, change)
+        self._invalidx = True
+        self._invalidy = True
+        self.stale = True
+
     def set_transform(self, t):
         """
         set the Transformation instance used by this artist
 
         ACCEPTS: a :class:`matplotlib.transforms.Transform` instance
         """
-        Artist.set_transform(self, t)
-        self._invalidx = True
-        self._invalidy = True
-        self.stale = True
+        msg = _traitlets_deprecation_msg('transform')
+        warnings.warn(msg, mplDeprecation, stacklevel=1)
+        self.transform = t
 
     def _is_sorted(self, x):
         """return True if x is sorted in ascending order"""
@@ -707,7 +720,7 @@ class Line2D(Artist):
     @allow_rasterization
     def draw(self, renderer):
         """draw the Line with `renderer` unless visibility is False"""
-        if not self.get_visible():
+        if not self.visible:
             return
 
         if self._invalidy or self._invalidx:
@@ -723,11 +736,11 @@ class Line2D(Artist):
 
         transf_path = self._get_transformed_path()
 
-        if self.get_path_effects():
+        if self.path_effects:
             from matplotlib.patheffects import PathEffectRenderer
-            renderer = PathEffectRenderer(self.get_path_effects(), renderer)
+            renderer = PathEffectRenderer(self.path_effects, renderer)
 
-        renderer.open_group('line2d', self.get_gid())
+        renderer.open_group('line2d', self.gid)
         funcname = self._lineStyles.get(self._linestyle, '_draw_nothing')
         if funcname != '_draw_nothing':
             tpath, affine = transf_path.get_transformed_path_and_affine()
@@ -753,9 +766,9 @@ class Line2D(Artist):
                     join = self._solidjoinstyle
                 gc.set_joinstyle(join)
                 gc.set_capstyle(cap)
-                gc.set_snap(self.get_snap())
-                if self.get_sketch_params() is not None:
-                    gc.set_sketch_params(*self.get_sketch_params())
+                gc.set_snap(self.snap)
+                if self.sketch_params is not None:
+                    gc.set_sketch_params(*self.sketch_params)
 
                 drawFunc(renderer, gc, tpath, affine.frozen())
                 gc.restore()
@@ -777,7 +790,7 @@ class Line2D(Artist):
                         rgbaFace is not None):
                     gc.set_alpha(rgbaFace[3])
                 else:
-                    gc.set_alpha(self.get_alpha())
+                    gc.set_alpha(self.alpha)
 
             marker = self._marker
             tpath, affine = transf_path.get_transformed_points_and_affine()
@@ -817,7 +830,7 @@ class Line2D(Artist):
                             rgbaFaceAlt is not None):
                         gc.set_alpha(rgbaFaceAlt[3])
                     else:
-                        gc.set_alpha(self.get_alpha())
+                        gc.set_alpha(self.alpha)
 
                     renderer.draw_markers(
                             gc, alt_marker_path, alt_marker_trans, subsampled,
@@ -1176,21 +1189,21 @@ class Line2D(Artist):
         steps = np.vstack(pts_to_prestep(*self._xy.T)).T
 
         path = Path(steps)
-        path = path.transformed(self.get_transform())
+        path = path.transformed(self.transform)
         self._lineFunc(renderer, gc, path, IdentityTransform())
 
     def _draw_steps_post(self, renderer, gc, path, trans):
         steps = np.vstack(pts_to_poststep(*self._xy.T)).T
 
         path = Path(steps)
-        path = path.transformed(self.get_transform())
+        path = path.transformed(self.transform)
         self._lineFunc(renderer, gc, path, IdentityTransform())
 
     def _draw_steps_mid(self, renderer, gc, path, trans):
         steps = np.vstack(pts_to_midstep(*self._xy.T)).T
 
         path = Path(steps)
-        path = path.transformed(self.get_transform())
+        path = path.transformed(self.transform)
         self._lineFunc(renderer, gc, path, IdentityTransform())
 
     def _draw_solid(self, renderer, gc, path, trans):
@@ -1248,11 +1261,11 @@ class Line2D(Artist):
         if is_string_like(facecolor) and facecolor.lower() == 'none':
             rgbaFace = None
         else:
-            rgbaFace = colorConverter.to_rgba(facecolor, self._alpha)
+            rgbaFace = colorConverter.to_rgba(facecolor, self.alpha)
         return rgbaFace
 
     def _get_rgba_ln_color(self, alt=False):
-        return colorConverter.to_rgba(self._color, self._alpha)
+        return colorConverter.to_rgba(self._color, self.alpha)
 
     # some aliases....
     def set_aa(self, val):
@@ -1453,7 +1466,7 @@ class VertexSelector(object):
         if line.axes is None:
             raise RuntimeError('You must first add the line to the Axes')
 
-        if line.get_picker() is None:
+        if line.picker is None:
             raise RuntimeError('You must first set the picker property '
                                'of the line')
 

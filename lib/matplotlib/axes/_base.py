@@ -34,6 +34,7 @@ from matplotlib.offsetbox import OffsetBox
 from matplotlib.artist import allow_rasterization
 from matplotlib.cbook import iterable, index_of
 from matplotlib.rcsetup import cycler
+from matplotlib.traitlets import observe, _traitlets_deprecation_msg
 
 rcParams = matplotlib.rcParams
 
@@ -183,6 +184,18 @@ class _process_plot_var_args(object):
 
         ret = self._grab_next_args(*args, **kwargs)
         return ret
+
+    def _base_set_method(self, obj, k, v, e):
+        #!DEPRICATED set_name access should be removed
+        trait = getattr(obj.__class__, k, None)
+        if isinstance(trait, BaseDescriptor):
+            setattr(obj, k, v)
+        else:
+            func = getattr(obj, 'set_' + k, None)
+            if func is not None and six.callable(func):
+                func(v)
+            else:
+                raise e
 
     def set_lineprops(self, line, **kwargs):
         assert self.command == 'plot', 'set_lineprops only works with "plot"'
@@ -495,8 +508,12 @@ class _AxesBase(martist.Artist):
                 # warnings.warn(
                 #    'shared axes: "adjustable" is being changed to "datalim"')
             self._adjustable = 'datalim'
-        self.set_label(label)
-        self.set_figure(fig)
+        self.label = label
+
+        if self.figure == fig:
+            self.force_callbacks('figure')
+        else:
+            self.figure = fig
 
         self.set_axes_locator(kwargs.get("axes_locator", None))
 
@@ -550,7 +567,7 @@ class _AxesBase(martist.Artist):
                          right=rcParams['ytick.right'])
 
     def __setstate__(self, state):
-        self.__dict__ = state
+        martist.Artist.__setstate__(self, state)
         # put the _remove_method back on all artists contained within the axes
         for container_name in ['lines', 'collections', 'tables', 'patches',
                                'texts', 'images']:
@@ -576,23 +593,29 @@ class _AxesBase(martist.Artist):
         self.spines['right'].register_axis(self.yaxis)
         self._update_transScale()
 
+    @observe('figure')
+    def _figure_changed(self, change):
+        martist.Artist._figure_changed(self, change)
+
+        tbox = mtransforms.TransformedBbox
+        self.bbox = tbox(self._position, change['new'].transFigure)
+
+        # these will be updated later as data is added
+        self.dataLim = mtransforms.Bbox.null()
+        self.viewLim = mtransforms.Bbox.unit()
+        self.transScale = mtransforms.TransformWrapper(
+            mtransforms.IdentityTransform())
+        self._set_lim_and_transforms()
+
     def set_figure(self, fig):
         """
         Set the class:`~matplotlib.axes.Axes` figure
 
         accepts a class:`~matplotlib.figure.Figure` instance
         """
-        martist.Artist.set_figure(self, fig)
-
-        self.bbox = mtransforms.TransformedBbox(self._position,
-                                                fig.transFigure)
-        # these will be updated later as data is added
-        self.dataLim = mtransforms.Bbox.null()
-        self.viewLim = mtransforms.Bbox.unit()
-        self.transScale = mtransforms.TransformWrapper(
-            mtransforms.IdentityTransform())
-
-        self._set_lim_and_transforms()
+        msg = _traitlets_deprecation_msg('figure')
+        warnings.warn(msg, mplDeprecation, stacklevel=1)
+        self.figure = fig
 
     def _set_lim_and_transforms(self):
         """
@@ -789,9 +812,8 @@ class _AxesBase(martist.Artist):
                 "center", "left")
 
     def _update_transScale(self):
-        self.transScale.set(
-            mtransforms.blended_transform_factory(
-                self.xaxis.get_transform(), self.yaxis.get_transform()))
+        self.transScale.set(mtransforms.blended_transform_factory(
+            self.xaxis.transform, self.yaxis.transform))
         if hasattr(self, "lines"):
             for line in self.lines:
                 try:
@@ -863,9 +885,9 @@ class _AxesBase(martist.Artist):
 
     def _set_artist_props(self, a):
         """set the boilerplate props for artists added to axes"""
-        a.set_figure(self.figure)
-        if not a.is_transform_set():
-            a.set_transform(self.transData)
+        a.figure = self.figure
+        if not a.transform_set:
+            a.transform = self.transData
 
         a.axes = self
         if a.mouseover:
@@ -913,12 +935,12 @@ class _AxesBase(martist.Artist):
 
         # stash the current visibility state
         if hasattr(self, 'patch'):
-            patch_visible = self.patch.get_visible()
+            patch_visible = self.patch.visible
         else:
             patch_visible = True
 
-        xaxis_visible = self.xaxis.get_visible()
-        yaxis_visible = self.yaxis.get_visible()
+        xaxis_visible = self.xaxis.visible
+        yaxis_visible = self.yaxis.visible
 
         self.xaxis.cla()
         self.yaxis.cla()
@@ -1035,8 +1057,8 @@ class _AxesBase(martist.Artist):
             )
 
         for _title in (self.title, self._left_title, self._right_title):
-            _title.set_transform(self.transAxes + self.titleOffsetTrans)
-            _title.set_clip_box(None)
+            _title.transform = self.transAxes + self.titleOffsetTrans
+            _title.clipbox = None
             self._set_artist_props(_title)
 
         # the patch draws the background of the axes.  we want this to
@@ -1044,11 +1066,11 @@ class _AxesBase(martist.Artist):
         # deprecated.  We use the frame to draw the edges so we are
         # setting the edgecolor to None
         self.patch = self.axesPatch = self._gen_axes_patch()
-        self.patch.set_figure(self.figure)
+        self.patch.figure = self.figure
         self.patch.set_facecolor(self._axisbg)
         self.patch.set_edgecolor('None')
         self.patch.set_linewidth(0)
-        self.patch.set_transform(self.transAxes)
+        self.patch.transform = self.transAxes
 
         self.set_axis_on()
 
@@ -1058,12 +1080,12 @@ class _AxesBase(martist.Artist):
         self._shared_x_axes.clean()
         self._shared_y_axes.clean()
         if self._sharex:
-            self.xaxis.set_visible(xaxis_visible)
-            self.patch.set_visible(patch_visible)
+            self.xaxis.visible = xaxis_visible
+            self.patch.visible = patch_visible
 
         if self._sharey:
-            self.yaxis.set_visible(yaxis_visible)
-            self.patch.set_visible(patch_visible)
+            self.yaxis.visible = yaxis_visible
+            self.patch.visible = patch_visible
         self.stale = True
 
     def clear(self):
@@ -1361,7 +1383,7 @@ class _AxesBase(martist.Artist):
                 warnings.warn(
                     'shared axes: "adjustable" is being changed to "datalim"')
 
-        figW, figH = self.get_figure().get_size_inches()
+        figW, figH = self.figure.get_size_inches()
         fig_aspect = figH / figW
         if self._adjustable in ['box', 'box-forced']:
             if aspect_scale_mode == "log":
@@ -1678,13 +1700,13 @@ class _AxesBase(martist.Artist):
 
         Returns the collection.
         """
-        label = collection.get_label()
+        label = collection.label
         if not label:
-            collection.set_label('_collection%d' % len(self.collections))
+            collection.label = '_collection%d' % len(self.collections)
         self.collections.append(collection)
         self._set_artist_props(collection)
 
-        if collection.get_clip_path() is None:
+        if collection.clippath is None:
             collection.set_clip_path(self.patch)
 
         if autolim:
@@ -1712,12 +1734,12 @@ class _AxesBase(martist.Artist):
         Returns the line.
         """
         self._set_artist_props(line)
-        if line.get_clip_path() is None:
+        if line.clippath is None:
             line.set_clip_path(self.patch)
 
         self._update_line_limits(line)
-        if not line.get_label():
-            line.set_label('_line%d' % len(self.lines))
+        if not line.label:
+            line.label = '_line%d' % len(self.lines)
         self.lines.append(line)
         line._remove_method = lambda h: self.lines.remove(h)
         return line
@@ -1730,7 +1752,7 @@ class _AxesBase(martist.Artist):
         if path.vertices.size == 0:
             return
 
-        line_trans = line.get_transform()
+        line_trans = line.transform
 
         if line_trans == self.transData:
             data_path = path
@@ -1777,7 +1799,7 @@ class _AxesBase(martist.Artist):
         """
 
         self._set_artist_props(p)
-        if p.get_clip_path() is None:
+        if p.clippath is None:
             p.set_clip_path(self.patch)
         self._update_patch_limits(p)
         self.patches.append(p)
@@ -1805,7 +1827,7 @@ class _AxesBase(martist.Artist):
                                  self.transData)
                 xys = patch_to_data.transform(xys)
 
-            updatex, updatey = patch.get_transform().\
+            updatex, updatey = patch.transform.\
                 contains_branch_seperately(self.transData)
             self.update_datalim(xys, updatex=updatex,
                                 updatey=updatey)
@@ -1853,11 +1875,11 @@ class _AxesBase(martist.Artist):
         self.ignore_existing_data_limits = True
 
         for line in self.lines:
-            if not visible_only or line.get_visible():
+            if not visible_only or line.visible:
                 self._update_line_limits(line)
 
         for p in self.patches:
-            if not visible_only or p.get_visible():
+            if not visible_only or p.visible:
                 self._update_patch_limits(p)
 
     def update_datalim(self, xys, updatex=True, updatey=True):
@@ -2209,7 +2231,7 @@ class _AxesBase(martist.Artist):
 
         if renderer is None:
             raise RuntimeError('No renderer defined')
-        if not self.get_visible():
+        if not self.visible:
             return
         renderer.open_group('axes')
         # prevent triggering call backs during the draw process
@@ -2261,7 +2283,7 @@ class _AxesBase(martist.Artist):
             dsu = [(a.zorder, a) for a in artists]
         else:
             dsu = [(a.zorder, a) for a in artists
-                   if (not a.get_animated() or a in self.images)]
+                   if (not a.animated or a in self.images)]
 
         dsu.sort(key=itemgetter(0))
 
@@ -2286,11 +2308,11 @@ class _AxesBase(martist.Artist):
             # list of (mimage.Image, ox, oy)
 
             zorder_images = [(im.zorder, im) for im in self.images
-                             if im.get_visible()]
+                             if im.visible]
             zorder_images.sort(key=lambda x: x[0])
 
             mag = renderer.get_image_magnification()
-            ims = [(im.make_image(mag), 0, 0, im.get_alpha())
+            ims = [(im.make_image(mag), 0, 0, im.alpha)
                    for z, im in zorder_images]
 
             l, b, r, t = self.bbox.extents
@@ -2309,7 +2331,7 @@ class _AxesBase(martist.Artist):
             gc.set_clip_rectangle(self.bbox)
             gc.set_clip_path(mtransforms.TransformedPath(
                 self.patch.get_path(),
-                self.patch.get_transform()))
+                self.patch.transform))
 
             renderer.draw_image(gc, round(l), round(b), im)
             gc.restore()
@@ -3658,7 +3680,8 @@ class _AxesBase(martist.Artist):
 
         Returns *True* / *False*, {}
         """
-        if six.callable(self._contains):
+        # self._contains should already be callable
+        if self._contains is not None:
             return self._contains(self, mouseevent)
 
         return self.patch.contains(mouseevent)
@@ -3685,7 +3708,7 @@ class _AxesBase(martist.Artist):
 
     def get_default_bbox_extra_artists(self):
         return [artist for artist in self.get_children()
-                if artist.get_visible()]
+                if artist.visible]
 
     def get_tightbbox(self, renderer, call_axes_locator=True):
         """
@@ -3701,7 +3724,7 @@ class _AxesBase(martist.Artist):
 
         bb = []
 
-        if not self.get_visible():
+        if not self.visible:
             return None
 
         locator = self.get_axes_locator()
@@ -3713,11 +3736,11 @@ class _AxesBase(martist.Artist):
 
         bb.append(self.get_window_extent(renderer))
 
-        if self.title.get_visible():
+        if self.title.visible:
             bb.append(self.title.get_window_extent(renderer))
-        if self._left_title.get_visible():
+        if self._left_title.visible:
             bb.append(self._left_title.get_window_extent(renderer))
-        if self._right_title.get_visible():
+        if self._right_title.visible:
             bb.append(self._right_title.get_window_extent(renderer))
 
         bb_xaxis = self.xaxis.get_tightbbox(renderer)
@@ -3729,7 +3752,7 @@ class _AxesBase(martist.Artist):
             bb.append(bb_yaxis)
 
         for child in self.get_children():
-            if isinstance(child, OffsetBox) and child.get_visible():
+            if isinstance(child, OffsetBox) and child.visible:
                 bb.append(child.get_window_extent(renderer))
 
         _bbox = mtransforms.Bbox.union(
@@ -3764,8 +3787,8 @@ class _AxesBase(martist.Artist):
         ax2.yaxis.set_label_position('right')
         ax2.yaxis.set_offset_position('right')
         self.yaxis.tick_left()
-        ax2.xaxis.set_visible(False)
-        ax2.patch.set_visible(False)
+        ax2.xaxis.visible = False
+        ax2.patch.visible = False
         return ax2
 
     def twiny(self):
@@ -3788,8 +3811,8 @@ class _AxesBase(martist.Artist):
         ax2.xaxis.tick_top()
         ax2.xaxis.set_label_position('top')
         self.xaxis.tick_bottom()
-        ax2.yaxis.set_visible(False)
-        ax2.patch.set_visible(False)
+        ax2.yaxis.visible = False
+        ax2.patch.visible = False
         return ax2
 
     def get_shared_x_axes(self):

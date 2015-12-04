@@ -78,7 +78,7 @@ def connection_info():
     result = []
     for manager in Gcf.get_all_fig_managers():
         fig = manager.canvas.figure
-        result.append('{0} - {0}'.format((fig.get_label() or
+        result.append('{0} - {0}'.format((fig.label or
                                           "Figure {0}".format(manager.num)),
                                          manager.web_sockets))
     if not is_interactive():
@@ -217,7 +217,7 @@ def new_figure_manager_given_figure(num, figure):
 
     canvas = FigureCanvasNbAgg(figure)
     if rcParams['nbagg.transparent']:
-        figure.patch.set_alpha(0)
+        figure.patch.alpha = 0
     manager = FigureManagerNbAgg(canvas, num)
 
     if is_interactive():

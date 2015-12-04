@@ -19,7 +19,7 @@ plt.gca().add_patch(patch)
 
 im = plt.imshow(Z, interpolation='bilinear', cmap=cm.gray,
                 origin='lower', extent=[-3, 3, -3, 3],
-                clip_path=patch, clip_on=True)
+                clip_path=patch, clipon=True)
 im.set_clip_path(patch)
 
 plt.show()

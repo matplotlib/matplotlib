@@ -496,12 +496,12 @@ class ColorbarBase(cm.ScalarMappable):
                                           fc=fc, ec=ec, lw=linewidths,
                                           zorder=2.,
                                           transform=self.ax.transAxes,
-                                          clip_on=False)
+                                          clipon=False)
         self.extension_patch2 = PathPatch(path2,
                                           fc=fc, ec=ec, lw=linewidths,
                                           zorder=2.,
                                           transform=self.ax.transAxes,
-                                          clip_on=False)
+                                          clipon=False)
         self.ax.add_artist(self.extension_patch1)
         self.ax.add_artist(self.extension_patch2)
 
@@ -716,7 +716,7 @@ class Colorbar(ColorbarBase):
         self.mappable = mappable
         kw['cmap'] = mappable.cmap
         kw['norm'] = mappable.norm
-        kw['alpha'] = mappable.get_alpha()
+        kw['alpha'] = mappable.alpha
         if isinstance(mappable, contour.ContourSet):
             CS = mappable
             kw['boundaries'] = CS._levels
@@ -803,7 +803,7 @@ def make_axes(parent, **kw):
         panchor = (0.5, 0.0)
     parent.set_position(pb1)
     parent.set_anchor(panchor)
-    fig = parent.get_figure()
+    fig = parent.figure
     cax = fig.add_axes(pbcb)
     cax.set_aspect(aspect, anchor=anchor, adjustable='box')
     return cax, kw

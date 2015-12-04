@@ -106,6 +106,7 @@ from matplotlib.collections import LineCollection
 from matplotlib import rcParams
 
 from matplotlib.artist import allow_rasterization
+from matplotlib.traitlets import observe, validate, _traitlets_deprecation_msg
 
 import warnings
 
@@ -138,7 +139,7 @@ class BezierPath(mlines.Line2D):
         if self._invalid:
             self.recache()
 
-        if not self._visible: return
+        if not self.private('visible'): return
         renderer.open_group('line2d')
 
         gc = renderer.new_gc()
@@ -229,7 +230,7 @@ class Ticks(Line2D, AttributeCopier):
 
         Line2D.__init__(self, [0.], [0.], **kwargs)
         AttributeCopier.__init__(self, self._axis, klass=Line2D)
-        self.set_snap(True)
+        self.snap = True
 
     def get_ref_artist(self):
         #return self._ref_artist.get_ticklines()[0]
@@ -284,7 +285,7 @@ class Ticks(Line2D, AttributeCopier):
     _tickvert_path = Path([[0., 0.], [1., 0.]])
 
     def draw(self, renderer):
-        if not self.get_visible():
+        if not self.visible:
             return
 
         self._update(renderer) # update the tick
@@ -315,7 +316,7 @@ class Ticks(Line2D, AttributeCopier):
         self._set_gc_clip(gc)
         gc.set_foreground(self.get_markeredgecolor())
         gc.set_linewidth(self.get_markeredgewidth())
-        gc.set_alpha(self._alpha)
+        gc.set_alpha(self.alpha)
 
         offset = renderer.points_to_pixels(size)
         marker_scale = Affine2D().scale(offset, offset)
@@ -343,8 +344,8 @@ def test_ticks():
     fig = plt.figure(1)
     fig.clf()
     ax = fig.add_subplot(111)
-    ax.xaxis.set_visible(False)
-    ax.yaxis.set_visible(False)
+    ax.xaxis.visible = False
+    ax.yaxis.visible = False
     ticks = Ticks(ticksize=10, axis=ax.xaxis)
     ax.add_artist(ticks)
     locs_angles = [((0.2, 0.), 90),
@@ -406,7 +407,7 @@ class LabelBase(mtext.Text):
         pass
 
     def draw(self, renderer):
-        if not self.get_visible(): return
+        if not self.visible: return
 
         self._update(renderer)
 
@@ -427,6 +428,7 @@ class LabelBase(mtext.Text):
         self.set_rotation(text_ref_angle+angle_orig)
         super(LabelBase, self).draw(renderer)
         offset_tr.clear()
+
 
 
         # restore original properties
@@ -545,13 +547,13 @@ class AxisLabel(LabelBase, AttributeCopier):
 
 
     def get_ref_artist(self):
-        return self._axis.get_label()
+        return self._axis.label
 
 
     def get_text(self):
         t = super(AxisLabel, self).get_text()
         if t == "__from_axes__":
-            return self._axis.get_label().get_text()
+            return self._axis.label.get_text()
         return self._text
 
     _default_alignments = dict(left=("bottom", "center"),
@@ -612,7 +614,7 @@ class AxisLabel(LabelBase, AttributeCopier):
         return self.get_attribute_from_ref_artist("color", "k")
 
     def draw(self, renderer):
-        if not self.get_visible():
+        if not self.visible:
             return
 
         pad = renderer.points_to_pixels(self.get_pad())
@@ -624,7 +626,7 @@ class AxisLabel(LabelBase, AttributeCopier):
 
     def get_window_extent(self, renderer):
 
-        if not self.get_visible():
+        if not self.visible:
             return
 
         pad = renderer.points_to_pixels(self.get_pad())
@@ -774,7 +776,7 @@ class TickLabels(AxisLabel, AttributeCopier): # mtext.Text
 
 
     def draw(self, renderer):
-        if not self.get_visible():
+        if not self.visible:
             self._axislabel_pad = self._get_external_pad()
             return
 
@@ -805,7 +807,7 @@ class TickLabels(AxisLabel, AttributeCopier): # mtext.Text
 
     def get_window_extents(self, renderer):
 
-        if not self.get_visible():
+        if not self.visible:
             self._axislabel_pad = self._get_external_pad()
             return []
 
@@ -854,8 +856,8 @@ def test_ticklabels():
     fig = plt.figure(1)
     fig.clf()
     ax = fig.add_subplot(111)
-    ax.xaxis.set_visible(False)
-    ax.yaxis.set_visible(False)
+    ax.xaxis.visible = False
+    ax.yaxis.visible = False
     ax.plot([0.2, 0.4], [0.5, 0.5], "o")
     ticks = Ticks(ticksize=10, axis=ax.xaxis)
     ax.add_artist(ticks)
@@ -1253,7 +1255,7 @@ class AxisArtist(martist.Artist):
         # use ticksize of majorticks even for minor ticks. not clear what is best.
 
         dpi_cor = renderer.points_to_pixels(1.)
-        if self.major_ticks.get_visible() and self.major_ticks.get_tick_out():
+        if self.major_ticks.visible and self.major_ticks.get_tick_out():
             self.major_ticklabels._set_external_pad(self.major_ticks._ticksize*dpi_cor)
             self.minor_ticklabels._set_external_pad(self.major_ticks._ticksize*dpi_cor)
         else:
@@ -1302,7 +1304,7 @@ class AxisArtist(martist.Artist):
         self.minor_ticklabels.draw(renderer)
 
 
-        if (self.major_ticklabels.get_visible() or self.minor_ticklabels.get_visible()):
+        if (self.major_ticklabels.visible or self.minor_ticklabels.visible):
             self._draw_offsetText(renderer)
 
         return extents
@@ -1314,7 +1316,7 @@ class AxisArtist(martist.Artist):
         # use ticksize of majorticks even for minor ticks. not clear what is best.
 
         dpi_cor = renderer.points_to_pixels(1.)
-        if self.major_ticks.get_visible() and self.major_ticks.get_tick_out():
+        if self.major_ticks.visible and self.major_ticks.get_tick_out():
             self.major_ticklabels._set_external_pad(self.major_ticks._ticksize*dpi_cor)
             self.minor_ticklabels._set_external_pad(self.major_ticks._ticksize*dpi_cor)
         else:
@@ -1346,7 +1348,7 @@ class AxisArtist(martist.Artist):
         self.minor_ticklabels.draw(renderer)
 
 
-        if (self.major_ticklabels.get_visible() or self.minor_ticklabels.get_visible()):
+        if (self.major_ticklabels.visible or self.minor_ticklabels.visible):
             self._draw_offsetText(renderer)
 
         return self.major_ticklabels.get_window_extents(renderer)
@@ -1413,7 +1415,7 @@ class AxisArtist(martist.Artist):
                                axis_direction=self._axis_direction,
                                )
 
-        self.label.set_figure(self.axes.figure)
+        self.label.figure = self.axes.figure
 
         labelpad = kw.get("labelpad", 5)
         self.label.set_pad(labelpad)
@@ -1421,7 +1423,7 @@ class AxisArtist(martist.Artist):
 
     def _update_label(self, renderer):
 
-        if not self.label.get_visible():
+        if not self.label.visible:
             return
 
         fontprops = font_manager.FontProperties(
@@ -1433,9 +1435,9 @@ class AxisArtist(martist.Artist):
         #print self._ticklabel_add_angle - self._axislabel_add_angle
         #if abs(self._ticklabel_add_angle - self._axislabel_add_angle)%360 > 90:
         if self._ticklabel_add_angle !=  self._axislabel_add_angle:
-            if (self.major_ticks.get_visible() and not self.major_ticks.get_tick_out()) \
+            if (self.major_ticks.visible and not self.major_ticks.get_tick_out()) \
                or \
-               (self.minor_ticks.get_visible() and not self.major_ticks.get_tick_out()):
+               (self.minor_ticks.visible and not self.major_ticks.get_tick_out()):
                 axislabel_pad = self.major_ticks._ticksize
             else:
                 axislabel_pad = 0
@@ -1466,7 +1468,7 @@ class AxisArtist(martist.Artist):
 
     def _draw_label2(self, renderer):
 
-        if not self.label.get_visible():
+        if not self.label.visible:
             return
 
         fontprops = font_manager.FontProperties(
@@ -1478,9 +1480,9 @@ class AxisArtist(martist.Artist):
         #print self._ticklabel_add_angle - self._axislabel_add_angle
         #if abs(self._ticklabel_add_angle - self._axislabel_add_angle)%360 > 90:
         if self._ticklabel_add_angle !=  self._axislabel_add_angle:
-            if (self.major_ticks.get_visible() and not self.major_ticks.get_tick_out()) \
+            if (self.major_ticks.visible and not self.major_ticks.get_tick_out()) \
                or \
-               (self.minor_ticks.get_visible() and not self.major_ticks.get_tick_out()):
+               (self.minor_ticks.visible and not self.major_ticks.get_tick_out()):
                 axislabel_pad = self.major_ticks._ticksize
             else:
                 axislabel_pad = 0
@@ -1505,15 +1507,23 @@ class AxisArtist(martist.Artist):
         self.label.set(x=x, y=y)
         self.label.draw(renderer)
 
+    @validate('label')
+    def _label_validate(self, commit):
+        self.label.set_text(commit['value'])
+        old = getattr(self, commit['trait'].name)
+        return old
 
+    @observe('label')
+    def _label_changed(self, change): pass
 
     def set_label(self, s):
-        self.label.set_text(s)
-
+        msg = _traitlets_deprecation_msg('label')
+        warnings.warn(msg, mplDeprecation, stacklevel=1)
+        self.label = s
 
 
     def get_tightbbox(self, renderer):
-        if not self.get_visible(): return
+        if not self.visible: return
 
         self._axis_artist_helper.update_lim(self.axes)
 
@@ -1557,7 +1567,7 @@ class AxisArtist(martist.Artist):
     def draw(self, renderer):
         'Draw the axis lines, tick lines and labels'
 
-        if not self.get_visible(): return
+        if not self.visible: return
 
         renderer.open_group(__name__)
 
@@ -1610,13 +1620,13 @@ class AxisArtist(martist.Artist):
             _label = label
 
         if _ticks is not None:
-            self.major_ticks.set_visible(_ticks)
-            self.minor_ticks.set_visible(_ticks)
+            self.major_ticks.visible = _ticks
+            self.minor_ticks.visible = _ticks
         if _ticklabels is not None:
-            self.major_ticklabels.set_visible(_ticklabels)
-            self.minor_ticklabels.set_visible(_ticklabels)
+            self.major_ticklabels.visible = _ticklabels
+            self.minor_ticklabels.visible = _ticklabels
         if _label is not None:
-            self.label.set_visible(_label)
+            self.label.visible = _label
 
 
 
@@ -1630,8 +1640,8 @@ def test_axis_artist():
     fig = plt.figure(1)
     fig.clf()
     ax=fig.add_subplot(111)
-    ax.xaxis.set_visible(False)
-    ax.yaxis.set_visible(False)
+    ax.xaxis.visible = False
+    ax.yaxis.visible = False
 
     if 1:
 
@@ -1644,7 +1654,7 @@ def test_axis_artist():
 
     _helper = AxisArtistHelperRectlinear.Fixed(ax, loc="bottom")
     axisline = AxisArtist(ax, _helper, offset=None, axis_direction="bottom")
-    axisline.set_label("TTT")
+    axisline.label = "TTT"
     #axisline.label.set_visible(False)
     ax.add_artist(axisline)
 
@@ -1666,13 +1676,13 @@ def test_axis_artist2():
     fig = plt.figure(1)
     fig.clf()
     ax=fig.add_subplot(111)
-    ax.xaxis.set_visible(False)
-    ax.yaxis.set_visible(False)
+    ax.xaxis.visible = False
+    ax.yaxis.visible = False
 
 
     _helper = AxisArtistHelperRectlinear.Fixed(ax, loc="bottom")
     axisline = AxisArtist(ax, _helper, offset=None, axis_direction="bottom")
-    axisline.set_label("TTT")
+    axisline.label = "TTT"
     ax.add_artist(axisline)
 
     #axisline.major_ticklabels.set_axis_direction("bottom")

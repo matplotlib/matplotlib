@@ -1152,9 +1152,9 @@ class YearLocator(DateLocator):
         """
         DateLocator.__init__(self, tz)
         self.base = ticker.Base(base)
-        self.replaced = {'month':  month,
-                         'day':    day,
-                         'hour':   0,
+        self.replaced = {'month': month,
+                         'day': day,
+                         'hour': 0,
                          'minute': 0,
                          'second': 0,
                          'tzinfo': tz

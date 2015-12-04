@@ -222,7 +222,7 @@ def test_cmap_and_norm_from_levels_and_colors():
 
     # Hide the axes labels (but not the colorbar ones, as they are useful)
     for lab in ax.get_xticklabels() + ax.get_yticklabels():
-        lab.set_visible(False)
+        lab.visible = False
 
 
 def test_cmap_and_norm_from_levels_and_colors2():

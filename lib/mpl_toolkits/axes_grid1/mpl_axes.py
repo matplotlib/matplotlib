@@ -8,14 +8,21 @@ import warnings
 import matplotlib.axes as maxes
 from matplotlib.artist import Artist
 from matplotlib.axis import XAxis, YAxis
+from matplotlib.traitlets import validate
 
 class SimpleChainedObjects(object):
     def __init__(self, objects):
-        self._objects = objects
+        s = super(SimpleChainedObjects, self)
+        s.__setattr__('_objects', objects)
 
     def __getattr__(self, k):
         _a = SimpleChainedObjects([getattr(a, k) for a in self._objects])
         return _a
+
+    def __setattr__(self, k, v):
+        s = super(SimpleChainedObjects, self)
+        for a in s.__getattribute__('_objects'):
+            setattr(a, k, v)
 
     def __call__(self, *kl, **kwargs):
         for m in self._objects:
@@ -106,11 +113,12 @@ class SimpleAxisArtist(Artist):
     major_ticklabels = property(_get_major_ticklabels)
     label = property(_get_label)
 
-    def set_visible(self, b):
+    @validate('visible')
+    def _visible_validate(self, commit):
+        b = commit['value']
         self.toggle(all=b)
-        self.line.set_visible(b)
-        self._axis.set_visible(True)
-        Artist.set_visible(self, b)
+        self.line.visible = b
+        self._axis.visible = True
 
     def set_label(self, txt):
         self._axis.set_label_text(txt)
@@ -144,9 +152,9 @@ class SimpleAxisArtist(Artist):
         if _label is not None:
             pos = self._axis.get_label_position()
             if (pos == self._axis_direction) and not _label:
-                self._axis.label.set_visible(False)
+                self._axis.label.visible = False
             elif _label:
-                self._axis.label.set_visible(True)
+                self._axis.label.visible = False
                 self._axis.set_label_position(self._axis_direction)
 
 

@@ -25,8 +25,8 @@ def test_repeated_save_with_alpha():
 
     fig = Figure([1, 0.4])
     canvas = FigureCanvas(fig)
+    fig.patch.alpha = 0.25
     fig.set_facecolor((0, 1, 0.4))
-    fig.patch.set_alpha(0.25)
 
     # The target color is fig.patch.get_facecolor()
 

@@ -118,8 +118,8 @@ class Axis(maxis.XAxis):
         self.axes._set_artist_props(self.label)
         self.axes._set_artist_props(self.offsetText)
         # Need to be able to place the label at the correct location
-        self.label._transform = self.axes.transData
-        self.offsetText._transform = self.axes.transData
+        self.label.private('transform', self.axes.transData)
+        self.offsetText.private('transform', self.axes.transData)
 
     def get_tick_positions(self):
         majorLocs = self.major.locator()
@@ -130,11 +130,11 @@ class Axis(maxis.XAxis):
     def get_major_ticks(self, numticks=None):
         ticks = maxis.XAxis.get_major_ticks(self, numticks)
         for t in ticks:
-            t.tick1line.set_transform(self.axes.transData)
-            t.tick2line.set_transform(self.axes.transData)
-            t.gridline.set_transform(self.axes.transData)
-            t.label1.set_transform(self.axes.transData)
-            t.label2.set_transform(self.axes.transData)
+            t.tick1line.transform = self.axes.transData
+            t.tick2line.transform = self.axes.transData
+            t.gridline.transform = self.axes.transData
+            t.label1.transform = self.axes.transData
+            t.label2.transform = self.axes.transData
         return ticks
 
     def set_pane_pos(self, xys):
@@ -148,7 +148,7 @@ class Axis(maxis.XAxis):
         self._axinfo['color'] = color
         self.pane.set_edgecolor(color)
         self.pane.set_facecolor(color)
-        self.pane.set_alpha(color[-1])
+        self.pane.alpha = color[-1]
         self.stale = True
 
     def set_rotate_label(self, val):
@@ -206,7 +206,7 @@ class Axis(maxis.XAxis):
         renderer.close_group('pane3d')
 
     def draw(self, renderer):
-        self.label._transform = self.axes.transData
+        self.label.private('transform', self.axes.transData)
         renderer.open_group('axis3d')
 
         # code from XAxis

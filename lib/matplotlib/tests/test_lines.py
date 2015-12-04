@@ -39,7 +39,7 @@ def test_invisible_Line_rendering():
 
     # Create a "big" Line instance:
     l = mpl.lines.Line2D(x,y)
-    l.set_visible(False)
+    l.visible = False
     # but don't add it to the Axis instance `ax`
 
     # [here Interactive panning and zooming is pretty responsive]

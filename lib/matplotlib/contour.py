@@ -48,7 +48,7 @@ class ClabelText(text.Text):
     """
     def get_rotation(self):
         angle = text.Text.get_rotation(self)
-        trans = self.get_transform()
+        trans = self.transform
         x, y = self.get_position()
         new_angles = trans.transform_angles(np.array([angle]),
                                             np.array([[x, y]]))
@@ -339,7 +339,7 @@ class ContourLabeler(object):
         label.set_text(text)
         label.set_color(color)
         label.set_fontproperties(self.labelFontProps)
-        label.set_clip_box(self.ax.bbox)
+        label.clipbox = self.ax.bbox
 
     def get_text(self, lev, fmt):
         "get the text of the label"
@@ -649,7 +649,7 @@ class ContourLabeler(object):
                 self.labelFontSizeList, self.labelCValueList):
 
             con = self.collections[icon]
-            trans = con.get_transform()
+            trans = con.transform
             lw = self.get_label_width(lev, self.labelFmt, fsize)
             lw *= self.ax.figure.dpi / 72.0  # scale to screen coordinates
             additions = []
@@ -969,7 +969,7 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
                     alpha=self.alpha,
                     transform=self.get_transform(),
                     zorder=zorder)
-                col.set_label('_nolegend_')
+                col.label = '_nolegend_'
                 self.ax.add_collection(col, autolim=False)
                 self.collections.append(col)
         self.changed()  # set the colors
@@ -1019,7 +1019,7 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
                     (0, 0), 1, 1,
                     facecolor=collection.get_facecolor()[0],
                     hatch=collection.get_hatch(),
-                    alpha=collection.get_alpha())
+                    alpha=collection.alpha)
                 artists.append(patch)
 
                 lower = str_format(lower)
@@ -1136,7 +1136,7 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
             else:
                 collection.set_color(color)
         for label, cv in zip(self.labelTexts, self.labelCValues):
-            label.set_alpha(self.alpha)
+            label.alpha = self.alpha
             label.set_color(self.labelMappable.to_rgba(cv))
         # add label colors
         cm.ScalarMappable.changed(self)
@@ -1395,7 +1395,7 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
 
         for icon in indices:
             con = self.collections[icon]
-            trans = con.get_transform()
+            trans = con.transform
             paths = con.get_paths()
 
             for segNum, linepath in enumerate(paths):

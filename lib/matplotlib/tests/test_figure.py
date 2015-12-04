@@ -55,7 +55,7 @@ def test_figure():
     # named figure support
     fig = plt.figure('today')
     ax = fig.add_subplot(111)
-    ax.set_title(fig.get_label())
+    ax.set_title(fig.label)
     ax.plot(list(xrange(5)))
     # plot red line in a different figure.
     plt.figure('tomorrow')
@@ -110,7 +110,7 @@ def test_alpha():
     # alpha of 0.4.
     fig = plt.figure(figsize=[2, 1])
     fig.set_facecolor((0, 1, 0.4))
-    fig.patch.set_alpha(0.4)
+    fig.patch.alpha = 0.4
 
     import matplotlib.patches as mpatches
     fig.patches.append(mpatches.CirclePolygon([20, 20],

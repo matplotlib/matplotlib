@@ -319,9 +319,9 @@ def mark_inset(parent_axes, inset_axes, loc1, loc2, **kwargs):
 
     p1 = BboxConnector(inset_axes.bbox, rect, loc1=loc1, **kwargs)
     inset_axes.add_patch(p1)
-    p1.set_clip_on(False)
+    p1.clipon = False
     p2 = BboxConnector(inset_axes.bbox, rect, loc1=loc2, **kwargs)
     inset_axes.add_patch(p2)
-    p2.set_clip_on(False)
+    p2.clipon = False
 
     return pp, p1, p2

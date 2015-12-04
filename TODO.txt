@@ -1,0 +1,70 @@
+-- INFILE --
+
+#!DEPRECATED = dead method or code block
+#!NOTE = see the commment
+
+-- GENERAL --
+
+# NEWTYPE = make traittype
+# TRAITLET = make traitlet
+# REFACTOR = change api
+
+-- WORKFLOW --
+
+0.0) not started
+
+0.1) if relevant make new traittype
+0.2) create class attr for traittype
+0.3) implament new change handlers
+
+# in Sublime Text
+1.0) check for redefinition
+1.1) identify class as of Artist
+1.2) write relevant imports
+1.3) make the method changes
+
+# using tool/refactor_tool.py
+2.0) locate method references
+2.1) changed the method references
+
+3.0) locate underscored attr references
+3.1) change the underscored attrs
+
+4.0) run partial test suite
+4.1) rework for passing
+
+5.0) run full test suite
+5.1) rework for passing
+
+6.0) complete
+
+-- STATUS --
+
+6.0 : transform
+6.0 : transform_set
+6.0 : stale
+6.0 : axes
+6.0 : figure
+6.0 : visible
+6.0 : animated
+6.0 : alpha
+6.0 : rasterized
+6.0 : pickable
+6.0 : clipbox
+6.0 : clippath
+6.0 : clipon
+6.0 : url
+6.0 : gid
+6.0 : label
+6.0 : contains
+6.0 : picker
+6.0 : mouseover
+6.0 : agg_filter
+6.0 : snap
+6.0 : sketch_scale (new)
+6.0 : sketch_length (new)
+6.0 : sketch_randomness (new)
+6.0 : sketch_params
+6.0 : patheffects
+...
+...

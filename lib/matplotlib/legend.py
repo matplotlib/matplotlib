@@ -304,10 +304,10 @@ class Legend(Artist):
         if isinstance(parent, Axes):
             self.isaxes = True
             self.axes = parent
-            self.set_figure(parent.figure)
+            self.figure = parent.figure
         elif isinstance(parent, Figure):
             self.isaxes = False
-            self.set_figure(parent)
+            self.figure = parent
         else:
             raise TypeError("Legend needs either Axes or Figure as parent")
         self.parent = parent
@@ -385,9 +385,9 @@ class Legend(Artist):
         self._init_legend_box(handles, labels, markerfirst)
 
         if framealpha is None:
-            self.get_frame().set_alpha(rcParams["legend.framealpha"])
+            self.get_frame().alpha = rcParams["legend.framealpha"]
         else:
-            self.get_frame().set_alpha(framealpha)
+            self.get_frame().alpha = framealpha
 
         self._loc = loc
         self.set_title(title)
@@ -398,12 +398,12 @@ class Legend(Artist):
         """
         set the boilerplate props for artists added to axes
         """
-        a.set_figure(self.figure)
+        a.figure = self.figure
         if self.isaxes:
             # a.set_axes(self.axes)
             a.axes = self.axes
 
-        a.set_transform(self.get_transform())
+        a.transform = self.transform
 
     def _set_loc(self, loc):
         # find_offset function will be provided to _legend_box and
@@ -452,7 +452,7 @@ class Legend(Artist):
     @allow_rasterization
     def draw(self, renderer):
         "Draw everything that belongs to the legend"
-        if not self.get_visible():
+        if not self.visible:
             return
 
         renderer.open_group('legend')
@@ -714,7 +714,7 @@ class Legend(Artist):
                                    align="center",
                                    children=[self._legend_title_box,
                                              self._legend_handle_box])
-        self._legend_box.set_figure(self.figure)
+        self._legend_box.figure = self.figure
         self.texts = text_list
         self.legendHandles = handle_list
 
@@ -741,7 +741,7 @@ class Legend(Artist):
         for handle in ax.lines:
             assert isinstance(handle, Line2D)
             path = handle.get_path()
-            trans = handle.get_transform()
+            trans = handle.transform
             tpath = trans.transform_path(path)
             lines.append(tpath)
 
@@ -752,7 +752,7 @@ class Legend(Artist):
                 transform = handle.get_data_transform()
                 bboxes.append(handle.get_bbox().transformed(transform))
             else:
-                transform = handle.get_transform()
+                transform = handle.transform
                 bboxes.append(handle.get_path().get_extents(transform))
 
         try:
@@ -806,9 +806,9 @@ class Legend(Artist):
             self._legend_title_box._text.set_fontproperties(prop)
 
         if title:
-            self._legend_title_box.set_visible(True)
+            self._legend_title_box.visible = True
         else:
-            self._legend_title_box.set_visible(False)
+            self._legend_title_box.visible = False
         self.stale = True
 
     def get_title(self):

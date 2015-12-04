@@ -5,7 +5,7 @@ from __future__ import (absolute_import, division, print_function,
 
 from matplotlib.externals import six
 from matplotlib.externals.six.moves import map, zip
-
+import warnings
 import math
 
 import matplotlib as mpl
@@ -17,12 +17,15 @@ import matplotlib.colors as colors
 from matplotlib import docstring
 import matplotlib.transforms as transforms
 from matplotlib.path import Path
+from .cbook import mplDeprecation
 
 from matplotlib.bezier import split_bezier_intersecting_with_closedpath
 from matplotlib.bezier import get_intersection, inside_circle, get_parallels
 from matplotlib.bezier import make_wedged_bezier2
 from matplotlib.bezier import split_path_inout, get_cos_sin
 from matplotlib.bezier import make_path_regular, concatenate_paths
+
+from .traitlets import validate, retrieve, _traitlets_deprecation_msg
 
 
 # these are not available for the object inspector until after the
@@ -37,8 +40,8 @@ docstring.interpd.update(Patch="""
           animated            [True | False]
           antialiased or aa   [True | False]
           capstyle            ['butt' | 'round' | 'projecting']
-          clip_box            a matplotlib.transform.Bbox instance
-          clip_on             [True | False]
+          clipbox             a matplotlib.transform.Bbox instance
+          clipon              [True | False]
           edgecolor or ec     any matplotlib color
           facecolor or fc     any matplotlib color
           figure              a matplotlib.figure.Figure instance
@@ -135,7 +138,7 @@ class Patch(artist.Artist):
         interpolated by line segments.  To access the curves as
         curves, use :meth:`get_path`.
         """
-        trans = self.get_transform()
+        trans = self.transform
         path = self.get_path()
         polygons = path.to_polygons(trans)
         if len(polygons):
@@ -147,15 +150,17 @@ class Patch(artist.Artist):
 
         Returns T/F, {}
         """
-        if six.callable(self._contains):
+
+        # self._contains should already be callable
+        if self._contains is not None:
             return self._contains(self, mouseevent)
         if radius is None:
-            if cbook.is_numlike(self._picker):
-                radius = self._picker
+            if cbook.is_numlike(self.picker):
+                radius = self.picker
             else:
                 radius = self.get_linewidth()
         inside = self.get_path().contains_point(
-            (mouseevent.x, mouseevent.y), self.get_transform(), radius)
+            (mouseevent.x, mouseevent.y), self.transform, radius)
         return inside, {}
 
     def contains_point(self, point, radius=None):
@@ -164,12 +169,12 @@ class Patch(artist.Artist):
         (transformed with its transform attribute).
         """
         if radius is None:
-            if cbook.is_numlike(self._picker):
-                radius = self._picker
+            if cbook.is_numlike(self.picker):
+                radius = self.picker
             else:
                 radius = self.get_linewidth()
         return self.get_path().contains_point(point,
-                                              self.get_transform(),
+                                              self.transform,
                                               radius)
 
     def update_from(self, other):
@@ -183,30 +188,36 @@ class Patch(artist.Artist):
         self.set_hatch(other.get_hatch())
         self.set_linewidth(other.get_linewidth())
         self.set_linestyle(other.get_linestyle())
-        self.set_transform(other.get_data_transform())
-        self.set_figure(other.get_figure())
-        self.set_alpha(other.get_alpha())
+        self.transform = other.get_data_transform()
+        self.figure = other.figure
+        self.alpha = other.alpha
 
     def get_extents(self):
         """
         Return a :class:`~matplotlib.transforms.Bbox` object defining
         the axis-aligned extents of the :class:`Patch`.
         """
-        return self.get_path().get_extents(self.get_transform())
+        return self.get_path().get_extents(self.transform)
 
-    def get_transform(self):
-        """
-        Return the :class:`~matplotlib.transforms.Transform` applied
-        to the :class:`Patch`.
-        """
-        return self.get_patch_transform() + artist.Artist.get_transform(self)
+    @retrieve('transform')
+    def _transform_getter(self, pull):
+        return self.get_patch_transform() + pull['value']
+
+    # !DEPRECATED
+    # def get_transform(self):
+    #     """
+    #     Return the :class:`~matplotlib.transforms.Transform` applied
+    #     to the :class:`Patch`.
+    #     """
+    #     return self.get_patch_transform() + artist.Artist.get_transform(self)
 
     def get_data_transform(self):
         """
         Return the :class:`~matplotlib.transforms.Transform` instance which
         maps data coordinates to physical coordinates.
         """
-        return artist.Artist.get_transform(self)
+        trait = self.__class__.transform
+        return trait.get(self, None)
 
     def get_patch_transform(self):
         """
@@ -279,7 +290,7 @@ class Patch(artist.Artist):
         if color is None:
             color = mpl.rcParams['patch.edgecolor']
         self._original_edgecolor = color
-        self._edgecolor = colors.colorConverter.to_rgba(color, self._alpha)
+        self._edgecolor = colors.colorConverter.to_rgba(color, self.alpha)
         self.stale = True
 
     def set_ec(self, color):
@@ -296,7 +307,7 @@ class Patch(artist.Artist):
             color = mpl.rcParams['patch.facecolor']
         # save: otherwise changing _fill may lose alpha information
         self._original_facecolor = color
-        self._facecolor = colors.colorConverter.to_rgba(color, self._alpha)
+        self._facecolor = colors.colorConverter.to_rgba(color, self.alpha)
         if not self._fill:
             self._facecolor = list(self._facecolor)
             self._facecolor[3] = 0
@@ -320,22 +331,23 @@ class Patch(artist.Artist):
         self.set_facecolor(c)
         self.set_edgecolor(c)
 
+    @validate('alpha')
+    def _alpha_validate(self, commit):
+        value = artist.Artist._alpha_validate(self, commit)
+        self.set_facecolor(self._original_facecolor)
+        self.set_edgecolor(self._original_edgecolor)
+        self.stale = True
+        return value
+
     def set_alpha(self, alpha):
         """
         Set the alpha tranparency of the patch.
 
         ACCEPTS: float or None
         """
-        if alpha is not None:
-            try:
-                float(alpha)
-            except TypeError:
-                raise TypeError('alpha must be a float or None')
-        artist.Artist.set_alpha(self, alpha)
-        # using self._fill and self._alpha
-        self.set_facecolor(self._original_facecolor)
-        self.set_edgecolor(self._original_edgecolor)
-        self.stale = True
+        msg = _traitlets_deprecation_msg('alpha')
+        warnings.warn(msg, mplDeprecation, stacklevel=1)
+        self.alpha = alpha
 
     def set_linewidth(self, w):
         """
@@ -491,10 +503,10 @@ class Patch(artist.Artist):
     @allow_rasterization
     def draw(self, renderer):
         'Draw the :class:`Patch` to the given *renderer*.'
-        if not self.get_visible():
+        if not self.visible:
             return
 
-        renderer.open_group('patch', self.get_gid())
+        renderer.open_group('patch', self.gid)
         gc = renderer.new_gc()
 
         gc.set_foreground(self._edgecolor, isRGBA=True)
@@ -509,29 +521,29 @@ class Patch(artist.Artist):
 
         gc.set_antialiased(self._antialiased)
         self._set_gc_clip(gc)
-        gc.set_url(self._url)
-        gc.set_snap(self.get_snap())
+        gc.set_url(self.url)
+        gc.set_snap(self.snap)
 
         rgbFace = self._facecolor
         if rgbFace[3] == 0:
             rgbFace = None  # (some?) renderers expect this as no-fill signal
 
-        gc.set_alpha(self._alpha)
+        gc.set_alpha(self.alpha)
 
         if self._hatch:
             gc.set_hatch(self._hatch)
 
-        if self.get_sketch_params() is not None:
-            gc.set_sketch_params(*self.get_sketch_params())
+        if self.sketch_params is not None:
+            gc.set_sketch_params(*self.sketch_params)
 
         path = self.get_path()
-        transform = self.get_transform()
+        transform = self.transform
         tpath = transform.transform_path_non_affine(path)
         affine = transform.get_affine()
 
-        if self.get_path_effects():
+        if self.path_effects:
             from matplotlib.patheffects import PathEffectRenderer
-            renderer = PathEffectRenderer(self.get_path_effects(), renderer)
+            renderer = PathEffectRenderer(self.path_effects, renderer)
 
         renderer.draw_path(gc, tpath, affine, rgbFace)
 
@@ -546,7 +558,7 @@ class Patch(artist.Artist):
         raise NotImplementedError('Derived must override')
 
     def get_window_extent(self, renderer=None):
-        return self.get_path().get_extents(self.get_transform())
+        return self.get_path().get_extents(self.transform)
 
 
 patchdoc = artist.kwdoc(Patch)
@@ -595,7 +607,7 @@ class Shadow(Patch):
 
             self.set_facecolor((r, g, b, 0.5))
             self.set_edgecolor((r, g, b, 0.5))
-            self.set_alpha(0.5)
+            self.alpha = 0.5
 
     def _update_transform(self, renderer):
         ox = renderer.points_to_pixels(self._ox)
@@ -1577,7 +1589,7 @@ class Arc(Ellipse):
         # Get the width and height in pixels
         width = self.convert_xunits(self.width)
         height = self.convert_yunits(self.height)
-        width, height = self.get_transform().transform_point(
+        width, height = self.transform.transform_point(
             (width, height))
         inv_error = (1.0 / 1.89818e-6) * 0.5
 
@@ -1634,7 +1646,7 @@ class Arc(Ellipse):
         # ellipse.
         box_path = Path.unit_rectangle()
         box_path_transform = transforms.BboxTransformTo(self.axes.bbox) + \
-            self.get_transform().inverted()
+            self.transform.inverted()
         box_path = box_path.transformed(box_path_transform)
 
         PI = np.pi
@@ -1707,8 +1719,8 @@ def bbox_artist(artist, renderer, props=None, fill=True):
                   height=h,
                   fill=fill,
                   )
-    r.set_transform(transforms.IdentityTransform())
-    r.set_clip_on(False)
+    r.transform = transforms.IdentityTransform()
+    r.clipon = False
     r.update(props)
     r.draw(renderer)
 
@@ -1729,8 +1741,8 @@ def draw_bbox(bbox, renderer, color='k', trans=None):
                   fill=False,
                   )
     if trans is not None:
-        r.set_transform(trans)
-    r.set_clip_on(False)
+        r.transform = trans
+    r.clipon = False
     r.draw(renderer)
 
 
@@ -4195,7 +4207,7 @@ class FancyArrowPatch(Patch):
         if cbook.iterable(fillable):
             _path = concatenate_paths(_path)
 
-        return self.get_transform().inverted().transform_path(_path)
+        return self.transform.inverted().transform_path(_path)
 
     def get_path_in_displaycoord(self):
         """
@@ -4205,8 +4217,8 @@ class FancyArrowPatch(Patch):
         dpi_cor = self.get_dpi_cor()
 
         if self._posA_posB is not None:
-            posA = self.get_transform().transform_point(self._posA_posB[0])
-            posB = self.get_transform().transform_point(self._posA_posB[1])
+            posA = self.transform.transform_point(self._posA_posB[0])
+            posB = self.transform.transform_point(self._posA_posB[1])
             _path = self.get_connectionstyle()(posA, posB,
                                                patchA=self.patchA,
                                                patchB=self.patchB,
@@ -4214,7 +4226,7 @@ class FancyArrowPatch(Patch):
                                                shrinkB=self.shrinkB * dpi_cor
                                               )
         else:
-            _path = self.get_transform().transform_path(self._path_original)
+            _path = self.transform.transform_path(self._path_original)
 
         _path, fillable = self.get_arrowstyle()(_path,
                                                 self.get_mutation_scale(),
@@ -4228,10 +4240,10 @@ class FancyArrowPatch(Patch):
         return _path, fillable
 
     def draw(self, renderer):
-        if not self.get_visible():
+        if not self.visible:
             return
 
-        renderer.open_group('patch', self.get_gid())
+        renderer.open_group('patch', self.gid)
         gc = renderer.new_gc()
 
         gc.set_foreground(self._edgecolor, isRGBA=True)
@@ -4245,19 +4257,19 @@ class FancyArrowPatch(Patch):
         gc.set_antialiased(self._antialiased)
         self._set_gc_clip(gc)
         gc.set_capstyle('round')
-        gc.set_snap(self.get_snap())
+        gc.set_snap(self.snap)
 
         rgbFace = self._facecolor
         if rgbFace[3] == 0:
             rgbFace = None  # (some?) renderers expect this as no-fill signal
 
-        gc.set_alpha(self._alpha)
+        gc.set_alpha(self.alpha)
 
         if self._hatch:
             gc.set_hatch(self._hatch)
 
-        if self.get_sketch_params() is not None:
-            gc.set_sketch_params(*self.get_sketch_params())
+        if self.sketch_params is not None:
+            gc.set_sketch_params(*self.sketch_params)
 
         # FIXME : dpi_cor is for the dpi-dependecy of the
         # linewidth. There could be room for improvement.
@@ -4272,9 +4284,9 @@ class FancyArrowPatch(Patch):
 
         affine = transforms.IdentityTransform()
 
-        if self.get_path_effects():
+        if self.path_effects:
             from matplotlib.patheffects import PathEffectRenderer
-            renderer = PathEffectRenderer(self.get_path_effects(), renderer)
+            renderer = PathEffectRenderer(self.path_effects, renderer)
 
         for p, f in zip(path, fillable):
             if f:
@@ -4309,7 +4321,7 @@ class ConnectionPatch(FancyArrowPatch):
                  shrinkB=0.,
                  mutation_scale=10.,
                  mutation_aspect=None,
-                 clip_on=False,
+                 clipon=False,
                  dpi_cor=1.,
                  **kwargs):
         """
@@ -4383,7 +4395,7 @@ class ConnectionPatch(FancyArrowPatch):
                                  shrinkB=shrinkB,
                                  mutation_scale=mutation_scale,
                                  mutation_aspect=mutation_aspect,
-                                 clip_on=clip_on,
+                                 clipon=clipon,
                                  dpi_cor=dpi_cor,
                                  **kwargs)
 
@@ -4573,7 +4585,7 @@ class ConnectionPatch(FancyArrowPatch):
 
         if renderer is not None:
             self._renderer = renderer
-        if not self.get_visible():
+        if not self.visible:
             return
 
         if not self._check_xy(renderer):

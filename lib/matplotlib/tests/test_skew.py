@@ -25,7 +25,7 @@ from matplotlib.projections import register_projection
 # interval as appropriate and see what parts of the tick to draw, if any.
 class SkewXTick(maxis.XTick):
     def draw(self, renderer):
-        if not self.get_visible():
+        if not self.visible:
             return
         renderer.open_group(self.__name__)
 

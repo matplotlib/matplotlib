@@ -73,7 +73,7 @@ def figure_edit(axes, parent=None):
         # Get / Curves
         linedict = {}
         for line in axes.get_lines():
-            label = line.get_label()
+            label = line.label
             if label == '_nolegend_':
                 continue
             linedict[label] = line
@@ -165,7 +165,7 @@ def figure_edit(axes, parent=None):
                 label, linestyle, drawstyle, linewidth, color, \
                     marker, markersize, markerfacecolor, markeredgecolor \
                     = curve
-                line.set_label(label)
+                line.label = label
                 line.set_linestyle(linestyle)
                 line.set_drawstyle(drawstyle)
                 line.set_linewidth(linewidth)
@@ -190,7 +190,7 @@ def figure_edit(axes, parent=None):
                 new_legend.draggable(draggable)
 
         # Redraw
-        figure = axes.get_figure()
+        figure = axes.figure
         figure.canvas.draw()
 
     data = formlayout.fedit(datalist, title="Figure options", parent=parent,

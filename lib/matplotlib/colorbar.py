@@ -430,7 +430,7 @@ class ColorbarBase(cm.ScalarMappable):
             closed=True,
             zorder=2)
         ax.add_artist(self.outline)
-        self.outline.set_clip_box(None)
+        self.outline.clipbox = None
         self.outline.set_clip_path(None)
         c = mpl.rcParams['axes.facecolor']
         if self.patch is not None:
@@ -520,7 +520,7 @@ class ColorbarBase(cm.ScalarMappable):
                                     linewidths=linewidths)
             self.ax.add_collection(self.dividers)
         elif len(self._y) >= self.n_rasterize:
-            self.solids.set_rasterized(True)
+            self.solids.rasterized = True
 
     def add_lines(self, levels, colors, linewidths, erase=True):
         '''
@@ -885,7 +885,7 @@ class Colorbar(ColorbarBase):
 
         if isinstance(mappable, contour.ContourSet):
             CS = mappable
-            kw['alpha'] = mappable.get_alpha()
+            kw['alpha'] = mappable.alpha
             kw['boundaries'] = CS._levels
             kw['values'] = CS.cvalues
             kw['extend'] = CS.extend
@@ -900,7 +900,7 @@ class Colorbar(ColorbarBase):
                 kw.setdefault('extend', cmap.colorbar_extend)
 
             if isinstance(mappable, martist.Artist):
-                kw['alpha'] = mappable.get_alpha()
+                kw['alpha'] = mappable.alpha
 
             ColorbarBase.__init__(self, ax, **kw)
 
@@ -972,7 +972,7 @@ class Colorbar(ColorbarBase):
         self.solids = None
         self.lines = list()
         self.dividers = None
-        self.set_alpha(mappable.get_alpha())
+        self.set_alpha(mappable.alpha)
         self.cmap = mappable.cmap
         self.norm = mappable.norm
         self.config_axis()
@@ -1095,8 +1095,8 @@ def make_axes(parents, location=None, orientation=None, fraction=0.15,
     if not isinstance(parents, (list, tuple)):
         parents = [parents]
 
-    fig = parents[0].get_figure()
-    if not all(fig is ax.get_figure() for ax in parents):
+    fig = parents[0].figure
+    if not all(fig is ax.figure for ax in parents):
         raise ValueError('Unable to create a colorbar axes as not all '
                          'parents share the same figure.')
 
@@ -1232,7 +1232,7 @@ def make_axes_gridspec(parent, **kw):
     parent.set_position(parent.figbox)
     parent.set_anchor(panchor)
 
-    fig = parent.get_figure()
+    fig = parent.figure
     cax = fig.add_subplot(gs2[1])
     cax.set_aspect(aspect, anchor=anchor, adjustable='box')
     return cax, kw

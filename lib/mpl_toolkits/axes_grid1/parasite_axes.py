@@ -26,8 +26,8 @@ is_string_like = cbook.is_string_like
 class ParasiteAxesBase(object):
 
     def get_images_artists(self):
-        artists = set([a for a in self.get_children() if a.get_visible()])
-        images = set([a for a in self.images if a.get_visible()])
+        artists = set([a for a in self.get_children() if a.visible])
+        images = set([a for a in self.images if a.visible])
 
         return list(images), list(artists - images)
 
@@ -327,14 +327,15 @@ class HostAxesBase(object):
         ax2 = parasite_axes_class(self, sharex=self, frameon=False)
         self.parasites.append(ax2)
 
-        self.axis["right"].set_visible(False)
 
-        ax2.axis["right"].set_visible(True)
-        ax2.axis["left", "top", "bottom"].set_visible(False)
+        self.axis["right"].visible = False
+
+        ax2.axis["right"].visible = True
+        ax2.axis["left", "top", "bottom"].visible = False
 
         def _remove_method(h):
             self.parasites.remove(h)
-            self.axis["right"].set_visible(True)
+            self.axis["right"].visible = True
             self.axis["right"].toggle(ticklabels=False, label=False)
         ax2._remove_method = _remove_method
 
@@ -360,14 +361,14 @@ class HostAxesBase(object):
         ax2 = parasite_axes_class(self, sharey=self, frameon=False)
         self.parasites.append(ax2)
 
-        self.axis["top"].set_visible(False)
+        self.axis["top"].visible = False
 
-        ax2.axis["top"].set_visible(True)
-        ax2.axis["left", "right", "bottom"].set_visible(False)
+        ax2.axis["top"].visible = True
+        ax2.axis["left", "right", "bottom"].visible = False
 
         def _remove_method(h):
             self.parasites.remove(h)
-            self.axis["top"].set_visible(True)
+            self.axis["top"].visible = True
             self.axis["top"].toggle(ticklabels=False, label=False)
         ax2._remove_method = _remove_method
 
@@ -402,14 +403,14 @@ class HostAxesBase(object):
         self.parasites.append(ax2)
         ax2._remove_method = lambda h: self.parasites.remove(h)
 
-        self.axis["top", "right"].set_visible(False)
+        self.axis["top", "right"].visible = False
 
-        ax2.axis["top", "right"].set_visible(True)
-        ax2.axis["left", "bottom"].set_visible(False)
+        ax2.axis["top", "right"].visible = True
+        ax2.axis["left", "bottom"].visible = False
 
         def _remove_method(h):
             self.parasites.remove(h)
-            self.axis["top", "right"].set_visible(True)
+            self.axis["top", "right"].visible = True
             self.axis["top", "right"].toggle(ticklabels=False, label=False)
         ax2._remove_method = _remove_method
 

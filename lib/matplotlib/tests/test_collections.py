@@ -17,6 +17,7 @@ import matplotlib.collections as mcollections
 import matplotlib.transforms as mtransforms
 from matplotlib.collections import EventCollection
 from matplotlib.testing.decorators import cleanup, image_comparison
+from matplotlib.traitlets import retrieve
 
 
 def generate_EventCollection_plot():
@@ -507,7 +508,7 @@ def test_polycollection_close():
 
     poly = mcollections.PolyCollection(
         vertsQuad * len(zpos), linewidth=0.25)
-    poly.set_alpha(0.7)
+    poly.alpha = 0.7
 
     # need to have a z-value for *each* polygon = element!
     zs = []
@@ -552,7 +553,8 @@ def test_regularpolycollection_scale():
             super(SquareCollection, self).__init__(
                 4, rotation=np.pi/4., **kwargs)
 
-        def get_transform(self):
+        @retrieve('transform')
+        def _transform_getter(self, pull):
             """Return transform scaling circle areas to data space."""
             ax = self.axes
 

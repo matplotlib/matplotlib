@@ -40,6 +40,7 @@ from matplotlib.image import BboxImage
 from matplotlib.patches import bbox_artist as mbbox_artist
 from matplotlib.text import _AnnotationBase
 
+from .traitlets import observe, retrieve, _traitlets_deprecation_msg
 
 DEBUG = False
 
@@ -153,7 +154,7 @@ class OffsetBox(martist.Artist):
         # Clipping has not been implemented in the OffesetBox family, so
         # disable the clip flag for consistency. It can always be turned back
         # on to zero effect.
-        self.set_clip_on(False)
+        self.clipon = False
 
         self._children = []
         self._offset = (0, 0)
@@ -171,11 +172,22 @@ class OffsetBox(martist.Artist):
         return state
 
     def __setstate__(self, state):
-        self.__dict__ = state
+        martist.Artist.__setstate__(self, state)
         from .cbook import _InstanceMethodPickler
         if isinstance(self._offset, _InstanceMethodPickler):
             self._offset = self._offset.get_instancemethod()
         self.stale = True
+
+    @observe('figure')
+    def _figure_changed(self, change):
+        """
+        Set the figure
+
+        accepts a class:`~matplotlib.figure.Figure` instance
+        """
+        martist.Artist._figure_changed(self, change)
+        for c in self.get_children():
+            c.figure = change['new']
 
     def set_figure(self, fig):
         """
@@ -183,17 +195,18 @@ class OffsetBox(martist.Artist):
 
         accepts a class:`~matplotlib.figure.Figure` instance
         """
-        martist.Artist.set_figure(self, fig)
-        for c in self.get_children():
-            c.set_figure(fig)
+        msg = _traitlets_deprecation_msg('figure')
+        warnings.warn(msg, mplDeprecation, stacklevel=1)
+        self.figure = fig
 
-    @martist.Artist.axes.setter
-    def axes(self, ax):
+    @observe('axes')
+    def _axes_changed(self, change):
         # TODO deal with this better
-        martist.Artist.axes.fset(self, ax)
+        new = change['new']
+        martist.Artist._axes_changed(self, change)
         for c in self.get_children():
             if c is not None:
-                c.axes = ax
+                c.axes = new
 
     def contains(self, mouseevent):
         for c in self.get_children():
@@ -244,7 +257,7 @@ class OffsetBox(martist.Artist):
         """
         Return a list of visible artists it contains.
         """
-        return [c for c in self._children if c.get_visible()]
+        return [c for c in self._children if c.visible]
 
     def get_children(self):
         """
@@ -617,18 +630,35 @@ class DrawingArea(OffsetBox):
         self._clip_children = bool(val)
         self.stale = True
 
+    @retrieve('transform')
+    def _transform_getter(self, pull):
+        """
+         Return the :class:`~matplotlib.transforms.Transform` applied
+         to the children
+         """
+        return self.dpi_transform + self.offset_transform
+
+    @observe('transform')
+    def _transform_changed(self, change):
+        """Ignore setting"""
+        name = change['name']
+        self._trait_values[name] = None
+
     def get_transform(self):
         """
         Return the :class:`~matplotlib.transforms.Transform` applied
         to the children
         """
-        return self.dpi_transform + self.offset_transform
+        msg = _traitlets_deprecation_msg('transform')
+        warnings.warn(msg, mplDeprecation, stacklevel=1)
+        return self.transform
 
     def set_transform(self, t):
         """
         set_transform is ignored.
         """
-        pass
+        msg = _traitlets_deprecation_msg('transform')
+        warnings.warn(msg, mplDeprecation, stacklevel=1)
 
     def set_offset(self, xy):
         """
@@ -669,13 +699,13 @@ class DrawingArea(OffsetBox):
     def add_artist(self, a):
         'Add any :class:`~matplotlib.artist.Artist` to the container box'
         self._children.append(a)
-        if not a.is_transform_set():
-            a.set_transform(self.get_transform())
+        if not a.transform_set:
+            a.transform = self.transform
         if self.axes is not None:
             a.axes = self.axes
         fig = self.figure
         if fig is not None:
-            a.set_figure(fig)
+            a.figure = fig
 
     def draw(self, renderer):
         """
@@ -693,9 +723,9 @@ class DrawingArea(OffsetBox):
             mpath.Path([[0, 0], [0, self.height],
                         [self.width, self.height],
                         [self.width, 0]]),
-            self.get_transform())
+            self.transform)
         for c in self._children:
-            if self._clip_children and not (c.clipbox or c._clippath):
+            if self._clip_children and not (c.clipbox or c.clippath):
                 c.set_clip_path(tpath)
             c.draw(renderer)
 
@@ -710,6 +740,7 @@ class TextArea(OffsetBox):
     of the TextArea instance is the width and height of the its child
     text.
     """
+
     def __init__(self, s,
                  textprops=None,
                  multilinebaseline=None,
@@ -747,7 +778,7 @@ class TextArea(OffsetBox):
         self.offset_transform.clear()
         self.offset_transform.translate(0, 0)
         self._baseline_transform = mtransforms.Affine2D()
-        self._text.set_transform(self.offset_transform +
+        self._text.transform = (self.offset_transform +
                                  self._baseline_transform)
 
         self._multilinebaseline = multilinebaseline
@@ -795,11 +826,10 @@ class TextArea(OffsetBox):
         """
         return self._minimumdescent
 
-    def set_transform(self, t):
-        """
-        set_transform is ignored.
-        """
-        pass
+    @observe('transform')
+    def _transform_changed(self, change):
+        name = change['name']
+        self._trait_values[name] = None
 
     def set_offset(self, xy):
         """
@@ -884,6 +914,7 @@ class AuxTransformBox(OffsetBox):
     children. Furthermore, the extent of the children will be
     calculated in the transformed coordinate.
     """
+
     def __init__(self, aux_transform):
         self.aux_transform = aux_transform
         OffsetBox.__init__(self)
@@ -901,23 +932,34 @@ class AuxTransformBox(OffsetBox):
     def add_artist(self, a):
         'Add any :class:`~matplotlib.artist.Artist` to the container box'
         self._children.append(a)
-        a.set_transform(self.get_transform())
+        a.transform = self.transform
         self.stale = True
+
+    @retrieve('transform')
+    def _transform_getter(self, pull):
+        return self.aux_transform + \
+               self.ref_offset_transform + \
+               self.offset_transform
+
+    @observe('transform')
+    def _transform_changed(self, change):
+        self._trait_values[change['name']] = None
 
     def get_transform(self):
         """
         Return the :class:`~matplotlib.transforms.Transform` applied
         to the children
         """
-        return self.aux_transform + \
-               self.ref_offset_transform + \
-               self.offset_transform
+        msg = _traitlets_deprecation_msg('transform')
+        warnings.warn(msg, mplDeprecation, stacklevel=1)
+        return self.transform
 
     def set_transform(self, t):
         """
         set_transform is ignored.
         """
-        pass
+        msg = _traitlets_deprecation_msg('transform')
+        warnings.warn(msg, mplDeprecation, stacklevel=1)
 
     def set_offset(self, xy):
         """
@@ -1157,7 +1199,7 @@ class AnchoredOffsetbox(OffsetBox):
     def draw(self, renderer):
         "draw the artist"
 
-        if not self.get_visible():
+        if not self.visible:
             return
 
         fontsize = renderer.points_to_pixels(self.prop.get_size_in_points())
@@ -1474,12 +1516,18 @@ class AnnotationBbox(martist.Artist, _AnnotationBase):
             children.append(self.arrow_patch)
         return children
 
-    def set_figure(self, fig):
-
+    @observe('figure')
+    def _figure_changed(self, change):
+        new = change['new']
         if self.arrow_patch is not None:
-            self.arrow_patch.set_figure(fig)
-        self.offsetbox.set_figure(fig)
-        martist.Artist.set_figure(self, fig)
+            self.arrow_patch.figure = new
+        self.offsetbox.figure = new
+        martist.Artist._figure_changed(self, change)
+
+    def set_figure(self, fig):
+        msg = _traitlets_deprecation_msg('figure')
+        warnings.warn(msg, mplDeprecation, stacklevel=1)
+        self.figure = figure
 
     def set_fontsize(self, s=None):
         """
@@ -1577,7 +1625,7 @@ class AnnotationBbox(martist.Artist, _AnnotationBase):
 
         if renderer is not None:
             self._renderer = renderer
-        if not self.get_visible():
+        if not self.visible:
             return
 
         xy_pixel = self._get_position_xy(renderer)
@@ -1642,7 +1690,7 @@ class DraggableBase(object):
         c2 = self.canvas.mpl_connect('pick_event', self.on_pick)
         c3 = self.canvas.mpl_connect('button_release_event', self.on_release)
 
-        ref_artist.set_picker(self.artist_picker)
+        ref_artist.picker = self.artist_picker
         self.cids = [c2, c3]
 
     def on_motion(self, evt):
@@ -1669,7 +1717,7 @@ class DraggableBase(object):
             self.got_artist = True
 
             if self._use_blit:
-                self.ref_artist.set_animated(True)
+                self.ref_artist.animated = True
                 self.canvas.draw()
                 self.background = self.canvas.copy_from_bbox(
                                     self.ref_artist.figure.bbox)
@@ -1689,7 +1737,7 @@ class DraggableBase(object):
             self.canvas.mpl_disconnect(self._c1)
 
             if self._use_blit:
-                self.ref_artist.set_animated(False)
+                self.ref_artist.animated = False
 
     def disconnect(self):
         """disconnect the callbacks"""

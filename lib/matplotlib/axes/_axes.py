@@ -180,7 +180,7 @@ class Axes(_AxesBase):
         """
         Get the xlabel text string.
         """
-        label = self.xaxis.get_label()
+        label = self.xaxis.label
         return label.get_text()
 
     @docstring.dedent_interpd
@@ -212,7 +212,7 @@ class Axes(_AxesBase):
         """
         Get the ylabel text string.
         """
-        label = self.yaxis.get_label()
+        label = self.yaxis.label
         return label.get_text()
 
     @docstring.dedent_interpd
@@ -257,10 +257,10 @@ class Axes(_AxesBase):
 
         has_handler = mlegend.Legend.get_legend_handler
 
-        for handle in handles_original:
-            label = handle.get_label()
-            if label != '_nolegend_' and has_handler(handler_map, handle):
-                yield handle
+        for h in handles_original:
+            label = h.label if hasattr(h, 'label') else h.get_label()
+            if label != '_nolegend_' and has_handler(handler_map, h):
+                yield h
 
     def get_legend_handles_labels(self, legend_handler_map=None):
         """
@@ -274,10 +274,10 @@ class Axes(_AxesBase):
         """
         handles = []
         labels = []
-        for handle in self._get_legend_handles(legend_handler_map):
-            label = handle.get_label()
+        for h in self._get_legend_handles(legend_handler_map):
+            label = h.label if hasattr(h, 'label') else h.get_label()
             if label and not label.startswith('_'):
-                handles.append(handle)
+                handles.append(h)
                 labels.append(label)
 
         return handles, labels
@@ -300,7 +300,7 @@ class Axes(_AxesBase):
 
             line, = ax.plot([1, 2, 3], label='Inline label')
             # Overwrite the label by calling the method.
-            line.set_label('Label via method')
+            line.label = 'Label via method'
             ax.legend()
 
         Specific lines can be excluded from the automatic legend element
@@ -498,7 +498,7 @@ class Axes(_AxesBase):
             handles, labels = zip(*zip(handles, labels))
 
         elif handles is not None and labels is None:
-            labels = [handle.get_label() for handle in handles]
+            labels = [handle.label for handle in handles]
             for label, handle in zip(labels[:], handles[:]):
                 if label.startswith('_'):
                     warnings.warn('The handle {!r} has a label of {!r} which '
@@ -595,7 +595,7 @@ class Axes(_AxesBase):
             'verticalalignment': 'baseline',
             'horizontalalignment': 'left',
             'transform': self.transData,
-            'clip_on': False}
+            'clipon': False}
 
         # At some point if we feel confident that TextWithDash
         # is robust as a drop-in replacement for Text and that
@@ -673,9 +673,9 @@ class Axes(_AxesBase):
         .. plot:: mpl_examples/pylab_examples/annotation_demo2.py
         """
         a = mtext.Annotation(*args, **kwargs)
-        a.set_transform(mtransforms.IdentityTransform())
+        a.transform = mtransforms.IdentityTransform()
         self._set_artist_props(a)
-        if 'clip_on' in kwargs:
+        if 'clipon' in kwargs:
             a.set_clip_path(self.patch)
         self.texts.append(a)
         a._remove_method = lambda h: self.texts.remove(h)
@@ -870,7 +870,7 @@ class Axes(_AxesBase):
 
         verts = (xmin, ymin), (xmin, ymax), (xmax, ymax), (xmax, ymin)
         p = mpatches.Polygon(verts, **kwargs)
-        p.set_transform(trans)
+        p.transform = trans
         self.add_patch(p)
         self.autoscale_view(scalex=False)
         return p
@@ -925,7 +925,7 @@ class Axes(_AxesBase):
 
         verts = [(xmin, ymin), (xmin, ymax), (xmax, ymax), (xmax, ymin)]
         p = mpatches.Polygon(verts, **kwargs)
-        p.set_transform(trans)
+        p.transform = trans
         self.add_patch(p)
         self.autoscale_view(scaley=False)
         return p
@@ -2503,7 +2503,7 @@ class Axes(_AxesBase):
             For example, you can pass in wedgeprops = { 'linewidth' : 3 }
             to set the width of the wedge border lines equal to 3.
             For more details, look at the doc/arguments of the wedge object.
-            By default `clip_on=False`.
+            By default `clipon=False`.
 
           *textprops*: [ *None* | dict of key value pairs ]
             Dict of arguments to pass to the text objects.
@@ -2569,13 +2569,13 @@ class Axes(_AxesBase):
         # set default values in wedge_prop
         if wedgeprops is None:
             wedgeprops = {}
-        if 'clip_on' not in wedgeprops:
-            wedgeprops['clip_on'] = False
+        if 'clipon' not in wedgeprops:
+            wedgeprops['clipon'] = False
 
         if textprops is None:
             textprops = {}
-        if 'clip_on' not in textprops:
-            textprops['clip_on'] = False
+        if 'clipon' not in textprops:
+            textprops['clipon'] = False
 
         texts = []
         slices = []
@@ -2595,7 +2595,7 @@ class Axes(_AxesBase):
                             **wedgeprops)
             slices.append(w)
             self.add_patch(w)
-            w.set_label(label)
+            w.label = label
 
             if shadow:
                 # make sure to add a shadow after the call to
@@ -2603,7 +2603,7 @@ class Axes(_AxesBase):
                 # set
                 shad = mpatches.Shadow(w, -0.02, -0.02)
                 shad.set_zorder(0.9 * w.get_zorder())
-                shad.set_label('_nolegend_')
+                shad.label = '_nolegend_'
                 self.add_patch(shad)
 
             xt = x + labeldistance * radius * math.cos(thetam)
@@ -3896,7 +3896,7 @@ class Axes(_AxesBase):
                 transOffset=kwargs.pop('transform', self.transData),
                 alpha=alpha
                 )
-        collection.set_transform(mtransforms.IdentityTransform())
+        collection.transform = mtransforms.IdentityTransform()
         collection.update(kwargs)
 
         if colors is None:
@@ -4280,7 +4280,7 @@ class Axes(_AxesBase):
         collection.set_array(accum)
         collection.set_cmap(cmap)
         collection.set_norm(norm)
-        collection.set_alpha(alpha)
+        collection.alpha = alpha
         collection.update(kwargs)
 
         if vmin is not None or vmax is not None:
@@ -4341,7 +4341,7 @@ class Axes(_AxesBase):
         hbar.set_array(values)
         hbar.set_cmap(cmap)
         hbar.set_norm(norm)
-        hbar.set_alpha(alpha)
+        hbar.alpha = alpha
         hbar.update(kwargs)
         self.add_collection(hbar, autolim=False)
 
@@ -4369,7 +4369,7 @@ class Axes(_AxesBase):
         vbar.set_array(values)
         vbar.set_cmap(cmap)
         vbar.set_norm(norm)
-        vbar.set_alpha(alpha)
+        vbar.alpha = alpha
         vbar.update(kwargs)
         self.add_collection(vbar, autolim=False)
 
@@ -4951,8 +4951,8 @@ class Axes(_AxesBase):
                               resample=resample, **kwargs)
 
         im.set_data(X)
-        im.set_alpha(alpha)
-        if im.get_clip_path() is None:
+        im.alpha = alpha
+        if im.clippath is None:
             # image does not already have clipping set, clip to axes patch
             im.set_clip_path(self.patch)
         #if norm is None and shape is None:
@@ -4961,7 +4961,7 @@ class Axes(_AxesBase):
             im.set_clim(vmin, vmax)
         else:
             im.autoscale_None()
-        im.set_url(url)
+        im.url = url
 
         # update ax.dataLim, and, if autoscaling, set viewLim
         # to tightly fit the image, regardless of dataLim.
@@ -5269,7 +5269,7 @@ class Axes(_AxesBase):
 
         collection = mcoll.PolyCollection(verts, **kwargs)
 
-        collection.set_alpha(alpha)
+        collection.alpha = alpha
         collection.set_array(C)
         if norm is not None and not isinstance(norm, mcolors.Normalize):
             msg = "'norm' must be an instance of 'mcolors.Normalize'"
@@ -5284,7 +5284,7 @@ class Axes(_AxesBase):
         y = Y.compressed()
 
         # Transform from native to data coordinates?
-        t = collection._transform
+        t = collection.private('transform')
         if (not isinstance(t, mtransforms.Transform) and
             hasattr(t, '_as_mpl_transform')):
             t = t._as_mpl_transform(self.axes)
@@ -5420,7 +5420,7 @@ class Axes(_AxesBase):
         collection = mcoll.QuadMesh(
             Nx - 1, Ny - 1, coords,
             antialiased=antialiased, shading=shading, **kwargs)
-        collection.set_alpha(alpha)
+        collection.alpha = alpha
         collection.set_array(C)
         if norm is not None and not isinstance(norm, mcolors.Normalize):
             msg = "'norm' must be an instance of 'mcolors.Normalize'"
@@ -5433,7 +5433,7 @@ class Axes(_AxesBase):
         self.grid(False)
 
         # Transform from native to data coordinates?
-        t = collection._transform
+        t = collection.private('transform')
         if (not isinstance(t, mtransforms.Transform) and
             hasattr(t, '_as_mpl_transform')):
             t = t._as_mpl_transform(self.axes)
@@ -5604,7 +5604,7 @@ class Axes(_AxesBase):
             # handle relevant superclass kwargs; the initializer
             # should do much more than it does now.
             collection = mcoll.QuadMesh(nc, nr, coords, 0, edgecolors="None")
-            collection.set_alpha(alpha)
+            collection.alpha = alpha
             collection.set_array(C)
             collection.set_cmap(cmap)
             collection.set_norm(norm)
@@ -5623,7 +5623,7 @@ class Axes(_AxesBase):
                                         extent=(xl, xr, yb, yt),
                                          **kwargs)
             im.set_data(C)
-            im.set_alpha(alpha)
+            im.alpha = alpha
             self.add_image(im)
             ret = im
 
@@ -6224,13 +6224,13 @@ class Axes(_AxesBase):
                 p = patch[0]
                 p.update(kwargs)
                 if lbl is not None:
-                    p.set_label(lbl)
+                    p.label = lbl
 
-                p.set_snap(False)
+                p.snap = False
 
                 for p in patch[1:]:
                     p.update(kwargs)
-                    p.set_label('_nolegend_')
+                    p.label = '_nolegend_'
 
         if binsgiven:
             if orientation == 'vertical':

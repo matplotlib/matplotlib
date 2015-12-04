@@ -317,8 +317,8 @@ class GridHelperCurveLinear(grid_helper_curvelinear.GridHelperCurveLinear):
 
 
         axisline = AxisArtist(axes, _helper, axis_direction=axis_direction)
-        axisline.line.set_clip_on(True)
-        axisline.line.set_clip_box(axisline.axes.bbox)
+        axisline.line.clipon = True
+        axisline.line.clipbox = axisline.axes.bbox
 
 
         return axisline
@@ -496,8 +496,8 @@ class FloatingAxesBase(object):
 
 
         patch = self._axes_class_floating._gen_axes_patch(self)
-        patch.set_figure(self.figure)
-        patch.set_visible(False)
+        patch.figure = self.figure
+        patch.visible = False
         patch.set_transform(self.transAxes)
 
         self.patch.set_clip_path(patch)
@@ -623,7 +623,7 @@ def curvelinear_test3(fig):
 
 
     for an in [ "left", "right"]:
-        ax1.axis[an].set_visible(False)
+        ax1.axis[an].visible = False
 
 
     #grid_helper2 = ax1.get_grid_helper()
@@ -633,7 +633,7 @@ def curvelinear_test3(fig):
     axis.toggle(all=True, label=True)
     #axis.label.set_axis_direction("top")
     axis.label.set_text("z = ?")
-    axis.label.set_visible(True)
+    axis.label.visible = True
     axis.line.set_color("0.5")
     #axis.label.set_visible(True)
 
@@ -688,7 +688,7 @@ def curvelinear_test4(fig):
 
 
     for an in [ "top"]:
-        ax1.axis[an].set_visible(False)
+        ax1.axis[an].visible = False
 
 
     #grid_helper2 = ax1.get_grid_helper()
@@ -698,7 +698,7 @@ def curvelinear_test4(fig):
     axis.toggle(all=True, label=True)
     axis.label.set_axis_direction("top")
     axis.label.set_text("z = ?")
-    axis.label.set_visible(True)
+    axis.label.visible = True
     axis.line.set_color("0.5")
     #axis.label.set_visible(True)
 
