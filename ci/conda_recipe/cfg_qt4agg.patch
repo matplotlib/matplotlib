@@ -1,0 +1,11 @@
+diff --git setup.cfg.template setup.cfg.template
+index 8af8b6d..4e4f9d2 100644
+--- setup.cfg.template
++++ setup.cfg.template
+@@ -78,5 +78,5 @@
+ # if you have disabled the relevent extension modules.  Agg will be used
+ # by default.
+ #
+-#backend = Agg
++backend = Qt4Agg
+ #

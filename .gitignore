@@ -80,3 +80,4 @@ setup.cfg
 .coverage
 .coverage.*
 cover/
+__conda_version__.txt
