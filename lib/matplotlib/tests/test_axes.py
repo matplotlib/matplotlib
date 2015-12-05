@@ -4112,7 +4112,6 @@ def test_violin_point_mass():
     plt.violinplot(np.array([0, 0]))
 
 
-
 @cleanup
 def test_axisbg_warning():
     fig = plt.figure()
@@ -4132,6 +4131,20 @@ def test_dash_offset():
         ax.plot(x, j*y, ls=(j, (10, 10)), lw=5, color='k')
     plt.show()
 
+
+@cleanup
+def test_title_location_roundtrip():
+    fig, ax = plt.subplots()
+    ax.set_title('aardvark')
+    ax.set_title('left', loc='left')
+    ax.set_title('right', loc='right')
+
+    assert_equal('left', ax.get_title(loc='left'))
+    assert_equal('right', ax.get_title(loc='right'))
+    assert_equal('aardvark', ax.get_title())
+
+    assert_raises(ValueError, ax.get_title, loc='foo')
+    assert_raises(ValueError, ax.set_title, 'fail', loc='foo')
 
 
 if __name__ == '__main__':
