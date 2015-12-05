@@ -6,11 +6,12 @@ from __future__ import (absolute_import, division, print_function,
 
 from matplotlib.externals import six
 
+import matplotlib.lines as mlines
 import nose
 from nose.tools import assert_true, assert_raises
 from timeit import repeat
 import numpy as np
-import matplotlib as mpl
+
 import matplotlib.pyplot as plt
 from matplotlib.testing.decorators import cleanup, image_comparison
 import sys
@@ -38,7 +39,7 @@ def test_invisible_Line_rendering():
     ax = plt.subplot(111)
 
     # Create a "big" Line instance:
-    l = mpl.lines.Line2D(x,y)
+    l = mlines.Line2D(x,y)
     l.set_visible(False)
     # but don't add it to the Axis instance `ax`
 
@@ -112,7 +113,7 @@ def test_valid_linestyles():
         raise nose.SkipTest("assert_raises as context manager "
                             "not supported with Python < 2.7")
 
-    line = mpl.lines.Line2D([], [])
+    line = mlines.Line2D([], [])
     with assert_raises(ValueError):
         line.set_linestyle('aardvark')
 
@@ -128,7 +129,7 @@ def test_set_line_coll_dash_image():
 
 def test_nan_is_sorted():
     # Exercises issue from PR #2744 (NaN throwing warning in _is_sorted)
-    line = mpl.lines.Line2D([],[])
+    line = mlines.Line2D([],[])
     assert_true(line._is_sorted(np.array([1,2,3])))
     assert_true(not line._is_sorted(np.array([1,np.nan,3])))
 
