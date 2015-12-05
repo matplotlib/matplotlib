@@ -4147,6 +4147,16 @@ def test_title_location_roundtrip():
     assert_raises(ValueError, ax.set_title, 'fail', loc='foo')
 
 
+@image_comparison(baseline_images=["loglog"], remove_text=True,
+                  extensions=['png'])
+def test_loglog():
+    fig, ax = plt.subplots()
+    x = np.arange(1, 11)
+    ax.loglog(x, x**3, lw=5)
+    ax.tick_params(length=25, width=2)
+    ax.tick_params(length=15, width=2, which='minor')
+
+
 if __name__ == '__main__':
     import nose
     import sys
