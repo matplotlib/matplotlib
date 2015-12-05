@@ -202,6 +202,10 @@ class _DummyAxis(object):
     def set_data_interval(self, vmin, vmax):
         self.dataLim.intervalx = vmin, vmax
 
+    def get_tick_space(self):
+        # Just use the long-standing default of nbins==9
+        return 9
+
 
 class TickHelper(object):
     axis = None
