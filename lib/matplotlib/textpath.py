@@ -20,6 +20,7 @@ import matplotlib.dviread as dviread
 from matplotlib.font_manager import FontProperties, get_font
 from matplotlib.transforms import Affine2D
 from matplotlib.externals.six.moves.urllib.parse import quote as urllib_quote
+from collections import OrderedDict
 
 
 class TextToPath(object):
@@ -183,7 +184,7 @@ class TextToPath(object):
             glyph_map = dict()
 
         if return_new_glyphs_only:
-            glyph_map_new = dict()
+            glyph_map_new = OrderedDict()
         else:
             glyph_map_new = glyph_map
 
