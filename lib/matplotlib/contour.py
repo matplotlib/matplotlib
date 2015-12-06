@@ -1246,9 +1246,9 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
         # ...except that extended layers must be outside the
         # normed range:
         if self.extend in ('both', 'min'):
-            self.layers[0] = -np.inf
+            self.layers[0] = -1e150
         if self.extend in ('both', 'max'):
-            self.layers[-1] = np.inf
+            self.layers[-1] = 1e150
 
     def _process_colors(self):
         """
