@@ -1,10 +1,11 @@
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
+from collections import OrderedDict
+
 from matplotlib.externals import six
 from matplotlib.externals.six.moves import xrange
 
-from collections import OrderedDict
 import itertools
 import warnings
 import math
@@ -17,7 +18,7 @@ import matplotlib
 
 from matplotlib import cbook
 from matplotlib.cbook import (_check_1d, _string_to_bool, iterable,
-                              index_of, get_label, sorted_itervalues)
+                              index_of, get_label)
 from matplotlib import docstring
 import matplotlib.colors as mcolors
 import matplotlib.lines as mlines
@@ -3686,7 +3687,7 @@ class _AxesBase(martist.Artist):
         children.extend(self.lines)
         children.extend(self.texts)
         children.extend(self.artists)
-        children.extend(sorted_itervalues(self.spines))
+        children.extend(six.itervalues(self.spines))
         children.append(self.xaxis)
         children.append(self.yaxis)
         children.append(self.title)
