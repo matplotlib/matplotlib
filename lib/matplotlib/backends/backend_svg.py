@@ -1,12 +1,13 @@
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
+from collections import OrderedDict
+
 from matplotlib.externals import six
 from matplotlib.externals.six.moves import xrange
 from matplotlib.externals.six import unichr
 
 import os, base64, tempfile, gzip, io, sys, codecs, re
-from collections import OrderedDict
 
 import numpy as np
 
@@ -17,8 +18,7 @@ from matplotlib import verbose, __version__, rcParams
 from matplotlib.backend_bases import RendererBase, GraphicsContextBase,\
      FigureManagerBase, FigureCanvasBase
 from matplotlib.backends.backend_mixed import MixedModeRenderer
-from matplotlib.cbook import (is_string_like, is_writable_file_like, maxdict,
-                              sorted_iteritems, sorted_itervalues)
+from matplotlib.cbook import is_string_like, is_writable_file_like, maxdict
 from matplotlib.colors import rgb2hex
 from matplotlib.figure import Figure
 from matplotlib.font_manager import findfont, FontProperties, get_font
@@ -359,7 +359,7 @@ class RendererSVG(RendererBase):
         HATCH_SIZE = 72
         writer = self.writer
         writer.start('defs')
-        for ((path, face, stroke), oid) in sorted_itervalues(self._hatchd):
+        for ((path, face, stroke), oid) in six.itervalues(self._hatchd):
             writer.start(
                 'pattern',
                 id=oid,
@@ -470,7 +470,7 @@ class RendererSVG(RendererBase):
             return
         writer = self.writer
         writer.start('defs')
-        for clip, oid in sorted_itervalues(self._clipd):
+        for clip, oid in six.itervalues(self._clipd):
             writer.start('clipPath', id=oid)
             if len(clip) == 2:
                 clippath, clippath_trans = clip
@@ -489,7 +489,7 @@ class RendererSVG(RendererBase):
 
         writer = self.writer
         writer.start('defs')
-        for font_fname, chars in sorted_iteritems(self._fonts):
+        for font_fname, chars in six.iteritems(self._fonts):
             font = get_font(font_fname)
             font.set_size(72, 72)
             sfnt = font.get_sfnt()
@@ -918,7 +918,7 @@ class RendererSVG(RendererBase):
 
             if glyph_map_new:
                 writer.start('defs')
-                for char_id, glyph_path in sorted_iteritems(glyph_map_new):
+                for char_id, glyph_path in six.iteritems(glyph_map_new):
                     path = Path(*glyph_path)
                     path_data = self._convert_path(path, simplify=False)
                     writer.element('path', id=char_id, d=path_data)
@@ -961,7 +961,7 @@ class RendererSVG(RendererBase):
             # used.
             if glyph_map_new:
                 writer.start('defs')
-                for char_id, glyph_path in sorted_iteritems(glyph_map_new):
+                for char_id, glyph_path in six.iteritems(glyph_map_new):
                     char_id = self._adjust_char_id(char_id)
                     # Some characters are blank
                     if not len(glyph_path[0]):
@@ -1105,7 +1105,7 @@ class RendererSVG(RendererBase):
                     fontset = self._fonts.setdefault(font.fname, set())
                     fontset.add(thetext)
 
-            for style, chars in sorted_iteritems(spans):
+            for style, chars in six.iteritems(spans):
                 chars.sort()
 
                 same_y = True
