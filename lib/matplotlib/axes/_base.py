@@ -16,7 +16,8 @@ import matplotlib
 
 from matplotlib import cbook
 from matplotlib.cbook import (_check_1d, _string_to_bool, iterable,
-                              index_of, get_label, sorted_itervalues)
+                              index_of, get_label)
+from collections import OrderedDict
 from matplotlib import docstring
 import matplotlib.colors as mcolors
 import matplotlib.lines as mlines
@@ -902,11 +903,11 @@ class _AxesBase(martist.Artist):
             Intended to be overridden by new projection types.
 
         """
-        return {
-            'left': mspines.Spine.linear_spine(self, 'left'),
-            'right': mspines.Spine.linear_spine(self, 'right'),
-            'bottom': mspines.Spine.linear_spine(self, 'bottom'),
-            'top': mspines.Spine.linear_spine(self, 'top'), }
+        return OrderedDict([
+            ('left', mspines.Spine.linear_spine(self, 'left')),
+            ('right', mspines.Spine.linear_spine(self, 'right')),
+            ('bottom', mspines.Spine.linear_spine(self, 'bottom')),
+            ('top', mspines.Spine.linear_spine(self, 'top'))])
 
     def cla(self):
         """Clear the current axes."""
@@ -3640,7 +3641,7 @@ class _AxesBase(martist.Artist):
         children.extend(self.lines)
         children.extend(self.texts)
         children.extend(self.artists)
-        children.extend(sorted_itervalues(self.spines))
+        children.extend(six.itervalues(self.spines))
         children.append(self.xaxis)
         children.append(self.yaxis)
         children.append(self.title)
