@@ -97,7 +97,7 @@ def new_figure_manager_given_figure(num, figure):
         # doesn't allow colour icons on linux systems, but tk >=8.5 has a iconphoto
         # command which we call directly. Source:
         # http://mail.python.org/pipermail/tkinter-discuss/2006-November/000954.html
-        icon_fname = os.path.join(rcParams['datapath'], 'images', 'matplotlib.gif')
+        icon_fname = os.path.join(rcParams['datapath'], 'images', 'matplotlib.ppm')
         icon_img = Tk.PhotoImage(file=icon_fname)
         try:
             window.tk.call('wm', 'iconphoto', window._w, icon_img)
