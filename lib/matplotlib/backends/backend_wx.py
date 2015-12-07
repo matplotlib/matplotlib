@@ -1699,17 +1699,17 @@ class NavigationToolbar2Wx(NavigationToolbar2, wx.ToolBar):
 
     def draw_rubberband(self, event, x0, y0, x1, y1):
         if self.RetinaFix:  # On Macs, use the following code
-            # wx.DCOverlay does not work properly on Retina displays. 
+            # wx.DCOverlay does not work properly on Retina displays.
             rubberBandColor = '#C0C0FF'
             if self.prevZoomRect:
                 self.prevZoomRect.pop(0).remove()
             self.canvas.restore_region(self.savedRetinaImage)
-            X0,X1 = self.zoomStartX,event.xdata
-            Y0,Y1 = self.zoomStartY,event.ydata
+            X0, X1 = self.zoomStartX, event.xdata
+            Y0, Y1 = self.zoomStartY, event.ydata
             lineX = (X0, X0, X1, X1, X0)
             lineY = (Y0, Y1, Y1, Y0, Y0)
             self.prevZoomRect = self.canvas.figure.gca().plot(
-                lineX,lineY,'-',color=rubberBandColor)
+                lineX, lineY, '-', color=rubberBandColor)
             self.canvas.figure.gca().draw_artist(self.prevZoomRect[0])
             self.canvas.blit(self.canvas.figure.gca().bbox)
             return
