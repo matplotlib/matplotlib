@@ -1368,6 +1368,7 @@ class FigureManagerWx(FigureManagerBase):
 
     def show(self):
         self.frame.Show()
+        self.canvas.draw()
 
     def destroy(self, *args):
         DEBUG_MSG("destroy()", 1, self)
@@ -1572,6 +1573,8 @@ class NavigationToolbar2Wx(NavigationToolbar2, wx.ToolBar):
         self.canvas = canvas
         self._idle = True
         self.statbar = None
+        self.prevZoomRect = None
+        self.RetinaFix = 'wxMac' in wx.PlatformInfo
 
     def get_canvas(self, frame, fig):
         return FigureCanvasWx(frame, -1, fig)
@@ -1673,16 +1676,42 @@ class NavigationToolbar2Wx(NavigationToolbar2, wx.ToolBar):
 
     def press(self, event):
         if self._active == 'ZOOM':
-            self.wxoverlay = wx.Overlay()
+            if not self.RetinaFix:
+                self.wxoverlay = wx.Overlay()
+            else:
+                self.savedRetinaImage = self.canvas.copy_from_bbox(self.canvas.figure.gca().bbox)
+                self.zoomStartX = event.xdata
+                self.zoomStartY = event.ydata
 
     def release(self, event):
         if self._active == 'ZOOM':
             # When the mouse is released we reset the overlay and it
             # restores the former content to the window.
-            self.wxoverlay.Reset()
-            del self.wxoverlay
+            if not self.RetinaFix:
+                self.wxoverlay.Reset()
+                del self.wxoverlay
+            else:
+                del self.savedRetinaImage
+                if self.prevZoomRect:
+                    self.prevZoomRect.pop(0).remove()
+                    self.prevZoomRect = None
 
     def draw_rubberband(self, event, x0, y0, x1, y1):
+        if self.RetinaFix:
+            # wx.DCOverlay does not work properly on Macs with Retina displays
+            # for Macs, use the following code instead.
+            rubberBandColor = '#C0C0FF' # or load from config?
+            if self.prevZoomRect:
+                self.prevZoomRect.pop(0).remove()
+            self.canvas.restore_region(self.savedRetinaImage)
+            X0,X1,Y0,Y1 = self.zoomStartX,event.xdata,self.zoomStartY,event.ydata
+            lineX = (X0, X0, X1, X1, X0)
+            lineY = (Y0, Y1, Y1, Y0, Y0)
+            self.prevZoomRect = self.canvas.figure.gca().plot(lineX,lineY,'-',color=rubberBandColor)
+            self.canvas.figure.gca().draw_artist(self.prevZoomRect[0])
+            self.canvas.blit(self.canvas.figure.gca().bbox)
+            return
+        
         # Use an Overlay to draw a rubberband-like bounding box.
 
         dc = wx.ClientDC(self.canvas)
