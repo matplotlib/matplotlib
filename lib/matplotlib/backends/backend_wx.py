@@ -1574,7 +1574,11 @@ class NavigationToolbar2Wx(NavigationToolbar2, wx.ToolBar):
         self._idle = True
         self.statbar = None
         self.prevZoomRect = None
-        self.RetinaFix = 'wxMac' in wx.PlatformInfo
+        # for now, use alternate zoom-rectangle drawing on all
+        # Macs. N.B. In future versions of wx it may be possible to
+        # detect Retina displays with window.GetContentScaleFactor()
+        # and/or dc.GetContentScaleFactor() 
+        self.retinaFix = 'wxMac' in wx.PlatformInfo
 
     def get_canvas(self, frame, fig):
         return FigureCanvasWx(frame, -1, fig)
@@ -1676,7 +1680,7 @@ class NavigationToolbar2Wx(NavigationToolbar2, wx.ToolBar):
 
     def press(self, event):
         if self._active == 'ZOOM':
-            if not self.RetinaFix:
+            if not self.retinaFix:
                 self.wxoverlay = wx.Overlay()
             else:
                 self.savedRetinaImage = self.canvas.copy_from_bbox(
@@ -1688,7 +1692,7 @@ class NavigationToolbar2Wx(NavigationToolbar2, wx.ToolBar):
         if self._active == 'ZOOM':
             # When the mouse is released we reset the overlay and it
             # restores the former content to the window.
-            if not self.RetinaFix:
+            if not self.retinaFix:
                 self.wxoverlay.Reset()
                 del self.wxoverlay
             else:
@@ -1698,7 +1702,7 @@ class NavigationToolbar2Wx(NavigationToolbar2, wx.ToolBar):
                     self.prevZoomRect = None
 
     def draw_rubberband(self, event, x0, y0, x1, y1):
-        if self.RetinaFix:  # On Macs, use the following code
+        if self.retinaFix:  # On Macs, use the following code
             # wx.DCOverlay does not work properly on Retina displays.
             rubberBandColor = '#C0C0FF'
             if self.prevZoomRect:
