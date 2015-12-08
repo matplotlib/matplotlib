@@ -1577,7 +1577,7 @@ class NavigationToolbar2Wx(NavigationToolbar2, wx.ToolBar):
         # for now, use alternate zoom-rectangle drawing on all
         # Macs. N.B. In future versions of wx it may be possible to
         # detect Retina displays with window.GetContentScaleFactor()
-        # and/or dc.GetContentScaleFactor() 
+        # and/or dc.GetContentScaleFactor()
         self.retinaFix = 'wxMac' in wx.PlatformInfo
 
     def get_canvas(self, frame, fig):
