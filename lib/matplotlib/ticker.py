@@ -1207,13 +1207,13 @@ class LinearLocator(Locator):
             vmin -= 1
             vmax += 1
 
-        exponent, remainder = divmod(math.log10(vmax - vmin), 1)
-
-        if remainder < 0.5:
-            exponent -= 1
-        scale = 10 ** (-exponent)
-        vmin = math.floor(scale * vmin) / scale
-        vmax = math.ceil(scale * vmax) / scale
+        if rcParams['axes.autolimit_mode'] == 'round_numbers':
+            exponent, remainder = divmod(math.log10(vmax - vmin), 1)
+            if remainder < 0.5:
+                exponent -= 1
+            scale = 10 ** (-exponent)
+            vmin = math.floor(scale * vmin) / scale
+            vmax = math.ceil(scale * vmax) / scale
 
         return mtransforms.nonsingular(vmin, vmax)
 
@@ -1299,11 +1299,15 @@ class MultipleLocator(Locator):
         Set the view limits to the nearest multiples of base that
         contain the data
         """
-        vmin = self._base.le(dmin)
-        vmax = self._base.ge(dmax)
-        if vmin == vmax:
-            vmin -= 1
-            vmax += 1
+        if rcParams['axes.autolimit_mode'] == 'round_numbers':
+            vmin = self._base.le(dmin)
+            vmax = self._base.ge(dmax)
+            if vmin == vmax:
+                vmin -= 1
+                vmax += 1
+        else:
+            vmin = dmin
+            vmax = dmax
 
         return mtransforms.nonsingular(vmin, vmax)
 
@@ -1453,13 +1457,19 @@ class MaxNLocator(Locator):
         return self.raise_if_exceeds(locs)
 
     def view_limits(self, dmin, dmax):
-        if self._symmetric:
-            maxabs = max(abs(dmin), abs(dmax))
-            dmin = -maxabs
-            dmax = maxabs
+        if rcParams['axes.autolimit_mode'] == 'round_numbers':
+            if self._symmetric:
+                maxabs = max(abs(dmin), abs(dmax))
+                dmin = -maxabs
+                dmax = maxabs
+
         dmin, dmax = mtransforms.nonsingular(dmin, dmax, expander=1e-12,
                                                         tiny=1.e-13)
-        return np.take(self.bin_boundaries(dmin, dmax), [0, -1])
+
+        if rcParams['axes.autolimit_mode'] == 'round_numbers':
+            return np.take(self.bin_boundaries(dmin, dmax), [0, -1])
+        else:
+            return dmin, dmax
 
 
 def decade_down(x, base=10):
@@ -1616,24 +1626,26 @@ class LogLocator(Locator):
             vmin = b ** (vmax - self.numdecs)
             return vmin, vmax
 
-        minpos = self.axis.get_minpos()
+        if rcParams['axes.autolimit_mode'] == 'round_numbers':
+            minpos = self.axis.get_minpos()
 
-        if minpos <= 0 or not np.isfinite(minpos):
-            raise ValueError(
-                "Data has no positive values, and therefore can not be "
-                "log-scaled.")
+            if minpos <= 0 or not np.isfinite(minpos):
+                raise ValueError(
+                    "Data has no positive values, and therefore can not be "
+                    "log-scaled.")
 
-        if vmin <= minpos:
-            vmin = minpos
+            if vmin <= minpos:
+                vmin = minpos
 
-        if not is_decade(vmin, self._base):
-            vmin = decade_down(vmin, self._base)
-        if not is_decade(vmax, self._base):
-            vmax = decade_up(vmax, self._base)
+            if not is_decade(vmin, self._base):
+                vmin = decade_down(vmin, self._base)
+            if not is_decade(vmax, self._base):
+                vmax = decade_up(vmax, self._base)
 
-        if vmin == vmax:
-            vmin = decade_down(vmin, self._base)
-            vmax = decade_up(vmax, self._base)
+            if vmin == vmax:
+                vmin = decade_down(vmin, self._base)
+                vmax = decade_up(vmax, self._base)
+
         result = mtransforms.nonsingular(vmin, vmax)
         return result
 
@@ -1776,24 +1788,26 @@ class SymmetricalLogLocator(Locator):
         if vmax < vmin:
             vmin, vmax = vmax, vmin
 
-        if not is_decade(abs(vmin), b):
-            if vmin < 0:
-                vmin = -decade_up(-vmin, b)
-            else:
-                vmin = decade_down(vmin, b)
-        if not is_decade(abs(vmax), b):
-            if vmax < 0:
-                vmax = -decade_down(-vmax, b)
-            else:
-                vmax = decade_up(vmax, b)
+        if rcParams['axes.autolimit_mode'] == 'round_numbers':
+            if not is_decade(abs(vmin), b):
+                if vmin < 0:
+                    vmin = -decade_up(-vmin, b)
+                else:
+                    vmin = decade_down(vmin, b)
+            if not is_decade(abs(vmax), b):
+                if vmax < 0:
+                    vmax = -decade_down(-vmax, b)
+                else:
+                    vmax = decade_up(vmax, b)
 
-        if vmin == vmax:
-            if vmin < 0:
-                vmin = -decade_up(-vmin, b)
-                vmax = -decade_down(-vmax, b)
-            else:
-                vmin = decade_down(vmin, b)
-                vmax = decade_up(vmax, b)
+            if vmin == vmax:
+                if vmin < 0:
+                    vmin = -decade_up(-vmin, b)
+                    vmax = -decade_down(-vmax, b)
+                else:
+                    vmin = decade_down(vmin, b)
+                    vmax = decade_up(vmax, b)
+
         result = mtransforms.nonsingular(vmin, vmax)
         return result
 

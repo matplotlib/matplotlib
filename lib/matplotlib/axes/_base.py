@@ -988,7 +988,7 @@ class _AxesBase(martist.Artist):
         self._autoscaleYon = True
         self._xmargin = rcParams['axes.xmargin']
         self._ymargin = rcParams['axes.ymargin']
-        self._tight = False
+        self._tight = None
         self._update_transScale()  # needed?
 
         self._get_lines = _process_plot_var_args(self)
@@ -2132,62 +2132,107 @@ class _AxesBase(martist.Artist):
         autoscale_view.
         """
         if tight is None:
-            # if image data only just use the datalim
-            _tight = self._tight or (len(self.images) > 0 and
-                                     len(self.lines) == 0 and
-                                     len(self.patches) == 0)
+            _tight = self._tight
         else:
             _tight = self._tight = bool(tight)
 
-        if scalex and self._autoscaleXon:
-            xshared = self._shared_x_axes.get_siblings(self)
-            dl = [ax.dataLim for ax in xshared]
-            # ignore non-finite data limits if good limits exist
-            finite_dl = [d for d in dl if np.isfinite(d).all()]
-            if len(finite_dl):
-                dl = finite_dl
+        if self._xmargin or self._ymargin:
+            margins = {
+                'top': True,
+                'bottom': True,
+                'left': True,
+                'right': True
+            }
+            for artist_set in [self.collections, self.patches, self.lines,
+                               self.artists, self.images]:
+                for artist in artist_set:
+                    artist_margins = artist.margins
+                    for key in ['left', 'right', 'top', 'bottom']:
+                        margins[key] &= artist_margins.get(key, True)
 
-            bb = mtransforms.BboxBase.union(dl)
-            x0, x1 = bb.intervalx
-            xlocator = self.xaxis.get_major_locator()
-            try:
-                # e.g., DateLocator has its own nonsingular()
-                x0, x1 = xlocator.nonsingular(x0, x1)
-            except AttributeError:
-                # Default nonsingular for, e.g., MaxNLocator
-                x0, x1 = mtransforms.nonsingular(x0, x1, increasing=False,
-                                                 expander=0.05)
-            if self._xmargin > 0:
-                delta = (x1 - x0) * self._xmargin
-                x0 -= delta
-                x1 += delta
-            if not _tight:
-                x0, x1 = xlocator.view_limits(x0, x1)
-            self.set_xbound(x0, x1)
+            if self._xmargin:
+                for axes in self._shared_x_axes.get_siblings(self):
+                    for artist_set in [axes.collections, axes.patches,
+                                       axes.lines, axes.artists, axes.images]:
+                        for artist in artist_set:
+                            artist_margins = artist.margins
+                            for key in ['left', 'right']:
+                                margins[key] &= artist_margins.get(key, True)
 
-        if scaley and self._autoscaleYon:
-            yshared = self._shared_y_axes.get_siblings(self)
-            dl = [ax.dataLim for ax in yshared]
-            # ignore non-finite data limits if good limits exist
-            finite_dl = [d for d in dl if np.isfinite(d).all()]
-            if len(finite_dl):
-                dl = finite_dl
+            if self._ymargin:
+                for axes in self._shared_y_axes.get_siblings(self):
+                    for artist_set in [axes.collections, axes.patches,
+                                       axes.lines, axes.artists, axes.images]:
+                        for artist in artist_set:
+                            artist_margins = artist.margins
+                            for key in ['top', 'bottom']:
+                                margins[key] &= artist_margins.get(key, True)
+        else:
+            margins = {
+                'top': False,
+                'bottom': False,
+                'left': False,
+                'right': False
+            }
 
-            bb = mtransforms.BboxBase.union(dl)
-            y0, y1 = bb.intervaly
-            ylocator = self.yaxis.get_major_locator()
-            try:
-                y0, y1 = ylocator.nonsingular(y0, y1)
-            except AttributeError:
-                y0, y1 = mtransforms.nonsingular(y0, y1, increasing=False,
-                                                 expander=0.05)
-            if self._ymargin > 0:
-                delta = (y1 - y0) * self._ymargin
-                y0 -= delta
-                y1 += delta
-            if not _tight:
-                y0, y1 = ylocator.view_limits(y0, y1)
-            self.set_ybound(y0, y1)
+        def handle_single_axis(scale, autoscaleon, shared_axes, interval,
+                               minpos, axis, margin, do_lower_margin,
+                               do_upper_margin, set_bound):
+            if scale and autoscaleon:
+                shared = shared_axes.get_siblings(self)
+                dl = [ax.dataLim for ax in shared]
+                # ignore non-finite data limits if good limits exist
+                finite_dl = [d for d in dl if np.isfinite(d).all()]
+                if len(finite_dl):
+                    dl = finite_dl
+
+                bb = mtransforms.BboxBase.union(dl)
+                x0, x1 = getattr(bb, interval)
+                locator = axis.get_major_locator()
+                try:
+                    # e.g., DateLocator has its own nonsingular()
+                    x0, x1 = locator.nonsingular(x0, x1)
+                except AttributeError:
+                    # Default nonsingular for, e.g., MaxNLocator
+                    x0, x1 = mtransforms.nonsingular(
+                        x0, x1, increasing=False, expander=0.05)
+
+                if (margin > 0 and do_lower_margin or do_upper_margin):
+                    if axis.get_scale() == 'linear':
+                        delta = (x1 - x0) * margin
+                        if do_lower_margin:
+                            x0 -= delta
+                        if do_upper_margin:
+                            x1 += delta
+                    else:
+                        # If we have a non-linear scale, we need to
+                        # add the margin in figure space and then
+                        # transform back
+                        minpos = getattr(bb, minpos)
+                        transform = axis.get_transform()
+                        inverse_trans = transform.inverted()
+                        x0, x1 = axis._scale.limit_range_for_scale(
+                            x0, x1, minpos)
+                        x0t, x1t = transform.transform([x0, x1])
+                        delta = (x1t - x0t) * margin
+                        if do_lower_margin:
+                            x0t -= delta
+                        if do_upper_margin:
+                            x1t += delta
+                        x0, x1 = inverse_trans.transform([x0t, x1t])
+
+                if not _tight:
+                    x0, x1 = locator.view_limits(x0, x1)
+                set_bound(x0, x1)
+
+        handle_single_axis(
+            scalex, self._autoscaleXon, self._shared_x_axes,
+            'intervalx', 'minposx', self.xaxis, self._xmargin,
+            margins['left'], margins['right'], self.set_xbound)
+        handle_single_axis(
+            scaley, self._autoscaleYon, self._shared_y_axes,
+            'intervaly', 'minposy', self.yaxis, self._ymargin,
+            margins['bottom'], margins['top'], self.set_ybound)
 
     def _get_axis_list(self):
         return (self.xaxis, self.yaxis)

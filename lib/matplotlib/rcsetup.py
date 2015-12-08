@@ -984,12 +984,17 @@ defaultParams = {
     # to create the object.
     'axes.prop_cycle': [ccycler('color', 'bgrcmyk'),
                         validate_cycler],
-    'axes.xmargin': [0, ValidateInterval(0, 1,
-                                         closedmin=True,
-                                         closedmax=True)],  # margin added to xaxis
-    'axes.ymargin': [0, ValidateInterval(0, 1,
-                                         closedmin=True,
-                                         closedmax=True)],# margin added to yaxis
+    # If 'data', axes limits are set close to the data.
+    # If 'round_numbers' axes limits are set to the nearest round numbers.
+    'axes.autolimit_mode': [
+        'data',
+        ValidateInStrings('autolimit_mode', ['data', 'round_numbers'])],
+    'axes.xmargin': [0.05, ValidateInterval(0, 1,
+                                            closedmin=True,
+                                            closedmax=True)],  # margin added to xaxis
+    'axes.ymargin': [0.05, ValidateInterval(0, 1,
+                                            closedmin=True,
+                                            closedmax=True)],# margin added to yaxis
 
     'polaraxes.grid': [True, validate_bool],  # display polar grid or
                                                      # not
