@@ -184,12 +184,14 @@ def streamplot(axes, x, y, u, v, density=1, linewidth=None, color=None,
         p = patches.FancyArrowPatch(arrow_tail,
                                     arrow_head,
                                     transform=transform,
+                                    margins=False,
                                     **arrow_kw)
         axes.add_patch(p)
         arrows.append(p)
 
     lc = mcollections.LineCollection(streamlines,
                                      transform=transform,
+                                     margins=False,
                                      **line_kw)
     if use_multicolor_lines:
         lc.set_array(np.ma.hstack(line_colors))
@@ -198,7 +200,7 @@ def streamplot(axes, x, y, u, v, density=1, linewidth=None, color=None,
     axes.add_collection(lc)
     axes.autoscale_view()
 
-    ac = matplotlib.collections.PatchCollection(arrows)
+    ac = matplotlib.collections.PatchCollection(arrows, margins=False)
     stream_container = StreamplotSet(lc, ac)
     return stream_container
 
