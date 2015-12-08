@@ -7,6 +7,7 @@ def range4():
 
 
 def range6():
+    '''This is the function that should be executed.'''
     plt.figure()
     plt.plot(range(6))
     plt.show()
