@@ -276,6 +276,7 @@ def get_fontconfig_fonts(fontext='ttf'):
 
     fontfiles = {}
     try:
+        warnings.warn('Running fc-list. This could take a few minutes.')
         pipe = subprocess.Popen(['fc-list', '--format=%{file}\\n'],
                                 stdout=subprocess.PIPE,
                                 stderr=subprocess.PIPE)
