@@ -34,7 +34,7 @@ plt.title('symlog')
 plt.grid(True)
 
 # logit
-plt.subplot(223)
+plt.subplot(224)
 plt.plot(x, y)
 plt.yscale('logit')
 plt.title('logit')
