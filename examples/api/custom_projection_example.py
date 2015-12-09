@@ -294,7 +294,7 @@ class HammerAxes(Axes):
             self._round_to = round_to
 
         def __call__(self, x, pos=None):
-            degrees = round(np.degrees(x) / self._round_to) * self._round_to
+            degrees = np.round(np.degrees(x) / self._round_to) * self._round_to
             # \u00b0 : degree symbol
             return "%d\u00b0" % degrees
 
