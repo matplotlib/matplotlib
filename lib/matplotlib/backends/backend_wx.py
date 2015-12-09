@@ -1329,12 +1329,13 @@ class FigureFrameWx(wx.Frame):
             # Rationale for line above: see issue 2941338.
         except AttributeError:
             pass  # classic toolbar lacks the attribute
-        wx.Frame.Destroy(self, *args, **kwargs)
-        if self.toolbar is not None:
-            self.toolbar.Destroy()
-        wxapp = wx.GetApp()
-        if wxapp:
-            wxapp.Yield()
+        if not self.IsBeingDeleted():
+            wx.Frame.Destroy(self, *args, **kwargs)
+            if self.toolbar is not None:
+                self.toolbar.Destroy()
+            wxapp = wx.GetApp()
+            if wxapp:
+                wxapp.Yield()
         return True
 
 
