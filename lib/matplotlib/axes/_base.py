@@ -2342,8 +2342,8 @@ class _AxesBase(martist.Artist):
                    for z, im in zorder_images]
 
             l, b, r, t = self.bbox.extents
-            width = int(mag * ((round(r) + 0.5) - (round(l) - 0.5)))
-            height = int(mag * ((round(t) + 0.5) - (round(b) - 0.5)))
+            width = int(mag * ((np.round(r) + 0.5) - (np.round(l) - 0.5)))
+            height = int(mag * ((np.round(t) + 0.5) - (np.round(b) - 0.5)))
             im = mimage.from_images(height,
                                     width,
                                     ims)

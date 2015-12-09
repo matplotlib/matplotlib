@@ -824,7 +824,7 @@ end"""
             "Convert font coordinates to PDF glyph coordinates"
             value = length / upe * 1000
             if nearest:
-                return round(value)
+                return np.round(value)
             # Perhaps best to round away from zero for bounding
             # boxes and the like
             if value < 0:
