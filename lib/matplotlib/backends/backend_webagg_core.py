@@ -159,6 +159,10 @@ class FigureCanvasWebAggCore(backend_agg.FigureCanvasAgg):
         # to the connected clients.
         self._current_image_mode = 'full'
 
+        # Store the DPI ratio of the browser.  This is the scaling that
+        # occurs automatically for all images on a HiDPI display.
+        self._dpi_ratio = 1
+
     def show(self):
         # show the figure window
         from matplotlib.pyplot import show
@@ -334,7 +338,7 @@ class FigureCanvasWebAggCore(backend_agg.FigureCanvasAgg):
 
     def handle_resize(self, event):
         x, y = event.get('width', 800), event.get('height', 800)
-        x, y = int(x), int(y)
+        x, y = int(x) * self._dpi_ratio, int(y) * self._dpi_ratio
         fig = self.figure
         # An attempt at approximating the figure size in pixels.
         fig.set_size_inches(x / fig.dpi, y / fig.dpi, forward=False)
@@ -350,6 +354,17 @@ class FigureCanvasWebAggCore(backend_agg.FigureCanvasAgg):
     def handle_send_image_mode(self, event):
         # The client requests notification of what the current image mode is.
         self.send_event('image_mode', mode=self._current_image_mode)
+
+    def handle_set_dpi_ratio(self, event):
+        dpi_ratio = event.get('dpi_ratio', 1)
+        if dpi_ratio != self._dpi_ratio:
+            # We don't want to scale up the figure dpi more than once.
+            if not hasattr(self.figure, '_original_dpi'):
+                self.figure._original_dpi = self.figure.dpi
+            self.figure.dpi = dpi_ratio * self.figure._original_dpi
+            self._dpi_ratio = dpi_ratio
+            self._force_full = True
+            self.draw_idle()
 
     def send_event(self, event_type, **kwargs):
         self.manager._send_event(event_type, **kwargs)
@@ -436,7 +451,9 @@ class FigureManagerWebAgg(backend_bases.FigureManagerBase):
         return toolbar
 
     def resize(self, w, h):
-        self._send_event('resize', size=(w, h))
+        self._send_event(
+            'resize',
+            size=(w / self.canvas._dpi_ratio, h / self.canvas._dpi_ratio))
 
     def set_window_title(self, title):
         self._send_event('figure_label', label=title)
