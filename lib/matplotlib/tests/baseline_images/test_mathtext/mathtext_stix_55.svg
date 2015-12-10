@@ -5,7 +5,7 @@
 <svg height="54pt" version="1.1" viewBox="0 0 378 54" width="378pt" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
  <defs>
   <style type="text/css">
-*{stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:100000;}
+*{stroke-linecap:butt;stroke-linejoin:round;}
   </style>
  </defs>
  <g id="figure_1">
@@ -20,29 +20,6 @@ z
   <g id="text_1">
    <!-- ${2}^{{2}^{{2}^{x}}}$ -->
    <defs>
-    <path d="M 47.40625 13.703125 
-L 42 0 
-L 2.90625 0 
-L 2.90625 1.203125 
-L 20.703125 20.09375 
-Q 27.703125 27.40625 30.703125 33.5 
-Q 33.703125 39.59375 33.703125 46.09375 
-Q 33.703125 52.796875 30 56.5 
-Q 26.296875 60.203125 19.796875 60.203125 
-Q 14.40625 60.203125 11.25 57.390625 
-Q 8.09375 54.59375 5.09375 47.203125 
-L 3 47.703125 
-Q 4.703125 57 9.84375 62.296875 
-Q 15 67.59375 23.796875 67.59375 
-Q 32.09375 67.59375 37.1875 62.59375 
-Q 42.296875 57.59375 42.296875 50 
-Q 42.296875 38.703125 29.5 25.203125 
-L 13 7.59375 
-L 36.40625 7.59375 
-Q 39.703125 7.59375 41.640625 8.890625 
-Q 43.59375 10.203125 46 14.296875 
-z
-" id="STIXGeneral-Regular-32"/>
     <path d="M 24.296875 35.5 
 L 25.5 29.796875 
 Q 30.796875 37.90625 34.046875 41 
@@ -89,12 +66,35 @@ Q 15.5 44.09375 19.203125 44.09375
 Q 21.09375 44.09375 22.1875 42.296875 
 Q 23.296875 40.5 24.296875 35.5 
 " id="STIXGeneral-Italic-78"/>
+    <path d="M 47.40625 13.703125 
+L 42 0 
+L 2.90625 0 
+L 2.90625 1.203125 
+L 20.703125 20.09375 
+Q 27.703125 27.40625 30.703125 33.5 
+Q 33.703125 39.59375 33.703125 46.09375 
+Q 33.703125 52.796875 30 56.5 
+Q 26.296875 60.203125 19.796875 60.203125 
+Q 14.40625 60.203125 11.25 57.390625 
+Q 8.09375 54.59375 5.09375 47.203125 
+L 3 47.703125 
+Q 4.703125 57 9.84375 62.296875 
+Q 15 67.59375 23.796875 67.59375 
+Q 32.09375 67.59375 37.1875 62.59375 
+Q 42.296875 57.59375 42.296875 50 
+Q 42.296875 38.703125 29.5 25.203125 
+L 13 7.59375 
+L 36.40625 7.59375 
+Q 39.703125 7.59375 41.640625 8.890625 
+Q 43.59375 10.203125 46 14.296875 
+z
+" id="STIXGeneral-Regular-32"/>
    </defs>
-   <g transform="translate(180.72 30.31125)scale(0.12 -0.12)">
-    <use transform="translate(0.0 0.9115625000000165)" xlink:href="#STIXGeneral-Regular-32"/>
-    <use transform="translate(51.54326599121094 36.186562500000015)scale(0.7)" xlink:href="#STIXGeneral-Regular-32"/>
-    <use transform="translate(87.62355218505859 60.87906250000002)scale(0.49)" xlink:href="#STIXGeneral-Regular-32"/>
-    <use transform="translate(112.87975252075194 78.16381250000002)scale(0.34299999999999997)" xlink:href="#STIXGeneral-Italic-78"/>
+   <g transform="translate(180.720000 30.311250)scale(0.120000 -0.120000)">
+    <use transform="translate(0.000000 0.911563)" xlink:href="#STIXGeneral-Regular-32"/>
+    <use transform="translate(51.543266 36.186563)scale(0.700000)" xlink:href="#STIXGeneral-Regular-32"/>
+    <use transform="translate(87.623552 60.879063)scale(0.490000)" xlink:href="#STIXGeneral-Regular-32"/>
+    <use transform="translate(112.879753 78.163813)scale(0.343000)" xlink:href="#STIXGeneral-Italic-78"/>
    </g>
   </g>
  </g>

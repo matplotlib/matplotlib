@@ -15,7 +15,7 @@ from matplotlib.ticker import FuncFormatter
 
 
 @image_comparison(baseline_images=['bbox_inches_tight'], remove_text=True,
-                  savefig_kwarg=dict(bbox_inches='tight'), tol=15)
+                  savefig_kwarg=dict(bbox_inches='tight'))
 def test_bbox_inches_tight():
     #: Test that a figure saved using bbox_inches='tight' is clipped correctly
     data = [[ 66386, 174296,  75131, 577908,  32015],
@@ -84,8 +84,8 @@ def test_bbox_inches_tight_clipping():
     path.vertices *= 0.25
     patch.set_clip_path(path, transform=ax.transAxes)
     plt.gcf().artists.append(patch)
-    
-    
+
+
 @image_comparison(baseline_images=['bbox_inches_tight_raster'],
                   remove_text=True, savefig_kwarg={'bbox_inches': 'tight'})
 def test_bbox_inches_tight_raster():

@@ -91,6 +91,8 @@ def test_make_compound_path_empty():
 
 @image_comparison(baseline_images=['xkcd'], remove_text=True)
 def test_xkcd():
+    np.random.seed(0)
+
     x = np.linspace(0, 2.0 * np.pi, 100.0)
     y = np.sin(x)
 
