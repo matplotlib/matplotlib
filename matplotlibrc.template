@@ -390,7 +390,7 @@ backend      : %(backend)s
 #figure.titlesize : medium     # size of the figure title
 #figure.titleweight : normal   # weight of the figure title
 #figure.figsize   : 8, 6    # figure size in inches
-#figure.dpi       : 80      # figure dots per inch
+#figure.dpi       : 100     # figure dots per inch
 #figure.facecolor : 0.75    # figure facecolor; 0.75 is scalar gray
 #figure.edgecolor : white   # figure edgecolor
 #figure.autolayout : False  # When True, automatically adjust subplot
@@ -463,7 +463,7 @@ backend      : %(backend)s
 # the default savefig params can be different from the display params
 # e.g., you may want a higher resolution, or to make the figure
 # background white
-#savefig.dpi         : 100      # figure dots per inch
+#savefig.dpi         : figure   # figure dots per inch or 'figure'
 #savefig.facecolor   : white    # figure facecolor when saving
 #savefig.edgecolor   : white    # figure edgecolor when saving
 #savefig.format      : png      # png, ps, pdf, svg
