@@ -318,6 +318,12 @@ def compare_images(expected, actual, tol, in_decorator=False):
     actualImage, expectedImage = crop_to_same(
         actual, actualImage, expected, expectedImage)
 
+    diff_image = make_test_filename(actual, 'failed-diff')
+
+    if tol <= 0.0:
+        if np.array_equal(expectedImage, actualImage):
+            return None
+
     # convert to signed integers, so that the images can be subtracted without
     # overflow
     expectedImage = expectedImage.astype(np.int16)
@@ -325,11 +331,7 @@ def compare_images(expected, actual, tol, in_decorator=False):
 
     rms = calculate_rms(expectedImage, actualImage)
 
-    diff_image = make_test_filename(actual, 'failed-diff')
-
     if rms <= tol:
-        if os.path.exists(diff_image):
-            os.unlink(diff_image)
         return None
 
     save_diff_image(expected, actual, diff_image)

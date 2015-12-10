@@ -313,6 +313,12 @@ def validate_color_or_inherit(s):
     return validate_color(s)
 
 
+def validate_color_or_auto(s):
+    if s == 'auto':
+        return s
+    return validate_color(s)
+
+
 def validate_color(s):
     'return a valid color arg'
     try:
@@ -847,7 +853,7 @@ defaultParams = {
 
     'boxplot.flierprops.color': ['b', validate_color],
     'boxplot.flierprops.marker': ['+', six.text_type],
-    'boxplot.flierprops.markerfacecolor': ['b', validate_color],
+    'boxplot.flierprops.markerfacecolor': ['auto', validate_color_or_auto],
     'boxplot.flierprops.markeredgecolor': ['k', validate_color],
     'boxplot.flierprops.markersize': [6, validate_float],
     'boxplot.flierprops.linestyle': ['none', six.text_type],

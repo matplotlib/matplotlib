@@ -1937,7 +1937,7 @@ class AutoMinorLocator(Locator):
                 # TODO: Need a better way to figure out ndivs
                 ndivs = 1
             else:
-                x = int(round(10 ** (np.log10(majorstep) % 1)))
+                x = int(np.round(10 ** (np.log10(majorstep) % 1)))
                 if x in [1, 5, 10]:
                     ndivs = 5
                 else:

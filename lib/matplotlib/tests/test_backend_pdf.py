@@ -122,7 +122,7 @@ def test_hatching_legend():
 
 
 @image_comparison(baseline_images=['grayscale_alpha'],
-                  extensions=['pdf'], tol=1e-3)
+                  extensions=['pdf'])
 def test_grayscale_alpha():
     """Masking images with NaN did not work for grayscale images"""
     x, y = np.ogrid[-2:2:.1, -2:2:.1]

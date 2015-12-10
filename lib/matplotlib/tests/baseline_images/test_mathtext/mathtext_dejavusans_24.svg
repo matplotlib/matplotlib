@@ -5,7 +5,7 @@
 <svg height="54pt" version="1.1" viewBox="0 0 378 54" width="378pt" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
  <defs>
   <style type="text/css">
-*{stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:100000;}
+*{stroke-linecap:butt;stroke-linejoin:round;}
   </style>
  </defs>
  <g id="figure_1">
@@ -20,16 +20,6 @@ z
   <g id="text_1">
    <!-- $\Delta_i^j$ -->
    <defs>
-    <path d="M 34.1875 63.1875 
-L 14.15625 8.203125 
-L 54.25 8.203125 
-z
-M 0.78125 0 
-L 28.609375 72.90625 
-L 39.796875 72.90625 
-L 67.578125 0 
-z
-" id="DejaVuSans-394"/>
     <path d="M 18.3125 75.984375 
 L 27.296875 75.984375 
 L 25.09375 64.59375 
@@ -60,11 +50,21 @@ L 25.484375 64.59375
 L 16.5 64.59375 
 z
 " id="DejaVuSans-Oblique-6a"/>
+    <path d="M 34.1875 63.1875 
+L 14.15625 8.203125 
+L 54.25 8.203125 
+z
+M 0.78125 0 
+L 28.609375 72.90625 
+L 39.796875 72.90625 
+L 67.578125 0 
+z
+" id="DejaVuSans-394"/>
    </defs>
-   <g transform="translate(183.48 31.74)scale(0.12 -0.12)">
-    <use transform="translate(0.0 0.9078125000000057)" xlink:href="#DejaVuSans-394"/>
-    <use transform="translate(69.365234375 53.8109375)scale(0.7)" xlink:href="#DejaVuSans-Oblique-6a"/>
-    <use transform="translate(69.365234375 -26.435937499999994)scale(0.7)" xlink:href="#DejaVuSans-Oblique-69"/>
+   <g transform="translate(183.480000 31.740000)scale(0.120000 -0.120000)">
+    <use transform="translate(0.000000 0.907813)" xlink:href="#DejaVuSans-394"/>
+    <use transform="translate(69.365234 53.810938)scale(0.700000)" xlink:href="#DejaVuSans-Oblique-6a"/>
+    <use transform="translate(69.365234 -26.435937)scale(0.700000)" xlink:href="#DejaVuSans-Oblique-69"/>
    </g>
   </g>
  </g>
