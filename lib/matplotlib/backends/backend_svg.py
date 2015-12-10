@@ -18,6 +18,7 @@ from matplotlib.backend_bases import RendererBase, GraphicsContextBase,\
      FigureManagerBase, FigureCanvasBase
 from matplotlib.backends.backend_mixed import MixedModeRenderer
 from matplotlib.cbook import is_string_like, is_writable_file_like, maxdict
+from collections import OrderedDict
 from matplotlib.colors import rgb2hex
 from matplotlib.figure import Figure
 from matplotlib.font_manager import findfont, FontProperties, get_font
@@ -308,7 +309,10 @@ class RendererSVG(RendererBase):
 
     def _make_id(self, type, content):
         content = str(content)
-        salt = str(uuid.uuid4())
+        if rcParams['svg.hashsalt'] is None: 
+            salt = str(uuid.uuid4())
+        else:
+            salt = rcParams['svg.hashsalt']
         if six.PY3:
             content = content.encode('utf8')
             salt = salt.encode('utf8')
@@ -826,7 +830,7 @@ class RendererSVG(RendererBase):
         if rcParams['svg.image_inline']:
             bytesio = io.BytesIO()
             _png.write_png(np.array(im)[::-1], bytesio)
-            oid = oid or self._make_id('image', bytesio)
+            oid = oid or self._make_id('image', bytesio.getvalue())
             attrib['xlink:href'] = (
                 "data:image/png;base64,\n" +
                 base64.b64encode(bytesio.getvalue()).decode('ascii'))
