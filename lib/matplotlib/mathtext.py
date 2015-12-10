@@ -60,6 +60,7 @@ from matplotlib import get_data_path, rcParams
 
 import matplotlib.colors as mcolors
 import matplotlib._png as _png
+
 ####################
 
 
@@ -2120,10 +2121,10 @@ class Ship(object):
                     if glue_sign == 1: # stretching
                         if glue_spec.stretch_order == glue_order:
                             cur_glue += glue_spec.stretch
-                            cur_g = round(clamp(float(box.glue_set) * cur_glue))
+                            cur_g = np.round(clamp(float(box.glue_set) * cur_glue))
                     elif glue_spec.shrink_order == glue_order:
                         cur_glue += glue_spec.shrink
-                        cur_g = round(clamp(float(box.glue_set) * cur_glue))
+                        cur_g = np.round(clamp(float(box.glue_set) * cur_glue))
                 rule_width += cur_g
                 self.cur_h += rule_width
         self.cur_s -= 1
@@ -2176,10 +2177,10 @@ class Ship(object):
                     if glue_sign == 1: # stretching
                         if glue_spec.stretch_order == glue_order:
                             cur_glue += glue_spec.stretch
-                            cur_g = round(clamp(float(box.glue_set) * cur_glue))
+                            cur_g = np.round(clamp(float(box.glue_set) * cur_glue))
                     elif glue_spec.shrink_order == glue_order: # shrinking
                         cur_glue += glue_spec.shrink
-                        cur_g = round(clamp(float(box.glue_set) * cur_glue))
+                        cur_g = np.round(clamp(float(box.glue_set) * cur_glue))
                 rule_height += cur_g
                 self.cur_v += rule_height
             elif isinstance(p, Char):

@@ -54,7 +54,7 @@ def test_divider_append_axes():
 
 
 @image_comparison(baseline_images=['twin_axes_empty_and_removed'],
-    extensions=["png"])
+                  extensions=["png"], tol=1)
 def test_twin_axes_empty_and_removed():
     # Purely cosmetic font changes (avoid overlap)
     matplotlib.rcParams.update({"font.size": 8})
