@@ -359,7 +359,7 @@ class GraphicsContextCairo(GraphicsContextBase):
         if not rectangle: return
         x,y,w,h = rectangle.bounds
         # pixel-aligned clip-regions are faster
-        x,y,w,h = round(x), round(y), round(w), round(h)
+        x,y,w,h = np.round(x), np.round(y), np.round(w), np.round(h)
         ctx = self.ctx
         ctx.new_path()
         ctx.rectangle (x, self.renderer.height - h - y, w, h)

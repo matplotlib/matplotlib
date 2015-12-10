@@ -6,6 +6,7 @@ from matplotlib.externals.six.moves import xrange
 from matplotlib.externals.six import unichr
 
 import os, base64, tempfile, gzip, io, sys, codecs, re
+from collections import OrderedDict
 
 import numpy as np
 
@@ -231,7 +232,7 @@ def generate_transform(transform_list=[]):
             if type == 'matrix' and isinstance(value, Affine2DBase):
                 value = value.to_values()
 
-            output.write('%s(%s)' % (type, ' '.join(str(x) for x in value)))
+            output.write('%s(%s)' % (type, ' '.join('%f' % x for x in value)))
         return output.getvalue()
     return ''
 
@@ -263,15 +264,15 @@ class RendererSVG(RendererBase):
             assert basename is not None
             self.basename = basename
             self._imaged = {}
-        self._clipd = {}
+        self._clipd = OrderedDict()
         self._char_defs = {}
         self._markers = {}
         self._path_collection_id = 0
         self._imaged = {}
-        self._hatchd = {}
+        self._hatchd = OrderedDict()
         self._has_gouraud = False
         self._n_gradients = 0
-        self._fonts = {}
+        self._fonts = OrderedDict()
         self.mathtext_parser = MathTextParser('SVG')
 
         RendererBase.__init__(self)
@@ -298,10 +299,7 @@ class RendererSVG(RendererBase):
         writer = self.writer
         default_style = generate_css({
             'stroke-linejoin': 'round',
-            'stroke-linecap': 'butt',
-            # Disable the miter limit.  100000 seems to be close to
-            # the maximum that renderers support before breaking.
-            'stroke-miterlimit': '100000'})
+            'stroke-linecap': 'butt'})
         writer.start('defs')
         writer.start('style', type='text/css')
         writer.data('*{%s}\n' % default_style)
@@ -403,7 +401,7 @@ class RendererSVG(RendererBase):
         if gc.get_hatch() is not None:
             attrib['fill'] = "url(#%s)" % self._get_hatch(gc, rgbFace)
             if rgbFace is not None and len(rgbFace) == 4 and rgbFace[3] != 1.0 and not forced_alpha:
-                attrib['fill-opacity'] = str(rgbFace[3])
+                attrib['fill-opacity'] = "%f" % rgbFace[3]
         else:
             if rgbFace is None:
                 attrib['fill'] = 'none'
@@ -411,10 +409,10 @@ class RendererSVG(RendererBase):
                 if tuple(rgbFace[:3]) != (0, 0, 0):
                     attrib['fill'] = rgb2hex(rgbFace)
                 if len(rgbFace) == 4 and rgbFace[3] != 1.0 and not forced_alpha:
-                    attrib['fill-opacity'] = str(rgbFace[3])
+                    attrib['fill-opacity'] = "%f" % rgbFace[3]
 
         if forced_alpha and gc.get_alpha() != 1.0:
-            attrib['opacity'] = str(gc.get_alpha())
+            attrib['opacity'] = "%f" % gc.get_alpha()
 
         offset, seq = gc.get_dashes()
         if seq is not None:
@@ -426,9 +424,9 @@ class RendererSVG(RendererBase):
             rgb = gc.get_rgb()
             attrib['stroke'] = rgb2hex(rgb)
             if not forced_alpha and rgb[3] != 1.0:
-                attrib['stroke-opacity'] = str(rgb[3])
+                attrib['stroke-opacity'] = "%f" % rgb[3]
             if linewidth != 1.0:
-                attrib['stroke-width'] = str(linewidth)
+                attrib['stroke-width'] = "%f" % linewidth
             if gc.get_joinstyle() != 'round':
                 attrib['stroke-linejoin'] = gc.get_joinstyle()
             if gc.get_capstyle() != 'butt':
@@ -756,7 +754,7 @@ class RendererSVG(RendererBase):
             'use',
             attrib={'xlink:href': href,
                     'fill': rgb2hex(avg_color),
-                    'fill-opacity': str(avg_color[-1])})
+                    'fill-opacity': "%f" % avg_color[-1]})
         for i in range(3):
             writer.element(
                 'use',
@@ -842,7 +840,7 @@ class RendererSVG(RendererBase):
 
         alpha = gc.get_alpha()
         if alpha != 1.0:
-            attrib['opacity'] = str(alpha)
+            attrib['opacity'] = "%f" % alpha
 
         attrib['id'] = oid
 
@@ -1048,8 +1046,8 @@ class RendererSVG(RendererBase):
                                  'center': 'middle'}
                 style['text-anchor'] = ha_mpl_to_svg[mtext.get_ha()]
 
-                attrib['x'] = str(ax)
-                attrib['y'] = str(ay)
+                attrib['x'] = "%f" % ax
+                attrib['y'] = "%f" % ay
                 attrib['style'] = generate_css(style)
                 attrib['transform'] = "rotate(%f, %f, %f)" % (-angle, ax, ay)
                 writer.element('text', s, attrib=attrib)
@@ -1087,7 +1085,7 @@ class RendererSVG(RendererBase):
 
             # Sort the characters by font, and output one tspan for
             # each
-            spans = {}
+            spans = OrderedDict()
             for font, fontsize, thetext, new_x, new_y, metrics in svg_glyphs:
                 style = generate_css({
                     'font-size': six.text_type(fontsize) + 'px',
@@ -1103,7 +1101,7 @@ class RendererSVG(RendererBase):
                     fontset = self._fonts.setdefault(font.fname, set())
                     fontset.add(thetext)
 
-            for style, chars in list(six.iteritems(spans)):
+            for style, chars in six.iteritems(spans):
                 chars.sort()
 
                 same_y = True

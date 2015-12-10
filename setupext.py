@@ -718,6 +718,7 @@ class Tests(OptionalPackage):
             'matplotlib':
             baseline_images +
             [
+                'tests/cmr10.pfb',
                 'tests/mpltest.ttf',
                 'tests/test_rcparams.rc',
                 'tests/test_utf32_be_rcparams.rc',
