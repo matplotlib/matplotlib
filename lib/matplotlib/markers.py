@@ -93,6 +93,8 @@ from .transforms import IdentityTransform, Affine2D
 (TICKLEFT, TICKRIGHT, TICKUP, TICKDOWN,
  CARETLEFT, CARETRIGHT, CARETUP, CARETDOWN) = list(xrange(8))
 
+_empty_path = Path(np.empty((0, 2)))
+
 
 class MarkerStyle(object):
 
@@ -182,7 +184,7 @@ class MarkerStyle(object):
         self._recache()
 
     def _recache(self):
-        self._path = Path(np.empty((0, 2)))
+        self._path = _empty_path
         self._transform = IdentityTransform()
         self._alt_path = None
         self._alt_transform = None

@@ -1392,12 +1392,6 @@ class Stack(object):
                 self.push(thiso)
 
 
-def popall(seq):
-    'empty a list'
-    for i in xrange(len(seq)):
-        seq.pop()
-
-
 def finddir(o, match, case=False):
     """
     return all attributes of *o* which match string in match.  if case

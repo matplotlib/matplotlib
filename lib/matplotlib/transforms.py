@@ -40,7 +40,7 @@ from matplotlib._path import (affine_transform, count_bboxes_overlapping_bbox,
     update_path_extents)
 from numpy.linalg import inv
 
-from weakref import WeakValueDictionary
+import weakref
 import warnings
 try:
     set
@@ -92,10 +92,7 @@ class TransformNode(object):
                              other than to improve the readability of
                              ``str(transform)`` when DEBUG=True.
         """
-        # Parents are stored in a WeakValueDictionary, so that if the
-        # parents are deleted, references from the children won't keep
-        # them alive.
-        self._parents = WeakValueDictionary()
+        self._parents = {}
 
         # TransformNodes start out as invalid until their values are
         # computed for the first time.
@@ -156,8 +153,11 @@ class TransformNode(object):
             self._invalid = value
 
             for parent in list(six.itervalues(self._parents)):
-                parent._invalidate_internal(value=value,
-                                            invalidating_node=self)
+                # Dereference the weak reference
+                parent = parent()
+                if parent is not None:
+                    parent._invalidate_internal(
+                        value=value, invalidating_node=self)
 
     def set_children(self, *children):
         """
@@ -166,8 +166,11 @@ class TransformNode(object):
         Should be called from the constructor of any transforms that
         depend on other transforms.
         """
+        # Parents are stored as weak references, so that if the
+        # parents are destroyed, references from the children won't
+        # keep them alive.
         for child in children:
-            child._parents[id(self)] = self
+            child._parents[id(self)] = weakref.ref(self)
 
     if DEBUG:
         _set_children = set_children
