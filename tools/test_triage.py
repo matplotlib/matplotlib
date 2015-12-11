@@ -24,6 +24,8 @@ Keys:
     R:          Reject test.  Copy the expected result to the source tree.
 """
 
+from __future__ import unicode_literals
+
 import os
 import shutil
 import sys
