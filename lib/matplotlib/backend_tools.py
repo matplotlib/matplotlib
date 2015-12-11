@@ -325,6 +325,16 @@ class ToolQuit(ToolBase):
         Gcf.destroy_fig(self.figure)
 
 
+class ToolQuitAll(ToolBase):
+    """Tool to call the figure manager destroy method"""
+
+    description = 'Quit all figures'
+    default_keymap = rcParams['keymap.quit_all']
+
+    def trigger(self, sender, event, data=None):
+        Gcf.destroy_all()
+
+
 class ToolEnableAllNavigation(ToolBase):
     """Tool to enable all axes for toolmanager interaction"""
 
@@ -860,6 +870,7 @@ default_tools = {'home': ToolHome, 'back': ToolBack, 'forward': ToolForward,
                  'grid': ToolGrid,
                  'fullscreen': ToolFullScreen,
                  'quit': ToolQuit,
+                 'quit_all': ToolQuitAll,
                  'allnav': ToolEnableAllNavigation,
                  'nav': ToolEnableNavigation,
                  'xscale': ToolXScale,

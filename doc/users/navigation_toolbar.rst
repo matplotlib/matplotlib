@@ -95,7 +95,8 @@ Zoom-to-rect                       **o**
 Save                               **ctrl** + **s**
 Toggle fullscreen                  **ctrl** + **f**
 Close plot                         **ctrl** + **w**
-Constrain pan/zoom to x axis       hold **x** when panning/zooming with mouse 
+Close all plots                    **shift** + **w**
+Constrain pan/zoom to x axis       hold **x** when panning/zooming with mouse
 Constrain pan/zoom to y axis       hold **y** when panning/zooming with mouse
 Preserve aspect ratio              hold **CONTROL** when panning/zooming with mouse
 Toggle grid                        **g** when mouse is over an axes
