@@ -106,14 +106,17 @@ class TransformNode(object):
 
     def __getstate__(self):
         d = self.__dict__.copy()
-        # turn the weakkey dictionary into a normal dictionary
-        d['_parents'] = dict(six.iteritems(self._parents))
+        # turn the dictionary with weak values into a normal dictionary
+        d['_parents'] = dict((k, v()) for (k, v) in
+                             six.iteritems(self._parents))
         return d
 
     def __setstate__(self, data_dict):
         self.__dict__ = data_dict
-        # turn the normal dictionary back into a WeakValueDictionary
-        self._parents = WeakValueDictionary(self._parents)
+        # turn the normal dictionary back into a dictionary with weak
+        # values
+        self._parents = dict((k, weakref.ref(v)) for (k, v) in
+                             six.iteritems(self._parents))
 
     def __copy__(self, *args):
         raise NotImplementedError(
@@ -1563,8 +1566,8 @@ class TransformWrapper(Transform):
             'child': self._child,
             'input_dims': self.input_dims,
             'output_dims': self.output_dims,
-            # turn the weakkey dictionary into a normal dictionary
-            'parents': dict(six.iteritems(self._parents))
+            # turn the weak-values dictionary into a normal dictionary
+            'parents': dict((k, v()) for (k, v) in six.iteritems(self._parents))
         }
 
     def __setstate__(self, state):
@@ -1574,7 +1577,7 @@ class TransformWrapper(Transform):
         self.input_dims = state['input_dims']
         self.output_dims = state['output_dims']
         # turn the normal dictionary back into a WeakValueDictionary
-        self._parents = WeakValueDictionary(state['parents'])
+        self._parents = dict((k, weakref.ref(v)) for (k, v) in state['parents'])
 
     def __repr__(self):
         return "TransformWrapper(%r)" % self._child
