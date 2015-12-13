@@ -80,9 +80,9 @@ class Test_delete_masked_points(object):
         self.arr_colors = ['r', 'g', 'b', 'c', 'm', 'y']
         self.arr_rgba = mcolors.colorConverter.to_rgba_array(self.arr_colors)
 
-    @raises(ValueError)
     def test_bad_first_arg(self):
-        dmp('a string', self.arr0)
+        with pytest.raises(ValueError):
+            dmp('a string', self.arr0)
 
     def test_string_seq(self):
         actual = dmp(self.arr_s, self.arr1)
