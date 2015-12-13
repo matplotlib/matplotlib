@@ -1029,7 +1029,7 @@ def test_tricontourf_decreasing_levels():
     y = [0.0, 0.0, 1.0]
     z = [0.2, 0.4, 0.6]
     plt.figure()
-    assert_raises(ValueError, plt.tricontourf, x, y, z, [1.0, 0.0])
+    pytest.raises(ValueError, plt.tricontourf, x, y, z, [1.0, 0.0])
 
 
 if __name__ == '__main__':

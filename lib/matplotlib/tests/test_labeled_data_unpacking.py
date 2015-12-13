@@ -251,7 +251,7 @@ def test_more_args_than_pos_parameter():
     def f():
         func(None, "a", "b", "z", "z", data=data)
 
-    assert_raises(RuntimeError, f)
+    pytest.raises(RuntimeError, f)
 
 
 def test_function_call_with_replace_all_args():
