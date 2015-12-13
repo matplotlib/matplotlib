@@ -29,33 +29,32 @@ fig, ax1 = plt.subplots(figsize=(9, 7))
 plt.subplots_adjust(left=0.115, right=0.88)
 fig.canvas.set_window_title('Eldorado K-8 Fitness Chart')
 pos = np.arange(numTests) + 0.5  # Center bars on the Y-axis ticks
-rects = ax1.barh(pos, rankings, align='center', height=0.5, color='m')
 
-ax1.axis([0, 100, 0, 5])
-plt.yticks(pos, testNames)
+rects = ax1.barh(pos, rankings, align='center', height=0.5, color='m',
+                 tick_label=testNames)
+
 ax1.set_title('Johnny Doe')
-plt.text(50, -0.5, 'Cohort Size: ' + str(cohortSize),
-         horizontalalignment='center', size='small')
+
+ax1.set_xlim([0, 100])
+ax1.xaxis.set_major_locator(MaxNLocator(11))
+ax1.xaxis.grid(True, linestyle='--', which='major', color='grey', alpha=.25)
+
+# Plot a solid vertical gridline to highlight the median position
+ax1.axvline(50, color='grey', alpha=0.25)
+
+ax1.text(.5, -.07, 'Cohort Size: ' + str(cohortSize),
+         horizontalalignment='center', size='small',
+         transform=ax1.transAxes)
 
 # Set the right-hand Y-axis ticks and labels and set X-axis tick marks at the
 # deciles
 ax2 = ax1.twinx()
-ax2.plot([100, 100], [0, 5], 'white', alpha=0.1)
-ax2.xaxis.set_major_locator(MaxNLocator(11))
-xticks = plt.setp(ax2, xticklabels=['0', '10', '20', '30', '40', '50', '60',
-                                      '70', '80', '90', '100'])
-ax2.xaxis.grid(True, linestyle='--', which='major', color='grey',
-               alpha=0.25)
-# Plot a solid vertical gridline to highlight the median position
-plt.plot([50, 50], [0, 5], 'grey', alpha=0.25)
 
 # Build up the score labels for the right Y-axis by first appending a carriage
 # return to each string and then tacking on the appropriate meta information
 # (i.e., 'laps' vs 'seconds'). We want the labels centered on the ticks, so if
 # there is no meta info (like for pushups) then don't add the carriage return to
 # the string
-
-
 def withnew(i, scr):
     if testMeta[i] != '':
         return '%s\n' % scr
@@ -70,7 +69,6 @@ ax2.set_yticks(pos)
 ax2.set_yticklabels(scoreLabels)
 # make sure that the limits are set equally on both yaxis so the ticks line up
 ax2.set_ylim(ax1.get_ylim())
-
 
 ax2.set_ylabel('Test Scores')
 # Make list of numerical suffixes corresponding to position in a list
@@ -108,6 +106,7 @@ for rect in rects:
     # Center the text vertically in the bar
     yloc = rect.get_y() + rect.get_height()/2.0
     ax1.text(xloc, yloc, rankStr, horizontalalignment=align,
-             verticalalignment='center', color=clr, weight='bold')
+             verticalalignment='center', color=clr, weight='bold',
+             clip_on=True)
 
 plt.show()
