@@ -143,23 +143,23 @@ class stride_testcase(CleanupTestCase):
 
     def test_stride_windows_n_lt_1_ValueError(self):
         x = np.arange(10)
-        pytest.raises(ValueError, mlab.stride_windows(x, 0))
+        pytest.raises(ValueError, mlab.stride_windows, x, 0)
 
     def test_stride_repeat_2D_ValueError(self):
         x = np.arange(10)[np.newaxis]
-        pytest.raises(ValueError, mlab.stride_repeat(x, 5))
+        pytest.raises(ValueError, mlab.stride_repeat, x, 5)
 
     def test_stride_repeat_axis_lt_0_ValueError(self):
         x = np.array(0)
-        pytest.raises(ValueError, mlab.stride_repeat(x, 5, axis=-1))
+        pytest.raises(ValueError, mlab.stride_repeat, x, 5, axis=-1)
 
     def test_stride_repeat_axis_gt_1_ValueError(self):
         x = np.array(0)
-        pytest.raises(ValueError, mlab.stride_repeat(x, 5, axis=2))
+        pytest.raises(ValueError, mlab.stride_repeat, x, 5, axis=2)
 
     def test_stride_repeat_n_lt_1_ValueError(self):
         x = np.arange(10)
-        pytest.raises(ValueError, mlab.stride_repeat(x, 0))
+        pytest.raises(ValueError, mlab.stride_repeat, x, 0)
 
     def test_stride_repeat_n1_axis0(self):
         x = np.arange(10)
@@ -1588,7 +1588,7 @@ class spectral_testcase_nosig_real_onesided(CleanupTestCase):
         assert_allclose(spec_g, spec_c, atol=1e-08)
         # these should not be almost equal
         pytest.raises(AssertionError,
-                      assert_allclose(spec_b, spec_c, atol=1e-08))
+                      assert_allclose,spec_b, spec_c, atol=1e-08)
 
     def test_psd_detrend_mean_str_offset(self):
         if self.NFFT_density is None:
@@ -1624,7 +1624,7 @@ class spectral_testcase_nosig_real_onesided(CleanupTestCase):
         assert_allclose(spec_g, spec_c, atol=1e-08)
         # these should not be almost equal
         pytest.raises(AssertionError,
-                      assert_allclose(spec_b, spec_c, atol=1e-08))
+                      assert_allclose, spec_b, spec_c, atol=1e-08)
 
     def test_psd_detrend_linear_func_trend(self):
         if self.NFFT_density is None:
@@ -1660,7 +1660,7 @@ class spectral_testcase_nosig_real_onesided(CleanupTestCase):
         assert_allclose(spec_g, spec_c, atol=1e-08)
         # these should not be almost equal
         pytest.raises(AssertionError,
-                      assert_allclose(spec_b, spec_c, atol=1e-08))
+                      assert_allclose, spec_b, spec_c, atol=1e-08)
 
     def test_psd_detrend_linear_str_trend(self):
         if self.NFFT_density is None:
@@ -1696,7 +1696,7 @@ class spectral_testcase_nosig_real_onesided(CleanupTestCase):
         assert_allclose(spec_g, spec_c, atol=1e-08)
         # these should not be almost equal
         pytest.raises(AssertionError,
-                      assert_allclose(spec_b, spec_c, atol=1e-08))
+                      assert_allclose, spec_b, spec_c, atol=1e-08)
 
     def test_psd_window_hanning(self):
         if self.NFFT_density is None:
@@ -1740,7 +1740,7 @@ class spectral_testcase_nosig_real_onesided(CleanupTestCase):
         assert_allclose(spec_g, spec_c, atol=1e-08)
         # these should not be almost equal
         pytest.raises(AssertionError,
-                      assert_allclose(spec_b, spec_c, atol=1e-08))
+                      assert_allclose, spec_b, spec_c, atol=1e-08)
 
     def test_psd_window_hanning_detrend_linear(self):
         if self.NFFT_density is None:
@@ -1789,7 +1789,7 @@ class spectral_testcase_nosig_real_onesided(CleanupTestCase):
         assert_allclose(spec_g, spec_c, atol=1e-08)
         # these should not be almost equal
         pytest.raises(AssertionError,
-                      assert_allclose(spec_b, spec_c, atol=1e-08))
+                      assert_allclose, spec_b, spec_c, atol=1e-08)
 
     def test_psd_windowarray(self):
         freqs = self.freqs_density

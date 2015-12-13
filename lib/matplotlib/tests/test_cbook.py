@@ -255,15 +255,15 @@ class Test_boxplot_stats(object):
         for res in results:
             assert('label' not in res)
 
-    @raises(ValueError)
     def test_label_error(self):
-        labels = [1, 2]
-        results = cbook.boxplot_stats(self.data, labels=labels)
+        with pytest.raises(ValueError):
+            labels = [1, 2]
+            results = cbook.boxplot_stats(self.data, labels=labels)
 
-    @raises(ValueError)
     def test_bad_dims(self):
-        data = np.random.normal(size=(34, 34, 34))
-        results = cbook.boxplot_stats(data)
+        with pytest.raises(ValueError):
+            data = np.random.normal(size=(34, 34, 34))
+            results = cbook.boxplot_stats(data)
 
 
 class Test_callback_registry(object):
