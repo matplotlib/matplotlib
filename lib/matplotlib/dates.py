@@ -1562,7 +1562,7 @@ class DateConverter(units.ConversionInterface):
 
         try:
             x = next(iter(x))
-        except (TypeError, IndexError):
+        except (TypeError, StopIteration):
             pass
 
         try:
