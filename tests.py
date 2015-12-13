@@ -27,7 +27,7 @@ def run(extra_args):
     argv = sys.argv + extra_args
     # pytest.main(['--pyargs', '--cov=matplotlib'] + default_test_modules)
     print(argv + ['--pyargs'] + default_test_modules)
-    pytest.main(argv + ['--pyargs'] + default_test_modules)
+    return pytest.main(argv + ['--pyargs'] + default_test_modules)
 
 if __name__ == '__main__':
     # extra_args = ['--cov=matplotlib']
@@ -43,4 +43,5 @@ if __name__ == '__main__':
         extra_args.extend(['--eval-attr="not network"'])
         sys.argv.remove('--no-network')
 
-    run(extra_args)
+    returnvar = run(extra_args)
+    sys.exit(returnvar)
