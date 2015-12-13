@@ -21,6 +21,7 @@ testNames = ['Pacer Test', 'Flexed Arm\n Hang', 'Mile Run', 'Agility',
              'Push Ups']
 testMeta = dict(zip(testNames, ['laps', 'sec', 'min:sec', 'sec', '']))
 
+
 def attach_ordinal(num):
     """helper function to add ordinal string to integers
 
@@ -37,6 +38,7 @@ def attach_ordinal(num):
         return v + 'th'
     return v + suffixes[v[-1]]
 
+
 def format_score(scr, test):
     """
     Build up the score labels for the right Y-axis by first
@@ -51,6 +53,7 @@ def format_score(scr, test):
         return '{}\n{}'.format(scr, md)
     else:
         return scr
+
 
 def format_ycursor(y):
     y = int(y)
@@ -77,7 +80,8 @@ def plot_student_results(student, scores, cohort_size):
 
     ax1.set_xlim([0, 100])
     ax1.xaxis.set_major_locator(MaxNLocator(11))
-    ax1.xaxis.grid(True, linestyle='--', which='major', color='grey', alpha=.25)
+    ax1.xaxis.grid(True, linestyle='--', which='major',
+                   color='grey', alpha=.25)
 
     # Plot a solid vertical gridline to highlight the median position
     ax1.axvline(50, color='grey', alpha=0.25)
@@ -102,10 +106,10 @@ def plot_student_results(student, scores, cohort_size):
 
     ax2.set_ylabel('Test Scores')
 
-    ax2.set_xlabel(
-        'Percentile Ranking Across {grade} Grade {gender}s'.format(
-        grade=attach_ordinal(student.grade),
-        gender=student.gender.title()))
+    ax2.set_xlabel(('Percentile Ranking Across '
+                    '{grade} Grade {gender}s').format(
+                        grade=attach_ordinal(student.grade),
+                        gender=student.gender.title()))
 
     rect_labels = []
     # Lastly, write in the ranking inside each bar to aid in interpretation
@@ -116,13 +120,18 @@ def plot_student_results(student, scores, cohort_size):
         width = int(rect.get_width())
 
         rankStr = attach_ordinal(width)
-        if (width < 5):        # The bars aren't wide enough to print the ranking inside
-            xloc = width + 1   # Shift the text to the right side of the right edge
-            clr = 'black'      # Black against white background
+        # The bars aren't wide enough to print the ranking inside
+        if (width < 5):
+            # Shift the text to the right side of the right edge
+            xloc = width + 1
+            # Black against white background
+            clr = 'black'
             align = 'left'
         else:
-            xloc = 0.98*width  # Shift the text to the left side of the right edge
-            clr = 'white'      # White on magenta
+            # Shift the text to the left side of the right edge
+            xloc = 0.98*width
+            # White on magenta
+            clr = 'white'
             align = 'right'
 
         # Center the text vertically in the bar
@@ -146,7 +155,8 @@ student = Student('Johnny Doe', 2, 'boy')
 scores = dict(zip(testNames,
                   (Score(v, p) for v, p in
                    zip(['7', '48', '12:52', '17', '14'],
-                       np.round(np.random.uniform(0, 1, len(testNames))*100, 0)))))
+                       np.round(np.random.uniform(0, 1,
+                                                  len(testNames))*100, 0)))))
 cohort_size = 62  # The number of other 2nd grade boys
 
 arts = plot_student_results(student, scores, cohort_size)
