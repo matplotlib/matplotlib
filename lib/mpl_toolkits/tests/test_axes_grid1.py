@@ -50,6 +50,7 @@ def test_divider_append_axes():
     axHistleft.yaxis.set_ticklabels(())
     axHistright.yaxis.set_ticklabels(())
 
+
 if __name__ == '__main__':
     import nose
     nose.runmodule(argv=['-s', '--with-doctest'], exit=False)

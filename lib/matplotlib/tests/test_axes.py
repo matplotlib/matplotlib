@@ -238,7 +238,7 @@ def test_polar_coord_annotations():
     ax.set_ylim(-20, 20)
 
 
-@image_comparison(baseline_images=['fill_units'], tol=18, extensions=['png'],
+@image_comparison(baseline_images=['fill_units'], extensions=['png'],
                   savefig_kwarg={'dpi': 60})
 def test_fill_units():
     from datetime import datetime
@@ -1046,7 +1046,7 @@ def test_markevery_polar():
 
 
 @image_comparison(baseline_images=['marker_edges'],
-                  remove_text=True, tol=3)
+                  remove_text=True)
 def test_marker_edges():
     x = np.linspace(0, 1, 10)
     fig = plt.figure()
@@ -1062,14 +1062,14 @@ def test_marker_edges():
 def test_bar_tick_label_single():
     # From 2516: plot bar with array of string labels for x axis
     ax = plt.gca()
-    ax.bar(0, 1 , tick_label='a')
+    ax.bar(0, 1, tick_label='0')
 
     # Reuse testcase from above for a labeled data test
     data = {"a": 0, "b": 1}
     fig = plt.figure()
     ax = fig.add_subplot(111)
     ax = plt.gca()
-    ax.bar("a", "b" , tick_label='a', data=data)
+    ax.bar("a", "b", tick_label='0', data=data)
 
 
 @cleanup
@@ -1120,7 +1120,7 @@ def test_hist_step_empty():
     ax = plt.gca()
     ax.hist([], histtype='step')
 
-@image_comparison(baseline_images=['hist_steplog'], remove_text=True)
+@image_comparison(baseline_images=['hist_steplog'], remove_text=True, tol=0.05)
 def test_hist_steplog():
     np.random.seed(0)
     data = np.random.standard_normal(2000)
@@ -1738,7 +1738,7 @@ def test_bxp_bad_positions():
     assert_raises(ValueError, ax.bxp, logstats, positions=[2, 3])
 
 
-@image_comparison(baseline_images=['boxplot', 'boxplot'])
+@image_comparison(baseline_images=['boxplot', 'boxplot'], tol=1)
 def test_boxplot():
     x = np.linspace(-7, 7, 140)
     x = np.hstack([-25, x, 25])
@@ -1797,7 +1797,7 @@ def _rc_test_bxp_helper(ax, rc_dict):
     return ax
 
 @image_comparison(baseline_images=['boxplot_rc_parameters'],
-                  savefig_kwarg={'dpi': 100}, remove_text=True)
+                  savefig_kwarg={'dpi': 100}, remove_text=True, tol=1)
 def test_boxplot_rc_parameters():
     fig, ax = plt.subplots(3)
 
@@ -2747,7 +2747,7 @@ def test_subplot_key_hash():
 
 @image_comparison(baseline_images=['specgram_freqs',
                                    'specgram_freqs_linear'],
-                  remove_text=True, extensions=['png'])
+                  remove_text=True, extensions=['png'], tol=0.01)
 def test_specgram_freqs():
     '''test axes.specgram in default (psd) mode with sinusoidal stimuli'''
     n = 10000
@@ -2800,7 +2800,7 @@ def test_specgram_freqs():
 
 @image_comparison(baseline_images=['specgram_noise',
                                    'specgram_noise_linear'],
-                  remove_text=True, extensions=['png'])
+                  remove_text=True, extensions=['png'], tol=0.01)
 def test_specgram_noise():
     '''test axes.specgram in default (psd) mode with noise stimuli'''
     np.random.seed(0)
@@ -2847,7 +2847,7 @@ def test_specgram_noise():
 
 @image_comparison(baseline_images=['specgram_magnitude_freqs',
                                    'specgram_magnitude_freqs_linear'],
-                  remove_text=True, extensions=['png'])
+                  remove_text=True, extensions=['png'], tol=0.01)
 def test_specgram_magnitude_freqs():
     '''test axes.specgram in magnitude mode with sinusoidal stimuli'''
     n = 10000

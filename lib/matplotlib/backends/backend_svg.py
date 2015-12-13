@@ -6,6 +6,7 @@ from matplotlib.externals.six.moves import xrange
 from matplotlib.externals.six import unichr
 
 import os, base64, tempfile, gzip, io, sys, codecs, re
+from collections import OrderedDict
 
 import numpy as np
 
@@ -271,15 +272,15 @@ class RendererSVG(RendererBase):
             assert basename is not None
             self.basename = basename
             self._imaged = {}
-        self._clipd = {}
+        self._clipd = OrderedDict()
         self._char_defs = {}
         self._markers = {}
         self._path_collection_id = 0
         self._imaged = {}
-        self._hatchd = {}
+        self._hatchd = OrderedDict()
         self._has_gouraud = False
         self._n_gradients = 0
-        self._fonts = {}
+        self._fonts = OrderedDict()
         self.mathtext_parser = MathTextParser('SVG')
 
         RendererBase.__init__(self)
@@ -306,10 +307,7 @@ class RendererSVG(RendererBase):
         writer = self.writer
         default_style = generate_css({
             'stroke-linejoin': 'round',
-            'stroke-linecap': 'butt',
-            # Disable the miter limit.  100000 seems to be close to
-            # the maximum that renderers support before breaking.
-            'stroke-miterlimit': '100000'})
+            'stroke-linecap': 'butt'})
         writer.start('defs')
         writer.start('style', type='text/css')
         writer.data('*{%s}\n' % default_style)
@@ -1104,7 +1102,7 @@ class RendererSVG(RendererBase):
 
             # Sort the characters by font, and output one tspan for
             # each
-            spans = {}
+            spans = OrderedDict()
             for font, fontsize, thetext, new_x, new_y, metrics in svg_glyphs:
                 style = generate_css({
                     'font-size': short_float_fmt(fontsize) + 'px',
@@ -1120,7 +1118,7 @@ class RendererSVG(RendererBase):
                     fontset = self._fonts.setdefault(font.fname, set())
                     fontset.add(thetext)
 
-            for style, chars in list(six.iteritems(spans)):
+            for style, chars in six.iteritems(spans):
                 chars.sort()
 
                 same_y = True

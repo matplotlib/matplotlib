@@ -650,10 +650,10 @@ class AxesImage(_AxesImageBase):
         im.apply_translation(tx, ty)
 
         l, b, r, t = self.axes.bbox.extents
-        widthDisplay = ((round(r*magnification) + 0.5) -
-                        (round(l*magnification) - 0.5))
-        heightDisplay = ((round(t*magnification) + 0.5) -
-                         (round(b*magnification) - 0.5))
+        widthDisplay = ((np.round(r*magnification) + 0.5) -
+                        (np.round(l*magnification) - 0.5))
+        heightDisplay = ((np.round(t*magnification) + 0.5) -
+                         (np.round(b*magnification) - 0.5))
 
         # resize viewport to display
         rx = widthDisplay / numcols
@@ -773,8 +773,8 @@ class NonUniformImage(AxesImage):
 
         x0, y0, v_width, v_height = self.axes.viewLim.bounds
         l, b, r, t = self.axes.bbox.extents
-        width = (round(r) + 0.5) - (round(l) - 0.5)
-        height = (round(t) + 0.5) - (round(b) - 0.5)
+        width = (np.round(r) + 0.5) - (np.round(l) - 0.5)
+        height = (np.round(t) + 0.5) - (np.round(b) - 0.5)
         width *= magnification
         height *= magnification
         im = _image.pcolor(self._Ax, self._Ay, A,
@@ -897,11 +897,11 @@ class PcolorImage(martist.Artist, cm.ScalarMappable):
         bg = mcolors.colorConverter.to_rgba(fc, 0)
         bg = (np.array(bg)*255).astype(np.uint8)
         l, b, r, t = self.axes.bbox.extents
-        width = (round(r) + 0.5) - (round(l) - 0.5)
-        height = (round(t) + 0.5) - (round(b) - 0.5)
+        width = (np.round(r) + 0.5) - (np.round(l) - 0.5)
+        height = (np.round(t) + 0.5) - (np.round(b) - 0.5)
         # The extra cast-to-int is only needed for python2
-        width = int(round(width * magnification))
-        height = int(round(height * magnification))
+        width = int(np.round(width * magnification))
+        height = int(np.round(height * magnification))
         if self._rgbacache is None:
             A = self.to_rgba(self._A, bytes=True)
             self._rgbacache = A
@@ -932,8 +932,8 @@ class PcolorImage(martist.Artist, cm.ScalarMappable):
         gc.set_clip_path(self.get_clip_path())
         gc.set_alpha(self.get_alpha())
         renderer.draw_image(gc,
-                            round(self.axes.bbox.xmin),
-                            round(self.axes.bbox.ymin),
+                            np.round(self.axes.bbox.xmin),
+                            np.round(self.axes.bbox.ymin),
                             im)
         gc.restore()
         self.stale = False
@@ -1093,7 +1093,7 @@ class FigureImage(martist.Artist, cm.ScalarMappable):
         gc.set_clip_rectangle(self.figure.bbox)
         gc.set_clip_path(self.get_clip_path())
         gc.set_alpha(self.get_alpha())
-        renderer.draw_image(gc, round(self.ox), round(self.oy), im)
+        renderer.draw_image(gc, np.round(self.ox), np.round(self.oy), im)
         gc.restore()
         self.stale = False
 
@@ -1212,8 +1212,8 @@ class BboxImage(_AxesImageBase):
         im.set_resample(self._resample)
 
         l, b, r, t = self.get_window_extent(renderer).extents  # bbox.extents
-        widthDisplay = abs(round(r) - round(l))
-        heightDisplay = abs(round(t) - round(b))
+        widthDisplay = abs(np.round(r) - np.round(l))
+        heightDisplay = abs(np.round(t) - np.round(b))
         widthDisplay *= magnification
         heightDisplay *= magnification
 
@@ -1245,7 +1245,7 @@ class BboxImage(_AxesImageBase):
 
         l = np.min([x0, x1])
         b = np.min([y0, y1])
-        renderer.draw_image(gc, round(l), round(b), im)
+        renderer.draw_image(gc, np.round(l), np.round(b), im)
         gc.restore()
         self.stale = True
 

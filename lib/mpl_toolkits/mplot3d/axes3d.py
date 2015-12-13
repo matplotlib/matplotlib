@@ -1947,7 +1947,7 @@ class Axes3D(Axes):
 
             polyverts = []
             normals = []
-            nsteps = round(len(topverts[0]) / stride)
+            nsteps = np.round(len(topverts[0]) / stride)
             if nsteps <= 1:
                 if len(topverts[0]) > 1:
                     nsteps = 2
@@ -1955,9 +1955,9 @@ class Axes3D(Axes):
                     continue
 
             stepsize = (len(topverts[0]) - 1) / (nsteps - 1)
-            for i in range(int(round(nsteps)) - 1):
-                i1 = int(round(i * stepsize))
-                i2 = int(round((i + 1) * stepsize))
+            for i in range(int(np.round(nsteps)) - 1):
+                i1 = int(np.round(i * stepsize))
+                i2 = int(np.round((i + 1) * stepsize))
                 polyverts.append([topverts[0][i1],
                     topverts[0][i2],
                     botverts[0][i2],
@@ -2497,13 +2497,13 @@ class Axes3D(Axes):
 
             *pivot*: [ 'tail' | 'middle' | 'tip' ]
                 The part of the arrow that is at the grid point; the arrow
-                rotates about this point, hence the name *pivot*. 
+                rotates about this point, hence the name *pivot*.
                 Default is 'tail'
-                
+
             *normalize*: [False | True]
-                When True, all of the arrows will be the same length. This 
+                When True, all of the arrows will be the same length. This
                 defaults to False, where the arrows will be different lengths
-                depending on the values of u,v,w. 
+                depending on the values of u,v,w.
 
         Any additional keyword arguments are delegated to
         :class:`~matplotlib.collections.LineCollection`
@@ -2531,8 +2531,9 @@ class Axes3D(Axes):
             Rpos = np.array([[c+(x**2)*(1-c), x*y*(1-c), y*s],
                              [y*x*(1-c), c+(y**2)*(1-c), -x*s],
                              [-y*s, x*s, c]])
-            # opposite rotation negates everything but the diagonal
-            Rneg = Rpos * (np.eye(3)*2 - 1)
+            # opposite rotation negates all the sin terms
+            Rneg = Rpos.copy()
+            Rneg[[0,1,2,2],[2,2,0,1]] = -Rneg[[0,1,2,2],[2,2,0,1]]
 
             # multiply them to get the rotated vector
             return Rpos.dot(uvw), Rneg.dot(uvw)
@@ -2606,7 +2607,7 @@ class Axes3D(Axes):
         norm = np.sqrt(np.sum(UVW**2, axis=1))
 
         # If any row of UVW is all zeros, don't make a quiver for it
-        mask = norm > 1e-10
+        mask = norm > 0
         XYZ = XYZ[mask]
         if normalize:
             UVW = UVW[mask] / norm[mask].reshape((-1, 1))
