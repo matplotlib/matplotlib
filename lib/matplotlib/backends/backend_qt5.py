@@ -618,23 +618,12 @@ class NavigationToolbar2QT(NavigationToolbar2, QtWidgets.QToolBar):
             else:
                 titles = []
                 for axes in allaxes:
-                    title = axes.get_title()
-                    ylabel = axes.get_ylabel()
-                    label = axes.get_label()
-                    if title:
-                        fmt = "%(title)s"
-                        if ylabel:
-                            fmt += ": %(ylabel)s"
-                        fmt += " (%(axes_repr)s)"
-                    elif ylabel:
-                        fmt = "%(axes_repr)s (%(ylabel)s)"
-                    elif label:
-                        fmt = "%(axes_repr)s (%(label)s)"
-                    else:
-                        fmt = "%(axes_repr)s"
-                    titles.append(fmt % dict(title=title,
-                                         ylabel=ylabel, label=label,
-                                         axes_repr=repr(axes)))
+                    name = (axes.get_title() or
+                            " - ".join(filter(None, [axes.get_xlabel(),
+                                                     axes.get_ylabel()])) or
+                            "<anonymous {} (id: {:#x})>".format(
+                                type(axes).__name__, id(axes)))
+                    titles.append(name)
                 item, ok = QtWidgets.QInputDialog.getItem(
                     self.parent, 'Customize', 'Select axes:', titles, 0, False)
                 if ok:
