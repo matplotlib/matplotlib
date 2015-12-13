@@ -130,7 +130,8 @@ def test_label_problems_at_runtime():
         func(None, x="a", y="b")
 
     # This sets a label although the function can't handle it.
-    pytest.raises(TypeError, f())
+    with pytest.raises(TypeError):
+        f()
 
 
 def test_function_call_without_data():

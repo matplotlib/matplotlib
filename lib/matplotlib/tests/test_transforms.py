@@ -292,7 +292,8 @@ class BasicTransformTests(unittest.TestCase):
 
         assert (self.stack2_subset - self.stack2).depth == 1
 
-        assert_raises(ValueError, self.stack1.__sub__, self.stack2)
+        with pytest.raises(ValueError):
+            self.stack1.__sub__(self.stack2)
 
         aff1 = self.ta1 + (self.ta2 + self.ta3)
         aff2 = self.ta2 + self.ta3
@@ -546,10 +547,12 @@ def test_transform_angles():
     assert_array_almost_equal(angles, new_angles)
 
     # points missing a 2nd dimension
-    assert_raises(ValueError, t.transform_angles, angles, points[0:2, 0:1])
+    with pytest.raises(ValueError):
+        t.transform_angles(angles, points[0:2, 0:1])
 
     # Number of angles != Number of points
-    assert_raises(ValueError, t.transform_angles, angles, points[0:2, :])
+    with pytest.raises(ValueError):
+        t.transform_angles(angles, points[0:2, :])
 
 
 def test_nonsingular():
@@ -568,12 +571,18 @@ def test_invalid_arguments():
     # raises a ValueError, and a wrong shape with a possible number
     # of dimensions is caught by our CALL_CPP macro, which always
     # raises the less precise RuntimeError.
-    pytest.raises(ValueError, t.transform(1))
-    pytest.raises(ValueError, t.transform([[[1]]]))
-    pytest.raises(RuntimeError, t.transform([]))
-    pytest.raises(RuntimeError, t.transform([1]))
-    pytest.raises(RuntimeError, t.transform([[1]]))
-    pytest.raises(RuntimeError, t.transform([[1, 2, 3]]))
+    with pytest.raises(ValueError):
+        t.transform(1)
+    with pytest.raises(ValueError):
+        t.transform([[[1]]])
+    with pytest.raises(RuntimeError):
+        t.transform([])
+    with pytest.raises(RuntimeError):
+        t.transform([1])
+    with pytest.raises(RuntimeError):
+        t.transform([[1]])
+    with pytest.raises(RuntimeError):
+        t.transform([[1, 2, 3]])
 
 def test_transformed_path():
     points = [(0, 0), (1, 0), (1, 1), (0, 1)]

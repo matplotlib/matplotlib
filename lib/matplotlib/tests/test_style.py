@@ -134,7 +134,8 @@ def test_context_with_badparam():
     with style.context({PARAM: other_value}):
         assert mpl.rcParams[PARAM] == other_value
         x = style.context([d])
-        pytest.raises(KeyError, x.__enter__())
+        with pytest.raises(KeyError):
+            x.__enter__()
         assert mpl.rcParams[PARAM] == other_value
 
 
