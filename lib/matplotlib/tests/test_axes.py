@@ -1727,7 +1727,8 @@ def test_bxp_bad_widths():
 
     fig, ax = plt.subplots()
     ax.set_yscale('log')
-    pytest.raises(ValueError, ax.bxp(logstats, widths=[1]))
+    with pytest.raises(ValueError):
+        ax.bxp(logstats, widths=[1])
 
 
 @cleanup
@@ -1739,7 +1740,8 @@ def test_bxp_bad_positions():
 
     fig, ax = plt.subplots()
     ax.set_yscale('log')
-    pytest.raises(ValueError, ax.bxp(logstats, positions=[2, 3]))
+    with pytest.raises(ValueError):
+        ax.bxp(logstats, positions=[2, 3])
 
 
 @image_comparison(baseline_images=['boxplot', 'boxplot'], tol=1)
@@ -1895,7 +1897,8 @@ def test_boxplot_bad_medians_1():
     x = np.linspace(-7, 7, 140)
     x = np.hstack([-25, x, 25])
     fig, ax = plt.subplots()
-    pytest.raises(ValueError, ax.boxplot(x,  usermedians=[1, 2]))
+    with pytest.raises(ValueError):
+        ax.boxplot(x,  usermedians=[1, 2])
 
 
 @cleanup
@@ -1903,7 +1906,8 @@ def test_boxplot_bad_medians_2():
     x = np.linspace(-7, 7, 140)
     x = np.hstack([-25, x, 25])
     fig, ax = plt.subplots()
-    pytest.raises(ValueError, ax.boxplot([x, x],  usermedians=[[1, 2], [1, 2]]))
+    with pytest.raises(ValueError):
+        ax.boxplot([x, x],  usermedians=[[1, 2], [1, 2]])
 
 
 @cleanup
@@ -1911,8 +1915,8 @@ def test_boxplot_bad_ci_1():
     x = np.linspace(-7, 7, 140)
     x = np.hstack([-25, x, 25])
     fig, ax = plt.subplots()
-    pytest.raises(ValueError, ax.boxplot([x, x],
-                  conf_intervals=[[1, 2]]))
+    with pytest.raises(ValueError):
+        ax.boxplot([x, x], conf_intervals=[[1, 2]])
 
 
 @cleanup
@@ -1920,8 +1924,8 @@ def test_boxplot_bad_ci_2():
     x = np.linspace(-7, 7, 140)
     x = np.hstack([-25, x, 25])
     fig, ax = plt.subplots()
-    pytest.raises(ValueError, ax.boxplot([x, x],
-                  conf_intervals=[[1, 2], [1]]))
+    with pytest.raises(ValueError):
+        ax.boxplot([x, x], conf_intervals=[[1, 2], [1]])
 
 
 @image_comparison(baseline_images=['boxplot_mod_artists_after_plotting'],
@@ -2104,7 +2108,8 @@ def test_violinplot_bad_positions():
     # First 9 digits of frac(sqrt(47))
     np.random.seed(855654600)
     data = [np.random.normal(size=100) for i in range(4)]
-    pytest.raises(ValueError, ax.violinplot(data, positions=range(5)))
+    with pytest.raises(ValueError):
+        ax.violinplot(data, positions=range(5))
 
 
 @cleanup
@@ -2113,8 +2118,8 @@ def test_violinplot_bad_widths():
     # First 9 digits of frac(sqrt(53))
     np.random.seed(280109889)
     data = [np.random.normal(size=100) for i in range(4)]
-    pytest.raises(ValueError, ax.violinplot(data, positions=range(4),
-                  widths=[1, 2, 3]))
+    with pytest.raises(ValueError):
+        ax.violinplot(data, positions=range(4), widths=[1, 2, 3])
 
 
 @cleanup
@@ -2196,9 +2201,12 @@ def test_errorbar_shape():
     yerr = np.vstack((yerr1, 2*yerr1)).T
     xerr = 0.1 + yerr
 
-    pytest.raises(ValueError, ax.errorbar(x, y, yerr=yerr, fmt='o'))
-    pytest.raises(ValueError, ax.errorbar(x, y, xerr=xerr, fmt='o'))
-    pytest.raises(ValueError, ax.errorbar(x, y, yerr=yerr, xerr=xerr, fmt='o'))
+    with pytest.raises(ValueError):
+        ax.errorbar(x, y, yerr=yerr, fmt='o')
+    with pytest.raises(ValueError):
+        ax.errorbar(x, y, xerr=xerr, fmt='o')
+    with pytest.raises(ValueError):
+        ax.errorbar(x, y, yerr=yerr, xerr=xerr, fmt='o')
 
 
 @image_comparison(baseline_images=['errorbar_limits'])
@@ -4077,8 +4085,10 @@ def test_square_plot():
 @cleanup
 def test_no_None():
     fig, ax = plt.subplots()
-    pytest.raises(ValueError, plt.plot(None))
-    pytest.raises(ValueError, plt.plot(None, None))
+    with pytest.raises(ValueError):
+        plt.plot(None)
+    with pytest.raises(ValueError):
+        plt.plot(None, None)
 
 
 @cleanup
