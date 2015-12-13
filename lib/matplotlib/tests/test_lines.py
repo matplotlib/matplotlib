@@ -116,7 +116,7 @@ def test_valid_linestyles():
                             "not supported with Python < 2.7")
 
     line = mpl.lines.Line2D([], [])
-    pytest.raises(ValueErrorline.set_linestyle('aardvark'))
+    pytest.raises(ValueError, line.set_linestyle, 'aardvark')
 
 
 @image_comparison(baseline_images=['line_collection_dashes'], remove_text=True)
