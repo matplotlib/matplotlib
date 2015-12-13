@@ -122,7 +122,7 @@ def test_twinx_cla():
     ax3 = ax2.twiny()
     plt.draw()
     assert not ax2.xaxis.get_visible()
-    assert not x2.patch.get_visible()
+    assert not ax2.patch.get_visible()
     ax2.cla()
     ax3.cla()
 
