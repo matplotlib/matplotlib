@@ -2217,11 +2217,11 @@ class Axes(_AxesBase):
                 raise TypeError
 
             if orientation == 'horizontal':
-               if self.fmt_ydata is None:
-                   self.fmt_ydata = format_cursor
+                if self.fmt_ydata is None:
+                    self.fmt_ydata = format_cursor
             else:
                 if self.fmt_xdata is None:
-                    self.fmt_xdata= format_cursor
+                    self.fmt_xdata = format_cursor
 
         return bar_container
 
