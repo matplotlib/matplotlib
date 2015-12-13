@@ -354,7 +354,7 @@ def test_image_composite_alpha():
     ax.set_ylim([5, 0])
 
 
-@image_comparison(baseline_images=['rasterize_10dpi'], extensions=['pdf','svg'], tol=5e-2, remove_text=True)
+@image_comparison(baseline_images=['rasterize_10dpi'], extensions=['pdf','svg'], remove_text=True)
 def test_rasterize_dpi():
     # This test should check rasterized rendering with high output resolution.
     # It plots a rasterized line and a normal image with implot. So it will catch

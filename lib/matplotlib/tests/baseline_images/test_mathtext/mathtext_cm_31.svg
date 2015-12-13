@@ -5,7 +5,7 @@
 <svg height="54pt" version="1.1" viewBox="0 0 378 54" width="378pt" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
  <defs>
   <style type="text/css">
-*{stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:100000;}
+*{stroke-linecap:butt;stroke-linejoin:round;}
   </style>
  </defs>
  <g id="figure_1">
@@ -83,9 +83,9 @@ Q 14.984375 -12.9375 13.390625 -14.71875
 Q 11.8125 -16.5 9.71875 -16.5 
 " id="Cmmi10-66"/>
    </defs>
-   <g transform="translate(184.92 30.286875)scale(0.12 -0.12)">
-    <use transform="translate(0.0 0.484375)" xlink:href="#Cmmi10-66"/>
-    <use transform="translate(60.709140624999996 38.7484375)scale(0.7)" xlink:href="#Cmsy10-30"/>
+   <g transform="translate(184.920000 30.286875)scale(0.120000 -0.120000)">
+    <use transform="translate(0.000000 0.484375)" xlink:href="#Cmmi10-66"/>
+    <use transform="translate(60.709141 38.748438)scale(0.700000)" xlink:href="#Cmsy10-30"/>
    </g>
   </g>
  </g>
