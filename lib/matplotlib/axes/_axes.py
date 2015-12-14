@@ -4,6 +4,7 @@ from __future__ import (absolute_import, division, print_function,
 from matplotlib.externals import six
 from matplotlib.externals.six.moves import reduce, xrange, zip, zip_longest
 
+import itertools
 import math
 import warnings
 
@@ -2565,6 +2566,7 @@ class Axes(_AxesBase):
             get_next_color = self._get_patches_for_fill.get_next_color
         else:
             color_cycler = itertools.cycle(colors)
+
             def get_next_color():
                 return six.next(color_cycler)
 

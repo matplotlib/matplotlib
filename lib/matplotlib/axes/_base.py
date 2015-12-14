@@ -173,7 +173,7 @@ class _process_plot_var_args(object):
             prop_cycler = cycler(*args, **kwargs)
 
         # Make sure the cycler always has at least one color
-        if not 'color' in prop_cycler.keys:
+        if 'color' not in prop_cycler.keys:
             prop_cycler = prop_cycler * cycler('color', ['k'])
 
         self.prop_cycler = itertools.cycle(prop_cycler)
