@@ -1,6 +1,8 @@
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
+import matplotlib as mpl
+from matplotlib import pyplot as plt
 from matplotlib.externals import six
 from matplotlib.externals.six.moves import xrange
 import warnings
@@ -13,20 +15,23 @@ with warnings.catch_warnings():
     # the module is deprecated. The tests should be removed when the module is.
     warnings.simplefilter('ignore', MatplotlibDeprecationWarning)
     from matplotlib.delaunay.triangulate import Triangulation
-from matplotlib import pyplot as plt
-import matplotlib as mpl
+
+
 
 def constant(x, y):
     return np.ones(x.shape, x.dtype)
 constant.title = 'Constant'
 
+
 def xramp(x, y):
     return x
 xramp.title = 'X Ramp'
 
+
 def yramp(x, y):
     return y
 yramp.title = 'Y Ramp'
+
 
 def exponential(x, y):
     x = x*9
@@ -46,25 +51,30 @@ def exponential(x, y):
     return f
 exponential.title = 'Exponential and Some Gaussians'
 
+
 def cliff(x, y):
     f = np.tanh(9.0*(y-x) + 1.0)/9.0
     return f
 cliff.title = 'Cliff'
+
 
 def saddle(x, y):
     f = (1.25 + np.cos(5.4*y))/(6.0 + 6.0*(3*x-1.0)**2)
     return f
 saddle.title = 'Saddle'
 
+
 def gentle(x, y):
     f = np.exp(-5.0625*((x-0.5)**2+(y-0.5)**2))/3.0
     return f
 gentle.title = 'Gentle Peak'
 
+
 def steep(x, y):
     f = np.exp(-20.25*((x-0.5)**2+(y-0.5)**2))/3.0
     return f
 steep.title = 'Steep Peak'
+
 
 def sphere(x, y):
     circle = 64-81*((x-0.5)**2 + (y-0.5)**2)
@@ -72,10 +82,12 @@ def sphere(x, y):
     return f
 sphere.title = 'Sphere'
 
+
 def trig(x, y):
     f = 2.0*np.cos(10.0*x)*np.sin(10.0*y) + np.sin(10.0*x*y)
     return f
 trig.title = 'Cosines and Sines'
+
 
 def gauss(x, y):
     x = 5.0-10.0*x
@@ -85,6 +97,7 @@ def gauss(x, y):
     f = g1 + 0.75*g2*(1 + g1)
     return f
 gauss.title = 'Gaussian Peak and Gaussian Ridges'
+
 
 def cloverleaf(x, y):
     ex = np.exp((10.0-20.0*x)/3.0)
@@ -96,18 +109,22 @@ def cloverleaf(x, y):
     return f
 cloverleaf.title = 'Cloverleaf'
 
+
 def cosine_peak(x, y):
     circle = np.hypot(80*x-40.0, 90*y-45.)
     f = np.exp(-0.04*circle) * np.cos(0.15*circle)
     return f
 cosine_peak.title = 'Cosine Peak'
 
-allfuncs = [exponential, cliff, saddle, gentle, steep, sphere, trig, gauss, cloverleaf, cosine_peak]
+allfuncs = [exponential, cliff, saddle, gentle, steep, sphere, trig, gauss,
+            cloverleaf, cosine_peak]
 
 
 class LinearTester(object):
     name = 'Linear'
-    def __init__(self, xrange=(0.0, 1.0), yrange=(0.0, 1.0), nrange=101, npoints=250):
+
+    def __init__(self, xrange=(0.0, 1.0), yrange=(0.0, 1.0),
+                 nrange=101, npoints=250):
         self.xrange = xrange
         self.yrange = yrange
         self.nrange = nrange
@@ -133,8 +150,8 @@ class LinearTester(object):
             z = lpi[self.yrange[0]:self.yrange[1]:complex(0,self.nrange),
                     self.xrange[0]:self.xrange[1]:complex(0,self.nrange)]
         else:
-            y, x = np.mgrid[self.yrange[0]:self.yrange[1]:complex(0,self.nrange),
-                            self.xrange[0]:self.xrange[1]:complex(0,self.nrange)]
+            y, x = np.mgrid[self.yrange[0]:self.yrange[1]:complex(0, self.nrange),
+                            self.xrange[0]:self.xrange[1]:complex(0, self.nrange)]
             z = func(x, y)
 
         z = np.where(np.isinf(z), 0.0, z)
@@ -142,17 +159,21 @@ class LinearTester(object):
         extent = (self.xrange[0], self.xrange[1],
             self.yrange[0], self.yrange[1])
         fig = plt.figure()
-        plt.hot() # Some like it hot
+        plt.hot()  # Some like it hot
         if plotter == 'imshow':
-            plt.imshow(np.nan_to_num(z), interpolation='nearest', extent=extent, origin='lower')
+            plt.imshow(np.nan_to_num(z), interpolation='nearest',
+                       extent=extent, origin='lower')
         elif plotter == 'contour':
-            Y, X = np.ogrid[self.yrange[0]:self.yrange[1]:complex(0,self.nrange),
+            Y, X = \
+                np.ogrid[self.yrange[0]:self.yrange[1]:complex(0,self.nrange),
                 self.xrange[0]:self.xrange[1]:complex(0,self.nrange)]
             plt.contour(np.ravel(X), np.ravel(Y), z, 20)
         x = self.x
         y = self.y
-        lc = mpl.collections.LineCollection(np.array([((x[i], y[i]), (x[j], y[j]))
-            for i, j in self.tri.edge_db]), colors=[(0,0,0,0.2)])
+        lc = mpl.collections.LineCollection(
+            np.array([((x[i], y[i]),
+                       (x[j], y[j])) for i, j in self.tri.edge_db]),
+            colors=[(0, 0, 0, 0.2)])
         ax = plt.gca()
         ax.add_collection(lc)
 
@@ -165,11 +186,14 @@ class LinearTester(object):
         else:
             plt.title(title)
 
+
 class NNTester(LinearTester):
     name = 'Natural Neighbors'
+
     def interpolator(self, func):
         z = func(self.x, self.y)
         return self.tri.nn_extrapolator(z, bbox=self.xrange+self.yrange)
+
 
 def make_all_2d_testfuncs(allfuncs=allfuncs):
     def make_test(func):
@@ -206,13 +230,16 @@ make_all_2d_testfuncs()
 ref_interpolator = Triangulation([0,10,10,0],
                                  [0,0,10,10]).linear_interpolator([1,10,5,2.0])
 
+
 def test_1d_grid():
     res = ref_interpolator[3:6:2j,1:1:1j]
     assert np.allclose(res, [[1.6],[1.9]], rtol=0)
 
+
 def test_0d_grid():
     res = ref_interpolator[3:3:1j,1:1:1j]
     assert np.allclose(res, [[1.6]], rtol=0)
+
 
 @image_comparison(baseline_images=['delaunay-1d-interp'], extensions=['png'])
 def test_1d_plots():

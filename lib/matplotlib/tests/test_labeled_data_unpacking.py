@@ -220,18 +220,24 @@ def test_function_call_replace_all():
         return "x: %s, y: %s, ls: %s, w: %s, label: %s" % (
             list(x), list(y), ls, w, label)
 
-    assert func_replace_all(None, "a", "b", w="x", data=data) == \
-           "x: [1, 2], y: [8, 9], ls: x, w: xyz, label: b"
-    assert func_replace_all(None, x="a", y="b", w="x", data=data) == \
-           "x: [1, 2], y: [8, 9], ls: x, w: xyz, label: b"
-    assert func_replace_all(None, "a", "b", w="x", label="", data=data) == \
-           "x: [1, 2], y: [8, 9], ls: x, w: xyz, label: "
-    assert func_replace_all(None, "a", "b", w="x", label="text", data=data) == \
-           "x: [1, 2], y: [8, 9], ls: x, w: xyz, label: text"
-    assert func_replace_all(None, x="a", y="b", w="x", label="", data=data) == \
-           "x: [1, 2], y: [8, 9], ls: x, w: xyz, label: "
-    assert func_replace_all(None, x="a", y="b", w="x", label="text", data=data) == \
-           "x: [1, 2], y: [8, 9], ls: x, w: xyz, label: text"
+    assert func_replace_all(None, "a", "b", w="x",
+                            data=data) == \
+        "x: [1, 2], y: [8, 9], ls: x, w: xyz, label: b"
+    assert func_replace_all(None, x="a", y="b", w="x",
+                            data=data) == \
+        "x: [1, 2], y: [8, 9], ls: x, w: xyz, label: b"
+    assert func_replace_all(None, "a", "b", w="x",
+                            label="", data=data) == \
+        "x: [1, 2], y: [8, 9], ls: x, w: xyz, label: "
+    assert func_replace_all(None, "a", "b", w="x",
+                            label="text", data=data) == \
+        "x: [1, 2], y: [8, 9], ls: x, w: xyz, label: text"
+    assert func_replace_all(None, x="a", y="b", w="x",
+                            label="", data=data) == \
+        "x: [1, 2], y: [8, 9], ls: x, w: xyz, label: "
+    assert func_replace_all(None, x="a", y="b", w="x",
+                            label="text", data=data) == \
+        "x: [1, 2], y: [8, 9], ls: x, w: xyz, label: text"
 
     @unpack_labeled_data(label_namer="y")
     def func_varags_replace_all(ax, *args, **kwargs):
