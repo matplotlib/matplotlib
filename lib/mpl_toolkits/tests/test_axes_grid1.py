@@ -82,6 +82,7 @@ def test_twin_axes_empty_and_removed():
             horizontalalignment="center", verticalalignment="center")
     plt.subplots_adjust(wspace=0.5, hspace=1)
 
+
 if __name__ == '__main__':
     import nose
     nose.runmodule(argv=['-s', '--with-doctest'], exit=False)
