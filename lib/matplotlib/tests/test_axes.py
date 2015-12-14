@@ -3662,8 +3662,8 @@ def test_twin_spines():
     # placed on the right by twinx above.
     par2.spines["right"].set_position(("axes", 1.2))
     # Having been created by twinx, par2 has its frame off, so the line of its
-    # detached spine is invisible.  First, activate the frame but make the patch
-    # and spines invisible.
+    # detached spine is invisible.  First, activate the frame but make the
+    # patch and spines invisible.
     make_patch_spines_invisible(par2)
     # Second, show the right spine.
     par2.spines["right"].set_visible(True)
@@ -3843,7 +3843,7 @@ def test_pie_center_radius():
     labels = 'Frogs', 'Hogs', 'Dogs', 'Logs'
     sizes = [15, 30, 45, 10]
     colors = ['yellowgreen', 'gold', 'lightskyblue', 'lightcoral']
-    explode = (0, 0.1, 0, 0) # only "explode" the 2nd slice (i.e. 'Hogs')
+    explode = (0, 0.1, 0, 0)  # only "explode" the 2nd slice (i.e. 'Hogs')
 
     plt.pie(sizes, explode=explode, labels=labels, colors=colors,
             autopct='%1.1f%%', shadow=True, startangle=90,
@@ -3929,10 +3929,11 @@ def test_set_get_ticklabels():
     ax[0].set_xticklabels(('a', 'b', 'c', 'd'))
     ax[0].set_yticklabels(('11', '12', '13', '14'))
 
-    # set ticklabel to the other plot, expect the 2 plots have same label setting
+    # set ticklabel to the other plot, expect the 2 plots have
+    # same label setting
     # pass get_ticklabels return value as ticklabels argument
-    ax[1].set_xticklabels(ax[0].get_xticklabels() )
-    ax[1].set_yticklabels(ax[0].get_yticklabels() )
+    ax[1].set_xticklabels(ax[0].get_xticklabels())
+    ax[1].set_yticklabels(ax[0].get_yticklabels())
 
 
 @image_comparison(baseline_images=['o_marker_path_snap'], extensions=['png'],
