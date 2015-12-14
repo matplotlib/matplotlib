@@ -82,8 +82,8 @@ def streamplot(axes, x, y, u, v, density=1, linewidth=None, color=None,
     if transform is None:
         transform = axes.transData
 
-    if color is None and 'color' in axes._get_lines._prop_keys:
-        color = six.next(axes._get_lines.prop_cycler)['color']
+    if color is None:
+        color = axes._get_lines.get_next_color()
 
     if linewidth is None:
         linewidth = matplotlib.rcParams['lines.linewidth']
