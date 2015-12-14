@@ -247,16 +247,21 @@ def test_function_call_replace_all():
 
     # in the first case, we can't get a "y" argument,
     # as we don't know the names of the *args
-    assert func_varags_replace_all(None, x="a", y="b", w="x", data=data) == \
-           "x: [1, 2], y: [8, 9], ls: x, w: xyz, label: b"
-    assert func_varags_replace_all(None, "a", "b", w="x", label="", data=data) == \
-           "x: [1, 2], y: [8, 9], ls: x, w: xyz, label: "
-    assert func_varags_replace_all(None, "a", "b", w="x", label="text", data=data) == \
-           "x: [1, 2], y: [8, 9], ls: x, w: xyz, label: text"
-    assert func_varags_replace_all(None, x="a", y="b", w="x", label="", data=data) == \
-           "x: [1, 2], y: [8, 9], ls: x, w: xyz, label: "
-    assert func_varags_replace_all(None, x="a", y="b", w="x", label="text", data=data) == \
-           "x: [1, 2], y: [8, 9], ls: x, w: xyz, label: text"
+    assert func_varags_replace_all(None, x="a", y="b",
+                                   w="x", data=data) == \
+        "x: [1, 2], y: [8, 9], ls: x, w: xyz, label: b"
+    assert func_varags_replace_all(None, "a", "b", w="x",
+                                   label="", data=data) == \
+        "x: [1, 2], y: [8, 9], ls: x, w: xyz, label: "
+    assert func_varags_replace_all(None, "a", "b", w="x",
+                                   label="text", data=data) == \
+        "x: [1, 2], y: [8, 9], ls: x, w: xyz, label: text"
+    assert func_varags_replace_all(None, x="a", y="b", w="x",
+                                   label="", data=data) == \
+        "x: [1, 2], y: [8, 9], ls: x, w: xyz, label: "
+    assert func_varags_replace_all(None, x="a", y="b", w="x",
+                                   label="text", data=data) == \
+        "x: [1, 2], y: [8, 9], ls: x, w: xyz, label: text"
 
     with assert_produces_warning():
         assert func_varags_replace_all(None, "a", "b", w="x", data=data) == \

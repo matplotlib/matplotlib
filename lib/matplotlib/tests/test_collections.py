@@ -110,7 +110,7 @@ def test__EventCollection__get_linelength():
     check to make sure the default linelength matches the input linelength
     '''
     _, coll, props = generate_EventCollection_plot()
-    assert  props['linelength'] == coll.get_linelength()
+    assert props['linelength'] == coll.get_linelength()
 
 
 @cleanup

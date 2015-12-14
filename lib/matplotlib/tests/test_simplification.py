@@ -22,6 +22,7 @@ Path = path.Path
 # NOTE: All of these tests assume that path.simplify is set to True
 # (the default)
 
+
 @image_comparison(baseline_images=['clipping'], remove_text=True)
 def test_clipping():
     t = np.arange(0.0, 2.0, 0.01)
@@ -94,7 +95,8 @@ def test_sine_plus_noise():
 @image_comparison(baseline_images=['simplify_curve'], remove_text=True)
 def test_simplify_curve():
     pp1 = patches.PathPatch(
-        Path([(0, 0), (1, 0), (1, 1), (nan, 1), (0, 0), (2, 0), (2, 2), (0, 0)],
+        Path([(0, 0), (1, 0), (1, 1), (nan, 1),
+              (0, 0), (2, 0), (2, 2), (0, 0)],
              [Path.MOVETO, Path.CURVE3, Path.CURVE3, Path.CURVE3,
               Path.CURVE3, Path.CURVE3, Path.CURVE3, Path.CLOSEPOLY]),
         fc="none")

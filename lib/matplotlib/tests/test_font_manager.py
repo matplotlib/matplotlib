@@ -46,4 +46,5 @@ def test_json_serialization():
                      {'family': 'Bitstream Vera Sans', 'weight': 700},
                      {'family': 'no such font family'}):
             fp = FontProperties(**prop)
-            assert fontManager.findfont(fp, rebuild_if_missing=False) == copy.findfont(fp, rebuild_if_missing=False)
+            assert fontManager.findfont(fp, rebuild_if_missing=False) == \
+                copy.findfont(fp, rebuild_if_missing=False)

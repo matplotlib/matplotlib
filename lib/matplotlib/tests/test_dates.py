@@ -198,7 +198,8 @@ def test_date_formatter_strftime():
             locale_formatter = mdates.DateFormatter("%x")
             locale_d_fmt = locale.nl_langinfo(locale.D_FMT)
             expanded_formatter = mdates.DateFormatter(locale_d_fmt)
-            assert locale_formatter.strftime(dt) == expanded_formatter.strftime(dt)
+            assert locale_formatter.strftime(dt) == \
+                   expanded_formatter.strftime(dt)
         except (ImportError, AttributeError):
             pass
 

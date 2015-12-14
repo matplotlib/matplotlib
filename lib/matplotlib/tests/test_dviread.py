@@ -72,4 +72,4 @@ def test_dviread():
                           for t in page.text],
                  'boxes': [[b.x, b.y, b.height, b.width] for b in page.boxes]}
                 for page in dvi]
-    assert_equal(data, correct)
+    assert data == correct

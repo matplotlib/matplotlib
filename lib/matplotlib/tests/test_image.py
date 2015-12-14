@@ -375,7 +375,8 @@ def test_image_composite_alpha():
     ax.set_ylim([5, 0])
 
 
-@image_comparison(baseline_images=['rasterize_10dpi'], extensions=['pdf','svg'],
+@image_comparison(baseline_images=['rasterize_10dpi'],
+                  extensions=['pdf','svg'],
                   remove_text=True)
 def test_rasterize_dpi():
     # This test should check rasterized rendering with high output resolution.
