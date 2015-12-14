@@ -1576,7 +1576,8 @@ class TransformWrapper(Transform):
         # The child may not be unpickled yet, so restore its information.
         self.input_dims = state['input_dims']
         self.output_dims = state['output_dims']
-        # turn the normal dictionary back into a WeakValueDictionary
+        # turn the normal dictionary back into a dictionary with weak
+        # values
         self._parents = dict((k, weakref.ref(v)) for (k, v) in state['parents'])
 
     def __repr__(self):
