@@ -17,7 +17,6 @@ with warnings.catch_warnings():
     from matplotlib.delaunay.triangulate import Triangulation
 
 
-
 def constant(x, y):
     return np.ones(x.shape, x.dtype)
 constant.title = 'Constant'

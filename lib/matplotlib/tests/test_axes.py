@@ -534,6 +534,7 @@ def test_hexbin_empty():
     ax = plt.gca()
     ax.hexbin([], [])
 
+
 @cleanup
 def test_hexbin_pickable():
     # From #1973: Test that picking a hexbin collection works
