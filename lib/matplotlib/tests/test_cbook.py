@@ -269,9 +269,10 @@ class Test_boxplot_stats(object):
 
 
 class Test_callback_registry(object):
-    def setup(self):
-        self.signal = 'test'
-        self.callbacks = cbook.CallbackRegistry()
+    @classmethod
+    def setup_class(cls):
+        cls.signal = 'test'
+        cls.callbacks = cbook.CallbackRegistry()
 
     def connect(self, s, func):
         return self.callbacks.connect(s, func)
