@@ -3,6 +3,8 @@
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
+from collections import OrderedDict
+
 from matplotlib.externals import six
 from matplotlib.externals.six.moves import zip
 
@@ -20,7 +22,6 @@ import matplotlib.dviread as dviread
 from matplotlib.font_manager import FontProperties, get_font
 from matplotlib.transforms import Affine2D
 from matplotlib.externals.six.moves.urllib.parse import quote as urllib_quote
-from collections import OrderedDict
 
 
 class TextToPath(object):
