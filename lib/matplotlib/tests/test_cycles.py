@@ -26,8 +26,8 @@ def test_colorcycle_basic():
     ax.legend(loc='upper left')
 
 
-@image_comparison(baseline_images=['marker_cycle'], remove_text=True,
-                  extensions=['png'])
+@image_comparison(baseline_images=['marker_cycle', 'marker_cycle'],
+                  remove_text=True, extensions=['png'])
 def test_marker_cycle():
     fig = plt.figure()
     ax = fig.add_subplot(111)
@@ -44,11 +44,6 @@ def test_marker_cycle():
     ax.plot(xs, ys, label='red2 dot', lw=4, ms=16)
     ax.legend(loc='upper left')
 
-
-# Reuse the image from test_marker_cycle()
-@image_comparison(baseline_images=['marker_cycle'], remove_text=True,
-                  extensions=['png'])
-def test_marker_cycle_keywords():
     fig = plt.figure()
     ax = fig.add_subplot(111)
     # Test keyword arguments, numpy arrays, and generic iterators

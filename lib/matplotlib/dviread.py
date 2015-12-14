@@ -387,7 +387,11 @@ class Dvi(object):
         fontname = n[-l:].decode('ascii')
         tfm = _tfmfile(fontname)
         if tfm is None:
-            raise FileNotFoundError("missing font metrics file: %s" % fontname)
+            if six.PY2:
+                error_class = OSError
+            else:
+                error_class = FileNotFoundError
+            raise error_class("missing font metrics file: %s" % fontname)
         if c != 0 and tfm.checksum != 0 and c != tfm.checksum:
             raise ValueError('tfm checksum mismatch: %s'%n)
 
