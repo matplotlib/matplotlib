@@ -442,7 +442,7 @@ backend      : $TEMPLATE_BACKEND
 #contour.corner_mask        : True   # True | False | legacy
 
 ### ERRORBAR PLOTS
-#errorbar.capsize : 3             # length of end cap on error bars in pixels
+#errorbar.capsize : 0             # length of end cap on error bars in pixels
 
 ### HISTOGRAM PLOTS
 #hist.bins : 10                   # The default number of histogram bins.
