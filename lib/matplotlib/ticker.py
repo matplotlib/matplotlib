@@ -1341,7 +1341,7 @@ class MaxNLocator(Locator):
     """
     Select no more than N intervals at nice locations.
     """
-    default_params = dict(nbins='auto',
+    default_params = dict(nbins=10,
                           steps=None,
                           trim=True,
                           integer=False,
