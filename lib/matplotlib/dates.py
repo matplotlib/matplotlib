@@ -281,7 +281,7 @@ def _from_ordinalf(x, tz=None):
     elif dt.microsecond > 999990:
         dt += datetime.timedelta(microseconds=1e6 - dt.microsecond)
 
-    return dt
+    return dt.astimezone(tz)
 
 
 # a version of _from_ordinalf that can operate on numpy arrays
