@@ -954,7 +954,7 @@ defaultParams = {
     'contour.corner_mask':        [True, validate_corner_mask],
 
     # errorbar props
-    'errorbar.capsize':      [3, validate_float],
+    'errorbar.capsize':      [0, validate_float],
 
     # axes props
     'axes.axisbelow':        [False, validate_bool],
