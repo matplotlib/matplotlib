@@ -4236,6 +4236,12 @@ def test_remove_shared_axes():
     assert assert_array_equal(ax_lst[0][1].get_xlim(), orig_xlim)
 
 
+@image_comparison(baseline_images=["auto_numticks"], style='default',
+                  extensions=['png'])
+def test_auto_numticks():
+    fig, axes = plt.subplots(4, 4)
+
+
 if __name__ == '__main__':
     import nose
     import sys
