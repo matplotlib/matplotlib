@@ -377,7 +377,7 @@ TEMPLATE = """
    {% endif %}
 
    {% for img in images %}
-   .. figure:: {{ build_dir }}/{{ img.basename }}.png
+   .. figure:: {{ build_dir }}/{{ img.basename }}.{{ default_fmt }}
       {% for option in options -%}
       {{ option }}
       {% endfor %}
@@ -541,8 +541,7 @@ def render_figures(code, code_path, output_dir, output_base, context,
                    function_name, config, context_reset=False,
                    close_figs=False):
     """
-    Run a pyplot script and save the low and high res PNGs and a PDF
-    in *output_dir*.
+    Run a pyplot script and save the images in *output_dir*.
 
     Save the images under *output_dir* with file names derived from
     *output_base*
@@ -559,7 +558,7 @@ def render_figures(code, code_path, output_dir, output_base, context,
     for fmt in plot_formats:
         if isinstance(fmt, six.string_types):
             if ':' in fmt:
-                suffix,dpi = fmt.split(':')
+                suffix, dpi = fmt.split(':')
                 formats.append((str(suffix), int(dpi)))
             else:
                 formats.append((fmt, default_dpi.get(fmt, 80)))
@@ -665,6 +664,14 @@ def run(arguments, content, options, state_machine, state, lineno):
     document = state_machine.document
     config = document.settings.env.config
     nofigs = 'nofigs' in options
+
+    plot_formats = config.plot_formats
+    if isinstance(plot_formats, six.string_types):
+        # String Sphinx < 1.3, Split on , to mimic
+        # Sphinx 1.3 and later. Sphinx 1.3 always
+        # returns a list.
+        plot_formats = plot_formats.split(',')
+    default_fmt = plot_formats[0][0]
 
     options.setdefault('include-source', config.plot_include_source)
     keep_context = 'context' in options
@@ -814,6 +821,7 @@ def run(arguments, content, options, state_machine, state, lineno):
 
         result = format_template(
             config.plot_template or TEMPLATE,
+            default_fmt=default_fmt,
             dest_dir=dest_dir_link,
             build_dir=build_dir_link,
             source_link=src_link,
