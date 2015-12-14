@@ -83,20 +83,74 @@ if HAS_PEP8:
             return self.file_errors
 
 
-def assert_pep8_conformance(module=matplotlib, exclude_files=None,
-                            extra_exclude_file=EXTRA_EXCLUDE_FILE,
-                            pep8_additional_ignore=PEP8_ADDITIONAL_IGNORE,
-                            dirname=None, expected_bad_files=None,
-                            extra_exclude_directories=None):
-    """
-    Tests the matplotlib codebase against the "pep8" tool.
+# def assert_pep8_conformance(module=matplotlib, exclude_files=None,
+#                             extra_exclude_file=EXTRA_EXCLUDE_FILE,
+#                             pep8_additional_ignore=PEP8_ADDITIONAL_IGNORE,
+#                             dirname=None, expected_bad_files=None,
+#                             extra_exclude_directories=None):
+#     """
+#     Tests the matplotlib codebase against the "pep8" tool.
+#
+#     Users can add their own excluded files (should files exist in the
+#     local directory which is not in the repository) by adding a
+#     ".pep8_test_exclude.txt" file in the same directory as this test.
+#     The file should be a line separated list of filenames/directories
+#     as can be passed to the "pep8" tool's exclude list.
+#     """
+#
+#     if not HAS_PEP8:
+#         raise SkipTest('The pep8 tool is required for this test')
+#
+#     # to get a list of bad files, rather than the specific errors, add
+#     # "reporter=pep8.FileReport" to the StyleGuide constructor.
+#     pep8style = pep8.StyleGuide(quiet=False,
+#                                 reporter=StandardReportWithExclusions)
+#     reporter = pep8style.options.reporter
+#
+#     if expected_bad_files is not None:
+#         reporter.expected_bad_files = expected_bad_files
+#
+#     # Extend the number of PEP8 guidelines which are not checked.
+#     pep8style.options.ignore = (pep8style.options.ignore +
+#                                 tuple(pep8_additional_ignore))
+#
+#     # Support for egg shared object wrappers, which are not PEP8 compliant,
+#     # nor part of the matplotlib repository.
+#     # DO NOT ADD FILES *IN* THE REPOSITORY TO THIS LIST.
+#     if exclude_files is not None:
+#         pep8style.options.exclude.extend(exclude_files)
+#
+#     # Allow users to add their own exclude list.
+#     if extra_exclude_file is not None and os.path.exists(extra_exclude_file):
+#         with open(extra_exclude_file, 'r') as fh:
+#             extra_exclude = [line.strip() for line in fh if line.strip()]
+#         pep8style.options.exclude.extend(extra_exclude)
+#
+#     if extra_exclude_directories:
+#         pep8style.options.exclude.extend(extra_exclude_directories)
+#
+#     if dirname is None:
+#         dirname = os.path.dirname(module.__file__)
+#     result = pep8style.check_files([dirname])
+#     if reporter is StandardReportWithExclusions:
+#         msg = ("Found code syntax errors (and warnings):\n"
+#                "{0}".format('\n'.join(reporter._global_deferred_print)))
+#     else:
+#         msg = "Found code syntax errors (and warnings)."
+#     assert result.total_errors == 0, msg
+#
+#     # If we've been using the exclusions reporter, check that we didn't
+#     # exclude files unnecessarily.
+#     if reporter is StandardReportWithExclusions:
+#         unexpectedly_good = sorted(set(reporter.expected_bad_files) -
+#                                    reporter.matched_exclusions)
+#
+#         if unexpectedly_good:
+#             raise ValueError('Some exclude patterns were unnecessary as the '
+#                              'files they pointed to either passed the PEP8 '
+#                              'tests or do not point to a file:\n  '
+#                              '{0}'.format('\n  '.join(unexpectedly_good)))
 
-    Users can add their own excluded files (should files exist in the
-    local directory which is not in the repository) by adding a
-    ".pep8_test_exclude.txt" file in the same directory as this test.
-    The file should be a line separated list of filenames/directories
-    as can be passed to the "pep8" tool's exclude list.
-    """
 
 # def test_pep8_conformance_installed_files():
 #     exclude_files = ['_delaunay.py',
