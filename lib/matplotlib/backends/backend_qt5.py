@@ -490,6 +490,7 @@ class FigureManagerQT(FigureManagerBase):
             if self.toolbar is not None:
                 self.toolbar.update()
         self.canvas.figure.add_axobserver(notify_axes_change)
+        self.window.raise_()
 
     @QtCore.Slot()
     def _show_message(self, s):
