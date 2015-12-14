@@ -202,6 +202,10 @@ class _DummyAxis(object):
     def set_data_interval(self, vmin, vmax):
         self.dataLim.intervalx = vmin, vmax
 
+    def get_tick_space(self):
+        # Just use the long-standing default of nbins==9
+        return 9
+
 
 class TickHelper(object):
     axis = None
@@ -1355,7 +1359,9 @@ class MaxNLocator(Locator):
         Keyword args:
 
         *nbins*
-            Maximum number of intervals; one less than max number of ticks.
+            Maximum number of intervals; one less than max number of
+            ticks.  If the string `'auto'`, the number of bins will be
+            automatically determined based on the length of the axis.
 
         *steps*
             Sequence of nice numbers starting with 1 and ending with 10;
@@ -1393,7 +1399,9 @@ class MaxNLocator(Locator):
     def set_params(self, **kwargs):
         """Set parameters within this locator."""
         if 'nbins' in kwargs:
-            self._nbins = int(kwargs['nbins'])
+            self._nbins = kwargs['nbins']
+            if self._nbins != 'auto':
+                self._nbins = int(self._nbins)
         if 'trim' in kwargs:
             self._trim = kwargs['trim']
         if 'integer' in kwargs:
@@ -1422,6 +1430,8 @@ class MaxNLocator(Locator):
 
     def bin_boundaries(self, vmin, vmax):
         nbins = self._nbins
+        if nbins == 'auto':
+            nbins = self.axis.get_tick_space()
         scale, offset = scale_range(vmin, vmax, nbins)
         if self._integer:
             scale = max(1, scale)
@@ -1907,7 +1917,11 @@ class LogitLocator(Locator):
 
 class AutoLocator(MaxNLocator):
     def __init__(self):
-        MaxNLocator.__init__(self, nbins=9, steps=[1, 2, 5, 10])
+        if rcParams['_internal.classic_mode']:
+            nbins = 9
+        else:
+            nbins = 'auto'
+        MaxNLocator.__init__(self, nbins=nbins, steps=[1, 2, 5, 10])
 
 
 class AutoMinorLocator(Locator):
