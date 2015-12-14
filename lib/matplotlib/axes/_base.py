@@ -1,10 +1,11 @@
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
+from collections import OrderedDict
+
 from matplotlib.externals import six
 from matplotlib.externals.six.moves import xrange
 
-from collections import OrderedDict
 import itertools
 import warnings
 import math
@@ -33,7 +34,6 @@ import matplotlib.text as mtext
 import matplotlib.image as mimage
 from matplotlib.offsetbox import OffsetBox
 from matplotlib.artist import allow_rasterization
-from matplotlib.cbook import iterable, index_of
 from matplotlib.rcsetup import cycler
 
 rcParams = matplotlib.rcParams
