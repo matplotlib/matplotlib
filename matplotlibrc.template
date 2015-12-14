@@ -361,6 +361,7 @@ backend      : $TEMPLATE_BACKEND
 #xtick.color          : k      # color of the tick labels
 #xtick.labelsize      : medium # fontsize of the tick labels
 #xtick.direction      : out    # direction: in, out, or inout
+#xtick.minor.visible  : False  # visibility of minor ticks on x-axis
 
 #ytick.left           : True   # draw ticks on the left side
 #ytick.right          : True   # draw ticks on the right side
@@ -373,6 +374,7 @@ backend      : $TEMPLATE_BACKEND
 #ytick.color          : k      # color of the tick labels
 #ytick.labelsize      : medium # fontsize of the tick labels
 #ytick.direction      : out    # direction: in, out, or inout
+#ytick.minor.visible  : False  # visibility of minor ticks on y-axis
 
 
 ### GRIDS
