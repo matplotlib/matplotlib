@@ -2,6 +2,7 @@ from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
 from matplotlib.externals import six
+from collections import OrderedDict
 
 import re
 import warnings
@@ -82,6 +83,10 @@ class Artist(object):
 
     aname = 'Artist'
     zorder = 0
+    # order of precedence when bulk setting/updating properties
+    # via update.  The keys should be property names and the values
+    # integers
+    _prop_order = dict(color=-1)
 
     def __init__(self):
         self._stale = True
@@ -845,23 +850,43 @@ class Artist(object):
         Update the properties of this :class:`Artist` from the
         dictionary *prop*.
         """
-        store = self.eventson
-        self.eventson = False
-        changed = False
+        def _update_property(self, k, v):
+            """sorting out how to update property (setter or setattr)
 
-        for k, v in six.iteritems(props):
-            if k in ['axes']:
-                setattr(self, k, v)
+            Parameters
+            ----------
+            k : str
+                The name of property to update
+            v : obj
+                The value to assign to the property
+            Returns
+            -------
+            ret : obj or None
+                If using a `set_*` method return it's return, else None.
+            """
+            k = k.lower()
+            # white list attributes we want to be able to update through
+            # art.update, art.set, setp
+            if k in {'axes'}:
+                return setattr(self, k, v)
             else:
                 func = getattr(self, 'set_' + k, None)
                 if func is None or not six.callable(func):
                     raise AttributeError('Unknown property %s' % k)
-                func(v)
-            changed = True
-        self.eventson = store
-        if changed:
+                return func(v)
+
+        store = self.eventson
+        self.eventson = False
+        try:
+            ret = [_update_property(self, k, v)
+                   for k, v in props.items()]
+        finally:
+            self.eventson = store
+
+        if len(ret):
             self.pchanged()
             self.stale = True
+        return ret
 
     def get_label(self):
         """
@@ -1014,23 +1039,13 @@ class Artist(object):
         return ArtistInspector(self).properties()
 
     def set(self, **kwargs):
+        """A property batch setter. Pass *kwargs* to set properties.
         """
-        A property batch setter. Pass *kwargs* to set properties.
-        Will handle property name collisions (e.g., if both
-        'color' and 'facecolor' are specified, the property
-        with higher priority gets set last).
+        props = OrderedDict(
+            sorted(kwargs.items(), reverse=True,
+                   key=lambda x: (self._prop_order.get(x[0], 0), x[0])))
 
-        """
-        ret = []
-        for k, v in sorted(kwargs.items(), reverse=True):
-            k = k.lower()
-            funcName = "set_%s" % k
-            func = getattr(self, funcName, None)
-            if func is None:
-               raise TypeError('There is no %s property "%s"' %
-                               (self.__class__.__name__, k))
-            ret.extend([func(v)])
-        return ret
+        return self.update(props)
 
     def findobj(self, match=None, include_self=True):
         """
@@ -1540,26 +1555,18 @@ def setp(obj, *args, **kwargs):
     if not cbook.iterable(obj):
         objs = [obj]
     else:
-        objs = cbook.flatten(obj)
+        objs = list(cbook.flatten(obj))
 
     if len(args) % 2:
         raise ValueError('The set args must be string, value pairs')
 
-    funcvals = []
+    # put args into ordereddict to maintain order
+    funcvals = OrderedDict()
     for i in range(0, len(args) - 1, 2):
-        funcvals.append((args[i], args[i + 1]))
-    funcvals.extend(sorted(kwargs.items(), reverse=True))
+        funcvals[args[i]] = args[i + 1]
 
-    ret = []
-    for o in objs:
-        for s, val in funcvals:
-            s = s.lower()
-            funcName = "set_%s" % s
-            func = getattr(o, funcName, None)
-            if func is None:
-                raise TypeError('There is no %s property "%s"' %
-                                (o.__class__.__name__, s))
-            ret.extend([func(val)])
+    ret = [o.update(funcvals) for o in objs]
+    ret.extend([o.set(**kwargs) for o in objs])
     return [x for x in cbook.flatten(ret)]
 
 
