@@ -278,12 +278,12 @@ class Test_callback_registry(object):
         return self.callbacks.connect(s, func)
 
     def is_empty(self):
-        assert self.callbacks._func_cid_map() == {}
-        assert self.callbacks.callbacks() == {}
+        assert not self.callbacks._func_cid_map()
+        assert not self.callbacks.callbacks()
 
     def is_not_empty(self):
-        assert self.callbacks._func_cid_map() != {}
-        assert self.callbacks.callbacks != {}
+        assert self.callbacks._func_cid_map()
+        assert self.callbacks.callbacks
 
     def test_callback_complete(self):
         # ensure we start with an empty registry
