@@ -857,12 +857,14 @@ def test_pcolorargs():
     Z = np.sqrt(X**2 + Y**2)/5
 
     _, ax = plt.subplots()
-    pytest.raises(TypeError, ax.pcolormesh(y, x, Z))
-    pytest.raises(TypeError, ax.pcolormesh(X, Y, Z.T))
-    pytest.raises(TypeError, ax.pcolormesh(x, y, Z[:-1, :-1],
-                  shading="gouraud"))
-    pytest.raises(TypeError, ax.pcolormesh(X, Y, Z[:-1, :-1],
-                  shading="gouraud"))
+    with pytest.raises(TypeError):
+        ax.pcolormesh(y, x, Z)
+    with pytest.raises(TypeError):
+        ax.pcolormesh(X, Y, Z.T)
+    with pytest.raises(TypeError):
+        ax.pcolormesh(x, y, Z[:-1, :-1], shading="gouraud")
+    with pytest.raises(TypeError):
+        ax.pcolormesh(X, Y, Z[:-1, :-1], shading="gouraud")
 
 
 @image_comparison(baseline_images=['canonical'])
