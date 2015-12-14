@@ -5,7 +5,7 @@ from matplotlib.externals import six
 
 import numpy as np
 import matplotlib
-from matplotlib.testing.decorators import image_comparison, knownfailureif, cleanup
+from matplotlib.testing.decorators import image_comparison, cleanup
 import matplotlib.pyplot as plt
 import pytest
 
@@ -32,6 +32,7 @@ def test_clipping():
     ax.plot(t, s, linewidth=1.0)
     ax.set_ylim((-0.20, -0.28))
 
+
 @image_comparison(baseline_images=['overflow'], remove_text=True)
 def test_overflow():
     x = np.array([1.0,2.0,3.0,2.0e5])
@@ -41,6 +42,7 @@ def test_overflow():
     ax = fig.add_subplot(111)
     ax.plot(x,y)
     ax.set_xlim(xmin=2,xmax=6)
+
 
 @image_comparison(baseline_images=['clipping_diamond'], remove_text=True)
 def test_diamond():
@@ -52,6 +54,7 @@ def test_diamond():
     ax.plot(x, y)
     ax.set_xlim(xmin=-0.6, xmax=0.6)
     ax.set_ylim(ymin=-0.6, ymax=0.6)
+
 
 @cleanup
 def test_noise():
@@ -69,10 +72,12 @@ def test_noise():
 
     assert len(simplified) == 3884
 
+
 @cleanup
 def test_sine_plus_noise():
     np.random.seed(0)
-    x = np.sin(np.linspace(0, np.pi * 2.0, 1000)) + np.random.uniform(size=(1000,)) * 0.01
+    x = np.sin(np.linspace(0, np.pi * 2.0, 1000)) + \
+        np.random.uniform(size=(1000,)) * 0.01
 
     fig = plt.figure()
     ax = fig.add_subplot(111)
@@ -85,11 +90,13 @@ def test_sine_plus_noise():
 
     assert len(simplified) == 876
 
+
 @image_comparison(baseline_images=['simplify_curve'], remove_text=True)
 def test_simplify_curve():
     pp1 = patches.PathPatch(
         Path([(0, 0), (1, 0), (1, 1), (nan, 1), (0, 0), (2, 0), (2, 2), (0, 0)],
-             [Path.MOVETO, Path.CURVE3, Path.CURVE3, Path.CURVE3, Path.CURVE3, Path.CURVE3, Path.CURVE3, Path.CLOSEPOLY]),
+             [Path.MOVETO, Path.CURVE3, Path.CURVE3, Path.CURVE3,
+              Path.CURVE3, Path.CURVE3, Path.CURVE3, Path.CLOSEPOLY]),
         fc="none")
 
     fig = plt.figure()
@@ -98,6 +105,7 @@ def test_simplify_curve():
     ax.set_xlim((0, 2))
     ax.set_ylim((0, 2))
 
+
 @image_comparison(baseline_images=['hatch_simplify'], remove_text=True)
 def test_hatch():
     fig = plt.figure()
@@ -105,6 +113,7 @@ def test_hatch():
     ax.add_patch(Rectangle((0, 0), 1, 1, fill=False, hatch="/"))
     ax.set_xlim((0.45, 0.55))
     ax.set_ylim((0.45, 0.55))
+
 
 @image_comparison(baseline_images=['fft_peaks'], remove_text=True)
 def test_fft_peaks():
@@ -119,6 +128,7 @@ def test_fft_peaks():
     simplified = list(path.iter_segments(simplify=(800, 600)))
 
     assert len(simplified) == 20
+
 
 @cleanup
 def test_start_with_moveto():
@@ -156,10 +166,12 @@ AAj1//+nPwAA/////w=="""
     verts = np.fromstring(decodebytes(data), dtype='<i4')
     verts = verts.reshape((len(verts) // 2, 2))
     path = Path(verts)
-    segs = path.iter_segments(transforms.IdentityTransform(), clip=(0.0, 0.0, 100.0, 100.0))
+    segs = path.iter_segments(transforms.IdentityTransform(),
+                              clip=(0.0, 0.0, 100.0, 100.0))
     segs = list(segs)
     assert len(segs) == 1
     assert segs[0][1] == Path.MOVETO
+
 
 @cleanup
 @pytest.mark.xfail(raises=OverflowError)
@@ -176,13 +188,14 @@ def test_throw_rendering_complexity_exceeded():
     finally:
         rcParams['path.simplify'] = True
 
+
 @image_comparison(baseline_images=['clipper_edge'], remove_text=True)
 def test_clipper():
     dat = (0, 1, 0, 2, 0, 3, 0, 4, 0, 5)
     fig = plt.figure(figsize=(2, 1))
-    fig.subplots_adjust(left = 0, bottom = 0, wspace = 0, hspace = 0)
+    fig.subplots_adjust(left=0, bottom=0, wspace=0, hspace=0)
 
-    ax = fig.add_axes((0, 0, 1.0, 1.0), ylim = (0, 5), autoscale_on = False)
+    ax = fig.add_axes((0, 0, 1.0, 1.0), ylim=(0, 5), autoscale_on=False)
     ax.plot(dat)
     ax.xaxis.set_major_locator(plt.MultipleLocator(1))
     ax.yaxis.set_major_locator(plt.MultipleLocator(1))
@@ -190,6 +203,7 @@ def test_clipper():
     ax.yaxis.set_ticks_position('left')
 
     ax.set_xlim(5, 9)
+
 
 @image_comparison(baseline_images=['para_equal_perp'], remove_text=True)
 def test_para_equal_perp():
@@ -200,6 +214,7 @@ def test_para_equal_perp():
     ax = fig.add_subplot(111)
     ax.plot(x + 1, y + 1)
     ax.plot(x + 1, y + 1, 'ro')
+
 
 @image_comparison(baseline_images=['clipping_with_nans'])
 def test_clipping_with_nans():

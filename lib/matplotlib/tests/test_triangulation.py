@@ -277,7 +277,7 @@ def test_trifinder():
     trifinder = triang.get_trifinder()
 
     xs = [-0.2, 0.2, 0.8, 1.2]
-    ys = [ 0.5, 0.5, 0.5, 0.5]
+    ys = [0.5, 0.5, 0.5, 0.5]
     tris = trifinder(xs, ys)
     assert_array_equal(tris, [-1, 0, 1, -1])
 

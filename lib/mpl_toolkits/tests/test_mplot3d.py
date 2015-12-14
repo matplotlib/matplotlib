@@ -192,6 +192,7 @@ def test_wireframe3dzerorstride():
     X, Y, Z = axes3d.get_test_data(0.05)
     ax.plot_wireframe(X, Y, Z, rstride=0, cstride=10)
 
+
 @cleanup
 def test_wireframe3dzerostrideraises():
     if sys.version_info[:2] < (2, 7):
@@ -202,6 +203,7 @@ def test_wireframe3dzerostrideraises():
     X, Y, Z = axes3d.get_test_data(0.05)
     with assert_raises(ValueError):
         ax.plot_wireframe(X, Y, Z, rstride=0, cstride=0)
+
 
 @image_comparison(baseline_images=['quiver3d'], remove_text=True)
 def test_quiver3d():
@@ -217,6 +219,7 @@ def test_quiver3d():
 
     ax.quiver(x, y, z, u, v, w, length=0.1, pivot='tip', normalize=True)
 
+
 @image_comparison(baseline_images=['quiver3d_empty'], remove_text=True)
 def test_quiver3d_empty():
     fig = plt.figure()
@@ -230,6 +233,7 @@ def test_quiver3d_empty():
             np.sin(np.pi * z))
 
     ax.quiver(x, y, z, u, v, w, length=0.1, pivot='tip', normalize=True)
+
 
 @image_comparison(baseline_images=['quiver3d_masked'], remove_text=True)
 def test_quiver3d_masked():
@@ -249,6 +253,7 @@ def test_quiver3d_masked():
 
     ax.quiver(x, y, z, u, v, w, length=0.1, pivot='tip', normalize=True)
 
+
 @image_comparison(baseline_images=['quiver3d_pivot_middle'], remove_text=True,
                   extensions=['png'])
 def test_quiver3d_pivot_middle():
@@ -263,6 +268,7 @@ def test_quiver3d_pivot_middle():
             np.sin(np.pi * z))
 
     ax.quiver(x, y, z, u, v, w, length=0.1, pivot='middle', normalize=True)
+
 
 @image_comparison(baseline_images=['quiver3d_pivot_tail'], remove_text=True,
                   extensions=['png'])
@@ -311,6 +317,7 @@ def test_axes3d_cla():
     ax.set_axis_off()
     ax.cla()  # make sure the axis displayed is 3D (not 2D)
 
+
 @cleanup
 def test_plotsurface_1d_raises():
     x = np.linspace(0.5, 10, num=100)
@@ -321,7 +328,8 @@ def test_plotsurface_1d_raises():
     fig = plt.figure(figsize=(14,6))
     ax = fig.add_subplot(1, 2, 1, projection='3d')
     assert_raises(ValueError, ax.plot_surface, X, Y, z)
-    
+
+
 if __name__ == '__main__':
     import nose
     nose.runmodule(argv=['-s', '--with-doctest'], exit=False)

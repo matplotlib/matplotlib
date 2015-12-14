@@ -150,6 +150,7 @@ def test_tight_layout7():
     ax.set_title('Right Title', loc='right', fontsize=fontsize)
     plt.tight_layout()
 
+
 @image_comparison(baseline_images=['tight_layout8'])
 def test_tight_layout8():
     'Test automatic use of tight_layout'

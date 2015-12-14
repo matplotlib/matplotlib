@@ -178,7 +178,8 @@ def test_Bug_2543_newer_python():
     # only split from above because of the usage of assert_raises
     # as a context manager, which only works in 2.7 and above
     if sys.version_info[:2] < (2, 7):
-        raise nose.SkipTest("assert_raises as context manager not supported with Python < 2.7")
+        raise nose.SkipTest(
+            "assert_raises as context manager not supported with Python < 2.7")
     from matplotlib.rcsetup import validate_bool_maybe_none, validate_bool
     with pytest.raises(ValueError):
         validate_bool_maybe_none("blah")
@@ -261,7 +262,6 @@ def _validation_fail_helper(validator, arg, exception_type):
         raise nose.SkipTest("assert_raises as context manager not "
                             "supported with Python < 2.7")
     pytest.raises(exception_type,validator, arg)
-
 
 
 def test_validators():
@@ -400,14 +400,16 @@ def test_rcparams_reset_after_fail():
     if sys.version_info[:2] >= (2, 7):
         from collections import OrderedDict
     else:
-        raise SkipTest("Test can only be run in Python >= 2.7 as it requires OrderedDict")
+        raise SkipTest("Test can only be run in Python >= 2.7"
+                       " as it requires OrderedDict")
 
     with mpl.rc_context(rc={'text.usetex': False}):
 
         assert mpl.rcParams['text.usetex'] is False
 
         with pytest.raises(KeyError):
-            with mpl.rc_context(rc=OrderedDict([('text.usetex', True),('test.blah', True)])):
+            with mpl.rc_context(rc=OrderedDict([('text.usetex', True),
+                                                ('test.blah', True)])):
                 pass
 
         assert mpl.rcParams['text.usetex'] is False

@@ -59,7 +59,7 @@ def test_invisible_Line_rendering():
     # gives about 290 ms for N = 10**7 pts
 
     slowdown_factor = (t_unvisible_line/t_no_line)
-    slowdown_threshold = 2 # trying to avoid false positive failures
+    slowdown_threshold = 2  # trying to avoid false positive failures
     assert slowdown_factor < slowdown_threshold
 
 

@@ -88,17 +88,17 @@ math_tests = [
     r'${x}_{92}^{31415}+\pi $',
     r'${x}_{{y}_{b}^{a}}^{{z}_{c}^{d}}$',
     r'${y}_{3}^{\prime \prime \prime }$',
-    r"$\left( \xi \left( 1 - \xi \right) \right)$", # Bug 2969451
-    r"$\left(2 \, a=b\right)$", # Sage bug #8125
+    r"$\left( \xi \left( 1 - \xi \right) \right)$",  # Bug 2969451
+    r"$\left(2 \, a=b\right)$",  # Sage bug #8125
     r"$? ! &$", # github issue #466
-    r'$\operatorname{cos} x$', # github issue #553
+    r'$\operatorname{cos} x$',  # github issue #553
     r'$\sum _{\genfrac{}{}{0}{}{0\leq i\leq m}{0<j<n}}P\left(i,j\right)$',
     r"$\left\Vert a \right\Vert \left\vert b \right\vert \left| a \right| \left\| b\right\| \Vert a \Vert \vert b \vert$",
     r'$\mathring{A}  \stackrel{\circ}{A}  \AA$',
     r'$M \, M \thinspace M \/ M \> M \: M \; M \ M \enspace M \quad M \qquad M \! M$',
     r'$\Cup$ $\Cap$ $\leftharpoonup$ $\barwedge$ $\rightharpoonup$',
     r'$\dotplus$ $\doteq$ $\doteqdot$ $\ddots$',
-    r'$xyz^kx_kx^py^{p-2} d_i^jb_jc_kd x^j_i E^0 E^0_u$', # github issue #4873
+    r'$xyz^kx_kx^py^{p-2} d_i^jb_jc_kd x^j_i E^0 E^0_u$',  # github issue #4873
     r'${xyz}^k{x}_{k}{x}^{p}{y}^{p-2} {d}_{i}^{j}{b}_{j}{c}_{k}{d} {x}^{j}_{i}{E}^{0}{E}^0_u$',
     r'${\int}_x^x x\oint_x^x x\int_{X}^{X}x\int_x x \int^x x \int_{x} x\int^{x}{\int}_{x} x{\int}^{x}_{x}x$',
     r'testing$^{123}$',
@@ -107,6 +107,7 @@ math_tests = [
     r'$\overline{\omega}^x \frac{1}{2}_0^x$', # github issue #5444
     r'$1{,}234{, }567{ , }890$ and $1,234,567,890$', # github issue 5799
 ]
+
 
 digits = "0123456789"
 uppercase = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
@@ -156,13 +157,15 @@ for fonts, chars in font_test_specs:
     for set in chars:
         font_tests.append(wrapper % set)
 
+
 def make_set(basename, fontset, tests, extensions=None):
     def make_test(filename, test):
         @image_comparison(baseline_images=[filename], extensions=extensions)
         def single_test():
             matplotlib.rcParams['mathtext.fontset'] = fontset
             fig = plt.figure(figsize=(5.25, 0.75))
-            fig.text(0.5, 0.5, test, horizontalalignment='center', verticalalignment='center')
+            fig.text(0.5, 0.5, test, horizontalalignment='center',
+                     verticalalignment='center')
         func = single_test
         func.__name__ = str("test_" + filename)
         return func
@@ -187,6 +190,7 @@ make_set('mathfont', 'stixsans', font_tests, ['png'])
 make_set('mathfont', 'dejavusans', font_tests, ['png'])
 make_set('mathfont', 'dejavuserif', font_tests, ['png'])
 
+
 def test_fontinfo():
     import matplotlib.font_manager as font_manager
     import matplotlib.ft2font as ft2font
@@ -194,6 +198,7 @@ def test_fontinfo():
     font = ft2font.FT2Font(fontpath)
     table = font.get_sfnt_table("head")
     assert table['version'] == (1, 0)
+
 
 def test_mathtext_exceptions():
     errors = [
@@ -227,6 +232,7 @@ def test_mathtext_exceptions():
             assert exc[3].startswith(msg)
         else:
             assert False, "Expected '%s', but didn't get it" % msg
+
 
 @cleanup
 def test_single_minus_sign():

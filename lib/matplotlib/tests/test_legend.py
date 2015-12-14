@@ -109,7 +109,8 @@ def test_fancy():
     plt.subplot(121)
     plt.scatter(list(xrange(10)), list(xrange(10, 0, -1)), label='XX\nXX')
     plt.plot([5] * 10, 'o--', label='XX')
-    plt.errorbar(list(xrange(10)), list(xrange(10)), xerr=0.5, yerr=0.5, label='XX')
+    plt.errorbar(list(xrange(10)), list(xrange(10)),
+                 xerr=0.5, yerr=0.5, label='XX')
     plt.legend(loc="center left", bbox_to_anchor=[1.0, 0.5],
                ncol=2, shadow=True, title="My legend", numpoints=1)
 
@@ -122,7 +123,8 @@ def test_framealpha():
     plt.legend(framealpha=0.5)
 
 
-@image_comparison(baseline_images=['scatter_rc3', 'scatter_rc1'], remove_text=True)
+@image_comparison(baseline_images=['scatter_rc3', 'scatter_rc1'],
+                  remove_text=True)
 def test_rc():
     # using subplot triggers some offsetbox functionality untested elsewhere
     fig = plt.figure()

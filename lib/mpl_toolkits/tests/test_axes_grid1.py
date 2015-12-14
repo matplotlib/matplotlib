@@ -68,9 +68,9 @@ def test_twin_axes_empty_and_removed():
     matplotlib.rcParams.update({"font.size": 8})
     matplotlib.rcParams.update({"xtick.labelsize": 8})
     matplotlib.rcParams.update({"ytick.labelsize": 8})
-    generators = [ "twinx", "twiny", "twin" ]
-    modifiers = [ "", "host invisible", "twin removed", "twin invisible",
-        "twin removed\nhost invisible" ]
+    generators = ["twinx", "twiny", "twin"]
+    modifiers = ["", "host invisible", "twin removed", "twin invisible",
+        "twin removed\nhost invisible"]
     # Unmodified host subplot at the beginning for reference
     h = host_subplot(len(modifiers)+1, len(generators), 2)
     h.text(0.5, 0.5, "host_subplot", horizontalalignment="center",

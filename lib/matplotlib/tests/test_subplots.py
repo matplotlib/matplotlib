@@ -86,7 +86,7 @@ def test_shared():
     # test default
     f, ((a1, a2), (a3, a4)) = plt.subplots(2, 2)
     axs = [a1, a2, a3, a4]
-    check_shared(numpy.dstack((share['none'], share['none'])), \
+    check_shared(numpy.dstack((share['none'], share['none'])),
             f, axs)
     plt.close(f)
 
@@ -96,9 +96,9 @@ def test_shared():
         for yo in ops:
             f, ((a1, a2), (a3, a4)) = plt.subplots(2, 2, sharex=xo, sharey=yo)
             axs = [a1, a2, a3, a4]
-            check_shared(numpy.dstack((share[xo], share[yo])), \
+            check_shared(numpy.dstack((share[xo], share[yo])),
                     f, axs)
-            check_visible(dict(x=visible['x'][xo], y=visible['y'][yo]), \
+            check_visible(dict(x=visible['x'][xo], y=visible['y'][yo]),
                     f, axs)
             plt.close(f)
 
