@@ -285,7 +285,7 @@ class ColorConverter(object):
             clist = rcParams['axes.color_cycle']
             prop_cycler = cycler('color', clist)
 
-        colors = prop_cycler.by_key()['color']
+        colors = prop_cycler._transpose()['color']
         return colors[val % len(colors)]
 
     @classmethod
