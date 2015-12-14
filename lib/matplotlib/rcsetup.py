@@ -940,6 +940,7 @@ defaultParams = {
     'boxplot.showbox': [True, validate_bool],
     'boxplot.showfliers': [True, validate_bool],
     'boxplot.meanline': [False, validate_bool],
+
     'boxplot.flierprops.color': ['k', validate_color],
     'boxplot.flierprops.marker': ['o', six.text_type],
     'boxplot.flierprops.markerfacecolor': ['none', validate_color],
