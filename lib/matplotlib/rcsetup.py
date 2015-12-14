@@ -1028,7 +1028,7 @@ defaultParams = {
     'date.autoformatter.second': ['%H:%M:%S.%f', six.text_type],
 
     #legend properties
-    'legend.fancybox': [False, validate_bool],
+    'legend.fancybox': [True, validate_bool],
 
     # at some point, legend.loc should be changed to 'best'
     'legend.loc': ['best', validate_legend_loc],
