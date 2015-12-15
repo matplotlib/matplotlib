@@ -8,16 +8,29 @@
 PyObject *convert_polygon_vector(std::vector<Polygon> &polygons)
 {
     PyObject *pyresult = PyList_New(polygons.size());
+    bool fix_endpoints;
 
     for (size_t i = 0; i < polygons.size(); ++i) {
         Polygon poly = polygons[i];
-        npy_intp dims[] = {(npy_intp)poly.size() + 1, 2 };
-        numpy::array_view<double, 2> subresult(dims);
+        npy_intp dims[2];
+        dims[1] = 2;
 
-        /* Make last point same as first. */
+        if (poly.front() != poly.back()) {
+            /* Make last point same as first, if not already */
+            dims[0] = (npy_intp)poly.size() + 1;
+            fix_endpoints = true;
+        } else {
+            dims[0] = (npy_intp)poly.size();
+            fix_endpoints = false;
+        }
+
+        numpy::array_view<double, 2> subresult(dims);
         memcpy(subresult.data(), &poly[0], sizeof(double) * poly.size() * 2);
-        subresult(poly.size(), 0) = poly[0].x;
-        subresult(poly.size(), 1) = poly[0].y;
+
+        if (fix_endpoints) {
+            subresult(poly.size(), 0) = poly.front().x;
+            subresult(poly.size(), 1) = poly.front().y;
+        }
 
         if (PyList_SetItem(pyresult, i, subresult.pyobj())) {
             Py_DECREF(pyresult);
