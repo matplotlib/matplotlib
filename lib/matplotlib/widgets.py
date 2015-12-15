@@ -245,7 +245,7 @@ class Button(AxesWidget):
         """
         When the button is clicked, call this *func* with event.
 
-        A connection id is returned. It can be used to disconnect 
+        A connection id is returned. It can be used to disconnect
         the button from its callback.
         """
         cid = self.cnt
@@ -265,7 +265,7 @@ class Slider(AxesWidget):
     """
     A slider representing a floating point range.
 
-    For the slider to remain responsive you must maintain a 
+    For the slider to remain responsive you must maintain a
     reference to it.
 
     The following attributes are defined
@@ -2036,7 +2036,7 @@ class RectangleSelector(_SelectorWidget):
         if hasattr(self.to_draw, 'get_verts'):
             xfm = self.ax.transData.inverted()
             y, x = xfm.transform(self.to_draw.get_verts()).T
-            return np.array([x[:-1], y[:-1]])
+            return np.array([x, y])
         else:
             return np.array(self.to_draw.get_data())
 
