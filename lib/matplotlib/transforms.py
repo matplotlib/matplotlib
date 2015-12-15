@@ -116,7 +116,7 @@ class TransformNode(object):
         # turn the normal dictionary back into a dictionary with weak
         # values
         self._parents = dict((k, weakref.ref(v)) for (k, v) in
-                             six.iteritems(self._parents))
+                             six.iteritems(self._parents) if v is not None)
 
     def __copy__(self, *args):
         raise NotImplementedError(
@@ -1580,7 +1580,7 @@ class TransformWrapper(Transform):
         # turn the normal dictionary back into a dictionary with weak
         # values
         self._parents = dict((k, weakref.ref(v)) for (k, v) in
-                             six.iteritems(state['parents']))
+                             six.iteritems(state['parents']) if v is not None)
 
     def __repr__(self):
         return "TransformWrapper(%r)" % self._child
