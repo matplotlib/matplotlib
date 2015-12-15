@@ -46,7 +46,7 @@ def exponential(x, y):
     f = (0.75 * np.exp(-(x2*x2+y2*y2)/4.0) +
          0.75 * np.exp(-x1*x1/49.0 - y1/10.0) +
          0.5 * np.exp(-(x7*x7 + y3*y3)/4.0) -
-         0.2 * np.exp(-x4*x4 -y7*y7))
+         0.2 * np.exp(-x4*x4 - y7*y7))
     return f
 exponential.title = 'Exponential and Some Gaussians'
 
@@ -149,8 +149,10 @@ class LinearTester(object):
             z = lpi[self.yrange[0]:self.yrange[1]:complex(0,self.nrange),
                     self.xrange[0]:self.xrange[1]:complex(0,self.nrange)]
         else:
-            y, x = np.mgrid[self.yrange[0]:self.yrange[1]:complex(0, self.nrange),
-                            self.xrange[0]:self.xrange[1]:complex(0, self.nrange)]
+            y, x = np.mgrid[self.yrange[0]:self.yrange[1]:
+                            complex(0, self.nrange),
+                            self.xrange[0]:self.xrange[1]:
+                            complex(0, self.nrange)]
             z = func(x, y)
 
         z = np.where(np.isinf(z), 0.0, z)
