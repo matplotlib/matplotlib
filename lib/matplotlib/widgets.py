@@ -1473,6 +1473,7 @@ class SpanSelector(_SelectorWidget):
                                        transform=trans,
                                        visible=False,
                                        **self.rectprops)
+            self.stay_rect.set_animated(False)
             self.ax.add_patch(self.stay_rect)
 
         self.ax.add_patch(self.rect)
@@ -1487,7 +1488,10 @@ class SpanSelector(_SelectorWidget):
         self.rect.set_visible(self.visible)
         if self.span_stays:
             self.stay_rect.set_visible(False)
-
+            # really force a draw so that the stay rect is not in
+            # the blit background
+            if self.useblit:
+                self.canvas.draw()
         xdata, ydata = self._get_data(event)
         if self.direction == 'horizontal':
             self.pressv = xdata
@@ -1510,7 +1514,7 @@ class SpanSelector(_SelectorWidget):
             self.stay_rect.set_height(self.rect.get_height())
             self.stay_rect.set_visible(True)
 
-        self.canvas.draw()
+        self.canvas.draw_idle()
         vmin = self.pressv
         xdata, ydata = self._get_data(event)
         if self.direction == 'horizontal':
