@@ -278,7 +278,7 @@ def test_transform():
     # Check parent -> child links of TransformWrapper.
     assert_equal(obj.wrapper._child, obj.composite)
     # Check child -> parent links of TransformWrapper.
-    assert_equal(list(obj.wrapper._parents.values()), [obj.composite2])
+    assert_equal([v() for v in obj.wrapper._parents.values()], [obj.composite2])
     # Check input and output dimensions are set as expected.
     assert_equal(obj.wrapper.input_dims, obj.composite.input_dims)
     assert_equal(obj.wrapper.output_dims, obj.composite.output_dims)

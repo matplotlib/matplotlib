@@ -1567,7 +1567,8 @@ class TransformWrapper(Transform):
             'input_dims': self.input_dims,
             'output_dims': self.output_dims,
             # turn the weak-values dictionary into a normal dictionary
-            'parents': dict((k, v()) for (k, v) in six.iteritems(self._parents))
+            'parents': dict((k, v()) for (k, v) in
+                            six.iteritems(self._parents))
         }
 
     def __setstate__(self, state):
