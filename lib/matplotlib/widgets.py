@@ -1514,7 +1514,7 @@ class SpanSelector(_SelectorWidget):
             self.stay_rect.set_height(self.rect.get_height())
             self.stay_rect.set_visible(True)
 
-        self.canvas.draw()
+        self.canvas.draw_idle()
         vmin = self.pressv
         xdata, ydata = self._get_data(event)
         if self.direction == 'horizontal':
