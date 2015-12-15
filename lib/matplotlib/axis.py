@@ -1078,7 +1078,7 @@ class Axis(artist.Artist):
     def get_tightbbox(self, renderer):
         """
         Return a bounding box that encloses the axis. It only accounts
-        tick labels, axis label, offsetText and ticks themselves.
+        tick labels, axis label, and offsetText.
         """
         if not self.get_visible():
             return
