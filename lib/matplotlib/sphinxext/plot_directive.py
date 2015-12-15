@@ -537,16 +537,7 @@ def clear_state(plot_rcparams, close=True):
     matplotlib.rcParams.update(plot_rcparams)
 
 
-def render_figures(code, code_path, output_dir, output_base, context,
-                   function_name, config, context_reset=False,
-                   close_figs=False):
-    """
-    Run a pyplot script and save the images in *output_dir*.
-
-    Save the images under *output_dir* with file names derived from
-    *output_base*
-    """
-    # -- Parse format list
+def get_plot_formats(config):
     default_dpi = {'png': 80, 'hires.png': 200, 'pdf': 200}
     formats = []
     plot_formats = config.plot_formats
@@ -562,10 +553,23 @@ def render_figures(code, code_path, output_dir, output_base, context,
                 formats.append((str(suffix), int(dpi)))
             else:
                 formats.append((fmt, default_dpi.get(fmt, 80)))
-        elif type(fmt) in (tuple, list) and len(fmt)==2:
+        elif type(fmt) in (tuple, list) and len(fmt) == 2:
             formats.append((str(fmt[0]), int(fmt[1])))
         else:
             raise PlotError('invalid image format "%r" in plot_formats' % fmt)
+    return formats
+
+
+def render_figures(code, code_path, output_dir, output_base, context,
+                   function_name, config, context_reset=False,
+                   close_figs=False):
+    """
+    Run a pyplot script and save the images in *output_dir*.
+
+    Save the images under *output_dir* with file names derived from
+    *output_base*
+    """
+    formats = get_plot_formats(config)
 
     # -- Try to determine if all images already exist
 
@@ -665,13 +669,8 @@ def run(arguments, content, options, state_machine, state, lineno):
     config = document.settings.env.config
     nofigs = 'nofigs' in options
 
-    plot_formats = config.plot_formats
-    if isinstance(plot_formats, six.string_types):
-        # String Sphinx < 1.3, Split on , to mimic
-        # Sphinx 1.3 and later. Sphinx 1.3 always
-        # returns a list.
-        plot_formats = plot_formats.split(',')
-    default_fmt = plot_formats[0][0]
+    formats = get_plot_formats(config)
+    default_fmt = formats[0][0]
 
     options.setdefault('include-source', config.plot_include_source)
     keep_context = 'context' in options
