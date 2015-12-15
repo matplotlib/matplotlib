@@ -163,7 +163,7 @@ def test_SymmetricalLogLocator_set_params():
 def _logfe_helper(formatter, base, locs, i, expected_result):
     vals = base**locs
     labels = [formatter(x, pos) for (x, pos) in zip(vals, i)]
-    nose.tools.assert_equal(labels, expected_result)
+    assert labels == expected_result
 
 
 def test_LogFormatterExponent():
@@ -208,7 +208,7 @@ def test_LogFormatterExponent():
 def _pprint_helper(value, domain, expected):
     fmt = mticker.LogFormatter()
     label = fmt.pprint_val(value, domain)
-    nose.tools.assert_equal(label, expected)
+    assert label == expected
 
 
 def test_logformatter_pprint():
