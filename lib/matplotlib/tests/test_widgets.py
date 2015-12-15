@@ -162,7 +162,7 @@ def test_ellipse():
     extents = [int(e) for e in tool.extents]
     assert extents == [70, 129, 70, 130], extents
 
-    assert tool.geometry.shape == (2, 74)
+    assert tool.geometry.shape == (2, 73)
     assert_allclose(tool.geometry[:, 0], [70., 100])
 
 
