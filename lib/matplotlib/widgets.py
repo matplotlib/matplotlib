@@ -1473,6 +1473,7 @@ class SpanSelector(_SelectorWidget):
                                        transform=trans,
                                        visible=False,
                                        **self.rectprops)
+            self.stay_rect.set_animated(False)
             self.ax.add_patch(self.stay_rect)
 
         self.ax.add_patch(self.rect)
