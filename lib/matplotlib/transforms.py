@@ -1578,7 +1578,8 @@ class TransformWrapper(Transform):
         self.output_dims = state['output_dims']
         # turn the normal dictionary back into a dictionary with weak
         # values
-        self._parents = dict((k, weakref.ref(v)) for (k, v) in state['parents'])
+        self._parents = dict((k, weakref.ref(v)) for (k, v) in
+                             six.iteritems(state['parents']))
 
     def __repr__(self):
         return "TransformWrapper(%r)" % self._child
