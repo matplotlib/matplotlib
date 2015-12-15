@@ -1721,6 +1721,14 @@ class Grouper(object):
         except KeyError:
             return False
 
+    def remove(self, a):
+        self.clean()
+
+        mapping = self._mapping
+        seta = mapping.pop(ref(a), None)
+        if seta is not None:
+            seta.remove(ref(a))
+
     def __iter__(self):
         """
         Iterate over each of the disjoint sets as a list.
