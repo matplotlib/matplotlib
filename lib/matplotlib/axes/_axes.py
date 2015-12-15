@@ -2923,9 +2923,9 @@ class Axes(_AxesBase):
                 barcols.append(self.hlines(yo, lo, ro, **lines_kw))
                 rightup, yup = xywhere(right, y, xlolims & everymask)
                 if self.xaxis_inverted():
-                    marker = mlines.CARETLEFT
+                    marker = mlines.CARETLEFTBASE
                 else:
-                    marker = mlines.CARETRIGHT
+                    marker = mlines.CARETRIGHTBASE
                 caplines.extend(
                     self.plot(rightup, yup, ls='None', marker=marker,
                               **plot_kw))
@@ -2939,9 +2939,9 @@ class Axes(_AxesBase):
                 barcols.append(self.hlines(yo, lo, ro, **lines_kw))
                 leftlo, ylo = xywhere(left, y, xuplims & everymask)
                 if self.xaxis_inverted():
-                    marker = mlines.CARETRIGHT
+                    marker = mlines.CARETRIGHTBASE
                 else:
-                    marker = mlines.CARETLEFT
+                    marker = mlines.CARETLEFTBASE
                 caplines.extend(
                     self.plot(leftlo,  ylo, ls='None', marker=marker,
                               **plot_kw))
@@ -2987,9 +2987,9 @@ class Axes(_AxesBase):
                 barcols.append(self.vlines(xo, lo, uo, **lines_kw))
                 xup, upperup = xywhere(x, upper, lolims & everymask)
                 if self.yaxis_inverted():
-                    marker = mlines.CARETDOWN
+                    marker = mlines.CARETDOWNBASE
                 else:
-                    marker = mlines.CARETUP
+                    marker = mlines.CARETUPBASE
                 caplines.extend(
                     self.plot(xup, upperup, ls='None', marker=marker,
                               **plot_kw))
@@ -3003,9 +3003,9 @@ class Axes(_AxesBase):
                 barcols.append(self.vlines(xo, lo, uo, **lines_kw))
                 xlo, lowerlo = xywhere(x, lower, uplims & everymask)
                 if self.yaxis_inverted():
-                    marker = mlines.CARETUP
+                    marker = mlines.CARETUPBASE
                 else:
-                    marker = mlines.CARETDOWN
+                    marker = mlines.CARETDOWNBASE
                 caplines.extend(
                     self.plot(xlo, lowerlo, ls='None', marker=marker,
                               **plot_kw))
