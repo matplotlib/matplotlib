@@ -1,5 +1,6 @@
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
+import itertools
 
 from matplotlib.externals import six
 
@@ -376,3 +377,23 @@ def test_step_fails():
                   np.arange(12))
     assert_raises(ValueError, cbook._step_validation,
                   np.arange(12), np.arange(3))
+
+
+def test_grouper():
+    class dummy():
+        pass
+    a, b, c, d, e = objs = [dummy() for j in range(5)]
+    g = cbook.Grouper()
+    g.join(*objs)
+    assert set(list(g)[0]) == set(objs)
+    assert set(g.get_siblings(a)) == set(objs)
+
+    for other in objs[1:]:
+        assert g.joined(a, other)
+
+    g.remove(a)
+    for other in objs[1:]:
+        assert not g.joined(a, other)
+
+    for A, B in itertools.product(objs[1:], objs[1:]):
+        assert g.joined(A, B)
