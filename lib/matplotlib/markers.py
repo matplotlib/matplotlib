@@ -35,10 +35,13 @@ TICKLEFT                       tickleft
 TICKRIGHT                      tickright
 TICKUP                         tickup
 TICKDOWN                       tickdown
-CARETLEFT                      caretleft
-CARETRIGHT                     caretright
-CARETUP                        caretup
-CARETDOWN                      caretdown
+CARETLEFT                      caretleft (centered at tip)
+CARETRIGHT                     caretright (centered at tip)
+CARETUP                        caretup (centered at tip)
+CARETDOWN                      caretdown (centered at tip)
+CARETLEFTBASE                  caretleft (centered at base)
+CARETRIGHTBASE                 caretright (centered at base)
+CARETUPBASE                    caretup (centered at base)
 "None"                         nothing
 None                           nothing
 " "                            nothing
@@ -91,7 +94,8 @@ from .transforms import IdentityTransform, Affine2D
 
 # special-purpose marker identifiers:
 (TICKLEFT, TICKRIGHT, TICKUP, TICKDOWN,
- CARETLEFT, CARETRIGHT, CARETUP, CARETDOWN) = list(xrange(8))
+ CARETLEFT, CARETRIGHT, CARETUP, CARETDOWN,
+ CARETLEFTBASE, CARETRIGHTBASE, CARETUPBASE, CARETDOWNBASE) = list(xrange(12))
 
 
 class MarkerStyle(object):
@@ -128,6 +132,10 @@ class MarkerStyle(object):
         CARETRIGHT: 'caretright',
         CARETUP: 'caretup',
         CARETDOWN: 'caretdown',
+        CARETLEFTBASE: 'caretleftbase',
+        CARETRIGHTBASE: 'caretrightbase',
+        CARETUPBASE: 'caretupbase',
+        CARETDOWNBASE: 'caretdownbase',
         "None": 'nothing',
         None: 'nothing',
         ' ': 'nothing',
@@ -777,6 +785,36 @@ class MarkerStyle(object):
         self._snap_threshold = 3.0
         self._filled = False
         self._path = self._caret_path
+        self._joinstyle = 'miter'
+
+    _caret_path_base = Path([[-1.0, 0.0], [0.0, -1.5], [1.0, 0]])
+
+    def _set_caretdownbase(self):
+        self._transform = Affine2D().scale(0.5)
+        self._snap_threshold = 3.0
+        self._filled = False
+        self._path = self._caret_path_base
+        self._joinstyle = 'miter'
+
+    def _set_caretupbase(self):
+        self._transform = Affine2D().scale(0.5).rotate_deg(180)
+        self._snap_threshold = 3.0
+        self._filled = False
+        self._path = self._caret_path_base
+        self._joinstyle = 'miter'
+
+    def _set_caretleftbase(self):
+        self._transform = Affine2D().scale(0.5).rotate_deg(270)
+        self._snap_threshold = 3.0
+        self._filled = False
+        self._path = self._caret_path_base
+        self._joinstyle = 'miter'
+
+    def _set_caretrightbase(self):
+        self._transform = Affine2D().scale(0.5).rotate_deg(90)
+        self._snap_threshold = 3.0
+        self._filled = False
+        self._path = self._caret_path_base
         self._joinstyle = 'miter'
 
     _x_path = Path([[-1.0, -1.0], [1.0, 1.0],
