@@ -1,6 +1,7 @@
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 import itertools
+from weakref import ref
 
 from matplotlib.externals import six
 
@@ -397,3 +398,20 @@ def test_grouper():
 
     for A, B in itertools.product(objs[1:], objs[1:]):
         assert g.joined(A, B)
+
+
+def test_grouper_private():
+    class dummy():
+        pass
+    objs = [dummy() for j in range(5)]
+    g = cbook.Grouper()
+    g.join(*objs)
+    # reach in and touch the internals !
+    mapping = g._mapping
+
+    for o in objs:
+        assert ref(o) in mapping
+
+    base_set = mapping[ref(objs[0])]
+    for o in objs[1:]:
+        assert mapping[ref(o)] is base_set
