@@ -218,7 +218,6 @@ libpng 1.2 (or later)
     Required for compatibility if running on versions of Python before
     Python 3.2.
 
-
 Optional GUI framework
 ^^^^^^^^^^^^^^^^^^^^^^
 
