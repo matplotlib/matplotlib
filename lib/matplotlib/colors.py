@@ -32,7 +32,8 @@ the colors.  For the basic built-in colors, you can use a single letter
     - w: white
 
 To use the colors that are part of the active color cycle in the
-current style, use a string with the color number in square brackets.
+current style, use a string with a positive index in square brackets.
+If the index is larger than the color cycle, it is wrapped around.
 For example:
 
     - `[0]`: The first color in the cycle
@@ -220,6 +221,13 @@ for k, v in list(six.iteritems(cnames)):
 
 def is_color_like(c):
     'Return *True* if *c* can be converted to *RGB*'
+    # Special-case the N-th color cycle syntax, because it's parsing
+    # needs to be deferred.  We may be reading a value from rcParams
+    # here before the color_cycle rcParam has been parsed.
+    match = re.match('^\[[0-9]\]$', c)
+    if match is not None:
+        return True
+
     try:
         colorConverter.to_rgb(c)
         return True
