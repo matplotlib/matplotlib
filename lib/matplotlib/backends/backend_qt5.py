@@ -587,7 +587,7 @@ class NavigationToolbar2QT(NavigationToolbar2, QtWidgets.QToolBar):
         if figureoptions is not None:
             a = self.addAction(self._icon("qt4_editor_options.png"),
                                'Customize', self.edit_parameters)
-            a.setToolTip('Edit curves line and axes parameters')
+            a.setToolTip('Edit axis, curve and image parameters')
 
         self.buttons = {}
 
