@@ -6,6 +6,9 @@ from matplotlib.offsetbox import (AnchoredOffsetbox, AuxTransformBox,
                                   DrawingArea, TextArea, VPacker)
 from matplotlib.patches import Rectangle, Ellipse
 
+__all__ = ['AnchoredDrawingArea', 'AnchoredAuxTransformBox',
+           'AnchoredEllipse', 'AnchoredSizeBar']
+
 
 class AnchoredDrawingArea(AnchoredOffsetbox):
     @docstring.dedent
