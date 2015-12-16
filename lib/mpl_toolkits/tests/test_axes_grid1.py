@@ -4,8 +4,13 @@ from __future__ import (absolute_import, division, print_function,
 from matplotlib.externals import six
 
 import matplotlib.pyplot as plt
-from matplotlib.testing.decorators import image_comparison
+from matplotlib.testing.decorators import image_comparison, cleanup
+
 from mpl_toolkits.axes_grid1 import make_axes_locatable
+from mpl_toolkits.axes_grid1 import AxesGrid
+
+from matplotlib.colors import LogNorm
+
 import numpy as np
 
 
@@ -49,6 +54,23 @@ def test_divider_append_axes():
     axHistbot.xaxis.set_ticklabels(())
     axHistleft.yaxis.set_ticklabels(())
     axHistright.yaxis.set_ticklabels(())
+
+
+@cleanup
+def test_axesgrid_colorbar_log_smoketest():
+    fig = plt.figure()
+    grid = AxesGrid(fig, 111,  # modified to be only subplot
+                    nrows_ncols=(1, 1),
+                    label_mode="L",
+                    cbar_location="top",
+                    cbar_mode="single",
+                    )
+
+    Z = 10000 * np.random.rand(10, 10)
+    im = grid[0].imshow(Z, interpolation="nearest", norm=LogNorm())
+
+    grid.cbar_axes[0].colorbar(im)
+
 
 if __name__ == '__main__':
     import nose
