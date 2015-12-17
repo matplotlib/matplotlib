@@ -1938,8 +1938,9 @@ class AutoMinorLocator(Locator):
 
     def __call__(self):
         'Return the locations of the ticks'
-        if self.axis.get_scale() != 'linear':
-            warnings.warn('AutoMinorLocator only works with linear scale')
+        if self.axis.get_scale() == 'log':
+            warnings.warn('AutoMinorLocator does not work with logarithmic '
+                          'scale')
             return []
 
         majorlocs = self.axis.get_majorticklocs()
