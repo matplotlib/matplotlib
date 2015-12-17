@@ -5,9 +5,11 @@ from matplotlib.externals import six
 
 import matplotlib
 import matplotlib.pyplot as plt
-from matplotlib.testing.decorators import image_comparison
-from mpl_toolkits.axes_grid1 import make_axes_locatable, host_subplot
+from matplotlib.testing.decorators import image_comparison, cleanup
+from mpl_toolkits.axes_grid1 import make_axes_locatable, host_subplot, AxesGrid
+from matplotlib.colors import LogNorm
 from itertools import product
+
 import numpy as np
 
 
@@ -81,6 +83,22 @@ def test_twin_axes_empty_and_removed():
         h.text(0.5, 0.5, gen + ("\n" + mod if mod else ""),
             horizontalalignment="center", verticalalignment="center")
     plt.subplots_adjust(wspace=0.5, hspace=1)
+
+
+@cleanup
+def test_axesgrid_colorbar_log_smoketest():
+    fig = plt.figure()
+    grid = AxesGrid(fig, 111,  # modified to be only subplot
+                    nrows_ncols=(1, 1),
+                    label_mode="L",
+                    cbar_location="top",
+                    cbar_mode="single",
+                    )
+
+    Z = 10000 * np.random.rand(10, 10)
+    im = grid[0].imshow(Z, interpolation="nearest", norm=LogNorm())
+
+    grid.cbar_axes[0].colorbar(im)
 
 
 if __name__ == '__main__':

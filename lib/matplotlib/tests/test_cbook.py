@@ -1,5 +1,7 @@
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
+import itertools
+from weakref import ref
 
 from matplotlib.externals import six
 
@@ -376,3 +378,40 @@ def test_step_fails():
                   np.arange(12))
     assert_raises(ValueError, cbook._step_validation,
                   np.arange(12), np.arange(3))
+
+
+def test_grouper():
+    class dummy():
+        pass
+    a, b, c, d, e = objs = [dummy() for j in range(5)]
+    g = cbook.Grouper()
+    g.join(*objs)
+    assert set(list(g)[0]) == set(objs)
+    assert set(g.get_siblings(a)) == set(objs)
+
+    for other in objs[1:]:
+        assert g.joined(a, other)
+
+    g.remove(a)
+    for other in objs[1:]:
+        assert not g.joined(a, other)
+
+    for A, B in itertools.product(objs[1:], objs[1:]):
+        assert g.joined(A, B)
+
+
+def test_grouper_private():
+    class dummy():
+        pass
+    objs = [dummy() for j in range(5)]
+    g = cbook.Grouper()
+    g.join(*objs)
+    # reach in and touch the internals !
+    mapping = g._mapping
+
+    for o in objs:
+        assert ref(o) in mapping
+
+    base_set = mapping[ref(objs[0])]
+    for o in objs[1:]:
+        assert mapping[ref(o)] is base_set
