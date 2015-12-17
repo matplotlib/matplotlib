@@ -176,13 +176,12 @@ class Tick(artist.Artist):
         """
         Get the length of the tick outside of the axes.
         """
-        tickdir = self._tickdir
-        if tickdir == 'in':
-            return 0.0
-        elif tickdir == 'inout':
-            return self._size / 2
-        elif tickdir == 'out':
-            return self._size
+        padding = {
+            'in': 0.0,
+            'inout': 0.5,
+            'out': 1.0
+        }
+        return self._size * padding[self._tickdir]
 
     def get_children(self):
         children = [self.tick1line, self.tick2line,
@@ -1109,7 +1108,8 @@ class Axis(artist.Artist):
             return None
 
     def get_tick_padding(self):
-        return self.majorTicks[0].get_tick_padding()
+        return max(self.majorTicks[0].get_tick_padding(),
+                   self.minorTicks[0].get_tick_padding())
 
     @allow_rasterization
     def draw(self, renderer, *args, **kwargs):
