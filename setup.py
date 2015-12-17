@@ -137,6 +137,7 @@ class NoopTestCommand(TestCommand):
         print("Matplotlib does not support running tests with "
               "'python setup.py test'. Please run 'python tests.py'")
 
+
 class BuildExtraLibraries(BuildExtCommand):
     def run(self):
         for package in good_packages:
@@ -148,6 +149,7 @@ class BuildExtraLibraries(BuildExtCommand):
 cmdclass = versioneer.get_cmdclass()
 cmdclass['test'] = NoopTestCommand
 cmdclass['build_ext'] = BuildExtraLibraries
+
 
 # patch bdist_wheel for a bug on windows
 # https://bitbucket.org/pypa/wheel/issues/91/cannot-create-a-file-when-that-file

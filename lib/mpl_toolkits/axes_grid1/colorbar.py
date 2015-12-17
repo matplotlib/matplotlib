@@ -374,9 +374,8 @@ class ColorbarBase(cm.ScalarMappable):
         if format is None:
             if isinstance(self.norm, colors.LogNorm):
                 # change both axis for proper aspect
-                self.ax.xaxis.set_scale("log")
-                self.ax.yaxis.set_scale("log")
-                self.ax._update_transScale()
+                self.ax.set_xscale("log")
+                self.ax.set_yscale("log")
                 self.cbar_axis.set_minor_locator(ticker.NullLocator())
                 formatter = ticker.LogFormatter()
             else:
