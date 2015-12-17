@@ -309,6 +309,9 @@ class FixedFormatter(Formatter):
 class FuncFormatter(Formatter):
     """
     User defined function for formatting
+
+    The function should take in two inputs (tick value *x* and position *pos*)
+    and return a string
     """
     def __init__(self, func):
         self.func = func
