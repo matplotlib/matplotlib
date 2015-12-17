@@ -1108,8 +1108,14 @@ class Axis(artist.Artist):
             return None
 
     def get_tick_padding(self):
-        return max(self.majorTicks[0].get_tick_padding(),
-                   self.minorTicks[0].get_tick_padding())
+        values = []
+        if len(self.majorTicks):
+            values.append(self.majorTicks[0].get_tick_padding())
+        if len(self.minorTicks):
+            values.append(self.minorTicks[0].get_tick_padding())
+        if len(values):
+            return max(values)
+        return 0.0
 
     @allow_rasterization
     def draw(self, renderer, *args, **kwargs):
