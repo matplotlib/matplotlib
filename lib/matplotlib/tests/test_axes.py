@@ -4191,6 +4191,51 @@ def test_axes_margins():
     assert ax.get_ybound() == (-0.5, 9.5)
 
 
+@cleanup
+def test_remove_shared_axes():
+
+    def _helper_x(ax):
+        ax2 = ax.twinx()
+        ax2.remove()
+        ax.set_xlim(0, 15)
+        r = ax.xaxis.get_major_locator()()
+        assert r[-1] > 14
+
+    def _helper_y(ax):
+        ax2 = ax.twiny()
+        ax2.remove()
+        ax.set_ylim(0, 15)
+        r = ax.yaxis.get_major_locator()()
+        assert r[-1] > 14
+
+    # test all of the ways to get fig/ax sets
+    fig = plt.figure()
+    ax = fig.gca()
+    yield _helper_x, ax
+    yield _helper_y, ax
+
+    fig, ax = plt.subplots()
+    yield _helper_x, ax
+    yield _helper_y, ax
+
+    fig, ax_lst = plt.subplots(2, 2, sharex='all', sharey='all')
+    ax = ax_lst[0][0]
+    yield _helper_x, ax
+    yield _helper_y, ax
+
+    fig = plt.figure()
+    ax = fig.add_axes([.1, .1, .8, .8])
+    yield _helper_x, ax
+    yield _helper_y, ax
+
+    fig, ax_lst = plt.subplots(2, 2, sharex='all', sharey='all')
+    ax = ax_lst[0][0]
+    orig_xlim = ax_lst[0][1].get_xlim()
+    ax.remove()
+    ax.set_xlim(0, 5)
+    assert assert_array_equal(ax_lst[0][1].get_xlim(), orig_xlim)
+
+
 if __name__ == '__main__':
     import nose
     import sys
