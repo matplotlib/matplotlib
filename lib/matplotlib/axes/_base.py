@@ -567,7 +567,11 @@ class _AxesBase(martist.Artist):
         get the axes bounding box in display space; *args* and
         *kwargs* are empty
         """
-        return self.bbox
+        bbox = self.bbox
+        x_pad = self.xaxis.get_tick_padding()
+        y_pad = self.yaxis.get_tick_padding()
+        return mtransforms.Bbox([[bbox.x0 - x_pad, bbox.y0 - y_pad],
+                                 [bbox.x1 + x_pad, bbox.y1 + y_pad]])
 
     def _init_axis(self):
         "move this out of __init__ because non-separable axes don't use it"
