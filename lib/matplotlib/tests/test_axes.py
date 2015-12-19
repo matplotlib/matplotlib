@@ -4197,6 +4197,7 @@ def test_auto_numticks():
     fig, axes = plt.subplots(4, 4)
 
 
+@cleanup
 def test_remove_shared_axes():
     def _helper_x(ax):
         ax2 = ax.twinx()
