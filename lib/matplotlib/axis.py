@@ -169,6 +169,20 @@ class Tick(artist.Artist):
         """
         pass
 
+    def get_tickdir(self):
+        return self._tickdir
+
+    def get_tick_padding(self):
+        """
+        Get the length of the tick outside of the axes.
+        """
+        padding = {
+            'in': 0.0,
+            'inout': 0.5,
+            'out': 1.0
+        }
+        return self._size * padding[self._tickdir]
+
     def get_children(self):
         children = [self.tick1line, self.tick2line,
                     self.gridline, self.label1, self.label2]
@@ -349,13 +363,11 @@ class XTick(Tick):
 
         if self._tickdir == 'in':
             self._tickmarkers = (mlines.TICKUP, mlines.TICKDOWN)
-            self._pad = self._base_pad
         elif self._tickdir == 'inout':
             self._tickmarkers = ('|', '|')
-            self._pad = self._base_pad + self._size / 2.
         else:
             self._tickmarkers = (mlines.TICKDOWN, mlines.TICKUP)
-            self._pad = self._base_pad + self._size
+        self._pad = self._base_pad + self.get_tick_padding()
         self.stale = True
 
     def _get_text1(self):
@@ -485,13 +497,11 @@ class YTick(Tick):
 
         if self._tickdir == 'in':
             self._tickmarkers = (mlines.TICKRIGHT, mlines.TICKLEFT)
-            self._pad = self._base_pad
         elif self._tickdir == 'inout':
             self._tickmarkers = ('_', '_')
-            self._pad = self._base_pad + self._size / 2.
         else:
             self._tickmarkers = (mlines.TICKLEFT, mlines.TICKRIGHT)
-            self._pad = self._base_pad + self._size
+        self._pad = self._base_pad + self.get_tick_padding()
         self.stale = True
 
     # how far from the y axis line the right of the ticklabel are
@@ -1096,6 +1106,16 @@ class Axis(artist.Artist):
             return _bbox
         else:
             return None
+
+    def get_tick_padding(self):
+        values = []
+        if len(self.majorTicks):
+            values.append(self.majorTicks[0].get_tick_padding())
+        if len(self.minorTicks):
+            values.append(self.minorTicks[0].get_tick_padding())
+        if len(values):
+            return max(values)
+        return 0.0
 
     @allow_rasterization
     def draw(self, renderer, *args, **kwargs):
