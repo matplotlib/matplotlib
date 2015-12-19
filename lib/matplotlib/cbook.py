@@ -1656,7 +1656,7 @@ class Grouper(object):
         False
 
     """
-    def __init__(self, init=[]):
+    def __init__(self, init=()):
         mapping = self._mapping = {}
         for x in init:
             mapping[ref(x)] = [ref(x)]
@@ -1707,6 +1707,14 @@ class Grouper(object):
             return mapping[ref(a)] is mapping[ref(b)]
         except KeyError:
             return False
+
+    def remove(self, a):
+        self.clean()
+
+        mapping = self._mapping
+        seta = mapping.pop(ref(a), None)
+        if seta is not None:
+            seta.remove(ref(a))
 
     def __iter__(self):
         """
