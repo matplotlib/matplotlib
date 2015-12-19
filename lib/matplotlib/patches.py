@@ -409,6 +409,10 @@ class Patch(artist.Artist):
         ``'--'`` or  ``'dashed'``     dashed line
         ``'-.'`` or  ``'dashdot'``    dash-dotted line
         ``':'`` or ``'dotted'``       dotted line
+        ``'None'``                    draw nothing
+        ``'none'``                    draw nothing
+        ``' '``                       draw nothing
+        ``''``                        draw nothing
         ===========================   =================
 
         Alternatively a dash tuple of the following form can be provided::
@@ -424,6 +428,8 @@ class Patch(artist.Artist):
         """
         if ls is None:
             ls = "solid"
+        if ls in [' ', '', 'none']:
+            ls = 'None'
         self._linestyle = ls
         # get the unscaled dash pattern
         offset, ls = self._us_dashes = mlines._get_dash_pattern(ls)
@@ -540,7 +546,7 @@ class Patch(artist.Artist):
         gc.set_foreground(self._edgecolor, isRGBA=True)
 
         lw = self._linewidth
-        if self._edgecolor[3] == 0:
+        if self._edgecolor[3] == 0 or self._linestyle == 'None':
             lw = 0
         gc.set_linewidth(lw)
         gc.set_dashes(self._dashoffset, self._dashes)
