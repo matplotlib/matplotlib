@@ -150,6 +150,7 @@ cmdclass = versioneer.get_cmdclass()
 cmdclass['test'] = NoopTestCommand
 cmdclass['build_ext'] = BuildExtraLibraries
 
+
 # patch bdist_wheel for a bug on windows
 # https://bitbucket.org/pypa/wheel/issues/91/cannot-create-a-file-when-that-file
 if os.name == 'nt':
