@@ -499,11 +499,14 @@ class Patch(artist.Artist):
 
         gc.set_foreground(self._edgecolor, isRGBA=True)
 
-        lw = self._linewidth
-        if self._edgecolor[3] == 0:
-            lw = 0
-        gc.set_linewidth(lw)
-        gc.set_linestyle(self._linestyle)
+        if (self._edgecolor[3] == 0 or 
+            self._linestyle in {'none', 'None', ' ', '', None}):
+            # (some?) renderers expect this as no-edge signal
+            gc.set_linewidth(0.0)  
+        else:
+            gc.set_linewidth(self._linewidth)
+            gc.set_linestyle(self._linestyle)
+
         gc.set_capstyle(self._capstyle)
         gc.set_joinstyle(self._joinstyle)
 
