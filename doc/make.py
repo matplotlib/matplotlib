@@ -165,7 +165,7 @@ for link, target in required_symlinks:
             os.unlink(link)
         else:
             raise RuntimeError("doc/{0} should be a directory or symlink -- it"
-                               " isn't")
+                               " isn't".format(link))
     if not os.path.exists(link):
         if hasattr(os, 'symlink'):
             os.symlink(target, link)
