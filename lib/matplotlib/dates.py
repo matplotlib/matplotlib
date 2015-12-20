@@ -707,7 +707,7 @@ class AutoDateFormatter(ticker.Formatter):
         elif six.callable(fmt):
             result = fmt(x, pos)
         else:
-            raise TypeError('Unexpected type passed to {!r}.'.formatter(self))
+            raise TypeError('Unexpected type passed to {0!r}.'.format(self))
 
         return result
 
