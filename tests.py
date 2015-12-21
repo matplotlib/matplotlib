@@ -26,7 +26,15 @@ def run(extra_args):
     argv = sys.argv + extra_args
     # pytest.main(['--pyargs', '--cov=matplotlib'] + default_test_modules)
     print(argv + ['--pyargs'] + default_test_modules)
-    return pytest.main(argv + ['--pyargs'] + default_test_modules)
+
+    # if a specific test module is in argv, run that instead of all tests
+    for argument in sys.argv:
+        if argument in default_test_modules:
+            # might need to insert a "--pyargs" into argv before passing
+            # to pytest.main
+            return pytest.main(argv)
+    else:
+        return pytest.main(argv + ['--pyargs'] + default_test_modules)
 
 if __name__ == '__main__':
     # extra_args = ['--cov=matplotlib']
