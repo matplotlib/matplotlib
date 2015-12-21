@@ -41,7 +41,7 @@ def filled_hist(ax, edges, values, bottoms=None, orientation='v',
     """
     print(orientation)
     if orientation not in set('hv'):
-        raise ValueError("orientation must be in {'h', 'v'} "
+        raise ValueError("orientation must be in {{'h', 'v'}} "
                          "not {o}".format(o=orientation))
 
     kwargs.setdefault('step', 'post')
