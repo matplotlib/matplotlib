@@ -633,10 +633,10 @@ class Axes(_AxesBase):
             label
 
         xy : (x, y) , default: "data"
-            position of element to annotate. Use xycoords param for additional types.
+            position of element to annotate. Use xycoords param for more types.
 
         xytext : (x, y) , optional, default: None
-            position of the label `s`. Use textcoords param for additional types.
+            position of the label `s`. Use textcoords param for more types.
 
         xycoords : string, optional, default: "data"
             string that indicates what type of coordinates `xy` is. Examples:
@@ -648,13 +648,13 @@ class Axes(_AxesBase):
             "figure points", "figure pixels", "figure fraction", "axes
             points", .... See `matplotlib.text.Annotation` for more details.
 
-        arrowprops : `matplotlib.lines.Line2D` properties, optional, default: None
+        arrowprops : `matplotlib.lines.Line2D` properties, optional
             Dictionary of line properties for the arrow that connects
             the annotation to the point. If the dictionnary has a key
             `arrowstyle`, a `~matplotlib.patches.FancyArrowPatch`
             instance is created and drawn.  See
             `matplotlib.text.Annotation` for more details on valid
-            options.
+            options. Default is None.
 
         Returns
         -------
