@@ -1,5 +1,5 @@
 sudo: false
-
+cache: pip
 addons:
   apt:
     packages:
