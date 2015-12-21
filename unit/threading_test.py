@@ -37,7 +37,7 @@ def png_thread(tn):
             ax.hist(vals, 50)
             FigureCanvas(fig).print_png(png_f)
 
-        except Exception, excp:
+        except Exception as excp:
             pass
 
         png_f.close()
