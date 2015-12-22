@@ -169,3 +169,6 @@ def setup(app):
         app.add_config_value('mpl_example_sections', [], True)
     except sphinx.errors.ExtensionError:
         pass # mpl_example_sections already defined
+
+    metadata = {'parallel_read_safe': True, 'parallel_write_safe': True}
+    return metadata
