@@ -2344,7 +2344,7 @@ class Axes(_AxesBase):
         else:
             xdata = None
         if len(yrange):
-            ydata = six.next(iter(yranges))
+            ydata = six.next(iter(yrange))
         else:
             ydata = None
         self._process_unit_info(xdata=xdata,
