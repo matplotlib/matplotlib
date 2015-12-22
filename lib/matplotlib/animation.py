@@ -732,6 +732,8 @@ class Animation(object):
         # Re-use the savefig DPI for ours if none is given
         if dpi is None:
             dpi = rcParams['savefig.dpi']
+            if dpi == 'figure':
+                dpi = self._fig.dpi
 
         if codec is None:
             codec = rcParams['animation.codec']
