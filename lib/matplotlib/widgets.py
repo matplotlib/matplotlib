@@ -1788,11 +1788,13 @@ class RectangleSelector(_SelectorWidget):
         self._edge_order = ['W', 'N', 'E', 'S']
         xe, ye = self.edge_centers
         self._edge_handles = ToolHandles(self.ax, xe, ye, marker='s',
-                                         marker_props=props, useblit=self.useblit)
+                                         marker_props=props,
+                                         useblit=self.useblit)
 
         xc, yc = self.center
         self._center_handle = ToolHandles(self.ax, [xc], [yc], marker='s',
-                                          marker_props=props, useblit=self.useblit)
+                                          marker_props=props,
+                                          useblit=self.useblit)
 
         self.active_handle = None
 
