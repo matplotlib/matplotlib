@@ -778,6 +778,82 @@ struct resample_params_t {
 };
 
 
+static void get_filter(const resample_params_t &params,
+                       agg::image_filter_lut &filter)
+{
+    switch (params.interpolation) {
+    case NEAREST:
+    case _n_interpolation:
+        // Never should get here.  Here to silence compiler warnings.
+        break;
+
+    case HANNING:
+        filter.calculate(agg::image_filter_hanning(), params.norm);
+        break;
+
+    case HAMMING:
+        filter.calculate(agg::image_filter_hamming(), params.norm);
+        break;
+
+    case HERMITE:
+        filter.calculate(agg::image_filter_hermite(), params.norm);
+        break;
+
+    case BILINEAR:
+        filter.calculate(agg::image_filter_bilinear(), params.norm);
+        break;
+
+    case BICUBIC:
+        filter.calculate(agg::image_filter_bicubic(), params.norm);
+        break;
+
+    case SPLINE16:
+        filter.calculate(agg::image_filter_spline16(), params.norm);
+        break;
+
+    case SPLINE36:
+        filter.calculate(agg::image_filter_spline36(), params.norm);
+        break;
+
+    case KAISER:
+        filter.calculate(agg::image_filter_kaiser(), params.norm);
+        break;
+
+    case QUADRIC:
+        filter.calculate(agg::image_filter_quadric(), params.norm);
+        break;
+
+    case CATROM:
+        filter.calculate(agg::image_filter_catrom(), params.norm);
+        break;
+
+    case GAUSSIAN:
+        filter.calculate(agg::image_filter_gaussian(), params.norm);
+        break;
+
+    case BESSEL:
+        filter.calculate(agg::image_filter_bessel(), params.norm);
+        break;
+
+    case MITCHELL:
+        filter.calculate(agg::image_filter_mitchell(), params.norm);
+        break;
+
+    case SINC:
+        filter.calculate(agg::image_filter_sinc(params.radius), params.norm);
+        break;
+
+    case LANCZOS:
+        filter.calculate(agg::image_filter_lanczos(params.radius), params.norm);
+        break;
+
+    case BLACKMAN:
+        filter.calculate(agg::image_filter_blackman(params.radius), params.norm);
+        break;
+    }
+}
+
+
 template<class T>
 void resample(
     const T *input, int in_width, int in_height,
@@ -878,76 +954,7 @@ void resample(
         }
     } else {
         agg::image_filter_lut filter;
-        switch (params.interpolation) {
-        case NEAREST:
-        case _n_interpolation:
-            // Never should get here.  Here to silence compiler warnings.
-            break;
-
-        case HANNING:
-            filter.calculate(agg::image_filter_hanning(), params.norm);
-            break;
-
-        case HAMMING:
-            filter.calculate(agg::image_filter_hamming(), params.norm);
-            break;
-
-        case HERMITE:
-            filter.calculate(agg::image_filter_hermite(), params.norm);
-            break;
-
-        case BILINEAR:
-            filter.calculate(agg::image_filter_bilinear(), params.norm);
-            break;
-
-        case BICUBIC:
-            filter.calculate(agg::image_filter_bicubic(), params.norm);
-            break;
-
-        case SPLINE16:
-            filter.calculate(agg::image_filter_spline16(), params.norm);
-            break;
-
-        case SPLINE36:
-            filter.calculate(agg::image_filter_spline36(), params.norm);
-            break;
-
-        case KAISER:
-            filter.calculate(agg::image_filter_kaiser(), params.norm);
-            break;
-
-        case QUADRIC:
-            filter.calculate(agg::image_filter_quadric(), params.norm);
-            break;
-
-        case CATROM:
-            filter.calculate(agg::image_filter_catrom(), params.norm);
-            break;
-
-        case GAUSSIAN:
-            filter.calculate(agg::image_filter_gaussian(), params.norm);
-            break;
-
-        case BESSEL:
-            filter.calculate(agg::image_filter_bessel(), params.norm);
-            break;
-
-        case MITCHELL:
-            filter.calculate(agg::image_filter_mitchell(), params.norm);
-            break;
-
-        case SINC:
-            filter.calculate(agg::image_filter_sinc(params.radius), params.norm);
-            break;
-
-        case LANCZOS:
-            filter.calculate(agg::image_filter_lanczos(params.radius), params.norm);
-            break;
-
-        case BLACKMAN:
-            filter.calculate(agg::image_filter_blackman(params.radius), params.norm);
-            break;
-        }
+        get_filter(params, filter);
 
         if (params.is_affine && params.resample) {
             typedef typename type_mapping_t::template span_gen_affine_type<image_accessor_t>::type span_gen_t;
