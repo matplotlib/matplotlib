@@ -1590,7 +1590,7 @@ class ToolHandles(object):
         self.ax = ax
 
         props = dict(marker=marker, markersize=7, mfc='w', ls='none',
-                     alpha=0.5, visible=False)
+                     alpha=0.5, visible=False, label='_nolegend_')
         props.update(marker_props if marker_props is not None else {})
         self._markers = Line2D(x, y, animated=useblit, **props)
         self.ax.add_line(self._markers)
@@ -1788,11 +1788,13 @@ class RectangleSelector(_SelectorWidget):
         self._edge_order = ['W', 'N', 'E', 'S']
         xe, ye = self.edge_centers
         self._edge_handles = ToolHandles(self.ax, xe, ye, marker='s',
-                                         marker_props=props, useblit=self.useblit)
+                                         marker_props=props,
+                                         useblit=self.useblit)
 
         xc, yc = self.center
         self._center_handle = ToolHandles(self.ax, [xc], [yc], marker='s',
-                                          marker_props=props, useblit=self.useblit)
+                                          marker_props=props,
+                                          useblit=self.useblit)
 
         self.active_handle = None
 
