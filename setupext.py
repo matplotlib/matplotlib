@@ -177,7 +177,7 @@ def get_base_dirs():
         return os.environ.get('MPLBASEDIRLIST').split(os.pathsep)
 
     win_bases = ['win32_static', ]
-    # on conda windows, we also add the <installdir>\Library of the local interperter,
+    # on conda windows, we also add the <installdir>\Library of the local interpreter,
     # as conda installs libs/includes there
     if os.getenv('CONDA_DEFAULT_ENV'):
         win_bases.append(os.path.join(os.getenv('CONDA_DEFAULT_ENV'), "Library"))
@@ -1268,11 +1268,13 @@ class Image(SetupPackage):
         sources = [
             'src/_image.cpp',
             'src/mplutils.cpp',
-            'src/_image_wrapper.cpp'
+            'src/_image_wrapper.cpp',
+            'src/py_converters.cpp'
             ]
         ext = make_extension('matplotlib._image', sources)
         Numpy().add_flags(ext)
         LibAgg().add_flags(ext)
+
         return ext
 
 
