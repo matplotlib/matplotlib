@@ -284,34 +284,22 @@ static PyObject *PyRendererAgg_draw_image(PyRendererAgg *self, PyObject *args, P
     double x;
     double y;
     numpy::array_view<agg::int8u, 3> image;
-    double w = 0;
-    double h = 0;
-    agg::trans_affine trans;
-    bool resize = false;
 
     if (!PyArg_ParseTuple(args,
-                          "O&ddO&|ddO&:draw_image",
+                          "O&ddO&:draw_image",
                           &convert_gcagg,
                           &gc,
                           &x,
                           &y,
                           &image.converter_contiguous,
-                          &image,
-                          &w,
-                          &h,
-                          &convert_trans_affine,
-                          &trans)) {
+                          &image)) {
         return NULL;
     }
 
-    if (PyTuple_Size(args) == 4) {
-        x = mpl_round(x);
-        y = mpl_round(y);
-    } else {
-        resize = true;
-    }
+    x = mpl_round(x);
+    y = mpl_round(y);
 
-    CALL_CPP("draw_image", (self->x->draw_image(gc, x, y, image, w, h, trans, resize)));
+    CALL_CPP("draw_image", (self->x->draw_image(gc, x, y, image)));
 
     Py_RETURN_NONE;
 }
