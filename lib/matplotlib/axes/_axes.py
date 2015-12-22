@@ -633,11 +633,11 @@ class Axes(_AxesBase):
             label
 
         xy : (x, y)
-            position of element to annotate. See `xycoords` to control what
+            position of element to annotate. See *xycoords* to control what
             coordinate system this value is interpretated in.
 
         xytext : (x, y) , optional, default: None
-            position of the label `s`. See `textcoords` to control what
+            position of the label `s`. See *textcoords* to control what
             coordinate system this value is interpreted in.
 
         xycoords : string, optional, default: "data"
