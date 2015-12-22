@@ -632,11 +632,13 @@ class Axes(_AxesBase):
         s : string
             label
 
-        xy : (x, y) , default: "data"
-            position of element to annotate. Use xycoords param for more types.
+        xy : (x, y) 
+            position of element to annotate. See `xycoords` param to control
+            coordinate system interpretation of this value.
 
         xytext : (x, y) , optional, default: None
-            position of the label `s`. Use textcoords param for more types.
+            position of the label `s`. See `textcoords` param to control
+            coordinate system interpretation of this value.
 
         xycoords : string, optional, default: "data"
             string that indicates what type of coordinates `xy` is. Examples:
