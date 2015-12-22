@@ -904,8 +904,11 @@ class Normalize(object):
             is_scalar = False
             result = ma.asarray(value)
             if result.dtype.kind == 'f':
-                if isinstance(value, np.ndarray):
-                    result = result.copy()
+                # this is overkill for lists of floats, but required
+                # to support pd.Series as input until we can reliable
+                # determine if result and value share memory in all cases
+                # (list, tuple, deque, ndarray, Series, ...)
+                result = result.copy()
             elif result.dtype.itemsize > 2:
                 result = result.astype(np.float)
             else:
