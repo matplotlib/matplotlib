@@ -550,7 +550,7 @@ class PdfFile(object):
                                for val in six.itervalues(self.alphaStates)]))
         self.writeHatches()
         self.writeGouraudTriangles()
-        xobjects = dict(six.itervalues(self.images))
+        xobjects = dict(x[1:] for x in six.itervalues(self.images))
         for tup in six.itervalues(self.markers):
             xobjects[tup[0]] = tup[1]
         for name, value in six.iteritems(self.multi_byte_charprocs):
@@ -1241,14 +1241,14 @@ end"""
     def imageObject(self, image):
         """Return name of an image XObject representing the given image."""
 
-        pair = self.images.get(image, None)
-        if pair is not None:
-            return pair[0]
+        entry = self.images.get(id(image), None)
+        if entry is not None:
+            return entry[1]
 
         name = Name('I%d' % self.nextImage)
         ob = self.reserveObject('image %d' % self.nextImage)
         self.nextImage += 1
-        self.images[image] = (name, ob)
+        self.images[id(image)] = (image, name, ob)
         return name
 
     def _unpack(self, im):
@@ -1257,23 +1257,22 @@ end"""
         where data and alpha are HxWx3 (RGB) or HxWx1 (grayscale or alpha)
         arrays, except alpha is None if the image is fully opaque.
         """
-
-        h, w, s = im.as_rgba_str()
-        rgba = np.fromstring(s, np.uint8)
-        rgba.shape = (h, w, 4)
-        rgba = rgba[::-1]
-        rgb = rgba[:, :, :3]
-        alpha = rgba[:, :, 3][..., None]
-        if np.all(alpha == 255):
-            alpha = None
+        h, w = im.shape[:2]
+        im = im[::-1]
+        if len(im.shape) == 2:
+            return h, w, im, None
         else:
-            alpha = np.array(alpha, order='C')
-        if im.is_grayscale:
-            r, g, b = rgb.astype(np.float32).transpose(2, 0, 1)
-            gray = (0.3 * r + 0.59 * g + 0.11 * b).astype(np.uint8)[..., None]
-            return h, w, gray, alpha
-        else:
+            rgb = im[:, :, :3]
             rgb = np.array(rgb, order='C')
+            # PDF needs a separate alpha image
+            if im.shape[2] == 4:
+                alpha = im[:, :, 3][..., None]
+                if np.all(alpha == 255):
+                    alpha = None
+                else:
+                    alpha = np.array(alpha, order='C')
+            else:
+                alpha = None
             return h, w, rgb, alpha
 
     def _writePng(self, data):
@@ -1339,15 +1338,15 @@ end"""
         self.endStream()
 
     def writeImages(self):
-        for img, pair in six.iteritems(self.images):
+        for img, name, ob in six.itervalues(self.images):
             height, width, data, adata = self._unpack(img)
             if adata is not None:
                 smaskObject = self.reserveObject("smask")
                 self._writeImg(adata, height, width, True, smaskObject.id)
             else:
                 smaskObject = None
-            self._writeImg(data, height, width, img.is_grayscale,
-                           pair[1].id, smaskObject)
+            self._writeImg(data, height, width, False,
+                           ob.id, smaskObject)
 
     def markerObject(self, path, trans, fill, stroke, lw, joinstyle,
                      capstyle):
@@ -1598,20 +1597,15 @@ class RendererPdf(RendererBase):
         """
         return not rcParams['image.composite_image']
 
-    def draw_image(self, gc, x, y, im, dx=None, dy=None, transform=None):
+    def draw_image(self, gc, x, y, im, transform=None):
+        h, w = im.shape[:2]
+        if w == 0 or h == 0:
+            return
+
         self.check_gc(gc)
 
-        h, w = im.get_size_out()
-
-        if dx is None:
-            w = 72.0*w/self.image_dpi
-        else:
-            w = dx
-
-        if dy is None:
-            h = 72.0*h/self.image_dpi
-        else:
-            h = dy
+        w = 72.0 * w / self.image_dpi
+        h = 72.0 * h / self.image_dpi
 
         imob = self.file.imageObject(im)
 
@@ -1620,11 +1614,11 @@ class RendererPdf(RendererBase):
                              w, 0, 0, h, x, y, Op.concat_matrix,
                              imob, Op.use_xobject, Op.grestore)
         else:
-            tr1, tr2, tr3, tr4, tr5, tr6 = transform.to_values()
+            tr1, tr2, tr3, tr4, tr5, tr6 = transform.frozen().to_values()
 
             self.file.output(Op.gsave,
+                             1, 0, 0, 1, x, y, Op.concat_matrix,
                              tr1, tr2, tr3, tr4, tr5, tr6, Op.concat_matrix,
-                             w, 0, 0, h, x, y, Op.concat_matrix,
                              imob, Op.use_xobject, Op.grestore)
 
     def draw_path(self, gc, path, transform, rgbFace=None):

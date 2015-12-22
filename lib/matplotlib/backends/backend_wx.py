@@ -280,10 +280,8 @@ class RendererWx(RendererBase):
             b = 0
             w = self.width
             h = self.height
-        rows, cols, image_str = im.as_rgba_str()
-        image_array = np.fromstring(image_str, np.uint8)
-        image_array.shape = rows, cols, 4
-        bitmap = wxc.BitmapFromBuffer(cols, rows, image_array)
+        rows, cols = im.shape[:2]
+        bitmap = wxc.BitmapFromBuffer(cols, rows, im.tobytes())
         gc = self.get_gc()
         gc.select()
         gc.gfx_ctx.DrawBitmap(bitmap, int(l), int(self.height - b),
