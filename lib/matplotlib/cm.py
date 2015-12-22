@@ -203,7 +203,7 @@ class ScalarMappable(object):
         self.colorbar = None
         self.update_dict = {'array': False}
 
-    def to_rgba(self, x, alpha=None, bytes=False):
+    def to_rgba(self, x, alpha=None, bytes=False, norm=True):
         """
         Return a normalized rgba array corresponding to *x*.
 
@@ -258,9 +258,14 @@ class ScalarMappable(object):
 
         # This is the normal case, mapping a scalar array:
         x = ma.asarray(x)
-        x = self.norm(x)
-        x = self.cmap(x, alpha=alpha, bytes=bytes)
-        return x
+        if norm:
+            x = self.norm(x)
+        rgba = self.cmap(x, alpha=alpha, bytes=bytes)
+        # For floating-point greyscale images, we treat negative as
+        # transparent so we copy that over to the alpha channel
+        if x.ndim == 2 and issubclass(x.dtype.type, np.floating):
+            rgba[:, :, 3] = np.where(x < 0.0, 0, rgba[:, :, 3])
+        return rgba
 
     def set_array(self, A):
         'Set the image array from numpy array *A*'
