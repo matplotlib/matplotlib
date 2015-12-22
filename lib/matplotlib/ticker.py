@@ -1431,7 +1431,7 @@ class MaxNLocator(Locator):
     def bin_boundaries(self, vmin, vmax):
         nbins = self._nbins
         if nbins == 'auto':
-            nbins = self.axis.get_tick_space()
+            nbins = min(self.axis.get_tick_space(), 9)
         scale, offset = scale_range(vmin, vmax, nbins)
         if self._integer:
             scale = max(1, scale)
