@@ -32,7 +32,7 @@ import matplotlib.cbook as cbook
 
 from matplotlib.cbook import Stack, iterable
 
-from matplotlib import _image
+from matplotlib import image as mimage
 from matplotlib.image import FigureImage
 
 import matplotlib.colorbar as cbar
@@ -1255,21 +1255,13 @@ class Figure(Artist):
             # make a composite image blending alpha
             # list of (_image.Image, ox, oy)
             mag = renderer.get_image_magnification()
-            ims = [(im.make_image(mag), im.ox, im.oy, im.get_alpha())
-                   for im in self.images]
-
-            im = _image.from_images(int(self.bbox.height * mag),
-                                    int(self.bbox.width * mag),
-                                    ims)
-
-            im.is_grayscale = False
-            l, b, w, h = self.bbox.bounds
+            data, l, b = mimage.composite_images(self.images, renderer, mag)
 
             def draw_composite():
                 gc = renderer.new_gc()
                 gc.set_clip_rectangle(self.bbox)
                 gc.set_clip_path(self.get_clip_path())
-                renderer.draw_image(gc, l, b, im)
+                renderer.draw_image(gc, l, b, data)
                 gc.restore()
 
             dsu.append((self.images[0].get_zorder(), self.images[0],

@@ -2360,25 +2360,13 @@ class _AxesBase(martist.Artist):
             # make a composite image, blending alpha
             # list of (mimage.Image, ox, oy)
 
-            zorder_images = [(im.zorder, im) for im in self.images
-                             if im.get_visible()]
-            zorder_images.sort(key=lambda x: x[0])
-
-            mag = renderer.get_image_magnification()
-            ims = [(im.make_image(mag), 0, 0, im.get_alpha())
-                   for z, im in zorder_images]
-
-            l, b, r, t = self.bbox.extents
-            width = int(mag * ((np.round(r) + 0.5) - (np.round(l) - 0.5)))
-            height = int(mag * ((np.round(t) + 0.5) - (np.round(b) - 0.5)))
-            im = mimage.from_images(height,
-                                    width,
-                                    ims)
-
-            im.is_grayscale = False
-            l, b, w, h = self.bbox.bounds
             # composite images need special args so they will not
             # respect z-order for now
+            zorder_images = [im for im in self.images if im.get_visible()]
+            zorder_images.sort(key=lambda x: x.zorder)
+
+            data, l, b = mimage.composite_images(
+                zorder_images, renderer, renderer.get_image_magnification())
 
             gc = renderer.new_gc()
             gc.set_clip_rectangle(self.bbox)
@@ -2386,7 +2374,7 @@ class _AxesBase(martist.Artist):
                 self.patch.get_path(),
                 self.patch.get_transform()))
 
-            renderer.draw_image(gc, round(l), round(b), im)
+            renderer.draw_image(gc, round(l), round(b), data)
             gc.restore()
 
         if dsu_rasterized:
