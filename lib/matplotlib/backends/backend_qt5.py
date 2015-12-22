@@ -137,7 +137,7 @@ def _create_qApp():
                 if display is None or not re.search(':\d', display):
                     raise RuntimeError('Invalid DISPLAY variable')
 
-            qApp = QtWidgets.QApplication([six.text_type(" ")])
+            qApp = QtWidgets.QApplication([str(" ")])
             qApp.lastWindowClosed.connect(qApp.quit)
         else:
             qApp = app
