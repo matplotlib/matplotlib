@@ -158,7 +158,7 @@ def figure_edit(axes, parent=None):
 
         if generate_legend:
             draggable = None
-            ncol = None
+            ncol = 1
             if axes.legend_ is not None:
                 old_legend = axes.get_legend()
                 draggable = old_legend._draggable is not None
