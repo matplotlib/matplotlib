@@ -40,7 +40,7 @@ from matplotlib._path import (affine_transform, count_bboxes_overlapping_bbox,
     update_path_extents)
 from numpy.linalg import inv
 
-from weakref import WeakValueDictionary
+import weakref
 import warnings
 try:
     set
@@ -92,10 +92,7 @@ class TransformNode(object):
                              other than to improve the readability of
                              ``str(transform)`` when DEBUG=True.
         """
-        # Parents are stored in a WeakValueDictionary, so that if the
-        # parents are deleted, references from the children won't keep
-        # them alive.
-        self._parents = WeakValueDictionary()
+        self._parents = {}
 
         # TransformNodes start out as invalid until their values are
         # computed for the first time.
@@ -109,14 +106,17 @@ class TransformNode(object):
 
     def __getstate__(self):
         d = self.__dict__.copy()
-        # turn the weakkey dictionary into a normal dictionary
-        d['_parents'] = dict(six.iteritems(self._parents))
+        # turn the dictionary with weak values into a normal dictionary
+        d['_parents'] = dict((k, v()) for (k, v) in
+                             six.iteritems(self._parents))
         return d
 
     def __setstate__(self, data_dict):
         self.__dict__ = data_dict
-        # turn the normal dictionary back into a WeakValueDictionary
-        self._parents = WeakValueDictionary(self._parents)
+        # turn the normal dictionary back into a dictionary with weak
+        # values
+        self._parents = dict((k, weakref.ref(v)) for (k, v) in
+                             six.iteritems(self._parents) if v is not None)
 
     def __copy__(self, *args):
         raise NotImplementedError(
@@ -156,8 +156,11 @@ class TransformNode(object):
             self._invalid = value
 
             for parent in list(six.itervalues(self._parents)):
-                parent._invalidate_internal(value=value,
-                                            invalidating_node=self)
+                # Dereference the weak reference
+                parent = parent()
+                if parent is not None:
+                    parent._invalidate_internal(
+                        value=value, invalidating_node=self)
 
     def set_children(self, *children):
         """
@@ -166,8 +169,11 @@ class TransformNode(object):
         Should be called from the constructor of any transforms that
         depend on other transforms.
         """
+        # Parents are stored as weak references, so that if the
+        # parents are destroyed, references from the children won't
+        # keep them alive.
         for child in children:
-            child._parents[id(self)] = self
+            child._parents[id(self)] = weakref.ref(self)
 
     if DEBUG:
         _set_children = set_children
@@ -1560,8 +1566,9 @@ class TransformWrapper(Transform):
             'child': self._child,
             'input_dims': self.input_dims,
             'output_dims': self.output_dims,
-            # turn the weakkey dictionary into a normal dictionary
-            'parents': dict(six.iteritems(self._parents))
+            # turn the weak-values dictionary into a normal dictionary
+            'parents': dict((k, v()) for (k, v) in
+                            six.iteritems(self._parents))
         }
 
     def __setstate__(self, state):
@@ -1570,8 +1577,10 @@ class TransformWrapper(Transform):
         # The child may not be unpickled yet, so restore its information.
         self.input_dims = state['input_dims']
         self.output_dims = state['output_dims']
-        # turn the normal dictionary back into a WeakValueDictionary
-        self._parents = WeakValueDictionary(state['parents'])
+        # turn the normal dictionary back into a dictionary with weak
+        # values
+        self._parents = dict((k, weakref.ref(v)) for (k, v) in
+                             six.iteritems(state['parents']) if v is not None)
 
     def __repr__(self):
         return "TransformWrapper(%r)" % self._child
