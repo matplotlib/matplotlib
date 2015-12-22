@@ -633,21 +633,22 @@ class Axes(_AxesBase):
             label
 
         xy : (x, y)
-            position of element to annotate
+            position of element to annotate. See *xycoords* to control what
+            coordinate system this value is interpretated in.
 
         xytext : (x, y) , optional, default: None
-            position of the label `s`
+            position of the label `s`. See *textcoords* to control what
+            coordinate system this value is interpreted in.
 
         xycoords : string, optional, default: "data"
             string that indicates what type of coordinates `xy` is. Examples:
             "figure points", "figure pixels", "figure fraction", "axes
             points", .... See `matplotlib.text.Annotation` for more details.
 
-        textcoords : string, optional
+        textcoords : string, optional, default: None
             string that indicates what type of coordinates `text` is. Examples:
             "figure points", "figure pixels", "figure fraction", "axes
             points", .... See `matplotlib.text.Annotation` for more details.
-            Default is None.
 
         arrowprops : `matplotlib.lines.Line2D` properties, optional
             Dictionary of line properties for the arrow that connects
