@@ -550,10 +550,7 @@ class RendererSVG(RendererBase):
         return whether to generate a composite image from multiple images on
         a set of axes
         """
-        if rcParams['svg.image_noscale']:
-            return True
-        else:
-            return not rcParams['image.composite_image']
+        return not rcParams['image.composite_image']
 
     def _convert_path(self, path, transform=None, clip=None, simplify=None,
                       sketch=None):
@@ -812,18 +809,6 @@ class RendererSVG(RendererBase):
             # image has a transformation, which would also be applied
             # to the clip-path
             self.writer.start('g', attrib={'clip-path': 'url(#%s)' % clipid})
-
-        trans = [1,0,0,1,0,0]
-        if rcParams['svg.image_noscale']:
-            trans = list(im.get_matrix())
-            trans[5] = -trans[5]
-            attrib['transform'] = generate_transform([('matrix', tuple(trans))])
-            assert trans[1] == 0
-            assert trans[2] == 0
-            numrows, numcols = im.get_size()
-            im.reset_matrix()
-            im.set_interpolation(0)
-            im.resize(numcols, numrows)
 
         h,w = im.get_size_out()
 
