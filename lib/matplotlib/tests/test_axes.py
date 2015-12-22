@@ -4201,6 +4201,19 @@ def test_pandas_indexing_dates():
     ax.plot('dates', 'values', data=without_zero_index)
 
 
+@cleanup
+def test_pandas_indexing_hist():
+    try:
+        import pandas as pd
+    except ImportError:
+        raise SkipTest("Pandas not installed")
+
+    ser_1 = pd.Series(data=[1, 2, 2, 3, 3, 4, 4, 4, 4, 5])
+    ser_2 = ser_1.iloc[1:]
+    fig, axes = plt.subplots()
+    axes.hist(ser_2)
+
+
 if __name__ == '__main__':
     import nose
     import sys
