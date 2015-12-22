@@ -12,11 +12,16 @@ import numpy as np
 from matplotlib.testing.decorators import (image_comparison,
                                            knownfailureif, cleanup)
 from matplotlib.image import BboxImage, imread, NonUniformImage
-from matplotlib.transforms import Bbox
+from matplotlib.transforms import Bbox, Affine2D
 from matplotlib import rcParams, rc_context
+from matplotlib import patches
 import matplotlib.pyplot as plt
 
-from numpy.testing import assert_array_equal
+from matplotlib import mlab
+from nose.tools import assert_raises
+from numpy.testing import (
+    assert_array_equal, assert_array_almost_equal, assert_allclose)
+
 
 try:
     from PIL import Image
@@ -143,7 +148,7 @@ def test_imsave_color_alpha():
     # acceptably preserved through a save/read roundtrip.
     from numpy import random
     random.seed(1)
-    data = random.rand(256, 128, 4)
+    data = random.rand(16, 16, 4)
 
     buff = io.BytesIO()
     plt.imsave(buff, data)
@@ -152,14 +157,9 @@ def test_imsave_color_alpha():
     arr_buf = plt.imread(buff)
 
     # Recreate the float -> uint8 -> float32 conversion of the data
-    data = (255*data).astype('uint8').astype('float32')/255
-    # Wherever alpha values were rounded down to 0, the rgb values all get set
-    # to 0 during imsave (this is reasonable behaviour).
-    # Recreate that here:
-    for j in range(3):
-        data[data[:, :, 3] == 0, j] = 1
+    data = (255*data).astype('uint8').astype('float')/255
 
-    assert_array_equal(data, arr_buf)
+    assert_allclose(data, arr_buf)
 
 
 @cleanup
@@ -233,14 +233,13 @@ def test_cursor_data():
 
 @image_comparison(baseline_images=['image_clip'])
 def test_image_clip():
-    from math import pi
+    d = [[1, 2], [3, 4]]
 
-    fig = plt.figure()
-    ax = fig.add_subplot(111, projection='hammer')
+    fig, ax = plt.subplots()
+    im = ax.imshow(d)
+    patch = patches.Circle((0, 0), radius=1, transform=ax.transData)
+    im.set_clip_path(patch)
 
-    d = [[1,2],[3,4]]
-
-    im = ax.imshow(d, extent=(-pi,pi,-pi/2,pi/2))
 
 @image_comparison(baseline_images=['image_cliprect'])
 def test_image_cliprect():
@@ -457,6 +456,7 @@ def test_nonuniformimage_setnorm():
     im = NonUniformImage(ax)
     im.set_norm(plt.Normalize())
 
+
 @knownfailureif(not HAS_PIL)
 @cleanup
 def test_jpeg_alpha():
@@ -524,6 +524,47 @@ def test_load_from_url():
     req = six.moves.urllib.request.urlopen(
         "http://matplotlib.org/_static/logo_sidebar_horiz.png")
     Z = plt.imread(req)
+
+
+@image_comparison(baseline_images=['log_scale_image'],
+                  remove_text=True)
+def test_log_scale_image():
+    Z = np.zeros((10, 10))
+    Z[::2] = 1
+
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+
+    ax.imshow(Z, extent=[1, 100, 1, 100], cmap='viridis', vmax=abs(Z).max(), vmin=-abs(Z).max())
+    ax.set_yscale('log')
+
+
+@image_comparison(baseline_images=['rotate_image'],
+                  remove_text=True)
+def test_rotate_image():
+    delta = 0.25
+    x = y = np.arange(-3.0, 3.0, delta)
+    X, Y = np.meshgrid(x, y)
+    Z1 = mlab.bivariate_normal(X, Y, 1.0, 1.0, 0.0, 0.0)
+    Z2 = mlab.bivariate_normal(X, Y, 1.5, 0.5, 1, 1)
+    Z = Z2 - Z1  # difference of Gaussians
+
+    fig, ax1 = plt.subplots(1, 1)
+    im1 = ax1.imshow(Z, interpolation='none', cmap='viridis',
+                     origin='lower',
+                     extent=[-2, 4, -3, 2], clip_on=True)
+
+    trans_data2 = Affine2D().rotate_deg(30) + ax1.transData
+    im1.set_transform(trans_data2)
+
+    # display intended extent of the image
+    x1, x2, y1, y2 = im1.get_extent()
+
+    ax1.plot([x1, x2, x2, x1, x1], [y1, y1, y2, y2, y1], "r--", lw=3,
+             transform=trans_data2)
+
+    ax1.set_xlim(2, 5)
+    ax1.set_ylim(0, 4)
 
 
 if __name__=='__main__':
