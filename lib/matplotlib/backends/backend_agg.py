@@ -321,7 +321,7 @@ class RendererAgg(RendererBase):
         """
         agg backend support arbitrary scaling of image.
         """
-        return True
+        return False
 
     def restore_region(self, region, bbox=None, xy=None):
         """
@@ -389,14 +389,11 @@ class RendererAgg(RendererBase):
         # For agg_filter to work, the rendere's method need
         # to overridden in the class. See draw_markers, and draw_path_collections
 
-        from matplotlib._image import fromarray
-
         width, height = int(self.width), int(self.height)
 
         buffer, bounds = self.tostring_rgba_minimized()
 
         l, b, w, h = bounds
-
 
         self._renderer = self._filter_renderers.pop()
         self._update_methods()
@@ -405,12 +402,9 @@ class RendererAgg(RendererBase):
             img = np.fromstring(buffer, np.uint8)
             img, ox, oy = post_processing(img.reshape((h, w, 4)) / 255.,
                                           self.dpi)
-            image = fromarray(img, 1)
-
             gc = self.new_gc()
-            self._renderer.draw_image(gc,
-                                      l+ox, height - b - h +oy,
-                                      image)
+            self._renderer.draw_image(
+                gc, l + ox, height - b - h + oy, img)
 
 
 def new_figure_manager(num, *args, **kwargs):
