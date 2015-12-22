@@ -5985,7 +5985,7 @@ class Axes(_AxesBase):
                     xmax = max(xmax, xi.max())
             bin_range = (xmin, xmax)
 
-        #hist_kwargs = dict(range=range, normed=bool(normed))
+        # hist_kwargs = dict(range=range, normed=bool(normed))
         # We will handle the normed kwarg within mpl until we
         # get to the point of requiring numpy >= 1.5.
         hist_kwargs = dict(range=bin_range)
