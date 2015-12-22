@@ -2890,10 +2890,8 @@ class Axes(_AxesBase):
                 # above. This prevents Nx2 arrays from accidentally
                 # being accepted, when the user meant the 2xN transpose.
                 # special case for empty lists
-                if len(xerr) and not (len(xerr) == 1 or
-                                      (len(xerr) == len(x) and not (
-                                          iterable(xerr[0]) and
-                                          len(xerr[0]) > 1))):
+                if len(xerr) > 1 and not ((len(xerr) == len(x) and not (
+                        iterable(xerr[0]) and len(xerr[0]) > 1))):
                     raise ValueError("xerr must be a scalar, the same "
                                      "dimensions as x, or 2xN.")
                 # using list comps rather than arrays to preserve units
@@ -2955,10 +2953,8 @@ class Axes(_AxesBase):
                          in cbook.safezip(y, yerr[1])]
             else:
                 # Check for scalar or symmetric, as in xerr.
-                if len(yerr) and not (len(yerr) == 1 or
-                                      (len(yerr) == len(y) and not (
-                                          iterable(yerr[0]) and
-                                          len(yerr[0]) > 1))):
+                if len(yerr) > 1 and not ((len(yerr) == len(y) and not (
+                        iterable(yerr[0]) and len(yerr[0]) > 1))):
                     raise ValueError("yerr must be a scalar, the same "
                                      "dimensions as y, or 2xN.")
                 # using list comps rather than arrays to preserve units

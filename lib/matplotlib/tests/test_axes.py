@@ -4106,8 +4106,10 @@ def test_errorbar_inputs_shotgun():
                                 [1, 1, 1, 1, 1],
                                 [[1, 1, 1, 1, 1],
                                  [1, 1, 1, 1, 1]],
+                                [[1]] * 5,
                                 np.ones(5),
                                 np.ones((2, 5)),
+                                np.ones((5, 1)),
                                 None
                                 ])
     xerr_cy = cycler('xerr', err_cycler)
