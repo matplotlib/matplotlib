@@ -1221,4 +1221,32 @@ struct _is_sorted
     }
 };
 
+
+template<class T>
+struct _is_sorted_int
+{
+    bool operator()(PyArrayObject *array)
+    {
+        npy_intp size;
+        npy_intp i;
+        T last_value;
+        T current_value;
+
+        size = PyArray_DIM(array, 0);
+
+        last_value = *((T *)PyArray_GETPTR1(array, 0));
+
+        for (i = 1; i < size; ++i) {
+            current_value = *((T *)PyArray_GETPTR1(array, i));
+            if (current_value < last_value) {
+                return false;
+            }
+            last_value = current_value;
+        }
+
+        return true;
+    }
+};
+
+
 #endif
