@@ -118,10 +118,10 @@ static const size_t num_extra_points_map[] =
 
 /* An implementation of a simple linear congruential random number
    generator.  This is a "classic" and fast RNG which works fine for
-   our purposes of sketching lines, but should be used for things that
-   matter, like crypto.  We are implementing this ourselves rather
-   than using the C stdlib so that the seed state is not shared with
-   other third-party code. There are recent C++ options, but we
+   our purposes of sketching lines, but should not be used for things
+   that matter, like crypto.  We are implementing this ourselves
+   rather than using the C stdlib so that the seed state is not shared
+   with other third-party code. There are recent C++ options, but we
    still require nothing later than C++98 for compatibility
    reasons. */
 class RandomNumberGenerator
