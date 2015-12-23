@@ -31,6 +31,7 @@ from matplotlib.markers import MarkerStyle
 # really belong.
 from matplotlib.markers import TICKLEFT, TICKRIGHT, TICKUP, TICKDOWN
 from matplotlib.markers import CARETLEFT, CARETRIGHT, CARETUP, CARETDOWN
+from matplotlib import _path
 
 
 def segment_hits(cx, cy, x, y, radius):
@@ -699,9 +700,7 @@ class Line2D(Artist):
     def _is_sorted(self, x):
         """return True if x is sorted in ascending order"""
         # We don't handle the monotonically decreasing case.
-        if len(x) < 2:
-            return True
-        return np.nanmin(x[1:] - x[:-1]) >= 0
+        return _path.is_sorted(x)
 
     @allow_rasterization
     def draw(self, renderer):
