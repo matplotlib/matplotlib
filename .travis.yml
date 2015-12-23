@@ -50,12 +50,6 @@ matrix:
   allow_failures:
     - python: "nightly"
 
-before_install:
-  - source ci/travis/travis_tools.sh
-  # Install into our own pristine virtualenv
-  - virtualenv --python=python venv
-  - source venv/bin/activate
-
 install:
   - |
     pip install --upgrade pip
