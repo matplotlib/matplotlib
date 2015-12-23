@@ -825,7 +825,7 @@ def run(arguments, content, options, state_machine, state, lineno):
             options=opts,
             images=images,
             source_code=source_code,
-            html_show_formats=config.plot_html_show_formats and not nofigs,
+            html_show_formats=config.plot_html_show_formats and len(images),
             caption=caption)
 
         total_lines.extend(result.split("\n"))
