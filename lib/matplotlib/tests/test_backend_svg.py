@@ -151,6 +151,8 @@ def test_determinism():
     plots = []
     for i in range(3):
         check_call([sys.executable, '-R', '-c',
+                    'import matplotlib; '
+                    'matplotlib.use("svg"); '
                     'from matplotlib.tests.test_backend_svg '
                     'import _test_determinism;'
                     '_test_determinism("determinism.svg")'])
