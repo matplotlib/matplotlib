@@ -1097,8 +1097,8 @@ class Figure(Artist):
             # instead treated as a bool for sharex.
             if isinstance(sharex, int):
                 warnings.warn(
-                    "sharex argument to add_subplots() was an integer. "
-                    "Did you intend to use add_subplot() (without 's')?")
+                    "sharex argument to subplots() was an integer. "
+                    "Did you intend to use subplot() (without 's')?")
 
             raise ValueError("sharex [%s] must be one of %s" %
                              (sharex, share_values))
