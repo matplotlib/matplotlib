@@ -2141,6 +2141,8 @@ class FigureCanvasBase(object):
 
         if dpi is None:
             dpi = rcParams['savefig.dpi']
+            if dpi == 'figure':
+                dpi = self.figure.dpi
 
         origDPI = self.figure.dpi
         origfacecolor = self.figure.get_facecolor()
