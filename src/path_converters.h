@@ -121,7 +121,7 @@ static const size_t num_extra_points_map[] =
    our purposes of sketching lines, but should be used for things that
    matter, like crypto.  We are implementing this ourselves rather
    than using the C stdlib so that the seed state is not shared with
-   other third-party code. There are recent C++ options, but will
+   other third-party code. There are recent C++ options, but we
    still require nothing later than C++98 for compatibility
    reasons. */
 class RandomNumberGenerator
@@ -131,8 +131,8 @@ private:
        has the nice property that the modulus is 2^32, thus
        saving an explicit modulo operation
     */
-    static const uint32_t a = 1103515245;
-    static const uint32_t c = 12345;
+    static const uint32_t a = 214013;
+    static const uint32_t c = 2531011;
     int m_seed;
 
 public:
