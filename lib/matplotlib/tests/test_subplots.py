@@ -110,11 +110,10 @@ def test_exceptions():
     # the pount of this test is to ensure that this raises.
     with warnings.catch_warnings():
         warnings.filterwarnings('ignore',
-                                message='.*sharex\ argument\ to\ subplots',
+                                message='.*sharex\ argument\ to\ add_subplots',
                                 category=UserWarning)
         assert_raises(ValueError, plt.subplots, 2, 2, -1)
-        # uncomment this for 1.5
-        # assert_raises(ValueError, plt.subplots, 2, 2, 0)
+        assert_raises(ValueError, plt.subplots, 2, 2, 0)
         assert_raises(ValueError, plt.subplots, 2, 2, 5)
 
 
