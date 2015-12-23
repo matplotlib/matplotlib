@@ -838,10 +838,10 @@ class Sketch
 
     inline void rewind(unsigned path_id)
     {
-        srand(0);
         m_has_last = false;
         m_p = 0.0;
         if (m_scale != 0.0) {
+	    srand(0);
             m_segmented.rewind(path_id);
         } else {
             m_source->rewind(path_id);
