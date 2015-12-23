@@ -133,7 +133,7 @@ private:
     */
     static const uint32_t a = 214013;
     static const uint32_t c = 2531011;
-    int m_seed;
+    uint32_t m_seed;
 
 public:
     RandomNumberGenerator() : m_seed(0) {}
