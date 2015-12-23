@@ -726,6 +726,91 @@ static PyObject *Py_convert_to_string(PyObject *self, PyObject *args, PyObject *
     return result;
 }
 
+
+const char *Py_is_sorted__doc__ = "is_sorted(array)\n\n"
+    "Returns True if 1-D array is monotonically increasing, ignoring NaNs\n";
+
+static PyObject *Py_is_sorted(PyObject *self, PyObject *obj)
+{
+    npy_intp size;
+    bool result;
+
+    PyArrayObject *array = (PyArrayObject *)PyArray_FromAny(
+        obj, NULL, 1, 1, 0, NULL);
+
+    if (array == NULL) {
+        return NULL;
+    }
+
+    size = PyArray_DIM(array, 0);
+
+    if (size < 2) {
+        Py_DECREF(array);
+        Py_RETURN_TRUE;
+    }
+
+    /* Handle just the most common types here, otherwise coerce to
+    double */
+    switch(PyArray_TYPE(array)) {
+    case NPY_INT:
+        {
+            _is_sorted_int<npy_int> is_sorted;
+            result = is_sorted(array);
+        }
+        break;
+
+    case NPY_LONG:
+        {
+            _is_sorted_int<npy_long> is_sorted;
+            result = is_sorted(array);
+        }
+        break;
+
+    case NPY_LONGLONG:
+        {
+            _is_sorted_int<npy_longlong> is_sorted;
+            result = is_sorted(array);
+        }
+        break;
+
+    case NPY_FLOAT:
+        {
+            _is_sorted<npy_float> is_sorted;
+            result = is_sorted(array);
+        }
+        break;
+
+    case NPY_DOUBLE:
+        {
+            _is_sorted<npy_double> is_sorted;
+            result = is_sorted(array);
+        }
+        break;
+
+    default:
+        {
+            Py_DECREF(array);
+            array = (PyArrayObject *)PyArray_FromObject(obj, NPY_DOUBLE, 1, 1);
+
+            if (array == NULL) {
+                return NULL;
+            }
+
+            _is_sorted<npy_double> is_sorted;
+            result = is_sorted(array);
+        }
+    }
+
+    Py_DECREF(array);
+
+    if (result) {
+        Py_RETURN_TRUE;
+    } else {
+        Py_RETURN_FALSE;
+    }
+}
+
+
 extern "C" {
 
     static PyMethodDef module_functions[] = {
@@ -745,6 +830,7 @@ extern "C" {
         {"convert_path_to_polygons", (PyCFunction)Py_convert_path_to_polygons, METH_VARARGS, Py_convert_path_to_polygons__doc__},
         {"cleanup_path", (PyCFunction)Py_cleanup_path, METH_VARARGS, Py_cleanup_path__doc__},
         {"convert_to_string", (PyCFunction)Py_convert_to_string, METH_VARARGS, Py_convert_to_string__doc__},
+        {"is_sorted", (PyCFunction)Py_is_sorted, METH_O, Py_is_sorted__doc__},
         {NULL}
     };
 
