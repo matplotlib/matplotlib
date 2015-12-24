@@ -177,24 +177,25 @@ def test_twin_inherit_autoscale_setting():
     assert ax_y_on.get_autoscaley_on()
     assert not ax_y_off.get_autoscaley_on()
 
+
 @cleanup
 def test_inverted_cla():
-    # Github PR #5450. Setting autoscale should reset 
+    # Github PR #5450. Setting autoscale should reset
     # axes to be non-inverted.
     # plotting an image, then 1d graph, axis is now down
-    fig = plt.figure(0);
+    fig = plt.figure(0)
     ax = fig.gca()
     # test that a new axis is not inverted per default
     assert not(ax.xaxis_inverted())
     assert not(ax.yaxis_inverted())
-    img = np.random.random((100,100))
+    img = np.random.random((100, 100))
     ax.imshow(img)
     # test that a image axis is inverted
     assert not(ax.xaxis_inverted())
     assert ax.yaxis_inverted()
     ax.cla()
-    x = np.linspace(0,2*np.pi,100);
-    ax.plot(x,np.cos(x))
+    x = np.linspace(0, 2*np.pi, 100)
+    ax.plot(x, np.cos(x))
     assert not(ax.xaxis_inverted())
     assert not(ax.yaxis_inverted())
 
@@ -210,13 +211,13 @@ def test_inverted_cla():
     ax0 = plt.subplot(211)
     ax1 = plt.subplot(212, sharey=ax0)
     ax0.imshow(img)
-    ax1.plot(x,np.cos(x))
+    ax1.plot(x, np.cos(x))
     ax0.cla()
     assert not(ax1.yaxis_inverted())
     ax1.cla()
     # clearing the nonmaster should not touch limits
     ax0.imshow(img)
-    ax1.plot(x,np.cos(x))
+    ax1.plot(x, np.cos(x))
     ax1.cla()
     assert ax.yaxis_inverted()
 
@@ -2146,6 +2147,7 @@ def test_boxplot_autorange_whiskers():
     fig2, ax2 = plt.subplots()
     ax2.boxplot([x, x], bootstrap=10000, notch=1, autorange=True)
     ax2.set_ylim((-5, 5))
+
 
 
 def _rc_test_bxp_helper(ax, rc_dict):
