@@ -395,10 +395,10 @@ def test_positional_parameter_names_as_function():
         return "{args} | {kwargs}".format(args=args, kwargs=kwargs)
 
     # the normal case...
-    data = {"x": "X", "y1": "Y"}
-    assert_equal(funcy(None, "x", "y1", data=data),
+    data = {"x": "X", "hy1": "Y"}
+    assert_equal(funcy(None, "x", "hy1", data=data),
                  "('X', 'Y') | {}")
-    assert_equal(funcy(None, "x", "y1", "c", data=data),
+    assert_equal(funcy(None, "x", "hy1", "c", data=data),
                  "('X', 'Y', 'c') | {}")
 
     # no arbitrary long args with data
