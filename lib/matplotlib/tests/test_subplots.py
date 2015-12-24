@@ -113,8 +113,7 @@ def test_exceptions():
                                 message='.*sharex\ argument\ to\ subplots',
                                 category=UserWarning)
         assert_raises(ValueError, plt.subplots, 2, 2, -1)
-        # uncomment this for 1.5
-        # assert_raises(ValueError, plt.subplots, 2, 2, 0)
+        assert_raises(ValueError, plt.subplots, 2, 2, 0)
         assert_raises(ValueError, plt.subplots, 2, 2, 5)
 
 
