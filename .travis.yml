@@ -63,6 +63,7 @@ before_install:
   - export PATH=/usr/lib/ccache:$PATH
 
 install:
+  - ccache -s
   # Upgrade pip and setuptools. Mock has issues with the default version of
   # setuptools
   - |
