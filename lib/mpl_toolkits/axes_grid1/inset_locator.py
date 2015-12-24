@@ -158,7 +158,7 @@ class BboxPatch(Patch):
         bbox : `matplotlib.transforms.Bbox`
             Bbox to use for the extents of this patch.
 
-        **kwargs
+        \\*\\*kwargs
             Patch properties. Valid arguments include:
             %(Patch)s
         """
@@ -304,7 +304,7 @@ class BboxConnector(Patch):
                 'lower left'   : 3,
                 'lower right'  : 4
 
-        **kwargs
+        \\*\\*kwargs
             Patch properties for the line drawn. Valid arguments include:
             %(Patch)s
         """
@@ -358,7 +358,7 @@ class BboxConnectorPatch(BboxConnector):
                 'lower left'   : 3,
                 'lower right'  : 4
 
-        **kwargs
+        \\*\\*kwargs
             Patch properties for the line drawn:
             %(Patch)s
         """
@@ -568,7 +568,7 @@ def mark_inset(parent_axes, inset_axes, loc1, loc2, **kwargs):
         Corners to use for connecting the inset axes and the area in the
         parent axes.
 
-    **kwargs
+    \\*\\*kwargs
         Patch properties for the lines and box drawn:
         %(Patch)s
 

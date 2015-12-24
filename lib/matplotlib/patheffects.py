@@ -231,7 +231,7 @@ class SimplePatchShadow(AbstractPathEffect):
         rho : float
             A scale factor to apply to the rgbFace color if `shadow_rgbFace`
             is not specified. Default is 0.3.
-        **kwargs
+        \\*\\*kwargs
             Extra keywords are stored and passed through to
             :meth:`AbstractPathEffect._update_gc`.
 
@@ -313,7 +313,7 @@ class SimpleLineShadow(AbstractPathEffect):
         rho : float
             A scale factor to apply to the rgbFace color if `shadow_rgbFace`
             is ``None``. Default is 0.3.
-        **kwargs
+        \\*\\*kwargs
             Extra keywords are stored and passed through to
             :meth:`AbstractPathEffect._update_gc`.
 
@@ -374,7 +374,7 @@ class PathPatchEffect(AbstractPathEffect):
         ----------
         offset : pair of floats
             The offset to apply to the path, in points.
-        **kwargs :
+        \\*\\*kwargs
             All keyword arguments are passed through to the
             :class:`~matplotlib.patches.PathPatch` constructor. The
             properties which cannot be overridden are "path", "clip_box"
