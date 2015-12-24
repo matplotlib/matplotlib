@@ -14,7 +14,8 @@ def test_Type1Font():
     font = t1f.Type1Font(filename)
     slanted = font.transform({'slant': 1})
     condensed = font.transform({'extend': 0.5})
-    rawdata = open(filename, 'rb').read()
+    with open(filename, 'rb') as f:
+        rawdata = f.read()
     assert_equal(font.parts[0], rawdata[0x0006:0x10c5])
     assert_equal(font.parts[1], rawdata[0x10cb:0x897f])
     assert_equal(font.parts[2], rawdata[0x8985:0x8ba6])
