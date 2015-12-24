@@ -1,5 +1,10 @@
 sudo: false
 
+cache:
+  directories:
+    - $HOME/.ccache
+    - $HOME/.cache/pip
+
 addons:
   apt:
     packages:
@@ -55,6 +60,7 @@ before_install:
   # Install into our own pristine virtualenv
   - virtualenv --python=python venv
   - source venv/bin/activate
+  - export PATH=/usr/lib/ccache:$PATH
 
 install:
   # Upgrade pip and setuptools. Mock has issues with the default version of
