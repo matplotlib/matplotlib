@@ -68,6 +68,7 @@ install:
   # setuptools
   - |
     pip install --upgrade pip
+    pip install --upgrade wheel
     pip install --upgrade setuptools
   # Install only from travis wheelhouse
   - if [ -z "$PRE" ]; then
