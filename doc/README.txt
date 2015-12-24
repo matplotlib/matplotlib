@@ -33,11 +33,10 @@ python documentation system built on top of ReST.  This directory contains
 * mpl_examples - a link to the matplotlib examples in case any
   documentation wants to literal include them
 
-To build the HTML documentation, install sphinx (1.0 or greater
-required), then type "python make.py html" in this directory.  Wait
-for the initial run (which builds the example gallery) to be done,
-then run "python make.py html" again. The top file of the results will
-be ./build/html/index.html
+To build the HTML documentation, install sphinx (1.0 or greater required) and,
+if sphinx older than 1.3, sphinxcontrib-napoleon, then type "python make.py
+html" in this directory.  The top file of the results will be
+./build/html/index.html
 
 Note that Sphinx uses the installed version of the package to build
 the documentation, so matplotlib must be installed *before* the docs

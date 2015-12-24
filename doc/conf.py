@@ -32,7 +32,11 @@ extensions = ['matplotlib.sphinxext.mathmpl', 'sphinxext.math_symbol_table',
               'sphinx.ext.inheritance_diagram',
               'sphinxext.gen_gallery', 'sphinxext.gen_rst',
               'sphinxext.github',
-              'numpydoc']
+             ]
+if hasattr(sphinx, 'version_info') and sphinx.version_info[:2] >= (1, 3):
+    extensions += ['sphinx.ext.napoleon']
+else:
+    extensions += ['sphinxcontrib.napoleon']
 
 exclude_patterns = ['api/api_changes/*', 'users/whats_new/*']
 
@@ -45,12 +49,6 @@ except ImportError:
 else:
     extensions.append('IPython.sphinxext.ipython_console_highlighting')
     extensions.append('IPython.sphinxext.ipython_directive')
-
-try:
-    import numpydoc
-except ImportError:
-    raise ImportError("No module named numpydoc - you need to install "
-                      "numpydoc to build the documentation.")
 
 
 autosummary_generate = True
@@ -333,5 +331,6 @@ sys.modules['wx'] = mockwx
 sys.modules['sip'] = mocksip
 sys.modules['PyQt4'] = mockpyqt4
 
-################# numpydoc config ####################
-numpydoc_show_class_members = False
+################# napoleon config ####################
+napoleon_google_docstring = False
+napoleon_use_param = False

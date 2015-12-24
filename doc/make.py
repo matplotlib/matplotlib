@@ -60,7 +60,7 @@ def htmlhelp():
     with open('build/htmlhelp/index.html', 'r+') as fh:
         content = fh.read()
         fh.seek(0)
-        content = re.sub(r'<script>.*?</script>', '', content, 
+        content = re.sub(r'<script>.*?</script>', '', content,
                          flags=re.MULTILINE| re.DOTALL)
         fh.write(content)
         fh.truncate()
