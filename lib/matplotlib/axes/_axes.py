@@ -7448,7 +7448,8 @@ or tuple of floats
     def violinplot(self, dataset, positions=None, vert=True, widths=0.5,
                    showmeans=False, showextrema=True, showmedians=False,
                    points=100, bw_method=None):
-        """Make a violin plot.
+        """
+        Make a violin plot.
 
         Call signature::
 
