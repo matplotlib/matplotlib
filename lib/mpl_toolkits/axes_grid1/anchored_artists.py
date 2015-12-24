@@ -76,8 +76,8 @@ class AnchoredSizeBar(AnchoredOffsetbox):
         Draw a horizontal bar with the size in data coordinate of the given axes.
         A label will be drawn underneath (center-aligned).
 
-        Parameters:
-        -----------
+        Parameters
+        ----------
         transform : matplotlib transformation object
         size : int or float
           horizontal length of the size bar, given in data coordinates
@@ -100,12 +100,12 @@ class AnchoredSizeBar(AnchoredOffsetbox):
         fontproperties: a matplotlib.font_manager.FontProperties instance, optional
           sets the font properties for the label text
 
-        Returns:
-        --------
+        Returns
+        -------
         AnchoredSizeBar object
 
-        Example:
-        --------
+        Example
+        -------
         >>> import matplotlib.pyplot as plt
         >>> import numpy as np
         >>> from mpl_toolkits.axes_grid1.anchored_artists import AnchoredSizeBar

@@ -4,7 +4,7 @@ Numerical python functions written for compatability with MATLAB
 commands with the same names.
 
 MATLAB compatible functions
--------------------------------
+---------------------------
 
 :func:`cohere`
     Coherence (normalized cross spectral density)
@@ -39,7 +39,7 @@ MATLAB compatible functions
     Spectrogram (spectrum over segments of time)
 
 Miscellaneous functions
--------------------------
+-----------------------
 
 Functions that don't exist in MATLAB, but are useful anyway:
 
@@ -99,7 +99,7 @@ Functions that don't exist in MATLAB, but are useful anyway:
 
 
 record array helper functions
--------------------------------
+-----------------------------
 
 A collection of helper methods for numpyrecord arrays
 

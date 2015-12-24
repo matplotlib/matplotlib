@@ -775,7 +775,7 @@ class Axes(_AxesBase):
 
 
         Examples
-        ---------
+        --------
         * draw a thick red vline at *x* = 0 that spans the yrange::
 
             >>> axvline(linewidth=4, color='r')
@@ -1044,7 +1044,7 @@ class Axes(_AxesBase):
         hlines : horizontal lines
 
         Examples
-        ---------
+        --------
         .. plot:: mpl_examples/pylab_examples/vline_hline_demo.py
 
         """
@@ -1710,7 +1710,7 @@ class Axes(_AxesBase):
           - `b` is the x-axis.
 
         Other parameters
-        -----------------
+        ----------------
         linestyle : `~matplotlib.lines.Line2D` prop, optional, default: None
             Only used if usevlines is False.
 
@@ -1775,7 +1775,7 @@ class Axes(_AxesBase):
           - `b` is the x-axis (none, if plot is used).
 
         Other parameters
-        -----------------
+        ----------------
         linestyle : `~matplotlib.lines.Line2D` prop, optional, default: None
             Only used if usevlines is False.
 
@@ -2228,7 +2228,7 @@ class Axes(_AxesBase):
             the x coordinates of the left sides of the bars
 
         Returns
-        --------
+        -------
         `matplotlib.patches.Rectangle` instances.
 
         Other parameters
@@ -4857,7 +4857,7 @@ class Axes(_AxesBase):
         Display an image on the axes.
 
         Parameters
-        -----------
+        ----------
         X : array_like, shape (n, m) or (n, m, 3) or (n, m, 4)
             Display the image in `X` to current axes.  `X` may be a float
             array, a uint8 array or a PIL image. If `X` is an array, it
@@ -4937,7 +4937,7 @@ class Axes(_AxesBase):
             when interpolation is one of: 'sinc', 'lanczos' or 'blackman'
 
         Returns
-        --------
+        -------
         image : `~matplotlib.image.AxesImage`
 
         Other parameters
@@ -6348,7 +6348,7 @@ class Axes(_AxesBase):
         The return value is ``(counts, xedges, yedges, Image)``.
 
         Other parameters
-        -----------------
+        ----------------
         kwargs : :meth:`pcolorfast` properties.
 
         See also
