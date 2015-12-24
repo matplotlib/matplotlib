@@ -61,9 +61,10 @@ def _plot_args_replacer(args, data):
         except ValueError:
             pass
         else:
-            msg = "Second argument is ambiguous: could be a color spec " \
+            msg = "Second argument '{}' is ambiguous: could be a color spec " \
                   "but is in data. Using as data.\nEither rename the " \
-                  "entry in data or use three arguments to plot."
+                  "entry in data or use three arguments " \
+                  "to plot.".format(args[1])
             warnings.warn(msg, RuntimeWarning, stacklevel=3)
         return ["x", "y"]
     elif len(args) == 3:
