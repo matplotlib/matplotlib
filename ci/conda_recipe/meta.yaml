@@ -12,10 +12,10 @@ source:
     # don't run nosetest
     - cfg_notests.patch
     # nake Qt4Agg the default backend
-    - cfg_qt4agg.patch    [not osx]
-    - rctmp_pyside.patch  [not osx]
+    - cfg_qt4agg.patch    #[not osx]
+    - rctmp_pyside.patch  #[not osx]
     # tk work on OSX
-    - osx-tk.patch        [osx]
+    - osx-tk.patch        #[osx]
     # dynamic version from git
     - condaversion.patch
 
@@ -28,26 +28,26 @@ requirements:
     - freetype >=2.5,<2.6
     - pyparsing
     - pytz
-    - py2cairo            [linux and py2k]
+    - py2cairo            #[linux and py2k]
     - tornado
     - libpng
-    - zlib                [win]
-    - msinttypes          # this package is from the conda-forge channel!
-    - pyqt                [not osx]
+    - zlib                #[win]
+    - pyqt                #[not osx]
     - cycler
     - tk
-    #- functools32         [py27] # this is currently not available
+    - msinttypes          # from the conda-forge channel
+    - functools32         #[py27] # from the conda-forge channel
 
   run:
     - python
     - numpy
     - python-dateutil
-    - freetype            [unix]
+    - freetype            #[unix]
     - pytz
     - pyparsing
-    - py2cairo            [linux and py2k]
-    - libpng              [unix]
-    - pyqt                [not osx]
+    - py2cairo            #[linux and py2k]
+    - libpng              #[unix]
+    - pyqt                #[not osx]
     - cycler
     - tk
 
