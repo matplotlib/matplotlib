@@ -214,7 +214,7 @@ def make_arrow_plot(data, size=4, display='length', shape='right',
         plt.text(x, y, label, size=label_text_size, ha='center', va='center',
              color=labelcolor or fc)
 
-    for p in positions.keys():
+    for p in sorted(positions):
         draw_arrow(p)
 
 # test data
