@@ -3,13 +3,14 @@
 
 package:
   name: matplotlib-test
+  # this version is replaced with a proper version from setup.py via the condaversion.patch
   version: 1.5.0.9
 
 source:
   path: ../../
 
   patches:
-    # don't run nosetest
+    # don't run nosetest (again)
     - cfg_notests.patch
     # nake Qt4Agg the default backend
     - cfg_qt4agg.patch    #[not osx]

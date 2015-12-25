@@ -8,12 +8,20 @@ if [ `uname` == Linux ]; then
 fi
 
 if [ `uname` == Darwin ]; then
-    sed s:'#ifdef WITH_NEXT_FRAMEWORK':'#if 1':g -i src/_macosx.m
+    # run tests with Agg...
+    # prevents a problem with Macosx mpl not installed as framework
+    export MPLBACKEND=Agg
+    # This seems to be not anymore needed...
+    #sed s:'#ifdef WITH_NEXT_FRAMEWORK':'#if 1':g -i src/_macosx.m
 fi
 
 cp setup.cfg.template setup.cfg || exit 1
 
-sed s:/usr/local:$PREFIX:g -i setupext.py
+# on mac there is an error if done inplace:
+#   sed: -i: No such file or directory
+# travis macosx sed has not even --help...
+mv setupext.py setupext.py_orig
+cat setupext.py_orig | sed s:/usr/local:$PREFIX:g > setupext.py
 
 $PYTHON setup.py install
 
