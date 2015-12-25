@@ -1226,7 +1226,7 @@ class Pytz(SetupPackage):
         except ImportError:
             return (
                 "pytz was not found. "
-                "pip will attempt to install it "
+                "pip/easy_install may attempt to install it "
                 "after matplotlib.")
 
         return "using pytz version %s" % pytz.__version__
@@ -1244,7 +1244,7 @@ class Cycler(SetupPackage):
         except ImportError:
             return (
                 "cycler was not found. "
-                "pip will attempt to install it "
+                "pip/easy_install may attempt to install it "
                 "after matplotlib.")
 
         return "using cycler version %s" % cycler.__version__
@@ -1295,7 +1295,9 @@ class FuncTools32(SetupPackage):
             except ImportError:
                 return (
                     "functools32 was not found. It is required for for"
-                    "python versions prior to 3.2")
+                    "python versions prior to 3.2 "
+                    "pip/easy_install may attempt to install it "
+                    "after matplotlib.")
 
             return "using functools32"
         else:
