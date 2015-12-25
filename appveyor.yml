@@ -100,5 +100,9 @@ artifacts:
     name: packages
     
   - path: result_images\*
-    name: test result images
+    name: result_images
     type: zip
+
+on_failure:
+  - 7z a result_images.zip result_images\ >NUL:
+  - appveyor PushArtifact result_images.zip
