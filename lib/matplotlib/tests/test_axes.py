@@ -185,28 +185,30 @@ def test_inverted_cla():
     # plotting an image, then 1d graph, axis is now down
     fig = plt.figure(0)
     ax = fig.gca()
-    # test that a new axis is not inverted per default
+    # 1. test that a new axis is not inverted per default
     assert not(ax.xaxis_inverted())
     assert not(ax.yaxis_inverted())
     img = np.random.random((100, 100))
     ax.imshow(img)
-    # test that a image axis is inverted
+    # 2. test that a image axis is inverted
     assert not(ax.xaxis_inverted())
     assert ax.yaxis_inverted()
+    # 3. test that clearing and plotting a line, axes are
+    # not inverted
     ax.cla()
     x = np.linspace(0, 2*np.pi, 100)
     ax.plot(x, np.cos(x))
     assert not(ax.xaxis_inverted())
     assert not(ax.yaxis_inverted())
 
-    # autoscaling should not bring back axes to normal
+    # 4. autoscaling should not bring back axes to normal
     ax.cla()
     ax.imshow(img)
     plt.autoscale()
     assert not(ax.xaxis_inverted())
     assert ax.yaxis_inverted()
 
-    # two shared axes. Clearing the master axis should bring axes in shared
+    # 5. two shared axes. Clearing the master axis should bring axes in shared
     # axies back to normal
     ax0 = plt.subplot(211)
     ax1 = plt.subplot(212, sharey=ax0)
@@ -215,7 +217,7 @@ def test_inverted_cla():
     ax0.cla()
     assert not(ax1.yaxis_inverted())
     ax1.cla()
-    # clearing the nonmaster should not touch limits
+    # 6. clearing the nonmaster should not touch limits
     ax0.imshow(img)
     ax1.plot(x, np.cos(x))
     ax1.cla()
