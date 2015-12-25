@@ -50,6 +50,7 @@ requirements:
     - pyqt                #[not osx]
     - cycler
     - tk
+    - functools32         #[py27] # from the conda-forge channel
 
 test:
   requires:
