@@ -83,12 +83,10 @@ after_test:
   - cmd: '%CMD_IN_ENV% python setup.py bdist_wheel'
   # Note also that our setup.py script, which is called by conda-build, writes
   # a __conda_version__.txt file, so the version number on the binary package
-  # is set dynamically. This unfortunately mean that conda build --output
+  # is set dynamically. This unfortunately means that conda build --output
   # doesn't really work.
   - cmd: '%CMD_IN_ENV% conda config --get channels'
-  # we can't build conda packages on 27 due to missing functools32, which is a recent 
-  # additional dependency for matplotlib
-  - cmd: if [%CONDA_PY%] NEQ [27] %CMD_IN_ENV% conda build .\ci\conda_recipe
+  - cmd: '%CMD_IN_ENV% conda build .\ci\conda_recipe'
   # Move the conda package into the dist directory, to register it
   # as an "artifact" for Appveyor. 
   - cmd: 'copy /Y %PYTHON%\conda-bld\win-32\*.bz2 dist || cmd /c "exit /b 0"'
