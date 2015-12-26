@@ -44,9 +44,8 @@ AxesGrid1
    axes_grid1/index
 
 
-The matplotlib :ref:`AxesGrid <toolkit_axesgrid1-index>` toolkit is a collection of helper classes to
-ease displaying multiple images in matplotlib. The AxesGrid toolkit is
-distributed with matplotlib source.
+The matplotlib :ref:`AxesGrid1 <toolkit_axesgrid1-index>` toolkit is a
+collection of helper classes to ease displaying multiple images in matplotlib.
 
 
 

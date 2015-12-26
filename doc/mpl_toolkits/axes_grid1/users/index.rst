@@ -1,7 +1,7 @@
-.. _axes_grid_users-guide-index:
+.. _axes_grid1_users-guide-index:
 
 ################################################
-  The Matplotlib AxesGrid Toolkit User's Guide
+  The Matplotlib AxesGrid1 Toolkit User's Guide
 ################################################
 
 :Release: |version|
@@ -11,4 +11,3 @@
 
     axes_divider.rst
     axisartist.rst
-
