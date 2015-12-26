@@ -6,6 +6,6 @@ Matplotlib Axisartist Toolkit
 .. toctree::
    :maxdepth: 2
 
-   users/overview.rst
+   overview.rst
    users/index.rst
    api/index.rst

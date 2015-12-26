@@ -24,6 +24,6 @@ multiple axes according to their aspects.
 .. toctree::
    :maxdepth: 2
 
-   users/overview.rst
+   overview.rst
    users/index.rst
    api/index.rst
