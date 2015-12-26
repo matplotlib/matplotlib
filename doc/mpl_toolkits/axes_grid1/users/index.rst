@@ -10,4 +10,3 @@
 .. toctree::
 
     axes_divider.rst
-    axisartist.rst

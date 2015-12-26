@@ -6,3 +6,7 @@
 
 :Release: |version|
 :Date: |today|
+
+.. toctree::
+
+    axisartist.rst
