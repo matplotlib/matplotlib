@@ -24,4 +24,5 @@
 
 .. toctree::
 
+    anchored_artists_api.rst
     inset_locator_api.rst
