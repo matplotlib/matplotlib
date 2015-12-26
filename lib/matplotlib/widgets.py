@@ -1618,7 +1618,7 @@ class _SelectorWidget(AxesWidget):
 
     def onmove(self, event):
         """Cursor move event handler and validator"""
-        if not self.ignore(event) and self.eventpress:
+        if not self.ignore(event):
             event = self._clean_event(event)
             self._onmove(event)
             return True
@@ -1646,6 +1646,7 @@ class _SelectorWidget(AxesWidget):
                 for artist in self.artists:
                     artist.set_visible(False)
                 self.update()
+                self._clear(event)
                 return
             for (state, modifier) in self.state_modifier_keys.items():
                 if modifier in key:
@@ -1654,6 +1655,11 @@ class _SelectorWidget(AxesWidget):
 
     def _on_key_press(self, event):
         """Key press event handler - use for widget-specific key press actions.
+        """
+        pass
+
+    def _clear(self, event):
+        """Clear event handler - use for widget-specific clearing actions.
         """
         pass
 
@@ -1855,7 +1861,7 @@ class SpanSelector(_SelectorWidget):
 
     def _onmove(self, event):
         """on motion notify event"""
-        if self.pressv is None:
+        if self.pressv is None or self.eventpress is None:
             return
         x, y = self._get_data(event)
         if x is None:
@@ -2198,6 +2204,8 @@ class RectangleSelector(_SelectorWidget):
 
     def _onmove(self, event):
         """on motion notify event if box/line is wanted"""
+        if self.eventpress is None:
+            return
         # resize an existing shape
         if self.active_handle and not self.active_handle == 'C':
             x1, x2, y1, y2 = self._extents_on_press
@@ -2462,6 +2470,12 @@ class LassoSelector(_SelectorWidget):
     *onselect* : function
         Whenever the lasso is released, the `onselect` function is called and
         passed the vertices of the selected path.
+    *persist* will leave the lasso drawn until the next one is drawn.
+    *state_modifier_keys* are keyboard modifiers that affect the behavior
+        of the widget.
+
+        The defaults are:
+        dict(square='shift', clear='escape')
 
     Example usage::
 
@@ -2485,9 +2499,9 @@ class LassoSelector(_SelectorWidget):
     """
 
     def __init__(self, ax, onselect=None, useblit=True, lineprops=None,
-            button=None):
+        button=None, persist=False, state_modifier_keys=None):
         _SelectorWidget.__init__(self, ax, onselect, useblit=useblit,
-            button=button)
+            button=button, state_modifier_keys=state_modifier_keys)
 
         self.verts = None
 
@@ -2499,32 +2513,60 @@ class LassoSelector(_SelectorWidget):
         self.line.set_visible(False)
         self.ax.add_line(self.line)
         self.artists = [self.line]
+        self.persist = persist
 
     def onpress(self, event):
         self.press(event)
 
     def _press(self, event):
-        self.verts = [self._get_data(event)]
+        if (not event.key == self.state_modifier_keys['square'] or
+                self.verts is None):
+            self.verts = [(event.xdata, event.ydata)]
+
         self.line.set_visible(True)
 
     def onrelease(self, event):
         self.release(event)
 
-    def _release(self, event):
-        if self.verts is not None:
-            self.verts.append(self._get_data(event))
-            self.onselect(self.verts)
+    def _clear(self, event):
+        self.verts = None
         self.line.set_data([[], []])
         self.line.set_visible(False)
+        self.update()
+
+    def _finish(self, event):
+        self.verts.append(self.verts[0])
+        self.line.set_data(list(zip(*self.verts)))
+        self.update()
+        self.onselect(self.verts)
+        if not self.persist:
+            self._clear(event)
         self.verts = None
+
+    def _release(self, event):
+        if self.verts is None:
+            return
+        self.verts.append((event.xdata, event.ydata))
+        if event.key != self.state_modifier_keys['square']:
+            self._finish(event)
+        else:
+            self.verts.append((event.xdata, event.ydata))
+            self.line.set_data(list(zip(*self.verts)))
+            self.update()
 
     def _onmove(self, event):
         if self.verts is None:
             return
-        self.verts.append(self._get_data(event))
-
+        if event.key == self.state_modifier_keys['square']:
+            if len(self.verts) == 1:
+                self.verts.append([event.xdata, event.ydata])
+            else:
+                self.verts[-1] = [event.xdata, event.ydata]
+        elif event.button:
+            self.verts.append((event.xdata, event.ydata))
+        else:
+            return self._finish(event)
         self.line.set_data(list(zip(*self.verts)))
-
         self.update()
 
 
