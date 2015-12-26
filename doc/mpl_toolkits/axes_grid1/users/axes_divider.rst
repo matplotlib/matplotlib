@@ -4,11 +4,11 @@ AxesDivider
 The axes_divider module provide helper classes to adjust the axes
 positions of set of images in the drawing time.
 
-* :mod:`~mpl_toolkits.axes_grid.axes_size` provides a classes of
+* :mod:`~mpl_toolkits.axes_grid1.axes_size` provides a classes of
   units that the size of each axes will be determined. For example,
   you can specify a fixed size
 
-* :class:`~mpl_toolkits.axes_grid.axes_size.Divider` this is the class
+* :class:`~mpl_toolkits.axes_grid1.axes_size.Divider` this is the class
   that is used calculates the axes position. It divides the given
   rectangular area into several areas. You initialize the divider by
   setting the horizontal and vertical list of sizes that the division
@@ -29,7 +29,7 @@ for example,::
 
 where, rect is a bounds of the box that will be divided and h0,..h3,
 v0,..v2 need to be an instance of classes in the
-:mod:`~mpl_toolkits.axes_grid.axes_size`.  They have *get_size* method
+:mod:`~mpl_toolkits.axes_grid1.axes_size`.  They have *get_size* method
 that returns a tuple of two floats. The first float is the relative
 size, and the second float is the absolute size. Consider a following
 grid.
@@ -56,11 +56,11 @@ determined. When aspect ratio is set, the total height (or width) will
 be adjusted accordingly.
 
 
-The :mod:`mpl_toolkits.axes_grid.axes_size` contains several classes
+The :mod:`mpl_toolkits.axes_grid1.axes_size` contains several classes
 that can be used to set the horizontal and vertical configurations. For
 example, for the vertical configuration above will be::
 
-  from mpl_toolkits.axes_grid.axes_size import Fixed, Scaled
+  from mpl_toolkits.axes_grid1.axes_size import Fixed, Scaled
   vert = [Fixed(2), Scaled(2), Scaled(3)]
 
 After you set up the divider object, then you create a locator
@@ -82,12 +82,11 @@ may consider it as [0:2, 1].
 
 See the example,
 
-.. plot:: mpl_toolkits/axes_grid/figures/simple_axes_divider2.py
+.. plot:: mpl_toolkits/axes_grid1/figures/simple_axes_divider2.py
    :include-source:
 
 You can adjust the size of the each axes according to their x or y
 data limits (AxesX and AxesY), similar to the axes aspect parameter.
 
-.. plot:: mpl_toolkits/axes_grid/figures/simple_axes_divider3.py
+.. plot:: mpl_toolkits/axes_grid1/figures/simple_axes_divider3.py
    :include-source:
-

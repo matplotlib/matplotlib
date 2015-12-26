@@ -3,7 +3,7 @@
 .. toctree::
    :hidden:
 
-   axes_grid/index.rst
+   axes_grid1/index.rst
    mplot3d/index.rst
 
 .. _toolkits:
@@ -16,10 +16,6 @@ Toolkits
 
 Toolkits are collections of application-specific functions that extend matplotlib.
 
-
-
-General Toolkits
-****************
 
 .. _toolkit_mplot3d:
 
@@ -38,23 +34,36 @@ solution for some use cases.
 
 .. plot:: mpl_examples/mplot3d/contourf3d_demo2.py
 
-.. _toolkit_axes_grid:
+.. _toolkit_axes_grid1:
 
-AxesGrid
-========
+AxesGrid1
+=========
 .. toctree::
    :maxdepth: 2
 
-   axes_grid/index
+   axes_grid1/index
 
 
-The matplotlib :ref:`AxesGrid <toolkit_axesgrid-index>` toolkit is a collection of helper classes to
+The matplotlib :ref:`AxesGrid <toolkit_axesgrid1-index>` toolkit is a collection of helper classes to
 ease displaying multiple images in matplotlib. The AxesGrid toolkit is
 distributed with matplotlib source.
 
 
 
 .. image:: /_static/demo_axes_grid.png
+
+
+.. _toolkit_axisartist:
+
+Axisartist
+==========
+.. toctree::
+   :maxdepth: 2
+
+   axisartist/index
+
+
+
 
 
 .. _toolkit_gtk:

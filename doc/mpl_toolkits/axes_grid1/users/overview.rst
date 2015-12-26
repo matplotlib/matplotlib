@@ -36,7 +36,7 @@ to draw ticks, ticklines and etc., Axes in axisartist uses special
 artist (AxisArtist) which can handle tick, ticklines and etc. for
 curved coordinate systems.
 
-.. plot:: mpl_toolkits/axes_grid/examples/demo_floating_axis.py
+.. plot:: mpl_toolkits/axes_grid1/examples/demo_floating_axis.py
 
 Since it uses a special artists, some mpl commands that work on
 Axes.xaxis and Axes.yaxis may not work. See LINK for more detail.
@@ -56,7 +56,7 @@ data (e.g., different y-scale) in a same Axes. `AnchoredArtists`_
 includes custom artists which are placed at some anchored position,
 like the legend.
 
-.. plot:: mpl_toolkits/axes_grid/examples/demo_axes_grid.py
+.. plot:: mpl_toolkits/axes_grid1/examples/demo_axes_grid.py
 
 
 AXES_GRID1
@@ -73,7 +73,7 @@ ratio.  For example, displaying images of a same size with some fixed
 padding between them cannot be easily done in matplotlib. ImageGrid is
 used in such case.
 
-.. plot:: mpl_toolkits/axes_grid/examples/simple_axesgrid.py
+.. plot:: mpl_toolkits/axes_grid1/examples/simple_axesgrid.py
    :include-source:
 
 * The position of each axes is determined at the drawing time (see
@@ -87,7 +87,7 @@ used in such case.
   height. The widths (height) of the axes in the same row (column) are
   scaled according to their view limits (xlim or ylim).
 
-  .. plot:: mpl_toolkits/axes_grid/examples/simple_axesgrid2.py
+  .. plot:: mpl_toolkits/axes_grid1/examples/simple_axesgrid2.py
      :include-source:
 
 * xaxis are shared among axes in a same column. Similarly, yaxis are
@@ -175,7 +175,7 @@ attribute.
 
 The examples below show what you can do with AxesGrid.
 
-.. plot:: mpl_toolkits/axes_grid/examples/demo_axes_grid.py
+.. plot:: mpl_toolkits/axes_grid1/examples/demo_axes_grid.py
 
 
 AxesDivider
@@ -206,7 +206,7 @@ creates a new axes on the given side of ("top", "right", "bottom" and
 colorbar whose height (or width) in sync with the master axes
 -------------------------------------------------------------
 
-.. plot:: mpl_toolkits/axes_grid/figures/simple_colorbar.py
+.. plot:: mpl_toolkits/axes_grid1/figures/simple_colorbar.py
    :include-source:
 
 
@@ -236,7 +236,7 @@ The "scatter_hist.py" example in mpl can be rewritten using
 
 See the full source code below.
 
-.. plot:: mpl_toolkits/axes_grid/examples/scatter_hist.py
+.. plot:: mpl_toolkits/axes_grid1/examples/scatter_hist.py
 
 
 The scatter_hist using the AxesDivider has some advantage over the
@@ -271,7 +271,7 @@ parasite axes.  To create a host axes, you may use *host_suplot* or
 Example 1. twinx
 ~~~~~~~~~~~~~~~~
 
-.. plot:: mpl_toolkits/axes_grid/figures/parasite_simple.py
+.. plot:: mpl_toolkits/axes_grid1/figures/parasite_simple.py
    :include-source:
 
 Example 2. twin
@@ -288,7 +288,7 @@ tick-formatter for bottom(or left)-axis. ::
                        r"$\pi$", r"$\frac{3}{2}\pi$", r"$2\pi$"])
 
 
-.. plot:: mpl_toolkits/axes_grid/examples/simple_axisline4.py
+.. plot:: mpl_toolkits/axes_grid1/examples/simple_axisline4.py
 
 
 
@@ -297,7 +297,7 @@ x-limit in the host axes, the x-limit of the parasite axes will change
 accordingly.
 
 
-.. plot:: mpl_toolkits/axes_grid/examples/parasite_simple2.py
+.. plot:: mpl_toolkits/axes_grid1/examples/parasite_simple2.py
 
 
 AnchoredArtists
@@ -310,7 +310,7 @@ limited support for an arbitrary transform. For example, the ellipse
 in the example below will have width and height in the data
 coordinate.
 
-.. plot:: mpl_toolkits/axes_grid/examples/simple_anchored_artists.py
+.. plot:: mpl_toolkits/axes_grid1/examples/simple_anchored_artists.py
    :include-source:
 
 
@@ -344,7 +344,7 @@ some factor. For example, ::
 creates an inset axes whose data scale is half of the parent axes.
 Here is complete examples.
 
-.. plot:: mpl_toolkits/axes_grid/examples/inset_locator_demo.py
+.. plot:: mpl_toolkits/axes_grid1/examples/inset_locator_demo.py
 
 For example, :func:`zoomed_inset_axes` can be used when you want the
 inset represents the zoom-up of the small portion in the parent axes.
@@ -352,7 +352,7 @@ And :mod:`~mpl_toolkits/axes_grid/inset_locator` provides a helper
 function :func:`mark_inset` to mark the location of the area
 represented by the inset axes.
 
-.. plot:: mpl_toolkits/axes_grid/examples/inset_locator_demo2.py
+.. plot:: mpl_toolkits/axes_grid1/examples/inset_locator_demo2.py
    :include-source:
 
 
@@ -374,7 +374,7 @@ yaxis of each axes are shared. ::
                   origin="lower", interpolation="nearest")
 
 
-.. plot:: mpl_toolkits/axes_grid/figures/simple_rgb.py
+.. plot:: mpl_toolkits/axes_grid1/figures/simple_rgb.py
 
 
 AXISARTIST
@@ -418,7 +418,7 @@ For example, you can hide the right, and top axis by ::
   ax.axis["top"].set_visible(False)
 
 
-.. plot:: mpl_toolkits/axes_grid/figures/simple_axisline3.py
+.. plot:: mpl_toolkits/axes_grid1/figures/simple_axisline3.py
 
 
 It is also possible to add an extra axis. For example, you may have an
@@ -426,7 +426,7 @@ horizontal axis at y=0 (in data coordinate). ::
 
     ax.axis["y=0"] = ax.new_floating_axis(nth_coord=0, value=0)
 
-.. plot:: mpl_toolkits/axes_grid/figures/simple_axisartist1.py
+.. plot:: mpl_toolkits/axes_grid1/figures/simple_axisartist1.py
    :include-source:
 
 
@@ -454,7 +454,7 @@ to create a host subplot with axisartist.Axes, ::
 Here is an example that uses  parasiteAxes.
 
 
-.. plot:: mpl_toolkits/axes_grid/examples/demo_parasite_axes2.py
+.. plot:: mpl_toolkits/axes_grid1/examples/demo_parasite_axes2.py
 
 
 
@@ -464,7 +464,7 @@ Curvilinear Grid
 The motivation behind the AxisArtist module is to support curvilinear grid
 and ticks.
 
-.. plot:: mpl_toolkits/axes_grid/examples/demo_curvelinear_grid.py
+.. plot:: mpl_toolkits/axes_grid1/examples/demo_curvelinear_grid.py
 
 See :ref:`axisartist-manual` for more details.
 
@@ -475,6 +475,4 @@ Floating Axes
 This also support a Floating Axes whose outer axis are defined as
 floating axis.
 
-.. plot:: mpl_toolkits/axes_grid/examples/demo_floating_axes.py
-
-
+.. plot:: mpl_toolkits/axes_grid1/examples/demo_floating_axes.py

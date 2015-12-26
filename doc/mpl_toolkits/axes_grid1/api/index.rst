@@ -1,16 +1,4 @@
-.. _axes_grid-api-index:
-
-#######################################
-  The Matplotlib AxesGrid Toolkit API
-#######################################
-
-:Release: |version|
-:Date: |today|
-
-.. toctree::
-
-    axis_artist_api.rst
-
+.. _axes_grid1-api-index:
 
 #######################################
   The Matplotlib axes_grid1 Toolkit API
