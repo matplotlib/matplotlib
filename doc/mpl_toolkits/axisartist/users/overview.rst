@@ -61,7 +61,7 @@ For example, you can hide the right, and top axis by ::
   ax.axis["top"].set_visible(False)
 
 
-.. plot:: mpl_toolkits/axes_grid1/figures/simple_axisline3.py
+.. plot:: mpl_toolkits/axisartist/figures/simple_axisline3.py
 
 
 It is also possible to add an extra axis. For example, you may have an
@@ -69,7 +69,7 @@ horizontal axis at y=0 (in data coordinate). ::
 
     ax.axis["y=0"] = ax.new_floating_axis(nth_coord=0, value=0)
 
-.. plot:: mpl_toolkits/axes_grid1/figures/simple_axisartist1.py
+.. plot:: mpl_toolkits/axisartist/figures/simple_axisartist1.py
    :include-source:
 
 
