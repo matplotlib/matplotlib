@@ -243,7 +243,7 @@ def check_lasso_selector(**kwargs):
 
     def onselect(verts):
         ax._got_onselect = True
-        assert verts == [(100, 100), (125, 125), (150, 150)]
+        assert verts == [(100, 100), (125, 125), (150, 150), (100, 100)]
 
     tool = widgets.LassoSelector(ax, onselect, **kwargs)
     do_event(tool, 'press', xdata=100, ydata=100, button=1)
