@@ -81,3 +81,5 @@ cover/
 # Conda files #
 ###############
 __conda_version__.txt
+lib/png.lib
+lib/z.lib
