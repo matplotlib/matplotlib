@@ -16,10 +16,12 @@ import tornado.ioloop
 from IPython.display import display, Javascript, HTML
 try:
     # Jupyter/IPython 4.x or later
-    from ipykernel.comm import Comm
+    from ipywidgets import DOMWidget
+    from traitlets import Unicode, Instance, Bool
 except ImportError:
     # Jupyter/IPython 3.x or earlier
-    from IPython.kernel.comm import Comm
+    from IPython.html.widgets import DOMWidget
+    from IPython.utils.traitlets import Unicode, Instance, Bool
 
 from matplotlib import rcParams
 from matplotlib.figure import Figure
@@ -113,23 +115,55 @@ class NavigationIPy(NavigationToolbar2WebAgg):
                  if image_file in _FONT_AWESOME_CLASSES]
 
 
+class MPLCanvasWidget(DOMWidget):
+    _view_module = Unicode("nbextensions/matplotlib/canvas.widget", sync=True)
+    _view_name = Unicode('MPLCanvasView', sync=True)
+    manager = Instance('FigureManagerNbAgg')
+    supports_binary = Bool(False)
+    closed = Bool(False)
+
+    def on_msg(self, message):
+        # The 'supports_binary' message is relevant to the
+        # websocket itself.  The other messages get passed along
+        # to matplotlib as-is.
+
+        # Every message has a "type" and a "figure_id".
+        message = json.loads(message['content']['data'])
+        if message['type'] == 'closing':
+            self.closed = True
+            self.manager.clearup_closed()
+        elif message['type'] == 'supports_binary':
+            self.supports_binary = message['value']
+        else:
+            self.manager.handle_json(message)
+
+    def send_json(self, content):
+        self.send({'data': json.dumps(content)})
+
+    def send_binary(self, blob):
+        # The comm is ascii, so we always send the image in base64
+        # encoded data URL form.
+        data = b64encode(blob)
+        if six.PY3:
+            data = data.decode('ascii')
+        data_uri = "data:image/png;base64,{0}".format(data)
+        self.send({'data': data_uri})
+
+
 class FigureManagerNbAgg(FigureManagerWebAgg):
     ToolbarCls = NavigationIPy
 
     def __init__(self, canvas, num):
         self._shown = False
         FigureManagerWebAgg.__init__(self, canvas, num)
-
-    def display_js(self):
-        # XXX How to do this just once? It has to deal with multiple
-        # browser instances using the same kernel (require.js - but the
-        # file isn't static?).
-        display(Javascript(FigureManagerNbAgg.get_javascript()))
+        self.widgets = []
 
     def show(self):
         if not self._shown:
-            self.display_js()
-            self._create_comm()
+            widget = MPLCanvasWidget(manager=self)
+            self.widgets.append(widget)
+            self.add_web_socket(widget)
+            display(widget)
         else:
             self.canvas.draw_idle()
         self._shown = True
@@ -161,22 +195,17 @@ class FigureManagerNbAgg(FigureManagerWebAgg):
         if stream is None:
             return output.getvalue()
 
-    def _create_comm(self):
-        comm = CommSocket(self)
-        self.add_web_socket(comm)
-        return comm
-
     def destroy(self):
         self._send_event('close')
         # need to copy comms as callbacks will modify this list
         for comm in list(self.web_sockets):
-            comm.on_close()
+            comm.closed = True
         self.clearup_closed()
 
     def clearup_closed(self):
         """Clear up any closed Comms."""
         self.web_sockets = set([socket for socket in self.web_sockets
-                                if socket.is_open()])
+                                if not socket.closed])
 
         if len(self.web_sockets) == 0:
             self.canvas.close_event()
@@ -227,78 +256,3 @@ def new_figure_manager_given_figure(num, figure):
     canvas.mpl_connect('close_event', closer)
 
     return manager
-
-
-class CommSocket(object):
-    """
-    Manages the Comm connection between IPython and the browser (client).
-
-    Comms are 2 way, with the CommSocket being able to publish a message
-    via the send_json method, and handle a message with on_message. On the
-    JS side figure.send_message and figure.ws.onmessage do the sending and
-    receiving respectively.
-
-    """
-    def __init__(self, manager):
-        self.supports_binary = None
-        self.manager = manager
-        self.uuid = str(uuid())
-        # Publish an output area with a unique ID. The javascript can then
-        # hook into this area.
-        display(HTML("<div id=%r></div>" % self.uuid))
-        try:
-            self.comm = Comm('matplotlib', data={'id': self.uuid})
-        except AttributeError:
-            raise RuntimeError('Unable to create an IPython notebook Comm '
-                               'instance. Are you in the IPython notebook?')
-        self.comm.on_msg(self.on_message)
-
-        manager = self.manager
-        self._ext_close = False
-
-        def _on_close(close_message):
-            self._ext_close = True
-            manager.remove_comm(close_message['content']['comm_id'])
-            manager.clearup_closed()
-
-        self.comm.on_close(_on_close)
-
-    def is_open(self):
-        return not (self._ext_close or self.comm._closed)
-
-    def on_close(self):
-        # When the socket is closed, deregister the websocket with
-        # the FigureManager.
-        if self.is_open():
-            try:
-                self.comm.close()
-            except KeyError:
-                # apparently already cleaned it up?
-                pass
-
-    def send_json(self, content):
-        self.comm.send({'data': json.dumps(content)})
-
-    def send_binary(self, blob):
-        # The comm is ascii, so we always send the image in base64
-        # encoded data URL form.
-        data = b64encode(blob)
-        if six.PY3:
-            data = data.decode('ascii')
-        data_uri = "data:image/png;base64,{0}".format(data)
-        self.comm.send({'data': data_uri})
-
-    def on_message(self, message):
-        # The 'supports_binary' message is relevant to the
-        # websocket itself.  The other messages get passed along
-        # to matplotlib as-is.
-
-        # Every message has a "type" and a "figure_id".
-        message = json.loads(message['content']['data'])
-        if message['type'] == 'closing':
-            self.on_close()
-            self.manager.clearup_closed()
-        elif message['type'] == 'supports_binary':
-            self.supports_binary = message['value']
-        else:
-            self.manager.handle_json(message)
