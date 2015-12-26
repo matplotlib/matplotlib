@@ -195,7 +195,7 @@ using "set_axis_direction" method. ::
   ax1.axis["left"].major_ticklabels.set_axis_direction("top")
   ax1.axis["right"].label.set_axis_direction("left")
 
-.. plot:: mpl_toolkits/axes_grid1/figures/simple_axis_direction01.py
+.. plot:: mpl_toolkits/axisartist/figures/simple_axis_direction01.py
 
 The parameter for set_axis_direction is one of ["left", "right",
 "bottom", "top"].
@@ -206,7 +206,7 @@ You must understand some underlying concept of directions.
     of the axis line with increasing coordinate.  For example, the
     reference direction of the left x-axis is from bottom to top.
 
-   .. plot:: mpl_toolkits/axes_grid1/figures/axis_direction_demo_step01.py
+   .. plot:: mpl_toolkits/axisartist/figures/axis_direction_demo_step01.py
 
    The direction, text angle, and alignments of the ticks, ticklabels and
    axis-label is determined with respect to the reference direction
@@ -214,11 +214,11 @@ You must understand some underlying concept of directions.
  2. *ticklabel_direction* is either the right-hand side (+) of the
     reference direction or the left-hand side (-).
 
-   .. plot:: mpl_toolkits/axes_grid1/figures/axis_direction_demo_step02.py
+   .. plot:: mpl_toolkits/axisartist/figures/axis_direction_demo_step02.py
 
  3. same for the *label_direction*
 
-   .. plot:: mpl_toolkits/axes_grid1/figures/axis_direction_demo_step03.py
+   .. plot:: mpl_toolkits/axisartist/figures/axis_direction_demo_step03.py
 
  4. ticks are by default drawn toward the opposite direction of the ticklabels.
 
@@ -226,7 +226,7 @@ You must understand some underlying concept of directions.
     to the *ticklabel_direction* or *label_direction*,
     respectively. The rotation of ticklabels and label is anchored.
 
-   .. plot:: mpl_toolkits/axes_grid1/figures/axis_direction_demo_step04.py
+   .. plot:: mpl_toolkits/axisartist/figures/axis_direction_demo_step04.py
 
 
 On the other hand, there is a concept of "axis_direction". This is a
@@ -251,7 +251,7 @@ And, 'set_axis_direction("top")' means to adjust the text rotation
 etc, for settings suitable for "top" axis. The concept of axis
 direction can be more clear with curved axis.
 
-.. plot:: mpl_toolkits/axes_grid1/figures/demo_axis_direction.py
+.. plot:: mpl_toolkits/axisartist/figures/demo_axis_direction.py
 
 The axis_direction can be adjusted in the AxisArtist level, or in the
 level of its child arists, i.e., ticks, ticklabels, and axis-label. ::
@@ -281,7 +281,7 @@ default direction). ::
 
    ax.axis[:].major_ticks.set_tick_out(True)
 
-.. plot:: mpl_toolkits/axes_grid1/figures/simple_axis_direction03.py
+.. plot:: mpl_toolkits/axisartist/figures/simple_axis_direction03.py
 
 
 So, in summary, 
@@ -310,7 +310,7 @@ Adjusting ticklabels alignment
 
 Alignment of TickLabels are treated specially. See below
 
-.. plot:: mpl_toolkits/axes_grid1/figures/demo_ticklabel_alignment.py
+.. plot:: mpl_toolkits/axisartist/figures/demo_ticklabel_alignment.py
 
 Adjusting  pad
 --------------
@@ -324,7 +324,7 @@ Or ticklabels and axis-label ::
   ax.axis["left"].label.set_pad(10)
 
 
-.. plot:: mpl_toolkits/axes_grid1/figures/simple_axis_pad.py
+.. plot:: mpl_toolkits/axisartist/figures/simple_axis_pad.py
 
 
 GridHelper
