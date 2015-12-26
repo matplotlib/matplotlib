@@ -1,5 +1,5 @@
 import matplotlib.pyplot as plt
-from mpl_toolkits.axes_grid.axislines import SubplotZero
+from mpl_toolkits.axisartist.axislines import SubplotZero
 import numpy as np
 
 fig = plt.figure(1, (4,3))
@@ -21,4 +21,3 @@ xx = np.arange(0, 2*np.pi, 0.01)
 ax.plot(xx, np.sin(xx))
 
 plt.show()
-

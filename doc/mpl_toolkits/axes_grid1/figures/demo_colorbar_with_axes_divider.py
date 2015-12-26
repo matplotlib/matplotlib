@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt
-from mpl_toolkits.axes_grid.axes_divider import make_axes_locatable
+from mpl_toolkits.axes_grid1.axes_divider import make_axes_locatable
 
-from mpl_toolkits.axes_grid.colorbar import colorbar
+from mpl_toolkits.axes_grid1.colorbar import colorbar
 # from matplotlib.pyplot import colorbar
 
 fig = plt.figure(1, figsize=(6, 3))
@@ -22,4 +22,3 @@ cax2 = ax2_divider.append_axes("top", size="7%", pad="2%")
 cb2 = colorbar(im2, cax=cax2, orientation="horizontal")
 cax2.xaxis.set_ticks_position("top")
 plt.show()
-

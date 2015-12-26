@@ -1,7 +1,6 @@
 import matplotlib.pyplot as plt
 
-from mpl_toolkits.axes_grid \
-     import Divider, LocatableAxes, Size
+from mpl_toolkits.axes_grid1 import Divider, LocatableAxes, Size
 
 def demo_fixed_size_axes():
 

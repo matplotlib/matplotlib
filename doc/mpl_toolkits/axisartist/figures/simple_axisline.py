@@ -1,6 +1,6 @@
 import matplotlib.pyplot as plt
 
-from mpl_toolkits.axes_grid.axislines import SubplotZero
+from mpl_toolkits.axisartist.axislines import SubplotZero
 
 if 1:
 
@@ -36,4 +36,3 @@ if 1:
     ax.plot([-2,3,2])
     plt.draw()
     plt.show()
-

@@ -1,5 +1,5 @@
 import matplotlib.pyplot as plt
-from mpl_toolkits.axes_grid.axislines import Subplot
+from mpl_toolkits.axisartist.axislines import Subplot
 
 fig = plt.figure(1, (3,3))
 
@@ -10,4 +10,3 @@ ax.axis["right"].set_visible(False)
 ax.axis["top"].set_visible(False)
 
 plt.show()
-
