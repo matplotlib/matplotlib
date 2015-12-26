@@ -1,5 +1,5 @@
 
-from mpl_toolkits.axes_grid.axislines import SubplotZero
+from mpl_toolkits.axisartist.axislines import SubplotZero
 import matplotlib.pyplot as plt
 import numpy as np
 
