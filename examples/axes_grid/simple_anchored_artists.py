@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 
 
 def draw_text(ax):
-    from mpl_toolkits.axes_grid1.anchored_artists import AnchoredText
+    from matplotlib.offsetbox import AnchoredText
     at = AnchoredText("Figure 1a",
                       loc=2, prop=dict(size=8), frameon=True,
                       )
