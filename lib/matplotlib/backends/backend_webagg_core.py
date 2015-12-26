@@ -18,7 +18,7 @@ from matplotlib.externals import six
 import io
 import json
 import os
-import time
+import datetime
 import warnings
 
 import numpy as np
@@ -501,6 +501,7 @@ class FigureManagerWebAgg(backend_bases.FigureManagerBase):
         with io.open(os.path.join(
                 os.path.dirname(__file__),
                 "web_backend",
+                "js",
                 "mpl.js"), encoding='utf8') as fd:
             output.write(fd.read())
 
@@ -530,7 +531,7 @@ class FigureManagerWebAgg(backend_bases.FigureManagerBase):
 
     @classmethod
     def get_static_file_path(cls):
-        return os.path.join(os.path.dirname(__file__), 'web_backend')
+        return os.path.join(os.path.dirname(__file__), 'web_backend', 'js')
 
     def _send_event(self, event_type, **kwargs):
         payload = {'type': event_type}
