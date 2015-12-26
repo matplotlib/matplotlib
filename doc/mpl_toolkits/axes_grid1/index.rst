@@ -1,5 +1,5 @@
 
-.. _toolkit_axesgrid-index:
+.. _toolkit_axesgrid1-index:
 
 Matplotlib AxesGrid Toolkit
 ===========================

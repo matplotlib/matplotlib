@@ -149,7 +149,7 @@ copy_if_out_of_date('../INSTALL', 'users/installing.rst')
 
 required_symlinks = [
     ('mpl_examples', '../examples/'),
-    ('mpl_toolkits/axes_grid/examples', '../../../examples/axes_grid/')
+    ('mpl_toolkits/axes_grid1/examples', '../../../examples/axes_grid/')
     ]
 
 symlink_warnings = []
