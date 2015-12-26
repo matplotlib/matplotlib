@@ -29,7 +29,7 @@ In summary, all these changes was to support
 * a curvilinear grid.
 * a floating axis
 
-.. plot:: mpl_toolkits/axes_grid1/examples/demo_floating_axis.py
+.. plot:: mpl_toolkits/axisartist/examples/demo_floating_axis.py
 
 
 *mpl_toolkits.axisartist.Axes* class defines a *axis* attribute, which
@@ -418,7 +418,7 @@ coordinates, or you may use Parasite Axes for convenience.::
     ax1.parasites.append(ax2)
 
 
-.. plot:: mpl_toolkits/axes_grid1/examples/demo_curvelinear_grid.py
+.. plot:: mpl_toolkits/axisartist/examples/demo_curvelinear_grid.py
 
 
 

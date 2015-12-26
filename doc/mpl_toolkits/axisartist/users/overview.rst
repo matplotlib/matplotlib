@@ -15,7 +15,7 @@ to draw ticks, ticklines and etc., Axes in axisartist uses special
 artist (AxisArtist) which can handle tick, ticklines and etc. for
 curved coordinate systems.
 
-.. plot:: mpl_toolkits/axes_grid1/examples/demo_floating_axis.py
+.. plot:: mpl_toolkits/axisartist/examples/demo_floating_axis.py
 
 Since it uses a special artists, some mpl commands that work on
 Axes.xaxis and Axes.yaxis may not work.
@@ -97,7 +97,7 @@ to create a host subplot with axisartist.Axes, ::
 Here is an example that uses  parasiteAxes.
 
 
-.. plot:: mpl_toolkits/axes_grid1/examples/demo_parasite_axes2.py
+.. plot:: mpl_toolkits/axisartist/examples/demo_parasite_axes2.py
 
 
 
@@ -107,7 +107,7 @@ Curvilinear Grid
 The motivation behind the AxisArtist module is to support curvilinear grid
 and ticks.
 
-.. plot:: mpl_toolkits/axes_grid1/examples/demo_curvelinear_grid.py
+.. plot:: mpl_toolkits/axisartist/examples/demo_curvelinear_grid.py
 
 See :ref:`axisartist-manual` for more details.
 
@@ -118,4 +118,4 @@ Floating Axes
 This also support a Floating Axes whose outer axis are defined as
 floating axis.
 
-.. plot:: mpl_toolkits/axes_grid1/examples/demo_floating_axes.py
+.. plot:: mpl_toolkits/axisartist/examples/demo_floating_axes.py
