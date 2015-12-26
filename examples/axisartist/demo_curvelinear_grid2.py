@@ -1,11 +1,11 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-from mpl_toolkits.axes_grid.grid_helper_curvelinear import \
+from mpl_toolkits.axisartist.grid_helper_curvelinear import \
     GridHelperCurveLinear
-from mpl_toolkits.axes_grid.axislines import Subplot
+from mpl_toolkits.axisartist.axislines import Subplot
 
-import mpl_toolkits.axes_grid.angle_helper as angle_helper
+import mpl_toolkits.axisartist.angle_helper as angle_helper
 
 
 def curvelinear_test1(fig):
