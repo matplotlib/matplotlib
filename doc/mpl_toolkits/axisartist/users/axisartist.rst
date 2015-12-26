@@ -117,15 +117,15 @@ ticklabels, and label. To make ticklabel invisible, ::
   ax.axis["bottom"].toggle(ticklabels=False)
 
 To make all of ticks, ticklabels, and (axis) label invisible ::
-    
+
       ax.axis["bottom"].toggle(all=False)
-    
+
 To turn all off but ticks on ::
-    
+
       ax.axis["bottom"].toggle(all=False, ticks=True)
-    
+
 To turn all on but (axis) label off ::
-    
+
       ax.axis["bottom"].toggle(all=True, label=False))
 
 
@@ -140,7 +140,7 @@ Note that 'ax.axis["top","right"]' returns a simple proxy object that translate 
         ax.axis[n].toggle(ticklabels=True))
 
 So, any return values in the for loop are ignored. And you should not
-use it anything more than a simple method. 
+use it anything more than a simple method.
 
 Like the list indexing ":" means all items, i.e., ::
 
@@ -231,7 +231,7 @@ You must understand some underlying concept of directions.
 
 On the other hand, there is a concept of "axis_direction". This is a
 default setting of above properties for each, "bottom", "left", "top",
-and "right" axis. 
+and "right" axis.
 
  ========== =========== ========= ========== ========= ==========
     ?           ?        left      bottom      right      top
@@ -245,7 +245,7 @@ and "right" axis.
  ticklabel   ha           right    center      right     center
  ticklabel   va           center   baseline    center   baseline
  ========== =========== ========= ========== ========= ==========
-  
+
 
 And, 'set_axis_direction("top")' means to adjust the text rotation
 etc, for settings suitable for "top" axis. The concept of axis
@@ -270,11 +270,11 @@ axis_direction of ticks, ticklabels, and axis-label does not affect
 them.
 
 
-If you want to make ticks outward and ticklabels inside the axes, 
+If you want to make ticks outward and ticklabels inside the axes,
 use invert_ticklabel_direction method. ::
 
    ax.axis[:].invert_ticklabel_direction()
- 
+
 A related method is "set_tick_out". It makes ticks outward (as a
 matter of fact, it makes ticks toward the opposite direction of the
 default direction). ::
@@ -284,7 +284,7 @@ default direction). ::
 .. plot:: mpl_toolkits/axisartist/figures/simple_axis_direction03.py
 
 
-So, in summary, 
+So, in summary,
 
  * AxisArtist's methods
     * set_axis_direction : "left", "right", "bottom", or "top"
