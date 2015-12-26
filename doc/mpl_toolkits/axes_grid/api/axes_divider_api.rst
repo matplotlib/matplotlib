@@ -1,18 +1,18 @@
 
-:mod:`mpl_toolkits.axes_grid.axes_divider`
-==========================================
+:mod:`mpl_toolkits.axes_grid1.axes_divider`
+===========================================
 
-.. autoclass:: mpl_toolkits.axes_grid.axes_divider.Divider
+.. autoclass:: mpl_toolkits.axes_grid1.axes_divider.Divider
    :members: 
    :undoc-members:
 
 
-.. autoclass:: mpl_toolkits.axes_grid.axes_divider.AxesLocator
+.. autoclass:: mpl_toolkits.axes_grid1.axes_divider.AxesLocator
    :members: 
    :undoc-members:
 
-.. autoclass:: mpl_toolkits.axes_grid.axes_divider.SubplotDivider
+.. autoclass:: mpl_toolkits.axes_grid1.axes_divider.SubplotDivider
    :members: 
 
-.. autoclass:: mpl_toolkits.axes_grid.axes_divider.AxesDivider
+.. autoclass:: mpl_toolkits.axes_grid1.axes_divider.AxesDivider
    :members: 
