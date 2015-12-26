@@ -135,7 +135,8 @@ mpl_example_sections = (
     ('api', 'API'),
     ('pylab_examples', 'pylab examples'),
     ('mplot3d', 'mplot3d toolkit'),
-    ('axes_grid', 'axes_grid toolkit'),
+    ('axes_grid1', 'axes_grid1 toolkit'),
+    ('axisartist', 'axisartist toolkit'),
     ('units', 'units'),
     ('widgets', 'widgets'),
     )
