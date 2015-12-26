@@ -1,4 +1,4 @@
-from mpl_toolkits.axes_grid import Size, Divider
+from mpl_toolkits.axes_grid1 import Size, Divider
 import matplotlib.pyplot as plt
 
 

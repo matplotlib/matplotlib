@@ -1,6 +1,6 @@
 
 import matplotlib.pyplot as plt
-import mpl_toolkits.axes_grid.axislines as axislines
+import mpl_toolkits.axisartist.axislines as axislines
 
 
 def setup_axes(fig, rect):

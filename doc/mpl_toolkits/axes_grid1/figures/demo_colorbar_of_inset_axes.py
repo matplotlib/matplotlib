@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt
 
-from mpl_toolkits.axes_grid.inset_locator import inset_axes, zoomed_inset_axes
-from mpl_toolkits.axes_grid.colorbar import colorbar
+from mpl_toolkits.axes_grid1.inset_locator import inset_axes, zoomed_inset_axes
+from mpl_toolkits.axes_grid1.colorbar import colorbar
 
 def get_demo_image():
     from matplotlib.cbook import get_sample_data
@@ -46,4 +46,3 @@ colorbar(im, cax=cax) #, ticks=[1,2,3])
 
 plt.draw()
 plt.show()
-

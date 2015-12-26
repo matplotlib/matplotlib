@@ -1,5 +1,5 @@
-import mpl_toolkits.axes_grid.axes_size as Size
-from mpl_toolkits.axes_grid import Divider
+import mpl_toolkits.axes_grid1.axes_size as Size
+from mpl_toolkits.axes_grid1 import Divider
 import matplotlib.pyplot as plt
 
 
