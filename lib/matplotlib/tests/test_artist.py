@@ -1,6 +1,6 @@
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
-
+import warnings
 from matplotlib.externals import six
 
 import io
@@ -9,6 +9,7 @@ import numpy as np
 
 import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
+import matplotlib.lines as mlines
 import matplotlib.path as mpath
 import matplotlib.transforms as mtrans
 import matplotlib.collections as mcollections
@@ -174,6 +175,16 @@ def test_remove():
     assert_true(im not in ax.mouseover_set)
     assert_true(fig.stale)
     assert_true(ax.stale)
+
+
+@cleanup
+def test_properties():
+    ln = mlines.Line2D([], [])
+    with warnings.catch_warnings(record=True) as w:
+        # Cause all warnings to always be triggered.
+        warnings.simplefilter("always")
+        ln.properties()
+        assert len(w) == 0
 
 
 if __name__ == '__main__':
