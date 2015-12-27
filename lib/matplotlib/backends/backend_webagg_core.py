@@ -18,7 +18,7 @@ from matplotlib.externals import six
 import io
 import json
 import os
-import time
+import datetime
 import warnings
 
 import numpy as np

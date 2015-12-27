@@ -129,7 +129,7 @@ class FigureCanvasNbAgg(DOMWidget, FigureCanvasWebAggCore):
     _png_is_old = Bool()
     _force_full = Bool()
     _current_image_mode = Unicode()
-    _dpi_ratio = Float()
+    _dpi_ratio = Float(1.0)
     _is_idle_drawing = Bool()
     _is_saving = Bool()
     _button = Any()
@@ -160,6 +160,10 @@ class FigureCanvasNbAgg(DOMWidget, FigureCanvasWebAggCore):
             display(HTML(data))
         elif message['type'] == 'supports_binary':
             self.supports_binary = message['value']
+        elif message['type'] == 'initialized':
+            _, _, w, h = self.figure.bbox.bounds
+            self.manager.resize(w, h)
+            self.send_json('refresh')
         else:
             self.manager.handle_json(message)
 
@@ -251,7 +255,7 @@ def nbinstall(overwrite=False, user=True):
     ----------
 
     overwrite : bool
-        If True, always install the files, regardless of what may already be
+        If True, always install the files, regardless of what mayœ already be
         installed.  Defaults to False.
     user : bool
         Whether to install to the user's .ipython/nbextensions directory.
@@ -260,7 +264,8 @@ def nbinstall(overwrite=False, user=True):
     """
     if (check_nbextension('matplotlib') or
             check_nbextension('matplotlib', True)):
-        return
+        #return
+        pass
 
     # Make a temporary directory so we can wrap mpl.js in a requirejs define().
     tempdir = mkdtemp()
@@ -277,7 +282,7 @@ def nbinstall(overwrite=False, user=True):
 
     install_nbextension(
         tempdir,
-        overwrite=overwrite,
+        overwrite=True, #overwrite,
         symlink=False,
         destination='matplotlib',
         verbose=0,
