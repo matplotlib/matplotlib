@@ -2079,8 +2079,10 @@ class RectangleSelector(_SelectorWidget):
                                  alpha=0.2, fill=True)
             rectprops['animated'] = self.useblit
             self.rectprops = rectprops
-            self.to_draw = self._shape_klass((0, 0),
-                                     0, 1, visible=False, **self.rectprops)
+            self.to_draw = (
+                self._shape_klass((0, 0), 0, 1, visible=False,
+                                  **self.rectprops)
+            )
             self.ax.add_patch(self.to_draw)
         if drawtype == 'line':
             if lineprops is None:
@@ -2215,8 +2217,8 @@ class RectangleSelector(_SelectorWidget):
                 y2 = event.ydata
 
         # move existing shape
-        elif (('move' in self.state or self.active_handle == 'C')
-              and self._extents_on_press is not None):
+        elif (('move' in self.state or self.active_handle == 'C') and
+              self._extents_on_press is not None):
             x1, x2, y1, y2 = self._extents_on_press
             dx = event.xdata - self.eventpress.xdata
             dy = event.ydata - self.eventpress.ydata
