@@ -125,7 +125,7 @@ class FigureCanvasNbAgg(DOMWidget, FigureCanvasWebAggCore):
     _force_full = Bool()
 
     manager = Instance('matplotlib.backends.backend_nbagg.FigureManagerNbAgg')
-    closed = Bool(False)
+    closed = Bool(True)
     uid = Unicode('', sync=True)
 
     def __init__(self, figure, *args, **kwargs):
@@ -144,9 +144,9 @@ class FigureCanvasNbAgg(DOMWidget, FigureCanvasWebAggCore):
         if message['type'] == 'closing':
             self.closed = True
             buf = io.BytesIO()
-            self.figure.savefig(buf, format='png')
+            self.figure.savefig(buf, format='png', dpi='figure')
             data = "<img src='data:image/png;base64,{0}'/>"
-            data = data.format(b64encode(buf.getvalue().decode('utf-8')))
+            data = data.format(b64encode(buf.getvalue()).decode('utf-8'))
             display(HTML(data))
         elif message['type'] == 'supports_binary':
             self.supports_binary = message['value']
@@ -170,7 +170,6 @@ class FigureManagerNbAgg(FigureManagerWebAgg):
     ToolbarCls = NavigationIPy
 
     def __init__(self, canvas, num):
-        self._shown = False
         FigureManagerWebAgg.__init__(self, canvas, num)
         toolitems = []
         for name, tooltip, image, method in self.ToolbarCls.toolitems:
@@ -182,11 +181,11 @@ class FigureManagerNbAgg(FigureManagerWebAgg):
         self.web_sockets = [self.canvas]
 
     def show(self):
-        if not self._shown:
+        if self.canvas.closed:
+            self.canvas.closed = False
             display(self.canvas)
         else:
             self.canvas.draw_idle()
-        self._shown = True
 
     def destroy(self):
         self._send_event('close')
