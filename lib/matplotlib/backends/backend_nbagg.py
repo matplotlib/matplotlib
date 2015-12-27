@@ -17,11 +17,11 @@ from IPython.display import display, Javascript, HTML
 try:
     # Jupyter/IPython 4.x or later
     from ipywidgets import DOMWidget
-    from traitlets import Unicode, Instance, Bool
+    from traitlets import Unicode, Instance, Bool, Float
 except ImportError:
     # Jupyter/IPython 3.x or earlier
     from IPython.html.widgets import DOMWidget
-    from IPython.utils.traitlets import Unicode, Instance, Bool
+    from IPython.utils.traitlets import Unicode, Instance, Bool, Float
 
 from matplotlib import rcParams
 from matplotlib.figure import Figure
@@ -115,20 +115,30 @@ class NavigationIPy(NavigationToolbar2WebAgg):
                  if image_file in _FONT_AWESOME_CLASSES]
 
 
-class MPLCanvasWidget(DOMWidget):
-    _view_module = Unicode("nbextensions/matplotlib/canvas.widget", sync=True)
+class FigureCanvasNbAgg(DOMWidget, FigureCanvasWebAggCore):
+    _view_module = Unicode("nbextensions/matplotlib/nbagg_mpl", sync=True)
     _view_name = Unicode('MPLCanvasView', sync=True)
-    manager = Instance('FigureManagerNbAgg')
-    supports_binary = Bool(False)
+    manager = Instance('matplotlib.backends.backend_nbagg.FigureManagerNbAgg')
     closed = Bool(False)
+    uid = Unicode('', sync=True)
+    _current_image_mode = Unicode()
+    _dpi_ratio = Float()
+    _png_is_old = Bool()
+    _force_full = Bool()
 
-    def on_msg(self, message):
+    def __init__(self, figure, *args, **kwargs):
+        super(DOMWidget, self).__init__(*args, **kwargs)
+        super(FigureCanvasWebAggCore, self).__init__(figure, *args, **kwargs)
+        self.uid = uuid().hex
+        self.on_msg(self.handle_message)
+
+    def handle_message(self, object, message, buffers):
         # The 'supports_binary' message is relevant to the
         # websocket itself.  The other messages get passed along
         # to matplotlib as-is.
 
         # Every message has a "type" and a "figure_id".
-        message = json.loads(message['content']['data'])
+        message = json.loads(message)
         if message['type'] == 'closing':
             self.closed = True
             self.manager.clearup_closed()
@@ -156,74 +166,17 @@ class FigureManagerNbAgg(FigureManagerWebAgg):
     def __init__(self, canvas, num):
         self._shown = False
         FigureManagerWebAgg.__init__(self, canvas, num)
-        self.widgets = []
+        self.web_sockets = [self.canvas]
 
     def show(self):
         if not self._shown:
-            widget = MPLCanvasWidget(manager=self)
-            self.widgets.append(widget)
-            self.add_web_socket(widget)
-            display(widget)
+            display(self.canvas)
         else:
             self.canvas.draw_idle()
         self._shown = True
 
-    def reshow(self):
-        """
-        A special method to re-show the figure in the notebook.
-
-        """
-        self._shown = False
-        self.show()
-
-    @property
-    def connected(self):
-        return bool(self.web_sockets)
-
-    @classmethod
-    def get_javascript(cls, stream=None):
-        if stream is None:
-            output = io.StringIO()
-        else:
-            output = stream
-        super(FigureManagerNbAgg, cls).get_javascript(stream=output)
-        with io.open(os.path.join(
-                os.path.dirname(__file__),
-                "web_backend",
-                "nbagg_mpl.js"), encoding='utf8') as fd:
-            output.write(fd.read())
-        if stream is None:
-            return output.getvalue()
-
     def destroy(self):
         self._send_event('close')
-        # need to copy comms as callbacks will modify this list
-        for comm in list(self.web_sockets):
-            comm.closed = True
-        self.clearup_closed()
-
-    def clearup_closed(self):
-        """Clear up any closed Comms."""
-        self.web_sockets = set([socket for socket in self.web_sockets
-                                if not socket.closed])
-
-        if len(self.web_sockets) == 0:
-            self.canvas.close_event()
-
-    def remove_comm(self, comm_id):
-        self.web_sockets = set([socket for socket in self.web_sockets
-                                if not socket.comm.comm_id == comm_id])
-
-
-class FigureCanvasNbAgg(FigureCanvasWebAggCore):
-    def new_timer(self, *args, **kwargs):
-        return TimerTornado(*args, **kwargs)
-
-    def start_event_loop(self, timeout):
-        FigureCanvasBase.start_event_loop_default(self, timeout)
-
-    def stop_event_loop(self):
-        FigureCanvasBase.stop_event_loop_default(self)
 
 
 def new_figure_manager(num, *args, **kwargs):
