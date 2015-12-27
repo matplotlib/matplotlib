@@ -141,7 +141,9 @@ class FigureCanvasNbAgg(DOMWidget, FigureCanvasWebAggCore):
         message = json.loads(message)
         if message['type'] == 'closing':
             self.closed = True
-            self.manager.clearup_closed()
+            buf = io.BytesIO()
+            self.figure.savefig(buf, format='png')
+            display(HTML("<img src='data:image/png;base64,{0}'/>".format(b64encode(buf.getvalue()).decode('utf-8'))))
         elif message['type'] == 'supports_binary':
             self.supports_binary = message['value']
         else:
