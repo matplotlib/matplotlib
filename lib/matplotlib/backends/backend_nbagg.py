@@ -103,6 +103,7 @@ _FONT_AWESOME_CLASSES = {
     'zoom_to_rect': 'fa fa-square-o icon-check-empty',
     'move': 'fa fa-arrows icon-move',
     'download': 'fa fa-floppy-o icon-save',
+    'export': 'fa fa-file-picture-o icon-picture',
     None: None
 }
 
@@ -114,8 +115,16 @@ class NavigationIPy(NavigationToolbar2WebAgg):
                   _FONT_AWESOME_CLASSES[image_file], name_of_method)
                  for text, tooltip_text, image_file, name_of_method
                  in (NavigationToolbar2.toolitems +
-                     (('Download', 'Download plot', 'download', 'download'),))
+                     (('Download', 'Download plot', 'download', 'download'),
+                      ('Export', 'Export plot', 'export', 'export')))
                  if image_file in _FONT_AWESOME_CLASSES]
+
+    def export(self):
+        buf = io.BytesIO()
+        self.canvas.figure.savefig(buf, format='png', dpi='figure')
+        data = "<img src='data:image/png;base64,{0}'/>"
+        data = data.format(b64encode(buf.getvalue()).decode('utf-8'))
+        display(HTML(data))
 
 
 class FigureCanvasNbAgg(DOMWidget, FigureCanvasWebAggCore):
@@ -153,11 +162,6 @@ class FigureCanvasNbAgg(DOMWidget, FigureCanvasWebAggCore):
         message = json.loads(message)
         if message['type'] == 'closing':
             self._closed = True
-            buf = io.BytesIO()
-            self.figure.savefig(buf, format='png', dpi='figure')
-            data = "<img src='data:image/png;base64,{0}'/>"
-            data = data.format(b64encode(buf.getvalue()).decode('utf-8'))
-            display(HTML(data))
         elif message['type'] == 'supports_binary':
             self.supports_binary = message['value']
         elif message['type'] == 'initialized':
