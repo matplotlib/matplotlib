@@ -17,11 +17,11 @@ from IPython.display import display, Javascript, HTML
 try:
     # Jupyter/IPython 4.x or later
     from ipywidgets import DOMWidget
-    from traitlets import Unicode, Instance, Bool, Float
+    from traitlets import Unicode, Instance, Bool, Float, List
 except ImportError:
     # Jupyter/IPython 3.x or earlier
     from IPython.html.widgets import DOMWidget
-    from IPython.utils.traitlets import Unicode, Instance, Bool, Float
+    from IPython.utils.traitlets import Unicode, Instance, Bool, Float, List
 
 from matplotlib import rcParams
 from matplotlib.figure import Figure
@@ -118,13 +118,15 @@ class NavigationIPy(NavigationToolbar2WebAgg):
 class FigureCanvasNbAgg(DOMWidget, FigureCanvasWebAggCore):
     _view_module = Unicode("nbextensions/matplotlib/nbagg_mpl", sync=True)
     _view_name = Unicode('MPLCanvasView', sync=True)
-    manager = Instance('matplotlib.backends.backend_nbagg.FigureManagerNbAgg')
-    closed = Bool(False)
-    uid = Unicode('', sync=True)
+    _toolbar_items = List(sync=True)
     _current_image_mode = Unicode()
     _dpi_ratio = Float()
     _png_is_old = Bool()
     _force_full = Bool()
+
+    manager = Instance('matplotlib.backends.backend_nbagg.FigureManagerNbAgg')
+    closed = Bool(False)
+    uid = Unicode('', sync=True)
 
     def __init__(self, figure, *args, **kwargs):
         super(DOMWidget, self).__init__(*args, **kwargs)
@@ -143,7 +145,9 @@ class FigureCanvasNbAgg(DOMWidget, FigureCanvasWebAggCore):
             self.closed = True
             buf = io.BytesIO()
             self.figure.savefig(buf, format='png')
-            display(HTML("<img src='data:image/png;base64,{0}'/>".format(b64encode(buf.getvalue()).decode('utf-8'))))
+            data = "<img src='data:image/png;base64,{0}'/>"
+            data = data.format(b64encode(buf.getvalue().decode('utf-8')))
+            display(HTML(data))
         elif message['type'] == 'supports_binary':
             self.supports_binary = message['value']
         else:
@@ -168,6 +172,13 @@ class FigureManagerNbAgg(FigureManagerWebAgg):
     def __init__(self, canvas, num):
         self._shown = False
         FigureManagerWebAgg.__init__(self, canvas, num)
+        toolitems = []
+        for name, tooltip, image, method in self.ToolbarCls.toolitems:
+            if name is None:
+                toolitems.append(['', '', '', ''])
+            else:
+                toolitems.append([name, tooltip, image, method])
+        canvas._toolbar_items = toolitems
         self.web_sockets = [self.canvas]
 
     def show(self):
