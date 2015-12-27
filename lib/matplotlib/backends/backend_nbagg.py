@@ -6,18 +6,24 @@
 from base64 import b64encode
 import json
 import io
+from tempfile import mkdtemp
+import shutil
+import os
 from matplotlib.externals import six
 from uuid import uuid4 as uuid
 
 from IPython.display import display, HTML
+from IPython import version_info
 try:
     # Jupyter/IPython 4.x or later
     from ipywidgets import DOMWidget
     from traitlets import Unicode, Bool, Float, List, Any
+    from notebook.nbextensions import install_nbextension, check_nbextension
 except ImportError:
     # Jupyter/IPython 3.x or earlier
     from IPython.html.widgets import DOMWidget
     from IPython.utils.traitlets import Unicode, Bool, Float, List, Any
+    from IPython.html.nbextensions import install_nbextension
 
 from matplotlib import rcParams
 from matplotlib.figure import Figure
@@ -234,3 +240,48 @@ def new_figure_manager_given_figure(num, figure):
     canvas.mpl_connect('close_event', closer)
 
     return manager
+
+
+def nbinstall(overwrite=False, user=True):
+    """
+    Copies javascript dependencies to the '/nbextensions' folder in
+    your IPython directory.
+
+    Parameters
+    ----------
+
+    overwrite : bool
+        If True, always install the files, regardless of what may already be
+        installed.  Defaults to False.
+    user : bool
+        Whether to install to the user's .ipython/nbextensions directory.
+        Otherwise do a system-wide install
+        (e.g. /usr/local/share/jupyter/nbextensions).  Defaults to False.
+    """
+    if (check_nbextension('matplotlib') or
+            check_nbextension('matplotlib', True)):
+        return
+
+    # Make a temporary directory so we can wrap mpl.js in a requirejs define().
+    tempdir = mkdtemp()
+    path = os.path.join(os.path.dirname(__file__), "web_backend")
+    shutil.copy2(os.path.join(path, "nbagg_mpl.js"), tempdir)
+
+    with open(os.path.join(path, 'mpl.js')) as fid:
+        contents = fid.read()
+
+    with open(os.path.join(tempdir, 'mpl.js'), 'w') as fid:
+        fid.write('define(["jquery"], function($) {\n')
+        fid.write(contents)
+        fid.write('\nreturn {mpl: mpl};\n});')
+
+    install_nbextension(
+        tempdir,
+        overwrite=overwrite,
+        symlink=False,
+        destination='matplotlib',
+        verbose=0,
+        **({'user': user} if version_info >= (3, 0, 0, '') else {})
+    )
+
+nbinstall()
