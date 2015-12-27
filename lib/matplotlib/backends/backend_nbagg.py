@@ -268,8 +268,7 @@ def nbinstall(overwrite=False, user=True):
     """
     if (check_nbextension('matplotlib') or
             check_nbextension('matplotlib', True)):
-        #return
-        pass
+        return
 
     # Make a temporary directory so we can wrap mpl.js in a requirejs define().
     tempdir = mkdtemp()
@@ -286,7 +285,7 @@ def nbinstall(overwrite=False, user=True):
 
     install_nbextension(
         tempdir,
-        overwrite=True, #overwrite,
+        overwrite=overwrite,
         symlink=False,
         destination='matplotlib',
         verbose=0,
