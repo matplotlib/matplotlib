@@ -17,11 +17,12 @@ from IPython.display import display, Javascript, HTML
 try:
     # Jupyter/IPython 4.x or later
     from ipywidgets import DOMWidget
-    from traitlets import Unicode, Instance, Bool, Float, List
+    from traitlets import Unicode, Instance, Bool, Float, List, Any
 except ImportError:
     # Jupyter/IPython 3.x or earlier
     from IPython.html.widgets import DOMWidget
-    from IPython.utils.traitlets import Unicode, Instance, Bool, Float, List
+    from IPython.utils.traitlets import (
+        Unicode, Instance, Bool, Float, List, Any)
 
 from matplotlib import rcParams
 from matplotlib.figure import Figure
@@ -119,22 +120,31 @@ class FigureCanvasNbAgg(DOMWidget, FigureCanvasWebAggCore):
     _view_module = Unicode("nbextensions/matplotlib/nbagg_mpl", sync=True)
     _view_name = Unicode('MPLCanvasView', sync=True)
     _toolbar_items = List(sync=True)
-    _current_image_mode = Unicode()
-    _dpi_ratio = Float()
+    _closed = Bool(True)
+    _id = Unicode('', sync=True)
+
+    # Must declare the superclass private members.
     _png_is_old = Bool()
     _force_full = Bool()
+    _current_image_mode = Unicode()
+    _dpi_ratio = Float()
+    _is_idle_drawing = Bool()
+    _is_saving = Bool()
+    _button = Any()
+    _key = Any()
+    _lastx = Any()
+    _lasty = Any()
+    _is_idle_drawing = Bool()
 
     manager = Instance('matplotlib.backends.backend_nbagg.FigureManagerNbAgg')
-    closed = Bool(True)
-    uid = Unicode('', sync=True)
 
     def __init__(self, figure, *args, **kwargs):
-        super(DOMWidget, self).__init__(*args, **kwargs)
         super(FigureCanvasWebAggCore, self).__init__(figure, *args, **kwargs)
-        self.uid = uuid().hex
-        self.on_msg(self.handle_message)
+        super(DOMWidget, self).__init__(*args, **kwargs)
+        self._uid = uuid().hex
+        self.on_msg(self._handle_message)
 
-    def handle_message(self, object, message, buffers):
+    def _handle_message(self, object, message, buffers):
         # The 'supports_binary' message is relevant to the
         # websocket itself.  The other messages get passed along
         # to matplotlib as-is.
@@ -142,7 +152,7 @@ class FigureCanvasNbAgg(DOMWidget, FigureCanvasWebAggCore):
         # Every message has a "type" and a "figure_id".
         message = json.loads(message)
         if message['type'] == 'closing':
-            self.closed = True
+            self._closed = True
             buf = io.BytesIO()
             self.figure.savefig(buf, format='png', dpi='figure')
             data = "<img src='data:image/png;base64,{0}'/>"
@@ -181,8 +191,8 @@ class FigureManagerNbAgg(FigureManagerWebAgg):
         self.web_sockets = [self.canvas]
 
     def show(self):
-        if self.canvas.closed:
-            self.canvas.closed = False
+        if self.canvas._closed:
+            self.canvas._closed = False
             display(self.canvas)
         else:
             self.canvas.draw_idle()
