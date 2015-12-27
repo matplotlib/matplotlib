@@ -3,26 +3,21 @@
 # lib/matplotlib/backends/web_backend/nbagg_uat.ipynb to help verify
 # that changes made maintain expected behaviour.
 
-import datetime
 from base64 import b64encode
 import json
 import io
-import os
 from matplotlib.externals import six
 from uuid import uuid4 as uuid
 
-import tornado.ioloop
-
-from IPython.display import display, Javascript, HTML
+from IPython.display import display, HTML
 try:
     # Jupyter/IPython 4.x or later
     from ipywidgets import DOMWidget
-    from traitlets import Unicode, Instance, Bool, Float, List, Any
+    from traitlets import Unicode, Bool, Float, List, Any
 except ImportError:
     # Jupyter/IPython 3.x or earlier
     from IPython.html.widgets import DOMWidget
-    from IPython.utils.traitlets import (
-        Unicode, Instance, Bool, Float, List, Any)
+    from IPython.utils.traitlets import Unicode, Bool, Float, List, Any
 
 from matplotlib import rcParams
 from matplotlib.figure import Figure
@@ -36,6 +31,7 @@ from matplotlib.backend_bases import (ShowBase, NavigationToolbar2,
 
 
 class Show(ShowBase):
+
     def __call__(self, block=None):
         from matplotlib._pylab_helpers import Gcf
 
@@ -136,8 +132,6 @@ class FigureCanvasNbAgg(DOMWidget, FigureCanvasWebAggCore):
     _lasty = Any()
     _is_idle_drawing = Bool()
 
-    manager = Instance('matplotlib.backends.backend_nbagg.FigureManagerNbAgg')
-
     def __init__(self, figure, *args, **kwargs):
         super(FigureCanvasWebAggCore, self).__init__(figure, *args, **kwargs)
         super(DOMWidget, self).__init__(*args, **kwargs)
@@ -174,6 +168,15 @@ class FigureCanvasNbAgg(DOMWidget, FigureCanvasWebAggCore):
             data = data.decode('ascii')
         data_uri = "data:image/png;base64,{0}".format(data)
         self.send({'data': data_uri})
+
+    def new_timer(self, *args, **kwargs):
+        return TimerTornado(*args, **kwargs)
+
+    def start_event_loop(self, timeout):
+        FigureCanvasBase.start_event_loop_default(self, timeout)
+
+    def stop_event_loop(self):
+        FigureCanvasBase.stop_event_loop_default(self)
 
 
 class FigureManagerNbAgg(FigureManagerWebAgg):
