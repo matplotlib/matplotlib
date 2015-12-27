@@ -2470,7 +2470,9 @@ class LassoSelector(_SelectorWidget):
     *onselect* : function
         Whenever the lasso is released, the `onselect` function is called and
         passed the vertices of the selected path.
-    *persist* will leave the lasso drawn until the next one is drawn.
+    *persist*: boolean
+        Whether to leave the lasso drawn until the next one is drawn.
+
     *state_modifier_keys* are keyboard modifiers that affect the behavior
         of the widget.
 
@@ -2499,9 +2501,10 @@ class LassoSelector(_SelectorWidget):
     """
 
     def __init__(self, ax, onselect=None, useblit=True, lineprops=None,
-        button=None, persist=False, state_modifier_keys=None):
+                 button=None, persist=False, state_modifier_keys=None):
         _SelectorWidget.__init__(self, ax, onselect, useblit=useblit,
-            button=button, state_modifier_keys=state_modifier_keys)
+                                 button=button,
+                                 state_modifier_keys=state_modifier_keys)
 
         self.verts = None
 
@@ -2559,9 +2562,11 @@ class LassoSelector(_SelectorWidget):
             return
         if event.key == self.state_modifier_keys['square']:
             if len(self.verts) == 1:
-                self.verts.append([event.xdata, event.ydata])
+                self.verts.append((event.xdata, event.ydata))
             else:
-                self.verts[-1] = [event.xdata, event.ydata]
+                print(self.verts)
+                self.verts[-1] = (event.xdata, event.ydata)
+                print(self.verts)
         elif event.button:
             self.verts.append((event.xdata, event.ydata))
         else:
