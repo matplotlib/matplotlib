@@ -802,8 +802,7 @@ class Animation(object):
         with writer.saving(self._fig, filename, dpi):
             for anim in all_anim:
                 # Clear the initial frame
-                if anim._init_func:
-                    anim._init_draw()
+                anim._init_draw()
             for data in zip(*[a.new_saved_frame_seq()
                               for a in all_anim]):
                 for anim, d in zip(all_anim, data):
@@ -1022,6 +1021,7 @@ class TimedAnimation(Animation):
         # back.
         still_going = Animation._step(self, *args)
         if not still_going and self.repeat:
+            self._init_draw()
             self.frame_seq = self.new_frame_seq()
             if self._repeat_delay:
                 self.event_source.remove_callback(self._step)
@@ -1192,11 +1192,13 @@ class FuncAnimation(TimedAnimation):
         # artists.
         if self._init_func is None:
             self._draw_frame(next(self.new_frame_seq()))
+
         else:
             self._drawn_artists = self._init_func()
             if self._blit:
                 for a in self._drawn_artists:
                     a.set_animated(self._blit)
+        self._save_seq = []
 
     def _draw_frame(self, framedata):
         # Save the data for potential saving of movies.

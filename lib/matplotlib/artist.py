@@ -1387,7 +1387,9 @@ class ArtistInspector(object):
                 continue
 
             try:
-                val = func()
+                with warnings.catch_warnings():
+                    warnings.simplefilter('ignore')
+                    val = func()
             except:
                 continue
             else:
