@@ -2525,7 +2525,7 @@ class LassoSelector(_SelectorWidget):
         self.press(event)
 
     def _press(self, event):
-        if (not event.key == self.state_modifier_keys['square'] or
+        if (not event.key == self.state_modifier_keys['polygon'] or
                 self.verts is None):
             self.verts = [(event.xdata, event.ydata)]
 
@@ -2553,7 +2553,7 @@ class LassoSelector(_SelectorWidget):
         if self.verts is None:
             return
         self.verts.append((event.xdata, event.ydata))
-        if event.key != self.state_modifier_keys['square']:
+        if event.key != self.state_modifier_keys['polygon']:
             self._finish(event)
         else:
             self.verts.append((event.xdata, event.ydata))
@@ -2563,7 +2563,7 @@ class LassoSelector(_SelectorWidget):
     def _onmove(self, event):
         if self.verts is None:
             return
-        if event.key == self.state_modifier_keys['square']:
+        if event.key == self.state_modifier_keys['polygon']:
             if len(self.verts) == 1:
                 self.verts.append((event.xdata, event.ydata))
             else:
