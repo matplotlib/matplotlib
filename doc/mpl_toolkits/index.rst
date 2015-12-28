@@ -4,6 +4,7 @@
    :hidden:
 
    axes_grid1/index.rst
+   axisartist/index.rst
    mplot3d/index.rst
 
 .. _toolkits:
@@ -36,16 +37,16 @@ solution for some use cases.
 
 .. _toolkit_axes_grid1:
 
-AxesGrid1
-=========
+axes_grid1
+==========
 .. toctree::
    :maxdepth: 2
 
    axes_grid1/index
 
 
-The matplotlib :ref:`AxesGrid1 <toolkit_axesgrid1-index>` toolkit is a
-collection of helper classes to ease displaying multiple images in matplotlib.
+The :ref:`mpl_toolkits.axisgrid1 <toolkit_axesgrid1-index>` toolkit is a
+collection of helper classes to ease displaying multiple axes in matplotlib.
 
 
 
@@ -54,7 +55,7 @@ collection of helper classes to ease displaying multiple images in matplotlib.
 
 .. _toolkit_axisartist:
 
-Axisartist
+axisartist
 ==========
 .. toctree::
    :maxdepth: 2
@@ -62,7 +63,8 @@ Axisartist
    axisartist/index
 
 
-
+The :ref:`mpl_toolkits.axisartist <toolkit_axisartist-index>` toolkit contains 
+a custom Axes class that is meant to support for curvilinear grids.
 
 
 .. _toolkit_gtk:
@@ -70,7 +72,7 @@ Axisartist
 GTK Tools
 =========
 
-mpl_toolkits.gtktools provides some utilities for working with GTK.
+``mpl_toolkits.gtktools`` provides some utilities for working with GTK.
 This toolkit ships with matplotlib, but requires `pygtk
 <http://www.pygtk.org/>`_.
 
@@ -80,6 +82,6 @@ This toolkit ships with matplotlib, but requires `pygtk
 Excel Tools
 ===========
 
-mpl_toolkits.exceltools provides some utilities for working with
+``mpl_toolkits.exceltools`` provides some utilities for working with
 Excel.  This toolkit ships with matplotlib, but requires
 `xlwt <http://pypi.python.org/pypi/xlwt>`_
