@@ -2479,7 +2479,7 @@ class LassoSelector(_SelectorWidget):
         of the widget.
 
         The defaults are:
-        dict(square='shift', clear='escape')
+        dict(polygon='shift', clear='escape')
 
     Example usage::
 
@@ -2508,6 +2508,7 @@ class LassoSelector(_SelectorWidget):
                                  button=button,
                                  state_modifier_keys=state_modifier_keys)
 
+        self.state_modifier_keys.setdefault('polygon', 'shift')
         self.verts = None
 
         if lineprops is None:
