@@ -3,7 +3,7 @@ from __future__ import (absolute_import, division, print_function,
 
 import six
 from six.moves import xrange
-
+from itertools import chain
 import io
 
 from nose.tools import assert_equal, assert_raises, assert_false, assert_true
@@ -13,6 +13,7 @@ import datetime
 import numpy as np
 from numpy import ma
 from numpy import arange
+from cycler import cycler
 
 import matplotlib
 from matplotlib.testing.decorators import image_comparison, cleanup
@@ -4093,6 +4094,44 @@ def test_violin_point_mass():
     plt.violinplot(np.array([0, 0]))
 
 
+def _eb_succes_helper(ax, x, y, xerr=None, yerr=None):
+    eb = ax.errorbar(x, y, xerr=xerr, yerr=yerr)
+    eb.remove()
+
+
+@cleanup
+def test_errorbar_inputs_shotgun():
+    base_xy = cycler('x', [np.arange(5)]) + cycler('y', [np.ones((5, ))])
+    err_cycler = cycler('err', [1,
+                                [1, 1, 1, 1, 1],
+                                [[1, 1, 1, 1, 1],
+                                 [1, 1, 1, 1, 1]],
+                                [[1]] * 5,
+                                np.ones(5),
+                                np.ones((2, 5)),
+                                np.ones((5, 1)),
+                                None
+                                ])
+    xerr_cy = cycler('xerr', err_cycler)
+    yerr_cy = cycler('yerr', err_cycler)
+
+    empty = ((cycler('x', [[]]) + cycler('y', [[]])) *
+             cycler('xerr', [[], None]) * cycler('yerr', [[], None]))
+    xerr_only = base_xy * xerr_cy
+    yerr_only = base_xy * yerr_cy
+    both_err = base_xy * yerr_cy * xerr_cy
+
+    test_cyclers = xerr_only, yerr_only, both_err, empty
+
+    ax = plt.gca()
+    # should do this as a generative test, but @cleanup seems to break that
+    # for p in chain(*test_cyclers):
+    #     yield (_eb_succes_helper, ax) + tuple(p.get(k, None) for
+    #                                          k in ['x', 'y', 'xerr', 'yerr'])
+    for p in chain(*test_cyclers):
+        _eb_succes_helper(ax, **p)
+
+
 @cleanup
 def test_remove_shared_axes():
 
@@ -4136,6 +4175,9 @@ def test_remove_shared_axes():
     ax.remove()
     ax.set_xlim(0, 5)
     assert assert_array_equal(ax_lst[0][1].get_xlim(), orig_xlim)
+
+
+
 
 if __name__ == '__main__':
     import nose
