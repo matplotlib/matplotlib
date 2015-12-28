@@ -4241,6 +4241,12 @@ def test_remove_shared_axes():
     assert assert_array_equal(ax_lst[0][1].get_xlim(), orig_xlim)
 
 
+@cleanup
+def test_broken_barh_empty():
+    fig, ax = plt.subplots()
+    ax.broken_barh([], (.1, .5))
+
+
 if __name__ == '__main__':
     import nose
     import sys
