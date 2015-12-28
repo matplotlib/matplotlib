@@ -1676,6 +1676,7 @@ class _AxesBase(martist.Artist):
         self._set_artist_props(a)
         a.set_clip_path(self.patch)
         a._remove_method = lambda h: self.artists.remove(h)
+        self.stale = True
         return a
 
     def add_collection(self, collection, autolim=True):
@@ -1698,6 +1699,7 @@ class _AxesBase(martist.Artist):
             self.update_datalim(collection.get_datalim(self.transData))
 
         collection._remove_method = lambda h: self.collections.remove(h)
+        self.stale = True
         return collection
 
     def add_image(self, image):
@@ -1709,6 +1711,7 @@ class _AxesBase(martist.Artist):
         self._set_artist_props(image)
         self.images.append(image)
         image._remove_method = lambda h: self.images.remove(h)
+        self.stale = True
         return image
 
     def add_line(self, line):
@@ -1727,7 +1730,18 @@ class _AxesBase(martist.Artist):
             line.set_label('_line%d' % len(self.lines))
         self.lines.append(line)
         line._remove_method = lambda h: self.lines.remove(h)
+        self.stale = True
         return line
+
+    def _add_text(self, txt):
+        """
+
+        """
+        self._set_artist_props(txt)
+        self.texts.append(txt)
+        txt._remove_method = lambda h: self.texts.remove(h)
+        self.stale = True
+        return txt
 
     def _update_line_limits(self, line):
         """
