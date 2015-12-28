@@ -191,7 +191,7 @@ def test_complete():
     fig = pickle.load(result_fh)
 
     # make sure there is now a figure manager
-    assert_not_equal(plt._pylab_helpers.Gcf.figs, {})
+    assert not plt._pylab_helpers.Gcf.figs
 
     assert fig.get_label() == 'Figure with a label?'
 
