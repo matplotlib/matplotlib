@@ -281,7 +281,7 @@ def nbinstall(overwrite=False, user=True):
     with open(os.path.join(tempdir, 'mpl.js'), 'w') as fid:
         fid.write('define(["jquery"], function($) {\n')
         fid.write(contents)
-        fid.write('\nreturn {mpl: mpl};\n});')
+        fid.write('\nreturn mpl;\n});')
 
     install_nbextension(
         tempdir,
