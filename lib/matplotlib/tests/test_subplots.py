@@ -25,6 +25,7 @@ def check_shared(results, f, axs):
     #        'x': a1._shared_x_axes,
     #        'y': a1._shared_y_axes,
     #        }
+
     def tostr(r):
         return "not " if r else ""
     for i1 in xrange(len(axs)):
