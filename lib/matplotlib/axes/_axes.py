@@ -609,16 +609,14 @@ class Axes(_AxesBase):
         else:
             t = mtext.Text(
                 x=x, y=y, text=s)
-        self._set_artist_props(t)
 
         t.update(default)
         if fontdict is not None:
             t.update(fontdict)
         t.update(kwargs)
-        self.texts.append(t)
-        t._remove_method = lambda h: self.texts.remove(h)
 
         t.set_clip_path(self.patch)
+        self._add_text(t)
         return t
 
     @docstring.dedent_interpd
@@ -675,11 +673,9 @@ class Axes(_AxesBase):
         """
         a = mtext.Annotation(*args, **kwargs)
         a.set_transform(mtransforms.IdentityTransform())
-        self._set_artist_props(a)
         if 'clip_on' in kwargs:
             a.set_clip_path(self.patch)
-        self.texts.append(a)
-        a._remove_method = lambda h: self.texts.remove(h)
+        self._add_text(a)
         return a
 
     #### Lines and spans
