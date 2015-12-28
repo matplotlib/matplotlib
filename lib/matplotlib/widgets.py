@@ -1478,6 +1478,8 @@ class _SelectorWidget(AxesWidget):
         self._prev_event = None
         self.state = set()
 
+        self._override_press = False
+
     def set_active(self, active):
         AxesWidget.set_active(self, active)
         if active:
@@ -1584,6 +1586,7 @@ class _SelectorWidget(AxesWidget):
     def press(self, event):
         """Button press handler and validator"""
         if not self.ignore(event):
+            self._override_press = False
             event = self._clean_event(event)
             self.eventpress = event
             self._prev_event = event
@@ -1618,7 +1621,8 @@ class _SelectorWidget(AxesWidget):
 
     def onmove(self, event):
         """Cursor move event handler and validator"""
-        if not self.ignore(event):
+        valid_press = self.eventpress or self._override_press
+        if not self.ignore(event) and valid_press:
             event = self._clean_event(event)
             self._onmove(event)
             return True
@@ -1861,7 +1865,7 @@ class SpanSelector(_SelectorWidget):
 
     def _onmove(self, event):
         """on motion notify event"""
-        if self.pressv is None or self.eventpress is None:
+        if self.pressv is None:
             return
         x, y = self._get_data(event)
         if x is None:
@@ -2206,8 +2210,6 @@ class RectangleSelector(_SelectorWidget):
 
     def _onmove(self, event):
         """on motion notify event if box/line is wanted"""
-        if self.eventpress is None:
-            return
         # resize an existing shape
         if self.active_handle and not self.active_handle == 'C':
             x1, x2, y1, y2 = self._extents_on_press
@@ -2556,6 +2558,7 @@ class LassoSelector(_SelectorWidget):
         if event.key != self.state_modifier_keys['polygon']:
             self._finish(event)
         else:
+            self._override_press = True
             self.verts.append((event.xdata, event.ydata))
             self.line.set_data(list(zip(*self.verts)))
             self.update()
