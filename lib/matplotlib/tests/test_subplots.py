@@ -25,7 +25,8 @@ def check_shared(results, f, axs):
     #        'x': a1._shared_x_axes,
     #        'y': a1._shared_y_axes,
     #        }
-    tostr = lambda r: "not " if r else ""
+    def tostr(r):
+        return "not " if r else ""
     for i1 in xrange(len(axs)):
         for i2 in xrange(i1 + 1, len(axs)):
             for i3 in xrange(len(shared)):
@@ -36,7 +37,8 @@ def check_shared(results, f, axs):
 
 
 def check_visible(result, f, axs):
-    tostr = lambda v: "invisible" if v else "visible"
+    def tostr(v):
+        return "invisible" if v else "visible"
     for (ax, vx, vy) in zip(axs, result['x'], result['y']):
         for l in ax.get_xticklabels():
             assert l.get_visible() == vx, \
