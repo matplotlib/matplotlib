@@ -2566,9 +2566,7 @@ class LassoSelector(_SelectorWidget):
             if len(self.verts) == 1:
                 self.verts.append((event.xdata, event.ydata))
             else:
-                print(self.verts)
                 self.verts[-1] = (event.xdata, event.ydata)
-                print(self.verts)
         elif event.button:
             self.verts.append((event.xdata, event.ydata))
         else:
