@@ -5883,7 +5883,7 @@ class Axes(_AxesBase):
             ----------
             inp : iterable
             ename : str, optional
-                Name to use is ValueError if can not be normalized
+                Name to use in ValueError if `inp` can not be normalized
 
             """
             if isinstance(x, np.ndarray) or not iterable(next(iter(inp))):
