@@ -19,7 +19,6 @@ import matplotlib
 matplotlib.use('agg')
 
 
-
 def run(extra_args):
     matplotlib._init_tests()
 
