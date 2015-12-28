@@ -537,10 +537,10 @@ class Figure(Artist):
         if ('verticalalignment' not in kwargs) and ('va' not in kwargs):
             kwargs['verticalalignment'] = 'top'
 
-        if 'fontsize' not in kwargs:
-            kwargs['fontsize'] = rcParams['figure.titlesize']
-        if 'fontweight' not in kwargs:
-            kwargs['fontweight'] = rcParams['figure.titleweight']
+        if 'fontsize' not in kwargs and 'size' not in kwargs:
+            kwargs['size'] = rcParams['figure.titlesize']
+        if 'fontweight' not in kwargs and 'weight' not in kwargs:
+            kwargs['weight'] = rcParams['figure.titleweight']
 
         sup = self.text(x, y, t, **kwargs)
         if self._suptitle is not None:
