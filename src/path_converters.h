@@ -4,6 +4,7 @@
 #define __PATH_CONVERTERS_H__
 
 #include <cmath>
+#include <stdint.h>
 #include "agg_path_storage.h"
 #include "agg_clip_liang_barsky.h"
 #include "mplutils.h"
@@ -114,6 +115,41 @@ static const size_t num_extra_points_map[] =
      0, 0, 0, 0,
      0, 0, 0, 0
     };
+
+/* An implementation of a simple linear congruential random number
+   generator.  This is a "classic" and fast RNG which works fine for
+   our purposes of sketching lines, but should not be used for things
+   that matter, like crypto.  We are implementing this ourselves
+   rather than using the C stdlib so that the seed state is not shared
+   with other third-party code. There are recent C++ options, but we
+   still require nothing later than C++98 for compatibility
+   reasons. */
+class RandomNumberGenerator
+{
+private:
+    /* These are the same constants from MS Visual C++, which
+       has the nice property that the modulus is 2^32, thus
+       saving an explicit modulo operation
+    */
+    static const uint32_t a = 214013;
+    static const uint32_t c = 2531011;
+    uint32_t m_seed;
+
+public:
+    RandomNumberGenerator() : m_seed(0) {}
+    RandomNumberGenerator(int seed) : m_seed(seed) {}
+
+    void seed(int seed)
+    {
+        m_seed = seed;
+    }
+
+    double get_double()
+    {
+        m_seed = (a * m_seed + c);
+        return (double)m_seed / (double)(1LL << 32);
+    }
+};
 
 /*
   PathNanRemover is a vertex converter that removes non-finite values
@@ -791,7 +827,8 @@ class Sketch
           m_last_x(0.0),
           m_last_y(0.0),
           m_has_last(false),
-          m_p(0.0)
+          m_p(0.0),
+          m_rand(0)
     {
         rewind(0);
     }
@@ -812,7 +849,7 @@ class Sketch
         if (m_has_last) {
             // We want the "cursor" along the sine wave to move at a
             // random rate.
-            double d_rand = rand() / double(RAND_MAX);
+            double d_rand = m_rand.get_double();
             double d_M_PI = 3.14159265358979323846;
             m_p += pow(m_randomness, d_rand * 2.0 - 1.0);
             double r = sin(m_p / (m_length / (d_M_PI * 2.0))) * m_scale;
@@ -838,10 +875,10 @@ class Sketch
 
     inline void rewind(unsigned path_id)
     {
-        srand(0);
         m_has_last = false;
         m_p = 0.0;
         if (m_scale != 0.0) {
+            m_rand.seed(0);
             m_segmented.rewind(path_id);
         } else {
             m_source->rewind(path_id);
@@ -858,6 +895,7 @@ class Sketch
     double m_last_y;
     bool m_has_last;
     double m_p;
+    RandomNumberGenerator m_rand;
 };
 
 #endif // __PATH_CONVERTERS_H__
