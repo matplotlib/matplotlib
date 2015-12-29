@@ -1,6 +1,6 @@
 .. _toolkit_axisartist-index:
 
-Matplotlib Axisartist Toolkit
+Matplotlib axisartist Toolkit
 =============================
 
 .. toctree::
