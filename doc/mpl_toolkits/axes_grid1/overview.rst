@@ -1,6 +1,6 @@
-=============================
-Overview of AxesGrid1 toolkit
-=============================
+==============================
+Overview of axes_grid1 toolkit
+==============================
 
 What is axes_grid1 toolkit?
 ===========================
@@ -267,7 +267,7 @@ tick-formatter for bottom(or left)-axis. ::
                        r"$\pi$", r"$\frac{3}{2}\pi$", r"$2\pi$"])
 
 
-.. plot:: mpl_toolkits/axis_grid1/examples/simple_axisline4.py
+.. plot:: mpl_toolkits/axes_grid1/examples/simple_axisline4.py
 
 
 
