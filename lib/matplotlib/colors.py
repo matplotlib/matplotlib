@@ -224,9 +224,14 @@ def is_color_like(c):
     # Special-case the N-th color cycle syntax, because it's parsing
     # needs to be deferred.  We may be reading a value from rcParams
     # here before the color_cycle rcParam has been parsed.
-    match = re.match('^\[[0-9]\]$', c)
-    if match is not None:
-        return True
+    if isinstance(c, bytes):
+        match = re.match(b'^\[[0-9]\]$', c)
+        if match is not None:
+            return True
+    elif isinstance(c, six.text_type):
+        match = re.match('^\[[0-9]\]$', c)
+        if match is not None:
+            return True
 
     try:
         colorConverter.to_rgb(c)
