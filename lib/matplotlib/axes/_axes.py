@@ -2331,11 +2331,11 @@ class Axes(_AxesBase):
         """
         # process the unit information
         if len(xranges):
-            xdata = six.next(iter(xranges))
+            xdata = next(iter(xranges))
         else:
             xdata = None
         if len(yrange):
-            ydata = six.next(iter(yrange))
+            ydata = next(iter(yrange))
         else:
             ydata = None
         self._process_unit_info(xdata=xdata,
@@ -3016,7 +3016,7 @@ class Axes(_AxesBase):
 
         if ecolor is None:
             if l0 is None and 'color' in self._get_lines._prop_keys:
-                ecolor = six.next(self._get_lines.prop_cycler)['color']
+                ecolor = next(self._get_lines.prop_cycler)['color']
             else:
                 ecolor = l0.get_color()
 
@@ -5973,7 +5973,7 @@ class Axes(_AxesBase):
                     'weights should have the same shape as x')
 
         if color is None and 'color' in self._get_lines._prop_keys:
-            color = [six.next(self._get_lines.prop_cycler)['color']
+            color = [next(self._get_lines.prop_cycler)['color']
                      for i in xrange(nx)]
         else:
             color = mcolors.colorConverter.to_rgba_array(color)
