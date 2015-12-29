@@ -1,5 +1,5 @@
 import matplotlib.pyplot as plt
-from mpl_toolkits.axes_grid1 import AxesGrid
+from mpl_toolkits.axes_grid1 import ImageGrid
 
 
 def get_demo_image():
@@ -16,11 +16,11 @@ def demo_simple_grid(fig):
     A grid of 2x2 images with 0.05 inch pad between images and only
     the lower-left axes is labeled.
     """
-    grid = AxesGrid(fig, 141,  # similar to subplot(141)
-                    nrows_ncols=(2, 2),
-                    axes_pad=0.05,
-                    label_mode="1",
-                    )
+    grid = ImageGrid(fig, 141,  # similar to subplot(141)
+                     nrows_ncols=(2, 2),
+                     axes_pad=0.05,
+                     label_mode="1",
+                     )
 
     Z, extent = get_demo_image()
     for i in range(4):
@@ -36,19 +36,18 @@ def demo_grid_with_single_cbar(fig):
     """
     A grid of 2x2 images with a single colorbar
     """
-    grid = AxesGrid(fig, 142,  # similar to subplot(142)
-                    nrows_ncols=(2, 2),
-                    axes_pad=0.0,
-                    share_all=True,
-                    label_mode="L",
-                    cbar_location="top",
-                    cbar_mode="single",
-                    )
+    grid = ImageGrid(fig, 142,  # similar to subplot(142)
+                     nrows_ncols=(2, 2),
+                     axes_pad=0.0,
+                     share_all=True,
+                     label_mode="L",
+                     cbar_location="top",
+                     cbar_mode="single",
+                     )
 
     Z, extent = get_demo_image()
     for i in range(4):
         im = grid[i].imshow(Z, extent=extent, interpolation="nearest")
-    #plt.colorbar(im, cax = grid.cbar_axes[0])
     grid.cbar_axes[0].colorbar(im)
 
     for cax in grid.cbar_axes:
@@ -64,16 +63,16 @@ def demo_grid_with_each_cbar(fig):
     A grid of 2x2 images. Each image has its own colorbar.
     """
 
-    grid = AxesGrid(fig, 143,  # similar to subplot(143)
-                    nrows_ncols=(2, 2),
-                    axes_pad=0.1,
-                    label_mode="1",
-                    share_all=True,
-                    cbar_location="top",
-                    cbar_mode="each",
-                    cbar_size="7%",
-                    cbar_pad="2%",
-                    )
+    grid = ImageGrid(fig, 143,  # similar to subplot(143)
+                     nrows_ncols=(2, 2),
+                     axes_pad=0.1,
+                     label_mode="1",
+                     share_all=True,
+                     cbar_location="top",
+                     cbar_mode="each",
+                     cbar_size="7%",
+                     cbar_pad="2%",
+                     )
     Z, extent = get_demo_image()
     for i in range(4):
         im = grid[i].imshow(Z, extent=extent, interpolation="nearest")
@@ -92,16 +91,16 @@ def demo_grid_with_each_cbar_labelled(fig):
     A grid of 2x2 images. Each image has its own colorbar.
     """
 
-    grid = AxesGrid(fig, 144,  # similar to subplot(144)
-                    nrows_ncols=(2, 2),
-                    axes_pad=(0.45, 0.15),
-                    label_mode="1",
-                    share_all=True,
-                    cbar_location="right",
-                    cbar_mode="each",
-                    cbar_size="7%",
-                    cbar_pad="2%",
-                    )
+    grid = ImageGrid(fig, 144,  # similar to subplot(144)
+                     nrows_ncols=(2, 2),
+                     axes_pad=(0.45, 0.15),
+                     label_mode="1",
+                     share_all=True,
+                     cbar_location="right",
+                     cbar_mode="each",
+                     cbar_size="7%",
+                     cbar_pad="2%",
+                     )
     Z, extent = get_demo_image()
 
     # Use a different colorbar range every time
