@@ -2,10 +2,10 @@
 Overview of AxesGrid1 toolkit
 =============================
 
-What is AxesGrid1 toolkit?
-==========================
+What is axes_grid1 toolkit?
+===========================
 
-The matplotlib AxesGrid1 toolkit is a collection of helper classes,
+The matplotlib axes_grid1 toolkit is a collection of helper classes,
 mainly to ease displaying (multiple) images in matplotlib.
 
 .. contents::
@@ -38,7 +38,7 @@ like the legend.
 .. plot:: mpl_toolkits/axes_grid1/examples/demo_axes_grid.py
 
 
-Axes_grid1
+axes_grid1
 ==========
 
 ImageGrid
@@ -85,7 +85,7 @@ axes).
 
 
 
-AxesGrid takes following arguments,
+ImageGrid takes following arguments,
 
 
  ============= ========   ================================================
@@ -152,7 +152,7 @@ attribute.
 
 
 
-The examples below show what you can do with AxesGrid.
+The examples below show what you can do with ImageGrid.
 
 .. plot:: mpl_toolkits/axes_grid1/examples/demo_axes_grid.py
 
@@ -267,7 +267,7 @@ tick-formatter for bottom(or left)-axis. ::
                        r"$\pi$", r"$\frac{3}{2}\pi$", r"$2\pi$"])
 
 
-.. plot:: mpl_toolkits/axisartist/examples/simple_axisline4.py
+.. plot:: mpl_toolkits/axis_grid1/examples/simple_axisline4.py
 
 
 
@@ -296,11 +296,11 @@ coordinate.
 InsetLocator
 ------------
 
-:mod:`mpl_toolkits.axes_grid.inset_locator` provides helper classes
+:mod:`mpl_toolkits.axes_grid1.inset_locator` provides helper classes
 and functions to place your (inset) axes at the anchored position of
 the parent axes, similarly to AnchoredArtist.
 
-Using :func:`mpl_toolkits.axes_grid.inset_locator.inset_axes`, you
+Using :func:`mpl_toolkits.axes_grid1.inset_locator.inset_axes`, you
 can have inset axes whose size is either fixed, or a fixed proportion
 of the parent axes. For example,::
 
