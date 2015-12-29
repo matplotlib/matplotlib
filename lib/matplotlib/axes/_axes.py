@@ -2331,11 +2331,11 @@ class Axes(_AxesBase):
         """
         # process the unit information
         if len(xranges):
-            xdata = next(iter(xranges))
+            xdata = cbook.safe_first_element(xranges)
         else:
             xdata = None
         if len(yrange):
-            ydata = next(iter(yrange))
+            ydata = cbook.safe_first_element(yrange)
         else:
             ydata = None
         self._process_unit_info(xdata=xdata,
@@ -5886,7 +5886,8 @@ class Axes(_AxesBase):
                 Name to use in ValueError if `inp` can not be normalized
 
             """
-            if isinstance(x, np.ndarray) or not iterable(next(iter(inp))):
+            if (isinstance(x, np.ndarray) or
+                    not iterable(cbook.safe_first_element(inp))):
                 # TODO: support masked arrays;
                 inp = np.asarray(inp)
                 if inp.ndim == 2:

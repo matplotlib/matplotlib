@@ -1561,7 +1561,7 @@ class DateConverter(units.ConversionInterface):
             x = x.ravel()
 
         try:
-            x = next(iter(x))
+            x = cbook.safe_first_element(x)
         except (TypeError, StopIteration):
             pass
 
