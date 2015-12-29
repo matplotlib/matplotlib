@@ -1,4 +1,4 @@
-from mpl_toolkits.axes_grid.parasite_axes import HostAxes, ParasiteAxes
+from mpl_toolkits.axisartist.parasite_axes import HostAxes, ParasiteAxes
 import matplotlib.pyplot as plt
 
 if __name__ == "__main__":
