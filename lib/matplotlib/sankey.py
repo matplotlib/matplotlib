@@ -772,12 +772,11 @@ class Sankey(object):
             xs, ys = list(zip(*vertices))
             self.ax.plot(xs, ys, 'go-')
         if rcParams['_internal.classic_mode']:
-            if rcParams['_internal.classic_mode']:
-                fc = kwargs.pop('fc', kwargs.pop('facecolor', '#bfd1d4'))
-                lw = kwargs.pop('lw', kwargs.pop('linewidth', 0.5))
-            else:
-                fc = kwargs.pop('fc', kwargs.pop('facecolor', None))
-                lw = kwargs.pop('lw', kwargs.pop('linewidth', None))
+            fc = kwargs.pop('fc', kwargs.pop('facecolor', '#bfd1d4'))
+            lw = kwargs.pop('lw', kwargs.pop('linewidth', 0.5))
+        else:
+            fc = kwargs.pop('fc', kwargs.pop('facecolor', None))
+            lw = kwargs.pop('lw', kwargs.pop('linewidth', None))
         if fc is None:
             fc = six.next(self.ax._get_patches_for_fill.prop_cycler)['color']
         patch = PathPatch(Path(vertices, codes), fc=fc, lw=lw, **kwargs)
