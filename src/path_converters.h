@@ -147,7 +147,7 @@ public:
     double get_double()
     {
         m_seed = (a * m_seed + c);
-        return (double)m_seed / (double)(1L << 32);
+        return (double)m_seed / (double)(1LL << 32);
     }
 };
 
