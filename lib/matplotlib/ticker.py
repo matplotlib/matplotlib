@@ -1642,17 +1642,17 @@ class LogLocator(Locator):
             vmin = b ** (vmax - self.numdecs)
             return vmin, vmax
 
+        minpos = self.axis.get_minpos()
+
+        if minpos <= 0 or not np.isfinite(minpos):
+            raise ValueError(
+                "Data has no positive values, and therefore can not be "
+                "log-scaled.")
+
+        if vmin <= minpos:
+            vmin = minpos
+
         if rcParams['axes.autolimit_mode'] == 'round_numbers':
-            minpos = self.axis.get_minpos()
-
-            if minpos <= 0 or not np.isfinite(minpos):
-                raise ValueError(
-                    "Data has no positive values, and therefore can not be "
-                    "log-scaled.")
-
-            if vmin <= minpos:
-                vmin = minpos
-
             if not is_decade(vmin, self._base):
                 vmin = decade_down(vmin, self._base)
             if not is_decade(vmax, self._base):
