@@ -1,6 +1,6 @@
 from matplotlib.patches import Circle
 import matplotlib.pyplot as plt
-from mpl_toolkits.axes_grid.anchored_artists import AnchoredDrawingArea
+from mpl_toolkits.axes_grid1.anchored_artists import AnchoredDrawingArea
 
 fig=plt.figure(1, figsize=(3,3))
 ax = plt.subplot(111)

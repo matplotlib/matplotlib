@@ -1,6 +1,6 @@
 from matplotlib.patches import Ellipse
 import matplotlib.pyplot as plt
-from mpl_toolkits.axes_grid.anchored_artists import AnchoredAuxTransformBox
+from mpl_toolkits.axes_grid1.anchored_artists import AnchoredAuxTransformBox
 
 fig=plt.figure(1, figsize=(3,3))
 ax = plt.subplot(111)
