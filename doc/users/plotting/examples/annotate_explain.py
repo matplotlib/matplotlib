@@ -7,8 +7,8 @@ x2, y2 = 0.7, 0.7
 
 fig = plt.figure(1, figsize=(8,3))
 fig.clf()
-from mpl_toolkits.axes_grid.axes_grid import AxesGrid
-from mpl_toolkits.axes_grid.anchored_artists import AnchoredText
+from mpl_toolkits.axes_grid1.axes_grid import AxesGrid
+from matplotlib.offsetbox import AnchoredText
 
 #from matplotlib.font_manager import FontProperties
 
