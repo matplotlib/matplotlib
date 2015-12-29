@@ -18,6 +18,7 @@ Overview
    users/index.rst
    faq/index.rst
    resources/index.rst
+   thirdpartypackages/index.rst
    devel/index.rst
    mpl_toolkits/index.rst
    api/index.rst
