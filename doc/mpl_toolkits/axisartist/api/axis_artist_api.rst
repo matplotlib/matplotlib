@@ -1,16 +1,16 @@
 
-:mod:`mpl_toolkits.axes_grid.axis_artist`
-=========================================
+:mod:`mpl_toolkits.axisartist.axis_artist`
+==========================================
 
-.. autoclass:: mpl_toolkits.axes_grid.axis_artist.AxisArtist
+.. autoclass:: mpl_toolkits.axisartist.axis_artist.AxisArtist
    :members:
    :undoc-members:
 
-.. autoclass:: mpl_toolkits.axes_grid.axis_artist.Ticks
+.. autoclass:: mpl_toolkits.axisartist.axis_artist.Ticks
    :members:
 
-.. autoclass:: mpl_toolkits.axes_grid.axis_artist.AxisLabel
+.. autoclass:: mpl_toolkits.axisartist.axis_artist.AxisLabel
    :members:
 
-.. autoclass:: mpl_toolkits.axes_grid.axis_artist.TickLabels
+.. autoclass:: mpl_toolkits.axisartist.axis_artist.TickLabels
    :members:
