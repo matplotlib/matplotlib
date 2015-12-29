@@ -2336,8 +2336,16 @@ class Axes(_AxesBase):
         .. plot:: mpl_examples/pylab_examples/broken_barh.py
         """
         # process the unit information
-        self._process_unit_info(xdata=xranges[0],
-                                ydata=yrange[0],
+        if len(xranges):
+            xdata = six.next(iter(xranges))
+        else:
+            xdata = None
+        if len(yrange):
+            ydata = six.next(iter(yrange))
+        else:
+            ydata = None
+        self._process_unit_info(xdata=xdata,
+                                ydata=ydata,
                                 kwargs=kwargs)
         xranges = self.convert_xunits(xranges)
         yrange = self.convert_yunits(yrange)

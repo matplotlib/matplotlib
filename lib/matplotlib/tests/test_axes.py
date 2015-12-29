@@ -4281,6 +4281,12 @@ def test_auto_numticks():
     fig, axes = plt.subplots(4, 4)
 
 
+@cleanup
+def test_broken_barh_empty():
+    fig, ax = plt.subplots()
+    ax.broken_barh([], (.1, .5))
+
+
 if __name__ == '__main__':
     import nose
     import sys
