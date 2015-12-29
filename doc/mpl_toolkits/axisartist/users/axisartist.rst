@@ -1,10 +1,10 @@
 .. _axisartist-manual:
 
 ====================
-AXISARTIST namespace
+axisartist namespace
 ====================
 
-The AxisArtist namespace includes a derived Axes implementation. The
+The *axisartist* namespace includes a derived Axes implementation. The
 biggest difference is that the artists responsible to draw axis line,
 ticks, ticklabel and axis labels are separated out from the mpl's Axis
 class, which are much more than artists in the original mpl. This

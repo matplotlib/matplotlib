@@ -1,5 +1,5 @@
 ==============================
-Overview of AxisArtist toolkit
+Overview of axisartist toolkit
 ==============================
 
 .. warning:: 
@@ -8,7 +8,7 @@ Overview of AxisArtist toolkit
    As a side effect, some commands (mostly tick-related) do not work.
 
 
-*axisartist* contains custom Axes class that is meant to support for
+The *axisartist* contains custom Axes class that is meant to support for
 curvilinear grids (e.g., the world coordinate system in astronomy).
 Unlike mpl's original Axes class which uses Axes.xaxis and Axes.yaxis
 to draw ticks, ticklines and etc., Axes in axisartist uses special
@@ -20,14 +20,10 @@ curved coordinate systems.
 Since it uses a special artists, some mpl commands that work on
 Axes.xaxis and Axes.yaxis may not work.
 
-AXISARTIST
-==========
-
-
-AxisArtist
+axisartist
 ----------
 
-AxisArtist module provides a custom (and very experimental) Axes
+*axisartist* module provides a custom (and very experimental) Axes
 class, where each axis (left, right, top and bottom) have a separate
 artist associated which is responsible to draw axis-line, ticks,
 ticklabels, label.  Also, you can create your own axis, which can pass
@@ -81,7 +77,7 @@ Or a fixed axis with some offset ::
 
 
 
-AxisArtist with ParasiteAxes
+axisartist with ParasiteAxes
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Most commands in the axes_grid1 toolkit can take a axes_class keyword
