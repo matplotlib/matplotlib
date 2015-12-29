@@ -2748,7 +2748,7 @@ def test_subplot_key_hash():
 
 @image_comparison(baseline_images=['specgram_freqs',
                                    'specgram_freqs_linear'],
-                  remove_text=True, extensions=['png'], tol=0.01)
+                  remove_text=True, extensions=['png'], tol=0.03)
 def test_specgram_freqs():
     '''test axes.specgram in default (psd) mode with sinusoidal stimuli'''
     n = 10000
@@ -2848,7 +2848,7 @@ def test_specgram_noise():
 
 @image_comparison(baseline_images=['specgram_magnitude_freqs',
                                    'specgram_magnitude_freqs_linear'],
-                  remove_text=True, extensions=['png'], tol=0.01)
+                  remove_text=True, extensions=['png'], tol=0.03)
 def test_specgram_magnitude_freqs():
     '''test axes.specgram in magnitude mode with sinusoidal stimuli'''
     n = 10000
@@ -4278,6 +4278,12 @@ def test_remove_shared_axes():
     ax.remove()
     ax.set_xlim(0, 5)
     assert assert_array_equal(ax_lst[0][1].get_xlim(), orig_xlim)
+
+
+@cleanup
+def test_broken_barh_empty():
+    fig, ax = plt.subplots()
+    ax.broken_barh([], (.1, .5))
 
 
 @cleanup
