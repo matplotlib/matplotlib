@@ -8,7 +8,7 @@ fontsize = 0.4 * fig.dpi
 def make_boxstyles(ax):
     styles = mpatch.BoxStyle.get_styles()
 
-    for i, (stylename, styleclass) in enumerate(styles.items()):
+    for i, (stylename, styleclass) in enumerate(sorted(styles.items())):
         ax.text(0.5, (float(len(styles)) - 0.5 - i)/len(styles), stylename,
                   ha="center",
                   size=fontsize,
