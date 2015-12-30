@@ -535,7 +535,8 @@ def test_log_scale_image():
     fig = plt.figure()
     ax = fig.add_subplot(111)
 
-    ax.imshow(Z, extent=[1, 100, 1, 100], cmap='viridis', vmax=abs(Z).max(), vmin=-abs(Z).max())
+    ax.imshow(Z, extent=[1, 100, 1, 100], cmap='viridis',
+              vmax=abs(Z).max(), vmin=-abs(Z).max())
     ax.set_yscale('log')
 
 
