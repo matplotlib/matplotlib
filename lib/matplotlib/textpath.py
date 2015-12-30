@@ -182,7 +182,7 @@ class TextToPath(object):
         glyph_ids = []
 
         if glyph_map is None:
-            glyph_map = dict()
+            glyph_map = OrderedDict()
 
         if return_new_glyphs_only:
             glyph_map_new = OrderedDict()
@@ -241,10 +241,10 @@ class TextToPath(object):
             s, self.DPI, prop)
 
         if not glyph_map:
-            glyph_map = dict()
+            glyph_map = OrderedDict()
 
         if return_new_glyphs_only:
-            glyph_map_new = dict()
+            glyph_map_new = OrderedDict()
         else:
             glyph_map_new = glyph_map
 
@@ -320,10 +320,10 @@ class TextToPath(object):
             dvi.close()
 
         if glyph_map is None:
-            glyph_map = dict()
+            glyph_map = OrderedDict()
 
         if return_new_glyphs_only:
-            glyph_map_new = dict()
+            glyph_map_new = OrderedDict()
         else:
             glyph_map_new = glyph_map
 
