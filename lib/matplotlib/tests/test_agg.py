@@ -165,7 +165,9 @@ def test_agg_filter():
     def smooth1d(x, window_len):
         # copied from http://www.scipy.org/Cookbook/SignalSmooth
 
-        s = np.r_[2*x[0] - x[window_len:1:-1], x, 2*x[-1] - x[-1:-window_len:-1]]
+        s = np.r_[2*x[0] - x[window_len:1:-1],
+                  x,
+                  2*x[-1] - x[-1:-window_len:-1]]
         w = np.hanning(window_len)
         y = np.convolve(w/w.sum(), s, mode='same')
         return y[window_len-1:-window_len+1]
@@ -182,7 +184,6 @@ def test_agg_filter():
     class BaseFilter(object):
         def prepare_image(self, src_image, dpi, pad):
             ny, nx, depth = src_image.shape
-            #tgt_image = np.zeros([pad*2+ny, pad*2+nx, depth], dtype="d")
             padded_src = np.zeros([pad*2 + ny, pad*2 + nx, depth], dtype="d")
             padded_src[pad:-pad, pad:-pad, :] = src_image[:, :, :]
 
