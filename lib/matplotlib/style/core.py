@@ -22,7 +22,7 @@ import warnings
 
 import matplotlib as mpl
 from matplotlib import cbook
-from matplotlib import rc_params_from_file
+from matplotlib import rc_params_from_file, rcParamsDefault
 
 
 __all__ = ['use', 'context', 'available', 'library', 'reload_library']
@@ -97,12 +97,9 @@ def use(style):
     for style in styles:
         if not cbook.is_string_like(style):
             _apply_style(style)
-            continue
         elif style == 'default':
-            mpl.rcdefaults()
-            continue
-
-        if style in library:
+            _apply_style(rcParamsDefault)
+        elif style in library:
             _apply_style(library[style])
         else:
             try:
