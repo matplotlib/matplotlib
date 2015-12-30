@@ -303,6 +303,19 @@ image_resample(PyObject *self, PyObject* args, PyObject *kwargs)
                 params);
             Py_END_ALLOW_THREADS
             break;
+        case NPY_UINT16:
+        case NPY_INT16:
+            Py_BEGIN_ALLOW_THREADS
+            resample(
+                (unsigned short *)PyArray_DATA(input_array),
+                PyArray_DIM(input_array, 1),
+                PyArray_DIM(input_array, 0),
+                (unsigned short *)PyArray_DATA(output_array),
+                PyArray_DIM(output_array, 1),
+                PyArray_DIM(output_array, 0),
+                params);
+            Py_END_ALLOW_THREADS
+            break;
         default:
             PyErr_SetString(PyExc_ValueError, "Unsupported dtype");
             goto error;
