@@ -647,6 +647,34 @@ template <> class type_mapping<float>
 };
 
 
+template <> class type_mapping<unsigned short>
+{
+ public:
+    typedef agg::gray16 color_type;
+    typedef agg::blender_gray<color_type> blender_type;
+    typedef agg::pixfmt_alpha_blend_gray<blender_type, agg::rendering_buffer> pixfmt_type;
+    typedef pixfmt_type pixfmt_pre_type;
+
+    template <typename A>
+    struct span_gen_affine_type
+    {
+        typedef agg::span_image_resample_gray_affine<A> type;
+    };
+
+    template <typename A, typename B>
+    struct span_gen_filter_type
+    {
+        typedef agg::span_image_filter_gray<A, B> type;
+    };
+
+    template <typename A, typename B>
+    struct span_gen_nn_type
+    {
+        typedef agg::span_image_filter_gray_nn<A, B> type;
+    };
+};
+
+
 template <> class type_mapping<unsigned char>
 {
  public:
