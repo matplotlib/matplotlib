@@ -2565,10 +2565,10 @@ class Axes(_AxesBase):
         if colors is None:
             get_next_color = self._get_patches_for_fill.get_next_color
         else:
-            color_cycler = itertools.cycle(colors)
+            color_cycle = itertools.cycle(colors)
 
             def get_next_color():
-                return six.next(color_cycler)
+                return six.next(color_cycle)
 
         if radius is None:
             radius = 1
