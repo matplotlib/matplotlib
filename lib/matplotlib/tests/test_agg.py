@@ -6,13 +6,16 @@ from matplotlib.externals import six
 import io
 import os
 
+from distutils.version import LooseVersion as V
+
 import numpy as np
 from numpy.testing import assert_array_almost_equal
 
 from matplotlib.image import imread
 from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
 from matplotlib.figure import Figure
-from matplotlib.testing.decorators import cleanup, image_comparison
+from matplotlib.testing.decorators import (
+    cleanup, image_comparison, knownfailureif)
 from matplotlib import pyplot as plt
 from matplotlib import collections
 from matplotlib import path
@@ -246,6 +249,9 @@ def test_agg_filter():
             t1 = self.gauss_filter.process_image(padded_src, dpi)
             t2 = self.offset_filter.process_image(t1, dpi)
             return t2
+
+    if V(np.__version__) <= V('1.7.0'):
+        return
 
     fig = plt.figure()
     ax = fig.add_subplot(111)
