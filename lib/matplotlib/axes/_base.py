@@ -1088,7 +1088,7 @@ class _AxesBase(martist.Artist):
             Can also be `None` to reset to the cycle defined by the
             current style.
 
-        label : name
+        label : str
             The property key. Must be a valid `Artist` property.
             For example, 'color' or 'linestyle'. Aliases are allowed,
             such as 'c' for 'color' and 'lw' for 'linewidth'.
