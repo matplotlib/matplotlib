@@ -403,6 +403,9 @@ class RendererAgg(RendererBase):
             img, ox, oy = post_processing(img.reshape((h, w, 4)) / 255.,
                                           self.dpi)
             gc = self.new_gc()
+            if issubclass(img.dtype.type, np.floating):
+                img = np.asarray(img * 255., np.uint8)
+            img = img[::-1]
             self._renderer.draw_image(
                 gc, l + ox, height - b - h + oy, img)
 
