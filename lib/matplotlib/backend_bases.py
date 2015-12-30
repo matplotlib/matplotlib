@@ -515,7 +515,7 @@ class RendererBase(object):
         """
         return 1.0
 
-    def draw_image(self, gc, x, y, im):
+    def draw_image(self, gc, x, y, im, trans=None):
         """
         Draw the image instance into the current axes;
 
@@ -532,6 +532,12 @@ class RendererBase(object):
 
         *im*
             the :class:`matplotlib._image.Image` instance
+
+        *trans*
+            If `option_scale_image` returns `True`, an affine
+            transformation may also be passed to `draw_image`.  It
+            should be applied to the image, before applying the
+            translation of `x` and `y`.
         """
         raise NotImplementedError
 
