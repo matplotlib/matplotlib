@@ -17,7 +17,7 @@ curved coordinate systems.
 
 .. plot:: mpl_toolkits/axisartist/examples/demo_floating_axis.py
 
-Since it uses a special artists, some mpl commands that work on
+Since it uses special artists, some mpl commands that work on
 Axes.xaxis and Axes.yaxis may not work.
 
 axisartist
@@ -25,14 +25,14 @@ axisartist
 
 *axisartist* module provides a custom (and very experimental) Axes
 class, where each axis (left, right, top and bottom) have a separate
-artist associated which is responsible to draw axis-line, ticks,
+associated artist which is responsible to draw axis-line, ticks,
 ticklabels, label.  Also, you can create your own axis, which can pass
 through a fixed position in the axes coordinate, or a fixed position
 in the data coordinate (i.e., the axis floats around when viewlimit
 changes).
 
-The axes class, by default, have its xaxis and yaxis invisible, and
-has 4 additional artists which are responsible to draw axis in
+The axes class, by default, has its xaxis and yaxis invisible, and
+has 4 additional artists which are responsible for drawing the 4 axis sides in
 "left","right","bottom" and "top".  They are accessed as
 ax.axis["left"], ax.axis["right"], and so on, i.e., ax.axis is a
 dictionary that contains artists (note that ax.axis is still a
