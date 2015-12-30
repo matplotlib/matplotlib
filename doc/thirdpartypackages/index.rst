@@ -7,6 +7,8 @@
 Several external packages that extend or build on Matplotlib functionality
 exist. Below we list a number of these. Please submit an issue or pull request 
 on Github if you have created a package that you would like to have included.
+We are also happy to host third party packages within the `Matplotlib Github
+Organization <https://github.com/matplotlib>`_.
 
 .. _toolkits-general:
 
