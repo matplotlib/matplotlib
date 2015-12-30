@@ -170,10 +170,11 @@ image_resample(PyObject *self, PyObject* args, PyObject *kwargs)
         }
 
         py_is_affine2 = PyObject_IsTrue(py_is_affine);
+        Py_DECREF(py_is_affine);
 
         if (py_is_affine2 == -1) {
             goto error;
-        } else if (py_is_affine2 == 1) {
+        } else if (py_is_affine2) {
             if (!convert_trans_affine(py_transform, &params.affine)) {
                 goto error;
             }
@@ -190,8 +191,10 @@ image_resample(PyObject *self, PyObject* args, PyObject *kwargs)
     }
 
     if (PyArray_NDIM(input_array) != PyArray_NDIM(output_array)) {
-        PyErr_Format(PyExc_ValueError, "Mismatched number of dimensions. Got %d and %d.",
-                     PyArray_NDIM(input_array), PyArray_NDIM(output_array));
+        PyErr_Format(
+            PyExc_ValueError,
+            "Mismatched number of dimensions. Got %d and %d.",
+            PyArray_NDIM(input_array), PyArray_NDIM(output_array));
         goto error;
     }
 
@@ -202,8 +205,9 @@ image_resample(PyObject *self, PyObject* args, PyObject *kwargs)
 
     if (PyArray_NDIM(input_array) == 3) {
         if (PyArray_DIM(output_array, 2) != 4) {
-            PyErr_SetString(PyExc_ValueError,
-                            "Output array must be RGBA");
+            PyErr_SetString(
+                PyExc_ValueError,
+                "Output array must be RGBA");
             goto error;
         }
 
