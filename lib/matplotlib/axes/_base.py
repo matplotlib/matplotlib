@@ -32,7 +32,7 @@ import matplotlib.text as mtext
 import matplotlib.image as mimage
 from matplotlib.offsetbox import OffsetBox
 from matplotlib.artist import allow_rasterization
-from matplotlib.cbook import iterable, index_of
+
 from matplotlib.rcsetup import cycler
 
 rcParams = matplotlib.rcParams
