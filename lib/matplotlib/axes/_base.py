@@ -2325,7 +2325,9 @@ class _AxesBase(martist.Artist):
 
         # add images to dsu if the backend supports compositing.
         # otherwise, does the manual compositing  without adding images to dsu.
-        if len(self.images) <= 1 or renderer.option_image_nocomposite():
+        if (len(self.images) <= 1 or
+                renderer.option_image_nocomposite() or
+                any(im.get_interpolation() == 'none' for im in self.images)):
             _do_composite = False
         else:
             _do_composite = True

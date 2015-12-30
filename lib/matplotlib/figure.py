@@ -1248,7 +1248,7 @@ class Figure(Artist):
             not_composite = self.suppressComposite
 
         if (len(self.images) <= 1 or not_composite or
-                not cbook.allequal([im.origin for im in self.images])):
+                any(im.get_interpolation() == 'none' for im in self.images)):
             for a in self.images:
                 dsu.append((a.get_zorder(), a, a.draw, [renderer]))
         else:
