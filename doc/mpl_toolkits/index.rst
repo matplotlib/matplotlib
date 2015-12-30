@@ -22,10 +22,6 @@ Toolkits are collections of application-specific functions that extend matplotli
 
 mplot3d
 =======
-.. toctree::
-   :maxdepth: 2
-
-   mplot3d/index
 
 
 :ref:`mpl_toolkits.mplot3d <toolkit_mplot3d-index>` provides some basic 3D plotting (scatter, surf,
@@ -39,10 +35,6 @@ solution for some use cases.
 
 axes_grid1
 ==========
-.. toctree::
-   :maxdepth: 2
-
-   axes_grid1/index
 
 
 The :ref:`mpl_toolkits.axisgrid1 <toolkit_axesgrid1-index>` toolkit is a
@@ -57,10 +49,6 @@ collection of helper classes to ease displaying multiple axes in matplotlib.
 
 axisartist
 ==========
-.. toctree::
-   :maxdepth: 2
-
-   axisartist/index
 
 
 The :ref:`mpl_toolkits.axisartist <toolkit_axisartist-index>` toolkit contains 
