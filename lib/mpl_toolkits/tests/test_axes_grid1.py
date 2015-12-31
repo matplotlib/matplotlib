@@ -101,7 +101,8 @@ def test_inset_locator():
     axins = zoomed_inset_axes(ax, 6, loc=1)  # zoom = 6
     axins.imshow(Z2, extent=extent, interpolation="nearest",
                  origin="lower")
-
+    axins.yaxis.get_major_locator().set_params(nbins=7)
+    axins.xaxis.get_major_locator().set_params(nbins=7)
     # sub region of the original image
     x1, x2, y1, y2 = -1.5, -0.9, -2.5, -1.9
     axins.set_xlim(x1, x2)
