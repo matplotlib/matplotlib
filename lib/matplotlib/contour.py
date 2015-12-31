@@ -183,19 +183,9 @@ class ContourLabeler(object):
         self.labelIndiceList = indices
 
         self.labelFontProps = font_manager.FontProperties()
-        if fontsize is None:
-            font_size = int(self.labelFontProps.get_size_in_points())
-        else:
-            if type(fontsize) not in [int, float, str]:
-                raise TypeError("Font size must be an integer number.")
-                # Can't it be floating point, as indicated in line above?
-            else:
-                if type(fontsize) == str:
-                    font_size = int(self.labelFontProps.get_size_in_points())
-                else:
-                    self.labelFontProps.set_size(fontsize)
-                    font_size = fontsize
-        self.labelFontSizeList = [font_size] * len(levels)
+        self.labelFontProps.set_size(fontsize)
+        font_size_pts = self.labelFontProps.get_size_in_points()
+        self.labelFontSizeList = [font_size_pts] * len(levels)
 
         if _colors is None:
             self.labelMappable = self
