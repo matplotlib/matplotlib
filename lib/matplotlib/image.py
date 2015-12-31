@@ -960,9 +960,10 @@ class BboxImage(_ImageBase):
 
         self.bbox = bbox
         self.interp_at_native = interp_at_native
+        self._transform = IdentityTransform()
 
     def get_transform(self):
-        return self.axes.figure.transFigure
+        return self._transform
 
     def get_window_extent(self, renderer=None):
         if renderer is None:
@@ -990,14 +991,15 @@ class BboxImage(_ImageBase):
 
     def make_image(self, renderer, magnification=1.0, unsampled=False):
         bbox_in = self.get_window_extent(renderer).frozen()
-        bbox_in._points /= [self.axes.figure.bbox.width,
-                            self.axes.figure.bbox.height]
+        bbox_in._points /= [renderer.width,
+                            renderer.height]
         bbox_out = self.get_window_extent(renderer)
+        clip = Bbox([[0, 0], [renderer.width, renderer.height]])
+        self._transform = BboxTransform(Bbox([[0, 0], [1, 1]]), clip)
 
         return self._make_image(
             self._A,
-            bbox_in, bbox_out,
-            self.axes.bbox, magnification, unsampled=unsampled)
+            bbox_in, bbox_out, clip, magnification, unsampled=unsampled)
 
 
 def imread(fname, format=None):
