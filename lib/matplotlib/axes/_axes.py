@@ -2873,7 +2873,8 @@ class Axes(_AxesBase):
             plot_kw['markeredgewidth'] = capthick
         # For backwards-compat, allow explicit setting of
         # 'mew' or 'markeredgewidth' to over-ride capthick.
-        for key in ('markeredgewidth', 'mew', 'transform', 'alpha', 'zorder', 'rasterized'):
+        for key in ('markeredgewidth', 'mew', 'transform', 'alpha',
+                    'zorder', 'rasterized'):
             if key in kwargs:
                 plot_kw[key] = kwargs[key]
 
