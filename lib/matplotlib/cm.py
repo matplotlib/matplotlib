@@ -263,7 +263,7 @@ class ScalarMappable(object):
         rgba = self.cmap(x, alpha=alpha, bytes=bytes)
         # For floating-point greyscale images, we treat negative as
         # transparent so we copy that over to the alpha channel
-        if x.ndim == 2 and issubclass(x.dtype.type, np.floating):
+        if x.ndim == 2 and x.dtype.kind == 'f':
             rgba[:, :, 3] = np.where(x < 0.0, 0, rgba[:, :, 3])
         return rgba
 
