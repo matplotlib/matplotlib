@@ -33,7 +33,8 @@ def run(extra_args):
             # to pytest.main
             return pytest.main(argv)
     else:
-        return pytest.main(argv + ['--pyargs'] + default_test_modules)
+        return pytest.main(argv + ['--pyargs'] + default_test_modules +
+                           '--ignore=site-packages/numpy/testing/.')
 
 if __name__ == '__main__':
     # extra_args = ['--cov=matplotlib']
