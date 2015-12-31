@@ -30,4 +30,4 @@ for ax, interp_method in zip(axes.flat, methods):
     ax.imshow(grid, interpolation=interp_method, cmap='viridis')
     ax.set_title(interp_method)
 
-plt.savefig("test.png")
+plt.show()
