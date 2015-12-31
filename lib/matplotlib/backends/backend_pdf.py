@@ -476,7 +476,7 @@ class PdfFile(object):
         self.nextHatch = 1
         self.gouraudTriangles = []
 
-        self.images = {}
+        self._images = {}
         self.nextImage = 1
 
         self.markers = {}
@@ -550,7 +550,7 @@ class PdfFile(object):
                                for val in six.itervalues(self.alphaStates)]))
         self.writeHatches()
         self.writeGouraudTriangles()
-        xobjects = dict(x[1:] for x in six.itervalues(self.images))
+        xobjects = dict(x[1:] for x in six.itervalues(self._images))
         for tup in six.itervalues(self.markers):
             xobjects[tup[0]] = tup[1]
         for name, value in six.iteritems(self.multi_byte_charprocs):
@@ -1241,14 +1241,14 @@ end"""
     def imageObject(self, image):
         """Return name of an image XObject representing the given image."""
 
-        entry = self.images.get(id(image), None)
+        entry = self._images.get(id(image), None)
         if entry is not None:
             return entry[1]
 
         name = Name('I%d' % self.nextImage)
         ob = self.reserveObject('image %d' % self.nextImage)
         self.nextImage += 1
-        self.images[id(image)] = (image, name, ob)
+        self._images[id(image)] = (image, name, ob)
         return name
 
     def _unpack(self, im):
@@ -1338,7 +1338,7 @@ end"""
         self.endStream()
 
     def writeImages(self):
-        for img, name, ob in six.itervalues(self.images):
+        for img, name, ob in six.itervalues(self._images):
             height, width, data, adata = self._unpack(img)
             if adata is not None:
                 smaskObject = self.reserveObject("smask")
