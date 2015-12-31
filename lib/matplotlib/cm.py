@@ -226,6 +226,9 @@ class ScalarMappable(object):
         array will be floats in the 0-1 range; if it is *True*,
         the returned rgba array will be uint8 in the 0 to 255 range.
 
+        If norm is False, no normalization of the input data is
+        performed, and it is assumed to already be in the range (0-1).
+
         Note: this method assumes the input is well-behaved; it does
         not check for anomalies such as *x* being a masked rgba
         array, or being an integer type other than uint8, or being
