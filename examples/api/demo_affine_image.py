@@ -1,6 +1,3 @@
-#!/usr/bin/env python
-
-
 """
 For the backends that supports draw_image with optional affine
 transform (e.g., agg, ps backend), the image of the output should
