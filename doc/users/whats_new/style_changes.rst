@@ -59,6 +59,10 @@ Images
 - The default shading mode is now ``overlay``.  Formerly, it was
   ``hsv``.
 
+- The default value for ``image.resample`` is now ``True``.  This will
+  apply interpolation for both upsampling and downsampling of an
+  image.
+
 Fonts
 `````
 
