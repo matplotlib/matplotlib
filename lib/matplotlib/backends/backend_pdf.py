@@ -1602,6 +1602,10 @@ class RendererPdf(RendererBase):
         if w == 0 or h == 0:
             return
 
+        if transform is None:
+            # If there's no transform, alpha has already been applied
+            gc.set_alpha(1.0)
+
         self.check_gc(gc)
 
         w = 72.0 * w / self.image_dpi
