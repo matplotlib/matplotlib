@@ -9,7 +9,12 @@ import xml.parsers.expat
 
 import matplotlib.pyplot as plt
 from matplotlib.testing.decorators import cleanup
-from matplotlib.testing.decorators import image_comparison
+from matplotlib.testing.decorators import image_comparison, knownfailureif
+import matplotlib
+
+needs_tex = knownfailureif(
+    not matplotlib.checkdep_tex(),
+    "This test needs a TeX installation")
 
 
 @cleanup
@@ -173,6 +178,7 @@ def test_determinism_notex():
 
 
 @cleanup
+@needs_tex
 def test_determinism_tex():
     # unique filename to allow for parallel testing
     _test_determinism('determinism_tex.svg', usetex=True)
