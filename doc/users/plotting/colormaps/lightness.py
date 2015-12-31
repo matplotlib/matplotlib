@@ -4,12 +4,7 @@ along the y axis vs index through the colormap. Colormaps are examined in
 categories as in the original matplotlib gallery of colormaps.
 '''
 
-import colorconv as color
 from colormaps import cmaps
-#from skimage import color
-# we are using a local copy of colorconv from scikit-image to
-# reduce dependencies.
-# You should probably use the one from scikit-image in most cases.
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib import cm
