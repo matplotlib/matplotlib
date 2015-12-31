@@ -2004,7 +2004,7 @@ class XAxis(Axis):
             # is no more than 3:1
             size = tick.label1.get_size() * 3
             size *= np.cos(np.deg2rad(tick.label1.get_rotation()))
-            self._tick_space = np.floor(length / size)
+            return np.floor(length / size)
         return self._tick_space
 
 
@@ -2346,5 +2346,5 @@ class YAxis(Axis):
             # Having a spacing of at least 2 just looks good.
             size = tick.label1.get_size() * 2.0
             size *= np.cos(np.deg2rad(tick.label1.get_rotation()))
-            self._tick_space = np.floor(length / size)
+            return np.floor(length / size)
         return self._tick_space
