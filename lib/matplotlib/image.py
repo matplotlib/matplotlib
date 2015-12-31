@@ -294,6 +294,8 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
                     output[...] = -100.0
                 else:
                     output = np.zeros((out_height, out_width), dtype=A.dtype)
+
+                alpha = 1.0
             elif len(A.shape) == 3:
                 # Always convert to RGBA, even if only RGB input
                 if A.shape[2] == 3:
@@ -302,12 +304,12 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
                     raise ValueError("Invalid dimensions, got %s" % (A.shape,))
 
                 output = np.zeros((out_height, out_width, 4), dtype=A.dtype)
+
+                alpha = self.get_alpha()
+                if alpha is None:
+                    alpha = 1.0
             else:
                 raise ValueError("Invalid dimensions, got %s" % (A.shape,))
-
-            alpha = self.get_alpha()
-            if alpha is None:
-                alpha = 1.0
 
             _image.resample(
                 A, output, t, _interpd_[self.get_interpolation()],
@@ -315,6 +317,14 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
                 self.get_filternorm() or 0.0, self.get_filterrad() or 0.0)
 
             output = self.to_rgba(output, bytes=True, norm=False)
+
+            # Apply alpha *after* if the input was greyscale
+            if len(A.shape) == 2:
+                alpha = self.get_alpha()
+                if alpha is not None and alpha != 1.0:
+                    alpha_channel = output[:, :, 3]
+                    alpha_channel[:] = np.asarray(
+                        np.asarray(alpha_channel, np.float) * alpha, np.uint8)
         else:
             if self._imcache is None:
                 self._imcache = self.to_rgba(A, bytes=True, norm=(A.ndim == 2))

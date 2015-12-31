@@ -161,6 +161,18 @@ def test_imsave_color_alpha():
 
     assert_allclose(data, arr_buf)
 
+@image_comparison(baseline_images=['image_alpha'], remove_text=True)
+def test_image_alpha():
+    plt.figure()
+
+    np.random.seed(0)
+    Z = np.random.rand(6, 6)
+
+    plt.subplot(121)
+    plt.imshow(Z, alpha=0.5, interpolation='none')
+
+    plt.subplot(122)
+    plt.imshow(Z, alpha=0.5, interpolation='nearest')
 
 @cleanup
 def test_cursor_data():
