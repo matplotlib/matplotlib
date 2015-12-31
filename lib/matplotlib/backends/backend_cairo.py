@@ -182,7 +182,7 @@ class RendererCairo(RendererBase):
         y = self.height - y - im.shape[0]
 
         ctx.save()
-        ctx.set_source_surface (surface, float(x), float(y))
+        ctx.set_source_surface(surface, float(x), float(y))
         if gc.get_alpha() != 1.0:
             ctx.paint_with_alpha(gc.get_alpha())
         else:
