@@ -287,7 +287,7 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
         if not unsampled:
             if len(A.shape) == 2:
                 A = self.norm(A)
-                if issubclass(A.dtype.type, np.floating):
+                if A.dtype.kind == 'f':
                     # For floating-point greyscale images, we treat negative
                     # numbers as transparent.
                     output = np.empty((out_height, out_width), dtype=A.dtype)
