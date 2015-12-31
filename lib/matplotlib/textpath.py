@@ -344,7 +344,7 @@ class TextToPath(object):
                                                     1094995778)]:
                     try:
                         font.select_charmap(charmap_code)
-                    except ValueError:
+                    except (ValueError, RuntimeError):
                         pass
                     else:
                         break
