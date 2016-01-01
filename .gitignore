@@ -12,7 +12,7 @@
 *.kdev4
 .project
 .pydevproject
-.swp
+*.swp
 .idea
 
 # Compiled source #
@@ -71,13 +71,13 @@ texput.log
 texput.aux
 result_images
 
-*.swp
-setup.cfg
-
-# Coverage generated files #
-############################
-
+# Nose generated files #
+########################
 .coverage
 .coverage.*
 cover/
+.noseids
+
+# Conda files #
+###############
 __conda_version__.txt
