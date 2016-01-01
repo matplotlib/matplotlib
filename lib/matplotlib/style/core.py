@@ -98,7 +98,8 @@ def use(style):
         if not cbook.is_string_like(style):
             _apply_style(style)
         elif style == 'default':
-            _apply_style(rcParamsDefault)
+            with warnings.catch_warnings(record=True):
+                _apply_style(rcParamsDefault)
         elif style in library:
             _apply_style(library[style])
         else:
