@@ -12,6 +12,7 @@ from __future__ import (absolute_import, division, print_function,
 from matplotlib.externals import six
 from matplotlib.externals.six.moves import xrange, zip
 from itertools import repeat
+import collections
 
 import datetime
 import errno
@@ -2418,6 +2419,13 @@ def index_of(y):
     except AttributeError:
         y = np.atleast_1d(y)
         return np.arange(y.shape[0], dtype=float), y
+
+
+def safe_first_element(obj):
+    if isinstance(obj, collections.Iterator):
+        raise RuntimeError("matplotlib does not support generators "
+                           "as input")
+    return next(iter(obj))
 
 
 def get_label(y, default_name):
