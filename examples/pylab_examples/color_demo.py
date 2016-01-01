@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 """
-matplotlib gives you 4 ways to specify colors,
+matplotlib gives you 5 ways to specify colors,
 
     1) as a single letter string, ala MATLAB
 
@@ -11,6 +11,10 @@ matplotlib gives you 4 ways to specify colors,
     4) as a string representing a floating point number
        from 0 to 1, corresponding to shades of gray.
 
+    5) as a string representing the Nth color in the
+       currently active color cycle, e.g. "[0]"
+       represents the first color in the color cycle.
+
 See help(colors) for more info.
 """
 import matplotlib.pyplot as plt
@@ -20,8 +24,8 @@ plt.subplot(111, facecolor='darkslategray')
 #subplot(111, facecolor='#ababab')
 t = np.arange(0.0, 2.0, 0.01)
 s = np.sin(2*np.pi*t)
-plt.plot(t, s, 'y')
-plt.xlabel('time (s)', color='r')
+plt.plot(t, s, '[0]')
+plt.xlabel('time (s)', color='[0]')
 plt.ylabel('voltage (mV)', color='0.5')  # grayscale color
 plt.title('About as silly as it gets, folks', color='#afeeee')
 plt.show()

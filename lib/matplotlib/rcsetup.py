@@ -827,7 +827,7 @@ defaultParams = {
     # line props
     'lines.linewidth':       [1.0, validate_float],  # line width in points
     'lines.linestyle':       ['-', six.text_type],             # solid line
-    'lines.color':           ['b', validate_color],  # blue
+    'lines.color':           ['[0]', validate_color],  # blue
     'lines.marker':          ['None', six.text_type],     # black
     'lines.markeredgewidth': [1.0, validate_float],
     'lines.markersize':      [6, validate_float],    # markersize, in points
@@ -843,7 +843,7 @@ defaultParams = {
     ## patch props
     'patch.linewidth':   [None, validate_float_or_None],  # line width in points
     'patch.edgecolor':   ['k', validate_color],  # black
-    'patch.facecolor':   ['b', validate_color],  # blue
+    'patch.facecolor':   ['[0]', validate_color],  # blue
     'patch.antialiased': [True, validate_bool],  # antialiased (no jaggies)
 
     ## Histogram properties
@@ -992,14 +992,15 @@ defaultParams = {
     'axes.formatter.use_mathtext': [False, validate_bool],
     'axes.formatter.useoffset': [True, validate_bool],
     'axes.unicode_minus': [True, validate_bool],
-    'axes.color_cycle': [['b', 'g', 'r', 'c', 'm', 'y', 'k'],
-                         deprecate_axes_colorcycle],  # cycle of plot
-                                                      # line colors
     # This entry can be either a cycler object or a
     # string repr of a cycler-object, which gets eval()'ed
     # to create the object.
-    'axes.prop_cycle': [ccycler('color', 'bgrcmyk'),
-                        validate_cycler],
+    'axes.prop_cycle': [
+        ccycler('color',
+                ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728',
+                 '#9467bd', '#8c564b', '#e377c2', '#7f7f7f',
+                 '#bcbd22', '#17becf']),
+        validate_cycler],
     # If 'data', axes limits are set close to the data.
     # If 'round_numbers' axes limits are set to the nearest round numbers.
     'axes.autolimit_mode': [

@@ -31,6 +31,14 @@ the colors.  For the basic built-in colors, you can use a single letter
     - k: black
     - w: white
 
+To use the colors that are part of the active color cycle in the
+current style, use a string with a positive index in square brackets.
+If the index is larger than the color cycle, it is wrapped around.
+For example:
+
+    - `[0]`: The first color in the cycle
+    - `[1]`: The second color in the cycle
+
 Gray shades can be given as a string encoding a float in the 0-1 range, e.g.::
 
     color = '0.75'
@@ -213,6 +221,18 @@ for k, v in list(six.iteritems(cnames)):
 
 def is_color_like(c):
     'Return *True* if *c* can be converted to *RGB*'
+    # Special-case the N-th color cycle syntax, because it's parsing
+    # needs to be deferred.  We may be reading a value from rcParams
+    # here before the color_cycle rcParam has been parsed.
+    if isinstance(c, bytes):
+        match = re.match(b'^\[[0-9]\]$', c)
+        if match is not None:
+            return True
+    elif isinstance(c, six.text_type):
+        match = re.match('^\[[0-9]\]$', c)
+        if match is not None:
+            return True
+
     try:
         colorConverter.to_rgb(c)
         return True
@@ -260,7 +280,34 @@ class ColorConverter(object):
         'k': (0.0, 0.0, 0.0),
         'w': (1.0, 1.0, 1.0), }
 
+    _prop_cycler = None
+
     cache = {}
+
+    @classmethod
+    def _get_nth_color(cls, val):
+        """
+        Get the Nth color in the current color cycle.  If N is greater
+        than the number of colors in the cycle, it is wrapped around.
+        """
+        from matplotlib.rcsetup import cycler
+        from matplotlib import rcParams
+
+        prop_cycler = rcParams['axes.prop_cycle']
+        if prop_cycler is None and 'axes.color_cycle' in rcParams:
+            clist = rcParams['axes.color_cycle']
+            prop_cycler = cycler('color', clist)
+
+        colors = prop_cycler._transpose()['color']
+        return colors[val % len(colors)]
+
+    @classmethod
+    def _parse_nth_color(cls, val):
+        match = re.match('^\[[0-9]\]$', val)
+        if match is not None:
+            return cls._get_nth_color(int(val[1:-1]))
+
+        raise ValueError("Not a color cycle color")
 
     def to_rgb(self, arg):
         """
@@ -299,6 +346,10 @@ class ColorConverter(object):
                 argl = arg.lower()
                 color = self.colors.get(argl, None)
                 if color is None:
+                    try:
+                        argl = self._parse_nth_color(argl)
+                    except ValueError:
+                        pass
                     str1 = cnames.get(argl, argl)
                     if str1.startswith('#'):
                         color = hex2color(str1)

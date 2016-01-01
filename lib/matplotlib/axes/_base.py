@@ -10,6 +10,7 @@ import itertools
 import warnings
 import math
 from operator import itemgetter
+import re
 
 import numpy as np
 from numpy import ma
@@ -94,6 +95,17 @@ def _process_plot_format(fmt):
         linestyle = 'None'
         fmt = fmt.replace(' ', '')
 
+    # handle the N-th color in the color cycle
+    matches = re.findall('\[[0-9]+\]', fmt)
+    if len(matches) == 1:
+        color = mcolors.colorConverter._get_nth_color(
+            int(matches[0][1:-1]))
+        fmt = fmt.replace(matches[0], '')
+    elif len(matches) != 0:
+        if color is not None:
+            raise ValueError(
+                'Illegal format string "%s"; two color symbols' % fmt)
+
     chars = [c for c in fmt]
 
     for c in chars:
@@ -160,6 +172,10 @@ class _process_plot_var_args(object):
         else:
             prop_cycler = cycler(*args, **kwargs)
 
+        # Make sure the cycler always has at least one color
+        if 'color' not in prop_cycler.keys:
+            prop_cycler = prop_cycler * cycler('color', ['k'])
+
         self.prop_cycler = itertools.cycle(prop_cycler)
         # This should make a copy
         self._prop_keys = prop_cycler.keys
@@ -184,6 +200,12 @@ class _process_plot_var_args(object):
 
         ret = self._grab_next_args(*args, **kwargs)
         return ret
+
+    def get_next_color(self):
+        """
+        Return the next color in the cycle.
+        """
+        return six.next(self.prop_cycler)['color']
 
     def set_lineprops(self, line, **kwargs):
         assert self.command == 'plot', 'set_lineprops only works with "plot"'
