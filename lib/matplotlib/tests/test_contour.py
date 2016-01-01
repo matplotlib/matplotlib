@@ -166,6 +166,19 @@ def test_contour_manual_labels():
     plt.clabel(cs, manual=pts)
 
 
+@image_comparison(baseline_images=['contour_labels_size_color'],
+                  extensions=['png'], remove_text=True)
+def test_contour_manual_labels():
+
+    x, y = np.meshgrid(np.arange(0, 10), np.arange(0, 10))
+    z = np.max(np.dstack([abs(x), abs(y)]), 2)
+
+    plt.figure(figsize=(6, 2))
+    cs = plt.contour(x, y, z)
+    pts = np.array([(1.5, 3.0), (1.5, 4.4), (1.5, 6.0)])
+    plt.clabel(cs, manual=pts, fontsize='small', colors=('r', 'g'))
+
+
 @image_comparison(baseline_images=['contour_manual_colors_and_levels'],
                   extensions=['png'], remove_text=True)
 def test_given_colors_levels_and_extends():

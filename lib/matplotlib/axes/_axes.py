@@ -2337,11 +2337,11 @@ class Axes(_AxesBase):
         """
         # process the unit information
         if len(xranges):
-            xdata = six.next(iter(xranges))
+            xdata = cbook.safe_first_element(xranges)
         else:
             xdata = None
         if len(yrange):
-            ydata = six.next(iter(yrange))
+            ydata = cbook.safe_first_element(yrange)
         else:
             ydata = None
         self._process_unit_info(xdata=xdata,
@@ -2832,7 +2832,7 @@ class Axes(_AxesBase):
             for key in ('linewidth', 'lw'):
                 if key in kwargs:
                     lines_kw[key] = kwargs[key]
-        for key in ('transform', 'alpha', 'zorder'):
+        for key in ('transform', 'alpha', 'zorder', 'rasterized'):
             if key in kwargs:
                 lines_kw[key] = kwargs[key]
 
@@ -2884,7 +2884,8 @@ class Axes(_AxesBase):
             plot_kw['markeredgewidth'] = capthick
         # For backwards-compat, allow explicit setting of
         # 'mew' or 'markeredgewidth' to over-ride capthick.
-        for key in ('markeredgewidth', 'mew', 'transform', 'alpha', 'zorder'):
+        for key in ('markeredgewidth', 'mew', 'transform', 'alpha',
+                    'zorder', 'rasterized'):
             if key in kwargs:
                 plot_kw[key] = kwargs[key]
 
@@ -3022,7 +3023,7 @@ class Axes(_AxesBase):
 
         if ecolor is None:
             if l0 is None and 'color' in self._get_lines._prop_keys:
-                ecolor = six.next(self._get_lines.prop_cycler)['color']
+                ecolor = next(self._get_lines.prop_cycler)['color']
             else:
                 ecolor = l0.get_color()
 
@@ -5900,6 +5901,41 @@ class Axes(_AxesBase):
         .. plot:: mpl_examples/statistics/histogram_demo_features.py
 
         """
+        def _normalize_input(inp, ename='input'):
+            """Normalize 1 or 2d input into list of np.ndarray or
+            a single 2D np.ndarray.
+
+            Parameters
+            ----------
+            inp : iterable
+            ename : str, optional
+                Name to use in ValueError if `inp` can not be normalized
+
+            """
+            if (isinstance(x, np.ndarray) or
+                    not iterable(cbook.safe_first_element(inp))):
+                # TODO: support masked arrays;
+                inp = np.asarray(inp)
+                if inp.ndim == 2:
+                    # 2-D input with columns as datasets; switch to rows
+                    inp = inp.T
+                elif inp.ndim == 1:
+                    # new view, single row
+                    inp = inp.reshape(1, inp.shape[0])
+                else:
+                    raise ValueError(
+                        "{ename} must be 1D or 2D".format(ename=ename))
+                if inp.shape[1] < inp.shape[0]:
+                    warnings.warn(
+                        '2D hist input should be nsamples x nvariables;\n '
+                        'this looks transposed '
+                        '(shape is %d x %d)' % inp.shape[::-1])
+            else:
+                # multiple hist with data of different length
+                inp = [np.asarray(xi) for xi in inp]
+
+            return inp
+
         if not self._hold:
             self.cla()
 
@@ -5946,57 +5982,33 @@ class Axes(_AxesBase):
         input_empty = len(flat) == 0
 
         # Massage 'x' for processing.
-        # NOTE: Be sure any changes here is also done below to 'weights'
         if input_empty:
             x = np.array([[]])
-        elif isinstance(x, np.ndarray) or not iterable(x[0]):
-            # TODO: support masked arrays;
-            x = np.asarray(x)
-            if x.ndim == 2:
-                x = x.T  # 2-D input with columns as datasets; switch to rows
-            elif x.ndim == 1:
-                x = x.reshape(1, x.shape[0])  # new view, single row
-            else:
-                raise ValueError("x must be 1D or 2D")
-            if x.shape[1] < x.shape[0]:
-                warnings.warn(
-                    '2D hist input should be nsamples x nvariables;\n '
-                    'this looks transposed (shape is %d x %d)' % x.shape[::-1])
         else:
-            # multiple hist with data of different length
-            x = [np.asarray(xi) for xi in x]
-
+            x = _normalize_input(x, 'x')
         nx = len(x)  # number of datasets
 
+        # We need to do to 'weights' what was done to 'x'
+        if weights is not None:
+            w = _normalize_input(weights, 'weights')
+        else:
+            w = [None]*nx
+
+        if len(w) != nx:
+            raise ValueError('weights should have the same shape as x')
+
+        for xi, wi in zip(x, w):
+            if wi is not None and len(wi) != len(xi):
+                raise ValueError(
+                    'weights should have the same shape as x')
+
         if color is None and 'color' in self._get_lines._prop_keys:
-            color = [six.next(self._get_lines.prop_cycler)['color']
+            color = [next(self._get_lines.prop_cycler)['color']
                      for i in xrange(nx)]
         else:
             color = mcolors.colorConverter.to_rgba_array(color)
             if len(color) != nx:
                 raise ValueError("color kwarg must have one color per dataset")
-
-        # We need to do to 'weights' what was done to 'x'
-        if weights is not None:
-            if isinstance(weights, np.ndarray) or not iterable(weights[0]):
-                w = np.array(weights)
-                if w.ndim == 2:
-                    w = w.T
-                elif w.ndim == 1:
-                    w.shape = (1, w.shape[0])
-                else:
-                    raise ValueError("weights must be 1D or 2D")
-            else:
-                w = [np.asarray(wi) for wi in weights]
-
-            if len(w) != nx:
-                raise ValueError('weights should have the same shape as x')
-            for i in xrange(nx):
-                if len(w[i]) != len(x[i]):
-                    raise ValueError(
-                        'weights should have the same shape as x')
-        else:
-            w = [None]*nx
 
         # Save the datalimits for the same reason:
         _saved_bounds = self.dataLim.bounds
@@ -6013,7 +6025,7 @@ class Axes(_AxesBase):
                     xmax = max(xmax, xi.max())
             bin_range = (xmin, xmax)
 
-        #hist_kwargs = dict(range=range, normed=bool(normed))
+        # hist_kwargs = dict(range=range, normed=bool(normed))
         # We will handle the normed kwarg within mpl until we
         # get to the point of requiring numpy >= 1.5.
         hist_kwargs = dict(range=bin_range)
