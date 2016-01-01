@@ -559,6 +559,9 @@ class ScalarFormatter(Formatter):
         if locs is None or not len(locs) or range == 0:
             self.offset = 0
             return
+        vmin, vmax = sorted(self.axis.get_view_interval())
+        locs = np.asarray(locs)
+        locs = locs[(vmin <= locs) & (locs <= vmax)]
         ave_loc = np.mean(locs)
         if ave_loc:  # dont want to take log10(0)
             ave_oom = math.floor(math.log10(np.mean(np.absolute(locs))))
