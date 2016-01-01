@@ -1650,7 +1650,7 @@ class _SelectorWidget(AxesWidget):
                 for artist in self.artists:
                     artist.set_visible(False)
                 self.update()
-                self._clear(event)
+                self.eventpress = None
                 return
             for (state, modifier) in self.state_modifier_keys.items():
                 if modifier in key:
@@ -1659,11 +1659,6 @@ class _SelectorWidget(AxesWidget):
 
     def _on_key_press(self, event):
         """Key press event handler - use for widget-specific key press actions.
-        """
-        pass
-
-    def _clear(self, event):
-        """Clear event handler - use for widget-specific clearing actions.
         """
         pass
 
@@ -2531,25 +2526,24 @@ class LassoSelector(_SelectorWidget):
                 self.verts is None):
             self.verts = [(event.xdata, event.ydata)]
 
-        self.line.set_visible(True)
+    def _on_key_release(self, event):
+        if event.key == self.state_modifier_keys['polygon']:
+            if self._override_press:
+                self._finish(event)
 
     def onrelease(self, event):
         self.release(event)
 
-    def _clear(self, event):
-        self.verts = None
-        self.line.set_data([[], []])
-        self.line.set_visible(False)
-        self.update()
-
     def _finish(self, event):
         self.verts.append(self.verts[0])
         self.line.set_data(list(zip(*self.verts)))
-        self.update()
         self.onselect(self.verts)
         if not self.persist:
-            self._clear(event)
+            self.line.set_data([[], []])
+            self.line.set_visible(False)
+            self._override_press = False
         self.verts = None
+        self.update()
 
     def _release(self, event):
         if self.verts is None:
@@ -2566,6 +2560,7 @@ class LassoSelector(_SelectorWidget):
     def _onmove(self, event):
         if self.verts is None:
             return
+        self.line.set_visible(True)
         if event.key == self.state_modifier_keys['polygon']:
             if len(self.verts) == 1:
                 self.verts.append((event.xdata, event.ydata))
