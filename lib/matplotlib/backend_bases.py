@@ -531,13 +531,14 @@ class RendererBase(object):
             is the distance from bottom
 
         *im*
-            the :class:`matplotlib._image.Image` instance
+            An NxMx4 array of RGBA pixels (of dtype uint8).
 
         *trans*
-            If `option_scale_image` returns `True`, an affine
-            transformation may also be passed to `draw_image`.  It
-            should be applied to the image, before applying the
-            translation of `x` and `y`.
+            If the concrete backend is written such that
+            `option_scale_image` returns `True`, an affine
+            transformation may also be passed to `draw_image`.  The
+            backend should apply the transformation to the image
+            before applying the translation of `x` and `y`.
         """
         raise NotImplementedError
 
