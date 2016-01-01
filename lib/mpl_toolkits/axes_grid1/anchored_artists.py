@@ -335,7 +335,7 @@ fontproperties=fontprops)
         """
         self.size_bar = AuxTransformBox(transform)
         self.size_bar.add_artist(Rectangle((0, 0), size, size_vertical,
-                                           fill=True, facecolor=color,
+                                           fill=False, facecolor=color,
                                            edgecolor=color))
 
         if fontproperties is None and 'prop' in kwargs:
