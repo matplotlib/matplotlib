@@ -70,6 +70,11 @@ class BaseTool(object):
         The parent figure canvas for the tool.
     active: bool
         If False, the widget does not respond to events.
+    interactive: boolean
+        Whether to allow interaction with the shape using handles.
+    allow_redraw: boolean
+        Whether to allow the tool to redraw itself or whether it must be
+        drawn programmatically and then dragged.
     verts: nd-array of floats (2, N)
         The vertices of the tool.
     """
@@ -81,13 +86,13 @@ class BaseTool(object):
         self.ax = ax
         self.canvas = ax.figure.canvas
         self.active = True
+        self.interactive = interactive
+        self.allow_redraw = allow_redraw
 
         self._callback_on_move = _dummy if on_move is None else on_move
         self._callback_on_accept = _dummy if on_accept is None else on_accept
         self._callback_on_select = _dummy if on_select is None else on_select
 
-        self._interactive = interactive
-        self._allow_redraw = allow_redraw
         self._useblit = useblit and self.canvas.supports_blit
         self._keys = dict(move=' ', clear='escape',
                           accept='enter', polygon='shift',
@@ -105,22 +110,17 @@ class BaseTool(object):
         self._patch = Polygon([[0, 0], [1, 1]], True, **props)
         self.ax.add_patch(self._patch)
 
-        if self._interactive:
-            props = dict(marker='0', markersize=7, mfc='w', ls='none',
-                         alpha=0.5, visible=False, label='_nolegend_',
-                         pickradius=10)
-            props.update(handle_props or {})
-            self._handles = Line2D([], [], **props)
-            self.ax.add_line(self._handles)
+        props = dict(marker='0', markersize=7, mfc='w', ls='none',
+                     alpha=0.5, visible=False, label='_nolegend_',
+                     pickradius=10)
+        props.update(handle_props or {})
+        self._handles = Line2D([], [], **props)
+        self.ax.add_line(self._handles)
 
-            self._artists = [self._patch, self._handles]
-        else:
-            self._artists = [self._patch]
-
+        self._artists = [self._patch, self._handles]
         self._state = set()
         self._drawing = False
         self._dragging = False
-        self._current = False
         self._verts = []
         self._prev_verts = None
         self._background = None
@@ -148,7 +148,7 @@ class BaseTool(object):
         assert value.shape[1] == 2
         self._verts = np.array(value)
         self._patch.set_xy(value)
-        if self._interactive:
+        if self.interactive:
             self._set_handles_xy(value)
             self._handles.set_animated(False)
         self._patch.set_animated(False)
@@ -163,7 +163,7 @@ class BaseTool(object):
         self.canvas.draw_idle()
 
     def _handle_pick(self, artist, event):
-        if not self._interactive:
+        if not self.interactive:
             return
         # TODO: implement picking logic.
         pass
@@ -220,7 +220,7 @@ class BaseTool(object):
         elif event.key == self._keys['accept']:
             if not self._drawing:
                 self._callback_on_accept(self)
-                if self._allow_redraw:
+                if self.allow_redraw:
                     for artist in self._artists:
                         artist.set_visible(False)
                     self.canvas.draw_idle()
@@ -303,20 +303,22 @@ class BaseTool(object):
     def _start_drawing(self):
         """Start drawing or dragging the shape"""
         self._drawing = True
-        if self._mode == 'interact':
+        if self.interactive:
             for artist in self._artists:
                 artist.set_visible(False)
             self.canvas.draw()
             for artist in self._artists:
                 artist.set_animated(self._useblit)
                 artist.set_visible(True)
+        else:
+            self._handles.set_visible(False)
         self._update()
 
     def _finish_drawing(self):
         """Finish drawing or dragging the shape"""
         self._drawing = False
         self._dragging = False
-        if self._interactive:
+        if self.interactive:
             for artist in self._artists:
                 artist.set_animated(False)
         else:
