@@ -13,7 +13,7 @@ from cycler import cycler, Cycler
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 from matplotlib.tests import assert_str_equal
-from matplotlib.testing.decorators import cleanup, knownfailureif
+from matplotlib.testing.decorators import cleanup
 import matplotlib.colors as mcolors
 # from nose.tools import assert_true, assert_raises, assert_equal
 # from nose.plugins.skip import SkipTest

@@ -12,8 +12,10 @@ from matplotlib.image import BboxImage, imread, NonUniformImage
 from matplotlib.transforms import Bbox
 from matplotlib import rcParams, rc_context
 import matplotlib.pyplot as plt
-
-from numpy.testing import assert_array_equal
+from numpy.testing import assert_array_equal, assert_array_almost_equal
+import pytest
+import io
+import os
 
 try:
     from PIL import Image

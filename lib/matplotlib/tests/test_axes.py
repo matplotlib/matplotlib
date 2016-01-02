@@ -2203,7 +2203,6 @@ def test_errorbar():
 
     fig.suptitle('Variable errorbars')
 
-
     # Reuse te first testcase from above for a labeled data test
     data = {"x": x, "y": y}
     fig = plt.figure()

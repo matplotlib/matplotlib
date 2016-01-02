@@ -206,4 +206,3 @@ def test_properties():
         warnings.simplefilter("always")
         ln.properties()
         assert len(w) == 0
-
