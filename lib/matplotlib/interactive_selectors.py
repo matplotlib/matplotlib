@@ -160,6 +160,7 @@ class BaseTool(object):
         self.canvas.draw_idle()
 
     def _handle_pick(self, artist, event):
+        # TODO: implement picking logic.
         pass
 
     def _handle_draw(self, event):
