@@ -29,44 +29,44 @@ from matplotlib.testing.compare import comparable_formats, compare_images, \
 import pytest
 
 
-def knownfailureif(fail_condition, msg=None, known_exception_class=None ):
-    """
-
-    Assume a will fail if *fail_condition* is True. *fail_condition*
-    may also be False or the string 'indeterminate'.
-
-    *msg* is the error message displayed for the test.
-
-    If *known_exception_class* is not None, the failure is only known
-    if the exception is an instance of this class. (Default = None)
-
-    """
-    # based on numpy.testing.dec.knownfailureif
-    if msg is None:
-        msg = 'Test known to fail'
-    def known_fail_decorator(f):
-        # Local import to avoid a hard nose dependency and only incur the
-        # import time overhead at actual test-time.
-        import nose
-        def failer(*args, **kwargs):
-            try:
-                # Always run the test (to generate images).
-                result = f(*args, **kwargs)
-            except Exception as err:
-                if fail_condition:
-                    if known_exception_class is not None:
-                        if not isinstance(err,known_exception_class):
-                            # This is not the expected exception
-                            raise
-                    # (Keep the next ultra-long comment so in shows in console.)
-                    raise pytest.xfail(msg) # An error here when running nose means that you don't have the matplotlib.testing.noseclasses:KnownFailure plugin in use.
-                else:
-                    raise
-            if fail_condition and fail_condition != 'indeterminate':
-                raise KnownFailureDidNotFailTest(msg)
-            return result
-        return nose.tools.make_decorator(f)(failer)
-    return known_fail_decorator
+# def knownfailureif(fail_condition, msg=None, known_exception_class=None ):
+#     """
+#
+#     Assume a will fail if *fail_condition* is True. *fail_condition*
+#     may also be False or the string 'indeterminate'.
+#
+#     *msg* is the error message displayed for the test.
+#
+#     If *known_exception_class* is not None, the failure is only known
+#     if the exception is an instance of this class. (Default = None)
+#
+#     """
+#     # based on numpy.testing.dec.knownfailureif
+#     if msg is None:
+#         msg = 'Test known to fail'
+#     def known_fail_decorator(f):
+#         # Local import to avoid a hard nose dependency and only incur the
+#         # import time overhead at actual test-time.
+#         import nose
+#         def failer(*args, **kwargs):
+#             try:
+#                 # Always run the test (to generate images).
+#                 result = f(*args, **kwargs)
+#             except Exception as err:
+#                 if fail_condition:
+#                     if known_exception_class is not None:
+#                         if not isinstance(err,known_exception_class):
+#                             # This is not the expected exception
+#                             raise
+#                     # (Keep the next ultra-long comment so in shows in console.)
+#                     raise pytest.xfail(msg) # An error here when running nose means that you don't have the matplotlib.testing.noseclasses:KnownFailure plugin in use.
+#                 else:
+#                     raise
+#             if fail_condition and fail_condition != 'indeterminate':
+#                 raise KnownFailureDidNotFailTest(msg)
+#             return result
+#         return nose.tools.make_decorator(f)(failer)
+#     return known_fail_decorator
 
 
 def _do_cleanup(original_units_registry, original_settings):
