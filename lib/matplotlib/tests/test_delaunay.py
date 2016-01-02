@@ -8,7 +8,7 @@ from matplotlib.externals.six.moves import xrange
 import warnings
 
 import numpy as np
-from matplotlib.testing.decorators import image_comparison, knownfailureif
+from matplotlib.testing.decorators import image_comparison
 from matplotlib.cbook import MatplotlibDeprecationWarning
 
 with warnings.catch_warnings():

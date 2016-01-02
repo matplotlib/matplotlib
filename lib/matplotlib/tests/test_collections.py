@@ -616,7 +616,3 @@ def test_size_in_xy():
     ax.set_xlim(0, 30)
     ax.set_ylim(0, 30)
 
-
-if __name__ == '__main__':
-    import nose
-    nose.runmodule(argv=['-s', '--with-doctest'], exit=False)

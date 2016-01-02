@@ -206,8 +206,3 @@ def test_properties():
         warnings.simplefilter("always")
         ln.properties()
         assert len(w) == 0
-
-
-if __name__ == '__main__':
-    import nose
-    nose.runmodule(argv=['-s', '--with-doctest'], exit=False)

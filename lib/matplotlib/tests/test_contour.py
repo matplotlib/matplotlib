@@ -310,7 +310,3 @@ def test_vminvmax_warning():
     assert (str(w[0].message).startswith(
             ("vmax is deprecated and will be removed in 2.2 ")))
 
-
-if __name__ == '__main__':
-    import nose
-    nose.runmodule(argv=['-s', '--with-doctest'], exit=False)

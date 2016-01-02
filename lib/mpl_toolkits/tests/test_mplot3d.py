@@ -1,5 +1,4 @@
 import sys
-import nose
 from nose.tools import assert_raises
 from mpl_toolkits.mplot3d import Axes3D, axes3d
 from matplotlib import cm

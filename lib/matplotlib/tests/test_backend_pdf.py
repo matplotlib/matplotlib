@@ -12,8 +12,7 @@ import numpy as np
 from matplotlib import cm, rcParams
 from matplotlib.backends.backend_pdf import PdfPages
 from matplotlib import pyplot as plt
-from matplotlib.testing.decorators import (image_comparison, knownfailureif,
-                                           cleanup)
+from matplotlib.testing.decorators import (image_comparison, cleanup)
 
 if 'TRAVIS' not in os.environ:
     @image_comparison(baseline_images=['pdf_use14corefonts'],

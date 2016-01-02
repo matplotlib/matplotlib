@@ -11,7 +11,6 @@ import shutil
 import warnings
 import unittest
 
-import nose
 import numpy as np
 
 import matplotlib as mpl

@@ -4367,10 +4367,9 @@ def test_pandas_indexing_hist():
 
 
 if __name__ == '__main__':
-    import nose
     import sys
 
-    args = ['-s', '--with-doctest']
+    args = ['--doctest-modules']
     argv = sys.argv
     argv = argv[:1] + args + argv[1:]
-    nose.runmodule(argv=argv, exit=False)
+    pytest.main(argv)

@@ -3,9 +3,7 @@ from __future__ import (absolute_import, division, print_function,
 
 from matplotlib.externals import six
 
-from nose.tools import assert_equal
 
-from matplotlib.testing.decorators import knownfailureif
 from pylab import *
 import pytest
 

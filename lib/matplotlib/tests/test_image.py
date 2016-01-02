@@ -7,14 +7,15 @@ import os
 
 import numpy as np
 
-from matplotlib.testing.decorators import (image_comparison,
-                                           knownfailureif, cleanup)
+from matplotlib.testing.decorators import image_comparison, cleanup
 from matplotlib.image import BboxImage, imread, NonUniformImage
 from matplotlib.transforms import Bbox
 from matplotlib import rcParams, rc_context
 import matplotlib.pyplot as plt
-
-from numpy.testing import assert_array_equal
+from numpy.testing import assert_array_equal, assert_array_almost_equal
+import pytest
+import io
+import os
 
 try:
     from PIL import Image
@@ -94,7 +95,7 @@ def test_image_python_io():
     plt.imread(buffer)
 
 
-@knownfailureif(not HAS_PIL)
+@pytest.mark.xfail(not HAS_PIL)
 def test_imread_pil_uint16():
     img = plt.imread(os.path.join(os.path.dirname(__file__),
                      'baseline_images', 'test_image', 'uint16.tif'))
@@ -479,7 +480,8 @@ def test_nonuniformimage_setnorm():
     im = NonUniformImage(ax)
     im.set_norm(plt.Normalize())
 
-@knownfailureif(not HAS_PIL)
+
+@pytest.mark.xfail(not HAS_PIL)
 @cleanup
 def test_jpeg_alpha():
     plt.figure(figsize=(1, 1), dpi=300)

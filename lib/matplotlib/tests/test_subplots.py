@@ -140,8 +140,3 @@ def test_subplots():
     test_shared()
     # - are exceptions thrown correctly
     test_exceptions()
-
-
-if __name__ == "__main__":
-    import nose
-    nose.runmodule(argv=['-s', '--with-doctest'], exit=False)
