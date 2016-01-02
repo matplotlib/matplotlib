@@ -108,7 +108,7 @@ class BaseTool(object):
         if self._interactive:
             props = dict(marker='0', markersize=7, mfc='w', ls='none',
                          alpha=0.5, visible=False, label='_nolegend_',
-                         animated=self.useblit, pickradius=10)
+                         pickradius=10)
             props.update(handle_props or {})
             self._handles = Line2D([], [], **props)
             self.ax.add_line(self._handles)
@@ -125,8 +125,6 @@ class BaseTool(object):
         self._prev_verts = None
         self._background = None
         self._prevxy = None
-        self._pos = [np.NaN, np.NaN]
-        self._size = [np.NaN, np.NaN]
 
         # Connect the major canvas events to methods."""
         self._cids = []
