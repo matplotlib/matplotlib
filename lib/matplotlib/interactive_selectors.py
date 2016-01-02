@@ -13,7 +13,7 @@ from .lines import Line2D
 
 class BaseTool(object):
 
-    """Widget that is connected to a single
+    """Interactive selection tool that is connected to a single
     :class:`~matplotlib.axes.Axes`.
 
     To guarantee that the tool remains responsive and not garbage-collected,
