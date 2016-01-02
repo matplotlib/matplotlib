@@ -95,7 +95,7 @@ def test_image_python_io():
     plt.imread(buffer)
 
 
-@pytest.mark.xfail(not HAS_PIL)
+@pytest.mark.xfail(not HAS_PIL, reason='PIL is not installed')
 def test_imread_pil_uint16():
     img = plt.imread(os.path.join(os.path.dirname(__file__),
                      'baseline_images', 'test_image', 'uint16.tif'))
@@ -481,7 +481,7 @@ def test_nonuniformimage_setnorm():
     im.set_norm(plt.Normalize())
 
 
-@pytest.mark.xfail(not HAS_PIL)
+@pytest.mark.xfail(not HAS_PIL, reason='PIL is not installed')
 @cleanup
 def test_jpeg_alpha():
     plt.figure(figsize=(1, 1), dpi=300)
