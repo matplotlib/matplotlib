@@ -148,9 +148,8 @@ class BaseTool(object):
         assert value.shape[1] == 2
         self._verts = np.array(value)
         self._patch.set_xy(value)
-        if self.interactive:
-            self._set_handles_xy(value)
-            self._handles.set_animated(False)
+        self._set_handles_xy(value)
+        self._handles.set_animated(False)
         self._patch.set_animated(False)
         self.canvas.draw_idle()
 
