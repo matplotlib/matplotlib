@@ -127,7 +127,6 @@ files['pylab'] = [
     'barcode_demo.py',
     'boxplot_demo.py',
     'broken_barh.py',
-    'clippedline.py',
     'cohere_demo.py',
     'color_by_yvalue.py',
     'color_demo.py',
