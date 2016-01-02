@@ -8,6 +8,7 @@ import numpy as np
 from matplotlib.testing.decorators import (image_comparison, cleanup)
 import matplotlib.pyplot as plt
 import matplotlib.patheffects as path_effects
+import pytest
 
 try:
     # mock in python 3.3+
