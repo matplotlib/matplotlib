@@ -156,8 +156,7 @@ class BaseTool(object):
         self._patch.set_visible(True)
         self._handles.set_animated(False)
         self._patch.set_animated(False)
-        if self.interactive:
-            self._handles.set_visible(True)
+        self._handles.set_visible(self.interactive)
         self.canvas.draw_idle()
 
     def remove(self):
@@ -180,22 +179,39 @@ class BaseTool(object):
         event = self._clean_event(event)
 
         if event.name == 'button_press_event':
-            self._dragging, idx = self._handles.contains(event)
-            if self._dragging:
-                self._drag_idx = idx[0]
+            if self.interactive:
+                self._dragging, idx = self._handles.contains(event)
+                if self._dragging:
+                    self._drag_idx = idx['ind'][0]
+                    # If the move handle was selected, enter move state.
+                    if self._drag_idx == self._handles.get_xdata().size - 1:
+                        self._state.add('move')
+
             if self._dragging or self.allow_redraw:
-                self._on_press(event)
+                if 'move' in self._state:
+                    self._start_drawing()
+                else:
+                    self._on_press(event)
             if not self.allow_redraw:
                 self.focused = self._patch.contains(event)[0]
 
         elif event.name == 'motion_notify_event':
             if self._drawing:
-                self._on_move(event)
+                if 'move' in self._state:
+                    center = np.mean(self._verts, axis=0)
+                    self._verts[:, 0] += event.xdata - center[0]
+                    self._verts[:, 1] += event.ydata - center[1]
+                    self.verts = self._verts
+                else:
+                    self._on_move(event)
                 self._callback_on_move(self)
 
         elif event.name == 'button_release_event':
             if self._drawing:
-                self._on_release(event)
+                if 'move' in self._state:
+                    self._finish_drawing()
+                else:
+                    self._on_release(event)
 
         elif event.name == 'key_release_event' and self.focused:
             for (state, modifier) in self._keys.items():
@@ -232,6 +248,8 @@ class BaseTool(object):
                     self.canvas.draw_idle()
 
         for (state, modifier) in self._keys.items():
+            if state == 'move' and not self.interactive:
+                continue
             if modifier in event.key:
                 self._state.add(state)
         self._on_key_press(event)
@@ -337,10 +355,13 @@ class BaseTool(object):
         self.canvas.draw_idle()
 
     #############################################################
-    # The following are meant to be subclassed
+    # The following are meant to be subclassed as needed.
     #############################################################
     def _set_handles_xy(self, vertices):
-        """By default use the vertices and the center."""
+        """By default use the vertices and the center.
+
+        The center "move" handle must be the last handle.
+        """
         vertices = np.vstack((vertices, np.mean(vertices, axis=0)))
         self._handles.set_data(vertices[:, 0], vertices[:, 1])
 
