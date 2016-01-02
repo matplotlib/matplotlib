@@ -105,16 +105,17 @@ class ColorConverter(object):
     *colorConverter*, is needed.
     """
     colors = {
-        'b': (0.0, 0.0, 1.0),
-        'g': (0.0, 0.5, 0.0),
-        'r': (1.0, 0.0, 0.0),
-        'c': (0.0, 0.75, 0.75),
-        'm': (0.75, 0, 0.75),
-        'y': (0.75, 0.75, 0),
-        'k': (0.0, 0.0, 0.0),
-        'w': (1.0, 1.0, 1.0), }
+        'b': '#0000ff',
+        'r': '#ff0000',
+        'g': '#008000',
+        'c': '#00bfbf',
+        'm': '#bf00bf',
+        'y': '#bfbf00',
+        'k': '#000000',
+        'w': '#ffffff'}
 
     cache = {}
+    CN_LOOKUPS = [colors, ] + [COLOR_NAMES[k] for k in ['xkcd', 'css4']]
 
     def to_rgb(self, arg):
         """
@@ -151,20 +152,18 @@ class ColorConverter(object):
         try:
             if cbook.is_string_like(arg):
                 argl = arg.lower()
-                color = self.colors.get(argl, None)
-                if color is None:
-                    for k in ['xkcd', 'x11']:
-                        str1 = COLOR_NAMES[k].get(argl, argl)
-                        if str1 != argl:
-                            break
-                    if str1.startswith('#'):
-                        color = hex2color(str1)
-                    else:
-                        fl = float(argl)
-                        if fl < 0 or fl > 1:
-                            raise ValueError(
-                                'gray (string) must be in range 0-1')
-                        color = (fl,)*3
+                for cmapping in self.CN_LOOKUPS:
+                    str1 = cmapping.get(argl, argl)
+                    if str1 != argl:
+                        break
+                if str1.startswith('#'):
+                    color = hex2color(str1)
+                else:
+                    fl = float(argl)
+                    if fl < 0 or fl > 1:
+                        raise ValueError(
+                            'gray (string) must be in range 0-1')
+                    color = (fl,)*3
             elif cbook.iterable(arg):
                 if len(arg) > 4 or len(arg) < 3:
                     raise ValueError(
