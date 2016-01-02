@@ -7,8 +7,9 @@ import copy
 
 import numpy as np
 
-from .patches import Polygon
-from .lines import Line2D
+# TODO: convert these to relative when finished
+from matplotlib.patches import Polygon
+from matplotlib.lines import Line2D
 
 
 class BaseTool(object):
@@ -68,7 +69,7 @@ class BaseTool(object):
         The parent axes for the tool.
     canvas: :class:`~matplotlib.backend_bases.FigureCanvasBase` subclass
         The parent figure canvas for the tool.
-    active: bool
+    active: boolean
         If False, the widget does not respond to events.
     interactive: boolean
         Whether to allow interaction with the shape using handles.
@@ -77,6 +78,8 @@ class BaseTool(object):
         drawn programmatically and then dragged.
     verts: nd-array of floats (N, 2)
         The vertices of the tool.
+    focused: boolean
+        Whether the tool has focus for keyboard and scroll events.
     """
 
     def __init__(self, ax, on_select=None, on_move=None, on_accept=None,
@@ -88,6 +91,7 @@ class BaseTool(object):
         self.active = True
         self.interactive = interactive
         self.allow_redraw = allow_redraw
+        self.focused = True
 
         self._callback_on_move = _dummy if on_move is None else on_move
         self._callback_on_accept = _dummy if on_accept is None else on_accept
@@ -105,14 +109,14 @@ class BaseTool(object):
             self._buttons = button
 
         props = dict(facecolor='red', edgecolor='black', visible=False,
-                     alpha=0.2, fill=True, pickradius=10)
+                     alpha=0.2, fill=True, picker=5)
         props.update(shape_props or {})
         self._patch = Polygon([[0, 0], [1, 1]], True, **props)
         self.ax.add_patch(self._patch)
 
-        props = dict(marker='0', markersize=7, mfc='w', ls='none',
+        props = dict(marker='o', markersize=7, mfc='w', ls='none',
                      alpha=0.5, visible=False, label='_nolegend_',
-                     pickradius=10)
+                     picker=10)
         props.update(handle_props or {})
         self._handles = Line2D([], [], **props)
         self.ax.add_line(self._handles)
@@ -121,6 +125,7 @@ class BaseTool(object):
         self._state = set()
         self._drawing = False
         self._dragging = False
+        self._drag_idx = None
         self._verts = []
         self._prev_verts = None
         self._background = None
@@ -128,7 +133,6 @@ class BaseTool(object):
 
         # Connect the major canvas events to methods."""
         self._cids = []
-        self._connect_event('pick_event', self._handle_pick)
         self._connect_event('motion_notify_event', self._handle_event)
         self._connect_event('button_press_event', self._handle_event)
         self._connect_event('button_release_event', self._handle_event)
@@ -149,8 +153,11 @@ class BaseTool(object):
         self._verts = np.array(value)
         self._patch.set_xy(value)
         self._set_handles_xy(value)
+        self._patch.set_visible(True)
         self._handles.set_animated(False)
         self._patch.set_animated(False)
+        if self.interactive:
+            self._handles.set_visible(True)
         self.canvas.draw_idle()
 
     def remove(self):
@@ -160,12 +167,6 @@ class BaseTool(object):
         for artist in self._artists:
             self.ax.remove(artist)
         self.canvas.draw_idle()
-
-    def _handle_pick(self, artist, event):
-        if not self.interactive:
-            return
-        # TODO: implement picking logic.
-        pass
 
     def _handle_draw(self, event):
         """Update the ax background on a draw event"""
@@ -178,22 +179,26 @@ class BaseTool(object):
             return
         event = self._clean_event(event)
 
-        if event.type == 'button_press_event':
-            self._on_press(event)
+        if event.name == 'button_press_event':
+            self._dragging, idx = self._handles.contains(event)
+            if self._dragging:
+                self._drag_idx = idx[0]
+            if self._dragging or self.allow_redraw:
+                self._on_press(event)
+            if not self.allow_redraw:
+                self.focused = self._patch.contains(event)[0]
 
-        elif event.type == 'motion_notify_event':
+        elif event.name == 'motion_notify_event':
             if self._drawing:
                 self._on_move(event)
                 self._callback_on_move(self)
 
-        elif event.type == 'button_release_event':
+        elif event.name == 'button_release_event':
             if self._drawing:
                 self._on_release(event)
-                if not self.drawing:
-                    self._callback_on_select(self)
 
-        elif event.type == 'key_release_event':
-            for (state, modifier) in self.state_modifier_keys.items():
+        elif event.name == 'key_release_event' and self.focused:
+            for (state, modifier) in self._keys.items():
                 # Keep move state locked until button released.
                 if state == 'move' and self._drawing:
                     continue
@@ -201,19 +206,21 @@ class BaseTool(object):
                     self.state.discard(state)
             self._on_key_release(event)
 
-        elif event.type == 'scroll_event':
+        elif event.name == 'scroll_event' and self.focused:
             self._on_scroll(event)
 
     def _handle_key_press(self, event):
         """Handle key_press_event defaults and call to subclass handler"""
+        if not self.focused:
+            return
         if event.key == self._keys['clear']:
             if self._dragging:
                 self.verts = self._prev_verts
-                self._finish_drawing()
+                self._finish_drawing(False)
             elif self._drawing:
                 for artist in self._artists:
                     artist.set_visible(False)
-                self._finish_drawing()
+                self._finish_drawing(False)
             return
 
         elif event.key == self._keys['accept']:
@@ -237,7 +244,7 @@ class BaseTool(object):
         Set the prev xy data
         """
         event = copy.copy(event)
-        if event.xdata is None or event.ydata is None:
+        if event.xdata is not None:
             x0, x1 = self.ax.get_xbound()
             y0, y1 = self.ax.get_ybound()
             xdata = max(x0, event.xdata)
@@ -263,7 +270,7 @@ class BaseTool(object):
 
     def _ignore(self, event):
         """Return *True* if *event* should be ignored"""
-        if not self._active or not self.ax.get_visible():
+        if not self.active or not self.ax.get_visible():
             return True
 
         # If canvas was locked
@@ -313,7 +320,7 @@ class BaseTool(object):
             self._handles.set_visible(False)
         self._update()
 
-    def _finish_drawing(self):
+    def _finish_drawing(self, selection=False):
         """Finish drawing or dragging the shape"""
         self._drawing = False
         self._dragging = False
@@ -325,6 +332,8 @@ class BaseTool(object):
                 artist.set_visible(False)
         self._state = set()
         self._prev_verts = self._verts
+        if selection:
+            self._callback_on_select(self)
         self.canvas.draw_idle()
 
     #############################################################
@@ -333,11 +342,11 @@ class BaseTool(object):
     def _set_handles_xy(self, vertices):
         """By default use the vertices and the center."""
         vertices = np.vstack((vertices, np.mean(vertices, axis=0)))
-        self._handles.set_xy(vertices)
+        self._handles.set_data(vertices[:, 0], vertices[:, 1])
 
     def _on_press(self, event):
         """Handle a button_press_event"""
-        pass
+        print('on press', event)
 
     def _on_move(self, event):
         """Handle a motion_notify_event"""
@@ -345,21 +354,36 @@ class BaseTool(object):
 
     def _on_release(self, event):
         """Handle a button_release_event"""
-        pass
+        print('on release', event)
 
     def _on_key_press(self, event):
         """Handle a key_press_event"""
-        pass
+        print('on key press', event)
 
     def _on_key_release(self, event):
         """Handle a key_release_event"""
-        pass
+        print('on key release', event)
 
     def _on_scroll(self, event):
         """Handle a scroll_event"""
-        pass
+        print('on scroll', event)
 
 
 def _dummy(tool):
     """A dummy callback for a tool."""
     pass
+
+
+if __name__ == '__main__':
+    import matplotlib.pyplot as plt
+
+    data = np.random.rand(100, 2)
+
+    subplot_kw = dict(xlim=(0, 1), ylim=(0, 1), autoscale_on=False)
+    fig, ax = plt.subplots(subplot_kw=subplot_kw)
+
+    pts = ax.scatter(data[:, 0], data[:, 1], s=80)
+    tool = BaseTool(ax)
+    tool.verts = [[0.1, 0.1], [0.5, 0.1], [0.5, 0.5], [0.1, 0.5]]
+
+    plt.show()
