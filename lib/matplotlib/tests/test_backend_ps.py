@@ -16,11 +16,11 @@ from matplotlib.testing.decorators import cleanup
 
 needs_ghostscript = pytest.mark.xfail(
     matplotlib.checkdep_ghostscript()[0] is None,
-    "This test needs a ghostscript installation")
+    reason="This test needs a ghostscript installation")
 
 needs_tex = pytest.mark.xfail(
     not matplotlib.checkdep_tex(),
-    "This test needs a TeX installation")
+    reason="This test needs a TeX installation")
 
 
 def _test_savefig_to_stringio(format='ps', use_log=False):
