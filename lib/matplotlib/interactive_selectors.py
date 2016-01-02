@@ -75,7 +75,7 @@ class BaseTool(object):
     allow_redraw: boolean
         Whether to allow the tool to redraw itself or whether it must be
         drawn programmatically and then dragged.
-    verts: nd-array of floats (2, N)
+    verts: nd-array of floats (N, 2)
         The vertices of the tool.
     """
 
@@ -330,10 +330,10 @@ class BaseTool(object):
     #############################################################
     # The following are meant to be subclassed
     #############################################################
-    def _set_handles_xy(self, value):
-        """By default use the corners and the center."""
-        value = np.vstack((value, np.mean(value, axis=0)))
-        self._handles.set_xy(value)
+    def _set_handles_xy(self, vertices):
+        """By default use the vertices and the center."""
+        vertices = np.vstack((vertices, np.mean(vertices, axis=0)))
+        self._handles.set_xy(vertices)
 
     def _on_press(self, event):
         """Handle a button_press_event"""
