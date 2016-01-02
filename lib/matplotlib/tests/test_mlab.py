@@ -2751,7 +2751,8 @@ def test_griddata_linear():
                                   np.ma.getmask(correct_zi_masked))
 
 
-@pytest.mark.xfail(not HAS_NATGRID)
+@pytest.mark.xfail(not HAS_NATGRID, 
+                   reason='import of the natgrid toolkit failed')
 def test_griddata_nn():
     # z is a linear function of x and y.
     def get_z(x, y):

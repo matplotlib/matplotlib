@@ -398,7 +398,8 @@ def test_light_source_shading_default():
 
 
 @pytest.mark.xfail((V(np.__version__) <= V('1.9.0')
-                and V(np.__version__) >= V('1.7.0')))
+                and V(np.__version__) >= V('1.7.0')),
+                reason='numpy version needs to be between 1.7 and 1.9')
 # Numpy 1.9.1 fixed a bug in masked arrays which resulted in
 # additional elements being masked when calculating the gradient thus
 # the output is different with earlier numpy versions.
