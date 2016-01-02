@@ -203,6 +203,9 @@ class ColorConverter(object):
         except AttributeError:
             pass
 
+        if alpha is not None and (alpha < 0.0 or alpha > 1.0):
+            raise ValueError("alpha must be in range 0-1")
+
         try:
             if not cbook.is_string_like(arg) and cbook.iterable(arg):
                 if len(arg) == 4:
@@ -211,8 +214,6 @@ class ColorConverter(object):
                             'number in rbga sequence outside 0-1 range')
                     if alpha is None:
                         return tuple(arg)
-                    if alpha < 0.0 or alpha > 1.0:
-                        raise ValueError("alpha must be in range 0-1")
                     return arg[0], arg[1], arg[2], alpha
                 if len(arg) == 3:
                     r, g, b = arg
