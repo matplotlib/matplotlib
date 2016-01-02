@@ -232,12 +232,12 @@ class BaseTool(object):
     def _clean_event(self, event):
         """Clean up an event
 
-        Use prev xy data if there is no xdata (left the axes)
+        Use prev xy data if there is no xdata (outside the axes)
         Limit the xdata and ydata to the axes limits
         Set the prev xy data
         """
         event = copy.copy(event)
-        if event.xdata is not None:
+        if event.xdata is None or event.ydata is None:
             x0, x1 = self.ax.get_xbound()
             y0, y1 = self.ax.get_ybound()
             xdata = max(x0, event.xdata)
@@ -289,7 +289,7 @@ class BaseTool(object):
         if not self.ax.get_visible():
             return
 
-        if self._useblit:
+        if self._useblit and self._drawing:
             if self._background is not None:
                 self.canvas.restore_region(self._background)
             for artist in self._artists:
