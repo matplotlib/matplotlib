@@ -105,14 +105,18 @@ class BaseTool(object):
         self._patch = Polygon([[0, 0], [1, 1]], True, **props)
         self.ax.add_patch(self._patch)
 
-        props = dict(marker='0', markersize=7, mfc='w', ls='none',
-                     alpha=0.5, visible=False, label='_nolegend_',
-                     animated=self.useblit, pickradius=10)
-        props.update(handle_props or {})
-        self._handles = Line2D([], [], **props)
-        self.ax.add_line(self._handles)
+        if self._interactive:
+            props = dict(marker='0', markersize=7, mfc='w', ls='none',
+                         alpha=0.5, visible=False, label='_nolegend_',
+                         animated=self.useblit, pickradius=10)
+            props.update(handle_props or {})
+            self._handles = Line2D([], [], **props)
+            self.ax.add_line(self._handles)
 
-        self._artists = [self._patch, self._handles]
+            self._artists = [self._patch, self._handles]
+        else:
+            self._artists = [self._patch]
+
         self._state = set()
         self._drawing = False
         self._dragging = False
@@ -146,9 +150,10 @@ class BaseTool(object):
         assert value.shape[1] == 2
         self._verts = np.array(value)
         self._patch.set_xy(value)
-        self._set_handles_xy(value)
+        if self._interactive:
+            self._set_handles_xy(value)
+            self._handles.set_animated(False)
         self._patch.set_animated(False)
-        self._handles.set_animated(False)
         self.canvas.draw_idle()
 
     def remove(self):
@@ -160,6 +165,8 @@ class BaseTool(object):
         self.canvas.draw_idle()
 
     def _handle_pick(self, artist, event):
+        if not self._interactive:
+            return
         # TODO: implement picking logic.
         pass
 
