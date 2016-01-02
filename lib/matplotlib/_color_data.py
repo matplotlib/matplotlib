@@ -962,7 +962,8 @@ XKCD_COLORS = {
     'purple': '#7e1e9c'}
 
 
-X11_COLORS = {
+# https://drafts.csswg.org/css-color-4/#named-colors
+CSS4_COLORS = {
     'aliceblue':            '#F0F8FF',
     'antiquewhite':         '#FAEBD7',
     'aqua':                 '#00FFFF',
@@ -989,22 +990,24 @@ X11_COLORS = {
     'darkgoldenrod':        '#B8860B',
     'darkgray':             '#A9A9A9',
     'darkgreen':            '#006400',
+    'darkgrey':             '#A9A9A9',
     'darkkhaki':            '#BDB76B',
     'darkmagenta':          '#8B008B',
     'darkolivegreen':       '#556B2F',
     'darkorange':           '#FF8C00',
     'darkorchid':           '#9932CC',
     'darkred':              '#8B0000',
-    'darksage':             '#598556',
     'darksalmon':           '#E9967A',
     'darkseagreen':         '#8FBC8F',
     'darkslateblue':        '#483D8B',
     'darkslategray':        '#2F4F4F',
+    'darkslategrey':        '#2F4F4F',
     'darkturquoise':        '#00CED1',
     'darkviolet':           '#9400D3',
     'deeppink':             '#FF1493',
     'deepskyblue':          '#00BFFF',
     'dimgray':              '#696969',
+    'dimgrey':              '#696969',
     'dodgerblue':           '#1E90FF',
     'firebrick':            '#B22222',
     'floralwhite':          '#FFFAF0',
@@ -1017,6 +1020,7 @@ X11_COLORS = {
     'gray':                 '#808080',
     'green':                '#008000',
     'greenyellow':          '#ADFF2F',
+    'grey':                 '#808080',
     'honeydew':             '#F0FFF0',
     'hotpink':              '#FF69B4',
     'indianred':            '#CD5C5C',
@@ -1031,14 +1035,15 @@ X11_COLORS = {
     'lightcoral':           '#F08080',
     'lightcyan':            '#E0FFFF',
     'lightgoldenrodyellow': '#FAFAD2',
-    'lightgreen':           '#90EE90',
     'lightgray':            '#D3D3D3',
+    'lightgreen':           '#90EE90',
+    'lightgrey':            '#D3D3D3',
     'lightpink':            '#FFB6C1',
-    'lightsage':            '#BCECAC',
     'lightsalmon':          '#FFA07A',
     'lightseagreen':        '#20B2AA',
     'lightskyblue':         '#87CEFA',
     'lightslategray':       '#778899',
+    'lightslategrey':       '#778899',
     'lightsteelblue':       '#B0C4DE',
     'lightyellow':          '#FFFFE0',
     'lime':                 '#00FF00',
@@ -1078,13 +1083,13 @@ X11_COLORS = {
     'plum':                 '#DDA0DD',
     'powderblue':           '#B0E0E6',
     'purple':               '#800080',
+    'rebeccapurple':        '#663399',
     'red':                  '#FF0000',
     'rosybrown':            '#BC8F8F',
     'royalblue':            '#4169E1',
     'saddlebrown':          '#8B4513',
     'salmon':               '#FA8072',
-    'sage':                 '#87AE73',
-    'sandybrown':           '#FAA460',
+    'sandybrown':           '#F4A460',
     'seagreen':             '#2E8B57',
     'seashell':             '#FFF5EE',
     'sienna':               '#A0522D',
@@ -1092,6 +1097,7 @@ X11_COLORS = {
     'skyblue':              '#87CEEB',
     'slateblue':            '#6A5ACD',
     'slategray':            '#708090',
+    'slategrey':            '#708090',
     'snow':                 '#FFFAFA',
     'springgreen':          '#00FF7F',
     'steelblue':            '#4682B4',
@@ -1106,9 +1112,3 @@ X11_COLORS = {
     'whitesmoke':           '#F5F5F5',
     'yellow':               '#FFFF00',
     'yellowgreen':          '#9ACD32'}
-
-# add british equivs to X11 colors
-for k, v in list(six.iteritems(X11_COLORS)):
-    if k.find('gray') >= 0:
-        k = k.replace('gray', 'grey')
-        X11_COLORS[k] = v

@@ -56,13 +56,13 @@ import re
 import numpy as np
 from numpy import ma
 import matplotlib.cbook as cbook
-from ._color_data import X11_COLORS, XKCD_COLORS
+from ._color_data import XKCD_COLORS, CSS4_COLORS
 
 # for back copatibility
-cnames = X11_COLORS
+cnames = CSS4_COLORS
 
-COLOR_NAMES = {'x11': X11_COLORS,
-               'xkcd': XKCD_COLORS}
+COLOR_NAMES = {'xkcd': XKCD_COLORS,
+               'css4': CSS4_COLORS}
 
 
 def is_color_like(c):
