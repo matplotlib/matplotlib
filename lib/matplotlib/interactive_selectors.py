@@ -93,7 +93,7 @@ class BaseTool(object):
         self.allow_redraw = allow_redraw
         self.focused = True
 
-        self._callback_on_move = _dummy if on_move is None else on_move
+        self._callback_on_motion = _dummy if on_move is None else on_move
         self._callback_on_accept = _dummy if on_accept is None else on_accept
         self._callback_on_select = _dummy if on_select is None else on_select
 
@@ -207,8 +207,8 @@ class BaseTool(object):
                     self._verts[:, 1] += event.ydata - center[1]
                     self.verts = self._verts
                 else:
-                    self._on_move(event)
-                self._callback_on_move(self)
+                    self._on_motion(event)
+                self._callback_on_motion(self)
 
         elif event.name == 'button_release_event':
             if self._drawing:
@@ -363,37 +363,109 @@ class BaseTool(object):
     #############################################################
     def _get_handle_verts(self):
         """Get the handle vertices for a tool, not including the center.
+
+        Return an (N, 2) array of vertices.
         """
         return self._verts
 
     def _on_press(self, event):
         """Handle a button_press_event"""
-        print('on press', event)
+        self._start_drawing()
 
-    def _on_move(self, event):
+    def _on_motion(self, event):
         """Handle a motion_notify_event"""
         pass
 
     def _on_release(self, event):
         """Handle a button_release_event"""
-        print('on release', event)
+        self._finish_drawing()
 
     def _on_key_press(self, event):
         """Handle a key_press_event"""
-        print('on key press', event)
+        pass
 
     def _on_key_release(self, event):
         """Handle a key_release_event"""
-        print('on key release', event)
+        pass
 
     def _on_scroll(self, event):
         """Handle a scroll_event"""
-        print('on scroll', event)
+        pass
 
 
 def _dummy(tool):
     """A dummy callback for a tool."""
     pass
+
+
+class RectangleTool(BaseTool):
+
+    """ A selector tool that takes the shape of a rectangle.
+    """
+
+    def __init__(self, ax, center=None, width=None, height=None,
+                 on_select=None, on_move=None, on_accept=None,
+                 interactive=True, allow_redraw=True,
+                 shape_props=None, handle_props=None,
+                 useblit=True, button=None, keys=None):
+        super(RectangleTool, self).__init__(ax, on_select=on_select,
+              on_move=on_move, on_accept=on_accept, interactive=interactive,
+              allow_redraw=allow_redraw, shape_props=shape_props,
+              handle_props=handle_props, useblit=useblit, button=button,
+              keys=keys)
+        self._center = center or [0, 0]
+        self._width = width or 1
+        self._height = height or 1
+        if center is not None or width is not None or height is not None:
+            self._update_geometry()
+
+    @property
+    def center(self):
+        return self._center
+
+    @center.setter
+    def center(self, xy):
+        self._center = xy
+        self._update_geometry()
+
+    @property
+    def width(self):
+        return self._width
+
+    @width.setter
+    def width(self, value):
+        self._width = value
+        self._update_geometry()
+
+    @property
+    def height(self):
+        return self._height
+
+    @height.setter
+    def height(self, value):
+        self._height = value
+        self._update_geometry()
+
+    def _update_geometry(self):
+        pass
+
+    def _on_motion(self, event):
+        pass
+        # TODO
+
+
+class EllipseTool(RectangleTool):
+
+    """ A selector tool that take the shape of an ellipse.
+    """
+
+    def _update_geometry(self):
+        pass
+
+    def _get_handle_verts(self):
+        """Return the extents of the ellipse.
+        """
+        pass
 
 
 if __name__ == '__main__':
