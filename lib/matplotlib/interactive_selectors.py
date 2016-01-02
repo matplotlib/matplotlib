@@ -45,8 +45,6 @@ class BaseTool(object):
         The properties of the shape patch.
     handle_props: dict, optional
         The properties of the handle markers.
-    pickradius: float, optional
-        The pick radius of the shape and the handles in pixels.
     useblit: boolean, optional
         Whether to use blitting while drawing if available.
     button: int or list of int, optional
@@ -79,8 +77,7 @@ class BaseTool(object):
     def __init__(self, ax, on_select=None, on_move=None, on_accept=None,
                  interactive=True, allow_redraw=True,
                  shape_props=None, handle_props=None,
-                 pickradius=10, useblit=True,
-                 button=None, state_modifier_keys=None):
+                 useblit=True, button=None, keys=None):
         self.ax = ax
         self.canvas = ax.figure.canvas
         self.active = True
@@ -95,7 +92,7 @@ class BaseTool(object):
         self._keys = dict(move=' ', clear='escape',
                           accept='enter', polygon='shift',
                           square='shift', center='control')
-        self._keys.update(state_modifier_keys or {})
+        self._keys.update(keys or {})
 
         if isinstance(button, int):
             self._buttons = [button]
@@ -103,14 +100,14 @@ class BaseTool(object):
             self._buttons = button
 
         props = dict(facecolor='red', edgecolor='black', visible=False,
-                     alpha=0.2, fill=True, pickradius=pickradius)
+                     alpha=0.2, fill=True, pickradius=10)
         props.update(shape_props or {})
         self._patch = Polygon([[0, 0], [1, 1]], True, **props)
         self.ax.add_patch(self._patch)
 
         props = dict(marker='0', markersize=7, mfc='w', ls='none',
                      alpha=0.5, visible=False, label='_nolegend_',
-                     animated=self.useblit, pickradius=pickradius)
+                     animated=self.useblit, pickradius=10)
         props.update(handle_props or {})
         self._handles = Line2D([], [], **props)
         self.ax.add_line(self._handles)
