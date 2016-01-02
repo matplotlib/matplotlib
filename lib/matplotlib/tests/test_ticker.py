@@ -3,7 +3,7 @@ from __future__ import (absolute_import, division, print_function,
 
 from matplotlib.externals import six
 import nose.tools
-from nose.tools import assert_raises
+from nose.tools import assert_equal, assert_raises
 from numpy.testing import assert_almost_equal
 import numpy as np
 import matplotlib
@@ -157,6 +157,55 @@ def test_SymmetricalLogLocator_set_params():
     sym.set_params(subs=[2.0], numticks=8)
     nose.tools.assert_equal(sym._subs, [2.0])
     nose.tools.assert_equal(sym.numticks, 8)
+
+
+@cleanup
+def test_ScalarFormatter_offset_value():
+    fig, ax = plt.subplots()
+    formatter = ax.get_xaxis().get_major_formatter()
+
+    def update_ticks(ax):
+        return next(ax.get_xaxis().iter_ticks())
+
+    ax.set_xlim(123, 189)
+    update_ticks(ax)
+    assert_equal(formatter.offset, 0)
+
+    ax.set_xlim(-189, -123)
+    update_ticks(ax)
+    assert_equal(formatter.offset, 0)
+
+    ax.set_xlim(12341, 12349)
+    update_ticks(ax)
+    assert_equal(formatter.offset, 12340)
+
+    ax.set_xlim(-12349, -12341)
+    update_ticks(ax)
+    assert_equal(formatter.offset, -12340)
+
+    ax.set_xlim(99999.5, 100010.5)
+    update_ticks(ax)
+    assert_equal(formatter.offset, 100000)
+
+    ax.set_xlim(-100010.5, -99999.5)
+    update_ticks(ax)
+    assert_equal(formatter.offset, -100000)
+
+    ax.set_xlim(99990.5, 100000.5)
+    update_ticks(ax)
+    assert_equal(formatter.offset, 100000)
+
+    ax.set_xlim(-100000.5, -99990.5)
+    update_ticks(ax)
+    assert_equal(formatter.offset, -100000)
+
+    ax.set_xlim(1233999, 1234001)
+    update_ticks(ax)
+    assert_equal(formatter.offset, 1234000)
+
+    ax.set_xlim(-1234001, -1233999)
+    update_ticks(ax)
+    assert_equal(formatter.offset, -1234000)
 
 
 def _logfe_helper(formatter, base, locs, i, expected_result):

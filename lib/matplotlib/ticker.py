@@ -663,33 +663,53 @@ class ScalarFormatter(Formatter):
             vmin, vmax = self.axis.get_view_interval()
             d = abs(vmax - vmin)
             if self._useOffset:
-                self._set_offset(d)
+                self._compute_offset()
             self._set_orderOfMagnitude(d)
             self._set_format(vmin, vmax)
 
-    def _set_offset(self, range):
-        # offset of 20,001 is 20,000, for example
+    def _compute_offset(self):
         locs = self.locs
-
-        if locs is None or not len(locs) or range == 0:
+        if locs is None or not len(locs):
             self.offset = 0
             return
+        # Restrict to visible ticks.
         vmin, vmax = sorted(self.axis.get_view_interval())
         locs = np.asarray(locs)
         locs = locs[(vmin <= locs) & (locs <= vmax)]
-        ave_loc = np.mean(locs)
-        if len(locs) and ave_loc:  # dont want to take log10(0)
-            ave_oom = math.floor(math.log10(np.mean(np.absolute(locs))))
-            range_oom = math.floor(math.log10(range))
-
-            if np.absolute(ave_oom - range_oom) >= 3:  # four sig-figs
-                p10 = 10 ** range_oom
-                if ave_loc < 0:
-                    self.offset = (math.ceil(np.max(locs) / p10) * p10)
-                else:
-                    self.offset = (math.floor(np.min(locs) / p10) * p10)
-            else:
-                self.offset = 0
+        if not len(locs):
+            self.offset = 0
+            return
+        lmin, lmax = locs.min(), locs.max()
+        # min, max comparing absolute values (we want division to round towards
+        # zero so we work on absolute values).
+        abs_min, abs_max = sorted(map(abs, [lmin, lmax]))
+        # Only use offset if there are at least two ticks, every tick has the
+        # same sign, and if the span is small compared to the absolute values.
+        if (lmin == lmax or lmin <= 0 <= lmax or
+                (abs_max - abs_min) / abs_max >= 1e-2):
+            self.offset = 0
+            return
+        sign = math.copysign(1, lmin)
+        # What is the smallest power of ten such that abs_min and abs_max are
+        # equal up to that precision?
+        oom = 10 ** int(math.log10(abs_max) + 1)
+        while True:
+            if abs_min // oom != abs_max // oom:
+                oom *= 10
+                break
+            oom /= 10
+        if (abs_max - abs_min) / oom <= 1e-2:
+            # Handle the case of straddling a multiple of a large power of ten
+            # (relative to the span).
+            # What is the smallest power of ten such that abs_min and abs_max
+            # at most 1 apart?
+            oom = 10 ** int(math.log10(abs_max) + 1)
+            while True:
+                if abs_max // oom - abs_min // oom > 1:
+                    oom *= 10
+                    break
+                oom /= 10
+        self.offset = sign * (abs_max // oom) * oom
 
     def _set_orderOfMagnitude(self, range):
         # if scientific notation is to be used, find the appropriate exponent
