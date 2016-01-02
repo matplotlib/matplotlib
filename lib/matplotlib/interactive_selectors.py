@@ -152,12 +152,16 @@ class BaseTool(object):
         assert value.shape[1] == 2
         self._verts = np.array(value)
         self._patch.set_xy(value)
-        self._set_handles_xy(value)
         self._patch.set_visible(True)
-        self._handles.set_animated(False)
         self._patch.set_animated(False)
+
+        handles = self._get_handle_verts()
+        center = (handles.min(axis=0) + handles.max(axis=0)) / 2
+        handles = np.vstack((handles, center))
+        self._handles.set_data(handles[:, 0], handles[:, 1])
         self._handles.set_visible(self.interactive)
-        self.canvas.draw_idle()
+        self._handles.set_animated(False)
+        self._update()
 
     def remove(self):
         """Clean up the tool."""
@@ -219,7 +223,7 @@ class BaseTool(object):
                 if state == 'move' and self._drawing:
                     continue
                 if modifier in event.key:
-                    self.state.discard(state)
+                    self._state.discard(state)
             self._on_key_release(event)
 
         elif event.name == 'scroll_event' and self.focused:
@@ -357,13 +361,10 @@ class BaseTool(object):
     #############################################################
     # The following are meant to be subclassed as needed.
     #############################################################
-    def _set_handles_xy(self, vertices):
-        """By default use the vertices and the center.
-
-        The center "move" handle must be the last handle.
+    def _get_handle_verts(self):
+        """Get the handle vertices for a tool, not including the center.
         """
-        vertices = np.vstack((vertices, np.mean(vertices, axis=0)))
-        self._handles.set_data(vertices[:, 0], vertices[:, 1])
+        return self._verts
 
     def _on_press(self, event):
         """Handle a button_press_event"""
