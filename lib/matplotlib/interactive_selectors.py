@@ -155,7 +155,6 @@ class BaseTool(object):
         self._drawing = False
         self._dragging = False
         self._drag_idx = None
-        self._verts = np.array([[0, 0], [0, 0]])
         self._prev_data = None
         self._background = None
         self._prev_evt_xy = None
@@ -194,13 +193,13 @@ class BaseTool(object):
     @property
     def center(self):
         """Get the (x, y) center of the tool"""
-        return (self._verts.min(axis=0) + self._verts.max(axis=0)) / 2
+        return (self.verts.min(axis=0) + self.verts.max(axis=0)) / 2
 
     @property
     def extents(self):
         """Get the (x0, y0, width, height) extents of the tool"""
-        x0, x1 = np.min(self._verts[:, 0]), np.max(self._verts[:, 0])
-        y0, y1 = np.min(self._verts[:, 1]), np.max(self._verts[:, 1])
+        x0, x1 = np.min(self.verts[:, 0]), np.max(self.verts[:, 0])
+        y0, y1 = np.min(self.verts[:, 1]), np.max(self.verts[:, 1])
         return x0, y0, x1 - x0, y1 - y0
 
     def remove(self):
@@ -247,9 +246,10 @@ class BaseTool(object):
             if self._drawing:
                 if 'move' in self._state:
                     center = self.center
-                    self._verts[:, 0] += event.xdata - center[0]
-                    self._verts[:, 1] += event.ydata - center[1]
-                    self._set_verts(self._verts)
+                    verts = self.verts
+                    verts[:, 0] += event.xdata - center[0]
+                    verts[:, 1] += event.ydata - center[1]
+                    self._set_verts(verts)
                 else:
                     self._on_motion(event)
                 self.on_move(self)
@@ -363,14 +363,15 @@ class BaseTool(object):
         value = np.asarray(value)
         assert value.ndim == 2
         assert value.shape[1] == 2
-        self._verts = value
-        if self._prev_data is None:
-            self._prev_data = dict(verts=self._verts,
-                                   center=self.center,
-                                   extents=self.extents)
+
         self.patch.set_xy(value)
         self.patch.set_visible(True)
         self.patch.set_animated(False)
+
+        if self._prev_data is None:
+            self._prev_data = dict(verts=value,
+                                   center=self.center,
+                                   extents=self.extents)
 
         handles = self._get_handle_verts()
         handles = np.vstack((handles, self.center))
@@ -425,7 +426,7 @@ class BaseTool(object):
                 artist.set_visible(False)
         self._state = set()
         if selection:
-            self._prev_data = dict(verts=self._verts,
+            self._prev_data = dict(verts=self.verts,
                                    center=self.center,
                                    extents=self.extents)
             self.on_select(self)
@@ -440,7 +441,7 @@ class BaseTool(object):
 
         Return an (N, 2) array of vertices.
         """
-        return self._verts
+        return self.verts
 
     def _on_press(self, event):
         """Handle a button_press_event"""
@@ -499,12 +500,12 @@ class RectangleTool(BaseTool):
     @property
     def width(self):
         """Get the width of the tool in data units"""
-        return np.ptp(self._verts[:, 0])
+        return np.ptp(self.verts[:, 0])
 
     @property
     def height(self):
         """Get the height of the tool in data units"""
-        return np.ptp(self._verts[:, 1])
+        return np.ptp(self.verts[:, 1])
 
     def set_geometry(self, x0, y0, width, height):
         """Set the geometry of the rectangle tool.
@@ -659,7 +660,6 @@ class LineTool(BaseTool):
             handle_props=handle_props, useblit=useblit, button=button,
             keys=keys)
         self._width = 1
-        self._verts = [[]]
 
     @property
     def width(self):
@@ -669,10 +669,11 @@ class LineTool(BaseTool):
     @property
     def end_points(self):
         """Get the end points of the line in data units."""
-        p0x = (self._verts[0, 0] + self._verts[1, 0]) / 2
-        p0y = (self._verts[0, 1] + self._verts[1, 1]) / 2
-        p1x = (self._verts[3, 0] + self._verts[2, 0]) / 2
-        p1y = (self._verts[3, 1] + self._verts[2, 1]) / 2
+        verts = self.verts
+        p0x = (verts[0, 0] + verts[1, 0]) / 2
+        p0y = (verts[0, 1] + verts[1, 1]) / 2
+        p1x = (verts[3, 0] + verts[2, 0]) / 2
+        p1y = (verts[3, 1] + verts[2, 1]) / 2
         return np.array([[p0x, p0y], [p1x, p1y]])
 
     @property
@@ -767,16 +768,16 @@ if __name__ == '__main__':
     fig, ax = plt.subplots()
 
     pts = ax.scatter(data[:, 0], data[:, 1], s=80)
-    ellipse = EllipseTool(ax)
+    #ellipse = RectangleTool(ax)
     #ellipse.set_geometry((0.6, 1.1), 0.5, 0.5)
     # ax.invert_yaxis()
 
     def test(tool):
          print(tool.center, tool.width, tool.height)
-    ellipse.on_accept = test
-    ellipse.allow_redraw = False
-    #line = LineTool(ax)
+    #ellipse.on_accept = test
+    #ellipse.allow_redraw = False
+    line = LineTool(ax)
     #line.set_geometry([[0.1, 0.1], [0.5, 0.5]], 10)
-    #line.allow_redraw = False
+    line.allow_redraw = False
 
     plt.show()
