@@ -155,7 +155,7 @@ class BaseTool(object):
         self._drawing = False
         self._dragging = False
         self._drag_idx = None
-        self._verts = []
+        self._verts = np.array([[0, 0], [0, 0]])
         self._prev_data = None
         self._background = None
         self._prev_evt_xy = None
