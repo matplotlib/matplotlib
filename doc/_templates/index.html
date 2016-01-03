@@ -29,7 +29,11 @@ function getSnippet(id, url) {
     // Synchronous request, wait till we have it all
     req.open('GET', url, false);
     req.send(null);
-    element.innerHTML = req.responseText;
+    if (req.status == 200) {
+      element.innerHTML = req.responseText;
+    } else {
+      element.innerHTML = "<mark>Could not find Snippet to insert at " + url + "</mark>"
+    }
   }
 }
 </script>
