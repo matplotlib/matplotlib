@@ -195,13 +195,15 @@ class BaseTool(object):
     @property
     def center(self):
         """Get the (x, y) center of the tool"""
-        return (self.verts.min(axis=0) + self.verts.max(axis=0)) / 2
+        verts = self.verts
+        return (verts.min(axis=0) + verts.max(axis=0)) / 2
 
     @property
     def extents(self):
         """Get the (x0, y0, width, height) extents of the tool"""
-        x0, x1 = np.min(self.verts[:, 0]), np.max(self.verts[:, 0])
-        y0, y1 = np.min(self.verts[:, 1]), np.max(self.verts[:, 1])
+        verts = self.verts
+        x0, x1 = np.min(verts[:, 0]), np.max(verts[:, 0])
+        y0, y1 = np.min(verts[:, 1]), np.max(verts[:, 1])
         return x0, y0, x1 - x0, y1 - y0
 
     def remove(self):
@@ -708,7 +710,7 @@ class LineTool(BaseTool):
         xfm = self.ax.transData.inverted()
         x0, y0 = xfm.transform((0, 0))
         x1, y1 = xfm.transform((width, width))
-        wx, wy = x1 - x0, y1 - y0
+        wx, wy = abs(x1 - x0), abs(y1 - y0)
 
         # Find line segments centered on the end points perpendicular to the
         # line and the proper width.
@@ -771,8 +773,8 @@ if __name__ == '__main__':
     fig, ax = plt.subplots()
 
     pts = ax.scatter(data[:, 0], data[:, 1], s=80)
-    ellipse = RectangleTool(ax)
-    ellipse.set_geometry(0.6, 1.1, 0.5, 0.5)
+    ellipse = EllipseTool(ax)
+    ellipse.set_geometry(0.6, 1.1, 0.3, 0.3)
     ax.invert_yaxis()
 
     def test(tool):
