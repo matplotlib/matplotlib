@@ -26,6 +26,9 @@ docstring.interpd.update(BaseInteractiveTool="""\
     object it may be garbage collected which will disconnect the
     callbacks.
 
+    Use `set_geometry()` to update the tool programmatically.  The geometry
+    attributes (verts, center, extents, etc.) are all read-only.
+
     Attributes
     ----------
     ax: :class:`~matplotlib.axes.Axes`
@@ -49,7 +52,11 @@ docstring.interpd.update(BaseInteractiveTool="""\
         Whether to allow the tool to redraw itself or whether it must be
         drawn programmatically and then dragged.
     verts: nd-array of floats (N, 2)
-        The vertices of the tool in data units.
+        The vertices of the tool in data units (read-only).
+    center: (x, y)
+        The center coordinates of the tool in data units (read-only).
+    extents: (x0, y0, width, height) float
+        The total geometry of the tool in data units (read-only).
     focused: boolean
         Whether the tool has focus for keyboard and scroll events.""")
 
@@ -479,9 +486,9 @@ class RectangleTool(BaseTool):
 
     %(BaseInteractiveTool)s
     width: float
-        The width of the rectangle in data units.
+        The width of the rectangle in data units (read-only).
     height: float
-        The height of the rectangle in data units.
+        The height of the rectangle in data units (read-only).
     """
 
     @property
@@ -588,9 +595,9 @@ class EllipseTool(RectangleTool):
 
     %(BaseInteractiveTool)s
     width: float
-        The width of the ellipse in data units.
+        The width of the ellipse in data units (read-only).
     height: float
-        The height of the ellipse in data units.
+        The height of the ellipse in data units (read-only).
     """
 
     def set_geometry(self, center, width, height):
@@ -618,12 +625,13 @@ class LineTool(BaseTool):
     :class:`~matplotlib.axes.Axes`.
     %(BaseInteractiveTool)s
     width: float
-        The width of the line in pixels.
+        The width of the line in pixels (read-only).
     end_points: (2, 2) float
-        The [(x0, y0), (x1, y1)] end points of the line in data units.
+        The [(x0, y0), (x1, y1)] end points of the line in data units
+        (read-only).
     angle: float
         The angle between the left point and the right point in radians in
-        pixel space.
+        pixel space (read-only).
     """
 
     @docstring.dedent_interpd
