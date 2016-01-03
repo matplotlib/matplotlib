@@ -24,7 +24,7 @@ the appearance by the CSS.
 
 import matplotlib.pyplot as plt
 import xml.etree.ElementTree as ET
-from StringIO import StringIO
+from io import BytesIO
 
 ET.register_namespace("", "http://www.w3.org/2000/svg")
 
@@ -72,7 +72,7 @@ ax.set_xlim(-30, 30)
 ax.set_ylim(-30, 30)
 ax.set_aspect('equal')
 
-f = StringIO()
+f = BytesIO()
 plt.savefig(f, format="svg")
 
 # --- Add interactivity ---
