@@ -100,6 +100,7 @@ docstring.interpd.update(BaseInteractiveToolInit="""
     """)
 
 
+@docstring.dedent_interpd
 class BaseTool(object):
 
     """Interactive selection tool that is connected to a single
