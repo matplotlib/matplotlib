@@ -160,6 +160,7 @@ class BaseTool(object):
         self._background = None
         self._prev_evt_xy = None
         self._start_event = None
+        self._has_selected = False
 
         # Connect the major canvas events to methods."""
         self._cids = []
@@ -223,7 +224,8 @@ class BaseTool(object):
 
         if event.name == 'button_press_event':
 
-            if not self._drawing and not self.allow_redraw:
+            if (not self._drawing and not self.allow_redraw and
+                    self._has_selected):
                 self.focused = self.patch.contains(event)[0]
 
             if self.interactive and not self._drawing:
@@ -234,7 +236,8 @@ class BaseTool(object):
                     if self._drag_idx == self._handles.get_xdata().size - 1:
                         self._state.add('move')
 
-            if self._drawing or self._dragging or self.allow_redraw:
+            if (self._drawing or self._dragging or self.allow_redraw or
+                    not self._has_selected):
                 if 'move' in self._state:
                     self._start_drawing(event)
                 else:
@@ -273,12 +276,13 @@ class BaseTool(object):
 
     def _handle_key_press(self, event):
         """Handle key_press_event defaults and call to subclass handler"""
-        if not self.focused:
+
+        if not self._drawing and not self.focused:
             return
 
         if event.key == self._keys['clear']:
             if self._dragging:
-                self._set_verts(self._prev_verts)
+                self._set_verts(self._prev_data['verts'])
                 self._finish_drawing(event, False)
             elif self._drawing:
                 for artist in self._artists:
@@ -359,12 +363,12 @@ class BaseTool(object):
         value = np.asarray(value)
         assert value.ndim == 2
         assert value.shape[1] == 2
-        self._verts = np.array(value)
+        self._verts = value
         if self._prev_data is None:
             self._prev_data = dict(verts=self._verts,
                                    center=self.center,
                                    extents=self.extents)
-        self.patch.set_xy(self._verts)
+        self.patch.set_xy(value)
         self.patch.set_visible(True)
         self.patch.set_animated(False)
 
@@ -408,7 +412,7 @@ class BaseTool(object):
         # shape.
         self._update(self._dragging)
 
-    def _finish_drawing(self, selection=False):
+    def _finish_drawing(self, event, selection=False):
         """Finish drawing or dragging the shape"""
         self._drawing = False
         self._dragging = False
@@ -425,6 +429,7 @@ class BaseTool(object):
                                    center=self.center,
                                    extents=self.extents)
             self.on_select(self)
+            self._has_selected = True
         self.canvas.draw_idle()
 
     #############################################################
@@ -447,7 +452,7 @@ class BaseTool(object):
 
     def _on_release(self, event):
         """Handle a button_release_event"""
-        self._finish_drawing(event)
+        self._finish_drawing(event, True)
 
     def _on_key_press(self, event):
         """Handle a key_press_event"""
@@ -518,10 +523,10 @@ class RectangleTool(BaseTool):
         radx = width / 2
         rady = height / 2
         center = x0 + width / 2, y0 + height / 2
-        self._set_verts([[center - radx, center - rady],
-                         [center - radx, center + rady],
-                         [center + radx, center + rady],
-                         [center + radx, center - rady]])
+        self._set_verts([[center[0] - radx, center[1] - rady],
+                         [center[0] - radx, center[1] + rady],
+                         [center[0] + radx, center[1] + rady],
+                         [center[0] + radx, center[1] - rady]])
 
     def _get_handle_verts(self):
         xm, ym = self.center
@@ -600,18 +605,21 @@ class EllipseTool(RectangleTool):
         The height of the ellipse in data units (read-only).
     """
 
-    def set_geometry(self, center, width, height):
+    def set_geometry(self, x0, y0, width, height):
         """Set the geometry of the ellipse tool.
 
         Parameters
         ----------
-        center: (x, y) float
-            The center coordinates in data units.
+        x0: float
+            The left coordinate in data units.
+        y0: float
+            The bottom coordinate in data units.
         width:
             The width in data units.
         height:
             The height in data units.
         """
+        center = x0 + width / 2, y0 + height / 2
         rad = np.arange(61) * 6 * np.pi / 180
         x = width / 2 * np.cos(rad) + center[0]
         y = height / 2 * np.sin(rad) + center[1]
@@ -651,6 +659,7 @@ class LineTool(BaseTool):
             handle_props=handle_props, useblit=useblit, button=button,
             keys=keys)
         self._width = 1
+        self._verts = [[]]
 
     @property
     def width(self):
@@ -723,8 +732,10 @@ class LineTool(BaseTool):
 
     def _on_press(self, event):
         if not self._dragging:
-            self._end_pts = [[event.xdata, event.ydata],
-                             [event.xdata, event.ydata]]
+            self.set_geometry([[event.xdata, event.ydata],
+                               [event.xdata, event.ydata],
+                               [event.xdata, event.ydata],
+                               [event.xdata, event.ydata]])
             self._dragging = True
             self._drag_idx = 1
         self._start_drawing(event)
@@ -756,16 +767,16 @@ if __name__ == '__main__':
     fig, ax = plt.subplots()
 
     pts = ax.scatter(data[:, 0], data[:, 1], s=80)
-    # ellipse = EllipseTool(ax)
-    # ellipse.set_geometry((0.6, 1.1), 0.5, 0.5)
+    ellipse = EllipseTool(ax)
+    #ellipse.set_geometry((0.6, 1.1), 0.5, 0.5)
     # ax.invert_yaxis()
 
-    # def test(tool):
-    #     print(tool.center, tool.width, tool.height)
-    # ellipse.on_accept = test
-    # ellipse.allow_redraw = False
-    line = LineTool(ax)
-    line.set_geometry([[0.1, 0.1], [0.5, 0.5]], 10)
-    line.allow_redraw = False
+    def test(tool):
+         print(tool.center, tool.width, tool.height)
+    ellipse.on_accept = test
+    ellipse.allow_redraw = False
+    #line = LineTool(ax)
+    #line.set_geometry([[0.1, 0.1], [0.5, 0.5]], 10)
+    #line.allow_redraw = False
 
     plt.show()
