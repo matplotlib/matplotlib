@@ -650,6 +650,7 @@ class LineTool(BaseTool):
             allow_redraw=allow_redraw, shape_props=props,
             handle_props=handle_props, useblit=useblit, button=button,
             keys=keys)
+        self._width = 1
 
     @property
     def width(self):
@@ -676,17 +677,18 @@ class LineTool(BaseTool):
         else:
             return np.arctan2(pts[0, 1] - pts[1, 1], pts[0, 0] - pts[1, 0])
 
-    def set_geometry(self, end_points, width):
+    def set_geometry(self, end_points, width=None):
         """Set the geometry of the line tool.
 
         Parameters
         ----------
         end_points: (2, 2) float
             The coordinates of the end points in data space.
-        width:
+        width: int, optional
             The width in pixels.
         """
         pts = np.asarray(end_points)
+        width = width or self._width
         self._width = width
 
         # Get the widths in data units.
