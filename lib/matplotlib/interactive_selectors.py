@@ -36,8 +36,6 @@ docstring.interpd.update(BaseInteractiveTool="""\
         The parent axes for the tool.
     canvas: :class:`~matplotlib.backend_bases.FigureCanvasBase` subclass
         The parent figure canvas for the tool.
-    patch: :class:`~matplotlib.patches.Polygon`
-        The patch object contained by the tool.
     active: boolean
         If False, the widget does not respond to events.
     on_select: callable, optional
@@ -155,8 +153,8 @@ class BaseTool(object):
                      alpha=0.2, fill=True, picker=5, linewidth=2,
                      zorder=1)
         props.update(shape_props or {})
-        self.patch = Polygon([[0, 0], [1, 1]], True, **props)
-        self.ax.add_patch(self.patch)
+        self._patch = Polygon([[0, 0], [1, 1]], True, **props)
+        self.ax.add_patch(self._patch)
 
         props = dict(marker='o', markersize=7, mfc='w', ls='none',
                      alpha=0.5, visible=False, label='_nolegend_',
@@ -165,7 +163,7 @@ class BaseTool(object):
         self._handles = Line2D([], [], **props)
         self.ax.add_line(self._handles)
 
-        self._artists = [self.patch, self._handles]
+        self._artists = [self._patch, self._handles]
 
         self._modifiers = set()
         self._drawing = False
@@ -205,7 +203,7 @@ class BaseTool(object):
     @property
     def verts(self):
         """Get the (N, 2) vertices of the tool"""
-        return self.patch.get_xy()
+        return self._patch.get_xy()
 
     @property
     def center(self):
@@ -246,7 +244,7 @@ class BaseTool(object):
 
             if (not self._drawing and not self.allow_redraw and
                     self._has_selected):
-                self.focused = self.patch.contains(event)[0]
+                self.focused = self._patch.contains(event)[0]
 
             if self.interactive and not self._drawing:
                 self._dragging, idx = self._handles.contains(event)
@@ -383,9 +381,9 @@ class BaseTool(object):
         assert value.ndim == 2
         assert value.shape[1] == 2
 
-        self.patch.set_xy(value)
-        self.patch.set_visible(True)
-        self.patch.set_animated(False)
+        self._patch.set_xy(value)
+        self._patch.set_visible(True)
+        self._patch.set_animated(False)
 
         if self._prev_data is None:
             self._prev_data = dict(verts=value,
