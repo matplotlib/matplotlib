@@ -45,12 +45,6 @@ docstring.interpd.update(BaseInteractiveTool="""\
     on_accept: callable, optional
         A callback for when the selection is accepted `on_accept(tool)`.
         This is called in response to an 'accept' key event.
-    verts: nd-array of floats (N, 2)
-        The vertices of the tool in data units (read-only).
-    center: (x, y)
-        The center coordinates of the tool in data units (read-only).
-    extents: (x0, y0, width, height) float
-        The total geometry of the tool in data units (read-only).
     """)
 
 
@@ -62,6 +56,12 @@ docstring.interpd.update(BaseInteractiveToolExtra="""\
         drawn programmatically and then dragged.
     focused: boolean
         Whether the tool has focus for keyboard and scroll events.
+    verts: nd-array of floats (N, 2)
+        The vertices of the tool in data units (read-only).
+    center: (x, y)
+        The center coordinates of the tool in data units (read-only).
+    extents: (x0, y0, width, height) float
+        The total geometry of the tool in data units (read-only).
     """)
 
 
@@ -77,8 +77,6 @@ docstring.interpd.update(BaseInteractiveToolInit="""
     on_accept: callable, optional
         A callback for when the selection is accepted `on_accept(tool)`.
         This is called in response to an 'accept' key event.
-    shape_props: dict, optional
-        The properties of the shape patch.
     useblit: boolean, optional
         Whether to use blitting while drawing if available.
     button: int or list of int, optional
@@ -104,6 +102,8 @@ docstring.interpd.update(BaseInteractiveToolInitExtra="""
     allow_redraw: boolean, optional
         Whether to allow the tool to redraw itself or whether it must be
         drawn programmatically and then dragged.
+    shape_props: dict, optional
+        The properties of the shape patch.
     handle_props: dict, optional
         The properties of the handle markers.
 """)
@@ -199,25 +199,6 @@ class BaseTool(object):
             for artist in self._artists:
                 artist.set_visible(False)
             self.canvas.draw_idle()
-
-    @property
-    def verts(self):
-        """Get the (N, 2) vertices of the tool"""
-        return self._patch.get_xy()
-
-    @property
-    def center(self):
-        """Get the (x, y) center of the tool"""
-        verts = self.verts
-        return (verts.min(axis=0) + verts.max(axis=0)) / 2
-
-    @property
-    def extents(self):
-        """Get the (x0, y0, width, height) extents of the tool"""
-        verts = self.verts
-        x0, x1 = np.min(verts[:, 0]), np.max(verts[:, 0])
-        y0, y1 = np.min(verts[:, 1]), np.max(verts[:, 1])
-        return x0, y0, x1 - x0, y1 - y0
 
     def remove(self):
         """Clean up the tool"""
@@ -491,8 +472,28 @@ class BaseTool(object):
         pass
 
 
-class InteractiveTool(BaseTool):
-    pass
+class PolygonTool(BaseTool):
+
+    """An interactive which draws a polygon shape"""
+
+    @property
+    def verts(self):
+        """Get the (N, 2) vertices of the tool"""
+        return self._patch.get_xy()
+
+    @property
+    def center(self):
+        """Get the (x, y) center of the tool"""
+        verts = self.verts
+        return (verts.min(axis=0) + verts.max(axis=0)) / 2
+
+    @property
+    def extents(self):
+        """Get the (x0, y0, width, height) extents of the tool"""
+        verts = self.verts
+        x0, x1 = np.min(verts[:, 0]), np.max(verts[:, 0])
+        y0, y1 = np.min(verts[:, 1]), np.max(verts[:, 1])
+        return x0, y0, x1 - x0, y1 - y0
 
 
 def _dummy(tool):
@@ -513,7 +514,7 @@ HANDLE_ORDER = ['NW', 'NE', 'SE', 'SW', 'W', 'N', 'E', 'S']
 
 
 @docstring.dedent_interpd
-class RectangleTool(BaseTool):
+class RectangleTool(PolygonTool):
 
     """Interactive rectangle selection tool that is connected to a single
     :class:`~matplotlib.axes.Axes`.
@@ -658,7 +659,7 @@ class EllipseTool(RectangleTool):
 
 
 @docstring.dedent_interpd
-class LineTool(BaseTool):
+class LineTool(PolygonTool):
 
     """Interactive line selection tool that is connected to a single
     :class:`~matplotlib.axes.Axes`.
@@ -811,15 +812,14 @@ class PaintTool(BaseTool):
 
     @docstring.dedent_interpd
     def __init__(self, ax, on_select=None, on_motion=None, on_accept=None,
-                 shape_props=None, handle_props=None, radius=5,
+                 overlay_props=None, cursor_props=None, radius=5,
                  useblit=True, button=None, keys=None):
         """Initialize the tool.
         %(BaseInteractiveToolInit)s
         """
         super(PaintTool, self).__init__(ax, on_select=on_select,
             on_motion=on_motion, on_accept=on_accept,
-            shape_props=shape_props, useblit=useblit, button=button,
-            keys=keys)
+            useblit=useblit, button=button, keys=keys)
         self.cmap = LABELS_CMAP
         self._useblit = useblit and self.canvas.supports_blit
         self._previous = None
@@ -829,7 +829,7 @@ class PaintTool(BaseTool):
 
         props = dict(edgecolor='r', facecolor='0.7', alpha=1,
                      animated=self._useblit, visible=False, zorder=2)
-        props.update(handle_props or {})
+        props.update(cursor_props or {})
         self._cursor = Rectangle((0, 0), 0, 0, **props)
         self.ax.add_patch(self._cursor)
 
@@ -842,7 +842,7 @@ class PaintTool(BaseTool):
         props = dict(cmap=self.cmap, alpha=0.5, origin=origin,
                      norm=mcolors.NoNorm(), visible=False, zorder=1,
                      extent=(x0, x1, y0, y1), aspect=self.ax.get_aspect())
-        props.update(shape_props or {})
+        props.update(overlay_props or {})
 
         extents = self.ax.get_window_extent().extents
         self._offsetx = extents[0]
