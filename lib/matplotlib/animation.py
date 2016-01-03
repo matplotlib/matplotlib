@@ -108,8 +108,11 @@ class MovieWriter(object):
         The format used in writing frame data, defaults to 'rgba'
 
     args_key : str
-        Key used to look up default `extra_args` in rcParams.  Subclasses
-        should over-ride this value
+        Key used to look up default `extra_args` in rcParams.  If not `None`
+        the value of this attribute must be in `rcParams`
+
+        Subclasses should over-ride this value and update `rcsetup.py`
+        accordingly.
 
     exec_key : str
         Key to look up path to binary in rcParams.  Subclasses should either
@@ -136,8 +139,11 @@ class MovieWriter(object):
             automatically by the underlying utility.
         extra_args: list of strings or None
             A list of extra string arguments to be passed to the underlying
-            movie utiltiy. The default is None, which passes the additional
-            argurments in the `self.args_key` rcParam.
+            movie utiltiy.
+
+            If `None` then the default `extra_args` list is retrieved from
+            `rcParams` using the key specified by `cls.args_key`.  If
+            `cls.args_key` is also `None` an empty list is used.
         metadata: dict of string:string or None
             A dictionary of keys and values for metadata to include in the
             output file. Some keys that may be of use include:
