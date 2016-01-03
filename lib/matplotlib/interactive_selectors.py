@@ -8,7 +8,8 @@ import copy
 import numpy as np
 
 # TODO: convert these to relative when finished
-from matplotlib.patches import Polygon
+import matplotlib.colors as mcolors
+from matplotlib.patches import Polygon, Rectangle
 from matplotlib.lines import Line2D
 from matplotlib import docstring, artist as martist
 
@@ -41,24 +42,30 @@ docstring.interpd.update(BaseInteractiveTool="""\
         If False, the widget does not respond to events.
     on_select: callable, optional
         A callback for when a selection is made `on_select(tool)`.
-    on_move: callable, optional
-        A callback for when the tool is moved `on_move(tool)`.
+    on_motion: callable, optional
+        A callback for when the tool is moved `on_motion(tool)`.
     on_accept: callable, optional
         A callback for when the selection is accepted `on_accept(tool)`.
         This is called in response to an 'accept' key event.
-    interactive: boolean
-        Whether to allow interaction with the shape using handles.
-    allow_redraw: boolean
-        Whether to allow the tool to redraw itself or whether it must be
-        drawn programmatically and then dragged.
     verts: nd-array of floats (N, 2)
         The vertices of the tool in data units (read-only).
     center: (x, y)
         The center coordinates of the tool in data units (read-only).
     extents: (x0, y0, width, height) float
         The total geometry of the tool in data units (read-only).
+    """)
+
+
+docstring.interpd.update(BaseInteractiveToolExtra="""\
+    interactive: boolean
+        Whether to allow interaction with the shape using handles.
+    allow_redraw: boolean
+        Whether to allow the tool to redraw itself or whether it must be
+        drawn programmatically and then dragged.
     focused: boolean
-        Whether the tool has focus for keyboard and scroll events.""")
+        Whether the tool has focus for keyboard and scroll events.
+    """)
+
 
 docstring.interpd.update(BaseInteractiveToolInit="""
     Parameters
@@ -67,20 +74,13 @@ docstring.interpd.update(BaseInteractiveToolInit="""
         The parent axes for the tool.
     on_select: callable, optional
         A callback for when a selection is made `on_select(tool)`.
-    on_move: callable, optional
-        A callback for when the tool is moved `on_move(tool)`.
+    on_motion: callable, optional
+        A callback for when the tool is moved `on_motion(tool)`.
     on_accept: callable, optional
         A callback for when the selection is accepted `on_accept(tool)`.
         This is called in response to an 'accept' key event.
-    interactive: boolean, optional
-        Whether to allow interaction with the shape using handles.
-    allow_redraw: boolean, optional
-        Whether to allow the tool to redraw itself or whether it must be
-        drawn programmatically and then dragged.
     shape_props: dict, optional
         The properties of the shape patch.
-    handle_props: dict, optional
-        The properties of the handle markers.
     useblit: boolean, optional
         Whether to use blitting while drawing if available.
     button: int or list of int, optional
@@ -100,6 +100,17 @@ docstring.interpd.update(BaseInteractiveToolInit="""
     """)
 
 
+docstring.interpd.update(BaseInteractiveToolInitExtra="""
+    interactive: boolean, optional
+        Whether to allow interaction with the shape using handles.
+    allow_redraw: boolean, optional
+        Whether to allow the tool to redraw itself or whether it must be
+        drawn programmatically and then dragged.
+    handle_props: dict, optional
+        The properties of the handle markers.
+""")
+
+
 @docstring.dedent_interpd
 class BaseTool(object):
 
@@ -107,14 +118,15 @@ class BaseTool(object):
     :class:`~matplotlib.axes.Axes`.
 
     %(BaseInteractiveTool)s
+    %(BaseInteractiveToolExtra)s
     """
 
-    def __init__(self, ax, on_select=None, on_move=None, on_accept=None,
-                 interactive=True, allow_redraw=True,
-                 shape_props=None, handle_props=None,
-                 useblit=True, button=None, keys=None):
+    def __init__(self, ax, on_select=None, on_motion=None, on_accept=None,
+                 interactive=True, allow_redraw=True, shape_props=None,
+                 handle_props=None, useblit=True, button=None, keys=None):
         """Initialize the tool.
         %(BaseInteractiveToolInit)s
+        %(BaseInteractiveToolInitExtra)s
         """
         self.ax = ax
         self.canvas = ax.figure.canvas
@@ -123,7 +135,7 @@ class BaseTool(object):
         self.allow_redraw = allow_redraw
         self.focused = True
 
-        self.on_move = _dummy if on_move is None else on_move
+        self.on_motion = _dummy if on_motion is None else on_motion
         self.on_accept = _dummy if on_accept is None else on_accept
         self.on_select = _dummy if on_select is None else on_select
 
@@ -136,32 +148,35 @@ class BaseTool(object):
         if isinstance(button, int):
             self._buttons = [button]
         else:
+            button = button or [1, 2, 3]
             self._buttons = button
 
         props = dict(facecolor='red', edgecolor='black', visible=False,
-                     alpha=0.2, fill=True, picker=5, linewidth=2)
+                     alpha=0.2, fill=True, picker=5, linewidth=2,
+                     zorder=1)
         props.update(shape_props or {})
         self.patch = Polygon([[0, 0], [1, 1]], True, **props)
         self.ax.add_patch(self.patch)
 
         props = dict(marker='o', markersize=7, mfc='w', ls='none',
                      alpha=0.5, visible=False, label='_nolegend_',
-                     picker=10)
+                     picker=10, zorder=2)
         props.update(handle_props or {})
         self._handles = Line2D([], [], **props)
         self.ax.add_line(self._handles)
 
         self._artists = [self.patch, self._handles]
+
         self._modifiers = set()
         self._drawing = False
         self._dragging = False
         self._moving = False
         self._drag_idx = None
+        self._has_selected = False
         self._prev_data = None
         self._background = None
         self._prev_evt_xy = None
         self._start_event = None
-        self._has_selected = False
 
         # Connect the major canvas events to methods."""
         self._cids = []
@@ -224,6 +239,8 @@ class BaseTool(object):
         if self._ignore(event):
             return
         event = self._clean_event(event)
+        if event.xdata is None:
+            return
 
         if event.name == 'button_press_event':
 
@@ -256,7 +273,7 @@ class BaseTool(object):
                     self._set_verts(verts)
                 else:
                     self._on_motion(event)
-                self.on_move(self)
+                self.on_motion(self)
 
         elif event.name == 'button_release_event':
             if self._drawing:
@@ -325,7 +342,7 @@ class BaseTool(object):
             ydata = max(y0, event.ydata)
             event.ydata = min(y1, ydata)
             self._prev_evt_xy = event.xdata, event.ydata
-        else:
+        elif self._prev_evt_xy is not None:
             event.xdata, event.ydata = self._prev_evt_xy
 
         event.key = event.key or ''
@@ -385,7 +402,7 @@ class BaseTool(object):
         if not self._drawing:
             self._has_selected = True
 
-    def _update(self, visible=True):
+    def _update(self):
         """Update the artists while drawing"""
         if not self.ax.get_visible():
             return
@@ -394,7 +411,6 @@ class BaseTool(object):
             if self._background is not None:
                 self.canvas.restore_region(self._background)
             for artist in self._artists:
-                artist.set_visible(visible)
                 self.ax.draw_artist(artist)
 
             self.canvas.blit(self.ax.bbox)
@@ -414,9 +430,13 @@ class BaseTool(object):
                 artist.set_animated(self._useblit)
         else:
             self._handles.set_visible(False)
-        # Blit without being visible if not draggin to avoid showing the old
+        # Blit without being visible if not dragging to avoid showing the old
         # shape.
-        self._update(self._dragging)
+        for artist in self._artists:
+            artist.set_visible(self._dragging)
+            if artist == self._handles:
+                artist.set_visible(self._dragging and self.interactive)
+        self._update()
 
     def _finish_drawing(self, event, selection=False):
         """Finish drawing or dragging the shape"""
@@ -473,13 +493,18 @@ class BaseTool(object):
         pass
 
 
+class InteractiveTool(BaseTool):
+    pass
+
+
 def _dummy(tool):
     """A dummy callback for a tool."""
     pass
 
 
 tooldoc = martist.kwdoc(BaseTool)
-for k in ('RectangleTool', 'EllipseTool', 'LineTool', 'BaseTool'):
+for k in ('RectangleTool', 'EllipseTool', 'LineTool', 'BaseTool',
+          'PaintTool'):
     docstring.interpd.update({k: tooldoc})
 
 # define BaseTool.__init__ docstring after the class has been added to interpd
@@ -496,6 +521,7 @@ class RectangleTool(BaseTool):
     :class:`~matplotlib.axes.Axes`.
 
     %(BaseInteractiveTool)s
+    %(BaseInteractiveToolExtra)s
     width: float
         The width of the rectangle in data units (read-only).
     height: float
@@ -605,6 +631,7 @@ class EllipseTool(RectangleTool):
     :class:`~matplotlib.axes.Axes`.
 
     %(BaseInteractiveTool)s
+    %(BaseInteractiveToolExtra)s
     width: float
         The width of the ellipse in data units (read-only).
     height: float
@@ -638,8 +665,9 @@ class LineTool(BaseTool):
     """Interactive line selection tool that is connected to a single
     :class:`~matplotlib.axes.Axes`.
     %(BaseInteractiveTool)s
+    %(BaseInteractiveToolExtra)s
     width: float
-        The width of the line in pixels (read-only).
+        The width of the line in pixels.  This can be set directly.
     end_points: (2, 2) float
         The [(x0, y0), (x1, y1)] end points of the line in data units
         (read-only).
@@ -649,18 +677,19 @@ class LineTool(BaseTool):
     """
 
     @docstring.dedent_interpd
-    def __init__(self, ax, on_select=None, on_move=None, on_accept=None,
+    def __init__(self, ax, on_select=None, on_motion=None, on_accept=None,
              interactive=True, allow_redraw=True,
              shape_props=None, handle_props=None,
              useblit=True, button=None, keys=None):
         """Initialize the tool.
         %(BaseInteractiveToolInit)s
+        %(BaseInteractiveToolInitExtra)s
         """
         props = dict(edgecolor='red', visible=False,
                      alpha=0.5, fill=True, picker=5, linewidth=1)
         props.update(shape_props or {})
         super(LineTool, self).__init__(ax, on_select=on_select,
-            on_move=on_move, on_accept=on_accept, interactive=interactive,
+            on_motion=on_motion, on_accept=on_accept, interactive=interactive,
             allow_redraw=allow_redraw, shape_props=props,
             handle_props=handle_props, useblit=useblit, button=button,
             keys=keys)
@@ -670,6 +699,10 @@ class LineTool(BaseTool):
     def width(self):
         """Get the width of the line in pixels."""
         return self._width
+
+    @width.setter
+    def width(self, value):
+        self.set_geometry(self.end_points, value)
 
     @property
     def end_points(self):
@@ -717,6 +750,8 @@ class LineTool(BaseTool):
         # http://math.stackexchange.com/a/9375
         if (pts[1, 0] == pts[0, 0]):
             c, s = 0, 1
+        elif (pts[1, 1] == pts[0, 1]):
+            c, s = 0, 0
         else:
             m = - 1 / ((pts[1, 1] - pts[0, 1]) /
                        (pts[1, 0] - pts[0, 0]))
@@ -753,15 +788,159 @@ class LineTool(BaseTool):
 
     def _on_scroll(self, event):
         if event.button == 'up':
-            self.set_geometry(self.width + 1)
-        elif event.button == 'down' and self.width > 1:
-            self.set_geometry(self.width - 1)
+            self.set_geometry(self.end_points, self.width + 1)
+        elif event.button == 'down':
+            self.set_geometry(self.end_points, self.width - 1)
 
     def _on_key_press(self, event):
         if event.key == '+':
-            self.set_geometry(self.width + 1)
+            self.set_geometry(self.end_points, self.width + 1)
         elif event.key == '-' and self.width > 1:
-            self.set_geometry(self.width - 1)
+            self.set_geometry(self.end_points, self.width - 1)
+
+
+LABELS_CMAP = mcolors.ListedColormap(['white', 'red', 'dodgerblue', 'gold',
+                                      'greenyellow', 'blueviolet'])
+
+
+@docstring.dedent_interpd
+class PaintTool(BaseTool):
+
+    """Interactive paint tool that is connected to a single
+    :class:`~matplotlib.axes.Axes`.
+    %(BaseInteractiveTool)s
+    """
+
+    @docstring.dedent_interpd
+    def __init__(self, ax, on_select=None, on_motion=None, on_accept=None,
+                 shape_props=None, handle_props=None, radius=5,
+                 useblit=True, button=None, keys=None):
+        """Initialize the tool.
+        %(BaseInteractiveToolInit)s
+        """
+        super(PaintTool, self).__init__(ax, on_select=on_select,
+            on_motion=on_motion, on_accept=on_accept,
+            shape_props=shape_props, useblit=useblit, button=button,
+            keys=keys)
+        self.cmap = LABELS_CMAP
+        self._useblit = useblit and self.canvas.supports_blit
+        self._previous = None
+        self._overlay = None
+        self._overlay_plot = None
+        self._cursor_shape = [0, 0, 0]
+
+        props = dict(edgecolor='r', facecolor='0.7', alpha=1,
+                     animated=self._useblit, visible=False, zorder=2)
+        props.update(handle_props or {})
+        self._cursor = Rectangle((0, 0), 0, 0, **props)
+        self.ax.add_patch(self._cursor)
+
+        x0, x1 = self.ax.get_xlim()
+        y0, y1 = self.ax.get_ylim()
+        if y0 < y1:
+            origin = 'lower'
+        else:
+            origin = 'upper'
+        props = dict(cmap=self.cmap, alpha=0.5, origin=origin,
+                     norm=mcolors.NoNorm(), visible=False, zorder=1,
+                     extent=(x0, x1, y0, y1), aspect=self.ax.get_aspect())
+        props.update(shape_props or {})
+
+        extents = self.ax.get_window_extent().extents
+        self._offsetx = extents[0]
+        self._offsety = extents[1]
+        self._shape = (extents[3] - extents[1], extents[2] - extents[0])
+        self._overlay = np.zeros(self._shape, dtype='uint8')
+        self._overlay_plot = self.ax.imshow(self._overlay, **props)
+
+        self._artists = [self._cursor, self._overlay_plot]
+
+        # These must be called last
+        self.label = 1
+        self.radius = radius
+        self._start_drawing(None)
+        for artist in self._artists:
+            artist.set_visible(True)
+
+    @property
+    def overlay(self):
+        return self._overlay
+
+    @overlay.setter
+    def overlay(self, image):
+        self._overlay = image
+        if image is None:
+            self.ax.images.remove(self._overlay_plot)
+            self._update()
+            return
+        self.ax.set_data(image)
+        self._shape = image.shape
+        x0, x1 = self.ax.get_xlim()
+        y0, y1 = self.ax.get_ylim()
+        self._overlay_plot.set_extent(x0, x1, y0, y1)
+        # Update the radii and window.
+        self.radius = self._radius
+        self._update()
+
+    @property
+    def label(self):
+        return self._label
+
+    @label.setter
+    def label(self, value):
+        if value >= self.cmap.N:
+            raise ValueError('Maximum label value = %s' % len(self.cmap - 1))
+        self._label = value
+        self._cursor.set_edgecolor(self.cmap(value))
+
+    @property
+    def radius(self):
+        return self._radius
+
+    @radius.setter
+    def radius(self, r):
+        self._radius = r
+        xfm = self.ax.transData.inverted()
+        x0, y0 = xfm.transform((0, 0))
+        x1, y1 = xfm.transform((r, r))
+        self._rx, self._ry = abs(x1 - x0), abs(y1 - y0)
+
+        self._cursor.set_width(self._rx * 2)
+        self._cursor.set_height(self._ry * 2)
+
+    def _on_press(self, event):
+        self._update_cursor(event.xdata, event.ydata)
+        self._update_overlay(event.x, event.y)
+        self._update()
+
+    def _on_motion(self, event):
+        self._update_cursor(event.xdata, event.ydata)
+        if event.button and event.button in self._buttons:
+            self._update_overlay(event.x, event.y)
+        self._update()
+
+    def _on_release(self, event):
+        pass
+
+    def _update_overlay(self, x, y):
+        col = x - self._offsetx
+        row = y - self._offsety
+
+        h, w = self._shape
+        r = self._radius
+
+        xmin = int(max(0, col - r))
+        xmax = int(min(w, col + r + 1))
+        ymin = int(max(0, row - r))
+        ymax = int(min(h, row + r + 1))
+
+        self._overlay[slice(ymin, ymax), slice(xmin, xmax)] = self.label
+        self._overlay_plot.set_data(self._overlay)
+
+    def _update_cursor(self, x, y):
+        x = x - self._rx
+        y = y - self._ry
+        self._cursor.set_xy((x, y))
 
 
 if __name__ == '__main__':
@@ -773,17 +952,18 @@ if __name__ == '__main__':
     fig, ax = plt.subplots()
 
     pts = ax.scatter(data[:, 0], data[:, 1], s=80)
-    ellipse = EllipseTool(ax)
-    ellipse.set_geometry(0.6, 1.1, 0.3, 0.3)
-    ax.invert_yaxis()
+    # ellipse = EllipseTool(ax)
+    # ellipse.set_geometry(0.6, 1.1, 0.3, 0.3)
+    # ax.invert_yaxis()
 
-    def test(tool):
-        print(tool.center, tool.width, tool.height)
+    # def test(tool):
+    #     print(tool.center, tool.width, tool.height)
 
-    ellipse.on_accept = test
-    ellipse.allow_redraw = False
-    line = LineTool(ax)
-    line.set_geometry([[0.1, 0.1], [0.5, 0.5]], 10)
-    line.allow_redraw = False
+    # ellipse.on_accept = test
+    # ellipse.allow_redraw = False
+    #line = LineTool(ax)
+    #line.set_geometry([[0.1, 0.1], [0.5, 0.5]], 10)
+    #line.interactive = False
+    p = PaintTool(ax)
 
     plt.show()
