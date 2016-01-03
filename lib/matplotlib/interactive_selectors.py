@@ -152,9 +152,10 @@ class BaseTool(object):
         self.ax.add_line(self._handles)
 
         self._artists = [self.patch, self._handles]
-        self._state = set()
+        self._modifiers = set()
         self._drawing = False
         self._dragging = False
+        self._moving = False
         self._drag_idx = None
         self._prev_data = None
         self._background = None
@@ -234,18 +235,18 @@ class BaseTool(object):
                     self._drag_idx = idx['ind'][0]
                     # If the move handle was selected, enter move state.
                     if self._drag_idx == self._handles.get_xdata().size - 1:
-                        self._state.add('move')
+                        self._moving = True
 
             if (self._drawing or self._dragging or self.allow_redraw or
                     not self._has_selected):
-                if 'move' in self._state:
+                if self._moving:
                     self._start_drawing(event)
                 else:
                     self._on_press(event)
 
         elif event.name == 'motion_notify_event':
             if self._drawing:
-                if 'move' in self._state:
+                if self._moving:
                     center = self.center
                     verts = self.verts
                     verts[:, 0] += event.xdata - center[0]
@@ -257,19 +258,17 @@ class BaseTool(object):
 
         elif event.name == 'button_release_event':
             if self._drawing:
-                if 'move' in self._state:
+                if self._moving:
                     self._finish_drawing(event)
+                    self._moving = False
                 else:
                     self._on_release(event)
             self._dragging = False
 
         elif event.name == 'key_release_event' and self.focused:
-            for (state, modifier) in self._keys.items():
-                # Keep move state locked until drawing finished.
-                if state == 'move' and self._drawing:
-                    continue
-                if modifier in event.key:
-                    self._state.discard(state)
+            for (modifier, key) in self._keys.items():
+                if key in event.key:
+                    self._modifiers.discard(modifier)
             self._on_key_release(event)
 
         elif event.name == 'scroll_event' and self.focused:
@@ -301,11 +300,11 @@ class BaseTool(object):
                     artist.set_visible(False)
                 self.canvas.draw_idle()
 
-        for (state, modifier) in self._keys.items():
-            if state == 'move' and not self.interactive:
+        for (modifer, key) in self._keys.items():
+            if modifer == 'move' and not self.interactive:
                 continue
-            if modifier in event.key:
-                self._state.add(state)
+            if key in event.key:
+                self._modifiers.add(modifer)
         self._on_key_press(event)
 
     def _clean_event(self, event):
@@ -428,7 +427,7 @@ class BaseTool(object):
         else:
             for artist in self._artists:
                 artist.set_visible(False)
-        self._state = set()
+        self._modifiers = set()
         if selection:
             self._prev_data = dict(verts=self.verts,
                                    center=self.center,
@@ -569,7 +568,7 @@ class RectangleTool(BaseTool):
             dy = (event.ydata - center[1]) / 2.
 
             # Draw a square shape.
-            if 'square' in self._state:
+            if 'square' in self._modifiers:
                 dx_pix = abs(event.x - center_pix[0])
                 dy_pix = abs(event.y - center_pix[1])
                 if not dx_pix:
@@ -581,7 +580,7 @@ class RectangleTool(BaseTool):
                     dy *= maxd / (abs(dy_pix) + 1e-6)
 
             # Draw from center.
-            if 'center' in self._state:
+            if 'center' in self._modifiers:
                 dx *= 2
                 dy *= 2
 
