@@ -10,12 +10,10 @@ import numpy as np
 # TODO: convert these to relative when finished
 from matplotlib.patches import Polygon
 from matplotlib.lines import Line2D
+from matplotlib import docstring
 
 
-class BaseTool(object):
-
-    """Interactive selection tool that is connected to a single
-    :class:`~matplotlib.axes.Axes`.
+docstring.interpd.update(BaseTool="""
 
     To guarantee that the tool remains responsive and not garbage-collected,
     a reference to the object should be maintained by the user.
@@ -26,6 +24,28 @@ class BaseTool(object):
     object it may be garbage collected which will disconnect the
     callbacks.
 
+    Attributes
+    ----------
+    ax: :class:`~matplotlib.axes.Axes`
+        The parent axes for the tool.
+    canvas: :class:`~matplotlib.backend_bases.FigureCanvasBase` subclass
+        The parent figure canvas for the tool.
+    patch: :class:`~matplotlib.patches.Patch`
+        The patch object contained by the tool.
+    active: boolean
+        If False, the widget does not respond to events.
+    interactive: boolean
+        Whether to allow interaction with the shape using handles.
+    allow_redraw: boolean
+        Whether to allow the tool to redraw itself or whether it must be
+        drawn programmatically and then dragged.
+    verts: nd-array of floats (N, 2)
+        The vertices of the tool in data units.
+    focused: boolean
+        Whether the tool has focus for keyboard and scroll events.
+          """)
+
+docstring.interpd.update(BaseToolInit="""
     Parameters
     ----------
     ax: :class:`matplotlib.axes.Axes`
@@ -62,32 +82,26 @@ class BaseTool(object):
         'polygon': Draw a polygon shape for the lasso.
         'square' and 'center' can be combined.
         'accept': Trigger an `on_accept` callback.
+    """)
 
-    Attributes
-    ----------
-    ax: :class:`~matplotlib.axes.Axes`
-        The parent axes for the tool.
-    canvas: :class:`~matplotlib.backend_bases.FigureCanvasBase` subclass
-        The parent figure canvas for the tool.
-    patch: :class:`~matplotlib.patches.Patch`
-        The patch object contained by the tool.
-    active: boolean
-        If False, the widget does not respond to events.
-    interactive: boolean
-        Whether to allow interaction with the shape using handles.
-    allow_redraw: boolean
-        Whether to allow the tool to redraw itself or whether it must be
-        drawn programmatically and then dragged.
-    verts: nd-array of floats (N, 2)
-        The vertices of the tool.
-    focused: boolean
-        Whether the tool has focus for keyboard and scroll events.
+
+class BaseTool(object):
+
+    """Interactive selection tool that is connected to a single
+    :class:`~matplotlib.axes.Axes`.
+
+    %(BaseTool)s
     """
 
+    @docstring.dedent_interpd
     def __init__(self, ax, on_select=None, on_move=None, on_accept=None,
                  interactive=True, allow_redraw=True,
                  shape_props=None, handle_props=None,
                  useblit=True, button=None, keys=None):
+        """Initialize the tool.
+
+        %(BaseToolInit)s
+        """
         self.ax = ax
         self.canvas = ax.figure.canvas
         self._active = True
@@ -146,10 +160,12 @@ class BaseTool(object):
 
     @property
     def active(self):
+        """Get the active state of the tool"""
         return self._active
 
     @active.setter
     def active(self, value):
+        """Set the active state of the tool"""
         self._active = value
         if not value:
             for artist in self._artists:
@@ -158,52 +174,23 @@ class BaseTool(object):
 
     @property
     def verts(self):
-        return self._verts
-
-    @verts.setter
-    def verts(self, value):
-        value = np.asarray(value)
-        assert value.ndim == 2
-        assert value.shape[1] == 2
-        self._verts = np.array(value)
-        if self._prev_data is None:
-            self._prev_data = dict(verts=self._verts,
-                                   center=self.center,
-                                   width=self.width,
-                                   height=self.height,
-                                   extents=self.extents)
-        self.patch.set_xy(self._verts)
-        self.patch.set_visible(True)
-        self.patch.set_animated(False)
-
-        handles = self._get_handle_verts()
-        handles = np.vstack((handles, self.center))
-        self._handles.set_data(handles[:, 0], handles[:, 1])
-        self._handles.set_visible(self.interactive)
-        self._handles.set_animated(False)
-        self._update()
+        """Get the (N, 2) vertices of the tool"""
+        return self.patch.get_xy()
 
     @property
     def center(self):
+        """Get the (x, y) center of the tool"""
         return (self._verts.min(axis=0) + self._verts.max(axis=0)) / 2
 
     @property
-    def width(self):
-        return np.max(self._verts[:, 0]) - np.min(self._verts[:, 0])
-
-    @property
-    def height(self):
-        return np.max(self._verts[:, 1]) - np.min(self._verts[:, 1])
-
-    @property
     def extents(self):
-        x, y = self.center
-        w = self.width / 2
-        h = self.height / 2
-        return x - w, x + w, y - h, y + h
+        """Get the (x0, x1, y0, y1) extents of the tool"""
+        x0, x1 = np.min(self._verts[:, 0]), np.max(self._verts[:, 0])
+        y0, y1 = np.min(self._verts[:, 1]), np.max(self._verts[:, 1])
+        return x0, x1, y0, y1
 
     def remove(self):
-        """Clean up the tool."""
+        """Clean up the tool"""
         for c in self._cids:
             self.canvas.mpl_disconnect(c)
         for artist in self._artists:
@@ -243,10 +230,10 @@ class BaseTool(object):
         elif event.name == 'motion_notify_event':
             if self._drawing:
                 if 'move' in self._state:
-                    center = np.mean(self._verts, axis=0)
+                    center = self.center
                     self._verts[:, 0] += event.xdata - center[0]
                     self._verts[:, 1] += event.ydata - center[1]
-                    self.verts = self._verts
+                    self._set_verts(self._verts)
                 else:
                     self._on_motion(event)
                 self._callback_on_motion(self)
@@ -261,7 +248,7 @@ class BaseTool(object):
 
         elif event.name == 'key_release_event' and self.focused:
             for (state, modifier) in self._keys.items():
-                # Keep move state locked until button released.
+                # Keep move state locked until drawing finished.
                 if state == 'move' and self._drawing:
                     continue
                 if modifier in event.key:
@@ -272,12 +259,13 @@ class BaseTool(object):
             self._on_scroll(event)
 
     def _handle_key_press(self, event):
-        """Handle key_press_event defaults and call to subclass handler"""
+        """Handle key_press_event defaults and call to subclass handler.
+        """
         if not self.focused:
             return
         if event.key == self._keys['clear']:
             if self._dragging:
-                self.verts = self._prev_verts
+                self._set_verts(self._prev_verts)
                 self._finish_drawing(event, False)
             elif self._drawing:
                 for artist in self._artists:
@@ -286,12 +274,14 @@ class BaseTool(object):
             return
 
         elif event.key == self._keys['accept']:
-            if not self._drawing:
-                self._callback_on_accept(self)
-                if self.allow_redraw:
-                    for artist in self._artists:
-                        artist.set_visible(False)
-                    self.canvas.draw_idle()
+            if self._drawing:
+                self._finish_drawing(event)
+
+            self._callback_on_accept(self)
+            if self.allow_redraw:
+                for artist in self._artists:
+                    artist.set_visible(False)
+                self.canvas.draw_idle()
 
         for (state, modifier) in self._keys.items():
             if state == 'move' and not self.interactive:
@@ -301,11 +291,11 @@ class BaseTool(object):
         self._on_key_press(event)
 
     def _clean_event(self, event):
-        """Clean up an event
+        """Clean up an event.
 
-        Use prev xy data if there is no xdata (outside the axes)
-        Limit the xdata and ydata to the axes limits
-        Set the prev xy data
+        Use previous xy data if there is no xdata (the event was outside the
+            axes).
+        Limit the xdata and ydata to the axes limits.
         """
         event = copy.copy(event)
         if event.xdata is not None:
@@ -324,10 +314,7 @@ class BaseTool(object):
         return event
 
     def _connect_event(self, event, callback):
-        """Connect callback with an event.
-
-        This should be used in lieu of `figure.canvas.mpl_connect` since this
-        function stores callback ids for later clean up.
+        """Connect callback with an event
         """
         cid = self.canvas.mpl_connect(event, callback)
         self._cids.append(cid)
@@ -355,6 +342,27 @@ class BaseTool(object):
 
         return False
 
+    def _set_verts(self, value):
+        """Commit a change to the tool vertices."""
+        value = np.asarray(value)
+        assert value.ndim == 2
+        assert value.shape[1] == 2
+        self._verts = np.array(value)
+        if self._prev_data is None:
+            self._prev_data = dict(verts=self._verts,
+                                   center=self.center,
+                                   extents=self.extents)
+        self.patch.set_xy(self._verts)
+        self.patch.set_visible(True)
+        self.patch.set_animated(False)
+
+        handles = self._get_handle_verts()
+        handles = np.vstack((handles, self.center))
+        self._handles.set_data(handles[:, 0], handles[:, 1])
+        self._handles.set_visible(self.interactive)
+        self._handles.set_animated(False)
+        self._update()
+
     def _update(self):
         """Update the artists while drawing"""
         if not self.ax.get_visible():
@@ -375,6 +383,7 @@ class BaseTool(object):
         self._drawing = True
         self._start_event = event
         if self.interactive:
+            # Force a draw_event without our previous state.
             for artist in self._artists:
                 artist.set_visible(False)
             self.canvas.draw()
@@ -400,8 +409,6 @@ class BaseTool(object):
         if selection:
             self._prev_data = dict(verts=self._verts,
                                    center=self.center,
-                                   width=self.width,
-                                   height=self.height,
                                    extents=self.extents)
             self._callback_on_select(self)
         self.canvas.draw_idle()
@@ -446,20 +453,38 @@ def _dummy(tool):
     pass
 
 
+HANDLE_ORDER = ['NW', 'NE', 'SE', 'SW', 'W', 'N', 'E', 'S']
+
+
 class RectangleTool(BaseTool):
 
-    """ A selector tool that takes the shape of a rectangle.
+    """Interactive rectangle selection tool that is connected to a single
+    :class:`~matplotlib.axes.Axes`.
+
+    %(BaseTool)s
+    width: float
+        The width of the rectangle in data units.
+    height: float
+        The height of the rectangle in data units.
     """
 
-    _handle_order = ['NW', 'NE', 'SE', 'SW', 'W', 'N', 'E', 'S']
+    @property
+    def width(self):
+        """Get the width of the tool in data units"""
+        return np.max(self._verts[:, 0]) - np.min(self._verts[:, 0])
+
+    @property
+    def height(self):
+        """Get the height of the tool in data units"""
+        return np.max(self._verts[:, 1]) - np.min(self._verts[:, 1])
 
     def set_geometry(self, center, width, height):
         radx = width / 2
         rady = height / 2
-        self.verts = [[center - radx, center - rady],
-                      [center - radx, center + rady],
-                      [center + radx, center + rady],
-                      [center + radx, center - rady]]
+        self._set_verts([[center - radx, center - rady],
+                         [center - radx, center + rady],
+                         [center + radx, center + rady],
+                         [center + radx, center - rady]])
 
     def _get_handle_verts(self):
         xm, ym = self.center
@@ -477,7 +502,7 @@ class RectangleTool(BaseTool):
         # Resize an existing shape.
         if self._dragging:
             x1, x2, y1, y2 = self._prev_data['extents']
-            handle = self._handle_order[self._drag_idx]
+            handle = HANDLE_ORDER[self._drag_idx]
             if handle in ['NW', 'SW', 'W']:
                 x1 = event.xdata
             elif handle in ['NE', 'SE', 'E']:
@@ -526,22 +551,47 @@ class RectangleTool(BaseTool):
 
 class EllipseTool(RectangleTool):
 
-    """ A selector tool that take the shape of an ellipse.
+    """Interactive ellipse selection tool that is connected to a single
+    :class:`~matplotlib.axes.Axes`.
+
+    %(BaseTool)s
+    width: float
+        The width of the ellipse in data units.
+    height: float
+        The height of the ellipse in data units.
     """
 
     def set_geometry(self, center, width, height):
         rad = np.arange(31) * 12 * np.pi / 180
         x = width / 2 * np.cos(rad) + center[0]
         y = height / 2 * np.sin(rad) + center[1]
-        self.verts = np.vstack((x, y)).T
+        self._set_verts(np.vstack((x, y)).T)
 
 
 class LineTool(BaseTool):
 
+    """Interactive line selection tool that is connected to a single
+    :class:`~matplotlib.axes.Axes`.
+
+    %(BaseTool)s
+    width: float
+        The width of the line in pixels.
+    end_points: (2, 2) float
+        The [(x0, y0), (x1, y1)] end points of the line in data units.
+    angle: float
+        The angle between the left point and the right point in radians in
+        pixel space.
+    """
+
+    @docstring.dedent_interpd
     def __init__(self, ax, on_select=None, on_move=None, on_accept=None,
              interactive=True, allow_redraw=True,
              shape_props=None, handle_props=None,
              useblit=True, button=None, keys=None):
+        """Initialize the tool.
+
+        %(BaseToolInit)s
+        """
         props = dict(edgecolor='red', visible=False,
                      alpha=0.5, fill=True, picker=5, linewidth=1)
         props.update(shape_props or {})
@@ -553,52 +603,100 @@ class LineTool(BaseTool):
 
     @property
     def width(self):
-        return self.patch.get_linewidth()
+        return self._width
 
-    @width.setter
-    def width(self, value):
-        self.patch.set_linewidth(value)
-        self._update()
+    @property
+    def end_points(self):
+        p0x = (self._verts[0, 0] + self._verts[1, 0]) / 2
+        p0y = (self._verts[0, 1] + self._verts[1, 1]) / 2
+        p1x = (self._verts[3, 0] + self._verts[2, 0]) / 2
+        p1y = (self._verts[3, 1] + self._verts[2, 1]) / 2
+        return np.array([[p0x, p0y], [p1x, p1y]])
+
+    @property
+    def angle(self):
+        """Find the angle between the left and right points."""
+        # Convert to pixels.
+        pts = self.end_points
+        pts = self.ax.transData.inverted().transform(pts)
+        if pts[0, 0] < pts[1, 0]:
+            return np.arctan2(pts[1, 1] - pts[0, 1], pts[1, 0] - pts[0, 0])
+        else:
+            return np.arctan2(pts[0, 1] - pts[1, 1], pts[0, 0] - pts[1, 0])
+
+    def set_geometry(self, end_points, width):
+        pts = np.asarray(end_points)
+        self._width = width
+
+        # Get the widths in data units.
+        x0, y0 = self.ax.transData.inverted().transform((0, 0))
+        x1, y1 = self.ax.transData.inverted().transform((width, width))
+        wx, wy = x1 - x0, y1 - y0
+
+        # Find line segments centered on the end points perpendicular to the
+        # line and the proper width.
+        # http://math.stackexchange.com/a/9375
+        if (pts[1, 0] == pts[0, 0]):
+            c, s = 0, 1
+        else:
+            m = - 1 / ((pts[1, 1] - pts[0, 1]) /
+                       (pts[1, 0] - pts[0, 0]))
+            c = 1 / np.sqrt(1 + m ** 2)
+            s = m / np.sqrt(1 + m ** 2)
+
+        p0 = pts[0, :]
+        v00 = p0[0] + wx / 2 * c, p0[1] + wy / 2 * s
+        v01 = p0[0] - wx / 2 * c, p0[1] - wy / 2 * s
+
+        p1 = pts[1, :]
+        v10 = p1[0] + wx / 2 * c, p1[1] + wy / 2 * s
+        v11 = p1[0] - wx / 2 * c, p1[1] - wy / 2 * s
+
+        self._set_verts((v00, v01, v11, v10))
+
+    def _get_handle_verts(self):
+        return self.end_points
 
     def _on_press(self, event):
         if not self._dragging:
-            self._verts = [[event.xdata, event.ydata],
-                           [event.xdata, event.ydata]]
+            self._end_pts = [[event.xdata, event.ydata],
+                             [event.xdata, event.ydata]]
             self._dragging = True
             self._drag_idx = 1
         self._start_drawing(event)
 
     def _on_motion(self, event):
-        self._verts[self._drag_idx, :] = event.xdata, event.ydata
-        self.verts = self._verts
+        end_points = self.end_points
+        end_points[self._drag_idx, :] = event.xdata, event.ydata
+        self.set_geometry(end_points, self._width)
 
     def _on_scroll(self, event):
         if event.button == 'up':
-            self.patch.set_linewidth(self.width + 1)
+            self.set_geometry(self.width + 1)
         elif event.button == 'down' and self.width > 1:
-            self.patch.set_linewidth(self.width - 1)
-        self._update()
+            self.set_geometry(self.width - 1)
 
     def _on_key_press(self, event):
         if event.key == '+':
-            self.patch.set_linewidth(self.width + 1)
+            self.set_geometry(self.width + 1)
         elif event.key == '-' and self.width > 1:
-            self.patch.set_linewidth(self.width - 1)
-        self._update()
+            self.set_geometry(self.width - 1)
 
 
 if __name__ == '__main__':
     import matplotlib.pyplot as plt
 
     data = np.random.rand(100, 2)
+    data[:, 1] *= 2
 
-    subplot_kw = dict(xlim=(0, 1), ylim=(0, 1), autoscale_on=False)
-    fig, ax = plt.subplots(subplot_kw=subplot_kw)
+    fig, ax = plt.subplots()
 
     pts = ax.scatter(data[:, 0], data[:, 1], s=80)
-    #tool = EllipseTool(ax)
-    #tool.set_geometry((0.5, 0.5), 0.5, 0.5)
-    tool = LineTool(ax)
-    tool.verts = [[0.1, 0.1], [0.5, 0.5]]
+    ellipse = EllipseTool(ax)
+    ellipse.set_geometry((0.6, 1.1), 0.5, 0.5)
+    ellipse.allow_redraw = False
+    line = LineTool(ax)
+    line.set_geometry([[0.1, 0.1], [0.5, 0.5]], 10)
+    line.allow_redraw = False
 
     plt.show()
