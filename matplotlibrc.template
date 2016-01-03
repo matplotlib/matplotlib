@@ -338,12 +338,12 @@ backend      : %(backend)s
 # These values map to the scales:
 #    {'year': 365, 'month': 30, 'day': 1, 'hour': 1/24, 'minute': 1 / (24 * 60)}
 
-# date.autoformatter.year     : '%%Y'
-# date.autoformatter.month    : '%%Y-%%m'
-# date.autoformatter.day      : '%%Y-%%m-%%d'
-# date.autoformatter.hour     : '%%H:%%M'
-# date.autoformatter.minute   : '%%H:%%M:%%S'
-# date.autoformatter.second   : '%%H:%%M:%%S.%%f'
+# date.autoformatter.year     : %%Y
+# date.autoformatter.month    : %%Y-%%m
+# date.autoformatter.day      : %%Y-%%m-%%d
+# date.autoformatter.hour     : %%H:%%M
+# date.autoformatter.minute   : %%H:%%M:%%S
+# date.autoformatter.second   : %%H:%%M:%%S.%%f
 
 ### TICKS
 # see http://matplotlib.org/api/axis_api.html#matplotlib.axis.Tick
