@@ -52,8 +52,8 @@ ax.set_xlim(0., 1.)
 ax.set_ylim(0., 1.)
 
 # save the figure as a string in the svg format.
-from StringIO import StringIO
-f = StringIO()
+from io import BytesIO
+f = BytesIO()
 plt.savefig(f, format="svg")
 
 
