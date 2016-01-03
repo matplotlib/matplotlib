@@ -216,7 +216,7 @@ class BaseTool(object):
 
         if event.name == 'button_press_event':
 
-            if not self.allow_redraw:
+            if not self._drawing and not self.allow_redraw:
                 self.focused = self.patch.contains(event)[0]
 
             if self.interactive and not self._drawing:
