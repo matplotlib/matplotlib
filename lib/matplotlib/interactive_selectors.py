@@ -35,7 +35,7 @@ docstring.interpd.update(BaseInteractiveTool="""\
         The parent axes for the tool.
     canvas: :class:`~matplotlib.backend_bases.FigureCanvasBase` subclass
         The parent figure canvas for the tool.
-    patch: :class:`~matplotlib.patches.Patch`
+    patch: :class:`~matplotlib.patches.Polygon`
         The patch object contained by the tool.
     active: boolean
         If False, the widget does not respond to events.
