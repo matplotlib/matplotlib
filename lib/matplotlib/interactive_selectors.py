@@ -381,6 +381,9 @@ class BaseTool(object):
         self._handles.set_animated(False)
         self._update()
 
+        if not self._drawing:
+            self._has_selected = True
+
     def _update(self, visible=True):
         """Update the artists while drawing"""
         if not self.ax.get_visible():
@@ -769,16 +772,17 @@ if __name__ == '__main__':
     fig, ax = plt.subplots()
 
     pts = ax.scatter(data[:, 0], data[:, 1], s=80)
-    #ellipse = RectangleTool(ax)
-    #ellipse.set_geometry((0.6, 1.1), 0.5, 0.5)
-    # ax.invert_yaxis()
+    ellipse = RectangleTool(ax)
+    ellipse.set_geometry(0.6, 1.1, 0.5, 0.5)
+    ax.invert_yaxis()
 
     def test(tool):
-         print(tool.center, tool.width, tool.height)
-    #ellipse.on_accept = test
-    #ellipse.allow_redraw = False
+        print(tool.center, tool.width, tool.height)
+
+    ellipse.on_accept = test
+    ellipse.allow_redraw = False
     line = LineTool(ax)
-    #line.set_geometry([[0.1, 0.1], [0.5, 0.5]], 10)
+    line.set_geometry([[0.1, 0.1], [0.5, 0.5]], 10)
     line.allow_redraw = False
 
     plt.show()
