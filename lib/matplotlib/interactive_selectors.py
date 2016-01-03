@@ -10,11 +10,13 @@ import numpy as np
 # TODO: convert these to relative when finished
 from matplotlib.patches import Polygon
 from matplotlib.lines import Line2D
-from matplotlib import docstring
+from matplotlib import docstring, artist as martist
 
 
-docstring.interpd.update(BaseTool="""
-
+# These are not available for the object inspector until after the
+# class is built so we define an initial set here for the init
+# function and they will be overridden after object definition.
+docstring.interpd.update(BaseInteractiveTool="""\
     To guarantee that the tool remains responsive and not garbage-collected,
     a reference to the object should be maintained by the user.
 
@@ -34,6 +36,13 @@ docstring.interpd.update(BaseTool="""
         The patch object contained by the tool.
     active: boolean
         If False, the widget does not respond to events.
+    on_select: callable, optional
+        A callback for when a selection is made `on_select(tool)`.
+    on_move: callable, optional
+        A callback for when the tool is moved `on_move(tool)`.
+    on_accept: callable, optional
+        A callback for when the selection is accepted `on_accept(tool)`.
+        This is called in response to an 'accept' key event.
     interactive: boolean
         Whether to allow interaction with the shape using handles.
     allow_redraw: boolean
@@ -42,10 +51,9 @@ docstring.interpd.update(BaseTool="""
     verts: nd-array of floats (N, 2)
         The vertices of the tool in data units.
     focused: boolean
-        Whether the tool has focus for keyboard and scroll events.
-          """)
+        Whether the tool has focus for keyboard and scroll events.""")
 
-docstring.interpd.update(BaseToolInit="""
+docstring.interpd.update(BaseInteractiveToolInit="""
     Parameters
     ----------
     ax: :class:`matplotlib.axes.Axes`
@@ -90,17 +98,15 @@ class BaseTool(object):
     """Interactive selection tool that is connected to a single
     :class:`~matplotlib.axes.Axes`.
 
-    %(BaseTool)s
+    %(BaseInteractiveTool)s
     """
 
-    @docstring.dedent_interpd
     def __init__(self, ax, on_select=None, on_move=None, on_accept=None,
                  interactive=True, allow_redraw=True,
                  shape_props=None, handle_props=None,
                  useblit=True, button=None, keys=None):
         """Initialize the tool.
-
-        %(BaseToolInit)s
+        %(BaseInteractiveToolInit)s
         """
         self.ax = ax
         self.canvas = ax.figure.canvas
@@ -109,9 +115,9 @@ class BaseTool(object):
         self.allow_redraw = allow_redraw
         self.focused = True
 
-        self._callback_on_motion = _dummy if on_move is None else on_move
-        self._callback_on_accept = _dummy if on_accept is None else on_accept
-        self._callback_on_select = _dummy if on_select is None else on_select
+        self.on_move = _dummy if on_move is None else on_move
+        self.on_accept = _dummy if on_accept is None else on_accept
+        self.on_select = _dummy if on_select is None else on_select
 
         self._useblit = useblit and self.canvas.supports_blit
         self._keys = dict(move=' ', clear='escape',
@@ -184,10 +190,10 @@ class BaseTool(object):
 
     @property
     def extents(self):
-        """Get the (x0, x1, y0, y1) extents of the tool"""
+        """Get the (x0, y0, width, height) extents of the tool"""
         x0, x1 = np.min(self._verts[:, 0]), np.max(self._verts[:, 0])
         y0, y1 = np.min(self._verts[:, 1]), np.max(self._verts[:, 1])
-        return x0, x1, y0, y1
+        return x0, y0, x1 - x0, y1 - y0
 
     def remove(self):
         """Clean up the tool"""
@@ -236,7 +242,7 @@ class BaseTool(object):
                     self._set_verts(self._verts)
                 else:
                     self._on_motion(event)
-                self._callback_on_motion(self)
+                self.on_move(self)
 
         elif event.name == 'button_release_event':
             if self._drawing:
@@ -259,10 +265,10 @@ class BaseTool(object):
             self._on_scroll(event)
 
     def _handle_key_press(self, event):
-        """Handle key_press_event defaults and call to subclass handler.
-        """
+        """Handle key_press_event defaults and call to subclass handler"""
         if not self.focused:
             return
+
         if event.key == self._keys['clear']:
             if self._dragging:
                 self._set_verts(self._prev_verts)
@@ -277,7 +283,7 @@ class BaseTool(object):
             if self._drawing:
                 self._finish_drawing(event)
 
-            self._callback_on_accept(self)
+            self.on_accept(self)
             if self.allow_redraw:
                 for artist in self._artists:
                     artist.set_visible(False)
@@ -314,8 +320,7 @@ class BaseTool(object):
         return event
 
     def _connect_event(self, event, callback):
-        """Connect callback with an event
-        """
+        """Connect callback with an event"""
         cid = self.canvas.mpl_connect(event, callback)
         self._cids.append(cid)
 
@@ -363,7 +368,7 @@ class BaseTool(object):
         self._handles.set_animated(False)
         self._update()
 
-    def _update(self):
+    def _update(self, visible=True):
         """Update the artists while drawing"""
         if not self.ax.get_visible():
             return
@@ -372,6 +377,7 @@ class BaseTool(object):
             if self._background is not None:
                 self.canvas.restore_region(self._background)
             for artist in self._artists:
+                artist.set_visible(visible)
                 self.ax.draw_artist(artist)
 
             self.canvas.blit(self.ax.bbox)
@@ -389,10 +395,11 @@ class BaseTool(object):
             self.canvas.draw()
             for artist in self._artists:
                 artist.set_animated(self._useblit)
-                artist.set_visible(True)
         else:
             self._handles.set_visible(False)
-        self._update()
+        # Blit without being visible if not draggin to avoid showing the old
+        # shape.
+        self._update(self._dragging)
 
     def _finish_drawing(self, selection=False):
         """Finish drawing or dragging the shape"""
@@ -410,7 +417,7 @@ class BaseTool(object):
             self._prev_data = dict(verts=self._verts,
                                    center=self.center,
                                    extents=self.extents)
-            self._callback_on_select(self)
+            self.on_select(self)
         self.canvas.draw_idle()
 
     #############################################################
@@ -453,15 +460,24 @@ def _dummy(tool):
     pass
 
 
+tooldoc = martist.kwdoc(BaseTool)
+for k in ('RectangleTool', 'EllipseTool', 'LineTool', 'BaseTool'):
+    docstring.interpd.update({k: tooldoc})
+
+# define BaseTool.__init__ docstring after the class has been added to interpd
+docstring.dedent_interpd(BaseTool.__init__)
+
+
 HANDLE_ORDER = ['NW', 'NE', 'SE', 'SW', 'W', 'N', 'E', 'S']
 
 
+@docstring.dedent_interpd
 class RectangleTool(BaseTool):
 
     """Interactive rectangle selection tool that is connected to a single
     :class:`~matplotlib.axes.Axes`.
 
-    %(BaseTool)s
+    %(BaseInteractiveTool)s
     width: float
         The width of the rectangle in data units.
     height: float
@@ -471,16 +487,30 @@ class RectangleTool(BaseTool):
     @property
     def width(self):
         """Get the width of the tool in data units"""
-        return np.max(self._verts[:, 0]) - np.min(self._verts[:, 0])
+        return np.ptp(self._verts[:, 0])
 
     @property
     def height(self):
         """Get the height of the tool in data units"""
-        return np.max(self._verts[:, 1]) - np.min(self._verts[:, 1])
+        return np.ptp(self._verts[:, 1])
 
-    def set_geometry(self, center, width, height):
+    def set_geometry(self, x0, y0, width, height):
+        """Set the geometry of the rectangle tool.
+
+        Parameters
+        ----------
+        x0: float
+            The left coordinate in data units.
+        y0: float
+            The bottom coordinate in data units.
+        width:
+            The width in data units.
+        height:
+            The height in data units.
+        """
         radx = width / 2
         rady = height / 2
+        center = x0 + width / 2, y0 + height / 2
         self._set_verts([[center - radx, center - rady],
                          [center - radx, center + rady],
                          [center + radx, center + rady],
@@ -501,16 +531,18 @@ class RectangleTool(BaseTool):
     def _on_motion(self, event):
         # Resize an existing shape.
         if self._dragging:
-            x1, x2, y1, y2 = self._prev_data['extents']
+            x0, y0, width, height = self._prev_data['extents']
+            x1 = x0 + width
+            y1 = y0 + height
             handle = HANDLE_ORDER[self._drag_idx]
             if handle in ['NW', 'SW', 'W']:
-                x1 = event.xdata
+                x0 = event.xdata
             elif handle in ['NE', 'SE', 'E']:
-                x2 = event.xdata
+                x1 = event.xdata
             if handle in ['NE', 'N', 'NW']:
-                y1 = event.ydata
+                y0 = event.ydata
             elif handle in ['SE', 'S', 'SW']:
-                y2 = event.ydata
+                y1 = event.ydata
 
         # Draw new shape.
         else:
@@ -541,20 +573,20 @@ class RectangleTool(BaseTool):
                 center[0] += dx
                 center[1] += dy
 
-            x1, x2, y1, y2 = (center[0] - dx, center[0] + dx,
+            x0, x1, y0, y1 = (center[0] - dx, center[0] + dx,
                               center[1] - dy, center[1] + dy)
 
         # Update the shape.
-        self.set_geometry(((x2 + x1) / 2, (y2 + y1) / 2), abs(x2 - x1),
-                          abs(y2 - y1))
+        self.set_geometry(x0, y0, x1 - x0, y1 - y0)
 
 
+@docstring.dedent_interpd
 class EllipseTool(RectangleTool):
 
     """Interactive ellipse selection tool that is connected to a single
     :class:`~matplotlib.axes.Axes`.
 
-    %(BaseTool)s
+    %(BaseInteractiveTool)s
     width: float
         The width of the ellipse in data units.
     height: float
@@ -562,18 +594,29 @@ class EllipseTool(RectangleTool):
     """
 
     def set_geometry(self, center, width, height):
-        rad = np.arange(31) * 12 * np.pi / 180
+        """Set the geometry of the ellipse tool.
+
+        Parameters
+        ----------
+        center: (x, y) float
+            The center coordinates in data units.
+        width:
+            The width in data units.
+        height:
+            The height in data units.
+        """
+        rad = np.arange(61) * 6 * np.pi / 180
         x = width / 2 * np.cos(rad) + center[0]
         y = height / 2 * np.sin(rad) + center[1]
         self._set_verts(np.vstack((x, y)).T)
 
 
+@docstring.dedent_interpd
 class LineTool(BaseTool):
 
     """Interactive line selection tool that is connected to a single
     :class:`~matplotlib.axes.Axes`.
-
-    %(BaseTool)s
+    %(BaseInteractiveTool)s
     width: float
         The width of the line in pixels.
     end_points: (2, 2) float
@@ -589,8 +632,7 @@ class LineTool(BaseTool):
              shape_props=None, handle_props=None,
              useblit=True, button=None, keys=None):
         """Initialize the tool.
-
-        %(BaseToolInit)s
+        %(BaseInteractiveToolInit)s
         """
         props = dict(edgecolor='red', visible=False,
                      alpha=0.5, fill=True, picker=5, linewidth=1)
@@ -603,10 +645,12 @@ class LineTool(BaseTool):
 
     @property
     def width(self):
+        """Get the width of the line in pixels."""
         return self._width
 
     @property
     def end_points(self):
+        """Get the end points of the line in data units."""
         p0x = (self._verts[0, 0] + self._verts[1, 0]) / 2
         p0y = (self._verts[0, 1] + self._verts[1, 1]) / 2
         p1x = (self._verts[3, 0] + self._verts[2, 0]) / 2
@@ -615,7 +659,7 @@ class LineTool(BaseTool):
 
     @property
     def angle(self):
-        """Find the angle between the left and right points."""
+        """Find the angle between the left and right points in pixel space."""
         # Convert to pixels.
         pts = self.end_points
         pts = self.ax.transData.inverted().transform(pts)
@@ -625,12 +669,22 @@ class LineTool(BaseTool):
             return np.arctan2(pts[0, 1] - pts[1, 1], pts[0, 0] - pts[1, 0])
 
     def set_geometry(self, end_points, width):
+        """Set the geometry of the line tool.
+
+        Parameters
+        ----------
+        end_points: (2, 2) float
+            The coordinates of the end points in data space.
+        width:
+            The width in pixels.
+        """
         pts = np.asarray(end_points)
         self._width = width
 
         # Get the widths in data units.
-        x0, y0 = self.ax.transData.inverted().transform((0, 0))
-        x1, y1 = self.ax.transData.inverted().transform((width, width))
+        xfm = self.ax.transData.inverted()
+        x0, y0 = xfm.transform((0, 0))
+        x1, y1 = xfm.transform((width, width))
         wx, wy = x1 - x0, y1 - y0
 
         # Find line segments centered on the end points perpendicular to the
@@ -692,9 +746,14 @@ if __name__ == '__main__':
     fig, ax = plt.subplots()
 
     pts = ax.scatter(data[:, 0], data[:, 1], s=80)
-    ellipse = EllipseTool(ax)
-    ellipse.set_geometry((0.6, 1.1), 0.5, 0.5)
-    ellipse.allow_redraw = False
+    # ellipse = EllipseTool(ax)
+    # ellipse.set_geometry((0.6, 1.1), 0.5, 0.5)
+    # ax.invert_yaxis()
+
+    # def test(tool):
+    #     print(tool.center, tool.width, tool.height)
+    # ellipse.on_accept = test
+    # ellipse.allow_redraw = False
     line = LineTool(ax)
     line.set_geometry([[0.1, 0.1], [0.5, 0.5]], 10)
     line.allow_redraw = False
