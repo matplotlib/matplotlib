@@ -34,7 +34,7 @@ except ImportError:
 
 
 @cleanup
-@pytest.mark.xfail(not HAS_QT)
+@pytest.mark.xfail(not HAS_QT, reason='pyq5 version 5 not installed')
 @switch_backend('Qt5Agg')
 def test_fig_close():
     # save the state of Gcf.figs
@@ -75,7 +75,7 @@ def assert_correct_key(qt_key, qt_mods, answer):
 
 
 @cleanup
-@pytest.mark.xfail(not HAS_QT)
+@pytest.mark.xfail(not HAS_QT, reason='pyq5 version 5 not installed')
 def test_shift():
     assert_correct_key(QtCore.Qt.Key_A,
                        ShiftModifier,
@@ -83,7 +83,7 @@ def test_shift():
 
 
 @cleanup
-@pytest.mark.xfail(not HAS_QT)
+@pytest.mark.xfail(not HAS_QT, reason='pyq5 version 5 not installed')
 def test_lower():
     assert_correct_key(QtCore.Qt.Key_A,
                        QtCore.Qt.NoModifier,
@@ -91,7 +91,7 @@ def test_lower():
 
 
 @cleanup
-@pytest.mark.xfail(not HAS_QT)
+@pytest.mark.xfail(not HAS_QT, reason='pyq5 version 5 not installed')
 def test_control():
     assert_correct_key(QtCore.Qt.Key_A,
                        ControlModifier,
@@ -99,7 +99,7 @@ def test_control():
 
 
 @cleanup
-@pytest.mark.xfail(not HAS_QT)
+@pytest.mark.xfail(not HAS_QT, reason='pyq5 version 5 not installed')
 def test_unicode_upper():
     assert_correct_key(QtCore.Qt.Key_Aacute,
                        ShiftModifier,
@@ -107,7 +107,7 @@ def test_unicode_upper():
 
 
 @cleanup
-@pytest.mark.xfail(not HAS_QT)
+@pytest.mark.xfail(not HAS_QT, reason='pyq5 version 5 not installed')
 def test_unicode_lower():
     assert_correct_key(QtCore.Qt.Key_Aacute,
                        QtCore.Qt.NoModifier,
@@ -115,7 +115,7 @@ def test_unicode_lower():
 
 
 @cleanup
-@pytest.mark.xfail(not HAS_QT)
+@pytest.mark.xfail(not HAS_QT, reason='pyq5 version 5 not installed')
 def test_alt_control():
     assert_correct_key(ControlKey,
                        AltModifier,
@@ -123,7 +123,7 @@ def test_alt_control():
 
 
 @cleanup
-@pytest.mark.xfail(not HAS_QT)
+@pytest.mark.xfail(not HAS_QT, reason='pyq5 version 5 not installed')
 def test_control_alt():
     assert_correct_key(AltKey,
                        ControlModifier,
@@ -131,7 +131,7 @@ def test_control_alt():
 
 
 @cleanup
-@pytest.mark.xfail(not HAS_QT)
+@pytest.mark.xfail(not HAS_QT, reason='pyq5 version 5 not installed')
 def test_modifier_order():
     assert_correct_key(QtCore.Qt.Key_Aacute,
                        (ControlModifier | AltModifier | SuperModifier),
@@ -139,7 +139,7 @@ def test_modifier_order():
 
 
 @cleanup
-@pytest.mark.xfail(not HAS_QT)
+@pytest.mark.xfail(not HAS_QT, reason='pyq5 version 5 not installed')
 def test_backspace():
     assert_correct_key(QtCore.Qt.Key_Backspace,
                        QtCore.Qt.NoModifier,
@@ -147,7 +147,7 @@ def test_backspace():
 
 
 @cleanup
-@pytest.mark.xfail(not HAS_QT)
+@pytest.mark.xfail(not HAS_QT, reason='pyq5 version 5 not installed')
 def test_backspace_mod():
     assert_correct_key(QtCore.Qt.Key_Backspace,
                        ControlModifier,
@@ -155,7 +155,7 @@ def test_backspace_mod():
 
 
 @cleanup
-@pytest.mark.xfail(not HAS_QT)
+@pytest.mark.xfail(not HAS_QT, reason='pyq5 version 5 not installed')
 def test_non_unicode_key():
     assert_correct_key(QtCore.Qt.Key_Play,
                        QtCore.Qt.NoModifier,
