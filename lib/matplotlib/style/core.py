@@ -43,13 +43,14 @@ STYLE_BLACKLIST = set([
     'savefig.directory', 'tk.window_focus', 'hardcopy.docstring'])
 
 
-def _remove_blacklisted_style_params(d):
+def _remove_blacklisted_style_params(d, warn=True):
     o = {}
     for key, val in d.items():
         if key in STYLE_BLACKLIST:
-            warnings.warn(
-                "Style includes a parameter, '{0}', that is not related to "
-                "style.  Ignoring".format(key))
+            if warn:
+                warnings.warn(
+                    "Style includes a parameter, '{0}', that is not related "
+                    "to style.  Ignoring".format(key))
         else:
             o[key] = val
     return o
@@ -60,8 +61,8 @@ def is_style_file(filename):
     return STYLE_FILE_PATTERN.match(filename) is not None
 
 
-def _apply_style(d):
-    mpl.rcParams.update(_remove_blacklisted_style_params(d))
+def _apply_style(d, warn=True):
+    mpl.rcParams.update(_remove_blacklisted_style_params(d, warn=warn))
 
 
 def use(style):
@@ -98,8 +99,7 @@ def use(style):
         if not cbook.is_string_like(style):
             _apply_style(style)
         elif style == 'default':
-            with warnings.catch_warnings(record=True):
-                _apply_style(rcParamsDefault)
+            _apply_style(rcParamsDefault, warn=False)
         elif style in library:
             _apply_style(library[style])
         else:
