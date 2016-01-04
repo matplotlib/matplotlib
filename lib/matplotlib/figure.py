@@ -1627,11 +1627,6 @@ class Figure(Artist):
     def ginput(self, n=1, timeout=30, show_clicks=True, mouse_add=1,
                mouse_pop=3, mouse_stop=2):
         """
-        Call signature::
-
-          ginput(self, n=1, timeout=30, show_clicks=True,
-                 mouse_add=1, mouse_pop=3, mouse_stop=2)
-
         Blocking call to interact with the figure.
 
         This will wait for *n* clicks from the user and return a list of the
@@ -1666,10 +1661,6 @@ class Figure(Artist):
 
     def waitforbuttonpress(self, timeout=-1):
         """
-        Call signature::
-
-          waitforbuttonpress(self, timeout=-1)
-
         Blocking call to interact with the figure.
 
         This will return True is a key was pressed, False if a mouse
