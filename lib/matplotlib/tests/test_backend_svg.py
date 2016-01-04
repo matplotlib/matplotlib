@@ -182,4 +182,3 @@ def test_determinism_notex():
 def test_determinism_tex():
     # unique filename to allow for parallel testing
     _test_determinism('determinism_tex.svg', usetex=True)
-
