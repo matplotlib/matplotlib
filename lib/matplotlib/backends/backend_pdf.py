@@ -1525,8 +1525,10 @@ end"""
 class RendererPdf(RendererBase):
     afm_font_cache = maxdict(50)
 
-    def __init__(self, file, image_dpi):
+    def __init__(self, file, image_dpi, height, width):
         RendererBase.__init__(self)
+        self.height = height
+        self.width = width
         self.file = file
         self.gc = self.new_gc()
         self.mathtext_parser = MathTextParser("Pdf")
@@ -2517,7 +2519,7 @@ class FigureCanvasPdf(FigureCanvasBase):
             _bbox_inches_restore = kwargs.pop("bbox_inches_restore", None)
             renderer = MixedModeRenderer(
                 self.figure, width, height, image_dpi,
-                RendererPdf(file, image_dpi),
+                RendererPdf(file, image_dpi, height, width),
                 bbox_inches_restore=_bbox_inches_restore)
             self.figure.draw(renderer)
             renderer.finalize()

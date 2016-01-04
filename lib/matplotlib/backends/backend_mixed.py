@@ -52,7 +52,7 @@ class MixedModeRenderer(object):
         # A reference to the figure is needed as we need to change
         # the figure dpi before and after the rasterization. Although
         # this looks ugly, I couldn't find a better solution. -JJL
-        self.figure=figure
+        self.figure = figure
         self._figdpi = figure.get_dpi()
 
         self._bbox_inches_restore = bbox_inches_restore
@@ -69,6 +69,7 @@ class MixedModeRenderer(object):
         draw_gouraud_triangles option_scale_image
         _text2path _get_text_path_transform height width
         """.split()
+
     def _set_current_renderer(self, renderer):
         self._renderer = renderer
 
@@ -91,7 +92,7 @@ class MixedModeRenderer(object):
         # change the dpi of the figure temporarily.
         self.figure.set_dpi(self.dpi)
 
-        if self._bbox_inches_restore: # when tight bbox is used
+        if self._bbox_inches_restore:  # when tight bbox is used
             r = process_figure_for_rasterizing(self.figure,
                                                self._bbox_inches_restore)
             self._bbox_inches_restore = r
@@ -115,7 +116,7 @@ class MixedModeRenderer(object):
         if self._rasterizing == 0:
             self._set_current_renderer(self._vector_renderer)
 
-            width, height = self._width * self.dpi, self._height * self.dpi
+            height = self._height * self.dpi
             buffer, bounds = self._raster_renderer.tostring_rgba_minimized()
             l, b, w, h = bounds
             if w > 0 and h > 0:
