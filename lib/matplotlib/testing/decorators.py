@@ -410,5 +410,5 @@ def switch_backend(backend):
                 plt.switch_backend(prev_backend)
             return result
 
-        return func(backend_switcher)
+        return backend_switcher
     return switch_backend_decorator
