@@ -615,4 +615,3 @@ def test_size_in_xy():
 
     ax.set_xlim(0, 30)
     ax.set_ylim(0, 30)
-
