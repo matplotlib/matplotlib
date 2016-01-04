@@ -208,7 +208,8 @@ def window_hanning(x):
     '''
     Return x times the hanning window of len(x).
 
-    .. seealso::
+    See Also
+    --------
 
         :func:`window_none`
             :func:`window_none` is another window algorithm.
@@ -220,7 +221,8 @@ def window_none(x):
     '''
     No window function; simply return x.
 
-    .. seealso::
+    See Also
+    --------
 
         :func:`window_hanning`
             :func:`window_hanning` is another window algorithm.
@@ -232,10 +234,12 @@ def apply_window(x, window, axis=0, return_window=None):
     '''
     Apply the given window to the given 1D or 2D array along the given axis.
 
+    Parameters
+    ----------
       *x*: 1D or 2D array or sequence
         Array or sequence containing the data.
 
-      *winodw*: function or array.
+      *window*: function or array.
         Either a function to generate a window or an array with length
         *x*.shape[*axis*]
 
@@ -286,6 +290,8 @@ def detrend(x, key=None, axis=None):
     '''
     Return x with its trend removed.
 
+    Parameters
+    ----------
       *x*: array or sequence
         Array or sequence containing the data.
 
@@ -300,7 +306,8 @@ def detrend(x, key=None, axis=None):
       *axis*: integer
         The axis along which to do the detrending.
 
-    .. seealso::
+    See Also
+    --------
 
         :func:`detrend_mean`
             :func:`detrend_mean` implements the 'mean' algorithm.
@@ -347,6 +354,8 @@ def demean(x, axis=0):
     '''
     Return x minus its mean along the specified axis.
 
+    Parameters
+    ----------
       *x*: array or sequence
         Array or sequence containing the data
         Can have any dimensionality
@@ -355,7 +364,8 @@ def demean(x, axis=0):
         The axis along which to take the mean.  See numpy.mean for a
         description of this argument.
 
-    .. seealso::
+    See Also
+    --------
 
         :func:`delinear`
 
@@ -373,6 +383,8 @@ def detrend_mean(x, axis=None):
     '''
     Return x minus the mean(x).
 
+    Parameters
+    ----------
       *x*: array or sequence
         Array or sequence containing the data
         Can have any dimensionality
@@ -381,7 +393,8 @@ def detrend_mean(x, axis=None):
         The axis along which to take the mean.  See numpy.mean for a
         description of this argument.
 
-    .. seealso::
+    See Also
+    --------
 
         :func:`demean`
             This function is the same as as :func:`demean` except
@@ -418,6 +431,8 @@ def detrend_none(x, axis=None):
     '''
     Return x: no detrending.
 
+    Parameters
+    ----------
       *x*: any object
         An object containing the data
 
@@ -425,7 +440,8 @@ def detrend_none(x, axis=None):
         This parameter is ignored.
         It is included for compatibility with detrend_mean
 
-    .. seealso::
+    See Also
+    --------
 
         :func:`denone`
             This function is the same as as :func:`denone` except
@@ -447,6 +463,8 @@ def detrend_linear(y):
     '''
     Return x minus best fit line; 'linear' detrending.
 
+    Parameters
+    ----------
       *y*: 0-D or 1-D array or sequence
         Array or sequence containing the data
 
@@ -454,7 +472,8 @@ def detrend_linear(y):
         The axis along which to take the mean.  See numpy.mean for a
         description of this argument.
 
-    .. seealso::
+    See Also
+    --------
 
         :func:`delinear`
             This function is the same as as :func:`delinear` except
@@ -499,6 +518,8 @@ def stride_windows(x, n, noverlap=None, axis=0):
         elements may point to the same piece of memory,
         so modifying one value may change others.
 
+    Parameters
+    ----------
       *x*: 1D array or sequence
         Array or sequence containing the data.
 
@@ -512,7 +533,8 @@ def stride_windows(x, n, noverlap=None, axis=0):
       *axis*: integer
         The axis along which the windows will run.
 
-    Refs:
+    References
+    ----------
         `stackoverflaw: Rolling window for 1D arrays in Numpy?
         <http://stackoverflow.com/a/6811241>`_
         `stackoverflaw: Using strides for an efficient moving average filter
@@ -564,6 +586,8 @@ def stride_repeat(x, n, axis=0):
         elements may point to the same piece of memory, so
         modifying one value may change others.
 
+    Parameters
+    ----------
       *x*: 1D array or sequence
         Array or sequence containing the data.
 
@@ -573,7 +597,8 @@ def stride_repeat(x, n, axis=0):
       *axis*: integer
         The axis along which the data will run.
 
-    Refs:
+    References
+    ----------
         `stackoverflaw: Repeat NumPy array without replicating data?
         <http://stackoverflow.com/a/5568169>`_
     '''
@@ -794,7 +819,8 @@ def _single_spectrum_helper(x, mode, Fs=None, window=None, pad_to=None,
 
 # Split out these keyword docs so that they can be used elsewhere
 docstring.interpd.update(Spectral=cbook.dedent("""
-    Keyword arguments:
+    Keyword arguments
+    -----------------
 
       *Fs*: scalar
           The sampling frequency (samples per time unit).  It is used
@@ -893,6 +919,8 @@ def psd(x, NFFT=None, Fs=None, detrend=None, window=None,
 
     If len(*x*) < *NFFT*, it will be zero padded to *NFFT*.
 
+    Parameters
+    ----------
       *x*: 1-D array or sequence
         Array or sequence containing the data
 
@@ -904,7 +932,8 @@ def psd(x, NFFT=None, Fs=None, detrend=None, window=None,
         The number of points of overlap between segments.
         The default value is 0 (no overlap).
 
-    Returns the tuple (*Pxx*, *freqs*).
+    Returns
+    -------
 
           *Pxx*: 1-D array
             The values for the power spectrum `P_{xx}` (real valued)
@@ -912,12 +941,14 @@ def psd(x, NFFT=None, Fs=None, detrend=None, window=None,
           *freqs*: 1-D array
             The frequencies corresponding to the elements in *Pxx*
 
-    Refs:
 
+    References
+    ----------
         Bendat & Piersol -- Random Data: Analysis and Measurement
         Procedures, John Wiley & Sons (1986)
 
-    .. seealso::
+    See Also
+    --------
 
         :func:`specgram`
             :func:`specgram` differs in the default overlap; in not returning
@@ -960,6 +991,8 @@ def csd(x, y, NFFT=None, Fs=None, detrend=None, window=None,
     If len(*x*) < *NFFT* or len(*y*) < *NFFT*, they will be zero
     padded to *NFFT*.
 
+    Parameters
+    ----------
       *x*, *y*: 1-D arrays or sequences
         Arrays or sequences containing the data
 
@@ -971,8 +1004,9 @@ def csd(x, y, NFFT=None, Fs=None, detrend=None, window=None,
           The number of points of overlap between segments.
           The default value is 0 (no overlap).
 
-    Returns the tuple (*Pxy*, *freqs*):
 
+    Returns
+    -------
           *Pxy*: 1-D array
             The values for the cross spectrum `P_{xy}` before scaling
             (real valued)
@@ -980,11 +1014,13 @@ def csd(x, y, NFFT=None, Fs=None, detrend=None, window=None,
           *freqs*: 1-D array
             The frequencies corresponding to the elements in *Pxy*
 
-    Refs:
+    References
+    ----------
         Bendat & Piersol -- Random Data: Analysis and Measurement
         Procedures, John Wiley & Sons (1986)
 
-    .. seealso::
+    See Also
+    --------
 
         :func:`psd`
             :func:`psd` is the equivalent to setting y=x.
@@ -1013,6 +1049,8 @@ def complex_spectrum(x, Fs=None, window=None, pad_to=None,
     length of *pad_to* and the windowing function *window* is applied to the
     signal.
 
+    Parameters
+    ----------
       *x*: 1-D array or sequence
         Array or sequence containing the data
 
@@ -1020,7 +1058,8 @@ def complex_spectrum(x, Fs=None, window=None, pad_to=None,
 
     %(Single_Spectrum)s
 
-    Returns the tuple (*spectrum*, *freqs*):
+    Returns
+    -------
 
       *spectrum*: 1-D array
         The values for the complex spectrum (complex valued)
@@ -1028,7 +1067,8 @@ def complex_spectrum(x, Fs=None, window=None, pad_to=None,
       *freqs*: 1-D array
         The frequencies corresponding to the elements in *spectrum*
 
-    .. seealso::
+    See Also
+    --------
 
         :func:`magnitude_spectrum`
             :func:`magnitude_spectrum` returns the absolute value of this
@@ -1058,6 +1098,8 @@ def magnitude_spectrum(x, Fs=None, window=None, pad_to=None,
     *x*.  Data is padded to a length of *pad_to* and the windowing function
     *window* is applied to the signal.
 
+    Parameters
+    ----------
       *x*: 1-D array or sequence
         Array or sequence containing the data
 
@@ -1065,7 +1107,8 @@ def magnitude_spectrum(x, Fs=None, window=None, pad_to=None,
 
     %(Single_Spectrum)s
 
-    Returns the tuple (*spectrum*, *freqs*):
+    Returns
+    -------
 
       *spectrum*: 1-D array
         The values for the magnitude spectrum (real valued)
@@ -1073,7 +1116,8 @@ def magnitude_spectrum(x, Fs=None, window=None, pad_to=None,
       *freqs*: 1-D array
         The frequencies corresponding to the elements in *spectrum*
 
-    .. seealso::
+    See Also
+    --------
 
         :func:`psd`
             :func:`psd` returns the power spectral density.
@@ -1106,6 +1150,8 @@ def angle_spectrum(x, Fs=None, window=None, pad_to=None,
     *x*.  Data is padded to a length of *pad_to* and the windowing function
     *window* is applied to the signal.
 
+    Parameters
+    ----------
       *x*: 1-D array or sequence
         Array or sequence containing the data
 
@@ -1113,7 +1159,8 @@ def angle_spectrum(x, Fs=None, window=None, pad_to=None,
 
     %(Single_Spectrum)s
 
-    Returns the tuple (*spectrum*, *freqs*):
+    Returns
+    -------
 
       *spectrum*: 1-D array
         The values for the angle spectrum in radians (real valued)
@@ -1121,7 +1168,8 @@ def angle_spectrum(x, Fs=None, window=None, pad_to=None,
       *freqs*: 1-D array
         The frequencies corresponding to the elements in *spectrum*
 
-    .. seealso::
+    See Also
+    --------
 
         :func:`complex_spectrum`
             This function returns the angle value of
@@ -1151,6 +1199,8 @@ def phase_spectrum(x, Fs=None, window=None, pad_to=None,
     *x*.  Data is padded to a length of *pad_to* and the windowing function
     *window* is applied to the signal.
 
+    Parameters
+    ----------
       *x*: 1-D array or sequence
         Array or sequence containing the data
 
@@ -1158,7 +1208,8 @@ def phase_spectrum(x, Fs=None, window=None, pad_to=None,
 
     %(Single_Spectrum)s
 
-    Returns the tuple (*spectrum*, *freqs*):
+    Returns
+    -------
 
       *spectrum*: 1-D array
         The values for the phase spectrum in radians (real valued)
@@ -1166,7 +1217,8 @@ def phase_spectrum(x, Fs=None, window=None, pad_to=None,
       *freqs*: 1-D array
         The frequencies corresponding to the elements in *spectrum*
 
-    .. seealso::
+    See Also
+    --------
 
         :func:`complex_spectrum`
             This function returns the angle value of
@@ -1287,6 +1339,8 @@ def cohere(x, y, NFFT=256, Fs=2, detrend=detrend_none, window=window_hanning,
 
         C_{xy} = \\frac{|P_{xy}|^2}{P_{xx}P_{yy}}
 
+    Parameters
+    ----------
     *x*, *y*
         Array or sequence containing the data
 
@@ -1298,12 +1352,15 @@ def cohere(x, y, NFFT=256, Fs=2, detrend=detrend_none, window=window_hanning,
           The number of points of overlap between blocks.  The default value
           is 0 (no overlap).
 
+    Returns
+    -------
     The return value is the tuple (*Cxy*, *f*), where *f* are the
     frequencies of the coherence vector. For cohere, scaling the
     individual densities by the sampling frequency has no effect,
     since the factors cancel out.
 
-    .. seealso::
+    See Also
+    --------
 
         :func:`psd` and :func:`csd`
             For information about the methods used to compute
@@ -1363,7 +1420,8 @@ def cohere_pairs(X, ij, NFFT=256, Fs=2, detrend=detrend_none,
     than 10x faster than naively crunching all possible pairs through
     :func:`cohere`.
 
-    Returns::
+    Returns
+    -------
 
        (Cxy, Phase, freqs)
 
@@ -1399,7 +1457,8 @@ def cohere_pairs(X, ij, NFFT=256, Fs=2, detrend=detrend_none,
     example script that shows that this :func:`cohere_pairs` and
     :func:`cohere` give the same results for a given pair.
 
-    .. seealso::
+    See Also
+    --------
 
         :func:`psd`
             For information about the methods used to compute
@@ -1568,37 +1627,47 @@ class PCA(object):
         compute the SVD of a and store data for PCA.  Use project to
         project the data onto a reduced set of dimensions
 
-        Inputs:
+        Parameters
+        ----------
+        a: np.ndarray
+            A numobservations x numdims array
+        standardize: bool
+            True if input data are to be standardized. If False, only centering
+            will be carried out.
 
-          *a*: a numobservations x numdims array
-          *standardize*: True if input data are to be standardized. If False,
-          only centering will be carried out.
+        Attributes
+        ----------
+        a
+            A centered unit sigma version of input ``a``.
 
-        Attrs:
+        numrows, numcols
+            The dimensions of ``a``.
 
-          *a* a centered unit sigma version of input a
+        mu
+            A numdims array of means of ``a``. This is the vector that points
+            to the origin of PCA space.
 
-          *numrows*, *numcols*: the dimensions of a
+        sigma
+            A numdims array of standard deviation of ``a``.
 
-          *mu*: a numdims array of means of a. This is the vector that points
-          to the origin of PCA space.
+        fracs
+            The proportion of variance of each of the principal components.
 
-          *sigma*: a numdims array of standard deviation of a
+        s
+            The actual eigenvalues of the decomposition.
 
-          *fracs*: the proportion of variance of each of the principal
-          components
+        Wt
+            The weight vector for projecting a numdims point or array into
+            PCA space.
 
-          *s*: the actual eigenvalues of the decomposition
+        Y
+            A projected into PCA space.
 
-          *Wt*: the weight vector for projecting a numdims point or array into
-          PCA space
-
-          *Y*: a projected into PCA space
-
-
-        The factor loadings are in the Wt factor, i.e., the factor
-        loadings for the 1st principal component are given by Wt[0].
-        This row is also the 1st eigenvector.
+        Notes
+        -----
+        The factor loadings are in the ``Wt`` factor, i.e., the factor loadings
+        for the first principal component are given by ``Wt[0]``. This row is
+        also the first eigenvector.
 
         """
         n, m = a.shape
@@ -1782,6 +1851,8 @@ def rk4(derivs, y0, t):
     yourself stranded on a system w/o scipy.  Otherwise use
     :func:`scipy.integrate`.
 
+    Parameters
+    ----------
     *y0*
         initial state vector
 
@@ -1792,10 +1863,10 @@ def rk4(derivs, y0, t):
         returns the derivative of the system and has the
         signature ``dy = derivs(yi, ti)``
 
+    Examples
+    --------
 
-    Example 1 ::
-
-        ## 2D system
+    A 2D system::
 
         def derivs6(x,t):
             d1 =  x[0] + 2*x[1]
@@ -1806,16 +1877,14 @@ def rk4(derivs, y0, t):
         y0 = (1,2)
         yout = rk4(derivs6, y0, t)
 
-    Example 2::
+    A 1D system::
 
-        ## 1D system
         alpha = 2
         def derivs(x,t):
             return -alpha*x + exp(-t)
 
         y0 = 1
         yout = rk4(derivs, y0, t)
-
 
     If you have access to scipy, you should probably be using the
     scipy.integrate tools rather than this function.
@@ -3100,7 +3169,8 @@ def rec2txt(r, header=None, padding=3, precision=3, fields=None):
     can be a list of strings like ['field1', 'field2'] or a single
     comma separated string like 'field1,field2'
 
-    Example::
+    Examples
+    --------
 
       precision=[0,2,3]
 
@@ -3213,8 +3283,8 @@ def rec2csv(r, fname, delimiter=',', formatd=None, missing='',
     for formatd type FormatFloat, we override the precision to store
     full precision floats in the CSV file
 
-
-    .. seealso::
+    See Also
+    --------
 
         :func:`csv2rec`
             For information about *missing* and *missingd*, which can
@@ -3872,7 +3942,8 @@ def cross_from_below(x, threshold):
 
         plt.show()
 
-    .. seealso::
+    See Also
+    --------
 
         :func:`cross_from_above` and :func:`contiguous_regions`
 
@@ -3893,7 +3964,8 @@ def cross_from_above(x, threshold):
 
       x[i-1]>threshold and x[i]<=threshold
 
-    .. seealso::
+    See Also
+    --------
 
         :func:`cross_from_below` and :func:`contiguous_regions`
 
