@@ -35,7 +35,7 @@
 # You can also deploy your own backend outside of matplotlib by
 # referring to the module name (which must be in the PYTHONPATH) as
 # 'module://my_backend'.
-backend      : %(backend)s
+backend      : $TEMPLATE_BACKEND
 
 # If you are using the Qt4Agg backend, you can choose here
 # to use the PyQt4 bindings or the newer PySide bindings to
@@ -311,6 +311,7 @@ backend      : %(backend)s
                                          # small compared to the minimum absolute
                                          # value of the data.
 
+
 #axes.unicode_minus  : True    # use unicode for the minus symbol
                                # rather than hyphen.  See
                                # http://en.wikipedia.org/wiki/Plus_and_minus_signs#Character_codes
@@ -327,6 +328,22 @@ backend      : %(backend)s
 
 #polaraxes.grid      : True    # display grid on polar axes
 #axes3d.grid         : True    # display grid on 3d axes
+
+### DATES
+# These control the default format strings used in AutoDateFormatter.
+# Any valid format datetime format string can be used (see the python
+# `datetime` for details).  For example using '%%x' will use the locale date representation
+# '%%X' will use the locale time representation and '%%c' will use the full locale datetime
+# representation.
+# These values map to the scales:
+#    {'year': 365, 'month': 30, 'day': 1, 'hour': 1/24, 'minute': 1 / (24 * 60)}
+
+# date.autoformatter.year     : %Y
+# date.autoformatter.month    : %Y-%m
+# date.autoformatter.day      : %Y-%m-%d
+# date.autoformatter.hour     : %H:%M
+# date.autoformatter.minute   : %H:%M:%S
+# date.autoformatter.second   : %H:%M:%S.%f
 
 ### TICKS
 # see http://matplotlib.org/api/axis_api.html#matplotlib.axis.Tick
