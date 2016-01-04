@@ -252,35 +252,6 @@ class ImageComparisonTest(CleanupTest):
 
                 yield (do_test,)
 
-
-def image_comparison_2(baseline_images=None, extensions=None, tol=0,
-                     freetype_version=None, remove_text=False,
-                     savefig_kwarg=None, style='classic'):
-    if baseline_images is None:
-        raise ValueError('baseline_images must be specified')
-
-    if extensions is None:
-        # default extensions to test
-        extensions = ['png', 'pdf', 'svg']
-
-    if savefig_kwarg is None:
-        #default no kwargs to savefig
-        savefig_kwarg = dict()
-
-    def compare_images_decorator(func):
-        newtest = ImageComparisonTest()
-        newtest._baseline_images = baseline_images
-        newtest._extensions = extensions
-        newtest._tol = tol
-        newtest._freetype_version = freetype_version
-        newtest._remove_text = remove_text
-        newtest._savefig_kwarg = savefig_kwarg
-        newtest._style = style
-        func = newtest.test
-        return func
-    return compare_images_decorator
-
-
 def image_comparison(baseline_images=None, extensions=None, tol=0,
                      freetype_version=None, remove_text=False,
                      savefig_kwarg=None, style='classic'):
@@ -367,7 +338,6 @@ def image_comparison(baseline_images=None, extensions=None, tol=0,
         return new_class
     return compare_images_decorator
 
-
 def _image_directories(func):
     """
     Compute the baseline and result image directories for testing *func*.
@@ -440,5 +410,5 @@ def switch_backend(backend):
                 plt.switch_backend(prev_backend)
             return result
 
-        return backend_switcher
+        return nose.tools.make_decorator(func)(backend_switcher)
     return switch_backend_decorator
