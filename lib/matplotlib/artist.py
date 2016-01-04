@@ -427,10 +427,6 @@ class Artist(object):
 
     def pick(self, mouseevent):
         """
-        call signature::
-
-          pick(mouseevent)
-
         each child artist will fire a pick event if *mouseevent* is over
         the artist and the artist has picker set
         """

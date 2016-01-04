@@ -1164,10 +1164,6 @@ class _AxesBase(martist.Artist):
 
     def hold(self, b=None):
         """
-        Call signature::
-
-          hold(b=None)
-
         Set the hold state.  If *hold* is *None* (default), toggle the
         *hold* state.  Else set the *hold* state to boolean value *b*.
 
@@ -2421,10 +2417,6 @@ class _AxesBase(martist.Artist):
         """
         Turn the axes grids on or off.
 
-        Call signature::
-
-           grid(self, b=None, which='major', axis='both', **kwargs)
-
         Set the axes grids on or off; *b* is a boolean.  (For MATLAB
         compatibility, *b* may also be a string, 'on' or 'off'.)
 
@@ -2841,10 +2833,6 @@ class _AxesBase(martist.Artist):
     @docstring.dedent_interpd
     def set_xscale(self, value, **kwargs):
         """
-        Call signature::
-
-          set_xscale(value)
-
         Set the scaling of the x-axis: %(scale)s
 
         ACCEPTS: [%(scale)s]
@@ -2923,10 +2911,6 @@ class _AxesBase(martist.Artist):
     @docstring.dedent_interpd
     def set_xticklabels(self, labels, fontdict=None, minor=False, **kwargs):
         """
-        Call signature::
-
-          set_xticklabels(labels, fontdict=None, minor=False, **kwargs)
-
         Set the xtick labels with list of strings *labels*. Return a
         list of axis text instances.
 
@@ -3185,10 +3169,6 @@ class _AxesBase(martist.Artist):
     @docstring.dedent_interpd
     def set_yticklabels(self, labels, fontdict=None, minor=False, **kwargs):
         """
-        Call signature::
-
-          set_yticklabels(labels, fontdict=None, minor=False, **kwargs)
-
         Set the y tick labels with list of strings *labels*.  Return a list of
         :class:`~matplotlib.text.Text` instances.
 
@@ -3730,10 +3710,6 @@ class _AxesBase(martist.Artist):
 
     def twinx(self):
         """
-        Call signature::
-
-          ax = twinx()
-
         create a twin of Axes for generating a plot with a sharex
         x-axis but independent y axis.  The y-axis of self will have
         ticks on left and the returned axes will have ticks on the
@@ -3754,10 +3730,6 @@ class _AxesBase(martist.Artist):
 
     def twiny(self):
         """
-        Call signature::
-
-          ax = twiny()
-
         create a twin of Axes for generating a plot with a shared
         y-axis but independent x axis.  The x-axis of self will have
         ticks on bottom and the returned axes will have ticks on the

@@ -822,10 +822,6 @@ class Axes(_AxesBase):
         """
         Add a horizontal span (rectangle) across the axis.
 
-        Call signature::
-
-          axhspan(ymin, ymax, xmin=0, xmax=1, **kwargs)
-
         *y* coords are in data units and *x* coords are in axes (relative
         0-1) units.
 
@@ -876,10 +872,6 @@ class Axes(_AxesBase):
     def axvspan(self, xmin, xmax, ymin=0, ymax=1, **kwargs):
         """
         Add a vertical span (rectangle) across the axes.
-
-        Call signature::
-
-          axvspan(xmin, xmax, ymin=0, ymax=1, **kwargs)
 
         *x* coords are in data units and *y* coords are in axes (relative
         0-1) units.
@@ -1098,12 +1090,6 @@ class Axes(_AxesBase):
                   linestyles='solid', **kwargs):
         """
         Plot identical parallel lines at specific positions.
-
-        Call signature::
-
-          eventplot(positions, orientation='horizontal', lineoffsets=0,
-                    linelengths=1, linewidths=None, color =None,
-                    linestyles='solid'
 
         Plot parallel lines at the given positions.  positions should be a 1D
         or 2D array-like object, with each row corresponding to a row or column
@@ -1435,11 +1421,6 @@ class Axes(_AxesBase):
         """
         Plot with data with dates.
 
-        Call signature::
-
-           plot_date(x, y, fmt='bo', tz=None, xdate=True,
-                     ydate=False, **kwargs)
-
         Similar to the :func:`~matplotlib.pyplot.plot` command, except
         the *x* or *y* (or both) data is considered to be dates, and the
         axis is labeled accordingly.
@@ -1508,10 +1489,6 @@ class Axes(_AxesBase):
         """
         Make a plot with log scaling on both the *x* and *y* axis.
 
-        Call signature::
-
-          loglog(*args, **kwargs)
-
         :func:`~matplotlib.pyplot.loglog` supports all the keyword
         arguments of :func:`~matplotlib.pyplot.plot` and
         :meth:`matplotlib.axes.Axes.set_xscale` /
@@ -1570,10 +1547,6 @@ class Axes(_AxesBase):
         """
         Make a plot with log scaling on the *x* axis.
 
-        Call signature::
-
-          semilogx(*args, **kwargs)
-
         :func:`semilogx` supports all the keyword arguments of
         :func:`~matplotlib.pyplot.plot` and
         :meth:`matplotlib.axes.Axes.set_xscale`.
@@ -1622,10 +1595,6 @@ class Axes(_AxesBase):
     def semilogy(self, *args, **kwargs):
         """
         Make a plot with log scaling on the *y* axis.
-
-        call signature::
-
-          semilogy(*args, **kwargs)
 
         :func:`semilogy` supports all the keyword arguments of
         :func:`~matplotlib.pylab.plot` and
@@ -1826,10 +1795,6 @@ class Axes(_AxesBase):
     def step(self, x, y, *args, **kwargs):
         """
         Make a step plot.
-
-        Call signature::
-
-          step(x, y, *args, **kwargs)
 
         Additional keyword args to :func:`step` are the same as those
         for :func:`~matplotlib.pyplot.plot`.
@@ -2301,10 +2266,6 @@ class Axes(_AxesBase):
         """
         Plot horizontal bars.
 
-        Call signature::
-
-          broken_barh(self, xranges, yrange, **kwargs)
-
         A collection of horizontal bars spanning *yrange* with a sequence of
         *xranges*.
 
@@ -2453,15 +2414,6 @@ class Axes(_AxesBase):
             frame=False):
         r"""
         Plot a pie chart.
-
-        Call signature::
-
-          pie(x, explode=None, labels=None,
-              colors=('b', 'g', 'r', 'c', 'm', 'y', 'k', 'w'),
-              autopct=None, pctdistance=0.6, shadow=False,
-              labeldistance=1.1, startangle=None, radius=None,
-              counterclock=True, wedgeprops=None, textprops=None,
-              center = (0, 0), frame = False )
 
         Make a pie chart of array *x*.  The fractional area of each
         wedge is given by x/sum(x).  If sum(x) <= 1, then the values
@@ -2675,14 +2627,6 @@ class Axes(_AxesBase):
                  **kwargs):
         """
         Plot an errorbar graph.
-
-        Call signature::
-
-          errorbar(x, y, yerr=None, xerr=None,
-                   fmt='', ecolor=None, elinewidth=None, capsize=None,
-                   barsabove=False, lolims=False, uplims=False,
-                   xlolims=False, xuplims=False, errorevery=1,
-                   capthick=None)
 
         Plot *x* versus *y* with error deltas in *yerr* and *xerr*.
         Vertical errorbars are plotted if *yerr* is not *None*.
@@ -3056,17 +3000,6 @@ class Axes(_AxesBase):
         """
         Make a box and whisker plot.
 
-        Call signature::
-
-          boxplot(self, x, notch=None, sym=None, vert=None, whis=None,
-                  positions=None, widths=None, patch_artist=False,
-                  bootstrap=None, usermedians=None, conf_intervals=None,
-                  meanline=False, showmeans=False, showcaps=True,
-                  showbox=True, showfliers=True, boxprops=None,
-                  labels=None, flierprops=None, medianprops=None,
-                  meanprops=None, capprops=None, whiskerprops=None,
-                  manage_xticks=True, autorange=False):
-
         Make a box and whisker plot for each column of ``x`` or each
         vector in sequence ``x``.  The box extends from the lower to
         upper quartile values of the data, with a line at the median.
@@ -3344,15 +3277,6 @@ class Axes(_AxesBase):
             meanline=False, manage_xticks=True):
         """
         Drawing function for box and whisker plots.
-
-        Call signature::
-
-          bxp(self, bxpstats, positions=None, widths=None, vert=True,
-              patch_artist=False, shownotches=False, showmeans=False,
-              showcaps=True, showbox=True, showfliers=True,
-              boxprops=None, whiskerprops=None, flierprops=None,
-              medianprops=None, capprops=None, meanprops=None,
-              meanline=False, manage_xticks=True):
 
         Make a box and whisker plot for each column of *x* or each
         vector in sequence *x*.  The box extends from the lower to
@@ -3963,15 +3887,6 @@ class Axes(_AxesBase):
         """
         Make a hexagonal binning plot.
 
-        Call signature::
-
-           hexbin(x, y, C = None, gridsize = 100, bins = None,
-                  xscale = 'linear', yscale = 'linear',
-                  cmap=None, norm=None, vmin=None, vmax=None,
-                  alpha=None, linewidths=None, edgecolors='none'
-                  reduce_C_function = np.mean, mincnt=None, marginals=True
-                  **kwargs)
-
         Make a hexagonal binning plot of *x* versus *y*, where *x*,
         *y* are 1-D sequences of the same length, *N*. If *C* is *None*
         (the default), this is a histogram of the number of occurences
@@ -4415,10 +4330,6 @@ class Axes(_AxesBase):
         """
         Add an arrow to the axes.
 
-        Call signature::
-
-           arrow(x, y, dx, dy, **kwargs)
-
         Draws arrow on specified axis from (*x*, *y*) to (*x* + *dx*,
         *y* + *dy*). Uses FancyArrow patch to construct the arrow.
 
@@ -4519,10 +4430,6 @@ class Axes(_AxesBase):
     def fill(self, *args, **kwargs):
         """
         Plot filled polygons.
-
-        Call signature::
-
-          fill(*args, **kwargs)
 
         *args* is a variable length argument, allowing for multiple
         *x*, *y* pairs with an optional color format string; see
@@ -4728,10 +4635,6 @@ class Axes(_AxesBase):
                       step=None, **kwargs):
         """
         Make filled polygons between two horizontal curves.
-
-        Call signature::
-
-          fill_betweenx(y, x1, x2=0, where=None, **kwargs)
 
         Create a :class:`~matplotlib.collections.PolyCollection`
         filling the regions between *x1* and *x2* where
@@ -7271,12 +7174,6 @@ class Axes(_AxesBase):
         """
         Make a violin plot.
 
-        Call signature::
-
-          violinplot(dataset, positions=None, vert=True, widths=0.5,
-                     showmeans=False, showextrema=True, showmedians=False,
-                     points=100, bw_method=None):
-
         Make a violin plot for each column of *dataset* or each vector in
         sequence *dataset*.  Each filled area extends to represent the
         entire data range, with optional lines at the mean, the median,
@@ -7373,11 +7270,6 @@ class Axes(_AxesBase):
     def violin(self, vpstats, positions=None, vert=True, widths=0.5,
                showmeans=False, showextrema=True, showmedians=False):
         """Drawing function for violin plots.
-
-        Call signature::
-
-          violin(vpstats, positions=None, vert=True, widths=0.5,
-                 showmeans=False, showextrema=True, showmedians=False):
 
         Draw a violin plot for each column of `vpstats`. Each filled area
         extends to represent the entire data range, with optional lines at the
