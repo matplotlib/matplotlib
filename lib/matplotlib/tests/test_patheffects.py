@@ -85,7 +85,7 @@ def test_patheffect3():
 
 
 @cleanup
-@pytest.mark.xfail(True)
+@pytest.mark.xfail(True, reason='Set to True for unknown reasons')
 def test_PathEffect_points_to_pixels():
     fig = plt.figure(dpi=150)
     p1, = plt.plot(range(10))
