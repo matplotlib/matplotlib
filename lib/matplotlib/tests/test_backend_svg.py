@@ -15,7 +15,7 @@ import pytest
 
 needs_tex = pytest.mark.xfail(
     not matplotlib.checkdep_tex(),
-    "This test needs a TeX installation")
+    reason="This test needs a TeX installation")
 
 
 @cleanup
