@@ -308,10 +308,6 @@ class HostAxesBase(object):
 
     def twinx(self, axes_class=None):
         """
-        call signature::
-
-          ax2 = ax.twinx()
-
         create a twin of Axes for generating a plot with a sharex
         x-axis but independent y axis.  The y-axis of self will have
         ticks on left and the returned axes will have ticks on the
@@ -342,10 +338,6 @@ class HostAxesBase(object):
 
     def twiny(self, axes_class=None):
         """
-        call signature::
-
-          ax2 = ax.twiny()
-
         create a twin of Axes for generating a plot with a shared
         y-axis but independent x axis.  The x-axis of self will have
         ticks on bottom and the returned axes will have ticks on the
@@ -375,10 +367,6 @@ class HostAxesBase(object):
 
     def twin(self, aux_trans=None, axes_class=None):
         """
-        call signature::
-
-          ax2 = ax.twin()
-
         create a twin of Axes for generating a plot with a sharex
         x-axis but independent y axis.  The y-axis of self will have
         ticks on left and the returned axes will have ticks on the
