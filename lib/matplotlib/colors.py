@@ -115,7 +115,7 @@ class ColorConverter(object):
         'w': '#ffffff'}
 
     cache = {}
-    CN_LOOKUPS = [colors, ] + [COLOR_NAMES[k] for k in ['xkcd', 'css4']]
+    CN_LOOKUPS = [colors, ] + [COLOR_NAMES[k] for k in ['css4', 'xkcd']]
 
     def to_rgb(self, arg):
         """
