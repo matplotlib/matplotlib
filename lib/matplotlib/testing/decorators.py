@@ -220,7 +220,7 @@ class ImageComparisonTest(CleanupTest):
                     will_fail = True
                     fail_msg = 'Do not have baseline image %s' % expected_fname
 
-                @knownfailureif(
+                @pytest.mark.xfail(
                     will_fail, fail_msg,
                     known_exception_class=ImageComparisonFailure)
                 def do_test():
