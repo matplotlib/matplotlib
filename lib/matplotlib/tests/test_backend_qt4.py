@@ -7,7 +7,7 @@ from matplotlib import pyplot as plt
 from matplotlib.testing.decorators import cleanup, switch_backend
 from matplotlib.testing.decorators import knownfailureif
 from matplotlib._pylab_helpers import Gcf
-import matplotlib.style as mstyle
+import matplotlib
 import copy
 
 try:
@@ -17,7 +17,7 @@ except ImportError:
     import mock
 
 try:
-    with mstyle.context({'backend': 'Qt4Agg'}):
+    with matplotlib.rc_context(rc={'backend': 'Qt4Agg'}):
         from matplotlib.backends.qt_compat import QtCore
 
     from matplotlib.backends.backend_qt4 import (MODIFIER_KEYS,
