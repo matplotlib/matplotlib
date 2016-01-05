@@ -273,7 +273,9 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
         # to round up the output width to the next integer.  This also
         # means scaling the transform just slightly to account for the
         # extra subpixel.
-        if t.is_affine and round_to_pixel_border:
+        if (t.is_affine and round_to_pixel_border and
+            (out_width_base % 1.0 != 0.0 or
+             out_height_base % 1.0 != 0.0)):
             out_width = int(ceil(out_width_base) + 1)
             out_height = int(ceil(out_height_base) + 1)
             extra_width = (out_width - out_width_base) / out_width_base
