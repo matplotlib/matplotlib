@@ -37,7 +37,7 @@ axes_grid1
 ==========
 
 
-The :ref:`mpl_toolkits.axisgrid1 <toolkit_axesgrid1-index>` toolkit is a
+The :ref:`mpl_toolkits.axes_grid1 <toolkit_axesgrid1-index>` toolkit is a
 collection of helper classes to ease displaying multiple axes in matplotlib.
 
 

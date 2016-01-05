@@ -90,7 +90,7 @@ iTerm2 terminal backend
 =======================
 
 `matplotlib_iterm2 <https://github.com/oselivanov/matplotlib_iterm2>`_ is an
-external matplotlib backend uses iTerm2 nightly build inline image display
+external matplotlib backend using iTerm2 nightly build inline image display
 feature.
 
 .. image:: /_static/matplotlib_iterm2_demo.png
