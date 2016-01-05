@@ -587,6 +587,19 @@ def test_rotate_image():
 
 
 @cleanup
+def test_image_preserve_size():
+    buff = io.BytesIO()
+
+    im = np.zeros((481, 321))
+    plt.imsave(buff, im)
+
+    buff.seek(0)
+    img = plt.imread(buff)
+
+    assert img.shape[:2] == im.shape
+
+
+@cleanup
 def test_image_preserve_size2():
     n = 7
     data = np.identity(n, float)
