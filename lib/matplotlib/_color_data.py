@@ -961,11 +961,14 @@ XKCD_COLORS = {
     'green': '#15b01a',
     'purple': '#7e1e9c'}
 
-# normalize to names with no spaces
+# normalize to names with no spaces and provide versions with XKCD
+# prefix.
 for k in list(XKCD_COLORS):
+    XKCD_COLORS['XKCD'+k] = XKCD_COLORS[k]
     _k = k.replace(' ', '')
     if _k != k:
         XKCD_COLORS[_k] = XKCD_COLORS[k]
+        XKCD_COLORS['XKCD'+_k] = XKCD_COLORS[k]
 
 
 # https://drafts.csswg.org/css-color-4/#named-colors
