@@ -1690,7 +1690,7 @@ def unpack_labeled_data(replace_names=None, replace_all_args=False,
                 arg_names = []
             elif len(_arg_names) > 1 and (positional_parameter_names is None):
                 # we got no manual parameter names but more than an 'ax' ...
-                if len(set(replace_names) - set(_arg_names[1:])) == 0:
+                if len(replace_names - set(_arg_names[1:])) == 0:
                     # all to be replaced arguments are in the list
                     arg_names = _arg_names[1:]
                 else:
@@ -1838,7 +1838,7 @@ def unpack_labeled_data(replace_names=None, replace_all_args=False,
                 _repl = "* All arguments with the following names: '{names}'."
             if replace_all_args:
                 _repl += "\n* All positional arguments."
-            _repl = _repl.format(names="', '".join(replace_names))
+            _repl = _repl.format(names="', '".join(sorted(replace_names)))
         inner.__doc__ = (pre_doc +
                          _DATA_DOC_APPENDIX.format(replaced=_repl))
         if not python_has_wrapped:

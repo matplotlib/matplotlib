@@ -1267,8 +1267,7 @@ class ArtistInspector(object):
 
         if s in self.aliasd:
             return s + ''.join([' or %s' % x
-                                for x
-                                in six.iterkeys(self.aliasd[s])])
+                                for x in sorted(self.aliasd[s])])
         else:
             return s
 
@@ -1284,8 +1283,7 @@ class ArtistInspector(object):
 
         if s in self.aliasd:
             aliases = ''.join([' or %s' % x
-                               for x
-                               in six.iterkeys(self.aliasd[s])])
+                               for x in sorted(self.aliasd[s])])
         else:
             aliases = ''
         return ':meth:`%s <%s>`%s' % (s, target, aliases)
