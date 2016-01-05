@@ -491,6 +491,12 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
         self._interpolation = s
         self.stale = True
 
+    def can_composite(self):
+        """
+        Returns `True` if the image can be composited with its neighbors.
+        """
+        return self._interpolation != 'none'
+
     def set_resample(self, v):
         """
         Set whether or not image resampling is used
