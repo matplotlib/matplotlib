@@ -879,8 +879,8 @@ void resample(
 
     if (params.interpolation != NEAREST &&
         params.is_affine &&
-        params.affine.sx == 1.0 &&
-        params.affine.sy == 1.0 &&
+        abs(params.affine.sx) == 1.0 &&
+        abs(params.affine.sy) == 1.0 &&
         params.affine.shx == 0.0 &&
         params.affine.shy == 0.0) {
         params.interpolation = NEAREST;
