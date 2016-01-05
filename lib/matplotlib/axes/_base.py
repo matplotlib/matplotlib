@@ -2373,7 +2373,7 @@ class _AxesBase(martist.Artist):
                         self.patch.get_transform()))
                     renderer.draw_image(gc, round(l), round(b), data)
                     gc.restore()
-                image_group.clear()
+                del image_group[:]
 
             for zorder, a in dsu:
                 if isinstance(a, mimage._ImageBase) and a.can_composite():

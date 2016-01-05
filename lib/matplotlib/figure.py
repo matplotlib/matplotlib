@@ -1283,7 +1283,7 @@ class Figure(Artist):
                     gc.set_clip_path(self.get_clip_path())
                     renderer.draw_image(gc, l, b, data)
                     gc.restore()
-                image_group.clear()
+                del image_group[:]
 
             for zorder, a, func, args in dsu:
                 if isinstance(a, mimage._ImageBase) and a.can_composite():
