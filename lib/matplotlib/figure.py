@@ -1247,25 +1247,8 @@ class Figure(Artist):
         if self.suppressComposite is not None:
             not_composite = self.suppressComposite
 
-        if (len(self.images) <= 1 or not_composite or
-                any(im.get_interpolation() == 'none' for im in self.images)):
-            for a in self.images:
-                dsu.append((a.get_zorder(), a, a.draw, [renderer]))
-        else:
-            # make a composite image blending alpha
-            # list of (_image.Image, ox, oy)
-            mag = renderer.get_image_magnification()
-            data, l, b = mimage.composite_images(self.images, renderer, mag)
-
-            def draw_composite():
-                gc = renderer.new_gc()
-                gc.set_clip_rectangle(self.bbox)
-                gc.set_clip_path(self.get_clip_path())
-                renderer.draw_image(gc, l, b, data)
-                gc.restore()
-
-            dsu.append((self.images[0].get_zorder(), self.images[0],
-                        draw_composite, []))
+        for a in self.images:
+            dsu.append((a.get_zorder(), a, a.draw, [renderer]))
 
         # render the axes
         for a in self.axes:
@@ -1280,8 +1263,35 @@ class Figure(Artist):
 
         dsu = [row for row in dsu if not row[1].get_animated()]
         dsu.sort(key=itemgetter(0))
-        for zorder, a, func, args in dsu:
-            func(*args)
+
+        if not_composite or len(self.images) == 0:
+            for zorder, a, func, args in dsu:
+                func(*args)
+        else:
+            # Composite any adjacent images together
+            image_group = []
+            mag = renderer.get_image_magnification()
+
+            def flush_images():
+                if len(image_group) == 1:
+                    image_group[0].draw(renderer)
+                elif len(image_group) > 1:
+                    data, l, b = mimage.composite_images(
+                        image_group, renderer, mag)
+                    gc = renderer.new_gc()
+                    gc.set_clip_rectangle(self.bbox)
+                    gc.set_clip_path(self.get_clip_path())
+                    renderer.draw_image(gc, l, b, data)
+                    gc.restore()
+                image_group.clear()
+
+            for zorder, a, func, args in dsu:
+                if isinstance(a, mimage._ImageBase) and a.can_composite():
+                    image_group.append(a)
+                else:
+                    flush_images()
+                    func(*args)
+            flush_images()
 
         renderer.close_group('figure')
         self.stale = False
