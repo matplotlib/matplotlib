@@ -127,7 +127,6 @@ class StrConverter( units.ConversionInterface ):
       axis.set_ticklabels( labels )
       # we have to do the following lines to make ax.autoscale_view work
       loc = axis.get_major_locator()
-      loc.set_bounds( ticks[0], ticks[-1] )
 
       if ( isXAxis ):
          ax.set_xlim( ticks[0], ticks[-1] )

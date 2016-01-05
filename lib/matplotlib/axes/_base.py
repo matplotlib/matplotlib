@@ -523,9 +523,6 @@ class _AxesBase(martist.Artist):
         self._hold = rcParams['axes.hold']
         self._connected = {}  # a dict from events to (id, func)
         self.cla()
-        # funcs used to format x and y - fall back on major formatters
-        self.fmt_xdata = None
-        self.fmt_ydata = None
 
         self.set_cursor_props((1, 'k'))  # set the cursor properties for axes
 
@@ -2566,19 +2563,19 @@ class _AxesBase(martist.Artist):
                     self.yaxis.major.formatter.set_scientific(sb)
             if scilimits is not None:
                 if axis == 'both' or axis == 'x':
-                    self.xaxis.major.formatter.set_powerlimits(scilimits)
+                    self.xaxis.major.formatter.powerlimits = scilimits
                 if axis == 'both' or axis == 'y':
-                    self.yaxis.major.formatter.set_powerlimits(scilimits)
+                    self.yaxis.major.formatter.powerlimits = scilimits
             if useOffset is not None:
                 if axis == 'both' or axis == 'x':
-                    self.xaxis.major.formatter.set_useOffset(useOffset)
+                    self.xaxis.major.formatter.use_offset = useOffset
                 if axis == 'both' or axis == 'y':
-                    self.yaxis.major.formatter.set_useOffset(useOffset)
+                    self.yaxis.major.formatter.use_offset = useOffset
             if useLocale is not None:
                 if axis == 'both' or axis == 'x':
-                    self.xaxis.major.formatter.set_useLocale(useLocale)
+                    self.xaxis.major.formatter.use_locale = useLocale
                 if axis == 'both' or axis == 'y':
-                    self.yaxis.major.formatter.set_useLocale(useLocale)
+                    self.yaxis.major.formatter.use_locale = useLocale
         except AttributeError:
             raise AttributeError(
                 "This method only works with the ScalarFormatter.")
@@ -3268,30 +3265,10 @@ class _AxesBase(martist.Artist):
         self.yaxis.axis_date(tz)
 
     def format_xdata(self, x):
-        """
-        Return *x* string formatted.  This function will use the attribute
-        self.fmt_xdata if it is callable, else will fall back on the xaxis
-        major formatter
-        """
-        try:
-            return self.fmt_xdata(x)
-        except TypeError:
-            func = self.xaxis.get_major_formatter().format_data_short
-            val = func(x)
-            return val
+        return self.xaxis.get_major_formatter().format_for_cursor(x)
 
     def format_ydata(self, y):
-        """
-        Return y string formatted.  This function will use the
-        :attr:`fmt_ydata` attribute if it is callable, else will fall
-        back on the yaxis major formatter
-        """
-        try:
-            return self.fmt_ydata(y)
-        except TypeError:
-            func = self.yaxis.get_major_formatter().format_data_short
-            val = func(y)
-            return val
+        return self.yaxis.get_major_formatter().format_for_cursor(y)
 
     def format_coord(self, x, y):
         """Return a format string formatting the *x*, *y* coord"""

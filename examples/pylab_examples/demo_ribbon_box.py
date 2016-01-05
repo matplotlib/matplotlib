@@ -104,7 +104,7 @@ if 1:
                   ]
     heights = np.random.random(years.shape) * 7000 + 3000
 
-    fmt = ScalarFormatter(useOffset=False)
+    fmt = ScalarFormatter(use_offset=False)
     ax.xaxis.set_major_formatter(fmt)
 
     for year, h, bc in zip(years, heights, box_colors):

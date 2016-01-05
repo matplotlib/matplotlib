@@ -291,12 +291,12 @@ class HammerAxes(Axes):
         """
 
         def __init__(self, round_to=1.0):
+            super(HammerAxes.DegreeFormatter, self).__init__()
             self._round_to = round_to
 
-        def __call__(self, x, pos=None):
+        def format_for_tick(self, x, pos=None):
             degrees = np.round(np.degrees(x) / self._round_to) * self._round_to
-            # \u00b0 : degree symbol
-            return "%d\u00b0" % degrees
+            return "%d\N{DEGREE SIGN}" % degrees
 
     def set_longitude_grid(self, degrees):
         """

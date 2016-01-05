@@ -123,8 +123,8 @@ class Axis(maxis.XAxis):
 
     def get_tick_positions(self):
         majorLocs = self.major.locator()
-        self.major.formatter.set_locs(majorLocs)
-        majorLabels = [self.major.formatter(val, i) for i, val in enumerate(majorLocs)]
+        self.major.formatter.locs = majorLocs
+        majorLabels = [self.major.formatter.format_for_tick(val, i) for i, val in enumerate(majorLocs)]
         return majorLabels, majorLocs
 
     def get_major_ticks(self, numticks=None):
@@ -224,8 +224,8 @@ class Axis(maxis.XAxis):
         # Rudimentary clipping
         majorLocs = [loc for loc in majorLocs if
                      locmin <= loc <= locmax]
-        self.major.formatter.set_locs(majorLocs)
-        majorLabels = [self.major.formatter(val, i)
+        self.major.formatter.locs = majorLocs
+        majorLabels = [self.major.formatter.format_for_tick(val, i)
                        for i, val in enumerate(majorLocs)]
 
         mins, maxs, centers, deltas, tc, highs = self._get_coord_info(renderer)
@@ -302,7 +302,7 @@ class Axis(maxis.XAxis):
         pos = copy.copy(outeredgep)
         pos = move_from_center(pos, centers, labeldeltas, axmask)
         olx, oly, olz = proj3d.proj_transform(pos[0], pos[1], pos[2], renderer.M)
-        self.offsetText.set_text( self.major.formatter.get_offset() )
+        self.offsetText.set_text(self.major.formatter.offset_text)
         self.offsetText.set_position( (olx, oly) )
         angle = art3d.norm_text_angle(math.degrees(math.atan2(dy, dx)))
         self.offsetText.set_rotation(angle)

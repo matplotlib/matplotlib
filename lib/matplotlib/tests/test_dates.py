@@ -216,7 +216,7 @@ def test_date_formatter_callable():
 
     formatter = mdates.AutoDateFormatter(locator)
     formatter.scaled[-10] = callable_formatting_function
-    assert_equal(formatter([datetime.datetime(2014, 12, 25)]),
+    assert_equal(formatter.format_for_tick([datetime.datetime(2014, 12, 25)]),
                  ['25-12//2014'])
 
 
@@ -271,9 +271,9 @@ def test_empty_date_with_year_formatter():
 def test_auto_date_locator():
     def _create_auto_date_locator(date1, date2):
         locator = mdates.AutoDateLocator()
-        locator.create_dummy_axis()
-        locator.set_view_interval(mdates.date2num(date1),
-                                  mdates.date2num(date2))
+        locator.set_axis({})
+        locator.axis.set_view_interval(mdates.date2num(date1),
+                                       mdates.date2num(date2))
         return locator
 
     d1 = datetime.datetime(1990, 1, 1)

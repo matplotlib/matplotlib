@@ -89,7 +89,7 @@ class UnitDblConverter( units.ConversionInterface ):
          # If we want degrees for a polar plot, use the PolarPlotFormatter
          majfmt = polar.PolarAxes.ThetaFormatter()
       else:
-         majfmt = U.UnitDblFormatter( useOffset = False )
+         majfmt = U.UnitDblFormatter()
 
       return units.AxisInfo( majfmt = majfmt, label = label )
 

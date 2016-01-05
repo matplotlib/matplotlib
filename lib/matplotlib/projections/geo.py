@@ -30,9 +30,10 @@ class GeoAxes(Axes):
         unit of radians into degrees and adds a degree symbol.
         """
         def __init__(self, round_to=1.0):
+            super(GeoAxes.ThetaFormatter, self).__init__()
             self._round_to = round_to
 
-        def __call__(self, x, pos=None):
+        def format_for_tick(self, x, pos=None):
             degrees = (x / np.pi) * 180.0
             degrees = np.round(degrees / self._round_to) * self._round_to
             if rcParams['text.usetex'] and not rcParams['text.latex.unicode']:

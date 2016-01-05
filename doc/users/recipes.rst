@@ -139,7 +139,7 @@ the x locations are formatted the same way the tick labels are, e.g.,
 a higher degree of precision, e.g., giving us the exact date out mouse is
 hovering over.  To fix the first problem, we can use
 :func:`matplotlib.figure.Figure.autofmt_xdate` and to fix the second
-problem we can use the ``ax.fmt_xdata`` attribute which can be set to
+problem we can use the ``ax.format_xdata`` attribute which can be set to
 any function that takes a scalar and returns a string.  matplotlib has
 a number of date formatters built in, so we'll use one of those.
 
@@ -157,7 +157,7 @@ a number of date formatters built in, so we'll use one of those.
    # use a more precise date string for the x axis locations in the
    # toolbar
    import matplotlib.dates as mdates
-   ax.fmt_xdata = mdates.DateFormatter('%Y-%m-%d')
+   ax.format_xdata = mdates.DateFormatter('%Y-%m-%d').format_for_cursor
    plt.title('fig.autofmt_xdate fixes the labels')
 
 Now when you hover your mouse over the plotted data, you'll see date

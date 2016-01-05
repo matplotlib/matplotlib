@@ -161,7 +161,8 @@ def test_SymmetricalLogLocator_set_params():
 
 def _logfe_helper(formatter, base, locs, i, expected_result):
     vals = base**locs
-    labels = [formatter(x, pos) for (x, pos) in zip(vals, i)]
+    labels = [formatter.format_for_tick(x, pos).replace("\N{MINUS SIGN}", "-")
+              for (x, pos) in zip(vals, i)]
     nose.tools.assert_equal(labels, expected_result)
 
 
@@ -182,31 +183,31 @@ def test_LogFormatterExponent():
         formatter.axis = FakeAxis(1, base**4)
         yield _logfe_helper, formatter, base, i, i, expected_result
 
-    # Should be a blank string for non-integer powers if labelOnlyBase=True
-    formatter = mticker.LogFormatterExponent(base=10, labelOnlyBase=True)
+    # Should be a blank string for non-integer powers if label_minor is False.
+    formatter = mticker.LogFormatterExponent(base=10, label_minor=False)
     formatter.axis = FakeAxis()
-    nose.tools.assert_equal(formatter(10**0.1), '')
+    nose.tools.assert_equal(formatter.format_for_tick(10**0.1), '')
 
     # Otherwise, non-integer powers should be nicely formatted
     locs = np.array([0.1, 0.00001, np.pi, 0.2, -0.2, -0.00001])
     i = range(len(locs))
     expected_result = ['0.1', '1e-05', '3.14', '0.2', '-0.2', '-1e-05']
     for base in [2, 5, 10, np.pi, np.e]:
-        formatter = mticker.LogFormatterExponent(base, labelOnlyBase=False)
+        formatter = mticker.LogFormatterExponent(base, label_minor=True)
         formatter.axis = FakeAxis(1, base**10)
         yield _logfe_helper, formatter, base, locs, i, expected_result
 
     expected_result = ['3', '5', '12', '42']
     locs = np.array([3, 5, 12, 42], dtype='float')
     for base in [2, 5.0, 10.0, np.pi, np.e]:
-        formatter = mticker.LogFormatterExponent(base, labelOnlyBase=False)
+        formatter = mticker.LogFormatterExponent(base, label_minor=True)
         formatter.axis = FakeAxis(1, base**50)
         yield _logfe_helper, formatter, base, locs, i, expected_result
 
 
 def _pprint_helper(value, domain, expected):
     fmt = mticker.LogFormatter()
-    label = fmt.pprint_val(value, domain)
+    label = fmt._pprint_val(value, domain)
     nose.tools.assert_equal(label, expected)
 
 
@@ -354,17 +355,17 @@ def test_use_offset():
     for use_offset in [True, False]:
         with matplotlib.rc_context({'axes.formatter.useoffset': use_offset}):
             tmp_form = mticker.ScalarFormatter()
-            nose.tools.assert_equal(use_offset, tmp_form.get_useOffset())
+            nose.tools.assert_equal(use_offset, tmp_form._use_offset)
 
 
 def test_formatstrformatter():
     # test % style formatter
     tmp_form = mticker.FormatStrFormatter('%05d')
-    nose.tools.assert_equal('00002', tmp_form(2))
+    nose.tools.assert_equal('00002', tmp_form.format_for_tick(2))
 
     # test str.format() style formatter
     tmp_form = mticker.StrMethodFormatter('{x:05d}')
-    nose.tools.assert_equal('00002', tmp_form(2))
+    nose.tools.assert_equal('00002', tmp_form.format_for_tick(2))
 
 if __name__ == '__main__':
     import nose

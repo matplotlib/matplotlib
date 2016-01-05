@@ -52,7 +52,7 @@ ax.set_xlim(datemin, datemax)
 # format the coords message box
 def price(x):
     return '$%1.2f' % x
-ax.format_xdata = mdates.DateFormatter('%Y-%m-%d')
+ax.format_xdata = mdates.DateFormatter('%Y-%m-%d').format_for_cursor
 ax.format_ydata = price
 ax.grid(True)
 

@@ -470,12 +470,13 @@ class DateFormatter(ticker.Formatter):
         *fmt* is a :func:`strftime` format string; *tz* is the
          :class:`tzinfo` instance.
         """
+        super(DateFormatter, self).__init__()
         if tz is None:
             tz = _get_rc_timezone()
         self.fmt = fmt
         self.tz = tz
 
-    def __call__(self, x, pos=0):
+    def format_for_tick(self, x, pos=0):
         if x == 0:
             raise ValueError('DateFormatter found a value of x=0, which is '
                              'an illegal date.  This usually occurs because '
@@ -601,13 +602,14 @@ class IndexDateFormatter(ticker.Formatter):
         *t* is a sequence of dates (floating point days).  *fmt* is a
         :func:`strftime` format string.
         """
+        super(IndexDateFormatter, self).__init__()
         if tz is None:
             tz = _get_rc_timezone()
         self.t = t
         self.fmt = fmt
         self.tz = tz
 
-    def __call__(self, x, pos=0):
+    def format_for_tick(self, x, pos=0):
         'Return the label for time *x* at position *pos*'
         ind = int(np.round(x))
         if ind >= len(self.t) or ind <= 0:
@@ -681,6 +683,7 @@ class AutoDateFormatter(ticker.Formatter):
         if none of the values in ``self.scaled`` are greater than the unit
         returned by ``locator._get_unit()``.
         """
+        super(AutoDateFormatter, self).__init__()
         self._locator = locator
         self._tz = tz
         self.defaultfmt = defaultfmt
@@ -694,7 +697,7 @@ class AutoDateFormatter(ticker.Formatter):
                        1. / (SEC_PER_DAY):
                            rcParams['date.autoformatter.second']}
 
-    def __call__(self, x, pos=None):
+    def format_for_tick(self, x, pos=None):
         locator_unit_scale = float(self._locator._get_unit())
         fmt = self.defaultfmt
 
@@ -706,7 +709,7 @@ class AutoDateFormatter(ticker.Formatter):
 
         if isinstance(fmt, six.string_types):
             self._formatter = DateFormatter(fmt, self._tz)
-            result = self._formatter(x, pos)
+            result = self._formatter.format_for_tick(x, pos)
         elif six.callable(fmt):
             result = fmt(x, pos)
         else:
@@ -1130,9 +1133,6 @@ class AutoDateLocator(DateLocator):
             locator = MicrosecondLocator(interval, tz=self.tz)
 
         locator.set_axis(self.axis)
-
-        locator.set_view_interval(*self.axis.get_view_interval())
-        locator.set_data_interval(*self.axis.get_data_interval())
         return locator
 
 
@@ -1356,14 +1356,6 @@ class MicrosecondLocator(DateLocator):
     def set_axis(self, axis):
         self._wrapped_locator.set_axis(axis)
         return DateLocator.set_axis(self, axis)
-
-    def set_view_interval(self, vmin, vmax):
-        self._wrapped_locator.set_view_interval(vmin, vmax)
-        return DateLocator.set_view_interval(self, vmin, vmax)
-
-    def set_data_interval(self, vmin, vmax):
-        self._wrapped_locator.set_data_interval(vmin, vmax)
-        return DateLocator.set_data_interval(self, vmin, vmax)
 
     def __call__(self):
         # if no data have been set, this will tank with a ValueError

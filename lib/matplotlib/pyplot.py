@@ -59,7 +59,7 @@ from matplotlib.text import Text, Annotation
 from matplotlib.patches import Polygon, Rectangle, Circle, Arrow
 from matplotlib.widgets import SubplotTool, Button, Slider, Widget
 
-from .ticker import TickHelper, Formatter, FixedFormatter, NullFormatter,\
+from .ticker import Formatter, FixedFormatter, NullFormatter,\
            FuncFormatter, FormatStrFormatter, ScalarFormatter,\
            LogFormatter, LogFormatterExponent, LogFormatterMathtext,\
            Locator, IndexLocator, FixedLocator, NullLocator,\

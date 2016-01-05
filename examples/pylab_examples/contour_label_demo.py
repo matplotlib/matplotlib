@@ -80,8 +80,7 @@ plt.figure()
 
 CS = plt.contour(X, Y, 100**Z, locator=plt.LogLocator())
 fmt = ticker.LogFormatterMathtext()
-fmt.create_dummy_axis()
-plt.clabel(CS, CS.levels, fmt=fmt)
+plt.clabel(CS, CS.levels, fmt=fmt.format_for_tick)
 plt.title("$100^Z$")
 
 plt.show()

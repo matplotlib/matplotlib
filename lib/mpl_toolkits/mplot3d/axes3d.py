@@ -1323,25 +1323,25 @@ class Axes3D(Axes):
         try:
             if sb is not None:
                 if axis in ['both', 'z']:
-                    self.xaxis.major.formatter.set_scientific(sb)
+                    self.xaxis.major.formatter.scientific = sb
                 if axis in ['both', 'y']:
-                    self.yaxis.major.formatter.set_scientific(sb)
+                    self.yaxis.major.formatter.scientific = sb
                 if axis in ['both', 'z'] :
-                    self.zaxis.major.formatter.set_scientific(sb)
+                    self.zaxis.major.formatter.scientific = sb
             if scilimits is not None:
                 if axis in ['both', 'x']:
-                    self.xaxis.major.formatter.set_powerlimits(scilimits)
+                    self.xaxis.major.formatter.powerlimits = scilimits
                 if axis in ['both', 'y']:
-                    self.yaxis.major.formatter.set_powerlimits(scilimits)
+                    self.yaxis.major.formatter.powerlimits = scilimits
                 if axis in ['both', 'z']:
-                    self.zaxis.major.formatter.set_powerlimits(scilimits)
+                    self.zaxis.major.formatter.powerlimits = scilimits
             if useOffset is not None:
                 if axis in ['both', 'x']:
-                    self.xaxis.major.formatter.set_useOffset(useOffset)
+                    self.xaxis.major.formatter.use_offset = useOffset
                 if axis in ['both', 'y']:
-                    self.yaxis.major.formatter.set_useOffset(useOffset)
+                    self.yaxis.major.formatter.use_offset = useOffset
                 if axis in ['both', 'z']:
-                    self.zaxis.major.formatter.set_useOffset(useOffset)
+                    self.zaxis.major.formatter.use_offset = useOffset
         except AttributeError:
             raise AttributeError(
                 "This method only works with the ScalarFormatter.")
