@@ -682,34 +682,38 @@ class ScalarFormatter(Formatter):
         lmin, lmax = locs.min(), locs.max()
         # min, max comparing absolute values (we want division to round towards
         # zero so we work on absolute values).
-        abs_min, abs_max = sorted(map(abs, [lmin, lmax]))
-        # Only use offset if there are at least two ticks, every tick has the
-        # same sign, and if the span is small compared to the absolute values.
-        if (lmin == lmax or lmin <= 0 <= lmax or
-                (abs_max - abs_min) / abs_max >= 1e-2):
+        abs_min, abs_max = sorted([abs(float(lmin)), abs(float(lmax))])
+        # Only use offset if there are at least two ticks and every tick has
+        # the same sign.
+        if lmin == lmax or lmin <= 0 <= lmax:
             self.offset = 0
             return
         sign = math.copysign(1, lmin)
         # What is the smallest power of ten such that abs_min and abs_max are
         # equal up to that precision?
-        oom = 10 ** int(math.log10(abs_max) + 1)
+        # Note: Internally using oom instead of 10 ** oom avoids some numerical
+        # accuracy issues.
+        oom = math.ceil(math.log10(abs_max))
         while True:
-            if abs_min // oom != abs_max // oom:
-                oom *= 10
+            if abs_min // 10 ** oom != abs_max // 10 ** oom:
+                oom += 1
                 break
-            oom /= 10
-        if (abs_max - abs_min) / oom <= 1e-2:
+            oom -= 1
+        if (abs_max - abs_min) / 10 ** oom <= 1e-2:
             # Handle the case of straddling a multiple of a large power of ten
             # (relative to the span).
             # What is the smallest power of ten such that abs_min and abs_max
             # at most 1 apart?
-            oom = 10 ** int(math.log10(abs_max) + 1)
+            oom = math.ceil(math.log10(abs_max))
             while True:
-                if abs_max // oom - abs_min // oom > 1:
-                    oom *= 10
+                if abs_max // 10 ** oom - abs_min // 10 ** oom > 1:
+                    oom += 1
                     break
-                oom /= 10
-        self.offset = sign * (abs_max // oom) * oom
+                oom -= 1
+        # Only use offset if it saves at least two significant digits.
+        self.offset = (sign * (abs_max // 10 ** oom) * 10 ** oom
+                       if abs_max // 10 ** oom >= 10
+                       else 0)
 
     def _set_orderOfMagnitude(self, range):
         # if scientific notation is to be used, find the appropriate exponent
