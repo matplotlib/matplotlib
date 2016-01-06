@@ -47,8 +47,8 @@ matrix:
       env: PANDAS=pandas NOSE_ARGS=--with-coverage
     - python: 3.5
       env: TEST_ARGS=--pep8
-    - python: 2.7
-      env: BUILD_DOCS=true MOCK=mock
+    - python: 3.5
+      env: BUILD_DOCS=true
     - python: "nightly"
       env: PRE=--pre
   allow_failures:
@@ -86,8 +86,7 @@ install:
 
   - |
     if [[ $BUILD_DOCS == true ]]; then
-      pip install $PRE numpydoc ipython jsonschema mistune colorspacious
-      pip install -q $PRE linkchecker
+      pip install $PRE numpydoc ipython colorspacious
       wget https://github.com/google/fonts/blob/master/ofl/felipa/Felipa-Regular.ttf?raw=true -O Felipa-Regular.ttf
       wget http://mirrors.kernel.org/ubuntu/pool/universe/f/fonts-humor-sans/fonts-humor-sans_1.0-1_all.deb
       mkdir -p tmp
@@ -118,6 +117,9 @@ script:
       python make.py html --small --warningsaserrors
       # We don't build the LaTeX docs here, so linkchecker will complain
       touch build/html/Matplotlib.pdf
+      deactivate
+      source ~/virtualenv/python2.7/bin/activate
+      pip install linkchecker
       linkchecker build/html/index.html
     fi
 
