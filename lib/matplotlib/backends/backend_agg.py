@@ -437,9 +437,11 @@ class FigureCanvasAgg(FigureCanvasBase):
     The canvas the figure renders into.  Calls the draw and print fig
     methods, creates the renderers, etc...
 
-    Public attribute
+    Attributes
+    ----------
+    figure
+        A Figure instance
 
-      figure - A Figure instance
     """
 
     def copy_from_bbox(self, bbox):
@@ -575,19 +577,22 @@ class FigureCanvasAgg(FigureCanvasBase):
         # add JPEG support
         def print_jpg(self, filename_or_obj, *args, **kwargs):
             """
-            Supported kwargs:
-
-            *quality*: The image quality, on a scale from 1 (worst) to
+            Keyword Args
+            ------------
+            quality: int
+                The image quality, on a scale from 1 (worst) to
                 95 (best). The default is 95, if not given in the
                 matplotlibrc file in the savefig.jpeg_quality parameter.
                 Values above 95 should be avoided; 100 completely
                 disables the JPEG quantization stage.
 
-            *optimize*: If present, indicates that the encoder should
+            optimize: bool
+                If present, indicates that the encoder should
                 make an extra pass over the image in order to select
                 optimal encoder settings.
 
-            *progressive*: If present, indicates that this image
+            progressive: bool
+                If present, indicates that this image
                 should be stored as a progressive JPEG file.
             """
             buf, size = self.print_to_buffer()

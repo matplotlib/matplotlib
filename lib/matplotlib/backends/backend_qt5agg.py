@@ -57,9 +57,11 @@ class FigureCanvasQTAggBase(object):
     The canvas the figure renders into.  Calls the draw and print fig
     methods, creates the renderers, etc...
 
-    Public attribute
+    Attributes
+    ----------
+    figure
+        A Figure instance
 
-        figure - A Figure instance
     """
 
     def __init__(self, figure):
@@ -215,9 +217,11 @@ class FigureCanvasQTAgg(FigureCanvasQTAggBase,
 
     Modified to import from Qt5 backend for new-style mouse events.
 
-    Public attribute
+    Attributes
+    ----------
+    figure
+        A Figure instance
 
-      figure - A Figure instance
     """
 
     def __init__(self, figure):

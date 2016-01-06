@@ -219,9 +219,11 @@ class FigureCanvasTemplate(FigureCanvasBase):
     The canvas the figure renders into.  Calls the draw and print fig
     methods, creates the renderers, etc...
 
-    Public attribute
+    Attributes
+    ----------
+    figure
+        A Figure instance
 
-      figure - A Figure instance
 
     Note GUI templates will want to connect events for button presses,
     mouse movements and key presses to functions that call the base
