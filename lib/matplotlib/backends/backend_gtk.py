@@ -104,16 +104,20 @@ def new_figure_manager_given_figure(num, figure):
 
 class TimerGTK(TimerBase):
     '''
-    Subclass of :class:`backend_bases.TimerBase` that uses GTK for timer events.
+    Subclass of :class:`backend_bases.TimerBase` using GTK for timer events.
 
-    Attributes:
-    * interval: The time between timer events in milliseconds. Default
-        is 1000 ms.
-    * single_shot: Boolean flag indicating whether this timer should
-        operate as single shot (run once and then stop). Defaults to False.
-    * callbacks: Stores list of (func, args) tuples that will be called
-        upon timer events. This list can be manipulated directly, or the
-        functions add_callback and remove_callback can be used.
+    Attributes
+    ----------
+    interval: int
+        The time between timer events in milliseconds. Default is 1000 ms.
+    single_shot: bool
+        Boolean flag indicating whether this timer should operate as single
+        shot (run once and then stop). Defaults to False.
+    callbacks: list
+        Stores list of (func, args) tuples that will be called upon timer
+        events. This list can be manipulated directly, or the functions
+        `add_callback` and `remove_callback` can be used.
+
     '''
     def _timer_start(self):
         # Need to stop it, otherwise we potentially leak a timer id that will
@@ -510,12 +514,12 @@ class FigureCanvasGTK (gtk.DrawingArea, FigureCanvasBase):
         This is useful for getting periodic events through the backend's native
         event loop. Implemented only for backends with GUIs.
 
-        optional arguments:
-
-        *interval*
+        Keyword Arguments
+        -----------------
+        interval
           Timer interval in milliseconds
-        *callbacks*
-          Sequence of (func, args, kwargs) where func(*args, **kwargs) will
+        callbacks
+          Sequence of (func, args, kwargs) where func(\*args, \*\*kwargs) will
           be executed by the timer every *interval*.
         """
         return TimerGTK(*args, **kwargs)
@@ -537,13 +541,19 @@ class FigureCanvasGTK (gtk.DrawingArea, FigureCanvasBase):
 
 class FigureManagerGTK(FigureManagerBase):
     """
-    Public attributes
+    Attributes
+    ----------
+    canvas
+        The FigureCanvas instance
+    num
+        The Figure number
+    toolbar
+        The gtk.Toolbar  (gtk only)
+    vbox
+        The gtk.VBox containing the canvas and toolbar (gtk only)
+    window
+        The gtk.Window   (gtk only)
 
-    canvas      : The FigureCanvas instance
-    num         : The Figure number
-    toolbar     : The gtk.Toolbar  (gtk only)
-    vbox        : The gtk.VBox containing the canvas and toolbar (gtk only)
-    window      : The gtk.Window   (gtk only)
     """
     def __init__(self, canvas, num):
         if _debug: print('FigureManagerGTK.%s' % fn_name())

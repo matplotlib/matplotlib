@@ -2502,9 +2502,11 @@ class FigureCanvasPdf(FigureCanvasBase):
     The canvas the figure renders into.  Calls the draw and print fig
     methods, creates the renderers, etc...
 
-    Public attribute
+    Attributes
+    ----------
+    figure
+        A Figure instance
 
-      figure - A Figure instance
     """
 
     fixed_dpi = 72

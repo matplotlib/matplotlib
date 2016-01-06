@@ -21,20 +21,29 @@ class MixedModeRenderer(object):
                  raster_renderer_class=None,
                  bbox_inches_restore=None):
         """
-        figure: The figure instance.
+        Parameters
+        ----------
+        figure
+            The figure instance.
 
-        width: The width of the canvas in logical units
+        width
+            The width of the canvas in logical units
 
-        height: The height of the canvas in logical units
+        height
+            The height of the canvas in logical units
 
-        dpi: The dpi of the canvas
+        dpi
+            The dpi of the canvas
 
-        vector_renderer: An instance of a subclass of RendererBase
-        that will be used for the vector drawing.
+        vector_renderer
+            An instance of a subclass of RendererBase that will be used for the
+            vector drawing.
 
-        raster_renderer_class: The renderer class to use for the
-        raster drawing.  If not provided, this will use the Agg
-        backend (which is currently the only viable option anyway.)
+        raster_renderer_class
+            The renderer class to use for the raster drawing.  If not provided,
+            this will use the Agg backend (which is currently the only viable
+            option anyway.)
+
         """
         if raster_renderer_class is None:
             raster_renderer_class = RendererAgg

@@ -404,9 +404,13 @@ class RendererPgf(RendererBase):
         Creates a new PGF renderer that translates any drawing instruction
         into text commands to be interpreted in a latex pgfpicture environment.
 
-        Attributes:
-        * figure: Matplotlib figure to initialize height, width and dpi from.
-        * fh: File handle for the output of the drawing commands.
+        Attributes
+        ----------
+        figure
+            Matplotlib figure to initialize height, width and dpi from.
+        fh
+            File handle for the output of the drawing commands.
+
         """
         RendererBase.__init__(self)
         self.dpi = figure.dpi
