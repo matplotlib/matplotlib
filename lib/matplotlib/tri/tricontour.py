@@ -11,16 +11,20 @@ class TriContourSet(ContourSet):
 
     User-callable method: clabel
 
-    Useful attributes:
-      ax:
-        the axes object in which the contours are drawn
-      collections:
-        a silent_list of LineCollections or PolyCollections
-      levels:
-        contour levels
-      layers:
-        same as levels for line contours; half-way between
-        levels for filled contours.  See _process_colors method.
+    Attributes
+    ----------
+    ax
+        The axes object in which the contours are drawn.
+
+    collections
+        A silent_list of LineCollections or PolyCollections.
+
+    levels
+        Contour levels.
+
+    layers
+        Same as levels for line contours; half-way between
+        levels for filled contours.  See :meth:`_process_colors`.
     """
     def __init__(self, ax, *args, **kwargs):
         """
