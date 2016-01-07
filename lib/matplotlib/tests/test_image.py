@@ -160,10 +160,13 @@ def test_imsave_color_alpha():
     buff.seek(0)
     arr_buf = plt.imread(buff)
 
-    # Recreate the float -> uint8 -> float32 conversion of the data
-    data = (255*data).astype('uint8').astype('float')/255
+    # Recreate the float -> uint8 conversion of the data
+    # We can only expect to be the same with 8 bits of precision,
+    # since that's what the PNG file used.
+    data = (255*data).astype('uint8')
+    arr_buf = (255*arr_buf).astype('uint8')
 
-    assert_allclose(data, arr_buf)
+    assert_array_equal(data, arr_buf)
 
 @image_comparison(baseline_images=['image_alpha'], remove_text=True)
 def test_image_alpha():
