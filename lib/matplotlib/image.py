@@ -369,7 +369,7 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
 
         return output, clipped_bbox.x0, clipped_bbox.y0, t
 
-    def make_image(self, renderer, magnification=1.0):
+    def make_image(self, renderer, magnification=1.0, unsampled=False):
         raise RuntimeError('The make_image method must be overridden.')
 
     def _draw_unsampled_image(self, renderer, gc):
@@ -715,9 +715,12 @@ class NonUniformImage(AxesImage):
         """
         return False
 
-    def make_image(self, renderer, magnification=1.0):
+    def make_image(self, renderer, magnification=1.0, unsampled=False):
         if self._A is None:
             raise RuntimeError('You must first set the image array')
+
+        if unsampled:
+            raise ValueError('unsampled not supported on NonUniformImage')
 
         A = self._A
         if A.ndim == 2:
@@ -847,9 +850,11 @@ class PcolorImage(AxesImage):
         self.update(kwargs)
         self.set_data(x, y, A)
 
-    def make_image(self, renderer, magnification=1.0):
+    def make_image(self, renderer, magnification=1.0, unsampled=False):
         if self._A is None:
             raise RuntimeError('You must first set the image array')
+        if unsampled:
+            raise ValueError('unsampled not supported on PColorImage')
         fc = self.axes.patch.get_facecolor()
         bg = mcolors.colorConverter.to_rgba(fc, 0)
         bg = (np.array(bg)*255).astype(np.uint8)
