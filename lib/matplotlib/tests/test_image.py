@@ -12,7 +12,7 @@ import numpy as np
 from matplotlib.testing.decorators import (image_comparison,
                                            knownfailureif, cleanup)
 from matplotlib.image import BboxImage, imread, NonUniformImage
-from matplotlib.transforms import Bbox, Affine2D
+from matplotlib.transforms import Bbox, Affine2D, TransformedBbox
 from matplotlib import rcParams, rc_context
 from matplotlib import patches
 import matplotlib.pyplot as plt
@@ -405,22 +405,27 @@ def test_rasterize_dpi():
     rcParams['savefig.dpi'] = 10
 
 
-@cleanup
+@image_comparison(baseline_images=['bbox_image_inverted'], remove_text=True)
 def test_bbox_image_inverted():
     # This is just used to produce an image to feed to BboxImage
-    fig = plt.figure()
-    axes = fig.add_subplot(111)
-    axes.plot([1, 2, 3])
+    image = np.arange(100).reshape((10, 10))
 
-    im_buffer = io.BytesIO()
-    fig.savefig(im_buffer)
-    im_buffer.seek(0)
-    image = imread(im_buffer)
-
-    bbox_im = BboxImage(Bbox([[100, 100], [0, 0]]))
+    ax = plt.subplot(111)
+    bbox_im = BboxImage(
+        TransformedBbox(Bbox([[100, 100], [0, 0]]), ax.transData))
     bbox_im.set_data(image)
     bbox_im.set_clip_on(False)
-    axes.add_artist(bbox_im)
+    ax.set_xlim(0, 100)
+    ax.set_ylim(0, 100)
+    ax.add_artist(bbox_im)
+
+    image = np.identity(10)
+
+    bbox_im = BboxImage(
+        TransformedBbox(Bbox([[0.1, 0.2], [0.3, 0.25]]), ax.figure.transFigure))
+    bbox_im.set_data(image)
+    bbox_im.set_clip_on(False)
+    ax.add_artist(bbox_im)
 
 
 @cleanup
