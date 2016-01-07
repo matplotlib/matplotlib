@@ -251,7 +251,7 @@ def test_agg_filter():
             t2 = self.offset_filter.process_image(t1, dpi)
             return t2
 
-    if V(np.__version__) <= V('1.7.0'):
+    if V(np.__version__) < V('1.7.0'):
         return
 
     fig = plt.figure()
