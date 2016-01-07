@@ -510,7 +510,11 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
         """
         Returns `True` if the image can be composited with its neighbors.
         """
-        return self._interpolation != 'none'
+        trans = self.get_transform()
+        return (
+            self._interpolation != 'none' and
+            trans.is_affine and
+            trans.is_separable)
 
     def set_resample(self, v):
         """
