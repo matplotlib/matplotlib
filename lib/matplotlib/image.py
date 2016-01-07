@@ -1033,11 +1033,12 @@ class BboxImage(_ImageBase):
         return inside, {}
 
     def make_image(self, renderer, magnification=1.0, unsampled=False):
+        width, height = renderer.get_canvas_width_height()
+
         bbox_in = self.get_window_extent(renderer).frozen()
-        bbox_in._points /= [renderer.width,
-                            renderer.height]
+        bbox_in._points /= [width, height]
         bbox_out = self.get_window_extent(renderer)
-        clip = Bbox([[0, 0], [renderer.width, renderer.height]])
+        clip = Bbox([[0, 0], [width, height]])
         self._transform = BboxTransform(Bbox([[0, 0], [1, 1]]), clip)
 
         return self._make_image(

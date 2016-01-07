@@ -331,7 +331,7 @@ class RendererPS(RendererBase):
 
     def get_canvas_width_height(self):
         'return the canvas width and height in display coords'
-        return self.width, self.height
+        return self.width * 72.0, self.height * 72.0
 
     def get_text_width_height_descent(self, s, prop, ismath):
         """
