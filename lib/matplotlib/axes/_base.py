@@ -2352,38 +2352,7 @@ class _AxesBase(martist.Artist):
                 a.draw(renderer)
             renderer.stop_rasterizing()
 
-        has_images = np.any(isinstance(x[1], mimage._ImageBase) for x in dsu)
-
-        if renderer.option_image_nocomposite() or not has_images:
-            for zorder, a in dsu:
-                a.draw(renderer)
-        else:
-            # Composite any adjacent images together
-            image_group = []
-            mag = renderer.get_image_magnification()
-
-            def flush_images():
-                if len(image_group) == 1:
-                    image_group[0].draw(renderer)
-                elif len(image_group) > 1:
-                    data, l, b = mimage.composite_images(
-                        image_group, renderer, mag)
-                    gc = renderer.new_gc()
-                    gc.set_clip_rectangle(self.bbox)
-                    gc.set_clip_path(mtransforms.TransformedPath(
-                        self.patch.get_path(),
-                        self.patch.get_transform()))
-                    renderer.draw_image(gc, round(l), round(b), data)
-                    gc.restore()
-                del image_group[:]
-
-            for zorder, a in dsu:
-                if isinstance(a, mimage._ImageBase) and a.can_composite():
-                    image_group.append(a)
-                else:
-                    flush_images()
-                    a.draw(renderer)
-            flush_images()
+        mimage._draw_list_compositing_images(renderer, self, dsu)
 
         renderer.close_group('axes')
         self._cachedRenderer = renderer
