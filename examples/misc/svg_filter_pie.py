@@ -42,7 +42,7 @@ for w in pies[0]:
 
 
 # save
-from StringIO import StringIO
+from io import StringIO
 f = StringIO()
 plt.savefig(f, format="svg")
 

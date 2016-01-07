@@ -24,7 +24,7 @@ the appearance by the CSS.
 
 import matplotlib.pyplot as plt
 import xml.etree.ElementTree as ET
-from StringIO import StringIO
+from io import StringIO
 
 ET.register_namespace("", "http://www.w3.org/2000/svg")
 
