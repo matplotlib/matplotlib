@@ -117,6 +117,55 @@ def composite_images(images, renderer, magnification=1.0):
     return output, bbox.x0 / magnification, bbox.y0 / magnification
 
 
+def _draw_list_compositing_images(
+        renderer, parent, dsu, suppress_composite=None):
+    """
+    Draw a sorted list of artists, compositing images into a single
+    image where possible.
+
+    For internal matplotlib use only: It is here to reduce duplication
+    between `Figure.draw` and `Axes.draw`, but otherwise should not be
+    generally useful.
+    """
+    has_images = np.any(isinstance(x[1], _ImageBase) for x in dsu)
+
+    # override the renderer default if self.suppressComposite
+    # is not None
+    not_composite = renderer.option_image_nocomposite()
+    if suppress_composite is not None:
+        not_composite = suppress_composite
+
+    if not_composite or not has_images:
+        for zorder, a in dsu:
+            a.draw(renderer)
+    else:
+        # Composite any adjacent images together
+        image_group = []
+        mag = renderer.get_image_magnification()
+
+        def flush_images():
+            if len(image_group) == 1:
+                image_group[0].draw(renderer)
+            elif len(image_group) > 1:
+                data, l, b = composite_images(
+                    image_group, renderer, mag)
+                gc = renderer.new_gc()
+                gc.set_clip_rectangle(parent.bbox)
+                gc.set_clip_path(parent.get_clip_path())
+                renderer.draw_image(gc, round(l), round(b), data)
+                gc.restore()
+            del image_group[:]
+
+        for zorder, a in dsu:
+            if isinstance(a, _ImageBase) and a.can_composite():
+                image_group.append(a)
+            else:
+                flush_images()
+                a.draw(renderer)
+        flush_images()
+
+
+
 def _rgb_to_rgba(A):
     """
     Convert an RGB image to RGBA, as required by the image resample C++
