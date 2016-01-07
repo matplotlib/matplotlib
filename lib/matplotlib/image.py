@@ -228,24 +228,28 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
     def _make_image(self, A, in_bbox, out_bbox, clip_bbox, magnification=1.0,
                     unsampled=False, round_to_pixel_border=True):
         """
-        Normalize, rescale and color the image to the given in_bbox
-        (in data space), to the given out_bbox (in pixel space)
-        clipped to the given clip_bbox (also in pixel space), and
-        magnified by the magnification factor.
+        Normalize, rescale and color the image `A` to the given
+        in_bbox (in data space), to the given out_bbox (in pixel
+        space) clipped to the given clip_bbox (also in pixel space),
+        and magnified by the magnification factor.
+
+        `A` may be a greyscale image (MxN) with a dtype of `float32`,
+        `float64`, `uint16` or `uint8`, or an RGBA image (MxNx4) with
+        a dtype of `float32`, `float64`, or `uint8`.
 
         If `unsampled` is True, the image will not be scaled, but an
         appropriate affine transformation will be returned instead.
 
         If `round_to_pixel_border` is True, the output image size will
         be rounded to the nearest pixel boundary.  This makes the
-        images align correctly with the axes.  It should not be use in
-        cases where you want exact scaling, however, such as
+        images align correctly with the axes.  It should not be used
+        in cases where you want exact scaling, however, such as
         FigureImage.
 
         Returns the resulting (image, x, y, trans), where (x, y) is
         the upper left corner of the result in pixel space, and
         `trans` is the affine transformation from the image to pixel
-        space if the image data itself was not resampled.
+        space.
         """
         if A is None:
             raise RuntimeError('You must first set the image'
