@@ -888,7 +888,9 @@ class PcolorImage(AxesImage):
             y = np.asarray(y, np.float64).ravel()
 
         if A.shape[:2] != (y.size-1, x.size-1):
-            raise ValueError("Axes don't match array shape")
+            raise ValueError(
+                "Axes don't match array shape. Got %s, expected %s." %
+                (A.shape[:2], (y.size - 1, x.size - 1)))
         if A.ndim not in [2, 3]:
             raise ValueError("A must be 2D or 3D")
         if A.ndim == 3 and A.shape[2] == 1:
