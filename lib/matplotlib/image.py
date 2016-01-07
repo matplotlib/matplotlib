@@ -306,18 +306,21 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
             out_height = int(out_height_base)
 
         if not unsampled:
-            if len(A.shape) == 2:
+            if A.ndim == 2:
                 A = self.norm(A)
                 if A.dtype.kind == 'f':
                     # For floating-point greyscale images, we treat negative
                     # numbers as transparent.
+
+                    # TODO: Use np.full when we support Numpy 1.9 as a
+                    # minimum
                     output = np.empty((out_height, out_width), dtype=A.dtype)
                     output[...] = -100.0
                 else:
                     output = np.zeros((out_height, out_width), dtype=A.dtype)
 
                 alpha = 1.0
-            elif len(A.shape) == 3:
+            elif A.ndim == 3:
                 # Always convert to RGBA, even if only RGB input
                 if A.shape[2] == 3:
                     A = _rgb_to_rgba(A)
@@ -340,7 +343,7 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
             output = self.to_rgba(output, bytes=True, norm=False)
 
             # Apply alpha *after* if the input was greyscale
-            if len(A.shape) == 2:
+            if A.ndim == 2:
                 alpha = self.get_alpha()
                 if alpha is not None and alpha != 1.0:
                     alpha_channel = output[:, :, 3]
@@ -715,7 +718,7 @@ class NonUniformImage(AxesImage):
             raise RuntimeError('You must first set the image array')
 
         A = self._A
-        if len(A.shape) == 2:
+        if A.ndim == 2:
             if A.dtype != np.uint8:
                 A = self.to_rgba(A, bytes=True)
                 self.is_grayscale = self.cmap.is_gray()
@@ -763,12 +766,12 @@ class NonUniformImage(AxesImage):
         if len(x.shape) != 1 or len(y.shape) != 1\
            or A.shape[0:2] != (y.shape[0], x.shape[0]):
             raise TypeError("Axes don't match array shape")
-        if len(A.shape) not in [2, 3]:
+        if A.ndim not in [2, 3]:
             raise TypeError("Can only plot 2D or 3D data")
-        if len(A.shape) == 3 and A.shape[2] not in [1, 3, 4]:
+        if A.ndim == 3 and A.shape[2] not in [1, 3, 4]:
             raise TypeError("3D arrays must have three (RGB) "
                             "or four (RGBA) color components")
-        if len(A.shape) == 3 and A.shape[2] == 1:
+        if A.ndim == 3 and A.shape[2] == 1:
             A.shape = A.shape[0:2]
         self._A = A
         self._Ax = x
