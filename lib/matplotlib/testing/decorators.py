@@ -5,6 +5,7 @@ from matplotlib.externals import six
 
 import functools
 import gc
+import inspect
 import os
 import sys
 import shutil
@@ -135,7 +136,11 @@ def cleanup(style=None):
             original_settings = mpl.rcParams.copy()
             matplotlib.style.use(style)
             try:
-                func(*args, **kwargs)
+                if inspect.isgeneratorfunction(func):
+                    for yielded in func(*args, **kwargs):
+                        yield yielded
+                else:
+                    func(*args, **kwargs)
             finally:
                 _do_cleanup(original_units_registry,
                             original_settings)
