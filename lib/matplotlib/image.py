@@ -406,7 +406,7 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
         gc.set_gid(self.get_gid())
 
         if (self._check_unsampled_image(renderer) and
-            self.get_transform().is_affine):
+                self.get_transform().is_affine):
             self._draw_unsampled_image(renderer, gc)
         else:
             im, l, b, trans = self.make_image(
@@ -640,7 +640,7 @@ class AxesImage(_ImageBase):
         return True if the image is better to be drawn unsampled.
         """
         if (self.get_interpolation() == "none" and
-            renderer.option_scale_image()):
+                renderer.option_scale_image()):
             return True
 
         return False
@@ -687,7 +687,7 @@ class AxesImage(_ImageBase):
         data_extent = Bbox([[ymin, xmin], [ymax, xmax]])
         array_extent = Bbox([[0, 0], arr.shape[:2]])
         trans = BboxTransform(boxin=data_extent,
-                                          boxout=array_extent)
+                              boxout=array_extent)
         y, x = event.ydata, event.xdata
         i, j = trans.transform_point([y, x]).astype(int)
         # Clip the coordinates at array bounds
