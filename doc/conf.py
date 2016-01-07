@@ -185,9 +185,11 @@ html_index = 'index.html'
 #html_sidebars = {}
 
 # Custom sidebar templates, maps page names to templates.
-html_sidebars = {'index': 'indexsidebar.html',
-                 }
-
+html_sidebars = {
+    'index': ['badgesidebar.html', 'indexsidebar.html'],
+    '**': ['badgesidebar.html', 'localtoc.html',
+           'relations.html', 'sourcelink.html', 'searchbox.html']
+}
 
 # Additional templates that should be rendered to pages, maps page names to
 # template names.
