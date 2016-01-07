@@ -99,7 +99,6 @@ def test_image_python_io():
     plt.imread(buffer)
 
 
-@cleanup
 @knownfailureif(not HAS_PIL)
 def test_imread_pil_uint16():
     img = plt.imread(os.path.join(os.path.dirname(__file__),
