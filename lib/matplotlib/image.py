@@ -348,7 +348,7 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
                 if alpha is not None and alpha != 1.0:
                     alpha_channel = output[:, :, 3]
                     alpha_channel[:] = np.asarray(
-                        np.asarray(alpha_channel, np.float) * alpha, np.uint8)
+                        np.asarray(alpha_channel, np.float32) * alpha, np.uint8)
         else:
             if self._imcache is None:
                 self._imcache = self.to_rgba(A, bytes=True, norm=(A.ndim == 2))
