@@ -359,8 +359,10 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
             subset = TransformedBbox(
                 clip_bbox, t0.frozen().inverted()).frozen()
             output = output[
-                int(max(subset.ymin, 0)):int(min(subset.ymax + 1, A.shape[0])),
-                int(max(subset.xmin, 0)):int(min(subset.xmax + 1, A.shape[1]))]
+                int(max(subset.ymin, 0)):
+                int(min(subset.ymax + 1, output.shape[0])),
+                int(max(subset.xmin, 0)):
+                int(min(subset.xmax + 1, output.shape[1]))]
 
             t = Affine2D().translate(
                 int(max(subset.xmin, 0)), int(max(subset.ymin, 0))) + t
