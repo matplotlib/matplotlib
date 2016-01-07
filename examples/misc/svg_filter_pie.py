@@ -42,8 +42,8 @@ for w in pies[0]:
 
 
 # save
-from io import BytesIO
-f = BytesIO()
+from io import StringIO
+f = StringIO()
 plt.savefig(f, format="svg")
 
 import xml.etree.cElementTree as ET
