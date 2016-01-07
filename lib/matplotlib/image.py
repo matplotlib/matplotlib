@@ -608,15 +608,16 @@ class AxesImage(_ImageBase):
 
         self._extent = extent
 
-        _ImageBase.__init__(self, ax,
-                            cmap=cmap,
-                            norm=norm,
-                            interpolation=interpolation,
-                            origin=origin,
-                            filternorm=filternorm,
-                            filterrad=filterrad,
-                            resample=resample,
-                            **kwargs
+        super(AxesImage, self).__init__(
+            ax,
+            cmap=cmap,
+            norm=norm,
+            interpolation=interpolation,
+            origin=origin,
+            filternorm=filternorm,
+            filterrad=filterrad,
+            resample=resample,
+            **kwargs
         )
 
     def get_window_extent(self, renderer=None):
@@ -705,8 +706,7 @@ class NonUniformImage(AxesImage):
         options.
         """
         interp = kwargs.pop('interpolation', 'nearest')
-        AxesImage.__init__(self, ax,
-                           **kwargs)
+        super(NonUniformImage, self).__init__(ax, **kwargs)
         self.set_interpolation(interp)
 
     def _check_unsampled_image(self, renderer):
@@ -840,13 +840,7 @@ class PcolorImage(AxesImage):
         Additional kwargs are matplotlib.artist properties
 
         """
-        martist.Artist.__init__(self)
-        cm.ScalarMappable.__init__(self, norm, cmap)
-        self.axes = ax
-        self._rgbacache = None
-        # There is little point in caching the image itself because
-        # it needs to be remade if the bbox or viewlim change,
-        # so caching does help with zoom/pan/resize.
+        super(PcolorImage, self).__init__(ax, norm=norm, cmap=cmap)
         self.update(kwargs)
         self.set_data(x, y, A)
 
@@ -937,8 +931,12 @@ class FigureImage(_ImageBase):
 
         kwargs are an optional list of Artist keyword args
         """
-        _ImageBase.__init__(
-            self, None, norm=norm, cmap=cmap, origin=origin)
+        super(FigureImage, self).__init__(
+            None,
+            norm=norm,
+            cmap=cmap,
+            origin=origin
+        )
         self.figure = fig
         self.ox = offsetx
         self.oy = offsety
@@ -989,15 +987,17 @@ class BboxImage(_ImageBase):
         kwargs are an optional list of Artist keyword args
 
         """
-        _ImageBase.__init__(self, ax=None,
-                            cmap=cmap,
-                            norm=norm,
-                            interpolation=interpolation,
-                            origin=origin,
-                            filternorm=filternorm,
-                            filterrad=filterrad,
-                            resample=resample,
-                            **kwargs)
+        super(BboxImage, self).__init__(
+            None,
+            cmap=cmap,
+            norm=norm,
+            interpolation=interpolation,
+            origin=origin,
+            filternorm=filternorm,
+            filterrad=filterrad,
+            resample=resample,
+            **kwargs
+        )
 
         self.bbox = bbox
         self.interp_at_native = interp_at_native
