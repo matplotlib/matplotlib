@@ -61,16 +61,31 @@ interpolations_names = set(six.iterkeys(_interpd_))
 
 def composite_images(images, renderer, magnification=1.0):
     """
-    Composite a number of RGBA images into one.
+    Composite a number of RGBA images into one.  The images are
+    composited in the order in which they appear in the `images` list.
 
     Parameters
     ----------
-    images : list of objects with `make_image` method
+    images : list of Images
+        Each must have a `make_image` method.  For each image,
+        `can_composite` should return `True`, though this is not
+        enforced by this function.  Each image must have a purely
+        affine transformation with no shear.
 
     renderer : RendererBase instance
 
     magnification : float
         The additional magnification to apply for the renderer in use.
+
+    Returns
+    -------
+    tuple : image, offset_x, offset_y
+        Returns the tuple:
+
+        - image: A numpy array of the same type as the input images.
+
+        - offset_x, offset_y: The offset of the image (left, bottom)
+          in the output figure.
     """
     if len(images) == 0:
         return np.empty((0, 0, 4), dtype=np.uint8), 0, 0
