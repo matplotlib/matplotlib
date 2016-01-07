@@ -35,7 +35,7 @@ __author__="david.huard@gmail.com"
 import numpy as np
 import matplotlib.pyplot as plt
 import xml.etree.ElementTree as ET
-from io import BytesIO
+from io import StringIO
 import json
 
 plt.rcParams['svg.embed_char_paths'] = 'none'
@@ -76,7 +76,7 @@ for i, t in enumerate(leg.get_texts()):
     t.set_gid('leg_text_%d' % i)
 
 # Save SVG in a fake file object.
-f = BytesIO()
+f = StringIO()
 plt.savefig(f, format="svg")
 
 # Create XML tree from the SVG file.
