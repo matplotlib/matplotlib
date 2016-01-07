@@ -2352,7 +2352,9 @@ class _AxesBase(martist.Artist):
                 a.draw(renderer)
             renderer.stop_rasterizing()
 
-        if renderer.option_image_nocomposite() or len(self.images) == 0:
+        has_images = np.any(isinstance(x[1], mimage._ImageBase) for x in dsu)
+
+        if renderer.option_image_nocomposite() or not has_images:
             for zorder, a in dsu:
                 a.draw(renderer)
         else:
