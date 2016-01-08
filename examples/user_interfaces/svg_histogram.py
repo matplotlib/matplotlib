@@ -35,7 +35,7 @@ __author__="david.huard@gmail.com"
 import numpy as np
 import matplotlib.pyplot as plt
 import xml.etree.ElementTree as ET
-from StringIO import StringIO
+from io import StringIO
 import json
 
 plt.rcParams['svg.embed_char_paths'] = 'none'

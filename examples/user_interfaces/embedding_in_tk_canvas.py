@@ -3,7 +3,11 @@
 
 import matplotlib as mpl
 import numpy as np
-import Tkinter as tk
+import sys
+if sys.version_info[0] < 3:
+    import Tkinter as tk
+else:
+    import tkinter as tk
 import matplotlib.backends.tkagg as tkagg
 from matplotlib.backends.backend_agg import FigureCanvasAgg
 
