@@ -4,7 +4,7 @@ setup.cfg.template for more information.
 """
 
 from __future__ import print_function, absolute_import
-
+from string import Template
 # This needs to be the very first thing to use distribute
 from distribute_setup import use_setuptools
 use_setuptools()
@@ -244,8 +244,9 @@ if __name__ == '__main__':
         default_backend = setupext.options['backend']
     with open('matplotlibrc.template') as fd:
         template = fd.read()
+    template = Template(template)
     with open('lib/matplotlib/mpl-data/matplotlibrc', 'w') as fd:
-        fd.write(template % {'backend': default_backend})
+        fd.write(template.safe_substitute(TEMPLATE_BACKEND=default_backend))
 
     # Build in verbose mode if requested
     if setupext.options['verbose']:
