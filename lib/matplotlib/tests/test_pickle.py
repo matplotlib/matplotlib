@@ -10,8 +10,8 @@ from io import BytesIO
 from nose.tools import assert_equal, assert_not_equal
 import numpy as np
 
-from matplotlib.testing.decorators import cleanup, image_comparison,
-     image_comparison_2
+from matplotlib.testing.decorators import cleanup, image_comparison
+from matplotlib.testing.decorators import image_comparison_2
 import matplotlib.pyplot as plt
 import matplotlib.transforms as mtransforms
 
