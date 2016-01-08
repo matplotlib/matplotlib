@@ -10,7 +10,8 @@ from io import BytesIO
 from nose.tools import assert_equal, assert_not_equal
 import numpy as np
 
-from matplotlib.testing.decorators import cleanup, image_comparison
+from matplotlib.testing.decorators import cleanup, image_comparison,
+                                            image_comparison_2
 import matplotlib.pyplot as plt
 import matplotlib.transforms as mtransforms
 
@@ -128,7 +129,7 @@ def test_simple():
 
 
 @cleanup
-@image_comparison(baseline_images=['multi_pickle'],
+@image_comparison_2(baseline_images=['multi_pickle'],
                   extensions=['png'], remove_text=True)
 def test_complete():
     fig = plt.figure('Figure with a label?', figsize=(10, 6))
@@ -191,7 +192,9 @@ def test_complete():
     fig = pickle.load(result_fh)
 
     # make sure there is now a figure manager
-    assert not plt._pylab_helpers.Gcf.figs
+    # simply asserting 'not plt._pylab_helpers.Gcf.figs' resulted in
+    # a strange error
+    assert len(plt._pylab_helpers.Gcf.figs) > 0
 
     assert fig.get_label() == 'Figure with a label?'
 
