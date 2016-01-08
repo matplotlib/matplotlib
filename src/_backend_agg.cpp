@@ -210,8 +210,8 @@ agg::rect_i RendererAgg::get_content_extents()
         }
     }
 
-    r.x1 = std::max(0, r.x1 - 1);
-    r.y1 = std::max(0, r.y1 - 1);
+    r.x1 = std::max(0, r.x1);
+    r.y1 = std::max(0, r.y1);
     r.x2 = std::min(r.x2 + 1, (int)width);
     r.y2 = std::min(r.y2 + 1, (int)height);
 
