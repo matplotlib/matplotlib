@@ -19,7 +19,9 @@ directories found here:
 
   * api - working with the matplotlib API directory.
 
-  * axes_grid - Examples related to the AxesGrid toolkit
+  * axes_grid1 - Examples related to the axes_grid1 toolkit
+
+  * axisartist - Examples related to the axisartist toolkit
 
   * event_handling - how to interact with your figure, mouse presses,
     key presses, object picking, etc.
