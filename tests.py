@@ -67,5 +67,6 @@ if __name__ == '__main__':
         from matplotlib.testing import disable_internet
         disable_internet.turn_off_internet()
         extra_args.extend(['--eval-attr="not network"'])
+        sys.argv.remove('--no-network')
 
     run(extra_args)
