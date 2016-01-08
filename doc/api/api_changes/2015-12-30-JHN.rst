@@ -1,0 +1,7 @@
+`mpl_toolkits.axes_grid` has been deprecated
+````````````````````````````````````````````
+
+All functionallity from `mpl_toolkits.axes_grid` can be found in either 
+`mpl_toolkits.axes_grid1` or `mpl_toolkits.axisartist`. Axes classes from 
+`mpl_toolkits.axes_grid` based on `Axis` from `mpl_toolkits.axisartist` can be
+found in `mpl_toolkits.axisartist`

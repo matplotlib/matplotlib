@@ -1,5 +1,5 @@
 import matplotlib.pyplot as plt
-from mpl_toolkits.axes_grid.anchored_artists import AnchoredText
+from matplotlib.offsetbox import AnchoredText
 
 fig=plt.figure(1, figsize=(3,3))
 ax = plt.subplot(111)
