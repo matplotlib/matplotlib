@@ -1,4 +1,5 @@
 import itertools
+from collections import OrderedDict
 from functools import partial
 
 import numpy as np
@@ -174,9 +175,9 @@ label_cycle = cycler('label', ['set {n}'.format(n=n) for n in range(4)])
 hatch_cycle = cycler('hatch', ['/', '*', '+', '|'])
 
 # make some synthetic data
+np.random.seed(0)
 stack_data = np.random.randn(4, 12250)
-dict_data = {lab: d for lab, d in zip(list(c['label'] for c in label_cycle),
-                                      stack_data)}
+dict_data = OrderedDict(zip((c['label'] for c in label_cycle), stack_data))
 
 # work with plain arrays
 fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(9, 4.5), tight_layout=True)
