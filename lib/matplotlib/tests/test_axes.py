@@ -19,8 +19,7 @@ from cycler import cycler
 import warnings
 
 import matplotlib
-from matplotlib.testing.decorators import (
-    cleaup, image_comparison, knownfailureif)
+from matplotlib.testing.decorators import image_comparison, cleanup
 import matplotlib.pyplot as plt
 import matplotlib.markers as mmarkers
 from numpy.testing import assert_array_equal
@@ -4239,7 +4238,6 @@ def test_auto_numticks():
 
 
 @cleanup
-@knownfailureif(True)
 def test_remove_shared_axes():
     def _helper_x(ax):
         ax2 = ax.twinx()
@@ -4280,7 +4278,7 @@ def test_remove_shared_axes():
     orig_xlim = ax_lst[0][1].get_xlim()
     ax.remove()
     ax.set_xlim(0, 5)
-    assert assert_array_equal(ax_lst[0][1].get_xlim(), orig_xlim)
+    assert_array_equal(ax_lst[0][1].get_xlim(), orig_xlim)
 
 
 @cleanup
