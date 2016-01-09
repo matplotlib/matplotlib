@@ -48,7 +48,7 @@ docstring.interpd.update(BaseInteractiveTool="""\
     """)
 
 
-docstring.interpd.update(BaseInteractiveToolExtra="""\
+docstring.interpd.update(BasePolygonTool="""\
     interactive: boolean
         Whether to allow interaction with the shape using handles.
     allow_redraw: boolean
@@ -96,7 +96,7 @@ docstring.interpd.update(BaseInteractiveToolInit="""
     """)
 
 
-docstring.interpd.update(BaseInteractiveToolInitExtra="""
+docstring.interpd.update(BasePolygonToolInit="""
     interactive: boolean, optional
         Whether to allow interaction with the shape using handles.
     allow_redraw: boolean, optional
@@ -116,14 +116,13 @@ class BaseTool(object):
     :class:`~matplotlib.axes.Axes`.
 
     %(BaseInteractiveTool)s
-    %(BaseInteractiveToolExtra)s
     """
 
     def __init__(self, ax, on_select=None, on_motion=None, on_accept=None,
                  useblit=True, button=None, keys=None):
         """Initialize the tool.
         %(BaseInteractiveToolInit)s
-        %(BaseInteractiveToolInitExtra)s
+        %(BasePolygonToolInit)s
         """
         self.ax = ax
         self.canvas = ax.figure.canvas
@@ -343,7 +342,15 @@ for k in ('RectangleTool', 'EllipseTool', 'LineTool', 'BaseTool',
 docstring.dedent_interpd(BaseTool.__init__)
 
 
+@docstring.dedent_interpd
 class BasePolygonTool(BaseTool):
+
+    """Interactive polygon selection tool that is connected to a single
+    :class:`~matplotlib.axes.Axes`.
+
+    %(BaseInteractiveTool)s
+    %(BasePolygonTool)s
+    """
 
     def __init__(self, ax, on_select=None, on_motion=None, on_accept=None,
                  interactive=True, allow_redraw=True, shape_props=None,
@@ -574,7 +581,7 @@ class RectangleTool(BasePolygonTool):
     :class:`~matplotlib.axes.Axes`.
 
     %(BaseInteractiveTool)s
-    %(BaseInteractiveToolExtra)s
+    %(BasePolygonTool)s
     width: float
         The width of the rectangle in data units (read-only).
     height: float
@@ -684,7 +691,7 @@ class EllipseTool(RectangleTool):
     :class:`~matplotlib.axes.Axes`.
 
     %(BaseInteractiveTool)s
-    %(BaseInteractiveToolExtra)s
+    %(BasePolygonTool)s
     width: float
         The width of the ellipse in data units (read-only).
     height: float
@@ -718,7 +725,7 @@ class LineTool(BasePolygonTool):
     """Interactive line selection tool that is connected to a single
     :class:`~matplotlib.axes.Axes`.
     %(BaseInteractiveTool)s
-    %(BaseInteractiveToolExtra)s
+    %(BasePolygonTool)s
     width: float
         The width of the line in pixels.  This can be set directly.
     end_points: (2, 2) float
@@ -736,7 +743,7 @@ class LineTool(BasePolygonTool):
              useblit=True, button=None, keys=None):
         """Initialize the tool.
         %(BaseInteractiveToolInit)s
-        %(BaseInteractiveToolInitExtra)s
+        %(BasePolygonToolInit)s
         """
         props = dict(edgecolor='red', visible=False,
                      alpha=0.5, fill=True, picker=5, linewidth=1)
