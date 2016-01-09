@@ -354,7 +354,7 @@ class BasePolygonTool(BaseTool):
             keys=None)
         self.interactive = interactive
         self.allow_redraw = allow_redraw
-        self._focused = True
+        self.focused = True
 
         props = dict(facecolor='red', edgecolor='black', visible=False,
                      alpha=0.2, fill=True, picker=5, linewidth=2,
@@ -439,7 +439,7 @@ class BasePolygonTool(BaseTool):
                 artist.set_visible(False)
         self._modifiers = set()
         if selection:
-            self._prev_data = dict(verts=self.verts,
+            self._prev_data = dict(verts=self.patch.get_xy(),
                                    center=self.center,
                                    extents=self.extents)
             self.on_select(self)
@@ -449,7 +449,7 @@ class BasePolygonTool(BaseTool):
     def _handle_button_press(self, event):
         if (not self._drawing and not self.allow_redraw and
                 self._has_selected):
-            self._focused = self._patch.contains(event)[0]
+            self.focused = self._patch.contains(event)[0]
 
         if self.interactive and not self._drawing:
             self._dragging, idx = self._handles.contains(event)
@@ -470,7 +470,7 @@ class BasePolygonTool(BaseTool):
         if self._drawing:
             if self._moving:
                 center = self.center
-                verts = self.verts
+                verts = self.patch.get_xy()
                 verts[:, 0] += event.xdata - center[0]
                 verts[:, 1] += event.ydata - center[1]
                 self._set_verts(verts)
@@ -490,7 +490,7 @@ class BasePolygonTool(BaseTool):
     def _handle_key_press(self, event):
         """Handle key_press_event defaults and call to subclass handler"""
 
-        if not self._drawing and not self._focused:
+        if not self._drawing and not self.focused:
             return
 
         if event.key == self._keys['clear']:
@@ -521,14 +521,14 @@ class BasePolygonTool(BaseTool):
         self._on_key_press(event)
 
     def _handle_key_release(self, event):
-        if self._focused:
+        if self.focused:
             for (modifier, key) in self._keys.items():
                 if key in event.key:
                     self._modifiers.discard(modifier)
             self._on_key_release(event)
 
     def _handle_scroll(self, event):
-        if self._focused:
+        if self.focused:
             self._on_scroll(event)
 
     #############################################################
@@ -539,7 +539,7 @@ class BasePolygonTool(BaseTool):
 
         Return an (N, 2) array of vertices.
         """
-        return self.verts
+        return self.patch.get_xy()
 
     def _on_press(self, event):
         """Handle a button_press_event"""
@@ -548,6 +548,25 @@ class BasePolygonTool(BaseTool):
     def _on_release(self, event):
         """Handle a button_release_event"""
         self._finish_drawing(event, True)
+
+
+class PolygonTool(BasePolygonTool):
+
+    """An interactive which draws a polygon shape"""
+
+    @property
+    def center(self):
+        """Get the (x, y) center of the tool"""
+        verts = self.patch.get_xy()
+        return (verts.min(axis=0) + verts.max(axis=0)) / 2
+
+    @property
+    def extents(self):
+        """Get the (x0, y0, width, height) extents of the tool"""
+        verts = self.patch.get_xy()
+        x0, x1 = np.min(verts[:, 0]), np.max(verts[:, 0])
+        y0, y1 = np.min(verts[:, 1]), np.max(verts[:, 1])
+        return x0, y0, x1 - x0, y1 - y0
 
 
 HANDLE_ORDER = ['NW', 'NE', 'SE', 'SW', 'W', 'N', 'E', 'S']
@@ -570,12 +589,12 @@ class RectangleTool(PolygonTool):
     @property
     def width(self):
         """Get the width of the tool in data units"""
-        return np.ptp(self.verts[:, 0])
+        return np.ptp(self.patch.get_xy()[:, 0])
 
     @property
     def height(self):
         """Get the height of the tool in data units"""
-        return np.ptp(self.verts[:, 1])
+        return np.ptp(self.patch.get_xy()[:, 1])
 
     def set_geometry(self, x0, y0, width, height):
         """Set the geometry of the rectangle tool.
@@ -746,7 +765,7 @@ class LineTool(PolygonTool):
     @property
     def end_points(self):
         """Get the end points of the line in data units."""
-        verts = self.verts
+        verts = self.patch.get_xy()
         p0x = (verts[0, 0] + verts[1, 0]) / 2
         p0y = (verts[0, 1] + verts[1, 1]) / 2
         p1x = (verts[3, 0] + verts[2, 0]) / 2
