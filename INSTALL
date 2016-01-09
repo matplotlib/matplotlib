@@ -190,28 +190,31 @@ Required Dependencies
 :term:`numpy` |minimum_numpy_version| (or later)
     array support for python (`download numpy <http://numpy.org>`_)
 
+`setuptools <http://pythonhosted.org/setuptools/>`__
+    Setuptools provides extensions for python package installation.
+
 :term:`dateutil` 1.1 or later
     Provides extensions to python datetime handling.  If using pip,
     easy_install or installing from source, the installer will attempt
     to download and install `python_dateutil` from PyPI.
 
-`pyparsing`
+`pyparsing <https://pyparsing.wikispaces.com/>`__
     Required for matplotlib's mathtext math rendering support.  If
     using pip, easy_install or installing from source, the installer
     will attempt to download and install `pyparsing` from PyPI.
 
-libpng 1.2 (or later)
+`libpng 1.2 (or later) <http://www.libpng.org>`__
     library for loading and saving :term:`PNG` files (`download
     <http://www.libpng.org/pub/png/libpng.html>`__). libpng requires
     zlib.
 
-`pytz`
-    Used to manipulate time-zone aware datetimes.
+`pytz <http://pytz.sourceforge.net/>`__
+    Used to manipulate time-zone aware datetimes. http://pypi.python.org/pypi/pytz
 
 :term:`freetype` 2.3 or later
     library for reading true type font files.
 
-``cycler`` 0.9 or later
+`cycler <http://matplotlib.org/cycler/>`__ 0.9 or later
    Composable cycle class used for constructing style-cycles
 
 
@@ -239,11 +242,11 @@ backends and the capabilities they provide.
 
 Optional external programs
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
-ffmpeg/avconv or mencoder
+`ffmpeg <https://www.ffmpeg.org/>`__/`avconv <https://libav.org/avconv.html>`__ or `mencoder <http://www.mplayerhq.hu/design7/news.html>`__
     Required for the animation module to be save out put to movie
     formats.
 
-ImageMagick
+`ImageMagick <http://www.imagemagick.org/>`__
     Required for the animation module to be able to save to animated gif.
 
 Optional dependencies
@@ -253,7 +256,7 @@ Optional dependencies
     If Pillow is installed, matplotlib can read and write a larger
     selection of image file formats.
 
-pkg-config
+`pkg-config <http://www.freedesktop.org/wiki/Software/pkg-config/>`__
     A tool used to find required non-python libraries.  This is not strictly
     required, but can make installation go more smoothly if the libraries and
     headers are not in the expected locations.
