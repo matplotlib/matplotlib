@@ -56,8 +56,8 @@ docstring.interpd.update(BaseInteractiveToolExtra="""\
         drawn programmatically and then dragged.
     focused: boolean
         Whether the tool has focus for keyboard and scroll events.
-    verts: nd-array of floats (N, 2)
-        The vertices of the tool in data units (read-only).
+    polygon: `matplotlib.patches.Polygon`
+        The polygon patch.
     center: (x, y)
         The center coordinates of the tool in data units (read-only).
     extents: (x0, y0, width, height) float
@@ -120,8 +120,7 @@ class BaseTool(object):
     """
 
     def __init__(self, ax, on_select=None, on_motion=None, on_accept=None,
-                 interactive=True, allow_redraw=True, shape_props=None,
-                 handle_props=None, useblit=True, button=None, keys=None):
+                 useblit=True, button=None, keys=None):
         """Initialize the tool.
         %(BaseInteractiveToolInit)s
         %(BaseInteractiveToolInitExtra)s
@@ -129,9 +128,6 @@ class BaseTool(object):
         self.ax = ax
         self.canvas = ax.figure.canvas
         self._active = True
-        self.interactive = interactive
-        self.allow_redraw = allow_redraw
-        self.focused = True
 
         self.on_motion = _dummy if on_motion is None else on_motion
         self.on_accept = _dummy if on_accept is None else on_accept
@@ -149,32 +145,11 @@ class BaseTool(object):
             button = button or [1, 2, 3]
             self._buttons = button
 
-        props = dict(facecolor='red', edgecolor='black', visible=False,
-                     alpha=0.2, fill=True, picker=5, linewidth=2,
-                     zorder=1)
-        props.update(shape_props or {})
-        self._patch = Polygon([[0, 0], [1, 1]], True, **props)
-        self.ax.add_patch(self._patch)
-
-        props = dict(marker='o', markersize=7, mfc='w', ls='none',
-                     alpha=0.5, visible=False, label='_nolegend_',
-                     picker=10, zorder=2)
-        props.update(handle_props or {})
-        self._handles = Line2D([], [], **props)
-        self.ax.add_line(self._handles)
-
-        self._artists = [self._patch, self._handles]
-
+        self._artists = []
         self._modifiers = set()
         self._drawing = False
-        self._dragging = False
-        self._moving = False
-        self._drag_idx = None
-        self._has_selected = False
-        self._prev_data = None
         self._background = None
         self._prev_evt_xy = None
-        self._start_event = None
 
         # Connect the major canvas events to methods."""
         self._cids = []
@@ -182,7 +157,7 @@ class BaseTool(object):
         self._connect_event('button_press_event', self._handle_event)
         self._connect_event('button_release_event', self._handle_event)
         self._connect_event('draw_event', self._handle_draw)
-        self._connect_event('key_press_event', self._handle_key_press)
+        self._connect_event('key_press_event', self._handle_event)
         self._connect_event('key_release_event', self._handle_event)
         self._connect_event('scroll_event', self._handle_event)
 
@@ -218,92 +193,48 @@ class BaseTool(object):
         if self._ignore(event):
             return
         event = self._clean_event(event)
-        if event.xdata is None:
+        if event.xdata is None and 'key' not in event.name:
             return
 
         if event.name == 'button_press_event':
-
-            if (not self._drawing and not self.allow_redraw and
-                    self._has_selected):
-                self.focused = self._patch.contains(event)[0]
-
-            if self.interactive and not self._drawing:
-                self._dragging, idx = self._handles.contains(event)
-                if self._dragging:
-                    self._drag_idx = idx['ind'][0]
-                    # If the move handle was selected, enter move state.
-                    if self._drag_idx == self._handles.get_xdata().size - 1:
-                        self._moving = True
-
-            if (self._drawing or self._dragging or self.allow_redraw or
-                    not self._has_selected):
-                if self._moving:
-                    self._start_drawing(event)
-                else:
-                    self._on_press(event)
+            self._handle_button_press(event)
 
         elif event.name == 'motion_notify_event':
-            if self._drawing:
-                if self._moving:
-                    center = self.center
-                    verts = self.verts
-                    verts[:, 0] += event.xdata - center[0]
-                    verts[:, 1] += event.ydata - center[1]
-                    self._set_verts(verts)
-                else:
-                    self._on_motion(event)
-                self.on_motion(self)
+            self._handle_motion_notify(event)
 
         elif event.name == 'button_release_event':
-            if self._drawing:
-                if self._moving:
-                    self._finish_drawing(event)
-                    self._moving = False
-                else:
-                    self._on_release(event)
-            self._dragging = False
+            self._handle_button_release(event)
 
-        elif event.name == 'key_release_event' and self.focused:
-            for (modifier, key) in self._keys.items():
-                if key in event.key:
-                    self._modifiers.discard(modifier)
-            self._on_key_release(event)
+        elif event.name == 'key_press_event':
+            self._handle_key_press(event)
 
-        elif event.name == 'scroll_event' and self.focused:
-            self._on_scroll(event)
+        elif event.name == 'key_release_event':
+            self._handle_key_release(event)
+
+        elif event.name == 'scroll_event':
+            self._handle_scroll(event)
+
+    def _handle_motion_notify(self, event):
+        self._on_motion(event)
+        self.on_motion(self)
+
+    def _handle_button_release(self, event):
+        self._on_release(event)
+
+    def _handle_key_release(self, event):
+        self._on_key_release(event)
+
+    def _handle_scroll(self, event):
+        self._on_scroll(event)
+
+    def _handle_button_press(self, event):
+        self._on_press(event)
 
     def _handle_key_press(self, event):
         """Handle key_press_event defaults and call to subclass handler"""
-
-        if not self._drawing and not self.focused:
-            return
-
-        if event.key == self._keys['clear']:
-            if self._dragging:
-                self._set_verts(self._prev_data['verts'])
-                self._finish_drawing(event, False)
-            elif self._drawing:
-                for artist in self._artists:
-                    artist.set_visible(False)
-                self._finish_drawing(event, False)
-            return
-
-        elif event.key == self._keys['accept']:
-            if self._drawing:
-                self._finish_drawing(event)
-
-            self.on_accept(self)
-            if self.allow_redraw:
-                for artist in self._artists:
-                    artist.set_visible(False)
-                self.canvas.draw_idle()
-
-        for (modifer, key) in self._keys.items():
-            if modifer == 'move' and not self.interactive:
-                continue
-            if key in event.key:
-                self._modifiers.add(modifer)
         self._on_key_press(event)
+        if event.key == self._keys['accept']:
+            self.on_accept(self)
 
     def _clean_event(self, event):
         """Clean up an event.
@@ -356,6 +287,99 @@ class BaseTool(object):
 
         return False
 
+    def _update(self):
+        """Update the artists while drawing"""
+        if not self.ax.get_visible():
+            return
+
+        if self._useblit and self._drawing:
+            if self._background is not None:
+                self.canvas.restore_region(self._background)
+            for artist in self._artists:
+                self.ax.draw_artist(artist)
+
+            self.canvas.blit(self.ax.bbox)
+        else:
+            self.canvas.draw_idle()
+
+    #############################################################
+    # The following are meant to be subclassed as needed.
+    #############################################################
+    def _on_press(self, event):
+        """Handle a button_press_event"""
+        pass
+
+    def _on_motion(self, event):
+        """Handle a motion_notify_event"""
+        pass
+
+    def _on_release(self, event):
+        """Handle a button_release_event"""
+        pass
+
+    def _on_key_press(self, event):
+        """Handle a key_press_event"""
+        pass
+
+    def _on_key_release(self, event):
+        """Handle a key_release_event"""
+        pass
+
+    def _on_scroll(self, event):
+        """Handle a scroll_event"""
+        pass
+
+
+def _dummy(tool):
+    """A dummy callback for a tool."""
+    pass
+
+
+tooldoc = martist.kwdoc(BaseTool)
+for k in ('RectangleTool', 'EllipseTool', 'LineTool', 'BaseTool',
+          'PaintTool'):
+    docstring.interpd.update({k: tooldoc})
+
+# define BaseTool.__init__ docstring after the class has been added to interpd
+docstring.dedent_interpd(BaseTool.__init__)
+
+
+class BasePolygonTool(BaseTool):
+
+    def __init__(self, ax, on_select=None, on_motion=None, on_accept=None,
+                 interactive=True, allow_redraw=True, shape_props=None,
+                 handle_props=None, useblit=True, button=None, keys=None):
+        super(BasePolygonTool, self).__init__(ax, on_select=on_select,
+            on_accept=on_accept, on_motion=on_motion, useblit=True,
+            keys=None)
+        self.interactive = interactive
+        self.allow_redraw = allow_redraw
+        self._focused = True
+
+        props = dict(facecolor='red', edgecolor='black', visible=False,
+                     alpha=0.2, fill=True, picker=5, linewidth=2,
+                     zorder=1)
+        props.update(shape_props or {})
+        self.patch = Polygon([[0, 0], [1, 1]], True, **props)
+        self.ax.add_patch(self._patch)
+
+        props = dict(marker='o', markersize=7, mfc='w', ls='none',
+                     alpha=0.5, visible=False, label='_nolegend_',
+                     picker=10, zorder=2)
+        props.update(handle_props or {})
+        self._handles = Line2D([], [], **props)
+        self.ax.add_line(self._handles)
+
+        self._artists = [self._patch, self._handles]
+
+        self._drawing = False
+        self._dragging = False
+        self._moving = False
+        self._drag_idx = None
+        self._has_selected = False
+        self._prev_data = None
+        self._start_event = None
+
     def _set_verts(self, value):
         """Commit a change to the tool vertices."""
         value = np.asarray(value)
@@ -380,21 +404,6 @@ class BaseTool(object):
 
         if not self._drawing:
             self._has_selected = True
-
-    def _update(self):
-        """Update the artists while drawing"""
-        if not self.ax.get_visible():
-            return
-
-        if self._useblit and self._drawing:
-            if self._background is not None:
-                self.canvas.restore_region(self._background)
-            for artist in self._artists:
-                self.ax.draw_artist(artist)
-
-            self.canvas.blit(self.ax.bbox)
-        else:
-            self.canvas.draw_idle()
 
     def _start_drawing(self, event):
         """Start drawing or dragging the shape"""
@@ -437,6 +446,91 @@ class BaseTool(object):
             self._has_selected = True
         self.canvas.draw_idle()
 
+    def _handle_button_press(self, event):
+        if (not self._drawing and not self.allow_redraw and
+                self._has_selected):
+            self._focused = self._patch.contains(event)[0]
+
+        if self.interactive and not self._drawing:
+            self._dragging, idx = self._handles.contains(event)
+            if self._dragging:
+                self._drag_idx = idx['ind'][0]
+                # If the move handle was selected, enter move state.
+                if self._drag_idx == self._handles.get_xdata().size - 1:
+                    self._moving = True
+
+        if (self._drawing or self._dragging or self.allow_redraw or
+                not self._has_selected):
+            if self._moving:
+                self._start_drawing(event)
+            else:
+                self._on_press(event)
+
+    def _handle_motion_notify(self, event):
+        if self._drawing:
+            if self._moving:
+                center = self.center
+                verts = self.verts
+                verts[:, 0] += event.xdata - center[0]
+                verts[:, 1] += event.ydata - center[1]
+                self._set_verts(verts)
+            else:
+                self._on_motion(event)
+            self.on_motion(self)
+
+    def _handle_button_release(self, event):
+        if self._drawing:
+            if self._moving:
+                self._finish_drawing(event)
+                self._moving = False
+            else:
+                self._on_release(event)
+        self._dragging = False
+
+    def _handle_key_press(self, event):
+        """Handle key_press_event defaults and call to subclass handler"""
+
+        if not self._drawing and not self._focused:
+            return
+
+        if event.key == self._keys['clear']:
+            if self._dragging:
+                self._set_verts(self._prev_data['verts'])
+                self._finish_drawing(event, False)
+            elif self._drawing:
+                for artist in self._artists:
+                    artist.set_visible(False)
+                self._finish_drawing(event, False)
+            return
+
+        elif event.key == self._keys['accept']:
+            if self._drawing:
+                self._finish_drawing(event)
+
+            self.on_accept(self)
+            if self.allow_redraw:
+                for artist in self._artists:
+                    artist.set_visible(False)
+                self.canvas.draw_idle()
+
+        for (modifer, key) in self._keys.items():
+            if modifer == 'move' and not self.interactive:
+                continue
+            if key in event.key:
+                self._modifiers.add(modifer)
+        self._on_key_press(event)
+
+    def _handle_key_release(self, event):
+        if self._focused:
+            for (modifier, key) in self._keys.items():
+                if key in event.key:
+                    self._modifiers.discard(modifier)
+            self._on_key_release(event)
+
+    def _handle_scroll(self, event):
+        if self._focused:
+            self._on_scroll(event)
+
     #############################################################
     # The following are meant to be subclassed as needed.
     #############################################################
@@ -451,63 +545,9 @@ class BaseTool(object):
         """Handle a button_press_event"""
         self._start_drawing(event)
 
-    def _on_motion(self, event):
-        """Handle a motion_notify_event"""
-        pass
-
     def _on_release(self, event):
         """Handle a button_release_event"""
         self._finish_drawing(event, True)
-
-    def _on_key_press(self, event):
-        """Handle a key_press_event"""
-        pass
-
-    def _on_key_release(self, event):
-        """Handle a key_release_event"""
-        pass
-
-    def _on_scroll(self, event):
-        """Handle a scroll_event"""
-        pass
-
-
-class PolygonTool(BaseTool):
-
-    """An interactive which draws a polygon shape"""
-
-    @property
-    def verts(self):
-        """Get the (N, 2) vertices of the tool"""
-        return self._patch.get_xy()
-
-    @property
-    def center(self):
-        """Get the (x, y) center of the tool"""
-        verts = self.verts
-        return (verts.min(axis=0) + verts.max(axis=0)) / 2
-
-    @property
-    def extents(self):
-        """Get the (x0, y0, width, height) extents of the tool"""
-        verts = self.verts
-        x0, x1 = np.min(verts[:, 0]), np.max(verts[:, 0])
-        y0, y1 = np.min(verts[:, 1]), np.max(verts[:, 1])
-        return x0, y0, x1 - x0, y1 - y0
-
-
-def _dummy(tool):
-    """A dummy callback for a tool."""
-    pass
-
-
-tooldoc = martist.kwdoc(BaseTool)
-for k in ('RectangleTool', 'EllipseTool', 'LineTool', 'BaseTool',
-          'PaintTool'):
-    docstring.interpd.update({k: tooldoc})
-
-# define BaseTool.__init__ docstring after the class has been added to interpd
-docstring.dedent_interpd(BaseTool.__init__)
 
 
 HANDLE_ORDER = ['NW', 'NE', 'SE', 'SW', 'W', 'N', 'E', 'S']
