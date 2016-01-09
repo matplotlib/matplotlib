@@ -146,7 +146,6 @@ class BaseTool(object):
             self._buttons = button
 
         self._artists = []
-        self._modifiers = set()
         self._drawing = False
         self._background = None
         self._prev_evt_xy = None
@@ -372,6 +371,7 @@ class BasePolygonTool(BaseTool):
 
         self._artists = [self._patch, self._handles]
 
+        self._modifiers = set()
         self._drawing = False
         self._dragging = False
         self._moving = False
