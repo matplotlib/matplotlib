@@ -417,14 +417,16 @@ a file:
 ============   ================================================================
 Backend        Description
 ============   ================================================================
-GTKAgg         Agg rendering to a :term:`GTK` 2.x canvas (requires PyGTK_)
-GTK3Agg        Agg rendering to a :term:`GTK` 3.x canvas (requires PyGObject_)
+GTKAgg         Agg rendering to a :term:`GTK` 2.x canvas (requires PyGTK_ and
+               pycairo_ or cairocffi_; Python2 only)
+GTK3Agg        Agg rendering to a :term:`GTK` 3.x canvas (requires PyGObject_
+               and pycairo_ or cairocffi_)
 GTK            GDK rendering to a :term:`GTK` 2.x canvas (not recommended)
-               (requires PyGTK_)
+               (requires PyGTK_ and pycairo_ or cairocffi_; Python2 only)
 GTKCairo       Cairo rendering to a :term:`GTK` 2.x canvas (requires PyGTK_
-               and pycairo_)
+               and pycairo_ or cairocffi_; Python2 only)
 GTK3Cairo      Cairo rendering to a :term:`GTK` 3.x canvas (requires PyGObject_
-               and pycairo_)
+               and pycairo_ or cairocffi_)
 WXAgg          Agg rendering to to a :term:`wxWidgets` canvas
                (requires wxPython_)
 WX             Native :term:`wxWidgets` drawing to a :term:`wxWidgets` Canvas
@@ -446,10 +448,30 @@ macosx         Cocoa rendering in OSX windows
 .. _PyGTK: http://www.pygtk.org
 .. _PyGObject: https://live.gnome.org/PyGObject
 .. _pycairo: http://www.cairographics.org/pycairo/
+.. _cairocffi: https://pythonhosted.org/cairocffi/
 .. _wxPython: http://www.wxpython.org/
 .. _TkInter: http://wiki.python.org/moin/TkInter
 .. _PyQt4: http://www.riverbankcomputing.co.uk/software/pyqt/intro
 .. _PyQt5: http://www.riverbankcomputing.co.uk/software/pyqt/intro
+
+WX backends
+===========
+
+At present the release version of `wxPython` (also known as wxPython classic)
+does not support python3. A work in progress redesigned version known as
+wxPython-Phoenix_ does support python3.
+Matplotlib should work with both versions.
+
+.. _wxPython-Phoenix: http://wxpython.org/Phoenix/docs/html/main.html
+
+GTK and Cairo
+=============
+
+Both `GTK2` and `GTK3` have implicit dependencies on PyCairo regardless of the
+specific Matplotlib backend used. Unfortunatly the latest release of PyCairo
+for Python3 does not implement the Python wrappers needed for the `GTK3Agg`
+backend. `Cairocffi` can be used as a replacement which implements the correct
+wrapper.
 
 How do I select PyQt4 or PySide?
 ========================================
