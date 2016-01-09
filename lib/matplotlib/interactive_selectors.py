@@ -380,6 +380,20 @@ class BasePolygonTool(BaseTool):
         self._prev_data = None
         self._start_event = None
 
+    @property
+    def center(self):
+        """Get the (x, y) center of the tool"""
+        verts = self.patch.get_xy()
+        return (verts.min(axis=0) + verts.max(axis=0)) / 2
+
+    @property
+    def extents(self):
+        """Get the (x0, y0, width, height) extents of the tool"""
+        verts = self.patch.get_xy()
+        x0, x1 = np.min(verts[:, 0]), np.max(verts[:, 0])
+        y0, y1 = np.min(verts[:, 1]), np.max(verts[:, 1])
+        return x0, y0, x1 - x0, y1 - y0
+
     def _set_verts(self, value):
         """Commit a change to the tool vertices."""
         value = np.asarray(value)
@@ -550,30 +564,11 @@ class BasePolygonTool(BaseTool):
         self._finish_drawing(event, True)
 
 
-class PolygonTool(BasePolygonTool):
-
-    """An interactive which draws a polygon shape"""
-
-    @property
-    def center(self):
-        """Get the (x, y) center of the tool"""
-        verts = self.patch.get_xy()
-        return (verts.min(axis=0) + verts.max(axis=0)) / 2
-
-    @property
-    def extents(self):
-        """Get the (x0, y0, width, height) extents of the tool"""
-        verts = self.patch.get_xy()
-        x0, x1 = np.min(verts[:, 0]), np.max(verts[:, 0])
-        y0, y1 = np.min(verts[:, 1]), np.max(verts[:, 1])
-        return x0, y0, x1 - x0, y1 - y0
-
-
 HANDLE_ORDER = ['NW', 'NE', 'SE', 'SW', 'W', 'N', 'E', 'S']
 
 
 @docstring.dedent_interpd
-class RectangleTool(PolygonTool):
+class RectangleTool(BasePolygonTool):
 
     """Interactive rectangle selection tool that is connected to a single
     :class:`~matplotlib.axes.Axes`.
@@ -718,7 +713,7 @@ class EllipseTool(RectangleTool):
 
 
 @docstring.dedent_interpd
-class LineTool(PolygonTool):
+class LineTool(BasePolygonTool):
 
     """Interactive line selection tool that is connected to a single
     :class:`~matplotlib.axes.Axes`.
