@@ -223,6 +223,9 @@ div.sphinxsidebar {
     text-align: left;
 /*    margin-left: -100%; */
 }
+div.sphinxsidebarwrapper {
+    padding-top: 28px
+}
 
 div.sphinxsidebar h4, div.sphinxsidebar h3 {
     margin: 1em 0 0.5em 0;
@@ -667,6 +670,12 @@ figcaption {
     margin: 30px auto 0;
     z-index:1;
     transition: background .25s ease;
+}
+
+.donate_button:last-of-type {
+    margin: 15px auto 30px;
+
+
 }
 
 .donate_button:hover, .donate_button:active, .donate_button:focus {
