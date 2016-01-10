@@ -1094,7 +1094,7 @@ class ArtistInspector(object):
 
         match = self._get_valid_values_regex.search(docstring)
         if match is not None:
-            return match.group(1).replace('\n', ' ')
+            return re.sub("\n *", " ", match.group(1))
         return 'unknown'
 
     def _get_setters_and_targets(self):
