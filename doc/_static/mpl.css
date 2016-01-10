@@ -223,6 +223,9 @@ div.sphinxsidebar {
     text-align: left;
 /*    margin-left: -100%; */
 }
+div.sphinxsidebarwrapper {
+    padding-top: 28px
+}
 
 div.sphinxsidebar h4, div.sphinxsidebar h3 {
     margin: 1em 0 0.5em 0;
@@ -650,3 +653,32 @@ figcaption {
 }
 
 
+.donate_button {
+    background:#11557C;
+    font-weight:normal;
+    border:solid 1px #fff;
+    outline: solid 1px #11557C;
+    clear: both;
+    display: block;
+    width:200px;
+    line-height:2.8;
+    font-size: 16px;
+    text-align: center;
+    cursor:pointer;
+    color:#fff;
+    text-decoration: none;
+    margin: 30px auto 0;
+    z-index:1;
+    transition: background .25s ease;
+}
+
+.donate_button:last-of-type {
+    margin: 15px auto 30px;
+
+
+}
+
+.donate_button:hover, .donate_button:active, .donate_button:focus {
+    background: #003c63;
+    outline-color: #003c63;
+}
