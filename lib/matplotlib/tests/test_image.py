@@ -2,25 +2,27 @@ from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
 from matplotlib.externals import six
+import io
+import os
 
 import numpy as np
 
-from matplotlib.testing.decorators import image_comparison, knownfailureif, cleanup
+from matplotlib.testing.decorators import (image_comparison,
+                                           knownfailureif, cleanup)
 from matplotlib.image import BboxImage, imread, NonUniformImage
 from matplotlib.transforms import Bbox
 from matplotlib import rcParams, rc_context
 import matplotlib.pyplot as plt
-from nose.tools import assert_raises
-from numpy.testing import assert_array_equal, assert_array_almost_equal
 
-import io
-import os
+from numpy.testing import assert_array_equal
 
 try:
     from PIL import Image
+    del Image
     HAS_PIL = True
 except ImportError:
     HAS_PIL = False
+
 
 @image_comparison(baseline_images=['image_interps'])
 def test_image_interps():
@@ -446,6 +448,7 @@ def test_nonuniformimage_setcmap():
     ax = plt.gca()
     im = NonUniformImage(ax)
     im.set_cmap('Blues')
+
 
 @cleanup
 def test_nonuniformimage_setnorm():
