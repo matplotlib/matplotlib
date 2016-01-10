@@ -358,16 +358,13 @@ class BasePolygonTool(BaseTool):
         super(BasePolygonTool, self).__init__(ax, on_select=on_select,
             on_accept=on_accept, on_motion=on_motion, useblit=True,
             keys=None)
-        self.interactive = interactive
-        self.allow_redraw = allow_redraw
-        self.focused = True
 
         props = dict(facecolor='red', edgecolor='black', visible=False,
-                     alpha=0.2, fill=True, picker=5, linewidth=2,
+                     alpha=0.2, fill=True, picker=10, linewidth=2,
                      zorder=1)
         props.update(shape_props or {})
         self.patch = Polygon([[0, 0], [1, 1]], True, **props)
-        self.ax.add_patch(self._patch)
+        self.ax.add_patch(self.patch)
 
         props = dict(marker='o', markersize=7, mfc='w', ls='none',
                      alpha=0.5, visible=False, label='_nolegend_',
@@ -376,8 +373,9 @@ class BasePolygonTool(BaseTool):
         self._handles = Line2D([], [], **props)
         self.ax.add_line(self._handles)
 
-        self._artists = [self._patch, self._handles]
+        self._artists = [self.patch, self._handles]
 
+        self._interactive = None
         self._modifiers = set()
         self._drawing = False
         self._dragging = False
@@ -386,6 +384,22 @@ class BasePolygonTool(BaseTool):
         self._has_selected = False
         self._prev_data = None
         self._start_event = None
+
+        self.interactive = interactive
+        self.allow_redraw = allow_redraw
+        self.focused = True
+
+    @property
+    def interactive(self):
+        return self._interactive
+
+    @interactive.setter
+    def interactive(self, value):
+        if not value:
+            self._handles.set_visible(False)
+            self.patch.set_visible(False)
+            self.canvas.draw_idle()
+        self._interactive = value
 
     @property
     def center(self):
@@ -407,9 +421,9 @@ class BasePolygonTool(BaseTool):
         assert value.ndim == 2
         assert value.shape[1] == 2
 
-        self._patch.set_xy(value)
-        self._patch.set_visible(True)
-        self._patch.set_animated(False)
+        self.patch.set_xy(value)
+        self.patch.set_visible(True)
+        self.patch.set_animated(False)
 
         if self._prev_data is None:
             self._prev_data = dict(verts=value,
@@ -417,7 +431,6 @@ class BasePolygonTool(BaseTool):
                                    extents=self.extents)
 
         handles = self._get_handle_verts()
-        handles = np.vstack((handles, self.center))
         self._handles.set_data(handles[:, 0], handles[:, 1])
         self._handles.set_visible(self.interactive)
         self._handles.set_animated(False)
@@ -470,15 +483,15 @@ class BasePolygonTool(BaseTool):
     def _handle_button_press(self, event):
         if (not self._drawing and not self.allow_redraw and
                 self._has_selected):
-            self.focused = self._patch.contains(event)[0]
+            self.focused = self.patch.contains(event)[0]
 
         if self.interactive and not self._drawing:
             self._dragging, idx = self._handles.contains(event)
             if self._dragging:
                 self._drag_idx = idx['ind'][0]
-                # If the move handle was selected, enter move state.
-                if self._drag_idx == self._handles.get_xdata().size - 1:
-                    self._moving = True
+            elif self.patch.contains(event)[0]:
+                self._moving = True
+                self._dragging = True
 
         if (self._drawing or self._dragging or self.allow_redraw or
                 not self._has_selected):
@@ -917,7 +930,7 @@ class PaintTool(BaseTool):
         # These must be called last
         self.label = 1
         self.radius = radius
-        self._start_drawing(None)
+        self._drawing = True
         for artist in self._artists:
             artist.set_visible(True)
 
@@ -1002,6 +1015,14 @@ class PaintTool(BaseTool):
         self._cursor.set_xy((x, y))
 
 
+"""
+RectangleTool and EllipseTool have three scale handles and a rotation
+Handle
+Get rid of the move handle a use contains for move
+RegularPolygonTool has a scale handle and a rotation handle
+"""
+
+
 if __name__ == '__main__':
     import matplotlib.pyplot as plt
 
@@ -1011,18 +1032,27 @@ if __name__ == '__main__':
     fig, ax = plt.subplots()
 
     pts = ax.scatter(data[:, 0], data[:, 1], s=80)
-    # ellipse = EllipseTool(ax)
-    # ellipse.set_geometry(0.6, 1.1, 0.3, 0.3)
-    # ax.invert_yaxis()
+    ellipse = EllipseTool(ax)
+    ellipse.set_geometry(0.6, 1.1, 0.3, 0.3)
+    ax.invert_yaxis()
 
-    # def test(tool):
-    #     print(tool.center, tool.width, tool.height)
+    def test(tool):
+        print(tool.center, tool.width, tool.height)
 
-    # ellipse.on_accept = test
-    # ellipse.allow_redraw = False
-    #line = LineTool(ax)
-    #line.set_geometry([[0.1, 0.1], [0.5, 0.5]], 10)
-    #line.interactive = False
+    ellipse.on_accept = test
+    ellipse.interactive = True
+
+    """
+    line = LineTool(ax)
+    line.set_geometry([[0.1, 0.1], [0.5, 0.5]], 1)
+    line.interactive = False
+    """
+
+    """
+    def test(tool):
+        print(tool.overlay)
+
     p = PaintTool(ax)
-
+    p.on_accept = test
+    """
     plt.show()
