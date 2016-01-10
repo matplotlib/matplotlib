@@ -2,25 +2,31 @@ from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
 from matplotlib.externals import six
+import sys
+import io
+import os
 
 import numpy as np
 
-from matplotlib.testing.decorators import image_comparison, knownfailureif, cleanup
+from matplotlib.testing.decorators import (image_comparison,
+                                           knownfailureif, cleanup)
 from matplotlib.image import BboxImage, imread, NonUniformImage
 from matplotlib.transforms import Bbox
 from matplotlib import rcParams
 import matplotlib.pyplot as plt
-from nose.tools import assert_raises
-from numpy.testing import assert_array_equal, assert_array_almost_equal
 
-import io
-import os
+from numpy.testing import assert_array_equal
+
+
+import nose
 
 try:
     from PIL import Image
+    del Image
     HAS_PIL = True
 except ImportError:
     HAS_PIL = False
+
 
 @image_comparison(baseline_images=['image_interps'])
 def test_image_interps():
@@ -447,11 +453,51 @@ def test_nonuniformimage_setcmap():
     im = NonUniformImage(ax)
     im.set_cmap('Blues')
 
+
 @cleanup
 def test_nonuniformimage_setnorm():
     ax = plt.gca()
     im = NonUniformImage(ax)
     im.set_norm(plt.Normalize())
+
+
+@cleanup
+def test_minimized_rasterized():
+    # This ensures that the rasterized content in the colorbars is
+    # only as thick as the colorbar, and doesn't extend to other parts
+    # of the image.  See #5814.  While the original bug exists only
+    # in Postscript, the best way to detect it is to generate SVG
+    # and then parse the output to make sure the two colorbar images
+    # are the same size.
+    if sys.version_info[:2] < (2, 7):
+        raise nose.SkipTest("xml.etree.ElementTree.Element.iter "
+                            "added in py 2.7")
+
+    from xml.etree import ElementTree
+
+    np.random.seed(0)
+    data = np.random.rand(10, 10)
+
+    fig, ax = plt.subplots(1, 2)
+    p1 = ax[0].pcolormesh(data)
+    p2 = ax[1].pcolormesh(data)
+
+    plt.colorbar(p1, ax=ax[0])
+    plt.colorbar(p2, ax=ax[1])
+
+    buff = io.BytesIO()
+    plt.savefig(buff, format='svg')
+
+    buff = io.BytesIO(buff.getvalue())
+    tree = ElementTree.parse(buff)
+    width = None
+    for image in tree.iter('image'):
+        if width is None:
+            width = image['width']
+        else:
+            if image['width'] != width:
+                assert False
+
 
 if __name__=='__main__':
     import nose
