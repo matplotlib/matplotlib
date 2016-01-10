@@ -3,25 +3,30 @@ from __future__ import (absolute_import, division, print_function,
 
 from matplotlib.externals import six
 import sys
+import io
+import os
 
 import numpy as np
 
-from matplotlib.testing.decorators import image_comparison, knownfailureif, cleanup
+from matplotlib.testing.decorators import (image_comparison,
+                                           knownfailureif, cleanup)
 from matplotlib.image import BboxImage, imread, NonUniformImage
 from matplotlib.transforms import Bbox
 from matplotlib import rcParams
 import matplotlib.pyplot as plt
-from nose.tools import assert_raises
-from numpy.testing import assert_array_equal, assert_array_almost_equal
 
-import io
-import os
+from numpy.testing import assert_array_equal
+
+
+import nose
 
 try:
     from PIL import Image
+    del Image
     HAS_PIL = True
 except ImportError:
     HAS_PIL = False
+
 
 @image_comparison(baseline_images=['image_interps'])
 def test_image_interps():
