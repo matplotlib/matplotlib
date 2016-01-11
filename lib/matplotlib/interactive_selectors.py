@@ -9,7 +9,7 @@ import numpy as np
 
 # TODO: convert these to relative when finished
 import matplotlib.colors as mcolors
-from matplotlib.patches import Polygon, Rectangle
+from matplotlib.patches import Polygon, Rectangle, Ellipse, RegularPolygon
 from matplotlib.lines import Line2D
 from matplotlib import docstring, artist as martist
 
@@ -352,8 +352,11 @@ class BasePolygonTool(BaseTool):
     %(BasePolygonTool)s
     """
 
+    _shape = Polygon
+
     def __init__(self, ax, on_select=None, on_motion=None, on_accept=None,
-                 interactive=True, allow_redraw=True, shape_props=None,
+                 interactive=True, allow_redraw=True, patch_args=None,
+                 patch_props=None,
                  handle_props=None, useblit=True, button=None, keys=None):
         super(BasePolygonTool, self).__init__(ax, on_select=on_select,
             on_accept=on_accept, on_motion=on_motion, useblit=True,
@@ -362,8 +365,10 @@ class BasePolygonTool(BaseTool):
         props = dict(facecolor='red', edgecolor='black', visible=False,
                      alpha=0.2, fill=True, picker=10, linewidth=2,
                      zorder=1)
-        props.update(shape_props or {})
-        self.patch = Polygon([[0, 0], [1, 1]], True, **props)
+        if patch_args is None:
+            patch_args = [[[0, 0], [1, 1]], True]
+        props.update(patch_props or {})
+        self.patch = self._shape(*patch_args, **props)
         self.ax.add_patch(self.patch)
 
         props = dict(marker='o', markersize=7, mfc='w', ls='none',
@@ -601,6 +606,8 @@ class RectangleTool(BasePolygonTool):
         The height of the rectangle in data units (read-only).
     """
 
+    _shape = Rectangle
+
     @property
     def width(self):
         """Get the width of the tool in data units"""
@@ -711,6 +718,8 @@ class EllipseTool(RectangleTool):
         The height of the ellipse in data units (read-only).
     """
 
+    _shape = Ellipse
+
     def set_geometry(self, x0, y0, width, height):
         """Set the geometry of the ellipse tool.
 
@@ -733,7 +742,7 @@ class EllipseTool(RectangleTool):
 
 
 @docstring.dedent_interpd
-class LineTool(BasePolygonTool):
+class LineTool(RectangleTool):
 
     """Interactive line selection tool that is connected to a single
     :class:`~matplotlib.axes.Axes`.
