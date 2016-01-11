@@ -166,7 +166,6 @@ def _draw_list_compositing_images(
         flush_images()
 
 
-
 def _rgb_to_rgba(A):
     """
     Convert an RGB image to RGBA, as required by the image resample C++
@@ -333,10 +332,10 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
             + self.get_transform())
 
         t = (t0
-            + Affine2D().translate(
-                -clipped_bbox.x0,
-                -clipped_bbox.y0)
-            .scale(magnification, magnification))
+             + Affine2D().translate(
+                 -clipped_bbox.x0,
+                 -clipped_bbox.y0)
+             .scale(magnification, magnification))
 
         # So that the image is aligned with the edge of the axes, we want
         # to round up the output width to the next integer.  This also
@@ -1213,15 +1212,15 @@ def imsave(fname, arr, vmin=None, vmax=None, cmap=None, format=None,
 
     # Fast path for saving to PNG
     if (format == 'png' or format is None or
-        isinstance(fname, six.string_types) and
-        fname.lower().endswith('.png')):
+            isinstance(fname, six.string_types) and
+            fname.lower().endswith('.png')):
         image = AxesImage(None, cmap=cmap, origin=origin)
         image.set_data(arr)
         image.set_clim(vmin, vmax)
         image.write_png(fname)
     else:
         fig = Figure(dpi=dpi, frameon=False)
-        canvas = FigureCanvas(fig)
+        FigureCanvas(fig)
         fig.figimage(arr, cmap=cmap, vmin=vmin, vmax=vmax, origin=origin,
                      resize=True)
         fig.savefig(fname, dpi=dpi, format=format, transparent=True)
@@ -1350,7 +1349,7 @@ def thumbnail(infile, thumbfile, scale=0.1, interpolation='bilinear',
 
         from matplotlib.figure import Figure
         fig = Figure(figsize=(width, height), dpi=dpi)
-        canvas = FigureCanvas(fig)
+        FigureCanvas(fig)
 
     ax = fig.add_axes([0, 0, 1, 1], aspect='auto',
                       frameon=False, xticks=[], yticks=[])
