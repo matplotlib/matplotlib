@@ -102,7 +102,7 @@ def composite_images(images, renderer, magnification=1.0):
                 Bbox([[x, y], [x + data.shape[1], y + data.shape[0]]]))
 
     if len(parts) == 0:
-        return None, 0, 0
+        return np.empty((0, 0, 4), dtype=np.uint8), 0, 0
 
     bbox = Bbox.union(bboxes)
 
@@ -149,7 +149,7 @@ def _draw_list_compositing_images(
             elif len(image_group) > 1:
                 data, l, b = composite_images(
                     image_group, renderer, mag)
-                if data is not None:
+                if data.size != 0:
                     gc = renderer.new_gc()
                     gc.set_clip_rectangle(parent.bbox)
                     gc.set_clip_path(parent.get_clip_path())
