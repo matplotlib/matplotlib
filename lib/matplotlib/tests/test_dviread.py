@@ -6,6 +6,7 @@ from matplotlib.externals import six
 import matplotlib.dviread as dr
 import os.path
 import json
+import pytest
 
 
 original_find_tex_file = dr.find_tex_file
