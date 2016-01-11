@@ -2,15 +2,7 @@ from __future__ import (absolute_import, division, print_function)
 
 import pytest
 
-try:
-    # 3.2+ versions
-    from nose.tools import assert_regex, assert_not_regex
-except ImportError:
-    # 2.7 versions
-    from nose.tools import assert_regexp_matches, assert_not_regexp_matches
-    assert_regex = assert_regexp_matches
-    assert_not_regex = assert_not_regexp_matches
-
+import re
 from ..testing import assert_produces_warning
 
 from .. import unpack_labeled_data
@@ -342,38 +334,44 @@ def test_function_call_with_replace_all_args():
 
 
 def test_docstring_addition():
+    all_positional_all_keyword = \
+        re.compile(r".*All positional and all keyword arguments\.")
+    all_positional = \
+        re.compile(r".*All positional arguments\.")
+    all_arguments = \
+        re.compile(r".*All arguments with the following names: .*")
+    all_arguments_with_following_names = \
+        re.compile(r".*All arguments with the following names: '.*', '.*'\.")
+    x_string = \
+        re.compile(r".*'x'.*")
+    bar_string = \
+        re.compile(r".*'bar'.*")
     @unpack_labeled_data()
     def funcy(ax, *args, **kwargs):
         """Funcy does nothing"""
         pass
 
-    assert_regex(funcy.__doc__,
-                          r".*All positional and all keyword arguments\.")
-    assert_not_regex(funcy.__doc__, r".*All positional arguments\.")
-    assert_not_regex(funcy.__doc__,
-                              r".*All arguments with the following names: .*")
+    assert all_positional_all_keyword.match(funcy.__doc__)
+    assert not all_positional.match(funcy.__doc__)
+    assert not all_arguments.match(funcy.__doc__)
 
     @unpack_labeled_data(replace_all_args=True, replace_names=[])
     def funcy(ax, x, y, z, bar=None):
         """Funcy does nothing"""
         pass
 
-    assert_regex(funcy.__doc__, r".*All positional arguments\.")
-    assert_not_regex(funcy.__doc__,
-                              r".*All positional and all keyword arguments\.")
-    assert_not_regex(funcy.__doc__,
-                              r".*All arguments with the following names: .*")
+    assert all_positional.match(funcy.__doc__)
+    assert not all_positional_all_keyword.match(funcy.__doc__)
+    assert not all_arguments.match(funcy.__doc__)
 
     @unpack_labeled_data(replace_all_args=True, replace_names=["bar"])
     def funcy(ax, x, y, z, bar=None):
         """Funcy does nothing"""
         pass
 
-    assert_regex(funcy.__doc__, r".*All positional arguments\.")
-    assert_regex(funcy.__doc__,
-                          r".*All arguments with the following names: 'bar'\.")
-    assert_not_regex(funcy.__doc__,
-                              r".*All positional and all keyword arguments\.")
+    assert all_positional.match(funcy.__doc__)
+    assert all_arguments.match(funcy.__doc__)
+    assert not all_positional_all_keyword.match(funcy.__doc__)
 
     @unpack_labeled_data(replace_names=["x", "bar"])
     def funcy(ax, x, y, z, bar=None):
@@ -381,13 +379,11 @@ def test_docstring_addition():
         pass
 
     # lists can print in any order, so test for both x,bar and bar,x
-    assert_regex(funcy.__doc__,
-                    r".*All arguments with the following names: '.*', '.*'\.")
-    assert_regex(funcy.__doc__, r".*'x'.*")
-    assert_regex(funcy.__doc__, r".*'bar'.*")
-    assert_not_regex(funcy.__doc__,
-                              r".*All positional and all keyword arguments\.")
-    assert_not_regex(funcy.__doc__, r".*All positional arguments\.")
+    assert all_arguments_with_following_names.match(funcy.__doc__)
+    assert x_string.match(funcy.__doc__)
+    assert bar_string.match(funcy.__doc__)
+    assert not all_positional_all_keyword.match(funcy.__doc__)
+    assert not all_positional.match(funcy.__doc__)
 
 
 def test_positional_parameter_names_as_function():
