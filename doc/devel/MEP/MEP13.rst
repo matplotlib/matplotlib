@@ -1,5 +1,5 @@
 =================================
-MEP12: Use properties for Artists
+MEP13: Use properties for Artists
 =================================
 
 .. contents::
