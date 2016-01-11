@@ -3,7 +3,6 @@ from __future__ import (absolute_import, division, print_function,
 
 from matplotlib.externals import six
 
-from nose.tools import assert_equal, with_setup
 import matplotlib.dviread as dr
 import os.path
 import json
@@ -11,17 +10,18 @@ import json
 
 original_find_tex_file = dr.find_tex_file
 
-
-def setup_PsfontsMap():
-    dr.find_tex_file = lambda x: x
-
-
 def teardown_PsfontsMap():
     dr.find_tex_file = original_find_tex_file
 
+@pytest.fixture()
+def setup_PsfontsMap(request):
+    dr.find_tex_file = lambda x: x
+    def fin():
+        teardown_PsfontsMap()
+    request.addfinalizer(fin)
 
-@with_setup(setup_PsfontsMap, teardown_PsfontsMap)
-def test_PsfontsMap():
+
+def test_PsfontsMap(setup_PsfontsMap):
     filename = os.path.join(
         os.path.dirname(__file__),
         'baseline_images', 'dviread', 'test.map')

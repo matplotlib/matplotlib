@@ -6,7 +6,7 @@ from matplotlib.externals import six
 import os
 import shutil
 
-from nose.tools import assert_equal, assert_not_equal, assert_almost_equal
+from numpy.testing import assert_almost_equal
 
 from matplotlib.testing.compare import compare_images
 from matplotlib.testing.decorators import _image_directories

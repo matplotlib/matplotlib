@@ -3,10 +3,7 @@ from __future__ import (absolute_import, division, print_function,
 
 from fnmatch import fnmatch
 import os
-
-from nose.tools import assert_equal
-from nose.plugins.skip import SkipTest
-import pytest
+# import pytest
 
 try:
     import pep8
@@ -102,7 +99,7 @@ if HAS_PEP8:
 #     """
 #
 #     if not HAS_PEP8:
-#         raise SkipTest('The pep8 tool is required for this test')
+#         raise pytest.skip('The pep8 tool is required for this test')
 #
 #     # to get a list of bad files, rather than the specific errors, add
 #     # "reporter=pep8.FileReport" to the StyleGuide constructor.

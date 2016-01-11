@@ -3,7 +3,6 @@ from __future__ import (absolute_import, division, print_function,
 
 from matplotlib.externals import six
 
-from nose.tools import assert_equal, assert_in
 import matplotlib.type1font as t1f
 import os.path
 import difflib
@@ -41,7 +40,7 @@ def test_Type1Font():
          # Alters ItalicAngle
          '-  /ItalicAngle 0 def',
          '+  /ItalicAngle -45.0 def'):
-        assert_in(line, diff, 'diff to slanted font must contain %s' % line)
+        assert line in diff, 'diff to slanted font must contain %s' % line
 
     diff = list(differ.compare(font.parts[0].decode('latin-1').splitlines(),
                           condensed.parts[0].decode('latin-1').splitlines()))
@@ -55,4 +54,4 @@ def test_Type1Font():
          # Alters FontMatrix
          '- /FontMatrix [0.001 0 0 0.001 0 0 ]readonly def',
          '+ /FontMatrix [0.0005 0.0 0.0 0.001 0.0 0.0]readonly def'):
-        assert_in(line, diff, 'diff to condensed font must contain %s' % line)
+        assert line in diff, 'diff to condensed font must contain %s' % line

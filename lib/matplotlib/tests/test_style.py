@@ -7,10 +7,6 @@ import shutil
 import tempfile
 from contextlib import contextmanager
 
-from nose import SkipTest
-from nose.tools import assert_raises
-from nose.plugins.attrib import attr
-
 import matplotlib as mpl
 from matplotlib import style
 from matplotlib.style.core import USER_LIBRARY_PATHS, STYLE_EXTENSION
@@ -58,7 +54,7 @@ def test_use():
             assert mpl.rcParams[PARAM] == VALUE
 
 
-@attr('network')
+@pytest.mark.network
 def test_use_url():
     with temp_style('test', DUMMY_SETTINGS):
         with style.context('https://gist.github.com/adrn/6590261/raw'):
@@ -126,7 +122,7 @@ def test_context_with_badparam():
         from collections import OrderedDict
     else:
         m = "Test can only be run in Python >= 2.7 as it requires OrderedDict"
-        raise SkipTest(m)
+        raise pytest.skip(m)
 
     original_value = 'gray'
     other_value = 'blue'

@@ -1,7 +1,5 @@
 from __future__ import (absolute_import, division, print_function)
 
-from nose.tools import (assert_raises, assert_equal)
-from nose.plugins.skip import SkipTest
 import pytest
 
 try:
@@ -192,7 +190,7 @@ def test_function_call_with_pandas_data():
     try:
         import pandas as pd
     except ImportError:
-        raise SkipTest("Pandas not installed")
+        raise pytest.skip("Pandas not installed")
 
     data = pd.DataFrame({"a": [1, 2], "b": [8, 9], "w": ["NOT", "NOT"]})
 

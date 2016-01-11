@@ -8,8 +8,7 @@ import tempfile
 from numpy.testing import assert_allclose, assert_array_equal
 import numpy.ma.testutils as matest
 import numpy as np
-# from nose.tools import (assert_equal, assert_almost_equal, assert_not_equal,
-#                         assert_true, assert_raises)
+from numpy.testing import assert_almost_equal
 
 import matplotlib.mlab as mlab
 import matplotlib.cbook as cbook

@@ -8,14 +8,13 @@ import os
 import shutil
 
 import numpy as np
-import nose
-from nose.plugins.skip import SkipTest
 
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 from matplotlib.compat import subprocess
 from matplotlib.testing.compare import compare_images, ImageComparisonFailure
 from matplotlib.testing.decorators import _image_directories, switch_backend
+import pytest
 
 
 baseline_dir, result_dir = _image_directories(lambda: 'dummy func')
@@ -83,7 +82,7 @@ def create_figure():
 @switch_backend('pgf')
 def test_xelatex():
     if not check_for('xelatex'):
-        raise SkipTest('xelatex + pgf is required')
+        raise pytest.skip('xelatex + pgf is required')
 
     rc_xelatex = {'font.family': 'serif',
                   'pgf.rcfonts': False}
@@ -96,7 +95,7 @@ def test_xelatex():
 @switch_backend('pgf')
 def test_pdflatex():
     if not check_for('pdflatex'):
-        raise SkipTest('pdflatex + pgf is required')
+        raise pytest.skip('pdflatex + pgf is required')
 
     rc_pdflatex = {'font.family': 'serif',
                    'pgf.rcfonts': False,
@@ -112,7 +111,7 @@ def test_pdflatex():
 @switch_backend('pgf')
 def test_rcupdate():
     if not check_for('xelatex') or not check_for('pdflatex'):
-        raise SkipTest('xelatex and pdflatex + pgf required')
+        raise pytest.skip('xelatex and pdflatex + pgf required')
 
     rc_sets = []
     rc_sets.append({'font.family': 'sans-serif',
@@ -141,7 +140,7 @@ def test_rcupdate():
 @switch_backend('pgf')
 def test_pathclip():
     if not check_for('xelatex'):
-        raise SkipTest('xelatex + pgf is required')
+        raise pytest.skip('xelatex + pgf is required')
 
     rc_xelatex = {'font.family': 'serif',
                   'pgf.rcfonts': False}
@@ -159,7 +158,7 @@ def test_pathclip():
 @switch_backend('pgf')
 def test_mixedmode():
     if not check_for('xelatex'):
-        raise SkipTest('xelatex + pgf is required')
+        raise pytest.skip('xelatex + pgf is required')
 
     rc_xelatex = {'font.family': 'serif',
                   'pgf.rcfonts': False}
@@ -175,7 +174,7 @@ def test_mixedmode():
 @switch_backend('pgf')
 def test_bbox_inches():
     if not check_for('xelatex'):
-        raise SkipTest('xelatex + pgf is required')
+        raise pytest.skip('xelatex + pgf is required')
 
     rc_xelatex = {'font.family': 'serif',
                   'pgf.rcfonts': False}

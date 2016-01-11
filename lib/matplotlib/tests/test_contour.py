@@ -9,7 +9,7 @@ import numpy as np
 from matplotlib import mlab
 from matplotlib.testing.decorators import cleanup, image_comparison
 from matplotlib import pyplot as plt
-from nose.tools import assert_equal, assert_raises
+import pytest
 import warnings
 
 import re
@@ -284,12 +284,12 @@ def test_contourf_decreasing_levels():
     # github issue 5477.
     z = [[0.1, 0.3], [0.5, 0.7]]
     plt.figure()
-    assert_raises(ValueError, plt.contourf, z, [1.0, 0.0])
+    pytest.raises(ValueError, plt.contourf, z, [1.0, 0.0])
     # Legacy contouring algorithm gives a warning rather than raising an error,
     # plus a DeprecationWarning.
     with warnings.catch_warnings(record=True) as w:
         plt.contourf(z, [1.0, 0.0], corner_mask='legacy')
-    assert_equal(len(w), 2)
+    assert len(w) == 2
 
 
 @cleanup

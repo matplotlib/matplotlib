@@ -7,7 +7,6 @@ import os
 import tempfile
 import numpy as np
 from numpy.testing import assert_equal
-from nose import with_setup
 from matplotlib import pyplot as plt
 from matplotlib import animation
 from matplotlib.testing.decorators import cleanup

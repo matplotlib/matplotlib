@@ -4,8 +4,7 @@ from matplotlib.testing.decorators import image_comparison, cleanup
 from matplotlib.cbook import MatplotlibDeprecationWarning
 import matplotlib.pyplot as plt
 import numpy as np
-from nose.tools import assert_raises
-
+import pytest
 from cycler import cycler
 
 
@@ -173,14 +172,18 @@ def test_cycle_reset():
 @cleanup
 def test_invalid_input_forms():
     fig, ax = plt.subplots()
-    assert_raises((TypeError, ValueError), ax.set_prop_cycle, 1)
-    assert_raises((TypeError, ValueError), ax.set_prop_cycle, [1, 2])
-    assert_raises((TypeError, ValueError), ax.set_prop_cycle, 'color', 'fish')
-    assert_raises((TypeError, ValueError), ax.set_prop_cycle, 'linewidth', 1)
-    assert_raises((TypeError, ValueError), ax.set_prop_cycle,
-            'linewidth', {'1': 1, '2': 2})
-    assert_raises((TypeError, ValueError), ax.set_prop_cycle,
-            linewidth=1, color='r')
+    with pytest.raises(TypeError, ValueError):
+        ax.set_prop_cycle(1)
+    with pytest.raises(TypeError, ValueError):
+        ax.set_prop_cycle([1, 2])
+    with pytest.raises(TypeError, ValueError):
+        ax.set_prop_cycle('color', 'fish')
+    with pytest.raises(TypeError, ValueError):
+        ax.set_prop_cycle('linewidth', 1)
+    with pytest.raises(TypeError, ValueError):
+        ax.set_prop_cycle('linewidth', {'1': 1, '2': 2})
+    with pytest.raises(TypeError, ValueError):
+        ax.set_prop_cycle(linewidth=1, color='r')
 
 
 if __name__ == '__main__':
