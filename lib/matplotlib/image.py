@@ -149,11 +149,12 @@ def _draw_list_compositing_images(
             elif len(image_group) > 1:
                 data, l, b = composite_images(
                     image_group, renderer, mag)
-                gc = renderer.new_gc()
-                gc.set_clip_rectangle(parent.bbox)
-                gc.set_clip_path(parent.get_clip_path())
-                renderer.draw_image(gc, round(l), round(b), data)
-                gc.restore()
+                if data is not None:
+                    gc = renderer.new_gc()
+                    gc.set_clip_rectangle(parent.bbox)
+                    gc.set_clip_path(parent.get_clip_path())
+                    renderer.draw_image(gc, round(l), round(b), data)
+                    gc.restore()
             del image_group[:]
 
         for zorder, a in dsu:
