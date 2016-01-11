@@ -40,7 +40,7 @@ def image_comparison_expect_rms(im1, im2, tol, expect_rms):
         assert results is None
     else:
         assert results is not None
-        assert_almost_equal(expect_rms, results['rms'], places=4)
+        assert_almost_equal(expect_rms, results['rms'], decimal=4)
 
 
 def test_image_compare_basic():
