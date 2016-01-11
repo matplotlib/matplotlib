@@ -18,7 +18,6 @@ from numpy.testing import assert_array_equal
 
 try:
     from PIL import Image
-    del Image
     HAS_PIL = True
 except ImportError:
     HAS_PIL = False
