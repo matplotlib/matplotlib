@@ -156,7 +156,6 @@ def _test_determinism(filename, usetex):
     import os
     import sys
     from subprocess import check_call
-    from nose.tools import assert_equal
     plots = []
     for i in range(3):
         check_call([sys.executable, '-R', '-c',
@@ -169,7 +168,7 @@ def _test_determinism(filename, usetex):
             plots.append(fd.read())
         os.unlink(filename)
     for p in plots[1:]:
-        assert_equal(p, plots[0])
+        assert p == plots[0]
 
 
 @cleanup
