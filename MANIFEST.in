@@ -19,3 +19,4 @@ recursive-include lib *
 recursive-include extern *
 include versioneer.py
 include lib/matplotlib/_version.py
+include tests.py
