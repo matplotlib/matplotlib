@@ -5,31 +5,29 @@
 <svg height="72pt" version="1.1" viewBox="0 0 216 72" width="216pt" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
  <defs>
   <style type="text/css">
-*{stroke-linecap:butt;stroke-linejoin:round;}
+*{stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:100000;}
   </style>
  </defs>
  <g id="figure_1">
   <g id="patch_1">
-   <path d="
-M0 72
-L216 72
-L216 0
-L0 0
+   <path d="M 0 72 
+L 216 72 
+L 216 0 
+L 0 0 
 z
 " style="fill:#ffffff;"/>
   </g>
   <g id="axes_1">
    <g id="patch_2">
-    <path d="
-M27 60.6176
-L76.2353 60.6176
-L76.2353 11.3824
-L27 11.3824
+    <path d="M 27 60.617647 
+L 76.235294 60.617647 
+L 76.235294 11.382353 
+L 27 11.382353 
 z
 " style="fill:#ffffff;"/>
    </g>
-   <g clip-path="url(#pc31db6f15f)">
-    <image height="50.4" id="image2c20c31ecf" width="57.6" x="27.0" xlink:href="data:image/png;base64,
+   <g clip-path="url(#p306f09a014)">
+    <image height="50.4" id="image207c5863ce" width="57.6" x="27.0" xlink:href="data:image/png;base64,
 iVBORw0KGgoAAAANSUhEUgAAAAgAAAAHCAYAAAA1WQxeAAAABHNCSVQICAgIfAhkiAAAAIVJREFUCJmFzjkKwlAAhOEvKi5FMLU2HkEQwdbSU3knL+EBLMUFQayCUaMYF55FQEsH/mYYZiZiGkA3Ydj70UlAxR/Vhv09eLfPivipuOUe69QrjcvAZLwE99CShYPsnMgWiSI0QTSfdQNcjjWHTeNLnlXLhtGgnDju2KbEV+orTqX9/+QHCXAwPEkx7O0AAAAASUVORK5CYII=" y="10.2176470588"/>
    </g>
    <g id="matplotlib.axis_1"/>
@@ -37,43 +35,41 @@ iVBORw0KGgoAAAANSUhEUgAAAAgAAAAHCAYAAAA1WQxeAAAABHNCSVQICAgIfAhkiAAAAIVJREFUCJmF
   </g>
   <g id="axes_2">
    <g id="patch_3">
-    <path d="
-M86.0824 64.8
-L135.318 64.8
-L135.318 7.2
-L86.0824 7.2
+    <path d="M 86.082353 64.8 
+L 135.317647 64.8 
+L 135.317647 7.2 
+L 86.082353 7.2 
 z
 " style="fill:#ffffff;"/>
    </g>
-   <image height="64.8" id="image1d9f73e233" width="136.8" x="79.2" xlink:href="data:image/png;base64,
-iVBORw0KGgoAAAANSUhEUgAAABMAAAAJCAYAAADQHRcxAAAABHNCSVQICAgIfAhkiAAAAHNJREFUKJG10kENwlAQBuH5OVQBImoBAzVQA1hABxoQUAUYqIWaqIRepqdHmoaE9AGbzGU3+U4blV/N6d0yoUnoE56HNPUV2IJ3cAYF3d4/VZArOBZgWw22RxZwALtvsAm8gecjyB57gBcwNUgpf3+N2lkBB3gBDVzLDTYAAAAASUVORK5CYII=" y="7.2"/>
+   <image height="43.2" id="image2e9ed63e7b" width="50.4" x="86.39999999999999" xlink:href="data:image/png;base64,
+iVBORw0KGgoAAAANSUhEUgAAAAcAAAAGCAYAAAAPDoR2AAAABHNCSVQICAgIfAhkiAAAAFVJREFUCJllzjEVwlAAxdDbBQUVgQUMYAADWKgONCAABRjAQk0ggSUdGPoPDFnyhjyVETrQhZ6jPNKN3tQXXem1i5F/+aEHncdxpYXmPaU7nWj6PbcBc+lWnSEOzhQAAAAASUVORK5CYII=" y="14.4"/>
    <g id="matplotlib.axis_3"/>
    <g id="matplotlib.axis_4"/>
   </g>
   <g id="axes_3">
    <g id="patch_4">
-    <path d="
-M145.165 64.8
-L194.4 64.8
-L194.4 7.2
-L145.165 7.2
+    <path d="M 145.164706 64.8 
+L 194.4 64.8 
+L 194.4 7.2 
+L 145.164706 7.2 
 z
 " style="fill:#ffffff;"/>
    </g>
    <g id="line2d_1">
-    <path clip-path="url(#p19b1e86336)" d="
-M145.165 45.6
-L194.4 26.4" style="fill:none;stroke:#0000ff;stroke-linecap:square;stroke-width:20.0;"/>
+    <path clip-path="url(#pef029be595)" d="M 145.164706 45.6 
+L 194.4 26.4 
+" style="fill:none;stroke:#0000ff;stroke-linecap:square;stroke-width:20.0;"/>
    </g>
    <g id="matplotlib.axis_5"/>
    <g id="matplotlib.axis_6"/>
   </g>
  </g>
  <defs>
-  <clipPath id="p19b1e86336">
+  <clipPath id="pef029be595">
    <rect height="57.6" width="49.2352941176" x="145.164705882" y="7.2"/>
   </clipPath>
-  <clipPath id="pc31db6f15f">
+  <clipPath id="p306f09a014">
    <rect height="49.2352941176" width="49.2352941176" x="27.0" y="11.3823529412"/>
   </clipPath>
  </defs>
