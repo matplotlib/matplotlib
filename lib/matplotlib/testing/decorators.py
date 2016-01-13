@@ -359,7 +359,13 @@ def _image_directories(func):
             # namespace package pip installed and run via the nose
             # multiprocess plugin or as a specific test this may be
             # missing. See https://github.com/matplotlib/matplotlib/issues/3314
-        assert mods.pop(0) == 'tests'
+        if mods.pop(0) != 'tests':
+            warnings.warn(("Module '%s' does not live in a parent module "
+                "named 'tests'. This is probably ok, but we may not be able "
+                "to guess the correct subdirectory containing the baseline "
+                "images. If things go wrong please make sure that there is "
+                "a parent directory named 'tests' and that it contains a "
+                "__init__.py file (can be empty).") % module_name)
         subdir = os.path.join(*mods)
 
         import imp
