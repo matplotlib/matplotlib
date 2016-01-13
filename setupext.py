@@ -17,8 +17,9 @@ from textwrap import fill
 import versioneer
 
 
-PY3 = (sys.version_info.major >= 3)
-PY32min = (PY3 and sys.version_info.minor >= 2)
+PY3min = (sys.version_info.major >= 3)
+PY32min = (PY3min and sys.version_info.minor >= 2 or
+           sys.version_info.major > 3)
 
 
 # This is the version of FreeType to use when building a local
@@ -29,13 +30,13 @@ LOCAL_FREETYPE_VERSION = '2.6.1'
 LOCAL_FREETYPE_HASH = '348e667d728c597360e4a87c16556597'
 
 if sys.platform != 'win32':
-    if not PY3:
+    if not PY3min:
         from commands import getstatusoutput
     else:
         from subprocess import getstatusoutput
 
 
-if PY3:
+if PY3min:
     import configparser
 else:
     import ConfigParser as configparser
@@ -1401,7 +1402,7 @@ class BackendTkAgg(OptionalBackendPackage):
 
     def check_requirements(self):
         try:
-            if PY3:
+            if PY3min:
                 import tkinter as Tkinter
             else:
                 import Tkinter
@@ -1452,7 +1453,7 @@ class BackendTkAgg(OptionalBackendPackage):
             return self.tcl_tk_cache
 
         # By this point, we already know that Tkinter imports correctly
-        if PY3:
+        if PY3min:
             import tkinter as Tkinter
         else:
             import Tkinter
@@ -1493,7 +1494,7 @@ class BackendTkAgg(OptionalBackendPackage):
 
     def parse_tcl_config(self, tcl_lib_dir, tk_lib_dir):
         try:
-            if PY3:
+            if PY3min:
                 import tkinter as Tkinter
             else:
                 import Tkinter
