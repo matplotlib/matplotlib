@@ -359,7 +359,12 @@ def _image_directories(func):
             # namespace package pip installed and run via the nose
             # multiprocess plugin or as a specific test this may be
             # missing. See https://github.com/matplotlib/matplotlib/issues/3314
-        assert mods.pop(0) == 'tests'
+        if mods[0] != 'tests':
+            raise AssertionError(
+                "Test does not live in a submodule named 'tests'. Please make "
+                "sure that there is a parent directory named 'tests' and that "
+                "it contains a __init__.py file (can be empty).")
+        mods.pop(0)  # ignore the leading 'tests' part of the module name
         subdir = os.path.join(*mods)
 
         import imp
