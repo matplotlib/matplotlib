@@ -364,7 +364,9 @@ def _image_directories(func):
 
         import imp
         def find_dotted_module(module_name, path=None):
-            """A version of imp which can handle dots in the module name"""
+            """A version of imp which can handle dots in the module name.
+               As for imp.find_module(), the return value is a 3-element
+               tuple (file, pathname, description)."""
             res = None
             for sub_mod in module_name.split('.'):
                 try:
