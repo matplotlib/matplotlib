@@ -2646,6 +2646,20 @@ class Parser(object):
                                self._make_space(0.2)] ,
                                do_kern = True)]
         elif c in self._punctuation_symbols:
+
+            # Do not space commas between brackets
+            if c == ',':
+                for i in six.moves.xrange(1, loc + 1):
+                    prev_char = s[loc - i]
+                    if prev_char != ' ':
+                        break
+                for i in six.moves.xrange(1, loc + 1):
+                    next_char = s[loc + i]
+                    if next_char != ' ':
+                        break
+                if (prev_char == '{' and next_char == '}'):
+                    return [char]
+
             # Do not space dots as decimal separators
             if (c == '.' and s[loc - 1].isdigit() and s[loc + 1].isdigit()):
                 return [char]
@@ -2817,6 +2831,9 @@ class Parser(object):
     def is_slanted(self, nucleus):
         if isinstance(nucleus, Char):
             return nucleus.is_slanted()
+        return False
+
+    def is_between_brackets(self, s, loc):
         return False
 
     def subsuper(self, s, loc, toks):
