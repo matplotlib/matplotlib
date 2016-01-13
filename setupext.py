@@ -17,7 +17,8 @@ from textwrap import fill
 import versioneer
 
 
-PY3 = (sys.version_info[0] >= 3)
+PY3 = (sys.version_info.major >= 3)
+PY32min = (PY3 and sys.version_info.minor >= 2)
 
 
 # This is the version of FreeType to use when building a local
@@ -28,7 +29,7 @@ LOCAL_FREETYPE_VERSION = '2.6.1'
 LOCAL_FREETYPE_HASH = '348e667d728c597360e4a87c16556597'
 
 if sys.platform != 'win32':
-    if sys.version_info[0] < 3:
+    if not PY3:
         from commands import getstatusoutput
     else:
         from subprocess import getstatusoutput
@@ -51,7 +52,10 @@ options = {
 
 setup_cfg = os.environ.get('MPLSETUPCFG', 'setup.cfg')
 if os.path.exists(setup_cfg):
-    config = configparser.SafeConfigParser()
+    if PY32min:
+        config = configparser.ConfigParser()
+    else:
+        config = configparser.SafeConfigParser()
     config.read(setup_cfg)
 
     if config.has_option('status', 'suppress'):
@@ -498,10 +502,14 @@ class OptionalPackage(SetupPackage):
         if the package is at default state ("auto"), forced by the user (True)
         or opted-out (False).
         """
+        conf = "auto"
         if config is not None and config.has_option(cls.config_category, cls.name):
-            return config.get(cls.config_category, cls.name)
-        return "auto"
-
+            try:
+                conf = config.getboolean(cls.config_category, cls.name)
+            except ValueError:
+                conf = config.get(cls.config_category, cls.name)
+        return conf        
+        
     def check(self):
         """
         Do not override this method!
