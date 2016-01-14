@@ -208,7 +208,8 @@ class ImageComparisonTest(CleanupTest):
         for fignum, baseline in zip_longest(plt.get_fignums(), self._baseline_images):
             if fignum is None:
                 raise ImageComparisonFailure(
-                    'Test specifies more baseline images than it creates figures')
+                    'Test "%s" specifies more baseline images than it creates figures' %
+                        self._orig_test_name)
 
             for extension in self._extensions:
                 will_fail = not extension in comparable_formats()
@@ -330,12 +331,13 @@ def image_comparison(baseline_images=None, extensions=None, tol=0,
         # something without the word "test", or it will be run as
         # well, outside of the context of our image comparison test
         # generator.
-        func = staticmethod(func)
-        func.__get__(1).__name__ = str('_private')
+        orig_test_name = func.__name__
+        func.__name__ = str('_private')
         new_class = type(
             name,
             (ImageComparisonTest,),
-            {'_func': func,
+            {'_func': staticmethod(func),
+             '_orig_test_name': orig_test_name,
              '_baseline_images': baseline_images,
              '_extensions': extensions,
              '_tol': tol,
