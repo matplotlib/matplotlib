@@ -8,15 +8,12 @@ from matplotlib.externals import six
 import itertools
 import matplotlib as mpl
 import matplotlib.lines as mlines
-import nose
-from nose.tools import assert_true, assert_raises
-import pytest
 from timeit import repeat
 import numpy as np
-
 import matplotlib.pyplot as plt
 from matplotlib.testing.decorators import cleanup, image_comparison
 import sys
+import pytest
 
 
 @cleanup

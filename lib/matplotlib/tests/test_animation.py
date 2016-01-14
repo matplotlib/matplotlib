@@ -64,12 +64,12 @@ def test_null_movie_writer():
     anim.save(filename, fps=fps, dpi=dpi, writer=writer,
               savefig_kwargs=savefig_kwargs)
 
-    assert_equal(writer.fig, fig)
-    assert_equal(writer.outfile, filename)
-    assert_equal(writer.dpi, dpi)
-    assert_equal(writer.args, ())
-    assert_equal(writer.savefig_kwargs, savefig_kwargs)
-    assert_equal(writer._count, num_frames)
+    assert writer.fig == fig
+    assert writer.outfile == filename
+    assert writer.dpi == dpi
+    assert writer.args == ()
+    assert writer.savefig_kwargs == savefig_kwargs
+    assert writer._count == num_frames
 
 
 @animation.writers.register('null')
