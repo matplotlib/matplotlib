@@ -10,7 +10,6 @@ import matplotlib as mpl
 import matplotlib.lines as mlines
 from timeit import repeat
 import numpy as np
-
 import matplotlib.pyplot as plt
 from matplotlib.testing.decorators import cleanup, image_comparison
 import sys
