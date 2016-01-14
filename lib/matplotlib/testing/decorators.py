@@ -11,6 +11,10 @@ import sys
 import shutil
 import warnings
 import unittest
+try:
+    from itertools import zip_longest
+except ImportError:
+    from itertools import izip_longest as zip_longest
 
 import nose
 import numpy as np
@@ -201,7 +205,11 @@ class ImageComparisonTest(CleanupTest):
     def test(self):
         baseline_dir, result_dir = _image_directories(self._func)
 
-        for fignum, baseline in zip(plt.get_fignums(), self._baseline_images):
+        for fignum, baseline in zip_longest(plt.get_fignums(), self._baseline_images):
+            if fignum is None:
+                raise ImageComparisonFailure(
+                    'Test specifies more baseline images than it creates figures')
+
             for extension in self._extensions:
                 will_fail = not extension in comparable_formats()
                 if will_fail:
