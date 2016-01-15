@@ -210,6 +210,10 @@ class ImageComparisonTest(CleanupTest):
                 raise ImageComparisonFailure(
                     'Test "%s" specifies more baseline images than it creates figures' %
                         self._orig_test_name)
+            if baseline is None:
+                raise ImageComparisonFailure(
+                    ('Test "%s" does not specify baseline images for some of the figures '
+                     'it creates') % self._orig_test_name)
 
             for extension in self._extensions:
                 will_fail = not extension in comparable_formats()
