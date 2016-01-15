@@ -292,7 +292,11 @@ if __name__ == '__main__':
         package_data=package_data,
         classifiers=classifiers,
         download_url="http://matplotlib.org/users/installing.html",
-
+        entry_points = {
+            'pytest11': [
+                'ignorenumpytests = matplotlib.ignorenumpytests',
+            ]
+        },
         # List third-party Python packages that we require
         install_requires=install_requires,
         setup_requires=setup_requires,

@@ -33,6 +33,7 @@ def run(extra_args):
             # to pytest.main
             return pytest.main(argv)
     else:
+        pytest.main(['--traceconfig'])
         return pytest.main(argv + ['--pyargs'] + default_test_modules +
                            ['--ignore=site-packages/numpy/testing/.'])
 
