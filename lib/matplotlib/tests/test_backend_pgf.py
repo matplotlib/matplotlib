@@ -49,8 +49,7 @@ def compare_figure(fname, savefig_kwargs={}):
     shutil.copyfile(os.path.join(baseline_dir, fname), expected)
     err = compare_images(expected, actual, tol=0)
     if err:
-        raise ImageComparisonFailure('images not close: %s vs. '
-                                     '%s' % (actual, expected))
+        raise ImageComparisonFailure(err)
 
 
 def create_figure():
