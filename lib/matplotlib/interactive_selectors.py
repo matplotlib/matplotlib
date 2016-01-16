@@ -4,12 +4,11 @@ from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
 import copy
-
 import numpy as np
 
 # TODO: convert these to relative when finished
 import matplotlib.colors as mcolors
-from matplotlib.patches import Polygon, Rectangle, Ellipse, RegularPolygon
+from matplotlib.patches import Patch, Rectangle, Ellipse, Polygon
 from matplotlib.lines import Line2D
 from matplotlib import docstring, artist as martist
 
@@ -117,7 +116,6 @@ class BaseTool(object):
 
     %(BaseInteractiveTool)s
     """
-
     def __init__(self, ax, on_select=None, on_motion=None, on_accept=None,
                  useblit=True, button=None, keys=None):
         """Initialize the tool.
@@ -343,32 +341,27 @@ docstring.dedent_interpd(BaseTool.__init__)
 
 
 @docstring.dedent_interpd
-class BasePolygonTool(BaseTool):
+class BasePatchTool(BaseTool):
 
-    """Interactive polygon selection tool that is connected to a single
+    """Interactive patch selection tool that is connected to a single
     :class:`~matplotlib.axes.Axes`.
 
     %(BaseInteractiveTool)s
     %(BasePolygonTool)s
     """
 
-    _shape = Polygon
-
     def __init__(self, ax, on_select=None, on_motion=None, on_accept=None,
                  interactive=True, allow_redraw=True, patch_args=None,
                  patch_props=None,
                  handle_props=None, useblit=True, button=None, keys=None):
-        super(BasePolygonTool, self).__init__(ax, on_select=on_select,
+        super(BasePatchTool, self).__init__(ax, on_select=on_select,
             on_accept=on_accept, on_motion=on_motion, useblit=True,
             keys=None)
 
-        props = dict(facecolor='red', edgecolor='black', visible=False,
-                     alpha=0.2, fill=True, picker=10, linewidth=2,
-                     zorder=1)
         if patch_args is None:
             patch_args = [[[0, 0], [1, 1]], True]
-        props.update(patch_props or {})
-        self.patch = self._shape(*patch_args, **props)
+        patch_props = patch_props or {}
+        self.patch = self._make_patch(**patch_props)
         self.ax.add_patch(self.patch)
 
         props = dict(marker='o', markersize=7, mfc='w', ls='none',
@@ -407,38 +400,33 @@ class BasePolygonTool(BaseTool):
         self._interactive = value
 
     @property
-    def center(self):
-        """Get the (x, y) center of the tool"""
-        verts = self.patch.get_xy()
-        return (verts.min(axis=0) + verts.max(axis=0)) / 2
-
-    @property
     def extents(self):
         """Get the (x0, y0, width, height) extents of the tool"""
-        verts = self.patch.get_xy()
-        x0, x1 = np.min(verts[:, 0]), np.max(verts[:, 0])
-        y0, y1 = np.min(verts[:, 1]), np.max(verts[:, 1])
-        return x0, y0, x1 - x0, y1 - y0
+        return self.patch.get_extents()
 
-    def _set_verts(self, value):
-        """Commit a change to the tool vertices."""
-        value = np.asarray(value)
-        assert value.ndim == 2
-        assert value.shape[1] == 2
+    def get_geometry(self):
+        """Get the tool specific geometry as a dictionary"""
+        return dict()
 
-        self.patch.set_xy(value)
+    def set_geometry(self, **kwargs):
+        """Set the tool geometry directly"""
+        for (key, value) in kwargs.items():
+            func = getattr(self.patch, 'set_%s' % key, None)
+            if func:
+                func(value)
+            elif hasattr(self.patch, key):
+                setattr(self.patch, key, value)
+
         self.patch.set_visible(True)
-        self.patch.set_animated(False)
+        self.patch.set_animated(self._drawing)
 
         if self._prev_data is None:
-            self._prev_data = dict(verts=value,
-                                   center=self.center,
-                                   extents=self.extents)
+            self._prev_geometry = self.get_geometry()
 
-        handles = self._get_handle_verts()
+        handles = np.asarray(self._get_handle_verts())
         self._handles.set_data(handles[:, 0], handles[:, 1])
         self._handles.set_visible(self.interactive)
-        self._handles.set_animated(False)
+        self._handles.set_animated(self._drawing)
         self._update()
 
         if not self._drawing:
@@ -478,9 +466,7 @@ class BasePolygonTool(BaseTool):
                 artist.set_visible(False)
         self._modifiers = set()
         if selection:
-            self._prev_data = dict(verts=self.patch.get_xy(),
-                                   center=self.center,
-                                   extents=self.extents)
+            self._prev_geometry = self.get_geometry()
             self.on_select(self)
             self._has_selected = True
         self.canvas.draw_idle()
@@ -508,11 +494,7 @@ class BasePolygonTool(BaseTool):
     def _handle_motion_notify(self, event):
         if self._drawing:
             if self._moving:
-                center = self.center
-                verts = self.patch.get_xy()
-                verts[:, 0] += event.xdata - center[0]
-                verts[:, 1] += event.ydata - center[1]
-                self._set_verts(verts)
+                self._move(event)
             else:
                 self._on_motion(event)
             self.on_motion(self)
@@ -534,7 +516,7 @@ class BasePolygonTool(BaseTool):
 
         if event.key == self._keys['clear']:
             if self._dragging:
-                self._set_verts(self._prev_data['verts'])
+                self.set_geometry(**self._prev_geometry)
                 self._finish_drawing(event, False)
             elif self._drawing:
                 for artist in self._artists:
@@ -573,12 +555,20 @@ class BasePolygonTool(BaseTool):
     #############################################################
     # The following are meant to be subclassed as needed.
     #############################################################
+    def _make_patch(self, **props):
+        """Initialize the patch"""
+        return Patch(**props)
+
     def _get_handle_verts(self):
         """Get the handle vertices for a tool, not including the center.
 
         Return an (N, 2) array of vertices.
         """
-        return self.patch.get_xy()
+        return None
+
+    def _move(self, event):
+        """Move the shape"""
+        pass
 
     def _on_press(self, event):
         """Handle a button_press_event"""
@@ -593,57 +583,38 @@ HANDLE_ORDER = ['NW', 'NE', 'SE', 'SW', 'W', 'N', 'E', 'S']
 
 
 @docstring.dedent_interpd
-class RectangleTool(BasePolygonTool):
+class RectangleTool(BasePatchTool):
 
     """Interactive rectangle selection tool that is connected to a single
     :class:`~matplotlib.axes.Axes`.
 
     %(BaseInteractiveTool)s
     %(BasePolygonTool)s
-    width: float
-        The width of the rectangle in data units (read-only).
-    height: float
-        The height of the rectangle in data units (read-only).
     """
 
-    _shape = Rectangle
+    def get_geometry(self):
+        return dict(xy=self.patch.get_xy(),
+                    width=self.patch.get_width(),
+                    height=self.patch.get_height(),
+                    angle=self.patch.get_angle())
 
-    @property
-    def width(self):
-        """Get the width of the tool in data units"""
-        return np.ptp(self.patch.get_xy()[:, 0])
-
-    @property
-    def height(self):
-        """Get the height of the tool in data units"""
-        return np.ptp(self.patch.get_xy()[:, 1])
-
-    def set_geometry(self, x0, y0, width, height):
-        """Set the geometry of the rectangle tool.
-
-        Parameters
-        ----------
-        x0: float
-            The left coordinate in data units.
-        y0: float
-            The bottom coordinate in data units.
-        width:
-            The width in data units.
-        height:
-            The height in data units.
-        """
-        radx = width / 2
-        rady = height / 2
-        center = x0 + width / 2, y0 + height / 2
-        self._set_verts([[center[0] - radx, center[1] - rady],
-                         [center[0] - radx, center[1] + rady],
-                         [center[0] + radx, center[1] + rady],
-                         [center[0] + radx, center[1] - rady]])
+    def _make_patch(self, **overrides):
+        props = dict(facecolor='red', edgecolor='black', visible=False,
+                     alpha=0.2, fill=True, picker=10, linewidth=2,
+                     zorder=1)
+        props.update(overrides)
+        return Rectangle((0, 0), 0, 0, **props)
 
     def _get_handle_verts(self):
-        xm, ym = self.center
-        w = self.width / 2
-        h = self.height / 2
+        geometry = self.get_geometry()
+        width, height = geometry['width'], geometry['height']
+        if isinstance(self.patch, Ellipse):
+            xm, ym = geometry['center']
+        else:
+            x0, y0 = geometry['xy']
+            xm, ym = x0 + width / 2, y0 + height / 2
+        w = width / 2
+        h = height / 2
         xc = xm - w, xm + w, xm + w, xm - w
         yc = ym - h, ym - h, ym + h, ym + h
         xe = xm - w, xm, xm + w, xm
@@ -655,9 +626,16 @@ class RectangleTool(BasePolygonTool):
     def _on_motion(self, event):
         # Resize an existing shape.
         if self._dragging:
-            x0, y0, width, height = self._prev_data['extents']
-            x1 = x0 + width
-            y1 = y0 + height
+            geometry = self._prev_geometry
+            width, height = geometry['width'], geometry['height']
+            if isinstance(self.patch,  Ellipse):
+                x0, y0 = geometry['center']
+                x0 -= width / 2
+                y0 -= height / 2
+            else:
+                x0, y0 = geometry['xy']
+            x1, y1 = x0 + width, y0 + height
+
             handle = HANDLE_ORDER[self._drag_idx]
             if handle in ['NW', 'SW', 'W']:
                 x0 = event.xdata
@@ -701,7 +679,17 @@ class RectangleTool(BasePolygonTool):
                               center[1] - dy, center[1] + dy)
 
         # Update the shape.
-        self.set_geometry(x0, y0, x1 - x0, y1 - y0)
+        width, height = x1 - x0, y1 - y0
+        if isinstance(self.patch, Ellipse):
+            self.set_geometry(center=(x0 + width / 2, y0 + height / 2),
+                              width=width, height=height)
+        else:
+            self.set_geometry(xy=(x0, y0), width=width, height=height)
+
+    def _move(self, event):
+        geo = self.get_geometry()
+        self.set_geometry(xy=(event.xdata - geo['width'] / 2,
+                              event.ydata - geo['height'] / 2))
 
 
 @docstring.dedent_interpd
@@ -718,64 +706,37 @@ class EllipseTool(RectangleTool):
         The height of the ellipse in data units (read-only).
     """
 
-    _shape = Ellipse
+    def get_geometry(self):
+        return dict(center=self.patch.center,
+                    width=self.patch.width,
+                    height=self.patch.height,
+                    angle=self.patch.angle)
 
-    def set_geometry(self, x0, y0, width, height):
-        """Set the geometry of the ellipse tool.
+    def _make_patch(self, **overrides):
+        props = dict(facecolor='red', edgecolor='black', visible=False,
+                     alpha=0.2, fill=True, picker=10, linewidth=2,
+                     zorder=1)
+        props.update(overrides)
+        return Ellipse((0, 0), 0, 0, **props)
 
-        Parameters
-        ----------
-        x0: float
-            The left coordinate in data units.
-        y0: float
-            The bottom coordinate in data units.
-        width:
-            The width in data units.
-        height:
-            The height in data units.
-        """
-        center = x0 + width / 2, y0 + height / 2
-        rad = np.arange(61) * 6 * np.pi / 180
-        x = width / 2 * np.cos(rad) + center[0]
-        y = height / 2 * np.sin(rad) + center[1]
-        self._set_verts(np.vstack((x, y)).T)
+    def _move(self, event):
+        self.set_geometry(center=(event.xdata, event.ydata))
 
 
 @docstring.dedent_interpd
-class LineTool(RectangleTool):
+class LineTool(BasePatchTool):
 
     """Interactive line selection tool that is connected to a single
     :class:`~matplotlib.axes.Axes`.
     %(BaseInteractiveTool)s
     %(BasePolygonTool)s
-    width: float
-        The width of the line in pixels.  This can be set directly.
-    end_points: (2, 2) float
-        The [(x0, y0), (x1, y1)] end points of the line in data units
-        (read-only).
-    angle: float
-        The angle between the left point and the right point in radians in
-        pixel space (read-only).
     """
 
-    @docstring.dedent_interpd
-    def __init__(self, ax, on_select=None, on_motion=None, on_accept=None,
-             interactive=True, allow_redraw=True,
-             shape_props=None, handle_props=None,
-             useblit=True, button=None, keys=None):
-        """Initialize the tool.
-        %(BaseInteractiveToolInit)s
-        %(BasePolygonToolInit)s
-        """
-        props = dict(edgecolor='red', visible=False,
-                     alpha=0.5, fill=True, picker=5, linewidth=1)
-        props.update(shape_props or {})
-        super(LineTool, self).__init__(ax, on_select=on_select,
-            on_motion=on_motion, on_accept=on_accept, interactive=interactive,
-            allow_redraw=allow_redraw, shape_props=props,
-            handle_props=handle_props, useblit=useblit, button=button,
-            keys=keys)
-        self._width = 1
+    def get_geometry(self):
+        return dict(xy=self.patch.get_xy(),
+                    width=self.width,
+                    end_points=self.end_points,
+                    angle=self.angle)
 
     @property
     def width(self):
@@ -784,7 +745,9 @@ class LineTool(RectangleTool):
 
     @width.setter
     def width(self, value):
-        self.set_geometry(self.end_points, value)
+        """Set the width of the line in pixels."""
+        self._width = value
+        self.end_points = self.end_points
 
     @property
     def end_points(self):
@@ -796,35 +759,13 @@ class LineTool(RectangleTool):
         p1y = (verts[3, 1] + verts[2, 1]) / 2
         return np.array([[p0x, p0y], [p1x, p1y]])
 
-    @property
-    def angle(self):
-        """Find the angle between the left and right points in pixel space."""
-        # Convert to pixels.
-        pts = self.end_points
-        pts = self.ax.transData.inverted().transform(pts)
-        if pts[0, 0] < pts[1, 0]:
-            return np.arctan2(pts[1, 1] - pts[0, 1], pts[1, 0] - pts[0, 0])
-        else:
-            return np.arctan2(pts[0, 1] - pts[1, 1], pts[0, 0] - pts[1, 0])
-
-    def set_geometry(self, end_points, width=None):
-        """Set the geometry of the line tool.
-
-        Parameters
-        ----------
-        end_points: (2, 2) float
-            The coordinates of the end points in data space.
-        width: int, optional
-            The width in pixels.
-        """
+    @end_points.setter
+    def end_points(self, end_points):
         pts = np.asarray(end_points)
-        width = width or self._width
-        self._width = width
-
         # Get the widths in data units.
         xfm = self.ax.transData.inverted()
         x0, y0 = xfm.transform((0, 0))
-        x1, y1 = xfm.transform((width, width))
+        x1, y1 = xfm.transform((self._width, self._width))
         wx, wy = abs(x1 - x0), abs(y1 - y0)
 
         # Find line segments centered on the end points perpendicular to the
@@ -848,17 +789,36 @@ class LineTool(RectangleTool):
         v10 = p1[0] + wx / 2 * c, p1[1] + wy / 2 * s
         v11 = p1[0] - wx / 2 * c, p1[1] - wy / 2 * s
 
-        self._set_verts((v00, v01, v11, v10))
+        super(LineTool, self).set_geometry(xy=(v00, v01, v11, v10))
+
+    @property
+    def angle(self):
+        """Find the angle between the left and right points in pixel space."""
+        # Convert to pixels.
+        pts = self.end_points
+        pts = self.ax.transData.inverted().transform(pts)
+        if pts[0, 0] < pts[1, 0]:
+            return np.arctan2(pts[1, 1] - pts[0, 1], pts[1, 0] - pts[0, 0])
+        else:
+            return np.arctan2(pts[0, 1] - pts[1, 1], pts[0, 0] - pts[1, 0])
+
+    def _make_patch(self, **overrides):
+        self._width = 1
+        props = dict(facecolor='red', edgecolor='red', visible=False,
+                     alpha=0.5, fill=True, picker=10, linewidth=2,
+                     zorder=1)
+        props.update(overrides)
+        return Polygon([(0, 0), (0, 0)], **props)
 
     def _get_handle_verts(self):
         return self.end_points
 
     def _on_press(self, event):
         if not self._dragging:
-            self.set_geometry([[event.xdata, event.ydata],
+            self.end_points = [[event.xdata, event.ydata],
                                [event.xdata, event.ydata],
                                [event.xdata, event.ydata],
-                               [event.xdata, event.ydata]])
+                               [event.xdata, event.ydata]]
             self._dragging = True
             self._drag_idx = 1
         self._start_drawing(event)
@@ -866,19 +826,25 @@ class LineTool(RectangleTool):
     def _on_motion(self, event):
         end_points = self.end_points
         end_points[self._drag_idx, :] = event.xdata, event.ydata
-        self.set_geometry(end_points, self._width)
+        self.end_points = end_points
+
+    def _move(self, event):
+        pts = self.end_points
+        pts[:, 0] += event.xdata - (pts[1, 0] + pts[0, 0]) / 2
+        pts[:, 1] += event.ydata - (pts[1, 1] + pts[0, 1]) / 2
+        self.end_points = pts
 
     def _on_scroll(self, event):
         if event.button == 'up':
-            self.set_geometry(self.end_points, self.width + 1)
-        elif event.button == 'down':
-            self.set_geometry(self.end_points, self.width - 1)
+            self.width += 1
+        elif event.button == 'down' and self.width > 1:
+            self.width -= 1
 
     def _on_key_press(self, event):
         if event.key == '+':
-            self.set_geometry(self.end_points, self.width + 1)
+            self.width += 1
         elif event.key == '-' and self.width > 1:
-            self.set_geometry(self.end_points, self.width - 1)
+            self.width -= 1
 
 
 LABELS_CMAP = mcolors.ListedColormap(['white', 'red', 'dodgerblue', 'gold',
@@ -1041,8 +1007,9 @@ if __name__ == '__main__':
     fig, ax = plt.subplots()
 
     pts = ax.scatter(data[:, 0], data[:, 1], s=80)
-    ellipse = EllipseTool(ax)
-    ellipse.set_geometry(0.6, 1.1, 0.3, 0.3)
+
+    ellipse = RectangleTool(ax)
+    ellipse.set_geometry(xy=(0.4, 0.5), width=0.3, height=0.5)
     ax.invert_yaxis()
 
     def test(tool):
@@ -1050,13 +1017,12 @@ if __name__ == '__main__':
 
     ellipse.on_accept = test
     ellipse.interactive = True
-
     """
     line = LineTool(ax)
-    line.set_geometry([[0.1, 0.1], [0.5, 0.5]], 1)
-    line.interactive = False
-    """
+    line.end_points = [[0.1, 0.1], [0.5, 0.5]]
+    line.interactive = True
 
+    """
     """
     def test(tool):
         print(tool.overlay)
