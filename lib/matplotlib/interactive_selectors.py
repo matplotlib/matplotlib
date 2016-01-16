@@ -399,11 +399,6 @@ class BasePatchTool(BaseTool):
             self.canvas.draw_idle()
         self._interactive = value
 
-    @property
-    def extents(self):
-        """Get the (x0, y0, width, height) extents of the tool"""
-        return self.patch.get_extents()
-
     def get_geometry(self):
         """Get the tool specific geometry as a dictionary"""
         return dict()
@@ -593,6 +588,16 @@ class RectangleTool(BasePatchTool):
     """
 
     def get_geometry(self):
+        """Get the geometry of the ellipse tool.
+
+        Returns
+        -------
+        geometry: dict
+            xy: The (x0, y0) origin point.
+            width: The width of the tool.
+            height: The height of the tool
+            angle: The angle of the tool (counter-clockwise).
+        """
         return dict(xy=self.patch.get_xy(),
                     width=self.patch.get_width(),
                     height=self.patch.get_height(),
@@ -707,6 +712,16 @@ class EllipseTool(RectangleTool):
     """
 
     def get_geometry(self):
+        """Get the geometry of the ellipse tool.
+
+        Returns
+        -------
+        geometry: dict
+            center: The (x0, y0) center point.
+            width: The width of the tool.
+            height: The height of the tool
+            angle: The angle of the tool (counter-clockwise).
+        """
         return dict(center=self.patch.center,
                     width=self.patch.width,
                     height=self.patch.height,
@@ -733,39 +748,30 @@ class LineTool(BasePatchTool):
     """
 
     def get_geometry(self):
-        return dict(xy=self.patch.get_xy(),
-                    width=self.width,
-                    end_points=self.end_points,
-                    angle=self.angle)
+        """Get the geometry of the line tool.
 
-    @property
-    def end_points(self):
-        """Get the end points of the line in data units."""
-        verts = self.patch.get_xy()
-        p0x = (verts[0, 0] + verts[1, 0]) / 2
-        p0y = (verts[0, 1] + verts[1, 1]) / 2
-        p1x = (verts[3, 0] + verts[2, 0]) / 2
-        p1y = (verts[3, 1] + verts[2, 1]) / 2
-        return np.array([[p0x, p0y], [p1x, p1y]])
+        Returns
+        -------
+        geometry: dict
+            end_points: The [(x0, y0), (x1, y1)] points.
+            width: The width of the tool in pixels.
+        """
+        return dict(end_points=self.end_points, width=self.width)
 
-    @property
-    def angle(self):
-        """Find the angle between the left and right points in pixel space."""
-        # Convert to pixels.
-        pts = self.end_points
-        pts = self.ax.transData.inverted().transform(pts)
-        if pts[0, 0] < pts[1, 0]:
-            return np.arctan2(pts[1, 1] - pts[0, 1], pts[1, 0] - pts[0, 0])
-        else:
-            return np.arctan2(pts[0, 1] - pts[1, 1], pts[0, 0] - pts[1, 0])
+    def set_geometry(self, end_points=None, width=None):
+        """Set the geometry of the line tool.
 
-    def set_geometry(self, **kwargs):
-        self.width = kwargs.pop('width', self.width)
-        if 'xy' in kwargs:
-            return super(self, LineTool).set_geometry(**kwargs)
-
-        pts = kwargs.pop('end_points', self.end_points)
-        pts = np.asarray(pts)
+        Parameters
+        ----------
+        end_points: [(xo, y0), (x1, y1)]
+           The end points of the tool
+        width: int
+            The width in pixels of the line
+        """
+        self.width = width or self.width
+        if end_points is None:
+            end_points = self.end_points
+        pts = np.asarray(end_points)
         # Get the widths in data units.
         xfm = self.ax.transData.inverted()
         x0, y0 = xfm.transform((0, 0))
