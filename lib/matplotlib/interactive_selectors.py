@@ -739,17 +739,6 @@ class LineTool(BasePatchTool):
                     angle=self.angle)
 
     @property
-    def width(self):
-        """Get the width of the line in pixels."""
-        return self._width
-
-    @width.setter
-    def width(self, value):
-        """Set the width of the line in pixels."""
-        self._width = value
-        self.end_points = self.end_points
-
-    @property
     def end_points(self):
         """Get the end points of the line in data units."""
         verts = self.patch.get_xy()
@@ -759,13 +748,28 @@ class LineTool(BasePatchTool):
         p1y = (verts[3, 1] + verts[2, 1]) / 2
         return np.array([[p0x, p0y], [p1x, p1y]])
 
-    @end_points.setter
-    def end_points(self, end_points):
-        pts = np.asarray(end_points)
+    @property
+    def angle(self):
+        """Find the angle between the left and right points in pixel space."""
+        # Convert to pixels.
+        pts = self.end_points
+        pts = self.ax.transData.inverted().transform(pts)
+        if pts[0, 0] < pts[1, 0]:
+            return np.arctan2(pts[1, 1] - pts[0, 1], pts[1, 0] - pts[0, 0])
+        else:
+            return np.arctan2(pts[0, 1] - pts[1, 1], pts[0, 0] - pts[1, 0])
+
+    def set_geometry(self, **kwargs):
+        self.width = kwargs.pop('width', self.width)
+        if 'xy' in kwargs:
+            return super(self, LineTool).set_geometry(**kwargs)
+
+        pts = kwargs.pop('end_points', self.end_points)
+        pts = np.asarray(pts)
         # Get the widths in data units.
         xfm = self.ax.transData.inverted()
         x0, y0 = xfm.transform((0, 0))
-        x1, y1 = xfm.transform((self._width, self._width))
+        x1, y1 = xfm.transform((self.width, self.width))
         wx, wy = abs(x1 - x0), abs(y1 - y0)
 
         # Find line segments centered on the end points perpendicular to the
@@ -791,34 +795,21 @@ class LineTool(BasePatchTool):
 
         super(LineTool, self).set_geometry(xy=(v00, v01, v11, v10))
 
-    @property
-    def angle(self):
-        """Find the angle between the left and right points in pixel space."""
-        # Convert to pixels.
-        pts = self.end_points
-        pts = self.ax.transData.inverted().transform(pts)
-        if pts[0, 0] < pts[1, 0]:
-            return np.arctan2(pts[1, 1] - pts[0, 1], pts[1, 0] - pts[0, 0])
-        else:
-            return np.arctan2(pts[0, 1] - pts[1, 1], pts[0, 0] - pts[1, 0])
-
     def _make_patch(self, **overrides):
-        self._width = 1
+        self.width = 1
         props = dict(facecolor='red', edgecolor='red', visible=False,
                      alpha=0.5, fill=True, picker=10, linewidth=2,
                      zorder=1)
         props.update(overrides)
-        return Polygon([(0, 0), (0, 0)], **props)
+        return Polygon([(0, 0), (0, 0), (0, 0), (0, 0)], **props)
 
     def _get_handle_verts(self):
         return self.end_points
 
     def _on_press(self, event):
         if not self._dragging:
-            self.end_points = [[event.xdata, event.ydata],
-                               [event.xdata, event.ydata],
-                               [event.xdata, event.ydata],
-                               [event.xdata, event.ydata]]
+            self.set_geometry(end_points=[[event.xdata, event.ydata],
+                               [event.xdata, event.ydata]])
             self._dragging = True
             self._drag_idx = 1
         self._start_drawing(event)
@@ -826,13 +817,13 @@ class LineTool(BasePatchTool):
     def _on_motion(self, event):
         end_points = self.end_points
         end_points[self._drag_idx, :] = event.xdata, event.ydata
-        self.end_points = end_points
+        self.set_geometry(end_points=end_points)
 
     def _move(self, event):
         pts = self.end_points
         pts[:, 0] += event.xdata - (pts[1, 0] + pts[0, 0]) / 2
         pts[:, 1] += event.ydata - (pts[1, 1] + pts[0, 1]) / 2
-        self.end_points = pts
+        self.set_geometry(end_points=pts)
 
     def _on_scroll(self, event):
         if event.button == 'up':
@@ -1008,6 +999,7 @@ if __name__ == '__main__':
 
     pts = ax.scatter(data[:, 0], data[:, 1], s=80)
 
+    """
     ellipse = RectangleTool(ax)
     ellipse.set_geometry(xy=(0.4, 0.5), width=0.3, height=0.5)
     ax.invert_yaxis()
@@ -1019,10 +1011,9 @@ if __name__ == '__main__':
     ellipse.interactive = True
     """
     line = LineTool(ax)
-    line.end_points = [[0.1, 0.1], [0.5, 0.5]]
+    line.set_geometry(end_points=[[0.1, 0.1], [0.5, 0.5]])
     line.interactive = True
 
-    """
     """
     def test(tool):
         print(tool.overlay)
