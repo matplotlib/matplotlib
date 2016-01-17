@@ -55,23 +55,28 @@ matrix:
     - python: "nightly"
 
 before_install:
-  - source ci/travis/travis_tools.sh
-  # Install into our own pristine virtualenv
-  - virtualenv --python=python venv
-  - source venv/bin/activate
-  - export PATH=/usr/lib/ccache:$PATH
+  - |
+    # Install into our own pristine virtualenv
+    source ci/travis/travis_tools.sh
+    virtualenv --python=python venv
+    source venv/bin/activate
+    export PATH=/usr/lib/ccache:$PATH
 
 install:
   - |
+    # Setup environment
     ccache -s
     # Upgrade pip and setuptools and wheel to get as clean an install as possible
     pip install --upgrade pip
     pip install --upgrade wheel
     pip install --upgrade setuptools
-    # Install only from travis wheelhouse
+  - |
+    # Install dependencies
     if [ -z "$PRE" ]; then
+        # Install only from travis wheelhouse
         wheelhouse_pip_install $NUMPY $PANDAS;
     else
+        # Fall back to pypi for non suported python versions
         pip install $PRE $NUMPY $PANDAS;
     fi
     # Always install from pypi
@@ -98,6 +103,8 @@ install:
       # Use the special local version of freetype for testing
       cp ci/travis/setup.cfg .
     fi;
+  - |
+    # Install matplotlib
     pip install -e .
 
 script:
