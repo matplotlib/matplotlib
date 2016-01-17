@@ -21,6 +21,7 @@ import matplotlib.transforms as mtrans
 import matplotlib.pyplot as plt
 import matplotlib.path as mpath
 import matplotlib.patches as mpatches
+import pytest
 
 
 @cleanup
