@@ -104,9 +104,9 @@ script:
   # The number of processes is hardcoded, because using too many causes the
   # Travis VM to run out of memory (since so many copies of inkscape and
   # ghostscript are running at the same time).
-  - echo Testing using $NPROC processes
-  - echo The following args are passed to nose $NOSE_ARGS
   - |
+    echo Testing using $NPROC processes
+    echo The following args are passed to nose $NOSE_ARGS
     if [[ $BUILD_DOCS == false ]]; then
       export MPL_REPO_DIR=$PWD  # needed for pep8-conformance test of the examples
       gdb -return-child-result -batch -ex r -ex bt --args python tests.py $NOSE_ARGS $TEST_ARGS
@@ -122,16 +122,16 @@ script:
     fi
 
 after_failure:
-  |
-  if [[ $BUILD_DOCS == false && $TRAVIS_PULL_REQUEST == false && $TRAVIS_REPO_SLUG == 'matplotlib/matplotlib' ]]; then
-    gem install travis-artifacts
-    cd $TRAVIS_BUILD_DIR/../tmp_test_dir
-    tar cjf result_images.tar.bz2 result_images
-    travis-artifacts upload --path result_images.tar.bz2
-    echo https://s3.amazonaws.com/matplotlib-test-results/artifacts/${TRAVIS_BUILD_NUMBER}/${TRAVIS_JOB_NUMBER}/result_images.tar.bz2
-  else
-    echo "The result images will only be uploaded if they are on the matplotlib/matplotlib repo - this is for security reasons to prevent arbitrary PRs echoing security details."
-  fi
+  - |
+    if [[ $BUILD_DOCS == false && $TRAVIS_PULL_REQUEST == false && $TRAVIS_REPO_SLUG == 'matplotlib/matplotlib' ]]; then
+      gem install travis-artifacts
+      cd $TRAVIS_BUILD_DIR/../tmp_test_dir
+      tar cjf result_images.tar.bz2 result_images
+      travis-artifacts upload --path result_images.tar.bz2
+      echo https://s3.amazonaws.com/matplotlib-test-results/artifacts/${TRAVIS_BUILD_NUMBER}/${TRAVIS_JOB_NUMBER}/result_images.tar.bz2
+    else
+      echo "The result images will only be uploaded if they are on the matplotlib/matplotlib repo - this is for security reasons to prevent arbitrary PRs echoing security details."
+    fi
 
 after_success:
   |
