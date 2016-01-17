@@ -62,31 +62,30 @@ before_install:
   - export PATH=/usr/lib/ccache:$PATH
 
 install:
-  - ccache -s
-  # Upgrade pip and setuptools. Mock has issues with the default version of
-  # setuptools
   - |
+    ccache -s
+    # Upgrade pip and setuptools and wheel to get as clean an install as possible
     pip install --upgrade pip
     pip install --upgrade wheel
     pip install --upgrade setuptools
-  # Install only from travis wheelhouse
-  - if [ -z "$PRE" ]; then
+    # Install only from travis wheelhouse
+    if [ -z "$PRE" ]; then
         wheelhouse_pip_install $NUMPY $PANDAS;
     else
         pip install $PRE $NUMPY $PANDAS;
     fi
-  # Always install from pypi
-  - pip install $PRE pep8 cycler coveralls coverage python-dateutil pyparsing!=2.0.4 pillow sphinx!=1.3.0 $MOCK
-  - 'pip install git+https://github.com/jenshnielsen/nose.git@matplotlibnose'
+    # Always install from pypi
+    pip install $PRE pep8 cycler coveralls coverage python-dateutil pyparsing!=2.0.4
+    pip install pillow sphinx!=1.3.0 $MOCK numpydoc ipython colorspacious
+    # Install nose from a build which has partial
+    # support for python36 and suport for coverage output suppressing
+    pip install git+https://github.com/jenshnielsen/nose.git@matplotlibnose
 
-  # We manually install humor sans using the package from Ubuntu 14.10. Unfortunatly humor sans is not
-  # availible in the Ubuntu version used by Travis but we can manually install the deb from a later
-  # version since is it basically just a .ttf file
-  # The current Travis Ubuntu image is to old to search .local/share/fonts so we store fonts in .fonts
-
-  - |
+    # We manually install humor sans using the package from Ubuntu 14.10. Unfortunatly humor sans is not
+    # availible in the Ubuntu version used by Travis but we can manually install the deb from a later
+    # version since is it basically just a .ttf file
+    # The current Travis Ubuntu image is to old to search .local/share/fonts so we store fonts in .fonts
     if [[ $BUILD_DOCS == true ]]; then
-      pip install $PRE numpydoc ipython colorspacious
       wget https://github.com/google/fonts/blob/master/ofl/felipa/Felipa-Regular.ttf?raw=true -O Felipa-Regular.ttf
       wget http://mirrors.kernel.org/ubuntu/pool/universe/f/fonts-humor-sans/fonts-humor-sans_1.0-1_all.deb
       mkdir -p tmp
@@ -99,8 +98,7 @@ install:
       # Use the special local version of freetype for testing
       cp ci/travis/setup.cfg .
     fi;
-
-  - pip install -e .
+    pip install -e .
 
 script:
   # The number of processes is hardcoded, because using too many causes the
