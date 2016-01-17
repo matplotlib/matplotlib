@@ -346,6 +346,7 @@ def test_docstring_addition():
         re.compile(r".*'x'.*")
     bar_string = \
         re.compile(r".*'bar'.*")
+    
     @unpack_labeled_data()
     def funcy(ax, *args, **kwargs):
         """Funcy does nothing"""
