@@ -410,4 +410,3 @@ def test_rcparams_reset_after_fail():
                 pass
 
         assert mpl.rcParams['text.usetex'] is False
-

@@ -80,5 +80,4 @@ def test_offsetbox_clip_children():
     fig.canvas.draw()
     assert not fig.stale
     da.clip_children = True
-    assert_true(fig.stale)
-
+    assert fig.stale
