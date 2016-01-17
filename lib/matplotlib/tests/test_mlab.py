@@ -404,18 +404,18 @@ class window_testcase(CleanupTestCase):
     def test_apply_window_1D_els_wrongsize_ValueError(self):
         x = self.sig_rand
         window = mlab.window_hanning(np.ones(x.shape[0]-1))
-        pytest.raises(ValueError, mlab.apply_windowx, window)
+        pytest.raises(ValueError, mlab.apply_window, x, window)
 
     def test_apply_window_0D_ValueError(self):
         x = np.array(0)
         window = mlab.window_hanning
-        pytest.raises(ValueError, mlab.apply_windowx, window, axis=1,
+        pytest.raises(ValueError, mlab.apply_window, x, window, axis=1,
                       return_window=False)
 
     def test_apply_window_3D_ValueError(self):
         x = self.sig_rand[np.newaxis][np.newaxis]
         window = mlab.window_hanning
-        pytest.raises(ValueError, mlab.apply_windowx, window, axis=1,
+        pytest.raises(ValueError, mlab.apply_window, x, window, axis=1,
                       return_window=False)
 
     def test_apply_window_hanning_1D(self):
