@@ -585,6 +585,7 @@ def test_invalid_arguments():
     with pytest.raises(RuntimeError):
         t.transform([[1, 2, 3]])
 
+
 def test_transformed_path():
     points = [(0, 0), (1, 0), (1, 1), (0, 1)]
     codes = [Path.MOVETO, Path.LINETO, Path.LINETO, Path.CLOSEPOLY]
