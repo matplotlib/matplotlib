@@ -332,6 +332,10 @@ class Line2D(Artist):
         self._linestyles = None
         self._drawstyle = None
         self._linewidth = None
+
+        self._dashSeq = None
+        self._dashOffset = 0
+
         self.set_linestyle(linestyle)
         self.set_drawstyle(drawstyle)
         self.set_linewidth(linewidth)
@@ -348,9 +352,6 @@ class Line2D(Artist):
         self.set_markevery(markevery)
         self.set_antialiased(antialiased)
         self.set_markersize(markersize)
-
-        self._dashSeq = None
-        self._dashOffset = 0
 
         self._markeredgecolor = None
         self._markeredgewidth = None
