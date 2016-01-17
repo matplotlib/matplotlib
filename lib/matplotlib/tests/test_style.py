@@ -133,8 +133,3 @@ def test_context_with_badparam():
         with pytest.raises(KeyError):
             x.__enter__()
         assert mpl.rcParams[PARAM] == other_value
-
-
-if __name__ == '__main__':
-    from numpy import testing
-    testing.run_module_suite()

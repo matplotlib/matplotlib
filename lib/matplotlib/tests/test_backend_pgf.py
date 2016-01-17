@@ -190,8 +190,3 @@ def test_bbox_inches():
 
     bbox = ax1.get_window_extent().transformed(fig.dpi_scale_trans.inverted())
     compare_figure('pgf_bbox_inches.pdf', savefig_kwargs={'bbox_inches': bbox})
-
-
-if __name__ == '__main__':
-    import nose
-    nose.runmodule(argv=['-s', '--with-doctest'], exit=False)

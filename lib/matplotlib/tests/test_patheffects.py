@@ -126,8 +126,3 @@ def test_collection():
                                                        linewidth=3)])
         text.set_bbox({'boxstyle': 'sawtooth', 'facecolor': 'none',
                        'edgecolor': 'blue'})
-
-
-if __name__ == '__main__':
-    import nose
-    nose.runmodule(argv=['-s', '--with-doctest'], exit=False)

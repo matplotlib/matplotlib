@@ -228,8 +228,3 @@ def test_clipping_with_nans():
     ax = fig.add_subplot(111)
     ax.plot(x, y)
     ax.set_ylim(-0.25, 0.25)
-
-
-if __name__=='__main__':
-    import nose
-    nose.runmodule(argv=['-s','--with-doctest'], exit=False)

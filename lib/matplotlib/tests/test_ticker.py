@@ -366,8 +366,3 @@ def test_formatstrformatter():
     # test str.format() style formatter
     tmp_form = mticker.StrMethodFormatter('{x:05d}')
     assert '00002' == tmp_form(2)
-
-
-if __name__ == '__main__':
-    import nose
-    nose.runmodule(argv=['-s', '--with-doctest'], exit=False)

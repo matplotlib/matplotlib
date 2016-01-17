@@ -285,9 +285,3 @@ def test_transform():
     # Check input and output dimensions are set as expected.
     assert (obj.wrapper.input_dims == obj.composite.input_dims)
     assert (obj.wrapper.output_dims == obj.composite.output_dims)
-
-
-
-if __name__ == '__main__':
-    import nose
-    nose.runmodule(argv=['-s'])

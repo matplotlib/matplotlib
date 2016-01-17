@@ -624,8 +624,3 @@ def test_transformed_patch_path():
     patch.set_radius(0.5)
     assert np.allclose(tpatch.get_fully_transformed_path().vertices,
                        points)
-
-
-if __name__ == '__main__':
-    import nose
-    nose.runmodule(argv=['-s', '--with-doctest'],  exit=False)

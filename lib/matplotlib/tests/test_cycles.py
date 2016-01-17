@@ -184,8 +184,3 @@ def test_invalid_input_forms():
         ax.set_prop_cycle('linewidth', {'1': 1, '2': 2})
     with pytest.raises(TypeError, ValueError):
         ax.set_prop_cycle(linewidth=1, color='r')
-
-
-if __name__ == '__main__':
-    import nose
-    nose.runmodule(argv=['-s', '--with-doctest'], exit=False)

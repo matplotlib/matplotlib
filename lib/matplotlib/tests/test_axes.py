@@ -4364,12 +4364,3 @@ def test_pandas_indexing_hist():
     ser_2 = ser_1.iloc[1:]
     fig, axes = plt.subplots()
     axes.hist(ser_2)
-
-
-if __name__ == '__main__':
-    import sys
-
-    args = ['--doctest-modules']
-    argv = sys.argv
-    argv = argv[:1] + args + argv[1:]
-    pytest.main(argv)

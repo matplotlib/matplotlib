@@ -129,8 +129,3 @@ def test_patheffects():
         ax.plot([1, 2, 3])
         with io.BytesIO() as ps:
             fig.savefig(ps, format='ps')
-
-
-if __name__ == '__main__':
-    import nose
-    nose.runmodule(argv=['-s', '--with-doctest'], exit=False)

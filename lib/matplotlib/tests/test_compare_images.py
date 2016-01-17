@@ -99,8 +99,3 @@ def test_image_compare_shade_difference():
 
     # Now test the reverse comparison.
     image_comparison_expect_rms(im2, im1, tol=0, expect_rms=1.0)
-
-
-if __name__ == '__main__':
-    import nose
-    nose.runmodule(argv=['-s', '--with-doctest'], exit=False)

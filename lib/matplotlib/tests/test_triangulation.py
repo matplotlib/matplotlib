@@ -1030,8 +1030,3 @@ def test_tricontourf_decreasing_levels():
     z = [0.2, 0.4, 0.6]
     plt.figure()
     pytest.raises(ValueError, plt.tricontourf, x, y, z, [1.0, 0.0])
-
-
-if __name__ == '__main__':
-    import nose
-    nose.runmodule(argv=['-s', '--with-doctest'], exit=False)

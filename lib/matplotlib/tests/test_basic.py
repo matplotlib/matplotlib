@@ -46,8 +46,3 @@ def test_override_builtins():
                 overridden = True
 
     assert not overridden
-
-
-if __name__ == '__main__':
-    import nose
-    nose.runmodule(argv=['-s', '--with-doctest'], exit=False)

@@ -352,8 +352,3 @@ def test_date_inverted_limit():
                 tf + datetime.timedelta(days=5))
     ax.invert_yaxis()
     fig.subplots_adjust(left=0.25)
-
-
-if __name__ == '__main__':
-    import nose
-    nose.runmodule(argv=['-s', '--with-doctest'], exit=False)

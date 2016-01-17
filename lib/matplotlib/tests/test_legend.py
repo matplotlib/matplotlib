@@ -261,8 +261,3 @@ def test_nanscatter():
 
     ax.legend()
     ax.grid(True)
-
-
-if __name__ == '__main__':
-    import nose
-    nose.runmodule(argv=['-s', '--with-doctest'], exit=False)

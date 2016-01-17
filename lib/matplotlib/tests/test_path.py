@@ -149,8 +149,3 @@ def test_path_no_doubled_point_in_to_polygon():
 
     assert np.all(poly_clipped[-2] != poly_clipped[-1])
     assert np.all(poly_clipped[-1] == poly_clipped[0])
-
-
-if __name__ == '__main__':
-    import nose
-    nose.runmodule(argv=['-s', '--with-doctest'], exit=False)

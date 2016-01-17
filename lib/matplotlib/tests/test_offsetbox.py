@@ -81,6 +81,3 @@ def test_offsetbox_clip_children():
     assert not fig.stale
     da.clip_children = True
     assert fig.stale
-
-if __name__ == '__main__':
-    nose.runmodule(argv=['-s', '--with-doctest'], exit=False)
