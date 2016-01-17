@@ -16,7 +16,8 @@ from textwrap import fill
 import versioneer
 
 
-PY3 = (sys.version_info[0] >= 3)
+PY3min = (sys.version_info[0] >= 3)
+PY32min = (PY3min and sys.version_info[1] >= 2 or sys.version_info[0] > 3)
 
 
 try:
@@ -46,13 +47,13 @@ except ImportError:
 
 
 if sys.platform != 'win32':
-    if sys.version_info[0] < 3:
+    if not PY3min:
         from commands import getstatusoutput
     else:
         from subprocess import getstatusoutput
 
 
-if PY3:
+if PY3min:
     import configparser
 else:
     import ConfigParser as configparser
@@ -69,7 +70,10 @@ options = {
 
 setup_cfg = os.environ.get('MPLSETUPCFG', 'setup.cfg')
 if os.path.exists(setup_cfg):
-    config = configparser.SafeConfigParser()
+    if PY32min:
+        config = configparser.ConfigParser()
+    else:
+        config = configparser.SafeConfigParser()
     config.read(setup_cfg)
 
     try:
@@ -481,13 +485,17 @@ class OptionalPackage(SetupPackage):
     def get_config(cls):
         """
         Look at `setup.cfg` and return one of ["auto", True, False] indicating
-        if the package is at default state ("auto"), forced by the user (True)
-        or opted-out (False).
+        if the package is at default state ("auto"), forced by the user (case
+        insensitively defined as 1, true, yes, on for True) or opted-out (case
+        insensitively defined as 0, false, no, off for False).
         """
-        try:
-            return config.getboolean(cls.config_category, cls.name)
-        except:
-            return "auto"
+        conf = "auto"
+        if config is not None and config.has_option(cls.config_category, cls.name):
+            try:
+                conf = config.getboolean(cls.config_category, cls.name)
+            except ValueError:
+                conf = config.get(cls.config_category, cls.name)
+        return conf
 
     def check(self):
         """
@@ -1296,7 +1304,7 @@ class BackendTkAgg(OptionalBackendPackage):
 
     def check_requirements(self):
         try:
-            if PY3:
+            if PY3min:
                 import tkinter as Tkinter
             else:
                 import Tkinter
@@ -1347,7 +1355,7 @@ class BackendTkAgg(OptionalBackendPackage):
             return self.tcl_tk_cache
 
         # By this point, we already know that Tkinter imports correctly
-        if PY3:
+        if PY3min:
             import tkinter as Tkinter
         else:
             import Tkinter
@@ -1388,7 +1396,7 @@ class BackendTkAgg(OptionalBackendPackage):
 
     def parse_tcl_config(self, tcl_lib_dir, tk_lib_dir):
         try:
-            if PY3:
+            if PY3min:
                 import tkinter as Tkinter
             else:
                 import Tkinter
