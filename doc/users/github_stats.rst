@@ -3,7 +3,7 @@
 Github Stats
 ============
 
-GitHub stats for 2014/08/26 - 2015/01/09 (tag: v1.4.0)
+GitHub stats for 2014/08/26 - 2016/01/09 (tag: v1.4.0)
 
 These lists are automatically generated, and may be incomplete or contain duplicates.
 
