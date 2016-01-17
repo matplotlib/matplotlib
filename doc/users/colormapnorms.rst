@@ -1,7 +1,7 @@
 .. _colormapnorm-tutorial:
 
-Colormap Normaliztions
-================================
+Colormap Normalization
+======================
 
 Objects that use colormaps by default linearly map the colors in the
 colormap from data values *vmin* to *vmax*.  For example::
@@ -13,21 +13,19 @@ give a color at the center of the colormap *RdBu_r* (white in this
 case).
 
 Matplotlib does this mapping in two steps, with a normalization from
-[0,1] occuring first, and then mapping onto the indices in the
-colormap. Normalizations are defined as part of
-:func:`matplotlib.colors` module.  The default normalization is
+[0,1] occurring first, and then mapping onto the indices in the
+colormap.  Normalizations are classes defined in the
+:func:`matplotlib.colors` module.  The default, linear normalization is
 :func:`matplotlib.colors.Normalize`.
 
-The artists that map data to
-color pass the arguments *vmin* and *vmax* to
-:func:`matplotlib.colors.Normalize`. We can substnatiate the
-normalization and see what it returns.  In this case it returns 0.5:
+Artists that map data to color pass the arguments *vmin* and *vmax* to
+construct a :func:`matplotlib.colors.Normalize` instance, then call it:
 
 .. ipython::
 
    In [1]: import matplotlib as mpl
 
-   In [2]: norm=mpl.colors.Normalize(vmin=-1.,vmax=1.)
+   In [2]: norm = mpl.colors.Normalize(vmin=-1.,vmax=1.)
 
    In [3]: norm(0.)
    Out[3]: 0.5
@@ -36,47 +34,47 @@ However, there are sometimes cases where it is useful to map data to
 colormaps in a non-linear fashion.
 
 Logarithmic
----------------------------------
+-----------
 
-One of the most common transformations is to plot data by taking its
-logarithm (to the base-10).  This transformation is useful when there
-are changes across disparate scales that we still want to be able to
-see.  Using :func:`colors.LogNorm` normalizes the data by
-:math:`log_{10}`.  In the example below, there are two bumps, one much
-smaller than the other. Using :func:`colors.LogNorm`, the shape and
-location of each bump can clearly be seen:
+One of the most common transformations is to plot data by taking
+its logarithm (to the base-10).  This transformation is useful to
+display changes across disparate scales.  Using :func:`colors.LogNorm`
+normalizes the data via :math:`log_{10}`.  In the example below,
+there are two bumps, one much smaller than the other. Using
+:func:`colors.LogNorm`, the shape and location of each bump can clearly
+be seen:
 
 .. plot:: users/plotting/examples/colormap_normalizations_lognorm.py
    :include-source:
 
-Symetric logarithmic
----------------------------------
+Symmetric logarithmic
+---------------------
 
 Similarly, it sometimes happens that there is data that is positive
 and negative, but we would still like a logarithmic scaling applied to
 both.  In this case, the negative numbers are also scaled
-logarithmically, and mapped to small numbers.  i.e. If `vmin=-vmax`,
+logarithmically, and mapped to smaller numbers; e.g., if `vmin=-vmax`,
 then they the negative numbers are mapped from 0 to 0.5 and the
 positive from 0.5 to 1.
 
-Since the values close to zero tend toward infinity, there is a need
-to have a range around zero that is linear.  The parameter *linthresh*
-allows the user to specify the size of this range (-*linthresh*,
-*linthresh*).  The size of this range in the colormap is set by
-*linscale*.  When *linscale* == 1.0 (the default), the space used for
-the positive and negative halves of the linear range will be equal to
-one decade in the logarithmic range.
+Since the logarithm of values close to zero tends toward infinity, a
+small range around zero needs to be mapped linearly.  The parameter
+*linthresh* allows the user to specify the size of this range
+(-*linthresh*, *linthresh*).  The size of this range in the colormap is
+set by *linscale*.  When *linscale* == 1.0 (the default), the space used
+for the positive and negative halves of the linear range will be equal
+to one decade in the logarithmic range.
 
 .. plot:: users/plotting/examples/colormap_normalizations_symlognorm.py
    :include-source:
 
 Power-law
----------------------------------
+---------
 
 Sometimes it is useful to remap the colors onto a power-law
 relationship (i.e. :math:`y=x^{\gamma}`, where :math:`\gamma` is the
 power).  For this we use the :func:`colors.PowerNorm`.  It takes as an
-argument *gamma* ( *gamma* == 1.0 will just yield the defalut linear
+argument *gamma* (*gamma* == 1.0 will just yield the default linear
 normalization):
 
 .. note::
@@ -84,7 +82,7 @@ normalization):
    There should probably be a good reason for plotting the data using
    this type of transformation.  Technical viewers are used to linear
    and logarithmic axes and data transformations.  Power laws are less
-   common, and viewers should explictly be made aware that they have
+   common, and viewers should explicitly be made aware that they have
    been used.
 
 
@@ -92,13 +90,13 @@ normalization):
    :include-source:
 
 Discrete bounds
----------------------------------
+---------------
 
 Another normaization that comes with matplolib is
 :func:`colors.BoundaryNorm`.  In addition to *vmin* and *vmax*, this
 takes as arguments boundaries between which data is to be mapped.  The
 colors are then linearly distributed between these "bounds".  For
-instance, if:
+instance:
 
 .. ipython::
 
@@ -118,20 +116,19 @@ Note unlike the other norms, this norm returns values from 0 to *ncolors*-1.
 
 
 Custom normalization: Two linear ranges
------------------------------------------
+---------------------------------------
 
-It is possible to define your own normalization.  This example
-plots the same data as the :func:`colors:SymLogNorm` example, but
-a different linear map is used for the negative data values than
-the positive.  (Note that this example is simple, and does not account
-for the edge cases like masked data or invalid values of *vmin* and
-*vmax*)
+It is possible to define your own normalization.  In the following
+example, we modify :func:`colors:SymLogNorm` to use different linear
+maps for the negative data values and the positive.  (Note that this
+example is simple, and does not validate inputs or account for complex
+cases such as masked data)
 
 .. note::
-   This may appear soon as :func:`colors.OffsetNorm`
+   This may appear soon as :func:`colors.OffsetNorm`.
 
-   As above, non-symetric mapping of data to color is non-standard
-   practice for quantitative data, and should only be used advisedly. A
+   As above, non-symmetric mapping of data to color is non-standard
+   practice for quantitative data, and should only be used advisedly.  A
    practical example is having an ocean/land colormap where the land and
    ocean data span different ranges.
 
