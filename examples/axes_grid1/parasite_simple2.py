@@ -30,7 +30,7 @@ for n, ds, dse, w, we in obs:
 
 ax_kms.axis["bottom"].set_label("Linear velocity at 2.3 kpc [km/s]")
 ax_kms.axis["left"].set_label("FWHM [km/s]")
-ax_pm.axis["top"].set_label("Proper Motion [$^{''}$/yr]")
+ax_pm.axis["top"].set_label(r"Proper Motion [$''$/yr]")
 ax_pm.axis["top"].label.set_visible(True)
 ax_pm.axis["right"].major_ticklabels.set_visible(False)
 
