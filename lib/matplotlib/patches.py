@@ -4051,7 +4051,7 @@ class FancyArrowPatch(Patch):
     def set_dpi_cor(self, dpi_cor):
         """
         dpi_cor is currently used for linewidth-related things and
-        shink factor. Mutation scale is not affected by this.
+        shrink factor. Mutation scale is not affected by this.
         """
 
         self._dpi_cor = dpi_cor
@@ -4060,14 +4060,14 @@ class FancyArrowPatch(Patch):
     def get_dpi_cor(self):
         """
         dpi_cor is currently used for linewidth-related things and
-        shink factor. Mutation scale is not affected by this.
+        shrink factor. Mutation scale is not affected by this.
         """
 
         return self._dpi_cor
 
     def set_positions(self, posA, posB):
-        """ set the begin end end positions of the connecting
-        path. Use current vlaue if None.
+        """ set the begin and end positions of the connecting
+        path. Use current value if None.
         """
         if posA is not None:
             self._posA_posB[0] = posA
