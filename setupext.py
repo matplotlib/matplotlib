@@ -70,7 +70,7 @@ if os.path.exists(setup_cfg):
             config.get("directories", "basedirlist").split(',')]
 
     if config.has_option('test', 'local_freetype'):
-        options['local_freetype'] = config.get("test", "local_freetype")
+        options['local_freetype'] = config.getboolean("test", "local_freetype")
 else:
     config = None
 
