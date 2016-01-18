@@ -5,10 +5,6 @@ import six
 from six.moves import xrange
 from itertools import chain
 import io
-
-# from nose.tools import assert_equal, pytest.raises, assert_false, assert_true
-from nose.plugins.skip import SkipTest
-
 import datetime
 
 import numpy as np
