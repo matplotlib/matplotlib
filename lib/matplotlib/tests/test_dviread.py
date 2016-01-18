@@ -11,12 +11,15 @@ import pytest
 
 original_find_tex_file = dr.find_tex_file
 
+
 def teardown_PsfontsMap():
     dr.find_tex_file = original_find_tex_file
+
 
 @pytest.fixture()
 def setup_PsfontsMap(request):
     dr.find_tex_file = lambda x: x
+
     def fin():
         teardown_PsfontsMap()
     request.addfinalizer(fin)
