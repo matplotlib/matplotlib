@@ -432,7 +432,7 @@ def test_polar_units():
     y1 = [y*km for y in y1]
     plt.polar(x2, y1, color="blue", thetaunits="rad", runits="km")
     assert isinstance(plt.gca().get_xaxis().get_major_formatter(),
-                      units.UnitDblFormatter) == True
+                      units.UnitDblFormatter)
 
 
 @image_comparison(baseline_images=['polar_rmin'])
@@ -4081,11 +4081,11 @@ def test_rc_tick():
         xax = ax1.xaxis
         yax = ax1.yaxis
         # tick1On bottom/left
-        assert xax._major_tick_kw['tick1On'] == False
-        assert xax._major_tick_kw['tick2On'] == True
+        assert not xax._major_tick_kw['tick1On']
+        assert xax._major_tick_kw['tick2On']
 
-        assert yax._major_tick_kw['tick1On'] == True
-        assert yax._major_tick_kw['tick2On'] == False
+        assert yax._major_tick_kw['tick1On']
+        assert not yax._major_tick_kw['tick2On']
 
 
 @cleanup
