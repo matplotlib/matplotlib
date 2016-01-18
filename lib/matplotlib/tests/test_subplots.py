@@ -10,8 +10,6 @@ import matplotlib.pyplot as plt
 from matplotlib.testing.decorators import image_comparison, cleanup
 import pytest
 
-from nose.tools import assert_raises
-
 
 def check_shared(results, f, axs):
     """

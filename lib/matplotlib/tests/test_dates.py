@@ -14,7 +14,6 @@ try:
     from unittest import mock
 except ImportError:
     import mock
-from nose.tools import assert_raises, assert_equal
 
 from matplotlib.testing.decorators import image_comparison, cleanup
 import matplotlib.pyplot as plt

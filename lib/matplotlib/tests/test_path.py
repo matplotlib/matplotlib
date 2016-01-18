@@ -7,12 +7,10 @@ import numpy as np
 
 from matplotlib.path import Path
 from matplotlib.patches import Polygon
-from nose.tools import assert_raises, assert_equal
 from matplotlib.testing.decorators import image_comparison
 import matplotlib.pyplot as plt
 from matplotlib import transforms
 import pytest
-
 
 
 def test_readonly_path():

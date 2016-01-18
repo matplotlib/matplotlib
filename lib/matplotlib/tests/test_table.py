@@ -9,7 +9,6 @@ from matplotlib.testing.decorators import image_comparison
 
 from matplotlib.table import CustomCell
 from matplotlib.path import Path
-from nose.tools import assert_equal
 
 
 @image_comparison(baseline_images=['table_zorder'],

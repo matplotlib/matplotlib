@@ -6,7 +6,6 @@ from matplotlib.externals.six.moves import xrange, zip
 
 import unittest
 
-from nose.tools import assert_equal, assert_raises
 import numpy.testing as np_test
 from numpy.testing import assert_almost_equal, assert_array_equal
 from numpy.testing import assert_array_almost_equal

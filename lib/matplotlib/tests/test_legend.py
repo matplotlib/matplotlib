@@ -8,7 +8,6 @@ try:
     from unittest import mock
 except ImportError:
     import mock
-from nose.tools import assert_equal
 import numpy as np
 
 from matplotlib.testing.decorators import image_comparison, cleanup

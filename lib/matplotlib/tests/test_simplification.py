@@ -13,7 +13,6 @@ from pylab import *
 import numpy as np
 from matplotlib import patches, path, transforms
 
-from nose.tools import raises
 import io
 
 nan = np.nan

@@ -7,7 +7,6 @@ from matplotlib.externals.six.moves import xrange
 
 from io import BytesIO
 
-from nose.tools import assert_equal, assert_not_equal
 import numpy as np
 
 from matplotlib.testing.decorators import cleanup, image_comparison

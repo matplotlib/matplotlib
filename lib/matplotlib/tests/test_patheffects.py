@@ -15,7 +15,6 @@ try:
     from unittest import mock
 except ImportError:
     import mock
-from nose.tools import assert_equal
 
 
 @image_comparison(baseline_images=['patheffect1'], remove_text=True)
