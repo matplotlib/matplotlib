@@ -47,8 +47,8 @@ def test_fignum_exists():
     assert plt.fignum_exists(4)
     plt.close('one')
     plt.close(4)
-    assert plt.fignum_exists('one') == False
-    assert plt.fignum_exists(4) == False
+    assert not plt.fignum_exists('one')
+    assert not plt.fignum_exists(4)
 
 
 @image_comparison(baseline_images=['figure_today'])
