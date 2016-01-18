@@ -4,6 +4,7 @@ cache:
   directories:
     - $HOME/.ccache
     - $HOME/.cache/pip
+    - $HOME/.cache/matplotlib
 
 addons:
   apt:
