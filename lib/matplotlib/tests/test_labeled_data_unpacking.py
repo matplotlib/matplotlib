@@ -352,27 +352,27 @@ def test_docstring_addition():
         """Funcy does nothing"""
         pass
 
-    assert all_positional_all_keyword.match(funcy.__doc__)
-    assert not all_positional.match(funcy.__doc__)
-    assert not all_arguments.match(funcy.__doc__)
+    assert all_positional_all_keyword.search(funcy.__doc__)
+    assert not all_positional.search(funcy.__doc__)
+    assert not all_arguments.search(funcy.__doc__)
 
     @unpack_labeled_data(replace_all_args=True, replace_names=[])
     def funcy(ax, x, y, z, bar=None):
         """Funcy does nothing"""
         pass
 
-    assert all_positional.match(funcy.__doc__)
-    assert not all_positional_all_keyword.match(funcy.__doc__)
-    assert not all_arguments.match(funcy.__doc__)
+    assert all_positional.search(funcy.__doc__)
+    assert not all_positional_all_keyword.search(funcy.__doc__)
+    assert not all_arguments.search(funcy.__doc__)
 
     @unpack_labeled_data(replace_all_args=True, replace_names=["bar"])
     def funcy(ax, x, y, z, bar=None):
         """Funcy does nothing"""
         pass
 
-    assert all_positional.match(funcy.__doc__)
-    assert all_arguments.match(funcy.__doc__)
-    assert not all_positional_all_keyword.match(funcy.__doc__)
+    assert all_positional.search(funcy.__doc__)
+    assert all_arguments.search(funcy.__doc__)
+    assert not all_positional_all_keyword.search(funcy.__doc__)
 
     @unpack_labeled_data(replace_names=["x", "bar"])
     def funcy(ax, x, y, z, bar=None):
@@ -380,11 +380,11 @@ def test_docstring_addition():
         pass
 
     # lists can print in any order, so test for both x,bar and bar,x
-    assert all_arguments_with_following_names.match(funcy.__doc__)
-    assert x_string.match(funcy.__doc__)
-    assert bar_string.match(funcy.__doc__)
-    assert not all_positional_all_keyword.match(funcy.__doc__)
-    assert not all_positional.match(funcy.__doc__)
+    assert all_arguments_with_following_names.search(funcy.__doc__)
+    assert x_string.search(funcy.__doc__)
+    assert bar_string.search(funcy.__doc__)
+    assert not all_positional_all_keyword.search(funcy.__doc__)
+    assert not all_positional.search(funcy.__doc__)
 
 
 def test_positional_parameter_names_as_function():
