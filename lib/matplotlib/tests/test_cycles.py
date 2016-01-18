@@ -172,15 +172,15 @@ def test_cycle_reset():
 @cleanup
 def test_invalid_input_forms():
     fig, ax = plt.subplots()
-    with pytest.raises(TypeError, ValueError):
+    with pytest.raises((TypeError, ValueError)):
         ax.set_prop_cycle(1)
-    with pytest.raises(TypeError, ValueError):
+    with pytest.raises((TypeError, ValueError)):
         ax.set_prop_cycle([1, 2])
-    with pytest.raises(TypeError, ValueError):
+    with pytest.raises((TypeError, ValueError)):
         ax.set_prop_cycle('color', 'fish')
-    with pytest.raises(TypeError, ValueError):
+    with pytest.raises((TypeError, ValueError)):
         ax.set_prop_cycle('linewidth', 1)
-    with pytest.raises(TypeError, ValueError):
+    with pytest.raises((TypeError, ValueError)):
         ax.set_prop_cycle('linewidth', {'1': 1, '2': 2})
-    with pytest.raises(TypeError, ValueError):
+    with pytest.raises((TypeError, ValueError)):
         ax.set_prop_cycle(linewidth=1, color='r')
