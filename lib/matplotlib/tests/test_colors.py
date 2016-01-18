@@ -282,7 +282,7 @@ def test_cmap_and_norm_from_levels_and_colors2():
                                'Wih extend={0!r} and data '
                                'value={1!r}'.format(extend, d_val))
 
-    pytest.raises(ValueError, mcolors.from_levels_and_colors(levels, colors))
+    pytest.raises(ValueError, mcolors.from_levels_and_colors, levels, colors)
 
 
 def test_rgb_hsv_round_trip():
