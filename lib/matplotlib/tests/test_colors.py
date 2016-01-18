@@ -312,8 +312,8 @@ def test_colors_no_float():
     def gray_from_float_rgba():
         return mcolors.colorConverter.to_rgba(0.4)
 
-    pytest.raises(ValueError, gray_from_float_rgb())
-    pytest.raises(ValueError, gray_from_float_rgba())
+    pytest.raises(ValueError, gray_from_float_rgb)
+    pytest.raises(ValueError, gray_from_float_rgba)
 
 
 @image_comparison(baseline_images=['light_source_shading_topo'],
