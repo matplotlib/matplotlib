@@ -174,8 +174,8 @@ def test_remove():
         assert art.figure is None
 
     assert im not in ax.mouseover_set
-    assert fig.stale == True
-    assert ax.stale == True
+    assert fig.stale
+    assert ax.stale
 
 
 @image_comparison(baseline_images=["default_edges"], remove_text=True,
