@@ -5,10 +5,6 @@ import six
 from six.moves import xrange
 from itertools import chain
 import io
-
-# from nose.tools import assert_equal, pytest.raises, assert_false, assert_true
-from nose.plugins.skip import SkipTest
-
 import datetime
 
 import numpy as np
@@ -4341,7 +4337,7 @@ def test_pandas_indexing_dates():
     try:
         import pandas as pd
     except ImportError:
-        raise SkipTest("Pandas not installed")
+        pytest.skip("Pandas not installed")
 
     dates = np.arange('2005-02', '2005-03', dtype='datetime64[D]')
     values = np.sin(np.array(range(len(dates))))
@@ -4358,7 +4354,7 @@ def test_pandas_indexing_hist():
     try:
         import pandas as pd
     except ImportError:
-        raise SkipTest("Pandas not installed")
+        pytest.skip("Pandas not installed")
 
     ser_1 = pd.Series(data=[1, 2, 2, 3, 3, 4, 4, 4, 4, 5])
     ser_2 = ser_1.iloc[1:]
