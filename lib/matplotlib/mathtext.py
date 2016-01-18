@@ -896,7 +896,6 @@ class DejaVuFonts(UnicodeFonts):
         self.fontmap = {}
         # Include Stix sized alternatives for glyphs
         self._fontmap.update({
-                 0 : 'STIXGeneral',
                  1 : 'STIXSizeOneSym',
                  2 : 'STIXSizeTwoSym',
                  3 : 'STIXSizeThreeSym',
@@ -938,6 +937,7 @@ class DejaVuSerifFonts(DejaVuFonts):
                  'sf'  : 'DejaVu Sans',
                  'tt'  : 'DejaVu Sans Mono',
                  'ex'  : 'DejaVu Serif Display',
+                 0     : 'DejaVu Serif',
                  }
 
 class DejaVuSansFonts(DejaVuFonts):
@@ -952,6 +952,7 @@ class DejaVuSansFonts(DejaVuFonts):
                  'sf'  : 'DejaVu Sans',
                  'tt'  : 'DejaVu Sans Mono',
                  'ex'  : 'DejaVu Sans Display',
+                 0     : 'DejaVu Sans',
                  }
 
 class StixFonts(UnicodeFonts):
@@ -2003,20 +2004,28 @@ class AutoHeightChar(Hlist):
         alternatives = state.font_output.get_sized_alternatives_for_symbol(
             state.font, c)
 
+        xHeight = state.font_output.get_xheight(
+            state.font, state.fontsize, state.dpi)
+
         state = state.copy()
         target_total = height + depth
         for fontname, sym in alternatives:
             state.font = fontname
             char = Char(sym, state)
-            if char.height + char.depth >= target_total:
+            # Ensure that size 0 is chosen when the text is regular sized but
+            # with descender glyphs by subtracting 0.2 * xHeight
+            if char.height + char.depth >= target_total - 0.2 * xHeight:
                 break
 
-        if factor is None:
-            factor = target_total / (char.height + char.depth)
-        state.fontsize *= factor
-        char = Char(sym, state)
+        shift = 0
+        if state.font != 0:
+            if factor is None:
+                factor = (target_total) / (char.height + char.depth)
+            state.fontsize *= factor
+            char = Char(sym, state)
 
-        shift = (depth - char.depth)
+            shift = (depth - char.depth)
+
         Hlist.__init__(self, [char])
         self.shift_amount = shift
 
