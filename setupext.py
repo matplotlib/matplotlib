@@ -74,6 +74,9 @@ if os.path.exists(setup_cfg):
 else:
     config = None
 
+lft = bool(os.environ.get('MPLLOCALFREETYPE', False))
+options['local_freetype'] = lft or options['local_freetype']
+
 
 def get_win32_compiler():
     """
