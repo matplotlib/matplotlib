@@ -121,7 +121,7 @@ def test_fft_peaks():
     fig = plt.figure()
     t = pylab.arange(65536)
     ax = fig.add_subplot(111)
-    p1 = ax.plot(abs(pylab.numpy.fft( \
+    p1 = ax.plot(abs(pylab.numpy.fft(
         pylab.sin(2*pylab.pi*.01*t)*pylab.blackman(len(t)))))
 
     path = p1[0].get_path()
