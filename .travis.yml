@@ -77,7 +77,7 @@ install:
     fi
   # Always install from pypi
   - pip install $PRE pep8 cycler coveralls coverage
-  - 'pip install git+https://github.com/jenshnielsen/nose.git@matplotlibnose'
+  # 'pip install git+https://github.com/jenshnielsen/nose.git@matplotlibnose'
   - pip install pytest
 
   # some handy plugins for pytest, is this the right place to install them?
