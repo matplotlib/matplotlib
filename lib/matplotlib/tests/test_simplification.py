@@ -9,7 +9,7 @@ from matplotlib.testing.decorators import image_comparison, cleanup
 import matplotlib.pyplot as plt
 import pytest
 
-from pylab import *
+import pylab
 import numpy as np
 from matplotlib import patches, path, transforms
 
