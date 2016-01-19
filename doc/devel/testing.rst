@@ -33,8 +33,7 @@ Optionally you can install:
 
   - `pep8 <http://pep8.readthedocs.org/en/latest>`_ to test coding standards
 
-  - `pytest-cov <https://pypi.python.org/pypi/pytest-cov>`_ for coverage stats
-  in pytest
+  - `pytest-cov <https://pypi.python.org/pypi/pytest-cov>`_ for coverage stats in pytest
 
   - `pytest-pep8 <https://pypi.python.org/pypi/pytest-pep8>`_ for pep8
    conformance in pytest
