@@ -3,20 +3,20 @@
 Testing
 =======
 
-Matplotlib has a testing infrastructure based on nose_, making it easy
+Matplotlib has a testing infrastructure based on pytest_, making it easy
 to write new tests. The tests are in :mod:`matplotlib.tests`, and
-customizations to the nose testing infrastructure are in
+customizations to the pytest testing infrastructure are in
 :mod:`matplotlib.testing`. (There is other old testing cruft around,
 please ignore it while we consolidate our testing to these locations.)
 
-.. _nose: http://nose.readthedocs.org/en/latest/
+.. pytest: http://pytest.readthedocs.org/en/latest/
 
 Requirements
 ------------
 
 The following software is required to run the tests:
 
-  - nose_, version 1.0 or later
+  - pytest_
 
   - `mock <http://www.voidspace.org.uk/python/mock/>`_, when running python
     versions < 3.3
@@ -32,6 +32,12 @@ Optionally you can install:
     information
 
   - `pep8 <http://pep8.readthedocs.org/en/latest>`_ to test coding standards
+
+  - `pytest-cov <https://pypi.python.org/pypi/pytest-cov>`_ for coverage stats
+  in pytest
+
+  - `pytest-pep8 <https://pypi.python.org/pypi/pytest-pep8>`_ for pep8
+   conformance in pytest
 
 Building matplotlib for image comparison tests
 ----------------------------------------------
@@ -52,7 +58,7 @@ matplotlib source directory::
 Running the tests
 -----------------
 
-Running the tests is simple. Make sure you have nose installed and run::
+Running the tests is simple. Make sure you have pytest installed and run::
 
    python tests.py
 
@@ -112,15 +118,15 @@ Writing a simple test
 Many elements of Matplotlib can be tested using standard tests. For
 example, here is a test from :mod:`matplotlib.tests.test_basic`::
 
-  from nose.tools import assert_equal
+  import pytest
 
   def test_simple():
       """
       very simple example test
       """
-      assert_equal(1+1,2)
+      assert 1+1 == 2
 
-Nose determines which functions are tests by searching for functions
+Pytest determines which functions are tests by searching for functions
 beginning with "test" in their name.
 
 If the test has side effects that need to be cleaned up, such as
@@ -203,7 +209,7 @@ Known failing tests
 -------------------
 
 If you're writing a test, you may mark it as a known failing test with
-the :func:`~matplotlib.testing.decorators.knownfailureif`
+the :func:`~pytest.mark.xfail`
 decorator. This allows the test to be added to the test suite and run
 on the buildbots without causing undue alarm. For example, although
 the following test will fail, it is an expected failure::
@@ -211,7 +217,7 @@ the following test will fail, it is an expected failure::
   from nose.tools import assert_equal
   from matplotlib.testing.decorators import knownfailureif
 
-  @knownfailureif(True)
+  @pytest.mark.xfail()
   def test_simple_fail():
       '''very simple example test that should fail'''
       assert_equal(1+1,3)
