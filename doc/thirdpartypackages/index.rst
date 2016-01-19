@@ -5,7 +5,7 @@
 *********************
 
 Several external packages that extend or build on Matplotlib functionality
-exist. Below we list a number of these. Please submit an issue or pull request 
+exist. Below we list a number of these. Please submit an issue or pull request
 on Github if you have created a package that you would like to have included.
 We are also happy to host third party packages within the `Matplotlib Github
 Organization <https://github.com/matplotlib>`_.
@@ -46,7 +46,7 @@ Matplotlib-Venn
 mplstereonet
 ===============
 
-`mplstereonet <https://github.com/joferkington/mplstereonet>`_ provides stereonets for plotting and analyzing orientation data in Matplotlib.  
+`mplstereonet <https://github.com/joferkington/mplstereonet>`_ provides stereonets for plotting and analyzing orientation data in Matplotlib.
 
 
 .. _hl_plotting:
@@ -85,6 +85,17 @@ prettyplotlib
 to matplotlib which changes many of the defaults to make plots some
 consider more attractive.
 
+.. _toolkit_probscale:
+
+mpl-probscale
+=============
+`mpl-probscale <http://phobson.github.io/mpl-probscale/index.html>`_
+is a small extension that allows matplotlib users to specify probabilty
+scales. Simply importing the ``probscale`` module registers the scale
+with matplotlib, making it accessible via e.g.,
+``ax.set_xscale('prob')`` or ``plt.yscale('prob')``.
+
+.. image:: /_static/probscale_demo.png
 
 iTerm2 terminal backend
 =======================
