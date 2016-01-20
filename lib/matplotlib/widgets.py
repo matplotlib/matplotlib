@@ -686,7 +686,7 @@ class TextBox(AxesWidget):
                 self.params_to_disable += [key]
 
         self.text = initial
-        self.label = ax.text(0.0, 0.5, label,
+        self.label = ax.text(-0.01, 0.5, label,
                              verticalalignment='center',
                              horizontalalignment='right',
                              transform=ax.transAxes)
@@ -732,7 +732,7 @@ class TextBox(AxesWidget):
     def _rendercursor(self):
         # this is a hack to figure out where the cursor should go.
         # we draw the text up to where the cursor should go, measure
-        # save its dimensions, draw the real text, then put the cursor
+        # and save its dimensions, draw the real text, then put the cursor
         # at the saved dimensions
 
         widthtext = self.text[:self.cursor_index]
@@ -804,38 +804,51 @@ class TextBox(AxesWidget):
                 func(self.text)
             if key == "enter":
                 self._notify_submit_observers()
+                
+    def begin_typing(self, x):
+        self.capturekeystrokes = True
+        #disable command keys so that the user can type without
+        #command keys causing figure to be saved, etc
+        self.reset_params = {}
+        for key in self.params_to_disable:
+            self.reset_params[key] = rcParams[key]
+            rcParams[key] = []
+        #now, we have to figure out where the cursor goes.
+        #approximate it based on assuming all characters the same length
+        print(x)
+        self.cursor_index = len(self.text)
+        self._rendercursor()
+    
+    def stop_typing(self):
+        notifysubmit = False
+        # because _notify_submit_users might throw an error in the
+        # user's code, we only want to call it once we've already done
+        # our cleanup.
+        if self.capturekeystrokes:
+            #since the user is no longer typing, 
+            #reactivate the standard command keys
+            for key in self.params_to_disable:
+                rcParams[key] = self.reset_params[key]
+            notifysubmit = True
+        self.capturekeystrokes = False
+        self.cursor.set_visible(False)
+        self.ax.figure.canvas.draw()
+        if notifysubmit:
+            self._notify_submit_observers()
 
+    
     def _click(self, event):
         if self.ignore(event):
             return
         if event.inaxes != self.ax:
-            notifysubmit = False
-            # because _notify_submit_users might throw an error in the
-            # user's code, we only want to call it once we've already done
-            # our cleanup.
-            if self.capturekeystrokes:
-                for key in self.params_to_disable:
-                    rcParams[key] = self.reset_params[key]
-                notifysubmit = True
-            self.capturekeystrokes = False
-            self.cursor.set_visible(False)
-            self.ax.figure.canvas.draw()
-
-            if notifysubmit:
-                self._notify_submit_observers()
+            self.stop_typing()
             return
         if not self.eventson:
             return
         if event.canvas.mouse_grabber != self.ax:
             event.canvas.grab_mouse(self.ax)
         if not(self.capturekeystrokes):
-            self.capturekeystrokes = True
-            self.reset_params = {}
-            for key in self.params_to_disable:
-                self.reset_params[key] = rcParams[key]
-                rcParams[key] = []
-            self.cursor_index = len(self.text)
-            self._rendercursor()
+            self.begin_typing(event.x)
 
     def _motion(self, event):
         if self.ignore(event):
