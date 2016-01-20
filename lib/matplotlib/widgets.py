@@ -656,7 +656,7 @@ class TextBox(AxesWidget):
     """
 
     def __init__(self, ax, label, initial='',
-                 color='.95', hovercolor='1'):
+                 color='.95', hovercolor='1', label_pad=.01):
         """
         Parameters
         ----------
@@ -675,6 +675,9 @@ class TextBox(AxesWidget):
 
         hovercolor : color
             The color of the box when the mouse is over it
+            
+        label_pad : float
+            the distance between the label and the right side of the textbox
         """
         AxesWidget.__init__(self, ax)
 
@@ -686,7 +689,7 @@ class TextBox(AxesWidget):
                 self.params_to_disable += [key]
 
         self.text = initial
-        self.label = ax.text(-0.01, 0.5, label,
+        self.label = ax.text(-label_pad, 0.5, label,
                              verticalalignment='center',
                              horizontalalignment='right',
                              transform=ax.transAxes)
@@ -805,7 +808,7 @@ class TextBox(AxesWidget):
                 func(self.text)
             if key == "enter":
                 self._notify_submit_observers()
-                
+
     def begin_typing(self, x):
         self.capturekeystrokes = True
         #disable command keys so that the user can type without
@@ -816,10 +819,9 @@ class TextBox(AxesWidget):
             rcParams[key] = []
         #now, we have to figure out where the cursor goes.
         #approximate it based on assuming all characters the same length
-        print(x)
         self.cursor_index = len(self.text)
         self._rendercursor()
-    
+
     def stop_typing(self):
         notifysubmit = False
         # because _notify_submit_users might throw an error in the
@@ -837,7 +839,7 @@ class TextBox(AxesWidget):
         if notifysubmit:
             self._notify_submit_observers()
 
-    
+
     def _click(self, event):
         if self.ignore(event):
             return
@@ -850,10 +852,10 @@ class TextBox(AxesWidget):
             event.canvas.grab_mouse(self.ax)
         if not(self.capturekeystrokes):
             self.begin_typing(event.x)
-    
+
     def _resize(self, event):
         self.stop_typing()
-    
+
     def _motion(self, event):
         if self.ignore(event):
             return
