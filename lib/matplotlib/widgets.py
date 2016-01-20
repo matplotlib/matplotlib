@@ -712,6 +712,7 @@ class TextBox(AxesWidget):
         self.connect_event('button_release_event', self._release)
         self.connect_event('motion_notify_event', self._motion)
         self.connect_event('key_press_event', self._keypress)
+        self.connect_event('resize_event', self._resize)
         ax.set_navigate(False)
         ax.set_axis_bgcolor(color)
         ax.set_xticks([])
@@ -849,7 +850,10 @@ class TextBox(AxesWidget):
             event.canvas.grab_mouse(self.ax)
         if not(self.capturekeystrokes):
             self.begin_typing(event.x)
-
+    
+    def _resize(self, event):
+        self.stop_typing()
+    
     def _motion(self, event):
         if self.ignore(event):
             return
