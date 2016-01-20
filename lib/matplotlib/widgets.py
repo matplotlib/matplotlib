@@ -650,7 +650,7 @@ class TextBox(AxesWidget):
     """
 
     def __init__(self, ax, label, initial='',
-                 color='.95', hovercolor='1'):
+                 color='.95', hovercolor='1', label_pad=.01):
         """
         Parameters
         ----------
@@ -669,6 +669,9 @@ class TextBox(AxesWidget):
 
         hovercolor : color
             The color of the box when the mouse is over it
+            
+        label_pad : float
+            the distance between the label and the right side of the textbox
         """
         AxesWidget.__init__(self, ax)
 
@@ -680,7 +683,7 @@ class TextBox(AxesWidget):
                 self.params_to_disable += [key]
 
         self.text = initial
-        self.label = ax.text(-0.01, 0.5, label,
+        self.label = ax.text(-label_pad, 0.5, label,
                              verticalalignment='center',
                              horizontalalignment='right',
                              transform=ax.transAxes)
@@ -810,7 +813,6 @@ class TextBox(AxesWidget):
             rcParams[key] = []
         #now, we have to figure out where the cursor goes.
         #approximate it based on assuming all characters the same length
-        print(x)
         self.cursor_index = len(self.text)
         self._rendercursor()
     
