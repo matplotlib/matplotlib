@@ -799,7 +799,7 @@ class TextBox(AxesWidget):
             if key == "enter":
                 self._notify_submit_observers()
                 
-    def begin_typing(x):
+    def begin_typing(self, x):
         self.capturekeystrokes = True
         #disable command keys so that the user can type without
         #command keys causing figure to be saved, etc
@@ -813,7 +813,7 @@ class TextBox(AxesWidget):
         self.cursor_index = len(self.text)
         self._rendercursor()
     
-    def stop_typing():
+    def stop_typing(self):
         notifysubmit = False
         # because _notify_submit_users might throw an error in the
         # user's code, we only want to call it once we've already done
@@ -842,7 +842,7 @@ class TextBox(AxesWidget):
         if event.canvas.mouse_grabber != self.ax:
             event.canvas.grab_mouse(self.ax)
         if not(self.capturekeystrokes):
-            self.begin_typing(exent.x)
+            self.begin_typing(event.x)
 
     def _motion(self, event):
         if self.ignore(event):
