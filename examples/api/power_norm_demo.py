@@ -24,5 +24,4 @@ for i, gamma in enumerate(gammas):
                bins=100, norm=mcolors.PowerNorm(gamma))
 
 plt.subplots_adjust(hspace=0.8)
-plt.savefig("test.png")
 plt.show()
