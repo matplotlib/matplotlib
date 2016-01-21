@@ -9,8 +9,7 @@ from io import BytesIO
 
 import numpy as np
 
-from matplotlib.testing.decorators import cleanup, image_comparison
-from matplotlib.testing.decorators import image_comparison_2
+from matplotlib.testing.decorators import cleanup, image_comparison_2
 import matplotlib.pyplot as plt
 import matplotlib.transforms as mtransforms
 
@@ -127,7 +126,10 @@ def test_simple():
     pickle.dump(fig, BytesIO(), pickle.HIGHEST_PROTOCOL)
 
 
-@cleanup
+# cleanup is removed for this one test, because it makes pytest
+# attempt to find tests in decorators.py, and generate an error at
+# ImageComparisonTest.Test()
+# @cleanup
 @image_comparison_2(baseline_images=['multi_pickle'],
                   extensions=['png'], remove_text=True)
 def test_complete():
