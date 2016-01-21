@@ -9,5 +9,9 @@ def test_equal():
 
 
 def test_ratios():
+    """
+    Addresses issue #5835.
+    See at https://github.com/matplotlib/matplotlib/issues/5835.
+    """
     assert_raises(ValueError, gridspec.GridSpec,
                   1, 2, width_ratios=[2, 1, 3], height_ratios=[3, 4])
