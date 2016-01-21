@@ -16,8 +16,8 @@ from matplotlib import rcParams
 from matplotlib._pylab_helpers import Gcf
 import matplotlib.cbook as cbook
 from weakref import WeakKeyDictionary
-import numpy as np
 from matplotlib.externals import six
+import time
 import warnings
 
 
@@ -74,8 +74,8 @@ class ToolBase(object):
 
     def __init__(self, toolmanager, name):
         warnings.warn('Treat the new Tool classes introduced in v1.5 as ' +
-                       'experimental for now, the API will likely change in ' +
-                       'version 2.1, and some tools might change name')
+                      'experimental for now, the API will likely change in ' +
+                      'version 2.1, and some tools might change name')
         self._name = name
         self._figure = None
         self.toolmanager = toolmanager
@@ -325,6 +325,16 @@ class ToolQuit(ToolBase):
         Gcf.destroy_fig(self.figure)
 
 
+class ToolQuitAll(ToolBase):
+    """Tool to call the figure manager destroy method"""
+
+    description = 'Quit all figures'
+    default_keymap = rcParams['keymap.quit_all']
+
+    def trigger(self, sender, event, data=None):
+        Gcf.destroy_all()
+
+
 class ToolEnableAllNavigation(ToolBase):
     """Tool to enable all axes for toolmanager interaction"""
 
@@ -445,6 +455,7 @@ class ToolViewsPositions(ToolBase):
     def __init__(self, *args, **kwargs):
         self.views = WeakKeyDictionary()
         self.positions = WeakKeyDictionary()
+        self.home_views = WeakKeyDictionary()
         ToolBase.__init__(self, *args, **kwargs)
 
     def add_figure(self):
@@ -452,22 +463,26 @@ class ToolViewsPositions(ToolBase):
         if self.figure not in self.views:
             self.views[self.figure] = cbook.Stack()
             self.positions[self.figure] = cbook.Stack()
+            self.home_views[self.figure] = WeakKeyDictionary()
             # Define Home
             self.push_current()
-            # Adding the clear method as axobserver, removes this burden from
-            # the backend
-            self.figure.add_axobserver(self.clear)
+            # Make sure we add a home view for new axes as they're added
+            self.figure.add_axobserver(lambda fig: self.update_home_views())
 
     def clear(self, figure):
         """Reset the axes stack"""
         if figure in self.views:
             self.views[figure].clear()
             self.positions[figure].clear()
+            self.home_views[figure].clear()
+            self.update_home_views()
 
     def update_view(self):
         """
-        Update the viewlim and position from the view and
-        position stack for each axes
+        Update the view limits and position for each axes from the current
+        stack position. If any axes are present in the figure that aren't in
+        the current stack position, use the home view limits for those axes and
+        don't update *any* positions.
         """
 
         views = self.views[self.figure]()
@@ -476,27 +491,63 @@ class ToolViewsPositions(ToolBase):
         pos = self.positions[self.figure]()
         if pos is None:
             return
-        for i, a in enumerate(self.figure.get_axes()):
-            a._set_view(views[i])
-            # Restore both the original and modified positions
-            a.set_position(pos[i][0], 'original')
-            a.set_position(pos[i][1], 'active')
+        home_views = self.home_views[self.figure]
+        all_axes = self.figure.get_axes()
+        for a in all_axes:
+            if a in views:
+                cur_view = views[a]
+            else:
+                cur_view = home_views[a]
+            a._set_view(cur_view)
+
+        if set(all_axes).issubset(pos.keys()):
+            for a in all_axes:
+                # Restore both the original and modified positions
+                a.set_position(pos[a][0], 'original')
+                a.set_position(pos[a][1], 'active')
 
         self.figure.canvas.draw_idle()
 
     def push_current(self):
-        """push the current view limits and position onto the stack"""
+        """
+        Push the current view limits and position onto their respective stacks
+        """
 
-        views = []
-        pos = []
+        views = WeakKeyDictionary()
+        pos = WeakKeyDictionary()
         for a in self.figure.get_axes():
-            views.append(a._get_view())
-            # Store both the original and modified positions
-            pos.append((
-                a.get_position(True).frozen(),
-                a.get_position().frozen()))
+            views[a] = a._get_view()
+            pos[a] = self._axes_pos(a)
         self.views[self.figure].push(views)
         self.positions[self.figure].push(pos)
+
+    def _axes_pos(self, ax):
+        """
+        Return the original and modified positions for the specified axes
+
+        Parameters
+        ----------
+        ax : (matplotlib.axes.AxesSubplot)
+        The axes to get the positions for
+
+        Returns
+        -------
+        limits : (tuple)
+        A tuple of the original and modified positions
+        """
+
+        return (ax.get_position(True).frozen(),
+                ax.get_position().frozen())
+
+    def update_home_views(self):
+        """
+        Make sure that self.home_views has an entry for all axes present in the
+        figure
+        """
+
+        for a in self.figure.get_axes():
+            if a not in self.home_views[self.figure]:
+                self.home_views[self.figure][a] = a._get_view()
 
     def refresh_locators(self):
         """Redraw the canvases, update the locators"""
@@ -599,6 +650,8 @@ class ZoomPanBase(ToolToggleBase):
         self._idRelease = None
         self._idScroll = None
         self.base_scale = 2.
+        self.scrollthresh = .5  # .5 second scroll threshold
+        self.lastscroll = time.time()-self.scrollthresh
 
     def enable(self, event):
         """Connect press/release events and lock the canvas"""
@@ -626,29 +679,29 @@ class ZoomPanBase(ToolToggleBase):
         # https://gist.github.com/tacaswell/3144287
         if event.inaxes is None:
             return
-        ax = event.inaxes
-        cur_xlim = ax.get_xlim()
-        cur_ylim = ax.get_ylim()
-        # set the range
-        cur_xrange = (cur_xlim[1] - cur_xlim[0])*.5
-        cur_yrange = (cur_ylim[1] - cur_ylim[0])*.5
-        xdata = event.xdata  # get event x location
-        ydata = event.ydata  # get event y location
+
         if event.button == 'up':
             # deal with zoom in
-            scale_factor = 1 / self.base_scale
+            scl = self.base_scale
         elif event.button == 'down':
             # deal with zoom out
-            scale_factor = self.base_scale
+            scl = 1/self.base_scale
         else:
             # deal with something that should never happen
-            scale_factor = 1
-        # set new limits
-        ax.set_xlim([xdata - cur_xrange*scale_factor,
-                     xdata + cur_xrange*scale_factor])
-        ax.set_ylim([ydata - cur_yrange*scale_factor,
-                     ydata + cur_yrange*scale_factor])
+            scl = 1
+
+        ax = event.inaxes
+        ax._set_view_from_bbox([event.x, event.y, scl])
+
+        # If last scroll was done within the timing threshold, delete the
+        # previous view
+        if (time.time()-self.lastscroll) < self.scrollthresh:
+            self.toolmanager.get_tool(_views_positions).back()
+
         self.figure.canvas.draw_idle()  # force re-draw
+
+        self.lastscroll = time.time()
+        self.toolmanager.get_tool(_views_positions).push_current()
 
 
 class ToolZoom(ZoomPanBase):
@@ -858,6 +911,7 @@ default_tools = {'home': ToolHome, 'back': ToolBack, 'forward': ToolForward,
                  'grid': ToolGrid,
                  'fullscreen': ToolFullScreen,
                  'quit': ToolQuit,
+                 'quit_all': ToolQuitAll,
                  'allnav': ToolEnableAllNavigation,
                  'nav': ToolEnableNavigation,
                  'xscale': ToolXScale,

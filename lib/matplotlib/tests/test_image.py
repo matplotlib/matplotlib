@@ -2,7 +2,6 @@ from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
 from matplotlib.externals import six
-import sys
 import io
 import os
 
@@ -12,17 +11,13 @@ from matplotlib.testing.decorators import (image_comparison,
                                            knownfailureif, cleanup)
 from matplotlib.image import BboxImage, imread, NonUniformImage
 from matplotlib.transforms import Bbox
-from matplotlib import rcParams
+from matplotlib import rcParams, rc_context
 import matplotlib.pyplot as plt
 
 from numpy.testing import assert_array_equal
 
-
-import nose
-
 try:
     from PIL import Image
-    del Image
     HAS_PIL = True
 except ImportError:
     HAS_PIL = False
@@ -460,6 +455,33 @@ def test_nonuniformimage_setnorm():
     im = NonUniformImage(ax)
     im.set_norm(plt.Normalize())
 
+@knownfailureif(not HAS_PIL)
+@cleanup
+def test_jpeg_alpha():
+    plt.figure(figsize=(1, 1), dpi=300)
+    # Create an image that is all black, with a gradient from 0-1 in
+    # the alpha channel from left to right.
+    im = np.zeros((300, 300, 4), dtype=np.float)
+    im[..., 3] = np.linspace(0.0, 1.0, 300)
+
+    plt.figimage(im)
+
+    buff = io.BytesIO()
+    with rc_context({'savefig.facecolor': 'red'}):
+        plt.savefig(buff, transparent=True, format='jpg', dpi=300)
+
+    buff.seek(0)
+    image = Image.open(buff)
+
+    # If this fails, there will be only one color (all black). If this
+    # is working, we should have all 256 shades of grey represented.
+    print("num colors: ", len(image.getcolors(256)))
+    assert len(image.getcolors(256)) >= 175 and len(image.getcolors(256)) <= 185
+    # The fully transparent part should be red, not white or black
+    # or anything else
+    print("corner pixel: ", image.getpixel((0, 0)))
+    assert image.getpixel((0, 0)) == (254, 0, 0)
+
 
 @cleanup
 def test_minimized_rasterized():
@@ -469,10 +491,6 @@ def test_minimized_rasterized():
     # in Postscript, the best way to detect it is to generate SVG
     # and then parse the output to make sure the two colorbar images
     # are the same size.
-    if sys.version_info[:2] < (2, 7):
-        raise nose.SkipTest("xml.etree.ElementTree.Element.iter "
-                            "added in py 2.7")
-
     from xml.etree import ElementTree
 
     np.random.seed(0)

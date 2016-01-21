@@ -1,19 +1,7 @@
 import matplotlib.pyplot as plt
 import matplotlib.gridspec as gridspec
 import numpy as np
-
-try:
-    from itertools import product
-except ImportError:
-    # product is new in v 2.6
-    def product(*args, **kwds):
-        pools = map(tuple, args) * kwds.get('repeat', 1)
-        result = [[]]
-        for pool in pools:
-            result = [x+[y] for x in result for y in pool]
-        for prod in result:
-            yield tuple(prod)
-
+from itertools import product
 
 def squiggle_xy(a, b, c, d, i=np.arange(0.0, 2*np.pi, 0.05)):
     return np.sin(i*a)*np.cos(i*b), np.sin(i*c)*np.cos(i*d)
@@ -50,4 +38,3 @@ for ax in all_axes:
         ax.spines['right'].set_visible(True)
 
 plt.show()
-

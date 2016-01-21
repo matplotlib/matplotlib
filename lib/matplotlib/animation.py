@@ -33,6 +33,7 @@ try:
 except ImportError:
     # python2
     from base64 import encodestring as encodebytes
+import abc
 import contextlib
 import tempfile
 from matplotlib.cbook import iterable, is_string_like
@@ -91,7 +92,66 @@ class MovieWriterRegistry(object):
 writers = MovieWriterRegistry()
 
 
-class MovieWriter(object):
+class AbstractMovieWriter(six.with_metaclass(abc.ABCMeta)):
+    '''
+    Abstract base class for writing movies. Fundamentally, what a MovieWriter
+    does is provide is a way to grab frames by calling grab_frame().
+
+    setup() is called to start the process and finish() is called afterwards.
+
+    This class is set up to provide for writing movie frame data to a pipe.
+    saving() is provided as a context manager to facilitate this process as::
+
+      with moviewriter.saving(fig, outfile='myfile.mp4', dpi=100):
+          # Iterate over frames
+          moviewriter.grab_frame(**savefig_kwargs)
+
+    The use of the context manager ensures that setup() and finish() are
+    performed as necessary.
+
+    An instance of a concrete subclass of this class can be given as the
+    `writer` argument of `Animation.save()`.
+    '''
+
+    @abc.abstractmethod
+    def setup(self, fig, outfile, dpi, *args):
+        '''
+        Perform setup for writing the movie file.
+
+        fig: `matplotlib.Figure` instance
+            The figure object that contains the information for frames
+        outfile: string
+            The filename of the resulting movie file
+        dpi: int
+            The DPI (or resolution) for the file.  This controls the size
+            in pixels of the resulting movie file.
+        '''
+
+    @abc.abstractmethod
+    def grab_frame(self, **savefig_kwargs):
+        '''
+        Grab the image information from the figure and save as a movie frame.
+        All keyword arguments in savefig_kwargs are passed on to the 'savefig'
+        command that saves the figure.
+        '''
+
+    @abc.abstractmethod
+    def finish(self):
+        'Finish any processing for writing the movie.'
+
+    @contextlib.contextmanager
+    def saving(self, fig, outfile, dpi, *args):
+        '''
+        Context manager to facilitate writing the movie file.
+
+        All arguments are passed on to `setup`.
+        '''
+        self.setup(fig, outfile, dpi, *args)
+        yield
+        self.finish()
+
+
+class MovieWriter(AbstractMovieWriter):
     '''
     Base class for writing movies. Fundamentally, what a MovieWriter does
     is provide is a way to grab frames by calling grab_frame(). setup()
@@ -99,9 +159,9 @@ class MovieWriter(object):
     This class is set up to provide for writing movie frame data to a pipe.
     saving() is provided as a context manager to facilitate this process as::
 
-      with moviewriter.saving('myfile.mp4'):
+      with moviewriter.saving(fig, outfile='myfile.mp4', dpi=100):
           # Iterate over frames
-          moviewriter.grab_frame()
+          moviewriter.grab_frame(**savefig_kwargs)
 
     The use of the context manager ensures that setup and cleanup are
     performed as necessary.
@@ -182,18 +242,6 @@ class MovieWriter(object):
         # Run here so that grab_frame() can write the data to a pipe. This
         # eliminates the need for temp files.
         self._run()
-
-    @contextlib.contextmanager
-    def saving(self, *args):
-        '''
-        Context manager to facilitate writing the movie file.
-
-        ``*args`` are any parameters that should be passed to `setup`.
-        '''
-        # This particular sequence is what contextlib.contextmanager wants
-        self.setup(*args)
-        yield
-        self.finish()
 
     def _run(self):
         # Uses subprocess to call the program for assembling frames into a
@@ -453,7 +501,8 @@ class FFMpegFileWriter(FileMovieWriter, FFMpegBase):
     def _args(self):
         # Returns the command line parameters for subprocess to use
         # ffmpeg to create a movie using a collection of temp images
-        return [self.bin_path(), '-i', self._base_temp_name(),
+        return [self.bin_path(), '-r', str(self.fps),
+                '-i', self._base_temp_name(),
                 '-vframes', str(self._frame_counter),
                 '-r', str(self.fps)] + self.output_args
 
@@ -668,10 +717,10 @@ class Animation(object):
 
         *filename* is the output filename, e.g., :file:`mymovie.mp4`
 
-        *writer* is either an instance of :class:`MovieWriter` or a string
-        key that identifies a class to use, such as 'ffmpeg' or 'mencoder'.
-        If nothing is passed, the value of the rcparam `animation.writer` is
-        used.
+        *writer* is either an instance of :class:`AbstractMovieWriter` or
+        a string key that identifies a class to use, such as 'ffmpeg' or
+        'mencoder'.  If nothing is passed, the value of the rcparam
+        `animation.writer` is used.
 
         *fps* is the frames per second in the movie. Defaults to None,
         which will use the animation's specified interval to set the frames

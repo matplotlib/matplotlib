@@ -756,6 +756,8 @@ def matplotlib_fname():
 
     - `$PWD/matplotlibrc`
 
+    - `$MATPLOTLIBRC` if it is a file
+
     - `$MATPLOTLIBRC/matplotlibrc`
 
     - `$MPLCONFIGDIR/matplotlibrc`
@@ -788,6 +790,8 @@ def matplotlib_fname():
     if 'MATPLOTLIBRC' in os.environ:
         path = os.environ['MATPLOTLIBRC']
         if os.path.exists(path):
+            if os.path.isfile(path):
+                return path
             fname = os.path.join(path, 'matplotlibrc')
             if os.path.exists(fname):
                 return fname
@@ -1487,7 +1491,14 @@ default_test_modules = [
     ]
 
 
-def verify_test_dependencies():
+def _init_tests():
+    try:
+        import faulthandler
+    except ImportError:
+        pass
+    else:
+        faulthandler.enable()
+
     if not os.path.isdir(os.path.join(os.path.dirname(__file__), 'tests')):
         raise ImportError("matplotlib test data is not installed")
 
@@ -1514,41 +1525,52 @@ def verify_test_dependencies():
         raise
 
 
-def test(verbosity=1):
+def _get_extra_test_plugins():
+    from .testing.noseclasses import KnownFailure
+    from nose.plugins import attrib
+
+    return [KnownFailure, attrib.Plugin]
+
+
+def _get_nose_env():
+    env = {'NOSE_COVER_PACKAGE': 'matplotlib',
+           'NOSE_COVER_HTML': 1,
+           'NOSE_COVER_NO_PRINT': 1}
+    return env
+
+
+def test(verbosity=1, coverage=False):
     """run the matplotlib test suite"""
-    verify_test_dependencies()
-    try:
-        import faulthandler
-    except ImportError:
-        pass
-    else:
-        faulthandler.enable()
+    _init_tests()
 
     old_backend = rcParams['backend']
     try:
         use('agg')
         import nose
         import nose.plugins.builtin
-        from .testing.noseclasses import KnownFailure
         from nose.plugins.manager import PluginManager
         from nose.plugins import multiprocess
 
         # store the old values before overriding
-        plugins = []
-        plugins.append(KnownFailure())
-        plugins.extend([plugin() for plugin in nose.plugins.builtin.plugins])
+        plugins = _get_extra_test_plugins()
+        plugins.extend([plugin for plugin in nose.plugins.builtin.plugins])
 
-        manager = PluginManager(plugins=plugins)
+        manager = PluginManager(plugins=[x() for x in plugins])
         config = nose.config.Config(verbosity=verbosity, plugins=manager)
 
         # Nose doesn't automatically instantiate all of the plugins in the
         # child processes, so we have to provide the multiprocess plugin with
         # a list.
-        multiprocess._instantiate_plugins = [KnownFailure]
+        multiprocess._instantiate_plugins = plugins
+
+        env = _get_nose_env()
+        if coverage:
+            env['NOSE_WITH_COVERAGE'] = 1
 
         success = nose.run(
             defaultTest=default_test_modules,
             config=config,
+            env=env,
         )
     finally:
         if old_backend.lower() != 'agg':

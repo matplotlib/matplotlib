@@ -4231,9 +4231,14 @@ def test_axes_margins():
     assert ax.get_ybound() == (-0.5, 9.5)
 
 
+@image_comparison(baseline_images=["auto_numticks"], style='default',
+                  extensions=['png'])
+def test_auto_numticks():
+    fig, axes = plt.subplots(4, 4)
+
+
 @cleanup
 def test_remove_shared_axes():
-
     def _helper_x(ax):
         ax2 = ax.twinx()
         ax2.remove()
@@ -4276,10 +4281,10 @@ def test_remove_shared_axes():
     assert assert_array_equal(ax_lst[0][1].get_xlim(), orig_xlim)
 
 
-@image_comparison(baseline_images=["auto_numticks"], style='default',
-                  extensions=['png'])
-def test_auto_numticks():
-    fig, axes = plt.subplots(4, 4)
+@cleanup
+def test_broken_barh_empty():
+    fig, ax = plt.subplots()
+    ax.broken_barh([], (.1, .5))
 
 
 @cleanup

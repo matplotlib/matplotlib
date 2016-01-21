@@ -33,7 +33,6 @@ from matplotlib.markers import TICKLEFT, TICKRIGHT, TICKUP, TICKDOWN
 from matplotlib.markers import (
     CARETLEFT, CARETRIGHT, CARETUP, CARETDOWN,
     CARETLEFTBASE, CARETRIGHTBASE, CARETUPBASE, CARETDOWNBASE)
-
 from matplotlib import _path
 
 

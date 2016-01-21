@@ -489,14 +489,14 @@ class _AxesBase(martist.Artist):
             self._shared_x_axes.join(self, sharex)
             if sharex._adjustable == 'box':
                 sharex._adjustable = 'datalim'
-                #warnings.warn(
+                # warnings.warn(
                 #    'shared axes: "adjustable" is being changed to "datalim"')
             self._adjustable = 'datalim'
         if sharey is not None:
             self._shared_y_axes.join(self, sharey)
             if sharey._adjustable == 'box':
                 sharey._adjustable = 'datalim'
-                #warnings.warn(
+                # warnings.warn(
                 #    'shared axes: "adjustable" is being changed to "datalim"')
             self._adjustable = 'datalim'
         self.set_label(label)
@@ -1016,11 +1016,11 @@ class _AxesBase(martist.Artist):
 
         self.grid(False)  # Disable grid on init to use rcParameter
         self.grid(self._gridOn, which=rcParams['axes.grid.which'],
-                    axis=rcParams['axes.grid.axis'])
+                  axis=rcParams['axes.grid.axis'])
         props = font_manager.FontProperties(
-                    size=rcParams['axes.titlesize'],
-                    weight=rcParams['axes.titleweight']
-                )
+            size=rcParams['axes.titlesize'],
+            weight=rcParams['axes.titleweight']
+            )
 
         self.titleOffsetTrans = mtransforms.ScaledTranslation(
             0.0, 5.0 / 72.0, self.figure.dpi_scale_trans)
@@ -1143,7 +1143,7 @@ class _AxesBase(martist.Artist):
         .. deprecated:: 1.5
         """
         cbook.warn_deprecated(
-                '1.5', name='set_color_cycle', alternative='set_prop_cycle')
+            '1.5', name='set_color_cycle', alternative='set_prop_cycle')
         if clist is None:
             # Calling set_color_cycle() or set_prop_cycle() with None
             # effectively resets the cycle, but you can't do
@@ -1710,6 +1710,8 @@ class _AxesBase(martist.Artist):
         Returns the image.
         """
         self._set_artist_props(image)
+        if not image.get_label():
+            image.set_label('_image%d' % len(self.images))
         self.images.append(image)
         image._remove_method = lambda h: self.images.remove(h)
         self.stale = True
@@ -3413,8 +3415,12 @@ class _AxesBase(martist.Artist):
         Parameters
         ----------
 
-        bbox : tuple
-            The selected bounding box limits, in *display* coordinates.
+        bbox : 4-tuple or 3 tuple
+            * If bbox is a 4 tuple, it is the selected bounding box limits,
+                in *display* coordinates.
+            * If bbox is a 3 tuple, it is an (xp, yp, scl) triple, where
+                (xp,yp) is the center of zooming and scl the scale factor to
+                zoom by.
 
         direction : str
             The direction to apply the bounding box.
@@ -3433,15 +3439,52 @@ class _AxesBase(martist.Artist):
         twiny : bool
             Whether this axis is twinned in the *y*-direction.
         """
+        Xmin, Xmax = self.get_xlim()
+        Ymin, Ymax = self.get_ylim()
 
+        if len(bbox) == 3:
+            # Zooming code
+            xp, yp, scl = bbox
+
+            # Should not happen
+            if scl == 0:
+                scl = 1.
+
+            # direction = 'in'
+            if scl > 1:
+                direction = 'in'
+            else:
+                direction = 'out'
+                scl = 1/scl
+
+            # get the limits of the axes
+            tranD2C = self.transData.transform
+            xmin, ymin = tranD2C((Xmin, Ymin))
+            xmax, ymax = tranD2C((Xmax, Ymax))
+
+            # set the range
+            xwidth = xmax - xmin
+            ywidth = ymax - ymin
+            xcen = (xmax + xmin)*.5
+            ycen = (ymax + ymin)*.5
+            xzc = (xp*(scl - 1) + xcen)/scl
+            yzc = (yp*(scl - 1) + ycen)/scl
+
+            bbox = [xzc - xwidth/2./scl, yzc - ywidth/2./scl,
+                    xzc + xwidth/2./scl, yzc + ywidth/2./scl]
+        elif len(bbox) != 4:
+            # should be len 3 or 4 but nothing else
+            warnings.warn('Warning in _set_view_from_bbox: bounding box is not a\
+                  tuple of length 3 or 4. Ignoring the view change...')
+            return
+
+        # Just grab bounding box
         lastx, lasty, x, y = bbox
 
         # zoom to rect
         inverse = self.transData.inverted()
         lastx, lasty = inverse.transform_point((lastx, lasty))
         x, y = inverse.transform_point((x, y))
-        Xmin, Xmax = self.get_xlim()
-        Ymin, Ymax = self.get_ylim()
 
         if twinx:
             x0, x1 = Xmin, Xmax

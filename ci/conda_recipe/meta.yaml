@@ -1,0 +1,61 @@
+# stolen from https://github.com/conda/conda-recipes/tree/master/matplotlib
+# selectors [py27] and comments need to be `# [selector] comment` not `[sel] # comment`
+
+package:
+  name: matplotlib-test
+  version: 1.5.0.9
+
+source:
+  path: ../../
+
+  patches:
+    # don't run nosetest
+    - cfg_notests.patch
+    # nake Qt4Agg the default backend
+    - cfg_qt4agg.patch    [not osx]
+    - rctmp_pyside.patch  [not osx]
+    # tk work on OSX
+    - osx-tk.patch        [osx]
+    # dynamic version from git
+    - condaversion.patch
+
+requirements:
+  build:
+    - python
+    - setuptools
+    - numpy
+    - python-dateutil
+    - freetype >=2.5,<2.6
+    - pyparsing
+    - pytz
+    - py2cairo            [linux and py2k]
+    - tornado
+    - libpng
+    - zlib                [win]
+    - msinttypes          # this package is from the conda-forge channel!
+    - pyqt                [not osx]
+    - cycler
+    - tk
+    #- functools32         [py27] # this is currently not available
+
+  run:
+    - python
+    - numpy
+    - python-dateutil
+    - freetype            [unix]
+    - pytz
+    - pyparsing
+    - py2cairo            [linux and py2k]
+    - libpng              [unix]
+    - pyqt                [not osx]
+    - cycler
+    - tk
+
+test:
+  requires:
+    - nose
+    - mock
+
+about:
+  home: http://matplotlib.sourceforge.net/
+  license: PSF-based (http://matplotlib.sourceforge.net/users/license.html)

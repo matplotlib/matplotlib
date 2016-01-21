@@ -61,6 +61,7 @@ y2 = -L2*cos(y[:, 2]) + y1
 
 fig = plt.figure()
 ax = fig.add_subplot(111, autoscale_on=False, xlim=(-2, 2), ylim=(-2, 2))
+ax.set_aspect('equal')
 ax.grid()
 
 line, = ax.plot([], [], 'o-', lw=2)

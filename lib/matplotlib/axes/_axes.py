@@ -61,9 +61,10 @@ def _plot_args_replacer(args, data):
         except ValueError:
             pass
         else:
-            msg = "Second argument is ambiguous: could be a color spec " \
+            msg = "Second argument '{}' is ambiguous: could be a color spec " \
                   "but is in data. Using as data.\nEither rename the " \
-                  "entry in data or use three arguments to plot."
+                  "entry in data or use three arguments " \
+                  "to plot.".format(args[1])
             warnings.warn(msg, RuntimeWarning, stacklevel=3)
         return ["x", "y"]
     elif len(args) == 3:
@@ -5005,6 +5006,7 @@ class Axes(_AxesBase):
             else:
                 X, Y = np.meshgrid(np.arange(numCols + 1),
                                    np.arange(numRows + 1))
+            C = cbook.safe_masked_invalid(C)
             return X, Y, C
 
         if len(args) == 3:
@@ -5037,6 +5039,7 @@ class Axes(_AxesBase):
                                 ' X (%d) and/or Y (%d); see help(%s)' % (
                                     C.shape, Nx, Ny, funcname))
             C = C[:Ny - 1, :Nx - 1]
+        C = cbook.safe_masked_invalid(C)
         return X, Y, C
 
     @unpack_labeled_data(label_namer=None)

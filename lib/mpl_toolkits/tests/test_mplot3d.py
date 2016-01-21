@@ -311,7 +311,17 @@ def test_axes3d_cla():
     ax.set_axis_off()
     ax.cla()  # make sure the axis displayed is 3D (not 2D)
 
+@cleanup
+def test_plotsurface_1d_raises():
+    x = np.linspace(0.5, 10, num=100)
+    y = np.linspace(0.5, 10, num=100)
+    X, Y = np.meshgrid(x, y)
+    z = np.random.randn(100)
 
+    fig = plt.figure(figsize=(14,6))
+    ax = fig.add_subplot(1, 2, 1, projection='3d')
+    assert_raises(ValueError, ax.plot_surface, X, Y, z)
+    
 if __name__ == '__main__':
     import nose
     nose.runmodule(argv=['-s', '--with-doctest'], exit=False)

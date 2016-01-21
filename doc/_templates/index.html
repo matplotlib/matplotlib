@@ -29,7 +29,11 @@ function getSnippet(id, url) {
     // Synchronous request, wait till we have it all
     req.open('GET', url, false);
     req.send(null);
-    element.innerHTML = req.responseText;
+    if (req.status == 200) {
+      element.innerHTML = req.responseText;
+    } else {
+      element.innerHTML = "<mark>Could not find Snippet to insert at " + url + "</mark>"
+    }
   }
 }
 </script>
@@ -156,12 +160,20 @@ changes</a> file.</p>
 
 <h1>Toolkits</h1>
 
-<p>There are several matplotlib add-on <a href="{{ pathto('mpl_toolkits/index') }}">toolkits</a>,
-including a choice of two projection and mapping toolkits <a href="http://matplotlib.org/basemap">basemap</a> and
-<a href="http://scitools.org.uk/cartopy/docs/latest">cartopy</a>,
-3d plotting with <a href="{{ pathto('mpl_toolkits/mplot3d/index') }}">mplot3d</a>,
-axes and axis helpers in <a href="{{ pathto('mpl_toolkits/axes_grid/index') }}">axes_grid</a> and more.
+<p>Matplotlib ships with several add-on <a href="{{ pathto('mpl_toolkits/index') }}">toolkits</a>,
+    Including 3d plotting with <a href="{{ pathto('mpl_toolkits/mplot3d/index') }}">mplot3d</a>,
+    axes helpers in <a href="{{ pathto('mpl_toolkits/axes_grid1/index') }}">axes_grid1</a> and
+    axis helpers in <a href="{{ pathto('mpl_toolkits/axisartist/index') }}">axisartist</a>.
  </p>
+
+<h1>Third party packages</h1>
+
+<p>A large number of third party <a href="{{ pathto('mpl_toolkits/index') }}">packages</a>
+    extend and build on Matplotlib functionality,
+    including a choice of two projection and mapping toolkits
+    <a href="http://matplotlib.org/basemap">basemap</a> and
+    <a href="http://scitools.org.uk/cartopy/docs/latest">cartopy</a>.
+</p>
 
 <h1>Citing matplotlib</h1>
 
