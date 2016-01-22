@@ -108,12 +108,8 @@ def test_linestyle_variants():
 
 @cleanup
 def test_valid_linestyles():
-    if sys.version_info[:2] < (2, 7):
-        raise nose.SkipTest("assert_raises as context manager "
-                            "not supported with Python < 2.7")
-
     line = mlines.Line2D([], [])
-    with assert_raises(ValueError):
+    with pytest.raises(ValueError):
         line.set_linestyle('aardvark')
 
 
