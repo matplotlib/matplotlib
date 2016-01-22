@@ -95,6 +95,8 @@ install:
 
     # Install freetypy from git
     FREETYPY_LOCAL_FREETYPE=1 pip install git+https://github.com/matplotlib/freetypy@master
+    # Install fcpy from git
+    pip install git+https://github.com/matplotlib/fcpy@master
 
     # We manually install humor sans using the package from Ubuntu 14.10. Unfortunatly humor sans is not
     # availible in the Ubuntu version used by Travis but we can manually install the deb from a later
