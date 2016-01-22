@@ -237,7 +237,7 @@ class RendererAgg(RendererBase):
         font = self._get_agg_font(prop)
         layout = ft.Layout(font, s, load_flags=flags)  # the width and height of unrotated string
         w = layout.layout_bbox.width
-        h = layout.ink_bbox.y_max - layout.ink_bbox.y_min
+        h = layout.ink_bbox.height
         d = -layout.ink_bbox.y_min
         return w, h, d
 

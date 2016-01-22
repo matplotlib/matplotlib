@@ -1,5 +1,5 @@
 """
-A module for finding, managing, and using fonts across platformsu,
+A module for finding, managing, and using fonts across platforms,
 using fontconfig, and the Python wrappers in fcpy, underneath.
 
 The API is based on the `W3C Cascading Style Sheet, Level 1 (CSS1)
@@ -472,12 +472,12 @@ get_font = lru_cache(64)(ft.Face)
 
 
 fcpy_config = fcpy.default_config()
-fcpy_config.build_fonts()
 # Add the directory of fonts that ship with matplotlib
 for path in [os.path.join(rcParams['datapath'], 'fonts', 'ttf'),
              os.path.join(rcParams['datapath'], 'fonts', 'afm'),
              os.path.join(rcParams['datapath'], 'fonts', 'pdfcorefonts')]:
     fcpy_config.add_dir(path)
+fcpy_config.build_fonts()
 
 
 def findfont(prop, fontext=None, directory=None, fallback_to_default=True):

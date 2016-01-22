@@ -113,7 +113,7 @@ class TextToPath(object):
         font = self._get_font(prop)
         font.set_char_size(fontsize, fontsize, self.DPI, self.DPI)
         layout = ft.Layout(font, s)
-        w = layout.ink_bbox.width
+        w = layout.layout_bbox.width
         h = layout.ink_bbox.height
         d = -layout.ink_bbox.y_min
         return w, h, d

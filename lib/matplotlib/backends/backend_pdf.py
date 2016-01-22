@@ -933,11 +933,12 @@ end"""
         cid_to_gid_map = ['\u0000'] * 65536
         widths = []
         max_ccode = 0
+        scale = 64. / (font.units_per_em / 1000.0)
         for ccode in characters:
             gind = font.get_char_index_unicode(ccode)
             glyph = font.load_char_unicode(
                 ccode, load_flags=ft.LOAD.NO_HINTING|ft.LOAD.NO_SCALE)
-            widths.append((ccode, glyph.linear_hori_advance * 64. * 1.3))
+            widths.append((ccode, glyph.metrics.hori_advance * scale))
             if ccode < 65536:
                 cid_to_gid_map[ccode] = unichr(gind)
             max_ccode = max(ccode, max_ccode)
