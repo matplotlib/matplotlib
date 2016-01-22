@@ -3,7 +3,7 @@
 Testing
 =======
 
-Matplotlib has a testing infrastructure based on pytest_, making it easy
+Matplotlib has a testing infrastructure based on pytest, making it easy
 to write new tests. The tests are in :mod:`matplotlib.tests`, and
 customizations to the pytest testing infrastructure are in
 :mod:`matplotlib.testing`. (There is other old testing cruft around,
@@ -16,7 +16,7 @@ Requirements
 
 The following software is required to run the tests:
 
-  - pytest_
+  - pytest
 
   - `mock <http://www.voidspace.org.uk/python/mock/>`_, when running python
     versions < 3.3
