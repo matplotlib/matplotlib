@@ -76,7 +76,7 @@ class TextToPath(object):
         """
         Return a unique id for the given font and character-code set (for tex).
         """
-        ps_name = font.get_ps_font_info()[2]
+        ps_name = font.get_postscript_name()
         char_id = urllib_quote('%s-%d' % (ps_name, ccode))
         return char_id
 
