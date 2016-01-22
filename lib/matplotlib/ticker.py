@@ -953,11 +953,11 @@ class LogFormatterMathtext(LogFormatter):
 
     def _non_decade_format(self, sign_string, base, fx, usetex):
         'Return string for non-decade locations'
-            if usetex:
-                return (r'$%s%s^{%.2f}$') % (sign_string, base, fx)
-            else:
-                return ('$%s$' % _mathdefault('%s%s^{%.2f}' %
-                    (sign_string, base, fx)))
+        if usetex:
+            return (r'$%s%s^{%.2f}$') % (sign_string, base, fx)
+        else:
+            return ('$%s$' % _mathdefault('%s%s^{%.2f}' %
+                (sign_string, base, fx)))
 
     def __call__(self, x, pos=None):
         """
@@ -1021,8 +1021,8 @@ class LogFormatterSciNotation(LogFormatterMathtext):
             return (r'$%g\times%s^{%d}$') % \
                                         (coeff, base, exponent)
         else:
-            return (r'$\mathdefault{%g\times%s^{%d}}$') % \
-                                        (coeff, base, exponent)
+            return ('$%s$' % _mathdefault(r'%g\times%s^{%d}' %
+                                        (coeff, base, exponent)))
 
 
 class LogitFormatter(Formatter):
