@@ -24,8 +24,10 @@ def setup_PsfontsMap(request):
         teardown_PsfontsMap()
     request.addfinalizer(fin)
 
+
 def teardown_PsfontsMap():
     dr.find_tex_file = original_find_tex_file
+
 
 def test_PsfontsMap(setup_PsfontsMap):
     filename = os.path.join(
