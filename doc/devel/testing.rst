@@ -35,8 +35,7 @@ Optionally you can install:
 
   - `pytest-cov <https://pypi.python.org/pypi/pytest-cov>`_ for coverage stats in pytest
 
-  - `pytest-pep8 <https://pypi.python.org/pypi/pytest-pep8>`_ for pep8
-   conformance in pytest
+  - `pytest-pep8 <https://pypi.python.org/pypi/pytest-pep8>`_ for pep8 conformance in pytest
 
 Building matplotlib for image comparison tests
 ----------------------------------------------
