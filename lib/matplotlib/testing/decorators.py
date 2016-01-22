@@ -276,6 +276,7 @@ def image_comparison_2(baseline_images=None, extensions=None, tol=0,
         newtest._remove_text = remove_text
         newtest._savefig_kwarg = savefig_kwarg
         newtest._style = style
+        newtest._func = newtest.test
         func = newtest.test
         return func
     return compare_images_decorator
