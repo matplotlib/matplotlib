@@ -1,4 +1,4 @@
-`"""
+"""
 Demonstrates similarities between pcolor, pcolormesh, imshow and pcolorfast
 for drawing quadrilateral grids.
 
