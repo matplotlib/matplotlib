@@ -409,7 +409,7 @@ def test_positional_parameter_names_as_function():
     def f():
         assert funcy(None, "x", "y", "c", "x", "y", "x", "y", data=data) == \
                "('X', 'Y', 'c', 'X', 'Y', 'X', 'Y') | {}"
-    with pytest.raises(AssertionError):
+    with pytest.raises((AssertionError, ValueError)):
         f()
 
     # In the two arg case, if a valid color spec is in data, we warn but use
