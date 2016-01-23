@@ -1,4 +1,4 @@
-# With infos from 
+# With infos from
 # http://tjelvarolsson.com/blog/how-to-continuously-test-your-python-code-on-windows-using-appveyor/
 # https://packaging.python.org/en/latest/appveyor/
 # https://github.com/rmcgibbo/python-appveyor-conda-example
@@ -62,12 +62,18 @@ install:
   # same things as the requirements in ci/conda_recipe/meta.yaml
   - cmd: conda create -y -q -n test-environment python=%PYTHON_VERSION% pip setuptools numpy python-dateutil freetype=2.5 msinttypes tk pyparsing pytz tornado libpng zlib pyqt cycler nose mock
   - activate test-environment
+  - cmd: echo %PYTHON_VERSION% %TARGET_ARCH%
+  - cmd: IF %PYTHON_VERSION% == 2.7 conda install -y functools32
   # This is needed for the installer to find the dlls...
   - set LIBRARY_LIB=%CONDA_DEFAULT_ENV%\Library\lib
   - cmd: 'mkdir lib || cmd /c "exit /b 0"'
-  - copy %LIBRARY_LIB%\zlibstatic.lib lib\z.lib 
+  - copy %LIBRARY_LIB%\zlibstatic.lib lib\z.lib
   - copy %LIBRARY_LIB%\libpng_static.lib lib\png.lib
   - set MPLBASEDIRLIST=%CONDA_DEFAULT_ENV%\Library\;.
+  # enables the local freetype build
+  - copy ci\travis\setup.cfg .
+  # There is no 2.7 64bit freetype build configuration...
+  - cmd: IF %PYTHON_VERSION% == 2.7 (IF %TARGET_ARCH% == x64 (del setup.cfg))
   # Show the installed packages + versions
   - conda list
 
@@ -80,7 +86,7 @@ test_script:
 
 after_test:
   # After the tests were a success, build packages (wheels and conda)
-  
+
   # There is a bug in wheels which prevents building wheels when the package uses namespaces
   - cmd: '%CMD_IN_ENV% python setup.py bdist_wheel'
   # Note also that our setup.py script, which is called by conda-build, writes
@@ -90,7 +96,7 @@ after_test:
   - cmd: '%CMD_IN_ENV% conda config --get channels'
   - cmd: '%CMD_IN_ENV% conda build .\ci\conda_recipe'
   # Move the conda package into the dist directory, to register it
-  # as an "artifact" for Appveyor. 
+  # as an "artifact" for Appveyor.
   - cmd: 'copy /Y %CONDA_INSTALL_LOCN%\conda-bld\win-32\*.bz2 dist || cmd /c "exit /b 0"'
   - cmd: 'copy /Y %CONDA_INSTALL_LOCN%\conda-bld\win-64\*.bz2 dist || cmd /c "exit /b 0"'
   - cmd: dir .\dist\
@@ -98,7 +104,7 @@ after_test:
 artifacts:
   - path: dist\*
     name: packages
-    
+
   - path: result_images\*
     name: result_images
     type: zip

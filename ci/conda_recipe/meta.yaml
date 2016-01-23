@@ -23,12 +23,6 @@ source:
     # by conda build to get the version.
     - condaversion.patch
 
-# On Windows, the following error occurs for x64:
-# src/ft2font.cpp(5) : fatal error C1083: Cannot open include file: 'string': No such file or directory    
-build:  # [win64]
-    skip:  # [win64]
-        - True  # [win64]
-
 requirements:
   build:
     - python
@@ -47,6 +41,8 @@ requirements:
     - zlib                # [win]
     - pyqt                # [not osx]
     - tk                  # [linux]
+    - functools32         # [py2k]
+
   run:
     - python
     - numpy x.x
@@ -59,6 +55,7 @@ requirements:
     - libpng              # [unix]
     - pyqt                # [not osx]
     - tk                  # [linux]
+    - functools32         # [py2k]
 
 test:
     imports:
