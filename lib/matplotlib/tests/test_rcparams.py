@@ -258,7 +258,8 @@ def _validation_fail_helper(validator, arg, exception_type):
     if sys.version_info[:2] < (2, 7):
         raise pytest.skip("assert_raises as context manager not "
                             "supported with Python < 2.7")
-    pytest.raises(exception_type,validator, arg)
+    with pytest.raises(exception_type):
+        validator(arg)
 
 
 def test_validators():

@@ -64,12 +64,14 @@ def test_compiletime_checks():
         # z is unknown
         unpack_labeled_data(replace_names=["x", "y", "z"])(func_args)
 
-    pytest.raises(AssertionError, f)
+    with pytest.raises(AssertionError):
+        f()
 
     def f():
         unpack_labeled_data(replace_names=["x", "y"])(func_no_ax_args)
 
-    pytest.raises(AssertionError, f)
+    with pytest.raises(AssertionError):
+        f()
 
     # no replacements at all -> all ok...
     unpack_labeled_data(replace_names=[], label_namer=None)(func)
@@ -81,12 +83,14 @@ def test_compiletime_checks():
     def f():
         unpack_labeled_data(label_namer="z")(func)
 
-    pytest.raises(AssertionError, f)
+    with pytest.raises(AssertionError):
+        f()
 
     def f():
         unpack_labeled_data(label_namer="z")(func_args)
 
-    pytest.raises(AssertionError, f)
+    with pytest.raises(AssertionError):
+        f()
     # but "ok-ish", if func has kwargs -> will show up at runtime :-(
     unpack_labeled_data(label_namer="z")(func_kwargs)
     unpack_labeled_data(label_namer="z")(func_no_ax_args)
@@ -405,7 +409,8 @@ def test_positional_parameter_names_as_function():
     def f():
         assert funcy(None, "x", "y", "c", "x", "y", "x", "y", data=data) == \
                "('X', 'Y', 'c', 'X', 'Y', 'X', 'Y') | {}"
-    pytest.raises(ValueError, f)
+    with pytest.raises(AssertionError):
+        f()
 
     # In the two arg case, if a valid color spec is in data, we warn but use
     # it as data...

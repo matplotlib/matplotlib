@@ -19,7 +19,8 @@ def test_readonly_path():
     def modify_vertices():
         path.vertices = path.vertices * 2.0
 
-    pytest.raises(AttributeError, modify_vertices)
+    with pytest.raises(AttributeError):
+        modify_vertices()
 
 
 def test_point_in_path():

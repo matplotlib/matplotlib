@@ -85,7 +85,8 @@ def test_delaunay_points_in_line():
     # that delaunay code fails gracefully.
     x = np.linspace(0.0, 10.0, 11)
     y = np.linspace(0.0, 10.0, 11)
-    pytest.raises(RuntimeError, mtri.Triangulation, x, y)
+    with pytest.raises(RuntimeError):
+        mtri.Triangulation(x, y)
 
     # Add an extra point not on the line and the triangulation is OK.
     x = np.append(x, 2.0)
@@ -95,16 +96,21 @@ def test_delaunay_points_in_line():
 
 def test_delaunay_insufficient_points():
     # Triangulation should raise a ValueError if passed less than 3 points.
-    pytest.raises(ValueError, mtri.Triangulation, [], [])
-    pytest.raises(ValueError, mtri.Triangulation, [1], [5])
-    pytest.raises(ValueError, mtri.Triangulation, [1, 2], [5, 6])
+    with pytest.raises(ValueError):
+        mtri.Triangulation([], [])
+    with pytest.raises(ValueError):
+        mtri.Triangulation([1], [5])
+    with pytest.raises(ValueError):
+        mtri.Triangulation([1, 2], [5, 6])
 
     # Triangulation should also raise a ValueError if passed duplicate points
     # such that there are less than 3 unique points.
-    pytest.raises(ValueError, mtri.Triangulation, [1, 2, 1], [5, 6, 5])
-    pytest.raises(ValueError, mtri.Triangulation, [1, 2, 2], [5, 6, 6])
-    pytest.raises(ValueError, mtri.Triangulation, [1, 1, 1, 2, 1, 2],
-                  [5, 5, 5, 6, 5, 6])
+    with pytest.raises(ValueError):
+        mtri.Triangulation([1, 2, 1], [5, 6, 5])
+    with pytest.raises(ValueError):
+        mtri.Triangulation([1, 2, 2], [5, 6, 6])
+    with pytest.raises(ValueError):
+        mtri.Triangulation([1, 1, 1, 2, 1, 2], [5, 5, 5, 6, 5, 6])
 
 
 def test_delaunay_robust():
@@ -1029,4 +1035,5 @@ def test_tricontourf_decreasing_levels():
     y = [0.0, 0.0, 1.0]
     z = [0.2, 0.4, 0.6]
     plt.figure()
-    pytest.raises(ValueError, plt.tricontourf, x, y, z, [1.0, 0.0])
+    with pytest.raises(ValueError):
+        plt.tricontourf(x, y, z, [1.0, 0.0])

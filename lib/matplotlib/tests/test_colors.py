@@ -282,7 +282,8 @@ def test_cmap_and_norm_from_levels_and_colors2():
                                'Wih extend={0!r} and data '
                                'value={1!r}'.format(extend, d_val))
 
-    pytest.raises(ValueError, mcolors.from_levels_and_colors, levels, colors)
+    with pytest.raises(ValueError):
+        mcolors.from_levels_and_colors(levels, colors)
 
 
 def test_rgb_hsv_round_trip():
@@ -312,8 +313,10 @@ def test_colors_no_float():
     def gray_from_float_rgba():
         return mcolors.colorConverter.to_rgba(0.4)
 
-    pytest.raises(ValueError, gray_from_float_rgb)
-    pytest.raises(ValueError, gray_from_float_rgba)
+    with pytest.raises(ValueError):
+        gray_from_float_rgb()
+    with pytest.raises(ValueError):
+        gray_from_float_rgba()
 
 
 @image_comparison(baseline_images=['light_source_shading_topo'],

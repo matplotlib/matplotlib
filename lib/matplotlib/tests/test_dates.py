@@ -105,7 +105,8 @@ def test_too_many_date_ticks():
     ax.set_xlim((t0, tf), auto=True)
     ax.plot([], [])
     ax.xaxis.set_major_locator(mdates.DayLocator())
-    pytest.raises(RuntimeError, fig.savefig, 'junk.png')
+    with pytest.raises(RuntimeError):
+        fig.savefig('junk.png')
 
 
 @image_comparison(baseline_images=['RRuleLocator_bounds'], extensions=['png'])
@@ -264,7 +265,8 @@ def test_empty_date_with_year_formatter():
     ax.xaxis.set_major_formatter(yearFmt)
 
     with tempfile.TemporaryFile() as fh:
-        pytest.raises(ValueError, fig.savefig, fh)
+        with pytest.raises(ValueError):
+            fig.savefig(fh)
 
 
 def test_auto_date_locator():

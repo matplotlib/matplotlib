@@ -53,7 +53,8 @@ def test_AutoMinorLocator():
 
 def test_LogLocator():
     loc = mticker.LogLocator(numticks=5)
-    pytest.raises(ValueError, loc.tick_values, 0, 1000)
+    with pytest.raises(ValueError):
+        loc.tick_values(0, 1000)
 
     test_value = np.array([1.00000000e-05, 1.00000000e-03, 1.00000000e-01,
                            1.00000000e+01, 1.00000000e+03, 1.00000000e+05,

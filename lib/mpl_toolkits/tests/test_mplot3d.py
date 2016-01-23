@@ -325,4 +325,5 @@ def test_plotsurface_1d_raises():
 
     fig = plt.figure(figsize=(14,6))
     ax = fig.add_subplot(1, 2, 1, projection='3d')
-    pytest.raises(ValueError, ax.plot_surface, X, Y, z)
+    with pytest.raises(ValueError):
+        ax.plot_surface(X, Y, z)

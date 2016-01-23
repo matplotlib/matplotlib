@@ -356,7 +356,8 @@ def test_shaped_data():
     plt.plot(y2)
 
     plt.subplot(413)
-    pytest.raises(ValueError, plt.plot, y1, y2)
+    with pytest.raises(ValueError):
+        plt.plot(y1, y2)
 
     plt.subplot(414)
     plt.plot(xdata[:, 1], xdata[1, :], 'o')
@@ -3026,15 +3027,18 @@ def test_specgram_angle_freqs():
     spec13 = ax13.specgram(y, NFFT=NFFT, Fs=Fs, noverlap=noverlap,
                            pad_to=pad_to, sides='twosided', mode='angle')
 
-    pytest.raises(ValueError, ax11.specgram, y, NFFT=NFFT, Fs=Fs,
+    with pytest.raises(ValueError):
+        ax11.specgram(y, NFFT=NFFT, Fs=Fs,
                   noverlap=noverlap, pad_to=pad_to, sides='default',
                   mode='phase', scale='dB')
 
-    pytest.raises(ValueError, ax12.specgram, y, NFFT=NFFT, Fs=Fs,
+    with pytest.raises(ValueError):
+        ax12.specgram(y, NFFT=NFFT, Fs=Fs,
                   noverlap=noverlap, pad_to=pad_to, sides='onesided',
                   mode='phase', scale='dB')
 
-    pytest.raises(ValueError, ax13.specgram, y, NFFT=NFFT, Fs=Fs,
+    with pytest.raises(ValueError):
+        ax13.specgram(y, NFFT=NFFT, Fs=Fs,
                   noverlap=noverlap, pad_to=pad_to, sides='twosided',
                   mode='phase', scale='dB')
 
@@ -3073,15 +3077,18 @@ def test_specgram_noise_angle():
     spec13 = ax13.specgram(y, NFFT=NFFT, Fs=Fs, noverlap=noverlap,
                            pad_to=pad_to, sides='twosided', mode='angle')
 
-    pytest.raises(ValueError, ax11.specgram, y, NFFT=NFFT, Fs=Fs,
+    with pytest.raises(ValueError):
+        ax11.specgram(y, NFFT=NFFT, Fs=Fs,
                   noverlap=noverlap, pad_to=pad_to, sides='default',
                   mode='phase', scale='dB')
 
-    pytest.raises(ValueError, ax12.specgram, y, NFFT=NFFT, Fs=Fs,
+    with pytest.raises(ValueError):
+        ax12.specgram(y, NFFT=NFFT, Fs=Fs,
                   noverlap=noverlap, pad_to=pad_to, sides='onesided',
                   mode='phase', scale='dB')
 
-    pytest.raises(ValueError, ax13.specgram, y, NFFT=NFFT, Fs=Fs,
+    with pytest.raises(ValueError):
+        ax13.specgram(y, NFFT=NFFT, Fs=Fs,
                   noverlap=noverlap, pad_to=pad_to, sides='twosided',
                   mode='phase', scale='dB')
 
@@ -3128,15 +3135,18 @@ def test_specgram_freqs_phase():
     spec13 = ax13.specgram(y, NFFT=NFFT, Fs=Fs, noverlap=noverlap,
                            pad_to=pad_to, sides='twosided', mode='phase')
 
-    pytest.raises(ValueError, ax11.specgram, y, NFFT=NFFT, Fs=Fs,
+    with pytest.raises(ValueError):
+        ax11.specgram(y, NFFT=NFFT, Fs=Fs,
                   noverlap=noverlap, pad_to=pad_to, sides='default',
                   mode='phase', scale='dB')
 
-    pytest.raises(ValueError, ax12.specgram, y, NFFT=NFFT, Fs=Fs,
+    with pytest.raises(ValueError):
+        ax12.specgram(y, NFFT=NFFT, Fs=Fs,
                   noverlap=noverlap, pad_to=pad_to, sides='onesided',
                   mode='phase', scale='dB')
 
-    pytest.raises(ValueError, ax13.specgram, y, NFFT=NFFT, Fs=Fs,
+    with pytest.raises(ValueError):
+        ax13.specgram(y, NFFT=NFFT, Fs=Fs,
                   noverlap=noverlap, pad_to=pad_to, sides='twosided',
                   mode='phase', scale='dB')
 
@@ -3178,15 +3188,18 @@ def test_specgram_noise_phase():
                            pad_to=pad_to, sides='twosided',
                            mode='phase', )
 
-    pytest.raises(ValueError, ax11.specgram, y, NFFT=NFFT, Fs=Fs,
+    with pytest.raises(ValueError):
+        ax11.specgram(y, NFFT=NFFT, Fs=Fs,
                   noverlap=noverlap, pad_to=pad_to, sides='default',
                   mode='phase', scale='dB')
 
-    pytest.raises(ValueError, ax12.specgram, y, NFFT=NFFT, Fs=Fs,
+    with pytest.raises(ValueError):
+        ax12.specgram(y, NFFT=NFFT, Fs=Fs,
                   noverlap=noverlap, pad_to=pad_to, sides='onesided',
                   mode='phase', scale='dB')
 
-    pytest.raises(ValueError, ax13.specgram, y, NFFT=NFFT, Fs=Fs,
+    with pytest.raises(ValueError):
+        ax13.specgram(y, NFFT=NFFT, Fs=Fs,
                   noverlap=noverlap, pad_to=pad_to, sides='twosided',
                   mode='phase', scale='dB')
 
@@ -4222,8 +4235,10 @@ def test_title_location_roundtrip():
     assert 'right' == ax.get_title(loc='right')
     assert 'aardvark' == ax.get_title()
 
-    pytest.raises(ValueError, ax.get_title, loc='foo')
-    pytest.raises(ValueError, ax.set_title, 'fail', loc='foo')
+    with pytest.raises(ValueError):
+        ax.get_title(loc='foo')
+    with pytest.raises(ValueError):
+        ax.set_title('fail', loc='foo')
 
 
 @image_comparison(baseline_images=["loglog"], remove_text=True,

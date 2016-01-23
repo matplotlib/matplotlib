@@ -106,17 +106,22 @@ def test_shared():
 
 def test_exceptions():
     # TODO should this test more options?
-    pytest.raises(ValueError, plt.subplots, 2, 2, sharex='blah')
-    pytest.raises(ValueError, plt.subplots, 2, 2, sharey='blah')
+    with pytest.raises(ValueError):
+        plt.subplots(2, 2, sharex='blah')
+    with pytest.raises(ValueError):
+        plt.subplots(2, 2, sharey='blah')
     # We filter warnings in this test which are genuine since
     # the pount of this test is to ensure that this raises.
     with warnings.catch_warnings():
         warnings.filterwarnings('ignore',
                                 message='.*sharex\ argument\ to\ subplots',
                                 category=UserWarning)
-        pytest.raises(ValueError, plt.subplots, 2, 2, -1)
-        pytest.raises(ValueError, plt.subplots, 2, 2, 0)
-        pytest.raises(ValueError, plt.subplots, 2, 2, 5)
+        with pytest.raises(ValueError):
+            plt.subplots(2, 2, -1)
+        with pytest.raises(ValueError):
+            plt.subplots(2, 2, 0)
+        with pytest.raises(ValueError):
+            plt.subplots(2, 2, 5)
 
 
 @image_comparison(baseline_images=['subplots_offset_text'], remove_text=False)

@@ -290,7 +290,8 @@ def test_get_rotation_raises():
     if sys.version_info[:2] < (2, 7):
         raise pytest.skip("assert_raises as context manager "
                        "not supported with Python < 2.7")
-    pytest.raises(ValueError, text.get_rotation, 'hozirontal')
+    with pytest.raises(ValueError):
+        text.get_rotation('hozirontal')
 
 
 def test_get_rotation_none():
