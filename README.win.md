@@ -2,7 +2,7 @@
 
 There are a few possibilities to build matplotlib on Windows:
 
-* Via [matplotlib-winbuild](https://github.com/jbmohler/matplotlib-winbuild)
+* Wheels via [matplotlib-winbuild](https://github.com/jbmohler/matplotlib-winbuild)
 * Wheels by using conda packages
 * Conda packages
 
@@ -38,6 +38,8 @@ set MPLBASEDIRLIST=%CONDA_DEFAULT_ENV%\Library\;.
 python setup.py bdist_wheel
 ```
 
+The `build_alllocal.cmd` script automates these steps if you already created and activated the conda environment.
+
 
 ## Conda packages
 
@@ -58,5 +60,3 @@ conda build ci\conda_recipe
 # install the new package
 conda install --use-local matplotlib
 ```
-
-"C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\bin\dumpbin.exe" /dependents C:\portabel\miniconda\conda-bld\win-64\matplotlib-test-1.5.0+914.ga5b2a1f.dirty-py35_0.tar\matplotlib-test-1.5.0+914.ga5b2a1f.dirty-py35_0\Lib\site-packages\matplotlib\backends\_backend_agg.cp35-win_amd64.pyd
