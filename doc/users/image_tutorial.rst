@@ -340,7 +340,7 @@ the image.
 
     In [16]: from PIL import Image
     In [17]: img = Image.open('../_static/stinkbug.png')
-    In [18]: resized = img.thumbnail((64, 64), Image.ANTIALIAS) # resizes image in-place
+    In [18]: img.thumbnail((64, 64), Image.ANTIALIAS) # resizes image in-place
     In [19]: imgplot = plt.imshow(img)
 
 .. plot::
@@ -358,7 +358,7 @@ Let's try some others:
 
 .. sourcecode:: ipython
 
-    In [20]: imgplot = plt.imshow(resized, interpolation="nearest")
+    In [20]: imgplot = plt.imshow(img, interpolation="nearest")
 
 .. plot::
 
@@ -370,7 +370,7 @@ Let's try some others:
 
 .. sourcecode:: ipython
 
-    In [21]: imgplot = plt.imshow(resized, interpolation="bicubic")
+    In [21]: imgplot = plt.imshow(img, interpolation="bicubic")
 
 .. plot::
 
