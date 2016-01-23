@@ -1,4 +1,5 @@
 import os
+import platform 
 import sys
 
 import matplotlib
@@ -12,7 +13,8 @@ import matplotlib._tri
 import matplotlib.backends._backend_agg
 import matplotlib.ft2font
 import matplotlib.ttconv
-import matplotlib.backends._tkagg
+if platform.system() not in ['Windows']:
+    import matplotlib.backends._tkagg
 
 import pylab
 import mpl_toolkits
