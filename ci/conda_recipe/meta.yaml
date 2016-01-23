@@ -10,7 +10,7 @@ source:
 
   patches:
     # A patch to add Tcl directly to the search path on Windows.
-    - setupext.patch      # [win]
+    #- setupext.patch      # [win]
     # A patch to make Qt4Agg the default backend.
     - cfg_qt4agg.patch    # [linux]
     # Patches the matplotlibrc template to default to Qt4.
