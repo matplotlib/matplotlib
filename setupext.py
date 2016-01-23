@@ -61,7 +61,8 @@ def _get_xdg_cache_dir():
 
 # This is the version of FreeType to use when building a local
 # version.  It must match the value in
-# lib/matplotlib.__init__.py
+# lib/matplotlib.__init__.py and also needs to be changed below in the
+# embedded windows build script (grep for "REMINDER" in this file)
 LOCAL_FREETYPE_VERSION = '2.6.1'
 # md5 hash of the freetype tarball
 LOCAL_FREETYPE_HASH = '348e667d728c597360e4a87c16556597'
@@ -171,16 +172,16 @@ def get_base_dirs():
     """
     if options['basedirlist']:
         return options['basedirlist']
-    
+
     if os.environ.get('MPLBASEDIRLIST'):
         return os.environ.get('MPLBASEDIRLIST').split(os.pathsep)
 
     win_bases = ['win32_static', ]
-    # on conda windows, we also add the <installdir>\Library of the local interperter, 
+    # on conda windows, we also add the <installdir>\Library of the local interperter,
     # as conda installs libs/includes there
     if os.getenv('CONDA_DEFAULT_ENV'):
         win_bases.append(os.path.join(os.getenv('CONDA_DEFAULT_ENV'), "Library"))
-    
+
     basedir_map = {
         'win32': win_bases,
         'darwin': ['/usr/local/', '/usr', '/usr/X11',
@@ -198,7 +199,7 @@ def get_include_dirs():
     """
     include_dirs = [os.path.join(d, 'include') for d in get_base_dirs()]
     if sys.platform != 'win32':
-        # gcc includes this dir automatically, so also look for headers in 
+        # gcc includes this dir automatically, so also look for headers in
         # these dirs
         include_dirs.extend(
             os.environ.get('CPLUS_INCLUDE_PATH', '').split(os.pathsep))
@@ -1010,8 +1011,12 @@ class FreeType(SetupPackage):
             # Statically link to the locally-built freetype.
             # This is certainly broken on Windows.
             ext.include_dirs.insert(0, os.path.join(src_path, 'include'))
+            if sys.platform == 'win32':
+                libfreetype = 'libfreetype.lib'
+            else:
+                libfreetype = 'libfreetype.a'
             ext.extra_objects.insert(
-                0, os.path.join(src_path, 'objs', '.libs', 'libfreetype.a'))
+                0, os.path.join(src_path, 'objs', '.libs', libfreetype))
             ext.define_macros.append(('FREETYPE_BUILD_TYPE', 'local'))
         else:
             pkg_config.setup_extension(
@@ -1034,8 +1039,12 @@ class FreeType(SetupPackage):
             'build', 'freetype-{0}'.format(LOCAL_FREETYPE_VERSION))
 
         # We've already built freetype
-        if os.path.isfile(
-                os.path.join(src_path, 'objs', '.libs', 'libfreetype.a')):
+        if sys.platform == 'win32':
+            libfreetype = 'libfreetype.lib'
+        else:
+            libfreetype = 'libfreetype.a'
+
+        if os.path.isfile(os.path.join(src_path, 'objs', '.libs', libfreetype)):
             return
 
         tarball = 'freetype-{0}.tar.gz'.format(LOCAL_FREETYPE_VERSION)
@@ -1107,15 +1116,47 @@ class FreeType(SetupPackage):
                     "{0} does not match expected hash.".format(tarball))
 
         print("Building {0}".format(tarball))
-        cflags = 'CFLAGS="{0} -fPIC" '.format(os.environ.get('CFLAGS', ''))
+        if sys.platform != 'win32':
+            # compilation on all other platforms than windows
+            cflags = 'CFLAGS="{0} -fPIC" '.format(os.environ.get('CFLAGS', ''))
 
-        subprocess.check_call(
-            ['tar', 'zxf', tarball], cwd='build')
-        subprocess.check_call(
-            [cflags + './configure --with-zlib=no --with-bzip2=no '
-             '--with-png=no --with-harfbuzz=no'], shell=True, cwd=src_path)
-        subprocess.check_call(
-            [cflags + 'make'], shell=True, cwd=src_path)
+            subprocess.check_call(
+                ['tar', 'zxf', tarball], cwd='build')
+            subprocess.check_call(
+                [cflags + './configure --with-zlib=no --with-bzip2=no '
+                 '--with-png=no --with-harfbuzz=no'], shell=True, cwd=src_path)
+            subprocess.check_call(
+                [cflags + 'make'], shell=True, cwd=src_path)
+        else:
+            # compilation on windows
+            FREETYPE_BUILD_CMD = """\
+call "%ProgramFiles%\\Microsoft SDKs\\Windows\\v7.0\\Bin\\SetEnv.Cmd" /Release /{xXX} /xp
+call "{vcvarsall}" {xXX}
+set MSBUILD=C:\\Windows\\Microsoft.NET\\Framework\\v4.0.30319\\MSBuild.exe
+rd /S /Q %FREETYPE%\\objs
+%MSBUILD% %FREETYPE%\\builds\\windows\\{vc20xx}\\freetype.sln /t:Clean;Build /p:Configuration="{config}";Platform={WinXX}
+:: move to the "normal" path for the unix builds...
+mkdir %FREETYPE%\\objs\\.libs
+:: REMINDER: fix when changing the version
+copy %FREETYPE%\\objs\\{vc20xx}\\{xXX}\\freetype261.lib %FREETYPE%\\objs\\.libs\\libfreetype.lib
+"""
+            from setup_external_compile import fixproj, prepare_build_cmd, VS2010, X64, tar_extract
+            vc = 'vc2010' if VS2010 else 'vc2008'
+            vc = 'vc2010' if VS2010 else 'vc2008'
+            WinXX = 'x64' if X64 else 'Win32'
+            tar_extract(tarball_path, "build")
+
+            #fixproj(os.path.join(src_path, 'builds', 'windows', vc, 'freetype.sln'), WinXX)
+            #fixproj(os.path.join(src_path, 'builds', 'windows', vc, 'freetype.{}'.format(
+            #    'vcxproj' if VS2010 else 'vcproj')), WinXX)
+
+            cmdfile = os.path.join("build", 'build_freetype.cmd')
+            with open(cmdfile, 'w') as cmd:
+                cmd.write(prepare_build_cmd(FREETYPE_BUILD_CMD, vc20xx=vc, WinXX=WinXX,
+                                            config='Release' if VS2010 else 'LIB Release'))
+
+            os.environ['FREETYPE'] = src_path
+            subprocess.check_call([cmdfile], shell=True)
 
 
 class FT2Font(SetupPackage):
