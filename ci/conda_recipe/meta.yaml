@@ -1,63 +1,77 @@
-# stolen from https://github.com/conda/conda-recipes/tree/master/matplotlib
-# selectors [py27] and comments need to be `# [selector] comment` not `[sel] # comment`
+# Full credit goes to https://github.com/conda/conda-recipes for providing this recipe.
+# It has been subsequently adapted for automated building with conda-forge and matplotlib.
 
 package:
-  name: matplotlib-test
-  # this version is replaced with a proper version from setup.py via the condaversion.patch
-  version: 1.5.0.9
+  name: matplotlib
+  version: 1.5.1.9
 
 source:
   path: ../../
 
   patches:
-    # don't run nosetest (again)
-    - cfg_notests.patch
-    # nake Qt4Agg the default backend
-    - cfg_qt4agg.patch    #[not osx]
-    - rctmp_pyside.patch  #[not osx]
-    # tk work on OSX
-    - osx-tk.patch        #[osx]
+    # A patch to add Tcl directly to the search path on Windows.
+    - setupext.patch      # [win]
+    # A patch to make Qt4Agg the default backend.
+    - cfg_qt4agg.patch    # [linux]
+    # Patches the matplotlibrc template to default to Qt4.
+    - rctmp_pyside.patch  # [not osx]
+    # Patches setupext to look in PREFIX for the tcl/tk headers.
+    - osx-tk.patch        # [osx]
     # dynamic version from git
+    # we can't use condas usuall dynamic versions as setup.py uses a guard
+    # around the setup call against importing, which is done internaly
+    # by conda build to get the version.
     - condaversion.patch
+
+# On Windows, the following error occurs for x64:
+# src/ft2font.cpp(5) : fatal error C1083: Cannot open include file: 'string': No such file or directory    
+build:  # [win64]
+    skip:  # [win64]
+        - True  # [win64]
 
 requirements:
   build:
     - python
     - setuptools
-    - numpy
+    - numpy x.x
     - python-dateutil
-    - freetype >=2.5,<2.6
+    - freetype
+    - msinttypes          # [win]
+    - cycler
+    - nose
     - pyparsing
     - pytz
-    - py2cairo            #[linux and py2k]
+#    - py2cairo            # [linux and py2k]
     - tornado
     - libpng
-    - zlib                #[win]
-    - pyqt                #[not osx]
-    - cycler
-    - tk
-    - msinttypes          # from the conda-forge channel
-    - functools32         #[py27] # from the conda-forge channel
-
+    - zlib                # [win]
+    - pyqt                # [not osx]
+    - tk                  # [linux]
   run:
     - python
-    - numpy
+    - numpy x.x
+    - cycler
     - python-dateutil
-    - freetype            #[unix]
+    - freetype
     - pytz
     - pyparsing
-    - py2cairo            #[linux and py2k]
-    - libpng              #[unix]
-    - pyqt                #[not osx]
-    - cycler
-    - tk
-    - functools32         #[py27] # from the conda-forge channel
+#    - py2cairo            # [linux and py2k]
+    - libpng              # [unix]
+    - pyqt                # [not osx]
+    - tk                  # [linux]
 
 test:
-  requires:
-    - nose
-    - mock
+    imports:
+        - matplotlib
+        - matplotlib.pyplot
 
 about:
-  home: http://matplotlib.sourceforge.net/
-  license: PSF-based (http://matplotlib.sourceforge.net/users/license.html)
+  home: http://matplotlib.org/
+  license: PSF-based (http://matplotlib.org/users/license.html)
+  summary: Publication quality figures in Python
+
+extra:
+  recipe-maintainers:
+    - pelson
+    - tacaswell
+    - JanSchulz

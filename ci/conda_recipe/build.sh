@@ -7,25 +7,31 @@ if [ `uname` == Linux ]; then
     popd
 fi
 
+cat <<EOF > setup.cfg
+[directories]
+basedirlist = $PREFIX
+
+[packages]
+tests = False
+toolkit_tests = False
+sample_data = False
+
+EOF
+
+# The macosx backend isn't building with conda at this stage.
 if [ `uname` == Darwin ]; then
-    # run tests with Agg...
-    # prevents a problem with Macosx mpl not installed as framework
-    export MPLBACKEND=Agg
-    # This seems to be not anymore needed...
-    #sed s:'#ifdef WITH_NEXT_FRAMEWORK':'#if 1':g -i src/_macosx.m
+cat << EOF >> setup.cfg
+
+[gui_support]
+tkagg = true
+macosx = false
+
+EOF
 fi
 
-cp setup.cfg.template setup.cfg || exit 1
+cat setup.cfg
+sed -i.bak "s|/usr/local|$PREFIX|" setupext.py
 
-# on mac there is an error if done inplace:
-#   sed: -i: No such file or directory
-# travis macosx sed has not even --help...
-mv setupext.py setupext.py_orig
-cat setupext.py_orig | sed s:/usr/local:$PREFIX:g > setupext.py
 
 $PYTHON setup.py install
-
-rm -rf $SP_DIR/PySide
-rm -rf $SP_DIR/__pycache__
-rm -rf $PREFIX/bin/nose*
 
