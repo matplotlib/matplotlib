@@ -1135,10 +1135,15 @@ call "{vcvarsall}" {xXX}
 set MSBUILD=C:\\Windows\\Microsoft.NET\\Framework\\v4.0.30319\\MSBuild.exe
 rd /S /Q %FREETYPE%\\objs
 %MSBUILD% %FREETYPE%\\builds\\windows\\{vc20xx}\\freetype.sln /t:Clean;Build /p:Configuration="{config}";Platform={WinXX}
+echo Build completed, moving result"
 :: move to the "normal" path for the unix builds...
 mkdir %FREETYPE%\\objs\\.libs
 :: REMINDER: fix when changing the version
-copy %FREETYPE%\\objs\\{vc20xx}\\{xXX}\\freetype261.lib %FREETYPE%\\objs\\.libs\\libfreetype.lib
+copy %FREETYPE%\\objs\\{vc20xx}\\{xXX}\\freetype261.lib %FREETYPE%\\objs\\.libs\\libfreetype.lib 
+if errorlevel 1 (
+  rem This is a py27 version, which has a different location for the lib file :-/
+  copy %FREETYPE%\\objs\\{WinXX}\\{vc20xx}\\freetype261.lib %FREETYPE%\\objs\\.libs\\libfreetype.lib
+)
 """
             from setup_external_compile import fixproj, prepare_build_cmd, VS2010, X64, tar_extract
             vc = 'vc2010' if VS2010 else 'vc2008'

@@ -19,7 +19,6 @@ source:
     # https://github.com/conda/conda-build/issues/1061
     - condaversion.patch
 
-
 requirements:
   build:
     - python
