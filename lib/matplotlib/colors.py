@@ -825,7 +825,7 @@ class LinearSegmentedColormap(Colormap):
         LinearSegmentedColormap
             The reversed colormap.
         """
-        if name == None:
+        if name is None:
             name = self.name + "_r"
 
         # Function factory needed to deal with 'late binding' issue.
@@ -835,8 +835,7 @@ class LinearSegmentedColormap(Colormap):
             return func_r
 
         data_r = dict()
-        for key, data in self._segmentdata.iteritems():
-            
+        for key, data in six.iteritems(self._segmentdata):
             if six.callable(data):
                 data_r[key] = factory(data)
             else:
@@ -931,7 +930,7 @@ class ListedColormap(Colormap):
         ListedColormap
             A reversed instance of the colormap.
         """
-        if name == None:
+        if name is None:
             name = self.name + "_r"
 
         colors_r = list(reversed(self.colors))
