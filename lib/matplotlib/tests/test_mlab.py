@@ -128,7 +128,7 @@ class stride_testcase(CleanupTestCase):
     def test_stride_windows_0D_ValueError(self):
         x = np.array(0)
         with pytest.raises(ValueError):
-            mlab.stride_windows( x, 5)
+            mlab.stride_windows(x, 5)
 
     def test_stride_windows_noverlap_gt_n_ValueError(self):
         x = np.arange(10)
