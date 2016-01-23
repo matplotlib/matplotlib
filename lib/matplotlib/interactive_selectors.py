@@ -10,6 +10,7 @@ import numpy as np
 import matplotlib.colors as mcolors
 from matplotlib.patches import Patch, Rectangle, Ellipse, Polygon
 from matplotlib.lines import Line2D
+import matplotlib.transforms as transforms
 from matplotlib import docstring, artist as martist
 
 
@@ -364,14 +365,18 @@ class BasePatchTool(BaseTool):
         self.patch = self._make_patch(**patch_props)
         self.ax.add_patch(self.patch)
 
-        props = dict(marker='o', markersize=7, mfc='w', ls='none',
+        props = dict(marker='s', markersize=7, mfc='w', ls='none',
                      alpha=0.5, visible=False, label='_nolegend_',
                      picker=10, zorder=2)
         props.update(handle_props or {})
-        self._handles = Line2D([], [], **props)
-        self.ax.add_line(self._handles)
+        self._size_handles = Line2D([], [], **props)
+        props['marker'] = 'o'
+        self._rot_handle = Line2D([], [], **props)
 
-        self._artists = [self.patch, self._handles]
+        self.ax.add_line(self._size_handles)
+        self.ax.add_line(self._rot_handle)
+
+        self._artists = [self.patch, self._size_handles, self._rot_handle]
 
         self._interactive = None
         self._modifiers = set()
@@ -394,7 +399,8 @@ class BasePatchTool(BaseTool):
     @interactive.setter
     def interactive(self, value):
         if not value:
-            self._handles.set_visible(False)
+            self._size_handles.set_visible(False)
+            self._rot_handle.set_visible(False)
             self.patch.set_visible(False)
             self.canvas.draw_idle()
         self._interactive = value
@@ -418,10 +424,14 @@ class BasePatchTool(BaseTool):
         if self._prev_data is None:
             self._prev_geometry = self.get_geometry()
 
-        handles = np.asarray(self._get_handle_verts())
-        self._handles.set_data(handles[:, 0], handles[:, 1])
-        self._handles.set_visible(self.interactive)
-        self._handles.set_animated(self._drawing)
+        size_size_handles, rot_handle = np.asarray(self._get_handle_verts())
+        self._size_handles.set_data(size_size_handles[:, 0], size_size_handles[:, 1])
+        self._size_handles.set_visible(self.interactive)
+        self._size_handles.set_animated(self._drawing)
+        if not rot_handle is None:
+            self._rot_handle.set_visible(self.interactive)
+            self._rot_handle.set_animated(self._drawing)
+            self._rot_handle.set_data(*rot_handle)
         self._update()
 
         if not self._drawing:
@@ -439,12 +449,13 @@ class BasePatchTool(BaseTool):
             for artist in self._artists:
                 artist.set_animated(self._useblit)
         else:
-            self._handles.set_visible(False)
+            self._size_handles.set_visible(False)
+            self._rot_handle.set_visible(False)
         # Blit without being visible if not dragging to avoid showing the old
         # shape.
         for artist in self._artists:
             artist.set_visible(self._dragging)
-            if artist == self._handles:
+            if artist in [self._size_handles, self._rot_handle]:
                 artist.set_visible(self._dragging and self.interactive)
         self._update()
 
@@ -472,14 +483,16 @@ class BasePatchTool(BaseTool):
             self.focused = self.patch.contains(event)[0]
 
         if self.interactive and not self._drawing:
-            self._dragging, idx = self._handles.contains(event)
+            self._dragging, idx = self._size_handles.contains(event)
             if self._dragging:
                 self._drag_idx = idx['ind'][0]
             elif self.patch.contains(event)[0]:
                 self._moving = True
                 self._dragging = True
 
-        if (self._drawing or self._dragging or self.allow_redraw or
+            self._rotating = self._rot_handle.contains(event)
+
+        if (self._drawing or self._dragging or self._rotating or self.allow_redraw or
                 not self._has_selected):
             if self._moving:
                 self._start_drawing(event)
@@ -615,18 +628,25 @@ class RectangleTool(BasePatchTool):
         width, height = geometry['width'], geometry['height']
         if isinstance(self.patch, Ellipse):
             xm, ym = geometry['center']
+            x0, y0 = xm - width / 2, ym - height / 2
         else:
             x0, y0 = geometry['xy']
             xm, ym = x0 + width / 2, y0 + height / 2
         w = width / 2
         h = height / 2
-        xc = xm - w, xm + w, xm + w, xm - w
-        yc = ym - h, ym - h, ym + h, ym + h
-        xe = xm - w, xm, xm + w, xm
-        ye = ym, ym - h, ym, ym + h
+        xc = xm - w
+        yc = ym - h
+        xe = xm - w, xm
+        ye = ym, ym - h
         x = np.hstack((xc, xe))
         y = np.hstack((yc, ye))
-        return np.vstack((x, y)).T
+        pts = np.vstack((x, y)).T
+        rot_trans = transforms.Affine2D()
+        if isinstance(self.patch, Ellipse):
+            rot_trans.rotate_deg_around(xm, ym, geometry['angle'])
+        else:
+            rot_trans.rotate_deg_around(x0, y0, geometry['angle'])
+        return rot_trans.transform(pts), rot_trans.transform((xm, ym + h))
 
     def _on_motion(self, event):
         # Resize an existing shape.
@@ -756,7 +776,13 @@ class LineTool(BasePatchTool):
             end_points: The [(x0, y0), (x1, y1)] points.
             width: The width of the tool in pixels.
         """
-        return dict(end_points=self.end_points, width=self.width)
+        verts = self.patch.get_xy()
+        p0x = (verts[0, 0] + verts[1, 0]) / 2
+        p0y = (verts[0, 1] + verts[1, 1]) / 2
+        p1x = (verts[3, 0] + verts[2, 0]) / 2
+        p1y = (verts[3, 1] + verts[2, 1]) / 2
+        pts = np.array([[p0x, p0y], [p1x, p1y]])
+        return dict(end_points=pts, width=self._width)
 
     def set_geometry(self, end_points=None, width=None):
         """Set the geometry of the line tool.
@@ -768,9 +794,10 @@ class LineTool(BasePatchTool):
         width: int
             The width in pixels of the line
         """
-        self.width = width or self.width
+        geometry = self.get_geometry()
+        self.width = width or geometry['width']
         if end_points is None:
-            end_points = self.end_points
+            end_points = geometry['end_points']
         pts = np.asarray(end_points)
         # Get the widths in data units.
         xfm = self.ax.transData.inverted()
@@ -802,7 +829,7 @@ class LineTool(BasePatchTool):
         super(LineTool, self).set_geometry(xy=(v00, v01, v11, v10))
 
     def _make_patch(self, **overrides):
-        self.width = 1
+        self._width = 1
         props = dict(facecolor='red', edgecolor='red', visible=False,
                      alpha=0.5, fill=True, picker=10, linewidth=2,
                      zorder=1)
@@ -810,7 +837,7 @@ class LineTool(BasePatchTool):
         return Polygon([(0, 0), (0, 0), (0, 0), (0, 0)], **props)
 
     def _get_handle_verts(self):
-        return self.end_points
+        return self.get_geometry()['end_points'], None
 
     def _on_press(self, event):
         if not self._dragging:
@@ -821,12 +848,12 @@ class LineTool(BasePatchTool):
         self._start_drawing(event)
 
     def _on_motion(self, event):
-        end_points = self.end_points
+        end_points = self.get_geometry()['end_points']
         end_points[self._drag_idx, :] = event.xdata, event.ydata
         self.set_geometry(end_points=end_points)
 
     def _move(self, event):
-        pts = self.end_points
+        pts = self.get_geometry()['end_points']
         pts[:, 0] += event.xdata - (pts[1, 0] + pts[0, 0]) / 2
         pts[:, 1] += event.ydata - (pts[1, 1] + pts[0, 1]) / 2
         self.set_geometry(end_points=pts)
@@ -1004,10 +1031,9 @@ if __name__ == '__main__':
     fig, ax = plt.subplots()
 
     pts = ax.scatter(data[:, 0], data[:, 1], s=80)
-
     """
-    ellipse = RectangleTool(ax)
-    ellipse.set_geometry(xy=(0.4, 0.5), width=0.3, height=0.5)
+    ellipse = EllipseTool(ax)
+    ellipse.set_geometry(center=(0.4, 0.5), width=0.3, height=0.5, angle=45)
     ax.invert_yaxis()
 
     def test(tool):
@@ -1019,8 +1045,8 @@ if __name__ == '__main__':
     line = LineTool(ax)
     line.set_geometry(end_points=[[0.1, 0.1], [0.5, 0.5]])
     line.interactive = True
-
     """
+
     def test(tool):
         print(tool.overlay)
 
