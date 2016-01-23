@@ -33,7 +33,7 @@ env:
     - NUMPY=numpy
     - PANDAS=
     - NPROC=2
-    - TEST_ARGS=--no-pep8
+    - TEST_ARGS=
     - NOSE_ARGS="--processes=$NPROC --process-timeout=300"
 
 language: python
@@ -46,7 +46,7 @@ matrix:
     - python: 3.5
       env: PANDAS=pandas NOSE_ARGS=--with-coverage
     - python: 3.5
-      env: TEST_ARGS=--pep8
+      env: TEST_ARGS=--pep8 -m pep8
     - python: 3.5
       env: BUILD_DOCS=true
     - python: "nightly"
@@ -77,7 +77,15 @@ install:
     fi
   # Always install from pypi
   - pip install $PRE pep8 cycler coveralls coverage
-  - 'pip install git+https://github.com/jenshnielsen/nose.git@matplotlibnose'
+  # 'pip install git+https://github.com/jenshnielsen/nose.git@matplotlibnose'
+  - pip install pytest
+
+  # some handy plugins for pytest, is this the right place to install them?
+  # https://pypi.python.org/pypi/pytest-cov for docs
+  - pip install pytest-cov
+  # https://pypi.python.org/pypi/pytest-pep8 for docs
+  - pip install pytest-pep8
+
 
   # We manually install humor sans using the package from Ubuntu 14.10. Unfortunatly humor sans is not
   # availible in the Ubuntu version used by Travis but we can manually install the deb from a later
@@ -111,7 +119,7 @@ script:
   - |
     if [[ $BUILD_DOCS == false ]]; then
       export MPL_REPO_DIR=$PWD  # needed for pep8-conformance test of the examples
-      gdb -return-child-result -batch -ex r -ex bt --args python tests.py $NOSE_ARGS $TEST_ARGS
+      gdb -return-child-result -batch -ex r -ex bt --args python tests.py $TEST_ARGS
     else
       cd doc
       python make.py html --small --warningsaserrors

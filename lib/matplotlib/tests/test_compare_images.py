@@ -6,7 +6,7 @@ from matplotlib.externals import six
 import os
 import shutil
 
-from nose.tools import assert_equal, assert_not_equal, assert_almost_equal
+from numpy.testing import assert_almost_equal
 
 from matplotlib.testing.compare import compare_images
 from matplotlib.testing.decorators import _image_directories
@@ -37,10 +37,10 @@ def image_comparison_expect_rms(im1, im2, tol, expect_rms):
     results = compare_images(im1, im2, tol=tol, in_decorator=True)
 
     if expect_rms is None:
-        assert_equal(None, results)
+        assert results is None
     else:
-        assert_not_equal(None, results)
-        assert_almost_equal(expect_rms, results['rms'], places=4)
+        assert results is not None
+        assert_almost_equal(expect_rms, results['rms'], decimal=4)
 
 
 def test_image_compare_basic():
@@ -99,8 +99,3 @@ def test_image_compare_shade_difference():
 
     # Now test the reverse comparison.
     image_comparison_expect_rms(im2, im1, tol=0, expect_rms=1.0)
-
-
-if __name__ == '__main__':
-    import nose
-    nose.runmodule(argv=['-s', '--with-doctest'], exit=False)

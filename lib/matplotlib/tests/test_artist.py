@@ -16,7 +16,7 @@ import matplotlib.collections as mcollections
 import matplotlib as mpl
 from matplotlib.testing.decorators import image_comparison, cleanup
 
-from nose.tools import (assert_true, assert_false)
+# from nose.tools import (assert_true, assert_false)
 
 
 @cleanup
@@ -154,28 +154,28 @@ def test_remove():
     im = ax.imshow(np.arange(36).reshape(6, 6))
     ln, = ax.plot(range(5))
 
-    assert_true(fig.stale)
-    assert_true(ax.stale)
+    assert fig.stale
+    assert ax.stale
 
     fig.canvas.draw()
-    assert_false(fig.stale)
-    assert_false(ax.stale)
-    assert_false(ln.stale)
+    assert not fig.stale
+    assert not ax.stale
+    assert not ln.stale
 
-    assert_true(im in ax.mouseover_set)
-    assert_true(ln not in ax.mouseover_set)
-    assert_true(im.axes is ax)
+    assert im in ax.mouseover_set
+    assert ln not in ax.mouseover_set
+    assert im.axes is ax
 
     im.remove()
     ln.remove()
 
     for art in [im, ln]:
-        assert_true(art.axes is None)
-        assert_true(art.figure is None)
+        assert art.axes is None
+        assert art.figure is None
 
-    assert_true(im not in ax.mouseover_set)
-    assert_true(fig.stale)
-    assert_true(ax.stale)
+    assert im not in ax.mouseover_set
+    assert fig.stale
+    assert ax.stale
 
 
 @image_comparison(baseline_images=["default_edges"], remove_text=True,
@@ -206,8 +206,3 @@ def test_properties():
         warnings.simplefilter("always")
         ln.properties()
         assert len(w) == 0
-
-
-if __name__ == '__main__':
-    import nose
-    nose.runmodule(argv=['-s', '--with-doctest'], exit=False)

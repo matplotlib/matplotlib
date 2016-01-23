@@ -50,8 +50,3 @@ def test_boxarrow():
                   size=fontsize,
                   transform=fig1.transFigure,
                   bbox=dict(boxstyle=stylename, fc="w", ec="k"))
-
-
-if __name__ == '__main__':
-    import nose
-    nose.runmodule(argv=['-s', '--with-doctest'], exit=False)

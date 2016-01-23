@@ -11,7 +11,6 @@ import shutil
 import warnings
 import unittest
 
-import nose
 import numpy as np
 
 import matplotlib as mpl
@@ -23,50 +22,51 @@ from matplotlib import ticker
 from matplotlib import pyplot as plt
 from matplotlib import ft2font
 from matplotlib import rcParams
-from matplotlib.testing.noseclasses import KnownFailureTest, \
-     KnownFailureDidNotFailTest, ImageComparisonFailure
+from matplotlib.testing.noseclasses import KnownFailureDidNotFailTest, \
+    ImageComparisonFailure
 from matplotlib.testing.compare import comparable_formats, compare_images, \
      make_test_filename
+import pytest
 
 
-def knownfailureif(fail_condition, msg=None, known_exception_class=None ):
-    """
-
-    Assume a will fail if *fail_condition* is True. *fail_condition*
-    may also be False or the string 'indeterminate'.
-
-    *msg* is the error message displayed for the test.
-
-    If *known_exception_class* is not None, the failure is only known
-    if the exception is an instance of this class. (Default = None)
-
-    """
-    # based on numpy.testing.dec.knownfailureif
-    if msg is None:
-        msg = 'Test known to fail'
-    def known_fail_decorator(f):
-        # Local import to avoid a hard nose dependency and only incur the
-        # import time overhead at actual test-time.
-        import nose
-        def failer(*args, **kwargs):
-            try:
-                # Always run the test (to generate images).
-                result = f(*args, **kwargs)
-            except Exception as err:
-                if fail_condition:
-                    if known_exception_class is not None:
-                        if not isinstance(err,known_exception_class):
-                            # This is not the expected exception
-                            raise
-                    # (Keep the next ultra-long comment so in shows in console.)
-                    raise KnownFailureTest(msg) # An error here when running nose means that you don't have the matplotlib.testing.noseclasses:KnownFailure plugin in use.
-                else:
-                    raise
-            if fail_condition and fail_condition != 'indeterminate':
-                raise KnownFailureDidNotFailTest(msg)
-            return result
-        return nose.tools.make_decorator(f)(failer)
-    return known_fail_decorator
+# def knownfailureif(fail_condition, msg=None, known_exception_class=None ):
+#     """
+#
+#     Assume a will fail if *fail_condition* is True. *fail_condition*
+#     may also be False or the string 'indeterminate'.
+#
+#     *msg* is the error message displayed for the test.
+#
+#     If *known_exception_class* is not None, the failure is only known
+#     if the exception is an instance of this class. (Default = None)
+#
+#     """
+#     # based on numpy.testing.dec.knownfailureif
+#     if msg is None:
+#         msg = 'Test known to fail'
+#     def known_fail_decorator(f):
+#         # Local import to avoid a hard nose dependency and only incur the
+#         # import time overhead at actual test-time.
+#         import nose
+#         def failer(*args, **kwargs):
+#             try:
+#                 # Always run the test (to generate images).
+#                 result = f(*args, **kwargs)
+#             except Exception as err:
+#                 if fail_condition:
+#                     if known_exception_class is not None:
+#                         if not isinstance(err,known_exception_class):
+#                             # This is not the expected exception
+#                             raise
+#                     # (Keep the next ultra-long comment so in shows in console.)
+#                     raise pytest.xfail(msg) # An error here when running nose means that you don't have the matplotlib.testing.noseclasses:KnownFailure plugin in use.
+#                 else:
+#                     raise
+#             if fail_condition and fail_condition != 'indeterminate':
+#                 raise KnownFailureDidNotFailTest(msg)
+#             return result
+#         return nose.tools.make_decorator(f)(failer)
+#     return known_fail_decorator
 
 
 def _do_cleanup(original_units_registry, original_settings):
@@ -220,7 +220,7 @@ class ImageComparisonTest(CleanupTest):
                     will_fail = True
                     fail_msg = 'Do not have baseline image %s' % expected_fname
 
-                @knownfailureif(
+                @pytest.mark.xfail(
                     will_fail, fail_msg,
                     known_exception_class=ImageComparisonFailure)
                 def do_test():
@@ -245,12 +245,42 @@ class ImageComparisonTest(CleanupTest):
                                 '(RMS %(rms).3f)'%err)
                     except ImageComparisonFailure:
                         if not check_freetype_version(self._freetype_version):
-                            raise KnownFailureTest(
+                            raise pytest.xfail(
                                 "Mismatched version of freetype.  Test requires '%s', you have '%s'" %
                                 (self._freetype_version, ft2font.__freetype_version__))
                         raise
 
                 yield (do_test,)
+
+
+def image_comparison_2(baseline_images=None, extensions=None, tol=0,
+                     freetype_version=None, remove_text=False,
+                     savefig_kwarg=None, style='classic'):
+    if baseline_images is None:
+        raise ValueError('baseline_images must be specified')
+
+    if extensions is None:
+        # default extensions to test
+        extensions = ['png', 'pdf', 'svg']
+
+    if savefig_kwarg is None:
+        #default no kwargs to savefig
+        savefig_kwarg = dict()
+
+    def compare_images_decorator(func):
+        newtest = ImageComparisonTest()
+        newtest._baseline_images = baseline_images
+        newtest._extensions = extensions
+        newtest._tol = tol
+        newtest._freetype_version = freetype_version
+        newtest._remove_text = remove_text
+        newtest._savefig_kwarg = savefig_kwarg
+        newtest._style = style
+        newtest._func = newtest.test
+        func = newtest.test
+        return func
+    return compare_images_decorator
+
 
 def image_comparison(baseline_images=None, extensions=None, tol=0,
                      freetype_version=None, remove_text=False,
@@ -338,6 +368,7 @@ def image_comparison(baseline_images=None, extensions=None, tol=0,
         return new_class
     return compare_images_decorator
 
+
 def _image_directories(func):
     """
     Compute the baseline and result image directories for testing *func*.
@@ -410,5 +441,5 @@ def switch_backend(backend):
                 plt.switch_backend(prev_backend)
             return result
 
-        return nose.tools.make_decorator(func)(backend_switcher)
+        return backend_switcher
     return switch_backend_decorator

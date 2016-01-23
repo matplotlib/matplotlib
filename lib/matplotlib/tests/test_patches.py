@@ -277,8 +277,3 @@ def test_wedge_range():
 
     ax.set_xlim([-2, 8])
     ax.set_ylim([-2, 9])
-
-
-if __name__ == '__main__':
-    import nose
-    nose.runmodule(argv=['-s', '--with-doctest'], exit=False)

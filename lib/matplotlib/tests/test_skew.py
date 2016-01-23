@@ -7,7 +7,7 @@ from __future__ import (absolute_import, division, print_function,
 import itertools
 from matplotlib.externals import six
 
-from nose.tools import assert_true
+# from nose.tools import assert_true
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.testing.decorators import cleanup, image_comparison
@@ -106,7 +106,7 @@ class SkewXAxes(Axes):
     name = 'skewx'
 
     def _init_axis(self):
-        #Taken from Axes and modified to use our modified X-axis
+        # Taken from Axes and modified to use our modified X-axis
         self.xaxis = SkewXAxis(self)
         self.spines['top'].register_axis(self.xaxis)
         self.spines['bottom'].register_axis(self.xaxis)
@@ -128,7 +128,7 @@ class SkewXAxes(Axes):
         """
         rot = 30
 
-        #Get the standard transform setup from the Axes base class
+        # Get the standard transform setup from the Axes base class
         Axes._set_lim_and_transforms(self)
 
         # Need to put the skew in the middle, after the scale and limits,
@@ -189,7 +189,3 @@ def test_skew_rectange():
                                       alpha=0.5, facecolor='coral'))
 
     plt.subplots_adjust(wspace=0, left=0, right=1, bottom=0)
-
-if __name__ == '__main__':
-    import nose
-    nose.runmodule(argv=['-s', '--with-doctest'], exit=False)

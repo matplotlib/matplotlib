@@ -7,12 +7,11 @@ import os
 import tempfile
 import numpy as np
 from numpy.testing import assert_equal
-from nose import with_setup
 from matplotlib import pyplot as plt
 from matplotlib import animation
-from matplotlib.testing.noseclasses import KnownFailureTest
 from matplotlib.testing.decorators import cleanup
 from matplotlib.testing.decorators import CleanupTest
+import pytest
 
 
 class NullMovieWriter(animation.AbstractMovieWriter):
@@ -65,12 +64,12 @@ def test_null_movie_writer():
     anim.save(filename, fps=fps, dpi=dpi, writer=writer,
               savefig_kwargs=savefig_kwargs)
 
-    assert_equal(writer.fig, fig)
-    assert_equal(writer.outfile, filename)
-    assert_equal(writer.dpi, dpi)
-    assert_equal(writer.args, ())
-    assert_equal(writer.savefig_kwargs, savefig_kwargs)
-    assert_equal(writer._count, num_frames)
+    assert writer.fig == fig
+    assert writer.outfile == filename
+    assert writer.dpi == dpi
+    assert writer.args == ()
+    assert writer.savefig_kwargs == savefig_kwargs
+    assert writer._count == num_frames
 
 
 @animation.writers.register('null')
@@ -109,7 +108,7 @@ def test_save_animation_smoketest():
 @cleanup
 def check_save_animation(writer, extension='mp4'):
     if not animation.writers.is_available(writer):
-        raise KnownFailureTest("writer '%s' not available on this system"
+        pytest.xfail("writer '%s' not available on this system"
                                % writer)
     fig, ax = plt.subplots()
     line, = ax.plot([], [])
@@ -134,7 +133,7 @@ def check_save_animation(writer, extension='mp4'):
     try:
         anim.save(F.name, fps=30, writer=writer, bitrate=500)
     except UnicodeDecodeError:
-        raise KnownFailureTest("There can be errors in the numpy " +
+        pytest.xfail("There can be errors in the numpy " +
                                "import stack, " +
                                "see issues #1891 and #2679")
     finally:

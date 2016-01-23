@@ -6,8 +6,6 @@ import warnings
 
 import numpy as np
 from numpy.testing import assert_almost_equal
-from nose.tools import eq_, assert_raises
-from nose.plugins.skip import SkipTest
 
 from matplotlib.transforms import Bbox
 import matplotlib
@@ -16,6 +14,7 @@ from matplotlib.testing.decorators import image_comparison, cleanup
 from matplotlib.figure import Figure
 from matplotlib.text import Annotation, Text
 from matplotlib.backends.backend_agg import RendererAgg
+import pytest
 
 
 @image_comparison(baseline_images=['font_styles'])
@@ -289,9 +288,9 @@ def test_get_rotation_raises():
     from matplotlib import text
     import sys
     if sys.version_info[:2] < (2, 7):
-        raise SkipTest("assert_raises as context manager "
+        raise pytest.skip("assert_raises as context manager "
                        "not supported with Python < 2.7")
-    with assert_raises(ValueError):
+    with pytest.raises(ValueError):
         text.get_rotation('hozirontal')
 
 

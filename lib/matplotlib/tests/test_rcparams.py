@@ -13,11 +13,8 @@ from cycler import cycler, Cycler
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 from matplotlib.tests import assert_str_equal
-from matplotlib.testing.decorators import cleanup, knownfailureif
+from matplotlib.testing.decorators import cleanup
 import matplotlib.colors as mcolors
-from nose.tools import assert_true, assert_raises, assert_equal
-from nose.plugins.skip import SkipTest
-import nose
 from itertools import chain
 import numpy as np
 from matplotlib.rcsetup import (validate_bool_maybe_none,
@@ -29,7 +26,7 @@ from matplotlib.rcsetup import (validate_bool_maybe_none,
                                 validate_cycler,
                                 validate_hatch,
                                 validate_hist_bins)
-
+import pytest
 
 mpl.rc('text', usetex=False)
 mpl.rc('lines', linewidth=22)
@@ -116,12 +113,12 @@ font.weight: normal""".lstrip()
 
 def test_rcparams_update():
     if sys.version_info[:2] < (2, 7):
-        raise nose.SkipTest("assert_raises as context manager "
+        raise pytest.skip("assert_raises as context manager "
                             "not supported with Python < 2.7")
     rc = mpl.RcParams({'figure.figsize': (3.5, 42)})
     bad_dict = {'figure.figsize': (3.5, 42, 1)}
     # make sure validation happens on input
-    with assert_raises(ValueError):
+    with pytest.raises(ValueError):
 
         with warnings.catch_warnings():
             warnings.filterwarnings('ignore',
@@ -132,9 +129,9 @@ def test_rcparams_update():
 
 def test_rcparams_init():
     if sys.version_info[:2] < (2, 7):
-        raise nose.SkipTest("assert_raises as context manager "
+        raise pytest.skip("assert_raises as context manager "
                             "not supported with Python < 2.7")
-    with assert_raises(ValueError):
+    with pytest.raises(ValueError):
         with warnings.catch_warnings():
             warnings.filterwarnings('ignore',
                                 message='.*(validate)',
@@ -164,13 +161,13 @@ def test_Bug_2543():
             from copy import deepcopy
             _deep_copy = deepcopy(mpl.rcParams)
         # real test is that this does not raise
-        assert_true(validate_bool_maybe_none(None) is None)
-        assert_true(validate_bool_maybe_none("none") is None)
+        assert validate_bool_maybe_none(None) is None
+        assert validate_bool_maybe_none("none") is None
         _fonttype = mpl.rcParams['svg.fonttype']
-        assert_true(_fonttype == mpl.rcParams['svg.embed_char_paths'])
+        assert _fonttype == mpl.rcParams['svg.embed_char_paths']
         with mpl.rc_context():
             mpl.rcParams['svg.embed_char_paths'] = False
-            assert_true(mpl.rcParams['svg.fonttype'] == "none")
+            assert mpl.rcParams['svg.fonttype'] == "none"
 
 
 @cleanup
@@ -178,13 +175,14 @@ def test_Bug_2543_newer_python():
     # only split from above because of the usage of assert_raises
     # as a context manager, which only works in 2.7 and above
     if sys.version_info[:2] < (2, 7):
-        raise nose.SkipTest("assert_raises as context manager not supported with Python < 2.7")
+        raise pytest.skip(
+            "assert_raises as context manager not supported with Python < 2.7")
     from matplotlib.rcsetup import validate_bool_maybe_none, validate_bool
-    with assert_raises(ValueError):
+    with pytest.raises(ValueError):
         validate_bool_maybe_none("blah")
-    with assert_raises(ValueError):
+    with pytest.raises(ValueError):
         validate_bool(None)
-    with assert_raises(ValueError):
+    with pytest.raises(ValueError):
         with mpl.rc_context():
             mpl.rcParams['svg.fonttype'] = True
 
@@ -195,7 +193,7 @@ def _legend_rcparam_helper(param_dict, target, get_func):
         _, ax = plt.subplots()
         ax.plot(range(3), label='test')
         leg = ax.legend()
-        assert_equal(getattr(leg.legendPatch, get_func)(), target)
+        assert getattr(leg.legendPatch, get_func)() == target
 
 
 def test_legend_facecolor():
@@ -248,19 +246,19 @@ def test_Issue_1713():
 def _validation_test_helper(validator, arg, target):
     res = validator(arg)
     if isinstance(target, np.ndarray):
-        assert_true(np.all(res == target))
+        assert np.all(res == target)
     elif not isinstance(target, Cycler):
-        assert_equal(res, target)
+        assert res == target
     else:
         # Cyclers can't simply be asserted equal. They don't implement __eq__
-        assert_equal(list(res), list(target))
+        assert list(res) == list(target)
 
 
 def _validation_fail_helper(validator, arg, exception_type):
     if sys.version_info[:2] < (2, 7):
-        raise nose.SkipTest("assert_raises as context manager not "
+        raise pytest.skip("assert_raises as context manager not "
                             "supported with Python < 2.7")
-    with assert_raises(exception_type):
+    with pytest.raises(exception_type):
         validator(arg)
 
 
@@ -400,18 +398,16 @@ def test_rcparams_reset_after_fail():
     if sys.version_info[:2] >= (2, 7):
         from collections import OrderedDict
     else:
-        raise SkipTest("Test can only be run in Python >= 2.7 as it requires OrderedDict")
+        raise pytest.skip("Test can only be run in Python >= 2.7"
+                       " as it requires OrderedDict")
 
     with mpl.rc_context(rc={'text.usetex': False}):
 
         assert mpl.rcParams['text.usetex'] is False
 
-        with assert_raises(KeyError):
-            with mpl.rc_context(rc=OrderedDict([('text.usetex', True),('test.blah', True)])):
+        with pytest.raises(KeyError):
+            with mpl.rc_context(rc=OrderedDict([('text.usetex', True),
+                                                ('test.blah', True)])):
                 pass
 
         assert mpl.rcParams['text.usetex'] is False
-
-
-if __name__ == '__main__':
-    nose.runmodule(argv=['-s', '--with-doctest'], exit=False)

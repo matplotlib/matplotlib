@@ -6,9 +6,8 @@ import warnings
 
 import numpy as np
 
-from matplotlib.testing.decorators import image_comparison, knownfailureif
+from matplotlib.testing.decorators import image_comparison
 import matplotlib.pyplot as plt
-from nose.tools import assert_raises
 from numpy.testing import assert_array_equal
 from matplotlib.offsetbox import AnchoredOffsetbox, DrawingArea
 from matplotlib.patches import Rectangle
@@ -149,6 +148,7 @@ def test_tight_layout7():
     ax.set_title('Left Title', loc='left', fontsize=fontsize)
     ax.set_title('Right Title', loc='right', fontsize=fontsize)
     plt.tight_layout()
+
 
 @image_comparison(baseline_images=['tight_layout8'])
 def test_tight_layout8():

@@ -1,11 +1,10 @@
 import sys
-import nose
-from nose.tools import assert_raises
 from mpl_toolkits.mplot3d import Axes3D, axes3d
 from matplotlib import cm
 from matplotlib.testing.decorators import image_comparison, cleanup
 import matplotlib.pyplot as plt
 import numpy as np
+import pytest
 
 
 @image_comparison(baseline_images=['bar3d'], remove_text=True)
@@ -192,16 +191,18 @@ def test_wireframe3dzerorstride():
     X, Y, Z = axes3d.get_test_data(0.05)
     ax.plot_wireframe(X, Y, Z, rstride=0, cstride=10)
 
+
 @cleanup
 def test_wireframe3dzerostrideraises():
-    if sys.version_info[:2] < (2, 7):
-        raise nose.SkipTest("assert_raises as context manager "
-                            "not supported with Python < 2.7")
+    # if sys.version_info[:2] < (2, 7):
+    #     raise nose.SkipTest("assert_raises as context manager "
+    #                         "not supported with Python < 2.7")
     fig = plt.figure()
     ax = fig.add_subplot(111, projection='3d')
     X, Y, Z = axes3d.get_test_data(0.05)
-    with assert_raises(ValueError):
+    with pytest.raises(ValueError):
         ax.plot_wireframe(X, Y, Z, rstride=0, cstride=0)
+
 
 @image_comparison(baseline_images=['quiver3d'], remove_text=True)
 def test_quiver3d():
@@ -217,6 +218,7 @@ def test_quiver3d():
 
     ax.quiver(x, y, z, u, v, w, length=0.1, pivot='tip', normalize=True)
 
+
 @image_comparison(baseline_images=['quiver3d_empty'], remove_text=True)
 def test_quiver3d_empty():
     fig = plt.figure()
@@ -230,6 +232,7 @@ def test_quiver3d_empty():
             np.sin(np.pi * z))
 
     ax.quiver(x, y, z, u, v, w, length=0.1, pivot='tip', normalize=True)
+
 
 @image_comparison(baseline_images=['quiver3d_masked'], remove_text=True)
 def test_quiver3d_masked():
@@ -249,6 +252,7 @@ def test_quiver3d_masked():
 
     ax.quiver(x, y, z, u, v, w, length=0.1, pivot='tip', normalize=True)
 
+
 @image_comparison(baseline_images=['quiver3d_pivot_middle'], remove_text=True,
                   extensions=['png'])
 def test_quiver3d_pivot_middle():
@@ -263,6 +267,7 @@ def test_quiver3d_pivot_middle():
             np.sin(np.pi * z))
 
     ax.quiver(x, y, z, u, v, w, length=0.1, pivot='middle', normalize=True)
+
 
 @image_comparison(baseline_images=['quiver3d_pivot_tail'], remove_text=True,
                   extensions=['png'])
@@ -282,16 +287,15 @@ def test_quiver3d_pivot_tail():
 
 @image_comparison(baseline_images=['axes3d_labelpad'], extensions=['png'])
 def test_axes3d_labelpad():
-    from nose.tools import assert_equal
     from matplotlib import rcParams
 
     fig = plt.figure()
     ax = Axes3D(fig)
     # labelpad respects rcParams
-    assert_equal(ax.xaxis.labelpad, rcParams['axes.labelpad'])
+    assert ax.xaxis.labelpad == rcParams['axes.labelpad']
     # labelpad can be set in set_label
     ax.set_xlabel('X LABEL', labelpad=10)
-    assert_equal(ax.xaxis.labelpad, 10)
+    assert ax.xaxis.labelpad == 10
     ax.set_ylabel('Y LABEL')
     ax.set_zlabel('Z LABEL')
     # or manually
@@ -311,6 +315,7 @@ def test_axes3d_cla():
     ax.set_axis_off()
     ax.cla()  # make sure the axis displayed is 3D (not 2D)
 
+
 @cleanup
 def test_plotsurface_1d_raises():
     x = np.linspace(0.5, 10, num=100)
@@ -320,8 +325,5 @@ def test_plotsurface_1d_raises():
 
     fig = plt.figure(figsize=(14,6))
     ax = fig.add_subplot(1, 2, 1, projection='3d')
-    assert_raises(ValueError, ax.plot_surface, X, Y, z)
-    
-if __name__ == '__main__':
-    import nose
-    nose.runmodule(argv=['-s', '--with-doctest'], exit=False)
+    with pytest.raises(ValueError):
+        ax.plot_surface(X, Y, z)

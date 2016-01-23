@@ -9,12 +9,13 @@ import xml.parsers.expat
 
 import matplotlib.pyplot as plt
 from matplotlib.testing.decorators import cleanup
-from matplotlib.testing.decorators import image_comparison, knownfailureif
+from matplotlib.testing.decorators import image_comparison
 import matplotlib
+import pytest
 
-needs_tex = knownfailureif(
+needs_tex = pytest.mark.xfail(
     not matplotlib.checkdep_tex(),
-    "This test needs a TeX installation")
+    reason="This test needs a TeX installation")
 
 
 @cleanup
@@ -155,7 +156,6 @@ def _test_determinism(filename, usetex):
     import os
     import sys
     from subprocess import check_call
-    from nose.tools import assert_equal
     plots = []
     for i in range(3):
         check_call([sys.executable, '-R', '-c',
@@ -168,7 +168,7 @@ def _test_determinism(filename, usetex):
             plots.append(fd.read())
         os.unlink(filename)
     for p in plots[1:]:
-        assert_equal(p, plots[0])
+        assert p == plots[0]
 
 
 @cleanup
@@ -182,8 +182,3 @@ def test_determinism_notex():
 def test_determinism_tex():
     # unique filename to allow for parallel testing
     _test_determinism('determinism_tex.svg', usetex=True)
-
-
-if __name__ == '__main__':
-    import nose
-    nose.runmodule(argv=['-s', '--with-doctest'], exit=False)

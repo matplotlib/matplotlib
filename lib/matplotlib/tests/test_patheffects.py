@@ -5,17 +5,16 @@ from matplotlib.externals import six
 
 import numpy as np
 
-from matplotlib.testing.decorators import (image_comparison, cleanup,
-                                           knownfailureif)
+from matplotlib.testing.decorators import (image_comparison, cleanup)
 import matplotlib.pyplot as plt
 import matplotlib.patheffects as path_effects
+import pytest
 
 try:
     # mock in python 3.3+
     from unittest import mock
 except ImportError:
     import mock
-from nose.tools import assert_equal
 
 
 @image_comparison(baseline_images=['patheffect1'], remove_text=True)
@@ -85,7 +84,7 @@ def test_patheffect3():
 
 
 @cleanup
-@knownfailureif(True)
+@pytest.mark.xfail(True, reason='Set to True for unknown reasons')
 def test_PathEffect_points_to_pixels():
     fig = plt.figure(dpi=150)
     p1, = plt.plot(range(10))
@@ -101,13 +100,12 @@ def test_PathEffect_points_to_pixels():
 
     # Confirm that using a path effects renderer maintains point sizes
     # appropriately. Otherwise rendered font would be the wrong size.
-    assert_equal(renderer.points_to_pixels(15),
-                 pe_renderer.points_to_pixels(15))
+    assert renderer.points_to_pixels(15) == pe_renderer.points_to_pixels(15)
 
 
 def test_SimplePatchShadow_offset():
     pe = path_effects.SimplePatchShadow(offset=(4, 5))
-    assert_equal(pe._offset, (4, 5))
+    assert pe._offset == (4, 5)
 
 
 @image_comparison(baseline_images=['collection'])
@@ -127,8 +125,3 @@ def test_collection():
                                                        linewidth=3)])
         text.set_bbox({'boxstyle': 'sawtooth', 'facecolor': 'none',
                        'edgecolor': 'blue'})
-
-
-if __name__ == '__main__':
-    import nose
-    nose.runmodule(argv=['-s', '--with-doctest'], exit=False)

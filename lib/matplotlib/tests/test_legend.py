@@ -8,7 +8,6 @@ try:
     from unittest import mock
 except ImportError:
     import mock
-from nose.tools import assert_equal
 import numpy as np
 
 from matplotlib.testing.decorators import image_comparison, cleanup
@@ -109,7 +108,8 @@ def test_fancy():
     plt.subplot(121)
     plt.scatter(list(xrange(10)), list(xrange(10, 0, -1)), label='XX\nXX')
     plt.plot([5] * 10, 'o--', label='XX')
-    plt.errorbar(list(xrange(10)), list(xrange(10)), xerr=0.5, yerr=0.5, label='XX')
+    plt.errorbar(list(xrange(10)), list(xrange(10)),
+                 xerr=0.5, yerr=0.5, label='XX')
     plt.legend(loc="center left", bbox_to_anchor=[1.0, 0.5],
                ncol=2, shadow=True, title="My legend", numpoints=1)
 
@@ -122,7 +122,8 @@ def test_framealpha():
     plt.legend(framealpha=0.5)
 
 
-@image_comparison(baseline_images=['scatter_rc3', 'scatter_rc1'], remove_text=True)
+@image_comparison(baseline_images=['scatter_rc3', 'scatter_rc1'],
+                  remove_text=True)
 def test_rc():
     # using subplot triggers some offsetbox functionality untested elsewhere
     fig = plt.figure()
@@ -162,7 +163,7 @@ def test_legend_remove():
     lines = ax.plot(range(10))
     leg = fig.legend(lines, "test")
     leg.remove()
-    assert_equal(fig.legends, [])
+    assert fig.legends == []
     leg = ax.legend("test")
     leg.remove()
     assert ax.get_legend() is None
@@ -259,8 +260,3 @@ def test_nanscatter():
 
     ax.legend()
     ax.grid(True)
-
-
-if __name__ == '__main__':
-    import nose
-    nose.runmodule(argv=['-s', '--with-doctest'], exit=False)

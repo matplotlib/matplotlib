@@ -1,17 +1,8 @@
 from __future__ import (absolute_import, division, print_function)
 
-from nose.tools import (assert_raises, assert_equal)
-from nose.plugins.skip import SkipTest
+import pytest
 
-try:
-    # 3.2+ versions
-    from nose.tools import assert_regex, assert_not_regex
-except ImportError:
-    # 2.7 versions
-    from nose.tools import assert_regexp_matches, assert_not_regexp_matches
-    assert_regex = assert_regexp_matches
-    assert_not_regex = assert_not_regexp_matches
-
+import re
 from ..testing import assert_produces_warning
 
 from .. import unpack_labeled_data
@@ -50,13 +41,17 @@ all_funcs = [plot_func, plot_func_varags]
 def test_compiletime_checks():
     """test decorator invocations -> no replacements"""
 
-    def func(ax, x, y): pass
+    def func(ax, x, y):
+        pass
 
-    def func_args(ax, x, y, *args): pass
+    def func_args(ax, x, y, *args):
+        pass
 
-    def func_kwargs(ax, x, y, **kwargs): pass
+    def func_kwargs(ax, x, y, **kwargs):
+        pass
 
-    def func_no_ax_args(*args, **kwargs): pass
+    def func_no_ax_args(*args, **kwargs):
+        pass
 
     # this is ok
     unpack_labeled_data(replace_names=["x", "y"])(func)
@@ -69,12 +64,14 @@ def test_compiletime_checks():
         # z is unknown
         unpack_labeled_data(replace_names=["x", "y", "z"])(func_args)
 
-    assert_raises(AssertionError, f)
+    with pytest.raises(AssertionError):
+        f()
 
     def f():
         unpack_labeled_data(replace_names=["x", "y"])(func_no_ax_args)
 
-    assert_raises(AssertionError, f)
+    with pytest.raises(AssertionError):
+        f()
 
     # no replacements at all -> all ok...
     unpack_labeled_data(replace_names=[], label_namer=None)(func)
@@ -86,12 +83,14 @@ def test_compiletime_checks():
     def f():
         unpack_labeled_data(label_namer="z")(func)
 
-    assert_raises(AssertionError, f)
+    with pytest.raises(AssertionError):
+        f()
 
     def f():
         unpack_labeled_data(label_namer="z")(func_args)
 
-    assert_raises(AssertionError, f)
+    with pytest.raises(AssertionError):
+        f()
     # but "ok-ish", if func has kwargs -> will show up at runtime :-(
     unpack_labeled_data(label_namer="z")(func_kwargs)
     unpack_labeled_data(label_namer="z")(func_no_ax_args)
@@ -125,60 +124,61 @@ def test_label_problems_at_runtime():
         func(None, x="a", y="b")
 
     # This sets a label although the function can't handle it.
-    assert_raises(TypeError, f)
+    with pytest.raises(TypeError):
+        f()
 
 
 def test_function_call_without_data():
     """test without data -> no replacements"""
     for func in all_funcs:
-        assert_equal(func(None, "x", "y"),
-                     "x: ['x'], y: ['y'], ls: x, w: xyz, label: None")
-        assert_equal(func(None, x="x", y="y"),
-                     "x: ['x'], y: ['y'], ls: x, w: xyz, label: None")
-        assert_equal(func(None, "x", "y", label=""),
-                     "x: ['x'], y: ['y'], ls: x, w: xyz, label: ")
-        assert_equal(func(None, "x", "y", label="text"),
-                     "x: ['x'], y: ['y'], ls: x, w: xyz, label: text")
-        assert_equal(func(None, x="x", y="y", label=""),
-                     "x: ['x'], y: ['y'], ls: x, w: xyz, label: ")
-        assert_equal(func(None, x="x", y="y", label="text"),
-                     "x: ['x'], y: ['y'], ls: x, w: xyz, label: text")
+        assert func(None, "x", "y") == \
+               "x: ['x'], y: ['y'], ls: x, w: xyz, label: None"
+        assert func(None, x="x", y="y") == \
+               "x: ['x'], y: ['y'], ls: x, w: xyz, label: None"
+        assert func(None, "x", "y", label="") == \
+               "x: ['x'], y: ['y'], ls: x, w: xyz, label: "
+        assert func(None, "x", "y", label="text") == \
+               "x: ['x'], y: ['y'], ls: x, w: xyz, label: text"
+        assert func(None, x="x", y="y", label="") == \
+               "x: ['x'], y: ['y'], ls: x, w: xyz, label: "
+        assert func(None, x="x", y="y", label="text") == \
+               "x: ['x'], y: ['y'], ls: x, w: xyz, label: text"
 
 
 def test_function_call_with_dict_data():
     """Test with dict data -> label comes from the value of 'x' parameter """
     data = {"a": [1, 2], "b": [8, 9], "w": "NOT"}
     for func in all_funcs:
-        assert_equal(func(None, "a", "b", data=data),
-                     "x: [1, 2], y: [8, 9], ls: x, w: xyz, label: b")
-        assert_equal(func(None, x="a", y="b", data=data),
-                     "x: [1, 2], y: [8, 9], ls: x, w: xyz, label: b")
-        assert_equal(func(None, "a", "b", label="", data=data),
-                     "x: [1, 2], y: [8, 9], ls: x, w: xyz, label: ")
-        assert_equal(func(None, "a", "b", label="text", data=data),
-                     "x: [1, 2], y: [8, 9], ls: x, w: xyz, label: text")
-        assert_equal(func(None, x="a", y="b", label="", data=data),
-                     "x: [1, 2], y: [8, 9], ls: x, w: xyz, label: ")
-        assert_equal(func(None, x="a", y="b", label="text", data=data),
-                     "x: [1, 2], y: [8, 9], ls: x, w: xyz, label: text")
+        assert func(None, "a", "b", data=data) == \
+               "x: [1, 2], y: [8, 9], ls: x, w: xyz, label: b"
+        assert func(None, x="a", y="b", data=data) == \
+               "x: [1, 2], y: [8, 9], ls: x, w: xyz, label: b"
+        assert func(None, "a", "b", label="", data=data) == \
+               "x: [1, 2], y: [8, 9], ls: x, w: xyz, label: "
+        assert func(None, "a", "b", label="text", data=data) == \
+               "x: [1, 2], y: [8, 9], ls: x, w: xyz, label: text"
+        assert func(None, x="a", y="b", label="", data=data) == \
+               "x: [1, 2], y: [8, 9], ls: x, w: xyz, label: "
+        assert func(None, x="a", y="b", label="text", data=data) == \
+               "x: [1, 2], y: [8, 9], ls: x, w: xyz, label: text"
 
 
 def test_function_call_with_dict_data_not_in_data():
     "test for the case that one var is not in data -> half replaces, half kept"
     data = {"a": [1, 2], "w": "NOT"}
     for func in all_funcs:
-        assert_equal(func(None, "a", "b", data=data),
-                     "x: [1, 2], y: ['b'], ls: x, w: xyz, label: b")
-        assert_equal(func(None, x="a", y="b", data=data),
-                     "x: [1, 2], y: ['b'], ls: x, w: xyz, label: b")
-        assert_equal(func(None, "a", "b", label="", data=data),
-                     "x: [1, 2], y: ['b'], ls: x, w: xyz, label: ")
-        assert_equal(func(None, "a", "b", label="text", data=data),
-                     "x: [1, 2], y: ['b'], ls: x, w: xyz, label: text")
-        assert_equal(func(None, x="a", y="b", label="", data=data),
-                     "x: [1, 2], y: ['b'], ls: x, w: xyz, label: ")
-        assert_equal(func(None, x="a", y="b", label="text", data=data),
-                     "x: [1, 2], y: ['b'], ls: x, w: xyz, label: text")
+        assert func(None, "a", "b", data=data) == \
+               "x: [1, 2], y: ['b'], ls: x, w: xyz, label: b"
+        assert func(None, x="a", y="b", data=data) == \
+               "x: [1, 2], y: ['b'], ls: x, w: xyz, label: b"
+        assert func(None, "a", "b", label="", data=data) == \
+               "x: [1, 2], y: ['b'], ls: x, w: xyz, label: "
+        assert func(None, "a", "b", label="text", data=data) == \
+               "x: [1, 2], y: ['b'], ls: x, w: xyz, label: text"
+        assert func(None, x="a", y="b", label="", data=data) == \
+               "x: [1, 2], y: ['b'], ls: x, w: xyz, label: "
+        assert func(None, x="a", y="b", label="text", data=data) == \
+               "x: [1, 2], y: ['b'], ls: x, w: xyz, label: text"
 
 
 def test_function_call_with_pandas_data():
@@ -186,23 +186,23 @@ def test_function_call_with_pandas_data():
     try:
         import pandas as pd
     except ImportError:
-        raise SkipTest("Pandas not installed")
+        raise pytest.skip("Pandas not installed")
 
     data = pd.DataFrame({"a": [1, 2], "b": [8, 9], "w": ["NOT", "NOT"]})
 
     for func in all_funcs:
-        assert_equal(func(None, "a", "b", data=data),
-                     "x: [1, 2], y: [8, 9], ls: x, w: xyz, label: b")
-        assert_equal(func(None, x="a", y="b", data=data),
-                     "x: [1, 2], y: [8, 9], ls: x, w: xyz, label: b")
-        assert_equal(func(None, "a", "b", label="", data=data),
-                     "x: [1, 2], y: [8, 9], ls: x, w: xyz, label: ")
-        assert_equal(func(None, "a", "b", label="text", data=data),
-                     "x: [1, 2], y: [8, 9], ls: x, w: xyz, label: text")
-        assert_equal(func(None, x="a", y="b", label="", data=data),
-                     "x: [1, 2], y: [8, 9], ls: x, w: xyz, label: ")
-        assert_equal(func(None, x="a", y="b", label="text", data=data),
-                     "x: [1, 2], y: [8, 9], ls: x, w: xyz, label: text")
+        assert func(None, "a", "b", data=data) == \
+               "x: [1, 2], y: [8, 9], ls: x, w: xyz, label: b"
+        assert func(None, x="a", y="b", data=data) == \
+               "x: [1, 2], y: [8, 9], ls: x, w: xyz, label: b"
+        assert func(None, "a", "b", label="", data=data) == \
+               "x: [1, 2], y: [8, 9], ls: x, w: xyz, label: "
+        assert func(None, "a", "b", label="text", data=data) == \
+               "x: [1, 2], y: [8, 9], ls: x, w: xyz, label: text"
+        assert func(None, x="a", y="b", label="", data=data) == \
+               "x: [1, 2], y: [8, 9], ls: x, w: xyz, label: "
+        assert func(None, x="a", y="b", label="text", data=data) == \
+               "x: [1, 2], y: [8, 9], ls: x, w: xyz, label: text"
 
 
 def test_function_call_replace_all():
@@ -214,21 +214,24 @@ def test_function_call_replace_all():
         return "x: %s, y: %s, ls: %s, w: %s, label: %s" % (
             list(x), list(y), ls, w, label)
 
-    assert_equal(func_replace_all(None, "a", "b", w="x", data=data),
-                 "x: [1, 2], y: [8, 9], ls: x, w: xyz, label: b")
-    assert_equal(func_replace_all(None, x="a", y="b", w="x", data=data),
-                 "x: [1, 2], y: [8, 9], ls: x, w: xyz, label: b")
-    assert_equal(func_replace_all(None, "a", "b", w="x", label="", data=data),
-                 "x: [1, 2], y: [8, 9], ls: x, w: xyz, label: ")
-    assert_equal(
-        func_replace_all(None, "a", "b", w="x", label="text", data=data),
-        "x: [1, 2], y: [8, 9], ls: x, w: xyz, label: text")
-    assert_equal(
-        func_replace_all(None, x="a", y="b", w="x", label="", data=data),
-        "x: [1, 2], y: [8, 9], ls: x, w: xyz, label: ")
-    assert_equal(
-        func_replace_all(None, x="a", y="b", w="x", label="text", data=data),
-        "x: [1, 2], y: [8, 9], ls: x, w: xyz, label: text")
+    assert func_replace_all(None, "a", "b", w="x",
+                            data=data) == \
+        "x: [1, 2], y: [8, 9], ls: x, w: xyz, label: b"
+    assert func_replace_all(None, x="a", y="b", w="x",
+                            data=data) == \
+        "x: [1, 2], y: [8, 9], ls: x, w: xyz, label: b"
+    assert func_replace_all(None, "a", "b", w="x",
+                            label="", data=data) == \
+        "x: [1, 2], y: [8, 9], ls: x, w: xyz, label: "
+    assert func_replace_all(None, "a", "b", w="x",
+                            label="text", data=data) == \
+        "x: [1, 2], y: [8, 9], ls: x, w: xyz, label: text"
+    assert func_replace_all(None, x="a", y="b", w="x",
+                            label="", data=data) == \
+        "x: [1, 2], y: [8, 9], ls: x, w: xyz, label: "
+    assert func_replace_all(None, x="a", y="b", w="x",
+                            label="text", data=data) == \
+        "x: [1, 2], y: [8, 9], ls: x, w: xyz, label: text"
 
     @unpack_labeled_data(label_namer="y")
     def func_varags_replace_all(ax, *args, **kwargs):
@@ -244,27 +247,25 @@ def test_function_call_replace_all():
 
     # in the first case, we can't get a "y" argument,
     # as we don't know the names of the *args
-    assert_equal(func_varags_replace_all(None, x="a", y="b", w="x", data=data),
-                 "x: [1, 2], y: [8, 9], ls: x, w: xyz, label: b")
-    assert_equal(
-        func_varags_replace_all(None, "a", "b", w="x", label="", data=data),
-        "x: [1, 2], y: [8, 9], ls: x, w: xyz, label: ")
-    assert_equal(
-        func_varags_replace_all(None, "a", "b", w="x", label="text",
-                                data=data),
-        "x: [1, 2], y: [8, 9], ls: x, w: xyz, label: text")
-    assert_equal(
-        func_varags_replace_all(None, x="a", y="b", w="x", label="",
-                                data=data),
-        "x: [1, 2], y: [8, 9], ls: x, w: xyz, label: ")
-    assert_equal(
-        func_varags_replace_all(None, x="a", y="b", w="x", label="text",
-                                data=data),
-        "x: [1, 2], y: [8, 9], ls: x, w: xyz, label: text")
+    assert func_varags_replace_all(None, x="a", y="b",
+                                   w="x", data=data) == \
+        "x: [1, 2], y: [8, 9], ls: x, w: xyz, label: b"
+    assert func_varags_replace_all(None, "a", "b", w="x",
+                                   label="", data=data) == \
+        "x: [1, 2], y: [8, 9], ls: x, w: xyz, label: "
+    assert func_varags_replace_all(None, "a", "b", w="x",
+                                   label="text", data=data) == \
+        "x: [1, 2], y: [8, 9], ls: x, w: xyz, label: text"
+    assert func_varags_replace_all(None, x="a", y="b", w="x",
+                                   label="", data=data) == \
+        "x: [1, 2], y: [8, 9], ls: x, w: xyz, label: "
+    assert func_varags_replace_all(None, x="a", y="b", w="x",
+                                   label="text", data=data) == \
+        "x: [1, 2], y: [8, 9], ls: x, w: xyz, label: text"
 
     with assert_produces_warning():
-        assert_equal(func_varags_replace_all(None, "a", "b", w="x", data=data),
-                     "x: [1, 2], y: [8, 9], ls: x, w: xyz, label: None")
+        assert func_varags_replace_all(None, "a", "b", w="x", data=data) == \
+               "x: [1, 2], y: [8, 9], ls: x, w: xyz, label: None"
 
 
 def test_no_label_replacements():
@@ -276,14 +277,14 @@ def test_no_label_replacements():
             list(x), list(y), ls, w, label)
 
     data = {"a": [1, 2], "b": [8, 9], "w": "NOT"}
-    assert_equal(func_no_label(None, "a", "b", data=data),
-                 "x: [1, 2], y: [8, 9], ls: x, w: xyz, label: None")
-    assert_equal(func_no_label(None, x="a", y="b", data=data),
-                 "x: [1, 2], y: [8, 9], ls: x, w: xyz, label: None")
-    assert_equal(func_no_label(None, "a", "b", label="", data=data),
-                 "x: [1, 2], y: [8, 9], ls: x, w: xyz, label: ")
-    assert_equal(func_no_label(None, "a", "b", label="text", data=data),
-                 "x: [1, 2], y: [8, 9], ls: x, w: xyz, label: text")
+    assert func_no_label(None, "a", "b", data=data) == \
+           "x: [1, 2], y: [8, 9], ls: x, w: xyz, label: None"
+    assert func_no_label(None, x="a", y="b", data=data) == \
+           "x: [1, 2], y: [8, 9], ls: x, w: xyz, label: None"
+    assert func_no_label(None, "a", "b", label="", data=data) == \
+           "x: [1, 2], y: [8, 9], ls: x, w: xyz, label: "
+    assert func_no_label(None, "a", "b", label="text", data=data) == \
+           "x: [1, 2], y: [8, 9], ls: x, w: xyz, label: text"
 
 
 def test_more_args_than_pos_parameter():
@@ -296,7 +297,7 @@ def test_more_args_than_pos_parameter():
     def f():
         func(None, "a", "b", "z", "z", data=data)
 
-    assert_raises(RuntimeError, f)
+    pytest.raises(RuntimeError, f)
 
 
 def test_function_call_with_replace_all_args():
@@ -317,10 +318,10 @@ def test_function_call_with_replace_all_args():
     func = unpack_labeled_data(replace_all_args=True, replace_names=["w"],
                                label_namer="y")(funcy)
 
-    assert_equal(func(None, "a", "b", w="x", label="", data=data),
-                 "x: [1, 2], y: [8, 9], ls: x, w: xyz, label: ")
-    assert_equal(func(None, "a", "b", w="x", label="text", data=data),
-                 "x: [1, 2], y: [8, 9], ls: x, w: xyz, label: text")
+    assert func(None, "a", "b", w="x", label="", data=data) == \
+           "x: [1, 2], y: [8, 9], ls: x, w: xyz, label: "
+    assert func(None, "a", "b", w="x", label="text", data=data) == \
+           "x: [1, 2], y: [8, 9], ls: x, w: xyz, label: text"
 
     func2 = unpack_labeled_data(replace_all_args=True, replace_names=["w"],
                                 label_namer="y",
@@ -328,47 +329,54 @@ def test_function_call_with_replace_all_args():
                                                             "label", "w"])(
         funcy)
 
-    assert_equal(func2(None, "a", "b", w="x", data=data),
-                 "x: [1, 2], y: [8, 9], ls: x, w: xyz, label: b")
-    assert_equal(func2(None, "a", "b", w="x", label="", data=data),
-                 "x: [1, 2], y: [8, 9], ls: x, w: xyz, label: ")
-    assert_equal(func2(None, "a", "b", w="x", label="text", data=data),
-                 "x: [1, 2], y: [8, 9], ls: x, w: xyz, label: text")
+    assert func2(None, "a", "b", w="x", data=data) == \
+           "x: [1, 2], y: [8, 9], ls: x, w: xyz, label: b"
+    assert func2(None, "a", "b", w="x", label="", data=data) == \
+           "x: [1, 2], y: [8, 9], ls: x, w: xyz, label: "
+    assert func2(None, "a", "b", w="x", label="text", data=data) == \
+           "x: [1, 2], y: [8, 9], ls: x, w: xyz, label: text"
 
 
 def test_docstring_addition():
+    all_positional_all_keyword = \
+        re.compile(r".*All positional and all keyword arguments\.")
+    all_positional = \
+        re.compile(r".*All positional arguments\.")
+    all_arguments = \
+        re.compile(r".*All arguments with the following names: .*")
+    all_arguments_with_following_names = \
+        re.compile(r".*All arguments with the following names: '.*', '.*'\.")
+    x_string = \
+        re.compile(r".*'x'.*")
+    bar_string = \
+        re.compile(r".*'bar'.*")
+
     @unpack_labeled_data()
     def funcy(ax, *args, **kwargs):
         """Funcy does nothing"""
         pass
 
-    assert_regex(funcy.__doc__,
-                          r".*All positional and all keyword arguments\.")
-    assert_not_regex(funcy.__doc__, r".*All positional arguments\.")
-    assert_not_regex(funcy.__doc__,
-                              r".*All arguments with the following names: .*")
+    assert all_positional_all_keyword.search(funcy.__doc__)
+    assert not all_positional.search(funcy.__doc__)
+    assert not all_arguments.search(funcy.__doc__)
 
     @unpack_labeled_data(replace_all_args=True, replace_names=[])
     def funcy(ax, x, y, z, bar=None):
         """Funcy does nothing"""
         pass
 
-    assert_regex(funcy.__doc__, r".*All positional arguments\.")
-    assert_not_regex(funcy.__doc__,
-                              r".*All positional and all keyword arguments\.")
-    assert_not_regex(funcy.__doc__,
-                              r".*All arguments with the following names: .*")
+    assert all_positional.search(funcy.__doc__)
+    assert not all_positional_all_keyword.search(funcy.__doc__)
+    assert not all_arguments.search(funcy.__doc__)
 
     @unpack_labeled_data(replace_all_args=True, replace_names=["bar"])
     def funcy(ax, x, y, z, bar=None):
         """Funcy does nothing"""
         pass
 
-    assert_regex(funcy.__doc__, r".*All positional arguments\.")
-    assert_regex(funcy.__doc__,
-                          r".*All arguments with the following names: 'bar'\.")
-    assert_not_regex(funcy.__doc__,
-                              r".*All positional and all keyword arguments\.")
+    assert all_positional.search(funcy.__doc__)
+    assert all_arguments.search(funcy.__doc__)
+    assert not all_positional_all_keyword.search(funcy.__doc__)
 
     @unpack_labeled_data(replace_names=["x", "bar"])
     def funcy(ax, x, y, z, bar=None):
@@ -376,13 +384,11 @@ def test_docstring_addition():
         pass
 
     # lists can print in any order, so test for both x,bar and bar,x
-    assert_regex(funcy.__doc__,
-                    r".*All arguments with the following names: '.*', '.*'\.")
-    assert_regex(funcy.__doc__, r".*'x'.*")
-    assert_regex(funcy.__doc__, r".*'bar'.*")
-    assert_not_regex(funcy.__doc__,
-                              r".*All positional and all keyword arguments\.")
-    assert_not_regex(funcy.__doc__, r".*All positional arguments\.")
+    assert all_arguments_with_following_names.search(funcy.__doc__)
+    assert x_string.search(funcy.__doc__)
+    assert bar_string.search(funcy.__doc__)
+    assert not all_positional_all_keyword.search(funcy.__doc__)
+    assert not all_positional.search(funcy.__doc__)
 
 
 def test_positional_parameter_names_as_function():
@@ -396,20 +402,18 @@ def test_positional_parameter_names_as_function():
 
     # the normal case...
     data = {"x": "X", "hy1": "Y"}
-    assert_equal(funcy(None, "x", "hy1", data=data),
-                 "('X', 'Y') | {}")
-    assert_equal(funcy(None, "x", "hy1", "c", data=data),
-                 "('X', 'Y', 'c') | {}")
+    assert funcy(None, "x", "hy1", data=data) == "('X', 'Y') | {}"
+    assert funcy(None, "x", "hy1", "c", data=data) == "('X', 'Y', 'c') | {}"
 
     # no arbitrary long args with data
     def f():
-        assert_equal(funcy(None, "x", "y", "c", "x", "y", "x", "y", data=data),
-                     "('X', 'Y', 'c', 'X', 'Y', 'X', 'Y') | {}")
-    assert_raises(ValueError, f)
+        assert funcy(None, "x", "y", "c", "x", "y", "x", "y", data=data) == \
+               "('X', 'Y', 'c', 'X', 'Y', 'X', 'Y') | {}"
+    with pytest.raises((AssertionError, ValueError)):
+        f()
 
     # In the two arg case, if a valid color spec is in data, we warn but use
     # it as data...
     data = {"x": "X", "y": "Y", "ro": "!!"}
     with assert_produces_warning(RuntimeWarning):
-        assert_equal(funcy(None, "y", "ro", data=data),
-                     "('Y', '!!') | {}")
+        assert funcy(None, "y", "ro", data=data) == "('Y', '!!') | {}"

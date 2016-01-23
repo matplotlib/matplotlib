@@ -8,8 +8,7 @@ from matplotlib.externals.six.moves import xrange
 import numpy
 import matplotlib.pyplot as plt
 from matplotlib.testing.decorators import image_comparison, cleanup
-
-from nose.tools import assert_raises
+import pytest
 
 
 def check_shared(results, f, axs):
@@ -24,7 +23,9 @@ def check_shared(results, f, axs):
     #        'x': a1._shared_x_axes,
     #        'y': a1._shared_y_axes,
     #        }
-    tostr = lambda r: "not " if r else ""
+
+    def tostr(r):
+        return "not " if r else ""
     for i1 in xrange(len(axs)):
         for i2 in xrange(i1 + 1, len(axs)):
             for i3 in xrange(len(shared)):
@@ -35,7 +36,8 @@ def check_shared(results, f, axs):
 
 
 def check_visible(result, f, axs):
-    tostr = lambda v: "invisible" if v else "visible"
+    def tostr(v):
+        return "invisible" if v else "visible"
     for (ax, vx, vy) in zip(axs, result['x'], result['y']):
         for l in ax.get_xticklabels():
             assert l.get_visible() == vx, \
@@ -85,7 +87,7 @@ def test_shared():
     # test default
     f, ((a1, a2), (a3, a4)) = plt.subplots(2, 2)
     axs = [a1, a2, a3, a4]
-    check_shared(numpy.dstack((share['none'], share['none'])), \
+    check_shared(numpy.dstack((share['none'], share['none'])),
             f, axs)
     plt.close(f)
 
@@ -95,26 +97,31 @@ def test_shared():
         for yo in ops:
             f, ((a1, a2), (a3, a4)) = plt.subplots(2, 2, sharex=xo, sharey=yo)
             axs = [a1, a2, a3, a4]
-            check_shared(numpy.dstack((share[xo], share[yo])), \
+            check_shared(numpy.dstack((share[xo], share[yo])),
                     f, axs)
-            check_visible(dict(x=visible['x'][xo], y=visible['y'][yo]), \
+            check_visible(dict(x=visible['x'][xo], y=visible['y'][yo]),
                     f, axs)
             plt.close(f)
 
 
 def test_exceptions():
     # TODO should this test more options?
-    assert_raises(ValueError, plt.subplots, 2, 2, sharex='blah')
-    assert_raises(ValueError, plt.subplots, 2, 2, sharey='blah')
+    with pytest.raises(ValueError):
+        plt.subplots(2, 2, sharex='blah')
+    with pytest.raises(ValueError):
+        plt.subplots(2, 2, sharey='blah')
     # We filter warnings in this test which are genuine since
     # the pount of this test is to ensure that this raises.
     with warnings.catch_warnings():
         warnings.filterwarnings('ignore',
                                 message='.*sharex\ argument\ to\ subplots',
                                 category=UserWarning)
-        assert_raises(ValueError, plt.subplots, 2, 2, -1)
-        assert_raises(ValueError, plt.subplots, 2, 2, 0)
-        assert_raises(ValueError, plt.subplots, 2, 2, 5)
+        with pytest.raises(ValueError):
+            plt.subplots(2, 2, -1)
+        with pytest.raises(ValueError):
+            plt.subplots(2, 2, 0)
+        with pytest.raises(ValueError):
+            plt.subplots(2, 2, 5)
 
 
 @image_comparison(baseline_images=['subplots_offset_text'], remove_text=False)
@@ -136,8 +143,3 @@ def test_subplots():
     test_shared()
     # - are exceptions thrown correctly
     test_exceptions()
-
-
-if __name__ == "__main__":
-    import nose
-    nose.runmodule(argv=['-s', '--with-doctest'], exit=False)

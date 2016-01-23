@@ -5,7 +5,7 @@ from matplotlib.externals import six
 import itertools
 from distutils.version import LooseVersion as V
 
-from nose.tools import assert_raises, assert_equal, assert_true
+# from nose.tools import assert_raises, assert_equal, assert_true
 
 import numpy as np
 from numpy.testing.utils import assert_array_equal, assert_array_almost_equal
@@ -15,7 +15,8 @@ import matplotlib.cm as cm
 import matplotlib.cbook as cbook
 import matplotlib.pyplot as plt
 from matplotlib.testing.decorators import (image_comparison,
-                                           cleanup, knownfailureif)
+                                           cleanup)
+import pytest
 
 
 def test_colormap_endian():
@@ -70,7 +71,7 @@ def test_BoundaryNorm():
     expected = [-1, 0, 1, 2]
     for v, ex in zip(vals, expected):
         ret = bn(v)
-        assert_true(isinstance(ret, six.integer_types))
+        assert isinstance(ret, six.integer_types)
         assert_array_equal(ret, ex)
         assert_array_equal(bn([v]), ex)
 
@@ -79,7 +80,7 @@ def test_BoundaryNorm():
     expected = [-1, 0, 2, 3]
     for v, ex in zip(vals, expected):
         ret = bn(v)
-        assert_true(isinstance(ret, six.integer_types))
+        assert isinstance(ret, six.integer_types)
         assert_array_equal(ret, ex)
         assert_array_equal(bn([v]), ex)
 
@@ -88,7 +89,7 @@ def test_BoundaryNorm():
     expected = [0, 0, 2, 2]
     for v, ex in zip(vals, expected):
         ret = bn(v)
-        assert_true(isinstance(ret, six.integer_types))
+        assert isinstance(ret, six.integer_types)
         assert_array_equal(ret, ex)
         assert_array_equal(bn([v]), ex)
 
@@ -109,9 +110,9 @@ def test_BoundaryNorm():
 
     # Non-trivial masked arrays
     vals = np.ma.masked_invalid([np.Inf, np.NaN])
-    assert_true(np.all(bn(vals).mask))
+    assert np.all(bn(vals).mask)
     vals = np.ma.masked_invalid([np.Inf])
-    assert_true(np.all(bn(vals).mask))
+    assert np.all(bn(vals).mask)
 
 
 def test_LogNorm():
@@ -134,8 +135,8 @@ def test_PowerNorm():
     expected = [0, 0, 1/16, 1/4, 1]
     pnorm = mcolors.PowerNorm(2, vmin=0, vmax=8)
     assert_array_almost_equal(pnorm(a), expected)
-    assert_equal(pnorm(a[0]), expected[0])
-    assert_equal(pnorm(a[2]), expected[2])
+    assert pnorm(a[0]) == expected[0]
+    assert pnorm(a[2]) == expected[2]
     assert_array_almost_equal(a[1:], pnorm.inverse(pnorm(a))[1:])
 
     # Clip = True
@@ -143,16 +144,16 @@ def test_PowerNorm():
     expected = [0, 0, 0, 1, 1]
     pnorm = mcolors.PowerNorm(2, vmin=2, vmax=8, clip=True)
     assert_array_almost_equal(pnorm(a), expected)
-    assert_equal(pnorm(a[0]), expected[0])
-    assert_equal(pnorm(a[-1]), expected[-1])
+    assert pnorm(a[0]) == expected[0]
+    assert pnorm(a[-1]) == expected[-1]
 
     # Clip = True at call time
     a = np.array([-0.5, 0, 1, 8, 16], dtype=np.float)
     expected = [0, 0, 0, 1, 1]
     pnorm = mcolors.PowerNorm(2, vmin=2, vmax=8, clip=False)
     assert_array_almost_equal(pnorm(a, clip=True), expected)
-    assert_equal(pnorm(a[0], clip=True), expected[0])
-    assert_equal(pnorm(a[-1], clip=True), expected[-1])
+    assert pnorm(a[0], clip=True) == expected[0]
+    assert pnorm(a[-1], clip=True) == expected[-1]
 
 
 def test_Normalize():
@@ -281,7 +282,8 @@ def test_cmap_and_norm_from_levels_and_colors2():
                                'Wih extend={0!r} and data '
                                'value={1!r}'.format(extend, d_val))
 
-    assert_raises(ValueError, mcolors.from_levels_and_colors, levels, colors)
+    with pytest.raises(ValueError):
+        mcolors.from_levels_and_colors(levels, colors)
 
 
 def test_rgb_hsv_round_trip():
@@ -311,8 +313,10 @@ def test_colors_no_float():
     def gray_from_float_rgba():
         return mcolors.colorConverter.to_rgba(0.4)
 
-    assert_raises(ValueError, gray_from_float_rgb)
-    assert_raises(ValueError, gray_from_float_rgba)
+    with pytest.raises(ValueError):
+        gray_from_float_rgb()
+    with pytest.raises(ValueError):
+        gray_from_float_rgba()
 
 
 @image_comparison(baseline_images=['light_source_shading_topo'],
@@ -396,8 +400,9 @@ def test_light_source_shading_default():
     assert_array_almost_equal(rgb, expect, decimal=2)
 
 
-@knownfailureif((V(np.__version__) <= V('1.9.0')
-                and V(np.__version__) >= V('1.7.0')))
+@pytest.mark.xfail((V(np.__version__) <= V('1.9.0')
+                and V(np.__version__) >= V('1.7.0')),
+                reason='numpy version needs to be between 1.7 and 1.9')
 # Numpy 1.9.1 fixed a bug in masked arrays which resulted in
 # additional elements being masked when calculating the gradient thus
 # the output is different with earlier numpy versions.
@@ -534,8 +539,3 @@ def _azimuth2math(azimuth, elevation):
     theta = np.radians((90 - azimuth) % 360)
     phi = np.radians(90 - elevation)
     return theta, phi
-
-
-if __name__ == '__main__':
-    import nose
-    nose.runmodule(argv=['-s', '--with-doctest'], exit=False)

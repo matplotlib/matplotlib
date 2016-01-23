@@ -14,11 +14,11 @@ try:
     from unittest import mock
 except ImportError:
     import mock
-from nose.tools import assert_raises, assert_equal
 
 from matplotlib.testing.decorators import image_comparison, cleanup
 import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
+import pytest
 
 
 @image_comparison(baseline_images=['date_empty'], extensions=['png'])
@@ -105,7 +105,8 @@ def test_too_many_date_ticks():
     ax.set_xlim((t0, tf), auto=True)
     ax.plot([], [])
     ax.xaxis.set_major_locator(mdates.DayLocator())
-    assert_raises(RuntimeError, fig.savefig, 'junk.png')
+    with pytest.raises(RuntimeError):
+        fig.savefig('junk.png')
 
 
 @image_comparison(baseline_images=['RRuleLocator_bounds'], extensions=['png'])
@@ -189,7 +190,7 @@ def test_date_formatter_strftime():
             minute=dt.minute,
             second=dt.second,
             microsecond=dt.microsecond))
-        assert_equal(formatter.strftime(dt), formatted_date_str)
+        assert formatter.strftime(dt) == formatted_date_str
 
         try:
             # Test strftime("%x") with the current locale.
@@ -197,8 +198,8 @@ def test_date_formatter_strftime():
             locale_formatter = mdates.DateFormatter("%x")
             locale_d_fmt = locale.nl_langinfo(locale.D_FMT)
             expanded_formatter = mdates.DateFormatter(locale_d_fmt)
-            assert_equal(locale_formatter.strftime(dt),
-                         expanded_formatter.strftime(dt))
+            assert locale_formatter.strftime(dt) == \
+                   expanded_formatter.strftime(dt)
         except (ImportError, AttributeError):
             pass
 
@@ -216,8 +217,7 @@ def test_date_formatter_callable():
 
     formatter = mdates.AutoDateFormatter(locator)
     formatter.scaled[-10] = callable_formatting_function
-    assert_equal(formatter([datetime.datetime(2014, 12, 25)]),
-                 ['25-12//2014'])
+    assert formatter([datetime.datetime(2014, 12, 25)]) == ['25-12//2014']
 
 
 def test_drange():
@@ -230,12 +230,12 @@ def test_drange():
     delta = datetime.timedelta(hours=1)
     # We expect 24 values in drange(start, end, delta), because drange returns
     # dates from an half open interval [start, end)
-    assert_equal(24, len(mdates.drange(start, end, delta)))
+    assert 24 == len(mdates.drange(start, end, delta))
 
     # if end is a little bit later, we expect the range to contain one element
     # more
     end = end + datetime.timedelta(microseconds=1)
-    assert_equal(25, len(mdates.drange(start, end, delta)))
+    assert 25 == len(mdates.drange(start, end, delta))
 
     # reset end
     end = datetime.datetime(2011, 1, 2, tzinfo=mdates.UTC)
@@ -244,8 +244,8 @@ def test_drange():
     # 4 hours = 1/6 day, this is an "dangerous" float
     delta = datetime.timedelta(hours=4)
     daterange = mdates.drange(start, end, delta)
-    assert_equal(6, len(daterange))
-    assert_equal(mdates.num2date(daterange[-1]), end - delta)
+    assert 6 == len(daterange)
+    assert mdates.num2date(daterange[-1]) == (end - delta)
 
 
 @cleanup
@@ -265,7 +265,8 @@ def test_empty_date_with_year_formatter():
     ax.xaxis.set_major_formatter(yearFmt)
 
     with tempfile.TemporaryFile() as fh:
-        assert_raises(ValueError, fig.savefig, fh)
+        with pytest.raises(ValueError):
+            fig.savefig(fh)
 
 
 def test_auto_date_locator():
@@ -336,8 +337,7 @@ def test_auto_date_locator():
     for t_delta, expected in results:
         d2 = d1 + t_delta
         locator = _create_auto_date_locator(d1, d2)
-        assert_equal(list(map(str, mdates.num2date(locator()))),
-                     expected)
+        assert list(map(str, mdates.num2date(locator()))) == expected
 
 
 @image_comparison(baseline_images=['date_inverted_limit'],
@@ -353,8 +353,3 @@ def test_date_inverted_limit():
                 tf + datetime.timedelta(days=5))
     ax.invert_yaxis()
     fig.subplots_adjust(left=0.25)
-
-
-if __name__ == '__main__':
-    import nose
-    nose.runmodule(argv=['-s', '--with-doctest'], exit=False)

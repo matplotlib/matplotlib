@@ -296,8 +296,3 @@ def test_colorbar_ticks():
     cbar = fig.colorbar(cs, ax=ax, extend='neither',
                         orientation='horizontal', ticks=clevs)
     assert len(cbar.ax.xaxis.get_ticklocs()) == len(clevs)
-
-
-if __name__ == '__main__':
-    import nose
-    nose.runmodule(argv=['-s', '--with-doctest'], exit=False)
