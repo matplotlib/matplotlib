@@ -23,6 +23,8 @@ conda create  -n "matplotlib_build" python=3.4 numpy python-dateutil pyparsing p
 activate matplotlib_build
 # this package is only available in the conda-forge channel
 conda install -c conda-forge msinttypes
+# for python 2.7
+conda install -c conda-forge functools32
 
 # copy the libs which have "wrong" names
 set LIBRARY_LIB=%CONDA_DEFAULT_ENV%\Library\lib
