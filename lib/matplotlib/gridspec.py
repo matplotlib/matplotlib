@@ -62,19 +62,23 @@ class GridSpecBase(object):
         subplotspec = self[loc1:loc1+rowspan, loc2:loc2+colspan]
         return subplotspec
 
-
     def set_width_ratios(self, width_ratios):
+        if width_ratios is not None and len(width_ratios) != self._ncols:
+            raise ValueError('Expected the given number of width ratios to '
+                             'match the number of columns of the grid')
         self._col_width_ratios = width_ratios
 
     def get_width_ratios(self):
         return self._col_width_ratios
 
     def set_height_ratios(self, height_ratios):
+        if height_ratios is not None and len(height_ratios) != self._nrows:
+            raise ValueError('Expected the given number of height ratios to '
+                             'match the number of rows of the grid')
         self._row_height_ratios = height_ratios
 
     def get_height_ratios(self):
         return self._row_height_ratios
-
 
     def get_grid_positions(self, fig):
         """
