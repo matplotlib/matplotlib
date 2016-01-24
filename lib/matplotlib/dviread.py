@@ -841,7 +841,7 @@ def find_tex_file(filename, format=None):
     """
     Call :program:`kpsewhich` to find a file in the texmf tree. If
     *format* is not None, it is used as the value for the
-    :option:`--format` option.
+    `--format` option.
 
     Apparently most existing TeX distributions on Unix-like systems
     use kpathsea. I hear MikTeX (a popular distribution on Windows)
