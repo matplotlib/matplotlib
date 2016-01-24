@@ -1751,7 +1751,7 @@ _gist_yarg_data = {
 
 # This bipolar color map was generated from CoolWarmFloat33.csv of
 # "Diverging Color Maps for Scientific Visualization" by Kenneth Moreland.
-# <http://www.cs.unm.edu/~kmorel/documents/ColorMaps/>
+# <http://www.kennethmoreland.com/color-maps/>
 _coolwarm_data = {
     'red': [
         (0.0, 0.2298057, 0.2298057),
