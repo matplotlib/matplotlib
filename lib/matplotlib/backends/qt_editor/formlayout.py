@@ -296,6 +296,7 @@ class FormWidget(QtWidgets.QWidget):
                     field.setCheckState(QtCore.Qt.Unchecked)
             elif isinstance(value, float):
                 field = QtWidgets.QLineEdit(repr(value), self)
+                field.setCursorPosition(0)
                 field.setValidator(QtGui.QDoubleValidator(field))
                 dialog = self.get_dialog()
                 dialog.register_float_field(field)
