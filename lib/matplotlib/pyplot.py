@@ -2153,8 +2153,7 @@ def colormaps():
       <http://www.ncl.ucar.edu/Document/Graphics/color_table_gallery.shtml>`_
 
     .. [#] See `Diverging Color Maps for Scientific Visualization
-      <http://www.cs.unm.edu/~kmorel/documents/ColorMaps/>`_ by Kenneth
-      Moreland.
+      <http://www.kennethmoreland.com/color-maps/>`_ by Kenneth Moreland.
 
     .. [#] See `A Color Map for Effective Black-and-White Rendering of
       Color-Scale Images
