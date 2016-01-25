@@ -32,6 +32,9 @@ plt.yticks(visible=False)
 ax2.set_aspect(1.)
 
 axins = zoomed_inset_axes(ax2, 0.5, loc=1)  # zoom = 0.5
+# fix the number of ticks on the inset axes
+axins.yaxis.get_major_locator().set_params(nbins=7)
+axins.xaxis.get_major_locator().set_params(nbins=7)
 
 plt.xticks(visible=False)
 plt.yticks(visible=False)
