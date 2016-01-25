@@ -1,5 +1,9 @@
+
 2015-11-16 Levels passed to contour(f) and tricontour(f) must be in increasing
            order.
+
+2015-10-21 Added TextBox widget
+
 
 2015-10-21 Added get_ticks_direction()
 
