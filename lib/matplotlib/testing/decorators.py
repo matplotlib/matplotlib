@@ -5,6 +5,7 @@ from matplotlib.externals import six
 
 import functools
 import gc
+import inspect
 import os
 import sys
 import shutil
@@ -129,18 +130,31 @@ def cleanup(style=None):
     # writing a decorator with optional arguments.
 
     def make_cleanup(func):
-        @functools.wraps(func)
-        def wrapped_function(*args, **kwargs):
-            original_units_registry = matplotlib.units.registry.copy()
-            original_settings = mpl.rcParams.copy()
-            matplotlib.style.use(style)
-            try:
-                func(*args, **kwargs)
-            finally:
-                _do_cleanup(original_units_registry,
-                            original_settings)
+        if inspect.isgenerator(func):
+            @functools.wraps(func)
+            def wrapped_callable(*args, **kwargs):
+                original_units_registry = matplotlib.units.registry.copy()
+                original_settings = mpl.rcParams.copy()
+                matplotlib.style.use(style)
+                try:
+                    for yielded in func(*args, **kwargs):
+                        yield yielded
+                finally:
+                    _do_cleanup(original_units_registry,
+                                original_settings)
+        else:
+            @functools.wraps(func)
+            def wrapped_callable(*args, **kwargs):
+                original_units_registry = matplotlib.units.registry.copy()
+                original_settings = mpl.rcParams.copy()
+                matplotlib.style.use(style)
+                try:
+                    func(*args, **kwargs)
+                finally:
+                    _do_cleanup(original_units_registry,
+                                original_settings)
 
-        return wrapped_function
+        return wrapped_callable
 
     if isinstance(style, six.string_types):
         return make_cleanup
