@@ -802,7 +802,7 @@ class TextBox(AxesWidget):
                 func(self.text)
             if key == "enter":
                 self._notify_submit_observers()
-                
+
     def begin_typing(self, x):
         self.capturekeystrokes = True
         #disable command keys so that the user can type without
@@ -815,7 +815,7 @@ class TextBox(AxesWidget):
         #approximate it based on assuming all characters the same length
         self.cursor_index = len(self.text)
         self._rendercursor()
-    
+
     def stop_typing(self):
         notifysubmit = False
         # because _notify_submit_users might throw an error in the
@@ -833,7 +833,7 @@ class TextBox(AxesWidget):
         if notifysubmit:
             self._notify_submit_observers()
 
-    
+
     def _click(self, event):
         if self.ignore(event):
             return
@@ -846,10 +846,10 @@ class TextBox(AxesWidget):
             event.canvas.grab_mouse(self.ax)
         if not(self.capturekeystrokes):
             self.begin_typing(event.x)
-    
+
     def _resize(self, event):
         self.stop_typing()
-    
+
     def _motion(self, event):
         if self.ignore(event):
             return
