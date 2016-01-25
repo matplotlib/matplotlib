@@ -45,12 +45,12 @@ platform:
 build: false
 
 init:
-  - "ECHO %PYTHON_VERSION% %CONDA_INSTALL_LOCN%"
+  - cmd: "ECHO %PYTHON_VERSION% %CONDA_INSTALL_LOCN%"
 
 install:
   - appveyor DownloadFile "https://raw.githubusercontent.com/pelson/Obvious-CI/master/bootstrap-obvious-ci-and-miniconda.py"
   - cmd: python bootstrap-obvious-ci-and-miniconda.py %CONDA_INSTALL_LOCN% %TARGET_ARCH% %CONDA_PY:~0,1% --without-obvci
-  - cmd: set PATH=%PATH%;%CONDA_INSTALL_LOCN%;%CONDA_INSTALL_LOCN%\scripts
+  - cmd: set PATH=%CONDA_INSTALL_LOCN%;%CONDA_INSTALL_LOCN%\scripts;%PATH%;
   - cmd: set PYTHONUNBUFFERED=1
   - cmd: conda install -c http://conda.anaconda.org/pelson/channel/development --yes --quiet obvious-ci
   - cmd: obvci_install_conda_build_tools.py
@@ -59,12 +59,21 @@ install:
   - cmd: conda config --add channels conda-forge
   # this is now the downloaded conda...
   - conda info -a
+
+  # Fix the appveyor build environment to work with conda build
+  # workaround for missing vcvars64.bat in py34 64bit
+  - cmd: copy ci\appveyor\vcvars64.bat "C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\amd64"
+  # workaround for conda build on py27 prefering the normal installed
+  # VS tools instead of the also installed Py27 VS compiler (which wouldn't need this workarounds...)
+  - cmd: copy "C:\Program Files (x86)\Microsoft Visual Studio 9.0\VC\bin\vcvars64.bat" "C:\Program Files (x86)\Microsoft Visual Studio 9.0\VC\bin\amd64\vcvarsamd64.bat"
+
   # same things as the requirements in ci/conda_recipe/meta.yaml
   - cmd: conda create -y -q -n test-environment python=%PYTHON_VERSION% pip setuptools numpy python-dateutil freetype msinttypes tk pyparsing pytz tornado libpng zlib pyqt cycler nose mock
   - activate test-environment
   - cmd: echo %PYTHON_VERSION% %TARGET_ARCH%
   - cmd: IF %PYTHON_VERSION% == 2.7 conda install -y functools32
-  # This is needed for the installer to find the dlls...
+
+  # Let the install prefer the static builds of the libs
   - set LIBRARY_LIB=%CONDA_DEFAULT_ENV%\Library\lib
   - cmd: 'mkdir lib || cmd /c "exit /b 0"'
   - copy %LIBRARY_LIB%\zlibstatic.lib lib\z.lib
@@ -87,21 +96,28 @@ test_script:
 after_test:
   # After the tests were a success, build packages (wheels and conda)
 
-  # There is a bug in wheels which prevents building wheels when the package uses namespaces
-  - cmd: '%CMD_IN_ENV% python setup.py bdist_wheel'
-  # Note also that our setup.py script, which is called by conda-build, writes
-  # a __conda_version__.txt file, so the version number on the binary package
-  # is set dynamically. This unfortunately means that conda build --output
-  # doesn't really work.
-  - cmd: '%CMD_IN_ENV% conda config --get channels'
+  # Build the wheel
+  # Hide the output, the copied files really clutter the build log...
+  - cmd: '%CMD_IN_ENV% python setup.py bdist_wheel > NUL:'
+
+  # And now the conda build after a cleanup...
   # cleanup build files so that they don't pollute the conda build but keep the wheel in dist...
   - cmd: git clean -d -x -f -e dist/
+  # cleanup the environment so that the test-environment does not leak into the conda build...
+  - cmd: set MPLBASEDIRLIST=
+  - cmd: set LIBRARY_LIB=
+  - cmd: deactivate
+  - cmd: path
+  - cmd: where python
+  - cmd: '%CMD_IN_ENV% conda config --get channels'
   - cmd: '%CMD_IN_ENV% conda build .\ci\conda_recipe'
+
   # Move the conda package into the dist directory, to register it
   # as an "artifact" for Appveyor.
   - cmd: 'copy /Y %CONDA_INSTALL_LOCN%\conda-bld\win-32\*.bz2 dist || cmd /c "exit /b 0"'
   - cmd: 'copy /Y %CONDA_INSTALL_LOCN%\conda-bld\win-64\*.bz2 dist || cmd /c "exit /b 0"'
-  - cmd: dir .\dist\
+  - cmd: dir dist\
+  - cmd: echo finished...
 
 artifacts:
   - path: dist\*
@@ -112,5 +128,6 @@ artifacts:
     type: zip
 
 on_failure:
+  - echo zipping images after a failure...
   - 7z a result_images.zip result_images\ >NUL:
   - appveyor PushArtifact result_images.zip
