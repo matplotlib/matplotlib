@@ -278,7 +278,7 @@ class PathNanRemover : protected EmbeddedQueue<4>
  clipped, but are always included in their entirety.
  */
 template <class VertexSource>
-class PathClipper
+class PathClipper : public EmbeddedQueue<2>
 {
     VertexSource *m_source;
     bool m_do_clipping;
@@ -339,16 +339,8 @@ class PathClipper
         if (m_do_clipping) {
             /* This is the slow path where we actually do clipping */
 
-            if (m_end_poly) {
-                m_end_poly = false;
-                return (agg::path_cmd_end_poly | agg::path_flags_close);
-            }
-
-            if (m_has_next) {
-                m_has_next = false;
-                *x = m_nextX;
-                *y = m_nextY;
-                return agg::path_cmd_line_to;
+            if (queue_pop(&code, x, y)) {
+                return code;
             }
 
             while ((code = m_source->vertex(x, y)) != agg::path_cmd_stop) {
@@ -358,55 +350,59 @@ class PathClipper
                         *y = m_initY;
                         code = agg::path_cmd_line_to;
                         m_end_poly = true;
-                    } else {
-                        continue;
+                        break;
                     }
                 }
 
                 if (code == agg::path_cmd_move_to) {
-                    m_initX = *x;
-                    m_initY = *y;
-                    m_has_init = true;
+                    m_lastX = *x;
+                    m_lastY = *y;
                     m_moveto = true;
-                }
-                if (m_moveto) {
-                    m_moveto = false;
-                    code = agg::path_cmd_move_to;
-                    break;
                 } else if (code == agg::path_cmd_line_to) {
                     double x0, y0, x1, y1;
                     x0 = m_lastX;
                     y0 = m_lastY;
                     x1 = *x;
                     y1 = *y;
-                    m_lastX = *x;
-                    m_lastY = *y;
+                    m_lastX = x1;
+                    m_lastY = y1;
                     unsigned moved = agg::clip_line_segment(&x0, &y0, &x1, &y1, m_cliprect);
                     // moved >= 4 - Fully clipped
                     // moved & 1 != 0 - First point has been moved
                     // moved & 2 != 0 - Second point has been moved
                     if (moved < 4) {
-                        if (moved & 1) {
-                            *x = x0;
-                            *y = y0;
-                            m_nextX = x1;
-                            m_nextY = y1;
-                            m_has_next = true;
-                            m_broke_path = true;
-                            return agg::path_cmd_move_to;
+                        if (moved & 1 || m_moveto) {
+                            queue_push(agg::path_cmd_move_to, x0, y0);
                         }
-                        *x = x1;
-                        *y = y1;
-                        return code;
+                        queue_push(agg::path_cmd_line_to, x1, y1);
+
+                        if (m_moveto) {
+                            m_moveto = false;
+                            m_initX = x0;
+                            m_initY = y0;
+                            m_has_init = true;
+                        }
+                        break;
                     }
                 } else {
+                    if (m_moveto) {
+                        queue_push(agg::path_cmd_move_to, m_lastX, m_lastY);
+                        m_moveto = false;
+                        m_initX = m_lastX;
+                        m_initY = m_lastY;
+                        m_has_init = true;
+                    }
+
+                    queue_push(code, *x, *y);
                     break;
                 }
             }
 
-            m_lastX = *x;
-            m_lastY = *y;
-            return code;
+            if (queue_pop(&code, x, y)) {
+                return code;
+            }
+
+            return agg::path_cmd_stop;
         } else {
             // If not doing any clipping, just pass along the vertices
             // verbatim
