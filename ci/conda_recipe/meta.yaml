@@ -16,9 +16,10 @@ source:
     # Patches setupext to look in PREFIX for the tcl/tk headers.
     - osx-tk.patch        # [osx]
     # dynamic version from git
-    # we can't use condas usuall dynamic versions as setup.py uses a guard
+    # we can't use condas usual dynamic versions as setup.py uses a guard
     # around the setup call against importing, which is done internaly
     # by conda build to get the version.
+    # https://github.com/matplotlib/matplotlib/pull/5629#issuecomment-167243654
     - condaversion.patch
 
 requirements:
@@ -38,7 +39,7 @@ requirements:
     - libpng
     - zlib                # [win]
     - pyqt                # [not osx]
-    - tk                  # [linux]
+    - tk                  # [linux and win]
     - functools32         # [py2k]
 
   run:
@@ -52,7 +53,7 @@ requirements:
 #    - py2cairo            # [linux and py2k]
     - libpng              # [unix]
     - pyqt                # [not osx]
-    - tk                  # [linux]
+    - tk                  # [linux and win]
     - functools32         # [py2k]
 
 test:
