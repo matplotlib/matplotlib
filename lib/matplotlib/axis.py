@@ -664,7 +664,6 @@ class Axis(artist.Artist):
         # Initialize here for testing; later add API
         self._major_tick_kw = dict()
         self._minor_tick_kw = dict()
-        self._tick_space = None
 
         self.cla()
         self._set_scale('linear')
@@ -796,7 +795,6 @@ class Axis(artist.Artist):
                 for tick in self.minorTicks:
                     tick._apply_params(**self._minor_tick_kw)
         self.stale = True
-        self._tick_space = None
 
     @staticmethod
     def _translate_tick_kw(kw, to_init_kw=True):
@@ -2018,16 +2016,14 @@ class XAxis(Axis):
         self.stale = True
 
     def get_tick_space(self):
-        if self._tick_space is None:
-            ends = self.axes.transAxes.transform([[0, 0], [1, 0]])
-            length = ((ends[1][0] - ends[0][0]) / self.axes.figure.dpi) * 72.0
-            tick = self._get_tick(True)
-            # There is a heuristic here that the aspect ratio of tick text
-            # is no more than 3:1
-            size = tick.label1.get_size() * 3
-            size *= np.cos(np.deg2rad(tick.label1.get_rotation()))
-            self._tick_space = np.floor(length / size)
-        return self._tick_space
+        ends = self.axes.transAxes.transform([[0, 0], [1, 0]])
+        length = ((ends[1][0] - ends[0][0]) / self.axes.figure.dpi) * 72.0
+        tick = self._get_tick(True)
+        # There is a heuristic here that the aspect ratio of tick text
+        # is no more than 3:1
+        size = tick.label1.get_size() * 3
+        size *= np.cos(np.deg2rad(tick.label1.get_rotation()))
+        return np.floor(length / size)
 
 
 class YAxis(Axis):
@@ -2361,12 +2357,10 @@ class YAxis(Axis):
         self.stale = True
 
     def get_tick_space(self):
-        if self._tick_space is None:
-            ends = self.axes.transAxes.transform([[0, 0], [0, 1]])
-            length = ((ends[1][1] - ends[0][1]) / self.axes.figure.dpi) * 72.0
-            tick = self._get_tick(True)
-            # Having a spacing of at least 2 just looks good.
-            size = tick.label1.get_size() * 2.0
-            size *= np.cos(np.deg2rad(tick.label1.get_rotation()))
-            self._tick_space = np.floor(length / size)
-        return self._tick_space
+        ends = self.axes.transAxes.transform([[0, 0], [0, 1]])
+        length = ((ends[1][1] - ends[0][1]) / self.axes.figure.dpi) * 72.0
+        tick = self._get_tick(True)
+        # Having a spacing of at least 2 just looks good.
+        size = tick.label1.get_size() * 2.0
+        size *= np.cos(np.deg2rad(tick.label1.get_rotation()))
+        return np.floor(length / size)

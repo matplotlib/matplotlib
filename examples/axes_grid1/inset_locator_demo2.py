@@ -34,6 +34,9 @@ axins.imshow(Z2, extent=extent, interpolation="nearest",
 x1, x2, y1, y2 = -1.5, -0.9, -2.5, -1.9
 axins.set_xlim(x1, x2)
 axins.set_ylim(y1, y2)
+# fix the number of ticks on the inset axes
+axins.yaxis.get_major_locator().set_params(nbins=7)
+axins.xaxis.get_major_locator().set_params(nbins=7)
 
 plt.xticks(visible=False)
 plt.yticks(visible=False)
