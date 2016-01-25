@@ -563,7 +563,7 @@ class ScalarFormatter(Formatter):
         locs = np.asarray(locs)
         locs = locs[(vmin <= locs) & (locs <= vmax)]
         ave_loc = np.mean(locs)
-        if ave_loc:  # dont want to take log10(0)
+        if len(locs) and ave_loc:  # dont want to take log10(0)
             ave_oom = math.floor(math.log10(np.mean(np.absolute(locs))))
             range_oom = math.floor(math.log10(range))
 
