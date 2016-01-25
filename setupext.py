@@ -1142,18 +1142,18 @@ mkdir %FREETYPE%\\objs\\.libs
 copy %FREETYPE%\\objs\\{vc20xx}\\{xXX}\\freetype261.lib %FREETYPE%\\objs\\.libs\\libfreetype.lib 
 if errorlevel 1 (
   rem This is a py27 version, which has a different location for the lib file :-/
-  copy %FREETYPE%\\objs\\{WinXX}\\{vc20xx}\\freetype261.lib %FREETYPE%\\objs\\.libs\\libfreetype.lib
+  copy %FREETYPE%\\objs\\win32\\{vc20xx}\\freetype261.lib %FREETYPE%\\objs\\.libs\\libfreetype.lib
 )
 """
             from setup_external_compile import fixproj, prepare_build_cmd, VS2010, X64, tar_extract
-            vc = 'vc2010' if VS2010 else 'vc2008'
+            # Note: freetype has no build profile for 2014, so we don't bother...
             vc = 'vc2010' if VS2010 else 'vc2008'
             WinXX = 'x64' if X64 else 'Win32'
             tar_extract(tarball_path, "build")
-
-            #fixproj(os.path.join(src_path, 'builds', 'windows', vc, 'freetype.sln'), WinXX)
-            #fixproj(os.path.join(src_path, 'builds', 'windows', vc, 'freetype.{}'.format(
-            #    'vcxproj' if VS2010 else 'vcproj')), WinXX)
+            # This is only false for py2.7, even on py3.5...
+            if not VS2010:
+                fixproj(os.path.join(src_path, 'builds', 'windows', vc, 'freetype.sln'), WinXX)
+                fixproj(os.path.join(src_path, 'builds', 'windows', vc, 'freetype.vcproj'), WinXX)
 
             cmdfile = os.path.join("build", 'build_freetype.cmd')
             with open(cmdfile, 'w') as cmd:
