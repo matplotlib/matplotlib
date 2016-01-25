@@ -2701,12 +2701,15 @@ class Parser(object):
         sub = None
         super = None
 
-        # Pick all of the apostrophe's out
+        # Pick all of the apostrophes out, including first apostrophes that have
+        # been parsed as characters
         napostrophes = 0
         new_toks = []
         for tok in toks[0]:
             if isinstance(tok, six.string_types) and tok not in ('^', '_'):
                 napostrophes += len(tok)
+            elif isinstance(tok, Char) and tok.c == "'":
+                napostrophes += 1
             else:
                 new_toks.append(tok)
         toks = new_toks
@@ -2761,6 +2764,9 @@ class Parser(object):
                 super = Hlist([])
             for i in range(napostrophes):
                 super.children.extend(self.symbol(s, loc, ['\prime']))
+            # kern() and hpack() needed to get the metrics right after extending
+            super.kern()
+            super.hpack()
 
         # Handle over/under symbols, such as sum or integral
         if self.is_overunder(nucleus):
