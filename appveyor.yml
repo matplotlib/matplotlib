@@ -60,7 +60,7 @@ install:
   # this is now the downloaded conda...
   - conda info -a
   # same things as the requirements in ci/conda_recipe/meta.yaml
-  - cmd: conda create -y -q -n test-environment python=%PYTHON_VERSION% pip setuptools numpy python-dateutil freetype=2.5 msinttypes tk pyparsing pytz tornado libpng zlib pyqt cycler nose mock
+  - cmd: conda create -y -q -n test-environment python=%PYTHON_VERSION% pip setuptools numpy python-dateutil freetype msinttypes tk pyparsing pytz tornado libpng zlib pyqt cycler nose mock
   - activate test-environment
   - cmd: echo %PYTHON_VERSION% %TARGET_ARCH%
   - cmd: IF %PYTHON_VERSION% == 2.7 conda install -y functools32
@@ -94,6 +94,8 @@ after_test:
   # is set dynamically. This unfortunately means that conda build --output
   # doesn't really work.
   - cmd: '%CMD_IN_ENV% conda config --get channels'
+  # cleanup build files so that they don't pollute the conda build but keep the wheel in dist...
+  - cmd: git clean -d -x -f -e dist/
   - cmd: '%CMD_IN_ENV% conda build .\ci\conda_recipe'
   # Move the conda package into the dist directory, to register it
   # as an "artifact" for Appveyor.
