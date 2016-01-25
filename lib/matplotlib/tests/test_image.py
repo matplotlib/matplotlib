@@ -517,6 +517,13 @@ def test_minimized_rasterized():
                 assert False
 
 
+@cleanup
+def test_load_from_url():
+    req = six.moves.urllib.request.urlopen(
+        "http://matplotlib.org/_static/logo_sidebar_horiz.png")
+    Z = plt.imread(req)
+
+
 if __name__=='__main__':
     import nose
     nose.runmodule(argv=['-s','--with-doctest'], exit=False)
