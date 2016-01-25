@@ -5,6 +5,8 @@ from matplotlib.externals import six
 import io
 import os
 
+from nose.plugins.attrib import attr
+
 import numpy as np
 
 from matplotlib.testing.decorators import (image_comparison,
@@ -517,7 +519,7 @@ def test_minimized_rasterized():
                 assert False
 
 
-@cleanup
+@attr('network')
 def test_load_from_url():
     req = six.moves.urllib.request.urlopen(
         "http://matplotlib.org/_static/logo_sidebar_horiz.png")
