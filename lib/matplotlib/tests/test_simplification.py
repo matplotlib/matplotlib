@@ -212,6 +212,12 @@ def test_clipping_with_nans():
     ax.set_ylim(-0.25, 0.25)
 
 
+def test_clipping_full():
+    p = path.Path([[1e30, 1e30]] * 5)
+    simplified = list(p.iter_segments(clip=[0, 0, 100, 100]))
+    assert simplified == []
+
+
 if __name__=='__main__':
     import nose
     nose.runmodule(argv=['-s','--with-doctest'], exit=False)
