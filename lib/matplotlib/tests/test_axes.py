@@ -4282,9 +4282,16 @@ def test_remove_shared_axes():
 
 
 @cleanup
-def test_broken_barh_empty():
+def test_adjust_numtick_aspect():
     fig, ax = plt.subplots()
-    ax.broken_barh([], (.1, .5))
+    ax.yaxis.get_major_locator().set_params(nbins='auto')
+    ax.set_xlim(0, 1000)
+    ax.set_aspect('equal')
+    fig.canvas.draw()
+    assert len(ax.yaxis.get_major_locator()()) == 2
+    ax.set_ylim(0, 1000)
+    fig.canvas.draw()
+    assert len(ax.yaxis.get_major_locator()()) > 2
 
 
 @cleanup
