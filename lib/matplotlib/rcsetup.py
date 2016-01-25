@@ -1114,7 +1114,7 @@ defaultParams = {
     # figure size in inches: width by height
     'figure.figsize':    [[8.0, 6.0], validate_nseq_float(2)],
     'figure.dpi':        [100, validate_float],  # DPI
-    'figure.facecolor':  ['0.75', validate_color],  # facecolor; scalar gray
+    'figure.facecolor':  ['w', validate_color],  # facecolor; white
     'figure.edgecolor':  ['w', validate_color],  # edgecolor; white
     'figure.frameon':    [True, validate_bool],
     'figure.autolayout': [False, validate_bool],
