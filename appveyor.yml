@@ -81,8 +81,6 @@ install:
   - set MPLBASEDIRLIST=%CONDA_DEFAULT_ENV%\Library\;.
   # enables the local freetype build
   - copy ci\travis\setup.cfg .
-  # There is no 2.7 64bit freetype build configuration...
-  - cmd: IF %PYTHON_VERSION% == 2.7 (IF %TARGET_ARCH% == x64 (del setup.cfg))
   # Show the installed packages + versions
   - conda list
 
