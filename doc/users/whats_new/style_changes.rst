@@ -54,14 +54,16 @@ Plot layout
 Images
 ``````
 
-- The default mode for image interpolation is now ``nearest``.
+- The default mode for image interpolation, in the rcParam
+  ``image.interpolation``, is now ``nearest``.
 
-- The default shading mode is now ``overlay``.  Formerly, it was
-  ``hsv``.
+- The default shading mode for light source shading, in
+  ``matplotlib.colors.LightSource.shade``, is now ``overlay``.
+  Formerly, it was ``hsv``.
 
-- The default value for ``image.resample`` is now ``True``.  This will
-  apply interpolation for both upsampling and downsampling of an
-  image.
+- The default value for the rcParam ``image.resample`` is now
+  ``True``.  This will apply interpolation for both upsampling and
+  downsampling of an image.
 
 Fonts
 `````
