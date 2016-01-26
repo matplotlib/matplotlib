@@ -426,3 +426,24 @@ def switch_backend(backend):
 
         return nose.tools.make_decorator(func)(backend_switcher)
     return switch_backend_decorator
+
+
+def skip_if_command_unavailable(cmd):
+    """
+    skips a test if a command is unavailable.
+
+    Parameters
+    ----------
+    cmd : list of str
+        must be a complete command which should not
+        return a non zero exit code, something like
+        ["latex", "-version"]
+    """
+    from matplotlib.compat.subprocess import check_output
+    try:
+        check_output(cmd)
+    except:
+        from nose import SkipTest
+        raise SkipTest('missing command: %s' % cmd[0])
+
+    return lambda f: f
