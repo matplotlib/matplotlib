@@ -402,6 +402,17 @@ class PathClipper : public EmbeddedQueue<2>
                 return code;
             }
 
+            if (m_moveto &&
+                m_lastX >= m_cliprect.x1 &&
+                m_lastX <= m_cliprect.x2 &&
+                m_lastY >= m_cliprect.y1 &&
+                m_lastY <= m_cliprect.y2) {
+                *x = m_lastX;
+                *y = m_lastY;
+                m_moveto = false;
+                return agg::path_cmd_move_to;
+            }
+
             return agg::path_cmd_stop;
         } else {
             // If not doing any clipping, just pass along the vertices
