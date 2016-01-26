@@ -922,6 +922,11 @@ class Barbs(mcollections.PolyCollection):
             kw['edgecolors'] = barbcolor
             kw['facecolors'] = flagcolor
 
+        # Explicitly set a line width if we're not given one, otherwise
+        # polygons are not outlined and we get no barbs
+        if 'linewidth' not in kw and 'lw' not in kw:
+            kw['linewidth'] = 1
+
         # Parse out the data arrays from the various configurations supported
         x, y, u, v, c = _parse_args(*args)
         self.x = x
