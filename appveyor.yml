@@ -1,4 +1,4 @@
-# With infos from 
+# With infos from
 # http://tjelvarolsson.com/blog/how-to-continuously-test-your-python-code-on-windows-using-appveyor/
 # https://packaging.python.org/en/latest/appveyor/
 # https://github.com/rmcgibbo/python-appveyor-conda-example
@@ -31,13 +31,18 @@ environment:
       PYTHON_ARCH: "64"
       CONDA_PY: "27"
       CONDA_NPY: "18"
-    
+
     - PYTHON: "C:\\Python27_32"
       PYTHON_VERSION: "2.7"
       PYTHON_ARCH: "32"
       CONDA_PY: "27"
       CONDA_NPY: "18"
-      
+
+matrix:
+   allow_failures:
+    - platform: x64
+      configuration: Release
+
 # We always use a 64-bit machine, but can build x86 distributions
 # with the PYTHON_ARCH variable (which is used by CMD_IN_ENV).
 platform:
@@ -63,7 +68,7 @@ install:
   # This is needed for the installer to find the dlls...
   - set LIBRARY_LIB=%CONDA_DEFAULT_ENV%\Library\lib
   - cmd: 'mkdir lib || cmd /c "exit /b 0"'
-  - copy %LIBRARY_LIB%\zlibstatic.lib lib\z.lib 
+  - copy %LIBRARY_LIB%\zlibstatic.lib lib\z.lib
   - copy %LIBRARY_LIB%\libpng_static.lib lib\png.lib
   - set MPLBASEDIRLIST=%CONDA_DEFAULT_ENV%\Library\;.
   # Show the installed packages + versions
@@ -78,7 +83,7 @@ test_script:
 
 after_test:
   # After the tests were a success, build packages (wheels and conda)
-  
+
   # There is a bug in wheels which prevents building wheels when the package uses namespaces
   - cmd: '%CMD_IN_ENV% python setup.py bdist_wheel'
   # Note also that our setup.py script, which is called by conda-build, writes
@@ -86,11 +91,11 @@ after_test:
   # is set dynamically. This unfortunately mean that conda build --output
   # doesn't really work.
   - cmd: '%CMD_IN_ENV% conda config --get channels'
-  # we can't build conda packages on 27 due to missing functools32, which is a recent 
+  # we can't build conda packages on 27 due to missing functools32, which is a recent
   # additional dependency for matplotlib
   - cmd: if [%CONDA_PY%] NEQ [27] %CMD_IN_ENV% conda build .\ci\conda_recipe
   # Move the conda package into the dist directory, to register it
-  # as an "artifact" for Appveyor. 
+  # as an "artifact" for Appveyor.
   - cmd: 'copy /Y %PYTHON%\conda-bld\win-32\*.bz2 dist || cmd /c "exit /b 0"'
   - cmd: 'copy /Y %PYTHON%\conda-bld\win-64\*.bz2 dist || cmd /c "exit /b 0"'
   - cmd: dir .\dist\
@@ -98,7 +103,7 @@ after_test:
 artifacts:
   - path: dist\*
     name: packages
-    
+
   - path: result_images\*
     name: test result images
     type: zip
