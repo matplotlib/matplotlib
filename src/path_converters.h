@@ -286,14 +286,9 @@ class PathClipper : public EmbeddedQueue<2>
     double m_lastX;
     double m_lastY;
     bool m_moveto;
-    double m_nextX;
-    double m_nextY;
-    bool m_has_next;
-    bool m_end_poly;
     double m_initX;
     double m_initY;
     bool m_has_init;
-    bool m_broke_path;
 
   public:
     PathClipper(VertexSource &source, bool do_clipping, double width, double height)
@@ -301,10 +296,7 @@ class PathClipper : public EmbeddedQueue<2>
           m_do_clipping(do_clipping),
           m_cliprect(-1.0, -1.0, width + 1.0, height + 1.0),
           m_moveto(true),
-          m_has_next(false),
-          m_end_poly(false),
-          m_has_init(false),
-          m_broke_path(false)
+          m_has_init(false)
     {
         // empty
     }
@@ -314,10 +306,7 @@ class PathClipper : public EmbeddedQueue<2>
           m_do_clipping(do_clipping),
           m_cliprect(rect),
           m_moveto(true),
-          m_has_next(false),
-          m_end_poly(false),
-          m_has_init(false),
-          m_broke_path(false)
+          m_has_init(false)
     {
         m_cliprect.x1 -= 1.0;
         m_cliprect.y1 -= 1.0;
@@ -327,7 +316,7 @@ class PathClipper : public EmbeddedQueue<2>
 
     inline void rewind(unsigned path_id)
     {
-        m_has_next = false;
+        m_has_init = false;
         m_moveto = true;
         m_source->rewind(path_id);
     }
@@ -346,10 +335,7 @@ class PathClipper : public EmbeddedQueue<2>
             while ((code = m_source->vertex(x, y)) != agg::path_cmd_stop) {
                 if (code == (agg::path_cmd_end_poly | agg::path_flags_close)) {
                     if (m_has_init) {
-                        *x = m_initX;
-                        *y = m_initY;
-                        code = agg::path_cmd_line_to;
-                        m_end_poly = true;
+                        queue_push(agg::path_cmd_line_to, m_initX, m_initY);
                         break;
                     }
                 }
