@@ -28,10 +28,6 @@ Colors
 - Grid lines are light grey solid 1pt lines.  They are no longer dashed by
   default.
 
-- The ''Blues'' colormap has been adjusted to be perceptually uniform.
-  The old ``blues`` colormap is available under the name
-  ``legacy_Blues``.
-
 Plot layout
 ```````````
 
