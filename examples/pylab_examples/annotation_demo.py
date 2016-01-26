@@ -48,7 +48,7 @@ if 1:
 
     t = np.arange(0.0, 5.0, 0.01)
     s = np.cos(2*np.pi*t)
-    line, = ax.plot(t, s, lw=3)
+    line, = ax.plot(t, s)
 
     ax.annotate('axes center', xy=(.5, .5), xycoords='axes fraction',
                 horizontalalignment='center', verticalalignment='center')
