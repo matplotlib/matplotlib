@@ -23,5 +23,6 @@ for i, gamma in enumerate(gammas):
     plt.hist2d(data[:, 0], data[:, 1],
                bins=100, norm=mcolors.PowerNorm(gamma))
 
-plt.subplots_adjust(hspace=0.8)
+plt.tight_layout()
+
 plt.show()
