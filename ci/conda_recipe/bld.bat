@@ -1,19 +1,12 @@
-mkdir lib
-copy %LIBRARY_LIB%\zlibstatic.lib lib\z.lib
+set LIBPATH=%LIBRARY_LIB%;
+set INCLUDE=%INCLUDE%;%PREFIX%\Library\include\freetype2
+
+ECHO [directories] > setup.cfg
+ECHO basedirlist = %LIBRARY_PREFIX% >> setup.cfg
+ECHO [packages] >> setup.cfg
+ECHO tests = False >> setup.cfg
+ECHO sample_data = False >> setup.cfg
+ECHO toolkits_tests = False >> setup.cfg
+
+%PYTHON% setup.py install
 if errorlevel 1 exit 1
-copy %LIBRARY_LIB%\libpng_static.lib lib\png.lib
-if errorlevel 1 exit 1
-
-set MPLBASEDIRLIST=%LIBRARY_PREFIX%;.
-
-:: debug...
-set
-
-copy setup.cfg.template setup.cfg
-if errorlevel 1 exit 1
-
-python setup.py install
-if errorlevel 1 exit 1
-
-rd /s /q %SP_DIR%\dateutil
-rd /s /q %SP_DIR%\numpy
