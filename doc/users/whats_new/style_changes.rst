@@ -13,6 +13,7 @@ Colors
 ``````
 
 - The default figure background color has changed from grey to white.
+  Use the rcParam ``figure.facecolor`` to control this.
 
 - The default cycle of colors to draw lines, markers and other content
   has been changed.  It is based on the `Vega category10 palette
@@ -44,12 +45,20 @@ Plot layout
 - The limits are scaled to exactly the dimensions of the data, plus 5%
   padding.  The old behavior was to scale to the nearest "round"
   numbers.  To use the old behavior, set the ``rcParam``
-  ``axes.autolimit_mode`` to ``round_numbers``.
+  ``axes.autolimit_mode`` to ``round_numbers``.  To control the
+  margins on particular side individually, pass any of the following
+  to any artist or plotting function:
+
+  - ``top_margin=False``
+  - ``bottom_margin=False``
+  - ``left_margin=False``
+  - ``right_margin=False``
 
 - Ticks now point outward by default.  To have ticks pointing inward,
   use the ``rcParams`` ``xtick.direction`` and ``ytick.direction``.
 
-- By default, caps on the ends of errorbars are not present.
+- By default, caps on the ends of errorbars are not present.  Use the
+  rcParam ``errorbar.capsize`` to control this.
 
 Images
 ``````
