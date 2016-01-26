@@ -174,8 +174,8 @@ def convert(filename, cache):
     """
     base, extension = filename.rsplit('.', 1)
     if extension not in converter:
-        raise ImageComparisonFailure(
-            "Don't know how to convert %s files to png" % extension)
+        from nose import SkipTest
+        raise SkipTest("Don't know how to convert %s files to png" % extension)
     newname = base + '_' + extension + '.png'
     if not os.path.exists(filename):
         raise IOError("'%s' does not exist" % filename)
