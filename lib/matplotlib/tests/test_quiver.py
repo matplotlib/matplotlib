@@ -108,6 +108,17 @@ def test_quiver_key_pivot():
     ax.quiverkey(q, 0, 0.5, 1, 'W', labelpos='W')
 
 
+@image_comparison(baseline_images=['barbs_test_image'],
+                  extensions=['png'], remove_text=True)
+def test_barbs():
+    x = np.linspace(-5, 5, 5)
+    X, Y = np.meshgrid(x, x)
+    U, V = 12*X, 12*Y
+    fig, ax = plt.subplots()
+    ax.barbs(X, Y, U, V, np.sqrt(U*U + V*V), fill_empty=True, rounding=False,
+             sizes=dict(emptybarb=0.25, spacing=0.2, height=0.3),
+             cmap='viridis')
+
 if __name__ == '__main__':
     import nose
     nose.runmodule()
