@@ -1,9 +1,9 @@
 diff --git setupext.py setupext.py
-index 9219c88..e3a9653 100644
+index ddf2ca1..b9e0729 100755
 --- setupext.py
 +++ setupext.py
-@@ -1334,52 +1334,11 @@ class BackendTkAgg(OptionalBackendPackage):
-             ext.library_dirs.extend([os.path.join(sys.prefix, 'dlls')])
+@@ -1659,52 +1659,11 @@ class BackendTkAgg(OptionalBackendPackage):
+                 ext.library_dirs.extend([os.path.join(sys.prefix, 'dlls')])
  
          elif sys.platform == 'darwin':
 -            # this config section lifted directly from Imaging - thanks to
@@ -16,7 +16,7 @@ index 9219c88..e3a9653 100644
 -                '/Library/Frameworks',
 -                '/System/Library/Frameworks/',
 -            ]
--
+ 
 -            # Find the directory that contains the Tcl.framework and
 -            # Tk.framework bundles.
 -            tk_framework_found = 0
@@ -46,7 +46,7 @@ index 9219c88..e3a9653 100644
 -                # than include a complicated search, this is a
 -                # hard-coded path. It could bail out if X11 libs are
 -                # not found...
- 
+-
 -                # tk_include_dirs.append('/usr/X11R6/include')
 -                frameworks = ['-framework', 'Tcl', '-framework', 'Tk']
 -                ext.include_dirs.extend(tk_include_dirs)
