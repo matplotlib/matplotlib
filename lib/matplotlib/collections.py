@@ -533,6 +533,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
         """
         try:
             if cbook.is_string_like(ls):
+                ls = cbook.ls_mapper.get(ls, ls)
                 dashes = [mlines.get_dash_pattern(ls)]
             elif cbook.iterable(ls):
                 try:
