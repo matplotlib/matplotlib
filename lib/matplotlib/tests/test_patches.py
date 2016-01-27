@@ -20,6 +20,9 @@ import matplotlib.collections as mcollections
 from matplotlib import path as mpath
 from matplotlib import transforms as mtrans
 
+import sys
+on_win = (sys.platform == 'win32')
+
 
 def test_Polygon_close():
     #: Github issue #1018 identified a bug in the Polygon handling
@@ -250,7 +253,7 @@ def test_wedge_movement():
 
 
 @image_comparison(baseline_images=['wedge_range'],
-                  remove_text=True)
+                  remove_text=True, tol=0.06 if on_win else 0)
 def test_wedge_range():
     ax = plt.axes()
 
