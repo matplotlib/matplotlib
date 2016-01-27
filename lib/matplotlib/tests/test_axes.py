@@ -2955,7 +2955,8 @@ def test_specgram_magnitude_noise():
 
 
 @image_comparison(baseline_images=['specgram_angle_freqs'],
-                  remove_text=True, extensions=['png'])
+                  remove_text=True, extensions=['png'],
+                  tol=0.003 if on_win else 0)
 def test_specgram_angle_freqs():
     '''test axes.specgram in angle mode with sinusoidal stimuli'''
     n = 10000
