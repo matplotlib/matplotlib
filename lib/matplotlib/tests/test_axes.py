@@ -26,6 +26,9 @@ from numpy.testing import assert_array_equal
 import warnings
 from matplotlib.cbook import IgnoredKeywordWarning
 
+import sys
+on_win = (sys.platform == 'win32')
+
 # Note: Some test cases are run twice: once normally and once with labeled data
 #       These two must be defined in the same test function or need to have
 #       different baseline images to prevent race conditions when nose runs
@@ -2749,7 +2752,8 @@ def test_subplot_key_hash():
 
 @image_comparison(baseline_images=['specgram_freqs',
                                    'specgram_freqs_linear'],
-                  remove_text=True, extensions=['png'], tol=0.03)
+                  remove_text=True, extensions=['png'],
+                  tol=0.05 if on_win else 0.03)
 def test_specgram_freqs():
     '''test axes.specgram in default (psd) mode with sinusoidal stimuli'''
     n = 10000
@@ -2849,7 +2853,8 @@ def test_specgram_noise():
 
 @image_comparison(baseline_images=['specgram_magnitude_freqs',
                                    'specgram_magnitude_freqs_linear'],
-                  remove_text=True, extensions=['png'], tol=0.03)
+                  remove_text=True, extensions=['png'],
+                  tol=0.05 if on_win else 0.03)
 def test_specgram_magnitude_freqs():
     '''test axes.specgram in magnitude mode with sinusoidal stimuli'''
     n = 10000
