@@ -2021,7 +2021,9 @@ class FigureCanvasBase(object):
         """
         :meth:`draw` only if idle; defaults to draw but backends can overrride
         """
-        pass
+        if is_interactive() and not self._is_idle_drawing:
+            with self._idle_draw_cntx():
+                self.draw(*args, **kwargs)
 
     def draw_cursor(self, event):
         """
