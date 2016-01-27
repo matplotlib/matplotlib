@@ -2052,7 +2052,9 @@ class FigureCanvasBase:
         strategy to prevent multiple renderings.
 
         """
-        pass
+        if is_interactive() and not self._is_idle_drawing:
+            with self._idle_draw_cntx():
+                self.draw(*args, **kwargs)
 
     @property
     def device_pixel_ratio(self):
