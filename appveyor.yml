@@ -88,8 +88,7 @@ test_script:
   # Now build the thing..
   - '%CMD_IN_ENV% python setup.py develop'
   # tests
-  # for now, just let them pass to get the after_test parts...
-  - python tests.py || cmd /c "exit /b 0"
+  - python tests.py
   - python visual_tests.py
 
 after_test:
