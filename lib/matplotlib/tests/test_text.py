@@ -175,7 +175,11 @@ def test_contains():
 
     # draw the text. This is important, as the contains method can only work
     # when a renderer exists.
-    plt.draw()
+    plt.ion()
+    try:
+        plt.draw()
+    finally:
+        plt.ioff()
 
     for x, y in zip(xs.flat, ys.flat):
         mevent.x, mevent.y = plt.gca().transAxes.transform_point([x, y])
@@ -235,35 +239,40 @@ def test_axes_titles():
 
 @cleanup
 def test_set_position():
-    fig, ax = plt.subplots()
+    plt.ion()
 
-    # test set_position
-    ann = ax.annotate(
-        'test', (0, 0), xytext=(0, 0), textcoords='figure pixels')
-    plt.draw()
+    try:
+        fig, ax = plt.subplots()
 
-    init_pos = ann.get_window_extent(fig.canvas.renderer)
-    shift_val = 15
-    ann.set_position((shift_val, shift_val))
-    plt.draw()
-    post_pos = ann.get_window_extent(fig.canvas.renderer)
+        # test set_position
+        ann = ax.annotate(
+            'test', (0, 0), xytext=(0, 0), textcoords='figure pixels')
+        plt.draw()
 
-    for a, b in zip(init_pos.min, post_pos.min):
-        assert a + shift_val == b
+        init_pos = ann.get_window_extent(fig.canvas.renderer)
+        shift_val = 15
+        ann.set_position((shift_val, shift_val))
+        plt.draw()
+        post_pos = ann.get_window_extent(fig.canvas.renderer)
 
-    # test xyann
-    ann = ax.annotate(
-        'test', (0, 0), xytext=(0, 0), textcoords='figure pixels')
-    plt.draw()
+        for a, b in zip(init_pos.min, post_pos.min):
+            assert a + shift_val == b
 
-    init_pos = ann.get_window_extent(fig.canvas.renderer)
-    shift_val = 15
-    ann.xyann = (shift_val, shift_val)
-    plt.draw()
-    post_pos = ann.get_window_extent(fig.canvas.renderer)
+        # test xyann
+        ann = ax.annotate(
+            'test', (0, 0), xytext=(0, 0), textcoords='figure pixels')
+        plt.draw()
 
-    for a, b in zip(init_pos.min, post_pos.min):
-        assert a + shift_val == b
+        init_pos = ann.get_window_extent(fig.canvas.renderer)
+        shift_val = 15
+        ann.xyann = (shift_val, shift_val)
+        plt.draw()
+        post_pos = ann.get_window_extent(fig.canvas.renderer)
+
+        for a, b in zip(init_pos.min, post_pos.min):
+            assert a + shift_val == b
+    finally:
+        plt.ioff()
 
 
 def test_get_rotation_string():
@@ -373,8 +382,14 @@ def test_annotation_negative_fig_coords():
 
 @cleanup
 def test_text_stale():
+    # A version of draw_all that draws even when interactive is off
+    def draw_all_when_not_interactive():
+        for f_mgr in plt._pylab_helpers.Gcf.get_all_fig_managers():
+            if f_mgr.canvas.figure.stale:
+                f_mgr.canvas.draw()
+
     fig, (ax1, ax2) = plt.subplots(1, 2)
-    plt.draw_all()
+    draw_all_when_not_interactive()
     assert not ax1.stale
     assert not ax2.stale
     assert not fig.stale
@@ -389,7 +404,7 @@ def test_text_stale():
     assert ann1.stale
     assert fig.stale
 
-    plt.draw_all()
+    draw_all_when_not_interactive()
     assert not ax1.stale
     assert not ax2.stale
     assert not fig.stale
