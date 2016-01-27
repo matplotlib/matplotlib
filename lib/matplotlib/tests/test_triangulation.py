@@ -14,6 +14,8 @@ from matplotlib.testing.decorators import cleanup, image_comparison
 import matplotlib.cm as cm
 from matplotlib.path import Path
 
+import sys
+on_win = (sys.platform == 'win32')
 
 def test_delaunay():
     # No duplicate points, regular grid.
@@ -770,7 +772,8 @@ def test_tri_smooth_contouring():
 
 
 @image_comparison(baseline_images=['tri_smooth_gradient'],
-                  extensions=['png'], remove_text=True)
+                  extensions=['png'], remove_text=True,
+                  tol=0.015 if on_win else 0)
 def test_tri_smooth_gradient():
     # Image comparison based on example trigradient_demo.
 
