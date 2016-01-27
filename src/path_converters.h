@@ -321,7 +321,7 @@ class PathClipper : public EmbeddedQueue<3>
         m_source->rewind(path_id);
     }
 
-    int draw_line(double x0, double y0, double x1, double y1)
+    int draw_clipped_line(double x0, double y0, double x1, double y1)
     {
         unsigned moved = agg::clip_line_segment(&x0, &y0, &x1, &y1, m_cliprect);
         // moved >= 4 - Fully clipped
@@ -333,9 +333,7 @@ class PathClipper : public EmbeddedQueue<3>
             }
             queue_push(agg::path_cmd_line_to, x1, y1);
 
-            if (m_moveto) {
-                m_moveto = false;
-            }
+            m_moveto = false;
             return 1;
         }
 
@@ -354,28 +352,34 @@ class PathClipper : public EmbeddedQueue<3>
             }
 
             while ((code = m_source->vertex(x, y)) != agg::path_cmd_stop) {
-                if (code == (agg::path_cmd_end_poly | agg::path_flags_close)) {
+                switch (code) {
+                case (agg::path_cmd_end_poly | agg::path_flags_close):
                     if (m_has_init) {
-                        draw_line(m_lastX, m_lastY, m_initX, m_initY);
+                        draw_clipped_line(m_lastX, m_lastY, m_initX, m_initY);
                     }
                     queue_push(
                         agg::path_cmd_end_poly | agg::path_flags_close,
                         m_lastX, m_lastY);
-                    break;
-                } else if (code == agg::path_cmd_move_to) {
+                    goto exit_loop;
+
+                case agg::path_cmd_move_to:
                     m_initX = m_lastX = *x;
                     m_initY = m_lastY = *y;
                     m_has_init = true;
                     m_moveto = true;
-                } else if (code == agg::path_cmd_line_to) {
-                    if (draw_line(m_lastX, m_lastY, *x, *y)) {
+                    break;
+
+                case agg::path_cmd_line_to:
+                    if (draw_clipped_line(m_lastX, m_lastY, *x, *y)) {
                         m_lastX = *x;
                         m_lastY = *y;
-                        break;
+                        goto exit_loop;
                     }
                     m_lastX = *x;
                     m_lastY = *y;
-                } else {
+                    break;
+
+                default:
                     if (m_moveto) {
                         queue_push(agg::path_cmd_move_to, m_lastX, m_lastY);
                         m_moveto = false;
@@ -384,9 +388,11 @@ class PathClipper : public EmbeddedQueue<3>
                     queue_push(code, *x, *y);
                     m_lastX = *x;
                     m_lastY = *y;
-                    break;
+                    goto exit_loop;
                 }
             }
+
+        exit_loop:
 
             if (queue_pop(&code, x, y)) {
                 return code;
