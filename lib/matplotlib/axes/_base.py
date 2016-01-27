@@ -523,6 +523,9 @@ class _AxesBase(martist.Artist):
         self._hold = rcParams['axes.hold']
         self._connected = {}  # a dict from events to (id, func)
         self.cla()
+        # funcs used to format x and y - fall back on major formatters
+        self.fmt_xdata = None
+        self.fmt_ydata = None
 
         self.set_cursor_props((1, 'k'))  # set the cursor properties for axes
 
@@ -3265,10 +3268,12 @@ class _AxesBase(martist.Artist):
         self.yaxis.axis_date(tz)
 
     def format_xdata(self, x):
-        return self.xaxis.get_major_formatter().format_for_cursor(x)
+        return (self.fmt_xdata(x) if self.fmt_xdata is not None
+                else self.xaxis.get_major_formatter().format_for_cursor(x))
 
     def format_ydata(self, y):
-        return self.yaxis.get_major_formatter().format_for_cursor(y)
+        return (self.fmt_ydata(y) if self.fmt_ydata is not None
+                else self.yaxis.get_major_formatter().format_for_cursor(y))
 
     def format_coord(self, x, y):
         """Return a format string formatting the *x*, *y* coord"""

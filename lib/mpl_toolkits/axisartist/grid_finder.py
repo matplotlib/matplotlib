@@ -306,7 +306,8 @@ class FixedLocator(object):
 
 class FormatterPrettyPrint(object):
     def __init__(self, useMathText=True):
-        self._fmt = mticker.ScalarFormatter(use_mathtext=useMathText, use_offset=False)
+        self._fmt = mticker.ScalarFormatter(
+            useMathText=useMathText, useOffset=False)
         self._fmt.set_axis({})
         self._ignore_factor = True
 

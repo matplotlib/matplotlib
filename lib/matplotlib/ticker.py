@@ -319,18 +319,14 @@ class ScalarFormatter(Formatter):
     axes.formatter.limits rc parameter.
     """
 
-    def __init__(self, *args, **kwargs):
-        # Keyword-only arguments.
-        use_offset = kwargs.pop("use_offset", None)
-        use_mathtext = kwargs.pop("use_mathtext", None)
-        use_locale = kwargs.pop("use_locale", None)
-        super(ScalarFormatter, self).__init__(*args, **kwargs)
-        self._use_offset = (use_offset if use_offset is not None
+    def __init__(self, useOffset=None, useMathText=None, useLocale=None):
+        super(ScalarFormatter, self).__init__()
+        self._use_offset = (useOffset if useOffset is not None
                             else rcParams["axes.formatter.useoffset"])
         self._usetex = rcParams["text.usetex"]
-        self._use_mathtext = (use_mathtext if use_mathtext is not None
+        self._use_mathtext = (useMathText if useMathText is not None
                               else rcParams["axes.formatter.use_mathtext"])
-        self._use_locale = (use_locale if use_locale is not None
+        self._use_locale = (useLocale if useLocale is not None
                             else rcParams["axes.formatter.use_locale"])
         self._scientific = True
         self._powerlimits = rcParams['axes.formatter.limits']
@@ -393,12 +389,15 @@ class ScalarFormatter(Formatter):
 
     def _set_offset(self):
         locs = self.locs
-        if not len(locs) or not self._use_offset:
+        if not self._use_offset:
             self._offset = 0
             return
         # Restrict to visible ticks.
         vmin, vmax = sorted(self.axis.get_view_interval())
         locs = locs[(vmin <= locs) & (locs <= vmax)]
+        if not len(locs):
+            self._offset = 0
+            return
         lmin, lmax = locs.min(), locs.max()
         # min, max comparing absolute values (we want division to round towards
         # zero so we work on absolute values).
