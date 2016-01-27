@@ -270,7 +270,7 @@ class Test_boxplot_stats(object):
         x = np.hstack([-25, x, 25])
         bstats_false = cbook.boxplot_stats(x, autorange=False)
         bstats_true = cbook.boxplot_stats(x, autorange=True)
-        
+
         assert_equal(bstats_false[0]['whislo'], 0)
         assert_equal(bstats_false[0]['whishi'], 0)
         assert_array_almost_equal(bstats_false[0]['fliers'], [-25, 25])
