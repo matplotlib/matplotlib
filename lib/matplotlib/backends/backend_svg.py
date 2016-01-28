@@ -317,7 +317,7 @@ class RendererSVG(RendererBase):
 
     def _make_id(self, type, content):
         content = str(content)
-        if rcParams['svg.hashsalt'] is None: 
+        if rcParams['svg.hashsalt'] is None:
             salt = str(uuid.uuid4())
         else:
             salt = rcParams['svg.hashsalt']
@@ -550,10 +550,7 @@ class RendererSVG(RendererBase):
         return whether to generate a composite image from multiple images on
         a set of axes
         """
-        if rcParams['svg.image_noscale']:
-            return True
-        else:
-            return not rcParams['image.composite_image']
+        return not rcParams['image.composite_image']
 
     def _convert_path(self, path, transform=None, clip=None, simplify=None,
                       sketch=None):
@@ -804,7 +801,12 @@ class RendererSVG(RendererBase):
     def get_image_magnification(self):
         return self.image_dpi / 72.0
 
-    def draw_image(self, gc, x, y, im, dx=None, dy=None, transform=None):
+    def draw_image(self, gc, x, y, im, transform=None):
+        h, w = im.shape[:2]
+
+        if w == 0 or h == 0:
+            return
+
         attrib = {}
         clipid = self._get_clip(gc)
         if clipid is not None:
@@ -813,75 +815,57 @@ class RendererSVG(RendererBase):
             # to the clip-path
             self.writer.start('g', attrib={'clip-path': 'url(#%s)' % clipid})
 
-        trans = [1,0,0,1,0,0]
-        if rcParams['svg.image_noscale']:
-            trans = list(im.get_matrix())
-            trans[5] = -trans[5]
-            attrib['transform'] = generate_transform([('matrix', tuple(trans))])
-            assert trans[1] == 0
-            assert trans[2] == 0
-            numrows, numcols = im.get_size()
-            im.reset_matrix()
-            im.set_interpolation(0)
-            im.resize(numcols, numrows)
-
-        h,w = im.get_size_out()
-
-        if dx is None:
-            w = 72.0*w/self.image_dpi
-        else:
-            w = dx
-
-        if dy is None:
-            h = 72.0*h/self.image_dpi
-        else:
-            h = dy
-
-        oid = getattr(im, '_gid', None)
-        url = getattr(im, '_url', None)
+        oid = gc.get_gid()
+        url = gc.get_url()
         if url is not None:
             self.writer.start('a', attrib={'xlink:href': url})
         if rcParams['svg.image_inline']:
             bytesio = io.BytesIO()
-            _png.write_png(np.array(im)[::-1], bytesio)
+            _png.write_png(im, bytesio)
             oid = oid or self._make_id('image', bytesio.getvalue())
             attrib['xlink:href'] = (
                 "data:image/png;base64,\n" +
                 base64.b64encode(bytesio.getvalue()).decode('ascii'))
         else:
-            self._imaged[self.basename] = self._imaged.get(self.basename,0) + 1
+            self._imaged[self.basename] = self._imaged.get(self.basename, 0) + 1
             filename = '%s.image%d.png'%(self.basename, self._imaged[self.basename])
-            verbose.report( 'Writing image file for inclusion: %s' % filename)
-            _png.write_png(np.array(im)[::-1], filename)
+            verbose.report('Writing image file for inclusion: %s' % filename)
+            _png.write_png(im, filename)
             oid = oid or 'Im_' + self._make_id('image', filename)
             attrib['xlink:href'] = filename
-
-        alpha = gc.get_alpha()
-        if alpha != 1.0:
-            attrib['opacity'] = short_float_fmt(alpha)
 
         attrib['id'] = oid
 
         if transform is None:
+            w = 72.0 * w / self.image_dpi
+            h = 72.0 * h / self.image_dpi
+
             self.writer.element(
                 'image',
-                x=short_float_fmt(x/trans[0]),
-                y=short_float_fmt((self.height-y)/trans[3]-h),
+                transform = generate_transform([
+                    ('scale', (1, -1)), ('translate', (0, -h))]),
+                x=short_float_fmt(x),
+                y=short_float_fmt(-(self.height - y - h)),
                 width=short_float_fmt(w), height=short_float_fmt(h),
                 attrib=attrib)
         else:
-            flipped = self._make_flip_transform(transform)
-            flipped = np.array(flipped.to_values())
-            y = y+dy
-            if dy > 0.0:
-                flipped[3] *= -1.0
-                y *= -1.0
+            alpha = gc.get_alpha()
+            if alpha != 1.0:
+                attrib['opacity'] = short_float_fmt(alpha)
+
+            flipped = (
+                Affine2D().scale(1.0 / w, 1.0 / h) +
+                transform +
+                Affine2D()
+                .translate(x, y)
+                .scale(1.0, -1.0)
+                .translate(0.0, self.height))
+
             attrib['transform'] = generate_transform(
-                [('matrix', flipped)])
+                [('matrix', flipped.frozen())])
             self.writer.element(
                 'image',
-                x=short_float_fmt(x), y=short_float_fmt(y),
-                width=short_float_fmt(dx), height=short_float_fmt(abs(dy)),
+                width=short_float_fmt(w), height=short_float_fmt(h),
                 attrib=attrib)
 
         if url is not None:
@@ -1237,13 +1221,11 @@ class FigureCanvasSVG(FigureCanvasBase):
             width, height = self.figure.get_size_inches()
             w, h = width*72, height*72
 
-            if rcParams['svg.image_noscale']:
-                renderer = RendererSVG(w, h, svgwriter, filename, image_dpi)
-            else:
-                _bbox_inches_restore = kwargs.pop("bbox_inches_restore", None)
-                renderer = MixedModeRenderer(self.figure,
-                    width, height, image_dpi, RendererSVG(w, h, svgwriter, filename, image_dpi),
-                    bbox_inches_restore=_bbox_inches_restore)
+            _bbox_inches_restore = kwargs.pop("bbox_inches_restore", None)
+            renderer = MixedModeRenderer(
+                self.figure,
+                width, height, image_dpi, RendererSVG(w, h, svgwriter, filename, image_dpi),
+                bbox_inches_restore=_bbox_inches_restore)
 
             self.figure.draw(renderer)
             renderer.finalize()

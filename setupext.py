@@ -136,7 +136,7 @@ def get_base_dirs():
         return os.environ.get('MPLBASEDIRLIST').split(os.pathsep)
 
     win_bases = ['win32_static', ]
-    # on conda windows, we also add the <installdir>\Library of the local interperter,
+    # on conda windows, we also add the <installdir>\Library of the local interpreter,
     # as conda installs libs/includes there
     if os.getenv('CONDA_DEFAULT_ENV'):
         win_bases.append(os.path.join(os.getenv('CONDA_DEFAULT_ENV'), "Library"))
@@ -1048,7 +1048,7 @@ echo Build completed, moving result"
 :: move to the "normal" path for the unix builds...
 mkdir %FREETYPE%\\objs\\.libs
 :: REMINDER: fix when changing the version
-copy %FREETYPE%\\objs\\{vc20xx}\\{xXX}\\freetype261.lib %FREETYPE%\\objs\\.libs\\libfreetype.lib 
+copy %FREETYPE%\\objs\\{vc20xx}\\{xXX}\\freetype261.lib %FREETYPE%\\objs\\.libs\\libfreetype.lib
 if errorlevel 1 (
   rem This is a py27 version, which has a different location for the lib file :-/
   copy %FREETYPE%\\objs\\win32\\{vc20xx}\\freetype261.lib %FREETYPE%\\objs\\.libs\\libfreetype.lib
@@ -1192,11 +1192,13 @@ class Image(SetupPackage):
         sources = [
             'src/_image.cpp',
             'src/mplutils.cpp',
-            'src/_image_wrapper.cpp'
+            'src/_image_wrapper.cpp',
+            'src/py_converters.cpp'
             ]
         ext = make_extension('matplotlib._image', sources)
         Numpy().add_flags(ext)
         LibAgg().add_flags(ext)
+
         return ext
 
 

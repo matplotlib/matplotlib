@@ -48,6 +48,7 @@ if 1:
 
     arr = np.arange(100).reshape((10, 10))
     im = OffsetImage(arr, zoom=2)
+    im.image.axes = ax
 
     ab = AnnotationBbox(im, xy,
                         xybox=(-50., 50.),
@@ -65,6 +66,7 @@ if 1:
     arr_lena = read_png(fn)
 
     imagebox = OffsetImage(arr_lena, zoom=0.2)
+    imagebox.image.axes = ax
 
     ab = AnnotationBbox(imagebox, xy,
                         xybox=(120., -80.),

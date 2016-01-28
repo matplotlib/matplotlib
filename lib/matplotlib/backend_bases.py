@@ -514,7 +514,7 @@ class RendererBase(object):
         """
         return 1.0
 
-    def draw_image(self, gc, x, y, im):
+    def draw_image(self, gc, x, y, im, trans=None):
         """
         Draw the image instance into the current axes;
 
@@ -530,7 +530,14 @@ class RendererBase(object):
             is the distance from bottom
 
         *im*
-            the :class:`matplotlib._image.Image` instance
+            An NxMx4 array of RGBA pixels (of dtype uint8).
+
+        *trans*
+            If the concrete backend is written such that
+            `option_scale_image` returns `True`, an affine
+            transformation may also be passed to `draw_image`.  The
+            backend should apply the transformation to the image
+            before applying the translation of `x` and `y`.
         """
         raise NotImplementedError
 

@@ -158,11 +158,7 @@ class RendererAgg
     void draw_image(GCAgg &gc,
                     double x,
                     double y,
-                    ImageArray &image,
-                    double w,
-                    double h,
-                    agg::trans_affine trans,
-                    bool resize);
+                    ImageArray &image);
 
     template <class PathGenerator,
               class TransformArray,
@@ -832,11 +828,7 @@ template <class ImageArray>
 inline void RendererAgg::draw_image(GCAgg &gc,
                                     double x,
                                     double y,
-                                    ImageArray &image,
-                                    double w,
-                                    double h,
-                                    agg::trans_affine trans,
-                                    bool resize)
+                                    ImageArray &image)
 {
     double alpha = gc.alpha;
 
@@ -850,21 +842,11 @@ inline void RendererAgg::draw_image(GCAgg &gc,
         image.data(), (unsigned)image.dim(1), (unsigned)image.dim(0), -(int)image.dim(1) * 4);
     pixfmt pixf(buffer);
 
-    if (resize | has_clippath) {
+    if (has_clippath) {
         agg::trans_affine mtx;
         agg::path_storage rect;
 
-        if (resize) {
-            mtx *= agg::trans_affine_scaling(1, -1);
-            mtx *= agg::trans_affine_translation(0, image.dim(0));
-            mtx *= agg::trans_affine_scaling(w / (image.dim(1)), h / (image.dim(0)));
-            mtx *= agg::trans_affine_translation(x, y);
-            mtx *= trans;
-            mtx *= agg::trans_affine_scaling(1.0, -1.0);
-            mtx *= agg::trans_affine_translation(0.0, (double)height);
-        } else {
-            mtx *= agg::trans_affine_translation((int)x, (int)(height - (y + image.dim(0))));
-        }
+        mtx *= agg::trans_affine_translation((int)x, (int)(height - (y + image.dim(0))));
 
         rect.move_to(0, 0);
         rect.line_to(image.dim(1), 0);
@@ -891,30 +873,17 @@ inline void RendererAgg::draw_image(GCAgg &gc,
         span_conv_alpha conv_alpha(alpha);
         span_conv spans(image_span_generator, conv_alpha);
 
-        if (has_clippath) {
-            typedef agg::pixfmt_amask_adaptor<pixfmt, alpha_mask_type> pixfmt_amask_type;
-            typedef agg::renderer_base<pixfmt_amask_type> amask_ren_type;
-            typedef agg::renderer_scanline_aa<amask_ren_type, color_span_alloc_type, span_conv>
+        typedef agg::pixfmt_amask_adaptor<pixfmt, alpha_mask_type> pixfmt_amask_type;
+        typedef agg::renderer_base<pixfmt_amask_type> amask_ren_type;
+        typedef agg::renderer_scanline_aa<amask_ren_type, color_span_alloc_type, span_conv>
             renderer_type_alpha;
 
-            pixfmt_amask_type pfa(pixFmt, alphaMask);
-            amask_ren_type r(pfa);
-            renderer_type_alpha ri(r, sa, spans);
+        pixfmt_amask_type pfa(pixFmt, alphaMask);
+        amask_ren_type r(pfa);
+        renderer_type_alpha ri(r, sa, spans);
 
-            theRasterizer.add_path(rect2);
-            agg::render_scanlines(theRasterizer, scanlineAlphaMask, ri);
-        } else {
-            typedef agg::renderer_base<pixfmt> ren_type;
-            typedef agg::renderer_scanline_aa<ren_type, color_span_alloc_type, span_conv>
-            renderer_type;
-
-            ren_type r(pixFmt);
-            renderer_type ri(r, sa, spans);
-
-            theRasterizer.add_path(rect2);
-            agg::render_scanlines(theRasterizer, slineP8, ri);
-        }
-
+        theRasterizer.add_path(rect2);
+        agg::render_scanlines(theRasterizer, scanlineAlphaMask, ri);
     } else {
         set_clipbox(gc.cliprect, rendererBase);
         rendererBase.blend_from(
