@@ -43,7 +43,7 @@ math_tests = [
     r"$\gamma = \frac{x=\frac{6}{8}}{y} \delta$",
     r'$\limsup_{x\to\infty}$',
     r'$\oint^\infty_0$',
-    r"$f'$",
+    r"$f'\quad f'''(x)\quad ''/\mathrm{yr}$",
     r'$\frac{x_2888}{y}$',
     r"$\sqrt[3]{\frac{X_2}{Y}}=5$",
     r"$\sqrt[5]{\prod^\frac{x}{2\pi^2}_\infty}$",
@@ -105,7 +105,7 @@ math_tests = [
     ' '.join('$\\' + p + '$' for p in sorted(mathtext.Parser._snowflake)),
     r'$6-2$; $-2$; $ -2$; ${-2}$; ${  -2}$; $20^{+3}_{-2}$',
     r'$\overline{\omega}^x \frac{1}{2}_0^x$', # github issue #5444
-    r'$1{,}234{, }567{ , }890$ and $1,234,567,890$', # github issue 5799
+    r'$,$ $.$ $1{,}234{, }567{ , }890$ and $1,234,567,890$', # github issue 5799
 ]
 
 digits = "0123456789"

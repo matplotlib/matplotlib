@@ -6,7 +6,7 @@ index fdbbf26..6902fe9 100644
  # You can also deploy your own backend outside of matplotlib by
  # referring to the module name (which must be in the PYTHONPATH) as
  # 'module://my_backend'.
--backend      : %(backend)s
+-backend      : $TEMPLATE_BACKEND
 +backend      : Qt4Agg
  
  # If you are using the Qt4Agg backend, you can choose here

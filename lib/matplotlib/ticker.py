@@ -563,7 +563,7 @@ class ScalarFormatter(Formatter):
         locs = np.asarray(locs)
         locs = locs[(vmin <= locs) & (locs <= vmax)]
         ave_loc = np.mean(locs)
-        if ave_loc:  # dont want to take log10(0)
+        if len(locs) and ave_loc:  # dont want to take log10(0)
             ave_oom = math.floor(math.log10(np.mean(np.absolute(locs))))
             range_oom = math.floor(math.log10(range))
 
@@ -1434,7 +1434,7 @@ class MaxNLocator(Locator):
     def bin_boundaries(self, vmin, vmax):
         nbins = self._nbins
         if nbins == 'auto':
-            nbins = self.axis.get_tick_space()
+            nbins = max(min(self.axis.get_tick_space(), 9), 1)
         scale, offset = scale_range(vmin, vmax, nbins)
         if self._integer:
             scale = max(1, scale)
