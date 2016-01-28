@@ -214,7 +214,8 @@ class Artist(object):
 
         ACCEPTS: an :class:`~matplotlib.axes.Axes` instance
         """
-        warnings.warn(_get_axes_msg, mplDeprecation, stacklevel=1)
+        warnings.warn(_get_axes_msg.format('set_axes'), mplDeprecation,
+                      stacklevel=1)
         self.axes = axes
 
     def get_axes(self):
@@ -225,7 +226,8 @@ class Artist(object):
         This has been deprecated in mpl 1.5, please use the
         axes property.  Will be removed in 1.7 or 2.0.
         """
-        warnings.warn(_get_axes_msg, mplDeprecation, stacklevel=1)
+        warnings.warn(_get_axes_msg.format('get_axes'), mplDeprecation,
+                      stacklevel=1)
         return self.axes
 
     @property
@@ -1581,5 +1583,5 @@ def kwdoc(a):
 
 docstring.interpd.update(Artist=kwdoc(Artist))
 
-_get_axes_msg = """This has been deprecated in mpl 1.5, please use the
+_get_axes_msg = """{} has been deprecated in mpl 1.5, please use the
 axes property.  A removal date has not been set."""

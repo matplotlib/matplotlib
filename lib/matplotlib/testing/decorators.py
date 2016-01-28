@@ -290,7 +290,7 @@ def image_comparison(baseline_images=None, extensions=None, tol=0,
 
         Otherwise, a list of extensions to test. For example ['png','pdf'].
 
-      *tol*: (default 13)
+      *tol*: (default 0)
         The RMS threshold above which the test is considered failed.
 
       *freetype_version*: str or tuple
