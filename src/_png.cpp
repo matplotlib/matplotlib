@@ -131,7 +131,15 @@ static PyObject *Py_write_png(PyObject *self, PyObject *args, PyObject *kwds)
         py_file = filein;
     }
 
-    if ((fp = mpl_PyFile_Dup(py_file, (char *)"wb", &offset))) {
+    #if PY3K
+    if (close_file) {
+    #else
+    if (close_file || PyFile_Check(py_file)) {
+    #endif
+        fp = mpl_PyFile_Dup(py_file, (char *)"wb", &offset);
+    }
+
+    if (fp) {
         close_dup_file = true;
     } else {
         PyErr_Clear();
@@ -287,10 +295,23 @@ static PyObject *_read_png(PyObject *filein, bool float_result)
         py_file = filein;
     }
 
-    if ((fp = mpl_PyFile_Dup(py_file, (char *)"rb", &offset))) {
+    #if PY3K
+    if (close_file) {
+    #else
+    if (close_file || PyFile_Check(py_file)) {
+    #endif
+        fp = mpl_PyFile_Dup(py_file, (char *)"rb", &offset);
+    }
+
+    if (fp) {
         close_dup_file = true;
+        if (fread(header, 1, 8, fp) != 8) {
+            PyErr_SetString(PyExc_IOError, "error reading PNG header");
+            goto exit;
+        }
     } else {
         PyErr_Clear();
+
         PyObject *read_method = PyObject_GetAttrString(py_file, "read");
         if (!(read_method && PyCallable_Check(read_method))) {
             Py_XDECREF(read_method);
@@ -300,14 +321,6 @@ static PyObject *_read_png(PyObject *filein, bool float_result)
             goto exit;
         }
         Py_XDECREF(read_method);
-    }
-
-    if (fp) {
-        if (fread(header, 1, 8, fp) != 8) {
-            PyErr_SetString(PyExc_IOError, "error reading PNG header");
-            goto exit;
-        }
-    } else {
         _read_png_data(py_file, header, 8);
     }
 

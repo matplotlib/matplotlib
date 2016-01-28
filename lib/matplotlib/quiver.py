@@ -228,7 +228,7 @@ class QuiverKey(martist.Artist):
     """ Labelled arrow for use as a quiver plot scale key."""
     halign = {'N': 'center', 'S': 'center', 'E': 'left', 'W': 'right'}
     valign = {'N': 'bottom', 'S': 'top', 'E': 'center', 'W': 'center'}
-    pivot = {'N': 'mid', 'S': 'mid', 'E': 'tip', 'W': 'tail'}
+    pivot = {'N': 'middle', 'S': 'middle', 'E': 'tip', 'W': 'tail'}
 
     def __init__(self, Q, X, Y, U, label, **kw):
         martist.Artist.__init__(self)
@@ -708,6 +708,10 @@ class Quiver(mcollections.PolyCollection):
             X = X - X[:, 3, np.newaxis]   # numpy bug? using -= does not
                                           # work here unless we multiply
                                           # by a float first, as with 'mid'.
+        elif self.pivot != 'tail':
+            raise ValueError(("Quiver.pivot must have value in {{'middle', "
+                              "'tip', 'tail'}} not {}").format(self.pivot))
+
         tooshort = length < self.minlength
         if tooshort.any():
             # Use a heptagonal dot:
