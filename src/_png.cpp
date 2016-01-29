@@ -214,21 +214,21 @@ static PyObject *Py_write_png(PyObject *self, PyObject *args, PyObject *kwds)
         #endif
             fp = mpl_PyFile_Dup(py_file, (char *)"wb", &offset);
         }
-    }
 
-    if (fp) {
-        close_dup_file = true;
-    } else {
-        PyErr_Clear();
-        PyObject *write_method = PyObject_GetAttrString(py_file, "write");
-        if (!(write_method && PyCallable_Check(write_method))) {
+        if (fp) {
+            close_dup_file = true;
+        } else {
+            PyErr_Clear();
+            PyObject *write_method = PyObject_GetAttrString(py_file, "write");
+            if (!(write_method && PyCallable_Check(write_method))) {
+                Py_XDECREF(write_method);
+                PyErr_SetString(PyExc_TypeError,
+                                "Object does not appear to be a 8-bit string path or "
+                                "a Python file-like object");
+                goto exit;
+            }
             Py_XDECREF(write_method);
-            PyErr_SetString(PyExc_TypeError,
-                            "Object does not appear to be a 8-bit string path or "
-                            "a Python file-like object");
-            goto exit;
         }
-        Py_XDECREF(write_method);
     }
 
     png_ptr = png_create_write_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
