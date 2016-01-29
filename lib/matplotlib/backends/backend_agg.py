@@ -319,7 +319,7 @@ class RendererAgg(RendererBase):
 
     def option_scale_image(self):
         """
-        agg backend support arbitrary scaling of image.
+        agg backend doesn't support arbitrary scaling of image.
         """
         return False
 
