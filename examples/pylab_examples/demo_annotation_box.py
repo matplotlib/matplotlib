@@ -63,9 +63,9 @@ if 1:
 
     from matplotlib._png import read_png
     fn = get_sample_data("grace_hopper.png", asfileobj=False)
-    arr_lena = read_png(fn)
+    arr_img = read_png(fn)
 
-    imagebox = OffsetImage(arr_lena, zoom=0.2)
+    imagebox = OffsetImage(arr_img, zoom=0.2)
     imagebox.image.axes = ax
 
     ab = AnnotationBbox(imagebox, xy,
