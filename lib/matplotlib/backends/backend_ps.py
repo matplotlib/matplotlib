@@ -1464,6 +1464,10 @@ def convert_psfrags(tmpfile, psfrags, font_preamble, custom_preamble,
     # multiple
     if sys.platform == 'win32': precmd = '%s &&'% os.path.splitdrive(tmpdir)[0]
     else: precmd = ''
+    #Replace \\ for / so latex does not think there is a function call
+    latexfile = latexfile.replace("\\", "/")
+    # Replace ~ so Latex does not think it is line break
+    latexfile = latexfile.replace("~", "\\string~")
     command = '%s cd "%s" && latex -interaction=nonstopmode "%s" > "%s"'\
                 %(precmd, tmpdir, latexfile, outfile)
     verbose.report(command, 'debug')
