@@ -921,82 +921,89 @@ class SubplotTool(Widget):
 
 class Cursor(AxesWidget):
     """
-    A horizontal and vertical line that spans the axes and moves with
-    the pointer.  You can turn off the hline or vline respectively with
-    the following attributes:
+    A Cursor: A horizontal and vertical line that spans the axes and 
+    moves with the pointer.
+
+    For the cursor to remain responsive you must keep a reference to it.
+
+    The following attributes are accessible
+
+      *ax*
+        The :class:`matplotlib.axes.Axes` the cursor renders in.
 
       *horizOn*
         Controls the visibility of the horizontal line
 
       *vertOn*
-        Controls the visibility of the horizontal line
+        Controls the visibility of the vertical line
 
-    and the visibility of the cursor itself with the *visible* attribute.
-
-    For the cursor to remain responsive you must keep a reference to
-    it.
+      *visible*
+        Controls the visibility of the cursor itself
     """
-    def __init__(self, ax, horizOn=True, vertOn=True, useblit=False,
-                 **lineprops):
+
+    def __init__(self, ax, horizOn=True, vertOn=True, useblit=False, 
+                 dragging=False, **lineprops):
         """
-        Add a cursor to *ax*.  If ``useblit=True``, use the backend-
-        dependent blitting features for faster updates (GTKAgg
-        only for now).  *lineprops* is a dictionary of line properties.
+        Parameters
+        ----------
+        ax : matplotlib.axes.Axes
+            The :class:`matplotlib.axes.Axes` instance the cursor
+            will be placed into.
+
+        horizOn : boolean
+            Controls the visibility of the horizontal line.
+
+        vertOn : boolean
+            Controls the visibility of the vertical line.
+
+        useblit : boolean
+            use the backend-dependent blitting features for faster 
+            updates (GTKAgg only for now).  
+
+        dragging: boolean
+            drag cursors only when the left mouse button is pressed
+
+        lineprops : dict
+            a dictionary of line properties.
 
         .. plot :: mpl_examples/widgets/cursor.py
         """
-        # TODO: Is the GTKAgg limitation still true?
-        AxesWidget.__init__(self, ax)
 
-        self.connect_event('motion_notify_event', self.onmove)
+        # TODO: Is the GTKAgg limitation still true?
+        super().__init__(ax)
+
+        self.connect_event('motion_notify_event', self.on_move)
+
+        if dragging:
+            self.connect_event('button_press_event', self.on_press)
+            self.connect_event('button_release_event', self.on_release)
+            self.__pressed = False
+        else:
+            self.__pressed = True
+
+
         self.connect_event('draw_event', self.clear)
 
         self.visible = True
         self.horizOn = horizOn
         self.vertOn = vertOn
         self.useblit = useblit and self.canvas.supports_blit
-
+        
         if self.useblit:
             lineprops['animated'] = True
-        self.lineh = ax.axhline(ax.get_ybound()[0], visible=False, **lineprops)
-        self.linev = ax.axvline(ax.get_xbound()[0], visible=False, **lineprops)
+            
+        self._coord = np.array([
+            0.5*(ax.get_xbound()[0] + ax.get_xbound()[1]), 
+            0.5*(ax.get_ybound()[0] + ax.get_ybound()[1])
+            ])
+            
+        self.lineh = ax.axhline(self._coord[1], visible=False, **lineprops)
+        self.linev = ax.axvline(self._coord[0], visible=False, **lineprops)
 
         self.background = None
         self.needclear = False
 
-    def clear(self, event):
-        """clear the cursor"""
-        if self.ignore(event):
-            return
-        if self.useblit:
-            self.background = self.canvas.copy_from_bbox(self.ax.bbox)
-        self.linev.set_visible(False)
-        self.lineh.set_visible(False)
-
-    def onmove(self, event):
-        """on mouse motion draw the cursor if visible"""
-        if self.ignore(event):
-            return
-        if not self.canvas.widgetlock.available(self):
-            return
-        if event.inaxes != self.ax:
-            self.linev.set_visible(False)
-            self.lineh.set_visible(False)
-
-            if self.needclear:
-                self.canvas.draw()
-                self.needclear = False
-            return
-        self.needclear = True
-        if not self.visible:
-            return
-        self.linev.set_xdata((event.xdata, event.xdata))
-
-        self.lineh.set_ydata((event.ydata, event.ydata))
-        self.linev.set_visible(self.visible and self.vertOn)
-        self.lineh.set_visible(self.visible and self.horizOn)
-
-        self._update()
+        self._draw_cursor()
 
     def _update(self):
 
@@ -1007,11 +1014,282 @@ class Cursor(AxesWidget):
             self.ax.draw_artist(self.lineh)
             self.canvas.blit(self.ax.bbox)
         else:
-
             self.canvas.draw_idle()
 
         return False
 
+    def _draw_cursor(self):
+        """draw cursor"""
+
+        self.needclear = True
+        if not self.visible:
+            return
+
+        self.linev.set_xdata((self._coord[0], self.coord[0]))
+        self.lineh.set_ydata((self._coord[1], self.coord[1]))
+
+        self.linev.set_visible(self.vertOn)
+        self.lineh.set_visible(self.horizOn)
+
+        self._update()
+
+    def coord(self):
+        """
+        current coordinates of the cursor
+        """
+        return self._coord.copy()
+
+    def clear(self, event):
+        """clear the cursor"""
+        if self.ignore(event):
+            return
+        if self.useblit:
+            self.background = self.canvas.copy_from_bbox(self.ax.bbox)
+        self.linev.set_visible(False)
+        self.lineh.set_visible(False)
+
+    def on_press(self, event):
+        """
+        on left click we will see if the mouse is over us
+        and store some data
+        """
+        
+        # Verify left click
+        if event.button != 1: return
+        
+        #Verify in axis        
+        if event.inaxes != self.ax: return
+
+        # Say movement is OK
+        self.__pressed = True
+
+        # this click also updates
+        self.on_move(event)
+
+    def on_release(self, event):
+        self.__pressed = False
+
+    def on_move(self, event):
+        """on mouse motion draw the cursor if visible"""
+        if self.__pressed:
+            if self.ignore(event):
+                return
+            if not self.canvas.widgetlock.available(self):
+                return
+            if event.inaxes != self.ax:
+                return
+
+            # Store the new coordinates
+            self._coord[0] = float(event.xdata)
+            self._coord[1] = float(event.ydata)
+
+            self._draw_cursor()
+
+class Cursors(AxesWidget):
+    """
+    Several Cursors: horizontal and vertical lines that span the axes and 
+    move with the pointer.
+
+    For the cursors to remain responsive you must keep a reference to them.
+
+    The following attributes are accessible
+
+      *ax*
+        The :class:`matplotlib.axes.Axes` the cursor renders in.
+
+      *properties*
+        a list of dictionaries for each cursor, containing 
+    
+          *horizOn*
+            Controls the visibility of the horizontal line
+    
+          *vertOn*
+            Controls the visibility of the vertical line
+    
+          *visible*
+            Controls the visibility of the cursor itself
+
+    The following code will add three cursors to an existing axis
+    
+    csr = Cursors(ax, [{'color':'red'}, {'color':'blue'}, {'color':'black'}],
+              useblit=False)
+    """
+
+    def __init__(self, ax, properties, useblit=False):
+        """
+        Parameters
+        ----------
+        ax : matplotlib.axes.Axes
+            The :class:`matplotlib.axes.Axes` instance the cursor
+            will be placed into.
+
+        properties: list
+            list of dictionaries, one for each each cursor defining the
+            cursor's properties with keys:
+
+            horizOn : boolean
+                Controls the visibility of the horizontal line.
+
+            vertOn : boolean
+                Controls the visibility of the vertical line.
+
+            coord : np.array
+                Initial location of cursor [CURRENTLY IGNORED]
+                
+            and all allowed line property keywords
+
+
+        useblit : boolean
+            use the backend-dependent blitting features for faster 
+            updates (GTKAgg only for now).  
+
+        .. plot :: mpl_examples/widgets/cursor.py
+        """
+
+        # TODO: Is the GTKAgg limitation still true?
+        super().__init__(ax)
+
+        self.connect_event('motion_notify_event', self.on_move)
+
+        self.connect_event('button_press_event', self.on_press)
+        self.connect_event('button_release_event', self.on_release)
+        self.__selected = None
+
+        self.connect_event('draw_event', self.clear)
+
+        self.useblit = useblit and self.canvas.supports_blit
+
+        self.background = None
+        self.needclear = False
+
+        # Initilize empty list
+        self.properties = [{} for prop in properties]
+        
+        for prop, new_prop in zip(properties, self.properties):
+            new_prop['visible'] =  True
+            new_prop['horizOn'] = prop.pop('horizOn', True)
+            new_prop['vertOn'] = prop.pop('vertOn', True)
+
+            new_prop['coord'] = np.array([
+                    0.5*(ax.get_xbound()[0] + ax.get_xbound()[1]), 
+                    0.5*(ax.get_ybound()[0] + ax.get_ybound()[1])
+                    ])
+
+            if self.useblit:
+                prop['animated'] = True
+
+            new_prop['lineh'] = ax.axhline(
+                                            new_prop['coord'][1],
+                                            visible=False,
+                                            **prop)
+            new_prop['linev'] = ax.axvline(
+                                            new_prop['coord'][0],
+                                            visible=False,
+                                            **prop)
+
+        self.__selected = None
+        self._draw_cursor()
+
+
+    def _update(self):
+
+        if self.useblit:
+            if self.background is not None:
+                self.canvas.restore_region(self.background)
+            for prop in self.properties:
+                self.ax.draw_artist(prop['linev'])
+                self.ax.draw_artist(prop['lineh'])
+            self.canvas.blit(self.ax.bbox)
+        else:
+            self.canvas.draw_idle()
+
+        return False
+
+    def _draw_cursor(self):
+        """draw cursor specified by dictionary entries in prop"""
+
+        self.needclear = True
+        
+        for prop in self.properties:
+        
+            if prop['visible']:
+    
+                prop['linev'].set_xdata((prop['coord'][0], prop['coord'][0]))
+                prop['lineh'].set_ydata((prop['coord'][1], prop['coord'][1]))
+    
+                prop['linev'].set_visible(prop['vertOn'])
+                prop['lineh'].set_visible(prop['horizOn'])
+
+        self._update()
+
+    def coord(self, cursor):
+        """
+        current coordinates of the cursor
+        """
+        return self.properties[cursor]['coord'].copy()
+
+    def clear(self, event):
+        """clear the cursor"""
+        if self.ignore(event):
+            return
+        if self.useblit:
+            self.background = self.canvas.copy_from_bbox(self.ax.bbox)
+        for prop in self.properties:
+            prop['linev'].set_visible(False)
+            prop['lineh'].set_visible(False)
+
+    def on_press(self, event):
+        """
+        on left click we will see if the mouse is over us
+        and store some data
+        """
+                
+        # Verify left click
+        if event.button != 1: return
+        
+        #Verify in axis        
+        if event.inaxes != self.ax: return
+
+        # Find cursor closest to click location
+        # the best user behavior is to look at the closest visible line
+        min_distance = -1.0
+        for prop in self.properties:
+            if prop['visible']:
+                if prop['vertOn']:
+                    distance = abs(prop['coord'][0] - event.xdata)
+                    
+                    if min_distance < 0.0 or distance < min_distance:
+                        min_distance = distance
+                        self.__selected = prop
+
+                if prop['horizOn']:
+                    distance = abs(prop['coord'][1] - event.ydata)
+
+                    if min_distance < 0.0 or distance < min_distance:
+                        min_distance = distance
+                        self.__selected = prop
+
+        # this click also updates
+        self.on_move(event)
+
+    def on_release(self, event):
+        self.__selected = None
+
+    def on_move(self, event):
+        """on mouse motion draw the cursor if visible"""
+        if self.__selected is not None:
+            if self.ignore(event):
+                return
+            if not self.canvas.widgetlock.available(self):
+                return
+            if event.inaxes != self.ax:
+                return
+
+            # Store the new coordinates
+            self.__selected['coord'][0] = float(event.xdata)
+            self.__selected['coord'][1] = float(event.ydata)
+
+            self._draw_cursor()
 
 class MultiCursor(Widget):
     """
