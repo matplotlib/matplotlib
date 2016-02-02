@@ -163,8 +163,6 @@ def test_long_path():
                   extensions=['png'], remove_text=True)
 def test_agg_filter():
     def smooth1d(x, window_len):
-        # copied from http://www.scipy.org/Cookbook/SignalSmooth
-
         s = np.r_[2*x[0] - x[window_len:1:-1],
                   x,
                   2*x[-1] - x[-1:-window_len:-1]]
@@ -229,7 +227,6 @@ def test_agg_filter():
             return int(self.sigma*3/72.*dpi)
 
         def process_image(self, padded_src, dpi):
-            #offsetx, offsety = int(self.offsets[0]), int(self.offsets[1])
             tgt_image = np.zeros_like(padded_src)
             aa = smooth2d(padded_src[:, :, -1]*self.alpha,
                           self.sigma/72.*dpi)

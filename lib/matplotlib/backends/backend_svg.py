@@ -842,7 +842,7 @@ class RendererSVG(RendererBase):
 
             self.writer.element(
                 'image',
-                transform = generate_transform([
+                transform=generate_transform([
                     ('scale', (1, -1)), ('translate', (0, -h))]),
                 x=short_float_fmt(x),
                 y=short_float_fmt(-(self.height - y - h)),
