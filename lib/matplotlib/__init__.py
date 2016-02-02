@@ -366,7 +366,8 @@ def checkdep_dvipng():
 
 def checkdep_ghostscript():
     if sys.platform == 'win32':
-        gs_execs = ['gswin32c', 'gswin64c', 'gs']
+        # mgs is the name in miktex
+        gs_execs = ['gswin32c', 'gswin64c', 'mgs', 'gs']
     else:
         gs_execs = ['gs']
     for gs_exec in gs_execs:
