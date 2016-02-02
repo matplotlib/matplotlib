@@ -281,7 +281,7 @@ class RendererWx(RendererBase):
             w = self.width
             h = self.height
         rows, cols = im.shape[:2]
-        bitmap = wxc.BitmapFromBuffer(cols, rows, im.tobytes())
+        bitmap = wxc.BitmapFromBuffer(cols, rows, im.tostring())
         gc = self.get_gc()
         gc.select()
         gc.gfx_ctx.DrawBitmap(bitmap, int(l), int(self.height - b),

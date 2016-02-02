@@ -1259,7 +1259,7 @@ end"""
         """
         h, w = im.shape[:2]
         im = im[::-1]
-        if len(im.shape) == 2:
+        if im.ndim == 2:
             return h, w, im, None
         else:
             rgb = im[:, :, :3]

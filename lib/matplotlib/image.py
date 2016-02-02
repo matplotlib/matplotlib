@@ -127,10 +127,9 @@ def _draw_list_compositing_images(
     between `Figure.draw` and `Axes.draw`, but otherwise should not be
     generally useful.
     """
-    has_images = np.any(isinstance(x[1], _ImageBase) for x in dsu)
+    has_images = any(isinstance(x[1], _ImageBase) for x in dsu)
 
-    # override the renderer default if self.suppressComposite
-    # is not None
+    # override the renderer default if suppressComposite is not None
     not_composite = renderer.option_image_nocomposite()
     if suppress_composite is not None:
         not_composite = suppress_composite
@@ -277,7 +276,7 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
     def _make_image(self, A, in_bbox, out_bbox, clip_bbox, magnification=1.0,
                     unsampled=False, round_to_pixel_border=True):
         """
-        Normalize, rescale and color the image `A` to the given
+        Normalize, rescale and color the image `A` from the given
         in_bbox (in data space), to the given out_bbox (in pixel
         space) clipped to the given clip_bbox (also in pixel space),
         and magnified by the magnification factor.
