@@ -132,6 +132,46 @@ def test_patheffects():
             fig.savefig(ps, format='ps')
 
 
+@cleanup
+@needs_tex
+@needs_ghostscript
+def test_tilde_in_tempfilename():
+    # Tilde ~ in the tempdir path (e.g. TMPDIR, TMP oder TEMP on windows
+    # when the username is very long and windows uses a short name) breaks
+    # latex before https://github.com/matplotlib/matplotlib/pull/5928
+    import tempfile
+    import shutil
+    import os
+    import os.path
+
+    tempdir = None
+    old_tempdir = tempfile.tempdir
+    try:
+        # change the path for new tempdirs, which is used
+        # internally by the ps backend to write a file
+        tempdir = tempfile.mkdtemp()
+        base_tempdir = os.path.join(tempdir, "short~1")
+        os.makedirs(base_tempdir)
+        tempfile.tempdir = base_tempdir
+
+        # usetex results in the latex call, which does not like the ~
+        plt.rc('text', usetex=True)
+        plt.plot([1, 2, 3, 4])
+        plt.xlabel(r'\textbf{time} (s)')
+        #matplotlib.verbose.set_level("debug")
+        output_eps = os.path.join(base_tempdir, 'tex_demo.eps')
+        # use the PS backend to write the file...
+        plt.savefig(output_eps, format="ps")
+    finally:
+        tempfile.tempdir = old_tempdir
+        if tempdir:
+            try:
+                shutil.rmtree(tempdir)
+            except Exception as e:
+                # do not break if this is not removeable...
+                print(e)
+
+
 if __name__ == '__main__':
     import nose
     nose.runmodule(argv=['-s', '--with-doctest'], exit=False)
