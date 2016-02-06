@@ -104,7 +104,7 @@ def test_pdflatex():
                                     '\\usepackage[T1]{fontenc}']}
     mpl.rcParams.update(rc_pdflatex)
     create_figure()
-    compare_figure('pgf_pdflatex.pdf', tol=14)
+    compare_figure('pgf_pdflatex.pdf', tol=0)
 
 
 # test updating the rc parameters for each figure
@@ -129,7 +129,7 @@ def test_rcupdate():
                     'pgf.preamble': ['\\usepackage[utf8x]{inputenc}',
                                      '\\usepackage[T1]{fontenc}',
                                      '\\usepackage{sfmath}']})
-    tol = (4, 13)
+    tol = (4, 0)
     for i, rc_set in enumerate(rc_sets):
         mpl.rcParams.update(rc_set)
         create_figure()
