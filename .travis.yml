@@ -15,6 +15,7 @@ addons:
       - dvipng
       - pgf
       - lmodern
+      - cm-super
       - texlive-latex-base
       - texlive-latex-extra
       - texlive-fonts-recommended
