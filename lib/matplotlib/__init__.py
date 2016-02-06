@@ -351,7 +351,8 @@ def checkdep_dvipng():
 
 def checkdep_ghostscript():
     if sys.platform == 'win32':
-        gs_execs = ['gswin32c', 'gswin64c', 'gs']
+        # mgs is the name in miktex
+        gs_execs = ['gswin32c', 'gswin64c', 'mgs', 'gs']
     else:
         gs_execs = ['gs']
     for gs_exec in gs_execs:
@@ -553,7 +554,13 @@ def _create_tmp_config_dir():
         # Some restricted platforms (such as Google App Engine) do not provide
         # gettempdir.
         return None
-    tempdir = os.path.join(tempdir, 'matplotlib-%s' % getpass.getuser())
+
+    try:
+        username = getpass.getuser()
+    except KeyError:
+        username = str(os.getuid())
+    tempdir = os.path.join(tempdir, 'matplotlib-%s' % username)
+
     os.environ['MPLCONFIGDIR'] = tempdir
 
     mkdirs(tempdir)

@@ -88,8 +88,8 @@ test_script:
   # Now build the thing..
   - '%CMD_IN_ENV% python setup.py develop'
   # tests
-  # for now, just let them pass to get the after_test parts...
-  - python tests.py || cmd /c "exit /b 0"
+  - python tests.py
+  - python visual_tests.py
 
 after_test:
   # After the tests were a success, build packages (wheels and conda)
@@ -126,6 +126,7 @@ artifacts:
     type: zip
 
 on_failure:
+  - python visual_tests.py
   - echo zipping images after a failure...
-  - 7z a result_images.zip result_images\ >NUL:
+  - 7z a result_images.zip result_images\ |grep -v "Compressing"
   - appveyor PushArtifact result_images.zip
