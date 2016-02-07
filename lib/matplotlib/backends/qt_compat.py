@@ -65,11 +65,11 @@ if QT_API is None:
         # A different backend was specified, but we still got here because a Qt
         # related file was imported. This is allowed, so lets try and guess
         # what we should be using.
-        if "PyQt4" in sys.modules or ("PySide" in sys.modules and not "PySide2" in sys.modules):
+        if "PyQt4" in sys.modules or "PySide" in sys.modules:
             # PyQt4 or PySide is actually used.
             QT_API = rcParams['backend.qt4']
         else:
-            # This is a fallback: PyQt5
+            # This is a fallback: PyQt5 or PySide2
             QT_API = rcParams['backend.qt5']
 
 # We will define an appropriate wrapper for the differing versions
@@ -171,8 +171,8 @@ if QT_API == QT_API_PYSIDE:  # try importing pyside
         from PySide import QtCore, QtGui, __version__, __version_info__
     except ImportError:
         raise ImportError(
-            "Matplotlib qt-based backends require an external PyQt4, PyQt5, PySide,\n"
-            "or PySide2 package to be installed, but it was not found.")
+            "Matplotlib qt-based backends require an external PyQt4, PyQt5,\n"
+            "PySide or PySide2 package to be installed, but it was not found.")
 
     if __version_info__ < (1, 0, 3):
         raise ImportError(
