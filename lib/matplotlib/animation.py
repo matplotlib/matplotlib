@@ -459,13 +459,16 @@ class FileMovieWriter(MovieWriter):
             try:
                 stdout = [s.decode() for s in self._proc._stdout_buff]
                 stderr = [s.decode() for s in self._proc._stderr_buff]
-                verbose.report("MovieWriter.finish: stdout: %s" % stdout, level='helpful')
-                verbose.report("MovieWriter.finish: stderr: %s" % stderr, level='helpful')
+                verbose.report("MovieWriter.finish: stdout: %s" % stdout,
+                               level='helpful')
+                verbose.report("MovieWriter.finish: stderr: %s" % stderr,
+                               level='helpful')
             except Exception as e:
                 pass
-            raise RuntimeError('Error creating movie, return code: '
-                               + str(self._proc.returncode)
-                               + ' Try setting mpl.verbose.set_level("helpful")')
+            msg = ('Error creating movie, return code: ' +
+                   str(self._proc.returncode) +
+                   ' Try setting mpl.verbose.set_level("helpful")')
+            raise RuntimeError(msg)
 
     def cleanup(self):
         MovieWriter.cleanup(self)
