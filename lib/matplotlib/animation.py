@@ -338,10 +338,11 @@ class MovieWriter(AbstractMovieWriter):
         Check to see if a MovieWriter subclass is actually available by
         running the commandline tool.
         '''
-        if not cls.bin_path():
+        bin_path = cls.bin_path()
+        if not bin_path:
             return False
         try:
-            p = subprocess.Popen(cls.bin_path(),
+            p = subprocess.Popen(bin_path,
                              shell=False,
                              stdout=subprocess.PIPE,
                              stderr=subprocess.PIPE,
@@ -642,12 +643,22 @@ class ImageMagickBase(object):
                 binpath = ''
         rcParams[cls.exec_key] = rcParamsDefault[cls.exec_key] = binpath
 
+    @classmethod
+    def isAvailable(cls):
+        '''
+        Check to see if a MovieWriter subclass is actually available by
+        running the commandline tool.
+        '''
+        bin_path = cls.bin_path()
+        if bin_path == "convert":
+            cls._init_from_registry()
+        return super(ImageMagickBase, cls).isAvailable()
 
 ImageMagickBase._init_from_registry()
 
 
 @writers.register('imagemagick')
-class ImageMagickWriter(MovieWriter, ImageMagickBase):
+class ImageMagickWriter(ImageMagickBase, MovieWriter, ):
     def _args(self):
         return ([self.bin_path(),
                  '-size', '%ix%i' % self.frame_size, '-depth', '8',
@@ -657,7 +668,7 @@ class ImageMagickWriter(MovieWriter, ImageMagickBase):
 
 
 @writers.register('imagemagick_file')
-class ImageMagickFileWriter(FileMovieWriter, ImageMagickBase):
+class ImageMagickFileWriter(ImageMagickBase, FileMovieWriter):
     supported_formats = ['png', 'jpeg', 'ppm', 'tiff', 'sgi', 'bmp',
                          'pbm', 'raw', 'rgba']
 
