@@ -456,9 +456,16 @@ class FileMovieWriter(MovieWriter):
         # Check error code for creating file here, since we just run
         # the process here, rather than having an open pipe.
         if self._proc.returncode:
+            try:
+                stdout = [s.decode() for s in self._proc._stdout_buff]
+                stderr = [s.decode() for s in self._proc._stderr_buff]
+                verbose.report("MovieWriter.finish: stdout: %s" % stdout, level='helpful')
+                verbose.report("MovieWriter.finish: stderr: %s" % stderr, level='helpful')
+            except Exception as e:
+                pass
             raise RuntimeError('Error creating movie, return code: '
                                + str(self._proc.returncode)
-                               + ' Try running with --verbose-debug')
+                               + ' Try setting mpl.verbose.set_level("helpful")')
 
     def cleanup(self):
         MovieWriter.cleanup(self)
