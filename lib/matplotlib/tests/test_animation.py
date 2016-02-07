@@ -179,7 +179,7 @@ def test_movie_writer_registry():
     animation.writers.list()  # resets
     assert_false(animation.writers._dirty)
     assert_false(animation.writers.is_available("ffmpeg"))
-    # something which is garanteered to be available in path
+    # something which is guaranteed to be available in path
     # and exits immediately
     bin = u"true" if sys.platform != 'win32' else u"where"
     mpl.rcParams['animation.ffmpeg_path'] = bin
