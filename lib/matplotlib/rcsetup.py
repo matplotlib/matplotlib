@@ -865,6 +865,21 @@ def validate_hist_bins(s):
     raise ValueError("'hist.bins' must be 'auto', an int or " +
                      "a sequence of floats")
 
+def validate_animation_writer_path(p):
+    # Make sure it's a string and then figure out if the animations
+    # are already loaded and reset the writers (which will validate
+    # the path on next call)
+    if not isinstance(p, six.text_type):
+        raise ValueError("path must be a (unicode) string")
+    from sys import modules
+    # set dirty, so that the next call to the registry will re-evaluate
+    # the state.
+    # only set dirty if already loaded. If not loaded, the load will
+    # trigger the checks.
+    if "matplotlib.animation" in modules:
+        modules["matplotlib.animation"].writers.set_dirty()
+    return p
+
 
 # a map from key -> value, converter
 defaultParams = {
@@ -1314,20 +1329,20 @@ defaultParams = {
     # Controls image format when frames are written to disk
     'animation.frame_format': ['png', validate_movie_frame_fmt],
     # Path to FFMPEG binary. If just binary name, subprocess uses $PATH.
-    'animation.ffmpeg_path':  ['ffmpeg', six.text_type],
+    'animation.ffmpeg_path':  ['ffmpeg', validate_animation_writer_path],
 
     # Additional arguments for ffmpeg movie writer (using pipes)
     'animation.ffmpeg_args':   [[], validate_stringlist],
     # Path to AVConv binary. If just binary name, subprocess uses $PATH.
-    'animation.avconv_path':   ['avconv', six.text_type],
+    'animation.avconv_path':   ['avconv', validate_animation_writer_path],
     # Additional arguments for avconv movie writer (using pipes)
     'animation.avconv_args':   [[], validate_stringlist],
     # Path to MENCODER binary. If just binary name, subprocess uses $PATH.
-    'animation.mencoder_path': ['mencoder', six.text_type],
+    'animation.mencoder_path': ['mencoder', validate_animation_writer_path],
     # Additional arguments for mencoder movie writer (using pipes)
     'animation.mencoder_args': [[], validate_stringlist],
      # Path to convert binary. If just binary name, subprocess uses $PATH
-    'animation.convert_path':  ['convert', six.text_type],
+    'animation.convert_path':  ['convert', validate_animation_writer_path],
      # Additional arguments for mencoder movie writer (using pipes)
 
     'animation.convert_args':  [[], validate_stringlist],
