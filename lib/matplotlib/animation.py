@@ -64,6 +64,12 @@ else:
 class MovieWriterRegistry(object):
     def __init__(self):
         self.avail = dict()
+        self._registered = dict()
+        self._dirty = False
+
+    def set_dirty(self):
+        """Sets a flag to re-setup the writers"""
+        self._dirty = True
 
     # Returns a decorator that can be used on classes to register them under
     # a name. As in:
@@ -72,19 +78,36 @@ class MovieWriterRegistry(object):
     #    pass
     def register(self, name):
         def wrapper(writerClass):
+            self._registered[name] = writerClass
             if writerClass.isAvailable():
                 self.avail[name] = writerClass
             return writerClass
         return wrapper
 
+    def ensure_not_dirty(self):
+        """If dirty, reasks the writers if they are available"""
+        if self._dirty:
+            self.reset_available_writers()
+
+    def reset_available_writers(self):
+        """Reset the available state of all registered writers"""
+        self.avail = {}
+        for name, writerClass in self._registered.items():
+            if writerClass.isAvailable():
+                self.avail[name] = writerClass
+        self._dirty = False
+
     def list(self):
         ''' Get a list of available MovieWriters.'''
+        self.ensure_not_dirty()
         return list(self.avail.keys())
 
     def is_available(self, name):
+        self.ensure_not_dirty()
         return name in self.avail
 
     def __getitem__(self, name):
+        self.ensure_not_dirty()
         if not self.avail:
             raise RuntimeError("No MovieWriters available!")
         return self.avail[name]
@@ -275,10 +298,11 @@ class MovieWriter(object):
         Check to see if a MovieWriter subclass is actually available by
         running the commandline tool.
         '''
-        if not cls.bin_path():
+        bin_path = cls.bin_path()
+        if not bin_path:
             return False
         try:
-            p = subprocess.Popen(cls.bin_path(),
+            p = subprocess.Popen(bin_path,
                              shell=False,
                              stdout=subprocess.PIPE,
                              stderr=subprocess.PIPE,
@@ -397,9 +421,19 @@ class FileMovieWriter(MovieWriter):
         # Check error code for creating file here, since we just run
         # the process here, rather than having an open pipe.
         if self._proc.returncode:
-            raise RuntimeError('Error creating movie, return code: '
-                               + str(self._proc.returncode)
-                               + ' Try running with --verbose-debug')
+            try:
+                stdout = [s.decode() for s in self._proc._stdout_buff]
+                stderr = [s.decode() for s in self._proc._stderr_buff]
+                verbose.report("MovieWriter.finish: stdout: %s" % stdout,
+                               level='helpful')
+                verbose.report("MovieWriter.finish: stderr: %s" % stderr,
+                               level='helpful')
+            except Exception as e:
+                pass
+            msg = ('Error creating movie, return code: ' +
+                   str(self._proc.returncode) +
+                   ' Try setting mpl.verbose.set_level("helpful")')
+            raise RuntimeError(msg)
 
     def cleanup(self):
         MovieWriter.cleanup(self)
@@ -584,12 +618,28 @@ class ImageMagickBase(object):
                 binpath = ''
         rcParams[cls.exec_key] = rcParamsDefault[cls.exec_key] = binpath
 
+    @classmethod
+    def isAvailable(cls):
+        '''
+        Check to see if a ImageMagickWriter is actually available
+
+        Done by first checking the windows registry (if applicable) and then
+        running the commandline tool.
+        '''
+        bin_path = cls.bin_path()
+        if bin_path == "convert":
+            cls._init_from_registry()
+        return super(ImageMagickBase, cls).isAvailable()
 
 ImageMagickBase._init_from_registry()
 
 
+# Note: the base classes need to be in that order to get
+# isAvailable() from ImageMagickBase called and not the
+# one from MovieWriter. The latter is then called by the
+# former.
 @writers.register('imagemagick')
-class ImageMagickWriter(MovieWriter, ImageMagickBase):
+class ImageMagickWriter(ImageMagickBase, MovieWriter):
     def _args(self):
         return ([self.bin_path(),
                  '-size', '%ix%i' % self.frame_size, '-depth', '8',
@@ -598,8 +648,12 @@ class ImageMagickWriter(MovieWriter, ImageMagickBase):
                 + self.output_args)
 
 
+# Note: the base classes need to be in that order to get
+# isAvailable() from ImageMagickBase called and not the
+# one from MovieWriter. The latter is then called by the
+# former.
 @writers.register('imagemagick_file')
-class ImageMagickFileWriter(FileMovieWriter, ImageMagickBase):
+class ImageMagickFileWriter(ImageMagickBase, FileMovieWriter):
     supported_formats = ['png', 'jpeg', 'ppm', 'tiff', 'sgi', 'bmp',
                          'pbm', 'raw', 'rgba']
 
