@@ -2207,8 +2207,18 @@ class BackendQt4(BackendQtBase):
         BackendQtBase.__init__(self, *args, **kwargs)
         self.callback = backend_qt4_internal_check
 
+def backend_pyside2_internal_check(self):
+    try:
+        from PySide2 import __version__
+        from PySide2 import QtCore
+    except ImportError:
+        raise CheckFailed("PySide2 not found")
+    else:
+        BackendAgg.force = True
+        return ("Qt: %s, PySide2: %s" %
+                (QtCore.__version__, __version__))
 
-def backend_qt5_internal_check(self):
+def backend_pyqt5_internal_check(self):
     try:
         from PyQt5 import QtCore
     except ImportError:
@@ -2223,6 +2233,22 @@ def backend_qt5_internal_check(self):
         BackendAgg.force = True
         return ("Qt: %s, PyQt: %s" % (self.convert_qt_version(qt_version), pyqt_version_str))
 
+def backend_qt5_internal_check(self):
+    successes = []
+    failures = []
+    try:
+        successes.append(backend_pyside2_internal_check(self))
+    except CheckFailed as e:
+        failures.append(str(e))
+
+    try:
+        successes.append(backend_pyqt5_internal_check(self))
+    except CheckFailed as e:
+        failures.append(str(e))
+
+    if len(successes) == 0:
+        raise CheckFailed('; '.join(failures))
+    return '; '.join(successes + failures)
 
 class BackendQt5(BackendQtBase):
     name = "qt5agg"
