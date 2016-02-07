@@ -656,7 +656,9 @@ class ImageMagickBase(object):
     @classmethod
     def isAvailable(cls):
         '''
-        Check to see if a MovieWriter subclass is actually available by
+        Check to see if a ImageMagickWriter is actually available
+
+        Done by first checking the windows registry (if applicable) and then
         running the commandline tool.
         '''
         bin_path = cls.bin_path()
@@ -667,8 +669,12 @@ class ImageMagickBase(object):
 ImageMagickBase._init_from_registry()
 
 
+# Note: the base classes need to be in that order to get
+# isAvailable() from ImageMagickBase called and not the
+# one from MovieWriter. The latter is then called by the
+# former.
 @writers.register('imagemagick')
-class ImageMagickWriter(ImageMagickBase, MovieWriter, ):
+class ImageMagickWriter(ImageMagickBase, MovieWriter):
     def _args(self):
         return ([self.bin_path(),
                  '-size', '%ix%i' % self.frame_size, '-depth', '8',
@@ -677,6 +683,10 @@ class ImageMagickWriter(ImageMagickBase, MovieWriter, ):
                 + self.output_args)
 
 
+# Note: the base classes need to be in that order to get
+# isAvailable() from ImageMagickBase called and not the
+# one from MovieWriter. The latter is then called by the
+# former.
 @writers.register('imagemagick_file')
 class ImageMagickFileWriter(ImageMagickBase, FileMovieWriter):
     supported_formats = ['png', 'jpeg', 'ppm', 'tiff', 'sgi', 'bmp',
