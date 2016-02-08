@@ -275,18 +275,18 @@ _str_err_msg = ('You must supply exactly {n:d} comma-separated values, '
 
 
 class validate_nseq_float(object):
-    def __init__(self, n):
+    def __init__(self, n=None):
         self.n = n
 
     def __call__(self, s):
         """return a seq of n floats or raise"""
         if isinstance(s, six.string_types):
-            s = s.split(',')
+            s = [x.strip() for x in s.split(',')]
             err_msg = _str_err_msg
         else:
             err_msg = _seq_err_msg
 
-        if len(s) != self.n:
+        if self.n is not None and len(s) != self.n:
             raise ValueError(err_msg.format(n=self.n, num=len(s), s=s))
 
         try:
@@ -296,18 +296,18 @@ class validate_nseq_float(object):
 
 
 class validate_nseq_int(object):
-    def __init__(self, n):
+    def __init__(self, n=None):
         self.n = n
 
     def __call__(self, s):
         """return a seq of n ints or raise"""
         if isinstance(s, six.string_types):
-            s = s.split(',')
+            s = [x.strip() for x in s.split(',')]
             err_msg = _str_err_msg
         else:
             err_msg = _seq_err_msg
 
-        if len(s) != self.n:
+        if self.n is not None and len(s) != self.n:
             raise ValueError(err_msg.format(n=self.n, num=len(s), s=s))
 
         try:
@@ -851,6 +851,9 @@ defaultParams = {
     'lines.solid_joinstyle': ['round', validate_joinstyle],
     'lines.dash_capstyle':   ['butt', validate_capstyle],
     'lines.solid_capstyle':  ['projecting', validate_capstyle],
+    'lines.dashed_pattern':  [[2.8, 1.2], validate_nseq_float()],
+    'lines.dashdot_pattern': [[4.8, 1.2, 0.8, 1.2], validate_nseq_float()],
+    'lines.dotted_pattern':  [[1.2, 0.6], validate_nseq_float()],
 
     # marker props
     'markers.fillstyle': ['full', validate_fillstyle],

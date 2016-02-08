@@ -55,6 +55,7 @@ from matplotlib import rcParams
 from matplotlib import is_interactive
 from matplotlib import get_backend
 from matplotlib._pylab_helpers import Gcf
+from matplotlib import lines
 
 from matplotlib.transforms import Bbox, TransformedBbox, Affine2D
 
@@ -771,14 +772,6 @@ class GraphicsContextBase(object):
     An abstract base class that provides color, line styles, etc...
     """
 
-    # a mapping from dash styles to suggested offset, dash pairs
-    dashd = {
-        'solid': (None, None),
-        'dashed': (0, (6.0, 6.0)),
-        'dashdot': (0, (3.0, 5.0, 1.0, 5.0)),
-        'dotted': (0, (1.0, 3.0)),
-    }
-
     def __init__(self):
         self._alpha = 1.0
         self._forced_alpha = False  # if True, _alpha overrides A from RGBA
@@ -870,7 +863,16 @@ class GraphicsContextBase(object):
 
         Default value is None
         """
-        return self._dashes
+        if rcParams['_internal.classic_mode']:
+            return self._dashes
+        else:
+            scale = max(1.0, self.get_linewidth())
+            offset, dashes = self._dashes
+            if offset is not None:
+                offset = offset * scale
+            if dashes is not None:
+                dashes = [x * scale for x in dashes]
+            return offset, dashes
 
     def get_forced_alpha(self):
         """
@@ -1047,21 +1049,12 @@ class GraphicsContextBase(object):
     def set_linestyle(self, style):
         """
         Set the linestyle to be one of ('solid', 'dashed', 'dashdot',
-        'dotted'). One may specify customized dash styles by providing
-        a tuple of (offset, dash pairs). For example, the predefiend
-        linestyles have following values.:
-
-         'dashed'  : (0, (6.0, 6.0)),
-         'dashdot' : (0, (3.0, 5.0, 1.0, 5.0)),
-         'dotted'  : (0, (1.0, 3.0)),
+        'dotted'). These are defined in the rcParams
+        `lines.dashed_pattern`, `lines.dashdot_pattern` and
+        `lines.dotted_pattern`.  One may also specify customized dash
+        styles by providing a tuple of (offset, dash pairs).
         """
-
-        if style in self.dashd:
-            offset, dashes = self.dashd[style]
-        elif isinstance(style, tuple):
-            offset, dashes = style
-        else:
-            raise ValueError('Unrecognized linestyle: %s' % str(style))
+        offset, dashes = lines.get_dash_pattern(style)
 
         self._linestyle = style
         self.set_dashes(offset, dashes)

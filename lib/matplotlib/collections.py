@@ -28,6 +28,7 @@ import matplotlib.backend_bases as backend_bases
 import matplotlib.path as mpath
 from matplotlib import _path
 import matplotlib.mlab as mlab
+import matplotlib.lines as mlines
 
 
 CIRCLE_AREA_FACTOR = 1.0 / np.sqrt(np.pi)
@@ -531,23 +532,16 @@ class Collection(artist.Artist, cm.ScalarMappable):
             The line style.
         """
         try:
-            dashd = backend_bases.GraphicsContextBase.dashd
             if cbook.is_string_like(ls):
                 ls = cbook.ls_mapper.get(ls, ls)
-                if ls in dashd:
-                    dashes = [dashd[ls]]
-                else:
-                    raise ValueError()
+                dashes = [mlines.get_dash_pattern(ls)]
             elif cbook.iterable(ls):
                 try:
                     dashes = []
                     for x in ls:
                         if cbook.is_string_like(x):
                             x = cbook.ls_mapper.get(x, x)
-                            if x in dashd:
-                                dashes.append(dashd[x])
-                            else:
-                                raise ValueError()
+                            dashes.append(mlines.get_dash_pattern(x))
                         elif cbook.iterable(x) and len(x) == 2:
                             dashes.append(x)
                         else:
