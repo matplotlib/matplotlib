@@ -39,7 +39,7 @@ plt.subplot(2, 2, 3)
 plt.imshow(z, cmap='RdBu', vmin=z_min, vmax=z_max,
            extent=[x.min(), x.max(), y.min(), y.max()],
            interpolation='nearest', origin='lower')
-plt.title('image (interp. nearest)')
+plt.title('image (nearest)')
 plt.colorbar()
 
 
@@ -48,5 +48,6 @@ ax.pcolorfast(x, y, z, cmap='RdBu', vmin=z_min, vmax=z_max)
 plt.title('pcolorfast')
 plt.colorbar()
 
+plt.subplots_adjust(wspace=0.5, hspace=0.5)
 
 plt.show()

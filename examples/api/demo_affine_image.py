@@ -37,7 +37,7 @@ if 1:
 
     fig, (ax1, ax2) = plt.subplots(1, 2)
     Z = get_image()
-    im1 = imshow_affine(ax1, Z, interpolation='none', cmap=cm.jet,
+    im1 = imshow_affine(ax1, Z, interpolation='none',
                         origin='lower',
                         extent=[-2, 4, -3, 2], clip_on=True)
 
@@ -48,7 +48,7 @@ if 1:
     x1, x2, y1, y2 = im1.get_extent()
     x3, y3 = x2, y1
 
-    ax1.plot([x1, x2, x2, x1, x1], [y1, y1, y2, y2, y1], "r--", lw=3,
+    ax1.plot([x1, x2, x2, x1, x1], [y1, y1, y2, y2, y1], "--",
              transform=trans_data2)
 
     ax1.set_xlim(-3, 5)
@@ -56,7 +56,7 @@ if 1:
 
     # image skew
 
-    im2 = ax2.imshow(Z, interpolation='none', cmap=cm.jet,
+    im2 = ax2.imshow(Z, interpolation='none',
                      origin='lower',
                      extent=[-2, 4, -3, 2], clip_on=True)
     im2._image_skew_coordinate = (3, -2)

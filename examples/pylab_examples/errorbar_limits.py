@@ -9,7 +9,7 @@ fig = plt.figure(0)
 x = np.arange(10.0)
 y = np.sin(np.arange(10.0)/20.0*np.pi)
 
-plt.errorbar(x, y, yerr=0.1, capsize=3)
+plt.errorbar(x, y, yerr=0.1)
 
 y = np.sin(np.arange(10.0)/20.0*np.pi) + 1
 plt.errorbar(x, y, yerr=0.1, uplims=True)

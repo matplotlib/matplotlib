@@ -48,7 +48,7 @@ if 1:
 
     t = np.arange(0.0, 5.0, 0.01)
     s = np.cos(2*np.pi*t)
-    line, = ax.plot(t, s, lw=3, color='purple')
+    line, = ax.plot(t, s)
 
     ax.annotate('axes center', xy=(.5, .5), xycoords='axes fraction',
                 horizontalalignment='center', verticalalignment='center')
@@ -97,7 +97,7 @@ if 1:
     ax = fig.add_subplot(111, projection='polar')
     r = np.arange(0, 1, 0.001)
     theta = 2*2*np.pi*r
-    line, = ax.plot(theta, r, color='#ee8d18', lw=3)
+    line, = ax.plot(theta, r)
 
     ind = 800
     thisr, thistheta = r[ind], theta[ind]

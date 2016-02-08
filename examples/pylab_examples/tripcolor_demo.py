@@ -35,14 +35,14 @@ triang.set_mask(mask)
 # tripcolor plot.
 plt.figure()
 plt.gca().set_aspect('equal')
-plt.tripcolor(triang, z, shading='flat', cmap=plt.cm.rainbow)
+plt.tripcolor(triang, z, shading='flat')
 plt.colorbar()
 plt.title('tripcolor of Delaunay triangulation, flat shading')
 
 # Illustrate Gouraud shading.
 plt.figure()
 plt.gca().set_aspect('equal')
-plt.tripcolor(triang, z, shading='gouraud', cmap=plt.cm.rainbow)
+plt.tripcolor(triang, z, shading='gouraud')
 plt.colorbar()
 plt.title('tripcolor of Delaunay triangulation, gouraud shading')
 
