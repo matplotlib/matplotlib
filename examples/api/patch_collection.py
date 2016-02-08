@@ -39,7 +39,7 @@ for i in range(N):
     patches.append(polygon)
 
 colors = 100*np.random.rand(len(patches))
-p = PatchCollection(patches, cmap=matplotlib.cm.jet, alpha=0.4)
+p = PatchCollection(patches, alpha=0.4)
 p.set_array(np.array(colors))
 ax.add_collection(p)
 plt.colorbar(p)

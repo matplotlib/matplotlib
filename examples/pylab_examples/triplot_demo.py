@@ -34,7 +34,7 @@ triang.set_mask(mask)
 # Plot the triangulation.
 plt.figure()
 plt.gca().set_aspect('equal')
-plt.triplot(triang, 'bo-')
+plt.triplot(triang, 'bo-', lw=1)
 plt.title('triplot of Delaunay triangulation')
 
 
@@ -90,7 +90,7 @@ triangles = np.asarray([
 # calculations.
 plt.figure()
 plt.gca().set_aspect('equal')
-plt.triplot(x, y, triangles, 'go-')
+plt.triplot(x, y, triangles, 'go-', lw=1.0)
 plt.title('triplot of user-specified triangulation')
 plt.xlabel('Longitude (degrees)')
 plt.ylabel('Latitude (degrees)')
