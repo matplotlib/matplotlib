@@ -16,13 +16,13 @@ ax2 = fig.add_subplot(312, sharex=ax1)
 ax3 = fig.add_subplot(313, sharex=ax1)
 
 ax1.fill_betweenx(x, 0, y1)
-ax1.set_ylabel('between y1 and 0')
+ax1.set_ylabel('(y1, 0)')
 
 ax2.fill_betweenx(x, y1, 1)
-ax2.set_ylabel('between y1 and 1')
+ax2.set_ylabel('(y1, 1)')
 
 ax3.fill_betweenx(x, y1, y2)
-ax3.set_ylabel('between y1 and y2')
+ax3.set_ylabel('(y1, y2)')
 ax3.set_xlabel('x')
 
 # now fill between y1 and y2 where a logical condition is met.  Note

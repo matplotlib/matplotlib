@@ -11,16 +11,16 @@ plt.plot(X, (1 - np.tanh(4.*X/delta))/2,    # phase field tanh profiles
            X, (X + 1)/2,                      # level set distance function
            X, (1.4 + np.tanh(4.*X/delta))/4,  # composition profile
            X, X < 0, 'k--',                   # sharp interface
-           linewidth=5)
+           )
 
 # legend
 plt.legend(('phase field', 'level set', 'composition', 'sharp interface'), shadow=True, loc=(0.01, 0.55))
 
 ltext = plt.gca().get_legend().get_texts()
-plt.setp(ltext[0], fontsize=20, color='b')
-plt.setp(ltext[1], fontsize=20, color='g')
-plt.setp(ltext[2], fontsize=20, color='r')
-plt.setp(ltext[3], fontsize=20, color='k')
+plt.setp(ltext[0], fontsize=20)
+plt.setp(ltext[1], fontsize=20)
+plt.setp(ltext[2], fontsize=20)
+plt.setp(ltext[3], fontsize=20)
 
 # the arrow
 height = 0.1

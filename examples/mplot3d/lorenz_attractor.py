@@ -40,7 +40,7 @@ for i in range(stepCnt):
 fig = plt.figure()
 ax = fig.gca(projection='3d')
 
-ax.plot(xs, ys, zs)
+ax.plot(xs, ys, zs, lw=0.5)
 ax.set_xlabel("X Axis")
 ax.set_ylabel("Y Axis")
 ax.set_zlabel("Z Axis")

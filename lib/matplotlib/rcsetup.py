@@ -840,7 +840,7 @@ defaultParams = {
     'verbose.fileo': ['sys.stdout', six.text_type],
 
     # line props
-    'lines.linewidth':       [1.0, validate_float],  # line width in points
+    'lines.linewidth':       [2.5, validate_float],  # line width in points
     'lines.linestyle':       ['-', six.text_type],             # solid line
     'lines.color':           ['b', validate_color],  # blue
     'lines.marker':          ['None', six.text_type],     # black
@@ -861,7 +861,7 @@ defaultParams = {
     ## patch props
     'patch.linewidth':   [None, validate_float_or_None],  # line width in points
     'patch.edgecolor':   ['k', validate_color],  # black
-    'patch.facecolor':   ['b', validate_color],  # blue
+    'patch.facecolor':   ['#1f77b4', validate_color],  # blue (first color in color cycle)
     'patch.antialiased': [True, validate_bool],  # antialiased (no jaggies)
 
     ## Histogram properties
@@ -957,11 +957,11 @@ defaultParams = {
     'mathtext.fallback_to_cm': [True, validate_bool],
 
     'image.aspect':        ['equal', validate_aspect],  # equal, auto, a number
-    'image.interpolation': ['bilinear', six.text_type],
-    'image.cmap':          ['jet', six.text_type],        # one of gray, jet, etc
+    'image.interpolation': ['nearest', six.text_type],
+    'image.cmap':          ['viridis', six.text_type],        # one of gray, jet, etc
     'image.lut':           [256, validate_int],  # lookup table
     'image.origin':        ['upper', six.text_type],  # lookup table
-    'image.resample':      [False, validate_bool],
+    'image.resample':      [True, validate_bool],
     # Specify whether vector graphics backends will combine all images on a
     # set of axes into a single composite image
     'image.composite_image': [True, validate_bool],
@@ -972,7 +972,7 @@ defaultParams = {
     'contour.corner_mask':        [True, validate_corner_mask],
 
     # errorbar props
-    'errorbar.capsize':      [3, validate_float],
+    'errorbar.capsize':      [0, validate_float],
 
     # axes props
     'axes.axisbelow':        [False, validate_bool],
@@ -1016,8 +1016,12 @@ defaultParams = {
     # This entry can be either a cycler object or a
     # string repr of a cycler-object, which gets eval()'ed
     # to create the object.
-    'axes.prop_cycle': [ccycler('color', 'bgrcmyk'),
-                        validate_cycler],
+    'axes.prop_cycle': [
+        ccycler('color',
+                ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728',
+                 '#9467bd', '#8c564b', '#e377c2', '#7f7f7f',
+                 '#bcbd22', '#17becf']),
+        validate_cycler],
     # If 'data', axes limits are set close to the data.
     # If 'round_numbers' axes limits are set to the nearest round numbers.
     'axes.autolimit_mode': [
@@ -1042,10 +1046,10 @@ defaultParams = {
     'date.autoformatter.second': ['%H:%M:%S.%f', six.text_type],
 
     #legend properties
-    'legend.fancybox': [False, validate_bool],
+    'legend.fancybox': [True, validate_bool],
 
     # at some point, legend.loc should be changed to 'best'
-    'legend.loc': ['upper right', validate_legend_loc],
+    'legend.loc': ['best', validate_legend_loc],
 
     # this option is internally ignored - it never served any useful purpose
     'legend.isaxes': [True, validate_bool],
@@ -1088,8 +1092,8 @@ defaultParams = {
     'xtick.bottom':      [True, validate_bool],   # draw ticks on the bottom side
     'xtick.major.size':  [4, validate_float],    # major xtick size in points
     'xtick.minor.size':  [2, validate_float],    # minor xtick size in points
-    'xtick.major.width': [0.5, validate_float],  # major xtick width in points
-    'xtick.minor.width': [0.5, validate_float],  # minor xtick width in points
+    'xtick.major.width': [1.0, validate_float],  # major xtick width in points
+    'xtick.minor.width': [1.0, validate_float],  # minor xtick width in points
     'xtick.major.pad':   [4, validate_float],    # distance to label in points
     'xtick.minor.pad':   [4, validate_float],    # distance to label in points
     'xtick.color':       ['k', validate_color],  # color of the xtick labels
@@ -1097,14 +1101,14 @@ defaultParams = {
 
     # fontsize of the xtick labels
     'xtick.labelsize':   ['medium', validate_fontsize],
-    'xtick.direction':   ['in', six.text_type],            # direction of xticks
+    'xtick.direction':   ['out', six.text_type],            # direction of xticks
 
     'ytick.left':        [True, validate_bool],  # draw ticks on the left side
     'ytick.right':       [True, validate_bool],  # draw ticks on the right side
     'ytick.major.size':  [4, validate_float],     # major ytick size in points
     'ytick.minor.size':  [2, validate_float],     # minor ytick size in points
-    'ytick.major.width': [0.5, validate_float],   # major ytick width in points
-    'ytick.minor.width': [0.5, validate_float],   # minor ytick width in points
+    'ytick.major.width': [1.0, validate_float],   # major ytick width in points
+    'ytick.minor.width': [1.0, validate_float],   # minor ytick width in points
     'ytick.major.pad':   [4, validate_float],     # distance to label in points
     'ytick.minor.pad':   [4, validate_float],     # distance to label in points
     'ytick.color':       ['k', validate_color],   # color of the ytick labels
@@ -1112,11 +1116,11 @@ defaultParams = {
 
     # fontsize of the ytick labels
     'ytick.labelsize':   ['medium', validate_fontsize],
-    'ytick.direction':   ['in', six.text_type],            # direction of yticks
+    'ytick.direction':   ['out', six.text_type],            # direction of yticks
 
-    'grid.color':        ['k', validate_color],       # grid color
-    'grid.linestyle':    [':', six.text_type],       # dotted
-    'grid.linewidth':    [0.5, validate_float],     # in points
+    'grid.color':        ['#b0b0b0', validate_color],  # grid color
+    'grid.linestyle':    ['-', six.text_type],      # solid
+    'grid.linewidth':    [1.0, validate_float],     # in points
     'grid.alpha':        [1.0, validate_float],
 
 
@@ -1128,7 +1132,7 @@ defaultParams = {
     # figure size in inches: width by height
     'figure.figsize':    [[8.0, 6.0], validate_nseq_float(2)],
     'figure.dpi':        [100, validate_float],  # DPI
-    'figure.facecolor':  ['0.75', validate_color],  # facecolor; scalar gray
+    'figure.facecolor':  ['w', validate_color],  # facecolor; white
     'figure.edgecolor':  ['w', validate_color],  # edgecolor; white
     'figure.frameon':    [True, validate_bool],
     'figure.autolayout': [False, validate_bool],
