@@ -235,6 +235,7 @@ class Tick(artist.Artist):
     @allow_rasterization
     def draw(self, renderer):
         if not self.get_visible():
+            self.stale = False
             return
 
         midPoint = mtransforms.interval_contains(self.get_view_interval(),
