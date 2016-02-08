@@ -53,7 +53,7 @@ import numpy as np
 import matplotlib as mpl
 from matplotlib import rcParams
 from matplotlib._png import read_png
-from matplotlib.cbook import mkdirs
+from matplotlib.cbook import mkdirs, Locked
 from matplotlib.compat.subprocess import Popen, PIPE, STDOUT
 import matplotlib.dviread as dviread
 import re
@@ -403,7 +403,8 @@ Could not rename old TeX cache dir "%s": a suitable configuration
                 'latex -interaction=nonstopmode %s > "%s"' %
                 (os.path.split(texfile)[-1], outfile))
             mpl.verbose.report(command, 'debug')
-            exit_status = os.system(command)
+            with Locked(self.texcache):
+                exit_status = os.system(command)
             try:
                 with open(outfile) as fh:
                     report = fh.read()
