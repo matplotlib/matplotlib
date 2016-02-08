@@ -15,6 +15,9 @@ lines.dash_capstyle : butt          # butt|round|projecting
 lines.solid_joinstyle : round       # miter|round|bevel
 lines.solid_capstyle : projecting   # butt|round|projecting
 lines.antialiased : True         # render lines in antialiased (no jaggies)
+lines.dashed_pattern : 6, 6
+lines.dashdot_pattern : 3, 5, 1, 5
+lines.dotted_pattern : 1, 3
 
 ### Marker props
 markers.fillstyle: full
