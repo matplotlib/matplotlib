@@ -1070,7 +1070,7 @@ class Line2D(Artist):
                 ls = ls_mapper_r[ls]
             except KeyError:
                 raise ValueError(("You passed in an invalid linestyle, "
-                                  "`{}`.  See "
+                                  "`{0}`.  See "
                                   "docs of Line2D.set_linestyle for "
                                   "valid values.").format(ls))
 
