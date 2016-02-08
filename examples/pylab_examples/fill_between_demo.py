@@ -54,5 +54,6 @@ ax.axhline(-theta, color='red', lw=2, alpha=0.5)
 ax.fill_between(x, 0, 1, where=y > theta, facecolor='green', alpha=0.5, transform=trans)
 ax.fill_between(x, 0, 1, where=y < -theta, facecolor='red', alpha=0.5, transform=trans)
 
+plt.tight_layout()
 
 plt.show()

@@ -86,7 +86,7 @@ def test3(ax):
     ax.add_patch(p_fancy)
 
     ax.text(0.1, 0.8,
-            ' boxstyle="round,pad=0.1"\n mutation\\_scale=2',
+          ' boxstyle="round,pad=0.1"\n mutation\\_scale=2',
             size=10, transform=ax.transAxes)
 
     # draws control points for the fancy box.
@@ -158,6 +158,7 @@ def test_all():
     ax.set_aspect(2.)
 
     plt.draw()
+    plt.tight_layout()
     plt.show()
 
 test_all()

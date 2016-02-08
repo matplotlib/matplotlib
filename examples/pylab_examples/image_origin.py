@@ -22,4 +22,7 @@ plt.subplot(212, facecolor='y')
 plt.title('blue should be down')
 plt.imshow(x, origin='lower', interpolation=interp, cmap='jet')
 #plt.axis(lim)
+
+plt.tight_layout()
+
 plt.show()

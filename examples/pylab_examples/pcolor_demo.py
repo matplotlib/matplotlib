@@ -48,5 +48,6 @@ ax.pcolorfast(x, y, z, cmap='RdBu', vmin=z_min, vmax=z_max)
 plt.title('pcolorfast')
 plt.colorbar()
 
+plt.tight_layout()
 
 plt.show()

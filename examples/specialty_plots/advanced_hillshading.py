@@ -24,6 +24,7 @@ def display_colorbar():
     fig.colorbar(im)
 
     ax.set_title('Using a colorbar with a shaded plot', size='x-large')
+    plt.tight_layout()
 
 
 def avoid_outliers():
@@ -64,6 +65,7 @@ def shade_other_data():
     fig, ax = plt.subplots()
     ax.imshow(rgb)
     ax.set_title('Shade by one variable, color by another', size='x-large')
+
 
 display_colorbar()
 avoid_outliers()

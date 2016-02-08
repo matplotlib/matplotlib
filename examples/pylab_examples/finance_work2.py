@@ -140,16 +140,16 @@ linema200, = ax2.plot(r.date, ma200, color='red', lw=2, label='MA (200)')
 
 
 last = r[-1]
-s = '%s O:%1.2f H:%1.2f L:%1.2f C:%1.2f, V:%1.1fM Chg:%+1.2f' % (
+s = '%s O:%1.2f H:%1.2f\nL:%1.2f C:%1.2f,\nV:%1.1fM Chg:%+1.2f' % (
     today.strftime('%d-%b-%Y'),
     last.open, last.high,
     last.low, last.close,
     last.volume*1e-6,
     last.close - last.open)
-t4 = ax2.text(0.3, 0.9, s, transform=ax2.transAxes, fontsize=textsize)
+t4 = ax2.text(0.3, 0.8, s, transform=ax2.transAxes, fontsize=textsize)
 
 props = font_manager.FontProperties(size=10)
-leg = ax2.legend(loc='center left', shadow=True, fancybox=True, prop=props)
+leg = ax2.legend(loc='upper left', shadow=True, fancybox=True, prop=props)
 leg.get_frame().set_alpha(0.5)
 
 

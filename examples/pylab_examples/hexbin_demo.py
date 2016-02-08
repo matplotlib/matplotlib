@@ -32,4 +32,6 @@ plt.title("With a log color scale")
 cb = plt.colorbar()
 cb.set_label('log10(N)')
 
+plt.tight_layout()
+
 plt.show()

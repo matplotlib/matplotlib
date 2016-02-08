@@ -8,6 +8,7 @@ This demo illustrates a bug in quadmesh with masked data.
 
 import numpy as np
 from matplotlib.pyplot import figure, show, savefig
+from pylab import tight_layout
 from matplotlib import cm, colors
 from numpy import ma
 
@@ -41,5 +42,6 @@ ax.set_facecolor("#bdb76b")
 col = ax.pcolormesh(Qx, Qz, Zm, shading='gouraud')
 ax.set_title('With masked values')
 
+tight_layout()
 
 show()
