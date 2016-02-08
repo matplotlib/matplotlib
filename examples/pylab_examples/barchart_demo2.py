@@ -50,7 +50,7 @@ def format_score(scr, test):
     """
     md = testMeta[test]
     if md:
-        return '{}\n{}'.format(scr, md)
+        return '{0}\n{1}'.format(scr, md)
     else:
         return scr
 
@@ -86,7 +86,7 @@ def plot_student_results(student, scores, cohort_size):
     # Plot a solid vertical gridline to highlight the median position
     ax1.axvline(50, color='grey', alpha=0.25)
     # set X-axis tick marks at the deciles
-    cohort_label = ax1.text(.5, -.07, 'Cohort Size: {}'.format(cohort_size),
+    cohort_label = ax1.text(.5, -.07, 'Cohort Size: {0}'.format(cohort_size),
                             horizontalalignment='center', size='small',
                             transform=ax1.transAxes)
 
