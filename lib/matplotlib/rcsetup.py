@@ -533,9 +533,15 @@ validate_legend_loc = ValidateInStrings(
      'center'], ignorecase=True)
 
 
+def deprecate_svg_image_noscale(value):
+    warnings.warn("svg.image_noscale is deprecated. Set "
+                  "image.interpolation to 'none' instead.")
+
+
 def deprecate_svg_embed_char_paths(value):
     warnings.warn("svg.embed_char_paths is deprecated.  Use "
                   "svg.fonttype instead.")
+
 
 validate_svg_fonttype = ValidateInStrings('svg.fonttype',
                                           ['none', 'path', 'svgfont'])
@@ -961,7 +967,7 @@ defaultParams = {
     'image.cmap':          ['jet', six.text_type],        # one of gray, jet, etc
     'image.lut':           [256, validate_int],  # lookup table
     'image.origin':        ['upper', six.text_type],  # lookup table
-    'image.resample':      [False, validate_bool],
+    'image.resample':      [True, validate_bool],
     # Specify whether vector graphics backends will combine all images on a
     # set of axes into a single composite image
     'image.composite_image': [True, validate_bool],
@@ -1196,7 +1202,7 @@ defaultParams = {
     # write raster image data directly into the svg file
     'svg.image_inline':     [True, validate_bool],
     # suppress scaling of raster data embedded in SVG
-    'svg.image_noscale':    [False, validate_bool],
+    'svg.image_noscale':    [False, deprecate_svg_image_noscale],
     # True to save all characters as paths in the SVG
     'svg.embed_char_paths': [True, deprecate_svg_embed_char_paths],
     'svg.fonttype':         ['path', validate_svg_fonttype],

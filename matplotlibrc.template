@@ -436,7 +436,7 @@ backend      : $TEMPLATE_BACKEND
 #image.cmap   : jet               # gray | jet etc...
 #image.lut    : 256               # the size of the colormap lookup table
 #image.origin : upper             # lower | upper
-#image.resample  : False
+#image.resample  : True
 #image.composite_image : True     # When True, all the images on a set of axes are
                                   # combined into a single composite image before
                                   # saving a figure as a vector graphics file,
@@ -521,7 +521,6 @@ backend      : $TEMPLATE_BACKEND
 
 # svg backend params
 #svg.image_inline : True       # write raster image data directly into the svg file
-#svg.image_noscale : False     # suppress scaling of raster data embedded in SVG
 #svg.fonttype : 'path'         # How to handle SVG fonts:
 #    'none': Assume fonts are installed on the machine where the SVG will be viewed.
 #    'path': Embed characters as paths -- supported by most SVG renderers

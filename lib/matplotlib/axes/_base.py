@@ -2317,15 +2317,6 @@ class _AxesBase(martist.Artist):
             artists.remove(self._left_title)
             artists.remove(self._right_title)
 
-        # add images to dsu if the backend supports compositing.
-        # otherwise, does the manual compositing  without adding images to dsu.
-        if len(self.images) <= 1 or renderer.option_image_nocomposite():
-            _do_composite = False
-        else:
-            _do_composite = True
-            for im in self.images:
-                artists.remove(im)
-
         if self.figure.canvas.is_saving():
             dsu = [(a.zorder, a) for a in artists]
         else:
@@ -2350,46 +2341,12 @@ class _AxesBase(martist.Artist):
         if self.axison and self._frameon:
             self.patch.draw(renderer)
 
-        if _do_composite:
-            # make a composite image, blending alpha
-            # list of (mimage.Image, ox, oy)
-
-            zorder_images = [(im.zorder, im) for im in self.images
-                             if im.get_visible()]
-            zorder_images.sort(key=lambda x: x[0])
-
-            mag = renderer.get_image_magnification()
-            ims = [(im.make_image(mag), 0, 0, im.get_alpha())
-                   for z, im in zorder_images]
-
-            l, b, r, t = self.bbox.extents
-            width = int(mag * ((np.round(r) + 0.5) - (np.round(l) - 0.5)))
-            height = int(mag * ((np.round(t) + 0.5) - (np.round(b) - 0.5)))
-            im = mimage.from_images(height,
-                                    width,
-                                    ims)
-
-            im.is_grayscale = False
-            l, b, w, h = self.bbox.bounds
-            # composite images need special args so they will not
-            # respect z-order for now
-
-            gc = renderer.new_gc()
-            gc.set_clip_rectangle(self.bbox)
-            gc.set_clip_path(mtransforms.TransformedPath(
-                self.patch.get_path(),
-                self.patch.get_transform()))
-
-            renderer.draw_image(gc, round(l), round(b), im)
-            gc.restore()
-
         if dsu_rasterized:
             for zorder, a in dsu_rasterized:
                 a.draw(renderer)
             renderer.stop_rasterizing()
 
-        for zorder, a in dsu:
-            a.draw(renderer)
+        mimage._draw_list_compositing_images(renderer, self, dsu)
 
         renderer.close_group('axes')
         self._cachedRenderer = renderer
