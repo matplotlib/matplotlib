@@ -90,6 +90,11 @@ backend      : $TEMPLATE_BACKEND
 #lines.solid_capstyle : projecting   # butt|round|projecting
 #lines.antialiased : True         # render lines in antialiased (no jaggies)
 
+# The three standard dash patterns.  These are scaled by the linewidth.
+#lines.dashed_pattern : 2.8, 1.2
+#lines.dashdot_pattern : 4.8, 1.2, 0.8, 1.2
+#lines.dotted_pattern : 1.2, 0.6
+
 #markers.fillstyle: full # full|left|right|bottom|top|none
 
 ### PATCHES
