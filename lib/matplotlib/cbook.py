@@ -2451,6 +2451,13 @@ else:
     def _putmask(a, mask, values):
         return np.copyto(a, values, where=mask)
 
+_lockstr = """\
+LOCKERROR: matplotlib is trying to acquire the lock {!r}
+and has failed.  This maybe due to any other process holding this
+lock.  If you are sure no other matplotlib process in running try
+removing this folder(s) and trying again.
+"""
+
 
 class Locked(object):
     """
@@ -2462,29 +2469,31 @@ class Locked(object):
     All Rights Reserved
 
     conda is distributed under the terms of the BSD 3-clause license.
-    Consult LICENSE.txt or http://opensource.org/licenses/BSD-3-Clause.
+    Consult LICENSE_CONDA or http://opensource.org/licenses/BSD-3-Clause.
     """
+    LOCKFN = '.matplotlib_lock'
+
     def __init__(self, path):
-        LOCKFN = '.matplotlib_lock'
         self.path = path
         self.end = "-" + str(os.getpid())
-        self.lock_path = os.path.join(self.path, LOCKFN + self.end)
-        self.pattern = os.path.join(self.path, LOCKFN + '-*')
+        self.lock_path = os.path.join(self.path, self.LOCKFN + self.end)
+        self.pattern = os.path.join(self.path, self.LOCKFN + '-*')
         self.remove = True
 
     def __enter__(self):
-        retries = 10
+        retries = 50
         sleeptime = 1
         while retries:
             files = glob.glob(self.pattern)
             if files and not files[0].endswith(self.end):
                 time.sleep(sleeptime)
-                sleeptime *= 2
+                sleeptime *= 1.1
                 retries -= 1
             else:
                 break
         else:
-            raise RuntimeError(lockstr)
+            err_str = _lockstr.format(self.pattern)
+            raise RuntimeError(err_str)
 
         if not files:
             try:
