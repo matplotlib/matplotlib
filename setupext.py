@@ -4,7 +4,6 @@ from distutils import sysconfig
 from distutils import version
 from distutils.core import Extension
 import glob
-import io
 import multiprocessing
 import os
 import re
@@ -13,12 +12,51 @@ from subprocess import check_output
 import sys
 import warnings
 from textwrap import fill
-
+import shutil
 import versioneer
 
 
 PY3min = (sys.version_info[0] >= 3)
 PY32min = (PY3min and sys.version_info[1] >= 2 or sys.version_info[0] > 3)
+
+
+def _get_home():
+    """Find user's home directory if possible.
+    Otherwise, returns None.
+
+    :see:
+        http://mail.python.org/pipermail/python-list/2005-February/325395.html
+    """
+    try:
+        if not PY3min and sys.platform == 'win32':
+            path = os.path.expanduser(b"~").decode(sys.getfilesystemencoding())
+        else:
+            path = os.path.expanduser("~")
+    except ImportError:
+        # This happens on Google App Engine (pwd module is not present).
+        pass
+    else:
+        if os.path.isdir(path):
+            return path
+    for evar in ('HOME', 'USERPROFILE', 'TMP'):
+        path = os.environ.get(evar)
+        if path is not None and os.path.isdir(path):
+            return path
+    return None
+
+
+def _get_xdg_cache_dir():
+    """
+    Returns the XDG cache directory, according to the `XDG
+    base directory spec
+    <http://standards.freedesktop.org/basedir-spec/basedir-spec-latest.html>`_.
+    """
+    path = os.environ.get('XDG_CACHE_HOME')
+    if path is None:
+        path = _get_home()
+        if path is not None:
+            path = os.path.join(path, '.cache', 'matplotlib')
+    return path
 
 
 # This is the version of FreeType to use when building a local
@@ -70,9 +108,12 @@ if os.path.exists(setup_cfg):
             config.get("directories", "basedirlist").split(',')]
 
     if config.has_option('test', 'local_freetype'):
-        options['local_freetype'] = config.get("test", "local_freetype")
+        options['local_freetype'] = config.getboolean("test", "local_freetype")
 else:
     config = None
+
+lft = bool(os.environ.get('MPLLOCALFREETYPE', False))
+options['local_freetype'] = lft or options.get('local_freetype', False)
 
 
 def get_win32_compiler():
@@ -978,26 +1019,62 @@ class FreeType(SetupPackage):
             'build', 'freetype-{0}'.format(LOCAL_FREETYPE_VERSION))
 
         # We've already built freetype
-        if os.path.isfile(os.path.join(src_path, 'objs', '.libs', 'libfreetype.a')):
+        if os.path.isfile(
+                os.path.join(src_path, 'objs', '.libs', 'libfreetype.a')):
             return
 
         tarball = 'freetype-{0}.tar.gz'.format(LOCAL_FREETYPE_VERSION)
         tarball_path = os.path.join('build', tarball)
+        try:
+            tarball_cache_dir = _get_xdg_cache_dir()
+            tarball_cache_path = os.path.join(tarball_cache_dir, tarball)
+        except:
+            # again, do not really care if this fails
+            tarball_cache_dir = None
+            tarball_cache_path = None
         if not os.path.isfile(tarball_path):
-            tarball_url = 'http://download.savannah.gnu.org/releases/freetype/{0}'.format(tarball)
+            if (tarball_cache_path is not None and
+                    os.path.isfile(tarball_cache_path)):
+                if get_file_hash(tarball_cache_path) == LOCAL_FREETYPE_HASH:
+                    try:
+                        # fail on Lpy, oh well
+                        os.makedirs('build', exist_ok=True)
+                        shutil.copy(tarball_cache_path, tarball_path)
+                        print('Using cached tarball: {}'
+                              .format(tarball_cache_path))
+                    except:
+                        # If this fails, oh well just re-download
+                        pass
 
-            print("Downloading {0}".format(tarball_url))
-            if sys.version_info[0] == 2:
-                from urllib import urlretrieve
-            else:
-                from urllib.request import urlretrieve
+            if not os.path.isfile(tarball_path):
+                url_fmt = (
+                    'http://download.savannah.gnu.org/releases/freetype/{0}')
+                tarball_url = url_fmt.format(tarball)
 
-            if not os.path.exists('build'):
-                os.makedirs('build')
-            urlretrieve(tarball_url, tarball_path)
+                print("Downloading {0}".format(tarball_url))
+                if sys.version_info[0] == 2:
+                    from urllib import urlretrieve
+                else:
+                    from urllib.request import urlretrieve
+
+                if not os.path.exists('build'):
+                    os.makedirs('build')
+                urlretrieve(tarball_url, tarball_path)
+                if get_file_hash(tarball_path) == LOCAL_FREETYPE_HASH:
+                    try:
+                        # this will fail on LPy, oh well
+                        os.makedirs(tarball_cache_dir, exist_ok=True)
+                        shutil.copy(tarball_cache_path, tarball_path)
+                        print('Cached tarball at: {}'
+                              .format(tarball_cache_path))
+                    except:
+                        # again, we do not care if this fails, can
+                        # always re download
+                        pass
 
             if get_file_hash(tarball_path) != LOCAL_FREETYPE_HASH:
-                raise IOError("{0} does not match expected hash.".format(tarball))
+                raise IOError(
+                    "{0} does not match expected hash.".format(tarball))
 
         print("Building {0}".format(tarball))
         cflags = 'CFLAGS="{0} -fPIC" '.format(os.environ.get('CFLAGS', ''))
