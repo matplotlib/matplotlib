@@ -2568,6 +2568,9 @@ class Axes(_AxesBase):
             raise ValueError("'explode' must be of length 'x'")
         if colors is None:
             colors = ('b', 'g', 'r', 'c', 'm', 'y', 'k', 'w')
+            if 'color' in self._get_lines._prop_keys:
+                colors = [next(self._get_lines.prop_cycler)['color']
+                          for _ in range(len(colors))]
 
         if radius is None:
             radius = 1
