@@ -58,7 +58,7 @@ class PathCleanupIterator
 
     unsigned vertex(double *x, double *y)
     {
-        return m_simplify.vertex(x, y);
+        return m_sketch.vertex(x, y);
     }
 };
 
@@ -81,17 +81,18 @@ void *get_path_iterator(PyObject *path,
     }
     agg::rect_base<double> clip_rect(rect[0], rect[1], rect[2], rect[3]);
 
-    PathCleanupIterator *pipeline = new PathCleanupIterator(path,
-                                                            agg_trans,
-                                                            remove_nans != 0,
-                                                            do_clip != 0,
-                                                            clip_rect,
-                                                            snap_mode,
-                                                            stroke_width,
-                                                            do_simplify != 0,
-                                                            sketch_scale,
-                                                            sketch_length,
-                                                            sketch_randomness);
+    PathCleanupIterator *pipeline = new PathCleanupIterator(
+        path,
+        agg_trans,
+        remove_nans != 0,
+        do_clip != 0,
+        clip_rect,
+        snap_mode,
+        stroke_width,
+        do_simplify != 0,
+        sketch_scale,
+        sketch_length,
+        sketch_randomness);
 
     return (void *)pipeline;
 }

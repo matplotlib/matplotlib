@@ -18,7 +18,10 @@ void *get_path_iterator(PyObject *path,
                         double rect[4],
                         enum e_snap_mode snap_mode,
                         double stroke_width,
-                        int do_simplify);
+                        int do_simplify,
+                        double sketch_scale,
+                        double sketch_lenth,
+                        double sketch_randomness);
 
 unsigned get_vertex(void *pipeline, double *x, double *y);
 

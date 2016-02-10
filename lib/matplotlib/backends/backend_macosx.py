@@ -55,7 +55,13 @@ class RendererMac(RendererBase):
         if rgbFace is not None:
             rgbFace = tuple(rgbFace)
         linewidth = gc.get_linewidth()
-        gc.draw_path(path, transform, linewidth, rgbFace)
+        sketch_params = gc.get_sketch_params()
+        if sketch_params is not None:
+            args = sketch_params
+        else:
+            args = ()
+        gc.draw_path(path, transform, linewidth, rgbFace,
+                     *args)
 
     def draw_markers(self, gc, marker_path, marker_trans, path, trans, rgbFace=None):
         if rgbFace is not None:
@@ -98,9 +104,26 @@ class RendererMac(RendererBase):
     def new_gc(self):
         self.gc.save()
         self.gc.set_hatch(None)
+        self.gc._sketch = None
         self.gc._alpha = 1.0
         self.gc._forced_alpha = False # if True, _alpha overrides A from RGBA
         return self.gc
+
+    def new_gc_copy(self, gc):
+        # The Mac OSX backend has a stateful GraphicsContext stack,
+        # which is different from the other backends.  Since the
+        # new_gc is always the same as the old one, we need to
+        # override this special function to make sure the old state is
+        # copied correctly when we want a copy of the previous state.
+        orig_sketch = gc.get_sketch_params()
+        orig_hatch = gc.get_hatch()
+        gc0 = self.new_gc()
+        gc0.copy_properties(gc)
+        if orig_sketch is not None:
+            gc0.set_sketch_params(*orig_sketch)
+        if orig_hatch is not None:
+            gc0.set_hatch(orig_hatch)
+        return gc0
 
     def draw_gouraud_triangle(self, gc, points, colors, transform):
         points = transform.transform(points)
@@ -227,6 +250,7 @@ class GraphicsContextMac(_macosx.GraphicsContext, GraphicsContextBase):
         if not path: return
         path = path.get_fully_transformed_path()
         _macosx.GraphicsContext.set_clip_path(self, path)
+
 
 
 ########################################################################
