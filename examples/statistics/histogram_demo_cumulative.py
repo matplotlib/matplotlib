@@ -24,7 +24,6 @@ plt.plot(bins, y, 'k--', linewidth=1.5)
 plt.hist(x, bins=bins, normed=1, histtype='step', cumulative=-1)
 
 plt.grid(True)
-plt.ylim(0, 1.05)
 plt.title('cumulative step')
 
 plt.show()

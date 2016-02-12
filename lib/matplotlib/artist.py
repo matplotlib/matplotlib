@@ -1583,5 +1583,5 @@ def kwdoc(a):
 
 docstring.interpd.update(Artist=kwdoc(Artist))
 
-_get_axes_msg = """{} has been deprecated in mpl 1.5, please use the
+_get_axes_msg = """{0} has been deprecated in mpl 1.5, please use the
 axes property.  A removal date has not been set."""

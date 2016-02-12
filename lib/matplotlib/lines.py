@@ -36,6 +36,24 @@ from matplotlib.markers import (
 from matplotlib import _path
 
 
+def get_dash_pattern(style):
+    """
+    Given a dash pattern name from 'solid', 'dashed', 'dashdot' or
+    'dotted', returns the (offset, dashes) pattern.
+    """
+    if style == 'solid':
+        offset, dashes = None, None
+    elif style in ['dashed', 'dashdot', 'dotted']:
+        offset = 0
+        dashes = tuple(rcParams['lines.{}_pattern'.format(style)])
+    elif isinstance(style, tuple):
+        offset, dashes = style
+    else:
+        raise ValueError('Unrecognized linestyle: %s' % str(style))
+
+    return offset, dashes
+
+
 def segment_hits(cx, cy, x, y, radius):
     """
     Determine if any line segments are within radius of a
@@ -1052,7 +1070,7 @@ class Line2D(Artist):
                 ls = ls_mapper_r[ls]
             except KeyError:
                 raise ValueError(("You passed in an invalid linestyle, "
-                                  "`{}`.  See "
+                                  "`{0}`.  See "
                                   "docs of Line2D.set_linestyle for "
                                   "valid values.").format(ls))
 

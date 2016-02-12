@@ -1,0 +1,206 @@
+TARGET_ARCH=x86, CONDA_PY=27
+
+======================================================================
+FAIL: matplotlib.tests.test_axes.test_specgram_angle_freqs.test
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\conda\envs\test-environment\lib\site-packages\nose\case.py", line 197, in runTest
+    self.test(*self.arg)
+  File "c:\projects\matplotlib\lib\matplotlib\testing\decorators.py", line 55, in failer
+    result = f(*args, **kwargs)
+  File "c:\projects\matplotlib\lib\matplotlib\testing\decorators.py", line 259, in do_test
+    '(RMS %(rms).3f)'%err)
+ImageComparisonFailure: images not close:
+C:\projects\matplotlib\result_images\test_axes\specgram_angle_freqs.png vs. C:\projects\matplotlib\result_images\test_axes\specgram_angle_freqs-expected.png
+(RMS 0.002)
+
+======================================================================
+FAIL: matplotlib.tests.test_patches.test_wedge_range.test
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\conda\envs\test-environment\lib\site-packages\nose\case.py", line 197, in runTest
+    self.test(*self.arg)
+  File "c:\projects\matplotlib\lib\matplotlib\testing\decorators.py", line 55, in failer
+    result = f(*args, **kwargs)
+  File "c:\projects\matplotlib\lib\matplotlib\testing\decorators.py", line 259, in do_test
+    '(RMS %(rms).3f)'%err)
+ImageComparisonFailure: images not close:
+C:\projects\matplotlib\result_images\test_patches\wedge_range.png vs. C:\projects\matplotlib\result_images\test_patches\wedge_range-expected.png
+(RMS 0.059)
+
+======================================================================
+FAIL: matplotlib.tests.test_patheffects.test_collection.test
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\conda\envs\test-environment\lib\site-packages\nose\case.py", line 197, in runTest
+    self.test(*self.arg)
+  File "c:\projects\matplotlib\lib\matplotlib\testing\decorators.py", line 55, in failer
+    result = f(*args, **kwargs)
+  File "c:\projects\matplotlib\lib\matplotlib\testing\decorators.py", line 259, in do_test
+    '(RMS %(rms).3f)'%err)
+ImageComparisonFailure: images not close:
+C:\projects\matplotlib\result_images\test_patheffects\collection.png vs. C:\projects\matplotlib\result_images\test_patheffects\collection-expected.png
+(RMS 0.008)
+
+----------------------------------------------------------------------
+Ran 5966 tests in 588.929s
+
+FAILED (KNOWNFAIL=40, SKIP=1210, failures=3)
+TARGET_ARCH=x64, CONDA_PY=27
+
+======================================================================
+FAIL: matplotlib.tests.test_patches.test_wedge_range.test
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\conda\envs\test-environment\lib\site-packages\nose\case.py", line 197, in runTest
+    self.test(*self.arg)
+  File "c:\projects\matplotlib\lib\matplotlib\testing\decorators.py", line 55, in failer
+    result = f(*args, **kwargs)
+  File "c:\projects\matplotlib\lib\matplotlib\testing\decorators.py", line 259, in do_test
+    '(RMS %(rms).3f)'%err)
+ImageComparisonFailure: images not close:
+C:\projects\matplotlib\result_images\test_patches\wedge_range.png vs. C:\projects\matplotlib\result_images\test_patches\wedge_range-expected.png
+(RMS 0.059)
+
+======================================================================
+FAIL: matplotlib.tests.test_patheffects.test_collection.test
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\conda\envs\test-environment\lib\site-packages\nose\case.py", line 197, in runTest
+    self.test(*self.arg)
+  File "c:\projects\matplotlib\lib\matplotlib\testing\decorators.py", line 55, in failer
+    result = f(*args, **kwargs)
+  File "c:\projects\matplotlib\lib\matplotlib\testing\decorators.py", line 259, in do_test
+    '(RMS %(rms).3f)'%err)
+ImageComparisonFailure: images not close:
+C:\projects\matplotlib\result_images\test_patheffects\collection.png vs. C:\projects\matplotlib\result_images\test_patheffects\collection-expected.png
+ (RMS 0.012)
+
+----------------------------------------------------------------------
+Ran 5966 tests in 411.283s
+
+FAILED (KNOWNFAIL=40, SKIP=1210, failures=2)
+TARGET_ARCH=x64, CONDA_PY=34
+
+======================================================================
+FAIL: matplotlib.tests.test_patches.test_wedge_range.test
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\conda\envs\test-environment\lib\site-packages\nose\case.py", line 198, in runTest
+    self.test(*self.arg)
+  File "c:\projects\matplotlib\lib\matplotlib\testing\decorators.py", line 55, in failer
+    result = f(*args, **kwargs)
+  File "c:\projects\matplotlib\lib\matplotlib\testing\decorators.py", line 259, in do_test
+    '(RMS %(rms).3f)'%err)
+matplotlib.testing.exceptions.ImageComparisonFailure: images not close:
+C:\projects\matplotlib\result_images\test_patches\wedge_range.png vs. C:\projects\matplotlib\result_images\test_patches\wedge_range-expected.png
+ (RMS 0.059)
+
+======================================================================
+FAIL: matplotlib.tests.test_patheffects.test_collection.test
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\conda\envs\test-environment\lib\site-packages\nose\case.py", line 198, in runTest
+    self.test(*self.arg)
+  File "c:\projects\matplotlib\lib\matplotlib\testing\decorators.py", line 55, in failer
+    result = f(*args, **kwargs)
+  File "c:\projects\matplotlib\lib\matplotlib\testing\decorators.py", line 259, in do_test
+    '(RMS %(rms).3f)'%err)
+matplotlib.testing.exceptions.ImageComparisonFailure: images not close:
+C:\projects\matplotlib\result_images\test_patheffects\collection.png vs. C:\projects\matplotlib\result_images\test_patheffects\collection-expected.png
+(RMS 0.012)
+
+----------------------------------------------------------------------
+Ran 5966 tests in 494.700s
+
+FAILED (KNOWNFAIL=40, SKIP=1210, failures=2)
+TARGET_ARCH=x64, CONDA_PY=35
+
+======================================================================
+FAIL: matplotlib.tests.test_axes.test_specgram_freqs.test
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\conda\envs\test-environment\lib\site-packages\nose\case.py", line 198, in runTest
+    self.test(*self.arg)
+  File "c:\projects\matplotlib\lib\matplotlib\testing\decorators.py", line 55, in failer
+    result = f(*args, **kwargs)
+  File "c:\projects\matplotlib\lib\matplotlib\testing\decorators.py", line 259, in do_test
+    '(RMS %(rms).3f)'%err)
+matplotlib.testing.exceptions.ImageComparisonFailure: images not close:
+ C:\projects\matplotlib\result_images\test_axes\specgram_freqs.png vs. C:\projects\matplotlib\result_images\test_axes\specgram_freqs-expected.png
+(RMS 0.042)
+
+======================================================================
+FAIL: matplotlib.tests.test_axes.test_specgram_freqs.test
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\conda\envs\test-environment\lib\site-packages\nose\case.py", line 198, in runTest
+    self.test(*self.arg)
+  File "c:\projects\matplotlib\lib\matplotlib\testing\decorators.py", line 55, in failer
+    result = f(*args, **kwargs)
+  File "c:\projects\matplotlib\lib\matplotlib\testing\decorators.py", line 259, in do_test
+    '(RMS %(rms).3f)'%err)
+matplotlib.testing.exceptions.ImageComparisonFailure: images not close:
+C:\projects\matplotlib\result_images\test_axes\specgram_freqs_linear.png vs. C:\projects\matplotlib\result_images\test_axes\specgram_freqs_linear-expected.png
+ (RMS 0.042)
+
+======================================================================
+FAIL: matplotlib.tests.test_axes.test_specgram_magnitude_freqs.test
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\conda\envs\test-environment\lib\site-packages\nose\case.py", line 198, in runTest
+    self.test(*self.arg)
+  File "c:\projects\matplotlib\lib\matplotlib\testing\decorators.py", line 55, in failer
+    result = f(*args, **kwargs)
+  File "c:\projects\matplotlib\lib\matplotlib\testing\decorators.py", line 259, in do_test
+    '(RMS %(rms).3f)'%err)
+matplotlib.testing.exceptions.ImageComparisonFailure: images not close:
+C:\projects\matplotlib\result_images\test_axes\specgram_magnitude_freqs.png vs. C:\projects\matplotlib\result_images\test_axes\specgram_magnitude_freqs-expected.png
+ (RMS 0.042)
+
+======================================================================
+FAIL: matplotlib.tests.test_axes.test_specgram_magnitude_freqs.test
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\conda\envs\test-environment\lib\site-packages\nose\case.py", line 198, in runTest
+    self.test(*self.arg)
+  File "c:\projects\matplotlib\lib\matplotlib\testing\decorators.py", line 55, in failer
+    result = f(*args, **kwargs)
+  File "c:\projects\matplotlib\lib\matplotlib\testing\decorators.py", line 259, in do_test
+    '(RMS %(rms).3f)'%err)
+matplotlib.testing.exceptions.ImageComparisonFailure: images not close:
+C:\projects\matplotlib\result_images\test_axes\specgram_magnitude_freqs_linear.png vs. C:\projects\matplotlib\result_images\test_axes\specgram_magnitude_freqs_linear-expected.png
+(RMS 0.042)
+
+======================================================================
+FAIL: matplotlib.tests.test_patheffects.test_collection.test
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\conda\envs\test-environment\lib\site-packages\nose\case.py", line 198, in runTest
+    self.test(*self.arg)
+  File "c:\projects\matplotlib\lib\matplotlib\testing\decorators.py", line 55, in failer
+    result = f(*args, **kwargs)
+  File "c:\projects\matplotlib\lib\matplotlib\testing\decorators.py", line 259, in do_test
+    '(RMS %(rms).3f)'%err)
+matplotlib.testing.exceptions.ImageComparisonFailure: images not close:
+C:\projects\matplotlib\result_images\test_patheffects\collection.png vs. C:\projects\matplotlib\result_images\test_patheffects\collection-expected.png
+(RMS 0.006)
+
+======================================================================
+FAIL: matplotlib.tests.test_triangulation.test_tri_smooth_gradient.test
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\conda\envs\test-environment\lib\site-packages\nose\case.py", line 198, in runTest
+    self.test(*self.arg)
+  File "c:\projects\matplotlib\lib\matplotlib\testing\decorators.py", line 55, in failer
+    result = f(*args, **kwargs)
+  File "c:\projects\matplotlib\lib\matplotlib\testing\decorators.py", line 259, in do_test
+    '(RMS %(rms).3f)'%err)
+matplotlib.testing.exceptions.ImageComparisonFailure: images not close:
+C:\projects\matplotlib\result_images\test_triangulation\tri_smooth_gradient.png vs. C:\projects\matplotlib\result_images\test_triangulation\tri_smooth_gradient-expected.png
+(RMS 0.014)
+
+----------------------------------------------------------------------
+Ran 5966 tests in 517.163s
+
+FAILED (KNOWNFAIL=40, SKIP=1210, failures=6)

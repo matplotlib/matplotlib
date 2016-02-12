@@ -961,8 +961,8 @@ def find_tex_file(filename, format=None):
     `--format` option.
 
     Apparently most existing TeX distributions on Unix-like systems
-    use kpathsea. I hear MikTeX (a popular distribution on Windows)
-    doesn't use kpathsea, so what do we do? (TODO)
+    use kpathsea. It's also available as part of MikTeX, a popular
+    distribution on Windows.
 
     .. seealso::
 

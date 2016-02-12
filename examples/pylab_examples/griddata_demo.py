@@ -16,11 +16,11 @@ yi = np.linspace(-2.1, 2.1, 200)
 zi = griddata(x, y, z, xi, yi, interp='linear')
 # contour the gridded data, plotting dots at the nonuniform data points.
 CS = plt.contour(xi, yi, zi, 15, linewidths=0.5, colors='k')
-CS = plt.contourf(xi, yi, zi, 15, cmap=plt.cm.rainbow,
+CS = plt.contourf(xi, yi, zi, 15,
                   vmax=abs(zi).max(), vmin=-abs(zi).max())
 plt.colorbar()  # draw colorbar
 # plot data points.
-plt.scatter(x, y, marker='o', c='b', s=5, zorder=10)
+plt.scatter(x, y, marker='o', s=5, zorder=10)
 plt.xlim(-2, 2)
 plt.ylim(-2, 2)
 plt.title('griddata test (%d points)' % npts)

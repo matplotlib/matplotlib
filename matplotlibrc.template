@@ -59,7 +59,7 @@ backend      : $TEMPLATE_BACKEND
 
 # When True, the figures rendered in the nbagg backend are created with
 # a transparent background.
-# nbagg.transparent : True
+# nbagg.transparent : False
 
 # if you are running pyplot inside a GUI and your backend choice
 # conflicts, we will automatically try to find a compatible one for
@@ -78,7 +78,7 @@ backend      : $TEMPLATE_BACKEND
 ### LINES
 # See http://matplotlib.org/api/artist_api.html#module-matplotlib.lines for more
 # information on line properties.
-#lines.linewidth   : 1.0     # line width in points
+#lines.linewidth   : 2.0     # line width in points
 #lines.linestyle   : -       # solid line
 #lines.color       : blue    # has no affect on plot(); see axes.prop_cycle
 #lines.marker      : None    # the default marker
@@ -90,6 +90,11 @@ backend      : $TEMPLATE_BACKEND
 #lines.solid_capstyle : projecting   # butt|round|projecting
 #lines.antialiased : True         # render lines in antialiased (no jaggies)
 
+# The three standard dash patterns.  These are scaled by the linewidth.
+#lines.dashed_pattern : 2.8, 1.2
+#lines.dashdot_pattern : 4.8, 1.2, 0.8, 1.2
+#lines.dotted_pattern : 1.2, 0.6
+
 #markers.fillstyle: full # full|left|right|bottom|top|none
 
 ### PATCHES
@@ -100,7 +105,7 @@ backend      : $TEMPLATE_BACKEND
 #patch.linewidth        : None     # edge width in points.
                                    # If None, use axes.linewidth when patch
                                    # is not filled.
-#patch.facecolor        : b
+#patch.facecolor        : #1f77b4
 #patch.edgecolor        : black
 #patch.antialiased      : True    # render patches in antialiased (no jaggies)
 
@@ -315,7 +320,10 @@ backend      : $TEMPLATE_BACKEND
 #axes.unicode_minus  : True    # use unicode for the minus symbol
                                # rather than hyphen.  See
                                # http://en.wikipedia.org/wiki/Plus_and_minus_signs#Character_codes
-#axes.prop_cycle    : cycler('color', 'bgrcmyk')
+#axes.prop_cycle    : cycler('color',
+#                            ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728',
+#                              '#9467bd', '#8c564b', '#e377c2', '#7f7f7f',
+#                              '#bcbd22', '#17becf'])
                                             # color cycle for plot lines
                                             # as list of string colorspecs:
                                             # single letter, long name, or
@@ -347,44 +355,45 @@ backend      : $TEMPLATE_BACKEND
 
 ### TICKS
 # see http://matplotlib.org/api/axis_api.html#matplotlib.axis.Tick
-
 #xtick.top            : True   # draw ticks on the top side
 #xtick.bottom         : True   # draw ticks on the bottom side
 #xtick.major.size     : 4      # major tick size in points
 #xtick.minor.size     : 2      # minor tick size in points
-#xtick.major.width    : 0.5    # major tick width in points
-#xtick.minor.width    : 0.5    # minor tick width in points
+#xtick.major.width    : 1.0    # major tick width in points
+#xtick.minor.width    : 1.0    # minor tick width in points
 #xtick.major.pad      : 4      # distance to major tick label in points
 #xtick.minor.pad      : 4      # distance to the minor tick label in points
 #xtick.color          : k      # color of the tick labels
 #xtick.labelsize      : medium # fontsize of the tick labels
-#xtick.direction      : in     # direction: in, out, or inout
-
+#xtick.direction      : out    # direction: in, out, or inout
+#xtick.minor.visible  : False  # visibility of minor ticks on x-axis
 
 #ytick.left           : True   # draw ticks on the left side
 #ytick.right          : True   # draw ticks on the right side
 #ytick.major.size     : 4      # major tick size in points
 #ytick.minor.size     : 2      # minor tick size in points
-#ytick.major.width    : 0.5    # major tick width in points
-#ytick.minor.width    : 0.5    # minor tick width in points
+#ytick.major.width    : 1.0    # major tick width in points
+#ytick.minor.width    : 1.0    # minor tick width in points
 #ytick.major.pad      : 4      # distance to major tick label in points
 #ytick.minor.pad      : 4      # distance to the minor tick label in points
 #ytick.color          : k      # color of the tick labels
 #ytick.labelsize      : medium # fontsize of the tick labels
-#ytick.direction      : in     # direction: in, out, or inout
+#ytick.direction      : out    # direction: in, out, or inout
+#ytick.minor.visible  : False  # visibility of minor ticks on y-axis
 
 
 ### GRIDS
-#grid.color       :   black   # grid color
-#grid.linestyle   :   :       # dotted
-#grid.linewidth   :   0.5     # in points
-#grid.alpha       :   1.0     # transparency, between 0.0 and 1.0
+#grid.color       :   '#b0b0b0' # grid color
+#grid.linestyle   :   -         # solid
+#grid.linewidth   :   1.0       # in points
+#grid.alpha       :   1.0       # transparency, between 0.0 and 1.0
 
 ### Legend
-#legend.fancybox      : False  # if True, use a rounded box for the
-                               # legend, else a rectangle
+#legend.fancybox      : True  # if True, use a rounded box for the
+                              # legend, else a rectangle
+#legend.loc           : best
 #legend.isaxes        : True
-#legend.numpoints     : 2      # the number of points in the legend line
+#legend.numpoints     : 1      # the number of points in the legend line
 #legend.fontsize      : large
 #legend.borderpad     : 0.5    # border whitespace in fontsize units
 #legend.markerscale   : 1.0    # the relative size of legend markers vs. original
@@ -407,8 +416,8 @@ backend      : $TEMPLATE_BACKEND
 #figure.titlesize : medium     # size of the figure title
 #figure.titleweight : normal   # weight of the figure title
 #figure.figsize   : 8, 6    # figure size in inches
-#figure.dpi       : 100     # figure dots per inch
-#figure.facecolor : 0.75    # figure facecolor; 0.75 is scalar gray
+#figure.dpi       : 100      # figure dots per inch
+#figure.facecolor : white   # figure facecolor; 0.75 is scalar gray
 #figure.edgecolor : white   # figure edgecolor
 #figure.autolayout : False  # When True, automatically adjust subplot
                             # parameters to make the plot fit the figure
@@ -427,11 +436,11 @@ backend      : $TEMPLATE_BACKEND
 
 ### IMAGES
 #image.aspect : equal             # equal | auto | a number
-#image.interpolation  : bilinear  # see help(imshow) for options
-#image.cmap   : jet               # gray | jet etc...
+#image.interpolation  : nearest   # see help(imshow) for options
+#image.cmap   : viridis           # A colormap name, gray etc...
 #image.lut    : 256               # the size of the colormap lookup table
 #image.origin : upper             # lower | upper
-#image.resample  : False
+#image.resample  : True
 #image.composite_image : True     # When True, all the images on a set of axes are
                                   # combined into a single composite image before
                                   # saving a figure as a vector graphics file,
@@ -442,7 +451,7 @@ backend      : $TEMPLATE_BACKEND
 #contour.corner_mask        : True   # True | False | legacy
 
 ### ERRORBAR PLOTS
-#errorbar.capsize : 3             # length of end cap on error bars in pixels
+#errorbar.capsize : 0             # length of end cap on error bars in pixels
 
 ### HISTOGRAM PLOTS
 #hist.bins : 10                   # The default number of histogram bins.

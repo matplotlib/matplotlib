@@ -2,6 +2,8 @@ from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
 from matplotlib.externals import six
+from matplotlib.testing.decorators import skip_if_command_unavailable
+
 
 from nose.tools import assert_equal, with_setup
 import matplotlib.dviread as dr
@@ -60,6 +62,7 @@ def test_PsfontsMap():
     assert_equal(entry.filename, '/absolute/font9.pfb')
 
 
+@skip_if_command_unavailable(["kpsewhich", "-version"])
 def test_dviread():
     dir = os.path.join(os.path.dirname(__file__), 'baseline_images', 'dviread')
     with open(os.path.join(dir, 'test.json')) as f:

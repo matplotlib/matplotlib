@@ -9,7 +9,7 @@ import matplotlib.cm as cm
 X = 10*np.random.rand(5, 3)
 
 fig, ax = plt.subplots()
-ax.imshow(X, cmap=cm.jet, interpolation='nearest')
+ax.imshow(X, interpolation='nearest')
 
 numrows, numcols = X.shape
 

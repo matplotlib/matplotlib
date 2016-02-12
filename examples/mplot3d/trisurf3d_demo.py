@@ -27,6 +27,6 @@ z = np.sin(-x*y)
 fig = plt.figure()
 ax = fig.gca(projection='3d')
 
-ax.plot_trisurf(x, y, z, cmap=cm.jet, linewidth=0.2)
+ax.plot_trisurf(x, y, z, linewidth=0.2, antialiased=True)
 
 plt.show()
