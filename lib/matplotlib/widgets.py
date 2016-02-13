@@ -717,7 +717,7 @@ class TextBox(AxesWidget):
         self.connect_event('key_press_event', self._keypress)
         self.connect_event('resize_event', self._resize)
         ax.set_navigate(False)
-        ax.set_axis_bgcolor(color)
+        ax.set_facecolor(color)
         ax.set_xticks([])
         ax.set_yticks([])
         self.color = color
@@ -817,10 +817,6 @@ class TextBox(AxesWidget):
         for key in self.params_to_disable:
             self.reset_params[key] = rcParams[key]
             rcParams[key] = []
-        #now, we have to figure out where the cursor goes.
-        #approximate it based on assuming all characters the same length
-        self.cursor_index = len(self.text)
-        self._rendercursor()
 
     def stop_typing(self):
         notifysubmit = False
@@ -828,7 +824,7 @@ class TextBox(AxesWidget):
         # user's code, we only want to call it once we've already done
         # our cleanup.
         if self.capturekeystrokes:
-            #since the user is no longer typing, 
+            #since the user is no longer typing,
             #reactivate the standard command keys
             for key in self.params_to_disable:
                 rcParams[key] = self.reset_params[key]
@@ -839,6 +835,31 @@ class TextBox(AxesWidget):
         if notifysubmit:
             self._notify_submit_observers()
 
+    def position_cursor(self, x):
+        #now, we have to figure out where the cursor goes.
+        #approximate it based on assuming all characters the same length
+        if len(self.text) == 0:
+            self.cursor_index = 0
+        else:
+            bb = self.text_disp.get_window_extent()
+
+            trans = self.ax.transData
+            inv = self.ax.transData.inverted()
+            bb = trans.transform(inv.transform(bb))
+
+            text_start = bb[0, 0]
+            text_end = bb[1, 0]
+
+            ratio = (x - text_start) / (text_end - text_start)
+
+            if ratio < 0:
+                ratio = 0
+            if ratio > 1:
+                ratio = 1
+
+            self.cursor_index = int(len(self.text) * ratio)
+
+        self._rendercursor()
 
     def _click(self, event):
         if self.ignore(event):
@@ -852,6 +873,7 @@ class TextBox(AxesWidget):
             event.canvas.grab_mouse(self.ax)
         if not(self.capturekeystrokes):
             self.begin_typing(event.x)
+        self.position_cursor(event.x)
 
     def _resize(self, event):
         self.stop_typing()
@@ -864,7 +886,7 @@ class TextBox(AxesWidget):
         else:
             c = self.color
         if c != self._lastcolor:
-            self.ax.set_axis_bgcolor(c)
+            self.ax.set_facecolor(c)
             self._lastcolor = c
             if self.drawon:
                 self.ax.figure.canvas.draw()
