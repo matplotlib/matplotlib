@@ -511,7 +511,7 @@ class _AxesBase(martist.Artist):
         self._init_axis()
         if axisbg is not None and facecolor is not None:
             raise TypeError('Both axisbg and facecolor are not None. '
-                            'These keywords are aliases, only one maybe '
+                            'These keywords are aliases, only one may be '
                             'provided.')
         if axisbg is not None:
             cbook.warn_deprecated(
