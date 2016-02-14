@@ -519,7 +519,7 @@ class _AxesBase(martist.Artist):
             facecolor = axisbg
         if facecolor is None:
             facecolor = rcParams['axes.facecolor']
-        self._axisbg = facecolor
+        self._facecolor = facecolor
         self._frameon = frameon
         self._axisbelow = rcParams['axes.axisbelow']
 
@@ -1058,7 +1058,7 @@ class _AxesBase(martist.Artist):
         # setting the edgecolor to None
         self.patch = self.axesPatch = self._gen_axes_patch()
         self.patch.set_figure(self.figure)
-        self.patch.set_facecolor(self._axisbg)
+        self.patch.set_facecolor(self._facecolor)
         self.patch.set_edgecolor('None')
         self.patch.set_linewidth(0)
         self.patch.set_transform(self.transAxes)
@@ -2714,7 +2714,7 @@ class _AxesBase(martist.Artist):
     @cbook.deprecated('2.0', alternative='get_facecolor')
     def get_axis_bgcolor(self):
         """Return the axis background color"""
-        return self._axisbg
+        return self._facecolor
 
     @cbook.deprecated('2.0', alternative='set_facecolor')
     def set_axis_bgcolor(self, color):
@@ -2727,7 +2727,7 @@ class _AxesBase(martist.Artist):
         warnings.warn(
             "set_axis_bgcolor is deprecated.  Use set_facecolor instead.",
             cbook.mplDeprecation)
-        self._axisbg = color
+        self._facecolor = color
         self.patch.set_facecolor(color)
         self.stale = True
     # data limits, ticks, tick labels, and formatting
