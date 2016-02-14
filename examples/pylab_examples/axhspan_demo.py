@@ -6,7 +6,7 @@ s = np.sin(2*np.pi*t)
 
 plt.plot(t, s)
 # draw a thick red hline at y=0 that spans the xrange
-l = plt.axhline(linewidth=4, color='#d62728')
+l = plt.axhline(linewidth=8, color='#d62728')
 
 # draw a default hline at y=1 that spans the xrange
 l = plt.axhline(y=1)
@@ -16,7 +16,7 @@ l = plt.axvline(x=1)
 
 # draw a thick blue vline at x=0 that spans the upper quadrant of
 # the yrange
-l = plt.axvline(x=0, ymin=0.75, linewidth=4, color='#1f77b4')
+l = plt.axvline(x=0, ymin=0.75, linewidth=8, color='#1f77b4')
 
 # draw a default hline at y=.5 that spans the middle half of
 # the axes
