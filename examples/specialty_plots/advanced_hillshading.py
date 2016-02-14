@@ -56,7 +56,7 @@ def shade_other_data():
     z2 = np.cos(x**2 + y**2)  # Data to color
 
     norm = Normalize(z2.min(), z2.max())
-    cmap = plt.cm.jet
+    cmap = plt.cm.RdBu
 
     ls = LightSource(315, 45)
     rgb = ls.shade_rgb(cmap(norm(z2)), z1)
