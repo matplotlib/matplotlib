@@ -413,13 +413,14 @@ class _AxesBase(martist.Artist):
         return "Axes(%g,%g;%gx%g)" % tuple(self._position.bounds)
 
     def __init__(self, fig, rect,
-                 axisbg=None,  # defaults to rc axes.facecolor
+                 facecolor=None,  # defaults to rc axes.facecolor
                  frameon=True,
                  sharex=None,  # use Axes instance's xaxis info
                  sharey=None,  # use Axes instance's yaxis info
                  label='',
                  xscale=None,
                  yscale=None,
+                 axisbg=None,  # This will be removed eventually
                  **kwargs
                  ):
         """
@@ -508,13 +509,17 @@ class _AxesBase(martist.Artist):
 
         # this call may differ for non-sep axes, e.g., polar
         self._init_axis()
-
-        if axisbg is None:
-            axisbg = rcParams['axes.facecolor']
-        else:
+        if axisbg is not None and facecolor is not None:
+            raise TypeError('Both axisbg and facecolor are not None. '
+                            'These keywords are aliases, only one maybe '
+                            'provided.')
+        if axisbg is not None:
             cbook.warn_deprecated(
                 '2.0', name='axisbg', alternative='facecolor')
-        self._axisbg = axisbg
+            facecolor = axisbg
+        if facecolor is None:
+            facecolor = rcParams['axes.facecolor']
+        self._axisbg = facecolor
         self._frameon = frameon
         self._axisbelow = rcParams['axes.axisbelow']
 
