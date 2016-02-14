@@ -2416,34 +2416,71 @@ class Axes(_AxesBase):
 
         # Popping some defaults
         try:
-            linefmt = kwargs.pop('linefmt', args[0])
-        except IndexError:
-            linefmt = kwargs.pop('linefmt', 'b-')
+            linefmt = kwargs['linefmt']
+        except KeyError:
+            try:
+                linefmt = args[0]
+            except IndexError:
+                linecolor = 'C0'
+                linemarker = 'None'
+                linestyle = '-'
+            else:
+                linestyle, linemarker, linecolor = \
+                    _process_plot_format(linefmt)
+        else:
+            linestyle, linemarker, linecolor = _process_plot_format(linefmt)
         try:
-            markerfmt = kwargs.pop('markerfmt', args[1])
-        except IndexError:
-            markerfmt = kwargs.pop('markerfmt', 'bo')
+            markerfmt = kwargs['markerfmt']
+        except KeyError:
+            try:
+                markerfmt = args[1]
+            except IndexError:
+                markercolor = 'C0'
+                markermarker = 'o'
+                markerstyle = 'None'
+            else:
+                markerstyle, markermarker, markercolor = \
+                    _process_plot_format(markerfmt)
+        else:
+            markerstyle, markermarker, markercolor = \
+                _process_plot_format(markerfmt)
         try:
-            basefmt = kwargs.pop('basefmt', args[2])
-        except IndexError:
-            basefmt = kwargs.pop('basefmt', 'r-')
+            basefmt = kwargs['basefmt']
+        except KeyError:
+            try:
+                basefmt = args[2]
+            except IndexError:
+                if rcParams['_internal.classic_mode']:
+                    basecolor = 'C2'
+                else:
+                    basecolor = 'C3'
+                basemarker = 'None'
+                basestyle = '-'
+            else:
+                basestyle, basemarker, basecolor = \
+                    _process_plot_format(basefmt)
+        else:
+            basestyle, basemarker, basecolor = _process_plot_format(basefmt)
 
         bottom = kwargs.pop('bottom', None)
         label = kwargs.pop('label', None)
 
-        markerline, = self.plot(x, y, markerfmt, label="_nolegend_")
+        markerline, = self.plot(x, y, color=markercolor, linestyle=markerstyle,
+                                marker=markermarker, label="_nolegend_")
 
         if bottom is None:
             bottom = 0
 
         stemlines = []
         for thisx, thisy in zip(x, y):
-            l, = self.plot([thisx, thisx], [bottom, thisy], linefmt,
-                           label="_nolegend_")
+            l, = self.plot([thisx, thisx], [bottom, thisy],
+                           color=linecolor, linestyle=linestyle,
+                           marker=linemarker, label="_nolegend_")
             stemlines.append(l)
 
         baseline, = self.plot([np.amin(x), np.amax(x)], [bottom, bottom],
-                              basefmt, label="_nolegend_")
+                              color=basecolor, linestyle=basestyle,
+                              marker=basemarker, label="_nolegend_")
 
         self.hold(remember_hold)
 
