@@ -413,13 +413,14 @@ class _AxesBase(martist.Artist):
         return "Axes(%g,%g;%gx%g)" % tuple(self._position.bounds)
 
     def __init__(self, fig, rect,
-                 axisbg=None,  # defaults to rc axes.facecolor
+                 facecolor=None,  # defaults to rc axes.facecolor
                  frameon=True,
                  sharex=None,  # use Axes instance's xaxis info
                  sharey=None,  # use Axes instance's yaxis info
                  label='',
                  xscale=None,
                  yscale=None,
+                 axisbg=None,  # This will be removed eventually
                  **kwargs
                  ):
         """
@@ -508,13 +509,17 @@ class _AxesBase(martist.Artist):
 
         # this call may differ for non-sep axes, e.g., polar
         self._init_axis()
-
-        if axisbg is None:
-            axisbg = rcParams['axes.facecolor']
-        else:
+        if axisbg is not None and facecolor is not None:
+            raise TypeError('Both axisbg and facecolor are not None. '
+                            'These keywords are aliases, only one may be '
+                            'provided.')
+        if axisbg is not None:
             cbook.warn_deprecated(
                 '2.0', name='axisbg', alternative='facecolor')
-        self._axisbg = axisbg
+            facecolor = axisbg
+        if facecolor is None:
+            facecolor = rcParams['axes.facecolor']
+        self._facecolor = facecolor
         self._frameon = frameon
         self._axisbelow = rcParams['axes.axisbelow']
 
@@ -1053,7 +1058,7 @@ class _AxesBase(martist.Artist):
         # setting the edgecolor to None
         self.patch = self.axesPatch = self._gen_axes_patch()
         self.patch.set_figure(self.figure)
-        self.patch.set_facecolor(self._axisbg)
+        self.patch.set_facecolor(self._facecolor)
         self.patch.set_edgecolor('None')
         self.patch.set_linewidth(0)
         self.patch.set_transform(self.transAxes)
@@ -1083,6 +1088,7 @@ class _AxesBase(martist.Artist):
     get_fc = get_facecolor
 
     def set_facecolor(self, color):
+        self._facecolor = color
         return self.patch.set_facecolor(color)
     set_fc = set_facecolor
 
@@ -2709,7 +2715,7 @@ class _AxesBase(martist.Artist):
     @cbook.deprecated('2.0', alternative='get_facecolor')
     def get_axis_bgcolor(self):
         """Return the axis background color"""
-        return self._axisbg
+        return self.get_facecolor()
 
     @cbook.deprecated('2.0', alternative='set_facecolor')
     def set_axis_bgcolor(self, color):
@@ -2719,12 +2725,7 @@ class _AxesBase(martist.Artist):
         ACCEPTS: any matplotlib color - see
         :func:`~matplotlib.pyplot.colors`
         """
-        warnings.warn(
-            "set_axis_bgcolor is deprecated.  Use set_facecolor instead.",
-            cbook.mplDeprecation)
-        self._axisbg = color
-        self.patch.set_facecolor(color)
-        self.stale = True
+        return self.set_facecolor(color)
     # data limits, ticks, tick labels, and formatting
 
     def invert_xaxis(self):
