@@ -2714,7 +2714,7 @@ class _AxesBase(martist.Artist):
     @cbook.deprecated('2.0', alternative='get_facecolor')
     def get_axis_bgcolor(self):
         """Return the axis background color"""
-        return self._facecolor
+        return self.get_facecolor()
 
     @cbook.deprecated('2.0', alternative='set_facecolor')
     def set_axis_bgcolor(self, color):
@@ -2724,12 +2724,7 @@ class _AxesBase(martist.Artist):
         ACCEPTS: any matplotlib color - see
         :func:`~matplotlib.pyplot.colors`
         """
-        warnings.warn(
-            "set_axis_bgcolor is deprecated.  Use set_facecolor instead.",
-            cbook.mplDeprecation)
-        self._facecolor = color
-        self.patch.set_facecolor(color)
-        self.stale = True
+        return self.set_facecolor(color)
     # data limits, ticks, tick labels, and formatting
 
     def invert_xaxis(self):
