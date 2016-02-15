@@ -1088,6 +1088,7 @@ class _AxesBase(martist.Artist):
     get_fc = get_facecolor
 
     def set_facecolor(self, color):
+        self._facecolor = color
         return self.patch.set_facecolor(color)
     set_fc = set_facecolor
 
