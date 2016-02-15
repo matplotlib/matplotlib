@@ -29,7 +29,8 @@ from .path import Path
 # python trick.  The answer is that I need to be able to manipulate
 # the docstring, and there is no clever way to do that in python 2.2,
 # as far as I can see - see
-# http://groups.google.com/groups?hl=en&lr=&threadm=mailman.5090.1098044946.5135.python-list%40python.org&rnum=1&prev=/groups%3Fq%3D__doc__%2Bauthor%253Ajdhunter%2540ace.bsd.uchicago.edu%26hl%3Den%26btnG%3DGoogle%2BSearch
+#
+# https://mail.python.org/pipermail/python-list/2004-October/242925.html
 
 
 def allow_rasterization(draw):
