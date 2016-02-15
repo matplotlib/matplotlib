@@ -13,10 +13,11 @@ from matplotlib import rcParams, verbose
 QT_API_PYQT = 'PyQt4'       # API is not set here; Python 2.x default is V 1
 QT_API_PYQTv2 = 'PyQt4v2'   # forced to Version 2 API
 QT_API_PYSIDE = 'PySide'    # only supports Version 2 API
-QT_API_PYQT5 = 'PyQt5'       # use PyQt5 API; Version 2 with module shim
+QT_API_PYQT5 = 'PyQt5'      # use PyQt5 API; Version 2 with module shim
+QT_API_PYSIDE2 = 'PySide2'  # Version 2 API with module shim
 
 ETS = dict(pyqt=(QT_API_PYQTv2, 4), pyside=(QT_API_PYSIDE, 4),
-           pyqt5=(QT_API_PYQT5, 5))
+           pyqt5=(QT_API_PYQT5, 5), pyside2=(QT_API_PYSIDE2, 5))
 # ETS is a dict of env variable to (QT_API, QT_MAJOR_VERSION)
 # If the ETS QT_API environment variable is set, use it, but only
 # if the varible if of the same major QT version.  Note that
@@ -68,7 +69,7 @@ if QT_API is None:
             # PyQt4 or PySide is actually used.
             QT_API = rcParams['backend.qt4']
         else:
-            # This is a fallback: PyQt5
+            # This is a fallback: PyQt5 or PySide2
             QT_API = rcParams['backend.qt5']
 
 # We will define an appropriate wrapper for the differing versions
@@ -154,13 +155,24 @@ if _sip_imported:
         # QtCore did not get imported, fall back to pyside
         QT_API = QT_API_PYSIDE
 
+
+if QT_API == QT_API_PYSIDE2:
+    try:
+        from PySide2 import QtCore, QtGui, QtWidgets, __version__
+        _getSaveFileName = QtWidgets.QFileDialog.getSaveFileName
+    except ImportError:
+        # tried PySide2, failed, fall back to PySide
+        QT_API = rcParams['backend.qt4']
+        QT_RC_MAJOR_VERSION = 4
+        QT_API = QT_API_PYSIDE
+
 if QT_API == QT_API_PYSIDE:  # try importing pyside
     try:
         from PySide import QtCore, QtGui, __version__, __version_info__
     except ImportError:
         raise ImportError(
             "Matplotlib qt-based backends require an external PyQt4, PyQt5,\n"
-            "or PySide package to be installed, but it was not found.")
+            "PySide or PySide2 package to be installed, but it was not found.")
 
     if __version_info__ < (1, 0, 3):
         raise ImportError(
