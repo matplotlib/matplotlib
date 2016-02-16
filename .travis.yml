@@ -13,10 +13,14 @@ addons:
       - gdb
       - mencoder
       - dvipng
+      - pgf
+      - lmodern
+      - cm-super
       - texlive-latex-base
       - texlive-latex-extra
       - texlive-fonts-recommended
       - texlive-latex-recommended
+      - texlive-xetex
       - graphviz
 #     - fonts-humor-sans
 #    sources:
