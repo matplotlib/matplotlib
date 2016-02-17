@@ -1004,7 +1004,7 @@ def _open_file_or_url(fname):
         f.close()
     else:
         fname = os.path.expanduser(fname)
-        encoding = locale.getdefaultlocale()[1]
+        encoding = locale.getpreferredencoding(do_setlocale=False)
         if encoding is None:
             encoding = "utf-8"
         with io.open(fname, encoding=encoding) as f:
@@ -1045,7 +1045,8 @@ def _rc_params_in_file(fname, fail_on_error=False):
             warnings.warn(
                 ('Cannot decode configuration file %s with '
                  'encoding %s, check LANG and LC_* variables')
-                % (fname, locale.getdefaultlocale()[1] or 'utf-8 (default)'))
+                % (fname, locale.getpreferredencoding(do_setlocale=False) or
+                   'utf-8 (default)'))
             raise
 
     config = RcParams()
