@@ -7,9 +7,6 @@ import matplotlib
 import inspect
 import warnings
 
-# ipython relies on interactive_bk being defined here
-from matplotlib.rcsetup import interactive_bk
-
 
 def pylab_setup():
     'return new_figure_manager, draw_if_interactive and show for pylab'
