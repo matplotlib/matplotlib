@@ -10,9 +10,6 @@ import warnings
 # ipython relies on interactive_bk being defined here
 from matplotlib.rcsetup import interactive_bk
 
-__all__ = ['backend','show','draw_if_interactive',
-           'new_figure_manager', 'backend_version']
-
 backend = matplotlib.get_backend() # validates, to match all_backends
 
 def pylab_setup():
@@ -50,12 +47,6 @@ or with matplotlib.use()""" %
     backend_version = getattr(backend_mod,'backend_version', 'unknown')
     show = getattr(backend_mod, 'show', do_nothing_show)
     draw_if_interactive = getattr(backend_mod, 'draw_if_interactive', do_nothing)
-
-    # Additional imports which only happen for certain backends.  This section
-    # should probably disappear once all backends are uniform.
-    if backend.lower() in ['wx','wxagg']:
-        Toolbar = backend_mod.Toolbar
-        __all__.append('Toolbar')
 
     matplotlib.verbose.report('backend %s version %s' % (backend,backend_version))
 
