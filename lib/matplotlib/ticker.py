@@ -1112,11 +1112,11 @@ class EngFormatter(Formatter):
             format_str = ("%%.%if %%s" % self.places)
 
         formatted = format_str % (mant, prefix)
-        
+
         formatted = formatted.strip()
         if (self.unit is not "") and (prefix is self.ENG_PREFIXES[0]):
             formatted = formatted + " "
-        
+
         return formatted
 
 
