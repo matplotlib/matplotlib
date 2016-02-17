@@ -8,10 +8,36 @@ import inspect
 import warnings
 
 
-def pylab_setup():
-    'return new_figure_manager, draw_if_interactive and show for pylab'
+def pylab_setup(backend=None):
+    '''return new_figure_manager, draw_if_interactive and show for pyplot
+
+    This provides the backend-specific functions that are used by
+    pyplot to abstract away the difference between interactive backends.
+
+    Parameters
+    ----------
+    backend : str, optional
+        The name of the backend to use.  If `None`, falls back to
+        ``matplotlib.get_backend()`` (which return ``rcParams['backend']``)
+
+    Returns
+    -------
+    backend_mod : module
+        The module which contains the backend of choice
+
+    new_figure_manager : function
+        Create a new figure manage (roughly maps to GUI window)
+
+    draw_if_interactive : function
+        Redraw the current figure if pyplot is interactive
+
+    show : function
+        Show (and possible block) any unshown figures.
+
+    '''
     # Import the requested backend into a generic module object
-    backend = matplotlib.get_backend()  # validates, to match all_backends
+    if backend is None:
+        backend = matplotlib.get_backend()  # validates, to match all_backends
 
     if backend.startswith('module://'):
         backend_name = backend[9:]
