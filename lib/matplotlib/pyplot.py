@@ -403,7 +403,6 @@ def xkcd(scale=1, length=100, randomness=2):
         rcParams['grid.linewidth'] = 0.0
         rcParams['axes.grid'] = False
         rcParams['axes.unicode_minus'] = False
-        rcParams['axes.prop_cycle'] = cycler('color', ['b', 'r', 'c', 'm'])
         rcParams['axes.edgecolor'] = 'black'
         rcParams['xtick.major.size'] = 8
         rcParams['xtick.major.width'] = 3
