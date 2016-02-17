@@ -15,6 +15,7 @@ import matplotlib.cm as cm
 import sys
 on_win = (sys.platform == 'win32')
 
+
 @image_comparison(baseline_images=['pngsuite'], extensions=['png'],
                   tol=0.01 if on_win else 0)
 def test_pngsuite():
