@@ -458,13 +458,13 @@ def test_EngFormatter_formatting():
 
     Should not exception.
     """
-    unitless = pef.EngFormatter()
+    unitless = mticker.EngFormatter()
     nose.tools.assert_equal(unitless(0.1), u'100 m')
     nose.tools.assert_equal(unitless(1), u'1')
     nose.tools.assert_equal(unitless(999.9), u'999.9')
     nose.tools.assert_equal(unitless(1001), u'1.001 k')
 
-    with_unit = pef.EngFormatter(unit=u's')
+    with_unit = mticker.EngFormatter(unit=u's')
     nose.tools.assert_equal(with_unit(0.1), u'100 ms')
     nose.tools.assert_equal(with_unit(1), u'1 s')
     nose.tools.assert_equal(with_unit(999.9), u'999.9 s')
