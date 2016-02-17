@@ -49,6 +49,9 @@ matplotlib source directory::
   [test]
   local_freetype = True
 
+or by setting the ``MPLLOCALFREETYPE`` environmental variable to any true
+value.
+
 Running the tests
 -----------------
 
@@ -65,7 +68,7 @@ commands, such as:
 ``--no-network``          Disable tests that require network access
 ========================  ===========
 
-Additional arguments are passed on to nosetests. See the nose 
+Additional arguments are passed on to nosetests. See the nose
 documentation for supported arguments. Some of the more important ones are given
 here:
 

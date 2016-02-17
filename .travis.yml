@@ -4,6 +4,7 @@ cache:
   directories:
     - $HOME/.ccache
     - $HOME/.cache/pip
+    - $HOME/.cache/matplotlib
 
 addons:
   apt:
@@ -133,6 +134,8 @@ script:
       pip install linkchecker
       linkchecker build/html/index.html
     fi
+  - rm -rf $HOME/.cache/matplotlib/tex.cache
+  - rm -rf $HOME/.cache/matplotlib/test_cache
 
 after_failure:
   - |
