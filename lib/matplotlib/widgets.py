@@ -474,7 +474,7 @@ class Slider(AxesWidget):
 
 class CheckButtons(AxesWidget):
     """
-    A GUI neutral radio button.
+    A GUI neutral set of check buttons.
 
     For the check buttons to remain responsive you must keep a
     reference to this object.
@@ -602,6 +602,12 @@ class CheckButtons(AxesWidget):
             return
         for cid, func in six.iteritems(self.observers):
             func(self.labels[index].get_text())
+            
+    def get_status(self):
+        """
+        returns a tuple of the status (True/False) of all of the check buttons
+        """
+        return [l1.get_visible() for (l1,l2) in self.lines]
 
     def on_clicked(self, func):
         """
