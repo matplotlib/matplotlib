@@ -42,14 +42,14 @@ def pylab_setup(backend=None):
     if backend.startswith('module://'):
         backend_name = backend[9:]
     else:
-        backend_name = 'backend_'+backend
-        backend_name = backend_name.lower() # until we banish mixed case
-        backend_name = 'matplotlib.backends.%s'%backend_name.lower()
+        backend_name = 'backend_' + backend
+        backend_name = backend_name.lower()  # until we banish mixed case
+        backend_name = 'matplotlib.backends.%s' % backend_name.lower()
 
     # the last argument is specifies whether to use absolute or relative
     # imports. 0 means only perform absolute imports.
-    backend_mod = __import__(backend_name,
-                             globals(),locals(),[backend_name],0)
+    backend_mod = __import__(backend_name, globals(), locals(),
+                             [backend_name], 0)
 
     # Things we pull in from all backends
     new_figure_manager = backend_mod.new_figure_manager
@@ -66,11 +66,19 @@ Your currently selected backend, '%s' does not support show().
 Please select a GUI backend in your matplotlibrc file ('%s')
 or with matplotlib.use()""" %
                           (backend, matplotlib.matplotlib_fname()))
-    def do_nothing(*args, **kwargs): pass
-    backend_version = getattr(backend_mod,'backend_version', 'unknown')
-    show = getattr(backend_mod, 'show', do_nothing_show)
-    draw_if_interactive = getattr(backend_mod, 'draw_if_interactive', do_nothing)
 
-    matplotlib.verbose.report('backend %s version %s' % (backend,backend_version))
+    def do_nothing(*args, **kwargs):
+        pass
+
+    backend_version = getattr(backend_mod, 'backend_version',
+                              'unknown')
+
+    show = getattr(backend_mod, 'show', do_nothing_show)
+
+    draw_if_interactive = getattr(backend_mod, 'draw_if_interactive',
+                                  do_nothing)
+
+    matplotlib.verbose.report('backend %s version %s' %
+                              (backend, backend_version))
 
     return backend_mod, new_figure_manager, draw_if_interactive, show
