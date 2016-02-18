@@ -2753,7 +2753,7 @@ def test_subplot_key_hash():
 @image_comparison(baseline_images=['specgram_freqs',
                                    'specgram_freqs_linear'],
                   remove_text=True, extensions=['png'],
-                  tol=0.05 if on_win else 0.03)
+                  tol=0.07 if on_win else 0.03)
 def test_specgram_freqs():
     '''test axes.specgram in default (psd) mode with sinusoidal stimuli'''
     n = 10000
@@ -2854,7 +2854,7 @@ def test_specgram_noise():
 @image_comparison(baseline_images=['specgram_magnitude_freqs',
                                    'specgram_magnitude_freqs_linear'],
                   remove_text=True, extensions=['png'],
-                  tol=0.05 if on_win else 0.03)
+                  tol=0.07 if on_win else 0.03)
 def test_specgram_magnitude_freqs():
     '''test axes.specgram in magnitude mode with sinusoidal stimuli'''
     n = 10000
@@ -2956,7 +2956,7 @@ def test_specgram_magnitude_noise():
 
 @image_comparison(baseline_images=['specgram_angle_freqs'],
                   remove_text=True, extensions=['png'],
-                  tol=0.003 if on_win else 0)
+                  tol=0.007 if on_win else 0)
 def test_specgram_angle_freqs():
     '''test axes.specgram in angle mode with sinusoidal stimuli'''
     n = 10000
