@@ -3068,8 +3068,8 @@ class Axes(_AxesBase):
                   meanprops=None, capprops=None, whiskerprops=None,
                   manage_xticks=True, autorange=False):
 
-        Make a box and whisker plot for each column of *x* or each
-        vector in sequence *x*.  The box extends from the lower to
+        Make a box and whisker plot for each column of ``x`` or each
+        vector in sequence ``x``.  The box extends from the lower to
         upper quartile values of the data, with a line at the median.
         The whiskers extend from the box to show the range of the
         data.  Flier points are those past the end of the whiskers.
@@ -3099,12 +3099,10 @@ class Axes(_AxesBase):
             this to an ascending sequence of percentile (e.g., [5, 95])
             to set the whiskers at specific percentiles of the data.
             Finally, ``whis`` can be the string ``'range'`` to force the
-            whiskers to the min and max of the data. In the edge case
-            that the 25th and 75th percentiles are equivalent, *whis*
-            will be automatically set to ``'range'``.
+            whiskers to the min and max of the data.
         bootstrap : int, optional
             Specifies whether to bootstrap the confidence intervals
-            around the median for notched boxplots. If bootstrap==None,
+            around the median for notched boxplots. If `bootstrap` is None,
             no bootstrapping is performed, and notches are calculated
             using a Gaussian-based asymptotic approximation (see McGill,
             R., Tukey, J.W., and Larsen, W.A., 1978, and Kendall and
@@ -3115,13 +3113,13 @@ class Axes(_AxesBase):
         usermedians : array-like, optional
             An array or sequence whose first dimension (or length) is
             compatible with ``x``. This overrides the medians computed
-            by matplotlib for each element of *usermedians* that is not
-            `None`. When an element of *usermedians* == None, the median
+            by matplotlib for each element of ``usermedians`` that is not
+            `None`. When an element of ``usermedians`` is None, the median
             will be computed by matplotlib as normal.
         conf_intervals : array-like, optional
             Array or sequence whose first dimension (or length) is
             compatible with ``x`` and whose second dimension is 2. When
-            the current element of ``conf_intervals`` is not None, the
+            the an element of ``conf_intervals`` is not None, the
             notch locations computed by matplotlib are overridden
             (provided ``notch`` is `True`). When an element of
             ``conf_intervals`` is `None`, the notches are computed by the
@@ -3156,12 +3154,12 @@ class Axes(_AxesBase):
 
         Additional Options
         ---------------------
-        The following boolean options toogle the drawing of individual
+        The following boolean options toggle the drawing of individual
         components of the boxplots:
             - showcaps: the caps on the ends of whiskers
               (default is True)
             - showbox: the central box (default is True)
-            - showfliers: the outlierd beyone the caps (default is True)
+            - showfliers: the outliers beyond the caps (default is True)
             - showmeans: the arithmetic means (default is False)
 
         The remaining options can accept dictionaries that specify the
@@ -3185,7 +3183,7 @@ class Axes(_AxesBase):
               and the median's confidence intervals if enabled.
             - medians: horizonal lines at the median of each box.
             - whiskers: the vertical lines extending to the most extreme,
-              n-outlier data points.
+              non-outlier data points.
             - caps: the horizontal lines at the ends of the whiskers.
             - fliers: points representing data that extend beyond the
               whiskers (outliers).

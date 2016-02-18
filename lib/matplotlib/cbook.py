@@ -1764,7 +1764,7 @@ def boxplot_stats(X, whis=1.5, autorange=False, bootstrap=None,
                   labels=None):
     """
     Returns list of dictionaries of statistics used to draw a series
-    of box and whisker plots. See the `Returns` section below to the
+    of box and whisker plots. The `Returns` section enumerates the
     required keys of the dictionary. Users can skip this function and
     pass a user-defined set of dictionaries to the new `axes.bxp` method
     instead of relying on MPL to do the calculations.
