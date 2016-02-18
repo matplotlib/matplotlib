@@ -607,7 +607,7 @@ class CheckButtons(AxesWidget):
         """
         returns a tuple of the status (True/False) of all of the check buttons
         """
-        return [l1.get_visible() for (l1,l2) in self.lines]
+        return [l1.get_visible() for (l1, l2) in self.lines]
 
     def on_clicked(self, func):
         """
