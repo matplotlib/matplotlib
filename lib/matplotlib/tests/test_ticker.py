@@ -180,6 +180,8 @@ def test_ScalarFormatter_offset_value():
                  (-100000.5, -99990.5, -100000),
                  (1233999, 1234001, 1234000),
                  (-1234001, -1233999, -1234000),
+                 (1, 1, 0),
+                 (123, 123, 123),
                  # Test cases courtesy of @WeatherGod
                  (.4538, .4578, .45),
                  (3789.12, 3783.1, 3780),
@@ -201,6 +203,7 @@ def test_ScalarFormatter_offset_value():
 
     for left, right, offset in test_data:
         yield check_offset_for, left, right, offset
+        yield check_offset_for, right, left, offset
 
 
 def _logfe_helper(formatter, base, locs, i, expected_result):
