@@ -1207,11 +1207,13 @@ class Image(SetupPackage):
         sources = [
             'src/_image.cpp',
             'src/mplutils.cpp',
-            'src/_image_wrapper.cpp'
+            'src/_image_wrapper.cpp',
+            'src/py_converters.cpp'
             ]
         ext = make_extension('matplotlib._image', sources)
         Numpy().add_flags(ext)
         LibAgg().add_flags(ext)
+
         return ext
 
 

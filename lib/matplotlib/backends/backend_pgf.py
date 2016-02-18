@@ -618,12 +618,12 @@ class RendererPgf(RendererBase):
         fname = os.path.splitext(os.path.basename(self.fh.name))[0]
         fname_img = "%s-img%d.png" % (fname, self.image_counter)
         self.image_counter += 1
-        _png.write_png(np.array(im)[::-1], os.path.join(path, fname_img))
+        _png.write_png(im[::-1], os.path.join(path, fname_img))
 
         # reference the image in the pgf picture
         writeln(self.fh, r"\begin{pgfscope}")
         self._print_pgf_clip(gc)
-        h, w = im.get_size_out()
+        h, w = im.shape[:2]
         f = 1. / self.dpi  # from display coords to inch
         writeln(self.fh, r"\pgftext[at=\pgfqpoint{%fin}{%fin},left,bottom]{\pgfimage[interpolate=true,width=%fin,height=%fin]{%s}}" % (x * f, y * f, w * f, h * f, fname_img))
         writeln(self.fh, r"\end{pgfscope}")
