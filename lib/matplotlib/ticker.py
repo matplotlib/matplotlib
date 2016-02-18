@@ -1114,7 +1114,7 @@ class EngFormatter(Formatter):
         formatted = format_str % (mant, prefix)
 
         formatted = formatted.strip()
-        if (self.unit is not "") and (prefix is self.ENG_PREFIXES[0]):
+        if (self.unit != "") and (prefix == self.ENG_PREFIXES[0]):
             formatted = formatted + " "
 
         return formatted
