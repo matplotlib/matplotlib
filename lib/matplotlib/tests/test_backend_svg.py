@@ -56,8 +56,7 @@ def test_noscale():
 
     fig = plt.figure()
     ax = fig.add_subplot(1, 1, 1)
-    ax.imshow(Z, cmap='gray')
-    plt.rcParams['svg.image_noscale'] = True
+    ax.imshow(Z, cmap='gray', interpolation='none')
 
 
 @cleanup

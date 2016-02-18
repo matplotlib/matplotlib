@@ -109,17 +109,14 @@ class RendererGDK(RendererBase):
             #             int(w), int(h))
             # set clip rect?
 
-        rows, cols, image_str = im.as_rgba_str()
-
-        image_array = np.fromstring(image_str, np.uint8)
-        image_array.shape = rows, cols, 4
+        rows, cols = im.shape[:2]
 
         pixbuf = gtk.gdk.Pixbuf(gtk.gdk.COLORSPACE_RGB,
                                 has_alpha=True, bits_per_sample=8,
                                 width=cols, height=rows)
 
         array = pixbuf_get_pixels_array(pixbuf)
-        array[:,:,:] = image_array[::-1]
+        array[:, :, :] = im[::-1]
 
         gc = self.new_gc()
 
