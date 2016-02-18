@@ -130,7 +130,7 @@ def cleanup(style=None):
     # writing a decorator with optional arguments.
 
     def make_cleanup(func):
-        if inspect.isgenerator(func):
+        if inspect.isgeneratorfunction(func):
             @functools.wraps(func)
             def wrapped_callable(*args, **kwargs):
                 original_units_registry = matplotlib.units.registry.copy()
