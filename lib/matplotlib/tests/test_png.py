@@ -12,8 +12,12 @@ from matplotlib.testing.decorators import image_comparison
 from matplotlib import pyplot as plt
 import matplotlib.cm as cm
 
+import sys
+on_win = (sys.platform == 'win32')
 
-@image_comparison(baseline_images=['pngsuite'], extensions=['png'])
+
+@image_comparison(baseline_images=['pngsuite'], extensions=['png'],
+                  tol=0.01 if on_win else 0)
 def test_pngsuite():
     dirname = os.path.join(
         os.path.dirname(__file__),
