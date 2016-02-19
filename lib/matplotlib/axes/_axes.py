@@ -3078,17 +3078,21 @@ class Axes(_AxesBase):
         ----------
         x : Array or a sequence of vectors.
             The input data.
+
         notch : bool, optional (False)
             If `True`, will produce a notched box plot. Otherwise, a
             rectangular boxplot is produced.
+
         sym : str, optional
             The default symbol for flier points. Enter an empty string
             ('') if you don't want to show fliers. If `None`, then the
             fliers default to 'b+'  If you want more control use the
             flierprops kwarg.
+
         vert : bool, optional (True)
             If `True` (default), makes the boxes vertical. If `False`,
             everything is drawn horizontally.
+
         whis : float, sequence, or string (default = 1.5)
             As a float, determines the reach of the whiskers past the
             first and third quartiles (e.g., Q3 + whis*IQR,
@@ -3100,6 +3104,7 @@ class Axes(_AxesBase):
             to set the whiskers at specific percentiles of the data.
             Finally, ``whis`` can be the string ``'range'`` to force the
             whiskers to the min and max of the data.
+
         bootstrap : int, optional
             Specifies whether to bootstrap the confidence intervals
             around the median for notched boxplots. If `bootstrap` is None,
@@ -3110,12 +3115,14 @@ class Axes(_AxesBase):
             times to bootstrap the median to determine its 95%
             confidence intervals. Values between 1000 and 10000 are
             recommended.
+
         usermedians : array-like, optional
             An array or sequence whose first dimension (or length) is
             compatible with ``x``. This overrides the medians computed
             by matplotlib for each element of ``usermedians`` that is not
             `None`. When an element of ``usermedians`` is None, the median
             will be computed by matplotlib as normal.
+
         conf_intervals : array-like, optional
             Array or sequence whose first dimension (or length) is
             compatible with ``x`` and whose second dimension is 2. When
@@ -3124,27 +3131,34 @@ class Axes(_AxesBase):
             (provided ``notch`` is `True`). When an element of
             ``conf_intervals`` is `None`, the notches are computed by the
             method specified by the other kwargs (e.g., ``bootstrap``).
+
         positions : array-like, optional
             Sets the positions of the boxes. The ticks and limits are
             automatically set to match the positions. Defaults to
             `range(1, N+1)` where N is the number of boxes to be drawn.
+
         widths : scalar or array-like
             Sets the width of each box either with a scalar or a
             sequence. The default is 0.5, or ``0.15*(distance between
             extreme positions)``, if that is smaller.
+
         patch_artist : bool, optional (False)
             If `False` produces boxes with the Line2D artist. Otherwise,
             boxes and drawn with Patch artists.
+
         labels : sequence, optional
             Labels for each dataset. Length must be compatible with
             dimensions  of ``x``.
+
         manage_xticks : bool, optional (True)
             If the function should adjust the xlim and xtick locations.
+
         autorange : bool, optional (False)
             When `True` and the data are distributed such that the  25th and
             75th percentiles are equal, ``whis`` is set to ``'range'`` such
             that the whisker ends are at the minimum and maximum of the
             data.
+
         meanline : bool, optional (False)
             If `True` (and ``showmeans`` is `True`), will try to render
             the mean as a line spanning the full width of the box
@@ -3174,20 +3188,27 @@ class Axes(_AxesBase):
         Returns
         -------
         result : dict
-            A dictionary mapping each component of the boxplot
-            to a list of the :class:`matplotlib.lines.Line2D`
-            instances created. That dictionary has the following keys
-            (assuming vertical boxplots):
+          A dictionary mapping each component of the boxplot to a list
+          of the :class:`matplotlib.lines.Line2D` instances
+          created. That dictionary has the following keys (assuming
+          vertical boxplots):
 
-            - boxes: the main body of the boxplot showing the quartiles
-              and the median's confidence intervals if enabled.
-            - medians: horizonal lines at the median of each box.
-            - whiskers: the vertical lines extending to the most extreme,
-              non-outlier data points.
-            - caps: the horizontal lines at the ends of the whiskers.
-            - fliers: points representing data that extend beyond the
-              whiskers (outliers).
-            - means: points or lines representing the means.
+          - ``boxes``: the main body of the boxplot showing the
+            quartiles and the median's confidence intervals if
+            enabled.
+
+          - ``medians``: horizontal lines at the median of each box.
+
+          - ``whiskers``: the vertical lines extending to the most
+            extreme, non-outlier data points.
+
+          - ``caps``: the horizontal lines at the ends of the
+            whiskers.
+
+          - ``fliers``: points representing data that extend beyond
+            the whiskers (fliers).
+
+          - ``means``: points or lines representing the means.
 
         Examples
         --------
@@ -3448,10 +3469,10 @@ class Axes(_AxesBase):
             quartiles and the median's confidence intervals if
             enabled.
 
-          - ``medians``: horizonal lines at the median of each box.
+          - ``medians``: horizontal lines at the median of each box.
 
           - ``whiskers``: the vertical lines extending to the most
-            extreme, n-outlier data points.
+            extreme, non-outlier data points.
 
           - ``caps``: the horizontal lines at the ends of the
             whiskers.
