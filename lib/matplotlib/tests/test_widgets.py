@@ -258,13 +258,15 @@ def test_lasso_selector():
     check_lasso_selector(useblit=False, lineprops=dict(color='red'))
     check_lasso_selector(useblit=True, button=1)
 
+
 @cleanup
 def test_CheckButtons():
     ax = get_ax()
-    check = widgets.CheckButtons(ax,('a','b','c'),(True,False,True))
-    assert check.get_status() == [True,False,True]
+    check = widgets.CheckButtons(ax, ('a', 'b', 'c'), (True, False, True))
+    assert check.get_status() == [True, False, True]
     check.set_active(0)
-    assert check.get_status() == [False,False,True]
+    assert check.get_status() == [False, False, True]
+
     def clicked_function():
         pass
     cid = check.on_clicked(clicked_function)
