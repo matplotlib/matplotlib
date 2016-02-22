@@ -488,7 +488,7 @@ RendererAgg::draw_path(GCAgg &gc, PathIterator &path, agg::trans_affine &trans, 
 
     transformed_path_t tpath(path, trans);
     nan_removed_t nan_removed(tpath, true, path.has_curves());
-    clipped_t clipped(nan_removed, clip, width, height);
+    clipped_t clipped(nan_removed, clip && !path.has_curves(), width, height);
     snapped_t snapped(clipped, gc.snap_mode, path.total_vertices(), snapping_linewidth);
     simplify_t simplified(snapped, simplify, path.simplify_threshold());
     curve_t curve(simplified);
@@ -1014,7 +1014,7 @@ inline void RendererAgg::_draw_path_collection_generic(GCAgg &gc,
 
             transformed_path_t tpath(path, trans);
             nan_removed_t nan_removed(tpath, true, has_curves);
-            clipped_t clipped(nan_removed, do_clip, width, height);
+            clipped_t clipped(nan_removed, do_clip && !has_curves, width, height);
             snapped_t snapped(
                 clipped, gc.snap_mode, path.total_vertices(), points_to_pixels(gc.linewidth));
             if (has_curves) {
