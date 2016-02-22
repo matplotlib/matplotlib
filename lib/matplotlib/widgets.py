@@ -602,7 +602,7 @@ class CheckButtons(AxesWidget):
             return
         for cid, func in six.iteritems(self.observers):
             func(self.labels[index].get_text())
-            
+
     def get_status(self):
         """
         returns a tuple of the status (True/False) of all of the check buttons
