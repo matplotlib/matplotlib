@@ -32,7 +32,7 @@ plt.text(0.95, 0.4, "Mag\nTTT$^{A^A}$\n123", size=18,
 plt.xticks([0.2, 0.4, 0.6, 0.8, 1.],
            ["Jan\n2009", "Feb\n2009", "Mar\n2009", "Apr\n2009", "May\n2009"])
 
-plt.axhline(0.7)
+plt.axhline(0.4)
 plt.title("test line spacing for multiline text")
 
 plt.subplots_adjust(bottom=0.25, top=0.75)
