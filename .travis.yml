@@ -132,7 +132,7 @@ script:
       source ~/virtualenv/python2.7/bin/activate
       pip install pip --upgrade
       pip install linkchecker
-      linkchecker build/html/index.html
+      linkchecker build/html/index.html --check-extern
     fi
   - rm -rf $HOME/.cache/matplotlib/tex.cache
   - rm -rf $HOME/.cache/matplotlib/test_cache
