@@ -852,7 +852,8 @@ class ListedColormap(Colormap):
         """
         Return a new color map with *lutsize* entries.
         """
-        return ListedColormap(self.name, self.colors, lutsize)
+        colors = self(np.linspace(0, 1, lutsize))
+        return ListedColormap(colors, name=self.name)
 
 
 class Normalize(object):
