@@ -22,7 +22,7 @@ s1 = 0.01*np.sin(2*np.pi*10*t) + cnse1
 s2 = 0.01*np.sin(2*np.pi*10*t) + cnse2
 
 plt.subplot(211)
-plt.plot(t, s1, 'b-', t, s2, 'g-')
+plt.plot(t, s1, t, s2)
 plt.xlim(0, 5)
 plt.xlabel('time')
 plt.ylabel('s1 and s2')

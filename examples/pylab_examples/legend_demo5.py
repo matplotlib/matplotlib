@@ -52,7 +52,7 @@ class HandlerDashedLines(HandlerLineCollection):
 x = np.linspace(0, 5, 100)
 
 plt.figure()
-colors = ['red', 'orange', 'yellow', 'green', 'blue']
+colors = plt.rcParams['axes.prop_cycle'].by_key()['color'][:5]
 styles = ['solid', 'dashed', 'dashed', 'dashed', 'solid']
 lines = []
 for i, color, style in zip(range(5), colors, styles):

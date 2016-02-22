@@ -16,7 +16,7 @@ fracs = N.astype(float)/N.max()
 norm = colors.Normalize(fracs.min(), fracs.max())
 
 for thisfrac, thispatch in zip(fracs, patches):
-    color = cm.jet(norm(thisfrac))
+    color = cm.viridis(norm(thisfrac))
     thispatch.set_facecolor(color)
 
 

@@ -9,5 +9,5 @@ xi = linspace(x[0], x[-1], 100)
 yi = stineman_interp(xi, x, y, yp)
 
 fig, ax = plt.subplots()
-ax.plot(x, y, 'ro', xi, yi, '-b.')
+ax.plot(x, y, 'o', xi, yi, '.')
 plt.show()
