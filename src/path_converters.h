@@ -278,7 +278,7 @@ class PathNanRemover : protected EmbeddedQueue<4>
  clipped, but are always included in their entirety.
  */
 template <class VertexSource>
-class PathClipper
+class PathClipper : public EmbeddedQueue<3>
 {
     VertexSource *m_source;
     bool m_do_clipping;
@@ -286,14 +286,9 @@ class PathClipper
     double m_lastX;
     double m_lastY;
     bool m_moveto;
-    double m_nextX;
-    double m_nextY;
-    bool m_has_next;
-    bool m_end_poly;
     double m_initX;
     double m_initY;
     bool m_has_init;
-    bool m_broke_path;
 
   public:
     PathClipper(VertexSource &source, bool do_clipping, double width, double height)
@@ -301,10 +296,7 @@ class PathClipper
           m_do_clipping(do_clipping),
           m_cliprect(-1.0, -1.0, width + 1.0, height + 1.0),
           m_moveto(true),
-          m_has_next(false),
-          m_end_poly(false),
-          m_has_init(false),
-          m_broke_path(false)
+          m_has_init(false)
     {
         // empty
     }
@@ -314,10 +306,7 @@ class PathClipper
           m_do_clipping(do_clipping),
           m_cliprect(rect),
           m_moveto(true),
-          m_has_next(false),
-          m_end_poly(false),
-          m_has_init(false),
-          m_broke_path(false)
+          m_has_init(false)
     {
         m_cliprect.x1 -= 1.0;
         m_cliprect.y1 -= 1.0;
@@ -327,9 +316,28 @@ class PathClipper
 
     inline void rewind(unsigned path_id)
     {
-        m_has_next = false;
+        m_has_init = false;
         m_moveto = true;
         m_source->rewind(path_id);
+    }
+
+    int draw_clipped_line(double x0, double y0, double x1, double y1)
+    {
+        unsigned moved = agg::clip_line_segment(&x0, &y0, &x1, &y1, m_cliprect);
+        // moved >= 4 - Fully clipped
+        // moved & 1 != 0 - First point has been moved
+        // moved & 2 != 0 - Second point has been moved
+        if (moved < 4) {
+            if (moved & 1 || m_moveto) {
+                queue_push(agg::path_cmd_move_to, x0, y0);
+            }
+            queue_push(agg::path_cmd_line_to, x1, y1);
+
+            m_moveto = false;
+            return 1;
+        }
+
+        return 0;
     }
 
     unsigned vertex(double *x, double *y)
@@ -339,74 +347,69 @@ class PathClipper
         if (m_do_clipping) {
             /* This is the slow path where we actually do clipping */
 
-            if (m_end_poly) {
-                m_end_poly = false;
-                return (agg::path_cmd_end_poly | agg::path_flags_close);
-            }
-
-            if (m_has_next) {
-                m_has_next = false;
-                *x = m_nextX;
-                *y = m_nextY;
-                return agg::path_cmd_line_to;
+            if (queue_pop(&code, x, y)) {
+                return code;
             }
 
             while ((code = m_source->vertex(x, y)) != agg::path_cmd_stop) {
-                if (code == (agg::path_cmd_end_poly | agg::path_flags_close)) {
+                switch (code) {
+                case (agg::path_cmd_end_poly | agg::path_flags_close):
                     if (m_has_init) {
-                        *x = m_initX;
-                        *y = m_initY;
-                        code = agg::path_cmd_line_to;
-                        m_end_poly = true;
-                    } else {
-                        continue;
+                        draw_clipped_line(m_lastX, m_lastY, m_initX, m_initY);
                     }
-                }
+                    queue_push(
+                        agg::path_cmd_end_poly | agg::path_flags_close,
+                        m_lastX, m_lastY);
+                    goto exit_loop;
 
-                if (code == agg::path_cmd_move_to) {
-                    m_initX = *x;
-                    m_initY = *y;
+                case agg::path_cmd_move_to:
+                    m_initX = m_lastX = *x;
+                    m_initY = m_lastY = *y;
                     m_has_init = true;
                     m_moveto = true;
-                }
-                if (m_moveto) {
-                    m_moveto = false;
-                    code = agg::path_cmd_move_to;
                     break;
-                } else if (code == agg::path_cmd_line_to) {
-                    double x0, y0, x1, y1;
-                    x0 = m_lastX;
-                    y0 = m_lastY;
-                    x1 = *x;
-                    y1 = *y;
+
+                case agg::path_cmd_line_to:
+                    if (draw_clipped_line(m_lastX, m_lastY, *x, *y)) {
+                        m_lastX = *x;
+                        m_lastY = *y;
+                        goto exit_loop;
+                    }
                     m_lastX = *x;
                     m_lastY = *y;
-                    unsigned moved = agg::clip_line_segment(&x0, &y0, &x1, &y1, m_cliprect);
-                    // moved >= 4 - Fully clipped
-                    // moved & 1 != 0 - First point has been moved
-                    // moved & 2 != 0 - Second point has been moved
-                    if (moved < 4) {
-                        if (moved & 1) {
-                            *x = x0;
-                            *y = y0;
-                            m_nextX = x1;
-                            m_nextY = y1;
-                            m_has_next = true;
-                            m_broke_path = true;
-                            return agg::path_cmd_move_to;
-                        }
-                        *x = x1;
-                        *y = y1;
-                        return code;
-                    }
-                } else {
                     break;
+
+                default:
+                    if (m_moveto) {
+                        queue_push(agg::path_cmd_move_to, m_lastX, m_lastY);
+                        m_moveto = false;
+                    }
+
+                    queue_push(code, *x, *y);
+                    m_lastX = *x;
+                    m_lastY = *y;
+                    goto exit_loop;
                 }
             }
 
-            m_lastX = *x;
-            m_lastY = *y;
-            return code;
+        exit_loop:
+
+            if (queue_pop(&code, x, y)) {
+                return code;
+            }
+
+            if (m_moveto &&
+                m_lastX >= m_cliprect.x1 &&
+                m_lastX <= m_cliprect.x2 &&
+                m_lastY >= m_cliprect.y1 &&
+                m_lastY <= m_cliprect.y2) {
+                *x = m_lastX;
+                *y = m_lastY;
+                m_moveto = false;
+                return agg::path_cmd_move_to;
+            }
+
+            return agg::path_cmd_stop;
         } else {
             // If not doing any clipping, just pass along the vertices
             // verbatim
