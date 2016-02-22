@@ -7,29 +7,49 @@ import matplotlib
 import inspect
 import warnings
 
-# ipython relies on interactive_bk being defined here
-from matplotlib.rcsetup import interactive_bk
 
-__all__ = ['backend','show','draw_if_interactive',
-           'new_figure_manager', 'backend_version']
+def pylab_setup(backend=None):
+    '''return new_figure_manager, draw_if_interactive and show for pyplot
 
-backend = matplotlib.get_backend() # validates, to match all_backends
+    This provides the backend-specific functions that are used by
+    pyplot to abstract away the difference between interactive backends.
 
-def pylab_setup():
-    'return new_figure_manager, draw_if_interactive and show for pylab'
+    Parameters
+    ----------
+    backend : str, optional
+        The name of the backend to use.  If `None`, falls back to
+        ``matplotlib.get_backend()`` (which return ``rcParams['backend']``)
+
+    Returns
+    -------
+    backend_mod : module
+        The module which contains the backend of choice
+
+    new_figure_manager : function
+        Create a new figure manage (roughly maps to GUI window)
+
+    draw_if_interactive : function
+        Redraw the current figure if pyplot is interactive
+
+    show : function
+        Show (and possible block) any unshown figures.
+
+    '''
     # Import the requested backend into a generic module object
+    if backend is None:
+        backend = matplotlib.get_backend()  # validates, to match all_backends
 
     if backend.startswith('module://'):
         backend_name = backend[9:]
     else:
-        backend_name = 'backend_'+backend
-        backend_name = backend_name.lower() # until we banish mixed case
-        backend_name = 'matplotlib.backends.%s'%backend_name.lower()
+        backend_name = 'backend_' + backend
+        backend_name = backend_name.lower()  # until we banish mixed case
+        backend_name = 'matplotlib.backends.%s' % backend_name.lower()
 
     # the last argument is specifies whether to use absolute or relative
     # imports. 0 means only perform absolute imports.
-    backend_mod = __import__(backend_name,
-                             globals(),locals(),[backend_name],0)
+    backend_mod = __import__(backend_name, globals(), locals(),
+                             [backend_name], 0)
 
     # Things we pull in from all backends
     new_figure_manager = backend_mod.new_figure_manager
@@ -46,17 +66,19 @@ Your currently selected backend, '%s' does not support show().
 Please select a GUI backend in your matplotlibrc file ('%s')
 or with matplotlib.use()""" %
                           (backend, matplotlib.matplotlib_fname()))
-    def do_nothing(*args, **kwargs): pass
-    backend_version = getattr(backend_mod,'backend_version', 'unknown')
+
+    def do_nothing(*args, **kwargs):
+        pass
+
+    backend_version = getattr(backend_mod, 'backend_version',
+                              'unknown')
+
     show = getattr(backend_mod, 'show', do_nothing_show)
-    draw_if_interactive = getattr(backend_mod, 'draw_if_interactive', do_nothing)
 
-    # Additional imports which only happen for certain backends.  This section
-    # should probably disappear once all backends are uniform.
-    if backend.lower() in ['wx','wxagg']:
-        Toolbar = backend_mod.Toolbar
-        __all__.append('Toolbar')
+    draw_if_interactive = getattr(backend_mod, 'draw_if_interactive',
+                                  do_nothing)
 
-    matplotlib.verbose.report('backend %s version %s' % (backend,backend_version))
+    matplotlib.verbose.report('backend %s version %s' %
+                              (backend, backend_version))
 
     return backend_mod, new_figure_manager, draw_if_interactive, show

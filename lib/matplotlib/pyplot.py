@@ -65,7 +65,7 @@ from .ticker import TickHelper, Formatter, FixedFormatter, NullFormatter,\
            Locator, IndexLocator, FixedLocator, NullLocator,\
            LinearLocator, LogLocator, AutoLocator, MultipleLocator,\
            MaxNLocator
-
+from matplotlib.backends import pylab_setup
 
 ## Backend detection ##
 def _backend_selection():
@@ -110,7 +110,6 @@ _backend_selection()
 
 ## Global ##
 
-from matplotlib.backends import pylab_setup
 _backend_mod, new_figure_manager, draw_if_interactive, _show = pylab_setup()
 
 _IP_REGISTERED = None
