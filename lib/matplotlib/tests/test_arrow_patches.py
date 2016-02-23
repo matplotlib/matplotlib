@@ -52,6 +52,54 @@ def test_boxarrow():
                   bbox=dict(boxstyle=stylename, fc="w", ec="k"))
 
 
+def prepare_fancyarrow_for_head_size_test():
+    """
+    Convenience function that prepares and return a FancyArrowPatch. It aims
+    at being used to test that the size of the arrow head does not depend on
+    the DPI value of the exported picture. 
+
+    NB: this function *is not* a test in itself!
+    """
+    fig = plt.figure(figsize=(6, 4), dpi=50)
+    ax = fig.add_subplot(111)
+    ax.set_xlim([0, 1])
+    ax.set_ylim([0, 1])
+    ax.add_patch(mpatches.FancyArrowPatch(posA=(0.3, 0.4), posB=(0.8, 0.6),
+                                          lw=3, arrowstyle=u'->', 
+                                          mutation_scale=150))    
+    return fig
+
+
+@image_comparison(baseline_images=['fancyarrow_head_size_100dpi'], 
+                  remove_text=True, extensions=['svg', 'pdf', 'png'], 
+                  savefig_kwarg=dict(dpi=100))    
+def test_fancy_arrow_patch_head_size_100dpi():
+    """
+    Check the export of a FancyArrowPatch @ 100 DPI. The FancyArrowPatch 
+    is instanciated through a dedicated function because another similar test
+    checks the same export but with a different DPI value.
+
+    Remark: may be more explicit to create a dedicated test for SVG and PDF,
+    as a DPI value is not very relevant here...
+    """
+    
+    prepare_fancyarrow_for_head_size_test()
+
+
+@image_comparison(baseline_images=['fancyarrow_head_size_300dpi'], 
+                  remove_text=True, 
+                  extensions=['png'], # pdf and svg already tested @ 100 DPI
+                  savefig_kwarg=dict(dpi=300))    
+def test_fancy_arrow_patch_head_size_300dpi():
+    """
+    Check the export of a FancyArrowPatch @ 300 DPI. The FancyArrowPatch 
+    is instanciated through a dedicated function because another similar test
+    checks the same export but with a different DPI value.
+    """
+    
+    prepare_fancyarrow_for_head_size_test()
+
+
 if __name__ == '__main__':
     import nose
     nose.runmodule(argv=['-s', '--with-doctest'], exit=False)
