@@ -5,7 +5,7 @@ from matplotlib.externals import six
 
 import matplotlib.pyplot as plt
 from matplotlib.testing.decorators import image_comparison
-import matplotlib.patches as mpatches # adopting scipy import conventions
+import matplotlib.patches as mpatches  # adopting scipy import conventions
 
 
 def draw_arrow(ax, t, r):
