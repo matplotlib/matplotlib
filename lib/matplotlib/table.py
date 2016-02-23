@@ -416,8 +416,9 @@ class Table(Artist):
         except (TypeError, AttributeError):
             self._autoColumns.append(col)
         else:
-       	    for cell in col:
+            for cell in col:
                 self._autoColumns.append(cell)
+
         self.stale = True
 
     def _auto_set_column_width(self, col, renderer):
