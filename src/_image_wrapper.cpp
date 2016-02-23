@@ -273,7 +273,7 @@ image_resample(PyObject *self, PyObject* args, PyObject *kwargs)
         } else {
             PyErr_Format(
                 PyExc_ValueError,
-                "If 3-dimensional, array must be RGBA.  Got %d planes.",
+                "If 3-dimensional, array must be RGBA.  Got %ld planes.",
                 PyArray_DIM(input_array, 2));
             goto error;
         }
