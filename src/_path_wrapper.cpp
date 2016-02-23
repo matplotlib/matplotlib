@@ -214,7 +214,7 @@ static PyObject *Py_update_path_extents(PyObject *self, PyObject *args, PyObject
 
     if (minpos.dim(0) != 2) {
         PyErr_Format(PyExc_ValueError,
-                     "minpos must be of length 2, got %d",
+                     "minpos must be of length 2, got %ld",
                      minpos.dim(0));
         return NULL;
     }
