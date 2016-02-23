@@ -2147,7 +2147,6 @@ class Annotation(Text, _AnnotationBase):
 
             d = self.arrowprops.copy()
             ms = d.pop("mutation_scale", self.get_size())
-            ms = renderer.points_to_pixels(ms)
             self.arrow_patch.set_mutation_scale(ms)
 
             if "arrowstyle" not in d:
