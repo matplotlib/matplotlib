@@ -4049,23 +4049,19 @@ class FancyArrowPatch(Patch):
 
         self._mutation_scale = mutation_scale
         self._mutation_aspect = mutation_aspect
-        # Provide a ref. to scale '_mutation_scale' when setting '_dpi_cor'.
-        self._genuine_mutation_scale = mutation_scale
-
+        
         self.set_dpi_cor(dpi_cor)
         #self._draw_in_display_coordinate = True
 
     def set_dpi_cor(self, dpi_cor):
         """
         dpi_cor is currently used for linewidth-related things and
-        shrink factor. Mutation scale *is* affected by this.
+        shrink factor. Mutation scale is not affected by this.
         """
 
         self._dpi_cor = dpi_cor
         self.stale = True
-        # Scale `_mutation_scale` properly with the new DPI (see issue #6035).
-        self._mutation_scale = self._genuine_mutation_scale * dpi_cor
-
+        
     def get_dpi_cor(self):
         """
         dpi_cor is currently used for linewidth-related things and
@@ -4226,10 +4222,10 @@ class FancyArrowPatch(Patch):
             _path = self.get_transform().transform_path(self._path_original)
 
         _path, fillable = self.get_arrowstyle()(_path,
-                                                self.get_mutation_scale(),
-                                                self.get_linewidth() * dpi_cor,
-                                                self.get_mutation_aspect()
-                                               )
+                                        self.get_mutation_scale() * dpi_cor,
+                                        self.get_linewidth() * dpi_cor,
+                                        self.get_mutation_aspect()
+                                        )
 
         #if not fillable:
         #    self._fill = False
@@ -4542,10 +4538,10 @@ class ConnectionPatch(FancyArrowPatch):
                                           )
 
         _path, fillable = self.get_arrowstyle()(_path,
-                                                self.get_mutation_scale(),
-                                                self.get_linewidth() * dpi_cor,
-                                                self.get_mutation_aspect()
-                                               )
+                                        self.get_mutation_scale() * dpi_cor,
+                                        self.get_linewidth() * dpi_cor,
+                                        self.get_mutation_aspect()
+                                       )
 
         return _path, fillable
 
