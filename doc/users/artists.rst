@@ -156,9 +156,9 @@ MATLAB, and is a 2D "patch" of color on the figure, e.g., rectangles,
 circles and polygons).  Every matplotlib ``Artist`` has the following
 properties
 
-==========   ======================================================================
+==========   ================================================================================
 Property     Description
-==========   ======================================================================
+==========   ================================================================================
 alpha 	     The transparency - a scalar from 0-1
 animated     A boolean that is used to facilitate animated drawing
 axes         The axes that the Artist lives in, possibly None
@@ -172,7 +172,8 @@ picker       A python object that controls object picking
 transform    The transformation
 visible      A boolean whether the artist should be drawn
 zorder       A number which determines the drawing order
-==========   ======================================================================
+rasterized   Boolean; Turns vectors into rastergraphics: (for compression & eps transparency)
+==========   ================================================================================
 
 Each of the properties is accessed with an old-fashioned setter or
 getter (yes we know this irritates Pythonistas and we plan to support
