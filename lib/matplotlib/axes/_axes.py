@@ -4605,7 +4605,7 @@ or tuple of floats
                          label_namer=None)
     def streamplot(self, x, y, u, v, density=1, linewidth=None, color=None,
                    cmap=None, norm=None, arrowsize=1, arrowstyle='-|>',
-                   minlength=0.1, transform=None, zorder=None,
+                   minlength=0.1, maxlength=2.0, transform=None, zorder=None,
                    start_points=None):
         if not self._hold:
             self.cla()
@@ -4618,6 +4618,7 @@ or tuple of floats
                                               arrowsize=arrowsize,
                                               arrowstyle=arrowstyle,
                                               minlength=minlength,
+                                              maxlength=maxlength,
                                               start_points=start_points,
                                               transform=transform,
                                               zorder=zorder)
