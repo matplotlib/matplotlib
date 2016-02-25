@@ -22,7 +22,8 @@ __all__ = ['streamplot']
 
 def streamplot(axes, x, y, u, v, density=1, linewidth=None, color=None,
                cmap=None, norm=None, arrowsize=1, arrowstyle='-|>',
-               minlength=0.1, transform=None, zorder=None, start_points=None):
+               minlength=0.1, maxlength=2.0, transform=None, zorder=None,
+               start_points=None):
     """Draws streamlines of a vector flow.
 
     *x*, *y* : 1d arrays
@@ -53,6 +54,8 @@ def streamplot(axes, x, y, u, v, density=1, linewidth=None, color=None,
         See :class:`~matplotlib.patches.FancyArrowPatch`.
     *minlength* : float
         Minimum length of streamline in axes coordinates.
+    *maxlength* : float
+        Maximum length of streamline in axes coordinates.
     *start_points*: Nx2 array
         Coordinates of starting points for the streamlines.
         In data coordinates, the same as the ``x`` and ``y`` arrays.
@@ -126,7 +129,7 @@ def streamplot(axes, x, y, u, v, density=1, linewidth=None, color=None,
     u = np.ma.masked_invalid(u)
     v = np.ma.masked_invalid(v)
 
-    integrate = get_integrator(u, v, dmap, minlength)
+    integrate = get_integrator(u, v, dmap, minlength, maxlength)
 
     trajectories = []
     if start_points is None:
@@ -401,7 +404,7 @@ class TerminateTrajectory(Exception):
 # Integrator definitions
 #========================
 
-def get_integrator(u, v, dmap, minlength):
+def get_integrator(u, v, dmap, minlength, maxlength):
 
     # rescale velocity onto grid-coordinates for integrations.
     u, v = dmap.data2grid(u, v)
@@ -439,9 +442,9 @@ def get_integrator(u, v, dmap, minlength):
             dmap.start_trajectory(x0, y0)
         except InvalidIndexError:
             return None
-        sf, xf_traj, yf_traj = _integrate_rk12(x0, y0, dmap, forward_time)
+        sf, xf_traj, yf_traj = _integrate_rk12(x0, y0, dmap, forward_time, maxlength)
         dmap.reset_start_point(x0, y0)
-        sb, xb_traj, yb_traj = _integrate_rk12(x0, y0, dmap, backward_time)
+        sb, xb_traj, yb_traj = _integrate_rk12(x0, y0, dmap, backward_time, maxlength)
         # combine forward and backward trajectories
         stotal = sf + sb
         x_traj = xb_traj[::-1] + xf_traj[1:]
@@ -456,7 +459,7 @@ def get_integrator(u, v, dmap, minlength):
     return integrate
 
 
-def _integrate_rk12(x0, y0, dmap, f):
+def _integrate_rk12(x0, y0, dmap, f, maxlength):
     """2nd-order Runge-Kutta algorithm with adaptive step size.
 
     This method is also referred to as the improved Euler's method, or Heun's
@@ -532,7 +535,7 @@ def _integrate_rk12(x0, y0, dmap, f):
                 dmap.update_trajectory(xi, yi)
             except InvalidIndexError:
                 break
-            if (stotal + ds) > 2:
+            if (stotal + ds) > maxlength:
                 break
             stotal += ds
 
