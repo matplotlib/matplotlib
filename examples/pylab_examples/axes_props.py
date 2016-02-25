@@ -19,7 +19,7 @@ for line in ticklines:
     line.set_linewidth(3)
 
 for line in gridlines:
-    line.set_linestyle('-')
+    line.set_linestyle('-.')
 
 for label in ticklabels:
     label.set_color('r')
