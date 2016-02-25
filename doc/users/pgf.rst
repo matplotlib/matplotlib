@@ -160,7 +160,17 @@ Troubleshooting
   in yout LaTeX document, the alignment of text elements in imported figures
   may be off. Check the header of your ``.pgf`` file if you are unsure about
   the fonts matplotlib used for the layout.
-
+  
+* Vector images and hence ``.pgf`` files can become bloated if there are a lot 
+  of objects in the graph. This can be the case for image processing or very
+  big scatter graphs.  In an extreme case this can cause TeX to run out of 
+  memory: "TeX capacity exceeded, sorry"  You can configure latex to increase 
+  the amount of memory available to generate the ``.pdf`` image as discussed on  
+  `tex.stackexchange.com <http://tex.stackexchange.com/questions/7953>`_.
+  Another way would be to "rasterize" parts of the graph causing problems 
+  using either the ``rasterized=True`` keyword, or ``.set_rasterized(True)`` as per 
+  `this example <http://matplotlib.org/examples/misc/rasterization_demo.html>`_.
+  
 * If you still need help, please see :ref:`reporting-problems`
 
 .. _LaTeX: http://www.tug.org

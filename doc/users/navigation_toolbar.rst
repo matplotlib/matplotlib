@@ -110,6 +110,8 @@ depends on your UI, but we have examples for every supported UI in the
 example code for GTK::
 
 
+    import gtk
+
     from matplotlib.figure import Figure
     from matplotlib.backends.backend_gtkagg import FigureCanvasGTKAgg as FigureCanvas
     from matplotlib.backends.backend_gtkagg import NavigationToolbar2GTKAgg as NavigationToolbar
