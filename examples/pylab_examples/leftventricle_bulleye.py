@@ -46,7 +46,7 @@ def bullseye_plot(ax, data, segBold=None, cmap=None, norm=None):
     data = np.array(data).ravel()
 
     if cmap is None:
-        cmap = plt.cm.jet
+        cmap = plt.cm.viridis
 
     if norm is None:
         norm = mpl.colors.Normalize(vmin=data.min(), vmax=data.max())
@@ -142,7 +142,7 @@ axl3 = fig.add_axes([0.69, 0.15, 0.2, 0.05])
 
 # Set the colormap and norm to correspond to the data for which
 # the colorbar will be used.
-cmap = mpl.cm.jet
+cmap = mpl.cm.viridis
 norm = mpl.colors.Normalize(vmin=1, vmax=17)
 
 # ColorbarBase derives from ScalarMappable and puts a colorbar
