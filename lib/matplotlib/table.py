@@ -410,7 +410,10 @@ class Table(Artist):
 
     def auto_set_column_width(self, col):
 
-        self._autoColumns.append(col)
+        if isinstance(col, list):
+            self._autoColumns = self._autoColumns + col
+        else:
+            self._autoColumns.append(col)
         self.stale = True
 
     def _auto_set_column_width(self, col, renderer):
