@@ -155,6 +155,7 @@ from __future__ import (absolute_import, division, print_function,
 from matplotlib.externals import six
 
 import decimal
+import numbers
 import locale
 import math
 import numpy as np
@@ -422,9 +423,12 @@ class ScalarFormatter(Formatter):
         # example: [1+1e-9,1+2e-9,1+3e-9] useMathText will render the offset
         # and scientific notation in mathtext
 
-        if useOffset is None:
-            useOffset = rcParams['axes.formatter.useoffset']
-        self.set_useOffset(useOffset)
+        self.set_useOffset(False)
+        self.set_useScalingFactor(False)
+        if rcParams['axes.formatter.useoffset'] == True:
+            self._offsetScaleNone=0 #Basically an enum: 0=offset 1=scale 2=none
+        self._offsetScaleNone=2 #Basically an enum: 0=offset 1=scale 2=none
+
         self._usetex = rcParams['text.usetex']
         if useMathText is None:
             useMathText = rcParams['axes.formatter.use_mathtext']
@@ -437,18 +441,51 @@ class ScalarFormatter(Formatter):
             useLocale = rcParams['axes.formatter.use_locale']
         self._useLocale = useLocale
 
+    def get_useScalingFactor(self):
+        return self._offsetScaleNone == 1
+
+    def set_useScalingFactor(self,val):
+        """
+        Enable or disable the use of scaling factor in the axis. 
+        Note that either offset or scaling can be used. Therefore, 
+        this automatically turns off offset
+        """
+
+        if val in [True, False]:
+            self.orderOfMagnitude=math.log10(1)
+            self._offsetScaleNone=1 #0=offset 1=scale 2=none
+            if val == False:
+                self._offsetScaleNone=2 #0=offset 1=scale 2=none
+        elif isinstance(val,numbers.Number):
+            self._offsetScaleNone=1 #0=offset 1=scale 2=none
+            self.orderOfMagnitude=.5*math.log10(val*val)
+        else:
+            raise ValueError("'val' must be a number or a boolean")
+
+    useScalingFactor = property(fget=get_useScalingFactor, fset=set_useScalingFactor)
+
     def get_useOffset(self):
-        return self._useOffset
+        return self._offsetScaleNone == 0
 
     def set_useOffset(self, val):
+        """
+        Enable or disable the use of offset in the axis or enable & set the offset 
+        at the same time. Since offset cannot be used in conjunction with a scaling
+        factor, the scaling factor is turned off.
+        """
         if val in [True, False]:
-            self.offset = 0
-            self._useOffset = val
+            self.offsetval = 0
+            self._offsetScaleNone=0 #0=offset 1=scale 2=none
+            if val == False:
+                self._offsetScaleNone=2 #0=offset 1=scale 2=none
+        elif isinstance(val,numbers.Number):
+            self._offsetScaleNone=0 #0=offset 1=scale 2=none
+            self.offsetval = val
         else:
-            self._useOffset = False
-            self.offset = val
+            raise ValueError("'val' must be a number or a boolean")
 
     useOffset = property(fget=get_useOffset, fset=set_useOffset)
+
 
     def get_useLocale(self):
         return self._useLocale
@@ -511,53 +548,65 @@ class ScalarFormatter(Formatter):
         s = self._formatSciNotation(s)
         return self.fix_minus(s)
 
+
     def get_offset(self):
         """Return scientific notation, plus offset"""
         if len(self.locs) == 0:
             return ''
         s = ''
-        if self.orderOfMagnitude or self.offset:
-            offsetStr = ''
-            sciNotStr = ''
-            if self.offset:
-                offsetStr = self.format_data(self.offset)
-                if self.offset > 0:
-                    offsetStr = '+' + offsetStr
+        offsetStr = ''
+        sciNotStr = ''
+        if  self._offsetScaleNone == 0: #OFFSET
+            if self._offsetScaleNone == 0:
+                offsetStr = self.format_data(self.offsetval)
+                if self.offsetval > 0:
+                    offsetStr = ' +' + offsetStr
+        elif self._offsetScaleNone == 1: #SCALE
             if self.orderOfMagnitude:
                 if self._usetex or self._useMathText:
                     sciNotStr = self.format_data(10 ** self.orderOfMagnitude)
                 else:
-                    sciNotStr = '1e%d' % self.orderOfMagnitude
-            if self._useMathText:
-                if sciNotStr != '':
-                    sciNotStr = r'\times%s' % _mathdefault(sciNotStr)
-                s = ''.join(('$', sciNotStr, _mathdefault(offsetStr), '$'))
-            elif self._usetex:
-                if sciNotStr != '':
-                    sciNotStr = r'\times%s' % sciNotStr
-                s = ''.join(('$', sciNotStr, offsetStr, '$'))
-            else:
-                s = ''.join((sciNotStr, offsetStr))
+                    #sciNotStr = '%g' % 10 **self.orderOfMagnitude
+                    sciNotStr = '\u22C5 ' + self.format_data(10 ** self.orderOfMagnitude)
+
+        #Do final formatting
+        if self._useMathText:
+            if sciNotStr != '':
+                sciNotStr = r'\times%s' % _mathdefault(sciNotStr)
+            s = ''.join(('$', sciNotStr, _mathdefault(offsetStr), '$'))
+        elif self._usetex:
+            if sciNotStr != '':
+                sciNotStr = r'\times%s' % sciNotStr
+            s = ''.join(('$', sciNotStr, offsetStr, '$'))
+        else:
+            s = ''.join((sciNotStr, offsetStr))
 
         return self.fix_minus(s)
 
     def set_locs(self, locs):
         'set the locations of the ticks'
         self.locs = locs
+
         if len(self.locs) > 0:
             vmin, vmax = self.axis.get_view_interval()
             d = abs(vmax - vmin)
-            if self._useOffset:
+            if self._offsetScaleNone == 0:
                 self._set_offset(d)
+
             self._set_orderOfMagnitude(d)
             self._set_format(vmin, vmax)
 
     def _set_offset(self, range):
+        #Determine if an offset is needed and if so, set it.
+        #This is only needed when scaling/offset hasn't been set by the user
+        if self._offsetScaleNone != 2:
+            return 
+
         # offset of 20,001 is 20,000, for example
         locs = self.locs
 
         if locs is None or not len(locs) or range == 0:
-            self.offset = 0
+            self.set_useOffset(False)
             return
         vmin, vmax = sorted(self.axis.get_view_interval())
         locs = np.asarray(locs)
@@ -570,21 +619,23 @@ class ScalarFormatter(Formatter):
             if np.absolute(ave_oom - range_oom) >= 3:  # four sig-figs
                 p10 = 10 ** range_oom
                 if ave_loc < 0:
-                    self.offset = (math.ceil(np.max(locs) / p10) * p10)
+                    self.set_useOffset((math.ceil(np.max(locs) / p10) * p10))
                 else:
-                    self.offset = (math.floor(np.min(locs) / p10) * p10)
+                    self.set_useOffset((math.floor(np.min(locs) / p10) * p10))
             else:
-                self.offset = 0
+                self.set_useOffset(False)
+
 
     def _set_orderOfMagnitude(self, range):
+        # If the user has set scale/offset, their input is used
         # if scientific notation is to be used, find the appropriate exponent
         # if using an numerical offset, find the exponent after applying the
-        # offset
-        if not self._scientific:
-            self.orderOfMagnitude = 0
+        if self._offsetScaleNone != 2 or self._scientific == False:
+            #User specified or unwanted
             return
+
         locs = np.absolute(self.locs)
-        if self.offset:
+        if self._offsetScaleNone == 0:
             oom = math.floor(math.log10(range))
         else:
             if locs[0] > locs[-1]:
@@ -597,8 +648,10 @@ class ScalarFormatter(Formatter):
                 oom = math.floor(math.log10(val))
         if oom <= self._powerlimits[0]:
             self.orderOfMagnitude = oom
+            self._offsetScaleNone=1 #Set to scale
         elif oom >= self._powerlimits[1]:
             self.orderOfMagnitude = oom
+            self._offsetScaleNone=1 #Set to scale
         else:
             self.orderOfMagnitude = 0
 
@@ -609,7 +662,7 @@ class ScalarFormatter(Formatter):
             _locs = list(self.locs) + [vmin, vmax]
         else:
             _locs = self.locs
-        locs = (np.asarray(_locs) - self.offset) / 10. ** self.orderOfMagnitude
+        locs = (np.asarray(_locs) - self.offsetval) / 10. ** self.orderOfMagnitude
         loc_range = np.ptp(locs)
         # Curvilinear coordinates can yield two identical points.
         if loc_range == 0:
@@ -638,7 +691,14 @@ class ScalarFormatter(Formatter):
             self.format = '$%s$' % _mathdefault(self.format)
 
     def pprint_val(self, x):
-        xp = (x - self.offset) / (10. ** self.orderOfMagnitude)
+        #Decide if we are doing offset, scale, or none
+        if self._offsetScaleNone == 0 :
+            xp = x - self.offsetval
+        elif self._offsetScaleNone == 1:
+            xp = x / (10. ** self.orderOfMagnitude)
+        else:
+            xp = x
+
         if np.absolute(xp) < 1e-8:
             xp = 0
         if self._useLocale:
