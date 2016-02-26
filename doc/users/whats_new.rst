@@ -248,7 +248,7 @@ Added TextBox Widget
 ````````````````````
 
 Added a widget that allows text entry by reading key events when it is active. 
-Text caret in text box is visible when it is active, can be moved using arrow keys but not mouse
+Text caret in text box is visible when it is active, can be moved using arrow keys and mouse
 
 
 Active state of Selectors
