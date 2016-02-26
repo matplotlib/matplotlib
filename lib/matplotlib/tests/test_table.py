@@ -152,7 +152,7 @@ def test_auto_column():
     tb2.set_fontsize(12)
     tb2.auto_set_column_width((-1, 0, 1))
 
-    #3 single input
+    #3 single inputs
     ax3 = fig.add_subplot(3, 1, 3)
     ax3.axis('off')
     tb3 = ax3.table(cellText=[['Fit Text', 2],
