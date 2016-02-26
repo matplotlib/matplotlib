@@ -22,8 +22,8 @@ __all__ = ['streamplot']
 
 def streamplot(axes, x, y, u, v, density=1, linewidth=None, color=None,
                cmap=None, norm=None, arrowsize=1, arrowstyle='-|>',
-               minlength=0.1, maxlength=2.0, transform=None, zorder=None,
-               start_points=None):
+               minlength=0.1, maxlength=4.0, transform=None, zorder=None,
+               start_points=None,integration_direction='both'):
     """Draws streamlines of a vector flow.
 
     *x*, *y* : 1d arrays
@@ -59,6 +59,8 @@ def streamplot(axes, x, y, u, v, density=1, linewidth=None, color=None,
     *start_points*: Nx2 array
         Coordinates of starting points for the streamlines.
         In data coordinates, the same as the ``x`` and ``y`` arrays.
+    *integration_direction* : ['foward','backward','both']
+        Integrate the streamline in forward, backward or both directions.
     *zorder* : int
         any number
 
@@ -98,6 +100,15 @@ def streamplot(axes, x, y, u, v, density=1, linewidth=None, color=None,
     line_kw = {}
     arrow_kw = dict(arrowstyle=arrowstyle, mutation_scale=10 * arrowsize)
 
+    if not integration_direction in ['both','forward','backward']:
+        errstr = "Integration direction '%s' not recognised." % integration_direction
+        errstr += "Expected 'both', 'forward' or 'backward'."
+        raise ValueError(errstr)
+
+    if integration_direction=='both':
+        maxlength /= 2.
+
+
     use_multicolor_lines = isinstance(color, np.ndarray)
     if use_multicolor_lines:
         if color.shape != grid.shape:
@@ -129,7 +140,7 @@ def streamplot(axes, x, y, u, v, density=1, linewidth=None, color=None,
     u = np.ma.masked_invalid(u)
     v = np.ma.masked_invalid(v)
 
-    integrate = get_integrator(u, v, dmap, minlength, maxlength)
+    integrate = get_integrator(u, v, dmap, minlength, maxlength, integration_direction)
 
     trajectories = []
     if start_points is None:
@@ -404,7 +415,7 @@ class TerminateTrajectory(Exception):
 # Integrator definitions
 #========================
 
-def get_integrator(u, v, dmap, minlength, maxlength):
+def get_integrator(u, v, dmap, minlength, maxlength, integration_direction):
 
     # rescale velocity onto grid-coordinates for integrations.
     u, v = dmap.data2grid(u, v)
@@ -438,17 +449,27 @@ def get_integrator(u, v, dmap, minlength, maxlength):
         resulting trajectory is None if it is shorter than `minlength`.
         """
 
+        stotal, x_traj, y_traj = 0., [], []
+
         try:
             dmap.start_trajectory(x0, y0)
         except InvalidIndexError:
             return None
-        sf, xf_traj, yf_traj = _integrate_rk12(x0, y0, dmap, forward_time, maxlength)
-        dmap.reset_start_point(x0, y0)
-        sb, xb_traj, yb_traj = _integrate_rk12(x0, y0, dmap, backward_time, maxlength)
-        # combine forward and backward trajectories
-        stotal = sf + sb
-        x_traj = xb_traj[::-1] + xf_traj[1:]
-        y_traj = yb_traj[::-1] + yf_traj[1:]
+        if integration_direction in ['both','backward']:
+            s, xt, yt = _integrate_rk12(x0, y0, dmap, backward_time, maxlength)
+            stotal += s
+            x_traj += xt[::-1]
+            y_traj += yt[::-1]
+
+        if integration_direction in ['both','forward']:
+            dmap.reset_start_point(x0, y0)
+            s, xt, yt = _integrate_rk12(x0, y0, dmap, forward_time, maxlength)
+            if len(x_traj) > 0:
+              xt = xt[1:]
+              yt = yt[1:]
+            stotal += s
+            x_traj += xt
+            y_traj += yt
 
         if stotal > minlength:
             return x_traj, y_traj
