@@ -23,7 +23,7 @@ __all__ = ['streamplot']
 def streamplot(axes, x, y, u, v, density=1, linewidth=None, color=None,
                cmap=None, norm=None, arrowsize=1, arrowstyle='-|>',
                minlength=0.1, maxlength=4.0, transform=None, zorder=None,
-               start_points=None,integration_direction='both'):
+               start_points=None, integration_direction='both'):
     """Draws streamlines of a vector flow.
 
     *x*, *y* : 1d arrays
@@ -100,14 +100,14 @@ def streamplot(axes, x, y, u, v, density=1, linewidth=None, color=None,
     line_kw = {}
     arrow_kw = dict(arrowstyle=arrowstyle, mutation_scale=10 * arrowsize)
 
-    if not integration_direction in ['both','forward','backward']:
-        errstr = "Integration direction '%s' not recognised." % integration_direction
+    if integration_direction not in ['both', 'forward', 'backward']:
+        errstr = "Integration direction " \
+                 "'%s' not recognised." % integration_direction
         errstr += "Expected 'both', 'forward' or 'backward'."
         raise ValueError(errstr)
 
-    if integration_direction=='both':
+    if integration_direction == 'both':
         maxlength /= 2.
-
 
     use_multicolor_lines = isinstance(color, np.ndarray)
     if use_multicolor_lines:
@@ -140,7 +140,8 @@ def streamplot(axes, x, y, u, v, density=1, linewidth=None, color=None,
     u = np.ma.masked_invalid(u)
     v = np.ma.masked_invalid(v)
 
-    integrate = get_integrator(u, v, dmap, minlength, maxlength, integration_direction)
+    integrate = get_integrator(u, v, dmap, minlength, maxlength,
+                               integration_direction)
 
     trajectories = []
     if start_points is None:
@@ -455,13 +456,13 @@ def get_integrator(u, v, dmap, minlength, maxlength, integration_direction):
             dmap.start_trajectory(x0, y0)
         except InvalidIndexError:
             return None
-        if integration_direction in ['both','backward']:
+        if integration_direction in ['both', 'backward']:
             s, xt, yt = _integrate_rk12(x0, y0, dmap, backward_time, maxlength)
             stotal += s
             x_traj += xt[::-1]
             y_traj += yt[::-1]
 
-        if integration_direction in ['both','forward']:
+        if integration_direction in ['both', 'forward']:
             dmap.reset_start_point(x0, y0)
             s, xt, yt = _integrate_rk12(x0, y0, dmap, forward_time, maxlength)
             if len(x_traj) > 0:
