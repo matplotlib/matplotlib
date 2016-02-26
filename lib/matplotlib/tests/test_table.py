@@ -122,6 +122,7 @@ def test_customcell():
         code = tuple(s for _, s in cell.get_path().iter_segments())
         assert_equal(c, code)
 
+
 @image_comparison(baseline_images=['table_auto_column'],
                   extensions=['png'])
 def test_auto_column():
@@ -130,8 +131,9 @@ def test_auto_column():
     #iteratble list input
     ax1 = fig.add_subplot(3, 1, 1)
     ax1.axis('off')
-    tb1 = ax1.table(cellText=[['Fit Text', 2], ['Longer text than default', 1]],
-          rowLabels =["A", "B"],
+    tb1 = ax1.table(cellText=[['Fit Text', 2],
+          ['Longer text than default', 1]],
+          rowLabels=["A", "B"],
           colLabels=["Col1", "Col2"],
           loc="center")
     tb1.auto_set_font_size(False)
@@ -141,7 +143,8 @@ def test_auto_column():
     #iteratble tuple input
     ax2 = fig.add_subplot(3, 1, 2)
     ax2.axis('off')
-    tb2 = ax2.table(cellText=[['Fit Text', 2], ['Longer text than default', 1]],
+    tb2 = ax2.table(cellText=[['Fit Text', 2],
+          ['Longer text than default', 1]],
           rowLabels=["A", "B"],
           colLabels=["Col1", "Col2"],
           loc="center")
@@ -152,7 +155,8 @@ def test_auto_column():
     #3 single input
     ax3 = fig.add_subplot(3, 1, 3)
     ax3.axis('off')
-    tb3 = ax3.table(cellText=[['Fit Text', 2], ['Longer text than default', 1]],
+    tb3 = ax3.table(cellText=[['Fit Text', 2],
+          ['Longer text than default', 1]],
           rowLabels=["A", "B"],
           colLabels=["Col1", "Col2"],
           loc="center")
