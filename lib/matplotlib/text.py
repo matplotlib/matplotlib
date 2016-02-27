@@ -185,9 +185,6 @@ class Text(Artist):
     def __repr__(self):
         return "Text(%g,%g,%s)" % (self._x, self._y, repr(self._text))
 
-    def __str__(self):
-        return self._text
-
     def __init__(self,
                  x=0, y=0, text='',
                  color=None,           # defaults to rc params
