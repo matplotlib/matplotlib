@@ -503,9 +503,9 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
         """
         # check if data is PIL Image without importing Image
         if hasattr(A, 'getpixel'):
-            self._A = pil_to_array(A)
-        else:
-            self._A = cbook.safe_masked_invalid(A)
+            A = pil_to_array(A)
+
+        self._A = A
 
         if (self._A.dtype != np.uint8 and
                 not np.can_cast(self._A.dtype, np.float)):
