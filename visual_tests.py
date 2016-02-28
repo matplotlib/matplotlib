@@ -43,13 +43,14 @@ def run():
             fn, fext = os.path.splitext(file)
             if fext != ".png":
                 continue
+            # Always use / for URLs.
             if "-failed-diff" in fn:
-                pictures[fn[:-12]]["f"] = os.path.join(subdir, file)
+                pictures[fn[:-12]]["f"] = "/".join((subdir, file))
             elif "-expected" in fn:
-                pictures[fn[:-9]]["e"] = os.path.join(subdir, file)
+                pictures[fn[:-9]]["e"] = "/".join((subdir, file))
             else:
-                pictures[fn]["c"] = os.path.join(subdir, file)
-        
+                pictures[fn]["c"] = "/".join((subdir, file))
+
         _body += "<h2>{0}</h2>".format(subdir)
         _body += "<table>\n<thead><td>name</td><td>actual</td><td>expected</td><td>diff</td></thead>\n"
         for name, test in six.iteritems(pictures):

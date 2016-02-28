@@ -9,7 +9,7 @@ r = np.arange(0, 3.0, 0.01)
 theta = 2 * np.pi * r
 
 ax = plt.subplot(111, projection='polar')
-ax.plot(theta, r, color='r', linewidth=3)
+ax.plot(theta, r)
 ax.set_rmax(2.0)
 ax.grid(True)
 

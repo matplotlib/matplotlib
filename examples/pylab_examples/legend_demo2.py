@@ -10,8 +10,8 @@ t2 = np.arange(0.0, 2.0, 0.01)
 # extracts the first element of the list into l1 using tuple
 # unpacking.  So l1 is a Line2D instance, not a sequence of lines
 l1, = plt.plot(t2, np.exp(-t2))
-l2, l3 = plt.plot(t2, np.sin(2 * np.pi * t2), '--go', t1, np.log(1 + t1), '.')
-l4, = plt.plot(t2, np.exp(-t2) * np.sin(2 * np.pi * t2), 'rs-.')
+l2, l3 = plt.plot(t2, np.sin(2 * np.pi * t2), '--o', t1, np.log(1 + t1), '.')
+l4, = plt.plot(t2, np.exp(-t2) * np.sin(2 * np.pi * t2), 's-.')
 
 plt.legend((l2, l4), ('oscillatory', 'damped'), loc='upper right', shadow=True)
 plt.xlabel('time')

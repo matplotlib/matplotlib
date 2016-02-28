@@ -4,6 +4,7 @@ cache:
   directories:
     - $HOME/.ccache
     - $HOME/.cache/pip
+    - $HOME/.cache/matplotlib
 
 addons:
   apt:
@@ -13,10 +14,14 @@ addons:
       - gdb
       - mencoder
       - dvipng
+      - pgf
+      - lmodern
+      - cm-super
       - texlive-latex-base
       - texlive-latex-extra
       - texlive-fonts-recommended
       - texlive-latex-recommended
+      - texlive-xetex
       - graphviz
 #     - fonts-humor-sans
 #    sources:
@@ -129,6 +134,8 @@ script:
       pip install linkchecker
       linkchecker build/html/index.html
     fi
+  - rm -rf $HOME/.cache/matplotlib/tex.cache
+  - rm -rf $HOME/.cache/matplotlib/test_cache
 
 after_failure:
   - |

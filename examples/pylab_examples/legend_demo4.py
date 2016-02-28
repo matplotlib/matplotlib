@@ -18,4 +18,5 @@ middle_ax.legend()
 bottom_ax.stem([0.3, 1.5, 2.7], [1, 3.6, 2.7], label="stem test")
 bottom_ax.legend()
 
+plt.subplots_adjust(hspace=0.7)
 plt.show()

@@ -15,6 +15,9 @@ lines.dash_capstyle : butt          # butt|round|projecting
 lines.solid_joinstyle : round       # miter|round|bevel
 lines.solid_capstyle : projecting   # butt|round|projecting
 lines.antialiased : True         # render lines in antialiased (no jaggies)
+lines.dashed_pattern : 6, 6
+lines.dashdot_pattern : 3, 5, 1, 5
+lines.dotted_pattern : 1, 3
 
 ### Marker props
 markers.fillstyle: full
@@ -429,7 +432,6 @@ pgf.preamble        :
 
 # svg backend params
 svg.image_inline : True       # write raster image data directly into the svg file
-svg.image_noscale : False     # suppress scaling of raster data embedded in SVG
 svg.fonttype : path            # How to handle SVG fonts:
 #    'none': Assume fonts are installed on the machine where the SVG will be viewed.
 #    'path': Embed characters as paths -- supported by most SVG renderers

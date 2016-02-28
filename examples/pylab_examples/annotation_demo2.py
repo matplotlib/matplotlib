@@ -9,7 +9,7 @@ if 1:
 
     t = np.arange(0.0, 5.0, 0.01)
     s = np.cos(2*np.pi*t)
-    line, = ax.plot(t, s, lw=3, color='purple')
+    line, = ax.plot(t, s, lw=3)
 
     ax.annotate('arrowstyle', xy=(0, 1), xycoords='data',
                 xytext=(-50, 30), textcoords='offset points',

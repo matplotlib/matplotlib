@@ -490,7 +490,7 @@ namespace agg
                     fg_ptr = (const value_type*)base_type::source().next_y();
                 }
 
-                fg >>= image_filter_shift;
+                fg = color_type::downshift(fg, image_filter_shift);
                 if(fg < 0) fg = 0;
                 if(fg > color_type::full_value()) fg = color_type::full_value();
                 span->v = (value_type)fg;
