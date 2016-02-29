@@ -505,7 +505,7 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
         if hasattr(A, 'getpixel'):
             A = pil_to_array(A)
 
-        self._A = A
+        self._A = np.asanyarray(A)
 
         if (self._A.dtype != np.uint8 and
                 not np.can_cast(self._A.dtype, np.float)):
