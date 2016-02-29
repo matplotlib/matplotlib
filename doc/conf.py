@@ -213,6 +213,8 @@ html_use_opensearch = 'False'
 # Output file base name for HTML help builder.
 htmlhelp_basename = 'Matplotlibdoc'
 
+# Path to favicon
+html_favicon = '_static/favicon.ico'
 
 # Options for LaTeX output
 # ------------------------
