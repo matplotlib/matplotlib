@@ -214,6 +214,9 @@ def proj_points(points, M):
     return list(zip(*proj_trans_points(points, M)))
 
 def proj_trans_points(points, M):
+    """
+    Apply transformation matrix M on a set of points
+    """
     xs, ys, zs = list(zip(*points))
     return proj_transform(xs, ys, zs, M)
 
