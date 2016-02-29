@@ -1128,7 +1128,7 @@ class StandardPsFonts(Fonts):
             self.fonts[cached_font.get_fontname()] = cached_font
         return cached_font
 
-    def _get_info (self, fontname, font_class, sym, fontsize, dpi):
+    def _get_info (self, fontname, font_class, sym, fontsize, dpi, nonMath=False):
         'load the cmfont, metrics and glyph with caching'
         key = fontname, sym, fontsize, dpi
         tup = self.glyphd.get(key)
