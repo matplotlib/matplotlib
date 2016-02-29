@@ -580,9 +580,6 @@ class Poly3DCollection(PolyCollection):
         self._sort_zpos = val
         self.stale = True
 
-    from profilehooks import profile
-
-    #@profile
     def do_3d_projection(self, renderer):
         '''
         Perform the 3D projection for this object.
