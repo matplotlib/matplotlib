@@ -127,8 +127,8 @@ class Line3D(lines.Line2D):
 
     def draw(self, renderer):
         xs3d, ys3d, zs3d = self._verts3d
-        xs, ys, zs = proj3d.proj_transform(xs3d, ys3d, zs3d, renderer.M)
-        self.set_data(xs, ys)
+        xyz = proj3d.proj_transform(xs3d, ys3d, zs3d, renderer.M)
+        self.set_data(xyz[0], xyz[1])
         lines.Line2D.draw(self, renderer)
         self.stale = False
 
@@ -271,11 +271,11 @@ class Patch3D(Patch):
     def do_3d_projection(self, renderer):
         s = self._segment3d
         xs, ys, zs = list(zip(*s))
-        vxs, vys,vzs, vis = proj3d.proj_transform_clip(xs, ys, zs, renderer.M)
-        self._path2d = mpath.Path(list(zip(vxs, vys)))
+        vxyzis = proj3d.proj_transform_clip(xs, ys, zs, renderer.M)
+        self._path2d = mpath.Path(vxyzis[0:2].T)
         # FIXME: coloring
         self._facecolor2d = self._facecolor3d
-        return min(vzs)
+        return min(vxyzis[2])
 
     def draw(self, renderer):
         Patch.draw(self, renderer)
@@ -299,11 +299,11 @@ class PathPatch3D(Patch3D):
     def do_3d_projection(self, renderer):
         s = self._segment3d
         xs, ys, zs = list(zip(*s))
-        vxs, vys,vzs, vis = proj3d.proj_transform_clip(xs, ys, zs, renderer.M)
-        self._path2d = mpath.Path(list(zip(vxs, vys)), self._code3d)
+        vxyzis = proj3d.proj_transform_clip(xs, ys, zs, renderer.M)
+        self._path2d = mpath.Path(vxyzis[0:2].T, self._code3d)
         # FIXME: coloring
         self._facecolor2d = self._facecolor3d
-        return min(vzs)
+        return min(vxyzis[2])
 
 def get_patch_verts(patch):
     """Return a list of vertices for the path of a patch."""
@@ -379,21 +379,21 @@ class Patch3DCollection(PatchCollection):
 
     def do_3d_projection(self, renderer):
         xs, ys, zs = self._offsets3d
-        vxs, vys, vzs, vis = proj3d.proj_transform_clip(xs, ys, zs, renderer.M)
+        vxyzis = proj3d.proj_transform_clip(xs, ys, zs, renderer.M)
 
-        fcs = (zalpha(self._facecolor3d, vzs) if self._depthshade else
+        fcs = (zalpha(self._facecolor3d, vxyzis[2]) if self._depthshade else
                self._facecolor3d)
         fcs = mcolors.to_rgba_array(fcs, self._alpha)
         self.set_facecolors(fcs)
 
-        ecs = (zalpha(self._edgecolor3d, vzs) if self._depthshade else
+        ecs = (zalpha(self._edgecolor3d, vxyzis[2]) if self._depthshade else
                self._edgecolor3d)
         ecs = mcolors.to_rgba_array(ecs, self._alpha)
         self.set_edgecolors(ecs)
-        PatchCollection.set_offsets(self, list(zip(vxs, vys)))
+        PatchCollection.set_offsets(self, vxyzis[0:2].T)
 
-        if vzs.size > 0:
-            return min(vzs)
+        if len(vxyzis) > 0:
+            return min(vxyzis[2])
         else:
             return np.nan
 
@@ -447,22 +447,22 @@ class Path3DCollection(PathCollection):
 
     def do_3d_projection(self, renderer):
         xs, ys, zs = self._offsets3d
-        vxs, vys, vzs, vis = proj3d.proj_transform_clip(xs, ys, zs, renderer.M)
+        vxyzis = proj3d.proj_transform_clip(xs, ys, zs, renderer.M)
 
-        fcs = (zalpha(self._facecolor3d, vzs) if self._depthshade else
+        fcs = (zalpha(self._facecolor3d, vxyzis[2]) if self._depthshade else
                self._facecolor3d)
         fcs = mcolors.to_rgba_array(fcs, self._alpha)
         self.set_facecolors(fcs)
 
-        ecs = (zalpha(self._edgecolor3d, vzs) if self._depthshade else
+        ecs = (zalpha(self._edgecolor3d, vxyzis[2]) if self._depthshade else
                self._edgecolor3d)
         ecs = mcolors.to_rgba_array(ecs, self._alpha)
         self.set_edgecolors(ecs)
-        PathCollection.set_offsets(self, list(zip(vxs, vys)))
+        PathCollection.set_offsets(self, vxyzis[0:2].T)
 
-        if vzs.size > 0 :
-            return min(vzs)
-        else :
+        if len(vxyzis) > 0:
+            return min(vxyzis[2])
+        else:
             return np.nan
 
 
@@ -545,7 +545,10 @@ class Poly3DCollection(PolyCollection):
 
     def get_vector(self, segments3d):
         """Optimize points for projection"""
+        # Segments 3d are given in shape (n_segments, 3, 3)
+        # Flatten them
         xys = segments3d.reshape((-1, 3)).T
+        # Add a fourth dimension with only ones
         ones = np.ones(xys.shape[1])
         self._vec = np.vstack([xys, ones])
 
@@ -589,8 +592,7 @@ class Poly3DCollection(PolyCollection):
             self.update_scalarmappable()
             self._facecolors3d = self._facecolors
 
-        # XXX proj_transform_vec can work with arrays only
-        xys = np.array(proj3d.proj_transform_vec(self._vec, renderer.M))
+        xys = proj3d.proj_transform_vec(self._vec, renderer.M)
         xyzlist = np.transpose(xys.T.reshape((-1, 3, 3)), axes=[0, 2, 1])
 
         # This extra fuss is to re-order face / edge colors
