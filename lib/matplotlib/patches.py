@@ -358,7 +358,7 @@ class Patch(artist.Artist):
         ===========================   =================
         ``'-'`` or ``'solid'``        solid line
         ``'--'`` or  ``'dashed'``     dashed line
-        ``'-.'`` or  ``'dash_dot'``   dash-dotted line
+        ``'-.'`` or  ``'dashdot'``    dash-dotted line
         ``':'`` or ``'dotted'``       dotted line
         ===========================   =================
 
