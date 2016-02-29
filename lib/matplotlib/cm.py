@@ -263,9 +263,7 @@ class ScalarMappable(object):
         except AttributeError:
             # e.g., x is not an ndarray; so try mapping it
             pass
-
-        # This is the normal case, mapping a scalar array:
-        x = ma.asarray(x)
+        x = cbook.safe_masked_invalid(x)
         if norm:
             x = self.norm(x)
         rgba = self.cmap(x, alpha=alpha, bytes=bytes)
@@ -273,6 +271,7 @@ class ScalarMappable(object):
         # transparent so we copy that over to the alpha channel
         if x.ndim == 2 and x.dtype.kind == 'f':
             rgba[:, :, 3][x < 0.0] = 0
+
         return rgba
 
     def set_array(self, A):
