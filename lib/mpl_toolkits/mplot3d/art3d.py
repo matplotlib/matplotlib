@@ -224,16 +224,10 @@ class Line3DCollection(LineCollection):
         '''
         Project the points according to renderer matrix.
         '''
-        xyslist = [
-            proj3d.proj_trans_points(points, renderer.M) for points in
-            self._segments3d]
-        segments_2d = [list(zip(xs, ys)) for (xs, ys, zs) in xyslist]
+        xys = proj3d.proj_trans_points(self._segments3d, renderer.M)
+        segments_2d = xys[0:1, :]
         LineCollection.set_segments(self, segments_2d)
-
-        # FIXME
-        minz = 1e9
-        for (xs, ys, zs) in xyslist:
-            minz = min(minz, min(zs))
+        minz = np.min(xys[2, :])
         return minz
 
     def draw(self, renderer, project=False):
@@ -551,30 +545,15 @@ class Poly3DCollection(PolyCollection):
 
     def get_vector(self, segments3d):
         """Optimize points for projection"""
-        si = 0
-        ei = 0
-        segis = []
-        points = []
-        for p in segments3d:
-            points.extend(p)
-            ei = si+len(p)
-            segis.append((si, ei))
-            si = ei
-
-        if len(segments3d) > 0 :
-            xs, ys, zs = list(zip(*points))
-        else :
-            # We need this so that we can skip the bad unpacking from zip()
-            xs, ys, zs = [], [], []
-
-        ones = np.ones(len(xs))
-        self._vec = np.array([xs, ys, zs, ones])
-        self._segis = segis
+        xys = segments3d.reshape((-1, 3)).T
+        ones = np.ones(xys.shape[1])
+        self._vec = np.vstack([xys, ones])
 
     def set_verts(self, verts, closed=True):
         '''Set 3D vertices.'''
         self.get_vector(verts)
         # 2D verts will be updated at draw time
+        # XXX Is this line useful?
         PolyCollection.set_verts(self, [], closed)
 
     def set_verts_and_codes(self, verts, codes):
@@ -601,6 +580,9 @@ class Poly3DCollection(PolyCollection):
         self._sort_zpos = val
         self.stale = True
 
+    from profilehooks import profile
+
+    #@profile
     def do_3d_projection(self, renderer):
         '''
         Perform the 3D projection for this object.
@@ -610,9 +592,9 @@ class Poly3DCollection(PolyCollection):
             self.update_scalarmappable()
             self._facecolors3d = self._facecolors
 
-        txs, tys, tzs = proj3d.proj_transform_vec(self._vec, renderer.M)
-        xyzlist = [(txs[si:ei], tys[si:ei], tzs[si:ei])
-                   for si, ei in self._segis]
+        # XXX proj_transform_vec can work with arrays only
+        xys = np.array(proj3d.proj_transform_vec(self._vec, renderer.M))
+        xyzlist = np.transpose(xys.T.reshape((-1, 3, 3)), axes=[0, 2, 1])
 
         # This extra fuss is to re-order face / edge colors
         cface = self._facecolors3d
@@ -626,24 +608,21 @@ class Poly3DCollection(PolyCollection):
 
         # if required sort by depth (furthest drawn first)
         if self._zsort:
-            indices = range(len(xyzlist))
-            z_segments_2d = [(self._zsortfunc(zs), list(zip(xs, ys)), fc, ec,
-                              idx) for (xs, ys, zs), fc, ec, idx in
-                             zip(xyzlist, cface, cedge, indices)]
-            z_segments_2d.sort(key=lambda x: x[0], reverse=True)
+            z_argsort = np.argsort(
+                self._zsortfunc(xyzlist[:, 2, :], axis=1))[::-1]
         else:
             raise ValueError("whoops")
 
-        segments_2d = [s for z, s, fc, ec, idx in z_segments_2d]
+        segments_2d = np.transpose(xyzlist[z_argsort, 0:2, :], axes=[0, 2, 1])
         if self._codes3d is not None:
-            codes = [self._codes3d[idx] for z, s, fc, ec, idx in z_segments_2d]
+            codes = self._codes3d[z_argsort]
             PolyCollection.set_verts_and_codes(self, segments_2d, codes)
         else:
             PolyCollection.set_verts(self, segments_2d)
 
-        self._facecolors2d = [fc for z, s, fc, ec, idx in z_segments_2d]
+        self._facecolors2d = cface[z_argsort]
         if len(self._edgecolors3d) == len(cface):
-            self._edgecolors2d = [ec for z, s, fc, ec, idx in z_segments_2d]
+            self._edgecolors2d = cedge[z_argsort]
         else:
             self._edgecolors2d = self._edgecolors3d
 
@@ -652,11 +631,11 @@ class Poly3DCollection(PolyCollection):
             zvec = np.array([[0], [0], [self._sort_zpos], [1]])
             ztrans = proj3d.proj_transform_vec(zvec, renderer.M)
             return ztrans[2][0]
-        elif tzs.size > 0 :
+        elif xys[2].size > 0 :
             # FIXME: Some results still don't look quite right.
             #        In particular, examine contourf3d_demo2.py
             #        with az = -54 and elev = -45.
-            return np.min(tzs)
+            return np.min(xys[2])
         else :
             return np.nan
 
