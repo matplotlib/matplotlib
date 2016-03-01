@@ -3861,7 +3861,7 @@ class Axes(_AxesBase):
         # favor of mapping, not rgb or rgba.
         try:
             c_array = np.asanyarray(c, dtype=float)
-            if c_array.size == x.size:
+            if c_array.size == x.size and c_array.shape[0] != 1:
                 c = np.ma.ravel(c_array)
             else:
                 # Wrong size; it must not be intended for mapping.
