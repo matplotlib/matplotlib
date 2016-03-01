@@ -436,6 +436,7 @@ class ScalarFormatter(Formatter):
         self.orderOfMagnitude = 0
         self.format = ''
         self._scientific = True
+        self._offsetString = ''
         self._powerlimits = rcParams['axes.formatter.limits']
         if useLocale is None:
             useLocale = rcParams['axes.formatter.use_locale']
@@ -592,11 +593,29 @@ class ScalarFormatter(Formatter):
         return self.fix_minus(s)
 
 
+    def set_offset_string(self,s):
+        """
+        Set the string which typically contains the offset
+        or the scaling factor which is to be displayed on the axis. 
+        Set this to and empty string ""  allows the string set by offset or scaling 
+        algorithm.
+
+        Parameters
+        ----------
+        s:  String describing the offset
+
+        Returns
+        -------
+        None
+        """
+        self._offsetString=s
+
     def get_offset(self):
         """
         Returns a string with the offset(or scientific notation)/scaling
         factor which is properly formatted. This is used as additional text
-        next to the ticks.
+        next to the ticks, either determined by offset/scaling or set by the 
+        user
 
         Parameters
         ----------
@@ -606,6 +625,9 @@ class ScalarFormatter(Formatter):
         -------
         :string
         """
+        #String has been set manually, so just return that
+        if self._offsetString != '' :
+            return self._offsetString
 
         if len(self.locs) == 0:
             return ''
