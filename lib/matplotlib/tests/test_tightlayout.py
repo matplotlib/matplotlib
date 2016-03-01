@@ -253,3 +253,17 @@ def test_tight_layout_offsetboxes():
                 child.set_visible(False)
 
     plt.tight_layout()
+
+
+def test_long_label():
+  '''
+  Test for 5456. When the label was too long we'd get a ValueError that
+  bottom cannot be >= top
+  '''
+  try:
+    fig, ax = plt.subplots()
+    ax.set_ylabel('a'*50000)
+    plt.tight_layout()
+  except ValueError:
+    assert False, "ValueError raised from long label"
+  
