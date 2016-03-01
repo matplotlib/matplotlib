@@ -446,11 +446,21 @@ class ScalarFormatter(Formatter):
 
     def set_useScalingFactor(self,val):
         """
-        Takes (True|False|numeric value) as argument.
-        Enable, disable, or sets and enables the use of scaling factor
-        in the axis. 
+        Control and set the scaling factor. Disabling this returns the 
+        formatter to its default behavior, e.g. it will try to find
+        an appropriate scaling/offset if enabled.
         Note that either offset or scaling can be used. Therefore, 
         this automatically turns off offset
+
+        Parameters
+        ----------
+        val : (True|False|numeric)
+            Enable, disable, or sets and enables the use of scaling factor
+            in the axis. 
+
+        Returns
+        -------
+        NONE
         """
 
         if val in [True, False]:
@@ -471,11 +481,21 @@ class ScalarFormatter(Formatter):
 
     def set_useOffset(self, val):
         """
-        Takes (True|False|numeric value) as argument.
-        Enable, disable, or sets and enables the use of an offset
-        in the axis. 
+        Control and set the offset. Disabling this returns the 
+        formatter to its default behavior, e.g. it will try to find
+        an appropriate scaling/offset if enabled.
         Note that either offset or scaling can be used. Therefore, 
-        this automatically turns off scaling factor
+        this automatically turns off scaling
+
+        Parameters
+        ----------
+        val : (True|False|numeric)
+            Enable, disable, or sets and enables the use of an offset
+            in the axis. 
+
+        Returns
+        -------
+        NONE
         """
         if val in [True, False]:
             self.offsetval = 0
@@ -518,20 +538,39 @@ class ScalarFormatter(Formatter):
             return self.fix_minus(s)
 
     def set_scientific(self, b):
-        '''True or False to turn scientific notation on or off
+        """
+        Enable/disable scientific notation 
         see also :meth:`set_powerlimits`
-        '''
+
+        Parameters
+        ----------
+        b : (True|False)
+            Enable, disable scientific notation 
+
+        Returns
+        -------
+        NONE
+        """
         self._scientific = bool(b)
 
     def set_powerlimits(self, lims):
-        '''
+        """
         Sets size thresholds for scientific notation.
-
         e.g., ``formatter.set_powerlimits((-3, 4))`` sets the pre-2007 default
         in which scientific notation is used for numbers less than 1e-3 or
         greater than 1e4.
         See also :meth:`set_scientific`.
-        '''
+
+        Parameters
+        ----------
+        lims : (number,number)
+            tuple with upper and lower limit triggering scientific notation
+
+        Returns
+        -------
+        NONE
+        """
+
         if len(lims) != 2:
             raise ValueError("'lims' must be a sequence of length 2")
         self._powerlimits = lims
@@ -554,7 +593,20 @@ class ScalarFormatter(Formatter):
 
 
     def get_offset(self):
-        """Return scientific notation, plus offset"""
+        """
+        Returns a string with the offset(or scientific notation)/scaling
+        factor which is properly formatted. This is used as additional text
+        next to the ticks.
+
+        Parameters
+        ----------
+        NONE
+
+        Returns
+        -------
+        :string
+        """
+
         if len(self.locs) == 0:
             return ''
         s = ''
