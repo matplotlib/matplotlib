@@ -446,7 +446,9 @@ class ScalarFormatter(Formatter):
 
     def set_useScalingFactor(self,val):
         """
-        Enable or disable the use of scaling factor in the axis. 
+        Takes (True|False|numeric value) as argument.
+        Enable, disable, or sets and enables the use of scaling factor
+        in the axis. 
         Note that either offset or scaling can be used. Therefore, 
         this automatically turns off offset
         """
@@ -469,9 +471,11 @@ class ScalarFormatter(Formatter):
 
     def set_useOffset(self, val):
         """
-        Enable or disable the use of offset in the axis or enable & set the offset 
-        at the same time. Since offset cannot be used in conjunction with a scaling
-        factor, the scaling factor is turned off.
+        Takes (True|False|numeric value) as argument.
+        Enable, disable, or sets and enables the use of an offset
+        in the axis. 
+        Note that either offset or scaling can be used. Therefore, 
+        this automatically turns off scaling factor
         """
         if val in [True, False]:
             self.offsetval = 0
