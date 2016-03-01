@@ -1614,6 +1614,8 @@ class LogLocator(Locator):
             subs = self._subs
 
         stride = 1
+        if self.numticks == 1:
+            raise ValueError("number of ticks must be greater than 1")
         while numdec / stride + 1 > self.numticks:
             stride += 1
 
