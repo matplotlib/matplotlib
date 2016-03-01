@@ -646,8 +646,7 @@ class ScalarFormatter(Formatter):
         if len(self.locs) > 0:
             vmin, vmax = self.axis.get_view_interval()
             d = abs(vmax - vmin)
-            if self._offsetScaleNone == 0:
-                self._set_offset(d)
+            self._set_offset(d)
 
             self._set_orderOfMagnitude(d)
             self._set_format(vmin, vmax)
