@@ -114,7 +114,6 @@ docstring.interpd.update(Text="""
     position                   (x,y)
     rotation                   [ angle in degrees 'vertical' | 'horizontal'
     rotation_mode              [ None | 'anchor']
-    trans_rotate
     size or fontsize           [size in points | relative size e.g., 'smaller',
                                                                   'x-large']
     style or fontstyle         [ 'normal' | 'italic' | 'oblique']
@@ -130,6 +129,7 @@ docstring.interpd.update(Text="""
     x                          float
     y                          float
     zorder                     any number
+    trans_rotate               [True | False]
     ========================== ===============================================
     """)
 
@@ -196,9 +196,9 @@ class Text(Artist):
                  rotation=None,
                  linespacing=None,
                  rotation_mode=None,
-                 trans_rotate=False,
                  usetex=None,          # defaults to rcParams['text.usetex']
                  wrap=False,
+                 trans_rotate=None,
                  **kwargs
                  ):
         """
@@ -234,7 +234,7 @@ class Text(Artist):
             linespacing = 1.2   # Maybe use rcParam later.
         self._linespacing = linespacing
         self.set_rotation_mode(rotation_mode)
-        self._trans_rotate = trans_rotate
+        self.set_trans_rotate(trans_rotate)
         self.update(kwargs)
 
     def update(self, kwargs):
@@ -322,14 +322,11 @@ class Text(Artist):
         not
 
         """
-        if tr is None or tr in [True, False]:
-            self._trans_rotate = tr
-        else:
-            raise ValueError("Transform Rotate either true or false : %s" % repr(tr))
-        self.stale=True
+        self._trans_rotate = bool(tr)
+        self.stale = True
 
     def get_trans_rotate(self):
-        "get transform rotatation boolean"
+        "get transform rotation boolean"
         return self._trans_rotate
 
     def update_from(self, other):
@@ -778,10 +775,11 @@ class Text(Artist):
             if not np.isfinite(posx) or not np.isfinite(posy):
                 raise ValueError("posx and posy should be finite values")
             posx, posy = trans.transform_point((posx, posy))
-            transangle=0
-            if (self.get_trans_rotate()):
-                posxangle, posyangle = trans.transform_point((posxangle, posyangle))
-                transangle = math.atan2(posyangle-posy, posxangle-posx)
+            transangle = 0
+            if self.get_trans_rotate():
+                posxangle, posyangle = trans.transform_point(
+                    (posxangle, posyangle))
+                transangle = math.atan2(posyangle - posy, posxangle - posx)
             canvasw, canvash = renderer.get_canvas_width_height()
 
             # draw the FancyBboxPatch
@@ -794,8 +792,8 @@ class Text(Artist):
             gc.set_url(textobj._url)
             textobj._set_gc_clip(gc)
 
-            angle = (textobj.get_rotation() + (180.0*transangle/np.pi))%360.0
-
+            angle = (textobj.get_rotation() +
+                     np.rad2deg(transangle)) % 360.0
 
             for line, wh, x, y in info:
 
