@@ -171,4 +171,3 @@ mplstereonet
 ===============
 
 `mplstereonet <https://github.com/joferkington/mplstereonet>`_ provides stereonets for plotting and analyzing orientation data in Matplotlib.
-             
