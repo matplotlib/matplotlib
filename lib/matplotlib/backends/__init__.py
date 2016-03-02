@@ -40,10 +40,12 @@ def pylab_setup(name=None):
     '''
     # Import the requested backend into a generic module object
     if name is None:
+        # validates, to match all_backends
+        name = matplotlib.get_backend()
         # need to keep a global reference to the backend for compatibility
         # reasons. See https://github.com/matplotlib/matplotlib/issues/6092
         global backend
-        name = backend
+        backend = name
     if name.startswith('module://'):
         backend_name = name[9:]
     else:
