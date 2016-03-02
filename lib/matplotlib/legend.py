@@ -737,6 +737,7 @@ class Legend(Artist):
         ax = self.parent
         bboxes = []
         lines = []
+        offsets = []
 
         for handle in ax.lines:
             assert isinstance(handle, Line2D)
@@ -755,12 +756,19 @@ class Legend(Artist):
                 transform = handle.get_transform()
                 bboxes.append(handle.get_path().get_extents(transform))
 
+        for handle in ax.collections:
+            transform, transOffset, hoffsets, paths = handle._prepare_points()
+
+            if len(hoffsets):
+                for offset in transOffset.transform(hoffsets):
+                    offsets.append(offset)
+
         try:
             vertices = np.concatenate([l.vertices for l in lines])
         except ValueError:
             vertices = np.array([])
 
-        return [vertices, bboxes, lines]
+        return [vertices, bboxes, lines, offsets]
 
     def draw_frame(self, b):
         'b is a boolean.  Set draw frame to b'
@@ -920,7 +928,7 @@ class Legend(Artist):
         # should always hold because function is only called internally
         assert self.isaxes
 
-        verts, bboxes, lines = self._auto_legend_data()
+        verts, bboxes, lines, offsets = self._auto_legend_data()
 
         bbox = Bbox.from_bounds(0, 0, width, height)
         if consider is None:
@@ -939,6 +947,7 @@ class Legend(Artist):
             # take their into account when checking vertex overlaps in
             # the next line.
             badness = legendBox.count_contains(verts)
+            badness += legendBox.count_contains(offsets)
             badness += legendBox.count_overlaps(bboxes)
             for line in lines:
                 # FIXME: the following line is ill-suited for lines
