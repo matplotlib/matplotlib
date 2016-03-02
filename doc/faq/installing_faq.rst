@@ -246,8 +246,8 @@ You can now install matplotlib and all its dependencies with::
 
     pip install matplotlib
 
-Macports
-^^^^^^^^
+Macports Python
+^^^^^^^^^^^^^^^
 
 For Python 2.7::
 
@@ -259,8 +259,8 @@ For Python 3.4::
     sudo port install py34-pip
     sudo pip-3.4 install matplotlib
 
-Homebrew
-^^^^^^^^
+Homebrew Python
+^^^^^^^^^^^^^^^
 
 For Python 2.7::
 
