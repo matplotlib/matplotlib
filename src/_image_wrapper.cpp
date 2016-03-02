@@ -226,6 +226,19 @@ image_resample(PyObject *self, PyObject* args, PyObject *kwargs)
                     params);
                 Py_END_ALLOW_THREADS
                 break;
+            case NPY_UINT16:
+            case NPY_INT16:
+                Py_BEGIN_ALLOW_THREADS
+                resample(
+                    (agg::rgba16 *)PyArray_DATA(input_array),
+                    PyArray_DIM(input_array, 1),
+                    PyArray_DIM(input_array, 0),
+                    (agg::rgba16 *)PyArray_DATA(output_array),
+                    PyArray_DIM(output_array, 1),
+                    PyArray_DIM(output_array, 0),
+                    params);
+                Py_END_ALLOW_THREADS
+                break;
             case NPY_FLOAT32:
                 Py_BEGIN_ALLOW_THREADS
                 resample(
@@ -254,13 +267,13 @@ image_resample(PyObject *self, PyObject* args, PyObject *kwargs)
                 PyErr_SetString(
                     PyExc_ValueError,
                     "3-dimensional arrays must be of dtype unsigned byte, "
-                    "float32 or float64");
+                    "unsigned short, float32 or float64");
                 goto error;
             }
         } else {
             PyErr_Format(
                 PyExc_ValueError,
-                "If 3-dimensional, array must be RGBA.  Got %d.",
+                "If 3-dimensional, array must be RGBA.  Got %d planes.",
                 PyArray_DIM(input_array, 2));
             goto error;
         }

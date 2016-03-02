@@ -533,6 +533,35 @@ template <> class type_mapping<agg::rgba8>
 };
 
 
+template <> class type_mapping<agg::rgba16>
+{
+ public:
+    typedef agg::rgba16 color_type;
+    typedef fixed_blender_rgba_plain<color_type, agg::order_rgba> blender_type;
+    typedef fixed_blender_rgba_pre<color_type, agg::order_rgba> pre_blender_type;
+    typedef agg::pixfmt_alpha_blend_rgba<blender_type, agg::rendering_buffer> pixfmt_type;
+    typedef agg::pixfmt_alpha_blend_rgba<pre_blender_type, agg::rendering_buffer> pixfmt_pre_type;
+
+    template <typename A>
+    struct span_gen_affine_type
+    {
+        typedef agg::span_image_resample_rgba_affine<A> type;
+    };
+
+    template <typename A, typename B>
+    struct span_gen_filter_type
+    {
+        typedef agg::span_image_filter_rgba<A, B> type;
+    };
+
+    template <typename A, typename B>
+    struct span_gen_nn_type
+    {
+        typedef agg::span_image_filter_rgba_nn<A, B> type;
+    };
+};
+
+
 template <> class type_mapping<agg::rgba32>
 {
  public:
