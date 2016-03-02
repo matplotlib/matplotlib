@@ -1015,9 +1015,33 @@ class AutoDateLocator(DateLocator):
     def nonsingular(self, vmin, vmax):
         # whatever is thrown at us, we can scale the unit.
         # But default nonsingular date plots at an ~4 year period.
+
+        # if vmin == vmax:
+        #     vmin = vmin - DAYS_PER_YEAR * 2
+        #     vmax = vmax + DAYS_PER_YEAR * 2
+
         if vmin == vmax:
-            vmin = vmin - DAYS_PER_YEAR * 2
-            vmax = vmax + DAYS_PER_YEAR * 2
+            # Issue #5963
+            # Order of Magnitude
+            if self.hms0d['bysecond'] != 0:
+                units = SEC_PER_MIN
+            elif self.hms0d['byminute'] != 0:
+                units = MIN_PER_HOUR
+            elif self.hms0d['byhour'] != 0:
+                units = HOURS_PER_DAY
+            elif vmin % 7 != 0:
+                # Use weeks
+                units = DAYS_PER_MONTH
+            elif vmin % 28 != 0:
+                # Use months
+                units = DAYS_PER_YEAR
+            elif vmin & 365 != 0:
+                # Use years
+                units = DAYS_PER_YEAR * 100
+
+            vmin = math.floor(vmin - units * .04)
+            vmax = math.ceil(vmax + units * .04)
+
         return vmin, vmax
 
     def set_axis(self, axis):
