@@ -1,0 +1,13 @@
+from __future__ import print_function
+import matplotlib.pyplot as plt
+import matplotlib.cbook as cbook
+import numpy as np
+# data are 256x256 16 bit integers
+dfile = cbook.get_sample_data('s1045.ima.gz')
+im = np.fromstring(dfile.read(), np.uint16).astype(float)
+im.shape = 256, 256
+
+plt.imshow(im, cmap=plt.cm.gray)
+plt.axis('off')
+
+plt.show()

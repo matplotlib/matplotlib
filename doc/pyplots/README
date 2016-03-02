@@ -1,0 +1,10 @@
+Please add a line to this file for any additional requirements necessary to
+generate a new figure.
+
+tex_demo.py and tex_unicode_demo.py:
+  latex
+  dvipng
+
+
+plotmap.py:
+    basemap toolkit

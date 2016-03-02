@@ -1,0 +1,132 @@
+"""
+Stacked area plot for 1D arrays inspired by Douglas Y'barbo's stackoverflow
+answer:
+http://stackoverflow.com/questions/2225995/how-can-i-create-stacked-line-graph-with-matplotlib
+
+(http://stackoverflow.com/users/66549/doug)
+
+"""
+from __future__ import (absolute_import, division, print_function,
+                        unicode_literals)
+
+from matplotlib.externals import six
+from matplotlib.externals.six.moves import xrange
+
+from cycler import cycler
+import numpy as np
+
+__all__ = ['stackplot']
+
+
+def stackplot(axes, x, *args, **kwargs):
+    """Draws a stacked area plot.
+
+    *x* : 1d array of dimension N
+
+    *y* : 2d array of dimension MxN, OR any number 1d arrays each of dimension
+          1xN. The data is assumed to be unstacked. Each of the following
+          calls is legal::
+
+            stackplot(x, y)               # where y is MxN
+            stackplot(x, y1, y2, y3, y4)  # where y1, y2, y3, y4, are all 1xNm
+
+    Keyword arguments:
+
+    *baseline* : ['zero', 'sym', 'wiggle', 'weighted_wiggle']
+                Method used to calculate the baseline. 'zero' is just a
+                simple stacked plot. 'sym' is symmetric around zero and
+                is sometimes called `ThemeRiver`.  'wiggle' minimizes the
+                sum of the squared slopes. 'weighted_wiggle' does the
+                same but weights to account for size of each layer.
+                It is also called `Streamgraph`-layout. More details
+                can be found at http://www.leebyron.com/else/streamgraph/.
+
+
+    *labels* : A list or tuple of labels to assign to each data series.
+
+
+    *colors* : A list or tuple of colors. These will be cycled through and
+               used to colour the stacked areas.
+               All other keyword arguments are passed to
+               :func:`~matplotlib.Axes.fill_between`
+
+    Returns *r* : A list of
+    :class:`~matplotlib.collections.PolyCollection`, one for each
+    element in the stacked area plot.
+    """
+
+    if len(args) == 1:
+        y = np.atleast_2d(*args)
+    elif len(args) > 1:
+        y = np.row_stack(args)
+
+    labels = iter(kwargs.pop('labels', []))
+
+    colors = kwargs.pop('colors', None)
+    if colors is not None:
+        axes.set_prop_cycle(cycler('color', colors))
+
+    baseline = kwargs.pop('baseline', 'zero')
+    # Assume data passed has not been 'stacked', so stack it here.
+    stack = np.cumsum(y, axis=0)
+
+    r = []
+    margins = {}
+    if baseline == 'zero':
+        first_line = 0.
+        margins['bottom'] = False
+
+    elif baseline == 'sym':
+        first_line = -np.sum(y, 0) * 0.5
+        stack += first_line[None, :]
+
+    elif baseline == 'wiggle':
+        m = y.shape[0]
+        first_line = (y * (m - 0.5 - np.arange(0, m)[:, None])).sum(0)
+        first_line /= -m
+        stack += first_line
+        margins['bottom'] = False
+
+    elif baseline == 'weighted_wiggle':
+        m, n = y.shape
+        center = np.zeros(n)
+        total = np.sum(y, 0)
+        increase = np.hstack((y[:, 0:1], np.diff(y)))
+        below_size = total - stack
+        below_size += 0.5 * y
+        move_up = below_size / total
+        move_up[:, 0] = 0.5
+        center = (move_up - 0.5) * increase
+        center = np.cumsum(center.sum(0))
+        first_line = center - 0.5 * total
+        stack += first_line
+        margins['bottom'] = False
+
+    else:
+        errstr = "Baseline method %s not recognised. " % baseline
+        errstr += "Expected 'zero', 'sym', 'wiggle' or 'weighted_wiggle'"
+        raise ValueError(errstr)
+
+    # Color between x = 0 and the first array.
+    if 'color' in axes._get_lines._prop_keys:
+        color = six.next(axes._get_lines.prop_cycler)['color']
+    else:
+        color = None
+    r.append(axes.fill_between(x, first_line, stack[0, :],
+                               facecolor=color,
+                               label= six.next(labels, None),
+                               margins=margins,
+                               **kwargs))
+
+    # Color between array i-1 and array i
+    for i in xrange(len(y) - 1):
+        if 'color' in axes._get_lines._prop_keys:
+            color = six.next(axes._get_lines.prop_cycler)['color']
+        else:
+            color = None
+        r.append(axes.fill_between(x, stack[i, :], stack[i + 1, :],
+                                   facecolor=color,
+                                   label= six.next(labels, None),
+                                   margins=margins,
+                                   **kwargs))
+    return r

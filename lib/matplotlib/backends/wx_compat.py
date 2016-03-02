@@ -1,0 +1,162 @@
+#!/usr/bin/env python
+"""
+A wx API adapter to hide differences between wxPython classic and phoenix.
+
+It is assumed that the user code is selecting what version it wants to use,
+here we just ensure that it meets the minimum required by matplotlib.
+
+For an example see embedding_in_wx2.py
+"""
+from __future__ import (absolute_import, division, print_function,
+                        unicode_literals)
+
+from matplotlib.externals import six
+from distutils.version import LooseVersion
+
+missingwx = "Matplotlib backend_wx and backend_wxagg require wxPython >=2.8.12"
+
+
+try:
+    import wx
+    backend_version = wx.VERSION_STRING
+    is_phoenix = 'phoenix' in wx.PlatformInfo
+except ImportError:
+    raise ImportError(missingwx)
+
+# Ensure we have the correct version imported
+if LooseVersion(wx.VERSION_STRING) < LooseVersion("2.8.12"):
+    print(" wxPython version %s was imported." % backend_version)
+    raise ImportError(missingwx)
+
+if is_phoenix:
+    # define all the wxPython phoenix stuff
+
+    # font styles, families and weight
+    fontweights = {
+        100: wx.FONTWEIGHT_LIGHT,
+        200: wx.FONTWEIGHT_LIGHT,
+        300: wx.FONTWEIGHT_LIGHT,
+        400: wx.FONTWEIGHT_NORMAL,
+        500: wx.FONTWEIGHT_NORMAL,
+        600: wx.FONTWEIGHT_NORMAL,
+        700: wx.FONTWEIGHT_BOLD,
+        800: wx.FONTWEIGHT_BOLD,
+        900: wx.FONTWEIGHT_BOLD,
+        'ultralight': wx.FONTWEIGHT_LIGHT,
+        'light': wx.FONTWEIGHT_LIGHT,
+        'normal': wx.FONTWEIGHT_NORMAL,
+        'medium': wx.FONTWEIGHT_NORMAL,
+        'semibold': wx.FONTWEIGHT_NORMAL,
+        'bold': wx.FONTWEIGHT_BOLD,
+        'heavy': wx.FONTWEIGHT_BOLD,
+        'ultrabold': wx.FONTWEIGHT_BOLD,
+        'black': wx.FONTWEIGHT_BOLD
+    }
+    fontangles = {
+        'italic': wx.FONTSTYLE_ITALIC,
+        'normal': wx.FONTSTYLE_NORMAL,
+        'oblique': wx.FONTSTYLE_SLANT}
+
+    # wxPython allows for portable font styles, choosing them appropriately
+    # for the target platform. Map some standard font names to the portable
+    # styles
+    # QUESTION: Is it be wise to agree standard fontnames across all backends?
+    fontnames = {'Sans': wx.FONTFAMILY_SWISS,
+                 'Roman': wx.FONTFAMILY_ROMAN,
+                 'Script': wx.FONTFAMILY_SCRIPT,
+                 'Decorative': wx.FONTFAMILY_DECORATIVE,
+                 'Modern': wx.FONTFAMILY_MODERN,
+                 'Courier': wx.FONTFAMILY_MODERN,
+                 'courier': wx.FONTFAMILY_MODERN}
+
+    dashd_wx = {'solid': wx.PENSTYLE_SOLID,
+                'dashed': wx.PENSTYLE_SHORT_DASH,
+                'dashdot': wx.PENSTYLE_DOT_DASH,
+                'dotted': wx.PENSTYLE_DOT}
+
+    # functions changes
+    BitmapFromBuffer = wx.Bitmap.FromBufferRGBA
+    EmptyBitmap = wx.Bitmap
+    EmptyImage = wx.Image
+    Cursor = wx.Cursor
+    EventLoop = wx.GUIEventLoop
+    NamedColour = wx.Colour
+    StockCursor = wx.Cursor
+
+else:
+    # define all the wxPython classic stuff
+
+    # font styles, families and weight
+    fontweights = {
+        100: wx.LIGHT,
+        200: wx.LIGHT,
+        300: wx.LIGHT,
+        400: wx.NORMAL,
+        500: wx.NORMAL,
+        600: wx.NORMAL,
+        700: wx.BOLD,
+        800: wx.BOLD,
+        900: wx.BOLD,
+        'ultralight': wx.LIGHT,
+        'light': wx.LIGHT,
+        'normal': wx.NORMAL,
+        'medium': wx.NORMAL,
+        'semibold': wx.NORMAL,
+        'bold': wx.BOLD,
+        'heavy': wx.BOLD,
+        'ultrabold': wx.BOLD,
+        'black': wx.BOLD
+    }
+    fontangles = {
+        'italic': wx.ITALIC,
+        'normal': wx.NORMAL,
+        'oblique': wx.SLANT}
+
+    # wxPython allows for portable font styles, choosing them appropriately
+    # for the target platform. Map some standard font names to the portable
+    # styles
+    # QUESTION: Is it be wise to agree standard fontnames across all backends?
+    fontnames = {'Sans': wx.SWISS,
+                 'Roman': wx.ROMAN,
+                 'Script': wx.SCRIPT,
+                 'Decorative': wx.DECORATIVE,
+                 'Modern': wx.MODERN,
+                 'Courier': wx.MODERN,
+                 'courier': wx.MODERN}
+
+    dashd_wx = {'solid': wx.SOLID,
+                'dashed': wx.SHORT_DASH,
+                'dashdot': wx.DOT_DASH,
+                'dotted': wx.DOT}
+
+    # functions changes
+    BitmapFromBuffer = wx.BitmapFromBufferRGBA
+    EmptyBitmap = wx.EmptyBitmap
+    EmptyImage = wx.EmptyImage
+    Cursor = wx.StockCursor
+    EventLoop = wx.EventLoop
+    NamedColour = wx.NamedColour
+    StockCursor = wx.StockCursor
+
+
+def _AddTool(parent, wx_ids, text, bmp, tooltip_text):
+    if is_phoenix:
+        if text in ['Pan', 'Zoom']:
+            kind = wx.ITEM_CHECK
+        else:
+            kind = wx.ITEM_NORMAL
+        parent.AddTool(wx_ids[text], label=text,
+                       bitmap=bmp,
+                       bmpDisabled=wx.NullBitmap,
+                       shortHelpString=text,
+                       longHelpString=tooltip_text,
+                       kind=kind)
+    else:
+        if text in ['Pan', 'Zoom']:
+            parent.AddCheckTool(
+                wx_ids[text],
+                bmp,
+                shortHelp=text,
+                longHelp=tooltip_text)
+        else:
+            parent.AddSimpleTool(wx_ids[text], bmp, text, tooltip_text)

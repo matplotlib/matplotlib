@@ -1,0 +1,13 @@
+2009-06-01  Jae-Joon Lee  <lee.j.joon@gmail.com>
+
+	* axislines.py (Axes.toggle_axisline): fix broken spine support.
+	(AxisArtistHelper): Initial support for curvelinear grid and ticks.
+
+2009-05-04  Jae-Joon Lee  <lee.j.joon@gmail.com>
+
+	* inset_locator.py (inset_axes, zoomed_inset_axes): axes_class support
+
+	* axislines.py : Better support for tick (tick label) color
+	handling
+	(Axes.get_children): fix typo
+

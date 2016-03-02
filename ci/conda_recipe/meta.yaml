@@ -1,0 +1,73 @@
+# Full credit goes to https://github.com/conda/conda-recipes for providing this recipe.
+# It has been subsequently adapted for automated building with conda-forge and matplotlib.
+
+package:
+  name: matplotlib
+  version: 1.5.1.9
+
+source:
+  path: ../../
+
+  patches:
+    # A patch to make Qt4Agg the default backend.
+    - cfg_qt4agg.patch    # [linux]
+    # Patches the matplotlibrc template to default to Qt4.
+    - rctmp_pyside.patch  # [not osx]
+    # Patches setupext to look in PREFIX for the tcl/tk headers.
+    - osx-tk.patch        # [osx]
+    # dynamic version from git
+    # we can't use condas usual dynamic versions as setup.py uses a guard
+    # around the setup call against importing, which is done internaly
+    # by conda build to get the version.
+    # https://github.com/matplotlib/matplotlib/pull/5629#issuecomment-167243654
+    - condaversion.patch
+
+requirements:
+  build:
+    - python
+    - setuptools
+    - numpy x.x
+    - python-dateutil
+    - freetype
+    - msinttypes          # [win]
+    - cycler
+    - nose
+    - pyparsing
+    - pytz
+#    - py2cairo            # [linux and py2k]
+    - tornado
+    - libpng
+    - zlib                # [win]
+    - pyqt                # [not osx]
+    - tk                  # [linux and win]
+    - functools32         # [py2k]
+
+  run:
+    - python
+    - numpy x.x
+    - cycler
+    - python-dateutil
+    - freetype
+    - pytz
+    - pyparsing
+#    - py2cairo            # [linux and py2k]
+    - libpng              # [unix]
+    - pyqt                # [not osx]
+    - tk                  # [linux and win]
+    - functools32         # [py2k]
+
+test:
+    imports:
+        - matplotlib
+        - matplotlib.pyplot
+
+about:
+  home: http://matplotlib.org/
+  license: PSF-based (http://matplotlib.org/users/license.html)
+  summary: Publication quality figures in Python
+
+extra:
+  recipe-maintainers:
+    - pelson
+    - tacaswell
+    - JanSchulz

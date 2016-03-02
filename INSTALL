@@ -1,0 +1,336 @@
+.. The source of this document is INSTALL. During the doc build process,
+.. this file is copied over to doc/users/installing.rst.
+.. Therefore, you must edit INSTALL, *not* doc/users/installing.rst!
+
+**********
+Installing
+**********
+
+There are many different ways to install matplotlib, and the best way
+depends on what operating system you are using, what you already have
+installed, and how you want to use it.  To avoid wading through all
+the details (and potential complications) on this page, there are several
+convenient options.
+
+Installing pre-built packages
+=============================
+
+Most platforms : scientific Python distributions
+------------------------------------------------
+
+The first option is to use one of the pre-packaged python
+distributions that already provide matplotlib built-in.  The
+Continuum.io Python distribution (`Anaconda
+<https://store.continuum.io/cshop/anaconda/>`_ or `miniconda
+<http://conda.pydata.org/miniconda.html>`_) and the Enthought
+distribution `(Canopy) <https://www.enthought.com/products/canopy/>`_
+are both excellent choices that "just work" out of the box for
+Windows, OSX and common Linux platforms.  Both of these distributions
+include matplotlib and *lots* of other useful tools.  Another
+excellent alternative for Windows users is `Python (x, y)
+<https://code.google.com/p/pythonxy>`_ .
+
+
+Linux : using your package manager
+----------------------------------
+
+If you are on Linux, you might prefer to use your package manager.  matplotlib
+is packaged for almost every major Linux distribution.
+
+* Debian / Ubuntu : ``sudo apt-get install python-matplotlib``
+* Fedora / Redhat : ``sudo yum install python-matplotlib``
+
+Mac OSX : using pip
+-------------------
+
+If you are on Mac OSX you can probably install matplotlib binaries using the
+standard Python installation program `pip <https://pypi.python.org/pypi/pip>`_.
+See :ref:`install_osx_binaries`.
+
+
+Windows
+-------
+
+If you don't already have Python installed, we recommend using
+one of the `scipy-stack compatible Python distributions
+<http://www.scipy.org/install.html>`_ such as WinPython, Python(x,y),
+Enthought Canopy, or Continuum Anaconda, which have matplotlib and
+many of its dependencies, plus other useful packages, preinstalled.
+
+For `standard Python <http://www.python.org/download/>`_ installations
+you will also need to install compatible versions of
+`setuptools <https://pypi.python.org/pypi/setuptools/>`_,
+`numpy <https://pypi.python.org/pypi/numpy/>`_,
+`python-dateutil <https://pypi.python.org/pypi/python-dateutil/>`_,
+`pytz <https://pypi.python.org/pypi/pytz>`_,
+`pyparsing <https://pypi.python.org/pypi/pyparsing/>`_, and
+`cycler <https://pypi.python.org/pypi/Cycler>`_
+in addition to
+`matplotlib <http://pypi.python.org/pypi/matplotlib/>`_.
+
+For Python 3.5 the `Visual C++ Redistributable for Visual Studio 2015
+<http://www.microsoft.com/en-us/download/details.aspx?id=48145>`_
+needs to be installed.
+In case Python 2.7 to 3.4 are not installed for all users (not the default),
+the Microsoft Visual C++ 2008 (
+`64 bit <http://www.microsoft.com/download/en/details.aspx?id=15336>`__
+or
+`32 bit <http://www.microsoft.com/download/en/details.aspx?id=29>`__
+for Python 2.7 to 3.2) or Microsoft Visual C++ 2010 (
+`64 bit <http://www.microsoft.com/en-us/download/details.aspx?id=14632>`__
+or
+`32 bit <http://www.microsoft.com/en-us/download/details.aspx?id=5555>`__
+for Python 3.3 and 3.4) redistributable packages need to be installed.
+
+Matplotlib depends on `Pillow <https://pypi.python.org/pypi/Pillow>`_
+for reading and saving JPEG, BMP, and TIFF image files.
+Matplotlib requires `MiKTeX <http://miktex.org/>`_ and
+`GhostScript <http://www.ghostscript.com/download/>`_ for rendering text
+with LaTeX.
+`FFmpeg <https://www.ffmpeg.org/>`_, `avconv <https://libav.org/>`_,
+`mencoder <http://www.mplayerhq.hu>`_, or
+`ImageMagick <http://www.imagemagick.org/>`_ are required for the
+animation module.
+
+The following backends should work out of the box: agg, tkagg, ps,
+pdf and svg.
+For other backends you may need to install
+`pycairo <https://pypi.python.org/pypi/pycairo>`_,
+`PyQt4 <https://pypi.python.org/pypi/PyQt4>`_,
+`PyQt5 <https://pypi.python.org/pypi/PyQt5>`_,
+`PySide <https://pypi.python.org/pypi/PySide>`_,
+`wxPython <https://pypi.python.org/pypi/wxPython>`_,
+`PyGTK <https://pypi.python.org/pypi/PyGTK>`_,
+`Tornado <https://pypi.python.org/pypi/tornado>`_,
+or GhostScript.
+
+TkAgg is probably the best backend for interactive use from the
+standard Python shell or IPython. It is enabled as the default backend
+for the official binaries.  GTK3 is not supported on Windows.
+
+The Windows installers (:file:`*.exe`) and wheels (:file:`*.whl`) on
+the `PyPI download page <http://pypi.python.org/pypi/matplotlib/>`_ do
+not contain test data or example code.  If you want to try the many
+demos that come in the matplotlib source distribution, download the
+:file:`*.tar.gz` file and look in the :file:`examples` subdirectory.
+To run the test suite, copy the :file:`lib\matplotlib\tests` and
+:file:`lib\mpl_toolkits\tests` directories from the source
+distribution to :file:`sys.prefix\Lib\site-packages\matplotlib` and
+:file:`sys.prefix\Lib\site-packages\mpl_toolkits` respectively, and
+install `nose <https://pypi.python.org/pypi/nose>`_, `mock
+<https://pypi.python.org/pypi/mock>`_, Pillow, MiKTeX, GhostScript,
+ffmpeg, avconv, mencoder, ImageMagick, and `Inkscape
+<http://inkscape.org/>`_.
+
+
+
+.. _install_from_source:
+
+Installing from source
+======================
+
+If you are interested in contributing to matplotlib development,
+running the latest source code, or just like to build everything
+yourself, it is not difficult to build matplotlib from source.  Grab
+the latest *tar.gz* release file from `the PyPI files page
+<https://pypi.python.org/pypi/matplotlib/>`_, or if you want to
+develop matplotlib or just need the latest bugfixed version, grab the
+latest git version :ref:`install-from-git`.
+
+The standard environment variables `CC`, `CXX`, `PKG_CONFIG` are respected.
+This means you can set them if your toolchain is prefixed. This may be used for
+cross compiling.
+
+  export CC=x86_64-pc-linux-gnu-gcc
+  export CXX=x86_64-pc-linux-gnu-g++
+  export PKG_CONFIG=x86_64-pc-linux-gnu-pkg-config
+
+Once you have satisfied the requirements detailed below (mainly
+python, numpy, libpng and freetype), you can build matplotlib::
+
+  cd matplotlib
+  python setup.py build
+  python setup.py install
+
+We provide a `setup.cfg
+<https://github.com/matplotlib/matplotlib/raw/master/setup.cfg.template>`_
+file that goes with :file:`setup.py` which you can use to customize
+the build process. For example, which default backend to use, whether
+some of the optional libraries that matplotlib ships with are
+installed, and so on.  This file will be particularly useful to those
+packaging matplotlib.
+
+If you have installed prerequisites to nonstandard places and need to
+inform matplotlib where they are, edit ``setupext.py`` and add the base
+dirs to the ``basedir`` dictionary entry for your ``sys.platform``.
+e.g., if the header to some required library is in
+``/some/path/include/someheader.h``, put ``/some/path`` in the
+``basedir`` list for your platform.
+
+.. _install_requirements:
+
+Build requirements
+------------------
+
+These are external packages which you will need to install before
+installing matplotlib.  If you are building on OSX, see
+:ref:`build_osx`. If you are building on Windows, see
+:ref:`build_windows`. If you are installing dependencies with a
+package manager on Linux, you may need to install the development
+packages (look for a "-dev" postfix) in addition to the libraries
+themselves.
+
+
+Required Dependencies
+^^^^^^^^^^^^^^^^^^^^^
+
+:term:`python` 2.7, 3.4, or 3.5
+    `Download python <http://www.python.org/download/>`_.
+
+:term:`numpy` |minimum_numpy_version| (or later)
+    array support for python (`download numpy <http://numpy.org>`_)
+
+`setuptools <http://pythonhosted.org/setuptools/>`__
+    Setuptools provides extensions for python package installation.
+
+:term:`dateutil` 1.1 or later
+    Provides extensions to python datetime handling.  If using pip,
+    easy_install or installing from source, the installer will attempt
+    to download and install `python_dateutil` from PyPI.
+
+`pyparsing <https://pyparsing.wikispaces.com/>`__
+    Required for matplotlib's mathtext math rendering support.  If
+    using pip, easy_install or installing from source, the installer
+    will attempt to download and install `pyparsing` from PyPI.
+
+`libpng 1.2 (or later) <http://www.libpng.org>`__
+    library for loading and saving :term:`PNG` files (`download
+    <http://www.libpng.org/pub/png/libpng.html>`__). libpng requires
+    zlib.
+
+`pytz <http://pytz.sourceforge.net/>`__
+    Used to manipulate time-zone aware datetimes. http://pypi.python.org/pypi/pytz
+
+:term:`FreeType` 2.3 or later
+    library for reading true type font files.
+
+`cycler <http://matplotlib.org/cycler/>`__ 0.9 or later
+   Composable cycle class used for constructing style-cycles
+
+`functools32`
+    Required for compatibility if running on versions of Python before
+    Python 3.2.
+
+Optional GUI framework
+^^^^^^^^^^^^^^^^^^^^^^
+
+These are optional packages which you may want to install to use
+matplotlib with a user interface toolkit. See
+:ref:`what-is-a-backend` for more details on the optional matplotlib
+backends and the capabilities they provide.
+
+:term:`tk` 8.3 or later
+    The TCL/Tk widgets library used by the TkAgg backend
+
+:term:`pyqt` 4.0 or later
+    The Qt4 widgets library python wrappers for the Qt4Agg backend
+
+:term:`pygtk` 2.4 or later
+    The python wrappers for the GTK widgets library for use with the
+    GTK or GTKAgg backend
+
+:term:`wxpython` 2.8 or later
+    The python wrappers for the wx widgets library for use with the
+    WX or WXAgg backend
+
+Optional external programs
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+`ffmpeg <https://www.ffmpeg.org/>`__/`avconv <https://libav.org/avconv.html>`__ or `mencoder <http://www.mplayerhq.hu/design7/news.html>`__
+    Required for the animation module to be save out put to movie
+    formats.
+
+`ImageMagick <http://www.imagemagick.org/>`__
+    Required for the animation module to be able to save to animated gif.
+
+Optional dependencies
+^^^^^^^^^^^^^^^^^^^^^
+
+`Pillow <http://python-pillow.github.io/>`__
+    If Pillow is installed, matplotlib can read and write a larger
+    selection of image file formats.
+
+`pkg-config <http://www.freedesktop.org/wiki/Software/pkg-config/>`__
+    A tool used to find required non-python libraries.  This is not strictly
+    required, but can make installation go more smoothly if the libraries and
+    headers are not in the expected locations.
+
+
+Required libraries that ship with matplotlib
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+:term:`agg` 2.4
+    The antigrain C++ rendering engine.  matplotlib links against the
+    agg template source statically, so it will not affect anything on
+    your system outside of matplotlib.
+
+`qhull` 2012.1
+    A library for computing Delaunay triangulations.
+
+`ttconv`
+   truetype font utility
+
+six 1.9.0
+    Python 2/3 compatibility library.  Do not use this in third-party
+    code.
+
+
+.. _build_linux:
+
+Building on Linux
+-----------------
+
+It is easiest to use your system package manager to install the dependencies.
+
+If you are on Debian/Ubuntu, you can get all the dependencies
+required to build matplotlib with::
+
+   sudo apt-get build-dep python-matplotlib
+
+If you are on Fedora/RedHat, you can get all the dependencies required
+to build matplotlib by first installing ``yum-builddep`` and then
+running::
+
+   su -c "yum-builddep python-matplotlib"
+
+This does not build matplotlib, but it does get the install the
+build dependencies, which will make building from source easier.
+
+
+.. _build_osx:
+
+Building on OSX
+---------------
+
+The build situation on OSX is complicated by the various places one
+can get the libpng and freetype requirements (darwinports, fink,
+/usr/X11R6) and the different architectures (e.g., x86, ppc, universal) and
+the different OSX version (e.g., 10.4 and 10.5). We recommend that you build
+the way we do for the OSX release: get the source from the tarball or the
+git repository and follow the instruction in :file:`README.osx`.
+
+
+.. _build_windows:
+
+
+Building on Windows
+-------------------
+
+The Python shipped from http://www.python.org is compiled with Visual Studio
+2008 for versions before 3.3 and Visual Studio 2010 for 3.3 and later.  Python
+extensions are recommended to be compiled with the same compiler.  The .NET
+Framework 4.0 is required for MSBuild (you'll likely have the requisite
+Framework with Visual Studio).  In addition to Visual Studio `CMake
+<http://www.cmake.org>`_ is required for building libpng.
+
+Since there is no canonical Windows package manager the build methods for
+freetype, zlib, libpng, tcl, & tk source code are documented as a build script
+at `matplotlib-winbuild <https://github.com/jbmohler/matplotlib-winbuild>`_.

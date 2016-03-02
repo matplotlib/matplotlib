@@ -1,0 +1,684 @@
+/*
+ * Alternate Sphinx design
+ * Originally created by Armin Ronacher for Werkzeug, adapted by Georg Brandl.
+ */
+
+body {
+    font-family: "Helvetica Neue", Helvetica, 'Lucida Grande', 'Lucida Sans Unicode', 'Geneva', 'Verdana', sans-serif;
+    font-size: 14px;
+    letter-spacing: -0.01em;
+    line-height: 150%;
+    text-align: center;
+    background-color: #BFD1D4;
+    color: black;
+    padding: 0;
+    border: 1px solid #aaa;
+    color: #333;
+    margin: 0px 80px 0px 80px;
+    min-width: 740px;
+}
+
+a {
+    color: #CA7900;
+    text-decoration: none;
+}
+
+strong {
+  font-weight: strong;
+}
+
+a:hover {
+    color: #2491CF;
+}
+
+pre {
+    font-family:  Monaco, Menlo, Consolas, 'Courier New', monospace;
+    font-size: 0.90em;
+    border-bottom-left-radius: 4px;
+    border-bottom-right-radius: 4px;
+    border-top-left-radius: 4px;
+    border-top-right-radius: 4px;
+    letter-spacing: 0.015em;
+    padding: 1em;
+    border: 1px solid #ccc;
+    background-color: #f8f8f8;
+    line-height: 140%;
+}
+
+td.linenos pre {
+    padding: 0.5em 0;
+    border: 0;
+    background-color: transparent;
+    color: #aaa;
+}
+
+table.highlighttable {
+    margin-left: 0.5em;
+}
+
+table.highlighttable td {
+    padding: 0 0.5em 0 0.5em;
+}
+
+cite, code, tt {
+    font-family: 'Consolas', 'Deja Vu Sans Mono', 'Bitstream Vera Sans Mono', monospace;
+    font-size: 0.95em;
+    letter-spacing: 0.01em;
+}
+
+hr {
+    border: 1px solid #abc;
+    margin: 2em;
+}
+
+tt {
+    background-color: #f2f2f2;
+    border-bottom: 1px solid #ddd;
+    color: #333;
+}
+
+tt.descname {
+    background-color: transparent;
+    font-weight: bold;
+    font-size: 1.2em;
+    border: 0;
+}
+
+tt.descclassname {
+    background-color: transparent;
+    border: 0;
+}
+
+tt.xref {
+    background-color: transparent;
+    font-weight: bold;
+    border: 0;
+}
+
+a tt {
+    background-color: transparent;
+    font-weight: bold;
+    border: 0;
+    color: #CA7900;
+}
+
+a tt:hover {
+    color: #2491CF;
+}
+
+dl {
+    margin-bottom: 15px;
+}
+
+dd p {
+    margin-top: 1px;
+}
+
+dd ul, dd table {
+    margin-bottom: 10px;
+}
+
+dd {
+    margin-top: 3px;
+    margin-bottom: 10px;
+    margin-left: 30px;
+}
+
+.refcount {
+    color: #060;
+}
+
+dt:target,
+.highlight {
+    background-color: #ffffee;
+}
+
+dl.method, dl.attribute {
+    border-top: 1px solid #aaa;
+}
+
+dl.glossary dt {
+    font-weight: bold;
+    font-size: 1.1em;
+}
+
+pre a {
+    color: inherit;
+    text-decoration: none;
+}
+
+.first {
+    margin-top: 0 !important;
+}
+
+div.document {
+    background-color: white;
+    text-align: left;
+    background-image: url(contents.png);
+    background-repeat: repeat-x;
+}
+
+/*
+div.documentwrapper {
+    width: 100%;
+}
+*/
+
+div.clearer {
+    clear: both;
+}
+
+div.related h3 {
+    display: none;
+}
+
+div.related ul {
+    background-image: url(navigation.png);
+    height: 2em;
+    list-style: none;
+    border-top: 1px solid #ddd;
+    border-bottom: 1px solid #ddd;
+    margin: 0;
+    padding-left: 10px;
+}
+
+div.related ul li {
+    margin: 0;
+    padding: 0;
+    height: 2em;
+    float: left;
+}
+
+div.related ul li.right {
+    float: right;
+    margin-right: 5px;
+}
+
+div.related ul li a {
+    margin: 0;
+    padding: 0 5px 0 5px;
+    line-height: 1.75em;
+    color: #EE9816;
+}
+
+div.related ul li a:hover {
+    color: #3CA8E7;
+}
+
+div.body {
+    margin: 0;
+    padding: 0.5em 20px 20px 20px;
+}
+
+div.bodywrapper {
+    margin: 0 240px 0 0;
+    border-right: 1px solid #ccc;
+}
+
+div.sphinxsidebar {
+    margin: 0;
+    padding: 0.5em 15px 15px 0;
+    width: 210px;
+    float: right;
+    text-align: left;
+/*    margin-left: -100%; */
+}
+div.sphinxsidebarwrapper {
+    padding-top: 28px
+}
+
+div.sphinxsidebar h4, div.sphinxsidebar h3 {
+    margin: 1em 0 0.5em 0;
+    font-size: 0.9em;
+    padding: 0.1em 0 0.1em 0.5em;
+    color: white;
+    border: 1px solid #86989B;
+    background-color: #AFC1C4;
+}
+
+div.sphinxsidebar ul {
+    padding-left: 1.5em;
+    margin-top: 7px;
+    list-style: none;
+    padding: 0;
+    line-height: 130%;
+}
+
+div.sphinxsidebar ul ul {
+    list-style: square;
+    margin-left: 20px;
+}
+
+p {
+    margin: 0.8em 0 0.8em 0;
+}
+
+p.rubric {
+    font-weight: bold;
+}
+
+h1 {
+    margin: 0.5em 0em;
+    padding-top: 0.5em;
+    font-size: 2em;
+    color: #11557C;
+}
+
+h2 {
+    margin: 0.5em 0 0.2em 0;
+    padding-top: 0.5em;
+    font-size: 1.7em;
+    padding: 0;
+}
+
+h3 {
+    margin: 1em 0 -0.3em 0;
+    font-size: 1.2em;
+}
+
+h1 a, h2 a, h3 a, h4 a, h5 a, h6 a {
+    color: black!important;
+}
+
+h1 a.anchor, h2 a.anchor, h3 a.anchor, h4 a.anchor, h5 a.anchor, h6 a.anchor {
+    display: none;
+    margin: 0 0 0 0.3em;
+    padding: 0 0.2em 0 0.2em;
+    color: #aaa!important;
+}
+
+h1:hover a.anchor, h2:hover a.anchor, h3:hover a.anchor, h4:hover a.anchor,
+h5:hover a.anchor, h6:hover a.anchor {
+    display: inline;
+}
+
+h1 a.anchor:hover, h2 a.anchor:hover, h3 a.anchor:hover, h4 a.anchor:hover,
+h5 a.anchor:hover, h6 a.anchor:hover {
+    color: #777;
+    background-color: #eee;
+}
+
+table {
+    border-collapse: collapse;
+    margin: 0 -0.5em 0 -0.5em;
+}
+
+table td, table th {
+    padding: 0.2em 0.5em 0.2em 0.5em;
+}
+
+div.footer {
+    background-color: #E3EFF1;
+    color: #86989B;
+    padding: 3px 8px 3px 0;
+    clear: both;
+    font-size: 0.8em;
+    text-align: right;
+}
+
+div.footer a {
+    color: #86989B;
+    text-decoration: underline;
+}
+
+div.pagination {
+    margin-top: 2em;
+    padding-top: 0.5em;
+    border-top: 1px solid black;
+    text-align: center;
+}
+
+div.sphinxsidebar ul.toc {
+    margin: 1em 0 1em 0;
+    padding: 0 0 0 0.5em;
+    list-style: none;
+}
+
+div.sphinxsidebar ul.toc li {
+    margin: 0.5em 0 0.5em 0;
+    font-size: 0.9em;
+    line-height: 130%;
+}
+
+div.sphinxsidebar ul.toc li p {
+    margin: 0;
+    padding: 0;
+}
+
+div.sphinxsidebar ul.toc ul {
+    margin: 0.2em 0 0.2em 0;
+    padding: 0 0 0 1.8em;
+}
+
+div.sphinxsidebar ul.toc ul li {
+    padding: 0;
+}
+
+div.admonition, div.warning {
+    font-size: 0.9em;
+}
+
+div.admonition p, div.warning p {
+    margin: 0.5em 1em 0.5em 1em;
+    padding: 0;
+}
+
+div.admonition pre, div.warning pre {
+    margin: 0.4em 1em 0.4em 1em;
+}
+
+div.admonition p.admonition-title,
+div.warning p.admonition-title {
+    margin: 0;
+    font-weight: bold;
+    font-size: 14px;
+}
+
+div.warning {
+    border: 1px solid #940000;
+}
+
+div.warning p.admonition-title {
+    background-color: #CF0000;
+    border-bottom-color: #940000;
+}
+
+div.admonition ul, div.admonition ol,
+div.warning ul, div.warning ol {
+    margin: 0.1em 0.5em 0.5em 3em;
+    padding: 0;
+}
+
+div.versioninfo {
+    margin: 1em 0 0 0;
+    border: 1px solid #ccc;
+    background-color: #DDEAF0;
+    padding: 8px;
+    line-height: 1.3em;
+    font-size: 0.9em;
+}
+
+
+a.headerlink {
+    color: #c60f0f!important;
+    font-size: 1em;
+    margin-left: 6px;
+    padding: 0 4px 0 4px;
+    text-decoration: none!important;
+    visibility: hidden;
+}
+
+h1:hover > a.headerlink,
+h2:hover > a.headerlink,
+h3:hover > a.headerlink,
+h4:hover > a.headerlink,
+h5:hover > a.headerlink,
+h6:hover > a.headerlink,
+dt:hover > a.headerlink {
+    visibility: visible;
+}
+
+a.headerlink:hover {
+    background-color: #ccc;
+    color: white!important;
+}
+
+table.indextable td {
+    text-align: left;
+    vertical-align: top;
+}
+
+table.indextable dl, table.indextable dd {
+    margin-top: 0;
+    margin-bottom: 0;
+}
+
+table.indextable tr.pcap {
+    height: 10px;
+}
+
+table.indextable tr.cap {
+    margin-top: 10px;
+    background-color: #f2f2f2;
+}
+
+img.toggler {
+    margin-right: 3px;
+    margin-top: 3px;
+    cursor: pointer;
+}
+
+img.inheritance {
+    border: 0px
+}
+
+form.pfform {
+    margin: 10px 0 20px 0;
+}
+
+table.contentstable {
+    width: 90%;
+}
+
+table.contentstable p.biglink {
+    line-height: 150%;
+}
+
+a.biglink {
+    font-size: 1.3em;
+}
+
+span.linkdescr {
+    font-style: italic;
+    padding-top: 5px;
+    font-size: 90%;
+}
+
+ul.search {
+    margin: 10px 0 0 20px;
+    padding: 0;
+}
+
+ul.search li {
+    padding: 5px 0 5px 20px;
+    background-image: url(file.png);
+    background-repeat: no-repeat;
+    background-position: 0 7px;
+}
+
+ul.search li a {
+    font-weight: bold;
+}
+
+ul.search li div.context {
+    color: #888;
+    margin: 2px 0 0 30px;
+    text-align: left;
+}
+
+ul.keywordmatches li.goodmatch a {
+    font-weight: bold;
+}
+
+table.docutils {
+    border-spacing: 2px;
+    border-collapse: collapse;
+    border-top-width: 1px;
+    border-right-width: 0px;
+    border-bottom-width: 1px;
+    border-left-width: 0px;
+}
+
+/* module summary table */
+.longtable.docutils {
+    font-size: 12px;
+    margin-bottom: 30px;
+    background-color: #ccc;
+}
+.longtable.docutils, .longtable.docutils td {
+    border-color: #ccc;
+}
+
+/* module summary table */
+.longtable.docutils {
+    font-size: 12px;
+    margin-bottom: 30px;
+}
+.longtable.docutils, .longtable.docutils td {
+    border-color: #ccc;
+}
+
+/* function and class description */
+.descclassname {
+    color: #aaa;
+    font-weight: normal;
+    font-family: monospace;
+}
+.descname {
+    font-family: monospace;
+}
+
+
+table.docutils th {
+    padding: 1px 8px 1px 5px;
+    background-color: #eee;
+    width: 100px;
+}
+
+table.docutils td {
+    border-width: 1px 0 1px 0;
+}
+
+
+dl.class em, dl.function em, dl.class big, dl.function big {
+    font-weight: normal;
+    font-family: monospace;
+}
+
+dl.class dd, dl.function dd {
+    padding: 10px;
+}
+
+/* function and class description */
+dl.class, dl.function, dl.method, dl.attribute {
+    border-top: 1px solid #ccc;
+    padding-top: 6px;
+}
+
+dl.class, dl.function {
+    border-top: 1px solid #888;
+  margin-top: 15px;
+}
+
+
+.descclassname {
+    color: #aaa;
+    font-weight: normal;
+    font-family: monospace;
+}
+.descname {
+    font-family: monospace;
+}
+
+
+.docutils.field-list th {
+    background-color: #eee;
+    padding: 10px;
+    text-align: left;
+    vertical-align: top;
+    width: 120px;
+}
+.docutils.field-list td {
+    padding: 10px 10px 10px 20px;
+    text-align: left;
+    vertical-align: top;
+}
+.docutils.field-list td blockquote p {
+    font-size: 13px;
+    line-height: 18px;
+}
+p.rubric {
+    font-weight: bold;
+    font-size: 19px;
+    margin: 15px 0 10px 0;
+}
+p.admonition-title {
+    font-weight: bold;
+    text-decoration: underline;
+}
+
+
+#matplotlib-examples ul li{
+  font-size: large;
+}
+
+#matplotlib-examples ul li ul{
+  margin-bottom:20px;
+  overflow:hidden;
+  border-top:1px solid #ccc;
+}
+
+#matplotlib-examples ul li ul li {
+  font-size: small;
+  line-height:1.75em;
+  display:inline;
+  float: left;
+  width: 22em;
+}
+
+#overview ul li ul{
+  margin-bottom:20px;
+  overflow:hidden;
+  border-top:1px solid #ccc;
+}
+
+#overview ul li ul li {
+  display:inline;
+  float: left;
+  width: 30em;
+}
+
+figure {
+  margin: 1em;
+  display: inline-block;
+}
+
+figure img {
+  margin-left: auto;
+  margin-right: auto;
+}
+
+figcaption {
+  text-align: center;
+}
+
+
+.donate_button {
+    background:#11557C;
+    font-weight:normal;
+    border:solid 1px #fff;
+    outline: solid 1px #11557C;
+    clear: both;
+    display: block;
+    width:200px;
+    line-height:2.8;
+    font-size: 16px;
+    text-align: center;
+    cursor:pointer;
+    color:#fff;
+    text-decoration: none;
+    margin: 30px auto 0;
+    z-index:1;
+    transition: background .25s ease;
+}
+
+.donate_button:last-of-type {
+    margin: 15px auto 30px;
+
+
+}
+
+.donate_button:hover, .donate_button:active, .donate_button:focus {
+    background: #003c63;
+    outline-color: #003c63;
+}

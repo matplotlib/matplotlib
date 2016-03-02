@@ -1,0 +1,85 @@
+#########################################
+# OS-specific temporary and backup files
+.DS_Store
+
+#########################################
+# Editor temporary/working/backup files #
+.#*
+[#]*#
+*~
+*$
+*.bak
+*.kdev4
+.project
+.pydevproject
+*.swp
+.idea
+
+# Compiled source #
+###################
+*.a
+*.com
+*.class
+*.dll
+*.exe
+*.o
+*.py[ocd]
+*.so
+
+# Python files #
+################
+# setup.py working directory
+build
+# sphinx build directory
+doc/_build
+# setup.py dist directory
+dist
+# Egg metadata
+*.egg-info
+.eggs
+# tox testing tool
+.tox
+setup.cfg
+
+# OS generated files #
+######################
+.directory
+.gdb_history
+.DS_Store?
+ehthumbs.db
+Icon?
+Thumbs.db
+
+# Things specific to this project #
+###################################
+lib/matplotlib/mpl-data/matplotlib.conf
+lib/matplotlib/mpl-data/matplotlibrc
+
+# Documentation generated files #
+#################################
+doc/examples
+doc/_templates/gallery.html
+doc/users/installing.rst
+doc/_static/matplotlibrc
+doc/pyplots/tex_demo.png
+lib/dateutil
+examples/*/*.pdf
+examples/*/*.png
+examples/tests/*
+!examples/tests/backend_driver.py
+texput.log
+texput.aux
+result_images
+
+# Nose generated files #
+########################
+.coverage
+.coverage.*
+cover/
+.noseids
+
+# Conda files #
+###############
+__conda_version__.txt
+lib/png.lib
+lib/z.lib

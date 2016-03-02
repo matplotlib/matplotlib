@@ -1,0 +1,21 @@
+You have a few different options available to you for embedding
+matplotlib  in a wxPython application
+
+1. Embed one of the wxPython backend widgets (which subclass wx.Panel)
+   directly and draw plots on it using matplotlib's object-oriented
+   API.  This approach is demonstrated by some of the examples
+   embedding_in_wx*.py
+
+2. Embed the PlotPanel from Matt Newville's `MPlot' package and draw
+   plots on it using its plot() and oplot() methods.
+
+	http://cars9.uchicago.edu/~newville/Python/MPlot/
+
+3. Embed the PlotPanel from Ken McIvor wxmpl module and draw plots on
+   it using the matplotlib's object-oriented API.
+
+	http://agni.phys.iit.edu/~kmcivor/wxmpl/
+
+Each of these approachs has different benefits and drawbacks, so I
+encourage you to evaluate each of them and select the one that best
+meets your needs.

@@ -1,0 +1,224 @@
+{% extends "layout.html" %}
+{% set title = 'matplotlib: python plotting' %}
+
+{% block extrahead %}
+<script>
+function getSnippet(id, url) {
+  var req = false;
+  // For Safari, Firefox, and other non-MS browsers
+  if (window.XMLHttpRequest) {
+    try {
+      req = new XMLHttpRequest();
+    } catch (e) {
+      req = false;
+    }
+  } else if (window.ActiveXObject) {
+    // For Internet Explorer on Windows
+    try {
+      req = new ActiveXObject("Msxml2.XMLHTTP");
+    } catch (e) {
+      try {
+        req = new ActiveXObject("Microsoft.XMLHTTP");
+      } catch (e) {
+        req = false;
+      }
+    }
+  }
+  var element = document.getElementById(id);
+  if (req) {
+    // Synchronous request, wait till we have it all
+    req.open('GET', url, false);
+    req.send(null);
+    if (req.status == 200) {
+      element.innerHTML = req.responseText;
+    } else {
+      element.innerHTML = "<mark>Could not find Snippet to insert at " + url + "</mark>"
+    }
+  }
+}
+</script>
+
+ {{ super() }}
+{% endblock %}
+
+{% block body %}
+
+  <h1>Introduction</h1>
+
+  <p>matplotlib is a python 2D plotting library which produces
+  publication quality figures in a variety of hardcopy formats and
+  interactive environments across platforms.  matplotlib can be used
+  in python scripts, the python and <a
+  href="http://ipython.org">ipython</a> shell (ala
+  MATLAB<sup>&reg;<a name="matlab" href="#ftn.matlab">*</a></sup>
+  or
+  Mathematica<sup>&reg;<a name="mathematica"
+  href="#ftn.mathematica">&#8224;</a></sup>),
+  web application servers, and six graphical user
+  interface toolkits.</p>
+
+  <p align="center"><a href="{{ pathto('users/screenshots') }}"><img align="middle"
+  src="{{ pathto('_static/logo_sidebar_horiz.png', 1) }}" border="0"
+  alt="screenshots"/></a></p>
+
+  <p>matplotlib tries to make easy things easy and hard things possible.
+  You can generate plots, histograms, power spectra, bar charts,
+  errorcharts, scatterplots, etc, with just a few lines of code.
+  For a sampling, see the <a href="{{ pathto('users/screenshots') }}">screenshots</a>, <a href="{{ pathto('gallery') }}">thumbnail</a> gallery,  and
+    <a href="examples/index.html">examples</a> directory</p>
+
+<p>For simple plotting the <tt>pyplot</tt> interface provides a
+  MATLAB-like interface, particularly when combined
+  with <tt>IPython</tt>.  For the power user, you have full control
+  of line styles, font properties, axes properties, etc, via an object
+  oriented interface or via a set of functions familiar to MATLAB
+  users.</p>
+
+<div style="float: right; min-width: 450px; width: 50%; padding-left: 5%;">
+  <h1>John Hunter (1968-2012)</h1>
+  <table bgcolor="#ddddff">
+   <tr>
+    <td>
+      <img src="_static/John-hunter-crop-2.jpg" align="left" />
+    </td>
+    <td>
+      <p>
+      On August 28 2012, John D. Hunter, the creator of matplotlib, died
+      from complications arising from cancer treatment, after a brief but
+      intense battle with this terrible illness.  John is survived by his
+      wife Miriam, his three daughters Rahel, Ava and Clara, his sisters
+      Layne and Mary, and his mother Sarah.</p>
+
+      <p>
+      If you have benefited from John's many contributions, please say
+      thanks in the way that would matter most to him.  Please consider
+      making a donation to
+      the <a href="http://numfocus.org/johnhunter/">John Hunter Technology
+      Fellowship</a>.</p>
+    </td>
+   </tr>
+  </table>
+</div>
+
+  <h1>Installation</h1>
+
+  Visit the
+  <a href="http://matplotlib.org/users/installing.html">matplotlib
+  installation instructions.</a>.
+
+  <h1>Documentation</h1>
+
+  This is the documentation for matplotlib version {{ version }}.
+
+  <p id="other_versions"></p>
+  <script>
+    getSnippet('other_versions', '/versions.html');
+  </script>
+
+  <p>Trying to learn how to do a particular kind of plot?  Check out
+  the <a href="gallery.html">gallery</a>, <a href="examples/index.html">examples</a>,
+  or the <a href="api/pyplot_summary.html">list of plotting
+  commands</a>.</p>
+
+  <h4>Other learning resources</h4>
+
+  <p>There are many <a href="{{ pathto('resources/index') }}">external learning
+  resources</a> available including printed material, videos and tutorials.</p>
+
+  <h4>Need help?</h4>
+
+<p>matplotlib is a welcoming, inclusive project, and we try to follow
+the <a href="http://www.python.org/psf/codeofconduct/">Python Software
+Foundation Code of Conduct</a> in everything we do.</p>
+
+<p>Check the <a href="{{ pathto('faq/index') }}">faq</a>,
+the <a href="{{ pathto('api/index') }}">api</a> docs,
+<a href="http://matplotlib.1069221.n5.nabble.com/matplotlib-users-f3.html">mailing
+list archives</a>, and join the matplotlib
+mailing lists <a href="https://mail.python.org/mailman/listinfo/matplotlib-users">Users</a>,
+<a href="https://mail.python.org/mailman/listinfo/matplotlib-announce">Announce</a> and
+<a href="https://mail.python.org/mailman/listinfo/matplotlib-devel">Devel</a>.
+Check out the matplotlib questions
+on <a href="http://stackoverflow.com/questions/tagged/matplotlib">stackoverflow</a>.
+The <a href="{{ pathto('search') }}">search</a> tool searches all of
+the documentation, including full text search of over 350 complete
+examples which exercise almost every corner of matplotlib.</p>
+
+<p>You can file bugs, patches and feature requests on the
+github
+<a href="https://github.com/matplotlib/matplotlib/issues?sort=created&direction=desc&state=open">tracker</a>,
+but it is a good idea to ping us on the mailing list too.</p>
+
+<p>To keep up to date with what's going on in matplotlib, see
+the <a href="{{ pathto('users/whats_new.html', 1) }}">what's new
+page</a> or browse the <a href="https://github.com/matplotlib/matplotlib">source
+code</a>.  Anything that could require changes to your existing code
+is logged in the <a href="{{ pathto('api/api_changes.html', 1) }}">api
+changes</a> file.</p>
+
+<h1>Toolkits</h1>
+
+<p>Matplotlib ships with several add-on <a href="{{ pathto('mpl_toolkits/index') }}">toolkits</a>,
+    Including 3d plotting with <a href="{{ pathto('mpl_toolkits/mplot3d/index') }}">mplot3d</a>,
+    axes helpers in <a href="{{ pathto('mpl_toolkits/axes_grid1/index') }}">axes_grid1</a> and
+    axis helpers in <a href="{{ pathto('mpl_toolkits/axisartist/index') }}">axisartist</a>.
+ </p>
+
+<h1>Third party packages</h1>
+
+<p>A large number of third party <a href="{{ pathto('mpl_toolkits/index') }}">packages</a>
+    extend and build on Matplotlib functionality,
+    including a choice of two projection and mapping toolkits
+    <a href="http://matplotlib.org/basemap">basemap</a> and
+    <a href="http://scitools.org.uk/cartopy/docs/latest">cartopy</a>.
+</p>
+
+<h1>Citing matplotlib</h1>
+
+<p>
+  matplotlib is the brainchild of John Hunter (1968-2012), who, along with its many
+  contributors, have put an immeasurable amount of time and effort into producing a
+  piece of software utilized by thousands of scientists worldwide.
+
+  If matplotlib contributes to a project that leads to a scientific publication,
+  please acknowledge this work by citing the project. You can use this
+  <a href="{{ pathto('citing') }}">ready-made citation entry</a>.
+</p>
+
+  <h1>Open source</h1>
+
+<p>
+Please
+consider <a href="https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=X9T4KLZT2794S">donating
+to the matplotlib project</a> through the Numfocus organization or to
+the <a href="http://numfocus.org/johnhunter/">John Hunter Technology Fellowship</a>.
+</p>
+
+<p>
+The matplotlib <a href="{{ pathto('users/license') }}">license</a> is based on the Python Software Foundation
+<a href="http://www.python.org/psf/license">(PSF)</a> license.
+</p>
+
+<p>
+There is an active developer community and a long list of people
+who have made significant <a href="{{ pathto('users/credits') }}">contributions</a>.
+</p>
+
+<p>
+Matplotlib is hosted on <a href="https://github.com/matplotlib/matplotlib">Github</a>.
+<a href="https://github.com/matplotlib/matplotlib/issues">Issues</a> and
+<a href="https://github.com/matplotlib/matplotlib/pulls">Pull requests</a>
+are tracked at Github too.
+</p>
+
+
+<div class="footnote"><p>
+<sup><a name="ftn.matlab" href="#matlab">*</a></sup>
+MATLAB is a registered trademark of The MathWorks, Inc.
+</p>
+<p>
+<sup><a name="ftn.mathematica" href="#mathematica">&#8224;</a></sup>
+Mathematica is a registered trademark of Wolfram Research, Inc.
+</p>
+
+{% endblock %}

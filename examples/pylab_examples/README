@@ -1,0 +1,24 @@
+Here are some demos of how to use the matplotlib.
+
+
+-- data_helper.py - a convenience module to load some data from the
+      data dir
+
+-- embedding_in_gtk - The Figure class derives from gtk.DrawingArea,
+   so it is easy to embed in larger applications.
+
+-- histograms_gauss.py - 2D histograms; requires the jdh.mlab module
+
+-- simple_plot.py  - the basic 2D line plot
+
+-- subplot_demo.py - how to do multiple axes on a single plot
+
+-- vline_hline_demo.py   - working with straight lines
+
+-- stock_demo.py - working with large datasets.  Click on the plot and
+      launch the navigation tool; wheel mouse over the navigation
+      buttons to scroll and zoom.  There are 58 days of minute by
+      minute stock quotes for two tickers.  The plot lib uses
+      Numeric's super speedy searchsorted routine to extract the
+      clipping indices so only the data in the viewport are handled.
+

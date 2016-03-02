@@ -1,0 +1,16 @@
+backend      : Agg
+
+figure.figsize   : 5.5, 4.5    # figure size in inches
+savefig.dpi       : 80      # figure dots per inch
+docstring.hardcopy : True  # set this when you want to generate hardcopy docstring
+
+# these parameters are useful for packagers who want to build the docs
+# w/o invoking file downloads for the sampledata (see
+# matplotlib.cbook.get_sample_data.  Unpack
+# mpl_sampledata-VERSION.tar.gz and point examples.directory to it.
+# You can use a relative path for examples.directory and it must be
+# relative to this matplotlibrc file
+
+#examples.download : False  # False to bypass downloading mechanism
+#examples.directory : /your/path/to/sample_data/   # directory to look in if download is false
+

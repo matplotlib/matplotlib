@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with matplotlib (http://matplotlib.sourceforge.net/) -->
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   version="1.0"
+   x="0.0"
+   y="0.0"
+   width="72.000000"
+   height="72.000000"
+   id="svg1"
+   sodipodi:version="0.32"
+   inkscape:version="0.46"
+   sodipodi:docname="matplotlib.svg"
+   inkscape:output_extension="org.inkscape.output.svg.inkscape"
+   inkscape:export-filename="/wonkabar/data1/builds/matplotlib/lib/matplotlib/mpl-data/images/matplotlib.png"
+   inkscape:export-xdpi="78.900002"
+   inkscape:export-ydpi="78.900002">
+  <metadata
+     id="metadata2903">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <defs
+     id="defs2901">
+    <inkscape:perspective
+       sodipodi:type="inkscape:persp3d"
+       inkscape:vp_x="0 : 36 : 1"
+       inkscape:vp_y="0 : 1000 : 0"
+       inkscape:vp_z="72 : 36 : 1"
+       inkscape:persp3d-origin="36 : 24 : 1"
+       id="perspective2905" />
+  </defs>
+  <sodipodi:namedview
+     inkscape:window-height="725"
+     inkscape:window-width="1250"
+     inkscape:pageshadow="2"
+     inkscape:pageopacity="0.0"
+     guidetolerance="10.0"
+     gridtolerance="10.0"
+     objecttolerance="10.0"
+     borderopacity="1.0"
+     bordercolor="#666666"
+     pagecolor="#ffffff"
+     id="base"
+     showgrid="false"
+     inkscape:zoom="6.4722222"
+     inkscape:cx="36"
+     inkscape:cy="36"
+     inkscape:window-x="411"
+     inkscape:window-y="278"
+     inkscape:current-layer="svg1" />
+  <polygon
+     id="polygon2736"
+     points="0,72 0,0 72,0 72,72 0,72 "
+     style="fill:#bfbfbf;stroke:#ffffff;stroke-width:1;stroke-linecap:square;stroke-linejoin:miter" />
+  <polygon
+     style="fill:#bfd1d4;stroke:#000000;stroke-width:1;stroke-linecap:square;stroke-linejoin:miter;fill-opacity:1"
+     points="1.8,70.2 1.8,1.8 70.2,1.8 70.2,70.2 1.8,70.2 "
+     id="polygon2739" />
+  <path
+     style="fill:none;stroke:#ca7900;stroke-width:4;stroke-linecap:square;stroke-linejoin:miter;stroke-opacity:1"
+     d="M 7.5,36 L 8.925,27.193016 L 10.35,19.24812 L 11.775,12.943016 L 13.2,8.894889 L 14.625,7.5 L 16.05,8.894889 L 17.475,12.943016 L 18.9,19.24812 L 20.325,27.193016 L 21.75,36 L 23.175,44.806984 L 24.6,52.75188 L 26.025,59.056984 L 27.45,63.105111 L 28.875,64.5 L 30.3,63.105111 L 31.725,59.056984 L 33.15,52.75188 L 34.575,44.806984 L 36,36 L 37.425,27.193016 L 38.85,19.24812 L 40.275,12.943016 L 41.7,8.894889 L 43.125,7.5 L 44.55,8.894889 L 45.975,12.943016 L 47.4,19.24812 L 48.825,27.193016 L 50.25,36 L 51.675,44.806984 L 53.1,52.75188 L 54.525,59.056984 L 55.95,63.105111 L 57.375,64.5 L 58.8,63.105111 L 60.225,59.056984 L 61.65,52.75188 L 63.075,44.806984"
+     id="path2898" />
+</svg>
