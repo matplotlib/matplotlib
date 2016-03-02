@@ -365,7 +365,7 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
                 if A.dtype.kind == 'f':
                     rgba[..., 3] = ~A.mask
                 else:
-                    rgba[..., 3] = np.where(A.mask, 0, np.iinfo(np.dtype).max)
+                    rgba[..., 3] = np.where(A.mask, 0, np.iinfo(A.dtype).max)
                 A = rgba
                 output = np.zeros((out_height, out_width, 4), dtype=A.dtype)
                 alpha = 1.0
