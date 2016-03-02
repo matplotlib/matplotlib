@@ -427,8 +427,6 @@ class ScalarFormatter(Formatter):
 
         self.set_useOffset(False)
         self.set_useScalingFactor(False)
-        if rcParams['axes.formatter.useoffset'] is True:
-            self._currentMode = self.mode['offset']
         self._currentMode = self.mode['none']
 
         self._usetex = rcParams['text.usetex']
@@ -677,8 +675,10 @@ class ScalarFormatter(Formatter):
 
     def _set_offset(self, range):
         # Determine if an offset is needed and if so, set it.
-        # This is only needed when scaling/offset hasn't been set by the user
-        if self._currentMode != self.mode['none']:
+        # Don't do this if scaling/offset has been set of it is 
+        # rcParams forbids automatic offset 
+        if (self._currentMode != self.mode['none'] or 
+            rcParams['axes.formatter.useoffset'] is False) :
             return
 
         # offset of 20,001 is 20,000, for example
