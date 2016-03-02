@@ -51,7 +51,8 @@ def pylab_setup(name=None):
 
     # the last argument is specifies whether to use absolute or relative
     # imports. 0 means only perform absolute imports.
-    backend_mod = __import__(backend_name, globals(), locals(), [backend_name], 0)
+    backend_mod = __import__(backend_name, globals(), locals(),
+                             [backend_name], 0)
 
     # Things we pull in from all backends
     new_figure_manager = backend_mod.new_figure_manager
@@ -76,7 +77,8 @@ or with matplotlib.use()""" %
 
     show = getattr(backend_mod, 'show', do_nothing_show)
 
-    draw_if_interactive = getattr(backend_mod, 'draw_if_interactive', do_nothing)
+    draw_if_interactive = getattr(backend_mod, 'draw_if_interactive',
+                                  do_nothing)
 
     matplotlib.verbose.report('backend %s version %s' %
                               (name, backend_version))
