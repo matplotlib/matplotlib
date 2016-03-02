@@ -42,10 +42,6 @@ def pylab_setup(name=None):
     if name is None:
         # validates, to match all_backends
         name = matplotlib.get_backend()
-        # need to keep a global reference to the backend for compatibility
-        # reasons. See https://github.com/matplotlib/matplotlib/issues/6092
-        global backend
-        backend = name
     if name.startswith('module://'):
         backend_name = name[9:]
     else:
@@ -85,4 +81,8 @@ or with matplotlib.use()""" %
     matplotlib.verbose.report('backend %s version %s' %
                               (name, backend_version))
 
+    # need to keep a global reference to the backend for compatibility
+    # reasons. See https://github.com/matplotlib/matplotlib/issues/6092
+    global backend
+    backend = name
     return backend_mod, new_figure_manager, draw_if_interactive, show
