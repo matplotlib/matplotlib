@@ -118,7 +118,7 @@ class Line3D(lines.Line2D):
         if not iterable(zs):
             zs = np.ones(len(xs)) * zs
         xyz = np.asarray([xs, ys, zs])
-        self._verts3d = juggle_axes(xyz, zdir)
+        self._verts3d = juggle_axes_vec(xyz, zdir)
         self.stale = True
 
     def draw(self, renderer):
@@ -148,7 +148,7 @@ def path_to_3d_segment(path, zs=0, zdir='z'):
     pathsegs = path.iter_segments(simplify=False, curves=False)
     for i, ((x, y), code) in enumerate(pathsegs):
         seg3d[0:2, i] = x, y
-    seg3d = juggle_axes(seg3d, zdir)
+    seg3d = juggle_axes_vec(seg3d, zdir)
     return seg3d.T
 
 def paths_to_3d_segments(paths, zs=0, zdir='z'):
@@ -178,7 +178,7 @@ def path_to_3d_segment_with_codes(path, zs=0, zdir='z'):
     for i, ((x, y), code) in enumerate(pathsegs):
         seg3d[0:2, i] = x, y
         codes[i] = code
-    seg3d = juggle_axes(seg3d, zdir)
+    seg3d = juggle_axes_vec(seg3d, zdir)
     return seg3d.T, codes
 
 def paths_to_3d_segments_with_codes(paths, zs=0, zdir='z'):
@@ -226,10 +226,10 @@ class Line3DCollection(LineCollection):
         '''
         shape = self._segments3d.shape
         segments3d = np.transpose(self._segments3d, axes=[2, 0, 1])
-        segments3d = np.lib.pad(
-            segments3d, ((0, 1), (0, 0), (0, 0)),
-            'constant', constant_values=1)
-        xys = proj3d.proj_transform_vec(segments3d.reshape(4, -1), renderer.M)
+        segments3d = segments3d.reshape((3, -1))
+        # Pad ones
+        segments3d = np.vstack([segments3d, np.ones((1, segments3d.shape[1]))])
+        xys = proj3d.proj_transform_vec(segments3d, renderer.M)
         xys = np.reshape(xys.T, shape)
         segments_2d = xys[:, :, 0:2]
         LineCollection.set_segments(self, segments_2d)
@@ -261,8 +261,8 @@ class Patch3D(Patch):
         self.set_3d_properties(zs, zdir)
 
     def set_3d_properties(self, verts, zs=0, zdir='z'):
-        verts = np.vstack(verts, np.ones(len(verts)) * zs)
-        self._segment3d = juggle_axes(verts, zdir)
+        verts = np.vstack([verts, np.ones(len(verts)) * zs])
+        self._segment3d = juggle_axes_vec(verts, zdir)
         self._facecolor3d = Patch.get_facecolor(self)
 
     def get_path(self):
@@ -273,7 +273,7 @@ class Patch3D(Patch):
 
     def do_3d_projection(self, renderer):
         # pad ones
-        s = np.vstack(self._segment3d, np.ones(self._segment3d.shape[1]))
+        s = np.vstack([self._segment3d, np.ones(self._segment3d.shape[1])])
         vxyzis = proj3d.proj_transform_vec_clip(s, renderer.M)
         self._path2d = mpath.Path(vxyzis[0:2].T)
         # FIXME: coloring
@@ -370,7 +370,7 @@ class Patch3DCollection(PatchCollection):
         # just in case it is a scalarmappable with a colormap.
         self.update_scalarmappable()
         offsets = np.vstack(self.get_offsets(), np.ones(len(verts)) * zs)
-        self._offsets3d = juggle_axes(offsets, zdir)
+        self._offsets3d = juggle_axes_vec(offsets, zdir)
         self._facecolor3d = self.get_facecolor()
         self._edgecolor3d = self.get_edgecolor()
         self.stale = True
@@ -434,7 +434,7 @@ class Path3DCollection(PathCollection):
         # just in case it is a scalarmappable with a colormap.
         self.update_scalarmappable()
         offsets = np.vstack(self.get_offsets(), np.ones(len(verts)) * zs)
-        self._offsets3d = juggle_axes(offsets, zdir)
+        self._offsets3d = juggle_axes_vec(offsets, zdir)
         self._facecolor3d = self.get_facecolor()
         self._edgecolor3d = self.get_edgecolor()
         self.stale = True
@@ -539,6 +539,7 @@ class Poly3DCollection(PolyCollection):
 
     def get_vector(self, segments3d):
         """Optimize points for projection"""
+        segments3d = np.asarray(segments3d)
         # Segments 3d are given in shape (n_segments, segsize, 3)
         self._segsize = segments3d.shape[1]
         # Flatten
@@ -590,7 +591,7 @@ class Poly3DCollection(PolyCollection):
         xys = proj3d.proj_transform_vec(self._vec, renderer.M)
         xys = np.reshape(xys, (3, self._segsize, -1))
         xyzlist = xys.T
-        
+
         # This extra fuss is to re-order face / edge colors
         cface = self._facecolors3d
         cedge = self._edgecolors3d
@@ -689,7 +690,22 @@ def poly_collection_2d_to_3d(col, zs=0, zdir='z'):
     col.set_verts_and_codes(segments_3d, codes)
     col.set_3d_properties()
 
-def juggle_axes(xyz, zdir):
+def juggle_axes(xs, ys, zs, zdir):
+    """
+    Reorder coordinates so that 2D xs, ys can be plotted in the plane
+    orthogonal to zdir. zdir is normally x, y or z. However, if zdir
+    starts with a '-' it is interpreted as a compensation for rotate_axes.
+    """
+    if zdir == 'x':
+        return zs, xs, ys
+    elif zdir == 'y':
+        return xs, zs, ys
+    elif zdir[0] == '-':
+        return rotate_axes(xs, ys, zs, zdir)
+    else:
+        return xs, ys, zs
+
+def juggle_axes_vec(xyz, zdir):
     """
     Reorder coordinates so that 2D xs, ys can be plotted in the plane
     orthogonal to zdir. zdir is normally x, y or z. However, if zdir
@@ -700,11 +716,30 @@ def juggle_axes(xyz, zdir):
     elif zdir == 'y':
         return xyz[[0, 2, 1]]
     elif zdir[0] == '-':
-        return rotate_axes(xyz, zdir)
+        return rotate_axes_vec(xyz, zdir)
     else:
         return xyz
 
-def rotate_axes(xyz, zdir):
+def rotate_axes(xs, ys, zs, zdir):
+    """
+    Reorder coordinates so that the axes are rotated with zdir along
+    the original z axis. Prepending the axis with a '-' does the
+    inverse transform, so zdir can be x, -x, y, -y, z or -z
+    """
+    if zdir == 'x':
+        return ys, zs, xs
+    elif zdir == '-x':
+        return zs, xs, ys
+
+    elif zdir == 'y':
+        return zs, xs, ys
+    elif zdir == '-y':
+        return ys, zs, xs
+
+    else:
+        return xs, ys, zs
+
+def rotate_axes_vec(xyz, zdir):
     """
     Reorder coordinates so that the axes are rotated with zdir along
     the original z axis. Prepending the axis with a '-' does the
