@@ -301,7 +301,7 @@ running::
 
    su -c "yum-builddep python-matplotlib"
 
-This does not build matplotlib, but it does get the install the
+This does not build matplotlib, but it does get and install the
 build dependencies, which will make building from source easier.
 
 
