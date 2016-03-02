@@ -88,7 +88,6 @@ docs.
 Cartopy
 =======
 
-An alternative mapping library written for matplotlib ``v1.2`` and beyond.
 `Cartopy <http://scitools.org.uk/cartopy/docs/latest>`_ builds on top of
 matplotlib to provide object oriented map projection definitions and close
 integration with Shapely for powerful yet easy-to-use vector data processing
