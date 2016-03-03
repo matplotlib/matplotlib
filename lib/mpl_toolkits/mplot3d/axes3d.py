@@ -2342,9 +2342,9 @@ class Axes3D(Axes):
 
         verts = np.hstack([verts, np.asarray(verts_zs)[:, np.newaxis]])
 
-        xs, ys, verts_zs = art3d.juggle_axes_vec(verts, zdir)
+        xs, ys, verts_zs = art3d.juggle_axes_vec(verts.T, zdir)
         self.auto_scale_xyz(xs, ys, verts_zs, had_data)
-
+        
         return patches
 
     def bar3d(self, x, y, z, dx, dy, dz, color=None,
