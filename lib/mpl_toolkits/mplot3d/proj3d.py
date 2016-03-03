@@ -162,8 +162,7 @@ def proj_transform_vec(vec, M):
 def proj_transform_vec_clip(vec, M):
     vecw = np.dot(M, vec)
     # Determine clipping before rescaling
-    tis = np.logical_and(vecw[0] >= 0, vecw[0] <= 1,
-                         vecw[1] >= 0, vecw[1] <= 1)
+    tis = (vecw[0] >= 0) * (vecw[0] <= 1) * (vecw[1] >= 0) * (vecw[1] <= 1)
     # clip here..
     # Can anybody comment on this piece of code? I don't understand it...
     if np.sometrue(tis):

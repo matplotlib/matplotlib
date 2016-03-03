@@ -261,7 +261,7 @@ class Patch3D(Patch):
         self.set_3d_properties(zs, zdir)
 
     def set_3d_properties(self, verts, zs=0, zdir='z'):
-        verts = np.vstack([verts, np.ones(len(verts)) * zs])
+        verts = np.hstack([verts, np.ones((len(verts), 1)) * zs])
         self._segment3d = juggle_axes_vec(verts, zdir)
         self._facecolor3d = Patch.get_facecolor(self)
 

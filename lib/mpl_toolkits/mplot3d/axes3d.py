@@ -2340,7 +2340,7 @@ class Axes3D(Axes):
             if 'alpha' in kwargs:
                 p.set_alpha(kwargs['alpha'])
 
-        verts = np.vstack(verts, verts_zs)
+        verts = np.hstack([verts, np.asarray(verts_zs)[:, np.newaxis]])
 
         xs, ys, verts_zs = art3d.juggle_axes_vec(verts, zdir)
         self.auto_scale_xyz(xs, ys, verts_zs, had_data)
