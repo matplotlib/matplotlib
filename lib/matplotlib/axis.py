@@ -342,7 +342,7 @@ class Tick(artist.Artist):
                 # -> points. grab the integer from the `Text` object
                 # instead of saving the string representation
                 v = getattr(self.label1, 'get_' + k)()
-                setattr(self, '_' + k, v)
+                setattr(self, '_label' + k, v)
 
 
 class XTick(Tick):
