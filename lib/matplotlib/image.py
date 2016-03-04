@@ -354,20 +354,22 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
             out_height = int(out_height_base)
 
         if not unsampled:
+            created_rgba_mask = False
+
             if A.ndim == 2:
                 A = self.norm(A)
+                # If the image is greyscale, convert to RGBA with the
+                # correct alpha channel for resizing
+                rgba = np.empty((A.shape[0], A.shape[1], 4), dtype=A.dtype)
+                rgba[..., 0:3] = np.expand_dims(A, 2)
                 if A.dtype.kind == 'f':
-                    # For floating-point greyscale images, we treat negative
-                    # numbers as transparent.
-
-                    # TODO: Use np.full when we support Numpy 1.9 as a
-                    # minimum
-                    output = np.empty((out_height, out_width), dtype=A.dtype)
-                    output[...] = -100.0
+                    rgba[..., 3] = ~A.mask
                 else:
-                    output = np.zeros((out_height, out_width), dtype=A.dtype)
-
+                    rgba[..., 3] = np.where(A.mask, 0, np.iinfo(A.dtype).max)
+                A = rgba
+                output = np.zeros((out_height, out_width, 4), dtype=A.dtype)
                 alpha = 1.0
+                created_rgba_mask = True
             elif A.ndim == 3:
                 # Always convert to RGBA, even if only RGB input
                 if A.shape[2] == 3:
@@ -388,10 +390,16 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
                 self.get_resample(), alpha,
                 self.get_filternorm() or 0.0, self.get_filterrad() or 0.0)
 
+            if created_rgba_mask:
+                # Convert back to a masked greyscale array so
+                # colormapping works correctly
+                output = np.ma.masked_array(
+                    output[..., 0], output[..., 3] < 0.5)
+
             output = self.to_rgba(output, bytes=True, norm=False)
 
-            # Apply alpha *after* if the input was greyscale
-            if A.ndim == 2:
+            # Apply alpha *after* if the input was greyscale without a mask
+            if A.ndim == 2 or created_rgba_mask:
                 alpha = self.get_alpha()
                 if alpha is not None and alpha != 1.0:
                     alpha_channel = output[:, :, 3]
