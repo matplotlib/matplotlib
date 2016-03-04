@@ -4335,6 +4335,17 @@ def test_pandas_indexing_hist():
     fig, axes = plt.subplots()
     axes.hist(ser_2)
 
+@cleanup
+def test_axis_set_tick_params_labelsize_labelcolor():
+    # Tests fix for issue 4346
+    axis_1 = plt.subplot()
+    axis_1.yaxis.set_tick_params(labelsize=30, labelcolor='red', direction='out')
+
+    # Expected values after setting the ticks
+    assert axis_1.yaxis.majorTicks[0]._size == 4.0
+    assert axis_1.yaxis.majorTicks[0]._color == 'k'
+    assert axis_1.yaxis.majorTicks[0]._labelsize == 30.0
+    assert axis_1.yaxis.majorTicks[0]._labelcolor == 'red'
 
 if __name__ == '__main__':
     import nose
