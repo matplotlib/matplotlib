@@ -18,7 +18,8 @@ with PdfPages('multipage_pdf.pdf') as pdf:
     pdf.savefig()  # saves the current figure into a pdf page
     plt.close()
 
-    plt.rc('text', usetex=True)
+    plt.rc('text', usetex=False)  # if LaTeX is installed and shall be used,
+                                  # change to `usetex=True`
     plt.figure(figsize=(8, 6))
     x = np.arange(0, 5, 0.1)
     plt.plot(x, np.sin(x), 'b-')
