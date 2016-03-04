@@ -269,10 +269,6 @@ class ScalarMappable(object):
         if norm:
             x = self.norm(x)
         rgba = self.cmap(x, alpha=alpha, bytes=bytes)
-        # For floating-point greyscale images, we treat negative as
-        # transparent so we copy that over to the alpha channel
-        if x.ndim == 2 and x.dtype.kind == 'f':
-            rgba[:, :, 3][x < 0.0] = 0
         return rgba
 
     def set_array(self, A):
