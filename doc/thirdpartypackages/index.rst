@@ -67,6 +67,9 @@ level interface for drawing statistical graphics with matplotlib. It
 aims to make visualization a central part of exploring and
 understanding complex datasets.
 
+.. image:: /_static/seaborn.png
+    :height: 157px
+
 .. _toolkit_ggplot:
 
 ggplot
@@ -75,6 +78,25 @@ ggplot
 `ggplot <https://github.com/yhat/ggplot>`_ is a port of the R ggplot2
 to python based on matplotlib.
 
+.. image:: /_static/ggplot.png
+    :height: 195px
+
+.. _toolkit_holoviews:
+
+holoviews
+=========
+
+
+`holoviews <http://holoviews.org>`_ makes it easier to visualize data
+interactively, especially in a `Jupyter notebook
+<http://jupyter.org>`_, by providing a set of declarative
+plotting objects that store your data and associated metadata.  Your
+data is then immediately visualizable alongside or overlaid with other
+data, either statically or with automatically provided widgets for
+parameter exploration.
+
+.. image:: /_static/holoviews.png
+    :height: 354px
 
 .. _toolkit_prettyplotlib:
 
