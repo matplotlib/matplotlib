@@ -51,7 +51,7 @@ axisartist
 ==========
 
 
-The :ref:`mpl_toolkits.axisartist <toolkit_axisartist-index>` toolkit contains 
+The :ref:`mpl_toolkits.axisartist <toolkit_axisartist-index>` toolkit contains
 a custom Axes class that is meant to support for curvilinear grids.
 
 
