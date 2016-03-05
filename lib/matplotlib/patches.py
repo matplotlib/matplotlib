@@ -3698,9 +3698,10 @@ class ArrowStyle(_Style):
             """
             *angle*
                 rotation in degrees (anti-clockwise)
+
             *bracetype*
-                'curly': a real }, with rounded corners made of quadratic
-                                   Bezier curves
+                'curly': a real curly bracket }, with rounded corners made of 
+                         quadratic Bezier curves
                 'straight': a simplified }, with the 7 control points p0...p6
                             simply linked with straight lines.
 
@@ -3732,22 +3733,18 @@ class ArrowStyle(_Style):
             v06 = 2*width * np.exp(1.j * angle * np.pi/180.)
             vtip = length * np.exp(1.j * (angle - 90.) * np.pi/180.)
 
-            # EXPOSE sym AND pad AS ARGUMENTS?
-            """
-            Remark: sym is not really useful here (one rapidly stumble into
-            weird behavior of the connection style).
-            """
-            sym = 0.5  # in [0., 1.]: p0--(sym)--tipstart----(1-sym)----p6
-            pad = min(sym/4., 0.1)  # min() to prevent issues with small sym
+            # Should pad be exposed?
+            # Might be useful in order to scale it accordingly to mutation_size
+            pad = 0.1
 
             p3 = x + 1.j*y
             # Define left side points recursively
             p2 = p3 - pad*v06 - 0.5*vtip
-            p1 = p2 - (sym - pad)*v06
+            p1 = p2 - (0.5 - pad)*v06  # Future: 0.5 <- symmetry param?
             p0 = p1 - pad*v06 - 0.5*vtip
             # Define right side points recursively
             p4 = p3 + pad*v06 - 0.5*vtip
-            p5 = p4 + (1. - sym - pad)*v06
+            p5 = p4 + (1. - 0.5 - pad)*v06  # Future: 0.5 <- symmetry param?
             p6 = p5 + pad*v06 - 0.5*vtip
 
             if bracetype == 'straight':
