@@ -41,6 +41,7 @@ requirements:
     - pyqt                # [not osx]
     - tk                  # [linux and win]
     - functools32         # [py2k]
+    - msvc_runtime        # [win]
 
   run:
     - python
@@ -51,10 +52,11 @@ requirements:
     - pytz
     - pyparsing
 #    - py2cairo            # [linux and py2k]
-    - libpng              # [unix]
+    - libpng
     - pyqt                # [not osx]
     - tk                  # [linux and win]
     - functools32         # [py2k]
+    - msvc_runtime        # [win]
 
 test:
     imports:
