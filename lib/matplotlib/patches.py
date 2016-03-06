@@ -3679,7 +3679,8 @@ class ArrowStyle(_Style):
     _style_list["-["] = BracketB
 
     class _Brace(_Base):
-        """ Heavy inspiration taken from _Bracket
+        """ Class used as a basis for arrowstyles involving brace-shaped head
+            or tail.
         """
         def __init__(self, braceA=None, braceB=None,
                      bracetypeA='curly', bracetypeB='curly',
@@ -3694,6 +3695,14 @@ class ArrowStyle(_Style):
             self.angleA, self.angleB = angleA, angleB
             self.scaleA, self.scaleB = scaleA, scaleB
 
+        # Declare it as a class method as it is also planned to be use to build
+        # a new type of patch that may be useful to annotate range of data.
+        # However, not sure the current arguments are the best suited for
+        # that purpose. (Might be better to directly pass "length," p0 and p6.)
+        #
+        # Would it be better to define a module-level '_get_brace' function?
+        #
+        @classmethod
         def _get_brace(self, x, y, width, length, angle, bracetype):
             """
             *angle*
@@ -3706,22 +3715,31 @@ class ArrowStyle(_Style):
                             simply linked with straight lines.
 
             Details of the basic design:
-                p0                 p6   i.e.  (p0)-----v06---->(p6)
-                  \____p2   p4____/                     |vtip
-                  p1     \ /     p5                     v
-                          p3                           (p3)
+                p0                 p6   with vectors  (p0)-----v06---->(p6)
+                  \____p2   p4____/                             |vtip
+                  p1     \ /     p5                             v
+                          p3                                   (p3)
             with:
                 * p3 = (x, y)
+                * length = euclidian_norm(vtip) (sic...)
                 * width = *half* of euclidian_norm(vector(p0 -> p6));
                 * angle = arg(vector(p0 -> p6)) in degrees.
-                * length = euclidian_norm(vtip)
 
             Besides, if bracetype is 'curly', 3 supplementary control points
-            p01, p24 and p56 are used:
-                 p0             p6         p2__p24__p4
-                 | \    and    / |   and     \  |  /
-                 |  \         /  |            \ | /
-                p01__p1     p5__p56            p3
+            (p01, p24 and p56) are used:
+                 p0          p2__p24__p4          p6
+                 | \    and    \  |  /    and    / |
+                 |  \           \ | /           /  |
+                p01__p1          p3           p5__p56
+
+            TO-DO:
+                * 1/ return the amount of the path to be shrunken so that the
+                     brace does not overshoot?
+                * 2/ 'width' and 'length' might seem reversed compared to
+                     genuine assumption of their role. It is because the brace
+                     is currently assumed to be the head or tail of an arrow.
+                     One may want to use more intuitive names (i.e.
+                     width <-> length) if the function is moved module-level.
 
             """
             # Useful vectors (description in the docstring)
@@ -3926,6 +3944,108 @@ class ArrowStyle(_Style):
                                                     bracetypeB=bracetypeB)
 
     _style_list["-{"] = BraceB
+
+##########################################################################
+# WARNING: ABSOLUTELY NOT WARRANTY IT DOES WORK PROPERLY! 
+# I am struggling understanding how to use super() in the case of multiple
+# inheritance...
+
+    class CurveABraceB(CurveA, BraceB):
+            """
+            An arrow with a head at its begin point, and a brace at its end point.
+            """
+
+            def __init__(self, lengthA=.4, widthA=.2, fillA=False,
+                               widthB=1., lengthB=0.4,
+                               angleB=None, bracetypeB='curly'):
+                """
+                *lengthA*
+                  length of the arrow head
+
+                *widthA*
+                  width of the arrow head
+
+                *widthB*
+                  width of the brace
+
+                *lengthB*
+                  length of the brace
+
+                *angleB*
+                  angle between the brace and the line
+
+                *bracetypeB*
+                  type of the brace ['curly'/'straight']
+                """
+
+                # Initialize every possible attributes.
+                super(ArrowStyle.CurveABraceB, self).__init__()
+                # Set manually the relevant parameters related to CurveA.
+                self.head_length = lengthA
+                self.head_width = widthA
+                self.fillbegin = fillA
+                # Set manually the relevant parameters related to BraceB
+                self.widthB = widthB
+                self.lengthB = lengthB
+                self.angleB = angleB
+                self.bracetypeB = bracetypeB
+
+                # Define convenient names for the 2 different transmute methods
+                # NB: not sure it is how super is supposed to be used...
+                self.transmuteA = super(ArrowStyle.CurveA, self).transmute
+                self.transmuteB = super(ArrowStyle.BraceB, self).transmute
+
+            def transmute(self, path, mutation_size, linewidth):
+                # Concatenate the path for the brace to the path from args.
+                _path_and_pathB, _unused_fillable = self.transmuteB(path,
+                                                             mutation_size,
+                                                             linewidth)
+
+                # NB: _complete_path is actually be a list of 2 paths:
+                # [_path_and_pathB, path_A_aka_arrow_head]
+                # but it seems the class is working fine...
+                # Anyway, it has to be this way, as _fillable also has to be a
+                # list to make the arrow head fillable (which the path and 
+                # the brace are not).
+                _complete_path, _fillable = self.transmuteA(_path_and_pathB,
+                                                      mutation_size,
+                                                      linewidth)
+
+                return _complete_path, _fillable
+
+    _style_list["<-{"] = CurveABraceB
+
+
+    # Would like to avoid creating yet another class that is exactly the same
+    # as CurveABraceB but just with fillA = True, by doing something like:
+    # _style_list["<|-{"] = CurveABraceB(fillA=True)
+    # but then it raises this error:
+    # NameError: global name 'ArrowStyle' is not defined
+    #
+    # So in the meantime, here is a workaround:
+    class _CurveFilledABraceB(CurveABraceB):
+            """
+            An arrow with a filled head at its begin point, and a brace at its
+            end point.
+            """
+
+            def __init__(self, lengthA=.4, widthA=.2, fillA=True,
+                               widthB=1., lengthB=0.4,
+                               angleB=None, bracetypeB='curly'):
+                super(ArrowStyle._CurveFilledABraceB, self).__init__(
+                                lengthA=lengthA, widthA=widthA, fillA=fillA,
+                                widthB=widthB, lengthB=lengthB,
+                                angleB=angleB, bracetypeB=bracetypeB)
+
+    _style_list["<|-{"] = _CurveFilledABraceB
+
+# TO-DO:
+#   * Once everything is fine, implement the reverse arrowstyles:
+#     '}->' and '}-|>'
+
+# \WARNING
+##########################################################################
+
 
     class BarAB(_Bracket):
         """
