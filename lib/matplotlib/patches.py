@@ -3848,7 +3848,7 @@ class ArrowStyle(_Style):
 
     class BraceAB(_Brace):
         """
-        An arrow with a brace(}) at both ends.
+        An arrow with braces at both head and tail ("}-{").
         """
 
         def __init__(self,
@@ -3889,7 +3889,7 @@ class ArrowStyle(_Style):
 
     class BraceA(_Brace):
         """
-        An arrow with a brace(}) at its end.
+        An arrow with a brace at its head ("}-").
         """
 
         def __init__(self, widthA=1., lengthA=0.4, angleA=None,
@@ -3918,7 +3918,7 @@ class ArrowStyle(_Style):
 
     class BraceB(_Brace):
         """
-        An arrow with a brace({) at its end.
+        An arrow with a brace at its tail ("-{").
         """
 
         def __init__(self, widthB=1., lengthB=0.4, angleB=None,
@@ -3946,7 +3946,7 @@ class ArrowStyle(_Style):
     _style_list["-{"] = BraceB
 
 ##########################################################################
-# WARNING: ABSOLUTELY NOT WARRANTY IT DOES WORK PROPERLY!
+# WARNING: ABSOLUTELY NO WARRANTY IT DOES WORK PROPERLY!
 # I am struggling understanding how to use super() in the case of multiple
 # inheritance...
 
@@ -3956,7 +3956,7 @@ class ArrowStyle(_Style):
             """
 
             def __init__(self, lengthA=.4, widthA=.2, fillA=False,
-                               widthB=1., lengthB=0.4,
+                               lengthB=0.4, widthB=1.,
                                angleB=None, bracetypeB='curly'):
                 """
                 *lengthA*
@@ -3965,11 +3965,11 @@ class ArrowStyle(_Style):
                 *widthA*
                   width of the arrow head
 
-                *widthB*
-                  width of the brace
-
                 *lengthB*
                   length of the brace
+
+                *widthB*
+                  width of the brace
 
                 *angleB*
                   angle between the brace and the line
@@ -3980,11 +3980,11 @@ class ArrowStyle(_Style):
 
                 # Initialize every possible attributes.
                 super(ArrowStyle.CurveABraceB, self).__init__()
-                # Set manually the relevant parameters related to CurveA.
+                # Manually set the relevant parameters related to CurveA.
                 self.head_length = lengthA
                 self.head_width = widthA
                 self.fillbegin = fillA
-                # Set manually the relevant parameters related to BraceB
+                # Manually set the relevant parameters related to BraceB
                 self.widthB = widthB
                 self.lengthB = lengthB
                 self.angleB = angleB
@@ -3996,16 +3996,16 @@ class ArrowStyle(_Style):
                 self.transmuteB = super(ArrowStyle.BraceB, self).transmute
 
             def transmute(self, path, mutation_size, linewidth):
-                # Concatenate the path for the brace to the path from args.
+                # Concatenate the brace path to the path from args.
                 _path_and_pathB, _unused_fillable = self.transmuteB(path,
                                                              mutation_size,
                                                              linewidth)
 
-                # NB: _complete_path is actually be a list of 2 paths:
+                # NB: *_complete_path* is actually a list of 2 paths:
                 # [_path_and_pathB, path_A_aka_arrow_head]
                 # but it seems the class is working fine...
-                # Anyway, it has to be this way, as _fillable also has to be a
-                # list to make the arrow head fillable (which the path and
+                # Anyway, it has to be this way, as *_fillable* also has to be
+                # a list to make the arrow head fillable (and the path and
                 # the brace are not).
                 _complete_path, _fillable = self.transmuteA(_path_and_pathB,
                                                       mutation_size,
@@ -4017,10 +4017,12 @@ class ArrowStyle(_Style):
 
 
     # Would like to avoid creating yet another class that is exactly the same
-    # as CurveABraceB but just with fillA = True, by doing something like:
+    # as CurveABraceB but just with fillA = True. Tried to do something like:
     # _style_list["<|-{"] = CurveABraceB(fillA=True)
     # but then it raises this error:
     # NameError: global name 'ArrowStyle' is not defined
+    # I guess it is wrong anyway, as this new item would be an instance, while
+    # the others aren't.
     #
     # So in the meantime, here is a workaround:
     class _CurveFilledABraceB(CurveABraceB):
@@ -4034,7 +4036,7 @@ class ArrowStyle(_Style):
                                angleB=None, bracetypeB='curly'):
                 super(ArrowStyle._CurveFilledABraceB, self).__init__(
                                 lengthA=lengthA, widthA=widthA, fillA=fillA,
-                                widthB=widthB, lengthB=lengthB,
+                                lengthB=lengthB, widthB=widthB,
                                 angleB=angleB, bracetypeB=bracetypeB)
 
     _style_list["<|-{"] = _CurveFilledABraceB
