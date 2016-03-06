@@ -68,13 +68,17 @@ import matplotlib._png as _png
 ##############################################################################
 # FONTS
 
-def get_unicode_index(symbol):
-    """get_unicode_index(symbol) -> integer
+def get_unicode_index(symbol, math=True):
+    """get_unicode_index(symbol, [bool]) -> integer
 
 Return the integer index (from the Unicode table) of symbol.  *symbol*
 can be a single unicode character, a TeX command (i.e. r'\pi'), or a
 Type1 symbol name (i.e. 'phi').
+If math is False, the current symbol should be treated as a non-math symbol.
 """
+    # for a non-math symbol, simply return its unicode index
+    if not math:
+        return ord(symbol)
     # From UTF #25: U+2212 minus sign is the preferred
     # representation of the unary and binary minus sign rather than
     # the ASCII-derived U+002D hyphen-minus, because minus sign is
@@ -438,7 +442,7 @@ class Fonts(object):
         """
         return 0.
 
-    def get_metrics(self, font, font_class, sym, fontsize, dpi):
+    def get_metrics(self, font, font_class, sym, fontsize, dpi, math=True):
         """
         *font*: one of the TeX font names::
 
@@ -451,6 +455,8 @@ class Fonts(object):
         *fontsize*: font size in points
 
         *dpi*: current dots-per-inch
+
+        *math*: whether sym is a math character
 
         Returns an object with the following attributes:
 
@@ -466,7 +472,7 @@ class Fonts(object):
             the glyph.  This corresponds to TeX's definition of
             "height".
         """
-        info = self._get_info(font, font_class, sym, fontsize, dpi)
+        info = self._get_info(font, font_class, sym, fontsize, dpi, math)
         return info.metrics
 
     def set_canvas_size(self, w, h, d):
@@ -582,14 +588,14 @@ class TruetypeFonts(Fonts):
             return ((glyph.height/64.0/2.0) + (fontsize/3.0 * dpi/72.0))
         return 0.
 
-    def _get_info(self, fontname, font_class, sym, fontsize, dpi):
+    def _get_info(self, fontname, font_class, sym, fontsize, dpi, math=True):
         key = fontname, font_class, sym, fontsize, dpi
         bunch = self.glyphd.get(key)
         if bunch is not None:
             return bunch
 
         font, num, symbol_name, fontsize, slanted = \
-            self._get_glyph(fontname, font_class, sym, fontsize)
+            self._get_glyph(fontname, font_class, sym, fontsize, math)
 
         font.set_size(fontsize, dpi)
         glyph = font.load_char(
@@ -679,7 +685,7 @@ class BakomaFonts(TruetypeFonts):
 
     _slanted_symbols = set(r"\int \oint".split())
 
-    def _get_glyph(self, fontname, font_class, sym, fontsize):
+    def _get_glyph(self, fontname, font_class, sym, fontsize, math=True):
         symbol_name = None
         font = None
         if fontname in self.fontmap and sym in latex_to_bakoma:
@@ -699,7 +705,7 @@ class BakomaFonts(TruetypeFonts):
 
         if symbol_name is None:
             return self._stix_fallback._get_glyph(
-                fontname, font_class, sym, fontsize)
+                fontname, font_class, sym, fontsize, math)
 
         return font, num, symbol_name, fontsize, slanted
 
@@ -796,7 +802,7 @@ class UnicodeFonts(TruetypeFonts):
     def _map_virtual_font(self, fontname, font_class, uniindex):
         return fontname, uniindex
 
-    def _get_glyph(self, fontname, font_class, sym, fontsize):
+    def _get_glyph(self, fontname, font_class, sym, fontsize, math=True):
         found_symbol = False
 
         if self.use_cmex:
@@ -807,7 +813,7 @@ class UnicodeFonts(TruetypeFonts):
 
         if not found_symbol:
             try:
-                uniindex = get_unicode_index(sym)
+                uniindex = get_unicode_index(sym, math)
                 found_symbol = True
             except ValueError:
                 uniindex = ord('?')
@@ -901,11 +907,11 @@ class DejaVuFonts(UnicodeFonts):
             self.fontmap[key] = fullpath
             self.fontmap[name] = fullpath
 
-    def _get_glyph(self, fontname, font_class, sym, fontsize):
+    def _get_glyph(self, fontname, font_class, sym, fontsize, math=True):
         """ Override prime symbol to use Bakoma """
         if sym == r'\prime':
             return self.bakoma._get_glyph(fontname,
-                    font_class, sym, fontsize)
+                    font_class, sym, fontsize, math)
         else:
             # check whether the glyph is available in the display font
             uniindex = get_unicode_index(sym)
@@ -914,10 +920,10 @@ class DejaVuFonts(UnicodeFonts):
                 glyphindex = font.get_char_index(uniindex)
                 if glyphindex != 0:
                     return super(DejaVuFonts, self)._get_glyph('ex',
-                            font_class, sym, fontsize)
+                            font_class, sym, fontsize, math)
             # otherwise return regular glyph
             return super(DejaVuFonts, self)._get_glyph(fontname,
-                    font_class, sym, fontsize)
+                    font_class, sym, fontsize, math)
 
 
 class DejaVuSerifFonts(DejaVuFonts):
@@ -1123,7 +1129,7 @@ class StandardPsFonts(Fonts):
             self.fonts[cached_font.get_fontname()] = cached_font
         return cached_font
 
-    def _get_info (self, fontname, font_class, sym, fontsize, dpi):
+    def _get_info (self, fontname, font_class, sym, fontsize, dpi, math=True):
         'load the cmfont, metrics and glyph with caching'
         key = fontname, sym, fontsize, dpi
         tup = self.glyphd.get(key)
@@ -1449,7 +1455,7 @@ class Char(Node):
     from width) must be converted into a :class:`Kern` node when the
     :class:`Char` is added to its parent :class:`Hlist`.
     """
-    def __init__(self, c, state):
+    def __init__(self, c, state, math=True):
         Node.__init__(self)
         self.c = c
         self.font_output = state.font_output
@@ -1457,6 +1463,7 @@ class Char(Node):
         self.font_class = state.font_class
         self.fontsize = state.fontsize
         self.dpi = state.dpi
+        self.math = math
         # The real width, height and depth will be set during the
         # pack phase, after we know the real fontsize
         self._update_metrics()
@@ -1466,7 +1473,7 @@ class Char(Node):
 
     def _update_metrics(self):
         metrics = self._metrics = self.font_output.get_metrics(
-            self.font, self.font_class, self.c, self.fontsize, self.dpi)
+            self.font, self.font_class, self.c, self.fontsize, self.dpi, self.math)
         if self.c == ' ':
             self.width = metrics.advance
         else:
@@ -2580,7 +2587,7 @@ class Parser(object):
     def non_math(self, s, loc, toks):
         #~ print "non_math", toks
         s = toks[0].replace(r'\$', '$')
-        symbols = [Char(c, self.get_state()) for c in s]
+        symbols = [Char(c, self.get_state(), math=False) for c in s]
         hlist = Hlist(symbols)
         # We're going into math now, so set font to 'it'
         self.push_state()
