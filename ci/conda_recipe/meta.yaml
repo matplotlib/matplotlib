@@ -52,7 +52,7 @@ requirements:
     - pytz
     - pyparsing
 #    - py2cairo            # [linux and py2k]
-    - libpng              # [unix]
+    - libpng
     - pyqt                # [not osx]
     - tk                  # [linux and win]
     - functools32         # [py2k]
