@@ -737,6 +737,7 @@ class Legend(Artist):
         ax = self.parent
         bboxes = []
         lines = []
+        points = []
 
         for handle in ax.lines:
             assert isinstance(handle, Line2D)
@@ -755,12 +756,15 @@ class Legend(Artist):
                 transform = handle.get_transform()
                 bboxes.append(handle.get_path().get_extents(transform))
 
+        for handle in ax.collections:
+            points.append(handle._offsets)
+
         try:
             vertices = np.concatenate([l.vertices for l in lines])
         except ValueError:
             vertices = np.array([])
 
-        return [vertices, bboxes, lines]
+        return [vertices, bboxes, lines, points]
 
     def draw_frame(self, b):
         'b is a boolean.  Set draw frame to b'
@@ -920,7 +924,7 @@ class Legend(Artist):
         # should always hold because function is only called internally
         assert self.isaxes
 
-        verts, bboxes, lines = self._auto_legend_data()
+        verts, bboxes, lines, points = self._auto_legend_data()
 
         bbox = Bbox.from_bounds(0, 0, width, height)
         if consider is None:
@@ -949,6 +953,11 @@ class Legend(Artist):
                 # this may (or may not) result in a significant
                 # slowdown if lines with many vertices are present.
                 if line.intersects_bbox(legendBox):
+                    badness += 1
+
+            for point in points:
+                val = self.parent.transData.transform(np.vstack(point[0]).T)
+                if legendBox.count_contains(val):
                     badness += 1
 
             ox, oy = l, b
