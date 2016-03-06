@@ -3946,7 +3946,7 @@ class ArrowStyle(_Style):
     _style_list["-{"] = BraceB
 
 ##########################################################################
-# WARNING: ABSOLUTELY NOT WARRANTY IT DOES WORK PROPERLY! 
+# WARNING: ABSOLUTELY NOT WARRANTY IT DOES WORK PROPERLY!
 # I am struggling understanding how to use super() in the case of multiple
 # inheritance...
 
@@ -4005,7 +4005,7 @@ class ArrowStyle(_Style):
                 # [_path_and_pathB, path_A_aka_arrow_head]
                 # but it seems the class is working fine...
                 # Anyway, it has to be this way, as _fillable also has to be a
-                # list to make the arrow head fillable (which the path and 
+                # list to make the arrow head fillable (which the path and
                 # the brace are not).
                 _complete_path, _fillable = self.transmuteA(_path_and_pathB,
                                                       mutation_size,
