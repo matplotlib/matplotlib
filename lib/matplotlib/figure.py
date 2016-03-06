@@ -1538,8 +1538,6 @@ class Figure(Artist):
         """
 
         kwargs.setdefault('dpi', rcParams['savefig.dpi'])
-        if kwargs['dpi'] == 'figure':
-            kwargs['dpi'] = self.get_dpi()
         frameon = kwargs.pop('frameon', rcParams['savefig.frameon'])
         transparent = kwargs.pop('transparent',
                                  rcParams['savefig.transparent'])
