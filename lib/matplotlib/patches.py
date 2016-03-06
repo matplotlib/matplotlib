@@ -3695,15 +3695,15 @@ class ArrowStyle(_Style):
             self.angleA, self.angleB = angleA, angleB
             self.scaleA, self.scaleB = scaleA, scaleB
 
-        # Declare it as a class method as it is also planned to be use to build
+        # Declare it as a static method as it is also planned to be use to build
         # a new type of patch that may be useful to annotate range of data.
         # However, not sure the current arguments are the best suited for
         # that purpose. (Might be better to directly pass "length," p0 and p6.)
         #
         # Would it be better to define a module-level '_get_brace' function?
         #
-        @classmethod
-        def _get_brace(self, x, y, width, length, angle, bracetype):
+        @staticmethod
+        def _get_brace(x, y, width, length, angle, bracetype):
             """
             *angle*
                 rotation in degrees (anti-clockwise)
