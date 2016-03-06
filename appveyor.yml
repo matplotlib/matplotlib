@@ -68,7 +68,7 @@ install:
   - cmd: copy "C:\Program Files (x86)\Microsoft Visual Studio 9.0\VC\bin\vcvars64.bat" "C:\Program Files (x86)\Microsoft Visual Studio 9.0\VC\bin\amd64\vcvarsamd64.bat"
 
   # same things as the requirements in ci/conda_recipe/meta.yaml
-  - cmd: conda create -y -q -n test-environment python=%PYTHON_VERSION% pip setuptools numpy python-dateutil freetype msinttypes tk pyparsing pytz tornado libpng zlib pyqt cycler nose mock
+  - cmd: conda create -y -q -n test-environment python=%PYTHON_VERSION% pip setuptools numpy python-dateutil freetype msinttypes tk pyparsing pytz tornado libpng zlib pyqt cycler nose mock msvc_runtime
   - activate test-environment
   - cmd: echo %PYTHON_VERSION% %TARGET_ARCH%
   - cmd: IF %PYTHON_VERSION% == 2.7 conda install -y functools32
