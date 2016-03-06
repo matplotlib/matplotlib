@@ -463,7 +463,7 @@ class ScalarFormatter(Formatter):
         NONE
         """
 
-        if isinstance(val,bool):
+        if isinstance(val, bool):
             self.orderOfMagnitude = 0
             self._usingScaling = val
         elif isinstance(val, numbers.Number):
@@ -668,8 +668,8 @@ class ScalarFormatter(Formatter):
 
     def _set_offset(self, range):
         # Determine if an offset is needed and if so, set it.
-        # Don't do this if offset has already been set of it is 
-        # rcParams forbids automatic offset 
+        # Don't do this if offset has already been set of it is
+        # rcParams forbids automatic offset
         if(rcParams['axes.formatter.useoffset'] is False or
                 self.get_useOffset() is True):
             return
@@ -707,7 +707,7 @@ class ScalarFormatter(Formatter):
             return
 
         locs = np.absolute(self.locs)
-        if self._usingOffset == True:
+        if self.get_useOffset() is True:
             oom = math.floor(math.log10(range))
         else:
             if locs[0] > locs[-1]:
