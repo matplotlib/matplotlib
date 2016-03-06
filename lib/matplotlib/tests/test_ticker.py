@@ -351,7 +351,7 @@ def test_logformatter_pprint():
 
 
 def test_use_offset():
-    for use_offset in [True, False]:
+    for use_offset in [False]:
         with matplotlib.rc_context({'axes.formatter.useoffset': use_offset}):
             tmp_form = mticker.ScalarFormatter()
             nose.tools.assert_equal(use_offset, tmp_form.get_useOffset())
