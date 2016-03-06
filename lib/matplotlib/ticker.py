@@ -417,8 +417,8 @@ class ScalarFormatter(Formatter):
     axes.formatter.limits rc parameter.
 
     """
-    mode = {'offset': 0, 'scaling': 1, 'none': 2, }
-    _currentMode = 2
+    _usingOffset = False
+    _usingScaling = False
 
     def __init__(self, useOffset=None, useMathText=None, useLocale=None):
         # useOffset allows plotting small data ranges with large offsets: for
@@ -427,7 +427,6 @@ class ScalarFormatter(Formatter):
 
         self.set_useOffset(False)
         self.set_useScalingFactor(False)
-        self._currentMode = self.mode['none']
 
         self._usetex = rcParams['text.usetex']
         if useMathText is None:
@@ -443,7 +442,7 @@ class ScalarFormatter(Formatter):
         self._useLocale = useLocale
 
     def get_useScalingFactor(self):
-        return self._currentMode == self.mode['scaling']
+        return self._usingScaling
 
     def set_useScalingFactor(self, val):
         """
@@ -464,13 +463,11 @@ class ScalarFormatter(Formatter):
         NONE
         """
 
-        if val in [True, False]:
-            self.orderOfMagnitude = math.log10(1)
-            self._currentMode = self.mode['scaling']
-            if val is False:
-                self._currentMode = self.mode['none']
+        if isinstance(val,bool):
+            self.orderOfMagnitude = 0
+            self._usingScaling = val
         elif isinstance(val, numbers.Number):
-            self._currentMode = self.mode['scaling']
+            self._usingScaling = True
             self.orderOfMagnitude = .5*math.log10(val*val)
         else:
             raise ValueError("'val' must be a number or a boolean")
@@ -479,7 +476,7 @@ class ScalarFormatter(Formatter):
                                 fset=set_useScalingFactor)
 
     def get_useOffset(self):
-        return self._currentMode == self.mode['offset']
+        return self._usingOffset
 
     def set_useOffset(self, val):
         """
@@ -499,14 +496,13 @@ class ScalarFormatter(Formatter):
         -------
         NONE
         """
-        if val in [True, False]:
+        if isinstance(val, bool):
             self.offsetval = 0
-            self._currentMode = self.mode['offset']
-            if val is False:
-                self._currentMode = self.mode['none']
+            self._usingOffset = val
         elif isinstance(val, numbers.Number):
-            self._currentMode = self.mode['offset']
+            self._usingOffset = True
             self.offsetval = val
+            print(val)
         else:
             raise ValueError("'val' must be a number or a boolean")
 
@@ -633,19 +629,16 @@ class ScalarFormatter(Formatter):
         s = ''
         offsetStr = ''
         sciNotStr = ''
-        if self._currentMode == self.mode['offset']:
-            if self._currentMode == self.mode['offset']:
-                offsetStr = self.format_data(self.offsetval)
-                if self.offsetval > 0:
-                    offsetStr = ' +' + offsetStr
-        elif self._currentMode == self.mode['scaling']:
-            if self.orderOfMagnitude:
-                if self._usetex or self._useMathText:
-                    sciNotStr = self.format_data(10 ** self.orderOfMagnitude)
-                else:
-                    # sciNotStr = '%g' % 10 **self.orderOfMagnitude
-                    sciNotStr = ('\u2A2F ' + self.format_data(
-                                10 ** self.orderOfMagnitude))
+        if self.get_useOffset() is True:
+            offsetStr = self.format_data(self.offsetval)
+            offsetStr = ' +' + offsetStr
+        if self.get_useScalingFactor() is True:
+            if self._usetex or self._useMathText:
+                sciNotStr = self.format_data(10 ** self.orderOfMagnitude)
+            else:
+                # sciNotStr = '%g' % 10 **self.orderOfMagnitude
+                sciNotStr = ('\u2A2F ' + self.format_data(
+                            10 ** self.orderOfMagnitude))
 
         # Do final formatting
         if self._useMathText:
@@ -675,10 +668,10 @@ class ScalarFormatter(Formatter):
 
     def _set_offset(self, range):
         # Determine if an offset is needed and if so, set it.
-        # Don't do this if scaling/offset has been set of it is 
+        # Don't do this if offset has already been set of it is 
         # rcParams forbids automatic offset 
-        if (self._currentMode != self.mode['none'] or 
-            rcParams['axes.formatter.useoffset'] is False) :
+        if(rcParams['axes.formatter.useoffset'] is False or
+                self.get_useOffset() is True):
             return
 
         # offset of 20,001 is 20,000, for example
@@ -708,12 +701,13 @@ class ScalarFormatter(Formatter):
         # If the user has set scale/offset, their input is used
         # if scientific notation is to be used, find the appropriate exponent
         # if using an numerical offset, find the exponent after applying the
-        if self._currentMode != self.mode['none'] or self._scientific is False:
-            # User specified or unwanted
+
+        # User specified or unwanted
+        if self.get_useScalingFactor() is True:
             return
 
         locs = np.absolute(self.locs)
-        if self._currentMode == self.mode['offset']:
+        if self._usingOffset == True:
             oom = math.floor(math.log10(range))
         else:
             if locs[0] > locs[-1]:
@@ -725,11 +719,9 @@ class ScalarFormatter(Formatter):
             else:
                 oom = math.floor(math.log10(val))
         if oom <= self._powerlimits[0]:
-            self.orderOfMagnitude = oom
-            self._currentMode = self.mode['scaling']
+            self.set_useScalingFactor(10**oom)
         elif oom >= self._powerlimits[1]:
-            self.orderOfMagnitude = oom
-            self._currentMode = self.mode['scaling']
+            self.set_useScalingFactor(10**oom)
         else:
             self.orderOfMagnitude = 0
 
@@ -770,13 +762,7 @@ class ScalarFormatter(Formatter):
             self.format = '$%s$' % _mathdefault(self.format)
 
     def pprint_val(self, x):
-        # Decide if we are doing offset, scale, or none
-        if self._currentMode == self.mode['offset']:
-            xp = x - self.offsetval
-        elif self._currentMode == self.mode['scaling']:
-            xp = x / (10. ** self.orderOfMagnitude)
-        else:
-            xp = x
+        xp = (x - self.offsetval) / (10. ** self.orderOfMagnitude)
 
         if np.absolute(xp) < 1e-8:
             xp = 0
