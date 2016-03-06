@@ -644,7 +644,7 @@ class ScalarFormatter(Formatter):
                     sciNotStr = self.format_data(10 ** self.orderOfMagnitude)
                 else:
                     # sciNotStr = '%g' % 10 **self.orderOfMagnitude
-                    sciNotStr = ('\u22C5 ' + self.format_data(
+                    sciNotStr = ('\u2A2F ' + self.format_data(
                                 10 ** self.orderOfMagnitude))
 
         # Do final formatting
