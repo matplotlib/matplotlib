@@ -747,13 +747,17 @@ class SubplotToolQt(SubplotTool, UiSubplotTool):
 
         self.defaults = {}
         for attr in ('left', 'bottom', 'right', 'top', 'wspace', 'hspace', ):
-            self.defaults[attr] = getattr(self.targetfig.subplotpars, attr)
+            val = getattr(self.targetfig.subplotpars, attr)
+            self.defaults[attr] = val
             slider = getattr(self, 'slider' + attr)
+            txt = getattr(self, attr + 'value')
             slider.setMinimum(0)
             slider.setMaximum(1000)
             slider.setSingleStep(5)
+            # do this before hooking up the callbacks
+            slider.setSliderPosition(int(val * 1000))
+            txt.setText("%.2f" % val)
             slider.valueChanged.connect(getattr(self, 'func' + attr))
-
         self._setSliderPositions()
 
     def _setSliderPositions(self):
