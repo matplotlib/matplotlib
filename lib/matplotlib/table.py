@@ -409,7 +409,21 @@ class Table(Artist):
             cell.set_y(bottoms[row])
 
     def auto_set_column_width(self, col):
+        """ Given column indexs in either List, Tuple or int. Will be able to
+        automatically set the columns into optimal sizes.
 
+        Args:
+            col(List): list of indexs
+            >>>table.auto_set_column_width([-1,0,1])
+
+            col(Tuple): tuple of indexs
+            >>>table.auto_set_column_width((-1,0,1))
+
+            col(int): index integer
+            >>>table.auto_set_column_width(-1)
+            >>>table.auto_set_column_width(0)
+            >>>table.auto_set_column_width(1)
+        """
         # check for col possibility on iteration
         try:
             iter(col)
