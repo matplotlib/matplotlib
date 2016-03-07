@@ -16,6 +16,7 @@ from matplotlib.cbook import MatplotlibDeprecationWarning
 import matplotlib.pyplot as plt
 import matplotlib as mpl
 import matplotlib.patches as mpatches
+import matplotlib.transforms as mtrans
 
 
 @image_comparison(baseline_images=['legend_auto1'], remove_text=True)
@@ -261,6 +262,32 @@ def test_nanscatter():
     ax.grid(True)
 
 
+@image_comparison(baseline_images=['not_covering_scatter'], extensions=['png'])
+def test_not_covering_scatter():
+    colors = ['b','g','r']
+
+    for n in range(3):
+        plt.scatter([n,], [n,], color=colors[n])
+
+    plt.legend(['foo', 'foo', 'foo'], loc='best')
+    plt.gca().set_xlim(-0.5, 2.2)
+    plt.gca().set_ylim(-0.5, 2.2)
+
+
+@image_comparison(baseline_images=['not_covering_scatter_transform'],
+                  extensions=['png'])
+def test_not_covering_scatter_transform():
+    # Offsets point to top left, the default auto position
+    offset = mtrans.Affine2D().translate(-20, 20)
+    x = np.linspace(0, 30, 1000)
+    plt.plot(x, x)
+
+    plt.scatter([20], [10], transform=offset + plt.gca().transData)
+
+    plt.legend(['foo', 'bar'], loc='best')
+
+
 if __name__ == '__main__':
     import nose
     nose.runmodule(argv=['-s', '--with-doctest'], exit=False)
+
