@@ -8,7 +8,10 @@ import inspect
 import warnings
 
 
-def pylab_setup(backend=None):
+backend = matplotlib.get_backend()
+
+
+def pylab_setup(name=None):
     '''return new_figure_manager, draw_if_interactive and show for pyplot
 
     This provides the backend-specific functions that are used by
@@ -16,7 +19,7 @@ def pylab_setup(backend=None):
 
     Parameters
     ----------
-    backend : str, optional
+    name : str, optional
         The name of the backend to use.  If `None`, falls back to
         ``matplotlib.get_backend()`` (which return ``rcParams['backend']``)
 
@@ -26,23 +29,23 @@ def pylab_setup(backend=None):
         The module which contains the backend of choice
 
     new_figure_manager : function
-        Create a new figure manage (roughly maps to GUI window)
+        Create a new figure manager (roughly maps to GUI window)
 
     draw_if_interactive : function
         Redraw the current figure if pyplot is interactive
 
     show : function
-        Show (and possible block) any unshown figures.
+        Show (and possibly block) any unshown figures.
 
     '''
     # Import the requested backend into a generic module object
-    if backend is None:
-        backend = matplotlib.get_backend()  # validates, to match all_backends
-
-    if backend.startswith('module://'):
-        backend_name = backend[9:]
+    if name is None:
+        # validates, to match all_backends
+        name = matplotlib.get_backend()
+    if name.startswith('module://'):
+        backend_name = name[9:]
     else:
-        backend_name = 'backend_' + backend
+        backend_name = 'backend_' + name
         backend_name = backend_name.lower()  # until we banish mixed case
         backend_name = 'matplotlib.backends.%s' % backend_name.lower()
 
@@ -65,13 +68,12 @@ def pylab_setup(backend=None):
 Your currently selected backend, '%s' does not support show().
 Please select a GUI backend in your matplotlibrc file ('%s')
 or with matplotlib.use()""" %
-                          (backend, matplotlib.matplotlib_fname()))
+                          (name, matplotlib.matplotlib_fname()))
 
     def do_nothing(*args, **kwargs):
         pass
 
-    backend_version = getattr(backend_mod, 'backend_version',
-                              'unknown')
+    backend_version = getattr(backend_mod, 'backend_version', 'unknown')
 
     show = getattr(backend_mod, 'show', do_nothing_show)
 
@@ -79,6 +81,10 @@ or with matplotlib.use()""" %
                                   do_nothing)
 
     matplotlib.verbose.report('backend %s version %s' %
-                              (backend, backend_version))
+                              (name, backend_version))
 
+    # need to keep a global reference to the backend for compatibility
+    # reasons. See https://github.com/matplotlib/matplotlib/issues/6092
+    global backend
+    backend = name
     return backend_mod, new_figure_manager, draw_if_interactive, show
