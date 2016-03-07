@@ -2,7 +2,7 @@
 This illustrates the use of transforms.offset_copy to
 make a transform that positions a drawing element such as
 a text string at a specified offset in screen coordinates
-(dots or inches) relative to a location given in any
+(pixels or inches) relative to a location given in any
 coordinates.
 
 Every Artist--the mpl class from which classes such as
@@ -42,7 +42,7 @@ for x, y in zip(xs, ys):
 # offset_copy works for polar plots also.
 ax = plt.subplot(2, 1, 2, projection='polar')
 
-trans_offset = mtrans.offset_copy(ax.transData, fig=fig, y=6, units='dots')
+trans_offset = mtrans.offset_copy(ax.transData, fig=fig, y=6, units='pixels')
 
 for x, y in zip(xs, ys):
     plt.polar((x,), (y,), 'ro')
