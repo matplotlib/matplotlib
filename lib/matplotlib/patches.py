@@ -3695,9 +3695,9 @@ class ArrowStyle(_Style):
             self.angleA, self.angleB = angleA, angleB
             self.scaleA, self.scaleB = scaleA, scaleB
 
-        # Declare it as a static method as it is also planned to be use to build
-        # a new type of patch that may be useful to annotate range of data.
-        # However, not sure the current arguments are the best suited for
+        # Declare it as a static method as it is also planned to be use to
+        # build a new type of patch that may be useful to annotate range of
+        # data. However, not sure the current arguments are the best suited for
         # that purpose. (Might be better to directly pass "length," p0 and p6.)
         #
         # Would it be better to define a module-level '_get_brace' function?
@@ -3709,12 +3709,12 @@ class ArrowStyle(_Style):
                 rotation in degrees (anti-clockwise)
 
             *bracetype*
-                'curly': a real curly bracket }, with rounded corners made of 
+                'curly': a real curly bracket }, with rounded corners made of
                          quadratic Bezier curves
                 'straight': a simplified }, with the 7 control points p0...p6
                             simply linked with straight lines.
 
-            Details of the basic design:
+            Details of the basic design::
                 p0                 p6   with vectors  (p0)-----v06---->(p6)
                   \____p2   p4____/                             |vtip
                   p1     \ /     p5                             v
@@ -3726,7 +3726,7 @@ class ArrowStyle(_Style):
                 * angle = arg(vector(p0 -> p6)) in degrees.
 
             Besides, if bracetype is 'curly', 3 supplementary control points
-            (p01, p24 and p56) are used:
+            (p01, p24 and p56) are used::
                  p0          p2__p24__p4          p6
                  | \    and    \  |  /    and    / |
                  |  \           \ | /           /  |
@@ -3769,7 +3769,7 @@ class ArrowStyle(_Style):
                 complex_pts = [p0, p1, p2, p3, p4, p5, p6]
 
                 vertices_brace = [(xy.real, xy.imag) for xy in complex_pts]
-                codes_brace = ([Path.MOVETO] + 
+                codes_brace = ([Path.MOVETO] +
                                [Path.LINETO]*(len(vertices_brace) - 1))
 
             elif bracetype == 'curly':
@@ -3952,7 +3952,8 @@ class ArrowStyle(_Style):
 
     class CurveABraceB(CurveA, BraceB):
             """
-            An arrow with a head at its begin point, and a brace at its end point.
+            An arrow with a head at its begin point, and a brace at its end
+            point.
             """
 
             def __init__(self, lengthA=.4, widthA=.2, fillA=False,
@@ -4015,7 +4016,6 @@ class ArrowStyle(_Style):
 
     _style_list["<-{"] = CurveABraceB
 
-
     # Would like to avoid creating yet another class that is exactly the same
     # as CurveABraceB but just with fillA = True. Tried to do something like:
     # _style_list["<|-{"] = CurveABraceB(fillA=True)
@@ -4047,7 +4047,6 @@ class ArrowStyle(_Style):
 
 # \WARNING
 ##########################################################################
-
 
     class BarAB(_Bracket):
         """
