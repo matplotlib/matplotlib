@@ -1065,12 +1065,10 @@ defaultParams = {
     # the number of points in the legend line for scatter
     'legend.scatterpoints': [3, validate_int],
     'legend.fontsize': ['large', validate_fontsize],
-     # the relative size of legend markers vs. original
-    'legend.markerscale': [1.0, validate_float],
-    'legend.shadow': [False, validate_bool],
-     # whether or not to draw a frame around legend
+
+    # whether or not to draw a frame around legend
     'legend.frameon': [True, validate_bool],
-     # alpha value of the legend frame
+    # alpha value of the legend frame
     'legend.framealpha': [None, validate_float_or_None],
 
     ## the following dimensions are in fraction of the font size
