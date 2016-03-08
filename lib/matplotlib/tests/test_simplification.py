@@ -9,7 +9,6 @@ from matplotlib.testing.decorators import image_comparison, knownfailureif, clea
 import matplotlib.pyplot as plt
 
 from pylab import *
-import numpy as np
 from matplotlib import patches, path, transforms
 
 from nose.tools import raises

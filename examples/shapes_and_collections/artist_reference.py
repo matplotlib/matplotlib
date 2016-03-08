@@ -9,14 +9,12 @@ Copyright (c) 2010, Bartosz Telenczuk
 BSD License
 """
 import matplotlib.pyplot as plt
-plt.rcdefaults()
-
 import numpy as np
-import matplotlib.pyplot as plt
 import matplotlib.path as mpath
 import matplotlib.lines as mlines
 import matplotlib.patches as mpatches
 from matplotlib.collections import PatchCollection
+plt.rcdefaults()
 
 
 def label(xy, text):
