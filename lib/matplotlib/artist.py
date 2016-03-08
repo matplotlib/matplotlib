@@ -1363,14 +1363,6 @@ class ArtistInspector(object):
         lines.append(table_formatstr)
         lines.append('')
         return lines
-        ########
-
-        for prop, path in attrs:
-            accepts = self.get_valid_values(prop)
-            name = self.aliased_name_rest(prop, path)
-
-            lines.append('%s%s: %s' % (pad, name, accepts))
-        return lines
 
     def properties(self):
         """
