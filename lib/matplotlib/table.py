@@ -413,7 +413,7 @@ class Table(Artist):
         automatically set the columns into optimal sizes.
 
         Here is the example of the input, which triger automatic adjustment on
-        column to optimal size by given index numbers.
+        columns to optimal size by given index numbers.
         -1: the row labling
         0: the 1st column
         1: the 2nd column
