@@ -417,8 +417,6 @@ class ScalarFormatter(Formatter):
     axes.formatter.limits rc parameter.
 
     """
-    _usingOffset = False
-    _usingScaling = False
 
     def __init__(self, useOffset=None, useMathText=None, useLocale=None):
         # useOffset allows plotting small data ranges with large offsets: for
@@ -454,7 +452,7 @@ class ScalarFormatter(Formatter):
 
         Parameters
         ----------
-        val : (True|False|numeric)
+        val : bool or scalar
             Enable, disable, or sets and enables the use of scaling factor
             in the axis.
 
@@ -541,7 +539,7 @@ class ScalarFormatter(Formatter):
 
         Parameters
         ----------
-        b : (True|False)
+        b : bool
             Enable, disable scientific notation
 
         Returns
