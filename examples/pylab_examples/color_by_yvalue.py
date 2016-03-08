@@ -13,5 +13,5 @@ supper = np.ma.masked_where(s < upper, s)
 slower = np.ma.masked_where(s > lower, s)
 smiddle = np.ma.masked_where(np.logical_or(s < lower, s > upper), s)
 
-plt.plot(t, slower, 'r', t, smiddle, 'b', t, supper, 'g')
+plt.plot(t, smiddle, t, slower, t, supper)
 plt.show()

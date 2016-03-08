@@ -38,9 +38,9 @@ xo = rs.randn(npts)
 yo = rs.randn(npts)
 xyo = list(zip(xo, yo))
 
-# Make a list of colors cycling through the rgbcmyk series.
+# Make a list of colors cycling through the default series.
 colors = [colorConverter.to_rgba(c)
-          for c in ('r', 'g', 'b', 'c', 'y', 'm', 'k')]
+          for c in plt.rcParams['axes.prop_cycle'].by_key()['color']]
 
 fig, axes = plt.subplots(2, 2)
 ((ax1, ax2), (ax3, ax4)) = axes  # unpack the axes
