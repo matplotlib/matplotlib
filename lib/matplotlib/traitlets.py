@@ -14,41 +14,20 @@ import re
 import types
 import numpy as np
 from matplotlib.externals import six
+from matplotlib.colors import cnames
 from .transforms import IdentityTransform, Transform
 import contextlib
 
 
 class PrivateMethodMixin(object):
 
-    def __new__(cls, *args, **kwargs):
-        inst = super(PrivateMethodMixin, cls).__new__(cls, *args, **kwargs)
-        inst._stored_trait_values = {}
-        return inst
-
-    def force_callbacks(self, name, cross_validate=True, notify_trait=True):
-        if name not in self.traits():
-            msg = "'%s' is not a trait of a %s class"
-            raise TraitError(msg % (name, self.__class__))
-
-        trait = self.traits()[name]
-
-        new = self._trait_values[name]
-        try:
-            old = self._stored_trait_values[name]
-        except KeyError:
-            trait = getattr(self.__class__, name)
-            old = trait.default_value
-        if cross_validate:
-            trait = self._retrieve_trait(name)
-            # note value is updated via cross validation
-            new = trait._cross_validate(self, new)
-            self.private(name, new)
-        if notify_trait:
-            self._notify_trait(name, old, new)
+    def force_notify_changes(self, *changes):
+        for change in changes:
+            self.notify_change(change)
 
     @contextlib.contextmanager
-    def mute_trait_notifications(self):
-        """Context manager for bundling trait change notifications and cross
+    def mute_trait_notifications(self, cross_validate=True):
+        """Context manager for muting trait change notifications and cross
         validation.
         Use this when doing multiple trait assignments (init, config), to avoid
         race conditions in trait notifiers requesting other trait values.
@@ -59,44 +38,53 @@ class PrivateMethodMixin(object):
             return
         else:
             cache = {}
-            _notify_trait = self._notify_trait
+            notify_change = self.notify_change
 
-            def merge(previous, current):
-                """merges notifications of the form (name, old, value)"""
-                if previous is None:
-                    return current
+            def compress(past_changes, change):
+                """Merges the provided change with the last if possible."""
+                if past_changes is None:
+                    return [change]
                 else:
-                    return (current[0], previous[1], current[2])
+                    if past_changes[-1]['type'] == 'change' and change['type'] == 'change':
+                        past_changes[-1]['new'] = change['new']
+                    else:
+                        # In case of changes other than 'change', append the notification.
+                        past_changes.append(change)
+                    return past_changes
 
-            def hold(*a):
-                cache[a[0]] = merge(cache.get(a[0]), a)
+            def hold(change):
+                name = change['name']
+                cache[name] = compress(cache.get(name), change)
 
             try:
-                self._notify_trait = hold
-                self._cross_validation_lock = True
-                yield cache
-                for name in list(cache.keys()):
-                    trait = getattr(self.__class__, name)
-                    value = trait._cross_validate(self, getattr(self, name))
-                    setattr(self, name, value)
+                # Replace notify_change with `hold`, caching and compressing
+                # notifications, disable cross-validation and yield.
+                self.notify_change = hold
+                if not cross_validate:
+                    self._cross_validation_lock = True
             except TraitError as e:
-                self._notify_trait = lambda *x: None
-                for name, value in cache.items():
-                    if value[1] is not Undefined:
-                        setattr(self, name, value[1])
-                    else:
-                        self._trait_values.pop(name)
+                # Roll back in case of TraitError during final cross validation.
+                self.notify_change = lambda x: None
+                for name, changes in cache.items():
+                    for change in changes[::-1]:
+                        # TODO: Separate in a rollback function per notification type.
+                        if change['type'] == 'change':
+                            if change['old'] is not Undefined:
+                                self.set_trait(name, change['old'])
+                            else:
+                                self._trait_values.pop(name)
                 cache.clear()
                 raise e
             finally:
-                self._notify_trait = _notify_trait
-                self._cross_validation_lock = False
-                if isinstance(_notify_trait, types.MethodType):
+                self.notify_change = notify_change
+                if not cross_validate:
+                    self._cross_validation_lock = False
+                if isinstance(notify_change, types.MethodType):
                     # FIXME: remove when support is bumped to 3.4.
                     # when original method is restored,
                     # remove the redundant value from __dict__
                     # (only used to preserve pickleability on Python < 3.4)
-                    self.__dict__.pop('_notify_trait', None)
+                    self.__dict__.pop('notify_change', None)
 
     @contextlib.contextmanager
     def hold_trait_notifications(self):
@@ -110,15 +98,14 @@ class PrivateMethodMixin(object):
             with self.mute_trait_notifications() as cache:
                 yield
         finally:
-            for v in cache.values():
-                self._notify_trait(*v)
+            for c in cache.values():
+                self.notify_change(c)
 
     def private(self, name, value=Undefined):
         trait = self._retrieve_trait(name)
 
         if value is not Undefined:
-            with self.mute_trait_notifications():
-                setattr(self, name, value)
+            self._trait_values[name] = value
         else:
             return trait.get(self, None)
 
@@ -126,11 +113,11 @@ class PrivateMethodMixin(object):
         try:
             trait = getattr(self.__class__, name)
             if not isinstance(trait, BaseDescriptor):
-                msg = ("'%s' is a standard attribute, not a traitlet, of a"
-                       " %s instance" % (name, self.__class__.__name__))
+                msg = ("'%s' is a standard attribute, not a traitlet, of"
+                       " %s instances" % (name, self.__class__.__name__))
                 raise TraitError(msg)
         except AttributeError:
-            msg = "'%s' is not a traitlet of a %s instance"
+            msg = "'%s' is not a traitlet of %s instances"
             raise TraitError(msg % (name, self.__class__.__name__))
         return trait
 
@@ -164,17 +151,22 @@ class OnGetMixin(object):
     def __get__(self, obj, cls=None):
         if obj is None:
             return self
-        value = super(OnGetMixin, self).get(obj, cls)
-        if self.name in obj._retrieve_handlers:
-            handler = obj._retrieve_handlers[self.name]
-            pull = {'value': value, 'owner': obj, 'trait': self}
-            value = handler(obj, pull)
+        try:
+            value = super(OnGetMixin, self).get(obj, cls)
+            value_found = True
+        except TraitError, e:
+            value_found = False
+        finally:
+            has_retrievers = hasattr(obj, '_retrieve_handlers')
+            if has_retrievers and self.name in obj._retrieve_handlers:
+                handler = obj._retrieve_handlers[self.name]
+                if not value_found:
+                    value = Undefined
+                pull = {'value': value, 'owner': obj, 'trait': self}
+                value = handler(obj, pull)
+            elif not value_found:
+                raise TraitError(e)
         return value
-
-    def instance_init(self, inst):
-        if not hasattr(inst, '_retrieve_handlers'):
-            inst._retrieve_handlers = {}
-        super(OnGetMixin, self).instance_init(inst)
 
 
 class TransformInstance(OnGetMixin, TraitType):
@@ -239,7 +231,7 @@ class Color(TraitType):
     """A trait representing a color, can be either in RGB, or RGBA format.
 
     Arguments:
-        force_rgb: bool: coerce to RGB. Default: False
+        as_rgb: bool: coerce to RGB. Default: False
         as_hex: bool: coerce to hex value. Default: False
         default_alpha: float (0.0-1.0) or integer (0-255). Default (1.0)
 
@@ -256,18 +248,17 @@ class Color(TraitType):
 
     """
     metadata = {
-        'force_rgb': False,
+        'as_rgb': False,
         'as_hex': False,
         'default_alpha': 1.0,
         }
     info_text = 'float, int, tuple of float or int, or a hex string color'
     default_value = (0.0, 0.0, 0.0, metadata['default_alpha'])
-    named_colors = {}
+    named_colors = cnames
     _re_color_hex = re.compile(r'#[a-fA-F0-9]{3}(?:[a-fA-F0-9]{3})?$')
 
     def __init__(self, *args, **kwargs):
         super(Color, self).__init__(*args, **kwargs)
-        self._metadata = self.metadata.copy()
 
     def _int_to_float(self, value):
         as_float = (np.array(value)/255).tolist()
@@ -332,31 +323,27 @@ class Color(TraitType):
                 if is_all_int and in_range:
                     value = self._int_to_float(value)
 
-        elif isinstance(value, str):
-            if len(value) in (4, 7) and value[0] == '#':
+        elif isinstance(value, (str, unicode)):
+            if value[0] == '#' and len(value) in (4, 7):
                 if self._re_color_hex.match(value):
                     value = self._hex_to_float(value)
                     in_range = np.prod([(0 <= v <= 1) for v in value])
-                    if in_range:
-                        value = value
-
-        elif isinstance(value, str) and value in self.named_colors:
-            value = self.validate(obj, self.named_colors[value])
-            in_range = True
+            elif value in self.named_colors:
+                return self.validate(obj, self.named_colors[value])
 
         if in_range:
             # Convert to hex color string
-            if self._metadata['as_hex']:
+            if self.metadata['as_hex']:
                 return self._float_to_hex(value)
 
             # Ignores alpha and return rgb
-            if self._metadata['force_rgb'] and in_range:
+            if self.metadata['as_rgb'] and in_range:
                 return tuple(np.round(value[:3], 5).tolist())
 
             # If no alpha provided, use default_alpha, also round the output
             if len(value) == 3:
                 value = tuple(np.round((value[0], value[1], value[2],
-                             self._metadata['default_alpha']), 5).tolist())
+                             self.metadata['default_alpha']), 5).tolist())
             elif len(value) == 4:
             # If no alpha provided, use default_alpha
                 value = tuple(np.round(value, 5).tolist())
@@ -367,6 +354,6 @@ class Color(TraitType):
 
 
 def _traitlets_deprecation_msg(name):
-    msg = ("This has been deprecated to make way for IPython's Traitlets."
-           " Please use the '%s' TraitType and Traitlet event decorators.")
+    msg = ("This has been deprecated to make way for Traitlets. Please"
+           " use the '%s' TraitType and Traitlet event decorators.")
     return msg % name

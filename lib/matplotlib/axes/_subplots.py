@@ -34,7 +34,9 @@ class SubplotBase(object):
         If *numRows* <= *numCols* <= *plotNum* < 10, *args* can be the
         decimal integer *numRows* * 100 + *numCols* * 10 + *plotNum*.
         """
-        self.private('figure', fig)
+        with self.mute_trait_notifications() as cache:
+            self.figure = fig
+        print(cache)
 
         if len(args) == 1:
             if isinstance(args[0], SubplotSpec):
@@ -69,6 +71,7 @@ class SubplotBase(object):
         self.update_params()
 
         # _axes_class is set in the subplot_class_factory
+        kwargs['forcefully_notify_changes'] = cache
         self._axes_class.__init__(self, fig, self.figbox, **kwargs)
 
     def __reduce__(self):

@@ -511,7 +511,9 @@ class _AxesBase(martist.Artist):
         self.label = label
 
         if self.figure == fig:
-            self.force_callbacks('figure')
+            cache = kwargs.pop('forcefully_notify_changes')
+            for name in cache:
+                self.force_notify_changes(*cache[name])
         else:
             self.figure = fig
 

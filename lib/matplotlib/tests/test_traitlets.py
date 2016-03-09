@@ -155,7 +155,7 @@ class ColorTestCase(TestCase):
     def test_rgb(self):
 
         class A(HasTraits):
-            color = Color(force_rgb=True)
+            color = Color(as_rgb=True)
 
         a = A()
 
