@@ -3725,7 +3725,7 @@ class Axes(_AxesBase):
                 **kwargs):
         """
         Make a scatter plot of x vs y, where x and y are sequence like objects
-        of the same lengths.
+        of the same length.
 
         Parameters
         ----------
@@ -3735,7 +3735,7 @@ class Axes(_AxesBase):
         s : scalar or array_like, shape (n, ), optional, default: 20
             size in points^2.
 
-        c : color or sequence of color, optional, default : 'b'
+        c : color, sequence, or sequence of color, optional, default: 'b'
             `c` can be a single color format string, or a sequence of color
             specifications of length `N`, or a sequence of `N` numbers to be
             mapped to colors using the `cmap` and `norm` specified via kwargs
