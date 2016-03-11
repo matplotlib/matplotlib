@@ -1412,9 +1412,14 @@ else:
 
     def _rebuild():
         global fontManager
+
         fontManager = FontManager()
+
         if _fmcache:
-            pickle_dump(fontManager, _fmcache)
+            with cbook.Locked(cachedir):
+                pickle_dump(fontManager, _fmcache)
+
+
         verbose.report("generated new fontManager")
 
     if _fmcache:

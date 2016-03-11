@@ -21,7 +21,7 @@ for y in range(ylen):
         colors[x, y] = colortuple[(x + y) % len(colortuple)]
 
 surf = ax.plot_surface(X, Y, Z, rstride=1, cstride=1, facecolors=colors,
-                       linewidth=0, antialiased=False)
+                       linewidth=0)
 
 ax.set_zlim3d(-1, 1)
 ax.w_zaxis.set_major_locator(LinearLocator(6))

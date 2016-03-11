@@ -205,9 +205,9 @@ class RGBAxesBase(object):
         ny, nx = r.shape
         if not ((nx, ny) == g.shape == b.shape):
             raise ValueError('Input shapes do not match.'
-                             '\nr.shape = {}'
-                             '\ng.shape = {}'
-                             '\nb.shape = {}'
+                             '\nr.shape = {0}'
+                             '\ng.shape = {1}'
+                             '\nb.shape = {2}'
                              ''.format(r.shape, g.shape, b.shape))
 
         R = np.zeros([ny, nx, 3], dtype="d")

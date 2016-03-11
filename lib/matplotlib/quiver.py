@@ -710,7 +710,7 @@ class Quiver(mcollections.PolyCollection):
                                           # by a float first, as with 'mid'.
         elif self.pivot != 'tail':
             raise ValueError(("Quiver.pivot must have value in {{'middle', "
-                              "'tip', 'tail'}} not {}").format(self.pivot))
+                              "'tip', 'tail'}} not {0}").format(self.pivot))
 
         tooshort = length < self.minlength
         if tooshort.any():

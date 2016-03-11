@@ -61,9 +61,11 @@ def filled_hist(ax, edges, values, bottoms=None, orientation='v',
     values = np.r_[values, values[-1]]
     bottoms = np.r_[bottoms, bottoms[-1]]
     if orientation == 'h':
-        return ax.fill_betweenx(edges, values, bottoms, **kwargs)
+        return ax.fill_betweenx(edges, values, bottoms, left_margin=False,
+                                **kwargs)
     elif orientation == 'v':
-        return ax.fill_between(edges, values, bottoms, **kwargs)
+        return ax.fill_between(edges, values, bottoms, bottom_margin=False,
+                               **kwargs)
     else:
         raise AssertionError("you should never be here")
 
@@ -170,7 +172,7 @@ edges = np.linspace(-3, 3, 20, endpoint=True)
 hist_func = partial(np.histogram, bins=edges)
 
 # set up style cycles
-color_cycle = cycler('facecolor', 'rgbm')
+color_cycle = cycler(facecolor=plt.rcParams['axes.prop_cycle'][:4])
 label_cycle = cycler('label', ['set {n}'.format(n=n) for n in range(4)])
 hatch_cycle = cycler('hatch', ['/', '*', '+', '|'])
 
@@ -206,3 +208,5 @@ ax1.xaxis.set_major_locator(mticker.MaxNLocator(5))
 ax1.set_xlabel('counts')
 ax1.set_ylabel('x')
 ax2.set_ylabel('x')
+
+plt.show()

@@ -331,7 +331,7 @@ class RendererPS(RendererBase):
 
     def get_canvas_width_height(self):
         'return the canvas width and height in display coords'
-        return self.width, self.height
+        return self.width * 72.0, self.height * 72.0
 
     def get_text_width_height_descent(self, s, prop, ismath):
         """
@@ -401,28 +401,10 @@ class RendererPS(RendererBase):
         font.set_size(size, 72.0)
         return font
 
-    def _rgba(self, im):
-        return im.as_rgba_str()
-
-    def _rgb(self, im):
-        h,w,s = im.as_rgba_str()
-
-        rgba = np.fromstring(s, np.uint8)
-        rgba.shape = (h, w, 4)
-        rgb = rgba[::-1,:,:3]
+    def _rgb(self, rgba):
+        h, w = rgba.shape[:2]
+        rgb = rgba[::-1, :, :3]
         return h, w, rgb.tostring()
-
-    def _gray(self, im, rc=0.3, gc=0.59, bc=0.11):
-        rgbat = im.as_rgba_str()
-        rgba = np.fromstring(rgbat[2], np.uint8)
-        rgba.shape = (rgbat[0], rgbat[1], 4)
-        rgba = rgba[::-1]
-        rgba_f = rgba.astype(np.float32)
-        r = rgba_f[:,:,0]
-        g = rgba_f[:,:,1]
-        b = rgba_f[:,:,2]
-        gray = (r*rc + g*gc + b*bc).astype(np.uint8)
-        return rgbat[0], rgbat[1], gray.tostring()
 
     def _hex_lines(self, s, chars_per_line=128):
         s = binascii.b2a_hex(s)
@@ -455,46 +437,31 @@ class RendererPS(RendererBase):
         return not rcParams['image.composite_image']
 
     def _get_image_h_w_bits_command(self, im):
-        if im.is_grayscale:
-            h, w, bits = self._gray(im)
-            imagecmd = "image"
-        else:
-            h, w, bits = self._rgb(im)
-            imagecmd = "false 3 colorimage"
+        h, w, bits = self._rgb(im)
+        imagecmd = "false 3 colorimage"
 
         return h, w, bits, imagecmd
 
-    def draw_image(self, gc, x, y, im, dx=None, dy=None, transform=None):
+    def draw_image(self, gc, x, y, im, transform=None):
         """
         Draw the Image instance into the current axes; x is the
         distance in pixels from the left hand side of the canvas and y
         is the distance from bottom
-
-        dx, dy is the width and height of the image.  If a transform
-        (which must be an affine transform) is given, x, y, dx, dy are
-        interpreted as the coordinate of the transform.
         """
 
         h, w, bits, imagecmd = self._get_image_h_w_bits_command(im)
         hexlines = b'\n'.join(self._hex_lines(bits)).decode('ascii')
 
-        if dx is None:
-            xscale = w / self.image_magnification
-        else:
-            xscale = dx
-
-        if dy is None:
-            yscale = h/self.image_magnification
-        else:
-            yscale = dy
-
-
         if transform is None:
             matrix = "1 0 0 1 0 0"
+            xscale = w / self.image_magnification
+            yscale = h / self.image_magnification
         else:
-            matrix = " ".join(map(str, transform.to_values()))
+            matrix = " ".join(map(str, transform.frozen().to_values()))
+            xscale = 1.0
+            yscale = 1.0
 
-        figh = self.height*72
+        figh = self.height * 72
         #print 'values', origin, flipud, figh, h, y
 
         bbox = gc.get_clip_rectangle()
@@ -512,8 +479,8 @@ class RendererPS(RendererBase):
         #y = figh-(y+h)
         ps = """gsave
 %(clip)s
-[%(matrix)s] concat
 %(x)s %(y)s translate
+[%(matrix)s] concat
 %(xscale)s %(yscale)s scale
 /DataString %(w)s string def
 %(w)s %(h)s 8 [ %(w)s 0 0 -%(h)s 0 %(h)s ]
@@ -1452,6 +1419,10 @@ def convert_psfrags(tmpfile, psfrags, font_preamble, custom_preamble,
     # multiple
     if sys.platform == 'win32': precmd = '%s &&'% os.path.splitdrive(tmpdir)[0]
     else: precmd = ''
+    #Replace \\ for / so latex does not think there is a function call
+    latexfile = latexfile.replace("\\", "/")
+    # Replace ~ so Latex does not think it is line break
+    latexfile = latexfile.replace("~", "\\string~")
     command = '%s cd "%s" && latex -interaction=nonstopmode "%s" > "%s"'\
                 %(precmd, tmpdir, latexfile, outfile)
     verbose.report(command, 'debug')

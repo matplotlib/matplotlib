@@ -249,12 +249,14 @@ class Tick(artist.Artist):
     @allow_rasterization
     def draw(self, renderer):
         if not self.get_visible():
+            self.stale = False
             return
-        renderer.open_group(self.__name__)
+
         midPoint = mtransforms.interval_contains(self.get_view_interval(),
                                                  self.get_loc())
 
         if midPoint:
+            renderer.open_group(self.__name__)
             if self.gridOn:
                 self.gridline.draw(renderer)
             if self.tick1On:
@@ -262,12 +264,12 @@ class Tick(artist.Artist):
             if self.tick2On:
                 self.tick2line.draw(renderer)
 
-        if self.label1On:
-            self.label1.draw(renderer)
-        if self.label2On:
-            self.label2.draw(renderer)
+            if self.label1On:
+                self.label1.draw(renderer)
+            if self.label2On:
+                self.label2.draw(renderer)
+            renderer.close_group(self.__name__)
 
-        renderer.close_group(self.__name__)
         self.stale = False
 
     def set_label1(self, s):
@@ -340,7 +342,7 @@ class Tick(artist.Artist):
                 # -> points. grab the integer from the `Text` object
                 # instead of saving the string representation
                 v = getattr(self.label1, 'get_' + k)()
-                setattr(self, '_' + k, v)
+                setattr(self, '_label' + k, v)
 
 
 class XTick(Tick):

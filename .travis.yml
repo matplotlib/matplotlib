@@ -4,6 +4,7 @@ cache:
   directories:
     - $HOME/.ccache
     - $HOME/.cache/pip
+    - $HOME/.cache/matplotlib
 
 addons:
   apt:
@@ -13,10 +14,14 @@ addons:
       - gdb
       - mencoder
       - dvipng
+      - pgf
+      - lmodern
+      - cm-super
       - texlive-latex-base
       - texlive-latex-extra
       - texlive-fonts-recommended
       - texlive-latex-recommended
+      - texlive-xetex
       - graphviz
 #     - fonts-humor-sans
 #    sources:
@@ -116,9 +121,6 @@ script:
   # Travis VM to run out of memory (since so many copies of inkscape and
   # ghostscript are running at the same time).
   - echo Testing using $NPROC processes
-  # Generate the font caches in a single process before starting the
-  # multiple processes
-  - python -c "from matplotlib import font_manager"
   - |
     if [[ $BUILD_DOCS == false ]]; then
       export MPL_REPO_DIR=$PWD  # needed for pep8-conformance test of the examples
@@ -130,6 +132,8 @@ script:
       touch build/html/Matplotlib.pdf
       linkchecker build/html/index.html
     fi
+  - rm -rf $HOME/.cache/matplotlib/tex.cache
+  - rm -rf $HOME/.cache/matplotlib/test_cache
 
 after_failure:
   |

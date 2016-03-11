@@ -553,7 +553,13 @@ def _create_tmp_config_dir():
         # Some restricted platforms (such as Google App Engine) do not provide
         # gettempdir.
         return None
-    tempdir = os.path.join(tempdir, 'matplotlib-%s' % getpass.getuser())
+
+    try:
+        username = getpass.getuser()
+    except KeyError:
+        username = str(os.getuid())
+    tempdir = os.path.join(tempdir, 'matplotlib-%s' % username)
+
     os.environ['MPLCONFIGDIR'] = tempdir
 
     mkdirs(tempdir)
@@ -836,6 +842,7 @@ _deprecated_map = {
     'savefig.extension': ('savefig.format', lambda x: x, None),
     'axes.color_cycle': ('axes.prop_cycle', lambda x: cycler('color', x),
                          lambda x: [c.get('color', None) for c in x]),
+    'svg.image_noscale': ('image.interpolation', None, None),
     }
 
 _deprecated_ignore_map = {
@@ -998,7 +1005,7 @@ def _open_file_or_url(fname):
         f.close()
     else:
         fname = os.path.expanduser(fname)
-        encoding = locale.getdefaultlocale()[1]
+        encoding = locale.getpreferredencoding(do_setlocale=False)
         if encoding is None:
             encoding = "utf-8"
         with io.open(fname, encoding=encoding) as f:
@@ -1039,7 +1046,8 @@ def _rc_params_in_file(fname, fail_on_error=False):
             warnings.warn(
                 ('Cannot decode configuration file %s with '
                  'encoding %s, check LANG and LC_* variables')
-                % (fname, locale.getdefaultlocale()[1] or 'utf-8 (default)'))
+                % (fname, locale.getpreferredencoding(do_setlocale=False) or
+                   'utf-8 (default)'))
             raise
 
     config = RcParams()

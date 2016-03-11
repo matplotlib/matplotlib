@@ -35,6 +35,6 @@ savefig.edgecolor: f0f0f0
 savefig.facecolor: f0f0f0
 
 figure.subplot.left: 0.08
-figure.subplot.right: 0.95 
+figure.subplot.right: 0.95
 figure.subplot.bottom: 0.07
 figure.facecolor: f0f0f0

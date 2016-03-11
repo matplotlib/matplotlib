@@ -2531,6 +2531,114 @@ def safe_first_element(obj):
     return next(iter(obj))
 
 
+def normalize_kwargs(kw, alias_mapping=None, required=(), forbidden=(),
+                     allowed=None):
+    """Helper function to normalize kwarg inputs
+
+    The order they are resolved are:
+
+     1. aliasing
+     2. required
+     3. forbidden
+     4. allowed
+
+    This order means that only the canonical names need appear in
+    `allowed`, `forbidden`, `required`
+
+    Parameters
+    ----------
+
+    alias_mapping, dict, optional
+        A mapping between a canonical name to a list of
+        aliases, in order of precedence from lowest to highest.
+
+        If the canonical value is not in the list it is assumed to have
+        the highest priority.
+
+    required : iterable, optional
+        A tuple of fields that must be in kwargs.
+
+    forbidden : iterable, optional
+        A list of keys which may not be in kwargs
+
+    allowed : tuple, optional
+        A tuple of allowed fields.  If this not None, then raise if
+        `kw` contains any keys not in the union of `required`
+        and `allowed`.  To allow only the required fields pass in
+        ``()`` for `allowed`
+
+    Raises
+    ------
+    TypeError
+        To match what python raises if invalid args/kwargs are passed to
+        a callable.
+
+    """
+    # deal with default value of alias_mapping
+    if alias_mapping is None:
+        alias_mapping = dict()
+
+    # make a local so we can pop
+    kw = dict(kw)
+    # output dictionary
+    ret = dict()
+
+    # hit all alias mappings
+    for canonical, alias_list in six.iteritems(alias_mapping):
+
+        # the alias lists are ordered from lowest to highest priority
+        # so we know to use the last value in this list
+        tmp = []
+        seen = []
+        for a in alias_list:
+            try:
+                tmp.append(kw.pop(a))
+                seen.append(a)
+            except KeyError:
+                pass
+        # if canonical is not in the alias_list assume highest priority
+        if canonical not in alias_list:
+            try:
+                tmp.append(kw.pop(canonical))
+                seen.append(canonical)
+            except KeyError:
+                pass
+        # if we found anything in this set of aliases put it in the return
+        # dict
+        if tmp:
+            ret[canonical] = tmp[-1]
+            if len(tmp) > 1:
+                warnings.warn("Saw kwargs {seen!r} which are all aliases for "
+                              "{canon!r}.  Kept value from {used!r}".format(
+                                  seen=seen, canon=canonical, used=seen[-1]))
+
+    # at this point we know that all keys which are aliased are removed, update
+    # the return dictionary from the cleaned local copy of the input
+    ret.update(kw)
+
+    fail_keys = [k for k in required if k not in ret]
+    if fail_keys:
+        raise TypeError("The required keys {keys!r} "
+                        "are not in kwargs".format(keys=fail_keys))
+
+    fail_keys = [k for k in forbidden if k in ret]
+    if fail_keys:
+        raise TypeError("The forbidden keys {keys!r} "
+                        "are in kwargs".format(keys=fail_keys))
+
+    if allowed is not None:
+        allowed_set = set(required) | set(allowed)
+        fail_keys = [k for k in ret if k not in allowed_set]
+        if fail_keys:
+            raise TypeError("kwargs contains {keys!r} which are not in "
+                            "the required {req!r} or "
+                            "allowed {allow!r} keys".format(
+                                keys=fail_keys, req=required,
+                                allow=allowed))
+
+    return ret
+
+
 def get_label(y, default_name):
     try:
         return y.name
@@ -2553,3 +2661,63 @@ except AttributeError:
 else:
     def _putmask(a, mask, values):
         return np.copyto(a, values, where=mask)
+
+_lockstr = """\
+LOCKERROR: matplotlib is trying to acquire the lock {!r}
+and has failed.  This maybe due to any other process holding this
+lock.  If you are sure no other matplotlib process in running try
+removing this folder(s) and trying again.
+"""
+
+
+class Locked(object):
+    """
+    Context manager to handle locks.
+
+    Based on code from conda.
+
+    (c) 2012-2013 Continuum Analytics, Inc. / http://continuum.io
+    All Rights Reserved
+
+    conda is distributed under the terms of the BSD 3-clause license.
+    Consult LICENSE_CONDA or http://opensource.org/licenses/BSD-3-Clause.
+    """
+    LOCKFN = '.matplotlib_lock'
+
+    def __init__(self, path):
+        self.path = path
+        self.end = "-" + str(os.getpid())
+        self.lock_path = os.path.join(self.path, self.LOCKFN + self.end)
+        self.pattern = os.path.join(self.path, self.LOCKFN + '-*')
+        self.remove = True
+
+    def __enter__(self):
+        retries = 50
+        sleeptime = 1
+        while retries:
+            files = glob.glob(self.pattern)
+            if files and not files[0].endswith(self.end):
+                time.sleep(sleeptime)
+                sleeptime *= 1.1
+                retries -= 1
+            else:
+                break
+        else:
+            err_str = _lockstr.format(self.pattern)
+            raise RuntimeError(err_str)
+
+        if not files:
+            try:
+                os.makedirs(self.lock_path)
+            except OSError:
+                pass
+        else:  # PID lock already here --- someone else will remove it.
+            self.remove = False
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        if self.remove:
+            for path in self.lock_path, self.path:
+                try:
+                    os.rmdir(path)
+                except OSError:
+                    pass

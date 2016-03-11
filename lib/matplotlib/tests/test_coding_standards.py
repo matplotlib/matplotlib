@@ -229,7 +229,6 @@ def test_pep8_conformance_installed_files():
                           'backends/backend_gtkagg.py',
                           'backends/backend_gtkcairo.py',
                           'backends/backend_macosx.py',
-                          'backends/backend_mixed.py',
                           'backends/backend_pgf.py',
                           'backends/backend_ps.py',
                           'backends/backend_svg.py',

@@ -413,13 +413,14 @@ class _AxesBase(martist.Artist):
         return "Axes(%g,%g;%gx%g)" % tuple(self._position.bounds)
 
     def __init__(self, fig, rect,
-                 axisbg=None,  # defaults to rc axes.facecolor
+                 facecolor=None,  # defaults to rc axes.facecolor
                  frameon=True,
                  sharex=None,  # use Axes instance's xaxis info
                  sharey=None,  # use Axes instance's yaxis info
                  label='',
                  xscale=None,
                  yscale=None,
+                 axisbg=None,  # This will be removed eventually
                  **kwargs
                  ):
         """
@@ -508,13 +509,17 @@ class _AxesBase(martist.Artist):
 
         # this call may differ for non-sep axes, e.g., polar
         self._init_axis()
-
-        if axisbg is None:
-            axisbg = rcParams['axes.facecolor']
-        else:
+        if axisbg is not None and facecolor is not None:
+            raise TypeError('Both axisbg and facecolor are not None. '
+                            'These keywords are aliases, only one may be '
+                            'provided.')
+        if axisbg is not None:
             cbook.warn_deprecated(
                 '2.0', name='axisbg', alternative='facecolor')
-        self._axisbg = axisbg
+            facecolor = axisbg
+        if facecolor is None:
+            facecolor = rcParams['axes.facecolor']
+        self._facecolor = facecolor
         self._frameon = frameon
         self._axisbelow = rcParams['axes.axisbelow']
 
@@ -1053,7 +1058,7 @@ class _AxesBase(martist.Artist):
         # setting the edgecolor to None
         self.patch = self.axesPatch = self._gen_axes_patch()
         self.patch.set_figure(self.figure)
-        self.patch.set_facecolor(self._axisbg)
+        self.patch.set_facecolor(self._facecolor)
         self.patch.set_edgecolor('None')
         self.patch.set_linewidth(0)
         self.patch.set_transform(self.transAxes)
@@ -1083,6 +1088,7 @@ class _AxesBase(martist.Artist):
     get_fc = get_facecolor
 
     def set_facecolor(self, color):
+        self._facecolor = color
         return self.patch.set_facecolor(color)
     set_fc = set_facecolor
 
@@ -2315,15 +2321,6 @@ class _AxesBase(martist.Artist):
             artists.remove(self._left_title)
             artists.remove(self._right_title)
 
-        # add images to dsu if the backend supports compositing.
-        # otherwise, does the manual compositing  without adding images to dsu.
-        if len(self.images) <= 1 or renderer.option_image_nocomposite():
-            _do_composite = False
-        else:
-            _do_composite = True
-            for im in self.images:
-                artists.remove(im)
-
         if self.figure.canvas.is_saving():
             dsu = [(a.zorder, a) for a in artists]
         else:
@@ -2348,46 +2345,12 @@ class _AxesBase(martist.Artist):
         if self.axison and self._frameon:
             self.patch.draw(renderer)
 
-        if _do_composite:
-            # make a composite image, blending alpha
-            # list of (mimage.Image, ox, oy)
-
-            zorder_images = [(im.zorder, im) for im in self.images
-                             if im.get_visible()]
-            zorder_images.sort(key=lambda x: x[0])
-
-            mag = renderer.get_image_magnification()
-            ims = [(im.make_image(mag), 0, 0, im.get_alpha())
-                   for z, im in zorder_images]
-
-            l, b, r, t = self.bbox.extents
-            width = int(mag * ((np.round(r) + 0.5) - (np.round(l) - 0.5)))
-            height = int(mag * ((np.round(t) + 0.5) - (np.round(b) - 0.5)))
-            im = mimage.from_images(height,
-                                    width,
-                                    ims)
-
-            im.is_grayscale = False
-            l, b, w, h = self.bbox.bounds
-            # composite images need special args so they will not
-            # respect z-order for now
-
-            gc = renderer.new_gc()
-            gc.set_clip_rectangle(self.bbox)
-            gc.set_clip_path(mtransforms.TransformedPath(
-                self.patch.get_path(),
-                self.patch.get_transform()))
-
-            renderer.draw_image(gc, round(l), round(b), im)
-            gc.restore()
-
         if dsu_rasterized:
             for zorder, a in dsu_rasterized:
                 a.draw(renderer)
             renderer.stop_rasterizing()
 
-        for zorder, a in dsu:
-            a.draw(renderer)
+        mimage._draw_list_compositing_images(renderer, self, dsu)
 
         renderer.close_group('axes')
         self._cachedRenderer = renderer
@@ -2709,7 +2672,7 @@ class _AxesBase(martist.Artist):
     @cbook.deprecated('2.0', alternative='get_facecolor')
     def get_axis_bgcolor(self):
         """Return the axis background color"""
-        return self._axisbg
+        return self.get_facecolor()
 
     @cbook.deprecated('2.0', alternative='set_facecolor')
     def set_axis_bgcolor(self, color):
@@ -2719,12 +2682,7 @@ class _AxesBase(martist.Artist):
         ACCEPTS: any matplotlib color - see
         :func:`~matplotlib.pyplot.colors`
         """
-        warnings.warn(
-            "set_axis_bgcolor is deprecated.  Use set_facecolor instead.",
-            cbook.mplDeprecation)
-        self._axisbg = color
-        self.patch.set_facecolor(color)
-        self.stale = True
+        return self.set_facecolor(color)
     # data limits, ticks, tick labels, and formatting
 
     def invert_xaxis(self):

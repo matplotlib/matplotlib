@@ -3146,16 +3146,16 @@ class Axes(_AxesBase):
            If True produces boxes with the Patch artist
 
         showmeans : bool, default = False
-           If True, will toggle one the rendering of the means
+           If True, will toggle on the rendering of the means
 
         showcaps : bool, default = True
-           If True, will toggle one the rendering of the caps
+           If True, will toggle on the rendering of the caps
 
         showbox : bool, default = True
-           If True, will toggle one the rendering of box
+           If True, will toggle on the rendering of the box
 
         showfliers : bool, default = True
-           If True, will toggle one the rendering of the fliers
+           If True, will toggle on the rendering of the fliers
 
         boxprops : dict or None (default)
            If provided, will set the plotting style of the boxes
@@ -3411,16 +3411,16 @@ class Axes(_AxesBase):
           If `True`, will produce a notched box plot
 
         showmeans : bool, default = False
-          If `True`, will toggle one the rendering of the means
+          If `True`, will toggle on the rendering of the means
 
         showcaps  : bool, default = True
-          If `True`, will toggle one the rendering of the caps
+          If `True`, will toggle on the rendering of the caps
 
         showbox  : bool, default = True
-          If `True`, will toggle one the rendering of box
+          If `True`, will toggle on the rendering of the box
 
         showfliers : bool, default = True
-          If `True`, will toggle one the rendering of the fliers
+          If `True`, will toggle on the rendering of the fliers
 
         boxprops : dict or None (default)
           If provided, will set the plotting style of the boxes

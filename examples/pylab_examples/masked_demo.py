@@ -15,7 +15,7 @@ y2 = np.sin(3*x)
 ym1 = np.ma.masked_where(y1 > 0.5, y1)
 ym2 = np.ma.masked_where(y2 < -0.5, y2)
 
-lines = plt.plot(x, y, 'r', x, ym1, 'g', x, ym2, 'bo')
+lines = plt.plot(x, y, x, ym1, x, ym2, 'o')
 plt.setp(lines[0], linewidth=4)
 plt.setp(lines[1], linewidth=2)
 plt.setp(lines[2], markersize=10)

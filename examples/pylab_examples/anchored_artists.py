@@ -27,7 +27,7 @@ class AnchoredSizeBar(AnchoredOffsetbox):
         sep in points.
         """
         self.size_bar = AuxTransformBox(transform)
-        self.size_bar.add_artist(Rectangle((0, 0), size, 0, fc="none"))
+        self.size_bar.add_artist(Rectangle((0, 0), size, 0, fc="none", lw=1.0))
 
         self.txt_label = TextArea(label, minimumdescent=False)
 

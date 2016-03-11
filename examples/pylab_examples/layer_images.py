@@ -36,7 +36,7 @@ plt.hold(True)
 
 Z2 = func3(X, Y)
 
-im2 = plt.imshow(Z2, cmap=plt.cm.jet, alpha=.9, interpolation='bilinear',
+im2 = plt.imshow(Z2, cmap=plt.cm.viridis, alpha=.9, interpolation='bilinear',
                  extent=extent)
 
 plt.show()
