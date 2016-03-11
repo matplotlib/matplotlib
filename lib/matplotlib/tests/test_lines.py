@@ -118,6 +118,29 @@ def test_valid_linestyles():
         line.set_linestyle('aardvark')
 
 
+@cleanup
+def test_drawstyle_variants():
+    fig = plt.figure()
+    ax = fig.add_subplot(1, 1, 1)
+    for ds in ("default", "steps-mid", "steps-pre", "steps-post",
+               "steps"):
+        ax.plot(range(10), drawstyle=ds)
+
+    fig.canvas.draw()
+    assert True
+
+
+@cleanup
+def test_valid_drawstyles():
+    if sys.version_info[:2] < (2, 7):
+        raise nose.SkipTest("assert_raises as context manager "
+                            "not supported with Python < 2.7")
+
+    line = mlines.Line2D([], [])
+    with assert_raises(ValueError):
+        line.set_drawstyle('foobar')
+
+
 @image_comparison(baseline_images=['line_collection_dashes'], remove_text=True)
 def test_set_line_coll_dash_image():
     fig = plt.figure()
