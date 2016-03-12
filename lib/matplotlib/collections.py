@@ -151,7 +151,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
         except TypeError:
             if cbook.iterable(val) and len(val):
                 try:
-                    float(val[0])
+                    float(cbook.safe_first_element(val))
                 except (TypeError, ValueError):
                     pass  # raise below
                 else:
@@ -164,7 +164,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
         if not cbook.iterable(val):
             val = (val,)
         try:
-            bool(val[0])
+            bool(cbook.safe_first_element(val))
         except (TypeError, IndexError):
             raise TypeError('val must be a bool or nonzero sequence of them')
         return val
