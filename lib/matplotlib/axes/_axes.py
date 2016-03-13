@@ -1491,12 +1491,12 @@ class Axes(_AxesBase):
         if not self._hold:
             self.cla()
 
-        ret = self.plot(x, y, fmt, **kwargs)
-
         if xdate:
             self.xaxis_date(tz)
         if ydate:
             self.yaxis_date(tz)
+
+        ret = self.plot(x, y, fmt, **kwargs)
 
         self.autoscale_view()
 

@@ -11,6 +11,8 @@ from nose.plugins.skip import SkipTest
 
 import datetime
 
+import pytz
+
 import numpy as np
 from numpy import ma
 from numpy import arange
@@ -4213,6 +4215,7 @@ def test_pandas_indexing_hist():
     fig, axes = plt.subplots()
     axes.hist(ser_2)
 
+
 @cleanup
 def test_axis_set_tick_params_labelsize_labelcolor():
     # Tests fix for issue 4346
@@ -4224,6 +4227,58 @@ def test_axis_set_tick_params_labelsize_labelcolor():
     assert axis_1.yaxis.majorTicks[0]._color == 'k'
     assert axis_1.yaxis.majorTicks[0]._labelsize == 30.0
     assert axis_1.yaxis.majorTicks[0]._labelcolor == 'red'
+
+
+@image_comparison(baseline_images=['date_timezone_x'], extensions=['png'])
+def test_date_timezone_x():
+    # Tests issue 5575
+    time_index = [pytz.timezone('Canada/Eastern').localize(datetime.datetime(
+        year=2016, month=2, day=22, hour=x)) for x in range(3)]
+
+    # Same Timezone
+    fig = plt.figure(figsize=(20, 12))
+    plt.subplot(2, 1, 1)
+    plt.plot_date(time_index, [3] * 3, tz='Canada/Eastern')
+
+    # Different Timezone
+    plt.subplot(2, 1, 2)
+    plt.plot_date(time_index, [3] * 3, tz='UTC')
+
+
+@image_comparison(baseline_images=['date_timezone_y'],
+                  extensions=['png'])
+def test_date_timezone_y():
+    # Tests issue 5575
+    time_index = [pytz.timezone('Canada/Eastern').localize(datetime.datetime(
+        year=2016, month=2, day=22, hour=x)) for x in range(3)]
+
+    # Same Timezone
+    fig = plt.figure(figsize=(20, 12))
+    plt.subplot(2, 1, 1)
+    plt.plot_date([3] * 3,
+                  time_index, tz='Canada/Eastern', xdate=False, ydate=True)
+
+    # Different Timezone
+    plt.subplot(2, 1, 2)
+    plt.plot_date([3] * 3, time_index, tz='UTC', xdate=False, ydate=True)
+
+
+@image_comparison(baseline_images=['date_timezone_x_and_y'],
+                  extensions=['png'])
+def test_date_timezone_x_and_y():
+    # Tests issue 5575
+    time_index = [pytz.timezone('UTC').localize(datetime.datetime(
+        year=2016, month=2, day=22, hour=x)) for x in range(3)]
+
+    # Same Timezone
+    fig = plt.figure(figsize=(20, 12))
+    plt.subplot(2, 1, 1)
+    plt.plot_date(time_index, time_index, tz='UTC', ydate=True)
+
+    # Different Timezone
+    plt.subplot(2, 1, 2)
+    plt.plot_date(time_index, time_index, tz='US/Eastern', ydate=True)
+
 
 if __name__ == '__main__':
     import nose
