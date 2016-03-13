@@ -1760,8 +1760,8 @@ def delete_masked_points(*args):
     return margs
 
 
-def boxplot_stats(X, whis=1.5, autorange=False, bootstrap=None,
-                  labels=None):
+def boxplot_stats(X, whis=1.5, bootstrap=None, labels=None,
+                  autorange=False):
     """
     Returns list of dictionaries of statistics used to draw a series
     of box and whisker plots. The `Returns` section enumerates the
@@ -1774,6 +1774,7 @@ def boxplot_stats(X, whis=1.5, autorange=False, bootstrap=None,
     X : array-like
         Data that will be represented in the boxplots. Should have 2 or
         fewer dimensions.
+
     whis : float, string, or sequence (default = 1.5)
         As a float, determines the reach of the whiskers past the first
         and third quartiles (e.g., Q3 + whis*IQR, QR = interquartile
@@ -1785,17 +1786,20 @@ def boxplot_stats(X, whis=1.5, autorange=False, bootstrap=None,
         minimum and maximum of the data. In the edge case that the 25th
         and 75th percentiles are equivalent, `whis` can be automatically
         set to ``'range'`` via the `autorange` option.
+
+    bootstrap : int, optional
+        Number of times the confidence intervals around the median
+        should be bootstrapped (percentile method).
+
+    labels : array-like, optional
+        Labels for each dataset. Length must be compatible with
+        dimensions of `X`.
+
     autorange : bool, optional (False)
         When `True` and the data are distributed such that the  25th and
         75th percentiles are equal, ``whis`` is set to ``'range'`` such
         that the whisker ends are at the minimum and maximum of the
         data.
-    bootstrap : int, optional
-        Number of times the confidence intervals around the median
-        should be bootstrapped (percentile method).
-    labels : array-like, optional
-        Labels for each dataset. Length must be compatible with
-        dimensions of `X`.
 
     Returns
     -------
