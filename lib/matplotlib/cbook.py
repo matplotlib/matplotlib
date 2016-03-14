@@ -1760,39 +1760,46 @@ def delete_masked_points(*args):
     return margs
 
 
-def boxplot_stats(X, whis=1.5, bootstrap=None, labels=None):
-    '''
-    Returns list of dictionaries of staticists to be use to draw a series of
-    box and whisker plots. See the `Returns` section below to the required
-    keys of the dictionary. Users can skip this function and pass a user-
-    defined set of dictionaries to the new `axes.bxp` method instead of
-    relying on MPL to do the calcs.
+def boxplot_stats(X, whis=1.5, bootstrap=None, labels=None,
+                  autorange=False):
+    """
+    Returns list of dictionaries of statistics used to draw a series
+    of box and whisker plots. The `Returns` section enumerates the
+    required keys of the dictionary. Users can skip this function and
+    pass a user-defined set of dictionaries to the new `axes.bxp` method
+    instead of relying on MPL to do the calculations.
 
     Parameters
     ----------
     X : array-like
-        Data that will be represented in the boxplots. Should have 2 or fewer
-        dimensions.
+        Data that will be represented in the boxplots. Should have 2 or
+        fewer dimensions.
 
     whis : float, string, or sequence (default = 1.5)
-        As a float, determines the reach of the whiskers past the first and
-        third quartiles (e.g., Q3 + whis*IQR, QR = interquartile range, Q3-Q1).
-        Beyond the whiskers, data are considered outliers and are plotted as
-        individual points. Set this to an unreasonably high value to force the
-        whiskers to show the min and max data. Alternatively, set this to an
-        ascending sequence of percentile (e.g., [5, 95]) to set the whiskers
-        at specific percentiles of the data. Finally, can  `whis` be the
-        string 'range' to force the whiskers to the min and max of the data.
-        In the edge case that the 25th and 75th percentiles are equivalent,
-        `whis` will be automatically set to 'range'
+        As a float, determines the reach of the whiskers past the first
+        and third quartiles (e.g., Q3 + whis*IQR, QR = interquartile
+        range, Q3-Q1). Beyond the whiskers, data are considered outliers
+        and are plotted as individual points. This can be set this to an
+        ascending sequence of percentile (e.g., [5, 95]) to set the
+        whiskers at specific percentiles of the data. Finally, `whis`
+        can be the string ``'range'`` to force the whiskers to the
+        minimum and maximum of the data. In the edge case that the 25th
+        and 75th percentiles are equivalent, `whis` can be automatically
+        set to ``'range'`` via the `autorange` option.
 
-    bootstrap : int or None (default)
-        Number of times the confidence intervals around the median should
-        be bootstrapped (percentile method).
+    bootstrap : int, optional
+        Number of times the confidence intervals around the median
+        should be bootstrapped (percentile method).
 
-    labels : sequence
-        Labels for each dataset. Length must be compatible with dimensions
-        of `X`
+    labels : array-like, optional
+        Labels for each dataset. Length must be compatible with
+        dimensions of `X`.
+
+    autorange : bool, optional (False)
+        When `True` and the data are distributed such that the  25th and
+        75th percentiles are equal, ``whis`` is set to ``'range'`` such
+        that the whisker ends are at the minimum and maximum of the
+        data.
 
     Returns
     -------
@@ -1817,8 +1824,8 @@ def boxplot_stats(X, whis=1.5, bootstrap=None, labels=None):
 
     Notes
     -----
-    Non-bootstrapping approach to confidence interval uses Gaussian-based
-    asymptotic approximation:
+    Non-bootstrapping approach to confidence interval uses Gaussian-
+    based asymptotic approximation:
 
     .. math::
 
@@ -1828,7 +1835,7 @@ def boxplot_stats(X, whis=1.5, bootstrap=None, labels=None):
     McGill, R., Tukey, J.W., and Larsen, W.A. (1978) "Variations of
     Boxplots", The American Statistician, 32:12-16.
 
-    '''
+    """
 
     def _bootstrap_median(data, N=5000):
         # determine 95% confidence intervals of the median
@@ -1908,7 +1915,7 @@ def boxplot_stats(X, whis=1.5, bootstrap=None, labels=None):
 
         # interquartile range
         stats['iqr'] = q3 - q1
-        if stats['iqr'] == 0:
+        if stats['iqr'] == 0 and autorange:
             whis = 'range'
 
         # conf. interval around median

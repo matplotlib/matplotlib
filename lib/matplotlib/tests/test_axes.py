@@ -1787,14 +1787,22 @@ def test_boxplot_sym():
     ax.set_ylim((-30, 30))
 
 
-@image_comparison(baseline_images=['boxplot_autorange_whiskers'])
+@image_comparison(
+    baseline_images=['boxplot_autorange_false_whiskers',
+                     'boxplot_autorange_true_whiskers'],
+    extensions=['png'],
+)
 def test_boxplot_autorange_whiskers():
     x = np.ones(140)
     x = np.hstack([0, x, 2])
-    fig, ax = plt.subplots()
-
-    ax.boxplot([x, x], bootstrap=10000, notch=1)
-    ax.set_ylim((-5, 5))
+    
+    fig1, ax1 = plt.subplots()
+    ax1.boxplot([x, x], bootstrap=10000, notch=1)
+    ax1.set_ylim((-5, 5))
+    
+    fig2, ax2 = plt.subplots()
+    ax2.boxplot([x, x], bootstrap=10000, notch=1, autorange=True)
+    ax2.set_ylim((-5, 5))
 
 def _rc_test_bxp_helper(ax, rc_dict):
     x = np.linspace(-7, 7, 140)
