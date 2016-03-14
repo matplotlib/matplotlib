@@ -123,7 +123,7 @@ def test_drawstyle_variants():
     fig = plt.figure()
     ax = fig.add_subplot(1, 1, 1)
     for ds in ("default", "steps-mid", "steps-pre", "steps-post",
-               "steps"):
+               "steps", None):
         ax.plot(range(10), drawstyle=ds)
 
     fig.canvas.draw()
