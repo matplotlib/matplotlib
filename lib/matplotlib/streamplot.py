@@ -54,15 +54,15 @@ def streamplot(axes, x, y, u, v, density=1, linewidth=None, color=None,
         See :class:`~matplotlib.patches.FancyArrowPatch`.
     *minlength* : float
         Minimum length of streamline in axes coordinates.
-    *maxlength* : float
-        Maximum length of streamline in axes coordinates.
     *start_points*: Nx2 array
         Coordinates of starting points for the streamlines.
         In data coordinates, the same as the ``x`` and ``y`` arrays.
-    *integration_direction* : ['foward','backward','both']
-        Integrate the streamline in forward, backward or both directions.
     *zorder* : int
         any number
+    *maxlength* : float
+        Maximum length of streamline in axes coordinates.
+    *integration_direction* : ['foward','backward','both']
+        Integrate the streamline in forward, backward or both directions.
 
     Returns:
 
