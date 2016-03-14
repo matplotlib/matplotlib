@@ -25,7 +25,6 @@ from matplotlib.testing.decorators import image_comparison, cleanup
 import matplotlib.pyplot as plt
 import matplotlib.markers as mmarkers
 from numpy.testing import assert_array_equal
-import warnings
 from matplotlib.cbook import IgnoredKeywordWarning
 
 import sys
@@ -35,6 +34,7 @@ on_win = (sys.platform == 'win32')
 #       These two must be defined in the same test function or need to have
 #       different baseline images to prevent race conditions when nose runs
 #       the tests with multiple threads.
+
 
 @image_comparison(baseline_images=['formatter_ticker_001',
                                    'formatter_ticker_002',
@@ -141,6 +141,52 @@ def test_twinx_cla():
     assert_true(ax.xaxis.get_visible())
     assert_true(ax.patch.get_visible())
     assert_true(ax.yaxis.get_visible())
+
+
+@cleanup
+def test_inverted_cla():
+    # Github PR #5450. Setting autoscale should reset
+    # axes to be non-inverted.
+    # plotting an image, then 1d graph, axis is now down
+    fig = plt.figure(0)
+    ax = fig.gca()
+    # 1. test that a new axis is not inverted per default
+    assert not(ax.xaxis_inverted())
+    assert not(ax.yaxis_inverted())
+    img = np.random.random((100, 100))
+    ax.imshow(img)
+    # 2. test that a image axis is inverted
+    assert not(ax.xaxis_inverted())
+    assert ax.yaxis_inverted()
+    # 3. test that clearing and plotting a line, axes are
+    # not inverted
+    ax.cla()
+    x = np.linspace(0, 2*np.pi, 100)
+    ax.plot(x, np.cos(x))
+    assert not(ax.xaxis_inverted())
+    assert not(ax.yaxis_inverted())
+
+    # 4. autoscaling should not bring back axes to normal
+    ax.cla()
+    ax.imshow(img)
+    plt.autoscale()
+    assert not(ax.xaxis_inverted())
+    assert ax.yaxis_inverted()
+
+    # 5. two shared axes. Clearing the master axis should bring axes in shared
+    # axies back to normal
+    ax0 = plt.subplot(211)
+    ax1 = plt.subplot(212, sharey=ax0)
+    ax0.imshow(img)
+    ax1.plot(x, np.cos(x))
+    ax0.cla()
+    assert not(ax1.yaxis_inverted())
+    ax1.cla()
+    # 6. clearing the nonmaster should not touch limits
+    ax0.imshow(img)
+    ax1.plot(x, np.cos(x))
+    ax1.cla()
+    assert ax.yaxis_inverted()
 
 
 @image_comparison(baseline_images=["minorticks_on_rcParams_both"], extensions=['png'])
@@ -308,7 +354,7 @@ def test_single_point():
     plt.plot('a', 'a', 'o', data=data)
 
     plt.subplot(212)
-    plt.plot('b','b', 'o', data=data)
+    plt.plot('b', 'b', 'o', data=data)
 
 
 @image_comparison(baseline_images=['single_date'])
@@ -527,11 +573,12 @@ def test_hexbin_extent():
 
 
 @image_comparison(baseline_images=['hexbin_empty'], remove_text=True,
-	extensions=['png'])
+                  extensions=['png'])
 def test_hexbin_empty():
     # From #3886: creating hexbin from empty dataset raises ValueError
     ax = plt.gca()
     ax.hexbin([], [])
+
 
 @cleanup
 def test_hexbin_pickable():
@@ -623,7 +670,7 @@ def test_imshow():
     ax.imshow(r)
 
     # Reuse testcase from above for a labeled data test
-    data={"r": r}
+    data = {"r": r}
     fig = plt.figure()
     ax = fig.add_subplot(111)
     ax.imshow("r", data=data)
@@ -1114,18 +1161,20 @@ def test_hist_log():
 
 
 @image_comparison(baseline_images=['hist_bar_empty'], remove_text=True,
-	extensions=['png'])
+                  extensions=['png'])
 def test_hist_bar_empty():
     # From #3886: creating hist from empty dataset raises ValueError
     ax = plt.gca()
     ax.hist([], histtype='bar')
 
+
 @image_comparison(baseline_images=['hist_step_empty'], remove_text=True,
-	extensions=['png'])
+                  extensions=['png'])
 def test_hist_step_empty():
     # From #3886: creating hist from empty dataset raises ValueError
     ax = plt.gca()
     ax.hist([], histtype='step')
+
 
 @image_comparison(baseline_images=['hist_steplog'], remove_text=True, tol=0.05)
 def test_hist_steplog():
@@ -1356,7 +1405,7 @@ def test_stackplot():
     ax.set_ylim((0, 70))
 
     # Reuse testcase from above for a labeled data test
-    data={"x": x, "y1": y1, "y2": y2, "y3": y3}
+    data = {"x": x, "y1": y1, "y2": y2, "y3": y3}
     fig = plt.figure()
     ax = fig.add_subplot(1, 1, 1)
     ax.stackplot("x", "y1", "y2", "y3", data=data)
@@ -1755,7 +1804,7 @@ def test_boxplot():
     ax.set_ylim((-30, 30))
 
     # Reuse testcase from above for a labeled data test
-    data={"x": [x, x]}
+    data = {"x": [x, x]}
     fig, ax = plt.subplots()
     ax.boxplot("x", bootstrap=10000, notch=1, data=data)
     ax.set_ylim((-30, 30))
@@ -1804,6 +1853,7 @@ def test_boxplot_autorange_whiskers():
     ax2.boxplot([x, x], bootstrap=10000, notch=1, autorange=True)
     ax2.set_ylim((-5, 5))
 
+
 def _rc_test_bxp_helper(ax, rc_dict):
     x = np.linspace(-7, 7, 140)
     x = np.hstack([-25, x, 25])
@@ -1811,13 +1861,14 @@ def _rc_test_bxp_helper(ax, rc_dict):
         ax.boxplot([x, x])
     return ax
 
+
 @image_comparison(baseline_images=['boxplot_rc_parameters'],
                   savefig_kwarg={'dpi': 100}, remove_text=True, tol=1)
 def test_boxplot_rc_parameters():
     fig, ax = plt.subplots(3)
 
     rc_axis0 = {
-        'boxplot.notch':True,
+        'boxplot.notch': True,
         'boxplot.whiskers': [5, 95],
         'boxplot.bootstrap': 10000,
 
@@ -2187,7 +2238,6 @@ def test_errorbar():
 
     fig.suptitle('Variable errorbars')
 
-
     # Reuse te first testcase from above for a labeled data test
     data = {"x": x, "y": y}
     fig = plt.figure()
@@ -2434,10 +2484,11 @@ def test_rgba_markers():
         for j, rcolor in enumerate(rcolors):
             for k, bcolor in enumerate(bcolors):
                 axs[i].plot(j+1, k+1, 'o', mfc=bcolor, mec=rcolor,
-                           alpha=alpha, **kw)
+                            alpha=alpha, **kw)
                 axs[i].plot(j+1, k+3, 'x', mec=rcolor, alpha=alpha, **kw)
     for ax in axs:
         ax.axis([-1, 4, 0, 5])
+
 
 @image_comparison(baseline_images=['mollweide_grid'], remove_text=True)
 def test_mollweide_grid():
@@ -3800,8 +3851,8 @@ def test_pie_linewidth_0():
     fig = plt.figure()
     ax = fig.gca()
     ax.pie("s", explode="ex", labels="l", colors="c",
-            autopct='%1.1f%%', shadow=True, startangle=90,
-            wedgeprops={'linewidth': 0}, data=data)
+           autopct='%1.1f%%', shadow=True, startangle=90,
+           wedgeprops={'linewidth': 0}, data=data)
     ax.axis('equal')
 
     # And again to test the pyplot functions which should also be able to be
@@ -3819,13 +3870,13 @@ def test_pie_center_radius():
     labels = 'Frogs', 'Hogs', 'Dogs', 'Logs'
     sizes = [15, 30, 45, 10]
     colors = ['yellowgreen', 'gold', 'lightskyblue', 'lightcoral']
-    explode = (0, 0.1, 0, 0) # only "explode" the 2nd slice (i.e. 'Hogs')
+    explode = (0, 0.1, 0, 0)  # only "explode" the 2nd slice (i.e. 'Hogs')
 
     plt.pie(sizes, explode=explode, labels=labels, colors=colors,
             autopct='%1.1f%%', shadow=True, startangle=90,
-            wedgeprops={'linewidth': 0}, center=(1,2), radius=1.5)
+            wedgeprops={'linewidth': 0}, center=(1, 2), radius=1.5)
 
-    plt.annotate("Center point", xy=(1,2), xytext=(1,1.5),
+    plt.annotate("Center point", xy=(1, 2), xytext=(1, 1.5),
                  arrowprops=dict(arrowstyle="->",
                                  connectionstyle="arc3"))
     # Set aspect ratio to be equal so that pie is drawn as a circle.
@@ -3907,8 +3958,8 @@ def test_set_get_ticklabels():
 
     # set ticklabel to the other plot, expect the 2 plots have same label setting
     # pass get_ticklabels return value as ticklabels argument
-    ax[1].set_xticklabels(ax[0].get_xticklabels() )
-    ax[1].set_yticklabels(ax[0].get_yticklabels() )
+    ax[1].set_xticklabels(ax[0].get_xticklabels())
+    ax[1].set_yticklabels(ax[0].get_yticklabels())
 
 
 @image_comparison(baseline_images=['o_marker_path_snap'], extensions=['png'],
@@ -3968,7 +4019,7 @@ def test_pathological_hexbin():
 def test_color_None():
     # issue 3855
     fig, ax = plt.subplots()
-    ax.plot([1,2], [1,2], color=None)
+    ax.plot([1, 2], [1, 2], color=None)
 
 
 @cleanup
@@ -4011,13 +4062,13 @@ def test_move_offsetlabel():
 
 
 @image_comparison(baseline_images=['rc_spines'], extensions=['png'],
-                  savefig_kwarg={'dpi':40})
+                  savefig_kwarg={'dpi': 40})
 def test_rc_spines():
     rc_dict = {
-        'axes.spines.left':False,
-        'axes.spines.right':False,
-        'axes.spines.top':False,
-        'axes.spines.bottom':False}
+        'axes.spines.left': False,
+        'axes.spines.right': False,
+        'axes.spines.top': False,
+        'axes.spines.bottom': False}
     with matplotlib.rc_context(rc_dict):
         fig, ax = plt.subplots()
 
