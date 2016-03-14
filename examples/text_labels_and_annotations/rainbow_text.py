@@ -41,14 +41,14 @@ def rainbow_text(x, y, strings, colors, ax=None, **kw):
 
     # horizontal version
     for s, c in zip(strings, colors):
-        text = ax.text(x, y, " " + s + " ", color=c, transform=t, **kw)
+        text = ax.text(x, y, s + " ", color=c, transform=t, **kw)
         text.draw(canvas.get_renderer())
         ex = text.get_window_extent()
         t = transforms.offset_copy(text._transform, x=ex.width, units='dots')
 
     # vertical version
     for s, c in zip(strings, colors):
-        text = ax.text(x, y, " " + s + " ", color=c, transform=t,
+        text = ax.text(x, y, s + " ", color=c, transform=t,
                        rotation=90, va='bottom', ha='center', **kw)
         text.draw(canvas.get_renderer())
         ex = text.get_window_extent()
@@ -57,6 +57,6 @@ def rainbow_text(x, y, strings, colors, ax=None, **kw):
 
 rainbow_text(0, 0, "all unicorns poop rainbows ! ! !".split(),
              ['red', 'cyan', 'brown', 'green', 'blue', 'purple', 'black'],
-             size=18)
+             size=16)
 
 plt.show()
