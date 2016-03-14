@@ -22,8 +22,8 @@ __all__ = ['streamplot']
 
 def streamplot(axes, x, y, u, v, density=1, linewidth=None, color=None,
                cmap=None, norm=None, arrowsize=1, arrowstyle='-|>',
-               minlength=0.1, maxlength=4.0, transform=None, zorder=None,
-               start_points=None, integration_direction='both'):
+               minlength=0.1, transform=None, zorder=None, start_points=None,
+               maxlength=4.0, integration_direction='both'):
     """Draws streamlines of a vector flow.
 
     *x*, *y* : 1d arrays
@@ -101,8 +101,8 @@ def streamplot(axes, x, y, u, v, density=1, linewidth=None, color=None,
     arrow_kw = dict(arrowstyle=arrowstyle, mutation_scale=10 * arrowsize)
 
     if integration_direction not in ['both', 'forward', 'backward']:
-        errstr = "Integration direction " \
-                 "'%s' not recognised." % integration_direction
+        errstr = ("Integration direction '%s' not recognised." %
+          integration_direction)
         errstr += "Expected 'both', 'forward' or 'backward'."
         raise ValueError(errstr)
 
