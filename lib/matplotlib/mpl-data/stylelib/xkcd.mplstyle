@@ -1,0 +1,37 @@
+###LINES
+
+lines.linewidth    : 2.0
+
+
+###FONT
+
+font.family        : Humor Sans, Comic Sans MS
+font.size          : 14.0
+
+##AXES
+
+axes.linewidth     : 1.5
+axes.grid          : False
+axes.unicode_minus : False
+axes.edgecolor     : black
+
+##PATH
+
+path.sketch        : (scale, length, randomness)
+
+
+##FIGURE
+
+figure.facecolor   : white
+
+##GRID
+
+grid.linewidth     : 0.0
+
+##XTICK 
+xtick.major.size   : 8
+xtick.major.width  : 3
+
+#YTICK
+ytick.major.size   : 8
+ytick.major.width  : 3 
