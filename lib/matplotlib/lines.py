@@ -986,6 +986,8 @@ class Line2D(Artist):
         ACCEPTS: ['default' | 'steps' | 'steps-pre' | 'steps-mid' |
                   'steps-post']
         """
+        if drawstyle is None:
+            drawstyle = 'default'
         if drawstyle not in self.drawStyles:
             raise ValueError('Unrecognized drawstyle ' +
                              ' '.join(self.drawStyleKeys))
