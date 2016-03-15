@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
@@ -7,8 +8,12 @@ from distutils.version import LooseVersion as V
 
 from nose.tools import assert_raises, assert_equal, assert_true
 
+=======
+from __future__ import print_function
+from nose.tools import assert_raises
+>>>>>>> eca57fe3786849346359bd568a4a063d4bd87b18
 import numpy as np
-from numpy.testing.utils import assert_array_equal, assert_array_almost_equal
+from numpy.testing.utils import assert_array_equal, assert_array_almost_equal, assert_equal
 
 import matplotlib.colors as mcolors
 import matplotlib.cm as cm
@@ -561,6 +566,35 @@ def _azimuth2math(azimuth, elevation):
     theta = np.radians((90 - azimuth) % 360)
     phi = np.radians(90 - elevation)
     return theta, phi
+
+
+def _shade_test_helper(color, shade, expected):
+    sc = mcolors.shade_color(color, shade)
+    assert_equal(sc, expected)
+
+
+def test_color_shading():
+    test_colors = (
+        'red',
+        'red',
+        'red',
+        'red',
+        'red',
+        [0, .5, .9],
+        'slategrey',
+    )
+    test_shade = (0, 50, 100, -50, -100, 20, -20)
+    known_shaded_result = (
+        (1.0, 0.0, 0.0),
+        (1.0, 0.5, 0.5),
+        (1.0, 1.0, 1.0),
+        (0.5, 0.0, 0.0),
+        (0.0, 0.0, 0.0),
+        (0.080000000000000071, 0.59111111111111092, 1.0),
+        (0.35097730430754981, 0.40156862745098038, 0.45215995059441105)
+    )
+    for color, shade, expected in zip(test_colors, test_shade, known_shaded_result):
+        _shade_test_helper(color, shade, expected)
 
 
 if __name__ == '__main__':
