@@ -171,22 +171,22 @@ def auto_adjust_subplotpars(fig, renderer,
     if not margin_left:
         margin_left = max([sum(s) for s in hspaces[::cols + 1]] + [0])
         margin_left += pad_inches / fig_width_inch
-        margin_left = 0.5 if margin_left > 0.5 else margin_left
+        margin_left = min(0.5, margin_left)
 
     if not margin_right:
         margin_right = max([sum(s) for s in hspaces[cols::cols + 1]] + [0])
         margin_right += pad_inches / fig_width_inch
-        margin_right = 0.499 if margin_right > 0.5 else margin_right
+        margin_right = min(0.499, margin_right)
 
     if not margin_top:
         margin_top = max([sum(s) for s in vspaces[:cols]] + [0])
         margin_top += pad_inches / fig_height_inch
-        margin_top = 0.499 if margin_top > 0.5 else margin_top
+        margin_top = min(0.499, margin_top)
 
     if not margin_bottom:
         margin_bottom = max([sum(s) for s in vspaces[-cols:]] + [0])
         margin_bottom += pad_inches / fig_height_inch
-        margin_bottom = 0.5 if margin_bottom > 0.5 else margin_bottom
+        margin_bottom = min(0.5, margin_bottom)
 
     kwargs = dict(left=margin_left,
                   right=1 - margin_right,
