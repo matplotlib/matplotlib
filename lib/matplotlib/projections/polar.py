@@ -171,7 +171,7 @@ class ThetaFormatter(Formatter):
     Used to format the *theta* tick labels.  Converts the native
     unit of radians into degrees and adds a degree symbol.
     """
-    def __call__(self, x, pos=None):
+    def format_for_tick(self, x, pos=None):
         # \u00b0 : degree symbol
         if rcParams['text.usetex'] and not rcParams['text.latex.unicode']:
             return r"$%0.0f^\circ$" % ((x / np.pi) * 180.0)

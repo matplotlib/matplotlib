@@ -61,17 +61,17 @@ class Colorbar(mcolorbar.Colorbar):
                                       linewidth=0.01,
                                       zorder=-1)
         ax.add_artist(self.patch)
-        ticks, ticklabels, offset_string = self._ticker()
+        ticks, ticklabels, offset_text = self._ticker()
 
         if self.orientation == 'vertical':
             ax.set_yticks(ticks)
             ax.set_yticklabels(ticklabels)
-            ax.yaxis.get_major_formatter().set_offset_string(offset_string)
+            ax.yaxis.get_major_formatter().offset_text = offset_text
 
         else:
             ax.set_xticks(ticks)
             ax.set_xticklabels(ticklabels)
-            ax.xaxis.get_major_formatter().set_offset_string(offset_string)
+            ax.xaxis.get_major_formatter().offset_text = offset_text
 
 
 class CbarAxesBase(object):

@@ -70,9 +70,8 @@ class MercatorLatitudeScale(mscale.ScaleBase):
         value::
         """
         class DegreeFormatter(Formatter):
-            def __call__(self, x, pos=None):
-                # \u00b0 : degree symbol
-                return "%d\u00b0" % (np.degrees(x))
+            def format_for_tick(self, x, pos=None):
+                return "%d\N{DEGREE SIGN}" % (np.degrees(x))
 
         axis.set_major_locator(FixedLocator(
             np.radians(np.arange(-90, 90, 10))))

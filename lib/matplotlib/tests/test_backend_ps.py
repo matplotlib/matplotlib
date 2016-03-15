@@ -13,6 +13,8 @@ import matplotlib.pyplot as plt
 from matplotlib import patheffects
 from matplotlib.testing.decorators import cleanup, knownfailureif
 
+from nose.tools import assert_equal
+
 
 needs_ghostscript = knownfailureif(
     matplotlib.checkdep_ghostscript()[0] is None,
@@ -51,8 +53,8 @@ def _test_savefig_to_stringio(format='ps', use_log=False):
     # could change from run to run, such as the time.
     values = [re.sub(b'%%.*?\n', b'', x) for x in values]
 
-    assert values[0] == values[1]
-    assert values[1] == values[2].replace(b'\r\n', b'\n')
+    assert_equal(values[0], values[1])
+    assert_equal(values[1], values[2].replace(b'\r\n', b'\n'))
     for buffer in buffers:
         buffer.close()
 
@@ -114,13 +116,13 @@ def test_composite_image():
         fig.savefig(ps, format="ps")
         ps.seek(0)
         buff = ps.read()
-        assert buff.count(six.b(' colorimage')) == 1
+        assert_equal(buff.count(six.b(' colorimage')), 1)
     plt.rcParams['image.composite_image'] = False
     with io.BytesIO() as ps:
         fig.savefig(ps, format="ps")
         ps.seek(0)
         buff = ps.read()
-        assert buff.count(six.b(' colorimage')) == 2
+        assert_equal(buff.count(six.b(' colorimage')), 2)
 
 
 @cleanup

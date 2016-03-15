@@ -370,16 +370,16 @@ class ColorbarBase(cm.ScalarMappable):
         called whenever the tick locator and/or tick formatter changes.
         """
         ax = self.ax
-        ticks, ticklabels, offset_string = self._ticker()
+        ticks, ticklabels, offset_text = self._ticker()
         if self.orientation == 'vertical':
             ax.yaxis.set_ticks(ticks)
             ax.set_yticklabels(ticklabels)
-            ax.yaxis.get_major_formatter().set_offset_string(offset_string)
+            ax.yaxis.get_major_formatter().offset_text = offset_text
 
         else:
             ax.xaxis.set_ticks(ticks)
             ax.set_xticklabels(ticklabels)
-            ax.xaxis.get_major_formatter().set_offset_string(offset_string)
+            ax.xaxis.get_major_formatter().offset_text = offset_text
 
     def set_ticks(self, ticks, update_ticks=True):
         """
@@ -584,12 +584,12 @@ class ColorbarBase(cm.ScalarMappable):
             intv = self._values[0], self._values[-1]
         else:
             intv = self.vmin, self.vmax
-        locator.create_dummy_axis(minpos=intv[0])
-        formatter.create_dummy_axis(minpos=intv[0])
-        locator.set_view_interval(*intv)
-        locator.set_data_interval(*intv)
-        formatter.set_view_interval(*intv)
-        formatter.set_data_interval(*intv)
+        locator.set_axis({"minpos": intv[0]})
+        formatter.set_axis({"minpos": intv[0]})
+        locator.axis.set_view_interval(*intv)
+        locator.axis.set_data_interval(*intv)
+        formatter.axis.set_view_interval(*intv)
+        formatter.axis.set_data_interval(*intv)
 
         b = np.array(locator())
         if isinstance(locator, ticker.LogLocator):
@@ -599,10 +599,9 @@ class ColorbarBase(cm.ScalarMappable):
             eps = (intv[1] - intv[0]) * 1e-10
             b = b[(b <= intv[1] + eps) & (b >= intv[0] - eps)]
         ticks = self._locate(b)
-        formatter.set_locs(b)
-        ticklabels = [formatter(t, i) for i, t in enumerate(b)]
-        offset_string = formatter.get_offset()
-        return ticks, ticklabels, offset_string
+        formatter.locs = b
+        ticklabels = [formatter.format_for_tick(t, i) for i, t in enumerate(b)]
+        return ticks, ticklabels, formatter.offset_text
 
     def _process_values(self, b=None):
         '''

@@ -22,10 +22,11 @@ r = csv2rec(datafile)[-40:]
 
 class MyFormatter(Formatter):
     def __init__(self, dates, fmt='%Y-%m-%d'):
+        super(MyFormatter, self).__init__()
         self.dates = dates
         self.fmt = fmt
 
-    def __call__(self, x, pos=0):
+    def format_for_tick(self, x, pos=0):
         'Return the label for time x at position pos'
         ind = int(round(x))
         if ind >= len(self.dates) or ind < 0:

@@ -903,14 +903,14 @@ class Axis(artist.Artist):
         """
         majorLocs = self.major.locator()
         majorTicks = self.get_major_ticks(len(majorLocs))
-        self.major.formatter.set_locs(majorLocs)
-        majorLabels = [self.major.formatter(val, i)
+        self.major.formatter.locs = majorLocs
+        majorLabels = [self.major.formatter.format_for_tick(val, i)
                        for i, val in enumerate(majorLocs)]
 
         minorLocs = self.minor.locator()
         minorTicks = self.get_minor_ticks(len(minorLocs))
-        self.minor.formatter.set_locs(minorLocs)
-        minorLabels = [self.minor.formatter(val, i)
+        self.minor.formatter.locs = minorLocs
+        minorLabels = [self.minor.formatter.format_for_tick(val, i)
                        for i, val in enumerate(minorLocs)]
 
         major_minor = [
@@ -1089,7 +1089,7 @@ class Axis(artist.Artist):
         self._update_label_position(ticklabelBoxes, ticklabelBoxes2)
 
         self._update_offset_text_position(ticklabelBoxes, ticklabelBoxes2)
-        self.offsetText.set_text(self.major.formatter.get_offset())
+        self.offsetText.set_text(self.major.formatter.offset_text)
 
         bb = []
 
@@ -1142,7 +1142,7 @@ class Axis(artist.Artist):
         self.label.draw(renderer)
 
         self._update_offset_text_position(ticklabelBoxes, ticklabelBoxes2)
-        self.offsetText.set_text(self.major.formatter.get_offset())
+        self.offsetText.set_text(self.major.formatter.offset_text)
         self.offsetText.draw(renderer)
 
         if 0:  # draw the bounding boxes around the text for debug

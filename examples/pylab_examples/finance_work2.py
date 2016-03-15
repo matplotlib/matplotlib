@@ -186,7 +186,7 @@ for ax in ax1, ax2, ax2t, ax3:
             label.set_rotation(30)
             label.set_horizontalalignment('right')
 
-    ax.fmt_xdata = mdates.DateFormatter('%Y-%m-%d')
+    ax.format_xdata = mdates.DateFormatter('%Y-%m-%d').format_for_cursor
 
 
 class MyLocator(mticker.MaxNLocator):
