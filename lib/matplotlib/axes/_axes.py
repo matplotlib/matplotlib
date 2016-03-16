@@ -2723,7 +2723,7 @@ class Axes(_AxesBase):
 
     @_preprocess_data()
     def stem(self, *args, linefmt=None, markerfmt=None, basefmt=None, bottom=0,
-             label=None, use_line_collection=True):
+             label=None, use_line_collection=True, vertical=False):
         """
         Create a stem plot.
 
@@ -2773,6 +2773,9 @@ class Axes(_AxesBase):
 
         basefmt : str, default: 'C3-' ('C2-' in classic mode)
             A format string defining the properties of the baseline.
+
+        vertical : bool, optional (False)
+            If 'True', will produce a vertically-oriented stem plot.
 
         bottom : float, default: 0
             The y-position of the baseline.
@@ -2862,9 +2865,16 @@ class Axes(_AxesBase):
         else:
             basestyle, basemarker, basecolor = _process_plot_format(basefmt)
 
+        # Check if the user wants a vertical stem plot
+        if vertical:
+            x, y = y, x
+
         # New behaviour in 3.1 is to use a LineCollection for the stemlines
         if use_line_collection:
-            stemlines = [((xi, bottom), (xi, yi)) for xi, yi in zip(x, y)]
+            if vertical:
+                stemlines = [((bottom, yi), (xi, yi)) for xi, yi in zip(x, y)]
+            else:
+                stemlines = [((xi, bottom), (xi, yi)) for xi, yi in zip(x, y)]
             if linestyle is None:
                 linestyle = rcParams['lines.linestyle']
             stemlines = mcoll.LineCollection(stemlines, linestyles=linestyle,
@@ -2875,17 +2885,27 @@ class Axes(_AxesBase):
         else:
             stemlines = []
             for xi, yi in zip(x, y):
-                l, = self.plot([xi, xi], [bottom, yi],
+                if vertical:
+                    xs = [bottom, xi]
+                    ys = [yi, yi]
+                else:
+                    xs = [xi, xi]
+                    ys = [bottom, yi]
+                l, = self.plot(xs, ys,
                                color=linecolor, linestyle=linestyle,
                                marker=linemarker, label="_nolegend_")
                 stemlines.append(l)
 
         markerline, = self.plot(x, y, color=markercolor, linestyle=markerstyle,
                                 marker=markermarker, label="_nolegend_")
-
-        baseline, = self.plot([np.min(x), np.max(x)], [bottom, bottom],
-                              color=basecolor, linestyle=basestyle,
-                              marker=basemarker, label="_nolegend_")
+        if vertical:
+            baseline, = self.plot([bottom, bottom], [np.min(x), np.max(x)],
+                                  color=basecolor, linestyle=basestyle,
+                                  marker=basemarker, label="_nolegend_")
+        else:
+            baseline, = self.plot([np.min(x), np.max(x)], [bottom, bottom],
+                                  color=basecolor, linestyle=basestyle,
+                                  marker=basemarker, label="_nolegend_")
 
         stem_container = StemContainer((markerline, stemlines, baseline),
                                        label=label)
