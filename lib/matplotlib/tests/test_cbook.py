@@ -48,6 +48,14 @@ def test_is_sequence_of_strings():
     assert cbook.is_sequence_of_strings(y)
 
 
+def test_is_hashable():
+    s = 'string'
+    assert cbook.is_hashable(s)
+
+    lst = ['list', 'of', 'stings']
+    assert not cbook.is_hashable(lst)
+
+
 def test_restrict_dict():
     d = {'foo': 'bar', 1: 2}
     d1 = cbook.restrict_dict(d, ['foo', 1])
