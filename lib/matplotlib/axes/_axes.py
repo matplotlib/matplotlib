@@ -2367,10 +2367,13 @@ class Axes(_AxesBase):
           stem(y, linefmt='b-', markerfmt='bo', basefmt='r-')
           stem(x, y, linefmt='b-', markerfmt='bo', basefmt='r-')
 
-        A stem plot plots vertical lines (using *linefmt*) at each *x*
+        A stem plot, by default, plots vertical lines (using *linefmt*) at each *x*
         location from the baseline to *y*, and places a marker there
         using *markerfmt*.  A horizontal line at 0 is is plotted using
         *basefmt*.
+
+        It is possible to create a vertically-oriented stem plot
+        by providing vertical=True.
 
         If no *x* values are provided, the default is (0, 1, ..., len(y) - 1)
 
@@ -2420,22 +2423,38 @@ class Axes(_AxesBase):
         except IndexError:
             basefmt = kwargs.pop('basefmt', 'r-')
 
+        # Check if the user wants a vertical stem plot
+        vertical = kwargs.pop('vertical', None)
+        if vertical is None:
+            vertical = False
+
         bottom = kwargs.pop('bottom', None)
         label = kwargs.pop('label', None)
 
-        markerline, = self.plot(x, y, markerfmt, label="_nolegend_")
+        if vertical:
+            markerline, = self.plot(y, x, markerfmt, label="_nolegend_")
+        else:
+            markerline, = self.plot(x, y, markerfmt, label="_nolegend_")
 
         if bottom is None:
             bottom = 0
 
         stemlines = []
         for thisx, thisy in zip(x, y):
-            l, = self.plot([thisx, thisx], [bottom, thisy], linefmt,
-                           label="_nolegend_")
+            if vertical:
+                l, = self.plot([bottom, thisy], [thisx, thisx],  linefmt,
+                               label="_nolegend_")
+            else:
+                l, = self.plot([thisx, thisx], [bottom, thisy], linefmt,
+                               label="_nolegend_")
             stemlines.append(l)
 
-        baseline, = self.plot([np.amin(x), np.amax(x)], [bottom, bottom],
-                              basefmt, label="_nolegend_")
+        if vertical:
+            baseline, = self.plot([bottom, bottom], [np.amin(x), np.amax(x)],
+                                  basefmt, label="_nolegend_")
+        else:
+            baseline, = self.plot([np.amin(x), np.amax(x)], [bottom, bottom],
+                                  basefmt, label="_nolegend_")
 
         self.hold(remember_hold)
 
