@@ -728,6 +728,17 @@ def is_sequence_of_strings(obj):
     return True
 
 
+def is_hashable(obj):
+    """
+    Returns true if *obj* can be hashed
+    """
+    try:
+        hash(obj)
+    except TypeError:
+        return False
+    return True
+
+
 def is_writable_file_like(obj):
     'return true if *obj* looks like a file object with a *write* method'
     return hasattr(obj, 'write') and six.callable(obj.write)

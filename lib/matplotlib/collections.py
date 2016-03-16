@@ -520,7 +520,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
         """
         try:
             dashd = backend_bases.GraphicsContextBase.dashd
-            if cbook.is_string_like(ls):
+            if cbook.is_string_like(ls) and cbook.is_hashable(ls):
                 ls = cbook.ls_mapper.get(ls, ls)
                 if ls in dashd:
                     dashes = [dashd[ls]]
