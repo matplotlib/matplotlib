@@ -3147,16 +3147,16 @@ class Axes(_AxesBase):
            If True produces boxes with the Patch artist
 
         showmeans : bool, default = False
-           If True, will toggle one the rendering of the means
+           If True, will toggle on the rendering of the means
 
         showcaps : bool, default = True
-           If True, will toggle one the rendering of the caps
+           If True, will toggle on the rendering of the caps
 
         showbox : bool, default = True
-           If True, will toggle one the rendering of box
+           If True, will toggle on the rendering of the box
 
         showfliers : bool, default = True
-           If True, will toggle one the rendering of the fliers
+           If True, will toggle on the rendering of the fliers
 
         boxprops : dict or None (default)
            If provided, will set the plotting style of the boxes
@@ -3412,16 +3412,16 @@ class Axes(_AxesBase):
           If `True`, will produce a notched box plot
 
         showmeans : bool, default = False
-          If `True`, will toggle one the rendering of the means
+          If `True`, will toggle on the rendering of the means
 
         showcaps  : bool, default = True
-          If `True`, will toggle one the rendering of the caps
+          If `True`, will toggle on the rendering of the caps
 
         showbox  : bool, default = True
-          If `True`, will toggle one the rendering of box
+          If `True`, will toggle on the rendering of the box
 
         showfliers : bool, default = True
-          If `True`, will toggle one the rendering of the fliers
+          If `True`, will toggle on the rendering of the fliers
 
         boxprops : dict or None (default)
           If provided, will set the plotting style of the boxes
@@ -6225,7 +6225,6 @@ class Axes(_AxesBase):
             # we return patches, so put it back in the expected order
             patches.reverse()
 
-            # adopted from adjust_x/ylim part of the bar method
             if orientation == 'horizontal':
                 xmin0 = max(_saved_bounds[0]*0.9, minimum)
                 xmax = self.dataLim.intervalx[1]
@@ -6237,16 +6236,22 @@ class Axes(_AxesBase):
                 xmin = min(xmin0, xmin)
                 self.dataLim.intervalx = (xmin, xmax)
             elif orientation == 'vertical':
-                ymin0 = max(_saved_bounds[1]*0.9, minimum)
-                ymax = self.dataLim.intervaly[1]
 
-                for m in n:
-                    if np.sum(m) > 0:  # make sure there are counts
-                        ymin = np.amin(m[m != 0])
-                        # filter out the 0 height bins
-                ymin = max(ymin*0.9, minimum) if not input_empty else minimum
-                ymin = min(ymin0, ymin)
-                self.dataLim.intervaly = (ymin, ymax)
+                # If norm, autoscale axis
+                if normed:
+                    self.set_autoscaley_on(True)
+                else:
+                    ymin0 = max(_saved_bounds[1]*0.9, minimum)
+                    ymax = self.dataLim.intervaly[1]
+
+                    for m in n:
+                        if np.sum(m) > 0:  # make sure there are counts
+                            ymin = np.amin(m[m != 0])
+                            # filter out the 0 height bins
+                    ymin = max(ymin*0.9, minimum) if not input_empty else minimum
+                    ymin = min(ymin0, ymin)
+                    self.dataLim.intervaly = (ymin, ymax)
+
 
         if label is None:
             labels = [None]
