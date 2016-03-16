@@ -1,12 +1,14 @@
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
+import matplotlib
 from matplotlib.externals import six
 import warnings
 
 import numpy as np
 
-from matplotlib.testing.decorators import image_comparison, knownfailureif
+from matplotlib.testing.decorators import (image_comparison, knownfailureif,
+                                           cleanup)
 import matplotlib.pyplot as plt
 from nose.tools import assert_raises
 from numpy.testing import assert_array_equal
@@ -255,10 +257,12 @@ def test_tight_layout_offsetboxes():
     plt.tight_layout()
 
 
+@cleanup
+@knownfailureif(not matplotlib.checkdep_tex(),
+                "This test needs a Tex installation")
 def test_long_label():
     '''
-    Test for 5456. When the label was too long we'd get a ValueError that
-    bottom cannot be >= top
+    Test for 5456. No ValueError when using very long label.
     '''
     try:
         fig, ax = plt.subplots()
