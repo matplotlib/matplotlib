@@ -2448,9 +2448,9 @@ class Axes(_AxesBase):
         label = kwargs.pop('label', None)
 
         if vertical:
-            markerline, = self.plot(y, x, markerfmt, label="_nolegend_")
-        else:
-            markerline, = self.plot(x, y, markerfmt, label="_nolegend_")
+            x, y = y, x
+
+        markerline, = self.plot(x, y, markerfmt, label="_nolegend_")
 
         if bottom is None:
             bottom = 0
@@ -2458,7 +2458,7 @@ class Axes(_AxesBase):
         stemlines = []
         for thisx, thisy in zip(x, y):
             if vertical:
-                l, = self.plot([bottom, thisy], [thisx, thisx],  linefmt,
+                l, = self.plot([bottom, thisx], [thisy, thisy],  linefmt,
                                label="_nolegend_")
             else:
                 l, = self.plot([thisx, thisx], [bottom, thisy], linefmt,
@@ -2466,7 +2466,7 @@ class Axes(_AxesBase):
             stemlines.append(l)
 
         if vertical:
-            baseline, = self.plot([bottom, bottom], [np.amin(x), np.amax(x)],
+            baseline, = self.plot([bottom, bottom], [np.amin(y), np.amax(y)],
                                   basefmt, label="_nolegend_")
         else:
             baseline, = self.plot([np.amin(x), np.amax(x)], [bottom, bottom],
