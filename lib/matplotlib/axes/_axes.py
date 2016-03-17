@@ -6255,7 +6255,7 @@ class Axes(_AxesBase):
                             ymin = np.amin(m[m != 0])
                             # filter out the 0 height bins
                     ymin = max(ymin*0.9,
-                               minimum)if notinput_empty else minimum
+                               minimum) if not input_empty else minimum
                     ymin = min(ymin0, ymin)
                     self.dataLim.intervaly = (ymin, ymax)
 
