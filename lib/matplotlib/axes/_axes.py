@@ -2471,7 +2471,8 @@ class Axes(_AxesBase):
             stemlines.append(l)
 
         if orientation == 'vertical':
-            baseline, = self.plot([bottom, bottom], [np.amin(y), np.amax(y)],
+            x, y = y, x
+            baseline, = self.plot([bottom, bottom], [np.amin(x), np.amax(x)],
                                   basefmt, label="_nolegend_")
         else:
             baseline, = self.plot([np.amin(x), np.amax(x)], [bottom, bottom],
