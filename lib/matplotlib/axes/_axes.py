@@ -2419,7 +2419,7 @@ class Axes(_AxesBase):
             basefmt = kwargs.pop('basefmt', args[2])
         except IndexError:
             basefmt = kwargs.pop('basefmt', 'r-')
-	try:
+        try:
             orientation = kwargs.pop('orientation', args[3])
         except IndexError:
             orientation = kwargs.pop('orientation', 'vertical')
