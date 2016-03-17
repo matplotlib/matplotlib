@@ -2426,9 +2426,9 @@ class Axes(_AxesBase):
 
         bottom = kwargs.pop('bottom', None)
         label = kwargs.pop('label', None)
-	if (orientation == "vertical"):
+        if (orientation == "vertical"):
             markerline, = self.plot(x, y, markerfmt, label="_nolegend_")
-	elif (orientation == "horizontal"):
+        elif (orientation == "horizontal"):
             markerline, = self.plot(y, x, markerfmt, label="_nolegend_")
 
         if bottom is None:
