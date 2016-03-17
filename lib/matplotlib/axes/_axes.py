@@ -2444,7 +2444,7 @@ class Axes(_AxesBase):
         except IndexError:
             basefmt = kwargs.pop('basefmt', 'r-')
 
-        # Check the orientation variable to see if the user 
+        # Check the orientation variable to see if the user
         # wants a vertical or horizontal stem plot
         orientation = kwargs.pop('orientation', 'horizontal')
 
