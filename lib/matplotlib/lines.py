@@ -332,8 +332,8 @@ class Line2D(Artist):
 
         self._dashSeq = None
 
-        self.set_linestyle(linestyle)
         self.set_drawstyle(drawstyle)
+        self.set_linestyle(linestyle)
         self.set_linewidth(linewidth)
 
         self._color = None
