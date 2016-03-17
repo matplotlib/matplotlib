@@ -2364,8 +2364,10 @@ class Axes(_AxesBase):
 
         Call signatures::
 
-          stem(y, linefmt='b-', markerfmt='bo', basefmt='r-')
-          stem(x, y, linefmt='b-', markerfmt='bo', basefmt='r-')
+          stem(y, linefmt='b-', markerfmt='bo', basefmt='r-',
+              orientation = {'horizontal'|'vertical'})
+          stem(x, y, linefmt='b-', markerfmt='bo', basefmt='r-',
+              orientation = {'horizontal'|'vertical'})
 
         A stem plot plots vertical lines (using *linefmt*) at each *x*
         location from the baseline to *y*, and places a marker there
@@ -2386,8 +2388,9 @@ class Axes(_AxesBase):
         basefmt: line format string
             Format for the baseline.
 
-        vertical: bool, optional (False)
-            If 'True', will produce a vertically-oriented stem plot.
+        vertical: string, optional (horizontal)
+            If 'vertical', will produce a vertically-oriented stem plot,
+            else it will produce a horizontally-oriented stem plot.
 
         bottom: num, optional (0)
             The location of the base line.
@@ -2441,13 +2444,14 @@ class Axes(_AxesBase):
         except IndexError:
             basefmt = kwargs.pop('basefmt', 'r-')
 
-        # Check if the user wants a vertical stem plot
-        vertical = kwargs.pop('vertical', False)
+        # Check the orientation variable to see if the user 
+        # wants a vertical or horizontal stem plot
+        orientation = kwargs.pop('orientation', 'horizontal')
 
         bottom = kwargs.pop('bottom', None)
         label = kwargs.pop('label', None)
 
-        if vertical:
+        if orientation == 'vertical':
             x, y = y, x
 
         markerline, = self.plot(x, y, markerfmt, label="_nolegend_")
@@ -2457,7 +2461,7 @@ class Axes(_AxesBase):
 
         stemlines = []
         for thisx, thisy in zip(x, y):
-            if vertical:
+            if orientation == 'vertical':
                 l, = self.plot([bottom, thisx], [thisy, thisy],  linefmt,
                                label="_nolegend_")
             else:
@@ -2465,7 +2469,7 @@ class Axes(_AxesBase):
                                label="_nolegend_")
             stemlines.append(l)
 
-        if vertical:
+        if orientation == 'vertical':
             baseline, = self.plot([bottom, bottom], [np.amin(y), np.amax(y)],
                                   basefmt, label="_nolegend_")
         else:
