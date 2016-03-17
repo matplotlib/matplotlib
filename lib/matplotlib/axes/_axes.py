@@ -2364,10 +2364,10 @@ class Axes(_AxesBase):
 
         Call signatures::
 
-        stem(y, linefmt='b-', markerfmt='bo', basefmt='r-',
-            orientation={'vertical'|'horizontal'})
-        stem(x, y, linefmt='b-', markerfmt='bo', basefmt='r-',
-            orientation={'vertical'|'horizontal'})
+            stem(y, linefmt='b-', markerfmt='bo', basefmt='r-',
+                orientation={'vertical'|'horizontal'})
+            stem(x, y, linefmt='b-', markerfmt='bo', basefmt='r-',
+                orientation={'vertical'|'horizontal'})
 
         A stem plot plots vertical lines (using *linefmt*) at each *x*
         location from the baseline to *y*, and places a marker there
