@@ -2723,7 +2723,7 @@ class Axes(_AxesBase):
 
     @_preprocess_data()
     def stem(self, *args, linefmt=None, markerfmt=None, basefmt=None, bottom=0,
-             label=None, use_line_collection=True, vertical=False):
+             label=None, use_line_collection=True, orientation='horizontal'):
         """
         Create a stem plot.
 
@@ -2774,8 +2774,9 @@ class Axes(_AxesBase):
         basefmt : str, default: 'C3-' ('C2-' in classic mode)
             A format string defining the properties of the baseline.
 
-        vertical : bool, optional (False)
-            If 'True', will produce a vertically-oriented stem plot.
+        orientation : string, optional (horizontal)
+            If 'vertical', will produce a vertically-oriented stem plot,
+            else it will produce a horizontally-oriented stem plot.
 
         bottom : float, default: 0
             The y-position of the baseline.
@@ -2866,12 +2867,12 @@ class Axes(_AxesBase):
             basestyle, basemarker, basecolor = _process_plot_format(basefmt)
 
         # Check if the user wants a vertical stem plot
-        if vertical:
+        if orientation == 'vertical':
             x, y = y, x
 
         # New behaviour in 3.1 is to use a LineCollection for the stemlines
         if use_line_collection:
-            if vertical:
+            if orientation == 'vertical':
                 stemlines = [((bottom, yi), (xi, yi)) for xi, yi in zip(x, y)]
             else:
                 stemlines = [((xi, bottom), (xi, yi)) for xi, yi in zip(x, y)]
@@ -2885,7 +2886,7 @@ class Axes(_AxesBase):
         else:
             stemlines = []
             for xi, yi in zip(x, y):
-                if vertical:
+                if orientation == 'vertical':
                     xs = [bottom, xi]
                     ys = [yi, yi]
                 else:
@@ -2898,7 +2899,9 @@ class Axes(_AxesBase):
 
         markerline, = self.plot(x, y, color=markercolor, linestyle=markerstyle,
                                 marker=markermarker, label="_nolegend_")
-        if vertical:
+
+        if orientation == 'vertical':
+            x, y = y, x
             baseline, = self.plot([bottom, bottom], [np.min(x), np.max(x)],
                                   color=basecolor, linestyle=basestyle,
                                   marker=basemarker, label="_nolegend_")
