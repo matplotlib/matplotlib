@@ -77,15 +77,12 @@ if QT_API is None:
     elif rcParams['backend'] == 'Qt4Agg':
         QT_API = rcParams['backend.qt4']
     else:
-        # A different backend was specified, but we still got here because a Qt
-        # related file was imported. This is allowed, so lets try and guess
-        # what we should be using.
-        if "PyQt4" in sys.modules or "PySide" in sys.modules:
-            # PyQt4 or PySide is actually used.
-            QT_API = rcParams['backend.qt4']
-        else:
-            # This is a fallback: PyQt5
-            QT_API = rcParams['backend.qt5']
+        # A non-Qt backend was specified, no version of the Qt
+        # bindings is imported, but we still got here because a Qt
+        # related file was imported. This is allowed, fall back to Qt5
+        # using which ever binding the rparams ask for.
+
+        QT_API = rcParams['backend.qt5']
 
 # We will define an appropriate wrapper for the differing versions
 # of file dialog.
