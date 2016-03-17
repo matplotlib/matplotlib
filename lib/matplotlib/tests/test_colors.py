@@ -6,7 +6,12 @@ import itertools
 from distutils.version import LooseVersion as V
 
 from nose.tools import assert_raises, assert_equal, assert_true
-from nose.tools import assert_sequence_equal
+
+try:
+    # this is not available in nose + py2.6
+    from nose.tools import assert_sequence_equal
+except ImportError:
+    assert_sequence_equal = None
 
 import numpy as np
 from numpy.testing.utils import assert_array_equal, assert_array_almost_equal
@@ -565,7 +570,8 @@ def test_pandas_iterable():
         import pandas as pd
     except ImportError:
         raise SkipTest("Pandas not installed")
-
+    if assert_sequence_equal is None:
+        raise SkipTest("nose lacks required function")
     # Using a list or series yields equivalent
     # color maps, i.e the series isn't seen as
     # a single color
