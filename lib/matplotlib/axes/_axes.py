@@ -2462,7 +2462,8 @@ class Axes(_AxesBase):
         stemlines = []
         for thisx, thisy in zip(x, y):
             if orientation == 'vertical':
-                l, = self.plot([bottom, thisx], [thisy, thisy],  linefmt,
+                thisx, thisy = thisy, thisx
+                l, = self.plot([bottom, thisy], [thisx, thisx],  linefmt,
                                label="_nolegend_")
             else:
                 l, = self.plot([thisx, thisx], [bottom, thisy], linefmt,
