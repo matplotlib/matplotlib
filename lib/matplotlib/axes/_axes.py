@@ -6243,7 +6243,7 @@ class Axes(_AxesBase):
                         if np.sum(m) > 0:  # make sure there are counts
                             xmin = np.amin(m[m != 0])
                             # filter out the 0 height bins
-                    xmin = max(xmin*0.9, 
+                    xmin = max(xmin*0.9,
                                minimum) if not input_empty else minimum
                     xmin = min(xmin0, xmin)
                     self.dataLim.intervalx = (xmin, xmax)
