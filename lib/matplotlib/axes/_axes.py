@@ -2364,8 +2364,10 @@ class Axes(_AxesBase):
 
         Call signatures::
 
-          stem(y, linefmt='b-', markerfmt='bo', basefmt='r-', orientation={'vertical'|'horizontal'})
-          stem(x, y, linefmt='b-', markerfmt='bo', basefmt='r-', orientation={'vertical'|'horizontal'})
+        stem(y, linefmt='b-', markerfmt='bo', basefmt='r-', 
+            orientation={'vertical'|'horizontal'})
+        stem(x, y, linefmt='b-', markerfmt='bo', basefmt='r-', 
+            orientation={'vertical'|'horizontal'})
 
         A stem plot plots vertical lines (using *linefmt*) at each *x*
         location from the baseline to *y*, and places a marker there
@@ -2443,12 +2445,12 @@ class Axes(_AxesBase):
                 l, = self.plot([bottom, thisy], [thisx, thisx], linefmt,
                            label="_nolegend_")
             stemlines.append(l)
-        
+
         if (orientation == "vertical"):
-            baseline, = self.plot([np.amin(x), np.amax(x)],[bottom, bottom], 
+            baseline, = self.plot([np.amin(x), np.amax(x)],[bottom, bottom],
                               basefmt, label="_nolegend_")
         elif (orientation == "horizontal"):
-            baseline, = self.plot([bottom, bottom],[np.amin(x), np.amax(x)], 
+            baseline, = self.plot([bottom, bottom],[np.amin(x), np.amax(x)],
                               basefmt, label="_nolegend_")
         self.hold(remember_hold)
 
