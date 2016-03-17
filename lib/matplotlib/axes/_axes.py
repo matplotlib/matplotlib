@@ -2367,27 +2367,45 @@ class Axes(_AxesBase):
           stem(y, linefmt='b-', markerfmt='bo', basefmt='r-')
           stem(x, y, linefmt='b-', markerfmt='bo', basefmt='r-')
 
-        A stem plot, by default, plots vertical lines (using *linefmt*) at each *x*
+        A stem plot plots vertical lines (using *linefmt*) at each *x*
         location from the baseline to *y*, and places a marker there
         using *markerfmt*.  A horizontal line at 0 is is plotted using
         *basefmt*.
 
-        It is possible to create a vertically-oriented stem plot
-        by providing vertical=True.
-
         If no *x* values are provided, the default is (0, 1, ..., len(y) - 1)
 
-        Return value is a tuple (*markerline*, *stemlines*,
-        *baseline*).
+        Optional parameters:
+        --------------------
+        linefmt : line format string
+            Format for the lines protruding from the baseline to the
+            stem markers.
+
+        markerfmt: marker format string
+            Format for the markers.
+
+        basefmt: line format string
+            Format for the baseline.
+
+        vertical: bool, optional (False)
+            If 'True', will produce a vertically-oriented stem plot.
+
+        bottom: num, optional (0)
+            The location of the base line.
+
+        label: string
+            Label for the stem container returned.
+
+        Returns
+        -------
+        The return value is ``(markerline, stemlines, baseline)``.
 
         .. seealso::
             This
             `document <http://www.mathworks.com/help/techdoc/ref/stem.html>`_
             for details.
 
-
-        **Example:**
-
+        Examples
+        --------
         .. plot:: mpl_examples/pylab_examples/stem_plot.py
         """
         remember_hold = self._hold
@@ -2424,9 +2442,7 @@ class Axes(_AxesBase):
             basefmt = kwargs.pop('basefmt', 'r-')
 
         # Check if the user wants a vertical stem plot
-        vertical = kwargs.pop('vertical', None)
-        if vertical is None:
-            vertical = False
+        vertical = kwargs.pop('vertical', False)
 
         bottom = kwargs.pop('bottom', None)
         label = kwargs.pop('label', None)
