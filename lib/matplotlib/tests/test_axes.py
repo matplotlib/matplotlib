@@ -1790,11 +1790,11 @@ def test_boxplot_sym():
 def test_boxplot_autorange_whiskers():
     x = np.ones(140)
     x = np.hstack([0, x, 2])
-    
+
     fig1, ax1 = plt.subplots()
     ax1.boxplot([x, x], bootstrap=10000, notch=1)
     ax1.set_ylim((-5, 5))
-    
+
     fig2, ax2 = plt.subplots()
     ax2.boxplot([x, x], bootstrap=10000, notch=1, autorange=True)
     ax2.set_ylim((-5, 5))
@@ -4235,6 +4235,19 @@ def test_axis_set_tick_params_labelsize_labelcolor():
     assert axis_1.yaxis.majorTicks[0]._color == 'k'
     assert axis_1.yaxis.majorTicks[0]._labelsize == 30.0
     assert axis_1.yaxis.majorTicks[0]._labelcolor == 'red'
+
+
+@cleanup
+def test_none_kwargs():
+    fig, ax = plt.subplots()
+    ln, = ax.plot(range(32), linestyle=None)
+    assert ln.get_linestyle() == '-'
+
+
+@cleanup
+def test_ls_ds_conflict():
+    assert_raises(ValueError, plt.plot, range(32),
+                  linestyle='steps-pre:', drawstyle='steps-post')
 
 
 @image_comparison(baseline_images=['date_timezone_x'], extensions=['png'])
