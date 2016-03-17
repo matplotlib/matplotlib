@@ -2364,8 +2364,8 @@ class Axes(_AxesBase):
 
         Call signatures::
 
-          stem(y, linefmt='b-', markerfmt='bo', basefmt='r-')
-          stem(x, y, linefmt='b-', markerfmt='bo', basefmt='r-')
+          stem(y, linefmt='b-', markerfmt='bo', basefmt='r-', orientation={'vertical'|'horizontal'})
+          stem(x, y, linefmt='b-', markerfmt='bo', basefmt='r-', orientation={'vertical'|'horizontal'})
 
         A stem plot plots vertical lines (using *linefmt*) at each *x*
         location from the baseline to *y*, and places a marker there
@@ -2419,24 +2419,37 @@ class Axes(_AxesBase):
             basefmt = kwargs.pop('basefmt', args[2])
         except IndexError:
             basefmt = kwargs.pop('basefmt', 'r-')
+	try:
+            orientation = kwargs.pop('orientation', args[3])
+        except IndexError:
+            orientation = kwargs.pop('orientation', 'vertical')
 
         bottom = kwargs.pop('bottom', None)
         label = kwargs.pop('label', None)
-
-        markerline, = self.plot(x, y, markerfmt, label="_nolegend_")
+	if (orientation == "vertical"):
+            markerline, = self.plot(x, y, markerfmt, label="_nolegend_")
+	elif (orientation == "horizontal"):
+            markerline, = self.plot(y, x, markerfmt, label="_nolegend_")
 
         if bottom is None:
             bottom = 0
 
         stemlines = []
         for thisx, thisy in zip(x, y):
-            l, = self.plot([thisx, thisx], [bottom, thisy], linefmt,
+            if (orientation == "vertical"):
+                l, = self.plot([thisx, thisx], [bottom, thisy],linefmt,
+                           label="_nolegend_")    
+            elif (orientation == "horizontal"):
+                l, = self.plot([bottom, thisy], [thisx, thisx], linefmt,
                            label="_nolegend_")
             stemlines.append(l)
-
-        baseline, = self.plot([np.amin(x), np.amax(x)], [bottom, bottom],
+        
+        if (orientation == "vertical"):
+            baseline, = self.plot([np.amin(x), np.amax(x)],[bottom, bottom], 
                               basefmt, label="_nolegend_")
-
+        elif (orientation == "horizontal"):
+            baseline, = self.plot([bottom, bottom],[np.amin(x), np.amax(x)], 
+                              basefmt, label="_nolegend_")
         self.hold(remember_hold)
 
         stem_container = StemContainer((markerline, stemlines, baseline),
