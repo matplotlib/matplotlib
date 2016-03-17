@@ -42,7 +42,23 @@ else:
 
 QT_API = None
 
-if (QT_API_ENV is not None):
+# check if any binding is already imported, if so silently ignore the
+# rcparams/ENV settings and use what ever is already imported.
+if 'PySide' in sys.modules:
+    # user has imported PySide before importing mpl
+    QT_API = QT_API_PYSIDE
+
+if 'PyQt4' in sys.modules:
+    # user has imported PyQt4 before importing mpl
+    # this case also handles the PyQt4v2 case as once sip is imported
+    # the API versions can not be changed so do not try
+    QT_API = QT_API_PYQT
+
+if 'PyQt5' in sys.modules:
+    # the user has imported PyQt5 before importing mpl
+    QT_API = QT_API_PYQT5
+
+if (QT_API_ENV is not None) and QT_API is None:
     try:
         QT_ENV_MAJOR_VERSION = ETS[QT_API_ENV][1]
     except KeyError:
