@@ -224,7 +224,7 @@ class Legend(Artist):
         title              the legend title
         bbox_to_anchor     the bbox that the legend will be anchored.
         bbox_transform     the transform for the bbox. transAxes if None.
-        displace           the legend posistion will be anchored 
+        displace           the legend posistion will be anchored
         ================   ====================================================
 
 
@@ -396,7 +396,7 @@ class Legend(Artist):
         self._last_fontsize_points = self._fontsize
         self._draggable = None
 
-        if displace != None:
+        if displace is not None:
             self.set_displace(displace)
 
     def _set_artist_props(self, a):
@@ -894,14 +894,14 @@ class Legend(Artist):
                              "BR": (1.1, 0, 3),
                              "BL": (-0.1, 0, 4)}
 
-        in_displace_code={"RC": (1, 0.5, 5),
-                          "UC": (0.5, 1, 9),
-                          "LC": (0, 0.5, 6),
-                          "BC": (0.5, 0, 8),
-                          "UR": (1, 1, 1),
-                          "UL": (0, 1, 2),
-                          "BR": (1, 0, 4),
-                          "BL": (0, 0, 3)}
+        in_displace_code = {"RC": (1, 0.5, 5),
+                            "UC": (0.5, 1, 9),
+                            "LC": (0, 0.5, 6),
+                            "BC": (0.5, 0, 8),
+                            "UR": (1, 1, 1),
+                            "UL": (0, 1, 2),
+                            "BR": (1, 0, 4),
+                            "BL": (0, 0, 3)}
 
         #default displacement inner UpperRight
         anchor = "in"
@@ -931,7 +931,7 @@ class Legend(Artist):
         self.set_bbox_to_anchor((position[0], position[1]))
         self._set_loc(position[2])
 
-        self.stale = True      
+        self.stale = True
 
     def set_bbox_to_anchor(self, bbox, transform=None):
         """
