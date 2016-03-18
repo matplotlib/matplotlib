@@ -258,8 +258,6 @@ def test_tight_layout_offsetboxes():
 
 
 @cleanup
-@knownfailureif(not matplotlib.checkdep_tex(),
-                "This test needs a Tex installation")
 def test_long_label():
     '''
     Test for 5456. No ValueError when using very long label.
