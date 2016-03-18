@@ -13,8 +13,8 @@ y1 = -1 + numpy.random.randn(100)
 x2 = 1. + numpy.random.randn(100)
 y2 = 1. + numpy.random.randn(100)
 
-ax.scatter(x1, y1, color="r")
-ax.scatter(x2, y2, color="g")
+ax.scatter(x1, y1, c="r")
+ax.scatter(x2, y2, c="g")
 
 bbox_props = dict(boxstyle="round", fc="w", ec="0.5", alpha=0.9)
 ax.text(-2, -2, "Sample A", ha="center", va="center", size=20,
