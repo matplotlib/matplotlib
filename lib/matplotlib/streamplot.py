@@ -418,7 +418,10 @@ def get_integrator(u, v, dmap, minlength):
         resulting trajectory is None if it is shorter than `minlength`.
         """
 
-        dmap.start_trajectory(x0, y0)
+        try:
+            dmap.start_trajectory(x0, y0)
+        except InvalidIndexError:
+            return None
         sf, xf_traj, yf_traj = _integrate_rk12(x0, y0, dmap, forward_time)
         dmap.reset_start_point(x0, y0)
         sb, xb_traj, yb_traj = _integrate_rk12(x0, y0, dmap, backward_time)
