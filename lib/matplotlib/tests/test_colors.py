@@ -7,8 +7,15 @@ from distutils.version import LooseVersion as V
 
 from nose.tools import assert_raises, assert_equal, assert_true
 
+try:
+    # this is not available in nose + py2.6
+    from nose.tools import assert_sequence_equal
+except ImportError:
+    assert_sequence_equal = None
+
 import numpy as np
 from numpy.testing.utils import assert_array_equal, assert_array_almost_equal
+from nose.plugins.skip import SkipTest
 
 import matplotlib.colors as mcolors
 import matplotlib.cm as cm
@@ -561,6 +568,23 @@ def _azimuth2math(azimuth, elevation):
     theta = np.radians((90 - azimuth) % 360)
     phi = np.radians(90 - elevation)
     return theta, phi
+
+
+def test_pandas_iterable():
+    try:
+        import pandas as pd
+    except ImportError:
+        raise SkipTest("Pandas not installed")
+    if assert_sequence_equal is None:
+        raise SkipTest("nose lacks required function")
+    # Using a list or series yields equivalent
+    # color maps, i.e the series isn't seen as
+    # a single color
+    lst = ['red', 'blue', 'green']
+    s = pd.Series(lst)
+    cm1 = mcolors.ListedColormap(lst, N=5)
+    cm2 = mcolors.ListedColormap(s, N=5)
+    assert_sequence_equal(cm1.colors, cm2.colors)
 
 
 if __name__ == '__main__':

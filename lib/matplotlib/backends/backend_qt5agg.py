@@ -172,6 +172,9 @@ class FigureCanvasQTAggBase(object):
             QtCore.QTimer.singleShot(0, self.__draw_idle_agg)
 
     def __draw_idle_agg(self, *args):
+        if self.height() < 0 or self.width() < 0:
+            self._agg_draw_pending = False
+            return
         try:
             FigureCanvasAgg.draw(self)
             self.update()
