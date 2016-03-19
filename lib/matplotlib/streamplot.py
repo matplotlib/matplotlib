@@ -137,8 +137,9 @@ def streamplot(axes, x, y, u, v, density=1, linewidth=None, color=None,
         # Shift the seed points from the bottom left of the data so that
         # data2grid works properly.
         sp2 = np.asanyarray(start_points, dtype=np.float).copy()
-        sp2[:, 0] += np.abs(x[0])
-        sp2[:, 1] += np.abs(y[0])
+        sp2[:, 0] -= grid.x_origin
+        sp2[:, 1] -= grid.y_origin
+
         for xs, ys in sp2:
             xg, yg = dmap.data2grid(xs, ys)
             t = integrate(xg, yg)
@@ -159,8 +160,9 @@ def streamplot(axes, x, y, u, v, density=1, linewidth=None, color=None,
         tgx = np.array(t[0])
         tgy = np.array(t[1])
         # Rescale from grid-coordinates to data-coordinates.
-        tx = np.array(t[0]) * grid.dx + grid.x_origin
-        ty = np.array(t[1]) * grid.dy + grid.y_origin
+        tx, ty = dmap.grid2data(*np.array(t))
+        tx += grid.x_origin
+        ty += grid.y_origin
 
         points = np.transpose([tx, ty]).reshape(-1, 1, 2)
         streamlines.extend(np.hstack([points[:-1], points[1:]]))
@@ -243,8 +245,8 @@ class DomainMap(object):
         self.x_mask2grid = 1. / self.x_grid2mask
         self.y_mask2grid = 1. / self.y_grid2mask
 
-        self.x_data2grid = grid.nx / grid.width
-        self.y_data2grid = grid.ny / grid.height
+        self.x_data2grid = 1. / grid.dx
+        self.y_data2grid = 1. / grid.dy
 
     def grid2mask(self, xi, yi):
         """Return nearest space in mask-coords from given grid-coords."""
@@ -256,6 +258,9 @@ class DomainMap(object):
 
     def data2grid(self, xd, yd):
         return xd * self.x_data2grid, yd * self.y_data2grid
+
+    def grid2data(self, xg, yg):
+        return xg / self.x_data2grid, yg / self.y_data2grid
 
     def start_trajectory(self, xg, yg):
         xm, ym = self.grid2mask(xg, yg)
