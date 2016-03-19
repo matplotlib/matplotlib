@@ -535,7 +535,7 @@ int convert_points(PyObject *obj, void *pointsp)
 
     if (points->dim(1) != 2) {
         PyErr_Format(PyExc_ValueError,
-                     "Points must be Nx2 array, got %"NPY_INTP_FMT"x%"NPY_INTP_FMT,
+                     "Points must be Nx2 array, got %dx%d",
                      points->dim(0), points->dim(1));
         return 0;
     }
@@ -559,7 +559,7 @@ int convert_transforms(PyObject *obj, void *transp)
 
     if (trans->dim(1) != 3 || trans->dim(2) != 3) {
         PyErr_Format(PyExc_ValueError,
-                     "Transforms must be Nx3x3 array, got %"NPY_INTP_FMT"x%"NPY_INTP_FMT"x%"NPY_INTP_FMT,
+                     "Transforms must be Nx3x3 array, got %dx%dx%d",
                      trans->dim(0), trans->dim(1), trans->dim(2));
         return 0;
     }
@@ -583,7 +583,7 @@ int convert_bboxes(PyObject *obj, void *bboxp)
 
     if (bbox->dim(1) != 2 || bbox->dim(2) != 2) {
         PyErr_Format(PyExc_ValueError,
-                     "Bbox array must be Nx2x2 array, got %"NPY_INTP_FMT"x%"NPY_INTP_FMT"x%"NPY_INTP_FMT,
+                     "Bbox array must be Nx2x2 array, got %dx%dx%d",
                      bbox->dim(0), bbox->dim(1), bbox->dim(2));
         return 0;
     }
@@ -607,7 +607,7 @@ int convert_colors(PyObject *obj, void *colorsp)
 
     if (colors->dim(1) != 4) {
         PyErr_Format(PyExc_ValueError,
-                     "Colors array must be Nx4 array, got %"NPY_INTP_FMT"x%"NPY_INTP_FMT,
+                     "Colors array must be Nx4 array, got %dx%d",
                      colors->dim(0), colors->dim(1));
         return 0;
     }
