@@ -133,10 +133,18 @@ def streamplot(axes, x, y, u, v, density=1, linewidth=None, color=None,
                 if t is not None:
                     trajectories.append(t)
     else:
+        sp2 = np.asanyarray(start_points, dtype=np.float).copy()
+
+        # Check if start_points are outside the data boundaries
+        for xs, ys in sp2:
+            if (xs < grid.x_origin or xs > grid.x_origin + grid.width
+                or ys < grid.y_origin or ys > grid.y_origin + grid.height):
+                    raise ValueError("Starting point ({}, {}) outside of"
+                                     " data boundaries".format(xs, ys))
+
         # Convert start_points from data to array coords
         # Shift the seed points from the bottom left of the data so that
         # data2grid works properly.
-        sp2 = np.asanyarray(start_points, dtype=np.float).copy()
         sp2[:, 0] -= grid.x_origin
         sp2[:, 1] -= grid.y_origin
 
