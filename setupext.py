@@ -898,11 +898,6 @@ class Numpy(SetupPackage):
         ext.define_macros.append(('NPY_NO_DEPRECATED_API',
                                   'NPY_1_7_API_VERSION'))
 
-        # Allow the numpy NPY_INTP_FMT macro to be used in C++.
-        # On gcc this translates to PRIdPTR which needs
-        # __STDC_FORMAT_MACROS to be usable in c++
-        ext.define_macros.append(('__STDC_FORMAT_MACROS', 1))
-
     def get_setup_requires(self):
         return ['numpy>=1.6']
 
