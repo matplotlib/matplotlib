@@ -576,7 +576,7 @@ class HandlerTuple(HandlerBase):
     ----------
 
     ndivide : int, optional
-        The number of sections to divide the legend area into.  If 0,
+        The number of sections to divide the legend area into.  If None,
         use the length of the input tuple. Default is 1.
 
 
@@ -599,7 +599,7 @@ class HandlerTuple(HandlerBase):
 
         handler_map = legend.get_legend_handler_map()
 
-        if self._ndivide == 0:
+        if self._ndivide is None:
             ndivide = len(orig_handle)
         else:
             ndivide = self._ndivide

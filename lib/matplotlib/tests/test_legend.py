@@ -89,8 +89,8 @@ def test_multiple_keys():
     p3, = ax.plot([3, 4, 5], '-d')
     ax.legend([(p1, p2), (p2, p1), p3], ['two keys', 'pad=0', 'one key'],
               numpoints=1,
-              handler_map={(p1, p2): HandlerTuple(ndivide=0),
-                           (p2, p1): HandlerTuple(ndivide=0, pad=0)})
+              handler_map={(p1, p2): HandlerTuple(ndivide=None),
+                           (p2, p1): HandlerTuple(ndivide=None, pad=0)})
 
 
 @image_comparison(baseline_images=['rgba_alpha'],

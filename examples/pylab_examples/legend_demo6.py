@@ -16,7 +16,7 @@ p3, = ax1.plot([1, 5], [4, 4], 'm-d')
 # and using a generic handler map (which would be used for any additional
 # tuples of handles like (p1, p3)).
 l = ax1.legend([(p1, p3), p2], ['two keys', 'one key'], scatterpoints=1,
-               numpoints=1, handler_map={tuple: HandlerTuple(ndivide=0)})
+               numpoints=1, handler_map={tuple: HandlerTuple(ndivide=None)})
 
 # Second plot: plot two bar charts on top of each other and change the padding
 # between the legend keys
@@ -29,7 +29,7 @@ rpos = ax2.bar(x_left, y_pos, width=0.5, color='k', label='+1')
 
 # Treat each legend entry differently by using specific `HandlerTuple`s
 l = ax2.legend([(rpos, rneg), (rneg, rpos)], ['pad!=0', 'pad=0'],
-               handler_map={(rpos, rneg): HandlerTuple(ndivide=0),
-                            (rneg, rpos): HandlerTuple(ndivide=0, pad=0.)})
+               handler_map={(rpos, rneg): HandlerTuple(ndivide=None),
+                            (rneg, rpos): HandlerTuple(ndivide=None, pad=0.)})
 
 plt.show()
