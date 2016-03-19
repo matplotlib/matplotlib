@@ -43,7 +43,23 @@ else:
 
 QT_API = None
 
-if (QT_API_ENV is not None):
+# check if any binding is already imported, if so silently ignore the
+# rcparams/ENV settings and use what ever is already imported.
+if 'PySide' in sys.modules:
+    # user has imported PySide before importing mpl
+    QT_API = QT_API_PYSIDE
+
+if 'PyQt4' in sys.modules:
+    # user has imported PyQt4 before importing mpl
+    # this case also handles the PyQt4v2 case as once sip is imported
+    # the API versions can not be changed so do not try
+    QT_API = QT_API_PYQT
+
+if 'PyQt5' in sys.modules:
+    # the user has imported PyQt5 before importing mpl
+    QT_API = QT_API_PYQT5
+
+if (QT_API_ENV is not None) and QT_API is None:
     try:
         QT_ENV_MAJOR_VERSION = ETS[QT_API_ENV][1]
     except KeyError:
@@ -62,15 +78,12 @@ if QT_API is None:
     elif rcParams['backend'] == 'Qt4Agg':
         QT_API = rcParams['backend.qt4']
     else:
-        # A different backend was specified, but we still got here because a Qt
-        # related file was imported. This is allowed, so lets try and guess
-        # what we should be using.
-        if "PyQt4" in sys.modules or "PySide" in sys.modules:
-            # PyQt4 or PySide is actually used.
-            QT_API = rcParams['backend.qt4']
-        else:
-            # This is a fallback: PyQt5 or PySide2
-            QT_API = rcParams['backend.qt5']
+        # A non-Qt backend was specified, no version of the Qt
+        # bindings is imported, but we still got here because a Qt
+        # related file was imported. This is allowed, fall back to Qt5
+        # using which ever binding the rparams ask for.
+
+        QT_API = rcParams['backend.qt5']
 
 # We will define an appropriate wrapper for the differing versions
 # of file dialog.
