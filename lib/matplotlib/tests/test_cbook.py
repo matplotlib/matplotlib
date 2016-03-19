@@ -48,6 +48,14 @@ def test_is_sequence_of_strings():
     assert cbook.is_sequence_of_strings(y)
 
 
+def test_is_hashable():
+    s = 'string'
+    assert cbook.is_hashable(s)
+
+    lst = ['list', 'of', 'stings']
+    assert not cbook.is_hashable(lst)
+
+
 def test_restrict_dict():
     d = {'foo': 'bar', 1: 2}
     d1 = cbook.restrict_dict(d, ['foo', 1])
@@ -264,6 +272,20 @@ class Test_boxplot_stats(object):
     def test_bad_dims(self):
         data = np.random.normal(size=(34, 34, 34))
         results = cbook.boxplot_stats(data)
+
+    def test_boxplot_stats_autorange_false(self):
+        x = np.zeros(shape=140)
+        x = np.hstack([-25, x, 25])
+        bstats_false = cbook.boxplot_stats(x, autorange=False)
+        bstats_true = cbook.boxplot_stats(x, autorange=True)
+
+        assert_equal(bstats_false[0]['whislo'], 0)
+        assert_equal(bstats_false[0]['whishi'], 0)
+        assert_array_almost_equal(bstats_false[0]['fliers'], [-25, 25])
+
+        assert_equal(bstats_true[0]['whislo'], -25)
+        assert_equal(bstats_true[0]['whishi'], 25)
+        assert_array_almost_equal(bstats_true[0]['fliers'], [])
 
 
 class Test_callback_registry(object):
