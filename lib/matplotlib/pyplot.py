@@ -1151,7 +1151,8 @@ def subplot2grid(shape, loc, rowspan=1, colspan=1, fig=None, **kwargs):
     """
     Create a subplot in a grid.  The grid is specified by *shape*, at
     location of *loc*, spanning *rowspan*, *colspan* cells in each
-    direction.  The index for loc is 0-based. ::
+    direction.  The index for loc is 0-based.  The current figure will
+    be used unless *fig* is specified. ::
 
       subplot2grid(shape, loc, rowspan=1, colspan=1)
 
