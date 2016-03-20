@@ -2833,7 +2833,14 @@ def csv2rec(fname, comments='#', skiprows=0, checkrows=0, delimiter=',',
             raise ValueError('invalid bool')
 
     dateparser = dateutil.parser.parse
-    mydateparser = with_default_value(dateparser, datetime.date(1, 1, 1))
+
+    def mydateparser(x):
+        # try and return a datetime object
+        d = dateparser(x, dayfirst=dayfirst, yearfirst=yearfirst)
+        return d
+
+    mydateparser = with_default_value(mydateparser, datetime.datetime(1, 1, 1))
+
     myfloat = with_default_value(float, np.nan)
     myint = with_default_value(int, -1)
     mystr = with_default_value(str, '')
