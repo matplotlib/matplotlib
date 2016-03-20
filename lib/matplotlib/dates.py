@@ -830,7 +830,7 @@ class RRuleLocator(DateLocator):
             # The magic number!
             stop = _from_ordinalf(3652059.9999999)
 
-        self.rule.set(dtstart=start, until=stop, count=self.MAXTICKS + 1)
+        self.rule.set(dtstart=start, until=stop)
 
         # estimate the number of ticks very approximately so we don't
         # have to do a very expensive (and potentially near infinite)
