@@ -1285,7 +1285,15 @@ class rc_context(object):
             plt.plot(x, a)
 
     The 'rc' dictionary takes precedence over the settings loaded from
-    'fname'.  Passing a dictionary only is also valid.
+    'fname'.  Passing a dictionary only is also valid. For example a
+    common usage is::
+
+        with mpl.rc_context(rc={'interactive': False}):
+            fig, ax = plt.subplots()
+            ax.plot(range(3), range(3))
+            fig.savefig('A.png', format='png')
+            plt.close(fig)
+
     """
 
     def __init__(self, rc=None, fname=None):
