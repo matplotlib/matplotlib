@@ -2838,7 +2838,8 @@ def csv2rec(fname, comments='#', skiprows=0, checkrows=0, delimiter=',',
         # try and return a datetime object
         d = dateparser(x, dayfirst=dayfirst, yearfirst=yearfirst)
         return d
-    mydateparser = with_default_value(mydateparser, datetime.datetime(1,1,1,0,0,0))
+
+    mydateparser = with_default_value(mydateparser, datetime.datetime(1, 1, 1))
 
     myfloat = with_default_value(float, np.nan)
     myint = with_default_value(int, -1)
