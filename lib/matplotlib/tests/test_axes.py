@@ -24,7 +24,7 @@ import matplotlib
 from matplotlib.testing.decorators import image_comparison, cleanup
 import matplotlib.pyplot as plt
 import matplotlib.markers as mmarkers
-from numpy.testing import assert_array_equal
+from numpy.testing import assert_allclose, assert_array_equal
 import warnings
 from matplotlib.cbook import IgnoredKeywordWarning
 
@@ -3725,8 +3725,7 @@ def test_vline_limit():
     ax.axvline(0.5)
     ax.plot([-0.1, 0, 0.2, 0.1])
     (ymin, ymax) = ax.get_ylim()
-    assert ymin == -0.1
-    assert ymax == 0.25
+    assert_allclose(ax.get_ylim(), (-.1, .2))
 
 
 @cleanup
