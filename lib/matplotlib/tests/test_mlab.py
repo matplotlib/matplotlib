@@ -392,6 +392,7 @@ class csv_testcase(CleanupTestCase):
         array = mlab.csv2rec(self.fd, names='a', yearfirst=True)
         assert_array_equal(array['a'].tolist(), expected)
 
+
 class window_testcase(CleanupTestCase):
     def setUp(self):
         np.random.seed(0)
