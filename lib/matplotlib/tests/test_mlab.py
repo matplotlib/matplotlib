@@ -374,7 +374,7 @@ class csv_testcase(CleanupTestCase):
                 datetime.datetime(2054, 6, 20, 14, 31, 45),
                 datetime.datetime(2000, 10, 31, 11, 50, 23)]
         self.fd.seek(0)
-        array = mlab.csv2rec(self.fd, names='a', dayfirst = True)
+        array = mlab.csv2rec(self.fd, names='a', dayfirst=True)
         assert_array_equal(array['a'].tolist(), expected)
 
     def test_csv2rec_yearfirst(self):
@@ -389,7 +389,7 @@ class csv_testcase(CleanupTestCase):
                 datetime.datetime(2054, 6, 20, 14, 31, 45),
                 datetime.datetime(2000, 10, 31, 11, 50, 23)]
         self.fd.seek(0)
-        array = mlab.csv2rec(self.fd, names='a', yearfirst = True)
+        array = mlab.csv2rec(self.fd, names='a', yearfirst=True)
         assert_array_equal(array['a'].tolist(), expected)
 
 class window_testcase(CleanupTestCase):
