@@ -870,6 +870,9 @@ defaultParams = {
     'patch.facecolor':   ['#1f77b4', validate_color],  # blue (first color in color cycle)
     'patch.antialiased': [True, validate_bool],  # antialiased (no jaggies)
 
+    ## hatch props
+    'hatch.linewidth': [1.0, validate_float],
+
     ## Histogram properties
     'hist.bins': [10, validate_hist_bins],
 
