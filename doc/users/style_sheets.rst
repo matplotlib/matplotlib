@@ -18,7 +18,7 @@ just add::
 
 To list all available styles, use::
 
-   >>> print plt.style.available
+   >>> print(plt.style.available)
 
 
 Defining your own style
@@ -72,12 +72,11 @@ to change the global styling, the style package provides a context manager
 for limiting your changes to a specific scope. To isolate the your styling
 changes, you can write something like the following::
 
-
    >>> import numpy as np
    >>> import matplotlib.pyplot as plt
    >>>
    >>> with plt.style.context(('dark_background')):
-   >>>     plt.plot(np.sin(np.linspace(0, 2*np.pi)), 'r-o')
+   >>>     plt.plot(np.sin(np.linspace(0, 2 * np.pi)), 'r-o')
    >>>
    >>> # Some plotting code with the default style
    >>>
