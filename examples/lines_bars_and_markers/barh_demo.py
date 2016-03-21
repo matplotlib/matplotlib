@@ -3,8 +3,9 @@ Simple demo of a horizontal bar chart.
 """
 import matplotlib.pyplot as plt
 import numpy as np
-plt.rcdefaults()
 
+
+plt.rcdefaults()
 
 # Example data
 people = ('Tom', 'Dick', 'Harry', 'Slim', 'Jim')
