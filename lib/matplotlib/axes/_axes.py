@@ -2448,6 +2448,9 @@ class Axes(_AxesBase):
         # wants a vertical or horizontal stem plot
         orientation = kwargs.pop('orientation', 'horizontal')
 
+        if orientation not in ('horizontal', 'vertical'):
+            raise ValueError("'%s' is not a valid orientation" % orientation)
+
         bottom = kwargs.pop('bottom', None)
         label = kwargs.pop('label', None)
 
