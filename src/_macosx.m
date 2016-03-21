@@ -2,9 +2,6 @@
 #include <ApplicationServices/ApplicationServices.h>
 #include <sys/socket.h>
 #include <Python.h>
-#define NPY_NO_DEPRECATED_API NPY_1_7_API_VERSION
-#include "numpy/arrayobject.h"
-#include "path_cleanup.h"
 
 #define PYOSINPUTHOOK_REPETITIVE 1 /* Remove this once Python is fixed */
 
@@ -3218,7 +3215,6 @@ void init_macosx(void)
 #endif
 {
     PyObject *module;
-    import_array();
 
     if (PyType_Ready(&FigureCanvasType) < 0
      || PyType_Ready(&FigureManagerType) < 0
