@@ -792,6 +792,7 @@ class GraphicsContextBase(object):
         self._linewidth = 1
         self._rgb = (0.0, 0.0, 0.0, 1.0)
         self._hatch = None
+        self._hatch_linewidth = rcParams['hatch.linewidth']
         self._url = None
         self._gid = None
         self._snap = None
@@ -1110,6 +1111,12 @@ class GraphicsContextBase(object):
         if self._hatch is None:
             return None
         return Path.hatch(self._hatch, density)
+
+    def get_hatch_linewidth(self):
+        """
+        Gets the linewidth to use for hatching.
+        """
+        return self._hatch_linewidth
 
     def get_sketch_params(self):
         """
