@@ -487,90 +487,6 @@ static NSImage* _read_ppm_image(PyObject* obj)
 }
 
 static PyObject*
-FigureCanvas_write_bitmap(FigureCanvas* self, PyObject* args)
-{
-    View* view = self->view;
-    int n;
-    const unichar* characters;
-    NSSize size;
-    double width, height, dpi;
-
-    if(!view)
-    {
-        PyErr_SetString(PyExc_RuntimeError, "NSView* is NULL");
-        return NULL;
-    }
-    /* NSSize contains CGFloat; cannot use size directly */
-    if(!PyArg_ParseTuple(args, "u#ddd",
-                                &characters, &n, &width, &height, &dpi)) return NULL;
-    size.width = width;
-    size.height = height;
-
-    /* This function may be called from inside the event loop, when an
-     * autorelease pool is available, or from Python, when no autorelease
-     * pool is available. To be able to handle the latter case, we need to
-     * create an autorelease pool here. */
-
-    NSAutoreleasePool* pool = [[NSAutoreleasePool alloc] init];
-
-    NSRect rect = [view bounds];
-
-    NSString* filename = [NSString stringWithCharacters: characters
-                                                 length: (unsigned)n];
-    NSString* extension = [filename pathExtension];
-
-    /* Calling dataWithPDFInsideRect on the view causes its update status
-     * to be cleared. Save the status here, and invalidate the view if not
-     * up to date after calling dataWithPDFInsideRect. */
-    const BOOL invalid = [view needsDisplay];
-    NSData* data = [view dataWithPDFInsideRect: rect];
-    if (invalid) [view setNeedsDisplay: YES];
-
-    NSImage* image = [[NSImage alloc] initWithData: data];
-    NSImage *resizedImage = [[NSImage alloc] initWithSize:size];
-
-    [resizedImage lockFocus];
-    [image drawInRect:NSMakeRect(0, 0, width, height) fromRect:NSZeroRect operation:NSCompositeSourceOver fraction:1.0];
-    [resizedImage unlockFocus];
-    data = [resizedImage TIFFRepresentation];
-    [image release];
-    [resizedImage release];
-
-    NSBitmapImageRep* rep = [NSBitmapImageRep imageRepWithData:data];
-
-    NSSize pxlSize = NSMakeSize([rep pixelsWide], [rep pixelsHigh]);
-    NSSize newSize = NSMakeSize(72.0 * pxlSize.width / dpi, 72.0 * pxlSize.height / dpi);
-
-    [rep setSize:newSize];
-
-    NSBitmapImageFileType filetype;
-    if ([extension isEqualToString: @"bmp"])
-        filetype = NSBMPFileType;
-    else if ([extension isEqualToString: @"gif"])
-        filetype = NSGIFFileType;
-    else if ([extension isEqualToString: @"jpg"] ||
-             [extension isEqualToString: @"jpeg"])
-        filetype = NSJPEGFileType;
-    else if ([extension isEqualToString: @"png"])
-        filetype = NSPNGFileType;
-    else if ([extension isEqualToString: @"tiff"] ||
-             [extension isEqualToString: @"tif"])
-        filetype = NSTIFFFileType;
-    else
-    {   PyErr_SetString(PyExc_ValueError, "Unknown file type");
-        return NULL;
-    }
-
-    data = [rep representationUsingType:filetype properties:[NSDictionary dictionary]];
-
-    [data writeToFile: filename atomically: YES];
-    [pool release];
-
-    Py_INCREF(Py_None);
-    return Py_None;
-}
-
-static PyObject*
 FigureCanvas_start_event_loop(FigureCanvas* self, PyObject* args, PyObject* keywords)
 {
     float timeout = 0.0;
@@ -684,12 +600,6 @@ static PyMethodDef FigureCanvas_methods[] = {
      (PyCFunction)FigureCanvas_remove_rubberband,
      METH_NOARGS,
      "Removes the current rubberband rectangle."
-    },
-    {"write_bitmap",
-     (PyCFunction)FigureCanvas_write_bitmap,
-     METH_VARARGS,
-     "Saves the figure to the specified file as a bitmap\n"
-     "(bmp, gif, jpeg, or png).\n"
     },
     {"start_event_loop",
      (PyCFunction)FigureCanvas_start_event_loop,
