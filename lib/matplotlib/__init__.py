@@ -553,16 +553,14 @@ def _create_tmp_config_dir():
         # Some restricted platforms (such as Google App Engine) do not provide
         # gettempdir.
         return None
-
     try:
         username = getpass.getuser()
     except KeyError:
         username = str(os.getuid())
-    tempdir = os.path.join(tempdir, 'matplotlib-%s' % username)
+
+    tempdir = tempfile.mkdtemp(prefix='matplotlib-%s-' % username, dir=tempdir)
 
     os.environ['MPLCONFIGDIR'] = tempdir
-
-    mkdirs(tempdir)
 
     return tempdir
 
