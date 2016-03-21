@@ -134,16 +134,8 @@ class FigureCanvasMac(_macosx.FigureCanvas, FigureCanvasAgg):
         if not self._needs_draw:
             return renderer
 
-        figure = self.figure
-
-        orig_dpi = figure.dpi
-        try:
-            figure.draw(renderer)
-        finally:
-            figure.dpi = orig_dpi
-
+        self.figure.draw(renderer)
         self._needs_draw = False
-
         return renderer
 
     def draw(self):
