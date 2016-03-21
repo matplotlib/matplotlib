@@ -667,7 +667,7 @@ class Figure(Artist):
         self.stale = True
         return im
 
-    def set_size_inches(self, w, h=None, forward=False):
+    def set_size_inches(self, w, h=None, forward=True):
         """
         set_size_inches(w,h, forward=False)
 
