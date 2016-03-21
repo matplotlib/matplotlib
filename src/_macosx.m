@@ -231,6 +231,7 @@ static int wait_for_stdin(void)
     NSRect rubberband;
     BOOL inside;
     NSTrackingRectTag tracking;
+    @public double device_scale;
 }
 - (void)dealloc;
 - (void)drawRect:(NSRect)rect;
@@ -407,6 +408,12 @@ FigureCanvas_set_rubberband(FigureCanvas* self, PyObject *args)
         return NULL;
     }
     if(!PyArg_ParseTuple(args, "iiii", &x0, &y0, &x1, &y1)) return NULL;
+
+    x0 /= view->device_scale;
+    x1 /= view->device_scale;
+    y0 /= view->device_scale;
+    y1 /= view->device_scale;
+
     if (x1 > x0)
     {
         rubberband.origin.x = x0;
@@ -427,6 +434,7 @@ FigureCanvas_set_rubberband(FigureCanvas* self, PyObject *args)
         rubberband.origin.y = y1;
         rubberband.size.height = y0 - y1;
     }
+
     [view setRubberband: rubberband];
     Py_INCREF(Py_None);
     return Py_None;
@@ -2085,6 +2093,7 @@ static WindowServerConnectionManager *sharedWindowServerConnectionManager = nil;
     rubberband = NSZeroRect;
     inside = false;
     tracking = 0;
+    device_scale = 1;
     return self;
 }
 
@@ -2181,11 +2190,14 @@ static int _copy_agg_buffer(CGContextRef cr, PyObject *renderer)
 
     CGContextRef cr = [[NSGraphicsContext currentContext] graphicsPort];
 
-    double device_scale = _get_device_scale(cr);
+    double new_device_scale = _get_device_scale(cr);
 
-    if (!PyObject_CallMethod(canvas, "_set_device_scale", "d", device_scale, NULL)) {
-        PyErr_Print();
-        goto exit;
+    if (device_scale != new_device_scale) {
+        device_scale = new_device_scale;
+        if (!PyObject_CallMethod(canvas, "_set_device_scale", "d", device_scale, NULL)) {
+            PyErr_Print();
+            goto exit;
+        }
     }
 
     renderer = PyObject_CallMethod(canvas, "_draw", "", NULL);
@@ -2330,8 +2342,8 @@ static int _copy_agg_buffer(CGContextRef cr, PyObject *renderer)
     PyGILState_STATE gstate;
     NSPoint location = [event locationInWindow];
     location = [self convertPoint: location fromView: nil];
-    x = location.x;
-    y = location.y;
+    x = location.x * device_scale;
+    y = location.y * device_scale;
     switch ([event type])
     {    case NSLeftMouseDown:
          {   unsigned int modifier = [event modifierFlags];
@@ -2374,8 +2386,8 @@ static int _copy_agg_buffer(CGContextRef cr, PyObject *renderer)
     PyGILState_STATE gstate;
     NSPoint location = [event locationInWindow];
     location = [self convertPoint: location fromView: nil];
-    x = location.x;
-    y = location.y;
+    x = location.x * device_scale;
+    y = location.y * device_scale;
     switch ([event type])
     {    case NSLeftMouseUp:
              num = 1;
@@ -2401,8 +2413,8 @@ static int _copy_agg_buffer(CGContextRef cr, PyObject *renderer)
     int x, y;
     NSPoint location = [event locationInWindow];
     location = [self convertPoint: location fromView: nil];
-    x = location.x;
-    y = location.y;
+    x = location.x * device_scale;
+    y = location.y * device_scale;
     PyGILState_STATE gstate = PyGILState_Ensure();
     PyObject* result = PyObject_CallMethod(canvas, "motion_notify_event", "ii", x, y);
     if(result)
@@ -2418,8 +2430,8 @@ static int _copy_agg_buffer(CGContextRef cr, PyObject *renderer)
     int x, y;
     NSPoint location = [event locationInWindow];
     location = [self convertPoint: location fromView: nil];
-    x = location.x;
-    y = location.y;
+    x = location.x * device_scale;
+    y = location.y * device_scale;
     PyGILState_STATE gstate = PyGILState_Ensure();
     PyObject* result = PyObject_CallMethod(canvas, "motion_notify_event", "ii", x, y);
     if(result)
@@ -2439,8 +2451,8 @@ static int _copy_agg_buffer(CGContextRef cr, PyObject *renderer)
     PyGILState_STATE gstate;
     NSPoint location = [event locationInWindow];
     location = [self convertPoint: location fromView: nil];
-    x = location.x;
-    y = location.y;
+    x = location.x * device_scale;
+    y = location.y * device_scale;
     gstate = PyGILState_Ensure();
     if ([event clickCount] == 2) {
       dblclick = 1;
@@ -2462,8 +2474,8 @@ static int _copy_agg_buffer(CGContextRef cr, PyObject *renderer)
     PyGILState_STATE gstate;
     NSPoint location = [event locationInWindow];
     location = [self convertPoint: location fromView: nil];
-    x = location.x;
-    y = location.y;
+    x = location.x * device_scale;
+    y = location.y * device_scale;
     gstate = PyGILState_Ensure();
     result = PyObject_CallMethod(canvas, "button_release_event", "iii", x, y, num);
     if(result)
@@ -2479,8 +2491,8 @@ static int _copy_agg_buffer(CGContextRef cr, PyObject *renderer)
     int x, y;
     NSPoint location = [event locationInWindow];
     location = [self convertPoint: location fromView: nil];
-    x = location.x;
-    y = location.y;
+    x = location.x * device_scale;
+    y = location.y * device_scale;
     PyGILState_STATE gstate = PyGILState_Ensure();
     PyObject* result = PyObject_CallMethod(canvas, "motion_notify_event", "ii", x, y);
     if(result)
@@ -2500,8 +2512,8 @@ static int _copy_agg_buffer(CGContextRef cr, PyObject *renderer)
     PyGILState_STATE gstate;
     NSPoint location = [event locationInWindow];
     location = [self convertPoint: location fromView: nil];
-    x = location.x;
-    y = location.y;
+    x = location.x * device_scale;
+    y = location.y * device_scale;
     gstate = PyGILState_Ensure();
     if ([event clickCount] == 2) {
       dblclick = 1;
@@ -2523,8 +2535,8 @@ static int _copy_agg_buffer(CGContextRef cr, PyObject *renderer)
     PyGILState_STATE gstate;
     NSPoint location = [event locationInWindow];
     location = [self convertPoint: location fromView: nil];
-    x = location.x;
-    y = location.y;
+    x = location.x * device_scale;
+    y = location.y * device_scale;
     gstate = PyGILState_Ensure();
     result = PyObject_CallMethod(canvas, "button_release_event", "iii", x, y, num);
     if(result)
@@ -2540,8 +2552,8 @@ static int _copy_agg_buffer(CGContextRef cr, PyObject *renderer)
     int x, y;
     NSPoint location = [event locationInWindow];
     location = [self convertPoint: location fromView: nil];
-    x = location.x;
-    y = location.y;
+    x = location.x * device_scale;
+    y = location.y * device_scale;
     PyGILState_STATE gstate = PyGILState_Ensure();
     PyObject* result = PyObject_CallMethod(canvas, "motion_notify_event", "ii", x, y);
     if(result)
@@ -2680,8 +2692,8 @@ static int _copy_agg_buffer(CGContextRef cr, PyObject *renderer)
     else return;
     NSPoint location = [event locationInWindow];
     NSPoint point = [self convertPoint: location fromView: nil];
-    int x = (int)round(point.x);
-    int y = (int)round(point.y - 1);
+    int x = (int)round(point.x * device_scale);
+    int y = (int)round(point.y * device_scale - 1);
 
     PyObject* result;
     PyGILState_STATE gstate = PyGILState_Ensure();
