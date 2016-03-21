@@ -18,7 +18,7 @@ from matplotlib.widgets import SubplotTool
 import matplotlib
 from matplotlib.backends import _macosx
 
-from .backend_agg import RendererAgg
+from .backend_agg import RendererAgg, FigureCanvasAgg
 
 
 class Show(ShowBase):
@@ -83,7 +83,7 @@ class TimerMac(_macosx.Timer, TimerBase):
     # completely implemented at the C-level (in _macosx.Timer)
 
 
-class FigureCanvasMac(_macosx.FigureCanvas, FigureCanvasBase):
+class FigureCanvasMac(_macosx.FigureCanvas, FigureCanvasAgg):
     """
     The canvas the figure renders into.  Calls the draw and print fig
     methods, creates the renderers, etc...
@@ -98,21 +98,19 @@ class FigureCanvasMac(_macosx.FigureCanvas, FigureCanvasBase):
     key_press_event, and key_release_event are called from there.
     """
 
-    filetypes = FigureCanvasBase.filetypes.copy()
-    filetypes['bmp'] = 'Windows bitmap'
-    filetypes['jpeg'] = 'JPEG'
-    filetypes['jpg'] = 'JPEG'
-    filetypes['gif'] = 'Graphics Interchange Format'
-    filetypes['tif'] = 'Tagged Image Format File'
-    filetypes['tiff'] = 'Tagged Image Format File'
-
     def __init__(self, figure):
         FigureCanvasBase.__init__(self, figure)
         width, height = self.get_width_height()
         _macosx.FigureCanvas.__init__(self, width, height)
+        self._needs_draw = True
+        self._device_scale = 1.0
 
-    @property
-    def renderer(self):
+    def _set_device_scale(self, value):
+        if self._device_scale != value:
+            self.figure.dpi = self.figure.dpi / self._device_scale * value
+            self._device_scale = value
+
+    def get_renderer(self, cleared=False):
         l, b, w, h = self.figure.bbox.bounds
         key = w, h, self.figure.dpi
         try:
@@ -125,62 +123,48 @@ class FigureCanvasMac(_macosx.FigureCanvas, FigureCanvasBase):
         if need_new_renderer:
             self._renderer = RendererAgg(w, h, self.figure.dpi)
             self._lastKey = key
+        elif cleared:
+            self._renderer.clear()
 
         return self._renderer
 
-    def _draw(self, device_scale):
+    def _draw(self):
+        renderer = self.get_renderer()
+
+        if not self._needs_draw:
+            return renderer
+
         figure = self.figure
 
         orig_dpi = figure.dpi
         try:
-            figure.dpi *= device_scale
-            renderer = self.renderer
             figure.draw(renderer)
         finally:
             figure.dpi = orig_dpi
 
+        self._needs_draw = False
+
         return renderer
 
+    def draw(self):
+        self._draw()
+        self.invalidate()
+
     def draw_idle(self, *args, **kwargs):
+        self._needs_draw = True
+        self.invalidate()
+
+    def blit(self, bbox):
         self.invalidate()
 
     def resize(self, width, height):
         dpi = self.figure.dpi
         width /= dpi
         height /= dpi
-        self.figure.set_size_inches(width, height)
+        self.figure.set_size_inches(width * self._device_scale,
+                                    height * self._device_scale)
         FigureCanvasBase.resize_event(self)
-
-    def _print_bitmap(self, filename, *args, **kwargs):
-        # In backend_bases.py, print_figure changes the dpi of the figure.
-        # But since we are essentially redrawing the picture, we need the
-        # original dpi. Pick it up from the renderer.
-        dpi = kwargs['dpi']
-        old_dpi = self.figure.dpi
-        self.figure.dpi = self.renderer.dpi
-        width, height = self.figure.get_size_inches()
-        width, height = width*dpi, height*dpi
-        filename = six.text_type(filename)
-        self.write_bitmap(filename, width, height, dpi)
-        self.figure.dpi = old_dpi
-
-    def print_bmp(self, filename, *args, **kwargs):
-        self._print_bitmap(filename, *args, **kwargs)
-
-    def print_jpg(self, filename, *args, **kwargs):
-        self._print_bitmap(filename, *args, **kwargs)
-
-    def print_jpeg(self, filename, *args, **kwargs):
-        self._print_bitmap(filename, *args, **kwargs)
-
-    def print_tif(self, filename, *args, **kwargs):
-        self._print_bitmap(filename, *args, **kwargs)
-
-    def print_tiff(self, filename, *args, **kwargs):
-        self._print_bitmap(filename, *args, **kwargs)
-
-    def print_gif(self, filename, *args, **kwargs):
-        self._print_bitmap(filename, *args, **kwargs)
+        self.draw_idle()
 
     def new_timer(self, *args, **kwargs):
         """

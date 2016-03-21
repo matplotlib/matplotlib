@@ -292,7 +292,7 @@ static int wait_for_stdin(void)
 
 static CGFloat _get_device_scale(CGContextRef cr)
 {
-    CGSize pixelSize = CGContextConvertSizeToDeviceSpace(cr, CGSizeMake(1,1));
+    CGSize pixelSize = CGContextConvertSizeToDeviceSpace(cr, CGSizeMake(1, 1));
     return pixelSize.width;
 }
 
@@ -2194,11 +2194,9 @@ static WindowServerConnectionManager *sharedWindowServerConnectionManager = nil;
     canvas = newCanvas;
 }
 
-
 static void _buffer_release(void* info, const void* data, size_t size) {
     PyBuffer_Release((Py_buffer *)info);
 }
-
 
 static int _copy_agg_buffer(CGContextRef cr, PyObject *renderer)
 {
@@ -2276,7 +2274,14 @@ static int _copy_agg_buffer(CGContextRef cr, PyObject *renderer)
 
     CGContextRef cr = [[NSGraphicsContext currentContext] graphicsPort];
 
-    renderer = PyObject_CallMethod(canvas, "_draw", "d", _get_device_scale(cr));
+    double device_scale = _get_device_scale(cr);
+
+    if (!PyObject_CallMethod(canvas, "_set_device_scale", "d", device_scale, NULL)) {
+        PyErr_Print();
+        goto exit;
+    }
+
+    renderer = PyObject_CallMethod(canvas, "_draw", "", NULL);
     if (!renderer)
     {
         PyErr_Print();
