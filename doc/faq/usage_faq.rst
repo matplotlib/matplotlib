@@ -522,7 +522,9 @@ and turned off via :func:`matplotlib.pyplot.ioff`.
 
 .. note::
    Interactive mode works with suitable backends in ipython and in
-   the ordinary python shell, but it does *not* work in the IDLE IDE.
+   the ordinary python shell, but it does *not* work in the IDLE IDE. 
+   If the default backend does not support interactivity, an interactive 
+   backend can be explicitly activated using any of the methods discussed in `What is a backend?`_.
 
 
 Interactive example
@@ -545,9 +547,7 @@ can type additional commands such as::
 
 and you will see the plot being updated after each line.  This is
 because you are in interactive mode *and* you are using pyplot
-functions. 
-
-Now try an alternative method of modifying the
+functions. Now try an alternative method of modifying the
 plot.  Get a reference to the :class:`~matplotlib.axes.Axes` instance, and
 call a method of that instance::
 
@@ -563,8 +563,6 @@ you need to call :func:`~matplotlib.pyplot.draw`::
     plt.draw()
 
 Now you should see the new line added to the plot.
-
-If this example did not work, you may need to explicitly activate the qt backend. This can most simply be done by opening an ipython prompt using `ipython --matplotlib=qt` or using the ipython magic command of `%matplotlib qt` before you import matplotlib. 
 
 Non-interactive example
 -----------------------
