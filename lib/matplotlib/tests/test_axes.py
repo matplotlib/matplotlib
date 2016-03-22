@@ -2348,6 +2348,10 @@ def test_stem_dates():
 
     ax.stem([x, x1], [y, y1], "*-")
 
+@image_comparison(baseline_images=['stem_orientation'])
+def test_stem_orientation():
+    x = np.linspace(0.1, 2*np.pi, 10)
+    plt.stem(x, np.cos(x), orientation='vertical')
 
 @image_comparison(baseline_images=['hist_stacked_stepfilled_alpha'])
 def test_hist_stacked_stepfilled_alpha():
