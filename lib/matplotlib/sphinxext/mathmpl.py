@@ -119,3 +119,6 @@ def setup(app):
     app.add_role('math', math_role)
     app.add_directive('math', math_directive,
                       True, (0, 0, 0), **options_spec)
+
+    metadata = {'parallel_read_safe': True, 'parallel_write_safe': True}
+    return metadata
