@@ -33,7 +33,7 @@ Plots
 
 - The default size of the elements in a scatter plot is now based on
   the rcParam ``lines.markersize`` so it is consistent with ``plot(X,
-  Y, 'o')``.  The old value was 20.
+  Y, 'o')``.  The old value was 20, and the new value is 36 (6^2).
 
 Plot layout
 ```````````
