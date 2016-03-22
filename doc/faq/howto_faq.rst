@@ -664,8 +664,9 @@ Here is an example using `Pillow <http://python-imaging.github.io/>`_.
 First, the figure is saved to a StringIO object which is then fed to
 Pillow for further processing::
 
-    import StringIO, Image
-    imgdata = StringIO.StringIO()
+    from io import BytesIO
+    import Image
+    imgdata = BytesIO()
     fig.savefig(imgdata, format='png')
     imgdata.seek(0)  # rewind the data
     im = Image.open(imgdata)
