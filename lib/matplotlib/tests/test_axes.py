@@ -3279,6 +3279,19 @@ def test_stem_dates():
     ax.stem(xs, ys, "*-")
 
 
+@pytest.mark.parametrize("use_line_collection", [True, False],
+                         ids=['w/ line collection', 'w/o line collection'])
+@image_comparison(['stem_orientation.png'], style='mpl20', remove_text=True)
+def test_stem_orientation(use_line_collection):
+    x = np.linspace(0.1, 2*np.pi, 50)
+    args = (x, np.cos(x))
+    kwargs = dict(linefmt='C2-.', markerfmt='kx', basefmt='C1-.',
+                  use_line_collection=use_line_collection)
+
+    fig, ax = plt.subplots()
+    ax.stem(*args, **kwargs, orientation='vertical')
+
+
 @image_comparison(['hist_stacked_stepfilled_alpha'])
 def test_hist_stacked_stepfilled_alpha():
     # make some data
