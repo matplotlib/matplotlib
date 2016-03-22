@@ -3726,7 +3726,7 @@ class Axes(_AxesBase):
                                         'facecolors', 'color'],
                          label_namer="y")
     @docstring.dedent_interpd
-    def scatter(self, x, y, s=20, c=None, marker='o', cmap=None, norm=None,
+    def scatter(self, x, y, s=None, c=None, marker='o', cmap=None, norm=None,
                 vmin=None, vmax=None, alpha=None, linewidths=None,
                 verts=None, edgecolors=None,
                 **kwargs):
@@ -3739,8 +3739,8 @@ class Axes(_AxesBase):
         x, y : array_like, shape (n, )
             Input data
 
-        s : scalar or array_like, shape (n, ), optional, default: 20
-            size in points^2.
+        s : scalar or array_like, shape (n, ), optional
+            size in points^2.  Default is `rcParams['lines.markersize'] ** 2`.
 
         c : color, sequence, or sequence of color, optional, default: 'b'
             `c` can be a single color format string, or a sequence of color
@@ -3860,6 +3860,12 @@ class Axes(_AxesBase):
         y = np.ma.ravel(y)
         if x.size != y.size:
             raise ValueError("x and y must be the same size")
+
+        if s is None:
+            if rcParams['_internal.classic_mode']:
+                s = 20
+            else:
+                s = rcParams['lines.markersize'] ** 2.0
 
         s = np.ma.ravel(s)  # This doesn't have to match x, y in size.
 
