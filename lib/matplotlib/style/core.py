@@ -66,7 +66,7 @@ def _apply_style(d, warn=True):
     mpl.rcParams.update(_remove_blacklisted_style_params(d, warn=warn))
 
 
-def use(styles):
+def use(style):
     """Use matplotlib style settings from a style specification.
 
     The style name of 'default' is reserved for reverting back to
@@ -90,10 +90,10 @@ def use(styles):
 
 
     """
-    if cbook.is_string_like(styles) or hasattr(styles, 'keys'):
+    if cbook.is_string_like(style) or hasattr(style, 'keys'):
         # If name is a single str or dict, make it a single element list.
-        styles = [styles]
-    flattened_style = _flatten_style_dict({PARENT_STYLES: styles})
+        style = [style]
+    flattened_style = _flatten_style_dict({PARENT_STYLES: style})
     _apply_style(flattened_style)
 
 
