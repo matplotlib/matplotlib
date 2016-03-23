@@ -587,6 +587,7 @@ def test_pandas_iterable():
     cm2 = mcolors.ListedColormap(s, N=5)
     assert_sequence_equal(cm1.colors, cm2.colors)
 
+
 def test_colormap_reversing():
     """Check the generated _lut data of a colormap and corresponding
     reversed colormap if they are almost the same."""
