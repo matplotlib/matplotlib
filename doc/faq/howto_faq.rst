@@ -661,11 +661,11 @@ or by saving to a file handle::
     fig.savefig(sys.stdout)
 
 Here is an example using `Pillow <http://python-imaging.github.io/>`_.
-First, the figure is saved to a StringIO object which is then fed to
+First, the figure is saved to a BytesIO object which is then fed to
 Pillow for further processing::
 
     from io import BytesIO
-    import Image
+    from PIL import Image
     imgdata = BytesIO()
     fig.savefig(imgdata, format='png')
     imgdata.seek(0)  # rewind the data
