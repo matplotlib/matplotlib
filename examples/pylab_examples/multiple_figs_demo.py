@@ -18,7 +18,7 @@ plt.plot(t, s2)
 # now switch back to figure 1 and make some changes
 plt.figure(1)
 plt.subplot(211)
-plt.plot(t, s2, 'gs')
+plt.plot(t, s2, 's')
 ax = plt.gca()
 ax.set_xticklabels([])
 

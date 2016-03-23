@@ -23,7 +23,7 @@
 #
 # Colors: for the color values below, you can either use - a
 # matplotlib color string, such as r, k, or b - an rgb tuple, such as
-# (1.0, 0.5, 0.0) - a hex string, such as ff00ff or #ff00ff - a scalar
+# (1.0, 0.5, 0.0) - a hex string, such as ff00ff - a scalar
 # grayscale intensity such as 0.75 - a legal html color name, e.g., red,
 # blue, darkslategray
 
@@ -35,7 +35,7 @@
 # You can also deploy your own backend outside of matplotlib by
 # referring to the module name (which must be in the PYTHONPATH) as
 # 'module://my_backend'.
-backend      : %(backend)s
+backend      : $TEMPLATE_BACKEND
 
 # If you are using the Qt4Agg backend, you can choose here
 # to use the PyQt4 bindings or the newer PySide bindings to
@@ -59,7 +59,7 @@ backend      : %(backend)s
 
 # When True, the figures rendered in the nbagg backend are created with
 # a transparent background.
-# nbagg.transparent : True
+# nbagg.transparent : False
 
 # if you are running pyplot inside a GUI and your backend choice
 # conflicts, we will automatically try to find a compatible one for
@@ -78,17 +78,22 @@ backend      : %(backend)s
 ### LINES
 # See http://matplotlib.org/api/artist_api.html#module-matplotlib.lines for more
 # information on line properties.
-#lines.linewidth   : 1.0     # line width in points
+#lines.linewidth   : 2.0     # line width in points
 #lines.linestyle   : -       # solid line
 #lines.color       : blue    # has no affect on plot(); see axes.prop_cycle
 #lines.marker      : None    # the default marker
-#lines.markeredgewidth  : 0.5     # the line width around the marker symbol
+#lines.markeredgewidth  : 1.0     # the line width around the marker symbol
 #lines.markersize  : 6            # markersize, in points
 #lines.dash_joinstyle : miter        # miter|round|bevel
 #lines.dash_capstyle : butt          # butt|round|projecting
 #lines.solid_joinstyle : miter       # miter|round|bevel
 #lines.solid_capstyle : projecting   # butt|round|projecting
 #lines.antialiased : True         # render lines in antialiased (no jaggies)
+
+# The three standard dash patterns.  These are scaled by the linewidth.
+#lines.dashed_pattern : 2.8, 1.2
+#lines.dashdot_pattern : 4.8, 1.2, 0.8, 1.2
+#lines.dotted_pattern : 1.2, 0.6
 
 #markers.fillstyle: full # full|left|right|bottom|top|none
 
@@ -97,10 +102,56 @@ backend      : %(backend)s
 # circles.  See
 # http://matplotlib.org/api/artist_api.html#module-matplotlib.patches
 # information on patch properties
-#patch.linewidth        : 1.0     # edge width in points
-#patch.facecolor        : blue
+#patch.linewidth        : None     # edge width in points.
+                                   # If None, use axes.linewidth when patch
+                                   # is not filled.
+#patch.facecolor        : 1f77b4
 #patch.edgecolor        : black
 #patch.antialiased      : True    # render patches in antialiased (no jaggies)
+
+### Boxplot
+#boxplot.notch       : False
+#boxplot.vertical    : True
+#boxplot.whiskers    : 1
+#boxplot.bootstrap   : None
+#boxplot.patchartist : False
+#boxplot.showmeans   : False
+#boxplot.showcaps    : True
+#boxplot.showbox     : True
+#boxplot.showfliers  : True
+#boxplot.meanline    : False
+
+#boxplot.flierprops.color           : 'k'
+#boxplot.flierprops.marker          : 'o'
+#boxplot.flierprops.markerfacecolor : 'none'
+#boxplot.flierprops.markeredgecolor : 'k'
+#boxplot.flierprops.markersize      : 6
+#boxplot.flierprops.linestyle       : 'none'
+#boxplot.flierprops.linewidth       : 1.0
+
+#boxplot.boxprops.color     : 'k'
+#boxplot.boxprops.linewidth : 1.0
+#boxplot.boxprops.linestyle : '-'
+
+#boxplot.whiskerprops.color     : 'k'
+#boxplot.whiskerprops.linewidth : 1.0
+#boxplot.whiskerprops.linestyle : '-'
+
+#boxplot.capprops.color     : 'k'
+#boxplot.capprops.linewidth : 1.0
+#boxplot.capprops.linestyle : '-'
+
+#boxplot.medianprops.color     : 'b'
+#boxplot.medianprops.linewidth : 1.0
+#boxplot.medianprops.linestyle : '-'
+
+#boxplot.meanprops.color           : 'b'
+#boxplot.meanprops.marker          : '^'
+#boxplot.meanprops.markerfacecolor : 'b'
+#boxplot.meanprops.markeredgecolor : 'b'
+#boxplot.meanprops.markersize      :  6
+#boxplot.meanprops.linestyle       : 'none'
+#boxplot.meanprops.linewidth       : 1.0
 
 ### FONT
 #
@@ -149,11 +200,11 @@ backend      : %(backend)s
 # relative to font.size, using the following values: xx-small, x-small,
 # small, medium, large, x-large, xx-large, larger, or smaller
 #font.size           : 12.0
-#font.serif          : Bitstream Vera Serif, New Century Schoolbook, Century Schoolbook L, Utopia, ITC Bookman, Bookman, Nimbus Roman No9 L, Times New Roman, Times, Palatino, Charter, serif
-#font.sans-serif     : Bitstream Vera Sans, Lucida Grande, Verdana, Geneva, Lucid, Arial, Helvetica, Avant Garde, sans-serif
+#font.serif          : DejaVu Serif, Bitstream Vera Serif, New Century Schoolbook, Century Schoolbook L, Utopia, ITC Bookman, Bookman, Nimbus Roman No9 L, Times New Roman, Times, Palatino, Charter, serif
+#font.sans-serif     : DejaVu Sans, Bitstream Vera Sans, Lucida Grande, Verdana, Geneva, Lucid, Arial, Helvetica, Avant Garde, sans-serif
 #font.cursive        : Apple Chancery, Textile, Zapf Chancery, Sand, Script MT, Felipa, cursive
 #font.fantasy        : Comic Sans MS, Chicago, Charcoal, Impact, Western, Humor Sans, fantasy
-#font.monospace      : Bitstream Vera Sans Mono, Andale Mono, Nimbus Mono L, Courier New, Courier, Fixed, Terminal, monospace
+#font.monospace      : DejaVu Sans Mono, Bitstream Vera Sans Mono, Andale Mono, Nimbus Mono L, Courier New, Courier, Fixed, Terminal, monospace
 
 ### TEXT
 # text properties used by text.Text.  See
@@ -195,10 +246,10 @@ backend      : %(backend)s
 
 #text.hinting : auto   # May be one of the following:
                        #   'none': Perform no hinting
-                       #   'auto': Use freetype's autohinter
+                       #   'auto': Use FreeType's autohinter
                        #   'native': Use the hinting information in the
                        #             font file, if available, and if your
-                       #             freetype library supports it
+                       #             FreeType library supports it
                        #   'either': Use the native hinting information,
                        #             or the autohinter if none is available.
                        # For backward compatibility, this value may also be
@@ -221,8 +272,9 @@ backend      : %(backend)s
 #mathtext.it  : serif:italic
 #mathtext.bf  : serif:bold
 #mathtext.sf  : sans
-#mathtext.fontset : cm # Should be 'cm' (Computer Modern), 'stix',
-                       # 'stixsans' or 'custom'
+#mathtext.fontset : dejavusans # Should be 'dejavusans' (default),
+                               # 'dejavuserif', 'cm' (Computer Modern), 'stix',
+                               # 'stixsans' or 'custom'
 #mathtext.fallback_to_cm : True  # When True, use symbols from the Computer Modern
                                  # fonts when a symbol can not be found in one of
                                  # the custom math fonts.
@@ -264,54 +316,84 @@ backend      : %(backend)s
                                          # small compared to the minimum absolute
                                          # value of the data.
 
+
 #axes.unicode_minus  : True    # use unicode for the minus symbol
                                # rather than hyphen.  See
                                # http://en.wikipedia.org/wiki/Plus_and_minus_signs#Character_codes
-#axes.prop_cycle    : cycler('color', 'bgrcmyk')
+#axes.prop_cycle    : cycler('color',
+#                            ['1f77b4', 'ff7f0e', '2ca02c', 'd62728',
+#                              '9467bd', '8c564b', 'e377c2', '7f7f7f',
+#                              'bcbd22', '17becf'])
                                             # color cycle for plot lines
                                             # as list of string colorspecs:
                                             # single letter, long name, or
                                             # web-style hex
-#axes.xmargin        : 0  # x margin.  See `axes.Axes.margins`
-#axes.ymargin        : 0  # y margin See `axes.Axes.margins`
+#axes.autolimit_mode : data # How to scale axes limits to the data.
+                            # Use "data" to use data limits, plus some margin
+                            # Use "round_number" move to the nearest "round" number
+#axes.xmargin        : .05  # x margin.  See `axes.Axes.margins`
+#axes.ymargin        : .05  # y margin See `axes.Axes.margins`
 
 #polaraxes.grid      : True    # display grid on polar axes
 #axes3d.grid         : True    # display grid on 3d axes
 
+### DATES
+# These control the default format strings used in AutoDateFormatter.
+# Any valid format datetime format string can be used (see the python
+# `datetime` for details).  For example using '%%x' will use the locale date representation
+# '%%X' will use the locale time representation and '%%c' will use the full locale datetime
+# representation.
+# These values map to the scales:
+#    {'year': 365, 'month': 30, 'day': 1, 'hour': 1/24, 'minute': 1 / (24 * 60)}
+
+# date.autoformatter.year     : %Y
+# date.autoformatter.month    : %Y-%m
+# date.autoformatter.day      : %Y-%m-%d
+# date.autoformatter.hour     : %H:%M
+# date.autoformatter.minute   : %H:%M:%S
+# date.autoformatter.second   : %H:%M:%S.%f
+
 ### TICKS
 # see http://matplotlib.org/api/axis_api.html#matplotlib.axis.Tick
+#xtick.top            : True   # draw ticks on the top side
+#xtick.bottom         : True   # draw ticks on the bottom side
 #xtick.major.size     : 4      # major tick size in points
 #xtick.minor.size     : 2      # minor tick size in points
-#xtick.major.width    : 0.5    # major tick width in points
-#xtick.minor.width    : 0.5    # minor tick width in points
+#xtick.major.width    : 1.0    # major tick width in points
+#xtick.minor.width    : 1.0    # minor tick width in points
 #xtick.major.pad      : 4      # distance to major tick label in points
 #xtick.minor.pad      : 4      # distance to the minor tick label in points
 #xtick.color          : k      # color of the tick labels
 #xtick.labelsize      : medium # fontsize of the tick labels
-#xtick.direction      : in     # direction: in, out, or inout
+#xtick.direction      : out    # direction: in, out, or inout
+#xtick.minor.visible  : False  # visibility of minor ticks on x-axis
 
+#ytick.left           : True   # draw ticks on the left side
+#ytick.right          : True   # draw ticks on the right side
 #ytick.major.size     : 4      # major tick size in points
 #ytick.minor.size     : 2      # minor tick size in points
-#ytick.major.width    : 0.5    # major tick width in points
-#ytick.minor.width    : 0.5    # minor tick width in points
+#ytick.major.width    : 1.0    # major tick width in points
+#ytick.minor.width    : 1.0    # minor tick width in points
 #ytick.major.pad      : 4      # distance to major tick label in points
 #ytick.minor.pad      : 4      # distance to the minor tick label in points
 #ytick.color          : k      # color of the tick labels
 #ytick.labelsize      : medium # fontsize of the tick labels
-#ytick.direction      : in     # direction: in, out, or inout
+#ytick.direction      : out    # direction: in, out, or inout
+#ytick.minor.visible  : False  # visibility of minor ticks on y-axis
 
 
 ### GRIDS
-#grid.color       :   black   # grid color
-#grid.linestyle   :   :       # dotted
-#grid.linewidth   :   0.5     # in points
-#grid.alpha       :   1.0     # transparency, between 0.0 and 1.0
+#grid.color       :   b0b0b0 # grid color
+#grid.linestyle   :   -         # solid
+#grid.linewidth   :   1.0       # in points
+#grid.alpha       :   1.0       # transparency, between 0.0 and 1.0
 
 ### Legend
-#legend.fancybox      : False  # if True, use a rounded box for the
-                               # legend, else a rectangle
+#legend.fancybox      : True  # if True, use a rounded box for the
+                              # legend, else a rectangle
+#legend.loc           : best
 #legend.isaxes        : True
-#legend.numpoints     : 2      # the number of points in the legend line
+#legend.numpoints     : 1      # the number of points in the legend line
 #legend.fontsize      : large
 #legend.borderpad     : 0.5    # border whitespace in fontsize units
 #legend.markerscale   : 1.0    # the relative size of legend markers vs. original
@@ -326,14 +408,16 @@ backend      : %(backend)s
 #legend.frameon       : True   # whether or not to draw a frame around legend
 #legend.framealpha    : None    # opacity of of legend frame
 #legend.scatterpoints : 3 # number of scatter points
+#legend.facecolor     : inherit
+#legend.edgecolor     : k
 
 ### FIGURE
 # See http://matplotlib.org/api/figure_api.html#matplotlib.figure.Figure
 #figure.titlesize : medium     # size of the figure title
 #figure.titleweight : normal   # weight of the figure title
 #figure.figsize   : 8, 6    # figure size in inches
-#figure.dpi       : 80      # figure dots per inch
-#figure.facecolor : 0.75    # figure facecolor; 0.75 is scalar gray
+#figure.dpi       : 100      # figure dots per inch
+#figure.facecolor : white   # figure facecolor; 0.75 is scalar gray
 #figure.edgecolor : white   # figure edgecolor
 #figure.autolayout : False  # When True, automatically adjust subplot
                             # parameters to make the plot fit the figure
@@ -352,14 +436,14 @@ backend      : %(backend)s
 
 ### IMAGES
 #image.aspect : equal             # equal | auto | a number
-#image.interpolation  : bilinear  # see help(imshow) for options
-#image.cmap   : jet               # gray | jet etc...
+#image.interpolation  : nearest   # see help(imshow) for options
+#image.cmap   : viridis           # A colormap name, gray etc...
 #image.lut    : 256               # the size of the colormap lookup table
 #image.origin : upper             # lower | upper
-#image.resample  : False
-#image.composite_image : True     # When True, all the images on a set of axes are 
-                                  # combined into a single composite image before 
-                                  # saving a figure as a vector graphics file, 
+#image.resample  : True
+#image.composite_image : True     # When True, all the images on a set of axes are
+                                  # combined into a single composite image before
+                                  # saving a figure as a vector graphics file,
                                   # such as a PDF.
 
 ### CONTOUR PLOTS
@@ -367,7 +451,12 @@ backend      : %(backend)s
 #contour.corner_mask        : True   # True | False | legacy
 
 ### ERRORBAR PLOTS
-#errorbar.capsize : 3             # length of end cap on error bars in pixels
+#errorbar.capsize : 0             # length of end cap on error bars in pixels
+
+### HISTOGRAM PLOTS
+#hist.bins : 10                   # The default number of histogram bins.
+                                  # If Numpy 1.11 or later is
+                                  # installed, may also be `auto`
 
 ### Agg rendering
 ### Warning: experimental, 2008/10/10
@@ -400,7 +489,7 @@ backend      : %(backend)s
 # the default savefig params can be different from the display params
 # e.g., you may want a higher resolution, or to make the figure
 # background white
-#savefig.dpi         : 100      # figure dots per inch
+#savefig.dpi         : figure   # figure dots per inch or 'figure'
 #savefig.facecolor   : white    # figure facecolor when saving
 #savefig.edgecolor   : white    # figure edgecolor when saving
 #savefig.format      : png      # png, ps, pdf, svg
@@ -436,12 +525,13 @@ backend      : %(backend)s
 
 # svg backend params
 #svg.image_inline : True       # write raster image data directly into the svg file
-#svg.image_noscale : False     # suppress scaling of raster data embedded in SVG
 #svg.fonttype : 'path'         # How to handle SVG fonts:
 #    'none': Assume fonts are installed on the machine where the SVG will be viewed.
 #    'path': Embed characters as paths -- supported by most SVG renderers
 #    'svgfont': Embed characters as SVG fonts -- supported only by Chrome,
 #               Opera and Safari
+#svg.hashsalt : None           # if not None, use this string as hash salt
+                               # instead of uuid4
 
 # docstring params
 #docstring.hardcopy = False  # set this when you want to generate hardcopy docstring

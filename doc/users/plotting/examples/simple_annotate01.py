@@ -7,8 +7,8 @@ x2, y2 = 0.7, 0.7
 
 fig = plt.figure(1)
 fig.clf()
-from mpl_toolkits.axes_grid.axes_grid import Grid
-from mpl_toolkits.axes_grid.anchored_artists import AnchoredText
+from mpl_toolkits.axes_grid1.axes_grid import Grid
+from matplotlib.offsetbox import AnchoredText
 
 from matplotlib.font_manager import FontProperties
 
@@ -129,3 +129,4 @@ add_at(ax, "relpos=(0,0)", loc=2)
 #ax.set_xlim(0, 1)
 #ax.set_ylim(0, 1)
 plt.draw()
+plt.show()

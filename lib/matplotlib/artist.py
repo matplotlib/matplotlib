@@ -2,6 +2,7 @@ from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
 from matplotlib.externals import six
+from collections import OrderedDict
 
 import re
 import warnings
@@ -12,7 +13,7 @@ import matplotlib.cbook as cbook
 from matplotlib.cbook import mplDeprecation
 from matplotlib import docstring, rcParams
 from .transforms import (Bbox, IdentityTransform, TransformedBbox,
-                         TransformedPath, Transform)
+                         TransformedPatchPath, TransformedPath, Transform)
 from .path import Path
 
 # Note, matplotlib artists use the doc strings for set and get
@@ -83,6 +84,10 @@ class Artist(object):
 
     aname = 'Artist'
     zorder = 0
+    # order of precedence when bulk setting/updating properties
+    # via update.  The keys should be property names and the values
+    # integers
+    _prop_order = dict(color=-1)
 
     def __init__(self):
         self._stale = True
@@ -118,6 +123,8 @@ class Artist(object):
         self._snap = None
         self._sketch = rcParams['path.sketch']
         self._path_effects = rcParams['path.effects']
+
+        self._margins = {}
 
     def __getstate__(self):
         d = self.__dict__.copy()
@@ -688,9 +695,7 @@ class Artist(object):
                 self._clippath = None
                 success = True
             elif isinstance(path, Patch):
-                self._clippath = TransformedPath(
-                    path.get_path(),
-                    path.get_transform())
+                self._clippath = TransformedPatchPath(path)
                 success = True
             elif isinstance(path, tuple):
                 path, transform = path
@@ -700,6 +705,9 @@ class Artist(object):
             success = True
         elif isinstance(path, Path):
             self._clippath = TransformedPath(path, transform)
+            success = True
+        elif isinstance(path, TransformedPatchPath):
+            self._clippath = path
             success = True
         elif isinstance(path, TransformedPath):
             self._clippath = path
@@ -846,23 +854,43 @@ class Artist(object):
         Update the properties of this :class:`Artist` from the
         dictionary *prop*.
         """
-        store = self.eventson
-        self.eventson = False
-        changed = False
+        def _update_property(self, k, v):
+            """sorting out how to update property (setter or setattr)
 
-        for k, v in six.iteritems(props):
-            if k in ['axes']:
-                setattr(self, k, v)
+            Parameters
+            ----------
+            k : str
+                The name of property to update
+            v : obj
+                The value to assign to the property
+            Returns
+            -------
+            ret : obj or None
+                If using a `set_*` method return it's return, else None.
+            """
+            k = k.lower()
+            # white list attributes we want to be able to update through
+            # art.update, art.set, setp
+            if k in {'axes'}:
+                return setattr(self, k, v)
             else:
                 func = getattr(self, 'set_' + k, None)
                 if func is None or not six.callable(func):
                     raise AttributeError('Unknown property %s' % k)
-                func(v)
-            changed = True
-        self.eventson = store
-        if changed:
+                return func(v)
+
+        store = self.eventson
+        self.eventson = False
+        try:
+            ret = [_update_property(self, k, v)
+                   for k, v in props.items()]
+        finally:
+            self.eventson = store
+
+        if len(ret):
             self.pchanged()
             self.stale = True
+        return ret
 
     def get_label(self):
         """
@@ -900,6 +928,99 @@ class Artist(object):
         self.pchanged()
         self.stale = True
 
+    def get_top_margin(self):
+        """
+        Get whether a margin should be applied to the top of the Artist.
+        """
+        return self._margins.get('top', True)
+
+    def set_top_margin(self, margin):
+        """
+        Set whether a margin should be applied to the top of the Artist.
+        """
+        if margin != self._margins.get('top', True):
+            self.stale = True
+        self._margins['top'] = margin
+
+    top_margin = property(get_top_margin, set_top_margin)
+
+    def get_bottom_margin(self):
+        """
+        Get whether a margin should be applied to the bottom of the Artist.
+        """
+        return self._margins.get('bottom', True)
+
+    def set_bottom_margin(self, margin):
+        """
+        Set whether a margin should be applied to the bottom of the Artist.
+        """
+        if margin != self._margins.get('bottom', True):
+            self.stale = True
+        self._margins['bottom'] = margin
+
+    bottom_margin = property(get_bottom_margin, set_bottom_margin)
+
+    def get_left_margin(self):
+        """
+        Get whether a margin should be applied to the left of the Artist.
+        """
+        return self._margins.get('left', True)
+
+    def set_left_margin(self, margin):
+        """
+        Set whether a margin should be applied to the left of the Artist.
+        """
+        if margin != self._margins.get('left', True):
+            self.stale = True
+        self._margins['left'] = margin
+
+    left_margin = property(get_left_margin, set_left_margin)
+
+    def get_right_margin(self):
+        """
+        Get whether a margin should be applied to the right of the Artist.
+        """
+        return self._margins.get('right', True)
+
+    def set_right_margin(self, margin):
+        """
+        Set whether a margin should be applied to the right of the Artist.
+        """
+        if margin != self._margins.get('right', True):
+            self.stale = True
+        self._margins['right'] = margin
+
+    right_margin = property(get_right_margin, set_right_margin)
+
+    def get_margins(self):
+        """
+        Returns a dictionary describing whether a margin should be applied on
+        each of the sides (top, bottom, left and right).
+        """
+        return self._margins
+
+    def set_margins(self, margins):
+        """
+        Set the dictionary describing whether a margin should be applied on
+        each of the sides (top, bottom, left and right).  Missing keys are
+        assumed to be `True`.  If `True` or `False` are passed in, all
+        sides are set to that value.
+        """
+        if margins in (True, False):
+            margins = {
+                'top': margins,
+                'bottom': margins,
+                'left': margins,
+                'right': margins
+            }
+
+        if margins != self._margins:
+            self.stale = True
+
+        self._margins = margins
+
+    margins = property(get_margins, set_margins)
+
     def update_from(self, other):
         'Copy properties from *other* to *self*.'
         self._transform = other._transform
@@ -922,23 +1043,13 @@ class Artist(object):
         return ArtistInspector(self).properties()
 
     def set(self, **kwargs):
+        """A property batch setter. Pass *kwargs* to set properties.
         """
-        A property batch setter. Pass *kwargs* to set properties.
-        Will handle property name collisions (e.g., if both
-        'color' and 'facecolor' are specified, the property
-        with higher priority gets set last).
+        props = OrderedDict(
+            sorted(kwargs.items(), reverse=True,
+                   key=lambda x: (self._prop_order.get(x[0], 0), x[0])))
 
-        """
-        ret = []
-        for k, v in sorted(kwargs.items(), reverse=True):
-            k = k.lower()
-            funcName = "set_%s" % k
-            func = getattr(self, funcName, None)
-            if func is None:
-               raise TypeError('There is no %s property "%s"' %
-                               (self.__class__.__name__, k))
-            ret.extend([func(v)])
-        return ret
+        return self.update(props)
 
     def findobj(self, match=None, include_self=True):
         """
@@ -1160,8 +1271,7 @@ class ArtistInspector(object):
 
         if s in self.aliasd:
             return s + ''.join([' or %s' % x
-                                for x
-                                in six.iterkeys(self.aliasd[s])])
+                                for x in sorted(self.aliasd[s])])
         else:
             return s
 
@@ -1177,8 +1287,7 @@ class ArtistInspector(object):
 
         if s in self.aliasd:
             aliases = ''.join([' or %s' % x
-                               for x
-                               in six.iterkeys(self.aliasd[s])])
+                               for x in sorted(self.aliasd[s])])
         else:
             aliases = ''
         return ':meth:`%s <%s>`%s' % (s, target, aliases)
@@ -1450,26 +1559,18 @@ def setp(obj, *args, **kwargs):
     if not cbook.iterable(obj):
         objs = [obj]
     else:
-        objs = cbook.flatten(obj)
+        objs = list(cbook.flatten(obj))
 
     if len(args) % 2:
         raise ValueError('The set args must be string, value pairs')
 
-    funcvals = []
+    # put args into ordereddict to maintain order
+    funcvals = OrderedDict()
     for i in range(0, len(args) - 1, 2):
-        funcvals.append((args[i], args[i + 1]))
-    funcvals.extend(sorted(kwargs.items(), reverse=True))
+        funcvals[args[i]] = args[i + 1]
 
-    ret = []
-    for o in objs:
-        for s, val in funcvals:
-            s = s.lower()
-            funcName = "set_%s" % s
-            func = getattr(o, funcName, None)
-            if func is None:
-                raise TypeError('There is no %s property "%s"' %
-                                (o.__class__.__name__, s))
-            ret.extend([func(val)])
+    ret = [o.update(funcvals) for o in objs]
+    ret.extend([o.set(**kwargs) for o in objs])
     return [x for x in cbook.flatten(ret)]
 
 

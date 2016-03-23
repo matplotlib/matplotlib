@@ -9,7 +9,7 @@ from matplotlib.pyplot import figure, show
 fig = figure()
 fig.subplots_adjust(bottom=0.2)
 
-ax = fig.add_subplot(111, axisbg='y')
+ax = fig.add_subplot(111)
 ax.plot([1, 2, 3], 'r')
 x = np.arange(0.0, 3.0, 0.1)
 

@@ -102,11 +102,11 @@ def test_composite_image():
     plt.rcParams['image.composite_image'] = True
     with PdfPages(io.BytesIO()) as pdf:
         fig.savefig(pdf, format="pdf")
-        assert len(pdf._file.images.keys()) == 1
+        assert len(pdf._file._images.keys()) == 1
     plt.rcParams['image.composite_image'] = False
     with PdfPages(io.BytesIO()) as pdf:
         fig.savefig(pdf, format="pdf")
-        assert len(pdf._file.images.keys()) == 2
+        assert len(pdf._file._images.keys()) == 2
 
 
 @image_comparison(baseline_images=['hatching_legend'],
@@ -122,7 +122,7 @@ def test_hatching_legend():
 
 
 @image_comparison(baseline_images=['grayscale_alpha'],
-                  extensions=['pdf'], tol=1e-3)
+                  extensions=['pdf'])
 def test_grayscale_alpha():
     """Masking images with NaN did not work for grayscale images"""
     x, y = np.ogrid[-2:2:.1, -2:2:.1]

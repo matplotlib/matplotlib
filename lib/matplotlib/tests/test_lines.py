@@ -5,12 +5,13 @@ from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
 from matplotlib.externals import six
-
+import itertools
+import matplotlib.lines as mlines
 import nose
 from nose.tools import assert_true, assert_raises
 from timeit import repeat
 import numpy as np
-import matplotlib as mpl
+
 import matplotlib.pyplot as plt
 from matplotlib.testing.decorators import cleanup, image_comparison
 import sys
@@ -38,7 +39,7 @@ def test_invisible_Line_rendering():
     ax = plt.subplot(111)
 
     # Create a "big" Line instance:
-    l = mpl.lines.Line2D(x,y)
+    l = mlines.Line2D(x,y)
     l.set_visible(False)
     # but don't add it to the Axis instance `ax`
 
@@ -112,9 +113,32 @@ def test_valid_linestyles():
         raise nose.SkipTest("assert_raises as context manager "
                             "not supported with Python < 2.7")
 
-    line = mpl.lines.Line2D([], [])
+    line = mlines.Line2D([], [])
     with assert_raises(ValueError):
         line.set_linestyle('aardvark')
+
+
+@cleanup
+def test_drawstyle_variants():
+    fig = plt.figure()
+    ax = fig.add_subplot(1, 1, 1)
+    for ds in ("default", "steps-mid", "steps-pre", "steps-post",
+               "steps", None):
+        ax.plot(range(10), drawstyle=ds)
+
+    fig.canvas.draw()
+    assert True
+
+
+@cleanup
+def test_valid_drawstyles():
+    if sys.version_info[:2] < (2, 7):
+        raise nose.SkipTest("assert_raises as context manager "
+                            "not supported with Python < 2.7")
+
+    line = mlines.Line2D([], [])
+    with assert_raises(ValueError):
+        line.set_drawstyle('foobar')
 
 
 @image_comparison(baseline_images=['line_collection_dashes'], remove_text=True)
@@ -126,9 +150,36 @@ def test_set_line_coll_dash_image():
     cs = ax.contour(np.random.randn(20, 30), linestyles=[(0, (3, 3))])
 
 
+@image_comparison(baseline_images=['marker_fill_styles'], remove_text=True,
+                  extensions=['png'])
+def test_marker_fill_styles():
+    colors = itertools.cycle(['b', 'g', 'r', 'c', 'm', 'y', 'k'])
+    altcolor = 'lightgreen'
+
+    y = np.array([1, 1])
+    x = np.array([0, 9])
+    fig, ax = plt.subplots()
+
+    for j, marker in enumerate(mlines.Line2D.filled_markers):
+        for i, fs in enumerate(mlines.Line2D.fillStyles):
+            color = next(colors)
+            ax.plot(j * 10 + x, y + i + .5 * (j % 2),
+                    marker=marker,
+                    markersize=20,
+                    markerfacecoloralt=altcolor,
+                    fillstyle=fs,
+                    label=fs,
+                    linewidth=5,
+                    color=color,
+                    markeredgecolor=color,
+                    markeredgewidth=2)
+
+    ax.set_ylim([0, 7.5])
+    ax.set_xlim([-5, 135])
+
+
 def test_nan_is_sorted():
-    # Exercises issue from PR #2744 (NaN throwing warning in _is_sorted)
-    line = mpl.lines.Line2D([],[])
+    line = mlines.Line2D([],[])
     assert_true(line._is_sorted(np.array([1, 2, 3])))
     assert_true(line._is_sorted(np.array([1, np.nan, 3])))
     assert_true(not line._is_sorted([3, 5] + [np.nan] * 100 + [0, 2]))

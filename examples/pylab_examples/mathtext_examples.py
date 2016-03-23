@@ -61,7 +61,7 @@ def doall():
 
     # Creating figure and axis.
     plt.figure(figsize=(6, 7))
-    plt.axes([0.01, 0.01, 0.98, 0.90], axisbg="white", frameon=True)
+    plt.axes([0.01, 0.01, 0.98, 0.90], facecolor="white", frameon=True)
     plt.gca().set_xlim(0., 1.)
     plt.gca().set_ylim(0., 1.)
     plt.gca().set_title("Matplotlib's math rendering engine",

@@ -18,13 +18,18 @@ from numpy import ma
 from numpy import arange
 from cycler import cycler
 
+import warnings
+
 import matplotlib
 from matplotlib.testing.decorators import image_comparison, cleanup
 import matplotlib.pyplot as plt
 import matplotlib.markers as mmarkers
-from numpy.testing import assert_array_equal
+from numpy.testing import assert_allclose, assert_array_equal
 import warnings
 from matplotlib.cbook import IgnoredKeywordWarning
+
+import sys
+on_win = (sys.platform == 'win32')
 
 # Note: Some test cases are run twice: once normally and once with labeled data
 #       These two must be defined in the same test function or need to have
@@ -240,7 +245,7 @@ def test_polar_coord_annotations():
     ax.set_ylim(-20, 20)
 
 
-@image_comparison(baseline_images=['fill_units'], tol=18, extensions=['png'],
+@image_comparison(baseline_images=['fill_units'], extensions=['png'],
                   savefig_kwarg={'dpi': 60})
 def test_fill_units():
     from datetime import datetime
@@ -1048,7 +1053,7 @@ def test_markevery_polar():
 
 
 @image_comparison(baseline_images=['marker_edges'],
-                  remove_text=True, tol=3)
+                  remove_text=True)
 def test_marker_edges():
     x = np.linspace(0, 1, 10)
     fig = plt.figure()
@@ -1064,14 +1069,14 @@ def test_marker_edges():
 def test_bar_tick_label_single():
     # From 2516: plot bar with array of string labels for x axis
     ax = plt.gca()
-    ax.bar(0, 1 , tick_label='a')
+    ax.bar(0, 1, tick_label='0')
 
     # Reuse testcase from above for a labeled data test
     data = {"a": 0, "b": 1}
     fig = plt.figure()
     ax = fig.add_subplot(111)
     ax = plt.gca()
-    ax.bar("a", "b" , tick_label='a', data=data)
+    ax.bar("a", "b", tick_label='0', data=data)
 
 
 @cleanup
@@ -1122,7 +1127,7 @@ def test_hist_step_empty():
     ax = plt.gca()
     ax.hist([], histtype='step')
 
-@image_comparison(baseline_images=['hist_steplog'], remove_text=True)
+@image_comparison(baseline_images=['hist_steplog'], remove_text=True, tol=0.05)
 def test_hist_steplog():
     np.random.seed(0)
     data = np.random.standard_normal(2000)
@@ -1740,7 +1745,7 @@ def test_bxp_bad_positions():
     assert_raises(ValueError, ax.bxp, logstats, positions=[2, 3])
 
 
-@image_comparison(baseline_images=['boxplot', 'boxplot'])
+@image_comparison(baseline_images=['boxplot', 'boxplot'], tol=1)
 def test_boxplot():
     x = np.linspace(-7, 7, 140)
     x = np.hstack([-25, x, 25])
@@ -1807,7 +1812,7 @@ def _rc_test_bxp_helper(ax, rc_dict):
     return ax
 
 @image_comparison(baseline_images=['boxplot_rc_parameters'],
-                  savefig_kwarg={'dpi': 100}, remove_text=True)
+                  savefig_kwarg={'dpi': 100}, remove_text=True, tol=1)
 def test_boxplot_rc_parameters():
     fig, ax = plt.subplots(3)
 
@@ -2757,7 +2762,8 @@ def test_subplot_key_hash():
 
 @image_comparison(baseline_images=['specgram_freqs',
                                    'specgram_freqs_linear'],
-                  remove_text=True, extensions=['png'])
+                  remove_text=True, extensions=['png'],
+                  tol=0.07 if on_win else 0.03)
 def test_specgram_freqs():
     '''test axes.specgram in default (psd) mode with sinusoidal stimuli'''
     n = 10000
@@ -2810,7 +2816,7 @@ def test_specgram_freqs():
 
 @image_comparison(baseline_images=['specgram_noise',
                                    'specgram_noise_linear'],
-                  remove_text=True, extensions=['png'])
+                  remove_text=True, extensions=['png'], tol=0.01)
 def test_specgram_noise():
     '''test axes.specgram in default (psd) mode with noise stimuli'''
     np.random.seed(0)
@@ -2857,7 +2863,8 @@ def test_specgram_noise():
 
 @image_comparison(baseline_images=['specgram_magnitude_freqs',
                                    'specgram_magnitude_freqs_linear'],
-                  remove_text=True, extensions=['png'])
+                  remove_text=True, extensions=['png'],
+                  tol=0.07 if on_win else 0.03)
 def test_specgram_magnitude_freqs():
     '''test axes.specgram in magnitude mode with sinusoidal stimuli'''
     n = 10000
@@ -2958,7 +2965,8 @@ def test_specgram_magnitude_noise():
 
 
 @image_comparison(baseline_images=['specgram_angle_freqs'],
-                  remove_text=True, extensions=['png'])
+                  remove_text=True, extensions=['png'],
+                  tol=0.007 if on_win else 0)
 def test_specgram_angle_freqs():
     '''test axes.specgram in angle mode with sinusoidal stimuli'''
     n = 10000
@@ -3717,8 +3725,7 @@ def test_vline_limit():
     ax.axvline(0.5)
     ax.plot([-0.1, 0, 0.2, 0.1])
     (ymin, ymax) = ax.get_ylim()
-    assert ymin == -0.1
-    assert ymax == 0.25
+    assert_allclose(ax.get_ylim(), (-.1, .2))
 
 
 @cleanup
@@ -4040,6 +4047,23 @@ def test_rc_grid():
 
 
 @cleanup
+def test_rc_tick():
+    d = {'xtick.bottom': False, 'xtick.top': True,
+         'ytick.left': True, 'ytick.right': False}
+    with plt.rc_context(rc=d):
+        fig = plt.figure()
+        ax1 = fig.add_subplot(1, 1, 1)
+        xax = ax1.xaxis
+        yax = ax1.yaxis
+        # tick1On bottom/left
+        assert xax._major_tick_kw['tick1On'] == False
+        assert xax._major_tick_kw['tick2On'] == True
+
+        assert yax._major_tick_kw['tick1On'] == True
+        assert yax._major_tick_kw['tick2On'] == False
+
+
+@cleanup
 def test_bar_negative_width():
     fig, ax = plt.subplots()
     res = ax.bar(range(1, 5), range(1, 5), width=-1)
@@ -4144,8 +4168,92 @@ def test_errorbar_inputs_shotgun():
 
 
 @cleanup
-def test_remove_shared_axes():
+def test_axisbg_warning():
+    fig = plt.figure()
+    with warnings.catch_warnings(record=True) as w:
+        ax = matplotlib.axes.Axes(fig, [0, 0, 1, 1], axisbg='r')
+    assert len(w) == 1
+    assert (str(w[0].message).startswith(
+            ("The axisbg attribute was deprecated in version 2.0.")))
 
+
+@image_comparison(baseline_images=["dash_offset"], remove_text=True)
+def test_dash_offset():
+    fig, ax = plt.subplots()
+    x = np.linspace(0, 10)
+    y = np.ones_like(x)
+    for j in range(0, 100, 2):
+        ax.plot(x, j*y, ls=(j, (10, 10)), lw=5, color='k')
+    plt.show()
+
+
+@cleanup
+def test_title_location_roundtrip():
+    fig, ax = plt.subplots()
+    ax.set_title('aardvark')
+    ax.set_title('left', loc='left')
+    ax.set_title('right', loc='right')
+
+    assert_equal('left', ax.get_title(loc='left'))
+    assert_equal('right', ax.get_title(loc='right'))
+    assert_equal('aardvark', ax.get_title())
+
+    assert_raises(ValueError, ax.get_title, loc='foo')
+    assert_raises(ValueError, ax.set_title, 'fail', loc='foo')
+
+
+@image_comparison(baseline_images=["loglog"], remove_text=True,
+                  extensions=['png'])
+def test_loglog():
+    fig, ax = plt.subplots()
+    x = np.arange(1, 11)
+    ax.loglog(x, x**3, lw=5)
+    ax.tick_params(length=25, width=2)
+    ax.tick_params(length=15, width=2, which='minor')
+
+
+@cleanup('default')
+def test_axes_margins():
+    fig, ax = plt.subplots()
+    ax.plot([0, 1, 2, 3])
+    assert ax.get_ybound()[0] != 0
+
+    fig, ax = plt.subplots()
+    ax.bar([0, 1, 2, 3], [1, 1, 1, 1])
+    assert ax.get_ybound()[0] == 0
+
+    fig, ax = plt.subplots()
+    ax.barh([0, 1, 2, 3], [1, 1, 1, 1])
+    assert ax.get_xbound()[0] == 0
+
+    fig, ax = plt.subplots()
+    ax.pcolor(np.zeros((10, 10)))
+    assert ax.get_xbound() == (0, 10)
+    assert ax.get_ybound() == (0, 10)
+
+    fig, ax = plt.subplots()
+    ax.pcolorfast(np.zeros((10, 10)))
+    assert ax.get_xbound() == (0, 10)
+    assert ax.get_ybound() == (0, 10)
+
+    fig, ax = plt.subplots()
+    ax.hist(np.arange(10))
+    assert ax.get_ybound()[0] == 0
+
+    fig, ax = plt.subplots()
+    ax.imshow(np.zeros((10, 10)))
+    assert ax.get_xbound() == (-0.5, 9.5)
+    assert ax.get_ybound() == (-0.5, 9.5)
+
+
+@image_comparison(baseline_images=["auto_numticks"], style='default',
+                  extensions=['png'])
+def test_auto_numticks():
+    fig, axes = plt.subplots(4, 4)
+
+
+@cleanup
+def test_remove_shared_axes():
     def _helper_x(ax):
         ax2 = ax.twinx()
         ax2.remove()
@@ -4185,7 +4293,20 @@ def test_remove_shared_axes():
     orig_xlim = ax_lst[0][1].get_xlim()
     ax.remove()
     ax.set_xlim(0, 5)
-    assert assert_array_equal(ax_lst[0][1].get_xlim(), orig_xlim)
+    assert_array_equal(ax_lst[0][1].get_xlim(), orig_xlim)
+
+
+@cleanup
+def test_adjust_numtick_aspect():
+    fig, ax = plt.subplots()
+    ax.yaxis.get_major_locator().set_params(nbins='auto')
+    ax.set_xlim(0, 1000)
+    ax.set_aspect('equal')
+    fig.canvas.draw()
+    assert len(ax.yaxis.get_major_locator()()) == 2
+    ax.set_ylim(0, 1000)
+    fig.canvas.draw()
+    assert len(ax.yaxis.get_major_locator()()) > 2
 
 
 @cleanup

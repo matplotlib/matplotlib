@@ -10,7 +10,8 @@ from nose.tools import assert_equal, assert_raises
 import numpy.testing as np_test
 from numpy.testing import assert_almost_equal, assert_array_equal
 from numpy.testing import assert_array_almost_equal
-from matplotlib.transforms import Affine2D, BlendedGenericTransform, Bbox
+from matplotlib.transforms import (Affine2D, BlendedGenericTransform, Bbox,
+                                   TransformedPath, TransformedPatchPath)
 from matplotlib.path import Path
 from matplotlib.scale import LogScale
 from matplotlib.testing.decorators import cleanup, image_comparison
@@ -571,6 +572,47 @@ def test_invalid_arguments():
     assert_raises(RuntimeError, t.transform, [1])
     assert_raises(RuntimeError, t.transform, [[1]])
     assert_raises(RuntimeError, t.transform, [[1, 2, 3]])
+
+
+def test_transformed_path():
+    points = [(0, 0), (1, 0), (1, 1), (0, 1)]
+    codes = [Path.MOVETO, Path.LINETO, Path.LINETO, Path.CLOSEPOLY]
+    path = Path(points, codes)
+
+    trans = mtrans.Affine2D()
+    trans_path = TransformedPath(path, trans)
+    assert np.allclose(trans_path.get_fully_transformed_path().vertices,
+                       points)
+
+    # Changing the transform should change the result.
+    r2 = 1 / np.sqrt(2)
+    trans.rotate(np.pi / 4)
+    assert np.allclose(trans_path.get_fully_transformed_path().vertices,
+                       [(0, 0), (r2, r2), (0, 2 * r2), (-r2, r2)])
+
+    # Changing the path does not change the result (it's cached).
+    path.points = [(0, 0)] * 4
+    assert np.allclose(trans_path.get_fully_transformed_path().vertices,
+                       [(0, 0), (r2, r2), (0, 2 * r2), (-r2, r2)])
+
+
+def test_transformed_patch_path():
+    trans = mtrans.Affine2D()
+    patch = mpatches.Wedge((0, 0), 1, 45, 135, transform=trans)
+
+    tpatch = TransformedPatchPath(patch)
+    points = tpatch.get_fully_transformed_path().vertices
+
+    # Changing the transform should change the result.
+    trans.scale(2)
+    assert np.allclose(tpatch.get_fully_transformed_path().vertices,
+                       points * 2)
+
+    # Changing the path should change the result (and cancel out the scaling
+    # from the transform).
+    patch.set_radius(0.5)
+    assert np.allclose(tpatch.get_fully_transformed_path().vertices,
+                       points)
 
 
 if __name__ == '__main__':

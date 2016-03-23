@@ -9,7 +9,12 @@ import xml.parsers.expat
 
 import matplotlib.pyplot as plt
 from matplotlib.testing.decorators import cleanup
-from matplotlib.testing.decorators import image_comparison
+from matplotlib.testing.decorators import image_comparison, knownfailureif
+import matplotlib
+
+needs_tex = knownfailureif(
+    not matplotlib.checkdep_tex(),
+    "This test needs a TeX installation")
 
 
 @cleanup
@@ -51,8 +56,7 @@ def test_noscale():
 
     fig = plt.figure()
     ax = fig.add_subplot(1, 1, 1)
-    ax.imshow(Z, cmap='gray')
-    plt.rcParams['svg.image_noscale'] = True
+    ax.imshow(Z, cmap='gray', interpolation='none')
 
 
 @cleanup
@@ -117,6 +121,66 @@ def test_bold_font_output_with_none_fonttype():
     ax.set_xlabel('nonbold-xlabel')
     ax.set_ylabel('bold-ylabel', fontweight='bold')
     ax.set_title('bold-title', fontweight='bold')
+
+
+def _test_determinism_save(filename, usetex):
+    # This function is mostly copy&paste from "def test_visibility"
+    # To require no GUI, we use Figure and FigureCanvasSVG
+    # instead of plt.figure and fig.savefig
+    from matplotlib.figure import Figure
+    from matplotlib.backends.backend_svg import FigureCanvasSVG
+    from matplotlib import rc
+    rc('svg', hashsalt='asdf')
+    rc('text', usetex=usetex)
+
+    fig = Figure()
+    ax = fig.add_subplot(111)
+
+    x = np.linspace(0, 4 * np.pi, 50)
+    y = np.sin(x)
+    yerr = np.ones_like(y)
+
+    a, b, c = ax.errorbar(x, y, yerr=yerr, fmt='ko')
+    for artist in b:
+        artist.set_visible(False)
+    ax.set_title('A string $1+2+\sigma$')
+    ax.set_xlabel('A string $1+2+\sigma$')
+    ax.set_ylabel('A string $1+2+\sigma$')
+
+    FigureCanvasSVG(fig).print_svg(filename)
+
+
+def _test_determinism(filename, usetex):
+    import os
+    import sys
+    from subprocess import check_call
+    from nose.tools import assert_equal
+    plots = []
+    for i in range(3):
+        check_call([sys.executable, '-R', '-c',
+                    'import matplotlib; '
+                    'matplotlib.use("svg"); '
+                    'from matplotlib.tests.test_backend_svg '
+                    'import _test_determinism_save;'
+                    '_test_determinism_save(%r, %r)' % (filename, usetex)])
+        with open(filename, 'rb') as fd:
+            plots.append(fd.read())
+        os.unlink(filename)
+    for p in plots[1:]:
+        assert_equal(p, plots[0])
+
+
+@cleanup
+def test_determinism_notex():
+    # unique filename to allow for parallel testing
+    _test_determinism('determinism_notex.svg', usetex=False)
+
+
+@cleanup
+@needs_tex
+def test_determinism_tex():
+    # unique filename to allow for parallel testing
+    _test_determinism('determinism_tex.svg', usetex=True)
 
 
 if __name__ == '__main__':

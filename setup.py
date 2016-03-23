@@ -4,11 +4,12 @@ setup.cfg.template for more information.
 """
 
 from __future__ import print_function, absolute_import
-
+from string import Template
 # This needs to be the very first thing to use distribute
 from distribute_setup import use_setuptools
 use_setuptools()
 from setuptools.command.test import test as TestCommand
+from setuptools.command.build_ext import build_ext as BuildExtCommand
 
 import sys
 
@@ -67,6 +68,7 @@ mpl_packages = [
     'Required dependencies and extensions',
     setupext.Numpy(),
     setupext.Dateutil(),
+    setupext.FuncTools32(),
     setupext.Pytz(),
     setupext.Cycler(),
     setupext.Tornado(),
@@ -121,8 +123,11 @@ classifiers = [
     'Intended Audience :: Science/Research',
     'License :: OSI Approved :: Python Software Foundation License',
     'Programming Language :: Python',
-    'Programming Language :: Python :: 2',
+    'Programming Language :: Python :: 2.7',
     'Programming Language :: Python :: 3',
+    'Programming Language :: Python :: 3.3',
+    'Programming Language :: Python :: 3.4',
+    'Programming Language :: Python :: 3.5',
     'Topic :: Scientific/Engineering :: Visualization',
     ]
 
@@ -132,8 +137,32 @@ class NoopTestCommand(TestCommand):
         print("Matplotlib does not support running tests with "
               "'python setup.py test'. Please run 'python tests.py'")
 
+
+class BuildExtraLibraries(BuildExtCommand):
+    def run(self):
+        for package in good_packages:
+            package.do_custom_build()
+
+        return BuildExtCommand.run(self)
+
+
 cmdclass = versioneer.get_cmdclass()
 cmdclass['test'] = NoopTestCommand
+cmdclass['build_ext'] = BuildExtraLibraries
+
+
+# patch bdist_wheel for a bug on windows
+# https://bitbucket.org/pypa/wheel/issues/91/cannot-create-a-file-when-that-file
+if os.name == 'nt':
+    try:
+        from wheel.bdist_wheel import bdist_wheel
+    except ImportError:
+        # No wheel installed, so we also can't run that command...
+        pass
+    else:
+        # patched_bdist_wheel has a run() method, which works on windows
+        from patched_bdist_wheel import patched_bdist_wheel
+        cmdclass['bdist_wheel'] = patched_bdist_wheel
 
 # One doesn't normally see `if __name__ == '__main__'` blocks in a setup.py,
 # however, this is needed on Windows to avoid creating infinite subprocesses
@@ -195,8 +224,6 @@ if __name__ == '__main__':
     # Now collect all of the information we need to build all of the
     # packages.
     for package in good_packages:
-        if isinstance(package, str):
-            continue
         packages.extend(package.get_packages())
         namespace_packages.extend(package.get_namespace_packages())
         py_modules.extend(package.get_py_modules())
@@ -217,8 +244,9 @@ if __name__ == '__main__':
         default_backend = setupext.options['backend']
     with open('matplotlibrc.template') as fd:
         template = fd.read()
+    template = Template(template)
     with open('lib/matplotlib/mpl-data/matplotlibrc', 'w') as fd:
-        fd.write(template % {'backend': default_backend})
+        fd.write(template.safe_substitute(TEMPLATE_BACKEND=default_backend))
 
     # Build in verbose mode if requested
     if setupext.options['verbose']:

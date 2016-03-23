@@ -12,7 +12,7 @@
 *.kdev4
 .project
 .pydevproject
-.swp
+*.swp
 .idea
 
 # Compiled source #
@@ -39,6 +39,7 @@ dist
 .eggs
 # tox testing tool
 .tox
+setup.cfg
 
 # OS generated files #
 ######################
@@ -70,5 +71,15 @@ texput.log
 texput.aux
 result_images
 
-*.swp
-setup.cfg
+# Nose generated files #
+########################
+.coverage
+.coverage.*
+cover/
+.noseids
+
+# Conda files #
+###############
+__conda_version__.txt
+lib/png.lib
+lib/z.lib

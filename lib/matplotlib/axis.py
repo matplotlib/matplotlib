@@ -169,6 +169,20 @@ class Tick(artist.Artist):
         """
         pass
 
+    def get_tickdir(self):
+        return self._tickdir
+
+    def get_tick_padding(self):
+        """
+        Get the length of the tick outside of the axes.
+        """
+        padding = {
+            'in': 0.0,
+            'inout': 0.5,
+            'out': 1.0
+        }
+        return self._size * padding[self._tickdir]
+
     def get_children(self):
         children = [self.tick1line, self.tick2line,
                     self.gridline, self.label1, self.label2]
@@ -351,13 +365,11 @@ class XTick(Tick):
 
         if self._tickdir == 'in':
             self._tickmarkers = (mlines.TICKUP, mlines.TICKDOWN)
-            self._pad = self._base_pad
         elif self._tickdir == 'inout':
             self._tickmarkers = ('|', '|')
-            self._pad = self._base_pad + self._size / 2.
         else:
             self._tickmarkers = (mlines.TICKDOWN, mlines.TICKUP)
-            self._pad = self._base_pad + self._size
+        self._pad = self._base_pad + self.get_tick_padding()
         self.stale = True
 
     def _get_text1(self):
@@ -487,13 +499,11 @@ class YTick(Tick):
 
         if self._tickdir == 'in':
             self._tickmarkers = (mlines.TICKRIGHT, mlines.TICKLEFT)
-            self._pad = self._base_pad
         elif self._tickdir == 'inout':
             self._tickmarkers = ('_', '_')
-            self._pad = self._base_pad + self._size / 2.
         else:
             self._tickmarkers = (mlines.TICKLEFT, mlines.TICKRIGHT)
-            self._pad = self._base_pad + self._size
+        self._pad = self._base_pad + self.get_tick_padding()
         self.stale = True
 
     # how far from the y axis line the right of the ticklabel are
@@ -752,8 +762,8 @@ class Axis(artist.Artist):
         # build a few default ticks; grow as necessary later; only
         # define 1 so properties set on ticks will be copied as they
         # grow
-        cbook.popall(self.majorTicks)
-        cbook.popall(self.minorTicks)
+        del self.majorTicks[:]
+        del self.minorTicks[:]
 
         self.majorTicks.extend([self._get_tick(major=True)])
         self.minorTicks.extend([self._get_tick(major=False)])
@@ -1097,6 +1107,16 @@ class Axis(artist.Artist):
         else:
             return None
 
+    def get_tick_padding(self):
+        values = []
+        if len(self.majorTicks):
+            values.append(self.majorTicks[0].get_tick_padding())
+        if len(self.minorTicks):
+            values.append(self.minorTicks[0].get_tick_padding())
+        if len(values):
+            return max(values)
+        return 0.0
+
     @allow_rasterization
     def draw(self, renderer, *args, **kwargs):
         'Draw the axis lines, grid lines, tick lines and labels'
@@ -1245,6 +1265,28 @@ class Axis(artist.Artist):
         if minor:
             return self.minor.locator()
         return self.major.locator()
+
+    def get_ticks_direction(self, minor=False):
+        """
+        Get the tick directions as a numpy array
+
+        Parameters
+        ----------
+        minor : boolean
+            True to return the minor tick directions,
+            False to return the major tick directions,
+            Default is False
+
+        Returns
+        -------
+        numpy array of tick directions
+        """
+        if minor:
+            return np.array(
+                [tick._tickdir for tick in self.get_minor_ticks()])
+        else:
+            return np.array(
+                [tick._tickdir for tick in self.get_major_ticks()])
 
     def _get_tick(self, major):
         'return the default tick instance'
@@ -1645,6 +1687,13 @@ class Axis(artist.Artist):
             tz = pytz.timezone(tz)
         self.update_units(datetime.datetime(2009, 1, 1, 0, 0, 0, 0, tz))
 
+    def get_tick_space(self):
+        """
+        Return the estimated number of ticks that can fit on the axis.
+        """
+        # Must be overridden in the subclass
+        raise NotImplementedError()
+
 
 class XAxis(Axis):
     __name__ = 'xaxis'
@@ -1967,6 +2016,16 @@ class XAxis(Axis):
             if not viewMutated:
                 self.axes.viewLim.intervalx = xmin, xmax
         self.stale = True
+
+    def get_tick_space(self):
+        ends = self.axes.transAxes.transform([[0, 0], [1, 0]])
+        length = ((ends[1][0] - ends[0][0]) / self.axes.figure.dpi) * 72.0
+        tick = self._get_tick(True)
+        # There is a heuristic here that the aspect ratio of tick text
+        # is no more than 3:1
+        size = tick.label1.get_size() * 3
+        size *= np.cos(np.deg2rad(tick.label1.get_rotation()))
+        return np.floor(length / size)
 
 
 class YAxis(Axis):
@@ -2298,3 +2357,12 @@ class YAxis(Axis):
             if not viewMutated:
                 self.axes.viewLim.intervaly = ymin, ymax
         self.stale = True
+
+    def get_tick_space(self):
+        ends = self.axes.transAxes.transform([[0, 0], [0, 1]])
+        length = ((ends[1][1] - ends[0][1]) / self.axes.figure.dpi) * 72.0
+        tick = self._get_tick(True)
+        # Having a spacing of at least 2 just looks good.
+        size = tick.label1.get_size() * 2.0
+        size *= np.cos(np.deg2rad(tick.label1.get_rotation()))
+        return np.floor(length / size)

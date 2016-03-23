@@ -36,8 +36,9 @@ Contact
 =======
 matplotlib's communication channels include active mailing lists:
 
-* Matplotlib-announce (https://mail.python.org/mailman/listinfo/matplotlib-announce),
-* Matplotlib-devel (https://mail.python.org/mailman/listinfo/matplotlib-devel),
-* Matplotlib-users (https://mail.python.org/mailman/listinfo/matplotlib-users).
+* `Users <https://mail.python.org/mailman/listinfo/matplotlib-users>`_ mailing list: matplotlib-users@python.org
+* `Announcement  <https://mail.python.org/mailman/listinfo/matplotlib-announce>`_ mailing list: matplotlib-announce@python.org
+* `Development <https://mail.python.org/mailman/listinfo/matplotlib-devel>`_ mailing list: matplotlib-devel@python.org
 
-The latter is probably a good starting point for general questions and discussions.
+
+The first is a good starting point for general questions and discussions.

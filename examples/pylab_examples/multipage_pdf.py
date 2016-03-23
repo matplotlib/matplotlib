@@ -18,6 +18,7 @@ with PdfPages('multipage_pdf.pdf') as pdf:
     pdf.savefig()  # saves the current figure into a pdf page
     plt.close()
 
+    # if LaTeX is not installed or error caught, change to `usetex=False`
     plt.rc('text', usetex=True)
     plt.figure(figsize=(8, 6))
     x = np.arange(0, 5, 0.1)

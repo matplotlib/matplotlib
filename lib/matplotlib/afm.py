@@ -523,6 +523,10 @@ class AFM(object):
                   br'light|ultralight|extra|condensed))+$')
         return re.sub(extras, '', name)
 
+    @property
+    def family_name(self):
+        return self.get_familyname()
+
     def get_weight(self):
         "Return the font weight, e.g., 'Bold' or 'Roman'"
         return self._header[b'Weight']

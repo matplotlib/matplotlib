@@ -21,7 +21,7 @@ __all__ = ['streamplot']
 
 def streamplot(axes, x, y, u, v, density=1, linewidth=None, color=None,
                cmap=None, norm=None, arrowsize=1, arrowstyle='-|>',
-               minlength=0.1, transform=None, zorder=1, start_points=None):
+               minlength=0.1, transform=None, zorder=2, start_points=None):
     """Draws streamlines of a vector flow.
 
     *x*, *y* : 1d arrays
@@ -133,12 +133,21 @@ def streamplot(axes, x, y, u, v, density=1, linewidth=None, color=None,
                 if t is not None:
                     trajectories.append(t)
     else:
+        sp2 = np.asanyarray(start_points, dtype=np.float).copy()
+
+        # Check if start_points are outside the data boundaries
+        for xs, ys in sp2:
+            if (xs < grid.x_origin or xs > grid.x_origin + grid.width
+                or ys < grid.y_origin or ys > grid.y_origin + grid.height):
+                    raise ValueError("Starting point ({}, {}) outside of"
+                                     " data boundaries".format(xs, ys))
+
         # Convert start_points from data to array coords
         # Shift the seed points from the bottom left of the data so that
         # data2grid works properly.
-        sp2 = np.asanyarray(start_points, dtype=np.float).copy()
-        sp2[:, 0] += np.abs(x[0])
-        sp2[:, 1] += np.abs(y[0])
+        sp2[:, 0] -= grid.x_origin
+        sp2[:, 1] -= grid.y_origin
+
         for xs, ys in sp2:
             xg, yg = dmap.data2grid(xs, ys)
             t = integrate(xg, yg)
@@ -159,8 +168,9 @@ def streamplot(axes, x, y, u, v, density=1, linewidth=None, color=None,
         tgx = np.array(t[0])
         tgy = np.array(t[1])
         # Rescale from grid-coordinates to data-coordinates.
-        tx = np.array(t[0]) * grid.dx + grid.x_origin
-        ty = np.array(t[1]) * grid.dy + grid.y_origin
+        tx, ty = dmap.grid2data(*np.array(t))
+        tx += grid.x_origin
+        ty += grid.y_origin
 
         points = np.transpose([tx, ty]).reshape(-1, 1, 2)
         streamlines.extend(np.hstack([points[:-1], points[1:]]))
@@ -184,12 +194,14 @@ def streamplot(axes, x, y, u, v, density=1, linewidth=None, color=None,
         p = patches.FancyArrowPatch(arrow_tail,
                                     arrow_head,
                                     transform=transform,
+                                    margins=False,
                                     **arrow_kw)
         axes.add_patch(p)
         arrows.append(p)
 
     lc = mcollections.LineCollection(streamlines,
                                      transform=transform,
+                                     margins=False,
                                      **line_kw)
     if use_multicolor_lines:
         lc.set_array(np.ma.hstack(line_colors))
@@ -198,7 +210,7 @@ def streamplot(axes, x, y, u, v, density=1, linewidth=None, color=None,
     axes.add_collection(lc)
     axes.autoscale_view()
 
-    ac = matplotlib.collections.PatchCollection(arrows)
+    ac = matplotlib.collections.PatchCollection(arrows, margins=False)
     stream_container = StreamplotSet(lc, ac)
     return stream_container
 
@@ -241,8 +253,8 @@ class DomainMap(object):
         self.x_mask2grid = 1. / self.x_grid2mask
         self.y_mask2grid = 1. / self.y_grid2mask
 
-        self.x_data2grid = grid.nx / grid.width
-        self.y_data2grid = grid.ny / grid.height
+        self.x_data2grid = 1. / grid.dx
+        self.y_data2grid = 1. / grid.dy
 
     def grid2mask(self, xi, yi):
         """Return nearest space in mask-coords from given grid-coords."""
@@ -254,6 +266,9 @@ class DomainMap(object):
 
     def data2grid(self, xd, yd):
         return xd * self.x_data2grid, yd * self.y_data2grid
+
+    def grid2data(self, xg, yg):
+        return xg / self.x_data2grid, yg / self.y_data2grid
 
     def start_trajectory(self, xg, yg):
         xm, ym = self.grid2mask(xg, yg)
@@ -416,7 +431,10 @@ def get_integrator(u, v, dmap, minlength):
         resulting trajectory is None if it is shorter than `minlength`.
         """
 
-        dmap.start_trajectory(x0, y0)
+        try:
+            dmap.start_trajectory(x0, y0)
+        except InvalidIndexError:
+            return None
         sf, xf_traj, yf_traj = _integrate_rk12(x0, y0, dmap, forward_time)
         dmap.reset_start_point(x0, y0)
         sb, xb_traj, yb_traj = _integrate_rk12(x0, y0, dmap, backward_time)

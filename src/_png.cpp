@@ -34,6 +34,27 @@ extern "C" {
 #undef jmpbuf
 #endif
 
+struct buffer_t {
+    PyObject *str;
+    size_t cursor;
+    size_t size;
+};
+
+
+static void write_png_data_buffer(png_structp png_ptr, png_bytep data, png_size_t length)
+{
+    buffer_t *buff = (buffer_t *)png_get_io_ptr(png_ptr);
+    if (buff->cursor + length < buff->size) {
+        memcpy(PyBytes_AS_STRING(buff->str) + buff->cursor, data, length);
+        buff->cursor += length;
+    }
+}
+
+static void flush_png_data_buffer(png_structp png_ptr)
+{
+
+}
+
 static void write_png_data(png_structp png_ptr, png_bytep data, png_size_t length)
 {
     PyObject *py_file_obj = (PyObject *)png_get_io_ptr(png_ptr);
@@ -62,14 +83,51 @@ static void flush_png_data(png_structp png_ptr)
     Py_XDECREF(result);
 }
 
-const char *Py_write_png__doc__ = "write_png(buffer, file, dpi=0)";
+const char *Py_write_png__doc__ =
+    "write_png(buffer, file, dpi=0, compression=6, filter=auto)\n"
+    "\n"
+    "Parameters\n"
+    "----------\n"
+    "buffer : numpy array of image data\n"
+    "    Must be an MxNxD array of dtype uint8.\n"
+    "    - if D is 1, the image is greyscale\n"
+    "    - if D is 3, the image is RGB\n"
+    "    - if D is 4, the image is RGBA\n"
+    "\n"
+    "file : str path, file-like object or None\n"
+    "    - If a str, must be a file path\n"
+    "    - If a file-like object, must write bytes\n"
+    "    - If None, a byte string containing the PNG data will be returned\n"
+    "\n"
+    "dpi : float\n"
+    "    The dpi to store in the file metadata.\n"
+    "\n"
+    "compression : int\n"
+    "    The level of lossless zlib compression to apply.  0 indicates no\n"
+    "    compression.  Values 1-9 indicate low/fast through high/slow\n"
+    "    compression.  Default is 6.\n"
+    "\n"
+    "filter : int\n"
+    "    Filter to apply.  Must be one of the constants: PNG_FILTER_NONE,\n"
+    "    PNG_FILTER_SUB, PNG_FILTER_UP, PNG_FILTER_AVG, PNG_FILTER_PAETH.\n"
+    "    See the PNG standard for more information.\n"
+    "    If not provided, libpng will try to automatically determine the\n"
+    "    best filter on a line-by-line basis.\n"
+    "\n"
+    "Returns\n"
+    "-------\n"
+    "buffer : bytes or None\n"
+    "    Byte string containing the PNG content if None was passed in for\n"
+    "    file, otherwise None is returned.\n";
 
 static PyObject *Py_write_png(PyObject *self, PyObject *args, PyObject *kwds)
 {
     numpy::array_view<unsigned char, 3> buffer;
     PyObject *filein;
     double dpi = 0;
-    const char *names[] = { "buffer", "file", "dpi", NULL };
+    int compression = 6;
+    int filter = -1;
+    const char *names[] = { "buffer", "file", "dpi", "compression", "filter", NULL };
 
     // We don't need strict contiguity, just for each row to be
     // contiguous, and libpng has special handling for getting RGB out
@@ -77,12 +135,14 @@ static PyObject *Py_write_png(PyObject *self, PyObject *args, PyObject *kwds)
     // enforce contiguity using array_view::converter_contiguous.
     if (!PyArg_ParseTupleAndKeywords(args,
                                      kwds,
-                                     "O&O|d:write_png",
+                                     "O&O|dii:write_png",
                                      (char **)names,
                                      &buffer.converter_contiguous,
                                      &buffer,
                                      &filein,
-                                     &dpi)) {
+                                     &dpi,
+                                     &compression,
+                                     &filter)) {
         return NULL;
     }
 
@@ -104,6 +164,8 @@ static PyObject *Py_write_png(PyObject *self, PyObject *args, PyObject *kwds)
     png_infop info_ptr = NULL;
     struct png_color_8_struct sig_bit;
     int png_color_type;
+    buffer_t buff;
+    buff.str = NULL;
 
     switch (channels) {
     case 1:
@@ -122,6 +184,12 @@ static PyObject *Py_write_png(PyObject *self, PyObject *args, PyObject *kwds)
         goto exit;
     }
 
+    if (compression < 0 || compression > 9) {
+        PyErr_Format(PyExc_ValueError,
+                     "compression must be in range 0-9, got %d", compression);
+        goto exit;
+    }
+
     if (PyBytes_Check(filein) || PyUnicode_Check(filein)) {
         if ((py_file = mpl_PyFile_OpenFile(filein, (char *)"wb")) == NULL) {
             goto exit;
@@ -131,33 +199,47 @@ static PyObject *Py_write_png(PyObject *self, PyObject *args, PyObject *kwds)
         py_file = filein;
     }
 
-    #if PY3K
-    if (close_file) {
-    #else
-    if (close_file || PyFile_Check(py_file)) {
-    #endif
-        fp = mpl_PyFile_Dup(py_file, (char *)"wb", &offset);
-    }
-
-    if (fp) {
-        close_dup_file = true;
-    } else {
-        PyErr_Clear();
-        PyObject *write_method = PyObject_GetAttrString(py_file, "write");
-        if (!(write_method && PyCallable_Check(write_method))) {
-            Py_XDECREF(write_method);
-            PyErr_SetString(PyExc_TypeError,
-                            "Object does not appear to be a 8-bit string path or "
-                            "a Python file-like object");
+    if (filein == Py_None) {
+        buff.size = width * height * 4 + 1024;
+        buff.str = PyBytes_FromStringAndSize(NULL, buff.size);
+        if (buff.str == NULL) {
             goto exit;
         }
-        Py_XDECREF(write_method);
+        buff.cursor = 0;
+    } else {
+        #if PY3K
+        if (close_file) {
+        #else
+        if (close_file || PyFile_Check(py_file)) {
+        #endif
+            fp = mpl_PyFile_Dup(py_file, (char *)"wb", &offset);
+        }
+
+        if (fp) {
+            close_dup_file = true;
+        } else {
+            PyErr_Clear();
+            PyObject *write_method = PyObject_GetAttrString(py_file, "write");
+            if (!(write_method && PyCallable_Check(write_method))) {
+                Py_XDECREF(write_method);
+                PyErr_SetString(PyExc_TypeError,
+                                "Object does not appear to be a 8-bit string path or "
+                                "a Python file-like object");
+                goto exit;
+            }
+            Py_XDECREF(write_method);
+        }
     }
 
     png_ptr = png_create_write_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
     if (png_ptr == NULL) {
         PyErr_SetString(PyExc_RuntimeError, "Could not create write struct");
         goto exit;
+    }
+
+    png_set_compression_level(png_ptr, compression);
+    if (filter >= 0) {
+        png_set_filter(png_ptr, 0, filter);
     }
 
     info_ptr = png_create_info_struct(png_ptr);
@@ -171,7 +253,9 @@ static PyObject *Py_write_png(PyObject *self, PyObject *args, PyObject *kwds)
         goto exit;
     }
 
-    if (fp) {
+    if (buff.str) {
+        png_set_write_fn(png_ptr, (void *)&buff, &write_png_data_buffer, &flush_png_data_buffer);
+    } else if (fp) {
         png_init_io(png_ptr, fp);
     } else {
         png_set_write_fn(png_ptr, (void *)py_file, &write_png_data, &flush_png_data);
@@ -235,8 +319,13 @@ exit:
     }
 
     if (PyErr_Occurred()) {
+        Py_XDECREF(buff.str);
         return NULL;
     } else {
+        if (buff.str) {
+            _PyBytes_Resize(&buff.str, buff.cursor);
+            return buff.str;
+        }
         Py_RETURN_NONE;
     }
 }
@@ -249,10 +338,12 @@ static void _read_png_data(PyObject *py_file_obj, png_bytep data, png_size_t len
     Py_ssize_t bufflen;
     if (read_method) {
         result = PyObject_CallFunction(read_method, (char *)"i", length);
-    }
-    if (PyBytes_AsStringAndSize(result, &buffer, &bufflen) == 0) {
-        if (bufflen == (Py_ssize_t)length) {
-            memcpy(data, buffer, length);
+        if (PyBytes_AsStringAndSize(result, &buffer, &bufflen) == 0) {
+            if (bufflen == (Py_ssize_t)length) {
+                memcpy(data, buffer, length);
+            } else {
+                PyErr_SetString(PyExc_IOError, "read past end of file");
+            }
         }
     }
     Py_XDECREF(read_method);
@@ -507,21 +598,46 @@ exit:
     }
 }
 
-const char *Py_read_png_float__doc__ = "read_png_float(file)";
+const char *Py_read_png_float__doc__ =
+    "read_png_float(file)\n"
+    "\n"
+    "Read in a PNG file, converting values to floating-point doubles\n"
+    "in the range (0, 1)\n"
+    "\n"
+    "Parameters\n"
+    "----------\n"
+    "file : str path or file-like object\n";
 
 static PyObject *Py_read_png_float(PyObject *self, PyObject *args, PyObject *kwds)
 {
     return _read_png(args, true);
 }
 
-const char *Py_read_png_int__doc__ = "read_png_int(file)";
+const char *Py_read_png_int__doc__ =
+    "read_png_int(file)\n"
+    "\n"
+    "Read in a PNG file with original integer values.\n"
+    "\n"
+    "Parameters\n"
+    "----------\n"
+    "file : str path or file-like object\n";
 
 static PyObject *Py_read_png_int(PyObject *self, PyObject *args, PyObject *kwds)
 {
     return _read_png(args, false);
 }
 
-const char *Py_read_png__doc__ = "read_png(file)";
+const char *Py_read_png__doc__ =
+    "read_png(file)\n"
+    "\n"
+    "Read in a PNG file, converting values to floating-point doubles\n"
+    "in the range (0, 1)\n"
+    "\n"
+    "Alias for read_png_float()\n"
+    "\n"
+    "Parameters\n"
+    "----------\n"
+    "file : str path or file-like object\n";
 
 static PyMethodDef module_methods[] = {
     {"write_png", (PyCFunction)Py_write_png, METH_VARARGS|METH_KEYWORDS, Py_write_png__doc__},
@@ -570,6 +686,15 @@ extern "C" {
         }
 
         import_array();
+
+        if (PyModule_AddIntConstant(m, "PNG_FILTER_NONE", PNG_FILTER_NONE) ||
+            PyModule_AddIntConstant(m, "PNG_FILTER_SUB", PNG_FILTER_SUB) ||
+            PyModule_AddIntConstant(m, "PNG_FILTER_UP", PNG_FILTER_UP) ||
+            PyModule_AddIntConstant(m, "PNG_FILTER_AVG", PNG_FILTER_AVG) ||
+            PyModule_AddIntConstant(m, "PNG_FILTER_PAETH", PNG_FILTER_PAETH)) {
+            INITERROR;
+        }
+
 
 #if PY3K
         return m;

@@ -53,6 +53,9 @@ def _reverse_cmap_spec(spec):
     """Reverses cmap specification *spec*, can handle both dict and tuple
     type specs."""
 
+    if 'listed' in spec:
+        return {'listed': spec['listed'][::-1]}
+
     if 'red' in spec:
         return revcmap(spec)
     else:
@@ -63,7 +66,7 @@ def _reverse_cmap_spec(spec):
 
 
 def _generate_cmap(name, lutsize):
-    """Generates the requested cmap from it's name *name*.  The lut size is
+    """Generates the requested cmap from its *name*.  The lut size is
     *lutsize*."""
 
     spec = datad[name]
@@ -71,6 +74,8 @@ def _generate_cmap(name, lutsize):
     # Generate the colormap object.
     if 'red' in spec:
         return colors.LinearSegmentedColormap(name, spec, lutsize)
+    elif 'listed' in spec:
+        return colors.ListedColormap(spec['listed'], name)
     else:
         return colors.LinearSegmentedColormap.from_list(name, spec, lutsize)
 
@@ -203,7 +208,7 @@ class ScalarMappable(object):
         self.colorbar = None
         self.update_dict = {'array': False}
 
-    def to_rgba(self, x, alpha=None, bytes=False):
+    def to_rgba(self, x, alpha=None, bytes=False, norm=True):
         """
         Return a normalized rgba array corresponding to *x*.
 
@@ -216,6 +221,9 @@ class ScalarMappable(object):
         If *x* is an ndarray with 3 dimensions,
         and the last dimension is either 3 or 4, then it will be
         treated as an rgb or rgba array, and no mapping will be done.
+        The array can be uint8, or it can be floating point with
+        values in the 0-1 range; otherwise a ValueError will be raised.
+        If it is a masked array, the mask will be ignored.
         If the last dimension is 3, the *alpha* kwarg (defaulting to 1)
         will be used to fill in the transparency.  If the last dimension
         is 4, the *alpha* kwarg is ignored; it does not
@@ -226,10 +234,9 @@ class ScalarMappable(object):
         array will be floats in the 0-1 range; if it is *True*,
         the returned rgba array will be uint8 in the 0 to 255 range.
 
-        Note: this method assumes the input is well-behaved; it does
-        not check for anomalies such as *x* being a masked rgba
-        array, or being an integer type other than uint8, or being
-        a floating point rgba array with values outside the 0-1 range.
+        If norm is False, no normalization of the input data is
+        performed, and it is assumed to be in the range (0-1).
+
         """
         # First check for special case, image input:
         try:
@@ -247,10 +254,18 @@ class ScalarMappable(object):
                     xx = x
                 else:
                     raise ValueError("third dimension must be 3 or 4")
-                if bytes and xx.dtype != np.uint8:
-                    xx = (xx * 255).astype(np.uint8)
-                if not bytes and xx.dtype == np.uint8:
-                    xx = xx.astype(float) / 255
+                if xx.dtype.kind == 'f':
+                    if norm and xx.max() > 1 or xx.min() < 0:
+                        raise ValueError("Floating point image RGB values "
+                                         "must be in the 0..1 range.")
+                    if bytes:
+                        xx = (xx * 255).astype(np.uint8)
+                elif xx.dtype == np.uint8:
+                    if not bytes:
+                        xx = xx.astype(float) / 255
+                else:
+                    raise ValueError("Image RGB array must be uint8 or "
+                                     "floating point; found %s" % xx.dtype)
                 return xx
         except AttributeError:
             # e.g., x is not an ndarray; so try mapping it
@@ -258,9 +273,10 @@ class ScalarMappable(object):
 
         # This is the normal case, mapping a scalar array:
         x = ma.asarray(x)
-        x = self.norm(x)
-        x = self.cmap(x, alpha=alpha, bytes=bytes)
-        return x
+        if norm:
+            x = self.norm(x)
+        rgba = self.cmap(x, alpha=alpha, bytes=bytes)
+        return rgba
 
     def set_array(self, A):
         'Set the image array from numpy array *A*'

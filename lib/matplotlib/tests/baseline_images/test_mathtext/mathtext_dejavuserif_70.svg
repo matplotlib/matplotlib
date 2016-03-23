@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+  "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Created with matplotlib (http://matplotlib.org/) -->
+<svg height="54pt" version="1.1" viewBox="0 0 378 54" width="378pt" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+ <defs>
+  <style type="text/css">
+*{stroke-linecap:butt;stroke-linejoin:round;}
+  </style>
+ </defs>
+ <g id="figure_1">
+  <g id="patch_1">
+   <path d="M 0 54 
+L 378 54 
+L 378 0 
+L 0 0 
+z
+" style="fill:#ffffff;"/>
+  </g>
+  <g id="text_1">
+   <!-- $M \, M \thinspace M \/ M \&gt; M \: M \; M \ M \enspace M \quad M \qquad M \! M$ -->
+   <defs>
+    <path d="M -1.515625 0 
+L -0.53125 5.171875 
+L 8.734375 5.171875 
+L 20.90625 67.671875 
+L 11.078125 67.671875 
+L 12.109375 72.90625 
+L 33.34375 72.90625 
+L 48.828125 21 
+L 84.515625 72.90625 
+L 104.4375 72.90625 
+L 103.421875 67.671875 
+L 93.703125 67.671875 
+L 81.59375 5.171875 
+L 90.875 5.171875 
+L 89.890625 0 
+L 61.375 0 
+L 62.359375 5.171875 
+L 71.625 5.171875 
+L 82.625 61.53125 
+L 47.703125 10.6875 
+L 40.828125 10.6875 
+L 25.734375 61.53125 
+L 14.75 5.171875 
+L 24.03125 5.171875 
+L 23.046875 0 
+z
+" id="DejaVuSerif-Italic-4d"/>
+   </defs>
+   <g transform="translate(87.420000 30.311250)scale(0.120000 -0.120000)">
+    <use transform="translate(0.000000 0.093750)" xlink:href="#DejaVuSerif-Italic-4d"/>
+    <use transform="translate(118.196931 0.093750)" xlink:href="#DejaVuSerif-Italic-4d"/>
+    <use transform="translate(236.393861 0.093750)" xlink:href="#DejaVuSerif-Italic-4d"/>
+    <use transform="translate(354.590792 0.093750)" xlink:href="#DejaVuSerif-Italic-4d"/>
+    <use transform="translate(478.055208 0.093750)" xlink:href="#DejaVuSerif-Italic-4d"/>
+    <use transform="translate(601.519624 0.093750)" xlink:href="#DejaVuSerif-Italic-4d"/>
+    <use transform="translate(730.252474 0.093750)" xlink:href="#DejaVuSerif-Italic-4d"/>
+    <use transform="translate(864.252809 0.093750)" xlink:href="#DejaVuSerif-Italic-4d"/>
+    <use transform="translate(1014.057496 0.093750)" xlink:href="#DejaVuSerif-Italic-4d"/>
+    <use transform="translate(1211.274293 0.093750)" xlink:href="#DejaVuSerif-Italic-4d"/>
+    <use transform="translate(1503.315309 0.093750)" xlink:href="#DejaVuSerif-Italic-4d"/>
+    <use transform="translate(1589.903534 0.093750)" xlink:href="#DejaVuSerif-Italic-4d"/>
+   </g>
+  </g>
+ </g>
+</svg>

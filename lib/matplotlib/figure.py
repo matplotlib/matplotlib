@@ -32,13 +32,14 @@ import matplotlib.cbook as cbook
 
 from matplotlib.cbook import Stack, iterable
 
-from matplotlib import _image
+from matplotlib import image as mimage
 from matplotlib.image import FigureImage
 
 import matplotlib.colorbar as cbar
 
 from matplotlib.axes import Axes, SubplotBase, subplot_class_factory
 from matplotlib.blocking_input import BlockingMouseInput, BlockingKeyMouseInput
+from matplotlib.gridspec import GridSpec
 from matplotlib.legend import Legend
 from matplotlib.patches import Rectangle
 from matplotlib.projections import (get_projection_names,
@@ -851,7 +852,7 @@ class Figure(Artist):
 
             rect = l,b,w,h
             fig.add_axes(rect)
-            fig.add_axes(rect, frameon=False, axisbg='g')
+            fig.add_axes(rect, frameon=False, facecolor='g')
             fig.add_axes(rect, polar=True)
             fig.add_axes(rect, projection='polar')
             fig.add_axes(ax)
@@ -932,7 +933,7 @@ class Figure(Artist):
             fig.add_subplot(1,1,1)
 
             # add subplot with red background
-            fig.add_subplot(212, axisbg='r')
+            fig.add_subplot(212, facecolor='r')
 
             # add a polar subplot
             fig.add_subplot(111, projection='polar')
@@ -1010,6 +1011,138 @@ class Figure(Artist):
         self.stale = True
         a.stale_callback = _stale_figure_callback
         return a
+
+    def subplots(self, nrows=1, ncols=1, sharex=False, sharey=False,
+                 squeeze=True, subplot_kw=None, gridspec_kw=None):
+        """
+        Add a set of subplots to this figure.
+
+        Parameters
+        ----------
+        nrows : int, default: 1
+            Number of rows of the subplot grid.
+
+        ncols : int, default: 1
+            Number of columns of the subplot grid.
+
+        sharex : {"none", "all", "row", "col"} or bool, default: False
+            If *False*, or "none", each subplot has its own X axis.
+
+            If *True*, or "all", all subplots will share an X axis, and the x
+            tick labels on all but the last row of plots will be invisible.
+
+            If "col", each subplot column will share an X axis, and the x
+            tick labels on all but the last row of plots will be invisible.
+
+            If "row", each subplot row will share an X axis.
+
+        sharey : {"none", "all", "row", "col"} or bool, default: False
+            If *False*, or "none", each subplot has its own Y axis.
+
+            If *True*, or "all", all subplots will share an Y axis, and the y
+            tick labels on all but the first column of plots will be invisible.
+
+            If "row", each subplot row will share an Y axis, and the y tick
+            labels on all but the first column of plots will be invisible.
+
+            If "col", each subplot column will share an Y axis.
+
+        squeeze : bool, default: True
+            If *True*, extra dimensions are squeezed out from the returned axes
+            array:
+
+            - if only one subplot is constructed (nrows=ncols=1), the resulting
+              single Axes object is returned as a scalar.
+
+            - for Nx1 or 1xN subplots, the returned object is a 1-d numpy
+              object array of Axes objects are returned as numpy 1-d arrays.
+
+            - for NxM subplots with N>1 and M>1 are returned as a 2d array.
+
+            If *False*, no squeezing at all is done: the returned object is
+            always a 2-d array of Axes instances, even if it ends up being 1x1.
+
+        subplot_kw : dict, default: {}
+            Dict with keywords passed to the
+            :meth:`~matplotlib.figure.Figure.add_subplot` call used to create
+            each subplots.
+
+        gridspec_kw : dict, default: {}
+            Dict with keywords passed to the
+            :class:`~matplotlib.gridspec.GridSpec` constructor used to create
+            the grid the subplots are placed on.
+
+        Returns
+        -------
+        ax : single Axes object or array of Axes objects
+            The added axes.  The dimensions of the resulting array can be
+            controlled with the squeeze keyword, see above.
+
+        See Also
+        --------
+        pyplot.subplots : pyplot API; docstring includes examples.
+        """
+
+        # for backwards compatibility
+        if isinstance(sharex, bool):
+            sharex = "all" if sharex else "none"
+        if isinstance(sharey, bool):
+            sharey = "all" if sharey else "none"
+        share_values = ["all", "row", "col", "none"]
+        if sharex not in share_values:
+            # This check was added because it is very easy to type
+            # `subplots(1, 2, 1)` when `subplot(1, 2, 1)` was intended.
+            # In most cases, no error will ever occur, but mysterious behavior
+            # will result because what was intended to be the subplot index is
+            # instead treated as a bool for sharex.
+            if isinstance(sharex, int):
+                warnings.warn(
+                    "sharex argument to subplots() was an integer. "
+                    "Did you intend to use subplot() (without 's')?")
+
+            raise ValueError("sharex [%s] must be one of %s" %
+                             (sharex, share_values))
+        if sharey not in share_values:
+            raise ValueError("sharey [%s] must be one of %s" %
+                             (sharey, share_values))
+        if subplot_kw is None:
+            subplot_kw = {}
+        if gridspec_kw is None:
+            gridspec_kw = {}
+
+        gs = GridSpec(nrows, ncols, **gridspec_kw)
+
+        # Create array to hold all axes.
+        axarr = np.empty((nrows, ncols), dtype=object)
+        for row in range(nrows):
+            for col in range(ncols):
+                shared_with = {"none": None, "all": axarr[0, 0],
+                               "row": axarr[row, 0], "col": axarr[0, col]}
+                subplot_kw["sharex"] = shared_with[sharex]
+                subplot_kw["sharey"] = shared_with[sharey]
+                axarr[row, col] = self.add_subplot(gs[row, col], **subplot_kw)
+
+        # turn off redundant tick labeling
+        if sharex in ["col", "all"]:
+            # turn off all but the bottom row
+            for ax in axarr[:-1, :].flat:
+                for label in ax.get_xticklabels():
+                    label.set_visible(False)
+                ax.xaxis.offsetText.set_visible(False)
+        if sharey in ["row", "all"]:
+            # turn off all but the first column
+            for ax in axarr[:, 1:].flat:
+                for label in ax.get_yticklabels():
+                    label.set_visible(False)
+                ax.yaxis.offsetText.set_visible(False)
+
+        if squeeze:
+            # Discarding unneeded dimensions that equal 1.  If we only have one
+            # subplot, just return it instead of a 1-element array.
+            return axarr.item() if axarr.size == 1 else axarr.squeeze()
+        else:
+            # Returned axis array will be always 2-d, even if nrows=ncols=1.
+            return axarr
 
     def __remove_ax(self, ax):
         def _reset_loc_form(axis):
@@ -1100,63 +1233,33 @@ class Figure(Artist):
         dsu = []
 
         for a in self.patches:
-            dsu.append((a.get_zorder(), a, a.draw, [renderer]))
+            dsu.append((a.get_zorder(), a))
 
         for a in self.lines:
-            dsu.append((a.get_zorder(), a, a.draw, [renderer]))
+            dsu.append((a.get_zorder(), a))
 
         for a in self.artists:
-            dsu.append((a.get_zorder(), a, a.draw, [renderer]))
+            dsu.append((a.get_zorder(), a))
 
-        # override the renderer default if self.suppressComposite
-        # is not None
-        not_composite = renderer.option_image_nocomposite()
-        if self.suppressComposite is not None:
-            not_composite = self.suppressComposite
-
-        if (len(self.images) <= 1 or not_composite or
-                not cbook.allequal([im.origin for im in self.images])):
-            for a in self.images:
-                dsu.append((a.get_zorder(), a, a.draw, [renderer]))
-        else:
-            # make a composite image blending alpha
-            # list of (_image.Image, ox, oy)
-            mag = renderer.get_image_magnification()
-            ims = [(im.make_image(mag), im.ox, im.oy, im.get_alpha())
-                   for im in self.images]
-
-            im = _image.from_images(int(self.bbox.height * mag),
-                                    int(self.bbox.width * mag),
-                                    ims)
-
-            im.is_grayscale = False
-            l, b, w, h = self.bbox.bounds
-
-            def draw_composite():
-                gc = renderer.new_gc()
-                gc.set_clip_rectangle(self.bbox)
-                gc.set_clip_path(self.get_clip_path())
-                renderer.draw_image(gc, l, b, im)
-                gc.restore()
-
-            dsu.append((self.images[0].get_zorder(), self.images[0],
-                        draw_composite, []))
+        for a in self.images:
+            dsu.append((a.get_zorder(), a))
 
         # render the axes
         for a in self.axes:
-            dsu.append((a.get_zorder(), a, a.draw, [renderer]))
+            dsu.append((a.get_zorder(), a))
 
         # render the figure text
         for a in self.texts:
-            dsu.append((a.get_zorder(), a, a.draw, [renderer]))
+            dsu.append((a.get_zorder(), a))
 
         for a in self.legends:
-            dsu.append((a.get_zorder(), a, a.draw, [renderer]))
+            dsu.append((a.get_zorder(), a))
 
         dsu = [row for row in dsu if not row[1].get_animated()]
         dsu.sort(key=itemgetter(0))
-        for zorder, a, func, args in dsu:
-            func(*args)
+
+        mimage._draw_list_compositing_images(
+            renderer, self, dsu, self.suppressComposite)
 
         renderer.close_group('figure')
         self.stale = False

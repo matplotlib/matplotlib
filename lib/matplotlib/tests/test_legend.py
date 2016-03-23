@@ -16,7 +16,9 @@ from matplotlib.cbook import MatplotlibDeprecationWarning
 import matplotlib.pyplot as plt
 import matplotlib as mpl
 import matplotlib.patches as mpatches
+import matplotlib.transforms as mtrans
 
+from matplotlib.legend_handler import HandlerTuple
 
 @image_comparison(baseline_images=['legend_auto1'], remove_text=True)
 def test_legend_auto1():
@@ -74,6 +76,21 @@ def test_labels_first():
     ax.plot(np.ones(10)*5, ':x', label="x")
     ax.plot(np.arange(20, 10, -1), 'd', label="diamond")
     ax.legend(loc=0, markerfirst=False)
+
+
+@image_comparison(baseline_images=['legend_multiple_keys'], extensions=['png'],
+                  remove_text=True)
+def test_multiple_keys():
+    # test legend entries with multiple keys
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+    p1, = ax.plot([1, 2, 3], '-o')
+    p2, = ax.plot([2, 3, 4], '-x')
+    p3, = ax.plot([3, 4, 5], '-d')
+    ax.legend([(p1, p2), (p2, p1), p3], ['two keys', 'pad=0', 'one key'],
+              numpoints=1,
+              handler_map={(p1, p2): HandlerTuple(ndivide=None),
+                           (p2, p1): HandlerTuple(ndivide=None, pad=0)})
 
 
 @image_comparison(baseline_images=['rgba_alpha'],
@@ -261,6 +278,32 @@ def test_nanscatter():
     ax.grid(True)
 
 
+@image_comparison(baseline_images=['not_covering_scatter'], extensions=['png'])
+def test_not_covering_scatter():
+    colors = ['b','g','r']
+
+    for n in range(3):
+        plt.scatter([n,], [n,], color=colors[n])
+
+    plt.legend(['foo', 'foo', 'foo'], loc='best')
+    plt.gca().set_xlim(-0.5, 2.2)
+    plt.gca().set_ylim(-0.5, 2.2)
+
+
+@image_comparison(baseline_images=['not_covering_scatter_transform'],
+                  extensions=['png'])
+def test_not_covering_scatter_transform():
+    # Offsets point to top left, the default auto position
+    offset = mtrans.Affine2D().translate(-20, 20)
+    x = np.linspace(0, 30, 1000)
+    plt.plot(x, x)
+
+    plt.scatter([20], [10], transform=offset + plt.gca().transData)
+
+    plt.legend(['foo', 'bar'], loc='best')
+
+
 if __name__ == '__main__':
     import nose
     nose.runmodule(argv=['-s', '--with-doctest'], exit=False)
+

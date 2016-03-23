@@ -211,12 +211,19 @@ Required Dependencies
 `pytz <http://pytz.sourceforge.net/>`__
     Used to manipulate time-zone aware datetimes. http://pypi.python.org/pypi/pytz
 
-:term:`freetype` 2.3 or later
-    library for reading true type font files.
+:term:`FreeType` 2.3 or later
+    Library for reading true type font files. If using pip, easy_install or 
+    installing from source, the installer will attempt to locate FreeType in
+    expected locations. If it cannot, try installing `pkg-config 
+    <http://matplotlib.org/users/installing.html#optional-dependencies>`__,
+    a tool used to find required non-python libraries.
 
 `cycler <http://matplotlib.org/cycler/>`__ 0.9 or later
    Composable cycle class used for constructing style-cycles
 
+`functools32`
+    Required for compatibility if running on versions of Python before
+    Python 3.2.
 
 Optional GUI framework
 ^^^^^^^^^^^^^^^^^^^^^^
@@ -298,7 +305,7 @@ running::
 
    su -c "yum-builddep python-matplotlib"
 
-This does not build matplotlib, but it does get the install the
+This does not build matplotlib, but it does get and install the
 build dependencies, which will make building from source easier.
 
 

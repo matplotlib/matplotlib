@@ -1600,7 +1600,7 @@ class LightSource(object):
 
         return intensity
 
-    def shade(self, data, cmap, norm=None, blend_mode='hsv', vmin=None,
+    def shade(self, data, cmap, norm=None, blend_mode='overlay', vmin=None,
               vmax=None, vert_exag=1, dx=1, dy=1, fraction=1, **kwargs):
         """
         Combine colormapped data values with an illumination intensity map
@@ -1620,15 +1620,16 @@ class LightSource(object):
             The normalization used to scale values before colormapping. If
             None, the input will be linearly scaled between its min and max.
         blend_mode : {'hsv', 'overlay', 'soft'} or callable, optional
-            The type of blending used to combine the colormapped data values
-            with the illumination intensity.  For backwards compatibility, this
-            defaults to "hsv". Note that for most topographic surfaces,
+            The type of blending used to combine the colormapped data
+            values with the illumination intensity.  Default is
+            "overlay".  Note that for most topographic surfaces,
             "overlay" or "soft" appear more visually realistic. If a
-            user-defined function is supplied, it is expected to combine an
-            MxNx3 RGB array of floats (ranging 0 to 1) with an MxNx1 hillshade
-            array (also 0 to 1).  (Call signature `func(rgb, illum, **kwargs)`)
-            Additional kwargs supplied to this function will be passed on to
-            the *blend_mode* function.
+            user-defined function is supplied, it is expected to
+            combine an MxNx3 RGB array of floats (ranging 0 to 1) with
+            an MxNx1 hillshade array (also 0 to 1).  (Call signature
+            `func(rgb, illum, **kwargs)`) Additional kwargs supplied
+            to this function will be passed on to the *blend_mode*
+            function.
         vmin : scalar or None, optional
             The minimum value used in colormapping *data*. If *None* the
             minimum value in *data* is used. If *norm* is specified, then this

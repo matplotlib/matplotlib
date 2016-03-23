@@ -182,7 +182,7 @@ class Text(Artist):
 
     _cached = maxdict(50)
 
-    def __str__(self):
+    def __repr__(self):
         return "Text(%g,%g,%s)" % (self._x, self._y, repr(self._text))
 
     def __init__(self,
@@ -740,7 +740,7 @@ class Text(Artist):
             self._renderer = renderer
         if not self.get_visible():
             return
-        if self.get_text().strip() == '':
+        if self.get_text() == '':
             return
 
         renderer.open_group('text', self.get_gid())
@@ -949,7 +949,7 @@ class Text(Artist):
         if dpi is not None:
             dpi_orig = self.figure.dpi
             self.figure.dpi = dpi
-        if self.get_text().strip() == '':
+        if self.get_text() == '':
             tx, ty = self._get_xy_display()
             return Bbox.from_bounds(tx, ty, 0, 0)
 
@@ -2211,7 +2211,7 @@ class Annotation(Text, _AnnotationBase):
                     self.arrow_patch.set_patchA(self._bbox_patch)
                 else:
                     pad = renderer.points_to_pixels(4)
-                    if self.get_text().strip() == "":
+                    if self.get_text() == "":
                         self.arrow_patch.set_patchA(None)
                         return
 

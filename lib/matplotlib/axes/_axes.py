@@ -61,9 +61,10 @@ def _plot_args_replacer(args, data):
         except ValueError:
             pass
         else:
-            msg = "Second argument is ambiguous: could be a color spec " \
+            msg = "Second argument '{}' is ambiguous: could be a color spec " \
                   "but is in data. Using as data.\nEither rename the " \
-                  "entry in data or use three arguments to plot."
+                  "entry in data or use three arguments " \
+                  "to plot.".format(args[1])
             warnings.warn(msg, RuntimeWarning, stacklevel=3)
         return ["x", "y"]
     elif len(args) == 3:
@@ -1983,7 +1984,7 @@ class Axes(_AxesBase):
         xerr = kwargs.pop('xerr', None)
         yerr = kwargs.pop('yerr', None)
         error_kw = kwargs.pop('error_kw', dict())
-        ecolor = kwargs.pop('ecolor', None)
+        ecolor = kwargs.pop('ecolor', 'k')
         capsize = kwargs.pop('capsize', rcParams["errorbar.capsize"])
         error_kw.setdefault('ecolor', ecolor)
         error_kw.setdefault('capsize', capsize)
@@ -2101,16 +2102,21 @@ class Axes(_AxesBase):
             if yerr is not None:
                 yerr = self.convert_yunits(yerr)
 
-        if align == 'edge':
-            pass
-        elif align == 'center':
+        margins = {}
+
+        if orientation == 'vertical':
+            margins = {'bottom': False}
+        elif orientation == 'horizontal':
+            margins = {'left': False}
+
+        if align == 'center':
             if orientation == 'vertical':
                 left = [left[i] - width[i] / 2. for i in xrange(len(left))]
             elif orientation == 'horizontal':
                 bottom = [bottom[i] - height[i] / 2.
                           for i in xrange(len(bottom))]
 
-        else:
+        elif align != 'edge':
             raise ValueError('invalid alignment: %s' % align)
 
         args = zip(left, bottom, width, height, color, edgecolor, linewidth)
@@ -2126,7 +2132,8 @@ class Axes(_AxesBase):
                 facecolor=c,
                 edgecolor=e,
                 linewidth=lw,
-                label='_nolegend_'
+                label='_nolegend_',
+                margins=margins
                 )
             r.update(kwargs)
             r.get_path()._interpolation_steps = 100
@@ -2923,9 +2930,9 @@ class Axes(_AxesBase):
                 barcols.append(self.hlines(yo, lo, ro, **lines_kw))
                 rightup, yup = xywhere(right, y, xlolims & everymask)
                 if self.xaxis_inverted():
-                    marker = mlines.CARETLEFT
+                    marker = mlines.CARETLEFTBASE
                 else:
-                    marker = mlines.CARETRIGHT
+                    marker = mlines.CARETRIGHTBASE
                 caplines.extend(
                     self.plot(rightup, yup, ls='None', marker=marker,
                               **plot_kw))
@@ -2939,9 +2946,9 @@ class Axes(_AxesBase):
                 barcols.append(self.hlines(yo, lo, ro, **lines_kw))
                 leftlo, ylo = xywhere(left, y, xuplims & everymask)
                 if self.xaxis_inverted():
-                    marker = mlines.CARETRIGHT
+                    marker = mlines.CARETRIGHTBASE
                 else:
-                    marker = mlines.CARETLEFT
+                    marker = mlines.CARETLEFTBASE
                 caplines.extend(
                     self.plot(leftlo,  ylo, ls='None', marker=marker,
                               **plot_kw))
@@ -2986,9 +2993,9 @@ class Axes(_AxesBase):
                 barcols.append(self.vlines(xo, lo, uo, **lines_kw))
                 xup, upperup = xywhere(x, upper, lolims & everymask)
                 if self.yaxis_inverted():
-                    marker = mlines.CARETDOWN
+                    marker = mlines.CARETDOWNBASE
                 else:
-                    marker = mlines.CARETUP
+                    marker = mlines.CARETUPBASE
                 caplines.extend(
                     self.plot(xup, upperup, ls='None', marker=marker,
                               **plot_kw))
@@ -3002,9 +3009,9 @@ class Axes(_AxesBase):
                 barcols.append(self.vlines(xo, lo, uo, **lines_kw))
                 xlo, lowerlo = xywhere(x, lower, uplims & everymask)
                 if self.yaxis_inverted():
-                    marker = mlines.CARETUP
+                    marker = mlines.CARETUPBASE
                 else:
-                    marker = mlines.CARETDOWN
+                    marker = mlines.CARETDOWNBASE
                 caplines.extend(
                     self.plot(xlo, lowerlo, ls='None', marker=marker,
                               **plot_kw))
@@ -3719,7 +3726,7 @@ class Axes(_AxesBase):
                                         'facecolors', 'color'],
                          label_namer="y")
     @docstring.dedent_interpd
-    def scatter(self, x, y, s=20, c=None, marker='o', cmap=None, norm=None,
+    def scatter(self, x, y, s=None, c=None, marker='o', cmap=None, norm=None,
                 vmin=None, vmax=None, alpha=None, linewidths=None,
                 verts=None, edgecolors=None,
                 **kwargs):
@@ -3732,8 +3739,8 @@ class Axes(_AxesBase):
         x, y : array_like, shape (n, )
             Input data
 
-        s : scalar or array_like, shape (n, ), optional, default: 20
-            size in points^2.
+        s : scalar or array_like, shape (n, ), optional
+            size in points^2.  Default is `rcParams['lines.markersize'] ** 2`.
 
         c : color, sequence, or sequence of color, optional, default: 'b'
             `c` can be a single color format string, or a sequence of color
@@ -3774,11 +3781,16 @@ class Axes(_AxesBase):
             If None, defaults to (lines.linewidth,).
 
         edgecolors : color or sequence of color, optional, default: None
-            If None, defaults to (patch.edgecolor).
+            If None, defaults to 'face'
+
             If 'face', the edge color will always be the same as
-            the face color.  If it is 'none', the patch boundary will not
-            be drawn.  For non-filled markers, the `edgecolors` kwarg
-            is ignored; color is determined by `c`.
+            the face color.
+
+            If it is 'none', the patch boundary will not
+            be drawn.
+
+            For non-filled markers, the `edgecolors` kwarg
+            is ignored and forced to 'face' internally.
 
         Returns
         -------
@@ -3835,6 +3847,9 @@ class Axes(_AxesBase):
             else:
                 c = 'b'  # The original default
 
+        if edgecolors is None and not rcParams['_internal.classic_mode']:
+            edgecolors = 'face'
+
         self._process_unit_info(xdata=x, ydata=y, kwargs=kwargs)
         x = self.convert_xunits(x)
         y = self.convert_yunits(y)
@@ -3845,6 +3860,12 @@ class Axes(_AxesBase):
         y = np.ma.ravel(y)
         if x.size != y.size:
             raise ValueError("x and y must be the same size")
+
+        if s is None:
+            if rcParams['_internal.classic_mode']:
+                s = 20
+            else:
+                s = rcParams['lines.markersize'] ** 2.0
 
         s = np.ma.ravel(s)  # This doesn't have to match x, y in size.
 
@@ -3887,6 +3908,7 @@ class Axes(_AxesBase):
             marker_obj.get_transform())
         if not marker_obj.is_filled():
             edgecolors = 'face'
+            linewidths = rcParams['lines.linewidth']
 
         offsets = np.dstack((x, y))
 
@@ -4030,9 +4052,9 @@ class Axes(_AxesBase):
            the alpha value for the patches
 
         *linewidths*: [ *None* | scalar ]
-           If *None*, defaults to rc lines.linewidth. Note that this
-           is a tuple, and if you set the linewidths argument you
-           must set it as a sequence of floats, as required by
+           If *None*, defaults to 1.0. Note that this is a tuple, and
+           if you set the linewidths argument you must set it as a
+           sequence of floats, as required by
            :class:`~matplotlib.collections.RegularPolyCollection`.
 
         Other keyword arguments controlling the Collection properties:
@@ -4225,6 +4247,8 @@ class Axes(_AxesBase):
 
         if edgecolors == 'none':
             edgecolors = 'face'
+        if linewidths is None:
+            linewidths = [1.0]
 
         if xscale == 'log' or yscale == 'log':
             polygons = np.expand_dims(polygon, 0) + np.expand_dims(offsets, 1)
@@ -4454,7 +4478,7 @@ class Axes(_AxesBase):
                          label_namer=None)
     def streamplot(self, x, y, u, v, density=1, linewidth=None, color=None,
                    cmap=None, norm=None, arrowsize=1, arrowstyle='-|>',
-                   minlength=0.1, transform=None, zorder=1, start_points=None):
+                   minlength=0.1, transform=None, zorder=2, start_points=None):
         if not self._hold:
             self.cla()
         stream_container = mstream.streamplot(self, x, y, u, v,
@@ -4995,6 +5019,7 @@ class Axes(_AxesBase):
             else:
                 X, Y = np.meshgrid(np.arange(numCols + 1),
                                    np.arange(numRows + 1))
+            C = cbook.safe_masked_invalid(C)
             return X, Y, C
 
         if len(args) == 3:
@@ -5027,6 +5052,7 @@ class Axes(_AxesBase):
                                 ' X (%d) and/or Y (%d); see help(%s)' % (
                                     C.shape, Nx, Ny, funcname))
             C = C[:Ny - 1, :Nx - 1]
+        C = cbook.safe_masked_invalid(C)
         return X, Y, C
 
     @unpack_labeled_data(label_namer=None)
@@ -5266,7 +5292,7 @@ class Axes(_AxesBase):
 
         kwargs.setdefault('snap', False)
 
-        collection = mcoll.PolyCollection(verts, **kwargs)
+        collection = mcoll.PolyCollection(verts, margins=False, **kwargs)
 
         collection.set_alpha(alpha)
         collection.set_array(C)
@@ -5301,9 +5327,9 @@ class Axes(_AxesBase):
         maxy = np.amax(y)
 
         corners = (minx, miny), (maxx, maxy)
+        self.add_collection(collection, autolim=False)
         self.update_datalim(corners)
         self.autoscale_view()
-        self.add_collection(collection, autolim=False)
         return collection
 
     @unpack_labeled_data(label_namer=None)
@@ -5418,7 +5444,8 @@ class Axes(_AxesBase):
 
         collection = mcoll.QuadMesh(
             Nx - 1, Ny - 1, coords,
-            antialiased=antialiased, shading=shading, **kwargs)
+            antialiased=antialiased, shading=shading, margins=False,
+            **kwargs)
         collection.set_alpha(alpha)
         collection.set_array(C)
         if norm is not None and not isinstance(norm, mcolors.Normalize):
@@ -5450,9 +5477,9 @@ class Axes(_AxesBase):
         maxy = np.amax(Y)
 
         corners = (minx, miny), (maxx, maxy)
+        self.add_collection(collection, autolim=False)
         self.update_datalim(corners)
         self.autoscale_view()
-        self.add_collection(collection, autolim=False)
         return collection
 
     @unpack_labeled_data(label_namer=None)
@@ -5602,7 +5629,8 @@ class Axes(_AxesBase):
             # The QuadMesh class can also be changed to
             # handle relevant superclass kwargs; the initializer
             # should do much more than it does now.
-            collection = mcoll.QuadMesh(nc, nr, coords, 0, edgecolors="None")
+            collection = mcoll.QuadMesh(nc, nr, coords, 0, edgecolors="None",
+                                        margins=False)
             collection.set_alpha(alpha)
             collection.set_array(C)
             collection.set_cmap(cmap)
@@ -5648,7 +5676,9 @@ class Axes(_AxesBase):
         if not self._hold:
             self.cla()
         kwargs['filled'] = False
-        return mcontour.QuadContourSet(self, *args, **kwargs)
+        contours = mcontour.QuadContourSet(self, *args, **kwargs)
+        self.autoscale_view()
+        return contours
     contour.__doc__ = mcontour.QuadContourSet.contour_doc
 
     @unpack_labeled_data()
@@ -5656,7 +5686,9 @@ class Axes(_AxesBase):
         if not self._hold:
             self.cla()
         kwargs['filled'] = True
-        return mcontour.QuadContourSet(self, *args, **kwargs)
+        contours = mcontour.QuadContourSet(self, *args, **kwargs)
+        self.autoscale_view()
+        return contours
     contourf.__doc__ = mcontour.QuadContourSet.contour_doc
 
     def clabel(self, CS, *args, **kwargs):
@@ -5694,7 +5726,7 @@ class Axes(_AxesBase):
 
     @unpack_labeled_data(replace_names=["x", 'weights'], label_namer="x")
     @docstring.dedent_interpd
-    def hist(self, x, bins=10, range=None, normed=False, weights=None,
+    def hist(self, x, bins=None, range=None, normed=False, weights=None,
              cumulative=False, bottom=None, histtype='bar', align='mid',
              orientation='vertical', rwidth=None, log=False,
              color=None, label=None, stacked=False,
@@ -5720,14 +5752,16 @@ class Axes(_AxesBase):
             Input values, this takes either a single array or a sequency of
             arrays which are not required to be of the same length
 
-        bins : integer or array_like, optional
+        bins : integer or array_like or 'auto', optional
             If an integer is given, `bins + 1` bin edges are returned,
             consistently with :func:`numpy.histogram` for numpy version >=
             1.3.
 
             Unequally spaced bins are supported if `bins` is a sequence.
 
-            default is 10
+            If Numpy 1.11 is installed, may also be ``'auto'``.
+
+            Default is taken from the rcParam ``hist.bins``.
 
         range : tuple or None, optional
             The lower and upper range of the bins. Lower and upper outliers
@@ -5924,6 +5958,9 @@ class Axes(_AxesBase):
         if np.isscalar(x):
             x = [x]
 
+        if bins is None:
+            bins = rcParams['hist.bins']
+
         # xrange becomes range after 2to3
         bin_range = range
         range = __builtins__["range"]
@@ -6041,6 +6078,11 @@ class Axes(_AxesBase):
                 n = [(m * np.diff(bins))[slc].cumsum()[slc] for m in n]
             else:
                 n = [m[slc].cumsum()[slc] for m in n]
+
+        if orientation == 'horizontal':
+            margins = {'left': False}
+        else:
+            margins = {'bottom': False}
 
         patches = []
 
@@ -6182,14 +6224,16 @@ class Axes(_AxesBase):
                     patches.append(self.fill(
                         x, y,
                         closed=True,
-                        facecolor=c))
+                        facecolor=c,
+                        margins=margins))
             else:
                 for x, y, c in reversed(list(zip(xvals, yvals, color))):
                     split = 2 * len(bins)
                     patches.append(self.fill(
                         x[:split], y[:split],
                         closed=False, edgecolor=c,
-                        fill=False))
+                        fill=False,
+                        margins=margins))
 
             # we return patches, so put it back in the expected order
             patches.reverse()

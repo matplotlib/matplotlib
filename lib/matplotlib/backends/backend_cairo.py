@@ -171,14 +171,18 @@ class RendererCairo(RendererBase):
         # bbox - not currently used
         if _debug: print('%s.%s()' % (self.__class__.__name__, _fn_name()))
 
-        rows, cols, buf = im.color_conv (BYTE_FORMAT)
-        surface = cairo.ImageSurface.create_for_data (
-                      buf, cairo.FORMAT_ARGB32, cols, rows, cols*4)
+        if sys.byteorder == 'little':
+            im = im[:, :, (2, 1, 0, 3)]
+        else:
+            im = im[:, :, (3, 0, 1, 2)]
+        surface = cairo.ImageSurface.create_for_data(
+            memoryview(im.flatten()), cairo.FORMAT_ARGB32, im.shape[1], im.shape[0],
+            im.shape[1]*4)
         ctx = gc.ctx
-        y = self.height - y - rows
+        y = self.height - y - im.shape[0]
 
         ctx.save()
-        ctx.set_source_surface (surface, x, y)
+        ctx.set_source_surface(surface, float(x), float(y))
         if gc.get_alpha() != 1.0:
             ctx.paint_with_alpha(gc.get_alpha())
         else:
@@ -359,7 +363,7 @@ class GraphicsContextCairo(GraphicsContextBase):
         if not rectangle: return
         x,y,w,h = rectangle.bounds
         # pixel-aligned clip-regions are faster
-        x,y,w,h = round(x), round(y), round(w), round(h)
+        x,y,w,h = np.round(x), np.round(y), np.round(w), np.round(h)
         ctx = self.ctx
         ctx.new_path()
         ctx.rectangle (x, self.renderer.height - h - y, w, h)

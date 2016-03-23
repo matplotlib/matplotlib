@@ -197,10 +197,11 @@ if not hasattr(sys, 'argv'):  # for modpython
 
 
 major, minor1, minor2, s, tmp = sys.version_info
-_python26 = (major == 2 and minor1 >= 6) or major >= 3
+_python27 = (major == 2 and minor1 >= 7)
+_python34 = (major == 3 and minor1 >= 4)
 
-if not _python26:
-    raise ImportError('matplotlib requires Python 2.6 or later')
+if not (_python27 or _python34):
+    raise ImportError('matplotlib requires Python 2.7 or 3.4 or later')
 
 
 if not compare_versions(numpy.__version__, __version__numpy__):
@@ -350,7 +351,8 @@ def checkdep_dvipng():
 
 def checkdep_ghostscript():
     if sys.platform == 'win32':
-        gs_execs = ['gswin32c', 'gswin64c', 'gs']
+        # mgs is the name in miktex
+        gs_execs = ['gswin32c', 'gswin64c', 'mgs', 'gs']
     else:
         gs_execs = ['gs']
     for gs_exec in gs_execs:
@@ -761,6 +763,8 @@ def matplotlib_fname():
 
     - `$PWD/matplotlibrc`
 
+    - `$MATPLOTLIBRC` if it is a file
+
     - `$MATPLOTLIBRC/matplotlibrc`
 
     - `$MPLCONFIGDIR/matplotlibrc`
@@ -793,6 +797,8 @@ def matplotlib_fname():
     if 'MATPLOTLIBRC' in os.environ:
         path = os.environ['MATPLOTLIBRC']
         if os.path.exists(path):
+            if os.path.isfile(path):
+                return path
             fname = os.path.join(path, 'matplotlibrc')
             if os.path.exists(fname):
                 return fname
@@ -841,6 +847,7 @@ _deprecated_map = {
     'savefig.extension': ('savefig.format', lambda x: x, None),
     'axes.color_cycle': ('axes.prop_cycle', lambda x: cycler('color', x),
                          lambda x: [c.get('color', None) for c in x]),
+    'svg.image_noscale': ('image.interpolation', None, None),
     }
 
 _deprecated_ignore_map = {
@@ -1278,7 +1285,15 @@ class rc_context(object):
             plt.plot(x, a)
 
     The 'rc' dictionary takes precedence over the settings loaded from
-    'fname'.  Passing a dictionary only is also valid.
+    'fname'.  Passing a dictionary only is also valid. For example a
+    common usage is::
+
+        with mpl.rc_context(rc={'interactive': False}):
+            fig, ax = plt.subplots()
+            ax.plot(range(3), range(3))
+            fig.savefig('A.png', format='png')
+            plt.close(fig)
+
     """
 
     def __init__(self, rc=None, fname=None):
@@ -1451,6 +1466,7 @@ default_test_modules = [
     'matplotlib.tests.test_contour',
     'matplotlib.tests.test_dates',
     'matplotlib.tests.test_delaunay',
+    'matplotlib.tests.test_dviread',
     'matplotlib.tests.test_figure',
     'matplotlib.tests.test_font_manager',
     'matplotlib.tests.test_gridspec',
@@ -1480,6 +1496,7 @@ default_test_modules = [
     'matplotlib.tests.test_tightlayout',
     'matplotlib.tests.test_transforms',
     'matplotlib.tests.test_triangulation',
+    'matplotlib.tests.test_type1font',
     'matplotlib.tests.test_units',
     'matplotlib.tests.test_widgets',
     'matplotlib.tests.test_cycles',
@@ -1491,9 +1508,28 @@ default_test_modules = [
     ]
 
 
-def verify_test_dependencies():
+def _init_tests():
+    try:
+        import faulthandler
+    except ImportError:
+        pass
+    else:
+        faulthandler.enable()
+
     if not os.path.isdir(os.path.join(os.path.dirname(__file__), 'tests')):
         raise ImportError("matplotlib test data is not installed")
+
+    # The version of FreeType to install locally for running the
+    # tests.  This must match the value in `setupext.py`
+    LOCAL_FREETYPE_VERSION = '2.6.1'
+
+    from matplotlib import ft2font
+    if (ft2font.__freetype_version__ != LOCAL_FREETYPE_VERSION or
+        ft2font.__freetype_build_type__ != 'local'):
+        warnings.warn(
+            "matplotlib is not built with the correct FreeType version to run "
+            "tests.  Set local_freetype=True in setup.cfg and rebuild. "
+            "Expect many image comparison failures below.")
 
     try:
         import nose
@@ -1506,41 +1542,52 @@ def verify_test_dependencies():
         raise
 
 
-def test(verbosity=1):
+def _get_extra_test_plugins():
+    from .testing.noseclasses import KnownFailure
+    from nose.plugins import attrib
+
+    return [KnownFailure, attrib.Plugin]
+
+
+def _get_nose_env():
+    env = {'NOSE_COVER_PACKAGE': 'matplotlib',
+           'NOSE_COVER_HTML': 1,
+           'NOSE_COVER_NO_PRINT': 1}
+    return env
+
+
+def test(verbosity=1, coverage=False):
     """run the matplotlib test suite"""
-    verify_test_dependencies()
-    try:
-        import faulthandler
-    except ImportError:
-        pass
-    else:
-        faulthandler.enable()
+    _init_tests()
 
     old_backend = rcParams['backend']
     try:
         use('agg')
         import nose
         import nose.plugins.builtin
-        from .testing.noseclasses import KnownFailure
         from nose.plugins.manager import PluginManager
         from nose.plugins import multiprocess
 
         # store the old values before overriding
-        plugins = []
-        plugins.append(KnownFailure())
-        plugins.extend([plugin() for plugin in nose.plugins.builtin.plugins])
+        plugins = _get_extra_test_plugins()
+        plugins.extend([plugin for plugin in nose.plugins.builtin.plugins])
 
-        manager = PluginManager(plugins=plugins)
+        manager = PluginManager(plugins=[x() for x in plugins])
         config = nose.config.Config(verbosity=verbosity, plugins=manager)
 
         # Nose doesn't automatically instantiate all of the plugins in the
         # child processes, so we have to provide the multiprocess plugin with
         # a list.
-        multiprocess._instantiate_plugins = [KnownFailure]
+        multiprocess._instantiate_plugins = plugins
+
+        env = _get_nose_env()
+        if coverage:
+            env['NOSE_WITH_COVERAGE'] = 1
 
         success = nose.run(
             defaultTest=default_test_modules,
             config=config,
+            env=env,
         )
     finally:
         if old_backend.lower() != 'agg':
@@ -1682,7 +1729,7 @@ def unpack_labeled_data(replace_names=None, replace_all_args=False,
                 arg_names = []
             elif len(_arg_names) > 1 and (positional_parameter_names is None):
                 # we got no manual parameter names but more than an 'ax' ...
-                if len(set(replace_names) - set(_arg_names[1:])) == 0:
+                if len(replace_names - set(_arg_names[1:])) == 0:
                     # all to be replaced arguments are in the list
                     arg_names = _arg_names[1:]
                 else:
@@ -1830,7 +1877,7 @@ def unpack_labeled_data(replace_names=None, replace_all_args=False,
                 _repl = "* All arguments with the following names: '{names}'."
             if replace_all_args:
                 _repl += "\n* All positional arguments."
-            _repl = _repl.format(names="', '".join(replace_names))
+            _repl = _repl.format(names="', '".join(sorted(replace_names)))
         inner.__doc__ = (pre_doc +
                          _DATA_DOC_APPENDIX.format(replaced=_repl))
         if not python_has_wrapped:

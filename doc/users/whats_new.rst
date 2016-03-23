@@ -742,6 +742,13 @@ way as setting `CC` or `CXX` before building. An example follows.
 
     export PKG_CONFIG=x86_64-pc-linux-gnu-pkg-config
 
+AxesGrid toolkit
+----------------
+
+Twins of host axes (see `~mpl_toolkits.axes_grid1.host_subplot()` and its
+``twin*`` methods) now have ``remove()`` functionality. Some visibility changes
+made by the ``twin*`` methods were modified to faciliate this feature.
+
 .. _whats-new-1-4:
 
 new in matplotlib-1.4
@@ -2104,8 +2111,9 @@ axes grid toolkit
 Jae-Joon Lee has added a new toolkit to ease displaying multiple images in
 matplotlib, as well as some support for curvilinear grids to support
 the world coordinate system. The toolkit is included standard with all
-new mpl installs.  See :ref:`axes_grid-examples-index` and
-:ref:`axes_grid_users-guide-index`.
+new mpl installs.  See :ref:`axes_grid1-examples-index`,
+:ref:`axisartist-examples-index`, :ref:`axes_grid1_users-guide-index` and
+:ref:`axisartist_users-guide-index`
 
 .. plot:: pyplots/whats_new_99_axes_grid.py
 

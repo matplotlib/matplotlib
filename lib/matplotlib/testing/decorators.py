@@ -5,6 +5,7 @@ from matplotlib.externals import six
 
 import functools
 import gc
+import inspect
 import os
 import sys
 import shutil
@@ -22,6 +23,7 @@ from matplotlib import cbook
 from matplotlib import ticker
 from matplotlib import pyplot as plt
 from matplotlib import ft2font
+from matplotlib import rcParams
 from matplotlib.testing.noseclasses import KnownFailureTest, \
      KnownFailureDidNotFailTest, ImageComparisonFailure
 from matplotlib.testing.compare import comparable_formats, compare_images, \
@@ -109,18 +111,57 @@ class CleanupTestCase(unittest.TestCase):
                     cls.original_settings)
 
 
-def cleanup(func):
-    @functools.wraps(func)
-    def wrapped_function(*args, **kwargs):
-        original_units_registry = matplotlib.units.registry.copy()
-        original_settings = mpl.rcParams.copy()
-        try:
-            func(*args, **kwargs)
-        finally:
-            _do_cleanup(original_units_registry,
-                        original_settings)
+def cleanup(style=None):
+    """
+    A decorator to ensure that any global state is reset before
+    running a test.
 
-    return wrapped_function
+    Parameters
+    ----------
+    style : str, optional
+        The name of the style to apply.
+    """
+
+    # If cleanup is used without arguments, `style` will be a
+    # callable, and we pass it directly to the wrapper generator.  If
+    # cleanup if called with an argument, it is a string naming a
+    # style, and the function will be passed as an argument to what we
+    # return.  This is a confusing, but somewhat standard, pattern for
+    # writing a decorator with optional arguments.
+
+    def make_cleanup(func):
+        if inspect.isgeneratorfunction(func):
+            @functools.wraps(func)
+            def wrapped_callable(*args, **kwargs):
+                original_units_registry = matplotlib.units.registry.copy()
+                original_settings = mpl.rcParams.copy()
+                matplotlib.style.use(style)
+                try:
+                    for yielded in func(*args, **kwargs):
+                        yield yielded
+                finally:
+                    _do_cleanup(original_units_registry,
+                                original_settings)
+        else:
+            @functools.wraps(func)
+            def wrapped_callable(*args, **kwargs):
+                original_units_registry = matplotlib.units.registry.copy()
+                original_settings = mpl.rcParams.copy()
+                matplotlib.style.use(style)
+                try:
+                    func(*args, **kwargs)
+                finally:
+                    _do_cleanup(original_units_registry,
+                                original_settings)
+
+        return wrapped_callable
+
+    if isinstance(style, six.string_types):
+        return make_cleanup
+    else:
+        result = make_cleanup(style)
+        style = 'classic'
+        return result
 
 
 def check_freetype_version(ver):
@@ -138,6 +179,7 @@ def check_freetype_version(ver):
 class ImageComparisonTest(CleanupTest):
     @classmethod
     def setup_class(cls):
+        CleanupTest.setup_class()
         cls._initial_settings = mpl.rcParams.copy()
         try:
             matplotlib.style.use(cls._style)
@@ -146,11 +188,8 @@ class ImageComparisonTest(CleanupTest):
             mpl.rcParams.clear()
             mpl.rcParams.update(cls._initial_settings)
             raise
-        # Because the setup of a CleanupTest might involve
-        # modifying a few rcparams, this setup should come
-        # last prior to running the image test.
-        CleanupTest.setup_class()
         cls.original_settings = cls._initial_settings
+        matplotlib.testing.set_font_settings_for_testing()
         cls._func()
 
     @classmethod
@@ -227,7 +266,7 @@ class ImageComparisonTest(CleanupTest):
 
                 yield (do_test,)
 
-def image_comparison(baseline_images=None, extensions=None, tol=13,
+def image_comparison(baseline_images=None, extensions=None, tol=0,
                      freetype_version=None, remove_text=False,
                      savefig_kwarg=None, style='classic'):
     """
@@ -251,7 +290,7 @@ def image_comparison(baseline_images=None, extensions=None, tol=13,
 
         Otherwise, a list of extensions to test. For example ['png','pdf'].
 
-      *tol*: (default 13)
+      *tol*: (default 0)
         The RMS threshold above which the test is considered failed.
 
       *freetype_version*: str or tuple
@@ -272,7 +311,6 @@ def image_comparison(baseline_images=None, extensions=None, tol=13,
         if desired. Defaults to the 'classic' style.
 
     """
-
     if baseline_images is None:
         raise ValueError('baseline_images must be specified')
 
@@ -388,3 +426,24 @@ def switch_backend(backend):
 
         return nose.tools.make_decorator(func)(backend_switcher)
     return switch_backend_decorator
+
+
+def skip_if_command_unavailable(cmd):
+    """
+    skips a test if a command is unavailable.
+
+    Parameters
+    ----------
+    cmd : list of str
+        must be a complete command which should not
+        return a non zero exit code, something like
+        ["latex", "-version"]
+    """
+    from matplotlib.compat.subprocess import check_output
+    try:
+        check_output(cmd)
+    except:
+        from nose import SkipTest
+        raise SkipTest('missing command: %s' % cmd[0])
+
+    return lambda f: f

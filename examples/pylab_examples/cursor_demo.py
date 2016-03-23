@@ -60,7 +60,7 @@ class SnaptoCursor(object):
 
         x, y = event.xdata, event.ydata
 
-        indx = np.searchsorted(self.x, [x])[0]
+        indx = min(np.searchsorted(self.x, [x])[0], len(self.x) - 1)
         x = self.x[indx]
         y = self.y[indx]
         # update the line positions

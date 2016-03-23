@@ -91,7 +91,7 @@ class RendererGDK(RendererBase):
         for polygon in polygons:
             # draw_polygon won't take an arbitrary sequence -- it must be a list
             # of tuples
-            polygon = [(int(round(x)), int(round(y))) for x, y in polygon]
+            polygon = [(int(np.round(x)), int(np.round(y))) for x, y in polygon]
             if rgbFace is not None:
                 saveColor = gc.gdkGC.foreground
                 gc.gdkGC.foreground = gc.rgb_to_gdk_color(rgbFace)
@@ -109,17 +109,14 @@ class RendererGDK(RendererBase):
             #             int(w), int(h))
             # set clip rect?
 
-        rows, cols, image_str = im.as_rgba_str()
-
-        image_array = np.fromstring(image_str, np.uint8)
-        image_array.shape = rows, cols, 4
+        rows, cols = im.shape[:2]
 
         pixbuf = gtk.gdk.Pixbuf(gtk.gdk.COLORSPACE_RGB,
                                 has_alpha=True, bits_per_sample=8,
                                 width=cols, height=rows)
 
         array = pixbuf_get_pixels_array(pixbuf)
-        array[:,:,:] = image_array[::-1]
+        array[:, :, :] = im[::-1]
 
         gc = self.new_gc()
 
@@ -281,7 +278,7 @@ class RendererGDK(RendererBase):
             return value
 
         size = prop.get_size_in_points() * self.dpi / 96.0
-        size = round(size)
+        size = np.round(size)
 
         font_str = '%s, %s %i' % (prop.get_name(), prop.get_style(), size,)
         font = pango.FontDescription(font_str)
@@ -387,7 +384,7 @@ class GraphicsContextGDK(GraphicsContextBase):
             self.gdkGC.line_style = gdk.LINE_SOLID
         else:
             pixels = self.renderer.points_to_pixels(np.asarray(dash_list))
-            dl = [max(1, int(round(val))) for val in pixels]
+            dl = [max(1, int(np.round(val))) for val in pixels]
             self.gdkGC.set_dashes(dash_offset, dl)
             self.gdkGC.line_style = gdk.LINE_ON_OFF_DASH
 
@@ -413,7 +410,7 @@ class GraphicsContextGDK(GraphicsContextBase):
             self.gdkGC.line_width = 0
         else:
             pixels = self.renderer.points_to_pixels(w)
-            self.gdkGC.line_width = max(1, int(round(pixels)))
+            self.gdkGC.line_width = max(1, int(np.round(pixels)))
 
 
 def new_figure_manager(num, *args, **kwargs):

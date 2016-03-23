@@ -28,16 +28,17 @@ import threading
 import numpy as np
 from math import radians, cos, sin
 from matplotlib import verbose, rcParams
-from matplotlib.backend_bases import RendererBase,\
-     FigureManagerBase, FigureCanvasBase
+from matplotlib.backend_bases import (RendererBase, FigureManagerBase,
+                                      FigureCanvasBase)
 from matplotlib.cbook import is_string_like, maxdict, restrict_dict
 from matplotlib.figure import Figure
-from matplotlib.font_manager import findfont
-from matplotlib.ft2font import FT2Font, LOAD_FORCE_AUTOHINT, LOAD_NO_HINTING, \
-     LOAD_DEFAULT, LOAD_NO_AUTOHINT
+from matplotlib.font_manager import findfont, get_font
+from matplotlib.ft2font import (LOAD_FORCE_AUTOHINT, LOAD_NO_HINTING,
+                                LOAD_DEFAULT, LOAD_NO_AUTOHINT)
 from matplotlib.mathtext import MathTextParser
 from matplotlib.path import Path
 from matplotlib.transforms import Bbox, BboxBase
+from matplotlib import colors as mcolors
 
 from matplotlib.backends._backend_agg import RendererAgg as _RendererAgg
 from matplotlib import _png
@@ -81,7 +82,6 @@ class RendererAgg(RendererBase):
     # renderer at a time
 
     lock = threading.RLock()
-    _fontd = maxdict(50)
     def __init__(self, width, height, dpi):
         if __debug__: verbose.report('RendererAgg.__init__', 'debug-annoying')
         RendererBase.__init__(self)
@@ -176,8 +176,8 @@ class RendererAgg(RendererBase):
 
         xd = descent * sin(radians(angle))
         yd = descent * cos(radians(angle))
-        x = round(x + ox + xd)
-        y = round(y - oy + yd)
+        x = np.round(x + ox + xd)
+        y = np.round(y - oy + yd)
         self._renderer.draw_text_image(font_image, x, y + 1, angle, gc)
 
     def draw_text(self, gc, x, y, s, prop, angle, ismath=False, mtext=None):
@@ -191,6 +191,7 @@ class RendererAgg(RendererBase):
 
         flags = get_hinting_flag()
         font = self._get_agg_font(prop)
+
         if font is None: return None
         if len(s) == 1 and ord(s) > 127:
             font.load_char(ord(s), flags=flags)
@@ -272,18 +273,10 @@ class RendererAgg(RendererBase):
         if __debug__: verbose.report('RendererAgg._get_agg_font',
                                      'debug-annoying')
 
-        key = hash(prop)
-        font = RendererAgg._fontd.get(key)
-
-        if font is None:
-            fname = findfont(prop)
-            font = RendererAgg._fontd.get(fname)
-            if font is None:
-                font = FT2Font(
-                    fname,
-                    hinting_factor=rcParams['text.hinting_factor'])
-                RendererAgg._fontd[fname] = font
-            RendererAgg._fontd[key] = font
+        fname = findfont(prop)
+        font = get_font(
+            fname,
+            hinting_factor=rcParams['text.hinting_factor'])
 
         font.clear()
         size = prop.get_size_in_points()
@@ -326,9 +319,9 @@ class RendererAgg(RendererBase):
 
     def option_scale_image(self):
         """
-        agg backend support arbitrary scaling of image.
+        agg backend doesn't support arbitrary scaling of image.
         """
-        return True
+        return False
 
     def restore_region(self, region, bbox=None, xy=None):
         """
@@ -396,14 +389,11 @@ class RendererAgg(RendererBase):
         # For agg_filter to work, the rendere's method need
         # to overridden in the class. See draw_markers, and draw_path_collections
 
-        from matplotlib._image import fromarray
-
         width, height = int(self.width), int(self.height)
 
         buffer, bounds = self.tostring_rgba_minimized()
 
         l, b, w, h = bounds
-
 
         self._renderer = self._filter_renderers.pop()
         self._update_methods()
@@ -412,12 +402,12 @@ class RendererAgg(RendererBase):
             img = np.fromstring(buffer, np.uint8)
             img, ox, oy = post_processing(img.reshape((h, w, 4)) / 255.,
                                           self.dpi)
-            image = fromarray(img, 1)
-
             gc = self.new_gc()
-            self._renderer.draw_image(gc,
-                                      l+ox, height - b - h +oy,
-                                      image)
+            if img.dtype.kind == 'f':
+                img = np.asarray(img * 255., np.uint8)
+            img = img[::-1]
+            self._renderer.draw_image(
+                gc, l + ox, height - b - h + oy, img)
 
 
 def new_figure_manager(num, *args, **kwargs):
@@ -533,6 +523,7 @@ class FigureCanvasAgg(FigureCanvasBase):
             close = True
         else:
             close = False
+
         try:
             _png.write_png(renderer._renderer, filename_or_obj, self.figure.dpi)
         finally:
@@ -551,7 +542,6 @@ class FigureCanvasAgg(FigureCanvasBase):
         return result
 
     if _has_pil:
-
         # add JPEG support
         def print_jpg(self, filename_or_obj, *args, **kwargs):
             """
@@ -573,14 +563,21 @@ class FigureCanvasAgg(FigureCanvasBase):
             buf, size = self.print_to_buffer()
             if kwargs.pop("dryrun", False):
                 return
+            # The image is "pasted" onto a white background image to safely
+            # handle any transparency
             image = Image.frombuffer('RGBA', size, buf, 'raw', 'RGBA', 0, 1)
+            color = mcolors.colorConverter.to_rgb(
+                rcParams.get('savefig.facecolor', 'white'))
+            color = tuple([int(x * 255.0) for x in color])
+            background = Image.new('RGB', size, color)
+            background.paste(image, image)
             options = restrict_dict(kwargs, ['quality', 'optimize',
                                              'progressive'])
 
             if 'quality' not in options:
                 options['quality'] = rcParams['savefig.jpeg_quality']
 
-            return image.save(filename_or_obj, format='jpeg', **options)
+            return background.save(filename_or_obj, format='jpeg', **options)
         print_jpeg = print_jpg
 
         # add TIFF support

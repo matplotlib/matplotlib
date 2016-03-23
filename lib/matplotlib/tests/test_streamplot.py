@@ -17,7 +17,17 @@ def velocity_field():
     return X, Y, U, V
 
 
-@image_comparison(baseline_images=['streamplot_colormap_test_image'])
+@image_comparison(baseline_images=['streamplot_startpoints'])
+def test_startpoints():
+    X, Y, U, V = velocity_field()
+    start_x = np.linspace(X.min(), X.max(), 10)
+    start_y = np.linspace(Y.min(), Y.max(), 10)
+    start_points = list(zip(start_x, start_y))
+    plt.streamplot(X, Y, U, V, start_points=start_points)
+    plt.plot(start_x, start_y, 'ok')
+
+
+@image_comparison(baseline_images=['streamplot_colormap'])
 def test_colormap():
     X, Y, U, V = velocity_field()
     plt.streamplot(X, Y, U, V, color=U, density=0.6, linewidth=2,
@@ -25,7 +35,7 @@ def test_colormap():
     plt.colorbar()
 
 
-@image_comparison(baseline_images=['streamplot_linewidth_test_image'])
+@image_comparison(baseline_images=['streamplot_linewidth'])
 def test_linewidth():
     X, Y, U, V = velocity_field()
     speed = np.sqrt(U*U + V*V)
@@ -35,7 +45,7 @@ def test_linewidth():
                    linewidth=lw)
 
 
-@image_comparison(baseline_images=['streamplot_masks_and_nans_test_image'])
+@image_comparison(baseline_images=['streamplot_masks_and_nans'])
 def test_masks_and_nans():
     X, Y, U, V = velocity_field()
     mask = np.zeros(U.shape, dtype=bool)

@@ -71,6 +71,7 @@ def test_savefig_to_stringio_with_distiller():
 
 @cleanup
 @needs_tex
+@needs_ghostscript
 def test_savefig_to_stringio_with_usetex():
     matplotlib.rcParams['text.latex.unicode'] = True
     matplotlib.rcParams['text.usetex'] = True
@@ -90,6 +91,7 @@ def test_savefig_to_stringio_eps_afm():
 
 @cleanup
 @needs_tex
+@needs_ghostscript
 def test_savefig_to_stringio_with_usetex_eps():
     matplotlib.rcParams['text.latex.unicode'] = True
     matplotlib.rcParams['text.usetex'] = True

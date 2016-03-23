@@ -1887,8 +1887,8 @@ GraphicsContext_draw_quad_mesh (GraphicsContext* self, PyObject* args)
     }
 
     size_t i = 0;
-    size_t iw = 0;
-    size_t ih = 0;
+    int iw = 0;
+    int ih = 0;
 
     /* Preset graphics context properties if possible */
     CGContextSetShouldAntialias(cr, antialiased);
@@ -3740,7 +3740,7 @@ FigureCanvas_write_bitmap(FigureCanvas* self, PyObject* args)
         return NULL;
     }
 
-    data = [rep representationUsingType:filetype properties:nil];
+    data = [rep representationUsingType:filetype properties:[NSDictionary dictionary]];
 
     [data writeToFile: filename atomically: YES];
     [pool release];
@@ -4575,7 +4575,7 @@ NavigationToolbar_get_active (NavigationToolbar* self)
     }
     NSMenu* menu = [button menu];
     NSArray* items = [menu itemArray];
-    unsigned int n = [items count];
+    size_t n = [items count];
     int* states = calloc(n, sizeof(int));
     if (!states)
     {
@@ -4597,14 +4597,13 @@ NavigationToolbar_get_active (NavigationToolbar* self)
             m++;
         }
     }
-    int j = 0;
+    Py_ssize_t list_index = 0;
     PyObject* list = PyList_New(m);
-    for (i = 0; i < n; i++)
+    for (size_t state_index = 0; state_index < n; state_index++)
     {
-        if(states[i]==1)
+        if(states[state_index]==1)
         {
-            PyList_SET_ITEM(list, j, PyLong_FromLong(i));
-            j++;
+            PyList_SET_ITEM(list, list_index++, PyLong_FromSize_t(state_index));
         }
     }
     free(states);

@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 from matplotlib.widgets import SpanSelector
 
 fig = plt.figure(figsize=(8, 6))
-ax = fig.add_subplot(211, axisbg='#FFFFCC')
+ax = fig.add_subplot(211, facecolor='#FFFFCC')
 
 x = np.arange(0.0, 5.0, 0.01)
 y = np.sin(2*np.pi*x) + 0.5*np.random.randn(len(x))

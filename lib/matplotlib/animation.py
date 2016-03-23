@@ -33,6 +33,7 @@ try:
 except ImportError:
     # python2
     from base64 import encodestring as encodebytes
+import abc
 import contextlib
 import tempfile
 from matplotlib.cbook import iterable, is_string_like
@@ -63,6 +64,12 @@ else:
 class MovieWriterRegistry(object):
     def __init__(self):
         self.avail = dict()
+        self._registered = dict()
+        self._dirty = False
+
+    def set_dirty(self):
+        """Sets a flag to re-setup the writers"""
+        self._dirty = True
 
     # Returns a decorator that can be used on classes to register them under
     # a name. As in:
@@ -71,19 +78,36 @@ class MovieWriterRegistry(object):
     #    pass
     def register(self, name):
         def wrapper(writerClass):
+            self._registered[name] = writerClass
             if writerClass.isAvailable():
                 self.avail[name] = writerClass
             return writerClass
         return wrapper
 
+    def ensure_not_dirty(self):
+        """If dirty, reasks the writers if they are available"""
+        if self._dirty:
+            self.reset_available_writers()
+
+    def reset_available_writers(self):
+        """Reset the available state of all registered writers"""
+        self.avail = {}
+        for name, writerClass in self._registered.items():
+            if writerClass.isAvailable():
+                self.avail[name] = writerClass
+        self._dirty = False
+
     def list(self):
         ''' Get a list of available MovieWriters.'''
+        self.ensure_not_dirty()
         return list(self.avail.keys())
 
     def is_available(self, name):
+        self.ensure_not_dirty()
         return name in self.avail
 
     def __getitem__(self, name):
+        self.ensure_not_dirty()
         if not self.avail:
             raise RuntimeError("No MovieWriters available!")
         return self.avail[name]
@@ -91,7 +115,66 @@ class MovieWriterRegistry(object):
 writers = MovieWriterRegistry()
 
 
-class MovieWriter(object):
+class AbstractMovieWriter(six.with_metaclass(abc.ABCMeta)):
+    '''
+    Abstract base class for writing movies. Fundamentally, what a MovieWriter
+    does is provide is a way to grab frames by calling grab_frame().
+
+    setup() is called to start the process and finish() is called afterwards.
+
+    This class is set up to provide for writing movie frame data to a pipe.
+    saving() is provided as a context manager to facilitate this process as::
+
+      with moviewriter.saving(fig, outfile='myfile.mp4', dpi=100):
+          # Iterate over frames
+          moviewriter.grab_frame(**savefig_kwargs)
+
+    The use of the context manager ensures that setup() and finish() are
+    performed as necessary.
+
+    An instance of a concrete subclass of this class can be given as the
+    `writer` argument of `Animation.save()`.
+    '''
+
+    @abc.abstractmethod
+    def setup(self, fig, outfile, dpi, *args):
+        '''
+        Perform setup for writing the movie file.
+
+        fig: `matplotlib.Figure` instance
+            The figure object that contains the information for frames
+        outfile: string
+            The filename of the resulting movie file
+        dpi: int
+            The DPI (or resolution) for the file.  This controls the size
+            in pixels of the resulting movie file.
+        '''
+
+    @abc.abstractmethod
+    def grab_frame(self, **savefig_kwargs):
+        '''
+        Grab the image information from the figure and save as a movie frame.
+        All keyword arguments in savefig_kwargs are passed on to the 'savefig'
+        command that saves the figure.
+        '''
+
+    @abc.abstractmethod
+    def finish(self):
+        'Finish any processing for writing the movie.'
+
+    @contextlib.contextmanager
+    def saving(self, fig, outfile, dpi, *args):
+        '''
+        Context manager to facilitate writing the movie file.
+
+        All arguments are passed on to `setup`.
+        '''
+        self.setup(fig, outfile, dpi, *args)
+        yield
+        self.finish()
+
+
+class MovieWriter(AbstractMovieWriter):
     '''
     Base class for writing movies. Fundamentally, what a MovieWriter does
     is provide is a way to grab frames by calling grab_frame(). setup()
@@ -99,9 +182,9 @@ class MovieWriter(object):
     This class is set up to provide for writing movie frame data to a pipe.
     saving() is provided as a context manager to facilitate this process as::
 
-      with moviewriter.saving('myfile.mp4'):
+      with moviewriter.saving(fig, outfile='myfile.mp4', dpi=100):
           # Iterate over frames
-          moviewriter.grab_frame()
+          moviewriter.grab_frame(**savefig_kwargs)
 
     The use of the context manager ensures that setup and cleanup are
     performed as necessary.
@@ -183,18 +266,6 @@ class MovieWriter(object):
         # eliminates the need for temp files.
         self._run()
 
-    @contextlib.contextmanager
-    def saving(self, *args):
-        '''
-        Context manager to facilitate writing the movie file.
-
-        ``*args`` are any parameters that should be passed to `setup`.
-        '''
-        # This particular sequence is what contextlib.contextmanager wants
-        self.setup(*args)
-        yield
-        self.finish()
-
     def _run(self):
         # Uses subprocess to call the program for assembling frames into a
         # movie file.  *args* returns the sequence of command line arguments
@@ -267,10 +338,11 @@ class MovieWriter(object):
         Check to see if a MovieWriter subclass is actually available by
         running the commandline tool.
         '''
-        if not cls.bin_path():
+        bin_path = cls.bin_path()
+        if not bin_path:
             return False
         try:
-            p = subprocess.Popen(cls.bin_path(),
+            p = subprocess.Popen(bin_path,
                              shell=False,
                              stdout=subprocess.PIPE,
                              stderr=subprocess.PIPE,
@@ -384,9 +456,19 @@ class FileMovieWriter(MovieWriter):
         # Check error code for creating file here, since we just run
         # the process here, rather than having an open pipe.
         if self._proc.returncode:
-            raise RuntimeError('Error creating movie, return code: '
-                               + str(self._proc.returncode)
-                               + ' Try running with --verbose-debug')
+            try:
+                stdout = [s.decode() for s in self._proc._stdout_buff]
+                stderr = [s.decode() for s in self._proc._stderr_buff]
+                verbose.report("MovieWriter.finish: stdout: %s" % stdout,
+                               level='helpful')
+                verbose.report("MovieWriter.finish: stderr: %s" % stderr,
+                               level='helpful')
+            except Exception as e:
+                pass
+            msg = ('Error creating movie, return code: ' +
+                   str(self._proc.returncode) +
+                   ' Try setting mpl.verbose.set_level("helpful")')
+            raise RuntimeError(msg)
 
     def cleanup(self):
         MovieWriter.cleanup(self)
@@ -453,7 +535,8 @@ class FFMpegFileWriter(FileMovieWriter, FFMpegBase):
     def _args(self):
         # Returns the command line parameters for subprocess to use
         # ffmpeg to create a movie using a collection of temp images
-        return [self.bin_path(), '-i', self._base_temp_name(),
+        return [self.bin_path(), '-r', str(self.fps),
+                '-i', self._base_temp_name(),
                 '-vframes', str(self._frame_counter),
                 '-r', str(self.fps)] + self.output_args
 
@@ -570,12 +653,28 @@ class ImageMagickBase(object):
                 binpath = ''
         rcParams[cls.exec_key] = rcParamsDefault[cls.exec_key] = binpath
 
+    @classmethod
+    def isAvailable(cls):
+        '''
+        Check to see if a ImageMagickWriter is actually available
+
+        Done by first checking the windows registry (if applicable) and then
+        running the commandline tool.
+        '''
+        bin_path = cls.bin_path()
+        if bin_path == "convert":
+            cls._init_from_registry()
+        return super(ImageMagickBase, cls).isAvailable()
 
 ImageMagickBase._init_from_registry()
 
 
+# Note: the base classes need to be in that order to get
+# isAvailable() from ImageMagickBase called and not the
+# one from MovieWriter. The latter is then called by the
+# former.
 @writers.register('imagemagick')
-class ImageMagickWriter(MovieWriter, ImageMagickBase):
+class ImageMagickWriter(ImageMagickBase, MovieWriter):
     def _args(self):
         return ([self.bin_path(),
                  '-size', '%ix%i' % self.frame_size, '-depth', '8',
@@ -584,8 +683,12 @@ class ImageMagickWriter(MovieWriter, ImageMagickBase):
                 + self.output_args)
 
 
+# Note: the base classes need to be in that order to get
+# isAvailable() from ImageMagickBase called and not the
+# one from MovieWriter. The latter is then called by the
+# former.
 @writers.register('imagemagick_file')
-class ImageMagickFileWriter(FileMovieWriter, ImageMagickBase):
+class ImageMagickFileWriter(ImageMagickBase, FileMovieWriter):
     supported_formats = ['png', 'jpeg', 'ppm', 'tiff', 'sgi', 'bmp',
                          'pbm', 'raw', 'rgba']
 
@@ -668,10 +771,10 @@ class Animation(object):
 
         *filename* is the output filename, e.g., :file:`mymovie.mp4`
 
-        *writer* is either an instance of :class:`MovieWriter` or a string
-        key that identifies a class to use, such as 'ffmpeg' or 'mencoder'.
-        If nothing is passed, the value of the rcparam `animation.writer` is
-        used.
+        *writer* is either an instance of :class:`AbstractMovieWriter` or
+        a string key that identifies a class to use, such as 'ffmpeg' or
+        'mencoder'.  If nothing is passed, the value of the rcparam
+        `animation.writer` is used.
 
         *fps* is the frames per second in the movie. Defaults to None,
         which will use the animation's specified interval to set the frames

@@ -30,8 +30,28 @@ from matplotlib.markers import MarkerStyle
 # Imported here for backward compatibility, even though they don't
 # really belong.
 from matplotlib.markers import TICKLEFT, TICKRIGHT, TICKUP, TICKDOWN
-from matplotlib.markers import CARETLEFT, CARETRIGHT, CARETUP, CARETDOWN
+from matplotlib.markers import (
+    CARETLEFT, CARETRIGHT, CARETUP, CARETDOWN,
+    CARETLEFTBASE, CARETRIGHTBASE, CARETUPBASE, CARETDOWNBASE)
 from matplotlib import _path
+
+
+def get_dash_pattern(style):
+    """
+    Given a dash pattern name from 'solid', 'dashed', 'dashdot' or
+    'dotted', returns the (offset, dashes) pattern.
+    """
+    if style == 'solid':
+        offset, dashes = None, None
+    elif style in ['dashed', 'dashdot', 'dotted']:
+        offset = 0
+        dashes = tuple(rcParams['lines.{}_pattern'.format(style)])
+    elif isinstance(style, tuple):
+        offset, dashes = style
+    else:
+        raise ValueError('Unrecognized linestyle: %s' % str(style))
+
+    return offset, dashes
 
 
 def segment_hits(cx, cy, x, y, radius):
@@ -331,6 +351,7 @@ class Line2D(Artist):
         self._linewidth = None
 
         self._dashSeq = None
+        self._dashOffset = 0
 
         self.set_linestyle(linestyle)
         self.set_drawstyle(drawstyle)
@@ -848,12 +869,12 @@ class Line2D(Artist):
     def get_markeredgecolor(self):
         mec = self._markeredgecolor
         if (is_string_like(mec) and mec == 'auto'):
-            if self._marker.get_marker() in ('.', ','):
-                return self._color
-            if self._marker.is_filled() and self.get_fillstyle() != 'none':
-                return 'k'  # Bad hard-wired default...
-            else:
-                return self._color
+            if rcParams['_internal.classic_mode']:
+                if self._marker.get_marker() in ('.', ','):
+                    return self._color
+                if self._marker.is_filled() and self.get_fillstyle() != 'none':
+                     return 'k'  # Bad hard-wired default...
+            return self._color
         else:
             return mec
 
@@ -964,6 +985,11 @@ class Line2D(Artist):
         ACCEPTS: ['default' | 'steps' | 'steps-pre' | 'steps-mid' |
                   'steps-post']
         """
+        if drawstyle is None:
+            drawstyle = 'default'
+        if drawstyle not in self.drawStyles:
+            raise ValueError('Unrecognized drawstyle ' +
+                             ' '.join(self.drawStyleKeys))
         if self._drawstyle != drawstyle:
             self.stale = True
         self._drawstyle = drawstyle
@@ -1028,6 +1054,7 @@ class Line2D(Artist):
                 raise ValueError()
 
             self.set_dashes(ls[1])
+            self._dashOffset = ls[0]
             self._linestyle = "--"
             return
 
@@ -1198,7 +1225,7 @@ class Line2D(Artist):
     def _draw_dashed(self, renderer, gc, path, trans):
         gc.set_linestyle('dashed')
         if self._dashSeq is not None:
-            gc.set_dashes(0, self._dashSeq)
+            gc.set_dashes(self._dashOffset, self._dashSeq)
 
         renderer.draw_path(gc, path, trans)
 
@@ -1222,6 +1249,7 @@ class Line2D(Artist):
         self._markeredgecolor = other._markeredgecolor
         self._markeredgewidth = other._markeredgewidth
         self._dashSeq = other._dashSeq
+        self._dashOffset = other._dashOffset
         self._dashcapstyle = other._dashcapstyle
         self._dashjoinstyle = other._dashjoinstyle
         self._solidcapstyle = other._solidcapstyle

@@ -2215,7 +2215,7 @@ def frange(xini, xfin=None, delta=None, **kw):
         npts = kw['npts']
         delta = (xfin-xini)/float(npts-endpoint)
     except KeyError:
-        npts = int(round((xfin-xini)/delta)) + endpoint
+        npts = int(np.round((xfin-xini)/delta)) + endpoint
         # round finds the nearest, so the endpoint can be up to
         # delta/2 larger than xfin.
 

@@ -197,7 +197,7 @@ class Button(AxesWidget):
         self.connect_event('button_release_event', self._release)
         self.connect_event('motion_notify_event', self._motion)
         ax.set_navigate(False)
-        ax.set_axis_bgcolor(color)
+        ax.set_facecolor(color)
         ax.set_xticks([])
         ax.set_yticks([])
         self.color = color
@@ -236,7 +236,7 @@ class Button(AxesWidget):
         else:
             c = self.color
         if c != self._lastcolor:
-            self.ax.set_axis_bgcolor(c)
+            self.ax.set_facecolor(c)
             self._lastcolor = c
             if self.drawon:
                 self.ax.figure.canvas.draw()
@@ -474,7 +474,7 @@ class Slider(AxesWidget):
 
 class CheckButtons(AxesWidget):
     """
-    A GUI neutral radio button.
+    A GUI neutral set of check buttons.
 
     For the check buttons to remain responsive you must keep a
     reference to this object.
@@ -523,7 +523,7 @@ class CheckButtons(AxesWidget):
             ys = [0.5]
 
         cnt = 0
-        axcolor = ax.get_axis_bgcolor()
+        axcolor = ax.get_facecolor()
 
         self.labels = []
         self.lines = []
@@ -603,6 +603,12 @@ class CheckButtons(AxesWidget):
         for cid, func in six.iteritems(self.observers):
             func(self.labels[index].get_text())
 
+    def get_status(self):
+        """
+        returns a tuple of the status (True/False) of all of the check buttons
+        """
+        return [l1.get_visible() for (l1, l2) in self.lines]
+
     def on_clicked(self, func):
         """
         When the button is clicked, call *func* with button label
@@ -671,7 +677,7 @@ class RadioButtons(AxesWidget):
         dy = 1. / (len(labels) + 1)
         ys = np.linspace(1 - dy, dy, len(labels))
         cnt = 0
-        axcolor = ax.get_axis_bgcolor()
+        axcolor = ax.get_facecolor()
 
         self.labels = []
         self.circles = []
@@ -740,7 +746,7 @@ class RadioButtons(AxesWidget):
             if i == index:
                 color = self.activecolor
             else:
-                color = self.ax.get_axis_bgcolor()
+                color = self.ax.get_facecolor()
             p.set_facecolor(color)
 
         if self.drawon:

@@ -36,10 +36,9 @@ from matplotlib.compat.subprocess import check_output
 system_fonts = []
 if sys.platform.startswith('win'):
     from matplotlib import font_manager
-    from matplotlib.ft2font import FT2Font
     for f in font_manager.win32InstalledFonts():
         try:
-            system_fonts.append(FT2Font(str(f)).family_name)
+            system_fonts.append(font_manager.get_font(str(f)).family_name)
         except:
             pass # unknown error, skip this font
 else:
@@ -236,23 +235,6 @@ class LatexManagerFactory(object):
             LatexManagerFactory.previous_instance = new_inst
             return new_inst
 
-class WeakSet(object):
-    # TODO: Poor man's weakref.WeakSet.
-    #       Remove this once python 2.6 support is dropped from matplotlib.
-
-    def __init__(self):
-        self.weak_key_dict = weakref.WeakKeyDictionary()
-
-    def add(self, item):
-        self.weak_key_dict[item] = None
-
-    def discard(self, item):
-        if item in self.weak_key_dict:
-            del self.weak_key_dict[item]
-
-    def __iter__(self):
-        return six.iterkeys(self.weak_key_dict)
-
 
 class LatexManager(object):
     """
@@ -260,7 +242,7 @@ class LatexManager(object):
     determining the metrics of text elements. The LaTeX environment can be
     modified by setting fonts and/or a custem preamble in the rc parameters.
     """
-    _unclean_instances = WeakSet()
+    _unclean_instances = weakref.WeakSet()
 
     @staticmethod
     def _build_latex_header():
@@ -636,12 +618,12 @@ class RendererPgf(RendererBase):
         fname = os.path.splitext(os.path.basename(self.fh.name))[0]
         fname_img = "%s-img%d.png" % (fname, self.image_counter)
         self.image_counter += 1
-        _png.write_png(np.array(im)[::-1], os.path.join(path, fname_img))
+        _png.write_png(im[::-1], os.path.join(path, fname_img))
 
         # reference the image in the pgf picture
         writeln(self.fh, r"\begin{pgfscope}")
         self._print_pgf_clip(gc)
-        h, w = im.get_size_out()
+        h, w = im.shape[:2]
         f = 1. / self.dpi  # from display coords to inch
         writeln(self.fh, r"\pgftext[at=\pgfqpoint{%fin}{%fin},left,bottom]{\pgfimage[interpolate=true,width=%fin,height=%fin]{%s}}" % (x * f, y * f, w * f, h * f, fname_img))
         writeln(self.fh, r"\end{pgfscope}")

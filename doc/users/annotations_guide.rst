@@ -194,9 +194,10 @@ Placing Artist at the anchored location of the Axes
 There are class of artist that can be placed at the anchored location
 of the Axes. A common example is the legend.  This type of artists can
 be created by using the OffsetBox class. A few predefined classes are
-available in ``mpl_toolkits.axes_grid.anchored_artists``. ::
+available in ``mpl_toolkits.axes_grid1.anchored_artists`` others in 
+``matplotlib.offsetbox`` ::
 
-    from mpl_toolkits.axes_grid.anchored_artists import AnchoredText
+    from matplotlib.offsetbox import AnchoredText
     at = AnchoredText("Figure 1a",
                       prop=dict(size=8), frameon=True,
                       loc=2,
@@ -220,7 +221,7 @@ drawing area. Note that the extents of the artists that are added to
 the drawing area has nothing to do with the placement of the drawing
 area itself. The initial size only matters. ::
 
-    from mpl_toolkits.axes_grid.anchored_artists import AnchoredDrawingArea
+    from mpl_toolkits.axes_grid1.anchored_artists import AnchoredDrawingArea
 
     ada = AnchoredDrawingArea(20, 20, 0, 0,
                               loc=1, pad=0., frameon=False)
@@ -242,7 +243,7 @@ other coordinate than canvas pixel). You can use
 ``AnchoredDrawingArea`` except that the extent of the artist is
 determined during the drawing time respecting the specified transform. ::
 
-  from mpl_toolkits.axes_grid.anchored_artists import AnchoredAuxTransformBox
+  from mpl_toolkits.axes_grid1.anchored_artists import AnchoredAuxTransformBox
 
   box = AnchoredAuxTransformBox(ax.transData, loc=2)
   el = Ellipse((0,0), width=0.1, height=0.4, angle=30) # in data coordinates!
@@ -375,7 +376,7 @@ Advanced Topics
 Zoom effect between Axes
 ========================
 
-mpl_toolkits.axes_grid.inset_locator defines some patch classes useful
+``mpl_toolkits.axes_grid1.inset_locator`` defines some patch classes useful
 for interconnect two axes. Understanding the code requires some
 knowledge of how mpl's transform works. But, utilizing it will be
 straight forward.

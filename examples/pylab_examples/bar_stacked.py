@@ -12,8 +12,8 @@ womenStd = (3, 5, 2, 3, 3)
 ind = np.arange(N)    # the x locations for the groups
 width = 0.35       # the width of the bars: can also be len(x) sequence
 
-p1 = plt.bar(ind, menMeans, width, color='r', yerr=menStd)
-p2 = plt.bar(ind, womenMeans, width, color='y',
+p1 = plt.bar(ind, menMeans, width, color='#d62728', yerr=menStd)
+p2 = plt.bar(ind, womenMeans, width,
              bottom=menMeans, yerr=womenStd)
 
 plt.ylabel('Scores')

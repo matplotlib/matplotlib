@@ -1,6 +1,9 @@
 import matplotlib.pyplot as plt
 import numpy as np
 
+
+np.random.seed(0)
+
 dt = 0.01
 Fs = 1/dt
 t = np.arange(0, 10, dt)

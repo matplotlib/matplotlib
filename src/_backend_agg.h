@@ -158,11 +158,7 @@ class RendererAgg
     void draw_image(GCAgg &gc,
                     double x,
                     double y,
-                    ImageArray &image,
-                    double w,
-                    double h,
-                    agg::trans_affine trans,
-                    bool resize);
+                    ImageArray &image);
 
     template <class PathGenerator,
               class TransformArray,
@@ -742,41 +738,67 @@ inline void RendererAgg::draw_text_image(GCAgg &gc, ImageArray &image, int x, in
     typedef agg::renderer_scanline_aa<renderer_base, color_span_alloc_type, span_gen_type>
     renderer_type;
 
-    theRasterizer.reset_clipping();
-    rendererBase.reset_clipping(true);
-    set_clipbox(gc.cliprect, theRasterizer);
+    if (angle != 0.0) {
+        agg::rendering_buffer srcbuf(
+                image.data(), (unsigned)image.dim(1),
+                (unsigned)image.dim(0), (unsigned)image.dim(1));
+        agg::pixfmt_gray8 pixf_img(srcbuf);
 
-    agg::rendering_buffer srcbuf(
-        image.data(), (unsigned)image.dim(1), (unsigned)image.dim(0), (unsigned)image.dim(1));
-    agg::pixfmt_gray8 pixf_img(srcbuf);
+        theRasterizer.reset_clipping();
+        rendererBase.reset_clipping(true);
+        set_clipbox(gc.cliprect, theRasterizer);
 
-    agg::trans_affine mtx;
-    mtx *= agg::trans_affine_translation(0, -image.dim(0));
-    mtx *= agg::trans_affine_rotation(-angle * agg::pi / 180.0);
-    mtx *= agg::trans_affine_translation(x, y);
+        agg::trans_affine mtx;
+        mtx *= agg::trans_affine_translation(0, -image.dim(0));
+        mtx *= agg::trans_affine_rotation(-angle * agg::pi / 180.0);
+        mtx *= agg::trans_affine_translation(x, y);
 
-    agg::path_storage rect;
-    rect.move_to(0, 0);
-    rect.line_to(image.dim(1), 0);
-    rect.line_to(image.dim(1), image.dim(0));
-    rect.line_to(0, image.dim(0));
-    rect.line_to(0, 0);
-    agg::conv_transform<agg::path_storage> rect2(rect, mtx);
+        agg::path_storage rect;
+        rect.move_to(0, 0);
+        rect.line_to(image.dim(1), 0);
+        rect.line_to(image.dim(1), image.dim(0));
+        rect.line_to(0, image.dim(0));
+        rect.line_to(0, 0);
+        agg::conv_transform<agg::path_storage> rect2(rect, mtx);
 
-    agg::trans_affine inv_mtx(mtx);
-    inv_mtx.invert();
+        agg::trans_affine inv_mtx(mtx);
+        inv_mtx.invert();
 
-    agg::image_filter_lut filter;
-    filter.calculate(agg::image_filter_spline36());
-    interpolator_type interpolator(inv_mtx);
-    color_span_alloc_type sa;
-    image_accessor_type ia(pixf_img, agg::gray8(0));
-    image_span_gen_type image_span_generator(ia, interpolator, filter);
-    span_gen_type output_span_generator(&image_span_generator, gc.color);
-    renderer_type ri(rendererBase, sa, output_span_generator);
+        agg::image_filter_lut filter;
+        filter.calculate(agg::image_filter_spline36());
+        interpolator_type interpolator(inv_mtx);
+        color_span_alloc_type sa;
+        image_accessor_type ia(pixf_img, agg::gray8(0));
+        image_span_gen_type image_span_generator(ia, interpolator, filter);
+        span_gen_type output_span_generator(&image_span_generator, gc.color);
+        renderer_type ri(rendererBase, sa, output_span_generator);
 
-    theRasterizer.add_path(rect2);
-    agg::render_scanlines(theRasterizer, slineP8, ri);
+        theRasterizer.add_path(rect2);
+        agg::render_scanlines(theRasterizer, slineP8, ri);
+    } else {
+        agg::rect_i fig, text;
+
+        fig.init(0, 0, width, height);
+        text.init(x, y - image.dim(0), x + image.dim(1), y);
+        text.clip(fig);
+
+        if (gc.cliprect.x1 != 0.0 || gc.cliprect.y1 != 0.0 || gc.cliprect.x2 != 0.0 || gc.cliprect.y2 != 0.0) {
+            agg::rect_i clip;
+
+            clip.init(int(mpl_round(gc.cliprect.x1)),
+                      int(mpl_round(gc.cliprect.y1)),
+                      int(mpl_round(gc.cliprect.x2)),
+                      int(mpl_round(gc.cliprect.y2)));
+            text.clip(clip);
+        }
+
+        if (text.x2 > text.x1) {
+            for (int yi = text.y1; yi < text.y2; ++yi) {
+                pixFmt.blend_solid_hspan(text.x1, yi, (text.x2 - text.x1), gc.color,
+                                         &image(yi - (y - image.dim(0)), text.x1 - x));
+            }
+        }
+    }
 }
 
 class span_conv_alpha
@@ -806,11 +828,7 @@ template <class ImageArray>
 inline void RendererAgg::draw_image(GCAgg &gc,
                                     double x,
                                     double y,
-                                    ImageArray &image,
-                                    double w,
-                                    double h,
-                                    agg::trans_affine trans,
-                                    bool resize)
+                                    ImageArray &image)
 {
     double alpha = gc.alpha;
 
@@ -824,21 +842,11 @@ inline void RendererAgg::draw_image(GCAgg &gc,
         image.data(), (unsigned)image.dim(1), (unsigned)image.dim(0), -(int)image.dim(1) * 4);
     pixfmt pixf(buffer);
 
-    if (resize | has_clippath) {
+    if (has_clippath) {
         agg::trans_affine mtx;
         agg::path_storage rect;
 
-        if (resize) {
-            mtx *= agg::trans_affine_scaling(1, -1);
-            mtx *= agg::trans_affine_translation(0, image.dim(0));
-            mtx *= agg::trans_affine_scaling(w / (image.dim(1)), h / (image.dim(0)));
-            mtx *= agg::trans_affine_translation(x, y);
-            mtx *= trans;
-            mtx *= agg::trans_affine_scaling(1.0, -1.0);
-            mtx *= agg::trans_affine_translation(0.0, (double)height);
-        } else {
-            mtx *= agg::trans_affine_translation((int)x, (int)(height - (y + image.dim(0))));
-        }
+        mtx *= agg::trans_affine_translation((int)x, (int)(height - (y + image.dim(0))));
 
         rect.move_to(0, 0);
         rect.line_to(image.dim(1), 0);
@@ -865,30 +873,17 @@ inline void RendererAgg::draw_image(GCAgg &gc,
         span_conv_alpha conv_alpha(alpha);
         span_conv spans(image_span_generator, conv_alpha);
 
-        if (has_clippath) {
-            typedef agg::pixfmt_amask_adaptor<pixfmt, alpha_mask_type> pixfmt_amask_type;
-            typedef agg::renderer_base<pixfmt_amask_type> amask_ren_type;
-            typedef agg::renderer_scanline_aa<amask_ren_type, color_span_alloc_type, span_conv>
+        typedef agg::pixfmt_amask_adaptor<pixfmt, alpha_mask_type> pixfmt_amask_type;
+        typedef agg::renderer_base<pixfmt_amask_type> amask_ren_type;
+        typedef agg::renderer_scanline_aa<amask_ren_type, color_span_alloc_type, span_conv>
             renderer_type_alpha;
 
-            pixfmt_amask_type pfa(pixFmt, alphaMask);
-            amask_ren_type r(pfa);
-            renderer_type_alpha ri(r, sa, spans);
+        pixfmt_amask_type pfa(pixFmt, alphaMask);
+        amask_ren_type r(pfa);
+        renderer_type_alpha ri(r, sa, spans);
 
-            theRasterizer.add_path(rect2);
-            agg::render_scanlines(theRasterizer, scanlineAlphaMask, ri);
-        } else {
-            typedef agg::renderer_base<pixfmt> ren_type;
-            typedef agg::renderer_scanline_aa<ren_type, color_span_alloc_type, span_conv>
-            renderer_type;
-
-            ren_type r(pixFmt);
-            renderer_type ri(r, sa, spans);
-
-            theRasterizer.add_path(rect2);
-            agg::render_scanlines(theRasterizer, slineP8, ri);
-        }
-
+        theRasterizer.add_path(rect2);
+        agg::render_scanlines(theRasterizer, scanlineAlphaMask, ri);
     } else {
         set_clipbox(gc.cliprect, rendererBase);
         rendererBase.blend_from(

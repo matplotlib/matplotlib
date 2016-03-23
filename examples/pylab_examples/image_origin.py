@@ -13,13 +13,13 @@ x.shape = (10, 10)
 interp = 'bilinear'
 #interp = 'nearest'
 lim = -2, 11, -2, 6
-plt.subplot(211, axisbg='g')
+plt.subplot(211, facecolor='g')
 plt.title('blue should be up')
-plt.imshow(x, origin='upper', interpolation=interp, cmap='jet')
+plt.imshow(x, origin='upper', interpolation=interp)
 #plt.axis(lim)
 
-plt.subplot(212, axisbg='y')
+plt.subplot(212, facecolor='y')
 plt.title('blue should be down')
-plt.imshow(x, origin='lower', interpolation=interp, cmap='jet')
+plt.imshow(x, origin='lower', interpolation=interp)
 #plt.axis(lim)
 plt.show()

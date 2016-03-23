@@ -192,20 +192,7 @@ def deprecated(since, message='', name='', alternative='', pending=False,
         import textwrap
 
         if isinstance(func, classmethod):
-            try:
-                func = func.__func__
-            except AttributeError:
-                # classmethods in Python2.6 and below lack the __func__
-                # attribute so we need to hack around to get it
-                method = func.__get__(None, object)
-                if hasattr(method, '__func__'):
-                    func = method.__func__
-                elif hasattr(method, 'im_func'):
-                    func = method.im_func
-                else:
-                    # Nothing we can do really...  just return the original
-                    # classmethod
-                    return func
+            func = func.__func__
             is_classmethod = True
         else:
             is_classmethod = False
@@ -1417,12 +1404,6 @@ class Stack(object):
                 self.push(thiso)
 
 
-def popall(seq):
-    'empty a list'
-    for i in xrange(len(seq)):
-        seq.pop()
-
-
 def finddir(o, match, case=False):
     """
     return all attributes of *o* which match string in match.  if case
@@ -1449,51 +1430,6 @@ def restrict_dict(d, keys):
     """
     return dict([(k, v) for (k, v) in six.iteritems(d) if k in keys])
 
-
-def report_memory(i=0):  # argument may go away
-    'return the memory consumed by process'
-    from matplotlib.compat.subprocess import Popen, PIPE
-    pid = os.getpid()
-    if sys.platform == 'sunos5':
-        try:
-            a2 = Popen('ps -p %d -o osz' % pid, shell=True,
-                       stdout=PIPE).stdout.readlines()
-        except OSError:
-            raise NotImplementedError(
-                "report_memory works on Sun OS only if "
-                "the 'ps' program is found")
-        mem = int(a2[-1].strip())
-    elif sys.platform.startswith('linux'):
-        try:
-            a2 = Popen('ps -p %d -o rss,sz' % pid, shell=True,
-                       stdout=PIPE).stdout.readlines()
-        except OSError:
-            raise NotImplementedError(
-                "report_memory works on Linux only if "
-                "the 'ps' program is found")
-        mem = int(a2[1].split()[1])
-    elif sys.platform.startswith('darwin'):
-        try:
-            a2 = Popen('ps -p %d -o rss,vsz' % pid, shell=True,
-                       stdout=PIPE).stdout.readlines()
-        except OSError:
-            raise NotImplementedError(
-                "report_memory works on Mac OS only if "
-                "the 'ps' program is found")
-        mem = int(a2[1].split()[0])
-    elif sys.platform.startswith('win'):
-        try:
-            a2 = Popen(["tasklist", "/nh", "/fi", "pid eq %d" % pid],
-                       stdout=PIPE).stdout.read()
-        except OSError:
-            raise NotImplementedError(
-                "report_memory works on Windows only if "
-                "the 'tasklist' program is found")
-        mem = int(a2.strip().split()[-2].replace(',', ''))
-    else:
-        raise NotImplementedError(
-            "We don't have a memory monitor for %s" % sys.platform)
-    return mem
 
 _safezip_msg = 'In safezip, len(args[0])=%d but len(args[%d])=%d'
 
@@ -1524,58 +1460,6 @@ def safe_masked_invalid(x):
     except TypeError:
         return x
     return xm
-
-
-class MemoryMonitor(object):
-    def __init__(self, nmax=20000):
-        self._nmax = nmax
-        self._mem = np.zeros((self._nmax,), np.int32)
-        self.clear()
-
-    def clear(self):
-        self._n = 0
-        self._overflow = False
-
-    def __call__(self):
-        mem = report_memory()
-        if self._n < self._nmax:
-            self._mem[self._n] = mem
-            self._n += 1
-        else:
-            self._overflow = True
-        return mem
-
-    def report(self, segments=4):
-        n = self._n
-        segments = min(n, segments)
-        dn = int(n / segments)
-        ii = list(xrange(0, n, dn))
-        ii[-1] = n - 1
-        print()
-        print('memory report: i, mem, dmem, dmem/nloops')
-        print(0, self._mem[0])
-        for i in range(1, len(ii)):
-            di = ii[i] - ii[i - 1]
-            if di == 0:
-                continue
-            dm = self._mem[ii[i]] - self._mem[ii[i - 1]]
-            print('%5d %5d %3d %8.3f' % (ii[i], self._mem[ii[i]],
-                                         dm, dm / float(di)))
-        if self._overflow:
-            print("Warning: array size was too small for the number of calls.")
-
-    def xy(self, i0=0, isub=1):
-        x = np.arange(i0, self._n, isub)
-        return x, self._mem[i0:self._n:isub]
-
-    def plot(self, i0=0, isub=1, fig=None):
-        if fig is None:
-            from .pylab import figure
-            fig = figure()
-
-        ax = fig.add_subplot(111)
-        ax.plot(*self.xy(i0, isub))
-        fig.canvas.draw()
 
 
 def print_cycles(objects, outstream=sys.stdout, show_progress=False):
@@ -2692,3 +2576,63 @@ except AttributeError:
 else:
     def _putmask(a, mask, values):
         return np.copyto(a, values, where=mask)
+
+_lockstr = """\
+LOCKERROR: matplotlib is trying to acquire the lock {!r}
+and has failed.  This maybe due to any other process holding this
+lock.  If you are sure no other matplotlib process in running try
+removing this folder(s) and trying again.
+"""
+
+
+class Locked(object):
+    """
+    Context manager to handle locks.
+
+    Based on code from conda.
+
+    (c) 2012-2013 Continuum Analytics, Inc. / http://continuum.io
+    All Rights Reserved
+
+    conda is distributed under the terms of the BSD 3-clause license.
+    Consult LICENSE_CONDA or http://opensource.org/licenses/BSD-3-Clause.
+    """
+    LOCKFN = '.matplotlib_lock'
+
+    def __init__(self, path):
+        self.path = path
+        self.end = "-" + str(os.getpid())
+        self.lock_path = os.path.join(self.path, self.LOCKFN + self.end)
+        self.pattern = os.path.join(self.path, self.LOCKFN + '-*')
+        self.remove = True
+
+    def __enter__(self):
+        retries = 50
+        sleeptime = 1
+        while retries:
+            files = glob.glob(self.pattern)
+            if files and not files[0].endswith(self.end):
+                time.sleep(sleeptime)
+                sleeptime *= 1.1
+                retries -= 1
+            else:
+                break
+        else:
+            err_str = _lockstr.format(self.pattern)
+            raise RuntimeError(err_str)
+
+        if not files:
+            try:
+                os.makedirs(self.lock_path)
+            except OSError:
+                pass
+        else:  # PID lock already here --- someone else will remove it.
+            self.remove = False
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        if self.remove:
+            for path in self.lock_path, self.path:
+                try:
+                    os.rmdir(path)
+                except OSError:
+                    pass

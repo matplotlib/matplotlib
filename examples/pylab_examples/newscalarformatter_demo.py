@@ -23,6 +23,8 @@ ax4.plot(-x * 1e5, -x * 1e-4)
 ax4.xaxis.set_major_formatter(OldScalarFormatter())
 ax4.yaxis.set_major_formatter(OldScalarFormatter())
 
+fig.subplots_adjust(wspace=0.7, hspace=0.6)
+
 # Example 2
 x = np.arange(0, 1, .01)
 fig, [[ax1, ax2], [ax3, ax4]] = plt.subplots(2, 2, figsize=(6, 6))
@@ -45,6 +47,8 @@ ax3.yaxis.set_major_formatter(ScalarFormatter())
 ax4.plot(-x * 1e5, -x * 1e-4)
 ax4.xaxis.set_major_formatter(ScalarFormatter())
 ax4.yaxis.set_major_formatter(ScalarFormatter())
+
+fig.subplots_adjust(wspace=0.7, hspace=0.6)
 
 # Example 3
 x = np.arange(0, 1, .01)
@@ -69,6 +73,8 @@ ax4.plot(-x * 1e5, -x * 1e-4)
 ax4.xaxis.set_major_formatter(ScalarFormatter(useOffset=False))
 ax4.yaxis.set_major_formatter(ScalarFormatter(useOffset=False))
 
+fig.subplots_adjust(wspace=0.7, hspace=0.6)
+
 # Example 4
 x = np.arange(0, 1, .01)
 fig, [[ax1, ax2], [ax3, ax4]] = plt.subplots(2, 2, figsize=(6, 6))
@@ -91,4 +97,7 @@ ax3.yaxis.set_major_formatter(ScalarFormatter(useMathText=True))
 ax4.plot(-x * 1e5, -x * 1e-4)
 ax4.xaxis.set_major_formatter(ScalarFormatter(useMathText=True))
 ax4.yaxis.set_major_formatter(ScalarFormatter(useMathText=True))
+
+fig.subplots_adjust(wspace=0.7, hspace=0.6)
+
 plt.show()

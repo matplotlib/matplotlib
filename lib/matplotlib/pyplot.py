@@ -65,7 +65,7 @@ from .ticker import TickHelper, Formatter, FixedFormatter, NullFormatter,\
            Locator, IndexLocator, FixedLocator, NullLocator,\
            LinearLocator, LogLocator, AutoLocator, MultipleLocator,\
            MaxNLocator
-
+from matplotlib.backends import pylab_setup
 
 ## Backend detection ##
 def _backend_selection():
@@ -110,7 +110,6 @@ _backend_selection()
 
 ## Global ##
 
-from matplotlib.backends import pylab_setup
 _backend_mod, new_figure_manager, draw_if_interactive, _show = pylab_setup()
 
 _IP_REGISTERED = None
@@ -403,7 +402,6 @@ def xkcd(scale=1, length=100, randomness=2):
         rcParams['grid.linewidth'] = 0.0
         rcParams['axes.grid'] = False
         rcParams['axes.unicode_minus'] = False
-        rcParams['axes.prop_cycle'] = cycler('color', ['b', 'r', 'c', 'm'])
         rcParams['axes.edgecolor'] = 'black'
         rcParams['xtick.major.size'] = 8
         rcParams['xtick.major.width'] = 3
@@ -831,28 +829,28 @@ def axes(*args, **kwargs):
 
     - ``axes()`` by itself creates a default full ``subplot(111)`` window axis.
 
-    - ``axes(rect, axisbg='w')`` where *rect* = [left, bottom, width,
-      height] in normalized (0, 1) units.  *axisbg* is the background
+    - ``axes(rect, facecolor='w')`` where *rect* = [left, bottom, width,
+      height] in normalized (0, 1) units.  *facecolor* is the background
       color for the axis, default white.
 
     - ``axes(h)`` where *h* is an axes instance makes *h* the current
       axis.  An :class:`~matplotlib.axes.Axes` instance is returned.
 
-    =======   ==============   ==============================================
-    kwarg     Accepts          Description
-    =======   ==============   ==============================================
-    axisbg    color            the axes background color
-    frameon   [True|False]     display the frame?
-    sharex    otherax          current axes shares xaxis attribute
-                               with otherax
-    sharey    otherax          current axes shares yaxis attribute
-                               with otherax
-    polar     [True|False]     use a polar axes?
-    aspect    [str | num]      ['equal', 'auto'] or a number.  If a number
-                               the ratio of x-unit/y-unit in screen-space.
-                               Also see
-                               :meth:`~matplotlib.axes.Axes.set_aspect`.
-    =======   ==============   ==============================================
+    =========   ==============   ==============================================
+    kwarg       Accepts          Description
+    =========   ==============   ==============================================
+    facecolor   color            the axes background color
+    frameon     [True|False]     display the frame?
+    sharex      otherax          current axes shares xaxis attribute
+                                 with otherax
+    sharey      otherax          current axes shares yaxis attribute
+                                 with otherax
+    polar       [True|False]     use a polar axes?
+    aspect      [str | num]      ['equal', 'auto'] or a number.  If a number
+                                 the ratio of x-unit/y-unit in screen-space.
+                                 Also see
+                                 :meth:`~matplotlib.axes.Axes.set_aspect`.
+    =========   ==============   ==============================================
 
     Examples:
 
@@ -968,7 +966,7 @@ def subplot(*args, **kwargs):
           # first, the plot (and its axes) previously created, will be removed
           plt.subplot(211)
           plt.plot(range(12))
-          plt.subplot(212, axisbg='y') # creates 2nd subplot with yellow background
+          plt.subplot(212, facecolor='y') # creates 2nd subplot with yellow background
 
        If you do not want this behavior, use the
        :meth:`~matplotlib.figure.Figure.add_subplot` method or the
@@ -976,7 +974,7 @@ def subplot(*args, **kwargs):
 
     Keyword arguments:
 
-      *axisbg*:
+      *facecolor*:
         The background color of the subplot, which can be any valid
         color specifier.  See :mod:`matplotlib.colors` for more
         information.
@@ -1142,113 +1140,19 @@ def subplots(nrows=1, ncols=1, sharex=False, sharey=False, squeeze=True,
         # same as
         plt.subplots(2, 2, sharex=True, sharey=True)
     """
-    # for backwards compatibility
-    if isinstance(sharex, bool):
-        if sharex:
-            sharex = "all"
-        else:
-            sharex = "none"
-    if isinstance(sharey, bool):
-        if sharey:
-            sharey = "all"
-        else:
-            sharey = "none"
-    share_values = ["all", "row", "col", "none"]
-    if sharex not in share_values:
-        # This check was added because it is very easy to type
-        # `subplots(1, 2, 1)` when `subplot(1, 2, 1)` was intended.
-        # In most cases, no error will ever occur, but mysterious behavior will
-        # result because what was intended to be the subplot index is instead
-        # treated as a bool for sharex.
-        if isinstance(sharex, int):
-            warnings.warn("sharex argument to subplots() was an integer."
-                          " Did you intend to use subplot() (without 's')?")
-
-        raise ValueError("sharex [%s] must be one of %s" %
-                         (sharex, share_values))
-    if sharey not in share_values:
-        raise ValueError("sharey [%s] must be one of %s" %
-                         (sharey, share_values))
-    if subplot_kw is None:
-        subplot_kw = {}
-    if gridspec_kw is None:
-        gridspec_kw = {}
-
     fig = figure(**fig_kw)
-    gs = GridSpec(nrows, ncols, **gridspec_kw)
-
-    # Create empty object array to hold all axes.  It's easiest to make it 1-d
-    # so we can just append subplots upon creation, and then
-    nplots = nrows*ncols
-    axarr = np.empty(nplots, dtype=object)
-
-    # Create first subplot separately, so we can share it if requested
-    ax0 = fig.add_subplot(gs[0, 0], **subplot_kw)
-    axarr[0] = ax0
-
-    r, c = np.mgrid[:nrows, :ncols]
-    r = r.flatten() * ncols
-    c = c.flatten()
-    lookup = {
-            "none": np.arange(nplots),
-            "all": np.zeros(nplots, dtype=int),
-            "row": r,
-            "col": c,
-            }
-    sxs = lookup[sharex]
-    sys = lookup[sharey]
-
-    # Note off-by-one counting because add_subplot uses the MATLAB 1-based
-    # convention.
-    for i in range(1, nplots):
-        if sxs[i] == i:
-            subplot_kw['sharex'] = None
-        else:
-            subplot_kw['sharex'] = axarr[sxs[i]]
-        if sys[i] == i:
-            subplot_kw['sharey'] = None
-        else:
-            subplot_kw['sharey'] = axarr[sys[i]]
-        axarr[i] = fig.add_subplot(gs[i // ncols, i % ncols], **subplot_kw)
-
-    # returned axis array will be always 2-d, even if nrows=ncols=1
-    axarr = axarr.reshape(nrows, ncols)
-
-    # turn off redundant tick labeling
-    if sharex in ["col", "all"] and nrows > 1:
-        # turn off all but the bottom row
-        for ax in axarr[:-1, :].flat:
-            for label in ax.get_xticklabels():
-                label.set_visible(False)
-            ax.xaxis.offsetText.set_visible(False)
-
-    if sharey in ["row", "all"] and ncols > 1:
-        # turn off all but the first column
-        for ax in axarr[:, 1:].flat:
-            for label in ax.get_yticklabels():
-                label.set_visible(False)
-            ax.yaxis.offsetText.set_visible(False)
-
-    if squeeze:
-        # Reshape the array to have the final desired dimension (nrow,ncol),
-        # though discarding unneeded dimensions that equal 1.  If we only have
-        # one subplot, just return it instead of a 1-element array.
-        if nplots == 1:
-            ret = fig, axarr[0, 0]
-        else:
-            ret = fig, axarr.squeeze()
-    else:
-        # returned axis array will be always 2-d, even if nrows=ncols=1
-        ret = fig, axarr.reshape(nrows, ncols)
-
-    return ret
+    axs = fig.subplots(nrows=nrows, ncols=ncols, sharex=sharex, sharey=sharey,
+                       squeeze=squeeze, subplot_kw=subplot_kw,
+                       gridspec_kw=gridspec_kw)
+    return fig, axs
 
 
-def subplot2grid(shape, loc, rowspan=1, colspan=1, **kwargs):
+def subplot2grid(shape, loc, rowspan=1, colspan=1, fig=None, **kwargs):
     """
     Create a subplot in a grid.  The grid is specified by *shape*, at
     location of *loc*, spanning *rowspan*, *colspan* cells in each
-    direction.  The index for loc is 0-based. ::
+    direction.  The index for loc is 0-based.  The current figure will
+    be used unless *fig* is specified. ::
 
       subplot2grid(shape, loc, rowspan=1, colspan=1)
 
@@ -1259,7 +1163,9 @@ def subplot2grid(shape, loc, rowspan=1, colspan=1, **kwargs):
       subplot(subplotspec)
     """
 
-    fig = gcf()
+    if fig is None:
+        fig = gcf()
+
     s1, s2 = shape
     subplotspec = GridSpec(s1, s2).new_subplotspec(loc,
                                                    rowspan=rowspan,
@@ -1919,7 +1825,7 @@ def colors():
     The example below creates a subplot with a dark
     slate gray background::
 
-       subplot(111, axisbg=(0.1843, 0.3098, 0.3098))
+       subplot(111, facecolor=(0.1843, 0.3098, 0.3098))
 
     Here is an example that creates a pale turquoise title::
 
@@ -2075,11 +1981,9 @@ def colormaps():
 
     ColorBrewer Qualitative:
 
-    (For plotting nominal data, :class:`ListedColormap` should be used,
+    (For plotting nominal data, :class:`ListedColormap` is used,
     not :class:`LinearSegmentedColormap`.  Different sets of colors are
-    recommended for different numbers of categories.  These continuous
-    versions of the qualitative schemes may be removed or converted in the
-    future.)
+    recommended for different numbers of categories.)
 
     * Accent
     * Dark2
@@ -3234,7 +3138,7 @@ def quiverkey(*args, **kw):
 # This function was autogenerated by boilerplate.py.  Do not edit as
 # changes will be lost
 @_autogen_docstring(Axes.scatter)
-def scatter(x, y, s=20, c=None, marker='o', cmap=None, norm=None, vmin=None,
+def scatter(x, y, s=None, c=None, marker='o', cmap=None, norm=None, vmin=None,
             vmax=None, alpha=None, linewidths=None, verts=None, edgecolors=None,
             hold=None, data=None, **kwargs):
     ax = gca()
@@ -3367,7 +3271,7 @@ def step(x, y, *args, **kwargs):
 @_autogen_docstring(Axes.streamplot)
 def streamplot(x, y, u, v, density=1, linewidth=None, color=None, cmap=None,
                norm=None, arrowsize=1, arrowstyle='-|>', minlength=0.1,
-               transform=None, zorder=1, start_points=None, hold=None, data=None):
+               transform=None, zorder=2, start_points=None, hold=None, data=None):
     ax = gca()
     # allow callers to override the hold state by passing hold=True|False
     washold = ax.ishold()

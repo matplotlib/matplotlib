@@ -115,7 +115,7 @@ default_role = 'obj'
 # Plot directive configuration
 # ----------------------------
 
-plot_formats = [('png', 80), ('hires.png', 200), ('pdf', 50)]
+plot_formats = [('svg', 72), ('png', 80)]
 
 # Subdirectories in 'examples/' directory of package and titles for gallery
 mpl_example_sections = (
@@ -135,7 +135,8 @@ mpl_example_sections = (
     ('api', 'API'),
     ('pylab_examples', 'pylab examples'),
     ('mplot3d', 'mplot3d toolkit'),
-    ('axes_grid', 'axes_grid toolkit'),
+    ('axes_grid1', 'axes_grid1 toolkit'),
+    ('axisartist', 'axisartist toolkit'),
     ('units', 'units'),
     ('widgets', 'widgets'),
     )

@@ -33,8 +33,11 @@ hue = [color[0] for color in hsv]
 sat = [color[1] for color in hsv]
 val = [color[2] for color in hsv]
 
-# Sort by hue, saturation and value.
-ind = np.lexsort((val, sat, hue))
+# Get the color names by themselves.
+names = [color[0] for color in colors_]
+
+# Sort by hue, saturation, value and name.
+ind = np.lexsort((names, val, sat, hue))
 sorted_colors = [colors_[i] for i in ind]
 
 n = len(sorted_colors)
