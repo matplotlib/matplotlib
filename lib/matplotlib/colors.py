@@ -665,6 +665,30 @@ class Colormap(object):
         """
         raise NotImplementedError()
 
+    def reversed(self, name=None):
+        """
+        Make a reversed instance of the Colormap.
+
+        NOTE: Function not implemented for base class.
+
+        Parameters
+        ----------
+        name : str, optional
+            The name for the reversed colormap. If it's None the
+            name will be the name of the parent colormap + "_r".
+
+        Raises
+        ------
+        NotImplementedError
+            Function not implemented for base class.
+
+        Notes
+        -----
+        See :meth:`LinearSegmentedColormap.reversed` and
+        :meth:`ListedColormap.reversed`
+        """
+        raise NotImplementedError()
+
 
 class LinearSegmentedColormap(Colormap):
     """Colormap objects based on lookup tables using linear segments.
@@ -784,6 +808,40 @@ class LinearSegmentedColormap(Colormap):
         """
         return LinearSegmentedColormap(self.name, self._segmentdata, lutsize)
 
+    def reversed(self, name=None):
+        """
+        Make a reversed instance of the Colormap.
+
+        Parameters
+        ----------
+        name : str, optional
+            The name for the reversed colormap. If it's None the
+            name will be the name of the parent colormap + "_r".
+
+        Returns
+        -------
+        LinearSegmentedColormap
+            The reversed colormap.
+        """
+        if name is None:
+            name = self.name + "_r"
+
+        # Function factory needed to deal with 'late binding' issue.
+        def factory(dat):
+            def func_r(x):
+                return dat(1.0 - x)
+            return func_r
+
+        data_r = dict()
+        for key, data in six.iteritems(self._segmentdata):
+            if six.callable(data):
+                data_r[key] = factory(data)
+            else:
+                new_data = [(1.0 - x, y1, y0) for x, y0, y1 in reversed(data)]
+                data_r[key] = new_data
+
+        return LinearSegmentedColormap(name, data_r, self.N, self._gamma)
+
 
 class ListedColormap(Colormap):
     """Colormap object generated from a list of colors.
@@ -855,6 +913,27 @@ class ListedColormap(Colormap):
         """
         colors = self(np.linspace(0, 1, lutsize))
         return ListedColormap(colors, name=self.name)
+
+    def reversed(self, name=None):
+        """
+        Make a reversed instance of the Colormap.
+
+        Parameters
+        ----------
+        name : str, optional
+            The name for the reversed colormap. If it's None the
+            name will be the name of the parent colormap + "_r".
+
+        Returns
+        -------
+        ListedColormap
+            A reversed instance of the colormap.
+        """
+        if name is None:
+            name = self.name + "_r"
+
+        colors_r = list(reversed(self.colors))
+        return ListedColormap(colors_r, name=name, N=self.N)
 
 
 class Normalize(object):

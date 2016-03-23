@@ -587,6 +587,17 @@ def test_pandas_iterable():
     cm2 = mcolors.ListedColormap(s, N=5)
     assert_sequence_equal(cm1.colors, cm2.colors)
 
+def test_colormap_reversing():
+    """Check the generated _lut data of a colormap and corresponding
+    reversed colormap if they are almost the same."""
+    for name in six.iterkeys(cm.cmap_d):
+        cmap = plt.get_cmap(name)
+        cmap_r = cmap.reversed()
+        if not cmap_r._isinit:
+            cmap._init()
+            cmap_r._init()
+        assert_array_almost_equal(cmap._lut[:-3], cmap_r._lut[-4::-1])
+
 
 if __name__ == '__main__':
     import nose
