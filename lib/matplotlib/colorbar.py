@@ -397,7 +397,6 @@ class ColorbarBase(cm.ScalarMappable):
         self.stale = True
 
     def get_ticks(self):
-        #if self.locator == None:
         locator = self.locator
         formatter = self.formatter
         if locator is None:
