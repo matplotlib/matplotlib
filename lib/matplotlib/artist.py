@@ -1521,6 +1521,12 @@ def setp(obj, *args, **kwargs):
       >>> setp(line)
           ... long output listing omitted
 
+    You may specify another output file to `setp` if `sys.stdout` is not
+    acceptable for some reason using the `file` keyword-only argument::
+
+      >>> with fopen('output.log') as f:
+      >>>     setp(line, file=f)
+
     :func:`setp` operates on a single instance or a iterable of
     instances. If you are in query mode introspecting the possible
     values, only the first instance in the sequence is used. When
@@ -1548,12 +1554,16 @@ def setp(obj, *args, **kwargs):
 
     insp = ArtistInspector(objs[0])
 
-    if len(kwargs) == 0 and len(args) == 0:
-        print('\n'.join(insp.pprint_setters()))
-        return
+    # file has to be popped before checking if kwargs is empty
+    printArgs = {}
+    if 'file' in kwargs:
+        printArgs['file'] = kwargs.pop('file')
 
-    if len(kwargs) == 0 and len(args) == 1:
-        print(insp.pprint_setters(prop=args[0]))
+    if not kwargs and len(args) < 2:
+        if args:
+            print(insp.pprint_setters(prop=args[0]), **printArgs)
+        else:
+            print('\n'.join(insp.pprint_setters()), **printArgs)
         return
 
     if len(args) % 2:
