@@ -1804,7 +1804,7 @@ class Axes(_AxesBase):
             maxlags = Nx - 1
 
         if maxlags >= Nx or maxlags < 1:
-            raise ValueError('maglags must be None or strictly '
+            raise ValueError('maxlags must be None or strictly '
                              'positive < %d' % Nx)
 
         lags = np.arange(-maxlags, maxlags + 1)
