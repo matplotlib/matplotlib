@@ -7,5 +7,4 @@ with ``horizontal`` being the default.
 
 Example
 ```````
-::
-	stem(x, x, orientation='vertical')
+stem(x, x, orientation='vertical')
