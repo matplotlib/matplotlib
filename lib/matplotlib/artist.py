@@ -1138,16 +1138,19 @@ class ArtistInspector(object):
     def __init__(self, o):
         """
         Initialize the artist inspector with an
-        :class:`~matplotlib.artist.Artist` or sequence of :class:`Artists`.
-        If a sequence is used, we assume it is a homogeneous sequence (all
+        :class:`~matplotlib.artist.Artist` or iterable of :class:`Artists`.
+        If an iterable is used, we assume it is a homogeneous sequence (all
         :class:`Artists` are of the same type) and it is your responsibility
         to make sure this is so.
         """
-        if cbook.iterable(o) and len(o):
-            o = o[0]
+        if cbook.iterable(o):
+            # Wrapped in list instead of doing try-except around next(iter(o))
+            o = list(o)
+            if len(o):
+                o = o[0]
 
         self.oorig = o
-        if not isinstance(o, type):
+        if not inspect.isclass(o):
             o = type(o)
         self.o = o
 
@@ -1514,8 +1517,8 @@ def setp(obj, *args, **kwargs):
       >>> line, = plot([1,2,3])
       >>> setp(line, linestyle='--')
 
-    If you want to know the valid types of arguments, you can provide the
-    name of the property you want to set without a value::
+    If you want to know the valid types of arguments, you can provide
+    the name of the property you want to set without a value::
 
       >>> setp(line, 'linestyle')
           linestyle: [ '-' | '--' | '-.' | ':' | 'steps' | 'None' ]
@@ -1526,12 +1529,12 @@ def setp(obj, *args, **kwargs):
       >>> setp(line)
           ... long output listing omitted
 
-    :func:`setp` operates on a single instance or a list of instances.
-    If you are in query mode introspecting the possible values, only
-    the first instance in the sequence is used.  When actually setting
-    values, all the instances will be set.  e.g., suppose you have a
-    list of two lines, the following will make both lines thicker and
-    red::
+    :func:`setp` operates on a single instance or a iterable of
+    instances. If you are in query mode introspecting the possible
+    values, only the first instance in the sequence is used. When
+    actually setting values, all the instances will be set.  e.g.,
+    suppose you have a list of two lines, the following will make both
+    lines thicker and red::
 
       >>> x = arange(0,1.0,0.01)
       >>> y1 = sin(2*pi*x)
@@ -1546,7 +1549,12 @@ def setp(obj, *args, **kwargs):
       >>> setp(lines, linewidth=2, color='r')        # python style
     """
 
-    insp = ArtistInspector(obj)
+    if not cbook.iterable(obj):
+        objs = [obj]
+    else:
+        objs = list(cbook.flatten(obj))
+
+    insp = ArtistInspector(objs[0])
 
     if len(kwargs) == 0 and len(args) == 0:
         print('\n'.join(insp.pprint_setters()))
@@ -1555,11 +1563,6 @@ def setp(obj, *args, **kwargs):
     if len(kwargs) == 0 and len(args) == 1:
         print(insp.pprint_setters(prop=args[0]))
         return
-
-    if not cbook.iterable(obj):
-        objs = [obj]
-    else:
-        objs = list(cbook.flatten(obj))
 
     if len(args) % 2:
         raise ValueError('The set args must be string, value pairs')
