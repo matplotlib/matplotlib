@@ -4,7 +4,7 @@ import warnings
 from matplotlib.externals import six
 
 import io
-
+from itertools import chain
 import numpy as np
 
 import matplotlib.pyplot as plt
@@ -13,6 +13,7 @@ import matplotlib.lines as mlines
 import matplotlib.path as mpath
 import matplotlib.transforms as mtrans
 import matplotlib.collections as mcollections
+import matplotlib.artist as martist
 import matplotlib as mpl
 from matplotlib.testing.decorators import image_comparison, cleanup
 
@@ -206,6 +207,15 @@ def test_properties():
         warnings.simplefilter("always")
         ln.properties()
         assert len(w) == 0
+
+
+@cleanup
+def test_setp():
+    fig, axes = plt.subplots()
+    lines1 = axes.plot(range(3))
+    lines2 = axes.plot(range(3))
+    martist.setp(chain(lines1, lines2), 'lw', 5)
+    plt.setp(axes.spines.values(), color='green')
 
 
 if __name__ == '__main__':
