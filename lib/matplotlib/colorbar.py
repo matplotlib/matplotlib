@@ -425,10 +425,10 @@ class ColorbarBase(cm.ScalarMappable):
         locator.set_data_interval(*intv)
         formatter.set_view_interval(*intv)
         formatter.set_data_interval(*intv)
-
+        
         b = np.array(locator())
-
-        return b.tolist()
+        
+        return b
 
     def set_ticklabels(self, ticklabels, update_ticks=True):
         """
