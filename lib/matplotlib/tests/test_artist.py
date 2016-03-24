@@ -2,6 +2,7 @@ from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 import warnings
 from matplotlib.externals import six
+from itertools import chain
 
 import io
 
@@ -13,6 +14,7 @@ import matplotlib.lines as mlines
 import matplotlib.path as mpath
 import matplotlib.transforms as mtrans
 import matplotlib.collections as mcollections
+import matplotlib.artist as martist
 from matplotlib.testing.decorators import image_comparison, cleanup
 
 from nose.tools import (assert_true, assert_false)
@@ -186,6 +188,12 @@ def test_properties():
         ln.properties()
         assert len(w) == 0
 
+
+@cleanup
+def test_setp():
+    lines1 = plt.plot(range(3))
+    lines2 = plt.plot(range(3))
+    martist.setp(chain(lines1, lines2), 'lw', 5)
 
 if __name__ == '__main__':
     import nose
