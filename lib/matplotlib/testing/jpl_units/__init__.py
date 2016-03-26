@@ -40,10 +40,6 @@ from .Duration import Duration
 from .Epoch import Epoch
 from .UnitDbl import UnitDbl
 
-from .Duration import Duration
-from .Epoch import Epoch
-from .UnitDbl import UnitDbl
-
 from .StrConverter import StrConverter
 from .EpochConverter import EpochConverter
 from .UnitDblConverter import UnitDblConverter

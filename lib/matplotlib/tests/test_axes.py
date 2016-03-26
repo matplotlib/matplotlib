@@ -25,7 +25,6 @@ from matplotlib.testing.decorators import image_comparison, cleanup
 import matplotlib.pyplot as plt
 import matplotlib.markers as mmarkers
 from numpy.testing import assert_allclose, assert_array_equal
-import warnings
 from matplotlib.cbook import IgnoredKeywordWarning
 
 import sys
