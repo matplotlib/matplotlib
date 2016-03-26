@@ -51,9 +51,9 @@ for l in [l1, l2]:
 ax.set_xlim(0., 1.)
 ax.set_ylim(0., 1.)
 
-# save the figure as a string in the svg format.
-from io import StringIO
-f = StringIO()
+# save the figure as a bytes string in the svg format.
+from io import BytesIO
+f = BytesIO()
 plt.savefig(f, format="svg")
 
 
