@@ -1437,7 +1437,12 @@ def setp(obj, *args, **kwargs):
       >>> setp(lines, linewidth=2, color='r')        # python style
     """
 
-    insp = ArtistInspector(obj)
+    if not cbook.iterable(obj):
+        objs = [obj]
+    else:
+        objs = list(cbook.flatten(obj))
+
+    insp = ArtistInspector(objs[0])
 
     if len(kwargs) == 0 and len(args) == 0:
         print('\n'.join(insp.pprint_setters()))
@@ -1446,11 +1451,6 @@ def setp(obj, *args, **kwargs):
     if len(kwargs) == 0 and len(args) == 1:
         print(insp.pprint_setters(prop=args[0]))
         return
-
-    if not cbook.iterable(obj):
-        objs = [obj]
-    else:
-        objs = cbook.flatten(obj)
 
     if len(args) % 2:
         raise ValueError('The set args must be string, value pairs')
