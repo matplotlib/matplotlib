@@ -12,39 +12,35 @@ from matplotlib.testing.decorators import image_comparison, cleanup
 from nose.tools import assert_raises
 
 
-def check_shared(results, f, axs):
+def check_shared(axs, x_shared, y_shared):
     """
-    results is a 4 x 4 x 2 matrix of boolean values where
-        if [i, j, 0] == True, X axis for subplots i and j should be shared
-        if [i, j, 1] == False, Y axis for subplots i and j should not be shared
+    x_shared and y_shared are n x n boolean matrices; entry (i, j) indicates
+    whether the x (or y) axes of subplots i and j should be shared.
     """
-    shared_str = ['x', 'y']
     shared = [axs[0]._shared_x_axes, axs[0]._shared_y_axes]
-    #shared = {
-    #        'x': a1._shared_x_axes,
-    #        'y': a1._shared_y_axes,
-    #        }
-    tostr = lambda r: "not " if r else ""
-    for i1 in xrange(len(axs)):
-        for i2 in xrange(i1 + 1, len(axs)):
-            for i3 in xrange(len(shared)):
-                assert shared[i3].joined(axs[i1], axs[i2]) == \
-                        results[i1, i2, i3], \
-                        "axes %i and %i incorrectly %ssharing %s axis" % \
-                        (i1, i2, tostr(results[i1, i2, i3]), shared_str[i3])
+    for (i1, ax1), (i2, ax2), (i3, (name, shared)) in zip(
+            enumerate(axs),
+            enumerate(axs),
+            enumerate(zip("xy", [x_shared, y_shared]))):
+        if i2 <= i1:
+            continue
+        assert shared[i3].joined(ax1, ax2) == shared[i1, i2], \
+            "axes %i and %i incorrectly %ssharing %s axis" % (
+                i1, i2, "not " if shared[i1, i2] else "", name)
 
 
-def check_visible(result, f, axs):
+def check_visible(axs, x_visible, y_visible):
     tostr = lambda v: "invisible" if v else "visible"
-    for (ax, vx, vy) in zip(axs, result['x'], result['y']):
-        for l in ax.get_xticklabels():
+    for (ax, vx, vy) in zip(axs, x_visible, y_visible):
+        for l in ax.get_xticklabels() + [ax.get_xaxis().offsetText]:
             assert l.get_visible() == vx, \
                     "X axis was incorrectly %s" % (tostr(vx))
-        for l in ax.get_yticklabels():
+        for l in ax.get_yticklabels() + [ax.get_yaxis().offsetText]:
             assert l.get_visible() == vy, \
                     "Y axis was incorrectly %s" % (tostr(vy))
 
 
+@cleanup
 def test_shared():
     rdim = (4, 4, 2)
     share = {
@@ -85,8 +81,7 @@ def test_shared():
     # test default
     f, ((a1, a2), (a3, a4)) = plt.subplots(2, 2)
     axs = [a1, a2, a3, a4]
-    check_shared(numpy.dstack((share['none'], share['none'])), \
-            f, axs)
+    check_shared(axs, share['none'], share['none'])
     plt.close(f)
 
     # test all option combinations
@@ -95,11 +90,17 @@ def test_shared():
         for yo in ops:
             f, ((a1, a2), (a3, a4)) = plt.subplots(2, 2, sharex=xo, sharey=yo)
             axs = [a1, a2, a3, a4]
-            check_shared(numpy.dstack((share[xo], share[yo])), \
-                    f, axs)
-            check_visible(dict(x=visible['x'][xo], y=visible['y'][yo]), \
-                    f, axs)
+            check_shared(axs, share[xo], share[yo])
+            check_visible(axs, visible['x'][xo], visible['y'][yo])
             plt.close(f)
+
+    # test label_outer
+    f, ((a1, a2), (a3, a4)) = plt.subplots(2, 2, sharex=True, sharey=True)
+    axs = [a1, a2, a3, a4]
+    for ax in axs:
+        ax.label_outer()
+    check_visible(axs, [False, False, True, True], [True, False, True, False])
+
 
 
 def test_exceptions():
