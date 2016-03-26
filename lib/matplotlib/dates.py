@@ -642,7 +642,8 @@ class AutoDateFormatter(ticker.Formatter):
     dictionary by doing::
 
 
-    >>> formatter = AutoDateFormatter()
+    >>> locator = AutoDateLocator()
+    >>> formatter = AutoDateFormatter(locator)
     >>> formatter.scaled[1/(24.*60.)] = '%M:%S' # only show min and sec
 
     A custom :class:`~matplotlib.ticker.FuncFormatter` can also be used.
