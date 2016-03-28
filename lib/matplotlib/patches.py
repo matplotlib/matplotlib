@@ -1879,7 +1879,7 @@ class _Style(object):
 class BoxStyle(_Style):
     """
     :class:`BoxStyle` is a container class which defines several
-    boxstyle classes, which are used for :class:`FancyBoxPatch`.
+    boxstyle classes, which are used for :class:`FancyBboxPatch`.
 
     A style object can be created as::
 
