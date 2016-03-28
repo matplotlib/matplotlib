@@ -2069,14 +2069,10 @@ class BackendMacOSX(OptionalBackendPackage):
 
     def get_extension(self):
         sources = [
-            'src/_macosx.m',
-            'src/py_converters.cpp',
-            'src/path_cleanup.cpp'
+            'src/_macosx.m'
             ]
 
         ext = make_extension('matplotlib.backends._macosx', sources)
-        Numpy().add_flags(ext)
-        LibAgg().add_flags(ext)
         ext.extra_link_args.extend(['-framework', 'Cocoa'])
         return ext
 
