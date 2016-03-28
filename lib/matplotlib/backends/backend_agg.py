@@ -510,7 +510,7 @@ class FigureCanvasAgg(FigureCanvasBase):
         finally:
             if close:
                 filename_or_obj.close()
-        renderer.dpi = original_dpi
+            renderer.dpi = original_dpi
     print_rgba = print_raw
 
     def print_png(self, filename_or_obj, *args, **kwargs):
@@ -529,16 +529,18 @@ class FigureCanvasAgg(FigureCanvasBase):
         finally:
             if close:
                 filename_or_obj.close()
-        renderer.dpi = original_dpi
+            renderer.dpi = original_dpi
 
     def print_to_buffer(self):
         FigureCanvasAgg.draw(self)
         renderer = self.get_renderer()
         original_dpi = renderer.dpi
         renderer.dpi = self.figure.dpi
-        result = (renderer._renderer.buffer_rgba(),
-                  (int(renderer.width), int(renderer.height)))
-        renderer.dpi = original_dpi
+        try:
+            result = (renderer._renderer.buffer_rgba(),
+                      (int(renderer.width), int(renderer.height)))
+        finally:
+            renderer.dpi = original_dpi
         return result
 
     if _has_pil:
