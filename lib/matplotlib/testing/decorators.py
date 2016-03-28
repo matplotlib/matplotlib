@@ -11,6 +11,10 @@ import sys
 import shutil
 import warnings
 import unittest
+try:
+    from itertools import zip_longest
+except ImportError:
+    from itertools import izip_longest as zip_longest
 
 import nose
 import numpy as np
@@ -214,7 +218,16 @@ class ImageComparisonTest(CleanupTest):
     def test(self):
         baseline_dir, result_dir = _image_directories(self._func)
 
-        for fignum, baseline in zip(plt.get_fignums(), self._baseline_images):
+        for fignum, baseline in zip_longest(plt.get_fignums(), self._baseline_images):
+            if fignum is None:
+                raise ImageComparisonFailure(
+                    'Test "%s" specifies more baseline images than it creates figures' %
+                        self._orig_test_name)
+            if baseline is None:
+                raise ImageComparisonFailure(
+                    ('Test "%s" does not specify baseline images for some of the figures '
+                     'it creates') % self._orig_test_name)
+
             for extension in self._extensions:
                 will_fail = not extension in comparable_formats()
                 if will_fail:
@@ -335,12 +348,13 @@ def image_comparison(baseline_images=None, extensions=None, tol=0,
         # something without the word "test", or it will be run as
         # well, outside of the context of our image comparison test
         # generator.
-        func = staticmethod(func)
-        func.__get__(1).__name__ = str('_private')
+        orig_test_name = func.__name__
+        func.__name__ = str('_private')
         new_class = type(
             name,
             (ImageComparisonTest,),
-            {'_func': func,
+            {'_func': staticmethod(func),
+             '_orig_test_name': orig_test_name,
              '_baseline_images': baseline_images,
              '_extensions': extensions,
              '_tol': tol,
@@ -356,52 +370,16 @@ def _image_directories(func):
     """
     Compute the baseline and result image directories for testing *func*.
     Create the result directory if it doesn't exist.
+
+    If the test function is called `test_foobar` and lives in the file
+    /path/to/test_dir/test_script.py then the baseline directory will
+    be /path/to/test_dir/baseline_images/test_script/ and the result
+    directory will be /path/to/test_dir/result_images/test_script/.
     """
-    module_name = func.__module__
-    if module_name == '__main__':
-        # FIXME: this won't work for nested packages in matplotlib.tests
-        warnings.warn('test module run as script. guessing baseline image locations')
-        script_name = sys.argv[0]
-        basedir = os.path.abspath(os.path.dirname(script_name))
-        subdir = os.path.splitext(os.path.split(script_name)[1])[0]
-    else:
-        mods = module_name.split('.')
-        if len(mods) >= 3:
-            mods.pop(0)
-            # mods[0] will be the name of the package being tested (in
-            # most cases "matplotlib") However if this is a
-            # namespace package pip installed and run via the nose
-            # multiprocess plugin or as a specific test this may be
-            # missing. See https://github.com/matplotlib/matplotlib/issues/3314
-        if mods.pop(0) != 'tests':
-            warnings.warn(("Module '%s' does not live in a parent module "
-                "named 'tests'. This is probably ok, but we may not be able "
-                "to guess the correct subdirectory containing the baseline "
-                "images. If things go wrong please make sure that there is "
-                "a parent directory named 'tests' and that it contains a "
-                "__init__.py file (can be empty).") % module_name)
-        subdir = os.path.join(*mods)
+    script_name = inspect.getsourcefile(func)
 
-        import imp
-        def find_dotted_module(module_name, path=None):
-            """A version of imp which can handle dots in the module name.
-               As for imp.find_module(), the return value is a 3-element
-               tuple (file, pathname, description)."""
-            res = None
-            for sub_mod in module_name.split('.'):
-                try:
-                    res = file, path, _ = imp.find_module(sub_mod, path)
-                    path = [path]
-                    if file is not None:
-                        file.close()
-                except ImportError:
-                    # assume namespace package
-                    path = sys.modules[sub_mod].__path__
-                    res = None, path, None
-            return res
-
-        mod_file = find_dotted_module(func.__module__)[1]
-        basedir = os.path.dirname(mod_file)
+    basedir = os.path.abspath(os.path.dirname(script_name))
+    subdir = os.path.splitext(os.path.split(script_name)[1])[0]
 
     baseline_dir = os.path.join(basedir, 'baseline_images', subdir)
     result_dir = os.path.abspath(os.path.join('result_images', subdir))

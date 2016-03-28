@@ -1244,14 +1244,16 @@ def test_hist2d_transpose():
 
 @image_comparison(baseline_images=['scatter', 'scatter'])
 def test_scatter_plot():
-    ax = plt.axes()
     data = {"x": [3, 4, 2, 6], "y": [2, 5, 2, 3], "c": ['r', 'y', 'b', 'lime'],
             "s": [24, 15, 19, 29]}
 
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
     ax.scatter(data["x"], data["y"], c=data["c"], s=data["s"])
 
     # Reuse testcase from above for a labeled data test
-    ax = plt.axes()
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
     ax.scatter("x", "y", c="c", s="s", data=data)
 
 
