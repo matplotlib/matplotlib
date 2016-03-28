@@ -242,6 +242,11 @@ def crop_to_same(actual_path, actual_image, expected_path, expected_image):
 
 def calculate_rms(expectedImage, actualImage):
     "Calculate the per-pixel errors, then compute the root mean square error."
+    if expectedImage.shape != actualImage.shape:
+        raise ImageComparisonFailure(
+            "image sizes do not match expected size: {0} "
+            "actual size {1}".format(expectedImage.shape, actualImage.shape))
+
     num_values = np.prod(expectedImage.shape)
     abs_diff_image = abs(expectedImage - actualImage)
 
