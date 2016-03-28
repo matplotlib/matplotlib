@@ -983,7 +983,7 @@ class FigureCanvasWx(FigureCanvasBase, wx.Panel):
         dpival = self.figure.dpi
         winch = self._width / dpival
         hinch = self._height / dpival
-        self.figure.set_size_inches(winch, hinch)
+        self.figure.set_size_inches(winch, hinch, forward=False)
 
         # Rendering will happen on the associated paint event
         # so no need to do anything here except to make sure
