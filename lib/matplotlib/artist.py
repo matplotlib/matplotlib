@@ -15,7 +15,8 @@ from matplotlib import docstring, rcParams
 from .transforms import (Bbox, IdentityTransform, TransformedBbox,
                          TransformedPatchPath, TransformedPath, Transform)
 from .path import Path
-
+from functools import wraps
+from contextlib import contextmanager
 # Note, matplotlib artists use the doc strings for set and get
 # methods to enable the introspection methods of setp and getp.  Every
 # set_* method should have a docstring containing the line
@@ -42,31 +43,30 @@ def allow_rasterization(draw):
     other setup function calls, such as starting and flushing a mixed-mode
     renderer.
     """
-    def before(artist, renderer):
+    @contextmanager
+    def with_rasterized(artist, renderer):
+
         if artist.get_rasterized():
             renderer.start_rasterizing()
 
         if artist.get_agg_filter() is not None:
             renderer.start_filter()
 
-    def after(artist, renderer):
+        try:
+            yield
+        finally:
+            if artist.get_agg_filter() is not None:
+                renderer.stop_filter(artist.get_agg_filter())
 
-        if artist.get_agg_filter() is not None:
-            renderer.stop_filter(artist.get_agg_filter())
-
-        if artist.get_rasterized():
-            renderer.stop_rasterizing()
+            if artist.get_rasterized():
+                renderer.stop_rasterizing()
 
     # the axes class has a second argument inframe for its draw method.
+    @wraps(draw)
     def draw_wrapper(artist, renderer, *args, **kwargs):
-        before(artist, renderer)
-        draw(artist, renderer, *args, **kwargs)
-        after(artist, renderer)
+        with with_rasterized(artist, renderer):
+            return draw(artist, renderer, *args, **kwargs)
 
-    # "safe wrapping" to exactly replicate anything we haven't overridden above
-    draw_wrapper.__name__ = draw.__name__
-    draw_wrapper.__dict__ = draw.__dict__
-    draw_wrapper.__doc__ = draw.__doc__
     draw_wrapper._supports_rasterization = True
     return draw_wrapper
 
