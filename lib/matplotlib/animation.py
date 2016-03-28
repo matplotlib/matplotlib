@@ -895,7 +895,8 @@ class Animation(object):
         # cache and restore.
         axes = set(a.axes for a in artists)
         for a in axes:
-            a.figure.canvas.restore_region(bg_cache[a])
+            if a in bg_cache:
+                a.figure.canvas.restore_region(bg_cache[a])
 
     def _setup_blit(self):
         # Setting up the blit requires: a cache of the background for the
