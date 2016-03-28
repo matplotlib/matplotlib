@@ -355,7 +355,7 @@ class FigureCanvasGTK (gtk.DrawingArea, FigureCanvasBase):
 
         # resize the figure (in inches)
         dpi = self.figure.dpi
-        self.figure.set_size_inches (w/dpi, h/dpi)
+        self.figure.set_size_inches(w/dpi, h/dpi, forward=False)
         self._need_redraw = True
 
         return False  # finish event propagation?

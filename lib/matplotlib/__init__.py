@@ -137,6 +137,21 @@ del get_versions
 
 __version__numpy__ = str('1.6')  # minimum required numpy version
 
+__bibtex__ = """@Article{Hunter:2007,
+  Author    = {Hunter, J. D.},
+  Title     = {Matplotlib: A 2D graphics environment},
+  Journal   = {Computing In Science \& Engineering},
+  Volume    = {9},
+  Number    = {3},
+  Pages     = {90--95},
+  abstract  = {Matplotlib is a 2D graphics package used for Python
+  for application development, interactive scripting, and
+  publication-quality image generation across user
+  interfaces and operating systems.},
+  publisher = {IEEE COMPUTER SOC},
+  year      = 2007
+}"""
+
 try:
     import dateutil
 except ImportError:
@@ -554,16 +569,14 @@ def _create_tmp_config_dir():
         # Some restricted platforms (such as Google App Engine) do not provide
         # gettempdir.
         return None
-
     try:
         username = getpass.getuser()
     except KeyError:
         username = str(os.getuid())
-    tempdir = os.path.join(tempdir, 'matplotlib-%s' % username)
+
+    tempdir = tempfile.mkdtemp(prefix='matplotlib-%s-' % username, dir=tempdir)
 
     os.environ['MPLCONFIGDIR'] = tempdir
-
-    mkdirs(tempdir)
 
     return tempdir
 

@@ -272,7 +272,7 @@ class FigureCanvasTkAgg(FigureCanvasAgg):
         dpival = self.figure.dpi
         winch = width/dpival
         hinch = height/dpival
-        self.figure.set_size_inches(winch, hinch)
+        self.figure.set_size_inches(winch, hinch, forward=False)
 
 
         self._tkcanvas.delete(self._tkphoto)
