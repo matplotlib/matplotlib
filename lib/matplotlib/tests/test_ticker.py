@@ -366,6 +366,39 @@ def test_formatstrformatter():
     tmp_form = mticker.StrMethodFormatter('{x:05d}')
     nose.tools.assert_equal('00002', tmp_form(2))
 
+
+def _percent_format_helper(xmax, decimals, symbol, x, display_range, expected):
+    formatter = mticker.PercentFormatter(xmax, decimals, symbol)
+    nose.tools.assert_equal(formatter.format_pct(x, display_range), expected)
+
+
+def test_percentformatter():
+    test_cases = (
+        # Check explicitly set decimals over different intervals and values
+        (100, 0, '%', 120, 100, '120%'),
+        (100, 0, '%', 100, 90, '100%'),
+        (100, 0, '%', 90, 50, '90%'),
+        (100, 0, '%', 1.7, 40, '2%'),
+        (100, 1, '%', 90.0, 100, '90.0%'),
+        (100, 1, '%', 80.1, 90, '80.1%'),
+        (100, 1, '%', 70.23, 50, '70.2%'),
+        # 60.554 instead of 60.55: see https://bugs.python.org/issue5118
+        (100, 1, '%', 60.554, 40, '60.6%'),
+        # Check auto decimals over different intervals and values
+        (100, None, '%', 95, 1, '95.00%'),
+        (1.0, None, '%', 3, 6, '300%'),
+        (17.0, None, '%', 1, 8.5, '6%'),
+        (17.0, None, '%', 1, 8.4, '5.9%'),
+        (5, None, '%', -100, 0.000001, '-2000.00000%'),
+        # Check percent symbol
+        (1.0, 2, None, 1.2, 100, '120.00'),
+        (75, 3, '', 50, 100, '66.667'),
+        (42, None, '^^Foobar$$', 21, 12, '50.0^^Foobar$$'),
+    )
+    for case in test_cases:
+        yield (_percent_format_helper,) + case
+
+
 if __name__ == '__main__':
     import nose
     nose.runmodule(argv=['-s', '--with-doctest'], exit=False)
