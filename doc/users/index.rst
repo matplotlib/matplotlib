@@ -16,11 +16,8 @@ User's Guide
     configuration.rst
     beginner.rst
     developer.rst
+    colors.rst
     whats_new.rst
     github_stats.rst
     license.rst
     credits.rst
-
-
-
-

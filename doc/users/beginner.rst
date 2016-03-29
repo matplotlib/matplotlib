@@ -20,8 +20,6 @@ Beginner's Guide
     legend_guide.rst
     annotations_guide.rst
     screenshots.rst
+    colors.rst
     colormaps.rst
     colormapnorms.rst
-
-
-
