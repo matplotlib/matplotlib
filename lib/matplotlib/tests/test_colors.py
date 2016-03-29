@@ -555,6 +555,15 @@ def test_light_source_planar_hillshading():
             assert_array_almost_equal(h, np.cos(np.radians(angle)))
 
 
+def test_xkcd():
+    x11_blue = mcolors.rgb2hex(
+        mcolors.colorConverter.to_rgb('blue'))
+    assert x11_blue == '#0000ff'
+    XKCD_blue = mcolors.rgb2hex(
+        mcolors.colorConverter.to_rgb('XKCDblue'))
+    assert XKCD_blue == '#0343df'
+
+
 def _sph2cart(theta, phi):
     x = np.cos(theta) * np.sin(phi)
     y = np.sin(theta) * np.sin(phi)
