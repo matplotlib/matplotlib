@@ -5,7 +5,7 @@ from matplotlib.externals import six
 
 import matplotlib.pyplot as plt
 from matplotlib.testing.decorators import image_comparison
-import matplotlib.patches as mpatches  # adopting scipy import conventions
+import matplotlib.patches as mpatches
 
 
 def draw_arrow(ax, t, r):
@@ -54,7 +54,7 @@ def test_boxarrow():
 
 def prepare_fancyarrow_dpi_cor_test():
     """
-    Convenience function that prepares and return a FancyArrowPatch. It aims
+    Convenience function that prepares and returns a FancyArrowPatch. It aims
     at being used to test that the size of the arrow head does not depend on
     the DPI value of the exported picture.
 
@@ -76,7 +76,7 @@ def prepare_fancyarrow_dpi_cor_test():
 def test_fancyarrow_dpi_cor_100dpi():
     """
     Check the export of a FancyArrowPatch @ 100 DPI. FancyArrowPatch is
-    instanciated through a dedicated function because another similar test
+    instantiated through a dedicated function because another similar test
     checks a similar export but with a different DPI value.
 
     Remark: test only a rasterized format.
