@@ -108,35 +108,38 @@ formatter operates on a single tick value and returns a string to the
 axis.
 
 :class:`NullFormatter`
-    no labels on the ticks
+    No labels on the ticks
 
 :class:`IndexFormatter`
-    set the strings from a list of labels
+    Set the strings from a list of labels
 
 :class:`FixedFormatter`
-    set the strings manually for the labels
+    Set the strings manually for the labels
 
 :class:`FuncFormatter`
-    user defined function sets the labels
+    User defined function sets the labels
 
 :class:`StrMethodFormatter`
     Use string `format` method
 
 :class:`FormatStrFormatter`
-    use a sprintf format string
+    Use an old-style sprintf format string
 
 :class:`ScalarFormatter`
-    default formatter for scalars; autopick the fmt string
+    Default formatter for scalars: autopick the format string
 
 :class:`LogFormatter`
-    formatter for log axes
+    Formatter for log axes
+
+:class:`EngFormatter`
+    Format labels in engineering notation
 
 :class:`PercentFormatter`
     Format labels as a percentage
 
 You can derive your own formatter from the Formatter base class by
-simply overriding the ``__call__`` method.  The formatter class has access
-to the axis view and data limits.
+simply overriding the ``__call__`` method.  The formatter class has
+access to the axis view and data limits.
 
 To control the major and minor tick label formats, use one of the
 following methods::
@@ -254,22 +257,32 @@ class TickHelper(object):
 
 class Formatter(TickHelper):
     """
-    Convert the tick location to a string
+    Create a string based on a tick value and location.
     """
     # some classes want to see all the locs to help format
     # individual ones
     locs = []
 
     def __call__(self, x, pos=None):
-        """Return the format for tick val x at position pos; pos=None
-           indicated unspecified"""
+        """
+        Return the format for tick value `x` at position pos.
+        ``pos=None`` indicates an unspecified location.
+        """
         raise NotImplementedError('Derived must override')
 
     def format_data(self, value):
+        """
+        Returns the full string representation of the value with the
+        position unspecified.
+        """
         return self.__call__(value)
 
     def format_data_short(self, value):
-        """return a short string version"""
+        """
+        Return a short string version of the tick value.
+
+        Defaults to the position-indepedent long value.
+        """
         return self.format_data(value)
 
     def get_offset(self):
@@ -297,44 +310,58 @@ class Formatter(TickHelper):
 
 class IndexFormatter(Formatter):
     """
-    format the position x to the nearest i-th label where i=int(x+0.5)
+    Format the position x to the nearest i-th label where i=int(x+0.5)
     """
     def __init__(self, labels):
         self.labels = labels
         self.n = len(labels)
 
     def __call__(self, x, pos=None):
-        """Return the format for tick val x at position pos; pos=None
-        indicated unspecified"""
+        """
+        Return the format for tick value `x` at position pos.
+
+        The position is ignored and the value is rounded to the nearest
+        integer, which is used to look up the label.
+        """
         i = int(x + 0.5)
-        if i < 0:
-            return ''
-        elif i >= self.n:
+        if i < 0 or i >= self.n:
             return ''
         else:
             return self.labels[i]
 
 
 class NullFormatter(Formatter):
-    'Always return the empty string'
-
+    """
+    Always return the empty string.
+    """
     def __call__(self, x, pos=None):
-        'Return the format for tick val *x* at position *pos*'
+        """
+        Returns an empty string for all inputs.
+        """
         return ''
 
 
 class FixedFormatter(Formatter):
-    'Return fixed strings for tick labels'
+    """
+    Return fixed strings for tick labels based only on position, not
+    value.
+    """
     def __init__(self, seq):
         """
-        *seq* is a sequence of strings.  For positions ``i < len(seq)`` return
-        *seq[i]* regardless of *x*.  Otherwise return ''
+        Set the sequence of strings that will be used for labels.
         """
         self.seq = seq
         self.offset_string = ''
 
     def __call__(self, x, pos=None):
-        'Return the format for tick val *x* at position *pos*'
+        """
+        Returns the label that matches the position regardless of the
+        value.
+
+        For positions ``pos < len(seq)``, return `seq[i]` regardless of
+        `x`. Otherwise return empty string. `seq` is the sequence of
+        strings that this object was initialized with.
+        """
         if pos is None or pos >= len(self.seq):
             return ''
         else:
@@ -349,28 +376,40 @@ class FixedFormatter(Formatter):
 
 class FuncFormatter(Formatter):
     """
-    User defined function for formatting
+    Use a user-defined function for formatting.
 
-    The function should take in two inputs (tick value *x* and position *pos*)
-    and return a string
+    The function should take in two inputs (a tick value ``x`` and a
+    position ``pos``), and return a string containing the corresponding
+    tick label.
     """
     def __init__(self, func):
         self.func = func
 
     def __call__(self, x, pos=None):
-        'Return the format for tick val *x* at position *pos*'
+        """
+        Return the value of the user defined function.
+
+        `x` and `pos` are passed through as-is.
+        """
         return self.func(x, pos)
 
 
 class FormatStrFormatter(Formatter):
     """
-    Use an old-style ('%' operator) format string to format the tick
+    Use an old-style ('%' operator) format string to format the tick.
+
+    The format string should have a single variable format (%) in it.
+    It will be applied to the value (not the postition) of the tick.
     """
     def __init__(self, fmt):
         self.fmt = fmt
 
     def __call__(self, x, pos=None):
-        'Return the format for tick val *x* at position *pos*'
+        """
+        Return the formatted label string.
+
+        Only the value `x` is formatted. The position is ignored.
+        """
         return self.fmt % x
 
 
@@ -401,13 +440,21 @@ class OldScalarFormatter(Formatter):
     """
 
     def __call__(self, x, pos=None):
-        'Return the format for tick val *x* at position *pos*'
+        """
+        Return the format for tick val `x` based on the width of the
+        axis.
+
+        The position `pos` is ignored.
+        """
         xmin, xmax = self.axis.get_view_interval()
         d = abs(xmax - xmin)
 
         return self.pprint_val(x, d)
 
     def pprint_val(self, x, d):
+        """
+        Formats the value `x` based on the size of the axis range `d`.
+        """
         #if the number is not too big and it's an int, format it as an
         #int
         if abs(x) < 1e4 and x == int(x):
@@ -440,16 +487,20 @@ class OldScalarFormatter(Formatter):
 
 class ScalarFormatter(Formatter):
     """
-    Tick location is a plain old number.  If useOffset==True and the data range
-    is much smaller than the data average, then an offset will be determined
-    such that the tick labels are meaningful. Scientific notation is used for
-    data < 10^-n or data >= 10^m, where n and m are the power limits set using
-    set_powerlimits((n,m)). The defaults for these are controlled by the
-    axes.formatter.limits rc parameter.
-
+    Format tick values as a number.
     """
-
     def __init__(self, useOffset=None, useMathText=None, useLocale=None):
+        """
+        Tick value is interpreted as a plain old number. If
+        ``useOffset==True`` and the data range is much smaller than the
+        data average, then an offset will be determined such that the
+        tick labels are meaningful. Scientific notation is used for
+        ``data < 10^-n`` or ``data >= 10^m``, where ``n`` and ``m`` are
+        the power limits set using ``set_powerlimits((n,m))``. The
+        defaults for these are controlled by the
+        ``axes.formatter.limits`` rc parameter.
+        """
+
         # useOffset allows plotting small data ranges with large offsets: for
         # example: [1+1e-9,1+2e-9,1+3e-9] useMathText will render the offset
         # and scientific notation in mathtext
@@ -494,7 +545,9 @@ class ScalarFormatter(Formatter):
     useLocale = property(fget=get_useLocale, fset=set_useLocale)
 
     def fix_minus(self, s):
-        """use a unicode minus rather than hyphen"""
+        """
+        Replace hyphens with a unicode minus.
+        """
         if rcParams['text.usetex'] or not rcParams['axes.unicode_minus']:
             return s
         else:
@@ -509,33 +562,45 @@ class ScalarFormatter(Formatter):
             return self.fix_minus(s)
 
     def set_scientific(self, b):
-        '''True or False to turn scientific notation on or off
-        see also :meth:`set_powerlimits`
-        '''
+        """
+        Turn scientific notation on or off.
+        
+        .. seealso:: Method :meth:`set_powerlimits`
+        """
         self._scientific = bool(b)
 
     def set_powerlimits(self, lims):
-        '''
+        """
         Sets size thresholds for scientific notation.
 
-        e.g., ``formatter.set_powerlimits((-3, 4))`` sets the pre-2007 default
-        in which scientific notation is used for numbers less than 1e-3 or
-        greater than 1e4.
-        See also :meth:`set_scientific`.
-        '''
+        Limits is a two-element sequence containing the powers of 10
+        that determine the switchover threshold. Numbers below
+        ``10**lims[0]`` and above ``10**lims[1]`` will be displayed in
+        scientific notation.
+
+        For example, ``formatter.set_powerlimits((-3, 4))`` sets the
+        pre-2007 default in which scientific notation is used for
+        numbers less than 1e-3 or greater than 1e4.
+
+        .. seealso:: Method :meth:`set_scientific`
+        """
         if len(lims) != 2:
             raise ValueError("'lims' must be a sequence of length 2")
         self._powerlimits = lims
 
     def format_data_short(self, value):
-        """return a short formatted string representation of a number"""
+        """
+        Return a short formatted string representation of a number.
+        """
         if self._useLocale:
             return locale.format_string('%-12g', (value,))
         else:
             return '%-12g' % value
 
     def format_data(self, value):
-        'return a formatted string representation of a number'
+        """
+        Return a formatted string representation of a number.
+        """
         if self._useLocale:
             s = locale.format_string('%1.10e', (value,))
         else:
@@ -544,7 +609,9 @@ class ScalarFormatter(Formatter):
         return self.fix_minus(s)
 
     def get_offset(self):
-        """Return scientific notation, plus offset"""
+        """
+        Return scientific notation, plus offset.
+        """
         if len(self.locs) == 0:
             return ''
         s = ''
@@ -574,7 +641,9 @@ class ScalarFormatter(Formatter):
         return self.fix_minus(s)
 
     def set_locs(self, locs):
-        'set the locations of the ticks'
+        """
+        Set the locations of the ticks.
+        """
         self.locs = locs
         if len(self.locs) > 0:
             vmin, vmax = self.axis.get_view_interval()
@@ -710,14 +779,12 @@ class ScalarFormatter(Formatter):
 
 class LogFormatter(Formatter):
     """
-    Format values for log axis;
-
+    Format values for log axis.
     """
     def __init__(self, base=10.0, labelOnlyBase=True):
         """
-        *base* is used to locate the decade tick,
-        which will be the only one to be labeled if *labelOnlyBase*
-        is ``False``
+        `base` is used to locate the decade tick, which will be the only
+        one to be labeled if `labelOnlyBase` is ``True``.
         """
         self._base = base + 0.0
         self.labelOnlyBase = labelOnlyBase
@@ -728,7 +795,11 @@ class LogFormatter(Formatter):
         self._base = base
 
     def label_minor(self, labelOnlyBase):
-        'switch on/off minor ticks labeling'
+        """
+        Switch minor tick labeling on or off.
+
+        ``labelOnlyBase=True`` to turn off minor ticks.
+        """
         self.labelOnlyBase = labelOnlyBase
 
     def __call__(self, x, pos=None):
@@ -801,12 +872,14 @@ class LogFormatter(Formatter):
 
 class LogFormatterExponent(LogFormatter):
     """
-    Format values for log axis; using ``exponent = log_base(value)``
+    Format values for log axis using ``exponent = log_base(value)``
     """
-
     def __call__(self, x, pos=None):
-        """Return the format for tick val *x* at position *pos*"""
+        """
+        Return the format for tick value `x`.
 
+        The position `pos` is ignored.
+        """
         vmin, vmax = self.axis.get_view_interval()
         vmin, vmax = mtransforms.nonsingular(vmin, vmax, expander=0.05)
         d = abs(vmax - vmin)
@@ -834,11 +907,15 @@ class LogFormatterExponent(LogFormatter):
 
 class LogFormatterMathtext(LogFormatter):
     """
-    Format values for log axis; using ``exponent = log_base(value)``
+    Format values for log axis using ``exponent = log_base(value)``.
     """
 
     def __call__(self, x, pos=None):
-        'Return the format for tick val *x* at position *pos*'
+        """
+        Return the format for tick value `x`.
+
+        The position `pos` is ignored.
+        """
         b = self._base
         usetex = rcParams['text.usetex']
 
@@ -882,7 +959,9 @@ class LogFormatterMathtext(LogFormatter):
 
 
 class LogitFormatter(Formatter):
-    '''Probability formatter (using Math text)'''
+    """
+    Probability formatter (using Math text).
+    """
     def __call__(self, x, pos=None):
         s = ''
         if 0.01 <= x <= 0.99:
@@ -906,13 +985,9 @@ class LogitFormatter(Formatter):
 
 class EngFormatter(Formatter):
     """
-    Formats axis values using engineering prefixes to represent powers of 1000,
-    plus a specified unit, e.g., 10 MHz instead of 1e7.
+    Formats axis values using engineering prefixes to represent powers
+    of 1000, plus a specified unit, e.g., 10 MHz instead of 1e7.
     """
-
-    # the unicode for -6 is the greek letter mu
-    # commeted here due to bug in pep8
-    # (https://github.com/jcrocholl/pep8/issues/271)
 
     # The SI engineering prefixes
     ENG_PREFIXES = {
@@ -936,6 +1011,17 @@ class EngFormatter(Formatter):
     }
 
     def __init__(self, unit="", places=None):
+        """
+        Initializes an engineering notation formatter.
+
+        `unit` is a string containing the abbreviated name of the unit,
+        suitable for use with single-letter representations of powers of
+        1000. For example, 'Hz' or 'm'.
+
+        `places` is the percision with which to display the number,
+        specified in digits after the decimal point (there will be
+        between one and three digits before the decimal point).
+        """
         self.unit = unit
         self.places = places
 
