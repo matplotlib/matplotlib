@@ -377,14 +377,22 @@ class FormatStrFormatter(Formatter):
 class StrMethodFormatter(Formatter):
     """
     Use a new-style format string (as used by `str.format()`)
-    to format the tick.  The field formatting must be labeled `x`.
+    to format the tick.
+
+    The field used for the value must be labeled `x` and the field used
+    for the position must be labeled `pos`.
     """
     def __init__(self, fmt):
         self.fmt = fmt
 
     def __call__(self, x, pos=None):
-        'Return the format for tick val *x* at position *pos*'
-        return self.fmt.format(x=x)
+        """
+        Return the formatted label string.
+
+        `x` and `pos` are passed to `str.format` as keyword arguments
+        with those exact names.
+        """
+        return self.fmt.format(x=x, pos=pos)
 
 
 class OldScalarFormatter(Formatter):
