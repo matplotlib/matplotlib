@@ -68,7 +68,8 @@ class SphericalPolygon(object):
         point:
             array of floats of length ndim
 
-        returns:
+        Returns
+        ----------
             array of floats of length ndim
         """
 
