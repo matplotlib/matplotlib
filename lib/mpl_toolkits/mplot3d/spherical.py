@@ -12,7 +12,7 @@ from mpl_toolkits.mplot3d.art3d import Poly3DCollection
 
 class SphericalPolygon(object):
     """
-     Plots a spherical polygon onto a sphere.
+    Plots a spherical polygon onto a sphere.
     """
 
     def __init__(self,
@@ -77,9 +77,9 @@ class SphericalPolygon(object):
 
     def _subdivide(self):
         """
-         Subdivides the triangulation once by replacing every triangle
-         by four smaller triangles defined by the vertices of the original
-         triangle and the midpoints of its edges.
+        Subdivides the triangulation once by replacing every triangle
+        by four smaller triangles defined by the vertices of the original
+        triangle and the midpoints of its edges.
         """
 
         faces_subdivided = []
