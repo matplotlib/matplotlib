@@ -371,6 +371,10 @@ def _percent_format_helper(xmax, decimals, symbol, x, display_range, expected):
     formatter = mticker.PercentFormatter(xmax, decimals, symbol)
     nose.tools.assert_equal(formatter.format_pct(x, display_range), expected)
 
+    # test str.format() style formatter with `pos`
+    tmp_form = mticker.StrMethodFormatter('{x:03d}-{pos:02d}')
+    nose.tools.assert_equal('002-01', tmp_form(2, 1))
+
 
 def test_percentformatter():
     test_cases = (
