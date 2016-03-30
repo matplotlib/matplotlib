@@ -1,5 +1,4 @@
 from mpl_toolkits.mplot3d import proj3d
-from scipy.spatial import ConvexHull
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d.spherical import SphericalPolygon
 import numpy as np
@@ -22,7 +21,10 @@ sp_triangle.add_to_ax(ax, alpha=0.8, color='r')
 # plot spherical square
 points_square = np.array([[0.7, 1., 1.], [0.5, -1., 1.], [0.5, -1., -1.], [0.5, 1., -1], ])
 points_square = np.array([p / np.linalg.norm(p) for p in points_square])
-sp = SphericalPolygon(points_square, ConvexHull(points_square).simplices)
+tri = np.array([[3, 0, 1], [2, 0, 1], [2, 3, 1], [2, 3, 0]])
+# in case tri is not known, you can calculate it using
+# scipy.spatial.ConvexHull
+sp = SphericalPolygon(points_square, tri)
 sp.add_to_ax(ax, alpha=0.8, color='b')
 
 plt.show()
