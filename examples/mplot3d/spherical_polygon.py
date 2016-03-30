@@ -19,7 +19,10 @@ sp_triangle = SphericalPolygon(points_triangle)
 sp_triangle.add_to_ax(ax, alpha=0.8, color='r')
 
 # plot spherical square
-points_square = np.array([[0.7, 1., 1.], [0.5, -1., 1.], [0.5, -1., -1.], [0.5, 1., -1], ])
+points_square = np.array([[0.7, 1., 1.],
+                          [0.5, -1., 1.],
+                          [0.5, -1., -1.],
+                          [0.5, 1., -1]])
 points_square = np.array([p / np.linalg.norm(p) for p in points_square])
 tri = np.array([[3, 0, 1], [2, 0, 1], [2, 3, 1], [2, 3, 0]])
 # in case tri is not known, you can calculate it using
