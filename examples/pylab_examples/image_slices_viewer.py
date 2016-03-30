@@ -10,7 +10,7 @@ class IndexTracker(object):
 
         self.X = X
         rows, cols, self.slices = X.shape
-        self.ind = int(self.slices/2)
+        self.ind = self.slices//2
 
         self.im = ax.imshow(self.X[:, :, self.ind])
         self.update()
@@ -18,9 +18,9 @@ class IndexTracker(object):
     def onscroll(self, event):
         print("%s %s" % (event.button, event.step))
         if event.button == 'up':
-            self.ind = int(numpy.clip(self.ind + 1, 0, self.slices - 1))
+            self.ind = numpy.clip(self.ind + 1, 0, self.slices - 1)
         else:
-            self.ind = int(numpy.clip(self.ind - 1, 0, self.slices - 1))
+            self.ind = numpy.clip(self.ind - 1, 0, self.slices - 1)
         self.update()
 
     def update(self):
