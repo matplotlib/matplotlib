@@ -1670,13 +1670,14 @@ class Axes(_AxesBase):
 
         Returns
         -------
-        (lags, c, line, b) : where:
-
-          - `lags` are a length 2`maxlags+1 lag vector.
-          - `c` is the 2`maxlags+1 auto correlation vectorI
-          - `line` is a `~matplotlib.lines.Line2D` instance returned by
-            `plot`.
-          - `b` is the x-axis.
+        lags
+            a length 2`maxlags+1 lag vector
+        c
+            the 2`maxlags+1 auto correlation vectorI
+        line
+            a `~matplotlib.lines.Line2D` instance returned by `plot`
+        b
+            the x-axis
 
         Other parameters
         ----------------
@@ -1735,13 +1736,14 @@ class Axes(_AxesBase):
 
         Returns
         -------
-        (lags, c, line, b) : where:
-
-          - `lags` are a length 2`maxlags+1 lag vector.
-          - `c` is the 2`maxlags+1 auto correlation vectorI
-          - `line` is a `~matplotlib.lines.Line2D` instance returned by
-            `plot`.
-          - `b` is the x-axis (none, if plot is used).
+        lags
+            a length 2`maxlags+1 lag vector
+        c
+            the 2`maxlags+1 auto correlation vectorI
+        line
+            a `~matplotlib.lines.Line2D` instance returned by `plot`
+        b
+            the x-axis (none, if plot is used)
 
         Other parameters
         ----------------
