@@ -41,11 +41,10 @@ def builder_inited(app):
     else:
         html_only.traverse = only_base.dont_traverse
 
+
 def setup(app):
     app.add_directive('htmlonly', html_only_directive, True, (0, 0, 0))
     app.add_directive('latexonly', latex_only_directive, True, (0, 0, 0))
-    app.add_node(html_only)
-    app.add_node(latex_only)
 
     # This will *really* never see the light of day As it turns out,
     # this results in "broken" image nodes since they never get
@@ -55,14 +54,19 @@ def setup(app):
     # Add visit/depart methods to HTML-Translator:
     def visit_perform(self, node):
         pass
+
     def depart_perform(self, node):
         pass
+
     def visit_ignore(self, node):
         node.children = []
+
     def depart_ignore(self, node):
         node.children = []
 
-    app.add_node(html_only, html=(visit_perform, depart_perform))
-    app.add_node(html_only, latex=(visit_ignore, depart_ignore))
-    app.add_node(latex_only, latex=(visit_perform, depart_perform))
-    app.add_node(latex_only, html=(visit_ignore, depart_ignore))
+    app.add_node(html_only,
+                 html=(visit_perform, depart_perform),
+                 latex=(visit_ignore, depart_ignore))
+    app.add_node(latex_only,
+                 latex=(visit_perform, depart_perform),
+                 html=(visit_ignore, depart_ignore))
