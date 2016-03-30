@@ -17,7 +17,7 @@ class SphericalPolygon(object):
 
     def __init__(self,
                  vertices,
-                 tri=[[0, 1, 2]],
+                 tri=np.array([[0, 1, 2]]),
                  center=np.array([0, 0, 0]),
                  radius=1.,
                  subdivisions=None):
@@ -27,10 +27,10 @@ class SphericalPolygon(object):
         vertices:
             an array of points in 3D assumed to be on a sphere
         tri:
-            a list [[i,j,k], ...] of lists [i,j,k] of integers i,j,k, where
-            i, j, k are the indices of the vertices defining the face. (If left
-            empty, class will assume only 3 vertices in clockwise order.) See
-            also note below.
+            a np.array [[i,j,k], ...] of triples [i,j,k] of integers i,j,k,
+            where i, j, k are the indices of the vertices defining the face.
+            (If left empty, class will assume only 3 vertices in clockwise
+            order.) See also note below.
         center:
             a point in 3D defining the center of the sphere
         radius:
