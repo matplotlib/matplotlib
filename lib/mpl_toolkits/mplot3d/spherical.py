@@ -114,11 +114,11 @@ class SphericalPolygon(object):
         """
 
         if self.subdivisions is None:
-            while np.min(np.array([min(
+            while min([min(
                 np.linalg.norm(self.vertices[face[0]] - self.vertices[face[1]]),
                 np.linalg.norm(self.vertices[face[0]] - self.vertices[face[2]]),
                 np.linalg.norm(self.vertices[face[1]] - self.vertices[face[2]]))
-                                   for face in self.tri])) > self.radius * 0.2:
+                                   for face in self.tri]) > self.radius * 0.2:
                 self._subdivide()
 
         else:
