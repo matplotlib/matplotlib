@@ -118,7 +118,7 @@ default_role = 'obj'
 plot_formats = [('png', 80), ('hires.png', 200), ('pdf', 50)]
 
 # Subdirectories in 'examples/' directory of package and titles for gallery
-mpl_example_sections = (
+mpl_example_sections = [
     ('lines_bars_and_markers', 'Lines, bars, and markers'),
     ('shapes_and_collections', 'Shapes and collections'),
     ('statistics', 'Statistical plots'),
@@ -138,7 +138,7 @@ mpl_example_sections = (
     ('axes_grid', 'axes_grid toolkit'),
     ('units', 'units'),
     ('widgets', 'widgets'),
-    )
+    ]
 
 
 # Github extension
