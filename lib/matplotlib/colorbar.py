@@ -396,6 +396,40 @@ class ColorbarBase(cm.ScalarMappable):
             self.update_ticks()
         self.stale = True
 
+    def get_ticks(self):
+        locator = self.locator
+        formatter = self.formatter
+        if locator is None:
+            if self.boundaries is None:
+                if isinstance(self.norm, colors.NoNorm):
+                    nv = len(self._values)
+                    base = 1 + int(nv / 10)
+                    locator = ticker.IndexLocator(base=base, offset=0)
+                elif isinstance(self.norm, colors.BoundaryNorm):
+                    b = self.norm.boundaries
+                    locator = ticker.FixedLocator(b, nbins=10)
+                elif isinstance(self.norm, colors.LogNorm):
+                    locator = ticker.LogLocator()
+                else:
+                    locator = ticker.MaxNLocator()
+            else:
+                b = self._boundaries[self._inside]
+                locator = ticker.FixedLocator(b, nbins=10)
+        if isinstance(self.norm, colors.NoNorm) and self.boundaries is None:
+            intv = self._values[0], self._values[-1]
+        else:
+            intv = self.vmin, self.vmax
+        locator.create_dummy_axis(minpos=intv[0])
+        formatter.create_dummy_axis(minpos=intv[0])
+        locator.set_view_interval(*intv)
+        locator.set_data_interval(*intv)
+        formatter.set_view_interval(*intv)
+        formatter.set_data_interval(*intv)
+        
+        b = np.array(locator())
+        
+        return b
+
     def set_ticklabels(self, ticklabels, update_ticks=True):
         """
         set tick labels. Tick labels are updated immediately unless
