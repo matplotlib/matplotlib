@@ -24,17 +24,22 @@ class SphericalPolygon(object):
         """
         Parameters
         ----------
-        vertices: an array of points in 3D assumed to be on a sphere
-        tri: a list [[i,j,k], ...] of lists [i,j,k] of integers i,j,k, where
+        vertices:
+            an array of points in 3D assumed to be on a sphere
+        tri:
+            a list [[i,j,k], ...] of lists [i,j,k] of integers i,j,k, where
             i, j, k are the indices of the vertices defining the face. (If left
             empty, class will assume only 3 vertices in clockwise order.) See
             also note below.
-        center: a point in 3D defining the center of the sphere
-        radius: a positive double representing the radius of the sphere
-        subdivisions: an integer defining how often the triangulation of
-                      the polygon is subdivided before it is plotted. (If left
-                      empty, the class will try to guess this value such that
-                      the result looks nice.)
+        center:
+            a point in 3D defining the center of the sphere
+        radius:
+            a positive double representing the radius of the sphere
+        subdivisions:
+            an integer defining how often the triangulation of
+            the polygon is subdivided before it is plotted. (If left
+            empty, the class will try to guess this value such that
+            the result looks nice.)
 
         Note (computing triangulations)
         ------------------------------
@@ -60,9 +65,11 @@ class SphericalPolygon(object):
 
         Parameters
         ----------
-        point : array of floats of length ndim
+        point:
+            array of floats of length ndim
 
-        returns: array of floats of length ndim
+        returns:
+            array of floats of length ndim
         """
 
         length = np.linalg.norm(point - self.center)
