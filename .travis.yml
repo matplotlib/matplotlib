@@ -23,6 +23,7 @@ addons:
       - texlive-latex-recommended
       - texlive-xetex
       - graphviz
+      - libgeos-3.3.8
 #     - fonts-humor-sans
 #    sources:
 #      - debian-sid
