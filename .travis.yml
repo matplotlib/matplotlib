@@ -103,7 +103,7 @@ install:
       pip install $PRE numpydoc ipython jsonschema mistune colorspacious
       pip install -q $PRE linkchecker
       # Installing basemap from github until it's back on pypi
-      pip install https://github.com/matplotlib/basemap/archive/v1.0.7rel.tar.gz
+      pip install https://github.com/matplotlib/basemap/tarball/master
       wget https://github.com/google/fonts/blob/master/ofl/felipa/Felipa-Regular.ttf?raw=true -O Felipa-Regular.ttf
       wget http://mirrors.kernel.org/ubuntu/pool/universe/f/fonts-humor-sans/fonts-humor-sans_1.0-1_all.deb
       mkdir -p tmp
