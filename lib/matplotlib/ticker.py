@@ -2,11 +2,11 @@
 Tick locating and formatting
 ============================
 
-This module contains classes to support completely configurable tick locating
-and formatting.  Although the locators know nothing about major or minor
-ticks, they are used by the Axis class to support major and minor tick
-locating and formatting.  Generic tick locators and formatters are provided,
-as well as domain specific custom ones..
+This module contains classes to support completely configurable tick
+locating and formatting.  Although the locators know nothing about major
+or minor ticks, they are used by the Axis class to support major and
+minor tick locating and formatting.  Generic tick locators and
+formatters are provided, as well as domain specific custom ones..
 
 
 Default Formatter
@@ -35,8 +35,8 @@ Tick locating
 The Locator class is the base class for all tick locators.  The locators
 handle autoscaling of the view limits based on the data limits, and the
 choosing of tick locations.  A useful semi-automatic tick locator is
-MultipleLocator.  You initialize this with a base, e.g., 10, and it picks axis
-limits and ticks that are multiples of your base.
+MultipleLocator.  You initialize this with a base, e.g., 10, and it
+picks axis limits and ticks that are multiples of your base.
 
 The Locator subclasses defined here are
 
@@ -56,8 +56,9 @@ The Locator subclasses defined here are
     logarithmically ticks from min to max
 
 :class:`SymmetricalLogLocator`
-    locator for use with with the symlog norm, works like the `LogLocator` for
-    the part outside of the threshold and add 0 if inside the limits
+    locator for use with with the symlog norm, works like the
+    `LogLocator` for the part outside of the threshold and add 0 if
+    inside the limits
 
 :class:`MultipleLocator`
     ticks and range are a multiple of base;
@@ -790,8 +791,13 @@ class LogFormatter(Formatter):
         self.labelOnlyBase = labelOnlyBase
 
     def base(self, base):
-        """change the *base* for labeling - warning: should always match the
-           base used for :class:`LogLocator`"""
+        """
+        change the `base` for labeling.
+
+        .. warning::
+           Should always match the base used for :class:`LogLocator`
+
+        """
         self._base = base
 
     def label_minor(self, labelOnlyBase):
@@ -803,7 +809,9 @@ class LogFormatter(Formatter):
         self.labelOnlyBase = labelOnlyBase
 
     def __call__(self, x, pos=None):
-        """Return the format for tick val *x* at position *pos*"""
+        """
+        Return the format for tick val `x` at position `pos`.
+        """
         vmin, vmax = self.axis.get_view_interval()
         d = abs(vmax - vmin)
         b = self._base
@@ -834,7 +842,9 @@ class LogFormatter(Formatter):
         return value
 
     def format_data_short(self, value):
-        'return a short formatted string representation of a number'
+        """
+        Return a short formatted string representation of a number.
+        """
         return '%-12g' % value
 
     def pprint_val(self, x, d):
@@ -872,7 +882,7 @@ class LogFormatter(Formatter):
 
 class LogFormatterExponent(LogFormatter):
     """
-    Format values for log axis using ``exponent = log_base(value)``
+    Format values for log axis using ``exponent = log_base(value)``.
     """
     def __call__(self, x, pos=None):
         """
