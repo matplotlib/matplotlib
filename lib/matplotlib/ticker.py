@@ -282,7 +282,7 @@ class Formatter(TickHelper):
         """
         Return a short string version of the tick value.
 
-        Defaults to the position-indepedent long value.
+        Defaults to the position-independent long value.
         """
         return self.format_data(value)
 
@@ -400,7 +400,7 @@ class FormatStrFormatter(Formatter):
     Use an old-style ('%' operator) format string to format the tick.
 
     The format string should have a single variable format (%) in it.
-    It will be applied to the value (not the postition) of the tick.
+    It will be applied to the value (not the position) of the tick.
     """
     def __init__(self, fmt):
         self.fmt = fmt
@@ -489,19 +489,16 @@ class OldScalarFormatter(Formatter):
 class ScalarFormatter(Formatter):
     """
     Format tick values as a number.
+
+    Tick value is interpreted as a plain old number. If
+    ``useOffset==True`` and the data range is much smaller than the data
+    average, then an offset will be determined such that the tick labels
+    are meaningful. Scientific notation is used for ``data < 10^-n`` or
+    ``data >= 10^m``, where ``n`` and ``m`` are the power limits set
+    using ``set_powerlimits((n,m))``. The defaults for these are
+    controlled by the ``axes.formatter.limits`` rc parameter.
     """
     def __init__(self, useOffset=None, useMathText=None, useLocale=None):
-        """
-        Tick value is interpreted as a plain old number. If
-        ``useOffset==True`` and the data range is much smaller than the
-        data average, then an offset will be determined such that the
-        tick labels are meaningful. Scientific notation is used for
-        ``data < 10^-n`` or ``data >= 10^m``, where ``n`` and ``m`` are
-        the power limits set using ``set_powerlimits((n,m))``. The
-        defaults for these are controlled by the
-        ``axes.formatter.limits`` rc parameter.
-        """
-
         # useOffset allows plotting small data ranges with large offsets: for
         # example: [1+1e-9,1+2e-9,1+3e-9] useMathText will render the offset
         # and scientific notation in mathtext
@@ -555,7 +552,9 @@ class ScalarFormatter(Formatter):
             return s.replace('-', '\u2212')
 
     def __call__(self, x, pos=None):
-        'Return the format for tick val *x* at position *pos*'
+        """
+        Return the format for tick value `x` at position `pos`.
+        """
         if len(self.locs) == 0:
             return ''
         else:
@@ -574,7 +573,7 @@ class ScalarFormatter(Formatter):
         """
         Sets size thresholds for scientific notation.
 
-        Limits is a two-element sequence containing the powers of 10
+        ``lims`` is a two-element sequence containing the powers of 10
         that determine the switchover threshold. Numbers below
         ``10**lims[0]`` and above ``10**lims[1]`` will be displayed in
         scientific notation.
@@ -997,8 +996,15 @@ class EngFormatter(Formatter):
     """
     Formats axis values using engineering prefixes to represent powers
     of 1000, plus a specified unit, e.g., 10 MHz instead of 1e7.
-    """
 
+    `unit` is a string containing the abbreviated name of the unit,
+    suitable for use with single-letter representations of powers of
+    1000. For example, 'Hz' or 'm'.
+
+    `places` is the percision with which to display the number,
+    specified in digits after the decimal point (there will be between
+    one and three digits before the decimal point).
+    """
     # The SI engineering prefixes
     ENG_PREFIXES = {
         -24: "y",
@@ -1021,17 +1027,6 @@ class EngFormatter(Formatter):
     }
 
     def __init__(self, unit="", places=None):
-        """
-        Initializes an engineering notation formatter.
-
-        `unit` is a string containing the abbreviated name of the unit,
-        suitable for use with single-letter representations of powers of
-        1000. For example, 'Hz' or 'm'.
-
-        `places` is the percision with which to display the number,
-        specified in digits after the decimal point (there will be
-        between one and three digits before the decimal point).
-        """
         self.unit = unit
         self.places = places
 
