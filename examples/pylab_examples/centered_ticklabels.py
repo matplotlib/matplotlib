@@ -45,6 +45,6 @@ for tick in ax.xaxis.get_minor_ticks():
     tick.tick2line.set_markersize(0)
     tick.label1.set_horizontalalignment('center')
 
-imid = len(r)/2
+imid = len(r)//2
 ax.set_xlabel(str(r.date[imid].year))
 plt.show()

@@ -255,14 +255,14 @@ class GridFinder(GridFinderBase):
 
 
 class MaxNLocator(mticker.MaxNLocator):
-    def __init__(self, nbins = 10, steps = None,
-                 trim = True,
+    def __init__(self, nbins=10, steps=None,
+                 trim=True,
                  integer=False,
                  symmetric=False,
                  prune=None):
-
+        # trim argument has no effect. It has been left for API compatibility
         mticker.MaxNLocator.__init__(self, nbins, steps=steps,
-                                     trim=trim, integer=integer,
+                                     integer=integer,
                                      symmetric=symmetric, prune=prune)
         self.create_dummy_axis()
         self._factor = None
