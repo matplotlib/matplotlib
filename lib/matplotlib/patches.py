@@ -4056,7 +4056,7 @@ class FancyArrowPatch(Patch):
     def set_dpi_cor(self, dpi_cor):
         """
         dpi_cor is currently used for linewidth-related things and
-        shrink factor. Mutation scale *is now* affected by this.
+        shrink factor. Mutation scale is affected by this.
         """
 
         self._dpi_cor = dpi_cor
