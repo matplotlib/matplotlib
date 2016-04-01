@@ -53,12 +53,12 @@ cmaps = [('Perceptually Uniform Sequential',
          ('Qualitative',    ['Accent', 'Dark2', 'Paired', 'Pastel1',
                              'Pastel2', 'Set1', 'Set2', 'Set3', 'Vega10',
                              'Vega20', 'Vega20b', 'Vega20c']),
+         ('Perceptually Uniform Cyclic', ['twilight', 'sunlight']),
          ('Miscellaneous',  ['gist_earth', 'terrain', 'ocean', 'gist_stern',
                              'brg', 'CMRmap', 'cubehelix',
                              'gnuplot', 'gnuplot2', 'gist_ncar',
                              'nipy_spectral', 'jet', 'rainbow',
-                             'gist_rainbow', 'hsv', 'flag', 'prism']),
-         ('Perceptually Uniform Cyclic', ['twilight', 'sunlight'])]
+                             'gist_rainbow', 'hsv', 'flag', 'prism'])]
 
 
 nrows = max(len(cmap_list) for cmap_category, cmap_list in cmaps)
