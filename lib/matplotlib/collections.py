@@ -679,6 +679,14 @@ class Collection(artist.Artist, cm.ScalarMappable):
         """
         if alpha is not None:
             try:
+                # Check if alpha is an array of matching size
+                alpha = ma.asarray(alpha)
+                if alpha.ndim == 1:
+                    artist.Artist.set_alpha(self, alpha)
+                    return
+            except AttributeError:
+                pass
+            try:
                 float(alpha)
             except TypeError:
                 raise TypeError('alpha must be a float or None')
