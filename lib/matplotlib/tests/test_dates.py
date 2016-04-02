@@ -9,6 +9,8 @@ import warnings
 import tempfile
 
 import dateutil
+import pytz
+
 try:
     # mock in python 3.3+
     from unittest import mock
@@ -353,6 +355,78 @@ def test_date_inverted_limit():
                 tf + datetime.timedelta(days=5))
     ax.invert_yaxis()
     fig.subplots_adjust(left=0.25)
+
+
+def test_date2num_dst():
+    # Test for github issue #3896, but in date2num around DST transitions
+    # with a timezone-aware pandas date_range object.
+
+    class dt_tzaware(datetime.datetime):
+        """
+        This bug specifically occurs because of the normalization behavior of
+        pandas Timestamp objects, so in order to replicate it, we need a
+        datetime-like object that applies timezone normalization after
+        subtraction.
+        """
+        def __sub__(self, other):
+            r = super(dt_tzaware, self).__sub__(other)
+            tzinfo = getattr(r, 'tzinfo', None)
+
+            if tzinfo is not None:
+                localizer = getattr(tzinfo, 'normalize', None)
+                if localizer is not None:
+                    r = tzinfo.normalize(r)
+
+            if isinstance(r, datetime.datetime):
+                r = self.mk_tzaware(r)
+
+            return r
+
+        def __add__(self, other):
+            return self.mk_tzaware(super(dt_tzaware, self).__add__(other))
+
+        def astimezone(self, tzinfo):
+            dt = super(dt_tzaware, self).astimezone(tzinfo)
+            return self.mk_tzaware(dt)
+
+        @classmethod
+        def mk_tzaware(cls, datetime_obj):
+            kwargs = {}
+            attrs = ('year',
+                     'month',
+                     'day',
+                     'hour',
+                     'minute',
+                     'second',
+                     'microsecond',
+                     'tzinfo')
+
+            for attr in attrs:
+                val = getattr(datetime_obj, attr, None)
+                if val is not None:
+                    kwargs[attr] = val
+
+            return cls(**kwargs)
+
+    # Timezones
+    BRUSSELS = pytz.timezone('Europe/Brussels')
+    UTC = pytz.UTC
+
+    # Create a list of timezone-aware datetime objects in UTC
+    # Interval is 0b0.0000011 days, to prevent float rounding issues
+    dtstart = dt_tzaware(2014, 3, 30, 0, 0, tzinfo=UTC)
+    interval = datetime.timedelta(minutes=33, seconds=45)
+    interval_days = 0.0234375   # 2025 / 86400 seconds
+    N = 8
+
+    dt_utc = [dtstart + i * interval for i in range(N)]
+    dt_bxl = [d.astimezone(BRUSSELS) for d in dt_utc]
+
+    expected_ordinalf = [735322.0 + (i * interval_days) for i in range(N)]
+
+    actual_ordinalf = list(mdates.date2num(dt_bxl))
+
+    assert_equal(actual_ordinalf, expected_ordinalf)
 
 
 if __name__ == '__main__':

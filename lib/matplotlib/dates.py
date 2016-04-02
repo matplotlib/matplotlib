@@ -212,23 +212,24 @@ def _to_ordinalf(dt):
     days, preserving hours, minutes, seconds and microseconds.  Return value
     is a :func:`float`.
     """
-
-    if hasattr(dt, 'tzinfo') and dt.tzinfo is not None:
-        delta = dt.tzinfo.utcoffset(dt)
-        if delta is not None:
-            dt -= delta
+    # Convert to UTC
+    tzi = getattr(dt, 'tzinfo', None)
+    if tzi is not None:
+        dt = dt.astimezone(UTC)
+        tzi = UTC
 
     base = float(dt.toordinal())
-    if isinstance(dt, datetime.datetime):
-        # Get a datetime object at midnight in the same time zone as dt.
-        cdate = dt.date()
-        midnight_time = datetime.time(0, 0, 0, tzinfo=dt.tzinfo)
+
+    # If it's sufficiently datetime-like, it will have a `date()` method
+    cdate = getattr(dt, 'date', lambda: None)()
+    if cdate is not None:
+        # Get a datetime object at midnight UTC
+        midnight_time = datetime.time(0, tzinfo=tzi)
 
         rdt = datetime.datetime.combine(cdate, midnight_time)
-        td_remainder = _total_seconds(dt - rdt)
 
-        if td_remainder > 0:
-            base += td_remainder / SEC_PER_DAY
+        # Append the seconds as a fraction of a day
+        base += _total_seconds(dt - rdt) / SEC_PER_DAY
 
     return base
 
