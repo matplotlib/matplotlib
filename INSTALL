@@ -226,8 +226,11 @@ matplotlib with a user interface toolkit. See
 :ref:`what-is-a-backend` for more details on the optional matplotlib
 backends and the capabilities they provide.
 
-:term:`tk` 8.3 or later
-    The TCL/Tk widgets library used by the TkAgg backend
+:term:`tk` 8.3 or later, not 8.6.0 or 8.6.1
+    The TCL/Tk widgets library used by the TkAgg backend.
+
+    Versions 8.6.0 and 8.6.1 are known to have issues that may result
+    in segfaults when closing multiple windows in the wrong order.
 
 :term:`pyqt` 4.0 or later
     The Qt4 widgets library python wrappers for the Qt4Agg backend
