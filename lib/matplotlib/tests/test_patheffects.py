@@ -17,9 +17,6 @@ except ImportError:
     import mock
 from nose.tools import assert_equal
 
-import sys
-on_win = (sys.platform == 'win32')
-
 
 @image_comparison(baseline_images=['patheffect1'], remove_text=True)
 def test_patheffect1():
