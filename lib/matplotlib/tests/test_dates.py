@@ -17,6 +17,7 @@ try:
 except ImportError:
     import mock
 from nose.tools import assert_raises, assert_equal
+from nose.plugins.skip import SkipTest
 
 from matplotlib.testing.decorators import image_comparison, cleanup
 import matplotlib.pyplot as plt
@@ -357,6 +358,27 @@ def test_date_inverted_limit():
     fig.subplots_adjust(left=0.25)
 
 
+def _test_date2num_dst(date_range, tz_convert):
+    # Timezones
+    BRUSSELS = pytz.timezone('Europe/Brussels')
+    UTC = pytz.UTC
+
+    # Create a list of timezone-aware datetime objects in UTC
+    # Interval is 0b0.0000011 days, to prevent float rounding issues
+    dtstart = datetime.datetime(2014, 3, 30, 0, 0, tzinfo=UTC)
+    interval = datetime.timedelta(minutes=33, seconds=45)
+    interval_days = 0.0234375   # 2025 / 86400 seconds
+    N = 8
+
+    dt_utc = date_range(start=dtstart, freq=interval, periods=N)
+    dt_bxl = tz_convert(dt_utc, BRUSSELS)
+
+    expected_ordinalf = [735322.0 + (i * interval_days) for i in range(N)]
+    actual_ordinalf = list(mdates.date2num(dt_bxl))
+
+    assert_equal(actual_ordinalf, expected_ordinalf)
+
+
 def test_date2num_dst():
     # Test for github issue #3896, but in date2num around DST transitions
     # with a timezone-aware pandas date_range object.
@@ -408,25 +430,31 @@ def test_date2num_dst():
 
             return cls(**kwargs)
 
-    # Timezones
-    BRUSSELS = pytz.timezone('Europe/Brussels')
-    UTC = pytz.UTC
+    # Define a date_range function similar to pandas.date_range
+    def date_range(start, freq, periods):
+        dtstart = dt_tzaware.mk_tzaware(start)
 
-    # Create a list of timezone-aware datetime objects in UTC
-    # Interval is 0b0.0000011 days, to prevent float rounding issues
-    dtstart = dt_tzaware(2014, 3, 30, 0, 0, tzinfo=UTC)
-    interval = datetime.timedelta(minutes=33, seconds=45)
-    interval_days = 0.0234375   # 2025 / 86400 seconds
-    N = 8
+        return [dtstart + (i * freq) for i in range(periods)]
 
-    dt_utc = [dtstart + i * interval for i in range(N)]
-    dt_bxl = [d.astimezone(BRUSSELS) for d in dt_utc]
+    # Define a tz_convert function that converts a list to a new time zone.
+    def tz_convert(dt_list, tzinfo):
+        return [d.astimezone(tzinfo) for d in dt_list]
 
-    expected_ordinalf = [735322.0 + (i * interval_days) for i in range(N)]
+    _test_date2num_dst(date_range, tz_convert)
 
-    actual_ordinalf = list(mdates.date2num(dt_bxl))
 
-    assert_equal(actual_ordinalf, expected_ordinalf)
+def test_date2num_dst_pandas():
+    # Test for github issue #3896, but in date2num around DST transitions
+    # with a timezone-aware pandas date_range object.
+    try:
+        import pandas as pd
+    except ImportError:
+        raise SkipTest('pandas not installed')
+
+    def tz_convert(*args):
+        return pd.DatetimeIndex.tz_convert(*args).astype(datetime.datetime)
+
+    _test_date2num_dst(pd.date_range, tz_convert)
 
 
 if __name__ == '__main__':
