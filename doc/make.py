@@ -138,7 +138,7 @@ funcd = {
 
 
 small_docs = False
-warnings_as_errors = False
+warnings_as_errors = True
 
 # Change directory to the one containing this file
 current_dir = os.getcwd()
@@ -185,14 +185,14 @@ parser.add_argument("cmd", help=("Command to execute. Can be multiple. "
 parser.add_argument("--small",
                     help="Smaller docs with only low res png figures",
                     action="store_true")
-parser.add_argument("--warningsaserrors",
-                    help="Turn Sphinx warnings into errors",
+parser.add_argument("--allowsphinxwarnings",
+                    help="Don't turn Sphinx warnings into errors",
                     action="store_true")
 args = parser.parse_args()
 if args.small:
     small_docs = True
-if args.warningsaserrors:
-    warnings_as_errors = True
+if args.allowsphinxwarnings:
+    warnings_as_errors = False
 
 if args.cmd:
     for command in args.cmd:
