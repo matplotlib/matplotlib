@@ -829,13 +829,13 @@ class LogFormatter(Formatter):
     """
     Format values for log axis.
     """
-    def __init__(self, base=10.0, labelOnlyBase=True):
+    def __init__(self, base=10.0, label_only_base=True):
         """
         `base` is used to locate the decade tick, which will be the only
-        one to be labeled if `labelOnlyBase` is ``True``.
+        one to be labeled if `label_only_base` is ``True``.
         """
         self._base = base + 0.0
-        self.labelOnlyBase = labelOnlyBase
+        self.label_only_base = label_only_base
         self.sublabel = [1, ]
 
     def base(self, base):
@@ -848,13 +848,13 @@ class LogFormatter(Formatter):
         """
         self._base = base
 
-    def label_minor(self, labelOnlyBase):
+    def label_minor(self, label_only_base):
         """
-        Switch minor tick labeling on or off.
+        Switch intermediate tick labeling on or off.
 
-        ``labelOnlyBase=True`` to turn off minor ticks.
+        ``label_only_base=True`` to turn off minor (non-decade) ticks.
         """
-        self.labelOnlyBase = labelOnlyBase
+        self.label_only_base = label_only_base
 
     def set_locs(self, locs):
         b = self._base
@@ -903,11 +903,11 @@ class LogFormatter(Formatter):
         x = abs(x)
         # only label the decades
         fx = math.log(x) / math.log(b)
-        isDecade = is_close_to_int(fx)
-        exponent = np.round(fx) if isDecade else np.floor(fx)
+        is_decade = is_close_to_int(fx)
+        exponent = np.round(fx) if is_decade else np.floor(fx)
         coeff = np.round(x / b ** exponent)
         if coeff in self.sublabel:
-            if not isDecade and self.labelOnlyBase:
+            if not is_decade and self.label_only_base:
                 return ''
             elif x > 10000:
                 s = '%1.0e' % x
@@ -923,10 +923,10 @@ class LogFormatter(Formatter):
         return self.fix_minus(s)
 
     def format_data(self, value):
-        b = self.labelOnlyBase
-        self.labelOnlyBase = False
+        b = self.label_only_base
+        self.label_only_base = False
         value = cbook.strip_math(self.__call__(value))
-        self.labelOnlyBase = b
+        self.label_only_base = b
         return value
 
     def format_data_short(self, value):
@@ -987,8 +987,8 @@ class LogFormatterExponent(LogFormatter):
         sign = np.sign(x)
         # only label the decades
         fx = math.log(abs(x)) / math.log(b)
-        isDecade = is_close_to_int(fx)
-        if not isDecade and self.labelOnlyBase:
+        is_decade = is_close_to_int(fx)
+        if not is_decade and self.label_only_base:
             s = ''
         elif abs(fx) > 10000:
             s = '%1.0g' % fx
@@ -1046,7 +1046,7 @@ class LogFormatterMathtext(LogFormatter):
             base = '%s' % b
 
         if coeff in self.sublabel:
-            if not is_decade and self.labelOnlyBase:
+            if not is_decade and self.label_only_basee:
                 return ''
             elif not is_decade:
                 return self._non_decade_format(sign_string, base, fx, usetex)
@@ -1068,9 +1068,9 @@ class LogFormatterSciNotation(LogFormatterMathtext):
     Format values following scientific notation in a logarithmic axis
     """
 
-    def __init__(self, base=10.0, labelOnlyBase=False):
+    def __init__(self, base=10.0, label_only_base=False):
         super(LogFormatterSciNotation, self).__init__(base=base,
-                labelOnlyBase=labelOnlyBase)
+                label_only_base=label_only_base)
 
     def _non_decade_format(self, sign_string, base, fx, usetex):
         'Return string for non-decade locations'
