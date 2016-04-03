@@ -1285,6 +1285,13 @@ def test_scatter_2D():
     fig, ax = plt.subplots()
     ax.scatter(x, y, c=z, s=200, edgecolors='face')
 
+@cleanup
+def test_scatter_color():
+    # Try to catch cases where 'c' kwarg should have been used.
+    assert_raises(ValueError, plt.scatter, [1, 2], [1, 2],
+                  color=[0.1, 0.2])
+    assert_raises(ValueError, plt.scatter, [1, 2, 3], [1, 2, 3],
+                  color=[1, 2, 3])
 
 @cleanup
 def test_as_mpl_axes_api():
