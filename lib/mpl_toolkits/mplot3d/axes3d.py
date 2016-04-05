@@ -3288,6 +3288,98 @@ pivot='tail', normalize=False, **kwargs)
                     batch.append(axis_bb)
         return mtransforms.Bbox.union(batch)
 
+    def stem(self, *args, **kwargs):
+        """
+        Create a 3D stem plot.
+
+        Call signatures::
+          stem3(x, y, z, linefmt='b-', markerfmt='bo', basefmt='r-',
+                zdir={'x'|'y'|'z'|'-x'|'-y'})
+
+        By default, stem plots vertical lines (using *linefmt*) in the z
+        direction at each *x* and *y* location from the baseline to *z*, and
+        places a marker there using *markerfmt*. By default, the baseline at
+        the xy-plane is plotted using *basefmt*.
+
+        *x*, *y, and *z* values are required and must be arrays of the same
+        length.
+
+        If no zdir value is provided, then it is set to default and no rotation
+        occurs.
+
+        Return value is a tuple (*markerline*, *stemlines*, *baseline*).
+
+        .. seealso::
+            This `document
+            <http://www.mathworks.com/help/techdoc/ref/stem3.html>`_ for
+            details.
+
+        **Example:**
+        .. plot:: /mplot3d/stem3d_demo.py
+        """
+
+        from matplotlib.container import StemContainer
+
+        had_data = self.has_data()
+
+        # Extract the required values
+        x, y, z = [np.asarray(i) for i in args[:3]]
+        args = args[3:]
+
+        # Popping some defaults
+        try:
+            linefmt = kwargs.pop('linefmt', args[0])
+        except IndexError:
+            linefmt = kwargs.pop('linefmt', 'b-')
+        try:
+            markerfmt = kwargs.pop('markerfmt', args[1])
+        except IndexError:
+            markerfmt = kwargs.pop('markerfmt', 'bo')
+        try:
+            basefmt = kwargs.pop('basefmt', args[2])
+        except IndexError:
+            basefmt = kwargs.pop('basefmt', 'r-')
+        try:
+            zdir = kwargs.pop('zdir', args[3])
+        except IndexError:
+            zdir = kwargs.pop('zdir', 'z')
+
+        bottom = kwargs.pop('bottom', None)
+        label = kwargs.pop('label', None)
+
+        if bottom is None:
+            bottom = 0
+
+        stemlines = []
+        jx, jy, jz = art3d.juggle_axes(x, y, z, zdir)
+
+        # plot the baseline in the appropriate plane
+        for i in range(len(x)-1):
+            baseline, = Axes.plot(self, [x[i], x[i+1]], [y[i], y[i+1]],
+                                  basefmt, label="_nolegend_")
+            art3d.line_2d_to_3d(baseline, [bottom, bottom], zdir)
+
+        # plot the stemlines based on the value of rotate
+        for thisx, thisy, thisz in zip(x, y, z):
+            l, = Axes.plot(self, [thisx, thisx], [thisy, thisy], linefmt,
+                           label="_nolegend_")
+            art3d.line_2d_to_3d(l, [bottom, thisz], zdir)
+
+            stemlines.append(l)
+
+        markerline, = Axes.plot(self, x, y, markerfmt, label="_nolegend_")
+        art3d.line_2d_to_3d(markerline, z, zdir)
+
+        stem_container = StemContainer((markerline, stemlines, baseline),
+                                       label=label)
+        self.add_container(stem_container)
+
+        self.auto_scale_xyz(jx, jy, jz, had_data)
+
+        return stem_container
+
+    stem3D = stem
+
 docstring.interpd.update(Axes3D_kwdoc=artist.kwdoc(Axes3D))
 docstring.dedent_interpd(Axes3D.__init__)
 
