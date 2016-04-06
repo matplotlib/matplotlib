@@ -1384,7 +1384,7 @@ class Cycler(SetupPackage):
         return "using cycler version %s" % cycler.__version__
 
     def get_install_requires(self):
-        return ['cycler']
+        return ['cycler>=0.9']
 
 
 class Dateutil(SetupPackage):

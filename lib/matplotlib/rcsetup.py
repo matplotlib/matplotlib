@@ -726,15 +726,7 @@ def cycler(*args, **kwargs):
         if not isinstance(args[0], Cycler):
             raise TypeError("If only one positional argument given, it must "
                             " be a Cycler instance.")
-
-        c = args[0]
-        unknowns = c.keys - (set(_prop_validators.keys()) |
-                             set(_prop_aliases.keys()))
-        if unknowns:
-            # This is about as much validation I can do
-            raise TypeError("Unknown artist properties: %s" % unknowns)
-        else:
-            return Cycler(c)
+        return validate_cycler(args[0])
     elif len(args) == 2:
         pairs = [(args[0], args[1])]
     elif len(args) > 2:
@@ -788,6 +780,17 @@ def validate_cycler(s):
         cycler_inst = s
     else:
         raise ValueError("object was not a string or Cycler instance: %s" % s)
+
+    unknowns = cycler_inst.keys - (set(_prop_validators.keys()) |
+                                   set(_prop_aliases.keys()))
+    if unknowns:
+        raise ValueError("Unknown artist properties: %s" % unknowns)
+
+    # Not a full validation, but it'll at least normalize property names
+    # A fuller validation would require v0.10 of cycler.
+    for prop in cycler_inst.keys:
+        norm_prop = _prop_aliases.get(prop, prop)
+        cycler_inst.change_key(prop, norm_prop)
 
     return cycler_inst
 
