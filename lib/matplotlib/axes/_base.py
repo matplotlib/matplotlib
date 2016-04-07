@@ -1249,7 +1249,7 @@ class _AxesBase(martist.Artist):
                     '1.2', name='normal', alternative='auto', obj_type='aspect')
                 self._aspect = 'auto'
             else:
-               raise ValueError("error in aspect")
+                raise ValueError("error in aspect")
 
         if adjustable is not None:
             self.set_adjustable(adjustable)
