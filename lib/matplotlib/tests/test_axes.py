@@ -28,6 +28,7 @@ from numpy.testing import assert_allclose, assert_array_equal
 import warnings
 from matplotlib.cbook import IgnoredKeywordWarning
 
+
 # Note: Some test cases are run twice: once normally and once with labeled data
 #       These two must be defined in the same test function or need to have
 #       different baseline images to prevent race conditions when nose runs
@@ -1792,11 +1793,11 @@ def test_boxplot_sym():
 def test_boxplot_autorange_whiskers():
     x = np.ones(140)
     x = np.hstack([0, x, 2])
-    
+
     fig1, ax1 = plt.subplots()
     ax1.boxplot([x, x], bootstrap=10000, notch=1)
     ax1.set_ylim((-5, 5))
-    
+
     fig2, ax2 = plt.subplots()
     ax2.boxplot([x, x], bootstrap=10000, notch=1, autorange=True)
     ax2.set_ylim((-5, 5))
@@ -2759,7 +2760,7 @@ def test_subplot_key_hash():
 
 @image_comparison(baseline_images=['specgram_freqs',
                                    'specgram_freqs_linear'],
-                  remove_text=True, extensions=['png'], tol=0.03)
+                  remove_text=True, extensions=['png'], tol=0.07)
 def test_specgram_freqs():
     '''test axes.specgram in default (psd) mode with sinusoidal stimuli'''
     n = 10000
@@ -2859,7 +2860,7 @@ def test_specgram_noise():
 
 @image_comparison(baseline_images=['specgram_magnitude_freqs',
                                    'specgram_magnitude_freqs_linear'],
-                  remove_text=True, extensions=['png'], tol=0.03)
+                  remove_text=True, extensions=['png'], tol=0.07)
 def test_specgram_magnitude_freqs():
     '''test axes.specgram in magnitude mode with sinusoidal stimuli'''
     n = 10000
@@ -2960,7 +2961,7 @@ def test_specgram_magnitude_noise():
 
 
 @image_comparison(baseline_images=['specgram_angle_freqs'],
-                  remove_text=True, extensions=['png'])
+                  remove_text=True, extensions=['png'], tol=0.007)
 def test_specgram_angle_freqs():
     '''test axes.specgram in angle mode with sinusoidal stimuli'''
     n = 10000

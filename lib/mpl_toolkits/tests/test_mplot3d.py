@@ -149,7 +149,7 @@ def test_text3d():
     ax.set_zlabel('Z axis')
 
 
-@image_comparison(baseline_images=['trisurf3d'], remove_text=True)
+@image_comparison(baseline_images=['trisurf3d'], remove_text=True, tol=0.03)
 def test_trisurf3d():
     n_angles = 36
     n_radii = 8
