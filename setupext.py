@@ -1316,6 +1316,13 @@ class BackendTkAgg(OptionalBackendPackage):
             if Tkinter.TkVersion < 8.3:
                 raise CheckFailed("Tcl/Tk v8.3 or later required.")
 
+        patch_level = Tkinter.Tcl().call('info', 'patchlevel')
+        black_list = ('8.6.0', '8.6.1')
+        if patch_level in black_list:
+            raise CheckFailed('TkAgg found patch level {!r} '
+                              'which is known to segfault.  Do not use any '
+                              'of {!r}'.format(patch_level, black_list))
+
         ext = self.get_extension()
         check_include_file(ext.include_dirs, "tk.h", "Tk")
 
