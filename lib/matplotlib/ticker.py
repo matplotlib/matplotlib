@@ -131,6 +131,8 @@ axis.
 :class:`LogFormatter`
     formatter for log axes
 
+:class:`PercentFormatter`
+    Format labels as a percentage
 
 You can derive your own formatter from the Formatter base class by
 simply overriding the ``__call__`` method.  The formatter class has access
@@ -164,6 +166,18 @@ from matplotlib import transforms as mtransforms
 from matplotlib.cbook import mplDeprecation
 
 import warnings
+
+
+__all__ = ('TickHelper', 'Formatter', 'FixedFormatter',
+           'NullFormatter', 'FuncFormatter', 'FormatStrFormatter',
+           'StrMethodFormatter', 'ScalarFormatter', 'LogFormatter',
+           'LogFormatterExponent', 'LogFormatterMathtext',
+           'LogitFormatter', 'EngFormatter', 'PercentFormatter',
+           'Locator', 'IndexLocator', 'FixedLocator', 'NullLocator',
+           'LinearLocator', 'LogLocator', 'AutoLocator',
+           'MultipleLocator', 'MaxNLocator', 'AutoMinorLocator',
+           'SymmetricalLogLocator')
+
 
 if six.PY3:
     long = int
@@ -922,8 +936,10 @@ class EngFormatter(Formatter):
         return self.fix_minus(s)
 
     def format_eng(self, num):
-        """ Formats a number in engineering notation, appending a letter
-        representing the power of 1000 of the original number. Some examples:
+        """
+        Formats a number in engineering notation, appending a letter
+        representing the power of 1000 of the original number.
+        Some examples:
 
         >>> format_eng(0)       # for self.places = 0
         '0'
@@ -934,13 +950,9 @@ class EngFormatter(Formatter):
         >>> format_eng("-1e-6") # for self.places = 2
         u'-1.00 \u03bc'
 
-        @param num: the value to represent
-        @type num: either a numeric value or a string that can be converted to
-                   a numeric value (as per decimal.Decimal constructor)
-
-        @return: engineering formatted string
+        `num` may be a numeric value or a string that can be converted
+        to a numeric value with the `decimal.Decimal` constructor.
         """
-
         dnum = decimal.Decimal(str(num))
 
         sign = 1
@@ -971,6 +983,90 @@ class EngFormatter(Formatter):
         formatted = format_str % (mant, prefix)
 
         return formatted.strip()
+
+
+class PercentFormatter(Formatter):
+    """
+    Format numbers as a percentage.
+
+    How the number is converted into a percentage is determined by the
+    `xmax` parameter. `xmax` is the data value that corresponds to 100%.
+    Percentages are computed as ``x / xmax * 100``. So if the data is
+    already scaled to be percentages, `xmax` will be 100. Another common
+    situation is where `xmax` is 1.0.
+
+    `symbol` is a string which will be appended to the label. It may be
+    `None` or empty to indicate that no symbol should be used.
+
+    `decimals` is the number of decimal places to place after the point.
+    If it is set to `None` (the default), the number will be computed
+    automatically.
+    """
+    def __init__(self, xmax=100, decimals=None, symbol='%'):
+        self.xmax = xmax + 0.0
+        self.decimals = decimals
+        self.symbol = symbol
+
+    def __call__(self, x, pos=None):
+        """
+        Formats the tick as a percentage with the appropriate scaling.
+        """
+        ax_min, ax_max = self.axis.get_view_interval()
+        display_range = abs(ax_max - ax_min)
+
+        return self.fix_minus(self.format_pct(x, display_range))
+
+    def format_pct(self, x, display_range):
+        """
+        Formats the number as a percentage number with the correct
+        number of decimals and adds the percent symbol, if any.
+
+        If `self.decimals` is `None`, the number of digits after the
+        decimal point is set based on the `display_range` of the axis
+        as follows:
+
+        +---------------+----------+------------------------+
+        | display_range | decimals |          sample        |
+        +---------------+----------+------------------------+
+        | >50           |     0    | ``x = 34.5`` => 35%    |
+        +---------------+----------+------------------------+
+        | >5            |     1    | ``x = 34.5`` => 34.5%  |
+        +---------------+----------+------------------------+
+        | >0.5          |     2    | ``x = 34.5`` => 34.50% |
+        +---------------+----------+------------------------+
+        |      ...      |    ...   |          ...           |
+        +---------------+----------+------------------------+
+
+        This method will not be very good for tiny axis ranges or
+        extremely large ones. It assumes that the values on the chart
+        are percentages displayed on a reasonable scale.
+        """
+        x = self.convert_to_pct(x)
+        if self.decimals is None:
+            # conversion works because display_range is a difference
+            scaled_range = self.convert_to_pct(display_range)
+            if scaled_range <= 0:
+                decimals = 0
+            else:
+                # Luckily Python's built-in ceil rounds to +inf, not away from
+                # zero. This is very important since the equation for decimals
+                # starts out as `scaled_range > 0.5 * 10**(2 - decimals)`
+                # and ends up with `decimals > 2 - log10(2 * scaled_range)`.
+                decimals = math.ceil(2.0 - math.log10(2.0 * scaled_range))
+                if decimals > 5:
+                    decimals = 5
+                elif decimals < 0:
+                    decimals = 0
+        else:
+            decimals = self.decimals
+        s = '{x:0.{decimals}f}'.format(x=x, decimals=int(decimals))
+
+        if self.symbol:
+            return s + self.symbol
+        return s
+
+    def convert_to_pct(self, x):
+        return 100.0 * (x / self.xmax)
 
 
 class Locator(TickHelper):
@@ -2055,13 +2151,3 @@ class OldAutoLocator(Locator):
             locator = MultipleLocator(ticksize)
 
         return locator
-
-
-__all__ = ('TickHelper', 'Formatter', 'FixedFormatter',
-           'NullFormatter', 'FuncFormatter', 'FormatStrFormatter',
-           'StrMethodFormatter', 'ScalarFormatter', 'LogFormatter',
-           'LogFormatterExponent', 'LogFormatterMathtext', 'Locator',
-           'IndexLocator', 'FixedLocator', 'NullLocator',
-           'LinearLocator', 'LogLocator', 'AutoLocator',
-           'MultipleLocator', 'MaxNLocator', 'AutoMinorLocator',
-           'SymmetricalLogLocator')
