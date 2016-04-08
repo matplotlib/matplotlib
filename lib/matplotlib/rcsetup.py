@@ -781,13 +781,29 @@ def validate_cycler(s):
     else:
         raise ValueError("object was not a string or Cycler instance: %s" % s)
 
-    unknowns = cycler_inst.keys - (set(_prop_validators.keys()) |
-                                   set(_prop_aliases.keys()))
+    unknowns = cycler_inst.keys - (set(_prop_validators) | set(_prop_aliases))
     if unknowns:
         raise ValueError("Unknown artist properties: %s" % unknowns)
 
     # Not a full validation, but it'll at least normalize property names
     # A fuller validation would require v0.10 of cycler.
+    checker = set()
+    for prop in cycler_inst.keys:
+        norm_prop = _prop_aliases.get(prop, prop)
+        if norm_prop != prop and norm_prop in cycler_inst.keys:
+            raise ValueError("Cannot specify both '{0}' and alias '{1}'"
+                             " in the same prop_cycle".format(norm_prop, prop))
+        if norm_prop in checker:
+            raise ValueError("Another property was already aliased to '{0}'."
+                             " Collision normalizing '{1}'.".format(norm_prop,
+                                                                    prop))
+        checker.update([norm_prop])
+
+    # This is just an extra-careful check, just in case there is some
+    # edge-case I haven't thought of.
+    assert len(checker) == len(cycler_inst.keys)
+
+    # Now, it should be safe to mutate this cycler
     for prop in cycler_inst.keys:
         norm_prop = _prop_aliases.get(prop, prop)
         cycler_inst.change_key(prop, norm_prop)

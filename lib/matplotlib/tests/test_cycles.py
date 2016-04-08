@@ -186,6 +186,8 @@ def test_invalid_input_forms():
             foobar=[1, 2])
     assert_raises((TypeError, ValueError), ax.set_prop_cycle,
             cycler(foobar=[1, 2]))
+    assert_raises(ValueError, ax.set_prop_cycle,
+            cycler(color='rgb', c='cmy'))
 
 
 if __name__ == '__main__':
