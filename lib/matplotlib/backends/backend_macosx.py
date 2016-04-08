@@ -134,7 +134,6 @@ class FigureCanvasMac(_macosx.FigureCanvas, FigureCanvasAgg):
             return renderer
 
         self.figure.draw(renderer)
-        self.figure.stale = False
         return renderer
 
     def draw(self):
