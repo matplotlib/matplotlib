@@ -672,7 +672,13 @@ class Axes(_AxesBase):
 
         .. plot:: mpl_examples/pylab_examples/annotation_demo2.py
         """
-        a = mtext.Annotation(*args, **kwargs)
+
+        # # TODO: resolve this
+        # args = list(args)
+        # args[2] = self
+        # tuple(args)
+
+        a = mtext.Annotation(self, *args, **kwargs)
         a.set_transform(mtransforms.IdentityTransform())
         if 'clip_on' in kwargs:
             a.set_clip_path(self.patch)

@@ -1864,7 +1864,9 @@ class _AnnotationBase(object):
 
     def _get_position_xy(self, renderer):
         "Return the pixel position of the annotated point."
+        # self.xy = (10, 5)
         x, y = self.xy
+        # print("nanson 2", x,y)
         return self._get_xy(renderer, x, y, self.xycoords)
 
     def _check_xy(self, renderer, xy_pixel):
@@ -1931,7 +1933,7 @@ class Annotation(Text, _AnnotationBase):
                                          repr(self._text))
 
     @docstring.dedent_interpd
-    def __init__(self, s, xy,
+    def __init__(self, parent, s, xy,
                  xytext=None,
                  xycoords='data',
                  textcoords=None,
@@ -2035,6 +2037,13 @@ class Annotation(Text, _AnnotationBase):
         %(Text)s
         """
 
+        self.parent = parent
+
+        self._best_loc = True if xy == 'best' else False
+
+        if xy == 'best':
+            xy = (0,0)
+
         _AnnotationBase.__init__(self,
                                  xy,
                                  xycoords=xycoords,
@@ -2079,6 +2088,20 @@ class Annotation(Text, _AnnotationBase):
                                                **arrowprops)
         else:
             self.arrow_patch = None
+
+        #TODO: Move to top if solution working
+        self.codes = {'best':         0,  # only implemented for axes legends
+                 'upper right':  1,
+                 'upper left':   2,
+                 'lower left':   3,
+                 'lower right':  4,
+                 'right':        5,
+                 'center left':  6,
+                 'center right': 7,
+                 'lower center': 8,
+                 'upper center': 9,
+                 'center':       10,
+                 }
 
     def contains(self, event):
         contains, tinfo = Text.contains(self, event)
@@ -2230,6 +2253,162 @@ class Annotation(Text, _AnnotationBase):
 
                     self.arrow_patch.set_patchA(r)
 
+    # TODO: rename
+    def _auto_legend_data(self):
+        """
+        Returns list of vertices and extents covered by the plot.
+
+        Returns a two long list.
+
+        First element is a list of (x, y) vertices (in
+        display-coordinates) covered by all the lines and line
+        collections, in the legend's handles.
+
+        Second element is a list of bounding boxes for all the patches in
+        the legend's handles.
+        """
+        # should always hold because function is only called internally
+        # assert self.isaxes
+
+        ax = self.parent
+        bboxes = []
+        lines = []
+        offsets = []
+
+        for handle in ax.lines:
+            assert isinstance(handle, Line2D)
+            path = handle.get_path()
+            trans = handle.get_transform()
+            tpath = trans.transform_path(path)
+            lines.append(tpath)
+
+        for handle in ax.patches:
+            assert isinstance(handle, Patch)
+
+            if isinstance(handle, Rectangle):
+                transform = handle.get_data_transform()
+                bboxes.append(handle.get_bbox().transformed(transform))
+            else:
+                transform = handle.get_transform()
+                bboxes.append(handle.get_path().get_extents(transform))
+
+        for handle in ax.collections:
+            transform, transOffset, hoffsets, paths = handle._prepare_points()
+
+            if len(hoffsets):
+                for offset in transOffset.transform(hoffsets):
+                    offsets.append(offset)
+
+        try:
+            vertices = np.concatenate([l.vertices for l in lines])
+        except ValueError:
+            vertices = np.array([])
+
+        return [vertices, bboxes, lines, offsets]
+
+	
+
+    # Get dimensions from Text.get_window_extent(self, renderer=renderer)
+    # use .width and .height
+    def _find_best_position(self, width, height, renderer, consider=None):
+        """
+        Determine the best location to place the legend.
+
+        `consider` is a list of (x, y) pairs to consider as a potential
+        lower-left corner of the legend. All are display coords.
+        """
+        # should always hold because function is only called internally
+        # assert self.isaxes
+
+        verts, bboxes, lines, offsets = self._auto_legend_data()
+
+        bbox = Bbox.from_bounds(0, 0, width, height)
+        if consider is None:
+            consider = [self._get_anchored_bbox(x, bbox,
+                                                self.parent.bbox,
+                                                renderer)
+                        for x in range(1, len(self.codes))]
+
+#       tx, ty = self.legendPatch.get_x(), self.legendPatch.get_y()
+
+        candidates = []
+        for l, b in consider:
+            legendBox = Bbox.from_bounds(l, b, width, height)
+            badness = 0
+            # XXX TODO: If markers are present, it would be good to
+            # take their into account when checking vertex overlaps in
+            # the next line.
+            badness = legendBox.count_contains(verts)
+            badness += legendBox.count_contains(offsets)
+            badness += legendBox.count_overlaps(bboxes)
+            for line in lines:
+                # FIXME: the following line is ill-suited for lines
+                # that 'spiral' around the center, because the bbox
+                # may intersect with the legend even if the line
+                # itself doesn't. One solution would be to break up
+                # the line into its straight-segment components, but
+                # this may (or may not) result in a significant
+                # slowdown if lines with many vertices are present.
+                if line.intersects_bbox(legendBox):
+                    badness += 1
+
+            ox, oy = l, b
+            if badness == 0:
+                return ox, oy
+
+            candidates.append((badness, (l, b)))
+
+        # rather than use min() or list.sort(), do this so that we are assured
+        # that in the case of two equal badnesses, the one first considered is
+        # returned.
+        # NOTE: list.sort() is stable.But leave as it is for now. -JJL
+        minCandidate = candidates[0]
+        for candidate in candidates:
+            if candidate[0] < minCandidate[0]:
+                minCandidate = candidate
+
+        ox, oy = minCandidate[1]
+
+        return ox, oy
+
+
+     # Copied from legend.py 
+    def _get_anchored_bbox(self, loc, bbox, parentbbox, renderer):
+        """
+        Place the *bbox* inside the *parentbbox* according to a given
+        location code. Return the (x,y) coordinate of the bbox.
+
+        - loc: a location code in range(1, 11).
+          This corresponds to the possible values for self._loc, excluding
+          "best".
+
+        - bbox: bbox to be placed, display coodinate units.
+        - parentbbox: a parent box which will contain the bbox. In
+            display coordinates.
+        """
+        assert loc in range(1, 11)  # called only internally
+
+        BEST, UR, UL, LL, LR, R, CL, CR, LC, UC, C = list(xrange(11))
+
+        anchor_coefs = {UR: "NE",
+                        UL: "NW",
+                        LL: "SW",
+                        LR: "SE",
+                        R: "E",
+                        CL: "W",
+                        CR: "E",
+                        LC: "S",
+                        UC: "N",
+                        C: "C"}
+
+        c = anchor_coefs[loc]
+
+        fontsize = renderer.points_to_pixels(Text.get_size(self))
+        container = parentbbox.padded(-(self.borderaxespad) * fontsize)
+        anchored_box = bbox.anchored(c, container=container)
+        return anchored_box.x0, anchored_box.y0
+
+
     @allow_rasterization
     def draw(self, renderer):
         """
@@ -2245,6 +2424,9 @@ class Annotation(Text, _AnnotationBase):
         if not self._check_xy(renderer, xy_pixel):
             return
 
+        # xy_pixel = (10, 5)
+        self._x, self._y = 10, 5
+
         self._update_position_xytext(renderer, xy_pixel)
         self.update_bbox_position_size(renderer)
 
@@ -2253,10 +2435,15 @@ class Annotation(Text, _AnnotationBase):
                 self.arrow_patch.figure = self.figure
             self.arrow_patch.draw(renderer)
 
+        textbbox = Text.get_window_extent(self, renderer=renderer)
+        print(self.xyann," : ", textbbox.width, " : ", textbbox.height,
+              "\n", self._find_best_position(textbbox.width, textbbox.height, renderer))
+
         # Draw text, including FancyBboxPatch, after FancyArrowPatch.
         # Otherwise, a wedge arrowstyle can land partly on top of the Bbox.
         Text.draw(self, renderer)
 
+   
     def get_window_extent(self, renderer=None):
         '''
         Return a :class:`~matplotlib.transforms.Bbox` object bounding
