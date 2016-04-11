@@ -74,7 +74,7 @@ COLOR_NAMES = {'xkcd': XKCD_COLORS,
 def is_color_like(c):
     'Return *True* if *c* can be converted to *RGB*'
 
-    # Special-case the N-th color cycle syntax, because it's parsing
+    # Special-case the N-th color cycle syntax, because its parsing
     # needs to be deferred.  We may be reading a value from rcParams
     # here before the color_cycle rcParam has been parsed.
     if isinstance(c, bytes):
