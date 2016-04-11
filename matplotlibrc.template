@@ -415,7 +415,7 @@ backend      : $TEMPLATE_BACKEND
 # See http://matplotlib.org/api/figure_api.html#matplotlib.figure.Figure
 #figure.titlesize : medium     # size of the figure title
 #figure.titleweight : normal   # weight of the figure title
-#figure.figsize   : 8, 6    # figure size in inches
+#figure.figsize   : 6.4, 4.8   # figure size in inches
 #figure.dpi       : 100      # figure dots per inch
 #figure.facecolor : white   # figure facecolor; 0.75 is scalar gray
 #figure.edgecolor : white   # figure edgecolor
