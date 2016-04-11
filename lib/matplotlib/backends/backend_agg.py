@@ -208,7 +208,7 @@ class RendererAgg(RendererBase):
 
         #print x, y, int(x), int(y), s
         self._renderer.draw_text_image(
-            bm, int(round(x - xd + xo)), int(round(y + yd + yo)), angle, gc)
+            bm, int(round(x - xd + xo)), int(round(y + yd + yo)) + 1, angle, gc)
 
     def get_text_width_height_descent(self, s, prop, ismath):
         """
