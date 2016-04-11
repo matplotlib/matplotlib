@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 """
-matplotlib gives you 4 ways to specify colors,
+matplotlib gives you 5 ways to specify colors,
 
     1) as a single letter string, ala MATLAB
 
