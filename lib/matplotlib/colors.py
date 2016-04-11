@@ -1425,9 +1425,6 @@ class LightSource(object):
     clockwise from north and elevation up from the zero plane of the surface.
 
     The :meth:`shade` is used to produce "shaded" rgb values for a data array.
-    :meth:`shade_rgb` can be used to combine an rgb image with
-    The :meth:`shade_rgb`
-    The :meth:`hillshade` produces an illumination map of a surface.
     """
     def __init__(self, azdeg=315, altdeg=45, hsv_min_val=0, hsv_max_val=1,
                  hsv_min_sat=1, hsv_max_sat=0):
@@ -1609,7 +1606,7 @@ class LightSource(object):
         rgb0[..., :3] = rgb1[..., :3]
         return rgb0
 
-    def shade_rgb(self, rgb, elevation, fraction=1., blend_mode='hsv',
+    def shade_rgb(self, rgb, elevation, fraction=1., blend_mode='overlay',
                   vert_exag=1, dx=1, dy=1, **kwargs):
         """
         Take the input RGB array (ny*nx*3) adjust their color values
@@ -1631,15 +1628,15 @@ class LightSource(object):
             beyond 0 or 1). Note that this is not visually or mathematically
             the same as vertical exaggeration.
         blend_mode : {'hsv', 'overlay', 'soft'} or callable, optional
-            The type of blending used to combine the colormapped data values
-            with the illumination intensity.  For backwards compatibility, this
-            defaults to "hsv". Note that for most topographic surfaces,
-            "overlay" or "soft" appear more visually realistic. If a
-            user-defined function is supplied, it is expected to combine an
-            MxNx3 RGB array of floats (ranging 0 to 1) with an MxNx1 hillshade
-            array (also 0 to 1).  (Call signature `func(rgb, illum, **kwargs)`)
-            Additional kwargs supplied to this function will be passed on to
-            the *blend_mode* function.
+            The type of blending used to combine the colormapped data
+            values with the illumination intensity.  Note that for
+            most topographic surfaces, "overlay" or "soft" appear more
+            visually realistic. If a user-defined function is
+            supplied, it is expected to combine an MxNx3 RGB array of
+            floats (ranging 0 to 1) with an MxNx1 hillshade array
+            (also 0 to 1).  (Call signature `func(rgb, illum,
+            **kwargs)`) Additional kwargs supplied to this function
+            will be passed on to the *blend_mode* function.
         vert_exag : number, optional
             The amount to exaggerate the elevation values by when calculating
             illumination. This can be used either to correct for differences in
