@@ -8,6 +8,8 @@ from __future__ import (absolute_import, division, print_function,
 
 from matplotlib.externals import six
 
+from matplotlib import rcParams
+
 import math
 import copy
 
@@ -47,6 +49,7 @@ def tick_update_position(tick, tickxs, tickys, labelpos):
 
     tick.tick1On, tick.tick2On = True, False
     tick.tick1line.set_linestyle('-')
+    tick.tick1line.set_linewidth(rcParams['grid.linewidth'])
     tick.tick1line.set_marker('')
     tick.tick1line.set_data(tickxs, tickys)
     tick.gridline.set_data(0, 0)
@@ -113,7 +116,8 @@ class Axis(maxis.XAxis):
 
         self.axes._set_artist_props(self.line)
         self.axes._set_artist_props(self.pane)
-        self.gridlines = art3d.Line3DCollection([], )
+        self.gridlines = art3d.Line3DCollection(
+            [], linewidth=rcParams['grid.linewidth'])
         self.axes._set_artist_props(self.gridlines)
         self.axes._set_artist_props(self.label)
         self.axes._set_artist_props(self.offsetText)
