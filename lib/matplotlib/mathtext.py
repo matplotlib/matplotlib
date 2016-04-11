@@ -192,7 +192,9 @@ class MathtextBackendAgg(MathtextBackend):
                               oy - info.metrics.ymin)
         else:
             font_util.draw_glyph_to_bitmap(
-                self.image, ox, oy - ceil(info.metrics.iceberg), info.glyph)
+                self.image,
+                ox + info.metrics.xmin,
+                oy - ceil(info.metrics.iceberg) + 1, info.glyph)
 
     def render_rect_filled(self, x1, y1, x2, y2):
         if self.mode == 'bbox':
