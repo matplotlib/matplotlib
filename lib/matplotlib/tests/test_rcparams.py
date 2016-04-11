@@ -322,6 +322,10 @@ def test_validators():
                      ("cycler('c', 'rgb') * cycler('linestyle', ['-', '--'])",
                       (cycler('color', 'rgb') *
                           cycler('linestyle', ['-', '--']))),
+                     (cycler('ls', ['-', '--']),
+                      cycler('linestyle', ['-', '--'])),
+                     (cycler(mew=[2, 5]),
+                      cycler('markeredgewidth', [2, 5])),
                     ),
          # This is *so* incredibly important: validate_cycler() eval's
          # an arbitrary string! I think I have it locked down enough,
@@ -343,6 +347,7 @@ def test_validators():
                   ('cycler("waka", [1, 2, 3])', ValueError),  # not a property
                   ('cycler(c=[1, 2, 3])', ValueError),  # invalid values
                   ("cycler(lw=['a', 'b', 'c'])", ValueError),  # invalid values
+                  (cycler('waka', [1, 3, 5]), ValueError),  # not a property
                  )
         },
         {'validator': validate_hatch,

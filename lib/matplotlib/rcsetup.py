@@ -726,15 +726,7 @@ def cycler(*args, **kwargs):
         if not isinstance(args[0], Cycler):
             raise TypeError("If only one positional argument given, it must "
                             " be a Cycler instance.")
-
-        c = args[0]
-        unknowns = c.keys - (set(_prop_validators.keys()) |
-                             set(_prop_aliases.keys()))
-        if unknowns:
-            # This is about as much validation I can do
-            raise TypeError("Unknown artist properties: %s" % unknowns)
-        else:
-            return Cycler(c)
+        return validate_cycler(args[0])
     elif len(args) == 2:
         pairs = [(args[0], args[1])]
     elif len(args) > 2:
@@ -788,6 +780,33 @@ def validate_cycler(s):
         cycler_inst = s
     else:
         raise ValueError("object was not a string or Cycler instance: %s" % s)
+
+    unknowns = cycler_inst.keys - (set(_prop_validators) | set(_prop_aliases))
+    if unknowns:
+        raise ValueError("Unknown artist properties: %s" % unknowns)
+
+    # Not a full validation, but it'll at least normalize property names
+    # A fuller validation would require v0.10 of cycler.
+    checker = set()
+    for prop in cycler_inst.keys:
+        norm_prop = _prop_aliases.get(prop, prop)
+        if norm_prop != prop and norm_prop in cycler_inst.keys:
+            raise ValueError("Cannot specify both '{0}' and alias '{1}'"
+                             " in the same prop_cycle".format(norm_prop, prop))
+        if norm_prop in checker:
+            raise ValueError("Another property was already aliased to '{0}'."
+                             " Collision normalizing '{1}'.".format(norm_prop,
+                                                                    prop))
+        checker.update([norm_prop])
+
+    # This is just an extra-careful check, just in case there is some
+    # edge-case I haven't thought of.
+    assert len(checker) == len(cycler_inst.keys)
+
+    # Now, it should be safe to mutate this cycler
+    for prop in cycler_inst.keys:
+        norm_prop = _prop_aliases.get(prop, prop)
+        cycler_inst.change_key(prop, norm_prop)
 
     return cycler_inst
 
