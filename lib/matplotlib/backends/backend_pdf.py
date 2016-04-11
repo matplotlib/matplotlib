@@ -1182,7 +1182,7 @@ end"""
                             0, 0, sidelen, sidelen, Op.rectangle,
                             Op.fill)
 
-            self.output(0.1, Op.setlinewidth)
+            self.output(rcParams['hatch.linewidth'], Op.setlinewidth)
 
             # TODO: We could make this dpi-dependent, but that would be
             # an API change

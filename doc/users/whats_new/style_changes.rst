@@ -35,6 +35,18 @@ Plots
   the rcParam ``lines.markersize`` so it is consistent with ``plot(X,
   Y, 'o')``.  The old value was 20, and the new value is 36 (6^2).
 
+Hatching
+````````
+
+- The width of the lines in a hatch pattern is now configurable by the
+  rcParam `hatch.linewidth`, with a default of 1 point.  The old
+  behavior was different depending on backend:
+
+    - PDF: 0.1 pt
+    - SVG: 1.0 pt
+    - PS:  1 px
+    - Agg: 1 px
+
 Plot layout
 ```````````
 
