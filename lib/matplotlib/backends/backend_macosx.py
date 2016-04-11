@@ -102,7 +102,6 @@ class FigureCanvasMac(_macosx.FigureCanvas, FigureCanvasAgg):
         FigureCanvasBase.__init__(self, figure)
         width, height = self.get_width_height()
         _macosx.FigureCanvas.__init__(self, width, height)
-        self._needs_draw = True
         self._device_scale = 1.0
 
     def _set_device_scale(self, value):
@@ -131,19 +130,16 @@ class FigureCanvasMac(_macosx.FigureCanvas, FigureCanvasAgg):
     def _draw(self):
         renderer = self.get_renderer()
 
-        if not self._needs_draw:
+        if not self.figure.stale:
             return renderer
 
         self.figure.draw(renderer)
-        self._needs_draw = False
         return renderer
 
     def draw(self):
-        self._draw()
         self.invalidate()
 
     def draw_idle(self, *args, **kwargs):
-        self._needs_draw = True
         self.invalidate()
 
     def blit(self, bbox):
