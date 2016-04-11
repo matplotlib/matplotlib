@@ -363,7 +363,7 @@ RendererAgg::_draw_path(path_t &path, bool has_clippath, const facepair_t &face,
         hatch_path_trans_t hatch_path_trans(hatch_path, hatch_trans);
         hatch_path_curve_t hatch_path_curve(hatch_path_trans);
         hatch_path_stroke_t hatch_path_stroke(hatch_path_curve);
-        hatch_path_stroke.width(1.0);
+        hatch_path_stroke.width(points_to_pixels(gc.hatch_linewidth));
         hatch_path_stroke.line_cap(agg::square_cap);
 
         // Render the path into the hatch buffer

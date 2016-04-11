@@ -108,6 +108,7 @@ class GCAgg
     e_snap_mode snap_mode;
 
     py::PathIterator hatchpath;
+    double hatch_linewidth;
 
     SketchParams sketch;
 
