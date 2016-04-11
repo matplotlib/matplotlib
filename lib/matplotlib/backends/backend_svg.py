@@ -393,7 +393,7 @@ class RendererSVG(RendererBase):
                 style=generate_css({
                     'fill': rgb2hex(stroke),
                     'stroke': rgb2hex(stroke),
-                    'stroke-width': '1.0',
+                    'stroke-width': six.text_type(rcParams['hatch.linewidth']),
                     'stroke-linecap': 'butt',
                     'stroke-linejoin': 'miter'
                     })
