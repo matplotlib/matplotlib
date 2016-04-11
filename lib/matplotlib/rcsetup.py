@@ -848,7 +848,7 @@ defaultParams = {
     # line props
     'lines.linewidth':       [2.5, validate_float],  # line width in points
     'lines.linestyle':       ['-', six.text_type],             # solid line
-    'lines.color':           ['b', validate_color],  # blue
+    'lines.color':           ['C0', validate_color],  # blue
     'lines.marker':          ['None', six.text_type],     # black
     'lines.markeredgewidth': [1.0, validate_float],
     'lines.markersize':      [6, validate_float],    # markersize, in points
@@ -867,7 +867,7 @@ defaultParams = {
     ## patch props
     'patch.linewidth':   [None, validate_float_or_None],  # line width in points
     'patch.edgecolor':   ['k', validate_color],  # black
-    'patch.facecolor':   ['#1f77b4', validate_color],  # blue (first color in color cycle)
+    'patch.facecolor':   ['C0', validate_color],  # blue (first color in color cycle)
     'patch.antialiased': [True, validate_bool],  # antialiased (no jaggies)
 
     ## Histogram properties
@@ -885,7 +885,7 @@ defaultParams = {
     'boxplot.showfliers': [True, validate_bool],
     'boxplot.meanline': [False, validate_bool],
 
-    'boxplot.flierprops.color': ['b', validate_color],
+    'boxplot.flierprops.color': ['C0', validate_color],
     'boxplot.flierprops.marker': ['+', six.text_type],
     'boxplot.flierprops.markerfacecolor': ['auto', validate_color_or_auto],
     'boxplot.flierprops.markeredgecolor': ['k', validate_color],
@@ -893,11 +893,11 @@ defaultParams = {
     'boxplot.flierprops.linestyle': ['none', six.text_type],
     'boxplot.flierprops.linewidth': [1.0, validate_float],
 
-    'boxplot.boxprops.color': ['b', validate_color],
+    'boxplot.boxprops.color': ['C0', validate_color],
     'boxplot.boxprops.linewidth': [1.0, validate_float],
     'boxplot.boxprops.linestyle': ['-', six.text_type],
 
-    'boxplot.whiskerprops.color': ['b', validate_color],
+    'boxplot.whiskerprops.color': ['C0', validate_color],
     'boxplot.whiskerprops.linewidth': [1.0, validate_float],
     'boxplot.whiskerprops.linestyle': ['--', six.text_type],
 
@@ -905,7 +905,7 @@ defaultParams = {
     'boxplot.capprops.linewidth': [1.0, validate_float],
     'boxplot.capprops.linestyle': ['-', six.text_type],
 
-    'boxplot.medianprops.color': ['r', validate_color],
+    'boxplot.medianprops.color': ['C1', validate_color],
     'boxplot.medianprops.linewidth': [1.0, validate_float],
     'boxplot.medianprops.linestyle': ['-', six.text_type],
 
@@ -1016,7 +1016,10 @@ defaultParams = {
     'axes.formatter.use_mathtext': [False, validate_bool],
     'axes.formatter.useoffset': [True, validate_bool],
     'axes.unicode_minus': [True, validate_bool],
-    'axes.color_cycle': [['b', 'g', 'r', 'c', 'm', 'y', 'k'],
+    'axes.color_cycle': [
+        ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728',
+         '#9467bd', '#8c564b', '#e377c2', '#7f7f7f',
+         '#bcbd22', '#17becf'],
                          deprecate_axes_colorcycle],  # cycle of plot
                                                       # line colors
     # This entry can be either a cycler object or a

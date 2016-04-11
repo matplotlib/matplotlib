@@ -44,14 +44,13 @@ plt.setp(axes.flat, xticks=[], yticks=[])
 # Vary vertical exaggeration and blend mode and plot all combinations
 for col, ve in zip(axes.T, [0.1, 1, 10]):
     # Show the hillshade intensity image in the first row
-    col[0].imshow(ls.hillshade(z, vert_exag=ve, dx=dx, dy=dy), cmap='gray',
-                  interpolation="bilinear")
+    col[0].imshow(ls.hillshade(z, vert_exag=ve, dx=dx, dy=dy), cmap='gray')
 
     # Place hillshaded plots with different blend modes in the rest of the rows
     for ax, mode in zip(col[1:], ['hsv', 'overlay', 'soft']):
         rgb = ls.shade(z, cmap=cmap, blend_mode=mode,
                        vert_exag=ve, dx=dx, dy=dy)
-        ax.imshow(rgb, interpolation="bilinear")
+        ax.imshow(rgb)
 
 # Label rows and columns
 for ax, ve in zip(axes[0], [0.1, 1, 10]):
