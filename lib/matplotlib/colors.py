@@ -31,6 +31,12 @@ the colors.  For the basic built-in colors, you can use a single letter
     - k: black
     - w: white
 
+To use the colors that are part of the active color cycle in the current style,
+use `C` followed by a digit.  For example:
+
+    - `C0`: The first color in the cycle
+    - `C1`: The second color in the cycle
+
 Gray shades can be given as a string encoding a float in the 0-1 range, e.g.::
 
     color = '0.75'
@@ -67,6 +73,19 @@ COLOR_NAMES = {'xkcd': XKCD_COLORS,
 
 def is_color_like(c):
     'Return *True* if *c* can be converted to *RGB*'
+
+    # Special-case the N-th color cycle syntax, because it's parsing
+    # needs to be deferred.  We may be reading a value from rcParams
+    # here before the color_cycle rcParam has been parsed.
+    if isinstance(c, bytes):
+        match = re.match(b'^C[0-9]$', c)
+        if match is not None:
+            return True
+    elif isinstance(c, six.text_type):
+        match = re.match('^C[0-9]$', c)
+        if match is not None:
+            return True
+
     try:
         colorConverter.to_rgb(c)
         return True
@@ -114,8 +133,35 @@ class ColorConverter(object):
         'k': (0, 0, 0),
         'w': (1, 1, 1)}
 
+    _prop_cycler = None
+
     cache = {}
     CN_LOOKUPS = [COLOR_NAMES[k] for k in ['css4', 'xkcd']]
+
+    @classmethod
+    def _get_nth_color(cls, val):
+        """
+        Get the Nth color in the current color cycle.  If N is greater
+        than the number of colors in the cycle, it is wrapped around.
+        """
+        from matplotlib.rcsetup import cycler
+        from matplotlib import rcParams
+
+        prop_cycler = rcParams['axes.prop_cycle']
+        if prop_cycler is None and 'axes.color_cycle' in rcParams:
+            clist = rcParams['axes.color_cycle']
+            prop_cycler = cycler('color', clist)
+
+        colors = prop_cycler._transpose()['color']
+        return colors[val % len(colors)]
+
+    @classmethod
+    def _parse_nth_color(cls, val):
+        match = re.match('^C[0-9]$', val)
+        if match is not None:
+            return cls._get_nth_color(int(val[1]))
+
+        raise ValueError("Not a color cycle color")
 
     def to_rgb(self, arg):
         """
@@ -154,6 +200,10 @@ class ColorConverter(object):
                 argl = arg.lower()
                 color = self.colors.get(argl, None)
                 if color is None:
+                    try:
+                        argl = self._parse_nth_color(arg)
+                    except ValueError:
+                        pass
                     for cmapping in self.CN_LOOKUPS:
                         str1 = cmapping.get(argl, argl)
                         if str1 != argl:
@@ -1425,6 +1475,9 @@ class LightSource(object):
     clockwise from north and elevation up from the zero plane of the surface.
 
     The :meth:`shade` is used to produce "shaded" rgb values for a data array.
+    :meth:`shade_rgb` can be used to combine an rgb image with
+    The :meth:`shade_rgb`
+    The :meth:`hillshade` produces an illumination map of a surface.
     """
     def __init__(self, azdeg=315, altdeg=45, hsv_min_val=0, hsv_max_val=1,
                  hsv_min_sat=1, hsv_max_sat=0):
@@ -1606,7 +1659,7 @@ class LightSource(object):
         rgb0[..., :3] = rgb1[..., :3]
         return rgb0
 
-    def shade_rgb(self, rgb, elevation, fraction=1., blend_mode='overlay',
+    def shade_rgb(self, rgb, elevation, fraction=1., blend_mode='hsv',
                   vert_exag=1, dx=1, dy=1, **kwargs):
         """
         Take the input RGB array (ny*nx*3) adjust their color values
@@ -1628,15 +1681,15 @@ class LightSource(object):
             beyond 0 or 1). Note that this is not visually or mathematically
             the same as vertical exaggeration.
         blend_mode : {'hsv', 'overlay', 'soft'} or callable, optional
-            The type of blending used to combine the colormapped data
-            values with the illumination intensity.  Note that for
-            most topographic surfaces, "overlay" or "soft" appear more
-            visually realistic. If a user-defined function is
-            supplied, it is expected to combine an MxNx3 RGB array of
-            floats (ranging 0 to 1) with an MxNx1 hillshade array
-            (also 0 to 1).  (Call signature `func(rgb, illum,
-            **kwargs)`) Additional kwargs supplied to this function
-            will be passed on to the *blend_mode* function.
+            The type of blending used to combine the colormapped data values
+            with the illumination intensity.  For backwards compatibility, this
+            defaults to "hsv". Note that for most topographic surfaces,
+            "overlay" or "soft" appear more visually realistic. If a
+            user-defined function is supplied, it is expected to combine an
+            MxNx3 RGB array of floats (ranging 0 to 1) with an MxNx1 hillshade
+            array (also 0 to 1).  (Call signature `func(rgb, illum, **kwargs)`)
+            Additional kwargs supplied to this function will be passed on to
+            the *blend_mode* function.
         vert_exag : number, optional
             The amount to exaggerate the elevation values by when calculating
             illumination. This can be used either to correct for differences in

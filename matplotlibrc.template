@@ -80,7 +80,7 @@ backend      : $TEMPLATE_BACKEND
 # information on line properties.
 #lines.linewidth   : 2.0     # line width in points
 #lines.linestyle   : -       # solid line
-#lines.color       : blue    # has no affect on plot(); see axes.prop_cycle
+#lines.color       : C0      # has no affect on plot(); see axes.prop_cycle
 #lines.marker      : None    # the default marker
 #lines.markeredgewidth  : 1.0     # the line width around the marker symbol
 #lines.markersize  : 6            # markersize, in points
@@ -105,7 +105,7 @@ backend      : $TEMPLATE_BACKEND
 #patch.linewidth        : None     # edge width in points.
                                    # If None, use axes.linewidth when patch
                                    # is not filled.
-#patch.facecolor        : 1f77b4
+#patch.facecolor        : C0
 #patch.edgecolor        : black
 #patch.antialiased      : True    # render patches in antialiased (no jaggies)
 
@@ -141,14 +141,14 @@ backend      : $TEMPLATE_BACKEND
 #boxplot.capprops.linewidth : 1.0
 #boxplot.capprops.linestyle : '-'
 
-#boxplot.medianprops.color     : 'b'
+#boxplot.medianprops.color     : 'C0'
 #boxplot.medianprops.linewidth : 1.0
 #boxplot.medianprops.linestyle : '-'
 
-#boxplot.meanprops.color           : 'b'
+#boxplot.meanprops.color           : 'C1'
 #boxplot.meanprops.marker          : '^'
-#boxplot.meanprops.markerfacecolor : 'b'
-#boxplot.meanprops.markeredgecolor : 'b'
+#boxplot.meanprops.markerfacecolor : 'C1'
+#boxplot.meanprops.markeredgecolor : 'C1'
 #boxplot.meanprops.markersize      :  6
 #boxplot.meanprops.linestyle       : 'none'
 #boxplot.meanprops.linewidth       : 1.0
