@@ -111,11 +111,11 @@ class TextToPath(object):
             return width * scale, height * scale, descent * scale
 
         font = self._get_font(prop)
-        font.set_char_size(fontsize, fontsize, self.DPI, self.DPI)
+        font.set_char_size(self.FONT_SCALE, self.FONT_SCALE, self.DPI, self.DPI)
         layout = ft.Layout(font, s)
-        w = layout.layout_bbox.width
-        h = layout.ink_bbox.height
-        d = -layout.ink_bbox.y_min
+        w = layout.layout_bbox.width * scale
+        h = layout.ink_bbox.height * scale
+        d = -layout.ink_bbox.y_min * scale
         return w, h, d
 
     def get_text_path(self, prop, s, ismath=False, usetex=False):
