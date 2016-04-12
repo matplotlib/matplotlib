@@ -1143,7 +1143,7 @@ defaultParams = {
     'figure.titleweight': ['normal', six.text_type],
 
     # figure size in inches: width by height
-    'figure.figsize':    [[8.0, 6.0], validate_nseq_float(2)],
+    'figure.figsize':    [[6.4, 4.8], validate_nseq_float(2)],
     'figure.dpi':        [100, validate_float],  # DPI
     'figure.facecolor':  ['w', validate_color],  # facecolor; white
     'figure.edgecolor':  ['w', validate_color],  # edgecolor; white

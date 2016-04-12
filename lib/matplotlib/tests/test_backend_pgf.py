@@ -15,7 +15,8 @@ import matplotlib as mpl
 import matplotlib.pyplot as plt
 from matplotlib.compat import subprocess
 from matplotlib.testing.compare import compare_images, ImageComparisonFailure
-from matplotlib.testing.decorators import _image_directories, switch_backend
+from matplotlib.testing.decorators import (_image_directories, switch_backend,
+                                           cleanup)
 
 
 baseline_dir, result_dir = _image_directories(lambda: 'dummy func')
@@ -79,6 +80,7 @@ def create_figure():
 
 
 # test compiling a figure to pdf with xelatex
+@cleanup(style='classic')
 @switch_backend('pgf')
 def test_xelatex():
     if not check_for('xelatex'):
@@ -92,6 +94,7 @@ def test_xelatex():
 
 
 # test compiling a figure to pdf with pdflatex
+@cleanup(style='classic')
 @switch_backend('pgf')
 def test_pdflatex():
     if not check_for('pdflatex'):
@@ -108,6 +111,7 @@ def test_pdflatex():
 
 
 # test updating the rc parameters for each figure
+@cleanup(style='classic')
 @switch_backend('pgf')
 def test_rcupdate():
     if not check_for('xelatex') or not check_for('pdflatex'):
@@ -137,6 +141,7 @@ def test_rcupdate():
 
 
 # test backend-side clipping, since large numbers are not supported by TeX
+@cleanup(style='classic')
 @switch_backend('pgf')
 def test_pathclip():
     if not check_for('xelatex'):
@@ -155,6 +160,7 @@ def test_pathclip():
 
 
 # test mixed mode rendering
+@cleanup(style='classic')
 @switch_backend('pgf')
 def test_mixedmode():
     if not check_for('xelatex'):
@@ -171,6 +177,7 @@ def test_mixedmode():
 
 
 # test bbox_inches clipping
+@cleanup(style='classic')
 @switch_backend('pgf')
 def test_bbox_inches():
     if not check_for('xelatex'):
