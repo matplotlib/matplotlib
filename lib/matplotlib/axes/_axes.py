@@ -2572,6 +2572,7 @@ class Axes(_AxesBase):
             get_next_color = self._get_patches_for_fill.get_next_color
         else:
             color_cycle = itertools.cycle(colors)
+
             def get_next_color():
                 return six.next(color_cycle)
 
