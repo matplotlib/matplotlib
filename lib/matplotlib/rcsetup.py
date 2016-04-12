@@ -208,8 +208,7 @@ def validate_int_or_None(s):
 
 
 def deprecate_fonttype(s):
-    warnings.warn("axes.color_cycle is deprecated.  Use axes.prop_cycle "
-                  "instead. Will be removed in 2.1.0")
+    warnings.warn("fonttype is deprecated.  Use font.subset instead.")
     return s
 
 

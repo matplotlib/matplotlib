@@ -864,6 +864,8 @@ _deprecated_map = {
     }
 
 _deprecated_ignore_map = {
+    'pdf.fonttype': 'font.subset',
+    'ps.fonttype': 'font.subset'
     }
 
 _obsolete_set = set(['tk.pythoninspect', ])
