@@ -855,7 +855,7 @@ class UnicodeFonts(TruetypeFonts):
                             'rm', font_class, sym, fontsize)
                 else:
                     return self.cm_fallback._get_glyph(
-                        fontname, 'it', sym, fontsize)
+                        fontname, font_class, sym, fontsize)
             else:
                 if fontname in ('it', 'regular') and isinstance(self, StixFonts):
                     return self._get_glyph('rm', font_class, sym, fontsize)
