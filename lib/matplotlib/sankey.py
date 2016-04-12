@@ -45,6 +45,7 @@ from matplotlib.patches import PathPatch
 from matplotlib.transforms import Affine2D
 from matplotlib import verbose
 from matplotlib import docstring
+from matplotlib import rcParams
 
 __author__ = "Kevin L. Davies"
 __credits__ = ["Yannick Copin"]
