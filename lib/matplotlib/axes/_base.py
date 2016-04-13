@@ -773,7 +773,7 @@ class _AxesBase(martist.Artist):
         return (self.get_yaxis_transform(which='tick1') +
                 mtransforms.ScaledTranslation(-1 * pad_points / 72.0, 0,
                                               self.figure.dpi_scale_trans),
-                "center", "right")
+                "center_baseline", "right")
 
     def get_yaxis_text2_transform(self, pad_points):
         """
@@ -799,7 +799,7 @@ class _AxesBase(martist.Artist):
         return (self.get_yaxis_transform(which='tick2') +
                 mtransforms.ScaledTranslation(pad_points / 72.0, 0,
                                               self.figure.dpi_scale_trans),
-                "center", "left")
+                "center_baseline", "left")
 
     def _update_transScale(self):
         self.transScale.set(
