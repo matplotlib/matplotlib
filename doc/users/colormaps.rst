@@ -166,7 +166,7 @@ printed in grayscale.
 Color vision deficiencies
 =========================
 
-There is a lot of information available about color blindness available (*e.g.*,
+There is a lot of information available about color blindness (*e.g.*,
 [colorblindness]_). Additionally, there are tools available to convert images to
 how they look for different types of color vision deficiencies (*e.g.*, [asp]_).
 
