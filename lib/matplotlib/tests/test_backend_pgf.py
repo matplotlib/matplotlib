@@ -133,7 +133,7 @@ def test_rcupdate():
                     'pgf.preamble': ['\\usepackage[utf8x]{inputenc}',
                                      '\\usepackage[T1]{fontenc}',
                                      '\\usepackage{sfmath}']})
-    tol = (4, 0)
+    tol = (6, 0)
     for i, rc_set in enumerate(rc_sets):
         mpl.rcParams.update(rc_set)
         create_figure()
