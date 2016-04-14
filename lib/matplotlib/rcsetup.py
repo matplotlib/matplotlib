@@ -850,7 +850,7 @@ defaultParams = {
     'verbose.fileo': ['sys.stdout', six.text_type],
 
     # line props
-    'lines.linewidth':       [2.5, validate_float],  # line width in points
+    'lines.linewidth':       [1.5, validate_float],  # line width in points
     'lines.linestyle':       ['-', six.text_type],             # solid line
     'lines.color':           ['b', validate_color],  # blue
     'lines.marker':          ['None', six.text_type],     # black
