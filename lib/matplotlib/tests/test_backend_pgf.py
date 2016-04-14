@@ -134,7 +134,10 @@ def test_rcupdate():
                                      '\\usepackage[T1]{fontenc}',
                                      '\\usepackage{sfmath}']})
     tol = (6, 0)
+    original_params = mpl.rcParams.copy()
     for i, rc_set in enumerate(rc_sets):
+        mpl.rcParams.clear()
+        mpl.rcParams.update(original_params)
         mpl.rcParams.update(rc_set)
         create_figure()
         compare_figure('pgf_rcupdate%d.pdf' % (i + 1), tol=tol[i])
