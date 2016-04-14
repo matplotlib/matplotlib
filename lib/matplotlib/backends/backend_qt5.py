@@ -137,7 +137,7 @@ def _create_qApp():
                 if display is None or not re.search(':\d', display):
                     raise RuntimeError('Invalid DISPLAY variable')
 
-            qApp = QtWidgets.QApplication([six.text_type(" ")])
+            qApp = QtWidgets.QApplication([str(" ")])
             qApp.lastWindowClosed.connect(qApp.quit)
         else:
             qApp = app
@@ -226,6 +226,10 @@ class FigureCanvasQT(QtWidgets.QWidget, FigureCanvasBase):
                # QtCore.Qt.XButton2: None,
                }
 
+    # Key auto-repeat disabled by default
+    _keypressautorepeat = False
+    _keyreleaseautorepeat = False
+
     def __init__(self, figure):
         if DEBUG:
             print('FigureCanvasQt qt5: ', figure)
@@ -307,6 +311,8 @@ class FigureCanvasQT(QtWidgets.QWidget, FigureCanvasBase):
                       'steps = %i ' % (event.delta(), steps))
 
     def keyPressEvent(self, event):
+        if not self._keypressautorepeat and event.isAutoRepeat():
+            return
         key = self._get_key(event)
         if key is None:
             return
@@ -314,13 +320,37 @@ class FigureCanvasQT(QtWidgets.QWidget, FigureCanvasBase):
         if DEBUG:
             print('key press', key)
 
+    @property
+    def keyPressAutoRepeat(self):
+        """
+        If True, enable auto-repeat for key press events.
+        """
+        return self._keypressautorepeat
+
+    @keyPressAutoRepeat.setter
+    def keyPressAutoRepeat(self, val):
+        self._keypressautorepeat = bool(val)
+
     def keyReleaseEvent(self, event):
+        if not self._keyreleaseautorepeat and event.isAutoRepeat():
+            return
         key = self._get_key(event)
         if key is None:
             return
         FigureCanvasBase.key_release_event(self, key, guiEvent=event)
         if DEBUG:
             print('key release', key)
+
+    @property
+    def keyReleaseAutoRepeat(self):
+        """
+        If True, enable auto-repeat for key release events.
+        """
+        return self._keyreleaseautorepeat
+
+    @keyReleaseAutoRepeat.setter
+    def keyReleaseAutoRepeat(self, val):
+        self._keyreleaseautorepeat = bool(val)
 
     def resizeEvent(self, event):
         w = event.size().width()
@@ -344,9 +374,6 @@ class FigureCanvasQT(QtWidgets.QWidget, FigureCanvasBase):
         return QtCore.QSize(10, 10)
 
     def _get_key(self, event):
-        if event.isAutoRepeat():
-            return None
-
         event_key = event.key()
         event_mods = int(event.modifiers())  # actually a bitmask
 
