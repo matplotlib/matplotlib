@@ -172,7 +172,7 @@ def new_figure_manager_given_figure(num, figure):
 
 class TimerQT(TimerBase):
     '''
-    Subclass of :class:`backend_bases.TimerBase` that uses Qt4 timer events.
+    Subclass of :class:`backend_bases.TimerBase` that uses Qt timer events.
 
     Attributes:
     * interval: The time between timer events in milliseconds. Default
@@ -226,10 +226,6 @@ class FigureCanvasQT(QtWidgets.QWidget, FigureCanvasBase):
                # QtCore.Qt.XButton2: None,
                }
 
-    # Key auto-repeat disabled by default
-    _keypressautorepeat = False
-    _keyreleaseautorepeat = False
-
     def __init__(self, figure):
         if DEBUG:
             print('FigureCanvasQt qt5: ', figure)
@@ -245,6 +241,9 @@ class FigureCanvasQT(QtWidgets.QWidget, FigureCanvasBase):
         self.setMouseTracking(True)
         w, h = self.get_width_height()
         self.resize(w, h)
+
+        # Key auto-repeat enabled by default
+        self._keyautorepeat = True
 
     def enterEvent(self, event):
         FigureCanvasBase.enter_notify_event(self, guiEvent=event)
@@ -311,8 +310,6 @@ class FigureCanvasQT(QtWidgets.QWidget, FigureCanvasBase):
                       'steps = %i ' % (event.delta(), steps))
 
     def keyPressEvent(self, event):
-        if not self._keypressautorepeat and event.isAutoRepeat():
-            return
         key = self._get_key(event)
         if key is None:
             return
@@ -320,20 +317,7 @@ class FigureCanvasQT(QtWidgets.QWidget, FigureCanvasBase):
         if DEBUG:
             print('key press', key)
 
-    @property
-    def keyPressAutoRepeat(self):
-        """
-        If True, enable auto-repeat for key press events.
-        """
-        return self._keypressautorepeat
-
-    @keyPressAutoRepeat.setter
-    def keyPressAutoRepeat(self, val):
-        self._keypressautorepeat = bool(val)
-
     def keyReleaseEvent(self, event):
-        if not self._keyreleaseautorepeat and event.isAutoRepeat():
-            return
         key = self._get_key(event)
         if key is None:
             return
@@ -342,15 +326,15 @@ class FigureCanvasQT(QtWidgets.QWidget, FigureCanvasBase):
             print('key release', key)
 
     @property
-    def keyReleaseAutoRepeat(self):
+    def keyAutoRepeat(self):
         """
-        If True, enable auto-repeat for key release events.
+        If True, enable auto-repeat for key events.
         """
-        return self._keyreleaseautorepeat
+        return self._keyautorepeat
 
-    @keyReleaseAutoRepeat.setter
-    def keyReleaseAutoRepeat(self, val):
-        self._keyreleaseautorepeat = bool(val)
+    @keyAutoRepeat.setter
+    def keyAutoRepeat(self, val):
+        self._keyautorepeat = bool(val)
 
     def resizeEvent(self, event):
         w = event.size().width()
@@ -374,6 +358,9 @@ class FigureCanvasQT(QtWidgets.QWidget, FigureCanvasBase):
         return QtCore.QSize(10, 10)
 
     def _get_key(self, event):
+        if not self._keyautorepeat and event.isAutoRepeat():
+            return
+
         event_key = event.key()
         event_mods = int(event.modifiers())  # actually a bitmask
 
