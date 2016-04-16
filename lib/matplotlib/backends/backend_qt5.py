@@ -359,7 +359,7 @@ class FigureCanvasQT(QtWidgets.QWidget, FigureCanvasBase):
 
     def _get_key(self, event):
         if not self._keyautorepeat and event.isAutoRepeat():
-            return
+            return None
 
         event_key = event.key()
         event_mods = int(event.modifiers())  # actually a bitmask
