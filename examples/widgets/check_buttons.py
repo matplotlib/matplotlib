@@ -21,8 +21,10 @@ labels = [str(line.get_label()) for line in lines]
 visibility = [line.get_visible() for line in lines]
 check = CheckButtons(rax, labels, visibility)
 
+
 def func(label):
-    lines[labels.index(label)].set_visible(not lines[labels.index(label)].get_visible())
+    index = labels.index(label)
+    lines[index].set_visible(not lines[index].get_visible())
     plt.draw()
 
 check.on_clicked(func)
