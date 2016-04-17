@@ -17,8 +17,8 @@ lines = ax.get_lines()
 
 # Make checkbuttons with all plotted lines with correct visibility
 rax = plt.axes([0.05, 0.4, 0.1, 0.15])
-labels = [str(graph.get_label()) for graph in lines]
-visibility = [graph.get_visible() for graph in lines]
+labels = [str(line.get_label()) for line in lines]
+visibility = [line.get_visible() for line in lines]
 check = CheckButtons(rax, labels, visibility)
 
 def func(label):
