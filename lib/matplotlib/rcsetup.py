@@ -746,17 +746,16 @@ def validate_cycler(s):
             # might come from the internet (future plans), this
             # could be downright dangerous.
             # I locked it down by only having the 'cycler()' function
-            # available. Imports and defs should not
-            # be possible. However, it is entirely possible that
-            # a security hole could open up via attributes to the
-            # function (this is why I decided against allowing the
-            # Cycler class object just to reduce the number of
-            # degrees of freedom (but maybe it is safer to use?).
-            # One possible hole I can think of (in theory) is if
-            # someone managed to hack the cycler module. But, if
-            # someone does that, this wouldn't make anything
-            # worse because we have to import the module anyway.
-            s = eval(s, {'cycler': cycler})
+            # available.
+            # UPDATE: Partly plugging a security hole.
+            # I really should have read this:
+            # http://nedbatchelder.com/blog/201206/eval_really_is_dangerous.html
+            # We should replace this eval with a combo of PyParsing and
+            # ast.literal_eval()
+            if '.__' in s.replace(' ', ''):
+                raise ValueError("'%s' seems to have dunder methods. Raising"
+                                 " an exception for your safety")
+            s = eval(s, {'cycler': cycler, '__builtins__': {}})
         except BaseException as e:
             raise ValueError("'%s' is not a valid cycler construction: %s" %
                              (s, e))
