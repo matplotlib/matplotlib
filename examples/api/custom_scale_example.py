@@ -5,6 +5,11 @@ from numpy import ma
 from matplotlib import scale as mscale
 from matplotlib import transforms as mtransforms
 from matplotlib.ticker import Formatter, FixedLocator
+from matplotlib import rcParams
+
+
+# BUG: this example fails with any other setting of axisbelow
+rcParams['axes.axisbelow'] = False
 
 
 class MercatorLatitudeScale(mscale.ScaleBase):
