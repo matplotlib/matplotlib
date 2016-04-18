@@ -137,7 +137,7 @@ class AbstractMovieWriter(six.with_metaclass(abc.ABCMeta)):
     '''
 
     @abc.abstractmethod
-    def setup(self, fig, outfile, dpi, *args, **kwargs):
+    def setup(self, fig, outfile, dpi):
         '''
         Perform setup for writing the movie file.
 
@@ -246,7 +246,7 @@ class MovieWriter(AbstractMovieWriter):
         width_inches, height_inches = self.fig.get_size_inches()
         return width_inches * self.dpi, height_inches * self.dpi
 
-    def setup(self, fig, outfile, dpi, *args, **kwargs):
+    def setup(self, fig, outfile, dpi):
         '''
         Perform setup for writing the movie file.
 
