@@ -72,6 +72,11 @@ Plot layout
 - Ticks now point outward by default.  To have ticks pointing inward,
   use the ``rcParams`` ``xtick.direction`` and ``ytick.direction``.
 
+- Ticks and grids are now plotted above solid elements such as
+  filled contours, but below lines.  To return to the previous
+  behavior of plotting ticks and grids above lines, set
+  ``rcParams['axes.axisbelow'] = False``.
+
 - By default, caps on the ends of errorbars are not present.  Use the
   rcParam ``errorbar.capsize`` to control this.
 
