@@ -37,6 +37,7 @@ env:
     - secure: "dfjNqGKzQG5bu3FnDNwLG8H/C4QoieFo4PfFmZPdM2RY7WIzukwKFNT6kiDfOrpwt+2bR7FhzjOGlDECGtlGOtYPN8XuXGjhcP4a4IfakdbDfF+D3NPIpf5VlE6776k0VpvcZBTMYJKNFIMc7QPkOwjvNJ2aXyfe3hBuGlKJzQU="
     - BUILD_DOCS=false
     - NUMPY=numpy
+    - OPENBLAS_NUM_THREADS=1
     - PANDAS=
     - NPROC=2
     - TEST_ARGS=--no-pep8
