@@ -165,3 +165,7 @@ mplstereonet
 ===============
 
 `mplstereonet <https://github.com/joferkington/mplstereonet>`_ provides stereonets for plotting and analyzing orientation data in Matplotlib.
+
+pyupset
+===============
+`pyUpSet <https://github.com/ImSoErgodic/py-upset>`_ is a static Python implementation of the `UpSet suite by Lex et al. <http://www.caleydo.org/tools/upset/>`_ to explore complex intersections of sets and data frames.
