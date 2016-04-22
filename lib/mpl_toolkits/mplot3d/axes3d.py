@@ -2678,7 +2678,7 @@ class Axes3D(Axes):
         self.hold(True)
 
         # Extract the required values
-        x, y, zs = [np.asarray(i) for i in args[:3]]
+        x, y, z = [np.asarray(i) for i in args[:3]]
         args = args[3:]
 
         # Popping some defaults
@@ -2707,68 +2707,33 @@ class Axes3D(Axes):
             bottom = 0
 
         stemlines = []
-        #plot the stemlines based on the value of rotate
-        for thisx, thisy, thisz in zip(x, y, zs):
+        jx, jy, jz = art3d.juggle_axes(x, y, z, rotate)
         
-            if rotate=='y':
-                l, = Axes.plot(self, [bottom, thisz], [thisy, thisy], linefmt,
-                                label="_nolegend_")
-                art3d.line_2d_to_3d(l, [thisx, thisx], zdir=zdir)
-            elif rotate=='x':
-                l, = Axes.plot(self, [thisx, thisx], [bottom, thisz], linefmt,
-                                    label="_nolegend_")
-                art3d.line_2d_to_3d(l, [thisy, thisy], zdir=zdir)
-            elif rotate=='z':
-                l, = Axes.plot(self, [thisy, thisy], [thisx, thisx], linefmt,
-                                    label="_nolegend_")
-                art3d.line_2d_to_3d(l, [bottom, thisz], zdir=zdir)
-            else:
-                l, = Axes.plot(self, [thisx, thisx], [thisy, thisy], linefmt,
-                                label="_nolegend_")
-                art3d.line_2d_to_3d(l, [bottom, thisz], zdir=zdir)            
-
-            stemlines.append(l)
-
         #plot the baseline in the appropriate plane
         for i in range(len(x)-1):
-
-            if rotate=='y':
-                baseline, = Axes.plot(self, [bottom, bottom], [y[i], y[i+1]],
-                                      basefmt, label="_nolegend_")
-                art3d.line_2d_to_3d(baseline, [x[i], x[i+1]], zdir=zdir)
-                
-            elif rotate=='x':
-                baseline, = Axes.plot(self, [x[i], x[i+1]], [bottom, bottom],
-                                      basefmt, label="_nolegend_")
-                art3d.line_2d_to_3d(baseline, [y[i], y[i+1]], zdir=zdir)
-                
-            elif rotate=='z':
-                baseline, = Axes.plot(self, [y[i], y[i+1]],[x[i], x[i+1]],
-                                      basefmt, label="_nolegend_")
-                art3d.line_2d_to_3d(baseline, [bottom, bottom], zdir=zdir)  
-                
-            else:
-                baseline, = Axes.plot(self, [x[i], x[i+1]], [y[i], y[i+1]],
-                                  basefmt, label="_nolegend_")
-                art3d.line_2d_to_3d(baseline, [bottom, bottom], zdir=zdir)            
             
-        #swap x,y,zs arrays to plot markerlines and auto scale        
-        if rotate=='y':  
-            x, y, zs = zs, y, x
-        elif rotate=='x':
-            x, y, zs = x, zs, y
-        elif rotate=='z':
-            x, y, zs = y, x, zs
+            baseline, = Axes.plot(self, [x[i], x[i+1]], [y[i], y[i+1]],
+                                  basefmt, label="_nolegend_")
+            art3d.line_2d_to_3d(baseline, [bottom, bottom], rotate)            
+            
+        #plot the stemlines based on the value of rotate
+        for thisx, thisy, thisz in zip(x, y, z):
+        
+            l, = Axes.plot(self, [thisx, thisx], [thisy, thisy], linefmt,
+                                label="_nolegend_")
+            art3d.line_2d_to_3d(l, [bottom, thisz], rotate)            
+
+            stemlines.append(l)
             
         markerline, = Axes.plot(self, x, y, markerfmt, label="_nolegend_")
-        art3d.line_2d_to_3d(markerline, zs, zdir=zdir)                
+        art3d.line_2d_to_3d(markerline, z, rotate)                
         self.hold(remember_hold)
 
         stem_container = StemContainer((markerline, stemlines, baseline),
                                        label=label)
         self.add_container(stem_container)
         
-        self.auto_scale_xyz(x, y, zs, had_data)
+        self.auto_scale_xyz(jx, jy, jz, had_data)
         
         return stem_container
 
