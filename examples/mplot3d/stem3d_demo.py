@@ -8,6 +8,6 @@ theta = np.linspace(0, 2*np.pi)
 x = np.cos(theta)
 y = np.sin(theta)
 z = theta
-markerline, stemlines, baseline = ax.stem3(x, y, z)
+markerline, stemlines, baseline = ax.stem(x, y, z)
 
 plt.show()

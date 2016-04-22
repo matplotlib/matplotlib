@@ -14,7 +14,7 @@ def test_3dstemplot_default():
     x = np.cos(theta)
     y = np.sin(theta)
     z = np.power(x, 2)
-    markerline, stemlines, baseline = ax.stem3(x, y, z)
+    markerline, stemlines, baseline = ax.stem(x, y, z)
 
 
 @image_comparison(baseline_images=['3dstemplot_rotate_along_x'],
@@ -26,7 +26,7 @@ def test_3dstemplot_rotate_along_x():
     x = np.cos(theta)
     y = np.sin(theta)
     z = np.power(x, 2)
-    markerline, stemlines, baseline = ax2.stem3(x, y, z, rotate='x')
+    markerline, stemlines, baseline = ax2.stem(x, y, z, zdir='-x')
 
 
 @image_comparison(baseline_images=['3dstemplot_rotate_along_y'],
@@ -38,68 +38,53 @@ def test_3dstemplot_rotate_along_y():
     x = np.cos(theta)
     y = np.sin(theta)
     z = np.power(x, 2)
-    markerline, stemlines, baseline = ax3.stem3(x, y, z, rotate='y')
-
-
-@image_comparison(baseline_images=['3dstemplot_rotate_along_z'],
-                  extensions=['png'])
-def test_3dstemplot_rotate_along_z():
-    fig4 = plt.figure()
-    ax4 = fig4.gca(projection='3d')
-    theta = np.linspace(0, 2*np.pi)
-    x = np.cos(theta)
-    y = np.sin(theta)
-    z = np.power(x, 2)
-    markerline, stemlines, baseline = ax4.stem3(x, y, z, rotate='z')
+    markerline, stemlines, baseline = ax3.stem(x, y, z, zdir='-y')
 
 
 @image_comparison(baseline_images=['2plane_default'],
                   extensions=['png'])
 def test_2plane_default():
+    fig4 = plt.figure()
+    ax4 = fig4.gca(projection='3d')
+    x = np.linspace(-np.pi/2, np.pi/2, 40)
+    y = [1]*len(x)
+    z = np.cos(x)
+    markerline, stemlines, baseline = ax4.stem(x, y, z, '-.')
+    plt.setp(markerline, 'markerfacecolor', 'b')
+    plt.setp(baseline, 'color', 'r', 'linewidth', 1)
+    
+@image_comparison(baseline_images=['2plane_zdir_x'],
+                  extensions=['png'])
+def test_2plane_zdir_x():
     fig5 = plt.figure()
     ax5 = fig5.gca(projection='3d')
     x = np.linspace(-np.pi/2, np.pi/2, 40)
     y = [1]*len(x)
     z = np.cos(x)
-    markerline, stemlines, baseline = ax5.stem3(x, y, z, '-.', rotate='')
+    markerline, stemlines, baseline = ax5.stem(x, y, z, '-.', zdir='x')
     plt.setp(markerline, 'markerfacecolor', 'b')
     plt.setp(baseline, 'color', 'r', 'linewidth', 1)
-
-
-@image_comparison(baseline_images=['2plane_rotate_along_x'],
+    
+@image_comparison(baseline_images=['2plane_zdir_y'],
                   extensions=['png'])
-def test_2plane_rotate_along_x():
+def test_3dstemplot_zdir_y():
     fig6 = plt.figure()
     ax6 = fig6.gca(projection='3d')
     x = np.linspace(-np.pi/2, np.pi/2, 40)
     y = [1]*len(x)
     z = np.cos(x)
-    markerline, stemlines, baseline = ax6.stem3(x, y, z, '-.', rotate='x')
+    markerline, stemlines, baseline = ax6.stem(x, y, z, '-.', zdir='y')
     plt.setp(markerline, 'markerfacecolor', 'b')
     plt.setp(baseline, 'color', 'r', 'linewidth', 1)
-
-
-@image_comparison(baseline_images=['2plane_rotate_along_y'],
+    
+@image_comparison(baseline_images=['2plane_zdir_z'],
                   extensions=['png'])
-def test_2plane_rotate_along_y():
+def test_3dstemplot_zdir_z():
     fig7 = plt.figure()
     ax7 = fig7.gca(projection='3d')
     x = np.linspace(-np.pi/2, np.pi/2, 40)
     y = [1]*len(x)
     z = np.cos(x)
-    markerline, stemlines, baseline = ax7.stem3(x, y, z, '-.', rotate='y')
-    plt.setp(markerline, 'markerfacecolor', 'b')
-    plt.setp(baseline, 'color', 'r', 'linewidth', 1)
-
-
-@image_comparison(baseline_images=['2plane_rotate_along_z'],
-                  extensions=['png'])
-def test_2plane_rotate_along_z():
-    fig8 = plt.figure()
-    ax8 = fig8.gca(projection='3d')
-    x = np.linspace(-np.pi/2, np.pi/2, 40)
-    y = [1]*len(x)
-    z = np.cos(x)
-    markerline, stemlines, baseline = ax8.stem3(x, y, z, '-.', rotate='z')
+    markerline, stemlines, baseline = ax7.stem(x, y, z, '-.', zdir='z')
     plt.setp(markerline, 'markerfacecolor', 'b')
     plt.setp(baseline, 'color', 'r', 'linewidth', 1)

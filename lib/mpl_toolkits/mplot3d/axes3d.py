@@ -2641,22 +2641,22 @@ class Axes3D(Axes):
 
     quiver3D = quiver
 
-    def stem3(self, *args, **kwargs):
+    def stem(self, *args, **kwargs):
         """
         Create a 3D stem plot.
         
         Call signatures::
           stem3(x, y, z, linefmt='b-', markerfmt='bo', basefmt='r-', 
-                rotate={'x'|'y'|'z'})
+                zdir={'x'|'y'|'z'|'-x'|'-y'})
         
-        By default, stem3 plots vertical lines (using *linefmt*) in the z direction
+        By default, stem plots vertical lines (using *linefmt*) in the z direction
         at each *x* and *y* location from the baseline to *z*, and places a marker there
         using *markerfmt*. By default, the baseline at the xy-plane is plotted using
         *basefmt*.
         
         *x*, *y, and *z* values are required and must be arrays of the same length.
         
-        If no rotate value is provided, then it is set to default and no rotation occurs.
+        If no zdir value is provided, then it is set to default and no rotation occurs.
         
         Return value is a tuple (*markerline*, *stemlines*, *baseline*).
         
@@ -2665,7 +2665,7 @@ class Axes3D(Axes):
             for details.
         
         **Example:**
-        .. plot:: /mplot3d/stem3_demo.py
+        .. plot:: /mplot3d/stem3d_demo.py
         """
 
         from matplotlib.container import StemContainer
@@ -2695,38 +2695,37 @@ class Axes3D(Axes):
         except IndexError:
             basefmt = kwargs.pop('basefmt', 'r-')
         try:
-            rotate = kwargs.pop('rotate', args[3])
+            zdir = kwargs.pop('zdir', args[3])
         except IndexError:
-            rotate = kwargs.pop('rotate', 'default')
+            zdir = kwargs.pop('zdir', 'z')
 
         bottom = kwargs.pop('bottom', None)
         label = kwargs.pop('label', None)
-        zdir = kwargs.pop('zdir','z')
                     
         if bottom is None:
             bottom = 0
 
         stemlines = []
-        jx, jy, jz = art3d.juggle_axes(x, y, z, rotate)
+        jx, jy, jz = art3d.juggle_axes(x, y, z, zdir)
         
         #plot the baseline in the appropriate plane
         for i in range(len(x)-1):
             
             baseline, = Axes.plot(self, [x[i], x[i+1]], [y[i], y[i+1]],
                                   basefmt, label="_nolegend_")
-            art3d.line_2d_to_3d(baseline, [bottom, bottom], rotate)            
+            art3d.line_2d_to_3d(baseline, [bottom, bottom], zdir)            
             
         #plot the stemlines based on the value of rotate
         for thisx, thisy, thisz in zip(x, y, z):
         
             l, = Axes.plot(self, [thisx, thisx], [thisy, thisy], linefmt,
                                 label="_nolegend_")
-            art3d.line_2d_to_3d(l, [bottom, thisz], rotate)            
+            art3d.line_2d_to_3d(l, [bottom, thisz], zdir)            
 
             stemlines.append(l)
             
         markerline, = Axes.plot(self, x, y, markerfmt, label="_nolegend_")
-        art3d.line_2d_to_3d(markerline, z, rotate)                
+        art3d.line_2d_to_3d(markerline, z, zdir)                
         self.hold(remember_hold)
 
         stem_container = StemContainer((markerline, stemlines, baseline),
@@ -2736,6 +2735,8 @@ class Axes3D(Axes):
         self.auto_scale_xyz(jx, jy, jz, had_data)
         
         return stem_container
+    
+    stem3D = stem
 
 
 def get_test_data(delta=0.05):
