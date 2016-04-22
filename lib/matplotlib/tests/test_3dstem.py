@@ -52,7 +52,8 @@ def test_2plane_default():
     markerline, stemlines, baseline = ax4.stem(x, y, z, '-.')
     plt.setp(markerline, 'markerfacecolor', 'b')
     plt.setp(baseline, 'color', 'r', 'linewidth', 1)
-    
+
+
 @image_comparison(baseline_images=['2plane_zdir_x'],
                   extensions=['png'])
 def test_2plane_zdir_x():
@@ -64,7 +65,8 @@ def test_2plane_zdir_x():
     markerline, stemlines, baseline = ax5.stem(x, y, z, '-.', zdir='x')
     plt.setp(markerline, 'markerfacecolor', 'b')
     plt.setp(baseline, 'color', 'r', 'linewidth', 1)
-    
+
+
 @image_comparison(baseline_images=['2plane_zdir_y'],
                   extensions=['png'])
 def test_3dstemplot_zdir_y():
@@ -76,7 +78,8 @@ def test_3dstemplot_zdir_y():
     markerline, stemlines, baseline = ax6.stem(x, y, z, '-.', zdir='y')
     plt.setp(markerline, 'markerfacecolor', 'b')
     plt.setp(baseline, 'color', 'r', 'linewidth', 1)
-    
+
+
 @image_comparison(baseline_images=['2plane_zdir_z'],
                   extensions=['png'])
 def test_3dstemplot_zdir_z():
