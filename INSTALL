@@ -198,6 +198,9 @@ Required Dependencies
     easy_install or installing from source, the installer will attempt
     to download and install `python_dateutil` from PyPI.
 
+`freetypy` 1.0 or later
+    Python wrappers to freetype.
+
 `pyparsing <https://pyparsing.wikispaces.com/>`__
     Required for matplotlib's mathtext math rendering support.  If
     using pip, easy_install or installing from source, the installer
@@ -210,13 +213,6 @@ Required Dependencies
 
 `pytz <http://pytz.sourceforge.net/>`__
     Used to manipulate time-zone aware datetimes. http://pypi.python.org/pypi/pytz
-
-:term:`FreeType` 2.3 or later
-    Library for reading true type font files. If using pip, easy_install or 
-    installing from source, the installer will attempt to locate FreeType in
-    expected locations. If it cannot, try installing `pkg-config 
-    <http://matplotlib.org/users/installing.html#optional-dependencies>`__,
-    a tool used to find required non-python libraries.
 
 `cycler <http://matplotlib.org/cycler/>`__ 0.9 or later
    Composable cycle class used for constructing style-cycles
@@ -278,9 +274,6 @@ Required libraries that ship with matplotlib
 
 `qhull` 2012.1
     A library for computing Delaunay triangulations.
-
-`ttconv`
-   truetype font utility
 
 six 1.9.0
     Python 2/3 compatibility library.  Do not use this in third-party

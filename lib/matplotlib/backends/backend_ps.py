@@ -11,6 +11,7 @@ from matplotlib.externals.six.moves import StringIO
 import glob, math, os, shutil, sys, time
 def _fn_name(): return sys._getframe(1).f_code.co_name
 import io
+import codecs
 
 try:
     from hashlib import md5
@@ -28,9 +29,7 @@ from matplotlib.cbook import is_string_like, get_realpath_and_stat, \
     is_writable_file_like, maxdict, file_requires_unicode
 from matplotlib.figure import Figure
 
-from matplotlib.font_manager import findfont, is_opentype_cff_font, get_font
-from matplotlib.ft2font import KERNING_DEFAULT, LOAD_NO_HINTING
-from matplotlib.ttconv import convert_ttf_to_ps
+from matplotlib.font_manager import findfont, get_font
 from matplotlib.mathtext import MathTextParser
 from matplotlib._mathtext_data import uni2type1
 from matplotlib.text import Text
@@ -40,6 +39,8 @@ from matplotlib.transforms import Affine2D
 
 from matplotlib.backends.backend_mixed import MixedModeRenderer
 
+import freetypy as ft
+from freetypy import subset
 
 import numpy as np
 import binascii
@@ -55,6 +56,128 @@ else: cmd_split = ';'
 backend_version = 'Level II'
 
 debugPS = 0
+
+
+def convert_ttf_to_ps(filename, fh, chars):
+    font = get_font(filename)
+
+    fullname = font.sfnt_names.get_name(ft.TT_NAME_ID.FULL_NAME).string
+    try:
+        copyright = font.sfnt_names.get_name(ft.TT_NAME_ID.COPYRIGHT).string
+    except KeyError:
+        copyright = ''
+    copyright = copyright.replace('\n', ' ')
+    try:
+        trademark = font.sfnt_names.get_name(ft.TT_NAME_ID.TRADEMARK).string
+    except KeyError:
+        trademark = ''
+    trademark = trademark.replace('\n', ' ')
+    try:
+        version = font.sfnt_names.get_name(ft.TT_NAME_ID.VERSION_STRING).string
+    except KeyError:
+        version = ''
+
+    print("%%!PS-TrueTypeFont-1.0-%f" % font.tt_header.font_revision, file=fh)
+    print("%%%%Title: %s" % fullname, file=fh)
+    if copyright:
+        print("%%%%Copyright: %s" % copyright, file=fh)
+    print("%%Creator: Converted from TrueType to Type 42", file=fh)
+    print("%%%%VMUsage: %d %d" % (
+        font.tt_postscript.max_mem_type42,
+        font.tt_postscript.min_mem_type42), file=fh)
+    print("15 dict begin", file=fh)
+    print("/FontName /%s def" % font.get_postscript_name(), file=fh)
+    print("/PaintType 0 def", file=fh)
+    print("/FontMatrix[1 0 0 1 0 0]def", file=fh)
+    print("/FontBBox[%d %d %d %d]def" % tuple(font.bbox), file=fh)
+    print("/FontType 42 def", file=fh)
+
+    print("/Encoding StandardEncoding def", file=fh)
+
+    print("/FontInfo 10 dict dup begin", file=fh)
+    print("/FamilyName (%s) def" % font.family_name, file=fh)
+    print("/FullName (%s) def" % fullname, file=fh)
+    if copyright or trademark:
+        notice = ' '.join([x for x in (copyright, trademark) if x])
+        print("/Notice (%s) def" % notice, file=fh)
+    print("/Weight (%s) def" % font.style_name, file=fh)
+    print("/Version (%s) def" % version, file=fh)
+    print("/ItalicAngle %f def" % font.tt_postscript.italic_angle, file=fh)
+    print("/isFixedPitch %s def" %
+          str(font.tt_postscript.is_fixed_pitch).lower(), file=fh)
+    print("/UnderlinePosition %d def" % font.tt_postscript.underline_position,
+          file=fh)
+    print("/UnderlineThickness %d def" % font.tt_postscript.underline_thickness,
+          file=fh)
+    print("end readonly def", file=fh)
+
+    print("/sfnts[<", file=fh, end='')
+
+    class HexWriter(object):
+        def __init__(self, fh):
+            self._fh = fh
+
+        def write(self, s):
+            content = codecs.encode(s, 'hex').decode('ascii')
+            for i in range(0, len(content), 80):
+                self._fh.write(content[i:i+80])
+                self._fh.write('\n')
+
+    wrapper = HexWriter(fh)
+    with open(filename, 'rb') as input_fd:
+        if rcParams['font.subset']:
+            subset.subset_font(input_fd, wrapper, chars)
+            wrapper.write(b'\0')
+        else:
+            while True:
+                buff = input_fd.read(4096)
+                if not len(buff):
+                    break
+                wrapper.write(buff)
+    print(">]def", file=fh)
+
+    print("/CharStrings %d dict dup begin" % len(chars), file=fh)
+    for char in chars:
+        print("/%s %d def" %
+              (font.get_char_name(char),
+               font.get_char_index_unicode(char)), file=fh)
+    print("end readonly def", file=fh)
+
+    print("systemdict/resourcestatus known", file=fh)
+    print(" {42 /FontType resourcestatus", file=fh)
+    print("   {pop pop false}{true}ifelse}", file=fh)
+    print(" {true}ifelse", file=fh)
+
+    print("{/TrueDict where{pop}{(%%[ Error: no TrueType rasterizer ]%%)= flush}ifelse", file=fh)
+
+    print("/FontType 3 def", file=fh)
+
+    print(" /TrueState 271 string def", file=fh)
+
+    print(" TrueDict begin sfnts save", file=fh)
+    print(" 72 0 matrix defaultmatrix dtransform dup", file=fh)
+    print(" mul exch dup mul add sqrt cvi 0 72 matrix", file=fh)
+    print(" defaultmatrix dtransform dup mul exch dup", file=fh)
+    print(" mul add sqrt cvi 3 -1 roll restore", file=fh)
+    print(" TrueState initer end", file=fh)
+
+    print(" /BuildGlyph{exch begin", file=fh)
+    print("  CharStrings dup 2 index known", file=fh)
+    print("    {exch}{exch pop /.notdef}ifelse", file=fh)
+    print("  get dup xcheck", file=fh)
+    print("    {currentdict systemdict begin begin exec end end}", file=fh)
+    print("    {TrueDict begin /bander load cvlit exch TrueState render end}", file=fh)
+    print("    ifelse", file=fh)
+    print(" end}bind def", file=fh)
+
+    print(" /BuildChar{", file=fh)
+    print("  1 index /Encoding get exch get", file=fh)
+    print("  1 index /BuildGlyph get exec", file=fh)
+    print(" }bind def", file=fh)
+
+    print("}if", file=fh)
+
+    print("FontName currentdict end definefont pop", file=fh);
 
 
 class PsBackendHelper(object):
@@ -238,7 +361,7 @@ class RendererPS(RendererBase):
     def track_characters(self, font, s):
         """Keeps track of which characters are required from
         each font."""
-        realpath, stat_key = get_realpath_and_stat(font.fname)
+        realpath, stat_key = get_realpath_and_stat(font.filename)
         used_characters = self.used_characters.setdefault(
             stat_key, (realpath, set()))
         used_characters[1].update([ord(x) for x in s])
@@ -288,7 +411,8 @@ class RendererPS(RendererBase):
             self.linedash = (offset, seq)
 
     def set_font(self, fontname, fontsize, store=1):
-        if rcParams['ps.useafm']: return
+        if rcParams['ps.useafm']:
+            return
         if (fontname,fontsize) != (self.fontname,self.fontsize):
             out = ("/%s findfont\n"
                    "%1.3f scalefont\n"
@@ -365,13 +489,10 @@ class RendererPS(RendererBase):
             return w, h, d
 
         font = self._get_font_ttf(prop)
-        font.set_text(s, 0.0, flags=LOAD_NO_HINTING)
-        w, h = font.get_width_height()
-        w /= 64.0  # convert from subpixels
-        h /= 64.0
-        d = font.get_descent()
-        d /= 64.0
-        #print s, w, h
+        layout = ft.Layout(font, s, load_flags=ft.LOAD.NO_HINTING)
+        w = layout.layout_bbox.width
+        h = layout.ink_bbox.height
+        d = -layout.ink_bbox.y_min
         return w, h, d
 
     def flipy(self):
@@ -397,9 +518,8 @@ class RendererPS(RendererBase):
     def _get_font_ttf(self, prop):
         fname = findfont(prop)
         font = get_font(fname)
-        font.clear()
         size = prop.get_size_in_points()
-        font.set_size(size, 72.0)
+        font.set_char_size(size, size, 72, 72)
         return font
 
     def _rgb(self, rgba):
@@ -719,17 +839,11 @@ grestore
 
         else:
             font = self._get_font_ttf(prop)
-            font.set_text(s, 0, flags=LOAD_NO_HINTING)
+            layout = ft.Layout(font, s, load_flags=ft.LOAD.NO_HINTING)
             self.track_characters(font, s)
 
             self.set_color(*gc.get_rgb())
-            sfnt = font.get_sfnt()
-            try:
-                ps_name = sfnt[(1,0,0,6)].decode('macroman')
-            except KeyError:
-                ps_name = sfnt[(3,1,0x0409,6)].decode(
-                    'utf-16be')
-            ps_name = ps_name.encode('ascii', 'replace').decode('ascii')
+            ps_name = font.get_postscript_name()
             self.set_font(ps_name, prop.get_size_in_points())
 
             lastgind = None
@@ -745,18 +859,19 @@ grestore
                     name = '.notdef'
                     gind = 0
                 else:
-                    name = font.get_glyph_name(gind)
-                glyph = font.load_char(ccode, flags=LOAD_NO_HINTING)
+                    name = font.get_char_name(ccode)
+                glyph = font.load_char_unicode(
+                    ccode, load_flags=ft.LOAD.NO_HINTING)
 
                 if lastgind is not None:
-                    kern = font.get_kerning(lastgind, gind, KERNING_DEFAULT)
+                    kern = font.get_kerning(lastgind, gind, ft.KERNING.DEFAULT).x
                 else:
                     kern = 0
                 lastgind = gind
-                thisx += kern/64.0
+                thisx += kern
 
                 lines.append('%f %f m /%s glyphshow'%(thisx, thisy, name))
-                thisx += glyph.linearHoriAdvance/65536.0
+                thisx += glyph.linear_hori_advance
 
 
             thetext = '\n'.join(lines)
@@ -1104,32 +1219,11 @@ class FigureCanvasPS(FigureCanvasBase):
                 for l in d.split('\n'):
                     print(l.strip(), file=fh)
             if not rcParams['ps.useafm']:
-                for font_filename, chars in six.itervalues(ps_renderer.used_characters):
+                for font_filename, chars in six.itervalues(
+                        ps_renderer.used_characters):
                     if len(chars):
-                        font = get_font(font_filename)
-                        glyph_ids = []
-                        for c in chars:
-                            gind = font.get_char_index(c)
-                            glyph_ids.append(gind)
-
-                        fonttype = rcParams['ps.fonttype']
-
-                        # Can not use more than 255 characters from a
-                        # single font for Type 3
-                        if len(glyph_ids) > 255:
-                            fonttype = 42
-
-                        # The ttf to ps (subsetting) support doesn't work for
-                        # OpenType fonts that are Postscript inside (like the
-                        # STIX fonts).  This will simply turn that off to avoid
-                        # errors.
-                        if is_opentype_cff_font(font_filename):
-                            raise RuntimeError("OpenType CFF fonts can not be saved using the internal Postscript backend at this time.\nConsider using the Cairo backend.")
-                        else:
-                            fh.flush()
-                            convert_ttf_to_ps(
-                                font_filename.encode(sys.getfilesystemencoding()),
-                                fh, fonttype, glyph_ids)
+                        fh.flush()
+                        convert_ttf_to_ps(font_filename, fh, chars)
             print("end", file=fh)
             print("%%EndProlog", file=fh)
 

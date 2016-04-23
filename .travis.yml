@@ -85,12 +85,18 @@ install:
         # Fall back to pypi for non suported python versions
         pip install $PRE $NUMPY $PANDAS;
     fi
+
     # Always install from pypi
     pip install $PRE pep8 cycler coveralls coverage python-dateutil pyparsing!=2.0.4
     pip install pillow sphinx!=1.3.0 $MOCK numpydoc ipython colorspacious
     # Install nose from a build which has partial
     # support for python36 and suport for coverage output suppressing
     pip install git+https://github.com/jenshnielsen/nose.git@matplotlibnose
+
+    # Install freetypy from git
+    FREETYPY_LOCAL_FREETYPE=1 pip install git+https://github.com/matplotlib/freetypy@master
+    # Install fcpy from git
+    pip install git+https://github.com/matplotlib/fcpy@master
 
     # We manually install humor sans using the package from Ubuntu 14.10. Unfortunatly humor sans is not
     # availible in the Ubuntu version used by Travis but we can manually install the deb from a later

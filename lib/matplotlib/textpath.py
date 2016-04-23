@@ -15,13 +15,13 @@ import numpy as np
 from matplotlib.path import Path
 from matplotlib import rcParams
 import matplotlib.font_manager as font_manager
-from matplotlib.ft2font import KERNING_DEFAULT, LOAD_NO_HINTING
-from matplotlib.ft2font import LOAD_TARGET_LIGHT
 from matplotlib.mathtext import MathTextParser
 import matplotlib.dviread as dviread
 from matplotlib.font_manager import FontProperties, get_font
 from matplotlib.transforms import Affine2D
 from matplotlib.externals.six.moves.urllib.parse import quote as urllib_quote
+
+import freetypy as ft
 
 
 class TextToPath(object):
@@ -57,38 +57,36 @@ class TextToPath(object):
         """
         fname = font_manager.findfont(prop)
         font = get_font(fname)
-        font.set_size(self.FONT_SCALE, self.DPI)
+        font.set_char_size(
+            self.FONT_SCALE, self.FONT_SCALE, self.DPI, self.DPI)
 
         return font
 
     def _get_hinting_flag(self):
-        return LOAD_NO_HINTING
+        return ft.LOAD.NO_HINTING
 
     def _get_char_id(self, font, ccode):
         """
         Return a unique id for the given font and character-code set.
         """
-        sfnt = font.get_sfnt()
-        try:
-            ps_name = sfnt[(1, 0, 0, 6)].decode('macroman')
-        except KeyError:
-            ps_name = sfnt[(3, 1, 0x0409, 6)].decode('utf-16be')
-        char_id = urllib_quote('%s-%x' % (ps_name, ccode))
+        char_id = urllib_quote('%s-%x' % (font.get_postscript_name(), ccode))
         return char_id
 
     def _get_char_id_ps(self, font, ccode):
         """
         Return a unique id for the given font and character-code set (for tex).
         """
-        ps_name = font.get_ps_font_info()[2]
+        ps_name = font.get_postscript_name()
         char_id = urllib_quote('%s-%d' % (ps_name, ccode))
         return char_id
 
-    def glyph_to_path(self, font, currx=0.):
+    def glyph_to_path(self, glyph, currx=0.):
         """
-        convert the ft2font glyph to vertices and codes.
+        convert the glyph to vertices and codes.
         """
-        verts, codes = font.get_path()
+        verts, codes = glyph.outline.to_points_and_codes()
+        verts = np.array(verts)
+        codes = np.array(codes)
         if currx != 0.0:
             verts[:, 0] += currx
         return verts, codes
@@ -113,13 +111,12 @@ class TextToPath(object):
             return width * scale, height * scale, descent * scale
 
         font = self._get_font(prop)
-        font.set_text(s, 0.0, flags=LOAD_NO_HINTING)
-        w, h = font.get_width_height()
-        w /= 64.0  # convert from subpixels
-        h /= 64.0
-        d = font.get_descent()
-        d /= 64.0
-        return w * scale, h * scale, d * scale
+        font.set_char_size(self.FONT_SCALE, self.FONT_SCALE, self.DPI, self.DPI)
+        layout = ft.Layout(font, s)
+        w = layout.layout_bbox.width * scale
+        h = layout.ink_bbox.height * scale
+        d = -layout.ink_bbox.y_min * scale
+        return w, h, d
 
     def get_text_path(self, prop, s, ismath=False, usetex=False):
         """
@@ -173,14 +170,6 @@ class TextToPath(object):
         provided ttf font.
         """
 
-        # Mostly copied from backend_svg.py.
-
-        lastgind = None
-
-        currx = 0
-        xpositions = []
-        glyph_ids = []
-
         if glyph_map is None:
             glyph_map = OrderedDict()
 
@@ -189,43 +178,19 @@ class TextToPath(object):
         else:
             glyph_map_new = glyph_map
 
-        # I'm not sure if I get kernings right. Needs to be verified. -JJL
+        layout = ft.Layout(font, s)
 
-        for c in s:
+        result = []
+        for gind, c, pos in zip(np.asarray(layout.glyph_indices), s,
+                                np.asarray(layout.points)):
             ccode = ord(c)
-            gind = font.get_char_index(ccode)
-            if gind is None:
-                ccode = ord('?')
-                gind = 0
-
-            if lastgind is not None:
-                kern = font.get_kerning(lastgind, gind, KERNING_DEFAULT)
-            else:
-                kern = 0
-
-            glyph = font.load_char(ccode, flags=LOAD_NO_HINTING)
-            horiz_advance = (glyph.linearHoriAdvance / 65536.0)
-
             char_id = self._get_char_id(font, ccode)
             if char_id not in glyph_map:
-                glyph_map_new[char_id] = self.glyph_to_path(font)
+                glyph = font.load_glyph(gind, ft.LOAD.NO_HINTING)
+                glyph_map_new[char_id] = self.glyph_to_path(glyph)
+            result.append((char_id, pos[0], pos[1], 1))
 
-            currx += (kern / 64.0)
-
-            xpositions.append(currx)
-            glyph_ids.append(char_id)
-
-            currx += horiz_advance
-
-            lastgind = gind
-
-        ypositions = [0] * len(xpositions)
-        sizes = [1.] * len(xpositions)
-
-        rects = []
-
-        return (list(zip(glyph_ids, xpositions, ypositions, sizes)),
-                     glyph_map_new, rects)
+        return (result, glyph_map_new, [])
 
     def get_glyphs_mathtext(self, prop, s, glyph_map=None,
                             return_new_glyphs_only=False):
@@ -257,10 +222,9 @@ class TextToPath(object):
         for font, fontsize, ccode, ox, oy in glyphs:
             char_id = self._get_char_id(font, ccode)
             if char_id not in glyph_map:
-                font.clear()
-                font.set_size(self.FONT_SCALE, self.DPI)
-                glyph = font.load_char(ccode, flags=LOAD_NO_HINTING)
-                glyph_map_new[char_id] = self.glyph_to_path(font)
+                font.set_char_size(self.FONT_SCALE, self.FONT_SCALE, self.DPI, self.DPI)
+                glyph = font.load_char_unicode(ccode, ft.LOAD.NO_HINTING)
+                glyph_map_new[char_id] = self.glyph_to_path(glyph)
 
             xpositions.append(ox)
             ypositions.append(oy)
@@ -363,28 +327,28 @@ class TextToPath(object):
             else:
                 font, enc = font_and_encoding
 
-            ft2font_flag = LOAD_TARGET_LIGHT
+            font_flag = ft.LOAD.TARGET_LIGHT
 
             char_id = self._get_char_id_ps(font, glyph)
 
             if char_id not in glyph_map:
-                font.clear()
-                font.set_size(self.FONT_SCALE, self.DPI)
+                font.set_char_size(self.FONT_SCALE, self.FONT_SCALE,
+                                   self.DPI, self.DPI)
                 if enc:
                     charcode = enc.get(glyph, None)
                 else:
                     charcode = glyph
 
                 if charcode is not None:
-                    glyph0 = font.load_char(charcode, flags=ft2font_flag)
+                    glyph0 = font.load_char(charcode, load_flags=font_flag)
                 else:
                     warnings.warn("The glyph (%d) of font (%s) cannot be "
                                   "converted with the encoding. Glyph may "
                                   "be wrong" % (glyph, font_bunch.filename))
 
-                    glyph0 = font.load_char(glyph, flags=ft2font_flag)
+                    glyph0 = font.load_char(glyph, load_flags=font_flag)
 
-                glyph_map_new[char_id] = self.glyph_to_path(font)
+                glyph_map_new[char_id] = self.glyph_to_path(glyph)
 
             glyph_ids.append(char_id)
             xpositions.append(x1)

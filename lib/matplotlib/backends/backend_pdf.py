@@ -20,6 +20,10 @@ import zlib
 from io import BytesIO
 
 import numpy as np
+
+import freetypy as ft
+from freetypy import subset
+
 from matplotlib.externals.six import unichr
 
 
@@ -35,18 +39,15 @@ from matplotlib.backends.backend_mixed import MixedModeRenderer
 from matplotlib.cbook import (Bunch, is_string_like, get_realpath_and_stat,
                               is_writable_file_like, maxdict)
 from matplotlib.figure import Figure
-from matplotlib.font_manager import findfont, is_opentype_cff_font, get_font
+from matplotlib.font_manager import findfont, get_font
 from matplotlib.afm import AFM
 import matplotlib.type1font as type1font
 import matplotlib.dviread as dviread
-from matplotlib.ft2font import (FIXED_WIDTH, ITALIC, LOAD_NO_SCALE,
-                                LOAD_NO_HINTING, KERNING_UNFITTED)
 from matplotlib.mathtext import MathTextParser
 from matplotlib.transforms import Affine2D, BboxBase
 from matplotlib.path import Path
 from matplotlib import _path
 from matplotlib import _png
-from matplotlib import ttconv
 
 # Overview
 #
@@ -757,16 +758,16 @@ class PdfFile(object):
         if 0:
             flags |= 1 << 18
 
-        ft2font = get_font(fontfile)
+        font = get_font(fontfile)
 
         descriptor = {
             'Type':        Name('FontDescriptor'),
             'FontName':    Name(t1font.prop['FontName']),
             'Flags':       flags,
-            'FontBBox':    ft2font.bbox,
+            'FontBBox':    font.bbox,
             'ItalicAngle': italic_angle,
-            'Ascent':      ft2font.ascender,
-            'Descent':     ft2font.descender,
+            'Ascent':      font.ascender,
+            'Descent':     font.descender,
             'CapHeight':   1000,  # TODO: find this out
             'XHeight':     500,  # TODO: this one too
             'FontFile':    fontfileObject,
@@ -818,9 +819,8 @@ end"""
         """Embed the TTF font from the named file into the document."""
 
         font = get_font(filename)
-        fonttype = rcParams['pdf.fonttype']
 
-        def cvt(length, upe=font.units_per_EM, nearest=True):
+        def cvt(length, upe=font.units_per_em, nearest=True):
             "Convert font coordinates to PDF glyph coordinates"
             value = length / upe * 1000
             if nearest:
@@ -832,255 +832,22 @@ end"""
             else:
                 return ceil(value)
 
-        def embedTTFType3(font, characters, descriptor):
-            """The Type 3-specific part of embedding a Truetype font"""
-            widthsObject = self.reserveObject('font widths')
-            fontdescObject = self.reserveObject('font descriptor')
-            fontdictObject = self.reserveObject('font dictionary')
-            charprocsObject = self.reserveObject('character procs')
-            differencesArray = []
-            firstchar, lastchar = 0, 255
-            bbox = [cvt(x, nearest=False) for x in font.bbox]
-
-            fontdict = {
-                'Type': Name('Font'),
-                'BaseFont': ps_name,
-                'FirstChar': firstchar,
-                'LastChar': lastchar,
-                'FontDescriptor': fontdescObject,
-                'Subtype': Name('Type3'),
-                'Name': descriptor['FontName'],
-                'FontBBox': bbox,
-                'FontMatrix': [.001, 0, 0, .001, 0, 0],
-                'CharProcs': charprocsObject,
-                'Encoding': {
-                    'Type': Name('Encoding'),
-                    'Differences': differencesArray},
-                'Widths': widthsObject
-                }
-
-            # Make the "Widths" array
-            from encodings import cp1252
-            # The "decoding_map" was changed
-            # to a "decoding_table" as of Python 2.5.
-            if hasattr(cp1252, 'decoding_map'):
-                def decode_char(charcode):
-                    return cp1252.decoding_map[charcode] or 0
-            else:
-                def decode_char(charcode):
-                    return ord(cp1252.decoding_table[charcode])
-
-            def get_char_width(charcode):
-                s = decode_char(charcode)
-                width = font.load_char(
-                    s, flags=LOAD_NO_SCALE | LOAD_NO_HINTING).horiAdvance
-                return cvt(width)
-
-            widths = [get_char_width(charcode)
-                      for charcode in range(firstchar, lastchar+1)]
-            descriptor['MaxWidth'] = max(widths)
-
-            # Make the "Differences" array, sort the ccodes < 255 from
-            # the multi-byte ccodes, and build the whole set of glyph ids
-            # that we need from this font.
-            glyph_ids = []
-            differences = []
-            multi_byte_chars = set()
-            for c in characters:
-                ccode = c
-                gind = font.get_char_index(ccode)
-                glyph_ids.append(gind)
-                glyph_name = font.get_glyph_name(gind)
-                if ccode <= 255:
-                    differences.append((ccode, glyph_name))
-                else:
-                    multi_byte_chars.add(glyph_name)
-            differences.sort()
-
-            last_c = -2
-            for c, name in differences:
-                if c != last_c + 1:
-                    differencesArray.append(c)
-                differencesArray.append(Name(name))
-                last_c = c
-
-            # Make the charprocs array (using ttconv to generate the
-            # actual outlines)
-            rawcharprocs = ttconv.get_pdf_charprocs(
-                filename.encode(sys.getfilesystemencoding()), glyph_ids)
-            charprocs = {}
-            for charname, stream in six.iteritems(rawcharprocs):
-                charprocDict = {'Length': len(stream)}
-                # The 2-byte characters are used as XObjects, so they
-                # need extra info in their dictionary
-                if charname in multi_byte_chars:
-                    charprocDict['Type'] = Name('XObject')
-                    charprocDict['Subtype'] = Name('Form')
-                    charprocDict['BBox'] = bbox
-                    # Each glyph includes bounding box information,
-                    # but xpdf and ghostscript can't handle it in a
-                    # Form XObject (they segfault!!!), so we remove it
-                    # from the stream here.  It's not needed anyway,
-                    # since the Form XObject includes it in its BBox
-                    # value.
-                    stream = stream[stream.find(b"d1") + 2:]
-                charprocObject = self.reserveObject('charProc')
-                self.beginStream(charprocObject.id, None, charprocDict)
-                self.currentstream.write(stream)
-                self.endStream()
-
-                # Send the glyphs with ccode > 255 to the XObject dictionary,
-                # and the others to the font itself
-                if charname in multi_byte_chars:
-                    name = self._get_xobject_symbol_name(filename, charname)
-                    self.multi_byte_charprocs[name] = charprocObject
-                else:
-                    charprocs[charname] = charprocObject
-
-            # Write everything out
-            self.writeObject(fontdictObject, fontdict)
-            self.writeObject(fontdescObject, descriptor)
-            self.writeObject(widthsObject, widths)
-            self.writeObject(charprocsObject, charprocs)
-
-            return fontdictObject
-
-        def embedTTFType42(font, characters, descriptor):
-            """The Type 42-specific part of embedding a Truetype font"""
-            fontdescObject = self.reserveObject('font descriptor')
-            cidFontDictObject = self.reserveObject('CID font dictionary')
-            type0FontDictObject = self.reserveObject('Type 0 font dictionary')
-            cidToGidMapObject = self.reserveObject('CIDToGIDMap stream')
-            fontfileObject = self.reserveObject('font file stream')
-            wObject = self.reserveObject('Type 0 widths')
-            toUnicodeMapObject = self.reserveObject('ToUnicode map')
-
-            cidFontDict = {
-                'Type': Name('Font'),
-                'Subtype': Name('CIDFontType2'),
-                'BaseFont': ps_name,
-                'CIDSystemInfo': {
-                    'Registry': 'Adobe',
-                    'Ordering': 'Identity',
-                    'Supplement': 0},
-                'FontDescriptor': fontdescObject,
-                'W': wObject,
-                'CIDToGIDMap': cidToGidMapObject
-                }
-
-            type0FontDict = {
-                'Type': Name('Font'),
-                'Subtype': Name('Type0'),
-                'BaseFont': ps_name,
-                'Encoding': Name('Identity-H'),
-                'DescendantFonts': [cidFontDictObject],
-                'ToUnicode': toUnicodeMapObject
-                }
-
-            # Make fontfile stream
-            descriptor['FontFile2'] = fontfileObject
-            length1Object = self.reserveObject('decoded length of a font')
-            self.beginStream(
-                fontfileObject.id,
-                self.reserveObject('length of font stream'),
-                {'Length1': length1Object})
-            with open(filename, 'rb') as fontfile:
-                length1 = 0
-                while True:
-                    data = fontfile.read(4096)
-                    if not data:
-                        break
-                    length1 += len(data)
-                    self.currentstream.write(data)
-            self.endStream()
-            self.writeObject(length1Object, length1)
-
-            # Make the 'W' (Widths) array, CidToGidMap and ToUnicode CMap
-            # at the same time
-            cid_to_gid_map = ['\u0000'] * 65536
-            widths = []
-            max_ccode = 0
-            for c in characters:
-                ccode = c
-                gind = font.get_char_index(ccode)
-                glyph = font.load_char(ccode, flags=LOAD_NO_HINTING)
-                widths.append((ccode, glyph.horiAdvance / 6))
-                if ccode < 65536:
-                    cid_to_gid_map[ccode] = unichr(gind)
-                max_ccode = max(ccode, max_ccode)
-            widths.sort()
-            cid_to_gid_map = cid_to_gid_map[:max_ccode + 1]
-
-            last_ccode = -2
-            w = []
-            max_width = 0
-            unicode_groups = []
-            for ccode, width in widths:
-                if ccode != last_ccode + 1:
-                    w.append(ccode)
-                    w.append([width])
-                    unicode_groups.append([ccode, ccode])
-                else:
-                    w[-1].append(width)
-                    unicode_groups[-1][1] = ccode
-                max_width = max(max_width, width)
-                last_ccode = ccode
-
-            unicode_bfrange = []
-            for start, end in unicode_groups:
-                unicode_bfrange.append(
-                    "<%04x> <%04x> [%s]" %
-                    (start, end,
-                     " ".join(["<%04x>" % x for x in range(start, end+1)])))
-            unicode_cmap = (self._identityToUnicodeCMap %
-                            (len(unicode_groups),
-                             "\n".join(unicode_bfrange))).encode('ascii')
-
-            # CIDToGIDMap stream
-            cid_to_gid_map = "".join(cid_to_gid_map).encode("utf-16be")
-            self.beginStream(cidToGidMapObject.id,
-                             None,
-                             {'Length':  len(cid_to_gid_map)})
-            self.currentstream.write(cid_to_gid_map)
-            self.endStream()
-
-            # ToUnicode CMap
-            self.beginStream(toUnicodeMapObject.id,
-                             None,
-                             {'Length': unicode_cmap})
-            self.currentstream.write(unicode_cmap)
-            self.endStream()
-
-            descriptor['MaxWidth'] = max_width
-
-            # Write everything out
-            self.writeObject(cidFontDictObject, cidFontDict)
-            self.writeObject(type0FontDictObject, type0FontDict)
-            self.writeObject(fontdescObject, descriptor)
-            self.writeObject(wObject, w)
-
-            return type0FontDictObject
-
-        # Beginning of main embedTTF function...
-
-        # You are lost in a maze of TrueType tables, all different...
-        sfnt = font.get_sfnt()
-        try:
-            ps_name = sfnt[(1, 0, 0, 6)].decode('macroman')  # Macintosh scheme
-        except KeyError:
-            # Microsoft scheme:
-            ps_name = sfnt[(3, 1, 0x0409, 6)].decode('utf-16be')
-            # (see freetype/ttnameid.h)
-        ps_name = ps_name.encode('ascii', 'replace')
+        ps_name = font.get_postscript_name()
         ps_name = Name(ps_name)
-        pclt = font.get_sfnt_table('pclt') or {'capHeight': 0, 'xHeight': 0}
-        post = font.get_sfnt_table('post') or {'italicAngle': (0, 0)}
+        if hasattr(font, 'tt_pclt'):
+            pclt = font.tt_pclt
+        else:
+            pclt = Bunch(cap_height=0, x_height=0)
+        if hasattr(font, 'tt_postscript'):
+            post = font.tt_postscript
+        else:
+            post = Bunch(italicAngle=0)
         ff = font.face_flags
         sf = font.style_flags
 
         flags = 0
         symbolic = False  # ps_name.name in ('Cmsy10', 'Cmmi10', 'Cmex10')
-        if ff & FIXED_WIDTH:
+        if ff & ft.FACE_FLAG.FIXED_WIDTH:
             flags |= 1 << 0
         if 0:  # TODO: serif
             flags |= 1 << 1
@@ -1088,7 +855,7 @@ end"""
             flags |= 1 << 2
         else:
             flags |= 1 << 5
-        if sf & ITALIC:
+        if sf & ft.STYLE_FLAG.ITALIC:
             flags |= 1 << 6
         if 0:  # TODO: all caps
             flags |= 1 << 16
@@ -1104,25 +871,129 @@ end"""
             'FontBBox': [cvt(x, nearest=False) for x in font.bbox],
             'Ascent': cvt(font.ascender, nearest=False),
             'Descent': cvt(font.descender, nearest=False),
-            'CapHeight': cvt(pclt['capHeight'], nearest=False),
-            'XHeight': cvt(pclt['xHeight']),
-            'ItalicAngle': post['italicAngle'][1],  # ???
+            'CapHeight': cvt(pclt.cap_height, nearest=False),
+            'XHeight': cvt(pclt.x_height),
+            'ItalicAngle': post.italic_angle,  # ???
             'StemV': 0  # ???
             }
 
-        # The font subsetting to a Type 3 font does not work for
-        # OpenType (.otf) that embed a Postscript CFF font, so avoid that --
-        # save as a (non-subsetted) Type 42 font instead.
-        if is_opentype_cff_font(filename):
-            fonttype = 42
-            msg = ("'%s' can not be subsetted into a Type 3 font. "
-                   "The entire font will be embedded in the output.")
-            warnings.warn(msg % os.path.basename(filename))
+        fontdescObject = self.reserveObject('font descriptor')
+        cidFontDictObject = self.reserveObject('CID font dictionary')
+        type0FontDictObject = self.reserveObject('Type 0 font dictionary')
+        cidToGidMapObject = self.reserveObject('CIDToGIDMap stream')
+        fontfileObject = self.reserveObject('font file stream')
+        wObject = self.reserveObject('Type 0 widths')
+        toUnicodeMapObject = self.reserveObject('ToUnicode map')
 
-        if fonttype == 3:
-            return embedTTFType3(font, characters, descriptor)
-        elif fonttype == 42:
-            return embedTTFType42(font, characters, descriptor)
+        cidFontDict = {
+            'Type': Name('Font'),
+            'Subtype': Name('CIDFontType2'),
+            'BaseFont': ps_name,
+            'CIDSystemInfo': {
+                'Registry': 'Adobe',
+                'Ordering': 'Identity',
+                'Supplement': 0},
+            'FontDescriptor': fontdescObject,
+            'W': wObject,
+            'CIDToGIDMap': cidToGidMapObject
+            }
+
+        type0FontDict = {
+            'Type': Name('Font'),
+            'Subtype': Name('Type0'),
+            'BaseFont': ps_name,
+            'Encoding': Name('Identity-H'),
+            'DescendantFonts': [cidFontDictObject],
+            'ToUnicode': toUnicodeMapObject
+            }
+
+        # Make fontfile stream
+        descriptor['FontFile2'] = fontfileObject
+        length1Object = self.reserveObject('decoded length of a font')
+        self.beginStream(
+            fontfileObject.id,
+            self.reserveObject('length of font stream'),
+            {'Length1': length1Object})
+        with open(filename, 'rb') as input_fd:
+            if rcParams['font.subset']:
+                ft.subset.subset_font(input_fd, self.currentstream, characters)
+            else:
+                while True:
+                    buff = input_fd.read(4096)
+                    if not len(buff):
+                        break
+                    self.currentstream.write(buff)
+        self.writeObject(
+            length1Object,
+            self.currentstream.file.tell() - self.currentstream.pos)
+        self.endStream()
+
+        # Make the 'W' (Widths) array, CidToGidMap and ToUnicode CMap
+        # at the same time
+        cid_to_gid_map = ['\u0000'] * 65536
+        widths = []
+        max_ccode = 0
+        scale = 64. / (font.units_per_em / 1000.0)
+        for ccode in characters:
+            gind = font.get_char_index_unicode(ccode)
+            glyph = font.load_char_unicode(
+                ccode, load_flags=ft.LOAD.NO_HINTING|ft.LOAD.NO_SCALE)
+            widths.append((ccode, glyph.metrics.hori_advance * scale))
+            if ccode < 65536:
+                cid_to_gid_map[ccode] = unichr(gind)
+            max_ccode = max(ccode, max_ccode)
+        widths.sort()
+        cid_to_gid_map = cid_to_gid_map[:max_ccode + 1]
+
+        last_ccode = -2
+        w = []
+        max_width = 0
+        unicode_groups = []
+        for ccode, width in widths:
+            if ccode != last_ccode + 1:
+                w.append(ccode)
+                w.append([width])
+                unicode_groups.append([ccode, ccode])
+            else:
+                w[-1].append(width)
+                unicode_groups[-1][1] = ccode
+            max_width = max(max_width, width)
+            last_ccode = ccode
+
+        unicode_bfrange = []
+        for start, end in unicode_groups:
+            unicode_bfrange.append(
+                "<%04x> <%04x> [%s]" %
+                (start, end,
+                 " ".join(["<%04x>" % x for x in range(start, end+1)])))
+        unicode_cmap = (self._identityToUnicodeCMap %
+                        (len(unicode_groups),
+                         "\n".join(unicode_bfrange))).encode('ascii')
+
+        # CIDToGIDMap stream
+        cid_to_gid_map = "".join(cid_to_gid_map).encode("utf-16be")
+        self.beginStream(cidToGidMapObject.id,
+                         None,
+                         {'Length':  len(cid_to_gid_map)})
+        self.currentstream.write(cid_to_gid_map)
+        self.endStream()
+
+        # ToUnicode CMap
+        self.beginStream(toUnicodeMapObject.id,
+                         None,
+                         {'Length': unicode_cmap})
+        self.currentstream.write(unicode_cmap)
+        self.endStream()
+
+        descriptor['MaxWidth'] = max_width
+
+        # Write everything out
+        self.writeObject(cidFontDictObject, cidFontDict)
+        self.writeObject(type0FontDictObject, type0FontDict)
+        self.writeObject(fontdescObject, descriptor)
+        self.writeObject(wObject, w)
+
+        return type0FontDictObject
 
     def alphaState(self, alpha):
         """Return name of an ExtGState that sets alpha to the given value"""
@@ -1571,7 +1442,7 @@ class RendererPdf(RendererBase):
         if isinstance(font, six.string_types):
             fname = font
         else:
-            fname = font.fname
+            fname = font.filename
         realpath, stat_key = get_realpath_and_stat(fname)
         used_characters = self.file.used_characters.setdefault(
             stat_key, (realpath, set()))
@@ -1778,11 +1649,6 @@ class RendererPdf(RendererBase):
             self.mathtext_parser.parse(s, 72, prop)
         self.merge_used_characters(used_characters)
 
-        # When using Type 3 fonts, we can't use character codes higher
-        # than 255, so we use the "Do" command to render those
-        # instead.
-        global_fonttype = rcParams['pdf.fonttype']
-
         # Set up a global transformation matrix for the whole math expression
         a = angle / 180.0 * pi
         self.file.output(Op.gsave)
@@ -1794,41 +1660,14 @@ class RendererPdf(RendererBase):
         prev_font = None, None
         oldx, oldy = 0, 0
         for ox, oy, fontname, fontsize, num, symbol_name in glyphs:
-            if is_opentype_cff_font(fontname):
-                fonttype = 42
-            else:
-                fonttype = global_fonttype
-
-            if fonttype == 42 or num <= 255:
-                self._setup_textpos(ox, oy, 0, oldx, oldy)
-                oldx, oldy = ox, oy
-                if (fontname, fontsize) != prev_font:
-                    self.file.output(self.file.fontName(fontname), fontsize,
-                                     Op.selectfont)
-                    prev_font = fontname, fontsize
-                self.file.output(self.encode_string(unichr(num), fonttype),
-                                 Op.show)
+            self._setup_textpos(ox, oy, 0, oldx, oldy)
+            oldx, oldy = ox, oy
+            if (fontname, fontsize) != prev_font:
+                self.file.output(self.file.fontName(fontname), fontsize,
+                                 Op.selectfont)
+                prev_font = fontname, fontsize
+            self.file.output(self.encode_string(unichr(num)), Op.show)
         self.file.output(Op.end_text)
-
-        # If using Type 3 fonts, render all of the multi-byte characters
-        # as XObjects using the 'Do' command.
-        if global_fonttype == 3:
-            for ox, oy, fontname, fontsize, num, symbol_name in glyphs:
-                if is_opentype_cff_font(fontname):
-                    fonttype = 42
-                else:
-                    fonttype = global_fonttype
-
-                if fonttype == 3 and num > 255:
-                    self.file.fontName(fontname)
-                    self.file.output(Op.gsave,
-                                     0.001 * fontsize, 0,
-                                     0, 0.001 * fontsize,
-                                     ox, oy, Op.concat_matrix)
-                    name = self.file._get_xobject_symbol_name(
-                        fontname, symbol_name)
-                    self.file.output(Name(name), Op.use_xobject)
-                    self.file.output(Op.grestore)
 
         # Draw any horizontal lines in the math layout
         for ox, oy, width, height in rects:
@@ -1927,25 +1766,10 @@ class RendererPdf(RendererBase):
                          [0, 0]], pathops)
             self.draw_path(boxgc, path, mytrans, gc._rgb)
 
-    def encode_string(self, s, fonttype):
-        if fonttype in (1, 3):
-            return s.encode('cp1252', 'replace')
+    def encode_string(self, s):
         return s.encode('utf-16be', 'replace')
 
     def draw_text(self, gc, x, y, s, prop, angle, ismath=False, mtext=None):
-        # TODO: combine consecutive texts into one BT/ET delimited section
-
-        # This function is rather complex, since there is no way to
-        # access characters of a Type 3 font with codes > 255.  (Type
-        # 3 fonts can not have a CIDMap).  Therefore, we break the
-        # string into chunks, where each chunk contains exclusively
-        # 1-byte or exclusively 2-byte characters, and output each
-        # chunk a separate command.  1-byte characters use the regular
-        # text show command (Tj), whereas 2-byte characters use the
-        # use XObject command (Do).  If using Type 42 fonts, all of
-        # this complication is avoided, but of course, those fonts can
-        # not be subsetted.
-
         self.check_gc(gc, gc._rgb)
         if ismath:
             return self.draw_mathtext(gc, x, y, s, prop, angle)
@@ -1954,124 +1778,16 @@ class RendererPdf(RendererBase):
 
         if rcParams['pdf.use14corefonts']:
             font = self._get_font_afm(prop)
-            l, b, w, h = font.get_str_bbox(s)
-            fonttype = 1
         else:
             font = self._get_font_ttf(prop)
             self.track_characters(font, s)
-            font.set_text(s, 0.0, flags=LOAD_NO_HINTING)
 
-            fonttype = rcParams['pdf.fonttype']
-
-            # We can't subset all OpenType fonts, so switch to Type 42
-            # in that case.
-            if is_opentype_cff_font(font.fname):
-                fonttype = 42
-
-        def check_simple_method(s):
-            """Determine if we should use the simple or woven method
-            to output this text, and chunks the string into 1-byte and
-            2-byte sections if necessary."""
-            use_simple_method = True
-            chunks = []
-
-            if not rcParams['pdf.use14corefonts']:
-                if fonttype == 3 and not isinstance(s, bytes) and len(s) != 0:
-                    # Break the string into chunks where each chunk is either
-                    # a string of chars <= 255, or a single character > 255.
-                    s = six.text_type(s)
-                    for c in s:
-                        if ord(c) <= 255:
-                            char_type = 1
-                        else:
-                            char_type = 2
-                        if len(chunks) and chunks[-1][0] == char_type:
-                            chunks[-1][1].append(c)
-                        else:
-                            chunks.append((char_type, [c]))
-                    use_simple_method = (len(chunks) == 1 and
-                                         chunks[-1][0] == 1)
-            return use_simple_method, chunks
-
-        def draw_text_simple():
-            """Outputs text using the simple method."""
-            self.file.output(Op.begin_text,
-                             self.file.fontName(prop),
-                             fontsize,
-                             Op.selectfont)
-            self._setup_textpos(x, y, angle)
-            self.file.output(self.encode_string(s, fonttype), Op.show,
-                             Op.end_text)
-
-        def draw_text_woven(chunks):
-            """Outputs text using the woven method, alternating
-            between chunks of 1-byte characters and 2-byte characters.
-            Only used for Type 3 fonts."""
-            chunks = [(a, ''.join(b)) for a, b in chunks]
-
-            # Do the rotation and global translation as a single matrix
-            # concatenation up front
-            self.file.output(Op.gsave)
-            a = angle / 180.0 * pi
-            self.file.output(cos(a), sin(a), -sin(a), cos(a), x, y,
-                             Op.concat_matrix)
-
-            # Output all the 1-byte characters in a BT/ET group, then
-            # output all the 2-byte characters.
-            for mode in (1, 2):
-                newx = oldx = 0
-                # Output a 1-byte character chunk
-                if mode == 1:
-                    self.file.output(Op.begin_text,
-                                     self.file.fontName(prop),
-                                     fontsize,
-                                     Op.selectfont)
-
-                for chunk_type, chunk in chunks:
-                    if mode == 1 and chunk_type == 1:
-                        self._setup_textpos(newx, 0, 0, oldx, 0, 0)
-                        self.file.output(self.encode_string(chunk, fonttype),
-                                         Op.show)
-                        oldx = newx
-
-                    lastgind = None
-                    for c in chunk:
-                        ccode = ord(c)
-                        gind = font.get_char_index(ccode)
-                        if gind is not None:
-                            if mode == 2 and chunk_type == 2:
-                                glyph_name = font.get_glyph_name(gind)
-                                self.file.output(Op.gsave)
-                                self.file.output(0.001 * fontsize, 0,
-                                                 0, 0.001 * fontsize,
-                                                 newx, 0, Op.concat_matrix)
-                                name = self.file._get_xobject_symbol_name(
-                                    font.fname, glyph_name)
-                                self.file.output(Name(name), Op.use_xobject)
-                                self.file.output(Op.grestore)
-
-                            # Move the pointer based on the character width
-                            # and kerning
-                            glyph = font.load_char(ccode,
-                                                   flags=LOAD_NO_HINTING)
-                            if lastgind is not None:
-                                kern = font.get_kerning(
-                                    lastgind, gind, KERNING_UNFITTED)
-                            else:
-                                kern = 0
-                            lastgind = gind
-                            newx += kern/64.0 + glyph.linearHoriAdvance/65536.0
-
-                if mode == 1:
-                    self.file.output(Op.end_text)
-
-            self.file.output(Op.grestore)
-
-        use_simple_method, chunks = check_simple_method(s)
-        if use_simple_method:
-            return draw_text_simple()
-        else:
-            return draw_text_woven(chunks)
+        self.file.output(Op.begin_text,
+                         self.file.fontName(prop),
+                         fontsize,
+                         Op.selectfont)
+        self._setup_textpos(x, y, angle)
+        self.file.output(self.encode_string(s), Op.show, Op.end_text)
 
     def get_text_width_height_descent(self, s, prop, ismath):
         if rcParams['text.usetex']:
@@ -2094,13 +1810,11 @@ class RendererPdf(RendererBase):
             d *= scale / 1000
         else:
             font = self._get_font_ttf(prop)
-            font.set_text(s, 0.0, flags=LOAD_NO_HINTING)
-            w, h = font.get_width_height()
-            scale = (1.0 / 64.0)
-            w *= scale
-            h *= scale
-            d = font.get_descent()
-            d *= scale
+            layout = ft.Layout(
+                font, s, load_flags=ft.LOAD.NO_HINTING)
+            w = layout.layout_bbox.width
+            h = layout.ink_bbox.height
+            d = -layout.ink_bbox.y_min
         return w, h, d
 
     def _get_font_afm(self, prop):
@@ -2124,8 +1838,9 @@ class RendererPdf(RendererBase):
     def _get_font_ttf(self, prop):
         filename = findfont(prop)
         font = get_font(filename)
-        font.clear()
-        font.set_size(prop.get_size_in_points(), 72)
+        font.set_char_size(
+            prop.get_size_in_points(), prop.get_size_in_points(),
+            72, 72)
         return font
 
     def flipy(self):

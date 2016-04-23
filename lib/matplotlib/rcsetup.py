@@ -27,7 +27,7 @@ try:
 except ImportError:
     # python 2
     import collections as abc
-from matplotlib.fontconfig_pattern import parse_fontconfig_pattern
+import fcpy
 from matplotlib.colors import is_color_like
 
 # Don't let the original cycler collide with our validating cycler
@@ -207,27 +207,9 @@ def validate_int_or_None(s):
         raise ValueError('Could not convert "%s" to int' % s)
 
 
-def validate_fonttype(s):
-    """
-    confirm that this is a Postscript of PDF font type that we know how to
-    convert to
-    """
-    fonttypes = {'type3':    3,
-                 'truetype': 42}
-    try:
-        fonttype = validate_int(s)
-    except ValueError:
-        if s.lower() in six.iterkeys(fonttypes):
-            return fonttypes[s.lower()]
-        raise ValueError(
-            'Supported Postscript/PDF font types are %s' %
-            list(six.iterkeys(fonttypes)))
-    else:
-        if fonttype not in six.itervalues(fonttypes):
-            raise ValueError(
-                'Supported Postscript/PDF font types are %s' %
-                list(six.itervalues(fonttypes)))
-        return fonttype
+def deprecate_fonttype(s):
+    warnings.warn("fonttype is deprecated.  Use font.subset instead.")
+    return s
 
 
 _validate_standard_backends = ValidateInStrings('backend',
@@ -406,7 +388,7 @@ validate_fontsizelist = _listify_validator(validate_fontsize)
 
 
 def validate_font_properties(s):
-    parse_fontconfig_pattern(s)
+    fcpy.Pattern(s)
     return s
 
 
@@ -938,6 +920,7 @@ defaultParams = {
     ## font props
     'font.family':     [['sans-serif'], validate_stringlist],  # used by text object
     'font.style':      ['normal', six.text_type],
+    # TODO: Deprecate me
     'font.variant':    ['normal', six.text_type],
     'font.stretch':    ['normal', six.text_type],
     'font.weight':     ['normal', six.text_type],
@@ -1200,20 +1183,22 @@ defaultParams = {
     'tk.window_focus':  [False, validate_bool],
     'tk.pythoninspect': [False, validate_tkpythoninspect],  # obsolete
 
+    'font.subset': [True, validate_bool],
+
     # Set the papersize/type
     'ps.papersize':     ['letter', validate_ps_papersize],
     'ps.useafm':        [False, validate_bool],  # Set PYTHONINSPECT
     # use ghostscript or xpdf to distill ps output
     'ps.usedistiller':  [False, validate_ps_distiller],
     'ps.distiller.res': [6000, validate_int],     # dpi
-    'ps.fonttype':      [3, validate_fonttype],  # 3 (Type3) or 42 (Truetype)
+    'ps.fonttype':      [3, deprecate_fonttype],  # 3 (Type3) or 42 (Truetype)
     # compression level from 0 to 9; 0 to disable
     'pdf.compression':  [6, validate_int],
     # ignore any color-setting commands from the frontend
     'pdf.inheritcolor': [False, validate_bool],
     # use only the 14 PDF core fonts embedded in every PDF viewing application
     'pdf.use14corefonts': [False, validate_bool],
-    'pdf.fonttype':     [3, validate_fonttype],  # 3 (Type3) or 42 (Truetype)
+    'pdf.fonttype':     [3, deprecate_fonttype],  # 3 (Type3) or 42 (Truetype)
 
     'pgf.debug':     [False, validate_bool],  # output debug information
     # choose latex application for creating pdf files (xelatex/lualatex)
