@@ -598,6 +598,14 @@ Example::
   figure('figure')
   fignum_exists('figure') #true
 
+Addition of 3D Stem Plots for mplot3d toolkit
+`````````````````````````````````````````````
+A team of students in the *Engineering Large Software Systems* course, taught by 
+Professor Anya Tafliovich at the University of Toronto (Scarborough) during the Winter 2016 term, 
+implemented a basic version of 3D Stem Plots as a part of a term project. 
+This feature is documented in :func:`~mpl_toolkits.mplot3d.Axes3D.stem`. 
+The team consists of 5 students: Kanwar Gill, Alvee Jamal, Samriddhi Kaushik, Jessy Liang, and Srihitha Maryada.  
+
 
 ToolManager
 -----------
