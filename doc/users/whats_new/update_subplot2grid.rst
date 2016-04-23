@@ -1,8 +1,8 @@
-New Firgure Parameter for subplot2grid
+New Figure Parameter for subplot2grid
 --------------------------------------
 
 A ``fig`` parameter now exists for the method :func:`subplot2grid`.  This allows
-for the figure that the subplots will be created in to be specified.  If ``fig``
+a user to specify the figure where the subplots will be created.  If ``fig``
 is ``None`` (default) then the method will use the current figure retrieved by
 :func:`gcf`.
 
