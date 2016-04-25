@@ -262,7 +262,10 @@ class Dvi(object):
                 e = 0           # zero depth
             else:               # glyph
                 x, y, font, g, w = elt
-                h, e = font._height_depth_of(g)
+                if g != 0:
+                    h, e = font._height_depth_of(g)
+                else:
+                    h, e = y, 0
             minx = min(minx, x)
             miny = min(miny, y - h)
             maxx = max(maxx, x + w)
