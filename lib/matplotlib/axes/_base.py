@@ -2488,8 +2488,8 @@ class _AxesBase(martist.Artist):
                          C-style (English) formatting.  The
                          default setting is controlled by the
                          axes.formatter.use_locale rcparam.
-          *useMathText*  If True, render the offset and scientific 
-                         notation in mathtext                                
+          *useMathText*  If True, render the offset and scientific
+                         notation in mathtext
           ============   =========================================
 
         Only the major ticks are affected.
@@ -2546,7 +2546,7 @@ class _AxesBase(martist.Artist):
                 if axis == 'both' or axis == 'y':
                     self.yaxis.major.formatter.set_useLocale(useLocale)
             if useMathText is not None:
-                if axis == 'both' or axis =='x':
+                if axis == 'both' or axis == 'x':
                     self.xaxis.major.formatter.set_useMathText(useMathText)
                 if axis == 'both' or axis == 'y':
                     self.yaxis.major.formatter.set_useMathText(useMathText)
