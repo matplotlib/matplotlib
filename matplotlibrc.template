@@ -461,6 +461,9 @@ backend      : $TEMPLATE_BACKEND
                                   # If Numpy 1.11 or later is
                                   # installed, may also be `auto`
 
+### SCATTER PLOTS
+#scatter.marker : o               # The default marker type for scatter plots.
+
 ### Agg rendering
 ### Warning: experimental, 2008/10/10
 #agg.path.chunksize : 0           # 0 to disable; values in the range

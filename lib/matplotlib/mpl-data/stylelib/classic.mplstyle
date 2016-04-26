@@ -325,6 +325,9 @@ contour.corner_mask : True
 # errorbar props
 errorbar.capsize: 3
 
+# scatter props
+scatter.marker: o
+
 ### Boxplots
 boxplot.bootstrap: None
 boxplot.boxprops.color: b
