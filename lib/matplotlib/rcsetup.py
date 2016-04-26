@@ -848,7 +848,7 @@ defaultParams = {
     # line props
     'lines.linewidth':       [2.5, validate_float],  # line width in points
     'lines.linestyle':       ['-', six.text_type],             # solid line
-    'lines.color':           ['C0', validate_color],  # blue
+    'lines.color':           ['C0', validate_color],  # first color in color cycle
     'lines.marker':          ['None', six.text_type],     # black
     'lines.markeredgewidth': [1.0, validate_float],
     'lines.markersize':      [6, validate_float],    # markersize, in points
@@ -867,7 +867,7 @@ defaultParams = {
     ## patch props
     'patch.linewidth':   [None, validate_float_or_None],  # line width in points
     'patch.edgecolor':   ['k', validate_color],  # black
-    'patch.facecolor':   ['C0', validate_color],  # blue (first color in color cycle)
+    'patch.facecolor':   ['C0', validate_color],  # first color in color cycle
     'patch.antialiased': [True, validate_bool],  # antialiased (no jaggies)
 
     ## Histogram properties
