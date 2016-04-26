@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """
 You can precisely layout text in data or axes (0,1) coordinates.  This
 example shows you some of the alignment and rotation specifications to

@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """
 Compute the cross spectral density of two signals
 """

@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """
 Example of embedding matplotlib in an application and interacting with
 a treeview to store data.  Double click on an entry to update plot

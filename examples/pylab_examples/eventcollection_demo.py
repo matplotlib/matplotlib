@@ -1,7 +1,7 @@
-#!/usr/bin/env python
-# -*- Coding:utf-8 -*-
-'''Plot two curves, then use EventCollections to mark the locations of the x
-and y data points on the respective axes for each curve'''
+'''
+Plot two curves, then use EventCollections to mark the locations of the x
+and y data points on the respective axes for each curve
+'''
 
 import matplotlib.pyplot as plt
 from matplotlib.collections import EventCollection
