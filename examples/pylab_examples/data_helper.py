@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 # Some functions to load a return data for the plot demos
 
 from numpy import fromstring, argsort, take, array, resize

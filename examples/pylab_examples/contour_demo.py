@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """
 Illustrate simple contour plotting, contours on an image with
 a colorbar for the contours, and labelled contours.

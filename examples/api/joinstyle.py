@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """
 Illustrate the three different join styles
 """

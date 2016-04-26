@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 import numpy as np
 import matplotlib.cm as cm
 import matplotlib.mlab as mlab

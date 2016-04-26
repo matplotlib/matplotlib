@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-
 from gi.repository import Gtk
 
 from matplotlib.figure import Figure

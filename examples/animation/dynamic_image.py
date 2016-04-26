@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """
 An animated image
 """

@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 # -*- noplot -*-
 """
 This example shows how to use the agg backend directly to create
