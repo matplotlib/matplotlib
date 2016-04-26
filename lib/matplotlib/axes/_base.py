@@ -2488,6 +2488,8 @@ class _AxesBase(martist.Artist):
                          C-style (English) formatting.  The
                          default setting is controlled by the
                          axes.formatter.use_locale rcparam.
+          *useMathText*  If True, render the offset and scientific 
+                         notation in mathtext                                
           ============   =========================================
 
         Only the major ticks are affected.
@@ -2501,6 +2503,7 @@ class _AxesBase(martist.Artist):
         scilimits = kwargs.pop('scilimits', None)
         useOffset = kwargs.pop('useOffset', None)
         useLocale = kwargs.pop('useLocale', None)
+        useMathText = kwargs.pop('useMathText', None)
         axis = kwargs.pop('axis', 'both').lower()
         if scilimits is not None:
             try:
@@ -2542,6 +2545,11 @@ class _AxesBase(martist.Artist):
                     self.xaxis.major.formatter.set_useLocale(useLocale)
                 if axis == 'both' or axis == 'y':
                     self.yaxis.major.formatter.set_useLocale(useLocale)
+            if useMathText is not None:
+                if axis == 'both' or axis =='x':
+                    self.xaxis.major.formatter.set_useMathText(useMathText)
+                if axis == 'both' or axis == 'y':
+                    self.yaxis.major.formatter.set_useMathText(useMathText)
         except AttributeError:
             raise AttributeError(
                 "This method only works with the ScalarFormatter.")
