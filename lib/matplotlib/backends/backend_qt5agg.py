@@ -135,8 +135,9 @@ class FigureCanvasQTAggBase(object):
                 stringBuffer = reg.to_string_argb()
                 qImage = QtGui.QImage(stringBuffer, w, h,
                                       QtGui.QImage.Format_ARGB32)
-                # Adjust the stringBuffer reference count to work around a memory
-                # leak bug in QImage() under PySide on Python 3.x
+                # Adjust the stringBuffer reference count to work
+                # around a memory leak bug in QImage() under PySide on
+                # Python 3.x
                 if QT_API == 'PySide' and six.PY3:
                     ctypes.c_long.from_address(id(stringBuffer)).value = 1
 
