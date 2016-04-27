@@ -1380,11 +1380,10 @@ class Cycler(SetupPackage):
                 "cycler was not found. "
                 "pip/easy_install may attempt to install it "
                 "after matplotlib.")
-
         return "using cycler version %s" % cycler.__version__
 
     def get_install_requires(self):
-        return ['cycler>=0.9']
+        return ['cycler>=0.10']
 
 
 class Dateutil(SetupPackage):
