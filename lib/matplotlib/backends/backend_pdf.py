@@ -1811,7 +1811,7 @@ class RendererPdf(RendererBase):
         else:
             font = self._get_font_ttf(prop)
             layout = ft.Layout(
-                font, s, load_flags=ft.LOAD.NO_HINTING)
+                font, s, load_flags=ft.LOAD.FORCE_AUTOHINT)
             w = layout.layout_bbox.width
             h = layout.ink_bbox.height
             d = -layout.ink_bbox.y_min
