@@ -137,7 +137,7 @@ def figure_edit(axes, parent=None):
     for label in imagelabels:
         image = imagedict[label]
         cmap = image.get_cmap()
-        if cmap not in cm.cmap_d:
+        if cmap not in cm.cmap_d.values():
             cmaps = [(cmap, cmap.name)] + cmaps
         imagedata = [
             ('Label', label),
