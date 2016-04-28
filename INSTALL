@@ -201,6 +201,9 @@ Required Dependencies
 `freetypy` 1.0 or later
     Python wrappers to freetype.
 
+`fcpy` 1.0 or later
+    Python wrappers to fontconfig.
+
 `pyparsing <https://pyparsing.wikispaces.com/>`__
     Required for matplotlib's mathtext math rendering support.  If
     using pip, easy_install or installing from source, the installer
