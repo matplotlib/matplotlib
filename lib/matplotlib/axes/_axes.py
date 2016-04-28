@@ -1415,11 +1415,18 @@ class Axes(_AxesBase):
             self.cla()
         lines = []
 
-        # Convert "c" alias to "color" immediately, to avoid
-        # confusion farther on.
-        c = kwargs.pop('c', None)
-        if c is not None:
-            kwargs['color'] = c
+        kwargs = cbook.normalize_kwargs(kwargs,
+                {
+                 'color': ['c'],
+                 'linewidth': ['lw'],
+                 'linestyle': ['ls'],
+                 'facecolor': ['fc'],
+                 'edgecolor': ['ec'],
+                 'markerfacecolor': ['mfc'],
+                 'markeredgecolor': ['mec'],
+                 'markeredgewidth': ['mew'],
+                 'markersize': ['ms'],
+                })
 
         for line in self._get_lines(*args, **kwargs):
             self.add_line(line)
@@ -4536,6 +4543,19 @@ class Axes(_AxesBase):
         """
         if not self._hold:
             self.cla()
+
+        kwargs = cbook.normalize_kwargs(kwargs,
+                {
+                 'color': ['c'],
+                 'linewidth': ['lw'],
+                 'linestyle': ['ls'],
+                 'facecolor': ['fc'],
+                 'edgecolor': ['ec'],
+                 'markerfacecolor': ['mfc'],
+                 'markeredgecolor': ['mec'],
+                 'markeredgewidth': ['mew'],
+                 'markersize': ['ms'],
+                })
 
         patches = []
         for poly in self._get_patches_for_fill(*args, **kwargs):
