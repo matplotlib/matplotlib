@@ -108,10 +108,7 @@ def stackplot(axes, x, *args, **kwargs):
         raise ValueError(errstr)
 
     # Color between x = 0 and the first array.
-    if 'color' in axes._get_lines._prop_keys:
-        color = six.next(axes._get_lines.prop_cycler)['color']
-    else:
-        color = None
+    color = axes._get_lines.get_next_color()
     r.append(axes.fill_between(x, first_line, stack[0, :],
                                facecolor=color,
                                label= six.next(labels, None),
@@ -120,10 +117,7 @@ def stackplot(axes, x, *args, **kwargs):
 
     # Color between array i-1 and array i
     for i in xrange(len(y) - 1):
-        if 'color' in axes._get_lines._prop_keys:
-            color = six.next(axes._get_lines.prop_cycler)['color']
-        else:
-            color = None
+        color = axes._get_lines.get_next_color()
         r.append(axes.fill_between(x, stack[i, :], stack[i + 1, :],
                                    facecolor=color,
                                    label= six.next(labels, None),
