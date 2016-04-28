@@ -123,8 +123,8 @@ def test_fillcycle_ignore():
     ax.legend(loc='upper left')
 
 
-@image_comparison(baseline_images=['property_collision_plot'], remove_text=True,
-                  extensions=['png'])
+@image_comparison(baseline_images=['property_collision_plot'],
+                  remove_text=True, extensions=['png'])
 def test_property_collision_plot():
     fig, ax = plt.subplots()
     ax.set_prop_cycle('linewidth', [2, 4])
@@ -134,8 +134,8 @@ def test_property_collision_plot():
     ax.plot(np.arange(10), 5 * np.arange(10))
 
 
-@image_comparison(baseline_images=['property_collision_fill'], remove_text=True,
-                  extensions=['png'])
+@image_comparison(baseline_images=['property_collision_fill'],
+                  remove_text=True, extensions=['png'])
 def test_property_collision_fill():
     fig, ax = plt.subplots()
     xs = np.arange(10)
