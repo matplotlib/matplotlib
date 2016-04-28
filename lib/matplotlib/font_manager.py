@@ -483,13 +483,13 @@ class FontProperties(object):
 get_font = lru_cache(64)(ft.Face)
 
 
-fcpy_config = fcpy.default_config()
+fcpy_config_all = fcpy.default_config()
 # Add the directory of fonts that ship with matplotlib
 for path in [os.path.join(rcParams['datapath'], 'fonts', 'ttf'),
              os.path.join(rcParams['datapath'], 'fonts', 'afm'),
              os.path.join(rcParams['datapath'], 'fonts', 'pdfcorefonts')]:
-    fcpy_config.add_dir(path)
-fcpy_config.build_fonts()
+    fcpy_config_all.add_dir(path)
+fcpy_config_all.build_fonts()
 
 
 def findfont(prop, fontext=None, directory=None, fallback_to_default=True):
@@ -504,11 +504,19 @@ def findfont(prop, fontext=None, directory=None, fallback_to_default=True):
     font family (usually "DejaVu Sans" or "Helvetica") if
     the first lookup hard-fails.
     """
-    # TODO: make fontext work
+    # TODO: make fontext
     if isinstance(prop, FontProperties):
         pattern = prop._pattern
     else:
         pattern = FontProperties(prop)._pattern
+
+    if directory is None:
+        fcpy_config = fcpy_config_all
+    else:
+        fcpy_config = fcpy.Config()
+        fcpy_config.add_dir(directory)
+
+    pattern = pattern.copy()
 
     fcpy_config.substitute(pattern)
     pattern.substitute()
