@@ -348,7 +348,7 @@ class TextToPath(object):
 
                     glyph0 = font.load_char(glyph, load_flags=font_flag)
 
-                glyph_map_new[char_id] = self.glyph_to_path(glyph)
+                glyph_map_new[char_id] = self.glyph_to_path(glyph0)
 
             glyph_ids.append(char_id)
             xpositions.append(x1)
