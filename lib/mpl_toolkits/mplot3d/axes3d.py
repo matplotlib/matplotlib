@@ -1592,7 +1592,10 @@ class Axes3D(Axes):
         if 'facecolors' in kwargs:
             fcolors = kwargs.pop('facecolors')
         else:
-            color = np.array(colorConverter.to_rgba(kwargs.pop('color', 'b')))
+            color = kwargs.pop('color', None)
+            if color is None:
+                color = self._get_lines.get_next_color()
+            color = np.array(colorConverter.to_rgba(color))
             fcolors = None
 
         cmap = kwargs.get('cmap', None)
@@ -1860,7 +1863,10 @@ class Axes3D(Axes):
         had_data = self.has_data()
 
         # TODO: Support custom face colours
-        color = np.array(colorConverter.to_rgba(kwargs.pop('color', 'b')))
+        color = kwargs.pop('color', None)
+        if color is None:
+            color = self._get_lines.get_next_color()
+        color = np.array(colorConverter.to_rgba(color))
 
         cmap = kwargs.get('cmap', None)
         norm = kwargs.pop('norm', None)
@@ -2209,7 +2215,7 @@ class Axes3D(Axes):
 
         Axes.add_collection(self, col)
 
-    def scatter(self, xs, ys, zs=0, zdir='z', s=20, c='b', depthshade=True,
+    def scatter(self, xs, ys, zs=0, zdir='z', s=20, c=None, depthshade=True,
                 *args, **kwargs):
         '''
         Create a scatter plot.
@@ -2262,6 +2268,8 @@ class Axes3D(Axes):
 
         s = np.ma.ravel(s)  # This doesn't have to match x, y in size.
 
+        if c is None:
+            c = self._get_lines.get_next_color()
         cstr = cbook.is_string_like(c) or cbook.is_sequence_of_strings(c)
         if not cstr:
             c = np.asanyarray(c)
@@ -2340,7 +2348,7 @@ class Axes3D(Axes):
 
         return patches
 
-    def bar3d(self, x, y, z, dx, dy, dz, color='b',
+    def bar3d(self, x, y, z, dx, dy, dz, color=None,
               zsort='average', *args, **kwargs):
         '''
         Generate a 3D bar, or multiple bars.
