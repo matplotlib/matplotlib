@@ -52,6 +52,7 @@ def _process_plot_format(fmt):
     * 'ko': black circles
     * '.b': blue dots
     * 'r--': red dashed lines
+    * 'C2--': the third color in the color cycle, dashed lines
 
     .. seealso::
 
@@ -97,7 +98,9 @@ def _process_plot_format(fmt):
 
     chars = [c for c in fmt]
 
-    for c in chars:
+    i = 0
+    while i < len(chars):
+        c = chars[i]
         if c in mlines.lineStyles:
             if linestyle is not None:
                 raise ValueError(
@@ -113,9 +116,14 @@ def _process_plot_format(fmt):
                 raise ValueError(
                     'Illegal format string "%s"; two color symbols' % fmt)
             color = c
+        elif c == 'C' and i < len(chars) - 1:
+            color_cycle_number = int(chars[i + 1])
+            color = mcolors.colorConverter._get_nth_color(color_cycle_number)
+            i += 1
         else:
             raise ValueError(
                 'Unrecognized character %c in format string' % c)
+        i += 1
 
     if linestyle is None and marker is None:
         linestyle = rcParams['lines.linestyle']
@@ -161,6 +169,10 @@ class _process_plot_var_args(object):
         else:
             prop_cycler = cycler(*args, **kwargs)
 
+        # Make sure the cycler always has at least one color
+        if 'color' not in prop_cycler.keys:
+            prop_cycler = prop_cycler * cycler('color', ['k'])
+
         self.prop_cycler = itertools.cycle(prop_cycler)
         # This should make a copy
         self._prop_keys = prop_cycler.keys
@@ -185,6 +197,12 @@ class _process_plot_var_args(object):
 
         ret = self._grab_next_args(*args, **kwargs)
         return ret
+
+    def get_next_color(self):
+        """
+        Return the next color in the cycle.
+        """
+        return six.next(self.prop_cycler)['color']
 
     def set_lineprops(self, line, **kwargs):
         assert self.command == 'plot', 'set_lineprops only works with "plot"'

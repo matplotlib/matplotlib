@@ -4,6 +4,7 @@ from __future__ import (absolute_import, division, print_function,
 from matplotlib.externals import six
 from matplotlib.externals.six.moves import reduce, xrange, zip, zip_longest
 
+import itertools
 import math
 import warnings
 
@@ -2458,7 +2459,7 @@ class Axes(_AxesBase):
         Call signature::
 
           pie(x, explode=None, labels=None,
-              colors=('b', 'g', 'r', 'c', 'm', 'y', 'k', 'w'),
+              colors=None,
               autopct=None, pctdistance=0.6, shadow=False,
               labeldistance=1.1, startangle=None, radius=None,
               counterclock=True, wedgeprops=None, textprops=None,
@@ -2478,7 +2479,8 @@ class Axes(_AxesBase):
 
           *colors*: [ *None* | color sequence ]
             A sequence of matplotlib color args through which the pie chart
-            will cycle.
+            will cycle.  If `None`, will use the colors in the currently
+            active cycle.
 
           *labels*: [ *None* | len(x) sequence of strings ]
             A sequence of strings providing the labels for each wedge
@@ -2567,7 +2569,12 @@ class Axes(_AxesBase):
         if len(x) != len(explode):
             raise ValueError("'explode' must be of length 'x'")
         if colors is None:
-            colors = ('b', 'g', 'r', 'c', 'm', 'y', 'k', 'w')
+            get_next_color = self._get_patches_for_fill.get_next_color
+        else:
+            color_cycle = itertools.cycle(colors)
+
+            def get_next_color():
+                return six.next(color_cycle)
 
         if radius is None:
             radius = 1
@@ -2603,7 +2610,7 @@ class Axes(_AxesBase):
 
             w = mpatches.Wedge((x, y), radius, 360. * min(theta1, theta2),
                             360. * max(theta1, theta2),
-                            facecolor=colors[i % len(colors)],
+                            facecolor=get_next_color(),
                             **wedgeprops)
             slices.append(w)
             self.add_patch(w)
@@ -3023,8 +3030,8 @@ class Axes(_AxesBase):
             l0, = self.plot(x, y, fmt, label='_nolegend_', **kwargs)
 
         if ecolor is None:
-            if l0 is None and 'color' in self._get_lines._prop_keys:
-                ecolor = next(self._get_lines.prop_cycler)['color']
+            if l0 is None:
+                ecolor = self._get_lines.get_next_color()
             else:
                 ecolor = l0.get_color()
 
@@ -3846,7 +3853,10 @@ class Axes(_AxesBase):
             if facecolors is not None:
                 c = facecolors
             else:
-                c = 'b'  # The original default
+                if rcParams['_internal.classic_mode']:
+                    c = 'b'  # The original default
+                else:
+                    c = self._get_patches_for_fill.get_next_color()
 
         if edgecolors is None and not rcParams['_internal.classic_mode']:
             edgecolors = 'face'
@@ -6019,9 +6029,8 @@ class Axes(_AxesBase):
                 raise ValueError(
                     'weights should have the same shape as x')
 
-        if color is None and 'color' in self._get_lines._prop_keys:
-            color = [next(self._get_lines.prop_cycler)['color']
-                     for i in xrange(nx)]
+        if color is None:
+            color = [self._get_lines.get_next_color() for i in xrange(nx)]
         else:
             color = mcolors.colorConverter.to_rgba_array(color)
             if len(color) != nx:
@@ -7507,6 +7516,12 @@ class Axes(_AxesBase):
             perp_lines = self.vlines
             par_lines = self.hlines
 
+        if rcParams['_internal.classic_mode']:
+            fillcolor = 'y'
+            edgecolor = 'r'
+        else:
+            fillcolor = edgecolor = self._get_lines.get_next_color()
+
         # Render violins
         bodies = []
         for stats, pos, width in zip(vpstats, positions, widths):
@@ -7517,7 +7532,7 @@ class Axes(_AxesBase):
             bodies += [fill(stats['coords'],
                             -vals + pos,
                             vals + pos,
-                            facecolor='y',
+                            facecolor=fillcolor,
                             alpha=0.3)]
             means.append(stats['mean'])
             mins.append(stats['min'])
@@ -7527,20 +7542,24 @@ class Axes(_AxesBase):
 
         # Render means
         if showmeans:
-            artists['cmeans'] = perp_lines(means, pmins, pmaxes, colors='r')
+            artists['cmeans'] = perp_lines(means, pmins, pmaxes,
+                                           colors=edgecolor)
 
         # Render extrema
         if showextrema:
-            artists['cmaxes'] = perp_lines(maxes, pmins, pmaxes, colors='r')
-            artists['cmins'] = perp_lines(mins, pmins, pmaxes, colors='r')
-            artists['cbars'] = par_lines(positions, mins, maxes, colors='r')
+            artists['cmaxes'] = perp_lines(maxes, pmins, pmaxes,
+                                           colors=edgecolor)
+            artists['cmins'] = perp_lines(mins, pmins, pmaxes,
+                                          colors=edgecolor)
+            artists['cbars'] = par_lines(positions, mins, maxes,
+                                         colors=edgecolor)
 
         # Render medians
         if showmedians:
             artists['cmedians'] = perp_lines(medians,
                                              pmins,
                                              pmaxes,
-                                             colors='r')
+                                             colors=edgecolor)
 
         return artists
 
