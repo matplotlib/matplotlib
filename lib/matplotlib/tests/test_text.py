@@ -41,7 +41,6 @@ def test_font_styles():
     normalFont = find_matplotlib_font(
         family="sans-serif",
         style="normal",
-        variant="normal",
         size=14)
     ax.annotate(
         "Normal Font",
@@ -52,7 +51,6 @@ def test_font_styles():
     boldFont = find_matplotlib_font(
         family="Foo",
         style="normal",
-        variant="normal",
         weight="bold",
         stretch=500,
         size=14)
@@ -65,9 +63,7 @@ def test_font_styles():
     boldItemFont = find_matplotlib_font(
         family="sans serif",
         style="italic",
-        variant="normal",
-        weight=750,
-        stretch=500,
+        weight="bold",
         size=14)
     ax.annotate(
         "Bold Italic Font",
@@ -78,7 +74,6 @@ def test_font_styles():
     lightFont = find_matplotlib_font(
         family="sans-serif",
         style="normal",
-        variant="normal",
         weight=200,
         stretch=500,
         size=14)
@@ -91,7 +86,6 @@ def test_font_styles():
     condensedFont = find_matplotlib_font(
         family="sans-serif",
         style="normal",
-        variant="normal",
         weight=500,
         stretch=100,
         size=14)
