@@ -198,7 +198,7 @@ class RendererAgg(RendererBase):
             return None
 
         layout = ft.Layout(font, s)
-        bm = font_util.draw_layout_to_bitmap(layout, font, flags)
+        bm = font_util.draw_layout_to_bitmap(layout, flags)
         d = -layout.ink_bbox.y_min
         # The descent needs to be adjusted for the angle
         xo = layout.ink_bbox.x_min

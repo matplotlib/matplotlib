@@ -30,14 +30,15 @@ def draw_glyph_to_bitmap(image, x, y, glyph):
     image[y1:y2, x1:x2] |= bm[oy:oy+(y2-y1), ox:ox+(x2-x1)]
 
 
-def draw_layout_to_bitmap(layout, face, flags):
+def draw_layout_to_bitmap(layout, flags):
     bm = np.zeros(
         (int(ceil(layout.ink_bbox.height + 2)),
          int(ceil(layout.ink_bbox.width + 2))),
         dtype=np.uint8)
 
-    for gind, (x, y) in zip(np.array(layout.glyph_indices),
-                            np.array(layout.points)):
+    for gind, face, (x, y) in zip(layout.glyph_indices,
+                                  layout.faces,
+                                  layout.points):
         glyph = face.load_glyph(gind, flags)
         bbox = glyph.get_cbox(ft.GLYPH_BBOX.SUBPIXELS)
         draw_glyph_to_bitmap(
