@@ -381,7 +381,7 @@ class Text(Artist):
         ymin = horizLayout[-1][1]
         ymax = horizLayout[0][1] + horizLayout[0][3]
         height = ymax - ymin
-        xmax = xmin + width
+        xmax = width
 
         # get the rotation matrix
         M = Affine2D().rotate_deg(self.get_rotation())
