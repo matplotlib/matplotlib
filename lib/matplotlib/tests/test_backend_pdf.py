@@ -32,7 +32,7 @@ if 'TRAVIS' not in os.environ:
 
 @cleanup
 def test_type42():
-    rcParams['pdf.fonttype'] = 42
+    rcParams['font.subset'] = False
 
     fig = plt.figure()
     ax = fig.add_subplot(111)

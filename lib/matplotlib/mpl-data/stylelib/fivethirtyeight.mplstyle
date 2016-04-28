@@ -18,8 +18,6 @@ axes.titlesize: x-large
 patch.edgecolor: f0f0f0
 patch.linewidth: 0.5
 
-svg.fonttype: path
-
 grid.linestyle: -
 grid.linewidth: 1.0
 grid.color: cbcbcb
