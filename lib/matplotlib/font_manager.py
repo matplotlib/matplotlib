@@ -139,6 +139,18 @@ font_family_aliases = set([
     'sans'])
 
 
+slant_dict = {
+    'roman': fcpy.SLANT.ROMAN,
+    'italic': fcpy.SLANT.ITALIC,
+    'oblique': fcpy.SLANT.OBLIQUE
+}
+
+
+slant_rdict = dict(
+    (val, key) for (key, val) in slant_dict.items()
+)
+
+
 def get_fontext_synonyms(fontext):
     """
     Return a list of file extensions extensions that are synonyms for
@@ -267,7 +279,8 @@ class FontProperties(object):
         Return the font style.  Values are: 'normal', 'italic' or
         'oblique'.
         """
-        slant = self._pattern.get('style').next()
+        slant = next(self._pattern.get('slant'))
+        slant = slant_rdict[slant]
         if slant == 'roman':
             slant = 'normal'
         return slant
@@ -308,8 +321,7 @@ class FontProperties(object):
         """
         Return the font size.
         """
-        result = next(self._pattern.get('size'))
-        return result
+        return next(self._pattern.get('size'))
 
     def get_size_in_points(self):
         return self.get_size()
@@ -372,7 +384,7 @@ class FontProperties(object):
             raise ValueError("style must be normal, italic or oblique")
         if style == 'normal':
             style = 'roman'
-        self._pattern.set('style', style)
+        self._pattern.set('slant', slant_dict.get(style))
     set_slant = set_style
 
     @cbook.deprecated(
