@@ -36,9 +36,7 @@ def draw_layout_to_bitmap(layout, flags):
          int(ceil(layout.ink_bbox.width + 2))),
         dtype=np.uint8)
 
-    for gind, face, (x, y) in zip(layout.glyph_indices,
-                                  layout.faces,
-                                  layout.points):
+    for face, gind, (x, y) in layout.layout:
         glyph = face.load_glyph(gind, flags)
         bbox = glyph.get_cbox(ft.GLYPH_BBOX.SUBPIXELS)
         draw_glyph_to_bitmap(
