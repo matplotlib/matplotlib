@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """
 An example of how to use wx or wxagg in an application with a custom
 toolbar

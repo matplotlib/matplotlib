@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """
 matplotlib supports accented characters via TeX mathtext
 

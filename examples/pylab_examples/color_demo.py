@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """
 matplotlib gives you 5 ways to specify colors,
 

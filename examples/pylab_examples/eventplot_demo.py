@@ -1,7 +1,7 @@
-#!/usr/bin/env python
-# -*- Coding:utf-8 -*-
-'''an eventplot showing sequences of events with various line properties
-the plot is shown in both horizontal and vertical orientations'''
+'''
+An eventplot showing sequences of events with various line properties.
+The plot is shown in both horizontal and vertical orientations.
+'''
 
 import matplotlib.pyplot as plt
 import numpy as np

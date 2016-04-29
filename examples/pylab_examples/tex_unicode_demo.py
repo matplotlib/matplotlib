@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """
 This demo is tex_demo.py modified to have unicode. See that file for

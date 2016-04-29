@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """
 
 Demonstrate how to do two plots on the same axes with different left

@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """
 show how to add a matplotlib FigureCanvasGTK or FigureCanvasGTKAgg widget to a
 gtk.Window

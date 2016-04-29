@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 import numpy as np
 from basic_units import cm, inch
 import matplotlib.pyplot as plt

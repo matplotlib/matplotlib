@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """
 Use backend agg to access the figure canvas as an RGB string and then
 convert it to an array and pass it to Pillow for rendering.

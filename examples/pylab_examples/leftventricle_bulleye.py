@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """
 This example demonstrates how to create the 17 segment model for the left
 ventricle recommended by the American Heart Association (AHA).
