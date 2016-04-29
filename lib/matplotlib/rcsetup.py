@@ -1068,6 +1068,10 @@ defaultParams = {
     'polaraxes.grid': [True, validate_bool],  # display polar grid or
                                                      # not
     'axes3d.grid': [True, validate_bool],  # display 3d grid
+
+    # scatter props
+    'scatter.marker': ['o', six.text_type],
+
     # TODO validate that these are valid datetime format strings
     'date.autoformatter.year': ['%Y', six.text_type],
     'date.autoformatter.month': ['%Y-%m', six.text_type],
