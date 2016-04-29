@@ -137,7 +137,7 @@ class AbstractMovieWriter(six.with_metaclass(abc.ABCMeta)):
     '''
 
     @abc.abstractmethod
-    def setup(self, fig, outfile, dpi, *args):
+    def setup(self, fig, outfile, dpi):
         '''
         Perform setup for writing the movie file.
 
@@ -163,13 +163,13 @@ class AbstractMovieWriter(six.with_metaclass(abc.ABCMeta)):
         'Finish any processing for writing the movie.'
 
     @contextlib.contextmanager
-    def saving(self, fig, outfile, dpi, *args):
+    def saving(self, fig, outfile, dpi, *args, **kwargs):
         '''
         Context manager to facilitate writing the movie file.
 
         All arguments are passed on to `setup`.
         '''
-        self.setup(fig, outfile, dpi, *args)
+        self.setup(fig, outfile, dpi, *args, **kwargs)
         yield
         self.finish()
 
@@ -246,7 +246,7 @@ class MovieWriter(AbstractMovieWriter):
         width_inches, height_inches = self.fig.get_size_inches()
         return width_inches * self.dpi, height_inches * self.dpi
 
-    def setup(self, fig, outfile, dpi, *args):
+    def setup(self, fig, outfile, dpi):
         '''
         Perform setup for writing the movie file.
 
