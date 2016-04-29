@@ -509,7 +509,7 @@ class ScalarFormatter(Formatter):
         self._usetex = rcParams['text.usetex']
         if useMathText is None:
             useMathText = rcParams['axes.formatter.use_mathtext']
-        self._useMathText = useMathText
+        self.set_useMathText(useMathText)
         self.orderOfMagnitude = 0
         self.format = ''
         self._scientific = True
@@ -541,6 +541,17 @@ class ScalarFormatter(Formatter):
             self._useLocale = val
 
     useLocale = property(fget=get_useLocale, fset=set_useLocale)
+
+    def get_useMathText(self):
+        return self._useMathText
+
+    def set_useMathText(self, val):
+        if val is None:
+            self._useMathText = rcParams['axes.formatter.use_mathtext']
+        else:
+            self._useMathText = val
+
+    useMathText = property(fget=get_useMathText, fset=set_useMathText)
 
     def fix_minus(self, s):
         """
