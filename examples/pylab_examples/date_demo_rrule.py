@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """
 Show how to use an rrule instance to make a custom date ticker - here
 we put a tick mark on every 5th easter

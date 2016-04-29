@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 # override the default reporting of coords
 
 import matplotlib.pyplot as plt

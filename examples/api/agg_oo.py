@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 # -*- noplot -*-
 """
 A pure OO (look Ma, no pylab!) example using the agg backend

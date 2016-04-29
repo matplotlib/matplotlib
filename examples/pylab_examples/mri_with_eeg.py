@@ -1,9 +1,8 @@
-#!/usr/bin/env python
-
 """
 This now uses the imshow command instead of pcolor which *is much
 faster*
 """
+
 from __future__ import division, print_function
 
 import numpy as np

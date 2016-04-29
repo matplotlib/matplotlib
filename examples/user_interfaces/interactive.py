@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """Multithreaded interactive interpreter with GTK and Matplotlib support.
 
 WARNING:

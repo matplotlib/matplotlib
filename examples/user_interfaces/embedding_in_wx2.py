@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """
 An example of how to use wx or wxagg in an application with the new
 toolbar - comment out the setA_toolbar line for no toolbar

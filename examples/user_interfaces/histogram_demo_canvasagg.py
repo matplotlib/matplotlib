@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """
 This is an example that shows you how to work directly with the agg
 figure canvas to create a figure using the pythonic API.
