@@ -3733,7 +3733,7 @@ class Axes(_AxesBase):
                                         'facecolors', 'color'],
                          label_namer="y")
     @docstring.dedent_interpd
-    def scatter(self, x, y, s=None, c=None, marker='o', cmap=None, norm=None,
+    def scatter(self, x, y, s=None, c=None, marker=None, cmap=None, norm=None,
                 vmin=None, vmax=None, alpha=None, linewidths=None,
                 verts=None, edgecolors=None,
                 **kwargs):
@@ -3904,6 +3904,10 @@ class Axes(_AxesBase):
         x, y, s, c = cbook.delete_masked_points(x, y, s, c)
 
         scales = s   # Renamed for readability below.
+
+        # load default marker from rcParams
+        if marker is None:
+            marker = rcParams['scatter.marker']
 
         # to be API compatible
         if marker is None and not (verts is None):
