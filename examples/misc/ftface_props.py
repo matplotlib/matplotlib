@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 from __future__ import print_function
 """
 This is a demo script to show you how to use all the properties of an

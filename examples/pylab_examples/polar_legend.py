@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 import numpy as np
 from matplotlib.pyplot import figure, show, rc
 

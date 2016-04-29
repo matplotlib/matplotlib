@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """
 Compute the coherence of two signals
 """

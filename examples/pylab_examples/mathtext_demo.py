@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """
 Use matplotlib's internal LaTeX parser and layout engine.  For true
 latex rendering, see the text.usetex option

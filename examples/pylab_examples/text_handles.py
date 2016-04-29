@@ -1,9 +1,10 @@
-#!/usr/bin/env python
-# Controlling the properties of axis text using handles
+"""
+Controlling the properties of axis text using handles
 
-# See examples/text_themes.py for a more elegant, pythonic way to control
-# fonts.  After all, if we were slaves to MATLAB , we wouldn't be
-# using python!
+See examples/text_themes.py for a more elegant, pythonic way to control
+fonts.  After all, if we were slaves to MATLAB , we wouldn't be
+using python!
+"""
 
 import matplotlib.pyplot as plt
 import numpy as np
