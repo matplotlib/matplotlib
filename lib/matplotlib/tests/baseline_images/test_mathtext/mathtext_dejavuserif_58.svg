@@ -41,7 +41,7 @@ Q 39.75 12.15625 41.65625 17
 Q 47.796875 32.171875 49.03125 46.234375 
 L 43.109375 46.234375 
 L 44.140625 51.46875 
-z
+L 57.515625 51.46875 
 " id="DejaVuSerif-Italic-79"/>
     <path d="M 6.390625 0 
 L 0.296875 0 
@@ -59,7 +59,7 @@ L 51.125 5.171875
 L 50.140625 0 
 L 36.53125 0 
 L 25.484375 20.703125 
-z
+L 6.390625 0 
 " id="DejaVuSerif-Italic-78"/>
     <path d="M 12.796875 55.515625 
 L 7.328125 55.515625 
@@ -86,10 +86,10 @@ Q 21.09375 69.390625 17.28125 65.921875
 Q 13.484375 62.453125 12.796875 55.515625 
 " id="DejaVuSerif-32"/>
    </defs>
-   <g transform="translate(180.900000 30.046875)scale(0.120000 -0.120000)">
-    <use transform="translate(0.000000 0.093750)" xlink:href="#DejaVuSerif-Italic-79"/>
-    <use transform="translate(56.494141 -15.478125)scale(0.700000)" xlink:href="#DejaVuSerif-Italic-78"/>
-    <use transform="translate(98.938987 9.955937)scale(0.490000)" xlink:href="#DejaVuSerif-32"/>
+   <g transform="translate(180.9 30.06)scale(0.12 -0.12)">
+    <use transform="translate(0 0.09375)" xlink:href="#DejaVuSerif-Italic-79"/>
+    <use transform="translate(56.494141 -15.478125)scale(0.7)" xlink:href="#DejaVuSerif-Italic-78"/>
+    <use transform="translate(98.938987 9.955937)scale(0.49)" xlink:href="#DejaVuSerif-32"/>
    </g>
   </g>
  </g>

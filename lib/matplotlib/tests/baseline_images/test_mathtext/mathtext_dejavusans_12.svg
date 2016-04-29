@@ -30,7 +30,7 @@ Q 15.875 -1.703125 12.234375 9.375
 Q 8.59375 20.453125 8.59375 31.390625 
 Q 8.59375 42.28125 12.203125 53.3125 
 Q 15.828125 64.359375 23.1875 75.875 
-z
+L 31 75.875 
 " id="DejaVuSans-28"/>
     <path d="M 60.015625 54.6875 
 L 34.90625 27.875 
@@ -44,7 +44,7 @@ L 10.015625 54.6875
 L 20.3125 54.6875 
 L 30.8125 34.90625 
 L 49.125 54.6875 
-z
+L 60.015625 54.6875 
 " id="DejaVuSans-Oblique-78"/>
     <path d="M 8.015625 75.875 
 L 15.828125 75.875 
@@ -59,7 +59,7 @@ Q 20.90625 42.671875 17.703125 53.65625
 Q 14.5 64.65625 8.015625 75.875 
 " id="DejaVuSans-29"/>
    </defs>
-   <g transform="translate(180.72 30.31125)scale(0.12 -0.12)">
+   <g transform="translate(180.72 30.3)scale(0.12 -0.12)">
     <use transform="translate(0 0.125)" xlink:href="#DejaVuSans-28"/>
     <use transform="translate(39.013672 0.125)" xlink:href="#DejaVuSans-Oblique-78"/>
     <use transform="translate(98.193359 0.125)" xlink:href="#DejaVuSans-29"/>

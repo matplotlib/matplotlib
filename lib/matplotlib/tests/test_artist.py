@@ -142,11 +142,11 @@ def test_cull_markers():
 
     pdf = io.BytesIO()
     fig.savefig(pdf, format="pdf")
-    assert len(pdf.getvalue()) < 8000
+    assert len(pdf.getvalue()) < 64000
 
     svg = io.BytesIO()
     fig.savefig(svg, format="svg")
-    assert len(svg.getvalue()) < 20000
+    assert len(svg.getvalue()) < 30000
 
 
 @cleanup

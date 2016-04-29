@@ -143,6 +143,7 @@ def test_afm_kerning():
     from matplotlib.font_manager import findfont
 
     fn = findfont("Helvetica", fontext="afm")
+    print("filename", fn)
     with open(fn, 'rb') as fh:
         afm = AFM(fh)
     assert afm.string_width_height('VAVAVAVAVAVA') == (7174.0, 718)

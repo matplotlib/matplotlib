@@ -28,7 +28,7 @@ L 42.203125 152.59375
 L 26.59375 152.59375 
 L 26.59375 -23.90625 
 L 42.203125 -23.90625 
-z
+L 42.203125 -27.90625 
 " id="STIXSizeTwoSym-Regular-5b"/>
     <path d="M 47.90625 -27.90625 
 L 19 -27.90625 
@@ -36,7 +36,7 @@ L 19 156.59375
 L 26.59375 156.59375 
 L 26.59375 -23.90625 
 L 47.90625 -23.90625 
-z
+L 47.90625 -27.90625 
 " id="STIXSizeTwoSym-Regular-230a"/>
     <path d="M 10.796875 72.90625 
 L 49.515625 72.90625 
@@ -60,7 +60,7 @@ Q 45.015625 31 40.078125 35.4375
 Q 35.15625 39.890625 26.703125 39.890625 
 Q 22.75 39.890625 18.8125 39.015625 
 Q 14.890625 38.140625 10.796875 36.28125 
-z
+L 10.796875 72.90625 
 " id="DejaVuSans-35"/>
     <path d="M 31 75.875 
 Q 24.46875 64.65625 21.28125 53.65625 
@@ -72,7 +72,7 @@ Q 15.875 -1.703125 12.234375 9.375
 Q 8.59375 20.453125 8.59375 31.390625 
 Q 8.59375 42.28125 12.203125 53.3125 
 Q 15.828125 64.359375 23.1875 75.875 
-z
+L 31 75.875 
 " id="DejaVuSans-28"/>
     <path d="M 40.578125 39.3125 
 Q 47.65625 37.796875 51.625 33 
@@ -120,7 +120,7 @@ Q 14.5 64.65625 8.015625 75.875
     <path d="M 37.796875 64.3125 
 L 12.890625 25.390625 
 L 37.796875 25.390625 
-z
+L 37.796875 64.3125 
 M 35.203125 72.90625 
 L 47.609375 72.90625 
 L 47.609375 25.390625 
@@ -132,7 +132,7 @@ L 37.796875 0
 L 37.796875 17.1875 
 L 4.890625 17.1875 
 L 4.890625 26.703125 
-z
+L 35.203125 72.90625 
 " id="DejaVuSans-34"/>
     <path d="M 24.8125 -5.078125 
 Q 18.5625 -15.578125 14.625 -18.1875 
@@ -148,7 +148,7 @@ L 16.703125 54.6875
 L 25.78125 12.796875 
 L 50.875 54.6875 
 L 60.296875 54.6875 
-z
+L 24.8125 -5.078125 
 " id="DejaVuSans-Oblique-79"/>
     <path d="M 11.40625 153 
 L 11.40625 156.59375 
@@ -169,32 +169,32 @@ L 19.296875 152.59375
 L 3.703125 152.59375 
 L 3.703125 156.59375 
 L 26.90625 156.59375 
-z
+L 26.90625 -27.90625 
 " id="STIXSizeTwoSym-Regular-5d"/>
    </defs>
    <g transform="translate(167.7 27.42)scale(0.12 -0.12)">
     <use transform="translate(0 -60.613125)scale(1.000105)" xlink:href="#STIXSizeTwoSym-Regular-5b"/>
-    <use transform="translate(45.899994 -60.613125)scale(1.000105)" xlink:href="#STIXSizeTwoSym-Regular-230a"/>
-    <use transform="translate(115.299988 44.965625)scale(0.7)" xlink:href="#DejaVuSans-35"/>
-    <use transform="translate(98.299988 -24.458437)scale(0.49)" xlink:href="#DejaVuSans-28"/>
-    <use transform="translate(117.416687 -24.458437)scale(0.49)" xlink:href="#DejaVuSans-33"/>
-    <use transform="translate(148.59198 -24.458437)scale(0.49)" xlink:href="#DejaVuSans-29"/>
-    <use transform="translate(117.299988 -88.519375)scale(0.49)" xlink:href="#DejaVuSans-34"/>
-    <use transform="translate(188.958679 0.173438)" xlink:href="#DejaVuSans-Oblique-79"/>
-    <use transform="translate(248.138367 -60.613125)scale(1.000105)" xlink:href="#STIXSizeTwoSym-Regular-29"/>
-    <use transform="translate(308.938354 -60.613125)scale(1.000105)" xlink:href="#STIXSizeTwoSym-Regular-5d"/>
-    <path d="M 98.299988 18.970313 
-L 98.299988 25.220313 
-L 176.458679 25.220313 
-L 176.458679 18.970313 
-L 98.299988 18.970313 
+    <use transform="translate(45.899963 -60.613125)scale(1.000105)" xlink:href="#STIXSizeTwoSym-Regular-230a"/>
+    <use transform="translate(115.299911 44.965625)scale(0.7)" xlink:href="#DejaVuSans-35"/>
+    <use transform="translate(98.299911 -24.458437)scale(0.49)" xlink:href="#DejaVuSans-28"/>
+    <use transform="translate(117.416611 -24.458437)scale(0.49)" xlink:href="#DejaVuSans-33"/>
+    <use transform="translate(148.591904 -24.458437)scale(0.49)" xlink:href="#DejaVuSans-29"/>
+    <use transform="translate(117.299911 -88.519375)scale(0.49)" xlink:href="#DejaVuSans-34"/>
+    <use transform="translate(188.958603 0.173438)" xlink:href="#DejaVuSans-Oblique-79"/>
+    <use transform="translate(248.13829 -60.613125)scale(1.000105)" xlink:href="#STIXSizeTwoSym-Regular-29"/>
+    <use transform="translate(308.938232 -60.613125)scale(1.000105)" xlink:href="#STIXSizeTwoSym-Regular-5d"/>
+    <path d="M 98.299911 18.970313 
+L 98.299911 25.220313 
+L 176.458603 25.220313 
+L 176.458603 18.970313 
+L 98.299911 18.970313 
 z
 "/>
-    <path d="M 98.299988 -48.420312 
-L 98.299988 -44.045312 
-L 167.708679 -44.045312 
-L 167.708679 -48.420312 
-L 98.299988 -48.420312 
+    <path d="M 98.299911 -48.420312 
+L 98.299911 -44.045312 
+L 167.708603 -44.045312 
+L 167.708603 -48.420312 
+L 98.299911 -48.420312 
 z
 "/>
    </g>

@@ -65,11 +65,11 @@ class TextToPath(object):
     def _get_hinting_flag(self):
         return ft.LOAD.NO_HINTING
 
-    def _get_char_id(self, font, ccode):
+    def _get_char_id(self, font, gind):
         """
         Return a unique id for the given font and character-code set.
         """
-        char_id = urllib_quote('%s-%x' % (font.get_postscript_name(), ccode))
+        char_id = urllib_quote('%s-%x' % (font.get_postscript_name(), gind))
         return char_id
 
     def _get_char_id_ps(self, font, ccode):
@@ -181,14 +181,13 @@ class TextToPath(object):
         layout = ft.Layout(font, s)
 
         result = []
-        for gind, c, pos in zip(np.asarray(layout.glyph_indices), s,
-                                np.asarray(layout.points)):
+        for (face, gind, (x, y)), c in zip(layout.layout, s):
             ccode = ord(c)
-            char_id = self._get_char_id(font, ccode)
+            char_id = self._get_char_id(face, ccode)
             if char_id not in glyph_map:
                 glyph = font.load_glyph(gind, ft.LOAD.NO_HINTING)
                 glyph_map_new[char_id] = self.glyph_to_path(glyph)
-            result.append((char_id, pos[0], pos[1], 1))
+            result.append((char_id, x, y, 1))
 
         return (result, glyph_map_new, [])
 

@@ -32,7 +32,7 @@ L 10.015625 54.6875
 L 20.3125 54.6875 
 L 30.8125 34.90625 
 L 49.125 54.6875 
-z
+L 60.015625 54.6875 
 " id="DejaVuSans-Oblique-78"/>
     <path d="M 19.1875 8.296875 
 L 53.609375 8.296875 
@@ -58,9 +58,9 @@ Q 44.1875 33.984375 37.640625 27.21875
 Q 31.109375 20.453125 19.1875 8.296875 
 " id="DejaVuSans-32"/>
    </defs>
-   <g transform="translate(182.580000 30.311250)scale(0.120000 -0.120000)">
-    <use transform="translate(0.000000 0.312500)" xlink:href="#DejaVuSans-Oblique-78"/>
-    <use transform="translate(59.179688 -16.093750)scale(0.700000)" xlink:href="#DejaVuSans-32"/>
+   <g transform="translate(182.58 30.3)scale(0.12 -0.12)">
+    <use transform="translate(0 0.3125)" xlink:href="#DejaVuSans-Oblique-78"/>
+    <use transform="translate(59.179688 -16.09375)scale(0.7)" xlink:href="#DejaVuSans-32"/>
    </g>
   </g>
  </g>

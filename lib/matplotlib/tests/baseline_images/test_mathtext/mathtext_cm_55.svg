@@ -58,7 +58,7 @@ Q 39.3125 8.34375 39.59375 8.59375
 Q 40.765625 9.859375 42 17.828125 
 L 44.921875 17.828125 
 L 42.09375 0 
-z
+L 4.984375 0 
 " id="Cmr10-32"/>
     <path d="M 7.8125 2.875 
 Q 9.578125 1.515625 12.796875 1.515625 
@@ -122,11 +122,11 @@ Q 12.703125 6.390625 11.296875 4.828125
 Q 9.90625 3.265625 7.8125 2.875 
 " id="Cmmi10-78"/>
    </defs>
-   <g transform="translate(179.820000 30.444375)scale(0.120000 -0.120000)">
-    <use transform="translate(0.000000 0.045391)" xlink:href="#Cmr10-32"/>
-    <use transform="translate(54.464141 38.309453)scale(0.700000)" xlink:href="#Cmr10-32"/>
-    <use transform="translate(92.589039 65.094297)scale(0.490000)" xlink:href="#Cmr10-32"/>
-    <use transform="translate(119.276468 83.843688)scale(0.343000)" xlink:href="#Cmmi10-78"/>
+   <g transform="translate(179.82 30.42)scale(0.12 -0.12)">
+    <use transform="translate(0 0.045391)" xlink:href="#Cmr10-32"/>
+    <use transform="translate(54.464141 38.309453)scale(0.7)" xlink:href="#Cmr10-32"/>
+    <use transform="translate(92.589039 65.094297)scale(0.49)" xlink:href="#Cmr10-32"/>
+    <use transform="translate(119.276468 83.843688)scale(0.343)" xlink:href="#Cmmi10-78"/>
    </g>
   </g>
  </g>

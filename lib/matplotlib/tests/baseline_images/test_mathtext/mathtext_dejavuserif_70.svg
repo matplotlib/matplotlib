@@ -21,9 +21,9 @@ z
    <!-- $M \, M \thinspace M \/ M \&gt; M \: M \; M \ M \enspace M \quad M \qquad M \! M$ -->
    <defs>
     <path d="M -1.515625 0 
-L -0.53125 5.171875 
+L -0.546875 5.171875 
 L 8.734375 5.171875 
-L 20.90625 67.671875 
+L 20.890625 67.671875 
 L 11.078125 67.671875 
 L 12.109375 72.90625 
 L 33.34375 72.90625 
@@ -38,29 +38,29 @@ L 89.890625 0
 L 61.375 0 
 L 62.359375 5.171875 
 L 71.625 5.171875 
-L 82.625 61.53125 
+L 82.609375 61.53125 
 L 47.703125 10.6875 
-L 40.828125 10.6875 
+L 40.8125 10.6875 
 L 25.734375 61.53125 
 L 14.75 5.171875 
-L 24.03125 5.171875 
+L 24.015625 5.171875 
 L 23.046875 0 
-z
+L -1.515625 0 
 " id="DejaVuSerif-Italic-4d"/>
    </defs>
-   <g transform="translate(87.420000 30.311250)scale(0.120000 -0.120000)">
-    <use transform="translate(0.000000 0.093750)" xlink:href="#DejaVuSerif-Italic-4d"/>
-    <use transform="translate(118.196931 0.093750)" xlink:href="#DejaVuSerif-Italic-4d"/>
-    <use transform="translate(236.393861 0.093750)" xlink:href="#DejaVuSerif-Italic-4d"/>
-    <use transform="translate(354.590792 0.093750)" xlink:href="#DejaVuSerif-Italic-4d"/>
-    <use transform="translate(478.055208 0.093750)" xlink:href="#DejaVuSerif-Italic-4d"/>
-    <use transform="translate(601.519624 0.093750)" xlink:href="#DejaVuSerif-Italic-4d"/>
-    <use transform="translate(730.252474 0.093750)" xlink:href="#DejaVuSerif-Italic-4d"/>
-    <use transform="translate(864.252809 0.093750)" xlink:href="#DejaVuSerif-Italic-4d"/>
-    <use transform="translate(1014.057496 0.093750)" xlink:href="#DejaVuSerif-Italic-4d"/>
-    <use transform="translate(1211.274293 0.093750)" xlink:href="#DejaVuSerif-Italic-4d"/>
-    <use transform="translate(1503.315309 0.093750)" xlink:href="#DejaVuSerif-Italic-4d"/>
-    <use transform="translate(1589.903534 0.093750)" xlink:href="#DejaVuSerif-Italic-4d"/>
+   <g transform="translate(87.42 30.3)scale(0.12 -0.12)">
+    <use transform="translate(0 0.09375)" xlink:href="#DejaVuSerif-Italic-4d"/>
+    <use transform="translate(118.196931 0.09375)" xlink:href="#DejaVuSerif-Italic-4d"/>
+    <use transform="translate(236.393861 0.09375)" xlink:href="#DejaVuSerif-Italic-4d"/>
+    <use transform="translate(354.590792 0.09375)" xlink:href="#DejaVuSerif-Italic-4d"/>
+    <use transform="translate(478.055208 0.09375)" xlink:href="#DejaVuSerif-Italic-4d"/>
+    <use transform="translate(601.519624 0.09375)" xlink:href="#DejaVuSerif-Italic-4d"/>
+    <use transform="translate(730.252474 0.09375)" xlink:href="#DejaVuSerif-Italic-4d"/>
+    <use transform="translate(864.252809 0.09375)" xlink:href="#DejaVuSerif-Italic-4d"/>
+    <use transform="translate(1014.057496 0.09375)" xlink:href="#DejaVuSerif-Italic-4d"/>
+    <use transform="translate(1211.274293 0.09375)" xlink:href="#DejaVuSerif-Italic-4d"/>
+    <use transform="translate(1503.315309 0.09375)" xlink:href="#DejaVuSerif-Italic-4d"/>
+    <use transform="translate(1589.903534 0.09375)" xlink:href="#DejaVuSerif-Italic-4d"/>
    </g>
   </g>
  </g>
