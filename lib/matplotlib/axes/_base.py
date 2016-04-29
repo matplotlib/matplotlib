@@ -2483,30 +2483,32 @@ class _AxesBase(martist.Artist):
 
         Optional keyword arguments:
 
-          ============   =========================================
-          Keyword        Description
-          ============   =========================================
-          *style*        [ 'sci' (or 'scientific') | 'plain' ]
-                         plain turns off scientific notation
-          *scilimits*    (m, n), pair of integers; if *style*
-                         is 'sci', scientific notation will
-                         be used for numbers outside the range
-                         10`m`:sup: to 10`n`:sup:.
-                         Use (0,0) to include all numbers.
-          *useOffset*    [True | False | offset]; if True,
-                         the offset will be calculated as needed;
-                         if False, no offset will be used; if a
-                         numeric offset is specified, it will be
-                         used.
-          *axis*         [ 'x' | 'y' | 'both' ]
-          *useLocale*    If True, format the number according to
-                         the current locale.  This affects things
-                         such as the character used for the
-                         decimal separator.  If False, use
-                         C-style (English) formatting.  The
-                         default setting is controlled by the
-                         axes.formatter.use_locale rcparam.
-          ============   =========================================
+          ==============   =========================================
+          Keyword          Description
+          ==============   =========================================
+          *style*          [ 'sci' (or 'scientific') | 'plain' ]
+                           plain turns off scientific notation
+          *scilimits*      (m, n), pair of integers; if *style*
+                           is 'sci', scientific notation will
+                           be used for numbers outside the range
+                           10`m`:sup: to 10`n`:sup:.
+                           Use (0,0) to include all numbers.
+          *useOffset*      [True | False | offset]; if True,
+                           the offset will be calculated as needed;
+                           if False, no offset will be used; if a
+                           numeric offset is specified, it will be
+                           used.
+          *axis*           [ 'x' | 'y' | 'both' ]
+          *useLocale*      If True, format the number according to
+                           the current locale.  This affects things
+                           such as the character used for the
+                           decimal separator.  If False, use
+                           C-style (English) formatting.  The
+                           default setting is controlled by the
+                           axes.formatter.use_locale rcparam.
+          *useMathText*    If True, render the offset and scientific
+                           notation in mathtext
+          ==============   =========================================
 
         Only the major ticks are affected.
         If the method is called when the
@@ -2519,6 +2521,7 @@ class _AxesBase(martist.Artist):
         scilimits = kwargs.pop('scilimits', None)
         useOffset = kwargs.pop('useOffset', None)
         useLocale = kwargs.pop('useLocale', None)
+        useMathText = kwargs.pop('useMathText', None)
         axis = kwargs.pop('axis', 'both').lower()
         if scilimits is not None:
             try:
@@ -2560,6 +2563,11 @@ class _AxesBase(martist.Artist):
                     self.xaxis.major.formatter.set_useLocale(useLocale)
                 if axis == 'both' or axis == 'y':
                     self.yaxis.major.formatter.set_useLocale(useLocale)
+            if useMathText is not None:
+                if axis == 'both' or axis == 'x':
+                    self.xaxis.major.formatter.set_useMathText(useMathText)
+                if axis == 'both' or axis == 'y':
+                    self.yaxis.major.formatter.set_useMathText(useMathText)
         except AttributeError:
             raise AttributeError(
                 "This method only works with the ScalarFormatter.")
