@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """
 Illustrate the difference between corner_mask=False and corner_mask=True
 for masked contour plots.

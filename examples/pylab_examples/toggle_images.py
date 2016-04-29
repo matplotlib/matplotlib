@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """ toggle between two images by pressing "t"
 
 The basic idea is to load two images (they can be different shapes) and plot

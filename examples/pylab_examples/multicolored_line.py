@@ -1,7 +1,7 @@
-#!/usr/bin/env python
 '''
 Color parts of a line based on its properties, e.g., slope.
 '''
+
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.collections import LineCollection

@@ -1,6 +1,3 @@
-#!/usr/bin/env python
-#-*- encoding:utf-8 -*-
-
 """
 Demonstrate how to create an interactive histogram, in which bars
 are hidden or shown by cliking on legend markers.
@@ -27,7 +24,7 @@ a PatchCollection, or be assigned a class="hist_##" attribute.
 CSS could also be used more extensively to replace repetitive markup
 troughout the generated SVG.
 
-__author__="david.huard@gmail.com"
+Author: david.huard@gmail.com
 
 """
 

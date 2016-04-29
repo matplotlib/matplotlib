@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """
 Show how to make date plots in matplotlib using date tick locators and
 formatters.  See major_minor_demo1.py for more information on

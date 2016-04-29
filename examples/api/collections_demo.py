@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 '''Demonstration of LineCollection, PolyCollection, and
 RegularPolyCollection with autoscaling.
 

@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 import numpy as np
 
 # matplotlib requires wxPython 2.8+
