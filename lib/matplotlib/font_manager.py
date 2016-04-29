@@ -151,14 +151,16 @@ slant_rdict = dict(
 )
 
 
-def get_fontext_synonyms(fontext):
-    """
-    Return a list of file extensions extensions that are synonyms for
-    the given file extension *fileext*.
-    """
-    return {'ttf': ('ttf', 'otf'),
-            'otf': ('ttf', 'otf'),
-            'afm': ('afm',)}[fontext]
+def _convert_weight(weight):
+    try:
+        weight = int(weight)
+    except ValueError:
+        if weight not in weight_dict:
+            raise ValueError("weight is invalid")
+        weight = weight_dict[weight]
+    else:
+        weight = min(max((weight // 100), 1), 9) * 100
+    return weight_css_to_fontconfig[weight]
 
 
 class FontProperties(object):
@@ -407,15 +409,7 @@ class FontProperties(object):
         """
         if weight is None:
             weight = rcParams['font.weight']
-        try:
-            weight = int(weight)
-        except ValueError:
-            if weight not in weight_dict:
-                raise ValueError("weight is invalid")
-            weight = weight_dict[weight]
-        else:
-            weight = min(max((weight // 100), 1), 9) * 100
-        self._pattern.set('weight', weight_css_to_fontconfig[weight])
+        self._pattern.set('weight', _convert_weight(weight))
 
     def set_stretch(self, stretch):
         """
@@ -483,13 +477,66 @@ class FontProperties(object):
 get_font = lru_cache(64)(ft.Face)
 
 
-fcpy_config_all = fcpy.default_config()
-# Add the directory of fonts that ship with matplotlib
-for path in [os.path.join(rcParams['datapath'], 'fonts', 'ttf'),
-             os.path.join(rcParams['datapath'], 'fonts', 'afm'),
-             os.path.join(rcParams['datapath'], 'fonts', 'pdfcorefonts')]:
-    fcpy_config_all.add_dir(path)
-fcpy_config_all.build_fonts()
+@lru_cache(64)
+def _get_afm_pattern(filename):
+    """
+    Adds a fontconfig pattern for a given AFM file.
+    """
+    with open(filename) as fd:
+        font = afm.AFM(fd)
+
+    pattern = fcpy.Pattern()
+    name = font.get_familyname()
+
+    pattern.set('file', filename)
+    pattern.set('family', name)
+    pattern.set('fullname', font.get_fontname().lower())
+
+    if font.get_angle() != 0 or name.lower().find('italic') >= 0:
+        style = fcpy.SLANT.ITALIC
+    elif name.lower().find('oblique') >= 0:
+        style = fcpy.SLANT.OBLIQUE
+    else:
+        style = fcpy.SLANT.ROMAN
+    pattern.set('slant', style)
+    pattern.set('weight', _convert_weight(font.get_weight().lower()))
+    pattern.set('scalable', True)
+
+    return pattern
+
+
+@lru_cache(8)
+def _get_font_cache(directory, fontext=None):
+    """
+    Create a fcpy.Config instance for a particular directory and kind of font.
+    """
+    def add_directory(path):
+        if fontext == 'afm':
+            for filename in os.listdir(path):
+                filename = os.path.join(path, filename)
+                if filename.endswith('.afm') and os.path.isfile(filename):
+                    fcpy_config.add_file(filename)
+                    pattern = _get_afm_pattern(filename)
+                    fcpy_config.add_pattern(pattern)
+        else:
+            fcpy_config.add_dir(path)
+
+
+    if directory is None:
+        if fontext == 'afm':
+            fcpy_config = fcpy.Config()
+        else:
+            fcpy_config = fcpy.default_config()
+        # Add the directories of fonts that ship with matplotlib
+        for path in ['ttf', 'afm', 'pdfcorefonts']:
+            path = os.path.join(rcParams['datapath'], 'fonts', path)
+            add_directory(path)
+    else:
+        fcpy_config = fcpy.Config()
+        add_directory(directory)
+
+    fcpy_config.build_fonts()
+    return fcpy_config
 
 
 def findfont(prop, fontext=None, directory=None, fallback_to_default=True):
@@ -504,17 +551,12 @@ def findfont(prop, fontext=None, directory=None, fallback_to_default=True):
     font family (usually "DejaVu Sans" or "Helvetica") if
     the first lookup hard-fails.
     """
-    # TODO: make fontext
     if isinstance(prop, FontProperties):
         pattern = prop._pattern
     else:
         pattern = FontProperties(prop)._pattern
 
-    if directory is None:
-        fcpy_config = fcpy_config_all
-    else:
-        fcpy_config = fcpy.Config()
-        fcpy_config.add_dir(directory)
+    fcpy_config = _get_font_cache(directory, fontext)
 
     pattern = pattern.copy()
 
@@ -523,5 +565,17 @@ def findfont(prop, fontext=None, directory=None, fallback_to_default=True):
 
     match = fcpy_config.match(pattern)
 
-    result = next(match.get('file'))
+    try:
+        result = next(match.get('file'))
+    except StopIteration:
+        if fallback_to_default:
+            if fontext == 'afm':
+                return os.path.join(
+                    rcParams['datapath'], 'fonts', 'afm', 'hhvr8a.afm')
+            else:
+                return os.path.join(
+                    rcParams['datapath'], 'fonts', 'ttf', 'DejaVuSans.ttf')
+        else:
+            raise ValueError("Could not find font for '%s'" % pattern)
+
     return result
