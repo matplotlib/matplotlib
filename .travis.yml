@@ -97,7 +97,8 @@ install:
   - |
     if [[ $BUILD_DOCS == true ]]; then
       pip install $PRE numpydoc ipython jsonschema mistune colorspacious
-      pip install -q $PRE linkchecker
+      # linkchecker is currently broken with requests 2.10.0 so force an earlier version
+      pip install $PRE requests==2.9.2 linkchecker
       wget https://github.com/google/fonts/blob/master/ofl/felipa/Felipa-Regular.ttf?raw=true -O Felipa-Regular.ttf
       wget http://mirrors.kernel.org/ubuntu/pool/universe/f/fonts-humor-sans/fonts-humor-sans_1.0-1_all.deb
       mkdir -p tmp
