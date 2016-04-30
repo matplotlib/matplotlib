@@ -179,7 +179,6 @@ class Patch(artist.Artist):
         self.set_linewidth(other.get_linewidth())
         self.set_linestyle(other.get_linestyle())
         self.set_transform(other.get_data_transform())
-        self.set_figure(other.get_figure())
         self.set_alpha(other.get_alpha())
 
     def get_extents(self):
