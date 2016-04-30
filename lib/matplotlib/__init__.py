@@ -1424,6 +1424,17 @@ else:
     except (KeyError, ValueError):
         pass
 
+
+# Jupyter extension paths
+def _jupyter_nbextension_paths():
+    return [{
+        'section': 'notebook',
+        'src': 'backends/web_backend/nbextension',
+        'dest': 'matplotlib',
+        'require': 'matplotlib/mpl'
+    }]
+
+
 default_test_modules = [
     'matplotlib.tests.test_agg',
     'matplotlib.tests.test_animation',

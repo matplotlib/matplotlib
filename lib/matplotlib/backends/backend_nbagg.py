@@ -292,4 +292,4 @@ def nbinstall(overwrite=False, user=True):
         **({'user': user} if version_info >= (3, 0, 0, '') else {})
     )
 
-nbinstall()
+#nbinstall()
