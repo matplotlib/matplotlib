@@ -22,6 +22,7 @@ import warnings
 
 import matplotlib
 from matplotlib.testing.decorators import image_comparison, cleanup
+from matplotlib.testing.noseclasses import KnownFailureTest
 import matplotlib.pyplot as plt
 import matplotlib.markers as mmarkers
 from numpy.testing import assert_allclose, assert_array_equal
@@ -86,6 +87,8 @@ def test_formatter_ticker():
 
 @image_comparison(baseline_images=["formatter_large_small"])
 def test_formatter_large_small():
+    if tuple(map(int, np.__version__.split('.'))) >= (1, 11, 0):
+        raise KnownFailureTest("Fall out from a fixed numpy bug")
     # github issue #617, pull #619
     fig, ax = plt.subplots(1)
     x = [0.500000001, 0.500000002]
@@ -1280,6 +1283,13 @@ def test_scatter_2D():
     fig, ax = plt.subplots()
     ax.scatter(x, y, c=z, s=200, edgecolors='face')
 
+@cleanup
+def test_scatter_color():
+    # Try to catch cases where 'c' kwarg should have been used.
+    assert_raises(ValueError, plt.scatter, [1, 2], [1, 2],
+                  color=[0.1, 0.2])
+    assert_raises(ValueError, plt.scatter, [1, 2, 3], [1, 2, 3],
+                  color=[1, 2, 3])
 
 @cleanup
 def test_as_mpl_axes_api():
