@@ -1114,8 +1114,8 @@ class FuncAnimation(TimedAnimation):
     results of drawing from the first item in the frames sequence will be
     used. This function will be called once before the first frame.
 
-    If blit=True, *func* and *init_func* should return an iterable of
-    drawables to clear.
+    If blit=True, *func* and *init_func* must return an iterable of
+    artists to be re-drawn.
 
     *kwargs* include *repeat*, *repeat_delay*, and *interval*:
     *interval* draws a new frame every *interval* milliseconds.
@@ -1196,6 +1196,9 @@ class FuncAnimation(TimedAnimation):
         else:
             self._drawn_artists = self._init_func()
             if self._blit:
+                if self._drawn_artists is None:
+                    raise RuntimeError('The init_func must return a '
+                                       'sequence of Artist objects.')
                 for a in self._drawn_artists:
                     a.set_animated(self._blit)
         self._save_seq = []
@@ -1212,5 +1215,8 @@ class FuncAnimation(TimedAnimation):
         # func needs to return a sequence of any artists that were modified.
         self._drawn_artists = self._func(framedata, *self._args)
         if self._blit:
+            if self._drawn_artists is None:
+                    raise RuntimeError('The animation function must return a '
+                                       'sequence of Artist objects.')
             for a in self._drawn_artists:
                 a.set_animated(self._blit)

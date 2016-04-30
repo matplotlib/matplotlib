@@ -781,7 +781,7 @@ class Line2D(Artist):
                 drawFunc(renderer, gc, tpath, affine.frozen())
                 gc.restore()
 
-        if self._marker:
+        if self._marker and self._markersize > 0:
             gc = renderer.new_gc()
             self._set_gc_clip(gc)
             rgbaFace = self._get_rgba_face()

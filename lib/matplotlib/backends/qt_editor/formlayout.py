@@ -298,6 +298,7 @@ class FormWidget(QtWidgets.QWidget):
                 field = QtWidgets.QLineEdit(repr(value), self)
                 field.setCursorPosition(0)
                 field.setValidator(QtGui.QDoubleValidator(field))
+                field.validator().setLocale(QtCore.QLocale("C"))
                 dialog = self.get_dialog()
                 dialog.register_float_field(field)
                 field.textChanged.connect(lambda text: dialog.update_buttons())

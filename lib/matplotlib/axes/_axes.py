@@ -3830,19 +3830,20 @@ class Axes(_AxesBase):
         # Process **kwargs to handle aliases, conflicts with explicit kwargs:
 
         facecolors = None
-        ec = kwargs.pop('edgecolor', None)
-        if ec is not None:
-            edgecolors = ec
-        fc = kwargs.pop('facecolor', None)
-        if fc is not None:
-            facecolors = fc
+        edgecolors = kwargs.pop('edgecolor', edgecolors)
         fc = kwargs.pop('facecolors', None)
+        fc = kwargs.pop('facecolor', fc)
         if fc is not None:
             facecolors = fc
-        # 'color' should be deprecated in scatter, or clearly defined;
-        # since it isn't, I am giving it low priority.
         co = kwargs.pop('color', None)
         if co is not None:
+            try:
+                mcolors.colorConverter.to_rgba_array(co)
+            except ValueError:
+                raise ValueError("'color' kwarg must be an mpl color"
+                                 " spec or sequence of color specs.\n"
+                                 "For a sequence of values to be"
+                                 " color-mapped, use the 'c' kwarg instead.")
             if edgecolors is None:
                 edgecolors = co
             if facecolors is None:
