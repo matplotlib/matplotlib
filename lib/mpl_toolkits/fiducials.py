@@ -467,11 +467,11 @@ class Fiducials:
         self._update()
 
         # Draw plot
-        self.canvas.draw()
+        self.canvas.draw_idle()
 
         # Update synched fiducials canvas
         for canvas in self._todraw:
-            canvas.draw()
+            canvas.draw_idle()
         self._todraw.clear()
 
     def clear(self):
