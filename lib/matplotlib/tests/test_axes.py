@@ -25,6 +25,7 @@ from matplotlib.testing.decorators import image_comparison, cleanup
 from matplotlib.testing.noseclasses import KnownFailureTest
 import matplotlib.pyplot as plt
 import matplotlib.markers as mmarkers
+import matplotlib.patches as mpatches
 from numpy.testing import assert_allclose, assert_array_equal
 import warnings
 from matplotlib.cbook import IgnoredKeywordWarning
@@ -4415,6 +4416,27 @@ def test_date_timezone_x_and_y():
     # Different Timezone
     plt.subplot(2, 1, 2)
     plt.plot_date(time_index, time_index, tz='US/Eastern', ydate=True)
+
+
+@image_comparison(baseline_images=['axisbelow'],
+                  extensions=['png'], remove_text=True)
+def test_axisbelow():
+    # Test 'line' setting added in 6287.
+    # Show only grids, not frame or ticks, to make this test
+    # independent of future change to drawing order of those elements.
+    fig, axs = plt.subplots(ncols=3, sharex=True, sharey=True)
+    settings = (False, 'line', True)
+
+    for ax, setting in zip(axs, settings):
+        ax.plot((0, 10), (0, 10), lw=10, color='m')
+        circ = mpatches.Circle((3, 3), color='r')
+        ax.add_patch(circ)
+        ax.grid(color='c', linestyle='-', linewidth=3)
+        ax.tick_params(top=False, bottom=False,
+                       left=False, right=False)
+        for spine in ax.spines.values():
+            spine.set_visible(False)
+        ax.set_axisbelow(setting)
 
 
 if __name__ == '__main__':
