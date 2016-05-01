@@ -139,7 +139,8 @@ script:
       deactivate
       source ~/virtualenv/python2.7/bin/activate
       pip install pip --upgrade
-      pip install linkchecker
+      # linkchecker is currently broken with requests 2.10.0 so force an earlier version
+      pip install $PRE requests==2.9.2 linkchecker
       linkchecker build/html/index.html
     fi
   - rm -rf $HOME/.cache/matplotlib/tex.cache
