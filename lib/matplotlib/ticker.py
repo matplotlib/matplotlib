@@ -135,6 +135,9 @@ axis.
 :class:`EngFormatter`
     Format labels in engineering notation
 
+:class:`EngFormatter`
+    Format labels in engineering notation
+
 :class:`PercentFormatter`
     Format labels as a percentage
 
