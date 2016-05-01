@@ -91,10 +91,12 @@ def stackplot(axes, x, *args, **kwargs):
         m, n = y.shape
         center = np.zeros(n)
         total = np.sum(y, 0)
+        # multiply by 1/total (or zero) to avoid infinities in the division:
+        inv_total = np.where(total > 0, 1./total, 0)
         increase = np.hstack((y[:, 0:1], np.diff(y)))
         below_size = total - stack
         below_size += 0.5 * y
-        move_up = below_size / total
+        move_up = below_size * inv_total
         move_up[:, 0] = 0.5
         center = (move_up - 0.5) * increase
         center = np.cumsum(center.sum(0))
