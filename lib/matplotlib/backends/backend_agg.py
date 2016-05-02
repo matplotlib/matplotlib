@@ -39,6 +39,7 @@ from matplotlib.mathtext import MathTextParser
 from matplotlib.path import Path
 from matplotlib.transforms import Bbox, BboxBase
 from matplotlib import colors as mcolors
+from matplotlib import image as mimage
 
 from matplotlib.backends._backend_agg import RendererAgg as _RendererAgg
 from matplotlib import _png
@@ -505,8 +506,16 @@ class FigureCanvasAgg(FigureCanvasBase):
         else:
             fileobj = filename_or_obj
             close = False
+        img = renderer._renderer.buffer_rgba()
+
+        # Flatten RGBA if used with fileformat that doesn't handle trnasparency
+        if kwargs.get('flatten', False):
+            w, h = int(renderer.width), int(renderer.height)
+            img = np.array(memoryview(img)).reshape((h, w, 4))
+            img = mimage.flatten_rgba(img)
+
         try:
-            fileobj.write(renderer._renderer.buffer_rgba())
+            fileobj.write(img)
         finally:
             if close:
                 filename_or_obj.close()
@@ -524,8 +533,16 @@ class FigureCanvasAgg(FigureCanvasBase):
         else:
             close = False
 
+        # Flatten RGBA if used as intermediate fileformat for something
+        # that doesn't support transparency (ie: Animations)
+        img = renderer._renderer
+        if kwargs.get('flatten', False):
+            img = img.buffer_rgba()
+            w, h = int(renderer.width), int(renderer.height)
+            img = np.array(memoryview(img)).reshape((h, w, 4))
+            img = mimage.flatten_rgba(img)
         try:
-            _png.write_png(renderer._renderer, filename_or_obj, self.figure.dpi)
+            _png.write_png(img, filename_or_obj, self.figure.dpi)
         finally:
             if close:
                 filename_or_obj.close()
@@ -562,24 +579,22 @@ class FigureCanvasAgg(FigureCanvasBase):
             *progressive*: If present, indicates that this image
                 should be stored as a progressive JPEG file.
             """
-            buf, size = self.print_to_buffer()
+            buf, (w, h) = self.print_to_buffer()
+            buf = np.array(memoryview(buf)).reshape((h, w, 4))
+
             if kwargs.pop("dryrun", False):
                 return
-            # The image is "pasted" onto a white background image to safely
-            # handle any transparency
-            image = Image.frombuffer('RGBA', size, buf, 'raw', 'RGBA', 0, 1)
-            color = mcolors.colorConverter.to_rgb(
-                rcParams.get('savefig.facecolor', 'white'))
-            color = tuple([int(x * 255.0) for x in color])
-            background = Image.new('RGB', size, color)
-            background.paste(image, image)
+
+            # Flatten RGBA image to safely handle transparent regions
+            buf = mimage.flatten_rgba(buf)
+            img = Image.frombuffer('RGBA', (w, h), buf, 'raw', 'RGBA', 0, 1)
+
             options = restrict_dict(kwargs, ['quality', 'optimize',
                                              'progressive'])
-
             if 'quality' not in options:
                 options['quality'] = rcParams['savefig.jpeg_quality']
 
-            return background.save(filename_or_obj, format='jpeg', **options)
+            return img.save(filename_or_obj, format='jpeg', **options)
         print_jpeg = print_jpg
 
         # add TIFF support

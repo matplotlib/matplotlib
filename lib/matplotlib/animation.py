@@ -298,7 +298,7 @@ class MovieWriter(AbstractMovieWriter):
             # Tell the figure to save its data to the sink, using the
             # frame format and dpi.
             self.fig.savefig(self._frame_sink(), format=self.frame_format,
-                             dpi=self.dpi, **savefig_kwargs)
+                             dpi=self.dpi, flatten=True, **savefig_kwargs)
         except RuntimeError:
             out, err = self._proc.communicate()
             verbose.report('MovieWriter -- Error '
@@ -437,7 +437,7 @@ class FileMovieWriter(MovieWriter):
             # frame format and dpi.
             myframesink = self._frame_sink()
             self.fig.savefig(myframesink, format=self.frame_format,
-                             dpi=self.dpi, **savefig_kwargs)
+                             dpi=self.dpi, flatten=True, **savefig_kwargs)
             myframesink.close()
 
         except RuntimeError:

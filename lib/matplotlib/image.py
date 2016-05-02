@@ -1365,3 +1365,46 @@ def thumbnail(infile, thumbfile, scale=0.1, interpolation='bilinear',
     ax.imshow(im, aspect='auto', resample=True, interpolation=interpolation)
     fig.savefig(thumbfile, dpi=dpi)
     return fig
+
+
+def flatten_rgba(src, bg=None):
+    """
+    Flatten an RGBA image *src* with a background color *bg*.
+    The resulting image will have an alpha channel, but no transparency.
+    This can be useful when interfacing with file formats that don't support
+    transparency or only support boolean transparency.
+
+    Parameters
+    ----------
+    src : MxNx4 Numpy array, dtype=uint8
+        Image source in RGBA to be flattened.
+
+    bg  : Tuple(int,int,int), optional
+        Background color to merge *src* with.  If no bg color is provided
+        the color from the rcParam 'savefig.facecolor' will be used.
+
+    Returns
+    -------
+    dest : MxNx4 Numpy array, dtype=uint8
+    """
+
+    if bg is None:
+        bg = mcolors.colorConverter.to_rgb(
+                 rcParams.get('savefig.facecolor', 'white'))
+        bg = tuple([int(x * 255.0) for x in bg])
+
+    # Numpy images have dtype=uint8 which will overflow for these calculations
+    src = src.astype(np.uint16)
+
+    alpha = src[:, :, 3]
+    src_rgb = src[:, :, :3]
+    w, h, _ = src.shape
+
+    dest = np.empty((w, h, 4))
+    dest[:, :, 0] = (255 - alpha)*bg[0] + alpha*src_rgb[:, :, 0]
+    dest[:, :, 1] = (255 - alpha)*bg[1] + alpha*src_rgb[:, :, 1]
+    dest[:, :, 2] = (255 - alpha)*bg[2] + alpha*src_rgb[:, :, 2]
+    dest = (dest/255).astype(np.uint8)
+    dest[:, :, 3] = 255
+
+    return dest

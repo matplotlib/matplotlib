@@ -483,7 +483,7 @@ def test_nonuniformimage_setnorm():
 
 @knownfailureif(not HAS_PIL)
 @cleanup
-def test_jpeg_alpha():
+def test_flatten():
     plt.figure(figsize=(1, 1), dpi=300)
     # Create an image that is all black, with a gradient from 0-1 in
     # the alpha channel from left to right.
@@ -492,21 +492,43 @@ def test_jpeg_alpha():
 
     plt.figimage(im)
 
-    buff = io.BytesIO()
-    with rc_context({'savefig.facecolor': 'red'}):
-        plt.savefig(buff, transparent=True, format='jpg', dpi=300)
+    jpg_buf = io.BytesIO()
+    pngF_buf = io.BytesIO()
+    png_buf = io.BytesIO()
 
-    buff.seek(0)
-    image = Image.open(buff)
+    with rc_context({'savefig.facecolor': 'red'}):
+        plt.savefig(jpg_buf, transparent=True, format='jpg', dpi=300)
+        plt.savefig(pngF_buf, transparent=True, format='png',
+                    flatten=True, dpi=300)
+        plt.savefig(png_buf, transparent=True, format='png', dpi=300)
+
+    jpg_buf.seek(0)
+    pngF_buf.seek(0)
+    png_buf.seek(0)
+
+    jpg_im = Image.open(jpg_buf)
+    pngF_im = Image.open(pngF_buf)
+    png_im = Image.open(png_buf)
 
     # If this fails, there will be only one color (all black). If this
     # is working, we should have all 256 shades of grey represented.
-    print("num colors: ", len(image.getcolors(256)))
-    assert len(image.getcolors(256)) >= 175 and len(image.getcolors(256)) <= 185
+    print("num colors [jpg]: ", len(jpg_im.getcolors(256)))
+    print("num colors [png, flattened]: ", len(pngF_im.getcolors(256)))
+    print("num colors [png, not flattened]: ", len(png_im.getcolors(256)))
+
+    assert len(jpg_im.getcolors(256)) >= 175 and len(jpg_im.getcolors(256)) <= 185
+    assert len(pngF_im.getcolors(256)) == 256
+    assert len(png_im.getcolors(256)) == 256
+
     # The fully transparent part should be red, not white or black
-    # or anything else
-    print("corner pixel: ", image.getpixel((0, 0)))
-    assert image.getpixel((0, 0)) == (254, 0, 0)
+    # or anything else when flattened.
+    print("corner pixel [jpg]: ", jpg_im.getpixel((0, 0)))
+    print("corner pixel [png, flattened]: ", pngF_im.getpixel((0,0)))
+    print("corner pixel [png, not flattened]: ", png_im.getpixel((0,0)))
+
+    assert jpg_im.getpixel((0, 0)) == (254, 0, 0)
+    assert pngF_im.getpixel((0,0)) == (255, 0, 0, 255)
+    assert png_im.getpixel((0,0)) == (255, 255, 255, 0)
 
 
 @cleanup
