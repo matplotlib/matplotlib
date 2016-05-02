@@ -77,7 +77,7 @@ class FigureCanvasQTAgg(FigureCanvasQTAggBase,
         FigureCanvasQTAggBase.__init__(self, figure)
         FigureCanvasAgg.__init__(self, figure)
         self._drawRect = None
-        self.blitbox = None
+        self.blitbox = []
         self.setAttribute(QtCore.Qt.WA_OpaquePaintEvent)
 
 
