@@ -128,7 +128,7 @@ class NavigationIPy(NavigationToolbar2WebAgg):
 
 
 class FigureCanvasNbAgg(DOMWidget, FigureCanvasWebAggCore):
-    _view_module = Unicode("nbextensions/matplotlib/nbagg_mpl", sync=True)
+    _view_module = Unicode("matplotlib", sync=True)
     _view_name = Unicode('MPLCanvasView', sync=True)
     _toolbar_items = List(sync=True)
     _closed = Bool(True)
