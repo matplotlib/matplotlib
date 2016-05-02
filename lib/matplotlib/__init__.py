@@ -1461,7 +1461,7 @@ def _jupyter_nbextension_paths():
         'section': 'notebook',
         'src': 'backends/web_backend/js',
         'dest': 'matplotlib',
-        'require': 'matplotlib/mpl'
+        'require': 'matplotlib/extension'
     }]
 
 
