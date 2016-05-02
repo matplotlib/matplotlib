@@ -3159,8 +3159,8 @@ class Axes(_AxesBase):
             ``shownotches`` is also True. Otherwise, means will be shown
             as points.
 
-        Additional Options
-        ---------------------
+        Other Parameters
+        ----------------
         The following boolean options toggle the drawing of individual
         components of the boxplots:
             - showcaps: the caps on the ends of whiskers
