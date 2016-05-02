@@ -36,6 +36,7 @@ from matplotlib.offsetbox import OffsetBox
 from matplotlib.artist import allow_rasterization
 
 from matplotlib.rcsetup import cycler
+from matplotlib.rcsetup import validate_axisbelow
 
 rcParams = matplotlib.rcParams
 
@@ -459,8 +460,9 @@ class _AxesBase(martist.Artist):
           *aspect*           [ 'auto' | 'equal' | aspect_ratio ]
           *autoscale_on*     [ *True* | *False* ] whether or not to
                              autoscale the *viewlim*
-          *axisbelow*        draw the grids and ticks below the other
-                             artists
+          *axisbelow*        [ *True* | *False* | 'line'] draw the grids
+                             and ticks below or above most other artists,
+                             or below lines but above patches
           *cursor_props*     a (*float*, *color*) tuple
           *figure*           a :class:`~matplotlib.figure.Figure`
                              instance
@@ -2324,12 +2326,16 @@ class _AxesBase(martist.Artist):
                 artists.remove(spine)
 
         if self.axison and not inframe:
-            if self._axisbelow:
+            if self._axisbelow is True:
                 self.xaxis.set_zorder(0.5)
                 self.yaxis.set_zorder(0.5)
-            else:
+            elif self._axisbelow is False:
                 self.xaxis.set_zorder(2.5)
                 self.yaxis.set_zorder(2.5)
+            else:
+                # 'line': above patches, below lines
+                self.xaxis.set_zorder(1.5)
+                self.yaxis.set_zorder(1.5)
         else:
             for _axis in self._get_axis_list():
                 artists.remove(_axis)
@@ -2429,9 +2435,9 @@ class _AxesBase(martist.Artist):
         Set whether the axis ticks and gridlines are above or below most
         artists
 
-        ACCEPTS: [ *True* | *False* ]
+        ACCEPTS: [ *True* | *False* | 'line' ]
         """
-        self._axisbelow = b
+        self._axisbelow = validate_axisbelow(b)
         self.stale = True
 
     @docstring.dedent_interpd
