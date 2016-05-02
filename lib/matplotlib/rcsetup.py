@@ -175,6 +175,17 @@ def validate_string_or_None(s):
     except ValueError:
         raise ValueError('Could not convert "%s" to string' % s)
 
+def validate_axisbelow(s):
+    try:
+        return validate_bool(s)
+    except ValueError:
+        if isinstance(s, six.string_types):
+            s = s.lower()
+            if s.startswith('line'):
+                return 'line'
+    raise ValueError('%s cannot be interpreted as'
+                     ' True, False, or "line"' % s)
+
 
 def validate_dpi(s):
     """confirm s is string 'figure' or convert s to float or raise"""
@@ -1002,7 +1013,7 @@ defaultParams = {
     'errorbar.capsize':      [0, validate_float],
 
     # axes props
-    'axes.axisbelow':        [False, validate_bool],
+    'axes.axisbelow':        ['line', validate_axisbelow],
     'axes.hold':             [True, validate_bool],
     'axes.facecolor':        ['w', validate_color],  # background color; white
     'axes.edgecolor':        ['k', validate_color],  # edge color; black
