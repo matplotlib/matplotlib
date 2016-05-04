@@ -1440,10 +1440,11 @@ class LinearLocator(Locator):
             vmax += 1
 
         if rcParams['axes.autolimit_mode'] == 'round_numbers':
-            exponent, remainder = _divmod(math.log10(vmax - vmin), 1)
+            exponent, remainder = _divmod(math.log10(vmax - vmin),
+                                         math.log10(max([self.numticks-1, 1])))
             if remainder < 0.5:
                 exponent -= 1
-            scale = 10 ** (-exponent)
+            scale = max([self.numticks-1, 1]) ** (-exponent)
             vmin = math.floor(scale * vmin) / scale
             vmax = math.ceil(scale * vmax) / scale
 
