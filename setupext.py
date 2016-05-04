@@ -1089,7 +1089,7 @@ class FreeType(SetupPackage):
                     try:
                         # this will fail on LPy, oh well
                         os.makedirs(tarball_cache_dir, exist_ok=True)
-                        shutil.copy(tarball_cache_path, tarball_path)
+                        shutil.copy(tarball_path, tarball_cache_path)
                         print('Cached tarball at: {}'
                               .format(tarball_cache_path))
                     except:
