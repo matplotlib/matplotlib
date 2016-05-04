@@ -3762,7 +3762,8 @@ class _AxesBase(martist.Artist):
         create a twin of Axes for generating a plot with a sharex
         x-axis but independent y axis.  The y-axis of self will have
         ticks on left and the returned axes will have ticks on the
-        right.
+        right. To ensure tick marks of both axis align, see
+        :class:`~matplotlib.ticker.LinearLocator`
 
         .. note::
             For those who are 'picking' artists while using twinx, pick
