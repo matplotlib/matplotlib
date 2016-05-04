@@ -45,6 +45,17 @@ from matplotlib.axes._base import _process_plot_format
 
 rcParams = matplotlib.rcParams
 
+_alias_map = {'color': ['c'],
+              'linewidth': ['lw'],
+              'linestyle': ['ls'],
+              'facecolor': ['fc'],
+              'edgecolor': ['ec'],
+              'markerfacecolor': ['mfc'],
+              'markeredgecolor': ['mec'],
+              'markeredgewidth': ['mew'],
+              'markersize': ['ms'],
+             }
+
 
 def _plot_args_replacer(args, data):
     if len(args) == 1:
@@ -1416,11 +1427,7 @@ class Axes(_AxesBase):
             self.cla()
         lines = []
 
-        # Convert "c" alias to "color" immediately, to avoid
-        # confusion farther on.
-        c = kwargs.pop('c', None)
-        if c is not None:
-            kwargs['color'] = c
+        kwargs = cbook.normalize_kwargs(kwargs, _alias_map)
 
         for line in self._get_lines(*args, **kwargs):
             self.add_line(line)
@@ -3172,8 +3179,8 @@ class Axes(_AxesBase):
             ``shownotches`` is also True. Otherwise, means will be shown
             as points.
 
-        Additional Options
-        ---------------------
+        Other Parameters
+        ----------------
         The following boolean options toggle the drawing of individual
         components of the boxplots:
             - showcaps: the caps on the ends of whiskers
@@ -4573,6 +4580,8 @@ class Axes(_AxesBase):
         """
         if not self._hold:
             self.cla()
+
+        kwargs = cbook.normalize_kwargs(kwargs, _alias_map)
 
         patches = []
         for poly in self._get_patches_for_fill(*args, **kwargs):
