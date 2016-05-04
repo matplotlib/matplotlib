@@ -1,0 +1,16 @@
+``matplotlib.ticker.LinearLocator`` algorithm update
+```````````````````````````
+
+The ``matplotlib.ticker.LinearLocator`` is used to define the range and location
+of tickmarks of a plot when the user wants a exact number of ticks.
+``LinearLocator`` thus differs from the default locator ``MaxNLocator``, which
+does not necessarily return the exact user requested number of ticks.
+
+The view range algorithm in ``matplotlib.ticker.LinearLocator`` has been
+changed so that more convenient tick location are chosen. The new algorithm
+returns a plot view range that is a multiple of the user requested number of
+ticks. This ensures tick marks to be located at whole integers more
+constistently. For example, when both y-axis of a``twinx`` plot use
+``matplotlib.ticker.LinearLocator`` with the same number of ticks, the grids of
+both axis will be properly aligned at convenient tick locations.
+
