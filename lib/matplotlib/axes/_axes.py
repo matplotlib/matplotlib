@@ -44,6 +44,17 @@ from matplotlib.axes._base import _process_plot_format
 
 rcParams = matplotlib.rcParams
 
+_alias_map = {'color': ['c'],
+              'linewidth': ['lw'],
+              'linestyle': ['ls'],
+              'facecolor': ['fc'],
+              'edgecolor': ['ec'],
+              'markerfacecolor': ['mfc'],
+              'markeredgecolor': ['mec'],
+              'markeredgewidth': ['mew'],
+              'markersize': ['ms'],
+             }
+
 
 def _plot_args_replacer(args, data):
     if len(args) == 1:
@@ -1415,18 +1426,7 @@ class Axes(_AxesBase):
             self.cla()
         lines = []
 
-        kwargs = cbook.normalize_kwargs(kwargs,
-                {
-                 'color': ['c'],
-                 'linewidth': ['lw'],
-                 'linestyle': ['ls'],
-                 'facecolor': ['fc'],
-                 'edgecolor': ['ec'],
-                 'markerfacecolor': ['mfc'],
-                 'markeredgecolor': ['mec'],
-                 'markeredgewidth': ['mew'],
-                 'markersize': ['ms'],
-                })
+        kwargs = cbook.normalize_kwargs(kwargs, _alias_map)
 
         for line in self._get_lines(*args, **kwargs):
             self.add_line(line)
@@ -4544,18 +4544,7 @@ class Axes(_AxesBase):
         if not self._hold:
             self.cla()
 
-        kwargs = cbook.normalize_kwargs(kwargs,
-                {
-                 'color': ['c'],
-                 'linewidth': ['lw'],
-                 'linestyle': ['ls'],
-                 'facecolor': ['fc'],
-                 'edgecolor': ['ec'],
-                 'markerfacecolor': ['mfc'],
-                 'markeredgecolor': ['mec'],
-                 'markeredgewidth': ['mew'],
-                 'markersize': ['ms'],
-                })
+        kwargs = cbook.normalize_kwargs(kwargs, _alias_map)
 
         patches = []
         for poly in self._get_patches_for_fill(*args, **kwargs):
