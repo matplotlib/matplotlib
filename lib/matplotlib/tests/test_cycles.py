@@ -123,6 +123,30 @@ def test_fillcycle_ignore():
     ax.legend(loc='upper left')
 
 
+@image_comparison(baseline_images=['property_collision_plot'],
+                  remove_text=True, extensions=['png'])
+def test_property_collision_plot():
+    fig, ax = plt.subplots()
+    ax.set_prop_cycle('linewidth', [2, 4])
+    for c in range(1, 4):
+        ax.plot(np.arange(10), c * np.arange(10), lw=0.1)
+    ax.plot(np.arange(10), 4 * np.arange(10))
+    ax.plot(np.arange(10), 5 * np.arange(10))
+
+
+@image_comparison(baseline_images=['property_collision_fill'],
+                  remove_text=True, extensions=['png'])
+def test_property_collision_fill():
+    fig, ax = plt.subplots()
+    xs = np.arange(10)
+    ys = 0.25 * xs**.5 + 2
+    ax.set_prop_cycle(linewidth=[2, 3, 4, 5, 6], facecolor='bgcmy')
+    for c in range(1, 4):
+        ax.fill(xs, c * ys, lw=0.1)
+    ax.fill(xs, 4 * ys)
+    ax.fill(xs, 5 * ys)
+
+
 @cleanup
 def test_valid_input_forms():
     fig, ax = plt.subplots()
