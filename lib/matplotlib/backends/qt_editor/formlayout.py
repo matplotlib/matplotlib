@@ -32,38 +32,31 @@ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
 FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE.
 """
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
-
-import six
-from six.moves import xrange
 
 # History:
 # 1.0.10: added float validator (disable "Ok" and "Apply" button when not valid)
 # 1.0.7: added support for "Apply" button
 # 1.0.6: code cleaning
 
+from __future__ import (absolute_import, division, print_function,
+                        unicode_literals)
+
 __version__ = '1.0.10'
 __license__ = __doc__
 
 DEBUG = False
 
-import sys
-STDERR = sys.stderr
+import six
 
-from matplotlib.colors import is_color_like
-from matplotlib.colors import rgb2hex
-from matplotlib.colors import colorConverter
+import copy
+import datetime
+import warnings
+
+from matplotlib.colors import colorConverter, is_color_like, rgb2hex
 from matplotlib.backends.qt_compat import QtGui, QtWidgets, QtCore
 
-import datetime
 
 BLACKLIST = set(["title", "label"])
-
-
-def col2hex(color):
-    """Convert matplotlib color to hex before passing to Qt"""
-    return rgb2hex(colorConverter.to_rgb(color))
 
 
 class ColorButton(QtWidgets.QPushButton):
@@ -80,7 +73,8 @@ class ColorButton(QtWidgets.QPushButton):
         self._color = QtGui.QColor()
 
     def choose_color(self):
-        color = QtWidgets.QColorDialog.getColor(self._color, self.parentWidget(), '')
+        color = QtWidgets.QColorDialog.getColor(
+            self._color, self.parentWidget(), '')
         if color.isValid():
             self.set_color(color)
 
@@ -98,9 +92,11 @@ class ColorButton(QtWidgets.QPushButton):
 
     color = QtCore.Property(QtGui.QColor, get_color, set_color)
 
+
 def col2hex(color):
     """Convert matplotlib color to hex before passing to Qt"""
     return rgb2hex(colorConverter.to_rgb(color))
+
 
 def to_qcolor(color):
     """Create a QColor from a matplotlib color"""
@@ -109,7 +105,7 @@ def to_qcolor(color):
     try:
         color = col2hex(color)
     except ValueError:
-        #print('WARNING: ignoring invalid color %r' % color)
+        warnings.warn('Ignoring invalid color %r' % color)
         return qcolor  # return invalid QColor
     qcolor.setNamedColor(color)  # set using hex color
     return qcolor  # return valid QColor
@@ -143,7 +139,7 @@ class ColorLayout(QtWidgets.QHBoxLayout):
 def font_is_installed(font):
     """Check if font is installed"""
     return [fam for fam in QtGui.QFontDatabase().families()
-              if six.text_type(fam) == font]
+            if six.text_type(fam) == font]
 
 
 def tuple_to_qfont(tup):
@@ -151,11 +147,11 @@ def tuple_to_qfont(tup):
     Create a QFont from tuple:
         (family [string], size [int], italic [bool], bold [bool])
     """
-    if not isinstance(tup, tuple) or len(tup) != 4 \
-       or not font_is_installed(tup[0]) \
-       or not isinstance(tup[1], int) \
-       or not isinstance(tup[2], bool) \
-       or not isinstance(tup[3], bool):
+    if not (isinstance(tup, tuple) and len(tup) == 4
+            and font_is_installed(tup[0])
+            and isinstance(tup[1], int)
+            and isinstance(tup[2], bool)
+            and isinstance(tup[3], bool)):
         return None
     font = QtGui.QFont()
     family, size, italic, bold = tup
@@ -186,7 +182,7 @@ class FontLayout(QtWidgets.QGridLayout):
         # Font size
         self.size = QtWidgets.QComboBox(parent)
         self.size.setEditable(True)
-        sizelist = list(xrange(6, 12)) + list(xrange(12, 30, 2)) + [36, 48, 72]
+        sizelist = list(range(6, 12)) + list(range(12, 30, 2)) + [36, 48, 72]
         size = font.pointSize()
         if size not in sizelist:
             sizelist.append(size)
@@ -224,8 +220,7 @@ class FormWidget(QtWidgets.QWidget):
     update_buttons = QtCore.Signal()
     def __init__(self, data, comment="", parent=None):
         QtWidgets.QWidget.__init__(self, parent)
-        from copy import deepcopy
-        self.data = deepcopy(data)
+        self.data = copy.deepcopy(data)
         self.widgets = []
         self.formlayout = QtWidgets.QFormLayout(self)
         if comment:
@@ -281,8 +276,9 @@ class FormWidget(QtWidgets.QWidget):
                 elif selindex in keys:
                     selindex = keys.index(selindex)
                 elif not isinstance(selindex, int):
-                    print("Warning: '%s' index is invalid (label: "
-                                    "%s, value: %s)" % (selindex, label, value), file=STDERR)
+                    warnings.warn(
+                        "index '%s' is invalid (label: %s, value: %s)" %
+                        (selindex, label, value))
                     selindex = 0
                 field.setCurrentIndex(selindex)
             elif isinstance(value, bool):
@@ -428,8 +424,8 @@ class FormDialog(QtWidgets.QDialog):
         self.formwidget.setup()
 
         # Button box
-        self.bbox = bbox = QtWidgets.QDialogButtonBox(QtWidgets.QDialogButtonBox.Ok
-                                                 | QtWidgets.QDialogButtonBox.Cancel)
+        self.bbox = bbox = QtWidgets.QDialogButtonBox(
+            QtWidgets.QDialogButtonBox.Ok | QtWidgets.QDialogButtonBox.Cancel)
         self.formwidget.update_buttons.connect(self.update_buttons)
         if self.apply_callback is not None:
             apply_btn = bbox.addButton(QtWidgets.QDialogButtonBox.Apply)
@@ -454,7 +450,8 @@ class FormDialog(QtWidgets.QDialog):
         for field in self.float_fields:
             if not is_edit_valid(field):
                 valid = False
-        for btn_type in (QtWidgets.QDialogButtonBox.Ok, QtWidgets.QDialogButtonBox.Apply):
+        for btn_type in (QtWidgets.QDialogButtonBox.Ok,
+                         QtWidgets.QDialogButtonBox.Apply):
             btn = self.bbox.button(btn_type)
             if btn is not None:
                 btn.setEnabled(valid)
