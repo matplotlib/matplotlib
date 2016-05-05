@@ -5,8 +5,8 @@
   // We can't proceed until these Javascript files are fetched, so
   // we fetch them synchronously
   $.ajaxSetup({async: false});
-  $.getScript("http://" + window.location.hostname + ":{{ port }}{{prefix}}/_static/mpl_tornado.js");
-  $.getScript("http://" + window.location.hostname + ":{{ port }}{{prefix}}/mpl.js");
+  $.getScript("http://" + window.location.hostname + ":{{ port }}{{prefix}}/_static/js/mpl_tornado.js");
+  $.getScript("http://" + window.location.hostname + ":{{ port }}{{prefix}}/js/mpl.js");
   $.ajaxSetup({async: true});
 
   function init_figure{{ fig_id }}(e) {
