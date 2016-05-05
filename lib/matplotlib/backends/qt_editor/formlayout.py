@@ -46,13 +46,13 @@ __license__ = __doc__
 
 DEBUG = False
 
-import six
-
 import copy
 import datetime
 import warnings
 
-from matplotlib.colors import colorConverter, is_color_like, rgb2hex
+import six
+
+from matplotlib import colors as mcolors
 from matplotlib.backends.qt_compat import QtGui, QtWidgets, QtCore
 
 
@@ -74,7 +74,8 @@ class ColorButton(QtWidgets.QPushButton):
 
     def choose_color(self):
         color = QtWidgets.QColorDialog.getColor(
-            self._color, self.parentWidget(), '')
+            self._color, self.parentWidget(), "",
+            QtWidgets.QColorDialog.ShowAlphaChannel)
         if color.isValid():
             self.set_color(color)
 
@@ -93,22 +94,16 @@ class ColorButton(QtWidgets.QPushButton):
     color = QtCore.Property(QtGui.QColor, get_color, set_color)
 
 
-def col2hex(color):
-    """Convert matplotlib color to hex before passing to Qt"""
-    return rgb2hex(colorConverter.to_rgb(color))
-
-
 def to_qcolor(color):
     """Create a QColor from a matplotlib color"""
     qcolor = QtGui.QColor()
-    color = str(color)
     try:
-        color = col2hex(color)
+        rgba = mcolors.to_rgba(color)
     except ValueError:
         warnings.warn('Ignoring invalid color %r' % color)
         return qcolor  # return invalid QColor
-    qcolor.setNamedColor(color)  # set using hex color
-    return qcolor  # return valid QColor
+    qcolor.setRgbF(*rgba)
+    return qcolor
 
 
 class ColorLayout(QtWidgets.QHBoxLayout):
@@ -116,7 +111,8 @@ class ColorLayout(QtWidgets.QHBoxLayout):
     def __init__(self, color, parent=None):
         QtWidgets.QHBoxLayout.__init__(self)
         assert isinstance(color, QtGui.QColor)
-        self.lineedit = QtWidgets.QLineEdit(color.name(), parent)
+        self.lineedit = QtWidgets.QLineEdit(
+            mcolors.to_hex(color.getRgbF(), keep_alpha=True), parent)
         self.lineedit.editingFinished.connect(self.update_color)
         self.addWidget(self.lineedit)
         self.colorbtn = ColorButton(parent)
@@ -130,7 +126,7 @@ class ColorLayout(QtWidgets.QHBoxLayout):
         self.colorbtn.color = qcolor  # defaults to black if not qcolor.isValid()
 
     def update_text(self, color):
-        self.lineedit.setText(color.name())
+        self.lineedit.setText(mcolors.to_hex(color.getRgbF(), keep_alpha=True))
 
     def text(self):
         return self.lineedit.text()
@@ -256,7 +252,8 @@ class FormWidget(QtWidgets.QWidget):
                 continue
             elif tuple_to_qfont(value) is not None:
                 field = FontLayout(value, self)
-            elif label.lower() not in BLACKLIST and is_color_like(value):
+            elif (label.lower() not in BLACKLIST
+                  and mcolors.is_color_like(value)):
                 field = ColorLayout(to_qcolor(value), self)
             elif isinstance(value, six.string_types):
                 field = QtWidgets.QLineEdit(value, self)
@@ -319,7 +316,8 @@ class FormWidget(QtWidgets.QWidget):
                 continue
             elif tuple_to_qfont(value) is not None:
                 value = field.get_font()
-            elif isinstance(value, six.string_types) or is_color_like(value):
+            elif (isinstance(value, six.string_types)
+                  or mcolors.is_color_like(value)):
                 value = six.text_type(field.text())
             elif isinstance(value, (list, tuple)):
                 index = int(field.currentIndex())
