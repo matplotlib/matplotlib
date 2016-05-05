@@ -531,7 +531,7 @@ class FigureManagerWebAgg(backend_bases.FigureManagerBase):
 
     @classmethod
     def get_static_file_path(cls):
-        return os.path.join(os.path.dirname(__file__), 'web_backend', 'js')
+        return os.path.join(os.path.dirname(__file__), 'web_backend')
 
     def _send_event(self, event_type, **kwargs):
         payload = {'type': event_type}
