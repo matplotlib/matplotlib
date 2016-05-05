@@ -262,7 +262,7 @@ class WebAggApplication(tornado.web.Application):
                 (url_prefix + r'/?', self.AllFiguresPage,
                  {'url_prefix': url_prefix}),
 
-                (url_prefix + r'/mpl.js', self.MplJs),
+                (url_prefix + r'/js/mpl.js', self.MplJs),
 
                 # Sends images and events to the browser, and receives
                 # events from the browser
