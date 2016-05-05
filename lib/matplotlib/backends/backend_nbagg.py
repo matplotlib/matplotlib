@@ -259,7 +259,7 @@ def nbinstall(overwrite=False, user=True):
     ----------
 
     overwrite : bool
-        If True, always install the files, regardless of what mayœ already be
+        If True, always install the files, regardless of what may already be
         installed.  Defaults to False.
     user : bool
         Whether to install to the user's .ipython/nbextensions directory.
