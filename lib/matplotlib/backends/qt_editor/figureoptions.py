@@ -13,6 +13,7 @@ from __future__ import (absolute_import, division, print_function,
 from matplotlib.externals import six
 
 import os.path as osp
+import re
 
 import matplotlib.backends.qt_editor.formlayout as formlayout
 from matplotlib.backends.qt_compat import QtGui
@@ -67,6 +68,14 @@ def figure_edit(axes, parent=None):
     xunits = axes.xaxis.get_units()
     yunits = axes.yaxis.get_units()
 
+    # Sorting for default labels (_lineXXX, _imageXXX).
+    def cmp_key(label):
+        match = re.match(r"(_line|_image)(\d+)", label)
+        if match:
+            return match.group(1), int(match.group(2))
+        else:
+            return label, 0
+
     # Get / Curves
     linedict = {}
     for line in axes.get_lines():
@@ -100,7 +109,7 @@ def figure_edit(axes, parent=None):
                 sorted(short2name.items(),
                        key=lambda short_and_name: short_and_name[1]))
 
-    curvelabels = sorted(linedict.keys())
+    curvelabels = sorted(linedict, key=cmp_key)
     for label in curvelabels:
         line = linedict[label]
         color = rgb2hex(colorConverter.to_rgb(line.get_color()))
@@ -131,7 +140,7 @@ def figure_edit(axes, parent=None):
         if label == '_nolegend_':
             continue
         imagedict[label] = image
-    imagelabels = sorted(imagedict)
+    imagelabels = sorted(imagedict, key=cmp_key)
     images = []
     cmaps = [(cmap, name) for name, cmap in sorted(cm.cmap_d.items())]
     for label in imagelabels:
