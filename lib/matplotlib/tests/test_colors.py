@@ -628,6 +628,13 @@ def test_cn():
     assert red == '#ff0000'
 
 
+def test_conversions():
+    # to_rgba_array("none") returns a (0, 4) array.
+    assert_array_equal(mcolors.to_rgba_array("none"), np.zeros((0, 4)))
+    # alpha is properly set.
+    assert_equal(mcolors.to_rgba((1, 1, 1), .5), (1, 1, 1, .5))
+
+
 if __name__ == '__main__':
     import nose
     nose.runmodule(argv=['-s', '--with-doctest'], exit=False)
