@@ -84,7 +84,9 @@ def setup_axes3(fig, rect):
 
     grid_locator2 = MaxNLocator(3)
 
+    # Specify theta limits in degrees
     ra0, ra1 = 8.*15, 14.*15
+    # Specify radial limits
     cz0, cz1 = 0, 14000
     grid_helper = floating_axes.GridHelperCurveLinear(
         tr, extremes=(ra0, ra1, cz0, cz1),
