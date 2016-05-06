@@ -169,3 +169,7 @@ mplstereonet
 pyupset
 ===============
 `pyUpSet <https://github.com/ImSoErgodic/py-upset>`_ is a static Python implementation of the `UpSet suite by Lex et al. <http://www.caleydo.org/tools/upset/>`_ to explore complex intersections of sets and data frames.
+
+Windrose
+===============
+`Windrose <https://github.com/scls19fr/windrose>`_ is a Python Matplotlib, Numpy library to manage wind data, draw windrose (also known as a polar rose plot), draw probability density function and fit Weibull distribution
