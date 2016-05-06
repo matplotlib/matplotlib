@@ -194,7 +194,6 @@ class GeoAxes(Axes):
         self.xaxis.set_major_locator(
             FixedLocator(
                 np.linspace(-np.pi, np.pi, number, True)[1:-1]))
-        self._logitude_degrees = degrees
         self.xaxis.set_major_formatter(self.ThetaFormatter(degrees))
 
     def set_latitude_grid(self, degrees):
