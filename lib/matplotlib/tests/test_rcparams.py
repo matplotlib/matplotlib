@@ -418,5 +418,6 @@ def test_rcparams_reset_after_fail():
 
         assert mpl.rcParams['text.usetex'] is False
 
+
 if __name__ == '__main__':
     nose.runmodule(argv=['-s', '--with-doctest'], exit=False)
