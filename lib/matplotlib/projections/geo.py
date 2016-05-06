@@ -204,7 +204,6 @@ class GeoAxes(Axes):
         self.yaxis.set_major_locator(
             FixedLocator(
                 np.linspace(-np.pi / 2.0, np.pi / 2.0, number, True)[1:-1]))
-        self._latitude_degrees = degrees
         self.yaxis.set_major_formatter(self.ThetaFormatter(degrees))
 
     def set_longitude_grid_ends(self, degrees):
