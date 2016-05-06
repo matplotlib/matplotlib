@@ -22,6 +22,8 @@ from functools import reduce
 import operator
 import os
 import warnings
+import re
+
 try:
     import collections.abc as abc
 except ImportError:
@@ -29,7 +31,7 @@ except ImportError:
     import collections as abc
 from matplotlib.fontconfig_pattern import parse_fontconfig_pattern
 from matplotlib.colors import is_color_like
-import re
+
 
 # Don't let the original cycler collide with our validating cycler
 from cycler import Cycler, cycler as ccycler
