@@ -178,6 +178,7 @@ def validate_string_or_None(s):
     except ValueError:
         raise ValueError('Could not convert "%s" to string' % s)
 
+
 def validate_axisbelow(s):
     try:
         return validate_bool(s)
@@ -668,7 +669,7 @@ def validate_hatch(s):
     characters: ``\\ / | - + * . x o O``.
 
     """
-    if not isinstance(s, six.text_type):
+    if not isinstance(s, six.string_types):
         raise ValueError("Hatch pattern must be a string")
     unique_chars = set(s)
     unknown = (unique_chars -
