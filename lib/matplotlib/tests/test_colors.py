@@ -17,6 +17,8 @@ import numpy as np
 from numpy.testing.utils import assert_array_equal, assert_array_almost_equal
 from nose.plugins.skip import SkipTest
 
+from cycler import cycler
+import matplotlib
 import matplotlib.colors as mcolors
 import matplotlib.cm as cm
 import matplotlib.cbook as cbook
@@ -594,6 +596,23 @@ def test_pandas_iterable():
     cm1 = mcolors.ListedColormap(lst, N=5)
     cm2 = mcolors.ListedColormap(s, N=5)
     assert_sequence_equal(cm1.colors, cm2.colors)
+
+
+@cleanup
+def test_cn():
+    matplotlib.rcParams['axes.prop_cycle'] = cycler('color',
+                                                    ['blue', 'r'])
+    x11_blue = mcolors.rgb2hex(mcolors.colorConverter.to_rgb('C0'))
+    assert x11_blue == '#0000ff'
+    red = mcolors.rgb2hex(mcolors.colorConverter.to_rgb('C1'))
+    assert red == '#ff0000'
+
+    matplotlib.rcParams['axes.prop_cycle'] = cycler('color',
+                                                    ['XKCDblue', 'r'])
+    XKCD_blue = mcolors.rgb2hex(mcolors.colorConverter.to_rgb('C0'))
+    assert XKCD_blue == '#0343df'
+    red = mcolors.rgb2hex(mcolors.colorConverter.to_rgb('C1'))
+    assert red == '#ff0000'
 
 
 if __name__ == '__main__':

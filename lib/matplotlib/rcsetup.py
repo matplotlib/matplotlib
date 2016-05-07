@@ -22,6 +22,8 @@ from functools import reduce
 import operator
 import os
 import warnings
+import re
+
 try:
     import collections.abc as abc
 except ImportError:
@@ -30,10 +32,11 @@ except ImportError:
 from matplotlib.fontconfig_pattern import parse_fontconfig_pattern
 from matplotlib.colors import is_color_like
 
+
 # Don't let the original cycler collide with our validating cycler
 from cycler import Cycler, cycler as ccycler
 
-#interactive_bk = ['gtk', 'gtkagg', 'gtkcairo', 'qt4agg',
+# interactive_bk = ['gtk', 'gtkagg', 'gtkcairo', 'qt4agg',
 #                  'tkagg', 'wx', 'wxagg', 'cocoaagg', 'webagg']
 # The capitalized forms are needed for ipython at present; this may
 # change for later versions.
@@ -174,6 +177,7 @@ def validate_string_or_None(s):
         return six.text_type(s)
     except ValueError:
         raise ValueError('Could not convert "%s" to string' % s)
+
 
 def validate_axisbelow(s):
     try:
@@ -337,6 +341,22 @@ def validate_color_or_inherit(s):
 def validate_color_or_auto(s):
     if s == 'auto':
         return s
+    return validate_color(s)
+
+
+def validate_color_for_prop_cycle(s):
+    # Special-case the N-th color cycle syntax, this obviously can not
+    # go in the color cycle.
+    if isinstance(s, bytes):
+        match = re.match(b'^C[0-9]$', s)
+        if match is not None:
+            raise ValueError('Can not put cycle reference ({cn!r}) in '
+                             'prop_cycler'.format(cn=s))
+    elif isinstance(s, six.text_type):
+        match = re.match('^C[0-9]$', s)
+        if match is not None:
+            raise ValueError('Can not put cycle reference ({cn!r}) in '
+                             'prop_cycler'.format(cn=s))
     return validate_color(s)
 
 
@@ -649,7 +669,7 @@ def validate_hatch(s):
     characters: ``\\ / | - + * . x o O``.
 
     """
-    if not isinstance(s, six.text_type):
+    if not isinstance(s, six.string_types):
         raise ValueError("Hatch pattern must be a string")
     unique_chars = set(s)
     unknown = (unique_chars -
@@ -661,7 +681,8 @@ validate_hatchlist = _listify_validator(validate_hatch)
 
 
 _prop_validators = {
-        'color': validate_colorlist,
+        'color': _listify_validator(validate_color_for_prop_cycle,
+                                    allow_stringlist=True),
         'linewidth': validate_floatlist,
         'linestyle': validate_stringlist,
         'facecolor': validate_colorlist,
@@ -817,6 +838,9 @@ def validate_cycler(s):
     for prop in cycler_inst.keys:
         norm_prop = _prop_aliases.get(prop, prop)
         cycler_inst.change_key(prop, norm_prop)
+
+    for key, vals in cycler_inst.by_key().items():
+        _prop_validators[key](vals)
 
     return cycler_inst
 
