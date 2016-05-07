@@ -130,7 +130,7 @@ def test_property_collision_plot():
     fig, ax = plt.subplots()
     ax.set_prop_cycle('linewidth', [2, 4])
     for c in range(1, 4):
-        ax.plot(np.arange(10), c * np.arange(10), lw=0.1)
+        ax.plot(np.arange(10), c * np.arange(10), lw=0.1, color='k')
     ax.plot(np.arange(10), 4 * np.arange(10))
     ax.plot(np.arange(10), 5 * np.arange(10))
 
