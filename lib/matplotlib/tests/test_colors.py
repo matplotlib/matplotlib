@@ -18,6 +18,8 @@ import numpy as np
 from numpy.testing.utils import assert_array_equal, assert_array_almost_equal
 from nose.plugins.skip import SkipTest
 
+from cycler import cycler
+import matplotlib
 import matplotlib.colors as mcolors
 import matplotlib.cm as cm
 import matplotlib.cbook as cbook
@@ -607,6 +609,23 @@ def test_colormap_reversing():
             cmap._init()
             cmap_r._init()
         assert_array_almost_equal(cmap._lut[:-3], cmap_r._lut[-4::-1])
+
+
+@cleanup
+def test_cn():
+    matplotlib.rcParams['axes.prop_cycle'] = cycler('color',
+                                                    ['blue', 'r'])
+    x11_blue = mcolors.rgb2hex(mcolors.colorConverter.to_rgb('C0'))
+    assert x11_blue == '#0000ff'
+    red = mcolors.rgb2hex(mcolors.colorConverter.to_rgb('C1'))
+    assert red == '#ff0000'
+
+    matplotlib.rcParams['axes.prop_cycle'] = cycler('color',
+                                                    ['XKCDblue', 'r'])
+    XKCD_blue = mcolors.rgb2hex(mcolors.colorConverter.to_rgb('C0'))
+    assert XKCD_blue == '#0343df'
+    red = mcolors.rgb2hex(mcolors.colorConverter.to_rgb('C1'))
+    assert red == '#ff0000'
 
 
 if __name__ == '__main__':

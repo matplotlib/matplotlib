@@ -54,11 +54,11 @@ are supported.
 """
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
-
+import re
 from matplotlib.externals import six
 from matplotlib.externals.six.moves import zip
 import warnings
-import re
+
 import numpy as np
 from numpy import ma
 import matplotlib.cbook as cbook
@@ -194,7 +194,6 @@ class ColorConverter(object):
                 raise ValueError(
                     'to_rgb: arg "%s" is unhashable even inside a tuple'
                     % (str(arg),))
-
         try:
             if cbook.is_string_like(arg):
                 argl = arg.lower()
@@ -202,6 +201,10 @@ class ColorConverter(object):
                 if color is None:
                     try:
                         argl = self._parse_nth_color(arg)
+                        # in this case we do not want to cache in case
+                        # the rcparam changes, recurse with the actual color
+                        # value
+                        return self.to_rgb(argl)
                     except ValueError:
                         pass
                     for cmapping in self.CN_LOOKUPS:
@@ -215,7 +218,7 @@ class ColorConverter(object):
                         if fl < 0 or fl > 1:
                             raise ValueError(
                                 'gray (string) must be in range 0-1')
-                        color = (fl,)*3
+                        color = (fl,) * 3
             elif cbook.iterable(arg):
                 if len(arg) > 4 or len(arg) < 3:
                     raise ValueError(
@@ -228,7 +231,6 @@ class ColorConverter(object):
             else:
                 raise ValueError(
                     'cannot convert argument to rgb sequence')
-
             self.cache[arg] = color
 
         except (KeyError, ValueError, TypeError) as exc:

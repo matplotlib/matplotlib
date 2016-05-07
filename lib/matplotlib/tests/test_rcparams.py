@@ -348,6 +348,7 @@ def test_validators():
                   ('cycler(c=[1, 2, 3])', ValueError),  # invalid values
                   ("cycler(lw=['a', 'b', 'c'])", ValueError),  # invalid values
                   (cycler('waka', [1, 3, 5]), ValueError),  # not a property
+                  (cycler('color', ['C1', 'r', 'g']), ValueError)  # no CN
                  )
         },
         {'validator': validate_hatch,
