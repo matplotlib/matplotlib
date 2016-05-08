@@ -117,7 +117,7 @@ install:
     # We have to install it after matplotlib to avoid pulling in MPL as
     # a dependency
     if [[ $BUILD_DOCS == true ]]; then
-      pip install https://github.com/matplotlib/basemap/tarball/master
+      pip install git+https://github.com/matplotlib/basemap.git
     fi;
 
 script:
