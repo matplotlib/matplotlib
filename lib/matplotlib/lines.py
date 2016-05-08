@@ -14,12 +14,11 @@ import warnings
 import numpy as np
 from numpy import ma
 from matplotlib import verbose
-from . import artist
+from . import artist, colors as mcolors
 from .artist import Artist
 from .cbook import (iterable, is_string_like, is_numlike, ls_mapper_r,
                     pts_to_prestep, pts_to_poststep, pts_to_midstep)
 
-from .colors import colorConverter
 from .path import Path
 from .transforms import Bbox, TransformedPath, IdentityTransform
 
@@ -1260,24 +1259,16 @@ class Line2D(Artist):
                                    other._marker.get_fillstyle())
         self._drawstyle = other._drawstyle
 
-    def _get_rgb_face(self, alt=False):
-        facecolor = self._get_markerfacecolor(alt=alt)
-        if is_string_like(facecolor) and facecolor.lower() == 'none':
-            rgbFace = None
-        else:
-            rgbFace = colorConverter.to_rgb(facecolor)
-        return rgbFace
-
     def _get_rgba_face(self, alt=False):
         facecolor = self._get_markerfacecolor(alt=alt)
         if is_string_like(facecolor) and facecolor.lower() == 'none':
             rgbaFace = None
         else:
-            rgbaFace = colorConverter.to_rgba(facecolor, self._alpha)
+            rgbaFace = mcolors.to_rgba(facecolor, self._alpha)
         return rgbaFace
 
     def _get_rgba_ln_color(self, alt=False):
-        return colorConverter.to_rgba(self._color, self._alpha)
+        return mcolors.to_rgba(self._color, self._alpha)
 
     # some aliases....
     def set_aa(self, val):

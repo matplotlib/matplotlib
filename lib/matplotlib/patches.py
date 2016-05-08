@@ -278,7 +278,7 @@ class Patch(artist.Artist):
         if color is None:
             color = mpl.rcParams['patch.edgecolor']
         self._original_edgecolor = color
-        self._edgecolor = colors.colorConverter.to_rgba(color, self._alpha)
+        self._edgecolor = colors.to_rgba(color, self._alpha)
         self.stale = True
 
     def set_ec(self, color):
@@ -295,7 +295,7 @@ class Patch(artist.Artist):
             color = mpl.rcParams['patch.facecolor']
         # save: otherwise changing _fill may lose alpha information
         self._original_facecolor = color
-        self._facecolor = colors.colorConverter.to_rgba(color, self._alpha)
+        self._facecolor = colors.to_rgba(color, self._alpha)
         if not self._fill:
             self._facecolor = list(self._facecolor)
             self._facecolor[3] = 0
@@ -585,8 +585,7 @@ class Shadow(Patch):
         if self.props is not None:
             self.update(self.props)
         else:
-            r, g, b, a = colors.colorConverter.to_rgba(
-                                self.patch.get_facecolor())
+            r, g, b, a = colors.to_rgba(self.patch.get_facecolor())
             rho = 0.3
             r = rho * r
             g = rho * g
