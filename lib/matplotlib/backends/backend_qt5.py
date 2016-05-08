@@ -529,6 +529,8 @@ class FigureManagerQT(FigureManagerBase):
 
     def show(self):
         self.window.show()
+        self.window.activateWindow()
+        self.window.raise_()
 
     def destroy(self, *args):
         # check for qApp first, as PySide deletes it in its atexit handler
