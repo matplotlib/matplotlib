@@ -126,7 +126,7 @@ def is_color_like(c):
 def to_rgba(c, alpha=None):
     """Convert `c` to an RGBA color.
 
-    `alpha` provides a default alpha value.
+    If `alpha` is not `None`, it forces the alpha value.
     """
     # Special-case nth color syntax because it should not be cached.
     if _is_nth_color(c):
@@ -152,7 +152,7 @@ def to_rgba(c, alpha=None):
 def _to_rgba_no_colorcycle(c, alpha=None):
     """Convert `c` to an RGBA color, with no support for color-cycle syntax.
 
-    `alpha` provides a default alpha value.
+    If `alpha` is not `None`, it forces the alpha value.
     """
     orig_c = c
     if isinstance(c, six.string_types) and c.lower() == "none":
@@ -187,28 +187,27 @@ def _to_rgba_no_colorcycle(c, alpha=None):
             pass
         raise ValueError("Invalid RGBA argument: {!r}".format(orig_c))
     # tuple color.
+    # Python 2.7 / numpy 1.6 apparently require this to return builtin floats,
+    # not numpy floats.
     try:
-        c = np.array(c, float)
+        c = tuple(map(float, c))
     except TypeError:
         raise ValueError("Invalid RGBA argument: {!r}".format(orig_c))
-    if c.ndim != 1:
-        raise ValueError("Invalid RGBA argument: {!r}".format(orig_c))
-    if len(c) == 3:
-        c = np.append(c, alpha if alpha is not None else 1.)
-    if len(c) == 4:
-        if np.any((c < 0) | (c > 1)):
-            raise ValueError("RGBA values should be within 0-1 range")
-        if alpha is not None:
-            c[-1] = alpha
-        return tuple(c)
-    else:
+    if len(c) not in [3, 4]:
         raise ValueError("RGBA sequence should have length 3 or 4")
+    if len(c) == 3 and alpha is None:
+        alpha = 1
+    if alpha is not None:
+        c = c[:3] + (alpha,)
+    if any(elem < 0 or elem > 1 for elem in c):
+        raise ValueError("RGBA values should be within 0-1 range")
+    return c
 
 
 def to_rgba_array(c, alpha=None):
     """Convert `c` to a (n, 4) array of RGBA colors.
 
-    `alpha` provides a default alpha value.  If `c` is "none"
+    If `alpha` is not `None`, it forces the alpha value.  If `c` is "none"
     (case-insensitive) or an empty list, an empty array is returned.
     """
     # Single value?
@@ -243,7 +242,7 @@ def to_rgba_array(c, alpha=None):
 def to_hex(c, alpha=None):
     """Convert `c` to a hex color.
 
-    `alpha` provides a default alpha value.
+    If `alpha` is not `None`, it forces the alpha value.
     """
     return "#" + "".join(format(int(np.round(val * 255)), "02x")
                          for val in to_rgba(c, alpha=alpha))
