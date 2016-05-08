@@ -30,7 +30,7 @@ LINESTYLES = {'-': 'Solid',
               '--': 'Dashed',
               '-.': 'DashDot',
               ':': 'Dotted',
-              'none': 'None',
+              'None': 'None',
               }
 
 DRAWSTYLES = {'default': 'Default',
