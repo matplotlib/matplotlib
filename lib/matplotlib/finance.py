@@ -21,11 +21,10 @@ import datetime
 
 import numpy as np
 
-from matplotlib import verbose, get_cachedir
+from matplotlib import colors as mcolors, verbose, get_cachedir
 from matplotlib.dates import date2num
 from matplotlib.cbook import iterable, mkdirs
 from matplotlib.collections import LineCollection, PolyCollection
-from matplotlib.colors import colorConverter
 from matplotlib.lines import Line2D, TICKLEFT, TICKRIGHT
 from matplotlib.patches import Rectangle
 from matplotlib.transforms import Affine2D
@@ -969,13 +968,9 @@ def plot_day_summary2_ohlc(ax, opens, highs, lows, closes, ticksize=4,
 
     tickTransform = Affine2D().scale(scale, 0.0)
 
-    r, g, b = colorConverter.to_rgb(colorup)
-    colorup = r, g, b, 1
-    r, g, b = colorConverter.to_rgb(colordown)
-    colordown = r, g, b, 1
-    colord = {True: colorup,
-              False: colordown,
-              }
+    colorup = mcolors.to_rgba(colorup)
+    colordown = mcolors.to_rgba(colordown)
+    colord = {True: colorup, False: colordown}
     colors = [colord[open < close] for open, close in
               zip(opens, closes) if open != -1 and close != -1]
 
@@ -1113,13 +1108,9 @@ def candlestick2_ohlc(ax, opens, highs, lows, closes, width=4,
                      for i, low, high in zip(xrange(len(lows)), lows, highs)
                      if low != -1]
 
-    r, g, b = colorConverter.to_rgb(colorup)
-    colorup = r, g, b, alpha
-    r, g, b = colorConverter.to_rgb(colordown)
-    colordown = r, g, b, alpha
-    colord = {True: colorup,
-              False: colordown,
-              }
+    colorup = mcolors.to_rgba(colorup, alpha)
+    colordown = mcolors.to_rgba(colordown, alpha)
+    colord = {True: colorup, False: colordown}
     colors = [colord[open < close]
               for open, close in zip(opens, closes)
               if open != -1 and close != -1]
@@ -1186,13 +1177,9 @@ def volume_overlay(ax, opens, closes, volumes,
 
     """
 
-    r, g, b = colorConverter.to_rgb(colorup)
-    colorup = r, g, b, alpha
-    r, g, b = colorConverter.to_rgb(colordown)
-    colordown = r, g, b, alpha
-    colord = {True: colorup,
-              False: colordown,
-              }
+    colorup = mcolors.to_rgba(colorup, alpha)
+    colordown = mcolors.to_rgba(colordown, alpha)
+    colord = {True: colorup, False: colordown}
     colors = [colord[open < close]
               for open, close in zip(opens, closes)
               if open != -1 and close != -1]
@@ -1288,13 +1275,9 @@ def volume_overlay3(ax, quotes,
 
     """
 
-    r, g, b = colorConverter.to_rgb(colorup)
-    colorup = r, g, b, alpha
-    r, g, b = colorConverter.to_rgb(colordown)
-    colordown = r, g, b, alpha
-    colord = {True: colorup,
-              False: colordown,
-              }
+    colorup = mcolors.to_rgba(colorup, alpha)
+    colordown = mcolors.to_rgba(colordown, alpha)
+    colord = {True: colorup, False: colordown}
 
     dates, opens, highs, lows, closes, volumes = list(zip(*quotes))
     colors = [colord[close1 >= close0]
@@ -1369,8 +1352,8 @@ def index_bar(ax, vals,
 
     """
 
-    facecolors = (colorConverter.to_rgba(facecolor, alpha),)
-    edgecolors = (colorConverter.to_rgba(edgecolor, alpha),)
+    facecolors = (mcolors.to_rgba(facecolor, alpha),)
+    edgecolors = (mcolors.to_rgba(edgecolor, alpha),)
 
     right = width / 2.0
     left = -width / 2.0

@@ -29,7 +29,8 @@ from matplotlib import docstring
 import matplotlib.scale as mscale
 from matplotlib.tri.triangulation import Triangulation
 import numpy as np
-from matplotlib.colors import Normalize, colorConverter, LightSource
+from matplotlib import colors as mcolors
+from matplotlib.colors import Normalize, LightSource
 
 from . import art3d
 from . import proj3d
@@ -1596,7 +1597,7 @@ class Axes3D(Axes):
             color = kwargs.pop('color', None)
             if color is None:
                 color = self._get_lines.get_next_color()
-            color = np.array(colorConverter.to_rgba(color))
+            color = np.array(mcolors.to_rgba(color))
             fcolors = None
 
         cmap = kwargs.get('cmap', None)
@@ -1714,7 +1715,7 @@ class Axes3D(Axes):
         if len(shade[mask]) > 0:
             norm = Normalize(min(shade[mask]), max(shade[mask]))
             shade[~mask] = min(shade[mask])
-            color = colorConverter.to_rgba_array(color)
+            color = mcolors.to_rgba_array(color)
             # shape of color should be (M, 4) (where M is number of faces)
             # shape of shade should be (M,)
             # colors should have final shape of (M, 4)
@@ -1868,7 +1869,7 @@ class Axes3D(Axes):
         color = kwargs.pop('color', None)
         if color is None:
             color = self._get_lines.get_next_color()
-        color = np.array(colorConverter.to_rgba(color))
+        color = np.array(mcolors.to_rgba(color))
 
         cmap = kwargs.get('cmap', None)
         norm = kwargs.pop('norm', None)
@@ -2450,7 +2451,7 @@ class Axes3D(Axes):
                 facecolors.extend([c] * 6)
         else:
             # a single color specified, or face colors specified explicitly
-            facecolors = list(colorConverter.to_rgba_array(color))
+            facecolors = list(mcolors.to_rgba_array(color))
             if len(facecolors) < len(x):
                 facecolors *= (6 * len(x))
 

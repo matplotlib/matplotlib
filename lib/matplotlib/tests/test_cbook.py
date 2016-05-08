@@ -86,7 +86,7 @@ class Test_delete_masked_points(object):
                        datetime(2008, 1, 5), datetime(2008, 1, 6)]
         self.arr_dt2 = np.array(self.arr_dt)
         self.arr_colors = ['r', 'g', 'b', 'c', 'm', 'y']
-        self.arr_rgba = mcolors.colorConverter.to_rgba_array(self.arr_colors)
+        self.arr_rgba = mcolors.to_rgba_array(self.arr_colors)
 
     @raises(ValueError)
     def test_bad_first_arg(self):

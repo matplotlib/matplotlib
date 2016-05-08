@@ -907,7 +907,7 @@ class PcolorImage(AxesImage):
         if unsampled:
             raise ValueError('unsampled not supported on PColorImage')
         fc = self.axes.patch.get_facecolor()
-        bg = mcolors.colorConverter.to_rgba(fc, 0)
+        bg = mcolors.to_rgba(fc, 0)
         bg = (np.array(bg)*255).astype(np.uint8)
         l, b, r, t = self.axes.bbox.extents
         width = (np.round(r) + 0.5) - (np.round(l) - 0.5)

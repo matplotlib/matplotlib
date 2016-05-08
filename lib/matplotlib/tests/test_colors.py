@@ -260,7 +260,7 @@ def test_cmap_and_norm_from_levels_and_colors():
 def test_cmap_and_norm_from_levels_and_colors2():
     levels = [-1, 2, 2.5, 3]
     colors = ['red', (0, 1, 0), 'blue', (0.5, 0.5, 0.5), (0.0, 0.0, 0.0, 1.0)]
-    clr = mcolors.colorConverter.to_rgba_array(colors)
+    clr = mcolors.to_rgba_array(colors)
     bad = (0.1, 0.1, 0.1, 0.1)
     no_color = (0.0, 0.0, 0.0, 0.0)
     masked_value = 'masked_value'
@@ -337,13 +337,9 @@ def test_autoscale_masked():
 def test_colors_no_float():
     # Gray must be a string to distinguish 3-4 grays from RGB or RGBA.
 
-    def gray_from_float_rgb():
-        return mcolors.colorConverter.to_rgb(0.4)
-
     def gray_from_float_rgba():
-        return mcolors.colorConverter.to_rgba(0.4)
+        return mcolors.to_rgba(0.4)
 
-    assert_raises(ValueError, gray_from_float_rgb)
     assert_raises(ValueError, gray_from_float_rgba)
 
 
@@ -559,12 +555,8 @@ def test_light_source_planar_hillshading():
 
 
 def test_xkcd():
-    x11_blue = mcolors.rgb2hex(
-        mcolors.colorConverter.to_rgb('blue'))
-    assert x11_blue == '#0000ff'
-    XKCD_blue = mcolors.rgb2hex(
-        mcolors.colorConverter.to_rgb('xkcd:blue'))
-    assert XKCD_blue == '#0343df'
+    assert mcolors.to_hex("blue") == "#0000ffff"
+    assert mcolors.to_hex("xkcd:blue") == "#0343dfff"
 
 
 def _sph2cart(theta, phi):
@@ -615,17 +607,13 @@ def test_colormap_reversing():
 def test_cn():
     matplotlib.rcParams['axes.prop_cycle'] = cycler('color',
                                                     ['blue', 'r'])
-    x11_blue = mcolors.rgb2hex(mcolors.colorConverter.to_rgb('C0'))
-    assert x11_blue == '#0000ff'
-    red = mcolors.rgb2hex(mcolors.colorConverter.to_rgb('C1'))
-    assert red == '#ff0000'
+    assert mcolors.to_hex("C0") == '#0000ffff'
+    assert mcolors.to_hex("C1") == '#ff0000ff'
 
     matplotlib.rcParams['axes.prop_cycle'] = cycler('color',
                                                     ['xkcd:blue', 'r'])
-    XKCD_blue = mcolors.rgb2hex(mcolors.colorConverter.to_rgb('C0'))
-    assert XKCD_blue == '#0343df'
-    red = mcolors.rgb2hex(mcolors.colorConverter.to_rgb('C1'))
-    assert red == '#ff0000'
+    assert mcolors.to_hex("C0") == '#0343df'
+    assert mcolors.to_hex("C1") == '#ff0000'
 
 
 def test_conversions():
