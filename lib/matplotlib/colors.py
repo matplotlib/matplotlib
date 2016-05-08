@@ -218,6 +218,22 @@ def to_rgba_array(c, alpha=None):
         return np.array([to_rgba(c, alpha)], float)
     except (ValueError, TypeError):
         pass
+    # Special-case inputs that are already arrays, for performance.  (If the
+    # array has the wrong kind or shape, raise the error during one-at-a-time
+    # conversion.)
+    if (isinstance(c, np.ndarray) and c.dtype.kind in "if"
+            and c.ndim == 2 and c.shape[1] in [3, 4]):
+        if c.shape[1] == 3:
+            result = np.column_stack([c, np.zeros(len(c))])
+            result[:, -1] = alpha if alpha is not None else 1.
+        elif c.shape[1] == 4:
+            result = c.copy()
+            if alpha is not None:
+                result[:, -1] = alpha
+        if np.any((result < 0) | (result > 1)):
+            raise ValueError("RGBA values should be within 0-1 range")
+        return result
+    # Convert one at a time.
     result = np.empty((len(c), 4), float)
     for i, cc in enumerate(c):
         result[i] = to_rgba(cc, alpha)
