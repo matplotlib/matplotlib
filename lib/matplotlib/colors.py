@@ -68,6 +68,20 @@ import matplotlib.cbook as cbook
 from ._color_data import XKCD_COLORS, CSS4_COLORS
 
 
+class _ColorMapping(dict):
+    def __init__(self, mapping, cache):
+        super(_ColorMapping, self).__init__(mapping)
+        self._cache = cache
+
+    def __setitem__(self, key, value):
+        super(_ColorMapping, self).__setitem__(key, value)
+        self._cache.clear()
+
+    def __delitem__(self, key, value):
+        super(_ColorMapping, self).__delitem__(key, value)
+        self._cache.clear()
+
+
 _colors_full_map = {
     'b': (0, 0, 1),
     'g': (0, 0.5, 0),
@@ -79,9 +93,13 @@ _colors_full_map = {
     'w': (1, 1, 1)}
 _colors_full_map.update(XKCD_COLORS)
 _colors_full_map.update(CSS4_COLORS)
+_colors_full_map = _ColorMapping(_colors_full_map, {})
 
 
-_colors_cache = {}
+def get_named_colors_mapping():
+    """Return the global mapping of names to named colors.
+    """
+    return _colors_full_map
 
 
 def _is_nth_color(c):
@@ -121,11 +139,11 @@ def to_rgba(c, alpha=None):
         colors = prop_cycler._transpose()['color']
         c = colors[int(c[1]) % len(colors)]
     try:
-        rgba = _colors_cache[c, alpha]
+        rgba = _colors_full_map._cache[c, alpha]
     except (KeyError, TypeError):  # Not in cache, or unhashable.
         rgba = _to_rgba_no_colorcycle(c, alpha)
         try:
-            _colors_cache[c, alpha] = rgba
+            _colors_full_map._cache[c, alpha] = rgba
         except TypeError:
             pass
     return rgba
@@ -247,7 +265,7 @@ class ColorConverter(object):
     """
 
     colors = _colors_full_map
-    cache = _colors_cache
+    cache = _colors_full_map._cache
 
     @staticmethod
     def to_rgb(arg):
