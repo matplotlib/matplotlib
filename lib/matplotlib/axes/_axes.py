@@ -5801,9 +5801,11 @@ class Axes(_AxesBase):
         normed : boolean, optional
             If `True`, the first element of the return tuple will
             be the counts normalized to form a probability density, i.e.,
-            ``n/(len(x)`dbin)``, i.e., the integral of the histogram will sum
-            to 1. If *stacked* is also *True*, the sum of the histograms is
-            normalized to 1.
+            the integral of the histogram will sum to 1. So, the normalized
+            count *is not* the count in a bin divided by the total number
+            of observations, but it is the count in the bin divided by the
+            number of observations times the bin width. If `stacked` is
+            also `True`, the sum of the histograms is normalized to 1.
 
             Default is ``False``
 
