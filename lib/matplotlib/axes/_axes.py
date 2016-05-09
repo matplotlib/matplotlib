@@ -5804,7 +5804,7 @@ class Axes(_AxesBase):
             the area (or integral) under the histogram will sum to 1.
             This is achieved dividing the count by the number of observations
             times the bin width and *not* dividing by the total number
-            of observations. If `stacked` is also `True`, the sum of the 
+            of observations. If `stacked` is also `True`, the sum of the
             histograms is normalized to 1.
 
             Default is ``False``
