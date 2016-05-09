@@ -2002,8 +2002,7 @@ class XAxis(Axis):
         # There is a heuristic here that the aspect ratio of tick text
         # is no more than 3:1
         size = tick.label1.get_size() * 3
-        size *= np.cos(np.deg2rad(tick.label1.get_rotation()))
-        return np.floor(length / size)
+        return int(np.floor(length / size))
 
 
 class YAxis(Axis):
@@ -2342,5 +2341,4 @@ class YAxis(Axis):
         tick = self._get_tick(True)
         # Having a spacing of at least 2 just looks good.
         size = tick.label1.get_size() * 2.0
-        size *= np.cos(np.deg2rad(tick.label1.get_rotation()))
-        return np.floor(length / size)
+        return int(np.floor(length / size))
