@@ -2145,8 +2145,7 @@ class AutoLocator(MaxNLocator):
 class AutoMinorLocator(Locator):
     """
     Dynamically find minor tick positions based on the positions of
-    major ticks. Assumes the scale is linear and major ticks are
-    evenly spaced.
+    major ticks. The scale must be linear with major ticks evenly spaced.
     """
     def __init__(self, n=None):
         """
@@ -2160,6 +2159,11 @@ class AutoMinorLocator(Locator):
 
     def __call__(self):
         'Return the locations of the ticks'
+        if self.axis.get_scale() == 'log':
+            warnings.warn('AutoMinorLocator does not work with logarithmic '
+                          'scale')
+            return []
+
         majorlocs = self.axis.get_majorticklocs()
         try:
             majorstep = majorlocs[1] - majorlocs[0]
