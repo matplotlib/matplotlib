@@ -576,7 +576,10 @@ class ColorbarBase(cm.ScalarMappable):
                 elif isinstance(self.norm, colors.LogNorm):
                     locator = ticker.LogLocator()
                 else:
-                    locator = ticker.MaxNLocator()
+                    if mpl.rcParams['_internal.classic_mode']:
+                        locator = ticker.MaxNLocator()
+                    else:
+                        locator = ticker.AutoLocator()
             else:
                 b = self._boundaries[self._inside]
                 locator = ticker.FixedLocator(b, nbins=10)
