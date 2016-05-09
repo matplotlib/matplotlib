@@ -3,6 +3,18 @@ from __future__ import (absolute_import, division, print_function,
 
 from matplotlib.externals import six
 
+
+BASE_COLORS = {
+    'b': (0, 0, 1),
+    'g': (0, 0.5, 0),
+    'r': (1, 0, 0),
+    'c': (0, 0.75, 0.75),
+    'm': (0.75, 0, 0.75),
+    'y': (0.75, 0.75, 0),
+    'k': (0, 0, 0),
+    'w': (1, 1, 1)}
+
+
 # This mapping of color names -> hex values is taken from
 # a survey run by Randel Monroe see:
 # http://blog.xkcd.com/2010/05/03/color-survey-results/

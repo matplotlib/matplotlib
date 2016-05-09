@@ -65,13 +65,13 @@ import warnings
 import numpy as np
 from numpy import ma
 import matplotlib.cbook as cbook
-from ._color_data import XKCD_COLORS, CSS4_COLORS
+from ._color_data import BASE_COLORS, CSS4_COLORS, XKCD_COLORS
 
 
 class _ColorMapping(dict):
-    def __init__(self, mapping, cache):
+    def __init__(self, mapping):
         super(_ColorMapping, self).__init__(mapping)
-        self._cache = cache
+        self._cache = {}
 
     def __setitem__(self, key, value):
         super(_ColorMapping, self).__setitem__(key, value)
@@ -82,18 +82,12 @@ class _ColorMapping(dict):
         self._cache.clear()
 
 
-_colors_full_map = {
-    'b': (0, 0, 1),
-    'g': (0, 0.5, 0),
-    'r': (1, 0, 0),
-    'c': (0, 0.75, 0.75),
-    'm': (0.75, 0, 0.75),
-    'y': (0.75, 0.75, 0),
-    'k': (0, 0, 0),
-    'w': (1, 1, 1)}
+_colors_full_map = {}
+# Set by reverse priority order.
 _colors_full_map.update(XKCD_COLORS)
 _colors_full_map.update(CSS4_COLORS)
-_colors_full_map = _ColorMapping(_colors_full_map, {})
+_colors_full_map.update(BASE_COLORS)
+_colors_full_map = _ColorMapping(_colors_full_map)
 
 
 def get_named_colors_mapping():

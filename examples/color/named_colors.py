@@ -14,7 +14,7 @@ import matplotlib.pyplot as plt
 from matplotlib import colors as mcolors
 
 
-colors = mcolors.CSS4_COLORS
+colors = dict(mcolors.BASE_COLORS, **mcolors.CSS4_COLORS)
 
 # Sort by hue, saturation, value and name.
 by_hsv = sorted((tuple(mcolors.rgb_to_hsv(mcolors.to_rgba(color)[:3])), name)
