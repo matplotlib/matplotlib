@@ -3566,7 +3566,7 @@ class Axes(_AxesBase):
             )
         else:
             final_boxprops = dict(
-                linestyle=rcParams['boxplot.boxprops.linestyle'], 
+                linestyle=rcParams['boxplot.boxprops.linestyle'],
                 color=rcParams['boxplot.boxprops.color'],
             )
 
@@ -3597,7 +3597,7 @@ class Axes(_AxesBase):
             linestyle=rcParams['boxplot.flierprops.linestyle'],
             linewidth=rcParams['boxplot.flierprops.linewidth'],
             color=rcParams['boxplot.flierprops.color'],
-            marker=rcParams['boxplot.flierprops.marker'], 
+            marker=rcParams['boxplot.flierprops.marker'],
             markerfacecolor=rcParams['boxplot.flierprops.markerfacecolor'],
             markeredgecolor=rcParams['boxplot.flierprops.markeredgecolor'],
             markersize=rcParams['boxplot.flierprops.markersize'],
@@ -3622,12 +3622,12 @@ class Axes(_AxesBase):
                 linestyle=rcParams['boxplot.meanprops.linestyle'],
                 linewidth=rcParams['boxplot.meanprops.linewidth'],
                 color=rcParams['boxplot.meanprops.color'],
-                marker='none', 
+                marker='none',
             )
         else:
             final_meanprops = dict(
                 linestyle='',
-                marker=rcParams['boxplot.meanprops.marker'], 
+                marker=rcParams['boxplot.meanprops.marker'],
                 markerfacecolor=rcParams['boxplot.meanprops.markerfacecolor'],
                 markeredgecolor=rcParams['boxplot.meanprops.markeredgecolor'],
                 markersize=rcParams['boxplot.meanprops.markersize'],
