@@ -76,6 +76,9 @@ class FigureCanvasQT(FigureCanvasQT5):
         w, h = self.get_width_height()
         self.resize(w, h)
 
+        # Key auto-repeat enabled by default
+        self._keyautorepeat = True
+
     def wheelEvent(self, event):
         x = event.x()
         # flipy so y=0 is bottom of canvas
