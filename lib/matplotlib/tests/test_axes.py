@@ -1477,7 +1477,8 @@ def test_bxp_with_xlabels():
 @image_comparison(baseline_images=['bxp_horizontal'],
                   remove_text=True, extensions=['png'],
                   savefig_kwarg={'dpi': 40},
-                  style='default')
+                  style='default',
+                  tol=0.1)
 def test_bxp_horizontal():
     np.random.seed(937)
     logstats = matplotlib.cbook.boxplot_stats(
@@ -1492,7 +1493,8 @@ def test_bxp_horizontal():
 @image_comparison(baseline_images=['bxp_with_ylabels'],
                   extensions=['png'],
                   savefig_kwarg={'dpi': 40},
-                  style='default')
+                  style='default',
+                  tol=0.1,)
 def test_bxp_with_ylabels():
     np.random.seed(937)
     logstats = matplotlib.cbook.boxplot_stats(
