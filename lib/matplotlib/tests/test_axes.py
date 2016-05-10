@@ -1525,7 +1525,7 @@ def test_bxp_patchartist():
 
 @image_comparison(baseline_images=['bxp_custompatchartist'],
                   remove_text=True, extensions=['png'],
-                  savefig_kwarg={'dpi': 40},
+                  savefig_kwarg={'dpi': 100},
                   style='default')
 def test_bxp_custompatchartist():
     np.random.seed(937)

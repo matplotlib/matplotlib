@@ -961,16 +961,16 @@ defaultParams = {
     'boxplot.capprops.linewidth': [1.0, validate_float],
     'boxplot.capprops.linestyle': ['-', six.text_type],
 
-    'boxplot.medianprops.color': ['C0', validate_color],
+    'boxplot.medianprops.color': ['C1', validate_color],
     'boxplot.medianprops.linewidth': [1.0, validate_float],
     'boxplot.medianprops.linestyle': ['-', six.text_type],
 
-    'boxplot.meanprops.color': ['C1', validate_color],
+    'boxplot.meanprops.color': ['C2', validate_color],
     'boxplot.meanprops.marker': ['^', six.text_type],
-    'boxplot.meanprops.markerfacecolor': ['C1', validate_color],
-    'boxplot.meanprops.markeredgecolor': ['C1', validate_color],
+    'boxplot.meanprops.markerfacecolor': ['C2', validate_color],
+    'boxplot.meanprops.markeredgecolor': ['C2', validate_color],
     'boxplot.meanprops.markersize': [6, validate_float],
-    'boxplot.meanprops.linestyle': ['none', six.text_type],
+    'boxplot.meanprops.linestyle': ['--', six.text_type],
     'boxplot.meanprops.linewidth': [1.0, validate_float],
 
     ## font props
