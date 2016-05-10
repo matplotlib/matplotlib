@@ -1775,7 +1775,7 @@ def test_bxp_bad_positions():
     assert_raises(ValueError, ax.bxp, logstats, positions=[2, 3])
 
 
-@image_comparison(baseline_images=['boxplot', 'boxplot'], 
+@image_comparison(baseline_images=['boxplot', 'boxplot'],
                   tol=1,
                   style='default')
 def test_boxplot():
@@ -1847,7 +1847,7 @@ def _rc_test_bxp_helper(ax, rc_dict):
     return ax
 
 @image_comparison(baseline_images=['boxplot_rc_parameters'],
-                  savefig_kwarg={'dpi': 100}, remove_text=True, 
+                  savefig_kwarg={'dpi': 100}, remove_text=True,
                   tol=1, style='default')
 def test_boxplot_rc_parameters():
     fig, ax = plt.subplots(3)
