@@ -1410,7 +1410,8 @@ def test_stackplot_baseline():
 
 @image_comparison(baseline_images=['bxp_baseline'],
                   extensions=['png'],
-                  savefig_kwarg={'dpi': 40})
+                  savefig_kwarg={'dpi': 40},
+                  style='default')
 def test_bxp_baseline():
     np.random.seed(937)
     logstats = matplotlib.cbook.boxplot_stats(
@@ -1424,7 +1425,8 @@ def test_bxp_baseline():
 
 @image_comparison(baseline_images=['bxp_rangewhis'],
                   extensions=['png'],
-                  savefig_kwarg={'dpi': 40})
+                  savefig_kwarg={'dpi': 40},
+                  style='default')
 def test_bxp_rangewhis():
     np.random.seed(937)
     logstats = matplotlib.cbook.boxplot_stats(
@@ -1439,7 +1441,8 @@ def test_bxp_rangewhis():
 
 @image_comparison(baseline_images=['bxp_precentilewhis'],
                   extensions=['png'],
-                  savefig_kwarg={'dpi': 40})
+                  savefig_kwarg={'dpi': 40},
+                  style='default')
 def test_bxp_precentilewhis():
     np.random.seed(937)
     logstats = matplotlib.cbook.boxplot_stats(
@@ -1454,7 +1457,8 @@ def test_bxp_precentilewhis():
 
 @image_comparison(baseline_images=['bxp_with_xlabels'],
                   extensions=['png'],
-                  savefig_kwarg={'dpi': 40})
+                  savefig_kwarg={'dpi': 40},
+                  style='default')
 def test_bxp_with_xlabels():
     np.random.seed(937)
     logstats = matplotlib.cbook.boxplot_stats(
@@ -1470,7 +1474,8 @@ def test_bxp_with_xlabels():
 
 @image_comparison(baseline_images=['bxp_horizontal'],
                   remove_text=True, extensions=['png'],
-                  savefig_kwarg={'dpi': 40})
+                  savefig_kwarg={'dpi': 40},
+                  style='default')
 def test_bxp_horizontal():
     np.random.seed(937)
     logstats = matplotlib.cbook.boxplot_stats(
@@ -1484,7 +1489,8 @@ def test_bxp_horizontal():
 
 @image_comparison(baseline_images=['bxp_with_ylabels'],
                   extensions=['png'],
-                  savefig_kwarg={'dpi': 40})
+                  savefig_kwarg={'dpi': 40},
+                  style='default')
 def test_bxp_with_ylabels():
     np.random.seed(937)
     logstats = matplotlib.cbook.boxplot_stats(
@@ -1500,7 +1506,8 @@ def test_bxp_with_ylabels():
 
 @image_comparison(baseline_images=['bxp_patchartist'],
                   remove_text=True, extensions=['png'],
-                  savefig_kwarg={'dpi': 40})
+                  savefig_kwarg={'dpi': 40},
+                  style='default')
 def test_bxp_patchartist():
     np.random.seed(937)
     logstats = matplotlib.cbook.boxplot_stats(
@@ -1514,7 +1521,8 @@ def test_bxp_patchartist():
 
 @image_comparison(baseline_images=['bxp_custompatchartist'],
                   remove_text=True, extensions=['png'],
-                  savefig_kwarg={'dpi': 40})
+                  savefig_kwarg={'dpi': 40},
+                  style='default')
 def test_bxp_custompatchartist():
     np.random.seed(937)
     logstats = matplotlib.cbook.boxplot_stats(
@@ -1529,7 +1537,8 @@ def test_bxp_custompatchartist():
 
 @image_comparison(baseline_images=['bxp_customoutlier'],
                   remove_text=True, extensions=['png'],
-                  savefig_kwarg={'dpi': 40})
+                  savefig_kwarg={'dpi': 40},
+                  style='default')
 def test_bxp_customoutlier():
     np.random.seed(937)
     logstats = matplotlib.cbook.boxplot_stats(
@@ -1544,7 +1553,8 @@ def test_bxp_customoutlier():
 
 @image_comparison(baseline_images=['bxp_withmean_custompoint'],
                   remove_text=True, extensions=['png'],
-                  savefig_kwarg={'dpi': 40})
+                  savefig_kwarg={'dpi': 40},
+                  style='default')
 def test_bxp_showcustommean():
     np.random.seed(937)
     logstats = matplotlib.cbook.boxplot_stats(
@@ -1559,7 +1569,8 @@ def test_bxp_showcustommean():
 
 @image_comparison(baseline_images=['bxp_custombox'],
                   remove_text=True, extensions=['png'],
-                  savefig_kwarg={'dpi': 40})
+                  savefig_kwarg={'dpi': 40},
+                  style='default')
 def test_bxp_custombox():
     np.random.seed(937)
     logstats = matplotlib.cbook.boxplot_stats(
@@ -1574,7 +1585,8 @@ def test_bxp_custombox():
 
 @image_comparison(baseline_images=['bxp_custommedian'],
                   remove_text=True, extensions=['png'],
-                  savefig_kwarg={'dpi': 40})
+                  savefig_kwarg={'dpi': 40},
+                  style='default')
 def test_bxp_custommedian():
     np.random.seed(937)
     logstats = matplotlib.cbook.boxplot_stats(
@@ -1589,7 +1601,8 @@ def test_bxp_custommedian():
 
 @image_comparison(baseline_images=['bxp_customcap'],
                   remove_text=True, extensions=['png'],
-                  savefig_kwarg={'dpi': 40})
+                  savefig_kwarg={'dpi': 40},
+                  style='default')
 def test_bxp_customcap():
     np.random.seed(937)
     logstats = matplotlib.cbook.boxplot_stats(
@@ -1604,7 +1617,8 @@ def test_bxp_customcap():
 
 @image_comparison(baseline_images=['bxp_customwhisker'],
                   remove_text=True, extensions=['png'],
-                  savefig_kwarg={'dpi': 40})
+                  savefig_kwarg={'dpi': 40},
+                  style='default')
 def test_bxp_customwhisker():
     np.random.seed(937)
     logstats = matplotlib.cbook.boxplot_stats(
@@ -1619,7 +1633,8 @@ def test_bxp_customwhisker():
 
 @image_comparison(baseline_images=['bxp_withnotch'],
                   remove_text=True, extensions=['png'],
-                  savefig_kwarg={'dpi': 40})
+                  savefig_kwarg={'dpi': 40},
+                  style='default')
 def test_bxp_shownotches():
     np.random.seed(937)
     logstats = matplotlib.cbook.boxplot_stats(
@@ -1633,7 +1648,8 @@ def test_bxp_shownotches():
 
 @image_comparison(baseline_images=['bxp_nocaps'],
                   remove_text=True, extensions=['png'],
-                  savefig_kwarg={'dpi': 40})
+                  savefig_kwarg={'dpi': 40},
+                  style='default')
 def test_bxp_nocaps():
     np.random.seed(937)
     logstats = matplotlib.cbook.boxplot_stats(
@@ -1647,7 +1663,8 @@ def test_bxp_nocaps():
 
 @image_comparison(baseline_images=['bxp_nobox'],
                   remove_text=True, extensions=['png'],
-                  savefig_kwarg={'dpi': 40})
+                  savefig_kwarg={'dpi': 40},
+                  style='default')
 def test_bxp_nobox():
     np.random.seed(937)
     logstats = matplotlib.cbook.boxplot_stats(
@@ -1661,7 +1678,8 @@ def test_bxp_nobox():
 
 @image_comparison(baseline_images=['bxp_withmean_point'],
                   remove_text=True, extensions=['png'],
-                  savefig_kwarg={'dpi': 40})
+                  savefig_kwarg={'dpi': 40},
+                  style='default')
 def test_bxp_showmean():
     np.random.seed(937)
     logstats = matplotlib.cbook.boxplot_stats(
@@ -1675,7 +1693,8 @@ def test_bxp_showmean():
 
 @image_comparison(baseline_images=['bxp_withmean_line'],
                   remove_text=True, extensions=['png'],
-                  savefig_kwarg={'dpi': 40})
+                  savefig_kwarg={'dpi': 40},
+                  style='default')
 def test_bxp_showmeanasline():
     np.random.seed(937)
     logstats = matplotlib.cbook.boxplot_stats(
@@ -1689,7 +1708,8 @@ def test_bxp_showmeanasline():
 
 @image_comparison(baseline_images=['bxp_scalarwidth'],
                   remove_text=True, extensions=['png'],
-                  savefig_kwarg={'dpi': 40})
+                  savefig_kwarg={'dpi': 40},
+                  style='default')
 def test_bxp_scalarwidth():
     np.random.seed(937)
     logstats = matplotlib.cbook.boxplot_stats(
@@ -1703,7 +1723,8 @@ def test_bxp_scalarwidth():
 
 @image_comparison(baseline_images=['bxp_customwidths'],
                   remove_text=True, extensions=['png'],
-                  savefig_kwarg={'dpi': 40})
+                  savefig_kwarg={'dpi': 40},
+                  style='default')
 def test_bxp_customwidths():
     np.random.seed(937)
     logstats = matplotlib.cbook.boxplot_stats(
@@ -1717,7 +1738,8 @@ def test_bxp_customwidths():
 
 @image_comparison(baseline_images=['bxp_custompositions'],
                   remove_text=True, extensions=['png'],
-                  savefig_kwarg={'dpi': 40})
+                  savefig_kwarg={'dpi': 40},
+                  style='default')
 def test_bxp_custompositions():
     np.random.seed(937)
     logstats = matplotlib.cbook.boxplot_stats(
@@ -1753,7 +1775,9 @@ def test_bxp_bad_positions():
     assert_raises(ValueError, ax.bxp, logstats, positions=[2, 3])
 
 
-@image_comparison(baseline_images=['boxplot', 'boxplot'], tol=1)
+@image_comparison(baseline_images=['boxplot', 'boxplot'], 
+                  tol=1,
+                  style='default')
 def test_boxplot():
     x = np.linspace(-7, 7, 140)
     x = np.hstack([-25, x, 25])
@@ -1770,7 +1794,8 @@ def test_boxplot():
 
 
 @image_comparison(baseline_images=['boxplot_sym2'],
-                  remove_text=True, extensions=['png'])
+                  remove_text=True, extensions=['png'],
+                  style='default')
 def test_boxplot_sym2():
     x = np.linspace(-7, 7, 140)
     x = np.hstack([-25, x, 25])
@@ -1785,7 +1810,8 @@ def test_boxplot_sym2():
 
 @image_comparison(baseline_images=['boxplot_sym'],
                   remove_text=True, extensions=['png'],
-                  savefig_kwarg={'dpi': 40})
+                  savefig_kwarg={'dpi': 40},
+                  style='default')
 def test_boxplot_sym():
     x = np.linspace(-7, 7, 140)
     x = np.hstack([-25, x, 25])
@@ -1799,6 +1825,7 @@ def test_boxplot_sym():
     baseline_images=['boxplot_autorange_false_whiskers',
                      'boxplot_autorange_true_whiskers'],
     extensions=['png'],
+    style='default'
 )
 def test_boxplot_autorange_whiskers():
     x = np.ones(140)
@@ -1820,7 +1847,8 @@ def _rc_test_bxp_helper(ax, rc_dict):
     return ax
 
 @image_comparison(baseline_images=['boxplot_rc_parameters'],
-                  savefig_kwarg={'dpi': 100}, remove_text=True, tol=1)
+                  savefig_kwarg={'dpi': 100}, remove_text=True, 
+                  tol=1, style='default')
 def test_boxplot_rc_parameters():
     fig, ax = plt.subplots(3)
 
@@ -1882,7 +1910,7 @@ def test_boxplot_rc_parameters():
 
 @image_comparison(baseline_images=['boxplot_with_CIarray'],
                   remove_text=True, extensions=['png'],
-                  savefig_kwarg={'dpi': 40})
+                  savefig_kwarg={'dpi': 40}, style='default')
 def test_boxplot_with_CIarray():
     x = np.linspace(-7, 7, 140)
     x = np.hstack([-25, x, 25])
@@ -1898,7 +1926,7 @@ def test_boxplot_with_CIarray():
 
 @image_comparison(baseline_images=['boxplot_no_inverted_whisker'],
                   remove_text=True, extensions=['png'],
-                  savefig_kwarg={'dpi': 40})
+                  savefig_kwarg={'dpi': 40}, style='default')
 def test_boxplot_no_weird_whisker():
     x = np.array([3, 9000, 150, 88, 350, 200000, 1400, 960],
                  dtype=np.float64)
@@ -1945,7 +1973,7 @@ def test_boxplot_bad_ci_2():
 
 @image_comparison(baseline_images=['boxplot_mod_artists_after_plotting'],
                   remove_text=True, extensions=['png'],
-                  savefig_kwarg={'dpi': 40})
+                  savefig_kwarg={'dpi': 40}, style='default')
 def test_boxplot_mod_artist_after_plotting():
     x = [0.15, 0.11, 0.06, 0.06, 0.12, 0.56, -0.56]
     fig, ax = plt.subplots()
