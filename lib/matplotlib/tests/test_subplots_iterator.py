@@ -34,47 +34,47 @@ def check_visible(axs, x_visible, y_visible):
     for (ax, vx, vy) in zip(axs, x_visible, y_visible):
         for l in ax.get_xticklabels() + [ax.get_xaxis().offsetText]:
             assert l.get_visible() == vx, \
-                    "X axis was incorrectly %s" % (tostr(vx))
+                "X axis was incorrectly %s" % (tostr(vx))
         for l in ax.get_yticklabels() + [ax.get_yaxis().offsetText]:
             assert l.get_visible() == vy, \
-                    "Y axis was incorrectly %s" % (tostr(vy))
+                "Y axis was incorrectly %s" % (tostr(vy))
 
 
 @cleanup
 def test_shared():
     rdim = (4, 4, 2)
     share = {
-            'all': numpy.ones(rdim[:2], dtype=bool),
-            'none': numpy.zeros(rdim[:2], dtype=bool),
-            'row': numpy.array([
-                [False, True, False, False],
-                [True, False, False, False],
-                [False, False, False, True],
-                [False, False, True, False]]),
-            'col': numpy.array([
-                [False, False, True, False],
-                [False, False, False, True],
-                [True, False, False, False],
-                [False, True, False, False]]),
-            }
+        'all': numpy.ones(rdim[:2], dtype=bool),
+        'none': numpy.zeros(rdim[:2], dtype=bool),
+        'row': numpy.array([
+            [False, True, False, False],
+            [True, False, False, False],
+            [False, False, False, True],
+            [False, False, True, False]]),
+        'col': numpy.array([
+            [False, False, True, False],
+            [False, False, False, True],
+            [True, False, False, False],
+            [False, True, False, False]]),
+        }
     visible = {
-            'x': {
-                'all': [False, False, True, True],
-                'col': [False, False, True, True],
-                'row': [True] * 4,
-                'none': [True] * 4,
-                False: [True] * 4,
-                True: [False, False, True, True],
-                },
-            'y': {
-                'all': [True, False, True, False],
-                'col': [True] * 4,
-                'row': [True, False, True, False],
-                'none': [True] * 4,
-                False: [True] * 4,
-                True: [True, False, True, False],
-                },
-            }
+        'x': {
+            'all': [False, False, True, True],
+            'col': [False, False, True, True],
+            'row': [True] * 4,
+            'none': [True] * 4,
+            False: [True] * 4,
+            True: [False, False, True, True],
+            },
+        'y': {
+            'all': [True, False, True, False],
+            'col': [True] * 4,
+            'row': [True, False, True, False],
+            'none': [True] * 4,
+            False: [True] * 4,
+            True: [True, False, True, False],
+            },
+        }
     share[False] = share['none']
     share[True] = share['all']
 
@@ -97,7 +97,6 @@ def test_shared():
     for ax in axs:
         ax.label_outer()
     check_visible(axs, [False, False, True, True], [True, False, True, False])
-
 
 
 def test_exceptions():
@@ -125,13 +124,16 @@ def test_subplots_offsettext():
     next(it).plot(x, x)
     next(it).plot(y, x)
 
+
+@cleanup
 def test_multiple_figures():
     x = numpy.arange(0, 1e10, 1e9)
     y = numpy.arange(0, 100, 10)+1e4
     it = plt.subplots_iterator(2, 2, sharex='col', sharey='all')
     for _ in range(12):
         next(it).plot(x, y)
-    
+
+
 @cleanup
 def test_subplots():
     # things to test
@@ -140,7 +142,7 @@ def test_subplots():
     test_shared()
     # - are exceptions thrown correctly
     test_exceptions()
-    # - no problem to get more axes than nrows x ncols 
+    # - no problem to get more axes than nrows x ncols
     test_multiple_figures()
 
 

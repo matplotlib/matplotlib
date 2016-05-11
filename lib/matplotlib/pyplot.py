@@ -67,6 +67,7 @@ from .ticker import TickHelper, Formatter, FixedFormatter, NullFormatter,\
            LinearLocator, LogLocator, AutoLocator, MultipleLocator,\
            MaxNLocator
 from matplotlib.backends import pylab_setup
+from argparse import ArgumentError
 
 ## Backend detection ##
 def _backend_selection():
@@ -689,17 +690,20 @@ def savefig(*args, **kwargs):
     return res
 
 
-
 def encode_as(**kwargs):
-    """ Equivalent of savefig, but does not store to a file, but returns a bytestring
-    using io.BytesIO. All kwargs are passed to savefig."""
-    assert 'format' in kwargs, "Make sure to specify the format"
-    assert 'fname' not in kwargs, "Do not provide a filename, this function returns a bytestring and does not write to a file"
-    
+    """ Equivalent of savefig, but does not store to a file, but returns a
+    bytestring using io.BytesIO. All kwargs are passed to savefig."""
+    if 'format' not in kwargs:
+        raise ArgumentError("Make sure to specify the format")
+    if 'fname' in kwargs:
+        raise ArgumentError("Do not provide a filename, this function returns "
+                            "a bytestring and does not write to a file")
+
     in_memory_file = io.BytesIO()
     savefig(in_memory_file, **kwargs)
     in_memory_file.seek(0)
     return in_memory_file.getvalue()
+
 
 @docstring.copy_dedent(Figure.ginput)
 def ginput(*args, **kwargs):
