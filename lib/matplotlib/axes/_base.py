@@ -270,7 +270,6 @@ class _process_plot_var_args(object):
 
     def _makeline(self, x, y, kw, kwargs):
         kw = kw.copy()  # Don't modify the original kw.
-        kwargs = kwargs.copy()
         kw.update(kwargs)
         default_dict = self._getdefaults(None, kw)
         self._setdefaults(default_dict, kw)
