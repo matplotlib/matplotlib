@@ -15,6 +15,7 @@ from textwrap import fill
 import shutil
 import versioneer
 
+print(123)
 
 PY3min = (sys.version_info[0] >= 3)
 PY32min = (PY3min and sys.version_info[1] >= 2 or sys.version_info[0] > 3)

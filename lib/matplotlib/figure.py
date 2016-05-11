@@ -49,6 +49,8 @@ from matplotlib.transforms import (Affine2D, Bbox, BboxTransformTo,
                                    TransformedBbox)
 from matplotlib.backend_bases import NonGuiException
 
+import io
+
 docstring.interpd.update(projection_names=get_projection_names())
 
 
@@ -1082,7 +1084,7 @@ class Figure(Artist):
         --------
         pyplot.subplots : pyplot API; docstring includes examples.
         """
-
+        
         # for backwards compatibility
         if isinstance(sharex, bool):
             sharex = "all" if sharex else "none"
@@ -1143,6 +1145,29 @@ class Figure(Artist):
         else:
             # Returned axis array will be always 2-d, even if nrows=ncols=1.
             return axarr
+
+
+    def subplots_iterator(self, nrows=1, ncols=1, show_in_between=False,
+                          sharex=False, sharey=False, squeeze=True,
+                          subplot_kw=None, gridspec_kw=None):
+        """ Iteratively yields the axis object of a rows x cols subplot and creates new subplots when needed"""
+        while True:
+            axes = self.subplots(
+                nrows=nrows,
+                ncols=ncols,
+                sharex=sharex,
+                sharey=sharey,
+                squeeze=False,
+                subplot_kw=subplot_kw,
+                gridspec_kw=gridspec_kw
+            )
+            assert axes.shape == (nrows, ncols), "Matplotlib panic: the returned shape of subplots() is not what was expected: {0} != {1}".format(axes.shape, (nrows, ncols))
+            for row in range(nrows):
+                for col in range(ncols):
+                    yield axes[row, col]
+            if show_in_between:
+                self.show(block=False)
+
 
     def __remove_ax(self, ax):
         def _reset_loc_form(axis):
@@ -1672,6 +1697,17 @@ class Figure(Artist):
             for ax, cc in zip(self.axes, original_axes_colors):
                 ax.patch.set_facecolor(cc[0])
                 ax.patch.set_edgecolor(cc[1])
+
+    def encode_as(self, **kwargs):
+        """ Equivalent of savefig, but does not store to a file, but returns a bytestring
+        using io.BytesIO. All kwargs are passed to savefig."""
+        assert 'format' in kwargs, "Make sure to specify the format"
+        assert 'fname' not in kwargs, "Do not provide a filename, this method returns a bytestring and does not write to a file"
+        
+        in_memory_file = io.BytesIO()
+        self.savefig(in_memory_file, **kwargs)
+        in_memory_file.seek(0)
+        return in_memory_file.getvalue()
 
     @docstring.dedent_interpd
     def colorbar(self, mappable, cax=None, ax=None, use_gridspec=True, **kw):
