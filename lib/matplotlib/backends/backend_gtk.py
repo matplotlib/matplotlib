@@ -300,14 +300,14 @@ class FigureCanvasGTK (gtk.DrawingArea, FigureCanvasBase):
         key = self._get_key(event)
         if _debug: print("hit", key)
         FigureCanvasBase.key_press_event(self, key, guiEvent=event)
-        return False  # finish event propagation?
+        return True  # stoping event propagation
 
     def key_release_event(self, widget, event):
         if _debug: print('FigureCanvasGTK.%s' % fn_name())
         key = self._get_key(event)
         if _debug: print("release", key)
         FigureCanvasBase.key_release_event(self, key, guiEvent=event)
-        return False  # finish event propagation?
+        return True  # stoping event propagation
 
     def motion_notify_event(self, widget, event):
         if _debug: print('FigureCanvasGTK.%s' % fn_name())
