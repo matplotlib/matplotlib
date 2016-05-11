@@ -147,6 +147,14 @@ class ToolToggleBase(ToolBase):
     Toggleable tool
 
     Every time it is triggered, it switches between enable and disable
+
+    Parameters
+    ----------
+    ``*args``
+        Variable length argument to be used by the Tool
+    ``**kwargs``
+        `toggled` if present and True, sets the initial state ot the Tool
+        Arbitrary keyword arguments to be consumed by the Tool
     """
 
     radio_group = None
@@ -159,9 +167,12 @@ class ToolToggleBase(ToolBase):
     cursor = None
     """Cursor to use when the tool is active"""
 
+    default_toggled = False
+    """Default of toggled state"""
+
     def __init__(self, *args, **kwargs):
+        self._toggled = kwargs.pop('toggled', self.default_toggled)
         ToolBase.__init__(self, *args, **kwargs)
-        self._toggled = False
 
     def trigger(self, sender, event, data=None):
         """Calls `enable` or `disable` based on `toggled` value"""
@@ -205,10 +216,20 @@ class ToolToggleBase(ToolBase):
     def set_figure(self, figure):
         toggled = self.toggled
         if toggled:
-            self.trigger(self, None)
+            if self.figure:
+                self.trigger(self, None)
+            else:
+                # if no figure the internal state is not changed
+                # we change it here so next call to trigger will change it back
+                self._toggled = False
         ToolBase.set_figure(self, figure)
-        if figure and toggled:
-            self.trigger(self, None)
+        if toggled:
+            if figure:
+                self.trigger(self, None)
+            else:
+                # if there is no figure, triggen wont change the internal state
+                # we change it back
+                self._toggled = True
 
 
 class SetCursorBase(ToolBase):

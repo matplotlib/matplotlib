@@ -3229,6 +3229,9 @@ class ToolContainerBase(object):
         if toggle:
             self.toolmanager.toolmanager_connect('tool_trigger_%s' % tool.name,
                                                  self._tool_toggled_cbk)
+            # If initially toggled
+            if tool.toggled:
+                self.toggle_toolitem(tool.name, True)
 
     def _remove_tool_cbk(self, event):
         """Captures the 'tool_removed_event' signal and removes the tool"""
