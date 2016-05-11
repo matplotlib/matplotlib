@@ -10,7 +10,6 @@ from matplotlib.testing import setup
 
 _multiprocess_can_split_ = True
 
-
 # Check that the test directories exist
 if not os.path.exists(os.path.join(
         os.path.dirname(__file__), 'baseline_images')):
