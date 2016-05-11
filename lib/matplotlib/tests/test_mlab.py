@@ -393,6 +393,22 @@ class csv_testcase(CleanupTestCase):
         assert_array_equal(array['a'].tolist(), expected)
 
 
+class rec2txt_testcase(CleanupTestCase):
+    def test_csv2txt_basic(self):
+        # str() calls around field names necessary b/c as of numpy 1.11
+        # dtype doesn't like unicode names (caused by unicode_literals import)
+        a = np.array([(1.0, 2, 'foo', 'bing'),
+                      (2.0, 3, 'bar', 'blah')],
+                     dtype=np.dtype([(str('x'), np.float32),
+                                     (str('y'), np.int8),
+                                     (str('s'), str, 3),
+                                     (str('s2'), str, 4)]))
+        truth = ('       x   y   s   s2\n'
+                 '   1.000   2   foo bing \n'
+                 '   2.000   3   bar blah ')
+        assert_equal(mlab.rec2txt(a), truth)
+
+
 class window_testcase(CleanupTestCase):
     def setUp(self):
         np.random.seed(0)
