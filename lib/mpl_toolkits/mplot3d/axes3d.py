@@ -2744,6 +2744,103 @@ class Axes3D(Axes):
 
     quiver3D = quiver
 
+    def voxels(self, filled, color=None):
+        """
+        Plot a set of filled voxels
+
+        All voxels are plotted as 1x1x1 cubes on the axis, with filled[0,0,0]
+        placed with its lower corner at the origin. Occluded faces are not plotted
+
+        Parameters
+        ----------
+        filled : np.array
+            A 3d array of values, with truthy values indicating which voxels
+            to fill
+
+        color : array_like
+            Either a single value or an array the same shape as filled,
+            indicating what color to draw the faces of the voxels. If None,
+            plot all voxels in the same color, the next in the color sequence
+        """
+        # check dimensions, and deal with a single color
+        if filled.ndim != 3:
+            raise ValueError("Argument filled must be 3-dimensional")
+
+        if color is None:
+            color = next(self._get_patches_for_fill.prop_cycler)['color']
+        if np.ndim(color) <= 1:
+            color, _ = np.broadcast_arrays(
+                color,
+                filled[np.index_exp[...] + np.index_exp[np.newaxis] * np.ndim(color)]
+            )
+        elif np.ndim(color) < 3:
+            raise ValueError("Argument color must be at least 3-dimensional")
+        elif np.shape(color)[:3] != filled.shape:
+            raise ValueError("Argument color must match the shape of filled, if multidimensional")
+
+        self.auto_scale_xyz(
+            [0, filled.shape[0]],
+            [0, filled.shape[1]],
+            [0, filled.shape[2]]
+        )
+
+
+        # points lying on corners of a square
+        square = np.array([
+            [0, 0, 0],
+            [0, 1, 0],
+            [1, 1, 0],
+            [1, 0, 0]
+        ])
+
+        def boundary_found(corners, color):
+            """ Plot a square at corners, with the specificed color """
+            poly = art3d.Poly3DCollection([corners])
+            poly.set_facecolor(color)
+            self.add_collection3d(poly)
+
+        def permutation_matrices(n):
+            """ Generator of cyclic permutation matices """
+            mat = np.eye(n)
+            for i in range(n):
+                yield mat
+                mat = np.roll(mat, 1, axis=0)
+
+        for permute in permutation_matrices(3):
+            # find the set of ranges to iterate over
+            pc, qc, rc = permute.T.dot(filled.shape[:3])
+            pinds = np.arange(pc)
+            qinds = np.arange(qc)
+            rinds = np.arange(rc)
+
+            for p in pinds:
+                for q in qinds:
+                    # draw lower faces
+                    p0 = permute.dot([p, q, 0])
+                    i0 = tuple(p0)
+                    if filled[i0]:
+                        boundary_found(p0 + square.dot(permute.T), color[i0])
+
+                    # draw middle faces
+                    for r1, r2 in zip(rinds, rinds[1:]):
+                        p1 = permute.dot([p, q, r1])
+                        p2 = permute.dot([p, q, r2])
+
+                        i1 = tuple(p1)
+                        i2 = tuple(p2)
+
+                        if filled[i1] and not filled[i2]:
+                            boundary_found(p2 + square.dot(permute.T), color[i1])
+                        elif not filled[i1] and filled[i2]:
+                            boundary_found(p2 + square.dot(permute.T), color[i2])
+
+                    # draw upper faces
+                    pk = permute.dot([p, q, rc-1])
+                    pk2 = permute.dot([p, q, rc])
+                    ik = tuple(pk)
+                    if filled[ik]:
+                        boundary_found(pk2 + square.dot(permute.T), color[ik])
+
 
 def get_test_data(delta=0.05):
     '''
