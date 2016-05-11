@@ -17,21 +17,21 @@ list of color specifications.
 
 The module also provides functions for checking whether an object can be
 interpreted as a color (:func:`is_color_like`), for converting such an object
-to an RGBA tuple (:func:`to_rgba`) or to an HTML hex string (:func:`to_hex`),
-and a sequence of colors to an `(n, 4)` RGBA array (:func:`to_rgba_array`).
-Caching is used for efficiency.
+to an RGBA tuple (:func:`to_rgba`) or to an HTML-like hex string in the
+`#rrggbbaa` format (:func:`to_hex`), and a sequence of colors to an `(n, 4)`
+RGBA array (:func:`to_rgba_array`).  Caching is used for efficiency.
 
 Commands which take color arguments can use several formats to specify
 the colors.  For the basic built-in colors, you can use a single letter
 
-    - b: blue
-    - g: green
-    - r: red
-    - c: cyan
-    - m: magenta
-    - y: yellow
-    - k: black
-    - w: white
+    - `b`: blue
+    - `g`: green
+    - `r`: red
+    - `c`: cyan
+    - `m`: magenta
+    - `y`: yellow
+    - `k`: black
+    - `w`: white
 
 To use the colors that are part of the active color cycle in the current style,
 use `C` followed by a digit.  For example:
@@ -48,8 +48,9 @@ color using an html hex string, as in::
 
     color = '#eeefff'
 
-or you can pass an *R* , *G* , *B* tuple, where each of *R* , *G* , *B* are in
-the range [0,1].
+(possibly specifying an alpha value as well), or you can pass an `(r, g, b)`
+or `(r, g, b, a)` tuple, where each of `r`, `g`, `b` and `a` are in the range
+[0,1].
 
 Finally, legal html names for colors, like 'red', 'burlywood' and 'chartreuse'
 are supported.
