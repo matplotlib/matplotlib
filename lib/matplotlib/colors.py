@@ -71,15 +71,15 @@ from ._color_data import BASE_COLORS, CSS4_COLORS, XKCD_COLORS
 class _ColorMapping(dict):
     def __init__(self, mapping):
         super(_ColorMapping, self).__init__(mapping)
-        self._cache = {}
+        self.cache = {}
 
     def __setitem__(self, key, value):
         super(_ColorMapping, self).__setitem__(key, value)
-        self._cache.clear()
+        self.cache.clear()
 
     def __delitem__(self, key, value):
         super(_ColorMapping, self).__delitem__(key, value)
-        self._cache.clear()
+        self.cache.clear()
 
 
 _colors_full_map = {}
@@ -130,14 +130,14 @@ def to_rgba(c, alpha=None):
         if prop_cycler is None and 'axes.color_cycle' in rcParams:
             clist = rcParams['axes.color_cycle']
             prop_cycler = cycler('color', clist)
-        colors = prop_cycler._transpose()['color']
+        colors = prop_cycler._transpose().get('color', 'k')
         c = colors[int(c[1]) % len(colors)]
     try:
-        rgba = _colors_full_map._cache[c, alpha]
+        rgba = _colors_full_map.cache[c, alpha]
     except (KeyError, TypeError):  # Not in cache, or unhashable.
         rgba = _to_rgba_no_colorcycle(c, alpha)
         try:
-            _colors_full_map._cache[c, alpha] = rgba
+            _colors_full_map.cache[c, alpha] = rgba
         except TypeError:
             pass
     return rgba
@@ -233,6 +233,12 @@ def to_rgba_array(c, alpha=None):
     return result
 
 
+def to_rgb(c):
+    """Convert `c` to an RGB color, silently dropping the alpha channel.
+    """
+    return to_rgba(c)[:3]
+
+
 def to_hex(c, alpha=None):
     """Convert `c` to a hex color.
 
@@ -274,7 +280,7 @@ class ColorConverter(object):
     """
 
     colors = _colors_full_map
-    cache = _colors_full_map._cache
+    cache = _colors_full_map.cache
 
     @staticmethod
     def to_rgb(arg):
@@ -292,7 +298,7 @@ class ColorConverter(object):
 
         if *arg* is *RGBA*, the *A* will simply be discarded.
         """
-        return to_rgba(arg)[:3]
+        return to_rgb(arg)
 
     @staticmethod
     def to_rgba(arg, alpha=None):
