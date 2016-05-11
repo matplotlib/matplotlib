@@ -232,7 +232,13 @@ class ImageComparisonTest(CleanupTest):
                     shutil.copyfile(orig_expected_fname, expected_fname)
                 else:
                     will_fail = True
-                    fail_msg = 'Do not have baseline image %s' % expected_fname
+                    fail_msg = (
+                        "Do not have baseline image {0} because this "
+                        "file does not exist: {1}".format(
+                            expected_fname,
+                            orig_expected_fname
+                        )
+                    )
 
                 @knownfailureif(
                     will_fail, fail_msg,
