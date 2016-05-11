@@ -1553,7 +1553,12 @@ def _init_tests():
         warnings.warn(
             "matplotlib is not built with the correct FreeType version to run "
             "tests.  Set local_freetype=True in setup.cfg and rebuild. "
-            "Expect many image comparison failures below.")
+            "Expect many image comparison failures below. "
+            "Expected {0} != found {1}".format(
+                ft2font.__freetype_version__,
+                LOCAL_FREETYPE_VERSION
+            )
+        )
 
     try:
         import nose
