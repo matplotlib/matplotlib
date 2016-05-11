@@ -74,7 +74,7 @@ install:
   - if [ -z "$PRE" ]; then
         wheelhouse_pip_install python-dateutil $NUMPY $PANDAS pyparsing!=2.1.2 pillow sphinx!=1.3.0;
     else
-        pip install $PRE python-dateutil $NUMPY pyparsing!=2.0.4 pillow sphinx!=1.3.0;
+        pip install $PRE python-dateutil $NUMPY pyparsing!=2.1.2 pillow sphinx!=1.3.0;
     fi
   # Always install from pypi
   - pip install $PRE pep8 cycler==0.9.0
