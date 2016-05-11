@@ -56,14 +56,12 @@ class ToolManager(object):
         `LockDraw` object to know if the message is available to write
     """
 
-    def __init__(self, canvas):
+    def __init__(self, figure=None):
         warnings.warn('Treat the new Tool classes introduced in v1.5 as ' +
                        'experimental for now, the API will likely change in ' +
                        'version 2.1 and perhaps the rcParam as well')
-        self.canvas = canvas
 
-        self._key_press_handler_id = self.canvas.mpl_connect(
-            'key_press_event', self._key_press)
+        self._key_press_handler_id = None
 
         self._tools = {}
         self._keys = {}
@@ -73,6 +71,45 @@ class ToolManager(object):
         # to process keypress event
         self.keypresslock = widgets.LockDraw()
         self.messagelock = widgets.LockDraw()
+
+        self._figure = None
+        self.set_figure(figure)
+
+    @property
+    def canvas(self):
+        """Canvas managed by FigureManager"""
+        if not self._figure:
+            return None
+        return self._figure.canvas
+
+    @property
+    def figure(self):
+        """Figure that holds the canvas"""
+        return self._figure
+
+    @figure.setter
+    def figure(self, figure):
+        self.set_figure(figure)
+
+    def set_figure(self, figure, update_tools=True):
+        """
+        Sets the figure to interact with the tools
+
+        Parameters
+        ==========
+        figure: `Figure`
+        update_tools: bool
+            Force tools to update figure
+        """
+        if self._key_press_handler_id:
+            self.canvas.mpl_disconnect(self._key_press_handler_id)
+        self._figure = figure
+        if figure:
+            self._key_press_handler_id = self.canvas.mpl_connect(
+                'key_press_event', self._key_press)
+        if update_tools:
+            for tool in self._tools.values():
+                tool.figure = figure
 
     def toolmanager_connect(self, s, func):
         """
@@ -245,6 +282,7 @@ class ToolManager(object):
             else:
                 self._toggled.setdefault(tool_obj.radio_group, None)
 
+        tool_obj.set_figure(self.figure)
         self._tool_added_event(tool_obj)
         return tool_obj
 

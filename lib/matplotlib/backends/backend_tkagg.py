@@ -570,7 +570,7 @@ class FigureManagerTkAgg(FigureManagerBase):
 
     def _get_toolmanager(self):
         if rcParams['toolbar'] != 'toolbar2':
-            toolmanager = ToolManager(self.canvas)
+            toolmanager = ToolManager(self.canvas.figure)
         else:
             toolmanager = None
         return toolmanager
