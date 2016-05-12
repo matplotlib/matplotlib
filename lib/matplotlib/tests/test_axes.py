@@ -4064,9 +4064,13 @@ def test_rc_tick():
         # tick1On bottom/left
         assert xax._major_tick_kw['tick1On'] == False
         assert xax._major_tick_kw['tick2On'] == True
+        assert xax._minor_tick_kw['tick1On'] == False
+        assert xax._minor_tick_kw['tick2On'] == True
 
         assert yax._major_tick_kw['tick1On'] == True
         assert yax._major_tick_kw['tick2On'] == False
+        assert yax._minor_tick_kw['tick1On'] == True
+        assert yax._minor_tick_kw['tick2On'] == False
 
 
 @cleanup
