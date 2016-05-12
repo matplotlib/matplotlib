@@ -16,7 +16,8 @@ from matplotlib import unpack_labeled_data
 
 import matplotlib.cbook as cbook
 from matplotlib.cbook import (mplDeprecation, STEP_LOOKUP_MAP,
-                              iterable, is_string_like)
+                              iterable, is_string_like,
+                              safe_first_element)
 import matplotlib.collections as mcoll
 import matplotlib.colors as mcolors
 import matplotlib.contour as mcontour
@@ -2904,29 +2905,44 @@ class Axes(_AxesBase):
             if key in kwargs:
                 plot_kw[key] = kwargs[key]
 
-        if xerr is not None:
-            if (iterable(xerr) and len(xerr) == 2 and
-                    iterable(xerr[0]) and iterable(xerr[1])):
-                # using list comps rather than arrays to preserve units
-                left = [thisx - thiserr for (thisx, thiserr)
-                        in cbook.safezip(x, xerr[0])]
-                right = [thisx + thiserr for (thisx, thiserr)
-                         in cbook.safezip(x, xerr[1])]
-            else:
-                # Check if xerr is scalar or symmetric. Asymmetric is handled
-                # above. This prevents Nx2 arrays from accidentally
-                # being accepted, when the user meant the 2xN transpose.
-                # special case for empty lists
-                if len(xerr) > 1 and not ((len(xerr) == len(x) and not (
-                        iterable(xerr[0]) and len(xerr[0]) > 1))):
-                    raise ValueError("xerr must be a scalar, the same "
-                                     "dimensions as x, or 2xN.")
-                # using list comps rather than arrays to preserve units
-                left = [thisx - thiserr for (thisx, thiserr)
-                        in cbook.safezip(x, xerr)]
-                right = [thisx + thiserr for (thisx, thiserr)
-                         in cbook.safezip(x, xerr)]
+        def extract_err(err, data):
+            '''private function to compute error bars
 
+            Parameters
+            ----------
+            err : iterable
+                xerr or yerr from errorbar
+            data : iterable
+                x or y from errorbar
+            '''
+            if (iterable(err) and len(err) == 2):
+                a, b = err
+                if iterable(a) and iterable(b):
+                    # using list comps rather than arrays to preserve units
+                    low = [thisx - thiserr for (thisx, thiserr)
+                           in cbook.safezip(data, a)]
+                    high = [thisx + thiserr for (thisx, thiserr)
+                            in cbook.safezip(data, b)]
+                    return low, high
+            # Check if xerr is scalar or symmetric. Asymmetric is handled
+            # above. This prevents Nx2 arrays from accidentally
+            # being accepted, when the user meant the 2xN transpose.
+            # special case for empty lists
+            if len(err) > 1:
+                fe = safe_first_element(err)
+                if not ((len(err) == len(data) and not (iterable(fe) and
+                                                        len(fe) > 1))):
+                    raise ValueError("err must be a scalar, the same "
+                                     "dimensions as x, or 2xN.")
+            # using list comps rather than arrays to preserve units
+            low = [thisx - thiserr for (thisx, thiserr)
+                   in cbook.safezip(data, err)]
+            high = [thisx + thiserr for (thisx, thiserr)
+                    in cbook.safezip(data, err)]
+            return low, high
+
+        if xerr is not None:
+            left, right = extract_err(xerr, x)
             # select points without upper/lower limits in x and
             # draw normal errorbars for these points
             noxlims = ~(xlolims | xuplims)
@@ -2971,25 +2987,7 @@ class Axes(_AxesBase):
                     caplines.extend(self.plot(xup, yup, 'k|', **plot_kw))
 
         if yerr is not None:
-            if (iterable(yerr) and len(yerr) == 2 and
-                    iterable(yerr[0]) and iterable(yerr[1])):
-                # using list comps rather than arrays to preserve units
-                lower = [thisy - thiserr for (thisy, thiserr)
-                         in cbook.safezip(y, yerr[0])]
-                upper = [thisy + thiserr for (thisy, thiserr)
-                         in cbook.safezip(y, yerr[1])]
-            else:
-                # Check for scalar or symmetric, as in xerr.
-                if len(yerr) > 1 and not ((len(yerr) == len(y) and not (
-                        iterable(yerr[0]) and len(yerr[0]) > 1))):
-                    raise ValueError("yerr must be a scalar, the same "
-                                     "dimensions as y, or 2xN.")
-                # using list comps rather than arrays to preserve units
-                lower = [thisy - thiserr for (thisy, thiserr)
-                         in cbook.safezip(y, yerr)]
-                upper = [thisy + thiserr for (thisy, thiserr)
-                         in cbook.safezip(y, yerr)]
-
+            lower, upper = extract_err(yerr, y)
             # select points without upper/lower limits in y and
             # draw normal errorbars for these points
             noylims = ~(lolims | uplims)
