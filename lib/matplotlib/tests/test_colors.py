@@ -555,8 +555,8 @@ def test_light_source_planar_hillshading():
 
 
 def test_xkcd():
-    assert mcolors.to_hex("blue") == "#0000ffff"
-    assert mcolors.to_hex("xkcd:blue") == "#0343dfff"
+    assert mcolors.to_hex("blue") == "#0000ff"
+    assert mcolors.to_hex("xkcd:blue") == "#0343df"
 
 
 def _sph2cart(theta, phi):
@@ -607,8 +607,8 @@ def test_colormap_reversing():
 def test_cn():
     matplotlib.rcParams['axes.prop_cycle'] = cycler('color',
                                                     ['blue', 'r'])
-    assert mcolors.to_hex("C0") == '#0000ffff'
-    assert mcolors.to_hex("C1") == '#ff0000ff'
+    assert mcolors.to_hex("C0") == '#0000ff'
+    assert mcolors.to_hex("C1") == '#ff0000'
 
     matplotlib.rcParams['axes.prop_cycle'] = cycler('color',
                                                     ['xkcd:blue', 'r'])
@@ -622,10 +622,11 @@ def test_conversions():
     # alpha is properly set.
     assert_equal(mcolors.to_rgba((1, 1, 1), .5), (1, 1, 1, .5))
     # builtin round differs between py2 and py3.
-    assert_equal(mcolors.to_hex((.7, .7, .7)), "#b2b2b2ff")
+    assert_equal(mcolors.to_hex((.7, .7, .7)), "#b2b2b2")
     # hex roundtrip.
     hex_color = "#1234abcd"
-    assert_equal(mcolors.to_hex(mcolors.to_rgba(hex_color)), hex_color)
+    assert_equal(mcolors.to_hex(mcolors.to_rgba(hex_color), keep_alpha=True),
+                 hex_color)
 
 
 if __name__ == '__main__':
