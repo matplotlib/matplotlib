@@ -563,7 +563,7 @@ def test_xkcd():
         mcolors.colorConverter.to_rgb('blue'))
     assert x11_blue == '#0000ff'
     XKCD_blue = mcolors.rgb2hex(
-        mcolors.colorConverter.to_rgb('XKCDblue'))
+        mcolors.colorConverter.to_rgb('xkcd:blue'))
     assert XKCD_blue == '#0343df'
 
 
@@ -621,7 +621,7 @@ def test_cn():
     assert red == '#ff0000'
 
     matplotlib.rcParams['axes.prop_cycle'] = cycler('color',
-                                                    ['XKCDblue', 'r'])
+                                                    ['xkcd:blue', 'r'])
     XKCD_blue = mcolors.rgb2hex(mcolors.colorConverter.to_rgb('C0'))
     assert XKCD_blue == '#0343df'
     red = mcolors.rgb2hex(mcolors.colorConverter.to_rgb('C1'))
