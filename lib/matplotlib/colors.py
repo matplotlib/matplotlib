@@ -18,7 +18,7 @@ list of color specifications.
 The module also provides functions for checking whether an object can be
 interpreted as a color (:func:`is_color_like`), for converting such an object
 to an RGBA tuple (:func:`to_rgba`) or to an HTML-like hex string in the
-`#rrggbbaa` format (:func:`to_hex`), and a sequence of colors to an `(n, 4)`
+`#rrggbb` format (:func:`to_hex`), and a sequence of colors to an `(n, 4)`
 RGBA array (:func:`to_rgba_array`).  Caching is used for efficiency.
 
 Commands which take color arguments can use several formats to specify
@@ -240,13 +240,17 @@ def to_rgb(c):
     return to_rgba(c)[:3]
 
 
-def to_hex(c, alpha=None):
+def to_hex(c, keep_alpha=False):
     """Convert `c` to a hex color.
 
-    If `alpha` is not `None`, it forces the alpha value.
+    Uses the #rrggbb format if `keep_alpha` is False (the default), `#rrggbbaa`
+    otherwise.
     """
+    c = to_rgba(c)
+    if not keep_alpha:
+        c = c[:3]
     return "#" + "".join(format(int(np.round(val * 255)), "02x")
-                         for val in to_rgba(c, alpha=alpha))
+                         for val in c)
 
 
 ### Backwards-compatible color-conversion API
@@ -258,7 +262,7 @@ hexColorPattern = re.compile("\A#[a-fA-F0-9]{6}\Z")
 
 def rgb2hex(c):
     'Given an rgb or rgba sequence of 0-1 floats, return the hex string'
-    return to_hex(c)[:7]  # Drop alpha.
+    return to_hex(c)
 
 
 def hex2color(c):
