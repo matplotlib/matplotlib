@@ -623,6 +623,9 @@ def test_conversions():
     assert_equal(mcolors.to_rgba((1, 1, 1), .5), (1, 1, 1, .5))
     # builtin round differs between py2 and py3.
     assert_equal(mcolors.to_hex((.7, .7, .7)), "#b2b2b2ff")
+    # hex roundtrip.
+    hex_color = "#1234abcd"
+    assert_equal(mcolors.to_hex(mcolors.to_rgba(hex_color)), hex_color)
 
 
 if __name__ == '__main__':
