@@ -576,7 +576,8 @@ class _AxesBase(martist.Artist):
         self.tick_params(top=rcParams['xtick.top'],
                          bottom=rcParams['xtick.bottom'],
                          left=rcParams['ytick.left'],
-                         right=rcParams['ytick.right'])
+                         right=rcParams['ytick.right'],
+                         which='both')
 
     def __setstate__(self, state):
         self.__dict__ = state
