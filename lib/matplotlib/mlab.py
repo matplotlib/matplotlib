@@ -3185,35 +3185,20 @@ def rec2txt(r, header=None, padding=3, precision=3, fields=None):
         return atype
 
     def get_justify(colname, column, precision):
-        ntype = type(column[0])
+        ntype = column.dtype
 
-        if (ntype == np.str or ntype == np.str_ or ntype == np.string0 or
-                ntype == np.string_):
-            length = max(len(colname), column.itemsize)
+        if np.issubdtype(ntype, str) or np.issubdtype(ntype, bytes):
+            # The division below handles unicode stored in array, which could
+            # have 4 bytes per char
+            length = max(len(colname), column.itemsize // column[0].itemsize)
             return 0, length+padding, "%s"  # left justify
 
-        if (ntype == np.int or ntype == np.int16 or ntype == np.int32 or
-                ntype == np.int64 or ntype == np.int8 or ntype == np.int_):
+        if np.issubdtype(ntype, np.int):
             length = max(len(colname),
                          np.max(list(map(len, list(map(str, column))))))
             return 1, length+padding, "%d"  # right justify
 
-        # JDH: my powerbook does not have np.float96 using np 1.3.0
-        """
-        In [2]: np.__version__
-        Out[2]: '1.3.0.dev5948'
-
-        In [3]: !uname -a
-        Darwin Macintosh-5.local 9.4.0 Darwin Kernel Version 9.4.0: Mon Jun
-        9 19:30:53 PDT 2008; root:xnu-1228.5.20~1/RELEASE_I386 i386 i386
-
-        In [4]: np.float96
-        ---------------------------------------------------------------------------
-        AttributeError                           Traceback (most recent call la
-        """
-        if (ntype == np.float or ntype == np.float32 or ntype == np.float64 or
-                (hasattr(np, 'float96') and (ntype == np.float96)) or
-                ntype == np.float_):
+        if np.issubdtype(ntype, np.float):
             fmt = "%." + str(precision) + "f"
             length = max(
                 len(colname),
