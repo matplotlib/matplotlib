@@ -2793,6 +2793,7 @@ class Axes(_AxesBase):
         .. plot:: mpl_examples/statistics/errorbar_demo.py
 
         """
+        kwargs.setdefault('zorder', 2)
 
         if errorevery < 1:
             raise ValueError(
@@ -2850,17 +2851,13 @@ class Axes(_AxesBase):
 
         l0 = None
 
-        # Instead of using zorder, the line plot is being added
-        # either here, or after all the errorbar plot elements.
-        if barsabove and plot_line:
-            # in python3.5+ this can be simplified
-            eb_style = dict(base_style)
-            eb_style.update(**kwargs)
-            l0 = mlines.Line2D(x, y, **eb_style)
-            self.add_line(l0)
         # make the style dict for the 'normal' plot line
         plot_line_style = dict(base_style)
         plot_line_style.update(**kwargs)
+        if barsabove:
+            plot_line_style['zorder'] = kwargs['zorder'] - .1
+        else:
+            plot_line_style['zorder'] = kwargs['zorder'] + .1
 
         # make the style dict for the line collections (the bars)
         eb_lines_style = dict(base_style)
@@ -2902,6 +2899,10 @@ class Axes(_AxesBase):
             if key in kwargs:
                 eb_cap_style[key] = kwargs[key]
         eb_cap_style['color'] = ecolor
+
+        if plot_line:
+            l0 = mlines.Line2D(x, y, **plot_line_style)
+            self.add_line(l0)
 
         barcols = []
         caplines = []
@@ -3067,12 +3068,6 @@ class Axes(_AxesBase):
         for l in caplines:
             self.add_line(l)
 
-        if not barsabove and plot_line:
-            # in python3.5+ this can be simplified
-            eb_style = dict(base_style)
-            eb_style.update(**kwargs)
-            l0 = mlines.Line2D(x, y, **eb_style)
-            self.add_line(l0)
 
         self.autoscale_view()
         self._hold = holdstate
