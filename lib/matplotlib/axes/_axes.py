@@ -2858,22 +2858,53 @@ class Axes(_AxesBase):
             eb_style.update(**kwargs)
             l0 = mlines.Line2D(x, y, **eb_style)
             self.add_line(l0)
+        # make the style dict for the 'normal' plot line
+        plot_line_style = dict(base_style)
+        plot_line_style.update(**kwargs)
 
-        barcols = []
-        caplines = []
+        # make the style dict for the line collections (the bars)
+        eb_lines_style = dict(base_style)
+        eb_lines_style.pop('marker', None)
+        eb_lines_style.pop('linestyle', None)
+        eb_lines_style['color'] = ecolor
 
-        lines_kw = dict(base_style)
-        lines_kw.pop('marker', None)
-        lines_kw.pop('linestyle', None)
         if elinewidth:
-            lines_kw['linewidth'] = elinewidth
+            eb_lines_style['linewidth'] = elinewidth
         else:
             for key in ('linewidth', 'lw'):
                 if key in kwargs:
-                    lines_kw[key] = kwargs[key]
+                    eb_lines_style[key] = kwargs[key]
         for key in ('transform', 'alpha', 'zorder', 'rasterized'):
             if key in kwargs:
-                lines_kw[key] = kwargs[key]
+                eb_lines_style[key] = kwargs[key]
+
+        # set up cap style dictionary
+        eb_cap_style = dict(base_style)
+        # eject any marker information from format string
+        eb_cap_style.pop('marker', None)
+        eb_cap_style.pop('ls', None)
+        eb_cap_style['linestyle'] = 'none'
+        if capsize is None:
+            capsize = rcParams["errorbar.capsize"]
+        if capsize > 0:
+            eb_cap_style['ms'] = 2. * capsize
+        if capthick is not None:
+            # 'mew' has higher priority, I believe,
+            # if both 'mew' and 'markeredgewidth' exists.
+            # So, save capthick to markeredgewidth so that
+            # explicitly setting mew or markeredgewidth will
+            # over-write capthick.
+            eb_cap_style['markeredgewidth'] = capthick
+        # For backwards-compat, allow explicit setting of
+        # 'mew' or 'markeredgewidth' to over-ride capthick.
+        for key in ('markeredgewidth', 'mew', 'transform', 'alpha',
+                    'zorder', 'rasterized'):
+            if key in kwargs:
+                eb_cap_style[key] = kwargs[key]
+        eb_cap_style['color'] = ecolor
+
+        barcols = []
+        caplines = []
 
         # arrays fine here, they are booleans and hence not units
         def _bool_asarray_helper(d, expected):
@@ -2899,30 +2930,6 @@ class Axes(_AxesBase):
             xs = [thisx for thisx, b in zip(xs, mask) if b]
             ys = [thisy for thisy, b in zip(ys, mask) if b]
             return xs, ys
-
-        plot_kw = dict(base_style)
-        # eject any marker information from format string
-        plot_kw.pop('marker', None)
-        plot_kw.pop('ls', None)
-        plot_kw['linestyle'] = 'none'
-        if capsize is None:
-            capsize = rcParams["errorbar.capsize"]
-        if capsize > 0:
-            plot_kw['ms'] = 2. * capsize
-        if capthick is not None:
-            # 'mew' has higher priority, I believe,
-            # if both 'mew' and 'markeredgewidth' exists.
-            # So, save capthick to markeredgewidth so that
-            # explicitly setting mew or markeredgewidth will
-            # over-write capthick.
-            plot_kw['markeredgewidth'] = capthick
-        # For backwards-compat, allow explicit setting of
-        # 'mew' or 'markeredgewidth' to over-ride capthick.
-        for key in ('markeredgewidth', 'mew', 'transform', 'alpha',
-                    'zorder', 'rasterized'):
-            if key in kwargs:
-                plot_kw[key] = kwargs[key]
-        plot_kw['color'] = ecolor
 
         def extract_err(err, data):
             '''private function to compute error bars
@@ -2968,17 +2975,17 @@ class Axes(_AxesBase):
             if noxlims.any():
                 yo, _ = xywhere(y, right, noxlims & everymask)
                 lo, ro = xywhere(left, right, noxlims & everymask)
-                barcols.append(self.hlines(yo, lo, ro, **lines_kw))
+                barcols.append(self.hlines(yo, lo, ro, **eb_lines_style))
                 if capsize > 0:
                     caplines.append(mlines.Line2D(lo, yo, marker='|',
-                                                  **plot_kw))
+                                                  **eb_cap_style))
                     caplines.append(mlines.Line2D(ro, yo, marker='|',
-                                                  **plot_kw))
+                                                  **eb_cap_style))
 
             if xlolims.any():
                 yo, _ = xywhere(y, right, xlolims & everymask)
                 lo, ro = xywhere(x, right, xlolims & everymask)
-                barcols.append(self.hlines(yo, lo, ro, **lines_kw))
+                barcols.append(self.hlines(yo, lo, ro, **eb_lines_style))
                 rightup, yup = xywhere(right, y, xlolims & everymask)
                 if self.xaxis_inverted():
                     marker = mlines.CARETLEFTBASE
@@ -2986,16 +2993,16 @@ class Axes(_AxesBase):
                     marker = mlines.CARETRIGHTBASE
                 caplines.append(
                     mlines.Line2D(rightup, yup, ls='None', marker=marker,
-                                  **plot_kw))
+                                  **eb_cap_style))
                 if capsize > 0:
                     xlo, ylo = xywhere(x, y, xlolims & everymask)
                     caplines.append(mlines.Line2D(xlo, ylo, marker='|',
-                                                  **plot_kw))
+                                                  **eb_cap_style))
 
             if xuplims.any():
                 yo, _ = xywhere(y, right, xuplims & everymask)
                 lo, ro = xywhere(left, x, xuplims & everymask)
-                barcols.append(self.hlines(yo, lo, ro, **lines_kw))
+                barcols.append(self.hlines(yo, lo, ro, **eb_lines_style))
                 leftlo, ylo = xywhere(left, y, xuplims & everymask)
                 if self.xaxis_inverted():
                     marker = mlines.CARETRIGHTBASE
@@ -3003,11 +3010,11 @@ class Axes(_AxesBase):
                     marker = mlines.CARETLEFTBASE
                 caplines.append(
                     mlines.Line2D(leftlo, ylo, ls='None', marker=marker,
-                                  **plot_kw))
+                                  **eb_cap_style))
                 if capsize > 0:
                     xup, yup = xywhere(x, y, xuplims & everymask)
                     caplines.append(mlines.Line2D(xup, yup, marker='|',
-                                                  **plot_kw))
+                                                  **eb_cap_style))
 
         if yerr is not None:
             lower, upper = extract_err(yerr, y)
@@ -3017,17 +3024,17 @@ class Axes(_AxesBase):
             if noylims.any():
                 xo, _ = xywhere(x, lower, noylims & everymask)
                 lo, uo = xywhere(lower, upper, noylims & everymask)
-                barcols.append(self.vlines(xo, lo, uo, **lines_kw))
+                barcols.append(self.vlines(xo, lo, uo, **eb_lines_style))
                 if capsize > 0:
                     caplines.append(mlines.Line2D(xo, lo, marker='_',
-                                                  **plot_kw))
+                                                  **eb_cap_style))
                     caplines.append(mlines.Line2D(xo, uo, marker='_',
-                                                  **plot_kw))
+                                                  **eb_cap_style))
 
             if lolims.any():
                 xo, _ = xywhere(x, lower, lolims & everymask)
                 lo, uo = xywhere(y, upper, lolims & everymask)
-                barcols.append(self.vlines(xo, lo, uo, **lines_kw))
+                barcols.append(self.vlines(xo, lo, uo, **eb_lines_style))
                 xup, upperup = xywhere(x, upper, lolims & everymask)
                 if self.yaxis_inverted():
                     marker = mlines.CARETDOWNBASE
@@ -3035,16 +3042,16 @@ class Axes(_AxesBase):
                     marker = mlines.CARETUPBASE
                 caplines.append(
                     mlines.Line2D(xup, upperup, ls='None', marker=marker,
-                                  **plot_kw))
+                                  **eb_cap_style))
                 if capsize > 0:
                     xlo, ylo = xywhere(x, y, lolims & everymask)
                     caplines.append(mlines.Line2D(xlo, ylo, marker='_',
-                                                  **plot_kw))
+                                                  **eb_cap_style))
 
             if uplims.any():
                 xo, _ = xywhere(x, lower, uplims & everymask)
                 lo, uo = xywhere(lower, y, uplims & everymask)
-                barcols.append(self.vlines(xo, lo, uo, **lines_kw))
+                barcols.append(self.vlines(xo, lo, uo, **eb_lines_style))
                 xlo, lowerlo = xywhere(x, lower, uplims & everymask)
                 if self.yaxis_inverted():
                     marker = mlines.CARETUPBASE
@@ -3052,11 +3059,11 @@ class Axes(_AxesBase):
                     marker = mlines.CARETDOWNBASE
                 caplines.append(
                     mlines.Line2D(xlo, lowerlo, ls='None', marker=marker,
-                                  **plot_kw))
+                                  **eb_cap_style))
                 if capsize > 0:
                     xup, yup = xywhere(x, y, uplims & everymask)
                     caplines.append(mlines.Line2D(xup, yup, marker='_',
-                                                  **plot_kw))
+                                                  **eb_cap_style))
         for l in caplines:
             self.add_line(l)
 
