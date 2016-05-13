@@ -35,6 +35,7 @@ except ImportError:
     from base64 import encodestring as encodebytes
 import contextlib
 import tempfile
+import warnings
 from matplotlib.cbook import iterable, is_string_like
 from matplotlib.compat import subprocess
 from matplotlib import verbose
@@ -109,6 +110,11 @@ class MovieWriter(object):
     frame_format: string
         The format used in writing frame data, defaults to 'rgba'
     '''
+
+    # Specifies whether the size of all frames need to be identical
+    # i.e. whether we can use savefig.bbox = 'tight'
+    frame_size_can_vary = False
+
     def __init__(self, fps=5, codec=None, bitrate=None, extra_args=None,
                  metadata=None):
         '''
@@ -283,6 +289,11 @@ class MovieWriter(object):
 
 class FileMovieWriter(MovieWriter):
     '`MovieWriter` subclass that handles writing to a file.'
+
+    # In general, if frames are writen to files on disk, it's not important
+    # that they all be identically sized
+    frame_size_can_vary = True
+
     def __init__(self, *args, **kwargs):
         MovieWriter.__init__(self, *args, **kwargs)
         self.frame_format = rcParams['animation.frame_format']
@@ -712,29 +723,6 @@ class Animation(object):
         if savefig_kwargs is None:
             savefig_kwargs = {}
 
-        # FIXME: Using 'bbox_inches' doesn't currently work with
-        # writers that pipe the data to the command because this
-        # requires a fixed frame size (see Ryan May's reply in this
-        # thread: [1]). Thus we drop the 'bbox_inches' argument if it
-        # exists in savefig_kwargs.
-        #
-        # [1] (http://matplotlib.1069221.n5.nabble.com/
-        # Animation-class-let-save-accept-kwargs-which-
-        # are-passed-on-to-savefig-td39627.html)
-        #
-        if 'bbox_inches' in savefig_kwargs:
-            if not (writer in ['ffmpeg_file', 'mencoder_file'] or
-                    isinstance(writer,
-                               (FFMpegFileWriter, MencoderFileWriter))):
-                print("Warning: discarding the 'bbox_inches' argument in "
-                      "'savefig_kwargs' as it is only currently supported "
-                      "with the writers 'ffmpeg_file' and 'mencoder_file' "
-                      "(writer used: "
-                      "'{0}').".format(
-                          writer if isinstance(writer, six.string_types)
-                          else writer.__class__.__name__))
-                savefig_kwargs.pop('bbox_inches')
-
         # Need to disconnect the first draw callback, since we'll be doing
         # draws. Otherwise, we'll end up starting the animation.
         if self._first_draw_id is not None:
@@ -778,7 +766,6 @@ class Animation(object):
                                          extra_args=extra_args,
                                          metadata=metadata)
             else:
-                import warnings
                 warnings.warn("MovieWriter %s unavailable" % writer)
 
                 try:
@@ -792,6 +779,23 @@ class Animation(object):
 
         verbose.report('Animation.save using %s' % type(writer),
                        level='helpful')
+
+        # FIXME: Using 'bbox_inches' doesn't currently work with
+        # writers that pipe the data to the command because this
+        # requires a fixed frame size (see Ryan May's reply in this
+        # thread: [1]). Thus we drop the 'bbox_inches' argument if it
+        # exists in savefig_kwargs.
+        #
+        # [1] (http://matplotlib.1069221.n5.nabble.com/
+        # Animation-class-let-save-accept-kwargs-which-
+        # are-passed-on-to-savefig-td39627.html)
+        #
+        if 'bbox_inches' in savefig_kwargs and not writer.frame_size_can_vary:
+            warnings.warn("Warning: discarding the 'bbox_inches' argument in "
+                          "'savefig_kwargs' as it not supported by "
+                          "{0}).".format(writer.__class__.__name__))
+            savefig_kwargs.pop('bbox_inches')
+
         # Create a new sequence of frames for saved data. This is different
         # from new_frame_seq() to give the ability to save 'live' generated
         # frame information to be saved later.
