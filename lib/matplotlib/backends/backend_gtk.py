@@ -613,6 +613,8 @@ class FigureManagerGTK(FigureManagerBase):
     def show(self):
         # show the figure window
         self.window.show()
+        self.window.set_keep_above(True)
+        self.window.set_keep_above(False)
 
     def full_screen_toggle(self):
         self._full_screen_flag = not self._full_screen_flag
