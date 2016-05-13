@@ -39,7 +39,7 @@ import warnings
 from matplotlib.cbook import iterable, is_string_like
 from matplotlib.compat import subprocess
 from matplotlib import verbose
-from matplotlib import rcParams, rcParamsDefault
+from matplotlib import rcParams, rcParamsDefault, rc_context
 
 # Process creation flag for subprocess to prevent it raising a terminal
 # window. See for example:
@@ -801,17 +801,26 @@ class Animation(object):
         # frame information to be saved later.
         # TODO: Right now, after closing the figure, saving a movie won't work
         # since GUI widgets are gone. Either need to remove extra code to
-        # allow for this non-existant use case or find a way to make it work.
-        with writer.saving(self._fig, filename, dpi):
-            for anim in all_anim:
-                # Clear the initial frame
-                anim._init_draw()
-            for data in zip(*[a.new_saved_frame_seq()
-                              for a in all_anim]):
-                for anim, d in zip(all_anim, data):
-                    # TODO: Need to see if turning off blit is really necessary
-                    anim._draw_next_frame(d, blit=False)
-                writer.grab_frame(**savefig_kwargs)
+        # allow for this non-existent use case or find a way to make it work.
+        with rc_context():
+            # See above about bbox_inches savefig kwarg
+            if (not writer.frame_size_can_vary and
+                    rcParams['savefig.bbox'] == 'tight'):
+                verbose.report("Disabling savefig.bbox = 'tight', as it is "
+                               "not supported by "
+                               "{0}.".format(writer.__class__.__name__),
+                               level='helpful')
+                rcParams['savefig.bbox'] = None
+            with writer.saving(self._fig, filename, dpi):
+                for anim in all_anim:
+                    # Clear the initial frame
+                    anim._init_draw()
+                for data in zip(*[a.new_saved_frame_seq()
+                                  for a in all_anim]):
+                    for anim, d in zip(all_anim, data):
+                        # TODO: See if turning off blit is really necessary
+                        anim._draw_next_frame(d, blit=False)
+                    writer.grab_frame(**savefig_kwargs)
 
         # Reconnect signal for first draw if necessary
         if reconnect_first_draw:
