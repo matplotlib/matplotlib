@@ -133,8 +133,8 @@ class MovieWriter(object):
             automatically by the underlying utility.
         extra_args: list of strings or None
             A list of extra string arguments to be passed to the underlying
-            movie utiltiy. The default is None, which passes the additional
-            argurments in the 'animation.extra_args' rcParam.
+            movie utility. The default is None, which passes the additional
+            arguments in the 'animation.extra_args' rcParam.
         metadata: dict of string:string or None
             A dictionary of keys and values for metadata to include in the
             output file. Some keys that may be of use include:
@@ -702,8 +702,8 @@ class Animation(object):
         `animation.bitrate`.
 
         *extra_args* is a list of extra string arguments to be passed to the
-        underlying movie utiltiy. The default is None, which passes the
-        additional argurments in the 'animation.extra_args' rcParam.
+        underlying movie utility. The default is None, which passes the
+        additional arguments in the 'animation.extra_args' rcParam.
 
         *metadata* is a dictionary of keys and values for metadata to include
         in the output file. Some keys that may be of use include:
@@ -947,7 +947,7 @@ class Animation(object):
         directly into the HTML5 video tag. This respects the rc parameters
         for the writer as well as the bitrate. This also makes use of the
         ``interval`` to control the speed, and uses the ``repeat``
-        paramter to decide whether to loop.
+        parameter to decide whether to loop.
         '''
         VIDEO_TAG = r'''<video {size} {options}>
   <source type="video/mp4" src="data:video/mp4;base64,{video}">
