@@ -2793,6 +2793,7 @@ class Axes(_AxesBase):
         .. plot:: mpl_examples/statistics/errorbar_demo.py
 
         """
+        kwargs = cbook.normalize_kwargs(kwargs, _alias_map)
         kwargs.setdefault('zorder', 2)
 
         if errorevery < 1:
@@ -2830,7 +2831,7 @@ class Axes(_AxesBase):
         base_style['label'] = '_nolegend_'
         base_style.update(fmt_style_kwargs)
         if 'color' not in base_style:
-            base_style['color'] = 'b'
+            base_style['color'] = 'C0'
         if ecolor is None:
             ecolor = base_style['color']
         # make sure all the args are iterable; use lists not arrays to
@@ -2867,10 +2868,9 @@ class Axes(_AxesBase):
 
         if elinewidth:
             eb_lines_style['linewidth'] = elinewidth
-        else:
-            for key in ('linewidth', 'lw'):
-                if key in kwargs:
-                    eb_lines_style[key] = kwargs[key]
+        elif 'linewidth' in kwargs:
+            eb_lines_style['linewidth'] = kwargs['linewidth']
+
         for key in ('transform', 'alpha', 'zorder', 'rasterized'):
             if key in kwargs:
                 eb_lines_style[key] = kwargs[key]
@@ -2884,17 +2884,13 @@ class Axes(_AxesBase):
         if capsize is None:
             capsize = rcParams["errorbar.capsize"]
         if capsize > 0:
-            eb_cap_style['ms'] = 2. * capsize
+            eb_cap_style['markersize'] = 2. * capsize
         if capthick is not None:
-            # 'mew' has higher priority, I believe,
-            # if both 'mew' and 'markeredgewidth' exists.
-            # So, save capthick to markeredgewidth so that
-            # explicitly setting mew or markeredgewidth will
-            # over-write capthick.
             eb_cap_style['markeredgewidth'] = capthick
+
         # For backwards-compat, allow explicit setting of
-        # 'mew' or 'markeredgewidth' to over-ride capthick.
-        for key in ('markeredgewidth', 'mew', 'transform', 'alpha',
+        # 'markeredgewidth' to over-ride capthick.
+        for key in ('markeredgewidth', 'transform', 'alpha',
                     'zorder', 'rasterized'):
             if key in kwargs:
                 eb_cap_style[key] = kwargs[key]
