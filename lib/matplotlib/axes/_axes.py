@@ -3064,7 +3064,6 @@ class Axes(_AxesBase):
         for l in caplines:
             self.add_line(l)
 
-
         self.autoscale_view()
         self._hold = holdstate
 
