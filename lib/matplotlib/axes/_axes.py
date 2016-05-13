@@ -3074,15 +3074,6 @@ class Axes(_AxesBase):
             l0 = mlines.Line2D(x, y, **eb_style)
             self.add_line(l0)
 
-        if ecolor is None:
-            if l0 is None:
-                ecolor = self._get_lines.get_next_color()
-            else:
-                ecolor = l0.get_color()
-
-        for l in barcols:
-            l.set_color(ecolor)
-
         self.autoscale_view()
         self._hold = holdstate
 
