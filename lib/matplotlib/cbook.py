@@ -1516,8 +1516,8 @@ def issubclass_safe(x, klass):
         return False
 
 
-def safe_masked_invalid(x):
-    x = np.asanyarray(x)
+def safe_masked_invalid(x, copy=False):
+    x = np.array(x, subok=True, copy=copy)
     try:
         xm = np.ma.masked_invalid(x, copy=False)
         xm.shrink_mask()
