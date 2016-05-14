@@ -593,7 +593,7 @@ class HandlerPolyCollection(HandlerBase):
     """
     def _update_prop(self, legend_handle, orig_handle):
         def first_color(colors):
-            colors = mcolors.colorConverter.to_rgba_array(colors)
+            colors = mcolors.to_rgba_array(colors)
             if len(colors):
                 return colors[0]
             else:

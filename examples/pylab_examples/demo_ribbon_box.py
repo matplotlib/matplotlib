@@ -18,7 +18,7 @@ class RibbonBox(object):
     nx = original_image.shape[1]
 
     def __init__(self, color):
-        rgb = matplotlib.colors.colorConverter.to_rgb(color)
+        rgb = matplotlib.colors.to_rgba(color)[:3]
 
         im = np.empty(self.original_image.shape,
                       self.original_image.dtype)

@@ -11,36 +11,19 @@ import six
 
 import numpy as np
 import matplotlib.pyplot as plt
-from matplotlib import colors
+from matplotlib import colors as mcolors
 
 
-colors_ = list(six.iteritems(colors.cnames))
-
-# Add the single letter colors.
-for name, rgb in six.iteritems(colors.ColorConverter.colors):
-    hex_ = colors.rgb2hex(rgb)
-    colors_.append((name, hex_))
-
-# Transform to hex color values.
-hex_ = [color[1] for color in colors_]
-# Get the rgb equivalent.
-rgb = [colors.hex2color(color) for color in hex_]
-# Get the hsv equivalent.
-hsv = [colors.rgb_to_hsv(color) for color in rgb]
-
-# Split the hsv values to sort.
-hue = [color[0] for color in hsv]
-sat = [color[1] for color in hsv]
-val = [color[2] for color in hsv]
-
-# Get the color names by themselves.
-names = [color[0] for color in colors_]
+colors = dict(mcolors.BASE_COLORS, **mcolors.CSS4_COLORS)
 
 # Sort by hue, saturation, value and name.
-ind = np.lexsort((names, val, sat, hue))
-sorted_colors = [colors_[i] for i in ind]
+by_hsv = sorted((tuple(mcolors.rgb_to_hsv(mcolors.to_rgba(color)[:3])), name)
+                for name, color in colors.items())
 
-n = len(sorted_colors)
+# Get the sorted color names.
+sorted_names = [name for hsv, name in by_hsv]
+
+n = len(sorted_names)
 ncols = 4
 nrows = int(np.ceil(1. * n / ncols))
 
@@ -53,7 +36,7 @@ h = Y / (nrows + 1)
 # col width
 w = X / ncols
 
-for i, (name, color) in enumerate(sorted_colors):
+for i, name in enumerate(sorted_names):
     col = i % ncols
     row = int(i / ncols)
     y = Y - (row * h) - h
@@ -68,8 +51,10 @@ for i, (name, color) in enumerate(sorted_colors):
 
     # Add extra black line a little bit thicker to make
     # clear colors more visible.
-    ax.hlines(y, xi_line, xf_line, color='black', linewidth=(h * 0.7))
-    ax.hlines(y + h * 0.1, xi_line, xf_line, color=color, linewidth=(h * 0.6))
+    ax.hlines(
+        y, xi_line, xf_line, color='black', linewidth=(h * 0.7))
+    ax.hlines(
+        y + h * 0.1, xi_line, xf_line, color=colors[name], linewidth=(h * 0.6))
 
 ax.set_xlim(0, X)
 ax.set_ylim(0, Y)

@@ -36,14 +36,10 @@ from matplotlib.backend_managers import ToolManager
 from matplotlib import backend_tools
 
 from matplotlib.cbook import is_string_like, is_writable_file_like
-from matplotlib.colors import colorConverter
 from matplotlib.figure import Figure
 from matplotlib.widgets import SubplotTool
 
-from matplotlib import lines
-from matplotlib import cbook
-from matplotlib import verbose
-from matplotlib import rcParams
+from matplotlib import cbook, colors as mcolors, lines, verbose, rcParams
 
 backend_version = "%s.%s.%s" % (Gtk.get_major_version(), Gtk.get_micro_version(), Gtk.get_minor_version())
 
