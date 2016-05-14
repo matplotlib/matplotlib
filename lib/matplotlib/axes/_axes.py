@@ -2065,7 +2065,7 @@ class Axes(_AxesBase):
         if color is None:
             color = [None] * nbars
         else:
-            color = list(mcolors.colorConverter.to_rgba_array(color))
+            color = list(mcolors.to_rgba_array(color))
             if len(color) == 0:  # until to_rgba_array is changed
                 color = [[0, 0, 0, 0]]
             if len(color) < nbars:
@@ -2074,7 +2074,7 @@ class Axes(_AxesBase):
         if edgecolor is None:
             edgecolor = [None] * nbars
         else:
-            edgecolor = list(mcolors.colorConverter.to_rgba_array(edgecolor))
+            edgecolor = list(mcolors.to_rgba_array(edgecolor))
             if len(edgecolor) == 0:     # until to_rgba_array is changed
                 edgecolor = [[0, 0, 0, 0]]
             if len(edgecolor) < nbars:
@@ -3843,7 +3843,7 @@ class Axes(_AxesBase):
         co = kwargs.pop('color', None)
         if co is not None:
             try:
-                mcolors.colorConverter.to_rgba_array(co)
+                mcolors.to_rgba_array(co)
             except ValueError:
                 raise ValueError("'color' kwarg must be an mpl color"
                                  " spec or sequence of color specs.\n"
@@ -6050,7 +6050,7 @@ class Axes(_AxesBase):
         if color is None:
             color = [self._get_lines.get_next_color() for i in xrange(nx)]
         else:
-            color = mcolors.colorConverter.to_rgba_array(color)
+            color = mcolors.to_rgba_array(color)
             if len(color) != nx:
                 raise ValueError("color kwarg must have one color per dataset")
 
