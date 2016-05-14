@@ -68,7 +68,7 @@ def _process_plot_format(fmt):
 
     # Is fmt just a colorspec?
     try:
-        color = mcolors.colorConverter.to_rgb(fmt)
+        color = mcolors.to_rgba(fmt)
 
         # We need to differentiate grayscale '1.0' from tri_down marker '1'
         try:
@@ -112,14 +112,14 @@ def _process_plot_format(fmt):
                 raise ValueError(
                     'Illegal format string "%s"; two marker symbols' % fmt)
             marker = c
-        elif c in mcolors.colorConverter.colors:
+        elif c in mcolors.get_named_colors_mapping():
             if color is not None:
                 raise ValueError(
                     'Illegal format string "%s"; two color symbols' % fmt)
             color = c
         elif c == 'C' and i < len(chars) - 1:
             color_cycle_number = int(chars[i + 1])
-            color = mcolors.colorConverter._get_nth_color(color_cycle_number)
+            color = mcolors.to_rgba("C{}".format(color_cycle_number))
             i += 1
         else:
             raise ValueError(
@@ -3687,7 +3687,7 @@ class _AxesBase(martist.Artist):
             lw, c = args
         else:
             raise ValueError('args must be a (linewidth, color) tuple')
-        c = mcolors.colorConverter.to_rgba(c)
+        c = mcolors.to_rgba(c)
         self._cursorProps = lw, c
 
     def get_children(self):

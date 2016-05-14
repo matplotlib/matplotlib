@@ -17,8 +17,8 @@ class ItemProperties(object):
         self.bgcolor = bgcolor
         self.alpha = alpha
 
-        self.labelcolor_rgb = colors.colorConverter.to_rgb(labelcolor)
-        self.bgcolor_rgb = colors.colorConverter.to_rgb(bgcolor)
+        self.labelcolor_rgb = colors.to_rgba(labelcolor)[:3]
+        self.bgcolor_rgb = colors.to_rgba(bgcolor)[:3]
 
 
 class MenuItem(artist.Artist):

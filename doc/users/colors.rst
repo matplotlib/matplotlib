@@ -9,7 +9,7 @@ it can be provided as:
 
 * ``(r, g, b)`` tuples
 * ``(r, g, b, a)`` tuples
-* hex string, ex ``#OFOFOF``
+* hex string, ex ``#0F0F0F``, or ``#0F0F0F0F`` (with alpha channel)
 * float value between [0, 1] for gray level
 * One of ``{'b', 'g', 'r', 'c', 'm', 'y', 'k', 'w'}``
 * valid CSS4/X11 color names

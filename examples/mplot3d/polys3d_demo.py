@@ -5,8 +5,8 @@ under a line graph, creating a sort of 'jagged stained glass' effect.
 
 from mpl_toolkits.mplot3d import Axes3D
 from matplotlib.collections import PolyCollection
-from matplotlib.colors import colorConverter
 import matplotlib.pyplot as plt
+from matplotlib import colors as mcolors
 import numpy as np
 
 
@@ -14,7 +14,7 @@ def cc(arg):
     '''
     Shorthand to convert 'named' colors to rgba format at 60% opacity.
     '''
-    return colorConverter.to_rgba(arg, alpha=0.6)
+    return mcolors.to_rgba(arg, alpha=0.6)
 
 
 def polygon_under_graph(xlist, ylist):

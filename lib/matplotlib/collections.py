@@ -615,7 +615,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
         if c is None:
             c = mpl.rcParams['patch.facecolor']
         self._facecolors_original = c
-        self._facecolors = mcolors.colorConverter.to_rgba_array(c, self._alpha)
+        self._facecolors = mcolors.to_rgba_array(c, self._alpha)
         self.stale = True
 
     def set_facecolors(self, c):
@@ -663,7 +663,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
         if c is None:
             c = mpl.rcParams['patch.edgecolor']
         self._edgecolors_original = c
-        self._edgecolors = mcolors.colorConverter.to_rgba_array(c, self._alpha)
+        self._edgecolors = mcolors.to_rgba_array(c, self._alpha)
         self.stale = True
 
     def set_edgecolors(self, c):
@@ -684,14 +684,14 @@ class Collection(artist.Artist, cm.ScalarMappable):
                 raise TypeError('alpha must be a float or None')
         artist.Artist.set_alpha(self, alpha)
         try:
-            self._facecolors = mcolors.colorConverter.to_rgba_array(
+            self._facecolors = mcolors.to_rgba_array(
                 self._facecolors_original, self._alpha)
         except (AttributeError, TypeError, IndexError):
             pass
         try:
             if (not isinstance(self._edgecolors_original, six.string_types)
                              or self._edgecolors_original != str('face')):
-                self._edgecolors = mcolors.colorConverter.to_rgba_array(
+                self._edgecolors = mcolors.to_rgba_array(
                     self._edgecolors_original, self._alpha)
         except (AttributeError, TypeError, IndexError):
             pass
@@ -1137,7 +1137,7 @@ class LineCollection(Collection):
         if antialiaseds is None:
             antialiaseds = (mpl.rcParams['lines.antialiased'],)
 
-        colors = mcolors.colorConverter.to_rgba_array(colors)
+        colors = mcolors.to_rgba_array(colors)
 
         Collection.__init__(
             self,
