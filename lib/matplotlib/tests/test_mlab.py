@@ -405,8 +405,8 @@ class rec2txt_testcase(CleanupTestCase):
                                      (str('s2'), str, 4)]))
         truth = ('       x   y   s   s2\n'
                  '   1.000   2   foo bing \n'
-                 '   2.000   3   bar blah ')
-        assert_equal(mlab.rec2txt(a), truth)
+                 '   2.000   3   bar blah ').splitlines()
+        assert_equal(mlab.rec2txt(a).splitlines(), truth)
 
 
 class window_testcase(CleanupTestCase):
