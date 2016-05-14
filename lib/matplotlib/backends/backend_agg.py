@@ -568,9 +568,8 @@ class FigureCanvasAgg(FigureCanvasBase):
             # The image is "pasted" onto a white background image to safely
             # handle any transparency
             image = Image.frombuffer('RGBA', size, buf, 'raw', 'RGBA', 0, 1)
-            color = mcolors.colorConverter.to_rgb(
-                rcParams.get('savefig.facecolor', 'white'))
-            color = tuple([int(x * 255.0) for x in color])
+            rgba = mcolors.to_rgba(rcParams.get('savefig.facecolor', 'white'))
+            color = tuple([int(x * 255.0) for x in rgba[:3]])
             background = Image.new('RGB', size, color)
             background.paste(image, image)
             options = restrict_dict(kwargs, ['quality', 'optimize',

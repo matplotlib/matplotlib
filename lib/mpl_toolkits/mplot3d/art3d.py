@@ -389,12 +389,12 @@ class Patch3DCollection(PatchCollection):
 
         fcs = (zalpha(self._facecolor3d, vzs) if self._depthshade else
                self._facecolor3d)
-        fcs = mcolors.colorConverter.to_rgba_array(fcs, self._alpha)
+        fcs = mcolors.to_rgba_array(fcs, self._alpha)
         self.set_facecolors(fcs)
 
         ecs = (zalpha(self._edgecolor3d, vzs) if self._depthshade else
                self._edgecolor3d)
-        ecs = mcolors.colorConverter.to_rgba_array(ecs, self._alpha)
+        ecs = mcolors.to_rgba_array(ecs, self._alpha)
         self.set_edgecolors(ecs)
         PatchCollection.set_offsets(self, list(zip(vxs, vys)))
 
@@ -457,12 +457,12 @@ class Path3DCollection(PathCollection):
 
         fcs = (zalpha(self._facecolor3d, vzs) if self._depthshade else
                self._facecolor3d)
-        fcs = mcolors.colorConverter.to_rgba_array(fcs, self._alpha)
+        fcs = mcolors.to_rgba_array(fcs, self._alpha)
         self.set_facecolors(fcs)
 
         ecs = (zalpha(self._edgecolor3d, vzs) if self._depthshade else
                self._edgecolor3d)
-        ecs = mcolors.colorConverter.to_rgba_array(ecs, self._alpha)
+        ecs = mcolors.to_rgba_array(ecs, self._alpha)
         self.set_edgecolors(ecs)
         PathCollection.set_offsets(self, list(zip(vxs, vys)))
 
@@ -684,12 +684,12 @@ class Poly3DCollection(PolyCollection):
                 raise TypeError('alpha must be a float or None')
         artist.Artist.set_alpha(self, alpha)
         try:
-            self._facecolors = mcolors.colorConverter.to_rgba_array(
+            self._facecolors = mcolors.to_rgba_array(
                 self._facecolors3d, self._alpha)
         except (AttributeError, TypeError, IndexError):
             pass
         try:
-            self._edgecolors = mcolors.colorConverter.to_rgba_array(
+            self._edgecolors = mcolors.to_rgba_array(
                     self._edgecolors3d, self._alpha)
         except (AttributeError, TypeError, IndexError):
             pass
@@ -764,7 +764,7 @@ def get_colors(c, num):
     """Stretch the color argument to provide the required number num"""
 
     if type(c) == type("string"):
-        c = mcolors.colorConverter.to_rgba(c)
+        c = mcolors.to_rgba(c)
 
     if iscolor(c):
         return [c] * num
