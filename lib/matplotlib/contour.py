@@ -1130,7 +1130,7 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
         # add label colors
         cm.ScalarMappable.changed(self)
 
-    def _autolev(self, z, N):
+    def _autolev(self, N):
         """
         Select contour levels to span the data.
 
@@ -1166,12 +1166,12 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
         self._auto = False
         if self.levels is None:
             if len(args) == 0:
-                lev = self._autolev(z, 7)
+                lev = self._autolev(7)
             else:
                 level_arg = args[0]
                 try:
                     if type(level_arg) == int:
-                        lev = self._autolev(z, level_arg)
+                        lev = self._autolev(level_arg)
                     else:
                         lev = np.asarray(level_arg).astype(np.float64)
                 except:
@@ -1531,12 +1531,12 @@ class QuadContourSet(ContourSet):
             raise TypeError("Too many arguments to %s; see help(%s)" %
                             (fn, fn))
         z = ma.masked_invalid(z, copy=False)
-        self.zmax = ma.maximum(z)
-        self.zmin = ma.minimum(z)
+        self.zmax = float(z.max())
+        self.zmin = float(z.min())
         if self.logscale and self.zmin <= 0:
             z = ma.masked_where(z <= 0, z)
             warnings.warn('Log scale: values of z <= 0 have been masked')
-            self.zmin = z.min()
+            self.zmin = float(z.min())
         self._contour_level_args(z, args)
         return (x, y, z)
 
