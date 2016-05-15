@@ -7,13 +7,21 @@ from matplotlib.externals import six
 
 import io
 import os
+import tempfile
+
+try:
+    from unittest.mock import patch
+except ImportError:
+    from mock import patch
+from nose.tools import raises
 
 import numpy as np
-from matplotlib import cm, rcParams
+from matplotlib import checkdep_tex, cm, rcParams
 from matplotlib.backends.backend_pdf import PdfPages
 from matplotlib import pyplot as plt
 from matplotlib.testing.decorators import (image_comparison, knownfailureif,
                                            cleanup)
+from matplotlib import dviread
 
 if 'TRAVIS' not in os.environ:
     @image_comparison(baseline_images=['pdf_use14corefonts'],
@@ -28,6 +36,10 @@ if 'TRAVIS' not in os.environ:
         text = '''A three-line text positioned just above a blue line
     and containing some French characters and the euro symbol:
     "Merci pépé pour les 10 €"'''
+
+needs_tex = knownfailureif(
+    not checkdep_tex(),
+    "This test needs a TeX installation")
 
 
 @cleanup
@@ -132,3 +144,19 @@ def test_grayscale_alpha():
     ax.imshow(dd, interpolation='none', cmap='gray_r')
     ax.set_xticks([])
     ax.set_yticks([])
+
+
+@cleanup
+@needs_tex
+@raises(ValueError)
+@patch('matplotlib.dviread.PsfontsMap.__getitem__')
+def test_missing_psfont(mock):
+    """An error is raised if a TeX font lacks a Type-1 equivalent"""
+    psfont = dviread.PsFont(texname='texfont', psname='Some Font',
+                            effects=None, encoding=None, filename=None)
+    mock.configure_mock(return_value=psfont)
+    rcParams['text.usetex'] = True
+    fig, ax = plt.subplots()
+    ax.text(0.5, 0.5, 'hello')
+    with tempfile.TemporaryFile() as tmpfile:
+        fig.savefig(tmpfile, format='pdf')

@@ -1876,6 +1876,12 @@ class RendererPdf(RendererBase):
                 pdfname = self.file.fontName(dvifont.texname)
                 if dvifont.texname not in self.file.dviFontInfo:
                     psfont = self.tex_font_mapping(dvifont.texname)
+                    if psfont.filename is None:
+                        self.file.broken = True
+                        raise ValueError(
+                            ("No usable font file found for %s (%s). "
+                             "The font may lack a Type-1 version.")
+                            % (psfont.psname, dvifont.texname))
                     self.file.dviFontInfo[dvifont.texname] = Bunch(
                         fontfile=psfont.filename,
                         basefont=psfont.psname,
