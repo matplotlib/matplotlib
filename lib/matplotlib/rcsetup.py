@@ -1102,8 +1102,6 @@ defaultParams = {
 
     #legend properties
     'legend.fancybox': [True, validate_bool],
-
-    # at some point, legend.loc should be changed to 'best'
     'legend.loc': ['best', validate_legend_loc],
 
     # this option is internally ignored - it never served any useful purpose
@@ -1113,12 +1111,12 @@ defaultParams = {
     'legend.numpoints': [1, validate_int],
     # the number of points in the legend line for scatter
     'legend.scatterpoints': [3, validate_int],
-    'legend.fontsize': ['large', validate_fontsize],
+    'legend.fontsize': ['small', validate_fontsize],
      # the relative size of legend markers vs. original
     'legend.markerscale': [1.0, validate_float],
     'legend.shadow': [False, validate_bool],
      # whether or not to draw a frame around legend
-    'legend.frameon': [True, validate_bool],
+    'legend.frameon': [False, validate_bool],
      # alpha value of the legend frame
     'legend.framealpha': [None, validate_float_or_None],
 
