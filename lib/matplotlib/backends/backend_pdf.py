@@ -552,9 +552,10 @@ class PdfFile(object):
         self.writeObject(annotObject, theNote)
         self.pageAnnotations.append(annotObject)
 
-    def close(self):
+    def finalize(self):
+        "Write out the various deferred objects and the pdf end matter."
+
         self.endStream()
-        # Write out the various deferred objects
         self.writeFonts()
         self.writeObject(self.alphaStateObject,
                          dict([(val[0], val[1])
@@ -582,12 +583,16 @@ class PdfFile(object):
         # Finalize the file
         self.writeXref()
         self.writeTrailer()
+
+    def close(self):
+        "Flush all buffers and free all resources."
+
+        self.endStream()
         if self.passed_in_file_object:
             self.fh.flush()
-        elif self.original_file_like is not None:
-            self.original_file_like.write(self.fh.getvalue())
-            self.fh.close()
         else:
+            if self.original_file_like is not None:
+                self.original_file_like.write(self.fh.getvalue())
             self.fh.close()
 
     def write(self, data):
@@ -2438,6 +2443,7 @@ class PdfPages(object):
         Finalize this object, making the underlying file a complete
         PDF file.
         """
+        self._file.finalize()
         self._file.close()
         if (self.get_pagecount() == 0 and not self.keep_empty and
                 not self._file.passed_in_file_object):
@@ -2534,6 +2540,7 @@ class FigureCanvasPdf(FigureCanvasBase):
                 bbox_inches_restore=_bbox_inches_restore)
             self.figure.draw(renderer)
             renderer.finalize()
+            file.finalize()
         finally:
             if isinstance(filename, PdfPages):  # finish off this page
                 file.endStream()
