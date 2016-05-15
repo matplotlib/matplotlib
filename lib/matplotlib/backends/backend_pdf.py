@@ -182,8 +182,8 @@ def pdfRepr(obj):
     # represented as Name objects.
     elif isinstance(obj, dict):
         r = [b"<<"]
-        r.extend([Name(key).pdfRepr() + b" " + pdfRepr(val)
-                  for key, val in six.iteritems(obj)])
+        r.extend([Name(key).pdfRepr() + b" " + pdfRepr(obj[key])
+                  for key in sorted(six.iterkeys(obj))])
         r.append(b">>")
         return fill(r)
 
