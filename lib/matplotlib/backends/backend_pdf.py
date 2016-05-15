@@ -18,6 +18,7 @@ import time
 import warnings
 import zlib
 from io import BytesIO
+from functools import total_ordering
 
 import numpy as np
 from matplotlib.externals.six import unichr
@@ -183,7 +184,7 @@ def pdfRepr(obj):
     elif isinstance(obj, dict):
         r = [b"<<"]
         r.extend([Name(key).pdfRepr() + b" " + pdfRepr(obj[key])
-                  for key in sorted(six.iterkeys(obj))])
+                  for key in sorted(obj)])
         r.append(b">>")
         return fill(r)
 
@@ -243,6 +244,7 @@ class Reference(object):
         write(b"\nendobj\n")
 
 
+@total_ordering
 class Name(object):
     """PDF name object."""
     __slots__ = ('name',)
@@ -261,6 +263,15 @@ class Name(object):
 
     def __str__(self):
         return '/' + six.text_type(self.name)
+
+    def __eq__(self, other):
+        return isinstance(other, Name) and self.name == other.name
+
+    def __lt__(self, other):
+        return isinstance(other, Name) and self.name < other.name
+
+    def __hash__(self):
+        return hash(self.name)
 
     @staticmethod
     def hexify(match):
