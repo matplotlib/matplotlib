@@ -297,11 +297,10 @@ class _process_plot_var_args(object):
 
     def _makeline(self, x, y, kw, kwargs):
         kw = kw.copy()  # Don't modify the original kw.
-        kwargs = kwargs.copy()
-        default_dict = self._getdefaults(None, kw, kwargs)
-        self._setdefaults(default_dict, kw, kwargs)
+        kw.update(kwargs)
+        default_dict = self._getdefaults(None, kw)
+        self._setdefaults(default_dict, kw)
         seg = mlines.Line2D(x, y, **kw)
-        self.set_lineprops(seg, **kwargs)
         return seg
 
     def _makefill(self, x, y, kw, kwargs):
