@@ -35,10 +35,11 @@ except ImportError:
     from base64 import encodestring as encodebytes
 import contextlib
 import tempfile
+import warnings
 from matplotlib.cbook import iterable, is_string_like
 from matplotlib.compat import subprocess
 from matplotlib import verbose
-from matplotlib import rcParams, rcParamsDefault
+from matplotlib import rcParams, rcParamsDefault, rc_context
 
 # Process creation flag for subprocess to prevent it raising a terminal
 # window. See for example:
@@ -109,6 +110,11 @@ class MovieWriter(object):
     frame_format: string
         The format used in writing frame data, defaults to 'rgba'
     '''
+
+    # Specifies whether the size of all frames need to be identical
+    # i.e. whether we can use savefig.bbox = 'tight'
+    frame_size_can_vary = False
+
     def __init__(self, fps=5, codec=None, bitrate=None, extra_args=None,
                  metadata=None):
         '''
@@ -127,8 +133,8 @@ class MovieWriter(object):
             automatically by the underlying utility.
         extra_args: list of strings or None
             A list of extra string arguments to be passed to the underlying
-            movie utiltiy. The default is None, which passes the additional
-            argurments in the 'animation.extra_args' rcParam.
+            movie utility. The default is None, which passes the additional
+            arguments in the 'animation.extra_args' rcParam.
         metadata: dict of string:string or None
             A dictionary of keys and values for metadata to include in the
             output file. Some keys that may be of use include:
@@ -283,6 +289,11 @@ class MovieWriter(object):
 
 class FileMovieWriter(MovieWriter):
     '`MovieWriter` subclass that handles writing to a file.'
+
+    # In general, if frames are writen to files on disk, it's not important
+    # that they all be identically sized
+    frame_size_can_vary = True
+
     def __init__(self, *args, **kwargs):
         MovieWriter.__init__(self, *args, **kwargs)
         self.frame_format = rcParams['animation.frame_format']
@@ -409,8 +420,6 @@ class FFMpegBase(object):
 
     @property
     def output_args(self):
-        # The %dk adds 'k' as a suffix so that ffmpeg treats our bitrate as in
-        # kbps
         args = ['-vcodec', self.codec]
         # For h264, the default format is yuv444p, which is not compatible
         # with quicktime (and others). Specifying yuv420p fixes playback on
@@ -418,6 +427,8 @@ class FFMpegBase(object):
         # OSX). Also fixes internet explorer. This is as of 2015/10/29.
         if self.codec == 'h264' and '-pix_fmt' not in self.extra_args:
             args.extend(['-pix_fmt', 'yuv420p'])
+        # The %dk adds 'k' as a suffix so that ffmpeg treats our bitrate as in
+        # kbps
         if self.bitrate > 0:
             args.extend(['-b', '%dk' % self.bitrate])
         if self.extra_args:
@@ -691,8 +702,8 @@ class Animation(object):
         `animation.bitrate`.
 
         *extra_args* is a list of extra string arguments to be passed to the
-        underlying movie utiltiy. The default is None, which passes the
-        additional argurments in the 'animation.extra_args' rcParam.
+        underlying movie utility. The default is None, which passes the
+        additional arguments in the 'animation.extra_args' rcParam.
 
         *metadata* is a dictionary of keys and values for metadata to include
         in the output file. Some keys that may be of use include:
@@ -711,29 +722,6 @@ class Animation(object):
         '''
         if savefig_kwargs is None:
             savefig_kwargs = {}
-
-        # FIXME: Using 'bbox_inches' doesn't currently work with
-        # writers that pipe the data to the command because this
-        # requires a fixed frame size (see Ryan May's reply in this
-        # thread: [1]). Thus we drop the 'bbox_inches' argument if it
-        # exists in savefig_kwargs.
-        #
-        # [1] (http://matplotlib.1069221.n5.nabble.com/
-        # Animation-class-let-save-accept-kwargs-which-
-        # are-passed-on-to-savefig-td39627.html)
-        #
-        if 'bbox_inches' in savefig_kwargs:
-            if not (writer in ['ffmpeg_file', 'mencoder_file'] or
-                    isinstance(writer,
-                               (FFMpegFileWriter, MencoderFileWriter))):
-                print("Warning: discarding the 'bbox_inches' argument in "
-                      "'savefig_kwargs' as it is only currently supported "
-                      "with the writers 'ffmpeg_file' and 'mencoder_file' "
-                      "(writer used: "
-                      "'{0}').".format(
-                          writer if isinstance(writer, six.string_types)
-                          else writer.__class__.__name__))
-                savefig_kwargs.pop('bbox_inches')
 
         # Need to disconnect the first draw callback, since we'll be doing
         # draws. Otherwise, we'll end up starting the animation.
@@ -778,7 +766,6 @@ class Animation(object):
                                          extra_args=extra_args,
                                          metadata=metadata)
             else:
-                import warnings
                 warnings.warn("MovieWriter %s unavailable" % writer)
 
                 try:
@@ -792,22 +779,48 @@ class Animation(object):
 
         verbose.report('Animation.save using %s' % type(writer),
                        level='helpful')
+
+        # FIXME: Using 'bbox_inches' doesn't currently work with
+        # writers that pipe the data to the command because this
+        # requires a fixed frame size (see Ryan May's reply in this
+        # thread: [1]). Thus we drop the 'bbox_inches' argument if it
+        # exists in savefig_kwargs.
+        #
+        # [1] (http://matplotlib.1069221.n5.nabble.com/
+        # Animation-class-let-save-accept-kwargs-which-
+        # are-passed-on-to-savefig-td39627.html)
+        #
+        if 'bbox_inches' in savefig_kwargs and not writer.frame_size_can_vary:
+            warnings.warn("Warning: discarding the 'bbox_inches' argument in "
+                          "'savefig_kwargs' as it not supported by "
+                          "{0}).".format(writer.__class__.__name__))
+            savefig_kwargs.pop('bbox_inches')
+
         # Create a new sequence of frames for saved data. This is different
         # from new_frame_seq() to give the ability to save 'live' generated
         # frame information to be saved later.
         # TODO: Right now, after closing the figure, saving a movie won't work
         # since GUI widgets are gone. Either need to remove extra code to
-        # allow for this non-existant use case or find a way to make it work.
-        with writer.saving(self._fig, filename, dpi):
-            for anim in all_anim:
-                # Clear the initial frame
-                anim._init_draw()
-            for data in zip(*[a.new_saved_frame_seq()
-                              for a in all_anim]):
-                for anim, d in zip(all_anim, data):
-                    # TODO: Need to see if turning off blit is really necessary
-                    anim._draw_next_frame(d, blit=False)
-                writer.grab_frame(**savefig_kwargs)
+        # allow for this non-existent use case or find a way to make it work.
+        with rc_context():
+            # See above about bbox_inches savefig kwarg
+            if (not writer.frame_size_can_vary and
+                    rcParams['savefig.bbox'] == 'tight'):
+                verbose.report("Disabling savefig.bbox = 'tight', as it is "
+                               "not supported by "
+                               "{0}.".format(writer.__class__.__name__),
+                               level='helpful')
+                rcParams['savefig.bbox'] = None
+            with writer.saving(self._fig, filename, dpi):
+                for anim in all_anim:
+                    # Clear the initial frame
+                    anim._init_draw()
+                for data in zip(*[a.new_saved_frame_seq()
+                                  for a in all_anim]):
+                    for anim, d in zip(all_anim, data):
+                        # TODO: See if turning off blit is really necessary
+                        anim._draw_next_frame(d, blit=False)
+                    writer.grab_frame(**savefig_kwargs)
 
         # Reconnect signal for first draw if necessary
         if reconnect_first_draw:
@@ -935,7 +948,7 @@ class Animation(object):
         directly into the HTML5 video tag. This respects the rc parameters
         for the writer as well as the bitrate. This also makes use of the
         ``interval`` to control the speed, and uses the ``repeat``
-        paramter to decide whether to loop.
+        parameter to decide whether to loop.
         '''
         VIDEO_TAG = r'''<video {size} {options}>
   <source type="video/mp4" src="data:video/mp4;base64,{video}">
