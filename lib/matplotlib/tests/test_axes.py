@@ -1393,6 +1393,7 @@ def test_stackplot_baseline():
         return a
 
     d = layers(3, 100)
+    d[50,:] = 0  # test for fixed weighted wiggle (issue #6313)
 
     fig = plt.figure()
 
