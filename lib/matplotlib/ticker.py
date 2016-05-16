@@ -551,9 +551,9 @@ class ScalarFormatter(Formatter):
             if np.absolute(ave_oom - range_oom) >= 3:  # four sig-figs
                 p10 = 10 ** range_oom
                 if ave_loc < 0:
-                    self.offset = (math.ceil(np.max(locs) / p10) * p10)
+                    self.offset = (np.ceil(np.max(locs) / p10) * p10)
                 else:
-                    self.offset = (math.floor(np.min(locs) / p10) * p10)
+                    self.offset = (np.floor(np.min(locs) / p10) * p10)
             else:
                 self.offset = 0
 
