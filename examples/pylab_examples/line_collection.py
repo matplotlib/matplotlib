@@ -1,6 +1,6 @@
 import matplotlib.pyplot as plt
 from matplotlib.collections import LineCollection
-from matplotlib.colors import colorConverter
+from matplotlib import colors as mcolors
 
 import numpy as np
 
@@ -30,7 +30,7 @@ ax.set_ylim(ys.min(), ys.max())
 #          where onoffseq is an even length tuple of on and off ink in points.
 #          If linestyle is omitted, 'solid' is used
 # See matplotlib.collections.LineCollection for more information
-colors = [colorConverter.to_rgba(c)
+colors = [mcolors.to_rgba(c)
           for c in plt.rcParams['axes.prop_cycle'].by_key()['color']]
 
 line_segments = LineCollection(segs, linewidths=(0.5, 1, 1.5, 2),

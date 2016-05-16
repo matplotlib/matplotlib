@@ -1,7 +1,7 @@
 from mpl_toolkits.mplot3d import Axes3D
 from matplotlib.collections import PolyCollection
-from matplotlib.colors import colorConverter
 import matplotlib.pyplot as plt
+from matplotlib import colors as mcolors
 import numpy as np
 
 
@@ -10,7 +10,7 @@ ax = fig.gca(projection='3d')
 
 
 def cc(arg):
-    return colorConverter.to_rgba(arg, alpha=0.6)
+    return mcolors.to_rgba(arg, alpha=0.6)
 
 xs = np.arange(0, 10, 0.4)
 verts = []

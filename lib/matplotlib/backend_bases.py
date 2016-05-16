@@ -1022,11 +1022,11 @@ class GraphicsContextBase(object):
         if self._forced_alpha and isRGBA:
             self._rgb = fg[:3] + (self._alpha,)
         elif self._forced_alpha:
-            self._rgb = colors.colorConverter.to_rgba(fg, self._alpha)
+            self._rgb = colors.to_rgba(fg, self._alpha)
         elif isRGBA:
             self._rgb = fg
         else:
-            self._rgb = colors.colorConverter.to_rgba(fg)
+            self._rgb = colors.to_rgba(fg)
 
     def set_graylevel(self, frac):
         """

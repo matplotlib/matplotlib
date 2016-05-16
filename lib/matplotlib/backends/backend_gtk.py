@@ -35,15 +35,11 @@ from matplotlib.backend_bases import ShowBase
 
 from matplotlib.backends.backend_gdk import RendererGDK, FigureCanvasGDK
 from matplotlib.cbook import is_string_like, is_writable_file_like
-from matplotlib.colors import colorConverter
 from matplotlib.figure import Figure
 from matplotlib.widgets import SubplotTool
 
-from matplotlib import lines
-from matplotlib import markers
-from matplotlib import cbook
-from matplotlib import verbose
-from matplotlib import rcParams
+from matplotlib import (
+    cbook, colors as mcolors, lines, markers, rcParams, verbose)
 
 backend_version = "%d.%d.%d" % gtk.pygtk_version
 
@@ -1003,13 +999,13 @@ class DialogLineprops(object):
         if marker is None: marker = 'None'
         self.cbox_markers.set_active(self.markerd[marker])
 
-        r,g,b = colorConverter.to_rgb(line.get_color())
-        color = gtk.gdk.Color(*[int(val*65535) for val in (r,g,b)])
+        rgba = mcolors.to_rgba(line.get_color())
+        color = gtk.gdk.Color(*[int(val*65535) for val in rgba[:3]])
         button = self.wtree.get_widget('colorbutton_linestyle')
         button.set_color(color)
 
-        r,g,b = colorConverter.to_rgb(line.get_markerfacecolor())
-        color = gtk.gdk.Color(*[int(val*65535) for val in (r,g,b)])
+        rgba = mcolors.to_rgba(line.get_markerfacecolor())
+        color = gtk.gdk.Color(*[int(val*65535) for val in rgba[:3]])
         button = self.wtree.get_widget('colorbutton_markerface')
         button.set_color(color)
         self._updateson = True
