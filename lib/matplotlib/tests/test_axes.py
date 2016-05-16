@@ -4386,6 +4386,25 @@ def test_axis_set_tick_params_labelsize_labelcolor():
     assert axis_1.yaxis.majorTicks[0]._labelcolor == 'red'
 
 
+@cleanup
+def test_none_kwargs():
+    fig, ax = plt.subplots()
+    ln, = ax.plot(range(32), linestyle=None)
+    assert ln.get_linestyle() == '-'
+
+
+@cleanup
+def test_ls_ds_conflict():
+    assert_raises(ValueError, plt.plot, range(32),
+                  linestyle='steps-pre:', drawstyle='steps-post')
+
+
+@cleanup
+def test_ls_ds_conflict():
+    assert_raises(ValueError, plt.plot, range(32),
+                  linestyle='steps-pre:', drawstyle='steps-post')
+
+
 @image_comparison(baseline_images=['date_timezone_x'], extensions=['png'])
 def test_date_timezone_x():
     # Tests issue 5575
@@ -4456,6 +4475,13 @@ def test_axisbelow():
         for spine in ax.spines.values():
             spine.set_visible(False)
         ax.set_axisbelow(setting)
+
+
+@cleanup
+def test_large_offset():
+    fig, ax = plt.subplots()
+    ax.plot((1 + np.array([0, 1.e-12])) * 1.e27)
+    fig.canvas.draw()
 
 
 if __name__ == '__main__':

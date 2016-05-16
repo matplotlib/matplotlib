@@ -694,7 +694,7 @@ class ScalarFormatter(Formatter):
         # equal up to that precision?
         # Note: Internally using oom instead of 10 ** oom avoids some numerical
         # accuracy issues.
-        oom_max = math.ceil(math.log10(abs_max))
+        oom_max = np.ceil(math.log10(abs_max))
         oom = 1 + next(oom for oom in itertools.count(oom_max, -1)
                        if abs_min // 10 ** oom != abs_max // 10 ** oom)
         if (abs_max - abs_min) / 10 ** oom <= 1e-2:
