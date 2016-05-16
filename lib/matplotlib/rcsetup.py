@@ -1112,7 +1112,8 @@ defaultParams = {
     'date.autoformatter.day': ['%Y-%m-%d', six.text_type],
     'date.autoformatter.hour': ['%H:%M', six.text_type],
     'date.autoformatter.minute': ['%H:%M:%S', six.text_type],
-    'date.autoformatter.second': ['%H:%M:%S.%f', six.text_type],
+    'date.autoformatter.second': ['%H:%M:%S', six.text_type],
+    'date.autoformatter.microsecond': ['%H:%M:%S.%f', six.text_type],
 
     #legend properties
     'legend.fancybox': [True, validate_bool],

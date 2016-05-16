@@ -11,7 +11,8 @@ import numpy as np
 
 from matplotlib.testing.decorators import (image_comparison,
                                            knownfailureif, cleanup)
-from matplotlib.image import BboxImage, imread, NonUniformImage
+from matplotlib.image import (BboxImage, imread, NonUniformImage,
+                              AxesImage, FigureImage, PcolorImage)
 from matplotlib.transforms import Bbox, Affine2D, TransformedBbox
 from matplotlib import rcParams, rc_context
 from matplotlib import patches
@@ -507,6 +508,50 @@ def test_jpeg_alpha():
     # or anything else
     print("corner pixel: ", image.getpixel((0, 0)))
     assert image.getpixel((0, 0)) == (254, 0, 0)
+
+
+@cleanup
+def test_nonuniformimage_setdata():
+    ax = plt.gca()
+    im = NonUniformImage(ax)
+    x = np.arange(3, dtype=np.float64)
+    y = np.arange(4, dtype=np.float64)
+    z = np.arange(12, dtype=np.float64).reshape((4, 3))
+    im.set_data(x, y, z)
+    x[0] = y[0] = z[0, 0] = 9.9
+    assert im._A[0, 0] == im._Ax[0] == im._Ay[0] == 0, 'value changed'
+
+
+@cleanup
+def test_axesimage_setdata():
+    ax = plt.gca()
+    im = AxesImage(ax)
+    z = np.arange(12, dtype=np.float64).reshape((4, 3))
+    im.set_data(z)
+    z[0, 0] = 9.9
+    assert im._A[0, 0] == 0, 'value changed'
+
+
+@cleanup
+def test_figureimage_setdata():
+    fig = plt.gcf()
+    im = FigureImage(fig)
+    z = np.arange(12, dtype=np.float64).reshape((4, 3))
+    im.set_data(z)
+    z[0, 0] = 9.9
+    assert im._A[0, 0] == 0, 'value changed'
+
+
+@cleanup
+def test_pcolorimage_setdata():
+    ax = plt.gca()
+    im = PcolorImage(ax)
+    x = np.arange(3, dtype=np.float64)
+    y = np.arange(4, dtype=np.float64)
+    z = np.arange(6, dtype=np.float64).reshape((3, 2))
+    im.set_data(x, y, z)
+    x[0] = y[0] = z[0, 0] = 9.9
+    assert im._A[0, 0] == im._Ax[0] == im._Ay[0] == 0, 'value changed'
 
 
 @cleanup

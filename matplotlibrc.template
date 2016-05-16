@@ -355,7 +355,8 @@ backend      : $TEMPLATE_BACKEND
 # date.autoformatter.day      : %Y-%m-%d
 # date.autoformatter.hour     : %H:%M
 # date.autoformatter.minute   : %H:%M:%S
-# date.autoformatter.second   : %H:%M:%S.%f
+# date.autoformatter.second   : %H:%M:%S
+# date.autoformatter.microsecond   : %H:%M:%S.%f
 
 ### TICKS
 # see http://matplotlib.org/api/axis_api.html#matplotlib.axis.Tick
