@@ -634,7 +634,9 @@ class AutoDateFormatter(ticker.Formatter):
             1.0: rcParams['date.autoformat.day'],
             1. / HOURS_PER_DAY: rcParams['date.autoformat.hour'],
             1. / (MINUTES_PER_DAY): rcParams['date.autoformat.minute'],
-            1. / (SEC_PER_DAY): rcParams['date.autoformat.second']}
+            1. / (SEC_PER_DAY): rcParams['date.autoformat.second'],
+            1. / (MUSECONDS_PER_DAY): rcParams['date.autoformat.microsecond'],
+            }
 
 
     The algorithm picks the key in the dictionary that is >= the
@@ -693,7 +695,9 @@ class AutoDateFormatter(ticker.Formatter):
                        1. / (MINUTES_PER_DAY):
                            rcParams['date.autoformatter.minute'],
                        1. / (SEC_PER_DAY):
-                           rcParams['date.autoformatter.second']}
+                           rcParams['date.autoformatter.second'],
+                       1. / (MUSECONDS_PER_DAY):
+                           rcParams['date.autoformatter.microsecond']}
 
     def __call__(self, x, pos=None):
         locator_unit_scale = float(self._locator._get_unit())
