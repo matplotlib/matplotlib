@@ -120,8 +120,12 @@ def figure_edit(axes, parent=None):
         # Set / General
         title, xmin, xmax, xlabel, xscale, ymin, ymax, ylabel, yscale, \
             generate_legend = general
-        axes.set_xscale(xscale)
-        axes.set_yscale(yscale)
+
+        if axes.get_xscale() != xscale:
+            axes.set_xscale(xscale)
+        if axes.get_yscale() != yscale:
+            axes.set_yscale(yscale)
+
         axes.set_title(title)
         axes.set_xlim(xmin, xmax)
         axes.set_xlabel(xlabel)
