@@ -1800,11 +1800,11 @@ def test_boxplot_sym():
 def test_boxplot_autorange_whiskers():
     x = np.ones(140)
     x = np.hstack([0, x, 2])
-    
+
     fig1, ax1 = plt.subplots()
     ax1.boxplot([x, x], bootstrap=10000, notch=1)
     ax1.set_ylim((-5, 5))
-    
+
     fig2, ax2 = plt.subplots()
     ax2.boxplot([x, x], bootstrap=10000, notch=1, autorange=True)
     ax2.set_ylim((-5, 5))
@@ -4310,6 +4310,13 @@ def test_date_timezone_x_and_y():
     # Different Timezone
     plt.subplot(2, 1, 2)
     plt.plot_date(time_index, time_index, tz='US/Eastern', ydate=True)
+
+
+@cleanup
+def test_large_offset():
+    fig, ax = plt.subplots()
+    ax.plot((1 + np.array([0, 1.e-12])) * 1.e27)
+    fig.canvas.draw()
 
 
 if __name__ == '__main__':
