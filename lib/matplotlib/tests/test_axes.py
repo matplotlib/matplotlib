@@ -4261,6 +4261,25 @@ def test_axis_set_tick_params_labelsize_labelcolor():
     assert axis_1.yaxis.majorTicks[0]._labelcolor == 'red'
 
 
+@cleanup
+def test_none_kwargs():
+    fig, ax = plt.subplots()
+    ln, = ax.plot(range(32), linestyle=None)
+    assert ln.get_linestyle() == '-'
+
+
+@cleanup
+def test_ls_ds_conflict():
+    assert_raises(ValueError, plt.plot, range(32),
+                  linestyle='steps-pre:', drawstyle='steps-post')
+
+
+@cleanup
+def test_ls_ds_conflict():
+    assert_raises(ValueError, plt.plot, range(32),
+                  linestyle='steps-pre:', drawstyle='steps-post')
+
+
 @image_comparison(baseline_images=['date_timezone_x'], extensions=['png'])
 def test_date_timezone_x():
     # Tests issue 5575
