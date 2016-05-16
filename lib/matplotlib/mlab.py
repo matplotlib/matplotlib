@@ -3188,9 +3188,7 @@ def rec2txt(r, header=None, padding=3, precision=3, fields=None):
         ntype = column.dtype
 
         if np.issubdtype(ntype, str) or np.issubdtype(ntype, bytes):
-            # The division below handles unicode stored in array, which could
-            # have 4 bytes per char
-            length = max(len(colname), column.itemsize // column[0].itemsize)
+            length = max(len(colname), len(column[0]))
             return 0, length+padding, "%s"  # left justify
 
         if np.issubdtype(ntype, np.int):
