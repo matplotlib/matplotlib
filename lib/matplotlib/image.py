@@ -513,7 +513,7 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
         if hasattr(A, 'getpixel'):
             self._A = pil_to_array(A)
         else:
-            self._A = cbook.safe_masked_invalid(A)
+            self._A = cbook.safe_masked_invalid(A, copy=True)
 
         if (self._A.dtype != np.uint8 and
                 not np.can_cast(self._A.dtype, np.float)):
@@ -822,9 +822,9 @@ class NonUniformImage(AxesImage):
             colormapped, or a (M,N,3) RGB array, or a (M,N,4) RGBA
             array.
         """
-        x = np.asarray(x, np.float32)
-        y = np.asarray(y, np.float32)
-        A = cbook.safe_masked_invalid(A)
+        x = np.array(x, np.float32)
+        y = np.array(y, np.float32)
+        A = cbook.safe_masked_invalid(A, copy=True)
         if len(x.shape) != 1 or len(y.shape) != 1\
            or A.shape[0:2] != (y.shape[0], x.shape[0]):
             raise TypeError("Axes don't match array shape")
@@ -899,7 +899,8 @@ class PcolorImage(AxesImage):
         """
         super(PcolorImage, self).__init__(ax, norm=norm, cmap=cmap)
         self.update(kwargs)
-        self.set_data(x, y, A)
+        if A is not None:
+            self.set_data(x, y, A)
 
     def make_image(self, renderer, magnification=1.0, unsampled=False):
         if self._A is None:
@@ -934,15 +935,15 @@ class PcolorImage(AxesImage):
         return False
 
     def set_data(self, x, y, A):
-        A = cbook.safe_masked_invalid(A)
+        A = cbook.safe_masked_invalid(A, copy=True)
         if x is None:
             x = np.arange(0, A.shape[1]+1, dtype=np.float64)
         else:
-            x = np.asarray(x, np.float64).ravel()
+            x = np.array(x, np.float64).ravel()
         if y is None:
             y = np.arange(0, A.shape[0]+1, dtype=np.float64)
         else:
-            y = np.asarray(y, np.float64).ravel()
+            y = np.array(y, np.float64).ravel()
 
         if A.shape[:2] != (y.size-1, x.size-1):
             raise ValueError(
@@ -1015,6 +1016,12 @@ class FigureImage(_ImageBase):
         return self._make_image(
             self._A, bbox, bbox, clip, magnification=magnification,
             unsampled=unsampled, round_to_pixel_border=False)
+
+    def set_data(self, A):
+        """Set the image array."""
+        cm.ScalarMappable.set_array(self,
+                                    cbook.safe_masked_invalid(A, copy=True))
+        self.stale = True
 
 
 class BboxImage(_ImageBase):
