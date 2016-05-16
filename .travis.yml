@@ -76,17 +76,14 @@ install:
     pip install --upgrade pip
     pip install --upgrade wheel
     pip install --upgrade setuptools
-  - |
-    # Install dependencies
-    if [ -z "$PRE" ]; then
-        # Install only from travis wheelhouse
-        wheelhouse_pip_install $NUMPY $PANDAS;
+  # Install only from travis wheelhouse
+  - if [ -z "$PRE" ]; then
+        wheelhouse_pip_install python-dateutil $NUMPY $PANDAS pyparsing!=2.1.2 pillow sphinx!=1.3.0;
     else
-        # Fall back to pypi for non suported python versions
-        pip install $PRE $NUMPY $PANDAS;
+        pip install $PRE python-dateutil $NUMPY pyparsing!=2.1.2 pillow sphinx!=1.3.0;
     fi
     # Always install from pypi
-    pip install $PRE pep8 cycler coveralls coverage python-dateutil pyparsing!=2.0.4
+    pip install $PRE pep8 cycler coveralls coverage
     pip install pillow sphinx!=1.3.0 $MOCK numpydoc ipython colorspacious
     # Install nose from a build which has partial
     # support for python36 and suport for coverage output suppressing

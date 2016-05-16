@@ -1775,6 +1775,7 @@ class LogLocator(Locator):
         """
         self.base(base)
         self.subs(subs)
+        # this needs to be validated > 1 with traitlets
         self.numticks = numticks
         self.numdecs = numdecs
 
@@ -1847,6 +1848,9 @@ class LogLocator(Locator):
             subs = self._subs
 
         stride = 1
+        if not self.numticks > 1:
+            raise RuntimeError('The number of ticks must be greater than 1 '
+                               'for LogLocator.')
         while numdec / stride + 1 > self.numticks:
             stride += 1
 
