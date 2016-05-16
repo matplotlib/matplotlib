@@ -3835,11 +3835,18 @@ class Axes(_AxesBase):
                 edgecolors = co
             if facecolors is None:
                 facecolors = co
+            if c is not None:
+                raise ValueError("Supply a 'c' kwarg or a 'color' kwarg"
+                                 " but not both; they differ but"
+                                 " their functionalities overlap.")
         if c is None:
             if facecolors is not None:
                 c = facecolors
             else:
                 c = 'b'  # The original default
+            c_none = True
+        else:
+            c_none = False
 
         self._process_unit_info(xdata=x, ydata=y, kwargs=kwargs)
         x = self.convert_xunits(x)
@@ -3858,16 +3865,19 @@ class Axes(_AxesBase):
         # c is an array for mapping.  The potential ambiguity
         # with a sequence of 3 or 4 numbers is resolved in
         # favor of mapping, not rgb or rgba.
-        try:
-            c_array = np.asanyarray(c, dtype=float)
-            if c_array.size == x.size:
-                c = np.ma.ravel(c_array)
-            else:
-                # Wrong size; it must not be intended for mapping.
-                c_array = None
-        except ValueError:
-            # Failed to make a floating-point array; c must be color specs.
+        if c_none or co is not None:
             c_array = None
+        else:
+            try:
+                c_array = np.asanyarray(c, dtype=float)
+                if c_array.size == x.size:
+                    c = np.ma.ravel(c_array)
+                else:
+                    # Wrong size; it must not be intended for mapping.
+                    c_array = None
+            except ValueError:
+                # Failed to make a floating-point array; c must be color specs.
+                c_array = None
 
         if c_array is None:
             colors = c     # must be acceptable as PathCollection facecolors
