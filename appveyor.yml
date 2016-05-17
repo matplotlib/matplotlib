@@ -89,6 +89,7 @@ test_script:
   - '%CMD_IN_ENV% python setup.py develop'
   # tests
   - python tests.py
+  # remove to get around libpng issue?
   - python visual_tests.py
 
 after_test:
@@ -108,7 +109,7 @@ after_test:
   - cmd: path
   - cmd: where python
   - cmd: '%CMD_IN_ENV% conda config --get channels'
-  - cmd: '%CMD_IN_ENV% conda build .\ci\conda_recipe'
+  # - cmd: '%CMD_IN_ENV% conda build .\ci\conda_recipe'
 
   # Move the conda package into the dist directory, to register it
   # as an "artifact" for Appveyor.
