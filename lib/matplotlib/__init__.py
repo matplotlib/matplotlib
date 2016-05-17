@@ -861,7 +861,7 @@ _deprecated_map = {
 _deprecated_ignore_map = {
     }
 
-_obsolete_set = set(['tk.pythoninspect', ])
+_obsolete_set = set(['tk.pythoninspect', 'legend.isaxes'])
 _all_deprecated = set(chain(_deprecated_ignore_map,
                             _deprecated_map, _obsolete_set))
 
@@ -880,6 +880,8 @@ class RcParams(dict):
                     if key not in _all_deprecated)
     msg_depr = "%s is deprecated and replaced with %s; please use the latter."
     msg_depr_ignore = "%s is deprecated and ignored. Use %s"
+    msg_obsolete = ("%s is obsolete. Please remove it from your matplotlibrc "
+                    "and/or style files.")
 
     # validate values on the way in
     def __init__(self, *args, **kwargs):
@@ -896,6 +898,9 @@ class RcParams(dict):
             elif key in _deprecated_ignore_map:
                 alt = _deprecated_ignore_map[key]
                 warnings.warn(self.msg_depr_ignore % (key, alt))
+                return
+            elif key in _obsolete_set:
+                warnings.warn(self.msg_obsolete % (key,))
                 return
             try:
                 cval = self.validate[key](val)
@@ -917,6 +922,10 @@ See rcParams.keys() for a list of valid parameters.' % (key,))
             alt = _deprecated_ignore_map[key]
             warnings.warn(self.msg_depr_ignore % (key, alt))
             key = alt
+
+        elif key in _obsolete_set:
+            warnings.warn(self.msg_obsolete % (key,))
+            return None
 
         val = dict.__getitem__(self, key)
         if inverse_alt is not None:
