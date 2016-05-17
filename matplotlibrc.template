@@ -395,15 +395,15 @@ backend      : $TEMPLATE_BACKEND
 
 ### Legend
 #legend.loc           : best
-#legend.frameon       : False    # whether or not to draw a frame around legend
-#legend.framealpha    : None     # legend frame transparency
+#legend.frameon       : True     # whether or not to draw a frame around legend
+#legend.framealpha    : 0.8      # legend frame transparency
 #legend.facecolor     : inherit  # inherit from axes.facecolor; or color spec
-#legend.edgecolor     : k
+#legend.edgecolor     : none
 #legend.fancybox      : True     # if True, use a rounded box for the
                                  # legend, else a rectangle
 #legend.shadow        : False
 #legend.numpoints     : 1        # the number of marker points in the legend line
-#legend.scatterpoints : 3        # number of scatter points
+#legend.scatterpoints : 1        # number of scatter points
 #legend.markerscale   : 1.0      # the relative size of legend markers vs. original
 #legend.fontsize      : small
 # Dimensions as fraction of fontsize:
