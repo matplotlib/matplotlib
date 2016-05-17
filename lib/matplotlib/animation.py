@@ -234,14 +234,14 @@ class MovieWriter(object):
             # frame format and dpi.
             self.fig.savefig(self._frame_sink(), format=self.frame_format,
                              dpi=self.dpi, **savefig_kwargs)
-        except (RuntimeError, IOError):
+        except (RuntimeError, IOError) as e:
             out, err = self._proc.communicate()
             verbose.report('MovieWriter -- Error '
                            'running proc:\n%s\n%s' % (out,
                                                       err), level='helpful')
-            raise IOError('Error saving animation to file. '
-                          'Stdout: {0} StdError: {1}. It may help to re-run '
-                          'with --verbose-debug.'.format(out, err))
+            raise IOError('Error saving animation to file (cause: {0}) '
+                          'Stdout: {1} StdError: {2}. It may help to re-run '
+                          'with --verbose-debug.'.format(e, out, err))
 
     def _frame_sink(self):
         'Returns the place to which frames should be written.'
