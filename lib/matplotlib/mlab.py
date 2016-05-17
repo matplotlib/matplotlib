@@ -3188,7 +3188,8 @@ def rec2txt(r, header=None, padding=3, precision=3, fields=None):
         ntype = column.dtype
 
         if np.issubdtype(ntype, str) or np.issubdtype(ntype, bytes):
-            length = max(len(colname), len(column[0]))
+            fixed_width = int(ntype.str[2:])
+            length = max(len(colname), fixed_width)
             return 0, length+padding, "%s"  # left justify
 
         if np.issubdtype(ntype, np.int):
