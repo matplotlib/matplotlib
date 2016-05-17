@@ -686,28 +686,35 @@ class Animation(object):
 
         *fps* is the frames per second in the movie. Defaults to None,
         which will use the animation's specified interval to set the frames
-        per second.
+        per second. This argument is only valid if *writer* is not a
+        :class:`MovieWriter` instance.
 
         *dpi* controls the dots per inch for the movie frames. This combined
         with the figure's size in inches controls the size of the movie.
 
         *codec* is the video codec to be used. Not all codecs are supported
         by a given :class:`MovieWriter`. If none is given, this defaults to the
-        value specified by the rcparam `animation.codec`.
+        value specified by the rcparam `animation.codec`. This argument is only
+        valid if *writer* is not a :class:`MovieWriter` instance.
 
         *bitrate* specifies the amount of bits used per second in the
         compressed movie, in kilobits per second. A higher number means a
         higher quality movie, but at the cost of increased file size. If no
         value is given, this defaults to the value given by the rcparam
-        `animation.bitrate`.
+        `animation.bitrate`. This argument is only valid if *writer* is not a
+        :class:`MovieWriter` instance.
 
         *extra_args* is a list of extra string arguments to be passed to the
         underlying movie utility. The default is None, which passes the
-        additional arguments in the 'animation.extra_args' rcParam.
+        additional arguments in the 'animation.extra_args' rcParam. This
+        argument is only valid if *writer* is not a :class:`MovieWriter`
+        instance.
 
         *metadata* is a dictionary of keys and values for metadata to include
         in the output file. Some keys that may be of use include:
-        title, artist, genre, subject, copyright, srcform, comment.
+        title, artist, genre, subject, copyright, srcform, comment. This
+        argument is only valid if *writer* is not a :class:`MovieWriter`
+        instance.
 
         *extra_anim* is a list of additional `Animation` objects that should
         be included in the saved movie file. These need to be from the same
@@ -720,6 +727,20 @@ class Animation(object):
         the individual frames. This can be used to set tight bounding boxes,
         for example.
         '''
+        # If the writer is None, use the rc param to find the name of the one
+        # to use
+        if writer is None:
+            writer = rcParams['animation.writer']
+        elif (not is_string_like(writer) and
+                any(arg is not None
+                    for arg in (fps, codec, bitrate, extra_args, metadata))):
+            raise RuntimeError('Passing in values for arguments for arguments '
+                               'fps, codec, bitrate, extra_args, or metadata '
+                               'is not supported when writer is an existing '
+                               'MovieWriter instance. These should instead be '
+                               'passed as arguments when creating the '
+                               'MovieWriter instance.')
+
         if savefig_kwargs is None:
             savefig_kwargs = {}
 
@@ -734,11 +755,6 @@ class Animation(object):
         if fps is None and hasattr(self, '_interval'):
             # Convert interval in ms to frames per second
             fps = 1000. / self._interval
-
-        # If the writer is None, use the rc param to find the name of the one
-        # to use
-        if writer is None:
-            writer = rcParams['animation.writer']
 
         # Re-use the savefig DPI for ours if none is given
         if dpi is None:
