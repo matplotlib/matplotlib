@@ -2209,7 +2209,7 @@ class Axes3D(Axes):
 
         Axes.add_collection(self, col)
 
-    def scatter(self, xs, ys, zs=0, zdir='z', s=20, c='b', depthshade=True,
+    def scatter(self, xs, ys, zs=0, zdir='z', s=20, c=None, depthshade=True,
                 *args, **kwargs):
         '''
         Create a scatter plot.
@@ -2233,7 +2233,9 @@ class Axes3D(Axes):
                       that *c* should not be a single numeric RGB or RGBA
                       sequence because that is indistinguishable from an array
                       of values to be colormapped.  *c* can be a 2-D array in
-                      which the rows are RGB or RGBA, however.
+                      which the rows are RGB or RGBA, however, including the
+                      case of a single row to specify the same color for
+                      all points.
 
         *depthshade*
                       Whether or not to shade the scatter markers to give
@@ -2262,13 +2264,15 @@ class Axes3D(Axes):
 
         s = np.ma.ravel(s)  # This doesn't have to match x, y in size.
 
-        cstr = cbook.is_string_like(c) or cbook.is_sequence_of_strings(c)
-        if not cstr:
-            c = np.asanyarray(c)
-            if c.size == xs.size:
-                c = np.ma.ravel(c)
-
-        xs, ys, zs, s, c = cbook.delete_masked_points(xs, ys, zs, s, c)
+        if c is not None:
+            cstr = cbook.is_string_like(c) or cbook.is_sequence_of_strings(c)
+            if not cstr:
+                c = np.asanyarray(c)
+                if c.size == xs.size:
+                    c = np.ma.ravel(c)
+            xs, ys, zs, s, c = cbook.delete_masked_points(xs, ys, zs, s, c)
+        else:
+            xs, ys, zs, s = cbook.delete_masked_points(xs, ys, zs, s)
 
         patches = Axes.scatter(self, xs, ys, s=s, c=c, *args, **kwargs)
         if not cbook.iterable(zs):
