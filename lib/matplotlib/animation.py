@@ -686,37 +686,13 @@ class Animation(object):
         If nothing is passed, the value of the rcparam `animation.writer` is
         used.
 
-        *fps* is the frames per second in the movie. Defaults to None,
-        which will use the animation's specified interval to set the frames
-        per second. This argument is only valid if *writer* is not a
-        :class:`MovieWriter` instance.
-
         *dpi* controls the dots per inch for the movie frames. This combined
         with the figure's size in inches controls the size of the movie.
 
-        *codec* is the video codec to be used. Not all codecs are supported
-        by a given :class:`MovieWriter`. If none is given, this defaults to the
-        value specified by the rcparam `animation.codec`. This argument is only
-        valid if *writer* is not a :class:`MovieWriter` instance.
-
-        *bitrate* specifies the amount of bits used per second in the
-        compressed movie, in kilobits per second. A higher number means a
-        higher quality movie, but at the cost of increased file size. If no
-        value is given, this defaults to the value given by the rcparam
-        `animation.bitrate`. This argument is only valid if *writer* is not a
-        :class:`MovieWriter` instance.
-
-        *extra_args* is a list of extra string arguments to be passed to the
-        underlying movie utility. The default is None, which passes the
-        additional arguments in the 'animation.extra_args' rcParam. This
-        argument is only valid if *writer* is not a :class:`MovieWriter`
-        instance.
-
-        *metadata* is a dictionary of keys and values for metadata to include
-        in the output file. Some keys that may be of use include:
-        title, artist, genre, subject, copyright, srcform, comment. This
-        argument is only valid if *writer* is not a :class:`MovieWriter`
-        instance.
+        *savefig_kwargs* is a dictionary containing keyword arguments to be
+        passed on to the 'savefig' command which is called repeatedly to save
+        the individual frames. This can be used to set tight bounding boxes,
+        for example.
 
         *extra_anim* is a list of additional `Animation` objects that should
         be included in the saved movie file. These need to be from the same
@@ -724,10 +700,31 @@ class Animation(object):
         simply combined, so there should be a 1:1 correspondence between
         the frames from the different animations.
 
-        *savefig_kwargs* is a dictionary containing keyword arguments to be
-        passed on to the 'savefig' command which is called repeatedly to save
-        the individual frames. This can be used to set tight bounding boxes,
-        for example.
+        These remaining arguments are used to construct a :class:`MovieWriter`
+        instance when necessary and are only considered valid if *writer* is
+        not a :class:`MovieWriter` instance.
+
+        *fps* is the frames per second in the movie. Defaults to None,
+        which will use the animation's specified interval to set the frames
+        per second.
+
+        *codec* is the video codec to be used. Not all codecs are supported
+        by a given :class:`MovieWriter`. If none is given, this defaults to the
+        value specified by the rcparam `animation.codec`.
+
+        *bitrate* specifies the amount of bits used per second in the
+        compressed movie, in kilobits per second. A higher number means a
+        higher quality movie, but at the cost of increased file size. If no
+        value is given, this defaults to the value given by the rcparam
+        `animation.bitrate`.
+
+        *extra_args* is a list of extra string arguments to be passed to the
+        underlying movie utility. The default is None, which passes the
+        additional arguments in the 'animation.extra_args' rcParam.
+
+        *metadata* is a dictionary of keys and values for metadata to include
+        in the output file. Some keys that may be of use include:
+        title, artist, genre, subject, copyright, srcform, comment.
         '''
         # If the writer is None, use the rc param to find the name of the one
         # to use
