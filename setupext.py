@@ -1726,17 +1726,12 @@ class BackendTkAgg(OptionalBackendPackage):
                 # includes are directly in the conda\library\include dir and
                 # libs in DLL or lib
                 ext.include_dirs.extend(['include'])
-                ext.libraries.extend(['tk85', 'tcl85'])
-                ext.library_dirs.extend(['dlls']) # or lib?
             else:
                 major, minor1, minor2, s, tmp = sys.version_info
                 if sys.version_info[0:2] < (3, 4):
                     ext.include_dirs.extend(['win32_static/include/tcl85'])
-                    ext.libraries.extend(['tk85', 'tcl85'])
                 else:
                     ext.include_dirs.extend(['win32_static/include/tcl86'])
-                    ext.libraries.extend(['tk86t', 'tcl86t'])
-                ext.library_dirs.extend([os.path.join(sys.prefix, 'dlls')])
 
         elif sys.platform == 'darwin':
             # this config section lifted directly from Imaging - thanks to
@@ -1781,10 +1776,7 @@ class BackendTkAgg(OptionalBackendPackage):
                 # not found...
 
                 # tk_include_dirs.append('/usr/X11R6/include')
-                frameworks = ['-framework', 'Tcl', '-framework', 'Tk']
                 ext.include_dirs.extend(tk_include_dirs)
-                ext.extra_link_args.extend(frameworks)
-                ext.extra_compile_args.extend(frameworks)
 
         # you're still here? ok we'll try it this way...
         else:
@@ -1817,8 +1809,6 @@ class BackendTkAgg(OptionalBackendPackage):
             (tcl_lib_dir, tcl_inc_dir, tcl_lib,
              tk_lib_dir, tk_inc_dir, tk_lib) = result
             ext.include_dirs.extend([tcl_inc_dir, tk_inc_dir])
-            ext.library_dirs.extend([tcl_lib_dir, tk_lib_dir])
-            ext.libraries.extend([tcl_lib, tk_lib])
 
 
 class BackendGtk(OptionalBackendPackage):
