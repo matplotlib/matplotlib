@@ -44,9 +44,6 @@ typedef struct
     Tcl_Interp *interp;
 } TkappObject;
 
-#define DYNAMIC_TKINTER
-
-#ifdef DYNAMIC_TKINTER
 // Load TCL / Tk symbols from tkinter extension module at run-time.
 // Typedefs, global vars for TCL / Tk library functions.
 typedef Tcl_Command (*tcl_cc)(Tcl_Interp *interp,
@@ -66,15 +63,6 @@ typedef void (*tk_ppb_nc) (Tk_PhotoHandle handle,
 static tk_ppb_nc TK_PHOTO_PUTBLOCK;
 typedef void (*tk_pb) (Tk_PhotoHandle handle);
 static tk_pb TK_PHOTO_BLANK;
-#else
-// Build-time linking against system TCL / Tk functions.
-#define TCL_CREATE_COMMAND Tcl_CreateCommand
-#define TCL_APPEND_RESULT Tcl_AppendResult
-#define TK_MAIN_WINDOW Tk_MainWindow
-#define TK_FIND_PHOTO Tk_FindPhoto
-#define TK_PHOTO_PUTBLOCK Tk_PhotoPutBlock
-#define TK_PHOTO_BLANK Tk_PhotoBlank
-#endif
 
 static int PyAggImagePhoto(ClientData clientdata, Tcl_Interp *interp, int argc, char **argv)
 {
@@ -264,7 +252,6 @@ static PyMethodDef functions[] = {
     { NULL, NULL } /* sentinel */
 };
 
-#ifdef DYNAMIC_TKINTER
 // Functions to fill global TCL / Tk function pointers from tkinter module.
 
 #if PY3K
@@ -387,7 +374,6 @@ exit:
     Py_XDECREF(pString);
     return ret;
 }
-#endif
 
 #if PY3K
 static PyModuleDef _tkagg_module = { PyModuleDef_HEAD_INIT, "_tkagg", "",   -1,  functions,
@@ -401,11 +387,7 @@ PyMODINIT_FUNC PyInit__tkagg(void)
 
     import_array();
 
-#ifdef DYNAMIC_TKINTER
     return (load_tkinter_funcs() == 0) ? m : NULL;
-#else
-    return m
-#endif
 }
 #else
 PyMODINIT_FUNC init_tkagg(void)
@@ -413,8 +395,7 @@ PyMODINIT_FUNC init_tkagg(void)
     import_array();
 
     Py_InitModule("_tkagg", functions);
-#ifdef DYNAMIC_TKINTER
+
     load_tkinter_funcs();
-#endif
 }
 #endif
