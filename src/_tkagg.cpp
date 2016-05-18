@@ -267,8 +267,6 @@ static PyMethodDef functions[] = {
 #ifdef DYNAMIC_TKINTER
 // Functions to fill global TCL / Tk function pointers from tkinter module.
 
-#include <dlfcn.h>
-
 #if PY3K
 #define TKINTER_PKG "tkinter"
 #define TKINTER_MOD "_tkinter"
@@ -288,6 +286,31 @@ char *fname2char(PyObject *fname)
 #define fname2char(s) (PyString_AsString(s))
 #endif
 
+#if defined(_MSC_VER)
+#include <windows.h>
+#define LIB_PTR_TYPE HMODULE
+#define LOAD_LIB(name) LoadLibrary(name)
+#define CLOSE_LIB(name) FreeLibrary(name)
+FARPROC _dfunc(LIB_PTR_TYPE lib_handle, const char *func_name)
+{
+    // Load function `func_name` from `lib_handle`.
+    // Set Python exception if we can't find `func_name` in `lib_handle`.
+    // Returns function pointer or NULL if not present.
+
+    char message[100];
+
+    FARPROC func = GetProcAddress(lib_handle, func_name);
+    if (func == NULL) {
+        sprintf(message, "Cannot load function %s", func_name);
+        PyErr_SetString(PyExc_RuntimeError, message);
+    }
+    return func;
+}
+#else
+#include <dlfcn.h>
+#define LIB_PTR_TYPE void*
+#define LOAD_LIB(name) dlopen(name, RTLD_LAZY)
+#define CLOSE_LIB(name) dlclose(name)
 void *_dfunc(void *lib_handle, const char *func_name)
 {
     // Load function `func_name` from `lib_handle`.
@@ -303,8 +326,9 @@ void *_dfunc(void *lib_handle, const char *func_name)
     }
     return func;
 }
+#endif
 
-int _func_loader(void *lib)
+int _func_loader(LIB_PTR_TYPE lib)
 {
     // Fill global function pointers from dynamic lib.
     // Return 1 if any pointer is NULL, 0 otherwise.
@@ -328,7 +352,7 @@ int load_tkinter_funcs(void)
     // Load tkinter global funcs from tkinter compiled module.
     // Return 0 for success, non-zero for failure.
     int ret = -1;
-    void *tkinter_lib;
+    LIB_PTR_TYPE tkinter_lib;
     char *tkinter_libname;
     PyObject *pModule = NULL, *pSubmodule = NULL, *pString = NULL;
 
@@ -348,7 +372,7 @@ int load_tkinter_funcs(void)
     if (tkinter_libname == NULL) {
         goto exit;
     }
-    tkinter_lib = dlopen(tkinter_libname, RTLD_LAZY);
+    tkinter_lib = LOAD_LIB(tkinter_libname);
     if (tkinter_lib == NULL) {
         PyErr_SetString(PyExc_RuntimeError,
                 "Cannot dlopen tkinter module file");
@@ -356,7 +380,7 @@ int load_tkinter_funcs(void)
     }
     ret = _func_loader(tkinter_lib);
     // dlclose probably safe because tkinter has been imported.
-    dlclose(tkinter_lib);
+    CLOSE_LIB(tkinter_lib);
 exit:
     Py_XDECREF(pModule);
     Py_XDECREF(pSubmodule);
