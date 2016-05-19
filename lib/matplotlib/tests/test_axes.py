@@ -4478,6 +4478,16 @@ def test_axisbelow():
 
 
 @cleanup
+def test_offset_label_color():
+    # Tests issue 6440
+    fig = plt.figure()
+    ax = fig.add_subplot(1, 1, 1)
+    ax.plot([1.01e9, 1.02e9, 1.03e9])
+    ax.yaxis.set_tick_params(labelcolor='red')
+    assert ax.yaxis.get_offset_text().get_color() == 'red'
+
+
+@cleanup
 def test_large_offset():
     fig, ax = plt.subplots()
     ax.plot((1 + np.array([0, 1.e-12])) * 1.e27)
