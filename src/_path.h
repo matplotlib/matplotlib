@@ -77,7 +77,7 @@ struct XY
 // Input 2D polygon _pgon_ with _numverts_ number of vertices and test point
 // _point_, returns 1 if inside, 0 if outside.
 template <class PathIterator, class PointArray, class ResultArray>
-void point_in_path_impl(PointArray &points, PathIterator &path, ResultArray &inside_flag)
+void point_in_path_impl(const PointArray &points, PathIterator &path, ResultArray &inside_flag)
 {
     bool yflag1;
     double vtx0, vty0, vtx1, vty1;
@@ -89,14 +89,30 @@ void point_in_path_impl(PointArray &points, PathIterator &path, ResultArray &ins
 
     size_t n = points.size();
 
+    std::vector<double> _x(n);
+    std::vector<double> _y(n);
+
     std::vector<bool> yflag0(n);
     std::vector<bool> subpath_flag(n);
+    std::vector<bool> both_finite(n);
+
 
     path.rewind(0);
 
     for (i = 0; i < n; ++i) {
         inside_flag[i] = false;
     }
+    for (i = 0; i < n; ++i) {
+	tx = points[i][0];
+	ty = points[i][1];
+
+	_x[i] = tx;
+	_y[i] = ty;
+
+	both_finite[i] = (std::isfinite(tx) && std::isfinite(ty));
+
+    }
+
 
     unsigned code = 0;
     do {
@@ -112,14 +128,13 @@ void point_in_path_impl(PointArray &points, PathIterator &path, ResultArray &ins
         sy = vty0 = vty1 = y;
 
         for (i = 0; i < n; ++i) {
-            ty = points[i][1];
+	    if (! both_finite[i]){
+		 continue;
+	    }
+	    // get test bit for above/below X axis
+	    yflag0[i] = (vty0 >= ty);
+	    subpath_flag[i] = false;
 
-            if (std::isfinite(ty)) {
-                // get test bit for above/below X axis
-                yflag0[i] = (vty0 >= ty);
-
-                subpath_flag[i] = false;
-            }
         }
 
         do {
@@ -135,12 +150,12 @@ void point_in_path_impl(PointArray &points, PathIterator &path, ResultArray &ins
             }
 
             for (i = 0; i < n; ++i) {
-                tx = points[i][0];
-                ty = points[i][1];
+		if (! both_finite[i]){
+		    continue;
+		}
+                tx = _x[i];
+                ty = _y[i];
 
-                if (!(std::isfinite(tx) && std::isfinite(ty))) {
-                    continue;
-                }
 
                 yflag1 = (vty1 >= ty);
                 // Check if endpoints straddle (are on opposite sides) of
@@ -183,12 +198,11 @@ void point_in_path_impl(PointArray &points, PathIterator &path, ResultArray &ins
 
         all_done = true;
         for (i = 0; i < n; ++i) {
-            tx = points[i][0];
-            ty = points[i][1];
-
-            if (!(std::isfinite(tx) && std::isfinite(ty))) {
-                continue;
-            }
+	    if (!both_finite[i]){
+		continue;
+	    }
+	    tx = _x[i];
+            ty = _y[i];
 
             yflag1 = (vty1 >= ty);
             if (yflag0[i] != yflag1) {
