@@ -79,7 +79,7 @@ struct XY
 template <class PathIterator, class PointArray, class ResultArray>
 void point_in_path_impl(PointArray &points, PathIterator &path, ResultArray &inside_flag)
 {
-    bool yflag1;
+    uint8_t yflag1;
     double vtx0, vty0, vtx1, vty1;
     double tx, ty;
     double sx, sy;
@@ -89,13 +89,13 @@ void point_in_path_impl(PointArray &points, PathIterator &path, ResultArray &ins
 
     size_t n = points.size();
 
-    std::vector<bool> yflag0(n);
-    std::vector<bool> subpath_flag(n);
+    std::vector<uint8_t> yflag0(n);
+    std::vector<uint8_t> subpath_flag(n);
 
     path.rewind(0);
 
     for (i = 0; i < n; ++i) {
-        inside_flag[i] = false;
+        inside_flag[i] = 0;
     }
 
     unsigned code = 0;
@@ -118,7 +118,7 @@ void point_in_path_impl(PointArray &points, PathIterator &path, ResultArray &ins
                 // get test bit for above/below X axis
                 yflag0[i] = (vty0 >= ty);
 
-                subpath_flag[i] = false;
+                subpath_flag[i] = 0;
             }
         }
 
@@ -164,7 +164,7 @@ void point_in_path_impl(PointArray &points, PathIterator &path, ResultArray &ins
                     // Haigh-Hutchinson's different polygon inclusion
                     // tests.
                     if (((vty1 - ty) * (vtx0 - vtx1) >= (vtx1 - tx) * (vty0 - vty1)) == yflag1) {
-                        subpath_flag[i] = subpath_flag[i] ^ true;
+                        subpath_flag[i] ^= 1;
                     }
                 }
 
@@ -196,8 +196,8 @@ void point_in_path_impl(PointArray &points, PathIterator &path, ResultArray &ins
                     subpath_flag[i] = subpath_flag[i] ^ true;
                 }
             }
-            inside_flag[i] = inside_flag[i] || subpath_flag[i];
-            if (inside_flag[i] == false) {
+            inside_flag[i] |= subpath_flag[i];
+            if (inside_flag[i] == 0) {
                 all_done = false;
             }
         }

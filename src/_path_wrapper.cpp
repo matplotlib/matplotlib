@@ -93,7 +93,7 @@ static PyObject *Py_points_in_path(PyObject *self, PyObject *args, PyObject *kwd
     }
 
     npy_intp dims[] = { (npy_intp)points.size() };
-    numpy::array_view<bool, 1> results(dims);
+    numpy::array_view<uint8_t, 1> results(dims);
 
     CALL_CPP("points_in_path", (points_in_path(points, r, path, trans, results)));
 
@@ -152,7 +152,7 @@ static PyObject *Py_points_on_path(PyObject *self, PyObject *args, PyObject *kwd
     }
 
     npy_intp dims[] = { (npy_intp)points.size() };
-    numpy::array_view<bool, 1> results(dims);
+    numpy::array_view<uint8_t, 1> results(dims);
 
     CALL_CPP("points_on_path", (points_on_path(points, r, path, trans, results)));
 
