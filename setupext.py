@@ -1732,6 +1732,8 @@ class BackendTkAgg(OptionalBackendPackage):
                     ext.include_dirs.extend(['win32_static/include/tcl85'])
                 else:
                     ext.include_dirs.extend(['win32_static/include/tcl86'])
+            # PSAPI library needed for finding TCL / Tk at run time
+            ext.libraries.extend(['psapi'])
 
         elif sys.platform == 'darwin':
             # this config section lifted directly from Imaging - thanks to
