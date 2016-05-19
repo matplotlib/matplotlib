@@ -18,6 +18,7 @@
 
 #include "path_converters.h"
 #include "_backend_agg_basic_types.h"
+#include "numpy_cpp.h"
 
 struct XY
 {
@@ -112,7 +113,7 @@ void point_in_path_impl(PointArray &points, PathIterator &path, ResultArray &ins
         sy = vty0 = vty1 = y;
 
         for (i = 0; i < n; ++i) {
-            ty = points[i][1];
+            ty = points(i, 1);
 
             if (std::isfinite(ty)) {
                 // get test bit for above/below X axis
@@ -135,8 +136,8 @@ void point_in_path_impl(PointArray &points, PathIterator &path, ResultArray &ins
             }
 
             for (i = 0; i < n; ++i) {
-                tx = points[i][0];
-                ty = points[i][1];
+                tx = points(i, 0);
+                ty = points(i, 1);
 
                 if (!(std::isfinite(tx) && std::isfinite(ty))) {
                     continue;
@@ -183,8 +184,8 @@ void point_in_path_impl(PointArray &points, PathIterator &path, ResultArray &ins
 
         all_done = true;
         for (i = 0; i < n; ++i) {
-            tx = points[i][0];
-            ty = points[i][1];
+            tx = points(i, 0);
+            ty = points(i, 1);
 
             if (!(std::isfinite(tx) && std::isfinite(ty))) {
                 continue;
@@ -242,11 +243,10 @@ template <class PathIterator>
 inline bool point_in_path(
     double x, double y, const double r, PathIterator &path, agg::trans_affine &trans)
 {
-    std::vector<double> point;
-    std::vector<std::vector<double> > points;
-    point.push_back(x);
-    point.push_back(y);
-    points.push_back(point);
+    npy_intp shape[] = {1, 2};
+    numpy::array_view<double, 2> points(shape);
+    points(0, 0) = x;
+    points(0, 1) = y;
 
     int result[1];
     result[0] = 0;
@@ -285,11 +285,10 @@ template <class PathIterator>
 inline bool point_on_path(
     double x, double y, const double r, PathIterator &path, agg::trans_affine &trans)
 {
-    std::vector<double> point;
-    std::vector<std::vector<double> > points;
-    point.push_back(x);
-    point.push_back(y);
-    points.push_back(point);
+    npy_intp shape[] = {1, 2};
+    numpy::array_view<double, 2> points(shape);
+    points(0, 0) = x;
+    points(0, 1) = y;
 
     int result[1];
     result[0] = 0;
