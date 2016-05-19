@@ -94,6 +94,7 @@ void point_in_path_impl(const PointArray &points, PathIterator &path, ResultArra
 
     std::vector<bool> yflag0(n);
     std::vector<bool> subpath_flag(n);
+    std::vector<bool> both_finite(n);
 
 
     path.rewind(0);
@@ -102,12 +103,13 @@ void point_in_path_impl(const PointArray &points, PathIterator &path, ResultArra
         inside_flag[i] = false;
     }
     for (i = 0; i < n; ++i) {
-
 	tx = points[i][0];
 	ty = points[i][1];
 
 	_x[i] = tx;
 	_y[i] = ty;
+
+	both_finite[i] = (std::isfinite(tx) && std::isfinite(ty));
 
     }
 
@@ -126,14 +128,13 @@ void point_in_path_impl(const PointArray &points, PathIterator &path, ResultArra
         sy = vty0 = vty1 = y;
 
         for (i = 0; i < n; ++i) {
-            ty = points[i][1];
+	    if (! both_finite[i]){
+		 continue;
+	    }
+	    // get test bit for above/below X axis
+	    yflag0[i] = (vty0 >= ty);
+	    subpath_flag[i] = false;
 
-            if (std::isfinite(ty)) {
-                // get test bit for above/below X axis
-                yflag0[i] = (vty0 >= ty);
-
-                subpath_flag[i] = false;
-            }
         }
 
         do {
@@ -149,14 +150,12 @@ void point_in_path_impl(const PointArray &points, PathIterator &path, ResultArra
             }
 
             for (i = 0; i < n; ++i) {
-
+		if (! both_finite[i]){
+		    continue;
+		}
                 tx = _x[i];
                 ty = _y[i];
 
-
-                if (!(std::isfinite(tx) && std::isfinite(ty))) {
-                    continue;
-                }
 
                 yflag1 = (vty1 >= ty);
                 // Check if endpoints straddle (are on opposite sides) of
@@ -199,12 +198,11 @@ void point_in_path_impl(const PointArray &points, PathIterator &path, ResultArra
 
         all_done = true;
         for (i = 0; i < n; ++i) {
-            tx = _x[i];
+	    if (!both_finite[i]){
+		continue;
+	    }
+	    tx = _x[i];
             ty = _y[i];
-
-            if (!(std::isfinite(tx) && std::isfinite(ty))) {
-                continue;
-            }
 
             yflag1 = (vty1 >= ty);
             if (yflag0[i] != yflag1) {
