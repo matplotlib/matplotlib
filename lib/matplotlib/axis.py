@@ -796,6 +796,8 @@ class Axis(artist.Artist):
             if which == 'minor' or which == 'both':
                 for tick in self.minorTicks:
                     tick._apply_params(**self._minor_tick_kw)
+            if 'labelcolor' in kwtrans:
+                self.offsetText.set_color(kwtrans['labelcolor'])
         self.stale = True
 
     @staticmethod
