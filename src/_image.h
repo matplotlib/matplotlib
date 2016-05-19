@@ -126,14 +126,12 @@ Image *from_color_array(ArrayType &array, bool isoutput)
 
     for (size_t rownum = 0; rownum < (size_t)array.dim(0); rownum++) {
         for (size_t colnum = 0; colnum < (size_t)array.dim(1); colnum++) {
-            typename ArrayType::sub_t::sub_t color = array[rownum][colnum];
-
-            r = color(0);
-            g = color(1);
-            b = color(2);
+            r = array(rownum, colnum, 0);
+            g = array(rownum, colnum, 1);
+            b = array(rownum, colnum, 2);
 
             if (rgba) {
-                alpha = color(3);
+                alpha = array(rownum, colnum, 3);
             }
 
             *buffer++ = int(255 * r);     // red
@@ -164,13 +162,12 @@ Image *frombyte(ArrayType &array, bool isoutput)
 
     for (size_t rownum = 0; rownum < (size_t)array.dim(0); rownum++) {
         for (size_t colnum = 0; colnum < (size_t)array.dim(1); colnum++) {
-            typename ArrayType::sub_t::sub_t color = array[rownum][colnum];
-            r = color(0);
-            g = color(1);
-            b = color(2);
+            r = array(rownum, colnum, 0);
+            g = array(rownum, colnum, 1);
+            b = array(rownum, colnum, 2);
 
             if (rgba) {
-                alpha = color(3);
+                alpha = array(rownum, colnum, 3);
             }
 
             *buffer++ = r;     // red
@@ -295,13 +292,12 @@ Image *pcolor(CoordinateArray &x,
                 a10 = (1.0 - alpha) * beta;
                 a11 = 1.0 - a00 - a01 - a10;
 
-                typename ColorArray::sub_t::sub_t start00 = d[rowstart[i]][colstart[j]];
-                typename ColorArray::sub_t::sub_t start01 = d[rowstart[i]][colstart[j] + 1];
-                typename ColorArray::sub_t::sub_t start10 = d[rowstart[i] + 1][colstart[j]];
-                typename ColorArray::sub_t::sub_t start11 = d[rowstart[i] + 1][colstart[j] + 1];
                 for (size_t k = 0; k < 4; ++k) {
                     position[k] =
-                        start00(k) * a00 + start01(k) * a01 + start10(k) * a10 + start11(k) * a11;
+                        d(rowstart[i], colstart[j], k) * a00 +
+                        d(rowstart[i], colstart[j] + 1, k) * a01 +
+                        d(rowstart[i] + 1, colstart[j], k) * a10 +
+                        d(rowstart[i] + 1, colstart[j] + 1, k) * a11;
                 }
                 position += 4;
             }
