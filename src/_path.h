@@ -233,10 +233,13 @@ inline void points_in_path(PointArray &points,
     transformed_path_t trans_path(path, trans);
     no_nans_t no_nans_path(trans_path, true, path.has_curves());
     curve_t curved_path(no_nans_path);
-    contour_t contoured_path(curved_path);
-    contoured_path.width(r);
-
-    point_in_path_impl(points, contoured_path, result);
+    if (r != 0.0) {
+        contour_t contoured_path(curved_path);
+        contoured_path.width(r);
+        point_in_path_impl(points, contoured_path, result);
+    } else {
+        point_in_path_impl(points, curved_path, result);
+    }
 }
 
 template <class PathIterator>
