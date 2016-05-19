@@ -961,13 +961,13 @@ inline void RendererAgg::_draw_path_collection_generic(GCAgg &gc,
         typename PathGenerator::path_iterator path = path_generator(i);
 
         if (Ntransforms) {
-            typename TransformArray::sub_t subtrans = transforms[i % Ntransforms];
-            trans = agg::trans_affine(subtrans(0, 0),
-                                      subtrans(1, 0),
-                                      subtrans(0, 1),
-                                      subtrans(1, 1),
-                                      subtrans(0, 2),
-                                      subtrans(1, 2));
+            int it = i % Ntransforms;
+            trans = agg::trans_affine(transforms(it, 0, 0),
+                                      transforms(it, 1, 0),
+                                      transforms(it, 0, 1),
+                                      transforms(it, 1, 1),
+                                      transforms(it, 0, 2),
+                                      transforms(it, 1, 2));
             trans *= master_transform;
         } else {
             trans = master_transform;
@@ -989,13 +989,13 @@ inline void RendererAgg::_draw_path_collection_generic(GCAgg &gc,
         trans *= agg::trans_affine_translation(0.0, (double)height);
 
         if (Nfacecolors) {
-            typename ColorArray::sub_t facecolor = facecolors[i % Nfacecolors];
-            face.second = agg::rgba(facecolor(0), facecolor(1), facecolor(2), facecolor(3));
+            int ic = i % Nfacecolors;
+            face.second = agg::rgba(facecolors(ic, 0), facecolors(ic, 1), facecolors(ic, 2), facecolors(ic, 3));
         }
 
         if (Nedgecolors) {
-            typename ColorArray::sub_t edgecolor = edgecolors[i % Nedgecolors];
-            gc.color = agg::rgba(edgecolor(0), edgecolor(1), edgecolor(2), edgecolor(3));
+            int ic = i % Nedgecolors;
+            gc.color = agg::rgba(edgecolors(ic, 0), edgecolors(ic, 1), edgecolors(ic, 2), edgecolors(ic, 3));
 
             if (Nlinewidths) {
                 gc.linewidth = linewidths(i % Nlinewidths);
@@ -1274,8 +1274,8 @@ inline void RendererAgg::draw_gouraud_triangles(GCAgg &gc,
     bool has_clippath = render_clippath(gc.clippath.path, gc.clippath.trans);
 
     for (int i = 0; i < points.dim(0); ++i) {
-        typename PointArray::sub_t point = points[i];
-        typename ColorArray::sub_t color = colors[i];
+        typename PointArray::sub_t point = points.subarray(i);
+        typename ColorArray::sub_t color = colors.subarray(i);
 
         _draw_gouraud_triangle(point, color, trans, has_clippath);
     }
