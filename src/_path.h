@@ -384,13 +384,13 @@ void get_path_collection_extents(agg::trans_affine &master_transform,
     for (i = 0; i < N; ++i) {
         typename PathGenerator::path_iterator path(paths(i % Npaths));
         if (Ntransforms) {
-            typename TransformArray::sub_t subtrans = transforms[i % Ntransforms];
-            trans = agg::trans_affine(subtrans(0, 0),
-                                      subtrans(1, 0),
-                                      subtrans(0, 1),
-                                      subtrans(1, 1),
-                                      subtrans(0, 2),
-                                      subtrans(1, 2));
+            size_t ti = i % Ntransforms;
+            trans = agg::trans_affine(transforms(ti, 0, 0),
+                                      transforms(ti, 1, 0),
+                                      transforms(ti, 0, 1),
+                                      transforms(ti, 1, 1),
+                                      transforms(ti, 0, 2),
+                                      transforms(ti, 1, 2));
         } else {
             trans = master_transform;
         }
@@ -436,13 +436,13 @@ void point_in_path_collection(double x,
         typename PathGenerator::path_iterator path = paths(i % Npaths);
 
         if (Ntransforms) {
-            typename TransformArray::sub_t subtrans = transforms[i % Ntransforms];
-            trans = agg::trans_affine(subtrans(0, 0),
-                                      subtrans(1, 0),
-                                      subtrans(0, 1),
-                                      subtrans(1, 1),
-                                      subtrans(0, 2),
-                                      subtrans(1, 2));
+            size_t ti = i % Ntransforms;
+            trans = agg::trans_affine(transforms(ti, 0, 0),
+                                      transforms(ti, 1, 0),
+                                      transforms(ti, 0, 1),
+                                      transforms(ti, 1, 1),
+                                      transforms(ti, 0, 2),
+                                      transforms(ti, 1, 2));
             trans *= master_transform;
         } else {
             trans = master_transform;
@@ -770,8 +770,7 @@ int count_bboxes_overlapping_bbox(agg::rect_d &a, BBoxArray &bboxes)
 
     size_t num_bboxes = bboxes.size();
     for (size_t i = 0; i < num_bboxes; ++i) {
-        typename BBoxArray::sub_t bbox_b = bboxes[i];
-        b = agg::rect_d(bbox_b(0, 0), bbox_b(0, 1), bbox_b(1, 0), bbox_b(1, 1));
+        b = agg::rect_d(bboxes(i, 0, 0), bboxes(i, 0, 1), bboxes(i, 1, 0), bboxes(i, 1, 1));
 
         if (b.x2 < b.x1) {
             std::swap(b.x1, b.x2);
