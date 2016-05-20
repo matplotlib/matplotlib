@@ -20,16 +20,7 @@
 
 extern "C"
 {
-#ifdef __APPLE__
-#  ifdef TK_FRAMEWORK
-#     include <Tcl/tcl.h>
-#     include <Tk/tk.h>
-#  else
-#     include <tk.h>
-#  endif
-#else
-#  include <tk.h>
-#endif
+#include "_tkmini.h"
 }
 
 #if defined(_MSC_VER)
