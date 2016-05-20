@@ -305,13 +305,12 @@ int get_tk(HMODULE hMod)
     if (TK_MAIN_WINDOW == NULL) {  // Maybe not Tk module
         return 0;
     }
-    TK_FIND_PHOTO = (tk_fp) _dfunc(hMod, "Tk_FindPhoto");
-    TK_PHOTO_PUTBLOCK = (tk_ppb_nc) _dfunc(hMod,
-            "Tk_PhotoPutBlock_NoComposite");
-    TK_PHOTO_BLANK = (tk_pb) _dfunc(hMod, "Tk_PhotoBlank");
-    return ((TK_FIND_PHOTO == NULL) ||
-            (TK_PHOTO_PUTBLOCK == NULL) ||
-            (TK_PHOTO_BLANK == NULL)) ? -1 : 1;
+    return ( // -1 if any are NULL
+        ((TK_FIND_PHOTO = (tk_fp) _dfunc(hMod, "Tk_FindPhoto")) == NULL) ||
+        ((TK_PHOTO_PUTBLOCK = (tk_ppb_nc)
+          _dfunc(hMod, "Tk_PhotoPutBlock_NoComposite")) == NULL) ||
+        ((TK_PHOTO_BLANK = (tk_pb) _dfunc(hMod, "Tk_PhotoBlank")) == NULL))
+        ? -1 : 1;
 }
 
 int load_tkinter_funcs(void)
