@@ -120,13 +120,12 @@ void pcolor(CoordinateArray &x,
                 a10 = (1.0 - alpha) * beta;
                 a11 = 1.0 - a00 - a01 - a10;
 
-                typename ColorArray::sub_t::sub_t start00 = d[rowstart[i]][colstart[j]];
-                typename ColorArray::sub_t::sub_t start01 = d[rowstart[i]][colstart[j] + 1];
-                typename ColorArray::sub_t::sub_t start10 = d[rowstart[i] + 1][colstart[j]];
-                typename ColorArray::sub_t::sub_t start11 = d[rowstart[i] + 1][colstart[j] + 1];
                 for (size_t k = 0; k < 4; ++k) {
                     position[k] =
-                        start00(k) * a00 + start01(k) * a01 + start10(k) * a10 + start11(k) * a11;
+                        d(rowstart[i], colstart[j], k) * a00 +
+                        d(rowstart[i], colstart[j] + 1, k) * a01 +
+                        d(rowstart[i] + 1, colstart[j], k) * a10 +
+                        d(rowstart[i] + 1, colstart[j] + 1, k) * a11;
                 }
                 position += 4;
             }
