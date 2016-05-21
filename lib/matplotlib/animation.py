@@ -305,12 +305,14 @@ class MovieWriter(AbstractMovieWriter):
             # frame format and dpi.
             self.fig.savefig(self._frame_sink(), format=self.frame_format,
                              dpi=self.dpi, **savefig_kwargs)
-        except RuntimeError:
+        except (RuntimeError, IOError) as e:
             out, err = self._proc.communicate()
             verbose.report('MovieWriter -- Error '
                            'running proc:\n%s\n%s' % (out,
                                                       err), level='helpful')
-            raise
+            raise IOError('Error saving animation to file (cause: {0}) '
+                          'Stdout: {1} StdError: {2}. It may help to re-run '
+                          'with --verbose-debug.'.format(e, out, err))
 
     def _frame_sink(self):
         'Returns the place to which frames should be written.'
@@ -787,12 +789,27 @@ class Animation(object):
         'mencoder'.  If nothing is passed, the value of the rcparam
         `animation.writer` is used.
 
+        *dpi* controls the dots per inch for the movie frames. This combined
+        with the figure's size in inches controls the size of the movie.
+
+        *savefig_kwargs* is a dictionary containing keyword arguments to be
+        passed on to the 'savefig' command which is called repeatedly to save
+        the individual frames. This can be used to set tight bounding boxes,
+        for example.
+
+        *extra_anim* is a list of additional `Animation` objects that should
+        be included in the saved movie file. These need to be from the same
+        `matplotlib.Figure` instance. Also, animation frames will just be
+        simply combined, so there should be a 1:1 correspondence between
+        the frames from the different animations.
+
+        These remaining arguments are used to construct a :class:`MovieWriter`
+        instance when necessary and are only considered valid if *writer* is
+        not a :class:`MovieWriter` instance.
+
         *fps* is the frames per second in the movie. Defaults to None,
         which will use the animation's specified interval to set the frames
         per second.
-
-        *dpi* controls the dots per inch for the movie frames. This combined
-        with the figure's size in inches controls the size of the movie.
 
         *codec* is the video codec to be used. Not all codecs are supported
         by a given :class:`MovieWriter`. If none is given, this defaults to the
@@ -811,18 +828,21 @@ class Animation(object):
         *metadata* is a dictionary of keys and values for metadata to include
         in the output file. Some keys that may be of use include:
         title, artist, genre, subject, copyright, srcform, comment.
-
-        *extra_anim* is a list of additional `Animation` objects that should
-        be included in the saved movie file. These need to be from the same
-        `matplotlib.Figure` instance. Also, animation frames will just be
-        simply combined, so there should be a 1:1 correspondence between
-        the frames from the different animations.
-
-        *savefig_kwargs* is a dictionary containing keyword arguments to be
-        passed on to the 'savefig' command which is called repeatedly to save
-        the individual frames. This can be used to set tight bounding boxes,
-        for example.
         '''
+        # If the writer is None, use the rc param to find the name of the one
+        # to use
+        if writer is None:
+            writer = rcParams['animation.writer']
+        elif (not is_string_like(writer) and
+                any(arg is not None
+                    for arg in (fps, codec, bitrate, extra_args, metadata))):
+            raise RuntimeError('Passing in values for arguments for arguments '
+                               'fps, codec, bitrate, extra_args, or metadata '
+                               'is not supported when writer is an existing '
+                               'MovieWriter instance. These should instead be '
+                               'passed as arguments when creating the '
+                               'MovieWriter instance.')
+
         if savefig_kwargs is None:
             savefig_kwargs = {}
 
@@ -837,11 +857,6 @@ class Animation(object):
         if fps is None and hasattr(self, '_interval'):
             # Convert interval in ms to frames per second
             fps = 1000. / self._interval
-
-        # If the writer is None, use the rc param to find the name of the one
-        # to use
-        if writer is None:
-            writer = rcParams['animation.writer']
 
         # Re-use the savefig DPI for ours if none is given
         if dpi is None:
