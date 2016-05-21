@@ -6,11 +6,6 @@
  *
  */
 
-/* This is needed for (at least) Tk 8.4.1, otherwise the signature of
-** Tk_PhotoPutBlock changes.
-*/
-#define USE_COMPOSITELESS_PHOTO_PUT_BLOCK
-
 #include <Python.h>
 #include <cstdlib>
 #include <cstdio>
@@ -18,10 +13,8 @@
 
 #include "py_converters.h"
 
-extern "C"
-{
+// Include our own excerpts from the Tcl / Tk headers
 #include "_tkmini.h"
-}
 
 #if defined(_MSC_VER)
 #  define SIZE_T_FORMAT "%Iu"
@@ -35,27 +28,17 @@ typedef struct
     Tcl_Interp *interp;
 } TkappObject;
 
-// Load TCL / Tk symbols from tkinter extension module at run-time.
-// Typedefs, global vars for TCL / Tk library functions.
-typedef Tcl_Command (*tcl_cc)(Tcl_Interp *interp,
-        const char *cmdName, Tcl_CmdProc *proc,
-        ClientData clientData,
-        Tcl_CmdDeleteProc *deleteProc);
-static tcl_cc TCL_CREATE_COMMAND;
-typedef void (*tcl_app_res) (Tcl_Interp *interp, ...);
-static tcl_app_res TCL_APPEND_RESULT;
-typedef Tk_Window (*tk_mw) (Tcl_Interp *interp);
-static tk_mw TK_MAIN_WINDOW;
-typedef Tk_PhotoHandle (*tk_fp) (Tcl_Interp *interp, const char *imageName);
-static tk_fp TK_FIND_PHOTO;
-typedef void (*tk_ppb_nc) (Tk_PhotoHandle handle,
-        Tk_PhotoImageBlock *blockPtr, int x, int y,
-        int width, int height);
-static tk_ppb_nc TK_PHOTO_PUTBLOCK;
-typedef void (*tk_pb) (Tk_PhotoHandle handle);
-static tk_pb TK_PHOTO_BLANK;
+// Global vars for Tcl / Tk functions.  We load these symbols from the tkinter
+// extension module or loaded Tcl / Tk libraries at run-time.
+static Tcl_CreateCommand_t TCL_CREATE_COMMAND;
+static Tcl_AppendResult_t TCL_APPEND_RESULT;
+static Tk_MainWindow_t TK_MAIN_WINDOW;
+static Tk_FindPhoto_t TK_FIND_PHOTO;
+static Tk_PhotoPutBlock_NoComposite_t TK_PHOTO_PUT_BLOCK_NO_COMPOSITE;
+static Tk_PhotoBlank_t TK_PHOTO_BLANK;
 
-static int PyAggImagePhoto(ClientData clientdata, Tcl_Interp *interp, int argc, char **argv)
+static int PyAggImagePhoto(ClientData clientdata, Tcl_Interp *interp, int
+        argc, char **argv)
 {
     Tk_PhotoHandle photo;
     Tk_PhotoImageBlock block;
@@ -178,7 +161,8 @@ static int PyAggImagePhoto(ClientData clientdata, Tcl_Interp *interp, int argc, 
         block.pitch = deststride;
         block.pixelPtr = destbuffer;
 
-        TK_PHOTO_PUTBLOCK(photo, &block, destx, desty, destwidth, destheight);
+        TK_PHOTO_PUT_BLOCK_NO_COMPOSITE(photo, &block, destx, desty,
+                destwidth, destheight);
         delete[] destbuffer;
 
     } else {
@@ -190,7 +174,8 @@ static int PyAggImagePhoto(ClientData clientdata, Tcl_Interp *interp, int argc, 
         /* Clear current contents */
         TK_PHOTO_BLANK(photo);
         /* Copy opaque block to photo image, and leave the rest to TK */
-        TK_PHOTO_PUTBLOCK(photo, &block, 0, 0, block.width, block.height);
+        TK_PHOTO_PUT_BLOCK_NO_COMPOSITE(photo, &block, 0, 0, block.width,
+                block.height);
     }
 
     return TCL_OK;
@@ -279,11 +264,13 @@ int get_tcl(HMODULE hMod)
     // Try to fill TCL global vars with function pointers. Return 0 for no
     // functions found, 1 for all functions found, -1 for some but not all
     // functions found.
-    TCL_CREATE_COMMAND = (tcl_cc) GetProcAddress(hMod, "Tcl_CreateCommand");
+    TCL_CREATE_COMMAND = (Tcl_CreateCommand_t)
+        GetProcAddress(hMod, "Tcl_CreateCommand");
     if (TCL_CREATE_COMMAND == NULL) {  // Maybe not TCL module
         return 0;
     }
-    TCL_APPEND_RESULT = (tcl_app_res) _dfunc(hMod, "Tcl_AppendResult");
+    TCL_APPEND_RESULT = (Tcl_AppendResult_t) _dfunc(hMod,
+            "Tcl_AppendResult");
     return (TCL_APPEND_RESULT == NULL) ? -1 : 1;
 }
 
@@ -292,15 +279,18 @@ int get_tk(HMODULE hMod)
     // Try to fill Tk global vars with function pointers. Return 0 for no
     // functions found, 1 for all functions found, -1 for some but not all
     // functions found.
-    TK_MAIN_WINDOW = (tk_mw) GetProcAddress(hMod, "Tk_MainWindow");
+    TK_MAIN_WINDOW = (Tk_MainWindow_t)
+        GetProcAddress(hMod, "Tk_MainWindow");
     if (TK_MAIN_WINDOW == NULL) {  // Maybe not Tk module
         return 0;
     }
-    return ( // -1 if any are NULL
-        ((TK_FIND_PHOTO = (tk_fp) _dfunc(hMod, "Tk_FindPhoto")) == NULL) ||
-        ((TK_PHOTO_PUTBLOCK = (tk_ppb_nc)
+    return ( // -1 if any remaining symbols are NULL
+        ((TK_FIND_PHOTO = (Tk_FindPhoto_t)
+          _dfunc(hMod, "Tk_FindPhoto")) == NULL) ||
+        ((TK_PHOTO_PUT_BLOCK_NO_COMPOSITE = (Tk_PhotoPutBlock_NoComposite_t)
           _dfunc(hMod, "Tk_PhotoPutBlock_NoComposite")) == NULL) ||
-        ((TK_PHOTO_BLANK = (tk_pb) _dfunc(hMod, "Tk_PhotoBlank")) == NULL))
+        ((TK_PHOTO_BLANK = (Tk_PhotoBlank_t)
+          _dfunc(hMod, "Tk_PhotoBlank")) == NULL))
         ? -1 : 1;
 }
 
@@ -397,17 +387,17 @@ int _func_loader(void *lib)
     // Fill global function pointers from dynamic lib.
     // Return 1 if any pointer is NULL, 0 otherwise.
     return (
-         ((TCL_CREATE_COMMAND = (tcl_cc)
+         ((TCL_CREATE_COMMAND = (Tcl_CreateCommand_t)
            _dfunc(lib, "Tcl_CreateCommand")) == NULL) ||
-         ((TCL_APPEND_RESULT = (tcl_app_res)
+         ((TCL_APPEND_RESULT = (Tcl_AppendResult_t)
            _dfunc(lib, "Tcl_AppendResult")) == NULL) ||
-         ((TK_MAIN_WINDOW = (tk_mw)
+         ((TK_MAIN_WINDOW = (Tk_MainWindow_t)
            _dfunc(lib, "Tk_MainWindow")) == NULL) ||
-         ((TK_FIND_PHOTO = (tk_fp)
+         ((TK_FIND_PHOTO = (Tk_FindPhoto_t)
            _dfunc(lib, "Tk_FindPhoto")) == NULL) ||
-         ((TK_PHOTO_PUTBLOCK = (tk_ppb_nc)
+         ((TK_PHOTO_PUT_BLOCK_NO_COMPOSITE = (Tk_PhotoPutBlock_NoComposite_t)
            _dfunc(lib, "Tk_PhotoPutBlock_NoComposite")) == NULL) ||
-         ((TK_PHOTO_BLANK = (tk_pb)
+         ((TK_PHOTO_BLANK = (Tk_PhotoBlank_t)
            _dfunc(lib, "Tk_PhotoBlank")) == NULL));
 }
 
