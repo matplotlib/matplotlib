@@ -39,7 +39,6 @@ def test_contains_points_negative_radius():
     expected = [True, False, False]
     result = path.contains_points(points, radius=-0.5)
 
-    assert result.dtype == np.bool
     assert np.all(result == expected)
 
 

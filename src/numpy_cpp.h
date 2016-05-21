@@ -284,7 +284,7 @@ class array_view_accessors<AV, T, 2>
                                             self->m_strides[1] * j);
     }
 
-    sub_t operator[](npy_intp i) const
+    sub_t subarray(npy_intp i) const
     {
         const AVC *self = static_cast<const AVC *>(this);
 
@@ -318,7 +318,7 @@ class array_view_accessors<AV, T, 3>
                                             self->m_strides[1] * j + self->m_strides[2] * k);
     }
 
-    sub_t operator[](npy_intp i) const
+    sub_t subarray(npy_intp i) const
     {
         const AVC *self = static_cast<const AVC *>(this);
 
