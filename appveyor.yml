@@ -12,7 +12,6 @@ environment:
     # /E:ON and /V:ON options are not enabled in the batch script intepreter
     # See: http://stackoverflow.com/a/13751649/163740
     CMD_IN_ENV: "cmd /E:ON /V:ON /C obvci_appveyor_python_build_env.cmd"
-    CONDA_INSTALL_LOCN: "C:\\conda"
     # Workaround for https://github.com/conda/conda-build/issues/636
     PYTHONIOENCODING: "UTF-8"
 
@@ -22,18 +21,22 @@ environment:
       CONDA_PY: "27"
       CONDA_NPY: "18"
       PYTHON_VERSION: "2.7"
+      CONDA_INSTALL_LOCN: "C:\\Miniconda"
     - TARGET_ARCH: "x64"
       CONDA_PY: "27"
       CONDA_NPY: "18"
       PYTHON_VERSION: "2.7"
+      CONDA_INSTALL_LOCN: "C:\\Miniconda-x64"
     - TARGET_ARCH: "x64"
       CONDA_PY: "34"
       CONDA_NPY: "110"
       PYTHON_VERSION: "3.4"
+      CONDA_INSTALL_LOCN: "C:\\Miniconda3-x64"
     - TARGET_ARCH: "x64"
       CONDA_PY: "35"
       CONDA_NPY: "110"
       PYTHON_VERSION: "3.5"
+      CONDA_INSTALL_LOCN: "C:\\Miniconda35-x64"
 
 
 # We always use a 64-bit machine, but can build x86 distributions
@@ -48,8 +51,6 @@ init:
   - cmd: "ECHO %PYTHON_VERSION% %CONDA_INSTALL_LOCN%"
 
 install:
-  - appveyor DownloadFile "https://raw.githubusercontent.com/pelson/Obvious-CI/master/bootstrap-obvious-ci-and-miniconda.py"
-  - cmd: python bootstrap-obvious-ci-and-miniconda.py %CONDA_INSTALL_LOCN% %TARGET_ARCH% %CONDA_PY:~0,1% --without-obvci
   - cmd: set PATH=%CONDA_INSTALL_LOCN%;%CONDA_INSTALL_LOCN%\scripts;%PATH%;
   - cmd: set PYTHONUNBUFFERED=1
   - cmd: conda install -c http://conda.anaconda.org/pelson/channel/development --yes --quiet obvious-ci
