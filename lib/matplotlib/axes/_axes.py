@@ -1980,6 +1980,7 @@ class Axes(_AxesBase):
 
         .. plot:: mpl_examples/pylab_examples/bar_stacked.py
         """
+        kwargs = cbook.normalize_kwargs(kwargs, mpatches._patch_alias_map)
         if not self._hold:
             self.cla()
         color = kwargs.pop('color', None)
