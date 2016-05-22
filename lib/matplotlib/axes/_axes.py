@@ -633,63 +633,13 @@ class Axes(_AxesBase):
 
     @docstring.dedent_interpd
     def annotate(self, *args, **kwargs):
-        """
-        Create an annotation: a piece of text referring to a data
-        point.
-
-        Parameters
-        ----------
-        s : string
-            label
-
-        xy : (x, y)
-            position of element to annotate. See *xycoords* to control what
-            coordinate system this value is interpretated in.
-
-        xytext : (x, y) , optional, default: None
-            position of the label `s`. See *textcoords* to control what
-            coordinate system this value is interpreted in.
-
-        xycoords : string, optional, default: "data"
-            string that indicates what type of coordinates `xy` is. Examples:
-            "figure points", "figure pixels", "figure fraction", "axes
-            points", .... See `matplotlib.text.Annotation` for more details.
-
-        textcoords : string, optional, default: None
-            string that indicates what type of coordinates `text` is. Examples:
-            "figure points", "figure pixels", "figure fraction", "axes
-            points", .... See `matplotlib.text.Annotation` for more details.
-
-        arrowprops : `matplotlib.lines.Line2D` properties, optional
-            Dictionary of line properties for the arrow that connects
-            the annotation to the point. If the dictionnary has a key
-            `arrowstyle`, a `~matplotlib.patches.FancyArrowPatch`
-            instance is created and drawn.  See
-            `matplotlib.text.Annotation` for more details on valid
-            options. Default is None.
-
-        Returns
-        -------
-        a : `~matplotlib.text.Annotation`
-
-
-        Notes
-        -----
-
-        %(Annotation)s
-
-        Examples
-        --------
-
-        .. plot:: mpl_examples/pylab_examples/annotation_demo2.py
-        """
         a = mtext.Annotation(*args, **kwargs)
         a.set_transform(mtransforms.IdentityTransform())
         if 'clip_on' in kwargs:
             a.set_clip_path(self.patch)
         self._add_text(a)
         return a
-
+    annotate.__doc__ = mtext.Annotation.__init__.__doc__
     #### Lines and spans
 
     @docstring.dedent_interpd
