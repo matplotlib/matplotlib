@@ -6,6 +6,36 @@ Release Guide
 
 A guide for developers who are doing a matplotlib release.
 
+Development (beta/RC) release checklist
+---------------------------------------
+
+- [ ] Testing
+- [ ] Create empty REL: commit
+- [ ] Create tag
+- [ ] Push tags + branches to GH
+- [ ] Notify mac/windows/conda builders
+- [ ] Merge everything to master
+- [ ] announce release
+
+Final release checklist
+-----------------------
+
+- [ ] Testing
+- [ ] update gh states
+- [ ] Create empty REL: commit
+- [ ] Create tag
+- [ ] Create branches
+- [ ] Push tags + branches to GH
+- [ ] release / DOI management
+- [ ] Notify mac/windows/conda builders
+- [ ] Merge everything to master
+- [ ] build documentation
+- [ ] upload to pypi / sf
+- [ ] deploy updated documentation
+- [ ] announce release
+
+Details
+-------
 
 .. _release-testing:
 
@@ -14,18 +44,24 @@ Testing
 
 We use `travis-ci <https://travis-ci.org/matplotlib/matplotlib>`__ for
 continuous integration.  When preparing for a release, the final
-tagged commit should be tested locally before it is uploaded.  In
-addition ::
+tagged commit should be tested locally before it is uploaded::
 
-  python unit/memleak_hawaii3.py
+   python tests.py --processes=8 --process-timeout=300
+
+In addition ::
+
+   python unit/memleak_hawaii3.py
 
 should be run to check for memory leaks.  Optionally, make sure ::
 
-   python examples/tests/backend_driver.py
+   cd examples/tests/
+   python backend_driver.py
 
 runs without errors and check the output of the PNG, PDF, PS and SVG
 backends.
 
+
+.. _release_ghstats:
 
 Github Stats
 ============
@@ -39,6 +75,29 @@ stats.  In the project root run ::
 where `$TAG` is the tag of the last major release.  This will generate
 stats for all work done since that release.
 
+- [ ] review and commit changes
+- [ ] check for valid rst
+- [ ] re-add github-stats link
+
+.. _release_tag:
+
+Create Tag
+==========
+
+On the tip of the current branch::
+
+  git commit --allow-empty
+  git tag -a -s v1.5.0
+
+The commit and tag message should be very terse release notes should look something
+like
+
+  REL: vX.Y.Z
+
+  Something brief description
+
+Development releases should be post-fixed with the proper string following
+`PEP 440<https://www.python.org/dev/peps/pep-0440/>`__ conventions.
 
 .. _release-branching:
 
@@ -52,27 +111,6 @@ the second part of the version number changes::
    git checkout -b v1.1.x
    git push git@github.com:matplotlib/matplotlib.git v1.1.x
 
-On the branch, do any additional testing you want to do, and then build
-binaries and source distributions for testing as release candidates.
-
-For each release candidate as well as for the final release version,
-please `git tag` the commit you will use for packaging like so::
-
-    git tag -a v1.1.0rc1
-
-The `-a` flag will allow you to write a message about the tag, and
-affiliate your name with it. A reasonable tag message would be something
-like ``v1.1.0 Release Candidate 1 (September 24, 2011)``. To tag a
-release after the fact, just track down the commit hash, and::
-
-    git tag -a v1.0.1rc1 a9f3f3a50745
-
-Tags allow developers to quickly checkout different releases by name,
-and also provides source download via zip and tarball on github.
-
-Then push the tags to the main repository::
-
-    git push upstream v1.0.1rc1
 
 .. _release-packaging:
 
