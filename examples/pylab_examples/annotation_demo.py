@@ -13,6 +13,7 @@ following strings for xycoords and textcoords (default is 'data')
   'axes pixels'     : pixels from lower left corner of axes
   'axes fraction'   : 0,0 is lower left of axes and 1,1 is upper right
   'offset points'   : Specify an offset (in points) from the xy value
+  'offset pixels'   : Specify an offset (in pixels) from the xy value
   'data'            : use the axes data coordinate system
 
 Optionally, you can specify arrow properties which draws and arrow
@@ -29,9 +30,7 @@ Valid keys are
           any key for matplotlib.patches.polygon  (e.g., facecolor)
 
 For physical coordinate systems (points or pixels) the origin is the
-(bottom, left) of the figure or axes.  If the value is negative,
-however, the origin is from the (right, top) of the figure or axes,
-analogous to negative indexing of sequences.
+(bottom, left) of the figure or axes.
 """
 
 
@@ -50,26 +49,26 @@ if 1:
     s = np.cos(2*np.pi*t)
     line, = ax.plot(t, s)
 
-    ax.annotate('axes center', xy=(.5, .5), xycoords='axes fraction',
-                horizontalalignment='center', verticalalignment='center')
+    ax.annotate('figure pixels',
+                xy=(10, 10), xycoords='figure pixels')
 
-    ax.annotate('pixels', xy=(20, 20), xycoords='figure pixels')
+    ax.annotate('figure points', xy=(80, 80),
+                xycoords='figure points')
 
-    ax.annotate('points', xy=(100, 300), xycoords='figure points')
-
-    ax.annotate('offset', xy=(1, 1), xycoords='data',
-                xytext=(-15, 10), textcoords='offset points',
+    ax.annotate('point offset from data', xy=(2, 1),
+                xycoords='data',
+                xytext=(-15, 25), textcoords='offset points',
                 arrowprops=dict(facecolor='black', shrink=0.05),
                 horizontalalignment='right', verticalalignment='bottom',
                 )
 
-    ax.annotate('local max', xy=(3, 1), xycoords='data',
+    ax.annotate('axes fraction', xy=(3, 1), xycoords='data',
                 xytext=(0.8, 0.95), textcoords='axes fraction',
                 arrowprops=dict(facecolor='black', shrink=0.05),
                 horizontalalignment='right', verticalalignment='top',
                 )
 
-    ax.annotate('a fractional title', xy=(.025, .975),
+    ax.annotate('figure fraction', xy=(.025, .975),
                 xycoords='figure fraction',
                 horizontalalignment='left', verticalalignment='top',
                 fontsize=20)
@@ -77,10 +76,12 @@ if 1:
     # use negative points or pixels to specify from right, top -10, 10
     # is 10 points to the left of the right side of the axes and 10
     # points above the bottom
-    ax.annotate('bottom right (points)', xy=(-10, 10),
-                xycoords='axes points',
-                horizontalalignment='right', verticalalignment='bottom',
-                fontsize=20)
+    ax.annotate('pixel offset from axes fraction', xy=(1, 0),
+                xycoords='axes fraction',
+                xytext=(-20, 20),
+                textcoords='offset pixels',
+                horizontalalignment='right',
+                verticalalignment='bottom')
 
 
 if 1:
