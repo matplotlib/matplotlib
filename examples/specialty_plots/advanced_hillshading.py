@@ -16,7 +16,7 @@ def display_colorbar():
     rgb = ls.shade(z, cmap)
 
     fig, ax = plt.subplots()
-    ax.imshow(rgb)
+    ax.imshow(rgb, interpolation='bilinear')
 
     # Use a proxy artist for the colorbar...
     im = ax.imshow(z, cmap=cmap)
@@ -39,11 +39,11 @@ def avoid_outliers():
     fig, (ax1, ax2) = plt.subplots(ncols=2, figsize=(8, 4.5))
 
     rgb = ls.shade(z, plt.cm.copper)
-    ax1.imshow(rgb)
+    ax1.imshow(rgb, interpolation='bilinear')
     ax1.set_title('Full range of data')
 
     rgb = ls.shade(z, plt.cm.copper, vmin=-10, vmax=10)
-    ax2.imshow(rgb)
+    ax2.imshow(rgb, interpolation='bilinear')
     ax2.set_title('Manually set range')
 
     fig.suptitle('Avoiding Outliers in Shaded Plots', size='x-large')
@@ -62,7 +62,7 @@ def shade_other_data():
     rgb = ls.shade_rgb(cmap(norm(z2)), z1)
 
     fig, ax = plt.subplots()
-    ax.imshow(rgb)
+    ax.imshow(rgb, interpolation='bilinear')
     ax.set_title('Shade by one variable, color by another', size='x-large')
 
 display_colorbar()
