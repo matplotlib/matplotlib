@@ -1525,28 +1525,8 @@ class BackendTkAgg(OptionalBackendPackage):
     name = "tkagg"
 
     def check_requirements(self):
-        try:
-            if PY3min:
-                import tkinter as Tkinter
-            else:
-                import Tkinter
-        except ImportError:
-            raise CheckFailed('TKAgg requires Tkinter.')
-        except RuntimeError:
-            raise CheckFailed('Tkinter present but import failed.')
-        else:
-            if Tkinter.TkVersion < 8.3:
-                raise CheckFailed("Tcl/Tk v8.3 or later required.")
-
-        try:
-            tk_v = Tkinter.__version__.split()[-2]
-        except (AttributeError, IndexError):
-            # Tkinter.__version__ has been removed in python 3
-            tk_v = 'not identified'
-
         BackendAgg.force = True
-
-        return "version %s" % tk_v
+        return ""
 
     def get_extension(self):
         sources = [
