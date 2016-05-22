@@ -34,8 +34,8 @@ was pressed::
     ax.plot(np.random.rand(10))
 
     def onclick(event):
-        print 'button=%d, x=%d, y=%d, xdata=%f, ydata=%f'%(
-            event.button, event.x, event.y, event.xdata, event.ydata)
+        print('button=%d, x=%d, y=%d, xdata=%f, ydata=%f' %
+              (event.button, event.x, event.y, event.xdata, event.ydata))
 
     cid = fig.canvas.mpl_connect('button_press_event', onclick)
 
@@ -128,7 +128,7 @@ is created every time a mouse is pressed::
             self.cid = line.figure.canvas.mpl_connect('button_press_event', self)
 
         def __call__(self, event):
-            print 'click', event
+            print('click', event)
             if event.inaxes!=self.line.axes: return
             self.xs.append(event.xdata)
             self.ys.append(event.ydata)
@@ -196,7 +196,7 @@ Here is the solution::
 
             contains, attrd = self.rect.contains(event)
             if not contains: return
-            print 'event contains', self.rect.xy
+            print('event contains', self.rect.xy)
             x0, y0 = self.rect.xy
             self.press = x0, y0, event.xdata, event.ydata
 
@@ -207,7 +207,8 @@ Here is the solution::
             x0, y0, xpress, ypress = self.press
             dx = event.xdata - xpress
             dy = event.ydata - ypress
-            #print 'x0=%f, xpress=%f, event.xdata=%f, dx=%f, x0+dx=%f'%(x0, xpress, event.xdata, dx, x0+dx)
+            #print('x0=%f, xpress=%f, event.xdata=%f, dx=%f, x0+dx=%f' %
+            #      (x0, xpress, event.xdata, dx, x0+dx))
             self.rect.set_x(x0+dx)
             self.rect.set_y(y0+dy)
 
@@ -271,7 +272,7 @@ Extra credit solution::
             if DraggableRectangle.lock is not None: return
             contains, attrd = self.rect.contains(event)
             if not contains: return
-            print 'event contains', self.rect.xy
+            print('event contains', self.rect.xy)
             x0, y0 = self.rect.xy
             self.press = x0, y0, event.xdata, event.ydata
             DraggableRectangle.lock = self
@@ -361,22 +362,22 @@ background that the mouse is over::
     import matplotlib.pyplot as plt
 
     def enter_axes(event):
-        print 'enter_axes', event.inaxes
+        print('enter_axes', event.inaxes)
         event.inaxes.patch.set_facecolor('yellow')
         event.canvas.draw()
 
     def leave_axes(event):
-        print 'leave_axes', event.inaxes
+        print('leave_axes', event.inaxes)
         event.inaxes.patch.set_facecolor('white')
         event.canvas.draw()
 
     def enter_figure(event):
-        print 'enter_figure', event.canvas.figure
+        print('enter_figure', event.canvas.figure)
         event.canvas.figure.patch.set_facecolor('red')
         event.canvas.draw()
 
     def leave_figure(event):
-        print 'leave_figure', event.canvas.figure
+        print('leave_figure', event.canvas.figure)
         event.canvas.figure.patch.set_facecolor('grey')
         event.canvas.draw()
 
@@ -401,7 +402,6 @@ background that the mouse is over::
     fig2.canvas.mpl_connect('axes_leave_event', leave_axes)
 
     plt.show()
-
 
 
 .. _object-picking:
@@ -503,7 +503,8 @@ properties of the line.  Here is the code::
         xdata = thisline.get_xdata()
         ydata = thisline.get_ydata()
         ind = event.ind
-        print 'onpick points:', zip(xdata[ind], ydata[ind])
+        points = tuple(zip(xdata[ind], ydata[ind]))
+        print('onpick points:', points)
 
     fig.canvas.mpl_connect('pick_event', onpick)
 
