@@ -42,7 +42,7 @@ dirs = dict(files=os.path.join('..', 'lines_bars_and_markers'),
             subplots=os.path.join('..', 'subplots_axes_and_figures'),
             specialty=os.path.join('..', 'specialty_plots'),
             showcase=os.path.join('..', 'showcase'),
-            pylab=os.path.join('..', 'pylab_examples'),
+            pylab_examples=os.path.join('..', 'pylab_examples'),
             api=os.path.join('..', 'api'),
             units=os.path.join('..', 'units'),
             mplot3d=os.path.join('..', 'mplot3d'))
@@ -107,9 +107,7 @@ files['showcase'] = [
     'integral_demo.py',
     ]
 
-files['pylab'] = [
-    'accented_text.py',
-    'alignment_test.py',
+files['pylab_examples'] = [
     'annotation_demo.py',
     'annotation_demo.py',
     'annotation_demo2.py',
@@ -444,7 +442,7 @@ def parse_options():
                       #epilog='\n'.join(doc[1:])  # epilog not supported on my python2.4 machine: JDH
                       )
     op.disable_interspersed_args()
-    op.set_defaults(dirs='pylab,api,units,mplot3d',
+    op.set_defaults(dirs='pylab_examples,api,units,mplot3d',
                     clean=False, coverage=False, valgrind=False)
     op.add_option('-d', '--dirs', '--directories', type='string',
                   dest='dirs', help=dedent('''
@@ -476,7 +474,7 @@ def parse_options():
         valgrind=options.valgrind,
         switches=switches)
     if 'pylab_examples' in result.dirs:
-        result.dirs[result.dirs.index('pylab_examples')] = 'pylab'
+        result.dirs[result.dirs.index('pylab_examples')] = 'pylab_examples'
     #print(result)
     return (result)
 
