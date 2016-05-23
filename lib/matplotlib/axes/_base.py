@@ -1046,9 +1046,10 @@ class _AxesBase(martist.Artist):
                     size=rcParams['axes.titlesize'],
                     weight=rcParams['axes.titleweight']
                 )
-
+        title_offset_points = rcParams['axes.titlepad']
         self.titleOffsetTrans = mtransforms.ScaledTranslation(
-            0.0, 9.0 / 72.0, self.figure.dpi_scale_trans)
+            0.0, title_offset_points / 72.0,
+            self.figure.dpi_scale_trans)
         self.title = mtext.Text(
             x=0.5, y=1.0, text='',
             fontproperties=props,
