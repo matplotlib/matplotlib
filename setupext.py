@@ -1506,6 +1506,7 @@ class Pyparsing(SetupPackage):
 
 class BackendAgg(OptionalBackendPackage):
     name = "agg"
+    force = True
 
     def get_extension(self):
         sources = [
@@ -1523,10 +1524,10 @@ class BackendAgg(OptionalBackendPackage):
 
 class BackendTkAgg(OptionalBackendPackage):
     name = "tkagg"
+    force = True
 
-    def check_requirements(self):
-        BackendAgg.force = True
-        return ""
+    def check(self):
+        return "installing; run-time loading from Python Tcl / Tk"
 
     def get_extension(self):
         sources = [
@@ -1658,8 +1659,6 @@ class BackendGtkAgg(BackendGtk):
             return super(BackendGtkAgg, self).check()
         except:
             raise
-        else:
-            BackendAgg.force = True
 
     def get_package_data(self):
         return {'matplotlib': ['mpl-data/*.glade']}
@@ -1735,7 +1734,6 @@ class BackendGtk3Agg(OptionalBackendPackage):
             p.join()
 
         if success:
-            BackendAgg.force = True
             return msg
         else:
             raise CheckFailed(msg)
@@ -1808,7 +1806,6 @@ class BackendGtk3Cairo(OptionalBackendPackage):
             p.join()
 
         if success:
-            BackendAgg.force = True
             return msg
         else:
             raise CheckFailed(msg)
@@ -1851,8 +1848,6 @@ class BackendWxAgg(OptionalBackendPackage):
         if major < 2 or (major < 3 and minor < 8):
             raise CheckFailed(
                 "Requires wxPython 2.8, found %s" % backend_version)
-
-        BackendAgg.force = True
 
         return "version %s" % backend_version
 
@@ -1963,7 +1958,6 @@ def backend_pyside_internal_check(self):
     except ImportError:
         raise CheckFailed("PySide not found")
     else:
-        BackendAgg.force = True
         return ("Qt: %s, PySide: %s" %
                 (QtCore.__version__, __version__))
 
@@ -1980,7 +1974,6 @@ def backend_pyqt4_internal_check(self):
     except AttributeError:
         raise CheckFailed('PyQt4 not correctly imported')
     else:
-        BackendAgg.force = True
         return ("Qt: %s, PyQt: %s" % (self.convert_qt_version(qt_version), pyqt_version_str))
 
 
@@ -2016,7 +2009,6 @@ def backend_pyside2_internal_check(self):
     except ImportError:
         raise CheckFailed("PySide2 not found")
     else:
-        BackendAgg.force = True
         return ("Qt: %s, PySide2: %s" %
                 (QtCore.__version__, __version__))
 
@@ -2032,7 +2024,6 @@ def backend_pyqt5_internal_check(self):
     except AttributeError:
         raise CheckFailed('PyQt5 not correctly imported')
     else:
-        BackendAgg.force = True
         return ("Qt: %s, PyQt: %s" % (self.convert_qt_version(qt_version), pyqt_version_str))
 
 def backend_qt5_internal_check(self):
