@@ -3521,23 +3521,32 @@ class Axes(_AxesBase):
 
         # box properties
         if patch_artist:
-            final_boxprops = dict(linestyle='solid', edgecolor='black',
-                                  facecolor='white', linewidth=1)
+            final_boxprops = dict(
+                linestyle=rcParams['boxplot.boxprops.linestyle'],
+                edgecolor=rcParams['boxplot.boxprops.color'],
+                facecolor=rcParams['patch.facecolor'],
+                linewidth=rcParams['boxplot.boxprops.linewidth']
+            )
         else:
-            final_boxprops = dict(linestyle='-', color='blue')
+            final_boxprops = dict(
+                linestyle=rcParams['boxplot.boxprops.linestyle'],
+                color=rcParams['boxplot.boxprops.color'],
+            )
 
         if boxprops is not None:
             final_boxprops.update(boxprops)
 
         # other (cap, whisker) properties
         final_whiskerprops = dict(
-            linestyle='--',
-            color='blue',
+            linestyle=rcParams['boxplot.whiskerprops.linestyle'],
+            linewidth=rcParams['boxplot.whiskerprops.linewidth'],
+            color=rcParams['boxplot.whiskerprops.color'],
         )
 
         final_capprops = dict(
-            linestyle='-',
-            color='black',
+            linestyle=rcParams['boxplot.capprops.linestyle'],
+            linewidth=rcParams['boxplot.capprops.linewidth'],
+            color=rcParams['boxplot.capprops.color'],
         )
 
         if capprops is not None:
@@ -3547,23 +3556,45 @@ class Axes(_AxesBase):
             final_whiskerprops.update(whiskerprops)
 
         # set up the default flier properties
-        final_flierprops = dict(linestyle='none', marker='+', color='blue')
+        final_flierprops = dict(
+            linestyle=rcParams['boxplot.flierprops.linestyle'],
+            linewidth=rcParams['boxplot.flierprops.linewidth'],
+            color=rcParams['boxplot.flierprops.color'],
+            marker=rcParams['boxplot.flierprops.marker'],
+            markerfacecolor=rcParams['boxplot.flierprops.markerfacecolor'],
+            markeredgecolor=rcParams['boxplot.flierprops.markeredgecolor'],
+            markersize=rcParams['boxplot.flierprops.markersize'],
+        )
 
         # flier (outlier) properties
         if flierprops is not None:
             final_flierprops.update(flierprops)
 
         # median line properties
-        final_medianprops = dict(linestyle='-', color='red')
+        final_medianprops = dict(
+            linestyle=rcParams['boxplot.medianprops.linestyle'],
+            linewidth=rcParams['boxplot.medianprops.linewidth'],
+            color=rcParams['boxplot.medianprops.color'],
+        )
         if medianprops is not None:
             final_medianprops.update(medianprops)
 
         # mean (line or point) properties
         if meanline:
-            final_meanprops = dict(linestyle='--', color='black')
+            final_meanprops = dict(
+                linestyle=rcParams['boxplot.meanprops.linestyle'],
+                linewidth=rcParams['boxplot.meanprops.linewidth'],
+                color=rcParams['boxplot.meanprops.color'],
+                marker='none',
+            )
         else:
-            final_meanprops = dict(linestyle='none', markerfacecolor='red',
-                                   marker='s')
+            final_meanprops = dict(
+                linestyle='',
+                marker=rcParams['boxplot.meanprops.marker'],
+                markerfacecolor=rcParams['boxplot.meanprops.markerfacecolor'],
+                markeredgecolor=rcParams['boxplot.meanprops.markeredgecolor'],
+                markersize=rcParams['boxplot.meanprops.markersize'],
+            )
         if meanprops is not None:
             final_meanprops.update(meanprops)
 
