@@ -1980,9 +1980,12 @@ class Axes(_AxesBase):
 
         .. plot:: mpl_examples/pylab_examples/bar_stacked.py
         """
+        kwargs = cbook.normalize_kwargs(kwargs, mpatches._patch_alias_map)
         if not self._hold:
             self.cla()
         color = kwargs.pop('color', None)
+        if color is None:
+            color = self._get_patches_for_fill.get_next_color()
         edgecolor = kwargs.pop('edgecolor', None)
         linewidth = kwargs.pop('linewidth', None)
 
@@ -2062,14 +2065,11 @@ class Axes(_AxesBase):
         if len(linewidth) < nbars:
             linewidth *= nbars
 
-        if color is None:
-            color = [None] * nbars
-        else:
-            color = list(mcolors.to_rgba_array(color))
-            if len(color) == 0:  # until to_rgba_array is changed
-                color = [[0, 0, 0, 0]]
-            if len(color) < nbars:
-                color *= nbars
+        color = list(mcolors.to_rgba_array(color))
+        if len(color) == 0:  # until to_rgba_array is changed
+            color = [[0, 0, 0, 0]]
+        if len(color) < nbars:
+            color *= nbars
 
         if edgecolor is None:
             edgecolor = [None] * nbars
