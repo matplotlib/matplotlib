@@ -1549,7 +1549,7 @@ class MaxNLocator(Locator):
     def _raw_ticks(self, vmin, vmax):
         nbins = self._nbins
         if nbins == 'auto':
-            nbins = max(min(self.axis.get_tick_space(), 9), 1)
+            nbins = max(min(self.axis.get_tick_space(), 9), 3)
         scale, offset = scale_range(vmin, vmax, nbins)
         if self._integer:
             scale = max(1, scale)
