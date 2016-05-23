@@ -1883,7 +1883,7 @@ class Windowing(OptionalBackendPackage):
         config = self.get_config()
         if config is False:
             raise CheckFailed("skipping due to configuration")
-        return "installing"
+        return ""
 
     def get_extension(self):
         sources = [
