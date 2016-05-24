@@ -965,7 +965,7 @@ defaultParams = {
     'boxplot.medianprops.linewidth': [1.0, validate_float],
     'boxplot.medianprops.linestyle': ['-', six.text_type],
 
-    'boxplot.meanprops.color': ['r', validate_color],
+    'boxplot.meanprops.color': ['C3', validate_color],
     'boxplot.meanprops.linewidth': [1.0, validate_float],
     'boxplot.meanprops.linestyle': ['-', six.text_type],
 

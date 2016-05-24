@@ -29,7 +29,7 @@ import matplotlib.patches as mpatches
 from numpy.testing import assert_allclose, assert_array_equal
 import warnings
 from matplotlib.cbook import IgnoredKeywordWarning
-
+import matplotlib.colors as mcolors
 
 # Note: Some test cases are run twice: once normally and once with labeled data
 #       These two must be defined in the same test function or need to have
@@ -4492,6 +4492,17 @@ def test_large_offset():
     fig, ax = plt.subplots()
     ax.plot((1 + np.array([0, 1.e-12])) * 1.e27)
     fig.canvas.draw()
+
+
+def test_bar_color_cycle():
+    ccov = mcolors.colorConverter.to_rgb
+    fig, ax = plt.subplots()
+    for j in range(5):
+        ln, = ax.plot(range(3))
+        brs = ax.bar(range(3), range(3))
+        for br in brs:
+            print(ln.get_color(), br.get_facecolor())
+            assert ccov(ln.get_color()) == ccov(br.get_facecolor())
 
 
 if __name__ == '__main__':
