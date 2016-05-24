@@ -55,6 +55,14 @@ docstring.interpd.update(Patch="""
 
           """)
 
+_patch_alias_map = {
+        'antialiased': ['aa'],
+        'edgecolor': ['ec'],
+        'facecolor': ['fc'],
+        'linewidth': ['lw'],
+        'linestyle': ['ls']
+    }
+
 
 class Patch(artist.Artist):
     """
