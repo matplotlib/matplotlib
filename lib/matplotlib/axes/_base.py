@@ -1048,7 +1048,7 @@ class _AxesBase(martist.Artist):
                 )
 
         self.titleOffsetTrans = mtransforms.ScaledTranslation(
-            0.0, 5.0 / 72.0, self.figure.dpi_scale_trans)
+            0.0, 9.0 / 72.0, self.figure.dpi_scale_trans)
         self.title = mtext.Text(
             x=0.5, y=1.0, text='',
             fontproperties=props,
