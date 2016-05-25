@@ -10,7 +10,6 @@ example shows a few features of the stream plot function:
 """
 import numpy as np
 import matplotlib.pyplot as plt
-plt.ion()
 
 X, Y = (np.linspace(-3, 3, 100),
         np.linspace(-3, 3, 100))
@@ -27,3 +26,5 @@ fig0.colorbar(strm.lines)
 ax0.plot(seed_points[0], seed_points[1], 'bo')
 
 ax0.axis((-3, 3, -3, 3))
+
+plt.show()
