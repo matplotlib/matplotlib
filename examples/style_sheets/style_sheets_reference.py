@@ -84,9 +84,9 @@ def plot_histograms(ax, prng, nb_samples=10000):
     ax.annotate('Annotation', xy=(0.25, 4.25), xycoords='data',
                 xytext=(0.4, 10), textcoords='data',
                 bbox=dict(boxstyle="round", alpha=0.2),
-                arrowprops=dict(arrowstyle="->",
-                                connectionstyle=
-                                "angle,angleA=-95,angleB=35,rad=10"),
+                arrowprops=dict(
+                          arrowstyle="->",
+                          connectionstyle="angle,angleA=-95,angleB=35,rad=10"),
                 )
     return ax
 
@@ -99,8 +99,8 @@ def plot_figure(style_label=None):
     if style_label is None:
         style_label = 'default'
 
-    # Use a dedicated RandomState instance to draw the same "random" values across
-    # the different figures
+    # Use a dedicated RandomState instance to draw the same "random" values
+    # across the different figures
     prng = np.random.RandomState(145236987)
 
     fig, axes = plt.subplots(ncols=3, nrows=2, num=style_label)
