@@ -7,6 +7,7 @@ gallery.
 import numpy as np
 import matplotlib.pyplot as plt
 
+
 def plot_scatter(ax, prng, nb_samples=200):
     """ Scatter plot.
 
@@ -14,7 +15,10 @@ def plot_scatter(ax, prng, nb_samples=200):
     """
     x, y = prng.normal(size=(2, nb_samples))
     ax.plot(x, y, 'o')
+    ax.set_xlabel('X-label')
+    ax.set_ylabel('Y-label')
     return ax
+
 
 def plot_colored_sinusoidal_lines(ax):
     """ Plot sinusoidal lines with colors from default color cycle.
@@ -28,6 +32,7 @@ def plot_colored_sinusoidal_lines(ax):
     ax.margins(0)
     return ax
 
+
 def plot_bar_graphs(ax, prng, min_value=5, max_value=25, nb_samples=5):
     """ Plot two bar graphs side by side, with letters as xticklabels.
     """
@@ -39,6 +44,7 @@ def plot_bar_graphs(ax, prng, min_value=5, max_value=25, nb_samples=5):
     ax.set_xticks(x + width)
     ax.set_xticklabels(['a', 'b', 'c', 'd', 'e'])
     return ax
+
 
 def plot_colored_circles(ax, prng, nb_samples=15):
     """ Plot circle patches.
@@ -58,6 +64,7 @@ def plot_colored_circles(ax, prng, nb_samples=15):
     ax.set_aspect('equal', adjustable='box')  # to plot circles as circles
     return ax
 
+
 def plot_image_and_patch(ax, prng, size=(20, 20)):
     """ Plot an image with random values and superimpose a circular patch.
     """
@@ -65,6 +72,7 @@ def plot_image_and_patch(ax, prng, size=(20, 20)):
     ax.imshow(values, interpolation='none')
     c = plt.Circle((5, 5), radius=5, label='patch')
     ax.add_patch(c)
+
 
 def plot_histograms(ax, prng, nb_samples=10000):
     """ Plot 4 histograms and a text annotation.
@@ -82,12 +90,13 @@ def plot_histograms(ax, prng, nb_samples=10000):
                 )
     return ax
 
+
 def plot_figure(style_label=None):
-    """ 
+    """
     Setup and plot the demonstration figure with the style `style_label`.
     If `style_label`, fall back to the `default` style.
     """
-    if style_label == None:
+    if style_label is None:
         style_label = 'default'
 
     # Use a dedicated RandomState instance to draw the same "random" values across
@@ -116,4 +125,3 @@ if __name__ == "__main__":
             fig = plot_figure(style_label=style_label)
 
     plt.show()
-
