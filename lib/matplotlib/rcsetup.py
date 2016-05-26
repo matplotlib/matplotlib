@@ -943,7 +943,7 @@ defaultParams = {
 
     'boxplot.flierprops.color': ['k', validate_color],
     'boxplot.flierprops.marker': ['o', six.text_type],
-    'boxplot.flierprops.markerfacecolor': ['none', validate_color],
+    'boxplot.flierprops.markerfacecolor': ['none', validate_color_or_auto],
     'boxplot.flierprops.markeredgecolor': ['k', validate_color],
     'boxplot.flierprops.markersize': [6, validate_float],
     'boxplot.flierprops.linestyle': ['none', six.text_type],
