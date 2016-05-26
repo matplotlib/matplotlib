@@ -115,7 +115,7 @@ backend      : $TEMPLATE_BACKEND
 ### Boxplot
 #boxplot.notch       : False
 #boxplot.vertical    : True
-#boxplot.whiskers    : 1
+#boxplot.whiskers    : 1.5
 #boxplot.bootstrap   : None
 #boxplot.patchartist : False
 #boxplot.showmeans   : False
