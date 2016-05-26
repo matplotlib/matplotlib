@@ -3564,6 +3564,8 @@ class Axes(_AxesBase):
                 facecolor=rcParams['patch.facecolor'],
                 linewidth=rcParams['boxplot.boxprops.linewidth']
             )
+            if rcParams['_internal.classic_mode']:
+                final_boxprops['facecolor'] = 'white'
         else:
             final_boxprops = dict(
                 linestyle=rcParams['boxplot.boxprops.linestyle'],
