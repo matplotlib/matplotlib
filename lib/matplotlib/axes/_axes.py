@@ -3622,7 +3622,6 @@ class Axes(_AxesBase):
                 linestyle=rcParams['boxplot.meanprops.linestyle'],
                 linewidth=rcParams['boxplot.meanprops.linewidth'],
                 color=rcParams['boxplot.meanprops.color'],
-                marker='none',
             )
         else:
             final_meanprops = dict(
