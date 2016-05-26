@@ -8,6 +8,7 @@ import numpy as np
 
 from matplotlib import rcParams
 from matplotlib.testing.decorators import image_comparison
+from matplotlib.testing.noseclasses import KnownFailureTest
 import matplotlib.pyplot as plt
 import matplotlib.path as mpath
 import matplotlib.patches as mpatches
@@ -90,6 +91,8 @@ def test_bbox_inches_tight_clipping():
                   remove_text=True, savefig_kwarg={'bbox_inches': 'tight'})
 def test_bbox_inches_tight_raster():
     """Test rasterization with tight_layout"""
+    if tuple(map(int, np.__version__.split('.'))) >= (1, 11, 0):
+        raise KnownFailureTest("Fall out from a fixed numpy bug")
     fig = plt.figure()
     ax = fig.add_subplot(111)
     ax.plot([1.0, 2.0], rasterized=True)
