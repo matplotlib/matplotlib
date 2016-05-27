@@ -53,8 +53,9 @@ def plot_colored_circles(ax, prng, nb_samples=15):
     the color cycle, because different styles may have different numbers of
     colors.
     """
-    max_idx = max(nb_samples, len(plt.rcParams['axes.color_cycle']))
-    for color in plt.rcParams['axes.color_cycle'][0:max_idx]:
+    list_of_colors = plt.rcParams['axes.prop_cycle'].by_key()['color']
+    max_idx = min(nb_samples, len(list_of_colors))
+    for color in list_of_colors[0:max_idx]:
         ax.add_patch(plt.Circle(prng.normal(scale=3, size=2),
                      radius=1.0, color=color))
     # Force the limits to be the same accross the styles (because different
