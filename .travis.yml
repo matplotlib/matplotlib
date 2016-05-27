@@ -37,6 +37,7 @@ env:
     - secure: "dfjNqGKzQG5bu3FnDNwLG8H/C4QoieFo4PfFmZPdM2RY7WIzukwKFNT6kiDfOrpwt+2bR7FhzjOGlDECGtlGOtYPN8XuXGjhcP4a4IfakdbDfF+D3NPIpf5VlE6776k0VpvcZBTMYJKNFIMc7QPkOwjvNJ2aXyfe3hBuGlKJzQU="
     - BUILD_DOCS=false
     - NUMPY=numpy
+    - OPENBLAS_NUM_THREADS=1
     - PANDAS=
     - NPROC=2
     - TEST_ARGS=--no-pep8
@@ -77,15 +78,9 @@ install:
     pip install --upgrade wheel
     pip install --upgrade setuptools
   - |
-    # Install only from travis wheelhouse
-    if [ -z "$PRE" ]; then
-        wheelhouse_pip_install python-dateutil $NUMPY $PANDAS pyparsing!=2.1.2 pillow sphinx!=1.3.0;
-    else
-        pip install $PRE python-dateutil $NUMPY pyparsing!=2.1.2 pillow sphinx!=1.3.0;
-    fi
-    # Always install from pypi
-    pip install $PRE pep8 cycler coveralls coverage
-    pip install pillow sphinx!=1.3.0 $MOCK numpydoc ipython colorspacious
+    # Install dependencies from pypi
+    pip install $PRE python-dateutil $NUMPY pyparsing!=2.1.2 $PANDAS pep8 cycler coveralls coverage
+    pip install $PRE pillow sphinx!=1.3.0 $MOCK numpydoc ipython colorspacious
     # Install nose from a build which has partial
     # support for python36 and suport for coverage output suppressing
     pip install git+https://github.com/jenshnielsen/nose.git@matplotlibnose
@@ -125,7 +120,6 @@ script:
   - |
     echo Testing import of tkagg backend
     MPLBACKEND="tkagg" python -c 'import matplotlib.pyplot as plt; print(plt.get_backend())'
-    echo Testing using $NPROC processes
     echo The following args are passed to nose $NOSE_ARGS
     if [[ $BUILD_DOCS == false ]]; then
       export MPL_REPO_DIR=$PWD  # needed for pep8-conformance test of the examples
