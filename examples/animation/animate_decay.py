@@ -12,9 +12,7 @@ def data_gen(t=0):
 
     Generates a decaying sine wave.
     """
-    count = 0
-    while count < 1000:
-        count += 1
+    for count in range(1000):
         t += 0.1
         yield t, np.sin(2*np.pi*t) * np.exp(-t/10.)
 
