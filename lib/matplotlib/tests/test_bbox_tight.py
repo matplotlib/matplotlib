@@ -1,5 +1,6 @@
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
+from distutils.version import LooseVersion
 
 from matplotlib.externals import six
 from matplotlib.externals.six.moves import xrange
@@ -91,7 +92,7 @@ def test_bbox_inches_tight_clipping():
                   remove_text=True, savefig_kwarg={'bbox_inches': 'tight'})
 def test_bbox_inches_tight_raster():
     """Test rasterization with tight_layout"""
-    if tuple(map(int, np.__version__.split('.'))) >= (1, 11, 0):
+    if LooseVersion(np.__version__) >= LooseVersion('1.11.0'):
         raise KnownFailureTest("Fall out from a fixed numpy bug")
     fig = plt.figure()
     ax = fig.add_subplot(111)
