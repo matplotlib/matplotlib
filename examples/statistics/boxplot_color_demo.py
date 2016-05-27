@@ -1,4 +1,4 @@
-# Box plots with custom fill colors
+"""Box plots with custom fill colors."""
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -29,12 +29,12 @@ for bplot in (bplot1, bplot2):
 # adding horizontal grid lines
 for ax in axes:
     ax.yaxis.grid(True)
-    ax.set_xticks([y+1 for y in range(len(all_data))], )
+    ax.set_xticks([y + 1 for y in range(len(all_data))], )
     ax.set_xlabel('xlabel')
     ax.set_ylabel('ylabel')
 
 # add x-tick labels
-plt.setp(axes, xticks=[y+1 for y in range(len(all_data))],
+plt.setp(axes, xticks=[y + 1 for y in range(len(all_data))],
          xticklabels=['x1', 'x2', 'x3', 'x4'])
 
 plt.show()
