@@ -1,3 +1,11 @@
+"""Timeline graph comparison with aligned colored annotation.
+
+This example shows lines tracking change over time.  It features dashed
+lines at fixed increments on the Y axis.
+
+It adds a text label at the right end of every line in the corresponding color.
+"""
+
 import matplotlib.pyplot as plt
 from matplotlib.mlab import csv2rec
 from matplotlib.cbook import get_sample_data
