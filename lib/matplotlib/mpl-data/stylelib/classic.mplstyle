@@ -267,7 +267,6 @@ grid.alpha       :   1.0     # transparency, between 0.0 and 1.0
 legend.fancybox      : False  # if True, use a rounded box for the
                               # legend, else a rectangle
 legend.loc           : upper right
-legend.isaxes        : True   # this option is internally ignored
 legend.numpoints     : 2      # the number of points in the legend line
 legend.fontsize      : large
 legend.borderpad     : 0.4    # border whitespace in fontsize units
