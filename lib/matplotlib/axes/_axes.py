@@ -3346,6 +3346,8 @@ class Axes(_AxesBase):
                     # filled symbol, if the users want more control use
                     # flierprops
                     flierprops['color'] = color
+                    flierprops['markerfacecolor'] = color
+                    flierprops['markeredgecolor'] = color
 
         # replace medians if necessary:
         if usermedians is not None:
