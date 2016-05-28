@@ -1036,6 +1036,7 @@ defaultParams = {
     'axes.titlesize':        ['large', validate_fontsize],  # fontsize of the
                                                             # axes title
     'axes.titleweight':      ['normal', six.text_type],  # font weight of axes title
+    'axes.titlepad':         [9.0, validate_float],  # pad from axes top to title in points
     'axes.grid':             [False, validate_bool],   # display grid or not
     'axes.grid.which':       ['major', validate_axis_locator],  # set wether the gid are by
                                                                 # default draw on 'major'
@@ -1187,13 +1188,13 @@ defaultParams = {
     'figure.autolayout': [False, validate_bool],
     'figure.max_open_warning': [20, validate_int],
 
-    'figure.subplot.left': [0.125, ValidateInterval(0, 1, closedmin=True,
+    'figure.subplot.left': [0.155, ValidateInterval(0, 1, closedmin=True,
                                                        closedmax=True)],
-    'figure.subplot.right': [0.9, ValidateInterval(0, 1, closedmin=True,
+    'figure.subplot.right': [0.87, ValidateInterval(0, 1, closedmin=True,
                                                      closedmax=True)],
-    'figure.subplot.bottom': [0.1, ValidateInterval(0, 1, closedmin=True,
+    'figure.subplot.bottom': [0.13, ValidateInterval(0, 1, closedmin=True,
                                                      closedmax=True)],
-    'figure.subplot.top': [0.9, ValidateInterval(0, 1, closedmin=True,
+    'figure.subplot.top': [0.87, ValidateInterval(0, 1, closedmin=True,
                                                      closedmax=True)],
     'figure.subplot.wspace': [0.2, ValidateInterval(0, 1, closedmin=True,
                                                      closedmax=False)],
