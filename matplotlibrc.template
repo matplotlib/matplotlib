@@ -297,6 +297,7 @@ backend      : $TEMPLATE_BACKEND
 #axes.linewidth      : 1.0     # edge linewidth
 #axes.grid           : False   # display grid or not
 #axes.titlesize      : large   # fontsize of the axes title
+#axes.titlepad       : 9.0     # pad between axes and title in points
 #axes.labelsize      : medium  # fontsize of the x any y labels
 #axes.labelpad       : 5.0     # space between label and axis
 #axes.labelweight    : normal  # weight of the x and y labels
@@ -431,10 +432,10 @@ backend      : $TEMPLATE_BACKEND
 
 # The figure subplot parameters.  All dimensions are a fraction of the
 # figure width or height
-#figure.subplot.left    : 0.125  # the left side of the subplots of the figure
-#figure.subplot.right   : 0.9    # the right side of the subplots of the figure
-#figure.subplot.bottom  : 0.1    # the bottom of the subplots of the figure
-#figure.subplot.top     : 0.9    # the top of the subplots of the figure
+#figure.subplot.left    : 0.155  # the left side of the subplots of the figure
+#figure.subplot.right   : 0.87   # the right side of the subplots of the figure
+#figure.subplot.bottom  : 0.13   # the bottom of the subplots of the figure
+#figure.subplot.top     : 0.87   # the top of the subplots of the figure
 #figure.subplot.wspace  : 0.2    # the amount of width reserved for blank space between subplots
 #figure.subplot.hspace  : 0.2    # the amount of height reserved for white space between subplots
 
