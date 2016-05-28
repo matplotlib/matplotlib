@@ -2850,8 +2850,6 @@ class Axes(_AxesBase):
             if not iterable(yerr):
                 yerr = [yerr] * len(y)
 
-        l0 = None
-
         # make the style dict for the 'normal' plot line
         plot_line_style = dict(base_style)
         plot_line_style.update(**kwargs)
@@ -2896,9 +2894,10 @@ class Axes(_AxesBase):
                 eb_cap_style[key] = kwargs[key]
         eb_cap_style['color'] = ecolor
 
+        data_line = None
         if plot_line:
-            l0 = mlines.Line2D(x, y, **plot_line_style)
-            self.add_line(l0)
+            data_line = mlines.Line2D(x, y, **plot_line_style)
+            self.add_line(data_line)
 
         barcols = []
         caplines = []
@@ -3067,7 +3066,7 @@ class Axes(_AxesBase):
         self.autoscale_view()
         self._hold = holdstate
 
-        errorbar_container = ErrorbarContainer((l0, tuple(caplines),
+        errorbar_container = ErrorbarContainer((data_line, tuple(caplines),
                                                 tuple(barcols)),
                                                has_xerr=(xerr is not None),
                                                has_yerr=(yerr is not None),
