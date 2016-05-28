@@ -18,7 +18,6 @@ try:
 except ImportError:
     # LPy workaround
     from fractions import gcd
-import warnings
 
 import numpy as np
 import matplotlib as mpl
@@ -363,19 +362,11 @@ class Collection(artist.Artist, cm.ScalarMappable):
         if not self.get_visible():
             return False, {}
 
-        if self._picker is True:  # the Boolean constant, not just nonzero or 1
-            pickradius = self._pickradius
-        else:
-            try:
-                pickradius = float(self._picker)
-            except TypeError:
-                # This should not happen if "contains" is called via
-                # pick, the normal route; the check is here in case
-                # it is called through some unanticipated route.
-                warnings.warn(
-                    "Collection picker %s could not be converted to float"
-                    % self._picker)
-                pickradius = self._pickradius
+        pickradius = (
+            float(self._picker)
+            if cbook.is_numlike(self._picker) and
+               self._picker is not True  # the bool, not just nonzero or 1
+            else self._pickradius)
 
         transform, transOffset, offsets, paths = self._prepare_points()
 
