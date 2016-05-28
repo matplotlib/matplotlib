@@ -176,6 +176,7 @@ def check_freetype_version(ver):
 
     return found >= ver[0] and found <= ver[1]
 
+
 class ImageComparisonTest(CleanupTest):
     @classmethod
     def setup_class(cls):
@@ -213,7 +214,8 @@ class ImageComparisonTest(CleanupTest):
 
     def test(self):
         baseline_dir, result_dir = _image_directories(self._func)
-
+        if self._style != 'classic':
+            raise KnownFailureTest('temporarily disabled until 2.0 tag')
         for fignum, baseline in zip(plt.get_fignums(), self._baseline_images):
             for extension in self._extensions:
                 will_fail = not extension in comparable_formats()
