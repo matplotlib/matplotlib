@@ -1102,25 +1102,19 @@ defaultParams = {
 
     #legend properties
     'legend.fancybox': [True, validate_bool],
-
-    # at some point, legend.loc should be changed to 'best'
     'legend.loc': ['best', validate_legend_loc],
-
-    # this option is internally ignored - it never served any useful purpose
-    'legend.isaxes': [True, validate_bool],
-
     # the number of points in the legend line
     'legend.numpoints': [1, validate_int],
     # the number of points in the legend line for scatter
-    'legend.scatterpoints': [3, validate_int],
-    'legend.fontsize': ['large', validate_fontsize],
+    'legend.scatterpoints': [1, validate_int],
+    'legend.fontsize': ['medium', validate_fontsize],
      # the relative size of legend markers vs. original
     'legend.markerscale': [1.0, validate_float],
     'legend.shadow': [False, validate_bool],
      # whether or not to draw a frame around legend
     'legend.frameon': [True, validate_bool],
      # alpha value of the legend frame
-    'legend.framealpha': [None, validate_float_or_None],
+    'legend.framealpha': [0.8, validate_float_or_None],
 
     ## the following dimensions are in fraction of the font size
     'legend.borderpad': [0.4, validate_float],  # units are fontsize
@@ -1140,7 +1134,7 @@ defaultParams = {
     'legend.markerscale': [1.0, validate_float],
     'legend.shadow': [False, validate_bool],
     'legend.facecolor': ['inherit', validate_color_or_inherit],
-    'legend.edgecolor': ['k', validate_color_or_inherit],
+    'legend.edgecolor': ['none', validate_color_or_inherit],
 
     # tick properties
     'xtick.top':         [True, validate_bool],   # draw ticks on the top side
