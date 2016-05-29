@@ -127,7 +127,7 @@ def to_rgba(c, alpha=None):
     if _is_nth_color(c):
         from matplotlib import rcParams
         prop_cycler = rcParams['axes.prop_cycle']
-        colors = prop_cycler._transpose().get('color', 'k')
+        colors = prop_cycler.by_key().get('color', ['k'])
         c = colors[int(c[1]) % len(colors)]
     try:
         rgba = _colors_full_map.cache[c, alpha]
