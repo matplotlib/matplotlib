@@ -446,8 +446,9 @@ class Line2D(Artist):
 
             TODO: sort returned indices by distance
         """
-        if callable(self._contains):
-            return self._contains(self, mouseevent)
+        inside, info = self._default_contains(mouseevent)
+        if inside is not None:
+            return inside, info
 
         if not isinstance(self.pickradius, Number):
             raise ValueError("pick radius should be a distance")

@@ -590,8 +590,9 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
         """
         Test whether the mouse event occurred within the image.
         """
-        if self._contains is not None:
-            return self._contains(self, mouseevent)
+        inside, info = self._default_contains(mouseevent)
+        if inside is not None:
+            return inside, info
         # 1) This doesn't work for figimage; but figimage also needs a fix
         #    below (as the check cannot use x/ydata and extents).
         # 2) As long as the check below uses x/ydata, we need to test axes
@@ -1300,8 +1301,9 @@ class BboxImage(_ImageBase):
 
     def contains(self, mouseevent):
         """Test whether the mouse event occurred within the image."""
-        if self._contains is not None:
-            return self._contains(self, mouseevent)
+        inside, info = self._default_contains(mouseevent)
+        if inside is not None:
+            return inside, info
 
         if not self.get_visible():  # or self.get_figure()._renderer is None:
             return False, {}

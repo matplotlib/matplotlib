@@ -194,8 +194,9 @@ class Text(Artist):
         -------
         bool : bool
         """
-        if self._contains is not None:
-            return self._contains(self, mouseevent)
+        inside, info = self._default_contains(mouseevent)
+        if inside is not None:
+            return inside, info
 
         if not self.get_visible() or self._renderer is None:
             return False, {}
@@ -2180,8 +2181,9 @@ class Annotation(Text, _AnnotationBase):
             self.arrow_patch = None
 
     def contains(self, event):
-        if self._contains is not None:
-            return self._contains(self, event)
+        inside, info = self._default_contains(event)
+        if inside is not None:
+            return inside, info
         contains, tinfo = Text.contains(self, event)
         if self.arrow_patch is not None:
             in_patch, _ = self.arrow_patch.contains(event)
