@@ -164,9 +164,6 @@ class _process_plot_var_args(object):
     def set_prop_cycle(self, *args, **kwargs):
         if not (args or kwargs) or (len(args) == 1 and args[0] is None):
             prop_cycler = rcParams['axes.prop_cycle']
-            if prop_cycler is None and 'axes.color_cycle' in rcParams:
-                clist = rcParams['axes.color_cycle']
-                prop_cycler = cycler('color', clist)
         else:
             prop_cycler = cycler(*args, **kwargs)
 
