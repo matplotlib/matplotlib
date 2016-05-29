@@ -167,10 +167,6 @@ class _process_plot_var_args(object):
         else:
             prop_cycler = cycler(*args, **kwargs)
 
-        # Make sure the cycler always has at least one color
-        if 'color' not in prop_cycler.keys:
-            prop_cycler = prop_cycler * cycler('color', ['k'])
-
         self.prop_cycler = itertools.cycle(prop_cycler)
         # This should make a copy
         self._prop_keys = prop_cycler.keys
@@ -200,6 +196,8 @@ class _process_plot_var_args(object):
         """
         Return the next color in the cycle.
         """
+        if 'color' not in self._prop_keys:
+            return 'k'
         return six.next(self.prop_cycler)['color']
 
     def set_lineprops(self, line, **kwargs):
