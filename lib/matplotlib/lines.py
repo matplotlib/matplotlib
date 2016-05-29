@@ -17,7 +17,7 @@ from matplotlib import verbose
 from . import artist, colors as mcolors
 from .artist import Artist
 from .cbook import (iterable, is_string_like, is_numlike, ls_mapper_r,
-                    pts_to_prestep, pts_to_poststep, pts_to_midstep)
+                    STEP_LOOKUP_MAP)
 
 from .path import Path
 from .transforms import Bbox, TransformedPath, IdentityTransform
@@ -237,6 +237,7 @@ class Line2D(Artist):
         'steps': '_draw_steps_pre',
     }
 
+    # drawStyles should now be deprecated.
     drawStyles = {}
     drawStyles.update(_drawStyles_l)
     drawStyles.update(_drawStyles_s)
@@ -470,8 +471,7 @@ class Line2D(Artist):
         # application has set the error flags such that an exception is raised
         # on overflow, we temporarily set the appropriate error flags here and
         # set them back when we are finished.
-        olderrflags = np.seterr(all='ignore')
-        try:
+        with np.errstate(all='ignore'):
             # Check for collision
             if self._linestyle in ['None', None]:
                 # If no line, return the nearby point(s)
@@ -480,19 +480,8 @@ class Line2D(Artist):
             else:
                 # If line, return the nearby segment(s)
                 ind = segment_hits(mouseevent.x, mouseevent.y, xt, yt, pixels)
-        finally:
-            np.seterr(**olderrflags)
 
         ind += self.ind_offset
-
-        # Debugging message
-        if False and self._label != '':
-            print("Checking line", self._label,
-                  "at", mouseevent.x, mouseevent.y)
-            print('xt', xt)
-            print('yt', yt)
-            #print 'dx,dy', (xt-mouseevent.x)**2., (yt-mouseevent.y)**2.
-            print('ind', ind)
 
         # Return the point(s) within radius
         return len(ind) > 0, dict(ind=ind)
@@ -691,7 +680,8 @@ class Line2D(Artist):
             interpolation_steps = self._path._interpolation_steps
         else:
             interpolation_steps = 1
-        self._path = Path(self._xy, None, interpolation_steps)
+        xy = STEP_LOOKUP_MAP[self._drawstyle](*self._xy.T)
+        self._path = Path(np.asarray(xy).T, None, interpolation_steps)
         self._transformed_path = None
         self._invalidx = False
         self._invalidy = False
@@ -764,8 +754,6 @@ class Line2D(Artist):
             tpath, affine = transf_path.get_transformed_path_and_affine()
             if len(tpath.vertices):
                 self._lineFunc = getattr(self, funcname)
-                funcname = self.drawStyles.get(self._drawstyle, '_draw_lines')
-                drawFunc = getattr(self, funcname)
                 gc = renderer.new_gc()
                 self._set_gc_clip(gc)
 
@@ -788,7 +776,7 @@ class Line2D(Artist):
                 if self.get_sketch_params() is not None:
                     gc.set_sketch_params(*self.get_sketch_params())
 
-                drawFunc(renderer, gc, tpath, affine.frozen())
+                self._draw_lines(renderer, gc, tpath, affine.frozen())
                 gc.restore()
 
         if self._marker and self._markersize > 0:
@@ -1233,27 +1221,6 @@ class Line2D(Artist):
 
     def _draw_lines(self, renderer, gc, path, trans):
         self._lineFunc(renderer, gc, path, trans)
-
-    def _draw_steps_pre(self, renderer, gc, path, trans):
-        steps = np.vstack(pts_to_prestep(*self._xy.T)).T
-
-        path = Path(steps)
-        path = path.transformed(self.get_transform())
-        self._lineFunc(renderer, gc, path, IdentityTransform())
-
-    def _draw_steps_post(self, renderer, gc, path, trans):
-        steps = np.vstack(pts_to_poststep(*self._xy.T)).T
-
-        path = Path(steps)
-        path = path.transformed(self.get_transform())
-        self._lineFunc(renderer, gc, path, IdentityTransform())
-
-    def _draw_steps_mid(self, renderer, gc, path, trans):
-        steps = np.vstack(pts_to_midstep(*self._xy.T)).T
-
-        path = Path(steps)
-        path = path.transformed(self.get_transform())
-        self._lineFunc(renderer, gc, path, IdentityTransform())
 
     def _draw_solid(self, renderer, gc, path, trans):
         gc.set_linestyle('solid')
