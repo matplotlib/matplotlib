@@ -17,7 +17,7 @@ from matplotlib import verbose
 from . import artist, colors as mcolors
 from .artist import Artist
 from .cbook import (iterable, is_string_like, is_numlike, ls_mapper_r,
-                    pts_to_prestep, pts_to_poststep, pts_to_midstep)
+                    STEP_LOOKUP_MAP)
 
 from .path import Path
 from .transforms import Bbox, TransformedPath, IdentityTransform
@@ -244,14 +244,6 @@ class Line2D(Artist):
     # Need a list ordered with long names first:
     drawStyleKeys = (list(six.iterkeys(_drawStyles_l)) +
                      list(six.iterkeys(_drawStyles_s)))
-
-    _drawstyle_conv = {
-        'default': lambda x, y: (x, y),
-        'steps': pts_to_prestep,
-        'steps-pre': pts_to_prestep,
-        'steps-mid': pts_to_midstep,
-        'steps-post': pts_to_poststep
-    }
 
     # Referenced here to maintain API.  These are defined in
     # MarkerStyle
@@ -688,7 +680,7 @@ class Line2D(Artist):
             interpolation_steps = self._path._interpolation_steps
         else:
             interpolation_steps = 1
-        xy = self._drawstyle_conv[self._drawstyle](*self._xy.T)
+        xy = STEP_LOOKUP_MAP[self._drawstyle](*self._xy.T)
         self._path = Path(np.asarray(xy).T, None, interpolation_steps)
         self._transformed_path = None
         self._invalidx = False

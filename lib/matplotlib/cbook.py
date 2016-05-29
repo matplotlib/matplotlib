@@ -2403,12 +2403,14 @@ def pts_to_midstep(x, *args):
     # convert 2D array back to tuple
     return tuple(steps)
 
-STEP_LOOKUP_MAP = {'pre': pts_to_prestep,
+STEP_LOOKUP_MAP = {'default': lambda x, y: (x, y),
+                   'pre': pts_to_prestep,
                    'post': pts_to_poststep,
                    'mid': pts_to_midstep,
-                   'step-pre': pts_to_prestep,
-                   'step-post': pts_to_poststep,
-                   'step-mid': pts_to_midstep}
+                   'steps': pts_to_prestep,
+                   'steps-pre': pts_to_prestep,
+                   'steps-post': pts_to_poststep,
+                   'steps-mid': pts_to_midstep}
 
 
 def index_of(y):
