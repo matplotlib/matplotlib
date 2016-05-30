@@ -348,6 +348,10 @@ boxplot.meanprops.color: r
 boxplot.meanprops.linestyle: -
 boxplot.meanprops.linewidth: 1.0
 boxplot.medianprops.color: r
+boxplot.meanprops.marker: s
+boxplot.meanprops.markerfacecolor: r
+boxplot.meanprops.markeredgecolor: k
+boxplot.meanprops.markersize: 6.0
 boxplot.medianprops.linestyle: -
 boxplot.medianprops.linewidth: 1.0
 boxplot.notch: False
