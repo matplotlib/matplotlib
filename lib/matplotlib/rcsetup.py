@@ -1051,6 +1051,7 @@ defaultParams = {
     'axes.titlesize':        ['large', validate_fontsize],  # fontsize of the
                                                             # axes title
     'axes.titleweight':      ['normal', six.text_type],  # font weight of axes title
+    'axes.titlepad':         [9.0, validate_float],  # pad from axes top to title in points
     'axes.grid':             [False, validate_bool],   # display grid or not
     'axes.grid.which':       ['major', validate_axis_locator],  # set wether the gid are by
                                                                 # default draw on 'major'
@@ -1117,23 +1118,19 @@ defaultParams = {
 
     #legend properties
     'legend.fancybox': [True, validate_bool],
-
-    # at some point, legend.loc should be changed to 'best'
     'legend.loc': ['best', validate_legend_loc],
-
-    # this option is internally ignored - it never served any useful purpose
-    'legend.isaxes': [True, validate_bool],
-
     # the number of points in the legend line
     'legend.numpoints': [1, validate_int],
     # the number of points in the legend line for scatter
-    'legend.scatterpoints': [3, validate_int],
-    'legend.fontsize': ['large', validate_fontsize],
-
-    # whether or not to draw a frame around legend
+    'legend.scatterpoints': [1, validate_int],
+    'legend.fontsize': ['medium', validate_fontsize],
+     # the relative size of legend markers vs. original
+    'legend.markerscale': [1.0, validate_float],
+    'legend.shadow': [False, validate_bool],
+     # whether or not to draw a frame around legend
     'legend.frameon': [True, validate_bool],
-    # alpha value of the legend frame
-    'legend.framealpha': [None, validate_float_or_None],
+     # alpha value of the legend frame
+    'legend.framealpha': [0.8, validate_float_or_None],
 
     ## the following dimensions are in fraction of the font size
     'legend.borderpad': [0.4, validate_float],  # units are fontsize
@@ -1153,7 +1150,7 @@ defaultParams = {
     'legend.markerscale': [1.0, validate_float],
     'legend.shadow': [False, validate_bool],
     'legend.facecolor': ['inherit', validate_color_or_inherit],
-    'legend.edgecolor': ['k', validate_color_or_inherit],
+    'legend.edgecolor': ['none', validate_color_or_inherit],
 
     # tick properties
     'xtick.top':         [True, validate_bool],   # draw ticks on the top side
@@ -1206,13 +1203,13 @@ defaultParams = {
     'figure.autolayout': [False, validate_bool],
     'figure.max_open_warning': [20, validate_int],
 
-    'figure.subplot.left': [0.125, ValidateInterval(0, 1, closedmin=True,
+    'figure.subplot.left': [0.155, ValidateInterval(0, 1, closedmin=True,
                                                        closedmax=True)],
-    'figure.subplot.right': [0.9, ValidateInterval(0, 1, closedmin=True,
+    'figure.subplot.right': [0.87, ValidateInterval(0, 1, closedmin=True,
                                                      closedmax=True)],
-    'figure.subplot.bottom': [0.1, ValidateInterval(0, 1, closedmin=True,
+    'figure.subplot.bottom': [0.13, ValidateInterval(0, 1, closedmin=True,
                                                      closedmax=True)],
-    'figure.subplot.top': [0.9, ValidateInterval(0, 1, closedmin=True,
+    'figure.subplot.top': [0.87, ValidateInterval(0, 1, closedmin=True,
                                                      closedmax=True)],
     'figure.subplot.wspace': [0.2, ValidateInterval(0, 1, closedmin=True,
                                                      closedmax=False)],

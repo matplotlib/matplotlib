@@ -179,6 +179,7 @@ axes.grid           : False   # display grid or not
 axes.grid.which     : major
 axes.grid.axis      : both
 axes.titlesize      : large   # fontsize of the axes title
+axes.titlepad       : 5.0     # pad between axes and title in points
 axes.titleweight    : normal  # font weight for axes title
 axes.labelsize      : medium  # fontsize of the x any y labels
 axes.labelpad       : 5.0     # space between label and axis
@@ -267,7 +268,6 @@ grid.alpha       :   1.0     # transparency, between 0.0 and 1.0
 legend.fancybox      : False  # if True, use a rounded box for the
                               # legend, else a rectangle
 legend.loc           : upper right
-legend.isaxes        : True   # this option is internally ignored
 legend.numpoints     : 2      # the number of points in the legend line
 legend.fontsize      : large
 legend.borderpad     : 0.4    # border whitespace in fontsize units
