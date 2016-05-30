@@ -297,6 +297,7 @@ backend      : $TEMPLATE_BACKEND
 #axes.linewidth      : 1.0     # edge linewidth
 #axes.grid           : False   # display grid or not
 #axes.titlesize      : large   # fontsize of the axes title
+#axes.titlepad       : 9.0     # pad between axes and title in points
 #axes.labelsize      : medium  # fontsize of the x any y labels
 #axes.labelpad       : 5.0     # space between label and axis
 #axes.labelweight    : normal  # weight of the x and y labels
@@ -388,33 +389,32 @@ backend      : $TEMPLATE_BACKEND
 
 
 ### GRIDS
-#grid.color       :   b0b0b0 # grid color
+#grid.color       :   b0b0b0    # grid color
 #grid.linestyle   :   -         # solid
 #grid.linewidth   :   1.0       # in points
 #grid.alpha       :   1.0       # transparency, between 0.0 and 1.0
 
 ### Legend
-#legend.fancybox      : True  # if True, use a rounded box for the
-                              # legend, else a rectangle
 #legend.loc           : best
-#legend.isaxes        : True
-#legend.numpoints     : 1      # the number of points in the legend line
-#legend.fontsize      : large
-#legend.borderpad     : 0.5    # border whitespace in fontsize units
-#legend.markerscale   : 1.0    # the relative size of legend markers vs. original
-# the following dimensions are in axes coords
-#legend.labelspacing  : 0.5    # the vertical space between the legend entries in fraction of fontsize
-#legend.handlelength  : 2.     # the length of the legend lines in fraction of fontsize
-#legend.handleheight  : 0.7     # the height of the legend handle in fraction of fontsize
-#legend.handletextpad : 0.8    # the space between the legend line and legend text in fraction of fontsize
-#legend.borderaxespad : 0.5   # the border between the axes and legend edge in fraction of fontsize
-#legend.columnspacing : 2.    # the border between the axes and legend edge in fraction of fontsize
+#legend.frameon       : True     # whether or not to draw a frame around legend
+#legend.framealpha    : 0.8      # legend frame transparency
+#legend.facecolor     : inherit  # inherit from axes.facecolor; or color spec
+#legend.edgecolor     : none
+#legend.fancybox      : True     # if True, use a rounded box for the
+                                 # legend, else a rectangle
 #legend.shadow        : False
-#legend.frameon       : True   # whether or not to draw a frame around legend
-#legend.framealpha    : None    # opacity of of legend frame
-#legend.scatterpoints : 3 # number of scatter points
-#legend.facecolor     : inherit
-#legend.edgecolor     : k
+#legend.numpoints     : 1        # the number of marker points in the legend line
+#legend.scatterpoints : 1        # number of scatter points
+#legend.markerscale   : 1.0      # the relative size of legend markers vs. original
+#legend.fontsize      : medium
+# Dimensions as fraction of fontsize:
+#legend.borderpad     : 0.4      # border whitespace
+#legend.labelspacing  : 0.5      # the vertical space between the legend entries
+#legend.handlelength  : 2.0      # the length of the legend lines
+#legend.handleheight  : 0.7      # the height of the legend handle
+#legend.handletextpad : 0.8      # the space between the legend line and legend text
+#legend.borderaxespad : 0.5      # the border between the axes and legend edge
+#legend.columnspacing : 2.0      # column separation
 
 ### FIGURE
 # See http://matplotlib.org/api/figure_api.html#matplotlib.figure.Figure
@@ -432,10 +432,10 @@ backend      : $TEMPLATE_BACKEND
 
 # The figure subplot parameters.  All dimensions are a fraction of the
 # figure width or height
-#figure.subplot.left    : 0.125  # the left side of the subplots of the figure
-#figure.subplot.right   : 0.9    # the right side of the subplots of the figure
-#figure.subplot.bottom  : 0.1    # the bottom of the subplots of the figure
-#figure.subplot.top     : 0.9    # the top of the subplots of the figure
+#figure.subplot.left    : 0.155  # the left side of the subplots of the figure
+#figure.subplot.right   : 0.87   # the right side of the subplots of the figure
+#figure.subplot.bottom  : 0.13   # the bottom of the subplots of the figure
+#figure.subplot.top     : 0.87   # the top of the subplots of the figure
 #figure.subplot.wspace  : 0.2    # the amount of width reserved for blank space between subplots
 #figure.subplot.hspace  : 0.2    # the amount of height reserved for white space between subplots
 
