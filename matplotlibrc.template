@@ -115,7 +115,7 @@ backend      : $TEMPLATE_BACKEND
 ### Boxplot
 #boxplot.notch       : False
 #boxplot.vertical    : True
-#boxplot.whiskers    : 1
+#boxplot.whiskers    : 1.5
 #boxplot.bootstrap   : None
 #boxplot.patchartist : False
 #boxplot.showmeans   : False
@@ -144,14 +144,14 @@ backend      : $TEMPLATE_BACKEND
 #boxplot.capprops.linewidth : 1.0
 #boxplot.capprops.linestyle : '-'
 
-#boxplot.medianprops.color     : 'C0'
+#boxplot.medianprops.color     : 'C1'
 #boxplot.medianprops.linewidth : 1.0
 #boxplot.medianprops.linestyle : '-'
 
-#boxplot.meanprops.color           : 'C1'
+#boxplot.meanprops.color           : 'C2'
 #boxplot.meanprops.marker          : '^'
-#boxplot.meanprops.markerfacecolor : 'C1'
-#boxplot.meanprops.markeredgecolor : 'C1'
+#boxplot.meanprops.markerfacecolor : 'C2'
+#boxplot.meanprops.markeredgecolor : 'C2'
 #boxplot.meanprops.markersize      :  6
 #boxplot.meanprops.linestyle       : 'none'
 #boxplot.meanprops.linewidth       : 1.0
