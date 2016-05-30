@@ -69,13 +69,13 @@ def test_linestylecycle_basic():
     ax.set_prop_cycle(cycler('ls', ['-', '--', ':']))
     xs = np.arange(10)
     ys = 0.25 * xs + 2
-    ax.plot(xs, ys, label='solid', lw=4)
+    ax.plot(xs, ys, label='solid', lw=4, color='k')
     ys = 0.45 * xs + 3
-    ax.plot(xs, ys, label='dashed', lw=4)
+    ax.plot(xs, ys, label='dashed', lw=4, color='k')
     ys = 0.65 * xs + 4
-    ax.plot(xs, ys, label='dotted', lw=4)
+    ax.plot(xs, ys, label='dotted', lw=4, color='k')
     ys = 0.85 * xs + 5
-    ax.plot(xs, ys, label='solid2', lw=4)
+    ax.plot(xs, ys, label='solid2', lw=4, color='k')
     ax.legend(loc='upper left')
 
 
@@ -130,8 +130,8 @@ def test_property_collision_plot():
     ax.set_prop_cycle('linewidth', [2, 4])
     for c in range(1, 4):
         ax.plot(np.arange(10), c * np.arange(10), lw=0.1, color='k')
-    ax.plot(np.arange(10), 4 * np.arange(10))
-    ax.plot(np.arange(10), 5 * np.arange(10))
+    ax.plot(np.arange(10), 4 * np.arange(10), color='k')
+    ax.plot(np.arange(10), 5 * np.arange(10), color='k')
 
 
 @image_comparison(baseline_images=['property_collision_fill'],
