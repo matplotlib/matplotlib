@@ -27,7 +27,6 @@ import matplotlib.pyplot as plt
 import matplotlib.markers as mmarkers
 import matplotlib.patches as mpatches
 from numpy.testing import assert_allclose, assert_array_equal
-import warnings
 from matplotlib.cbook import IgnoredKeywordWarning
 import matplotlib.colors as mcolors
 
@@ -35,6 +34,7 @@ import matplotlib.colors as mcolors
 #       These two must be defined in the same test function or need to have
 #       different baseline images to prevent race conditions when nose runs
 #       the tests with multiple threads.
+
 
 @image_comparison(baseline_images=['formatter_ticker_001',
                                    'formatter_ticker_002',
@@ -1151,6 +1151,27 @@ def test_hist_steplog():
     plt.hist(data_big, 100, histtype='stepfilled', log=True, orientation='horizontal')
 
 
+@image_comparison(baseline_images=['hist_step_filled'], remove_text=True,
+                  extensions=['png'])
+def test_hist_step_filled():
+    np.random.seed(0)
+    x = np.random.randn(1000, 3)
+    n_bins = 10
+
+    kwargs = [{'fill': True}, {'fill': False}, {'fill': None}, {}]*2
+    types = ['step']*4+['stepfilled']*4
+    fig, axes = plt.subplots(nrows=2, ncols=4)
+    axes = axes.flatten()
+
+    for kg, _type, ax in zip(kwargs, types, axes):
+        ax.hist(x, n_bins, histtype=_type, stacked=True, **kg)
+        ax.set_title('%s/%s' % (kg, _type))
+        ax.set_ylim(ymin=-50)
+
+    patches = axes[0].patches
+    assert all([p.get_facecolor() == p.get_edgecolor() for p in patches])
+
+
 @image_comparison(baseline_images=['hist_step_log_bottom'],
                   remove_text=True, extensions=['png'])
 def test_hist_step_log_bottom():
@@ -1765,7 +1786,7 @@ def test_boxplot():
     ax.set_ylim((-30, 30))
 
     # Reuse testcase from above for a labeled data test
-    data={"x": [x, x]}
+    data = {"x": [x, x]}
     fig, ax = plt.subplots()
     ax.boxplot("x", bootstrap=10000, notch=1, data=data)
     ax.set_ylim((-30, 30))
