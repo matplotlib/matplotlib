@@ -27,7 +27,7 @@ n = len(sorted_names)
 ncols = 4
 nrows = int(np.ceil(1. * n / ncols))
 
-fig, ax = plt.subplots()
+fig, ax = plt.subplots(figsize=(8, 5))
 
 X, Y = fig.get_dpi() * fig.get_size_inches()
 
@@ -49,10 +49,6 @@ for i, name in enumerate(sorted_names):
             horizontalalignment='left',
             verticalalignment='center')
 
-    # Add extra black line a little bit thicker to make
-    # clear colors more visible.
-    ax.hlines(
-        y, xi_line, xf_line, color='black', linewidth=(h * 0.7))
     ax.hlines(
         y + h * 0.1, xi_line, xf_line, color=colors[name], linewidth=(h * 0.6))
 
