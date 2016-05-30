@@ -190,7 +190,7 @@ backend      : $TEMPLATE_BACKEND
 # property is not currently implemented.
 #
 # The font.size property is the default font size for text, given in pts.
-# 12pt is the standard value.
+# 10 pt is the standard value.
 #
 #font.family         : sans-serif
 #font.style          : normal
@@ -202,7 +202,7 @@ backend      : $TEMPLATE_BACKEND
 # settings for axes and ticks. Special text sizes can be defined
 # relative to font.size, using the following values: xx-small, x-small,
 # small, medium, large, x-large, xx-large, larger, or smaller
-#font.size           : 12.0
+#font.size           : 10.0
 #font.serif          : DejaVu Serif, Bitstream Vera Serif, New Century Schoolbook, Century Schoolbook L, Utopia, ITC Bookman, Bookman, Nimbus Roman No9 L, Times New Roman, Times, Palatino, Charter, serif
 #font.sans-serif     : DejaVu Sans, Bitstream Vera Sans, Lucida Grande, Verdana, Geneva, Lucid, Arial, Helvetica, Avant Garde, sans-serif
 #font.cursive        : Apple Chancery, Textile, Zapf Chancery, Sand, Script MT, Felipa, cursive
@@ -294,12 +294,12 @@ backend      : $TEMPLATE_BACKEND
 #axes.hold           : True    # whether to clear the axes by default on
 #axes.facecolor      : white   # axes background color
 #axes.edgecolor      : black   # axes edge color
-#axes.linewidth      : 1.0     # edge linewidth
+#axes.linewidth      : 0.8     # edge linewidth
 #axes.grid           : False   # display grid or not
 #axes.titlesize      : large   # fontsize of the axes title
-#axes.titlepad       : 9.0     # pad between axes and title in points
+#axes.titlepad       : 4.0     # pad between axes and title in points
 #axes.labelsize      : medium  # fontsize of the x any y labels
-#axes.labelpad       : 5.0     # space between label and axis
+#axes.labelpad       : 4.0     # space between label and axis
 #axes.labelweight    : normal  # weight of the x and y labels
 #axes.labelcolor     : black
 #axes.axisbelow      : 'line'  # draw axis gridlines and ticks below
@@ -361,27 +361,27 @@ backend      : $TEMPLATE_BACKEND
 
 ### TICKS
 # see http://matplotlib.org/api/axis_api.html#matplotlib.axis.Tick
-#xtick.top            : True   # draw ticks on the top side
+#xtick.top            : False   # draw ticks on the top side
 #xtick.bottom         : True   # draw ticks on the bottom side
-#xtick.major.size     : 4      # major tick size in points
+#xtick.major.size     : 3.5      # major tick size in points
 #xtick.minor.size     : 2      # minor tick size in points
-#xtick.major.width    : 1.0    # major tick width in points
-#xtick.minor.width    : 1.0    # minor tick width in points
-#xtick.major.pad      : 4      # distance to major tick label in points
-#xtick.minor.pad      : 4      # distance to the minor tick label in points
+#xtick.major.width    : 0.8    # major tick width in points
+#xtick.minor.width    : 0.6    # minor tick width in points
+#xtick.major.pad      : 3.5      # distance to major tick label in points
+#xtick.minor.pad      : 3.4      # distance to the minor tick label in points
 #xtick.color          : k      # color of the tick labels
 #xtick.labelsize      : medium # fontsize of the tick labels
 #xtick.direction      : out    # direction: in, out, or inout
 #xtick.minor.visible  : False  # visibility of minor ticks on x-axis
 
 #ytick.left           : True   # draw ticks on the left side
-#ytick.right          : True   # draw ticks on the right side
-#ytick.major.size     : 4      # major tick size in points
+#ytick.right          : False  # draw ticks on the right side
+#ytick.major.size     : 3.5      # major tick size in points
 #ytick.minor.size     : 2      # minor tick size in points
-#ytick.major.width    : 1.0    # major tick width in points
-#ytick.minor.width    : 1.0    # minor tick width in points
-#ytick.major.pad      : 4      # distance to major tick label in points
-#ytick.minor.pad      : 4      # distance to the minor tick label in points
+#ytick.major.width    : 0.8    # major tick width in points
+#ytick.minor.width    : 0.6    # minor tick width in points
+#ytick.major.pad      : 3.5      # distance to major tick label in points
+#ytick.minor.pad      : 3.4      # distance to the minor tick label in points
 #ytick.color          : k      # color of the tick labels
 #ytick.labelsize      : medium # fontsize of the tick labels
 #ytick.direction      : out    # direction: in, out, or inout
@@ -391,7 +391,7 @@ backend      : $TEMPLATE_BACKEND
 ### GRIDS
 #grid.color       :   b0b0b0    # grid color
 #grid.linestyle   :   -         # solid
-#grid.linewidth   :   1.0       # in points
+#grid.linewidth   :   0.8       # in points
 #grid.alpha       :   1.0       # transparency, between 0.0 and 1.0
 
 ### Legend
@@ -431,13 +431,13 @@ backend      : $TEMPLATE_BACKEND
                                # If less than one this feature is disabled.
 
 # The figure subplot parameters.  All dimensions are a fraction of the
-# figure width or height
-#figure.subplot.left    : 0.155  # the left side of the subplots of the figure
-#figure.subplot.right   : 0.87   # the right side of the subplots of the figure
-#figure.subplot.bottom  : 0.13   # the bottom of the subplots of the figure
-#figure.subplot.top     : 0.87   # the top of the subplots of the figure
+#figure.subplot.left    : 0.125  # the left side of the subplots of the figure
+#figure.subplot.right   : 0.9    # the right side of the subplots of the figure
+#figure.subplot.bottom  : 0.11    # the bottom of the subplots of the figure
+#figure.subplot.top     : 0.88    # the top of the subplots of the figure
 #figure.subplot.wspace  : 0.2    # the amount of width reserved for blank space between subplots
 #figure.subplot.hspace  : 0.2    # the amount of height reserved for white space between subplots
+
 
 ### IMAGES
 #image.aspect : equal             # equal | auto | a number
