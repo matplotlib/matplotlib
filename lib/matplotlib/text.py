@@ -2147,7 +2147,6 @@ class Annotation(Text, _AnnotationBase):
 
             d = self.arrowprops.copy()
             ms = d.pop("mutation_scale", self.get_size())
-            ms = renderer.points_to_pixels(ms)
             self.arrow_patch.set_mutation_scale(ms)
 
             if "arrowstyle" not in d:
@@ -2164,11 +2163,10 @@ class Annotation(Text, _AnnotationBase):
                         " use 'headlength' to set the head length in points.")
                 headlength = d.pop('headlength', 12)
 
-                to_style = self.figure.dpi / (72 * ms)
-
-                stylekw = dict(head_length=headlength * to_style,
-                               head_width=headwidth * to_style,
-                               tail_width=width * to_style)
+                # NB: ms is in pts
+                stylekw = dict(head_length=headlength / ms,
+                               head_width=headwidth / ms,
+                               tail_width=width / ms)
 
                 self.arrow_patch.set_arrowstyle('simple', **stylekw)
 
