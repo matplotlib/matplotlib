@@ -6304,24 +6304,19 @@ class Axes(_AxesBase):
                     xvals.append(x.copy())
                     yvals.append(y.copy())
 
-            if fill:
-                # add patches in reverse order so that when stacking,
-                # items lower in the stack are plottted on top of
-                # items higher in the stack
-                for x, y, c in reversed(list(zip(xvals, yvals, color))):
-                    patches.append(self.fill(
-                        x, y,
-                        closed=True,
-                        facecolor=c,
-                        margins=margins))
-            else:
-                for x, y, c in reversed(list(zip(xvals, yvals, color))):
-                    split = 2 * len(bins)
-                    patches.append(self.fill(
-                        x[:split], y[:split],
-                        closed=False, edgecolor=c,
-                        fill=False,
-                        margins=margins))
+            #stepfill is closed, step is not
+            split = -1 if fill else 2 * len(bins)
+            # add patches in reverse order so that when stacking,
+            # items lower in the stack are plottted on top of
+            # items higher in the stack
+            for x, y, c in reversed(list(zip(xvals, yvals, color))):
+                patches.append(self.fill(
+                    x[:split], y[:split],
+                    closed=True if fill else None,
+                    facecolor=c,
+                    edgecolor=None if fill else c,
+                    fill=fill if fill else None,
+                    margins=margins))
 
             # we return patches, so put it back in the expected order
             patches.reverse()

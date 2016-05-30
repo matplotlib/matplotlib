@@ -975,7 +975,7 @@ defaultParams = {
     'font.variant':    ['normal', six.text_type],
     'font.stretch':    ['normal', six.text_type],
     'font.weight':     ['normal', six.text_type],
-    'font.size':       [12, validate_float],      # Base font size in points
+    'font.size':       [10, validate_float],      # Base font size in points
     'font.serif':      [['DejaVu Serif', 'Bitstream Vera Serif',
                          'New Century Schoolbook', 'Century Schoolbook L',
                          'Utopia', 'ITC Bookman', 'Bookman',
@@ -1041,7 +1041,7 @@ defaultParams = {
     'axes.hold':             [True, validate_bool],
     'axes.facecolor':        ['w', validate_color],  # background color; white
     'axes.edgecolor':        ['k', validate_color],  # edge color; black
-    'axes.linewidth':        [1.0, validate_float],  # edge linewidth
+    'axes.linewidth':        [0.8, validate_float],  # edge linewidth
 
     'axes.spines.left':      [True, validate_bool],  # Set visibility of axes
     'axes.spines.right':     [True, validate_bool],  # 'spines', the lines
@@ -1051,7 +1051,7 @@ defaultParams = {
     'axes.titlesize':        ['large', validate_fontsize],  # fontsize of the
                                                             # axes title
     'axes.titleweight':      ['normal', six.text_type],  # font weight of axes title
-    'axes.titlepad':         [9.0, validate_float],  # pad from axes top to title in points
+    'axes.titlepad':         [4.0, validate_float],  # pad from axes top to title in points
     'axes.grid':             [False, validate_bool],   # display grid or not
     'axes.grid.which':       ['major', validate_axis_locator],  # set wether the gid are by
                                                                 # default draw on 'major'
@@ -1061,7 +1061,7 @@ defaultParams = {
                                                       # Can be 'x', 'y', 'both'
     'axes.labelsize':        ['medium', validate_fontsize],  # fontsize of the
                                                              # x any y labels
-    'axes.labelpad':         [5.0, validate_float], # space between label and axis
+    'axes.labelpad':         [4.0, validate_float], # space between label and axis
     'axes.labelweight':      ['normal', six.text_type],  # fontsize of the x any y labels
     'axes.labelcolor':       ['k', validate_color],    # color of axis label
     'axes.formatter.limits': [[-7, 7], validate_nseq_int(2)],
@@ -1153,14 +1153,14 @@ defaultParams = {
     'legend.edgecolor': ['none', validate_color_or_inherit],
 
     # tick properties
-    'xtick.top':         [True, validate_bool],   # draw ticks on the top side
+    'xtick.top':         [False, validate_bool],   # draw ticks on the top side
     'xtick.bottom':      [True, validate_bool],   # draw ticks on the bottom side
-    'xtick.major.size':  [4, validate_float],    # major xtick size in points
+    'xtick.major.size':  [3.5, validate_float],    # major xtick size in points
     'xtick.minor.size':  [2, validate_float],    # minor xtick size in points
-    'xtick.major.width': [1.0, validate_float],  # major xtick width in points
-    'xtick.minor.width': [1.0, validate_float],  # minor xtick width in points
-    'xtick.major.pad':   [4, validate_float],    # distance to label in points
-    'xtick.minor.pad':   [4, validate_float],    # distance to label in points
+    'xtick.major.width': [0.8, validate_float],  # major xtick width in points
+    'xtick.minor.width': [0.6, validate_float],  # minor xtick width in points
+    'xtick.major.pad':   [3.5, validate_float],    # distance to label in points
+    'xtick.minor.pad':   [3.4, validate_float],    # distance to label in points
     'xtick.color':       ['k', validate_color],  # color of the xtick labels
     'xtick.minor.visible':   [False, validate_bool],    # visiablility of the x axis minor ticks
 
@@ -1169,13 +1169,13 @@ defaultParams = {
     'xtick.direction':   ['out', six.text_type],            # direction of xticks
 
     'ytick.left':        [True, validate_bool],  # draw ticks on the left side
-    'ytick.right':       [True, validate_bool],  # draw ticks on the right side
-    'ytick.major.size':  [4, validate_float],     # major ytick size in points
+    'ytick.right':       [False, validate_bool],  # draw ticks on the right side
+    'ytick.major.size':  [3.5, validate_float],     # major ytick size in points
     'ytick.minor.size':  [2, validate_float],     # minor ytick size in points
-    'ytick.major.width': [1.0, validate_float],   # major ytick width in points
-    'ytick.minor.width': [1.0, validate_float],   # minor ytick width in points
-    'ytick.major.pad':   [4, validate_float],     # distance to label in points
-    'ytick.minor.pad':   [4, validate_float],     # distance to label in points
+    'ytick.major.width': [0.8, validate_float],   # major ytick width in points
+    'ytick.minor.width': [0.6, validate_float],   # minor ytick width in points
+    'ytick.major.pad':   [3.5, validate_float],     # distance to label in points
+    'ytick.minor.pad':   [3.4, validate_float],     # distance to label in points
     'ytick.color':       ['k', validate_color],   # color of the ytick labels
     'ytick.minor.visible':   [False, validate_bool],    # visiablility of the y axis minor ticks
 
@@ -1185,7 +1185,7 @@ defaultParams = {
 
     'grid.color':        ['#b0b0b0', validate_color],  # grid color
     'grid.linestyle':    ['-', six.text_type],      # solid
-    'grid.linewidth':    [1.0, validate_float],     # in points
+    'grid.linewidth':    [0.8, validate_float],     # in points
     'grid.alpha':        [1.0, validate_float],
 
 
@@ -1203,13 +1203,13 @@ defaultParams = {
     'figure.autolayout': [False, validate_bool],
     'figure.max_open_warning': [20, validate_int],
 
-    'figure.subplot.left': [0.155, ValidateInterval(0, 1, closedmin=True,
+    'figure.subplot.left': [0.125, ValidateInterval(0, 1, closedmin=True,
                                                        closedmax=True)],
-    'figure.subplot.right': [0.87, ValidateInterval(0, 1, closedmin=True,
+    'figure.subplot.right': [0.9, ValidateInterval(0, 1, closedmin=True,
                                                      closedmax=True)],
-    'figure.subplot.bottom': [0.13, ValidateInterval(0, 1, closedmin=True,
+    'figure.subplot.bottom': [0.11, ValidateInterval(0, 1, closedmin=True,
                                                      closedmax=True)],
-    'figure.subplot.top': [0.87, ValidateInterval(0, 1, closedmin=True,
+    'figure.subplot.top': [0.88, ValidateInterval(0, 1, closedmin=True,
                                                      closedmax=True)],
     'figure.subplot.wspace': [0.2, ValidateInterval(0, 1, closedmin=True,
                                                      closedmax=False)],
