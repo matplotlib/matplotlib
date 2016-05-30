@@ -52,7 +52,7 @@ def test_boxarrow():
                   bbox=dict(boxstyle=stylename, fc="w", ec="k"))
 
 
-def prepare_fancyarrow_dpi_cor_test():
+def __prepare_fancyarrow_dpi_cor_test():
     """
     Convenience function that prepares and returns a FancyArrowPatch. It aims
     at being used to test that the size of the arrow head does not depend on
@@ -82,7 +82,7 @@ def test_fancyarrow_dpi_cor_100dpi():
     Remark: test only a rasterized format.
     """
 
-    prepare_fancyarrow_dpi_cor_test()
+    __prepare_fancyarrow_dpi_cor_test()
 
 
 @image_comparison(baseline_images=['fancyarrow_dpi_cor_200dpi'],
@@ -94,7 +94,7 @@ def test_fancyarrow_dpi_cor_200dpi():
     of the arrow head should be the same.
     """
 
-    prepare_fancyarrow_dpi_cor_test()
+    __prepare_fancyarrow_dpi_cor_test()
 
 
 if __name__ == '__main__':
