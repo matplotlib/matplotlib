@@ -1,6 +1,7 @@
 .. The source of this document is INSTALL. During the doc build process,
 .. this file is copied over to doc/users/installing.rst.
 .. Therefore, you must edit INSTALL, *not* doc/users/installing.rst!
+.. _pip: https://pypi.python.org/pypi/pip/
 
 **********
 Installing
@@ -42,7 +43,7 @@ Mac OSX : using pip
 -------------------
 
 If you are on Mac OSX you can probably install matplotlib binaries using the
-standard Python installation program `pip <https://pypi.python.org/pypi/pip>`_.
+standard Python installation program pip_.
 See :ref:`install_osx_binaries`.
 
 .. _installing_windows:
@@ -56,13 +57,13 @@ one of the `scipy-stack compatible Python distributions
 Enthought Canopy, or Continuum Anaconda, which have matplotlib and many
 of its dependencies, plus other useful packages, preinstalled.
 
-For `standard Python <http://www.python.org/download/>`_ installations,
-install matplotlib using `pip <https://pypi.python.org/pypi/pip/>`_::
+For `standard Python <https://www.python.org/download/>`_ installations,
+install matplotlib using pip_::
 
     python -m pip install -U pip setuptools
     python -m pip install matplotlib
 
-In case Python 2.7 or 3.4 are not installed for all users (not the default),
+In case Python 2.7 or 3.4 are not installed for all users,
 the Microsoft Visual C++ 2008 (
 `64 bit <http://www.microsoft.com/download/en/details.aspx?id=15336>`__
 or
@@ -100,7 +101,7 @@ standard Python shell or IPython.  It is enabled as the default backend
 for the official binaries.  GTK3 is not supported on Windows.
 
 The Windows wheels (:file:`*.whl`) on the `PyPI download page
-<http://pypi.python.org/pypi/matplotlib/>`_ do not contain test data
+<https://pypi.python.org/pypi/matplotlib/>`_ do not contain test data
 or example code.
 If you want to try the many demos that come in the matplotlib source
 distribution, download the :file:`*.tar.gz` file and look in the
@@ -112,7 +113,7 @@ distribution to :file:`sys.prefix\\Lib\\site-packages\\matplotlib` and
 install `nose <https://pypi.python.org/pypi/nose>`_, `mock
 <https://pypi.python.org/pypi/mock>`_, Pillow, MiKTeX, GhostScript,
 ffmpeg, avconv, mencoder, ImageMagick, and `Inkscape
-<http://inkscape.org/>`_.
+<https://inkscape.org/>`_.
 
 
 
