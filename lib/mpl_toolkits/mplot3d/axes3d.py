@@ -2761,6 +2761,11 @@ class Axes3D(Axes):
             Either a single value or an array the same shape as filled,
             indicating what color to draw the faces of the voxels. If None,
             plot all voxels in the same color, the next in the color sequence
+
+        Returns
+        -------
+        list of `Poly3DCollection`
+            The square faces which were plotted, in an arbitrary order
         """
         # check dimensions, and deal with a single color
         if filled.ndim != 3:
@@ -2784,6 +2789,7 @@ class Axes3D(Axes):
             [0, filled.shape[2]]
         )
 
+        polygons = []
 
         # points lying on corners of a square
         square = np.array([
@@ -2798,6 +2804,7 @@ class Axes3D(Axes):
             poly = art3d.Poly3DCollection([corners])
             poly.set_facecolor(color)
             self.add_collection3d(poly)
+            polygons.append(poly)
 
         def permutation_matrices(n):
             """ Generator of cyclic permutation matices """
@@ -2840,6 +2847,8 @@ class Axes3D(Axes):
                     ik = tuple(pk)
                     if filled[ik]:
                         boundary_found(pk2 + square.dot(permute.T), color[ik])
+
+        return polygons
 
 
 def get_test_data(delta=0.05):
