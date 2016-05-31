@@ -146,11 +146,12 @@ def _to_rgba_no_colorcycle(c, alpha=None):
     If `alpha` is not `None`, it forces the alpha value.
     """
     orig_c = c
-    if isinstance(c, six.string_types) and c.lower() == "none":
-        return (0., 0., 0., 0.)
     if isinstance(c, six.string_types):
+        if c.lower() == "none":
+            return (0., 0., 0., 0.)
         # Named color.
         try:
+            # This may turn c into a non-string, so we check again below.
             c = _colors_full_map[c.lower()]
         except KeyError:
             pass
@@ -161,7 +162,6 @@ def _to_rgba_no_colorcycle(c, alpha=None):
             return (tuple(int(n, 16) / 255
                           for n in [c[1:3], c[3:5], c[5:7]])
                     + (alpha if alpha is not None else 1.,))
-    if isinstance(c, six.string_types):
         # hex color with alpha.
         match = re.match(r"\A#[a-fA-F0-9]{8}\Z", c)
         if match:
@@ -170,10 +170,9 @@ def _to_rgba_no_colorcycle(c, alpha=None):
             if alpha is not None:
                 color[-1] = alpha
             return tuple(color)
-    if isinstance(c, six.string_types):
         # string gray.
         try:
-            return (float(c),) * 3 + (1.,)
+            return (float(c),) * 3 + (alpha if alpha is not None else 1.,)
         except ValueError:
             pass
         raise ValueError("Invalid RGBA argument: {!r}".format(orig_c))
