@@ -2820,13 +2820,15 @@ class Axes3D(Axes):
             qinds = np.arange(qc)
             rinds = np.arange(rc)
 
+            square_rot = square.dot(permute.T)
+
             for p in pinds:
                 for q in qinds:
                     # draw lower faces
                     p0 = permute.dot([p, q, 0])
                     i0 = tuple(p0)
                     if filled[i0]:
-                        boundary_found(p0 + square.dot(permute.T), color[i0])
+                        boundary_found(p0 + square_rot, color[i0])
 
                     # draw middle faces
                     for r1, r2 in zip(rinds, rinds[1:]):
@@ -2837,16 +2839,16 @@ class Axes3D(Axes):
                         i2 = tuple(p2)
 
                         if filled[i1] and not filled[i2]:
-                            boundary_found(p2 + square.dot(permute.T), color[i1])
+                            boundary_found(p2 + square_rot, color[i1])
                         elif not filled[i1] and filled[i2]:
-                            boundary_found(p2 + square.dot(permute.T), color[i2])
+                            boundary_found(p2 + square_rot, color[i2])
 
                     # draw upper faces
                     pk = permute.dot([p, q, rc-1])
                     pk2 = permute.dot([p, q, rc])
                     ik = tuple(pk)
                     if filled[ik]:
-                        boundary_found(pk2 + square.dot(permute.T), color[ik])
+                        boundary_found(pk2 + square_rot, color[ik])
 
         return polygons
 
