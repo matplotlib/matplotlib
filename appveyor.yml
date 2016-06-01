@@ -17,6 +17,8 @@ environment:
 
   matrix:
     # for testing purpose: numpy 1.8 on py2.7, for the rest use 1.10/latest
+    # theoretically the CONDA_INSTALL_LOCN could be only two: one for 32bit, one for 64bit
+    # but using one for the right python version is hopefully making it fast due to package caching.
     - TARGET_ARCH: "x86"
       CONDA_PY: "27"
       CONDA_NPY: "18"
@@ -38,7 +40,6 @@ environment:
       PYTHON_VERSION: "3.5"
       CONDA_INSTALL_LOCN: "C:\\Miniconda35-x64"
 
-
 # We always use a 64-bit machine, but can build x86 distributions
 # with the PYTHON_ARCH variable (which is used by CMD_IN_ENV).
 platform:
@@ -53,11 +54,13 @@ init:
 install:
   - cmd: set PATH=%CONDA_INSTALL_LOCN%;%CONDA_INSTALL_LOCN%\scripts;%PATH%;
   - cmd: set PYTHONUNBUFFERED=1
-  - cmd: conda install -c http://conda.anaconda.org/pelson/channel/development --yes --quiet obvious-ci
-  - cmd: obvci_install_conda_build_tools.py
-  - cmd: conda config --set show_channel_urls yes
-  # for msinttypes
+  # for obvci_appveyor_python_build_env.cmd
+  - cmd: conda install -c pelson/channel/development --yes --quiet obvious-ci
+  # for msinttypes and newer stuff
   - cmd: conda config --add channels conda-forge
+  - cmd: conda config --set show_channel_urls yes
+  # For building conda packages
+  - cmd: conda install --yes conda-build jinja2 anaconda-client
   # this is now the downloaded conda...
   - conda info -a
 
@@ -68,6 +71,7 @@ install:
   # VS tools instead of the also installed Py27 VS compiler (which wouldn't need this workarounds...)
   - cmd: copy "C:\Program Files (x86)\Microsoft Visual Studio 9.0\VC\bin\vcvars64.bat" "C:\Program Files (x86)\Microsoft Visual Studio 9.0\VC\bin\amd64\vcvarsamd64.bat"
 
+  # For building, use a new environment which only include sthe requirements for mpl
   # same things as the requirements in ci/conda_recipe/meta.yaml
   - cmd: conda create -y -q -n test-environment python=%PYTHON_VERSION% pip setuptools numpy python-dateutil freetype msinttypes tk pyparsing pytz tornado libpng zlib pyqt cycler nose mock msvc_runtime
   - activate test-environment
