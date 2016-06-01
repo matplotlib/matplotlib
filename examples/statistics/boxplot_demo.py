@@ -12,7 +12,7 @@ labels = list('ABCD')
 fs = 10  # fontsize
 
 # demonstrate how to toggle the display of different elements:
-fig, axes = plt.subplots(nrows=2, ncols=3, figsize=(6, 6))
+fig, axes = plt.subplots(nrows=2, ncols=3, figsize=(6, 6), sharey=True)
 axes[0, 0].boxplot(data, labels=labels)
 axes[0, 0].set_title('Default', fontsize=fs)
 
@@ -48,7 +48,7 @@ meanpointprops = dict(marker='D', markeredgecolor='black',
                       markerfacecolor='firebrick')
 meanlineprops = dict(linestyle='--', linewidth=2.5, color='purple')
 
-fig, axes = plt.subplots(nrows=2, ncols=3, figsize=(6, 6))
+fig, axes = plt.subplots(nrows=2, ncols=3, figsize=(6, 6), sharey=True)
 axes[0, 0].boxplot(data, boxprops=boxprops)
 axes[0, 0].set_title('Custom boxprops', fontsize=fs)
 
