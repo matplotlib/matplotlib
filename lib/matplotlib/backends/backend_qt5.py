@@ -28,7 +28,8 @@ try:
 except ImportError:
     figureoptions = None
 
-from .qt_compat import QtCore, QtGui, QtWidgets, _getSaveFileName, __version__
+from .qt_compat import (QtCore, QtGui, QtWidgets, _getSaveFileName,
+                        __version__, is_pyqt5)
 from matplotlib.backends.qt_editor.formsubplottool import UiSubplotTool
 
 backend_version = __version__
@@ -141,6 +142,9 @@ def _create_qApp():
             qApp.lastWindowClosed.connect(qApp.quit)
         else:
             qApp = app
+
+    if is_pyqt5():
+        qApp.setAttribute(QtCore.Qt.AA_UseHighDpiPixmaps)
 
 
 class Show(ShowBase):
@@ -581,6 +585,8 @@ class NavigationToolbar2QT(NavigationToolbar2, QtWidgets.QToolBar):
         NavigationToolbar2.__init__(self, canvas)
 
     def _icon(self, name):
+        if is_pyqt5():
+            name = name.replace('.png', '_hidpi.png')
         return QtGui.QIcon(os.path.join(self.basedir, name))
 
     def _init_toolbar(self):
@@ -620,6 +626,14 @@ class NavigationToolbar2QT(NavigationToolbar2, QtWidgets.QToolBar):
 
         # reference holder for subplots_adjust window
         self.adj_window = None
+
+        # Esthetic adjustments - we need to set these explicitly in PyQt5
+        # otherwise the layout looks different - but we don't want to set it if
+        # not using HiDPI icons otherwise they look worse than before.
+        if is_pyqt5():
+            self.setIconSize(QtCore.QSize(24, 24))
+            self.layout().setSpacing(12)
+            self.setMinimumHeight(48)
 
     if figureoptions is not None:
         def edit_parameters(self):
