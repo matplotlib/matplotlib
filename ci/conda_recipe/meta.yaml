@@ -1,9 +1,11 @@
 # Full credit goes to https://github.com/conda/conda-recipes for providing this recipe.
 # It has been subsequently adapted for automated building with conda-forge and matplotlib.
 
+{% set data = load_setuptools() %}
+
 package:
   name: matplotlib
-  version: 1.5.1.9
+  version: {{data.get('version')}}
 
 source:
   path: ../../
@@ -13,50 +15,42 @@ source:
     - cfg_qt4agg.patch    # [linux]
     # Patches the matplotlibrc template to default to Qt4.
     - rctmp_pyside.patch  # [not osx]
-    # Patches setupext to look in PREFIX for the tcl/tk headers.
-    - osx-tk.patch        # [osx]
-    # dynamic version from git
-    # we can't use condas usual dynamic versions as setup.py uses a guard
-    # around the setup call against importing, which is done internaly
-    # by conda build to get the version.
-    # https://github.com/matplotlib/matplotlib/pull/5629#issuecomment-167243654
-    - condaversion.patch
+
 
 requirements:
   build:
     - python
     - setuptools
+    - pkg-config  # [not win]
     - numpy x.x
     - python-dateutil
-    - freetype
-    - msinttypes          # [win]
-    - cycler
+    - freetype 2.6*
+    - msinttypes  # [win]
+    - cycler >=0.10
     - nose
     - pyparsing
     - pytz
-#    - py2cairo            # [linux and py2k]
+#    - py2cairo  # [linux and py2k]
     - tornado
-    - libpng
-    - zlib                # [win]
-    - pyqt                # [not osx]
-    - tk                  # [linux and win]
-    - functools32         # [py2k]
-    - msvc_runtime        # [win]
+    - libpng 1.6*
+    - zlib 1.2*  # [win]
+    - pyqt  # [not osx]
+    - tk  # [linux]
+    - functools32  # [py2k]
 
   run:
     - python
     - numpy x.x
-    - cycler
+    - cycler >=0.10
     - python-dateutil
-    - freetype
+    - freetype 2.6*
     - pytz
     - pyparsing
-#    - py2cairo            # [linux and py2k]
-    - libpng
-    - pyqt                # [not osx]
-    - tk                  # [linux and win]
-    - functools32         # [py2k]
-    - msvc_runtime        # [win]
+#    - py2cairo  # [linux and py2k]
+    - libpng 1.6*
+    - pyqt  # [not osx]
+    - tk  # [linux and win]
+    - functools32  # [py2k]
 
 test:
     imports:
@@ -70,6 +64,8 @@ about:
 
 extra:
   recipe-maintainers:
+    - janschulz # only in the mpl repository
+    - mdboom # rest form conda-forge
+    - ocefpaf
     - pelson
     - tacaswell
-    - JanSchulz
