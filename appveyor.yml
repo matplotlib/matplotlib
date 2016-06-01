@@ -83,6 +83,11 @@ install:
   - cmd: 'mkdir lib || cmd /c "exit /b 0"'
   - copy %LIBRARY_LIB%\zlibstatic.lib lib\z.lib
   - copy %LIBRARY_LIB%\libpng_static.lib lib\png.lib
+  # These z.lib / png.lib are not static versions but files which end up as
+  # dependencies to the dll file. This is fine for the conda build, but not here
+  # and for the wheels
+  - del %LIBRARY_LIB%\png.lib
+  - del %LIBRARY_LIB%\z.lib
   - set MPLBASEDIRLIST=%CONDA_PREFIX%\Library\;.
   # enables the local freetype build
   - copy ci\travis\setup.cfg .
