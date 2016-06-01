@@ -519,8 +519,8 @@ class FigureCanvasAgg(FigureCanvasBase):
             fileobj.write(renderer._renderer.buffer_rgba())
         finally:
             if close:
-                filename_or_obj.close()
-        renderer.dpi = original_dpi
+                fileobj.close()
+            renderer.dpi = original_dpi
     print_rgba = print_raw
 
     def print_png(self, filename_or_obj, *args, **kwargs):
