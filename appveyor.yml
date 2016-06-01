@@ -71,7 +71,7 @@ install:
   # VS tools instead of the also installed Py27 VS compiler (which wouldn't need this workarounds...)
   - cmd: copy "C:\Program Files (x86)\Microsoft Visual Studio 9.0\VC\bin\vcvars64.bat" "C:\Program Files (x86)\Microsoft Visual Studio 9.0\VC\bin\amd64\vcvarsamd64.bat"
 
-  # For building, use a new environment which only include sthe requirements for mpl
+  # For building, use a new environment which only includes the requirements for mpl
   # same things as the requirements in ci/conda_recipe/meta.yaml
   - cmd: conda create -y -q -n test-environment python=%PYTHON_VERSION% pip setuptools numpy python-dateutil freetype msinttypes tk pyparsing pytz tornado libpng zlib pyqt cycler nose mock msvc_runtime
   - activate test-environment
@@ -96,13 +96,13 @@ test_script:
   - python -c "import matplotlib as m; m.use('tkagg'); import matplotlib.pyplot as plt; print(plt.get_backend())"
   # tests
   - python tests.py
-  # remove to get around libpng issue?
+  # Generate a html for visual tests
   - python visual_tests.py
 
 after_test:
   # After the tests were a success, build packages (wheels and conda)
 
-  # Build the wheel
+  # Build the wheel with the static libs
   # Hide the output, the copied files really clutter the build log...
   - cmd: '%CMD_IN_ENV% python setup.py bdist_wheel > NUL:'
 
@@ -116,7 +116,7 @@ after_test:
   - cmd: path
   - cmd: where python
   - cmd: '%CMD_IN_ENV% conda config --get channels'
-  # - cmd: '%CMD_IN_ENV% conda build .\ci\conda_recipe'
+  - cmd: '%CMD_IN_ENV% conda build .\ci\conda_recipe'
 
   # Move the conda package into the dist directory, to register it
   # as an "artifact" for Appveyor.
