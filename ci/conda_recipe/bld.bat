@@ -12,5 +12,5 @@ ECHO toolkits_tests = False >> setup.cfg
 @rem see also https://github.com/conda-forge/libpng-feedstock/pull/4
 copy /y %LIBRARY_LIB%\libpng16.lib %LIBRARY_LIB%\png.lib
 
-%PYTHON% setup.py install
+%PYTHON% setup.py install --single-version-externally-managed --record=record.txt
 if errorlevel 1 exit 1
