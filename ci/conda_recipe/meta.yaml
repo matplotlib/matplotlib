@@ -32,10 +32,10 @@ requirements:
     - pytz
 #    - py2cairo  # [linux and py2k]
     - tornado
-    - libpng 1.6*
+    - libpng >=1.6.21,<1.7
     - zlib 1.2*  # [win]
     - pyqt  # [not osx]
-    - tk  # [linux]
+    - tk 8.5* # [linux]
     - functools32  # [py2k]
 
   run:
@@ -47,9 +47,9 @@ requirements:
     - pytz
     - pyparsing
 #    - py2cairo  # [linux and py2k]
-    - libpng 1.6*
+    - libpng >=1.6.21,<1.7
     - pyqt  # [not osx]
-    - tk  # [linux and win]
+    - tk 8.5*  # [linux and win]
     - functools32  # [py2k]
 
 test:
