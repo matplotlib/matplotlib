@@ -73,7 +73,9 @@ install:
 
   # For building, use a new environment which only includes the requirements for mpl
   # same things as the requirements in ci/conda_recipe/meta.yaml
-  - cmd: conda create -y -q -n test-environment python=%PYTHON_VERSION% pip setuptools numpy python-dateutil freetype msinttypes tk pyparsing pytz tornado libpng zlib pyqt cycler nose mock msvc_runtime
+  # if conda-forge gets a new pyqt, it might be nice to install it as well to have more backends
+  # https://github.com/conda-forge/conda-forge.github.io/issues/157#issuecomment-223536381
+  - cmd: conda create -y -q -n test-environment python=%PYTHON_VERSION% pip setuptools numpy  python-dateutil freetype=2.6 msinttypes "tk=8.5" pyparsing pytz tornado "libpng>=1.6.21,<1.7" "zlib=1.2" "cycler>=0.10" nose mock
   - activate test-environment
   - cmd: echo %PYTHON_VERSION% %TARGET_ARCH%
   - cmd: IF %PYTHON_VERSION% == 2.7 conda install -y functools32
