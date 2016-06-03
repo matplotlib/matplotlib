@@ -59,6 +59,7 @@ install:
   # for msinttypes and newer stuff
   - cmd: conda config --add channels conda-forge
   - cmd: conda config --set show_channel_urls yes
+  - cmd: conda config --set always_yes true
   # For building conda packages
   - cmd: conda install --yes conda-build jinja2 anaconda-client
   # this is now the downloaded conda...
@@ -75,10 +76,10 @@ install:
   # same things as the requirements in ci/conda_recipe/meta.yaml
   # if conda-forge gets a new pyqt, it might be nice to install it as well to have more backends
   # https://github.com/conda-forge/conda-forge.github.io/issues/157#issuecomment-223536381
-  - cmd: conda create -y -q -n test-environment python=%PYTHON_VERSION% pip setuptools numpy  python-dateutil freetype=2.6 msinttypes "tk=8.5" pyparsing pytz tornado "libpng>=1.6.21,<1.7" "zlib=1.2" "cycler>=0.10" nose mock
+  - cmd: conda create -q -n test-environment python=%PYTHON_VERSION% pip setuptools numpy  python-dateutil freetype=2.6 msinttypes "tk=8.5" pyparsing pytz tornado "libpng>=1.6.21,<1.7" "zlib=1.2" "cycler>=0.10" nose mock
   - activate test-environment
   - cmd: echo %PYTHON_VERSION% %TARGET_ARCH%
-  - cmd: IF %PYTHON_VERSION% == 2.7 conda install -y functools32
+  - cmd: IF %PYTHON_VERSION% == 2.7 conda install -q functools32
 
   # Let the install prefer the static builds of the libs
   - set LIBRARY_LIB=%CONDA_PREFIX%\Library\lib
@@ -107,6 +108,16 @@ test_script:
   - cmd: '"%DUMPBIN%" /DEPENDENTS lib\\matplotlib\\_png*.pyd | findstr z.*.dll && exit /b 1 || exit /b 0'
   - cmd: '"%DUMPBIN%" /DEPENDENTS lib\\matplotlib\\_png*.pyd | findstr png.*.dll && exit /b 1 || exit /b 0'
 
+  # this are optional dependencies so that we don't skip so many tests...
+  - cmd: conda install -q pillow #miktex
+  # missing packages on conda-forge for ffmpeg avconv mencoder imagemagick inkscape
+  - cmd: conda install -q -c menpo ffmpeg # a repackaged version
+  # This install sometimes failed randomly :-(
+  #- cmd: choco install imagemagick
+  - cmd: choco install inkscape
+  - set "PATH=%PATH%;C:\Program Files\Inkscape\inkscape.com"
+  - dir "C:\Program Files\Inkscape\"
+
   # Test import of tkagg backend
   - python -c "import matplotlib as m; m.use('tkagg'); import matplotlib.pyplot as plt; print(plt.get_backend())"
   # tests
@@ -131,7 +142,7 @@ after_test:
   - cmd: path
   - cmd: where python
   - cmd: '%CMD_IN_ENV% conda config --get channels'
-  - cmd: '%CMD_IN_ENV% conda build .\ci\conda_recipe'
+  - cmd: '%CMD_IN_ENV% conda build -q .\ci\conda_recipe'
 
   # Move the conda package into the dist directory, to register it
   # as an "artifact" for Appveyor.
