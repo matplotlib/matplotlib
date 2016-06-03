@@ -608,6 +608,7 @@ def test_conversions():
     assert_array_equal(mcolors.to_rgba_array("none"), np.zeros((0, 4)))
     # alpha is properly set.
     assert_equal(mcolors.to_rgba((1, 1, 1), .5), (1, 1, 1, .5))
+    assert_equal(mcolors.to_rgba(".1", .5), (.1, .1, .1, .5))
     # builtin round differs between py2 and py3.
     assert_equal(mcolors.to_hex((.7, .7, .7)), "#b2b2b2")
     # hex roundtrip.
