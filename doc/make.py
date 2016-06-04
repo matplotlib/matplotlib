@@ -41,9 +41,9 @@ def html(buildername='html'):
     check_build()
 
     rc = '../lib/matplotlib/mpl-data/matplotlibrc'
-    active_rc = matplotlib.matplotlib_fname()
-    if not os.path.exists(rc) and os.path.exists(active_rc):
-        rc = active_rc
+    default_rc = os.path.join(matplotlib._get_data_path(), 'matplotlibrc')
+    if not os.path.exists(rc) and os.path.exists(default_rc):
+        rc = default_rc
     copy_if_out_of_date(rc, '_static/matplotlibrc')
 
     if small_docs:
