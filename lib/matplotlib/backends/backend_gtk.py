@@ -476,10 +476,10 @@ class FigureCanvasGTK (gtk.DrawingArea, FigureCanvasBase):
         # http://www.pygtk.org/docs/pygtk/class-gdkpixbuf.html#method-gdkpixbuf--save
         options = cbook.restrict_dict(kwargs, ['quality'])
         if format in ['jpg','jpeg']:
-           if 'quality' not in options:
-              options['quality'] = rcParams['savefig.jpeg_quality']
+            if 'quality' not in options:
+                options['quality'] = rcParams['savefig.jpeg_quality']
 
-           options['quality'] = str(options['quality'])
+            options['quality'] = str(options['quality'])
 
         if is_string_like(filename):
             try:
