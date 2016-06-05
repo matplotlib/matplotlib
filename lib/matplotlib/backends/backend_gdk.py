@@ -475,8 +475,8 @@ class FigureCanvasGDK (FigureCanvasBase):
         # http://www.pygtk.org/docs/pygtk/class-gdkpixbuf.html#method-gdkpixbuf--save
         options = restrict_dict(kwargs, ['quality'])
         if format in ['jpg','jpeg']:
-           if 'quality' not in options:
-              options['quality'] = rcParams['savefig.jpeg_quality']
-           options['quality'] = str(options['quality'])
+            if 'quality' not in options:
+                options['quality'] = rcParams['savefig.jpeg_quality']
+            options['quality'] = str(options['quality'])
 
         pixbuf.save(filename, format, options=options)
