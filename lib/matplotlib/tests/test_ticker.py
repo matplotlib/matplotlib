@@ -456,7 +456,7 @@ def test_EngFormatter_formatting():
     without a unit string ('s' for seconds). Test the formatting in some cases,
     especially the case when no SI prefix is present, for values in [1, 1000).
 
-    Should not exception.
+    Should not raise exceptions.
     """
     unitless = mticker.EngFormatter()
     nose.tools.assert_equal(unitless(0.1), u'100 m')
