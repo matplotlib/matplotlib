@@ -16,7 +16,7 @@ from matplotlib import rcParams
 from matplotlib._pylab_helpers import Gcf
 import matplotlib.cbook as cbook
 from weakref import WeakKeyDictionary
-from matplotlib.externals import six
+import six
 import time
 import warnings
 

@@ -1,7 +1,7 @@
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
-from matplotlib.externals import six
+import six
 
 from mpl_toolkits.axes_grid1.axes_divider import Divider, AxesLocator, SubplotDivider, \
      AxesDivider, locatable_axes_factory, make_axes_locatable

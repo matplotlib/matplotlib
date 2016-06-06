@@ -20,8 +20,8 @@
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
-from matplotlib.externals import six
-from matplotlib.externals.six.moves import xrange, zip
+import six
+from six.moves import xrange, zip
 
 import os
 import platform
@@ -652,7 +652,7 @@ class ImageMagickBase(object):
     def _init_from_registry(cls):
         if sys.platform != 'win32' or rcParams[cls.exec_key] != 'convert':
             return
-        from matplotlib.externals.six.moves import winreg
+        from six.moves import winreg
         for flag in (0, winreg.KEY_WOW64_32KEY, winreg.KEY_WOW64_64KEY):
             try:
                 hkey = winreg.OpenKeyEx(winreg.HKEY_LOCAL_MACHINE,

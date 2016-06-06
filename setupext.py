@@ -1345,11 +1345,31 @@ class Tri(SetupPackage):
         return ext
 
 
-class Externals(SetupPackage):
-    name = "externals"
+class Six(SetupPackage):
+    name = "six"
+    min_version = "1.10"
 
-    def get_packages(self):
-        return ['matplotlib.externals']
+    def check(self):
+        try:
+            import six
+        except ImportError:
+            return (
+                "six was not found."
+                "pip will attempt to install it "
+                "after matplotlib.")
+
+        if not is_min_version(six.__version__, self.min_version):
+            return ("The installed version of six is {inst_ver} but "
+                    "a the minimum required version is {min_ver}. "
+                    "pip/easy install will attempt to install a "
+                    "newer version."
+                    ).format(min_ver=self.min_version,
+                             inst_ver=six.__version__)
+
+        return "using six version %s" % six.__version__
+
+    def get_install_requires(self):
+        return ['six>={0}'.format(self.min_version)]
 
 
 class Pytz(SetupPackage):

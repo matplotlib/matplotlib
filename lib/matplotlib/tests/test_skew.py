@@ -5,7 +5,7 @@ from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
 import itertools
-from matplotlib.externals import six
+import six
 
 from nose.tools import assert_true
 import numpy as np

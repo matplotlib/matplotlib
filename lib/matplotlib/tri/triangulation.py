@@ -1,7 +1,7 @@
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
-from matplotlib.externals import six
+import six
 
 import matplotlib._tri as _tri
 import matplotlib._qhull as _qhull

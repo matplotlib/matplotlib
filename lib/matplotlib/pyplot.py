@@ -18,7 +18,7 @@ is recommended that the namespaces be kept separate, e.g.::
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
-from matplotlib.externals import six
+import six
 
 import sys
 import warnings

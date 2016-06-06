@@ -7,7 +7,7 @@ Author: Jouni K Seppänen <jks@iki.fi>
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
-from matplotlib.externals import six
+import six
 
 import codecs
 import os
@@ -21,7 +21,7 @@ from io import BytesIO
 from functools import total_ordering
 
 import numpy as np
-from matplotlib.externals.six import unichr
+from six import unichr
 
 
 from datetime import datetime

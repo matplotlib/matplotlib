@@ -112,8 +112,8 @@ Here all all the date formatters:
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
-from matplotlib.externals import six
-from matplotlib.externals.six.moves import zip
+import six
+from six.moves import zip
 from matplotlib import rcParams
 import re
 import time
