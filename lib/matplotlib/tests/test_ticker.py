@@ -450,6 +450,26 @@ def test_percentformatter():
         yield (_percent_format_helper,) + case
 
 
+def test_EngFormatter_formatting():
+    """
+    Create two instances of EngFormatter with default parameters, with and
+    without a unit string ('s' for seconds). Test the formatting in some cases,
+    especially the case when no SI prefix is present, for values in [1, 1000).
+
+    Should not raise exceptions.
+    """
+    unitless = mticker.EngFormatter()
+    nose.tools.assert_equal(unitless(0.1), u'100 m')
+    nose.tools.assert_equal(unitless(1), u'1')
+    nose.tools.assert_equal(unitless(999.9), u'999.9')
+    nose.tools.assert_equal(unitless(1001), u'1.001 k')
+
+    with_unit = mticker.EngFormatter(unit=u's')
+    nose.tools.assert_equal(with_unit(0.1), u'100 ms')
+    nose.tools.assert_equal(with_unit(1), u'1 s')
+    nose.tools.assert_equal(with_unit(999.9), u'999.9 s')
+    nose.tools.assert_equal(with_unit(1001), u'1.001 ks')
+
 if __name__ == '__main__':
     import nose
     nose.runmodule(argv=['-s', '--with-doctest'], exit=False)
