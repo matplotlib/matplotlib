@@ -4,7 +4,7 @@ Classes for the ticks and x and y axis
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
-from matplotlib.externals import six
+import six
 
 from matplotlib import rcParams
 import matplotlib.artist as artist

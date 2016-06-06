@@ -5,7 +5,7 @@ A module providing some utility functions regarding bezier path manipulation.
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
-from matplotlib.externals import six
+import six
 
 import numpy as np
 from matplotlib.path import Path

@@ -3,8 +3,8 @@ from __future__ import (absolute_import, division, print_function,
 
 from collections import OrderedDict
 
-from matplotlib.externals import six
-from matplotlib.externals.six.moves import xrange
+import six
+from ix.moves import xrange
 from matplotlib.externals.six import unichr
 
 import os, base64, tempfile, gzip, io, sys, codecs, re
