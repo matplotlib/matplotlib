@@ -1005,7 +1005,7 @@ class EngFormatter(Formatter):
     suitable for use with single-letter representations of powers of
     1000. For example, 'Hz' or 'm'.
 
-    `places` is the percision with which to display the number,
+    `places` is the precision with which to display the number,
     specified in digits after the decimal point (there will be between
     one and three digits before the decimal point).
     """
@@ -1087,7 +1087,11 @@ class EngFormatter(Formatter):
 
         formatted = format_str % (mant, prefix)
 
-        return formatted.strip()
+        formatted = formatted.strip()
+        if (self.unit != "") and (prefix == self.ENG_PREFIXES[0]):
+            formatted = formatted + " "
+
+        return formatted
 
 
 class Locator(TickHelper):
