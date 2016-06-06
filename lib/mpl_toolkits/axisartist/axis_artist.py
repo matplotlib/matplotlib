@@ -86,7 +86,7 @@ Following attributes can be customized (use set_xxx method)
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
-from matplotlib.externals import six
+import six
 
 # FIXME :
 

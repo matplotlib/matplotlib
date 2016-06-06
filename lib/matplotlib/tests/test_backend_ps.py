@@ -6,7 +6,7 @@ from __future__ import (absolute_import, division, print_function,
 import io
 import re
 import numpy as np
-from matplotlib.externals import six
+import six
 
 import matplotlib
 import matplotlib.pyplot as plt
