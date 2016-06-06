@@ -1192,6 +1192,9 @@ class EngFormatter(Formatter):
     `places` is the precision with which to display the number,
     specified in digits after the decimal point (there will be between
     one and three digits before the decimal point).
+
+    `space_sep` controls if there is a space between the number and the
+    prefix/unit. For example, '3.14 mV' if True and '3.14mV' if False.
     """
     # The SI engineering prefixes
     ENG_PREFIXES = {
@@ -1214,9 +1217,27 @@ class EngFormatter(Formatter):
          24: "Y"
     }
 
-    def __init__(self, unit="", places=None):
+    def __init__(self, unit="", places=None, space_sep=True):
+        """ Parameters
+            ----------
+            unit: str (default: u"")
+                Unit symbol to use.
+
+            places: int (default: None)
+                Precision, i.e. number of digits after the decimal point.
+                If it is None, falls back to the floating point format '%g'.
+
+            space_sep: boolean (default: True)
+                If True, a (single) space is used between the value and the
+                prefix/unit, else the prefix/unit is directly appended to the
+                value.
+        """
         self.unit = unit
         self.places = places
+        if space_sep is True:
+            self.sep = u" "  # 1 space
+        else:
+            self.sep = u""  # no space
 
     def __call__(self, x, pos=None):
         s = "%s%s" % (self.format_eng(x), self.unit)
@@ -1260,18 +1281,20 @@ class EngFormatter(Formatter):
 
         mant = sign * dnum / (10 ** pow10)
 
+        # TODO: shouldn't we raise a warning if self.places < 0?
         if self.places is None:
-            format_str = "%g %s"
+            format_str = "%g{sep:s}%s".format(sep=self.sep)
         elif self.places == 0:
-            format_str = "%i %s"
+            format_str = "%d{sep:s}%s".format(sep=self.sep)
         elif self.places > 0:
-            format_str = ("%%.%if %%s" % self.places)
+            format_str = "%.{p:d}f{sep:s}%s".format(p=self.places,
+                                                    sep=self.sep)
 
         formatted = format_str % (mant, prefix)
 
         formatted = formatted.strip()
         if (self.unit != "") and (prefix == self.ENG_PREFIXES[0]):
-            formatted = formatted + " "
+            formatted = formatted + self.sep
 
         return formatted
 
