@@ -1273,6 +1273,10 @@ class EngFormatter(Formatter):
             pow10 = decimal.Decimal(int(math.floor(dnum.log10() / 3) * 3))
         else:
             pow10 = decimal.Decimal(0)
+            # Force dnum to zero, to avoid inconsistencies like
+            # format_eng(-0) = "0" and format_eng(0.0) = "0"
+            # but format_eng(-0.0) = "-0.0"
+            dnum = decimal.Decimal(0)
 
         pow10 = pow10.min(max(self.ENG_PREFIXES))
         pow10 = pow10.max(min(self.ENG_PREFIXES))
