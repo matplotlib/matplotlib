@@ -1218,19 +1218,20 @@ class EngFormatter(Formatter):
     }
 
     def __init__(self, unit="", places=None, space_sep=True):
-        """ Parameters
-            ----------
-            unit: str (default: u"")
-                Unit symbol to use.
+        """
+        Parameters
+        ----------
+        unit: str (default: u"")
+            Unit symbol to use.
 
-            places: int (default: None)
-                Precision, i.e. number of digits after the decimal point.
-                If it is None, falls back to the floating point format '%g'.
+        places: int (default: None)
+            Precision, i.e. number of digits after the decimal point.
+            If it is None, falls back to the floating point format '%g'.
 
-            space_sep: boolean (default: True)
-                If True, a (single) space is used between the value and the
-                prefix/unit, else the prefix/unit is directly appended to the
-                value.
+        space_sep: boolean (default: True)
+            If True, a (single) space is used between the value and the
+            prefix/unit, else the prefix/unit is directly appended to the
+            value.
         """
         self.unit = unit
         self.places = places
