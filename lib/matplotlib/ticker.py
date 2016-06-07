@@ -1242,6 +1242,7 @@ class EngFormatter(Formatter):
 
     def __call__(self, x, pos=None):
         s = "%s%s" % (self.format_eng(x), self.unit)
+        s = s.strip()  # Remove separator when there is neither prefix nor unit
         return self.fix_minus(s)
 
     def format_eng(self, num):
@@ -1296,10 +1297,6 @@ class EngFormatter(Formatter):
                                                     sep=self.sep)
 
         formatted = format_str % (mant, prefix)
-
-        formatted = formatted.strip()
-        if (self.unit != "") and (prefix == self.ENG_PREFIXES[0]):
-            formatted = formatted + self.sep
 
         return formatted
 
