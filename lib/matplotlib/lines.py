@@ -68,7 +68,7 @@ def _get_dash_pattern(style):
 def _scale_dashes(offset, dashes, lw):
     if rcParams['_internal.classic_mode']:
         return offset, dashes
-    scale = max(1.0, lw)
+    scale = max(2.0, lw)
     scaled_offset = scaled_dashes = None
     if offset is not None:
         scaled_offset = offset * scale
