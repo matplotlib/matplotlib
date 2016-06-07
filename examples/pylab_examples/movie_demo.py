@@ -17,7 +17,7 @@ for i in range(50):  # 50 frames
     plt.savefig(fname)
     files.append(fname)
 
-print('Making movie animation.mpg - this make take a while')
+print('Making movie animation.mpg - this may take a while')
 os.system("mencoder 'mf://_tmp*.png' -mf type=png:fps=10 -ovc lavc -lavcopts vcodec=wmv2 -oac copy -o animation.mpg")
 #os.system("convert _tmp*.png animation.mng")
 
