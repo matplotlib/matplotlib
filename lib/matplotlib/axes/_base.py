@@ -2248,7 +2248,7 @@ class _AxesBase(martist.Artist):
                     x0, x1 = mtransforms.nonsingular(
                         x0, x1, increasing=False, expander=0.05)
 
-                if (margin > 0 and do_lower_margin or do_upper_margin):
+                if margin > 0 and (do_lower_margin or do_upper_margin):
                     if axis.get_scale() == 'linear':
                         delta = (x1 - x0) * margin
                         if do_lower_margin:
