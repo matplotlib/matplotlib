@@ -15,7 +15,7 @@ convenient Path visualisation - the two most frequently used of these are
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
-from matplotlib.externals import six
+import six
 
 import math
 from weakref import WeakValueDictionary

@@ -45,7 +45,7 @@ from the axis as some gridlines can never pass any axis.
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
-from matplotlib.externals import six
+import six
 
 import matplotlib.axes as maxes
 import matplotlib.artist as martist

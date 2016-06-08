@@ -3,9 +3,9 @@ from __future__ import (absolute_import, division, print_function,
 
 from collections import OrderedDict
 
-from matplotlib.externals import six
-from matplotlib.externals.six.moves import xrange
-from matplotlib.externals.six import unichr
+import six
+from six import unichr
+from six.moves import xrange
 
 import os, base64, tempfile, gzip, io, sys, codecs, re
 

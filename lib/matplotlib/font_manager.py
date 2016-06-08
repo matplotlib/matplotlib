@@ -22,7 +22,7 @@ found.
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
-from matplotlib.externals import six
+import six
 
 """
 KNOWN ISSUES
@@ -186,7 +186,7 @@ def win32FontDirectory():
     If the key is not found, $WINDIR/Fonts will be returned.
     """
     try:
-        from matplotlib.externals.six.moves import winreg
+        from six.moves import winreg
     except ImportError:
         pass # Fall through to default
     else:
@@ -211,7 +211,7 @@ def win32InstalledFonts(directory=None, fontext='ttf'):
     'afm'.
     """
 
-    from matplotlib.externals.six.moves import winreg
+    from six.moves import winreg
     if directory is None:
         directory = win32FontDirectory()
 

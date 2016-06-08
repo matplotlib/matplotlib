@@ -34,7 +34,7 @@ measurement of time since a delta-t in one frame may not be the same in another.
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
-from matplotlib.externals import six
+import six
 
 from .Duration import Duration
 from .Epoch import Epoch

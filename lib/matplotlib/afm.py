@@ -36,8 +36,8 @@ It is pretty easy to use, and requires only built-in python libs:
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
-from matplotlib.externals import six
-from matplotlib.externals.six.moves import map
+import six
+from six.moves import map
 
 import sys
 import os

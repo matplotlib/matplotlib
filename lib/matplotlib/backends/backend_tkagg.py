@@ -2,9 +2,9 @@
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
-from matplotlib.externals import six
-from matplotlib.externals.six.moves import tkinter as Tk
-from matplotlib.externals.six.moves import tkinter_filedialog as FileDialog
+import six
+from six.moves import tkinter as Tk
+from six.moves import tkinter_filedialog as FileDialog
 
 import os, sys, math
 import os.path
@@ -60,7 +60,7 @@ def raise_msg_to_str(msg):
     return msg
 
 def error_msg_tkpaint(msg, parent=None):
-    from matplotlib.externals.six.moves import tkinter_messagebox as tkMessageBox
+    from six.moves import tkinter_messagebox as tkMessageBox
     tkMessageBox.showerror("matplotlib", msg)
 
 def draw_if_interactive():
@@ -785,7 +785,7 @@ class NavigationToolbar2TkAgg(NavigationToolbar2, Tk.Frame):
         canvas.get_tk_widget().pack(side=Tk.TOP, fill=Tk.BOTH, expand=1)
 
     def save_figure(self, *args):
-        from matplotlib.externals.six.moves import tkinter_tkfiledialog, tkinter_messagebox
+        from six.moves import tkinter_tkfiledialog, tkinter_messagebox
         filetypes = self.canvas.get_supported_filetypes().copy()
         default_filetype = self.canvas.get_default_filetype()
 
@@ -1025,7 +1025,7 @@ class StatusbarTk(StatusbarBase, Tk.Frame):
 
 class SaveFigureTk(backend_tools.SaveFigureBase):
     def trigger(self, *args):
-        from matplotlib.externals.six.moves import tkinter_tkfiledialog, tkinter_messagebox
+        from six.moves import tkinter_tkfiledialog, tkinter_messagebox
         filetypes = self.figure.canvas.get_supported_filetypes().copy()
         default_filetype = self.figure.canvas.get_default_filetype()
 

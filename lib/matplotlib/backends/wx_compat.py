@@ -10,7 +10,7 @@ For an example see embedding_in_wx2.py
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
-from matplotlib.externals import six
+import six
 from distutils.version import LooseVersion
 
 missingwx = "Matplotlib backend_wx and backend_wxagg require wxPython >=2.8.12"

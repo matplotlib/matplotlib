@@ -10,8 +10,8 @@ artists into 3D versions which can be added to an Axes3D.
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
-from matplotlib.externals import six
-from matplotlib.externals.six.moves import zip
+import six
+from six.moves import zip
 
 from matplotlib import lines, text as mtext, path as mpath, colors as mcolors
 from matplotlib import artist

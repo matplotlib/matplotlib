@@ -4,7 +4,7 @@ import itertools
 from weakref import ref
 import warnings
 
-from matplotlib.externals import six
+import six
 
 from datetime import datetime
 
