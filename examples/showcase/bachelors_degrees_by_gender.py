@@ -27,10 +27,12 @@ ax.spines['left'].set_visible(False)
 ax.get_xaxis().tick_bottom()
 ax.get_yaxis().tick_left()
 
+fig.subplots_adjust(left=.06, right=.75, bottom=.02, top=.94)
 # Limit the range of the plot to only where the data is.
 # Avoid unnecessary whitespace.
-plt.xlim(1968.5, 2011.1)
-plt.ylim(-0.25, 90)
+ax.set_xlim(1968.5, 2011.1)
+ax.set_ylim(-0.25, 90)
+ax.get_xaxis().get_major_formatter().set_useOffset(False)
 
 # Make sure your axis ticks are large enough to be easily read.
 # You don't want your viewers squinting to read your plot.
@@ -91,10 +93,10 @@ for rank, column in enumerate(majors):
 
 # Note that if the title is descriptive enough, it is unnecessary to include
 # axis labels; they are self-evident, in this plot's case.
-plt.title('Percentage of Bachelor\'s degrees conferred to women in '
-          'the U.S.A. by major (1970-2011)\n', fontsize=18, ha='center')
+fig.suptitle('Percentage of Bachelor\'s degrees conferred to women in '
+             'the U.S.A. by major (1970-2011)\n', fontsize=18, ha='center')
 
 # Finally, save the figure as a PNG.
 # You can also save it as a PDF, JPEG, etc.
 # Just change the file extension in this call.
-plt.savefig('percent-bachelors-degrees-women-usa.png', bbox_inches='tight')
+# plt.savefig('percent-bachelors-degrees-women-usa.png', bbox_inches='tight')

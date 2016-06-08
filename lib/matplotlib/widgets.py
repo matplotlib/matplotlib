@@ -1381,7 +1381,7 @@ class SpanSelector(_SelectorWidget):
         ax.plot(x,y)
 
         def onselect(vmin, vmax):
-            print vmin, vmax
+            print(vmin, vmax)
         span = SpanSelector(ax, onselect, 'horizontal')
 
     *onmove_callback* is an optional callback that is called on mouse
@@ -2152,7 +2152,7 @@ class LassoSelector(_SelectorWidget):
         ax.plot(x,y)
 
         def onselect(verts):
-            print verts
+            print(verts)
         lasso = LassoSelector(ax, onselect)
 
      *button* is a list of integers indicating which mouse buttons should

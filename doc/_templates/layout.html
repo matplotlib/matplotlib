@@ -168,8 +168,11 @@ parents[-1].link|e }}" />
 </map>
 
 <div style="background-color: white; text-align: left; padding: 10px 10px 15px 15px">
-<a href="{{ pathto('index') }}"><img src="{{
-pathto("_static/logo2.svg", 1) }}" width="540px" border="0" alt="matplotlib"/></a>
+{%- if builder in ('htmlhelp', 'devhelp', 'latex') %}
+<a href="{{ pathto('index') }}"><img src="{{pathto("_static/logo2.png", 1) }}" width="540px" border="0" alt="matplotlib"/></a>
+{%- else %}
+<a href="{{ pathto('index') }}"><img src="{{pathto("_static/logo2.svg", 1) }}" width="540px" border="0" alt="matplotlib"/></a>
+{%- endif %}
 </div>
 
 {% endblock %}
