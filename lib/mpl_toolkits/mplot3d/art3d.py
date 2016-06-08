@@ -217,23 +217,39 @@ class Line3DCollection(LineCollection):
         '''
         Set 3D segments
         '''
-        self._segments3d = np.asanyarray(segments)
+        self._seg_sizes = [len(c) for c in segments]
+        self._segments3d = []
+        if len(segments) > 0:
+            # Store the points in a single array for easier projection
+            n_segments = np.sum(self._seg_sizes)
+            # Put all segments in a big array
+            self._segments3d_data = np.vstack(segments)
+            # Add a fourth dimension for quaternions
+            self._segments3d_data = np.hstack([self._segments3d_data,
+                                               np.ones((n_segments, 1))])
+
+            # For coveniency, store a view of the array in the original shape
+            cum_s = 0
+            for s in self._seg_sizes:
+                self._segments3d.append(
+                    self._segments3d_data[cum_s:cum_s + s, :3])
+                cum_s += s
         LineCollection.set_segments(self, [])
 
     def do_3d_projection(self, renderer):
         '''
         Project the points according to renderer matrix.
         '''
-        shape = self._segments3d.shape
-        segments3d = np.transpose(self._segments3d, axes=[2, 0, 1])
-        segments3d = segments3d.reshape((3, -1))
-        # Pad ones
-        segments3d = np.vstack([segments3d, np.ones((1, segments3d.shape[1]))])
-        xys = proj3d.proj_transform_vec(segments3d, renderer.M)
-        xys = np.reshape(xys.T, shape)
-        segments_2d = xys[:, :, 0:2]
+        if len(self._segments3d) == 0:
+            return 1e9
+        xys = proj3d.proj_transform_vec(self._segments3d_data.T, renderer.M).T
+        segments_2d = []
+        cum_s = 0
+        for s in self._seg_sizes:
+            segments_2d.append(xys[cum_s:cum_s + s, :2])
+            cum_s += s
         LineCollection.set_segments(self, segments_2d)
-        minz = np.min(xys[:, :, 2]) if xys.size > 0 else 1e9
+        minz = np.min(xys[:, 2])
         return minz
 
     def draw(self, renderer, project=False):
@@ -301,7 +317,7 @@ class PathPatch3D(Patch3D):
 
     def do_3d_projection(self, renderer):
         # pad ones
-        s = np.vstack(self._segmenta3d, np.ones(self._segment3d.shape[1]))
+        s = np.vstack(self._segments3d, np.ones(self._segments3d.shape[1]))
         vxyzis = proj3d.proj_transform_vec_clip(s, renderer.M)
         self._path2d = mpath.Path(vxyzis[0:2].T, self._code3d)
         # FIXME: coloring
@@ -433,8 +449,10 @@ class Path3DCollection(PathCollection):
         # Force the collection to initialize the face and edgecolors
         # just in case it is a scalarmappable with a colormap.
         self.update_scalarmappable()
-        offsets = np.vstack(self.get_offsets(), np.ones(len(verts)) * zs)
-        self._offsets3d = juggle_axes_vec(offsets, zdir)
+        offsets = self.get_offsets()
+        offsets = np.hstack([offsets,
+                             (np.ones(len(offsets)) * zs)[:, np.newaxis]])
+        self._offsets3d = juggle_axes_vec(offsets, zdir).T
         self._facecolor3d = self.get_facecolor()
         self._edgecolor3d = self.get_edgecolor()
         self.stale = True
@@ -539,14 +557,16 @@ class Poly3DCollection(PolyCollection):
 
     def get_vector(self, segments3d):
         """Optimize points for projection"""
-        segments3d = np.asarray(segments3d)
-        # Segments 3d are given in shape (n_segments, segsize, 3)
-        self._segsize = segments3d.shape[1]
-        # Flatten
-        xyz = segments3d.T.reshape((3, -1))
-        # Add a fourth dimension with only ones
-        ones = np.ones(xyz.shape[1])
-        self._vec = np.vstack([xyz, ones])
+
+        self._seg_sizes = [len(c) for c in segments3d]
+        self._vec = []
+        if len(segments3d) > 0:
+            # Store the points in a single array for easier projection
+            n_segments = np.sum(self._seg_sizes)
+            # Put all segments in a big array
+            self._vec = np.vstack(segments3d)
+            # Add a fourth dimension for quaternions
+            self._vec = np.hstack([self._vec, np.ones((n_segments, 1))]).T
 
     def set_verts(self, verts, closed=True):
         '''Set 3D vertices.'''
@@ -574,7 +594,7 @@ class Poly3DCollection(PolyCollection):
         self._alpha3d = PolyCollection.get_alpha(self)
         self.stale = True
 
-    def set_sort_zpos(self,val):
+    def set_sort_zpos(self, val):
         '''Set the position to use for z-sorting.'''
         self._sort_zpos = val
         self.stale = True
@@ -588,9 +608,12 @@ class Poly3DCollection(PolyCollection):
             self.update_scalarmappable()
             self._facecolors3d = self._facecolors
 
-        xys = proj3d.proj_transform_vec(self._vec, renderer.M)
-        xys = np.reshape(xys, (3, self._segsize, -1))
-        xyzlist = xys.T
+        xys = proj3d.proj_transform_vec(self._vec, renderer.M).T
+        xyzlist = []
+        cum_s = 0
+        for s in self._seg_sizes:
+            xyzlist.append(xys[cum_s:cum_s + s, :3])
+            cum_s += s
 
         # This extra fuss is to re-order face / edge colors
         cface = self._facecolors3d
@@ -605,11 +628,11 @@ class Poly3DCollection(PolyCollection):
         # if required sort by depth (furthest drawn first)
         if self._zsort:
             z_argsort = np.argsort(
-                self._zsortfunc(xyzlist[:, :, 2], axis=1))[::-1]
+                [self._zsortfunc(xyz[:, 2]) for xyz in xyzlist])[::-1]
         else:
             raise ValueError("whoops")
 
-        segments_2d = xyzlist[z_argsort, :, 0:2]
+        segments_2d = [xyzlist[i][:, 0:2] for i in z_argsort]
         if self._codes3d is not None:
             codes = self._codes3d[z_argsort]
             PolyCollection.set_verts_and_codes(self, segments_2d, codes)
