@@ -233,7 +233,7 @@ class Line3DCollection(LineCollection):
         xys = np.reshape(xys.T, shape)
         segments_2d = xys[:, :, 0:2]
         LineCollection.set_segments(self, segments_2d)
-        minz = np.min(xys[:, :, 2])
+        minz = np.min(xys[:, :, 2]) if xys.size > 0 else 1e9
         return minz
 
     def draw(self, renderer, project=False):
@@ -262,7 +262,7 @@ class Patch3D(Patch):
 
     def set_3d_properties(self, verts, zs=0, zdir='z'):
         verts = np.hstack([verts, np.ones((len(verts), 1)) * zs])
-        self._segment3d = juggle_axes_vec(verts, zdir)
+        self._segment3d = juggle_axes_vec(verts.T, zdir)
         self._facecolor3d = Patch.get_facecolor(self)
 
     def get_path(self):
