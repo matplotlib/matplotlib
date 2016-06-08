@@ -102,16 +102,6 @@ tools. An example plot from the
 Miscellaneous Toolkits
 **********************
 
-
-.. _toolkit_prettyplotlib:
-
-prettyplotlib
-=============
-
-`prettyplotlib <https://olgabot.github.io/prettyplotlib>`_ is an extension
-to matplotlib which changes many of the defaults to make plots some
-consider more attractive.
-
 .. _toolkit_probscale:
 
 mpl-probscale
