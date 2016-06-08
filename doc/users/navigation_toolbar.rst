@@ -9,11 +9,11 @@ All figure windows come with a navigation toolbar, which can be used
 to navigate through the data set.  Here is a description of each of
 the buttons at the bottom of the toolbar
 
-.. image:: ../../lib/matplotlib/mpl-data/images/home.png
+.. image:: ../../lib/matplotlib/mpl-data/images/home_large.png
 
-.. image:: ../../lib/matplotlib/mpl-data/images/back.png
+.. image:: ../../lib/matplotlib/mpl-data/images/back_large.png
 
-.. image:: ../../lib/matplotlib/mpl-data/images/forward.png
+.. image:: ../../lib/matplotlib/mpl-data/images/forward_large.png
 
 The ``Forward`` and ``Back`` buttons
     These are akin to the web browser forward and back buttons.  They
@@ -26,7 +26,7 @@ The ``Forward`` and ``Back`` buttons
     ``Back``, think web browser where data views are web pages.  Use
     the pan and zoom to rectangle to define new views.
 
-.. image:: ../../lib/matplotlib/mpl-data/images/move.png
+.. image:: ../../lib/matplotlib/mpl-data/images/move_large.png
 
 The ``Pan/Zoom`` button
     This button has two modes: pan and zoom.  Click the toolbar button
@@ -50,7 +50,7 @@ The ``Pan/Zoom`` button
     mouse button.  The radius scale can be zoomed in and out using the
     right mouse button.
 
-.. image:: ../../lib/matplotlib/mpl-data/images/zoom_to_rect.png
+.. image:: ../../lib/matplotlib/mpl-data/images/zoom_to_rect_large.png
 
 The ``Zoom-to-rectangle`` button
     Click this toolbar button to activate this mode.  Put your mouse
@@ -61,14 +61,15 @@ The ``Zoom-to-rectangle`` button
     with the right button, which will place your entire axes in the
     region defined by the zoom out rectangle.
 
-.. image:: ../../lib/matplotlib/mpl-data/images/subplots.png
+.. image:: ../../lib/matplotlib/mpl-data/images/subplots_large.png
 
 The ``Subplot-configuration`` button
-    Use this tool to configure the parameters of the subplot: the
-    left, right, top, bottom, space between the rows and space between
-    the columns.
+    Use this tool to configure the appearance of the subplot:
+    you can stretch or compress the left, right, top, or bottom
+    side of the subplot, or the space between the rows or
+    space between the columns.
 
-.. image:: ../../lib/matplotlib/mpl-data/images/filesave.png
+.. image:: ../../lib/matplotlib/mpl-data/images/filesave_large.png
 
 The ``Save`` button
     Click this button to launch a file save dialog.  You can save
@@ -94,7 +95,7 @@ Zoom-to-rect                       **o**
 Save                               **ctrl** + **s**
 Toggle fullscreen                  **ctrl** + **f**
 Close plot                         **ctrl** + **w**
-Constrain pan/zoom to x axis       hold **x** when panning/zooming with mouse 
+Constrain pan/zoom to x axis       hold **x** when panning/zooming with mouse
 Constrain pan/zoom to y axis       hold **y** when panning/zooming with mouse
 Preserve aspect ratio              hold **CONTROL** when panning/zooming with mouse
 Toggle grid                        **g** when mouse is over an axes
@@ -135,8 +136,3 @@ example code for GTK::
 
     win.show_all()
     gtk.main()
-
-
-
-
-
