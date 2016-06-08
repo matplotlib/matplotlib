@@ -925,10 +925,10 @@ class Xlator(dict):
       "Perl" : "Python",
       }
 
-      print multiple_replace(adict, text)
+      print(multiple_replace(adict, text))
 
       xlat = Xlator(adict)
-      print xlat.xlat(text)
+      print(xlat.xlat(text))
     """
 
     def _make_regex(self):
