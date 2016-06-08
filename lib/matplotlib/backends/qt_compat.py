@@ -204,3 +204,7 @@ if QT_API in (QT_API_PYQT, QT_API_PYQTv2, QT_API_PYSIDE):
 
     '''
     QtWidgets = QtGui
+
+
+def is_pyqt5():
+    return QT_API == QT_API_PYQT5
