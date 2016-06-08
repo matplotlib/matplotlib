@@ -95,24 +95,16 @@ def warn_deprecated(
         specifier `%(func)s` may be used for the name of the function,
         and `%(alternative)s` may be used in the deprecation message
         to insert the name of an alternative to the deprecated
-        function.  `%(obj_type)` may be used to insert a friendly name
+        function.  `%(obj_type)s` may be used to insert a friendly name
         for the type of object being deprecated.
 
     name : str, optional
-        The name of the deprecated function; if not provided the name
-        is automatically determined from the passed in function,
-        though this is useful in the case of renamed functions, where
-        the new function is just assigned to the name of the
-        deprecated function.  For example::
-
-            def new_function():
-                ...
-            oldFunction = new_function
+        The name of the deprecated object.
 
     alternative : str, optional
         An alternative function that the user may use in place of the
-        deprecated function.  The deprecation warning will tell the user about
-        this alternative if provided.
+        deprecated function.  The deprecation warning will tell the user
+        about this alternative if provided.
 
     pending : bool, optional
         If True, uses a PendingDeprecationWarning instead of a
@@ -153,7 +145,7 @@ def deprecated(since, message='', name='', alternative='', pending=False,
         specifier `%(func)s` may be used for the name of the function,
         and `%(alternative)s` may be used in the deprecation message
         to insert the name of an alternative to the deprecated
-        function.  `%(obj_type)` may be used to insert a friendly name
+        function.  `%(obj_type)s` may be used to insert a friendly name
         for the type of object being deprecated.
 
     name : str, optional
@@ -169,8 +161,8 @@ def deprecated(since, message='', name='', alternative='', pending=False,
 
     alternative : str, optional
         An alternative function that the user may use in place of the
-        deprecated function.  The deprecation warning will tell the user about
-        this alternative if provided.
+        deprecated function.  The deprecation warning will tell the user
+        about this alternative if provided.
 
     pending : bool, optional
         If True, uses a PendingDeprecationWarning instead of a
