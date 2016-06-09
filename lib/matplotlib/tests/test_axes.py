@@ -4,6 +4,7 @@ from __future__ import (absolute_import, division, print_function,
 import six
 from six.moves import xrange
 from itertools import chain
+from distutils.version import LooseVersion
 import io
 
 from nose.tools import assert_equal, assert_raises, assert_false, assert_true
