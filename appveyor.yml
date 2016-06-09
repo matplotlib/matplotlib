@@ -23,21 +23,25 @@ environment:
       CONDA_PY: "27"
       CONDA_NPY: "18"
       PYTHON_VERSION: "2.7"
+      TEST_ALL_IMAGES: "no"
       CONDA_INSTALL_LOCN: "C:\\Miniconda"
     - TARGET_ARCH: "x64"
       CONDA_PY: "27"
       CONDA_NPY: "18"
       PYTHON_VERSION: "2.7"
+      TEST_ALL_IMAGES: "yes" # only once, pick the one which made the most problems
       CONDA_INSTALL_LOCN: "C:\\Miniconda-x64"
     - TARGET_ARCH: "x64"
       CONDA_PY: "34"
       CONDA_NPY: "110"
       PYTHON_VERSION: "3.4"
+      TEST_ALL_IMAGES: "no"
       CONDA_INSTALL_LOCN: "C:\\Miniconda3-x64"
     - TARGET_ARCH: "x64"
       CONDA_PY: "35"
       CONDA_NPY: "110"
       PYTHON_VERSION: "3.5"
+      TEST_ALL_IMAGES: "no"
       CONDA_INSTALL_LOCN: "C:\\Miniconda35-x64"
 
 # We always use a 64-bit machine, but can build x86 distributions
@@ -121,10 +125,10 @@ test_script:
   - cmd: conda install -q -c menpo ffmpeg # a repackaged version
   # This install sometimes failed randomly :-(
   #- cmd: choco install imagemagick
-  - cmd: choco install inkscape
-  - set "PATH=%PATH%;C:\Program Files\Inkscape\inkscape.com"
-  - dir "C:\Program Files\Inkscape\"
-
+  # only install inkscape during one test run as it increases the runtime of one
+  # test run from 13 min -> 30 min
+  - cmd: if x%TEST_ALL_IMAGES% == xyes; choco install inkscape
+  - cmd: if x%TEST_ALL_IMAGES% == xyes; set "PATH=%PATH%;C:\Program Files\Inkscape\inkscape.com"
   # Test import of tkagg backend
   - python -c "import matplotlib as m; m.use('tkagg'); import matplotlib.pyplot as plt; print(plt.get_backend())"
   # tests
