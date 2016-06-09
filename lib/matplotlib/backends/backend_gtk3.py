@@ -482,7 +482,6 @@ class FigureManagerGTK3(FigureManagerBase):
             self.window.unfullscreen()
     _full_screen_flag = False
 
-
     def _get_toolbar(self):
         # must be inited after the window, drawingArea and figure
         # attrs are set
@@ -497,7 +496,7 @@ class FigureManagerGTK3(FigureManagerBase):
     def _get_toolmanager(self):
         # must be initialised after toolbar has been setted
         if rcParams['toolbar'] != 'toolbar2':
-            toolmanager = ToolManager(self.canvas)
+            toolmanager = ToolManager(self.canvas.figure)
         else:
             toolmanager = None
         return toolmanager
