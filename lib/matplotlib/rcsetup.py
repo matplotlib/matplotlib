@@ -37,12 +37,12 @@ from matplotlib.colors import is_color_like
 from cycler import Cycler, cycler as ccycler
 
 # interactive_bk = ['gtk', 'gtkagg', 'gtkcairo', 'qt4agg',
-#                  'tkagg', 'wx', 'wxagg', 'cocoaagg', 'webagg']
+#                  'tkagg', 'wx', 'wxagg', 'webagg']
 # The capitalized forms are needed for ipython at present; this may
 # change for later versions.
 
 interactive_bk = ['GTK', 'GTKAgg', 'GTKCairo', 'MacOSX',
-                  'Qt4Agg', 'Qt5Agg', 'TkAgg', 'WX', 'WXAgg', 'CocoaAgg',
+                  'Qt4Agg', 'Qt5Agg', 'TkAgg', 'WX', 'WXAgg',
                   'GTK3Cairo', 'GTK3Agg', 'WebAgg', 'nbAgg']
 
 
