@@ -58,7 +58,7 @@ matrix:
       env: BUILD_DOCS=true
     - python: "nightly"
       env: PRE=--pre
-    - os: OSX
+    - os: osx
       osx_image: xcode7.3
       language: generic
   allow_failures:
