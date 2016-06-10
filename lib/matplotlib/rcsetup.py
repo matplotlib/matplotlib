@@ -46,7 +46,7 @@ interactive_bk = ['GTK', 'GTKAgg', 'GTKCairo', 'MacOSX',
                   'GTK3Cairo', 'GTK3Agg', 'WebAgg', 'nbAgg']
 
 
-non_interactive_bk = ['agg', 'cairo', 'emf', 'gdk',
+non_interactive_bk = ['agg', 'cairo', 'gdk',
                       'pdf', 'pgf', 'ps', 'svg', 'template']
 all_backends = interactive_bk + non_interactive_bk
 
