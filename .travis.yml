@@ -75,7 +75,8 @@ before_install:
       export PATH=/usr/lib/ccache:$PATH
     else
       brew update
-      brew install python libpng
+      brew tap homebrew/gui
+      brew install python libpng inkscape
     fi
 
 install:
