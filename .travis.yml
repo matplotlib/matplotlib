@@ -76,7 +76,7 @@ before_install:
     else
       brew update
       brew tap homebrew/gui
-      brew install python libpng inkscape
+      brew install python libpng inkscape ffmpeg imagemagick mplayer ghostscript
     fi
 
 install:
