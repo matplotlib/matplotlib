@@ -62,6 +62,7 @@ matrix:
     - os: osx
       osx_image: xcode7.3
       language: generic
+      env: MOCK=mock
   allow_failures:
     - python: "nightly"
 
