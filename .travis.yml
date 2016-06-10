@@ -5,6 +5,7 @@ cache:
     - $HOME/.ccache
     - $HOME/.cache/pip
     - $HOME/.cache/matplotlib
+    - $HOME/Library/Caches/pip
 
 addons:
   apt:
@@ -79,7 +80,9 @@ before_install:
 install:
   - |
     # Setup environment
-    ccache -s
+    if [[ $TRAVIS_OS_NAME != 'osx' ]]; then
+      ccache -s
+    fi
     # Upgrade pip and setuptools and wheel to get as clean an install as possible
     pip install --upgrade pip
     pip install --upgrade wheel
@@ -130,7 +133,7 @@ script:
     echo The following args are passed to nose $NOSE_ARGS
     if [[ $BUILD_DOCS == false ]]; then
       export MPL_REPO_DIR=$PWD  # needed for pep8-conformance test of the examples
-      if [[ $TRAVIS_OS_NAME != 'osx' ]]; then
+      if [[ $TRAVIS_OS_NAME == 'osx' ]]; then
         python tests.py $NOSE_ARGS $TEST_ARGS
       else 
         gdb -return-child-result -batch -ex r -ex bt --args python tests.py $NOSE_ARGS $TEST_ARGS
