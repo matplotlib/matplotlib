@@ -4,6 +4,7 @@ from __future__ import (absolute_import, division, print_function,
 import six
 from six.moves import xrange
 from itertools import chain
+from distutils.version import LooseVersion
 import io
 
 from nose.tools import assert_equal, assert_raises, assert_false, assert_true
@@ -88,7 +89,7 @@ def test_formatter_ticker():
 
 @image_comparison(baseline_images=["formatter_large_small"])
 def test_formatter_large_small():
-    if tuple(map(int, np.__version__.split('.'))) >= (1, 11, 0):
+    if LooseVersion(np.__version__) >= LooseVersion('1.11.0'):
         raise KnownFailureTest("Fall out from a fixed numpy bug")
     # github issue #617, pull #619
     fig, ax = plt.subplots(1)
