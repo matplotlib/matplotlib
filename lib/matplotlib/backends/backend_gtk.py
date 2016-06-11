@@ -37,6 +37,7 @@ from matplotlib.backends.backend_gdk import RendererGDK, FigureCanvasGDK
 from matplotlib.cbook import is_string_like, is_writable_file_like
 from matplotlib.figure import Figure
 from matplotlib.widgets import SubplotTool
+from matplotlib.cbook import warn_deprecated
 
 from matplotlib import (
     cbook, colors as mcolors, lines, markers, rcParams, verbose)
@@ -418,6 +419,12 @@ class FigureCanvasGTK (gtk.DrawingArea, FigureCanvasBase):
     def _render_figure(self, pixmap, width, height):
         """used by GTK and GTKcairo. GTKAgg overrides
         """
+        if isinstance(self._renderer, RendererGDK):
+            warn_deprecated('2.0', message="The GTK backend is "
+                            "deprecated. It is untested, known to be "
+                            "broken and will be removed in Matplotlib 2.2. "
+                            "Use the GTKAgg backend instead.",
+                            alternative="GTKAgg")
         self._renderer.set_width_height (width, height)
         self.figure.draw (self._renderer)
 

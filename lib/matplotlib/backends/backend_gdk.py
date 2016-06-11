@@ -26,7 +26,7 @@ from matplotlib import rcParams
 from matplotlib._pylab_helpers import Gcf
 from matplotlib.backend_bases import RendererBase, GraphicsContextBase, \
      FigureManagerBase, FigureCanvasBase
-from matplotlib.cbook import is_string_like, restrict_dict
+from matplotlib.cbook import is_string_like, restrict_dict, warn_deprecated
 from matplotlib.figure import Figure
 from matplotlib.mathtext import MathTextParser
 from matplotlib.transforms import Affine2D
@@ -441,6 +441,12 @@ class FigureCanvasGDK (FigureCanvasBase):
         self._renderer = RendererGDK (gtk.DrawingArea(), self.figure.dpi)
 
     def _render_figure(self, pixmap, width, height):
+        if isinstance(self._renderer, RendererGDK):
+            warn_deprecated('2.0', message="The GDK backend is "
+                            "deprecated. It is untested, known to be "
+                            "broken and will be removed in Matplotlib 2.2. "
+                            "Use the Agg backend instead.",
+                            alternative="Agg")
         self._renderer.set_pixmap (pixmap)
         self._renderer.set_width_height (width, height)
         self.figure.draw (self._renderer)
