@@ -35,24 +35,16 @@ from __future__ import (absolute_import, division, print_function,
 from matplotlib.externals import six
 
 import numpy as np
-from numpy import ma
 from matplotlib._path import (affine_transform, count_bboxes_overlapping_bbox,
     update_path_extents)
 from numpy.linalg import inv
 
 import weakref
 import warnings
-try:
-    set
-except NameError:
-    from sets import Set as set
 
 from .path import Path
 
 DEBUG = False
-# we need this later, but this is very expensive to set up
-MINFLOAT = np.MachAr(float).xmin
-MaskedArray = ma.MaskedArray
 
 
 class TransformNode(object):
@@ -272,7 +264,7 @@ class BboxBase(TransformNode):
 
     if DEBUG:
         def _check(points):
-            if ma.isMaskedArray(points):
+            if isinstance(points, np.ma.MaskedArray):
                 warnings.warn("Bbox bounds are a masked array.")
             points = np.asarray(points)
             if (points[1, 0] - points[0, 0] == 0 or
@@ -1770,9 +1762,9 @@ class Affine2DBase(AffineBase):
 
     def transform_affine(self, points):
         mtx = self.get_matrix()
-        if isinstance(points, MaskedArray):
+        if isinstance(points, np.ma.MaskedArray):
             tpoints = affine_transform(points.data, mtx)
-            return ma.MaskedArray(tpoints, mask=ma.getmask(points))
+            return np.ma.MaskedArray(tpoints, mask=np.ma.getmask(points))
         return affine_transform(points, mtx)
 
     def transform_point(self, point):
@@ -1787,8 +1779,7 @@ class Affine2DBase(AffineBase):
             # The major speed trap here is just converting to the
             # points to an array in the first place.  If we can use
             # more arrays upstream, that should help here.
-            if (not ma.isMaskedArray(points) and
-                not isinstance(points, np.ndarray)):
+            if not isinstance(points, (np.ma.MaskedArray, np.ndarray)):
                 warnings.warn(
                     ('A non-numpy array of type %s was passed in for ' +
                      'transformation.  Please correct this.')
@@ -2171,8 +2162,9 @@ class BlendedGenericTransform(Transform):
             y_points = y.transform_non_affine(points[:, 1])
             y_points = y_points.reshape((len(y_points), 1))
 
-        if isinstance(x_points, MaskedArray) or isinstance(y_points, MaskedArray):
-            return ma.concatenate((x_points, y_points), 1)
+        if (isinstance(x_points, np.ma.MaskedArray) or
+                isinstance(y_points, np.ma.MaskedArray)):
+            return np.ma.concatenate((x_points, y_points), 1)
         else:
             return np.concatenate((x_points, y_points), 1)
     transform_non_affine.__doc__ = Transform.transform_non_affine.__doc__
@@ -2827,7 +2819,7 @@ def nonsingular(vmin, vmax, expander=0.001, tiny=1e-15, increasing=True):
         swapped = True
 
     maxabsvalue = max(abs(vmin), abs(vmax))
-    if maxabsvalue < (1e6 / tiny) * MINFLOAT:
+    if maxabsvalue < (1e6 / tiny) * np.finfo(float).tiny:
         vmin = -expander
         vmax = expander
 

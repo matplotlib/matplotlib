@@ -48,10 +48,6 @@ License   : matplotlib license (PSF compatible)
 
 import json
 import os, sys, warnings
-try:
-    set
-except NameError:
-    from sets import Set as set
 from collections import Iterable
 import matplotlib
 from matplotlib import afm

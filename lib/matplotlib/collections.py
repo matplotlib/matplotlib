@@ -15,7 +15,6 @@ from matplotlib.externals import six
 from matplotlib.externals.six.moves import zip
 import warnings
 import numpy as np
-import numpy.ma as ma
 import matplotlib as mpl
 import matplotlib.cbook as cbook
 import matplotlib.colors as mcolors
@@ -199,7 +198,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
             transOffset = transOffset.get_affine()
 
         offsets = np.asanyarray(offsets, np.float_)
-        if np.ma.isMaskedArray(offsets):
+        if isinstance(offsets, np.ma.MaskedArray):
             offsets = offsets.filled(np.nan)
             # get_path_collection_extents handles nan but not masked arrays
         offsets.shape = (-1, 2)                     # Make it Nx2
@@ -252,7 +251,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
             # This might have changed an ndarray into a masked array.
             transOffset = transOffset.get_affine()
 
-        if np.ma.isMaskedArray(offsets):
+        if isinstance(offsets, np.ma.MaskedArray):
             offsets = offsets.filled(np.nan)
             # Changing from a masked array to nan-filled ndarray
             # is probably most efficient at this point.
@@ -875,14 +874,14 @@ class PolyCollection(_CollectionWithSizes):
 
     def set_verts(self, verts, closed=True):
         '''This allows one to delay initialization of the vertices.'''
-        if np.ma.isMaskedArray(verts):
-            verts = verts.astype(np.float_).filled(np.nan)
+        if isinstance(verts, np.ma.MaskedArray):
+            verts = verts.astype(float).filled(np.nan)
             # This is much faster than having Path do it one at a time.
         if closed:
             self._paths = []
             for xy in verts:
                 if len(xy):
-                    if np.ma.isMaskedArray(xy):
+                    if isinstance(xy, np.ma.MaskedArray):
                         xy = np.ma.concatenate([xy, xy[0:1]])
                     else:
                         xy = np.asarray(xy)
@@ -1162,7 +1161,7 @@ class LineCollection(Collection):
         _segments = []
 
         for seg in segments:
-            if not np.ma.isMaskedArray(seg):
+            if not isinstance(seg, np.ma.MaskedArray):
                 seg = np.asarray(seg, np.float_)
             _segments.append(seg)
 
@@ -1779,7 +1778,7 @@ class QuadMesh(Collection):
         """
         Path = mpath.Path
 
-        if ma.isMaskedArray(coordinates):
+        if isinstance(coordinates, np.ma.MaskedArray):
             c = coordinates.data
         else:
             c = coordinates
@@ -1800,7 +1799,7 @@ class QuadMesh(Collection):
         with its own color.  This is useful for experiments using
         `draw_qouraud_triangle`.
         """
-        if ma.isMaskedArray(coordinates):
+        if isinstance(coordinates, np.ma.MaskedArray):
             p = coordinates.data
         else:
             p = coordinates

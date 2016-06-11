@@ -21,7 +21,6 @@ import math
 from weakref import WeakValueDictionary
 
 import numpy as np
-from numpy import ma
 
 from matplotlib import _path
 from matplotlib.cbook import simple_linear_interpolation, maxdict
@@ -131,8 +130,8 @@ class Path(object):
             Makes the path behave in an immutable way and sets the vertices
             and codes as read-only arrays.
         """
-        if ma.isMaskedArray(vertices):
-            vertices = vertices.astype(np.float_).filled(np.nan)
+        if isinstance(vertices, np.ma.MaskedArray):
+            vertices = vertices.astype(float).filled(np.nan)
         else:
             vertices = np.asarray(vertices, np.float_)
 
@@ -187,8 +186,8 @@ class Path(object):
         """
         internals = internals or {}
         pth = cls.__new__(cls)
-        if ma.isMaskedArray(verts):
-            verts = verts.astype(np.float_).filled(np.nan)
+        if isinstance(verts, np.ma.MaskedArray):
+            verts = verts.astype(float).filled(np.nan)
         else:
             verts = np.asarray(verts, np.float_)
         pth._vertices = verts
