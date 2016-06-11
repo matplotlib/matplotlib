@@ -201,10 +201,14 @@ if __name__ == '__main__':
     # Abort if any of the required packages can not be built.
     if required_failed:
         print_line()
-        print_message(
-            "The following required packages can not "
-            "be built: %s" %
-            ', '.join(x.name for x in required_failed))
+        message = ("The following required packages can not "
+                   "be built: %s" %
+                   ", ".join(x.name for x in required_failed))
+        for pkg in required_failed:
+            pkg_help = pkg.install_help_msg()
+            if pkg_help:
+                message += "\n* " + pkg_help
+        print_message(message)
         sys.exit(1)
 
     # Now collect all of the information we need to build all of the
