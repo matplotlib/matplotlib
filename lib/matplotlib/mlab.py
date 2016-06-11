@@ -182,7 +182,6 @@ from matplotlib import docstring
 from matplotlib.path import Path
 import math
 
-ma = np.ma
 
 if six.PY3:
     long = int
@@ -1570,7 +1569,7 @@ def entropy(y, bins):
       Sanalytic = 0.5 * ( 1.0 + log(2*pi*sigma**2.0) )
     """
     n, bins = np.histogram(y, bins)
-    n = n.astype(np.float_)
+    n = n.astype(float)
 
     n = np.take(n, np.nonzero(n)[0])         # get the positive
 
@@ -2980,13 +2979,7 @@ def csv2rec(fname, comments='#', skiprows=0, checkrows=0, delimiter=',',
         return None
 
     if use_mrecords and np.any(rowmasks):
-        try:
-            from numpy.ma import mrecords
-        except ImportError:
-            raise RuntimeError('numpy 1.05 or later is required for masked '
-                               'array support')
-        else:
-            r = mrecords.fromrecords(rows, names=names, mask=rowmasks)
+        r = np.ma.mrecords.fromrecords(rows, names=names, mask=rowmasks)
     else:
         r = np.rec.fromrecords(rows, names=names)
     return r
@@ -3824,8 +3817,8 @@ def poly_below(xmin, xs, ys):
       xv, yv = poly_below(0, x, y)
       ax.fill(xv, yv)
     """
-    if ma.isMaskedArray(xs) or ma.isMaskedArray(ys):
-        numpy = ma
+    if isinstance(xs, np.ma.MaskedArray) or isinstance(ys, np.ma.MaskedArray):
+        numpy = np.ma
     else:
         numpy = np
 
@@ -3853,9 +3846,10 @@ def poly_between(x, ylower, yupper):
     Return value is *x*, *y* arrays for use with
     :meth:`matplotlib.axes.Axes.fill`.
     """
-    if (ma.isMaskedArray(ylower) or ma.isMaskedArray(yupper) or
-            ma.isMaskedArray(x)):
-        numpy = ma
+    if (isinstance(ylower, np.ma.MaskedArray) or
+            isinstance(yupper, np.ma.MaskedArray) or
+            isinstance(x, np.ma.MaskedArray)):
+        numpy = np.ma
     else:
         numpy = np
 

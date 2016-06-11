@@ -5387,7 +5387,7 @@ class Axes(_AxesBase):
 
         if t and any(t.contains_branch_seperately(self.transData)):
             trans_to_data = t - self.transData
-            pts = np.vstack([x, y]).T.astype(np.float)
+            pts = np.vstack([x, y]).T.astype(float)
             transformed_pts = trans_to_data.transform(pts)
             x = transformed_pts[..., 0]
             y = transformed_pts[..., 1]
@@ -5537,7 +5537,7 @@ class Axes(_AxesBase):
 
         if t and any(t.contains_branch_seperately(self.transData)):
             trans_to_data = t - self.transData
-            pts = np.vstack([X, Y]).T.astype(np.float)
+            pts = np.vstack([X, Y]).T.astype(float)
             transformed_pts = trans_to_data.transform(pts)
             X = transformed_pts[..., 0]
             Y = transformed_pts[..., 1]

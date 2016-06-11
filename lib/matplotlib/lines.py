@@ -12,7 +12,6 @@ from matplotlib.externals import six
 import warnings
 
 import numpy as np
-from numpy import ma
 from matplotlib import verbose
 from . import artist, colors as mcolors
 from .artist import Artist
@@ -628,8 +627,8 @@ class Line2D(Artist):
     def recache(self, always=False):
         if always or self._invalidx:
             xconv = self.convert_xunits(self._xorig)
-            if ma.isMaskedArray(self._xorig):
-                x = ma.asarray(xconv, np.float_).filled(np.nan)
+            if isinstance(self._xorig, np.ma.MaskedArray):
+                x = np.ma.asarray(xconv, np.float_).filled(np.nan)
             else:
                 x = np.asarray(xconv, np.float_)
             x = x.ravel()
@@ -637,8 +636,8 @@ class Line2D(Artist):
             x = self._x
         if always or self._invalidy:
             yconv = self.convert_yunits(self._yorig)
-            if ma.isMaskedArray(self._yorig):
-                y = ma.asarray(yconv, np.float_).filled(np.nan)
+            if isinstance(self._yorig, np.ma.MaskedArray):
+                y = np.ma.asarray(yconv, np.float_).filled(np.nan)
             else:
                 y = np.asarray(yconv, np.float_)
             y = y.ravel()

@@ -361,8 +361,8 @@ def save_diff_image(expected, actual, output):
     actualImage = _png.read_png(actual)
     actualImage, expectedImage = crop_to_same(
         actual, actualImage, expected, expectedImage)
-    expectedImage = np.array(expectedImage).astype(np.float)
-    actualImage = np.array(actualImage).astype(np.float)
+    expectedImage = np.array(expectedImage).astype(float)
+    actualImage = np.array(actualImage).astype(float)
     assert expectedImage.ndim == actualImage.ndim
     assert expectedImage.shape == actualImage.shape
     absDiffImage = abs(expectedImage - actualImage)

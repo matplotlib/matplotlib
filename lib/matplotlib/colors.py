@@ -891,12 +891,12 @@ class Normalize(object):
                 # (list, tuple, deque, ndarray, Series, ...)
                 result = result.copy()
             elif result.dtype.itemsize > 2:
-                result = result.astype(np.float)
+                result = result.astype(float)
             else:
                 result = result.astype(np.float32)
         else:
             is_scalar = True
-            result = ma.array([value]).astype(np.float)
+            result = ma.array([value]).astype(float)
         return result, is_scalar
 
     def __call__(self, value, clip=None):
@@ -1121,7 +1121,7 @@ class SymLogNorm(Normalize):
         Calculates vmin and vmax in the transformed system.
         """
         vmin, vmax = self.vmin, self.vmax
-        arr = np.array([vmax, vmin]).astype(np.float)
+        arr = np.array([vmax, vmin]).astype(float)
         self._upper, self._lower = self._transform(arr)
 
     def inverse(self, value):
