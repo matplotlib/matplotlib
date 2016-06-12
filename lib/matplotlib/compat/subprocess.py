@@ -1,8 +1,6 @@
 """
 A replacement wrapper around the subprocess module, with a number of
 work-arounds:
-- Provides the check_output function (which subprocess only provides from Python
-  2.7 onwards).
 - Provides a stub implementation of subprocess members on Google App Engine
   (which are missing in subprocess).
 - Use subprocess32, backport from python 3.2 on Linux/Mac work-around for
