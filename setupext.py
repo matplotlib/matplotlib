@@ -1400,6 +1400,30 @@ class FuncTools32(SetupPackage):
             return []
 
 
+class Subprocess32(SetupPackage):
+    name = "subprocess32"
+
+    def check(self):
+        if sys.version_info[:2] < (3, 2):
+            try:
+                import subprocess32
+            except ImportError:
+                return (
+                    "subprocess was not found. It is an optional dependency"
+                    " for for python versions prior to 3.2 that improves"
+                    " functionality on Linux and OSX")
+
+            return "using subprocess32"
+        else:
+            return "Not required"
+
+    def get_install_requires(self):
+        if sys.version_info[:2] < (3, 2) and os.name == 'posix':
+            return ['subprocess32']
+        else:
+            return []
+
+
 class Tornado(OptionalPackage):
     name = "tornado"
 
