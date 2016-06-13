@@ -2,7 +2,7 @@ from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
 from nose.tools import assert_equal
-from matplotlib.externals import six
+import six
 
 import os
 import tempfile

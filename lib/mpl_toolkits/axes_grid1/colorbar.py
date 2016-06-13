@@ -21,8 +21,8 @@ is a thin wrapper over :meth:`~matplotlib.figure.Figure.colorbar`.
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
-from matplotlib.externals import six
-from matplotlib.externals.six.moves import xrange, zip
+import six
+from six.moves import xrange, zip
 
 import numpy as np
 import matplotlib as mpl

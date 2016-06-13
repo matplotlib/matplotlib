@@ -7,7 +7,7 @@ and :class:`~matplotlib.patches.Patch`.
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
-from matplotlib.externals import six
+import six
 
 from matplotlib.backend_bases import RendererBase
 from matplotlib import (

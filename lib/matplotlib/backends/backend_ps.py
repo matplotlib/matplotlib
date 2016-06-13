@@ -5,8 +5,8 @@ A PostScript backend, which can produce both PostScript .ps and .eps
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
-from matplotlib.externals import six
-from matplotlib.externals.six.moves import StringIO
+import six
+from six.moves import StringIO
 
 import glob, math, os, shutil, sys, time
 def _fn_name(): return sys._getframe(1).f_code.co_name

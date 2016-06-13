@@ -20,7 +20,7 @@ This file is python 3 only due to the use of `inspect`
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
-from matplotlib.externals import six
+import six
 
 import os
 import inspect

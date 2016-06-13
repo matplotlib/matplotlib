@@ -4,7 +4,7 @@ font data tables for truetype and afm computer modern fonts
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
-from matplotlib.externals import six
+import six
 
 latex_to_bakoma = {
     '\\__sqrt__'                 : ('cmex10', 0x70),
