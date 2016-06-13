@@ -1,1 +1,0 @@
-# Init for externals package

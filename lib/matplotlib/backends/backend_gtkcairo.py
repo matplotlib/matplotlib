@@ -5,7 +5,7 @@ Author: Steve Chaplin
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
-from matplotlib.externals import six
+import six
 
 import gtk
 if gtk.pygtk_version < (2,7,0):
