@@ -9,7 +9,7 @@ import io
 from tempfile import mkdtemp
 import shutil
 import os
-from matplotlib.externals import six
+import six
 from uuid import uuid4 as uuid
 
 from IPython.display import display, HTML

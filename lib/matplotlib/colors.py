@@ -59,8 +59,8 @@ are supported.
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 import re
-from matplotlib.externals import six
-from matplotlib.externals.six.moves import zip
+import six
+from six.moves import zip
 import warnings
 
 import numpy as np

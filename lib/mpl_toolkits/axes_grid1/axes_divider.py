@@ -13,8 +13,8 @@ multiple axes at drawing time.
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
-from matplotlib.externals import six
-from matplotlib.externals.six.moves import map
+import six
+from six.moves import map
 
 import matplotlib.transforms as mtransforms
 

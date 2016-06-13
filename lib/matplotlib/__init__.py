@@ -102,7 +102,7 @@ to MATLAB&reg;, a registered trademark of The MathWorks, Inc.
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
-from matplotlib.externals import six
+import six
 import sys
 import distutils.version
 from itertools import chain
@@ -126,8 +126,8 @@ from matplotlib.rcsetup import (defaultParams,
                                 cycler)
 
 import numpy
-from matplotlib.externals.six.moves.urllib.request import urlopen
-from matplotlib.externals.six.moves import reload_module as reload
+from six.moves.urllib.request import urlopen
+from six.moves import reload_module as reload
 
 # Get the version from the _version.py versioneer file. For a git checkout,
 # this is computed based on the number of commits since the last tag.
