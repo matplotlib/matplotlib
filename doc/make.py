@@ -7,6 +7,7 @@ import shutil
 import sys
 import re
 import argparse
+import matplotlib
 
 def copy_if_out_of_date(original, derived):
     if (not os.path.exists(derived) or
@@ -38,7 +39,13 @@ def linkcheck():
 
 def html(buildername='html'):
     check_build()
-    copy_if_out_of_date('../lib/matplotlib/mpl-data/matplotlibrc', '_static/matplotlibrc')
+
+    rc = '../lib/matplotlib/mpl-data/matplotlibrc'
+    default_rc = os.path.join(matplotlib._get_data_path(), 'matplotlibrc')
+    if not os.path.exists(rc) and os.path.exists(default_rc):
+        rc = default_rc
+    copy_if_out_of_date(rc, '_static/matplotlibrc')
+
     if small_docs:
         options = "-D plot_formats=png:80"
     else:
@@ -167,9 +174,9 @@ for link, target in required_symlinks:
             raise RuntimeError("doc/{0} should be a directory or symlink -- it"
                                " isn't".format(link))
     if not os.path.exists(link):
-        if hasattr(os, 'symlink'):
+        try:
             os.symlink(target, link)
-        else:
+        except OSError:
             symlink_warnings.append('files copied to {0}'.format(link))
             shutil.copytree(os.path.join(link, '..', target), link)
 
