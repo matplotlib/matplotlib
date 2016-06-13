@@ -1619,6 +1619,8 @@ class MaxNLocator(Locator):
             will be removed.  If prune==None, no ticks will be removed.
 
         """
+        self._fine_steps = [1, 1.5, 2, 2.5, 3, 4, 5, 6, 8, 10]
+        self._fine_int_steps = [1, 2, 3, 4, 5, 6, 8, 10]
         if args:
             kwargs['nbins'] = args[0]
             if len(args) > 1:
@@ -1631,8 +1633,11 @@ class MaxNLocator(Locator):
         """Set parameters within this locator."""
         if 'nbins' in kwargs:
             self._nbins = kwargs['nbins']
-            if self._nbins != 'auto':
-                self._nbins = int(self._nbins)
+        if self._nbins != 'auto':
+            self._nbins = int(self._nbins)
+            self._steps2 = None
+        else:
+            self._steps2 = self._fine_steps
         if 'trim' in kwargs:
             warnings.warn(
                 "The 'trim' keyword has no effect since version 2.0.",
@@ -1650,7 +1655,8 @@ class MaxNLocator(Locator):
         if 'steps' in kwargs:
             steps = kwargs['steps']
             if steps is None:
-                self._steps = [1, 1.5, 2, 2.5, 3, 4, 5, 6, 8, 10]
+                self._steps = self._fine_steps
+                self._steps2 = None
             else:
                 if int(steps[-1]) != 10:
                     steps = list(steps)
@@ -1660,11 +1666,19 @@ class MaxNLocator(Locator):
             self._integer = kwargs['integer']
         if self._integer:
             self._steps = [n for n in self._steps if _divmod(n, 1)[1] < 0.001]
+            if self._steps2 is not None:
+                self._steps2 = self._fine_int_steps
 
-    def _raw_ticks(self, vmin, vmax):
+    def _raw_ticks(self, vmin, vmax, steps=None):
+        if steps is None:
+            steps = self._steps
         nbins = self._nbins
         if nbins == 'auto':
-            nbins = max(min(self.axis.get_tick_space(), 9), 1)
+            if (rcParams['axes.autolimit_mode'] == 'round_numbers'
+                                          and self._prune is None):
+                nbins = max(min(self.axis.get_tick_space(), 9), 2)
+            else:
+                nbins = max(min(self.axis.get_tick_space(), 9), 4)
         scale, offset = scale_range(vmin, vmax, nbins)
         if self._integer:
             scale = max(1, scale)
@@ -1675,11 +1689,11 @@ class MaxNLocator(Locator):
         best_vmax = vmax
         best_vmin = vmin
 
-        for step in self._steps:
+        for step in steps:
             if step < scaled_raw_step:
                 continue
             step *= scale
-            best_vmin = vmin // step * step
+            best_vmin = (vmin // step) * step
             best_vmax = best_vmin + step * nbins
             if best_vmax >= vmax:
                 break
@@ -1687,8 +1701,12 @@ class MaxNLocator(Locator):
         # More than nbins may be required, e.g. vmin, vmax = -4.1, 4.1 gives
         # nbins=9 but 10 bins are actually required after rounding.  So we just
         # create the bins that span the range we need instead.
-        low = round(Base(step).le(vmin - best_vmin) / step)
-        high = round(Base(step).ge(vmax - best_vmin) / step)
+        if rcParams['axes.autolimit_mode'] == 'round_numbers':
+            low = round(Base(step).le(vmin - best_vmin) / step)
+            high = round(Base(step).ge(vmax - best_vmin) / step)
+        else:
+            low = round(Base(step).ge(vmin - best_vmin) / step)
+            high = round(Base(step).le(vmax - best_vmin) / step)
         return np.arange(low, high + 1) * step + best_vmin + offset
 
     @cbook.deprecated("2.0")
@@ -1703,7 +1721,15 @@ class MaxNLocator(Locator):
         vmin, vmax = mtransforms.nonsingular(
             vmin, vmax, expander=1e-13, tiny=1e-14)
         locs = self._raw_ticks(vmin, vmax)
+        locs = [loc for loc in locs if vmax >= loc >= vmin]
+        nlocs = len(locs)
         prune = self._prune
+        if prune in ('lower', 'upper'):
+            nlocs -= 1
+        elif prune == 'both':
+            nlocs -= 2
+        if self._steps2 and nlocs < 2:
+            locs = self._raw_ticks(vmin, vmax, self._steps2)
         if prune == 'lower':
             locs = locs[1:]
         elif prune == 'upper':
