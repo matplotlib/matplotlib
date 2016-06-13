@@ -126,7 +126,6 @@ from matplotlib.rcsetup import (defaultParams,
                                 cycler)
 
 import numpy
-import numpy.ma
 from matplotlib.externals.six.moves.urllib.request import urlopen
 from matplotlib.externals.six.moves import reload_module as reload
 

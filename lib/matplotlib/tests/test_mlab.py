@@ -316,9 +316,9 @@ class csv_testcase(CleanupTestCase):
 
     def test_recarray_csv_roundtrip(self):
         expected = np.recarray((99,),
-                               [(str('x'), np.float),
-                                (str('y'), np.float),
-                                (str('t'), np.float)])
+                               [(str('x'), float),
+                                (str('y'), float),
+                                (str('t'), float)])
         # initialising all values: uninitialised memory sometimes produces
         # floats that do not round-trip to string and back.
         expected['x'][:] = np.linspace(-1e9, -1, 99)
@@ -334,8 +334,8 @@ class csv_testcase(CleanupTestCase):
         assert_allclose(expected['t'], actual['t'])
 
     def test_rec2csv_bad_shape_ValueError(self):
-        bad = np.recarray((99, 4), [(str('x'), np.float),
-                                    (str('y'), np.float)])
+        bad = np.recarray((99, 4), [(str('x'), float),
+                                    (str('y'), float)])
 
         # the bad recarray should trigger a ValueError for having ndim > 1.
         assert_raises(ValueError, mlab.rec2csv, bad, self.fd)
@@ -2869,7 +2869,7 @@ class gaussian_kde_tests():
         np.testing.assert_array_almost_equal(kde(x1), y_expected, decimal=6)
 
     def test_gaussian_kde_covariance_caching(self):
-        x1 = np.array([-7, -5, 1, 4, 5], dtype=np.float)
+        x1 = np.array([-7, -5, 1, 4, 5], dtype=float)
         xs = np.linspace(-10, 10, num=5)
         # These expected values are from scipy 0.10, before some changes to
         # gaussian_kde. They were not compared with any external reference.

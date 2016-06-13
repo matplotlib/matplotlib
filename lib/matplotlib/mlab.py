@@ -175,7 +175,6 @@ import os
 import warnings
 
 import numpy as np
-from matplotlib import verbose
 
 import matplotlib.cbook as cbook
 from matplotlib import docstring
@@ -516,7 +515,7 @@ def detrend_linear(y):
     if not y.ndim:
         return np.array(0., dtype=y.dtype)
 
-    x = np.arange(y.size, dtype=np.float_)
+    x = np.arange(y.size, dtype=float)
 
     C = np.cov(x, y, bias=1)
     b = C[0, 1]/C[0, 0]
@@ -1828,7 +1827,7 @@ def center_matrix(M, dim=0):
     If *dim* = 1 operate on columns instead of rows.  (*dim* is
     opposite to the numpy axis kwarg.)
     """
-    M = np.asarray(M, np.float_)
+    M = np.asarray(M, float)
     if dim:
         M = (M - M.mean(axis=0)) / M.std(axis=0)
     else:
@@ -1886,9 +1885,9 @@ def rk4(derivs, y0, t):
     try:
         Ny = len(y0)
     except TypeError:
-        yout = np.zeros((len(t),), np.float_)
+        yout = np.zeros((len(t),), float)
     else:
-        yout = np.zeros((len(t), Ny), np.float_)
+        yout = np.zeros((len(t), Ny), float)
 
     yout[0] = y0
     i = 0
@@ -1968,9 +1967,9 @@ def dist_point_to_segment(p, s0, s1):
     This algorithm from
     http://softsurfer.com/Archive/algorithm_0102/algorithm_0102.htm#Distance%20to%20Ray%20or%20Segment
     """
-    p = np.asarray(p, np.float_)
-    s0 = np.asarray(s0, np.float_)
-    s1 = np.asarray(s1, np.float_)
+    p = np.asarray(p, float)
+    s0 = np.asarray(s0, float)
+    s1 = np.asarray(s1, float)
     v = s1 - s0
     w = p - s0
 
@@ -2032,7 +2031,7 @@ def movavg(x, n):
     """
     Compute the len(*n*) moving average of *x*.
     """
-    w = np.empty((n,), dtype=np.float_)
+    w = np.empty((n,), dtype=float)
     w[:] = 1.0/n
     return np.convolve(x, w, mode='valid')
 
@@ -3519,10 +3518,10 @@ def slopes(x, y):
     Icelandic Meteorological Office, March 2006 halldor at vedur.is)
     """
     # Cast key variables as float.
-    x = np.asarray(x, np.float_)
-    y = np.asarray(y, np.float_)
+    x = np.asarray(x, float)
+    y = np.asarray(y, float)
 
-    yp = np.zeros(y.shape, np.float_)
+    yp = np.zeros(y.shape, float)
 
     dx = x[1:] - x[:-1]
     dy = y[1:] - y[:-1]
@@ -3576,18 +3575,18 @@ def stineman_interp(xi, x, y, yp=None):
     """
 
     # Cast key variables as float.
-    x = np.asarray(x, np.float_)
-    y = np.asarray(y, np.float_)
+    x = np.asarray(x, float)
+    y = np.asarray(y, float)
     if x.shape != y.shape:
         raise ValueError("'x' and 'y' must be of same shape")
 
     if yp is None:
         yp = slopes(x, y)
     else:
-        yp = np.asarray(yp, np.float_)
+        yp = np.asarray(yp, float)
 
-    xi = np.asarray(xi, np.float_)
-    yi = np.zeros(xi.shape, np.float_)
+    xi = np.asarray(xi, float)
+    yi = np.zeros(xi.shape, float)
 
     # calculate linear slopes
     dx = x[1:] - x[:-1]
@@ -3764,7 +3763,7 @@ class GaussianKDE(object):
                 dim, self.dim)
             raise ValueError(msg)
 
-        result = np.zeros((num_m,), dtype=np.float)
+        result = np.zeros((num_m,), dtype=float)
 
         if num_m >= self.num_dp:
             # there are more points than data, so loop over data
@@ -3817,7 +3816,7 @@ def poly_below(xmin, xs, ys):
       xv, yv = poly_below(0, x, y)
       ax.fill(xv, yv)
     """
-    if isinstance(xs, np.ma.MaskedArray) or isinstance(ys, np.ma.MaskedArray):
+    if any(isinstance(var, np.ma.MaskedArray) for var in [xs, ys]):
         numpy = np.ma
     else:
         numpy = np
@@ -3846,9 +3845,7 @@ def poly_between(x, ylower, yupper):
     Return value is *x*, *y* arrays for use with
     :meth:`matplotlib.axes.Axes.fill`.
     """
-    if (isinstance(ylower, np.ma.MaskedArray) or
-            isinstance(yupper, np.ma.MaskedArray) or
-            isinstance(x, np.ma.MaskedArray)):
+    if any(isinstance(var, np.ma.MaskedArray) for var in [ylower, yupper, x]):
         numpy = np.ma
     else:
         numpy = np

@@ -327,7 +327,7 @@ class RendererBase(object):
 
         if edgecolors is None:
             edgecolors = facecolors
-        linewidths = np.array([gc.get_linewidth()], np.float_)
+        linewidths = np.array([gc.get_linewidth()], float)
 
         return self.draw_path_collection(
             gc, master_transform, paths, [], offsets, offsetTrans, facecolors,

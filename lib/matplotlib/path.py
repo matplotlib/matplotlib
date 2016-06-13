@@ -133,7 +133,7 @@ class Path(object):
         if isinstance(vertices, np.ma.MaskedArray):
             vertices = vertices.astype(float).filled(np.nan)
         else:
-            vertices = np.asarray(vertices, np.float_)
+            vertices = np.asarray(vertices, float)
 
         if (vertices.ndim != 2) or (vertices.shape[1] != 2):
             msg = "'vertices' must be a 2D list or array with shape Nx2"
@@ -189,7 +189,7 @@ class Path(object):
         if isinstance(verts, np.ma.MaskedArray):
             verts = verts.astype(float).filled(np.nan)
         else:
-            verts = np.asarray(verts, np.float_)
+            verts = np.asarray(verts, float)
         pth._vertices = verts
         pth._codes = codes
         pth._readonly = internals.pop('readonly', False)
@@ -775,7 +775,7 @@ class Path(object):
                              [0.0, -1.0],
 
                              [0.0, -1.0]],
-                            dtype=np.float_)
+                            dtype=float)
 
         codes = [cls.CURVE4] * 26
         codes[0] = cls.MOVETO
@@ -821,7 +821,7 @@ class Path(object):
 
                  [0.0, -1.0]],
 
-                np.float_)
+                float)
 
             codes = cls.CURVE4 * np.ones(14)
             codes[0] = cls.MOVETO
@@ -881,7 +881,7 @@ class Path(object):
 
         if is_wedge:
             length = n * 3 + 4
-            vertices = np.zeros((length, 2), np.float_)
+            vertices = np.zeros((length, 2), float)
             codes = cls.CURVE4 * np.ones((length, ), cls.code_type)
             vertices[1] = [xA[0], yA[0]]
             codes[0:2] = [cls.MOVETO, cls.LINETO]
@@ -890,7 +890,7 @@ class Path(object):
             end = length - 2
         else:
             length = n * 3 + 1
-            vertices = np.empty((length, 2), np.float_)
+            vertices = np.empty((length, 2), float)
             codes = cls.CURVE4 * np.ones((length, ), cls.code_type)
             vertices[0] = [xA[0], yA[0]]
             codes[0] = cls.MOVETO
