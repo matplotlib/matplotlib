@@ -7,6 +7,7 @@ import io
 import os
 
 from nose.plugins.attrib import attr
+from nose.plugins.skip import SkipTest
 
 import numpy as np
 
@@ -672,6 +673,37 @@ def test_mask_image():
     A = np.ma.masked_array(np.ones((5, 5), dtype=np.uint16), A)
 
     ax2.imshow(A, interpolation='nearest')
+
+
+@cleanup
+def test_imsave_accept_pep_519():
+    from tempfile import NamedTemporaryFile
+
+    class FakeFSPathClass(object):
+        def __init__(self, path):
+            self._path = path
+
+        def __fspath__(self):
+            return self._path
+
+    a = np.array([[1, 2], [3, 4]])
+    with NamedTemporaryFile(suffix='.pdf') as tmpfile:
+        pep519_path = FakeFSPathClass(tmpfile.name)
+        plt.imsave(pep519_path, a)
+
+
+@cleanup
+def test_imsave_accept_pathlib():
+    try:
+        from pathlib import Path
+    except ImportError:
+        raise SkipTest("pathlib not installed")
+    from tempfile import NamedTemporaryFile
+
+    a = np.array([[1, 2], [3, 4]])
+    with NamedTemporaryFile(suffix='.pdf') as tmpfile:
+        path = Path(tmpfile.name)
+        plt.imsave(path, a)
 
 
 if __name__=='__main__':

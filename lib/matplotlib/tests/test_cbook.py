@@ -13,6 +13,8 @@ from numpy.testing.utils import (assert_array_equal, assert_approx_equal,
                                  assert_array_almost_equal)
 from nose.tools import (assert_equal, assert_not_equal, raises, assert_true,
                         assert_raises)
+from nose.plugins.skip import SkipTest
+from matplotlib.testing.decorators import cleanup
 
 import matplotlib.cbook as cbook
 import matplotlib.colors as mcolors
@@ -499,3 +501,32 @@ def test_grouper_private():
     base_set = mapping[ref(objs[0])]
     for o in objs[1:]:
         assert mapping[ref(o)] is base_set
+
+
+@cleanup
+def test_to_filehandle_accept_pep_519():
+    from tempfile import NamedTemporaryFile
+
+    class FakeFSPathClass(object):
+        def __init__(self, path):
+            self._path = path
+
+        def __fspath__(self):
+            return self._path
+
+    with NamedTemporaryFile() as tmpfile:
+        pep519_path = FakeFSPathClass(tmpfile.name)
+        cbook.to_filehandle(pep519_path)
+
+
+@cleanup
+def test_to_filehandle_accept_pathlib():
+    try:
+        from pathlib import Path
+    except ImportError:
+        raise SkipTest("pathlib not installed")
+    from tempfile import NamedTemporaryFile
+
+    with NamedTemporaryFile() as tmpfile:
+        path = Path(tmpfile.name)
+        cbook.to_filehandle(path)
