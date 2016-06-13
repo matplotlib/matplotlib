@@ -76,7 +76,7 @@ void TTStreamWriter::putline(const char *a)
 void replace_newlines_with_spaces(char *a) {
   char* i = a;
   while (*i != 0) {
-    if (*i == '\n')
+    if (*i == '\r' || *i == '\n')
       *i = ' ';
     i++;
   }
