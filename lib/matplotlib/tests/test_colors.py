@@ -157,12 +157,12 @@ def test_LogNorm():
 
 
 def test_PowerNorm():
-    a = np.array([0, 0.5, 1, 1.5], dtype=np.float)
+    a = np.array([0, 0.5, 1, 1.5], dtype=float)
     pnorm = mcolors.PowerNorm(1)
     norm = mcolors.Normalize()
     assert_array_almost_equal(norm(a), pnorm(a))
 
-    a = np.array([-0.5, 0, 2, 4, 8], dtype=np.float)
+    a = np.array([-0.5, 0, 2, 4, 8], dtype=float)
     expected = [0, 0, 1/16, 1/4, 1]
     pnorm = mcolors.PowerNorm(2, vmin=0, vmax=8)
     assert_array_almost_equal(pnorm(a), expected)
@@ -171,7 +171,7 @@ def test_PowerNorm():
     assert_array_almost_equal(a[1:], pnorm.inverse(pnorm(a))[1:])
 
     # Clip = True
-    a = np.array([-0.5, 0, 1, 8, 16], dtype=np.float)
+    a = np.array([-0.5, 0, 1, 8, 16], dtype=float)
     expected = [0, 0, 0, 1, 1]
     pnorm = mcolors.PowerNorm(2, vmin=2, vmax=8, clip=True)
     assert_array_almost_equal(pnorm(a), expected)
@@ -179,7 +179,7 @@ def test_PowerNorm():
     assert_equal(pnorm(a[-1]), expected[-1])
 
     # Clip = True at call time
-    a = np.array([-0.5, 0, 1, 8, 16], dtype=np.float)
+    a = np.array([-0.5, 0, 1, 8, 16], dtype=float)
     expected = [0, 0, 0, 1, 1]
     pnorm = mcolors.PowerNorm(2, vmin=2, vmax=8, clip=False)
     assert_array_almost_equal(pnorm(a, clip=True), expected)
@@ -189,7 +189,7 @@ def test_PowerNorm():
 
 def test_Normalize():
     norm = mcolors.Normalize()
-    vals = np.arange(-10, 10, 1, dtype=np.float)
+    vals = np.arange(-10, 10, 1, dtype=float)
     _inverse_tester(norm, vals)
     _scalar_tester(norm, vals)
     _mask_tester(norm, vals)
@@ -200,7 +200,7 @@ def test_SymLogNorm():
     Test SymLogNorm behavior
     """
     norm = mcolors.SymLogNorm(3, vmax=5, linscale=1.2)
-    vals = np.array([-30, -1, 2, 6], dtype=np.float)
+    vals = np.array([-30, -1, 2, 6], dtype=float)
     normed_vals = norm(vals)
     expected = [0., 0.53980074, 0.826991, 1.02758204]
     assert_array_almost_equal(normed_vals, expected)

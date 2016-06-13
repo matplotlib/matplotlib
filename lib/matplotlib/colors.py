@@ -64,7 +64,6 @@ from matplotlib.externals.six.moves import zip
 import warnings
 
 import numpy as np
-from numpy import ma
 import matplotlib.cbook as cbook
 from ._color_data import BASE_COLORS, CSS4_COLORS, XKCD_COLORS
 
@@ -354,7 +353,7 @@ def makeMappingArray(N, data, gamma=1.0):
 
     if six.callable(data):
         xind = np.linspace(0, 1, N) ** gamma
-        lut = np.clip(np.array(data(xind), dtype=np.float), 0, 1)
+        lut = np.clip(np.array(data(xind), dtype=float), 0, 1)
         return lut
 
     try:
@@ -377,7 +376,7 @@ def makeMappingArray(N, data, gamma=1.0):
             "data mapping points must have x in increasing order")
     # begin generation of lookup table
     x = x * (N - 1)
-    lut = np.zeros((N,), np.float)
+    lut = np.zeros((N,), float)
     xind = (N - 1) * np.linspace(0, 1, N) ** gamma
     ind = np.searchsorted(x, xind)[1:-1]
 
@@ -459,9 +458,9 @@ class Colormap(object):
             xa = np.array([X])
         else:
             vtype = 'array'
-            xma = ma.array(X, copy=True)  # Copy here to avoid side effects.
-            mask_bad = xma.mask           # Mask will be used below.
-            xa = xma.filled()             # Fill to avoid infs, etc.
+            xma = np.ma.array(X, copy=True)  # Copy here to avoid side effects.
+            mask_bad = xma.mask              # Mask will be used below.
+            xa = xma.filled()                # Fill to avoid infs, etc.
             del xma
 
         # Calculations with native byteorder are faster, and avoid a
@@ -651,7 +650,7 @@ class LinearSegmentedColormap(Colormap):
         self._gamma = gamma
 
     def _init(self):
-        self._lut = np.ones((self.N + 3, 4), np.float)
+        self._lut = np.ones((self.N + 3, 4), float)
         self._lut[:-3, 0] = makeMappingArray(
             self.N, self._segmentdata['red'], self._gamma)
         self._lut[:-3, 1] = makeMappingArray(
@@ -802,7 +801,7 @@ class ListedColormap(Colormap):
 
     def _init(self):
         rgba = colorConverter.to_rgba_array(self.colors)
-        self._lut = np.zeros((self.N + 3, 4), np.float)
+        self._lut = np.zeros((self.N + 3, 4), float)
         self._lut[:-3] = rgba
         self._isinit = True
         self._set_extremes()
@@ -874,7 +873,7 @@ class Normalize(object):
         Returns *result*, *is_scalar*, where *result* is a
         masked array matching *value*.  Float dtypes are preserved;
         integer types with two bytes or smaller are converted to
-        np.float32, and larger types are converted to np.float.
+        np.float32, and larger types are converted to np.float64.
         Preserving float32 when possible, and using in-place operations,
         can greatly improve speed for large arrays.
 
@@ -883,7 +882,7 @@ class Normalize(object):
         """
         if cbook.iterable(value):
             is_scalar = False
-            result = ma.asarray(value)
+            result = np.ma.asarray(value)
             if result.dtype.kind == 'f':
                 # this is overkill for lists of floats, but required
                 # to support pd.Series as input until we can reliable
@@ -896,7 +895,7 @@ class Normalize(object):
                 result = result.astype(np.float32)
         else:
             is_scalar = True
-            result = ma.array([value]).astype(float)
+            result = np.ma.array([value]).astype(float)
         return result, is_scalar
 
     def __call__(self, value, clip=None):
@@ -922,9 +921,9 @@ class Normalize(object):
             vmin = float(vmin)
             vmax = float(vmax)
             if clip:
-                mask = ma.getmask(result)
-                result = ma.array(np.clip(result.filled(vmax), vmin, vmax),
-                                  mask=mask)
+                mask = np.ma.getmask(result)
+                result = np.ma.array(np.clip(result.filled(vmax), vmin, vmax),
+                                     mask=mask)
             # ma division is very slow; we can take a shortcut
             resdat = result.data
             resdat -= vmin
@@ -941,7 +940,7 @@ class Normalize(object):
         vmax = float(self.vmax)
 
         if cbook.iterable(value):
-            val = ma.asarray(value)
+            val = np.ma.asarray(value)
             return vmin + val * (vmax - vmin)
         else:
             return vmin + value * (vmax - vmin)
@@ -950,15 +949,15 @@ class Normalize(object):
         """
         Set *vmin*, *vmax* to min, max of *A*.
         """
-        self.vmin = ma.min(A)
-        self.vmax = ma.max(A)
+        self.vmin = np.ma.min(A)
+        self.vmax = np.ma.max(A)
 
     def autoscale_None(self, A):
         ' autoscale only None-valued vmin or vmax'
         if self.vmin is None and np.size(A) > 0:
-            self.vmin = ma.min(A)
+            self.vmin = np.ma.min(A)
         if self.vmax is None and np.size(A) > 0:
-            self.vmax = ma.max(A)
+            self.vmax = np.ma.max(A)
 
     def scaled(self):
         'return true if vmin and vmax set'
@@ -975,7 +974,7 @@ class LogNorm(Normalize):
 
         result, is_scalar = self.process_value(value)
 
-        result = ma.masked_less_equal(result, 0, copy=False)
+        result = np.ma.masked_less_equal(result, 0, copy=False)
 
         self.autoscale_None(result)
         vmin, vmax = self.vmin, self.vmax
@@ -987,8 +986,8 @@ class LogNorm(Normalize):
             result.fill(0)
         else:
             if clip:
-                mask = ma.getmask(result)
-                result = ma.array(np.clip(result.filled(vmax), vmin, vmax),
+                mask = np.ma.getmask(result)
+                result = np.ma.array(np.clip(result.filled(vmax), vmin, vmax),
                                   mask=mask)
             # in-place equivalent of above can be much faster
             resdat = result.data
@@ -1012,8 +1011,8 @@ class LogNorm(Normalize):
         vmin, vmax = self.vmin, self.vmax
 
         if cbook.iterable(value):
-            val = ma.asarray(value)
-            return vmin * ma.power((vmax / vmin), val)
+            val = np.ma.asarray(value)
+            return vmin * np.ma.power((vmax / vmin), val)
         else:
             return vmin * pow((vmax / vmin), value)
 
@@ -1021,19 +1020,19 @@ class LogNorm(Normalize):
         """
         Set *vmin*, *vmax* to min, max of *A*.
         """
-        A = ma.masked_less_equal(A, 0, copy=False)
-        self.vmin = ma.min(A)
-        self.vmax = ma.max(A)
+        A = np.ma.masked_less_equal(A, 0, copy=False)
+        self.vmin = np.ma.min(A)
+        self.vmax = np.ma.max(A)
 
     def autoscale_None(self, A):
         ' autoscale only None-valued vmin or vmax'
         if self.vmin is not None and self.vmax is not None:
             return
-        A = ma.masked_less_equal(A, 0, copy=False)
+        A = np.ma.masked_less_equal(A, 0, copy=False)
         if self.vmin is None:
-            self.vmin = ma.min(A)
+            self.vmin = np.ma.min(A)
         if self.vmax is None:
-            self.vmax = ma.max(A)
+            self.vmax = np.ma.max(A)
 
 
 class SymLogNorm(Normalize):
@@ -1080,9 +1079,9 @@ class SymLogNorm(Normalize):
             result.fill(0)
         else:
             if clip:
-                mask = ma.getmask(result)
-                result = ma.array(np.clip(result.filled(vmax), vmin, vmax),
-                                  mask=mask)
+                mask = np.ma.getmask(result)
+                result = np.ma.array(np.clip(result.filled(vmax), vmin, vmax),
+                                     mask=mask)
             # in-place equivalent of above can be much faster
             resdat = self._transform(result.data)
             resdat -= self._lower
@@ -1127,7 +1126,7 @@ class SymLogNorm(Normalize):
     def inverse(self, value):
         if not self.scaled():
             raise ValueError("Not invertible until scaled")
-        val = ma.asarray(value)
+        val = np.ma.asarray(value)
         val = val * (self._upper - self._lower) + self._lower
         return self._inv_transform(val)
 
@@ -1135,8 +1134,8 @@ class SymLogNorm(Normalize):
         """
         Set *vmin*, *vmax* to min, max of *A*.
         """
-        self.vmin = ma.min(A)
-        self.vmax = ma.max(A)
+        self.vmin = np.ma.min(A)
+        self.vmax = np.ma.max(A)
         self._transform_vmin_vmax()
 
     def autoscale_None(self, A):
@@ -1144,9 +1143,9 @@ class SymLogNorm(Normalize):
         if self.vmin is not None and self.vmax is not None:
             pass
         if self.vmin is None:
-            self.vmin = ma.min(A)
+            self.vmin = np.ma.min(A)
         if self.vmax is None:
-            self.vmax = ma.max(A)
+            self.vmax = np.ma.max(A)
         self._transform_vmin_vmax()
 
 
@@ -1175,9 +1174,9 @@ class PowerNorm(Normalize):
         else:
             res_mask = result.data < 0
             if clip:
-                mask = ma.getmask(result)
-                result = ma.array(np.clip(result.filled(vmax), vmin, vmax),
-                                  mask=mask)
+                mask = np.ma.getmask(result)
+                result = np.ma.array(np.clip(result.filled(vmax), vmin, vmax),
+                                     mask=mask)
             resdat = result.data
             resdat -= vmin
             np.power(resdat, gamma, resdat)
@@ -1196,8 +1195,8 @@ class PowerNorm(Normalize):
         vmin, vmax = self.vmin, self.vmax
 
         if cbook.iterable(value):
-            val = ma.asarray(value)
-            return ma.power(val, 1. / gamma) * (vmax - vmin) + vmin
+            val = np.ma.asarray(value)
+            return np.ma.power(val, 1. / gamma) * (vmax - vmin) + vmin
         else:
             return pow(value, 1. / gamma) * (vmax - vmin) + vmin
 
@@ -1205,25 +1204,25 @@ class PowerNorm(Normalize):
         """
         Set *vmin*, *vmax* to min, max of *A*.
         """
-        self.vmin = ma.min(A)
+        self.vmin = np.ma.min(A)
         if self.vmin < 0:
             self.vmin = 0
             warnings.warn("Power-law scaling on negative values is "
                           "ill-defined, clamping to 0.")
 
-        self.vmax = ma.max(A)
+        self.vmax = np.ma.max(A)
 
     def autoscale_None(self, A):
         ' autoscale only None-valued vmin or vmax'
         if self.vmin is None and np.size(A) > 0:
-            self.vmin = ma.min(A)
+            self.vmin = np.ma.min(A)
             if self.vmin < 0:
                 self.vmin = 0
                 warnings.warn("Power-law scaling on negative values is "
                               "ill-defined, clamping to 0.")
 
         if self.vmax is None and np.size(A) > 0:
-            self.vmax = ma.max(A)
+            self.vmax = np.ma.max(A)
 
 
 class BoundaryNorm(Normalize):
@@ -1277,7 +1276,7 @@ class BoundaryNorm(Normalize):
             clip = self.clip
 
         xx, is_scalar = self.process_value(value)
-        mask = ma.getmaskarray(xx)
+        mask = np.ma.getmaskarray(xx)
         xx = np.atleast_1d(xx.filled(self.vmax + 1))
         if clip:
             np.clip(xx, self.vmin, self.vmax, out=xx)
@@ -1292,7 +1291,7 @@ class BoundaryNorm(Normalize):
             iret = (iret * scalefac).astype(np.int16)
         iret[xx < self.vmin] = -1
         iret[xx >= self.vmax] = max_col
-        ret = ma.array(iret, mask=mask)
+        ret = np.ma.array(iret, mask=mask)
         if is_scalar:
             ret = int(ret[0])  # assume python scalar
         return ret

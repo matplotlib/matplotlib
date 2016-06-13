@@ -2303,7 +2303,7 @@ def pts_to_prestep(x, *args):
     # do normalization
     vertices = _step_validation(x, *args)
     # create the output array
-    steps = np.zeros((vertices.shape[0], 2 * len(x) - 1), np.float)
+    steps = np.zeros((vertices.shape[0], 2 * len(x) - 1), float)
     # do the to step conversion logic
     steps[0, 0::2], steps[0, 1::2] = vertices[0, :], vertices[0, :-1]
     steps[1:, 0::2], steps[1:, 1:-1:2] = vertices[1:, :], vertices[1:, 1:]
@@ -2343,7 +2343,7 @@ def pts_to_poststep(x, *args):
     # do normalization
     vertices = _step_validation(x, *args)
     # create the output array
-    steps = np.zeros((vertices.shape[0], 2 * len(x) - 1), np.float)
+    steps = np.zeros((vertices.shape[0], 2 * len(x) - 1), float)
     # do the to step conversion logic
     steps[0, ::2], steps[0, 1:-1:2] = vertices[0, :], vertices[0, 1:]
     steps[1:, 0::2], steps[1:, 1::2] = vertices[1:, :], vertices[1:, :-1]
@@ -2384,7 +2384,7 @@ def pts_to_midstep(x, *args):
     # do normalization
     vertices = _step_validation(x, *args)
     # create the output array
-    steps = np.zeros((vertices.shape[0], 2 * len(x)), np.float)
+    steps = np.zeros((vertices.shape[0], 2 * len(x)), float)
     steps[0, 1:-1:2] = 0.5 * (vertices[0, :-1] + vertices[0, 1:])
     steps[0, 2::2] = 0.5 * (vertices[0, :-1] + vertices[0, 1:])
     steps[0, 0] = vertices[0, 0]

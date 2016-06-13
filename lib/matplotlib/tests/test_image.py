@@ -488,7 +488,7 @@ def test_jpeg_alpha():
     plt.figure(figsize=(1, 1), dpi=300)
     # Create an image that is all black, with a gradient from 0-1 in
     # the alpha channel from left to right.
-    im = np.zeros((300, 300, 4), dtype=np.float)
+    im = np.zeros((300, 300, 4), dtype=float)
     im[..., 3] = np.linspace(0.0, 1.0, 300)
 
     plt.figimage(im)

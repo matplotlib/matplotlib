@@ -76,7 +76,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
     (i.e., a call to set_array has been made), at draw time a call to
     scalar mappable will be made to set the face colors.
     """
-    _offsets = np.array([], np.float_)
+    _offsets = np.array([], float)
     # _offsets must be a Nx2 array!
     _offsets.shape = (0, 2)
     _transOffset = transforms.IdentityTransform()
@@ -129,7 +129,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
         self.set_zorder(zorder)
 
         self._uniform_offsets = None
-        self._offsets = np.array([[0, 0]], np.float_)
+        self._offsets = np.array([[0, 0]], float)
         if offsets is not None:
             offsets = np.asanyarray(offsets)
             offsets.shape = (-1, 2)             # Make it Nx2
@@ -197,7 +197,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
             offsets = transOffset.transform_non_affine(offsets)
             transOffset = transOffset.get_affine()
 
-        offsets = np.asanyarray(offsets, np.float_)
+        offsets = np.asanyarray(offsets, float)
         if isinstance(offsets, np.ma.MaskedArray):
             offsets = offsets.filled(np.nan)
             # get_path_collection_extents handles nan but not masked arrays
@@ -239,7 +239,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
                 ys = self.convert_yunits(offsets[:, 1])
                 offsets = list(zip(xs, ys))
 
-        offsets = np.asanyarray(offsets, np.float_)
+        offsets = np.asanyarray(offsets, float)
         offsets.shape = (-1, 2)             # Make it Nx2
 
         if not transform.is_affine:
@@ -428,7 +428,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
 
         ACCEPTS: float or sequence of floats
         """
-        offsets = np.asanyarray(offsets, np.float_)
+        offsets = np.asanyarray(offsets, float)
         offsets.shape = (-1, 2)             # Make it Nx2
         #This decision is based on how they are initialized above
         if self._uniform_offsets is None:
@@ -1162,7 +1162,7 @@ class LineCollection(Collection):
 
         for seg in segments:
             if not isinstance(seg, np.ma.MaskedArray):
-                seg = np.asarray(seg, np.float_)
+                seg = np.asarray(seg, float)
             _segments.append(seg)
 
         if self._uniform_offsets is not None:
@@ -1752,7 +1752,7 @@ class QuadMesh(Collection):
         # By converting to floats now, we can avoid that on every draw.
         self._coordinates = self._coordinates.reshape(
             (meshHeight + 1, meshWidth + 1, 2))
-        self._coordinates = np.array(self._coordinates, np.float_)
+        self._coordinates = np.array(self._coordinates, float)
 
     def get_paths(self):
         if self._paths is None:
@@ -1850,7 +1850,7 @@ class QuadMesh(Collection):
                 ys = self.convert_yunits(self._offsets[:, 1])
                 offsets = list(zip(xs, ys))
 
-        offsets = np.asarray(offsets, np.float_)
+        offsets = np.asarray(offsets, float)
         offsets.shape = (-1, 2)                 # Make it Nx2
 
         self.update_scalarmappable()
