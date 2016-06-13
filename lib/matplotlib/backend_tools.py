@@ -17,7 +17,7 @@ from matplotlib._pylab_helpers import Gcf
 import matplotlib.cbook as cbook
 from weakref import WeakKeyDictionary
 import numpy as np
-from matplotlib.externals import six
+import six
 import warnings
 
 

@@ -1,8 +1,8 @@
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
-from matplotlib.externals import six
-from matplotlib.externals.six.moves import reduce, xrange, zip, zip_longest
+import six
+from six.moves import reduce, xrange, zip, zip_longest
 
 import itertools
 import math

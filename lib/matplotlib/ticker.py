@@ -156,7 +156,7 @@ more information and examples of using date locators and formatters.
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
-from matplotlib.externals import six
+import six
 
 import decimal
 import itertools
