@@ -218,7 +218,6 @@ def test_pep8_conformance_installed_files():
                           'compat/subprocess.py',
                           'backends/backend_agg.py',
                           'backends/backend_cairo.py',
-                          'backends/backend_cocoaagg.py',
                           'backends/backend_gdk.py',
                           'backends/backend_gtk.py',
                           'backends/backend_gtk3.py',

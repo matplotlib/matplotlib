@@ -40,6 +40,6 @@ directories found here:
   * units - working with unit data an custom types in matplotlib
 
   * user_interfaces - using matplotlib in a GUI application, e.g.,
-    TkInter, WXPython, pygtk, pyqt or FLTK widgets
+    TkInter, WXPython, pygtk, pyqt widgets
 
   * widgets - Examples using interactive widgets
