@@ -1476,7 +1476,8 @@ class MaxNLocator(Locator):
                           steps=None,
                           integer=False,
                           symmetric=False,
-                          prune=None)
+                          prune=None,
+                          min_n_ticks=2)
 
     def __init__(self, *args, **kwargs):
         """
@@ -1507,6 +1508,11 @@ class MaxNLocator(Locator):
             be removed.  If prune=='upper', the largest tick will be
             removed.  If prune=='both', the largest and smallest ticks
             will be removed.  If prune==None, no ticks will be removed.
+
+        *min_n_ticks*
+            While the estimated number of ticks is less than the minimum,
+            the target value *nbins* is incremented and the ticks are
+            recalculated.
 
         """
         if args:
@@ -1550,11 +1556,27 @@ class MaxNLocator(Locator):
             self._integer = kwargs['integer']
         if self._integer:
             self._steps = [n for n in self._steps if _divmod(n, 1)[1] < 0.001]
+        if 'min_n_ticks' in kwargs:
+            self._min_n_ticks = max(1, kwargs['min_n_ticks'])
 
     def _raw_ticks(self, vmin, vmax):
-        nbins = self._nbins
-        if nbins == 'auto':
-            nbins = max(min(self.axis.get_tick_space(), 9), 1)
+        if self._nbins == 'auto':
+            nbins = max(min(self.axis.get_tick_space(), 9),
+                        max(1, self._min_n_ticks - 1))
+        else:
+            nbins = self._nbins
+
+        while True:
+            ticks = self._try_raw_ticks(vmin, vmax, nbins)
+            nticks = ((ticks <= vmax) & (ticks >= vmin)).sum()
+            if nticks >= self._min_n_ticks:
+                break
+            nbins += 1
+
+        self._nbins_used = nbins  # Maybe useful for troubleshooting.
+        return ticks
+
+    def _try_raw_ticks(self, vmin, vmax, nbins):
         scale, offset = scale_range(vmin, vmax, nbins)
         if self._integer:
             scale = max(1, scale)
@@ -1565,9 +1587,8 @@ class MaxNLocator(Locator):
         best_vmax = vmax
         best_vmin = vmin
 
-        for step in self._steps:
-            if step < scaled_raw_step:
-                continue
+        steps = (x for x in self._steps if x >= scaled_raw_step)
+        for step in steps:
             step *= scale
             best_vmin = vmin // step * step
             best_vmax = best_vmin + step * nbins
@@ -1603,11 +1624,10 @@ class MaxNLocator(Locator):
         return self.raise_if_exceeds(locs)
 
     def view_limits(self, dmin, dmax):
-        if rcParams['axes.autolimit_mode'] == 'round_numbers':
-            if self._symmetric:
-                maxabs = max(abs(dmin), abs(dmax))
-                dmin = -maxabs
-                dmax = maxabs
+        if self._symmetric:
+            maxabs = max(abs(dmin), abs(dmax))
+            dmin = -maxabs
+            dmax = maxabs
 
         dmin, dmax = mtransforms.nonsingular(
             dmin, dmax, expander=1e-12, tiny=1e-13)
@@ -2053,9 +2073,11 @@ class AutoLocator(MaxNLocator):
     def __init__(self):
         if rcParams['_internal.classic_mode']:
             nbins = 9
+            steps = [1, 2, 5, 10]
         else:
             nbins = 'auto'
-        MaxNLocator.__init__(self, nbins=nbins, steps=[1, 2, 5, 10])
+            steps = [1, 2, 2.5, 5, 10]
+        MaxNLocator.__init__(self, nbins=nbins, steps=steps)
 
 
 class AutoMinorLocator(Locator):
