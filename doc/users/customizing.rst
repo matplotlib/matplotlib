@@ -94,4 +94,4 @@ A sample matplotlibrc file
 
     `(download) <../_static/matplotlibrc>`__
 
-.. literalinclude:: ../../lib/matplotlib/mpl-data/matplotlibrc
+.. literalinclude:: ../_static/matplotlibrc
