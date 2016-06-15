@@ -2206,15 +2206,17 @@ class GraphicsContextPdf(GraphicsContextBase):
     def joinstyle_cmd(self, style):
         return [self.joinstyles[style], Op.setlinejoin]
 
-    def linewidth_cmd(self, width):
-        return [width, Op.setlinewidth]
-
-    def dash_cmd(self, dashes):
-        offset, dash = dashes
-        if dash is None:
-            dash = []
-            offset = 0
-        return [list(dash), offset, Op.setdash]
+    def linewidth_dash_cmd(self, width, dashes):
+        result = []
+        if self.get_linewidth() != width:
+            result += [width, Op.setlinewidth]
+        if self._dashes != dashes:
+            offset, dash = self.scale_dashes(width, dashes)
+            if offset is None or dash is None:
+                dash = []
+                offset = 0
+            result += [list(dash), offset, Op.setdash]
+        return result
 
     def alpha_cmd(self, alpha, forced, effective_alphas):
         name = self.file.alphaState(effective_alphas)
@@ -2288,13 +2290,10 @@ class GraphicsContextPdf(GraphicsContextBase):
         (('_capstyle',), capstyle_cmd),
         (('_fillcolor',), fillcolor_cmd),
         (('_joinstyle',), joinstyle_cmd),
-        (('_linewidth',), linewidth_cmd),
-        (('_dashes',), dash_cmd),
+        (('_linewidth', '_dashes'), linewidth_dash_cmd),
         (('_rgb',), rgb_cmd),
         (('_hatch',), hatch_cmd),  # must come after fillcolor and rgb
         )
-
-    # TODO: _linestyle
 
     def delta(self, other):
         """
