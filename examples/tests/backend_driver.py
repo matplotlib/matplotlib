@@ -202,7 +202,6 @@ files['pylab'] = [
     'masked_demo.py',
     'mathtext_demo.py',
     'mathtext_examples.py',
-    'matplotlib_icon.py',
     'matshow.py',
     'mri_demo.py',
     'mri_with_eeg.py',
