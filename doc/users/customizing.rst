@@ -70,8 +70,8 @@ locations, in the following order:
 
 4. :file:`{INSTALL}/matplotlib/mpl-data/matplotlibrc`, where
    :file:`{INSTALL}` is something like
-   :file:`/usr/lib/python2.5/site-packages` on Linux, and maybe
-   :file:`C:\\Python25\\Lib\\site-packages` on Windows. Every time you
+   :file:`/usr/lib/python3.5/site-packages` on Linux, and maybe
+   :file:`C:\\Python35\\Lib\\site-packages` on Windows. Every time you
    install matplotlib, this file will be overwritten, so if you want
    your customizations to be saved, please move this file to your
    user-specific matplotlib directory.
@@ -94,4 +94,4 @@ A sample matplotlibrc file
 
     `(download) <../_static/matplotlibrc>`__
 
-.. literalinclude:: ../../lib/matplotlib/mpl-data/matplotlibrc
+.. literalinclude:: ../_static/matplotlibrc
