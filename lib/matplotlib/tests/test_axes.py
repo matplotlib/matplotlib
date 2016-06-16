@@ -905,17 +905,6 @@ def test_arc_ellipse():
     ax.add_patch(e2)
 
 
-@image_comparison(baseline_images=['units_strings'])
-def test_units_strings():
-    # Make sure passing in sequences of strings doesn't cause the unit
-    # conversion registry to recurse infinitely
-    Id = ['50', '100', '150', '200', '250']
-    pout = ['0', '7.4', '11.4', '14.2', '16.3']
-    fig = plt.figure()
-    ax = fig.add_subplot(111)
-    ax.plot(Id, pout)
-
-
 @image_comparison(baseline_images=['markevery'],
                   remove_text=True)
 def test_markevery():
