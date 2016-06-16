@@ -1,15 +1,14 @@
 """
 The classes here provide support for using custom classes with
 matplotlib, e.g., those that do not expose the array interface but know
-how to converter themselves to arrays.  It also supoprts classes with
+how to convert themselves to arrays.  It also supports classes with
 units and units conversion.  Use cases include converters for custom
 objects, e.g., a list of datetime objects, as well as for objects that
-are unit aware.  We don't assume any particular units implementation,
-rather a units implementation must provide a ConversionInterface, and
-the register with the Registry converter dictionary.  For example,
+are unit aware.  We don't assume any particular units implementation;
+rather a units implementation must provide the register with the Registry
+converter dictionary and a ConversionInterface.  For example,
 here is a complete implementation which supports plotting with native
 datetime objects::
-
 
     import matplotlib.units as units
     import matplotlib.dates as dates
