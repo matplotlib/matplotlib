@@ -2758,7 +2758,7 @@ class Axes(_AxesBase):
 
         where *mfc*, *mec*, *ms* and *mew* are aliases for the longer
         property names, *markerfacecolor*, *markeredgecolor*, *markersize*
-        and *markeredgewith*.
+        and *markeredgewidth*.
 
         valid kwargs for the marker properties are
 
