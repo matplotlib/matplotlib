@@ -34,16 +34,17 @@ graphics contexts must implement to serve as a matplotlib backend
 
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
-from contextlib import contextmanager
 
 from matplotlib.externals import six
 from matplotlib.externals.six.moves import xrange
 
+from contextlib import contextmanager
+import importlib
+import io
 import os
 import sys
-import warnings
 import time
-import io
+import warnings
 
 import numpy as np
 import matplotlib.cbook as cbook
@@ -64,14 +65,6 @@ import matplotlib.textpath as textpath
 from matplotlib.path import Path
 from matplotlib.cbook import mplDeprecation, warn_deprecated
 import matplotlib.backend_tools as tools
-
-try:
-    from importlib import import_module
-except:
-    # simple python 2.6 implementation (no relative imports)
-    def import_module(name):
-        __import__(name)
-        return sys.modules[name]
 
 try:
     from PIL import Image
@@ -135,7 +128,7 @@ def get_registered_canvas_class(format):
         return None
     backend_class = _default_backends[format]
     if cbook.is_string_like(backend_class):
-        backend_class = import_module(backend_class).FigureCanvas
+        backend_class = importlib.import_module(backend_class).FigureCanvas
         _default_backends[format] = backend_class
     return backend_class
 
