@@ -516,7 +516,7 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
             self._A = cbook.safe_masked_invalid(A, copy=True)
 
         if (self._A.dtype != np.uint8 and
-                not np.can_cast(self._A.dtype, np.float)):
+                not np.can_cast(self._A.dtype, float)):
             raise TypeError("Image data can not convert to float")
 
         if (self._A.ndim not in (2, 3) or

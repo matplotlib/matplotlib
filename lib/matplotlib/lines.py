@@ -12,7 +12,6 @@ import six
 import warnings
 
 import numpy as np
-from numpy import ma
 from matplotlib import verbose
 from . import artist, colors as mcolors
 from .artist import Artist
@@ -628,32 +627,32 @@ class Line2D(Artist):
     def recache(self, always=False):
         if always or self._invalidx:
             xconv = self.convert_xunits(self._xorig)
-            if ma.isMaskedArray(self._xorig):
-                x = ma.asarray(xconv, np.float_).filled(np.nan)
+            if isinstance(self._xorig, np.ma.MaskedArray):
+                x = np.ma.asarray(xconv, float).filled(np.nan)
             else:
-                x = np.asarray(xconv, np.float_)
+                x = np.asarray(xconv, float)
             x = x.ravel()
         else:
             x = self._x
         if always or self._invalidy:
             yconv = self.convert_yunits(self._yorig)
-            if ma.isMaskedArray(self._yorig):
-                y = ma.asarray(yconv, np.float_).filled(np.nan)
+            if isinstance(self._yorig, np.ma.MaskedArray):
+                y = np.ma.asarray(yconv, float).filled(np.nan)
             else:
-                y = np.asarray(yconv, np.float_)
+                y = np.asarray(yconv, float)
             y = y.ravel()
         else:
             y = self._y
 
         if len(x) == 1 and len(y) > 1:
-            x = x * np.ones(y.shape, np.float_)
+            x = x * np.ones(y.shape, float)
         if len(y) == 1 and len(x) > 1:
-            y = y * np.ones(x.shape, np.float_)
+            y = y * np.ones(x.shape, float)
 
         if len(x) != len(y):
             raise RuntimeError('xdata and ydata must be the same length')
 
-        self._xy = np.empty((len(x), 2), dtype=np.float_)
+        self._xy = np.empty((len(x), 2), dtype=float)
         self._xy[:, 0] = x
         self._xy[:, 1] = y
 

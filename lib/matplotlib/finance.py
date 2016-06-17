@@ -263,7 +263,7 @@ def _parse_yahoo_historical(fh, adjusted=True, asobject=False,
 
     if not asobject:
         # 2-D sequence; formerly list of tuples, now ndarray
-        ret = np.zeros((len(d), 6), dtype=np.float)
+        ret = np.zeros((len(d), 6), dtype=float)
         ret[:, 0] = d['d']
         if ochl:
             ret[:, 1] = d['open']

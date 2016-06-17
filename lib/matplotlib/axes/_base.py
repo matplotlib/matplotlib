@@ -12,7 +12,6 @@ import math
 from operator import itemgetter
 
 import numpy as np
-from numpy import ma
 
 import matplotlib
 
@@ -1917,7 +1916,7 @@ class _AxesBase(martist.Artist):
 
         if iterable(xys) and not len(xys):
             return
-        if not ma.isMaskedArray(xys):
+        if not isinstance(xys, np.ma.MaskedArray):
             xys = np.asarray(xys)
         self.dataLim.update_from_data_xy(xys, self.ignore_existing_data_limits,
                                          updatex=updatex, updatey=updatey)

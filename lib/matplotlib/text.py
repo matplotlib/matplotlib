@@ -399,8 +399,7 @@ class Text(Artist):
 
         # the corners of the unrotated bounding box
         cornersHoriz = np.array(
-            [(xmin, ymin), (xmin, ymax), (xmax, ymax), (xmax, ymin)],
-            np.float_)
+            [(xmin, ymin), (xmin, ymax), (xmax, ymax), (xmax, ymin)], float)
         cornersHoriz[:, 1] -= descent
 
         # now rotate the bbox

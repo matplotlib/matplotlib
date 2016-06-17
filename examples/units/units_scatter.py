@@ -15,7 +15,7 @@ from matplotlib.pylab import figure, show
 # create masked array
 
 
-xsecs = secs*np.ma.MaskedArray((1, 2, 3, 4, 5, 6, 7, 8), (1, 0, 1, 0, 0, 0, 1, 0), np.float)
+xsecs = secs*np.ma.MaskedArray((1, 2, 3, 4, 5, 6, 7, 8), (1, 0, 1, 0, 0, 0, 1, 0), float)
 #xsecs = secs*np.arange(1,10.)
 
 fig = figure()

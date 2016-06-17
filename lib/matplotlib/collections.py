@@ -15,7 +15,6 @@ import six
 from six.moves import zip
 import warnings
 import numpy as np
-import numpy.ma as ma
 import matplotlib as mpl
 import matplotlib.cbook as cbook
 import matplotlib.colors as mcolors
@@ -77,7 +76,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
     (i.e., a call to set_array has been made), at draw time a call to
     scalar mappable will be made to set the face colors.
     """
-    _offsets = np.array([], np.float_)
+    _offsets = np.array([], float)
     # _offsets must be a Nx2 array!
     _offsets.shape = (0, 2)
     _transOffset = transforms.IdentityTransform()
@@ -130,7 +129,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
         self.set_zorder(zorder)
 
         self._uniform_offsets = None
-        self._offsets = np.array([[0, 0]], np.float_)
+        self._offsets = np.array([[0, 0]], float)
         if offsets is not None:
             offsets = np.asanyarray(offsets)
             offsets.shape = (-1, 2)             # Make it Nx2
@@ -198,8 +197,8 @@ class Collection(artist.Artist, cm.ScalarMappable):
             offsets = transOffset.transform_non_affine(offsets)
             transOffset = transOffset.get_affine()
 
-        offsets = np.asanyarray(offsets, np.float_)
-        if np.ma.isMaskedArray(offsets):
+        offsets = np.asanyarray(offsets, float)
+        if isinstance(offsets, np.ma.MaskedArray):
             offsets = offsets.filled(np.nan)
             # get_path_collection_extents handles nan but not masked arrays
         offsets.shape = (-1, 2)                     # Make it Nx2
@@ -240,7 +239,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
                 ys = self.convert_yunits(offsets[:, 1])
                 offsets = list(zip(xs, ys))
 
-        offsets = np.asanyarray(offsets, np.float_)
+        offsets = np.asanyarray(offsets, float)
         offsets.shape = (-1, 2)             # Make it Nx2
 
         if not transform.is_affine:
@@ -252,7 +251,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
             # This might have changed an ndarray into a masked array.
             transOffset = transOffset.get_affine()
 
-        if np.ma.isMaskedArray(offsets):
+        if isinstance(offsets, np.ma.MaskedArray):
             offsets = offsets.filled(np.nan)
             # Changing from a masked array to nan-filled ndarray
             # is probably most efficient at this point.
@@ -429,7 +428,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
 
         ACCEPTS: float or sequence of floats
         """
-        offsets = np.asanyarray(offsets, np.float_)
+        offsets = np.asanyarray(offsets, float)
         offsets.shape = (-1, 2)             # Make it Nx2
         #This decision is based on how they are initialized above
         if self._uniform_offsets is None:
@@ -875,14 +874,14 @@ class PolyCollection(_CollectionWithSizes):
 
     def set_verts(self, verts, closed=True):
         '''This allows one to delay initialization of the vertices.'''
-        if np.ma.isMaskedArray(verts):
-            verts = verts.astype(np.float_).filled(np.nan)
+        if isinstance(verts, np.ma.MaskedArray):
+            verts = verts.astype(float).filled(np.nan)
             # This is much faster than having Path do it one at a time.
         if closed:
             self._paths = []
             for xy in verts:
                 if len(xy):
-                    if np.ma.isMaskedArray(xy):
+                    if isinstance(xy, np.ma.MaskedArray):
                         xy = np.ma.concatenate([xy, xy[0:1]])
                     else:
                         xy = np.asarray(xy)
@@ -1162,8 +1161,8 @@ class LineCollection(Collection):
         _segments = []
 
         for seg in segments:
-            if not np.ma.isMaskedArray(seg):
-                seg = np.asarray(seg, np.float_)
+            if not isinstance(seg, np.ma.MaskedArray):
+                seg = np.asarray(seg, float)
             _segments.append(seg)
 
         if self._uniform_offsets is not None:
@@ -1753,7 +1752,7 @@ class QuadMesh(Collection):
         # By converting to floats now, we can avoid that on every draw.
         self._coordinates = self._coordinates.reshape(
             (meshHeight + 1, meshWidth + 1, 2))
-        self._coordinates = np.array(self._coordinates, np.float_)
+        self._coordinates = np.array(self._coordinates, float)
 
     def get_paths(self):
         if self._paths is None:
@@ -1779,7 +1778,7 @@ class QuadMesh(Collection):
         """
         Path = mpath.Path
 
-        if ma.isMaskedArray(coordinates):
+        if isinstance(coordinates, np.ma.MaskedArray):
             c = coordinates.data
         else:
             c = coordinates
@@ -1800,7 +1799,7 @@ class QuadMesh(Collection):
         with its own color.  This is useful for experiments using
         `draw_qouraud_triangle`.
         """
-        if ma.isMaskedArray(coordinates):
+        if isinstance(coordinates, np.ma.MaskedArray):
             p = coordinates.data
         else:
             p = coordinates
@@ -1851,7 +1850,7 @@ class QuadMesh(Collection):
                 ys = self.convert_yunits(self._offsets[:, 1])
                 offsets = list(zip(xs, ys))
 
-        offsets = np.asarray(offsets, np.float_)
+        offsets = np.asarray(offsets, float)
         offsets.shape = (-1, 2)                 # Make it Nx2
 
         self.update_scalarmappable()
