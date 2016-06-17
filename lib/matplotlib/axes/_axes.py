@@ -21,7 +21,7 @@ from matplotlib.cbook import (mplDeprecation, STEP_LOOKUP_MAP,
 import matplotlib.collections as mcoll
 import matplotlib.colors as mcolors
 import matplotlib.contour as mcontour
-import matplotlib.category as _  # <-registers a date unit converter
+import matplotlib.category as _  # <-registers a category unit converter
 import matplotlib.dates as _  # <-registers a date unit converter
 from matplotlib import docstring
 import matplotlib.image as mimage

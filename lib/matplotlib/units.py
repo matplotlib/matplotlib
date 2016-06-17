@@ -44,8 +44,6 @@ datetime objects::
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
-import six
-
 from matplotlib.cbook import iterable, is_numlike
 import numpy as np
 
@@ -126,9 +124,9 @@ class Registry(dict):
 
         if not len(self):
             return None  # nothing registered
-        #DISABLED idx = id(x)
-        #DISABLED cached = self._cached.get(idx)
-        #DISABLED if cached is not None: return cached
+        # DISABLED idx = id(x)
+        # DISABLED cached = self._cached.get(idx)
+        # DISABLED if cached is not None: return cached
 
         converter = None
         classx = getattr(x, '__class__', None)
@@ -166,7 +164,7 @@ class Registry(dict):
                     converter = self.get_converter(thisx)
                     return converter
 
-        #DISABLED self._cached[idx] = converter
+        # DISABLED self._cached[idx] = converter
         return converter
 
 

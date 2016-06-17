@@ -1,3 +1,4 @@
+# -*- coding: utf-8 OA-*-za
 """
 catch all for categorical functions
 """
@@ -5,25 +6,45 @@ from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
 import six
+
 import numpy as np
 
 import matplotlib.units as units
 import matplotlib.ticker as ticker
 
 
+#  pure hack for numpy 1.6 support
+from distutils.version import LooseVersion
+
+NP_NEW = (LooseVersion(np.version.version) >= LooseVersion('1.7'))
+
+
+def to_array(data, maxlen=100):
+    if NP_NEW:
+        return np.array(data, dtype=np.unicode)
+    try:
+        vals = np.array(data, dtype=('|S', maxlen))
+    except UnicodeEncodeError:
+        # pure hack
+        vals = np.array([convert_to_string(d) for d in data])
+    return vals
+
+
 class StrCategoryConverter(units.ConversionInterface):
     @staticmethod
     def convert(value, unit, axis):
         """Uses axis.unit_data map to encode
-        data as integers
+        data as floats
         """
+        vmap = dict(axis.unit_data)
 
         if isinstance(value, six.string_types):
-            return dict(axis.unit_data)[value]
+            return vmap[value]
 
-        vals = np.asarray(value, dtype='str')
-        for label, loc in axis.unit_data:
-            vals[vals == label] = loc
+        vals = to_array(value)
+        for lab, loc in axis.unit_data:
+            vals[vals == lab] = loc
+
         return vals.astype('float')
 
     @staticmethod
@@ -41,7 +62,36 @@ class StrCategoryConverter(units.ConversionInterface):
         return None
 
 
-def map_categories(data, old_map=[], sort=True):
+class StrCategoryLocator(ticker.FixedLocator):
+    def __init__(self, locs):
+        super(StrCategoryLocator, self).__init__(locs, None)
+
+
+class StrCategoryFormatter(ticker.FixedFormatter):
+    def __init__(self, seq):
+        super(StrCategoryFormatter, self).__init__(seq)
+
+
+def convert_to_string(value):
+    """Helper function for numpy 1.6, can be replaced with
+    np.array(...,dtype=unicode) for all later versions of numpy"""
+
+    if isinstance(value, six.string_types):
+        return value
+    if np.isfinite(value):
+        value = np.asarray(value, dtype=str)[np.newaxis][0]
+    elif np.isnan(value):
+        value = 'nan'
+    elif np.isposinf(value):
+        value = 'inf'
+    elif np.isneginf(value):
+        value = '-inf'
+    else:
+        raise ValueError("Unconvertable {}".format(value))
+    return value
+
+
+def map_categories(data, old_map=None):
     """Create mapping between unique categorical
     values and numerical identifier.
 
@@ -65,53 +115,37 @@ def map_categories(data, old_map=[], sort=True):
     # code typical missing data in the negative range because
     # everything else will always have positive encoding
     # question able if it even makes sense
-    spdict = {'nan': -1, 'inf': -2, '-inf': -3}
+    spdict = {'nan': -1.0, 'inf': -2.0, '-inf': -3.0}
 
-    # cast all data to str
-    strdata = [str(d) for d in data]
+    if isinstance(data, six.string_types):
+        data = [data]
 
-    uniq = set(strdata)
-
-    category_map = old_map.copy()
+    # will update this post cbook/dict support
+    strdata = to_array(data)
+    uniq = np.unique(strdata)
 
     if old_map:
         olabs, okeys = zip(*old_map)
-        olabs, okeys = set(olabs), set(okeys)
         svalue = max(okeys) + 1
     else:
-        olabs, okeys = set(), set()
+        old_map, olabs, okeys = [], [], []
         svalue = 0
 
-    new_labs = (uniq - olabs)
+    category_map = old_map[:]
 
-    missing = (new_labs & set(spdict.keys()))
+    new_labs = [u for u in uniq if u not in olabs]
+    missing = [nl for nl in new_labs if nl in spdict.keys()]
+
     category_map.extend([(m, spdict[m]) for m in missing])
 
-    new_labs = (new_labs - missing)
-    if sort:
-        new_labs = list(new_labs)
-        new_labs.sort()
+    new_labs = [nl for nl in new_labs if nl not in missing]
 
-    new_locs = range(svalue, svalue + len(new_labs))
+    new_locs = np.arange(svalue, svalue + len(new_labs), dtype='float')
     category_map.extend(list(zip(new_labs, new_locs)))
     return category_map
 
 
-class StrCategoryLocator(ticker.FixedLocator):
-    def __init__(self, locs):
-        super(StrCategoryLocator, self).__init__(locs, None)
-
-
-class StrCategoryFormatter(ticker.FixedFormatter):
-    def __init__(self, seq):
-        super(StrCategoryFormatter, self).__init__(seq)
-
-
 # Connects the convertor to matplotlib
-units.registry[bytearray] = StrCategoryConverter()
 units.registry[str] = StrCategoryConverter()
-
-if six.PY3:
-    units.registry[bytes] = StrCategoryConverter()
-elif six.PY2:
-    units.registry[unicode] = StrCategoryConverter()
+units.registry[bytes] = StrCategoryConverter()
+units.registry[six.text_type] = StrCategoryConverter()
