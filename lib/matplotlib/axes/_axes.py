@@ -2357,7 +2357,7 @@ class Axes(_AxesBase):
 
         # Try a second one
         try:
-            second = np.asarray(args[0], dtype=np.float)
+            second = np.asarray(args[0], dtype=float)
             x, y = y, second
             args = args[1:]
         except (IndexError, ValueError):
@@ -4739,7 +4739,7 @@ class Axes(_AxesBase):
                 continue
 
             N = len(xslice)
-            X = np.zeros((2 * N + 2, 2), np.float)
+            X = np.zeros((2 * N + 2, 2), float)
 
             if interpolate:
                 def get_interp_point(ind):
@@ -4889,7 +4889,7 @@ class Axes(_AxesBase):
                 continue
 
             N = len(yslice)
-            Y = np.zeros((2 * N + 2, 2), np.float)
+            Y = np.zeros((2 * N + 2, 2), float)
 
             # the purpose of the next two lines is for when x2 is a
             # scalar like 0 and we want the fill to go all the way
@@ -5387,7 +5387,7 @@ class Axes(_AxesBase):
 
         if t and any(t.contains_branch_seperately(self.transData)):
             trans_to_data = t - self.transData
-            pts = np.vstack([x, y]).T.astype(np.float)
+            pts = np.vstack([x, y]).T.astype(float)
             transformed_pts = trans_to_data.transform(pts)
             x = transformed_pts[..., 0]
             y = transformed_pts[..., 1]
@@ -5537,7 +5537,7 @@ class Axes(_AxesBase):
 
         if t and any(t.contains_branch_seperately(self.transData)):
             trans_to_data = t - self.transData
-            pts = np.vstack([X, Y]).T.astype(np.float)
+            pts = np.vstack([X, Y]).T.astype(float)
             transformed_pts = trans_to_data.transform(pts)
             X = transformed_pts[..., 0]
             Y = transformed_pts[..., 1]
@@ -6203,7 +6203,7 @@ class Axes(_AxesBase):
 
             for m, c in zip(n, color):
                 if bottom is None:
-                    bottom = np.zeros(len(m), np.float)
+                    bottom = np.zeros(len(m), float)
                 if stacked:
                     height = m - bottom
                 else:
@@ -6222,14 +6222,14 @@ class Axes(_AxesBase):
 
         elif histtype.startswith('step'):
             # these define the perimeter of the polygon
-            x = np.zeros(4 * len(bins) - 3, np.float)
-            y = np.zeros(4 * len(bins) - 3, np.float)
+            x = np.zeros(4 * len(bins) - 3, float)
+            y = np.zeros(4 * len(bins) - 3, float)
 
             x[0:2*len(bins)-1:2], x[1:2*len(bins)-1:2] = bins, bins[:-1]
             x[2*len(bins)-1:] = x[1:2*len(bins)-1][::-1]
 
             if bottom is None:
-                bottom = np.zeros(len(bins)-1, np.float)
+                bottom = np.zeros(len(bins)-1, float)
 
             y[1:2*len(bins)-1:2], y[2:2*len(bins):2] = bottom, bottom
             y[2*len(bins)-1:] = y[1:2*len(bins)-1][::-1]

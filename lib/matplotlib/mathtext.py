@@ -22,10 +22,6 @@ import six
 import os, sys
 from six import unichr
 from math import ceil
-try:
-    set
-except NameError:
-    from sets import Set as set
 import unicodedata
 from warnings import warn
 

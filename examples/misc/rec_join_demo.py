@@ -11,8 +11,7 @@ r.sort()
 r1 = r[-10:]
 
 # Create a new array
-r2 = np.empty(12, dtype=[('date', '|O4'), ('high', np.float),
-                         ('marker', np.float)])
+r2 = np.empty(12, dtype=[('date', '|O4'), ('high', float), ('marker', float)])
 r2 = r2.view(np.recarray)
 r2.date = r.date[-17:-5]
 r2.high = r.high[-17:-5]

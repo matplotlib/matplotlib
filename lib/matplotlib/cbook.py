@@ -31,7 +31,6 @@ import warnings
 from weakref import ref, WeakKeyDictionary
 
 import numpy as np
-import numpy.ma as ma
 
 
 class MatplotlibDeprecationWarning(UserWarning):
@@ -677,7 +676,7 @@ def is_string_like(obj):
     if isinstance(obj, six.string_types):
         return True
     # numpy strings are subclass of str, ma strings are not
-    if ma.isMaskedArray(obj):
+    if isinstance(obj, np.ma.MaskedArray):
         if obj.ndim == 0 and obj.dtype.kind in 'SU':
             return True
         else:
@@ -1728,7 +1727,7 @@ def delete_masked_points(*args):
     for i, x in enumerate(args):
         if (not is_string_like(x)) and iterable(x) and len(x) == nrecs:
             seqlist[i] = True
-            if ma.isMA(x):
+            if isinstance(x, np.ma.MaskedArray):
                 if x.ndim > 1:
                     raise ValueError("Masked arrays must be 1-D")
             else:
@@ -1739,8 +1738,8 @@ def delete_masked_points(*args):
         if seqlist[i]:
             if x.ndim > 1:
                 continue  # Don't try to get nan locations unless 1-D.
-            if ma.isMA(x):
-                masks.append(~ma.getmaskarray(x))  # invert the mask
+            if isinstance(x, np.ma.MaskedArray):
+                masks.append(~np.ma.getmaskarray(x))  # invert the mask
                 xd = x.data
             else:
                 xd = x
@@ -1758,7 +1757,7 @@ def delete_masked_points(*args):
                 if seqlist[i]:
                     margs[i] = x.take(igood, axis=0)
     for i, x in enumerate(margs):
-        if seqlist[i] and ma.isMA(x):
+        if seqlist[i] and isinstance(x, np.ma.MaskedArray):
             margs[i] = x.filled()
     return margs
 
@@ -2304,7 +2303,7 @@ def pts_to_prestep(x, *args):
     # do normalization
     vertices = _step_validation(x, *args)
     # create the output array
-    steps = np.zeros((vertices.shape[0], 2 * len(x) - 1), np.float)
+    steps = np.zeros((vertices.shape[0], 2 * len(x) - 1), float)
     # do the to step conversion logic
     steps[0, 0::2], steps[0, 1::2] = vertices[0, :], vertices[0, :-1]
     steps[1:, 0::2], steps[1:, 1:-1:2] = vertices[1:, :], vertices[1:, 1:]
@@ -2344,7 +2343,7 @@ def pts_to_poststep(x, *args):
     # do normalization
     vertices = _step_validation(x, *args)
     # create the output array
-    steps = ma.zeros((vertices.shape[0], 2 * len(x) - 1), np.float)
+    steps = np.zeros((vertices.shape[0], 2 * len(x) - 1), float)
     # do the to step conversion logic
     steps[0, ::2], steps[0, 1:-1:2] = vertices[0, :], vertices[0, 1:]
     steps[1:, 0::2], steps[1:, 1::2] = vertices[1:, :], vertices[1:, :-1]
@@ -2385,7 +2384,7 @@ def pts_to_midstep(x, *args):
     # do normalization
     vertices = _step_validation(x, *args)
     # create the output array
-    steps = ma.zeros((vertices.shape[0], 2 * len(x)), np.float)
+    steps = np.zeros((vertices.shape[0], 2 * len(x)), float)
     steps[0, 1:-1:2] = 0.5 * (vertices[0, :-1] + vertices[0, 1:])
     steps[0, 2::2] = 0.5 * (vertices[0, :-1] + vertices[0, 1:])
     steps[0, 0] = vertices[0, 0]
