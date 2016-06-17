@@ -717,7 +717,7 @@ class TextBox(AxesWidget):
         self.connect_event('key_press_event', self._keypress)
         self.connect_event('resize_event', self._resize)
         ax.set_navigate(False)
-        ax.set_facecolor(color)
+        ax.set_axis_bgcolor(color)
         ax.set_xticks([])
         ax.set_yticks([])
         self.color = color
@@ -804,10 +804,24 @@ class TextBox(AxesWidget):
             self.text_disp.remove()
             self.text_disp = self._make_text_disp(self.text)
             self._rendercursor()
-            for cid, func in six.iteritems(self.change_observers):
-                func(self.text)
+            self._notify_change_observers()
             if key == "enter":
                 self._notify_submit_observers()
+
+    def set_val(self,val):
+        newval = str(val)
+        if self.text==newval:
+            return
+        self.text = newval
+        self.text_disp.remove()
+        self.text_disp = self._make_text_disp(self.text)
+        self._rendercursor()
+        self._notify_change_observers()
+        self._notify_submit_observers()
+
+    def _notify_change_observers(self):
+        for cid, func in six.iteritems(self.change_observers):
+            func(self.text)
 
     def begin_typing(self, x):
         self.capturekeystrokes = True
@@ -887,7 +901,7 @@ class TextBox(AxesWidget):
         else:
             c = self.color
         if c != self._lastcolor:
-            self.ax.set_facecolor(c)
+            self.ax.set_axis_bgcolor(c)
             self._lastcolor = c
             if self.drawon:
                 self.ax.figure.canvas.draw()
