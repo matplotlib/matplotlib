@@ -21,14 +21,8 @@ yerr = np.random.rand(2, n)
 # Create figure and axes
 fig, ax = plt.subplots(1)
 
-# Plot data points
-ax.errorbar(x, y, xerr=xerr, yerr=yerr, fmt='None', ecolor='k')
 
-
-def makeErrorBoxes(xdata, ydata, xerror, yerror, fc='r', ec='None', alpha=0.5):
-    '''
-    Function to create error boxes
-    '''
+def make_error_boxes(ax, xdata, ydata, xerror, yerror, fc='r', ec='None', alpha=0.5):
 
     # Create list for all the error patches
     errorboxes = []
@@ -44,10 +38,11 @@ def makeErrorBoxes(xdata, ydata, xerror, yerror, fc='r', ec='None', alpha=0.5):
     # Add collection to axes
     ax.add_collection(pc)
 
-# Call function to create error boxes
-makeErrorBoxes(x, y, xerr, yerr)
+    # Plot errorbars
+    ax.errorbar(xdata, ydata, xerr=xerror, yerr=yerror, fmt='None', ecolor='k')
 
-# Add some space around the data points on the axes
-ax.margins(0.1)
+
+# Call function to create error boxes
+make_error_boxes(ax, x, y, xerr, yerr)
 
 plt.show()
