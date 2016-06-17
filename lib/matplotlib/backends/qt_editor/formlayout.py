@@ -54,10 +54,7 @@ STDERR = sys.stderr
 from matplotlib.colors import is_color_like
 from matplotlib.colors import rgb2hex
 from matplotlib.colors import colorConverter
-
 from matplotlib.backends.qt_compat import QtGui, QtWidgets, QtCore
-if not hasattr(QtWidgets, 'QFormLayout'):
-    raise ImportError("Warning: formlayout requires PyQt4 >v4.3 or PySide")
 
 import datetime
 

@@ -319,6 +319,9 @@ class MyPyQt4(MagicMock):
         class QMainWindow(object):
             pass
 
+        class QPushButton(object):
+            pass
+
 
 class MySip(MagicMock):
     def getapi(*args):
