@@ -248,6 +248,7 @@ def figure_edit(axes, parent=None):
         # Redraw
         figure = axes.get_figure()
         figure.canvas.draw()
+        figure.canvas.toolbar.push_current()
 
     data = formlayout.fedit(datalist, title="Figure options", parent=parent,
                             icon=get_icon('qt4_editor_options.svg'),
