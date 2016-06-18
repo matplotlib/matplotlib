@@ -30,7 +30,7 @@ from collections import OrderedDict
 from math import radians, cos, sin
 from matplotlib import verbose, rcParams, __version__
 from matplotlib.backend_bases import (
-    _Backend, FigureCanvasBase, FigureManagerBase, RendererBase)
+    _Backend, FigureCanvasBase, FigureManagerBase, RendererBase, cursors)
 from matplotlib.cbook import maxdict
 from matplotlib.figure import Figure
 from matplotlib.font_manager import findfont, get_font
@@ -422,9 +422,14 @@ class FigureCanvasAgg(FigureCanvasBase):
         # acquire a lock on the shared font cache
         RendererAgg.lock.acquire()
 
+        toolbar = self.toolbar
         try:
+            if toolbar:
+                toolbar.set_cursor(cursors.WAIT)
             self.figure.draw(self.renderer)
         finally:
+            if toolbar:
+                toolbar.set_cursor(cursors.POINTER)
             RendererAgg.lock.release()
 
     def get_renderer(self, cleared=False):

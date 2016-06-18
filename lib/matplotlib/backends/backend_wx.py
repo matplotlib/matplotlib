@@ -1474,6 +1474,7 @@ cursord = {
     cursors.HAND: wx.CURSOR_HAND,
     cursors.POINTER: wx.CURSOR_ARROW,
     cursors.SELECT_REGION: wx.CURSOR_CROSS,
+    cursors.WAIT: wx.CURSOR_WAIT,
 }
 
 

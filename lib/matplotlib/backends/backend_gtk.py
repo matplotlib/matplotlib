@@ -54,6 +54,7 @@ cursord = {
     cursors.HAND          : gdk.Cursor(gdk.HAND2),
     cursors.POINTER       : gdk.Cursor(gdk.LEFT_PTR),
     cursors.SELECT_REGION : gdk.Cursor(gdk.TCROSS),
+    cursors.WAIT          : gdk.Cursor(gdk.WATCH),
     }
 
 # ref gtk+/gtk/gtkwidget.h

@@ -45,6 +45,7 @@ cursord = {
     cursors.HAND: "hand2",
     cursors.POINTER: "arrow",
     cursors.SELECT_REGION: "tcross",
+    cursors.WAIT: "watch",
     }
 
 

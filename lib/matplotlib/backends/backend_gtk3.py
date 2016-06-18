@@ -51,6 +51,7 @@ cursord = {
     cursors.HAND          : Gdk.Cursor.new(Gdk.CursorType.HAND2),
     cursors.POINTER       : Gdk.Cursor.new(Gdk.CursorType.LEFT_PTR),
     cursors.SELECT_REGION : Gdk.Cursor.new(Gdk.CursorType.TCROSS),
+    cursors.WAIT          : Gdk.Cursor.new(Gdk.CursorType.WATCH),
     }
 
 
