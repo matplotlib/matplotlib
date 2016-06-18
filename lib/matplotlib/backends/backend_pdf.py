@@ -949,7 +949,8 @@ end"""
             rawcharprocs = ttconv.get_pdf_charprocs(
                 filename.encode(sys.getfilesystemencoding()), glyph_ids)
             charprocs = {}
-            for charname, stream in six.iteritems(rawcharprocs):
+            for charname in sorted(rawcharprocs):
+                stream = rawcharprocs[charname]
                 charprocDict = {'Length': len(stream)}
                 # The 2-byte characters are used as XObjects, so they
                 # need extra info in their dictionary
