@@ -2215,6 +2215,8 @@ class GraphicsContextPdf(GraphicsContextBase):
             if offset is None or dash is None:
                 dash = []
                 offset = 0
+            if sum(dash) > 0:
+                offset %= sum(dash)
             result += [list(dash), offset, Op.setdash]
         return result
 
