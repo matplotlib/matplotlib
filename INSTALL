@@ -232,7 +232,7 @@ backends and the capabilities they provide.
     Versions 8.6.0 and 8.6.1 are known to have issues that may result
     in segfaults when closing multiple windows in the wrong order.
 
-:term:`pyqt` 4.0 or later
+:term:`pyqt` 4.4 or later
     The Qt4 widgets library python wrappers for the Qt4Agg backend
 
 :term:`pygtk` 2.4 or later
