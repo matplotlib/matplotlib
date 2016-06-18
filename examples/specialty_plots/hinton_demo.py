@@ -26,7 +26,7 @@ def hinton(matrix, max_weight=None, ax=None):
 
     for (x, y), w in np.ndenumerate(matrix):
         color = 'white' if w > 0 else 'black'
-        size = np.sqrt(np.abs(w))
+        size = np.sqrt(np.abs(w) / max_weight)
         rect = plt.Rectangle([x - size / 2, y - size / 2], size, size,
                              facecolor=color, edgecolor=color)
         ax.add_patch(rect)
