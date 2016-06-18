@@ -669,7 +669,8 @@ class PdfFile(object):
 
     def writeFonts(self):
         fonts = {}
-        for filename, Fx in six.iteritems(self.fontNames):
+        for filename in sorted(self.fontNames):
+            Fx = self.fontNames[filename]
             matplotlib.verbose.report('Embedding font %s' % filename, 'debug')
             if filename.endswith('.afm'):
                 # from pdf.use14corefonts
