@@ -42,6 +42,8 @@ colors = [colors.to_rgba(c)
           for c in plt.rcParams['axes.prop_cycle'].by_key()['color']]
 
 fig, axes = plt.subplots(2, 2)
+fig.subplots_adjust(top=0.92, left=0.07, right=0.97,
+                    hspace=0.3, wspace=0.3)
 ((ax1, ax2), (ax3, ax4)) = axes  # unpack the axes
 
 
