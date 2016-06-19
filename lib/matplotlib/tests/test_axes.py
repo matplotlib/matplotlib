@@ -1283,7 +1283,7 @@ def test_scatter_plot():
 @image_comparison(baseline_images=['scatter_marker'], remove_text=True,
                   extensions=['png'])
 def test_scatter_marker():
-    fig, (ax0, ax1) = plt.subplots(ncols=2)
+    fig, (ax0, ax1, ax2) = plt.subplots(ncols=3)
     ax0.scatter([3, 4, 2, 6], [2, 5, 2, 3],
                 c=[(1, 0, 0), 'y', 'b', 'lime'],
                 s=[60, 50, 40, 30],
@@ -1294,6 +1294,16 @@ def test_scatter_marker():
                 s=[60, 50, 40, 30],
                 edgecolors=['k', 'r', 'g', 'b'],
                 marker=mmarkers.MarkerStyle('o', fillstyle='top'))
+    # unit area ellipse
+    rx, ry = 3, 1
+    area = rx * ry * np.pi
+    theta = np.linspace(0, 2 * np.pi, 21)
+    verts = list(zip(np.cos(theta) * rx / area, np.sin(theta) * ry / area))
+    ax2.scatter([3, 4, 2, 6], [2, 5, 2, 3],
+                c=[(1, 0, 0), 'y', 'b', 'lime'],
+                s=[60, 50, 40, 30],
+                edgecolors=['k', 'r', 'g', 'b'],
+                verts=verts)
 
 
 @image_comparison(baseline_images=['scatter_2D'], remove_text=True,
