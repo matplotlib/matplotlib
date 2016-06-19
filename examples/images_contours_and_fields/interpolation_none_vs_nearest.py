@@ -54,6 +54,9 @@ txt = fig.text(0.452, 0.95, 'Saved as a PNG', fontsize=18)
 # example, the 'Nearest_vs_none-pdf.pdf' has been pre-converted into
 #'Nearest_vs_none-pdf.png' at 80 dpi.  We simply need to load and
 # display it.
+# The conversion is done with:
+#  gs -dNOPAUSE -dBATCH -dDOINTERPOLATE -sDEVICE=pngalpha \
+#     -sOutputFile=None_vs_nearest-pdf.png -r80 None_vs_nearest-pdf.pdf
 pdf_im_path = cbook.get_sample_data('None_vs_nearest-pdf.png')
 pdf_im = plt.imread(pdf_im_path)
 fig2 = plt.figure(figsize=[8.0, 7.5])
