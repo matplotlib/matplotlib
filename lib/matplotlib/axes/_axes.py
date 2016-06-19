@@ -4732,7 +4732,7 @@ class Axes(_AxesBase):
             y1slice = y1[ind0:ind1]
             y2slice = y2[ind0:ind1]
             if step is not None:
-                step_func = STEP_LOOKUP_MAP[step]
+                step_func = STEP_LOOKUP_MAP["steps-" + step]
                 xslice, y1slice, y2slice = step_func(xslice, y1slice, y2slice)
 
             if not len(xslice):
@@ -4882,7 +4882,7 @@ class Axes(_AxesBase):
             x1slice = x1[ind0:ind1]
             x2slice = x2[ind0:ind1]
             if step is not None:
-                step_func = STEP_LOOKUP_MAP[step]
+                step_func = STEP_LOOKUP_MAP["steps-" + step]
                 yslice, x1slice, x2slice = step_func(yslice, x1slice, x2slice)
 
             if not len(yslice):
