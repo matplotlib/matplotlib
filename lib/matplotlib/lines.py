@@ -986,8 +986,7 @@ class Line2D(Artist):
         if drawstyle is None:
             drawstyle = 'default'
         if drawstyle not in self.drawStyles:
-            raise ValueError('Unrecognized drawstyle ' +
-                             ' '.join(self.drawStyleKeys))
+            raise ValueError('Unrecognized drawstyle {!r}'.format(drawstyle))
         if self._drawstyle != drawstyle:
             self.stale = True
         self._drawstyle = drawstyle
