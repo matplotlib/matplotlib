@@ -17,7 +17,7 @@ def hinton(matrix, max_weight=None, ax=None):
     ax = ax if ax is not None else plt.gca()
 
     if not max_weight:
-        max_weight = 2**np.ceil(np.log(np.abs(matrix).max())/np.log(2))
+        max_weight = 2 ** np.ceil(np.log(np.abs(matrix).max()) / np.log(2))
 
     ax.patch.set_facecolor('gray')
     ax.set_aspect('equal', 'box')
@@ -26,7 +26,7 @@ def hinton(matrix, max_weight=None, ax=None):
 
     for (x, y), w in np.ndenumerate(matrix):
         color = 'white' if w > 0 else 'black'
-        size = np.sqrt(np.abs(w))
+        size = np.sqrt(np.abs(w) / max_weight)
         rect = plt.Rectangle([x - size / 2, y - size / 2], size, size,
                              facecolor=color, edgecolor=color)
         ax.add_patch(rect)
