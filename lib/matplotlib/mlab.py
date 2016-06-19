@@ -2611,7 +2611,7 @@ def rec_join(key, r1, r2, jointype='inner', defaults=None, r1postfix='1',
 
     if jointype != 'inner' and defaults is not None:
         # fill in the defaults enmasse
-        newrec_fields = list(six.iterkeys(newrec.dtype.fields.keys))
+        newrec_fields = list(six.iterkeys(newrec.dtype.fields))
         for k, v in six.iteritems(defaults):
             if k in newrec_fields:
                 newrec[k] = v
