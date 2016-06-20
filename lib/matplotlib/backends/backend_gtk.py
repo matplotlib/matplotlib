@@ -213,6 +213,12 @@ class FigureCanvasGTK (gtk.DrawingArea, FigureCanvasBase):
                   gdk.POINTER_MOTION_HINT_MASK)
 
     def __init__(self, figure):
+        if self.__class__ == matplotlib.backends.backend_gtk.FigureCanvasGTK:
+            warn_deprecated('2.0', message="The GTK backend is "
+                            "deprecated. It is untested, known to be "
+                            "broken and will be removed in Matplotlib 2.2. "
+                            "Use the GTKAgg backend instead.",
+                            alternative="GTKAgg")
         if _debug: print('FigureCanvasGTK.%s' % fn_name())
         FigureCanvasBase.__init__(self, figure)
         gtk.DrawingArea.__init__(self)
@@ -419,12 +425,6 @@ class FigureCanvasGTK (gtk.DrawingArea, FigureCanvasBase):
     def _render_figure(self, pixmap, width, height):
         """used by GTK and GTKcairo. GTKAgg overrides
         """
-        if isinstance(self._renderer, RendererGDK):
-            warn_deprecated('2.0', message="The GTK backend is "
-                            "deprecated. It is untested, known to be "
-                            "broken and will be removed in Matplotlib 2.2. "
-                            "Use the GTKAgg backend instead.",
-                            alternative="GTKAgg")
         self._renderer.set_width_height (width, height)
         self.figure.draw (self._renderer)
 
