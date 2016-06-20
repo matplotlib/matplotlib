@@ -370,10 +370,10 @@ renderer for user interfaces is ``Agg`` which uses the `Anti-Grain
 Geometry`_ C++ library to make a raster (pixel) image of the figure.
 All of the user interfaces except ``macosx`` can be used with
 agg rendering, e.g.,
-``WXAgg``, ``GTKAgg``, ``QT4Agg``, ``TkAgg``.  In
+``WXAgg``, ``GTKAgg``, ``QT4Agg``, ``QT5Agg``, ``TkAgg``.  In
 addition, some of the user interfaces support other rendering engines.
 For example, with GTK, you can also select GDK rendering (backend
-``GTK``) or Cairo rendering (backend ``GTKCairo``).
+``GTK`` deprecated in 2.0) or Cairo rendering (backend ``GTKCairo``).
 
 For the rendering engines, one can also distinguish between `vector
 <http://en.wikipedia.org/wiki/Vector_graphics>`_ or `raster
@@ -404,7 +404,7 @@ SVG             :term:`svg`    :term:`vector graphics` --
                 :term:`svg`
                 ...
 :term:`GDK`     :term:`png`    :term:`raster graphics` --
-                :term:`jpg`    the `Gimp Drawing Kit`_
+                :term:`jpg`    the `Gimp Drawing Kit`_ Deprecated in 2.0
                 :term:`tiff`
                 ...
 =============   ============   ================================================
@@ -421,8 +421,9 @@ GTKAgg         Agg rendering to a :term:`GTK` 2.x canvas (requires PyGTK_ and
                pycairo_ or cairocffi_; Python2 only)
 GTK3Agg        Agg rendering to a :term:`GTK` 3.x canvas (requires PyGObject_
                and pycairo_ or cairocffi_)
-GTK            GDK rendering to a :term:`GTK` 2.x canvas (not recommended)
-               (requires PyGTK_ and pycairo_ or cairocffi_; Python2 only)
+GTK            GDK rendering to a :term:`GTK` 2.x canvas (not recommended and d
+               eprecated in 2.0) (requires PyGTK_ and pycairo_ or cairocffi_;
+               Python2 only)
 GTKCairo       Cairo rendering to a :term:`GTK` 2.x canvas (requires PyGTK_
                and pycairo_ or cairocffi_; Python2 only)
 GTK3Cairo      Cairo rendering to a :term:`GTK` 3.x canvas (requires PyGObject_
@@ -430,7 +431,7 @@ GTK3Cairo      Cairo rendering to a :term:`GTK` 3.x canvas (requires PyGObject_
 WXAgg          Agg rendering to to a :term:`wxWidgets` canvas
                (requires wxPython_)
 WX             Native :term:`wxWidgets` drawing to a :term:`wxWidgets` Canvas
-               (not recommended) (requires wxPython_)
+               (not recommended and deprecated in 2.0) (requires wxPython_)
 TkAgg          Agg rendering to a :term:`Tk` canvas (requires TkInter_)
 Qt4Agg         Agg rendering to a :term:`Qt4` canvas (requires PyQt4_ or ``pyside``)
 Qt5Agg         Agg rendering in a :term:`Qt5` canvas (requires PyQt5_)
