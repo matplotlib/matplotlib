@@ -6,6 +6,7 @@ import six
 from . import backend_cairo, backend_gtk3
 from .backend_cairo import cairo, HAS_CAIRO_CFFI
 from .backend_gtk3 import _BackendGTK3
+from matplotlib.backend_bases import cursors
 from matplotlib.figure import Figure
 
 
@@ -35,10 +36,15 @@ class FigureCanvasGTK3Cairo(backend_gtk3.FigureCanvasGTK3,
     def on_draw_event(self, widget, ctx):
         """ GtkDrawable draw event, like expose_event in GTK 2.X
         """
+        toolbar = self.toolbar
+        if toolbar:
+            toolbar.set_cursor(cursors.WAIT)
         self._renderer.set_context(ctx)
         allocation = self.get_allocation()
         x, y, w, h = allocation.x, allocation.y, allocation.width, allocation.height
         self._render_figure(w, h)
+        if toolbar:
+            toolbar.set_cursor(cursors.POINTER)
         return False  # finish event propagation?
 
 
