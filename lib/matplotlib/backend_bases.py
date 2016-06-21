@@ -1583,13 +1583,13 @@ class PickEvent(Event):
 
     Example usage::
 
-        line, = ax.plot(rand(100), 'o', picker=5)  # 5 points tolerance
+        ax.plot(np.rand(100), 'o', picker=5)  # 5 points tolerance
 
         def on_pick(event):
-            thisline = event.artist
-            xdata, ydata = thisline.get_data()
+            line = event.artist
+            xdata, ydata = line.get_data()
             ind = event.ind
-            print('on pick line:', zip(xdata[ind], ydata[ind]))
+            print('on pick line:', np.array([xdata[ind], ydata[ind]]).T)
 
         cid = fig.canvas.mpl_connect('pick_event', on_pick)
 
