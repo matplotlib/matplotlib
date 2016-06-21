@@ -356,24 +356,28 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
         if not unsampled:
             created_rgba_mask = False
 
+            if A.ndim not in (2, 3):
+                raise ValueError("Invalid dimensions, got %s" % (A.shape,))
+
             if A.ndim == 2:
                 A = self.norm(A)
-                # If the image is greyscale, convert to RGBA with the
-                # correct alpha channel for resizing
-                rgba = np.empty((A.shape[0], A.shape[1], 4), dtype=A.dtype)
-                rgba[..., 0] = A  # normalized data
-                rgba[..., 1] = A < 0  # under data
-                # TODO, ask the norm or colormap what this threshold should be
-                rgba[..., 2] = A > 1  # over data
                 if A.dtype.kind == 'f':
+                    # If the image is greyscale, convert to RGBA with the
+                    # correct alpha channel for resizing
+                    rgba = np.empty((A.shape[0], A.shape[1], 4), dtype=A.dtype)
+                    rgba[..., 0] = A  # normalized data
+                    rgba[..., 1] = A < 0  # under data
+                    # TODO, ask the norm or colormap what this threshold should be
+                    rgba[..., 2] = A > 1  # over data
                     rgba[..., 3] = ~A.mask
+                    A = rgba
+                    output = np.zeros((out_height, out_width, 4), dtype=A.dtype)
+                    alpha = 1.0
+                    created_rgba_mask = True
                 else:
-                    rgba[..., 3] = np.where(A.mask, 0, np.iinfo(A.dtype).max)
-                A = rgba
-                output = np.zeros((out_height, out_width, 4), dtype=A.dtype)
-                alpha = 1.0
-                created_rgba_mask = True
-            elif A.ndim == 3:
+                    A = self.cmap(A, alpha=self.get_alpha(), bytes=True)
+
+            if not created_rgba_mask:
                 # Always convert to RGBA, even if only RGB input
                 if A.shape[2] == 3:
                     A = _rgb_to_rgba(A)
@@ -385,8 +389,6 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
                 alpha = self.get_alpha()
                 if alpha is None:
                     alpha = 1.0
-            else:
-                raise ValueError("Invalid dimensions, got %s" % (A.shape,))
 
             _image.resample(
                 A, output, t, _interpd_[self.get_interpolation()],
