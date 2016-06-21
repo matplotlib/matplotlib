@@ -125,7 +125,7 @@ class SubplotBase(object):
     def is_last_col(self):
         return self.colNum == self.numCols - 1
 
-    # COVERAGE NOTE: Never used internally or from examples
+    # COVERAGE NOTE: Never used internally.
     def label_outer(self):
         """Only show "outer" labels and tick labels.
 
