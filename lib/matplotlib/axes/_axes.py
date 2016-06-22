@@ -3959,14 +3959,14 @@ class Axes(_AxesBase):
 
         scales = s   # Renamed for readability below.
 
-        # load default marker from rcParams
-        if marker is None:
-            marker = rcParams['scatter.marker']
-
         # to be API compatible
         if marker is None and not (verts is None):
             marker = (verts, 0)
             verts = None
+
+        # load default marker from rcParams
+        if marker is None:
+            marker = rcParams['scatter.marker']
 
         if isinstance(marker, mmarkers.MarkerStyle):
             marker_obj = marker
