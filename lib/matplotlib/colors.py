@@ -947,7 +947,9 @@ class Normalize(object):
                 result = ma.array(np.clip(result.filled(vmax), vmin, vmax),
                                   mask=mask)
             # ma division is very slow; we can take a shortcut
-            resdat = result.data
+            # use np.asarray so data passed in as an ndarray subclass are
+            # interpreted as an ndarray. See issue #6622.
+            resdat = np.asarray(result.data)
             resdat -= vmin
             resdat /= (vmax - vmin)
             result = np.ma.array(resdat, mask=result.mask, copy=False)
