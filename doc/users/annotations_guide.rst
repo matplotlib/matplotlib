@@ -398,7 +398,7 @@ callable object in following forms.::
 
               - *x0*, *y0*, *width*, *height* : location and size of the box
               - *mutation_size* : a reference scale for the mutation.
-              - *aspect_ratio* : aspect-ration for the mutation.
+              - *aspect_ratio* : aspect-ratio for the mutation.
             """
             path = ...
 	    return path
