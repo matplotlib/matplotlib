@@ -18,6 +18,12 @@ typedef unsigned __int8   uint8_t;
 #    undef _XOPEN_SOURCE
 #endif
 
+#if defined(__sun) || defined(sun)
+#if defined(_XPG4)
+#undef _XPG4
+#endif
+#endif
+
 #include <Python.h>
 
 #if PY_MAJOR_VERSION >= 3
