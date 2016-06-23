@@ -20,28 +20,24 @@ class ProcessPlotter(object):
     def terminate(self):
         plt.close('all')
 
-    def poll_draw(self):
+    def call_back(self):
+        while 1:
+            if not self.pipe.poll():
+                break
 
-        def call_back():
-            while 1:
-                if not self.pipe.poll():
-                    break
+            command = self.pipe.recv()
 
-                command = self.pipe.recv()
+            if command is None:
+                self.terminate()
+                return False
 
-                if command is None:
-                    self.terminate()
-                    return False
+            else:
+                self.x.append(command[0])
+                self.y.append(command[1])
+                self.ax.plot(self.x, self.y, 'ro')
 
-                else:
-                    self.x.append(command[0])
-                    self.y.append(command[1])
-                    self.ax.plot(self.x, self.y, 'ro')
-
-            self.fig.canvas.draw()
-            return True
-
-        return call_back()
+        self.fig.canvas.draw()
+        return True
 
     def __call__(self, pipe):
         print('starting plotter...')
@@ -49,7 +45,7 @@ class ProcessPlotter(object):
         self.pipe = pipe
         self.fig, self.ax = plt.subplots()
         timer = self.fig.canvas.new_timer(interval=1000)
-        timer.add_callback(self.poll_draw)
+        timer.add_callback(self.call_back)
         timer.start()
 
         print('...done')
@@ -79,8 +75,7 @@ def main():
     for ii in range(10):
         pl.plot()
         time.sleep(0.5)
-    raw_input('press Enter...')
-#    input('press Enter...')    #Python3 
+
     pl.plot(finished=True)
 
 if __name__ == '__main__':
