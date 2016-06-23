@@ -28,6 +28,9 @@ for icol in range(2):
     axs[0, icol].set_title('line widths (pts): %.1f, %.1f' % (lwx, lwy),
                            fontsize='medium')
 
+for irow in range(2):
+    axs[irow, 0].yaxis.set_ticks(np.arange(0, 10, 2))
+
 fig.suptitle('Colors in the default prop_cycle', fontsize='large')
 
 plt.show()
