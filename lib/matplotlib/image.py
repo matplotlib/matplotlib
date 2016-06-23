@@ -367,11 +367,12 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
                     rgba = np.empty((A.shape[0], A.shape[1], 4), dtype=A.dtype)
                     rgba[..., 0] = A  # normalized data
                     rgba[..., 1] = A < 0  # under data
-                    # TODO, ask the norm or colormap what this threshold should be
+                    # TODO: get threshold from the norm or colormap
                     rgba[..., 2] = A > 1  # over data
                     rgba[..., 3] = ~A.mask
                     A = rgba
-                    output = np.zeros((out_height, out_width, 4), dtype=A.dtype)
+                    output = np.zeros((out_height, out_width, 4),
+                                      dtype=A.dtype)
                     alpha = 1.0
                     created_rgba_mask = True
                 else:
