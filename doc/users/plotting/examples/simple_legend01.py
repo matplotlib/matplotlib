@@ -12,7 +12,7 @@ plt.legend(bbox_to_anchor=(0., 1.02, 1., .102), loc=3,
 plt.subplot(223)
 plt.plot([1,2,3], label="test1")
 plt.plot([3,2,1], label="test2")
-# Place a legend to the right of the smaller subplot.
+# Place a legend to the right of this smaller subplot.
 plt.legend(bbox_to_anchor=(1.05, 1), loc=2, borderaxespad=0.)
 
 plt.show()
