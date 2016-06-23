@@ -8,9 +8,8 @@ from multiprocessing import Process, Pipe
 import numpy as np
 
 import matplotlib
-matplotlib.use('GtkAgg')
+matplotlib.use('TkAgg')
 import matplotlib.pyplot as plt
-import gobject
 
 
 class ProcessPlotter(object):
@@ -42,14 +41,16 @@ class ProcessPlotter(object):
             self.fig.canvas.draw()
             return True
 
-        return call_back
+        return call_back()
 
     def __call__(self, pipe):
         print('starting plotter...')
 
         self.pipe = pipe
         self.fig, self.ax = plt.subplots()
-        self.gid = gobject.timeout_add(1000, self.poll_draw())
+        timer = self.fig.canvas.new_timer(interval=1000)
+        timer.add_callback(self.poll_draw)
+        timer.start()
 
         print('...done')
         plt.show()
@@ -79,6 +80,7 @@ def main():
         pl.plot()
         time.sleep(0.5)
     raw_input('press Enter...')
+#    input('press Enter...')    #Python3 
     pl.plot(finished=True)
 
 if __name__ == '__main__':
