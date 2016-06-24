@@ -25,6 +25,16 @@
 #    undef _XOPEN_SOURCE
 #endif
 
+// Prevent multiple conflicting definitions of swab from stdlib.h and unistd.h
+#if defined(__sun) || defined(sun)
+#if defined(_XPG4)
+#undef _XPG4
+#endif
+#if defined(_XPG3)
+#undef _XPG3
+#endif
+#endif
+
 #include <Python.h>
 #include <numpy/ndarrayobject.h>
 
