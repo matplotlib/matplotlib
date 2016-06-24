@@ -6,9 +6,7 @@ from __future__ import print_function
 import time
 from multiprocessing import Process, Pipe
 import numpy as np
-
 import matplotlib
-matplotlib.use('TkAgg')
 import matplotlib.pyplot as plt
 
 
@@ -21,7 +19,7 @@ class ProcessPlotter(object):
         plt.close('all')
 
     def call_back(self):
-        while 1:
+        while True:
             if not self.pipe.poll():
                 break
 
