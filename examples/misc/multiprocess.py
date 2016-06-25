@@ -7,6 +7,10 @@ import time
 from multiprocessing import Process, Pipe
 import numpy as np
 import matplotlib
+# not all backends may allow safe plotting from multiple threads 
+# you can select a specific backend by uncommenting the line below
+# and update the selected backend as needed
+# matplotlib.use('QT5Agg')
 import matplotlib.pyplot as plt
 
 
