@@ -4566,6 +4566,78 @@ def test_bar_color_cycle():
             assert ccov(ln.get_color()) == ccov(br.get_facecolor())
 
 
+@cleanup
+def test_ylim_bound_empty_figure():
+    # if empty figure, y-limit should not change
+    fig, ax = plt.subplots()
+    ax.set_bound_ylim(True)
+    ax.set_xlim(-1, 4)
+    assert_equal(ax.get_ylim(), (0, 1))
+
+
+@cleanup
+def test_ylim_bound_basic():
+    # y-limit change according to x-limit change
+    fig, ax = plt.subplots()
+    ax.set_bound_ylim(True)
+    x = np.arange(-10, 10, 1)
+    y = x**2
+    ax.plot(x, y)
+    ax.set_bound_ylim(True)
+    ax.set_xlim(0, 10)
+    # after change of xlim max y value je 81 a min 0
+    assert_equal(ax.get_ylim(), (0, 81))
+
+
+@cleanup
+def test_ylim_bound_twinx():
+    # if only one of y-axes bound is set to True, only
+    # one of them changes after setting xlim
+    fig, ax = plt.subplots()
+    ax.set_bound_ylim(True)
+    x = np.arange(0, 6, 1)
+    y = 2*x
+    ax.plot(x, y)
+    ax2 = ax.twinx()
+    y2 = x**2
+    ax2.plot(x, y2)
+    ax.set_bound_ylim(True)
+    ax.set_xlim(0, 3)
+    assert_equal(ax.get_ylim(), (0, 6))
+    assert_equal(ax2.get_ylim(), (0, 25))
+
+
+@cleanup
+def test_ylim_bound_twiny():
+    # if one of y-axes bound is set to True, other one
+    # is set according to it.
+    fig, ax = plt.subplots()
+    ax.set_bound_ylim(True)
+    x = np.arange(0, 6, 1)
+    y = 2*x
+    ax.plot(x, y)
+    ax2 = ax.twiny()
+    x2 = np.arange(0, 11, 2)
+    ax2.plot(x2, y)
+    ax.set_bound_ylim(True)
+    ax.set_xlim(0, 3)
+    assert_equal(ax.get_ylim(), (0, 6))
+    assert_equal(ax2.get_ylim(), (0, 6))
+
+
+@cleanup
+def test_ylim_bound_reverse_limits():
+    # test reversed limits
+    fig, ax = plt.subplots()
+    ax.set_bound_ylim(True)
+    x = np.arange(0, 6, 1)
+    y = 2*x
+    ax.plot(x, y)
+    ax.invert_yaxis()
+    ax.set_xlim(1, 4)
+    assert_equal(ax.get_ylim(), (8, 2))
+
+
 if __name__ == '__main__':
     import nose
     import sys
