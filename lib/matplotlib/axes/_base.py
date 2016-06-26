@@ -3037,7 +3037,7 @@ class _AxesBase(martist.Artist):
         """
         return self.ylim_bound
 
-    def set_bound_ylim(self, bound=False, **kw):
+    def set_bound_ylim(self, bound=True, **kw):
         """
         Bounds the y-axis range to changes of x-axis range
         Call signature::
@@ -3048,34 +3048,32 @@ class _AxesBase(martist.Artist):
         change of y-axis range
 
         Examples::
-          set_bound_ylim(True)
+          set_bound_ylim(False)
+          set_bound_ylim()
 
-        Keyword arguments::
-
-          *bound*: boolean value
-          set_bound_ylim(bound=True)
         """
-        if 'bound' in kw:
-            bound = kw.pop('bound')
         if kw:
             raise ValueError("unrecognized kwargs: %s" %
                              list(six.iterkeys(kw)))
 
         self.ylim_bound = bound
 
-    def _compute_bound_ylim(self, xs=None, ys=None, xlim=None):
+    def _compute_bound_ylim(self, xs=[], ys=[]):
         """
         Computes ylim according to xs range defined by xlim
         """
-        if xs is None or ys is None or xlim is None:
-            return self.get_ylim()
         xs = np.array(xs)
         ys = np.array(ys)
-        minx, maxx = xlim
+        minx, maxx = self.get_xlim()
         if minx > maxx:
             minx, maxx = maxx, minx
-        xs_i = list(np.where(np.logical_and(xs >= minx, xs <= maxx)))
+        indices = np.where(np.isnan(xs))
+        if len(xs) > 0:
+            xs[indices] = xs.min() - np.iinfo(np.int16).min
+        condition = np.logical_and(xs >= minx, xs <= maxx)
+        xs_i = list(np.where(condition))
         ys = ys[xs_i]
+        ys = ys[~np.isnan(ys)]
         if len(ys) == 0:
             return None, None
         return ys.min(), ys.max()
@@ -3093,22 +3091,22 @@ class _AxesBase(martist.Artist):
                 xs = line.get_xdata()
                 new_miny, new_maxy = self._compute_bound_ylim(
                                                               xs=xs,
-                                                              ys=ys,
-                                                              xlim=xlim
+                                                              ys=ys
                                                              )
                 if new_miny is not None and (miny is None or new_miny < miny):
                     miny = new_miny
                 if new_maxy is not None and (maxy is None or new_maxy > maxy):
                     maxy = new_maxy
             for patch in self.patches:
-                patch_bbox = patch.get_bbox().get_points()
-                xs = np.array([patch_bbox[0][0], patch_bbox[1][0]])
-                ys = np.array([patch_bbox[0][1], patch_bbox[1][1]])
-                new_miny, new_maxy = self._compute_bound_ylim(
-                                                              xs=xs,
-                                                              ys=ys,
-                                                              xlim=xlim
-                                                             )
+                new_miny, new_maxy = None, None
+                if 'get_path' in dir(patch):
+                    points = patch.get_path().vertices
+                    xs = points.T[0]
+                    ys = points.T[1]
+                    new_miny, new_maxy = self._compute_bound_ylim(
+                                                                  xs=xs,
+                                                                  ys=ys
+                                                                 )
                 if new_miny is not None and (miny is None or new_miny < miny):
                     miny = new_miny
                 if new_maxy is not None and (maxy is None or new_maxy > maxy):
@@ -3120,8 +3118,7 @@ class _AxesBase(martist.Artist):
                 ys = points.T[1]
                 new_miny, new_maxy = self._compute_bound_ylim(
                                                               xs=xs,
-                                                              ys=ys,
-                                                              xlim=xlim
+                                                              ys=ys
                                                              )
                 if new_miny is not None and (miny is None or new_miny < miny):
                     miny = new_miny
