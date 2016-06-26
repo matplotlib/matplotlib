@@ -3096,9 +3096,9 @@ class _AxesBase(martist.Artist):
                                                               ys=ys,
                                                               xlim=xlim
                                                              )
-                if not new_miny is None and (miny is None or new_miny < miny):
+                if new_miny is not None and (miny is None or new_miny < miny):
                     miny = new_miny
-                if not new_maxy is None and (maxy is None or new_maxy > maxy):
+                if new_maxy is not None and (maxy is None or new_maxy > maxy):
                     maxy = new_maxy
             for patch in self.patches:
                 patch_bbox = patch.get_bbox().get_points()
@@ -3109,9 +3109,9 @@ class _AxesBase(martist.Artist):
                                                               ys=ys,
                                                               xlim=xlim
                                                              )
-                if not new_miny is None and (miny is None or new_miny < miny):
+                if new_miny is not None and (miny is None or new_miny < miny):
                     miny = new_miny
-                if not new_maxy is None and (maxy is None or new_maxy > maxy):
+                if new_maxy is not None and (maxy is None or new_maxy > maxy):
                     maxy = new_maxy
             for collection in self.collections:
                 paths = collection.get_paths()
@@ -3123,9 +3123,9 @@ class _AxesBase(martist.Artist):
                                                               ys=ys,
                                                               xlim=xlim
                                                              )
-                if not new_miny is None and (miny is None or new_miny < miny):
+                if new_miny is not None and (miny is None or new_miny < miny):
                     miny = new_miny
-                if not new_maxy is None and (maxy is None or new_maxy > maxy):
+                if new_maxy is not None and (maxy is None or new_maxy > maxy):
                     maxy = new_maxy
 
             if miny is None or maxy is None:
