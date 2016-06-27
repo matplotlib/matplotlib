@@ -13,6 +13,9 @@ with plt.style.context('fivethirtyeight'):
     plt.plot(x, np.sin(x) + x + np.random.randn(50))
     plt.plot(x, np.sin(x) + 0.5 * x + np.random.randn(50))
     plt.plot(x, np.sin(x) + 2 * x + np.random.randn(50))
+    plt.plot(x, np.sin(x) - 0.5 * x + np.random.randn(50))
+    plt.plot(x, np.sin(x) - 2 * x + np.random.randn(50))
+    plt.plot(x, np.sin(x) + np.random.randn(50))
 
 
 plt.show()
