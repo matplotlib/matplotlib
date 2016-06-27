@@ -180,8 +180,24 @@ def test_source_date_epoch():
     _test_source_date_epoch("ps", b"%%CreationDate: Sat Jan  1 00:00:00 2000")
 
 @cleanup
+@needs_tex
+@needs_ghostscript
+def test_source_date_epoch_tex():
+    """Test SOURCE_DATE_EPOCH support for PS/tex output"""
+    matplotlib.rcParams['text.usetex'] = True
+    _test_source_date_epoch("ps", b"%%CreationDate: Sat Jan  1 00:00:00 2000")
+
+@cleanup
 def test_determinism_all():
     """Test for reproducible PS output"""
+    _test_determinism(format="ps")
+
+@cleanup
+@needs_tex
+@needs_ghostscript
+def test_determinism_all_tex():
+    """Test for reproducible PS/tex output"""
+    matplotlib.rcParams['text.usetex'] = True
     _test_determinism(format="ps")
 
 
