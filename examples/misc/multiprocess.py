@@ -5,14 +5,6 @@
 from __future__ import print_function
 import time
 from multiprocessing import Process, Pipe
-# The default way to start a process on OSX ('fork')
-# does not work well with many gui frameworks on OSX
-# if you use Python 3.4 or later you can uncomment the
-# two lines below to change the default start to
-# forkserver.
-# import multiprocessing as mp
-# mp.set_start_method('forkserver')
-
 import numpy as np
 import matplotlib
 # not all backends may allow safe plotting from multiple threads 
@@ -89,4 +81,11 @@ def main():
     pl.plot(finished=True)
 
 if __name__ == '__main__':
+    # The default way to start a process on OSX ('fork')
+    # does not work well with many gui frameworks on OSX
+    # if you use Python 3.4 or later you can uncomment the
+    # two lines below to change the default start to
+    # forkserver.
+    # import multiprocessing as mp
+    # mp.set_start_method('forkserver')
     main()
