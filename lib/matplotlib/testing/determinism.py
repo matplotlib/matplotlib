@@ -92,6 +92,7 @@ def _test_determinism(objects='mhi', format="pdf"):
     for p in plots[1:]:
         assert_equal(p, plots[0])
 
+
 def _test_source_date_epoch(format, string):
     """
     Test SOURCE_DATE_EPOCH support. Output a document with the envionment
