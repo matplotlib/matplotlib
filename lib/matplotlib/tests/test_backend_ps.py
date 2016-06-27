@@ -11,6 +11,7 @@ import six
 import matplotlib
 import matplotlib.pyplot as plt
 from matplotlib import patheffects
+from matplotlib.testing.determinism import _test_source_date_epoch, _test_determinism
 from matplotlib.testing.decorators import cleanup, knownfailureif
 
 
@@ -172,6 +173,17 @@ def test_tilde_in_tempfilename():
             except Exception as e:
                 # do not break if this is not removeable...
                 print(e)
+
+@cleanup
+def test_source_date_epoch():
+    """Test SOURCE_DATE_EPOCH support for PS output"""
+    _test_source_date_epoch("ps", b"%%CreationDate: Sat Jan  1 00:00:00 2000")
+
+@cleanup
+def test_determinism_all():
+    """Test for reproducible PS output"""
+    _test_determinism(format="ps")
+
 
 
 if __name__ == '__main__':
