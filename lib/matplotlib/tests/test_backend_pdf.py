@@ -12,7 +12,8 @@ import numpy as np
 from matplotlib import cm, rcParams
 from matplotlib.backends.backend_pdf import PdfPages
 from matplotlib import pyplot as plt
-from matplotlib.testing.determinism import _test_source_date_epoch, _test_determinism
+from matplotlib.testing.determinism import (_test_source_date_epoch,
+                                            _test_determinism)
 from matplotlib.testing.decorators import (image_comparison, knownfailureif,
                                            cleanup)
 
@@ -91,8 +92,8 @@ def test_multipage_keep_empty():
 
 @cleanup
 def test_composite_image():
-    #Test that figures can be saved with and without combining multiple images
-    #(on a single set of axes) into a single composite image.
+    # Test that figures can be saved with and without combining multiple images
+    # (on a single set of axes) into a single composite image.
     X, Y = np.meshgrid(np.arange(-5, 5, 1), np.arange(-5, 5, 1))
     Z = np.sin(Y ** 2)
     fig = plt.figure()
@@ -114,6 +115,7 @@ def test_composite_image():
 def test_source_date_epoch():
     """Test SOURCE_DATE_EPOCH support for PDF output"""
     _test_source_date_epoch("pdf", b"/CreationDate (D:20000101000000Z)")
+
 
 @cleanup
 def test_determinism_plain():
