@@ -179,13 +179,9 @@ def test_source_date_epoch():
     """Test SOURCE_DATE_EPOCH support for PS output"""
     _test_source_date_epoch("ps", b"%%CreationDate: Sat Jan  1 00:00:00 2000")
 
-@cleanup
-@needs_tex
-@needs_ghostscript
-def test_source_date_epoch_tex():
-    """Test SOURCE_DATE_EPOCH support for PS/tex output"""
-    matplotlib.rcParams['text.usetex'] = True
-    _test_source_date_epoch("ps", b"%%CreationDate: Sat Jan  1 00:00:00 2000")
+# SOURCE_DATE_EPOCH support is not tested with text.usetex, because the produced
+# timestamp comes from ghostscript: %%CreationDate: D:20000101000000Z00\'00\',
+# and this could change with another ghostscript version.
 
 @cleanup
 def test_determinism_all():
