@@ -12,6 +12,7 @@ import numpy as np
 from matplotlib import cm, rcParams
 from matplotlib.backends.backend_pdf import PdfPages
 from matplotlib import pyplot as plt
+from matplotlib.testing.determinism import _test_source_date_epoch, _test_determinism
 from matplotlib.testing.decorators import (image_comparison, knownfailureif,
                                            cleanup)
 
@@ -111,133 +112,37 @@ def test_composite_image():
 
 @cleanup
 def test_source_date_epoch():
-    # Test SOURCE_DATE_EPOCH support
-    try:
-        # save current value of SOURCE_DATE_EPOCH
-        sde = os.environ.pop('SOURCE_DATE_EPOCH',None)
-        fig = plt.figure()
-        ax = fig.add_subplot(1, 1, 1)
-        x = [1, 2, 3, 4, 5]
-        ax.plot(x, x)
-        os.environ['SOURCE_DATE_EPOCH'] = "946684800"
-        with io.BytesIO() as pdf:
-            fig.savefig(pdf, format="pdf")
-            pdf.seek(0)
-            buff = pdf.read()
-            assert b"/CreationDate (D:20000101000000Z)" in buff
-        os.environ.pop('SOURCE_DATE_EPOCH',None)
-        with io.BytesIO() as pdf:
-            fig.savefig(pdf, format="pdf")
-            pdf.seek(0)
-            buff = pdf.read()
-            assert not b"/CreationDate (D:20000101000000Z)" in buff
-    finally:
-        # Restores SOURCE_DATE_EPOCH
-        if sde == None:
-            os.environ.pop('SOURCE_DATE_EPOCH',None)
-        else:
-            os.environ['SOURCE_DATE_EPOCH'] = sde
-
-
-def _test_determinism_save(filename, objects=''):
-    # save current value of SOURCE_DATE_EPOCH and set it
-    # to a constant value, so that time difference is not
-    # taken into account
-    sde = os.environ.pop('SOURCE_DATE_EPOCH',None)
-    os.environ['SOURCE_DATE_EPOCH'] = "946684800"
-
-    fig = plt.figure()
-
-    if 'm' in objects:
-        # use different markers, to be recorded in the PdfFile object
-        ax1 = fig.add_subplot(1, 6, 1)
-        x = range(10)
-        ax1.plot(x, [1] * 10, marker=u'D')
-        ax1.plot(x, [2] * 10, marker=u'x')
-        ax1.plot(x, [3] * 10, marker=u'^')
-        ax1.plot(x, [4] * 10, marker=u'H')
-        ax1.plot(x, [5] * 10, marker=u'v')
-
-    if 'h' in objects:
-        # also use different hatch patterns
-        ax2 = fig.add_subplot(1, 6, 2)
-        bars = ax2.bar(range(1, 5), range(1, 5)) + \
-               ax2.bar(range(1, 5), [6] * 4, bottom=range(1, 5))
-        ax2.set_xticks([1.5, 2.5, 3.5, 4.5])
-
-        patterns = ('-', '+', 'x', '\\', '*', 'o', 'O', '.')
-        for bar, pattern in zip(bars, patterns):
-            bar.set_hatch(pattern)
-
-    if 'i' in objects:
-        # also use different images
-        A = [[1, 2, 3], [2, 3, 1], [3, 1, 2]]
-        fig.add_subplot(1, 6, 3).imshow(A, interpolation='nearest')
-        A = [[1, 3, 2], [1, 2, 3], [3, 1, 2]]
-        fig.add_subplot(1, 6, 4).imshow(A, interpolation='bilinear')
-        A = [[2, 3, 1], [1, 2, 3], [2, 1, 3]]
-        fig.add_subplot(1, 6, 5).imshow(A, interpolation='bicubic')
-
-    x=range(5)
-    fig.add_subplot(1, 6, 6).plot(x,x)
-
-    fig.savefig(filename, format="pdf")
-
-    # Restores SOURCE_DATE_EPOCH
-    if sde == None:
-        os.environ.pop('SOURCE_DATE_EPOCH',None)
-    else:
-        os.environ['SOURCE_DATE_EPOCH'] = sde
-
-
-def _test_determinism(objects=''):
-    import sys
-    from subprocess import check_call
-    from nose.tools import assert_equal
-    filename = 'determinism_O%s.pdf' % objects
-    plots = []
-    for i in range(3):
-        check_call([sys.executable, '-R', '-c',
-                    'import matplotlib; '
-                    'matplotlib.use("pdf"); '
-                    'from matplotlib.tests.test_backend_pdf '
-                    'import _test_determinism_save;'
-                    '_test_determinism_save(%r,%r)' % (filename,objects)])
-        with open(filename, 'rb') as fd:
-            plots.append(fd.read())
-        os.unlink(filename)
-    for p in plots[1:]:
-        assert_equal(p,plots[0])
-
+    """Test SOURCE_DATE_EPOCH support for PDF output"""
+    _test_source_date_epoch("pdf", b"/CreationDate (D:20000101000000Z)")
 
 @cleanup
 def test_determinism_plain():
     """Test for reproducible PDF output: simple figure"""
-    _test_determinism()
+    _test_determinism('', format="pdf")
 
 
 @cleanup
 def test_determinism_images():
     """Test for reproducible PDF output: figure with different images"""
-    _test_determinism('i')
+    _test_determinism('i', format="pdf")
 
 
 @cleanup
 def test_determinism_hatches():
     """Test for reproducible PDF output: figure with different hatches"""
-    _test_determinism('h')
+    _test_determinism('h', format="pdf")
 
 
 @cleanup
 def test_determinism_markers():
     """Test for reproducible PDF output: figure with different markers"""
-    _test_determinism('m')
+    _test_determinism('m', format="pdf")
 
 
 @cleanup
 def test_determinism_all():
     """Test for reproducible PDF output"""
-    _test_determinism('mhi')
+    _test_determinism(format="pdf")
 
 
 @image_comparison(baseline_images=['hatching_legend'],
