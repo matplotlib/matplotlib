@@ -4722,7 +4722,6 @@ def test_ylim_bound_patches():
 def test_ylim_bound_collections():
     # testing patches as data
     from matplotlib.collections import LineCollection
-    from matplotlib.colors import colorConverter
     x = np.arange(100)
     ys = x[:50, np.newaxis] + x[np.newaxis, :]
 
@@ -4735,11 +4734,9 @@ def test_ylim_bound_collections():
     ax = plt.axes()
     ax.set_bound_ylim()
 
-    colors = [colorConverter.to_rgba(i) for i in 'bgrcmyk']
     line_segments = LineCollection(
                                    segs,
                                    linewidths=(0.5, 1, 1.5, 2),
-                                   colors=colors,
                                    linestyle='solid'
                                   )
     ax.add_collection(line_segments)

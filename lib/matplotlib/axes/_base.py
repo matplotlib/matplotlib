@@ -1521,7 +1521,7 @@ class _AxesBase(martist.Artist):
             Passed to set_{x,y}lim functions, if observers
             are notified of axis limit change
 
-        y_bound : bool
+        ylim_bound : bool
             Set if y-axis limit is adjusted to change of x-axis limit
 
         xmin, ymin, xmax, ymax : float, optional
@@ -1540,7 +1540,7 @@ class _AxesBase(martist.Artist):
             return xmin, xmax, ymin, ymax
 
         emit = kwargs.get('emit', True)
-        self.ylim_bound = kwargs.get('y_bound', self.ylim_bound)
+        self.ylim_bound = kwargs.get('ylim_bound', self.ylim_bound)
 
         if len(v) == 1 and is_string_like(v[0]):
             s = v[0].lower()
@@ -3069,7 +3069,10 @@ class _AxesBase(martist.Artist):
             minx, maxx = maxx, minx
         indices = np.where(np.isnan(xs))
         if len(xs) > 0:
-            xs[indices] = xs.min() - np.iinfo(np.int16).min
+            xs_min = xs.min()
+            if np.isnan(xs_min):
+                xs_min = -np.iinfo(np.int16).min
+            xs[indices] = xs_min - np.iinfo(np.int16).min
         condition = np.logical_and(xs >= minx, xs <= maxx)
         xs_i = list(np.where(condition))
         ys = ys[xs_i]
