@@ -1180,7 +1180,7 @@ defaultParams = {
 
     ## figure props
     # figure title
-    'figure.titlesize':   ['medium', validate_fontsize],
+    'figure.titlesize':   ['large', validate_fontsize],
     'figure.titleweight': ['normal', six.text_type],
 
     # figure size in inches: width by height
