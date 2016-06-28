@@ -754,12 +754,12 @@ class TextArea(OffsetBox):
         self._minimumdescent = minimumdescent
 
     def set_text(self, s):
-        "set text"
+        "Set the text of this area as a string."
         self._text.set_text(s)
         self.stale = True
 
     def get_text(self):
-        "get text"
+        "Returns the string representation of this area's text"
         return self._text.get_text()
 
     def set_multilinebaseline(self, t):
