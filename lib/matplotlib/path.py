@@ -510,7 +510,7 @@ class Path(object):
         if transform is not None:
             transform = transform.frozen()
         result = _path.points_in_path(points, radius, self, transform)
-        return result
+        return result.astype('bool')
 
     def contains_path(self, path, transform=None):
         """
