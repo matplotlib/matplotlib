@@ -1833,6 +1833,18 @@ class RectangleSelector(_SelectorWidget):
         if not self.interactive:
             self.to_draw.set_visible(False)
 
+        # update the eventpress and eventrelease with the resulting extents
+        x1, x2, y1, y2 = self.extents
+        self.eventpress.xdata = x1
+        self.eventpress.ydata = y1
+        xy1 = self.ax.transData.transform_point([x1, y1])
+        self.eventpress.x, self.eventpress.y = xy1
+
+        self.eventrelease.xdata = x2
+        self.eventrelease.ydata = y2
+        xy2 = self.ax.transData.transform_point([x2, y2])
+        self.eventrelease.x, self.eventrelease.y = xy2
+
         if self.spancoords == 'data':
             xmin, ymin = self.eventpress.xdata, self.eventpress.ydata
             xmax, ymax = self.eventrelease.xdata, self.eventrelease.ydata
@@ -1854,27 +1866,16 @@ class RectangleSelector(_SelectorWidget):
         xproblems = self.minspanx is not None and spanx < self.minspanx
         yproblems = self.minspany is not None and spany < self.minspany
 
-        if (((self.drawtype == 'box') or (self.drawtype == 'line')) and
-                (xproblems or yproblems)):
-            # check if drawn distance (if it exists) is not too small in
-            # neither x nor y-direction
-            self.extents = [0, 0, 0, 0]
+        # check if drawn distance (if it exists) is not too small in
+        # either x or y-direction
+        if self.drawtype != 'none' and (xproblems or yproblems):
+            for artist in self.artists:
+                artist.set_visible(False)
+            self.update()
             return
 
-        # update the eventpress and eventrelease with the resulting extents
-        x1, x2, y1, y2 = self.extents
-        self.eventpress.xdata = x1
-        self.eventpress.ydata = y1
-        xy1 = self.ax.transData.transform_point([x1, y1])
-        self.eventpress.x, self.eventpress.y = xy1
-
-        self.eventrelease.xdata = x2
-        self.eventrelease.ydata = y2
-        xy2 = self.ax.transData.transform_point([x2, y2])
-        self.eventrelease.x, self.eventrelease.y = xy2
-
+        # call desired function
         self.onselect(self.eventpress, self.eventrelease)
-                                              # call desired function
         self.update()
 
         return False
