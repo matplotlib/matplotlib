@@ -1826,13 +1826,6 @@ class Affine2D(Affine2DBase):
     def __repr__(self):
         return "Affine2D(%s)" % repr(self._mtx)
 
-#    def __cmp__(self, other):
-#        # XXX redundant. this only tells us eq.
-#        if (isinstance(other, Affine2D) and
-#            (self.get_matrix() == other.get_matrix()).all()):
-#            return 0
-#        return -1
-
     @staticmethod
     def from_values(a, b, c, d, e, f):
         """
