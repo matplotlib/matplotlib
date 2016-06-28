@@ -1,3 +1,4 @@
+set
 set LIBPATH=%LIBRARY_LIB%;
 set INCLUDE=%INCLUDE%;%PREFIX%\Library\include\freetype2
 
