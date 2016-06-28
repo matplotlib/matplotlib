@@ -1075,7 +1075,7 @@ class Line2D(Artist):
 
         Parameters
         ----------
-        ls : { '-',  '--', '-.', ':'} and more see description
+        ls : { ``'-'``,  ``'--'``, ``'-.'``, ``':'``} and more see description
             The line style.
         """
         if not is_string_like(ls):
