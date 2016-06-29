@@ -177,6 +177,15 @@ static int PyRendererAgg_init(PyRendererAgg *self, PyObject *args, PyObject *kwd
         return -1;
     }
 
+    if (width >= 1 << 16 || height >= 1 << 16) {
+        PyErr_Format(
+            PyExc_ValueError,
+            "Image size of %dx%d pixels is too large. "
+            "It must be less than 2^16 in each direction.",
+            width, height);
+        return -1;
+    }
+
     CALL_CPP_INIT("RendererAgg", self->x = new RendererAgg(width, height, dpi))
 
     return 0;
