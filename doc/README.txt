@@ -15,7 +15,7 @@ or conda::
 
   conda install sphinx numpydoc ipython mock colorspacious pillow
 
-To build the HTML documentation, type ``python make.py html`` in this
+To build the HTML documentation, type ``make html`` in this
 directory. The top file of the results will be ./build/html/index.html
 
 **Note that Sphinx uses the installed version of the package to build the
@@ -24,9 +24,8 @@ generated.
 
 You can build the documentation with several options:
 
-* `--small` saves figures in low resolution.
-* `--allowsphinxwarnings`: Don't turn Sphinx warnings into errors.
-* `-n N` enables parallel build of the documentation using N process.
+* `make html-small-plots` saves figures in low resolution.
+* `-j N` enables parallel build of the documentation using N process.
 
 Organization
 -------------
@@ -47,7 +46,7 @@ python documentation system built on top of ReST.  This directory contains
 * mpl_toolkits - documentation of individual toolkits that ship with
   matplotlib
 
-* make.py - the build script to build the html or PDF docs
+* Makefile and make.bat - the build script to build the html or PDF docs
 
 * index.rst - the top level include document for matplotlib docs
 
@@ -61,4 +60,3 @@ python documentation system built on top of ReST.  This directory contains
 
 * mpl_examples - a link to the matplotlib examples in case any
   documentation wants to literal include them
-

@@ -144,8 +144,8 @@ stats for all work done since that release.
 In the matplotlib source repository, build the documentation::
 
   cd doc
-  python make.py html
-  python make.py latex
+  make html
+  make latex
 
 Then copy the build products into your local checkout of the
 `matplotlib.github.com` repository (assuming here to be checked out in
