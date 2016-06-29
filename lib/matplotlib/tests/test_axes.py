@@ -4460,12 +4460,6 @@ def test_ls_ds_conflict():
                   linestyle='steps-pre:', drawstyle='steps-post')
 
 
-@cleanup
-def test_ls_ds_conflict():
-    assert_raises(ValueError, plt.plot, range(32),
-                  linestyle='steps-pre:', drawstyle='steps-post')
-
-
 @image_comparison(baseline_images=['date_timezone_x'], extensions=['png'])
 def test_date_timezone_x():
     # Tests issue 5575
