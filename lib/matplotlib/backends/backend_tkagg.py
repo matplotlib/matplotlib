@@ -741,7 +741,7 @@ class NavigationToolbar2TkAgg(NavigationToolbar2, Tk.Frame):
     def set_cursor(self, cursor):
         self.window.configure(cursor=cursord[cursor])
 
-    def _Button(self, text, file, command, extension='.ppm'):
+    def _Button(self, text, file, command, extension='.gif'):
         img_file = os.path.join(rcParams['datapath'], 'images', file + extension)
         im = Tk.PhotoImage(master=self, file=img_file)
         b = Tk.Button(
