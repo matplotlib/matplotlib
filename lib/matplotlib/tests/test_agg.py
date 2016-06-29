@@ -9,6 +9,8 @@ import os
 import numpy as np
 from numpy.testing import assert_array_almost_equal
 
+from nose.tools import assert_raises
+
 from matplotlib.image import imread
 from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
 from matplotlib.figure import Figure
@@ -153,6 +155,13 @@ def test_long_path():
     points = np.random.rand(70000)
     ax.plot(points)
     fig.savefig(buff, format='png')
+
+
+@cleanup
+def test_too_large_image():
+    fig = plt.figure(figsize=(300, 1000))
+    buff = io.BytesIO()
+    assert_raises(ValueError, fig.savefig, buff)
 
 
 if __name__ == "__main__":
