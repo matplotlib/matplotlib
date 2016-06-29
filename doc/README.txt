@@ -25,7 +25,7 @@ generated.
 You can build the documentation with several options:
 
 * `make html-small-plots` saves figures in low resolution.
-* `-j N` enables parallel build of the documentation using N process.
+* `make -j N` enables parallel build of the documentation using N process.
 
 Organization
 -------------
