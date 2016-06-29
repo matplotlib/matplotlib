@@ -362,20 +362,33 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
             if A.ndim == 2:
                 A = self.norm(A)
                 if A.dtype.kind == 'f':
-                    # If the image is greyscale, convert to RGBA with the
-                    # correct alpha channel for resizing
+                    # If the image is greyscale, convert to RGBA and
+                    # use the extra channels for resizing the over,
+                    # under, and bad pixels.  This is needed because
+                    # Agg's resampler is very aggressive about
+                    # clipping to [0, 1] and we use out-of-bounds
+                    # values to carry the over/under/bad information
                     rgba = np.empty((A.shape[0], A.shape[1], 4), dtype=A.dtype)
                     rgba[..., 0] = A  # normalized data
                     rgba[..., 1] = A < 0  # under data
-                    # TODO: get threshold from the norm or colormap
                     rgba[..., 2] = A > 1  # over data
-                    rgba[..., 3] = ~A.mask
+                    rgba[..., 3] = ~A.mask  # bad data
                     A = rgba
                     output = np.zeros((out_height, out_width, 4),
                                       dtype=A.dtype)
                     alpha = 1.0
                     created_rgba_mask = True
                 else:
+                    # colormap norms that output integers (ex NoNorm
+                    # and BoundaryNorm) to RGBA space before
+                    # interpolating.  This is needed due to the the
+                    # Agg resampler only working on floats in the
+                    # range [0, 1] and because interpolating indexes
+                    # into an arbitrary LUT maybe problematic.
+                    #
+                    # This falls back to interpolating in RGBA space which
+                    # can produce it's own artifacts of colors not in the map
+                    # showing up in the final image.
                     A = self.cmap(A, alpha=self.get_alpha(), bytes=True)
 
             if not created_rgba_mask:
