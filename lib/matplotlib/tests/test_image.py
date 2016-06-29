@@ -181,10 +181,13 @@ def test_image_alpha():
     np.random.seed(0)
     Z = np.random.rand(6, 6)
 
-    plt.subplot(121)
+    plt.subplot(131)
+    plt.imshow(Z, alpha=1.0, interpolation='none')
+
+    plt.subplot(132)
     plt.imshow(Z, alpha=0.5, interpolation='none')
 
-    plt.subplot(122)
+    plt.subplot(133)
     plt.imshow(Z, alpha=0.5, interpolation='nearest')
 
 @cleanup

@@ -299,6 +299,7 @@ static PyObject *PyRendererAgg_draw_image(PyRendererAgg *self, PyObject *args, P
     x = mpl_round(x);
     y = mpl_round(y);
 
+    gc.alpha = 1.0;
     CALL_CPP("draw_image", (self->x->draw_image(gc, x, y, image)));
 
     Py_RETURN_NONE;
