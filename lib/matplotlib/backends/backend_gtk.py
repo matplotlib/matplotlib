@@ -37,6 +37,7 @@ from matplotlib.backends.backend_gdk import RendererGDK, FigureCanvasGDK
 from matplotlib.cbook import is_string_like, is_writable_file_like
 from matplotlib.figure import Figure
 from matplotlib.widgets import SubplotTool
+from matplotlib.cbook import warn_deprecated
 
 from matplotlib import (
     cbook, colors as mcolors, lines, markers, rcParams, verbose)
@@ -212,6 +213,14 @@ class FigureCanvasGTK (gtk.DrawingArea, FigureCanvasBase):
                   gdk.POINTER_MOTION_HINT_MASK)
 
     def __init__(self, figure):
+        if self.__class__ == matplotlib.backends.backend_gtk.FigureCanvasGTK:
+            warn_deprecated('2.0', message="The GTK backend is "
+                            "deprecated. It is untested, known to be "
+                            "broken and will be removed in Matplotlib 2.2. "
+                            "Use the GTKAgg backend instead. "
+                            "See Matplotlib usage FAQ for"
+                            " more info on backends.",
+                            alternative="GTKAgg")
         if _debug: print('FigureCanvasGTK.%s' % fn_name())
         FigureCanvasBase.__init__(self, figure)
         gtk.DrawingArea.__init__(self)
