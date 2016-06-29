@@ -11,6 +11,8 @@ from distutils.version import LooseVersion as V
 import numpy as np
 from numpy.testing import assert_array_almost_equal
 
+from nose.tools import assert_raises
+
 from matplotlib.image import imread
 from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
 from matplotlib.figure import Figure
@@ -288,6 +290,13 @@ def test_agg_filter():
 
     ax.xaxis.set_visible(False)
     ax.yaxis.set_visible(False)
+
+
+@cleanup
+def test_too_large_image():
+    fig = plt.figure(figsize=(300, 1000))
+    buff = io.BytesIO()
+    assert_raises(ValueError, fig.savefig, buff)
 
 
 if __name__ == "__main__":
