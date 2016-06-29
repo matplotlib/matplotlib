@@ -28,8 +28,9 @@ def test_point_in_path():
 
     path = Path(verts2, closed=True)
     points = [(0.5, 0.5), (1.5, 0.5)]
-
-    assert np.all(path.contains_points(points) == [True, False])
+    ret = path.contains_points(points)
+    assert ret.dtype == 'bool'
+    assert np.all(ret == [True, False])
 
 
 def test_contains_points_negative_radius():
