@@ -21,7 +21,7 @@ I18NSPHINXOPTS  = $(PAPEROPT_$(PAPER)) $(SPHINXOPTS) .
 
 .PHONY: help clean html dirhtml singlehtml pickle json htmlhelp qthelp devhelp epub latex latexpdf text man changes linkcheck doctest gettext
 
-all: prepare html
+all: html
 
 help:
 	@echo "Please use \`make <target>' where <target> is one of"
@@ -51,15 +51,14 @@ help:
 clean:
 	rm -rf $(BUILDDIR)/*
 	rm -rf examples
-	rm -rf users/installing.rst
 	rm -rf _templates/gallery.html
 
-html: prepare
+html:
 	$(SPHINXBUILD) -b html $(ALLSPHINXOPTS) $(BUILDDIR)/html -W
 	@echo
 	@echo "Build finished. The HTML pages are in $(BUILDDIR)/html."
 
-html-small-plots: prepare
+html-small-plots:
 	$(SPHINXBUILD) -D plot_formats=png:80 -b html $(ALLSPHINXOPTS) $(BUILDDIR)/html -W
 	@echo
 	@echo "Build finished. The HTML pages are in $(BUILDDIR)/html."
@@ -186,19 +185,3 @@ pseudoxml:
 	$(SPHINXBUILD) -b pseudoxml $(ALLSPHINXOPTS) $(BUILDDIR)/pseudoxml
 	@echo
 	@echo "Build finished. The pseudo-XML files are in $(BUILDDIR)/pseudoxml."
-
-
-prepare: mpl_examples mpl_toolkits/axes_grid1/examples \
-	 mpl_toolkits/axisartist/examples users/installing.rst
-
-mpl_examples: ../examples
-	ln -s $< $@
-
-mpl_toolkits/axes_grid1/examples:
-	ln -s ../../../examples/axes_grid1/ $@
-
-mpl_toolkits/axisartist/examples:
-	ln -s ../../../examples/axisartist/ $@
-
-users/installing.rst: ../INSTALL
-	cp $< $@
