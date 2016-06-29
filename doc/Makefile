@@ -54,12 +54,12 @@ clean:
 	rm -rf users/installing.rst
 	rm -rf _templates/gallery.html
 
-html:
+html: prepare
 	$(SPHINXBUILD) -b html $(ALLSPHINXOPTS) $(BUILDDIR)/html -W
 	@echo
 	@echo "Build finished. The HTML pages are in $(BUILDDIR)/html."
 
-html-small-plots:
+html-small-plots: prepare
 	$(SPHINXBUILD) -D plot_formats=png:80 -b html $(ALLSPHINXOPTS) $(BUILDDIR)/html -W
 	@echo
 	@echo "Build finished. The HTML pages are in $(BUILDDIR)/html."
