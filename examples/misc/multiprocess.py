@@ -7,11 +7,12 @@ import time
 from multiprocessing import Process, Pipe
 import numpy as np
 import matplotlib
-# not all backends may allow safe plotting from multiple threads 
+# not all backends may allow safe plotting from multiple threads
 # you can select a specific backend by uncommenting the line below
 # and update the selected backend as needed
 # matplotlib.use('QT5Agg')
 import matplotlib.pyplot as plt
+
 
 class ProcessPlotter(object):
     def __init__(self):
@@ -25,7 +26,7 @@ class ProcessPlotter(object):
         while True:
             if not self.pipe.poll():
                 break
-            
+
             command = self.pipe.recv()
 
             if command is None:
@@ -51,12 +52,14 @@ class ProcessPlotter(object):
 
         print('...done')
         plt.show()
-        
+
+
 class NBPlot(object):
     def __init__(self):
         self.plot_pipe, plotter_pipe = Pipe()
         self.plotter = ProcessPlotter()
-        self.plot_process = Process(target=self.plotter, args=(plotter_pipe,))
+        self.plot_process = Process(target=self.plotter,
+                                    args=(plotter_pipe,))
         self.plot_process.daemon = True
         self.plot_process.start()
 
@@ -76,7 +79,7 @@ def main():
         time.sleep(0.5)
 
     pl.plot(finished=True)
-    
+
 if __name__ == '__main__':
     # The default way to start a process on OSX ('fork')
     # does not work well with many gui frameworks on OSX
