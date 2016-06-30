@@ -145,11 +145,6 @@ class FigureCanvasWebAggCore(backend_agg.FigureCanvasAgg):
     def __init__(self, *args, **kwargs):
         backend_agg.FigureCanvasAgg.__init__(self, *args, **kwargs)
 
-        # A buffer to hold the PNG data for the last frame.  This is
-        # retained so it can be resent to each client without
-        # regenerating it.
-        self._png_buffer = io.BytesIO()
-
         # Set to True when the renderer contains data that is newer
         # than the PNG buffer.
         self._png_is_old = True
@@ -227,24 +222,19 @@ class FigureCanvasWebAggCore(backend_agg.FigureCanvasAgg):
                 diff = buff != last_buffer
                 output = np.where(diff, buff, 0)
 
-            # Clear out the PNG data buffer rather than recreating it
-            # each time.  This reduces the number of memory
-            # (de)allocations.
-            self._png_buffer.truncate()
-            self._png_buffer.seek(0)
-
             # TODO: We should write a new version of write_png that
             # handles the differencing inline
-            _png.write_png(
+            buff = _png.write_png(
                 output.view(dtype=np.uint8).reshape(output.shape + (4,)),
-                self._png_buffer)
+                None, compression=6, filter=_png.PNG_FILTER_NONE)
 
             # Swap the renderer frames
             self._renderer, self._last_renderer = (
                 self._last_renderer, renderer)
             self._force_full = False
             self._png_is_old = False
-        return self._png_buffer.getvalue()
+
+        return buff
 
     def get_renderer(self, cleared=None):
         # Mirrors super.get_renderer, but caches the old one
