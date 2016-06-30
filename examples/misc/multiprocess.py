@@ -13,7 +13,6 @@ import matplotlib
 # matplotlib.use('QT5Agg')
 import matplotlib.pyplot as plt
 
-
 class ProcessPlotter(object):
     def __init__(self):
         self.x = []
@@ -26,7 +25,7 @@ class ProcessPlotter(object):
         while True:
             if not self.pipe.poll():
                 break
-
+            
             command = self.pipe.recv()
 
             if command is None:
@@ -38,7 +37,7 @@ class ProcessPlotter(object):
                 self.y.append(command[1])
                 self.ax.plot(self.x, self.y, 'ro')
 
-        self.fig.canvas.draw()
+        self.fig.canvas.draw_idle()
         return True
 
     def __call__(self, pipe):
@@ -52,14 +51,12 @@ class ProcessPlotter(object):
 
         print('...done')
         plt.show()
-
-
+        
 class NBPlot(object):
     def __init__(self):
         self.plot_pipe, plotter_pipe = Pipe()
         self.plotter = ProcessPlotter()
-        self.plot_process = Process(target=self.plotter,
-                                    args=(plotter_pipe,))
+        self.plot_process = Process(target=self.plotter, args=(plotter_pipe,))
         self.plot_process.daemon = True
         self.plot_process.start()
 
@@ -79,7 +76,7 @@ def main():
         time.sleep(0.5)
 
     pl.plot(finished=True)
-
+    
 if __name__ == '__main__':
     # The default way to start a process on OSX ('fork')
     # does not work well with many gui frameworks on OSX
