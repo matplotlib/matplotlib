@@ -1,12 +1,8 @@
 """
-Demo of the `streamplot` function.
+Demo of the streamplot function with starting points.
 
-A streamplot, or streamline plot, is used to display 2D vector fields. This
-example shows a few features of the stream plot function:
-
-    * Varying the color along a streamline.
-    * Varying the density of streamlines.
-    * Varying the line width along a stream line.
+This example shows how to fix the streamlines that are plotted, by passing
+an array of seed points to the `start_points` keyword argument.
 """
 import numpy as np
 import matplotlib.pyplot as plt
