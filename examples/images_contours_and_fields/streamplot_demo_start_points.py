@@ -7,12 +7,12 @@ an array of seed points to the `start_points` keyword argument.
 import numpy as np
 import matplotlib.pyplot as plt
 
-X, Y = (np.linspace(-3, 3, 100),
-        np.linspace(-3, 3, 100))
+Y, X = np.mgrid[-3:3:100j, -3:3:100j]
+U = -1 - X**2 + Y
+V = 1 + X - Y**2
 
-U, V = np.mgrid[-3:3:100j, 0:0:100j]
-
-seed_points = np.array([[-2, 0, 1], [-2, 0, 1]])
+# 5 points along the first diagonal and a point in the left upper quadrant
+seed_points = np.array([[-2, -1, 0, 1, 2, -1], [-2, -1,  0, 1, 2, 2]])
 
 fig, ax = plt.subplots()
 strm = ax.streamplot(X, Y, U, V, color=U, linewidth=2,
