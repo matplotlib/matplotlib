@@ -381,10 +381,10 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
                 else:
                     # colormap norms that output integers (ex NoNorm
                     # and BoundaryNorm) to RGBA space before
-                    # interpolating.  This is needed due to the the
+                    # interpolating.  This is needed due to the
                     # Agg resampler only working on floats in the
                     # range [0, 1] and because interpolating indexes
-                    # into an arbitrary LUT maybe problematic.
+                    # into an arbitrary LUT may be problematic.
                     #
                     # This falls back to interpolating in RGBA space which
                     # can produce it's own artifacts of colors not in the map
