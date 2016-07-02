@@ -677,6 +677,21 @@ def test_mask_image():
     ax2.imshow(A, interpolation='nearest')
 
 
-if __name__=='__main__':
-    import nose
-    nose.runmodule(argv=['-s','--with-doctest'], exit=False)
+@image_comparison(baseline_images=['imshow_endianess'],
+                  remove_text=True, extensions=['png'])
+def test_imshow_endianess():
+    x = np.arange(10)
+    X, Y = np.meshgrid(x, x)
+    Z = ((X-5)**2 + (Y-5)**2)**0.5
+
+    fig, (ax1, ax2) = plt.subplots(1, 2)
+
+    kwargs = dict(origin="lower", interpolation='nearest',
+                  cmap='viridis')
+
+    ax1.imshow(Z.astype('<f8'), **kwargs)
+    ax2.imshow(Z.astype('>f8'), **kwargs)
+
+
+if __name__ == '__main__':
+    nose.runmodule(argv=['-s', '--with-doctest'], exit=False)
