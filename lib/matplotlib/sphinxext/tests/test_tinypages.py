@@ -80,6 +80,6 @@ class TestTinyPages(object):
         # Plot 13 shows close-figs in action
         assert_true(file_same(range_4, plot_file(13)))
         # Plot 14 has included source
-        with open(pjoin(self.html_dir, 'some_plots.html'), 'rt') as fobj:
+        with open(pjoin(self.html_dir, 'some_plots.html'), 'rb') as fobj:
             html_contents = fobj.read()
-        assert_true('# Only a comment' in html_contents)
+        assert_true(b'# Only a comment' in html_contents)
