@@ -30,7 +30,6 @@ Advanced git workflow
 There are many ways of working with git_; here are some posts on the
 rules of thumb that other projects have come up with:
 
-* Linus Torvalds on `git management`_
 * Linus Torvalds on `linux git workflow`_ .  Summary; use the git tools
   to make the history of your edits as clean as possible; merge from
   upstream edits as little as possible in branches where you are doing

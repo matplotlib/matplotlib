@@ -2049,8 +2049,7 @@ been, thanks to improved `software carpentry
 <http://code.google.com/p/python-nose/>`__ regression tests on every
 svn commit, auto-generating a set of images and comparing them against
 a set of known-goods, sending emails to developers on failures with a
-pixel-by-pixel `image comparison
-<http://mpl.code.astraw.com/overview.html>`__.  Releases and release
+pixel-by-pixel image comparison.  Releases and release
 bugfixes happen in branches, allowing active new feature development
 to happen in the trunk while keeping the release branches stable.
 Thanks to Andrew Straw, Michael Droettboom and other matplotlib
