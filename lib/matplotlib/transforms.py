@@ -2029,7 +2029,7 @@ class Affine2D(Affine2DBase):
 
 class IdentityTransform(Affine2DBase):
     """
-    A special class that does on thing, the identity transform, in a
+    A special class that does one thing, the identity transform, in a
     fast way.
     """
     _mtx = np.identity(3)
