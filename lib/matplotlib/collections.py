@@ -1741,18 +1741,15 @@ class QuadMesh(Collection):
         Collection.__init__(self, **kwargs)
         self._meshWidth = meshWidth
         self._meshHeight = meshHeight
-        self._coordinates = coordinates
+        # By converting to floats now, we can avoid that on every draw.
+        self._coordinates = np.asarray(coordinates, float).reshape(
+            (meshHeight + 1, meshWidth + 1, 2))
         self._antialiased = antialiased
         self._shading = shading
 
         self._bbox = transforms.Bbox.unit()
         self._bbox.update_from_data_xy(coordinates.reshape(
             ((meshWidth + 1) * (meshHeight + 1), 2)))
-
-        # By converting to floats now, we can avoid that on every draw.
-        self._coordinates = self._coordinates.reshape(
-            (meshHeight + 1, meshWidth + 1, 2))
-        self._coordinates = np.array(self._coordinates, float)
 
     def get_paths(self):
         if self._paths is None:
