@@ -11,6 +11,25 @@ sources of the changes you are experiencing.
 For new features that were added to matplotlib, please see
 :ref:`whats-new`.
 
+Changes in 1.5.2
+================
+
+
+Default Behavior Changes
+------------------------
+
+Changed default ``autorange`` behavior in boxplots
+``````````````````````````````````````````````````
+
+Prior to v1.5.2, the whiskers of boxplots would extend to the mininum
+and maximum values if the quartiles were all equal (i.e., Q1 = median
+= Q3). This behavior has been disabled by default to restore consistency
+with other plotting packages.
+
+To restore the old behavior, simply set ``autorange=True`` when
+calling ``plt.boxplot``.
+
+
 Changes in 1.5.0
 ================
 
@@ -72,7 +91,7 @@ by the new keyword argument `corner_mask`, or if this is not specified then
 the new rcParam `contour.corner_mask` instead.  The new default behaviour is
 equivalent to using `corner_mask=True`; the previous behaviour can be obtained
 using `corner_mask=False` or by changing the rcParam.  The example
-http://matplotlib.org/examples/pylab_examples/contour_corner_mask.py
+http://matplotlib.org/examples/pylab_examples/contour_corner_mask.html
 demonstrates the difference.  Use of the old contouring algorithm, which is
 obtained with `corner_mask='legacy'`, is now deprecated.
 
