@@ -148,8 +148,7 @@ after_test:
   - cmd: path
   - cmd: where python
   - cmd: '%CMD_IN_ENV% conda config --get channels'
-  # currently disabled as conda-build errors :-(
-  #- cmd: '%CMD_IN_ENV% conda build -q .\ci\conda_recipe'
+  - cmd: '%CMD_IN_ENV% conda build -q .\ci\conda_recipe'
 
   # Move the conda package into the dist directory, to register it
   # as an "artifact" for Appveyor.
