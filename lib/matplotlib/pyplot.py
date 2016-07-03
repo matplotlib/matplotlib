@@ -2146,7 +2146,7 @@ def colormaps():
     .. [#] Rainbow colormaps, ``jet`` in particular, are considered a poor
       choice for scientific visualization by many researchers: `Rainbow Color
       Map (Still) Considered Harmful
-      <http://www.jwave.vt.edu/%7Erkriz/Projects/create_color_table/color_07.pdf>`_
+      <http://ieeexplore.ieee.org/xpl/articleDetails.jsp?arnumber=4118486>`_
 
     .. [#] Resembles "BkBlAqGrYeOrReViWh200" from NCAR Command
       Language. See `Color Table Gallery
