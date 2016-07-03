@@ -80,7 +80,7 @@ application, GTKAgg uses the Anti-Grain renderer to create a figure
 and embed it in a Gtk+ application, and so on for `PDF
 <http://www.adobe.com/products/acrobat/adobepdf.html>`_, `WxWidgets
 <http://www.wxpython.org/>`_, `Tkinter
-<http://docs.python.org/lib/module-Tkinter.html>`_, etc.
+<https://docs.python.org/library/tkinter.html>`_, etc.
 
 matplotlib is used by many people in many different contexts.  Some
 people want to automatically generate PostScript files to send

@@ -84,5 +84,5 @@ changes, you can write something like the following::
 
 
 .. _matplotlibrc: http://matplotlib.org/users/customizing.html
-.. _ggplot: http://had.co.nz/ggplot/
+.. _ggplot: http://had.co.nz/ggplot2/
 .. _R: http://www.r-project.org/
