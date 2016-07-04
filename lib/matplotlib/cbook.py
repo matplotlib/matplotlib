@@ -788,11 +788,12 @@ def _string_to_bool(s):
     """Parses the string argument as a boolean"""
     if not is_string_like(s):
         return bool(s)
-    if s.lower() == 'on':
+    if s.lower() in ['on', 'true']:
         return True
-    if s.lower() == 'off':
+    if s.lower() in ['off', 'false']:
         return False
-    raise ValueError('String "%s" must be either "on" or "off"' % s)
+    raise ValueError('String "%s" must be one of: '
+                     '"on", "off", "true", or "false"' % s)
 
 
 def get_sample_data(fname, asfileobj=True):
