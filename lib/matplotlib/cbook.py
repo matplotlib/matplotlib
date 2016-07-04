@@ -785,13 +785,14 @@ def is_scalar_or_string(val):
 
 
 def _string_to_bool(s):
+    """Parses the string argument as a boolean"""
     if not is_string_like(s):
-        return s
-    if s == 'on':
+        return bool(s)
+    if s.lower() == 'on':
         return True
-    if s == 'off':
+    if s.lower() == 'off':
         return False
-    raise ValueError("string argument must be either 'on' or 'off'")
+    raise ValueError('String "%s" must be either "on" or "off"' % s)
 
 
 def get_sample_data(fname, asfileobj=True):

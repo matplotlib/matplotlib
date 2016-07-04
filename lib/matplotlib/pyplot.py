@@ -29,8 +29,8 @@ import matplotlib
 import matplotlib.colorbar
 from matplotlib import style
 from matplotlib import _pylab_helpers, interactive
-from matplotlib.cbook import dedent, silent_list, is_string_like, is_numlike
-from matplotlib.cbook import _string_to_bool
+from matplotlib.cbook import (dedent, silent_list, is_string_like, is_numlike,
+                              _string_to_bool)
 from matplotlib import docstring
 from matplotlib.backend_bases import FigureCanvasBase
 from matplotlib.figure import Figure, figaspect
