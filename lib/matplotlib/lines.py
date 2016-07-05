@@ -370,8 +370,7 @@ class Line2D(Artist):
 
         self._color = None
         self.set_color(color)
-        self._marker = MarkerStyle()
-        self.set_marker(marker)
+        self._marker = MarkerStyle(marker, fillstyle)
 
         self._markevery = None
         self._markersize = None
@@ -390,8 +389,6 @@ class Line2D(Artist):
         self.set_markerfacecoloralt(markerfacecoloralt)
         self.set_markeredgecolor(markeredgecolor)
         self.set_markeredgewidth(markeredgewidth)
-
-        self.set_fillstyle(fillstyle)
 
         self.verticalOffset = None
 
