@@ -175,11 +175,12 @@ class MarkerStyle(object):
         fillstyle : string, optional, default: 'full'
             'full', 'left", 'right', 'bottom', 'top', 'none'
         """
-        # The fillstyle has to be set here as it might be accessed by calls to
-        # _recache() in set_marker.
-        self._fillstyle = fillstyle
-        self.set_marker(marker)
+        # The _recache() is called in both set_fillstyle() and set_marker()
+        # methods that's why here we have to have either marker or fillstyle
+        # preinitialized before setting other.
+        self._marker = None
         self.set_fillstyle(fillstyle)
+        self.set_marker(marker)
 
     def __getstate__(self):
         d = self.__dict__.copy()
@@ -229,7 +230,9 @@ class MarkerStyle(object):
             raise ValueError("Unrecognized fillstyle %s"
                              % ' '.join(self.fillstyles))
         self._fillstyle = fillstyle
-        self._recache()
+        # do not call _recache() if marker is not yet set up
+        if self._marker is not None:
+            self._recache()
 
     def get_joinstyle(self):
         return self._joinstyle
