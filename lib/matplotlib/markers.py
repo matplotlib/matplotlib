@@ -190,7 +190,6 @@ class MarkerStyle(object):
     def __setstate__(self, statedict):
         self.__dict__ = statedict
         self.set_marker(self._marker)
-        self._recache()
 
     def _recache(self):
         self._path = _empty_path
