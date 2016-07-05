@@ -23,13 +23,16 @@ environment:
       CONDA_PY: "27"
       CONDA_NPY: "18"
       PYTHON_VERSION: "2.7"
-      TEST_ALL_IMAGES: "no"
+      # this variable only influence pdf/svg tests, png tests are run on any platform
+      # only once, because it basically triples the testing times
+      # pick the one which seems to make the most problems
+      TEST_ALL_IMAGES: "yes"
       CONDA_INSTALL_LOCN: "C:\\Miniconda"
     - TARGET_ARCH: "x64"
       CONDA_PY: "27"
       CONDA_NPY: "18"
       PYTHON_VERSION: "2.7"
-      TEST_ALL_IMAGES: "yes" # only once, pick the one which made the most problems
+      TEST_ALL_IMAGES: "no"
       CONDA_INSTALL_LOCN: "C:\\Miniconda-x64"
     - TARGET_ARCH: "x64"
       CONDA_PY: "34"
