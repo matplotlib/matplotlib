@@ -356,21 +356,42 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
         if not unsampled:
             created_rgba_mask = False
 
+            if A.ndim not in (2, 3):
+                raise ValueError("Invalid dimensions, got %s" % (A.shape,))
+
             if A.ndim == 2:
                 A = self.norm(A)
-                # If the image is greyscale, convert to RGBA with the
-                # correct alpha channel for resizing
-                rgba = np.empty((A.shape[0], A.shape[1], 4), dtype=A.dtype)
-                rgba[..., 0:3] = np.expand_dims(A, 2)
                 if A.dtype.kind == 'f':
-                    rgba[..., 3] = ~A.mask
+                    # If the image is greyscale, convert to RGBA and
+                    # use the extra channels for resizing the over,
+                    # under, and bad pixels.  This is needed because
+                    # Agg's resampler is very aggressive about
+                    # clipping to [0, 1] and we use out-of-bounds
+                    # values to carry the over/under/bad information
+                    rgba = np.empty((A.shape[0], A.shape[1], 4), dtype=A.dtype)
+                    rgba[..., 0] = A  # normalized data
+                    rgba[..., 1] = A < 0  # under data
+                    rgba[..., 2] = A > 1  # over data
+                    rgba[..., 3] = ~A.mask  # bad data
+                    A = rgba
+                    output = np.zeros((out_height, out_width, 4),
+                                      dtype=A.dtype)
+                    alpha = 1.0
+                    created_rgba_mask = True
                 else:
-                    rgba[..., 3] = np.where(A.mask, 0, np.iinfo(A.dtype).max)
-                A = rgba
-                output = np.zeros((out_height, out_width, 4), dtype=A.dtype)
-                alpha = 1.0
-                created_rgba_mask = True
-            elif A.ndim == 3:
+                    # colormap norms that output integers (ex NoNorm
+                    # and BoundaryNorm) to RGBA space before
+                    # interpolating.  This is needed due to the
+                    # Agg resampler only working on floats in the
+                    # range [0, 1] and because interpolating indexes
+                    # into an arbitrary LUT may be problematic.
+                    #
+                    # This falls back to interpolating in RGBA space which
+                    # can produce it's own artifacts of colors not in the map
+                    # showing up in the final image.
+                    A = self.cmap(A, alpha=self.get_alpha(), bytes=True)
+
+            if not created_rgba_mask:
                 # Always convert to RGBA, even if only RGB input
                 if A.shape[2] == 3:
                     A = _rgb_to_rgba(A)
@@ -382,8 +403,6 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
                 alpha = self.get_alpha()
                 if alpha is None:
                     alpha = 1.0
-            else:
-                raise ValueError("Invalid dimensions, got %s" % (A.shape,))
 
             _image.resample(
                 A, output, t, _interpd_[self.get_interpolation()],
@@ -393,8 +412,13 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
             if created_rgba_mask:
                 # Convert back to a masked greyscale array so
                 # colormapping works correctly
+                hid_output = output
                 output = np.ma.masked_array(
-                    output[..., 0], output[..., 3] < 0.5)
+                    hid_output[..., 0], hid_output[..., 3] < 0.5)
+                # relabel under data
+                output[hid_output[..., 1] > .5] = -1
+                # relabel over data
+                output[hid_output[..., 2] > .5] = 2
 
             output = self.to_rgba(output, bytes=True, norm=False)
 
