@@ -684,7 +684,7 @@ class Path(object):
             codes[-1] = cls.CLOSEPOLY
             path = cls(verts, codes, readonly=True)
             if numVertices <= 16:
-                cls._unit_regular_polygons[(numVertices, innerCircle)] = path
+                cls._unit_regular_stars[(numVertices, innerCircle)] = path
         return path
 
     @classmethod
