@@ -918,8 +918,6 @@ class Normalize(object):
         elif vmin > vmax:
             raise ValueError("minvalue must be less than or equal to maxvalue")
         else:
-            vmin = float(vmin)
-            vmax = float(vmax)
             if clip:
                 mask = np.ma.getmask(result)
                 result = np.ma.array(np.clip(result.filled(vmax), vmin, vmax),
@@ -938,8 +936,7 @@ class Normalize(object):
     def inverse(self, value):
         if not self.scaled():
             raise ValueError("Not invertible until scaled")
-        vmin = float(self.vmin)
-        vmax = float(self.vmax)
+        vmin, vmax = self.vmin, self.vmax
 
         if cbook.iterable(value):
             val = np.ma.asarray(value)

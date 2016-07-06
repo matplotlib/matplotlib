@@ -194,6 +194,11 @@ def test_Normalize():
     _scalar_tester(norm, vals)
     _mask_tester(norm, vals)
 
+    # Don't lose precision on longdoubles (float128 on Linux).
+    vals = np.array([1.2345678901, 9.8765432109], dtype=np.longdouble)
+    norm = mcolors.Normalize(vals.min(), vals.max())
+    assert_array_equal(np.asarray(norm(vals)), [0, 1])
+
 
 def test_SymLogNorm():
     """
