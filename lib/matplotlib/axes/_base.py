@@ -2470,7 +2470,8 @@ class _AxesBase(martist.Artist):
         """
         if len(kwargs):
             b = True
-        b = _string_to_bool(b)
+        elif b is not None:
+            b = _string_to_bool(b)
 
         if axis == 'x' or axis == 'both':
             self.xaxis.grid(b, which=which, **kwargs)

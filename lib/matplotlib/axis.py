@@ -10,6 +10,7 @@ from matplotlib import rcParams
 import matplotlib.artist as artist
 from matplotlib.artist import allow_rasterization
 import matplotlib.cbook as cbook
+from matplotlib.cbook import _string_to_bool
 import matplotlib.font_manager as font_manager
 import matplotlib.lines as mlines
 import matplotlib.patches as mpatches
@@ -802,17 +803,6 @@ class Axis(artist.Artist):
 
     @staticmethod
     def _translate_tick_kw(kw, to_init_kw=True):
-        # We may want to move the following function to
-        # a more visible location; or maybe there already
-        # is something like this.
-        def _bool(arg):
-            if cbook.is_string_like(arg):
-                if arg.lower() == 'on':
-                    return True
-                if arg.lower() == 'off':
-                    return False
-                raise ValueError('String "%s" should be "on" or "off"' % arg)
-            return bool(arg)
         # The following lists may be moved to a more
         # accessible location.
         kwkeys0 = ['size', 'width', 'color', 'tickdir', 'pad',
@@ -828,22 +818,22 @@ class Axis(artist.Artist):
             if 'direction' in kw:
                 kwtrans['tickdir'] = kw.pop('direction')
             if 'left' in kw:
-                kwtrans['tick1On'] = _bool(kw.pop('left'))
+                kwtrans['tick1On'] = _string_to_bool(kw.pop('left'))
             if 'bottom' in kw:
-                kwtrans['tick1On'] = _bool(kw.pop('bottom'))
+                kwtrans['tick1On'] = _string_to_bool(kw.pop('bottom'))
             if 'right' in kw:
-                kwtrans['tick2On'] = _bool(kw.pop('right'))
+                kwtrans['tick2On'] = _string_to_bool(kw.pop('right'))
             if 'top' in kw:
-                kwtrans['tick2On'] = _bool(kw.pop('top'))
+                kwtrans['tick2On'] = _string_to_bool(kw.pop('top'))
 
             if 'labelleft' in kw:
-                kwtrans['label1On'] = _bool(kw.pop('labelleft'))
+                kwtrans['label1On'] = _string_to_bool(kw.pop('labelleft'))
             if 'labelbottom' in kw:
-                kwtrans['label1On'] = _bool(kw.pop('labelbottom'))
+                kwtrans['label1On'] = _string_to_bool(kw.pop('labelbottom'))
             if 'labelright' in kw:
-                kwtrans['label2On'] = _bool(kw.pop('labelright'))
+                kwtrans['label2On'] = _string_to_bool(kw.pop('labelright'))
             if 'labeltop' in kw:
-                kwtrans['label2On'] = _bool(kw.pop('labeltop'))
+                kwtrans['label2On'] = _string_to_bool(kw.pop('labeltop'))
             if 'colors' in kw:
                 c = kw.pop('colors')
                 kwtrans['color'] = c
