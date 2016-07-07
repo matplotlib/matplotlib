@@ -171,7 +171,11 @@ def _to_rgba_no_colorcycle(c, alpha=None):
             return tuple(color)
         # string gray.
         try:
-            return (float(c),) * 3 + (alpha if alpha is not None else 1.,)
+            fc = float(c)
+            if fc <= 1:
+                return (float(fc),) * 3 + (alpha if alpha is not None else 1.,)
+            else:
+                raise ValueError
         except ValueError:
             pass
         raise ValueError("Invalid RGBA argument: {!r}".format(orig_c))
