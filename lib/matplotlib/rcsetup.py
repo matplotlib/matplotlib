@@ -369,9 +369,6 @@ def validate_color(s):
         pass
 
     if isinstance(s, six.string_types):
-        if len(s) == 7 or len(s) == 9:
-            if is_color_like(s):
-                return s
         if len(s) == 6 or len(s) == 8:
             stmp = '#' + s
             if is_color_like(stmp):
