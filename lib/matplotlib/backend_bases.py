@@ -871,16 +871,7 @@ class GraphicsContextBase(object):
 
         Default value is None
         """
-        if rcParams['_internal.classic_mode']:
-            return self._dashes
-        else:
-            scale = max(1.0, self.get_linewidth())
-            offset, dashes = self._dashes
-            if offset is not None:
-                offset = offset * scale
-            if dashes is not None:
-                dashes = [x * scale for x in dashes]
-            return offset, dashes
+        return self._dashes
 
     def get_forced_alpha(self):
         """
@@ -1062,10 +1053,7 @@ class GraphicsContextBase(object):
         `lines.dotted_pattern`.  One may also specify customized dash
         styles by providing a tuple of (offset, dash pairs).
         """
-        offset, dashes = lines.get_dash_pattern(style)
-
         self._linestyle = style
-        self.set_dashes(offset, dashes)
 
     def set_url(self, url):
         """
