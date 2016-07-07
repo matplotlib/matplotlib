@@ -77,9 +77,6 @@ install:
   # Fix the appveyor build environment to work with conda build
   # workaround for missing vcvars64.bat in py34 64bit
   - cmd: copy ci\appveyor\vcvars64.bat "C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\amd64"
-  # workaround for conda build on py27 prefering the normal installed
-  # VS tools instead of the also installed Py27 VS compiler (which wouldn't need this workarounds...)
-  - cmd: copy "C:\Program Files (x86)\Microsoft Visual Studio 9.0\VC\bin\vcvars64.bat" "C:\Program Files (x86)\Microsoft Visual Studio 9.0\VC\bin\amd64\vcvarsamd64.bat"
 
   # For building, use a new environment which only includes the requirements for mpl
   # same things as the requirements in ci/conda_recipe/meta.yaml
