@@ -367,12 +367,19 @@ def validate_color(s):
             return 'None'
     except AttributeError:
         pass
+
+    if isinstance(s, six.string_types):
+        if len(s) == 7 or len(s) == 9:
+            if is_color_like(s):
+                return s
+        if len(s) == 6 or len(s) == 8:
+            stmp = '#' + s
+            if is_color_like(stmp):
+                return stmp
+
     if is_color_like(s):
         return s
-    stmp = '#' + s
 
-    if is_color_like(stmp):
-        return stmp
     # If it is still valid, it must be a tuple.
     colorarg = s
     msg = ''
