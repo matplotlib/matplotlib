@@ -1577,10 +1577,11 @@ def _init_tests():
 
 
 def _get_extra_test_plugins():
+    from .testing.performgc import PerformGC
     from .testing.noseclasses import KnownFailure
     from nose.plugins import attrib
 
-    return [KnownFailure, attrib.Plugin]
+    return [PerformGC, KnownFailure, attrib.Plugin]
 
 
 def _get_nose_env():
