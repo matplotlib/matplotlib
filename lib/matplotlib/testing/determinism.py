@@ -4,6 +4,7 @@ Provides utilities to test output reproducibility.
 
 import io
 import os
+import re
 
 from matplotlib import pyplot as plt
 
@@ -93,7 +94,7 @@ def _test_determinism(objects='mhi', format="pdf"):
         assert_equal(p, plots[0])
 
 
-def _test_source_date_epoch(format, string):
+def _test_source_date_epoch(format, string, keyword=b"CreationDate"):
     """
     Test SOURCE_DATE_EPOCH support. Output a document with the envionment
     variable SOURCE_DATE_EPOCH set to 2000-01-01 00:00 UTC and check that the
@@ -106,6 +107,9 @@ def _test_source_date_epoch(format, string):
         format string, such as "pdf".
     string : str
         timestamp string for 2000-01-01 00:00 UTC.
+    keyword : str
+        a string to look at when searching for the timestamp in the document
+        (used in case the test fails).
     """
     try:
         # save current value of SOURCE_DATE_EPOCH
@@ -115,10 +119,16 @@ def _test_source_date_epoch(format, string):
         x = [1, 2, 3, 4, 5]
         ax.plot(x, x)
         os.environ['SOURCE_DATE_EPOCH'] = "946684800"
+        find_keyword = re.compile(b".*" + keyword + b".*")
         with io.BytesIO() as output:
             fig.savefig(output, format=format)
             output.seek(0)
             buff = output.read()
+            key = find_keyword.search(buff)
+            if key:
+                print(key.group())
+            else:
+                print("Timestamp keyword (%s) not found!" % keyword)
             assert string in buff
         os.environ.pop('SOURCE_DATE_EPOCH', None)
         with io.BytesIO() as output:
