@@ -198,7 +198,7 @@ def test_determinism_all():
 def test_determinism_all_tex():
     """Test for reproducible PS/tex output"""
     matplotlib.rcParams['text.usetex'] = True
-    _test_determinism(format="ps")
+    _test_determinism(format="ps",uid="_tex")
 
 
 if __name__ == '__main__':
