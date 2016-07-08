@@ -880,22 +880,13 @@ class Normalize(object):
         Experimental; we may want to add an option to force the
         use of float32.
         """
-        if cbook.iterable(value):
-            is_scalar = False
-            result = np.ma.asarray(value)
-            if result.dtype.kind == 'f':
-                # this is overkill for lists of floats, but required
-                # to support pd.Series as input until we can reliable
-                # determine if result and value share memory in all cases
-                # (list, tuple, deque, ndarray, Series, ...)
-                result = result.copy()
-            elif result.dtype.itemsize > 2:
-                result = result.astype(float)
-            else:
-                result = result.astype(np.float32)
-        else:
-            is_scalar = True
-            result = np.ma.array([value]).astype(float)
+        is_scalar = not cbook.iterable(value)
+        if is_scalar:
+            value = [value]
+        dtype = np.min_scalar_type(value)
+        dtype = (np.float32 if dtype.itemsize <= 2
+                 else np.promote_types(dtype, float))
+        result = np.ma.array(value, dtype=dtype, copy=True)
         return result, is_scalar
 
     def __call__(self, value, clip=None):
