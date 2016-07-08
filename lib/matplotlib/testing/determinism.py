@@ -60,7 +60,7 @@ def _test_determinism_save(filename, objects='mhi', format="pdf"):
         os.environ['SOURCE_DATE_EPOCH'] = sde
 
 
-def _test_determinism(objects='mhi', format="pdf"):
+def _test_determinism(objects='mhi', format="pdf", uid=""):
     """
     Output three times the same graphs and checks that the outputs are exactly
     the same.
@@ -73,11 +73,14 @@ def _test_determinism(objects='mhi', format="pdf"):
         default value is "mhi", so that the test includes all these objects.
     format : str
         format string. The default value is "pdf".
+    uid : str
+        some string to add to the filename used to store the output. Use it to
+        allow parallel execution of two tests with the same objects parameter.
     """
     import sys
     from subprocess import check_call
     from nose.tools import assert_equal
-    filename = 'determinism_O%s.%s' % (objects, format)
+    filename = 'determinism_O%s%s.%s' % (objects, uid, format)
     plots = []
     for i in range(3):
         check_call([sys.executable, '-R', '-c',
