@@ -114,34 +114,23 @@ def _test_source_date_epoch(format, string, keyword=b"CreationDate"):
         a string to look at when searching for the timestamp in the document
         (used in case the test fails).
     """
-    try:
-        # save current value of SOURCE_DATE_EPOCH
-        sde = os.environ.pop('SOURCE_DATE_EPOCH', None)
-        fig = plt.figure()
-        ax = fig.add_subplot(1, 1, 1)
-        x = [1, 2, 3, 4, 5]
-        ax.plot(x, x)
-        os.environ['SOURCE_DATE_EPOCH'] = "946684800"
-        find_keyword = re.compile(b".*" + keyword + b".*")
-        with io.BytesIO() as output:
-            fig.savefig(output, format=format)
-            output.seek(0)
-            buff = output.read()
-            key = find_keyword.search(buff)
-            if key:
-                print(key.group())
-            else:
-                print("Timestamp keyword (%s) not found!" % keyword)
-            assert string in buff
-        os.environ.pop('SOURCE_DATE_EPOCH', None)
-        with io.BytesIO() as output:
-            fig.savefig(output, format=format)
-            output.seek(0)
-            buff = output.read()
-            assert string not in buff
-    finally:
-        # Restores SOURCE_DATE_EPOCH
-        if sde is None:
-            os.environ.pop('SOURCE_DATE_EPOCH', None)
+    import sys
+    from subprocess import check_call
+    filename = 'test_SDE_on.%s' % format
+    check_call([sys.executable, '-R', '-c',
+                'import matplotlib; '
+                'matplotlib.use(%r); '
+                'from matplotlib.testing.determinism '
+                'import _test_determinism_save;'
+                '_test_determinism_save(%r,%r,%r)'
+                % (format, filename, "", format)])
+    find_keyword = re.compile(b".*" + keyword + b".*")
+    with open(filename, 'rb') as fd:
+        buff = fd.read()
+        key = find_keyword.search(buff)
+        if key:
+            print(key.group())
         else:
-            os.environ['SOURCE_DATE_EPOCH'] = sde
+            print("Timestamp keyword (%s) not found!" % keyword)
+        assert string in buff
+    os.unlink(filename)
