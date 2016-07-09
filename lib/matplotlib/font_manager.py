@@ -596,7 +596,7 @@ def createFontList(fontfiles, fontext='ttf'):
                 continue
             try:
                 prop = ttfFontProperty(font)
-            except (KeyError, RuntimeError):
+            except (KeyError, RuntimeError, ValueError):
                 continue
 
         fontlist.append(prop)
