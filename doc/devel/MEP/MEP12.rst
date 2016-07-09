@@ -184,5 +184,4 @@ navigate the gallery. Thus, tags are complementary to this reorganization.
 .. [2] http://github.com/matplotlib/matplotlib/issues/524
 .. [3] http://matplotlib.1069221.n5.nabble.com/Matplotlib-gallery-td762.html#a33379091
 .. [4] http://www.loria.fr/~rougier/teaching/matplotlib/
-.. [5] http://www.gigawiz.com/aagraphs.html
-.. [6] http://www.loria.fr/~rougier/coding/gallery/
+.. [5] http://www.loria.fr/~rougier/coding/gallery/

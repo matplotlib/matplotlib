@@ -22,11 +22,10 @@ Jeremy O'Donoghue
 Andrew Straw
   Provided much of the log scaling architecture, the fill command, PIL
   support for imshow, and provided many examples.  He also wrote the
-  support for dropped axis spines and the `buildbot
-  <http://mpl-buildbot.code.astraw.com/>`_ unit testing infrastructure
-  which triggers the JPL/James Evans platform specific builds and
-  regression test image comparisons from svn matplotlib across
-  platforms on svn commits.
+  support for dropped axis spines and the original buildbot unit
+  testing infrastructure which triggered the JPL/James Evans platform
+  specific builds and regression test image comparisons from svn
+  matplotlib across platforms on svn commits.
 
 Charles Twardy
   provided the impetus code for the legend class and has made
