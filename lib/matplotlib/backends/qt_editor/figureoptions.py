@@ -15,16 +15,16 @@ import six
 import os.path as osp
 import re
 
+import matplotlib
+from matplotlib import cm, markers, colors as mcolors
 import matplotlib.backends.qt_editor.formlayout as formlayout
 from matplotlib.backends.qt_compat import QtGui
-from matplotlib import cm, markers
-from matplotlib.colors import colorConverter, rgb2hex
 
 
 def get_icon(name):
-    import matplotlib
     basedir = osp.join(matplotlib.rcParams['datapath'], 'images')
     return QtGui.QIcon(osp.join(basedir, name))
+
 
 LINESTYLES = {'-': 'Solid',
               '--': 'Dashed',
@@ -114,23 +114,25 @@ def figure_edit(axes, parent=None):
     curvelabels = sorted(linedict, key=cmp_key)
     for label in curvelabels:
         line = linedict[label]
-        color = rgb2hex(colorConverter.to_rgb(line.get_color()))
-        ec = rgb2hex(colorConverter.to_rgb(line.get_markeredgecolor()))
-        fc = rgb2hex(colorConverter.to_rgb(line.get_markerfacecolor()))
+        color = mcolors.to_hex(
+            mcolors.to_rgba(line.get_color(), line.get_alpha()),
+            keep_alpha=True)
+        ec = mcolors.to_hex(line.get_markeredgecolor(), keep_alpha=True)
+        fc = mcolors.to_hex(line.get_markerfacecolor(), keep_alpha=True)
         curvedata = [
             ('Label', label),
             sep,
             (None, '<b>Line</b>'),
-            ('Line Style', prepare_data(LINESTYLES, line.get_linestyle())),
-            ('Draw Style', prepare_data(DRAWSTYLES, line.get_drawstyle())),
+            ('Line style', prepare_data(LINESTYLES, line.get_linestyle())),
+            ('Draw style', prepare_data(DRAWSTYLES, line.get_drawstyle())),
             ('Width', line.get_linewidth()),
-            ('Color', color),
+            ('Color (RGBA)', color),
             sep,
             (None, '<b>Marker</b>'),
             ('Style', prepare_data(MARKERS, line.get_marker())),
             ('Size', line.get_markersize()),
-            ('Facecolor', fc),
-            ('Edgecolor', ec)]
+            ('Face color (RGBA)', fc),
+            ('Edge color (RGBA)', ec)]
         curves.append([curvedata, label, ""])
     # Is there a curve displayed?
     has_curve = bool(curves)
@@ -206,7 +208,9 @@ def figure_edit(axes, parent=None):
             line.set_linestyle(linestyle)
             line.set_drawstyle(drawstyle)
             line.set_linewidth(linewidth)
-            line.set_color(color)
+            rgba = mcolors.to_rgba(color)
+            line.set_color(rgba[:3])
+            line.set_alpha(rgba[-1])
             if marker is not 'none':
                 line.set_marker(marker)
                 line.set_markersize(markersize)
