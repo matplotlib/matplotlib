@@ -1447,6 +1447,13 @@ def issubclass_safe(x, klass):
 
 def safe_masked_invalid(x, copy=False):
     x = np.array(x, subok=True, copy=copy)
+    if not x.dtype.isnative:
+        # Note that the argument to `byteswap` is 'inplace',
+        # thus if we have already made a copy, do the byteswap in
+        # place, else make a copy with the byte order swapped.
+        # Be explicit that we are swapping the byte order of the dtype
+        x = x.byteswap(copy).newbyteorder('S')
+
     try:
         xm = np.ma.masked_invalid(x, copy=False)
         xm.shrink_mask()
