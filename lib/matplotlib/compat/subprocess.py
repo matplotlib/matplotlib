@@ -29,7 +29,6 @@ else:
 __all__ = ['Popen', 'PIPE', 'STDOUT', 'check_output', 'CalledProcessError']
 
 
-
 if hasattr(subprocess, 'Popen'):
     Popen = subprocess.Popen
     # Assume that it also has the other constants.
