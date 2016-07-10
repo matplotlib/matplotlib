@@ -5,6 +5,7 @@ import inspect
 import warnings
 from contextlib import contextmanager
 
+import matplotlib
 from matplotlib.cbook import is_string_like, iterable
 from matplotlib import rcParams, rcdefaults, use
 
@@ -14,16 +15,31 @@ def _is_list_like(obj):
     return not is_string_like(obj) and iterable(obj)
 
 
+def is_called_from_pytest():
+    """Returns whether the call was done from pytest"""
+    return getattr(matplotlib, '_called_from_pytest', False)
+
+
 def xfail(msg=""):
     """Explicitly fail an currently-executing test with the given message."""
-    from .nose import knownfail
-    knownfail(msg)
+    __tracebackhide__ = True
+    if is_called_from_pytest():
+        import pytest
+        pytest.xfail(msg)
+    else:
+        from .nose import knownfail
+        knownfail(msg)
 
 
 def skip(msg=""):
     """Skip an executing test with the given message."""
-    from nose import SkipTest
-    raise SkipTest(msg)
+    __tracebackhide__ = True
+    if is_called_from_pytest():
+        import pytest
+        pytest.skip(msg)
+    else:
+        from nose import SkipTest
+        raise SkipTest(msg)
 
 
 # stolen from pytest
