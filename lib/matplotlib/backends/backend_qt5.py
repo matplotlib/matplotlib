@@ -23,10 +23,7 @@ from matplotlib._pylab_helpers import Gcf
 from matplotlib.figure import Figure
 
 from matplotlib.widgets import SubplotTool
-try:
-    import matplotlib.backends.qt_editor.figureoptions as figureoptions
-except ImportError:
-    figureoptions = None
+import matplotlib.backends.qt_editor.figureoptions as figureoptions
 
 from .qt_compat import (QtCore, QtGui, QtWidgets, _getSaveFileName,
                         __version__, is_pyqt5)
@@ -589,7 +586,7 @@ class NavigationToolbar2QT(NavigationToolbar2, QtWidgets.QToolBar):
                     a.setCheckable(True)
                 if tooltip_text is not None:
                     a.setToolTip(tooltip_text)
-                if figureoptions is not None and text == 'Subplots':
+                if text == 'Subplots':
                     a = self.addAction(self._icon("qt4_editor_options.png"),
                                        'Customize', self.edit_parameters)
                     a.setToolTip('Edit axis, curve and image parameters')
@@ -620,43 +617,31 @@ class NavigationToolbar2QT(NavigationToolbar2, QtWidgets.QToolBar):
             self.layout().setSpacing(12)
             self.setMinimumHeight(48)
 
-    if figureoptions is not None:
-        def edit_parameters(self):
-            allaxes = self.canvas.figure.get_axes()
-            if not allaxes:
-                QtWidgets.QMessageBox.warning(
-                    self.parent, "Error", "There are no axes to edit.")
-                return
-            if len(allaxes) == 1:
-                axes = allaxes[0]
+    def edit_parameters(self):
+        allaxes = self.canvas.figure.get_axes()
+        if not allaxes:
+            QtWidgets.QMessageBox.warning(
+                self.parent, "Error", "There are no axes to edit.")
+            return
+        if len(allaxes) == 1:
+            axes = allaxes[0]
+        else:
+            titles = []
+            for axes in allaxes:
+                name = (axes.get_title() or
+                        " - ".join(filter(None, [axes.get_xlabel(),
+                                                 axes.get_ylabel()])) or
+                        "<anonymous {} (id: {:#x})>".format(
+                            type(axes).__name__, id(axes)))
+                titles.append(name)
+            item, ok = QtWidgets.QInputDialog.getItem(
+                self.parent, 'Customize', 'Select axes:', titles, 0, False)
+            if ok:
+                axes = allaxes[titles.index(six.text_type(item))]
             else:
-                titles = []
-                for axes in allaxes:
-                    title = axes.get_title()
-                    ylabel = axes.get_ylabel()
-                    label = axes.get_label()
-                    if title:
-                        fmt = "%(title)s"
-                        if ylabel:
-                            fmt += ": %(ylabel)s"
-                        fmt += " (%(axes_repr)s)"
-                    elif ylabel:
-                        fmt = "%(axes_repr)s (%(ylabel)s)"
-                    elif label:
-                        fmt = "%(axes_repr)s (%(label)s)"
-                    else:
-                        fmt = "%(axes_repr)s"
-                    titles.append(fmt % dict(title=title,
-                                         ylabel=ylabel, label=label,
-                                         axes_repr=repr(axes)))
-                item, ok = QtWidgets.QInputDialog.getItem(
-                    self.parent, 'Customize', 'Select axes:', titles, 0, False)
-                if ok:
-                    axes = allaxes[titles.index(six.text_type(item))]
-                else:
-                    return
+                return
 
-            figureoptions.figure_edit(axes, self)
+        figureoptions.figure_edit(axes, self)
 
     def _update_buttons_checked(self):
         # sync button checkstates to match active mode
