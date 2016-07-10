@@ -749,7 +749,7 @@ class Axes3D(Axes):
         get_xlim.__doc__ += """
             .. versionchanged :: 1.1.0
                 This function now correctly refers to the 3D x-limits
-            """"
+            """
 
     def get_ylim3d(self):
         return self.xy_viewLim.intervaly
