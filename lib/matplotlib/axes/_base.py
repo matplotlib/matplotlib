@@ -1732,6 +1732,8 @@ class _AxesBase(martist.Artist):
         Returns the image.
         """
         self._set_artist_props(image)
+        if not image.get_label():
+            image.set_label('_image%d' % len(self.images))
         self.images.append(image)
         image._remove_method = lambda h: self.images.remove(h)
         self.stale = True
