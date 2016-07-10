@@ -114,9 +114,9 @@ def figure_edit(axes, parent=None):
     curvelabels = sorted(linedict, key=cmp_key)
     for label in curvelabels:
         line = linedict[label]
-        color = rgb2hex(colorConverter.to_rgb(line.get_color()))
-        ec = rgb2hex(colorConverter.to_rgb(line.get_markeredgecolor()))
-        fc = rgb2hex(colorConverter.to_rgb(line.get_markerfacecolor()))
+        color = rgb2hex(colorConverter.to_rgba(line.get_color()))
+        ec = rgb2hex(colorConverter.to_rgba(line.get_markeredgecolor()))
+        fc = rgb2hex(colorConverter.to_rgba(line.get_markerfacecolor()))
         curvedata = [
             ('Label', label),
             sep,
