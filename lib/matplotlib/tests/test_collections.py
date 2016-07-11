@@ -618,6 +618,7 @@ def test_size_in_xy():
     ax.set_ylim(0, 30)
 
 
+@cleanup
 def test_pandas_indexing():
     try:
         import pandas as pd
