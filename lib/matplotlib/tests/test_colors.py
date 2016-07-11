@@ -17,7 +17,7 @@ import numpy as np
 from numpy.testing.utils import assert_array_equal, assert_array_almost_equal
 from nose.plugins.skip import SkipTest
 
-from cycler import cycler
+from matplotlib import cycler
 import matplotlib
 import matplotlib.colors as mcolors
 import matplotlib.cm as cm
@@ -601,6 +601,14 @@ def test_cn():
                                                     ['xkcd:blue', 'r'])
     assert mcolors.to_hex("C0") == '#0343df'
     assert mcolors.to_hex("C1") == '#ff0000'
+
+    matplotlib.rcParams['axes.prop_cycle'] = cycler('color', ['8e4585', 'r'])
+
+    assert mcolors.to_hex("C0") == '#8e4585'
+    # if '8e4585' gets parsed as a float before it gets detected as a hex
+    # colour it will be interpreted as a very large number.
+    # this mustn't happen.
+    assert mcolors.to_rgb("C0")[0] != np.inf
 
 
 def test_conversions():
