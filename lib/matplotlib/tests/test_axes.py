@@ -4560,7 +4560,6 @@ def test_bar_color_cycle():
         ln, = ax.plot(range(3))
         brs = ax.bar(range(3), range(3))
         for br in brs:
-            print(ln.get_color(), br.get_facecolor())
             assert ccov(ln.get_color()) == ccov(br.get_facecolor())
 
 
