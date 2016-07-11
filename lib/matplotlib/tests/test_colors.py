@@ -618,8 +618,9 @@ def test_cn():
     matplotlib.rcParams['axes.prop_cycle'] = cycler('color', ['8e4585', 'r'])
 
     assert mcolors.to_hex("C0") == '#8e4585'
-    # if '8e4585' gets parsed as a float before it gets detected as a hex colour it will be interpreted as a very
-    # large number. this mustn't happen.
+    # if '8e4585' gets parsed as a float before it gets detected as a hex
+    # colour it will be interpreted as a very large number.
+    # this mustn't happen.
     assert mcolors.to_rgb("C0")[0] != np.inf
 
 
