@@ -100,9 +100,9 @@ def _test_determinism(objects='mhi', format="pdf", uid=""):
 def _test_source_date_epoch(format, string, keyword=b"CreationDate"):
     """
     Test SOURCE_DATE_EPOCH support. Output a document with the envionment
-    variable SOURCE_DATE_EPOCH set to 2000-12-15 10:10:10 UTC and check that the
-    document contains the timestamp that corresponds to this date (given as an
-    argument).
+    variable SOURCE_DATE_EPOCH set to 2000-12-15 10:10:10 UTC and check that
+    the document contains the timestamp that corresponds to this date (given as
+    an argument).
 
     Parameters
     ----------
