@@ -1386,8 +1386,8 @@ class FuncTools32(SetupPackage):
                 import functools32
             except ImportError:
                 return (
-                    "functools32 was not found. It is required for for"
-                    "python versions prior to 3.2")
+                    "functools32 was not found. It is required for"
+                    "Python versions prior to 3.2")
 
             return "using functools32"
         else:
@@ -1396,6 +1396,30 @@ class FuncTools32(SetupPackage):
     def get_install_requires(self):
         if sys.version_info[:2] < (3, 2):
             return ['functools32']
+        else:
+            return []
+
+
+class Subprocess32(SetupPackage):
+    name = "subprocess32"
+
+    def check(self):
+        if sys.version_info[:2] < (3, 2):
+            try:
+                import subprocess32
+            except ImportError:
+                return (
+                    "subprocess32 was not found. It used "
+                    " for Python versions prior to 3.2 to improves"
+                    " functionality on Linux and OSX")
+
+            return "using subprocess32"
+        else:
+            return "Not required"
+
+    def get_install_requires(self):
+        if sys.version_info[:2] < (3, 2) and os.name == 'posix':
+            return ['subprocess32']
         else:
             return []
 
