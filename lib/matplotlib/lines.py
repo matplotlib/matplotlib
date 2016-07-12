@@ -476,6 +476,8 @@ class Line2D(Artist):
             else:
                 # If line, return the nearby segment(s)
                 ind = segment_hits(mouseevent.x, mouseevent.y, xt, yt, pixels)
+                if self._drawstyle.startswith("steps"):
+                    ind //= 2
 
         ind += self.ind_offset
 
@@ -677,7 +679,8 @@ class Line2D(Artist):
         else:
             interpolation_steps = 1
         xy = STEP_LOOKUP_MAP[self._drawstyle](*self._xy.T)
-        self._path = Path(np.asarray(xy).T, None, interpolation_steps)
+        self._path = Path(np.asarray(xy).T,
+                          _interpolation_steps=interpolation_steps)
         self._transformed_path = None
         self._invalidx = False
         self._invalidy = False
@@ -690,8 +693,9 @@ class Line2D(Artist):
         """
         # Masked arrays are now handled by the Path class itself
         if subslice is not None:
-            _steps = self._path._interpolation_steps
-            _path = Path(self._xy[subslice, :], _interpolation_steps=_steps)
+            xy = STEP_LOOKUP_MAP[self._drawstyle](*self._xy[subslice, :].T)
+            _path = Path(np.asarray(xy).T,
+                         _interpolation_steps=self._path._interpolation_steps)
         else:
             _path = self._path
         self._transformed_path = TransformedPath(_path, self.get_transform())
