@@ -559,8 +559,10 @@ def createFontList(fontfiles, fontext='ttf'):
     for fpath in fontfiles:
         verbose.report('createFontDict: %s' % (fpath), 'debug')
         fname = os.path.split(fpath)[1]
-        if fname in seen:  continue
-        else: seen[fname] = 1
+        if fname in seen:
+            continue
+        else:
+            seen[fname] = 1
         if fontext == 'afm':
             try:
                 fh = open(fpath, 'rb')
@@ -573,7 +575,7 @@ def createFontList(fontfiles, fontext='ttf'):
                 finally:
                     fh.close()
             except RuntimeError:
-                verbose.report("Could not parse font file %s"%fpath)
+                verbose.report("Could not parse font file %s" % fpath)
                 continue
             try:
                 prop = afmFontProperty(fpath, font)
@@ -583,19 +585,20 @@ def createFontList(fontfiles, fontext='ttf'):
             try:
                 font = ft2font.FT2Font(fpath)
             except RuntimeError:
-                verbose.report("Could not open font file %s"%fpath)
+                verbose.report("Could not open font file %s" % fpath)
                 continue
             except UnicodeError:
                 verbose.report("Cannot handle unicode filenames")
-                #print >> sys.stderr, 'Bad file is', fpath
+                # print >> sys.stderr, 'Bad file is', fpath
                 continue
             try:
                 prop = ttfFontProperty(font)
-            except (KeyError, RuntimeError):
+            except (KeyError, RuntimeError, ValueError):
                 continue
 
         fontlist.append(prop)
     return fontlist
+
 
 class FontProperties(object):
     """
