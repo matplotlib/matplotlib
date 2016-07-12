@@ -217,7 +217,6 @@ def test_pep8_conformance_installed_files():
                           'tests/test_subplots.py',
                           'tests/test_tightlayout.py',
                           'tests/test_triangulation.py',
-                          'compat/subprocess.py',
                           'backends/__init__.py',
                           'backends/backend_agg.py',
                           'backends/backend_cairo.py',
