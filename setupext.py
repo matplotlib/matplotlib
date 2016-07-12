@@ -2017,23 +2017,21 @@ class Ghostscript(SetupPackage):
     optional = True
 
     def check(self):
-        try:
-            if sys.platform == 'win32':
-                command = 'gswin32c --version'
-                try:
-                    output = check_output(command, shell=True,
-                                          stderr=subprocess.STDOUT)
-                except subprocess.CalledProcessError:
-                    command = 'gswin64c --version'
-                    output = check_output(command, shell=True,
-                                          stderr=subprocess.STDOUT)
-            else:
-                command = 'gs --version'
+        if sys.platform == 'win32':
+            # mgs is the name in miktex
+            gs_execs = ['gswin32c', 'gswin64c', 'mgs', 'gs']
+        else:
+            gs_execs = ['gs']
+        for gs_exec in gs_execs:
+            try:
+                command = gs_exec + ' --version'
                 output = check_output(command, shell=True,
                                       stderr=subprocess.STDOUT)
-            return "version %s" % output.decode()[:-1]
-        except (IndexError, ValueError, subprocess.CalledProcessError):
-            raise CheckFailed()
+                return "version %s" % output.decode()[:-1]
+            except (IndexError, ValueError, subprocess.CalledProcessError):
+                pass
+
+        raise CheckFailed()
 
 
 class LaTeX(SetupPackage):
