@@ -50,6 +50,4 @@ if __name__ == '__main__':
         disable_internet.turn_off_internet()
         extra_args.extend(['--eval-attr="not network"'])
 
-    print('Python byte-compilation optimization level: %d' % sys.flags.optimize)
-
     run(extra_args)
