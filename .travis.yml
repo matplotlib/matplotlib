@@ -43,6 +43,7 @@ env:
     - NPROC=2
     - TEST_ARGS=--no-pep8
     - NOSE_ARGS="--processes=$NPROC --process-timeout=300"
+    - PYTHON_ARGS=
 
 language: python
 
@@ -51,6 +52,7 @@ matrix:
     - python: 2.7
       env: MOCK=mock NUMPY=numpy==1.6
     - python: 3.4
+      env: PYTHON_ARGS=-OO
     - python: 3.5
       env: PANDAS=pandas NOSE_ARGS=--with-coverage
     - python: 3.5
@@ -140,7 +142,7 @@ script:
       if [[ $TRAVIS_OS_NAME == 'osx' ]]; then
         python tests.py $NOSE_ARGS $TEST_ARGS
       else 
-        gdb -return-child-result -batch -ex r -ex bt --args python tests.py $NOSE_ARGS $TEST_ARGS
+        gdb -return-child-result -batch -ex r -ex bt --args python $PYTHON_ARGS tests.py $NOSE_ARGS $TEST_ARGS
       fi
     else
       cd doc
