@@ -114,7 +114,7 @@ def test_composite_image():
 @cleanup
 def test_source_date_epoch():
     """Test SOURCE_DATE_EPOCH support for PDF output"""
-    _test_source_date_epoch("pdf", b"/CreationDate (D:20001215101010Z)")
+    _test_source_date_epoch("pdf", b"/CreationDate (D:20000101000000Z)")
 
 
 @cleanup
