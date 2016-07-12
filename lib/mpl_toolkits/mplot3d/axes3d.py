@@ -746,19 +746,21 @@ class Axes3D(Axes):
         return self.xy_viewLim.intervalx
     get_xlim3d.__doc__ = maxes.Axes.get_xlim.__doc__
     get_xlim = get_xlim3d
-    get_xlim.__doc__ += """
-        .. versionchanged :: 1.1.0
-            This function now correctly refers to the 3D x-limits
-        """
+    if get_xlim.__doc__ is not None:
+        get_xlim.__doc__ += """
+            .. versionchanged :: 1.1.0
+                This function now correctly refers to the 3D x-limits
+            """
 
     def get_ylim3d(self):
         return self.xy_viewLim.intervaly
     get_ylim3d.__doc__ = maxes.Axes.get_ylim.__doc__
     get_ylim = get_ylim3d
-    get_ylim.__doc__ += """
-        .. versionchanged :: 1.1.0
-            This function now correctly refers to the 3D y-limits.
-        """
+    if get_ylim.__doc__ is not None:
+        get_ylim.__doc__ += """
+            .. versionchanged :: 1.1.0
+                This function now correctly refers to the 3D y-limits.
+            """
 
     def get_zlim3d(self):
         '''Get 3D z limits.'''
@@ -780,22 +782,24 @@ class Axes3D(Axes):
         self.xaxis._set_scale(value, **kwargs)
         self.autoscale_view(scaley=False, scalez=False)
         self._update_transScale()
-    set_xscale.__doc__ = maxes.Axes.set_xscale.__doc__ + """
+    if maxes.Axes.set_xscale.__doc__ is not None:
+        set_xscale.__doc__ = maxes.Axes.set_xscale.__doc__ + """
 
-        .. versionadded :: 1.1.0
-            This function was added, but not tested. Please report any bugs.
-        """
+            .. versionadded :: 1.1.0
+                This function was added, but not tested. Please report any bugs.
+            """
 
     def set_yscale(self, value, **kwargs) :
         self.yaxis._set_scale(value, **kwargs)
         self.autoscale_view(scalex=False, scalez=False)
         self._update_transScale()
         self.stale = True
-    set_yscale.__doc__ = maxes.Axes.set_yscale.__doc__ + """
+    if maxes.Axes.set_yscale.__doc__ is not None:
+        set_yscale.__doc__ = maxes.Axes.set_yscale.__doc__ + """
 
-        .. versionadded :: 1.1.0
-            This function was added, but not tested. Please report any bugs.
-        """
+            .. versionadded :: 1.1.0
+                This function was added, but not tested. Please report any bugs.
+            """
 
     @docstring.dedent_interpd
     def set_zscale(self, value, **kwargs) :

@@ -53,4 +53,6 @@ if __name__ == '__main__':
         extra_args.extend(['-a', '!network'])
         sys.argv.remove('--no-network')
 
+    print('Python byte-compilation optimization level: %d' % sys.flags.optimize)
+
     run(extra_args)
