@@ -29,6 +29,7 @@ env:
     - PANDAS=
     - NPROC=2
     - TEST_ARGS=--no-pep8
+    - PYTHON_ARGS=
 
 language: python
 
@@ -37,6 +38,7 @@ matrix:
     - python: 2.7
       env: MOCK=mock NUMPY=numpy==1.6
     - python: 3.4
+      env: PYTHON_ARGS=-OO
     - python: 3.5
       env: PANDAS=pandas
     - python: 3.5
@@ -104,7 +106,7 @@ script:
   - |
     if [[ $BUILD_DOCS == false ]]; then
       export MPL_REPO_DIR=$PWD  # needed for pep8-conformance test of the examples
-      gdb -return-child-result -batch -ex r -ex bt --args python tests.py --processes=$NPROC --process-timeout=300 $TEST_ARGS
+      gdb -return-child-result -batch -ex r -ex bt --args python $PYTHON_ARGS tests.py --processes=$NPROC --process-timeout=300 $TEST_ARGS
     else
       cd doc
       python make.py html --small --warningsaserrors
