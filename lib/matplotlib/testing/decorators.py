@@ -72,7 +72,6 @@ def knownfailureif(fail_condition, msg=None, known_exception_class=None ):
 
 def _do_cleanup(original_units_registry, original_settings):
     plt.close('all')
-    gc.collect()
 
     mpl.rcParams.clear()
     mpl.rcParams.update(original_settings)
