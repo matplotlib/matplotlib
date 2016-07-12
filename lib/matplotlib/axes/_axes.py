@@ -3097,7 +3097,19 @@ class Axes(_AxesBase):
 
         notch : bool, optional (False)
             If `True`, will produce a notched box plot. Otherwise, a
-            rectangular boxplot is produced.
+            rectangular boxplot is produced. The notches represent the
+            confidence interval (CI) around the median. See the entry
+            for the ``bootstrap`` parameter for information regarding
+            how the locations of the notches are computed.
+
+            .. note::
+
+                In cases where the values of the CI are less than the
+                lower quartile or greater than the upper quartile, the
+                notches will extend beyond the box, giving it a
+                distinctive "flipped" appearance. This is expected
+                behavior and consistent with other statistical
+                visualization packages.
 
         sym : str, optional
             The default symbol for flier points. Enter an empty string
@@ -3123,13 +3135,13 @@ class Axes(_AxesBase):
 
         bootstrap : int, optional
             Specifies whether to bootstrap the confidence intervals
-            around the median for notched boxplots. If `bootstrap` is None,
-            no bootstrapping is performed, and notches are calculated
-            using a Gaussian-based asymptotic approximation (see McGill,
-            R., Tukey, J.W., and Larsen, W.A., 1978, and Kendall and
-            Stuart, 1967). Otherwise, bootstrap specifies the number of
-            times to bootstrap the median to determine its 95%
-            confidence intervals. Values between 1000 and 10000 are
+            around the median for notched boxplots. If ``bootstrap`` is
+            None, no bootstrapping is performed, and notches are
+            calculated using a Gaussian-based asymptotic approximation
+            (see McGill, R., Tukey, J.W., and Larsen, W.A., 1978, and
+            Kendall and Stuart, 1967). Otherwise, bootstrap specifies
+            the number of times to bootstrap the median to determine its
+            95% confidence intervals. Values between 1000 and 10000 are
             recommended.
 
         usermedians : array-like, optional
