@@ -1,5 +1,12 @@
 sudo: false
 
+cache:
+  directories:
+    - $HOME/.ccache
+    - $HOME/.cache/pip
+    - $HOME/.cache/matplotlib
+    - $HOME/Library/Caches/pip
+
 addons:
   apt:
     packages:
@@ -8,11 +15,16 @@ addons:
       - gdb
       - mencoder
       - dvipng
+      - pgf
+      - lmodern
+      - cm-super
       - texlive-latex-base
       - texlive-latex-extra
       - texlive-fonts-recommended
       - texlive-latex-recommended
+      - texlive-xetex
       - graphviz
+      - libgeos-dev
 #     - fonts-humor-sans
 #    sources:
 #      - debian-sid
@@ -26,9 +38,11 @@ env:
     - secure: "dfjNqGKzQG5bu3FnDNwLG8H/C4QoieFo4PfFmZPdM2RY7WIzukwKFNT6kiDfOrpwt+2bR7FhzjOGlDECGtlGOtYPN8XuXGjhcP4a4IfakdbDfF+D3NPIpf5VlE6776k0VpvcZBTMYJKNFIMc7QPkOwjvNJ2aXyfe3hBuGlKJzQU="
     - BUILD_DOCS=false
     - NUMPY=numpy
+    - OPENBLAS_NUM_THREADS=1
     - PANDAS=
     - NPROC=2
     - TEST_ARGS=--no-pep8
+    - NOSE_ARGS="--processes=$NPROC --process-timeout=300"
     - PYTHON_ARGS=
 
 language: python
@@ -40,49 +54,58 @@ matrix:
     - python: 3.4
       env: PYTHON_ARGS=-OO
     - python: 3.5
-      env: PANDAS=pandas
+      env: PANDAS=pandas NOSE_ARGS=--with-coverage
     - python: 3.5
       env: TEST_ARGS=--pep8
-    - python: 2.7
-      env: BUILD_DOCS=true MOCK=mock
+    - python: 3.5
+      env: BUILD_DOCS=true
     - python: "nightly"
       env: PRE=--pre
+    - os: osx
+      osx_image: xcode7.3
+      language: generic
+      env: MOCK=mock NOSE_ARGS=
   allow_failures:
     - python: "nightly"
 
 before_install:
-  - source tools/travis_tools.sh
-  # Install into our own pristine virtualenv
-  - virtualenv --python=python venv
-  - source venv/bin/activate
+  - |
+    # Install into our own pristine virtualenv
+    if [[ $TRAVIS_OS_NAME != 'osx' ]]; then
+      virtualenv --python=python venv
+      source venv/bin/activate
+      export PATH=/usr/lib/ccache:$PATH
+    else
+      brew update
+      brew tap homebrew/gui
+      brew install python libpng  ffmpeg imagemagick mplayer ccache
+      # We could install ghostscript and inkscape here to test svg and pdf
+      # but this makes the test time really long.
+      # brew install ghostscript inkscape
+      export PATH=/usr/local/opt/ccache/libexec:$PATH
+    fi
 
 install:
-  # Upgrade pip and setuptools. Mock has issues with the default version of
-  # setuptools
   - |
+    # Setup environment
+    ccache -s
+    # Upgrade pip and setuptools and wheel to get as clean an install as possible
     pip install --upgrade pip
+    pip install --upgrade wheel
     pip install --upgrade setuptools
-  # Install only from travis wheelhouse
-  - if [ -z "$PRE" ]; then
-        wheelhouse_pip_install python-dateutil $NUMPY $PANDAS pyparsing!=2.0.4 pillow sphinx!=1.3.0 $MOCK;
-    else
-        pip install $PRE python-dateutil $NUMPY pyparsing!=2.0.4 pillow sphinx!=1.3.0;
-    fi
-  # Always install from pypi
-  - pip install $PRE pep8 cycler
-  - 'pip install https://github.com/tacaswell/nose/zipball/mnt_py36_compat#egg=nose'
-
-  # We manually install humor sans using the package from Ubuntu 14.10. Unfortunatly humor sans is not
-  # availible in the Ubuntu version used by Travis but we can manually install the deb from a later
-  # version since is it basically just a .ttf file
-  # The current Travis Ubuntu image is to old to search .local/share/fonts so we store fonts in .fonts
-
-  # We install ipython to use the console highlighting. From IPython 3 this depends on jsonschema and mistune.
-  # Neihter is installed as a dependency of IPython since they are not used by the IPython console.
   - |
+    # Install dependencies from pypi
+    pip install $PRE python-dateutil $NUMPY pyparsing!=2.1.2 $PANDAS pep8 cycler coveralls coverage
+    pip install $PRE pillow sphinx!=1.3.0 $MOCK numpydoc ipython colorspacious
+    # Install nose from a build which has partial
+    # support for python36 and suport for coverage output suppressing
+    pip install git+https://github.com/jenshnielsen/nose.git@matplotlibnose
+
+    # We manually install humor sans using the package from Ubuntu 14.10. Unfortunatly humor sans is not
+    # availible in the Ubuntu version used by Travis but we can manually install the deb from a later
+    # version since is it basically just a .ttf file
+    # The current Travis Ubuntu image is to old to search .local/share/fonts so we store fonts in .fonts
     if [[ $BUILD_DOCS == true ]]; then
-      pip install $PRE numpydoc ipython jsonschema mistune
-      pip install -q $PRE linkchecker
       wget https://github.com/google/fonts/blob/master/ofl/felipa/Felipa-Regular.ttf?raw=true -O Felipa-Regular.ttf
       wget http://mirrors.kernel.org/ubuntu/pool/universe/f/fonts-humor-sans/fonts-humor-sans_1.0-1_all.deb
       mkdir -p tmp
@@ -93,77 +116,87 @@ install:
       fc-cache -f -v
     else
       # Use the special local version of freetype for testing
-      cp .travis/setup.cfg .
+      cp ci/travis/setup.cfg .
     fi;
-
-  - python setup.py install
+  - |
+    # Install matplotlib
+    pip install -e .
+  - |
+    # Installing basemap from github until it's back on pypi
+    # We have to install it after matplotlib to avoid pulling in MPL as
+    # a dependency
+    if [[ $BUILD_DOCS == true ]]; then
+      pip install git+https://github.com/matplotlib/basemap.git
+    fi;
 
 script:
   # The number of processes is hardcoded, because using too many causes the
   # Travis VM to run out of memory (since so many copies of inkscape and
   # ghostscript are running at the same time).
-  - echo Testing using $NPROC processes
   - |
+    echo Testing import of tkagg backend
+    MPLBACKEND="tkagg" python -c 'import matplotlib.pyplot as plt; print(plt.get_backend())'
+    echo The following args are passed to nose $NOSE_ARGS
     if [[ $BUILD_DOCS == false ]]; then
       export MPL_REPO_DIR=$PWD  # needed for pep8-conformance test of the examples
-      gdb -return-child-result -batch -ex r -ex bt --args python $PYTHON_ARGS tests.py --processes=$NPROC --process-timeout=300 $TEST_ARGS
+      if [[ $TRAVIS_OS_NAME == 'osx' ]]; then
+        python tests.py $NOSE_ARGS $TEST_ARGS
+      else 
+        gdb -return-child-result -batch -ex r -ex bt --args python $PYTHON_ARGS tests.py $NOSE_ARGS $TEST_ARGS
+      fi
     else
       cd doc
-      python make.py html --small --warningsaserrors
+      python make.py html --small
       # We don't build the LaTeX docs here, so linkchecker will complain
       touch build/html/Matplotlib.pdf
+      # Linkchecker only works with python 2.7 for the time being
+      deactivate
+      source ~/virtualenv/python2.7/bin/activate
+      pip install pip --upgrade
+      # linkchecker is currently broken with requests 2.10.0 so force an earlier version
+      pip install $PRE requests==2.9.2 linkchecker
       linkchecker build/html/index.html
     fi
+  - rm -rf $HOME/.cache/matplotlib/tex.cache
+  - rm -rf $HOME/.cache/matplotlib/test_cache
 
 after_failure:
-  |
-  if [[ $BUILD_DOCS == false && $TRAVIS_PULL_REQUEST == false && $TRAVIS_REPO_SLUG == 'matplotlib/matplotlib' ]]; then
-    gem install travis-artifacts
-    cd $TRAVIS_BUILD_DIR/../tmp_test_dir
-    tar cjf result_images.tar.bz2 result_images
-    travis-artifacts upload --path result_images.tar.bz2
-    echo https://s3.amazonaws.com/matplotlib-test-results/artifacts/${TRAVIS_BUILD_NUMBER}/${TRAVIS_JOB_NUMBER}/result_images.tar.bz2
-  else
-    echo "The result images will only be uploaded if they are on the matplotlib/matplotlib repo - this is for security reasons to prevent arbitrary PRs echoing security details."
-  fi
+  - |
+    if [[ $BUILD_DOCS == false && $TRAVIS_PULL_REQUEST == false && $TRAVIS_REPO_SLUG == 'matplotlib/matplotlib' ]]; then
+      gem install travis-artifacts
+      cd $TRAVIS_BUILD_DIR/../tmp_test_dir
+      tar cjf result_images.tar.bz2 result_images
+      travis-artifacts upload --path result_images.tar.bz2
+      echo https://s3.amazonaws.com/matplotlib-test-results/artifacts/${TRAVIS_BUILD_NUMBER}/${TRAVIS_JOB_NUMBER}/result_images.tar.bz2
+    else
+      echo "The result images will only be uploaded if they are on the matplotlib/matplotlib repo - this is for security reasons to prevent arbitrary PRs echoing security details."
+    fi
 
 after_success:
-  |
-  if [[ $TRAVIS_PULL_REQUEST == false && $TRAVIS_REPO_SLUG == 'matplotlib/matplotlib' && $BUILD_DOCS == true && $TRAVIS_BRANCH == 'master' ]]; then
-    cd $TRAVIS_BUILD_DIR
-    echo "Uploading documentation"
-    openssl aes-256-cbc -K $encrypted_cc802e084cd0_key -iv $encrypted_cc802e084cd0_iv -in .travis/matplotlibDeployKey.enc -out .travis/matplotlibDeployKey -d
-    eval `ssh-agent -s`
-    chmod 600 .travis/matplotlibDeployKey
-    ssh-add .travis/matplotlibDeployKey
-    cd ..
-    git clone git@github.com:matplotlib/devdocs.git
-    cd devdocs
-    git checkout --orphan gh-pages
-    git reset --hard first_commit
-    cp -R ../matplotlib/doc/build/html/. .
-    touch .nojekyll
-    git config --global user.email "MatplotlibTravisBot@nomail"
-    git config --global user.name "MatplotlibTravisBot"
-    git config --global push.default simple
-    git add .
-    git commit -m "Docs build of $TRAVIS_COMMIT"
-    git push --set-upstream origin gh-pages --force
-  else
-    echo "Will only deploy docs build from matplotlib master branch"
-  fi
-  if [[ $TRAVIS_PULL_REQUEST == false ]] && \
-     [[ $TRAVIS_REPO_SLUG == 'matplotlib/matplotlib' ]] && \
-     [[ $TRAVIS_BRANCH == 'master' ]]; then
+  - |
+    if [[ $TRAVIS_PULL_REQUEST == false && $TRAVIS_REPO_SLUG == 'matplotlib/matplotlib' && $BUILD_DOCS == true && $TRAVIS_BRANCH == 'master' ]]; then
       cd $TRAVIS_BUILD_DIR
-      python .travis/travis_after_all.py
-      export $(cat .to_export_back)
-      if [ "$BUILD_LEADER" = "YES" ]; then
-        if [ "$BUILD_AGGREGATE_STATUS" = "others_succeeded" ]; then
-          echo "All Succeeded! Triggering OSX build..."
-          ./.travis/build_children.sh
-        else
-          echo "Some Failed; no OSX build"
-        fi
-      fi
-  fi
+      echo "Uploading documentation"
+      openssl aes-256-cbc -K $encrypted_cc802e084cd0_key -iv $encrypted_cc802e084cd0_iv -in ci/travis/matplotlibDeployKey.enc -out ci/travis/matplotlibDeployKey -d
+      eval `ssh-agent -s`
+      chmod 600 ci/travis/matplotlibDeployKey
+      ssh-add ci/travis/matplotlibDeployKey
+      cd ..
+      git clone git@github.com:matplotlib/devdocs.git
+      cd devdocs
+      git checkout --orphan gh-pages
+      git reset --hard first_commit
+      cp -R ../matplotlib/doc/build/html/. .
+      touch .nojekyll
+      git config --global user.email "MatplotlibTravisBot@nomail"
+      git config --global user.name "MatplotlibTravisBot"
+      git config --global push.default simple
+      git add .
+      git commit -m "Docs build of $TRAVIS_COMMIT"
+      git push --set-upstream origin gh-pages --force
+    else
+      echo "Will only deploy docs build from matplotlib master branch"
+    fi
+    if [[ $NOSE_ARGS="--with-coverage" ]]; then
+      coveralls
+    fi
