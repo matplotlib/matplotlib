@@ -821,8 +821,7 @@ def get_sample_data(fname, asfileobj=True):
     if matplotlib.rcParams['examples.directory']:
         root = matplotlib.rcParams['examples.directory']
     else:
-        root = os.path.join(os.path.dirname(__file__),
-                            "mpl-data", "sample_data")
+        root = os.path.join(matplotlib._get_data_path(), 'sample_data')
     path = os.path.join(root, fname)
 
     if asfileobj:
