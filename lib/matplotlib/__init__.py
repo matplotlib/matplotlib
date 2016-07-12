@@ -1401,7 +1401,7 @@ def use(arg, warn=True, force=False):
     if 'matplotlib.backends' in sys.modules:
         # Warn only if called with a different name
         if (rcParams['backend'] != name) and warn:
-            warnings.warn(_use_error_msg)
+            warnings.warn(_use_error_msg, stacklevel=2)
 
         # Unless we've been told to force it, just return
         if not force:
@@ -1586,70 +1586,17 @@ def _init_tests():
             )
         )
 
-    try:
-        import nose
-        try:
-            from unittest import mock
-        except:
-            import mock
-    except ImportError:
-        print("matplotlib.test requires nose and mock to run.")
-        raise
+    from .testing.nose import check_deps
+    check_deps()
 
 
-def _get_extra_test_plugins():
-    from .testing.performgc import PerformGC
-    from .testing.noseclasses import KnownFailure
-    from nose.plugins import attrib
-
-    return [PerformGC, KnownFailure, attrib.Plugin]
-
-
-def _get_nose_env():
-    env = {'NOSE_COVER_PACKAGE': ['matplotlib', 'mpl_toolkits'],
-           'NOSE_COVER_HTML': 1,
-           'NOSE_COVER_NO_PRINT': 1}
-    return env
-
-
-def test(verbosity=1, coverage=False):
+def test(verbosity=1, coverage=False, **kwargs):
     """run the matplotlib test suite"""
     _init_tests()
 
-    old_backend = rcParams['backend']
-    try:
-        use('agg')
-        import nose
-        import nose.plugins.builtin
-        from nose.plugins.manager import PluginManager
-        from nose.plugins import multiprocess
+    from .testing.nose import test as nose_test
+    return nose_test(verbosity, coverage, **kwargs)
 
-        # store the old values before overriding
-        plugins = _get_extra_test_plugins()
-        plugins.extend([plugin for plugin in nose.plugins.builtin.plugins])
-
-        manager = PluginManager(plugins=[x() for x in plugins])
-        config = nose.config.Config(verbosity=verbosity, plugins=manager)
-
-        # Nose doesn't automatically instantiate all of the plugins in the
-        # child processes, so we have to provide the multiprocess plugin with
-        # a list.
-        multiprocess._instantiate_plugins = plugins
-
-        env = _get_nose_env()
-        if coverage:
-            env['NOSE_WITH_COVERAGE'] = 1
-
-        success = nose.run(
-            defaultTest=default_test_modules,
-            config=config,
-            env=env,
-        )
-    finally:
-        if old_backend.lower() != 'agg':
-            use(old_backend)
-
-    return success
 
 test.__test__ = False  # nose: this function is not a test
 
