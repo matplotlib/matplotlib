@@ -14,7 +14,7 @@ def _test_determinism_save(filename, objects='mhi', format="pdf"):
     # to a constant value, so that time difference is not
     # taken into account
     sde = os.environ.pop('SOURCE_DATE_EPOCH', None)
-    os.environ['SOURCE_DATE_EPOCH'] = "976875010"
+    os.environ['SOURCE_DATE_EPOCH'] = "946684800"
 
     fig = plt.figure()
 
@@ -100,16 +100,16 @@ def _test_determinism(objects='mhi', format="pdf", uid=""):
 def _test_source_date_epoch(format, string, keyword=b"CreationDate"):
     """
     Test SOURCE_DATE_EPOCH support. Output a document with the envionment
-    variable SOURCE_DATE_EPOCH set to 2000-12-15 10:10:10 UTC and check that
-    the document contains the timestamp that corresponds to this date (given as
-    an argument).
+    variable SOURCE_DATE_EPOCH set to 2000-01-01 00:00 UTC and check that the
+    document contains the timestamp that corresponds to this date (given as an
+    argument).
 
     Parameters
     ----------
     format : str
         format string, such as "pdf".
     string : str
-        timestamp string for 2000-12-15 10:10:10 UTC.
+        timestamp string for 2000-01-01 00:00 UTC.
     keyword : str
         a string to look at when searching for the timestamp in the document
         (used in case the test fails).
