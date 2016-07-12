@@ -1338,7 +1338,7 @@ def is_opentype_cff_font(filename):
         if result is None:
             with open(filename, 'rb') as fd:
                 tag = fd.read(4)
-            result = (tag == 'OTTO')
+            result = (tag == b'OTTO')
             _is_opentype_cff_font_cache[filename] = result
         return result
     return False
