@@ -183,7 +183,7 @@ def test_source_date_epoch():
     # because the produced timestamp comes from ghostscript:
     # %%CreationDate: D:20000101000000Z00\'00\', and this could change
     # with another ghostscript version.
-    _test_source_date_epoch("ps", b"%%CreationDate: Sat Jan  1 00:00:00 2000")
+    _test_source_date_epoch("ps", b"%%CreationDate: Sat Jan 01 00:00:00 2000")
 
 
 @cleanup
