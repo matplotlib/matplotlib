@@ -566,11 +566,26 @@ class _AxesBase(martist.Artist):
         if self.yaxis is not None:
             self._ycid = self.yaxis.callbacks.connect('units finalize',
                                                       self.relim)
-        self.tick_params(top=rcParams['xtick.top'],
-                         bottom=rcParams['xtick.bottom'],
-                         left=rcParams['ytick.left'],
-                         right=rcParams['ytick.right'],
-                         which='both')
+
+        self.tick_params(top=rcParams['xtick.top'] and
+                         rcParams['xtick.minor.top'],
+                         bottom=rcParams['xtick.bottom'] and
+                         rcParams['xtick.minor.bottom'],
+                         left=rcParams['ytick.left'] and
+                         rcParams['ytick.minor.left'],
+                         right=rcParams['ytick.right'] and
+                         rcParams['ytick.minor.right'],
+                         which='minor')
+
+        self.tick_params(top=rcParams['xtick.top'] and
+                         rcParams['xtick.major.top'],
+                         bottom=rcParams['xtick.bottom'] and
+                         rcParams['xtick.major.bottom'],
+                         left=rcParams['ytick.left'] and
+                         rcParams['ytick.major.left'],
+                         right=rcParams['ytick.right'] and
+                         rcParams['ytick.major.right'],
+                         which='major')
 
     def __setstate__(self, state):
         self.__dict__ = state
