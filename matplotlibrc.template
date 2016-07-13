@@ -373,6 +373,10 @@ backend      : $TEMPLATE_BACKEND
 #xtick.labelsize      : medium # fontsize of the tick labels
 #xtick.direction      : out    # direction: in, out, or inout
 #xtick.minor.visible  : False  # visibility of minor ticks on x-axis
+#xtick.major.top      : True   # draw x axis top major ticks
+#xtick.major.bottom   : True   # draw x axis bottom major ticks
+#xtick.minor.top      : True   # draw x axis top minor ticks
+#xtick.minor.bottom   : True   # draw x axis bottom minor ticks
 
 #ytick.left           : True   # draw ticks on the left side
 #ytick.right          : False  # draw ticks on the right side
@@ -386,6 +390,10 @@ backend      : $TEMPLATE_BACKEND
 #ytick.labelsize      : medium # fontsize of the tick labels
 #ytick.direction      : out    # direction: in, out, or inout
 #ytick.minor.visible  : False  # visibility of minor ticks on y-axis
+#xtick.major.left     : True   # draw y axis left major ticks
+#xtick.major.right    : True   # draw y axis right major ticks
+#xtick.minor.left     : True   # draw y axis left minor ticks
+#xtick.minor.right    : True   # draw y axis right minor ticks
 
 
 ### GRIDS
