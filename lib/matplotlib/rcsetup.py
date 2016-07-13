@@ -1175,6 +1175,12 @@ defaultParams = {
     'xtick.color':       ['k', validate_color],  # color of the xtick labels
     'xtick.minor.visible':   [False, validate_bool],    # visiablility of the x axis minor ticks
 
+    'xtick.minor.top':   [True, validate_bool],        # visability of the x axis top minor ticks
+    'xtick.minor.bottom':    [True, validate_bool],    # visability of the x axis bottom minor ticks
+    'xtick.major.top':   [True, validate_bool],        # visability of the x axis top major ticks
+    'xtick.major.bottom':    [True, validate_bool],    # visability of the x axis bottom major ticks
+
+
     # fontsize of the xtick labels
     'xtick.labelsize':   ['medium', validate_fontsize],
     'xtick.direction':   ['out', six.text_type],            # direction of xticks
@@ -1189,6 +1195,11 @@ defaultParams = {
     'ytick.minor.pad':   [3.4, validate_float],     # distance to label in points
     'ytick.color':       ['k', validate_color],   # color of the ytick labels
     'ytick.minor.visible':   [False, validate_bool],    # visiablility of the y axis minor ticks
+
+    'ytick.minor.left':   [True, validate_bool],  # visability of the y axis top minor ticks
+    'ytick.minor.right':    [True, validate_bool],    # visability of the y axis bottom minor ticks
+    'ytick.major.left':   [True, validate_bool],        # visability of the y axis top major ticks
+    'ytick.major.right':    [True, validate_bool],    # visability of the y axis bottom major ticks
 
     # fontsize of the ytick labels
     'ytick.labelsize':   ['medium', validate_fontsize],
