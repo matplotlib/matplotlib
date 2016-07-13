@@ -25,6 +25,7 @@ addons:
       - texlive-xetex
       - graphviz
       - libgeos-dev
+      - otf-freefont
 #     - fonts-humor-sans
 #    sources:
 #      - debian-sid
