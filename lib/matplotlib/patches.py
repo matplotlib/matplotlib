@@ -17,6 +17,7 @@ import matplotlib.colors as colors
 from matplotlib import docstring
 import matplotlib.transforms as transforms
 from matplotlib.path import Path
+import matplotlib.lines as mlines
 
 from matplotlib.bezier import split_bezier_intersecting_with_closedpath
 from matplotlib.bezier import get_intersection, inside_circle, get_parallels
@@ -122,10 +123,13 @@ class Patch(artist.Artist):
         else:
             self.set_edgecolor(edgecolor)
             self.set_facecolor(facecolor)
+        # unscaled dashes.  Needed to scale dash patterns by lw
+        self._us_dashes = None
+        self._linewidth = 0
 
         self.set_fill(fill)
-        self.set_linewidth(linewidth)
         self.set_linestyle(linestyle)
+        self.set_linewidth(linewidth)
         self.set_antialiased(antialiased)
         self.set_hatch(hatch)
         self.set_capstyle(capstyle)
@@ -361,7 +365,11 @@ class Patch(artist.Artist):
                 w = 0
 
         self._linewidth = float(w)
-
+        # scale the dash pattern by the linewidth
+        offset, ls = self._us_dashes
+        self._dashes = mlines._scale_dashes(offset,
+                                            ls,
+                                            self._linewidth)[1]
         self.stale = True
 
     def set_lw(self, lw):
@@ -400,9 +408,13 @@ class Patch(artist.Artist):
         """
         if ls is None:
             ls = "solid"
-
-        ls = cbook.ls_mapper.get(ls, ls)
         self._linestyle = ls
+        # get the unscalled dash pattern
+        offset, ls = self._us_dashes = mlines._get_dash_pattern(ls)
+        # scale the dash pattern by the linewidth
+        self._dashes = mlines._scale_dashes(offset,
+                                            ls,
+                                            self._linewidth)[1]
         self.stale = True
 
     def set_ls(self, ls):
@@ -510,7 +522,7 @@ class Patch(artist.Artist):
         if self._edgecolor[3] == 0:
             lw = 0
         gc.set_linewidth(lw)
-        gc.set_linestyle(self._linestyle)
+        gc.set_dashes(0, self._dashes)
         gc.set_capstyle(self._capstyle)
         gc.set_joinstyle(self._joinstyle)
 
