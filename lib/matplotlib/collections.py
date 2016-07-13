@@ -13,7 +13,13 @@ from __future__ import (absolute_import, division, print_function,
 
 import six
 from six.moves import zip
+try:
+    from math import gcd
+except ImportError:
+    # LPy workaround
+    from fractions import gcd
 import warnings
+
 import numpy as np
 import matplotlib as mpl
 import matplotlib.cbook as cbook
@@ -23,12 +29,10 @@ from matplotlib import docstring
 import matplotlib.transforms as transforms
 import matplotlib.artist as artist
 from matplotlib.artist import allow_rasterization
-import matplotlib.backend_bases as backend_bases
 import matplotlib.path as mpath
 from matplotlib import _path
 import matplotlib.mlab as mlab
 import matplotlib.lines as mlines
-
 
 CIRCLE_AREA_FACTOR = 1.0 / np.sqrt(np.pi)
 
@@ -116,6 +120,14 @@ class Collection(artist.Artist, cm.ScalarMappable):
         """
         artist.Artist.__init__(self)
         cm.ScalarMappable.__init__(self, norm, cmap)
+        # list of un-scaled dash patterns
+        # this is needed scaling the dash pattern by linewidth
+        self._us_linestyles = [(None, None)]
+        # list of dash patterns
+        self._linestyles = [(None, None)]
+        # list of unbroadcast/scaled linewidths
+        self._us_lw = [0]
+        self._linewidths = [0]
 
         self.set_edgecolor(edgecolors)
         self.set_facecolor(facecolors)
@@ -312,7 +324,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
         if do_single_path_optimization:
             gc.set_foreground(tuple(edgecolors[0]))
             gc.set_linewidth(self._linewidths[0])
-            gc.set_linestyle(self._linestyles[0])
+            gc.set_dashes(*self._linestyles[0])
             gc.set_antialiased(self._antialiaseds[0])
             gc.set_url(self._urls[0])
             renderer.draw_markers(
@@ -488,8 +500,12 @@ class Collection(artist.Artist, cm.ScalarMappable):
                     lw = mpl.rcParams['lines.linewidth']
             else:
                 lw = 0
+        # get the un-scaled/broadcast lw
+        self._us_lw = self._get_value(lw)
 
-        self._linewidths = self._get_value(lw)
+        # scale all of the dash patterns.
+        self._linewidths, self._linestyles = self._bcast_lwls(
+            self._us_lw, self._us_linestyles)
         self.stale = True
 
     def set_linewidths(self, lw):
@@ -533,29 +549,63 @@ class Collection(artist.Artist, cm.ScalarMappable):
         try:
             if cbook.is_string_like(ls) and cbook.is_hashable(ls):
                 ls = cbook.ls_mapper.get(ls, ls)
-                dashes = [mlines.get_dash_pattern(ls)]
-            elif cbook.iterable(ls):
-                try:
-                    dashes = []
-                    for x in ls:
-                        if cbook.is_string_like(x):
-                            x = cbook.ls_mapper.get(x, x)
-                            dashes.append(mlines.get_dash_pattern(x))
-                        elif cbook.iterable(x) and len(x) == 2:
-                            dashes.append(x)
-                        else:
-                            raise ValueError()
-                except ValueError:
-                    if len(ls) == 2:
-                        dashes = [ls]
-                    else:
-                        raise ValueError()
+                dashes = [mlines._get_dash_pattern(ls)]
             else:
-                raise ValueError()
+                try:
+                    dashes = [mlines._get_dash_pattern(ls)]
+                except ValueError:
+                    dashes = [mlines._get_dash_pattern(x) for x in ls]
+
         except ValueError:
-            raise ValueError('Do not know how to convert %s to dashes' % ls)
-        self._linestyles = dashes
-        self.stale = True
+            raise ValueError(
+                'Do not know how to convert {!r} to dashes'.format(ls))
+
+        # get the list of raw 'unscaled' dash patterns
+        self._us_linestyles = dashes
+
+        # broadcast and scale the lw and dash patterns
+        self._linewidths, self._linestyles = self._bcast_lwls(
+            self._us_lw, self._us_linestyles)
+
+    @staticmethod
+    def _bcast_lwls(linewidths, dashes):
+        '''Internal helper function to broadcast + scale ls/lw
+
+        In the collection drawing code the linewidth and linestyle are
+        cycled through as circular buffers (via v[i % len(v)]).  Thus,
+        if we are going to scale the dash pattern at set time (not
+        draw time) we need to do the broadcasting now and expand both
+        lists to be the same length.
+
+        Parameters
+        ----------
+        linewidths : list
+            line widths of collection
+
+        dashes : list
+            dash specification (offset, (dash pattern tuple))
+
+        Returns
+        -------
+        linewidths, dashes : list
+             Will be the same length, dashes are scaled by paired linewidth
+
+        '''
+        if mpl.rcParams['_internal.classic_mode']:
+            return linewidths, dashes
+        # make sure they are the same length so we can zip them
+        if len(dashes) != len(linewidths):
+            l_dashes = len(dashes)
+            l_lw = len(linewidths)
+            GCD = gcd(l_dashes, l_lw)
+            dashes = list(dashes) * (l_lw // GCD)
+            linewidths = list(linewidths) * (l_dashes // GCD)
+
+        # scale the dash patters
+        dashes = [mlines._scale_dashes(o, d, lw)
+                  for (o, d), lw in zip(dashes, linewidths)]
+
+        return linewidths, dashes
 
     def set_linestyles(self, ls):
         """alias for set_linestyle"""
