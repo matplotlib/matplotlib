@@ -12,11 +12,12 @@ import six
 import warnings
 
 import numpy as np
-from matplotlib import verbose
+from numpy import ma
 from . import artist, colors as mcolors
 from .artist import Artist
 from .cbook import (iterable, is_string_like, is_numlike, ls_mapper_r,
-                    STEP_LOOKUP_MAP)
+                    pts_to_prestep, pts_to_poststep, pts_to_midstep, ls_mapper,
+                    is_hashable, STEP_LOOKUP_MAP)
 
 from .path import Path
 from .transforms import Bbox, TransformedPath, IdentityTransform
@@ -34,22 +35,47 @@ from matplotlib.markers import (
 from matplotlib import _path
 
 
-def get_dash_pattern(style):
+def _get_dash_pattern(style):
+    """Convert linestyle -> dash pattern
+
     """
-    Given a dash pattern name from 'solid', 'dashed', 'dashdot' or
-    'dotted', returns the (offset, dashes) pattern.
-    """
-    if style == 'solid':
+    # go from short hand -> full strings
+    if is_string_like(style) and is_hashable(style):
+        style = ls_mapper.get(style, style)
+    # un-dashed styles
+    if style in ['solid', 'None']:
         offset, dashes = None, None
+    # dashed styles
     elif style in ['dashed', 'dashdot', 'dotted']:
         offset = 0
         dashes = tuple(rcParams['lines.{}_pattern'.format(style)])
+    #
     elif isinstance(style, tuple):
         offset, dashes = style
     else:
         raise ValueError('Unrecognized linestyle: %s' % str(style))
 
+    # normalize offset to be positive and shorter than the dash cycle
+    if dashes is not None and offset is not None:
+        dsum = sum(dashes)
+        if dsum:
+            offset %= dsum
+
     return offset, dashes
+
+
+def _scale_dashes(offset, dashes, lw):
+    if rcParams['_internal.classic_mode']:
+        return offset, dashes
+    scale = max(1.0, lw)
+    scaled_offset = scaled_dashes = None
+    if offset is not None:
+        scaled_offset = offset * scale
+    if dashes is not None:
+        scaled_dashes = [x * scale if x is not None else None
+                         for x in dashes]
+
+    return scaled_offset, scaled_dashes
 
 
 def segment_hits(cx, cy, x, y, radius):
@@ -359,10 +385,15 @@ class Line2D(Artist):
 
         self._linestyles = None
         self._drawstyle = None
-        self._linewidth = None
+        self._linewidth = linewidth
 
+        # scaled dash + offset
         self._dashSeq = None
         self._dashOffset = 0
+        # unscaled dash + offset
+        # this is needed scaling the dash pattern by linewidth
+        self._us_dashSeq = None
+        self._us_dashOffset = 0
 
         self.set_linestyle(linestyle)
         self.set_drawstyle(drawstyle)
@@ -999,9 +1030,13 @@ class Line2D(Artist):
         ACCEPTS: float value in points
         """
         w = float(w)
+
         if self._linewidth != w:
             self.stale = True
         self._linewidth = w
+        # rescale the dashes + offset
+        self._dashOffset, self._dashSeq = _scale_dashes(
+            self._us_dashOffset, self._us_dashSeq, self._linewidth)
 
     def _split_drawstyle_linestyle(self, ls):
         '''Split drawstyle from linestyle string
@@ -1079,31 +1114,31 @@ class Line2D(Artist):
         ls : { ``'-'``,  ``'--'``, ``'-.'``, ``':'``} and more see description
             The line style.
         """
-        if not is_string_like(ls):
-            if len(ls) != 2:
-                raise ValueError()
+        if is_string_like(ls):
+            ds, ls = self._split_drawstyle_linestyle(ls)
+            if ds is not None:
+                self.set_drawstyle(ds)
 
-            self.set_dashes(ls[1])
-            self._dashOffset = ls[0]
-            self._linestyle = "--"
-            return
-        ds, ls = self._split_drawstyle_linestyle(ls)
-        if ds is not None:
-            self.set_drawstyle(ds)
+            if ls in [' ', '', 'none']:
+                ls = 'None'
 
-        if ls in [' ', '', 'none']:
-            ls = 'None'
+            if ls not in self._lineStyles:
+                try:
+                    ls = ls_mapper_r[ls]
+                except KeyError:
+                    raise ValueError(("You passed in an invalid linestyle, "
+                                      "`{0}`.  See "
+                                      "docs of Line2D.set_linestyle for "
+                                      "valid values.").format(ls))
+            self._linestyle = ls
+        else:
+            self._linestyle = '--'
 
-        if ls not in self._lineStyles:
-            try:
-                ls = ls_mapper_r[ls]
-            except KeyError:
-                raise ValueError(("You passed in an invalid linestyle, "
-                                  "`{0}`.  See "
-                                  "docs of Line2D.set_linestyle for "
-                                  "valid values.").format(ls))
-
-        self._linestyle = ls
+        # get the unscaled dashes
+        self._us_dashOffset, self._us_dashSeq = _get_dash_pattern(ls)
+        # compute the linewidth scaled dashes
+        self._dashOffset, self._dashSeq = _scale_dashes(
+            self._us_dashOffset, self._us_dashSeq, self._linewidth)
 
     @docstring.dedent_interpd
     def set_marker(self, marker):
@@ -1213,31 +1248,29 @@ class Line2D(Artist):
         if seq == (None, None) or len(seq) == 0:
             self.set_linestyle('-')
         else:
-            self.set_linestyle('--')
-        if self._dashSeq != seq:
-            self.stale = True
-        self._dashSeq = seq  # TODO: offset ignored for now
+            self.set_linestyle((0, seq))
 
     def _draw_lines(self, renderer, gc, path, trans):
         self._lineFunc(renderer, gc, path, trans)
 
     def _draw_solid(self, renderer, gc, path, trans):
         gc.set_linestyle('solid')
+        gc.set_dashes(self._dashOffset, self._dashSeq)
         renderer.draw_path(gc, path, trans)
 
     def _draw_dashed(self, renderer, gc, path, trans):
         gc.set_linestyle('dashed')
-        if self._dashSeq is not None:
-            gc.set_dashes(self._dashOffset, self._dashSeq)
-
+        gc.set_dashes(self._dashOffset, self._dashSeq)
         renderer.draw_path(gc, path, trans)
 
     def _draw_dash_dot(self, renderer, gc, path, trans):
         gc.set_linestyle('dashdot')
+        gc.set_dashes(self._dashOffset, self._dashSeq)
         renderer.draw_path(gc, path, trans)
 
     def _draw_dotted(self, renderer, gc, path, trans):
         gc.set_linestyle('dotted')
+        gc.set_dashes(self._dashOffset, self._dashSeq)
         renderer.draw_path(gc, path, trans)
 
     def update_from(self, other):
