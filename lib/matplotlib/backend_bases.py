@@ -851,6 +851,19 @@ class GraphicsContextBase(object):
             return self._clippath.get_transformed_path_and_affine()
         return None, None
 
+    @staticmethod
+    def scale_dashes(linewidth, offset_dashes):
+        """
+        Scale the given offset, dashlist tuple to fit linewidth.
+        """
+        scale = max(1.0, linewidth)
+        offset, dashes = offset_dashes
+        if offset is not None:
+            offset = offset * scale
+        if dashes is not None:
+            dashes = [x * scale for x in dashes]
+        return offset, dashes
+
     def get_dashes(self):
         """
         Return the dash information as an offset dashlist tuple.
@@ -867,13 +880,7 @@ class GraphicsContextBase(object):
         if rcParams['_internal.classic_mode']:
             return self._dashes
         else:
-            scale = max(1.0, self.get_linewidth())
-            offset, dashes = self._dashes
-            if offset is not None:
-                offset = offset * scale
-            if dashes is not None:
-                dashes = [x * scale for x in dashes]
-            return offset, dashes
+            return self.scale_dashes(self.get_linewidth(), self._dashes)
 
     def get_forced_alpha(self):
         """
