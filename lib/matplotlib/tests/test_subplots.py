@@ -102,7 +102,7 @@ def test_shared():
     check_visible(axs, [False, False, True, True], [True, False, True, False])
 
 
-
+@cleanup
 def test_exceptions():
     # TODO should this test more options?
     assert_raises(ValueError, plt.subplots, 2, 2, sharex='blah')
