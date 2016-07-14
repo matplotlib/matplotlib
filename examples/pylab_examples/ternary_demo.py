@@ -24,13 +24,13 @@ ter.ab.plot([0.0, 0.5], [0.0, 0.5], 'b:', label="Equal A & B")
 ter.ab.plot([0.0, 0.0], [0.0, 1.0], 'r--', label="No A", lw=3.0)
 ter.bc.plot([0.0, 0.0], [0.0, 1.0], 'g--', label="No B", lw=3.0)
 ter.ca.plot([0.0, 0.0], [0.0, 1.0], 'b--', label="No C", lw=3.0)
-ter.ab.annotate("All\nA", (1, 0), ha='center', va='center', xytext=(0.8,0.1),
+ter.ab.annotate("All\nA", (1, 0), ha='center', va='center', xytext=(0.8, 0.1),
                  textcoords='data', arrowprops=dict(facecolor='k', width=0.2,
                  headwidth=8.0, shrink=0.05))
-ter.bc.annotate("All\nB", (1, 0), ha='center', va='center', xytext=(0.8,0.1),
+ter.bc.annotate("All\nB", (1, 0), ha='center', va='center', xytext=(0.8, 0.1),
                  textcoords='data', arrowprops=dict(facecolor='k', width=0.2,
                  headwidth=8.0, shrink=0.05))
-ter.ca.annotate("All\nC", (1, 0), ha='center', va='center', xytext=(0.8,0.1),
+ter.ca.annotate("All\nC", (1, 0), ha='center', va='center', xytext=(0.8, 0.1),
                  textcoords='data', arrowprops=dict(facecolor='k', width=0.2,
                  headwidth=8.0, shrink=0.05))
 ter.ab.set_xlabel("Relative part of A")
@@ -82,7 +82,7 @@ vertices = [
     (0.1, 0.8),
     (0.8, 0.1),
     (0.1, 0.1),
-    (0., 0.)] # ignored
+    (0., 0.)]  # ignored
 codes = [Path.MOVETO,
          Path.LINETO,
          Path.LINETO,
@@ -113,14 +113,14 @@ axab.plot(a, b, 'w')
 axab.set_tiplabel("Comp. 1", tipoffset=0.18)
 axbc.set_tiplabel("Comp. 2", tipoffset=0.18)
 axca.set_tiplabel("Comp. 3", tipoffset=0.18)
-axab.grid(False) # Turn the grid off. (It's on by default.)
+axab.grid(False)  # Turn the grid off. (It's on by default.)
 axbc.grid(False)
 axca.grid(False)
 
 # Example 3b -- Automatic approach
 ter = Ternary(fig.add_subplot(122, projection='ternaryab'))
 ter.set_title("Automatic", y=1.05)
-ter.grid(False) # Turn the grid off. (It's on by default.)
+ter.grid(False)  # Turn the grid off. (It's on by default.)
 
 ter.ab.add_patch(PathPatch(path, facecolor='g', alpha=0.5))
 ter.ab.fill_between(a, b, y2=0.33, color='b')
@@ -134,14 +134,14 @@ import matplotlib.colorbar as mcolor
 # Example 4 -- Scatter plot of soil data
 # Define the data (based on that by C. P. H. Lewis as triangleplot_demo.csv,
 # http://www.mail-archive.com/matplotlib-users@lists.sourceforge.net/msg10051.html).
-soil = {'sand': np.array([0.82, 0.17, 0.8 , 0.63, 0.5 , 0.0 , 0.3 , 0.3 , 0.73,
+soil = {'sand': np.array([0.82, 0.17, 0.8,  0.63, 0.5,  0.0,  0.3,  0.3,  0.73,
                           0.03, 0.77]),
-        'silt': np.array([0.04, 0.11, 0.14, 0.3 , 0.4 , 0.81, 0.41, 0.33, 0.03,
+        'silt': np.array([0.04, 0.11, 0.14, 0.3,  0.4,  0.81, 0.41, 0.33, 0.03,
                           0.37, 0.21]),
-        'clay': np.array([0.14, 0.72, 0.06, 0.07, 0.1 , 0.19, 0.29, 0.37, 0.24,
+        'clay': np.array([0.14, 0.72, 0.06, 0.07, 0.1,  0.19, 0.29, 0.37, 0.24,
                           0.60, 0.02]),
         'organic matter': np.array([0.45, 0.59, 0.35, 0.41, 0.07, 0.22, 0.31,
-                                    0.21, 0.4 , 0.27, 0.2 ]),
+                                    0.21, 0.4,  0.27, 0.2]),
         'porosity': np.array([0.48, 0.32, 0.23, 0.22, 0.62, 0.35, 0.43, 0.27,
                               0.44, 0.23, 0.53]),
         'site': ('Ger', 'Ma', 'Ss', 'Ss2', 'Din', 'Pro', 'Esn', 'Tra', 'Ffg',

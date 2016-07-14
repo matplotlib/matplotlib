@@ -1,9 +1,34 @@
 #!/usr/bin/env python
 """matplotlib projections for ternary axes
 """
+
+import numpy as np
+
+import matplotlib
+import matplotlib.spines as mspines
+import matplotlib.axis as maxis
+import matplotlib.text as mtext
+import matplotlib.font_manager as font_manager
+import matplotlib.transforms as mtransforms
+import matplotlib.lines as mlines
+import matplotlib.cbook as cbook
+import matplotlib.markers as mmarkers
+import matplotlib.ticker as mticker
+
+from matplotlib import rcParams
+#from matplotlib.cbook import _string_to_bool
+from matplotlib.path import Path
+from matplotlib.patches import PathPatch
+from matplotlib.axes import Axes
+from matplotlib.ticker import NullLocator
+from matplotlib.transforms import Affine2D, BboxTransformTo, Transform, \
+                                  IdentityTransform, Bbox
+from matplotlib.markers import MarkerStyle
+
 __author__ = "Kevin L. Davies"
 __version__ = "2011/10/12"
 __license__ = "BSD"
+
 # The features and concepts were based on triangleplot.py by C. P. H. Lewis,
 # 2008-2009, available at:
 #     http://nature.berkeley.edu/~chlewis/Sourcecode.html
@@ -28,9 +53,9 @@ __license__ = "BSD"
 #     Supported:
 #         plot, scatter, fill_between
 #     *May* work as is, but should be tested:
-#         contour, contourf, barbs, hexbin, imshow, fill, fill_betweenx, pcolor,
-#         pcolormesh, quiver, specgram, plotfile, spy, tricontour, tricontourf,
-#         tripcolor
+#         contour, contourf, barbs, hexbin, imshow, fill, fill_betweenx,
+#         pcolor, pcolormesh, quiver, specgram, plotfile, spy, tricontour,
+#         tricontourf,tripcolor
 #     Not compatible and thus disabled:
 #         acorr, bar, barh, boxplot, broken_barh, cohere, csd, hist, loglog,
 #         pie, polar, psd, semilogx, semilogy, stem, xcorr
@@ -59,29 +84,6 @@ __license__ = "BSD"
 #     autumn, bone, cool, copper, flag, gray, hot, hsv, jet, pink, prism,
 #     spring, summer, winter, and spectral.
 
-import numpy as np
-
-import matplotlib
-import matplotlib.spines as mspines
-import matplotlib.axis as maxis
-import matplotlib.text as mtext
-import matplotlib.font_manager as font_manager
-import matplotlib.transforms as mtransforms
-import matplotlib.lines as mlines
-import matplotlib.cbook as cbook
-import matplotlib.markers as mmarkers
-import matplotlib.ticker as mticker
-
-from matplotlib import rcParams
-#from matplotlib.cbook import _string_to_bool
-from matplotlib.path import Path
-from matplotlib.patches import PathPatch
-from matplotlib.axes import Axes
-from matplotlib.ticker import NullLocator
-from matplotlib.transforms import Affine2D, BboxTransformTo, Transform, \
-                                  IdentityTransform, Bbox
-from matplotlib.markers import MarkerStyle
-
 SQRT2 = np.sqrt(2.0)
 SQRT3 = np.sqrt(3.0)
 
@@ -109,8 +111,8 @@ class XTick(maxis.XTick):
             color=self._labelcolor,
             verticalalignment=vert,
             horizontalalignment=horiz,
-            rotation=self.axes.angle, # New
-            rotation_mode='anchor', # New
+            rotation=self.axes.angle,  # New
+            rotation_mode='anchor',  # New
             )
         t.set_transform(trans)
         self._set_artist_props(t)
@@ -121,8 +123,8 @@ class XTick(maxis.XTick):
         # x in data coords, y in axes coords
         l = Line2D(xdata=(0,), ydata=(0,),
                    color=self._color,
-                   linestyle = 'None',
-                   marker = self._tickmarkers[0],
+                   linestyle='None',
+                   marker=self._tickmarkers[0],
                    markersize=self._size,
                    markeredgewidth=self._width,
                    zorder=self._zorder,
@@ -147,14 +149,14 @@ class XAxis(maxis.XAxis):
         # x and y are both in display coordinates.  This is non-conventional.
         # **Is this ok?
         label = mtext.Text(x=0.5, y=0,
-            fontproperties = font_manager.FontProperties(
+            fontproperties=font_manager.FontProperties(
                                size=rcParams['axes.labelsize'],
                                weight=rcParams['axes.labelweight']),
-            color = rcParams['axes.labelcolor'],
+                               color=rcParams['axes.labelcolor'],
             verticalalignment='bottom',
             horizontalalignment='center',
-            rotation=self.axes.angle - 60, # Modified
-            rotation_mode='anchor') # New
+            rotation=self.axes.angle - 60,  # Modified
+            rotation_mode='anchor')  # New
         self._set_artist_props(label)
         return label
 
@@ -179,7 +181,7 @@ class XAxis(maxis.XAxis):
             space += self.labelpad*self.figure.dpi/72.0
 
             # Apply the new position.
-            angle = np.radians(self.axes.angle) # Offset angle in radians
+            angle = np.radians(self.axes.angle)  # Offset angle in radians
             self.label.set_position((x + np.cos(angle)*space,
                                      y + np.sin(angle)*space))
 
@@ -211,8 +213,9 @@ class XAxis(maxis.XAxis):
             self.set_minor_locator(mticker.FixedLocator(ticks))
             return self.get_minor_ticks(len(ticks))
         else:
-            self.set_major_locator( mticker.FixedLocator(ticks) )
+            self.set_major_locator(mticker.FixedLocator(ticks))
             return self.get_major_ticks(len(ticks))
+
 
 class Spine(mspines.Spine):
     """Customizations to matplotlib.spines.Spine"
@@ -224,13 +227,13 @@ class Spine(mspines.Spine):
         Based on linear_spine()
         """
         # The 'bottom' and 'left' are swapped here so that they appear
-        # correctly.  The 'bottom' spine is associated with the x-axis, which is
-        # on the left in the ternary plot.  The 'left' spine is associated with
-        # the y-axis, which is the bottom axis in the ternary plot.
+        # correctly.  The 'bottom' spine is associated with the x-axis, which
+        # is on the left in the ternary plot.  The 'left' spine is associated
+        # with the y-axis, which is the bottom axis in the ternary plot.
         if spine_type == 'bottom':
-            path = Path([(0.0, 0.0), (1.0, 0.0)]) # Actually the left axis.
+            path = Path([(0.0, 0.0), (1.0, 0.0)])  # Actually the left axis.
         elif spine_type == 'left':
-            path = Path([(1.0, 0.0), (0.0, 1.0)]) # Actually the bottom axis.
+            path = Path([(1.0, 0.0), (0.0, 1.0)])  # Actually the bottom axis.
         elif spine_type == 'right':
             path = Path([(0.0, 1.0), (0.0, 0.0)])
         else:
@@ -293,6 +296,7 @@ class TernaryABAxes(Axes):
         #self._set_lim_and_transforms()
         #self.total = self.viewLim.intervalx[1]
         pass
+
     def set_ylim(self, *args, **kwargs):
     # ** work in progress...
         #Axes.set_xlim(self, *args, **kwargs)
@@ -303,10 +307,13 @@ class TernaryABAxes(Axes):
     # Disable interactive panning and zooming.  **Can this be supported?
     def can_zoom(self):
         return False
+
     def start_pan(self, x, y, button):
         pass
+
     def end_pan(self):
         pass
+
     def drag_pan(self, button, key, x, y):
         pass
 
@@ -315,65 +322,82 @@ class TernaryABAxes(Axes):
         raise NotImplementedError("Autocorrelation plots are not supported by "
                                   "the ternary axes.")
         return
+
     def bar(self, *args, **kwargs):
         raise NotImplementedError("Bar plots are not supported by the ternary "
                                   + "axes.")
         return
+
     def barh(self, *args, **kwargs):
         raise NotImplementedError("Horizontal bar plots are not supported by "
                                   "the ternary axes.")
         return
+
     def boxplot(self, *args, **kwargs):
         raise NotImplementedError("Box plots are not supported by the ternary "
                                   "axes.")
         return
+
     def broken_barh(self, *args, **kwargs):
         raise NotImplementedError("Broken horizontal bar plots are not "
                                   "supported by the ternary axes.")
         return
+
     def cohere(self, *args, **kwargs):
         raise NotImplementedError("Coherance plots are not supported by the "
                                   "ternary axes.")
         return
+
     def csd(self, *args, **kwargs):
         raise NotImplementedError("Cross spectral density plots are not "
                                   "supported by the ternary axes.")
         return
+
     def plot_date(self, *args, **kwargs):
-        raise NotImplementedError("Ternary plots cannot be labeled with dates.")
+        raise NotImplementedError("Ternary plots cannot be labeled with "
+                                  "dates.")
         return
+
     def hist(self, *args, **kwargs):
-        raise NotImplementedError("Histograms are not supported by the ternary "
-                                  "axes.")
+        raise NotImplementedError("Histograms are not supported by the ternary"
+                                  " axes.")
         return
+
     def loglog(self, *args, **kwargs):
         raise NotImplementedError("Logarithmic plots are not supported by the "
                                   "ternary axes.")
         return
+
     def pie(self, *args, **kwargs):
-        raise NotImplementedError("Pie charts are not supported by the ternary "
-                                  "axes.")
+        raise NotImplementedError("Pie charts are not supported by the ternary"
+                                  " axes.")
         return
+
     def polar(self, *args, **kwargs):
         raise NotImplementedError("Polar plots are not supported by the "
                                   "ternary axes.")
         return
+
     def psd(self, *args, **kwargs):
         raise NotImplementedError("Power spectral density plots are not "
                                   "supported by the ternary axes.")
         return
+
     def semilogx(self, *args, **kwargs):
         raise NotImplementedError("Logarithmic plots are not supported by the "
                                   "ternary axes.")
         return
+
     def semilogy(self, *args, **kwargs):
         raise NotImplementedError("Logarithmic plots are not supported by the "
                                   "ternary axes.")
         return
+
     def stem(self, *args, **kwargs):
-        raise NotImplementedError("Stem plots are not supported by the ternary "
-                                  "axes.")
+        raise NotImplementedError("Stem plots are not supported by the ternary"
+                                  " axes.")
         return
+
     def xcorr(self, *args, **kwargs):
         raise NotImplementedError("Correlation plots are not supported by the "
                                   "the ternary axes.")
@@ -381,13 +405,14 @@ class TernaryABAxes(Axes):
 
     # The following methods are not applicable to ternary axes.
     def zgrids(self, *args, **kwargs):
-        raise NotImplementedError("Radial grids cannot be adjusted since polar "
-                                  "plots are not supported by the ternary "
+        raise NotImplementedError("Radial grids cannot be adjusted since polar"
+                                  " plots are not supported by the ternary "
                                   "axes.")
         return
+
     def thetagrids(self, *args, **kwargs):
-        raise NotImplementedError("Radial theta grids cannot be adjusted since "
-                                  "polar plots are not supported by the "
+        raise NotImplementedError("Radial theta grids cannot be adjusted since"
+                                  " polar plots are not supported by the "
                                   "ternary xes.")
         return
 
@@ -444,7 +469,7 @@ class TernaryABAxes(Axes):
 
         or::
 
-          legend( (line1, line2, line3),  ('label1', 'label2', 'label3'), loc=2)
+          legend( (line1, line2, line3), ('label1', 'label2', 'label3'), loc=2)
 
         The location codes are
 
@@ -519,8 +544,8 @@ class TernaryABAxes(Axes):
             if mode is "expand", the legend will be horizontally expanded
             to fill the axes area (or *bbox_to_anchor*)
 
-          *bbox_to_anchor* : an instance of BboxBase or a tuple of 2 or 4 floats
-            the bbox that the legend will be anchored.
+          *bbox_to_anchor* : an instance of BboxBase or a tuple of 2 or 4
+            floats, the bbox that the legend will be anchored.
 
           *bbox_transform* : [ an instance of Transform | None ]
             the transform for the bbox. transAxes if None.
@@ -534,16 +559,16 @@ class TernaryABAxes(Axes):
         implies a handlelength of 50 points.  Values from rcParams
         will be used if None.
 
-        ================   ==================================================================
+        ================   ====================================================
         Keyword            Description
-        ================   ==================================================================
+        ================   ====================================================
         borderpad          the fractional whitespace inside the legend border
         labelspacing       the vertical space between the legend entries
         handlelength       the length of the legend handles
         handletextpad      the pad between the legend handle and text
         borderaxespad      the pad between the axes and legend border
         columnspacing      the spacing between columns
-        ================   ==================================================================
+        ================   ====================================================
 
         .. Note:: Not all kinds of artist are supported by the legend command.
                   See LINK (FIXME) for details.
@@ -556,16 +581,16 @@ class TernaryABAxes(Axes):
         Also see :ref:`plotting-guide-legend`.
 
         """
-        # The legend needs to be positioned outside the bounding box of the plot
-        # area.  The normal specifications (e.g., legend(loc='upper right')) do
-        # not do this.
-        loc=kwargs.pop('loc', 'upper left')
-        borderaxespad=kwargs.pop('borderaxespad', 0)
+        # The legend needs to be positioned outside the bounding box of the
+        # plot area. The normal specifications (e.g. legend(loc='upper right'))
+        # do not do this.
+        loc = kwargs.pop('loc', 'upper left')
+        borderaxespad = kwargs.pop('borderaxespad', 0)
         # The left edge of the legend is horizontally aligned with the right
         # vertex of the plot.  The top edge of the legend is vertically aligned
         # with the top vertex of the plot.
-        bbox_to_anchor=kwargs.pop('bbox_to_anchor', (0.5 + self.height/SQRT3,
-                                                     self.elevation + self.height))
+        bbox_to_anchor = kwargs.pop('bbox_to_anchor',
+           (0.5 + self.height/SQRT3, self.elevation + self.height))
         Axes.legend(self, loc=loc, borderaxespad=borderaxespad,
                     bbox_to_anchor=bbox_to_anchor, *args, **kwargs)
 
@@ -575,7 +600,8 @@ class TernaryABAxes(Axes):
         self.total = total
         self._set_lim_and_transforms()
         # This is a hack.  **Clean it up.
-        self.xaxis.set_ticklabels(['%g'%val for val in np.linspace(0, self.total, 5)])
+        self.xaxis.set_ticklabels(['%g' % val for val in
+                                   np.linspace(0, self.total, 5)])
         #self.set_xticks(np.linspace(0, self.total, 5))
         #self.set_xlim(0.0, self.total)
 
@@ -601,10 +627,10 @@ class TernaryABAxes(Axes):
         self.title.set_y(1.02)
 
         # Modify the padding between the tick labels and the axis labels.
-        self.xaxis.labelpad = 10 # In display units
+        self.xaxis.labelpad = 10  # In display units
 
-        # Spacing from the vertices (tips) to the tip labels (in data coords, as
-        # a fraction of self.total)
+        # Spacing from the vertices (tips) to the tip labels (in data coords,
+        # as a fraction of self.total)
         self.tipoffset = 0.14
 
     def set_tiplabel(self, tiplabel, ha='center', va='center',
@@ -633,15 +659,17 @@ class TernaryABAxes(Axes):
         # 1) The core transformation from data space (a and b coordinates) into
         # Cartesian space defined in the TernaryTransform class.
         #print self.xaxis.view_interval
-        self.transProjection = (Affine2D().translate(-self.viewLim.x0, -self.viewLim.y0)
+        self.transProjection = (Affine2D().translate(-self.viewLim.x0,
+                                                     -self.viewLim.y0)
                                 + Affine2D().scale(1.0/self.total)
                                 + self._gen_transTernary())
 
-        # 2) The above has an output range that is not in the unit rectangle, so
-        # scale and translate it.
+        # 2) The above has an output range that is not in the unit rectangle,
+        # so scale and translate it.
         self.transAffine = (self._gen_transAffinePart1()
                             + Affine2D().scale(self.height*SQRT2)
-                            + Affine2D().translate(0.5, self.height + self.elevation))
+                            + Affine2D().translate(0.5, self.height +
+                                                        self.elevation))
 
         # 3) This is the transformation from axes space to display space.
         self.transAxes = BboxTransformTo(self.bbox)
@@ -660,15 +688,16 @@ class TernaryABAxes(Axes):
         #self._xaxis_transform = IdentityTransform()
         angle = np.radians(self.angle)
         self._xaxis_text1_transform = (self.transData
-                                       + Affine2D().translate(4*np.cos(angle), # 4-pixel offset
+                                       + Affine2D().translate(4*np.cos(angle),
+                                                              # 4-pixel offset
                                                               4*np.sin(angle)))
-        self._xaxis_text2_transform = IdentityTransform() # Required but not used
+        self._xaxis_text2_transform = IdentityTransform()  # Requ. but not used
 
         # Y-axis gridlines and ticklabels.
 #        self._yaxis_transform = Affine2D().rotate_deg(-180) + self.transData
-        self._yaxis_transform = IdentityTransform() # Required but not used
-        self._yaxis_text1_transform = IdentityTransform() # Required but not used
-        self._yaxis_text2_transform = IdentityTransform() # Required but not used
+        self._yaxis_transform = IdentityTransform()  # Required but not used
+        self._yaxis_text1_transform = IdentityTransform()  # Requ. but not used
+        self._yaxis_text2_transform = IdentityTransform()  # Requ. but not used
 
     def get_xaxis_transform(self, which='grid'):
         """Return the transformations for the x-axis grid and ticks.
@@ -711,9 +740,12 @@ class TernaryABAxes(Axes):
 
         The data and gridlines will be clipped to this shape.
         """
-        vertices = np.array([[0.5, self.elevation + self.height], # Point c=1 (upper center)
-                             [0.5 - self.height/SQRT3,  self.elevation], # Point a=1 (lower left)
-                             [0.5 + self.height/SQRT3, self.elevation], # Point b=1 (lower right)
+        vertices = np.array([[0.5, self.elevation + self.height],
+                             # Point c=1 (upper center)
+                             [0.5 - self.height/SQRT3,  self.elevation],
+                             # Point a=1 (lower left)
+                             [0.5 + self.height/SQRT3, self.elevation],
+                             # Point b=1 (lower right)
                              [0.5, self.elevation]])
         codes = [Path.MOVETO, Path.LINETO, Path.LINETO, Path.CLOSEPOLY]
         return PathPatch(Path(vertices, codes))
@@ -722,12 +754,9 @@ class TernaryABAxes(Axes):
         """Return a dict-set_ whose keys are spine names and values are Line2D
         or Patch instances.  Each element is used to draw a spine of the axes.
         """
-#        return {'ternary1':Spine.triangular_spine(self, 'bottom'),
-#                'ternary2':Spine.triangular_spine(self, 'left'),
-#                'ternary3':Spine.triangular_spine(self, 'right')}
-        return {'ternary1':Spine.triangular_spine(self, 'left'),
-                'ternary2':Spine.triangular_spine(self, 'bottom'),
-                'ternary3':Spine.triangular_spine(self, 'right')}
+        return {'ternary1': Spine.triangular_spine(self, 'left'),
+                'ternary2': Spine.triangular_spine(self, 'bottom'),
+                'ternary3': Spine.triangular_spine(self, 'right')}
 
     def _init_axis(self):
         self.xaxis = XAxis(self)
@@ -758,7 +787,8 @@ class TernaryABAxes(Axes):
 
         Axes.__init__(self, *args, **kwargs)
         self.cla()
-        self.set_aspect(aspect='equal', adjustable='box-forced', anchor='C') # C is for center.
+        self.set_aspect(aspect='equal', adjustable='box-forced', anchor='C')
+        # 'C' is for center.
 
 
 class TernaryBCAxes(TernaryABAxes):
@@ -777,8 +807,8 @@ class TernaryBCAxes(TernaryABAxes):
 
     class TernaryTransform(Transform):
         """This is the core of the ternary transform; it performs the
-        non-separable part of mapping *b* (lower right component) and *c* (upper
-        center component) into Cartesian coordinate space *x* and *y*.
+        non-separable part of mapping *b* (lower right component) and *c*
+        (upper center component) into Cartesian coordinate space *x* and *y*.
         """
         input_dims = 2
         output_dims = 2
@@ -786,7 +816,7 @@ class TernaryBCAxes(TernaryABAxes):
 
         def transform_non_affine(self, bc):
             b = bc[:, 0:1]
-            c  = bc[:, 1:2]
+            c = bc[:, 1:2]
             x = b
             y = c + b - 1
             return np.concatenate((x, y), 1)
@@ -805,8 +835,8 @@ class TernaryBCAxes(TernaryABAxes):
 
     class InvertedTernaryTransform(Transform):
         """This is the inverse of the non-separable part of the ternary
-        transform (mapping *x* and *y* in Cartesian coordinate space back to *b*
-        and *c*).
+        transform (mapping *x* and *y* in Cartesian coordinate space back to
+        *b* and *c*).
         """
         input_dims = 2
         output_dims = 2
@@ -824,7 +854,6 @@ class TernaryBCAxes(TernaryABAxes):
         # compatibility with matplotlib v1.1 and older.
         if matplotlib.__version__ < '1.2':
             transform = transform_non_affine
-
 
         def inverted(self):
             return TernaryBCAxes.TernaryTransform()
@@ -849,6 +878,7 @@ class TernaryBCAxes(TernaryABAxes):
         """Return the angle [deg] of these axes relative to the  *c*, *a* axes.
         """
         return 240
+
 
 class TernaryCAAxes(TernaryABAxes):
     """A matplotlib projection for ternary axes
@@ -875,7 +905,7 @@ class TernaryCAAxes(TernaryABAxes):
 
         def transform_non_affine(self, ca):
             c = ca[:, 0:1]
-            a  = ca[:, 1:2]
+            a = ca[:, 1:2]
             x = a
             y = c + a - 1
 
@@ -895,8 +925,8 @@ class TernaryCAAxes(TernaryABAxes):
 
     class InvertedTernaryTransform(Transform):
         """This is the inverse of the non-separable part of the ternary
-        transform (mapping *x* and *y* in Cartesian coordinate space back to *c*
-        and *a*).
+        transform (mapping *x* and *y* in Cartesian coordinate space back to
+        *c* and *a*).
         """
         input_dims = 2
         output_dims = 2
@@ -947,4 +977,3 @@ if __name__ == '__main__':
     plt.grid(True)
 
     plt.show()
-    

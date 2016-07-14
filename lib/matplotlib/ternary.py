@@ -1,18 +1,20 @@
 #!/usr/bin/env python
 """Class to create a ternary plot using matplotlib projections
 """
+
+import matplotlib.pyplot as plt  # **Is this acceptable?
+
+from matplotlib import rcParams
+
 __author__ = "Kevin L. Davies"
 __version__ = "2011/10/12"
 __license__ = "BSD"
-
-import matplotlib.pyplot as plt # **Is this acceptable?
-
-from matplotlib import rcParams
 
 # **To do:
 #   1. Clean up the procedure for setting the colorbar's location.
 #   2. Support all of the applicable axes methods
 #      (http://matplotlib.sourceforge.net/api/axes_api.html).
+
 
 class Ternary():
     """Create and manage a set of ternary axes.
@@ -128,7 +130,7 @@ class Ternary():
 
         or::
 
-          legend( (line1, line2, line3),  ('label1', 'label2', 'label3'), loc=2)
+          legend( (line1, line2, line3), ('label1', 'label2', 'label3'), loc=2)
 
         The location codes are
 
@@ -203,8 +205,8 @@ class Ternary():
             if mode is "expand", the legend will be horizontally expanded
             to fill the axes area (or *bbox_to_anchor*)
 
-          *bbox_to_anchor* : an instance of BboxBase or a tuple of 2 or 4 floats
-            the bbox that the legend will be anchored.
+          *bbox_to_anchor* : an instance of BboxBase or a tuple of 2 or 4
+            floats, the bbox that the legend will be anchored.
 
           *bbox_transform* : [ an instance of Transform | None ]
             the transform for the bbox. transAxes if None.
@@ -218,16 +220,16 @@ class Ternary():
         implies a handlelength of 50 points.  Values from rcParams
         will be used if None.
 
-        ================   ==================================================================
+        ================   ====================================================
         Keyword            Description
-        ================   ==================================================================
+        ================   ====================================================
         borderpad          the fractional whitespace inside the legend border
         labelspacing       the vertical space between the legend entries
         handlelength       the length of the legend handles
         handletextpad      the pad between the legend handle and text
         borderaxespad      the pad between the axes and legend border
         columnspacing      the spacing between columns
-        ================   ==================================================================
+        ================   ====================================================
 
         .. Note:: Not all kinds of artist are supported by the legend command.
                   See LINK (FIXME) for details.
@@ -261,17 +263,20 @@ class Ternary():
         shrink = kwargs.pop('shrink', 1.0)
         fraction = kwargs.pop('fraction', 0.04)
         # This is a hack and the alignment isnt quite right. **Clean it up.
-        scaley = rcParams['figure.subplot.top'] - rcParams['figure.subplot.bottom']
+        scaley =\
+           rcParams['figure.subplot.top'] - rcParams['figure.subplot.bottom']
         if cax is None:
             cax = self.ab.figure.add_axes([0.74 + pad,
-                                          rcParams['figure.subplot.bottom'] + self.ab.elevation,
+                                          rcParams['figure.subplot.bottom'] +
+                                          self.ab.elevation,
                                           fraction,
-                                          self.ab.height*scaley*shrink - 0.005])
+                                          self.ab.height*scaley*shrink -
+                                          0.005])
         return self.ab.figure.colorbar(mappable, cax=cax, ax=ax, **kwargs)
 #        return self.figure.colorbar(shrink=shrink, pad=pad, *args, **kwargs)
 
     def __init__(self, ax=None):
-        if  ax is None:
+        if ax is None:
             fig = plt.figure()
             self.ab = fig.add_subplot(111, projection='ternaryab')
         else:
