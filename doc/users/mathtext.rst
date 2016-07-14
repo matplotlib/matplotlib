@@ -49,7 +49,7 @@ produces ":math:`\alpha > \beta`".
    single dollar sign is present in the entire string, it will be
    displayed verbatim as a dollar sign.  This is a small change from
    regular TeX, where the dollar sign in non-math text would have to
-   be escaped ('\$').
+   be escaped ('\\\$').
 
 .. note::
    While the syntax inside the pair of dollar signs ($) aims to be
