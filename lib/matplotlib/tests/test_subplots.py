@@ -129,16 +129,6 @@ def test_subplots_offsettext():
     axes[1, 1].plot(y, x)
 
 
-@cleanup
-def test_subplots():
-    # things to test
-    # - are axes actually shared?
-    # - are tickmarks correctly hidden?
-    test_shared()
-    # - are exceptions thrown correctly
-    test_exceptions()
-
-
 if __name__ == "__main__":
     import nose
     nose.runmodule(argv=['-s', '--with-doctest'], exit=False)
