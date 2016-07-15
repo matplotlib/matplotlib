@@ -40,6 +40,7 @@ exist. Some of these are given here:
 * The ``TKAgg`` backend doesn't require any external dependencies and is
   normally always available.
 * The ``QT4`` framework ``PySide`` is pip installable.
+* ``PYQT5`` is pip installable on Python 3.5.
 * The upcoming `WX Phoenix <http://wiki.wxpython.org/ProjectPhoenix>`_ toolkit
   is ``pip`` installable.
 
@@ -59,8 +60,8 @@ I.e. to use PyQt5, you should symlink ``PyQt5`` and ``sip`` from your system
 site packages directory into the environment taking care that the environment
 and the systemwide install use the same python version.
 
-OSX
-===
+OSX Framework builds
+====================
 
 Short version
 -------------
@@ -76,15 +77,35 @@ Long version
 ------------
 
 On OSX, two different types of Python Builds exist: a regular build and a
-framework build. In order to interact correctly with OSX through some
+framework build. In order to interact correctly with OSX through the native
 GUI frameworks you need a framework build of Python.
-At the time of writing the ``macosx``, ``WX`` and ``WXAgg`` backends require a
-framework build to function correctly. Unfortunately virtualenv creates a non
-framework build even if created from a framework build of Python. Conda
-environments are framework builds. From
-Matplotlib 1.5 onwards the ``macosx`` backend checks that a framework build is
-available and fails if a non framework build is found.
-WX has a similar check build in.
+At the time of writing the ``macosx`` and ``WXAgg`` backends require a
+framework build to function correctly. This can result in issues for 
+a python installation not build as a framework. In virtual envs and when
+using (Ana)Conda. From Matplotlib 1.5 onwards the ``macosx`` backend 
+checks that a framework build is available and fails if a non framework 
+build is found. WX has a similar check build in.
+
+Without this check a partially functional figure is created. 
+Among the issues with it is that it is produced in the background and 
+cannot be put in front of any other window. 
+
+
+OSX Conda
+=========
+
+The default python provided in (Ana)Conda is not a framework
+build. However, the Conda developers have made it easy to install
+a framework build in both the main environment and in Conda envs. 
+To use this install python.app ``conda install python.app`` and 
+use ``pythonw`` rather than ``python``
+
+
+OSX virtualenv
+==============
+
+Unfortunately virtualenv creates a non
+framework build even if created from a framework build of Python.
 
 The issue has been reported on the virtualenv bug tracker `here
 <https://github.com/pypa/virtualenv/issues/54>`__ and `here
@@ -92,12 +113,37 @@ The issue has been reported on the virtualenv bug tracker `here
 
 Until this is fixed, one of the following workarounds must be used:
 
+``PYTHONHOME`` Function
+-----------------------
+
+The best known work around is to use the non
+virtualenv python along with the PYTHONHOME environment variable.
+This can be done by defining a function in your ``.bashrc`` using
+
+.. code:: bash
+
+  function frameworkpython {
+      if [[ ! -z "$VIRTUAL_ENV" ]]; then
+          PYTHONHOME=$VIRTUAL_ENV /usr/local/bin/python "$@"
+      else
+          /usr/local/bin/python "$@"
+      fi
+  }
+
+This function can then be used in all of your virtualenvs without having to
+fix every single one of them.
+
+With this in place you can run ``frameworkpython`` to get an interactive
+framework build within the virtualenv. To run a script you can do
+``frameworkpython test.py`` where ``test.py`` is a script that requires a
+framework build. To run an interactive ``IPython`` session with the framework
+build within the virtual environment you can do ``frameworkpython -m IPython``
+
 ``PYTHONHOME`` Script
 ^^^^^^^^^^^^^^^^^^^^^
 
-The best known workaround,
-borrowed  from the `WX wiki
-<http://wiki.wxpython.org/wxPythonVirtualenvOnMac>`_, is to  use the non
+An alternative work around borrowed from the `WX wiki
+<http://wiki.wxpython.org/wxPythonVirtualenvOnMac>`_, is to use the non
 virtualenv python along with the PYTHONHOME environment variable.  This can be
 implemented in a script as below. To use this modify ``PYVER`` and
 ``PATHTOPYTHON`` and put the script in the virtualenv bin directory i.e.
@@ -119,30 +165,8 @@ implemented in a script as below. To use this modify ``PYVER`` and
   export PYTHONHOME=$ENV
   exec $PYTHON "$@"
 
-
-With this in place you can run ``frameworkpython`` to get an interactive
-framework build within the virtualenv. To run a script you can do
-``frameworkpython test.py`` where ``test.py`` is a script that requires a
-framework build. To run an interactive ``IPython`` session with the framework
-build within the virtual environment you can do ``frameworkpython -m IPython``
-
-``PYTHONHOME`` Function
-^^^^^^^^^^^^^^^^^^^^^^^
-
-Alternatively you can define a function in your ``.bashrc`` using
-
-.. code:: bash
-
-  function frameworkpython {
-      if [[ ! -z "$VIRTUAL_ENV" ]]; then
-          PYTHONHOME=$VIRTUAL_ENV /usr/local/bin/python "$@"
-      else
-          /usr/local/bin/python "$@"
-      fi
-  }
-
-This function can then be used in all of your virtualenvs without having to
-fix every single one of them.
+With this in place you can run ``frameworkpython`` as above but will need to add this script 
+to every virtualenv
 
 PythonW Compiler
 ^^^^^^^^^^^^^^^^
