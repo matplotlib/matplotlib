@@ -116,7 +116,8 @@ test_script:
   - cmd: '"%DUMPBIN%" /DEPENDENTS lib\\matplotlib\\_png*.pyd | findstr png.*.dll && exit /b 1 || exit /b 0'
 
   # this are optional dependencies so that we don't skip so many tests...
-  - cmd: conda install -q pillow miktex
+  # WORKAROUND: set miktex to the old version until I figured out whats wrong here...
+  - cmd: conda install -q pillow miktex=2.9.5857
   # autoinstall latex packages (0=no, 1=autoinstall, 2=ask)
   # this adds this to the registry!
   - cmd: initexmf --set-config-value "[MPM]AutoInstall=1"
