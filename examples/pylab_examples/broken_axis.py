@@ -44,7 +44,7 @@ ax2.xaxis.tick_bottom()
 # right transform and disable clipping.
 
 d = .015  # how big to make the diagonal lines in axes coordinates
-# arguments to pass plot, just so we don't keep repeating them
+# arguments to pass to plot, just so we don't keep repeating them
 kwargs = dict(transform=ax.transAxes, color='k', clip_on=False)
 ax.plot((-d, +d), (-d, +d), **kwargs)        # top-left diagonal
 ax.plot((1 - d, 1 + d), (-d, +d), **kwargs)  # top-right diagonal
