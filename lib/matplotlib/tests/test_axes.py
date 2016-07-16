@@ -4137,6 +4137,30 @@ def test_rc_tick():
 
 
 @cleanup
+def test_rc_major_minor_tick():
+    d = {'xtick.top': True, 'ytick.right': True,  # Enable all ticks
+         'xtick.bottom': True, 'ytick.left': True,
+         # Selectively disable
+         'xtick.minor.bottom': False, 'xtick.major.bottom': False,
+         'ytick.major.left': False, 'ytick.minor.left': False}
+    with plt.rc_context(rc=d):
+        fig = plt.figure()
+        ax1 = fig.add_subplot(1, 1, 1)
+        xax = ax1.xaxis
+        yax = ax1.yaxis
+        # tick1On bottom/left
+        assert xax._major_tick_kw['tick1On'] == False
+        assert xax._major_tick_kw['tick2On'] == True
+        assert xax._minor_tick_kw['tick1On'] == False
+        assert xax._minor_tick_kw['tick2On'] == True
+
+        assert yax._major_tick_kw['tick1On'] == False
+        assert yax._major_tick_kw['tick2On'] == True
+        assert yax._minor_tick_kw['tick1On'] == False
+        assert yax._minor_tick_kw['tick2On'] == True
+
+
+@cleanup
 def test_bar_negative_width():
     fig, ax = plt.subplots()
     res = ax.bar(range(1, 5), range(1, 5), width=-1)
