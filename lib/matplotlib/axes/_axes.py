@@ -5871,7 +5871,7 @@ or tuple of floats
         Parameters
         ----------
         x : (n,) array or sequence of (n,) arrays
-            Input values, this takes either a single array or a sequency of
+            Input values, this takes either a single array or a sequence of
             arrays which are not required to be of the same length
 
         bins : integer or array_like or 'auto', optional
@@ -6042,8 +6042,8 @@ or tuple of floats
 
         """
         def _normalize_input(inp, ename='input'):
-            """Normalize 1 or 2d input into list of np.ndarray or
-            a single 2D np.ndarray.
+            """Normalize 1 or 2d input into a list of one or more np.ndarrays
+            which have potentially different lengths.
 
             Parameters
             ----------
@@ -6054,25 +6054,30 @@ or tuple of floats
             """
             if (isinstance(x, np.ndarray) or
                     not iterable(cbook.safe_first_element(inp))):
-                # TODO: support masked arrays;
+
                 inp = np.asarray(inp)
                 if inp.ndim == 2:
                     # 2-D input with columns as datasets; switch to rows
                     inp = inp.T
+
+                    if inp.shape[1] < inp.shape[0]:
+                        warnings.warn(
+                            '2D hist input should be nsamples x nvariables;\n '
+                            'this looks transposed '
+                            '(shape is %d x %d)' % inp.shape[::-1])
+
+                    # Change to a list of arrays
+                    inp = [inp[i, :] for i in range(inp.shape[0])]
+
                 elif inp.ndim == 1:
-                    # new view, single row
-                    inp = inp.reshape(1, inp.shape[0])
+                    # Change to a list with a single array
+                    inp = [inp.reshape(1, inp.shape[0])]
                 else:
                     raise ValueError(
                         "{ename} must be 1D or 2D".format(ename=ename))
-                if inp.shape[1] < inp.shape[0]:
-                    warnings.warn(
-                        '2D hist input should be nsamples x nvariables;\n '
-                        'this looks transposed '
-                        '(shape is %d x %d)' % inp.shape[::-1])
             else:
-                # multiple hist with data of different length
-                inp = [np.asarray(xi) for xi in inp]
+                # Change to a list of arrays
+                inp = [np.asarray(arr) for arr in inp]
 
             return inp
 
