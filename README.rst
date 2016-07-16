@@ -18,11 +18,11 @@ For installation instructions and requirements, see the INSTALL file.
 Testing
 =======
 
-After installation, you can launch the test suite:
+After installation, you can launch the test suite::
 
   python tests.py
 
-Or from the Python interpreter:
+Or from the Python interpreter::
 
   import matplotlib
   matplotlib.test()
