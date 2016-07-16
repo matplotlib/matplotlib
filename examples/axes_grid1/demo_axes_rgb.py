@@ -49,6 +49,13 @@ def demo_rgb():
     r, g, b = get_rgb()
     im_r, im_g, im_b, im_rgb = make_cube(r, g, b)
     kwargs = dict(origin="lower", interpolation="nearest")
+
+    #make ticks invisible
+    ax.tick_params(length=0)
+    ax_r.tick_params(length=0)
+    ax_g.tick_params(length=0)
+    ax_b.tick_params(length=0)
+    
     ax.imshow(im_rgb, **kwargs)
     ax_r.imshow(im_r, **kwargs)
     ax_g.imshow(im_g, **kwargs)
