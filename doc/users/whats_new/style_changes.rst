@@ -127,3 +127,19 @@ Legends
   data possible.
 
 - The legend now has rounded corners by default.
+
+mplot3d
+```````
+
+- mplot3d now obeys some style-related rcParams, rather than using
+  hard-coded defaults.  These include:
+
+  - xtick.major.width
+  - ytick.major.width
+  - xtick.color
+  - ytick.color
+  - axes.linewidth
+  - axes.edgecolor
+  - grid.color
+  - grid.linewidth
+  - grid.linestyle
