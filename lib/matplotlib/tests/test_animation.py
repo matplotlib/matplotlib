@@ -30,6 +30,13 @@ def test_save_animation_smoketest():
 
 @cleanup
 def check_save_animation(writer, extension='mp4'):
+    try:
+        # for ImageMagick the rcparams must be patched to account for
+        # 'convert' being a built in MS tool, not the imagemagick
+        # tool.
+        writer._init_from_registry()
+    except AttributeError:
+        pass
     if not animation.writers.is_available(writer):
         raise KnownFailureTest("writer '%s' not available on this system"
                                % writer)
