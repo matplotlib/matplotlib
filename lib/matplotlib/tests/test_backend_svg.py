@@ -161,15 +161,17 @@ def _test_determinism(filename, usetex):
         # problem in the output property of the exception
         try:
             check_output([sys.executable, '-R', '-c',
-                        'import matplotlib; '
-                        'matplotlib.use("svg"); '
-                        'from matplotlib.tests.test_backend_svg '
-                        'import _test_determinism_save;'
-                        '_test_determinism_save(%r, %r)' % (filename, usetex)],
-                        stderr=STDOUT)
+                          'import matplotlib; '
+                          'matplotlib.use("svg"); '
+                          'from matplotlib.tests.test_backend_svg '
+                          'import _test_determinism_save;'
+                          '_test_determinism_save(%r, %r)' % (filename,
+                                                              usetex)],
+                         stderr=STDOUT)
         except CalledProcessError as e:
-            # it's easier to use utf8 and ask for forgiveness than try to figure
-            # out what the current console has as an encoding :-/
+            # it's easier to use utf8 and ask for forgiveness than try
+            # to figure out what the current console has as an
+            # encoding :-/
             print(e.output.decode(encoding="utf-8", errors="ignore"))
             raise e
         with open(filename, 'rb') as fd:
