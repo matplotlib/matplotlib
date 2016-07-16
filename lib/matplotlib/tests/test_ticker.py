@@ -97,6 +97,7 @@ def test_NullLocator_set_params():
     """
     loc = mticker.NullLocator()
     with warnings.catch_warnings(record=True) as w:
+        warnings.simplefilter("always")
         loc.set_params()
         nose.tools.assert_equal(len(w), 1)
 
