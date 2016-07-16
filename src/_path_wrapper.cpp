@@ -15,22 +15,10 @@ PyObject *convert_polygon_vector(std::vector<Polygon> &polygons)
         npy_intp dims[2];
         dims[1] = 2;
 
-        if (poly.front() != poly.back()) {
-            /* Make last point same as first, if not already */
-            dims[0] = (npy_intp)poly.size() + 1;
-            fix_endpoints = true;
-        } else {
-            dims[0] = (npy_intp)poly.size();
-            fix_endpoints = false;
-        }
+        dims[0] = (npy_intp)poly.size();
 
         numpy::array_view<double, 2> subresult(dims);
         memcpy(subresult.data(), &poly[0], sizeof(double) * poly.size() * 2);
-
-        if (fix_endpoints) {
-            subresult(poly.size(), 0) = poly.front().x;
-            subresult(poly.size(), 1) = poly.front().y;
-        }
 
         if (PyList_SetItem(pyresult, i, subresult.pyobj())) {
             Py_DECREF(pyresult);
@@ -542,21 +530,26 @@ static PyObject *Py_convert_path_to_polygons(PyObject *self, PyObject *args, PyO
     py::PathIterator path;
     agg::trans_affine trans;
     double width = 0.0, height = 0.0;
+    int closed_only = 1;
     std::vector<Polygon> result;
+    const char *names[] = { "path", "transform", "width", "height", "closed_only", NULL };
 
-    if (!PyArg_ParseTuple(args,
-                          "O&O&|dd:convert_path_to_polygons",
-                          &convert_path,
-                          &path,
-                          &convert_trans_affine,
-                          &trans,
-                          &width,
-                          &height)) {
+    if (!PyArg_ParseTupleAndKeywords(args,
+                                     kwds,
+                                     "O&O&|ddi:convert_path_to_polygons",
+                                     (char **)names,
+                                     &convert_path,
+                                     &path,
+                                     &convert_trans_affine,
+                                     &trans,
+                                     &width,
+                                     &height,
+                                     &closed_only)) {
         return NULL;
     }
 
     CALL_CPP("convert_path_to_polygons",
-             (convert_path_to_polygons(path, trans, width, height, result)));
+             (convert_path_to_polygons(path, trans, width, height, closed_only, result)));
 
     return convert_polygon_vector(result);
 }
@@ -827,7 +820,7 @@ extern "C" {
         {"affine_transform", (PyCFunction)Py_affine_transform, METH_VARARGS, Py_affine_transform__doc__},
         {"count_bboxes_overlapping_bbox", (PyCFunction)Py_count_bboxes_overlapping_bbox, METH_VARARGS, Py_count_bboxes_overlapping_bbox__doc__},
         {"path_intersects_path", (PyCFunction)Py_path_intersects_path, METH_VARARGS|METH_KEYWORDS, Py_path_intersects_path__doc__},
-        {"convert_path_to_polygons", (PyCFunction)Py_convert_path_to_polygons, METH_VARARGS, Py_convert_path_to_polygons__doc__},
+        {"convert_path_to_polygons", (PyCFunction)Py_convert_path_to_polygons, METH_VARARGS|METH_KEYWORDS, Py_convert_path_to_polygons__doc__},
         {"cleanup_path", (PyCFunction)Py_cleanup_path, METH_VARARGS, Py_cleanup_path__doc__},
         {"convert_to_string", (PyCFunction)Py_convert_to_string, METH_VARARGS, Py_convert_to_string__doc__},
         {"is_sorted", (PyCFunction)Py_is_sorted, METH_O, Py_is_sorted__doc__},
