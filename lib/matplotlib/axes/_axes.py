@@ -6055,7 +6055,7 @@ or tuple of floats
             if (isinstance(x, np.ndarray) or
                     not iterable(cbook.safe_first_element(inp))):
 
-                inp = np.asarray(inp)
+                inp = cbook.safe_masked_invalid(inp)
                 if inp.ndim == 2:
                     # 2-D input with columns as datasets; switch to rows
                     inp = inp.T
@@ -6077,7 +6077,7 @@ or tuple of floats
                         "{ename} must be 1D or 2D".format(ename=ename))
             else:
                 # Change to a list of arrays
-                inp = [np.asarray(arr) for arr in inp]
+                inp = [cbook.safe_masked_invalid(arr) for arr in inp]
 
             return inp
 
@@ -6138,6 +6138,7 @@ or tuple of floats
         else:
             w = _normalize_input(weights, 'weights')
 
+        # Comparing shape of weights vs. x
         if len(w) != nx:
             raise ValueError('weights should have the same shape as x')
 
@@ -6145,6 +6146,16 @@ or tuple of floats
             if wi is not None and len(wi) != len(xi):
                 raise ValueError(
                     'weights should have the same shape as x')
+
+        # Combine the masks from x[i] and w[i] (if applicable) into a single
+        # mask and apply it to both.
+        if not input_empty:
+            for i in range(len(x)):
+                mask_i = x[i].mask
+                if w[i] is not None:
+                    mask_i = mask_i | w[i].mask
+                    w[i] = np.ma.masked_array(w[i], mask=mask_i).compressed()
+                x[i] = np.ma.masked_array(x[i], mask=mask_i).compressed()
 
         if color is None:
             color = [self._get_lines.get_next_color() for i in xrange(nx)]
