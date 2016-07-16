@@ -40,6 +40,28 @@ struct XY
     }
 };
 
+typedef std::vector<XY> Polygon;
+
+void _finalize_polygon(std::vector<Polygon> &result, int closed_only)
+{
+    if (result.size() == 0) {
+        return;
+    }
+
+    Polygon &polygon = result.back();
+
+    /* Clean up the last polygon in the result.  */
+    if (polygon.size() == 0) {
+        result.pop_back();
+    } else if (closed_only) {
+        if (polygon.size() < 3) {
+            result.pop_back();
+        } else if (polygon.front() != polygon.back()) {
+            polygon.push_back(polygon.front());
+        }
+    }
+}
+
 //
 // The following function was found in the Agg 2.3 examples (interactive_polygon.cpp).
 // It has been generalized to work on (possibly curved) polylines, rather than
@@ -509,8 +531,6 @@ bool path_in_path(PathIterator1 &a,
   http://en.wikipedia.org/wiki/Sutherland-Hodgman_clipping_algorithm
 */
 
-typedef std::vector<XY> Polygon;
-
 namespace clip_to_rect_filters
 {
 /* There are four different passes needed to create/remove
@@ -696,9 +716,12 @@ clip_path_to_rect(PathIterator &path, agg::rect_d &rect, bool inside, std::vecto
 
         // Empty polygons aren't very useful, so skip them
         if (polygon1.size()) {
+            _finalize_polygon(results, 1);
             results.push_back(polygon1);
         }
     } while (code != agg::path_cmd_stop);
+
+    _finalize_polygon(results, 1);
 }
 
 template <class VerticesArray, class ResultArray>
@@ -849,30 +872,12 @@ bool path_intersects_path(PathIterator1 &p1, PathIterator2 &p2)
     return false;
 }
 
-void _finalize_polygon(std::vector<Polygon> &result)
-{
-    Polygon &polygon = result.back();
-
-    if (result.size() == 0) {
-        return;
-    }
-
-    /* Clean up the last polygon in the result.  If less than a
-       triangle, remove it. */
-    if (polygon.size() < 3) {
-        result.pop_back();
-    } else {
-        if (polygon.front() != polygon.back()) {
-            polygon.push_back(polygon.front());
-        }
-    }
-}
-
 template <class PathIterator>
 void convert_path_to_polygons(PathIterator &path,
                               agg::trans_affine &trans,
                               double width,
                               double height,
+                              int closed_only,
                               std::vector<Polygon> &result)
 {
     typedef agg::conv_transform<py::PathIterator> transformed_path_t;
@@ -897,12 +902,12 @@ void convert_path_to_polygons(PathIterator &path,
 
     while ((code = curve.vertex(&x, &y)) != agg::path_cmd_stop) {
         if ((code & agg::path_cmd_end_poly) == agg::path_cmd_end_poly) {
-            _finalize_polygon(result);
+            _finalize_polygon(result, 1);
             result.push_back(Polygon());
             polygon = &result.back();
         } else {
             if (code == agg::path_cmd_move_to) {
-                _finalize_polygon(result);
+                _finalize_polygon(result, closed_only);
                 result.push_back(Polygon());
                 polygon = &result.back();
             }
@@ -910,7 +915,7 @@ void convert_path_to_polygons(PathIterator &path,
         }
     }
 
-    _finalize_polygon(result);
+    _finalize_polygon(result, closed_only);
 }
 
 template <class VertexSource>
