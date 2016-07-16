@@ -102,10 +102,10 @@ def get_file_hash(path, block_size=2 ** 20):
 
     if path.endswith('.pdf'):
         from matplotlib import checkdep_ghostscript
-        md5.update(checkdep_ghostscript()[1])
+        md5.update(checkdep_ghostscript()[1].encode('utf-8'))
     elif path.endswith('.svg'):
         from matplotlib import checkdep_inkscape
-        md5.update(checkdep_inkscape())
+        md5.update(checkdep_inkscape().encode('utf-8'))
 
     return md5.hexdigest()
 
