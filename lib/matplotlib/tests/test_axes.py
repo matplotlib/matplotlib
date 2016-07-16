@@ -2666,6 +2666,7 @@ def test_eventplot_problem_kwargs():
     axobj = fig.add_subplot(111)
 
     with warnings.catch_warnings(record=True) as w:
+        warnings.simplefilter("always")
         colls = axobj.eventplot(data,
                                 colors=['r', 'b'],
                                 color=['c', 'm'],
@@ -4017,6 +4018,7 @@ def test_pathological_hexbin():
     out = io.BytesIO()
 
     with warnings.catch_warnings(record=True) as w:
+        warnings.simplefilter("always")
         mylist = [10] * 100
         fig, ax = plt.subplots(1, 1)
         ax.hexbin(mylist, mylist)
@@ -4236,10 +4238,11 @@ def test_errorbar_inputs_shotgun():
 def test_axisbg_warning():
     fig = plt.figure()
     with warnings.catch_warnings(record=True) as w:
+        warnings.simplefilter("always")
         ax = matplotlib.axes.Axes(fig, [0, 0, 1, 1], axisbg='r')
-    assert len(w) == 1
-    assert (str(w[0].message).startswith(
-            ("The axisbg attribute was deprecated in version 2.0.")))
+        assert len(w) == 1
+        msg = "The axisbg attribute was deprecated in version 2.0."
+        assert str(w[0].message).startswith(msg)
 
 
 @image_comparison(baseline_images=["dash_offset"], remove_text=True)
