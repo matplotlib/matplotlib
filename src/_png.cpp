@@ -199,27 +199,36 @@ static PyObject *Py_write_png(PyObject *self, PyObject *args, PyObject *kwds)
         py_file = filein;
     }
 
-    #if PY3K
-    if (close_file) {
-    #else
-    if (close_file || PyFile_Check(py_file)) {
-    #endif
-        fp = mpl_PyFile_Dup(py_file, (char *)"wb", &offset);
-    }
-
-    if (fp) {
-        close_dup_file = true;
-    } else {
-        PyErr_Clear();
-        PyObject *write_method = PyObject_GetAttrString(py_file, "write");
-        if (!(write_method && PyCallable_Check(write_method))) {
-            Py_XDECREF(write_method);
-            PyErr_SetString(PyExc_TypeError,
-                            "Object does not appear to be a 8-bit string path or "
-                            "a Python file-like object");
+    if (filein == Py_None) {
+        buff.size = width * height * 4 + 1024;
+        buff.str = PyBytes_FromStringAndSize(NULL, buff.size);
+        if (buff.str == NULL) {
             goto exit;
         }
-        Py_XDECREF(write_method);
+        buff.cursor = 0;
+    } else {
+        #if PY3K
+        if (close_file) {
+        #else
+        if (close_file || PyFile_Check(py_file)) {
+        #endif
+            fp = mpl_PyFile_Dup(py_file, (char *)"wb", &offset);
+        }
+
+        if (fp) {
+            close_dup_file = true;
+        } else {
+            PyErr_Clear();
+            PyObject *write_method = PyObject_GetAttrString(py_file, "write");
+            if (!(write_method && PyCallable_Check(write_method))) {
+                Py_XDECREF(write_method);
+                PyErr_SetString(PyExc_TypeError,
+                                "Object does not appear to be a 8-bit string path or "
+                                "a Python file-like object");
+                goto exit;
+            }
+            Py_XDECREF(write_method);
+        }
     }
 
     png_ptr = png_create_write_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
