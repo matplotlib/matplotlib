@@ -365,23 +365,27 @@ def checkdep_dvipng():
 
 
 def checkdep_ghostscript():
-    if sys.platform == 'win32':
-        # mgs is the name in miktex
-        gs_execs = ['gswin32c', 'gswin64c', 'mgs', 'gs']
-    else:
-        gs_execs = ['gs']
-    for gs_exec in gs_execs:
-        try:
-            s = subprocess.Popen(
-                [gs_exec, '--version'], stdout=subprocess.PIPE,
-                stderr=subprocess.PIPE)
-            stdout, stderr = s.communicate()
-            if s.returncode == 0:
-                v = stdout[:-1].decode('ascii')
-                return gs_exec, v
-        except (IndexError, ValueError, OSError):
-            pass
-    return None, None
+    if checkdep_ghostscript.executable is None:
+        if sys.platform == 'win32':
+            # mgs is the name in miktex
+            gs_execs = ['gswin32c', 'gswin64c', 'mgs', 'gs']
+        else:
+            gs_execs = ['gs']
+        for gs_exec in gs_execs:
+            try:
+                s = subprocess.Popen(
+                    [gs_exec, '--version'], stdout=subprocess.PIPE,
+                    stderr=subprocess.PIPE)
+                stdout, stderr = s.communicate()
+                if s.returncode == 0:
+                    v = stdout[:-1].decode('ascii')
+                    checkdep_ghostscript.executable = gs_exec
+                    checkdep_ghostscript.version = v
+            except (IndexError, ValueError, OSError):
+                pass
+    return checkdep_ghostscript.executable, checkdep_ghostscript.version
+checkdep_ghostscript.executable = None
+checkdep_ghostscript.version = None
 
 
 def checkdep_tex():
@@ -413,18 +417,21 @@ def checkdep_pdftops():
 
 
 def checkdep_inkscape():
-    try:
-        s = subprocess.Popen(['inkscape', '-V'], stdout=subprocess.PIPE,
-                             stderr=subprocess.PIPE)
-        stdout, stderr = s.communicate()
-        lines = stdout.decode('ascii').split('\n')
-        for line in lines:
-            if 'Inkscape' in line:
-                v = line.split()[1]
-                break
-        return v
-    except (IndexError, ValueError, UnboundLocalError, OSError):
-        return None
+    if checkdep_inkscape.version is None:
+        try:
+            s = subprocess.Popen(['inkscape', '-V'], stdout=subprocess.PIPE,
+                                 stderr=subprocess.PIPE)
+            stdout, stderr = s.communicate()
+            lines = stdout.decode('ascii').split('\n')
+            for line in lines:
+                if 'Inkscape' in line:
+                    v = line.split()[1]
+                    break
+            checkdep_inkscape.version = v
+        except (IndexError, ValueError, UnboundLocalError, OSError):
+            pass
+    return checkdep_inkscape.version
+checkdep_inkscape.version = None
 
 
 def checkdep_xmllint():
