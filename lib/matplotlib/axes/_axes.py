@@ -6130,6 +6130,7 @@ class Axes(_AxesBase):
         else:
             w = [None] * nx
 
+        # Comparing shape of weights vs. x
         if len(w) != nx:
             raise ValueError('weights should have the same shape as x')
 
@@ -6137,6 +6138,18 @@ class Axes(_AxesBase):
             if wi is not None and len(wi) != len(xi):
                 raise ValueError(
                     'weights should have the same shape as x')
+
+        # Combine the masks from x[i] and w[i] (if applicable) into a single
+        # mask and apply it to both.
+        if not input_empty:
+            for i, (xi, wi) in enumerate(zip(x, w)):
+                xi = cbook.safe_masked_invalid(xi)
+                mask = xi.mask
+                if wi is not None:
+                    wi = cbook.safe_masked_invalid(wi)
+                    mask = mask | wi.mask
+                    w[i] = np.ma.masked_array(wi, mask=mask)
+                x[i] = np.ma.masked_array(xi, mask=mask)
 
         if color is None:
             color = [self._get_lines.get_next_color() for i in xrange(nx)]
