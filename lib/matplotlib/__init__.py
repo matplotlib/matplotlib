@@ -1460,7 +1460,7 @@ else:
     # variable MPLBACKEND
     try:
         use(os.environ['MPLBACKEND'])
-    except (KeyError, ValueError):
+    except KeyError:
         pass
 
 
