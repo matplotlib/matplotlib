@@ -2,10 +2,10 @@
 matplotlib
 ##########
 
-matplotlib is a python 2D plotting library which produces publication
-quality figures in a variety of hardcopy formats and interactive
-environments across platforms. matplotlib can be used in python
-scripts, the python and ipython shell (ala matlab or mathematica), web
+matplotlib is a Python 2D plotting library which produces publication-quality
+figures in a variety of hardcopy formats and interactive
+environments across platforms. matplotlib can be used in Python
+scripts, the Python and IPython shell (ala MATLAB or Mathematica), web
 application servers, and various graphical user interface toolkits.
 
 `Home page <http://matplotlib.org/>`_
@@ -22,13 +22,13 @@ After installation, you can launch the test suite::
 
   python tests.py
 
-Or from the python interpreter::
+Or from the Python interpreter::
 
   import matplotlib
   matplotlib.test()
 
 Consider reading http://matplotlib.org/devel/coding_guide.html#testing for
-more information. Note that the test suite requires nose and on python 2.7 mock
+more information. Note that the test suite requires nose and on Python 2.7 mock
 which are not installed by default. Please install with pip or your package
 manager of choice.
 
