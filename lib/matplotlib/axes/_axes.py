@@ -6122,22 +6122,21 @@ or tuple of floats
         binsgiven = (cbook.iterable(bins) or bin_range is not None)
 
         # basic input validation
-        flat = np.ravel(x)
+        input_empty = len(np.ravel(x)) == 0
 
-        input_empty = len(flat) == 0
-
-        # Massage 'x' for processing.
+        # Massage shape of 'x' to be a list of arrays
         if input_empty:
-            x = np.array([[]])
+            x = [np.array([[]])]
         else:
             x = _normalize_input(x, 'x')
         nx = len(x)  # number of datasets
 
-        # We need to do to 'weights' what was done to 'x'
-        if weights is not None:
-            w = _normalize_input(weights, 'weights')
-        else:
+        # Massage shape of 'weights' to be a list, where each element
+        # weights[i] is either None or an array with the same shape as x[i]
+        if weights is None:
             w = [None]*nx
+        else:
+            w = _normalize_input(weights, 'weights')
 
         if len(w) != nx:
             raise ValueError('weights should have the same shape as x')
