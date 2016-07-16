@@ -181,17 +181,14 @@ class ImageComparisonTest(CleanupTest):
     @classmethod
     def setup_class(cls):
         CleanupTest.setup_class()
-        cls._initial_settings = mpl.rcParams.copy()
         try:
             matplotlib.style.use(cls._style)
+            matplotlib.testing.set_font_settings_for_testing()
+            cls._func()
         except:
             # Restore original settings before raising errors during the update.
-            mpl.rcParams.clear()
-            mpl.rcParams.update(cls._initial_settings)
+            CleanupTest.teardown_class()
             raise
-        cls.original_settings = cls._initial_settings
-        matplotlib.testing.set_font_settings_for_testing()
-        cls._func()
 
     @classmethod
     def teardown_class(cls):
