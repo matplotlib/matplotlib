@@ -156,7 +156,8 @@ def test_path_to_polygons():
     p = Path(data)
 
     assert_array_equal(p.to_polygons(width=40, height=40), [])
-    assert_array_equal(p.to_polygons(width=40, height=40, closed_only=False), [data])
+    assert_array_equal(p.to_polygons(width=40, height=40, closed_only=False),
+                       [data])
     assert_array_equal(p.to_polygons(), [])
     assert_array_equal(p.to_polygons(closed_only=False), [data])
 
@@ -165,7 +166,8 @@ def test_path_to_polygons():
     p = Path(data)
 
     assert_array_equal(p.to_polygons(width=40, height=40), [closed_data])
-    assert_array_equal(p.to_polygons(width=40, height=40, closed_only=False), [data])
+    assert_array_equal(p.to_polygons(width=40, height=40, closed_only=False),
+                       [data])
     assert_array_equal(p.to_polygons(), [closed_data])
     assert_array_equal(p.to_polygons(closed_only=False), [data])
 
