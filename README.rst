@@ -42,3 +42,8 @@ matplotlib's communication channels include active mailing lists:
 
 
 The first is a good starting point for general questions and discussions.
+
+
+.. image:: https://badges.gitter.im/Join%20Chat.svg
+   :alt: Join the chat at https://gitter.im/matplotlib/matplotlib
+   :target: https://gitter.im/matplotlib/matplotlib?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge
