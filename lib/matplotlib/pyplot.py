@@ -122,7 +122,8 @@ def install_repl_displayhook():
     Install a repl display hook so that any stale figure are automatically
     redrawn when control is returned to the repl.
 
-    This works with both IPython terminals and vanilla python shells.
+    This works with IPython terminals and kernels,
+    as well as vanilla python shells.
     """
     global _IP_REGISTERED
     global _INSTALL_FIG_OBSERVER
@@ -155,6 +156,13 @@ def install_repl_displayhook():
 
             _IP_REGISTERED = post_execute
             _INSTALL_FIG_OBSERVER = False
+
+            # trigger IPython's eventloop integration, if available
+            from IPython.core.pylabtools import backend2gui
+
+            ipython_gui_name = backend2gui.get(get_backend())
+            if ipython_gui_name:
+                ip.enable_gui(ipython_gui_name)
         else:
             _INSTALL_FIG_OBSERVER = True
 
