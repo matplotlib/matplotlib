@@ -16,6 +16,12 @@ environment:
     PYTHONIOENCODING: "UTF-8"
 
   matrix:
+    - TARGET_ARCH: "x64"
+      CONDA_PY: "27"
+      CONDA_NPY: "18"
+      PYTHON_VERSION: "2.7"
+      TEST_ALL_IMAGES: "no"
+      CONDA_INSTALL_LOCN: "C:\\Miniconda-x64"
     # for testing purpose: numpy 1.8 on py2.7, for the rest use 1.10/latest
     # theoretically the CONDA_INSTALL_LOCN could be only two: one for 32bit, one for 64bit
     # but using one for the right python version is hopefully making it fast due to package caching.
@@ -28,12 +34,6 @@ environment:
       # pick the one which seems to make the most problems
       TEST_ALL_IMAGES: "yes"
       CONDA_INSTALL_LOCN: "C:\\Miniconda"
-    - TARGET_ARCH: "x64"
-      CONDA_PY: "27"
-      CONDA_NPY: "18"
-      PYTHON_VERSION: "2.7"
-      TEST_ALL_IMAGES: "no"
-      CONDA_INSTALL_LOCN: "C:\\Miniconda-x64"
     - TARGET_ARCH: "x64"
       CONDA_PY: "34"
       CONDA_NPY: "110"
@@ -75,9 +75,6 @@ install:
   # Fix the appveyor build environment to work with conda build
   # workaround for missing vcvars64.bat in py34 64bit
   - cmd: copy ci\appveyor\vcvars64.bat "C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\amd64"
-  # workaround for conda build on py27 prefering the normal installed
-  # VS tools instead of the also installed Py27 VS compiler (which wouldn't need this workarounds...)
-  - cmd: copy "C:\Program Files (x86)\Microsoft Visual Studio 9.0\VC\bin\vcvars64.bat" "C:\Program Files (x86)\Microsoft Visual Studio 9.0\VC\bin\amd64\vcvarsamd64.bat"
 
   # For building, use a new environment which only includes the requirements for mpl
   # same things as the requirements in ci/conda_recipe/meta.yaml
@@ -136,9 +133,9 @@ test_script:
   # Test import of tkagg backend
   - python -c "import matplotlib as m; m.use('tkagg'); import matplotlib.pyplot as plt; print(plt.get_backend())"
   # tests
-  - python tests.py
+#  - python tests.py
   # Generate a html for visual tests
-  - python visual_tests.py
+# - python visual_tests.py
 
 after_test:
   # After the tests were a success, build packages (wheels and conda)
@@ -157,8 +154,7 @@ after_test:
   - cmd: path
   - cmd: where python
   - cmd: '%CMD_IN_ENV% conda config --get channels'
-  # currently disabled as conda-build errors :-(
-  #- cmd: '%CMD_IN_ENV% conda build -q .\ci\conda_recipe'
+  - cmd: '%CMD_IN_ENV% conda build -q .\ci\conda_recipe'
 
   # Move the conda package into the dist directory, to register it
   # as an "artifact" for Appveyor.
