@@ -1147,7 +1147,7 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
             if self.logscale:
                 self.locator = ticker.LogLocator()
             else:
-                self.locator = ticker.MaxNLocator(N + 1)
+                self.locator = ticker.MaxNLocator(N + 1, min_n_ticks=1)
         zmax = self.zmax
         zmin = self.zmin
         lev = self.locator.tick_values(zmin, zmax)
