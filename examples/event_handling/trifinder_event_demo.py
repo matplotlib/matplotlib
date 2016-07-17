@@ -17,7 +17,7 @@ def update_polygon(tri):
         points = triangulation.triangles[tri]
     xs = triangulation.x[points]
     ys = triangulation.y[points]
-    polygon.set_xy(zip(xs, ys))
+    polygon.set_xy(list(zip(xs, ys)))
 
 
 def motion_notify(event):

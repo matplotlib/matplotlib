@@ -21,5 +21,5 @@ fig.canvas.mpl_connect('key_press_event', press)
 
 ax.plot(np.random.rand(12), np.random.rand(12), 'go')
 xl = ax.set_xlabel('easy come, easy go')
-
+ax.set_title('Press a key')
 plt.show()

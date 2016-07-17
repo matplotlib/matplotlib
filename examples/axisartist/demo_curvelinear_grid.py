@@ -34,7 +34,7 @@ def curvelinear_test1(fig):
     fig.add_subplot(ax1)
 
     xx, yy = tr([3, 6], [5.0, 10.])
-    ax1.plot(xx, yy)
+    ax1.plot(xx, yy, linewidth=2.0)
 
     ax1.set_aspect(1.)
     ax1.set_xlim(0, 10.)
@@ -42,7 +42,7 @@ def curvelinear_test1(fig):
 
     ax1.axis["t"] = ax1.new_floating_axis(0, 3.)
     ax1.axis["t2"] = ax1.new_floating_axis(1, 7.)
-    ax1.grid(True)
+    ax1.grid(True, zorder=0)
 
 
 import mpl_toolkits.axisartist.angle_helper as angle_helper
@@ -107,13 +107,14 @@ def curvelinear_test2(fig):
     ax1.parasites.append(ax2)
     intp = cbook.simple_linear_interpolation
     ax2.plot(intp(np.array([0, 30]), 50),
-             intp(np.array([10., 10.]), 50))
+             intp(np.array([10., 10.]), 50),
+             linewidth=2.0)
 
     ax1.set_aspect(1.)
     ax1.set_xlim(-5, 12)
     ax1.set_ylim(-5, 10)
 
-    ax1.grid(True)
+    ax1.grid(True, zorder=0)
 
 if 1:
     fig = plt.figure(1, figsize=(7, 4))
