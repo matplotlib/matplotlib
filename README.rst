@@ -47,3 +47,15 @@ The first is a good starting point for general questions and discussions.
 .. image:: https://badges.gitter.im/Join%20Chat.svg
    :alt: Join the chat at https://gitter.im/matplotlib/matplotlib
    :target: https://gitter.im/matplotlib/matplotlib?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge
+
+Contribute
+==========
+You've discovered a bug or something else you want to change - excellent!
+
+You've worked out a way to fix it – even better!
+
+You want to tell us about it – best of all!
+
+The easiest way to contribute is through GitHub; if interested in doing so, browse the `development workflow <http://matplotlib.org/devel/gitwash/development_workflow.html>`_ guide.
+
+If you don't want to submit your changes via Github, take a look at the guide to `making patches <http://matplotlib.org/devel/gitwash/patching.html>`_.
