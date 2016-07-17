@@ -501,7 +501,7 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
     def write_png(self, fname):
         """Write the image to png file with fname"""
         im = self.to_rgba(self._A, bytes=True, norm=False)
-        _png.write_png(im, fname)
+        _png.write_png(im, cbook.fspath_no_except(fname))
 
     def set_data(self, A):
         """
