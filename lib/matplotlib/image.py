@@ -299,6 +299,8 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
         `trans` is the affine transformation from the image to pixel
         space.
         """
+        from matplotlib import axes as maxes
+
         if A is None:
             raise RuntimeError('You must first set the image'
                                ' array or the image attribute')
@@ -336,11 +338,15 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
                  -clipped_bbox.y0)
              .scale(magnification, magnification))
 
-        # So that the image is aligned with the edge of the axes, we want
-        # to round up the output width to the next integer.  This also
-        # means scaling the transform just slightly to account for the
-        # extra subpixel.
-        if (t.is_affine and round_to_pixel_border and
+        # So that the image is aligned with the edge of the axes, we
+        # want to round up the output width to the next integer.  This
+        # also means scaling the transform just slightly to account
+        # for the extra subpixel.  This is only required for regular
+        # rectangular axes where the edges are pixel-snapped.  For
+        # non-rectangular axes, this refinement isn't required.
+        if (round_to_pixel_border and
+            t.is_affine and
+            type(self.axes) == maxes.Axes,  # exact class match
             (out_width_base % 1.0 != 0.0 or
              out_height_base % 1.0 != 0.0)):
             out_width = int(ceil(out_width_base) + 1)
