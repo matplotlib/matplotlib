@@ -17,17 +17,9 @@ environment:
 
   matrix:
     # for testing purpose: numpy 1.8 on py2.7, for the rest use 1.10/latest
-    # theoretically the CONDA_INSTALL_LOCN could be only two: one for 32bit, one for 64bit
-    # but using one for the right python version is hopefully making it fast due to package caching.
-    - TARGET_ARCH: "x86"
-      CONDA_PY: "27"
-      CONDA_NPY: "18"
-      PYTHON_VERSION: "2.7"
-      # this variable only influence pdf/svg tests, png tests are run on any platform
-      # only once, because it basically triples the testing times
-      # pick the one which seems to make the most problems
-      TEST_ALL: "yes"
-      CONDA_INSTALL_LOCN: "C:\\Miniconda"
+    # theoretically the CONDA_INSTALL_LOCN could be only two: one for 32bit,
+    # one for 64bit because we construct envs anyway. But using one for the
+    # right python version is hopefully making it fast due to package caching.
     - TARGET_ARCH: "x64"
       CONDA_PY: "27"
       CONDA_NPY: "18"
@@ -46,6 +38,16 @@ environment:
       PYTHON_VERSION: "3.5"
       TEST_ALL: "no"
       CONDA_INSTALL_LOCN: "C:\\Miniconda35-x64"
+    - TARGET_ARCH: "x86"
+      CONDA_PY: "27"
+      CONDA_NPY: "18"
+      PYTHON_VERSION: "2.7"
+      # this variable influence pdf/svg and most importantly the latex related tests
+      # which triples the runtime of the tests (7-8min vs 30min).
+      # pick the one which seems to make the most problems and run it last, so that
+      # the rest of the tests can give feedback earlier
+      TEST_ALL: "yes"
+      CONDA_INSTALL_LOCN: "C:\\Miniconda"
 
 # We always use a 64-bit machine, but can build x86 distributions
 # with the PYTHON_ARCH variable (which is used by CMD_IN_ENV).
