@@ -9,7 +9,7 @@ axins1 = inset_axes(ax1,
                     height="5%",  # height : 50%
                     loc=1)
 
-im1 = ax1.imshow([[1, 2], [2, 3]])
+im1 = ax1.imshow([[1, 2], [2, 3]], interpolation='bilinear')
 plt.colorbar(im1, cax=axins1, orientation="horizontal", ticks=[1, 2, 3])
 axins1.xaxis.set_ticks_position("bottom")
 
@@ -26,7 +26,7 @@ axins = inset_axes(ax2,
 # of the legend.  you may want to play with the borderpad value and
 # the bbox_to_anchor coordinate.
 
-im = ax2.imshow([[1, 2], [2, 3]])
+im = ax2.imshow([[1, 2], [2, 3]], interpolation='bilinear')
 plt.colorbar(im, cax=axins, ticks=[1, 2, 3])
 
 plt.draw()
