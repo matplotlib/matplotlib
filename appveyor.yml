@@ -17,35 +17,37 @@ environment:
 
   matrix:
     # for testing purpose: numpy 1.8 on py2.7, for the rest use 1.10/latest
-    # theoretically the CONDA_INSTALL_LOCN could be only two: one for 32bit, one for 64bit
-    # but using one for the right python version is hopefully making it fast due to package caching.
-    - TARGET_ARCH: "x86"
-      CONDA_PY: "27"
-      CONDA_NPY: "18"
-      PYTHON_VERSION: "2.7"
-      # this variable only influence pdf/svg tests, png tests are run on any platform
-      # only once, because it basically triples the testing times
-      # pick the one which seems to make the most problems
-      TEST_ALL_IMAGES: "yes"
-      CONDA_INSTALL_LOCN: "C:\\Miniconda"
+    # theoretically the CONDA_INSTALL_LOCN could be only two: one for 32bit,
+    # one for 64bit because we construct envs anyway. But using one for the
+    # right python version is hopefully making it fast due to package caching.
     - TARGET_ARCH: "x64"
       CONDA_PY: "27"
       CONDA_NPY: "18"
       PYTHON_VERSION: "2.7"
-      TEST_ALL_IMAGES: "no"
+      TEST_ALL: "no"
       CONDA_INSTALL_LOCN: "C:\\Miniconda-x64"
     - TARGET_ARCH: "x64"
       CONDA_PY: "34"
       CONDA_NPY: "110"
       PYTHON_VERSION: "3.4"
-      TEST_ALL_IMAGES: "no"
+      TEST_ALL: "no"
       CONDA_INSTALL_LOCN: "C:\\Miniconda3-x64"
     - TARGET_ARCH: "x64"
       CONDA_PY: "35"
       CONDA_NPY: "110"
       PYTHON_VERSION: "3.5"
-      TEST_ALL_IMAGES: "no"
+      TEST_ALL: "no"
       CONDA_INSTALL_LOCN: "C:\\Miniconda35-x64"
+    - TARGET_ARCH: "x86"
+      CONDA_PY: "27"
+      CONDA_NPY: "18"
+      PYTHON_VERSION: "2.7"
+      # this variable influence pdf/svg and most importantly the latex related tests
+      # which triples the runtime of the tests (7-8min vs 30min).
+      # pick the one which seems to make the most problems and run it last, so that
+      # the rest of the tests can give feedback earlier
+      TEST_ALL: "yes"
+      CONDA_INSTALL_LOCN: "C:\\Miniconda"
 
 # We always use a 64-bit machine, but can build x86 distributions
 # with the PYTHON_ARCH variable (which is used by CMD_IN_ENV).
@@ -75,9 +77,6 @@ install:
   # Fix the appveyor build environment to work with conda build
   # workaround for missing vcvars64.bat in py34 64bit
   - cmd: copy ci\appveyor\vcvars64.bat "C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\amd64"
-  # workaround for conda build on py27 prefering the normal installed
-  # VS tools instead of the also installed Py27 VS compiler (which wouldn't need this workarounds...)
-  - cmd: copy "C:\Program Files (x86)\Microsoft Visual Studio 9.0\VC\bin\vcvars64.bat" "C:\Program Files (x86)\Microsoft Visual Studio 9.0\VC\bin\amd64\vcvarsamd64.bat"
 
   # For building, use a new environment which only includes the requirements for mpl
   # same things as the requirements in ci/conda_recipe/meta.yaml
@@ -116,23 +115,12 @@ test_script:
   - cmd: '"%DUMPBIN%" /DEPENDENTS lib\\matplotlib\\_png*.pyd | findstr png.*.dll && exit /b 1 || exit /b 0'
 
   # this are optional dependencies so that we don't skip so many tests...
-  # WORKAROUND: set miktex to the old version until I figured out whats wrong here...
-  - cmd: conda install -q pillow miktex=2.9.5857
-  # autoinstall latex packages (0=no, 1=autoinstall, 2=ask)
-  # this adds this to the registry!
-  - cmd: initexmf --set-config-value "[MPM]AutoInstall=1"
-  # we need to put the real exe files into PATH as subprocess can't call bat files
-  # this works for the "old" version of the miktex package, then next version should
-  # not need it
-  - set "PATH=%PATH%;%CONDA_PREFIX%\Library\miktex\miktex\bin"
-  # missing packages on conda-forge for ffmpeg avconv mencoder imagemagick inkscape
-  - cmd: conda install -q -c menpo ffmpeg # a repackaged version
+  - cmd: if x%TEST_ALL% == xyes; conda install -q pillow miktex inkscape
+  # missing packages on conda-forge for ffmpeg avconv mencoder imagemagick
+  - cmd: if x%TEST_ALL% == xyes; conda install -q -c menpo ffmpeg # a repackaged version
   # This install sometimes failed randomly :-(
   #- cmd: choco install imagemagick
-  # only install inkscape during one test run as it increases the runtime of one
-  # test run from 13 min -> 30 min
-  - cmd: if x%TEST_ALL_IMAGES% == xyes; choco install inkscape
-  - cmd: if x%TEST_ALL_IMAGES% == xyes; set "PATH=%PATH%;C:\Program Files\Inkscape\inkscape.com"
+
   # Test import of tkagg backend
   - python -c "import matplotlib as m; m.use('tkagg'); import matplotlib.pyplot as plt; print(plt.get_backend())"
   # tests
@@ -157,8 +145,7 @@ after_test:
   - cmd: path
   - cmd: where python
   - cmd: '%CMD_IN_ENV% conda config --get channels'
-  # currently disabled as conda-build errors :-(
-  #- cmd: '%CMD_IN_ENV% conda build -q .\ci\conda_recipe'
+  - cmd: '%CMD_IN_ENV% conda build -q .\ci\conda_recipe'
 
   # Move the conda package into the dist directory, to register it
   # as an "artifact" for Appveyor.
