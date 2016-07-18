@@ -612,6 +612,9 @@ class RendererPgf(RendererBase):
     def draw_image(self, gc, x, y, im):
         # TODO: Almost no documentation for the behavior of this function.
         #       Something missing?
+        h, w = im.shape[:2]
+        if w == 0 or h == 0:
+            return
 
         # save the images to png files
         path = os.path.dirname(self.fh.name)
@@ -623,7 +626,6 @@ class RendererPgf(RendererBase):
         # reference the image in the pgf picture
         writeln(self.fh, r"\begin{pgfscope}")
         self._print_pgf_clip(gc)
-        h, w = im.shape[:2]
         f = 1. / self.dpi  # from display coords to inch
         writeln(self.fh, r"\pgftext[at=\pgfqpoint{%fin}{%fin},left,bottom]{\pgfimage[interpolate=true,width=%fin,height=%fin]{%s}}" % (x * f, y * f, w * f, h * f, fname_img))
         writeln(self.fh, r"\end{pgfscope}")
