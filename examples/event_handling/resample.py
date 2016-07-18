@@ -32,20 +32,18 @@ class DataDisplayDownsampler(object):
             ax.figure.canvas.draw_idle()
 
 # Create a signal
-xdata = np.linspace(16,365,365-16)
-ydata = np.sin(2*np.pi*xdata/153) + np.cos(2*np.pi*xdata/127);
+xdata = np.linspace(16, 365, 365-16)
+ydata = np.sin(2*np.pi*xdata/153) + np.cos(2*np.pi*xdata/127)
 
 d = DataDisplayDownsampler(xdata, ydata)
 
 fig, ax = plt.subplots()
 
 # Hook up the line
-d.line, = ax.plot(xdata, ydata,'o-')
+d.line, = ax.plot(xdata, ydata, 'o-')
 ax.set_autoscale_on(False)  # Otherwise, infinite loop
 
 # Connect for changing the view limits
 ax.callbacks.connect('xlim_changed', d.update)
 
 plt.show()
-
-
