@@ -119,7 +119,10 @@ import distutils.sysconfig
 import functools
 # cbook must import matplotlib only within function
 # definitions, so it is safe to import from it here.
-from matplotlib.cbook import is_string_like, mplDeprecation, dedent, get_label
+from matplotlib.cbook import (is_string_like,
+                              mplDeprecation,
+                              dedent, get_label,
+                              sanitize_sequence)
 from matplotlib.compat import subprocess
 from matplotlib.rcsetup import (defaultParams,
                                 validate_backend,
@@ -1541,7 +1544,7 @@ default_test_modules = [
     'matplotlib.tests.test_units',
     'matplotlib.tests.test_widgets',
     'matplotlib.tests.test_cycles',
-    'matplotlib.tests.test_labeled_data_unpacking',
+    'matplotlib.tests.test_preprocess_data',
     'matplotlib.sphinxext.tests.test_tinypages',
     'mpl_toolkits.tests.test_mplot3d',
     'mpl_toolkits.tests.test_axes_grid1',
@@ -1649,12 +1652,15 @@ test.__test__ = False  # nose: this function is not a test
 
 
 def _replacer(data, key):
+    """Either returns data[key] or passes data back. Also
+    converts input data to a sequence as needed.
+    """
     # if key isn't a string don't bother
     if not isinstance(key, six.string_types):
-        return key
+        return (key)
     # try to use __getitem__
     try:
-        return data[key]
+        return sanitize_sequence(data[key])
     # key does not exist, silently fall back to key
     except KeyError:
         return key
@@ -1673,7 +1679,7 @@ following arguments are replaced by **data[<arg>]**:
 """
 
 
-def unpack_labeled_data(replace_names=None, replace_all_args=False,
+def _preprocess_data(replace_names=None, replace_all_args=False,
                         label_namer=None, positional_parameter_names=None):
     """
     A decorator to add a 'data' kwarg to any a function.  The signature
@@ -1707,6 +1713,8 @@ def unpack_labeled_data(replace_names=None, replace_all_args=False,
         NOTE: callables should only be used when the names and order of *args
         can only be determined at runtime. Please use list of names
         when the order and names of *args is clear before runtime!
+
+    .. note:: decorator also converts MappingView input data to list.
     """
     if replace_names is not None:
         replace_names = set(replace_names)
@@ -1847,7 +1855,10 @@ def unpack_labeled_data(replace_names=None, replace_all_args=False,
             label = None
 
             data = kwargs.pop('data', None)
-            if data is not None:
+
+            if data is None:  # data validation
+                args = tuple(sanitize_sequence(a) for a in args)
+            else:
                 if arg_names_at_runtime:
                     # update the information about replace names and
                     # label position
