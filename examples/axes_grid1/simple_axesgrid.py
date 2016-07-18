@@ -12,6 +12,6 @@ grid = ImageGrid(fig, 111,  # similar to subplot(111)
                  )
 
 for i in range(4):
-    grid[i].imshow(im, interpolation='bilinear')  # The AxesGrid object work as a list of axes.
+    grid[i].imshow(im)  # The AxesGrid object work as a list of axes.
 
 plt.show()
