@@ -2580,7 +2580,7 @@ _lockstr = """\
 LOCKERROR: matplotlib is trying to acquire the lock
     {!r}
 and has failed.  This maybe due to any other process holding this
-lock.  If you are sure no other matplotlib process in running try
+lock.  If you are sure no other matplotlib process is running try
 removing these folders and trying again.
 """
 
