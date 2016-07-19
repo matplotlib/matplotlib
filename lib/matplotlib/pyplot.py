@@ -1156,24 +1156,6 @@ def subplots(nrows=1, ncols=1, sharex=False, sharey=False, squeeze=True,
                        gridspec_kw=gridspec_kw)
     return fig, axs
 
-def subplots_iterator(nrows=1, ncols=1, show_in_between=False, sharex=False,
-                      sharey=False, squeeze=True, subplot_kw=None,
-                      gridspec_kw=None, **fig_kw):
-    """ Iteratively yields the axis object of a rows x cols subplot and creates new subplots when needed"""
-    for axis in (
-        figure(**fig_kw).subplots_iterator(
-            nrows=nrows,
-            ncols=ncols,
-            sharex=sharex,
-            sharey=sharey,
-            squeeze=squeeze,
-            subplot_kw=subplot_kw,
-            gridspec_kw=gridspec_kw
-        )
-    ):
-            yield axis
-
-
 def subplot2grid(shape, loc, rowspan=1, colspan=1, fig=None, **kwargs):
     """
     Create a subplot in a grid.  The grid is specified by *shape*, at

@@ -1145,33 +1145,6 @@ class Figure(Artist):
             # Returned axis array will be always 2-d, even if nrows=ncols=1.
             return axarr
 
-    def subplots_iterator(self, nrows=1, ncols=1, show_in_between=False,
-                          sharex=False, sharey=False, squeeze=True,
-                          subplot_kw=None, gridspec_kw=None):
-        """ Iteratively yields the axis object of a rows x cols subplot and
-        creates new subplots when needed"""
-        while True:
-            axes = self.subplots(
-                nrows=nrows,
-                ncols=ncols,
-                sharex=sharex,
-                sharey=sharey,
-                squeeze=False,
-                subplot_kw=subplot_kw,
-                gridspec_kw=gridspec_kw
-            )
-            if axes.shape != (nrows, ncols):
-                raise AssertionError("Matplotlib panic: the returned shape of"
-                                     "subplots() is not what was expected:"
-                                     "{0} != {1}"
-                                     .format(axes.shape, (nrows, ncols))
-                                     )
-            for row in range(nrows):
-                for col in range(ncols):
-                    yield axes[row, col]
-            if show_in_between:
-                self.show(block=False)
-
     def __remove_ax(self, ax):
         def _reset_loc_form(axis):
             axis.set_major_formatter(axis.get_major_formatter())
