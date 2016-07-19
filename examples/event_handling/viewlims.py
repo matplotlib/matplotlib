@@ -64,7 +64,7 @@ fig1, (ax1, ax2) = plt.subplots(1, 2)
 ax1.imshow(Z, origin='lower', extent=(md.x.min(), md.x.max(), md.y.min(), md.y.max()))
 ax2.imshow(Z, origin='lower', extent=(md.x.min(), md.x.max(), md.y.min(), md.y.max()))
 
-rect = UpdatingRect([0, 0], 0, 0, facecolor='None', edgecolor='black')
+rect = UpdatingRect([0, 0], 0, 0, facecolor='None', edgecolor='black', linewidth=1.0)
 rect.set_bounds(*ax2.viewLim.bounds)
 ax1.add_patch(rect)
 
@@ -74,5 +74,6 @@ ax2.callbacks.connect('ylim_changed', rect)
 
 ax2.callbacks.connect('xlim_changed', md.ax_update)
 ax2.callbacks.connect('ylim_changed', md.ax_update)
+ax2.set_title("Zoom here")
 
 plt.show()

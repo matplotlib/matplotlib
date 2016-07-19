@@ -1,6 +1,5 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from scikits.audiolab import wavread
 
 
 # A class that will downsample the data and recompute when zoomed.
@@ -8,19 +7,18 @@ class DataDisplayDownsampler(object):
     def __init__(self, xdata, ydata):
         self.origYData = ydata
         self.origXData = xdata
-        self.numpts = 3000
+        self.ratio = 5
         self.delta = xdata[-1] - xdata[0]
 
-    def resample(self, xstart, xend):
+    def downsample(self, xstart, xend):
         # Very simple downsampling that takes the points within the range
         # and picks every Nth point
         mask = (self.origXData > xstart) & (self.origXData < xend)
         xdata = self.origXData[mask]
-        ratio = int(xdata.size / self.numpts) + 1
-        xdata = xdata[::ratio]
+        xdata = xdata[::self.ratio]
 
         ydata = self.origYData[mask]
-        ydata = ydata[::ratio]
+        ydata = ydata[::self.ratio]
 
         return xdata, ydata
 
@@ -33,18 +31,16 @@ class DataDisplayDownsampler(object):
             self.line.set_data(*self.downsample(xstart, xend))
             ax.figure.canvas.draw_idle()
 
-# Read data
-data = wavread('/usr/share/sounds/purple/receive.wav')[0]
-ydata = np.tile(data[:, 0], 100)
-xdata = np.arange(ydata.size)
+# Create a signal
+xdata = np.linspace(16, 365, 365-16)
+ydata = np.sin(2*np.pi*xdata/153) + np.cos(2*np.pi*xdata/127)
 
 d = DataDisplayDownsampler(xdata, ydata)
 
 fig, ax = plt.subplots()
 
 # Hook up the line
-xdata, ydata = d.downsample(xdata[0], xdata[-1])
-d.line, = ax.plot(xdata, ydata)
+d.line, = ax.plot(xdata, ydata, 'o-')
 ax.set_autoscale_on(False)  # Otherwise, infinite loop
 
 # Connect for changing the view limits
