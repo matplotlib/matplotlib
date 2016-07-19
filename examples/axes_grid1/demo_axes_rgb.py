@@ -50,7 +50,7 @@ def demo_rgb():
     im_r, im_g, im_b, im_rgb = make_cube(r, g, b)
     kwargs = dict(origin="lower", interpolation="nearest")
 
-    #make ticks invisible
+    # make tickmarks invisible
     ax.tick_params(length=0)
     ax_r.tick_params(length=0)
     ax_g.tick_params(length=0)
