@@ -77,8 +77,9 @@ class LassoManager(object):
 if __name__ == '__main__':
 
     data = [Datum(*xy) for xy in rand(100, 2)]
-
     ax = plt.axes(xlim=(0, 1), ylim=(0, 1), autoscale_on=False)
+    ax.set_title('Lasso points using left mouse button')
+
     lman = LassoManager(ax, data)
 
     plt.show()
