@@ -916,7 +916,7 @@ defaultParams = {
     'lines.solid_capstyle':  ['projecting', validate_capstyle],
     'lines.dashed_pattern':  [[2.8, 1.2], validate_nseq_float()],
     'lines.dashdot_pattern': [[4.8, 1.2, 0.8, 1.2], validate_nseq_float()],
-    'lines.dotted_pattern':  [[1.2, 0.6], validate_nseq_float()],
+    'lines.dotted_pattern':  [[1.1, 1.1], validate_nseq_float()],
 
     # marker props
     'markers.fillstyle': ['full', validate_fillstyle],
@@ -1174,6 +1174,10 @@ defaultParams = {
     'xtick.minor.pad':   [3.4, validate_float],    # distance to label in points
     'xtick.color':       ['k', validate_color],  # color of the xtick labels
     'xtick.minor.visible':   [False, validate_bool],    # visiablility of the x axis minor ticks
+    'xtick.minor.top':   [True, validate_bool],  # draw x axis top minor ticks
+    'xtick.minor.bottom':    [True, validate_bool],    # draw x axis bottom minor ticks
+    'xtick.major.top':   [True, validate_bool],  # draw x axis top major ticks
+    'xtick.major.bottom':    [True, validate_bool],    # draw x axis bottom major ticks
 
     # fontsize of the xtick labels
     'xtick.labelsize':   ['medium', validate_fontsize],
@@ -1189,6 +1193,10 @@ defaultParams = {
     'ytick.minor.pad':   [3.4, validate_float],     # distance to label in points
     'ytick.color':       ['k', validate_color],   # color of the ytick labels
     'ytick.minor.visible':   [False, validate_bool],    # visiablility of the y axis minor ticks
+    'ytick.minor.left':   [True, validate_bool],  # draw y axis left minor ticks
+    'ytick.minor.right':    [True, validate_bool],    # draw y axis right minor ticks
+    'ytick.major.left':   [True, validate_bool],  # draw y axis left major ticks
+    'ytick.major.right':    [True, validate_bool],    # draw y axis right major ticks
 
     # fontsize of the ytick labels
     'ytick.labelsize':   ['medium', validate_fontsize],

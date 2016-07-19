@@ -2666,6 +2666,7 @@ def test_eventplot_problem_kwargs():
     axobj = fig.add_subplot(111)
 
     with warnings.catch_warnings(record=True) as w:
+        warnings.simplefilter("always")
         colls = axobj.eventplot(data,
                                 colors=['r', 'b'],
                                 color=['c', 'm'],
@@ -4017,6 +4018,7 @@ def test_pathological_hexbin():
     out = io.BytesIO()
 
     with warnings.catch_warnings(record=True) as w:
+        warnings.simplefilter("always")
         mylist = [10] * 100
         fig, ax = plt.subplots(1, 1)
         ax.hexbin(mylist, mylist)
@@ -4129,6 +4131,30 @@ def test_rc_tick():
 
 
 @cleanup
+def test_rc_major_minor_tick():
+    d = {'xtick.top': True, 'ytick.right': True,  # Enable all ticks
+         'xtick.bottom': True, 'ytick.left': True,
+         # Selectively disable
+         'xtick.minor.bottom': False, 'xtick.major.bottom': False,
+         'ytick.major.left': False, 'ytick.minor.left': False}
+    with plt.rc_context(rc=d):
+        fig = plt.figure()
+        ax1 = fig.add_subplot(1, 1, 1)
+        xax = ax1.xaxis
+        yax = ax1.yaxis
+        # tick1On bottom/left
+        assert xax._major_tick_kw['tick1On'] == False
+        assert xax._major_tick_kw['tick2On'] == True
+        assert xax._minor_tick_kw['tick1On'] == False
+        assert xax._minor_tick_kw['tick2On'] == True
+
+        assert yax._major_tick_kw['tick1On'] == False
+        assert yax._major_tick_kw['tick2On'] == True
+        assert yax._minor_tick_kw['tick1On'] == False
+        assert yax._minor_tick_kw['tick2On'] == True
+
+
+@cleanup
 def test_bar_negative_width():
     fig, ax = plt.subplots()
     res = ax.bar(range(1, 5), range(1, 5), width=-1)
@@ -4236,10 +4262,11 @@ def test_errorbar_inputs_shotgun():
 def test_axisbg_warning():
     fig = plt.figure()
     with warnings.catch_warnings(record=True) as w:
+        warnings.simplefilter("always")
         ax = matplotlib.axes.Axes(fig, [0, 0, 1, 1], axisbg='r')
-    assert len(w) == 1
-    assert (str(w[0].message).startswith(
-            ("The axisbg attribute was deprecated in version 2.0.")))
+        assert len(w) == 1
+        msg = "The axisbg attribute was deprecated in version 2.0."
+        assert str(w[0].message).startswith(msg)
 
 
 @image_comparison(baseline_images=["dash_offset"], remove_text=True)
