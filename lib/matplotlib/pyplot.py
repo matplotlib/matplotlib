@@ -21,6 +21,7 @@ from __future__ import (absolute_import, division, print_function,
 from matplotlib.externals import six
 
 import sys
+import io
 import warnings
 import types
 
@@ -66,6 +67,7 @@ from .ticker import TickHelper, Formatter, FixedFormatter, NullFormatter,\
            LinearLocator, LogLocator, AutoLocator, MultipleLocator,\
            MaxNLocator
 from matplotlib.backends import pylab_setup
+from argparse import ArgumentError
 
 ## Backend detection ##
 def _backend_selection():
@@ -688,6 +690,21 @@ def savefig(*args, **kwargs):
     return res
 
 
+def encode_as(**kwargs):
+    """ Equivalent of savefig, but does not store to a file, but returns a
+    bytestring using io.BytesIO. All kwargs are passed to savefig."""
+    if 'format' not in kwargs:
+        raise ArgumentError("Make sure to specify the format")
+    if 'fname' in kwargs:
+        raise ArgumentError("Do not provide a filename, this function returns "
+                            "a bytestring and does not write to a file")
+
+    in_memory_file = io.BytesIO()
+    savefig(in_memory_file, **kwargs)
+    in_memory_file.seek(0)
+    return in_memory_file.getvalue()
+
+
 @docstring.copy_dedent(Figure.ginput)
 def ginput(*args, **kwargs):
     """
@@ -1145,6 +1162,23 @@ def subplots(nrows=1, ncols=1, sharex=False, sharey=False, squeeze=True,
                        squeeze=squeeze, subplot_kw=subplot_kw,
                        gridspec_kw=gridspec_kw)
     return fig, axs
+
+def subplots_iterator(nrows=1, ncols=1, show_in_between=False, sharex=False,
+                      sharey=False, squeeze=True, subplot_kw=None,
+                      gridspec_kw=None, **fig_kw):
+    """ Iteratively yields the axis object of a rows x cols subplot and creates new subplots when needed"""
+    for axis in (
+        figure(**fig_kw).subplots_iterator(
+            nrows=nrows,
+            ncols=ncols,
+            sharex=sharex,
+            sharey=sharey,
+            squeeze=squeeze,
+            subplot_kw=subplot_kw,
+            gridspec_kw=gridspec_kw
+        )
+    ):
+            yield axis
 
 
 def subplot2grid(shape, loc, rowspan=1, colspan=1, fig=None, **kwargs):
