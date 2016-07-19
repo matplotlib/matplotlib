@@ -1701,17 +1701,6 @@ class Figure(Artist):
                 ax.patch.set_facecolor(cc[0])
                 ax.patch.set_edgecolor(cc[1])
 
-    def encode_as(self, **kwargs):
-        """ Equivalent of savefig, but does not store to a file, but returns a bytestring
-        using io.BytesIO. All kwargs are passed to savefig."""
-        assert 'format' in kwargs, "Make sure to specify the format"
-        assert 'fname' not in kwargs, "Do not provide a filename, this method returns a bytestring and does not write to a file"
-        
-        in_memory_file = io.BytesIO()
-        self.savefig(in_memory_file, **kwargs)
-        in_memory_file.seek(0)
-        return in_memory_file.getvalue()
-
     @docstring.dedent_interpd
     def colorbar(self, mappable, cax=None, ax=None, use_gridspec=True, **kw):
         """
