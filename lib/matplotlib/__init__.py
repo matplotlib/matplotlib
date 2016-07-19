@@ -1559,7 +1559,7 @@ def _init_tests():
             "Freetype build type is {2}local".format(
                 ft2font.__freetype_version__,
                 LOCAL_FREETYPE_VERSION,
-                "" if ft2font.__freetype_build_type__ != 'local' else "not "
+                "" if ft2font.__freetype_build_type__ == 'local' else "not "
             )
         )
 
