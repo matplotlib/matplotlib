@@ -6,13 +6,14 @@
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
-from matplotlib.externals import six
+import six
 
 import math
 import copy
 
 from matplotlib import lines as mlines, axis as maxis, \
         patches as mpatches
+from matplotlib import rcParams
 from . import art3d
 from . import proj3d
 
@@ -80,15 +81,44 @@ class Axis(maxis.XAxis):
         # This is a temporary member variable.
         # Do not depend on this existing in future releases!
         self._axinfo = self._AXINFO[adir].copy()
-        self._axinfo.update({'label' : {'va': 'center',
-                                        'ha': 'center'},
-                             'tick' : {'inward_factor': 0.2,
-                                       'outward_factor': 0.1},
-                             'axisline': {'linewidth': 0.75,
-                                          'color': (0, 0, 0, 1)},
-                             'grid' : {'color': (0.9, 0.9, 0.9, 1),
-                                       'linewidth': 1.0},
-                            })
+        if rcParams['_internal.classic_mode']:
+            self._axinfo.update({'label':
+                                    {'va': 'center',
+                                     'ha': 'center'},
+                                 'tick':
+                                    {'inward_factor': 0.2,
+                                     'outward_factor': 0.1,
+                                     'linewidth': rcParams['lines.linewidth'],
+                                     'color': 'k'},
+                                 'axisline':
+                                    {'linewidth': 0.75,
+                                     'color': (0, 0, 0, 1)},
+                                 'grid' :
+                                    {'color': (0.9, 0.9, 0.9, 1),
+                                     'linewidth': 1.0,
+                                     'linestyle': '-'},
+                                })
+        else:
+            self._axinfo.update({'label' :
+                                    {'va': 'center',
+                                     'ha': 'center'},
+                                 'tick' :
+                                    {'inward_factor': 0.2,
+                                     'outward_factor': 0.1,
+                                     'linewidth': rcParams.get(
+                                        adir + 'tick.major.width',
+                                        rcParams['xtick.major.width']),
+                                     'color': rcParams.get(
+                                        adir + 'tick.color',
+                                        rcParams['xtick.color'])},
+                                 'axisline':
+                                    {'linewidth': rcParams['axes.linewidth'],
+                                     'color': rcParams['axes.edgecolor']},
+                                 'grid' :
+                                    {'color': rcParams['grid.color'],
+                                     'linewidth': rcParams['grid.linewidth'],
+                                     'linestyle': rcParams['grid.linestyle']},
+                                })
 
 
         maxis.XAxis.__init__(self, axes, *args, **kwargs)
@@ -375,6 +405,10 @@ class Axis(maxis.XAxis):
             if self.axes._draw_grid:
                 self.gridlines.set_segments(lines)
                 self.gridlines.set_color([info['grid']['color']] * len(lines))
+                self.gridlines.set_linewidth(
+                    [info['grid']['linewidth']] * len(lines))
+                self.gridlines.set_linestyle(
+                    [info['grid']['linestyle']] * len(lines))
                 self.gridlines.draw(renderer, project=True)
 
         # Draw ticks
@@ -414,6 +448,8 @@ class Axis(maxis.XAxis):
                     renderer.M)
 
             tick_update_position(tick, (x1, x2), (y1, y2), (lx, ly))
+            tick.tick1line.set_linewidth(info['tick']['linewidth'])
+            tick.tick1line.set_color(info['tick']['color'])
             tick.set_label1(label)
             tick.set_label2(label)
             tick.draw(renderer)

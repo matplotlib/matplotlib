@@ -8,5 +8,9 @@ ECHO tests = False >> setup.cfg
 ECHO sample_data = False >> setup.cfg
 ECHO toolkits_tests = False >> setup.cfg
 
-%PYTHON% setup.py install
+@rem workaround for https://github.com/matplotlib/matplotlib/issues/6460
+@rem see also https://github.com/conda-forge/libpng-feedstock/pull/4
+copy /y %LIBRARY_LIB%\libpng16.lib %LIBRARY_LIB%\png.lib
+
+%PYTHON% setup.py install --single-version-externally-managed --record=record.txt
 if errorlevel 1 exit 1

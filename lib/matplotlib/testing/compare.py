@@ -5,7 +5,7 @@ Provides a collection of utilities for comparing (image) results.
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
-from matplotlib.externals import six
+import six
 
 import hashlib
 import os
@@ -99,6 +99,14 @@ def get_file_hash(path, block_size=2 ** 20):
             if not data:
                 break
             md5.update(data)
+
+    if path.endswith('.pdf'):
+        from matplotlib import checkdep_ghostscript
+        md5.update(checkdep_ghostscript()[1].encode('utf-8'))
+    elif path.endswith('.svg'):
+        from matplotlib import checkdep_inkscape
+        md5.update(checkdep_inkscape().encode('utf-8'))
+
     return md5.hexdigest()
 
 
@@ -361,8 +369,8 @@ def save_diff_image(expected, actual, output):
     actualImage = _png.read_png(actual)
     actualImage, expectedImage = crop_to_same(
         actual, actualImage, expected, expectedImage)
-    expectedImage = np.array(expectedImage).astype(np.float)
-    actualImage = np.array(actualImage).astype(np.float)
+    expectedImage = np.array(expectedImage).astype(float)
+    actualImage = np.array(actualImage).astype(float)
     assert expectedImage.ndim == actualImage.ndim
     assert expectedImage.shape == actualImage.shape
     absDiffImage = abs(expectedImage - actualImage)

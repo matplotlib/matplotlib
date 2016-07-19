@@ -4,12 +4,13 @@ Classes for the ticks and x and y axis
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
-from matplotlib.externals import six
+import six
 
 from matplotlib import rcParams
 import matplotlib.artist as artist
 from matplotlib.artist import allow_rasterization
 import matplotlib.cbook as cbook
+from matplotlib.cbook import _string_to_bool
 import matplotlib.font_manager as font_manager
 import matplotlib.lines as mlines
 import matplotlib.patches as mpatches
@@ -448,28 +449,16 @@ class XTick(Tick):
 
     def update_position(self, loc):
         'Set the location of tick in data coords with scalar *loc*'
-        x = loc
-
-        nonlinear = (hasattr(self.axes, 'yaxis') and
-                     self.axes.yaxis.get_scale() != 'linear' or
-                     hasattr(self.axes, 'xaxis') and
-                     self.axes.xaxis.get_scale() != 'linear')
-
         if self.tick1On:
-            self.tick1line.set_xdata((x,))
+            self.tick1line.set_xdata((loc,))
         if self.tick2On:
-            self.tick2line.set_xdata((x,))
+            self.tick2line.set_xdata((loc,))
         if self.gridOn:
-            self.gridline.set_xdata((x,))
+            self.gridline.set_xdata((loc,))
         if self.label1On:
-            self.label1.set_x(x)
+            self.label1.set_x(loc)
         if self.label2On:
-            self.label2.set_x(x)
-
-        if nonlinear:
-            self.tick1line._invalid = True
-            self.tick2line._invalid = True
-            self.gridline._invalid = True
+            self.label2.set_x(loc)
 
         self._loc = loc
         self.stale = True
@@ -582,28 +571,17 @@ class YTick(Tick):
         return l
 
     def update_position(self, loc):
-        'Set the location of tick in data coords with scalar loc'
-        y = loc
-
-        nonlinear = (hasattr(self.axes, 'yaxis') and
-                     self.axes.yaxis.get_scale() != 'linear' or
-                     hasattr(self.axes, 'xaxis') and
-                     self.axes.xaxis.get_scale() != 'linear')
-
+        'Set the location of tick in data coords with scalar *loc*'
         if self.tick1On:
-            self.tick1line.set_ydata((y,))
+            self.tick1line.set_ydata((loc,))
         if self.tick2On:
-            self.tick2line.set_ydata((y,))
+            self.tick2line.set_ydata((loc,))
         if self.gridOn:
-            self.gridline.set_ydata((y, ))
+            self.gridline.set_ydata((loc,))
         if self.label1On:
-            self.label1.set_y(y)
+            self.label1.set_y(loc)
         if self.label2On:
-            self.label2.set_y(y)
-        if nonlinear:
-            self.tick1line._invalid = True
-            self.tick2line._invalid = True
-            self.gridline._invalid = True
+            self.label2.set_y(loc)
 
         self._loc = loc
         self.stale = True
@@ -661,6 +639,7 @@ class Axis(artist.Artist):
         self.offsetText = self._get_offset_text()
         self.majorTicks = []
         self.minorTicks = []
+        self.unit_data = []
         self.pickradius = pickradius
 
         # Initialize here for testing; later add API
@@ -710,6 +689,17 @@ class Axis(artist.Artist):
 
     def limit_range_for_scale(self, vmin, vmax):
         return self._scale.limit_range_for_scale(vmin, vmax, self.get_minpos())
+
+    @property
+    def unit_data(self):
+        """Holds data that a ConversionInterface subclass relys on
+        to convert between labels and indexes
+        """
+        return self._unit_data
+
+    @unit_data.setter
+    def unit_data(self, data):
+        self._unit_data = data
 
     def get_children(self):
         children = [self.label, self.offsetText]
@@ -796,21 +786,12 @@ class Axis(artist.Artist):
             if which == 'minor' or which == 'both':
                 for tick in self.minorTicks:
                     tick._apply_params(**self._minor_tick_kw)
+            if 'labelcolor' in kwtrans:
+                self.offsetText.set_color(kwtrans['labelcolor'])
         self.stale = True
 
     @staticmethod
     def _translate_tick_kw(kw, to_init_kw=True):
-        # We may want to move the following function to
-        # a more visible location; or maybe there already
-        # is something like this.
-        def _bool(arg):
-            if cbook.is_string_like(arg):
-                if arg.lower() == 'on':
-                    return True
-                if arg.lower() == 'off':
-                    return False
-                raise ValueError('String "%s" should be "on" or "off"' % arg)
-            return bool(arg)
         # The following lists may be moved to a more
         # accessible location.
         kwkeys0 = ['size', 'width', 'color', 'tickdir', 'pad',
@@ -826,22 +807,22 @@ class Axis(artist.Artist):
             if 'direction' in kw:
                 kwtrans['tickdir'] = kw.pop('direction')
             if 'left' in kw:
-                kwtrans['tick1On'] = _bool(kw.pop('left'))
+                kwtrans['tick1On'] = _string_to_bool(kw.pop('left'))
             if 'bottom' in kw:
-                kwtrans['tick1On'] = _bool(kw.pop('bottom'))
+                kwtrans['tick1On'] = _string_to_bool(kw.pop('bottom'))
             if 'right' in kw:
-                kwtrans['tick2On'] = _bool(kw.pop('right'))
+                kwtrans['tick2On'] = _string_to_bool(kw.pop('right'))
             if 'top' in kw:
-                kwtrans['tick2On'] = _bool(kw.pop('top'))
+                kwtrans['tick2On'] = _string_to_bool(kw.pop('top'))
 
             if 'labelleft' in kw:
-                kwtrans['label1On'] = _bool(kw.pop('labelleft'))
+                kwtrans['label1On'] = _string_to_bool(kw.pop('labelleft'))
             if 'labelbottom' in kw:
-                kwtrans['label1On'] = _bool(kw.pop('labelbottom'))
+                kwtrans['label1On'] = _string_to_bool(kw.pop('labelbottom'))
             if 'labelright' in kw:
-                kwtrans['label2On'] = _bool(kw.pop('labelright'))
+                kwtrans['label2On'] = _string_to_bool(kw.pop('labelright'))
             if 'labeltop' in kw:
-                kwtrans['label2On'] = _bool(kw.pop('labeltop'))
+                kwtrans['label2On'] = _string_to_bool(kw.pop('labeltop'))
             if 'colors' in kw:
                 c = kw.pop('colors')
                 kwtrans['color'] = c
@@ -2024,8 +2005,7 @@ class XAxis(Axis):
         # There is a heuristic here that the aspect ratio of tick text
         # is no more than 3:1
         size = tick.label1.get_size() * 3
-        size *= np.cos(np.deg2rad(tick.label1.get_rotation()))
-        return np.floor(length / size)
+        return int(np.floor(length / size))
 
 
 class YAxis(Axis):
@@ -2364,5 +2344,4 @@ class YAxis(Axis):
         tick = self._get_tick(True)
         # Having a spacing of at least 2 just looks good.
         size = tick.label1.get_size() * 2.0
-        size *= np.cos(np.deg2rad(tick.label1.get_rotation()))
-        return np.floor(length / size)
+        return int(np.floor(length / size))

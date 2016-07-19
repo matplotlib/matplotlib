@@ -1,7 +1,7 @@
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
-from matplotlib.externals import six
+import six
 
 import os
 import sys
@@ -29,6 +29,8 @@ class NullMovieWriter(animation.AbstractMovieWriter):
     signature, and it doesn't define an isAvailable() method, so
     it cannot be added to the 'writers' registry.
     """
+
+    frame_size_can_vary = True
 
     def setup(self, fig, outfile, dpi, *args):
         self.fig = fig
@@ -58,14 +60,13 @@ def test_null_movie_writer():
 
     num_frames = 5
     filename = "unused.null"
-    fps = 30
     dpi = 50
     savefig_kwargs = dict(foo=0)
 
     anim = animation.FuncAnimation(fig, animate, init_func=init,
                                    frames=num_frames)
     writer = NullMovieWriter()
-    anim.save(filename, fps=fps, dpi=dpi, writer=writer,
+    anim.save(filename, dpi=dpi, writer=writer,
               savefig_kwargs=savefig_kwargs)
 
     assert_equal(writer.fig, fig)

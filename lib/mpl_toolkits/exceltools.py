@@ -22,7 +22,7 @@ Example usage:
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
-from matplotlib.externals import six
+import six
 
 import copy
 import numpy as np
@@ -31,6 +31,10 @@ import xlwt as excel
 
 import matplotlib.cbook as cbook
 import matplotlib.mlab as mlab
+
+
+cbook.warn_deprecated("2.0", name="mpl_toolkits.exceltools",
+                      alternative="openpyxl", obj_type="module")
 
 
 def xlformat_factory(format):

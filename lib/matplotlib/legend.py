@@ -24,8 +24,8 @@ for more information.
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
-from matplotlib.externals import six
-from matplotlib.externals.six.moves import xrange
+import six
+from six.moves import xrange
 
 import warnings
 
@@ -33,7 +33,8 @@ import numpy as np
 
 from matplotlib import rcParams
 from matplotlib.artist import Artist, allow_rasterization
-from matplotlib.cbook import (is_string_like, iterable, silent_list, safezip)
+from matplotlib.cbook import (is_string_like, iterable, silent_list, safezip,
+                              is_hashable)
 from matplotlib.font_manager import FontProperties
 from matplotlib.lines import Line2D
 from matplotlib.patches import Patch, Rectangle, Shadow, FancyBboxPatch
@@ -565,19 +566,19 @@ class Legend(Artist):
         method-resolution-order. If no matching key is found, it
         returns None.
         """
-        legend_handler_keys = list(six.iterkeys(legend_handler_map))
-        if orig_handle in legend_handler_keys:
-            handler = legend_handler_map[orig_handle]
-        else:
+        if is_hashable(orig_handle):
+            try:
+                return legend_handler_map[orig_handle]
+            except KeyError:
+                pass
 
-            for handle_type in type(orig_handle).mro():
-                if handle_type in legend_handler_map:
-                    handler = legend_handler_map[handle_type]
-                    break
-            else:
-                handler = None
+        for handle_type in type(orig_handle).mro():
+            try:
+                return legend_handler_map[handle_type]
+            except KeyError:
+                pass
 
-        return handler
+        return None
 
     def _init_legend_box(self, handles, labels, markerfirst=True):
         """

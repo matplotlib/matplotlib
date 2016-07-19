@@ -5,6 +5,7 @@ cache:
     - $HOME/.ccache
     - $HOME/.cache/pip
     - $HOME/.cache/matplotlib
+    - $HOME/Library/Caches/pip
 
 addons:
   apt:
@@ -24,6 +25,7 @@ addons:
       - texlive-xetex
       - graphviz
       - libgeos-dev
+      - otf-freefont
 #     - fonts-humor-sans
 #    sources:
 #      - debian-sid
@@ -37,10 +39,12 @@ env:
     - secure: "dfjNqGKzQG5bu3FnDNwLG8H/C4QoieFo4PfFmZPdM2RY7WIzukwKFNT6kiDfOrpwt+2bR7FhzjOGlDECGtlGOtYPN8XuXGjhcP4a4IfakdbDfF+D3NPIpf5VlE6776k0VpvcZBTMYJKNFIMc7QPkOwjvNJ2aXyfe3hBuGlKJzQU="
     - BUILD_DOCS=false
     - NUMPY=numpy
+    - OPENBLAS_NUM_THREADS=1
     - PANDAS=
     - NPROC=2
     - TEST_ARGS=--no-pep8
     - NOSE_ARGS="--processes=$NPROC --process-timeout=300"
+    - PYTHON_ARGS=
 
 language: python
 
@@ -49,6 +53,7 @@ matrix:
     - python: 2.7
       env: MOCK=mock NUMPY=numpy==1.6
     - python: 3.4
+      env: PYTHON_ARGS=-OO
     - python: 3.5
       env: PANDAS=pandas NOSE_ARGS=--with-coverage
     - python: 3.5
@@ -57,16 +62,29 @@ matrix:
       env: BUILD_DOCS=true
     - python: "nightly"
       env: PRE=--pre
+    - os: osx
+      osx_image: xcode7.3
+      language: generic
+      env: MOCK=mock NOSE_ARGS=
   allow_failures:
     - python: "nightly"
 
 before_install:
   - |
     # Install into our own pristine virtualenv
-    source ci/travis/travis_tools.sh
-    virtualenv --python=python venv
-    source venv/bin/activate
-    export PATH=/usr/lib/ccache:$PATH
+    if [[ $TRAVIS_OS_NAME != 'osx' ]]; then
+      virtualenv --python=python venv
+      source venv/bin/activate
+      export PATH=/usr/lib/ccache:$PATH
+    else
+      brew update
+      brew tap homebrew/gui
+      brew install python libpng  ffmpeg imagemagick mplayer ccache
+      # We could install ghostscript and inkscape here to test svg and pdf
+      # but this makes the test time really long.
+      # brew install ghostscript inkscape
+      export PATH=/usr/local/opt/ccache/libexec:$PATH
+    fi
 
 install:
   - |
@@ -77,17 +95,9 @@ install:
     pip install --upgrade wheel
     pip install --upgrade setuptools
   - |
-    # Install dependencies
-    if [ -z "$PRE" ]; then
-        # Install only from travis wheelhouse
-        wheelhouse_pip_install $NUMPY $PANDAS;
-    else
-        # Fall back to pypi for non suported python versions
-        pip install $PRE $NUMPY $PANDAS;
-    fi
-    # Always install from pypi
-    pip install $PRE pep8 cycler coveralls coverage python-dateutil pyparsing!=2.0.4
-    pip install pillow sphinx!=1.3.0 $MOCK numpydoc ipython colorspacious
+    # Install dependencies from pypi
+    pip install $PRE python-dateutil $NUMPY pyparsing!=2.1.2 $PANDAS pep8 cycler coveralls coverage
+    pip install $PRE pillow sphinx!=1.3.0 $MOCK numpydoc ipython colorspacious
     # Install nose from a build which has partial
     # support for python36 and suport for coverage output suppressing
     pip install git+https://github.com/jenshnielsen/nose.git@matplotlibnose
@@ -125,11 +135,16 @@ script:
   # Travis VM to run out of memory (since so many copies of inkscape and
   # ghostscript are running at the same time).
   - |
-    echo Testing using $NPROC processes
+    echo Testing import of tkagg backend
+    MPLBACKEND="tkagg" python -c 'import matplotlib.pyplot as plt; print(plt.get_backend())'
     echo The following args are passed to nose $NOSE_ARGS
     if [[ $BUILD_DOCS == false ]]; then
       export MPL_REPO_DIR=$PWD  # needed for pep8-conformance test of the examples
-      gdb -return-child-result -batch -ex r -ex bt --args python tests.py $NOSE_ARGS $TEST_ARGS
+      if [[ $TRAVIS_OS_NAME == 'osx' ]]; then
+        python tests.py $NOSE_ARGS $TEST_ARGS
+      else 
+        gdb -return-child-result -batch -ex r -ex bt --args python $PYTHON_ARGS tests.py $NOSE_ARGS $TEST_ARGS
+      fi
     else
       cd doc
       python make.py html --small
@@ -182,21 +197,6 @@ after_success:
       git push --set-upstream origin gh-pages --force
     else
       echo "Will only deploy docs build from matplotlib master branch"
-    fi
-    if [[ $TRAVIS_PULL_REQUEST == false ]] && \
-       [[ $TRAVIS_REPO_SLUG == 'matplotlib/matplotlib' ]] && \
-       [[ $TRAVIS_BRANCH == 'master' ]]; then
-      cd $TRAVIS_BUILD_DIR
-      python ci/travis/travis_after_all.py
-      export $(cat .to_export_back)
-      if [ "$BUILD_LEADER" = "YES" ]; then
-        if [ "$BUILD_AGGREGATE_STATUS" = "others_succeeded" ]; then
-          echo "All Succeeded! Triggering OSX build..."
-          ./ci/travis/build_children.sh
-        else
-          echo "Some Failed; no OSX build"
-        fi
-      fi
     fi
     if [[ $NOSE_ARGS="--with-coverage" ]]; then
       coveralls

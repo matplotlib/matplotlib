@@ -1,7 +1,7 @@
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
-from matplotlib.externals import six
+import six
 
 import tempfile
 
@@ -316,9 +316,9 @@ class csv_testcase(CleanupTestCase):
 
     def test_recarray_csv_roundtrip(self):
         expected = np.recarray((99,),
-                               [(str('x'), np.float),
-                                (str('y'), np.float),
-                                (str('t'), np.float)])
+                               [(str('x'), float),
+                                (str('y'), float),
+                                (str('t'), float)])
         # initialising all values: uninitialised memory sometimes produces
         # floats that do not round-trip to string and back.
         expected['x'][:] = np.linspace(-1e9, -1, 99)
@@ -334,8 +334,8 @@ class csv_testcase(CleanupTestCase):
         assert_allclose(expected['t'], actual['t'])
 
     def test_rec2csv_bad_shape_ValueError(self):
-        bad = np.recarray((99, 4), [(str('x'), np.float),
-                                    (str('y'), np.float)])
+        bad = np.recarray((99, 4), [(str('x'), float),
+                                    (str('y'), float)])
 
         # the bad recarray should trigger a ValueError for having ndim > 1.
         assert_raises(ValueError, mlab.rec2csv, bad, self.fd)
@@ -391,6 +391,22 @@ class csv_testcase(CleanupTestCase):
         self.fd.seek(0)
         array = mlab.csv2rec(self.fd, names='a', yearfirst=True)
         assert_array_equal(array['a'].tolist(), expected)
+
+
+class rec2txt_testcase(CleanupTestCase):
+    def test_csv2txt_basic(self):
+        # str() calls around field names necessary b/c as of numpy 1.11
+        # dtype doesn't like unicode names (caused by unicode_literals import)
+        a = np.array([(1.0, 2, 'foo', 'bing'),
+                      (2.0, 3, 'bar', 'blah')],
+                     dtype=np.dtype([(str('x'), np.float32),
+                                     (str('y'), np.int8),
+                                     (str('s'), str, 3),
+                                     (str('s2'), str, 4)]))
+        truth = ('       x   y   s     s2\n'
+                 '   1.000   2   foo   bing   \n'
+                 '   2.000   3   bar   blah   ').splitlines()
+        assert_equal(mlab.rec2txt(a).splitlines(), truth)
 
 
 class window_testcase(CleanupTestCase):
@@ -2853,7 +2869,7 @@ class gaussian_kde_tests():
         np.testing.assert_array_almost_equal(kde(x1), y_expected, decimal=6)
 
     def test_gaussian_kde_covariance_caching(self):
-        x1 = np.array([-7, -5, 1, 4, 5], dtype=np.float)
+        x1 = np.array([-7, -5, 1, 4, 5], dtype=float)
         xs = np.linspace(-10, 10, num=5)
         # These expected values are from scipy 0.10, before some changes to
         # gaussian_kde. They were not compared with any external reference.

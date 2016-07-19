@@ -1,7 +1,7 @@
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
-from matplotlib.externals import six
+import six
 
 import os, sys, warnings
 def fn_name(): return sys._getframe(1).f_code.co_name
@@ -35,15 +35,12 @@ from matplotlib.backend_bases import ShowBase
 
 from matplotlib.backends.backend_gdk import RendererGDK, FigureCanvasGDK
 from matplotlib.cbook import is_string_like, is_writable_file_like
-from matplotlib.colors import colorConverter
 from matplotlib.figure import Figure
 from matplotlib.widgets import SubplotTool
+from matplotlib.cbook import warn_deprecated
 
-from matplotlib import lines
-from matplotlib import markers
-from matplotlib import cbook
-from matplotlib import verbose
-from matplotlib import rcParams
+from matplotlib import (
+    cbook, colors as mcolors, lines, markers, rcParams, verbose)
 
 backend_version = "%d.%d.%d" % gtk.pygtk_version
 
@@ -216,6 +213,14 @@ class FigureCanvasGTK (gtk.DrawingArea, FigureCanvasBase):
                   gdk.POINTER_MOTION_HINT_MASK)
 
     def __init__(self, figure):
+        if self.__class__ == matplotlib.backends.backend_gtk.FigureCanvasGTK:
+            warn_deprecated('2.0', message="The GTK backend is "
+                            "deprecated. It is untested, known to be "
+                            "broken and will be removed in Matplotlib 2.2. "
+                            "Use the GTKAgg backend instead. "
+                            "See Matplotlib usage FAQ for"
+                            " more info on backends.",
+                            alternative="GTKAgg")
         if _debug: print('FigureCanvasGTK.%s' % fn_name())
         FigureCanvasBase.__init__(self, figure)
         gtk.DrawingArea.__init__(self)
@@ -300,14 +305,14 @@ class FigureCanvasGTK (gtk.DrawingArea, FigureCanvasBase):
         key = self._get_key(event)
         if _debug: print("hit", key)
         FigureCanvasBase.key_press_event(self, key, guiEvent=event)
-        return False  # finish event propagation?
+        return True  # stop event propagation
 
     def key_release_event(self, widget, event):
         if _debug: print('FigureCanvasGTK.%s' % fn_name())
         key = self._get_key(event)
         if _debug: print("release", key)
         FigureCanvasBase.key_release_event(self, key, guiEvent=event)
-        return False  # finish event propagation?
+        return True  # stop event propagation
 
     def motion_notify_event(self, widget, event):
         if _debug: print('FigureCanvasGTK.%s' % fn_name())
@@ -476,10 +481,10 @@ class FigureCanvasGTK (gtk.DrawingArea, FigureCanvasBase):
         # http://www.pygtk.org/docs/pygtk/class-gdkpixbuf.html#method-gdkpixbuf--save
         options = cbook.restrict_dict(kwargs, ['quality'])
         if format in ['jpg','jpeg']:
-           if 'quality' not in options:
-              options['quality'] = rcParams['savefig.jpeg_quality']
+            if 'quality' not in options:
+                options['quality'] = rcParams['savefig.jpeg_quality']
 
-           options['quality'] = str(options['quality'])
+            options['quality'] = str(options['quality'])
 
         if is_string_like(filename):
             try:
@@ -613,6 +618,9 @@ class FigureManagerGTK(FigureManagerBase):
     def show(self):
         # show the figure window
         self.window.show()
+        # raise the window above others and relase the "above lock"
+        self.window.set_keep_above(True)
+        self.window.set_keep_above(False)
 
     def full_screen_toggle(self):
         self._full_screen_flag = not self._full_screen_flag
@@ -1003,13 +1011,13 @@ class DialogLineprops(object):
         if marker is None: marker = 'None'
         self.cbox_markers.set_active(self.markerd[marker])
 
-        r,g,b = colorConverter.to_rgb(line.get_color())
-        color = gtk.gdk.Color(*[int(val*65535) for val in (r,g,b)])
+        rgba = mcolors.to_rgba(line.get_color())
+        color = gtk.gdk.Color(*[int(val*65535) for val in rgba[:3]])
         button = self.wtree.get_widget('colorbutton_linestyle')
         button.set_color(color)
 
-        r,g,b = colorConverter.to_rgb(line.get_markerfacecolor())
-        color = gtk.gdk.Color(*[int(val*65535) for val in (r,g,b)])
+        rgba = mcolors.to_rgba(line.get_markerfacecolor())
+        color = gtk.gdk.Color(*[int(val*65535) for val in rgba[:3]])
         button = self.wtree.get_widget('colorbutton_markerface')
         button.set_color(color)
         self._updateson = True

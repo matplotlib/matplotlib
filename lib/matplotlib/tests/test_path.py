@@ -1,9 +1,11 @@
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
-from matplotlib.externals import six
+import six
 
 import numpy as np
+
+from numpy.testing import assert_array_equal
 
 from matplotlib.path import Path
 from matplotlib.patches import Polygon
@@ -28,8 +30,9 @@ def test_point_in_path():
 
     path = Path(verts2, closed=True)
     points = [(0.5, 0.5), (1.5, 0.5)]
-
-    assert np.all(path.contains_points(points) == [True, False])
+    ret = path.contains_points(points)
+    assert ret.dtype == 'bool'
+    assert np.all(ret == [True, False])
 
 
 def test_contains_points_negative_radius():
@@ -39,7 +42,6 @@ def test_contains_points_negative_radius():
     expected = [True, False, False]
     result = path.contains_points(points, radius=-0.5)
 
-    assert result.dtype == np.bool
     assert np.all(result == expected)
 
 
@@ -147,6 +149,27 @@ def test_path_no_doubled_point_in_to_polygon():
 
     assert np.all(poly_clipped[-2] != poly_clipped[-1])
     assert np.all(poly_clipped[-1] == poly_clipped[0])
+
+
+def test_path_to_polygons():
+    data = [[10, 10], [20, 20]]
+    p = Path(data)
+
+    assert_array_equal(p.to_polygons(width=40, height=40), [])
+    assert_array_equal(p.to_polygons(width=40, height=40, closed_only=False),
+                       [data])
+    assert_array_equal(p.to_polygons(), [])
+    assert_array_equal(p.to_polygons(closed_only=False), [data])
+
+    data = [[10, 10], [20, 20], [30, 30]]
+    closed_data = [[10, 10], [20, 20], [30, 30], [10, 10]]
+    p = Path(data)
+
+    assert_array_equal(p.to_polygons(width=40, height=40), [closed_data])
+    assert_array_equal(p.to_polygons(width=40, height=40, closed_only=False),
+                       [data])
+    assert_array_equal(p.to_polygons(), [closed_data])
+    assert_array_equal(p.to_polygons(closed_only=False), [data])
 
 
 if __name__ == '__main__':

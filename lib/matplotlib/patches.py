@@ -3,8 +3,8 @@
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
-from matplotlib.externals import six
-from matplotlib.externals.six.moves import map, zip
+import six
+from six.moves import map, zip
 
 import math
 
@@ -17,6 +17,7 @@ import matplotlib.colors as colors
 from matplotlib import docstring
 import matplotlib.transforms as transforms
 from matplotlib.path import Path
+import matplotlib.lines as mlines
 
 from matplotlib.bezier import split_bezier_intersecting_with_closedpath
 from matplotlib.bezier import get_intersection, inside_circle, get_parallels
@@ -54,6 +55,14 @@ docstring.interpd.update(Patch="""
           =================   ==============================================
 
           """)
+
+_patch_alias_map = {
+        'antialiased': ['aa'],
+        'edgecolor': ['ec'],
+        'facecolor': ['fc'],
+        'linewidth': ['lw'],
+        'linestyle': ['ls']
+    }
 
 
 class Patch(artist.Artist):
@@ -114,10 +123,13 @@ class Patch(artist.Artist):
         else:
             self.set_edgecolor(edgecolor)
             self.set_facecolor(facecolor)
+        # unscaled dashes.  Needed to scale dash patterns by lw
+        self._us_dashes = None
+        self._linewidth = 0
 
         self.set_fill(fill)
-        self.set_linewidth(linewidth)
         self.set_linestyle(linestyle)
+        self.set_linewidth(linewidth)
         self.set_antialiased(antialiased)
         self.set_hatch(hatch)
         self.set_capstyle(capstyle)
@@ -278,7 +290,7 @@ class Patch(artist.Artist):
         if color is None:
             color = mpl.rcParams['patch.edgecolor']
         self._original_edgecolor = color
-        self._edgecolor = colors.colorConverter.to_rgba(color, self._alpha)
+        self._edgecolor = colors.to_rgba(color, self._alpha)
         self.stale = True
 
     def set_ec(self, color):
@@ -295,7 +307,7 @@ class Patch(artist.Artist):
             color = mpl.rcParams['patch.facecolor']
         # save: otherwise changing _fill may lose alpha information
         self._original_facecolor = color
-        self._facecolor = colors.colorConverter.to_rgba(color, self._alpha)
+        self._facecolor = colors.to_rgba(color, self._alpha)
         if not self._fill:
             self._facecolor = list(self._facecolor)
             self._facecolor[3] = 0
@@ -353,7 +365,11 @@ class Patch(artist.Artist):
                 w = 0
 
         self._linewidth = float(w)
-
+        # scale the dash pattern by the linewidth
+        offset, ls = self._us_dashes
+        self._dashes = mlines._scale_dashes(offset,
+                                            ls,
+                                            self._linewidth)[1]
         self.stale = True
 
     def set_lw(self, lw):
@@ -392,9 +408,13 @@ class Patch(artist.Artist):
         """
         if ls is None:
             ls = "solid"
-
-        ls = cbook.ls_mapper.get(ls, ls)
         self._linestyle = ls
+        # get the unscalled dash pattern
+        offset, ls = self._us_dashes = mlines._get_dash_pattern(ls)
+        # scale the dash pattern by the linewidth
+        self._dashes = mlines._scale_dashes(offset,
+                                            ls,
+                                            self._linewidth)[1]
         self.stale = True
 
     def set_ls(self, ls):
@@ -502,7 +522,7 @@ class Patch(artist.Artist):
         if self._edgecolor[3] == 0:
             lw = 0
         gc.set_linewidth(lw)
-        gc.set_linestyle(self._linestyle)
+        gc.set_dashes(0, self._dashes)
         gc.set_capstyle(self._capstyle)
         gc.set_joinstyle(self._joinstyle)
 
@@ -585,8 +605,7 @@ class Shadow(Patch):
         if self.props is not None:
             self.update(self.props)
         else:
-            r, g, b, a = colors.colorConverter.to_rgba(
-                                self.patch.get_facecolor())
+            r, g, b, a = colors.to_rgba(self.patch.get_facecolor())
             rho = 0.3
             r = rho * r
             g = rho * g
@@ -4056,7 +4075,7 @@ class FancyArrowPatch(Patch):
     def set_dpi_cor(self, dpi_cor):
         """
         dpi_cor is currently used for linewidth-related things and
-        shrink factor. Mutation scale is not affected by this.
+        shrink factor. Mutation scale is affected by this.
         """
 
         self._dpi_cor = dpi_cor
@@ -4065,7 +4084,7 @@ class FancyArrowPatch(Patch):
     def get_dpi_cor(self):
         """
         dpi_cor is currently used for linewidth-related things and
-        shrink factor. Mutation scale is not affected by this.
+        shrink factor. Mutation scale is affected by this.
         """
 
         return self._dpi_cor
@@ -4217,15 +4236,16 @@ class FancyArrowPatch(Patch):
                                                patchB=self.patchB,
                                                shrinkA=self.shrinkA * dpi_cor,
                                                shrinkB=self.shrinkB * dpi_cor
-                                              )
+                                               )
         else:
             _path = self.get_transform().transform_path(self._path_original)
 
-        _path, fillable = self.get_arrowstyle()(_path,
-                                                self.get_mutation_scale(),
-                                                self.get_linewidth() * dpi_cor,
-                                                self.get_mutation_aspect()
-                                               )
+        _path, fillable = self.get_arrowstyle()(
+                                        _path,
+                                        self.get_mutation_scale() * dpi_cor,
+                                        self.get_linewidth() * dpi_cor,
+                                        self.get_mutation_aspect()
+                                        )
 
         #if not fillable:
         #    self._fill = False
@@ -4535,13 +4555,14 @@ class ConnectionPatch(FancyArrowPatch):
                                            patchB=self.patchB,
                                            shrinkA=self.shrinkA * dpi_cor,
                                            shrinkB=self.shrinkB * dpi_cor
-                                          )
+                                           )
 
-        _path, fillable = self.get_arrowstyle()(_path,
-                                                self.get_mutation_scale(),
-                                                self.get_linewidth() * dpi_cor,
-                                                self.get_mutation_aspect()
-                                               )
+        _path, fillable = self.get_arrowstyle()(
+                                        _path,
+                                        self.get_mutation_scale() * dpi_cor,
+                                        self.get_linewidth() * dpi_cor,
+                                        self.get_mutation_aspect()
+                                        )
 
         return _path, fillable
 

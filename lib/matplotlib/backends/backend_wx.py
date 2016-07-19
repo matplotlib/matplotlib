@@ -16,7 +16,7 @@
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
-from matplotlib.externals.six.moves import xrange
+from six.moves import xrange
 
 import sys
 import os
@@ -35,7 +35,8 @@ from matplotlib.backend_bases import ShowBase
 from matplotlib.backend_bases import _has_pil
 
 from matplotlib._pylab_helpers import Gcf
-from matplotlib.cbook import is_string_like, is_writable_file_like
+from matplotlib.cbook import (is_string_like, is_writable_file_like,
+                              warn_deprecated)
 from matplotlib.figure import Figure
 from matplotlib.path import Path
 from matplotlib.transforms import Affine2D
@@ -188,6 +189,12 @@ class RendererWx(RendererBase):
         """
         Initialise a wxWindows renderer instance.
         """
+        warn_deprecated('2.0', message="The WX backend is "
+                        "deprecated. It's untested "
+                        "and will be removed in Matplotlib 2.2. "
+                        "Use the WXAgg backend instead. "
+                        "See Matplotlib usage FAQ for more info on backends.",
+                        alternative='WXAgg')
         RendererBase.__init__(self)
         DEBUG_MSG("__init__()", 1, self)
         self.width = bitmap.GetWidth()

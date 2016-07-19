@@ -3,8 +3,8 @@ from __future__ import (absolute_import, division, print_function,
 
 from collections import OrderedDict
 
-from matplotlib.externals import six
-from matplotlib.externals.six.moves import xrange
+import six
+from six.moves import xrange
 
 import itertools
 import warnings
@@ -12,7 +12,6 @@ import math
 from operator import itemgetter
 
 import numpy as np
-from numpy import ma
 
 import matplotlib
 
@@ -68,7 +67,7 @@ def _process_plot_format(fmt):
 
     # Is fmt just a colorspec?
     try:
-        color = mcolors.colorConverter.to_rgb(fmt)
+        color = mcolors.to_rgba(fmt)
 
         # We need to differentiate grayscale '1.0' from tri_down marker '1'
         try:
@@ -112,14 +111,14 @@ def _process_plot_format(fmt):
                 raise ValueError(
                     'Illegal format string "%s"; two marker symbols' % fmt)
             marker = c
-        elif c in mcolors.colorConverter.colors:
+        elif c in mcolors.get_named_colors_mapping():
             if color is not None:
                 raise ValueError(
                     'Illegal format string "%s"; two color symbols' % fmt)
             color = c
         elif c == 'C' and i < len(chars) - 1:
             color_cycle_number = int(chars[i + 1])
-            color = mcolors.colorConverter._get_nth_color(color_cycle_number)
+            color = mcolors.to_rgba("C{}".format(color_cycle_number))
             i += 1
         else:
             raise ValueError(
@@ -164,15 +163,8 @@ class _process_plot_var_args(object):
     def set_prop_cycle(self, *args, **kwargs):
         if not (args or kwargs) or (len(args) == 1 and args[0] is None):
             prop_cycler = rcParams['axes.prop_cycle']
-            if prop_cycler is None and 'axes.color_cycle' in rcParams:
-                clist = rcParams['axes.color_cycle']
-                prop_cycler = cycler('color', clist)
         else:
             prop_cycler = cycler(*args, **kwargs)
-
-        # Make sure the cycler always has at least one color
-        if 'color' not in prop_cycler.keys:
-            prop_cycler = prop_cycler * cycler('color', ['k'])
 
         self.prop_cycler = itertools.cycle(prop_cycler)
         # This should make a copy
@@ -203,6 +195,8 @@ class _process_plot_var_args(object):
         """
         Return the next color in the cycle.
         """
+        if 'color' not in self._prop_keys:
+            return 'k'
         return six.next(self.prop_cycler)['color']
 
     def set_lineprops(self, line, **kwargs):
@@ -297,11 +291,10 @@ class _process_plot_var_args(object):
 
     def _makeline(self, x, y, kw, kwargs):
         kw = kw.copy()  # Don't modify the original kw.
-        kwargs = kwargs.copy()
-        default_dict = self._getdefaults(None, kw, kwargs)
-        self._setdefaults(default_dict, kw, kwargs)
+        kw.update(kwargs)
+        default_dict = self._getdefaults(None, kw)
+        self._setdefaults(default_dict, kw)
         seg = mlines.Line2D(x, y, **kw)
-        self.set_lineprops(seg, **kwargs)
         return seg
 
     def _makefill(self, x, y, kw, kwargs):
@@ -573,10 +566,20 @@ class _AxesBase(martist.Artist):
         if self.yaxis is not None:
             self._ycid = self.yaxis.callbacks.connect('units finalize',
                                                       self.relim)
-        self.tick_params(top=rcParams['xtick.top'],
-                         bottom=rcParams['xtick.bottom'],
-                         left=rcParams['ytick.left'],
-                         right=rcParams['ytick.right'])
+
+        self.tick_params(
+            top=rcParams['xtick.top'] and rcParams['xtick.minor.top'],
+            bottom=rcParams['xtick.bottom'] and rcParams['xtick.minor.bottom'],
+            left=rcParams['ytick.left'] and rcParams['ytick.minor.left'],
+            right=rcParams['ytick.right'] and rcParams['ytick.minor.right'],
+            which='minor')
+
+        self.tick_params(
+            top=rcParams['xtick.top'] and rcParams['xtick.major.top'],
+            bottom=rcParams['xtick.bottom'] and rcParams['xtick.major.bottom'],
+            left=rcParams['ytick.left'] and rcParams['ytick.major.left'],
+            right=rcParams['ytick.right'] and rcParams['ytick.major.right'],
+            which='major')
 
     def __setstate__(self, state):
         self.__dict__ = state
@@ -1044,11 +1047,12 @@ class _AxesBase(martist.Artist):
                   axis=rcParams['axes.grid.axis'])
         props = font_manager.FontProperties(
             size=rcParams['axes.titlesize'],
-            weight=rcParams['axes.titleweight']
-            )
+            weight=rcParams['axes.titleweight'])
 
+        title_offset_points = rcParams['axes.titlepad']
         self.titleOffsetTrans = mtransforms.ScaledTranslation(
-            0.0, 5.0 / 72.0, self.figure.dpi_scale_trans)
+            0.0, title_offset_points / 72.0,
+            self.figure.dpi_scale_trans)
         self.title = mtext.Text(
             x=0.5, y=1.0, text='',
             fontproperties=props,
@@ -1921,7 +1925,7 @@ class _AxesBase(martist.Artist):
 
         if iterable(xys) and not len(xys):
             return
-        if not ma.isMaskedArray(xys):
+        if not isinstance(xys, np.ma.MaskedArray):
             xys = np.asarray(xys)
         self.dataLim.update_from_data_xy(xys, self.ignore_existing_data_limits,
                                          updatex=updatex, updatey=updatey)
@@ -2254,7 +2258,7 @@ class _AxesBase(martist.Artist):
                     x0, x1 = mtransforms.nonsingular(
                         x0, x1, increasing=False, expander=0.05)
 
-                if (margin > 0 and do_lower_margin or do_upper_margin):
+                if margin > 0 and (do_lower_margin or do_upper_margin):
                     if axis.get_scale() == 'linear':
                         delta = (x1 - x0) * margin
                         if do_lower_margin:
@@ -2475,7 +2479,8 @@ class _AxesBase(martist.Artist):
         """
         if len(kwargs):
             b = True
-        b = _string_to_bool(b)
+        elif b is not None:
+            b = _string_to_bool(b)
 
         if axis == 'x' or axis == 'both':
             self.xaxis.grid(b, which=which, **kwargs)
@@ -3687,7 +3692,7 @@ class _AxesBase(martist.Artist):
             lw, c = args
         else:
             raise ValueError('args must be a (linewidth, color) tuple')
-        c = mcolors.colorConverter.to_rgba(c)
+        c = mcolors.to_rgba(c)
         self._cursorProps = lw, c
 
     def get_children(self):

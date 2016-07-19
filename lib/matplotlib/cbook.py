@@ -9,8 +9,8 @@ it imports matplotlib only at runtime.
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
-from matplotlib.externals import six
-from matplotlib.externals.six.moves import xrange, zip
+import six
+from six.moves import xrange, zip
 from itertools import repeat
 import collections
 
@@ -31,7 +31,6 @@ import warnings
 from weakref import ref, WeakKeyDictionary
 
 import numpy as np
-import numpy.ma as ma
 
 
 class MatplotlibDeprecationWarning(UserWarning):
@@ -95,24 +94,16 @@ def warn_deprecated(
         specifier `%(func)s` may be used for the name of the function,
         and `%(alternative)s` may be used in the deprecation message
         to insert the name of an alternative to the deprecated
-        function.  `%(obj_type)` may be used to insert a friendly name
+        function.  `%(obj_type)s` may be used to insert a friendly name
         for the type of object being deprecated.
 
     name : str, optional
-        The name of the deprecated function; if not provided the name
-        is automatically determined from the passed in function,
-        though this is useful in the case of renamed functions, where
-        the new function is just assigned to the name of the
-        deprecated function.  For example::
-
-            def new_function():
-                ...
-            oldFunction = new_function
+        The name of the deprecated object.
 
     alternative : str, optional
         An alternative function that the user may use in place of the
-        deprecated function.  The deprecation warning will tell the user about
-        this alternative if provided.
+        deprecated function.  The deprecation warning will tell the user
+        about this alternative if provided.
 
     pending : bool, optional
         If True, uses a PendingDeprecationWarning instead of a
@@ -153,7 +144,7 @@ def deprecated(since, message='', name='', alternative='', pending=False,
         specifier `%(func)s` may be used for the name of the function,
         and `%(alternative)s` may be used in the deprecation message
         to insert the name of an alternative to the deprecated
-        function.  `%(obj_type)` may be used to insert a friendly name
+        function.  `%(obj_type)s` may be used to insert a friendly name
         for the type of object being deprecated.
 
     name : str, optional
@@ -169,8 +160,8 @@ def deprecated(since, message='', name='', alternative='', pending=False,
 
     alternative : str, optional
         An alternative function that the user may use in place of the
-        deprecated function.  The deprecation warning will tell the user about
-        this alternative if provided.
+        deprecated function.  The deprecation warning will tell the user
+        about this alternative if provided.
 
     pending : bool, optional
         If True, uses a PendingDeprecationWarning instead of a
@@ -475,7 +466,7 @@ class CallbackRegistry(object):
     object to handle weak references to bound methods (or regular free
     functions).  This technique was shared by Peter Parente on his
     `"Mindtrove" blog
-    <http://mindtrove.info/articles/python-weak-references/>`_.
+    <http://mindtrove.info/python-weak-references/>`_.
     """
     def __init__(self):
         self.callbacks = dict()
@@ -685,7 +676,7 @@ def is_string_like(obj):
     if isinstance(obj, six.string_types):
         return True
     # numpy strings are subclass of str, ma strings are not
-    if ma.isMaskedArray(obj):
+    if isinstance(obj, np.ma.MaskedArray):
         if obj.ndim == 0 and obj.dtype.kind in 'SU':
             return True
         else:
@@ -794,13 +785,15 @@ def is_scalar_or_string(val):
 
 
 def _string_to_bool(s):
+    """Parses the string argument as a boolean"""
     if not is_string_like(s):
-        return s
-    if s == 'on':
+        return bool(s)
+    if s.lower() in ['on', 'true']:
         return True
-    if s == 'off':
+    if s.lower() in ['off', 'false']:
         return False
-    raise ValueError("string argument must be either 'on' or 'off'")
+    raise ValueError('String "%s" must be one of: '
+                     '"on", "off", "true", or "false"' % s)
 
 
 def get_sample_data(fname, asfileobj=True):
@@ -821,8 +814,7 @@ def get_sample_data(fname, asfileobj=True):
     if matplotlib.rcParams['examples.directory']:
         root = matplotlib.rcParams['examples.directory']
     else:
-        root = os.path.join(os.path.dirname(__file__),
-                            "mpl-data", "sample_data")
+        root = os.path.join(matplotlib._get_data_path(), 'sample_data')
     path = os.path.join(root, fname)
 
     if asfileobj:
@@ -925,10 +917,10 @@ class Xlator(dict):
       "Perl" : "Python",
       }
 
-      print multiple_replace(adict, text)
+      print(multiple_replace(adict, text))
 
       xlat = Xlator(adict)
-      print xlat.xlat(text)
+      print(xlat.xlat(text))
     """
 
     def _make_regex(self):
@@ -1452,8 +1444,15 @@ def issubclass_safe(x, klass):
         return False
 
 
-def safe_masked_invalid(x):
-    x = np.asanyarray(x)
+def safe_masked_invalid(x, copy=False):
+    x = np.array(x, subok=True, copy=copy)
+    if not x.dtype.isnative:
+        # Note that the argument to `byteswap` is 'inplace',
+        # thus if we have already made a copy, do the byteswap in
+        # place, else make a copy with the byte order swapped.
+        # Be explicit that we are swapping the byte order of the dtype
+        x = x.byteswap(copy).newbyteorder('S')
+
     try:
         xm = np.ma.masked_invalid(x, copy=False)
         xm.shrink_mask()
@@ -1736,7 +1735,7 @@ def delete_masked_points(*args):
     for i, x in enumerate(args):
         if (not is_string_like(x)) and iterable(x) and len(x) == nrecs:
             seqlist[i] = True
-            if ma.isMA(x):
+            if isinstance(x, np.ma.MaskedArray):
                 if x.ndim > 1:
                     raise ValueError("Masked arrays must be 1-D")
             else:
@@ -1747,8 +1746,8 @@ def delete_masked_points(*args):
         if seqlist[i]:
             if x.ndim > 1:
                 continue  # Don't try to get nan locations unless 1-D.
-            if ma.isMA(x):
-                masks.append(~ma.getmaskarray(x))  # invert the mask
+            if isinstance(x, np.ma.MaskedArray):
+                masks.append(~np.ma.getmaskarray(x))  # invert the mask
                 xd = x.data
             else:
                 xd = x
@@ -1766,7 +1765,7 @@ def delete_masked_points(*args):
                 if seqlist[i]:
                     margs[i] = x.take(igood, axis=0)
     for i, x in enumerate(margs):
-        if seqlist[i] and ma.isMA(x):
+        if seqlist[i] and isinstance(x, np.ma.MaskedArray):
             margs[i] = x.filled()
     return margs
 
@@ -2312,7 +2311,7 @@ def pts_to_prestep(x, *args):
     # do normalization
     vertices = _step_validation(x, *args)
     # create the output array
-    steps = np.zeros((vertices.shape[0], 2 * len(x) - 1), np.float)
+    steps = np.zeros((vertices.shape[0], 2 * len(x) - 1), float)
     # do the to step conversion logic
     steps[0, 0::2], steps[0, 1::2] = vertices[0, :], vertices[0, :-1]
     steps[1:, 0::2], steps[1:, 1:-1:2] = vertices[1:, :], vertices[1:, 1:]
@@ -2352,7 +2351,7 @@ def pts_to_poststep(x, *args):
     # do normalization
     vertices = _step_validation(x, *args)
     # create the output array
-    steps = ma.zeros((vertices.shape[0], 2 * len(x) - 1), np.float)
+    steps = np.zeros((vertices.shape[0], 2 * len(x) - 1), float)
     # do the to step conversion logic
     steps[0, ::2], steps[0, 1:-1:2] = vertices[0, :], vertices[0, 1:]
     steps[1:, 0::2], steps[1:, 1::2] = vertices[1:, :], vertices[1:, :-1]
@@ -2393,7 +2392,7 @@ def pts_to_midstep(x, *args):
     # do normalization
     vertices = _step_validation(x, *args)
     # create the output array
-    steps = ma.zeros((vertices.shape[0], 2 * len(x)), np.float)
+    steps = np.zeros((vertices.shape[0], 2 * len(x)), float)
     steps[0, 1:-1:2] = 0.5 * (vertices[0, :-1] + vertices[0, 1:])
     steps[0, 2::2] = 0.5 * (vertices[0, :-1] + vertices[0, 1:])
     steps[0, 0] = vertices[0, 0]
@@ -2403,12 +2402,12 @@ def pts_to_midstep(x, *args):
     # convert 2D array back to tuple
     return tuple(steps)
 
-STEP_LOOKUP_MAP = {'pre': pts_to_prestep,
-                   'post': pts_to_poststep,
-                   'mid': pts_to_midstep,
-                   'step-pre': pts_to_prestep,
-                   'step-post': pts_to_poststep,
-                   'step-mid': pts_to_midstep}
+
+STEP_LOOKUP_MAP = {'default': lambda x, y: (x, y),
+                   'steps': pts_to_prestep,
+                   'steps-pre': pts_to_prestep,
+                   'steps-post': pts_to_poststep,
+                   'steps-mid': pts_to_midstep}
 
 
 def index_of(y):

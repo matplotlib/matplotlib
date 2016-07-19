@@ -102,7 +102,7 @@ to MATLAB&reg;, a registered trademark of The MathWorks, Inc.
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
-from matplotlib.externals import six
+import six
 import sys
 import distutils.version
 from itertools import chain
@@ -126,8 +126,8 @@ from matplotlib.rcsetup import (defaultParams,
                                 cycler)
 
 import numpy
-from matplotlib.externals.six.moves.urllib.request import urlopen
-from matplotlib.externals.six.moves import reload_module as reload
+from six.moves.urllib.request import urlopen
+from six.moves import reload_module as reload
 
 # Get the version from the _version.py versioneer file. For a git checkout,
 # this is computed based on the number of commits since the last tag.
@@ -365,23 +365,27 @@ def checkdep_dvipng():
 
 
 def checkdep_ghostscript():
-    if sys.platform == 'win32':
-        # mgs is the name in miktex
-        gs_execs = ['gswin32c', 'gswin64c', 'mgs', 'gs']
-    else:
-        gs_execs = ['gs']
-    for gs_exec in gs_execs:
-        try:
-            s = subprocess.Popen(
-                [gs_exec, '--version'], stdout=subprocess.PIPE,
-                stderr=subprocess.PIPE)
-            stdout, stderr = s.communicate()
-            if s.returncode == 0:
-                v = stdout[:-1].decode('ascii')
-                return gs_exec, v
-        except (IndexError, ValueError, OSError):
-            pass
-    return None, None
+    if checkdep_ghostscript.executable is None:
+        if sys.platform == 'win32':
+            # mgs is the name in miktex
+            gs_execs = ['gswin32c', 'gswin64c', 'mgs', 'gs']
+        else:
+            gs_execs = ['gs']
+        for gs_exec in gs_execs:
+            try:
+                s = subprocess.Popen(
+                    [gs_exec, '--version'], stdout=subprocess.PIPE,
+                    stderr=subprocess.PIPE)
+                stdout, stderr = s.communicate()
+                if s.returncode == 0:
+                    v = stdout[:-1].decode('ascii')
+                    checkdep_ghostscript.executable = gs_exec
+                    checkdep_ghostscript.version = v
+            except (IndexError, ValueError, OSError):
+                pass
+    return checkdep_ghostscript.executable, checkdep_ghostscript.version
+checkdep_ghostscript.executable = None
+checkdep_ghostscript.version = None
 
 
 def checkdep_tex():
@@ -413,18 +417,21 @@ def checkdep_pdftops():
 
 
 def checkdep_inkscape():
-    try:
-        s = subprocess.Popen(['inkscape', '-V'], stdout=subprocess.PIPE,
-                             stderr=subprocess.PIPE)
-        stdout, stderr = s.communicate()
-        lines = stdout.decode('ascii').split('\n')
-        for line in lines:
-            if 'Inkscape' in line:
-                v = line.split()[1]
-                break
-        return v
-    except (IndexError, ValueError, UnboundLocalError, OSError):
-        return None
+    if checkdep_inkscape.version is None:
+        try:
+            s = subprocess.Popen(['inkscape', '-V'], stdout=subprocess.PIPE,
+                                 stderr=subprocess.PIPE)
+            stdout, stderr = s.communicate()
+            lines = stdout.decode('ascii').split('\n')
+            for line in lines:
+                if 'Inkscape' in line:
+                    v = line.split()[1]
+                    break
+            checkdep_inkscape.version = v
+        except (IndexError, ValueError, UnboundLocalError, OSError):
+            pass
+    return checkdep_inkscape.version
+checkdep_inkscape.version = None
 
 
 def checkdep_xmllint():
@@ -866,7 +873,7 @@ _deprecated_map = {
 _deprecated_ignore_map = {
     }
 
-_obsolete_set = set(['tk.pythoninspect', ])
+_obsolete_set = set(['tk.pythoninspect', 'legend.isaxes'])
 _all_deprecated = set(chain(_deprecated_ignore_map,
                             _deprecated_map, _obsolete_set))
 
@@ -885,6 +892,8 @@ class RcParams(dict):
                     if key not in _all_deprecated)
     msg_depr = "%s is deprecated and replaced with %s; please use the latter."
     msg_depr_ignore = "%s is deprecated and ignored. Use %s"
+    msg_obsolete = ("%s is obsolete. Please remove it from your matplotlibrc "
+                    "and/or style files.")
 
     # validate values on the way in
     def __init__(self, *args, **kwargs):
@@ -901,6 +910,9 @@ class RcParams(dict):
             elif key in _deprecated_ignore_map:
                 alt = _deprecated_ignore_map[key]
                 warnings.warn(self.msg_depr_ignore % (key, alt))
+                return
+            elif key in _obsolete_set:
+                warnings.warn(self.msg_obsolete % (key,))
                 return
             try:
                 cval = self.validate[key](val)
@@ -922,6 +934,10 @@ See rcParams.keys() for a list of valid parameters.' % (key,))
             alt = _deprecated_ignore_map[key]
             warnings.warn(self.msg_depr_ignore % (key, alt))
             key = alt
+
+        elif key in _obsolete_set:
+            warnings.warn(self.msg_obsolete % (key,))
+            return None
 
         val = dict.__getitem__(self, key)
         if inverse_alt is not None:
@@ -1451,7 +1467,7 @@ else:
     # variable MPLBACKEND
     try:
         use(os.environ['MPLBACKEND'])
-    except (KeyError, ValueError):
+    except KeyError:
         pass
 
 
@@ -1480,6 +1496,7 @@ default_test_modules = [
     'matplotlib.tests.test_backend_svg',
     'matplotlib.tests.test_basic',
     'matplotlib.tests.test_bbox_tight',
+    'matplotlib.tests.test_category',
     'matplotlib.tests.test_cbook',
     'matplotlib.tests.test_coding_standards',
     'matplotlib.tests.test_collections',
@@ -1576,10 +1593,11 @@ def _init_tests():
 
 
 def _get_extra_test_plugins():
+    from .testing.performgc import PerformGC
     from .testing.noseclasses import KnownFailure
     from nose.plugins import attrib
 
-    return [KnownFailure, attrib.Plugin]
+    return [PerformGC, KnownFailure, attrib.Plugin]
 
 
 def _get_nose_env():

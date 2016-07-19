@@ -1,10 +1,11 @@
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
-from matplotlib.externals import six
-from matplotlib.externals.six.moves import xrange
+import six
+from six.moves import xrange
 
 from nose.tools import assert_equal, assert_true
+from matplotlib import rcParams
 from matplotlib.testing.decorators import image_comparison, cleanup
 from matplotlib.axes import Axes
 import matplotlib.pyplot as plt
@@ -124,9 +125,10 @@ def test_too_many_figures():
     import warnings
 
     with warnings.catch_warnings(record=True) as w:
-        for i in range(22):
+        warnings.simplefilter("always")
+        for i in range(rcParams['figure.max_open_warning'] + 1):
             fig = plt.figure()
-    assert len(w) == 1
+        assert len(w) == 1
 
 
 def test_iterability_axes_argument():

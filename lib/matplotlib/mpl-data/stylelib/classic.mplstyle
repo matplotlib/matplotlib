@@ -179,6 +179,7 @@ axes.grid           : False   # display grid or not
 axes.grid.which     : major
 axes.grid.axis      : both
 axes.titlesize      : large   # fontsize of the axes title
+axes.titlepad       : 5.0     # pad between axes and title in points
 axes.titleweight    : normal  # font weight for axes title
 axes.labelsize      : medium  # fontsize of the x any y labels
 axes.labelpad       : 5.0     # space between label and axis
@@ -242,6 +243,10 @@ xtick.minor.pad      : 4      # distance to the minor tick label in points
 xtick.color          : k      # color of the tick labels
 xtick.labelsize      : medium # fontsize of the tick labels
 xtick.direction      : in     # direction: in, out, or inout
+xtick.major.top      : True   # draw x axis top major ticks
+xtick.major.bottom   : True   # draw x axis bottom major ticks
+xtick.minor.top      : True   # draw x axis top minor ticks
+xtick.minor.bottom   : True   # draw x axis bottom minor ticks
 
 ytick.left           : True   # draw ticks on the left side
 ytick.right          : True   # draw ticks on the right side
@@ -255,7 +260,10 @@ ytick.minor.pad      : 4      # distance to the minor tick label in points
 ytick.color          : k      # color of the tick labels
 ytick.labelsize      : medium # fontsize of the tick labels
 ytick.direction      : in     # direction: in, out, or inout
-
+ytick.major.left     : True   # draw y axis left major ticks
+ytick.major.right    : True   # draw y axis right major ticks
+ytick.minor.left     : True   # draw y axis left minor ticks
+ytick.minor.right    : True   # draw y axis right minor ticks
 
 ### GRIDS
 grid.color       :   k       # grid color
@@ -267,7 +275,6 @@ grid.alpha       :   1.0     # transparency, between 0.0 and 1.0
 legend.fancybox      : False  # if True, use a rounded box for the
                               # legend, else a rectangle
 legend.loc           : upper right
-legend.isaxes        : True   # this option is internally ignored
 legend.numpoints     : 2      # the number of points in the legend line
 legend.fontsize      : large
 legend.borderpad     : 0.4    # border whitespace in fontsize units
@@ -348,6 +355,10 @@ boxplot.meanprops.color: r
 boxplot.meanprops.linestyle: -
 boxplot.meanprops.linewidth: 1.0
 boxplot.medianprops.color: r
+boxplot.meanprops.marker: s
+boxplot.meanprops.markerfacecolor: r
+boxplot.meanprops.markeredgecolor: k
+boxplot.meanprops.markersize: 6.0
 boxplot.medianprops.linestyle: -
 boxplot.medianprops.linewidth: 1.0
 boxplot.notch: False

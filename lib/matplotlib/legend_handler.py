@@ -27,8 +27,8 @@ derived from the base class (HandlerBase) with the following method.
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
-from matplotlib.externals import six
-from matplotlib.externals.six.moves import zip
+import six
+from six.moves import zip
 from itertools import cycle
 
 import numpy as np
@@ -635,7 +635,7 @@ class HandlerPolyCollection(HandlerBase):
     """
     def _update_prop(self, legend_handle, orig_handle):
         def first_color(colors):
-            colors = mcolors.colorConverter.to_rgba_array(colors)
+            colors = mcolors.to_rgba_array(colors)
             if len(colors):
                 return colors[0]
             else:

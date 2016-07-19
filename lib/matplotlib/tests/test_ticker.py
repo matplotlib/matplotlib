@@ -1,9 +1,9 @@
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
-from matplotlib.externals import six
+import six
 import nose.tools
-from nose.tools import assert_raises
+from nose.tools import assert_equal, assert_raises
 from numpy.testing import assert_almost_equal
 import numpy as np
 import matplotlib
@@ -97,6 +97,7 @@ def test_NullLocator_set_params():
     """
     loc = mticker.NullLocator()
     with warnings.catch_warnings(record=True) as w:
+        warnings.simplefilter("always")
         loc.set_params()
         nose.tools.assert_equal(len(w), 1)
 
@@ -157,6 +158,53 @@ def test_SymmetricalLogLocator_set_params():
     sym.set_params(subs=[2.0], numticks=8)
     nose.tools.assert_equal(sym._subs, [2.0])
     nose.tools.assert_equal(sym.numticks, 8)
+
+
+@cleanup
+def test_ScalarFormatter_offset_value():
+    fig, ax = plt.subplots()
+    formatter = ax.get_xaxis().get_major_formatter()
+
+    def check_offset_for(left, right, offset):
+        ax.set_xlim(left, right)
+        # Update ticks.
+        next(ax.get_xaxis().iter_ticks())
+        assert_equal(formatter.offset, offset)
+
+    test_data = [(123, 189, 0),
+                 (-189, -123, 0),
+                 (12341, 12349, 12340),
+                 (-12349, -12341, -12340),
+                 (99999.5, 100010.5, 100000),
+                 (-100010.5, -99999.5, -100000),
+                 (99990.5, 100000.5, 100000),
+                 (-100000.5, -99990.5, -100000),
+                 (1233999, 1234001, 1234000),
+                 (-1234001, -1233999, -1234000),
+                 (1, 1, 1),
+                 (123, 123, 120),
+                 # Test cases courtesy of @WeatherGod
+                 (.4538, .4578, .45),
+                 (3789.12, 3783.1, 3780),
+                 (45124.3, 45831.75, 45000),
+                 (0.000721, 0.0007243, 0.00072),
+                 (12592.82, 12591.43, 12590),
+                 (9., 12., 0),
+                 (900., 1200., 0),
+                 (1900., 1200., 0),
+                 (0.99, 1.01, 1),
+                 (9.99, 10.01, 10),
+                 (99.99, 100.01, 100),
+                 (5.99, 6.01, 6),
+                 (15.99, 16.01, 16),
+                 (-0.452, 0.492, 0),
+                 (-0.492, 0.492, 0),
+                 (12331.4, 12350.5, 12300),
+                 (-12335.3, 12335.3, 0)]
+
+    for left, right, offset in test_data:
+        yield check_offset_for, left, right, offset
+        yield check_offset_for, right, left, offset
 
 
 def _logfe_helper(formatter, base, locs, i, expected_result):
@@ -402,6 +450,26 @@ def test_percentformatter():
     for case in test_cases:
         yield (_percent_format_helper,) + case
 
+
+def test_EngFormatter_formatting():
+    """
+    Create two instances of EngFormatter with default parameters, with and
+    without a unit string ('s' for seconds). Test the formatting in some cases,
+    especially the case when no SI prefix is present, for values in [1, 1000).
+
+    Should not raise exceptions.
+    """
+    unitless = mticker.EngFormatter()
+    nose.tools.assert_equal(unitless(0.1), u'100 m')
+    nose.tools.assert_equal(unitless(1), u'1')
+    nose.tools.assert_equal(unitless(999.9), u'999.9')
+    nose.tools.assert_equal(unitless(1001), u'1.001 k')
+
+    with_unit = mticker.EngFormatter(unit=u's')
+    nose.tools.assert_equal(with_unit(0.1), u'100 ms')
+    nose.tools.assert_equal(with_unit(1), u'1 s')
+    nose.tools.assert_equal(with_unit(999.9), u'999.9 s')
+    nose.tools.assert_equal(with_unit(1001), u'1.001 ks')
 
 if __name__ == '__main__':
     import nose

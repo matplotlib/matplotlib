@@ -19,8 +19,11 @@ without fiddling with environment variables.
 
 ``` sh
 # create a new environment with the required packages
-conda create  -n "matplotlib_build" python=3.4 numpy python-dateutil pyparsing pytz tornado pyqt cycler tk libpng zlib freetype
+conda create  -n "matplotlib_build" python=3.4 numpy python-dateutil pyparsing pytz tornado "cycler>=0.10" tk libpng zlib freetype
 activate matplotlib_build
+# if you want a qt backend, you also have to install pyqt (be aware that pyqt doesn't mix well if
+# you have created the environment with conda-forge already activated...)
+conda install pyqt
 # this package is only available in the conda-forge channel
 conda install -c conda-forge msinttypes
 # for python 2.7

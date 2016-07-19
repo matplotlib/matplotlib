@@ -30,7 +30,7 @@
 #### CONFIGURATION BEGINS HERE
 
 # The default backend; one of GTK GTKAgg GTKCairo GTK3Agg GTK3Cairo
-# CocoaAgg MacOSX Qt4Agg Qt5Agg TkAgg WX WXAgg Agg Cairo GDK PS PDF SVG
+# MacOSX Qt4Agg Qt5Agg TkAgg WX WXAgg Agg Cairo GDK PS PDF SVG
 # Template.
 # You can also deploy your own backend outside of matplotlib by
 # referring to the module name (which must be in the PYTHONPATH) as
@@ -115,7 +115,7 @@ backend      : $TEMPLATE_BACKEND
 ### Boxplot
 #boxplot.notch       : False
 #boxplot.vertical    : True
-#boxplot.whiskers    : 1
+#boxplot.whiskers    : 1.5
 #boxplot.bootstrap   : None
 #boxplot.patchartist : False
 #boxplot.showmeans   : False
@@ -144,14 +144,14 @@ backend      : $TEMPLATE_BACKEND
 #boxplot.capprops.linewidth : 1.0
 #boxplot.capprops.linestyle : '-'
 
-#boxplot.medianprops.color     : 'C0'
+#boxplot.medianprops.color     : 'C1'
 #boxplot.medianprops.linewidth : 1.0
 #boxplot.medianprops.linestyle : '-'
 
-#boxplot.meanprops.color           : 'C1'
+#boxplot.meanprops.color           : 'C2'
 #boxplot.meanprops.marker          : '^'
-#boxplot.meanprops.markerfacecolor : 'C1'
-#boxplot.meanprops.markeredgecolor : 'C1'
+#boxplot.meanprops.markerfacecolor : 'C2'
+#boxplot.meanprops.markeredgecolor : 'C2'
 #boxplot.meanprops.markersize      :  6
 #boxplot.meanprops.linestyle       : 'none'
 #boxplot.meanprops.linewidth       : 1.0
@@ -190,7 +190,7 @@ backend      : $TEMPLATE_BACKEND
 # property is not currently implemented.
 #
 # The font.size property is the default font size for text, given in pts.
-# 12pt is the standard value.
+# 10 pt is the standard value.
 #
 #font.family         : sans-serif
 #font.style          : normal
@@ -202,7 +202,7 @@ backend      : $TEMPLATE_BACKEND
 # settings for axes and ticks. Special text sizes can be defined
 # relative to font.size, using the following values: xx-small, x-small,
 # small, medium, large, x-large, xx-large, larger, or smaller
-#font.size           : 12.0
+#font.size           : 10.0
 #font.serif          : DejaVu Serif, Bitstream Vera Serif, New Century Schoolbook, Century Schoolbook L, Utopia, ITC Bookman, Bookman, Nimbus Roman No9 L, Times New Roman, Times, Palatino, Charter, serif
 #font.sans-serif     : DejaVu Sans, Bitstream Vera Sans, Lucida Grande, Verdana, Geneva, Lucid, Arial, Helvetica, Avant Garde, sans-serif
 #font.cursive        : Apple Chancery, Textile, Zapf Chancery, Sand, Script MT, Felipa, cursive
@@ -294,11 +294,12 @@ backend      : $TEMPLATE_BACKEND
 #axes.hold           : True    # whether to clear the axes by default on
 #axes.facecolor      : white   # axes background color
 #axes.edgecolor      : black   # axes edge color
-#axes.linewidth      : 1.0     # edge linewidth
+#axes.linewidth      : 0.8     # edge linewidth
 #axes.grid           : False   # display grid or not
 #axes.titlesize      : large   # fontsize of the axes title
+#axes.titlepad       : 4.0     # pad between axes and title in points
 #axes.labelsize      : medium  # fontsize of the x any y labels
-#axes.labelpad       : 5.0     # space between label and axis
+#axes.labelpad       : 4.0     # space between label and axis
 #axes.labelweight    : normal  # weight of the x and y labels
 #axes.labelcolor     : black
 #axes.axisbelow      : 'line'  # draw axis gridlines and ticks below
@@ -355,69 +356,77 @@ backend      : $TEMPLATE_BACKEND
 # date.autoformatter.day      : %Y-%m-%d
 # date.autoformatter.hour     : %H:%M
 # date.autoformatter.minute   : %H:%M:%S
-# date.autoformatter.second   : %H:%M:%S.%f
+# date.autoformatter.second   : %H:%M:%S
+# date.autoformatter.microsecond   : %H:%M:%S.%f
 
 ### TICKS
 # see http://matplotlib.org/api/axis_api.html#matplotlib.axis.Tick
-#xtick.top            : True   # draw ticks on the top side
+#xtick.top            : False   # draw ticks on the top side
 #xtick.bottom         : True   # draw ticks on the bottom side
-#xtick.major.size     : 4      # major tick size in points
+#xtick.major.size     : 3.5      # major tick size in points
 #xtick.minor.size     : 2      # minor tick size in points
-#xtick.major.width    : 1.0    # major tick width in points
-#xtick.minor.width    : 1.0    # minor tick width in points
-#xtick.major.pad      : 4      # distance to major tick label in points
-#xtick.minor.pad      : 4      # distance to the minor tick label in points
+#xtick.major.width    : 0.8    # major tick width in points
+#xtick.minor.width    : 0.6    # minor tick width in points
+#xtick.major.pad      : 3.5      # distance to major tick label in points
+#xtick.minor.pad      : 3.4      # distance to the minor tick label in points
 #xtick.color          : k      # color of the tick labels
 #xtick.labelsize      : medium # fontsize of the tick labels
 #xtick.direction      : out    # direction: in, out, or inout
 #xtick.minor.visible  : False  # visibility of minor ticks on x-axis
+#xtick.major.top      : True   # draw x axis top major ticks
+#xtick.major.bottom   : True   # draw x axis bottom major ticks
+#xtick.minor.top      : True   # draw x axis top minor ticks
+#xtick.minor.bottom   : True   # draw x axis bottom minor ticks
 
 #ytick.left           : True   # draw ticks on the left side
-#ytick.right          : True   # draw ticks on the right side
-#ytick.major.size     : 4      # major tick size in points
+#ytick.right          : False  # draw ticks on the right side
+#ytick.major.size     : 3.5      # major tick size in points
 #ytick.minor.size     : 2      # minor tick size in points
-#ytick.major.width    : 1.0    # major tick width in points
-#ytick.minor.width    : 1.0    # minor tick width in points
-#ytick.major.pad      : 4      # distance to major tick label in points
-#ytick.minor.pad      : 4      # distance to the minor tick label in points
+#ytick.major.width    : 0.8    # major tick width in points
+#ytick.minor.width    : 0.6    # minor tick width in points
+#ytick.major.pad      : 3.5      # distance to major tick label in points
+#ytick.minor.pad      : 3.4      # distance to the minor tick label in points
 #ytick.color          : k      # color of the tick labels
 #ytick.labelsize      : medium # fontsize of the tick labels
 #ytick.direction      : out    # direction: in, out, or inout
 #ytick.minor.visible  : False  # visibility of minor ticks on y-axis
+#xtick.major.left     : True   # draw y axis left major ticks
+#xtick.major.right    : True   # draw y axis right major ticks
+#xtick.minor.left     : True   # draw y axis left minor ticks
+#xtick.minor.right    : True   # draw y axis right minor ticks
 
 
 ### GRIDS
-#grid.color       :   b0b0b0 # grid color
+#grid.color       :   b0b0b0    # grid color
 #grid.linestyle   :   -         # solid
-#grid.linewidth   :   1.0       # in points
+#grid.linewidth   :   0.8       # in points
 #grid.alpha       :   1.0       # transparency, between 0.0 and 1.0
 
 ### Legend
-#legend.fancybox      : True  # if True, use a rounded box for the
-                              # legend, else a rectangle
 #legend.loc           : best
-#legend.isaxes        : True
-#legend.numpoints     : 1      # the number of points in the legend line
-#legend.fontsize      : large
-#legend.borderpad     : 0.5    # border whitespace in fontsize units
-#legend.markerscale   : 1.0    # the relative size of legend markers vs. original
-# the following dimensions are in axes coords
-#legend.labelspacing  : 0.5    # the vertical space between the legend entries in fraction of fontsize
-#legend.handlelength  : 2.     # the length of the legend lines in fraction of fontsize
-#legend.handleheight  : 0.7     # the height of the legend handle in fraction of fontsize
-#legend.handletextpad : 0.8    # the space between the legend line and legend text in fraction of fontsize
-#legend.borderaxespad : 0.5   # the border between the axes and legend edge in fraction of fontsize
-#legend.columnspacing : 2.    # the border between the axes and legend edge in fraction of fontsize
+#legend.frameon       : True     # whether or not to draw a frame around legend
+#legend.framealpha    : 0.8      # legend frame transparency
+#legend.facecolor     : inherit  # inherit from axes.facecolor; or color spec
+#legend.edgecolor     : none
+#legend.fancybox      : True     # if True, use a rounded box for the
+                                 # legend, else a rectangle
 #legend.shadow        : False
-#legend.frameon       : True   # whether or not to draw a frame around legend
-#legend.framealpha    : None    # opacity of of legend frame
-#legend.scatterpoints : 3 # number of scatter points
-#legend.facecolor     : inherit
-#legend.edgecolor     : k
+#legend.numpoints     : 1        # the number of marker points in the legend line
+#legend.scatterpoints : 1        # number of scatter points
+#legend.markerscale   : 1.0      # the relative size of legend markers vs. original
+#legend.fontsize      : medium
+# Dimensions as fraction of fontsize:
+#legend.borderpad     : 0.4      # border whitespace
+#legend.labelspacing  : 0.5      # the vertical space between the legend entries
+#legend.handlelength  : 2.0      # the length of the legend lines
+#legend.handleheight  : 0.7      # the height of the legend handle
+#legend.handletextpad : 0.8      # the space between the legend line and legend text
+#legend.borderaxespad : 0.5      # the border between the axes and legend edge
+#legend.columnspacing : 2.0      # column separation
 
 ### FIGURE
 # See http://matplotlib.org/api/figure_api.html#matplotlib.figure.Figure
-#figure.titlesize : medium     # size of the figure title
+#figure.titlesize : large      # size of the figure title (Figure.suptitle())
 #figure.titleweight : normal   # weight of the figure title
 #figure.figsize   : 6.4, 4.8   # figure size in inches
 #figure.dpi       : 100      # figure dots per inch
@@ -430,13 +439,13 @@ backend      : $TEMPLATE_BACKEND
                                # If less than one this feature is disabled.
 
 # The figure subplot parameters.  All dimensions are a fraction of the
-# figure width or height
 #figure.subplot.left    : 0.125  # the left side of the subplots of the figure
 #figure.subplot.right   : 0.9    # the right side of the subplots of the figure
-#figure.subplot.bottom  : 0.1    # the bottom of the subplots of the figure
-#figure.subplot.top     : 0.9    # the top of the subplots of the figure
+#figure.subplot.bottom  : 0.11    # the bottom of the subplots of the figure
+#figure.subplot.top     : 0.88    # the top of the subplots of the figure
 #figure.subplot.wspace  : 0.2    # the amount of width reserved for blank space between subplots
 #figure.subplot.hspace  : 0.2    # the amount of height reserved for white space between subplots
+
 
 ### IMAGES
 #image.aspect : equal             # equal | auto | a number

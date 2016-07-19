@@ -1,7 +1,7 @@
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
-from matplotlib.externals import six
+import six
 import io
 import os
 
@@ -11,7 +11,8 @@ import numpy as np
 
 from matplotlib.testing.decorators import (image_comparison,
                                            knownfailureif, cleanup)
-from matplotlib.image import BboxImage, imread, NonUniformImage
+from matplotlib.image import (BboxImage, imread, NonUniformImage,
+                              AxesImage, FigureImage, PcolorImage)
 from matplotlib.transforms import Bbox, Affine2D, TransformedBbox
 from matplotlib import rcParams, rc_context
 from matplotlib import patches
@@ -22,7 +23,14 @@ from nose.tools import assert_raises
 from numpy.testing import (
     assert_array_equal, assert_array_almost_equal, assert_allclose)
 from matplotlib.testing.noseclasses import KnownFailureTest
+from copy import copy
+from numpy import ma
+import matplotlib.colors as colors
+import matplotlib.pyplot as plt
+import matplotlib.mlab as mlab
+import numpy as np
 
+import nose
 
 try:
     from PIL import Image
@@ -175,10 +183,13 @@ def test_image_alpha():
     np.random.seed(0)
     Z = np.random.rand(6, 6)
 
-    plt.subplot(121)
+    plt.subplot(131)
+    plt.imshow(Z, alpha=1.0, interpolation='none')
+
+    plt.subplot(132)
     plt.imshow(Z, alpha=0.5, interpolation='none')
 
-    plt.subplot(122)
+    plt.subplot(133)
     plt.imshow(Z, alpha=0.5, interpolation='nearest')
 
 @cleanup
@@ -487,7 +498,7 @@ def test_jpeg_alpha():
     plt.figure(figsize=(1, 1), dpi=300)
     # Create an image that is all black, with a gradient from 0-1 in
     # the alpha channel from left to right.
-    im = np.zeros((300, 300, 4), dtype=np.float)
+    im = np.zeros((300, 300, 4), dtype=float)
     im[..., 3] = np.linspace(0.0, 1.0, 300)
 
     plt.figimage(im)
@@ -507,6 +518,50 @@ def test_jpeg_alpha():
     # or anything else
     print("corner pixel: ", image.getpixel((0, 0)))
     assert image.getpixel((0, 0)) == (254, 0, 0)
+
+
+@cleanup
+def test_nonuniformimage_setdata():
+    ax = plt.gca()
+    im = NonUniformImage(ax)
+    x = np.arange(3, dtype=np.float64)
+    y = np.arange(4, dtype=np.float64)
+    z = np.arange(12, dtype=np.float64).reshape((4, 3))
+    im.set_data(x, y, z)
+    x[0] = y[0] = z[0, 0] = 9.9
+    assert im._A[0, 0] == im._Ax[0] == im._Ay[0] == 0, 'value changed'
+
+
+@cleanup
+def test_axesimage_setdata():
+    ax = plt.gca()
+    im = AxesImage(ax)
+    z = np.arange(12, dtype=np.float64).reshape((4, 3))
+    im.set_data(z)
+    z[0, 0] = 9.9
+    assert im._A[0, 0] == 0, 'value changed'
+
+
+@cleanup
+def test_figureimage_setdata():
+    fig = plt.gcf()
+    im = FigureImage(fig)
+    z = np.arange(12, dtype=np.float64).reshape((4, 3))
+    im.set_data(z)
+    z[0, 0] = 9.9
+    assert im._A[0, 0] == 0, 'value changed'
+
+
+@cleanup
+def test_pcolorimage_setdata():
+    ax = plt.gca()
+    im = PcolorImage(ax)
+    x = np.arange(3, dtype=np.float64)
+    y = np.arange(4, dtype=np.float64)
+    z = np.arange(6, dtype=np.float64).reshape((3, 2))
+    im.set_data(x, y, z)
+    x[0] = y[0] = z[0, 0] = 9.9
+    assert im._A[0, 0] == im._Ax[0] == im._Ay[0] == 0, 'value changed'
 
 
 @cleanup
@@ -629,6 +684,40 @@ def test_image_preserve_size2():
                        np.identity(n, bool)[::-1])
 
 
+@image_comparison(baseline_images=['mask_image_over_under'],
+                  remove_text=True, extensions=['png'])
+def test_mask_image_over_under():
+    delta = 0.025
+    x = y = np.arange(-3.0, 3.0, delta)
+    X, Y = np.meshgrid(x, y)
+    Z1 = mlab.bivariate_normal(X, Y, 1.0, 1.0, 0.0, 0.0)
+    Z2 = mlab.bivariate_normal(X, Y, 1.5, 0.5, 1, 1)
+    Z = 10*(Z2 - Z1)  # difference of Gaussians
+
+    palette = copy(plt.cm.gray)
+    palette.set_over('r', 1.0)
+    palette.set_under('g', 1.0)
+    palette.set_bad('b', 1.0)
+    Zm = ma.masked_where(Z > 1.2, Z)
+    fig, (ax1, ax2) = plt.subplots(1, 2)
+    im = ax1.imshow(Zm, interpolation='bilinear',
+                    cmap=palette,
+                    norm=colors.Normalize(vmin=-1.0, vmax=1.0, clip=False),
+                    origin='lower', extent=[-3, 3, -3, 3])
+    ax1.set_title('Green=low, Red=high, Blue=bad')
+    fig.colorbar(im, extend='both', orientation='horizontal',
+                 ax=ax1, aspect=10)
+
+    im = ax2.imshow(Zm, interpolation='nearest',
+                    cmap=palette,
+                    norm=colors.BoundaryNorm([-1, -0.5, -0.2, 0, 0.2, 0.5, 1],
+                                             ncolors=256, clip=False),
+                    origin='lower', extent=[-3, 3, -3, 3])
+    ax2.set_title('With BoundaryNorm')
+    fig.colorbar(im, extend='both', spacing='proportional',
+                 orientation='horizontal', ax=ax2, aspect=10)
+
+
 @image_comparison(baseline_images=['mask_image'],
                   remove_text=True)
 def test_mask_image():
@@ -648,6 +737,21 @@ def test_mask_image():
     ax2.imshow(A, interpolation='nearest')
 
 
-if __name__=='__main__':
-    import nose
-    nose.runmodule(argv=['-s','--with-doctest'], exit=False)
+@image_comparison(baseline_images=['imshow_endianess'],
+                  remove_text=True, extensions=['png'])
+def test_imshow_endianess():
+    x = np.arange(10)
+    X, Y = np.meshgrid(x, x)
+    Z = ((X-5)**2 + (Y-5)**2)**0.5
+
+    fig, (ax1, ax2) = plt.subplots(1, 2)
+
+    kwargs = dict(origin="lower", interpolation='nearest',
+                  cmap='viridis')
+
+    ax1.imshow(Z.astype('<f8'), **kwargs)
+    ax2.imshow(Z.astype('>f8'), **kwargs)
+
+
+if __name__ == '__main__':
+    nose.runmodule(argv=['-s', '--with-doctest'], exit=False)

@@ -21,7 +21,7 @@ Naming Conventions
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
-from matplotlib.externals import six
+import six
 
 import os, sys, warnings, gzip
 
@@ -66,6 +66,21 @@ if sys.byteorder == 'little':
     BYTE_FORMAT = 0 # BGRA
 else:
     BYTE_FORMAT = 1 # ARGB
+
+
+class ArrayWrapper:
+    """Thin wrapper around numpy ndarray to expose the interface
+       expected by cairocffi. Basically replicates the
+       array.array interface.
+    """
+    def __init__(self, myarray):
+        self.__array = myarray
+        self.__data = myarray.ctypes.data
+        self.__size = len(myarray.flatten())
+        self.itemsize = myarray.itemsize
+
+    def buffer_info(self):
+        return (self.__data, self.__size)
 
 
 class RendererCairo(RendererBase):
@@ -167,6 +182,49 @@ class RendererCairo(RendererBase):
 
         self._fill_and_stroke(ctx, rgbFace, gc.get_alpha(), gc.get_forced_alpha())
 
+    def draw_markers(self, gc, marker_path, marker_trans, path, transform, rgbFace=None):
+        ctx = gc.ctx
+
+        ctx.new_path()
+        # Create the path for the marker; it needs to be flipped here already!
+        self.convert_path(ctx, marker_path, marker_trans + Affine2D().scale(1.0, -1.0))
+        marker_path = ctx.copy_path_flat()
+
+        # Figure out whether the path has a fill
+        x1, y1, x2, y2 = ctx.fill_extents()
+        if x1 == 0 and y1 == 0 and x2 == 0 and y2 == 0:
+            filled = False
+            # No fill, just unset this (so we don't try to fill it later on)
+            rgbFace = None
+        else:
+            filled = True
+
+        transform = transform + \
+            Affine2D().scale(1.0, -1.0).translate(0, self.height)
+
+        ctx.new_path()
+        for i, (vertices, codes) in enumerate(path.iter_segments(transform, simplify=False)):
+            if len(vertices):
+                x, y = vertices[-2:]
+                ctx.save()
+
+                # Translate and apply path
+                ctx.translate(x, y)
+                ctx.append_path(marker_path)
+
+                ctx.restore()
+
+                # Slower code path if there is a fill; we need to draw
+                # the fill and stroke for each marker at the same time.
+                # Also flush out the drawing every once in a while to
+                # prevent the paths from getting way too long.
+                if filled or i % 1000 == 0:
+                    self._fill_and_stroke(ctx, rgbFace, gc.get_alpha(), gc.get_forced_alpha())
+
+        # Fast path, if there is no fill, draw everything in one step
+        if not filled:
+            self._fill_and_stroke(ctx, rgbFace, gc.get_alpha(), gc.get_forced_alpha())
+
     def draw_image(self, gc, x, y, im):
         # bbox - not currently used
         if _debug: print('%s.%s()' % (self.__class__.__name__, _fn_name()))
@@ -175,9 +233,25 @@ class RendererCairo(RendererBase):
             im = im[:, :, (2, 1, 0, 3)]
         else:
             im = im[:, :, (3, 0, 1, 2)]
-        surface = cairo.ImageSurface.create_for_data(
-            memoryview(im.flatten()), cairo.FORMAT_ARGB32, im.shape[1], im.shape[0],
-            im.shape[1]*4)
+        if HAS_CAIRO_CFFI:
+            # cairocffi tries to use the buffer_info from array.array
+            # that we replicate in ArrayWrapper and alternatively falls back
+            # on ctypes to get a pointer to the numpy array. This works
+            # correctly on a numpy array in python3 but not 2.7. We replicate
+            # the array.array functionality here to get cross version support.
+            imbuffer = ArrayWrapper(im.flatten())
+        else:
+            # py2cairo uses PyObject_AsWriteBuffer
+            # to get a pointer to the numpy array this works correctly
+            # on a regular numpy array but not on a memory view.
+            # At the time of writing the latest release version of
+            # py3cairo still does not support create_for_data
+            imbuffer = im.flatten()
+        surface = cairo.ImageSurface.create_for_data(imbuffer,
+                                                     cairo.FORMAT_ARGB32,
+                                                     im.shape[1],
+                                                     im.shape[0],
+                                                     im.shape[1]*4)
         ctx = gc.ctx
         y = self.height - y - im.shape[0]
 

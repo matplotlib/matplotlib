@@ -16,7 +16,7 @@ from matplotlib import rcParams
 from matplotlib._pylab_helpers import Gcf
 import matplotlib.cbook as cbook
 from weakref import WeakKeyDictionary
-from matplotlib.externals import six
+import six
 import time
 import warnings
 
@@ -77,13 +77,36 @@ class ToolBase(object):
                       'experimental for now, the API will likely change in ' +
                       'version 2.1, and some tools might change name')
         self._name = name
+        self._toolmanager = toolmanager
         self._figure = None
-        self.toolmanager = toolmanager
-        self.figure = toolmanager.canvas.figure
 
     @property
     def figure(self):
         return self._figure
+
+    @figure.setter
+    def figure(self, figure):
+        self.set_figure(figure)
+
+    @property
+    def canvas(self):
+        if not self._figure:
+            return None
+        return self._figure.canvas
+
+    @property
+    def toolmanager(self):
+        return self._toolmanager
+
+    def set_figure(self, figure):
+        """
+        Assign a figure to the tool
+
+        Parameters
+        ----------
+        figure: `Figure`
+        """
+        self._figure = figure
 
     def trigger(self, sender, event, data=None):
         """
@@ -103,20 +126,6 @@ class ToolBase(object):
         """
 
         pass
-
-    @figure.setter
-    def figure(self, figure):
-        """
-        Set the figure
-
-        Set the figure to be affected by this tool
-
-        Parameters
-        ----------
-        figure: `Figure`
-        """
-
-        self._figure = figure
 
     @property
     def name(self):
@@ -193,6 +202,14 @@ class ToolToggleBase(ToolBase):
 
         return self._toggled
 
+    def set_figure(self, figure):
+        toggled = self.toggled
+        if toggled:
+            self.trigger(self, None)
+        ToolBase.set_figure(self, figure)
+        if figure and toggled:
+            self.trigger(self, None)
+
 
 class SetCursorBase(ToolBase):
     """
@@ -203,8 +220,7 @@ class SetCursorBase(ToolBase):
     """
     def __init__(self, *args, **kwargs):
         ToolBase.__init__(self, *args, **kwargs)
-        self._idDrag = self.figure.canvas.mpl_connect(
-            'motion_notify_event', self._set_cursor_cbk)
+        self._idDrag = None
         self._cursor = None
         self._default_cursor = cursors.POINTER
         self._last_cursor = self._default_cursor
@@ -214,6 +230,14 @@ class SetCursorBase(ToolBase):
         # process current tools
         for tool in self.toolmanager.tools.values():
             self._add_tool(tool)
+
+    def set_figure(self, figure):
+        if self._idDrag:
+            self.canvas.mpl_disconnect(self._idDrag)
+        ToolBase.set_figure(self, figure)
+        if figure:
+            self._idDrag = self.canvas.mpl_connect(
+                'motion_notify_event', self._set_cursor_cbk)
 
     def _tool_trigger_cbk(self, event):
         if event.tool.toggled:
@@ -266,9 +290,16 @@ class ToolCursorPosition(ToolBase):
     This tool runs in the background reporting the position of the cursor
     """
     def __init__(self, *args, **kwargs):
+        self._idDrag = None
         ToolBase.__init__(self, *args, **kwargs)
-        self._idDrag = self.figure.canvas.mpl_connect(
-            'motion_notify_event', self.send_message)
+
+    def set_figure(self, figure):
+        if self._idDrag:
+            self.canvas.mpl_disconnect(self._idDrag)
+        ToolBase.set_figure(self, figure)
+        if figure:
+            self._idDrag = self.canvas.mpl_connect(
+                'motion_notify_event', self.send_message)
 
     def send_message(self, event):
         """Call `matplotlib.backend_managers.ToolManager.message_event`"""
@@ -458,16 +489,17 @@ class ToolViewsPositions(ToolBase):
         self.home_views = WeakKeyDictionary()
         ToolBase.__init__(self, *args, **kwargs)
 
-    def add_figure(self):
+    def add_figure(self, figure):
         """Add the current figure to the stack of views and positions"""
-        if self.figure not in self.views:
-            self.views[self.figure] = cbook.Stack()
-            self.positions[self.figure] = cbook.Stack()
-            self.home_views[self.figure] = WeakKeyDictionary()
+
+        if figure not in self.views:
+            self.views[figure] = cbook.Stack()
+            self.positions[figure] = cbook.Stack()
+            self.home_views[figure] = WeakKeyDictionary()
             # Define Home
-            self.push_current()
+            self.push_current(figure)
             # Make sure we add a home view for new axes as they're added
-            self.figure.add_axobserver(lambda fig: self.update_home_views())
+            figure.add_axobserver(lambda fig: self.update_home_views(fig))
 
     def clear(self, figure):
         """Reset the axes stack"""
@@ -508,18 +540,19 @@ class ToolViewsPositions(ToolBase):
 
         self.figure.canvas.draw_idle()
 
-    def push_current(self):
+    def push_current(self, figure=None):
         """
         Push the current view limits and position onto their respective stacks
         """
-
+        if not figure:
+            figure = self.figure
         views = WeakKeyDictionary()
         pos = WeakKeyDictionary()
-        for a in self.figure.get_axes():
+        for a in figure.get_axes():
             views[a] = a._get_view()
             pos[a] = self._axes_pos(a)
-        self.views[self.figure].push(views)
-        self.positions[self.figure].push(pos)
+        self.views[figure].push(views)
+        self.positions[figure].push(pos)
 
     def _axes_pos(self, ax):
         """
@@ -539,15 +572,17 @@ class ToolViewsPositions(ToolBase):
         return (ax.get_position(True).frozen(),
                 ax.get_position().frozen())
 
-    def update_home_views(self):
+    def update_home_views(self, figure=None):
         """
         Make sure that self.home_views has an entry for all axes present in the
         figure
         """
 
-        for a in self.figure.get_axes():
-            if a not in self.home_views[self.figure]:
-                self.home_views[self.figure][a] = a._get_view()
+        if not figure:
+            figure = self.figure
+        for a in figure.get_axes():
+            if a not in self.home_views[figure]:
+                self.home_views[figure][a] = a._get_view()
 
     def refresh_locators(self):
         """Redraw the canvases, update the locators"""
@@ -592,7 +627,7 @@ class ViewsPositionsBase(ToolBase):
     _on_trigger = None
 
     def trigger(self, sender, event, data=None):
-        self.toolmanager.get_tool(_views_positions).add_figure()
+        self.toolmanager.get_tool(_views_positions).add_figure(self.figure)
         getattr(self.toolmanager.get_tool(_views_positions),
                 self._on_trigger)()
         self.toolmanager.get_tool(_views_positions).update_view()
@@ -672,7 +707,7 @@ class ZoomPanBase(ToolToggleBase):
         self.figure.canvas.mpl_disconnect(self._idScroll)
 
     def trigger(self, sender, event, data=None):
-        self.toolmanager.get_tool(_views_positions).add_figure()
+        self.toolmanager.get_tool(_views_positions).add_figure(self.figure)
         ToolToggleBase.trigger(self, sender, event, data)
 
     def scroll_zoom(self, event):
@@ -924,8 +959,7 @@ default_tools = {'home': ToolHome, 'back': ToolBack, 'forward': ToolForward,
 """Default tools"""
 
 default_toolbar_tools = [['navigation', ['home', 'back', 'forward']],
-                         ['zoompan', ['pan', 'zoom']],
-                         ['layout', ['subplots']],
+                         ['zoompan', ['pan', 'zoom', 'subplots']],
                          ['io', ['save']]]
 """Default tools in the toolbar"""
 

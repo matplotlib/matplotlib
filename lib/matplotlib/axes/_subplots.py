@@ -1,8 +1,8 @@
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
-from matplotlib.externals import six
-from matplotlib.externals.six.moves import map
+import six
+from six.moves import map
 
 from matplotlib.gridspec import GridSpec, SubplotSpec
 from matplotlib import docstring
@@ -125,21 +125,25 @@ class SubplotBase(object):
     def is_last_col(self):
         return self.colNum == self.numCols - 1
 
-    # COVERAGE NOTE: Never used internally or from examples
+    # COVERAGE NOTE: Never used internally.
     def label_outer(self):
-        """
-        set the visible property on ticklabels so xticklabels are
-        visible only if the subplot is in the last row and yticklabels
-        are visible only if the subplot is in the first column
+        """Only show "outer" labels and tick labels.
+
+        x-labels are only kept for subplots on the last row; y-labels only for
+        subplots on the first column.
         """
         lastrow = self.is_last_row()
         firstcol = self.is_first_col()
         for label in self.get_xticklabels():
             label.set_visible(lastrow)
         self.get_xaxis().get_offset_text().set_visible(lastrow)
+        if not lastrow:
+            self.set_xlabel("")
         for label in self.get_yticklabels():
             label.set_visible(firstcol)
         self.get_yaxis().get_offset_text().set_visible(firstcol)
+        if not firstcol:
+            self.set_ylabel("")
 
     def _make_twin_axes(self, *kl, **kwargs):
         """

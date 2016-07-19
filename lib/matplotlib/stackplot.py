@@ -9,8 +9,8 @@ http://stackoverflow.com/questions/2225995/how-can-i-create-stacked-line-graph-w
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
-from matplotlib.externals import six
-from matplotlib.externals.six.moves import xrange
+import six
+from six.moves import xrange
 
 from cycler import cycler
 import numpy as np
@@ -91,10 +91,12 @@ def stackplot(axes, x, *args, **kwargs):
         m, n = y.shape
         center = np.zeros(n)
         total = np.sum(y, 0)
+        # multiply by 1/total (or zero) to avoid infinities in the division:
+        inv_total = np.where(total > 0, 1./total, 0)
         increase = np.hstack((y[:, 0:1], np.diff(y)))
         below_size = total - stack
         below_size += 0.5 * y
-        move_up = below_size / total
+        move_up = below_size * inv_total
         move_up[:, 0] = 0.5
         center = (move_up - 0.5) * increase
         center = np.cumsum(center.sum(0))

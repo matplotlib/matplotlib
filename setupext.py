@@ -6,6 +6,7 @@ from distutils.core import Extension
 import glob
 import multiprocessing
 import os
+import platform
 import re
 import subprocess
 from subprocess import check_output
@@ -412,6 +413,14 @@ class CheckFailed(Exception):
 
 class SetupPackage(object):
     optional = False
+    pkg_names = {
+        "apt-get": None,
+        "yum": None,
+        "dnf": None,
+        "brew": None,
+        "port": None,
+        "windows_url": None
+        }
 
     def check(self):
         """
@@ -530,6 +539,56 @@ class SetupPackage(object):
         override this method.
         """
         pass
+
+    def install_help_msg(self):
+        """
+        Do not override this method !
+
+        Generate the help message to show if the package is not installed.
+        To use this in subclasses, simply add the dictionary `pkg_names` as
+        a class variable:
+
+        pkg_names = {
+            "apt-get": <Name of the apt-get package>,
+            "yum": <Name of the yum package>,
+            "dnf": <Name of the dnf package>,
+            "brew": <Name of the brew package>,
+            "port": <Name of the port package>,
+            "windows_url": <The url which has installation instructions>
+            }
+
+        All the dictionary keys are optional. If a key is not present or has
+        the value `None` no message is provided for that platform.
+        """
+        def _try_managers(*managers):
+            for manager in managers:
+                pkg_name = self.pkg_names.get(manager, None)
+                if pkg_name:
+                    try:
+                        # `shutil.which()` can be used when Python 2.7 support
+                        # is dropped. It is available in Python 3.3+
+                        _ = check_output(["which", manager],
+                                         stderr=subprocess.STDOUT)
+                        return ('Try installing {0} with `{1} install {2}`'
+                                .format(self.name, manager, pkg_name))
+                    except subprocess.CalledProcessError:
+                        pass
+
+        message = None
+        if sys.platform == "win32":
+            url = self.pkg_names.get("windows_url", None)
+            if url:
+                message = ('Please check {0} for instructions to install {1}'
+                           .format(url, self.name))
+        elif sys.platform == "darwin":
+            message = _try_managers("brew", "port")
+        elif sys.platform.startswith("linux"):
+            release = platform.linux_distribution()[0].lower()
+            if release in ('debian', 'ubuntu'):
+                message = _try_managers('apt-get')
+            elif release in ('centos', 'redhat', 'fedora'):
+                message = _try_managers('dnf', 'yum')
+        return message
 
 
 class OptionalPackage(SetupPackage):
@@ -953,6 +1012,14 @@ class LibAgg(SetupPackage):
 
 class FreeType(SetupPackage):
     name = "freetype"
+    pkg_names = {
+        "apt-get": "libfreetype6-dev",
+        "yum": "freetype-devel",
+        "dnf": "freetype-devel",
+        "brew": "freetype",
+        "port": "freetype",
+        "windows_url": "http://gnuwin32.sourceforge.net/packages/freetype.htm"
+        }
 
     def check(self):
         if options.get('local_freetype'):
@@ -1167,6 +1234,14 @@ class FT2Font(SetupPackage):
 
 class Png(SetupPackage):
     name = "png"
+    pkg_names = {
+        "apt-get": "libpng12-dev",
+        "yum": "libpng-devel",
+        "dnf": "libpng-devel",
+        "brew": "libpng",
+        "port": "libpng",
+        "windows_url": "http://gnuwin32.sourceforge.net/packages/libpng.htm"
+        }
 
     def check(self):
         if sys.platform == 'win32':
@@ -1345,11 +1420,31 @@ class Tri(SetupPackage):
         return ext
 
 
-class Externals(SetupPackage):
-    name = "externals"
+class Six(SetupPackage):
+    name = "six"
+    min_version = "1.10"
 
-    def get_packages(self):
-        return ['matplotlib.externals']
+    def check(self):
+        try:
+            import six
+        except ImportError:
+            return (
+                "six was not found."
+                "pip will attempt to install it "
+                "after matplotlib.")
+
+        if not is_min_version(six.__version__, self.min_version):
+            return ("The installed version of six is {inst_ver} but "
+                    "a the minimum required version is {min_ver}. "
+                    "pip/easy install will attempt to install a "
+                    "newer version."
+                    ).format(min_ver=self.min_version,
+                             inst_ver=six.__version__)
+
+        return "using six version %s" % six.__version__
+
+    def get_install_requires(self):
+        return ['six>={0}'.format(self.min_version)]
 
 
 class Pytz(SetupPackage):
@@ -1428,10 +1523,8 @@ class FuncTools32(SetupPackage):
                 import functools32
             except ImportError:
                 return (
-                    "functools32 was not found. It is required for for"
-                    "python versions prior to 3.2 "
-                    "pip/easy_install may attempt to install it "
-                    "after matplotlib.")
+                    "functools32 was not found. It is required for"
+                    "Python versions prior to 3.2")
 
             return "using functools32"
         else:
@@ -1440,6 +1533,30 @@ class FuncTools32(SetupPackage):
     def get_install_requires(self):
         if sys.version_info[:2] < (3, 2):
             return ['functools32']
+        else:
+            return []
+
+
+class Subprocess32(SetupPackage):
+    name = "subprocess32"
+
+    def check(self):
+        if sys.version_info[:2] < (3, 2):
+            try:
+                import subprocess32
+            except ImportError:
+                return (
+                    "subprocess32 was not found. It used "
+                    " for Python versions prior to 3.2 to improves"
+                    " functionality on Linux and OSX")
+
+            return "using subprocess32"
+        else:
+            return "Not required"
+
+    def get_install_requires(self):
+        if sys.version_info[:2] < (3, 2) and os.name == 'posix':
+            return ['subprocess32']
         else:
             return []
 
@@ -1462,6 +1579,7 @@ class Tornado(OptionalPackage):
 class Pyparsing(SetupPackage):
     name = "pyparsing"
     # pyparsing 2.0.4 has broken python 3 support.
+    # pyparsing 2.1.2 is broken in python3.4/3.3.
     def is_ok(self):
         # pyparsing 2.0.0 bug, but it may be patched in distributions
         try:
@@ -1496,14 +1614,16 @@ class Pyparsing(SetupPackage):
         return "using pyparsing version %s" % pyparsing.__version__
 
     def get_install_requires(self):
+        versionstring = 'pyparsing>=1.5.6,!=2.0.4,!=2.1.2'
         if self.is_ok():
-            return ['pyparsing>=1.5.6,!=2.0.4']
+            return [versionstring]
         else:
-            return ['pyparsing>=1.5.6,!=2.0.0,!=2.0.4']
+            return [versionstring + ',!=2.0.0']
 
 
 class BackendAgg(OptionalBackendPackage):
     name = "agg"
+    force = True
 
     def get_extension(self):
         sources = [
@@ -1521,36 +1641,10 @@ class BackendAgg(OptionalBackendPackage):
 
 class BackendTkAgg(OptionalBackendPackage):
     name = "tkagg"
+    force = True
 
-    def __init__(self):
-        self.tcl_tk_cache = None
-
-    def check_requirements(self):
-        try:
-            if PY3min:
-                import tkinter as Tkinter
-            else:
-                import Tkinter
-        except ImportError:
-            raise CheckFailed('TKAgg requires Tkinter.')
-        except RuntimeError:
-            raise CheckFailed('Tkinter present but import failed.')
-        else:
-            if Tkinter.TkVersion < 8.3:
-                raise CheckFailed("Tcl/Tk v8.3 or later required.")
-
-        ext = self.get_extension()
-        check_include_file(ext.include_dirs, "tk.h", "Tk")
-
-        try:
-            tk_v = Tkinter.__version__.split()[-2]
-        except (AttributeError, IndexError):
-            # Tkinter.__version__ has been removed in python 3
-            tk_v = 'not identified'
-
-        BackendAgg.force = True
-
-        return "version %s" % tk_v
+    def check(self):
+        return "installing; run-time loading from Python Tcl / Tk"
 
     def get_extension(self):
         sources = [
@@ -1564,259 +1658,11 @@ class BackendTkAgg(OptionalBackendPackage):
         LibAgg().add_flags(ext, add_sources=False)
         return ext
 
-    def query_tcltk(self):
-        """
-        Tries to open a Tk window in order to query the Tk object
-        about its library paths.  This should never be called more
-        than once by the same process, as Tk intricacies may cause the
-        Python interpreter to hang. The function also has a workaround
-        if no X server is running (useful for autobuild systems).
-        """
-        # Use cached values if they exist, which ensures this function
-        # only executes once
-        if self.tcl_tk_cache is not None:
-            return self.tcl_tk_cache
-
-        # By this point, we already know that Tkinter imports correctly
-        if PY3min:
-            import tkinter as Tkinter
-        else:
-            import Tkinter
-        tcl_lib_dir = ''
-        tk_lib_dir = ''
-        # First try to open a Tk window (requires a running X server)
-        try:
-            tk = Tkinter.Tk()
-        except Tkinter.TclError:
-            # Next, start Tcl interpreter without opening a Tk window
-            # (no need for X server) This feature is available in
-            # python version 2.4 and up
-            try:
-                tcl = Tkinter.Tcl()
-            except AttributeError:    # Python version not high enough
-                pass
-            except Tkinter.TclError:  # Something went wrong while opening Tcl
-                pass
-            else:
-                tcl_lib_dir = str(tcl.getvar('tcl_library'))
-                # Guess Tk location based on Tcl location
-                (head, tail) = os.path.split(tcl_lib_dir)
-                tail = tail.replace('Tcl', 'Tk').replace('tcl', 'tk')
-                tk_lib_dir = os.path.join(head, tail)
-                if not os.path.exists(tk_lib_dir):
-                    tk_lib_dir = tcl_lib_dir.replace(
-                        'Tcl', 'Tk').replace('tcl', 'tk')
-        else:
-            # Obtain Tcl and Tk locations from Tk widget
-            tk.withdraw()
-            tcl_lib_dir = str(tk.getvar('tcl_library'))
-            tk_lib_dir = str(tk.getvar('tk_library'))
-            tk.destroy()
-
-        # Save directories and version string to cache
-        self.tcl_tk_cache = tcl_lib_dir, tk_lib_dir, str(Tkinter.TkVersion)[:3]
-        return self.tcl_tk_cache
-
-    def parse_tcl_config(self, tcl_lib_dir, tk_lib_dir):
-        try:
-            if PY3min:
-                import tkinter as Tkinter
-            else:
-                import Tkinter
-        except ImportError:
-            return None
-
-        tcl_poss = [tcl_lib_dir,
-                    os.path.normpath(os.path.join(tcl_lib_dir, '..')),
-                    "/usr/lib/tcl" + str(Tkinter.TclVersion),
-                    "/usr/lib"]
-        tk_poss = [tk_lib_dir,
-                    os.path.normpath(os.path.join(tk_lib_dir, '..')),
-                   "/usr/lib/tk" + str(Tkinter.TkVersion),
-                   "/usr/lib"]
-        for ptcl, ptk in zip(tcl_poss, tk_poss):
-            tcl_config = os.path.join(ptcl, "tclConfig.sh")
-            tk_config = os.path.join(ptk, "tkConfig.sh")
-            if (os.path.exists(tcl_config) and os.path.exists(tk_config)):
-                break
-        if not (os.path.exists(tcl_config) and os.path.exists(tk_config)):
-            return None
-
-        def get_var(file, varname):
-            p = subprocess.Popen(
-                '. %s ; eval echo ${%s}' % (file, varname),
-                shell=True,
-                executable="/bin/sh",
-                stdout=subprocess.PIPE)
-            result = p.communicate()[0]
-            return result.decode('ascii')
-
-        tcl_lib_dir = get_var(
-            tcl_config, 'TCL_LIB_SPEC').split()[0][2:].strip()
-        tcl_inc_dir = get_var(
-            tcl_config, 'TCL_INCLUDE_SPEC')[2:].strip()
-        tcl_lib = get_var(tcl_config, 'TCL_LIB_FLAG')[2:].strip()
-
-        tk_lib_dir = get_var(tk_config, 'TK_LIB_SPEC').split()[0][2:].strip()
-        tk_inc_dir = get_var(tk_config, 'TK_INCLUDE_SPEC').strip()
-        if tk_inc_dir == '':
-            tk_inc_dir = tcl_inc_dir
-        else:
-            tk_inc_dir = tk_inc_dir[2:]
-        tk_lib = get_var(tk_config, 'TK_LIB_FLAG')[2:].strip()
-
-        if not os.path.exists(os.path.join(tk_inc_dir, 'tk.h')):
-            return None
-
-        return (tcl_lib_dir, tcl_inc_dir, tcl_lib,
-                tk_lib_dir, tk_inc_dir, tk_lib)
-
-    def guess_tcl_config(self, tcl_lib_dir, tk_lib_dir, tk_ver):
-        if not (os.path.exists(tcl_lib_dir) and os.path.exists(tk_lib_dir)):
-            return None
-
-        tcl_lib = os.path.normpath(os.path.join(tcl_lib_dir, '../'))
-        tk_lib = os.path.normpath(os.path.join(tk_lib_dir, '../'))
-
-        tcl_inc = os.path.normpath(
-            os.path.join(tcl_lib_dir,
-                         '../../include/tcl' + tk_ver))
-        if not os.path.exists(tcl_inc):
-            tcl_inc = os.path.normpath(
-                os.path.join(tcl_lib_dir,
-                             '../../include'))
-
-        tk_inc = os.path.normpath(os.path.join(
-            tk_lib_dir,
-            '../../include/tk' + tk_ver))
-        if not os.path.exists(tk_inc):
-            tk_inc = os.path.normpath(os.path.join(
-                tk_lib_dir,
-                '../../include'))
-
-        if not os.path.exists(os.path.join(tk_inc, 'tk.h')):
-            tk_inc = tcl_inc
-
-        if not os.path.exists(tcl_inc):
-            # this is a hack for suse linux, which is broken
-            if (sys.platform.startswith('linux') and
-                os.path.exists('/usr/include/tcl.h') and
-                os.path.exists('/usr/include/tk.h')):
-                tcl_inc = '/usr/include'
-                tk_inc = '/usr/include'
-
-        if not os.path.exists(os.path.join(tk_inc, 'tk.h')):
-            return None
-
-        return tcl_lib, tcl_inc, 'tcl' + tk_ver, tk_lib, tk_inc, 'tk' + tk_ver
-
-    def hardcoded_tcl_config(self):
-        tcl_inc = "/usr/local/include"
-        tk_inc = "/usr/local/include"
-        tcl_lib = "/usr/local/lib"
-        tk_lib = "/usr/local/lib"
-        return tcl_lib, tcl_inc, 'tcl', tk_lib, tk_inc, 'tk'
-
     def add_flags(self, ext):
+        ext.include_dirs.extend(['src'])
         if sys.platform == 'win32':
-            if os.getenv('CONDA_DEFAULT_ENV'):
-                # We are in conda and conda builds against tcl85 for all versions
-                # includes are directly in the conda\library\include dir and
-                # libs in DLL or lib
-                ext.include_dirs.extend(['include'])
-                ext.libraries.extend(['tk85', 'tcl85'])
-                ext.library_dirs.extend(['dlls']) # or lib?
-            else:
-                major, minor1, minor2, s, tmp = sys.version_info
-                if sys.version_info[0:2] < (3, 4):
-                    ext.include_dirs.extend(['win32_static/include/tcl85'])
-                    ext.libraries.extend(['tk85', 'tcl85'])
-                else:
-                    ext.include_dirs.extend(['win32_static/include/tcl86'])
-                    ext.libraries.extend(['tk86t', 'tcl86t'])
-                ext.library_dirs.extend([os.path.join(sys.prefix, 'dlls')])
-
-        elif sys.platform == 'darwin':
-            # this config section lifted directly from Imaging - thanks to
-            # the effbot!
-
-            # First test for a MacOSX/darwin framework install
-            from os.path import join, exists
-            framework_dirs = [
-                join(os.getenv('HOME'), '/Library/Frameworks'),
-                '/Library/Frameworks',
-                '/System/Library/Frameworks/',
-            ]
-
-            # Find the directory that contains the Tcl.framework and
-            # Tk.framework bundles.
-            tk_framework_found = 0
-            for F in framework_dirs:
-                # both Tcl.framework and Tk.framework should be present
-                for fw in 'Tcl', 'Tk':
-                    if not exists(join(F, fw + '.framework')):
-                        break
-                else:
-                    # ok, F is now directory with both frameworks. Continure
-                    # building
-                    tk_framework_found = 1
-                    break
-            if tk_framework_found:
-                # For 8.4a2, we must add -I options that point inside
-                # the Tcl and Tk frameworks. In later release we
-                # should hopefully be able to pass the -F option to
-                # gcc, which specifies a framework lookup path.
-
-                tk_include_dirs = [
-                    join(F, fw + '.framework', H)
-                    for fw in ('Tcl', 'Tk')
-                    for H in ('Headers', 'Versions/Current/PrivateHeaders')
-                ]
-
-                # For 8.4a2, the X11 headers are not included. Rather
-                # than include a complicated search, this is a
-                # hard-coded path. It could bail out if X11 libs are
-                # not found...
-
-                # tk_include_dirs.append('/usr/X11R6/include')
-                frameworks = ['-framework', 'Tcl', '-framework', 'Tk']
-                ext.include_dirs.extend(tk_include_dirs)
-                ext.extra_link_args.extend(frameworks)
-                ext.extra_compile_args.extend(frameworks)
-
-        # you're still here? ok we'll try it this way...
-        else:
-            # There are 3 methods to try, in decreasing order of "smartness"
-            #
-            #   1. Parse the tclConfig.sh and tkConfig.sh files that have
-            #      all the information we need
-            #
-            #   2. Guess the include and lib dirs based on the location of
-            #      Tkinter's 'tcl_library' and 'tk_library' variables.
-            #
-            #   3. Use some hardcoded locations that seem to work on a lot
-            #      of distros.
-
-            # Query Tcl/Tk system for library paths and version string
-            try:
-                tcl_lib_dir, tk_lib_dir, tk_ver = self.query_tcltk()
-            except:
-                tk_ver = ''
-                result = self.hardcoded_tcl_config()
-            else:
-                result = self.parse_tcl_config(tcl_lib_dir, tk_lib_dir)
-                if result is None:
-                    result = self.guess_tcl_config(
-                        tcl_lib_dir, tk_lib_dir, tk_ver)
-                    if result is None:
-                        result = self.hardcoded_tcl_config()
-
-            # Add final versions of directories and libraries to ext lists
-            (tcl_lib_dir, tcl_inc_dir, tcl_lib,
-             tk_lib_dir, tk_inc_dir, tk_lib) = result
-            ext.include_dirs.extend([tcl_inc_dir, tk_inc_dir])
-            ext.library_dirs.extend([tcl_lib_dir, tk_lib_dir])
-            ext.libraries.extend([tcl_lib, tk_lib])
+            # PSAPI library needed for finding Tcl / Tk at run time
+            ext.libraries.extend(['psapi'])
 
 
 class BackendGtk(OptionalBackendPackage):
@@ -1930,8 +1776,6 @@ class BackendGtkAgg(BackendGtk):
             return super(BackendGtkAgg, self).check()
         except:
             raise
-        else:
-            BackendAgg.force = True
 
     def get_package_data(self):
         return {'matplotlib': ['mpl-data/*.glade']}
@@ -2007,7 +1851,6 @@ class BackendGtk3Agg(OptionalBackendPackage):
             p.join()
 
         if success:
-            BackendAgg.force = True
             return msg
         else:
             raise CheckFailed(msg)
@@ -2080,7 +1923,6 @@ class BackendGtk3Cairo(OptionalBackendPackage):
             p.join()
 
         if success:
-            BackendAgg.force = True
             return msg
         else:
             raise CheckFailed(msg)
@@ -2124,8 +1966,6 @@ class BackendWxAgg(OptionalBackendPackage):
             raise CheckFailed(
                 "Requires wxPython 2.8, found %s" % backend_version)
 
-        BackendAgg.force = True
-
         return "version %s" % backend_version
 
 
@@ -2160,7 +2000,7 @@ class Windowing(OptionalBackendPackage):
         config = self.get_config()
         if config is False:
             raise CheckFailed("skipping due to configuration")
-        return "installing"
+        return ""
 
     def get_extension(self):
         sources = [
@@ -2235,7 +2075,6 @@ def backend_pyside_internal_check(self):
     except ImportError:
         raise CheckFailed("PySide not found")
     else:
-        BackendAgg.force = True
         return ("Qt: %s, PySide: %s" %
                 (QtCore.__version__, __version__))
 
@@ -2252,7 +2091,6 @@ def backend_pyqt4_internal_check(self):
     except AttributeError:
         raise CheckFailed('PyQt4 not correctly imported')
     else:
-        BackendAgg.force = True
         return ("Qt: %s, PyQt: %s" % (self.convert_qt_version(qt_version), pyqt_version_str))
 
 
@@ -2288,7 +2126,6 @@ def backend_pyside2_internal_check(self):
     except ImportError:
         raise CheckFailed("PySide2 not found")
     else:
-        BackendAgg.force = True
         return ("Qt: %s, PySide2: %s" %
                 (QtCore.__version__, __version__))
 
@@ -2304,7 +2141,6 @@ def backend_pyqt5_internal_check(self):
     except AttributeError:
         raise CheckFailed('PyQt5 not correctly imported')
     else:
-        BackendAgg.force = True
         return ("Qt: %s, PyQt: %s" % (self.convert_qt_version(qt_version), pyqt_version_str))
 
 def backend_qt5_internal_check(self):
@@ -2367,23 +2203,21 @@ class Ghostscript(SetupPackage):
     optional = True
 
     def check(self):
-        try:
-            if sys.platform == 'win32':
-                command = 'gswin32c --version'
-                try:
-                    output = check_output(command, shell=True,
-                                          stderr=subprocess.STDOUT)
-                except subprocess.CalledProcessError:
-                    command = 'gswin64c --version'
-                    output = check_output(command, shell=True,
-                                          stderr=subprocess.STDOUT)
-            else:
-                command = 'gs --version'
+        if sys.platform == 'win32':
+            # mgs is the name in miktex
+            gs_execs = ['gswin32c', 'gswin64c', 'mgs', 'gs']
+        else:
+            gs_execs = ['gs']
+        for gs_exec in gs_execs:
+            try:
+                command = gs_exec + ' --version'
                 output = check_output(command, shell=True,
                                       stderr=subprocess.STDOUT)
-            return "version %s" % output.decode()[:-1]
-        except (IndexError, ValueError, subprocess.CalledProcessError):
-            raise CheckFailed()
+                return "version %s" % output.decode()[:-1]
+            except (IndexError, ValueError, subprocess.CalledProcessError):
+                pass
+
+        raise CheckFailed()
 
 
 class LaTeX(SetupPackage):

@@ -2,9 +2,9 @@
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
-from matplotlib.externals import six
-from matplotlib.externals.six.moves import tkinter as Tk
-from matplotlib.externals.six.moves import tkinter_filedialog as FileDialog
+import six
+from six.moves import tkinter as Tk
+from six.moves import tkinter_filedialog as FileDialog
 
 import os, sys, math
 import os.path
@@ -60,7 +60,7 @@ def raise_msg_to_str(msg):
     return msg
 
 def error_msg_tkpaint(msg, parent=None):
-    from matplotlib.externals.six.moves import tkinter_messagebox as tkMessageBox
+    from six.moves import tkinter_messagebox as tkMessageBox
     tkMessageBox.showerror("matplotlib", msg)
 
 def draw_if_interactive():
@@ -97,7 +97,7 @@ def new_figure_manager_given_figure(num, figure):
         # doesn't allow colour icons on linux systems, but tk >=8.5 has a iconphoto
         # command which we call directly. Source:
         # http://mail.python.org/pipermail/tkinter-discuss/2006-November/000954.html
-        icon_fname = os.path.join(rcParams['datapath'], 'images', 'matplotlib.gif')
+        icon_fname = os.path.join(rcParams['datapath'], 'images', 'matplotlib.ppm')
         icon_img = Tk.PhotoImage(file=icon_fname)
         try:
             window.tk.call('wm', 'iconphoto', window._w, icon_img)
@@ -570,7 +570,7 @@ class FigureManagerTkAgg(FigureManagerBase):
 
     def _get_toolmanager(self):
         if rcParams['toolbar'] != 'toolbar2':
-            toolmanager = ToolManager(self.canvas)
+            toolmanager = ToolManager(self.canvas.figure)
         else:
             toolmanager = None
         return toolmanager
@@ -741,7 +741,7 @@ class NavigationToolbar2TkAgg(NavigationToolbar2, Tk.Frame):
     def set_cursor(self, cursor):
         self.window.configure(cursor=cursord[cursor])
 
-    def _Button(self, text, file, command, extension='.ppm'):
+    def _Button(self, text, file, command, extension='.gif'):
         img_file = os.path.join(rcParams['datapath'], 'images', file + extension)
         im = Tk.PhotoImage(master=self, file=img_file)
         b = Tk.Button(
@@ -785,7 +785,7 @@ class NavigationToolbar2TkAgg(NavigationToolbar2, Tk.Frame):
         canvas.get_tk_widget().pack(side=Tk.TOP, fill=Tk.BOTH, expand=1)
 
     def save_figure(self, *args):
-        from matplotlib.externals.six.moves import tkinter_tkfiledialog, tkinter_messagebox
+        from six.moves import tkinter_tkfiledialog, tkinter_messagebox
         filetypes = self.canvas.get_supported_filetypes().copy()
         default_filetype = self.canvas.get_default_filetype()
 
@@ -1025,7 +1025,7 @@ class StatusbarTk(StatusbarBase, Tk.Frame):
 
 class SaveFigureTk(backend_tools.SaveFigureBase):
     def trigger(self, *args):
-        from matplotlib.externals.six.moves import tkinter_tkfiledialog, tkinter_messagebox
+        from six.moves import tkinter_tkfiledialog, tkinter_messagebox
         filetypes = self.figure.canvas.get_supported_filetypes().copy()
         default_filetype = self.figure.canvas.get_default_filetype()
 

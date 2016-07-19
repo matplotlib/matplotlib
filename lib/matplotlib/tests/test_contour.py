@@ -1,7 +1,7 @@
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
-from matplotlib.externals import six
+import six
 
 import datetime
 
@@ -288,8 +288,9 @@ def test_contourf_decreasing_levels():
     # Legacy contouring algorithm gives a warning rather than raising an error,
     # plus a DeprecationWarning.
     with warnings.catch_warnings(record=True) as w:
+        warnings.simplefilter("always")
         plt.contourf(z, [1.0, 0.0], corner_mask='legacy')
-    assert_equal(len(w), 2)
+        assert_equal(len(w), 2)
 
 
 @cleanup
@@ -299,16 +300,18 @@ def test_vminvmax_warning():
     cs = plt.contourf(z, [0.0, 1.0])
 
     with warnings.catch_warnings(record=True) as w:
+        warnings.simplefilter("always")
         cs.vmin
-    assert len(w) == 1
-    assert (str(w[0].message).startswith(
-            ("vmin is deprecated and will be removed in 2.2 ")))
+        assert len(w) == 1
+        msg = "vmin is deprecated and will be removed in 2.2 "
+        assert str(w[0].message).startswith(msg)
 
     with warnings.catch_warnings(record=True) as w:
+        warnings.simplefilter("always")
         cs.vmax
-    assert len(w) == 1
-    assert (str(w[0].message).startswith(
-            ("vmax is deprecated and will be removed in 2.2 ")))
+        assert len(w) == 1
+        msg = "vmax is deprecated and will be removed in 2.2 "
+        assert str(w[0].message).startswith(msg)
 
 
 if __name__ == '__main__':

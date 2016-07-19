@@ -16,7 +16,7 @@ parameter set listed here should also be visited to the
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
-from matplotlib.externals import six
+import six
 
 from functools import reduce
 import operator
@@ -37,16 +37,16 @@ from matplotlib.colors import is_color_like
 from cycler import Cycler, cycler as ccycler
 
 # interactive_bk = ['gtk', 'gtkagg', 'gtkcairo', 'qt4agg',
-#                  'tkagg', 'wx', 'wxagg', 'cocoaagg', 'webagg']
+#                  'tkagg', 'wx', 'wxagg', 'webagg']
 # The capitalized forms are needed for ipython at present; this may
 # change for later versions.
 
 interactive_bk = ['GTK', 'GTKAgg', 'GTKCairo', 'MacOSX',
-                  'Qt4Agg', 'Qt5Agg', 'TkAgg', 'WX', 'WXAgg', 'CocoaAgg',
+                  'Qt4Agg', 'Qt5Agg', 'TkAgg', 'WX', 'WXAgg',
                   'GTK3Cairo', 'GTK3Agg', 'WebAgg', 'nbAgg']
 
 
-non_interactive_bk = ['agg', 'cairo', 'emf', 'gdk',
+non_interactive_bk = ['agg', 'cairo', 'gdk',
                       'pdf', 'pgf', 'ps', 'svg', 'template']
 all_backends = interactive_bk + non_interactive_bk
 
@@ -367,12 +367,16 @@ def validate_color(s):
             return 'None'
     except AttributeError:
         pass
+
+    if isinstance(s, six.string_types):
+        if len(s) == 6 or len(s) == 8:
+            stmp = '#' + s
+            if is_color_like(stmp):
+                return stmp
+
     if is_color_like(s):
         return s
-    stmp = '#' + s
 
-    if is_color_like(stmp):
-        return stmp
     # If it is still valid, it must be a tuple.
     colorarg = s
     msg = ''
@@ -912,7 +916,7 @@ defaultParams = {
     'lines.solid_capstyle':  ['projecting', validate_capstyle],
     'lines.dashed_pattern':  [[2.8, 1.2], validate_nseq_float()],
     'lines.dashdot_pattern': [[4.8, 1.2, 0.8, 1.2], validate_nseq_float()],
-    'lines.dotted_pattern':  [[1.2, 0.6], validate_nseq_float()],
+    'lines.dotted_pattern':  [[1.1, 1.1], validate_nseq_float()],
 
     # marker props
     'markers.fillstyle': ['full', validate_fillstyle],
@@ -941,21 +945,21 @@ defaultParams = {
     'boxplot.showfliers': [True, validate_bool],
     'boxplot.meanline': [False, validate_bool],
 
-    'boxplot.flierprops.color': ['C0', validate_color],
-    'boxplot.flierprops.marker': ['+', six.text_type],
-    'boxplot.flierprops.markerfacecolor': ['auto', validate_color_or_auto],
+    'boxplot.flierprops.color': ['k', validate_color],
+    'boxplot.flierprops.marker': ['o', six.text_type],
+    'boxplot.flierprops.markerfacecolor': ['none', validate_color_or_auto],
     'boxplot.flierprops.markeredgecolor': ['k', validate_color],
     'boxplot.flierprops.markersize': [6, validate_float],
     'boxplot.flierprops.linestyle': ['none', six.text_type],
     'boxplot.flierprops.linewidth': [1.0, validate_float],
 
-    'boxplot.boxprops.color': ['C0', validate_color],
+    'boxplot.boxprops.color': ['k', validate_color],
     'boxplot.boxprops.linewidth': [1.0, validate_float],
     'boxplot.boxprops.linestyle': ['-', six.text_type],
 
-    'boxplot.whiskerprops.color': ['C0', validate_color],
+    'boxplot.whiskerprops.color': ['k', validate_color],
     'boxplot.whiskerprops.linewidth': [1.0, validate_float],
-    'boxplot.whiskerprops.linestyle': ['--', six.text_type],
+    'boxplot.whiskerprops.linestyle': ['-', six.text_type],
 
     'boxplot.capprops.color': ['k', validate_color],
     'boxplot.capprops.linewidth': [1.0, validate_float],
@@ -965,9 +969,13 @@ defaultParams = {
     'boxplot.medianprops.linewidth': [1.0, validate_float],
     'boxplot.medianprops.linestyle': ['-', six.text_type],
 
-    'boxplot.meanprops.color': ['r', validate_color],
+    'boxplot.meanprops.color': ['C2', validate_color],
+    'boxplot.meanprops.marker': ['^', six.text_type],
+    'boxplot.meanprops.markerfacecolor': ['C2', validate_color],
+    'boxplot.meanprops.markeredgecolor': ['C2', validate_color],
+    'boxplot.meanprops.markersize': [6, validate_float],
+    'boxplot.meanprops.linestyle': ['--', six.text_type],
     'boxplot.meanprops.linewidth': [1.0, validate_float],
-    'boxplot.meanprops.linestyle': ['-', six.text_type],
 
     ## font props
     'font.family':     [['sans-serif'], validate_stringlist],  # used by text object
@@ -975,14 +983,16 @@ defaultParams = {
     'font.variant':    ['normal', six.text_type],
     'font.stretch':    ['normal', six.text_type],
     'font.weight':     ['normal', six.text_type],
-    'font.size':       [12, validate_float],      # Base font size in points
+    'font.size':       [10, validate_float],      # Base font size in points
     'font.serif':      [['DejaVu Serif', 'Bitstream Vera Serif',
+                         'Computer Modern Roman',
                          'New Century Schoolbook', 'Century Schoolbook L',
                          'Utopia', 'ITC Bookman', 'Bookman',
                          'Nimbus Roman No9 L', 'Times New Roman',
                          'Times', 'Palatino', 'Charter', 'serif'],
                         validate_stringlist],
     'font.sans-serif': [['DejaVu Sans', 'Bitstream Vera Sans',
+                         'Computer Modern Sans Serif',
                          'Lucida Grande', 'Verdana', 'Geneva', 'Lucid',
                          'Arial', 'Helvetica', 'Avant Garde', 'sans-serif'],
                         validate_stringlist],
@@ -993,6 +1003,7 @@ defaultParams = {
                          'Western', 'Humor Sans', 'fantasy'],
                         validate_stringlist],
     'font.monospace':  [['DejaVu Sans Mono', 'Bitstream Vera Sans Mono',
+                         'Computer Modern Typewriter',
                          'Andale Mono', 'Nimbus Mono L', 'Courier New',
                          'Courier', 'Fixed', 'Terminal', 'monospace'],
                         validate_stringlist],
@@ -1041,7 +1052,7 @@ defaultParams = {
     'axes.hold':             [True, validate_bool],
     'axes.facecolor':        ['w', validate_color],  # background color; white
     'axes.edgecolor':        ['k', validate_color],  # edge color; black
-    'axes.linewidth':        [1.0, validate_float],  # edge linewidth
+    'axes.linewidth':        [0.8, validate_float],  # edge linewidth
 
     'axes.spines.left':      [True, validate_bool],  # Set visibility of axes
     'axes.spines.right':     [True, validate_bool],  # 'spines', the lines
@@ -1051,6 +1062,7 @@ defaultParams = {
     'axes.titlesize':        ['large', validate_fontsize],  # fontsize of the
                                                             # axes title
     'axes.titleweight':      ['normal', six.text_type],  # font weight of axes title
+    'axes.titlepad':         [4.0, validate_float],  # pad from axes top to title in points
     'axes.grid':             [False, validate_bool],   # display grid or not
     'axes.grid.which':       ['major', validate_axis_locator],  # set wether the gid are by
                                                                 # default draw on 'major'
@@ -1060,7 +1072,7 @@ defaultParams = {
                                                       # Can be 'x', 'y', 'both'
     'axes.labelsize':        ['medium', validate_fontsize],  # fontsize of the
                                                              # x any y labels
-    'axes.labelpad':         [5.0, validate_float], # space between label and axis
+    'axes.labelpad':         [4.0, validate_float], # space between label and axis
     'axes.labelweight':      ['normal', six.text_type],  # fontsize of the x any y labels
     'axes.labelcolor':       ['k', validate_color],    # color of axis label
     'axes.formatter.limits': [[-7, 7], validate_nseq_int(2)],
@@ -1112,27 +1124,24 @@ defaultParams = {
     'date.autoformatter.day': ['%Y-%m-%d', six.text_type],
     'date.autoformatter.hour': ['%H:%M', six.text_type],
     'date.autoformatter.minute': ['%H:%M:%S', six.text_type],
-    'date.autoformatter.second': ['%H:%M:%S.%f', six.text_type],
+    'date.autoformatter.second': ['%H:%M:%S', six.text_type],
+    'date.autoformatter.microsecond': ['%H:%M:%S.%f', six.text_type],
 
     #legend properties
     'legend.fancybox': [True, validate_bool],
-
-    # at some point, legend.loc should be changed to 'best'
     'legend.loc': ['best', validate_legend_loc],
-
-    # this option is internally ignored - it never served any useful purpose
-    'legend.isaxes': [True, validate_bool],
-
     # the number of points in the legend line
     'legend.numpoints': [1, validate_int],
     # the number of points in the legend line for scatter
-    'legend.scatterpoints': [3, validate_int],
-    'legend.fontsize': ['large', validate_fontsize],
-
-    # whether or not to draw a frame around legend
+    'legend.scatterpoints': [1, validate_int],
+    'legend.fontsize': ['medium', validate_fontsize],
+     # the relative size of legend markers vs. original
+    'legend.markerscale': [1.0, validate_float],
+    'legend.shadow': [False, validate_bool],
+     # whether or not to draw a frame around legend
     'legend.frameon': [True, validate_bool],
-    # alpha value of the legend frame
-    'legend.framealpha': [None, validate_float_or_None],
+     # alpha value of the legend frame
+    'legend.framealpha': [0.8, validate_float_or_None],
 
     ## the following dimensions are in fraction of the font size
     'legend.borderpad': [0.4, validate_float],  # units are fontsize
@@ -1152,34 +1161,42 @@ defaultParams = {
     'legend.markerscale': [1.0, validate_float],
     'legend.shadow': [False, validate_bool],
     'legend.facecolor': ['inherit', validate_color_or_inherit],
-    'legend.edgecolor': ['k', validate_color_or_inherit],
+    'legend.edgecolor': ['none', validate_color_or_inherit],
 
     # tick properties
-    'xtick.top':         [True, validate_bool],   # draw ticks on the top side
+    'xtick.top':         [False, validate_bool],   # draw ticks on the top side
     'xtick.bottom':      [True, validate_bool],   # draw ticks on the bottom side
-    'xtick.major.size':  [4, validate_float],    # major xtick size in points
+    'xtick.major.size':  [3.5, validate_float],    # major xtick size in points
     'xtick.minor.size':  [2, validate_float],    # minor xtick size in points
-    'xtick.major.width': [1.0, validate_float],  # major xtick width in points
-    'xtick.minor.width': [1.0, validate_float],  # minor xtick width in points
-    'xtick.major.pad':   [4, validate_float],    # distance to label in points
-    'xtick.minor.pad':   [4, validate_float],    # distance to label in points
+    'xtick.major.width': [0.8, validate_float],  # major xtick width in points
+    'xtick.minor.width': [0.6, validate_float],  # minor xtick width in points
+    'xtick.major.pad':   [3.5, validate_float],    # distance to label in points
+    'xtick.minor.pad':   [3.4, validate_float],    # distance to label in points
     'xtick.color':       ['k', validate_color],  # color of the xtick labels
     'xtick.minor.visible':   [False, validate_bool],    # visiablility of the x axis minor ticks
+    'xtick.minor.top':   [True, validate_bool],  # draw x axis top minor ticks
+    'xtick.minor.bottom':    [True, validate_bool],    # draw x axis bottom minor ticks
+    'xtick.major.top':   [True, validate_bool],  # draw x axis top major ticks
+    'xtick.major.bottom':    [True, validate_bool],    # draw x axis bottom major ticks
 
     # fontsize of the xtick labels
     'xtick.labelsize':   ['medium', validate_fontsize],
     'xtick.direction':   ['out', six.text_type],            # direction of xticks
 
     'ytick.left':        [True, validate_bool],  # draw ticks on the left side
-    'ytick.right':       [True, validate_bool],  # draw ticks on the right side
-    'ytick.major.size':  [4, validate_float],     # major ytick size in points
+    'ytick.right':       [False, validate_bool],  # draw ticks on the right side
+    'ytick.major.size':  [3.5, validate_float],     # major ytick size in points
     'ytick.minor.size':  [2, validate_float],     # minor ytick size in points
-    'ytick.major.width': [1.0, validate_float],   # major ytick width in points
-    'ytick.minor.width': [1.0, validate_float],   # minor ytick width in points
-    'ytick.major.pad':   [4, validate_float],     # distance to label in points
-    'ytick.minor.pad':   [4, validate_float],     # distance to label in points
+    'ytick.major.width': [0.8, validate_float],   # major ytick width in points
+    'ytick.minor.width': [0.6, validate_float],   # minor ytick width in points
+    'ytick.major.pad':   [3.5, validate_float],     # distance to label in points
+    'ytick.minor.pad':   [3.4, validate_float],     # distance to label in points
     'ytick.color':       ['k', validate_color],   # color of the ytick labels
     'ytick.minor.visible':   [False, validate_bool],    # visiablility of the y axis minor ticks
+    'ytick.minor.left':   [True, validate_bool],  # draw y axis left minor ticks
+    'ytick.minor.right':    [True, validate_bool],    # draw y axis right minor ticks
+    'ytick.major.left':   [True, validate_bool],  # draw y axis left major ticks
+    'ytick.major.right':    [True, validate_bool],    # draw y axis right major ticks
 
     # fontsize of the ytick labels
     'ytick.labelsize':   ['medium', validate_fontsize],
@@ -1187,13 +1204,13 @@ defaultParams = {
 
     'grid.color':        ['#b0b0b0', validate_color],  # grid color
     'grid.linestyle':    ['-', six.text_type],      # solid
-    'grid.linewidth':    [1.0, validate_float],     # in points
+    'grid.linewidth':    [0.8, validate_float],     # in points
     'grid.alpha':        [1.0, validate_float],
 
 
     ## figure props
     # figure title
-    'figure.titlesize':   ['medium', validate_fontsize],
+    'figure.titlesize':   ['large', validate_fontsize],
     'figure.titleweight': ['normal', six.text_type],
 
     # figure size in inches: width by height
@@ -1209,9 +1226,9 @@ defaultParams = {
                                                        closedmax=True)],
     'figure.subplot.right': [0.9, ValidateInterval(0, 1, closedmin=True,
                                                      closedmax=True)],
-    'figure.subplot.bottom': [0.1, ValidateInterval(0, 1, closedmin=True,
+    'figure.subplot.bottom': [0.11, ValidateInterval(0, 1, closedmin=True,
                                                      closedmax=True)],
-    'figure.subplot.top': [0.9, ValidateInterval(0, 1, closedmin=True,
+    'figure.subplot.top': [0.88, ValidateInterval(0, 1, closedmin=True,
                                                      closedmax=True)],
     'figure.subplot.wspace': [0.2, ValidateInterval(0, 1, closedmin=True,
                                                      closedmax=False)],

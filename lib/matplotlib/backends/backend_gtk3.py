@@ -1,7 +1,7 @@
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
-from matplotlib.externals import six
+import six
 
 import os, sys
 def fn_name(): return sys._getframe(1).f_code.co_name
@@ -36,14 +36,10 @@ from matplotlib.backend_managers import ToolManager
 from matplotlib import backend_tools
 
 from matplotlib.cbook import is_string_like, is_writable_file_like
-from matplotlib.colors import colorConverter
 from matplotlib.figure import Figure
 from matplotlib.widgets import SubplotTool
 
-from matplotlib import lines
-from matplotlib import cbook
-from matplotlib import verbose
-from matplotlib import rcParams
+from matplotlib import cbook, colors as mcolors, lines, verbose, rcParams
 
 backend_version = "%s.%s.%s" % (Gtk.get_major_version(), Gtk.get_micro_version(), Gtk.get_minor_version())
 
@@ -251,14 +247,14 @@ class FigureCanvasGTK3 (Gtk.DrawingArea, FigureCanvasBase):
         key = self._get_key(event)
         if _debug: print("hit", key)
         FigureCanvasBase.key_press_event(self, key, guiEvent=event)
-        return False  # finish event propagation?
+        return True  # stop event propagation
 
     def key_release_event(self, widget, event):
         if _debug: print('FigureCanvasGTK3.%s' % fn_name())
         key = self._get_key(event)
         if _debug: print("release", key)
         FigureCanvasBase.key_release_event(self, key, guiEvent=event)
-        return False  # finish event propagation?
+        return True  # stop event propagation
 
     def motion_notify_event(self, widget, event):
         if _debug: print('FigureCanvasGTK3.%s' % fn_name())
@@ -476,6 +472,7 @@ class FigureManagerGTK3(FigureManagerBase):
     def show(self):
         # show the figure window
         self.window.show()
+        self.window.present()
 
     def full_screen_toggle (self):
         self._full_screen_flag = not self._full_screen_flag
@@ -484,7 +481,6 @@ class FigureManagerGTK3(FigureManagerBase):
         else:
             self.window.unfullscreen()
     _full_screen_flag = False
-
 
     def _get_toolbar(self):
         # must be inited after the window, drawingArea and figure
@@ -500,7 +496,7 @@ class FigureManagerGTK3(FigureManagerBase):
     def _get_toolmanager(self):
         # must be initialised after toolbar has been setted
         if rcParams['toolbar'] != 'toolbar2':
-            toolmanager = ToolManager(self.canvas)
+            toolmanager = ToolManager(self.canvas.figure)
         else:
             toolmanager = None
         return toolmanager
@@ -933,166 +929,6 @@ class ConfigureSubplotsGTK3(backend_tools.ConfigureSubplotsBase, Gtk.Window):
     def trigger(self, sender, event, data=None):
         self.init_window()
         self.window.present()
-
-
-class DialogLineprops(object):
-    """
-    A GUI dialog for controlling lineprops
-    """
-    signals = (
-        'on_combobox_lineprops_changed',
-        'on_combobox_linestyle_changed',
-        'on_combobox_marker_changed',
-        'on_colorbutton_linestyle_color_set',
-        'on_colorbutton_markerface_color_set',
-        'on_dialog_lineprops_okbutton_clicked',
-        'on_dialog_lineprops_cancelbutton_clicked',
-        )
-
-    linestyles = [ls for ls in lines.Line2D.lineStyles if ls.strip()]
-    linestyled = dict([ (s,i) for i,s in enumerate(linestyles)])
-
-
-    markers =  [m for m in lines.Line2D.markers if cbook.is_string_like(m)]
-
-    markerd = dict([(s,i) for i,s in enumerate(markers)])
-
-    def __init__(self, lines):
-        import Gtk.glade
-
-        datadir = matplotlib.get_data_path()
-        gladefile = os.path.join(datadir, 'lineprops.glade')
-        if not os.path.exists(gladefile):
-            raise IOError('Could not find gladefile lineprops.glade in %s'%datadir)
-
-        self._inited = False
-        self._updateson = True # suppress updates when setting widgets manually
-        self.wtree = Gtk.glade.XML(gladefile, 'dialog_lineprops')
-        self.wtree.signal_autoconnect(dict([(s, getattr(self, s)) for s in self.signals]))
-
-        self.dlg = self.wtree.get_widget('dialog_lineprops')
-
-        self.lines = lines
-
-        cbox = self.wtree.get_widget('combobox_lineprops')
-        cbox.set_active(0)
-        self.cbox_lineprops = cbox
-
-        cbox = self.wtree.get_widget('combobox_linestyles')
-        for ls in self.linestyles:
-            cbox.append_text(ls)
-        cbox.set_active(0)
-        self.cbox_linestyles = cbox
-
-        cbox = self.wtree.get_widget('combobox_markers')
-        for m in self.markers:
-            cbox.append_text(m)
-        cbox.set_active(0)
-        self.cbox_markers = cbox
-        self._lastcnt = 0
-        self._inited = True
-
-
-    def show(self):
-        'populate the combo box'
-        self._updateson = False
-        # flush the old
-        cbox = self.cbox_lineprops
-        for i in range(self._lastcnt-1,-1,-1):
-            cbox.remove_text(i)
-
-        # add the new
-        for line in self.lines:
-            cbox.append_text(line.get_label())
-        cbox.set_active(0)
-
-        self._updateson = True
-        self._lastcnt = len(self.lines)
-        self.dlg.show()
-
-    def get_active_line(self):
-        'get the active line'
-        ind = self.cbox_lineprops.get_active()
-        line = self.lines[ind]
-        return line
-
-    def get_active_linestyle(self):
-        'get the active lineinestyle'
-        ind = self.cbox_linestyles.get_active()
-        ls = self.linestyles[ind]
-        return ls
-
-    def get_active_marker(self):
-        'get the active lineinestyle'
-        ind = self.cbox_markers.get_active()
-        m = self.markers[ind]
-        return m
-
-    def _update(self):
-        'update the active line props from the widgets'
-        if not self._inited or not self._updateson: return
-        line = self.get_active_line()
-        ls = self.get_active_linestyle()
-        marker = self.get_active_marker()
-        line.set_linestyle(ls)
-        line.set_marker(marker)
-
-        button = self.wtree.get_widget('colorbutton_linestyle')
-        color = button.get_color()
-        r, g, b = [val/65535. for val in (color.red, color.green, color.blue)]
-        line.set_color((r,g,b))
-
-        button = self.wtree.get_widget('colorbutton_markerface')
-        color = button.get_color()
-        r, g, b = [val/65535. for val in (color.red, color.green, color.blue)]
-        line.set_markerfacecolor((r,g,b))
-
-        line.figure.canvas.draw()
-
-    def on_combobox_lineprops_changed(self, item):
-        'update the widgets from the active line'
-        if not self._inited: return
-        self._updateson = False
-        line = self.get_active_line()
-
-        ls = line.get_linestyle()
-        if ls is None: ls = 'None'
-        self.cbox_linestyles.set_active(self.linestyled[ls])
-
-        marker = line.get_marker()
-        if marker is None: marker = 'None'
-        self.cbox_markers.set_active(self.markerd[marker])
-
-        r,g,b = colorConverter.to_rgb(line.get_color())
-        color = Gdk.Color(*[int(val*65535) for val in (r,g,b)])
-        button = self.wtree.get_widget('colorbutton_linestyle')
-        button.set_color(color)
-
-        r,g,b = colorConverter.to_rgb(line.get_markerfacecolor())
-        color = Gdk.Color(*[int(val*65535) for val in (r,g,b)])
-        button = self.wtree.get_widget('colorbutton_markerface')
-        button.set_color(color)
-        self._updateson = True
-
-    def on_combobox_linestyle_changed(self, item):
-        self._update()
-
-    def on_combobox_marker_changed(self, item):
-        self._update()
-
-    def on_colorbutton_linestyle_color_set(self, button):
-        self._update()
-
-    def on_colorbutton_markerface_color_set(self, button):
-        'called colorbutton marker clicked'
-        self._update()
-
-    def on_dialog_lineprops_okbutton_clicked(self, button):
-        self._update()
-        self.dlg.hide()
-
-    def on_dialog_lineprops_cancelbutton_clicked(self, button):
-        self.dlg.hide()
 
 
 # Define the file to use as the GTk icon

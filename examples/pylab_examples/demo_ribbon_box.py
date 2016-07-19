@@ -18,7 +18,7 @@ class RibbonBox(object):
     nx = original_image.shape[1]
 
     def __init__(self, color):
-        rgb = matplotlib.colors.colorConverter.to_rgb(color)
+        rgb = matplotlib.colors.to_rgba(color)[:3]
 
         im = np.empty(self.original_image.shape,
                       self.original_image.dtype)
@@ -121,7 +121,7 @@ if 1:
                                interpolation="bicubic",
                                zorder=0.1,
                                )
-    gradient = np.zeros((2, 2, 4), dtype=np.float)
+    gradient = np.zeros((2, 2, 4), dtype=float)
     gradient[:, :, :3] = [1, 1, 0.]
     gradient[:, :, 3] = [[0.1, 0.3], [0.3, 0.5]]  # alpha channel
     patch_gradient.set_array(gradient)

@@ -82,8 +82,8 @@ that define the shape.
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
-from matplotlib.externals import six
-from matplotlib.externals.six.moves import xrange
+import six
+from six.moves import xrange
 
 import numpy as np
 
@@ -175,11 +175,9 @@ class MarkerStyle(object):
         fillstyle : string, optional, default: 'full'
             'full', 'left", 'right', 'bottom', 'top', 'none'
         """
-        # The fillstyle has to be set here as it might be accessed by calls to
-        # _recache() in set_marker.
-        self._fillstyle = fillstyle
-        self.set_marker(marker)
+        self._marker_function = None
         self.set_fillstyle(fillstyle)
+        self.set_marker(marker)
 
     def __getstate__(self):
         d = self.__dict__.copy()
@@ -189,9 +187,10 @@ class MarkerStyle(object):
     def __setstate__(self, statedict):
         self.__dict__ = statedict
         self.set_marker(self._marker)
-        self._recache()
 
     def _recache(self):
+        if self._marker_function is None:
+            return
         self._path = _empty_path
         self._transform = IdentityTransform()
         self._alt_path = None

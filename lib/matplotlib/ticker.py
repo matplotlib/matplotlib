@@ -161,9 +161,10 @@ more information and examples of using date locators and formatters.
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
-from matplotlib.externals import six
+import six
 
 import decimal
+import itertools
 import locale
 import math
 import numpy as np
@@ -663,33 +664,50 @@ class ScalarFormatter(Formatter):
             vmin, vmax = self.axis.get_view_interval()
             d = abs(vmax - vmin)
             if self._useOffset:
-                self._set_offset(d)
+                self._compute_offset()
             self._set_orderOfMagnitude(d)
             self._set_format(vmin, vmax)
 
-    def _set_offset(self, range):
-        # offset of 20,001 is 20,000, for example
+    def _compute_offset(self):
         locs = self.locs
-
-        if locs is None or not len(locs) or range == 0:
+        if locs is None or not len(locs):
             self.offset = 0
             return
+        # Restrict to visible ticks.
         vmin, vmax = sorted(self.axis.get_view_interval())
         locs = np.asarray(locs)
         locs = locs[(vmin <= locs) & (locs <= vmax)]
-        ave_loc = np.mean(locs)
-        if len(locs) and ave_loc:  # dont want to take log10(0)
-            ave_oom = math.floor(math.log10(np.mean(np.absolute(locs))))
-            range_oom = math.floor(math.log10(range))
-
-            if np.absolute(ave_oom - range_oom) >= 3:  # four sig-figs
-                p10 = 10 ** range_oom
-                if ave_loc < 0:
-                    self.offset = (math.ceil(np.max(locs) / p10) * p10)
-                else:
-                    self.offset = (math.floor(np.min(locs) / p10) * p10)
-            else:
-                self.offset = 0
+        if not len(locs):
+            self.offset = 0
+            return
+        lmin, lmax = locs.min(), locs.max()
+        # Only use offset if there are at least two ticks and every tick has
+        # the same sign.
+        if lmin == lmax or lmin <= 0 <= lmax:
+            self.offset = 0
+            return
+        # min, max comparing absolute values (we want division to round towards
+        # zero so we work on absolute values).
+        abs_min, abs_max = sorted([abs(float(lmin)), abs(float(lmax))])
+        sign = math.copysign(1, lmin)
+        # What is the smallest power of ten such that abs_min and abs_max are
+        # equal up to that precision?
+        # Note: Internally using oom instead of 10 ** oom avoids some numerical
+        # accuracy issues.
+        oom_max = np.ceil(math.log10(abs_max))
+        oom = 1 + next(oom for oom in itertools.count(oom_max, -1)
+                       if abs_min // 10 ** oom != abs_max // 10 ** oom)
+        if (abs_max - abs_min) / 10 ** oom <= 1e-2:
+            # Handle the case of straddling a multiple of a large power of ten
+            # (relative to the span).
+            # What is the smallest power of ten such that abs_min and abs_max
+            # are no more than 1 apart at that precision?
+            oom = 1 + next(oom for oom in itertools.count(oom_max, -1)
+                           if abs_max // 10 ** oom - abs_min // 10 ** oom > 1)
+        # Only use offset if it saves at least two significant digits.
+        self.offset = (sign * (abs_max // 10 ** oom) * 10 ** oom
+                       if abs_max // 10 ** oom >= 10
+                       else 0)
 
     def _set_orderOfMagnitude(self, range):
         # if scientific notation is to be used, find the appropriate exponent
@@ -1015,7 +1033,7 @@ class EngFormatter(Formatter):
     suitable for use with single-letter representations of powers of
     1000. For example, 'Hz' or 'm'.
 
-    `places` is the percision with which to display the number,
+    `places` is the precision with which to display the number,
     specified in digits after the decimal point (there will be between
     one and three digits before the decimal point).
     """
@@ -1095,7 +1113,11 @@ class EngFormatter(Formatter):
 
         formatted = format_str % (mant, prefix)
 
-        return formatted.strip()
+        formatted = formatted.strip()
+        if (self.unit != "") and (prefix == self.ENG_PREFIXES[0]):
+            formatted = formatted + " "
+
+        return formatted
 
 
 class PercentFormatter(Formatter):
@@ -1564,7 +1586,8 @@ class MaxNLocator(Locator):
                           steps=None,
                           integer=False,
                           symmetric=False,
-                          prune=None)
+                          prune=None,
+                          min_n_ticks=2)
 
     def __init__(self, *args, **kwargs):
         """
@@ -1595,6 +1618,11 @@ class MaxNLocator(Locator):
             be removed.  If prune=='upper', the largest tick will be
             removed.  If prune=='both', the largest and smallest ticks
             will be removed.  If prune==None, no ticks will be removed.
+
+        *min_n_ticks*
+            While the estimated number of ticks is less than the minimum,
+            the target value *nbins* is incremented and the ticks are
+            recalculated.
 
         """
         if args:
@@ -1638,11 +1666,27 @@ class MaxNLocator(Locator):
             self._integer = kwargs['integer']
         if self._integer:
             self._steps = [n for n in self._steps if _divmod(n, 1)[1] < 0.001]
+        if 'min_n_ticks' in kwargs:
+            self._min_n_ticks = max(1, kwargs['min_n_ticks'])
 
     def _raw_ticks(self, vmin, vmax):
-        nbins = self._nbins
-        if nbins == 'auto':
-            nbins = max(min(self.axis.get_tick_space(), 9), 1)
+        if self._nbins == 'auto':
+            nbins = max(min(self.axis.get_tick_space(), 9),
+                        max(1, self._min_n_ticks - 1))
+        else:
+            nbins = self._nbins
+
+        while True:
+            ticks = self._try_raw_ticks(vmin, vmax, nbins)
+            nticks = ((ticks <= vmax) & (ticks >= vmin)).sum()
+            if nticks >= self._min_n_ticks:
+                break
+            nbins += 1
+
+        self._nbins_used = nbins  # Maybe useful for troubleshooting.
+        return ticks
+
+    def _try_raw_ticks(self, vmin, vmax, nbins):
         scale, offset = scale_range(vmin, vmax, nbins)
         if self._integer:
             scale = max(1, scale)
@@ -1653,9 +1697,8 @@ class MaxNLocator(Locator):
         best_vmax = vmax
         best_vmin = vmin
 
-        for step in self._steps:
-            if step < scaled_raw_step:
-                continue
+        steps = (x for x in self._steps if x >= scaled_raw_step)
+        for step in steps:
             step *= scale
             best_vmin = vmin // step * step
             best_vmax = best_vmin + step * nbins
@@ -1691,11 +1734,10 @@ class MaxNLocator(Locator):
         return self.raise_if_exceeds(locs)
 
     def view_limits(self, dmin, dmax):
-        if rcParams['axes.autolimit_mode'] == 'round_numbers':
-            if self._symmetric:
-                maxabs = max(abs(dmin), abs(dmax))
-                dmin = -maxabs
-                dmax = maxabs
+        if self._symmetric:
+            maxabs = max(abs(dmin), abs(dmax))
+            dmin = -maxabs
+            dmax = maxabs
 
         dmin, dmax = mtransforms.nonsingular(
             dmin, dmax, expander=1e-12, tiny=1e-13)
@@ -1757,6 +1799,7 @@ class LogLocator(Locator):
         """
         self.base(base)
         self.subs(subs)
+        # this needs to be validated > 1 with traitlets
         self.numticks = numticks
         self.numdecs = numdecs
 
@@ -1829,6 +1872,9 @@ class LogLocator(Locator):
             subs = self._subs
 
         stride = 1
+        if not self.numticks > 1:
+            raise RuntimeError('The number of ticks must be greater than 1 '
+                               'for LogLocator.')
         while numdec / stride + 1 > self.numticks:
             stride += 1
 
@@ -2137,9 +2183,11 @@ class AutoLocator(MaxNLocator):
     def __init__(self):
         if rcParams['_internal.classic_mode']:
             nbins = 9
+            steps = [1, 2, 5, 10]
         else:
             nbins = 'auto'
-        MaxNLocator.__init__(self, nbins=nbins, steps=[1, 2, 5, 10])
+            steps = [1, 2, 2.5, 5, 10]
+        MaxNLocator.__init__(self, nbins=nbins, steps=steps)
 
 
 class AutoMinorLocator(Locator):

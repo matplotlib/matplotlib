@@ -34,14 +34,18 @@ Example usage
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
-from matplotlib.externals import six
-from matplotlib.externals.six.moves import xrange, zip
+import six
+from six.moves import xrange, zip
 
 import copy
 import gtk, gobject
-import numpy as npy
+import numpy as np
 import matplotlib.cbook as cbook
+from matplotlib.cbook import warn_deprecated
 import matplotlib.mlab as mlab
+
+
+warn_deprecated("2.0", name="mpl_toolkits.gtktools", obj_type="module")
 
 
 def error_message(msg, parent=None, title=None):
@@ -164,7 +168,7 @@ class SortedStringsScrolledWindow(gtk.ScrolledWindow):
                     val = model.get_value(thisiter, self.i)
                     try: val = float(val.strip().rstrip('%'))
                     except ValueError: pass
-                    if mlab.safe_isnan(val): val = npy.inf # force nan to sort uniquely
+                    if mlab.safe_isnan(val): val = np.inf # force nan to sort uniquely
                     dsu.append((val, rownum))
                 dsu.sort()
                 if not self.num%2: dsu.reverse()
@@ -326,18 +330,14 @@ def rec2gtk(r, formatd=None, rownum=0, autowin=True):
         format = formatd.get(name)
         if format is None:
             format = mlab.defaultformatd.get(dt.type, mlab.FormatObj())
-        #print 'gtk fmt factory', i, name, format, type(format)
         format = gtkformat_factory(format, i)
         formatd[name] = format
-
 
     colheaders = r.dtype.names
     scroll = SortedStringsScrolledWindow(colheaders, formatd)
 
-    ind = npy.arange(len(r.dtype.names))
     for row in r:
         scroll.add_row(row)
-
 
     if autowin:
         win = gtk.Window()
@@ -387,7 +387,7 @@ class RecListStore(gtk.ListStore):
             formatd = mlab.get_formatd(r)
 
         self.stringd = stringd
-        self.callbacks = cbook.CallbackRegistry(['cell_changed'])
+        self.callbacks = cbook.CallbackRegistry()
 
         self.r = r
 
@@ -586,9 +586,6 @@ def edit_recarray(r, formatd=None, stringd=None, constant=None, autowin=True):
 if __name__=='__main__':
 
     import datetime
-    import gtk
-    import numpy as np
-    import matplotlib.mlab as mlab
     N = 10
     today = datetime.date.today()
     dates = [today+datetime.timedelta(days=i) for i in range(N)] # datetimes
@@ -599,7 +596,7 @@ if __name__=='__main__':
     clientid = list(xrange(N))                                   # ints
 
     r = np.rec.fromarrays([clientid, dates, weekdays, gains, prices, up],
-                          names='clientid,date,weekdays,gains,prices,up')
+                          names=str('clientid,date,weekdays,gains,prices,up'))
 
     # some custom formatters
     formatd = mlab.get_formatd(r)

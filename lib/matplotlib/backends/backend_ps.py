@@ -5,17 +5,14 @@ A PostScript backend, which can produce both PostScript .ps and .eps
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
-from matplotlib.externals import six
-from matplotlib.externals.six.moves import StringIO
+import six
+from six.moves import StringIO
 
 import glob, math, os, shutil, sys, time
 def _fn_name(): return sys._getframe(1).f_code.co_name
 import io
 
-try:
-    from hashlib import md5
-except ImportError:
-    from md5 import md5 #Deprecated in 2.5
+from hashlib import md5
 
 from tempfile import mkstemp
 from matplotlib import verbose, __version__, rcParams, checkdep_ghostscript
@@ -44,10 +41,6 @@ from matplotlib.backends.backend_mixed import MixedModeRenderer
 import numpy as np
 import binascii
 import re
-try:
-    set
-except NameError:
-    from sets import Set as set
 
 if sys.platform.startswith('win'): cmd_split = '&'
 else: cmd_split = ';'

@@ -29,10 +29,7 @@ When axis limits for a 2-D plot are specified for one axis only (via `xlim` or
 `ylim`), matplotlib currently does not currently rescale the other axis.  The
 result is that the displayed curves or symbols may be compressed into a tiny
 portion of the available area, so that the final plot conveys much less
-information than it would with appropriate axis scaling.  An example of such a
-plot can be found at the following URL:
-
-http://phillipmfeldman.org/Python/MEP15.png
+information than it would with appropriate axis scaling.
 
 The proposed change of behavior would make matplotlib choose the scale for the
 remaining axis using only the data that falls within the limits for the axis

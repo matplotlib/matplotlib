@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 
-# 30 points between 0 0.2] originally made using np.random.rand(30)*.2
+# 30 points between [0, 0.2) originally made using np.random.rand(30)*.2
 pts = np.array([
     0.015, 0.166, 0.133, 0.159, 0.041, 0.024, 0.195, 0.039, 0.161, 0.018,
     0.143, 0.056, 0.125, 0.096, 0.094, 0.051, 0.043, 0.021, 0.138, 0.075,
@@ -44,7 +44,7 @@ ax2.xaxis.tick_bottom()
 # right transform and disable clipping.
 
 d = .015  # how big to make the diagonal lines in axes coordinates
-# arguments to pass plot, just so we don't keep repeating them
+# arguments to pass to plot, just so we don't keep repeating them
 kwargs = dict(transform=ax.transAxes, color='k', clip_on=False)
 ax.plot((-d, +d), (-d, +d), **kwargs)        # top-left diagonal
 ax.plot((1 - d, 1 + d), (-d, +d), **kwargs)  # top-right diagonal

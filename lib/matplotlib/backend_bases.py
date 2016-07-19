@@ -34,16 +34,17 @@ graphics contexts must implement to serve as a matplotlib backend
 
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
+
+import six
+from six.moves import xrange
+
 from contextlib import contextmanager
-
-from matplotlib.externals import six
-from matplotlib.externals.six.moves import xrange
-
+import importlib
+import io
 import os
 import sys
-import warnings
 import time
-import io
+import warnings
 
 import numpy as np
 import matplotlib.cbook as cbook
@@ -64,14 +65,6 @@ import matplotlib.textpath as textpath
 from matplotlib.path import Path
 from matplotlib.cbook import mplDeprecation, warn_deprecated
 import matplotlib.backend_tools as tools
-
-try:
-    from importlib import import_module
-except:
-    # simple python 2.6 implementation (no relative imports)
-    def import_module(name):
-        __import__(name)
-        return sys.modules[name]
 
 try:
     from PIL import Image
@@ -135,7 +128,7 @@ def get_registered_canvas_class(format):
         return None
     backend_class = _default_backends[format]
     if cbook.is_string_like(backend_class):
-        backend_class = import_module(backend_class).FigureCanvas
+        backend_class = importlib.import_module(backend_class).FigureCanvas
         _default_backends[format] = backend_class
     return backend_class
 
@@ -327,7 +320,7 @@ class RendererBase(object):
 
         if edgecolors is None:
             edgecolors = facecolors
-        linewidths = np.array([gc.get_linewidth()], np.float_)
+        linewidths = np.array([gc.get_linewidth()], float)
 
         return self.draw_path_collection(
             gc, master_transform, paths, [], offsets, offsetTrans, facecolors,
@@ -871,16 +864,7 @@ class GraphicsContextBase(object):
 
         Default value is None
         """
-        if rcParams['_internal.classic_mode']:
-            return self._dashes
-        else:
-            scale = max(1.0, self.get_linewidth())
-            offset, dashes = self._dashes
-            if offset is not None:
-                offset = offset * scale
-            if dashes is not None:
-                dashes = [x * scale for x in dashes]
-            return offset, dashes
+        return self._dashes
 
     def get_forced_alpha(self):
         """
@@ -1022,11 +1006,11 @@ class GraphicsContextBase(object):
         if self._forced_alpha and isRGBA:
             self._rgb = fg[:3] + (self._alpha,)
         elif self._forced_alpha:
-            self._rgb = colors.colorConverter.to_rgba(fg, self._alpha)
+            self._rgb = colors.to_rgba(fg, self._alpha)
         elif isRGBA:
             self._rgb = fg
         else:
-            self._rgb = colors.colorConverter.to_rgba(fg)
+            self._rgb = colors.to_rgba(fg)
 
     def set_graylevel(self, frac):
         """
@@ -1062,10 +1046,7 @@ class GraphicsContextBase(object):
         `lines.dotted_pattern`.  One may also specify customized dash
         styles by providing a tuple of (offset, dash pairs).
         """
-        offset, dashes = lines.get_dash_pattern(style)
-
         self._linestyle = style
-        self.set_dashes(offset, dashes)
 
     def set_url(self, url):
         """
@@ -1583,13 +1564,13 @@ class PickEvent(Event):
 
     Example usage::
 
-        line, = ax.plot(rand(100), 'o', picker=5)  # 5 points tolerance
+        ax.plot(np.rand(100), 'o', picker=5)  # 5 points tolerance
 
         def on_pick(event):
-            thisline = event.artist
-            xdata, ydata = thisline.get_data()
+            line = event.artist
+            xdata, ydata = line.get_data()
             ind = event.ind
-            print('on pick line:', zip(xdata[ind], ydata[ind]))
+            print('on pick line:', np.array([xdata[ind], ydata[ind]]).T)
 
         cid = fig.canvas.mpl_connect('pick_event', on_pick)
 
@@ -2733,8 +2714,8 @@ class NavigationToolbar2(object):
         (None, None, None, None),
         ('Pan', 'Pan axes with left mouse, zoom with right', 'move', 'pan'),
         ('Zoom', 'Zoom to rectangle', 'zoom_to_rect', 'zoom'),
-        (None, None, None, None),
         ('Subplots', 'Configure subplots', 'subplots', 'configure_subplots'),
+        (None, None, None, None),
         ('Save', 'Save the figure', 'filesave', 'save_figure'),
       )
 

@@ -17,8 +17,8 @@ width and height of the its child text.
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
-from matplotlib.externals import six
-from matplotlib.externals.six.moves import xrange, zip
+import six
+from six.moves import xrange, zip
 
 import warnings
 import matplotlib.transforms as mtransforms
@@ -754,12 +754,12 @@ class TextArea(OffsetBox):
         self._minimumdescent = minimumdescent
 
     def set_text(self, s):
-        "set text"
+        "Set the text of this area as a string."
         self._text.set_text(s)
         self.stale = True
 
     def get_text(self):
-        "get text"
+        "Returns the string representation of this area's text"
         return self._text.get_text()
 
     def set_multilinebaseline(self, t):

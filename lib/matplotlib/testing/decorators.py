@@ -1,7 +1,7 @@
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
-from matplotlib.externals import six
+import six
 
 import functools
 import gc
@@ -72,7 +72,6 @@ def knownfailureif(fail_condition, msg=None, known_exception_class=None ):
 
 def _do_cleanup(original_units_registry, original_settings):
     plt.close('all')
-    gc.collect()
 
     mpl.rcParams.clear()
     mpl.rcParams.update(original_settings)
@@ -176,21 +175,19 @@ def check_freetype_version(ver):
 
     return found >= ver[0] and found <= ver[1]
 
+
 class ImageComparisonTest(CleanupTest):
     @classmethod
     def setup_class(cls):
         CleanupTest.setup_class()
-        cls._initial_settings = mpl.rcParams.copy()
         try:
             matplotlib.style.use(cls._style)
+            matplotlib.testing.set_font_settings_for_testing()
+            cls._func()
         except:
             # Restore original settings before raising errors during the update.
-            mpl.rcParams.clear()
-            mpl.rcParams.update(cls._initial_settings)
+            CleanupTest.teardown_class()
             raise
-        cls.original_settings = cls._initial_settings
-        matplotlib.testing.set_font_settings_for_testing()
-        cls._func()
 
     @classmethod
     def teardown_class(cls):
@@ -213,7 +210,8 @@ class ImageComparisonTest(CleanupTest):
 
     def test(self):
         baseline_dir, result_dir = _image_directories(self._func)
-
+        if self._style != 'classic':
+            raise KnownFailureTest('temporarily disabled until 2.0 tag')
         for fignum, baseline in zip(plt.get_fignums(), self._baseline_images):
             for extension in self._extensions:
                 will_fail = not extension in comparable_formats()
@@ -232,7 +230,13 @@ class ImageComparisonTest(CleanupTest):
                     shutil.copyfile(orig_expected_fname, expected_fname)
                 else:
                     will_fail = True
-                    fail_msg = 'Do not have baseline image {0} because this file does not exist: {1}'.format(expected_fname, orig_expected_fname)
+                    fail_msg = (
+                        "Do not have baseline image {0} because this "
+                        "file does not exist: {1}".format(
+                            expected_fname,
+                            orig_expected_fname
+                        )
+                    )
 
                 @knownfailureif(
                     will_fail, fail_msg,

@@ -1,7 +1,7 @@
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
-from matplotlib.externals import six
+import six
 
 import numpy as np
 from io import BytesIO
@@ -153,16 +153,27 @@ def _test_determinism_save(filename, usetex):
 def _test_determinism(filename, usetex):
     import os
     import sys
-    from subprocess import check_call
+    from subprocess import check_output, STDOUT, CalledProcessError
     from nose.tools import assert_equal
     plots = []
     for i in range(3):
-        check_call([sys.executable, '-R', '-c',
-                    'import matplotlib; '
-                    'matplotlib.use("svg"); '
-                    'from matplotlib.tests.test_backend_svg '
-                    'import _test_determinism_save;'
-                    '_test_determinism_save(%r, %r)' % (filename, usetex)])
+        # Using check_output and setting stderr to STDOUT will capture the real
+        # problem in the output property of the exception
+        try:
+            check_output([sys.executable, '-R', '-c',
+                          'import matplotlib; '
+                          'matplotlib.use("svg"); '
+                          'from matplotlib.tests.test_backend_svg '
+                          'import _test_determinism_save;'
+                          '_test_determinism_save(%r, %r)' % (filename,
+                                                              usetex)],
+                         stderr=STDOUT)
+        except CalledProcessError as e:
+            # it's easier to use utf8 and ask for forgiveness than try
+            # to figure out what the current console has as an
+            # encoding :-/
+            print(e.output.decode(encoding="utf-8", errors="ignore"))
+            raise e
         with open(filename, 'rb') as fd:
             plots.append(fd.read())
         os.unlink(filename)

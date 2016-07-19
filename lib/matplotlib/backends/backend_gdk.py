@@ -1,7 +1,7 @@
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
-from matplotlib.externals import six
+import six
 
 import math
 import os
@@ -26,7 +26,7 @@ from matplotlib import rcParams
 from matplotlib._pylab_helpers import Gcf
 from matplotlib.backend_bases import RendererBase, GraphicsContextBase, \
      FigureManagerBase, FigureCanvasBase
-from matplotlib.cbook import is_string_like, restrict_dict
+from matplotlib.cbook import is_string_like, restrict_dict, warn_deprecated
 from matplotlib.figure import Figure
 from matplotlib.mathtext import MathTextParser
 from matplotlib.transforms import Affine2D
@@ -434,7 +434,14 @@ def new_figure_manager_given_figure(num, figure):
 class FigureCanvasGDK (FigureCanvasBase):
     def __init__(self, figure):
         FigureCanvasBase.__init__(self, figure)
-
+        if self.__class__ == matplotlib.backends.backend_gdk.FigureCanvasGDK:
+            warn_deprecated('2.0', message="The GDK backend is "
+                            "deprecated. It is untested, known to be "
+                            "broken and will be removed in Matplotlib 2.2. "
+                            "Use the Agg backend instead. "
+                            "See Matplotlib usage FAQ for"
+                            " more info on backends.",
+                            alternative="Agg")
         self._renderer_init()
 
     def _renderer_init(self):
@@ -472,8 +479,8 @@ class FigureCanvasGDK (FigureCanvasBase):
         # http://www.pygtk.org/docs/pygtk/class-gdkpixbuf.html#method-gdkpixbuf--save
         options = restrict_dict(kwargs, ['quality'])
         if format in ['jpg','jpeg']:
-           if 'quality' not in options:
-              options['quality'] = rcParams['savefig.jpeg_quality']
-           options['quality'] = str(options['quality'])
+            if 'quality' not in options:
+                options['quality'] = rcParams['savefig.jpeg_quality']
+            options['quality'] = str(options['quality'])
 
         pixbuf.save(filename, format, options=options)

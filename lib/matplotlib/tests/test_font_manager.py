@@ -2,14 +2,19 @@ from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
 from nose.tools import assert_equal
-from matplotlib.externals import six
+import six
 
 import os
+
 import tempfile
 import warnings
 
 from matplotlib.font_manager import (
-    findfont, FontProperties, fontManager, json_dump, json_load, get_font)
+    findfont, FontProperties, fontManager, json_dump, json_load, get_font,
+    is_opentype_cff_font, fontManager as fm)
+import os.path
+
+
 from matplotlib import rc_context
 
 
@@ -48,3 +53,15 @@ def test_json_serialization():
             fp = FontProperties(**prop)
             assert_equal(fontManager.findfont(fp, rebuild_if_missing=False),
                          copy.findfont(fp, rebuild_if_missing=False))
+
+
+def test_otf():
+    fname = '/usr/share/fonts/opentype/freefont/FreeMono.otf'
+    if os.path.exists(fname):
+        assert is_opentype_cff_font(fname)
+
+    otf_files = [f for f in fm.ttffiles if 'otf' in f]
+    for f in otf_files:
+        with open(f, 'rb') as fd:
+            res = fd.read(4) == b'OTTO'
+        assert res == is_opentype_cff_font(f)

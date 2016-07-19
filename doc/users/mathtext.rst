@@ -17,7 +17,7 @@ Any text element can use math text.  You should use raw strings (precede the
 quotes with an ``'r'``), and surround the math text with dollar signs ($), as in
 TeX. Regular text and mathtext can be interleaved within the same string.
 Mathtext can use DejaVu Sans (default), DejaVu Serif, the Computer Modern fonts
-(from (La)TeX), `STIX <http://www.aip.org/stixfonts/>`_ fonts (with are designed
+(from (La)TeX), `STIX <http://www.stixfonts.org/>`_ fonts (with are designed
 to blend well with Times), or a Unicode font that you provide.  The mathtext
 font can be selected with the customization variable ``mathtext.fontset`` (see
 :ref:`customizing-matplotlib`)
@@ -49,7 +49,7 @@ produces ":math:`\alpha > \beta`".
    single dollar sign is present in the entire string, it will be
    displayed verbatim as a dollar sign.  This is a small change from
    regular TeX, where the dollar sign in non-math text would have to
-   be escaped ('\$').
+   be escaped ('\\\$').
 
 .. note::
    While the syntax inside the pair of dollar signs ($) aims to be
@@ -204,7 +204,7 @@ The choices available with all fonts are:
 .. role:: math-stix(math)
    :fontset: stix
 
-When using the `STIX <http://www.aip.org/stixfonts/>`_ fonts, you also have the choice of:
+When using the `STIX <http://www.stixfonts.org/>`_ fonts, you also have the choice of:
 
     ====================================== =========================================
     Command                                Result
@@ -342,9 +342,3 @@ Here is an example illustrating many of these features in context.
 
 .. plot:: pyplots/pyplot_mathtext.py
    :include-source:
-
-
-
-
-
-

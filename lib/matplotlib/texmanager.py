@@ -37,7 +37,7 @@ your script::
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
-from matplotlib.externals import six
+import six
 
 import copy
 import glob
@@ -636,7 +636,7 @@ Could not rename old TeX cache dir "%s": a suitable configuration
         if Z is None:
             alpha = self.get_grey(tex, fontsize, dpi)
 
-            Z = np.zeros((alpha.shape[0], alpha.shape[1], 4), np.float)
+            Z = np.zeros((alpha.shape[0], alpha.shape[1], 4), float)
 
             Z[:, :, 0] = r
             Z[:, :, 1] = g

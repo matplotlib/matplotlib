@@ -32,27 +32,19 @@ themselves.
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
-from matplotlib.externals import six
+import six
 
 import numpy as np
-from numpy import ma
 from matplotlib._path import (affine_transform, count_bboxes_overlapping_bbox,
     update_path_extents)
 from numpy.linalg import inv
 
 import weakref
 import warnings
-try:
-    set
-except NameError:
-    from sets import Set as set
 
 from .path import Path
 
 DEBUG = False
-# we need this later, but this is very expensive to set up
-MINFLOAT = np.MachAr(float).xmin
-MaskedArray = ma.MaskedArray
 
 
 class TransformNode(object):
@@ -272,7 +264,7 @@ class BboxBase(TransformNode):
 
     if DEBUG:
         def _check(points):
-            if ma.isMaskedArray(points):
+            if isinstance(points, np.ma.MaskedArray):
                 warnings.warn("Bbox bounds are a masked array.")
             points = np.asarray(points)
             if (points[1, 0] - points[0, 0] == 0 or
@@ -792,7 +784,7 @@ class Bbox(BboxBase):
         :meth:`from_bounds` and :meth:`from_extents`.
         """
         BboxBase.__init__(self, **kwargs)
-        points = np.asarray(points, np.float_)
+        points = np.asarray(points, float)
         if points.shape != (2, 2):
             raise ValueError('Bbox points must be of the form '
                              '"[[x0, y0], [x1, y1]]".')
@@ -820,7 +812,7 @@ class Bbox(BboxBase):
         (staticmethod) Create a new unit :class:`Bbox` from (0, 0) to
         (1, 1).
         """
-        return Bbox(np.array([[0.0, 0.0], [1.0, 1.0]], np.float))
+        return Bbox(np.array([[0.0, 0.0], [1.0, 1.0]], float))
 
     @staticmethod
     def null():
@@ -828,7 +820,7 @@ class Bbox(BboxBase):
         (staticmethod) Create a new null :class:`Bbox` from (inf, inf) to
         (-inf, -inf).
         """
-        return Bbox(np.array([[np.inf, np.inf], [-np.inf, -np.inf]], np.float))
+        return Bbox(np.array([[np.inf, np.inf], [-np.inf, -np.inf]], float))
 
     @staticmethod
     def from_bounds(x0, y0, width, height):
@@ -848,7 +840,7 @@ class Bbox(BboxBase):
 
         The *y*-axis increases upwards.
         """
-        points = np.array(args, dtype=np.float_).reshape(2, 2)
+        points = np.array(args, dtype=float).reshape(2, 2)
         return Bbox(points)
 
     def __format__(self, fmt):
@@ -1002,7 +994,7 @@ class Bbox(BboxBase):
 
     def _set_bounds(self, bounds):
         l, b, w, h = bounds
-        points = np.array([[l, b], [l + w, b + h]], np.float_)
+        points = np.array([[l, b], [l + w, b + h]], float)
         if np.any(self._points != points):
             self._points = points
             self.invalidate()
@@ -1766,13 +1758,13 @@ class Affine2DBase(AffineBase):
           b d f
           0 0 1
         """
-        return np.array([[a, c, e], [b, d, f], [0.0, 0.0, 1.0]], np.float_)
+        return np.array([[a, c, e], [b, d, f], [0.0, 0.0, 1.0]], float)
 
     def transform_affine(self, points):
         mtx = self.get_matrix()
-        if isinstance(points, MaskedArray):
+        if isinstance(points, np.ma.MaskedArray):
             tpoints = affine_transform(points.data, mtx)
-            return ma.MaskedArray(tpoints, mask=ma.getmask(points))
+            return np.ma.MaskedArray(tpoints, mask=np.ma.getmask(points))
         return affine_transform(points, mtx)
 
     def transform_point(self, point):
@@ -1787,8 +1779,7 @@ class Affine2DBase(AffineBase):
             # The major speed trap here is just converting to the
             # points to an array in the first place.  If we can use
             # more arrays upstream, that should help here.
-            if (not ma.isMaskedArray(points) and
-                not isinstance(points, np.ndarray)):
+            if not isinstance(points, (np.ma.MaskedArray, np.ndarray)):
                 warnings.warn(
                     ('A non-numpy array of type %s was passed in for ' +
                      'transformation.  Please correct this.')
@@ -1827,7 +1818,7 @@ class Affine2D(Affine2DBase):
         if matrix is None:
             matrix = np.identity(3)
         elif DEBUG:
-            matrix = np.asarray(matrix, np.float_)
+            matrix = np.asarray(matrix, float)
             assert matrix.shape == (3, 3)
         self._mtx = matrix
         self._invalid = 0
@@ -1855,8 +1846,7 @@ class Affine2D(Affine2DBase):
         .
         """
         return Affine2D(
-            np.array([a, c, e, b, d, f, 0.0, 0.0, 1.0], np.float_)
-            .reshape((3, 3)))
+            np.array([a, c, e, b, d, f, 0.0, 0.0, 1.0], float).reshape((3, 3)))
 
     def get_matrix(self):
         """
@@ -1925,9 +1915,8 @@ class Affine2D(Affine2DBase):
         """
         a = np.cos(theta)
         b = np.sin(theta)
-        rotate_mtx = np.array(
-            [[a, -b, 0.0], [b, a, 0.0], [0.0, 0.0, 1.0]],
-            np.float_)
+        rotate_mtx = np.array([[a, -b, 0.0], [b, a, 0.0], [0.0, 0.0, 1.0]],
+                              float)
         self._mtx = np.dot(rotate_mtx, self._mtx)
         self.invalidate()
         return self
@@ -1971,8 +1960,7 @@ class Affine2D(Affine2DBase):
         and :meth:`scale`.
         """
         translate_mtx = np.array(
-            [[1.0, 0.0, tx], [0.0, 1.0, ty], [0.0, 0.0, 1.0]],
-            np.float_)
+            [[1.0, 0.0, tx], [0.0, 1.0, ty], [0.0, 0.0, 1.0]], float)
         self._mtx = np.dot(translate_mtx, self._mtx)
         self.invalidate()
         return self
@@ -1991,8 +1979,7 @@ class Affine2D(Affine2DBase):
         if sy is None:
             sy = sx
         scale_mtx = np.array(
-            [[sx, 0.0, 0.0], [0.0, sy, 0.0], [0.0, 0.0, 1.0]],
-            np.float_)
+            [[sx, 0.0, 0.0], [0.0, sy, 0.0], [0.0, 0.0, 1.0]], float)
         self._mtx = np.dot(scale_mtx, self._mtx)
         self.invalidate()
         return self
@@ -2011,8 +1998,7 @@ class Affine2D(Affine2DBase):
         rotX = np.tan(xShear)
         rotY = np.tan(yShear)
         skew_mtx = np.array(
-                [[1.0, rotX, 0.0], [rotY, 1.0, 0.0], [0.0, 0.0, 1.0]],
-                np.float_)
+            [[1.0, rotX, 0.0], [rotY, 1.0, 0.0], [0.0, 0.0, 1.0]], float)
         self._mtx = np.dot(skew_mtx, self._mtx)
         self.invalidate()
         return self
@@ -2038,7 +2024,7 @@ class Affine2D(Affine2DBase):
 
 class IdentityTransform(Affine2DBase):
     """
-    A special class that does on thing, the identity transform, in a
+    A special class that does one thing, the identity transform, in a
     fast way.
     """
     _mtx = np.identity(3)
@@ -2171,8 +2157,9 @@ class BlendedGenericTransform(Transform):
             y_points = y.transform_non_affine(points[:, 1])
             y_points = y_points.reshape((len(y_points), 1))
 
-        if isinstance(x_points, MaskedArray) or isinstance(y_points, MaskedArray):
-            return ma.concatenate((x_points, y_points), 1)
+        if (isinstance(x_points, np.ma.MaskedArray) or
+                isinstance(y_points, np.ma.MaskedArray)):
+            return np.ma.concatenate((x_points, y_points), 1)
         else:
             return np.concatenate((x_points, y_points), 1)
     transform_non_affine.__doc__ = Transform.transform_non_affine.__doc__
@@ -2538,9 +2525,9 @@ class BboxTransform(Affine2DBase):
             if DEBUG and (x_scale == 0 or y_scale == 0):
                 raise ValueError("Transforming from or to a singular bounding box.")
             self._mtx = np.array([[x_scale, 0.0    , (-inl*x_scale+outl)],
-                                   [0.0    , y_scale, (-inb*y_scale+outb)],
-                                   [0.0    , 0.0    , 1.0        ]],
-                                  np.float_)
+                                   [0.0   , y_scale, (-inb*y_scale+outb)],
+                                   [0.0   , 0.0    , 1.0        ]],
+                                 float)
             self._inverted = None
             self._invalid = 0
         return self._mtx
@@ -2578,9 +2565,9 @@ class BboxTransformTo(Affine2DBase):
             if DEBUG and (outw == 0 or outh == 0):
                 raise ValueError("Transforming to a singular bounding box.")
             self._mtx = np.array([[outw,  0.0, outl],
-                                   [ 0.0, outh, outb],
-                                   [ 0.0,  0.0,  1.0]],
-                                  np.float_)
+                                  [ 0.0, outh, outb],
+                                  [ 0.0,  0.0,  1.0]],
+                                  float)
             self._inverted = None
             self._invalid = 0
         return self._mtx
@@ -2604,7 +2591,7 @@ class BboxTransformToMaxOnly(BboxTransformTo):
             self._mtx = np.array([[xmax,  0.0, 0.0],
                                   [ 0.0, ymax, 0.0],
                                   [ 0.0,  0.0, 1.0]],
-                                 np.float_)
+                                 float)
             self._inverted = None
             self._invalid = 0
         return self._mtx
@@ -2639,9 +2626,9 @@ class BboxTransformFrom(Affine2DBase):
             x_scale = 1.0 / inw
             y_scale = 1.0 / inh
             self._mtx = np.array([[x_scale, 0.0    , (-inl*x_scale)],
-                                   [0.0    , y_scale, (-inb*y_scale)],
-                                   [0.0    , 0.0    , 1.0        ]],
-                                  np.float_)
+                                  [0.0    , y_scale, (-inb*y_scale)],
+                                  [0.0    , 0.0    , 1.0        ]],
+                                 float)
             self._inverted = None
             self._invalid = 0
         return self._mtx
@@ -2668,9 +2655,9 @@ class ScaledTranslation(Affine2DBase):
         if self._invalid:
             xt, yt = self._scale_trans.transform_point(self._t)
             self._mtx = np.array([[1.0, 0.0, xt],
-                                   [0.0, 1.0, yt],
-                                   [0.0, 0.0, 1.0]],
-                                  np.float_)
+                                  [0.0, 1.0, yt],
+                                  [0.0, 0.0, 1.0]],
+                                 float)
             self._invalid = 0
             self._inverted = None
         return self._mtx
@@ -2827,7 +2814,7 @@ def nonsingular(vmin, vmax, expander=0.001, tiny=1e-15, increasing=True):
         swapped = True
 
     maxabsvalue = max(abs(vmin), abs(vmax))
-    if maxabsvalue < (1e6 / tiny) * MINFLOAT:
+    if maxabsvalue < (1e6 / tiny) * np.finfo(float).tiny:
         vmin = -expander
         vmax = expander
 

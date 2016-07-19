@@ -1,7 +1,7 @@
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
-from matplotlib.externals import six
+import six
 
 import numpy as np
 from numpy.testing import assert_array_almost_equal
@@ -27,7 +27,8 @@ def test_startpoints():
     plt.plot(start_x, start_y, 'ok')
 
 
-@image_comparison(baseline_images=['streamplot_colormap'])
+@image_comparison(baseline_images=['streamplot_colormap'],
+                  tol=0.002)
 def test_colormap():
     X, Y, U, V = velocity_field()
     plt.streamplot(X, Y, U, V, color=U, density=0.6, linewidth=2,

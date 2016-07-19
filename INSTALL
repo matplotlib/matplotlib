@@ -1,6 +1,7 @@
 .. The source of this document is INSTALL. During the doc build process,
 .. this file is copied over to doc/users/installing.rst.
 .. Therefore, you must edit INSTALL, *not* doc/users/installing.rst!
+.. _pip: https://pypi.python.org/pypi/pip/
 
 **********
 Installing
@@ -21,14 +22,12 @@ Most platforms : scientific Python distributions
 The first option is to use one of the pre-packaged python
 distributions that already provide matplotlib built-in.  The
 Continuum.io Python distribution (`Anaconda
-<https://store.continuum.io/cshop/anaconda/>`_ or `miniconda
+<https://www.continuum.io/downloads/>`_ or `miniconda
 <http://conda.pydata.org/miniconda.html>`_) and the Enthought
 distribution `(Canopy) <https://www.enthought.com/products/canopy/>`_
 are both excellent choices that "just work" out of the box for
 Windows, OSX and common Linux platforms.  Both of these distributions
-include matplotlib and *lots* of other useful tools.  Another
-excellent alternative for Windows users is `Python (x, y)
-<https://code.google.com/p/pythonxy>`_ .
+include matplotlib and *lots* of other useful tools.
 
 
 Linux : using your package manager
@@ -44,9 +43,10 @@ Mac OSX : using pip
 -------------------
 
 If you are on Mac OSX you can probably install matplotlib binaries using the
-standard Python installation program `pip <https://pypi.python.org/pypi/pip>`_.
+standard Python installation program pip_.
 See :ref:`install_osx_binaries`.
 
+.. _installing_windows:
 
 Windows
 -------
@@ -54,33 +54,25 @@ Windows
 If you don't already have Python installed, we recommend using
 one of the `scipy-stack compatible Python distributions
 <http://www.scipy.org/install.html>`_ such as WinPython, Python(x,y),
-Enthought Canopy, or Continuum Anaconda, which have matplotlib and
-many of its dependencies, plus other useful packages, preinstalled.
+Enthought Canopy, or Continuum Anaconda, which have matplotlib and many
+of its dependencies, plus other useful packages, preinstalled.
 
-For `standard Python <http://www.python.org/download/>`_ installations
-you will also need to install compatible versions of
-`setuptools <https://pypi.python.org/pypi/setuptools/>`_,
-`numpy <https://pypi.python.org/pypi/numpy/>`_,
-`python-dateutil <https://pypi.python.org/pypi/python-dateutil/>`_,
-`pytz <https://pypi.python.org/pypi/pytz>`_,
-`pyparsing <https://pypi.python.org/pypi/pyparsing/>`_, and
-`cycler <https://pypi.python.org/pypi/Cycler>`_
-in addition to
-`matplotlib <http://pypi.python.org/pypi/matplotlib/>`_.
+For `standard Python <https://www.python.org/download/>`_ installations,
+install matplotlib using pip_::
 
-For Python 3.5 the `Visual C++ Redistributable for Visual Studio 2015
-<http://www.microsoft.com/en-us/download/details.aspx?id=48145>`_
-needs to be installed.
-In case Python 2.7 to 3.4 are not installed for all users (not the default),
+    python -m pip install -U pip setuptools
+    python -m pip install matplotlib
+
+In case Python 2.7 or 3.4 are not installed for all users,
 the Microsoft Visual C++ 2008 (
 `64 bit <http://www.microsoft.com/download/en/details.aspx?id=15336>`__
 or
 `32 bit <http://www.microsoft.com/download/en/details.aspx?id=29>`__
-for Python 2.7 to 3.2) or Microsoft Visual C++ 2010 (
+for Python 2.7) or Microsoft Visual C++ 2010 (
 `64 bit <http://www.microsoft.com/en-us/download/details.aspx?id=14632>`__
 or
 `32 bit <http://www.microsoft.com/en-us/download/details.aspx?id=5555>`__
-for Python 3.3 and 3.4) redistributable packages need to be installed.
+for Python 3.4) redistributable packages need to be installed.
 
 Matplotlib depends on `Pillow <https://pypi.python.org/pypi/Pillow>`_
 for reading and saving JPEG, BMP, and TIFF image files.
@@ -105,22 +97,23 @@ For other backends you may need to install
 or GhostScript.
 
 TkAgg is probably the best backend for interactive use from the
-standard Python shell or IPython. It is enabled as the default backend
+standard Python shell or IPython.  It is enabled as the default backend
 for the official binaries.  GTK3 is not supported on Windows.
 
-The Windows installers (:file:`*.exe`) and wheels (:file:`*.whl`) on
-the `PyPI download page <http://pypi.python.org/pypi/matplotlib/>`_ do
-not contain test data or example code.  If you want to try the many
-demos that come in the matplotlib source distribution, download the
-:file:`*.tar.gz` file and look in the :file:`examples` subdirectory.
-To run the test suite, copy the :file:`lib\matplotlib\tests` and
-:file:`lib\mpl_toolkits\tests` directories from the source
-distribution to :file:`sys.prefix\Lib\site-packages\matplotlib` and
-:file:`sys.prefix\Lib\site-packages\mpl_toolkits` respectively, and
+The Windows wheels (:file:`*.whl`) on the `PyPI download page
+<https://pypi.python.org/pypi/matplotlib/>`_ do not contain test data
+or example code.
+If you want to try the many demos that come in the matplotlib source
+distribution, download the :file:`*.tar.gz` file and look in the
+:file:`examples` subdirectory.
+To run the test suite, copy the :file:`lib\\matplotlib\\tests` and
+:file:`lib\\mpl_toolkits\\tests` directories from the source
+distribution to :file:`sys.prefix\\Lib\\site-packages\\matplotlib` and
+:file:`sys.prefix\\Lib\\site-packages\\mpl_toolkits` respectively, and
 install `nose <https://pypi.python.org/pypi/nose>`_, `mock
 <https://pypi.python.org/pypi/mock>`_, Pillow, MiKTeX, GhostScript,
 ffmpeg, avconv, mencoder, ImageMagick, and `Inkscape
-<http://inkscape.org/>`_.
+<https://inkscape.org/>`_.
 
 
 
@@ -233,10 +226,13 @@ matplotlib with a user interface toolkit. See
 :ref:`what-is-a-backend` for more details on the optional matplotlib
 backends and the capabilities they provide.
 
-:term:`tk` 8.3 or later
-    The TCL/Tk widgets library used by the TkAgg backend
+:term:`tk` 8.3 or later, not 8.6.0 or 8.6.1
+    The TCL/Tk widgets library used by the TkAgg backend.
 
-:term:`pyqt` 4.0 or later
+    Versions 8.6.0 and 8.6.1 are known to have issues that may result
+    in segfaults when closing multiple windows in the wrong order.
+
+:term:`pyqt` 4.4 or later
     The Qt4 widgets library python wrappers for the Qt4Agg backend
 
 :term:`pygtk` 2.4 or later
@@ -324,17 +320,14 @@ git repository and follow the instruction in :file:`README.osx`.
 
 .. _build_windows:
 
-
 Building on Windows
 -------------------
 
 The Python shipped from http://www.python.org is compiled with Visual Studio
-2008 for versions before 3.3 and Visual Studio 2010 for 3.3 and later.  Python
-extensions are recommended to be compiled with the same compiler.  The .NET
-Framework 4.0 is required for MSBuild (you'll likely have the requisite
-Framework with Visual Studio).  In addition to Visual Studio `CMake
-<http://www.cmake.org>`_ is required for building libpng.
+2008 for versions before 3.3, Visual Studio 2010 for 3.3 and 3.4, and
+Visual Studio 2015 for 3.5.  Python extensions are recommended to be compiled
+with the same compiler.
 
-Since there is no canonical Windows package manager the build methods for
-freetype, zlib, libpng, tcl, & tk source code are documented as a build script
+Since there is no canonical Windows package manager, the methods for building
+freetype, zlib, and libpng from source code are documented as a build script
 at `matplotlib-winbuild <https://github.com/jbmohler/matplotlib-winbuild>`_.

@@ -17,8 +17,7 @@ units.  This behavior is available only for the LineCollection.
 '''
 
 import matplotlib.pyplot as plt
-from matplotlib import collections, transforms
-from matplotlib.colors import colorConverter
+from matplotlib import collections, colors, transforms
 import numpy as np
 
 nverts = 50
@@ -38,10 +37,12 @@ yo = rs.randn(npts)
 xyo = list(zip(xo, yo))
 
 # Make a list of colors cycling through the default series.
-colors = [colorConverter.to_rgba(c)
+colors = [colors.to_rgba(c)
           for c in plt.rcParams['axes.prop_cycle'].by_key()['color']]
 
 fig, axes = plt.subplots(2, 2)
+fig.subplots_adjust(top=0.92, left=0.07, right=0.97,
+                    hspace=0.3, wspace=0.3)
 ((ax1, ax2), (ax3, ax4)) = axes  # unpack the axes
 
 

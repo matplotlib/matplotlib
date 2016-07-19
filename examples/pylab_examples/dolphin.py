@@ -74,7 +74,7 @@ while i < len(parts):
     vertices.extend([[float(x) for x in y.split(',')] for y in
                      parts[i + 1:i + npoints + 1]])
     i += npoints + 1
-vertices = np.array(vertices, np.float)
+vertices = np.array(vertices, float)
 vertices[:, 1] -= 160
 
 dolphin_path = Path(vertices, codes)

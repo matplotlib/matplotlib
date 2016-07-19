@@ -1,11 +1,11 @@
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
-from matplotlib.externals import six
+import six
 
 import matplotlib.pyplot as plt
 from matplotlib.testing.decorators import image_comparison
-import matplotlib
+import matplotlib.patches as mpatches
 
 
 def draw_arrow(ax, t, r):
@@ -18,7 +18,7 @@ def draw_arrow(ax, t, r):
 def test_fancyarrow():
     # Added 0 to test division by zero error described in issue 3930
     r = [0.4, 0.3, 0.2, 0.1, 0]
-    t = ["fancy", "simple", matplotlib.patches.ArrowStyle.Fancy()]
+    t = ["fancy", "simple", mpatches.ArrowStyle.Fancy()]
 
     fig, axes = plt.subplots(len(t), len(r), squeeze=False,
                              subplot_kw=dict(aspect=True),
@@ -34,7 +34,7 @@ def test_fancyarrow():
 @image_comparison(baseline_images=['boxarrow_test_image'], extensions=['png'])
 def test_boxarrow():
 
-    styles = matplotlib.patches.BoxStyle.get_styles()
+    styles = mpatches.BoxStyle.get_styles()
 
     n = len(styles)
     spacing = 1.2
@@ -50,6 +50,51 @@ def test_boxarrow():
                   size=fontsize,
                   transform=fig1.transFigure,
                   bbox=dict(boxstyle=stylename, fc="w", ec="k"))
+
+
+def __prepare_fancyarrow_dpi_cor_test():
+    """
+    Convenience function that prepares and returns a FancyArrowPatch. It aims
+    at being used to test that the size of the arrow head does not depend on
+    the DPI value of the exported picture.
+
+    NB: this function *is not* a test in itself!
+    """
+    fig2 = plt.figure("fancyarrow_dpi_cor_test", figsize=(4, 3), dpi=50)
+    ax = fig2.add_subplot(111)
+    ax.set_xlim([0, 1])
+    ax.set_ylim([0, 1])
+    ax.add_patch(mpatches.FancyArrowPatch(posA=(0.3, 0.4), posB=(0.8, 0.6),
+                                          lw=3, arrowstyle=u'->',
+                                          mutation_scale=100))
+    return fig2
+
+
+@image_comparison(baseline_images=['fancyarrow_dpi_cor_100dpi'],
+                  remove_text=True, extensions=['png'],
+                  savefig_kwarg=dict(dpi=100))
+def test_fancyarrow_dpi_cor_100dpi():
+    """
+    Check the export of a FancyArrowPatch @ 100 DPI. FancyArrowPatch is
+    instantiated through a dedicated function because another similar test
+    checks a similar export but with a different DPI value.
+
+    Remark: test only a rasterized format.
+    """
+
+    __prepare_fancyarrow_dpi_cor_test()
+
+
+@image_comparison(baseline_images=['fancyarrow_dpi_cor_200dpi'],
+                  remove_text=True, extensions=['png'],
+                  savefig_kwarg=dict(dpi=200))
+def test_fancyarrow_dpi_cor_200dpi():
+    """
+    As test_fancyarrow_dpi_cor_100dpi, but exports @ 200 DPI. The relative size
+    of the arrow head should be the same.
+    """
+
+    __prepare_fancyarrow_dpi_cor_test()
 
 
 if __name__ == '__main__':

@@ -21,8 +21,8 @@ is a thin wrapper over :meth:`~matplotlib.figure.Figure.colorbar`.
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
-from matplotlib.externals import six
-from matplotlib.externals.six.moves import xrange, zip
+import six
+from six.moves import xrange, zip
 
 import warnings
 
@@ -581,7 +581,10 @@ class ColorbarBase(cm.ScalarMappable):
                 elif isinstance(self.norm, colors.LogNorm):
                     locator = ticker.LogLocator()
                 else:
-                    locator = ticker.MaxNLocator()
+                    if mpl.rcParams['_internal.classic_mode']:
+                        locator = ticker.MaxNLocator()
+                    else:
+                        locator = ticker.AutoLocator()
             else:
                 b = self._boundaries[self._inside]
                 locator = ticker.FixedLocator(b, nbins=10)

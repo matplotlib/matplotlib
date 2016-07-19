@@ -2,8 +2,8 @@ from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
 import warnings
-from matplotlib.externals import six
-from matplotlib.externals.six.moves import xrange
+import six
+from six.moves import xrange
 
 import numpy
 import matplotlib.pyplot as plt
@@ -102,13 +102,13 @@ def test_shared():
     check_visible(axs, [False, False, True, True], [True, False, True, False])
 
 
-
+@cleanup
 def test_exceptions():
     # TODO should this test more options?
     assert_raises(ValueError, plt.subplots, 2, 2, sharex='blah')
     assert_raises(ValueError, plt.subplots, 2, 2, sharey='blah')
     # We filter warnings in this test which are genuine since
-    # the pount of this test is to ensure that this raises.
+    # the point of this test is to ensure that this raises.
     with warnings.catch_warnings():
         warnings.filterwarnings('ignore',
                                 message='.*sharex\ argument\ to\ subplots',
@@ -127,16 +127,6 @@ def test_subplots_offsettext():
     axes[1, 0].plot(x, x)
     axes[0, 1].plot(y, x)
     axes[1, 1].plot(y, x)
-
-
-@cleanup
-def test_subplots():
-    # things to test
-    # - are axes actually shared?
-    # - are tickmarks correctly hidden?
-    test_shared()
-    # - are exceptions thrown correctly
-    test_exceptions()
 
 
 if __name__ == "__main__":

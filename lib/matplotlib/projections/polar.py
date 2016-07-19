@@ -1,7 +1,7 @@
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
-from matplotlib.externals import six
+import six
 
 import math
 import warnings
@@ -40,7 +40,7 @@ class PolarTransform(Transform):
         self._use_rmin = use_rmin
 
     def transform_non_affine(self, tr):
-        xy = np.empty(tr.shape, np.float_)
+        xy = np.empty(tr.shape, float)
         if self._axis is not None:
             if self._use_rmin:
                 rmin = self._axis.viewLim.ymin
@@ -522,7 +522,7 @@ cbook.simple_linear_interpolation on the data before passing to matplotlib.""")
         """
         # Make sure we take into account unitized data
         angles = self.convert_yunits(angles)
-        angles = np.asarray(angles, np.float_)
+        angles = np.asarray(angles, float)
         self.set_xticks(angles * (np.pi / 180.0))
         if labels is not None:
             self.set_xticklabels(labels)
@@ -712,7 +712,7 @@ PolarAxes.RadialLocator = RadialLocator
 
 #             vertices = self.transform(vertices)
 
-#             result = np.zeros((len(vertices) * 3 - 2, 2), np.float_)
+#             result = np.zeros((len(vertices) * 3 - 2, 2), float)
 #             codes = mpath.Path.CURVE4 * np.ones((len(vertices) * 3 - 2, ), mpath.Path.code_type)
 #             result[0] = vertices[0]
 #             codes[0] = mpath.Path.MOVETO
@@ -769,7 +769,7 @@ PolarAxes.RadialLocator = RadialLocator
 #             if interpolate > 1.0:
 #                 vertices = self.interpolate(vertices, interpolate)
 
-#             result = np.zeros((len(vertices) * 3 - 2, 2), np.float_)
+#             result = np.zeros((len(vertices) * 3 - 2, 2), float)
 #             codes = mpath.Path.CURVE4 * np.ones((len(vertices) * 3 - 2, ), mpath.Path.code_type)
 #             result[0] = vertices[0]
 #             codes[0] = mpath.Path.MOVETO

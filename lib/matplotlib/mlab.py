@@ -165,8 +165,8 @@ Example usage::
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
-from matplotlib.externals import six
-from matplotlib.externals.six.moves import map, xrange, zip
+import six
+from six.moves import map, xrange, zip
 
 import copy
 import csv
@@ -175,14 +175,12 @@ import os
 import warnings
 
 import numpy as np
-from matplotlib import verbose
 
 import matplotlib.cbook as cbook
 from matplotlib import docstring
 from matplotlib.path import Path
 import math
 
-ma = np.ma
 
 if six.PY3:
     long = int
@@ -517,7 +515,7 @@ def detrend_linear(y):
     if not y.ndim:
         return np.array(0., dtype=y.dtype)
 
-    x = np.arange(y.size, dtype=np.float_)
+    x = np.arange(y.size, dtype=float)
 
     C = np.cov(x, y, bias=1)
     b = C[0, 1]/C[0, 0]
@@ -1570,7 +1568,7 @@ def entropy(y, bins):
       Sanalytic = 0.5 * ( 1.0 + log(2*pi*sigma**2.0) )
     """
     n, bins = np.histogram(y, bins)
-    n = n.astype(np.float_)
+    n = n.astype(float)
 
     n = np.take(n, np.nonzero(n)[0])         # get the positive
 
@@ -1829,7 +1827,7 @@ def center_matrix(M, dim=0):
     If *dim* = 1 operate on columns instead of rows.  (*dim* is
     opposite to the numpy axis kwarg.)
     """
-    M = np.asarray(M, np.float_)
+    M = np.asarray(M, float)
     if dim:
         M = (M - M.mean(axis=0)) / M.std(axis=0)
     else:
@@ -1887,9 +1885,9 @@ def rk4(derivs, y0, t):
     try:
         Ny = len(y0)
     except TypeError:
-        yout = np.zeros((len(t),), np.float_)
+        yout = np.zeros((len(t),), float)
     else:
-        yout = np.zeros((len(t), Ny), np.float_)
+        yout = np.zeros((len(t), Ny), float)
 
     yout[0] = y0
     i = 0
@@ -1969,9 +1967,9 @@ def dist_point_to_segment(p, s0, s1):
     This algorithm from
     http://softsurfer.com/Archive/algorithm_0102/algorithm_0102.htm#Distance%20to%20Ray%20or%20Segment
     """
-    p = np.asarray(p, np.float_)
-    s0 = np.asarray(s0, np.float_)
-    s1 = np.asarray(s1, np.float_)
+    p = np.asarray(p, float)
+    s0 = np.asarray(s0, float)
+    s1 = np.asarray(s1, float)
     v = s1 - s0
     w = p - s0
 
@@ -2033,7 +2031,7 @@ def movavg(x, n):
     """
     Compute the len(*n*) moving average of *x*.
     """
-    w = np.empty((n,), dtype=np.float_)
+    w = np.empty((n,), dtype=float)
     w[:] = 1.0/n
     return np.convolve(x, w, mode='valid')
 
@@ -2613,7 +2611,7 @@ def rec_join(key, r1, r2, jointype='inner', defaults=None, r1postfix='1',
 
     if jointype != 'inner' and defaults is not None:
         # fill in the defaults enmasse
-        newrec_fields = list(six.iterkeys(newrec.dtype.fields.keys))
+        newrec_fields = list(six.iterkeys(newrec.dtype.fields))
         for k, v in six.iteritems(defaults):
             if k in newrec_fields:
                 newrec[k] = v
@@ -2980,13 +2978,7 @@ def csv2rec(fname, comments='#', skiprows=0, checkrows=0, delimiter=',',
         return None
 
     if use_mrecords and np.any(rowmasks):
-        try:
-            from numpy.ma import mrecords
-        except ImportError:
-            raise RuntimeError('numpy 1.05 or later is required for masked '
-                               'array support')
-        else:
-            r = mrecords.fromrecords(rows, names=names, mask=rowmasks)
+        r = np.ma.mrecords.fromrecords(rows, names=names, mask=rowmasks)
     else:
         r = np.rec.fromrecords(rows, names=names)
     return r
@@ -3185,35 +3177,19 @@ def rec2txt(r, header=None, padding=3, precision=3, fields=None):
         return atype
 
     def get_justify(colname, column, precision):
-        ntype = type(column[0])
+        ntype = column.dtype
 
-        if (ntype == np.str or ntype == np.str_ or ntype == np.string0 or
-                ntype == np.string_):
-            length = max(len(colname), column.itemsize)
+        if np.issubdtype(ntype, str) or np.issubdtype(ntype, bytes):
+            fixed_width = int(ntype.str[2:])
+            length = max(len(colname), fixed_width)
             return 0, length+padding, "%s"  # left justify
 
-        if (ntype == np.int or ntype == np.int16 or ntype == np.int32 or
-                ntype == np.int64 or ntype == np.int8 or ntype == np.int_):
+        if np.issubdtype(ntype, np.int):
             length = max(len(colname),
                          np.max(list(map(len, list(map(str, column))))))
             return 1, length+padding, "%d"  # right justify
 
-        # JDH: my powerbook does not have np.float96 using np 1.3.0
-        """
-        In [2]: np.__version__
-        Out[2]: '1.3.0.dev5948'
-
-        In [3]: !uname -a
-        Darwin Macintosh-5.local 9.4.0 Darwin Kernel Version 9.4.0: Mon Jun
-        9 19:30:53 PDT 2008; root:xnu-1228.5.20~1/RELEASE_I386 i386 i386
-
-        In [4]: np.float96
-        ---------------------------------------------------------------------------
-        AttributeError                           Traceback (most recent call la
-        """
-        if (ntype == np.float or ntype == np.float32 or ntype == np.float64 or
-                (hasattr(np, 'float96') and (ntype == np.float96)) or
-                ntype == np.float_):
+        if np.issubdtype(ntype, np.float):
             fmt = "%." + str(precision) + "f"
             length = max(
                 len(colname),
@@ -3542,10 +3518,10 @@ def slopes(x, y):
     Icelandic Meteorological Office, March 2006 halldor at vedur.is)
     """
     # Cast key variables as float.
-    x = np.asarray(x, np.float_)
-    y = np.asarray(y, np.float_)
+    x = np.asarray(x, float)
+    y = np.asarray(y, float)
 
-    yp = np.zeros(y.shape, np.float_)
+    yp = np.zeros(y.shape, float)
 
     dx = x[1:] - x[:-1]
     dy = y[1:] - y[:-1]
@@ -3599,18 +3575,18 @@ def stineman_interp(xi, x, y, yp=None):
     """
 
     # Cast key variables as float.
-    x = np.asarray(x, np.float_)
-    y = np.asarray(y, np.float_)
+    x = np.asarray(x, float)
+    y = np.asarray(y, float)
     if x.shape != y.shape:
         raise ValueError("'x' and 'y' must be of same shape")
 
     if yp is None:
         yp = slopes(x, y)
     else:
-        yp = np.asarray(yp, np.float_)
+        yp = np.asarray(yp, float)
 
-    xi = np.asarray(xi, np.float_)
-    yi = np.zeros(xi.shape, np.float_)
+    xi = np.asarray(xi, float)
+    yi = np.zeros(xi.shape, float)
 
     # calculate linear slopes
     dx = x[1:] - x[:-1]
@@ -3787,7 +3763,7 @@ class GaussianKDE(object):
                 dim, self.dim)
             raise ValueError(msg)
 
-        result = np.zeros((num_m,), dtype=np.float)
+        result = np.zeros((num_m,), dtype=float)
 
         if num_m >= self.num_dp:
             # there are more points than data, so loop over data
@@ -3840,8 +3816,8 @@ def poly_below(xmin, xs, ys):
       xv, yv = poly_below(0, x, y)
       ax.fill(xv, yv)
     """
-    if ma.isMaskedArray(xs) or ma.isMaskedArray(ys):
-        numpy = ma
+    if any(isinstance(var, np.ma.MaskedArray) for var in [xs, ys]):
+        numpy = np.ma
     else:
         numpy = np
 
@@ -3869,9 +3845,8 @@ def poly_between(x, ylower, yupper):
     Return value is *x*, *y* arrays for use with
     :meth:`matplotlib.axes.Axes.fill`.
     """
-    if (ma.isMaskedArray(ylower) or ma.isMaskedArray(yupper) or
-            ma.isMaskedArray(x)):
-        numpy = ma
+    if any(isinstance(var, np.ma.MaskedArray) for var in [ylower, yupper, x]):
+        numpy = np.ma
     else:
         numpy = np
 

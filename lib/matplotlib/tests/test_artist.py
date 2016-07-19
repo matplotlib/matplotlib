@@ -1,7 +1,7 @@
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 import warnings
-from matplotlib.externals import six
+import six
 
 import io
 from itertools import chain

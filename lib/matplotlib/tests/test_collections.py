@@ -4,7 +4,7 @@ Tests specific to the collections module.
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
-from matplotlib.externals import six
+import six
 
 import io
 
@@ -618,6 +618,7 @@ def test_size_in_xy():
     ax.set_ylim(0, 30)
 
 
+@cleanup
 def test_pandas_indexing():
     try:
         import pandas as pd
@@ -637,6 +638,20 @@ def test_pandas_indexing():
     Collection(linewidths=lw)
     Collection(linestyles=ls)
     Collection(antialiaseds=aa)
+
+
+@cleanup(style='default')
+def test_lslw_bcast():
+    col = mcollections.PathCollection([])
+    col.set_linestyles(['-', '-'])
+    col.set_linewidths([1, 2, 3])
+
+    assert col.get_linestyles() == [(None, None)] * 6
+    assert col.get_linewidths() == [1, 2, 3] * 2
+
+    col.set_linestyles(['-', '-', '-'])
+    assert col.get_linestyles() == [(None, None)] * 3
+    assert col.get_linewidths() == [1, 2, 3]
 
 
 if __name__ == '__main__':

@@ -67,8 +67,10 @@ mpl_packages = [
     setupext.Platform(),
     'Required dependencies and extensions',
     setupext.Numpy(),
+    setupext.Six(),
     setupext.Dateutil(),
     setupext.FuncTools32(),
+    setupext.Subprocess32(),
     setupext.Pytz(),
     setupext.Cycler(),
     setupext.Tornado(),
@@ -86,7 +88,6 @@ mpl_packages = [
     setupext.Delaunay(),
     setupext.QhullWrap(),
     setupext.Tri(),
-    setupext.Externals(),
     'Optional subpackages',
     setupext.SampleData(),
     setupext.Toolkits(),
@@ -150,20 +151,6 @@ cmdclass = versioneer.get_cmdclass()
 cmdclass['test'] = NoopTestCommand
 cmdclass['build_ext'] = BuildExtraLibraries
 
-
-# patch bdist_wheel for a bug on windows
-# https://bitbucket.org/pypa/wheel/issues/91/cannot-create-a-file-when-that-file
-if os.name == 'nt':
-    try:
-        from wheel.bdist_wheel import bdist_wheel
-    except ImportError:
-        # No wheel installed, so we also can't run that command...
-        pass
-    else:
-        # patched_bdist_wheel has a run() method, which works on windows
-        from patched_bdist_wheel import patched_bdist_wheel
-        cmdclass['bdist_wheel'] = patched_bdist_wheel
-
 # One doesn't normally see `if __name__ == '__main__'` blocks in a setup.py,
 # however, this is needed on Windows to avoid creating infinite subprocesses
 # when using multiprocessing.
@@ -215,10 +202,14 @@ if __name__ == '__main__':
     # Abort if any of the required packages can not be built.
     if required_failed:
         print_line()
-        print_message(
-            "The following required packages can not "
-            "be built: %s" %
-            ', '.join(x.name for x in required_failed))
+        message = ("The following required packages can not "
+                   "be built: %s" %
+                   ", ".join(x.name for x in required_failed))
+        for pkg in required_failed:
+            pkg_help = pkg.install_help_msg()
+            if pkg_help:
+                message += "\n* " + pkg_help
+        print_message(message)
         sys.exit(1)
 
     # Now collect all of the information we need to build all of the

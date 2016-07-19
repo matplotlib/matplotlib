@@ -18,7 +18,7 @@ is recommended that the namespaces be kept separate, e.g.::
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
-from matplotlib.externals import six
+import six
 
 import sys
 import io
@@ -30,8 +30,8 @@ import matplotlib
 import matplotlib.colorbar
 from matplotlib import style
 from matplotlib import _pylab_helpers, interactive
-from matplotlib.cbook import dedent, silent_list, is_string_like, is_numlike
-from matplotlib.cbook import _string_to_bool
+from matplotlib.cbook import (dedent, silent_list, is_string_like, is_numlike,
+                              _string_to_bool)
 from matplotlib import docstring
 from matplotlib.backend_bases import FigureCanvasBase
 from matplotlib.figure import Figure, figaspect
@@ -123,7 +123,8 @@ def install_repl_displayhook():
     Install a repl display hook so that any stale figure are automatically
     redrawn when control is returned to the repl.
 
-    This works with both IPython terminals and vanilla python shells.
+    This works with IPython terminals and kernels,
+    as well as vanilla python shells.
     """
     global _IP_REGISTERED
     global _INSTALL_FIG_OBSERVER
@@ -156,6 +157,13 @@ def install_repl_displayhook():
 
             _IP_REGISTERED = post_execute
             _INSTALL_FIG_OBSERVER = False
+
+            # trigger IPython's eventloop integration, if available
+            from IPython.core.pylabtools import backend2gui
+
+            ipython_gui_name = backend2gui.get(get_backend())
+            if ipython_gui_name:
+                ip.enable_gui(ipython_gui_name)
         else:
             _INSTALL_FIG_OBSERVER = True
 
@@ -2069,7 +2077,7 @@ def colormaps():
     .. [#] Rainbow colormaps, ``jet`` in particular, are considered a poor
       choice for scientific visualization by many researchers: `Rainbow Color
       Map (Still) Considered Harmful
-      <http://www.jwave.vt.edu/%7Erkriz/Projects/create_color_table/color_07.pdf>`_
+      <http://ieeexplore.ieee.org/xpl/articleDetails.jsp?arnumber=4118486>`_
 
     .. [#] Resembles "BkBlAqGrYeOrReViWh200" from NCAR Command
       Language. See `Color Table Gallery
