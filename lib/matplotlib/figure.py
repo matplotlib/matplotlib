@@ -49,8 +49,6 @@ from matplotlib.transforms import (Affine2D, Bbox, BboxTransformTo,
                                    TransformedBbox)
 from matplotlib.backend_bases import NonGuiException
 
-import io
-
 docstring.interpd.update(projection_names=get_projection_names())
 
 
@@ -1084,6 +1082,7 @@ class Figure(Artist):
         --------
         pyplot.subplots : pyplot API; docstring includes examples.
         """
+
         # for backwards compatibility
         if isinstance(sharex, bool):
             sharex = "all" if sharex else "none"

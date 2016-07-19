@@ -21,7 +21,6 @@ from __future__ import (absolute_import, division, print_function,
 import six
 
 import sys
-import io
 import warnings
 import types
 
@@ -67,7 +66,6 @@ from .ticker import TickHelper, Formatter, FixedFormatter, NullFormatter,\
            LinearLocator, LogLocator, AutoLocator, MultipleLocator,\
            MaxNLocator
 from matplotlib.backends import pylab_setup
-from argparse import ArgumentError
 
 ## Backend detection ##
 def _backend_selection():
@@ -1155,6 +1153,7 @@ def subplots(nrows=1, ncols=1, sharex=False, sharey=False, squeeze=True,
                        squeeze=squeeze, subplot_kw=subplot_kw,
                        gridspec_kw=gridspec_kw)
     return fig, axs
+
 
 def subplot2grid(shape, loc, rowspan=1, colspan=1, fig=None, **kwargs):
     """
