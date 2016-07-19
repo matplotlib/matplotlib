@@ -2151,7 +2151,7 @@ class Annotation(Text, _AnnotationBase):
 
         self.arrow = None
 
-        if arrowprops:
+        if arrowprops is not None:
             if "arrowstyle" in arrowprops:
                 arrowprops = self.arrowprops.copy()
                 self._arrow_relpos = arrowprops.pop("relpos", (0.5, 0.5))
@@ -2220,7 +2220,7 @@ class Annotation(Text, _AnnotationBase):
         ox0, oy0 = self._get_xy_display()
         ox1, oy1 = xy_pixel
 
-        if self.arrowprops:
+        if self.arrowprops is not None:
             x0, y0 = xy_pixel
             l, b, w, h = Text.get_window_extent(self, renderer).bounds
             r = l + w
