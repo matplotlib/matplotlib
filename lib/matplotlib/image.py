@@ -346,7 +346,8 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
         # non-rectangular axes, this refinement isn't required.
         if (round_to_pixel_border and
             t.is_affine and
-            type(self.axes) == maxes.Axes,  # exact class match
+            # deliberate exact class match
+            type(self.axes) in (maxes.Axes, maxes._subplots.Subplot) and
             (out_width_base % 1.0 != 0.0 or
              out_height_base % 1.0 != 0.0)):
             out_width = int(ceil(out_width_base) + 1)
