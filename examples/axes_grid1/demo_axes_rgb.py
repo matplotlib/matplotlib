@@ -72,15 +72,13 @@ def demo_rgb2():
     kwargs = dict(origin="lower", interpolation="nearest")
     ax.imshow_rgb(r, g, b, **kwargs)
 
-    ax.RGB.set_xlim(0., 9.5)
+    ax.RGB.set_xlim(0., 10.6)
     ax.RGB.set_ylim(0.9, 10.6)
 
     for ax1 in [ax.RGB, ax.R, ax.G, ax.B]:
-        for sp1 in ax1.spines.values():
-            sp1.set_color("w")
-        for tick in ax1.xaxis.get_major_ticks() + ax1.yaxis.get_major_ticks():
-            tick.tick1line.set_mec("w")
-            tick.tick2line.set_mec("w")
+        ax1.tick_params(axis='both', direction='in')
+        ax1.xaxis.set_ticks(np.arange(0, 12, 2))
+        ax1.yaxis.set_ticks(np.arange(0, 12, 2))
 
     return ax
 
