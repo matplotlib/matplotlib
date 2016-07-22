@@ -1695,6 +1695,12 @@ class DraggableBase(object):
         """disconnect the callbacks"""
         for cid in self.cids:
             self.canvas.mpl_disconnect(cid)
+        try:
+            c1 = self._c1
+        except AttributeError:
+            pass
+        else:
+            self.canvas.mpl_disconnect(c1)
 
     def artist_picker(self, artist, evt):
         return self.ref_artist.contains(evt)
