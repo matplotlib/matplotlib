@@ -545,8 +545,6 @@ class _AxesBase(martist.Artist):
         self.fmt_xdata = None
         self.fmt_ydata = None
 
-        self.set_cursor_props((1, 'k'))  # set the cursor properties for axes
-
         self._cachedRenderer = None
         self.set_navigate(True)
         self.set_navigate_mode(None)
@@ -3666,6 +3664,7 @@ class _AxesBase(martist.Artist):
         self.set_xlim(*result.intervalx)
         self.set_ylim(*result.intervaly)
 
+    @cbook.deprecated("2.1")
     def get_cursor_props(self):
         """
         Return the cursor propertiess as a (*linewidth*, *color*)
@@ -3674,6 +3673,7 @@ class _AxesBase(martist.Artist):
         """
         return self._cursorProps
 
+    @cbook.deprecated("2.1")
     def set_cursor_props(self, *args):
         """
         Set the cursor property as::
