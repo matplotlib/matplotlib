@@ -1,12 +1,24 @@
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
+import inspect
 import six
 
 from nose.tools import assert_equal
 
 from ..testing.decorators import knownfailureif, skipif
 from pylab import *
+
+
+# Filter any tests that can leak from importing pylab
+for varname in list(globals()):
+    if not (varname == 'test' or
+            varname.startswith('Test') or
+            varname.startswith('test_')):
+        continue
+    obj = globals()[varname]
+    if inspect.isfunction(obj) or inspect.isclass(obj):
+        obj.__test__ = False
 
 
 SKIPIF_CONDITION = []
