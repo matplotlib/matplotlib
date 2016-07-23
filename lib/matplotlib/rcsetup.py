@@ -985,7 +985,7 @@ defaultParams = {
                          'Sand', 'Script MT', 'Felipa', 'cursive'],
                         validate_stringlist],
     'font.fantasy':    [['Comic Sans MS', 'Chicago', 'Charcoal', 'Impact'
-                         'Western', 'Humor Sans', 'fantasy'],
+                         'Western', 'Humor Sans', 'fantasy', 'xkcd'],
                         validate_stringlist],
     'font.monospace':  [['DejaVu Sans Mono', 'Bitstream Vera Sans Mono',
                          'Computer Modern Typewriter',
