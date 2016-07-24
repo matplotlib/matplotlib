@@ -1,11 +1,12 @@
+language: python
+
 sudo: false
 
 cache:
+  pip: true
   directories:
-    - $HOME/.ccache
-    - $HOME/.cache/pip
+    - $HOME/.ccache  # https://github.com/travis-ci/travis-ci/issues/5853
     - $HOME/.cache/matplotlib
-    - $HOME/Library/Caches/pip
 
 addons:
   apt:
@@ -46,8 +47,6 @@ env:
     - NOSE_ARGS="--processes=$NPROC --process-timeout=300"
     - PYTHON_ARGS=
 
-language: python
-
 matrix:
   include:
     - python: 2.7
@@ -64,8 +63,17 @@ matrix:
       env: PRE=--pre
     - os: osx
       osx_image: xcode7.3
-      language: generic
+      language: generic  # https://github.com/travis-ci/travis-ci/issues/2312
       env: MOCK=mock NOSE_ARGS=
+      cache:
+        # As for now travis caches only "$HOME/.cache/pip"
+        # https://docs.travis-ci.com/user/caching/#pip-cache
+        pip: false
+        directories:
+          - $HOME/Library/Caches/pip
+          # `cache` does not support `env`-like `global` so copy-paste from top
+          - $HOME/.ccache  # https://github.com/travis-ci/travis-ci/issues/5853
+          - $HOME/.cache/matplotlib
   allow_failures:
     - python: "nightly"
 
