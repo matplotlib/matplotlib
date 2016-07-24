@@ -4944,21 +4944,22 @@ class Axes(_AxesBase):
         Parameters
         -----------
         X : array_like, shape (n, m) or (n, m, 3) or (n, m, 4)
-            Display the image in `X` to current axes.  `X` may be a float
-            array, a uint8 array or a PIL image. If `X` is an array, it
-            can have the following shapes:
+            Display the image in `X` to current axes.  `X` may be an
+            array or a PIL image. If `X` is an array, it
+            can have the following shapes and types:
 
-            - MxN -- luminance (grayscale, float array only)
-            - MxNx3 -- RGB (float or uint8 array)
-            - MxNx4 -- RGBA (float or uint8 array)
+            - MxN -- values to be mapped (float or int)
+            - MxNx3 -- RGB (float or uint8)
+            - MxNx4 -- RGBA (float or uint8)
 
             The value for each component of MxNx3 and MxNx4 float arrays
-            should be in the range 0.0 to 1.0; MxN float arrays may be
-            normalised.
+            should be in the range 0.0 to 1.0. MxN arrays are mapped
+            to colors based on the `norm` (mapping scalar to scalar)
+            and the `cmap` (mapping the normed scalar to a color).
 
         cmap : `~matplotlib.colors.Colormap`, optional, default: None
-            If None, default to rc `image.cmap` value. `cmap` is ignored when
-            `X` has RGB(A) information
+            If None, default to rc `image.cmap` value. `cmap` is ignored
+            if `X` is 3-D, directly specifying RGB(A) values.
 
         aspect : ['auto' | 'equal' | scalar], optional, default: None
             If 'auto', changes the image aspect ratio to match that of the
@@ -4984,9 +4985,11 @@ class Axes(_AxesBase):
 
         norm : `~matplotlib.colors.Normalize`, optional, default: None
             A `~matplotlib.colors.Normalize` instance is used to scale
-            luminance data to 0, 1. If `None`, use the default
-            func:`normalize`. `norm` is only used if `X` is an array of
-            floats.
+            a 2-D float `X` input to the (0, 1) range for input to the
+            `cmap`. If `norm` is None, use the default func:`normalize`.
+            If `norm` is an instance of `~matplotlib.colors.NoNorm`,
+            `X` must be an array of integers that index directly into
+            the lookup table of the `cmap`.
 
         vmin, vmax : scalar, optional, default: None
             `vmin` and `vmax` are used in conjunction with norm to normalize
