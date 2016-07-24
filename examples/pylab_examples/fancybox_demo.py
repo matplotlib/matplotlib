@@ -127,7 +127,7 @@ def test4(ax):
 
 
 def test_all():
-    plt.clf()
+    plt.figure(figsize=(10, 10))
 
     ax = plt.subplot(2, 2, 1)
     test1(ax)
@@ -157,7 +157,7 @@ def test_all():
     ax.set_ylim(0., 1.)
     ax.set_aspect(2.)
 
-    plt.draw()
+    plt.tight_layout()
     plt.show()
 
 test_all()

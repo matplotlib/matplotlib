@@ -29,7 +29,7 @@ levels = np.arange(-2.0, 1.601, 0.4)  # Boost the upper limit to avoid truncatio
 norm = cm.colors.Normalize(vmax=abs(Z).max(), vmin=-abs(Z).max())
 cmap = cm.PRGn
 
-plt.figure()
+plt.figure(figsize=(10,12))
 
 
 plt.subplot(2, 2, 1)
@@ -64,7 +64,6 @@ cset3 = plt.contour(X, Y, Z, (0,),
                 hold='on')
 plt.title('Filled contours')
 plt.colorbar(cset1)
-#hot()
 
 
 plt.subplot(2, 2, 2)
@@ -103,4 +102,5 @@ plt.setp(plt.gca(), ylim=ylim[::-1])
 plt.title("Image, origin from rc, reversed y-axis")
 plt.colorbar(im)
 
+plt.tight_layout()
 plt.show()

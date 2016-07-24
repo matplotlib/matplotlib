@@ -27,4 +27,5 @@ plt.scatter(x, y, s=80, c=z, marker='+')
 plt.subplot(326)
 plt.scatter(x, y, s=80, c=z, marker=(5, 2))
 
+plt.tight_layout()
 plt.show()

@@ -50,4 +50,5 @@ plt.colorbar()
 
 plt.subplots_adjust(wspace=0.5, hspace=0.5)
 
+plt.tight_layout()
 plt.show()
