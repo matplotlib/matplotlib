@@ -50,6 +50,15 @@ def test_AutoMinorLocator():
     assert_almost_equal(ax.xaxis.get_ticklocs(minor=True), test_value)
 
 
+def _sub_labels(axis, subs=()):
+    "Test whether locator marks subs to be labeled"
+    loc = axis.get_minor_locator()
+    minor_tlocs = axis.get_minorticklocs()
+    coefs = minor_tlocs / 10**(np.floor(np.log10(minor_tlocs)))
+    label = [np.round(c) in subs for c in coefs]
+    assert_equal(loc.show_tick_label(minor_tlocs), label)
+
+@cleanup
 def test_LogLocator():
     loc = mticker.LogLocator(numticks=5)
     assert_raises(ValueError, loc.tick_values, 0, 1000)
@@ -62,6 +71,31 @@ def test_LogLocator():
     loc = mticker.LogLocator(base=2)
     test_value = np.array([0.5, 1., 2., 4., 8., 16., 32., 64., 128., 256.])
     assert_almost_equal(loc.tick_values(1, 100), test_value)
+
+    # test label locator
+    fig, ax = plt.subplots()
+    ax.set_xscale('log')
+    ax.xaxis.set_major_locator(mticker.LogLocator(base=10, subs=[]))
+    ax.xaxis.set_minor_locator(mticker.LogLocator(base=10,
+                                                  subs=np.arange(2, 10)))
+    # axis range above 3 decades, only bases are labeled
+    ax.set_xlim(1, 1e4)
+    loc = ax.xaxis.get_major_locator()
+    show_major_labels = loc.show_tick_label(ax.xaxis.get_majorticklocs())
+    assert np.all(show_major_labels)
+    _sub_labels(ax.xaxis, subs=[])
+
+    # axis range at 2 to 3 decades, label sub 3
+    ax.set_xlim(1, 800)
+    _sub_labels(ax.xaxis, subs=[3])
+
+    # axis range at 1 to 2 decades, label subs 2 and 5
+    ax.set_xlim(1, 80)
+    _sub_labels(ax.xaxis, subs=[2, 5])
+
+    # axis range at 0 to 1 decades, label subs 2, 3, 6
+    ax.set_xlim(1, 8)
+    _sub_labels(ax.xaxis, subs=[2, 3, 6])
 
 
 def test_LinearLocator_set_params():
@@ -250,6 +284,44 @@ def test_LogFormatterExponent():
         formatter = mticker.LogFormatterExponent(base, labelOnlyBase=False)
         formatter.axis = FakeAxis(1, base**50)
         yield _logfe_helper, formatter, base, locs, i, expected_result
+
+
+def test_LogFormatterSciNotation():
+    test_cases = {
+        10: (
+             (1e-05, '${10^{-5}}$'),
+             (1, '${10^{0}}$'),
+             (100000, '${10^{5}}$'),
+             (2e-05, '${2\\times10^{-5}}$'),
+             (2, '${2\\times10^{0}}$'),
+             (200000, '${2\\times10^{5}}$'),
+             (3.1415926535897935e-05, '${3.14159\\times10^{-5}}$'),
+             (3.141592653589793, '${3.14159\\times10^{0}}$'),
+             (314159.2653589793, '${3.14159\\times10^{5}}$'),
+             (5e-05, '${5\\times10^{-5}}$'),
+             (5, '${5\\times10^{0}}$'),
+             (500000, '${5\\times10^{5}}$'),
+             (8.5e-05, '${8.5\\times10^{-5}}$'),
+             (8.5, '${8.5\\times10^{0}}$'),
+             (850000.0, '${8.5\\times10^{5}}$'),
+        ),
+        2: (
+            (0.03125, '${2^{-5}}$'),
+            (1, '${2^{0}}$'),
+            (32, '${2^{5}}$'),
+            (0.0375, '${1.2\\times2^{-5}}$'),
+            (1.2, '${1.2\\times2^{0}}$'),
+            (38.4, '${1.2\\times2^{5}}$'),
+            (0.044194173824159223, '${1.41421\\times2^{-5}}$'),
+            (1.4142135623730951, '${1.41421\\times2^{0}}$'),
+            (45.254833995939045, '${1.41421\\times2^{5}}$')),
+    }
+
+    for base in test_cases.keys():
+        formatter = mticker.LogFormatterSciNotation(base=base)
+        for value, expected in test_cases[base]:
+            with matplotlib.rc_context({'text.usetex': False}):
+                nose.tools.assert_equal(formatter(value), expected)
 
 
 def _pprint_helper(value, domain, expected):
