@@ -115,7 +115,7 @@ default_role = 'obj'
 # Plot directive configuration
 # ----------------------------
 
-plot_formats = [('png', 100), ('hires.png', 200), ('pdf', 100)]
+plot_formats = [('png', 100), ('pdf', 100)]
 
 # Subdirectories in 'examples/' directory of package and titles for gallery
 mpl_example_sections = [
