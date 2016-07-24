@@ -230,20 +230,6 @@ def test_image():
 
 
 @cleanup
-def test_grid():
-    from matplotlib.backends.backend_agg import new_figure_manager
-    manager = new_figure_manager(1000)
-    fig = manager.canvas.figure
-    ax = fig.add_subplot(1, 1, 1)
-    ax.grid()
-    # Drawing the grid triggers instance methods to be attached
-    # to the Line2D object (_lineFunc).
-    manager.canvas.draw()
-
-    pickle.dump(ax, BytesIO())
-
-
-@cleanup
 def test_polar():
     ax = plt.subplot(111, polar=True)
     fig = plt.gcf()

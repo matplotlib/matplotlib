@@ -445,12 +445,6 @@ class Line2D(Artist):
 
         self.set_data(xdata, ydata)
 
-    def __getstate__(self):
-        state = super(Line2D, self).__getstate__()
-        # _linefunc will be restored on draw time.
-        state.pop('_lineFunc', None)
-        return state
-
     def contains(self, mouseevent):
         """
         Test whether the mouse event occurred on the line.  The pick
@@ -784,7 +778,7 @@ class Line2D(Artist):
         if funcname != '_draw_nothing':
             tpath, affine = transf_path.get_transformed_path_and_affine()
             if len(tpath.vertices):
-                self._lineFunc = getattr(self, funcname)
+                line_func = getattr(self, funcname)
                 gc = renderer.new_gc()
                 self._set_gc_clip(gc)
 
@@ -807,7 +801,7 @@ class Line2D(Artist):
                 if self.get_sketch_params() is not None:
                     gc.set_sketch_params(*self.get_sketch_params())
 
-                self._draw_lines(renderer, gc, tpath, affine.frozen())
+                line_func(renderer, gc, tpath, affine.frozen())
                 gc.restore()
 
         if self._marker and self._markersize > 0:
@@ -1249,9 +1243,6 @@ class Line2D(Artist):
             self.set_linestyle('-')
         else:
             self.set_linestyle((0, seq))
-
-    def _draw_lines(self, renderer, gc, path, trans):
-        self._lineFunc(renderer, gc, path, trans)
 
     def _draw_solid(self, renderer, gc, path, trans):
         gc.set_linestyle('solid')
