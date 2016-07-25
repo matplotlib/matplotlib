@@ -1446,6 +1446,8 @@ else:
             else:
                 fontManager.default_size = None
                 verbose.report("Using fontManager instance from %s" % _fmcache)
+        except cbook.Locked.TimeoutError:
+            raise
         except:
             _rebuild()
     else:

@@ -2577,10 +2577,11 @@ else:
         return np.copyto(a, values, where=mask)
 
 _lockstr = """\
-LOCKERROR: matplotlib is trying to acquire the lock {!r}
+LOCKERROR: matplotlib is trying to acquire the lock
+    {!r}
 and has failed.  This maybe due to any other process holding this
-lock.  If you are sure no other matplotlib process in running try
-removing this folder(s) and trying again.
+lock.  If you are sure no other matplotlib process is running try
+removing these folders and trying again.
 """
 
 
@@ -2598,6 +2599,9 @@ class Locked(object):
     """
     LOCKFN = '.matplotlib_lock'
 
+    class TimeoutError(RuntimeError):
+        pass
+
     def __init__(self, path):
         self.path = path
         self.end = "-" + str(os.getpid())
@@ -2607,18 +2611,17 @@ class Locked(object):
 
     def __enter__(self):
         retries = 50
-        sleeptime = 1
+        sleeptime = 0.1
         while retries:
             files = glob.glob(self.pattern)
             if files and not files[0].endswith(self.end):
                 time.sleep(sleeptime)
-                sleeptime *= 1.1
                 retries -= 1
             else:
                 break
         else:
             err_str = _lockstr.format(self.pattern)
-            raise RuntimeError(err_str)
+            raise self.TimeoutError(err_str)
 
         if not files:
             try:
