@@ -224,8 +224,12 @@ def test_SymLogNorm():
     normed_vals = norm(vals)
     assert_array_almost_equal(normed_vals, expected)
     
-    # Ensure that a SymLogNorm object can be used in a colorbar
-    # without directly calling it on an array.
+
+@cleanup
+def test_SymLogNorm_colorbar():
+    """
+    Test un-called SymLogNorm in a colorbar.
+    """
     norm = mcolors.SymLogNorm(0.1, vmin=-1, vmax=1, linscale=1)
     fig = plt.figure()
     cbar = mcolorbar.ColorbarBase(fig.add_subplot(111), norm=norm)
