@@ -4549,6 +4549,18 @@ def test_bar_color_cycle():
             assert ccov(ln.get_color()) == ccov(br.get_facecolor())
 
 
+@cleanup
+def test_tick_param_label_rotation():
+    fix, ax = plt.subplots()
+    plt.plot([0, 1], [0, 1])
+    ax.xaxis.set_tick_params(which='both', rotation=75)
+    ax.yaxis.set_tick_params(which='both', rotation=90)
+    for text in ax.get_xticklabels(which='both'):
+        assert text.get_rotation() == 75
+    for text in ax.get_yticklabels(which='both'):
+        assert text.get_rotation() == 90
+
+
 if __name__ == '__main__':
     import nose
     import sys
