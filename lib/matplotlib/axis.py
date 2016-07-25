@@ -73,7 +73,6 @@ class Tick(artist.Artist):
                  pad=None,
                  labelsize=None,
                  labelcolor=None,
-                 labelrotation=0,
                  zorder=None,
                  gridOn=None,  # defaults to axes.grid depending on
                                # axes.grid.which
@@ -82,6 +81,7 @@ class Tick(artist.Artist):
                  label1On=True,
                  label2On=False,
                  major=True,
+                 labelrotation=0,
                  ):
         """
         bbox is the Bound2D bounding box in display coords of the Axes
