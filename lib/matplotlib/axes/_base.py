@@ -480,10 +480,11 @@ class _AxesBase(martist.Artist):
           *xticks*           sequence of floats
           *ylabel*           the ylabel strings
           *ylim*             (*ymin*, *ymax*) view limits
+          *ylim_bound*       y-axis range bound to change of x-axis range
           *yscale*           [%(scale)s]
           *yticklabels*      sequence of strings
           *yticks*           sequence of floats
-          ================   =========================================
+          ================   ============================================
         """ % {'scale': ' | '.join(
             [repr(x) for x in mscale.get_scale_names()])}
         martist.Artist.__init__(self)
@@ -532,6 +533,8 @@ class _AxesBase(martist.Artist):
             facecolor = axisbg
         if facecolor is None:
             facecolor = rcParams['axes.facecolor']
+
+        self.ylim_bound = kwargs.get('ylim_bound', False)
         self._facecolor = facecolor
         self._frameon = frameon
         self._axisbelow = rcParams['axes.axisbelow']
@@ -1525,6 +1528,9 @@ class _AxesBase(martist.Artist):
             Passed to set_{x,y}lim functions, if observers
             are notified of axis limit change
 
+        ylim_bound : bool
+            Set if y-axis limit is adjusted to change of x-axis limit
+
         xmin, ymin, xmax, ymax : float, optional
             The axis limits to be set
 
@@ -1541,6 +1547,7 @@ class _AxesBase(martist.Artist):
             return xmin, xmax, ymin, ymax
 
         emit = kwargs.get('emit', True)
+        self.ylim_bound = kwargs.get('ylim_bound', self.ylim_bound)
 
         if len(v) == 1 and is_string_like(v[0]):
             s = v[0].lower()
@@ -2857,6 +2864,8 @@ class _AxesBase(martist.Artist):
         if auto is not None:
             self._autoscaleXon = bool(auto)
 
+        self._adjust_ylim()
+
         if emit:
             self.callbacks.process('xlim_changed', self)
             # Call all of the other x-axes that are shared with this one
@@ -3029,6 +3038,114 @@ class _AxesBase(martist.Artist):
                 self.set_ylim(lower, upper, auto=None)
             else:
                 self.set_ylim(upper, lower, auto=None)
+
+    def get_bound_ylim(self):
+        """
+        Get the y-axis range bound to x-axis range
+        """
+        return self.ylim_bound
+
+    def set_bound_ylim(self, bound=True, **kw):
+        """
+        Bounds the y-axis range to changes of x-axis range
+        Call signature::
+
+          set_bound_ylim(self, *args, **kwargs)
+
+        Sets if the y-axis range should rescale after
+        change of y-axis range
+
+        Examples::
+          set_bound_ylim(False)
+          set_bound_ylim()
+
+        """
+        if kw:
+            raise ValueError("unrecognized kwargs: %s" %
+                             list(six.iterkeys(kw)))
+
+        self.ylim_bound = bound
+
+    def _compute_bound_ylim(self, xs=[], ys=[]):
+        """
+        Computes ylim according to xs range defined by xlim
+        """
+        xs = np.array(xs)
+        ys = np.array(ys)
+        minx, maxx = self.get_xlim()
+        if minx > maxx:
+            minx, maxx = maxx, minx
+        indices = np.where(np.isnan(xs))
+        if len(xs) > 0:
+            xs_min = xs.min()
+            if np.isnan(xs_min):
+                xs_min = -np.iinfo(np.int16).min
+            xs[indices] = xs_min - np.iinfo(np.int16).min
+        condition = np.logical_and(xs >= minx, xs <= maxx)
+        xs_i = list(np.where(condition))
+        ys = ys[xs_i]
+        ys = ys[~np.isnan(ys)]
+        if len(ys) == 0:
+            return None, None
+        return ys.min(), ys.max()
+
+    def _adjust_ylim(self):
+        """
+        In case of y_bound, adjusts the limit of y-axis
+        according to x-axis limit
+        """
+        if self.ylim_bound:
+            xlim = self.get_xlim()
+            miny, maxy = None, None
+            for line in self.lines:
+                ys = line.get_ydata()
+                xs = line.get_xdata()
+                new_miny, new_maxy = self._compute_bound_ylim(
+                                                              xs=xs,
+                                                              ys=ys
+                                                             )
+                if new_miny is not None and (miny is None or new_miny < miny):
+                    miny = new_miny
+                if new_maxy is not None and (maxy is None or new_maxy > maxy):
+                    maxy = new_maxy
+            for patch in self.patches:
+                new_miny, new_maxy = None, None
+                if 'get_path' in dir(patch):
+                    points = patch.get_path().vertices
+                    xs = points.T[0]
+                    ys = points.T[1]
+                    new_miny, new_maxy = self._compute_bound_ylim(
+                                                                  xs=xs,
+                                                                  ys=ys
+                                                                 )
+                if new_miny is not None and (miny is None or new_miny < miny):
+                    miny = new_miny
+                if new_maxy is not None and (maxy is None or new_maxy > maxy):
+                    maxy = new_maxy
+            for collection in self.collections:
+                paths = collection.get_paths()
+                points = np.vstack([path.vertices for path in paths])
+                xs = points.T[0]
+                ys = points.T[1]
+                new_miny, new_maxy = self._compute_bound_ylim(
+                                                              xs=xs,
+                                                              ys=ys
+                                                             )
+                if new_miny is not None and (miny is None or new_miny < miny):
+                    miny = new_miny
+                if new_maxy is not None and (maxy is None or new_maxy > maxy):
+                    maxy = new_maxy
+
+            if miny is None or maxy is None:
+                return
+            minx, maxx = xlim
+            old_miny, old_maxy = self.get_ylim()
+            if miny == maxy:
+                maxy = miny + abs(maxx - minx)
+
+            if old_maxy < old_miny:
+                miny, maxy = maxy, miny
+            self.set_ylim(miny, maxy)
 
     def get_ylim(self):
         """

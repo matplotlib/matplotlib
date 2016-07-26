@@ -4586,6 +4586,185 @@ def test_bar_color_cycle():
             assert ccov(ln.get_color()) == ccov(br.get_facecolor())
 
 
+@cleanup
+def test_set_ylim_bound():
+    fig, ax = plt.subplots()
+    # default is False
+    assert_equal(ax.get_bound_ylim(), False)
+    ax.set_bound_ylim()
+    assert_equal(ax.get_bound_ylim(), True)
+    ax.set_bound_ylim(False)
+    assert_equal(ax.get_bound_ylim(), False)
+    ax.set_bound_ylim(bound=True)
+    assert_equal(ax.get_bound_ylim(), True)
+    # incorrect keyword
+    assert_raises(ValueError, ax.set_bound_ylim, ylim_bound=False)
+
+
+@cleanup
+def test_ylim_bound_empty_figure():
+    # if empty figure, y-limit should not change
+    plt.bound_ylim(True)
+    assert_equal(plt.bound_ylim(), True)
+    plt.xlim(-1, 4)
+    assert_equal(plt.ylim(), (0, 1))
+
+    # empty data
+    plt.plot([])
+    target_ylim = plt.ylim()
+    plt.xlim(0, 5)
+    # after ploting empty array change of xlim, shoud not affect ylim
+    assert_equal(plt.ylim(), target_ylim)
+
+
+@cleanup
+def test_ylim_bound_one_point():
+    # testin 1 point
+    # miny == maxy
+    # maxy is set to miny + (maxx-minx)
+    plt.bound_ylim(True)
+    x = [0, 10]
+    y = [3, 13]
+    plt.plot(x, y)
+    plt.xlim(0, 5)
+    minx, maxx = plt.xlim()
+    d = 3 + (maxx - minx)
+    target_ylim = (3, d)
+    assert_equal(plt.ylim(), target_ylim)
+
+
+@cleanup
+def test_ylim_bound_basic():
+    # y-limit change according to x-limit change
+    fig, ax = plt.subplots()
+    ax.set_bound_ylim(True)
+    assert_equal(ax.get_bound_ylim(), True)
+    x = np.arange(-10, 10, 1)
+    y = x**2
+    ax.plot(x, y)
+    ax.set_xlim(0, 10)
+    # after change of xlim max y value je 81 a min 0
+    assert_equal(ax.get_ylim(), (0, 81))
+
+
+@cleanup
+def test_ylim_bound_twinx():
+    # if only one of y-axes bound is set to True, only
+    # one of them changes after setting xlim
+    fig, ax = plt.subplots()
+    ax.set_bound_ylim(True)
+    x = np.arange(0, 6, 1)
+    y = 2*x
+    ax.plot(x, y)
+    ax2 = ax.twinx()
+    y2 = x**2
+    ax2.plot(x, y2)
+    ax.set_bound_ylim(True)
+    ax.set_xlim(0, 3)
+    assert_equal(ax.get_ylim(), (0, 6))
+    assert_equal(ax2.get_ylim(), (0, 25))
+
+
+@cleanup
+def test_ylim_bound_twiny():
+    # if one of y-axes bound is set to True, other one
+    # is set according to it.
+    fig, ax = plt.subplots()
+    ax.set_bound_ylim(True)
+    x = np.arange(0, 6, 1)
+    y = 2*x
+    ax.plot(x, y)
+    ax2 = ax.twiny()
+    x2 = np.arange(0, 11, 2)
+    ax2.plot(x2, y)
+    ax.set_bound_ylim(True)
+    ax.set_xlim(0, 3)
+    assert_equal(ax.get_ylim(), (0, 6))
+    assert_equal(ax2.get_ylim(), (0, 6))
+
+
+@cleanup
+def test_ylim_bound_reverse_xlimits():
+    # test reversed limits
+    fig, ax = plt.subplots()
+    ax.set_bound_ylim(True)
+    x = np.arange(0, 6, 1)
+    y = 2*x
+    ax.plot(x, y)
+    ax.invert_xaxis()
+    ax.set_xlim(1, 4)
+    assert_equal(ax.get_ylim(), (2, 8))
+
+
+@cleanup
+def test_ylim_bound_reverse_ylimits():
+    # test reversed limits
+    fig, ax = plt.subplots()
+    ax.set_bound_ylim(True)
+    x = np.arange(0, 6, 1)
+    y = 2*x
+    ax.plot(x, y)
+    ax.invert_yaxis()
+    ax.set_xlim(1, 4)
+    assert_equal(ax.get_ylim(), (8, 2))
+
+
+@cleanup
+def test_ylim_bound_patches():
+    # testing patches as data
+    from matplotlib.path import Path
+    from matplotlib import patches
+    verts = [
+             (0., 0.),  # left, bottom
+             (0., 1.),  # left, top
+             (1., 1.),  # right, top
+             (1., 0.),  # right, bottom
+             (0., 0.),  # ignored
+    ]
+    codes = [
+             Path.MOVETO,
+             Path.LINETO,
+             Path.LINETO,
+             Path.LINETO,
+             Path.CLOSEPOLY,
+    ]
+
+    path = Path(verts, codes)
+    fig, ax = plt.subplots()
+    patch = patches.PathPatch(path)
+    ax.add_patch(patch)
+    ax.set_bound_ylim()
+    ax.set_xlim(-2, 2)
+    assert_equal(ax.get_ylim(), (0, 1))
+
+
+@cleanup
+def test_ylim_bound_collections():
+    # testing patches as data
+    from matplotlib.collections import LineCollection
+    x = np.arange(100)
+    ys = x[:50, np.newaxis] + x[np.newaxis, :]
+
+    segs = np.zeros((50, 100, 2), float)
+    segs[:, :, 1] = ys
+    segs[:, :, 0] = x
+
+    segs = np.ma.masked_where((segs > 50) & (segs < 60), segs)
+
+    ax = plt.axes()
+    ax.set_bound_ylim()
+
+    line_segments = LineCollection(
+                                   segs,
+                                   linewidths=(0.5, 1, 1.5, 2),
+                                   linestyle='solid'
+                                  )
+    ax.add_collection(line_segments)
+    ax.set_xlim(x.min(), x.max())
+    target_ylim = (ys.min(), ys.max())
+    assert_equal(ax.get_ylim(), target_ylim)
+
+
 if __name__ == '__main__':
     import nose
     import sys

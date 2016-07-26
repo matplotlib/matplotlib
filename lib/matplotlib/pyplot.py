@@ -1492,6 +1492,28 @@ def xlim(*args, **kwargs):
     return ret
 
 
+def bound_ylim(*args, **kwargs):
+    """
+    Get or set the y-axis limit bound
+
+    ::
+
+      bound = bound_ylim()   # return the current bound
+      bound_ylim(bound)            # set the bound_ylim to bound
+
+    You can also pass it as kwargs
+    ::
+
+      ylim(bound=True) # bounds ylim to changes of x-axis range
+    """
+
+    ax = gca()
+    if not args and not kwargs:
+        return ax.get_bound_ylim()
+    ret = ax.set_bound_ylim(*args, **kwargs)
+    return ret
+
+
 def ylim(*args, **kwargs):
     """
     Get or set the *y*-limits of the current axes.
