@@ -410,7 +410,7 @@ class Axes(_AxesBase):
             label
 
         frameon : None or bool
-            Control whether a frame should be drawn around the legend.
+            Control whether the legend should be drawn on a patch (frame).
             Default is ``None`` which will take the value from the
             ``legend.frameon`` :data:`rcParam<matplotlib.rcParams>`.
 
@@ -427,9 +427,23 @@ class Axes(_AxesBase):
             ``legend.shadow`` :data:`rcParam<matplotlib.rcParams>`.
 
         framealpha : None or float
-            Control the alpha transparency of the legend's frame.
+            Control the alpha transparency of the legend's background.
             Default is ``None`` which will take the value from the
             ``legend.framealpha`` :data:`rcParam<matplotlib.rcParams>`.
+
+        facecolor : None or "inherit" or a color spec
+            Control the legend's background color.
+            Default is ``None`` which will take the value from the
+            ``legend.facecolor`` :data:`rcParam<matplotlib.rcParams>`.
+            If ``"inherit"``, it will take the ``axes.facecolor``
+            :data:`rcParam<matplotlib.rcParams>`.
+
+        edgecolor : None or "inherit" or a color spec
+            Control the legend's background patch edge color.
+            Default is ``None`` which will take the value from the
+            ``legend.edgecolor`` :data:`rcParam<matplotlib.rcParams>`.
+            If ``"inherit"``, it will take the ``axes.edgecolor``
+            :data:`rcParam<matplotlib.rcParams>`.
 
         mode : {"expand", None}
             If `mode` is set to ``"expand"`` the legend will be horizontally
