@@ -1339,11 +1339,35 @@ class Figure(Artist):
             if *False*, legend marker is placed to the right of the legend
             label
 
+          *frameon*: [ *None* | bool ]
+            Control whether the legend should be drawn on a patch (frame).
+            Default is *None* which will take the value from the
+            ``legend.frameon`` :data:`rcParam<matplotlib.rcParams>`.
+
           *fancybox*: [ *None* | *False* | *True* ]
             if *True*, draw a frame with a round fancybox.  If *None*, use rc
 
           *shadow*: [ *None* | *False* | *True* ]
             If *True*, draw a shadow behind legend. If *None*, use rc settings.
+
+          *framealpha*: [ *None* | float ]
+            Control the alpha transparency of the legend's background.
+            Default is *None* which will take the value from the
+            ``legend.framealpha`` :data:`rcParam<matplotlib.rcParams>`.
+
+          *facecolor*: [ *None* | "inherit" | a color spec ]
+            Control the legend's background color.
+            Default is *None* which will take the value from the
+            ``legend.facecolor`` :data:`rcParam<matplotlib.rcParams>`.
+            If ``"inherit"``, it will take the ``axes.facecolor``
+            :data:`rcParam<matplotlib.rcParams>`.
+
+          *edgecolor*: [ *None* | "inherit" | a color spec ]
+            Control the legend's background patch edge color.
+            Default is *None* which will take the value from the
+            ``legend.edgecolor`` :data:`rcParam<matplotlib.rcParams>`.
+            If ``"inherit"``, it will take the ``axes.edgecolor``
+            :data:`rcParam<matplotlib.rcParams>`.
 
           *ncol* : integer
             number of columns. default is 1
