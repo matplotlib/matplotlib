@@ -903,7 +903,9 @@ class Normalize(object):
         result, is_scalar = self.process_value(value)
 
         self.autoscale_None(result)
-        vmin, vmax = self.vmin, self.vmax
+        # Convert at least to float, without losing precision.
+        (vmin,), _ = self.process_value(self.vmin)
+        (vmax,), _ = self.process_value(self.vmax)
         if vmin == vmax:
             result.fill(0)   # Or should it be all masked?  Or 0.5?
         elif vmin > vmax:
@@ -927,7 +929,8 @@ class Normalize(object):
     def inverse(self, value):
         if not self.scaled():
             raise ValueError("Not invertible until scaled")
-        vmin, vmax = self.vmin, self.vmax
+        (vmin,), _ = self.process_value(self.vmin)
+        (vmax,), _ = self.process_value(self.vmax)
 
         if cbook.iterable(value):
             val = np.ma.asarray(value)
