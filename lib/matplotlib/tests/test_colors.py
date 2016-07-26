@@ -223,7 +223,7 @@ def test_SymLogNorm():
     norm = mcolors.SymLogNorm(3, vmin=-30, vmax=5, linscale=1.2)
     normed_vals = norm(vals)
     assert_array_almost_equal(normed_vals, expected)
-    
+
 
 @cleanup
 def test_SymLogNorm_colorbar():
