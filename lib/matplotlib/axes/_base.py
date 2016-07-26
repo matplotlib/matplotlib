@@ -2665,6 +2665,9 @@ class _AxesBase(martist.Artist):
             Boolean or ['on' | 'off'], controls whether to draw the
             respective tick labels.
 
+        *labelrotation*
+            Tick label rotation.
+
         Example::
 
             ax.tick_params(direction='out', length=6, width=2, colors='r')
