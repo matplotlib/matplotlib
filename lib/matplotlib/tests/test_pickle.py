@@ -127,7 +127,6 @@ def test_simple():
     pickle.dump(fig, BytesIO(), pickle.HIGHEST_PROTOCOL)
 
 
-@cleanup
 @image_comparison(baseline_images=['multi_pickle'],
                   extensions=['png'], remove_text=True)
 def test_complete():
