@@ -1093,6 +1093,7 @@ defaultParams = {
     'axes.formatter.use_locale': [False, validate_bool],
                                # Use the current locale to format ticks
     'axes.formatter.use_mathtext': [False, validate_bool],
+    'axes.formatter.min_exponent': [0, validate_int],  # minimum exponent to format in scientific notation
     'axes.formatter.useoffset': [True, validate_bool],
     'axes.formatter.offset_threshold': [4, validate_int],
     'axes.unicode_minus': [True, validate_bool],
