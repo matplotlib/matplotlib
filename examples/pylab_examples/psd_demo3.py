@@ -8,11 +8,13 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.mlab as mlab
 
+prng = np.random.RandomState(123456)  # to ensure reproducibility
+
 fs = 1000
 t = np.linspace(0, 0.3, 301)
 A = np.array([2, 8]).reshape(-1, 1)
 f = np.array([150, 140]).reshape(-1, 1)
-xn = (A * np.sin(2 * np.pi * f * t)).sum(axis=0) + 5 * np.random.randn(*t.shape)
+xn = (A * np.sin(2 * np.pi * f * t)).sum(axis=0) + 5 * prng.randn(*t.shape)
 
 fig, (ax0, ax1) = plt.subplots(ncols=2)
 
