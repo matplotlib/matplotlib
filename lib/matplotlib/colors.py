@@ -884,8 +884,9 @@ class Normalize(object):
         if is_scalar:
             value = [value]
         dtype = np.min_scalar_type(value)
-        dtype = (np.float32 if dtype.itemsize <= 2
-                 else np.promote_types(dtype, float))
+        if np.issubdtype(dtype, np.integer) or dtype.type is np.bool_:
+            # bool_/int8/int16 -> float32; int32/int64 -> float64
+            dtype = np.promote_types(dtype, np.float32)
         result = np.ma.array(value, dtype=dtype, copy=True)
         return result, is_scalar
 
