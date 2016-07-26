@@ -183,6 +183,16 @@ def test_basic_annotate():
                 xytext=(3, 3), textcoords='offset points')
 
 
+@cleanup
+def test_annotate_default_arrow():
+    # Check that we can make an annotation arrow with only default properties.
+    fig, ax = plt.subplots()
+    ann = ax.annotate("foo", (0, 1), xytext=(2, 3))
+    assert ann.arrow_patch is None
+    ann = ax.annotate("foo", (0, 1), xytext=(2, 3), arrowprops={})
+    assert ann.arrow_patch is not None
+
+
 @image_comparison(baseline_images=['polar_axes'])
 def test_polar_annotations():
     # you can specify the xypoint and the xytext in different
