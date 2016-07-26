@@ -22,7 +22,7 @@ fig, (ax0, ax1) = plt.subplots(ncols=2)
 fig.subplots_adjust(hspace=0.45, wspace=0.3)
 yticks = np.arange(-50, 30, 10)
 yrange = (yticks[0], yticks[-1])
-xticks = np.arange(-500, 550, 100)
+xticks = np.arange(-500, 550, 200)
 
 ax0.psd(xn, NFFT=301, Fs=fs, window=mlab.window_none, pad_to=1024,
         scale_by_freq=True)
