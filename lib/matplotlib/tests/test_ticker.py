@@ -251,6 +251,20 @@ def test_LogFormatterExponent():
         formatter.axis = FakeAxis(1, base**50)
         yield _logfe_helper, formatter, base, locs, i, expected_result
 
+def test_LogFormatterMathtext_min_exponent():
+    fmt = mticker.LogFormatterMathtext()
+
+    with matplotlib.rc_context({'axes.formatter.min_exponent': 0}):
+        assert fmt(1) == '${10^{0}}$'
+        assert fmt(1e-2) == '${10^{-2}}$'
+        assert fmt(1e2) == '${10^{2}}$'
+
+    with matplotlib.rc_context({'axes.formatter.min_exponent': 3}):
+        assert fmt(1) == '${1}$'
+        assert fmt(1e-2) == '${0.01}$'
+        assert fmt(1e2) == '${100}$'
+        assert fmt(1e-3) == '${10^{-3}}$'
+        assert fmt(1e3) == '${10^{3}}$'
 
 def _pprint_helper(value, domain, expected):
     fmt = mticker.LogFormatter()
