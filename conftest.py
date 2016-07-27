@@ -66,6 +66,7 @@ def pytest_addoption(parser):
 
 def pytest_configure(config):
     matplotlib._called_from_pytest = True
+    matplotlib._init_tests()
 
 
 def pytest_unconfigure(config):
