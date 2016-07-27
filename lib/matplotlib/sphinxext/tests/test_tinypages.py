@@ -14,8 +14,8 @@ HERE = dirname(__file__)
 TINY_PAGES = pjoin(HERE, 'tinypages')
 
 
-def setup():
-    # Check we have the sphinx-build command
+def setup_module():
+    """Check we have the sphinx-build command"""
     try:
         ret = call(['sphinx-build', '--help'], stdout=PIPE, stderr=PIPE)
     except OSError:
@@ -33,7 +33,7 @@ def file_same(file1, file2):
 
 
 class TestTinyPages(object):
-    # Test build and output of tinypages project
+    """Test build and output of tinypages project"""
 
     @classmethod
     def setup_class(cls):
@@ -48,14 +48,12 @@ class TestTinyPages(object):
                    cls.html_dir]
             proc = Popen(cmd, stdout=PIPE, stderr=PIPE)
             out, err = proc.communicate()
+            if proc.returncode != 0:
+                raise RuntimeError('sphinx-build failed with stdout:\n'
+                                   '{0}\nstderr:\n{1}\n'.format(out, err))
         except Exception as e:
             shutil.rmtree(cls.page_build)
             raise e
-        if proc.returncode != 0:
-            shutil.rmtree(cls.page_build)
-            raise RuntimeError('sphinx-build failed with stdout:\n'
-                               '{0}\nstderr:\n{1}\n'.format(
-                                    out, err))
 
     @classmethod
     def teardown_class(cls):
