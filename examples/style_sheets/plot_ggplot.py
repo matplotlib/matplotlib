@@ -6,8 +6,8 @@ These settings were shamelessly stolen from [1]_ (with permission).
 
 .. [1] http://www.huyng.com/posts/sane-color-scheme-for-matplotlib/
 
-.. _ggplot: http://had.co.nz/ggplot/
-.. _R: http://www.r-project.org/
+.. _ggplot: https://github.com/yhat/ggplot
+.. _R: https://www.r-project.org/
 
 """
 import numpy as np
