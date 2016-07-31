@@ -199,6 +199,7 @@ def make_all_2d_testfuncs(allfuncs=allfuncs):
     for func in allfuncs:
         globals()['test_%s' % func.__name__] = make_test(func)
 
+make_all_2d_testfuncs.__test__ = False  # nose: this function is not a test
 make_all_2d_testfuncs()
 
 # 1d and 0d grid tests
