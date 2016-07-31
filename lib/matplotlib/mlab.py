@@ -2387,8 +2387,10 @@ def rec_append_fields(rec, names, arrs, dtypes=None):
             dtypes = dtypes * len(arrs)
         else:
             raise ValueError("dtypes must be None, a single dtype or a list")
-
-    newdtype = np.dtype(rec.dtype.descr + list(zip(names, dtypes)))
+    old_dtypes = rec.dtype.descr
+    if six.PY2:
+        old_dtypes = [(a[0].encode('utf-8'), a[1]) for a in old_dtypes]
+    newdtype = np.dtype(old_dtypes + list(zip(names, dtypes)))
     newrec = np.recarray(rec.shape, dtype=newdtype)
     for field in rec.dtype.fields:
         newrec[field] = rec[field]
