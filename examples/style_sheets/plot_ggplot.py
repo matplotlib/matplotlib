@@ -6,7 +6,7 @@ These settings were shamelessly stolen from [1]_ (with permission).
 
 .. [1] http://www.huyng.com/posts/sane-color-scheme-for-matplotlib/
 
-.. _ggplot: https://github.com/yhat/ggplot
+.. _ggplot: http://ggplot2.org/
 .. _R: https://www.r-project.org/
 
 """
