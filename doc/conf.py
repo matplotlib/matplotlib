@@ -138,6 +138,7 @@ mpl_example_sections = [
     ('axes_grid', 'axes_grid toolkit'),
     ('units', 'units'),
     ('widgets', 'widgets'),
+    ('misc', 'Miscellaneous examples'),
     ]
 
 
