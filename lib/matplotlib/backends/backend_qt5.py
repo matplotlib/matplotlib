@@ -459,17 +459,17 @@ class FigureManagerQT(FigureManagerBase):
 
         self.window._destroying = False
 
-        self.toolbar = self._get_toolbar(self.canvas, self.window)
-        if self.toolbar is not None:
-            self.window.addToolBar(self.toolbar)
-            self.toolbar.message.connect(self._show_message)
-            tbs_height = self.toolbar.sizeHint().height()
-        else:
-            tbs_height = 0
-
         # add text label to status bar
         self.statusbar_label = QtWidgets.QLabel()
         self.window.statusBar().addWidget(self.statusbar_label)
+
+        self.toolbar = self._get_toolbar(self.canvas, self.window)
+        if self.toolbar is not None:
+            self.window.addToolBar(self.toolbar)
+            self.toolbar.message.connect(self.statusbar_label.setText)
+            tbs_height = self.toolbar.sizeHint().height()
+        else:
+            tbs_height = 0
 
         # resize the main window so it will display the canvas with the
         # requested size:
@@ -490,10 +490,6 @@ class FigureManagerQT(FigureManagerBase):
             if self.toolbar is not None:
                 self.toolbar.update()
         self.canvas.figure.add_axobserver(notify_axes_change)
-
-    @QtCore.Slot()
-    def _show_message(self, s):
-        self.statusbar_label.setText(s)
 
     def full_screen_toggle(self):
         if self.window.isFullScreen():
