@@ -2596,8 +2596,10 @@ def rec_join(key, r1, r2, jointype='inner', defaults=None, r1postfix='1',
               if desc[0] not in key]
     r2desc = [(mapped_r2field(desc[0]), desc[1]) for desc in r2.dtype.descr
               if desc[0] not in key]
-    newdtype = np.dtype(keydesc + r1desc + r2desc)
-
+    all_dtypes = keydesc + r1desc + r2desc
+    if six.PY2:
+        all_dtypes = [(a[0].encode('utf-8'), a[1]) for a in all_dtypes]
+    newdtype = np.dtype(all_dtypes)
     newrec = np.recarray((common_len + left_len + right_len,), dtype=newdtype)
 
     if defaults is not None:
