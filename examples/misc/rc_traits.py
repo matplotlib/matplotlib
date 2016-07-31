@@ -1,3 +1,4 @@
+# -*- noplot -*-
 # Here is some example code showing how to define some representative
 # rc properties and construct a matplotlib artist using traits.
 # matplotlib does not ship with enthought.traits, so you will need to
