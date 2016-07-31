@@ -6378,14 +6378,6 @@ class Axes(_AxesBase):
                     p.update(kwargs)
                     p.set_label('_nolegend_')
 
-        if binsgiven:
-            if orientation == 'vertical':
-                self.update_datalim(
-                    [(bins[0], 0), (bins[-1], 0)], updatey=False)
-            else:
-                self.update_datalim(
-                    [(0, bins[0]), (0, bins[-1])], updatex=False)
-
         if nx == 1:
             return n[0], bins, cbook.silent_list('Patch', patches[0])
         else:
