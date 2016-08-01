@@ -297,13 +297,17 @@ class Path(object):
 
     copy = __copy__
 
-    def __deepcopy__(self):
+    def __deepcopy__(self, memo=None):
         """
         Returns a deepcopy of the `Path`.  The `Path` will not be
         readonly, even if the source `Path` is.
         """
+        try:
+            codes = self.codes.copy()
+        except AttributeError:
+            codes = None
         return self.__class__(
-            self.vertices.copy(), self.codes.copy(),
+            self.vertices.copy(), codes,
             _interpolation_steps=self._interpolation_steps)
 
     deepcopy = __deepcopy__
