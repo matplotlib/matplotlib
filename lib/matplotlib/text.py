@@ -233,6 +233,7 @@ class Text(Artist):
             linespacing = 1.2   # Maybe use rcParam later.
         self._linespacing = linespacing
         self.set_rotation_mode(rotation_mode)
+        self._offset = (0, 0)
         self.update(kwargs)
 
     def update(self, kwargs):
@@ -773,12 +774,13 @@ class Text(Artist):
             textobj._set_gc_clip(gc)
 
             angle = textobj.get_rotation()
+            ox, oy = self._offset
 
             for line, wh, x, y in info:
 
                 mtext = textobj if len(info) == 1 else None
-                x = x + posx
-                y = y + posy
+                x = x + posx + ox
+                y = y + posy - oy
                 if renderer.flipy():
                     y = canvash - y
                 clean_line, ismath = textobj.is_math_text(line)
@@ -802,6 +804,13 @@ class Text(Artist):
         gc.restore()
         renderer.close_group('text')
         self.stale = False
+
+    def set_offset(self, offset):
+        """
+        Set extra offset (in pixel space) to be applied immediately
+        before drawing the text.
+        """
+        self._offset = offset
 
     def get_color(self):
         "Return the color of the text"

@@ -1098,6 +1098,9 @@ class Axis(artist.Artist):
             return max(values)
         return 0.0
 
+    def _adjust_ticks(self, renderer, ticks_to_draw):
+        pass
+
     @allow_rasterization
     def draw(self, renderer, *args, **kwargs):
         'Draw the axis lines, grid lines, tick lines and labels'
@@ -1109,6 +1112,8 @@ class Axis(artist.Artist):
         ticks_to_draw = self._update_ticks(renderer)
         ticklabelBoxes, ticklabelBoxes2 = self._get_tick_bboxes(ticks_to_draw,
                                                                 renderer)
+
+        self._adjust_ticks(renderer, ticks_to_draw)
 
         for tick in ticks_to_draw:
             tick.draw(renderer)
@@ -1679,6 +1684,20 @@ class Axis(artist.Artist):
 class XAxis(Axis):
     __name__ = 'xaxis'
     axis_name = 'x'
+
+    def _adjust_ticks(self, renderer, ticks_to_draw):
+        heights = []
+        for tick in ticks_to_draw:
+            label1 = tick.label1
+            text = label1.get_text()
+            is_math = label1.is_math_text(text)
+            _, h, _ = renderer.get_text_width_height_descent(
+                text, label1.get_fontproperties(), is_math)
+            heights.append(h)
+        max_height = max(heights)
+
+        for tick, h in zip(ticks_to_draw, heights):
+            tick.label1.set_offset((0, max_height - h))
 
     def contains(self, mouseevent):
         """Test whether the mouse event occured in the x axis.
