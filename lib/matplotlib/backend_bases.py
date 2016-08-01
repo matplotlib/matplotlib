@@ -2482,6 +2482,7 @@ def key_press_handler(event, canvas, toolbar=None):
     save_keys = rcParams['keymap.save']
     quit_keys = rcParams['keymap.quit']
     grid_keys = rcParams['keymap.grid']
+    grid_minor_keys = rcParams['keymap.grid_minor']
     toggle_yscale_keys = rcParams['keymap.yscale']
     toggle_xscale_keys = rcParams['keymap.xscale']
     all = rcParams['keymap.all_axes']
@@ -2525,13 +2526,28 @@ def key_press_handler(event, canvas, toolbar=None):
 
     # these bindings require the mouse to be over an axes to trigger
 
+    ax = event.inaxes
     # switching on/off a grid in current axes (default key 'g')
     if event.key in grid_keys:
-        event.inaxes.grid()
+        # If either major grid is on, turn all major and minor grids off.
+        if any(tick.gridOn
+               for tick in ax.xaxis.majorTicks + ax.yaxis.majorTicks):
+            ax.grid(False, which="both")
+        # Otherwise, turn the major grids on.
+        else:
+            ax.grid(True)
+        canvas.draw()
+    if event.key in grid_minor_keys:
+        # If either minor grid is on, turn all minor grids off.
+        if any(tick.gridOn
+               for tick in ax.xaxis.minorTicks + ax.yaxis.minorTicks):
+            ax.grid(False, which="minor")
+        # Otherwise, turn all major and minor grids on.
+        else:
+            ax.grid(True, which="both")
         canvas.draw()
     # toggle scaling of y-axes between 'log and 'linear' (default key 'l')
     elif event.key in toggle_yscale_keys:
-        ax = event.inaxes
         scale = ax.get_yscale()
         if scale == 'log':
             ax.set_yscale('linear')
@@ -2541,7 +2557,6 @@ def key_press_handler(event, canvas, toolbar=None):
             ax.figure.canvas.draw()
     # toggle scaling of x-axes between 'log and 'linear' (default key 'k')
     elif event.key in toggle_xscale_keys:
-        ax = event.inaxes
         scalex = ax.get_xscale()
         if scalex == 'log':
             ax.set_xscale('linear')
