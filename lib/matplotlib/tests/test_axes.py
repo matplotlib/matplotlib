@@ -1200,18 +1200,18 @@ def test_hist_step_log_bottom():
 
 @cleanup
 def test_hist_datalims_binsgiven():
-    """
-    Checks that the hist function updates axes' dataLim to minimum and maximum
-    bins if the latter are given explicitly as a sequence.
-    """
+    # Checks that the hist function updates axes' dataLim to minimum and maximum
+    # bins if the latter are given explicitly as a sequence.
     # Helper function that runs actual tests
     @cleanup
-    def do_test(histtype, orientation):
+    def do_test(histtype, orientation, stacked):
         # Random values between -1 and 1
-        x = 2*np.random.randn(10)-1
+        x1 = 2*np.random.randn(10)-1
+	# Random values between -5 and 5
+        x2 = 10*np.random.randn(10)-5
         # Plot histogram with explicitly given bins from -3 to 3
-        plt.hist(x, bins=[-3, -2, -1, 0, 1, 2, 3], histtype=histtype,
-                 orientation=orientation)
+        plt.hist([x1, x2], bins=[-3, -2, -1, 0, 1, 2, 3], histtype=histtype,
+                 orientation=orientation, stacked=stacked)
         # Check that dataLim is given by bin range and not by data range
         if orientation == "horizontal":
             assert_equal(plt.gca().dataLim.y0, -3)
@@ -1223,8 +1223,10 @@ def test_hist_datalims_binsgiven():
     np.random.seed(0)
     histtypes = [ "bar", "step", "stepfilled" ]
     orientations = [ "horizontal", "vertical" ]
-    for histtype, orientation in product(histtypes, orientations):
-        yield do_test, histtype, orientation
+    stacked = [ True, False ]
+    all_combinations = product(histtypes, orientations, stacked)
+    for histtype, orientation, stacked in all_combinations:
+        yield do_test, histtype, orientation, stacked
 
 
 def contour_dat():
