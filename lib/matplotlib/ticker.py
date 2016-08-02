@@ -959,6 +959,7 @@ class LogFormatterMathtext(LogFormatter):
         """
         b = self._base
         usetex = rcParams['text.usetex']
+        min_exp = rcParams['axes.formatter.min_exponent']
 
         # only label the decades
         if x == 0:
@@ -969,6 +970,8 @@ class LogFormatterMathtext(LogFormatter):
 
         fx = math.log(abs(x)) / math.log(b)
         is_decade = is_close_to_int(fx)
+        if is_decade:
+            fx = nearest_long(fx)
 
         sign_string = '-' if x < 0 else ''
 
@@ -980,6 +983,12 @@ class LogFormatterMathtext(LogFormatter):
 
         if not is_decade and self.labelOnlyBase:
             return ''
+        elif np.abs(fx) < min_exp:
+            if usetex:
+                return r'${0}{1:g}$'.format(sign_string, x)
+            else:
+                return '${0}$'.format(_mathdefault(
+                    '{0}{1:g}'.format(sign_string, x)))
         elif not is_decade:
             if usetex:
                 return (r'$%s%s^{%.2f}$') % \
