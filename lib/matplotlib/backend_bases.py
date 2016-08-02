@@ -293,13 +293,14 @@ class RendererBase(object):
         """
         path_ids = []
         for path, transform in self._iter_collection_raw_paths(
-                master_transform, paths, all_transforms):
+                master_transform, paths, all_transforms, offsets):
             path_ids.append((path, transforms.Affine2D(transform)))
 
         for xo, yo, path_id, gc0, rgbFace in self._iter_collection(
-            gc, master_transform, all_transforms, path_ids, offsets,
-            offsetTrans, facecolors, edgecolors, linewidths, linestyles,
-                antialiaseds, urls, offset_position):
+                gc, master_transform, all_transforms, paths, path_ids,
+                offsets, offsetTrans, facecolors, edgecolors,
+                linewidths, linestyles, antialiaseds, urls,
+                offset_position):
             path, transform = path_id
             transform = transforms.Affine2D(
                             transform.get_matrix()).translate(xo, yo)
@@ -356,7 +357,7 @@ class RendererBase(object):
             self.draw_gouraud_triangle(gc, tri, col, transform)
 
     def _iter_collection_raw_paths(self, master_transform, paths,
-                                   all_transforms):
+                                   all_transforms, offsets):
         """
         This is a helper method (along with :meth:`_iter_collection`) to make
         it easier to write a space-efficent :meth:`draw_path_collection`
@@ -400,11 +401,11 @@ class RendererBase(object):
         if Npaths == 0 or (len(facecolors) == 0 and len(edgecolors) == 0):
             return 0
         Npath_ids = max(Npaths, len(all_transforms))
-        N = max(Npath_ids, len(offsets))
+        N = max(Npaths, len(offsets))
         return (N + Npath_ids - 1) // Npath_ids
 
     def _iter_collection(self, gc, master_transform, all_transforms,
-                         path_ids, offsets, offsetTrans, facecolors,
+                         paths, path_ids, offsets, offsetTrans, facecolors,
                          edgecolors, linewidths, linestyles,
                          antialiaseds, urls, offset_position):
         """
@@ -433,7 +434,8 @@ class RendererBase(object):
         use for filling the path.
         """
         Ntransforms = len(all_transforms)
-        Npaths = len(path_ids)
+        Npaths = len(paths)
+        Npath_ids = len(path_ids)
         Noffsets = len(offsets)
         N = max(Npaths, Noffsets)
         Nfacecolors = len(facecolors)
@@ -459,7 +461,7 @@ class RendererBase(object):
 
         xo, yo = 0, 0
         for i in xrange(N):
-            path_id = path_ids[i % Npaths]
+            path_id = path_ids[i % Npath_ids]
             if Noffsets:
                 xo, yo = toffsets[i % Noffsets]
                 if offset_position == 'data':

@@ -651,7 +651,7 @@ class RendererSVG(RendererBase):
         path_codes = []
         writer.start('defs')
         for i, (path, transform) in enumerate(self._iter_collection_raw_paths(
-            master_transform, paths, all_transforms)):
+                master_transform, paths, all_transforms, offsets)):
             transform = Affine2D(transform.get_matrix()).scale(1.0, -1.0)
             d = self._convert_path(path, transform, simplify=False)
             oid = 'C%x_%x_%s' % (self._path_collection_id, i,
@@ -661,9 +661,9 @@ class RendererSVG(RendererBase):
         writer.end('defs')
 
         for xo, yo, path_id, gc0, rgbFace in self._iter_collection(
-            gc, master_transform, all_transforms, path_codes, offsets,
-            offsetTrans, facecolors, edgecolors, linewidths, linestyles,
-            antialiaseds, urls, offset_position):
+                gc, master_transform, all_transforms, paths, path_codes,
+                offsets, offsetTrans, facecolors, edgecolors, linewidths,
+                linestyles, antialiaseds, urls, offset_position):
             clipid = self._get_clip(gc0)
             url = gc0.get_url()
             if url is not None:

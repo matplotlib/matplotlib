@@ -1696,7 +1696,7 @@ class RendererPdf(RendererBase):
         padding = np.max(linewidths)
         path_codes = []
         for i, (path, transform) in enumerate(self._iter_collection_raw_paths(
-                master_transform, paths, all_transforms)):
+                master_transform, paths, all_transforms, offsets)):
             name = self.file.pathCollectionObject(
                 gc, path, transform, padding, filled, stroked)
             path_codes.append(name)
@@ -1705,9 +1705,10 @@ class RendererPdf(RendererBase):
         output(*self.gc.push())
         lastx, lasty = 0, 0
         for xo, yo, path_id, gc0, rgbFace in self._iter_collection(
-                gc, master_transform, all_transforms, path_codes, offsets,
-                offsetTrans, facecolors, edgecolors, linewidths, linestyles,
-                antialiaseds, urls, offset_position):
+                gc, master_transform, all_transforms, paths, path_codes,
+                offsets, offsetTrans, facecolors, edgecolors,
+                linewidths, linestyles, antialiaseds, urls,
+                offset_position):
 
             self.check_gc(gc0, rgbFace)
             dx, dy = xo - lastx, yo - lasty

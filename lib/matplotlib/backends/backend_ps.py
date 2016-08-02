@@ -600,7 +600,7 @@ grestore
 
         path_codes = []
         for i, (path, transform) in enumerate(self._iter_collection_raw_paths(
-            master_transform, paths, all_transforms)):
+                master_transform, paths, all_transforms, offsets)):
             name = 'p%x_%x' % (self._path_collection_id, i)
             ps_cmd = ['/%s {' % name,
                       'newpath', 'translate']
@@ -610,9 +610,9 @@ grestore
             path_codes.append(name)
 
         for xo, yo, path_id, gc0, rgbFace in self._iter_collection(
-            gc, master_transform, all_transforms, path_codes, offsets,
-            offsetTrans, facecolors, edgecolors, linewidths, linestyles,
-            antialiaseds, urls, offset_position):
+                gc, master_transform, all_transforms, paths, path_codes,
+                offsets, offsetTrans, facecolors, edgecolors, linewidths,
+                linestyles, antialiaseds, urls, offset_position):
             ps = "%g %g %s" % (xo, yo, path_id)
             self._draw_ps(ps, gc0, rgbFace)
 

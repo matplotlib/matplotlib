@@ -25,12 +25,12 @@ def test_uses_per_path():
     def check(master_transform, paths, all_transforms,
               offsets, facecolors, edgecolors):
         rb = RendererBase()
-        raw_paths = list(rb._iter_collection_raw_paths(master_transform,
-                                                       paths, all_transforms))
+        raw_paths = list(rb._iter_collection_raw_paths(
+            master_transform, paths, all_transforms, offsets))
         gc = rb.new_gc()
         ids = [path_id for xo, yo, path_id, gc0, rgbFace in
                rb._iter_collection(gc, master_transform, all_transforms,
-                                   range(len(raw_paths)), offsets,
+                                   paths, range(len(raw_paths)), offsets,
                                    transforms.IdentityTransform(),
                                    facecolors, edgecolors, [], [], [False],
                                    [], 'data')]
