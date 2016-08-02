@@ -45,6 +45,7 @@ env:
     - TEST_ARGS=--no-pep8
     - NOSE_ARGS="--processes=$NPROC --process-timeout=300"
     - PYTHON_ARGS=
+    - DELETE_FONT_CACHE=
 
 language: python
 
@@ -55,7 +56,7 @@ matrix:
     - python: 3.4
       env: PYTHON_ARGS=-OO
     - python: 3.5
-      env: PANDAS=pandas NOSE_ARGS=--with-coverage
+      env: PANDAS=pandas NOSE_ARGS=--with-coverage DELETE_FONT_CACHE=1
     - python: 3.5
       env: TEST_ARGS=--pep8
     - python: 3.5
@@ -139,10 +140,13 @@ script:
     MPLBACKEND="tkagg" python -c 'import matplotlib.pyplot as plt; print(plt.get_backend())'
     echo The following args are passed to nose $NOSE_ARGS
     if [[ $BUILD_DOCS == false ]]; then
+      if [[ $DELETE_FONT_CACHE == 1 ]]; then
+        rm -rf ~/.cache/matplotlib
+      fi
       export MPL_REPO_DIR=$PWD  # needed for pep8-conformance test of the examples
       if [[ $TRAVIS_OS_NAME == 'osx' ]]; then
         python tests.py $NOSE_ARGS $TEST_ARGS
-      else 
+      else
         gdb -return-child-result -batch -ex r -ex bt --args python $PYTHON_ARGS tests.py $NOSE_ARGS $TEST_ARGS
       fi
     else
