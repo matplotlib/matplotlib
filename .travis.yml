@@ -140,7 +140,7 @@ script:
     MPLBACKEND="tkagg" python -c 'import matplotlib.pyplot as plt; print(plt.get_backend())'
     echo The following args are passed to nose $NOSE_ARGS
     if [[ $BUILD_DOCS == false ]]; then
-      if [[ $DELETE_FONT_CACHE == 1]]; then
+      if [[ $DELETE_FONT_CACHE == 1 ]]; then
         rm -rf ~/.cache/matplotlib
       fi
       export MPL_REPO_DIR=$PWD  # needed for pep8-conformance test of the examples
