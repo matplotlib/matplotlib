@@ -4111,7 +4111,7 @@ class Axes(_AxesBase):
         *xscale*: [ 'linear' | 'log' ]
            Use a linear or log10 scale on the horizontal axis.
 
-        *scale*: [ 'linear' | 'log' ]
+        *yscale*: [ 'linear' | 'log' ]
            Use a linear or log10 scale on the vertical axis.
 
         *mincnt*: [ *None* | a positive integer ]
@@ -4125,7 +4125,12 @@ class Axes(_AxesBase):
 
         *extent*: [ *None* | scalars (left, right, bottom, top) ]
            The limits of the bins. The default assigns the limits
-           based on gridsize, x, y, xscale and yscale.
+           based on *gridsize*, *x*, *y*, *xscale* and *yscale*.
+
+           If *xscale* or *yscale* is set to 'log', the limits are
+           expected to be the exponent for a power of 10. E.g. for
+           x-limits of 1 and 50 in 'linear' scale and y-limits
+           of 10 and 1000 in 'log' scale, enter (1, 50, 1, 3).
 
         Other keyword arguments controlling color mapping and normalization
         arguments:
