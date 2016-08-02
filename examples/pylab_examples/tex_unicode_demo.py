@@ -19,8 +19,7 @@ plt.plot(t, s)
 
 plt.xlabel(r'\textbf{time (s)}')
 plt.ylabel('\\textit{Velocity (\u00B0/sec)}', fontsize=16)
-plt.title(r"\TeX\ is Number \
-          $\displaystyle\sum_{n=1}^\infty\frac{-e^{i\pi}}{2^n}$!",
-          fontsize=16, color='r')
+plt.title(r'\TeX\ is Number $\displaystyle\sum_{n=1}^\infty'
+          r'\frac{-e^{i\pi}}{2^n}$!', fontsize=16, color='r')
 plt.grid(True)
 plt.show()
