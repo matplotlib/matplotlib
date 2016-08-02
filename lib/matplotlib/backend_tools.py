@@ -399,24 +399,74 @@ class ToolEnableNavigation(ToolBase):
                 a.set_navigate(i == n)
 
 
-class ToolGrid(ToolToggleBase):
-    """Tool to toggle the grid of the figure"""
+class _ToolGridBase(ToolBase):
+    """Common functionality between ToolGrid and ToolMinorGrid.
+    """
 
-    description = 'Toogle Grid'
-    default_keymap = rcParams['keymap.grid']
+    _cycle = [(False, False), (True, False), (True, True), (False, True)]
 
     def trigger(self, sender, event, data=None):
-        if event.inaxes is None:
+        ax = event.inaxes
+        if ax is None:
             return
-        ToolToggleBase.trigger(self, sender, event, data)
+        try:
+            x_state, y_state, which = self._get_next_grid_states(ax)
+        except ValueError:
+            pass
+        else:
+            ax.grid(x_state, which=which, axis="x")
+            ax.grid(y_state, which=which, axis="y")
+            ax.figure.canvas.draw_idle()
 
-    def enable(self, event):
-        event.inaxes.grid(True)
-        self.figure.canvas.draw_idle()
+    @staticmethod
+    def _get_uniform_grid_state(ticks):
+        """Check whether all grid lines are in the same visibility state.
 
-    def disable(self, event):
-        event.inaxes.grid(False)
-        self.figure.canvas.draw_idle()
+        Returns True/False if all grid lines are on or off, None if they are
+        not all in the same state.
+        """
+        if all(tick.gridOn for tick in ticks):
+            return True
+        elif not any(tick.gridOn for tick in ticks):
+            return False
+        else:
+            return None
+
+
+class ToolGrid(_ToolGridBase):
+    """Tool to toggle the major grids of the figure"""
+
+    description = 'Toogle major grids'
+    default_keymap = rcParams['keymap.grid']
+
+    def _get_next_grid_states(self, ax):
+        x_state, y_state = map(self._get_uniform_grid_state,
+                               [ax.xaxis.majorTicks, ax.yaxis.majorTicks])
+        cycle = self._cycle
+        # Bail out if major grids are not in a uniform state.
+        x_state, y_state = (
+            cycle[(cycle.index((x_state, y_state)) + 1) % len(cycle)])
+        return x_state, y_state, "major"
+
+
+class ToolMinorGrid(_ToolGridBase):
+    """Tool to toggle the major and minor grids of the figure"""
+
+    description = 'Toogle major and minor grids'
+    default_keymap = rcParams['keymap.grid_minor']
+
+    def _get_next_grid_states(self, ax):
+        if None in map(self._get_uniform_grid_state,
+                       [ax.xaxis.majorTicks, ax.yaxis.majorTicks]):
+            # Bail out if major grids are not in a uniform state.
+            raise ValueError
+        x_state, y_state = map(self._get_uniform_grid_state,
+                               [ax.xaxis.minorTicks, ax.yaxis.minorTicks])
+        cycle = self._cycle
+        # Bail out if minor grids are not in a uniform state.
+        x_state, y_state = (
+            cycle[(cycle.index((x_state, y_state)) + 1) % len(cycle)])
+        return x_state, y_state, "both"
 
 
 class ToolFullScreen(ToolToggleBase):
@@ -944,6 +994,7 @@ default_tools = {'home': ToolHome, 'back': ToolBack, 'forward': ToolForward,
                  'subplots': 'ToolConfigureSubplots',
                  'save': 'ToolSaveFigure',
                  'grid': ToolGrid,
+                 'grid_minor': ToolMinorGrid,
                  'fullscreen': ToolFullScreen,
                  'quit': ToolQuit,
                  'quit_all': ToolQuitAll,
