@@ -820,6 +820,7 @@ class LogFormatter(Formatter):
         """
         self._base = base + 0.0
         self.labelOnlyBase = labelOnlyBase
+        self.sublabel = [1, ]
 
     def base(self, base):
         """
@@ -839,12 +840,28 @@ class LogFormatter(Formatter):
         """
         self.labelOnlyBase = labelOnlyBase
 
+    def set_locs(self, locs):
+        b = self._base
+
+        vmin, vmax = self.axis.get_view_interval()
+        self.d = abs(vmax - vmin)
+        vmin = math.log(vmin) / math.log(b)
+        vmax = math.log(vmax) / math.log(b)
+
+        numdec = abs(vmax - vmin)
+
+        if numdec > 3:
+            # Label only bases
+            self.sublabel = set((1,))
+        else:
+            # Add labels between bases at log-spaced coefficients
+            c = np.logspace(0, 1, (4 - int(numdec)) + 1, base=b)
+            self.sublabel = set(np.round(c))
+
     def __call__(self, x, pos=None):
         """
         Return the format for tick val `x` at position `pos`.
         """
-        vmin, vmax = self.axis.get_view_interval()
-        d = abs(vmax - vmin)
         b = self._base
         if x == 0.0:
             return '0'
@@ -852,16 +869,21 @@ class LogFormatter(Formatter):
         # only label the decades
         fx = math.log(abs(x)) / math.log(b)
         isDecade = is_close_to_int(fx)
-        if not isDecade and self.labelOnlyBase:
-            s = ''
-        elif x > 10000:
-            s = '%1.0e' % x
-        elif x < 1:
-            s = '%1.0e' % x
+        exponent = np.round(fx) if isDecade else np.floor(fx)
+        coeff = np.round(x / b ** exponent)
+        if coeff in self.sublabel:
+            if not isDecade and self.labelOnlyBase:
+                s = ''
+            elif x > 10000:
+                s = '%1.0e' % x
+            elif x < 1:
+                s = '%1.0e' % x
+            else:
+                s = self.pprint_val(x, self.d)
+            if sign == -1:
+                s = '-%s' % s
         else:
-            s = self.pprint_val(x, d)
-        if sign == -1:
-            s = '-%s' % s
+            s = ''
 
         return self.fix_minus(s)
 
@@ -977,6 +999,8 @@ class LogFormatterMathtext(LogFormatter):
 
         fx = math.log(abs(x)) / math.log(b)
         is_decade = is_close_to_int(fx)
+        exponent = np.round(fx) if is_decade else np.floor(fx)
+        coeff = np.round(x / b ** exponent)
 
         sign_string = '-' if x < 0 else ''
 
@@ -986,19 +1010,22 @@ class LogFormatterMathtext(LogFormatter):
         else:
             base = '%s' % b
 
-        if not is_decade and self.labelOnlyBase:
-            return ''
-        elif not is_decade:
-            return self._non_decade_format(sign_string, base, fx, usetex)
-        else:
-            if usetex:
-                return (r'$%s%s^{%d}$') % (sign_string,
-                                           base,
-                                           nearest_long(fx))
+        if coeff in self.sublabel:
+            if not is_decade and self.labelOnlyBase:
+                return ''
+            elif not is_decade:
+                return self._non_decade_format(sign_string, base, fx, usetex)
             else:
-                return ('$%s$' % _mathdefault(
-                    '%s%s^{%d}' %
-                    (sign_string, base, nearest_long(fx))))
+                if usetex:
+                    return (r'$%s%s^{%d}$') % (sign_string,
+                                               base,
+                                               nearest_long(fx))
+                else:
+                    return ('$%s$' % _mathdefault(
+                        '%s%s^{%d}' %
+                        (sign_string, base, nearest_long(fx))))
+        else:
+            return ''
 
 
 class LogFormatterSciNotation(LogFormatterMathtext):
@@ -1275,11 +1302,6 @@ class Locator(TickHelper):
         # note: some locators return data limits, other return view limits,
         # hence there is no *one* interface to call self.tick_values.
         raise NotImplementedError('Derived must override')
-
-    def show_tick_label(self, locs):
-        """Return boolean array on whether to show a label for the given
-           locations"""
-        return np.ones(np.asarray(locs).size, dtype=np.bool)
 
     def raise_if_exceeds(self, locs):
         """raise a RuntimeError if Locator attempts to create more than
@@ -1924,31 +1946,6 @@ class LogLocator(Locator):
                 ticklocs = b ** decades
 
         return self.raise_if_exceeds(np.asarray(ticklocs))
-
-    def show_tick_label(self, ticklocs):
-        b = self._base
-
-        vmin, vmax = self.axis.get_view_interval()
-        vmin = math.log(vmin) / math.log(b)
-        vmax = math.log(vmax) / math.log(b)
-
-        numdec = abs(vmax - vmin)
-
-        if numdec > 3:
-            # Label only bases
-            sublabel = set((1,))
-        else:
-            # Add labels between bases at log-spaced coefficients
-            c = np.logspace(0, 1, (4 - int(numdec)) + 1, base=b)
-            sublabel = set(np.round(c))
-
-        fx = np.log(abs(ticklocs)) / np.log(b)
-        exponents = np.array([np.round(x) if is_close_to_int(x)
-                              else np.floor(x)
-                              for x in fx])
-        coeffs = np.round(ticklocs / b ** exponents)
-
-        return [c in sublabel for c in coeffs]
 
     def view_limits(self, vmin, vmax):
         'Try to choose the view limits intelligently'

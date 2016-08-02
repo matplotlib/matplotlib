@@ -889,23 +889,15 @@ class Axis(artist.Artist):
         Iterate through all of the major and minor ticks.
         """
         majorLocs = self.major.locator()
-        try:
-            hasLabel = self.major.locator.show_tick_label(majorLocs)
-        except AttributeError:
-            hasLabel = np.ones(np.asarray(majorLocs).size, dtype=np.bool)
         majorTicks = self.get_major_ticks(len(majorLocs))
         self.major.formatter.set_locs(majorLocs)
-        majorLabels = [self.major.formatter(val, i) if hasLabel[i] else ''
+        majorLabels = [self.major.formatter(val, i)
                        for i, val in enumerate(majorLocs)]
 
         minorLocs = self.minor.locator()
-        try:
-            hasLabel = self.major.locator.show_tick_label(minorLocs)
-        except AttributeError:
-            hasLabel = np.ones(np.asarray(minorLocs).size, dtype=np.bool)
         minorTicks = self.get_minor_ticks(len(minorLocs))
         self.minor.formatter.set_locs(minorLocs)
-        minorLabels = [self.minor.formatter(val, i) if hasLabel[i] else ''
+        minorLabels = [self.minor.formatter(val, i)
                        for i, val in enumerate(minorLocs)]
 
         major_minor = [
