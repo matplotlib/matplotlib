@@ -1056,7 +1056,7 @@ def candlestick2_ochl(ax, opens, closes, highs, lows,  width=4,
         (lineCollection, barCollection)
     """
 
-    candlestick2_ohlc(ax, opens, highs, closes, lows, width=width,
+    candlestick2_ohlc(ax, opens, highs, lows, closes, width=width,
                      colorup=colorup, colordown=colordown,
                      alpha=alpha)
 
@@ -1148,8 +1148,8 @@ def candlestick2_ohlc(ax, opens, highs, lows, closes, width=4,
     ax.autoscale_view()
 
     # add these last
-    ax.add_collection(barCollection)
     ax.add_collection(rangeCollection)
+    ax.add_collection(barCollection)
     return rangeCollection, barCollection
 
 
