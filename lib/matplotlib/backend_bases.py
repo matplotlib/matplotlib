@@ -2485,7 +2485,7 @@ def key_press_handler(event, canvas, toolbar=None):
     grid_minor_keys = rcParams['keymap.grid_minor']
     toggle_yscale_keys = rcParams['keymap.yscale']
     toggle_xscale_keys = rcParams['keymap.xscale']
-    all = rcParams['keymap.all_axes']
+    all_keys = rcParams['keymap.all_axes']
 
     # toggle fullscreen mode (default key 'f')
     if event.key in fullscreen_keys:
@@ -2525,47 +2525,72 @@ def key_press_handler(event, canvas, toolbar=None):
         return
 
     # these bindings require the mouse to be over an axes to trigger
+    def _get_uniform_gridstate(ticks):
+        # Return True/False if all grid lines are on or off, None if they are
+        # not all in the same state.
+        if all(tick.gridOn for tick in ticks):
+            return True
+        elif not any(tick.gridOn for tick in ticks):
+            return False
+        else:
+            return None
 
     ax = event.inaxes
-    # switching on/off a grid in current axes (default key 'g')
+    # toggle major grids in current axes (default key 'g')
+    # Both here and below (for 'G'), we do nothing is the grids are not in a
+    # uniform state, to avoid messing up user customization.
     if event.key in grid_keys:
-        # If either major grid is on, turn all major and minor grids off.
-        if any(tick.gridOn
-               for tick in ax.xaxis.majorTicks + ax.yaxis.majorTicks):
-            ax.grid(False, which="both")
-        # Otherwise, turn the major grids on.
+        x_state = _get_uniform_gridstate(ax.xaxis.majorTicks)
+        y_state = _get_uniform_gridstate(ax.yaxis.majorTicks)
+        cycle = [(False, False), (True, False), (True, True), (False, True)]
+        try:
+            x_state, y_state = (
+                cycle[(cycle.index((x_state, y_state)) + 1) % len(cycle)])
+        except ValueError:
+            # Exclude major grids not in a uniform state.
+            pass
         else:
-            ax.grid(True)
-        canvas.draw()
-    if event.key in grid_minor_keys:
-        # If either minor grid is on, turn all minor grids off.
-        if any(tick.gridOn
-               for tick in ax.xaxis.minorTicks + ax.yaxis.minorTicks):
-            ax.grid(False, which="minor")
-        # Otherwise, turn all major and minor grids on.
+            ax.grid(x_state, which="major", axis="x")
+            ax.grid(y_state, which="major", axis="y")
+            canvas.draw_idle()
+    # toggle major and minor grids in current axes (default key 'G')
+    if (event.key in grid_minor_keys
+            # Exclude major grids not in a uniform state.
+            and None not in [_get_uniform_gridstate(ax.xaxis.majorTicks),
+                             _get_uniform_gridstate(ax.yaxis.majorTicks)]):
+        x_state = _get_uniform_gridstate(ax.xaxis.minorTicks)
+        y_state = _get_uniform_gridstate(ax.yaxis.minorTicks)
+        cycle = [(False, False), (True, False), (True, True), (False, True)]
+        try:
+            x_state, y_state = (
+                cycle[(cycle.index((x_state, y_state)) + 1) % len(cycle)])
+        except ValueError:
+            # Exclude minor grids not in a uniform state.
+            pass
         else:
-            ax.grid(True, which="both")
-        canvas.draw()
+            ax.grid(x_state, which="both", axis="x")
+            ax.grid(y_state, which="both", axis="y")
+            canvas.draw_idle()
     # toggle scaling of y-axes between 'log and 'linear' (default key 'l')
     elif event.key in toggle_yscale_keys:
         scale = ax.get_yscale()
         if scale == 'log':
             ax.set_yscale('linear')
-            ax.figure.canvas.draw()
+            ax.figure.canvas.draw_idle()
         elif scale == 'linear':
             ax.set_yscale('log')
-            ax.figure.canvas.draw()
+            ax.figure.canvas.draw_idle()
     # toggle scaling of x-axes between 'log and 'linear' (default key 'k')
     elif event.key in toggle_xscale_keys:
         scalex = ax.get_xscale()
         if scalex == 'log':
             ax.set_xscale('linear')
-            ax.figure.canvas.draw()
+            ax.figure.canvas.draw_idle()
         elif scalex == 'linear':
             ax.set_xscale('log')
-            ax.figure.canvas.draw()
+            ax.figure.canvas.draw_idle()
 
-    elif (event.key.isdigit() and event.key != '0') or event.key in all:
+    elif (event.key.isdigit() and event.key != '0') or event.key in all_keys:
         # keys in list 'all' enables all axes (default key 'a'),
         # otherwise if key is a number only enable this particular axes
         # if it was the axes, where the event was raised
