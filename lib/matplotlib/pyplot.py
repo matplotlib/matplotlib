@@ -253,7 +253,7 @@ def show(*args, **kw):
     if rcParams['toolbar'] == 'toolmanager':
         return _pylab_helpers.Gcf.show_all(*args, **kw)
     else:
-        _show(*args, **kw)
+        return _show(*args, **kw)
 
 
 def isinteractive():

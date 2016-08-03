@@ -77,6 +77,8 @@ class Gcf(object):
             manager.show()
 
         if block is True:
+            # Start the mainloop on the last manager, so we don't have a
+            # mainloop starting for each manager. Not ideal, but works for now.
             manager._mainloop()
             return
         elif block is False:
