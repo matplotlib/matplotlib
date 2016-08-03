@@ -344,9 +344,8 @@ class Patch(artist.Artist):
         ACCEPTS: float or None for default
         """
         if w is None:
-            if (not self._fill or
-                self._edge_default or
-                mpl.rcParams['_internal.classic_mode']):
+            if (not self._fill or self._edge_default or
+                    mpl.rcParams['_internal.classic_mode']):
                 w = mpl.rcParams['patch.linewidth']
                 if w is None:
                     w = mpl.rcParams['axes.linewidth']
@@ -560,6 +559,7 @@ docstring.dedent_interpd(Patch.__init__)
 
 
 class Shadow(Patch):
+
     def __str__(self):
         return "Shadow(%s)" % (str(self.patch))
 
@@ -587,7 +587,7 @@ class Shadow(Patch):
             self.update(self.props)
         else:
             r, g, b, a = colors.colorConverter.to_rgba(
-                                self.patch.get_facecolor())
+                self.patch.get_facecolor())
             rho = 0.3
             r = rho * r
             g = rho * g
@@ -776,6 +776,7 @@ class RegularPolygon(Patch):
     """
     A regular polygon patch.
     """
+
     def __str__(self):
         return "Poly%d(%g,%g)" % (self._numVertices, self._xy[0], self._xy[1])
 
@@ -890,6 +891,7 @@ class Polygon(Patch):
     """
     A general polygon patch.
     """
+
     def __str__(self):
         return "Poly((%g, %g) ...)" % tuple(self._path.vertices[0])
 
@@ -999,6 +1001,7 @@ class Wedge(Patch):
     """
     Wedge shaped patch.
     """
+
     def __str__(self):
         return "Wedge(%g,%g)" % (self.theta1, self.theta2)
 
@@ -1087,15 +1090,16 @@ class Arrow(Patch):
     """
     An arrow patch.
     """
+
     def __str__(self):
         return "Arrow()"
 
     _path = Path([
-            [0.0,  0.1], [0.0, -0.1],
-            [0.8, -0.1], [0.8, -0.3],
-            [1.0,  0.0], [0.8,  0.3],
-            [0.8,  0.1], [0.0,  0.1]],
-                  closed=True)
+        [0.0, 0.1], [0.0, -0.1],
+        [0.8, -0.1], [0.8, -0.3],
+        [1.0, 0.0], [0.8, 0.3],
+        [0.8, 0.1], [0.0, 0.1]],
+        closed=True)
 
     @docstring.dedent_interpd
     def __init__(self, x, y, dx, dy, width=1.0, **kwargs):
@@ -1220,7 +1224,7 @@ class FancyArrow(Polygon):
                 cx = float(dx) / distance
                 sx = float(dy) / distance
             else:
-                #Account for division by zero
+                # Account for division by zero
                 cx, sx = 0, 1
             M = np.array([[cx, sx], [-sx, cx]])
             verts = np.dot(coords, M) + (x + dx, y + dy)
@@ -1240,6 +1244,7 @@ class YAArrow(Patch):
     This is an arrow that is defined in display space and has a tip at
     *x1*, *y1* and a base at *x2*, *y2*.
     """
+
     def __str__(self):
         return "YAArrow()"
 
@@ -1341,6 +1346,7 @@ class CirclePolygon(RegularPolygon):
     """
     A polygon-approximation of a circle patch.
     """
+
     def __str__(self):
         return "CirclePolygon(%d,%d)" % self.center
 
@@ -1369,6 +1375,7 @@ class Ellipse(Patch):
     """
     A scale-free ellipse.
     """
+
     def __str__(self):
         return "Ellipse(%s,%s;%sx%s)" % (self.center[0], self.center[1],
                                          self.width, self.height)
@@ -1430,6 +1437,7 @@ class Circle(Ellipse):
     """
     A circle patch.
     """
+
     def __str__(self):
         return "Circle((%g,%g),r=%g)" % (self.center[0],
                                          self.center[1],
@@ -1477,6 +1485,7 @@ class Arc(Ellipse):
     only render the segments that are inside the axes bounding box
     with high resolution.
     """
+
     def __str__(self):
         return "Arc(%s,%s;%sx%s)" % (self.center[0], self.center[1],
                                      self.width, self.height)
@@ -1657,8 +1666,7 @@ class Arc(Ellipse):
                 if theta > theta1 and theta < theta2:
                     thetas[theta] = None
 
-        thetas = list(six.iterkeys(thetas))
-        thetas.sort()
+        thetas = sorted(six.iterkeys(thetas))
         thetas.append(theta2)
 
         last_theta = theta1
@@ -1826,6 +1834,7 @@ class _Style(object):
     where actual styles are declared as subclass of it, and it
     provides some helper functions.
     """
+
     def __new__(self, stylename, **kw):
         """
         return the instance of the subclass with the given style name.
@@ -1996,7 +2005,7 @@ class BoxStyle(_Style):
             pad = mutation_size * self.pad
 
             # width and height with padding added.
-            width, height = width + 2*pad, height + 2*pad
+            width, height = width + 2 * pad, height + 2 * pad
 
             # boundary of the padded box
             x0, y0 = x0 - pad, y0 - pad,
@@ -2010,6 +2019,7 @@ class BoxStyle(_Style):
 
     class Circle(_Base):
         """A simple circle box."""
+
         def __init__(self, pad=0.3):
             """
             Parameters
@@ -2026,7 +2036,7 @@ class BoxStyle(_Style):
 
             # boundary of the padded box
             x0, y0 = x0 - pad, y0 - pad,
-            return Path.circle((x0 + width/2., y0 + height/2.),
+            return Path.circle((x0 + width / 2., y0 + height / 2.),
                                (max([width, height]) / 2.))
 
     _style_list["circle"] = Circle
@@ -2035,6 +2045,7 @@ class BoxStyle(_Style):
         """
         (left) Arrow Box
         """
+
         def __init__(self, pad=0.3):
             self.pad = pad
             super(BoxStyle.LArrow, self).__init__()
@@ -2112,7 +2123,7 @@ class BoxStyle(_Style):
             x0, y0 = x0 - pad, y0 - pad
             x1, y1 = x0 + width, y0 + height
 
-            dx = (y1 - y0)/2.
+            dx = (y1 - y0) / 2.
             dxx = dx * .5
             # adjust x0.  1.4 <- sqrt(2)
             x0 = x0 + pad / 1.4
@@ -2287,7 +2298,7 @@ class BoxStyle(_Style):
 
             tooth_size2 = tooth_size / 2.
             width, height = (width + 2. * pad - tooth_size,
-                            height + 2. * pad - tooth_size)
+                             height + 2. * pad - tooth_size)
 
             # the sizes of the vertical and horizontal sawtooth are
             # separately adjusted to fit the given box size.
@@ -2368,6 +2379,7 @@ class BoxStyle(_Style):
 
     class Roundtooth(Sawtooth):
         """A rounded tooth box."""
+
         def __init__(self, pad=0.3, tooth_size=None):
             """
             *pad*
@@ -2385,16 +2397,15 @@ class BoxStyle(_Style):
             # Add a trailing vertex to allow us to close the polygon correctly
             saw_vertices = np.concatenate([np.array(saw_vertices),
                                            [saw_vertices[0]]], axis=0)
-            codes = ([Path.MOVETO] +
-                     [Path.CURVE3, Path.CURVE3] * ((len(saw_vertices)-1)//2) +
-                     [Path.CLOSEPOLY])
+            codes = ([Path.MOVETO] + [Path.CURVE3, Path.CURVE3] *
+                     ((len(saw_vertices) - 1) // 2) + [Path.CLOSEPOLY])
             return Path(saw_vertices, codes)
 
     _style_list["roundtooth"] = Roundtooth
 
     if __doc__:  # __doc__ could be None if -OO optimization is enabled
         __doc__ = cbook.dedent(__doc__) % \
-               {"AvailableBoxstyles": _pprint_styles(_style_list)}
+            {"AvailableBoxstyles": _pprint_styles(_style_list)}
 
 docstring.interpd.update(
     AvailableBoxstyles=_pprint_styles(BoxStyle._style_list),
@@ -2417,8 +2428,8 @@ class FancyBboxPatch(Patch):
 
     def __str__(self):
         return self.__class__.__name__ \
-                           + "(%g,%g;%gx%g)" % (self._x, self._y,
-                                                self._width, self._height)
+            + "(%g,%g;%gx%g)" % (self._x, self._y,
+                                 self._width, self._height)
 
     @docstring.dedent_interpd
     def __init__(self, xy, width, height,
@@ -2680,6 +2691,7 @@ class ConnectionStyle(_Style):
         """
 
         class SimpleEvent:
+
             def __init__(self, xy):
                 self.x, self.y = xy
 
@@ -3046,18 +3058,18 @@ class ConnectionStyle(_Style):
             armA, armB = self.armA, self.armB
 
             if self.angle is not None:
-                #angle = self.angle % 180.
-                #if angle < 0. or angle > 180.:
+                # angle = self.angle % 180.
+                # if angle < 0. or angle > 180.:
                 #    angle
-                #theta0 = (self.angle%180.)/180.*math.pi
+                # theta0 = (self.angle%180.)/180.*math.pi
                 theta0 = self.angle / 180. * math.pi
-                #theta0 = (((self.angle+90)%180.)  - 90.)/180.*math.pi
+                # theta0 = (((self.angle+90)%180.)  - 90.)/180.*math.pi
                 dtheta = theta1 - theta0
                 dl = dd * math.sin(dtheta)
 
                 dL = dd * math.cos(dtheta)
 
-                #x2, y2 = x2 + dl*ddy, y2 - dl*ddx
+                # x2, y2 = x2 + dl*ddy, y2 - dl*ddx
                 x2, y2 = x1 + dL * math.cos(theta0), y1 + dL * math.sin(theta0)
 
                 armB = armB - dl
@@ -3070,14 +3082,14 @@ class ConnectionStyle(_Style):
             else:
                 dl = 0.
 
-            #if armA > armB:
+            # if armA > armB:
             #    armB = armA + dl
-            #else:
+            # else:
             #    armA = armB - dl
 
             arm = max(armA, armB)
             f = self.fraction * dd + arm
-            #fB = self.fraction*dd + armB
+            # fB = self.fraction*dd + armB
 
             cx1, cy1 = x1 + f * ddy, y1 - f * ddx
             cx2, cy2 = x2 + f * ddy, y2 - f * ddx
@@ -3097,7 +3109,7 @@ class ConnectionStyle(_Style):
 
     if __doc__:
         __doc__ = cbook.dedent(__doc__) % \
-               {"AvailableConnectorstyles": _pprint_styles(_style_list)}
+            {"AvailableConnectorstyles": _pprint_styles(_style_list)}
 
 
 def _point_along_a_line(x0, y0, x1, y1, d):
@@ -3274,7 +3286,7 @@ class ArrowStyle(_Style):
 
         def _get_arrow_wedge(self, x0, y0, x1, y1,
                              head_dist, cos_t, sin_t, linewidth
-                            ):
+                             ):
             """
             Return the paths for arrow heads. Since arrow lines are
             drawn with capstyle=projected, The arrow goes beyond the
@@ -3318,7 +3330,7 @@ class ArrowStyle(_Style):
         def transmute(self, path, mutation_size, linewidth):
 
             head_length, head_width = self.head_length * mutation_size, \
-                                      self.head_width * mutation_size
+                self.head_width * mutation_size
             head_dist = math.sqrt(head_length ** 2 + head_width ** 2)
             cos_t, sin_t = head_length / head_dist, head_width / head_dist
 
@@ -3331,9 +3343,9 @@ class ArrowStyle(_Style):
                                not ((x0 == x1) and (y0 == y1)))
             if has_begin_arrow:
                 verticesA, codesA, ddxA, ddyA = \
-                           self._get_arrow_wedge(x1, y1, x0, y0,
-                                                 head_dist, cos_t, sin_t,
-                                                 linewidth)
+                    self._get_arrow_wedge(x1, y1, x0, y0,
+                                          head_dist, cos_t, sin_t,
+                                          linewidth)
             else:
                 verticesA, codesA = [], []
                 ddxA, ddyA = 0., 0.
@@ -3346,9 +3358,9 @@ class ArrowStyle(_Style):
             has_end_arrow = (self.endarrow and not ((x2 == x3) and (y2 == y3)))
             if has_end_arrow:
                 verticesB, codesB, ddxB, ddyB = \
-                           self._get_arrow_wedge(x2, y2, x3, y3,
-                                                 head_dist, cos_t, sin_t,
-                                                 linewidth)
+                    self._get_arrow_wedge(x2, y2, x3, y3,
+                                          head_dist, cos_t, sin_t,
+                                          linewidth)
             else:
                 verticesB, codesB = [], []
                 ddxB, ddyB = 0., 0.
@@ -3429,8 +3441,8 @@ class ArrowStyle(_Style):
             """
 
             super(ArrowStyle.CurveA, self).__init__(
-                  beginarrow=True, endarrow=False,
-                  head_length=head_length, head_width=head_width)
+                beginarrow=True, endarrow=False,
+                head_length=head_length, head_width=head_width)
 
     _style_list["<-"] = CurveA
 
@@ -3553,9 +3565,9 @@ class ArrowStyle(_Style):
             """
 
             super(ArrowStyle.CurveAHalfLeft, self).__init__(
-                  beginarrow=True, endarrow=False,
-                  head_length=head_length, head_width=head_width,
-                  beginhalf="left")
+                beginarrow=True, endarrow=False,
+                head_length=head_length, head_width=head_width,
+                beginhalf="left")
 
     _style_list["hl<-"] = CurveAHalfLeft
 
@@ -3595,9 +3607,9 @@ class ArrowStyle(_Style):
             """
 
             super(ArrowStyle.CurveBHalfLeft, self).__init__(
-                  beginarrow=False, endarrow=True,
-                  head_length=head_length, head_width=head_width,
-                  endhalf="left")
+                beginarrow=False, endarrow=True,
+                head_length=head_length, head_width=head_width,
+                endhalf="left")
 
     _style_list["hl->"] = CurveBHalfLeft
 
@@ -3621,7 +3633,6 @@ class ArrowStyle(_Style):
                 endhalf="right")
 
     _style_list["hr->"] = CurveBHalfRight
-
 
     class _Bracket(_Base):
 
@@ -3729,9 +3740,9 @@ class ArrowStyle(_Style):
             """
 
             super(ArrowStyle.BracketAB, self).__init__(
-                        True, True, widthA=widthA, lengthA=lengthA,
-                        angleA=angleA, widthB=widthB, lengthB=lengthB,
-                        angleB=angleB)
+                True, True, widthA=widthA, lengthA=lengthA,
+                angleA=angleA, widthB=widthB, lengthB=lengthB,
+                angleB=angleB)
 
     _style_list["]-["] = BracketAB
 
@@ -3812,8 +3823,8 @@ class ArrowStyle(_Style):
             """
 
             super(ArrowStyle.BarAB, self).__init__(
-                        True, True, widthA=widthA, lengthA=0, angleA=angleA,
-                        widthB=widthB, lengthB=0, angleB=angleB)
+                True, True, widthA=widthA, lengthA=0, angleA=angleA,
+                widthB=widthB, lengthB=0, angleB=angleB)
 
     _style_list["|-|"] = BarAB
 
@@ -3852,9 +3863,9 @@ class ArrowStyle(_Style):
 
             try:
                 arrow_out, arrow_in = \
-                      split_bezier_intersecting_with_closedpath(arrow_path,
-                                                                in_f,
-                                                                tolerence=0.01)
+                    split_bezier_intersecting_with_closedpath(arrow_path,
+                                                              in_f,
+                                                              tolerence=0.01)
             except NonIntersectingPathException:
                 # if this happens, make a straight line of the head_length
                 # long.
@@ -3939,10 +3950,10 @@ class ArrowStyle(_Style):
             in_f = inside_circle(x2, y2, head_length)
             try:
                 path_out, path_in = \
-                          split_bezier_intersecting_with_closedpath(
-                                arrow_path,
-                                in_f,
-                                tolerence=0.01)
+                    split_bezier_intersecting_with_closedpath(
+                        arrow_path,
+                        in_f,
+                        tolerence=0.01)
             except NonIntersectingPathException:
                 # if this happens, make a straight line of the head_length
                 # long.
@@ -3956,10 +3967,10 @@ class ArrowStyle(_Style):
             # path for head
             in_f = inside_circle(x2, y2, head_length * .8)
             path_out, path_in = split_bezier_intersecting_with_closedpath(
-                                        arrow_path,
-                                        in_f,
-                                        tolerence=0.01
-                                )
+                arrow_path,
+                in_f,
+                tolerence=0.01
+            )
             path_tail = path_out
 
             # head
@@ -3977,10 +3988,10 @@ class ArrowStyle(_Style):
             # path for head
             in_f = inside_circle(x0, y0, tail_width * .3)
             path_in, path_out = split_bezier_intersecting_with_closedpath(
-                                    arrow_path,
-                                    in_f,
-                                    tolerence=0.01
-                                )
+                arrow_path,
+                in_f,
+                tolerence=0.01
+            )
             tail_start = path_in[-1]
 
             head_right, head_left = head_r, head_l
@@ -4032,9 +4043,9 @@ class ArrowStyle(_Style):
 
             arrow_path = [(x0, y0), (x1, y1), (x2, y2)]
             b_plus, b_minus = make_wedged_bezier2(
-                                    arrow_path,
-                                    self.tail_width * mutation_size / 2.,
-                                    wm=self.shrink_factor)
+                arrow_path,
+                self.tail_width * mutation_size / 2.,
+                wm=self.shrink_factor)
 
             patch_path = [(Path.MOVETO, b_plus[0]),
                           (Path.CURVE3, b_plus[1]),
@@ -4052,7 +4063,7 @@ class ArrowStyle(_Style):
 
     if __doc__:
         __doc__ = cbook.dedent(__doc__) % \
-               {"AvailableArrowstyles": _pprint_styles(_style_list)}
+            {"AvailableArrowstyles": _pprint_styles(_style_list)}
 
 
 docstring.interpd.update(
@@ -4072,10 +4083,10 @@ class FancyArrowPatch(Patch):
         if self._posA_posB is not None:
             (x1, y1), (x2, y2) = self._posA_posB
             return self.__class__.__name__ \
-                   + "(%g,%g->%g,%g)" % (x1, y1, x2, y2)
+                + "(%g,%g->%g,%g)" % (x1, y1, x2, y2)
         else:
             return self.__class__.__name__ \
-                   + "(%s)" % (str(self._path_original),)
+                + "(%s)" % (str(self._path_original),)
 
     @docstring.dedent_interpd
     def __init__(self, posA=None, posB=None,
@@ -4157,7 +4168,7 @@ class FancyArrowPatch(Patch):
         self._mutation_aspect = mutation_aspect
 
         self.set_dpi_cor(dpi_cor)
-        #self._draw_in_display_coordinate = True
+        # self._draw_in_display_coordinate = True
 
     def set_dpi_cor(self, dpi_cor):
         """
@@ -4323,7 +4334,7 @@ class FancyArrowPatch(Patch):
                                                patchB=self.patchB,
                                                shrinkA=self.shrinkA * dpi_cor,
                                                shrinkB=self.shrinkB * dpi_cor
-                                              )
+                                               )
         else:
             _path = self.get_transform().transform_path(self._path_original)
 
@@ -4331,9 +4342,9 @@ class FancyArrowPatch(Patch):
                                                 self.get_mutation_scale(),
                                                 self.get_linewidth() * dpi_cor,
                                                 self.get_mutation_aspect()
-                                               )
+                                                )
 
-        #if not fillable:
+        # if not fillable:
         #    self._fill = False
 
         return _path, fillable
@@ -4373,7 +4384,7 @@ class FancyArrowPatch(Patch):
         # FIXME : dpi_cor is for the dpi-dependecy of the
         # linewidth. There could be room for improvement.
         #
-        #dpi_cor = renderer.points_to_pixels(1.)
+        # dpi_cor = renderer.points_to_pixels(1.)
         self.set_dpi_cor(renderer.points_to_pixels(1.))
         path, fillable = self.get_path_in_displaycoord()
 
@@ -4403,6 +4414,7 @@ class ConnectionPatch(FancyArrowPatch):
     A :class:`~matplotlib.patches.ConnectionPatch` class is to make
     connecting lines between two points (possibly in different axes).
     """
+
     def __str__(self):
         return "ConnectionPatch((%g,%g),(%g,%g))" % \
                (self.xy1[0], self.xy1[1], self.xy2[0], self.xy2[1])
@@ -4584,7 +4596,7 @@ class ConnectionPatch(FancyArrowPatch):
                 y = b + y * dpi / 72.
             return x, y
         elif s == 'axes pixels':
-            #pixels from the lower left corner of the axes
+            # pixels from the lower left corner of the axes
 
             l, b, w, h = axes.bbox.bounds
             r = l + w
@@ -4599,7 +4611,7 @@ class ConnectionPatch(FancyArrowPatch):
                 y = b + y
             return x, y
         elif s == 'axes fraction':
-            #(0,0) is lower left, (1,1) is upper right of axes
+            # (0,0) is lower left, (1,1) is upper right of axes
             trans = axes.transAxes
             return trans.transform_point((x, y))
 
@@ -4641,13 +4653,13 @@ class ConnectionPatch(FancyArrowPatch):
                                            patchB=self.patchB,
                                            shrinkA=self.shrinkA * dpi_cor,
                                            shrinkB=self.shrinkB * dpi_cor
-                                          )
+                                           )
 
         _path, fillable = self.get_arrowstyle()(_path,
                                                 self.get_mutation_scale(),
                                                 self.get_linewidth() * dpi_cor,
                                                 self.get_mutation_aspect()
-                                               )
+                                                )
 
         return _path, fillable
 
