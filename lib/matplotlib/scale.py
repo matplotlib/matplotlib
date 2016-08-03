@@ -465,7 +465,7 @@ class SymmetricalLogScale(ScaleBase):
         axis.set_major_formatter(LogFormatterSciNotation(self.base))
         axis.set_minor_locator(SymmetricalLogLocator(self.get_transform(),
                                                      self.subs))
-        axis.set_minor_formatter(LogFormatterSciNotation(self.base))
+        axis.set_minor_formatter(NullFormatter())
 
     def get_transform(self):
         """
