@@ -10,10 +10,11 @@ import warnings
 
 backend = matplotlib.get_backend()
 
+
 def get_backend_name(name=None):
     '''converts the name of the backend into the module to load
     name : str, optional
-    
+
     Parameters
     ----------
         The name of the backend to use.  If `None`, falls back to
