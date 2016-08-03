@@ -101,8 +101,6 @@ def convert_to_string(value):
 class UnitData(object):
     # debatable makes sense to special code missing values
     spdict = {'nan': -1.0, 'inf': -2.0, '-inf': -3.0}
-    # used to set out of bounds
-    LOWER_BOUND = -4
 
     def __init__(self, data):
         """Create mapping between unique categorical values
@@ -113,31 +111,25 @@ class UnitData(object):
             sequence of values
         """
         self.seq, self.locs = [], []
-        self._set_seq(data)
-        self._set_locs(0)
+        self._set_seq_locs(data, 0)
 
     def update(self, new_data):
-        self._set_seq(new_data)
-        value = max(self.locs)
-        self._set_locs(value + 1)
+        # so as not to conflict with spdict
+        value = max(max(self.locs) + 1, 0)
+        self._set_seq_locs(new_data, value)
 
-    def _set_seq(self, data):
-        #magic to make it work under np1.6
+    def _set_seq_locs(self, data, value):
+        # magic to make it work under np1.6
         strdata = to_array(data)
         # np.unique makes dateframes work
-        for d in np.unique(strdata):
-            if d not in self.seq:
-                self.seq.append(convert_to_string(d))
-                self.locs.append(UnitData.LOWER_BOUND)
-
-    def _set_locs(self, value):
-        for i, s in enumerate(self.seq):
-            if s in UnitData.spdict.keys():
-                self.locs[i] = UnitData.spdict[s]
-            elif self.locs[i] == UnitData.LOWER_BOUND:
-                self.locs[i] = value
+        new_s = [d for d in np.unique(strdata) if d not in self.seq]
+        for ns in new_s:
+            self.seq.append(convert_to_string(ns))
+            if ns in UnitData.spdict.keys():
+                self.locs.append(UnitData.spdict[ns])
+            else:
+                self.locs.append(value)
                 value += 1
-
 
 # Connects the convertor to matplotlib
 units.registry[str] = StrCategoryConverter()
