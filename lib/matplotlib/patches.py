@@ -3275,7 +3275,8 @@ class ArrowStyle(_Style):
 
         def __init__(self, beginarrow=None, endarrow=None,
                      fillbegin=False, fillend=False,
-                     head_length=.2, head_width=.1):
+                     head_length=.2, head_width=.1,
+                     beginhalf=None, endhalf=None):
             """
             The arrows are drawn if *beginarrow* and/or *endarrow* are
             true. *head_length* and *head_width* determines the size
@@ -3286,6 +3287,7 @@ class ArrowStyle(_Style):
             self.beginarrow, self.endarrow = beginarrow, endarrow
             self.head_length, self.head_width = head_length, head_width
             self.fillbegin, self.fillend = fillbegin, fillend
+            self.beginhalf, self.endhalf = beginhalf, endhalf
             super(ArrowStyle._Curve, self).__init__()
 
         def _get_arrow_wedge(self, x0, y0, x1, y1,
@@ -3385,7 +3387,16 @@ class ArrowStyle(_Style):
                     _path.append(Path(p, c))
                     _fillable.append(True)
                 else:
-                    _path.append(Path(verticesA, codesA))
+                    if self.beginhalf == "left":
+                        verticesALeft = verticesA[:-1]
+                        codesALeft = codesA[:-1]
+                        _path.append(Path(verticesALeft, codesALeft))
+                    elif self.beginhalf == "right":
+                        verticesARight = verticesA[-1:] + verticesA[1:2]
+                        codesARight = codesA[:-1]
+                        _path.append(Path(verticesARight, codesARight))
+                    else:
+                        _path.append(Path(verticesA, codesA))
                     _fillable.append(False)
 
             if has_end_arrow:
@@ -3396,8 +3407,17 @@ class ArrowStyle(_Style):
                     c = np.concatenate([codesB, [Path.LINETO, Path.CLOSEPOLY]])
                     _path.append(Path(p, c))
                 else:
+                    if self.endhalf == "left":
+                        verticesBLeft = verticesB[:-1]
+                        codesBLeft = codesB[:-1]
+                        _path.append(Path(verticesBLeft, codesBLeft))
+                    elif self.endhalf == "right":
+                        verticesBRight = verticesB[-1:] + verticesB[1:2]
+                        codesBRight = codesB[:-1]
+                        _path.append(Path(verticesBRight, codesBRight))
+                    else:
+                        _path.append(Path(verticesB, codesB))
                     _fillable.append(False)
-                    _path.append(Path(verticesB, codesB))
 
             return _path, _fillable
 
@@ -3535,6 +3555,91 @@ class ArrowStyle(_Style):
                 head_length=head_length, head_width=head_width)
 
     _style_list["<|-|>"] = CurveFilledAB
+
+    class CurveAHalfLeft(_Curve):
+        """
+        An arrow with a left half head at its begin point.
+        """
+
+        def __init__(self, head_length=.4, head_width=.2):
+            """
+            *head_length*
+              length of the arrow head
+
+            *head_width*
+              width of the arrow head
+            """
+
+            super(ArrowStyle.CurveAHalfLeft, self).__init__(
+                  beginarrow=True, endarrow=False,
+                  head_length=head_length, head_width=head_width,
+                  beginhalf="left")
+
+    _style_list["hl<-"] = CurveAHalfLeft
+
+    class CurveAHalfRight(_Curve):
+        """
+        An arrow with a right half head at its begin point.
+        """
+
+        def __init__(self, head_length=.4, head_width=.2):
+            """
+            *head_length*
+              length of the arrow head
+
+            *head_width*
+              width of the arrow head
+            """
+
+            super(ArrowStyle.CurveAHalfRight, self).__init__(
+                beginarrow=True, endarrow=False,
+                head_length=head_length, head_width=head_width,
+                beginhalf="right")
+
+    _style_list["hr<-"] = CurveAHalfRight
+
+    class CurveBHalfLeft(_Curve):
+        """
+        An arrow with a left half head at its end point.
+        """
+
+        def __init__(self, head_length=.4, head_width=.2):
+            """
+            *head_length*
+              length of the arrow head
+
+            *head_width*
+              width of the arrow head
+            """
+
+            super(ArrowStyle.CurveBHalfLeft, self).__init__(
+                  beginarrow=False, endarrow=True,
+                  head_length=head_length, head_width=head_width,
+                  endhalf="left")
+
+    _style_list["hl->"] = CurveBHalfLeft
+
+    class CurveBHalfRight(_Curve):
+        """
+        An arrow with a right half head at its end point.
+        """
+
+        def __init__(self, head_length=.4, head_width=.2):
+            """
+            *head_length*
+              length of the arrow head
+
+            *head_width*
+              width of the arrow head
+            """
+
+            super(ArrowStyle.CurveBHalfRight, self).__init__(
+                beginarrow=False, endarrow=True,
+                head_length=head_length, head_width=head_width,
+                endhalf="right")
+
+    _style_list["hr->"] = CurveBHalfRight
+
 
     class _Bracket(_Base):
 
