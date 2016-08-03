@@ -1189,49 +1189,50 @@ class FigureCanvasSVG(FigureCanvasBase):
 
     def print_svg(self, filename, *args, **kwargs):
         if is_string_like(filename):
-            fh_to_close = svgwriter = io.open(filename, 'w', encoding='utf-8')
-        elif is_writable_file_like(filename):
-            if not isinstance(filename, io.TextIOBase):
-                if six.PY3:
-                    svgwriter = io.TextIOWrapper(filename, 'utf-8')
-                else:
-                    svgwriter = codecs.getwriter('utf-8')(filename)
-            else:
-                svgwriter = filename
-            fh_to_close = None
-        else:
+            with io.open(filename, 'w', encoding='utf-8') as svgwriter:
+                return self._print_svg(filename, svgwriter, **kwargs)
+
+        if not is_writable_file_like(filename):
             raise ValueError("filename must be a path or a file-like object")
-        return self._print_svg(filename, svgwriter, fh_to_close, **kwargs)
+
+        svgwriter = filename
+        filename = getattr(svgwriter, 'name', '')
+        if not isinstance(filename, six.string_types):
+            filename = ''
+
+        if not isinstance(svgwriter, io.TextIOBase):
+            if six.PY3:
+                svgwriter = io.TextIOWrapper(svgwriter, 'utf-8')
+            else:
+                svgwriter = codecs.getwriter('utf-8')(svgwriter)
+
+        return self._print_svg(filename, svgwriter, **kwargs)
 
     def print_svgz(self, filename, *args, **kwargs):
         if is_string_like(filename):
-            fh_to_close = gzipwriter = gzip.GzipFile(filename, 'w')
-            svgwriter = io.TextIOWrapper(gzipwriter, 'utf-8')
+            options = dict(filename=filename)
         elif is_writable_file_like(filename):
-            fh_to_close = gzipwriter = gzip.GzipFile(fileobj=filename, mode='w')
-            svgwriter = io.TextIOWrapper(gzipwriter, 'utf-8')
+            options = dict(fileobj=filename)
         else:
             raise ValueError("filename must be a path or a file-like object")
-        return self._print_svg(filename, svgwriter, fh_to_close)
 
-    def _print_svg(self, filename, svgwriter, fh_to_close=None, **kwargs):
-        try:
-            image_dpi = kwargs.pop("dpi", 72)
-            self.figure.set_dpi(72.0)
-            width, height = self.figure.get_size_inches()
-            w, h = width*72, height*72
+        with gzip.GzipFile(mode='w', **options) as gzipwriter:
+            return self.print_svg(gzipwriter)
 
-            _bbox_inches_restore = kwargs.pop("bbox_inches_restore", None)
-            renderer = MixedModeRenderer(
-                self.figure,
-                width, height, image_dpi, RendererSVG(w, h, svgwriter, filename, image_dpi),
-                bbox_inches_restore=_bbox_inches_restore)
+    def _print_svg(self, filename, svgwriter, **kwargs):
+        image_dpi = kwargs.pop("dpi", 72)
+        self.figure.set_dpi(72.0)
+        width, height = self.figure.get_size_inches()
+        w, h = width*72, height*72
 
-            self.figure.draw(renderer)
-            renderer.finalize()
-        finally:
-            if fh_to_close is not None:
-                svgwriter.close()
+        _bbox_inches_restore = kwargs.pop("bbox_inches_restore", None)
+        renderer = MixedModeRenderer(
+            self.figure,
+            width, height, image_dpi, RendererSVG(w, h, svgwriter, filename, image_dpi),
+            bbox_inches_restore=_bbox_inches_restore)
+
+        self.figure.draw(renderer)
+        renderer.finalize()
 
     def get_default_filetype(self):
         return 'svg'
