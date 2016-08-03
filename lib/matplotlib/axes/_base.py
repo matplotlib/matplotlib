@@ -2853,13 +2853,25 @@ class _AxesBase(martist.Artist):
                 ('Attempting to set identical left==right results\n'
                  'in singular transformations; automatically expanding.\n'
                  'left=%s, right=%s') % (left, right))
+
         left, right = mtransforms.nonsingular(left, right, increasing=False)
         left, right = self.xaxis.limit_range_for_scale(left, right)
 
-        self.viewLim.intervalx = (left, right)
         if auto is not None:
             self._autoscaleXon = bool(auto)
 
+        self._set_viewLim_intervalx(left, right, emit=emit)
+        return left, right
+
+    def _set_viewLim_intervalx(self, left, right, emit=True):
+        """
+        Set the data limits for the xaxis
+        This should be the only method who can change viewLim.intervalx directly.
+
+        *emit*: [ *True* | *False* ]
+            Notify observers of limit change
+        """
+        self.viewLim.intervalx = (left, right)
         if emit:
             self.callbacks.process('xlim_changed', self)
             # Call all of the other x-axes that are shared with this one
@@ -2871,7 +2883,6 @@ class _AxesBase(martist.Artist):
                             other.figure.canvas is not None):
                         other.figure.canvas.draw_idle()
         self.stale = True
-        return left, right
 
     def get_xscale(self):
         return self.xaxis.get_scale()
@@ -3115,10 +3126,21 @@ class _AxesBase(martist.Artist):
         bottom, top = mtransforms.nonsingular(bottom, top, increasing=False)
         bottom, top = self.yaxis.limit_range_for_scale(bottom, top)
 
-        self.viewLim.intervaly = (bottom, top)
         if auto is not None:
             self._autoscaleYon = bool(auto)
 
+        self._set_viewLim_intervaly(bottom, top, emit=emit)
+        return bottom, top
+
+    def _set_viewLim_intervaly(self, bottom, top, emit=True):
+        """
+        Set the data limits for the yaxis
+        This should be the only method who can change viewLim.intervaly directly.
+
+        *emit*: [ *True* | *False* ]
+            Notify observers of limit change
+        """
+        self.viewLim.intervaly = (bottom, top)
         if emit:
             self.callbacks.process('ylim_changed', self)
             # Call all of the other y-axes that are shared with this one
@@ -3130,7 +3152,6 @@ class _AxesBase(martist.Artist):
                             other.figure.canvas is not None):
                         other.figure.canvas.draw_idle()
         self.stale = True
-        return bottom, top
 
     def get_yscale(self):
         return self.yaxis.get_scale()
