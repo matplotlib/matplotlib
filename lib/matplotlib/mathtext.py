@@ -1119,7 +1119,7 @@ class StandardPsFonts(Fonts):
         cached_font = self.fonts.get(basename)
         if cached_font is None:
             fname = os.path.join(self.basepath, basename + ".afm")
-            with open(fname, 'r') as fd:
+            with open(fname, 'rb') as fd:
                 cached_font = AFM(fd)
             cached_font.fname = fname
             self.fonts[basename] = cached_font
