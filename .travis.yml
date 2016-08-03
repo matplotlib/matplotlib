@@ -110,7 +110,7 @@ install:
     # Install nose from a build which has partial
     # support for python36 and suport for coverage output suppressing
     pip install git+https://github.com/jenshnielsen/nose.git@matplotlibnose
-
+    pip install pytest
     # We manually install humor sans using the package from Ubuntu 14.10. Unfortunatly humor sans is not
     # availible in the Ubuntu version used by Travis but we can manually install the deb from a later
     # version since is it basically just a .ttf file
