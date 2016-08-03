@@ -2863,7 +2863,7 @@ class _AxesBase(martist.Artist):
     def _set_viewLim_intervalx(self, left, right, emit=True, auto=None):
         """
         Set the data limits for the xaxis
-        This should be the only method who can change viewLim.intervalx directly.
+        This should be the only method to change viewLim.intervalx directly.
 
         Keyword arguments:
           *emit*: [ *True* | *False* ]
@@ -3137,7 +3137,7 @@ class _AxesBase(martist.Artist):
     def _set_viewLim_intervaly(self, bottom, top, emit=True, auto=None):
         """
         Set the data limits for the yaxis
-        This should be the only method who can change viewLim.intervaly directly.
+        This should be the only method to change viewLim.intervaly directly.
 
         Keyword arguments:
           *emit*: [ *True* | *False* ]
