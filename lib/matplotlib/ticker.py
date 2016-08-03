@@ -846,7 +846,11 @@ class LogFormatter(Formatter):
         vmin, vmax = self.axis.get_view_interval()
         self.d = abs(vmax - vmin)
 
-        if hasattr(self.axis.get_transform(), 'linthresh'):
+        if not hasattr(self.axis, 'get_transform'):
+            # This might be a colorbar dummy axis, do not attempt to get
+            # transform
+            numdec = 10
+        elif hasattr(self.axis.get_transform(), 'linthresh'):
             t = self.axis.get_transform()
             linthresh = t.linthresh
             # Only compute the number of decades in the logarithmic part of the
