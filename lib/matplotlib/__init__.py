@@ -1499,7 +1499,6 @@ default_test_modules = [
     'matplotlib.tests.test_backend_svg',
     'matplotlib.tests.test_basic',
     'matplotlib.tests.test_bbox_tight',
-    'matplotlib.tests.test_category',
     'matplotlib.tests.test_cbook',
     'matplotlib.tests.test_coding_standards',
     'matplotlib.tests.test_collections',
