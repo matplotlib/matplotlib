@@ -845,10 +845,24 @@ class LogFormatter(Formatter):
 
         vmin, vmax = self.axis.get_view_interval()
         self.d = abs(vmax - vmin)
-        vmin = math.log(vmin) / math.log(b)
-        vmax = math.log(vmax) / math.log(b)
 
-        numdec = abs(vmax - vmin)
+        if hasattr(self.axis.get_transform(), 'linthresh'):
+            t = self.axis.get_transform()
+            linthresh = t.linthresh
+            # Only compute the number of decades in the logarithmic part of the
+            # axis
+            numdec = 0
+            if vmin < -linthresh:
+                numdec += math.log(-vmin / linthresh) / math.log(b)
+
+            if vmax > linthresh and vmin < linthresh:
+                numdec += math.log(vmax / linthresh) / math.log(b)
+            elif vmin >= linthresh:
+                numdec += math.log(vmax / vmin) / math.log(b)
+        else:
+            vmin = math.log(vmin) / math.log(b)
+            vmax = math.log(vmax) / math.log(b)
+            numdec = abs(vmax - vmin)
 
         if numdec > 3:
             # Label only bases
