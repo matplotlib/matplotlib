@@ -2857,21 +2857,26 @@ class _AxesBase(martist.Artist):
         left, right = mtransforms.nonsingular(left, right, increasing=False)
         left, right = self.xaxis.limit_range_for_scale(left, right)
 
-        if auto is not None:
-            self._autoscaleXon = bool(auto)
-
-        self._set_viewLim_intervalx(left, right, emit=emit)
+        self._set_viewLim_intervalx(left, right, emit=emit, auto=auto)
         return left, right
 
-    def _set_viewLim_intervalx(self, left, right, emit=True):
+    def _set_viewLim_intervalx(self, left, right, emit=True, auto=None):
         """
         Set the data limits for the xaxis
         This should be the only method who can change viewLim.intervalx directly.
 
-        *emit*: [ *True* | *False* ]
+        Keyword arguments:
+          *emit*: [ *True* | *False* ]
             Notify observers of limit change
+
+          *auto*: [ *True* | *False* | *None* ]
+            Turn *x* autoscaling on (*True*), off (*False*; default),
+            or leave unchanged (*None*)
         """
         self.viewLim.intervalx = (left, right)
+        if auto is not None:
+            self._autoscaleXon = bool(auto)
+
         if emit:
             self.callbacks.process('xlim_changed', self)
             # Call all of the other x-axes that are shared with this one
@@ -3126,21 +3131,26 @@ class _AxesBase(martist.Artist):
         bottom, top = mtransforms.nonsingular(bottom, top, increasing=False)
         bottom, top = self.yaxis.limit_range_for_scale(bottom, top)
 
-        if auto is not None:
-            self._autoscaleYon = bool(auto)
-
-        self._set_viewLim_intervaly(bottom, top, emit=emit)
+        self._set_viewLim_intervaly(bottom, top, emit=emit, auto=auto)
         return bottom, top
 
-    def _set_viewLim_intervaly(self, bottom, top, emit=True):
+    def _set_viewLim_intervaly(self, bottom, top, emit=True, auto=None):
         """
         Set the data limits for the yaxis
         This should be the only method who can change viewLim.intervaly directly.
 
-        *emit*: [ *True* | *False* ]
+        Keyword arguments:
+          *emit*: [ *True* | *False* ]
             Notify observers of limit change
+
+          *auto*: [ *True* | *False* | *None* ]
+            Turn *x* autoscaling on (*True*), off (*False*; default),
+            or leave unchanged (*None*)
         """
         self.viewLim.intervaly = (bottom, top)
+        if auto is not None:
+            self._autoscaleYon = bool(auto)
+
         if emit:
             self.callbacks.process('ylim_changed', self)
             # Call all of the other y-axes that are shared with this one
