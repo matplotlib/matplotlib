@@ -685,6 +685,12 @@ class Collection(artist.Artist, cm.ScalarMappable):
     get_edgecolors = get_edgecolor
 
     def _set_edgecolor(self, c):
+        if c is None:
+            if (mpl.rcParams['patch.force_edgecolor'] or
+                    not self._is_filled or self._edge_default):
+                c = mpl.rcParams['patch.edgecolor']
+            else:
+                c = 'none'
         self._is_stroked = True
         try:
             if c.lower() == 'none':
@@ -715,12 +721,6 @@ class Collection(artist.Artist, cm.ScalarMappable):
         ACCEPTS: matplotlib color spec or sequence of specs
         """
         self._original_edgecolor = c
-        if c is None:
-            if (mpl.rcParams['patch.force_edgecolor'] or
-                    not self._is_filled or self._edge_default):
-                c = mpl.rcParams['patch.edgecolor']
-            else:
-                c = 'none'
         self._set_edgecolor(c)
 
     def set_edgecolors(self, c):
