@@ -128,9 +128,10 @@ class Collection(artist.Artist, cm.ScalarMappable):
         # list of unbroadcast/scaled linewidths
         self._us_lw = [0]
         self._linewidths = [0]
+        self._is_filled = True  # May be modified by set_facecolor().
 
-        self.set_edgecolor(edgecolors)
         self.set_facecolor(facecolors)
+        self.set_edgecolor(edgecolors)
         self.set_linewidth(linewidths)
         self.set_linestyle(linestyles)
         self.set_antialiased(antialiaseds)
