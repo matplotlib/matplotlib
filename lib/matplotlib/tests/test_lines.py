@@ -180,7 +180,7 @@ def test_marker_fill_styles():
                     markeredgewidth=2)
 
     ax.set_ylim([0, 7.5])
-    ax.set_xlim([-5, 135])
+    ax.set_xlim([-5, 155])
 
 
 @image_comparison(baseline_images=['scaled_lines'], style='default')
