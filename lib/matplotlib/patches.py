@@ -304,12 +304,13 @@ class Patch(artist.Artist):
         self._original_edgecolor = color
         self._set_edgecolor(color)
 
-
     def set_ec(self, color):
         """alias for set_edgecolor"""
         return self.set_edgecolor(color)
 
     def _set_facecolor(self, color):
+        if color is None:
+            color = mpl.rcParams['patch.facecolor']
         alpha = self._alpha if self._fill else 0
         self._facecolor = colors.to_rgba(color, alpha)
         self.stale = True
@@ -320,9 +321,7 @@ class Patch(artist.Artist):
 
         ACCEPTS: mpl color spec, or None for default, or 'none' for no color
         """
-        self._original_facecolor = color  # Not strictly needed now.
-        if color is None:
-            color = mpl.rcParams['patch.facecolor']
+        self._original_facecolor = color
         self._set_facecolor(color)
 
     def set_fc(self, color):
@@ -358,7 +357,6 @@ class Patch(artist.Artist):
         self._set_facecolor(self._facecolor)
         self._set_edgecolor(self._original_edgecolor)
         # stale is already True
-
 
     def set_linewidth(self, w):
         """
@@ -435,7 +433,7 @@ class Patch(artist.Artist):
         ACCEPTS: [True | False]
         """
         self._fill = bool(b)
-        self._set_facecolor(self._facecolor)
+        self._set_facecolor(self._original_facecolor)
         self._set_edgecolor(self._original_edgecolor)
         self.stale = True
 
