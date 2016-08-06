@@ -62,6 +62,19 @@ and the systemwide install use the same python version.
 OSX
 ===
 
+Short version
+-------------
+
+If you are on Python 3, use ``venv`` instead of ``virtualenv``::
+
+    python -m venv my-virtualenv
+    source my-virtualenv/bin/activate
+
+Otherwise you will need one of the workarounds below.
+
+Long version
+------------
+
 On OSX, two different types of Python Builds exist: a regular build and a
 framework build. In order to interact correctly with OSX through some
 GUI frameworks you need a framework build of Python.
@@ -80,7 +93,7 @@ The issue has been reported on the virtualenv bug tracker `here
 Until this is fixed, one of the following workarounds must be used:
 
 ``PYTHONHOME`` Script
----------------------
+^^^^^^^^^^^^^^^^^^^^^
 
 The best known workaround,
 borrowed  from the `WX wiki
@@ -114,7 +127,7 @@ framework build. To run an interactive ``IPython`` session with the framework
 build within the virtual environment you can do ``frameworkpython -m IPython``
 
 ``PYTHONHOME`` Function
------------------------
+^^^^^^^^^^^^^^^^^^^^^^^
 
 Alternatively you can define a function in your ``.bashrc`` using
 
@@ -132,7 +145,7 @@ This function can then be used in all of your virtualenvs without having to
 fix every single one of them.
 
 PythonW Compiler
-----------------
+^^^^^^^^^^^^^^^^
 
 In addition
 `virtualenv-pythonw-osx <https://github.com/gldnspud/virtualenv-pythonw-osx>`_
