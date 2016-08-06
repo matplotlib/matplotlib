@@ -410,7 +410,7 @@ class Axes(_AxesBase):
             label
 
         frameon : None or bool
-            Control whether a frame should be drawn around the legend.
+            Control whether the legend should be drawn on a patch (frame).
             Default is ``None`` which will take the value from the
             ``legend.frameon`` :data:`rcParam<matplotlib.rcParams>`.
 
@@ -427,9 +427,23 @@ class Axes(_AxesBase):
             ``legend.shadow`` :data:`rcParam<matplotlib.rcParams>`.
 
         framealpha : None or float
-            Control the alpha transparency of the legend's frame.
+            Control the alpha transparency of the legend's background.
             Default is ``None`` which will take the value from the
             ``legend.framealpha`` :data:`rcParam<matplotlib.rcParams>`.
+
+        facecolor : None or "inherit" or a color spec
+            Control the legend's background color.
+            Default is ``None`` which will take the value from the
+            ``legend.facecolor`` :data:`rcParam<matplotlib.rcParams>`.
+            If ``"inherit"``, it will take the ``axes.facecolor``
+            :data:`rcParam<matplotlib.rcParams>`.
+
+        edgecolor : None or "inherit" or a color spec
+            Control the legend's background patch edge color.
+            Default is ``None`` which will take the value from the
+            ``legend.edgecolor`` :data:`rcParam<matplotlib.rcParams>`.
+            If ``"inherit"``, it will take the ``axes.edgecolor``
+            :data:`rcParam<matplotlib.rcParams>`.
 
         mode : {"expand", None}
             If `mode` is set to ``"expand"`` the legend will be horizontally
@@ -4097,7 +4111,7 @@ class Axes(_AxesBase):
         *xscale*: [ 'linear' | 'log' ]
            Use a linear or log10 scale on the horizontal axis.
 
-        *scale*: [ 'linear' | 'log' ]
+        *yscale*: [ 'linear' | 'log' ]
            Use a linear or log10 scale on the vertical axis.
 
         *mincnt*: [ *None* | a positive integer ]
@@ -4111,7 +4125,12 @@ class Axes(_AxesBase):
 
         *extent*: [ *None* | scalars (left, right, bottom, top) ]
            The limits of the bins. The default assigns the limits
-           based on gridsize, x, y, xscale and yscale.
+           based on *gridsize*, *x*, *y*, *xscale* and *yscale*.
+
+           If *xscale* or *yscale* is set to 'log', the limits are
+           expected to be the exponent for a power of 10. E.g. for
+           x-limits of 1 and 50 in 'linear' scale and y-limits
+           of 10 and 1000 in 'log' scale, enter (1, 50, 1, 3).
 
         Other keyword arguments controlling color mapping and normalization
         arguments:
@@ -4944,21 +4963,22 @@ class Axes(_AxesBase):
         Parameters
         -----------
         X : array_like, shape (n, m) or (n, m, 3) or (n, m, 4)
-            Display the image in `X` to current axes.  `X` may be a float
-            array, a uint8 array or a PIL image. If `X` is an array, it
-            can have the following shapes:
+            Display the image in `X` to current axes.  `X` may be an
+            array or a PIL image. If `X` is an array, it
+            can have the following shapes and types:
 
-            - MxN -- luminance (grayscale, float array only)
-            - MxNx3 -- RGB (float or uint8 array)
-            - MxNx4 -- RGBA (float or uint8 array)
+            - MxN -- values to be mapped (float or int)
+            - MxNx3 -- RGB (float or uint8)
+            - MxNx4 -- RGBA (float or uint8)
 
             The value for each component of MxNx3 and MxNx4 float arrays
-            should be in the range 0.0 to 1.0; MxN float arrays may be
-            normalised.
+            should be in the range 0.0 to 1.0. MxN arrays are mapped
+            to colors based on the `norm` (mapping scalar to scalar)
+            and the `cmap` (mapping the normed scalar to a color).
 
         cmap : `~matplotlib.colors.Colormap`, optional, default: None
-            If None, default to rc `image.cmap` value. `cmap` is ignored when
-            `X` has RGB(A) information
+            If None, default to rc `image.cmap` value. `cmap` is ignored
+            if `X` is 3-D, directly specifying RGB(A) values.
 
         aspect : ['auto' | 'equal' | scalar], optional, default: None
             If 'auto', changes the image aspect ratio to match that of the
@@ -4984,9 +5004,11 @@ class Axes(_AxesBase):
 
         norm : `~matplotlib.colors.Normalize`, optional, default: None
             A `~matplotlib.colors.Normalize` instance is used to scale
-            luminance data to 0, 1. If `None`, use the default
-            func:`normalize`. `norm` is only used if `X` is an array of
-            floats.
+            a 2-D float `X` input to the (0, 1) range for input to the
+            `cmap`. If `norm` is None, use the default func:`normalize`.
+            If `norm` is an instance of `~matplotlib.colors.NoNorm`,
+            `X` must be an array of integers that index directly into
+            the lookup table of the `cmap`.
 
         vmin, vmax : scalar, optional, default: None
             `vmin` and `vmax` are used in conjunction with norm to normalize

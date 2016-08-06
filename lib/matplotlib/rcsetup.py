@@ -1000,7 +1000,7 @@ defaultParams = {
                          'Sand', 'Script MT', 'Felipa', 'cursive'],
                         validate_stringlist],
     'font.fantasy':    [['Comic Sans MS', 'Chicago', 'Charcoal', 'Impact'
-                         'Western', 'Humor Sans', 'fantasy'],
+                         'Western', 'Humor Sans', 'fantasy', 'xkcd'],
                         validate_stringlist],
     'font.monospace':  [['DejaVu Sans Mono', 'Bitstream Vera Sans Mono',
                          'Computer Modern Typewriter',
@@ -1161,7 +1161,7 @@ defaultParams = {
     'legend.markerscale': [1.0, validate_float],
     'legend.shadow': [False, validate_bool],
     'legend.facecolor': ['inherit', validate_color_or_inherit],
-    'legend.edgecolor': ['none', validate_color_or_inherit],
+    'legend.edgecolor': ['0.8', validate_color_or_inherit],
 
     # tick properties
     'xtick.top':         [False, validate_bool],   # draw ticks on the top side

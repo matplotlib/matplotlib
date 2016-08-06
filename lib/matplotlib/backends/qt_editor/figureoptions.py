@@ -209,8 +209,8 @@ def figure_edit(axes, parent=None):
             line.set_drawstyle(drawstyle)
             line.set_linewidth(linewidth)
             rgba = mcolors.to_rgba(color)
-            line.set_color(rgba[:3])
-            line.set_alpha(rgba[-1])
+            line.set_alpha(None)
+            line.set_color(rgba)
             if marker is not 'none':
                 line.set_marker(marker)
                 line.set_markersize(markersize)

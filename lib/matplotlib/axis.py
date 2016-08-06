@@ -81,6 +81,7 @@ class Tick(artist.Artist):
                  label1On=True,
                  label2On=False,
                  major=True,
+                 labelrotation=0,
                  ):
         """
         bbox is the Bound2D bounding box in display coords of the Axes
@@ -138,6 +139,8 @@ class Tick(artist.Artist):
         if labelsize is None:
             labelsize = rcParams['%s.labelsize' % name]
         self._labelsize = labelsize
+
+        self._labelrotation = labelrotation
 
         if zorder is None:
             if major:
@@ -333,7 +336,7 @@ class Tick(artist.Artist):
                 self.tick1line.set_markeredgewidth(v)
                 self.tick2line.set_markeredgewidth(v)
         label_list = [k for k in six.iteritems(kw)
-                      if k[0] in ['labelsize', 'labelcolor']]
+                      if k[0] in ['labelsize', 'labelcolor', 'labelrotation']]
         if label_list:
             label_kw = dict([(k[5:], v) for (k, v) in label_list])
             self.label1.set(**label_kw)
@@ -798,7 +801,8 @@ class Axis(artist.Artist):
                    'labelsize', 'labelcolor', 'zorder', 'gridOn',
                    'tick1On', 'tick2On', 'label1On', 'label2On']
         kwkeys1 = ['length', 'direction', 'left', 'bottom', 'right', 'top',
-                   'labelleft', 'labelbottom', 'labelright', 'labeltop']
+                   'labelleft', 'labelbottom', 'labelright', 'labeltop',
+                   'rotation']
         kwkeys = kwkeys0 + kwkeys1
         kwtrans = dict()
         if to_init_kw:
@@ -806,6 +810,8 @@ class Axis(artist.Artist):
                 kwtrans['size'] = kw.pop('length')
             if 'direction' in kw:
                 kwtrans['tickdir'] = kw.pop('direction')
+            if 'rotation' in kw:
+                kwtrans['labelrotation'] = kw.pop('rotation')
             if 'left' in kw:
                 kwtrans['tick1On'] = _string_to_bool(kw.pop('left'))
             if 'bottom' in kw:

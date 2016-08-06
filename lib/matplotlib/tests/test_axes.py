@@ -183,6 +183,16 @@ def test_basic_annotate():
                 xytext=(3, 3), textcoords='offset points')
 
 
+@cleanup
+def test_annotate_default_arrow():
+    # Check that we can make an annotation arrow with only default properties.
+    fig, ax = plt.subplots()
+    ann = ax.annotate("foo", (0, 1), xytext=(2, 3))
+    assert ann.arrow_patch is None
+    ann = ax.annotate("foo", (0, 1), xytext=(2, 3), arrowprops={})
+    assert ann.arrow_patch is not None
+
+
 @image_comparison(baseline_images=['polar_axes'])
 def test_polar_annotations():
     # you can specify the xypoint and the xytext in different
@@ -4574,6 +4584,18 @@ def test_bar_color_cycle():
         brs = ax.bar(range(3), range(3))
         for br in brs:
             assert ccov(ln.get_color()) == ccov(br.get_facecolor())
+
+
+@cleanup
+def test_tick_param_label_rotation():
+    fix, ax = plt.subplots()
+    plt.plot([0, 1], [0, 1])
+    ax.xaxis.set_tick_params(which='both', rotation=75)
+    ax.yaxis.set_tick_params(which='both', rotation=90)
+    for text in ax.get_xticklabels(which='both'):
+        assert text.get_rotation() == 75
+    for text in ax.get_yticklabels(which='both'):
+        assert text.get_rotation() == 90
 
 
 if __name__ == '__main__':

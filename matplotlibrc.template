@@ -206,7 +206,7 @@ backend      : $TEMPLATE_BACKEND
 #font.serif          : DejaVu Serif, Bitstream Vera Serif, New Century Schoolbook, Century Schoolbook L, Utopia, ITC Bookman, Bookman, Nimbus Roman No9 L, Times New Roman, Times, Palatino, Charter, serif
 #font.sans-serif     : DejaVu Sans, Bitstream Vera Sans, Lucida Grande, Verdana, Geneva, Lucid, Arial, Helvetica, Avant Garde, sans-serif
 #font.cursive        : Apple Chancery, Textile, Zapf Chancery, Sand, Script MT, Felipa, cursive
-#font.fantasy        : Comic Sans MS, Chicago, Charcoal, Impact, Western, Humor Sans, fantasy
+#font.fantasy        : Comic Sans MS, Chicago, Charcoal, Impact, Western, Humor Sans, fantasy, xkcd
 #font.monospace      : DejaVu Sans Mono, Bitstream Vera Sans Mono, Andale Mono, Nimbus Mono L, Courier New, Courier, Fixed, Terminal, monospace
 
 ### TEXT
@@ -404,13 +404,13 @@ backend      : $TEMPLATE_BACKEND
 
 ### Legend
 #legend.loc           : best
-#legend.frameon       : True     # whether or not to draw a frame around legend
-#legend.framealpha    : 0.8      # legend frame transparency
+#legend.frameon       : True     # if True, draw the legend on a background patch
+#legend.framealpha    : 0.8      # legend patch transparency
 #legend.facecolor     : inherit  # inherit from axes.facecolor; or color spec
-#legend.edgecolor     : none
+#legend.edgecolor     : 0.8      # background patch boundary color
 #legend.fancybox      : True     # if True, use a rounded box for the
-                                 # legend, else a rectangle
-#legend.shadow        : False
+                                 # legend background, else a rectangle
+#legend.shadow        : False    # if True, give background a shadow effect
 #legend.numpoints     : 1        # the number of marker points in the legend line
 #legend.scatterpoints : 1        # number of scatter points
 #legend.markerscale   : 1.0      # the relative size of legend markers vs. original

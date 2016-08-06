@@ -47,7 +47,7 @@ def html(buildername='html'):
     copy_if_out_of_date(rc, '_static/matplotlibrc')
 
     if small_docs:
-        options = "-D plot_formats=png:80"
+        options = "-D plot_formats=png:100"
     else:
         options = ''
     if warnings_as_errors:

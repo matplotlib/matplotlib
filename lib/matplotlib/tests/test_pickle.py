@@ -127,7 +127,6 @@ def test_simple():
     pickle.dump(fig, BytesIO(), pickle.HIGHEST_PROTOCOL)
 
 
-@cleanup
 @image_comparison(baseline_images=['multi_pickle'],
                   extensions=['png'], remove_text=True)
 def test_complete():
@@ -227,20 +226,6 @@ def test_image():
     ax.imshow(np.arange(12).reshape(3, 4))
     manager.canvas.draw()
     pickle.dump(fig, BytesIO())
-
-
-@cleanup
-def test_grid():
-    from matplotlib.backends.backend_agg import new_figure_manager
-    manager = new_figure_manager(1000)
-    fig = manager.canvas.figure
-    ax = fig.add_subplot(1, 1, 1)
-    ax.grid()
-    # Drawing the grid triggers instance methods to be attached
-    # to the Line2D object (_lineFunc).
-    manager.canvas.draw()
-
-    pickle.dump(ax, BytesIO())
 
 
 @cleanup

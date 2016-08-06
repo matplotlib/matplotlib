@@ -1,11 +1,12 @@
+language: python
+
 sudo: false
 
 cache:
+  pip: true
   directories:
-    - $HOME/.ccache
-    - $HOME/.cache/pip
+    - $HOME/.ccache  # https://github.com/travis-ci/travis-ci/issues/5853
     - $HOME/.cache/matplotlib
-    - $HOME/Library/Caches/pip
 
 addons:
   apt:
@@ -45,8 +46,7 @@ env:
     - TEST_ARGS=--no-pep8
     - NOSE_ARGS="--processes=$NPROC --process-timeout=300"
     - PYTHON_ARGS=
-
-language: python
+    - DELETE_FONT_CACHE=
 
 matrix:
   include:
@@ -55,7 +55,7 @@ matrix:
     - python: 3.4
       env: PYTHON_ARGS=-OO
     - python: 3.5
-      env: PANDAS=pandas NOSE_ARGS=--with-coverage
+      env: PANDAS=pandas NOSE_ARGS=--with-coverage DELETE_FONT_CACHE=1
     - python: 3.5
       env: TEST_ARGS=--pep8
     - python: 3.5
@@ -64,8 +64,17 @@ matrix:
       env: PRE=--pre
     - os: osx
       osx_image: xcode7.3
-      language: generic
+      language: generic  # https://github.com/travis-ci/travis-ci/issues/2312
       env: MOCK=mock NOSE_ARGS=
+      cache:
+        # As for now travis caches only "$HOME/.cache/pip"
+        # https://docs.travis-ci.com/user/caching/#pip-cache
+        pip: false
+        directories:
+          - $HOME/Library/Caches/pip
+          # `cache` does not support `env`-like `global` so copy-paste from top
+          - $HOME/.ccache  # https://github.com/travis-ci/travis-ci/issues/5853
+          - $HOME/.cache/matplotlib
   allow_failures:
     - python: "nightly"
 
@@ -139,15 +148,18 @@ script:
     MPLBACKEND="tkagg" python -c 'import matplotlib.pyplot as plt; print(plt.get_backend())'
     echo The following args are passed to nose $NOSE_ARGS
     if [[ $BUILD_DOCS == false ]]; then
+      if [[ $DELETE_FONT_CACHE == 1 ]]; then
+        rm -rf ~/.cache/matplotlib
+      fi
       export MPL_REPO_DIR=$PWD  # needed for pep8-conformance test of the examples
       if [[ $TRAVIS_OS_NAME == 'osx' ]]; then
         python tests.py $NOSE_ARGS $TEST_ARGS
-      else 
+      else
         gdb -return-child-result -batch -ex r -ex bt --args python $PYTHON_ARGS tests.py $NOSE_ARGS $TEST_ARGS
       fi
     else
       cd doc
-      python make.py html --small
+      python make.py html
       # We don't build the LaTeX docs here, so linkchecker will complain
       touch build/html/Matplotlib.pdf
       # Linkchecker only works with python 2.7 for the time being
