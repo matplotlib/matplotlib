@@ -15,6 +15,7 @@ from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
 import six
+import io
 
 import warnings
 from operator import itemgetter
@@ -1662,7 +1663,22 @@ class Figure(Artist):
             A list of extra artists that will be considered when the
             tight bbox is calculated.
 
+          *return_bytes*:
+            A boolean, which if set to True and fname not specified,
+            returns a bytestring which otherwise would have been written
+            to file. If as_bytes is set True, make sure to also specify
+            *format*.
         """
+
+        if 'return_bytes' in kwargs and kwargs['return_bytes'] is True:
+            if len(args) > 0:
+                raise ValueError("fname should not be specified if "
+                                 "return_bytes is set True")
+            del(kwargs['return_bytes'])
+            in_memory_file = io.BytesIO()
+            self.savefig(in_memory_file, **kwargs)
+            in_memory_file.seek(0)
+            return in_memory_file.getvalue()
 
         kwargs.setdefault('dpi', rcParams['savefig.dpi'])
         frameon = kwargs.pop('frameon', rcParams['savefig.frameon'])
