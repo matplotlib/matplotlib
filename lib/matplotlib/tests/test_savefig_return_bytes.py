@@ -20,7 +20,8 @@ def compare_bytes_with_image(func, baseline_image, actual_image_as_bytes,
         with open(actual_fname, 'wb') as f:
             f.write(actual_image_as_bytes)
 
-        err = compare_images(expected_fname, actual_fname, tolerance, in_decorator=True)
+        err = compare_images(expected_fname, actual_fname, tolerance,
+                             in_decorator=True)
 
         if not os.path.exists(expected_fname):
             raise ImageComparisonFailure(
@@ -29,7 +30,7 @@ def compare_bytes_with_image(func, baseline_image, actual_image_as_bytes,
         if err:
             raise ImageComparisonFailure(
                 'images not close: %(actual)s vs. %(expected)s '
-                '(RMS %(rms).3f)'%err)
+                '(RMS %(rms).3f)' % err)
 
 
 def test_return_bytes():
@@ -55,6 +56,7 @@ def test_pyplot_return_bytes():
     pyplot.ylabel('y')
     image_as_bytes = pyplot.savefig(return_bytes=True, format='png')
 
-    compare_bytes_with_image(test_pyplot_return_bytes, 'pyplot_plot_to_png_bytes',
+    compare_bytes_with_image(test_pyplot_return_bytes,
+                             'pyplot_plot_to_png_bytes',
                              image_as_bytes)
     pyplot.close()
