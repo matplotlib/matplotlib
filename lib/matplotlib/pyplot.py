@@ -1037,6 +1037,65 @@ def subplot(*args, **kwargs):
     return a
 
 
+def subplots_generator(*args, **kwargs):
+    """ Iteratively yields the axis object of a rows x cols subplot and
+    creates new subplots when needed
+
+    Parameters
+    ----------
+    nrows : int, default: 1
+        Number of rows of the subplot grid.
+
+    ncols : int, default: 1
+        Number of columns of the subplot grid.
+
+    sharex : {"none", "all", "row", "col"} or bool, default: False
+        If *False*, or "none", each subplot has its own X axis.
+
+        If *True*, or "all", all subplots will share an X axis, and the x
+        tick labels on all but the last row of plots will be invisible.
+
+        If "col", each subplot column will share an X axis, and the x
+        tick labels on all but the last row of plots will be invisible.
+
+        If "row", each subplot row will share an X axis.
+
+    sharey : {"none", "all", "row", "col"} or bool, default: False
+        If *False*, or "none", each subplot has its own Y axis.
+
+        If *True*, or "all", all subplots will share an Y axis, and the y
+        tick labels on all but the first column of plots will be invisible.
+
+        If "row", each subplot row will share an Y axis, and the y tick
+        labels on all but the first column of plots will be invisible.
+
+        If "col", each subplot column will share an Y axis.
+
+    subplot_kw : dict, default: {}
+        Dict with keywords passed to the
+        :meth:`~matplotlib.figure.Figure.add_subplot` call used to create
+        each subplots.
+
+    gridspec_kw : dict, default: {}
+        Dict with keywords passed to the
+        :class:`~matplotlib.gridspec.GridSpec` constructor used to create
+        the grid the subplots are placed on.
+
+    Yields
+    -------
+    The next axis of the grid as specified by subplots."""
+
+    show_in_between = kwargs.pop('show_in_between', False)
+    kwargs['squeeze'] = False
+
+    while True:
+        _, axes = subplots(*args, **kwargs)
+        for ax in axes.ravel():
+            yield ax
+        if show_in_between:
+            show(block=False)
+
+
 def subplots(nrows=1, ncols=1, sharex=False, sharey=False, squeeze=True,
                 subplot_kw=None, gridspec_kw=None, **fig_kw):
     """

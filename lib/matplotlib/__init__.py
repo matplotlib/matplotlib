@@ -1530,6 +1530,7 @@ default_test_modules = [
     'matplotlib.tests.test_streamplot',
     'matplotlib.tests.test_style',
     'matplotlib.tests.test_subplots',
+    'matplotlib.tests.test_subplots_iterator',
     'matplotlib.tests.test_table',
     'matplotlib.tests.test_text',
     'matplotlib.tests.test_texmanager',
