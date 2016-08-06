@@ -44,3 +44,17 @@ def test_return_bytes():
 
     compare_bytes_with_image(test_return_bytes, 'plot_to_png_bytes',
                              image_as_bytes)
+    pyplot.close(fig)
+
+
+def test_pyplot_return_bytes():
+    x = numpy.arange(100)
+
+    pyplot.plot(x, x ** 2)
+    pyplot.xlabel('x')
+    pyplot.ylabel('y')
+    image_as_bytes = pyplot.savefig(return_bytes=True, format='png')
+
+    compare_bytes_with_image(test_pyplot_return_bytes, 'pyplot_plot_to_png_bytes',
+                             image_as_bytes)
+    pyplot.close()
