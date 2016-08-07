@@ -14,6 +14,7 @@ from matplotlib.testing.decorators import cleanup
 import warnings
 
 
+@cleanup(style='classic')
 def test_MaxNLocator():
     loc = mticker.MaxNLocator(nbins=5)
     test_value = np.array([20., 40., 60., 80., 100.])
