@@ -2389,7 +2389,7 @@ def rec_append_fields(rec, names, arrs, dtypes=None):
             raise ValueError("dtypes must be None, a single dtype or a list")
     old_dtypes = rec.dtype.descr
     if six.PY2:
-        old_dtypes = [(a[0].encode('utf-8'), a[1]) for a in old_dtypes]
+        old_dtypes = [(name.encode('utf-8'), dt) for name, dt in old_dtypes]
     newdtype = np.dtype(old_dtypes + list(zip(names, dtypes)))
     newrec = np.recarray(rec.shape, dtype=newdtype)
     for field in rec.dtype.fields:
@@ -2600,7 +2600,7 @@ def rec_join(key, r1, r2, jointype='inner', defaults=None, r1postfix='1',
               if desc[0] not in key]
     all_dtypes = keydesc + r1desc + r2desc
     if six.PY2:
-        all_dtypes = [(a[0].encode('utf-8'), a[1]) for a in all_dtypes]
+        all_dtypes = [(name.encode('utf-8'), dt) for name, dt in all_dtypes]
     newdtype = np.dtype(all_dtypes)
     newrec = np.recarray((common_len + left_len + right_len,), dtype=newdtype)
 
