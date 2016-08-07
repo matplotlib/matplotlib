@@ -45,6 +45,7 @@ from matplotlib.patches import Rectangle
 from matplotlib.projections import (get_projection_names,
                                     process_projection_requirements)
 from matplotlib.text import Text, _process_text_args
+from matplotlib.ticker import NullLocator
 from matplotlib.transforms import (Affine2D, Bbox, BboxTransformTo,
                                    TransformedBbox)
 from matplotlib.backend_bases import NonGuiException
@@ -558,6 +559,33 @@ class Figure(Artist):
             sup.remove()
         else:
             self._suptitle = sup
+
+        self.stale = True
+        return self._suptitle
+
+    def suptitle2(self, text):
+        from .tight_layout import get_subplotspec_list
+        subplotspec_list = get_subplotspec_list(self.axes)
+        if None in subplotspec_list:
+            warnings.warn("This figure includes Axes that are not "
+                          "compatible with suptitle2, so its "
+                          "results might be incorrect.")
+
+        gs = GridSpec(2, 1, height_ratios=[0, 1])
+        title_axes = self.add_subplot(gs[0], frameon=False)
+        self._suptitle = title_axes.set_title(text)
+
+        class empty_axis:
+            @property
+            def _get_pixel_distance_along_axis(self):
+                raise AttributeError
+
+        title_axes.xaxis.__class__ = type(
+            "_", (empty_axis, type(title_axes.xaxis)), {})
+        title_axes.yaxis.__class__ = type(
+            "_", (empty_axis, type(title_axes.yaxis)), {})
+        title_axes.xaxis.set_major_locator(NullLocator())
+        title_axes.yaxis.set_major_locator(NullLocator())
 
         self.stale = True
         return self._suptitle
