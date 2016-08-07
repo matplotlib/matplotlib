@@ -1603,7 +1603,9 @@ class MaxNLocator(Locator):
             e.g., [1, 2, 4, 5, 10]
 
         *integer*
-            If True, ticks will take only integer values.
+            If True, ticks will take only integer values, provided
+            at least `min_n_ticks` integers are found within the
+            view limits.
 
         *symmetric*
             If True, autoscaling will result in a range symmetric
@@ -1613,16 +1615,16 @@ class MaxNLocator(Locator):
             ['lower' | 'upper' | 'both' | None]
             Remove edge ticks -- useful for stacked or ganged plots
             where the upper tick of one axes overlaps with the lower
-            tick of the axes above it.
-            If prune=='lower', the smallest tick will
-            be removed.  If prune=='upper', the largest tick will be
-            removed.  If prune=='both', the largest and smallest ticks
-            will be removed.  If prune==None, no ticks will be removed.
+            tick of the axes above it, primarily when
+            `rcParams['axes.autolimit_mode']` is `'round_numbers'`.
+            If `prune=='lower'`, the smallest tick will
+            be removed.  If `prune=='upper'`, the largest tick will be
+            removed.  If `prune=='both'`, the largest and smallest ticks
+            will be removed.  If `prune==None`, no ticks will be removed.
 
         *min_n_ticks*
-            While the estimated number of ticks is less than the minimum,
-            the target value *nbins* is incremented and the ticks are
-            recalculated.
+            Relax `nbins` and `integer` constraints if necessary to
+            obtain this minimum number of ticks.
 
         """
         if args:
@@ -1643,8 +1645,6 @@ class MaxNLocator(Locator):
             warnings.warn(
                 "The 'trim' keyword has no effect since version 2.0.",
                 mplDeprecation)
-        if 'integer' in kwargs:
-            self._integer = kwargs['integer']
         if 'symmetric' in kwargs:
             self._symmetric = kwargs['symmetric']
         if 'prune' in kwargs:
@@ -1662,6 +1662,13 @@ class MaxNLocator(Locator):
                     steps = list(steps)
                     steps.append(10)
                 self._steps = steps
+            # Make an extended staircase within which the needed
+            # step will be found.  This is probably much larger
+            # than necessary.
+            flights = (0.1 * np.array(self._steps[:-1]),
+                       self._steps,
+                       [10 * self._steps[1]])
+            self._extended_steps = np.hstack(flights)
         if 'integer' in kwargs:
             self._integer = kwargs['integer']
         if self._integer:
@@ -1676,41 +1683,37 @@ class MaxNLocator(Locator):
         else:
             nbins = self._nbins
 
-        while True:
-            ticks = self._try_raw_ticks(vmin, vmax, nbins)
+        scale, offset = scale_range(vmin, vmax, nbins)
+        _vmin = vmin - offset
+        _vmax = vmax - offset
+        raw_step = (vmax - vmin) / nbins
+        steps = self._extended_steps * scale
+        istep = np.nonzero(steps >= raw_step)[0][0]
+
+        # Classic round_numbers mode may require a larger step.
+        if rcParams['axes.autolimit_mode'] == 'round_numbers':
+            for istep in range(istep, len(steps)):
+                step = steps[istep]
+                best_vmin = (_vmin // step) * step
+                best_vmax = best_vmin + step * nbins
+                if (best_vmax >= _vmax):
+                    break
+
+        # This is an upper limit; move to smaller steps if necessary.
+        for i in range(istep):
+            step = steps[istep - i]
+            if (self._integer and
+                    np.floor(_vmax) - np.ceil(_vmin) > self._min_n_ticks - 1):
+                step = max(1, step)
+            best_vmin = (_vmin // step) * step
+
+            low = round(Base(step).le(_vmin - best_vmin) / step)
+            high = round(Base(step).ge(_vmax - best_vmin) / step)
+            ticks = np.arange(low, high + 1) * step + best_vmin + offset
             nticks = ((ticks <= vmax) & (ticks >= vmin)).sum()
             if nticks >= self._min_n_ticks:
                 break
-            nbins += 1
-
-        self._nbins_used = nbins  # Maybe useful for troubleshooting.
         return ticks
-
-    def _try_raw_ticks(self, vmin, vmax, nbins):
-        scale, offset = scale_range(vmin, vmax, nbins)
-        if self._integer:
-            scale = max(1, scale)
-        vmin = vmin - offset
-        vmax = vmax - offset
-        raw_step = (vmax - vmin) / nbins
-        scaled_raw_step = raw_step / scale
-        best_vmax = vmax
-        best_vmin = vmin
-
-        steps = (x for x in self._steps if x >= scaled_raw_step)
-        for step in steps:
-            step *= scale
-            best_vmin = vmin // step * step
-            best_vmax = best_vmin + step * nbins
-            if best_vmax >= vmax:
-                break
-
-        # More than nbins may be required, e.g. vmin, vmax = -4.1, 4.1 gives
-        # nbins=9 but 10 bins are actually required after rounding.  So we just
-        # create the bins that span the range we need instead.
-        low = round(Base(step).le(vmin - best_vmin) / step)
-        high = round(Base(step).ge(vmax - best_vmin) / step)
-        return np.arange(low, high + 1) * step + best_vmin + offset
 
     @cbook.deprecated("2.0")
     def bin_boundaries(self, vmin, vmax):
