@@ -1545,6 +1545,7 @@ default_test_modules = [
     'matplotlib.tests.test_type1font',
     'matplotlib.tests.test_ttconv',
     'matplotlib.tests.test_units',
+    'matplotlib.tests.test_usetex',
     'matplotlib.tests.test_widgets',
     'matplotlib.tests.test_cycles',
     'matplotlib.tests.test_preprocess_data',
