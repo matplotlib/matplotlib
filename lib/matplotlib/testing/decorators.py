@@ -12,7 +12,10 @@ import shutil
 import warnings
 import unittest
 
-import nose
+# Note - don't import nose up here - import it only as needed in functions. This
+# allows other functions here to be used by pytest-based testing suites without
+# requiring nose to be installed.
+
 import numpy as np
 
 import matplotlib as mpl
@@ -417,6 +420,9 @@ def _image_directories(func):
 
 
 def switch_backend(backend):
+    # Local import to avoid a hard nose dependency and only incur the
+    # import time overhead at actual test-time.
+    import nose
     def switch_backend_decorator(func):
         def backend_switcher(*args, **kwargs):
             try:
