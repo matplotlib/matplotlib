@@ -3551,6 +3551,8 @@ class Axes(_AxesBase):
             'dotted': ':'
         }
 
+        zorder = mlines.Line2D.zorder
+        zdelta = 0.1
         # box properties
         if patch_artist:
             final_boxprops = dict(
@@ -3567,6 +3569,7 @@ class Axes(_AxesBase):
                 color=rcParams['boxplot.boxprops.color'],
             )
 
+        final_boxprops['zorder'] = zorder
         if boxprops is not None:
             final_boxprops.update(boxprops)
 
@@ -3583,9 +3586,11 @@ class Axes(_AxesBase):
             color=rcParams['boxplot.capprops.color'],
         )
 
+        final_capprops['zorder'] = zorder
         if capprops is not None:
             final_capprops.update(capprops)
 
+        final_whiskerprops['zorder'] = zorder
         if whiskerprops is not None:
             final_whiskerprops.update(whiskerprops)
 
@@ -3600,6 +3605,7 @@ class Axes(_AxesBase):
             markersize=rcParams['boxplot.flierprops.markersize'],
         )
 
+        final_flierprops['zorder'] = zorder
         # flier (outlier) properties
         if flierprops is not None:
             final_flierprops.update(flierprops)
@@ -3610,6 +3616,7 @@ class Axes(_AxesBase):
             linewidth=rcParams['boxplot.medianprops.linewidth'],
             color=rcParams['boxplot.medianprops.color'],
         )
+        final_medianprops['zorder'] = zorder + zdelta
         if medianprops is not None:
             final_medianprops.update(medianprops)
 
@@ -3628,13 +3635,14 @@ class Axes(_AxesBase):
                 markeredgecolor=rcParams['boxplot.meanprops.markeredgecolor'],
                 markersize=rcParams['boxplot.meanprops.markersize'],
             )
+        final_meanprops['zorder'] = zorder + zdelta
         if meanprops is not None:
             final_meanprops.update(meanprops)
 
         def to_vc(xs, ys):
             # convert arguments to verts and codes
             verts = []
-            #codes = []
+
             for xi, yi in zip(xs, ys):
                 verts.append((xi, yi))
             verts.append((0, 0))  # ignored
