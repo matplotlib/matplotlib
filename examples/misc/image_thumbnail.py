@@ -1,3 +1,4 @@
+# -*- noplot -*-
 """
 You can use matplotlib to generate thumbnails from existing images.
 matplotlib natively supports PNG files on the input side, and other
