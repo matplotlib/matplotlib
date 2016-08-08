@@ -72,7 +72,7 @@ def draw_if_interactive():
 
 
 class Show(backend_bases.ShowBase):
-    def mainloop(self):
+    def mainloop(self, timeout=-1):
         WebAggApplication.initialize()
 
         url = "http://127.0.0.1:{port}{prefix}".format(
@@ -85,7 +85,7 @@ class Show(backend_bases.ShowBase):
         else:
             print("To view figure, visit {0}".format(url))
 
-        WebAggApplication.start()
+        WebAggApplication.start(timeout)
 
 
 show = Show().mainloop
@@ -107,13 +107,20 @@ class FigureCanvasWebAgg(core.FigureCanvasWebAggCore):
         return TimerTornado(*args, **kwargs)
 
     def start_event_loop(self, timeout):
-        backend_bases.FigureCanvasBase.start_event_loop_default(
-            self, timeout)
+        show(timeout=timeout)
     start_event_loop.__doc__ = \
         backend_bases.FigureCanvasBase.start_event_loop_default.__doc__
 
     def stop_event_loop(self):
-        backend_bases.FigureCanvasBase.stop_event_loop_default(self)
+        ioloop = tornado.ioloop.IOLoop.instance()
+
+        def shutdown():
+            ioloop.stop()
+            print("Server is stopped")
+            sys.stdout.flush()
+            WebAggApplication.started = False
+
+        ioloop.add_callback(shutdown)
     stop_event_loop.__doc__ = \
         backend_bases.FigureCanvasBase.stop_event_loop_default.__doc__
 
@@ -320,7 +327,7 @@ class WebAggApplication(tornado.web.Application):
         cls.initialized = True
 
     @classmethod
-    def start(cls):
+    def start(cls, timeout=-1):
         if cls.started:
             return
 
@@ -352,7 +359,12 @@ class WebAggApplication(tornado.web.Application):
         # Set the flag to True *before* blocking on ioloop.start()
         cls.started = True
 
-        print("Press Ctrl+C to stop WebAgg server")
+        if timeout > 0:
+            print("Press Ctrl+C or wait", timeout,
+                  "seconds to stop WebAgg server")
+            ioloop.add_timeout(ioloop.time() + timeout, shutdown)
+        else:
+            print("Press Ctrl+C to stop WebAgg server")
         sys.stdout.flush()
         with catch_sigint():
             ioloop.start()
