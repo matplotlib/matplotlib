@@ -1,6 +1,7 @@
 import matplotlib.pyplot as plt
 import matplotlib.units as munits
 import numpy as np
+from matplotlib.testing.decorators import cleanup
 
 try:
     # mock in python 3.3+
@@ -11,6 +12,7 @@ except ImportError:
 
 # Tests that the conversion machinery works properly for classes that
 # work as a facade over numpy arrays (like pint)
+@cleanup
 def test_numpy_facade():
     # Basic class that wraps numpy array and has units
     class Quantity(object):
