@@ -1614,7 +1614,7 @@ class Pyparsing(SetupPackage):
         return "using pyparsing version %s" % pyparsing.__version__
 
     def get_install_requires(self):
-        versionstring = 'pyparsing>=1.5.6,!=2.0.4,!=2.1.2'
+        versionstring = 'pyparsing>=1.5.6,!=2.0.4,!=2.1.2,!=2.1.6'
         if self.is_ok():
             return [versionstring]
         else:
