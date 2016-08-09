@@ -400,8 +400,7 @@ class ToolEnableNavigation(ToolBase):
 
 
 class _ToolGridBase(ToolBase):
-    """Common functionality between ToolGrid and ToolMinorGrid.
-    """
+    """Common functionality between ToolGrid and ToolMinorGrid."""
 
     _cycle = [(False, False), (True, False), (True, True), (False, True)]
 
@@ -420,7 +419,8 @@ class _ToolGridBase(ToolBase):
 
     @staticmethod
     def _get_uniform_grid_state(ticks):
-        """Check whether all grid lines are in the same visibility state.
+        """
+        Check whether all grid lines are in the same visibility state.
 
         Returns True/False if all grid lines are on or off, None if they are
         not all in the same state.
@@ -443,7 +443,7 @@ class ToolGrid(_ToolGridBase):
         x_state, y_state = map(self._get_uniform_grid_state,
                                [ax.xaxis.majorTicks, ax.yaxis.majorTicks])
         cycle = self._cycle
-        # Bail out if major grids are not in a uniform state.
+        # Bail out (via ValueError) if major grids are not in a uniform state.
         x_state, y_state = (
             cycle[(cycle.index((x_state, y_state)) + 1) % len(cycle)])
         return x_state, y_state, "major"
@@ -463,7 +463,7 @@ class ToolMinorGrid(_ToolGridBase):
         x_state, y_state = map(self._get_uniform_grid_state,
                                [ax.xaxis.minorTicks, ax.yaxis.minorTicks])
         cycle = self._cycle
-        # Bail out if minor grids are not in a uniform state.
+        # Bail out (via ValueError) if minor grids are not in a uniform state.
         x_state, y_state = (
             cycle[(cycle.index((x_state, y_state)) + 1) % len(cycle)])
         return x_state, y_state, "both"
