@@ -985,6 +985,15 @@ class PcolorImage(AxesImage):
                     self.is_grayscale = True
             else:
                 raise ValueError("3D arrays must have RGB or RGBA as last dim")
+
+        # For efficient cursor readout, ensure x and y are increasing.
+        if x[-1] < x[0]:
+            x = x[::-1]
+            A = A[:, ::-1]
+        if y[-1] < y[0]:
+            y = y[::-1]
+            A = A[::-1]
+
         self._A = A
         self._Ax = x
         self._Ay = y
@@ -993,6 +1002,19 @@ class PcolorImage(AxesImage):
 
     def set_array(self, *args):
         raise NotImplementedError('Method not supported')
+
+    def get_cursor_data(self, event):
+        """Get the cursor data for a given event"""
+        x, y = event.xdata, event.ydata
+        if (x < self._Ax[0] or x > self._Ax[-1] or
+                y < self._Ay[0] or y > self._Ay[-1]):
+            return None
+        j = np.searchsorted(self._Ax, x) - 1
+        i = np.searchsorted(self._Ay, y) - 1
+        try:
+            return self._A[i, j]
+        except:
+            return None
 
 
 class FigureImage(_ImageBase):
