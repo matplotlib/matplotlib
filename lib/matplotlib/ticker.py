@@ -1703,7 +1703,7 @@ class MaxNLocator(Locator):
         for i in range(istep):
             step = steps[istep - i]
             if (self._integer and
-                    np.floor(_vmax) - np.ceil(_vmin) > self._min_n_ticks - 1):
+                    np.floor(_vmax) - np.ceil(_vmin) >= self._min_n_ticks - 1):
                 step = max(1, step)
             best_vmin = (_vmin // step) * step
 
