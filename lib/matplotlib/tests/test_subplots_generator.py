@@ -79,7 +79,7 @@ def test_shared():
     share[True] = share['all']
 
     # test default
-    axs = [axis for axis, _ in zip(plt.subplots_iterator(2, 2), range(4))]
+    axs = [axis for axis, _ in zip(plt.subplots_generator(2, 2), range(4))]
     check_shared(axs, share['none'], share['none'])
     plt.close(axs[0].figure)
 
@@ -88,7 +88,7 @@ def test_shared():
     for xo in ops:
         for yo in ops:
             axs = [axis for axis, _ in
-                   zip(plt.subplots_iterator(2, 2, sharex=xo, sharey=yo),
+                   zip(plt.subplots_generator(2, 2, sharex=xo, sharey=yo),
                        range(4))]
             check_shared(axs, share[xo], share[yo])
             check_visible(axs, visible['x'][xo], visible['y'][yo])
@@ -96,7 +96,7 @@ def test_shared():
 
     # test label_outer
     axs = [ axis for axis, _ in zip(
-        plt.subplots_iterator(2, 2, sharex=True, sharey=True),
+        plt.subplots_generator(2, 2, sharex=True, sharey=True),
         range(4)
     )]
     for ax in axs:
@@ -107,9 +107,9 @@ def test_shared():
 def test_exceptions():
     # TODO should this test more options?
     assert_raises(ValueError,
-                  lambda: next(plt.subplots_iterator(2, 2, sharex='blah')))
+                  lambda: next(plt.subplots_generator(2, 2, sharex='blah')))
     assert_raises(ValueError,
-                  lambda: next(plt.subplots_iterator(2, 2, sharey='blah')))
+                  lambda: next(plt.subplots_generator(2, 2, sharey='blah')))
     # We filter warnings in this test which are genuine since
     # the point of this test is to ensure that this raises.
     with warnings.catch_warnings():
@@ -117,18 +117,18 @@ def test_exceptions():
                                 message='.*sharex\ argument\ to\ subplots',
                                 category=UserWarning)
         assert_raises(ValueError,
-                      lambda: next(plt.subplots_iterator(2, 2, sharex=-1)))
+                      lambda: next(plt.subplots_generator(2, 2, sharex=-1)))
         assert_raises(ValueError,
-                      lambda: next(plt.subplots_iterator(2, 2, sharex=0)))
+                      lambda: next(plt.subplots_generator(2, 2, sharex=0)))
         assert_raises(ValueError,
-                      lambda: next(plt.subplots_iterator(2, 2, sharex=5)))
+                      lambda: next(plt.subplots_generator(2, 2, sharex=5)))
 
 
 @image_comparison(baseline_images=['subplots_offset_text'], remove_text=False)
 def test_subplots_offsettext():
     x = numpy.arange(0, 1e10, 1e9)
     y = numpy.arange(0, 100, 10) + 1e4
-    it = plt.subplots_iterator(2, 2, sharex='col', sharey='all')
+    it = plt.subplots_generator(2, 2, sharex='col', sharey='all')
     next(it).plot(x, x)
     next(it).plot(y, x)
     next(it).plot(x, x)
@@ -139,7 +139,7 @@ def test_subplots_offsettext():
 def test_multiple_figures():
     x = numpy.arange(0, 1e10, 1e9)
     y = numpy.arange(0, 100, 10) + 1e4
-    it = plt.subplots_iterator(2, 2, sharex='col', sharey='all')
+    it = plt.subplots_generator(2, 2, sharex='col', sharey='all')
     for _ in range(12):
         next(it).plot(x, y)
 
