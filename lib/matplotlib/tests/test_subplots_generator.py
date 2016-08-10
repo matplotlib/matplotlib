@@ -28,7 +28,9 @@ def check_shared(axs, x_shared, y_shared):
 
 
 def check_visible(axs, x_visible, y_visible):
-    tostr = lambda v: "invisible" if v else "visible"
+    def tostr(v):
+        return "invisible" if v else "visible"
+
     for (ax, vx, vy) in zip(axs, x_visible, y_visible):
         for l in ax.get_xticklabels() + [ax.get_xaxis().offsetText]:
             assert l.get_visible() == vx, \
@@ -93,8 +95,10 @@ def test_shared():
             plt.close(axs[0].figure)
 
     # test label_outer
-    axs = [axis for axis, _ in
-           zip(plt.subplots_iterator(2, 2, sharex=True, sharey=True), range(4))]
+    axs = [ axis for axis, _ in zip(
+        plt.subplots_iterator(2, 2, sharex=True, sharey=True),
+        range(4)
+    )]
     for ax in axs:
         ax.label_outer()
     check_visible(axs, [False, False, True, True], [True, False, True, False])
