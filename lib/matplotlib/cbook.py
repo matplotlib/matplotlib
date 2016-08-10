@@ -16,7 +16,7 @@ import collections
 
 import datetime
 import errno
-from functools import reduce
+import functools
 import glob
 import gzip
 import io
@@ -1758,7 +1758,7 @@ def delete_masked_points(*args):
             except:  # Fixme: put in tuple of possible exceptions?
                 pass
     if len(masks):
-        mask = reduce(np.logical_and, masks)
+        mask = functools.reduce(np.logical_and, masks)
         igood = mask.nonzero()[0]
         if len(igood) < nrecs:
             for i, x in enumerate(margs):
@@ -2443,6 +2443,14 @@ def safe_first_element(obj):
         raise RuntimeError("matplotlib does not support generators "
                            "as input")
     return next(iter(obj))
+
+
+def sanitize_sequence(data):
+    """Converts dictview object to list
+    """
+    if six.PY3 and isinstance(data, collections.abc.MappingView):
+        return list(data)
+    return data
 
 
 def normalize_kwargs(kw, alias_mapping=None, required=(), forbidden=(),
