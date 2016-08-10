@@ -139,6 +139,7 @@ mpl_example_sections = [
     ('axisartist', 'axisartist toolkit'),
     ('units', 'units'),
     ('widgets', 'widgets'),
+    ('misc', 'Miscellaneous examples'),
     ]
 
 

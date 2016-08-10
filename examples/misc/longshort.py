@@ -3,18 +3,18 @@ Illustrate the rec array utility funcitons by loading prices from a
 csv file, computing the daily returns, appending the results to the
 record arrays, joining on date
 """
-import urllib
+from six.moves import urllib
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.mlab as mlab
 
 # grab the price data off yahoo
-u1 = urllib.urlretrieve('http://ichart.finance.yahoo.com/table.csv?s=AAPL&d=9&e=14&f=2008&g=d&a=8&b=7&c=1984&ignore=.csv')
-u2 = urllib.urlretrieve('http://ichart.finance.yahoo.com/table.csv?s=GOOG&d=9&e=14&f=2008&g=d&a=8&b=7&c=1984&ignore=.csv')
+u1 = urllib.request.urlretrieve('http://ichart.finance.yahoo.com/table.csv?s=AAPL&d=9&e=14&f=2008&g=d&a=8&b=7&c=1984&ignore=.csv')
+u2 = urllib.request.urlretrieve('http://ichart.finance.yahoo.com/table.csv?s=GOOG&d=9&e=14&f=2008&g=d&a=8&b=7&c=1984&ignore=.csv')
 
 # load the CSV files into record arrays
-r1 = mlab.csv2rec(file(u1[0]))
-r2 = mlab.csv2rec(file(u2[0]))
+r1 = mlab.csv2rec(open(u1[0]))
+r2 = mlab.csv2rec(open(u2[0]))
 
 # compute the daily returns and add these columns to the arrays
 gains1 = np.zeros_like(r1.adj_close)
