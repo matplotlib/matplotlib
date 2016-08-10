@@ -95,7 +95,8 @@ def test_shared():
             plt.close(axs[0].figure)
 
     # test label_outer
-    axs = [ axis for axis, _ in zip(
+    axs = [
+        axis for axis, _ in zip(
         plt.subplots_generator(2, 2, sharex=True, sharey=True),
         range(4)
     )]
