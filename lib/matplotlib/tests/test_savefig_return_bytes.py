@@ -34,11 +34,9 @@ def compare_bytes_with_image(func, baseline_image, actual_image_as_bytes,
 
 
 def test_return_bytes():
-    x = numpy.arange(100)
-
     fig = pyplot.figure()
     axis = fig.add_subplot(111)
-    axis.plot(x, x ** 2)
+    axis.plot([1,2,3,4,5,6,7,8], [1,4,9,2,4,3,6,8], 'b')
     axis.set_xlabel('x')
     axis.set_ylabel('y')
     image_as_bytes = fig.savefig(return_bytes=True, format='png')
@@ -49,9 +47,8 @@ def test_return_bytes():
 
 
 def test_pyplot_return_bytes():
-    x = numpy.arange(100)
-
-    pyplot.plot(x, x ** 2)
+    fig = pyplot.figure()
+    pyplot.plot([1,2,3,4,5,6,7,8], [1,4,9,2,4,3,6,8], 'r')
     pyplot.xlabel('x')
     pyplot.ylabel('y')
     image_as_bytes = pyplot.savefig(return_bytes=True, format='png')
@@ -59,4 +56,4 @@ def test_pyplot_return_bytes():
     compare_bytes_with_image(test_pyplot_return_bytes,
                              'pyplot_plot_to_png_bytes',
                              image_as_bytes)
-    pyplot.close()
+    pyplot.close(fig)
