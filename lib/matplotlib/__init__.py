@@ -831,10 +831,16 @@ def matplotlib_fname():
         fname = os.path.join(configdir, 'matplotlibrc')
         if os.path.exists(fname):
             home = get_home()
+            depconfigdir = os.path.join(home, '.matplotlib')
+            link2xdg = os.path.islink(depconfigdir)
+            if link2xdg:
+                link2xdg = os.path.join(os.path.dirname(depconfigdir),
+                                        os.readlink(depconfigdir))
+                link2xdg = os.path.dirname(link2xdg.rstrip('/'))
             if (sys.platform.startswith('linux') and
                 home is not None and
-                os.path.exists(os.path.join(
-                    home, '.matplotlib', 'matplotlibrc'))):
+                os.path.exists(os.path.join(depconfigdir, 'matplotlibrc')) and
+                link2xdg != _get_xdg_config_dir()):
                 warnings.warn(
                     "Found matplotlib configuration in ~/.matplotlib/. "
                     "To conform with the XDG base directory standard, "
