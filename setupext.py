@@ -1070,6 +1070,8 @@ class FreeType(SetupPackage):
                         urlretrieve(tarball_url, tarball_path)
                     except:
                         print("Failed to download {0}".format(tarball_url))
+                    else:
+                        break
                 if not os.path.isfile(tarball_path):
                     raise IOError("Failed to download freetype")
                 if get_file_hash(tarball_path) == LOCAL_FREETYPE_HASH:
