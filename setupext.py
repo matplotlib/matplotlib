@@ -1047,6 +1047,14 @@ class FreeType(SetupPackage):
                         pass
 
             if not os.path.isfile(tarball_path):
+
+                if sys.version_info[0] == 2:
+                    from urllib import urlretrieve
+                else:
+                    from urllib.request import urlretrieve
+                if not os.path.exists('build'):
+                    os.makedirs('build')
+
                 sourceforge_url = (
                     'http://downloads.sourceforge.net/project/freetype'
                     '/freetype2/{0}/'.format(LOCAL_FREETYPE_VERSION)
@@ -1059,13 +1067,6 @@ class FreeType(SetupPackage):
                     tarball_url = url_fmt.format(tarball)
 
                     print("Downloading {0}".format(tarball_url))
-                    if sys.version_info[0] == 2:
-                        from urllib import urlretrieve
-                    else:
-                        from urllib.request import urlretrieve
-
-                    if not os.path.exists('build'):
-                        os.makedirs('build')
                     try:
                         urlretrieve(tarball_url, tarball_path)
                     except:
