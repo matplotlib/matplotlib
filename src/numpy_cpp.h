@@ -525,9 +525,16 @@ class array_view : public detail::array_view_accessors<array_view, T, ND>
         return (T *)m_data;
     }
 
+    // Return a new reference.
     PyObject *pyobj()
     {
         Py_XINCREF(m_arr);
+        return (PyObject *)m_arr;
+    }
+
+    // Steal a reference.
+    PyObject *pyobj_steal()
+    {
         return (PyObject *)m_arr;
     }
 
