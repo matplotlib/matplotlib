@@ -1047,19 +1047,31 @@ class FreeType(SetupPackage):
                         pass
 
             if not os.path.isfile(tarball_path):
-                url_fmt = (
-                    'http://download.savannah.gnu.org/releases/freetype/{0}')
-                tarball_url = url_fmt.format(tarball)
+                sourceforge_url = (
+                    'http://downloads.sourceforge.net/project/freetype'
+                    '/freetype2/{0}/'.format(LOCAL_FREETYPE_VERSION)
+                )
+                url_fmts = (
+                    'http://download.savannah.gnu.org/releases/freetype/{0}',
+                    sourceforge_url + '{0}'
+                    )
+                for url_fmt in url_fmts:
+                    tarball_url = url_fmt.format(tarball)
 
-                print("Downloading {0}".format(tarball_url))
-                if sys.version_info[0] == 2:
-                    from urllib import urlretrieve
-                else:
-                    from urllib.request import urlretrieve
+                    print("Downloading {0}".format(tarball_url))
+                    if sys.version_info[0] == 2:
+                        from urllib import urlretrieve
+                    else:
+                        from urllib.request import urlretrieve
 
-                if not os.path.exists('build'):
-                    os.makedirs('build')
-                urlretrieve(tarball_url, tarball_path)
+                    if not os.path.exists('build'):
+                        os.makedirs('build')
+                    try:
+                        urlretrieve(tarball_url, tarball_path)
+                    except:
+                        print("Failed to download {0}".format(tarball_url))
+                if not os.path.isfile(tarball_path):
+                    raise IOError("Failed to download freetype")
                 if get_file_hash(tarball_path) == LOCAL_FREETYPE_HASH:
                     try:
                         # this will fail on LPy, oh well
