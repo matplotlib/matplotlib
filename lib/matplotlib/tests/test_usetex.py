@@ -6,7 +6,9 @@ from matplotlib.testing.decorators import image_comparison
 import matplotlib.pyplot as plt
 
 
-@image_comparison(baseline_images=['test_usetex'], extensions=['pdf', 'png'])
+@image_comparison(baseline_images=['test_usetex'],
+                  extensions=['pdf', 'png'],
+                  tol=0.3)
 def test_usetex():
     matplotlib.rcParams['text.usetex'] = True
     fig = plt.figure()
