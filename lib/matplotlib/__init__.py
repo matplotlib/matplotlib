@@ -1606,7 +1606,7 @@ def _get_extra_test_plugins():
 
 
 def _get_nose_env():
-    env = {'NOSE_COVER_PACKAGE': 'matplotlib',
+    env = {'NOSE_COVER_PACKAGE': ['matplotlib', 'mpl_toolkits'],
            'NOSE_COVER_HTML': 1,
            'NOSE_COVER_NO_PRINT': 1}
     return env
