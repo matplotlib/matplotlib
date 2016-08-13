@@ -157,7 +157,10 @@ def figure_edit(axes, parent=None):
             ('Label', label),
             ('Colormap', [cmap.name] + cmaps),
             ('Min. value', low),
-            ('Max. value', high)]
+            ('Max. value', high),
+            ('Interpolation',
+             [image.get_interpolation()]
+             + [(name, name) for name in sorted(image.iterpnames)])]
         images.append([imagedata, label, ""])
     # Is there an image displayed?
     has_image = bool(images)
@@ -220,10 +223,11 @@ def figure_edit(axes, parent=None):
         # Set / Images
         for index, image_settings in enumerate(images):
             image = imagedict[imagelabels[index]]
-            label, cmap, low, high = image_settings
+            label, cmap, low, high, interpolation = image_settings
             image.set_label(label)
             image.set_cmap(cm.get_cmap(cmap))
             image.set_clim(*sorted([low, high]))
+            image.set_interpolation(interpolation)
 
         # re-generate legend, if checkbox is checked
         if generate_legend:
