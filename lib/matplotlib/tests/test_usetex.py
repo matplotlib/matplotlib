@@ -3,6 +3,7 @@ from __future__ import (absolute_import, division, print_function,
 
 import matplotlib
 from matplotlib.testing.decorators import image_comparison
+from matplotlib.compat.subprocess import check_output
 import matplotlib.pyplot as plt
 
 
@@ -10,6 +11,12 @@ import matplotlib.pyplot as plt
                   extensions=['pdf', 'png'],
                   tol=0.3)
 def test_usetex():
+    cmd = ['latex', '-version']
+    try:
+        check_output(cmd)
+    except:
+        from nose import SkipTest
+        raise SkipTest('missing command: %s' % cmd[0])
     matplotlib.rcParams['text.usetex'] = True
     fig = plt.figure()
     ax = fig.add_subplot(111)
