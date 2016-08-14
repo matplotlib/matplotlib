@@ -2956,8 +2956,8 @@ class Axes(_AxesBase):
                 fe = safe_first_element(err)
                 if not ((len(err) == len(data) and not (iterable(fe) and
                                                         len(fe) > 1))):
-                    raise ValueError("err must be a scalar, the same "
-                                     "dimensions as x, or 2xN.")
+                    raise ValueError("err must be [ scalar | N, Nx1 "
+                                     "or 2xN array-like ]")
             # using list comps rather than arrays to preserve units
             low = [thisx - thiserr for (thisx, thiserr)
                    in cbook.safezip(data, err)]
