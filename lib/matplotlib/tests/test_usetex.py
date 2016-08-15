@@ -11,12 +11,10 @@ import matplotlib.pyplot as plt
                   extensions=['pdf', 'png'],
                   tol=0.3)
 def test_usetex():
-    cmd = ['latex', '-version']
-    try:
-        check_output(cmd)
-    except:
+    canusetex = matplotlib.checkdep_usetex(True)
+    if not canusetex:
         from nose import SkipTest
-        raise SkipTest('missing command: %s' % cmd[0])
+        raise SkipTest('Cannot run usetex_test')
     matplotlib.rcParams['text.usetex'] = True
     fig = plt.figure()
     ax = fig.add_subplot(111)
