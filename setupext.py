@@ -1060,8 +1060,8 @@ class FreeType(SetupPackage):
                     '/freetype2/{0}/'.format(LOCAL_FREETYPE_VERSION)
                 )
                 url_fmts = (
-                    'http://download.savannah.gnu.org/releases/freetype/{0}',
-                    sourceforge_url + '{0}'
+                    sourceforge_url + '{0}',
+                    'http://download.savannah.gnu.org/releases/freetype/{0}'
                     )
                 for url_fmt in url_fmts:
                     tarball_url = url_fmt.format(tarball)
