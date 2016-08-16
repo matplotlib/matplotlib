@@ -2536,7 +2536,7 @@ def key_press_handler(event, canvas, toolbar=None):
         if scale == 'log':
             ax.set_yscale('linear')
             ax.figure.canvas.draw()
-        elif scale == 'linear':
+        elif scale == 'linear' and not ax.images:
             ax.set_yscale('log')
             ax.figure.canvas.draw()
     # toggle scaling of x-axes between 'log and 'linear' (default key 'k')
@@ -2546,7 +2546,7 @@ def key_press_handler(event, canvas, toolbar=None):
         if scalex == 'log':
             ax.set_xscale('linear')
             ax.figure.canvas.draw()
-        elif scalex == 'linear':
+        elif scalex == 'linear' and not ax.images:
             ax.set_xscale('log')
             ax.figure.canvas.draw()
 
