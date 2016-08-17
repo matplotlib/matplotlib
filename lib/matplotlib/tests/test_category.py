@@ -128,6 +128,20 @@ class TestStrCategoryFormatter(unittest.TestCase):
         assert labels('a', 1) == "привет"
 
 
+class TestCategoryNorm(object):
+    testdata = [[[205, 302, 205, 101], [0, 2. / 3., 0, 1. / 3.]],
+                [[205, np.nan, 101, 305], [0, 9999, 1. / 3., 2. / 3.]],
+                [[205, 101, 504, 101], [0, 9999, 1. / 3., 1. / 3.]]]
+
+    ids = ["regular", "nan", "exclude"]
+
+    @pytest.mark.parametrize("data, nmap", testdata, ids=ids)
+    def test_norm(self, data, nmap):
+        norm = cat.CategoryNorm([205, 101, 302])
+        test = np.ma.masked_equal(nmap, 9999)
+        np.testing.assert_allclose(norm(data), test)
+
+
 def lt(tl):
     return [l.get_text() for l in tl]
 
