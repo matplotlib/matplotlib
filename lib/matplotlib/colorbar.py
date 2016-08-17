@@ -30,6 +30,7 @@ import numpy as np
 
 import matplotlib as mpl
 import matplotlib.artist as martist
+import matplotlib.category as category
 import matplotlib.cbook as cbook
 import matplotlib.collections as collections
 import matplotlib.colors as colors
@@ -312,6 +313,8 @@ class ColorbarBase(cm.ScalarMappable):
         if format is None:
             if isinstance(self.norm, colors.LogNorm):
                 self.formatter = ticker.LogFormatterMathtext()
+            elif isinstance(self.norm, category.CategoryNorm):
+                self.formatter = ticker.FixedFormatter(self.norm.unit_data.seq)
             else:
                 self.formatter = ticker.ScalarFormatter()
         elif cbook.is_string_like(format):
@@ -580,6 +583,8 @@ class ColorbarBase(cm.ScalarMappable):
                     locator = ticker.FixedLocator(b, nbins=10)
                 elif isinstance(self.norm, colors.LogNorm):
                     locator = ticker.LogLocator()
+                elif isinstance(self.norm, category.CategoryNorm):
+                    locator = ticker.FixedLocator(self.norm.unit_data.locs)
                 else:
                     if mpl.rcParams['_internal.classic_mode']:
                         locator = ticker.MaxNLocator()

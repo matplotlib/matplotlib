@@ -106,7 +106,7 @@ class TestStrCategoryConverter(object):
 
     def test_default_units(self):
         axis = FakeAxis(None)
-        assert self.cc.default_units(["a"], axis) is None
+        assert isinstance(self.cc.default_units(["a"], axis), cat.UnitData)
 
 
 class TestStrCategoryLocator(object):
@@ -129,17 +129,35 @@ class TestStrCategoryFormatter(unittest.TestCase):
 
 
 class TestCategoryNorm(object):
-    testdata = [[[205, 302, 205, 101], [0, 2. / 3., 0, 1. / 3.]],
-                [[205, np.nan, 101, 305], [0, 9999, 1. / 3., 2. / 3.]],
-                [[205, 101, 504, 101], [0, 9999, 1. / 3., 1. / 3.]]]
+    testdata = [[[205, 302, 205, 101], [0, 1, 0, .5]],
+                [[205, np.nan, 101, 305], [0, np.nan, .5, 1]],
+                [[205, 101, 504, 101], [0, .5, np.nan, .5]]]
 
     ids = ["regular", "nan", "exclude"]
 
     @pytest.mark.parametrize("data, nmap", testdata, ids=ids)
     def test_norm(self, data, nmap):
         norm = cat.CategoryNorm([205, 101, 302])
-        test = np.ma.masked_equal(nmap, 9999)
-        np.testing.assert_allclose(norm(data), test)
+        masked_nmap = np.ma.masked_equal(nmap, np.nan)
+        assert np.ma.allequal(norm(data), masked_nmap)
+
+    def test_invert(self):
+        data = [205, 302, 101]
+        strdata = ['205', '302', '101']
+        value = [0, .5, 1]
+        norm = cat.CategoryNorm(data)
+        assert norm.inverse(value) == strdata
+
+
+class TestColorsFromCategories(object):
+    testdata = [[{'101': "blue", '205': "red", '302': "green"}, dict],
+                [[('205', "red"), ('101', "blue"), ('302', "green")], list]]
+    ids = ["dict", "tuple"]
+
+    @pytest.mark.parametrize("codings, mtype", testdata, ids=ids)
+    def test_colors_from_categories(self, codings, mtype):
+        cmap, norm = cat.colors_from_categories(codings)
+        assert mtype(zip(norm.unit_data.seq, cmap.colors)) == codings
 
 
 def lt(tl):

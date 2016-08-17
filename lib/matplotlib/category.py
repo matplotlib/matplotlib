@@ -38,12 +38,11 @@ class StrCategoryConverter(munits.ConversionInterface):
 
     Conversion typically happens in the following order:
     1. default_units:
-        creates unit_data category-integer mapping and binds to axis
+        create unit_data category-integer mapping and binds to axis
     2. axis_info:
-        sets ticks/locator and label/formatter
+        set ticks/locator and labels/formatter
     3. convert:
-        maps input category data to integers using unit_data
-
+        map input category data to integers using unit_data
     """
     @staticmethod
     def convert(value, unit, axis):
@@ -53,13 +52,13 @@ class StrCategoryConverter(munits.ConversionInterface):
         vmap = dict(zip(axis.unit_data.seq, axis.unit_data.locs))
 
         if isinstance(value, six.string_types):
-            return vmap[value]
+            return vmap.get(value, None)
 
         vals = to_array(value)
         for lab, loc in vmap.items():
             vals[vals == lab] = loc
 
-        return vals.astype('float')
+        return vals.astype('float64')
 
     @staticmethod
     def axisinfo(unit, axis):
@@ -74,16 +73,19 @@ class StrCategoryConverter(munits.ConversionInterface):
         return munits.AxisInfo(majloc=majloc, majfmt=majfmt)
 
     @staticmethod
-    def default_units(data, axis):
+    def default_units(data, axis, sort=True, normed=False):
         """
         Create mapping between string categories in *data*
-        and integers, then store in *axis.unit_data*
+        and integers, and store in *axis.unit_data*
         """
-        if axis.unit_data is None:
-            axis.unit_data = UnitData(data)
-        else:
-            axis.unit_data.update(data)
-        return None
+        if axis and axis.unit_data:
+            axis.unit_data.update(data, sort)
+            return axis.unit_data
+
+        unit_data = UnitData(data, sort)
+        if axis:
+            axis.unit_data = unit_data
+        return unit_data
 
 
 class StrCategoryLocator(mticker.FixedLocator):
@@ -110,35 +112,37 @@ class CategoryNorm(mcolors.Normalize):
     """
     Preserves ordering of discrete values
     """
-    def __init__(self, categories):
+    def __init__(self, data):
         """
         *categories*
             distinct values for mapping
 
-        Out-of-range values are mapped to a value not in categories;
-        these are then converted to valid indices by :meth:`Colormap.__call__`.
+        Out-of-range values are mapped to np.nan
         """
-        self.categories = categories
-        self.N = len(self.categories)
-        self.vmin = 0
-        self.vmax = self.N
-        self._interp = False
+
+        self.units = StrCategoryConverter()
+        self.unit_data = None
+        self.units.default_units(data,
+                                 self, sort=False)
+        self.loc2seq = dict(zip(self.unit_data.locs, self.unit_data.seq))
+        self.vmin = min(self.unit_data.locs)
+        self.vmax = max(self.unit_data.locs)
 
     def __call__(self, value, clip=None):
-        if not cbook.iterable(value):
-            value = [value]
-
-        value = np.asarray(value)
-        ret = np.ones(value.shape) * np.nan
-
-        for i, c in enumerate(self.categories):
-            ret[value == c] = i / (self.N * 1.0)
-
-        return np.ma.array(ret, mask=np.isnan(ret))
+        # gonna have to go into imshow and undo casting
+        value = np.asarray(value, dtype=np.int)
+        ret = self.units.convert(value, None, self)
+        # knock out values not in the norm
+        mask = np.in1d(ret, self.unit_data.locs).reshape(ret.shape)
+        # normalize ret & locs
+        ret /= self.vmax
+        return np.ma.array(ret, mask=~mask)
 
     def inverse(self, value):
-        # not quite sure what invertible means in this context
-        return ValueError("CategoryNorm is not invertible")
+        if not cbook.iterable(value):
+            value = np.asarray(value)
+        vscaled = np.asarray(value) * self.vmax
+        return [self.loc2seq[int(vs)] for vs in vscaled]
 
 
 def colors_from_categories(codings):
@@ -156,8 +160,7 @@ def colors_from_categories(codings):
                    :class:`Normalize` instance
     """
     if isinstance(codings, dict):
-        codings = codings.items()
-
+        codings = cbook.sanitize_sequence(codings.items())
     values, colors = zip(*codings)
     cmap = mcolors.ListedColormap(list(colors))
     norm = CategoryNorm(list(values))
@@ -184,30 +187,43 @@ def convert_to_string(value):
 
 
 class UnitData(object):
-    # debatable makes sense to special code missing values
+    # debatable if it makes sense to special code missing values
     spdict = {'nan': -1.0, 'inf': -2.0, '-inf': -3.0}
 
-    def __init__(self, data):
+    def __init__(self, data, sort=True):
         """Create mapping between unique categorical values
         and numerical identifier
         Paramters
         ---------
         data: iterable
             sequence of values
+        sort: bool
+            sort input data, default is True
+            False preserves input order
         """
         self.seq, self.locs = [], []
-        self._set_seq_locs(data, 0)
+        self._set_seq_locs(data, 0, sort)
+        self.sort = sort
 
-    def update(self, new_data):
+    def update(self, new_data, sort=True):
+        if sort:
+            self.sort = sort
         # so as not to conflict with spdict
         value = max(max(self.locs) + 1, 0)
-        self._set_seq_locs(new_data, value)
+        self._set_seq_locs(new_data, value, self.sort)
 
-    def _set_seq_locs(self, data, value):
+    def _set_seq_locs(self, data, value, sort):
         # magic to make it work under np1.6
         strdata = to_array(data)
+
         # np.unique makes dateframes work
-        new_s = [d for d in np.unique(strdata) if d not in self.seq]
+        if sort:
+            unq = np.unique(strdata)
+        else:
+            _, idx = np.unique(strdata, return_index=~sort)
+            unq = strdata[np.sort(idx)]
+
+        new_s = [d for d in unq if d not in self.seq]
         for ns in new_s:
             self.seq.append(convert_to_string(ns))
             if ns in UnitData.spdict.keys():
