@@ -302,7 +302,7 @@ pygtk, wxpython, tkinter, qt4, or macosx; also referred to as
 "interactive backends") and hardcopy backends to make image files
 (PNG, SVG, PDF, PS; also referred to as "non-interactive backends").
 
-There are a four ways to configure your backend. If they conflict each other,
+There are four ways to configure your backend. If they conflict each other,
 the method mentioned last in the following list will be used, e.g. calling
 :func:`~matplotlib.use()` will override the setting in your ``matplotlibrc``.
 
