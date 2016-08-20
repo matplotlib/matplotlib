@@ -123,6 +123,7 @@ install:
     # We have to install it after matplotlib to avoid pulling in MPL as
     # a dependency
     if [[ $BUILD_DOCS == true ]]; then
+      pip install pyshp!=1.2.8
       pip install https://github.com/matplotlib/basemap/tarball/master
     fi;
 
