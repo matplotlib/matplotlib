@@ -1,0 +1,5 @@
+Support for HiDPI (Retina) displays in the NbAgg and WebAgg backends
+--------------------------------------------------------------------
+
+The NbAgg and WebAgg backends will now use the full resolution of your
+high-pixel-density display.
