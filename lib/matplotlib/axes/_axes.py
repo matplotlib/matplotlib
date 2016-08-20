@@ -3643,10 +3643,7 @@ class Axes(_AxesBase):
 
         def to_vc(xs, ys):
             # convert arguments to verts and codes
-            verts = []
-
-            for xi, yi in zip(xs, ys):
-                verts.append((xi, yi))
+            verts = list(zip(xs, ys))
             verts.append((0, 0))  # ignored
             codes = [mpath.Path.MOVETO] + \
                     [mpath.Path.LINETO] * (len(verts) - 2) + \
