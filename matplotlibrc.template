@@ -584,7 +584,8 @@ backend      : $TEMPLATE_BACKEND
 #keymap.zoom : o                     # zoom mnemonic
 #keymap.save : s                     # saving current figure
 #keymap.quit : ctrl+w, cmd+w         # close the current figure
-#keymap.grid : g                     # switching on/off a grid in current axes
+#keymap.grid : g                     # switching on/off major grids in current axes
+#keymap.grid_minor : G               # switching on/off minor grids in current axes
 #keymap.yscale : l                   # toggle scaling of y-axes ('log'/'linear')
 #keymap.xscale : L, k                # toggle scaling of x-axes ('log'/'linear')
 #keymap.all_axes : a                 # enable all axes
