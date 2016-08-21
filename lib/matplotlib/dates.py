@@ -1241,12 +1241,8 @@ class DayLocator(RRuleLocator):
 
         Default is to tick every day of the month: ``bymonthday=range(1,32)``
         """
-        if interval < 1:
-            raise ValueError("The interval parameter must be an integer "
-                             "greater than or equal to one.")
-        if not isinstance(interval, int):
-            raise ValueError("The interval parameter must be an integer "
-                             "greater than or equal to one.")
+        if not interval == int(interval) or interval < 1:
+            raise ValueError("interval must be an integer greater than 0")
         if bymonthday is None:
             bymonthday = range(1, 32)
         elif isinstance(bymonthday, np.ndarray):
