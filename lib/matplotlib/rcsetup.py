@@ -1313,6 +1313,7 @@ defaultParams = {
     'keymap.quit':         [['ctrl+w', 'cmd+w', 'q'], validate_stringlist],
     'keymap.quit_all':     [['W', 'cmd+W', 'Q'], validate_stringlist],
     'keymap.grid':         [['g'], validate_stringlist],
+    'keymap.grid_minor':   [['G'], validate_stringlist],
     'keymap.yscale':       [['l'], validate_stringlist],
     'keymap.xscale':       [['k', 'L'], validate_stringlist],
     'keymap.all_axes':     [['a'], validate_stringlist],
