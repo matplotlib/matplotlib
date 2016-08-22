@@ -396,7 +396,7 @@ void QuadContourGenerator::append_contour_line_to_vertices(
         line(i, 0) = point->x;
         line(i, 1) = point->y;
     }
-    if (PyList_Append(vertices_list, line.pyobj())) {
+    if (PyList_Append(vertices_list, line.pyobj_steal())) {
         Py_XDECREF(vertices_list);
         throw "Unable to add contour line to vertices_list";
     }
@@ -470,8 +470,8 @@ void QuadContourGenerator::append_contour_to_vertices_and_codes(
                 child.clear_parent();  // To indicate it can be deleted.
             }
 
-            if (PyList_Append(vertices_list, vertices.pyobj()) ||
-                PyList_Append(codes_list, codes.pyobj())) {
+            if (PyList_Append(vertices_list, vertices.pyobj_steal()) ||
+                PyList_Append(codes_list, codes.pyobj_steal())) {
                 Py_XDECREF(vertices_list);
                 Py_XDECREF(codes_list);
                 contour.delete_contour_lines();
