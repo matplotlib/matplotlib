@@ -792,6 +792,7 @@ class LogFormatter(Formatter):
         """
         self._base = base + 0.0
         self.labelOnlyBase = labelOnlyBase
+        self.sublabel = [1, ]
 
     def base(self, base):
         """
@@ -811,12 +812,46 @@ class LogFormatter(Formatter):
         """
         self.labelOnlyBase = labelOnlyBase
 
+    def set_locs(self, locs):
+        b = self._base
+
+        vmin, vmax = self.axis.get_view_interval()
+        self.d = abs(vmax - vmin)
+
+        if not hasattr(self.axis, 'get_transform'):
+            # This might be a colorbar dummy axis, do not attempt to get
+            # transform
+            numdec = 10
+        elif hasattr(self.axis.get_transform(), 'linthresh'):
+            t = self.axis.get_transform()
+            linthresh = t.linthresh
+            # Only compute the number of decades in the logarithmic part of the
+            # axis
+            numdec = 0
+            if vmin < -linthresh:
+                numdec += math.log(-vmin / linthresh) / math.log(b)
+
+            if vmax > linthresh and vmin < linthresh:
+                numdec += math.log(vmax / linthresh) / math.log(b)
+            elif vmin >= linthresh:
+                numdec += math.log(vmax / vmin) / math.log(b)
+        else:
+            vmin = math.log(vmin) / math.log(b)
+            vmax = math.log(vmax) / math.log(b)
+            numdec = abs(vmax - vmin)
+
+        if numdec > 3:
+            # Label only bases
+            self.sublabel = set((1,))
+        else:
+            # Add labels between bases at log-spaced coefficients
+            c = np.logspace(0, 1, (4 - int(numdec)) + 1, base=b)
+            self.sublabel = set(np.round(c))
+
     def __call__(self, x, pos=None):
         """
         Return the format for tick val `x` at position `pos`.
         """
-        vmin, vmax = self.axis.get_view_interval()
-        d = abs(vmax - vmin)
         b = self._base
         if x == 0.0:
             return '0'
@@ -824,16 +859,21 @@ class LogFormatter(Formatter):
         # only label the decades
         fx = math.log(abs(x)) / math.log(b)
         isDecade = is_close_to_int(fx)
-        if not isDecade and self.labelOnlyBase:
-            s = ''
-        elif x > 10000:
-            s = '%1.0e' % x
-        elif x < 1:
-            s = '%1.0e' % x
+        exponent = np.round(fx) if isDecade else np.floor(fx)
+        coeff = np.round(x / b ** exponent)
+        if coeff in self.sublabel:
+            if not isDecade and self.labelOnlyBase:
+                s = ''
+            elif x > 10000:
+                s = '%1.0e' % x
+            elif x < 1:
+                s = '%1.0e' % x
+            else:
+                s = self.pprint_val(x, self.d)
+            if sign == -1:
+                s = '-%s' % s
         else:
-            s = self.pprint_val(x, d)
-        if sign == -1:
-            s = '-%s' % s
+            s = ''
 
         return self.fix_minus(s)
 
@@ -923,6 +963,14 @@ class LogFormatterMathtext(LogFormatter):
     Format values for log axis using ``exponent = log_base(value)``.
     """
 
+    def _non_decade_format(self, sign_string, base, fx, usetex):
+        'Return string for non-decade locations'
+        if usetex:
+            return (r'$%s%s^{%.2f}$') % (sign_string, base, fx)
+        else:
+            return ('$%s$' % _mathdefault('%s%s^{%.2f}' %
+                (sign_string, base, fx)))
+
     def __call__(self, x, pos=None):
         """
         Return the format for tick value `x`.
@@ -941,6 +989,8 @@ class LogFormatterMathtext(LogFormatter):
 
         fx = math.log(abs(x)) / math.log(b)
         is_decade = is_close_to_int(fx)
+        exponent = np.round(fx) if is_decade else np.floor(fx)
+        coeff = np.round(x / b ** exponent)
 
         sign_string = '-' if x < 0 else ''
 
@@ -950,25 +1000,46 @@ class LogFormatterMathtext(LogFormatter):
         else:
             base = '%s' % b
 
-        if not is_decade and self.labelOnlyBase:
-            return ''
-        elif not is_decade:
-            if usetex:
-                return (r'$%s%s^{%.2f}$') % \
-                                            (sign_string, base, fx)
+        if coeff in self.sublabel:
+            if not is_decade and self.labelOnlyBase:
+                return ''
+            elif not is_decade:
+                return self._non_decade_format(sign_string, base, fx, usetex)
             else:
-                return ('$%s$' % _mathdefault(
-                    '%s%s^{%.2f}' %
-                    (sign_string, base, fx)))
+                if usetex:
+                    return (r'$%s%s^{%d}$') % (sign_string,
+                                               base,
+                                               nearest_long(fx))
+                else:
+                    return ('$%s$' % _mathdefault(
+                        '%s%s^{%d}' %
+                        (sign_string, base, nearest_long(fx))))
         else:
-            if usetex:
-                return (r'$%s%s^{%d}$') % (sign_string,
-                                           base,
-                                           nearest_long(fx))
-            else:
-                return ('$%s$' % _mathdefault(
-                    '%s%s^{%d}' %
-                    (sign_string, base, nearest_long(fx))))
+            return ''
+
+
+class LogFormatterSciNotation(LogFormatterMathtext):
+    """
+    Format values following scientific notation in a logarithmic axis
+    """
+
+    def __init__(self, base=10.0, labelOnlyBase=False):
+        super(LogFormatterSciNotation, self).__init__(base=base,
+                labelOnlyBase=labelOnlyBase)
+
+    def _non_decade_format(self, sign_string, base, fx, usetex):
+        'Return string for non-decade locations'
+        b = float(base)
+        exponent = math.floor(fx)
+        coeff = b ** fx / b ** exponent
+        if is_close_to_int(coeff):
+            coeff = nearest_long(coeff)
+        if usetex:
+            return (r'$%g\times%s^{%d}$') % \
+                                        (coeff, base, exponent)
+        else:
+            return ('$%s$' % _mathdefault(r'%g\times%s^{%d}' %
+                                        (coeff, base, exponent)))
 
 
 class LogitFormatter(Formatter):
