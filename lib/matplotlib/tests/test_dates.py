@@ -442,6 +442,7 @@ def test_date2num_dst():
 
     _test_date2num_dst(date_range, tz_convert)
 
+
 def test_date2num_dst_pandas():
     # Test for github issue #3896, but in date2num around DST transitions
     # with a timezone-aware pandas date_range object.
@@ -454,6 +455,7 @@ def test_date2num_dst_pandas():
         return pd.DatetimeIndex.tz_convert(*args).astype(datetime.datetime)
 
     _test_date2num_dst(pd.date_range, tz_convert)
+
 
 def test_DayLocator():
    assert_raises(ValueError, mdates.DayLocator, interval=-1)
