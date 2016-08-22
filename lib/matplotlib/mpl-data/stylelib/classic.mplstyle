@@ -29,6 +29,7 @@ markers.fillstyle: full
 # information on patch properties
 patch.linewidth        : 1.0     # edge width in points
 patch.facecolor        : b
+patch.force_edgecolor  : True
 patch.edgecolor        : k
 patch.antialiased      : True    # render patches in antialiased (no jaggies)
 

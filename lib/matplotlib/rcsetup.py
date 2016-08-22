@@ -364,7 +364,7 @@ def validate_color(s):
     'return a valid color arg'
     try:
         if s.lower() == 'none':
-            return 'None'
+            return 'none'
     except AttributeError:
         pass
 
@@ -891,7 +891,7 @@ defaultParams = {
     'lines.linewidth':       [1.5, validate_float],  # line width in points
     'lines.linestyle':       ['-', six.text_type],             # solid line
     'lines.color':           ['C0', validate_color],  # first color in color cycle
-    'lines.marker':          ['None', six.text_type],     # black
+    'lines.marker':          ['None', six.text_type],  # marker name
     'lines.markeredgewidth': [1.0, validate_float],
     'lines.markersize':      [6, validate_float],    # markersize, in points
     'lines.antialiased':     [True, validate_bool],  # antialiased (no jaggies)
@@ -907,10 +907,11 @@ defaultParams = {
     'markers.fillstyle': ['full', validate_fillstyle],
 
     ## patch props
-    'patch.linewidth':   [None, validate_float_or_None],  # line width in points
-    'patch.edgecolor':   ['k', validate_color],  # black
-    'patch.facecolor':   ['C0', validate_color],  # first color in color cycle
-    'patch.antialiased': [True, validate_bool],  # antialiased (no jaggies)
+    'patch.linewidth':   [1.0, validate_float],     # line width in points
+    'patch.edgecolor':   ['k', validate_color],
+    'patch.force_edgecolor' : [False, validate_bool],
+    'patch.facecolor':   ['C0', validate_color],    # first color in cycle
+    'patch.antialiased': [True, validate_bool],     # antialiased (no jaggies)
 
     ## hatch props
     'hatch.linewidth': [1.0, validate_float],
