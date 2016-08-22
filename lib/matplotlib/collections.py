@@ -130,9 +130,10 @@ class Collection(artist.Artist, cm.ScalarMappable):
         # list of unbroadcast/scaled linewidths
         self._us_lw = [0]
         self._linewidths = [0]
+        self._is_filled = True  # May be modified by set_facecolor().
 
-        self.set_edgecolor(edgecolors)
         self.set_facecolor(facecolors)
+        self.set_edgecolor(edgecolors)
         self.set_linewidth(linewidths)
         self.set_linestyle(linestyles)
         self.set_antialiased(antialiaseds)
@@ -494,14 +495,9 @@ class Collection(artist.Artist, cm.ScalarMappable):
         ACCEPTS: float or sequence of floats
         """
         if lw is None:
-            if (self._edge_default or
-                    mpl.rcParams['_internal.classic_mode'] or
-                    not self._is_filled):
-                lw = mpl.rcParams['patch.linewidth']
-                if lw is None:
-                    lw = mpl.rcParams['lines.linewidth']
-            else:
-                lw = 0
+            lw = mpl.rcParams['patch.linewidth']
+            if lw is None:
+                lw = mpl.rcParams['lines.linewidth']
         # get the un-scaled/broadcast lw
         self._us_lw = self._get_value(lw)
 
@@ -646,6 +642,20 @@ class Collection(artist.Artist, cm.ScalarMappable):
         self.set_facecolor(c)
         self.set_edgecolor(c)
 
+    def _set_facecolor(self, c):
+        if c is None:
+            c = mpl.rcParams['patch.facecolor']
+
+        self._is_filled = True
+        try:
+            if c.lower() == 'none':
+                self._is_filled = False
+        except AttributeError:
+            pass
+        self._facecolors = mcolors.to_rgba_array(c, self._alpha)
+        self.stale = True
+
+
     def set_facecolor(self, c):
         """
         Set the facecolor(s) of the collection.  *c* can be a
@@ -657,17 +667,9 @@ class Collection(artist.Artist, cm.ScalarMappable):
 
         ACCEPTS: matplotlib color spec or sequence of specs
         """
-        self._is_filled = True
-        try:
-            if c.lower() == 'none':
-                self._is_filled = False
-        except AttributeError:
-            pass
-        if c is None:
-            c = mpl.rcParams['patch.facecolor']
-        self._facecolors_original = c
-        self._facecolors = mcolors.to_rgba_array(c, self._alpha)
-        self.stale = True
+        self._original_facecolor = c
+        self._set_facecolor(c)
+
 
     def set_facecolors(self, c):
         """alias for set_facecolor"""
@@ -685,6 +687,29 @@ class Collection(artist.Artist, cm.ScalarMappable):
             return self._edgecolors
     get_edgecolors = get_edgecolor
 
+    def _set_edgecolor(self, c):
+        if c is None:
+            if (mpl.rcParams['patch.force_edgecolor'] or
+                    not self._is_filled or self._edge_default):
+                c = mpl.rcParams['patch.edgecolor']
+            else:
+                c = 'none'
+        self._is_stroked = True
+        try:
+            if c.lower() == 'none':
+                self._is_stroked = False
+        except AttributeError:
+            pass
+
+        try:
+            if c.lower() == 'face':   # Special case: lookup in "get" method.
+                self._edgecolors = 'face'
+                return
+        except AttributeError:
+            pass
+        self._edgecolors = mcolors.to_rgba_array(c, self._alpha)
+        self.stale = True
+
     def set_edgecolor(self, c):
         """
         Set the edgecolor(s) of the collection. *c* can be a
@@ -698,24 +723,8 @@ class Collection(artist.Artist, cm.ScalarMappable):
 
         ACCEPTS: matplotlib color spec or sequence of specs
         """
-        self._is_stroked = True
-        try:
-            if c.lower() == 'none':
-                self._is_stroked = False
-        except AttributeError:
-            pass
-        try:
-            if c.lower() == 'face':
-                self._edgecolors = 'face'
-                self._edgecolors_original = 'face'
-                return
-        except AttributeError:
-            pass
-        if c is None:
-            c = mpl.rcParams['patch.edgecolor']
-        self._edgecolors_original = c
-        self._edgecolors = mcolors.to_rgba_array(c, self._alpha)
-        self.stale = True
+        self._original_edgecolor = c
+        self._set_edgecolor(c)
 
     def set_edgecolors(self, c):
         """alias for set_edgecolor"""
@@ -734,18 +743,8 @@ class Collection(artist.Artist, cm.ScalarMappable):
             except TypeError:
                 raise TypeError('alpha must be a float or None')
         artist.Artist.set_alpha(self, alpha)
-        try:
-            self._facecolors = mcolors.to_rgba_array(
-                self._facecolors_original, self._alpha)
-        except (AttributeError, TypeError, IndexError):
-            pass
-        try:
-            if (not isinstance(self._edgecolors_original, six.string_types)
-                             or self._edgecolors_original != str('face')):
-                self._edgecolors = mcolors.to_rgba_array(
-                    self._edgecolors_original, self._alpha)
-        except (AttributeError, TypeError, IndexError):
-            pass
+        self._set_facecolor(self._original_facecolor)
+        self._set_edgecolor(self._original_edgecolor)
 
     def get_linewidths(self):
         return self._linewidths
@@ -781,9 +780,9 @@ class Collection(artist.Artist, cm.ScalarMappable):
 
         artist.Artist.update_from(self, other)
         self._antialiaseds = other._antialiaseds
-        self._edgecolors_original = other._edgecolors_original
+        self._original_edgecolor = other._original_edgecolor
         self._edgecolors = other._edgecolors
-        self._facecolors_original = other._facecolors_original
+        self._original_facecolor = other._original_facecolor
         self._facecolors = other._facecolors
         self._linewidths = other._linewidths
         self._linestyles = other._linestyles
