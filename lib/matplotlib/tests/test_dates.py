@@ -457,6 +457,14 @@ def test_date2num_dst_pandas():
     _test_date2num_dst(pd.date_range, tz_convert)
 
 
+def test_DayLocator():
+   assert_raises(ValueError, mdates.DayLocator, interval=-1)
+   assert_raises(ValueError, mdates.DayLocator, interval=-1.5)
+   assert_raises(ValueError, mdates.DayLocator, interval=0)
+   assert_raises(ValueError, mdates.DayLocator, interval=1.3)
+   mdates.DayLocator(interval=1.0)
+
+
 if __name__ == '__main__':
     import nose
     nose.runmodule(argv=['-s', '--with-doctest'], exit=False)
