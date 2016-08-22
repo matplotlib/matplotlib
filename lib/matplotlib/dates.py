@@ -821,19 +821,6 @@ class RRuleLocator(DateLocator):
 
         self.rule.set(dtstart=start, until=stop)
 
-        # estimate the number of ticks very approximately so we don't
-        # have to do a very expensive (and potentially near infinite)
-        # 'between' calculation, only to find out it will fail.
-        nmax, nmin = date2num((vmax, vmin))
-        estimate = (nmax - nmin) / (self._get_unit() * self._get_interval())
-        # This estimate is only an estimate, so be really conservative
-        # about bailing...
-        if estimate > self.MAXTICKS * 2:
-            raise RuntimeError(
-                'RRuleLocator estimated to generate %d ticks from %s to %s: '
-                'exceeds Locator.MAXTICKS * 2 (%d) ' % (estimate, vmin, vmax,
-                                                        self.MAXTICKS * 2))
-
         dates = self.rule.between(vmin, vmax, True)
         if len(dates) == 0:
             return date2num([vmin, vmax])
@@ -1254,6 +1241,8 @@ class DayLocator(RRuleLocator):
 
         Default is to tick every day of the month: ``bymonthday=range(1,32)``
         """
+        if not interval == int(interval) or interval < 1:
+            raise ValueError("interval must be an integer greater than 0")
         if bymonthday is None:
             bymonthday = range(1, 32)
         elif isinstance(bymonthday, np.ndarray):
