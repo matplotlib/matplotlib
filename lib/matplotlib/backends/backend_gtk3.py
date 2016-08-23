@@ -28,10 +28,10 @@ except ImportError:
 
 import matplotlib
 from matplotlib._pylab_helpers import Gcf
-from matplotlib.backend_bases import RendererBase, GraphicsContextBase, \
-     FigureManagerBase, FigureCanvasBase, NavigationToolbar2, cursors, TimerBase
-from matplotlib.backend_bases import (ShowBase, ToolContainerBase,
-                                      StatusbarBase)
+from matplotlib.backend_bases import (RendererBase, GraphicsContextBase,
+     FigureManagerBase, FigureCanvasBase, NavigationToolbar2, cursors,
+     TimerBase, WindowBase, MainLoopBase, ExpandableBase)
+from matplotlib.backend_bases import ShowBase, ToolbarBase, StatusbarBase
 from matplotlib.backend_managers import ToolManager
 from matplotlib import backend_tools
 
@@ -65,6 +65,17 @@ def draw_if_interactive():
         figManager =  Gcf.get_active()
         if figManager is not None:
             figManager.canvas.draw_idle()
+
+
+class MainLoopGTK3(MainLoopBase):
+    def begin(self):
+        if Gtk.main_level() == 0:
+            Gtk.main()
+
+    def end(self):
+        if Gtk.main_level() >= 1:
+            Gtk.main_quit()
+
 
 class Show(ShowBase):
     def mainloop(self):
@@ -115,7 +126,7 @@ class TimerGTK3(TimerBase):
             self._timer = None
             return False
 
-class FigureCanvasGTK3 (Gtk.DrawingArea, FigureCanvasBase):
+class FigureCanvasGTK3(FigureCanvasBase, Gtk.DrawingArea):
     keyvald = {65507 : 'control',
                65505 : 'shift',
                65513 : 'alt',
@@ -180,9 +191,9 @@ class FigureCanvasGTK3 (Gtk.DrawingArea, FigureCanvasBase):
                   Gdk.EventMask.POINTER_MOTION_HINT_MASK|
                   Gdk.EventMask.SCROLL_MASK)
 
-    def __init__(self, figure):
+    def __init__(self, *args, **kwargs):
         if _debug: print('FigureCanvasGTK3.%s' % fn_name())
-        FigureCanvasBase.__init__(self, figure)
+        FigureCanvasBase.__init__(self, *args, **kwargs)
         GObject.GObject.__init__(self)
 
         self._idle_draw_id  = 0
@@ -207,6 +218,9 @@ class FigureCanvasGTK3 (Gtk.DrawingArea, FigureCanvasBase):
         self.set_can_focus(True)
         self._renderer_init()
         default_context = GLib.main_context_get_thread_default() or GLib.main_context_default()
+
+    def focus(self):
+        self.grab_focus()
 
     def destroy(self):
         #Gtk.DrawingArea.destroy(self)
@@ -374,6 +388,102 @@ class FigureCanvasGTK3 (Gtk.DrawingArea, FigureCanvasBase):
     stop_event_loop.__doc__=FigureCanvasBase.stop_event_loop_default.__doc__
 
 
+_flow = [Gtk.Orientation.HORIZONTAL, Gtk.Orientation.VERTICAL]
+
+
+class WindowGTK3(WindowBase, Gtk.Window):
+    def __init__(self, title, **kwargs):
+        super(WindowGTK3, self).__init__(title=title, **kwargs)
+        self.set_window_title(title)
+
+        try:
+            self.set_icon_from_file(window_icon)
+        except (SystemExit, KeyboardInterrupt):
+            # re-raise exit type Exceptions
+            raise
+        except:
+            # some versions of gtk throw a glib.GError but not
+            # all, so I am not sure how to catch it.  I am unhappy
+            # doing a blanket catch here, but am not sure what a
+            # better way is - JDH
+            verbose.report('Could not load matplotlib icon: %s' % sys.exc_info()[1])
+
+        self._layout = {}
+        self._setup_box('_outer', Gtk.Orientation.VERTICAL, False, None)
+        self._setup_box('north', Gtk.Orientation.VERTICAL, False, '_outer')
+        self._setup_box('_middle', Gtk.Orientation.HORIZONTAL, True, '_outer')
+        self._setup_box('south', Gtk.Orientation.VERTICAL, False, '_outer')
+
+        self._setup_box('west', Gtk.Orientation.HORIZONTAL, False, '_middle')
+        self._setup_box('center', Gtk.Orientation.VERTICAL, True, '_middle')
+        self._setup_box('east', Gtk.Orientation.HORIZONTAL, False, '_middle')
+
+        self.add(self._layout['_outer'])
+
+        self.connect('destroy', self.destroy_event)
+        self.connect('delete_event', self.destroy_event)
+
+    def _setup_box(self, name, orientation, grow, parent):
+        self._layout[name] = Gtk.Box(orientation=orientation)
+        if parent:
+            self._layout[parent].pack_start(self._layout[name], grow, grow, 0)
+        self._layout[name].show()
+
+    def add_element(self, element, place):
+        element.show()
+
+        # Get the flow of the element (the opposite of the container)
+        flow_index = not _flow.index(self._layout[place].get_orientation())
+        flow = _flow[flow_index]
+        separator = Gtk.Separator(orientation=flow)
+        separator.show()
+
+        try:
+            element.flow = element.flow_types[flow_index]
+        except AttributeError:
+            pass
+
+        # Determine if this element should fill all the space given to it
+        expand = isinstance(element, ExpandableBase)
+
+        if place in ['north', 'west', 'center']:
+            self._layout[place].pack_start(element, expand, expand, 0)
+            self._layout[place].pack_start(separator, False, False, 0)
+        elif place in ['south', 'east']:
+            self._layout[place].pack_end(element, expand, expand, 0)
+            self._layout[place].pack_end(separator, False, False, 0)
+        else:
+            raise KeyError('Unknown value for place, %s' % place)
+        size_request = element.size_request()
+        return size_request.height + separator.size_request().height
+
+    def set_default_size(self, width, height):
+        Gtk.Window.set_default_size(self, width, height)
+
+    def show(self):
+        # show the figure window
+        Gtk.Window.show(self)
+        self.present()
+
+    def destroy(self):
+        Gtk.Window.destroy(self)
+
+    def set_fullscreen(self, fullscreen):
+        if fullscreen:
+            self.fullscreen()
+        else:
+            self.unfullscreen()
+
+    def get_window_title(self):
+        return self.get_title()
+
+    def set_window_title(self, title):
+        self.set_title(title)
+
+    def resize(self, width, height):
+        Gtk.Window.resize(self, width, height)
+
+
 class FigureManagerGTK3(FigureManagerBase):
     """
     Public attributes
@@ -414,23 +524,13 @@ class FigureManagerGTK3(FigureManagerBase):
         w = int (self.canvas.figure.bbox.width)
         h = int (self.canvas.figure.bbox.height)
 
-        self.toolmanager = self._get_toolmanager()
         self.toolbar = self._get_toolbar()
-        self.statusbar = None
 
         def add_widget(child, expand, fill, padding):
             child.show()
             self.vbox.pack_end(child, False, False, 0)
             size_request = child.size_request()
             return size_request.height
-
-        if self.toolmanager:
-            backend_tools.add_tools_to_manager(self.toolmanager)
-            if self.toolbar:
-                backend_tools.add_tools_to_container(self.toolbar)
-                self.statusbar = StatusbarGTK3(self.toolmanager)
-                h += add_widget(self.statusbar, False, False, 0)
-                h += add_widget(Gtk.HSeparator(), False, False, 0)
 
         if self.toolbar is not None:
             self.toolbar.show()
@@ -448,9 +548,7 @@ class FigureManagerGTK3(FigureManagerBase):
 
         def notify_axes_change(fig):
             'this will be called whenever the current axes is changed'
-            if self.toolmanager is not None:
-                pass
-            elif self.toolbar is not None:
+            if self.toolbar is not None:
                 self.toolbar.update()
         self.canvas.figure.add_axobserver(notify_axes_change)
 
@@ -487,19 +585,9 @@ class FigureManagerGTK3(FigureManagerBase):
         # attrs are set
         if rcParams['toolbar'] == 'toolbar2':
             toolbar = NavigationToolbar2GTK3 (self.canvas, self.window)
-        elif rcParams['toolbar'] == 'toolmanager':
-            toolbar = ToolbarGTK3(self.toolmanager)
         else:
             toolbar = None
         return toolbar
-
-    def _get_toolmanager(self):
-        # must be initialised after toolbar has been setted
-        if rcParams['toolbar'] != 'toolbar2':
-            toolmanager = ToolManager(self.canvas.figure)
-        else:
-            toolmanager = None
-        return toolmanager
 
     def get_window_title(self):
         return self.window.get_title()
@@ -754,14 +842,11 @@ class RubberbandGTK3(backend_tools.RubberbandBase):
         self.ctx.stroke()
 
 
-class ToolbarGTK3(ToolContainerBase, Gtk.Box):
-    def __init__(self, toolmanager):
-        ToolContainerBase.__init__(self, toolmanager)
-        Gtk.Box.__init__(self)
-        self.set_property("orientation", Gtk.Orientation.VERTICAL)
-
+class ToolbarGTK3(ToolbarBase, Gtk.Box):
+    def __init__(self, toolmanager, **kwargs):
         self._toolarea = Gtk.Box()
-        self._toolarea.set_property('orientation', Gtk.Orientation.HORIZONTAL)
+        super(ToolbarGTK3, self).__init__(toolmanager=toolmanager, **kwargs)
+
         self.pack_start(self._toolarea, False, False, 0)
         self._toolarea.show_all()
         self._groups = {}
@@ -794,7 +879,7 @@ class ToolbarGTK3(ToolContainerBase, Gtk.Box):
         if group not in self._groups:
             if self._groups:
                 self._add_separator()
-            toolbar = Gtk.Toolbar()
+            toolbar = Gtk.Toolbar(orientation=_flow[self._flow])
             toolbar.set_style(Gtk.ToolbarStyle.ICONS)
             self._toolarea.pack_start(toolbar, False, False, 0)
             toolbar.show_all()
@@ -823,17 +908,25 @@ class ToolbarGTK3(ToolContainerBase, Gtk.Box):
                     self._groups[group].remove(toolitem)
         del self._toolitems[name]
 
+    def _update_flow(self):
+        self.set_property("orientation", _flow[not self._flow])
+        self._toolarea.set_property('orientation', _flow[self._flow])
+        for item in self._toolarea:
+            if isinstance(item, Gtk.Separator):
+                item.set_property("orientation", _flow[not self._flow])
+            else:
+                item.set_property("orientation", _flow[self._flow])
+
     def _add_separator(self):
         sep = Gtk.Separator()
-        sep.set_property("orientation", Gtk.Orientation.VERTICAL)
+        sep.set_property("orientation", _flow[not self._flow])
         self._toolarea.pack_start(sep, False, True, 0)
         sep.show_all()
 
 
 class StatusbarGTK3(StatusbarBase, Gtk.Statusbar):
     def __init__(self, *args, **kwargs):
-        StatusbarBase.__init__(self, *args, **kwargs)
-        Gtk.Statusbar.__init__(self)
+        super(StatusbarGTK3, self).__init__(*args, **kwargs)
         self._context = self.get_context_id('message')
 
     def set_message(self, s):
@@ -841,94 +934,9 @@ class StatusbarGTK3(StatusbarBase, Gtk.Statusbar):
         self.push(self._context, s)
 
 
-class SaveFigureGTK3(backend_tools.SaveFigureBase):
-
-    def get_filechooser(self):
-        fc = FileChooserDialog(
-            title='Save the figure',
-            parent=self.figure.canvas.manager.window,
-            path=os.path.expanduser(rcParams.get('savefig.directory', '')),
-            filetypes=self.figure.canvas.get_supported_filetypes(),
-            default_filetype=self.figure.canvas.get_default_filetype())
-        fc.set_current_name(self.figure.canvas.get_default_filename())
-        return fc
-
-    def trigger(self, *args, **kwargs):
-        chooser = self.get_filechooser()
-        fname, format_ = chooser.get_filename_from_user()
-        chooser.destroy()
-        if fname:
-            startpath = os.path.expanduser(
-                rcParams.get('savefig.directory', ''))
-            if startpath == '':
-                # explicitly missing key or empty str signals to use cwd
-                rcParams['savefig.directory'] = startpath
-            else:
-                # save dir for next time
-                rcParams['savefig.directory'] = os.path.dirname(
-                    six.text_type(fname))
-            try:
-                self.figure.canvas.print_figure(fname, format=format_)
-            except Exception as e:
-                error_msg_gtk(str(e), parent=self)
-
-
 class SetCursorGTK3(backend_tools.SetCursorBase):
     def set_cursor(self, cursor):
         self.figure.canvas.get_property("window").set_cursor(cursord[cursor])
-
-
-class ConfigureSubplotsGTK3(backend_tools.ConfigureSubplotsBase, Gtk.Window):
-    def __init__(self, *args, **kwargs):
-        backend_tools.ConfigureSubplotsBase.__init__(self, *args, **kwargs)
-        self.window = None
-
-    def init_window(self):
-        if self.window:
-            return
-        self.window = Gtk.Window(title="Subplot Configuration Tool")
-
-        try:
-            self.window.window.set_icon_from_file(window_icon)
-        except (SystemExit, KeyboardInterrupt):
-            # re-raise exit type Exceptions
-            raise
-        except:
-            # we presumably already logged a message on the
-            # failure of the main plot, don't keep reporting
-            pass
-
-        self.vbox = Gtk.Box()
-        self.vbox.set_property("orientation", Gtk.Orientation.VERTICAL)
-        self.window.add(self.vbox)
-        self.vbox.show()
-        self.window.connect('destroy', self.destroy)
-
-        toolfig = Figure(figsize=(6, 3))
-        canvas = self.figure.canvas.__class__(toolfig)
-
-        toolfig.subplots_adjust(top=0.9)
-        SubplotTool(self.figure, toolfig)
-
-        w = int(toolfig.bbox.width)
-        h = int(toolfig.bbox.height)
-
-        self.window.set_default_size(w, h)
-
-        canvas.show()
-        self.vbox.pack_start(canvas, True, True, 0)
-        self.window.show()
-
-    def destroy(self, *args):
-        self.window.destroy()
-        self.window = None
-
-    def _get_canvas(self, fig):
-        return self.canvas.__class__(fig)
-
-    def trigger(self, sender, event, data=None):
-        self.init_window()
-        self.window.present()
 
 
 # Define the file to use as the GTk icon
@@ -956,11 +964,6 @@ def error_msg_gtk(msg, parent=None):
     dialog.run()
     dialog.destroy()
 
-
-backend_tools.ToolSaveFigure = SaveFigureGTK3
-backend_tools.ToolConfigureSubplots = ConfigureSubplotsGTK3
-backend_tools.ToolSetCursor = SetCursorGTK3
-backend_tools.ToolRubberband = RubberbandGTK3
 
 Toolbar = ToolbarGTK3
 FigureCanvas = FigureCanvasGTK3

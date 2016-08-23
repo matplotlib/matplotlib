@@ -22,8 +22,8 @@ class RendererGTK3Cairo(backend_cairo.RendererCairo):
 
 class FigureCanvasGTK3Cairo(backend_gtk3.FigureCanvasGTK3,
                             backend_cairo.FigureCanvasCairo):
-    def __init__(self, figure):
-        backend_gtk3.FigureCanvasGTK3.__init__(self, figure)
+    def __init__(self, *args, **kwargs):
+        backend_gtk3.FigureCanvasGTK3.__init__(self, *args, **kwargs)
 
     def _renderer_init(self):
         """use cairo renderer"""
@@ -72,4 +72,13 @@ def new_figure_manager_given_figure(num, figure):
 
 FigureCanvas = FigureCanvasGTK3Cairo
 FigureManager = FigureManagerGTK3Cairo
+Window = backend_gtk3.WindowGTK3
+Toolbar = backend_gtk3.ToolbarGTK3
+Statusbar = backend_gtk3.StatusbarGTK3
+FileChooserDialog = backend_gtk3.FileChooserDialog
+ToolSetCursor = backend_gtk3.SetCursorGTK3
+ToolRubberband = backend_gtk3.RubberbandGTK3
+
+Toolbar2 = backend_gtk3.NavigationToolbar2GTK3
+MainLoop = backend_gtk3.MainLoopGTK3
 show = backend_gtk3.show

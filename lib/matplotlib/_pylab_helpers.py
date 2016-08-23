@@ -9,6 +9,8 @@ import sys
 import gc
 import atexit
 
+from matplotlib import is_interactive
+
 
 def error_msg(msg):
     print(msg, file=sys.stderr)
@@ -36,6 +38,16 @@ class Gcf(object):
     figs = {}
 
     @classmethod
+    def add_figure_manager(cls, manager):
+        cls.figs[manager.num] = manager
+        try:  # TODO remove once all backends converted to use the new manager.
+            manager.mpl_connect('window_destroy_event', cls.destroy_cbk)
+        except:
+            pass
+
+        cls.set_active(manager)
+
+    @classmethod
     def get_fig_manager(cls, num):
         """
         If figure manager *num* exists, make it the active
@@ -45,6 +57,56 @@ class Gcf(object):
         if manager is not None:
             cls.set_active(manager)
         return manager
+
+    @classmethod
+    def show_all(cls, block=None):
+        """
+        Show all figures.  If *block* is not None, then
+        it is a boolean that overrides all other factors
+        determining whether show blocks by calling mainloop().
+        The other factors are:
+        it does not block if run inside ipython's "%pylab" mode
+        it does not block in interactive mode.
+        """
+
+        managers = cls.get_all_fig_managers()
+        if not managers:
+            return
+
+        for manager in managers:
+            manager.show()
+
+        if block is True:
+            # Start the mainloop on the last manager, so we don't have a
+            # mainloop starting for each manager. Not ideal, but works for now.
+            manager._mainloop()
+            return
+        elif block is False:
+            return
+
+        # Hack: determine at runtime whether we are
+        # inside ipython in pylab mode.
+        from matplotlib import pyplot
+        try:
+            ipython_pylab = not pyplot.show._needmain
+            # IPython versions >= 0.10 tack the _needmain
+            # attribute onto pyplot.show, and always set
+            # it to False, when in %pylab mode.
+            ipython_pylab = ipython_pylab and manager.backend_name != 'webagg'
+            # TODO: The above is a hack to get the WebAgg backend
+            # working with ipython's `%pylab` mode until proper
+            # integration is implemented.
+        except AttributeError:
+            ipython_pylab = False
+
+        # Leave the following as a separate step in case we
+        # want to control this behavior with an rcParam.
+        if ipython_pylab:
+            return
+
+        # If not interactive we need to block
+        if not is_interactive() or manager.backend_name == 'webagg':
+            manager._mainloop()
 
     @classmethod
     def destroy(cls, num):
@@ -68,7 +130,7 @@ class Gcf(object):
                 cls._activeQue.append(f)
 
         del cls.figs[num]
-        manager.destroy()
+        manager.destroy()  # Unneeded with MEP27 remove later
         gc.collect(1)
 
     @classmethod
@@ -137,7 +199,6 @@ class Gcf(object):
             if m != manager:
                 cls._activeQue.append(m)
         cls._activeQue.append(manager)
-        cls.figs[manager.num] = manager
 
     @classmethod
     def draw_all(cls, force=False):
@@ -148,5 +209,9 @@ class Gcf(object):
         for f_mgr in cls.get_all_fig_managers():
             if force or f_mgr.canvas.figure.stale:
                 f_mgr.canvas.draw_idle()
+
+    @classmethod
+    def destroy_cbk(cls, event):
+        cls.destroy(event.figure_manager.num)
 
 atexit.register(Gcf.destroy_all)

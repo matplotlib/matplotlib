@@ -11,6 +11,36 @@ import warnings
 backend = matplotlib.get_backend()
 
 
+def get_backend_name(name=None):
+    '''converts the name of the backend into the module to load
+    name : str, optional
+
+    Parameters
+    ----------
+        The name of the backend to use.  If `None`, falls back to
+        ``matplotlib.get_backend()`` (which return ``rcParams['backend']``)
+    '''
+
+    if name is None:
+        # validates, to match all_backends
+        name = matplotlib.get_backend()
+    if name.startswith('module://'):
+        backend_name = name[9:]
+    else:
+        backend_name = 'matplotlib.backends.backend_' + name.lower()
+
+    return backend_name
+
+
+def get_backend(name=None):
+    # Import the requested backend into a generic module object
+    # the last argument is specifies whether to use absolute or relative
+    # imports. 0 means only perform absolute imports.
+    backend_name = get_backend_name(name)
+    return backend_name, __import__(backend_name, globals(), locals(),
+                       [backend_name], 0)
+
+
 def pylab_setup(name=None):
     '''return new_figure_manager, draw_if_interactive and show for pyplot
 
@@ -39,23 +69,10 @@ def pylab_setup(name=None):
 
     '''
     # Import the requested backend into a generic module object
-    if name is None:
-        # validates, to match all_backends
-        name = matplotlib.get_backend()
-    if name.startswith('module://'):
-        backend_name = name[9:]
-    else:
-        backend_name = 'backend_' + name
-        backend_name = backend_name.lower()  # until we banish mixed case
-        backend_name = 'matplotlib.backends.%s' % backend_name.lower()
-
-    # the last argument is specifies whether to use absolute or relative
-    # imports. 0 means only perform absolute imports.
-    backend_mod = __import__(backend_name, globals(), locals(),
-                             [backend_name], 0)
+    backend_mod = get_backend(name)[1]
 
     # Things we pull in from all backends
-    new_figure_manager = backend_mod.new_figure_manager
+    new_figure_manager = getattr(backend_mod, 'new_figure_manager', None)
 
     # image backends like pdf, agg or svg do not need to do anything
     # for "show" or "draw_if_interactive", so if they are not defined
@@ -68,7 +85,7 @@ def pylab_setup(name=None):
 Your currently selected backend, '%s' does not support show().
 Please select a GUI backend in your matplotlibrc file ('%s')
 or with matplotlib.use()""" %
-                          (name, matplotlib.matplotlib_fname()))
+                          (backend, matplotlib.matplotlib_fname()))
 
     def do_nothing(*args, **kwargs):
         pass

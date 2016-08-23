@@ -47,6 +47,7 @@ env:
     - NOSE_ARGS="--processes=$NPROC --process-timeout=300"
     - PYTHON_ARGS=
     - DELETE_FONT_CACHE=
+    - USENEWTOOLMANAGER=false
 
 matrix:
   include:
@@ -60,6 +61,10 @@ matrix:
       env: TEST_ARGS=--pep8
     - python: 3.5
       env: BUILD_DOCS=true
+    - python: 2.7
+      env: USENEWTOOLMANAGER=true MOCK=mock
+    - python: 3.4
+      env: USENEWTOOLMANAGER=true
     - python: "nightly"
       env: PRE=--pre
     - os: osx
@@ -144,7 +149,12 @@ script:
   # The number of processes is hardcoded, because using too many causes the
   # Travis VM to run out of memory (since so many copies of inkscape and
   # ghostscript are running at the same time).
+
+  # Load in the new toolbar rc file for tests
   - |
+    if [[ $USENEWTOOLMANAGER == true ]]; then
+      cp .travis/toolmgr_matplotlibrc matplotlibrc
+    fi
     echo Testing import of tkagg backend
     MPLBACKEND="tkagg" python -c 'import matplotlib.pyplot as plt; print(plt.get_backend())'
     echo The following args are passed to nose $NOSE_ARGS

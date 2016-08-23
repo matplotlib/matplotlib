@@ -1,4 +1,8 @@
 """
+`FigureManager`
+    Class that pulls all of the standard GUI elements together, and manages
+    the interaction between them.
+
 `ToolManager`
     Class that makes the bridge between user interaction (key press,
     toolbar clicks, ..) and the actions in response to the user inputs.
@@ -13,6 +17,197 @@ import matplotlib.cbook as cbook
 import matplotlib.widgets as widgets
 from matplotlib.rcsetup import validate_stringlist
 import matplotlib.backend_tools as tools
+
+from matplotlib import is_interactive
+from matplotlib import rcParams
+from matplotlib.figure import Figure
+from matplotlib.backends import get_backend, backend as backend_name
+
+
+class FigureManagerEvent(object):
+    """Event for when something happens to this figure manager.
+    i.e. the figure it controls gets closed
+
+    Attributes
+    ----------
+    signal : str
+        The name of the signal.
+
+    figure_manager : FigureManager
+        The figure manager that fired the event.
+    """
+    def __init__(self, signal, figure_manager):
+        self.name = signal
+        self.figure_manager = figure_manager
+
+
+class FigureManager(cbook.EventEmitter):
+    """
+    The FigureManager creates and wraps the necessary components to display a
+    figure, namely the Window, FigureCanvas and Toolbar.  It gets used whenever
+    you want the figure in a standalone window.
+
+    Parameters
+    ----------
+    figure : `matplotlib.figure.Figure`
+        The figure to manage.
+
+    num : int
+        The figure number.
+
+    Attributes
+    ----------
+
+    canvas : `matplotlib.backend_bases.FigureCanvasBase`
+        The GUI element on which we draw.
+
+    figure : `matplotlib.figure.Figure`
+        The figure that holds the canvas
+
+    toolbar : `matplotlib.backend_bases.ToolbarBase`
+        The toolbar used for interacting with the figure.
+
+    window : `matplotlib.backend_bases.WindowBase`
+        The window that holds the canvas and toolbar.
+
+    num : int
+        The figure number.
+    """
+    def __init__(self, figure, num, **kwargs):
+        super(FigureManager, self).__init__(**kwargs)
+        self._backend_name, self._backend = get_backend()
+
+        self.num = num
+        self.figure = figure
+
+        self._is_gui = hasattr(self._backend, 'Window')
+        if not self._is_gui:
+            self.window = None
+            return
+
+        self._mainloop = self._backend.MainLoop()
+        self.window = self._backend.Window('Figure %d' % num)
+        self.window.mpl_connect('window_destroy_event', self.destroy)
+
+        w = int(self.figure.bbox.width)
+        h = int(self.figure.bbox.height)
+
+        self.window.add_element(self.figure.canvas, 'center')
+
+        self.toolmanager = ToolManager(self.figure)
+        self.toolbar = self._get_toolbar()
+
+        tools.add_tools_to_manager(self.toolmanager)
+        if self.toolbar:
+            tools.add_tools_to_container(self.toolbar)
+            self.statusbar = self._backend.Statusbar(self.toolmanager)
+            h += self.window.add_element(self.statusbar, 'south')
+
+        if self.toolbar is not None:
+            h += self.window.add_element(self.toolbar, 'south')
+
+        self.window.set_default_size(w, h)
+        self._full_screen_flag = False
+
+        if is_interactive():
+            self.window.show()
+
+        def notify_axes_change(fig):
+            'this will be called whenever the current axes is changed'
+            if self.toolmanager is None and self.toolbar is not None:
+                self.toolbar.update()
+        self.figure.add_axobserver(notify_axes_change)
+
+    @property
+    def figure(self):
+        return self._figure
+
+    @figure.setter
+    def figure(self, figure):
+        if hasattr(self, '_figure'):
+            raise NotImplementedError
+
+        if not figure.canvas:
+            self._backend.FigureCanvas(figure, manager=self,
+                                       backend=self.backend)
+        self._figure = figure
+
+    @property
+    def canvas(self):
+        return self._figure.canvas
+
+    def destroy(self, *args):
+        """Called to destroy this FigureManager.
+        """
+
+        # Make sure we run this routine only once for the FigureManager
+        # This ensures the nasty __del__ fix below works.
+        if getattr(self, '_destroying', False) or self._is_gui is False:
+            return
+
+        self._destroying = True
+        self.figure.canvas.destroy()
+        if self.toolbar:
+            self.toolbar.destroy()
+        self.window.destroy()
+
+        # Fix as for some reason we have extra references to this#
+        # i.e. ``del self._mainloop`` doesn't work
+        self._mainloop.__del__()
+
+        s = 'window_destroy_event'
+        event = FigureManagerEvent(s, self)
+        self._callbacks.process(s, event)
+
+    def show(self):
+        """Shows the figure"""
+        self.window.show()
+        self.canvas.focus()
+
+    def full_screen_toggle(self):
+        """Toggles whether we show fullscreen, alternatively call
+        `window.fullscreen()`"""
+        self._full_screen_flag = not self._full_screen_flag
+        self.window.set_fullscreen(self._full_screen_flag)
+
+    def resize(self, w, h):
+        """"For gui backends, resize the window (in pixels)."""
+        self.window.resize(w, h)
+
+    def get_window_title(self):
+        """
+        Get the title text of the window containing the figure.
+        Return None for non-GUI backends (e.g., a PS backend).
+        """
+        return self.window.get_window_title()
+
+    def set_window_title(self, title):
+        """
+        Set the title text of the window containing the figure.  Note that
+        this has no effect for non-GUI backends (e.g., a PS backend).
+        """
+        if self.window:
+            self.window.set_window_title(title)
+
+    @property
+    def backend(self):
+        return self._backend
+
+    @property
+    def backend_name(self):
+        return self._backend_name
+
+    def _get_toolbar(self):
+        try:
+            # must be inited after the window, drawingArea and figure
+            # attrs are set
+            if rcParams['toolbar'] == 'toolmanager':
+                toolbar = self._backend.Toolbar(self.toolmanager)
+            else:
+                toolbar = None
+            return toolbar
+        except:
+            return None
 
 
 class ToolEvent(object):
@@ -343,14 +538,17 @@ class ToolManager(object):
     def _get_cls_to_instantiate(self, callback_class):
         # Find the class that corresponds to the tool
         if isinstance(callback_class, six.string_types):
+            backend = self.canvas.backend
+
             # FIXME: make more complete searching structure
-            if callback_class in globals():
+            if hasattr(backend, callback_class):
+                callback_class = getattr(backend, callback_class)
+            elif callback_class in globals():
                 callback_class = globals()[callback_class]
             else:
                 mod = 'backend_tools'
                 current_module = __import__(mod,
                                             globals(), locals(), [mod], 1)
-
                 callback_class = getattr(current_module, callback_class, False)
         if callable(callback_class):
             return callback_class

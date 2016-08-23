@@ -13,12 +13,15 @@ These tools are used by `matplotlib.backend_managers.ToolManager`
 
 
 from matplotlib import rcParams
-from matplotlib._pylab_helpers import Gcf
 import matplotlib.cbook as cbook
+from matplotlib.widgets import SubplotTool
+
 from weakref import WeakKeyDictionary
 import six
 import time
 import warnings
+
+import os
 
 
 class Cursors(object):
@@ -374,7 +377,12 @@ class ToolQuit(ToolBase):
     default_keymap = rcParams['keymap.quit']
 
     def trigger(self, sender, event, data=None):
-        Gcf.destroy_fig(self.figure)
+        try:
+            manager = self.figure.canvas.manager
+        except AttributeError:
+            pass
+        else:
+            manager.destroy('window_destroy_event')
 
 
 class ToolQuitAll(ToolBase):
@@ -738,12 +746,86 @@ class ConfigureSubplotsBase(ToolBase):
     image = 'subplots.png'
 
 
+class ToolConfigureSubplots(ToolBase):
+    """Tool for the configuration of subplots"""
+
+    description = 'Configure subplots'
+    image = 'subplots.png'
+
+    def __init__(self, *args, **kwargs):
+        ToolBase.__init__(self, *args, **kwargs)
+        self.dialog = None
+
+    def trigger(self, sender, event, data=None):
+        self.init_dialog()
+        self.dialog.show()
+
+    def init_dialog(self):
+        if self.dialog:
+            return
+
+        from matplotlib.figure import Figure
+        self.dialog = self.figure.canvas.backend.Window(self.description)
+        self.dialog.mpl_connect('window_destroy_event', self._window_destroy)
+
+        tool_fig = Figure(figsize=(6, 3))
+        self.tool_canvas = self.figure.canvas.__class__(tool_fig)
+        tool_fig.subplots_adjust(top=0.9)
+        SubplotTool(self.figure, tool_fig)
+
+        w, h = int(tool_fig.bbox.width), int(tool_fig.bbox.height)
+
+        self.dialog.add_element(self.tool_canvas, 'center')
+        self.dialog.set_default_size(w, h)
+
+    def _window_destroy(self, *args, **kwargs):
+        self.tool_canvas.destroy()
+        self.dialog = None
+
+
 class SaveFigureBase(ToolBase):
     """Base tool for figure saving"""
 
     description = 'Save the figure'
     image = 'filesave.png'
     default_keymap = rcParams['keymap.save']
+
+
+class ToolSaveFigure(ToolBase):
+    """Saves the figure"""
+
+    description = 'Save the figure'
+    image = 'filesave.png'
+    default_keymap = rcParams['keymap.save']
+
+    def get_filechooser(self):
+        fc = self.figure.canvas.backend.FileChooserDialog(
+            title='Save the figure',
+            parent=self.figure.canvas.manager.window,
+            path=os.path.expanduser(rcParams.get('savefig.directory', '')),
+            filetypes=self.figure.canvas.get_supported_filetypes(),
+            default_filetype=self.figure.canvas.get_default_filetype())
+        fc.set_current_name(self.figure.canvas.get_default_filename())
+        return fc
+
+    def trigger(self, *args, **kwargs):
+        chooser = self.get_filechooser()
+        fname, format_ = chooser.get_filename_from_user()
+        chooser.destroy()
+        if fname:
+            startpath = os.path.expanduser(
+                rcParams.get('savefig.directory', ''))
+            if startpath == '':
+                # explicitly missing key or empty str signals to use cwd
+                rcParams['savefig.directory'] = startpath
+            else:
+                # save dir for next time
+                rcParams['savefig.directory'] = os.path.dirname(
+                    six.text_type(fname))
+            try:
+                self.figure.canvas.print_figure(fname, format=format_)
+            except Exception as e:
+                error_msg_gtk(str(e), parent=self)
 
 
 class ZoomPanBase(ToolToggleBase):
