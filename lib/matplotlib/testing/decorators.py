@@ -27,7 +27,7 @@ from matplotlib import ft2font
 from matplotlib import rcParams
 from matplotlib.testing.compare import comparable_formats, compare_images, \
      make_test_filename
-from . import copy_metadata, skip, xfail
+from . import copy_metadata, is_called_from_pytest, skip, xfail
 from .exceptions import ImageComparisonFailure
 
 
@@ -37,8 +37,12 @@ def skipif(condition, *args, **kwargs):
 
     Optionally specify a reason for better reporting.
     """
-    from .nose.decorators import skipif
-    return skipif(condition, *args, **kwargs)
+    if is_called_from_pytest():
+        import pytest
+        return pytest.mark.skipif(condition, *args, **kwargs)
+    else:
+        from .nose.decorators import skipif
+        return skipif(condition, *args, **kwargs)
 
 
 def knownfailureif(fail_condition, msg=None, known_exception_class=None):
@@ -53,8 +57,14 @@ def knownfailureif(fail_condition, msg=None, known_exception_class=None):
     if the exception is an instance of this class. (Default = None)
 
     """
-    from .nose.decorators import knownfailureif
-    return knownfailureif(fail_condition, msg, known_exception_class)
+    if is_called_from_pytest():
+        import pytest
+        strict = fail_condition and fail_condition != 'indeterminate'
+        return pytest.mark.xfail(condition=fail_condition, reason=msg,
+                                 raises=known_exception_class, strict=strict)
+    else:
+        from .nose.decorators import knownfailureif
+        return knownfailureif(fail_condition, msg, known_exception_class)
 
 
 def _do_cleanup(original_units_registry, original_settings):
@@ -198,7 +208,7 @@ class ImageComparisonTest(CleanupTest):
     def test(self):
         baseline_dir, result_dir = _image_directories(self._func)
         if self._style != 'classic':
-            xfail('temporarily disabled until 2.0 tag')
+            skip('temporarily disabled until 2.0 tag')
         for fignum, baseline in zip(plt.get_fignums(), self._baseline_images):
             for extension in self._extensions:
                 will_fail = not extension in comparable_formats()
@@ -228,7 +238,7 @@ class ImageComparisonTest(CleanupTest):
                 @knownfailureif(
                     will_fail, fail_msg,
                     known_exception_class=ImageComparisonFailure)
-                def do_test():
+                def do_test(fignum, actual_fname, expected_fname):
                     figure = plt.figure(fignum)
 
                     if self._remove_text:
@@ -255,7 +265,7 @@ class ImageComparisonTest(CleanupTest):
                                 (self._freetype_version, ft2font.__freetype_version__))
                         raise
 
-                yield (do_test,)
+                yield do_test, fignum, actual_fname, expected_fname
 
 
 def image_comparison(baseline_images=None, extensions=None, tol=0,

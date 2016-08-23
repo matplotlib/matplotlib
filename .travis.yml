@@ -45,8 +45,13 @@ env:
     - NPROC=2
     - TEST_ARGS=--no-pep8
     - NOSE_ARGS="--processes=$NPROC --process-timeout=300"
+    - PYTEST_ARGS="-ra --timeout=300 --durations=25 --cov-report= --cov=lib" # -n $NPROC
     - PYTHON_ARGS=
     - DELETE_FONT_CACHE=
+    - USE_PYTEST=false
+    #- PYTHONHASHSEED=0  # Workaround for pytest-xdist flaky colletion order
+    #                    # https://github.com/pytest-dev/pytest/issues/920
+    #                    # https://github.com/pytest-dev/pytest/issues/1075
 
 matrix:
   include:
@@ -60,6 +65,8 @@ matrix:
       env: TEST_ARGS=--pep8
     - python: 3.5
       env: BUILD_DOCS=true
+    - python: 3.5
+      env: USE_PYTEST=true PANDAS=pandas DELETE_FONT_CACHE=1 TEST_ARGS=
     - python: "nightly"
       env: PRE=--pre
     - os: osx
@@ -107,9 +114,13 @@ install:
     # Install dependencies from pypi
     pip install $PRE python-dateutil $NUMPY pyparsing!=2.1.6 $PANDAS pep8 cycler coveralls coverage
     pip install $PRE pillow sphinx!=1.3.0 $MOCK numpydoc ipython colorspacious
+
     # Install nose from a build which has partial
     # support for python36 and suport for coverage output suppressing
     pip install git+https://github.com/jenshnielsen/nose.git@matplotlibnose
+
+    # pytest-cov>=2.3.1 due to https://github.com/pytest-dev/pytest-cov/issues/124
+    pip install $PRE pytest 'pytest-cov>=2.3.1' pytest-timeout pytest-xdist pytest-faulthandler
 
     # We manually install humor sans using the package from Ubuntu 14.10. Unfortunatly humor sans is not
     # availible in the Ubuntu version used by Travis but we can manually install the deb from a later
@@ -147,16 +158,21 @@ script:
   - |
     echo Testing import of tkagg backend
     MPLBACKEND="tkagg" python -c 'import matplotlib.pyplot as plt; print(plt.get_backend())'
-    echo The following args are passed to nose $NOSE_ARGS
     if [[ $BUILD_DOCS == false ]]; then
       if [[ $DELETE_FONT_CACHE == 1 ]]; then
         rm -rf ~/.cache/matplotlib
       fi
       export MPL_REPO_DIR=$PWD  # needed for pep8-conformance test of the examples
-      if [[ $TRAVIS_OS_NAME == 'osx' ]]; then
-        python tests.py $NOSE_ARGS $TEST_ARGS
+      if [[ $USE_PYTEST == false ]]; then
+        echo The following args are passed to nose $NOSE_ARGS
+        if [[ $TRAVIS_OS_NAME == 'osx' ]]; then
+          python tests.py $NOSE_ARGS $TEST_ARGS
+        else
+          gdb -return-child-result -batch -ex r -ex bt --args python $PYTHON_ARGS tests.py $NOSE_ARGS $TEST_ARGS
+        fi
       else
-        gdb -return-child-result -batch -ex r -ex bt --args python $PYTHON_ARGS tests.py $NOSE_ARGS $TEST_ARGS
+        echo The following args are passed to pytest $PYTEST_ARGS
+        py.test $PYTEST_ARGS $TEST_ARGS
       fi
     else
       cd doc
@@ -171,6 +187,9 @@ script:
       pip install $PRE requests==2.9.2 linkchecker
       linkchecker build/html/index.html
     fi
+  # Currently disabled because of differece in behaviour
+  # between `pytest-cov` and `nose-coverage`
+  #- if [[ $USE_PYTEST == true ]]; then coveralls; fi
   - rm -rf $HOME/.cache/matplotlib/tex.cache
   - rm -rf $HOME/.cache/matplotlib/test_cache
 
