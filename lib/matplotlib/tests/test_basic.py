@@ -2,11 +2,11 @@ from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
 import six
+import sys
 
 from nose.tools import assert_equal
 
 from ..testing.decorators import knownfailureif, skipif
-from pylab import *
 
 
 SKIPIF_CONDITION = []
@@ -60,6 +60,8 @@ class Test_skipif_on_classmethod(object):
 
 
 def test_override_builtins():
+    import pylab
+
     ok_to_override = {
         '__name__',
         '__doc__',
@@ -79,9 +81,9 @@ def test_override_builtins():
         builtins = sys.modules['__builtin__']
 
     overridden = False
-    for key in globals().keys():
+    for key in dir(pylab):
         if key in dir(builtins):
-            if (globals()[key] != getattr(builtins, key) and
+            if (getattr(pylab, key) != getattr(builtins, key) and
                     key not in ok_to_override):
                 print("'%s' was overridden in globals()." % key)
                 overridden = True

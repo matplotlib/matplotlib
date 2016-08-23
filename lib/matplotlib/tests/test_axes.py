@@ -22,7 +22,8 @@ from cycler import cycler
 import warnings
 
 import matplotlib
-from matplotlib.testing.decorators import image_comparison, cleanup, skipif
+from matplotlib.testing.decorators import image_comparison, cleanup
+from matplotlib.testing import skip
 import matplotlib.pyplot as plt
 import matplotlib.markers as mmarkers
 import matplotlib.patches as mpatches
@@ -86,11 +87,11 @@ def test_formatter_ticker():
     ax.autoscale_view()
 
 
-@skipif(LooseVersion(np.__version__) >= LooseVersion('1.11.0'),
-        reason="Fall out from a fixed numpy bug")
 @image_comparison(baseline_images=["formatter_large_small"])
 def test_formatter_large_small():
     # github issue #617, pull #619
+    if LooseVersion(np.__version__) >= LooseVersion('1.11.0'):
+        skip("Fall out from a fixed numpy bug")
     fig, ax = plt.subplots(1)
     x = [0.500000001, 0.500000002]
     y = [1e64, 1.1e64]
