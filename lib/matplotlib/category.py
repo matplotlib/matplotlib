@@ -9,9 +9,10 @@ import six
 
 import numpy as np
 
-import matplotlib.units as units
-import matplotlib.ticker as ticker
-
+import matplotlib.colors as mcolors
+import matplotlib.cbook as cbook
+import matplotlib.units as munits
+import matplotlib.ticker as mticker
 
 #  pure hack for numpy 1.6 support
 from distutils.version import LooseVersion
@@ -22,54 +23,148 @@ NP_NEW = (LooseVersion(np.version.version) >= LooseVersion('1.7'))
 def to_array(data, maxlen=100):
     if NP_NEW:
         return np.array(data, dtype=np.unicode)
+    if cbook.is_scalar_or_string(data):
+        data = [data]
     try:
         vals = np.array(data, dtype=('|S', maxlen))
     except UnicodeEncodeError:
-        # pure hack
+        # this yields gibberish
         vals = np.array([convert_to_string(d) for d in data])
     return vals
 
 
-class StrCategoryConverter(units.ConversionInterface):
+class StrCategoryConverter(munits.ConversionInterface):
+    """Converts categorical (or string) data to numerical values
+
+    Conversion typically happens in the following order:
+    1. default_units:
+        create unit_data category-integer mapping and binds to axis
+    2. axis_info:
+        set ticks/locator and labels/formatter
+    3. convert:
+        map input category data to integers using unit_data
+    """
     @staticmethod
     def convert(value, unit, axis):
-        """Uses axis.unit_data map to encode
-        data as floats
         """
-        vmap = dict(axis.unit_data)
+        Encode value  as floats using axis.unit_data
+        """
+        vmap = dict(zip(axis.unit_data.seq, axis.unit_data.locs))
 
         if isinstance(value, six.string_types):
-            return vmap[value]
+            return vmap.get(value, None)
 
         vals = to_array(value)
-        for lab, loc in axis.unit_data:
+        for lab, loc in vmap.items():
             vals[vals == lab] = loc
 
-        return vals.astype('float')
+        return vals.astype('float64')
 
     @staticmethod
     def axisinfo(unit, axis):
-        seq, locs = zip(*axis.unit_data)
-        majloc = StrCategoryLocator(locs)
-        majfmt = StrCategoryFormatter(seq)
-        return units.AxisInfo(majloc=majloc, majfmt=majfmt)
+        """
+        Return the :class:`~matplotlib.units.AxisInfo` for *unit*.
+
+        *unit* is None
+        *axis.unit_data* is used to set ticks and labels
+        """
+        majloc = StrCategoryLocator(axis.unit_data.locs)
+        majfmt = StrCategoryFormatter(axis.unit_data.seq)
+        return munits.AxisInfo(majloc=majloc, majfmt=majfmt)
 
     @staticmethod
-    def default_units(data, axis):
-        # the conversion call stack is:
-        # default_units->axis_info->convert
-        axis.unit_data = map_categories(data, axis.unit_data)
-        return None
+    def default_units(data, axis, sort=True, normed=False):
+        """
+        Create mapping between string categories in *data*
+        and integers, and store in *axis.unit_data*
+        """
+        if axis and axis.unit_data:
+            axis.unit_data.update(data, sort)
+            return axis.unit_data
+
+        unit_data = UnitData(data, sort)
+        if axis:
+            axis.unit_data = unit_data
+        return unit_data
 
 
-class StrCategoryLocator(ticker.FixedLocator):
+class StrCategoryLocator(mticker.FixedLocator):
+    """
+    Ensures that every category has a tick by subclassing
+    :class:`~matplotlib.ticker.FixedLocator`
+    """
     def __init__(self, locs):
-        super(StrCategoryLocator, self).__init__(locs, None)
+        self.locs = locs
+        self.nbins = None
 
 
-class StrCategoryFormatter(ticker.FixedFormatter):
+class StrCategoryFormatter(mticker.FixedFormatter):
+    """
+    Labels every category by subclassing
+    :class:`~matplotlib.ticker.FixedFormatter`
+    """
     def __init__(self, seq):
-        super(StrCategoryFormatter, self).__init__(seq)
+        self.seq = seq
+        self.offset_string = ''
+
+
+class CategoryNorm(mcolors.Normalize):
+    """
+    Preserves ordering of discrete values
+    """
+    def __init__(self, data):
+        """
+        *categories*
+            distinct values for mapping
+
+        Out-of-range values are mapped to np.nan
+        """
+
+        self.units = StrCategoryConverter()
+        self.unit_data = None
+        self.units.default_units(data,
+                                 self, sort=False)
+        self.loc2seq = dict(zip(self.unit_data.locs, self.unit_data.seq))
+        self.vmin = min(self.unit_data.locs)
+        self.vmax = max(self.unit_data.locs)
+
+    def __call__(self, value, clip=None):
+        # gonna have to go into imshow and undo casting
+        value = np.asarray(value, dtype=np.int)
+        ret = self.units.convert(value, None, self)
+        # knock out values not in the norm
+        mask = np.in1d(ret, self.unit_data.locs).reshape(ret.shape)
+        # normalize ret & locs
+        ret /= self.vmax
+        return np.ma.array(ret, mask=~mask)
+
+    def inverse(self, value):
+        if not cbook.iterable(value):
+            value = np.asarray(value)
+        vscaled = np.asarray(value) * self.vmax
+        return [self.loc2seq[int(vs)] for vs in vscaled]
+
+
+def colors_from_categories(codings):
+    """
+    Helper routine to generate a cmap and a norm from a list
+    of (color, value) pairs
+
+    Parameters
+    ----------
+    codings : sequence of (key, value) pairs
+
+    Returns
+    -------
+    (cmap, norm) : tuple containing a :class:`Colormap` and a \
+                   :class:`Normalize` instance
+    """
+    if isinstance(codings, dict):
+        codings = cbook.sanitize_sequence(codings.items())
+    values, colors = zip(*codings)
+    cmap = mcolors.ListedColormap(list(colors))
+    norm = CategoryNorm(list(values))
+    return cmap, norm
 
 
 def convert_to_string(value):
@@ -77,8 +172,8 @@ def convert_to_string(value):
     np.array(...,dtype=unicode) for all later versions of numpy"""
 
     if isinstance(value, six.string_types):
-        return value
-    if np.isfinite(value):
+        pass
+    elif np.isfinite(value):
         value = np.asarray(value, dtype=str)[np.newaxis][0]
     elif np.isnan(value):
         value = 'nan'
@@ -91,61 +186,53 @@ def convert_to_string(value):
     return value
 
 
-def map_categories(data, old_map=None):
-    """Create mapping between unique categorical
-    values and numerical identifier.
-
-    Paramters
-    ---------
-    data: iterable
-        sequence of values
-    old_map: list of tuple, optional
-        if not `None`, than old_mapping will be updated with new values and
-        previous mappings will remain unchanged)
-    sort: bool, optional
-        sort keys by ASCII value
-
-    Returns
-    -------
-    list of tuple
-        [(label, ticklocation),...]
-
-    """
-
-    # code typical missing data in the negative range because
-    # everything else will always have positive encoding
-    # question able if it even makes sense
+class UnitData(object):
+    # debatable if it makes sense to special code missing values
     spdict = {'nan': -1.0, 'inf': -2.0, '-inf': -3.0}
 
-    if isinstance(data, six.string_types):
-        data = [data]
+    def __init__(self, data, sort=True):
+        """Create mapping between unique categorical values
+        and numerical identifier
+        Paramters
+        ---------
+        data: iterable
+            sequence of values
+        sort: bool
+            sort input data, default is True
+            False preserves input order
+        """
+        self.seq, self.locs = [], []
+        self._set_seq_locs(data, 0, sort)
+        self.sort = sort
 
-    # will update this post cbook/dict support
-    strdata = to_array(data)
-    uniq = np.unique(strdata)
+    def update(self, new_data, sort=True):
+        if sort:
+            self.sort = sort
+        # so as not to conflict with spdict
+        value = max(max(self.locs) + 1, 0)
+        self._set_seq_locs(new_data, value, self.sort)
 
-    if old_map:
-        olabs, okeys = zip(*old_map)
-        svalue = max(okeys) + 1
-    else:
-        old_map, olabs, okeys = [], [], []
-        svalue = 0
+    def _set_seq_locs(self, data, value, sort):
+        # magic to make it work under np1.6
+        strdata = to_array(data)
 
-    category_map = old_map[:]
+        # np.unique makes dateframes work
+        if sort:
+            unq = np.unique(strdata)
+        else:
+            _, idx = np.unique(strdata, return_index=~sort)
+            unq = strdata[np.sort(idx)]
 
-    new_labs = [u for u in uniq if u not in olabs]
-    missing = [nl for nl in new_labs if nl in spdict.keys()]
-
-    category_map.extend([(m, spdict[m]) for m in missing])
-
-    new_labs = [nl for nl in new_labs if nl not in missing]
-
-    new_locs = np.arange(svalue, svalue + len(new_labs), dtype='float')
-    category_map.extend(list(zip(new_labs, new_locs)))
-    return category_map
-
+        new_s = [d for d in unq if d not in self.seq]
+        for ns in new_s:
+            self.seq.append(convert_to_string(ns))
+            if ns in UnitData.spdict.keys():
+                self.locs.append(UnitData.spdict[ns])
+            else:
+                self.locs.append(value)
+                value += 1
 
 # Connects the convertor to matplotlib
-units.registry[str] = StrCategoryConverter()
-units.registry[bytes] = StrCategoryConverter()
-units.registry[six.text_type] = StrCategoryConverter()
+munits.registry[str] = StrCategoryConverter()
+munits.registry[bytes] = StrCategoryConverter()
+munits.registry[six.text_type] = StrCategoryConverter()
