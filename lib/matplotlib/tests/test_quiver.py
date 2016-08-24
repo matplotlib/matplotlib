@@ -1,6 +1,5 @@
 from __future__ import print_function
-import os
-import tempfile
+import warnings
 import numpy as np
 import sys
 from matplotlib import pyplot as plt
@@ -43,6 +42,20 @@ def test_quiver_key_memory_leak():
     assert sys.getrefcount(qk) == 3
     qk.remove()
     assert sys.getrefcount(qk) == 2
+
+
+@cleanup
+def test_no_warnings():
+    fig, ax = plt.subplots()
+
+    X, Y = np.meshgrid(np.arange(15), np.arange(10))
+    U = V = np.ones_like(X)
+
+    phi = (np.random.rand(15, 10) - .5) * 150
+    with warnings.catch_warnings(record=True) as w:
+        ax.quiver(X, Y, U, V, angles=phi)
+        fig.canvas.draw()
+    assert len(w) == 0
 
 
 @image_comparison(baseline_images=['quiver_animated_test_image'],
