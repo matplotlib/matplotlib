@@ -839,8 +839,8 @@ class NonUniformImage(AxesImage):
         """
         Set the grid for the pixel centers, and the pixel values.
 
-          *x* and *y* are 1-D ndarrays of lengths N and M, respectively,
-             specifying pixel centers
+          *x* and *y* are monotonic 1-D ndarrays of lengths N and M,
+             respectively, specifying pixel centers
 
           *A* is an (M,N) ndarray or masked array of values to be
             colormapped, or a (M,N,3) RGB array, or a (M,N,4) RGBA
@@ -959,6 +959,19 @@ class PcolorImage(AxesImage):
         return False
 
     def set_data(self, x, y, A):
+        """
+        Set the grid for the rectangle boundaries, and the data values.
+
+          *x* and *y* are monotonic 1-D ndarrays of lengths N+1 and M+1,
+             respectively, specifying rectangle boundaries.  If None,
+             they will be created as uniform arrays from 0 through N
+             and 0 through M, respectively.
+
+          *A* is an (M,N) ndarray or masked array of values to be
+            colormapped, or a (M,N,3) RGB array, or a (M,N,4) RGBA
+            array.
+
+        """
         A = cbook.safe_masked_invalid(A, copy=True)
         if x is None:
             x = np.arange(0, A.shape[1]+1, dtype=np.float64)
