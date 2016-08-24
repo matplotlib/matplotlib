@@ -119,8 +119,8 @@ test_script:
   - '%CMD_IN_ENV% python setup.py develop'
   # these should show no z, png, or freetype dll...
   - set "DUMPBIN=%VS140COMNTOOLS%\..\..\VC\bin\dumpbin.exe"
-  #- cmd: '"%DUMPBIN%" /DEPENDENTS lib\matplotlib\_png*.pyd'
-  #- cmd: '"%DUMPBIN%" /DEPENDENTS lib\matplotlib\ft2font*.pyd'
+  - cmd: '"%DUMPBIN%" /DEPENDENTS lib\matplotlib\_png*.pyd'
+  - cmd: '"%DUMPBIN%" /DEPENDENTS lib\matplotlib\ft2font*.pyd'
   - cmd: '"%DUMPBIN%" /DEPENDENTS lib\matplotlib\ft2font*.pyd | findstr freetype.*.dll && exit  /b 1 || exit /b 0'
   - cmd: '"%DUMPBIN%" /DEPENDENTS lib\\matplotlib\\_png*.pyd | findstr z.*.dll && exit /b 1 || exit /b 0'
   - cmd: '"%DUMPBIN%" /DEPENDENTS lib\\matplotlib\\_png*.pyd | findstr png.*.dll && exit /b 1 || exit /b 0'
