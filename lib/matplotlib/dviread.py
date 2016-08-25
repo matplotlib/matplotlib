@@ -769,11 +769,11 @@ class PsfontsMap(object):
     Usage::
 
      >>> map = PsfontsMap(find_tex_file('pdftex.map'))
-     >>> entry = map['ptmbo8r']
+     >>> entry = map[b'ptmbo8r']
      >>> entry.texname
-     'ptmbo8r'
+     b'ptmbo8r'
      >>> entry.psname
-     'Times-Bold'
+     b'Times-Bold'
      >>> entry.encoding
      '/usr/local/texlive/2008/texmf-dist/fonts/enc/dvips/base/8r.enc'
      >>> entry.effects
