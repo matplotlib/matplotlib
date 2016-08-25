@@ -7,6 +7,7 @@ from matplotlib.testing.decorators import skip_if_command_unavailable
 import matplotlib.dviread as dr
 import os.path
 import json
+import pytest
 
 
 def test_PsfontsMap(monkeypatch):
@@ -48,6 +49,10 @@ def test_PsfontsMap(monkeypatch):
     assert entry.encoding is None
     entry = fontmap[b'TeXfont9']
     assert entry.filename == b'/absolute/font9.pfb'
+    # Missing font
+    with pytest.raises(KeyError) as exc:
+        fontmap[b'no-such-font']
+    assert b'no-such-font' in bytes(exc.value)
 
 
 @skip_if_command_unavailable(["kpsewhich", "-version"])
