@@ -33,6 +33,7 @@ from matplotlib import rcParams
 import numpy as np
 import struct
 import sys
+import textwrap
 import os
 
 if six.PY3:
@@ -798,16 +799,33 @@ class PsfontsMap(object):
     while the pdf-related files perhaps only avoid the "Base 14" pdf
     fonts. But the user may have configured these files differently.
     """
-    __slots__ = ('_font',)
+    __slots__ = ('_font', '_filename')
 
     def __init__(self, filename):
         self._font = {}
+        self._filename = filename
+        if six.PY3 and isinstance(filename, bytes):
+            self._filename = filename.decode('ascii', errors='replace')
         with open(filename, 'rt') as file:
             self._parse(file)
 
     def __getitem__(self, texname):
         assert(isinstance(texname, bytes))
-        result = self._font[texname]
+        try:
+            result = self._font[texname]
+        except KeyError:
+            matplotlib.verbose.report(textwrap.fill
+                ('A PostScript file for the font whose TeX name is "%s" '
+                 'could not be found in the file "%s". The dviread module '
+                 'can only handle fonts that have an associated PostScript '
+                 'font file. '
+                 'This problem can often be solved by installing '
+                 'a suitable PostScript font package in your (TeX) '
+                 'package manager.' % (texname.decode('ascii'),
+                                       self._filename),
+                 break_on_hyphens=False, break_long_words=False),
+                'helpful')
+            raise
         fn, enc = result.filename, result.encoding
         if fn is not None and not fn.startswith(b'/'):
             fn = find_tex_file(fn)
