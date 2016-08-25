@@ -510,7 +510,7 @@ class DviFont(object):
        Name of the font as used internally by TeX and friends. This
        is usually very different from any external font names, and
        :class:`dviread.PsfontsMap` can be used to find the external
-       name of the font.
+       name of the font. ASCII bytestring.
 
     .. attribute:: size
 
@@ -526,8 +526,7 @@ class DviFont(object):
     __slots__ = ('texname', 'size', 'widths', '_scale', '_vf', '_tfm')
 
     def __init__(self, scale, tfm, texname, vf):
-        if six.PY3 and isinstance(texname, bytes):
-            texname = texname.decode('ascii')
+        assert(isinstance(texname, bytes))
         self._scale, self._tfm, self.texname, self._vf = \
             scale, tfm, texname, vf
         self.size = scale * (72.0 / (72.27 * 2**16))
@@ -807,42 +806,42 @@ class PsfontsMap(object):
             self._parse(file)
 
     def __getitem__(self, texname):
-        try:
-            result = self._font[texname]
-        except KeyError:
-            result = self._font[texname.decode('ascii')]
+        assert(isinstance(texname, bytes))
+        result = self._font[texname]
         fn, enc = result.filename, result.encoding
-        if fn is not None and not fn.startswith('/'):
+        if fn is not None and not fn.startswith(b'/'):
             fn = find_tex_file(fn)
-        if enc is not None and not enc.startswith('/'):
+        if enc is not None and not enc.startswith(b'/'):
             enc = find_tex_file(result.encoding)
         return result._replace(filename=fn, encoding=enc)
 
     def _parse(self, file):
-        """Parse each line into words."""
+        """Parse each line into words and process them."""
+
         for line in file:
+            line = six.b(line)
             line = line.strip()
-            if line == '' or line.startswith('%'):
+            if line == b'' or line.startswith(b'%'):
                 continue
             words, pos = [], 0
             while pos < len(line):
-                if line[pos] == '"':   # double quoted word
+                if line[pos:pos+1] == b'"':   # double quoted word
                     pos += 1
-                    end = line.index('"', pos)
+                    end = line.index(b'"', pos)
                     words.append(line[pos:end])
                     pos = end + 1
                 else:                  # ordinary word
-                    end = line.find(' ', pos+1)
+                    end = line.find(b' ', pos+1)
                     if end == -1:
                         end = len(line)
                     words.append(line[pos:end])
                     pos = end
-                while pos < len(line) and line[pos] == ' ':
+                while pos < len(line) and line[pos:pos+1] == b' ':
                     pos += 1
             self._register(words)
 
     def _register(self, words):
-        """Register a font described by "words".
+        """Register a font described by "words", a sequence of bytestrings.
 
         The format is, AFAIK: texname fontname [effects and filenames]
         Effects are PostScript snippets like ".177 SlantFont",
@@ -861,19 +860,23 @@ class PsfontsMap(object):
         # http://tex.stackexchange.com/questions/10826/
         # http://article.gmane.org/gmane.comp.tex.pdftex/4914
 
+        # input must be bytestrings (the file format is ASCII)
+        for word in words:
+            assert(isinstance(word, bytes))
+
         texname, psname = words[:2]
-        effects, encoding, filename = '', None, None
+        effects, encoding, filename = b'', None, None
         for word in words[2:]:
-            if not word.startswith('<'):
+            if not word.startswith(b'<'):
                 effects = word
             else:
-                word = word.lstrip('<')
-                if word.startswith('[') or word.endswith('.enc'):
+                word = word.lstrip(b'<')
+                if word.startswith(b'[') or word.endswith(b'.enc'):
                     if encoding is not None:
                         matplotlib.verbose.report(
                             'Multiple encodings for %s = %s'
                             % (texname, psname), 'debug')
-                    if word.startswith('['):
+                    if word.startswith(b'['):
                         encoding = word[1:]
                     else:
                         encoding = word
@@ -884,11 +887,11 @@ class PsfontsMap(object):
         eff = effects.split()
         effects = {}
         try:
-            effects['slant'] = float(eff[eff.index('SlantFont')-1])
+            effects['slant'] = float(eff[eff.index(b'SlantFont')-1])
         except ValueError:
             pass
         try:
-            effects['extend'] = float(eff[eff.index('ExtendFont')-1])
+            effects['extend'] = float(eff[eff.index(b'ExtendFont')-1])
         except ValueError:
             pass
 
@@ -927,26 +930,27 @@ class Encoding(object):
 
         state = 0
         for line in file:
-            comment_start = line.find('%')
+            line = six.b(line)
+            comment_start = line.find(b'%')
             if comment_start > -1:
                 line = line[:comment_start]
             line = line.strip()
 
             if state == 0:
                 # Expecting something like /FooEncoding [
-                if '[' in line:
+                if b'[' in line:
                     state = 1
-                    line = line[line.index('[')+1:].strip()
+                    line = line[line.index(b'[')+1:].strip()
 
             if state == 1:
-                if ']' in line:  # ] def
-                    line = line[:line.index(']')]
+                if b']' in line:  # ] def
+                    line = line[:line.index(b']')]
                     state = 2
                 words = line.split()
                 for w in words:
-                    if w.startswith('/'):
+                    if w.startswith(b'/'):
                         # Allow for /abc/def/ghi
-                        subwords = w.split('/')
+                        subwords = w.split(b'/')
                         result.extend(subwords[1:])
                     else:
                         raise ValueError("Broken name in encoding file: " + w)
