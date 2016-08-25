@@ -19,7 +19,7 @@ def test_PsfontsMap(monkeypatch):
     fontmap = dr.PsfontsMap(filename)
     # Check all properties of a few fonts
     for n in [1, 2, 3, 4, 5]:
-        key = b'TeXfont%d' % n
+        key = ('TeXfont%d' % n).encode('ascii')
         entry = fontmap[key]
         assert entry.texname == key
         assert entry.psname == b'PSfont%d' % n
