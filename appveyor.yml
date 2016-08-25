@@ -147,6 +147,9 @@ after_test:
   # Build the wheel with the static libs
   # Hide the output, the copied files really clutter the build log...
   - cmd: '%CMD_IN_ENV% python setup.py bdist_wheel > NUL:'
+  # Delete the result images from the wheel
+  - pip install delocate
+  - python tools\rm_test_images.py dist\*.whl
 
   # And now the conda build after a cleanup...
   # cleanup build files so that they don't pollute the conda build but keep the wheel in dist...
