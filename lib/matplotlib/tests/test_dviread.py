@@ -22,17 +22,17 @@ def test_PsfontsMap(monkeypatch):
         key = ('TeXfont%d' % n).encode('ascii')
         entry = fontmap[key]
         assert entry.texname == key
-        assert entry.psname == b'PSfont%d' % n
+        assert entry.psname == ('PSfont%d' % n).encode('ascii')
         if n not in [3, 5]:
-            assert entry.encoding == b'font%d.enc' % n
+            assert entry.encoding == ('font%d.enc' % n).encode('ascii')
         elif n == 3:
             assert entry.encoding == b'enc3.foo'
         # We don't care about the encoding of TeXfont5, which specifies
         # multiple encodings.
         if n not in [1, 5]:
-            assert entry.filename == b'font%d.pfa' % n
+            assert entry.filename == ('font%d.pfa' % n).encode('ascii')
         else:
-            assert entry.filename == b'font%d.pfb' % n
+            assert entry.filename == ('font%d.pfb' % n).encode('ascii')
         if n == 4:
             assert entry.effects == {'slant': -0.1, 'extend': 2.2}
         else:
