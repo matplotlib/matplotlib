@@ -17,6 +17,8 @@ it can be provided as:
   <http://blog.xkcd.com/2010/05/03/color-survey-results/>`__ These
   names are prefixed with ``'xkcd:'`` (e.g., ``'xkcd:sky blue'``) to
   prevent name clashes with the CSS4/X11 names.
+* One of ``{'C0', 'C1', 'C2', 'C3', 'C4', 'C5', 'C6', 'C7', 'C8', 'C9'}`` which will use the
+  color from the Nth element in ``mpl.rcparams['axes.prop_cycle']``.
 
 All string specifications of color are case-insensitive.
 
