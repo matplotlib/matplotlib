@@ -2443,9 +2443,9 @@ class Axes3D(Axes):
 
         facecolors = []
         if color is None:
-            # no color specified
-            facecolors = [None] * len(x)
-        elif len(color) == len(x):
+            color = [self._get_lines.get_next_color()]
+
+        if len(color) == len(x):
             # bar colors specified, need to expand to number of faces
             for c in color:
                 facecolors.extend([c] * 6)
