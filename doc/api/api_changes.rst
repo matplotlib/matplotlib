@@ -15,11 +15,138 @@ For new features that were added to matplotlib, please see
 Changes in 2.0.0
 ================
 
+
+
+Deprecation and removal
+-----------------------
+
 Color of Axes
--------------
+`````````````
 
 The ``axisbg`` and ``axis_bgcolor`` properties on ``Axes`` have been
 deprecated in favor of ``facecolor``.
+
+
+GTK and GDK backends deprecated
+```````````````````````````````
+The untested and broken GDK and GTK backends have been deprecated.
+These backends allows figures to be rendered via the GDK api to
+files and GTK2 figures. They are untested, known to be broken and
+use have been discouraged for some time. The `GTKAgg` and `GTKCairo` backends
+provide better and more tested ways of rendering figures to GTK2 windows.
+
+WX backend deprecated
+`````````````````````
+The untested WX backend has been deprecated.
+This backend allows figures to be rendered via the WX api to
+files and Wx figures. It is untested, and
+use have been discouraged for some time. The `WXAgg` backend
+provides a better and more tested way of rendering figures to WX windows.
+
+CocoaAgg backend removed
+````````````````````````
+
+The deprecated and not fully functional CocoaAgg backend has been removed
+
+
+General
+-------
+
+`Artist.update` has return value
+````````````````````````````````
+
+The methods `matplotlib.artist.Artist.set`,
+`matplotlib.Artist.update`, and the function `matplotlib.artist.setp`
+now use a common codepath to look up how to update the given artist
+properties (either using the setter methods or an attribute/property).
+
+The behavior of `matplotlib.Artist.update` is slightly changed to
+return a list of the returned values from the setter methods to avoid
+changing the API of `matplotlib.Artist.set` and
+`matplotlib.artist.setp`.
+
+The keys passed into `matplotlib.Artist.update` are now converted to
+lower case before being processed to match the behavior of
+`matplotlib.Artist.set` and `matplotlib.artist.setp`.  This should not
+break any user code because there are no set methods with capitals in
+the names, however going forward this puts a constraint on naming
+properties.
+
+
+`Legend` initializers gain edgecolor and facecolor kwargs
+``````````````````````````````````````````````````````````
+
+The :class:`~matplotlib.legend.Legend` background patch (or 'frame')
+can have its `edgecolor` and `facecolor` determined by the
+corresponding keyword arguments to its initializer, or to any of the
+methods or functions that call that initializer.  If left to
+their default values of `None`, their values will be taken from
+`rcParams`.  The previously-existing `framealpha` kwarg still
+controls the alpha transparency of the patch.
+
+
+Qualitative colormaps
+`````````````````````
+
+Colorbrewer's qualitative/discrete colormaps ("Accent", "Dark2", "Paired",
+"Pastel1", "Pastel2", "Set1", "Set2", "Set3") are now implemented as
+``ListedColormap`` instead of ``LinearSegmentedColormap``.
+
+To use these for images where categories are specified as integers, for
+instance, use::
+
+    plt.imshow(x, cmap='Dark2', norm=colors.NoNorm())
+
+
+Change in the ``draw_image`` backend API
+----------------------------------------
+
+The ``draw_image`` method implemented by backends has changed its interface.
+
+This change is only relevant if the backend declares that it is able
+to transform images by returning ``True`` from ``option_scale_image``.
+See the ``draw_image`` docstring for more information.
+
+
+Tickers
+-------
+
+``matplotlib.ticker.LinearLocator`` algorithm update
+````````````````````````````````````````````````````
+
+The ``matplotlib.ticker.LinearLocator`` is used to define the range and location
+of tickmarks of a plot when the user wants a exact number of ticks.
+``LinearLocator`` thus differs from the default locator ``MaxNLocator``, which
+does not necessarily return the exact user requested number of ticks.
+
+The view range algorithm in ``matplotlib.ticker.LinearLocator`` has been
+changed so that more convenient tick location are chosen. The new algorithm
+returns a plot view range that is a multiple of the user requested number of
+ticks. This ensures tick marks to be located at whole integers more
+constistently. For example, when both y-axis of a``twinx`` plot use
+``matplotlib.ticker.LinearLocator`` with the same number of ticks, the grids of
+both axis will be properly aligned at convenient tick locations.
+
+
+MPlot3D
+-------
+
+New defaults for 3D quiver function in mpl_toolkits.mplot3d.axes3d.py
+`````````````````````````````````````````````````````````````````````
+Matplotlib has both a 2D and a 3D ``quiver`` function. These changes affect only the 3D function and make the default behavior of the 3D function match 2D version. There are two changes:
+
+1) The 3D quiver function previously normalized the arrows to be the same length, which makes it unusable for situations where the arrows should be different lengths and does not match the behavior of the 2D function. This normalization behavior is now controlled with the ``normalize`` keyword, which defaults to False.
+
+2) The ``pivot`` keyword now defaults to ``tail`` instead of ``tip``. This was done in order to match the default behavior of the 2D quiver function.
+
+To obtain the previous behavior with the 3D quiver function, one can call the function with ::
+
+   ax.quiver(x, y, z, u, v, w, normalize=True, pivot='tip')
+
+where "ax" is a axes3d object created with something like ::
+
+   import mpl_toolkits.mplot3d.axes3d
+   ax = plt.sublot(111, projection='3d')
 
 
 Changes in 1.5.2
