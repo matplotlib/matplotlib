@@ -606,12 +606,13 @@ class Quiver(mcollections.PolyCollection):
 
     def _make_verts(self, U, V):
         uv = (U + V * 1j)
-        if self.angles == 'xy' and self.scale_units == 'xy':
+        str_angles = isinstance(self.angles, six.string_types)
+        if str_angles and (self.angles == 'xy' and self.scale_units == 'xy'):
             # Here eps is 1 so that if we get U, V by diffing
             # the X, Y arrays, the vectors will connect the
             # points, regardless of the axis scaling (including log).
             angles, lengths = self._angles_lengths(U, V, eps=1)
-        elif self.angles == 'xy' or self.scale_units == 'xy':
+        elif str_angles and (self.angles == 'xy' or self.scale_units == 'xy'):
             # Calculate eps based on the extents of the plot
             # so that we don't end up with roundoff error from
             # adding a small number to a large.
@@ -644,9 +645,9 @@ class Quiver(mcollections.PolyCollection):
                 self.scale = scale * widthu_per_lenu
         length = a * (widthu_per_lenu / (self.scale * self.width))
         X, Y = self._h_arrows(length)
-        if self.angles == 'xy':
+        if str_angles and (self.angles == 'xy'):
             theta = angles
-        elif self.angles == 'uv':
+        elif str_angles and (self.angles == 'uv'):
             theta = np.angle(uv)
         else:
             # Make a copy to avoid changing the input array.
