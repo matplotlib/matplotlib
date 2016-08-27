@@ -29,14 +29,10 @@ New in matplotlib-2.0
 =====================
 
 
-------------
-
-
-
 Improved color conversion API and RGBA support
 ----------------------------------------------
 
-The :module:`~matplotlib.colors` gained a new color conversion API with
+The :mod:`~matplotlib.colors` gained a new color conversion API with
 full support for the alpha channel.  The main public functions are
 :func:`~matplotlib.colors.is_color_like`, :func:`matplotlib.colors.to_rgba`,
 :func:`matplotlib.colors.to_rgba_array` and :func:`~matplotlib.colors.to_hex`.
@@ -48,6 +44,8 @@ channel of the artists as well.
 
 New Configuration (rcParams)
 ----------------------------
+
+New rcparams added
 
 +---------------------------------+--------------------------------------------------+
 | Parameter                       | Description                                      |
@@ -174,6 +172,7 @@ Improvements for the Qt figure options editor
 
 Various usability improvements were implemented for the Qt figure options
 editor, among which:
+
 - Line style entries are now sorted without duplicates.
 - The colormap and normalization limits can now be set for images.
 - Line edits for floating values now display only as many digits as necessary
