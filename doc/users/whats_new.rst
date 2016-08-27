@@ -28,21 +28,8 @@ revision, see the :ref:`github-stats`.
 New in matplotlib-2.0
 =====================
 
-New rcParams
+
 ------------
-
-The parameters ``xtick.top``, ``xtick.bottom``, ``ytick.left``
-and ``ytick.right`` were added to control where the ticks
-are drawn.
-
-Furthermore, the parameters ``xtick.major.top``, ``xtick.major.bottom``,
-``xtick.minor.top``, ``xtick.minor.bottom``, ``ytick.major.left``,
-``ytick.major.right``, ``ytick.minor.left``, and ``ytick.minor.right`` were
-added to control were ticks are drawn.
-
-``hist.bins`` to control the default number of bins to use in
-`~matplotlib.axes.Axes.hist`.  This can be an `int`, a list of floats, or
-``'auto'`` if numpy >= 1.11 is installed.
 
 
 
@@ -59,8 +46,8 @@ A side benefit is that the Qt options editor now allows setting the alpha
 channel of the artists as well.
 
 
-Configuration (rcParams)
-------------------------
+New Configuration (rcParams)
+----------------------------
 
 +---------------------------------+--------------------------------------------------+
 | Parameter                       | Description                                      |
@@ -83,6 +70,24 @@ Configuration (rcParams)
 +---------------------------------+--------------------------------------------------+
 |`svg.hashsalt`                   | see note                                         |
 +---------------------------------+--------------------------------------------------+
+|`xtick.top`, `xtick.minor.top`,  | Control where major and minor ticks are drawn.   |
+|`xtick.major.top`                | The global values are `and` ed with the          |
+|`xtick.bottom`,                  | corosponding major/minor values.                 |
+|`xtick.minor.bottom`,            |                                                  |
+|`xtick.major.bottom`             |                                                  |
+|`ytick.left`, `ytick.minor.left`,|                                                  |
+|`ytick.major.left`               |                                                  |
+|`ytick.right`,                   |                                                  |
+|`ytick.minor.right`,             |                                                  |
+|`ytick.major.right`              |                                                  |
++---------------------------------+--------------------------------------------------+
+|`hist.bins`                      | the default number of bins to use in             |
+|                                 | `~matplotlib.axes.Axes.hist`.  This can be an    |
+|                                 | `int`, a list of floats, or ``'auto'`` if numpy  |
+|                                 | >= 1.11 is installed.                            |
++---------------------------------+--------------------------------------------------+
+
+
 
 Added ``svg.hashsalt`` key to rcParams
 ```````````````````````````````````````
