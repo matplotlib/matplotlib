@@ -515,30 +515,34 @@ class RendererBase(object):
         """
         return 1.0
 
-    def draw_image(self, gc, x, y, im, trans=None):
+    def draw_image(self, gc, x, y, im, transform=None):
         """
-        Draw the image instance into the current axes;
+        Draw an RGBA image.
 
         *gc*
-            a GraphicsContext containing clipping information
+            a :class:`GraphicsContextBase` instance with clipping information.
 
         *x*
-            is the distance in pixels from the left hand side of the canvas.
+            the distance in physical units (i.e., dots or pixels) from the left
+            hand side of the canvas.
 
         *y*
-            the distance from the origin.  That is, if origin is
-            upper, y is the distance from top.  If origin is lower, y
-            is the distance from bottom
+            the distance in physical units (i.e., dots or pixels) from the
+            bottom side of the canvas.
 
         *im*
             An NxMx4 array of RGBA pixels (of dtype uint8).
 
-        *trans*
-            If the concrete backend is written such that
-            `option_scale_image` returns `True`, an affine
-            transformation may also be passed to `draw_image`.  The
-            backend should apply the transformation to the image
-            before applying the translation of `x` and `y`.
+        *transform*
+            If and only if the concrete backend is written such that
+            :meth:`option_scale_image` returns ``True``, an affine
+            transformation *may* be passed to :meth:`draw_image`. It takes the
+            form of a :class:`~matplotlib.transforms.Affine2DBase` instance.
+            The translation vector of the transformation is given in physical
+            units (i.e., dots or pixels). Note that the transformation does not
+            override `x` and `y`, and has to be applied *before* translating
+            the result by `x` and `y` (this can be accomplished by adding `x`
+            and `y` to the translation vector defined by `transform`).
         """
         raise NotImplementedError
 
@@ -551,8 +555,8 @@ class RendererBase(object):
 
     def option_scale_image(self):
         """
-        override this method for renderers that support arbitrary
-        scaling of image (most of the vector backend).
+        override this method for renderers that support arbitrary affine
+        transformations in :meth:`draw_image` (most vector backends).
         """
         return False
 
