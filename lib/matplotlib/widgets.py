@@ -865,6 +865,7 @@ class TextBox(AxesWidget):
         if self.ignore(event):
             return
         if event.inaxes != self.ax:
+            self.capturekeystrokes = False
             self.stop_typing()
             return
         if not self.eventson:
