@@ -53,7 +53,7 @@ def html(buildername='html'):
     if warnings_as_errors:
         options = options + ' -W'
     if os.system('sphinx-build -j %d %s -b %s -d build/doctrees . build/%s' % (
-            2, options, buildername, buildername)):
+            n_proc, options, buildername, buildername)):
         raise SystemExit("Building HTML failed.")
 
     # Clean out PDF files from the _images directory
@@ -147,6 +147,7 @@ funcd = {
 
 small_docs = False
 warnings_as_errors = True
+n_proc = 1
 
 # Change directory to the one containing this file
 current_dir = os.getcwd()
@@ -195,11 +196,16 @@ parser.add_argument("--small",
 parser.add_argument("--allowsphinxwarnings",
                     help="Don't turn Sphinx warnings into errors",
                     action="store_true")
+parser.add_argument("-n",
+                    help="Number of parallel workers to use")
+
 args = parser.parse_args()
 if args.small:
     small_docs = True
 if args.allowsphinxwarnings:
     warnings_as_errors = False
+if args.n is not None:
+    n_proc = int(args.n)
 
 if args.cmd:
     for command in args.cmd:
