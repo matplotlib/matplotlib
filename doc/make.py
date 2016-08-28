@@ -2,7 +2,6 @@
 
 from __future__ import print_function
 import glob
-import multiprocessing
 import os
 import shutil
 import sys
@@ -54,7 +53,7 @@ def html(buildername='html'):
     if warnings_as_errors:
         options = options + ' -W'
     if os.system('sphinx-build -j %d %s -b %s -d build/doctrees . build/%s' % (
-            multiprocessing.cpu_count(), options, buildername, buildername)):
+            2, options, buildername, buildername)):
         raise SystemExit("Building HTML failed.")
 
     # Clean out PDF files from the _images directory
