@@ -1,34 +1,35 @@
 .. _whats-new:
 
-************************
-What's new in matplotlib
-************************
+==========================
+ What's new in matplotlib
+==========================
 
 For a list of all of the issues and pull requests since the last
 revision, see the :ref:`github-stats`.
 
+.. contents:: Table of Contents
+   :depth: 3
+
+
+
+New in matplotlib 2.0
+=====================
+
 .. note::
+
    matplotlib 2.0 supports Python 2.7, and 3.4+
 
-   matplotlib 1.5 supports Python 2.7, 3.4, and 3.5
-
-   matplotlib 1.4 supports Python 2.6, 2.7, 3.3, and 3.4
-
-   matplotlib 1.3 supports Python 2.6, 2.7, 3.2, and 3.3
-
-   matplotlib 1.2 supports Python 2.6, 2.7, and 3.1
-
-   matplotlib 1.1 supports Python 2.4 to 2.7
 
 
+Default style changes
+---------------------
 
-.. contents:: Table of Contents
-   :depth: 2
+The major changes in v2.0 are related to overhauling the default styles.
 
+.. toctree::
+   :maxdepth: 2
 
-
-New in matplotlib-2.0
-=====================
+   dflt_style_changes
 
 
 Improved color conversion API and RGBA support
@@ -90,7 +91,7 @@ New rcparams added
 
 
 Added ``svg.hashsalt`` key to rcParams
-```````````````````````````````````````
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 If ``svg.hashsalt`` is ``None`` (which it is by default), the svg
 backend uses ``uuid4`` to generate the hash salt.  If it is not
@@ -99,7 +100,7 @@ backend uses ``uuid4`` to generate the hash salt.  If it is not
 
 
 Removed the ``svg.image_noscale`` rcParam
-`````````````````````````````````````````
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 As a result of the extensive changes to image handling, the
 ``svg.image_noscale`` rcParam has been removed.  The same

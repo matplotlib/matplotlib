@@ -1,5 +1,6 @@
-Changes to the default style
-----------------------------
+==============================
+ Changes to the default style
+==============================
 
 The most important changes in matplotlib 2.0 are the changes to the
 default style.
@@ -7,17 +8,80 @@ default style.
 While it is impossible to select the best default for all cases, these
 are designed to work well in the most common cases.
 
-These changes include:
 
-Colors
-``````
+
+colors, color cycles, and color maps
+====================================
+
+Colors in default property cycle
+--------------------------------
+
+The colors in the default proprety cycle have been changed from
+``['b', 'g', 'r', 'c', 'm', 'y', 'k']`` to the `Vega
+category10 palette
+<https://github.com/vega/vega/wiki/Scales#scale-range-literals>`__
+
+.. plot::
+
+
+  th = np.linspace(0, 2*np.pi, 512)
+
+  fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(6, 3))
+
+
+  def color_demo(ax, colors, title):
+      ax.set_title(title)
+      for j, c in enumerate(colors):
+          v_offset = -(j / len(colors))
+          ax.plot(th, .1*np.sin(th) + v_offset, color=c)
+          ax.annotate("'C{}'".format(j), (0, v_offset),
+                      xytext=(-1.5, 0),
+                      ha='right',
+                      va='center',
+                      color=c,
+                      textcoords='offset points',
+                      family='monospace')
+
+          ax.annotate("{!r}".format(c), (2*np.pi, v_offset),
+                      xytext=(1.5, 0),
+                      ha='left',
+                      va='center',
+                      color=c,
+                      textcoords='offset points',
+                      family='monospace')
+      ax.axis('off')
+
+  old_colors = ['b', 'g', 'r', 'c', 'm', 'y', 'k']
+
+  new_colors = ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728',
+                '#9467bd', '#8c564b', '#e377c2', '#7f7f7f',
+                '#bcbd22', '#17becf']
+
+  color_demo(ax1, old_colors, 'classic')
+  color_demo(ax2, new_colors, 'v2.0')
+
+  fig.subplots_adjust(**{'bottom': 0.0, 'left': 0.059, 'right': 0.869, 'top': 0.895})
+
+In addition to changing the colors, an additional method to specify
+colors was added.  Previously, the default colors were the single
+character short-hand notations for red, green, blue, cyan, magenta,
+yellow, and black.  This made them easy to type and usable in the
+abbreviated style string in ``plot``.  On the other hand, the new
+colors are only specified via a hex value.  To make in easy to access
+these colors the notation for colors ``'CN'`` was added to access
+colors.  This allows the first 10 colors in
+``mpl.rcParms['axes.prop_cycle']`` to be easily accessed.  See
+:ref:`colors` for more details.
+
+
+Other
+-----
 
 - The default figure background color has changed from grey to white.
   Use the rcParam ``figure.facecolor`` to control this.
 
 - The default cycle of colors to draw lines, markers and other content
-  has been changed.  It is based on the `Vega category10 palette
-  <https://github.com/vega/vega/wiki/Scales#scale-range-literals>`__.
+  has been changed.
 
 - The default color map used for images and pcolor meshes, etc., has
   changed from ``jet`` to ``viridis``.
@@ -29,14 +93,14 @@ Colors
   default.
 
 Plots
-`````
+=====
 
 - The default size of the elements in a scatter plot is now based on
   the rcParam ``lines.markersize`` so it is consistent with ``plot(X,
   Y, 'o')``.  The old value was 20, and the new value is 36 (6^2).
 
 Hatching
-````````
+========
 
 - The width of the lines in a hatch pattern is now configurable by the
   rcParam `hatch.linewidth`, with a default of 1 point.  The old
@@ -48,7 +112,7 @@ Hatching
     - Agg: 1 px
 
 Plot layout
-```````````
+===========
 
 - The default dpi used for on-screen is now 100, which is the same as
   the old default for saving files.  Due to this, the on-screen
@@ -81,7 +145,7 @@ Plot layout
   rcParam ``errorbar.capsize`` to control this.
 
 Images
-``````
+======
 
 - The default mode for image interpolation, in the rcParam
   ``image.interpolation``, is now ``nearest``.
@@ -95,7 +159,7 @@ Images
   downsampling of an image.
 
 Fonts
-`````
+=====
 
 - The default font has changed from "Bitstream Vera Sans" to "DejaVu
   Sans".  "DejaVu Sans" is an improvement on "Bistream Vera Sans" that
@@ -109,7 +173,7 @@ Fonts
   TeX backend is used (i.e. ``text.usetex`` is ``True``).
 
 Dates
-`````
+=====
 
 - The default date formats are now all based on ISO format, i.e., with
   the slowest-moving value first.  The date formatters are still
@@ -118,7 +182,7 @@ Dates
   format dates based on the current locale.
 
 Legends
-```````
+=======
 
 - By default, the number of points displayed in a legend is now 1.
 
@@ -129,7 +193,7 @@ Legends
 - The legend now has rounded corners by default.
 
 mplot3d
-```````
+=======
 
 - mplot3d now obeys some style-related rcParams, rather than using
   hard-coded defaults.  These include:
