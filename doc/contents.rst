@@ -14,7 +14,6 @@ Overview
 .. toctree::
    :maxdepth: 2
 
-   style_changes.rst
    users/index.rst
    faq/index.rst
    resources/index.rst
