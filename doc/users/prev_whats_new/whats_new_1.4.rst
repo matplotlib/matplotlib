@@ -11,6 +11,11 @@ Thomas A. Caswell served as the release manager for the 1.4 release.
    :depth: 2
 
 
+.. note::
+
+   matplotlib 1.4 supports Python 2.6, 2.7, 3.3, and 3.4
+
+
 New colormap
 ------------
 In heatmaps, a green-to-red spectrum is often used to indicate intensity of

@@ -7,6 +7,11 @@ New in matplotlib 1.1
    :depth: 2
 
 
+.. note::
+
+   matplotlib 1.1 supports Python 2.4 to 2.7
+
+
 Sankey Diagrams
 ---------------
 

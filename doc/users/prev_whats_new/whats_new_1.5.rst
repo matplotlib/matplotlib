@@ -7,6 +7,15 @@ New in matplotlib 1.5
    :depth: 2
 
 
+.. note::
+
+   matplotlib 1.5 supports Python 2.7, 3.4, and 3.5
+
+
+
+
+
+
 Interactive OO usage
 --------------------
 
