@@ -13,10 +13,9 @@ User's Guide
     :maxdepth: 2
 
     intro.rst
-    configuration.rst
+    installing.rst
     beginner.rst
     developer.rst
-    colors.rst
     whats_new.rst
     github_stats.rst
     license.rst
