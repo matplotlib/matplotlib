@@ -1,8 +1,8 @@
 .. _beginners-guide-index:
 
-################
-Beginner's Guide
-################
+===================
+ matplotlib Basics
+===================
 
 .. htmlonly::
 
@@ -13,7 +13,9 @@ Beginner's Guide
     :maxdepth: 2
 
     pyplot_tutorial.rst
+    customizing.rst
     style_sheets.rst
+    shell.rst
     navigation_toolbar.rst
     index_text.rst
     image_tutorial.rst
