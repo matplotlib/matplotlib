@@ -7,6 +7,9 @@ New in matplotlib 1.2
 .. contents:: Table of Contents
    :depth: 2
 
+.. note::
+
+   matplotlib 1.2 supports Python 2.6, 2.7, and 3.1
 
 Python 3.x support
 ------------------
