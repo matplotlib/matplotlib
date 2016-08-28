@@ -8,6 +8,12 @@ default style.
 While it is impossible to select the best default for all cases, these
 are designed to work well in the most common cases.
 
+A 'classic' style sheet will be provided so reverting to the 1.x
+default values will be a single line of python
+
+.. code::
+
+  mpl.style.use('classic')
 
 
 colors, color cycles, and color maps
@@ -72,6 +78,24 @@ these colors the notation for colors ``'CN'`` was added to access
 colors.  This allows the first 10 colors in
 ``mpl.rcParms['axes.prop_cycle']`` to be easily accessed.  See
 :ref:`colors` for more details.
+
+
+Colormap
+--------
+
+
+``matplotlib`` is changing the default colormap and styles in the
+upcoming 2.0 release!
+
+The new default color map will be 'viridis' (aka `option
+D <http://bids.github.io/colormap/>`_).  For an introduction to color
+theory and how 'viridis' was generated watch Nathaniel Smith and
+Stéfan van der Walt's talk from SciPy2015
+
+.. raw:: html
+
+    <iframe width="560" height="315" src="https://www.youtube.com/embed/xAoljeRJ3lU" frameborder="0" allowfullscreen></iframe>
+
 
 
 Other
