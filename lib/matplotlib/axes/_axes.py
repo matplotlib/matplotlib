@@ -3643,10 +3643,7 @@ class Axes(_AxesBase):
 
         def to_vc(xs, ys):
             # convert arguments to verts and codes
-            verts = []
-
-            for xi, yi in zip(xs, ys):
-                verts.append((xi, yi))
+            verts = list(zip(xs, ys))
             verts.append((0, 0))  # ignored
             codes = [mpath.Path.MOVETO] + \
                     [mpath.Path.LINETO] * (len(verts) - 2) + \
@@ -5522,8 +5519,9 @@ class Axes(_AxesBase):
         .. seealso::
 
             :func:`~matplotlib.pyplot.pcolor`
-                For an explanation of the grid orientation and the
-                expansion of 1-D *X* and/or *Y* to 2-D arrays.
+                For an explanation of the grid orientation
+                (:ref:`Grid Orientation <axes-pcolor-grid-orientation>`)
+                and the expansion of 1-D *X* and/or *Y* to 2-D arrays.
         """
         if not self._hold:
             self.cla()
@@ -5637,10 +5635,10 @@ class Axes(_AxesBase):
         (*nr*-1, *nc*-1).  All cells are rectangles of the same size.
         This is the fastest version.
 
-        *x*, *y* are 1D arrays of length *nc* +1 and *nr* +1, respectively,
-        giving the x and y boundaries of the cells.  Hence the cells are
-        rectangular but the grid may be nonuniform.  The speed is
-        intermediate.  (The grid is checked, and if found to be
+        *x*, *y* are monotonic 1D arrays of length *nc* +1 and *nr* +1,
+        respectively, giving the x and y boundaries of the cells.  Hence
+        the cells are rectangular but the grid may be nonuniform.  The
+        speed is intermediate.  (The grid is checked, and if found to be
         uniform the fast version is used.)
 
         *X* and *Y* are 2D arrays with shape (*nr* +1, *nc* +1) that specify
@@ -5654,7 +5652,7 @@ class Axes(_AxesBase):
 
         Note that the column index corresponds to the x-coordinate,
         and the row index corresponds to y; for details, see
-        the "Grid Orientation" section below.
+        :ref:`Grid Orientation <axes-pcolor-grid-orientation>`.
 
         Optional keyword arguments:
 

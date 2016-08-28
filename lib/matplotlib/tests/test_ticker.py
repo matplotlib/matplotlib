@@ -14,6 +14,7 @@ from matplotlib.testing.decorators import cleanup
 import warnings
 
 
+@cleanup(style='classic')
 def test_MaxNLocator():
     loc = mticker.MaxNLocator(nbins=5)
     test_value = np.array([20., 40., 60., 80., 100.])
@@ -24,6 +25,16 @@ def test_MaxNLocator():
 
     test_value = np.array([-1.0e+15, -5.0e+14, 0e+00, 5e+14, 1.0e+15])
     assert_almost_equal(loc.tick_values(-1e15, 1e15), test_value)
+
+
+@cleanup
+def test_MaxNLocator_integer():
+    loc = mticker.MaxNLocator(nbins=5, integer=True)
+    test_value = np.array([-1, 0, 1, 2])
+    assert_almost_equal(loc.tick_values(-0.1, 1.1), test_value)
+
+    test_value = np.array([-0.25, 0, 0.25, 0.5, 0.75, 1])
+    assert_almost_equal(loc.tick_values(-0.1, 0.95), test_value)
 
 
 def test_LinearLocator():
@@ -207,6 +218,48 @@ def test_ScalarFormatter_offset_value():
         yield check_offset_for, right, left, offset
 
 
+def _sub_labels(axis, subs=()):
+    "Test whether locator marks subs to be labeled"
+    fmt = axis.get_minor_formatter()
+    minor_tlocs = axis.get_minorticklocs()
+    fmt.set_locs(minor_tlocs)
+    coefs = minor_tlocs / 10**(np.floor(np.log10(minor_tlocs)))
+    label_expected = [np.round(c) in subs for c in coefs]
+    label_test = [fmt(x) != '' for x in minor_tlocs]
+    assert_equal(label_test, label_expected)
+
+
+@cleanup
+def test_LogFormatter_sublabel():
+    # test label locator
+    fig, ax = plt.subplots()
+    ax.set_xscale('log')
+    ax.xaxis.set_major_locator(mticker.LogLocator(base=10, subs=[]))
+    ax.xaxis.set_minor_locator(mticker.LogLocator(base=10,
+                                                  subs=np.arange(2, 10)))
+    ax.xaxis.set_major_formatter(mticker.LogFormatter())
+    ax.xaxis.set_minor_formatter(mticker.LogFormatter(labelOnlyBase=False))
+    # axis range above 3 decades, only bases are labeled
+    ax.set_xlim(1, 1e4)
+    fmt = ax.xaxis.get_major_formatter()
+    fmt.set_locs(ax.xaxis.get_majorticklocs())
+    show_major_labels = [fmt(x) != '' for x in ax.xaxis.get_majorticklocs()]
+    assert np.all(show_major_labels)
+    _sub_labels(ax.xaxis, subs=[])
+
+    # axis range at 2 to 3 decades, label sub 3
+    ax.set_xlim(1, 800)
+    _sub_labels(ax.xaxis, subs=[3])
+
+    # axis range at 1 to 2 decades, label subs 2 and 5
+    ax.set_xlim(1, 80)
+    _sub_labels(ax.xaxis, subs=[2, 5])
+
+    # axis range at 0 to 1 decades, label subs 2, 3, 6
+    ax.set_xlim(1, 8)
+    _sub_labels(ax.xaxis, subs=[2, 3, 6])
+
+
 def _logfe_helper(formatter, base, locs, i, expected_result):
     vals = base**locs
     labels = [formatter(x, pos) for (x, pos) in zip(vals, i)]
@@ -250,6 +303,37 @@ def test_LogFormatterExponent():
         formatter = mticker.LogFormatterExponent(base, labelOnlyBase=False)
         formatter.axis = FakeAxis(1, base**50)
         yield _logfe_helper, formatter, base, locs, i, expected_result
+
+
+def test_LogFormatterSciNotation():
+    test_cases = {
+        10: (
+             (1e-05, '${10^{-5}}$'),
+             (1, '${10^{0}}$'),
+             (100000, '${10^{5}}$'),
+             (2e-05, '${2\\times10^{-5}}$'),
+             (2, '${2\\times10^{0}}$'),
+             (200000, '${2\\times10^{5}}$'),
+             (5e-05, '${5\\times10^{-5}}$'),
+             (5, '${5\\times10^{0}}$'),
+             (500000, '${5\\times10^{5}}$'),
+        ),
+        2: (
+            (0.03125, '${2^{-5}}$'),
+            (1, '${2^{0}}$'),
+            (32, '${2^{5}}$'),
+            (0.0375, '${1.2\\times2^{-5}}$'),
+            (1.2, '${1.2\\times2^{0}}$'),
+            (38.4, '${1.2\\times2^{5}}$'),
+        )
+    }
+
+    for base in test_cases.keys():
+        formatter = mticker.LogFormatterSciNotation(base=base)
+        formatter.sublabel = set([1, 2, 5, 1.2])
+        for value, expected in test_cases[base]:
+            with matplotlib.rc_context({'text.usetex': False}):
+                nose.tools.assert_equal(formatter(value), expected)
 
 
 def _pprint_helper(value, domain, expected):

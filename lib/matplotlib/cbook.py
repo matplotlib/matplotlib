@@ -1423,6 +1423,52 @@ def restrict_dict(d, keys):
     return dict([(k, v) for (k, v) in six.iteritems(d) if k in keys])
 
 
+def report_memory(i=0):  # argument may go away
+    'return the memory consumed by process'
+    from matplotlib.compat.subprocess import Popen, PIPE
+    pid = os.getpid()
+    if sys.platform == 'sunos5':
+        try:
+            a2 = Popen('ps -p %d -o osz' % pid, shell=True,
+                       stdout=PIPE).stdout.readlines()
+        except OSError:
+            raise NotImplementedError(
+                "report_memory works on Sun OS only if "
+                "the 'ps' program is found")
+        mem = int(a2[-1].strip())
+    elif sys.platform.startswith('linux'):
+        try:
+            a2 = Popen('ps -p %d -o rss,sz' % pid, shell=True,
+                       stdout=PIPE).stdout.readlines()
+        except OSError:
+            raise NotImplementedError(
+                "report_memory works on Linux only if "
+                "the 'ps' program is found")
+        mem = int(a2[1].split()[1])
+    elif sys.platform.startswith('darwin'):
+        try:
+            a2 = Popen('ps -p %d -o rss,vsz' % pid, shell=True,
+                       stdout=PIPE).stdout.readlines()
+        except OSError:
+            raise NotImplementedError(
+                "report_memory works on Mac OS only if "
+                "the 'ps' program is found")
+        mem = int(a2[1].split()[0])
+    elif sys.platform.startswith('win'):
+        try:
+            a2 = Popen(["tasklist", "/nh", "/fi", "pid eq %d" % pid],
+                       stdout=PIPE).stdout.read()
+        except OSError:
+            raise NotImplementedError(
+                "report_memory works on Windows only if "
+                "the 'tasklist' program is found")
+        mem = int(a2.strip().split()[-2].replace(',', ''))
+    else:
+        raise NotImplementedError(
+            "We don't have a memory monitor for %s" % sys.platform)
+    return mem
+
+
 _safezip_msg = 'In safezip, len(args[0])=%d but len(args[%d])=%d'
 
 
