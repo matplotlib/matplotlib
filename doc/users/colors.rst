@@ -7,28 +7,70 @@ Specifying Colors
 In almost all places in matplotlib where a color can be specified by the user
 it can be provided as:
 
-* ``(r, g, b)`` tuples
-* ``(r, g, b, a)`` tuples
-* hex string, ex ``#0F0F0F``, or ``#0F0F0F0F`` (with alpha channel)
-* float value between [0, 1] for gray level
-* One of ``{'b', 'g', 'r', 'c', 'm', 'y', 'k', 'w'}``
-* valid CSS4/X11 color names
-* valid name from the `xkcd color survey
-  <http://blog.xkcd.com/2010/05/03/color-survey-results/>`__ These
-  names are prefixed with ``'xkcd:'`` (e.g., ``'xkcd:sky blue'``) to
-  prevent name clashes with the CSS4/X11 names.
-* One of ``{'C0', 'C1', 'C2', 'C3', 'C4', 'C5', 'C6', 'C7', 'C8', 'C9'}`` which will use the
-  color from the Nth element in ``mpl.rcparams['axes.prop_cycle']``.
+* a ``(r, g, b)`` tuple
+* a ``(r, g, b, a)`` tuple
+* a hex string RGB or RGBA string (ex ``'#0F0F0F'`` or ``'#0F0F0F0F'``)
+* a float value in ``[0, 1]`` inclusive for gray level
+* one of ``{'b', 'g', 'r', 'c', 'm', 'y', 'k', 'w'}``
+* a X11/CSS4 color name
+* a name from the `xkcd color survey <http://xkcd.com/color/rgb/>`__
+  prefixed with ``'xkcd:'`` (e.g., ``'xkcd:sky blue'``)
+* one of ``{'C0', 'C1', 'C2', 'C3', 'C4', 'C5', 'C6', 'C7', 'C8', 'C9'}``
 
 All string specifications of color are case-insensitive.
 
-Internally, mpl is moving to storing all colors as RGBA float quadruples.
 
-There are 95 (out of 148 colors in the css color list) conflicts between the
-CSS4/X11 names and the xkcd names.  Given that the former are the standard
-color names of the web, matplotlib should follow them.  Thus, xkcd color names
-are prefixed with ``'xkcd:'``, for example ``'blue'`` maps to ``'#0000FF'``
-where as ``'xkcd:blue'`` maps to ``'#0343DF'``.
+``'CN'`` color selection
+------------------------
+
+Color can be specified by a string matching the regex ``C[0-9]``.
+This can be passed any place that a color is currently accepted and
+can be used as a 'single character color' in format-string to
+`matplotlib.Axes.plot`.
+
+This allows easy access to the color is the propriety cycle and to write code
+that will integrate with global changes to the style.  For example
+
+.. plot::
+   :include-source: True
+
+   import matplotlib as mpl
+   th = np.linspace(0, 2*np.pi, 128)
+
+   def demo(sty):
+       mpl.style.use(sty)
+       fig, ax = plt.subplots(figsize=(3, 3))
+
+       ax.set_title('style: {!r}'.format(sty), color='C0')
+
+       ax.plot(th, np.cos(th), 'C1', label='C1')
+       ax.plot(th, np.sin(th), 'C2', label='C2')
+       ax.legend()
+
+   demo('default')
+   demo('seaborn')
+
+will plot using the color of the first and sixth styles in
+``mpl.rcParams['axes.prop_cycle']``.
+
+xkcd v X11/CSS4
+---------------
+
+The xkcd colors are derived from a user survey conducted by the
+webcomic xkcd.  `Details of the survey are available on the xkcd blog
+<http://blog.xkcd.com/2010/05/03/color-survey-results/>`__.
+
+There are 95 (out of 148 colors in the css color list) name collisions
+between the X11/CSS4 names and the xkcd names, all but 3 of which have
+different hex values.  For example ``'blue'`` maps to ``'#0000FF'``
+where as ``'xkcd:blue'`` maps to ``'#0343DF'``.  Due to these name
+collisions all of the xkcd colors have ``'xkcd:'`` prefixed.  As noted in
+the blog post, while it might be interesting to re-define the X11/CSS4 names
+based on such a survey we do not do so unilaterally.
+
+The name collisions are shown in the table below, the color names
+where the hex values agree are shown in bold.
+
 
 .. plot::
 
@@ -43,20 +85,22 @@ where as ``'xkcd:blue'`` maps to ``'#0343DF'``.
    ax = fig.add_axes([0, 0, 1, 1])
 
    for j, n in enumerate(sorted(overlap, reverse=True)):
+       weight = None
        cn = mcd.CSS4_COLORS[n]
        xkcd = mcd.XKCD_COLORS["xkcd:" + n].upper()
-       if cn != xkcd:
-           print(n, cn, xkcd)
+       if cn == xkcd:
+	   weight = 'bold'
 
        r1 = mpatch.Rectangle((0, j), 1, 1, color=cn)
        r2 = mpatch.Rectangle((1, j), 1, 1, color=xkcd)
-       txt = ax.text(2, j+.5, '  ' + n, va='center', fontsize=10)
+       txt = ax.text(2, j+.5, '  ' + n, va='center', fontsize=10,
+                     weight=weight)
        ax.add_patch(r1)
        ax.add_patch(r2)
        ax.axhline(j, color='k')
 
-   ax.text(.5, j + .1, 'X11', ha='center')
-   ax.text(1.5, j + .1, 'XKCD', ha='center')
+   ax.text(.5, j + 1.5, 'X11', ha='center', va='center')
+   ax.text(1.5, j + 1.5, 'xkcd', ha='center', va='center')
    ax.set_xlim(0, 3)
-   ax.set_ylim(0, j + 1)
+   ax.set_ylim(0, j + 2)
    ax.axis('off')
