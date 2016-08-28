@@ -2541,9 +2541,13 @@ def key_press_handler(event, canvas, toolbar=None):
 
     ax = event.inaxes
     # toggle major grids in current axes (default key 'g')
-    # Both here and below (for 'G'), we do nothing is the grids are not in a
-    # uniform state, to avoid messing up user customization.
-    if event.key in grid_keys:
+    # Both here and below (for 'G'), we do nothing if *any* grid (major or
+    # minor, x or y) is not in a uniform state, to avoid messing up user
+    # customization.
+    if (event.key in grid_keys
+            # Exclude minor grids not in a uniform state.
+            and None not in [_get_uniform_gridstate(ax.xaxis.minorTicks),
+                             _get_uniform_gridstate(ax.yaxis.minorTicks)]):
         x_state = _get_uniform_gridstate(ax.xaxis.majorTicks)
         y_state = _get_uniform_gridstate(ax.yaxis.majorTicks)
         cycle = [(False, False), (True, False), (True, True), (False, True)]
@@ -2554,8 +2558,9 @@ def key_press_handler(event, canvas, toolbar=None):
             # Exclude major grids not in a uniform state.
             pass
         else:
-            ax.grid(x_state, which="major", axis="x")
-            ax.grid(y_state, which="major", axis="y")
+            # If turning major grids off, also turn minor grids off.
+            ax.grid(x_state, which="major" if x_state else "both", axis="x")
+            ax.grid(y_state, which="major" if y_state else "both", axis="y")
             canvas.draw_idle()
     # toggle major and minor grids in current axes (default key 'G')
     if (event.key in grid_minor_keys
