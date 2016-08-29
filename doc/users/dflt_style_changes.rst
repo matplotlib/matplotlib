@@ -8,12 +8,15 @@ default style.
 While it is impossible to select the best default for all cases, these
 are designed to work well in the most common cases.
 
-A 'classic' style sheet will be provided so reverting to the 1.x
-default values will be a single line of python
+A 'classic' style sheet is provided so reverting to the 1.x default
+values is a single line of python
 
 .. code::
 
   mpl.style.use('classic')
+
+See :ref:`customizing-with-matplotlibrc-files` for details about how to
+persistently and selectively revert many of these changes.
 
 
 colors, color cycles, and color maps
@@ -79,45 +82,84 @@ colors.  This allows the first 10 colors in
 ``mpl.rcParms['axes.prop_cycle']`` to be easily accessed.  See
 :ref:`colors` for more details.
 
+To restore only the old color cycle use
+
+.. code::
+
+   from cycler import cycler
+   mpl.rcParams['axes.prop_cycle'] = cycler(color='bgrcmyk')
+
+or setting
+
+.. code::
+
+   axes.prop_cycle    : cycler('color', 'bgrcmyk')
+
+in your :file:`matplotlibrc` file.
 
 Colormap
 --------
 
 
-``matplotlib`` is changing the default colormap and styles in the
-upcoming 2.0 release!
+The new default color map used by `matplotlib.cm.ScalarMappable` instances is
+ `'viridis'` (aka `option D <http://bids.github.io/colormap/>`__).
 
-The new default color map will be 'viridis' (aka `option
-D <http://bids.github.io/colormap/>`_).  For an introduction to color
-theory and how 'viridis' was generated watch Nathaniel Smith and
-Stéfan van der Walt's talk from SciPy2015
+.. plot::
+
+   import numpy as np
+   N = M = 200
+   X, Y = np.ogrid[0:20:N*1j, 0:20:M*1j]
+   data = np.sin(np.pi * X*2 / 20) * np.cos(np.pi * Y*2 / 20)
+
+   fig, ax = plt.subplots()
+   im = ax.imshow(data, extent=[0, 200, 0, 200])
+   fig.colorbar(im)
+   ax.set_title('viridis')
+
+For an introduction to color theory and how 'viridis' was generated
+watch Nathaniel Smith and Stéfan van der Walt's talk from SciPy2015.
+See `here for many more deatils <http://bids.github.io/colormap/>`__
+about the other alternatives and the tools used to create the color
+map.  For details on all of color maps available in matplotlib see
+:ref:`colormaps`.
 
 .. raw:: html
 
     <iframe width="560" height="315" src="https://www.youtube.com/embed/xAoljeRJ3lU" frameborder="0" allowfullscreen></iframe>
 
 
+The previous default can be restored using
 
-Other
------
+.. code::
 
-- The default figure background color has changed from grey to white.
-  Use the rcParam ``figure.facecolor`` to control this.
+   mpl.rcParams['image.cmap'] = 'jet'
 
-- The default cycle of colors to draw lines, markers and other content
-  has been changed.
+or setting
 
-- The default color map used for images and pcolor meshes, etc., has
-  changed from ``jet`` to ``viridis``.
+.. code::
 
-- For markers, scatter plots, bar charts and pie charts, there is no
-  longer a black outline around filled markers by default.
+   image.cmap    : 'jet'
+
+in your :file:`matplotlibrc` file, however this is strongly discouraged.
+
+Other colors
+------------
+
+- The default interactive figure background color has changed from
+  grey to white.  Use the rcParam ``figure.facecolor`` to control
+  this.
+
+Grid lines
+----------
+
 
 - Grid lines are light grey solid 1pt lines.  They are no longer dashed by
   default.
 
 Plots
 =====
+- For markers, scatter plots, bar charts and pie charts, there is no
+  longer a black outline around filled markers by default.
 
 - The default size of the elements in a scatter plot is now based on
   the rcParam ``lines.markersize`` so it is consistent with ``plot(X,
