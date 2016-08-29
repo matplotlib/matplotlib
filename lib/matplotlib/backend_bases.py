@@ -508,30 +508,34 @@ class RendererBase(object):
         """
         return 1.0
 
-    def draw_image(self, gc, x, y, im, trans=None):
+    def draw_image(self, gc, x, y, im, transform=None):
         """
-        Draw the image instance into the current axes;
+        Draw an RGBA image.
 
         *gc*
-            a GraphicsContext containing clipping information
+            a :class:`GraphicsContextBase` instance with clipping information.
 
         *x*
-            is the distance in pixels from the left hand side of the canvas.
+            the distance in physical units (i.e., dots or pixels) from the left
+            hand side of the canvas.
 
         *y*
-            the distance from the origin.  That is, if origin is
-            upper, y is the distance from top.  If origin is lower, y
-            is the distance from bottom
+            the distance in physical units (i.e., dots or pixels) from the
+            bottom side of the canvas.
 
         *im*
             An NxMx4 array of RGBA pixels (of dtype uint8).
 
-        *trans*
-            If the concrete backend is written such that
-            `option_scale_image` returns `True`, an affine
-            transformation may also be passed to `draw_image`.  The
-            backend should apply the transformation to the image
-            before applying the translation of `x` and `y`.
+        *transform*
+            If and only if the concrete backend is written such that
+            :meth:`option_scale_image` returns ``True``, an affine
+            transformation *may* be passed to :meth:`draw_image`. It takes the
+            form of a :class:`~matplotlib.transforms.Affine2DBase` instance.
+            The translation vector of the transformation is given in physical
+            units (i.e., dots or pixels). Note that the transformation does not
+            override `x` and `y`, and has to be applied *before* translating
+            the result by `x` and `y` (this can be accomplished by adding `x`
+            and `y` to the translation vector defined by `transform`).
         """
         raise NotImplementedError
 
@@ -544,8 +548,8 @@ class RendererBase(object):
 
     def option_scale_image(self):
         """
-        override this method for renderers that support arbitrary
-        scaling of image (most of the vector backend).
+        override this method for renderers that support arbitrary affine
+        transformations in :meth:`draw_image` (most vector backends).
         """
         return False
 
@@ -2482,9 +2486,10 @@ def key_press_handler(event, canvas, toolbar=None):
     save_keys = rcParams['keymap.save']
     quit_keys = rcParams['keymap.quit']
     grid_keys = rcParams['keymap.grid']
+    grid_minor_keys = rcParams['keymap.grid_minor']
     toggle_yscale_keys = rcParams['keymap.yscale']
     toggle_xscale_keys = rcParams['keymap.xscale']
-    all = rcParams['keymap.all_axes']
+    all_keys = rcParams['keymap.all_axes']
 
     # toggle fullscreen mode (default key 'f')
     if event.key in fullscreen_keys:
@@ -2524,33 +2529,80 @@ def key_press_handler(event, canvas, toolbar=None):
         return
 
     # these bindings require the mouse to be over an axes to trigger
+    def _get_uniform_gridstate(ticks):
+        # Return True/False if all grid lines are on or off, None if they are
+        # not all in the same state.
+        if all(tick.gridOn for tick in ticks):
+            return True
+        elif not any(tick.gridOn for tick in ticks):
+            return False
+        else:
+            return None
 
-    # switching on/off a grid in current axes (default key 'g')
+    ax = event.inaxes
+    # toggle major grids in current axes (default key 'g')
+    # Both here and below (for 'G'), we do nothing is the grids are not in a
+    # uniform state, to avoid messing up user customization.
     if event.key in grid_keys:
-        event.inaxes.grid()
-        canvas.draw()
+        x_state = _get_uniform_gridstate(ax.xaxis.majorTicks)
+        y_state = _get_uniform_gridstate(ax.yaxis.majorTicks)
+        cycle = [(False, False), (True, False), (True, True), (False, True)]
+        try:
+            x_state, y_state = (
+                cycle[(cycle.index((x_state, y_state)) + 1) % len(cycle)])
+        except ValueError:
+            # Exclude major grids not in a uniform state.
+            pass
+        else:
+            ax.grid(x_state, which="major", axis="x")
+            ax.grid(y_state, which="major", axis="y")
+            canvas.draw_idle()
+    # toggle major and minor grids in current axes (default key 'G')
+    if (event.key in grid_minor_keys
+            # Exclude major grids not in a uniform state.
+            and None not in [_get_uniform_gridstate(ax.xaxis.majorTicks),
+                             _get_uniform_gridstate(ax.yaxis.majorTicks)]):
+        x_state = _get_uniform_gridstate(ax.xaxis.minorTicks)
+        y_state = _get_uniform_gridstate(ax.yaxis.minorTicks)
+        cycle = [(False, False), (True, False), (True, True), (False, True)]
+        try:
+            x_state, y_state = (
+                cycle[(cycle.index((x_state, y_state)) + 1) % len(cycle)])
+        except ValueError:
+            # Exclude minor grids not in a uniform state.
+            pass
+        else:
+            ax.grid(x_state, which="both", axis="x")
+            ax.grid(y_state, which="both", axis="y")
+            canvas.draw_idle()
     # toggle scaling of y-axes between 'log and 'linear' (default key 'l')
     elif event.key in toggle_yscale_keys:
-        ax = event.inaxes
         scale = ax.get_yscale()
         if scale == 'log':
             ax.set_yscale('linear')
-            ax.figure.canvas.draw()
+            ax.figure.canvas.draw_idle()
         elif scale == 'linear':
-            ax.set_yscale('log')
-            ax.figure.canvas.draw()
+            try:
+                ax.set_yscale('log')
+            except ValueError as exc:
+                warnings.warn(str(exc))
+                ax.set_yscale('linear')
+            ax.figure.canvas.draw_idle()
     # toggle scaling of x-axes between 'log and 'linear' (default key 'k')
     elif event.key in toggle_xscale_keys:
-        ax = event.inaxes
         scalex = ax.get_xscale()
         if scalex == 'log':
             ax.set_xscale('linear')
-            ax.figure.canvas.draw()
+            ax.figure.canvas.draw_idle()
         elif scalex == 'linear':
-            ax.set_xscale('log')
-            ax.figure.canvas.draw()
+            try:
+                ax.set_xscale('log')
+            except ValueError:
+                warnings.warn(str(exc))
+                ax.set_xscale('linear')
+            ax.figure.canvas.draw_idle()
 
-    elif (event.key.isdigit() and event.key != '0') or event.key in all:
+    elif (event.key.isdigit() and event.key != '0') or event.key in all_keys:
         # keys in list 'all' enables all axes (default key 'a'),
         # otherwise if key is a number only enable this particular axes
         # if it was the axes, where the event was raised

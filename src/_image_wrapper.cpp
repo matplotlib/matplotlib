@@ -411,9 +411,9 @@ static PyObject *image_pcolor2(PyObject *self, PyObject *args, PyObject *kwds)
 
     if (!PyArg_ParseTuple(args,
                           "O&O&O&II(ffff)O&:pcolor2",
-                          &x.converter,
+                          &x.converter_contiguous,
                           &x,
-                          &y.converter,
+                          &y.converter_contiguous,
                           &y,
                           &d.converter_contiguous,
                           &d,

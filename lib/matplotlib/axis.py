@@ -642,7 +642,7 @@ class Axis(artist.Artist):
         self.offsetText = self._get_offset_text()
         self.majorTicks = []
         self.minorTicks = []
-        self.unit_data = []
+        self.unit_data = None
         self.pickradius = pickradius
 
         # Initialize here for testing; later add API
@@ -695,14 +695,14 @@ class Axis(artist.Artist):
 
     @property
     def unit_data(self):
-        """Holds data that a ConversionInterface subclass relys on
+        """Holds data that a ConversionInterface subclass uses
         to convert between labels and indexes
         """
         return self._unit_data
 
     @unit_data.setter
-    def unit_data(self, data):
-        self._unit_data = data
+    def unit_data(self, unit_data):
+        self._unit_data = unit_data
 
     def get_children(self):
         children = [self.label, self.offsetText]

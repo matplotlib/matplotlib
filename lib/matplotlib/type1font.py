@@ -306,8 +306,7 @@ class Type1Font(object):
                  b'/FontMatrix': replace(fontmatrix),
                  b'/UniqueID': suppress}
 
-        while True:
-            token, value = next(tokens)
+        for token, value in tokens:
             if token is cls._name and value in table:
                 for value in table[value](itertools.chain([(token, value)],
                                                           tokens)):

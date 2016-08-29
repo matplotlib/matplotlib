@@ -2,13 +2,10 @@
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
-import six
-
 import os
 import shutil
 
 import numpy as np
-import nose
 from nose.plugins.skip import SkipTest
 
 import matplotlib as mpl
@@ -17,7 +14,7 @@ from matplotlib.compat import subprocess
 from matplotlib.testing.compare import compare_images, ImageComparisonFailure
 from matplotlib.testing.decorators import (_image_directories, switch_backend,
                                            cleanup)
-from matplotlib.testing.noseclasses import KnownFailureTest
+from ..testing import xfail
 
 baseline_dir, result_dir = _image_directories(lambda: 'dummy func')
 
@@ -44,7 +41,7 @@ def check_for(texsystem):
 
 def compare_figure(fname, savefig_kwargs={}, tol=0):
     # TODO remove this before tagging 2.0
-    raise KnownFailureTest('temporarily disabled until 2.0 tag')
+    xfail('temporarily disabled until 2.0 tag')
     actual = os.path.join(result_dir, fname)
     plt.savefig(actual, **savefig_kwargs)
 

@@ -6,7 +6,7 @@ import os
 from matplotlib.testing.compare import compare_images
 from matplotlib.testing.exceptions import ImageComparisonFailure
 
-from matplotlib.testing.decorators import _image_directories
+from matplotlib.testing.decorators import _image_directories, cleanup
 from matplotlib import pyplot
 import numpy
 
@@ -33,6 +33,7 @@ def compare_bytes_with_image(func, baseline_image, actual_image_as_bytes,
                 '(RMS %(rms).3f)' % err)
 
 
+@cleanup
 def test_return_bytes():
     fig = pyplot.figure()
     axis = fig.add_subplot(111)
@@ -46,6 +47,7 @@ def test_return_bytes():
     pyplot.close(fig)
 
 
+@cleanup
 def test_pyplot_return_bytes():
     fig = pyplot.figure()
     pyplot.plot([1,2,3,4,5,6,7,8], [1,4,9,2,4,3,6,8], 'r')
