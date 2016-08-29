@@ -16,7 +16,7 @@ import collections
 
 import datetime
 import errno
-from functools import reduce
+import functools
 import glob
 import gzip
 import io
@@ -1423,6 +1423,52 @@ def restrict_dict(d, keys):
     return dict([(k, v) for (k, v) in six.iteritems(d) if k in keys])
 
 
+def report_memory(i=0):  # argument may go away
+    'return the memory consumed by process'
+    from matplotlib.compat.subprocess import Popen, PIPE
+    pid = os.getpid()
+    if sys.platform == 'sunos5':
+        try:
+            a2 = Popen('ps -p %d -o osz' % pid, shell=True,
+                       stdout=PIPE).stdout.readlines()
+        except OSError:
+            raise NotImplementedError(
+                "report_memory works on Sun OS only if "
+                "the 'ps' program is found")
+        mem = int(a2[-1].strip())
+    elif sys.platform.startswith('linux'):
+        try:
+            a2 = Popen('ps -p %d -o rss,sz' % pid, shell=True,
+                       stdout=PIPE).stdout.readlines()
+        except OSError:
+            raise NotImplementedError(
+                "report_memory works on Linux only if "
+                "the 'ps' program is found")
+        mem = int(a2[1].split()[1])
+    elif sys.platform.startswith('darwin'):
+        try:
+            a2 = Popen('ps -p %d -o rss,vsz' % pid, shell=True,
+                       stdout=PIPE).stdout.readlines()
+        except OSError:
+            raise NotImplementedError(
+                "report_memory works on Mac OS only if "
+                "the 'ps' program is found")
+        mem = int(a2[1].split()[0])
+    elif sys.platform.startswith('win'):
+        try:
+            a2 = Popen(["tasklist", "/nh", "/fi", "pid eq %d" % pid],
+                       stdout=PIPE).stdout.read()
+        except OSError:
+            raise NotImplementedError(
+                "report_memory works on Windows only if "
+                "the 'tasklist' program is found")
+        mem = int(a2.strip().split()[-2].replace(',', ''))
+    else:
+        raise NotImplementedError(
+            "We don't have a memory monitor for %s" % sys.platform)
+    return mem
+
+
 _safezip_msg = 'In safezip, len(args[0])=%d but len(args[%d])=%d'
 
 
@@ -1758,7 +1804,7 @@ def delete_masked_points(*args):
             except:  # Fixme: put in tuple of possible exceptions?
                 pass
     if len(masks):
-        mask = reduce(np.logical_and, masks)
+        mask = functools.reduce(np.logical_and, masks)
         igood = mask.nonzero()[0]
         if len(igood) < nrecs:
             for i, x in enumerate(margs):
@@ -2443,6 +2489,14 @@ def safe_first_element(obj):
         raise RuntimeError("matplotlib does not support generators "
                            "as input")
     return next(iter(obj))
+
+
+def sanitize_sequence(data):
+    """Converts dictview object to list
+    """
+    if six.PY3 and isinstance(data, collections.abc.MappingView):
+        return list(data)
+    return data
 
 
 def normalize_kwargs(kw, alias_mapping=None, required=(), forbidden=(),

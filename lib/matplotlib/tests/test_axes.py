@@ -23,7 +23,7 @@ import warnings
 
 import matplotlib
 from matplotlib.testing.decorators import image_comparison, cleanup
-from matplotlib.testing.noseclasses import KnownFailureTest
+from matplotlib.testing import skip
 import matplotlib.pyplot as plt
 import matplotlib.markers as mmarkers
 import matplotlib.patches as mpatches
@@ -89,9 +89,9 @@ def test_formatter_ticker():
 
 @image_comparison(baseline_images=["formatter_large_small"])
 def test_formatter_large_small():
-    if LooseVersion(np.__version__) >= LooseVersion('1.11.0'):
-        raise KnownFailureTest("Fall out from a fixed numpy bug")
     # github issue #617, pull #619
+    if LooseVersion(np.__version__) >= LooseVersion('1.11.0'):
+        skip("Fall out from a fixed numpy bug")
     fig, ax = plt.subplots(1)
     x = [0.500000001, 0.500000002]
     y = [1e64, 1.1e64]

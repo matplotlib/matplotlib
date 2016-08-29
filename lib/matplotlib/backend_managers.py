@@ -282,7 +282,11 @@ class ToolManager(object):
             else:
                 self._toggled.setdefault(tool_obj.radio_group, None)
 
+            # If initially toggled
+            if tool_obj.toggled:
+                self._handle_toggle(tool_obj, None, None, None)
         tool_obj.set_figure(self.figure)
+
         self._tool_added_event(tool_obj)
         return tool_obj
 
@@ -311,7 +315,7 @@ class ToolManager(object):
         # radio_group None is not mutually exclusive
         # just keep track of toggled tools in this group
         if radio_group is None:
-            if tool.toggled:
+            if tool.name in self._toggled[None]:
                 self._toggled[None].remove(tool.name)
             else:
                 self._toggled[None].add(tool.name)

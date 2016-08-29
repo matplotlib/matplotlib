@@ -22,7 +22,6 @@ from matplotlib import mlab
 from nose.tools import assert_raises
 from numpy.testing import (
     assert_array_equal, assert_array_almost_equal, assert_allclose)
-from matplotlib.testing.noseclasses import KnownFailureTest
 from copy import copy
 from numpy import ma
 import matplotlib.colors as colors

@@ -119,7 +119,10 @@ import distutils.sysconfig
 import functools
 # cbook must import matplotlib only within function
 # definitions, so it is safe to import from it here.
-from matplotlib.cbook import is_string_like, mplDeprecation, dedent, get_label
+from matplotlib.cbook import (is_string_like,
+                              mplDeprecation,
+                              dedent, get_label,
+                              sanitize_sequence)
 from matplotlib.compat import subprocess
 from matplotlib.rcsetup import (defaultParams,
                                 validate_backend,
@@ -1398,7 +1401,7 @@ def use(arg, warn=True, force=False):
     if 'matplotlib.backends' in sys.modules:
         # Warn only if called with a different name
         if (rcParams['backend'] != name) and warn:
-            warnings.warn(_use_error_msg)
+            warnings.warn(_use_error_msg, stacklevel=2)
 
         # Unless we've been told to force it, just return
         if not force:
@@ -1496,7 +1499,6 @@ default_test_modules = [
     'matplotlib.tests.test_backend_svg',
     'matplotlib.tests.test_basic',
     'matplotlib.tests.test_bbox_tight',
-    'matplotlib.tests.test_category',
     'matplotlib.tests.test_cbook',
     'matplotlib.tests.test_coding_standards',
     'matplotlib.tests.test_collections',
@@ -1524,8 +1526,10 @@ default_test_modules = [
     'matplotlib.tests.test_png',
     'matplotlib.tests.test_quiver',
     'matplotlib.tests.test_rcparams',
+    'matplotlib.tests.test_sankey',
     'matplotlib.tests.test_scale',
     'matplotlib.tests.test_simplification',
+    'matplotlib.tests.test_skew',
     'matplotlib.tests.test_spines',
     'matplotlib.tests.test_streamplot',
     'matplotlib.tests.test_style',
@@ -1538,10 +1542,11 @@ default_test_modules = [
     'matplotlib.tests.test_transforms',
     'matplotlib.tests.test_triangulation',
     'matplotlib.tests.test_type1font',
+    'matplotlib.tests.test_ttconv',
     'matplotlib.tests.test_units',
     'matplotlib.tests.test_widgets',
     'matplotlib.tests.test_cycles',
-    'matplotlib.tests.test_labeled_data_unpacking',
+    'matplotlib.tests.test_preprocess_data',
     'matplotlib.sphinxext.tests.test_tinypages',
     'mpl_toolkits.tests.test_mplot3d',
     'mpl_toolkits.tests.test_axes_grid1',
@@ -1580,81 +1585,31 @@ def _init_tests():
             )
         )
 
-    try:
-        import nose
-        try:
-            from unittest import mock
-        except:
-            import mock
-    except ImportError:
-        print("matplotlib.test requires nose and mock to run.")
-        raise
+    from .testing.nose import check_deps
+    check_deps()
 
 
-def _get_extra_test_plugins():
-    from .testing.performgc import PerformGC
-    from .testing.noseclasses import KnownFailure
-    from nose.plugins import attrib
-
-    return [PerformGC, KnownFailure, attrib.Plugin]
-
-
-def _get_nose_env():
-    env = {'NOSE_COVER_PACKAGE': 'matplotlib',
-           'NOSE_COVER_HTML': 1,
-           'NOSE_COVER_NO_PRINT': 1}
-    return env
-
-
-def test(verbosity=1, coverage=False):
+def test(verbosity=1, coverage=False, **kwargs):
     """run the matplotlib test suite"""
     _init_tests()
 
-    old_backend = rcParams['backend']
-    try:
-        use('agg')
-        import nose
-        import nose.plugins.builtin
-        from nose.plugins.manager import PluginManager
-        from nose.plugins import multiprocess
+    from .testing.nose import test as nose_test
+    return nose_test(verbosity, coverage, **kwargs)
 
-        # store the old values before overriding
-        plugins = _get_extra_test_plugins()
-        plugins.extend([plugin for plugin in nose.plugins.builtin.plugins])
-
-        manager = PluginManager(plugins=[x() for x in plugins])
-        config = nose.config.Config(verbosity=verbosity, plugins=manager)
-
-        # Nose doesn't automatically instantiate all of the plugins in the
-        # child processes, so we have to provide the multiprocess plugin with
-        # a list.
-        multiprocess._instantiate_plugins = plugins
-
-        env = _get_nose_env()
-        if coverage:
-            env['NOSE_WITH_COVERAGE'] = 1
-
-        success = nose.run(
-            defaultTest=default_test_modules,
-            config=config,
-            env=env,
-        )
-    finally:
-        if old_backend.lower() != 'agg':
-            use(old_backend)
-
-    return success
 
 test.__test__ = False  # nose: this function is not a test
 
 
 def _replacer(data, key):
+    """Either returns data[key] or passes data back. Also
+    converts input data to a sequence as needed.
+    """
     # if key isn't a string don't bother
     if not isinstance(key, six.string_types):
-        return key
+        return (key)
     # try to use __getitem__
     try:
-        return data[key]
+        return sanitize_sequence(data[key])
     # key does not exist, silently fall back to key
     except KeyError:
         return key
@@ -1673,7 +1628,7 @@ following arguments are replaced by **data[<arg>]**:
 """
 
 
-def unpack_labeled_data(replace_names=None, replace_all_args=False,
+def _preprocess_data(replace_names=None, replace_all_args=False,
                         label_namer=None, positional_parameter_names=None):
     """
     A decorator to add a 'data' kwarg to any a function.  The signature
@@ -1707,6 +1662,8 @@ def unpack_labeled_data(replace_names=None, replace_all_args=False,
         NOTE: callables should only be used when the names and order of *args
         can only be determined at runtime. Please use list of names
         when the order and names of *args is clear before runtime!
+
+    .. note:: decorator also converts MappingView input data to list.
     """
     if replace_names is not None:
         replace_names = set(replace_names)
@@ -1847,7 +1804,10 @@ def unpack_labeled_data(replace_names=None, replace_all_args=False,
             label = None
 
             data = kwargs.pop('data', None)
-            if data is not None:
+
+            if data is None:  # data validation
+                args = tuple(sanitize_sequence(a) for a in args)
+            else:
                 if arg_names_at_runtime:
                     # update the information about replace names and
                     # label position

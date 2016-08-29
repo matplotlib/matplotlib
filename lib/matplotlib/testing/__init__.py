@@ -1,9 +1,11 @@
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
+import inspect
 import warnings
 from contextlib import contextmanager
 
+import matplotlib
 from matplotlib.cbook import is_string_like, iterable
 from matplotlib import rcParams, rcdefaults, use
 
@@ -11,6 +13,64 @@ from matplotlib import rcParams, rcdefaults, use
 def _is_list_like(obj):
     """Returns whether the obj is iterable and not a string"""
     return not is_string_like(obj) and iterable(obj)
+
+
+def is_called_from_pytest():
+    """Returns whether the call was done from pytest"""
+    return getattr(matplotlib, '_called_from_pytest', False)
+
+
+def xfail(msg=""):
+    """Explicitly fail an currently-executing test with the given message."""
+    __tracebackhide__ = True
+    if is_called_from_pytest():
+        import pytest
+        pytest.xfail(msg)
+    else:
+        from .nose import knownfail
+        knownfail(msg)
+
+
+def skip(msg=""):
+    """Skip an executing test with the given message."""
+    __tracebackhide__ = True
+    if is_called_from_pytest():
+        import pytest
+        pytest.skip(msg)
+    else:
+        from nose import SkipTest
+        raise SkipTest(msg)
+
+
+# stolen from pytest
+def getrawcode(obj, trycall=True):
+    """Return code object for given function."""
+    try:
+        return obj.__code__
+    except AttributeError:
+        obj = getattr(obj, 'im_func', obj)
+        obj = getattr(obj, 'func_code', obj)
+        obj = getattr(obj, 'f_code', obj)
+        obj = getattr(obj, '__code__', obj)
+        if trycall and not hasattr(obj, 'co_firstlineno'):
+            if hasattr(obj, '__call__') and not inspect.isclass(obj):
+                x = getrawcode(obj.__call__, trycall=False)
+                if hasattr(x, 'co_firstlineno'):
+                    return x
+        return obj
+
+
+def copy_metadata(src_func, tgt_func):
+    """Replicates metadata of the function. Returns target function."""
+    tgt_func.__dict__ = src_func.__dict__
+    tgt_func.__doc__ = src_func.__doc__
+    tgt_func.__module__ = src_func.__module__
+    tgt_func.__name__ = src_func.__name__
+    if hasattr(src_func, '__qualname__'):
+        tgt_func.__qualname__ = src_func.__qualname__
+    if not hasattr(tgt_func, 'compat_co_firstlineno'):
+        tgt_func.compat_co_firstlineno = getrawcode(src_func).co_firstlineno
+    return tgt_func
 
 
 # stolen from pandas
