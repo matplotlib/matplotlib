@@ -94,6 +94,7 @@ backend      : $TEMPLATE_BACKEND
 #lines.dashed_pattern : 2.8, 1.2
 #lines.dashdot_pattern : 4.8, 1.2, 0.8, 1.2
 #lines.dotted_pattern : 1.2, 0.6
+#lines.scale_dashes : True
 
 #markers.fillstyle: full # full|left|right|bottom|top|none
 
