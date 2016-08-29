@@ -12,10 +12,8 @@ For new features that were added to matplotlib, please see
 :ref:`whats-new`.
 
 
-Changes in 2.0.0
-================
-
-
+API Changes in 2.0.0
+====================
 
 Deprecation and removal
 -----------------------
@@ -46,14 +44,11 @@ provides a better and more tested way of rendering figures to WX windows.
 CocoaAgg backend removed
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
-The deprecated and not fully functional CocoaAgg backend has been removed
+The deprecated and not fully functional CocoaAgg backend has been removed.
 
-
-General
--------
 
 `Artist.update` has return value
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+--------------------------------
 
 The methods `matplotlib.artist.Artist.set`,
 `matplotlib.Artist.update`, and the function `matplotlib.artist.setp`
@@ -74,7 +69,7 @@ properties.
 
 
 `Legend` initializers gain edgecolor and facecolor kwargs
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+---------------------------------------------------------
 
 The :class:`~matplotlib.legend.Legend` background patch (or 'frame')
 can have its `edgecolor` and `facecolor` determined by the
@@ -86,7 +81,7 @@ controls the alpha transparency of the patch.
 
 
 Qualitative colormaps
-~~~~~~~~~~~~~~~~~~~~~
+---------------------
 
 Colorbrewer's qualitative/discrete colormaps ("Accent", "Dark2", "Paired",
 "Pastel1", "Pastel2", "Set1", "Set2", "Set3") are now implemented as
@@ -108,11 +103,9 @@ to transform images by returning ``True`` from ``option_scale_image``.
 See the ``draw_image`` docstring for more information.
 
 
-Tickers
--------
 
-``matplotlib.ticker.LinearLocator`` algorithm update
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+`matplotlib.ticker.LinearLocator` algorithm update
+--------------------------------------------------
 
 The ``matplotlib.ticker.LinearLocator`` is used to define the range and location
 of tickmarks of a plot when the user wants a exact number of ticks.
@@ -128,18 +121,25 @@ constistently. For example, when both y-axis of a``twinx`` plot use
 both axis will be properly aligned at convenient tick locations.
 
 
-MPlot3D
--------
-
 New defaults for 3D quiver function in mpl_toolkits.mplot3d.axes3d.py
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-Matplotlib has both a 2D and a 3D ``quiver`` function. These changes affect only the 3D function and make the default behavior of the 3D function match 2D version. There are two changes:
+---------------------------------------------------------------------
 
-1) The 3D quiver function previously normalized the arrows to be the same length, which makes it unusable for situations where the arrows should be different lengths and does not match the behavior of the 2D function. This normalization behavior is now controlled with the ``normalize`` keyword, which defaults to False.
+Matplotlib has both a 2D and a 3D ``quiver`` function. These changes
+affect only the 3D function and make the default behavior of the 3D
+function match 2D version. There are two changes:
 
-2) The ``pivot`` keyword now defaults to ``tail`` instead of ``tip``. This was done in order to match the default behavior of the 2D quiver function.
+1) The 3D quiver function previously normalized the arrows to be the
+   same length, which makes it unusable for situations where the
+   arrows should be different lengths and does not match the behavior
+   of the 2D function. This normalization behavior is now controlled
+   with the ``normalize`` keyword, which defaults to False.
 
-To obtain the previous behavior with the 3D quiver function, one can call the function with ::
+2) The ``pivot`` keyword now defaults to ``tail`` instead of
+   ``tip``. This was done in order to match the default behavior of
+   the 2D quiver function.
+
+To obtain the previous behavior with the 3D quiver function, one can
+call the function with ::
 
    ax.quiver(x, y, z, u, v, w, normalize=True, pivot='tip')
 
