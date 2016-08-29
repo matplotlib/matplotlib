@@ -93,7 +93,7 @@ backend      : $TEMPLATE_BACKEND
 # The three standard dash patterns.  These are scaled by the linewidth.
 #lines.dashed_pattern : 2.8, 1.2
 #lines.dashdot_pattern : 4.8, 1.2, 0.8, 1.2
-#lines.dotted_pattern : 1.2, 0.6
+#lines.dotted_pattern : 1.1, 1.1
 #lines.scale_dashes : True
 
 #markers.fillstyle: full # full|left|right|bottom|top|none
