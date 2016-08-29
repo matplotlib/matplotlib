@@ -143,7 +143,7 @@ def ghcommit_role(name, rawtext, text, lineno, inliner, options={}, content=[]):
 
 def setup(app):
     """Install the plugin.
-    
+
     :param app: Sphinx application context.
     """
     app.info('Initializing GitHub plugin')
@@ -152,4 +152,6 @@ def setup(app):
     app.add_role('ghuser', ghuser_role)
     app.add_role('ghcommit', ghcommit_role)
     app.add_config_value('github_project_url', None, 'env')
-    return
+
+    metadata = {'parallel_read_safe': True, 'parallel_write_safe': True}
+    return metadata
