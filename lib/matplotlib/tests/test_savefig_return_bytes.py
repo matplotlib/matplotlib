@@ -39,7 +39,7 @@ def test_return_bytes():
     axis.plot([1,2,3,4,5,6,7,8], [1,4,9,2,4,3,6,8], 'b')
     axis.set_xlabel('x')
     axis.set_ylabel('y')
-    image_as_bytes = fig.savefig(return_bytes=True, format='png')
+    image_as_bytes = fig.savefig(None, format='png')
 
     compare_bytes_with_image(test_return_bytes, 'plot_to_png_bytes',
                              image_as_bytes)
@@ -51,7 +51,7 @@ def test_pyplot_return_bytes():
     pyplot.plot([1,2,3,4,5,6,7,8], [1,4,9,2,4,3,6,8], 'r')
     pyplot.xlabel('x')
     pyplot.ylabel('y')
-    image_as_bytes = pyplot.savefig(return_bytes=True, format='png')
+    image_as_bytes = pyplot.savefig(None, format='png')
 
     compare_bytes_with_image(test_pyplot_return_bytes,
                              'pyplot_plot_to_png_bytes',

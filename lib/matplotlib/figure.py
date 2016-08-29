@@ -1604,12 +1604,16 @@ class Figure(Artist):
           *fname*:
             A string containing a path to a filename, or a Python
             file-like object, or possibly some backend-dependent object
-            such as :class:`~matplotlib.backends.backend_pdf.PdfPages`.
+            such as :class:`~matplotlib.backends.backend_pdf.PdfPages`,
+            or None.
 
             If *format* is *None* and *fname* is a string, the output
             format is deduced from the extension of the filename. If
             the filename has no extension, the value of the rc parameter
             ``savefig.format`` is used.
+
+            If *fname* is explicitely set to None, the figure is not
+            saved to a file(-like), but returned as a bytes string.
 
             If *fname* is not a string, remember to specify *format* to
             ensure that the correct backend is used.
@@ -1662,19 +1666,12 @@ class Figure(Artist):
           *bbox_extra_artists*:
             A list of extra artists that will be considered when the
             tight bbox is calculated.
-
-          *return_bytes*:
-            A boolean, which if set to True and fname not specified,
-            returns a bytestring which otherwise would have been written
-            to file. If as_bytes is set True, make sure to also specify
-            *format*.
         """
+        if len(args) == 0:
+            raise TypeError("savefig() missing 1 required positional "
+                            "argument: 'fname'")
 
-        if 'return_bytes' in kwargs and kwargs['return_bytes'] is True:
-            if len(args) > 0:
-                raise ValueError("fname should not be specified if "
-                                 "return_bytes is set True")
-            del(kwargs['return_bytes'])
+        if args[0] is None:
             in_memory_file = io.BytesIO()
             self.savefig(in_memory_file, **kwargs)
             in_memory_file.seek(0)
