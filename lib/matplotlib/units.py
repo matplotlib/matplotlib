@@ -47,7 +47,7 @@ from __future__ import (absolute_import, division, print_function,
 
 import six
 
-from matplotlib.cbook import iterable, is_numlike
+from matplotlib.cbook import iterable, is_numlike, safe_first_element
 import numpy as np
 
 
@@ -158,14 +158,11 @@ class Registry(dict):
                     converter = self.get_converter(next_item)
                 return converter
 
-        if converter is None and iterable(x):
-            for thisx in x:
-                # Make sure that recursing might actually lead to a solution,
-                # if we are just going to re-examine another item of the same
-                # kind, then do not look at it.
-                if classx and classx != getattr(thisx, '__class__', None):
-                    converter = self.get_converter(thisx)
-                    return converter
+        if converter is None and iterable(x) and (len(x) > 0):
+            thisx = safe_first_element(x)
+            if classx and classx != getattr(thisx, '__class__', None):
+                converter = self.get_converter(thisx)
+                return converter
 
         #DISABLED self._cached[idx] = converter
         return converter
