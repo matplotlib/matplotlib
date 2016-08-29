@@ -87,6 +87,9 @@ New rcparams added
 |                                 | `int`, a list of floats, or ``'auto'`` if numpy  |
 |                                 | >= 1.11 is installed.                            |
 +---------------------------------+--------------------------------------------------+
+|`lines.scale_dashes`             | If the line dash patterns should scale with      |
+|                                 | linewidth                                        |
++---------------------------------+--------------------------------------------------+
 
 
 
