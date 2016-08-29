@@ -14,7 +14,7 @@ except ImportError:
 
 from ..testing import assert_produces_warning
 
-from .. import unpack_labeled_data
+from .. import _preprocess_data
 
 
 # Notes on testing the plotting functions itself
@@ -24,13 +24,13 @@ from .. import unpack_labeled_data
 
 
 # these two get used in multiple tests, so define them here
-@unpack_labeled_data(replace_names=["x", "y"], label_namer="y")
+@_preprocess_data(replace_names=["x", "y"], label_namer="y")
 def plot_func(ax, x, y, ls="x", label=None, w="xyz"):
     return ("x: %s, y: %s, ls: %s, w: %s, label: %s" % (
         list(x), list(y), ls, w, label))
 
 
-@unpack_labeled_data(replace_names=["x", "y"], label_namer="y",
+@_preprocess_data(replace_names=["x", "y"], label_namer="y",
                      positional_parameter_names=["x", "y", "ls", "label", "w"])
 def plot_func_varags(ax, *args, **kwargs):
     all_args = [None, None, "x", None, "xyz"]
@@ -59,48 +59,48 @@ def test_compiletime_checks():
     def func_no_ax_args(*args, **kwargs): pass
 
     # this is ok
-    unpack_labeled_data(replace_names=["x", "y"])(func)
-    unpack_labeled_data(replace_names=["x", "y"])(func_kwargs)
+    _preprocess_data(replace_names=["x", "y"])(func)
+    _preprocess_data(replace_names=["x", "y"])(func_kwargs)
     # this has "enough" information to do all the replaces
-    unpack_labeled_data(replace_names=["x", "y"])(func_args)
+    _preprocess_data(replace_names=["x", "y"])(func_args)
 
     # no positional_parameter_names but needed due to replaces
     def f():
         # z is unknown
-        unpack_labeled_data(replace_names=["x", "y", "z"])(func_args)
+        _preprocess_data(replace_names=["x", "y", "z"])(func_args)
 
     assert_raises(AssertionError, f)
 
     def f():
-        unpack_labeled_data(replace_names=["x", "y"])(func_no_ax_args)
+        _preprocess_data(replace_names=["x", "y"])(func_no_ax_args)
 
     assert_raises(AssertionError, f)
 
     # no replacements at all -> all ok...
-    unpack_labeled_data(replace_names=[], label_namer=None)(func)
-    unpack_labeled_data(replace_names=[], label_namer=None)(func_args)
-    unpack_labeled_data(replace_names=[], label_namer=None)(func_kwargs)
-    unpack_labeled_data(replace_names=[], label_namer=None)(func_no_ax_args)
+    _preprocess_data(replace_names=[], label_namer=None)(func)
+    _preprocess_data(replace_names=[], label_namer=None)(func_args)
+    _preprocess_data(replace_names=[], label_namer=None)(func_kwargs)
+    _preprocess_data(replace_names=[], label_namer=None)(func_no_ax_args)
 
     # label namer is unknown
     def f():
-        unpack_labeled_data(label_namer="z")(func)
+        _preprocess_data(label_namer="z")(func)
 
     assert_raises(AssertionError, f)
 
     def f():
-        unpack_labeled_data(label_namer="z")(func_args)
+        _preprocess_data(label_namer="z")(func_args)
 
     assert_raises(AssertionError, f)
     # but "ok-ish", if func has kwargs -> will show up at runtime :-(
-    unpack_labeled_data(label_namer="z")(func_kwargs)
-    unpack_labeled_data(label_namer="z")(func_no_ax_args)
+    _preprocess_data(label_namer="z")(func_kwargs)
+    _preprocess_data(label_namer="z")(func_no_ax_args)
 
 
 def test_label_problems_at_runtime():
     """Tests for behaviour which would actually be nice to get rid of."""
 
-    @unpack_labeled_data(label_namer="z")
+    @_preprocess_data(label_namer="z")
     def func(*args, **kwargs):
         pass
 
@@ -117,7 +117,7 @@ def test_label_problems_at_runtime():
     def real_func(x, y):
         pass
 
-    @unpack_labeled_data(label_namer="x")
+    @_preprocess_data(label_namer="x")
     def func(*args, **kwargs):
         real_func(**kwargs)
 
@@ -209,7 +209,7 @@ def test_function_call_replace_all():
     """Test without a "replace_names" argument, all vars should be replaced"""
     data = {"a": [1, 2], "b": [8, 9], "x": "xyz"}
 
-    @unpack_labeled_data(label_namer="y")
+    @_preprocess_data(label_namer="y")
     def func_replace_all(ax, x, y, ls="x", label=None, w="NOT"):
         return "x: %s, y: %s, ls: %s, w: %s, label: %s" % (
             list(x), list(y), ls, w, label)
@@ -230,7 +230,7 @@ def test_function_call_replace_all():
         func_replace_all(None, x="a", y="b", w="x", label="text", data=data),
         "x: [1, 2], y: [8, 9], ls: x, w: xyz, label: text")
 
-    @unpack_labeled_data(label_namer="y")
+    @_preprocess_data(label_namer="y")
     def func_varags_replace_all(ax, *args, **kwargs):
         all_args = [None, None, "x", None, "xyz"]
         for i, v in enumerate(args):
@@ -270,7 +270,7 @@ def test_function_call_replace_all():
 def test_no_label_replacements():
     """Test with "label_namer=None" -> no label replacement at all"""
 
-    @unpack_labeled_data(replace_names=["x", "y"], label_namer=None)
+    @_preprocess_data(replace_names=["x", "y"], label_namer=None)
     def func_no_label(ax, x, y, ls="x", label=None, w="xyz"):
         return "x: %s, y: %s, ls: %s, w: %s, label: %s" % (
             list(x), list(y), ls, w, label)
@@ -287,7 +287,7 @@ def test_no_label_replacements():
 
 
 def test_more_args_than_pos_parameter():
-    @unpack_labeled_data(replace_names=["x", "y"], label_namer="y")
+    @_preprocess_data(replace_names=["x", "y"], label_namer="y")
     def func(ax, x, y, z=1):
         pass
 
@@ -314,7 +314,7 @@ def test_function_call_with_replace_all_args():
         return "x: %s, y: %s, ls: %s, w: %s, label: %s" % (
             list(x), list(y), ls, w, label)
 
-    func = unpack_labeled_data(replace_all_args=True, replace_names=["w"],
+    func = _preprocess_data(replace_all_args=True, replace_names=["w"],
                                label_namer="y")(funcy)
 
     assert_equal(func(None, "a", "b", w="x", label="", data=data),
@@ -322,7 +322,7 @@ def test_function_call_with_replace_all_args():
     assert_equal(func(None, "a", "b", w="x", label="text", data=data),
                  "x: [1, 2], y: [8, 9], ls: x, w: xyz, label: text")
 
-    func2 = unpack_labeled_data(replace_all_args=True, replace_names=["w"],
+    func2 = _preprocess_data(replace_all_args=True, replace_names=["w"],
                                 label_namer="y",
                                 positional_parameter_names=["x", "y", "ls",
                                                             "label", "w"])(
@@ -337,7 +337,7 @@ def test_function_call_with_replace_all_args():
 
 
 def test_docstring_addition():
-    @unpack_labeled_data()
+    @_preprocess_data()
     def funcy(ax, *args, **kwargs):
         """Funcy does nothing"""
         pass
@@ -348,7 +348,7 @@ def test_docstring_addition():
     assert_not_regex(funcy.__doc__,
                               r".*All arguments with the following names: .*")
 
-    @unpack_labeled_data(replace_all_args=True, replace_names=[])
+    @_preprocess_data(replace_all_args=True, replace_names=[])
     def funcy(ax, x, y, z, bar=None):
         """Funcy does nothing"""
         pass
@@ -359,7 +359,7 @@ def test_docstring_addition():
     assert_not_regex(funcy.__doc__,
                               r".*All arguments with the following names: .*")
 
-    @unpack_labeled_data(replace_all_args=True, replace_names=["bar"])
+    @_preprocess_data(replace_all_args=True, replace_names=["bar"])
     def funcy(ax, x, y, z, bar=None):
         """Funcy does nothing"""
         pass
@@ -370,7 +370,7 @@ def test_docstring_addition():
     assert_not_regex(funcy.__doc__,
                               r".*All positional and all keyword arguments\.")
 
-    @unpack_labeled_data(replace_names=["x", "bar"])
+    @_preprocess_data(replace_names=["x", "bar"])
     def funcy(ax, x, y, z, bar=None):
         """Funcy does nothing"""
         pass
@@ -389,7 +389,7 @@ def test_positional_parameter_names_as_function():
     # Also test the _plot_arg_replacer for plot...
     from matplotlib.axes._axes import _plot_args_replacer
 
-    @unpack_labeled_data(replace_names=["x", "y"],
+    @_preprocess_data(replace_names=["x", "y"],
                          positional_parameter_names=_plot_args_replacer)
     def funcy(ax, *args, **kwargs):
         return "{args} | {kwargs}".format(args=args, kwargs=kwargs)
