@@ -479,16 +479,44 @@ class FigureCanvasAgg(FigureCanvasBase):
         return self.renderer
 
     def tostring_rgb(self):
+        '''Get the image as an RGB byte string
+
+        `draw` must be called at least once before this function will work and
+        to update the renderer for any subsequent changes to the Figure.
+
+        Returns
+        -------
+        bytes
+        '''
         if __debug__: verbose.report('FigureCanvasAgg.tostring_rgb',
                                      'debug-annoying')
         return self.renderer.tostring_rgb()
 
     def tostring_argb(self):
+        '''Get the image as an ARGB byte string
+
+        `draw` must be called at least once before this function will work and
+        to update the renderer for any subsequent changes to the Figure.
+
+        Returns
+        -------
+        bytes
+
+        '''
         if __debug__: verbose.report('FigureCanvasAgg.tostring_argb',
                                      'debug-annoying')
         return self.renderer.tostring_argb()
 
     def buffer_rgba(self):
+        '''Get the image as an RGBA byte string
+
+        `draw` must be called at least once before this function will work and
+        to update the renderer for any subsequent changes to the Figure.
+
+        Returns
+        -------
+        bytes
+        '''
         if __debug__: verbose.report('FigureCanvasAgg.buffer_rgba',
                                      'debug-annoying')
         return self.renderer.buffer_rgba()
