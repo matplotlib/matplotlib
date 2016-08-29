@@ -600,7 +600,7 @@ grestore
 
         path_codes = []
         for i, (path, transform) in enumerate(self._iter_collection_raw_paths(
-                master_transform, paths, all_transforms, offsets)):
+                master_transform, paths, all_transforms)):
             name = 'p%x_%x' % (self._path_collection_id, i)
             ps_cmd = ['/%s {' % name,
                       'newpath', 'translate']

@@ -293,7 +293,7 @@ class RendererBase(object):
         """
         path_ids = []
         for path, transform in self._iter_collection_raw_paths(
-                master_transform, paths, all_transforms, offsets):
+                master_transform, paths, all_transforms):
             path_ids.append((path, transforms.Affine2D(transform)))
 
         for xo, yo, path_id, gc0, rgbFace in self._iter_collection(
@@ -357,7 +357,7 @@ class RendererBase(object):
             self.draw_gouraud_triangle(gc, tri, col, transform)
 
     def _iter_collection_raw_paths(self, master_transform, paths,
-                                   all_transforms, offsets):
+                                   all_transforms):
         """
         This is a helper method (along with :meth:`_iter_collection`) to make
         it easier to write a space-efficent :meth:`draw_path_collection`

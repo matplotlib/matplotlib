@@ -1696,7 +1696,7 @@ class RendererPdf(RendererBase):
         padding = np.max(linewidths)
         path_codes = []
         for i, (path, transform) in enumerate(self._iter_collection_raw_paths(
-                master_transform, paths, all_transforms, offsets)):
+                master_transform, paths, all_transforms)):
             name = self.file.pathCollectionObject(
                 gc, path, transform, padding, filled, stroked)
             path_codes.append(name)
