@@ -675,7 +675,7 @@ class TextBox(AxesWidget):
 
         hovercolor : color
             The color of the box when the mouse is over it
-            
+
         label_pad : float
             the distance between the label and the right side of the textbox
         """
@@ -717,7 +717,7 @@ class TextBox(AxesWidget):
         self.connect_event('key_press_event', self._keypress)
         self.connect_event('resize_event', self._resize)
         ax.set_navigate(False)
-        ax.set_axis_bgcolor(color)
+        ax.set_facecolor(color)
         ax.set_xticks([])
         ax.set_yticks([])
         self.color = color
@@ -808,9 +808,9 @@ class TextBox(AxesWidget):
             if key == "enter":
                 self._notify_submit_observers()
 
-    def set_val(self,val):
+    def set_val(self, val):
         newval = str(val)
-        if self.text==newval:
+        if self.text == newval:
             return
         self.text = newval
         self.text_disp.remove()
@@ -825,8 +825,8 @@ class TextBox(AxesWidget):
 
     def begin_typing(self, x):
         self.capturekeystrokes = True
-        #disable command keys so that the user can type without
-        #command keys causing figure to be saved, etc
+        # disable command keys so that the user can type without
+        # command keys causing figure to be saved, etc
         self.reset_params = {}
         for key in self.params_to_disable:
             self.reset_params[key] = rcParams[key]
@@ -838,8 +838,8 @@ class TextBox(AxesWidget):
         # user's code, we only want to call it once we've already done
         # our cleanup.
         if self.capturekeystrokes:
-            #since the user is no longer typing,
-            #reactivate the standard command keys
+            # since the user is no longer typing,
+            # reactivate the standard command keys
             for key in self.params_to_disable:
                 rcParams[key] = self.reset_params[key]
             notifysubmit = True
@@ -850,8 +850,8 @@ class TextBox(AxesWidget):
             self._notify_submit_observers()
 
     def position_cursor(self, x):
-        #now, we have to figure out where the cursor goes.
-        #approximate it based on assuming all characters the same length
+        # now, we have to figure out where the cursor goes.
+        # approximate it based on assuming all characters the same length
         if len(self.text) == 0:
             self.cursor_index = 0
         else:
@@ -901,7 +901,7 @@ class TextBox(AxesWidget):
         else:
             c = self.color
         if c != self._lastcolor:
-            self.ax.set_axis_bgcolor(c)
+            self.ax.set_facecolor(c)
             self._lastcolor = c
             if self.drawon:
                 self.ax.figure.canvas.draw()

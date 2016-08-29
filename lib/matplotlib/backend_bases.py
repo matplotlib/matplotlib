@@ -2606,14 +2606,14 @@ def key_press_handler(event, canvas, toolbar=None):
         # keys in list 'all' enables all axes (default key 'a'),
         # otherwise if key is a number only enable this particular axes
         # if it was the axes, where the event was raised
-        if not (event.key in all):
+        if not (event.key in all_keys):
             n = int(event.key) - 1
         for i, a in enumerate(canvas.figure.get_axes()):
             # consider axes, in which the event was raised
             # FIXME: Why only this axes?
             if event.x is not None and event.y is not None \
                     and a.in_axes(event):
-                if event.key in all:
+                if event.key in all_keys:
                     a.set_navigate(True)
                 else:
                     a.set_navigate(i == n)
