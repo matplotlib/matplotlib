@@ -18,6 +18,12 @@ values is a single line of python
 See :ref:`customizing-with-matplotlibrc-files` for details about how to
 persistently and selectively revert many of these changes.
 
+.. contents:: Table of Contents
+   :depth: 2
+   :local:
+   :backlinks: entry
+
+
 
 colors, color cycles, and color maps
 ====================================
@@ -100,7 +106,6 @@ in your :file:`matplotlibrc` file.
 Colormap
 --------
 
-
 The new default color map used by `matplotlib.cm.ScalarMappable` instances is
  `'viridis'` (aka `option D <http://bids.github.io/colormap/>`__).
 
@@ -111,10 +116,16 @@ The new default color map used by `matplotlib.cm.ScalarMappable` instances is
    X, Y = np.ogrid[0:20:N*1j, 0:20:M*1j]
    data = np.sin(np.pi * X*2 / 20) * np.cos(np.pi * Y*2 / 20)
 
-   fig, ax = plt.subplots()
-   im = ax.imshow(data, extent=[0, 200, 0, 200])
-   fig.colorbar(im)
-   ax.set_title('viridis')
+   fig, (ax2, ax1) = plt.subplots(1, 2, figsize=(7, 3))
+   im = ax1.imshow(data, extent=[0, 200, 0, 200])
+   ax1.set_title("v2.0: 'viridis'")
+   fig.colorbar(im, ax=ax1, shrink=.9)
+
+   im2 = ax2.imshow(data, extent=[0, 200, 0, 200], cmap='jet')
+   fig.colorbar(im2, ax=ax2, shrink=.9)
+   ax2.set_title("classic: 'jet'")
+
+   fig.tight_layout()
 
 For an introduction to color theory and how 'viridis' was generated
 watch Nathaniel Smith and Stéfan van der Walt's talk from SciPy2015.
@@ -142,28 +153,119 @@ or setting
 
 in your :file:`matplotlibrc` file, however this is strongly discouraged.
 
-Other colors
-------------
+Interactive figures
+-------------------
 
-- The default interactive figure background color has changed from
-  grey to white.  Use the rcParam ``figure.facecolor`` to control
-  this.
+The default interactive figure background color has changed from grey
+to white, which matches the default background color used when saving.
+
+The previous defaults can be restored by ::
+
+   mpl.rcParams['figure.facecolor'] = '0.75'
+
+or setting ::
+
+
+    figure.facecolor : '0.75'
+
+in your :file:`matplotlibrc` file.
 
 Grid lines
 ----------
 
+The default style of grid lines was changed from, black dashed lines to thicker
+solid light grey lines.
 
-- Grid lines are light grey solid 1pt lines.  They are no longer dashed by
-  default.
+.. plot::
 
-Plots
+   fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(6, 3))
+
+   ax1.grid(color='k', linewidth=.5, linestyle=':')
+   ax1.set_title('classic')
+
+   ax2.grid()
+   ax2.set_title('v2.0')
+
+The previous default can be restored by using::
+
+   mpl.rcParams['grid.color'] = 'k'
+   mpl.rcParams['grid.linestyle'] = ':'
+   mpl.rcParams['grid.linewidth'] = 0.5
+
+or setting::
+
+   grid.color       :   k       # grid color
+   grid.linestyle   :   :       # dotted
+   grid.linewidth   :   0.5     # in points
+
+in your :file:`matplotlibrc` file.
+
+Plotting functions
+==================
+
+``scatter``
+-----------
+
+The following changes were made to the default behavior of `~matplotlib.axes.Axes.scatter`
+
+ - The default size of the elements in a scatter plot is now based on
+   the rcParam ``lines.markersize`` so it is consistent with ``plot(X,
+   Y, 'o')``.  The old value was 20, and the new value is 36 (6^2).
+ - scatter markers no longer have a black edge.
+ - if the color of the markers is not specified it will follow the property cycle
+   pulling from the 'patches' cycle on the ``Axes``.
+
+.. plot::
+
+   np.random.seed(2)
+
+   fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(6, 3))
+
+   x = np.arange(15)
+   y = np.random.rand(15)
+   y2 = np.random.rand(15)
+   ax1.scatter(x, y, s=20, edgecolors='k', c='b', label='a')
+   ax1.scatter(x, y2, s=20, edgecolors='k', c='b', label='b')
+   ax1.legend()
+   ax1.set_title('classic')
+
+   ax2.scatter(x, y, label='a')
+   ax2.scatter(x, y2, label='b')
+   ax2.legend()
+   ax2.set_title('v2.0')
+
+
+The classic default behavior of `~matplotlib.axes.Axes.scatter` can
+only be recovered through ``mpl.style.use('classic')``.  The marker size
+can be recovered via ::
+
+  mpl.rcParam['lines.markersize'] = np.sqrt(20)
+
+however, this will also affect the default marker size of
+`~matplotlib.axes.Axes.plot`.  To recover the classic behavior on
+a per-call basis pass the following kwargs::
+
+  classic_kwargs = {'s': 20, 'edgecolors': 'k', 'c': 'b'}
+
+``plot``
+--------
+
+The following changes were made to the default behavior of
+`~matplotlib.axes.Axes.plot`
+
+ - the default linewidth change from 1 to 1.5
+ - the dash patterns associated with ``'--'``, ``':'``, and ``'-.'`` have
+   changed
+ - the dash patterns now scale with line width.
+
+
+
+Other
 =====
+
 - For markers, scatter plots, bar charts and pie charts, there is no
   longer a black outline around filled markers by default.
-
-- The default size of the elements in a scatter plot is now based on
-  the rcParam ``lines.markersize`` so it is consistent with ``plot(X,
-  Y, 'o')``.  The old value was 20, and the new value is 36 (6^2).
+- lines.color change, only hits raw usage of Line2D
 
 Hatching
 ========
