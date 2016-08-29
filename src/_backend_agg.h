@@ -738,14 +738,14 @@ inline void RendererAgg::draw_text_image(GCAgg &gc, ImageArray &image, int x, in
     typedef agg::renderer_scanline_aa<renderer_base, color_span_alloc_type, span_gen_type>
     renderer_type;
 
+    theRasterizer.reset_clipping();
+    rendererBase.reset_clipping(true);
     if (angle != 0.0) {
         agg::rendering_buffer srcbuf(
                 image.data(), (unsigned)image.dim(1),
                 (unsigned)image.dim(0), (unsigned)image.dim(1));
         agg::pixfmt_gray8 pixf_img(srcbuf);
 
-        theRasterizer.reset_clipping();
-        rendererBase.reset_clipping(true);
         set_clipbox(gc.cliprect, theRasterizer);
 
         agg::trans_affine mtx;
@@ -786,9 +786,9 @@ inline void RendererAgg::draw_text_image(GCAgg &gc, ImageArray &image, int x, in
             agg::rect_i clip;
 
             clip.init(int(mpl_round(gc.cliprect.x1)),
-                      int(mpl_round(gc.cliprect.y1)),
+                      int(mpl_round(height - gc.cliprect.y2)),
                       int(mpl_round(gc.cliprect.x2)),
-                      int(mpl_round(gc.cliprect.y2)));
+                      int(mpl_round(height - gc.cliprect.y1)));
             text.clip(clip);
         }
 
