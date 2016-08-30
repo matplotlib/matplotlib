@@ -9,11 +9,11 @@ it can be provided as:
 
 * a ``(r, g, b)`` tuple
 * a ``(r, g, b, a)`` tuple
-* a hex string RGB or RGBA string (ex ``'#0F0F0F'`` or ``'#0F0F0F0F'``)
+* a hex string RGB or RGBA (ex ``'#0F0F0F'`` or ``'#0F0F0F0F'``)
 * a float value in ``[0, 1]`` inclusive for gray level
 * one of ``{'b', 'g', 'r', 'c', 'm', 'y', 'k', 'w'}``
 * a X11/CSS4 color name
-* a name from the `xkcd color survey <http://xkcd.com/color/rgb/>`__
+* a name from the `xkcd color survey <https://xkcd.com/color/rgb/>`__
   prefixed with ``'xkcd:'`` (e.g., ``'xkcd:sky blue'``)
 * one of ``{'C0', 'C1', 'C2', 'C3', 'C4', 'C5', 'C6', 'C7', 'C8', 'C9'}``
 
@@ -28,12 +28,16 @@ This can be passed any place that a color is currently accepted and
 can be used as a 'single character color' in format-string to
 `matplotlib.Axes.plot`.
 
-This allows easy access to the color is the propriety cycle and to write code
-that will integrate with global changes to the style.  For example
+The single digit is the index into the default property cycle
+(``matplotlib.rcParams['axes.prop_cycle']`` to get the color from.  If
+the property cycle includes ``'color`` then black is returned.  The
+color is evaluated when the artits is created.  For example
 
 .. plot::
    :include-source: True
 
+   import numpy as np
+   import matplotlib.pyplot as plt
    import matplotlib as mpl
    th = np.linspace(0, 2*np.pi, 128)
 
@@ -50,15 +54,16 @@ that will integrate with global changes to the style.  For example
    demo('default')
    demo('seaborn')
 
-will plot using the color of the first and sixth styles in
-``mpl.rcParams['axes.prop_cycle']``.
+will use the first color for the title and then plot using the second
+and third colors of the styles ``mpl.rcParams['axes.prop_cycle']``.
+
 
 xkcd v X11/CSS4
 ---------------
 
 The xkcd colors are derived from a user survey conducted by the
 webcomic xkcd.  `Details of the survey are available on the xkcd blog
-<http://blog.xkcd.com/2010/05/03/color-survey-results/>`__.
+<https://blog.xkcd.com/2010/05/03/color-survey-results/>`__.
 
 There are 95 (out of 148 colors in the css color list) name collisions
 between the X11/CSS4 names and the xkcd names, all but 3 of which have
