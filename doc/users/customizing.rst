@@ -27,12 +27,13 @@ Defining your own style
 -----------------------
 
 You can create custom styles and use them by calling ``style.use`` with the
-path or URL to the style sheet. Alternatively, if you add your ``<style-name>.mplstyle``
-file to ``mpl_configdir/stylelib``, you can reuse your custom style sheet with a call to
-``style.use(<style-name>)``. By default ``mpl_configdir`` should be ``~/.config/matplotlib``,
-but you can check where yours is with ``matplotlib.get_configdir()``, you may need to
-create this directory. Note that a custom style sheet in ``mpl_configdir/stylelib``
-will override a style sheet defined by matplotlib if the styles have the same name.
+path or URL to the style sheet. Additionally, if you add your
+``<style-name>.mplstyle`` file to ``mpl_configdir/stylelib``, you can reuse
+your custom style sheet with a call to ``style.use(<style-name>)``. By default
+``mpl_configdir`` should be ``~/.config/matplotlib``, but you can check where
+yours is with ``matplotlib.get_configdir()``; you may need to create this
+directory. Note that a custom style sheet in ``mpl_configdir/stylelib`` will
+override a style sheet defined by matplotlib if the styles have the same name.
 
 For example, you might want to create
 ``mpl_configdir/stylelib/presentation.mplstyle`` with the following::
@@ -71,7 +72,7 @@ Temporary styling
 
 If you only want to use a style for a specific block of code but don't want
 to change the global styling, the style package provides a context manager
-for limiting your changes to a specific scope. To isolate the your styling
+for limiting your changes to a specific scope. To isolate your styling
 changes, you can write something like the following::
 
    >>> import numpy as np

@@ -55,9 +55,9 @@ For physical coordinate systems (points or pixels) the origin is the
 however, the origin is from the (right, top) of the figure or axes,
 analogous to negative indexing of sequences.
 
-Optionally, you can specify arrow properties for adding an arrow
-from the text to the annotated point by giving a dictionary of arrow
-properties in the optional keyword argument ``arrowprops``.
+Optionally, you can enable drawing of an arrow from the text to the annotated
+point by giving a dictionary of arrow properties in the optional keyword
+argument ``arrowprops``.
 
 
 ==================== =====================================================
@@ -90,9 +90,8 @@ annotations, including fancy arrows, see :ref:`plotting-guide-annotation`
 and :ref:`pylab_examples-annotation_demo`.
 
 
-Do not proceed unless you already have read :ref:`annotations-tutorial`,
-:func:`~matplotlib.pyplot.text` and
-:func:`~matplotlib.pyplot.annotate`!
+Do not proceed unless you have already read :ref:`annotations-tutorial`,
+:func:`~matplotlib.pyplot.text` and :func:`~matplotlib.pyplot.annotate`!
 
 
 .. _plotting-guide-annotation:
@@ -125,7 +124,7 @@ The patch object associated with the text can be accessed by::
 
 The return value is an instance of FancyBboxPatch and the patch
 properties like facecolor, edgewidth, etc. can be accessed and
-modified as usual. To change the shape of the box, use *set_boxstyle*
+modified as usual. To change the shape of the box, use the *set_boxstyle*
 method. ::
 
   bb.set_boxstyle("rarrow", pad=0.6)
@@ -150,7 +149,7 @@ keyword arguments. Currently, following box styles are implemented.
 .. plot:: mpl_examples/pylab_examples/fancybox_demo2.py
 
 
-Note that the attributes arguments can be specified within the style
+Note that the attribute arguments can be specified within the style
 name with separating comma (this form can be used as "boxstyle" value
 of bbox argument when initializing the text instance) ::
 
@@ -177,7 +176,7 @@ annotated point is specified in the *data* coordinate and the annotating
 text in *offset points*.
 See :func:`~matplotlib.pyplot.annotate` for available coordinate systems.
 
-An arrow connecting two point (xy & xytext) can be optionally drawn by
+An arrow connecting two points (xy & xytext) can be optionally drawn by
 specifying the ``arrowprops`` argument. To draw only an arrow, use
 empty string as the first argument. ::
 
@@ -198,7 +197,7 @@ The arrow drawing takes a few steps.
 2. If patch object is given (*patchA* & *patchB*), the path is clipped to
    avoid the patch.
 
-3. The path is further shrunk by given amount of pixels (*shirnkA*
+3. The path is further shrunk by given amount of pixels (*shrinkA*
    & *shrinkB*)
 
 4. The path is transmuted to arrow patch, which is controlled by the
@@ -209,7 +208,7 @@ The arrow drawing takes a few steps.
 
 
 The creation of the connecting path between two points is controlled by
-``connectionstyle`` key and following styles are available.
+``connectionstyle`` key and the following styles are available.
 
    ==========   =============================================
    Name         Attrs
@@ -223,7 +222,7 @@ The creation of the connecting path between two points is controlled by
 
 Note that "3" in ``angle3`` and ``arc3`` is meant to indicate that the
 resulting path is a quadratic spline segment (three control
-points). As will be discussed below, some arrow style option only can
+points). As will be discussed below, some arrow style options can only
 be used when the connecting path is a quadratic spline.
 
 The behavior of each connection style is (limitedly) demonstrated in the
@@ -255,9 +254,9 @@ an arrow patch, according to the given ``arrowstyle``.
 
 .. plot:: mpl_examples/pylab_examples/fancyarrow_demo.py
 
-Some arrowstyles only work with connection style that generates a
+Some arrowstyles only work with connection styles that generate a
 quadratic-spline segment. They are ``fancy``, ``simple``, and ``wedge``.
-For these arrow styles, you must use "angle3" or "arc3" connection
+For these arrow styles, you must use the "angle3" or "arc3" connection
 style.
 
 If the annotation string is given, the patchA is set to the bbox patch
@@ -281,8 +280,8 @@ lower-left corner and (1,1) means top-right.
 Placing Artist at the anchored location of the Axes
 ---------------------------------------------------
 
-There are class of artist that can be placed at the anchored location
-of the Axes. A common example is the legend.  This type of artists can
+There are classes of artists that can be placed at an anchored location
+in the Axes. A common example is the legend.  This type of artist can
 be created by using the OffsetBox class. A few predefined classes are
 available in ``mpl_toolkits.axes_grid.anchored_artists``. ::
 
@@ -305,10 +304,10 @@ artists) is known in pixel size during the time of creation. For
 example, If you want to draw a circle with fixed size of 20 pixel x 20
 pixel (radius = 10 pixel), you can utilize
 ``AnchoredDrawingArea``. The instance is created with a size of the
-drawing area (in pixel). And user can add arbitrary artist to the
+drawing area (in pixels), and arbitrary artists can added to the
 drawing area. Note that the extents of the artists that are added to
-the drawing area has nothing to do with the placement of the drawing
-area itself. The initial size only matters. ::
+the drawing area are not related to the placement of the drawing
+area itself. Only the initial size matters. ::
 
     from mpl_toolkits.axes_grid.anchored_artists import AnchoredDrawingArea
 
@@ -319,15 +318,15 @@ area itself. The initial size only matters. ::
     p2 = Circle((30, 10), 5, fc="r")
     ada.drawing_area.add_artist(p2)
 
-The artists that are added to the drawing area should not have
-transform set (they will be overridden) and the dimension of those
+The artists that are added to the drawing area should not have a
+transform set (it will be overridden) and the dimensions of those
 artists are interpreted as a pixel coordinate, i.e., the radius of the
-circles in above example are 10 pixel and 5 pixel, respectively.
+circles in above example are 10 pixels and 5 pixels, respectively.
 
 .. plot:: users/plotting/examples/anchored_box02.py
 
-Sometimes, you want to your artists scale with data coordinate (or
-other coordinate than canvas pixel). You can use
+Sometimes, you want your artists to scale with the data coordinate (or
+coordinates other than canvas pixels). You can use
 ``AnchoredAuxTransformBox`` class. This is similar to
 ``AnchoredDrawingArea`` except that the extent of the artist is
 determined during the drawing time respecting the specified transform. ::
@@ -335,11 +334,11 @@ determined during the drawing time respecting the specified transform. ::
   from mpl_toolkits.axes_grid.anchored_artists import AnchoredAuxTransformBox
 
   box = AnchoredAuxTransformBox(ax.transData, loc=2)
-  el = Ellipse((0,0), width=0.1, height=0.4, angle=30) # in data coordinates!
+  el = Ellipse((0,0), width=0.1, height=0.4, angle=30)  # in data coordinates!
   box.drawing_area.add_artist(el)
 
 The ellipse in the above example will have width and height
-corresponds to 0.1 and 0.4 in data coordinate and will be
+corresponding to 0.1 and 0.4 in data coordinateing and will be
 automatically scaled when the view limits of the axes change.
 
 .. plot:: users/plotting/examples/anchored_box03.py
@@ -353,10 +352,10 @@ legend (as a matter of fact, this is how the legend is created).
 Note that unlike the legend, the ``bbox_transform`` is set
 to IdentityTransform by default.
 
-Using Complex Coordinate with Annotation
-----------------------------------------
+Using Complex Coordinates with Annotations
+------------------------------------------
 
-The Annotation in matplotlib support several types of coordinate as
+The Annotation in matplotlib supports several types of coordinates as
 described in :ref:`annotations-tutorial`. For an advanced user who wants
 more control, it supports a few other options.
 
@@ -392,16 +391,16 @@ more control, it supports a few other options.
 
     Note that it is your responsibility that the extent of the
     coordinate artist (*an1* in above example) is determined before *an2*
-    gets drawn. In most cases, it means that an2 needs to be drawn
+    gets drawn. In most cases, it means that *an2* needs to be drawn
     later than *an1*.
 
 
  3. A callable object that returns an instance of either
     :class:`~matplotlib.transforms.BboxBase` or
     :class:`~matplotlib.transforms.Transform`. If a transform is
-    returned, it is same as 1 and if bbox is returned, it is same
-    as 2.  The callable object should take a single argument of
-    renderer instance. For example, following two commands give
+    returned, it is the same as 1 and if a bbox is returned, it is the same
+    as 2.  The callable object should take a single argument of the
+    renderer instance. For example, the following two commands give
     identical results ::
 
       an2 = ax.annotate("Test 2", xy=(1, 0.5), xycoords=an1,
@@ -410,22 +409,21 @@ more control, it supports a few other options.
                         xytext=(30,0), textcoords="offset points")
 
 
- 4. A tuple of two coordinate specification. The first item is for
-    x-coordinate and the second is for y-coordinate. For example, ::
+ 4. A tuple of two coordinate specifications. The first item is for the
+    x-coordinate and the second is for the y-coordinate. For example, ::
 
       annotate("Test", xy=(0.5, 1), xycoords=("data", "axes fraction"))
 
-    0.5 is in data coordinate, and 1 is in normalized axes coordinate.
+    0.5 is in data coordinates, and 1 is in normalized axes coordinates.
     You may use an artist or transform as with a tuple. For example,
 
     .. plot:: users/plotting/examples/annotate_simple_coord02.py
        :include-source:
 
 
- 5. Sometimes, you want your annotation with some "offset points", but
-    not from the annotated point but from other
-    point. :class:`~matplotlib.text.OffsetFrom` is a helper class for such
-    case.
+ 5. Sometimes, you want your annotation with some "offset points", not from the
+    annotated point but from some other point.
+    :class:`~matplotlib.text.OffsetFrom` is a helper class for such cases.
 
     .. plot:: users/plotting/examples/annotate_simple_coord03.py
       :include-source:
@@ -435,10 +433,9 @@ more control, it supports a few other options.
 Using ConnectorPatch
 --------------------
 
-The ConnectorPatch is like an annotation without a text.  While the
-annotate function is recommended in most of situation, the
-ConnectorPatch is useful when you want to connect points in different
-axes. ::
+The ConnectorPatch is like an annotation without text. While the annotate
+function is recommended in most situations, the ConnectorPatch is useful when
+you want to connect points in different axes. ::
 
   from matplotlib.patches import ConnectionPatch
   xy = (0.2, 0.2)
@@ -446,17 +443,15 @@ axes. ::
                         axesA=ax1, axesB=ax2)
   ax2.add_artist(con)
 
-The above code connects point xy in data coordinate of ``ax1`` to
-point xy int data coordinate of ``ax2``. Here is a simple example.
+The above code connects point xy in the data coordinates of ``ax1`` to
+point xy in the data coordinates of ``ax2``. Here is a simple example.
 
 .. plot:: users/plotting/examples/connect_simple01.py
 
 
-While the ConnectorPatch instance can be added to any axes, but you
-may want it to be added to the axes in the latter (?) of the axes
-drawing order to prevent overlap (?) by other axes.
-
-
+While the ConnectorPatch instance can be added to any axes, you may want to add
+it to the axes that is latest in drawing order to prevent overlap by other
+axes.
 
 
 Advanced Topics
@@ -466,7 +461,7 @@ Zoom effect between Axes
 ------------------------
 
 mpl_toolkits.axes_grid.inset_locator defines some patch classes useful
-for interconnect two axes. Understanding the code requires some
+for interconnecting two axes. Understanding the code requires some
 knowledge of how mpl's transform works. But, utilizing it will be
 straight forward.
 
@@ -478,7 +473,7 @@ Define Custom BoxStyle
 ----------------------
 
 You can use a custom box style. The value for the ``boxstyle`` can be a
-callable object in following forms.::
+callable object in the following forms.::
 
         def __call__(self, x0, y0, width, height, mutation_size,
                      aspect_ratio=1.):
@@ -491,7 +486,7 @@ callable object in following forms.::
               - *aspect_ratio* : aspect-ratio for the mutation.
             """
             path = ...
-	    return path
+            return path
 
 Here is a complete example.
 
@@ -504,6 +499,6 @@ matplotlib.patches.BoxStyle._Base as demonstrated below.
    :include-source:
 
 
-Similarly, you can define custom ConnectionStyle and custom ArrowStyle.
+Similarly, you can define a custom ConnectionStyle and a custom ArrowStyle.
 See the source code of ``lib/matplotlib/patches.py`` and check
 how each style class is defined.
