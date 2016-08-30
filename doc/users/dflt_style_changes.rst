@@ -80,12 +80,13 @@ In addition to changing the colors, an additional method to specify
 colors was added.  Previously, the default colors were the single
 character short-hand notations for red, green, blue, cyan, magenta,
 yellow, and black.  This made them easy to type and usable in the
-abbreviated style string in ``plot``.  On the other hand, the new
-colors are only specified via a hex value.  To make it easier to access
-these colors, the notation ``'CN'`` was added to denote the first 10 colors in
-``mpl.rcParams['axes.prop_cycle']``.  See :ref:`colors` for more details.
+abbreviated style string in ``plot``, however the new default colors
+are only specified via hex values.  To access these colors outside of
+the property cycling the notation for colors ``'CN'`` was added to
+denote the first 10 colors in ``mpl.rcParms['axes.prop_cycle']`` See
+:ref:`colors` for more details.
 
-To restore only the old color cycle use
+To restore the old color cycle use
 
 .. code::
 
@@ -99,6 +100,7 @@ or setting
    axes.prop_cycle    : cycler('color', 'bgrcmyk')
 
 in your :file:`matplotlibrc` file.
+
 
 Colormap
 --------
@@ -315,6 +317,63 @@ or by setting::
    lines.scale_dashes: False
 
 in your :file:`matplotlibrc` file.
+
+Patch edges and color
+---------------------
+
+Artists drawn with a patch (``~matplotlib.axes.Axes.bar``,
+``~matplotlib.axes.Axes.pie``, etc) no longer have a black edge by
+default.  The default face color is now ``'C0'`` instead of ``'b'``.
+
+.. plot::
+
+   import matplotlib.pyplot as plt
+   import numpy as np
+   from matplotlib import rc_context
+   import matplotlib.patches as mpatches
+
+   fig, all_ax = plt.subplots(3, 2, figsize=(4, 6), tight_layout=True)
+
+   def demo(ax_top, ax_mid, ax_bottom, rcparams, label):
+       labels = 'Frogs', 'Hogs', 'Dogs', 'Logs'
+       fracs = [15, 30, 45, 10]
+
+       explode = (0, 0.05, 0, 0)
+
+       ax_top.set_title(label)
+
+       with rc_context(rc=rcparams):
+           ax_top.pie(fracs, labels=labels)
+           ax_top.set_aspect('equal')
+           ax_mid.bar(range(len(fracs)), fracs, tick_label=labels, align='center')
+           plt.setp(ax_mid.get_xticklabels(), rotation=-45)
+           grid = np.mgrid[0.2:0.8:3j, 0.2:0.8:3j].reshape(2, -1).T
+
+           ax_bottom.set_xlim(0, .75)
+           ax_bottom.set_ylim(0, .75)
+           ax_bottom.add_artist(mpatches.Rectangle(grid[1] - [0.025, 0.05], 0.05, 0.1))
+           ax_bottom.add_artist(mpatches.RegularPolygon(grid[3], 5, 0.1))
+           ax_bottom.add_artist(mpatches.Ellipse(grid[4], 0.2, 0.1))
+           ax_bottom.add_artist(mpatches.Circle(grid[0], 0.1))
+           ax_bottom.axis('off')
+
+   demo(*all_ax[:, 0], rcparams={'patch.force_edgecolor': True,
+                                 'patch.facecolor': 'b'}, label='classic')
+   demo(*all_ax[:, 1], rcparams={}, label='v2.0')
+
+The previous defaults can be restored by setting::
+
+    mpl.rcParams['patch.force_edgecolor'] = True
+    mpl.rcParams['patch.facecolor'] = True
+
+or by setting::
+
+   patch.facecolor        : b
+   patch.force_edgecolor  : True
+
+in your :file:`matplotlibrc` file.
+
+
 
 Other
 =====
