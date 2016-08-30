@@ -83,7 +83,7 @@ yellow, and black.  This made them easy to type and usable in the
 abbreviated style string in ``plot``, however the new default colors
 are only specified via hex values.  To access these colors outside of
 the property cycling the notation for colors ``'CN'`` was added to
-denote the first 10 colors in ``mpl.rcParms['axes.prop_cycle']`` See
+denote the first 10 colors in ``mpl.rcParams['axes.prop_cycle']`` See
 :ref:`colors` for more details.
 
 To restore the old color cycle use
@@ -169,6 +169,7 @@ or setting ::
 
 in your :file:`matplotlibrc` file.
 
+
 Grid lines
 ----------
 
@@ -198,6 +199,49 @@ or setting::
    grid.linewidth   :   0.5     # in points
 
 in your :file:`matplotlibrc` file.
+
+
+Figure size, font size, and screen dpi
+======================================
+
+The default dpi used for on-screen display was changed from 80dpi to
+100dpi, the same as the default dpi for saving files.  Due to this
+change, the on-screen display is now more what-you-see-is-what-you-get
+for saved files.  To keep figure the same size in terms of pixels, in
+order to maintain approximately the same size on the screen, the
+default figure size was reduced from 8in by 6in to 6.4in by 4.8in.  As
+a consequence of this the default font sizes used for the title, tick
+labels, and axes labels were reduced to maintain their size relative
+to the overall size of the figure.  By default the dpi of the saved
+image is now the dpi of the `~matplotlib.figure.Figure` instance being
+saved.
+
+This will have consequences if you are trying to match text in a
+figure directly with external text.
+
+
+The previous defaults can be restored by ::
+
+   mpl.rcParams['figure.figsize'] = [8.0, 6.0]
+   mpl.rcParams['figure.dpi'] = 80
+   mpl.rcParams['savefig.dpi'] = 100
+
+   mpl.rcParams['font.size'] = 12
+   mpl.rcParams['legend.fontsize'] = 'large'
+   mpl.rcParams['figure.titlesize'] = 'medium'
+
+or set::
+
+   figure.figsize   : [8.0, 6.0]
+   figure.dpi       : 80
+   savefig.dpi      : 100
+
+   font.size        : 12.0
+   legend.fontsize  : 'large'
+   figure.titlesize : 'medium'
+
+In your :file:`matplotlibrc` file.
+
 
 Plotting functions
 ==================
@@ -378,8 +422,6 @@ in your :file:`matplotlibrc` file.
 Other
 =====
 
-- For markers, scatter plots, bar charts and pie charts, there is no
-  longer a black outline around filled markers by default.
 - lines.color change, only hits raw usage of Line2D
 
 Hatching
@@ -396,10 +438,6 @@ Hatching
 
 Plot layout
 ===========
-
-- The default dpi used for on-screen display is now 100, which is the same as
-  the old default for saving files.  Due to this change, the on-screen
-  display is now more what-you-see-is-what-you-get.
 
 - The number of ticks on an axis is now automatically determined based
   on the length of the axis.
