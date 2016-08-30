@@ -10,9 +10,9 @@
 Basic annotation
 ================
 
-The uses of the basic :func:`~matplotlib.pyplot.text` command above
-place text at an arbitrary position on the Axes.  A common use case of
-text is to annotate some feature of the plot, and the
+The uses of the basic :func:`~matplotlib.pyplot.text` will place text
+at an arbitrary position on the Axes.  A common use case of text is to
+annotate some feature of the plot, and the
 :func:`~matplotlib.Axes.annotate` method provides helper functionality
 to make annotations easy.  In an annotation, there are two points to
 consider: the location being annotated represented by the argument
@@ -55,7 +55,7 @@ For physical coordinate systems (points or pixels) the origin is the
 however, the origin is from the (right, top) of the figure or axes,
 analogous to negative indexing of sequences.
 
-Optionally, you can specify arrow properties which draws an arrow
+Optionally, you can specify arrow properties for adding an arrow
 from the text to the annotated point by giving a dictionary of arrow
 properties in the optional keyword argument ``arrowprops``.
 
@@ -79,8 +79,8 @@ In the example below, the ``xy`` point is in native coordinates
 (theta, radius) space.  The text in this example is placed in the
 fractional figure coordinate system. :class:`matplotlib.text.Text`
 keyword args like ``horizontalalignment``, ``verticalalignment`` and
-``fontsize are passed from the `~matplotlib.Axes.annotate` to the
-``Text`` instance
+``fontsize`` are passed from `~matplotlib.Axes.annotate` to the
+``Text`` instance.
 
 .. plot:: pyplots/annotation_polar.py
    :include-source:
