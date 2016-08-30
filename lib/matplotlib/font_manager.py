@@ -910,7 +910,10 @@ class FontProperties(object):
         try:
             size = float(size)
         except ValueError:
-            if size is not None and size not in font_scalings:
+            try:
+                scale = font_scalings[size]
+                size = scale * FontManager.get_default_size()
+            except KeyError:
                 raise ValueError(
                     "Size is invalid. Valid font size are " + ", ".join(
                         str(i) for i in font_scalings.keys()))
@@ -942,7 +945,8 @@ class FontProperties(object):
 
     def copy(self):
         """Return a deep copy of self"""
-        return FontProperties(_init = self)
+        return FontProperties(_init=self)
+
 
 def ttfdict_to_fnames(d):
     """
