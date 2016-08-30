@@ -53,9 +53,23 @@ function getSnippet(id, url) {
   web application servers, and six graphical user
   interface toolkits.</p>
 
-  <p align="center"><a href="{{ pathto('users/screenshots') }}"><img align="middle"
-  src="{{ pathto('_static/logo_sidebar_horiz.png', 1) }}" border="0"
-  alt="screenshots"/></a></p>
+  <div class="responsive_screenshots">
+    <a a href="{{ pathto('users/screenshots') }}">
+      <div class="responsive_subfig">
+        <img align="middle", src="{{ pathto('_static/membrane_frontpage.png', 1) }}", border="0", alt="screenshots"/>
+      </div>
+      <div class="responsive_subfig">
+        <img align="middle", src="{{ pathto('_static/histogram_frontpage.png', 1) }}", border="0", alt="screenshots"/>
+      </div>
+      <div class="responsive_subfig">
+        <img align="middle", src="{{ pathto('_static/contour_frontpage.png', 1) }}", border="0", alt="screenshots"/>
+      </div>
+      <div class="responsive_subfig">
+        <img align="middle", src="{{ pathto('_static/surface3d_frontpage.png', 1) }}", border="0", alt="screenshots"/>
+      </div>
+    </a>
+  </div>
+  <span class="clear_screenshots"></span>
 
   <p>matplotlib tries to make easy things easy and hard things possible.
   You can generate plots, histograms, power spectra, bar charts,
