@@ -73,7 +73,7 @@ properties.
 
 The :class:`~matplotlib.legend.Legend` background patch (or 'frame')
 can have its `edgecolor` and `facecolor` determined by the
-corresponding keyword arguments to its initializer, or to any of the
+corresponding keyword arguments to the `Legend` initializer, or to any of the
 methods or functions that call that initializer.  If left to
 their default values of `None`, their values will be taken from
 `rcParams`.  The previously-existing `framealpha` kwarg still
@@ -108,15 +108,15 @@ See the ``draw_image`` docstring for more information.
 --------------------------------------------------
 
 The ``matplotlib.ticker.LinearLocator`` is used to define the range and location
-of tickmarks of a plot when the user wants a exact number of ticks.
+of tick marks of a plot when the user wants an exact number of ticks.
 ``LinearLocator`` thus differs from the default locator ``MaxNLocator``, which
 does not necessarily return the exact user requested number of ticks.
 
 The view range algorithm in ``matplotlib.ticker.LinearLocator`` has been
-changed so that more convenient tick location are chosen. The new algorithm
-returns a plot view range that is a multiple of the user requested number of
-ticks. This ensures tick marks to be located at whole integers more
-constistently. For example, when both y-axis of a``twinx`` plot use
+changed so that more convenient tick locations are chosen. The new algorithm
+returns a plot view range that is a multiple of the user-requested number of
+ticks. This ensures tick marks will be located at whole integers more
+consistently. For example, when both y-axes of a``twinx`` plot use
 ``matplotlib.ticker.LinearLocator`` with the same number of ticks, the grids of
 both axis will be properly aligned at convenient tick locations.
 
@@ -126,7 +126,7 @@ New defaults for 3D quiver function in mpl_toolkits.mplot3d.axes3d.py
 
 Matplotlib has both a 2D and a 3D ``quiver`` function. These changes
 affect only the 3D function and make the default behavior of the 3D
-function match 2D version. There are two changes:
+function match the 2D version. There are two changes:
 
 1) The 3D quiver function previously normalized the arrows to be the
    same length, which makes it unusable for situations where the
@@ -143,7 +143,7 @@ call the function with ::
 
    ax.quiver(x, y, z, u, v, w, normalize=True, pivot='tip')
 
-where "ax" is a axes3d object created with something like ::
+where "ax" is an ``Axes3d`` object created with something like ::
 
    import mpl_toolkits.mplot3d.axes3d
    ax = plt.sublot(111, projection='3d')

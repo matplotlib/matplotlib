@@ -9,7 +9,7 @@ it can be provided as:
 
 * a ``(r, g, b)`` tuple
 * a ``(r, g, b, a)`` tuple
-* a hex string RGB or RGBA (ex ``'#0F0F0F'`` or ``'#0F0F0F0F'``)
+* a hex RGB or RGBA string (ex ``'#0F0F0F'`` or ``'#0F0F0F0F'``)
 * a float value in ``[0, 1]`` inclusive for gray level
 * one of ``{'b', 'g', 'r', 'c', 'm', 'y', 'k', 'w'}``
 * a X11/CSS4 color name
@@ -29,9 +29,9 @@ can be used as a 'single character color' in format-string to
 `matplotlib.Axes.plot`.
 
 The single digit is the index into the default property cycle
-(``matplotlib.rcParams['axes.prop_cycle']`` to get the color from.  If
-the property cycle includes ``'color`` then black is returned.  The
-color is evaluated when the artits is created.  For example
+(``matplotlib.rcParams['axes.prop_cycle']``).  If the property cycle does not
+include ``'color`` then black is returned.  The color is evaluated when the
+artist is created.  For example
 
 .. plot::
    :include-source: True

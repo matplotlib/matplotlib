@@ -32,8 +32,7 @@ Colors in default property cycle
 --------------------------------
 
 The colors in the default proprety cycle have been changed from
-``['b', 'g', 'r', 'c', 'm', 'y', 'k']`` to the `Vega
-category10 palette
+``['b', 'g', 'r', 'c', 'm', 'y', 'k']`` to the `Vega category10 palette
 <https://github.com/vega/vega/wiki/Scales#scale-range-literals>`__
 
 .. plot::
@@ -82,11 +81,9 @@ colors was added.  Previously, the default colors were the single
 character short-hand notations for red, green, blue, cyan, magenta,
 yellow, and black.  This made them easy to type and usable in the
 abbreviated style string in ``plot``.  On the other hand, the new
-colors are only specified via a hex value.  To make in easy to access
-these colors the notation for colors ``'CN'`` was added to access
-colors.  This allows the first 10 colors in
-``mpl.rcParms['axes.prop_cycle']`` to be easily accessed.  See
-:ref:`colors` for more details.
+colors are only specified via a hex value.  To make it easier to access
+these colors, the notation ``'CN'`` was added to denote the first 10 colors in
+``mpl.rcParams['axes.prop_cycle']``.  See :ref:`colors` for more details.
 
 To restore only the old color cycle use
 
@@ -107,7 +104,7 @@ Colormap
 --------
 
 The new default color map used by `matplotlib.cm.ScalarMappable` instances is
- `'viridis'` (aka `option D <http://bids.github.io/colormap/>`__).
+ `'viridis'` (aka `option D <https://bids.github.io/colormap/>`__).
 
 .. plot::
 
@@ -129,7 +126,7 @@ The new default color map used by `matplotlib.cm.ScalarMappable` instances is
 
 For an introduction to color theory and how 'viridis' was generated
 watch Nathaniel Smith and Stéfan van der Walt's talk from SciPy2015.
-See `here for many more deatils <http://bids.github.io/colormap/>`__
+See `here for many more details <https://bids.github.io/colormap/>`__
 about the other alternatives and the tools used to create the color
 map.  For details on all of color maps available in matplotlib see
 :ref:`colormaps`.
@@ -151,7 +148,7 @@ or setting
 
    image.cmap    : 'jet'
 
-in your :file:`matplotlibrc` file, however this is strongly discouraged.
+in your :file:`matplotlibrc` file; however this is strongly discouraged.
 
 Interactive figures
 -------------------
@@ -341,18 +338,18 @@ Hatching
 Plot layout
 ===========
 
-- The default dpi used for on-screen is now 100, which is the same as
-  the old default for saving files.  Due to this, the on-screen
+- The default dpi used for on-screen display is now 100, which is the same as
+  the old default for saving files.  Due to this change, the on-screen
   display is now more what-you-see-is-what-you-get.
 
 - The number of ticks on an axis is now automatically determined based
   on the length of the axis.
 
-- The limits are scaled to exactly the dimensions of the data, plus 5%
-  padding.  The old behavior was to scale to the nearest "round"
+- The limits of an axes are scaled to exactly the dimensions of the data,
+  plus 5% padding.  The old behavior was to scale to the nearest "round"
   numbers.  To use the old behavior, set the ``rcParam``
   ``axes.autolimit_mode`` to ``round_numbers``.  To control the
-  margins on particular side individually, pass any of the following
+  margins on a particular side individually, pass any of the following
   to any artist or plotting function:
 
   - ``top_margin=False``
