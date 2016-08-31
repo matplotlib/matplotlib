@@ -448,6 +448,6 @@ def skip_if_command_unavailable(cmd):
     try:
         check_output(cmd)
     except:
-        skip('missing command: %s' % cmd[0])
+        return skipif(True, reason='missing command: %s' % cmd[0])
 
     return lambda f: f
