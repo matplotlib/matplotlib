@@ -14,9 +14,7 @@ from matplotlib.testing.decorators import ImageComparisonTest
 
 
 IGNORED_TESTS = {
-    'matplotlib': [
-        'test_usetex',
-    ],
+    'matplotlib': [],
 }
 
 
