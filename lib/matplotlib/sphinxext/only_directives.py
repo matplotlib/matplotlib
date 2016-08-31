@@ -70,3 +70,6 @@ def setup(app):
     app.add_node(latex_only,
                  latex=(visit_perform, depart_perform),
                  html=(visit_ignore, depart_ignore))
+
+    metadata = {'parallel_read_safe': True, 'parallel_write_safe': True}
+    return metadata

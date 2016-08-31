@@ -682,3 +682,58 @@ figcaption {
     background: #003c63;
     outline-color: #003c63;
 }
+
+
+div.responsive_screenshots {
+    /* Horizontally centered */
+    display: block;
+    margin: auto;
+
+    /* Do not go beyond 1:1 scale (and ensure a 1x4 tight layout) */
+    max-width: 648px;  /* at most 4 x 1:1 subfig width  */
+    max-height: 139px; /* at most 1 x 1:1 subfig height */
+}
+
+/* To avoid subfigure parts outside of the responsive_screenshots  */
+/* element (see: https://stackoverflow.com/questions/2062258/      */
+/* floating-stuff-within-a-div-floats-outside-of-div-why)          */
+span.clear_screenshots { clear: left; display: block; }
+
+div.responsive_subfig{
+    float: left;
+    width: 25%;  /* we want 4 subfigs in a row */
+
+    /* Include content, padding and border in width. This should */
+    /* avoid having to use tricks like "width: 24.9999%"         */
+    box-sizing: border-box; 
+}
+
+div.responsive_subfig img {
+    /* Horizontally centered */
+    display: block;
+    margin: auto;
+
+    /* Possible downscaling */
+    max-width: 162px;  /* at most 1 x 1:1 subfig width  */
+    max-height: 139px; /* at most 1 x 1:1 subfig height */
+
+    width: 100%;
+}
+
+@media only screen and (max-width: 1000px){
+    /* The value of 1000px was handcrafted to provide a more or less */
+    /* smooth transition between the 1x4 and the 2x2 layouts. It is  */
+    /* NB: it is slightly below 1024px: so one should still have a   */
+    /* row in a 1024x768 window                                      */
+
+    div.responsive_screenshots {
+        /* Do not go beyond 1:1 scale (and ensure a 2x2 tight layout) */
+        max-width: 324px;  /* at most 2 x 1:1 subfig width  */
+        max-height: 278px; /* at most 2 x 1:1 subfig height */
+    }
+
+    div.responsive_subfig {
+        width: 50%;  /* we want 2 subfigs in a row */
+    }
+
+}
