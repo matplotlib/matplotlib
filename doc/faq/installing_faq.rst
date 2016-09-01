@@ -23,9 +23,10 @@ complexities. Open up a UNIX shell or a DOS command prompt and cd into a
 directory containing a minimal example in a file. Something like
 :file:`simple_plot.py` for example::
 
-  from pylab import *
-  plot([1,2,3])
-  show()
+  import matplotlib.pyplot as plt
+  fig, ax = plt.subplots()
+  ax.plot([1,2,3])
+  plt.show()
 
 and run it with::
 
