@@ -4,62 +4,60 @@
 # Example boxplot code
 #
 
-from pylab import *
+import numpy as np
+import matplotlib.pyplot as plt
+
+np.random.seed(0)
 
 # fake up some data
-spread= rand(50) * 100
-center = ones(25) * 50
-flier_high = rand(10) * 100 + 100
-flier_low = rand(10) * -100
-data =concatenate((spread, center, flier_high, flier_low), 0)
+spread = np.random.rand(50) * 100
+center = np.ones(25) * 50
+flier_high = np.random.rand(10) * 100 + 100
+flier_low = np.random.rand(10) * -100
+data = np.concatenate((spread, center, flier_high, flier_low), 0)
 
-# basic plot
-boxplot(data)
-#savefig('box1')
+fig1, ax1 = plt.subplots()
+ax1.set_title('Basic Plot')
+ax1.boxplot(data)
 
-# notched plot
-figure()
-boxplot(data,1)
-#savefig('box2')
+fig2, ax2 = plt.subplots()
+ax2.set_title('Notched boxes')
+ax2.boxplot(data, notch=True)
 
-# change outlier point symbols
-figure()
-boxplot(data,0,'gD')
-#savefig('box3')
+green_diamond = dict(markerfacecolor='g', marker='D')
+fig3, ax3 = plt.subplots()
+ax3.set_title('Changed Outlier Symbols')
+ax3.boxplot(data, flierprops=green_diamond)
 
-# don't show outlier points
-figure()
-boxplot(data,0,'')
-#savefig('box4')
+fig4, ax4 = plt.subplots()
+ax4.set_title('Hide Outlier Points')
+ax4.boxplot(data, showfliers=False)
 
-# horizontal boxes
-figure()
-boxplot(data,0,'rs',0)
-#savefig('box5')
+red_square = dict(markerfacecolor='r', marker='s')
+fig5, ax5 = plt.subplots()
+ax5.set_title('Horizontal Boxes')
+ax5.boxplot(data, vert=False, flierprops=red_square)
 
-# change whisker length
-figure()
-boxplot(data,0,'rs',0,0.75)
-#savefig('box6')
+fig6, ax6 = plt.subplots()
+ax6.set_title('Shorter Whisker Length')
+ax6.boxplot(data, flierprops=red_square, vert=False, whis=0.75)
 
 # fake up some more data
-spread= rand(50) * 100
-center = ones(25) * 40
-flier_high = rand(10) * 100 + 100
-flier_low = rand(10) * -100
-d2 = concatenate( (spread, center, flier_high, flier_low), 0 )
+spread = np.random.rand(50) * 100
+center = np.ones(25) * 40
+flier_high = np.random.rand(10) * 100 + 100
+flier_low = np.random.rand(10) * -100
+d2 = np.concatenate((spread, center, flier_high, flier_low), 0)
 data.shape = (-1, 1)
 d2.shape = (-1, 1)
-#data = concatenate( (data, d2), 1 )
+
 # Making a 2-D array only works if all the columns are the
 # same length.  If they are not, then use a list instead.
 # This is actually more efficient because boxplot converts
 # a 2-D array into a list of vectors internally anyway.
 data = [data, d2, d2[::2,0]]
-# multiple box plots on one figure
-figure()
-boxplot(data)
-#savefig('box7')
+fig7, ax7 = plt.subplots()
+ax7.set_title('Multiple Samples with Different sizes')
+ax7.boxplot(data)
 
-show()
-
+plt.show()
