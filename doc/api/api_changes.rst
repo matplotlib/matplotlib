@@ -72,12 +72,13 @@ properties.
 ---------------------------------------------------------
 
 The :class:`~matplotlib.legend.Legend` background patch (or 'frame')
-can have its `edgecolor` and `facecolor` determined by the
-corresponding keyword arguments to the `Legend` initializer, or to any of the
-methods or functions that call that initializer.  If left to
-their default values of `None`, their values will be taken from
-`rcParams`.  The previously-existing `framealpha` kwarg still
-controls the alpha transparency of the patch.
+can have its ``edgecolor`` and ``facecolor`` determined by the
+corresponding keyword arguments to the :class:`matplotlib.legend.Legend`
+initializer, or to any of the methods or functions that call that
+initializer.  If left to their default values of `None`, their values
+will be taken from ``matplotlib.rcParams``.  The previously-existing
+``framealpha`` kwarg still controls the alpha transparency of the
+patch.
 
 
 Qualitative colormaps
@@ -177,7 +178,7 @@ Code Changes
 Split `matplotlib.cbook.ls_mapper` in two
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The `matplotlib.cbook.ls_mapper` dictionary is split into two now to
+The ``matplotlib.cbook.ls_mapper`` dictionary is split into two now to
 distinguish between qualified linestyle used by backends and
 unqualified ones. `ls_mapper` now maps from the short symbols
 (e.g. `"--"`) to qualified names (`"solid"`). The new ls_mapper_r is
