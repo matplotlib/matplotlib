@@ -6,6 +6,7 @@ import io
 import os
 
 from nose.plugins.attrib import attr
+from nose.plugins.skip import SkipTest
 
 import numpy as np
 
@@ -752,5 +753,38 @@ def test_imshow_endianess():
     ax2.imshow(Z.astype('>f8'), **kwargs)
 
 
-if __name__ == '__main__':
-    nose.runmodule(argv=['-s', '--with-doctest'], exit=False)
+@cleanup
+def test_imsave_accept_pep_519():
+    from tempfile import NamedTemporaryFile
+
+    class FakeFSPathClass(object):
+        def __init__(self, path):
+            self._path = path
+
+        def __fspath__(self):
+            return self._path
+
+    a = np.array([[1, 2], [3, 4]])
+    tmpfile = NamedTemporaryFile(suffix='.pdf')
+    tmpfile.close()
+    pep519_path = FakeFSPathClass(tmpfile.name)
+    plt.imsave(pep519_path, a)
+
+
+@cleanup
+def test_imsave_accept_pathlib():
+    try:
+        from pathlib import Path
+    except ImportError:
+        raise SkipTest("pathlib not installed")
+    from tempfile import NamedTemporaryFile
+
+    a = np.array([[1, 2], [3, 4]])
+    tmpfile = NamedTemporaryFile(suffix='.pdf')
+    tmpfile.close()
+    path = Path(tmpfile.name)
+    plt.imsave(path, a)
+
+
+if __name__=='__main__':
+    nose.runmodule(argv=['-s','--with-doctest'], exit=False)

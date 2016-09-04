@@ -14,6 +14,7 @@ from matplotlib.backends.backend_pdf import PdfPages
 from matplotlib import pyplot as plt
 from matplotlib.testing.decorators import (image_comparison, knownfailureif,
                                            cleanup)
+from nose.plugins.skip import SkipTest
 
 if 'TRAVIS' not in os.environ:
     @image_comparison(baseline_images=['pdf_use14corefonts'],
@@ -132,3 +133,39 @@ def test_grayscale_alpha():
     ax.imshow(dd, interpolation='none', cmap='gray_r')
     ax.set_xticks([])
     ax.set_yticks([])
+
+
+@cleanup
+def test_pdfpages_accept_pep_519():
+    from tempfile import NamedTemporaryFile
+
+    class FakeFSPathClass(object):
+        def __init__(self, path):
+            self._path = path
+
+        def __fspath__(self):
+            return self._path
+    tmpfile = NamedTemporaryFile(suffix='.pdf')
+    tmpfile.close()
+    with PdfPages(FakeFSPathClass(tmpfile.name)) as pdf:
+        fig, ax = plt.subplots()
+        ax.plot([1, 2], [3, 4])
+        pdf.savefig(fig)
+
+
+@cleanup
+def test_savefig_accept_pathlib():
+    try:
+        from pathlib import Path
+    except ImportError:
+        raise SkipTest("pathlib not installed")
+    from tempfile import NamedTemporaryFile
+
+    fig, ax = plt.subplots()
+    ax.plot([1, 2], [3, 4])
+    tmpfile = NamedTemporaryFile(suffix='.pdf')
+    tmpfile.close()
+    with PdfPages(Path(tmpfile.name)) as pdf:
+        fig, ax = plt.subplots()
+        ax.plot([1, 2], [3, 4])
+        pdf.savefig(fig)
