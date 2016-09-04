@@ -808,6 +808,13 @@ values to the interval [0,1] with power-law scaling with the exponent
 provided by the constructor's `gamma` argument. Power law normalization
 can be useful for, e.g., emphasizing small populations in a histogram.
 
+Add Rotate marker capabilities in scatter plot
+``````````````````````````````````````````````
+
+mgoacolou add `angles` parameter to :func:`~matplotlib.pyplot.scatter`.
+:ref:`~examples/pylab_examples/scatter_rotate_symbol.py`
+
+
 Fully customizable boxplots
 ```````````````````````````
 Paul Hobson overhauled the :func:`~matplotlib.pyplot.boxplot` method such

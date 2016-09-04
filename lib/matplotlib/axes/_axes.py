@@ -3841,6 +3841,9 @@ class Axes(_AxesBase):
             an instance of the class or the text shorthand for a particular
             marker.
 
+        angles : scalar or array_like, shape (n, ), optional, default: 0
+                 degrees counter clock-wise from X axis
+
         cmap : `~matplotlib.colors.Colormap`, optional, default: None
             A `~matplotlib.colors.Colormap` instance or registered name.
             `cmap` is only used if `c` is an array of floats. If None,
@@ -3955,13 +3958,15 @@ class Axes(_AxesBase):
         if x.size != y.size:
             raise ValueError("x and y must be the same size")
 
+        angles = np.ma.ravel(angles)  # This doesn't have to match x, y in size.
+
         if s is None:
             if rcParams['_internal.classic_mode']:
                 s = 20
             else:
                 s = rcParams['lines.markersize'] ** 2.0
 
-        s = np.ma.ravel(s)  # This doesn't have to match x, y in size.
+        x, y, s, c, angles = cbook.delete_masked_points(x, y, s, c, angles)
 
         # After this block, c_array will be None unless
         # c is an array for mapping.  The potential ambiguity
@@ -4014,7 +4019,7 @@ class Axes(_AxesBase):
         offsets = np.dstack((x, y))
 
         collection = mcoll.PathCollection(
-                (path,), scales,
+                (path,), scales, angles,
                 facecolors=colors,
                 edgecolors=edgecolors,
                 linewidths=linewidths,

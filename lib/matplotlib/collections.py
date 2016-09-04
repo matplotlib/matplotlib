@@ -817,6 +817,10 @@ class _CollectionWithSizes(Collection):
     """
     _factor = 1.0
 
+    def __init__(self, *arg, **kw):
+        super(_CollectionWithSizes, self).__init__(*arg, **kw)
+        self._sizes = np.array([])
+        
     def get_sizes(self):
         """
         Returns the sizes of the elements in the collection.  The
@@ -829,6 +833,18 @@ class _CollectionWithSizes(Collection):
         """
         return self._sizes
 
+    def __unset_sizes(self):
+        if len(self._sizes) == 0:
+            return
+        scale = np.sqrt(self._sizes) * self.__dpi / 72.0
+        s = np.zeros((len(self._sizes),3,3))
+        s[:, 0, 0] = scale
+        s[:, 1, 1] = scale
+        s[:, 2, 2] = 1.0
+        for i in xrange(self._transforms.shape[0]):
+            isc = np.linalg.inv(s[i%len(self._sizes),:,:])
+            self._transforms[i,:,:] = np.dot(isc, self._transforms[i,:,:])
+        
     def set_sizes(self, sizes, dpi=72.0):
         """
         Set the sizes of each member of the collection.
@@ -847,44 +863,125 @@ class _CollectionWithSizes(Collection):
             self._transforms = np.empty((0, 3, 3))
         else:
             self._sizes = np.asarray(sizes)
-            self._transforms = np.zeros((len(self._sizes), 3, 3))
             scale = np.sqrt(self._sizes) * dpi / 72.0 * self._factor
-            self._transforms[:, 0, 0] = scale
-            self._transforms[:, 1, 1] = scale
-            self._transforms[:, 2, 2] = 1.0
+            if self._transforms is None or \
+               (isinstance(self._transforms, list) and not self._transforms) or \
+               (isinstance(self._transforms, np.ndarray) and not self._transforms.any()):
+                self._transforms = np.zeros((len(self._sizes), 3, 3))
+                self._transforms[:, 0, 0] = scale
+                self._transforms[:, 1, 1] = scale
+                self._transforms[:, 2, 2] = 1.0
         self.stale = True
+                s = np.zeros((len(self._sizes),3,3))
+                s[:, 0, 0] = scale
+                s[:, 1, 1] = scale
+                s[:, 2, 2] = 1.0
+                if self._transforms.shape[0] < len(self._sizes):
+                    # resize transforms to feat at least the sizes length
+                    self._transforms = np.resize(self._transforms,(len(self._sizes),3,3))
+                for i in xrange(self._transforms.shape[0]):
+                    self._transforms[i,:,:] = np.dot(s[i%len(self._sizes),:,:], self._transforms[i,:,:])
 
     @allow_rasterization
     def draw(self, renderer):
-        self.set_sizes(self._sizes, self.figure.dpi)
-        Collection.draw(self, renderer)
+        super(_CollectionWithSizes, self).draw(renderer)
+
+class _CollectionWithAngles(Collection):
+    """
+    Base class for collections that have an array of angles.
+    """
+    def __init__(self, *arg, **kw):
+        super(_CollectionWithAngles, self).__init__(*arg, **kw)
+        self._angles = np.array([])
+
+    def get_angles(self):
+        return self._angles
+
+    def __unset_angles(self):
+        if len(self._angles) == 0:
+            return
+        rot = np.deg2rad(-self._angles)
+        rot_c = np.cos(rot)
+        rot_s = np.sin(rot)
+        r = np.zeros((len(self._angles), 3, 3))
+        r[:, 0, 0] = rot_c
+        r[:, 0, 1] = -rot_s
+        r[:, 1, 1] = rot_c
+        r[:, 1, 0] = rot_s
+        r[:, 2, 2] = 1.0
+        for i in xrange(self._transforms.shape[0]):
+            irt = np.linalg.inv(r[i%len(self._angles),:,:])
+            self._transforms[i,:,:] = np.dot(irt, self._transforms[i,:,:])
+        
+    def set_angles(self, angles):
+        self.__unset_angles()
+        if angles is None:
+            self._angles = np.array([])
+            self._transforms = np.empty((0, 3, 3))
+        else:
+            self._angles = np.asarray(angles)
+            rot = np.deg2rad(-self._angles)
+            rot_c = np.cos(rot)
+            rot_s = np.sin(rot)
+            if self._transforms is None or \
+               (isinstance(self._transforms, list) and not self._transforms) or \
+               (isinstance(self._transforms, np.ndarray) and not self._transforms.any()):
+                self._transforms = np.zeros((len(self._angles), 3, 3))
+                self._transforms[:, 0, 0] = rot_c
+                self._transforms[:, 0, 1] = -rot_s
+                self._transforms[:, 1, 1] = rot_c
+                self._transforms[:, 1, 0] = rot_s
+                self._transforms[:, 2, 2] = 1.0
+            else:
+                r = np.zeros((len(self._angles), 3, 3))
+                r[:, 0, 0] = rot_c
+                r[:, 0, 1] = -rot_s
+                r[:, 1, 1] = rot_c
+                r[:, 1, 0] = rot_s
+                r[:, 2, 2] = 1.0
+                if self._transforms.shape[0] < len(self._angles):
+                    # resize transforms to feat at least the angles length
+                    self._transforms = np.resize(self._transforms,(len(self._angles),3,3))
+                for i in xrange(self._transforms.shape[0]):
+                    self._transforms[i,:,:] = np.dot(r[i%len(self._angles),:,:], self._transforms[i,:,:])
+
+    def draw(self, renderer):
+        super(_CollectionWithAngles, self).draw(renderer)
 
 
-class PathCollection(_CollectionWithSizes):
+class PathCollection(_CollectionWithSizes, _CollectionWithAngles):
     """
     This is the most basic :class:`Collection` subclass.
     """
     @docstring.dedent_interpd
-    def __init__(self, paths, sizes=None, **kwargs):
+    def __init__(self, paths, sizes=None, angles=None, **kwargs):
         """
         *paths* is a sequence of :class:`matplotlib.path.Path`
         instances.
 
         %(Collection)s
         """
-
-        Collection.__init__(self, **kwargs)
+        super(PathCollection, self).__init__(**kwargs)
         self.set_paths(paths)
         self.set_sizes(sizes)
         self.stale = True
+        self.set_rotations(angles)
 
     def set_paths(self, paths):
+        """
+        update the paths sequence
+        """
         self._paths = paths
         self.stale = True
 
     def get_paths(self):
+        """
+        return the paths sequence
+        """
         return self._paths
 
+    def draw(self, renderer):
+        super(PathCollection, self).draw(renderer)
 
 class PolyCollection(_CollectionWithSizes):
     @docstring.dedent_interpd
