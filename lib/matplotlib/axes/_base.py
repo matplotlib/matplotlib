@@ -2198,7 +2198,7 @@ class _AxesBase(martist.Artist):
         else:
             _tight = self._tight = bool(tight)
 
-        if self._xmargin or self._ymargin:
+        if (self._xmargin or self._ymargin) and not _tight:
             margins = {
                 'top': True,
                 'bottom': True,
