@@ -191,3 +191,37 @@ def test_missing_psfont(monkeypatch):
     ax.text(0.5, 0.5, 'hello')
     with tempfile.TemporaryFile() as tmpfile, pytest.raises(ValueError):
         fig.savefig(tmpfile, format='pdf')
+
+
+def test_pdfpages_accept_pep_519():
+    from tempfile import NamedTemporaryFile
+
+    class FakeFSPathClass(object):
+        def __init__(self, path):
+            self._path = path
+
+        def __fspath__(self):
+            return self._path
+    tmpfile = NamedTemporaryFile(suffix='.pdf')
+    tmpfile.close()
+    with PdfPages(FakeFSPathClass(tmpfile.name)) as pdf:
+        fig, ax = plt.subplots()
+        ax.plot([1, 2], [3, 4])
+        pdf.savefig(fig)
+
+
+def test_savefig_accept_pathlib():
+    try:
+        from pathlib import Path
+    except ImportError:
+        raise pytest.skip("pathlib not installed")
+    from tempfile import NamedTemporaryFile
+
+    fig, ax = plt.subplots()
+    ax.plot([1, 2], [3, 4])
+    tmpfile = NamedTemporaryFile(suffix='.pdf')
+    tmpfile.close()
+    with PdfPages(Path(tmpfile.name)) as pdf:
+        fig, ax = plt.subplots()
+        ax.plot([1, 2], [3, 4])
+        pdf.savefig(fig)

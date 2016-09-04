@@ -125,20 +125,7 @@ WRITER_OUTPUT = [
 ]
 
 
-# Smoke test for saving animations.  In the future, we should probably
-# design more sophisticated tests which compare resulting frames a-la
-# matplotlib.testing.image_comparison
-@pytest.mark.parametrize('writer, extension', WRITER_OUTPUT)
-def test_save_animation_smoketest(tmpdir, writer, extension):
-    try:
-        # for ImageMagick the rcparams must be patched to account for
-        # 'convert' being a built in MS tool, not the imagemagick
-        # tool.
-        writer._init_from_registry()
-    except AttributeError:
-        pass
-    if not animation.writers.is_available(writer):
-        pytest.skip("writer '%s' not available on this system" % writer)
+def _inner_animation(writer):
     fig, ax = plt.subplots()
     line, = ax.plot([], [])
 
@@ -162,17 +149,92 @@ def test_save_animation_smoketest(tmpdir, writer, extension):
         y = np.sin(x + i)
         line.set_data(x, y)
         return line,
+    anim = animation.FuncAnimation(fig, animate, init_func=init, frames=5)
+    return anim, dpi, codec
+
+
+# Smoke test for saving animations.  In the future, we should probably
+# design more sophisticated tests which compare resulting frames a-la
+# matplotlib.testing.image_comparison
+@pytest.mark.parametrize('writer, extension', WRITER_OUTPUT)
+def test_save_animation_smoketest(tmpdir, writer, extension):
+    try:
+        # for ImageMagick the rcparams must be patched to account for
+        # 'convert' being a built in MS tool, not the imagemagick
+        # tool.
+        writer._init_from_registry()
+    except AttributeError:
+        pass
+    if not animation.writers.is_available(writer):
+        pytest.skip("writer '%s' not available on this system" % writer)
+
+    anim, dpi, codec = _inner_animation(writer)
 
     # Use temporary directory for the file-based writers, which produce a file
     # per frame with known names.
     with tmpdir.as_cwd():
-        anim = animation.FuncAnimation(fig, animate, init_func=init, frames=5)
         try:
             anim.save('movie.' + extension, fps=30, writer=writer, bitrate=500,
                       dpi=dpi, codec=codec)
         except UnicodeDecodeError:
             pytest.xfail("There can be errors in the numpy import stack, "
                          "see issues #1891 and #2679")
+
+
+@pytest.mark.parametrize('writer, extension', WRITER_OUTPUT)
+def test_save_animation_pep_519(writer, extension='mp4'):
+    class FakeFSPathClass(object):
+        def __init__(self, path):
+            self._path = path
+
+        def __fspath__(self):
+            return self._path
+    if not animation.writers.is_available(writer):
+        pytest.skip("writer '%s' not available on this system" % writer)
+
+    # Use NamedTemporaryFile: will be automatically deleted
+    F = tempfile.NamedTemporaryFile(suffix='.' + extension)
+    F.close()
+    anim, dpi, codec = _inner_animation(writer)
+
+    try:
+        anim.save(FakeFSPathClass(F.name), fps=30, writer=writer, bitrate=500,
+                  dpi=dpi, codec=codec)
+    except UnicodeDecodeError:
+        pytest.xfail("There can be errors in the numpy import stack, "
+                     "see issues #1891 and #2679")
+    finally:
+        try:
+            os.remove(F.name)
+        except Exception:
+            pass
+
+
+@pytest.mark.parametrize('writer, extension', WRITER_OUTPUT)
+def test_save_animation_pathlib(writer, extension='mp4'):
+    try:
+        from pathlib import Path
+    except ImportError:
+        raise pytest.skip("pathlib not installed")
+    if not animation.writers.is_available(writer):
+        pytest.skip("writer '%s' not available on this system" % writer)
+
+    # Use NamedTemporaryFile: will be automatically deleted
+    F = tempfile.NamedTemporaryFile(suffix='.' + extension)
+    F.close()
+
+    anim, dpi, codec = _inner_animation(writer)
+    try:
+        anim.save(Path(F.name), fps=30, writer=writer, bitrate=500,
+                  dpi=dpi, codec=codec)
+    except UnicodeDecodeError:
+        pytest.xfail("There can be errors in the numpy import stack, "
+                     "see issues #1891 and #2679")
+    finally:
+        try:
+            os.remove(F.name)
+        except Exception:
+            pass
 
 
 def test_no_length_frames():

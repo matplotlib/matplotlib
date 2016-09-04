@@ -783,3 +783,34 @@ def test_empty_imshow():
 def test_imshow_float128():
     fig, ax = plt.subplots()
     ax.imshow(np.zeros((3, 3), dtype=np.longdouble))
+
+
+def test_imsave_accept_pep_519():
+    from tempfile import NamedTemporaryFile
+
+    class FakeFSPathClass(object):
+        def __init__(self, path):
+            self._path = path
+
+        def __fspath__(self):
+            return self._path
+
+    a = np.array([[1, 2], [3, 4]])
+    tmpfile = NamedTemporaryFile(suffix='.pdf')
+    tmpfile.close()
+    pep519_path = FakeFSPathClass(tmpfile.name)
+    plt.imsave(pep519_path, a)
+
+
+def test_imsave_accept_pathlib():
+    try:
+        from pathlib import Path
+    except ImportError:
+        raise pytest.skip("pathlib not installed")
+    from tempfile import NamedTemporaryFile
+
+    a = np.array([[1, 2], [3, 4]])
+    tmpfile = NamedTemporaryFile(suffix='.pdf')
+    tmpfile.close()
+    path = Path(tmpfile.name)
+    plt.imsave(path, a)

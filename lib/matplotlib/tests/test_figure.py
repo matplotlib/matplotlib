@@ -273,3 +273,39 @@ def test_autofmt_xdate(which):
     if which in ('both', 'minor'):
         for label in fig.axes[0].get_xticklabels(True, 'minor'):
             assert int(label.get_rotation()) == angle
+
+
+@pytest.mark.parametrize('ext', ['png', 'svg', 'pdf'])
+def test_savefig_accept_pep_519(ext):
+    from tempfile import NamedTemporaryFile
+
+    class FakeFSPathClass(object):
+        def __init__(self, path):
+            self._path = path
+
+        def __fspath__(self):
+            return self._path
+
+    fig, ax = plt.subplots()
+    ax.plot([1, 2], [3, 4])
+
+    tmpfile = NamedTemporaryFile(suffix='.{}'.format(ext))
+    tmpfile.close()
+    pep519_path = FakeFSPathClass(tmpfile.name)
+    fig.savefig(pep519_path)
+
+
+@pytest.mark.parametrize('ext', ['png', 'svg', 'pdf'])
+def test_savefig_accept_pathlib(ext):
+    try:
+        from pathlib import Path
+    except ImportError:
+        raise pytest.skipd("pathlib not installed")
+    from tempfile import NamedTemporaryFile
+
+    fig, ax = plt.subplots()
+    ax.plot([1, 2], [3, 4])
+    tmpfile = NamedTemporaryFile(suffix='.{}'.format(ext))
+    tmpfile.close()
+    path = Path(tmpfile.name)
+    fig.savefig(path)
