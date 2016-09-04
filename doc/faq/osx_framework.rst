@@ -18,7 +18,7 @@ framework build. In order to interact correctly with OSX through the native
 GUI frameworks you need a framework build of Python.
 At the time of writing the ``macosx`` and ``WXAgg`` backends require a
 framework build to function correctly. This can result in issues for
-a python installation not build as a framework andmay also happen in 
+a python installation not build as a framework and may also happen in 
 virtual envs and when using (Ana)Conda.
 From Matplotlib 1.5 onwards the ``macosx`` backend
 checks that a framework build is available and fails if a non framework
