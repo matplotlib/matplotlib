@@ -560,6 +560,7 @@ def to_filehandle(fname, flag='rU', return_opened=False):
     files is automatic, if the filename ends in .gz.  *flag* is a
     read/write flag for :func:`file`
     """
+    fname = fspath_no_except(fname)
     if is_string_like(fname):
         if fname.endswith('.gz'):
             # get rid of 'U' in flag for gzipped files.
@@ -619,6 +620,7 @@ def get_sample_data(fname, asfileobj=True):
         root = matplotlib.rcParams['examples.directory']
     else:
         root = os.path.join(matplotlib._get_data_path(), 'sample_data')
+    fname = fspath_no_except(fname)
     path = os.path.join(root, fname)
 
     if asfileobj:
@@ -827,6 +829,7 @@ class GetRealpathAndStat(object):
         self._cache = {}
 
     def __call__(self, path):
+        path = fspath_no_except(path)
         result = self._cache.get(path)
         if result is None:
             realpath = os.path.realpath(path)
@@ -987,7 +990,7 @@ def listFiles(root, patterns='*', recurse=1, return_folders=0):
     pattern_list = patterns.split(';')
     results = []
 
-    for dirname, dirs, files in os.walk(root):
+    for dirname, dirs, files in os.walk(fspath_no_except(root)):
         # Append to results all relevant files (and perhaps folders)
         for name in files:
             fullname = os.path.normpath(os.path.join(dirname, name))
@@ -1011,10 +1014,10 @@ def get_recursive_filelist(args):
     files = []
 
     for arg in args:
-        if os.path.isfile(arg):
+        if os.path.isfile(fspath_no_except(arg)):
             files.append(arg)
             continue
-        if os.path.isdir(arg):
+        if os.path.isdir(fspath_no_except(arg)):
             newfiles = listFiles(arg, recurse=1, return_folders=1)
             files.extend(newfiles)
 
@@ -1543,6 +1546,7 @@ def simple_linear_interpolation(a, steps):
 
 @deprecated('2.1', alternative='shutil.rmtree')
 def recursive_remove(path):
+    path = fspath_no_except(path)
     if os.path.isdir(path):
         for fname in (glob.glob(os.path.join(path, '*')) +
                       glob.glob(os.path.join(path, '.*'))):
@@ -2412,7 +2416,7 @@ class Locked(object):
         pass
 
     def __init__(self, path):
-        self.path = path
+        self.path = fspath_no_except(path)
         self.end = "-" + str(os.getpid())
         self.lock_path = os.path.join(self.path, self.LOCKFN + self.end)
         self.pattern = os.path.join(self.path, self.LOCKFN + '-*')
@@ -2703,3 +2707,45 @@ class _StringFuncParser(object):
                              (params, str_func))
 
         return str_func, params
+
+
+try:
+    from os import fspath
+except ImportError:
+    def fspath(path):
+        """
+        Return the string representation of the path.
+        If str or bytes is passed in, it is returned unchanged.
+        This code comes from PEP 519, modified to support earlier versions of
+        python.
+
+        This is required for python < 3.6.
+        """
+        if isinstance(path, (six.text_type, six.binary_type)):
+            return path
+
+        # Work from the object's type to match method resolution of other magic
+        # methods.
+        path_type = type(path)
+        try:
+            return path_type.__fspath__(path)
+        except AttributeError:
+            if hasattr(path_type, '__fspath__'):
+                raise
+            try:
+                import pathlib
+            except ImportError:
+                pass
+            else:
+                if isinstance(path, pathlib.PurePath):
+                    return six.text_type(path)
+
+            raise TypeError("expected str, bytes or os.PathLike object, not " +
+                            path_type.__name__)
+
+
+def fspath_no_except(path):
+    try:
+        return fspath(path)
+    except TypeError:
+        return path
