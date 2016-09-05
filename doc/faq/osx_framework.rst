@@ -59,6 +59,7 @@ Long version
 
 Unfortunately virtualenv creates a non
 framework build even if created from a framework build of Python.
+As documented above you can use venv as an alternative on Python 3.
 
 The issue has been reported on the virtualenv bug tracker `here
 <https://github.com/pypa/virtualenv/issues/54>`__ and `here
