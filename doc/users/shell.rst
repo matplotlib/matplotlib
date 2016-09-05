@@ -4,6 +4,10 @@
 Using matplotlib in a python shell
 **********************************
 
+.. warning::
+
+   This page is significantly out of date
+
 By default, matplotlib defers drawing until the end of the script
 because drawing can be an expensive operation, and you may not want
 to update the plot every time a single property is changed, only once
