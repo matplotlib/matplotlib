@@ -4,9 +4,8 @@
 =============
 
 Log of changes to matplotlib that affect the outward-facing API.  If
-updating matplotlib breaks your scripts, this list may help describe
-what changes may be necessary in your code or help figure out possible
-sources of the changes you are experiencing.
+updating matplotlib breaks your scripts, this list may help you figure
+out what caused the breakage and how to fix it by updating your code.
 
 For new features that were added to matplotlib, please see
 :ref:`whats-new`.
@@ -20,30 +19,26 @@ Deprecation and removal
 
 Color of Axes
 ~~~~~~~~~~~~~
-
 The ``axisbg`` and ``axis_bgcolor`` properties on ``Axes`` have been
 deprecated in favor of ``facecolor``.
 
 
 GTK and GDK backends deprecated
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-The untested and broken GDK and GTK backends have been deprecated.
-These backends allows figures to be rendered via the GDK api to
-files and GTK2 figures. They are untested, known to be broken and
-use have been discouraged for some time. The `GTKAgg` and `GTKCairo` backends
-provide better and more tested ways of rendering figures to GTK2 windows.
+The GDK and GTK backends have been deprecated. These obsolete backends
+allow figures to be rendered via the GDK API to files and GTK2 figures.
+They are untested and known to be broken, and their use has been
+discouraged for some time.  Instead, use the `GTKAgg` and `GTKCairo`
+backends for rendering to GTK2 windows.
 
 WX backend deprecated
 ~~~~~~~~~~~~~~~~~~~~~
-The untested WX backend has been deprecated.
-This backend allows figures to be rendered via the WX api to
-files and Wx figures. It is untested, and
-use have been discouraged for some time. The `WXAgg` backend
-provides a better and more tested way of rendering figures to WX windows.
+The WX backend has been deprecated.  It is untested, and its
+use has been discouraged for some time. Instead, use the `WXAgg`
+backend for rendering figures to WX windows.
 
 CocoaAgg backend removed
 ~~~~~~~~~~~~~~~~~~~~~~~~
-
 The deprecated and not fully functional CocoaAgg backend has been removed.
 
 
@@ -56,16 +51,15 @@ now use a common codepath to look up how to update the given artist
 properties (either using the setter methods or an attribute/property).
 
 The behavior of `matplotlib.Artist.update` is slightly changed to
-return a list of the returned values from the setter methods to avoid
+return a list of the values returned from the setter methods to avoid
 changing the API of `matplotlib.Artist.set` and
 `matplotlib.artist.setp`.
 
 The keys passed into `matplotlib.Artist.update` are now converted to
-lower case before being processed to match the behavior of
+lower case before being processed, to match the behavior of
 `matplotlib.Artist.set` and `matplotlib.artist.setp`.  This should not
 break any user code because there are no set methods with capitals in
-the names, however going forward this puts a constraint on naming
-properties.
+their names, but this puts a constraint on naming properties in the future.
 
 
 `Legend` initializers gain edgecolor and facecolor kwargs
@@ -108,18 +102,19 @@ See the ``draw_image`` docstring for more information.
 `matplotlib.ticker.LinearLocator` algorithm update
 --------------------------------------------------
 
-The ``matplotlib.ticker.LinearLocator`` is used to define the range and location
-of tick marks of a plot when the user wants an exact number of ticks.
-``LinearLocator`` thus differs from the default locator ``MaxNLocator``, which
-does not necessarily return the exact user requested number of ticks.
+The ``matplotlib.ticker.LinearLocator`` is used to define the range and
+location of axis ticks when the user wants an exact number of ticks.
+``LinearLocator`` thus differs from the default locator ``MaxNLocator``,
+for which the user specifies a maximum number of intervals rather than
+a precise number of ticks.
 
 The view range algorithm in ``matplotlib.ticker.LinearLocator`` has been
 changed so that more convenient tick locations are chosen. The new algorithm
 returns a plot view range that is a multiple of the user-requested number of
 ticks. This ensures tick marks will be located at whole integers more
 consistently. For example, when both y-axes of a``twinx`` plot use
-``matplotlib.ticker.LinearLocator`` with the same number of ticks, the grids of
-both axis will be properly aligned at convenient tick locations.
+``matplotlib.ticker.LinearLocator`` with the same number of ticks,
+their y-tick locations and grid lines will coincide.
 
 
 New defaults for 3D quiver function in mpl_toolkits.mplot3d.axes3d.py
@@ -175,34 +170,34 @@ Changes in 1.5.0
 Code Changes
 ------------
 
-Split `matplotlib.cbook.ls_mapper` in two
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Reversed `matplotlib.cbook.ls_mapper`, added `ls_mapper_r`
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The ``matplotlib.cbook.ls_mapper`` dictionary is split into two now to
-distinguish between qualified linestyle used by backends and
-unqualified ones. `ls_mapper` now maps from the short symbols
-(e.g. `"--"`) to qualified names (`"solid"`). The new ls_mapper_r is
-the reversed mapping.
+Formerly, `matplotlib.cbook.ls_mapper` was a dictionary with
+the long-form line-style names (`"solid"`) as keys and the short
+forms (`"-"`) as values.  This long-to-short mapping is now done
+by `ls_mapper_r`, and the short-to-long mapping is done by the
+`ls_mapper`.
 
 Prevent moving artists between Axes, Property-ify Artist.axes, deprecate Artist.{get,set}_axes
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The reason this was done was to prevent adding an Artist that is
-already associated with an Axes to be moved/added to a different Axes.
+This was done to prevent an Artist that is
+already associated with an Axes from being moved/added to a different Axes.
 This was never supported as it causes havoc with the transform stack.
 The apparent support for this (as it did not raise an exception) was
 the source of multiple bug reports and questions on SO.
 
 For almost all use-cases, the assignment of the axes to an artist should be
 taken care of by the axes as part of the ``Axes.add_*`` method, hence the
-deprecation {get,set}_axes.
+deprecation of {get,set}_axes.
 
 Removing the ``set_axes`` method will also remove the 'axes' line from
 the ACCEPTS kwarg tables (assuming that the removal date gets here
 before that gets overhauled).
 
-Tighted input validation on 'pivot' kwarg to quiver
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Tightened input validation on 'pivot' kwarg to quiver
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Tightened validation so that only {'tip', 'tail', 'mid', and 'middle'}
 (but any capitalization) are valid values for the 'pivot' kwarg in
@@ -253,20 +248,20 @@ Added set_params function to all Locator types
 This was a bug fix targeted at making the api for Locators more consistent.
 
 In the old behavior, only locators of type MaxNLocator have set_params()
-defined, causing its use on any other Locator to throw an AttributeError *(
+defined, causing its use on any other Locator to raise an AttributeError *(
 aside: set_params(args) is a function that sets the parameters of a Locator
 instance to be as specified within args)*. The fix involves moving set_params()
 to the Locator class such that all subtypes will have this function defined.
 
-Since each of the Locator subtype have their own modifiable parameters, a
+Since each of the Locator subtypes have their own modifiable parameters, a
 universal set_params() in Locator isn't ideal. Instead, a default no-operation
 function that raises a warning is implemented in Locator. Subtypes extending
 Locator will then override with their own implementations. Subtypes that do
 not have a need for set_params() will fall back onto their parent's
 implementation, which raises a warning as intended.
 
-In the new behavior, all Locator instances will not throw an AttributeError
-when set_param() is called. For Locators that do not implement set_params(),
+In the new behavior, Locator instances will not raise an AttributeError
+when set_params() is called. For Locators that do not implement set_params(),
 the default implementation in Locator is used.
 
 Disallow ``None`` as x or y value in ax.plot
@@ -291,8 +286,8 @@ Removed `args` and `kwargs` from `MicrosecondLocator.__call__`
 
 The call signature of :meth:`~matplotlib.dates.MicrosecondLocator.__call__`
 has changed from `__call__(self, *args, **kwargs)` to `__call__(self)`.
-This is consistent with the super class :class:`~matplotlib.ticker.Locator`
-and also all the other Locators derived from this super class.
+This is consistent with the superclass :class:`~matplotlib.ticker.Locator`
+and also all the other Locators derived from this superclass.
 
 
 No `ValueError` for the MicrosecondLocator and YearLocator
@@ -309,15 +304,17 @@ the Date Locators.
 
 The call signature was `OffsetBox.DrawingArea(..., clip=True)` but nothing
 was done with the `clip` argument. The object did not do any clipping
-regardless of that parameter. Now the object can and does clip the child `Artists` if they are set to be clipped.
+regardless of that parameter. Now the object can and does clip the
+child `Artists` if they are set to be clipped.
 
-You can turn off the clipping on a per-child basis using `child.set_clip_on(False)`.
+You can turn off the clipping on a per-child basis using
+`child.set_clip_on(False)`.
 
 Add salt to clipPath id
 ~~~~~~~~~~~~~~~~~~~~~~~
 
 Add salt to the hash used to determine the id of the ``clipPath``
-nodes.  This is to avoid conflicts in two svg documents with the same
+nodes.  This is to avoid conflicts when two svg documents with the same
 clip path are included in the same document (see
 https://github.com/ipython/ipython/issues/8133 and
 https://github.com/matplotlib/matplotlib/issues/4349 ), however this
@@ -428,7 +425,7 @@ Bundled jquery
 
 The version of jquery bundled with the webagg backend has been upgraded
 from 1.7.1 to 1.11.3.  If you are using the version of jquery bundled
-with webagg you will need to update you html files as such
+with webagg you will need to update your html files as such
 
 .. code-block:: diff
 
@@ -442,8 +439,9 @@ Code Removed
 Removed `Image` from main namespace
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-`Image` was imported from PIL/pillow to test if PIL is available, but there is no
-reason to keep `Image` in the namespace once the availability has been determined.
+`Image` was imported from PIL/pillow to test if PIL is available, but
+there is no reason to keep `Image` in the namespace once the availability
+has been determined.
 
 Removed `lod` from Artist
 ~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -484,7 +482,8 @@ Axis
 ~~~~
 Removed method ``set_scale``.  This is now handled via a private method which
 should not be used directly by users.  It is called via ``Axes.set_{x,y}scale``
-which takes care of ensuring the coupled changes are also made to the Axes object.
+which takes care of ensuring the related changes are also made to the Axes
+object.
 
 finance.py
 ~~~~~~~~~~
@@ -501,11 +500,12 @@ Removed ``textcoords`` and ``xytext`` proprieties from Annotation objects.
 spinxext.ipython_*.py
 ~~~~~~~~~~~~~~~~~~~~~
 
-Both ``ipython_console_highlighting`` and ``ipython_directive`` have been moved to
-`IPython`.
+Both ``ipython_console_highlighting`` and ``ipython_directive`` have been
+moved to `IPython`.
 
 Change your import from 'matplotlib.sphinxext.ipython_directive' to
-'IPython.sphinxext.ipython_directive' and from 'matplotlib.sphinxext.ipython_directive' to
+'IPython.sphinxext.ipython_directive' and from
+'matplotlib.sphinxext.ipython_directive' to
 'IPython.sphinxext.ipython_directive'
 
 
