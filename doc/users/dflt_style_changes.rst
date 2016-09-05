@@ -460,6 +460,8 @@ DejaVu contains a sub-set of emoji support
 
 .. plot::
 
+   from __future__ import unicode_literals
+
    import matplotlib.pyplot as plt
 
    fig, ax = plt.subplots()
@@ -467,7 +469,8 @@ DejaVu contains a sub-set of emoji support
    ax.bar(range(5), [1, 4, 9, 16, 25],
           tick_label=tick_labels, align='center')
    ax.xaxis.set_tick_params(labelsize=20)
-   ax.set_title('Участок под застройку с смайликам')
+
+   ax.set_title('Диаграмма со смайликами')
 
 See the `DejaVu Sans PDF sample for full coverage
 <http://dejavu.sourceforge.net/samples/DejaVuSans.pdf>`__.
