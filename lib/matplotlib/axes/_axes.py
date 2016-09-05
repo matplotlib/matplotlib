@@ -4522,13 +4522,35 @@ class Axes(_AxesBase):
         """
         Add an arrow to the axes.
 
-        Call signature::
+        Draws arrow on specified axis from (`x`, `y`) to (`x` + `dx`,
+        `y` + `dy`). Uses FancyArrow patch to construct the arrow.
 
-           arrow(x, y, dx, dy, **kwargs)
+		Parameters
+		----------
+		x : float
+			X-coordinate of the arrow base
+		y : float
+			Y-coordinate of the arrow base
+		dx : float
+			Length of arrow in x-coordinate
+		dy : float
+			Length of arrow in y-coordinate
 
-        Draws arrow on specified axis from (*x*, *y*) to (*x* + *dx*,
-        *y* + *dy*). Uses FancyArrow patch to construct the arrow.
+		Return
+		------
+		a : FancyArrow
+			patches.FancyArrow object
 
+		Other Parameters
+		-----------------
+		kwargs : `~matplotlib.patches.FancyArrow` properties.
+
+		See also
+		--------
+        %(FancyArrow)s : Parent object type.
+
+		Notes
+        -----
         The resulting arrow is affected by the axes aspect ratio and limits.
         This may produce an arrow whose head is not square with its stem. To
         create an arrow whose head is square with its stem, use
@@ -4537,11 +4559,8 @@ class Axes(_AxesBase):
             ax.annotate("", xy=(0.5, 0.5), xytext=(0, 0),
                 arrowprops=dict(arrowstyle="->"))
 
-        Optional kwargs control the arrow construction and properties:
-
-        %(FancyArrow)s
-
-        **Example:**
+        Examples
+		--------
 
         .. plot:: mpl_examples/pylab_examples/arrow_demo.py
         """
