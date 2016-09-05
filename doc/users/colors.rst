@@ -7,10 +7,11 @@ Specifying Colors
 In almost all places in matplotlib where a color can be specified by the user
 it can be provided as:
 
-* a ``(r, g, b)`` tuple
-* a ``(r, g, b, a)`` tuple
-* a hex RGB or RGBA string (ex ``'#0F0F0F'`` or ``'#0F0F0F0F'``)
-* a float value in ``[0, 1]`` inclusive for gray level
+* an RGB or RGBA tuple of float values in ``[0, 1]``
+  (e.g., ``(0.1, 0.2, 0.5)`` or  ``(0.1, 0.2, 0.5, 0.3)``)
+* a hex RGB or RGBA string (e.g., ``'#0F0F0F'`` or ``'#0F0F0F0F'``)
+* a string representation of a float value in ``[0, 1]``
+  inclusive for gray level (e.g., ``'0.5'``)
 * one of ``{'b', 'g', 'r', 'c', 'm', 'y', 'k', 'w'}``
 * a X11/CSS4 color name
 * a name from the `xkcd color survey <https://xkcd.com/color/rgb/>`__
@@ -30,8 +31,8 @@ can be used as a 'single character color' in format-string to
 
 The single digit is the index into the default property cycle
 (``matplotlib.rcParams['axes.prop_cycle']``).  If the property cycle does not
-include ``'color`` then black is returned.  The color is evaluated when the
-artist is created.  For example
+include ``'color'`` then black is returned.  The color is evaluated when the
+artist is created.  For example,
 
 .. plot::
    :include-source: True
@@ -55,7 +56,7 @@ artist is created.  For example
    demo('seaborn')
 
 will use the first color for the title and then plot using the second
-and third colors of the styles ``mpl.rcParams['axes.prop_cycle']``.
+and third colors of each style's ``mpl.rcParams['axes.prop_cycle']``.
 
 
 xkcd v X11/CSS4
@@ -65,15 +66,15 @@ The xkcd colors are derived from a user survey conducted by the
 webcomic xkcd.  `Details of the survey are available on the xkcd blog
 <https://blog.xkcd.com/2010/05/03/color-survey-results/>`__.
 
-There are 95 (out of 148 colors in the css color list) name collisions
+Out of 148 colors in the CSS color list, there are 95 name collisions
 between the X11/CSS4 names and the xkcd names, all but 3 of which have
 different hex values.  For example ``'blue'`` maps to ``'#0000FF'``
 where as ``'xkcd:blue'`` maps to ``'#0343DF'``.  Due to these name
 collisions all of the xkcd colors have ``'xkcd:'`` prefixed.  As noted in
 the blog post, while it might be interesting to re-define the X11/CSS4 names
-based on such a survey we do not do so unilaterally.
+based on such a survey, we do not do so unilaterally.
 
-The name collisions are shown in the table below, the color names
+The name collisions are shown in the table below; the color names
 where the hex values agree are shown in bold.
 
 
@@ -94,7 +95,7 @@ where the hex values agree are shown in bold.
        cn = mcd.CSS4_COLORS[n]
        xkcd = mcd.XKCD_COLORS["xkcd:" + n].upper()
        if cn == xkcd:
-	   weight = 'bold'
+           weight = 'bold'
 
        r1 = mpatch.Rectangle((0, j), 1, 1, color=cn)
        r2 = mpatch.Rectangle((1, j), 1, 1, color=xkcd)
