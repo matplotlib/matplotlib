@@ -18,6 +18,7 @@ lines.antialiased : True         # render lines in antialiased (no jaggies)
 lines.dashed_pattern : 6, 6
 lines.dashdot_pattern : 3, 5, 1, 5
 lines.dotted_pattern : 1, 3
+lines.scale_dashes: False
 
 ### Marker props
 markers.fillstyle: full

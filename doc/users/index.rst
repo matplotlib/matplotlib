@@ -13,10 +13,13 @@ User's Guide
     :maxdepth: 2
 
     intro.rst
-    configuration.rst
-    beginner.rst
-    developer.rst
-    colors.rst
+    installing.rst
+    tutorials.rst
+    index_text.rst
+    color_index.rst
+    customizing.rst
+    interactive.rst
+    examples_index
     whats_new.rst
     github_stats.rst
     license.rst
