@@ -10,7 +10,7 @@ import matplotlib.pyplot as plt
 
 
 def plot_scatter(ax, prng, nb_samples=100):
-    """ Scatter plot.
+    """Scatter plot.
     """
     for mu, sigma, marker in [(-.5, 0.75, 'o'), (0.75, 1., 's')]:
         x, y = prng.normal(loc=mu, scale=sigma, size=(2, nb_samples))
@@ -21,7 +21,7 @@ def plot_scatter(ax, prng, nb_samples=100):
 
 
 def plot_colored_sinusoidal_lines(ax):
-    """ Plots sinusoidal lines with colors following the style color cycle.
+    """Plot sinusoidal lines with colors following the style color cycle.
     """
     L = 2*np.pi
     x = np.linspace(0, L)
@@ -34,7 +34,7 @@ def plot_colored_sinusoidal_lines(ax):
 
 
 def plot_bar_graphs(ax, prng, min_value=5, max_value=25, nb_samples=5):
-    """ Plots two bar graphs side by side, with letters as xticklabels.
+    """Plot two bar graphs side by side, with letters as x-tick labels.
     """
     x = np.arange(nb_samples)
     ya, yb = prng.randint(min_value, max_value, size=(2, nb_samples))
@@ -47,7 +47,7 @@ def plot_bar_graphs(ax, prng, min_value=5, max_value=25, nb_samples=5):
 
 
 def plot_colored_circles(ax, prng, nb_samples=15):
-    """ Plots circle patches.
+    """Plot circle patches.
 
     NB: draws a fixed amount of samples, rather than using the length of
     the color cycle, because different styles may have different numbers
@@ -65,7 +65,7 @@ def plot_colored_circles(ax, prng, nb_samples=15):
 
 
 def plot_image_and_patch(ax, prng, size=(20, 20)):
-    """ Plots an image with random values and superimposes a circular patch.
+    """Plot an image with random values and superimpose a circular patch.
     """
     values = prng.random_sample(size=size)
     ax.imshow(values, interpolation='none')
@@ -74,7 +74,7 @@ def plot_image_and_patch(ax, prng, size=(20, 20)):
 
 
 def plot_histograms(ax, prng, nb_samples=10000):
-    """ Plots 4 histograms and a text annotation.
+    """Plot 4 histograms and a text annotation.
     """
     params = ((10, 10), (4, 12), (50, 12), (6, 55))
     for a, b in params:
@@ -93,8 +93,8 @@ def plot_histograms(ax, prng, nb_samples=10000):
 
 
 def plot_figure(style_label=None):
-    """
-    Sets up and plots the demonstration figure with the style `style_label`.
+    """Setup and plot the demonstration figure with a given style.
+
     If `style_label` is None, fall back to the `default` style.
     """
     if style_label is None:
