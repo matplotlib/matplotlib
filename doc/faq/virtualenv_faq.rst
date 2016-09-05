@@ -8,7 +8,7 @@ Working with Matplotlib in Virtual environments
    :backlinks: none
 
 
-.. _introduction:
+.. _virtualenv_introduction:
 
 Introduction
 ============
@@ -25,6 +25,9 @@ If you only use the ``IPython/Jupyter Notebook``'s ``inline`` and ``notebook``
 backends and non interactive backends you should not have any issues and can
 ignore everything below.
 
+If you are using Matplotlib on OSX you may also want to consider the
+:ref:`OSX framework FAQ <osxframework-faq>`.
+
 GUI Frameworks
 ==============
 
@@ -40,8 +43,7 @@ exist. Some of these are given here:
 * The ``TKAgg`` backend doesn't require any external dependencies and is
   normally always available.
 * The ``QT4`` framework ``PySide`` is pip installable.
-* The upcoming `WX Phoenix <http://wiki.wxpython.org/ProjectPhoenix>`_ toolkit
-  is ``pip`` installable.
+* ``PYQT5`` is pip installable on Python 3.5.
 
 Other frameworks are harder to install into a virtual environment. There are at
 least two possible ways to get access to these in a virtual environment.
@@ -58,95 +60,3 @@ Alternatively, you can manually symlink the GUI frameworks into the environment.
 I.e. to use PyQt5, you should symlink ``PyQt5`` and ``sip`` from your system
 site packages directory into the environment taking care that the environment
 and the systemwide install use the same python version.
-
-OSX
-===
-
-Short version
--------------
-
-If you are on Python 3, use ``venv`` instead of ``virtualenv``::
-
-    python -m venv my-virtualenv
-    source my-virtualenv/bin/activate
-
-Otherwise you will need one of the workarounds below.
-
-Long version
-------------
-
-On OSX, two different types of Python Builds exist: a regular build and a
-framework build. In order to interact correctly with OSX through some
-GUI frameworks you need a framework build of Python.
-At the time of writing the ``macosx``, ``WX`` and ``WXAgg`` backends require a
-framework build to function correctly. Unfortunately virtualenv creates a non
-framework build even if created from a framework build of Python. Conda
-environments are framework builds. From
-Matplotlib 1.5 onwards the ``macosx`` backend checks that a framework build is
-available and fails if a non framework build is found.
-WX has a similar check build in.
-
-The issue has been reported on the virtualenv bug tracker `here
-<https://github.com/pypa/virtualenv/issues/54>`__ and `here
-<https://github.com/pypa/virtualenv/issues/609>`__
-
-Until this is fixed, one of the following workarounds must be used:
-
-``PYTHONHOME`` Script
-^^^^^^^^^^^^^^^^^^^^^
-
-The best known workaround,
-borrowed  from the `WX wiki
-<http://wiki.wxpython.org/wxPythonVirtualenvOnMac>`_, is to  use the non
-virtualenv python along with the PYTHONHOME environment variable.  This can be
-implemented in a script as below. To use this modify ``PYVER`` and
-``PATHTOPYTHON`` and put the script in the virtualenv bin directory i.e.
-``PATHTOVENV/bin/frameworkpython``
-
-.. code:: bash
-
-  #!/bin/bash
-
-  # what real Python executable to use
-  PYVER=2.7
-  PATHTOPYTHON=/usr/local/bin/
-  PYTHON=${PATHTOPYTHON}python${PYVER}
-
-  # find the root of the virtualenv, it should be the parent of the dir this script is in
-  ENV=`$PYTHON -c "import os; print(os.path.abspath(os.path.join(os.path.dirname(\"$0\"), '..')))"`
-
-  # now run Python with the virtualenv set as Python's HOME
-  export PYTHONHOME=$ENV
-  exec $PYTHON "$@"
-
-
-With this in place you can run ``frameworkpython`` to get an interactive
-framework build within the virtualenv. To run a script you can do
-``frameworkpython test.py`` where ``test.py`` is a script that requires a
-framework build. To run an interactive ``IPython`` session with the framework
-build within the virtual environment you can do ``frameworkpython -m IPython``
-
-``PYTHONHOME`` Function
-^^^^^^^^^^^^^^^^^^^^^^^
-
-Alternatively you can define a function in your ``.bashrc`` using
-
-.. code:: bash
-
-  function frameworkpython {
-      if [[ ! -z "$VIRTUAL_ENV" ]]; then
-          PYTHONHOME=$VIRTUAL_ENV /usr/local/bin/python "$@"
-      else
-          /usr/local/bin/python "$@"
-      fi
-  }
-
-This function can then be used in all of your virtualenvs without having to
-fix every single one of them.
-
-PythonW Compiler
-^^^^^^^^^^^^^^^^
-
-In addition
-`virtualenv-pythonw-osx <https://github.com/gldnspud/virtualenv-pythonw-osx>`_
-provides an alternative workaround which may be used to solve the issue.
