@@ -4525,31 +4525,31 @@ class Axes(_AxesBase):
         Draws arrow on specified axis from (`x`, `y`) to (`x` + `dx`,
         `y` + `dy`). Uses FancyArrow patch to construct the arrow.
 
-		Parameters
-		----------
-		x : float
-			X-coordinate of the arrow base
-		y : float
-			Y-coordinate of the arrow base
-		dx : float
-			Length of arrow in x-coordinate
-		dy : float
-			Length of arrow in y-coordinate
+        Parameters
+        ----------
+        x : float
+            X-coordinate of the arrow base
+        y : float
+            Y-coordinate of the arrow base
+        dx : float
+            Length of arrow in x-coordinate
+        dy : float
+            Length of arrow in y-coordinate
 
-		Return
-		------
-		a : FancyArrow
-			patches.FancyArrow object
+        Return
+        ------
+        a : FancyArrow
+            patches.FancyArrow object
 
-		Other Parameters
-		-----------------
-		kwargs : `~matplotlib.patches.FancyArrow` properties.
+        Other Parameters
+        -----------------
+        kwargs : `~matplotlib.patches.FancyArrow` properties.
 
-		See also
-		--------
+        See also
+        --------
         %(FancyArrow)s : Parent object type.
 
-		Notes
+        Notes
         -----
         The resulting arrow is affected by the axes aspect ratio and limits.
         This may produce an arrow whose head is not square with its stem. To
@@ -4560,7 +4560,7 @@ class Axes(_AxesBase):
                 arrowprops=dict(arrowstyle="->"))
 
         Examples
-		--------
+        --------
 
         .. plot:: mpl_examples/pylab_examples/arrow_demo.py
         """
