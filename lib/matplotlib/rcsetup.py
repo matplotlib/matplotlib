@@ -917,6 +917,7 @@ defaultParams = {
     'lines.dashed_pattern':  [[2.8, 1.2], validate_nseq_float()],
     'lines.dashdot_pattern': [[4.8, 1.2, 0.8, 1.2], validate_nseq_float()],
     'lines.dotted_pattern':  [[1.1, 1.1], validate_nseq_float()],
+    'lines.scale_dashes':  [True, validate_bool],
 
     # marker props
     'markers.fillstyle': ['full', validate_fillstyle],
