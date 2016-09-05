@@ -1828,8 +1828,8 @@ class Axes(_AxesBase):
         Other parameters
         ---------------------
         where : [ 'pre' | 'post' | 'mid'  ]
-          If 'pre' (the default), the interval from x[i] to x[i+1] has level
-          y[i+1].
+          If 'pre' (the default), the interval from 
+          x[i] to x[i+1] has level y[i+1].
 
           If 'post', that interval has level y[i].
 
@@ -1838,7 +1838,8 @@ class Axes(_AxesBase):
 
         Note
         ----
-        Additional parameters are the same as those for :func:`~matplotlib.pyplot.plot`.
+        Additional parameters are the same as those for 
+        :func:`~matplotlib.pyplot.plot`.
 
         """
 
