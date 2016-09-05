@@ -418,23 +418,39 @@ or by setting::
 in your :file:`matplotlibrc` file.
 
 
+Hatching
+========
+
+The width of the lines in a hatch pattern is now configurable by the
+rcParam `hatch.linewidth`, with a default of 1 point.  The old
+behavior was different depending on backend:
+
+    - PDF: 0.1 pt
+    - SVG: 1.0 pt
+    - PS:  1 px
+    - Agg: 1 px
+
+The old behavior can not be restored across all backends simultaneously, but
+can be restored for a single backend by setting::
+
+   mpl.rcParams['hatch.linewidth'] = 0.1  # previous pdf hatch linewidth
+   mpl.rcParams['hatch.linewidth'] = 1.0  # previous svg hatch linewidth
+
+The behavior of the PS and Agg backends was DPI dependent, thus::
+
+
+   mpl.rcParams['figure.dpi'] = dpi
+   mpl.rcParams['savefig.dpi'] = dpi  # or leave as default 'figure'
+   mpl.rcParams['hatch.linewidth'] = 1.0 / dpi  # previous ps and Agg hatch linewidth
+
+
+There is no API level control of the hath linewidth.
 
 Other
 =====
 
 - lines.color change, only hits raw usage of Line2D
 
-Hatching
-========
-
-- The width of the lines in a hatch pattern is now configurable by the
-  rcParam `hatch.linewidth`, with a default of 1 point.  The old
-  behavior was different depending on backend:
-
-    - PDF: 0.1 pt
-    - SVG: 1.0 pt
-    - PS:  1 px
-    - Agg: 1 px
 
 Plot layout
 ===========
