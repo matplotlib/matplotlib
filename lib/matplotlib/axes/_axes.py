@@ -862,39 +862,50 @@ or tuple of floats
         """
         Add a vertical span (rectangle) across the axes.
 
-        Call signature::
-
-          axvspan(xmin, xmax, ymin=0, ymax=1, **kwargs)
-
-        *x* coords are in data units and *y* coords are in axes (relative
-        0-1) units.
-
-        Draw a vertical span (rectangle) from *xmin* to *xmax*.  With
-        the default values of *ymin* = 0 and *ymax* = 1, this always
+        Draw a vertical span (rectangle) from `xmin` to `xmax`.  With
+        the default values of `ymin` = 0 and `ymax` = 1. This always
         spans the yrange, regardless of the ylim settings, even if you
         change them, e.g., with the :meth:`set_ylim` command.  That is,
         the vertical extent is in axes coords: 0=bottom, 0.5=middle,
-        1.0=top but the *y* location is in data coordinates.
+        1.0=top but the y location is in data coordinates.
 
-        Return value is the :class:`matplotlib.patches.Polygon`
-        instance.
+        Parameters
+        ----------
+        xmin : scalar
+            Number indicating the first X-axis coordinate of the vertical
+            span rectangle in data units.
+        xmax : scalar
+            Number indicating the second X-axis coordinate of the vertical
+            span rectangle in data units.
+        ymin : scalar, optional
+            Number indicating the first Y-axis coordinate of the vertical
+            span rectangle in relative Y-axis units (0-1). Default to 0.
+        ymax : scalar, optional
+            Number indicating the second Y-axis coordinate of the vertical
+            span rectangle in relative Y-axis units (0-1). Default to 1.
+        
+        Returns
+        -------
+        rectangle : matplotlib.patches.Polygon
+            Vertical span (rectangle) from (xmin, ymin) to (xmax, ymax).
 
-        Examples:
+        Other Parameters
+        ----------------
+        **kwargs
+            Optional parameters are properties of the class
+            matplotlib.patches.Polygon.
 
-        * draw a vertical green translucent rectangle from x=1.25 to 1.55 that
-          spans the yrange of the axes::
+        See Also
+        --------
+        axhspan
+        
+        Examples
+        --------
+        Draw a vertical, green, translucent rectangle from x = 1.25 to 
+        x = 1.55 that spans the yrange of the axes.
 
-            >>> axvspan(1.25, 1.55, facecolor='g', alpha=0.5)
+        >>> axvspan(1.25, 1.55, facecolor='g', alpha=0.5)
 
-        Valid kwargs are :class:`~matplotlib.patches.Polygon`
-        properties:
-
-        %(Polygon)s
-
-        .. seealso::
-
-            :meth:`axhspan`
-                for example plot and source code
         """
         trans = self.get_xaxis_transform(which='grid')
 
