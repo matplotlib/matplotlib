@@ -39,8 +39,9 @@ axes grid toolkit
 Jae-Joon Lee has added a new toolkit to ease displaying multiple images in
 matplotlib, as well as some support for curvilinear grids to support
 the world coordinate system. The toolkit is included standard with all
-new mpl installs.  See :ref:`axes_grid-examples-index` and
-:ref:`axes_grid_users-guide-index`.
+new mpl installs.   See :ref:`axes_grid1-examples-index`,
+:ref:`axisartist-examples-index`, :ref:`axes_grid1_users-guide-index` and
+:ref:`axisartist_users-guide-index`
 
 .. plot:: pyplots/whats_new_99_axes_grid.py
 
