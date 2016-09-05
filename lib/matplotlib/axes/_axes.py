@@ -1802,19 +1802,24 @@ class Axes(_AxesBase):
         """
         Make a step plot.
 
-        Call signature::
+        Parameters
+        ----------
+        x : array_like
+            1-D sequence, and it is assumed, but not checked,
+            that it is uniformly increasing.
 
-          step(x, y, *args, **kwargs)
+        y : array_like
+            1-D sequence, and it is assumed, but not checked,
+            that it is uniformly increasing.
 
-        Additional keyword args to :func:`step` are the same as those
-        for :func:`~matplotlib.pyplot.plot`.
+        Returns
+        -------
+        out : list
+            List of lines that were added.
 
-        *x* and *y* must be 1-D sequences, and it is assumed, but not checked,
-        that *x* is uniformly increasing.
-
-        Keyword arguments:
-
-        *where*: [ 'pre' | 'post' | 'mid'  ]
+        Other parameters
+        ---------------------
+        where : [ 'pre' | 'post' | 'mid'  ]
           If 'pre' (the default), the interval from x[i] to x[i+1] has level
           y[i+1].
 
@@ -1823,7 +1828,10 @@ class Axes(_AxesBase):
           If 'mid', the jumps in *y* occur half-way between the
           *x*-values.
 
-        Return value is a list of lines that were added.
+        Note
+        ----
+        Additional parameters are the same as those for :func:`~matplotlib.pyplot.plot`.
+
         """
 
         where = kwargs.pop('where', 'pre')
