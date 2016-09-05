@@ -1,7 +1,8 @@
 .. _text-properties:
 
-Text properties and layout
-==========================
+============================
+ Text properties and layout
+============================
 
 The :class:`matplotlib.text.Text` instances have a variety of
 properties which can be configured via keyword arguments to the text
@@ -59,3 +60,93 @@ upper right.
 
 .. plot:: pyplots/text_layout.py
    :include-source:
+
+
+==============
+ Default Font
+==============
+
+The base default font is controlled by a set of rcParams
+
+
++---------------------+----------------------------------------------------+
+| ``'font.family'``   | List of either names of font or ``{'cursive',      |
+|                     | 'fantasy', 'monospace', 'sans', 'sans serif',      |
+|                     | 'sans-serif', 'serif'}``.                          |
+|                     |                                                    |
++---------------------+----------------------------------------------------+
+|  ``'font.style'``   | The default style, ex ``'normal'``,                |
+|                     | ``'italic'``.                                      |
+|                     |                                                    |
++---------------------+----------------------------------------------------+
+| ``'font.variant'``  | Default variant, ex ``'normal'``, ``'small-caps'`` |
+|                     | (untested)                                         |
++---------------------+----------------------------------------------------+
+| ``'font.stretch'``  | Default stretch, ex ``'normal'``, ``'condensed'``  |
+|                     | (incomplete)                                       |
+|                     |                                                    |
++---------------------+----------------------------------------------------+
+|  ``'font.weight'``  | Default weight.  Either string or integer          |
+|                     |                                                    |
+|                     |                                                    |
++---------------------+----------------------------------------------------+
+|   ``'font.size'``   | Default font size in points.  Relative font sizes  |
+|                     | (``'large'``, ``'x-small'``) are computed against  |
+|                     | this size.                                         |
++---------------------+----------------------------------------------------+
+
+The mapping between the family aliases (``{'cursive', 'fantasy',
+'monospace', 'sans', 'sans serif', 'sans-serif', 'serif'}``) and actual font names
+is controlled by the following rcParms
+
+
++----------------------------+----------------------------------------------------+
+| ``'serif'``                | ``'font.serif'``                                   |
++----------------------------+----------------------------------------------------+
+| ``'monospace'``            | ``'font.monospace'``                               |
++----------------------------+----------------------------------------------------+
+| ``'fantasy'``              |                   ``'font.fantasy'``               |
++----------------------------+----------------------------------------------------+
+|``'cursive'``               | ``'font.cursive'``                                 |
++----------------------------+----------------------------------------------------+
+| ``{'sans', 'sans serif',   | ``'font.sans-serif'``                              |
+| 'sans-serif'}``            |                                                    |
+|                            |                                                    |
++----------------------------+----------------------------------------------------+
+
+
+which are lists of font names.
+
+Set default font with non-latin code points
+===========================================
+
+From v2.0 forward the :ref:`default font <default_changes_font>` contains
+code points for many western languages, but does not cover eastern
+scripts (ex Chinese, Korean, or Japanese).  If you use unicode points
+not covered by the default font you will see the dreaded 'code point
+not found' place holder (typically an empty rectangle).  To set the
+default font to be one that support the code points you need prepend
+the font name to ``'font.family'`` or the desired alias lists ::
+
+   matplotlib.rcParams['font.sans-serif'] = ['Source Han Sans TW', 'sans-serif']
+
+or set it in your :file:`.matplotlibrc` file::
+
+   font.sans-serif: Source Han Sans TW, Ariel, sans-serif
+
+
+On linux `fc-list <http://linux.die.net/man/1/fc-list>`__ can be a
+useful tool to discover the font name for example ::
+
+   $ fc-list :lang=zh family
+   Source Han Sans TW,思源黑體 TW,思源黑體 TW ExtraLight,Source Han Sans TW ExtraLight
+   Source Han Sans TW,思源黑體 TW,思源黑體 TW Regular,Source Han Sans TW Regular
+   Droid Sans Fallback
+   Source Han Sans TW,思源黑體 TW,思源黑體 TW Bold,Source Han Sans TW Bold
+   Source Han Sans TW,思源黑體 TW,思源黑體 TW Medium,Source Han Sans TW Medium
+   Source Han Sans TW,思源黑體 TW,思源黑體 TW Normal,Source Han Sans TW Normal
+   Fixed
+   Source Han Sans TW,思源黑體 TW,思源黑體 TW Heavy,Source Han Sans TW Heavy
+   Source Han Sans TW,思源黑體 TW,思源黑體 TW Light,Source Han Sans TW Light
+
+lists all of the fonts that support Chinese.
