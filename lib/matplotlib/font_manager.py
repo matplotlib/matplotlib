@@ -995,7 +995,7 @@ class TempCache(object):
 
     def make_rcparams_key(self):
         return [id(fontManager)] + [
-            rcParams[param] for param in self.invalidating_rcparams]
+            tuple(rcParams[param]) for param in self.invalidating_rcparams]
 
     def get(self, prop):
         key = self.make_rcparams_key()
@@ -1420,7 +1420,6 @@ else:
         if _fmcache:
             with cbook.Locked(cachedir):
                 pickle_dump(fontManager, _fmcache)
-
 
         verbose.report("generated new fontManager")
 
