@@ -446,6 +446,39 @@ The behavior of the PS and Agg backends was DPI dependent, thus::
 
 There is no API level control of the hath linewidth.
 
+Fonts
+=====
+
+The default font has changed from "Bitstream Vera Sans" to "DejaVu
+Sans".  "DejaVu Sans" is an improvement on "Bistream Vera Sans" that
+adds more international, and math characters, but otherwise has the
+same appearance.  Latin, Greek, Cyrillic, Armenian, Georgian, Hebrew,
+and Arabic are `all supported
+<http://dejavu-fonts.org/wiki/Main_Page>`__ (but right-to-left render
+is still not handled by matplotlib).  In addition to the practical,
+DejaVu contains a sub-set of emoji support
+
+.. plot::
+
+   import matplotlib.pyplot as plt
+
+   fig, ax = plt.subplots()
+   tick_labels = ['😃', '😎', '😴', '😲', '😻']
+   ax.bar(range(5), [1, 4, 9, 16, 25],
+          tick_label=tick_labels, align='center')
+   ax.xaxis.set_tick_params(labelsize=20)
+   ax.set_title('Участок под застройку с смайликам')
+
+See the `DejaVu Sans PDF sample for full coverage
+<http://dejavu.sourceforge.net/samples/DejaVuSans.pdf>`__.
+
+The default math font when using the built-in math rendering engine
+(mathtext) has changed from "Computer Modern" (i.e. LaTeX-like) to
+"DejaVu Sans".  To revert to the old behavior, set the ``rcParam``
+``mathtext.fontset`` to ``cm``.  This change has no effect if the
+TeX backend is used (i.e. ``text.usetex`` is ``True``).
+
+
 Other
 =====
 
@@ -495,19 +528,6 @@ Images
   ``True``.  This will apply interpolation for both upsampling and
   downsampling of an image.
 
-Fonts
-=====
-
-- The default font has changed from "Bitstream Vera Sans" to "DejaVu
-  Sans".  "DejaVu Sans" is an improvement on "Bistream Vera Sans" that
-  adds more international and math characters, but otherwise has the
-  same appearance.
-
-- The default math font when using the built-in math rendering engine
-  (mathtext) has changed from "Computer Modern" (i.e. LaTeX-like) to
-  "DejaVu Sans".  To revert to the old behavior, set the ``rcParam``
-  ``mathtext.fontset`` to ``cm``.  This change has no effect if the
-  TeX backend is used (i.e. ``text.usetex`` is ``True``).
 
 Dates
 =====
@@ -528,6 +548,8 @@ Legends
   data possible.
 
 - The legend now has rounded corners by default.
+
+- And a lighter border, I think? cf. #6770. (@QuLogic)
 
 mplot3d
 =======
