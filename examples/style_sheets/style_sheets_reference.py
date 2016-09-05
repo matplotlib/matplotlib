@@ -4,6 +4,7 @@ This example demonstrates different available style sheets on a common example.
 The different plots are heavily similar to the other ones in the style sheet
 gallery.
 """
+
 import numpy as np
 import matplotlib.pyplot as plt
 
@@ -13,14 +14,14 @@ def plot_scatter(ax, prng, nb_samples=100):
     """
     for mu, sigma, marker in [(-.5, 0.75, 'o'), (0.75, 1., 's')]:
         x, y = prng.normal(loc=mu, scale=sigma, size=(2, nb_samples))
-        ax.plot(x, y, marker=marker, ls='')
+        ax.plot(x, y, ls='none', marker=marker)
     ax.set_xlabel('X-label')
     ax.set_ylabel('Y-label')
     return ax
 
 
 def plot_colored_sinusoidal_lines(ax):
-    """ Plot sinusoidal lines with colors from default color cycle.
+    """ Plots sinusoidal lines with colors following the style color cycle.
     """
     L = 2*np.pi
     x = np.linspace(0, L)
@@ -33,7 +34,7 @@ def plot_colored_sinusoidal_lines(ax):
 
 
 def plot_bar_graphs(ax, prng, min_value=5, max_value=25, nb_samples=5):
-    """ Plot two bar graphs side by side, with letters as xticklabels.
+    """ Plots two bar graphs side by side, with letters as xticklabels.
     """
     x = np.arange(nb_samples)
     ya, yb = prng.randint(min_value, max_value, size=(2, nb_samples))
@@ -46,11 +47,11 @@ def plot_bar_graphs(ax, prng, min_value=5, max_value=25, nb_samples=5):
 
 
 def plot_colored_circles(ax, prng, nb_samples=15):
-    """ Plot circle patches.
+    """ Plots circle patches.
 
-    NB: drawing a fixed amount of samples, rather than using the length of
-    the color cycle, because different styles may have different numbers of
-    colors.
+    NB: draws a fixed amount of samples, rather than using the length of
+    the color cycle, because different styles may have different numbers
+    of colors.
     """
     for sty_dict, j in zip(plt.rcParams['axes.prop_cycle'], range(nb_samples)):
         ax.add_patch(plt.Circle(prng.normal(scale=3, size=2),
@@ -64,7 +65,7 @@ def plot_colored_circles(ax, prng, nb_samples=15):
 
 
 def plot_image_and_patch(ax, prng, size=(20, 20)):
-    """ Plot an image with random values and superimpose a circular patch.
+    """ Plots an image with random values and superimposes a circular patch.
     """
     values = prng.random_sample(size=size)
     ax.imshow(values, interpolation='none')
@@ -73,7 +74,7 @@ def plot_image_and_patch(ax, prng, size=(20, 20)):
 
 
 def plot_histograms(ax, prng, nb_samples=10000):
-    """ Plot 4 histograms and a text annotation.
+    """ Plots 4 histograms and a text annotation.
     """
     params = ((10, 10), (4, 12), (50, 12), (6, 55))
     for a, b in params:
@@ -81,7 +82,8 @@ def plot_histograms(ax, prng, nb_samples=10000):
         ax.hist(values, histtype="stepfilled", bins=30, alpha=0.8, normed=True)
     # Add a small annotation.
     ax.annotate('Annotation', xy=(0.25, 4.25), xycoords='data',
-                xytext=(0.4, 10), textcoords='data',
+                xytext=(0.9, 0.9), textcoords='axes fraction',
+                va="top", ha="right",
                 bbox=dict(boxstyle="round", alpha=0.2),
                 arrowprops=dict(
                           arrowstyle="->",
@@ -92,7 +94,7 @@ def plot_histograms(ax, prng, nb_samples=10000):
 
 def plot_figure(style_label=None):
     """
-    Setup and plot the demonstration figure with the style `style_label`.
+    Sets up and plots the demonstration figure with the style `style_label`.
     If `style_label` is None, fall back to the `default` style.
     """
     if style_label is None:
@@ -111,6 +113,8 @@ def plot_figure(style_label=None):
     plot_colored_circles(axes[1, 0], prng)
     plot_colored_sinusoidal_lines(axes[1, 1])
     plot_histograms(axes[1, 2], prng)
+
+    fig.tight_layout()
 
     return fig
 
