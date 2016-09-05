@@ -5218,19 +5218,7 @@ or tuple of floats
     def pcolor(self, *args, **kwargs):
         """
         Create a pseudocolor plot of a 2-D array.
-
-        .. note::
-
-            pcolor can be very slow for large arrays; consider
-            using the similar but much faster
-            :func:`~matplotlib.pyplot.pcolormesh` instead.
-
-        Call signatures::
-
-          pcolor(C, **kwargs)
-          pcolor(X, Y, C, **kwargs)
-
-        *C* is the array of color values.
+        EXTENDED TODO
 
         *X* and *Y*, if given, specify the (*x*, *y*) coordinates of
         the colored quadrilaterals; the quadrilateral for C[i,j] has
@@ -5258,37 +5246,49 @@ or tuple of floats
         of the vertices surrounding C[i,j] (*X* or *Y* at [i, j], [i+1, j],
         [i, j+1],[i+1, j+1]) is masked, nothing is plotted.
 
-        Keyword arguments:
 
-          *cmap*: [ *None* | Colormap ]
-            A :class:`matplotlib.colors.Colormap` instance. If *None*, use
-            rc settings.
+        .. note::
 
-          *norm*: [ *None* | Normalize ]
-            An :class:`matplotlib.colors.Normalize` instance is used
-            to scale luminance data to 0,1. If *None*, defaults to
-            :func:`normalize`.
+            pcolor can be very slow for large arrays; consider
+            using the similar but much faster
+            :func:`~matplotlib.pyplot.pcolormesh` instead.
 
-          *vmin*/*vmax*: [ *None* | scalar ]
-            *vmin* and *vmax* are used in conjunction with *norm* to
-            normalize luminance data.  If either is *None*, it
+        Parameters
+        ----------
+        C : array_like
+            An array of color values.
+        X : array_like, optional
+            X coordinates of the colored quadrilaterals.
+        Y : array_like, optional
+            Y coordinates of the colored quadrilaterals.
+        cmap : `~matplotlib.colors.Colormap`, optional, default: None
+            If `None`, default to rc settings.
+        norm :`matplotlib.colors.Normalize`, optional, default: None
+            An instance is used to scale luminance data to 0,1.
+            If `None`, defaults to :func:`normalize`.
+        vmin, vmax : scalar, optional, default: None
+            `vmin` and `vmax` are used in conjunction with `norm` to
+            normalize luminance data.  If either is `None`, it
             is autoscaled to the respective min or max
-            of the color array *C*.  If not *None*, *vmin* or
-            *vmax* passed in here override any pre-existing values
-            supplied in the *norm* instance.
-
-          *edgecolors*: [ *None* | ``'none'`` | color | color sequence]
-            If *None*, the rc setting is used by default.
-
+            of the color array `C`.  If not `None`, `vmin` or
+            `vmax` passed in here override any pre-existing values
+            supplied in the `norm` instance.
+        shading : {'flat', 'faceted'}, optional, default: 'flat'
+            If 'faceted', a black grid is drawn around each rectangle; if
+            'flat', edges are not drawn. Default is 'flat', contrary to
+            MATLAB.
+            This kwarg is deprecated; please use 'edgecolors' instead:
+              `shading`='flat' -- `edgecolors`='none'
+              `shading`='faceted'  -- `edgecolors`='k'
+        edgecolors : {None, ``'none'``, color, color sequence}
+            If `None`, the rc setting is used by default.
             If ``'none'``, edges will not be visible.
-
             An mpl color or sequence of colors will set the edge color
-
-          *alpha*: ``0 <= scalar <= 1``   or *None*
-            the alpha blending value
-
-          *snap*: bool
+        alpha : scalar, optional, default: None
+            The alpha blending value, between 0 (transparent) and 1 (opaque).
+        snap : bool, optional, default: TODO
             Whether to snap the mesh to pixel boundaries.
+
 
         Return value is a :class:`matplotlib.collections.Collection`
         instance.
