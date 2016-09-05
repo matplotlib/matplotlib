@@ -9,6 +9,7 @@ import os.path
 from matplotlib.font_manager import (findfont, FontProperties, get_font,
                                      is_opentype_cff_font, fontManager as fm)
 from matplotlib import rc_context
+import matplotlib
 
 
 def test_font_priority():
@@ -36,3 +37,11 @@ def test_otf():
         with open(f, 'rb') as fd:
             res = fd.read(4) == b'OTTO'
         assert res == is_opentype_cff_font(f)
+
+
+def test_cache_invalidation():
+    f1 = findfont(FontProperties())
+    del matplotlib.rcParams['font.sans-serif'][0]
+    f2 = findfont(FontProperties())
+
+    assert f1 != f2
