@@ -4536,8 +4536,8 @@ class Axes(_AxesBase):
         dy : float
             Length of arrow in y-coordinate
 
-        Return
-        ------
+        Returns
+        -------
         a : FancyArrow
             patches.FancyArrow object
 
