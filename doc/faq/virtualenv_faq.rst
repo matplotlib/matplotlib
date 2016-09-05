@@ -44,8 +44,6 @@ exist. Some of these are given here:
   normally always available.
 * The ``QT4`` framework ``PySide`` is pip installable.
 * ``PYQT5`` is pip installable on Python 3.5.
-* The upcoming `WX Phoenix <http://wiki.wxpython.org/ProjectPhoenix>`_ toolkit
-  is ``pip`` installable.
 
 Other frameworks are harder to install into a virtual environment. There are at
 least two possible ways to get access to these in a virtual environment.
