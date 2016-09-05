@@ -429,7 +429,7 @@ def figure(num=None,  # autoincrement if None, else integer from 1-N
            facecolor=None,  # defaults to rc figure.facecolor
            edgecolor=None,  # defaults to rc figure.edgecolor
            frameon=True,
-           clf=False,
+           clear=False,
            FigureClass=Figure,
            **kwargs
            ):
@@ -465,7 +465,7 @@ def figure(num=None,  # autoincrement if None, else integer from 1-N
     frameon : bool, optional, default: True
         If False, suppress drawing the figure frame
 
-    clf : bool, optinal, default: False
+    clear : bool, optinal, default: False
         If True and figure already exists, then it is cleared.
 
     Returns
@@ -564,7 +564,7 @@ def figure(num=None,  # autoincrement if None, else integer from 1-N
         if _INSTALL_FIG_OBSERVER:
             fig.stale_callback = _auto_draw_if_interactive
 
-    if clf and len(figManager.canvas.figure.axes) > 0:
+    if clear:
         figManager.canvas.figure.clear()
 
     return figManager.canvas.figure
