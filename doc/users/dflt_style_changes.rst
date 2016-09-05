@@ -446,6 +446,9 @@ The behavior of the PS and Agg backends was DPI dependent, thus::
 
 There is no API level control of the hath linewidth.
 
+
+.. _default_changes_font:
+
 Fonts
 =====
 
