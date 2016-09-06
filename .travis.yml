@@ -113,7 +113,7 @@ install:
   - |
     # Install dependencies from pypi
     pip install $PRE python-dateutil $NUMPY pyparsing!=2.1.6 $PANDAS pep8 cycler coveralls coverage
-    pip install $PRE pillow sphinx!=1.3.0 $MOCK numpydoc ipython colorspacious
+    pip install $PRE -r doc-requirements.txt
 
     # Install nose from a build which has partial
     # support for python36 and suport for coverage output suppressing
@@ -142,13 +142,6 @@ install:
     # Install matplotlib
     pip install -e .
   - |
-    # Installing basemap from github until it's back on pypi
-    # We have to install it after matplotlib to avoid pulling in MPL as
-    # a dependency
-    if [[ $BUILD_DOCS == true ]]; then
-      pip install pyshp!=1.2.8
-      pip install git+https://github.com/matplotlib/basemap.git
-    fi;
 
 script:
   # The number of processes is hardcoded, because using too many causes the
