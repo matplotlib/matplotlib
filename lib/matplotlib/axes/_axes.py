@@ -2691,7 +2691,8 @@ class Axes(_AxesBase):
                  barsabove=False, lolims=False, uplims=False,
                  xlolims=False, xuplims=False, errorevery=1, capthick=None,
                  **kwargs):
-        """Plot an errorbar graph.
+        """
+        Plot an errorbar graph.
 
         Plot x versus y with error deltas in yerr and xerr.
         Vertical errorbars are plotted if yerr is not None.
@@ -2702,13 +2703,13 @@ class Axes(_AxesBase):
 
         Parameters
         ----------
-        x : scalar            
+        x : scalar
         y : scalar
-            
-        xerr/yerr : scalar or array-like, shape(n,1) or shape(2,n), optional, default: None
+        
+        xerr/yerr : scalar or array-like, shape(n,1) or shape(2,n), optional
             If a scalar number, len(N) array-like object, or an Nx1
             array-like object, errorbars are drawn at +/-value relative
-            to the data.
+            to the data. Default is None.
 
             If a sequence of shape 2xN, errorbars are drawn at -row1
             and +row2 relative to the data.
@@ -2759,11 +2760,11 @@ class Axes(_AxesBase):
 
         Returns
         -------
-        plotline: :class:`~matplotlib.lines.Line2D` instance
+        plotline : :class:`~matplotlib.lines.Line2D` instance
             x, y plot markers and/or line
-        caplines: 
+        caplines :
             list of error bar cap :class:`~matplotlib.lines.Line2D` instances
-        barlinecols: 
+        barlinecols :
             list of :class:`~matplotlib.collections.LineCollection` instances for
             the horizontal and vertical error ranges.
 
@@ -2789,7 +2790,6 @@ class Axes(_AxesBase):
         Example
         -------
         .. plot:: mpl_examples/statistics/errorbar_demo.py
-        
         """
         kwargs = cbook.normalize_kwargs(kwargs, _alias_map)
         kwargs.setdefault('zorder', 2)
