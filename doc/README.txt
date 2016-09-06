@@ -5,21 +5,15 @@ maptlotlib documentation
 Building the documentation
 --------------------------
 
-Dependencies:
-
-* sphinx > 1.0
-* numpydoc
-* ipython
-* mock
-* colorspacious
+A list of dependencies can be found in ../doc-requirements.txt.
 
 All of these dependencies can be installed through pip::
 
-  pip install sphinx numpydoc ipython mock colorspacious
+  pip install -r ../doc-requirements.txt
 
 or conda::
 
-  conda install sphinx numpydoc ipython mock colorspacious
+  conda install sphinx numpydoc ipython mock colorspacious pillow
 
 To build the HTML documentation, type ``python make.py html`` in this
 directory. The top file of the results will be ./build/html/index.html

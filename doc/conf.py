@@ -59,10 +59,20 @@ except ImportError:
                       "colorspacious to build the documentation")
 
 try:
-    import mock
+    from unittest.mock import MagicMock
 except ImportError:
-    raise ImportError("No module named mock - you need to install "
-                      "mock to build the documentation")
+    try:
+        from mock import MagicMock
+    except ImportError:
+        raise ImportError("No module named mock - you need to install "
+                          "mock to build the documentation")
+
+try:
+    import matplotlib
+except ImportError:
+    msg = "Error: matplotlib must be installed before building the documentation"
+    sys.exit(msg)
+
 
 autosummary_generate = True
 
@@ -82,17 +92,14 @@ master_doc = 'contents'
 
 # General substitutions.
 project = 'Matplotlib'
-copyright = '2002 - 2012 John Hunter, Darren Dale, Eric Firing, Michael Droettboom and the matplotlib development team; 2012 - 2014 The matplotlib development team'
+copyright = ('2002 - 2012 John Hunter, Darren Dale, Eric Firing, '
+             'Michael Droettboom and the matplotlib development '
+             'team; 2012 - 2016 The matplotlib development team')
 
 # The default replacements for |version| and |release|, also used in various
 # other places throughout the built documents.
 #
 # The short X.Y version.
-try:
-    import matplotlib
-except ImportError:
-    msg = "Error: matplotlib must be installed before building the documentation"
-    sys.exit(msg)
 
 version = matplotlib.__version__
 # The full version, including alpha/beta/rc tags.
@@ -297,11 +304,6 @@ texinfo_documents = [
      'Matplotlib', "Python plotting package", 'Programming',
      1),
 ]
-
-try:
-    from unittest.mock import MagicMock
-except:
-    from mock import MagicMock
 
 
 class MyWX(MagicMock):

@@ -11,3 +11,4 @@ numpydoc
 ipython
 mock
 colorspacious
+pillow
