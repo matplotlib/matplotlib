@@ -502,6 +502,7 @@ TeX backend is used (i.e. ``text.usetex`` is ``True``).
    import matplotlib as mpl
 
    mpl.rcParams['mathtext.fontset'] = 'cm'
+   mpl.rcParams['mathtext.rm'] = 'serif'
 
    fig, ax  = plt.subplots(tight_layout=True, figsize=(3, 3))
 
@@ -526,10 +527,13 @@ TeX backend is used (i.e. ``text.usetex`` is ``True``).
 To revert to the old behavior set the::
 
    mpl.rcParams['mathtext.fontset'] = 'cm'
+   mpl.rcParams['mathtext.rm'] = 'serif'
 
 or by setting::
 
   mathetxt.fontset: cm
+  mathtext.rm : serif
+
 
 in your :file:`matplotlibrc` file.
 
@@ -607,6 +611,78 @@ or by setting::
 
 in your :file:`matplotlibrc` file.
 
+Image
+=====
+
+Interpolation
+-------------
+
+The default interpolation method for `~matplotlib.axes.Axes.imshow` is now
+``'nearest'`` and by default resamples the data to both up and down sample
+then input before color mapping.
+
+
+.. plot::
+
+   import matplotlib.pyplot as plt
+   import matplotlib as mpl
+   import numpy as np
+
+
+   def demo(ax, rcparams, title):
+       np.random.seed(2)
+       A = np.random.rand(5, 5)
+
+       with mpl.rc_context(rc=rcparams):
+           ax.imshow(A)
+           ax.set_title(title)
+
+   fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(6, 3), tight_layout=True)
+
+   classic_rcparams = {'image.interpolation': 'bilinear',
+                       'image.resample': False}
+
+   demo(ax1, classic_rcparams, 'classic')
+   demo(ax2, {}, 'v2.0')
+
+The default value for the rcParam ``image.resample`` is now ``True``.
+This will apply interpolation for both upsampling and downsampling
+of an image.  ``image.interpolation``, is now ``nearest``.
+
+Previously, the input data was normalized, then color mapped, and the
+resampled to the resolution required for the screen.  This means that
+the final resampling was being done in color space.  Because the color
+maps are not always linear in RGB space this can result in colors not
+in the color map appearing in the final image.  This bug was addressed
+by an almost complete overhaul of how the image handling code works.
+The input data is now normalized, then resampled to the correct
+resolution (in scaled dataspace), and then finally color mapped to
+RGBA space which prevents any colors not in the color map from
+appearing in the final image (if your viewer subsequently resamples
+the image the artifact may reappear).
+
+To restore the previous behavior set::
+
+   mpl.rcParams['image.interpolation'] = 'bilinear'
+   mpl.rcParams['image.resample'] = False
+
+or set::
+
+  image.interpolation  : bilinear  # see help(imshow) for options
+  image.resample  : False
+
+in your :file:`matplotlibrc` file.
+
+
+Shading
+-------
+
+- The default shading mode for light source shading, in
+  ``matplotlib.colors.LightSource.shade``, is now ``overlay``.
+  Formerly, it was ``hsv``.
+
+
+
 
 TEMPORARY NOTES TOM IS KEEPING IN THE SOURCE SO THEY DO NOT GET LOST
 ====================================================================
@@ -643,19 +719,6 @@ Plot layout
 - By default, caps on the ends of errorbars are not present.  Use the
   rcParam ``errorbar.capsize`` to control this.
 
-Images
-======
-
-- The default mode for image interpolation, in the rcParam
-  ``image.interpolation``, is now ``nearest``.
-
-- The default shading mode for light source shading, in
-  ``matplotlib.colors.LightSource.shade``, is now ``overlay``.
-  Formerly, it was ``hsv``.
-
-- The default value for the rcParam ``image.resample`` is now
-  ``True``.  This will apply interpolation for both upsampling and
-  downsampling of an image.
 
 
 Dates
