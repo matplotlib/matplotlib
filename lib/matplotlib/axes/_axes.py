@@ -6206,7 +6206,8 @@ class Axes(_AxesBase):
 
             if rwidth is not None:
                 dr = min(1.0, max(0.0, rwidth))
-            elif len(n) > 1:
+            elif (len(n) > 1 and
+                  ((not stacked) or rcParams['_internal.classic_mode'])):
                 dr = 0.8
             else:
                 dr = 1.0
@@ -6376,8 +6377,6 @@ class Axes(_AxesBase):
                 p.update(kwargs)
                 if lbl is not None:
                     p.set_label(lbl)
-
-                p.set_snap(False)
 
                 for p in patch[1:]:
                     p.update(kwargs)
