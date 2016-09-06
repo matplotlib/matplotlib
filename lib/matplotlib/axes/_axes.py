@@ -5257,10 +5257,8 @@ or tuple of floats
         ----------
         C : array_like
             An array of color values.
-        X : array_like, optional
-            X coordinates of the colored quadrilaterals.
-        Y : array_like, optional
-            Y coordinates of the colored quadrilaterals.
+        X, Y : array_like, optional
+            Coordinates of the colored quadrilaterals.
         cmap : `~matplotlib.colors.Colormap`, optional, default: None
             If `None`, default to rc settings.
         norm :`matplotlib.colors.Normalize`, optional, default: None
@@ -5286,21 +5284,27 @@ or tuple of floats
             An mpl color or sequence of colors will set the edge color
         alpha : scalar, optional, default: None
             The alpha blending value, between 0 (transparent) and 1 (opaque).
-        snap : bool, optional, default: TODO
+        snap : bool, optional, default: False
             Whether to snap the mesh to pixel boundaries.
 
+        Returns
+        -------
+        collection : `matplotlib.collections.Collection`
 
-        Return value is a :class:`matplotlib.collections.Collection`
-        instance.
+        See Also
+        --------
+        :func:`~matplotlib.pyplot.pcolormesh`
+            For an explanation of the differences between
+            pcolor and pcolormesh.
 
-        .. _axes-pcolor-grid-orientation:
-
+        Notes
+        -----
         The grid orientation follows the MATLAB convention: an
-        array *C* with shape (*nrows*, *ncolumns*) is plotted with
-        the column number as *X* and the row number as *Y*, increasing
+        array `C` with shape (`nrows`, `ncolumns`) is plotted with
+        the column number as `X` and the row number as `Y`, increasing
         up; hence it is plotted the way the array would be printed,
-        except that the *Y* axis is reversed.  That is, *C* is taken
-        as *C*(*y*, *x*).
+        except that the `Y` axis is reversed.  That is, `C` is taken
+        as `C`(`y`, `x`).
 
         Similarly for :func:`meshgrid`::
 
@@ -5340,22 +5344,16 @@ or tuple of floats
 
         %(PolyCollection)s
 
-        .. note::
 
-            The default *antialiaseds* is False if the default
-            *edgecolors*="none" is used.  This eliminates artificial lines
-            at patch boundaries, and works regardless of the value of
-            alpha.  If *edgecolors* is not "none", then the default
-            *antialiaseds* is taken from
-            rcParams['patch.antialiased'], which defaults to *True*.
-            Stroking the edges may be preferred if *alpha* is 1, but
-            will cause artifacts otherwise.
+        The default *antialiaseds* is False if the default
+        *edgecolors*="none" is used.  This eliminates artificial lines
+        at patch boundaries, and works regardless of the value of
+        alpha.  If *edgecolors* is not "none", then the default
+        *antialiaseds* is taken from
+        rcParams['patch.antialiased'], which defaults to *True*.
+        Stroking the edges may be preferred if *alpha* is 1, but
+        will cause artifacts otherwise.
 
-        .. seealso::
-
-            :func:`~matplotlib.pyplot.pcolormesh`
-                For an explanation of the differences between
-                pcolor and pcolormesh.
         """
 
         if not self._hold:
