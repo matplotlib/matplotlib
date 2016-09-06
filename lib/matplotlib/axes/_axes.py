@@ -1414,9 +1414,9 @@ class Axes(_AxesBase):
     def plot_date(self, x, y, fmt='o', tz=None, xdate=True, ydate=False,
                   **kwargs):
         """
-	A plot with data that contains dates.
-
-	Similar to the func : matplotlib.pyplot.plot command, except
+        A plot with data that contains dates.
+        
+        Similar to the :func:~matplotlib.pyplot.plot command, except
         the *x* or *y* (or both) data is considered to be dates, and the
         axis is labeled accordingly.
 
@@ -1436,10 +1436,10 @@ class Axes(_AxesBase):
         class : matplotlib.dates.DateFormatter instance).
 
 
-	Parameters
-    	---------- 
-	fmt : string
-             The plot format string.
+        Parameters
+        ----------
+        fmt : string
+            The plot format string.
 
         tz : [ *None* | timezone string | :class:`tzinfo` instance]
             The time zone to use in labeling dates. If *None*, defaults to rc
@@ -1452,27 +1452,28 @@ class Axes(_AxesBase):
             If *True*, the *y*-axis will be labeled with dates.
 
 
-    	Returns
-    	-------
-    	lines
+        Returns
+        -------
+        lines
 
 
-	See Also
-    	--------
-    	mod : matplotlib.dates for helper functions
-        func : matplotlib.dates.date2num
-        func : matplotlib.dates.num2date
-        func : matplotlib.dates.drange for help on creating the required 		       floating point dates
+        See Also
+        --------
+        mod : matplotlib.dates for helper functions
+        :func:~matplotlib.dates.date2num
+        :func:~matplotlib.dates.num2date
+        :func:~matplotlib.dates.drange for help on creating the required
+        floating point dates
 
 
-	Other Parameters
-    	----------------
+        Other Parameters
+        ----------------
         kwargs : class : matplotlib.lines.Line2D properties : %(Line2D)s
- 
 
-	Examples
-    	--------
-	.. plot:: mpl_examples/pylab_examples/date_demo1.py
+
+        Examples
+        --------
+            plot:: mpl_examples/pylab_examples/date_demo1.py
 
         """
 
