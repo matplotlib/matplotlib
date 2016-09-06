@@ -469,9 +469,15 @@ sub-set of emoji symbols
 
    fig, ax = plt.subplots()
    tick_labels = ['😃', '😎', '😴', '😲', '😻']
-   ax.bar(range(5), [1, 4, 9, 16, 25],
-          tick_label=tick_labels, align='center')
+   bar_labels = ['א', 'α', '☣', '⌬', 'ℝ']
+   y = [1, 4, 9, 16, 25]
+   x = range(5)
+   ax.bar(x, y, tick_label=tick_labels, align='center')
    ax.xaxis.set_tick_params(labelsize=20)
+   for _x, _y, t in zip(x, y, bar_labels):
+       ax.annotate(t, (_x, _y), fontsize=20, ha='center',
+                   xytext=(0, -2), textcoords='offset pixels',
+                   bbox={'facecolor': 'w'})
 
    ax.set_title('Диаграмма со смайликами')
 
@@ -485,8 +491,8 @@ The default math font when using the built-in math rendering engine
 TeX backend is used (i.e. ``text.usetex`` is ``True``).
 
 
-Other
-=====
+TEMPORARY NOTES TOM IS KEEPING IN THE SOURCE SO THEY DO NOT GET LOST
+====================================================================
 
 - lines.color change, only hits raw usage of Line2D
 
@@ -555,7 +561,8 @@ Legends
 
 - The legend now has rounded corners by default.
 
-- And a lighter border, I think? cf. #6770. (@QuLogic)
+- "The legend defaults now include rounded corners, a lighter
+  boundary, and partially transparent boundary and background."
 
 mplot3d
 =======
