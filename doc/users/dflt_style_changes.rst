@@ -490,6 +490,75 @@ The default math font when using the built-in math rendering engine
 ``mathtext.fontset`` to ``cm``.  This change has no effect if the
 TeX backend is used (i.e. ``text.usetex`` is ``True``).
 
+Legends
+=======
+
+- By default, the number of points displayed in a legend is now 1.
+- The default legend location is ``best``, so the legend will be
+  automatically placed in a location to obscure the least amount of
+  data possible.
+- The legend now has rounded corners by default.
+- The legend defaults now include rounded corners, a lighter
+  boundary, and partially transparent boundary and background.
+
+.. plot::
+
+   import matplotlib as mpl
+   import numpy as np
+   import matplotlib.pyplot as plt
+   import numpy as np
+
+   def demo(ax, rcparams, title):
+       np.random.seed(2)
+       N = 25
+       with mpl.rc_context(rc=rcparams):
+           x = range(N)
+           y = np.cumsum(np.random.randn(N) )
+           ln, = ax.plot(x, y, marker='s',
+	                 linestyle='-', label='plot')
+	   ax.fill_between(x, y, 0, label='fill', alpha=.5, color=ln.get_color())
+           ax.scatter(N*np.random.rand(N), np.random.rand(N), label='scatter')
+           ax.set_title(title)
+           ax.legend()
+
+   fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(6, 3), tight_layout=True)
+
+   classic_rc = {'legend.fancybox': False,
+                 'legend.numpoints': 2,
+                 'legend.scatterpoints': 3,
+                 'legend.framealpha': None,
+                 'legend.edgecolor': 'inherit',
+                 'legend.loc': 'upper right',
+                 'legend.fontsize': 'large',
+   }
+
+   demo(ax1, classic_rc, 'classic')
+   demo(ax2, {}, 'v2.0')
+
+
+The previous defaults can be restored by setting::
+
+   mpl.rcParams['legend.fancybox'] = False
+   mpl.rcParams['legend.loc'] = 'upper right'
+   mpl.rcParams['legend.numpoints'] = 2
+   mpl.rcParams['legend.fontsize'] = 'large'
+   mpl.rcParams['legend.framealpha'] = None
+   mpl.rcParams['legend.scatterpoints'] = 3
+   mpl.rcParams['legend.edgecolor'] = 'inherit'
+
+
+or by setting::
+
+   legend.fancybox      : False
+   legend.loc           : upper right
+   legend.numpoints     : 2      # the number of points in the legend line
+   legend.fontsize      : large
+   legend.framealpha    : None    # opacity of of legend frame
+   legend.scatterpoints : 3 # number of scatter points
+   legend.edgecolor     : inherit   # legend edge color (when None inherits from axes.facecolor)
+
+in your :file:`matplotlibrc` file.
+
 
 TEMPORARY NOTES TOM IS KEEPING IN THE SOURCE SO THEY DO NOT GET LOST
 ====================================================================
@@ -550,19 +619,6 @@ Dates
   ``%x`` and ``%X`` date formats may be of particular interest to
   format dates based on the current locale.
 
-Legends
-=======
-
-- By default, the number of points displayed in a legend is now 1.
-
-- The default legend location is ``best``, so the legend will be
-  automatically placed in a location to obscure the least amount of
-  data possible.
-
-- The legend now has rounded corners by default.
-
-- "The legend defaults now include rounded corners, a lighter
-  boundary, and partially transparent boundary and background."
 
 mplot3d
 =======
