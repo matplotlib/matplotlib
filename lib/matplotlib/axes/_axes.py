@@ -1608,7 +1608,7 @@ class Axes(_AxesBase):
             plot. See :meth:`~matplotlib.axes.Axes.set_yscale` for
             details.
 
-        nonposy : {'mask' | 'clip'} str 
+        nonposy : {'mask' | 'clip'} str
             Non-positive values in `y` can be masked as
             invalid, or clipped to a very small positive number.
 
@@ -1618,9 +1618,9 @@ class Axes(_AxesBase):
             Line instance of the plot.
 
         Other Parameters
-        ----------------        
+        ----------------
         kwargs : `~matplotlib.lines.Line2D` properties,
-        `~matplotlib.pylab.plot` and 
+        `~matplotlib.pylab.plot` and
         `matplotlib.axes.Axes.set_yscale` arguments.
 
         %(Line2D)s
@@ -1628,7 +1628,7 @@ class Axes(_AxesBase):
         See also
         --------
         :meth:`loglog`: For example code and figure.
-        
+
         """
         if not self._hold:
             self.cla()
