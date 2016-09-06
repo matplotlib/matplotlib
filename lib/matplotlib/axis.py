@@ -256,23 +256,19 @@ class Tick(artist.Artist):
             self.stale = False
             return
 
-        midPoint = mtransforms.interval_contains(self.get_view_interval(),
-                                                 self.get_loc())
+        renderer.open_group(self.__name__)
+        if self.gridOn:
+            self.gridline.draw(renderer)
+        if self.tick1On:
+            self.tick1line.draw(renderer)
+        if self.tick2On:
+            self.tick2line.draw(renderer)
 
-        if midPoint:
-            renderer.open_group(self.__name__)
-            if self.gridOn:
-                self.gridline.draw(renderer)
-            if self.tick1On:
-                self.tick1line.draw(renderer)
-            if self.tick2On:
-                self.tick2line.draw(renderer)
-
-            if self.label1On:
-                self.label1.draw(renderer)
-            if self.label2On:
-                self.label2.draw(renderer)
-            renderer.close_group(self.__name__)
+        if self.label1On:
+            self.label1.draw(renderer)
+        if self.label2On:
+            self.label2.draw(renderer)
+        renderer.close_group(self.__name__)
 
         self.stale = False
 
