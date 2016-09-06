@@ -452,6 +452,9 @@ There is no API level control of the hacth linewidth.
 Fonts
 =====
 
+Normal text
+-----------
+
 The default font has changed from "Bitstream Vera Sans" to "DejaVu
 Sans".  "DejaVu Sans" is an improvement on "Bistream Vera Sans" that
 adds more international and math characters, but otherwise has the
@@ -484,11 +487,56 @@ sub-set of emoji symbols
 See the `DejaVu Sans PDF sample for full coverage
 <http://dejavu.sourceforge.net/samples/DejaVuSans.pdf>`__.
 
+Math text
+---------
+
 The default math font when using the built-in math rendering engine
 (mathtext) has changed from "Computer Modern" (i.e. LaTeX-like) to
-"DejaVu Sans".  To revert to the old behavior, set the ``rcParam``
-``mathtext.fontset`` to ``cm``.  This change has no effect if the
+"DejaVu Sans".  This change has no effect if the
 TeX backend is used (i.e. ``text.usetex`` is ``True``).
+
+
+.. plot::
+
+   import matplotlib.pyplot as plt
+   import matplotlib as mpl
+
+   mpl.rcParams['mathtext.fontset'] = 'cm'
+
+   fig, ax  = plt.subplots(tight_layout=True, figsize=(3, 3))
+
+   ax.plot(range(15), label='int: $15 \int_0^\infty dx$')
+   ax.legend()
+   ax.set_title('classic')
+
+
+.. plot::
+
+   import matplotlib.pyplot as plt
+   import matplotlib as mpl
+
+   fig, ax  = plt.subplots(tight_layout=True, figsize=(3, 3))
+
+   ax.plot(range(15), label='int: $15 \int_0^\infty dx$')
+   ax.legend()
+   ax.set_title('v2.0')
+
+
+
+To revert to the old behavior set the::
+
+   mpl.rcParams['mathtext.fontset'] = 'cm'
+
+or by setting::
+
+  mathetxt.fontset: cm
+
+in your :file:`matplotlibrc` file.
+
+This ``rcParam`` is consulted when the text is drawn, not when the
+artist is created. Thus all mathtext on a given ``canvas`` will use the
+same fontset.
+
 
 Legends
 =======
