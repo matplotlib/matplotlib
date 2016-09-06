@@ -1357,18 +1357,18 @@ class MultiCursor(Widget):
         show()
 
     """
-    def __init__(self, canvas, axes, useblit=True, horizOn=False, vertOn=True,
+    def __init__(self, canvas, axes, useblit=True,
+                 horizOn=False, vertOn=True,
+                 horizMulti=False, vertMulti=True,
+                 horizShared=True, vertShared=False,
                  **lineprops):
 
         self.canvas = canvas
         self.axes = axes
         self.horizOn = horizOn
         self.vertOn = vertOn
-
-        xmin, xmax = axes[-1].get_xlim()
-        ymin, ymax = axes[-1].get_ylim()
-        xmid = 0.5 * (xmin + xmax)
-        ymid = 0.5 * (ymin + ymax)
+        self.horizMulti = horizMulti
+        self.vertMulti = vertMulti
 
         self.visible = True
         self.useblit = useblit and self.canvas.supports_blit
@@ -1378,17 +1378,31 @@ class MultiCursor(Widget):
         if self.useblit:
             lineprops['animated'] = True
 
+        self.vlines = []
         if vertOn:
-            self.vlines = [ax.axvline(xmid, visible=False, **lineprops)
-                           for ax in axes]
-        else:
-            self.vlines = []
+            xmin, xmax = axes[-1].get_xlim()
+            xmid = 0.5 * (xmin + xmax)
 
+            for ax in axes:
+                if not horizShared:
+                    xmin, xmax = ax.get_xlim()
+                    xmid = 0.5 * (xmin + xmax)
+
+                vline = ax.axvline(xmid, visible=False, **lineprops)
+                self.vlines.append(vline)
+
+        self.hlines = []
         if horizOn:
-            self.hlines = [ax.axhline(ymid, visible=False, **lineprops)
-                           for ax in axes]
-        else:
-            self.hlines = []
+            ymin, ymax = axes[-1].get_ylim()
+            ymid = 0.5 * (ymin + ymax)
+
+            for ax in axes:
+                if not vertShared:
+                    ymin, ymax = ax.get_ylim()
+                    ymid = 0.5 * (ymin + ymax)
+
+                hline = ax.axhline(ymid, visible=False, **lineprops)
+                self.hlines.append(hline)
 
         self.connect()
 
@@ -1425,24 +1439,36 @@ class MultiCursor(Widget):
             return
         if self.vertOn:
             for line in self.vlines:
-                line.set_xdata((event.xdata, event.xdata))
-                line.set_visible(self.visible)
+                visible = self.visible
+                if not self.vertMulti:
+                    visible = visible and line.axes == event.inaxes
+
+                if visible:
+                    line.set_xdata((event.xdata, event.xdata))
+                    line.set_visible(visible)
         if self.horizOn:
             for line in self.hlines:
-                line.set_ydata((event.ydata, event.ydata))
-                line.set_visible(self.visible)
-        self._update()
+                visible = self.visible
+                if not self.horizMulti:
+                    visible = visible and line.axes == event.inaxes
+                if visible:
+                    line.set_ydata((event.ydata, event.ydata))
+                    line.set_visible(self.visible)
+        self._update(event)
 
-    def _update(self):
+    def _update(self, event):
         if self.useblit:
             if self.background is not None:
                 self.canvas.restore_region(self.background)
             if self.vertOn:
                 for ax, line in zip(self.axes, self.vlines):
-                    ax.draw_artist(line)
+                    if self.vertMulti or event.inaxes == line.axes:
+                        ax.draw_artist(line)
+
             if self.horizOn:
                 for ax, line in zip(self.axes, self.hlines):
-                    ax.draw_artist(line)
+                    if self.horizMulti or event.inaxes == line.axes:
+                        ax.draw_artist(line)
             self.canvas.blit(self.canvas.figure.bbox)
         else:
             self.canvas.draw_idle()
