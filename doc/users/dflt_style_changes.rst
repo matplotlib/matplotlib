@@ -444,7 +444,7 @@ The behavior of the PS and Agg backends was DPI dependent, thus::
    mpl.rcParams['hatch.linewidth'] = 1.0 / dpi  # previous ps and Agg hatch linewidth
 
 
-There is no API level control of the hath linewidth.
+There is no API level control of the hacth linewidth.
 
 
 .. _default_changes_font:
@@ -454,12 +454,12 @@ Fonts
 
 The default font has changed from "Bitstream Vera Sans" to "DejaVu
 Sans".  "DejaVu Sans" is an improvement on "Bistream Vera Sans" that
-adds more international, and math characters, but otherwise has the
+adds more international and math characters, but otherwise has the
 same appearance.  Latin, Greek, Cyrillic, Armenian, Georgian, Hebrew,
 and Arabic are `all supported
 <http://dejavu-fonts.org/wiki/Main_Page>`__ (but right-to-left render
-is still not handled by matplotlib).  In addition to the practical,
-DejaVu contains a sub-set of emoji support
+is still not handled by matplotlib).  In addition , DejaVu contains a
+sub-set of emoji symbols
 
 .. plot::
 
