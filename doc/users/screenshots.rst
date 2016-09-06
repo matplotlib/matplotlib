@@ -197,16 +197,6 @@ The following example emulates one of the financial plots in
 
 .. plot:: mpl_examples/pylab_examples/finance_work2.py
 
-
-.. _screenshots_basemap_demo:
-
-Basemap demo
-============
-
-Jeff Whitaker's :ref:`toolkit_basemap` add-on toolkit makes it possible to plot data on many different map projections.  This example shows how to plot contours, markers and text on an orthographic projection, with NASA's "blue marble" satellite image as a background.
-
-.. plot:: pyplots/plotmap.py
-
 .. _screenshots_log_demo:
 
 Log plots

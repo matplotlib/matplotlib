@@ -52,6 +52,17 @@ except ImportError:
     raise ImportError("No module named numpydoc - you need to install "
                       "numpydoc to build the documentation.")
 
+try:
+    import colorspacious
+except ImportError:
+    raise ImportError("No module named colorspacious - you need to install "
+                      "colorspacious to build the documentation")
+
+try:
+    import mock
+except ImportError:
+    raise ImportError("No module named mock - you need to install "
+                      "mock to build the documentation")
 
 autosummary_generate = True
 
