@@ -1205,8 +1205,8 @@ class ArtistAnimation(TimedAnimation):
                 artist.set_visible(False)
                 artist.set_animated(self._blit)
                 # Assemble a list of unique figures that need flushing
-                if artist.axes.figure not in figs:
-                    figs.add(artist.axes.figure)
+                if artist.get_figure() not in figs:
+                    figs.add(artist.get_figure())
 
         # Flush the needed figures
         for fig in figs:
