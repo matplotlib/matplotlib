@@ -1832,7 +1832,6 @@ class Axes(_AxesBase):
         ----
         Additional parameters are the same as those for 
         :func:`~matplotlib.pyplot.plot`.
-
         """
 
         where = kwargs.pop('where', 'pre')
