@@ -1204,11 +1204,11 @@ class ArtistAnimation(TimedAnimation):
             for artist in f:
                 artist.set_visible(False)
                 artist.set_animated(self._blit)
-                # Assemble a list of unique axes that need flushing
+                # Assemble a list of unique figures that need flushing
                 if artist.axes.figure not in figs:
                     figs.add(artist.axes.figure)
 
-        # Flush the needed axes
+        # Flush the needed figures
         for fig in figs:
             fig.canvas.draw_idle()
 
