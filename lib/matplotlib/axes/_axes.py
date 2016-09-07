@@ -4666,8 +4666,8 @@ or tuple of floats
     def fill(self, *args, **kwargs):
         """Plot filled polygons.
 
-	Parameters
-	----------
+        Parameters
+        ----------
         args : a variable length argument
             It allowing for multiple
             *x*, *y* pairs with an optional color format string; see
@@ -4683,7 +4683,7 @@ or tuple of floats
 
         Returns
         -------
-	a list of :class:`~matplotlib.patches.Patch`
+        a list of :class:`~matplotlib.patches.Patch`
 
         Other Parameters
         ----------------
@@ -4691,8 +4691,8 @@ or tuple of floats
 
         %(Polygons)
 
-	Notes
-	-----
+        Notes
+        -----
         The same color strings that :func:`~matplotlib.pyplot.plot`
         supports are supported by the fill format string.
 
@@ -4701,7 +4701,7 @@ or tuple of floats
 
 
         Example
-	-------
+        -------
         .. plot:: mpl_examples/lines_bars_and_markers/fill_demo.py
 
 
