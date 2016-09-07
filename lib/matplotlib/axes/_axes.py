@@ -2706,7 +2706,7 @@ class Axes(_AxesBase):
         x : scalar
         y : scalar
 
-        xerr/yerr : scalar or array-like, shape(n,1) or shape(2,n), optional
+        xerr/yerr : scalar/array-like, shape(n,1) or shape(2,n), optional
             If a scalar number, len(N) array-like object, or an Nx1
             array-like object, errorbars are drawn at +/-value relative
             to the data. Default is None.
