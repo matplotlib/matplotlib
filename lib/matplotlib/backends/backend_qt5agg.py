@@ -6,8 +6,9 @@ from __future__ import (absolute_import, division, print_function,
 
 from matplotlib.externals import six
 
-import sys
 import ctypes
+import sys
+import traceback
 
 from matplotlib.figure import Figure
 
@@ -178,6 +179,9 @@ class FigureCanvasQTAggBase(object):
         try:
             FigureCanvasAgg.draw(self)
             self.update()
+        except Exception:
+            # Uncaught exceptions are fatal for PyQt5, so catch them instead.
+            traceback.print_exc()
         finally:
             self._agg_draw_pending = False
 
