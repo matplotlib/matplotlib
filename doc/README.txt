@@ -20,12 +20,7 @@ directory. The top file of the results will be ./build/html/index.html
 
 **Note that Sphinx uses the installed version of the package to build the
 documentation**: matplotlib must be installed *before* the docs can be
-generated. Even if that is the case, one of the files needed to do this,
-'../lib/matplotlib/mpl-data/matplotlibrc', is not version controlled, but
-created when matplotlib is built. This means that the documentation cannot be
-generated immediately after checking out the source code, even if matplotlib
-is installed on your system: you will have to run ``python setup.py build``
-first.
+generated.
 
 You can build the documentation with several options:
 
