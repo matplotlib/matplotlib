@@ -9,7 +9,7 @@ from nose.plugins.attrib import attr
 
 import numpy as np
 
-from matplotlib.testing import skip
+from matplotlib.testing import skip, closed_tempfile
 from matplotlib.testing.decorators import (image_comparison,
                                            knownfailureif, cleanup)
 from matplotlib.image import (BboxImage, imread, NonUniformImage,
@@ -755,8 +755,6 @@ def test_imshow_endianess():
 
 @cleanup
 def test_imsave_accept_pep_519():
-    from tempfile import NamedTemporaryFile
-
     class FakeFSPathClass(object):
         def __init__(self, path):
             self._path = path
@@ -765,10 +763,9 @@ def test_imsave_accept_pep_519():
             return self._path
 
     a = np.array([[1, 2], [3, 4]])
-    tmpfile = NamedTemporaryFile(suffix='.pdf')
-    tmpfile.close()
-    pep519_path = FakeFSPathClass(tmpfile.name)
-    plt.imsave(pep519_path, a)
+    with closed_tempfile(suffix='.pdf') as fname:
+        pep519_path = FakeFSPathClass(fname)
+        plt.imsave(pep519_path, a)
 
 
 @cleanup
@@ -777,13 +774,11 @@ def test_imsave_accept_pathlib():
         from pathlib import Path
     except ImportError:
         skip("pathlib not installed")
-    from tempfile import NamedTemporaryFile
 
     a = np.array([[1, 2], [3, 4]])
-    tmpfile = NamedTemporaryFile(suffix='.pdf')
-    tmpfile.close()
-    path = Path(tmpfile.name)
-    plt.imsave(path, a)
+    with closed_tempfile(suffix='.pdf') as fname:
+        path = Path(fname)
+        plt.imsave(path, a)
 
 
 if __name__=='__main__':

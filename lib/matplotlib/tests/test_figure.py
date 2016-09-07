@@ -8,7 +8,7 @@ from nose.tools import assert_equal, assert_true
 
 from matplotlib import rcParams
 from matplotlib.testing.decorators import image_comparison, cleanup
-from matplotlib.testing import skip
+from matplotlib.testing import skip, closed_tempfile
 from matplotlib.axes import Axes
 import matplotlib.pyplot as plt
 import numpy as np
@@ -209,8 +209,6 @@ def test_figaspect():
 
 @cleanup
 def test_savefig_accept_pep_519_png():
-    from tempfile import NamedTemporaryFile
-
     class FakeFSPathClass(object):
         def __init__(self, path):
             self._path = path
@@ -221,10 +219,9 @@ def test_savefig_accept_pep_519_png():
     fig, ax = plt.subplots()
     ax.plot([1, 2], [3, 4])
 
-    tmpfile = NamedTemporaryFile(suffix='.png')
-    tmpfile.close()
-    pep519_path = FakeFSPathClass(tmpfile.name)
-    fig.savefig(pep519_path)
+    with closed_tempfile(suffix='.png') as fname:
+        pep519_path = FakeFSPathClass(fname)
+        fig.savefig(pep519_path)
 
 
 @cleanup
@@ -233,19 +230,16 @@ def test_savefig_accept_pathlib_png():
         from pathlib import Path
     except ImportError:
         skip("pathlib not installed")
-    from tempfile import NamedTemporaryFile
 
     fig, ax = plt.subplots()
     ax.plot([1, 2], [3, 4])
-    tmpfile = NamedTemporaryFile(suffix='.png')
-    tmpfile.close()
-    path = Path(tmpfile.name)
-    fig.savefig(path)
+    with closed_tempfile(suffix='.png') as fname:
+        path = Path(fname)
+        fig.savefig(path)
 
 
 @cleanup
 def test_savefig_accept_pep_519_svg():
-    from tempfile import NamedTemporaryFile
 
     class FakeFSPathClass(object):
         def __init__(self, path):
@@ -256,10 +250,9 @@ def test_savefig_accept_pep_519_svg():
 
     fig, ax = plt.subplots()
     ax.plot([1, 2], [3, 4])
-    tmpfile = NamedTemporaryFile(suffix='.svg')
-    tmpfile.close()
-    pep519_path = FakeFSPathClass(tmpfile.name)
-    fig.savefig(pep519_path)
+    with closed_tempfile(suffix='.svg') as fname:
+        pep519_path = FakeFSPathClass(fname)
+        fig.savefig(pep519_path)
 
 
 @cleanup
@@ -268,19 +261,16 @@ def test_savefig_accept_pathlib_svg():
         from pathlib import Path
     except ImportError:
         skip("pathlib not installed")
-    from tempfile import NamedTemporaryFile
 
     fig, ax = plt.subplots()
     ax.plot([1, 2], [3, 4])
-    tmpfile = NamedTemporaryFile(suffix='.svg')
-    tmpfile.close()
-    path = Path(tmpfile.name)
-    fig.savefig(path)
+    with closed_tempfile(suffix='.svg') as fname:
+        path = Path(fname)
+        fig.savefig(path)
 
 
 @cleanup
 def test_savefig_accept_pep_519_pdf():
-    from tempfile import NamedTemporaryFile
 
     class FakeFSPathClass(object):
         def __init__(self, path):
@@ -291,10 +281,9 @@ def test_savefig_accept_pep_519_pdf():
 
     fig, ax = plt.subplots()
     ax.plot([1, 2], [3, 4])
-    tmpfile = NamedTemporaryFile(suffix='.pdf')
-    tmpfile.close()
-    pep519_path = FakeFSPathClass(tmpfile.name)
-    fig.savefig(pep519_path)
+    with closed_tempfile(suffix='.pdf') as fname:
+        pep519_path = FakeFSPathClass(fname)
+        fig.savefig(pep519_path)
 
 
 @cleanup
@@ -303,14 +292,12 @@ def test_savefig_accept_pathlib_pdf():
         from pathlib import Path
     except ImportError:
         skip("pathlib not installed")
-    from tempfile import NamedTemporaryFile
 
     fig, ax = plt.subplots()
     ax.plot([1, 2], [3, 4])
-    tmpfile = NamedTemporaryFile(suffix='.pdf')
-    tmpfile.close()
-    path = Path(tmpfile.name)
-    fig.savefig(path)
+    with closed_tempfile(suffix='.pdf') as fname:
+        path = Path(fname)
+        fig.savefig(path)
 
 if __name__ == "__main__":
     import nose

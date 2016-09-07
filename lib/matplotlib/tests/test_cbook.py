@@ -14,7 +14,7 @@ from numpy.testing.utils import (assert_array_equal, assert_approx_equal,
 from nose.tools import (assert_equal, assert_not_equal, raises, assert_true,
                         assert_raises)
 from matplotlib.testing.decorators import cleanup
-from matplotlib.testing import skip
+from matplotlib.testing import skip, closed_tempfile
 
 import matplotlib.cbook as cbook
 import matplotlib.colors as mcolors
@@ -529,8 +529,6 @@ def test_flatiter():
 
 @cleanup
 def test_to_filehandle_accept_pep_519():
-    from tempfile import NamedTemporaryFile
-
     class FakeFSPathClass(object):
         def __init__(self, path):
             self._path = path
@@ -538,10 +536,9 @@ def test_to_filehandle_accept_pep_519():
         def __fspath__(self):
             return self._path
 
-    tmpfile = NamedTemporaryFile(delete=False)
-    tmpfile.close()
-    pep519_path = FakeFSPathClass(tmpfile.name)
-    cbook.to_filehandle(pep519_path)
+    with closed_tempfile() as tmpfile:
+        pep519_path = FakeFSPathClass(tmpfile)
+        cbook.to_filehandle(pep519_path)
 
 
 @cleanup
@@ -550,9 +547,7 @@ def test_to_filehandle_accept_pathlib():
         from pathlib import Path
     except ImportError:
         skip("pathlib not installed")
-    from tempfile import NamedTemporaryFile
 
-    tmpfile = NamedTemporaryFile(delete=False)
-    tmpfile.close()
-    path = Path(tmpfile.name)
-    cbook.to_filehandle(path)
+    with closed_tempfile() as tmpfile:
+        path = Path(tmpfile)
+        cbook.to_filehandle(path)
