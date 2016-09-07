@@ -4,6 +4,7 @@ from __future__ import (absolute_import, division, print_function,
 from numpy.testing import assert_equal
 from matplotlib import rcParams
 from matplotlib.testing.decorators import image_comparison
+from matplotlib.testing import skip, closed_tempfile
 from matplotlib.axes import Axes
 from matplotlib.ticker import AutoMinorLocator, FixedFormatter
 import matplotlib.pyplot as plt
@@ -277,8 +278,6 @@ def test_autofmt_xdate(which):
 
 @pytest.mark.parametrize('ext', ['png', 'svg', 'pdf'])
 def test_savefig_accept_pep_519(ext):
-    from tempfile import NamedTemporaryFile
-
     class FakeFSPathClass(object):
         def __init__(self, path):
             self._path = path
@@ -288,11 +287,8 @@ def test_savefig_accept_pep_519(ext):
 
     fig, ax = plt.subplots()
     ax.plot([1, 2], [3, 4])
-
-    tmpfile = NamedTemporaryFile(suffix='.{}'.format(ext))
-    tmpfile.close()
-    pep519_path = FakeFSPathClass(tmpfile.name)
-    fig.savefig(pep519_path)
+    with closed_tempfile(suffix='.{}'.format(ext)) as fname:
+        fig.savefig(FakeFSPathClass(fname))
 
 
 @pytest.mark.parametrize('ext', ['png', 'svg', 'pdf'])
@@ -300,12 +296,9 @@ def test_savefig_accept_pathlib(ext):
     try:
         from pathlib import Path
     except ImportError:
-        raise pytest.skipd("pathlib not installed")
-    from tempfile import NamedTemporaryFile
+        skip("pathlib not installed")
 
     fig, ax = plt.subplots()
     ax.plot([1, 2], [3, 4])
-    tmpfile = NamedTemporaryFile(suffix='.{}'.format(ext))
-    tmpfile.close()
-    path = Path(tmpfile.name)
-    fig.savefig(path)
+    with closed_tempfile(suffix='.{}'.format(ext)) as fname:
+        fig.savefig(Path(fname))
