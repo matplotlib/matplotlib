@@ -1544,11 +1544,12 @@ class Axes(_AxesBase):
     def semilogx(self, *args, **kwargs):
         """
         Make a plot with log scaling on the *x* axis.
-        
+
         Parameters
         ----------
         basex : float, optional
-            Base of the *x* logarithm.
+            Base of the *x* logarithm. The scalar should be larger
+            than 1.
 
         subsx : array_like, optional
             The location of the minor xticks; *None* defaults to
@@ -1570,14 +1571,14 @@ class Axes(_AxesBase):
         :class:`~matplotlib.lines.Line2D` properties:
 
         %(Line2D)s
-	
+
         See Also
         --------
         loglog : For example code and figure.
 
         Notes
         -----
-        *This function supports all the keyword arguments of
+        This function supports all the keyword arguments of
         :func:`~matplotlib.pyplot.plot` and
         :meth:`matplotlib.axes.Axes.set_xscale`.
 
