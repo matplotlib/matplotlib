@@ -4626,8 +4626,8 @@ class Axes(_AxesBase):
     def fill(self, *args, **kwargs):
         """Plot filled polygons.
 
-	Parameters
-	----------
+        Parameters
+        ----------
         args : a variable length argument
             It allowing for multiple
             *x*, *y* pairs with an optional color format string; see
@@ -4643,7 +4643,7 @@ class Axes(_AxesBase):
 
         Returns
         -------
-	a list of :class:`~matplotlib.patches.Patch`
+        a list of :class:`~matplotlib.patches.Patch`
 
         Other Parameters
         ----------------
@@ -4651,8 +4651,8 @@ class Axes(_AxesBase):
 
         %(Polygons)
 
-	Notes
-	-----
+        Notes
+        -----
         The same color strings that :func:`~matplotlib.pyplot.plot`
         supports are supported by the fill format string.
 
@@ -4661,7 +4661,7 @@ class Axes(_AxesBase):
 
 
         Example
-	-------
+        -------
         .. plot:: mpl_examples/lines_bars_and_markers/fill_demo.py
 
 
