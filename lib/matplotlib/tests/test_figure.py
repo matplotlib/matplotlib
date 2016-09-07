@@ -5,10 +5,10 @@ import six
 from six.moves import xrange
 
 from nose.tools import assert_equal, assert_true
-from nose.plugins.skip import SkipTest
 
 from matplotlib import rcParams
 from matplotlib.testing.decorators import image_comparison, cleanup
+from matplotlib.testing import skip
 from matplotlib.axes import Axes
 import matplotlib.pyplot as plt
 import numpy as np
@@ -232,7 +232,7 @@ def test_savefig_accept_pathlib_png():
     try:
         from pathlib import Path
     except ImportError:
-        raise SkipTest("pathlib not installed")
+        skip("pathlib not installed")
     from tempfile import NamedTemporaryFile
 
     fig, ax = plt.subplots()
@@ -267,7 +267,7 @@ def test_savefig_accept_pathlib_svg():
     try:
         from pathlib import Path
     except ImportError:
-        raise SkipTest("pathlib not installed")
+        skip("pathlib not installed")
     from tempfile import NamedTemporaryFile
 
     fig, ax = plt.subplots()
@@ -302,7 +302,7 @@ def test_savefig_accept_pathlib_pdf():
     try:
         from pathlib import Path
     except ImportError:
-        raise SkipTest("pathlib not installed")
+        skip("pathlib not installed")
     from tempfile import NamedTemporaryFile
 
     fig, ax = plt.subplots()

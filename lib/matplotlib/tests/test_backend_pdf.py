@@ -14,7 +14,7 @@ from matplotlib.backends.backend_pdf import PdfPages
 from matplotlib import pyplot as plt
 from matplotlib.testing.decorators import (image_comparison, knownfailureif,
                                            cleanup)
-from nose.plugins.skip import SkipTest
+from matplotlib.testing import skip
 
 if 'TRAVIS' not in os.environ:
     @image_comparison(baseline_images=['pdf_use14corefonts'],
@@ -158,7 +158,7 @@ def test_savefig_accept_pathlib():
     try:
         from pathlib import Path
     except ImportError:
-        raise SkipTest("pathlib not installed")
+        skip("pathlib not installed")
     from tempfile import NamedTemporaryFile
 
     fig, ax = plt.subplots()

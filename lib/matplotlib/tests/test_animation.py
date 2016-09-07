@@ -9,7 +9,6 @@ import tempfile
 import numpy as np
 from numpy.testing import assert_equal
 from nose.tools import assert_false, assert_true
-from nose.plugins.skip import SkipTest
 import matplotlib as mpl
 from matplotlib import pyplot as plt
 from matplotlib import animation
@@ -200,7 +199,7 @@ def check_save_animation_pathlib(writer, extension='mp4'):
     try:
         from pathlib import Path
     except ImportError:
-        raise SkipTest("pathlib not installed")
+        skip("pathlib not installed")
 
     if not animation.writers.is_available(writer):
         skip("writer '%s' not available on this system" % writer)

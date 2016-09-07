@@ -6,10 +6,10 @@ import io
 import os
 
 from nose.plugins.attrib import attr
-from nose.plugins.skip import SkipTest
 
 import numpy as np
 
+from matplotlib.testing import skip
 from matplotlib.testing.decorators import (image_comparison,
                                            knownfailureif, cleanup)
 from matplotlib.image import (BboxImage, imread, NonUniformImage,
@@ -776,7 +776,7 @@ def test_imsave_accept_pathlib():
     try:
         from pathlib import Path
     except ImportError:
-        raise SkipTest("pathlib not installed")
+        skip("pathlib not installed")
     from tempfile import NamedTemporaryFile
 
     a = np.array([[1, 2], [3, 4]])

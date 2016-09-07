@@ -13,8 +13,8 @@ from numpy.testing.utils import (assert_array_equal, assert_approx_equal,
                                  assert_array_almost_equal)
 from nose.tools import (assert_equal, assert_not_equal, raises, assert_true,
                         assert_raises)
-from nose.plugins.skip import SkipTest
 from matplotlib.testing.decorators import cleanup
+from matplotlib.testing import skip
 
 import matplotlib.cbook as cbook
 import matplotlib.colors as mcolors
@@ -549,7 +549,7 @@ def test_to_filehandle_accept_pathlib():
     try:
         from pathlib import Path
     except ImportError:
-        raise SkipTest("pathlib not installed")
+        skip("pathlib not installed")
     from tempfile import NamedTemporaryFile
 
     tmpfile = NamedTemporaryFile(delete=False)
