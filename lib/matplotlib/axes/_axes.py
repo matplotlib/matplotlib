@@ -1416,7 +1416,7 @@ class Axes(_AxesBase):
         """
         A plot with data that contains dates.
         
-        Similar to the :func:~matplotlib.pyplot.plot command, except
+        Similar to the :func:`~matplotlib.pyplot.plot` command, except
         the *x* or *y* (or both) data is considered to be dates, and the
         axis is labeled accordingly.
 
@@ -1425,15 +1425,15 @@ class Axes(_AxesBase):
 
         Note if you are using custom date tickers and formatters, it
         may be necessary to set the formatters/locators after the call
-        to meth : plot_date since meth : plot_date will set the
+        to meth:`plot_date` since meth:`plot_date` will set the
         default tick locator to
-        class : matplotlib.dates.AutoDateLocator (if the tick
+        class:`matplotlib.dates.AutoDateLocator` (if the tick
         locator is not already set to a
-        class : matplotlib.dates.DateLocator instance) and the
+        class:`matplotlib.dates.DateLocator` instance) and the
         default tick formatter to
-        class : matplotlib.dates.AutoDateFormatter (if the tick
+        class:`matplotlib.dates.AutoDateFormatter` (if the tick
         formatter is not already set to a
-        class : matplotlib.dates.DateFormatter instance).
+        class:`matplotlib.dates.DateFormatter` instance).
 
 
         Parameters
@@ -1468,7 +1468,8 @@ class Axes(_AxesBase):
 
         Other Parameters
         ----------------
-        kwargs : class : matplotlib.lines.Line2D properties : %(Line2D)s
+        kwargs : class : matplotlib.lines.Line2D
+        properties : %(Line2D)s
 
 
         Examples
