@@ -1460,9 +1460,9 @@ class Axes(_AxesBase):
         See Also
         --------
         mod : matplotlib.dates for helper functions
-        :func:~matplotlib.dates.date2num
-        :func:~matplotlib.dates.num2date
-        :func:~matplotlib.dates.drange for help on creating the required
+        :func:`~matplotlib.dates.date2num`
+        :func:`~matplotlib.dates.num2date`
+        :func:`~matplotlib.dates.drange` for help on creating the required
         floating point dates
 
 
