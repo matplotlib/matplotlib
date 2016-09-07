@@ -830,6 +830,8 @@ class Axes(_AxesBase):
         ----------------
         kwargs : `~matplotlib.patches.Polygon` properties.
 
+        %(Polygon)s
+
         See Also
         --------
         axvspan : Add a vertical span (rectangle) across the axes.
