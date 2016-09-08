@@ -2786,7 +2786,7 @@ class Axes(_AxesBase):
         %(Line2D)s
 
 
-        Example
+        Examples
         -------
         .. plot:: mpl_examples/statistics/errorbar_demo.py
         """
