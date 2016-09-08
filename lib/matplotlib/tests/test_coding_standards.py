@@ -191,7 +191,6 @@ def test_pep8_conformance_installed_files():
                           'texmanager.py',
                           'transforms.py',
                           'type1font.py',
-                          'widgets.py',
                           'testing/decorators.py',
                           'testing/jpl_units/Duration.py',
                           'testing/jpl_units/Epoch.py',
