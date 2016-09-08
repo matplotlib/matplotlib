@@ -19,4 +19,5 @@ line1.set_dashes(dashes)
 line2, = ax.plot(x, -1 * np.sin(x), dashes=[30, 5, 10, 5],
                  label='Dashes set proactively')
 
+ax.legend(loc='lower right')
 plt.show()
