@@ -2770,24 +2770,23 @@ class Axes(_AxesBase):
 
         Other Parameters
         ----------------
-        All other keyword arguments are passed on to the plot command for the
-        markers. For example, this code makes big red squares with
-        thick green edges::
+        kwargs : All other keyword arguments are passed on to the plot command for the
+            markers. For example, this code makes big red squares with
+            thick green edges::
 
-        x,y,yerr = rand(3,10)
-        errorbar(x, y, yerr, marker='s', mfc='red', mec='green', ms=20, mew=4)
+                x,y,yerr = rand(3,10)
+                errorbar(x, y, yerr, marker='s', mfc='red', mec='green', ms=20, mew=4)
 
-        where mfc, mec, ms and mew are aliases for the longer
-        property names, markerfacecolor, markeredgecolor, markersize
-        and markeredgewidth.
+            where mfc, mec, ms and mew are aliases for the longer
+            property names, markerfacecolor, markeredgecolor, markersize
+            and markeredgewidth.
 
-        valid kwargs for the marker properties are
+            valid kwargs for the marker properties are
 
-        %(Line2D)s
-
+            %(Line2D)s
 
         Examples
-        -------
+        --------
         .. plot:: mpl_examples/statistics/errorbar_demo.py
         """
         kwargs = cbook.normalize_kwargs(kwargs, _alias_map)
