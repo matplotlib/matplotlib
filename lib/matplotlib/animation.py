@@ -1184,7 +1184,7 @@ class ArtistAnimation(TimedAnimation):
     Before calling this function, all plotting should have taken place
     and the relevant artists saved.
 
-    frame_info is a list, with each list entry a collection of artists that
+    *artists* is a list, with each list entry a collection of artists that
     represent what needs to be enabled on each frame. These will be disabled
     for other frames.
     '''
@@ -1205,8 +1205,8 @@ class ArtistAnimation(TimedAnimation):
                 artist.set_visible(False)
                 artist.set_animated(self._blit)
                 # Assemble a list of unique figures that need flushing
-                if artist.axes.figure not in figs:
-                    figs.add(artist.axes.figure)
+                if artist.get_figure() not in figs:
+                    figs.add(artist.get_figure())
 
         # Flush the needed figures
         for fig in figs:
