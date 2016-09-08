@@ -293,5 +293,4 @@ being used in various ways:
 * :ref:`api-legend_demo`
 * :ref:`pylab_examples-contourf_hatching`
 * :ref:`pylab_examples-figlegend_demo`
-* :ref:`pylab_examples-finance_work2`
 * :ref:`pylab_examples-scatter_symbol`
