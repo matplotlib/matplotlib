@@ -1129,7 +1129,7 @@ def test_hist_step_empty():
     ax = plt.gca()
     ax.hist([], histtype='step')
 
-@image_comparison(baseline_images=['hist_steplog'], remove_text=True, tol=0.05)
+@image_comparison(baseline_images=['hist_steplog'], remove_text=True, tol=0.1)
 def test_hist_steplog():
     np.random.seed(0)
     data = np.random.standard_normal(2000)
