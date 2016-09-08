@@ -1,0 +1,14 @@
+# Requirements for building docs
+# You will first need a matching matplotlib installed
+# e.g (from the matplotlib root directory)
+#     pip install -e .
+#
+# Install the documentation requirements with:
+#     pip install -r doc-requirements.txt
+#
+sphinx>1.0
+numpydoc
+ipython
+mock
+colorspacious
+pillow
