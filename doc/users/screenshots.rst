@@ -183,16 +183,6 @@ for both.
 See :mod:`matplotlib.ticker` and :mod:`matplotlib.dates` for details and usage.
 
 
-
-.. _screenshots_basemap_demo:
-
-Basemap demo
-============
-
-Jeff Whitaker's :ref:`toolkit_basemap` add-on toolkit makes it possible to plot data on many different map projections.  This example shows how to plot contours, markers and text on an orthographic projection, with NASA's "blue marble" satellite image as a background.
-
-.. plot:: pyplots/plotmap.py
-
 .. _screenshots_log_demo:
 
 Log plots
