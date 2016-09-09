@@ -140,6 +140,4 @@ plt.annotate('', xy=(3.15, 0.0), xycoords='data',
 plt.text(4.0, -0.4, "Made with http://matplotlib.org",
          fontsize=10, ha="right", color='.5')
 
-plt.savefig("anatomy.pdf")
-plt.savefig("anatomy.png", dpi=150)
 plt.show()
