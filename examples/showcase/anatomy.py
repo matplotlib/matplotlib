@@ -2,7 +2,6 @@
 
 import numpy as np
 import matplotlib.pyplot as plt
-from matplotlib.patches import Circle
 from matplotlib.ticker import MultipleLocator, FuncFormatter
 
 np.random.seed(123)
@@ -12,8 +11,8 @@ Y1 = 3+np.cos(X)
 Y2 = 1+np.cos(1+X/0.75)/2
 Y3 = np.random.uniform(Y1, Y2, len(X))
 
-plt.figure(figsize=(8, 8), facecolor="w")
-ax = plt.subplot(1, 1, 1, aspect=1)
+fig = plt.figure(figsize=(8, 8), facecolor="w")
+ax = fig.add_subplot(1, 1, 1, aspect=1)
 
 
 def minor_tick(x, pos):
@@ -21,49 +20,45 @@ def minor_tick(x, pos):
         return ""
     return "%.2f" % x
 
-plt.axes().xaxis.set_major_locator(MultipleLocator(1.000))
-plt.axes().xaxis.set_minor_locator(MultipleLocator(0.250))
-plt.axes().yaxis.set_major_locator(MultipleLocator(1.000))
-plt.axes().yaxis.set_minor_locator(MultipleLocator(0.250))
-plt.axes().xaxis.set_minor_formatter(FuncFormatter(minor_tick))
+ax.xaxis.set_major_locator(MultipleLocator(1.000))
+ax.xaxis.set_minor_locator(MultipleLocator(0.250))
+ax.yaxis.set_major_locator(MultipleLocator(1.000))
+ax.yaxis.set_minor_locator(MultipleLocator(0.250))
+ax.xaxis.set_minor_formatter(FuncFormatter(minor_tick))
 
-plt.xlim(0, 4)
-plt.ylim(0, 4)
+ax.set_xlim(0, 4)
+ax.set_ylim(0, 4)
 
-plt.tick_params(which='major', width=1.0)
-plt.tick_params(which='major', length=10)
-plt.tick_params(which='minor', width=1.0, labelsize=10)
-plt.tick_params(which='minor', length=5, labelsize=10, labelcolor='0.25')
+ax.tick_params(which='major', width=1.0)
+ax.tick_params(which='major', length=10)
+ax.tick_params(which='minor', width=1.0, labelsize=10)
+ax.tick_params(which='minor', length=5, labelsize=10, labelcolor='0.25')
 
-plt.grid(linestyle="--", linewidth=0.5, color='.25', zorder=-10)
+ax.grid(linestyle="--", linewidth=0.5, color='.25', zorder=-10)
 
-plt.plot(X, Y1, c=(0.25, 0.25, 1.00), lw=2, label="Blue signal", zorder=10)
-plt.plot(X, Y2, c=(1.00, 0.25, 0.25), lw=2, label="Red signal")
-plt.scatter(X, Y3, c='w')
+ax.plot(X, Y1, c=(0.25, 0.25, 1.00), lw=2, label="Blue signal", zorder=10)
+ax.plot(X, Y2, c=(1.00, 0.25, 0.25), lw=2, label="Red signal")
+ax.scatter(X, Y3, c='w')
 
-plt.title("Anatomy of a figure", fontsize=20)
-plt.xlabel("X axis label")
-plt.ylabel("Y axis label")
+ax.set_title("Anatomy of a figure", fontsize=20)
+ax.set_xlabel("X axis label")
+ax.set_ylabel("Y axis label")
 
-plt.legend(frameon=False)
+ax.legend(frameon=False)
 
 
 def circle(x, y, radius=0.15):
-    center = x, y
-    circle = Circle(center, radius, clip_on=False, zorder=10,
-                    edgecolor='white', facecolor='none', linewidth=5.0)
-    plt.axes().add_artist(circle)
-    circle = Circle(center, radius, clip_on=False, zorder=20,
-                    edgecolor='none', facecolor='black', alpha=.025)
-    plt.axes().add_artist(circle)
-    circle = Circle(center, radius, clip_on=False, zorder=30,
-                    edgecolor='black', facecolor='none', linewidth=1.0)
-    plt.axes().add_artist(circle)
+    from matplotlib.patches import Circle
+    from matplotlib.patheffects import withStroke
+    circle = Circle((x, y), radius, clip_on=False, zorder=10, linewidth=1,
+                    edgecolor='black', facecolor=(0, 0, 0, .0125),
+                    path_effects=[withStroke(linewidth=5, foreground='w')])
+    ax.add_artist(circle)
 
 
 def text(x, y, text):
-    plt.text(x, y, text, backgroundcolor="white",
-             ha='center', va='top', weight='bold', color='blue')
+    ax.text(x, y, text, backgroundcolor="white",
+            ha='center', va='top', weight='bold', color='blue')
 
 
 # Minor tick
@@ -123,21 +118,21 @@ circle(-0.3, 0.65)
 text(-0.3, 0.45, "Figure")
 
 color = 'blue'
-plt.annotate('Spines', xy=(4.0, 0.35), xycoords='data',
-             xytext=(3.3, 0.5), textcoords='data',
-             weight='bold', color=color,
-             arrowprops=dict(arrowstyle='->',
-                             connectionstyle="arc3",
-                             color=color))
+ax.annotate('Spines', xy=(4.0, 0.35), xycoords='data',
+            xytext=(3.3, 0.5), textcoords='data',
+            weight='bold', color=color,
+            arrowprops=dict(arrowstyle='->',
+                            connectionstyle="arc3",
+                            color=color))
 
-plt.annotate('', xy=(3.15, 0.0), xycoords='data',
-             xytext=(3.45, 0.45), textcoords='data',
-             weight='bold', color=color,
-             arrowprops=dict(arrowstyle='->',
-                             connectionstyle="arc3",
-                             color=color))
+ax.annotate('', xy=(3.15, 0.0), xycoords='data',
+            xytext=(3.45, 0.45), textcoords='data',
+            weight='bold', color=color,
+            arrowprops=dict(arrowstyle='->',
+                            connectionstyle="arc3",
+                            color=color))
 
-plt.text(4.0, -0.4, "Made with http://matplotlib.org",
-         fontsize=10, ha="right", color='.5')
+ax.text(4.0, -0.4, "Made with http://matplotlib.org",
+        fontsize=10, ha="right", color='.5')
 
 plt.show()
