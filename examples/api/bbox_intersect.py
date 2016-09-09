@@ -3,9 +3,13 @@ import matplotlib.pyplot as plt
 from matplotlib.transforms import Bbox
 from matplotlib.path import Path
 
-rect = plt.Rectangle((-1, -1), 2, 2, facecolor="#aaaaaa")
-plt.gca().add_patch(rect)
-bbox = Bbox.from_bounds(-1, -1, 2, 2)
+left, bottom, width, height = (-1, -1, 2, 2)
+rect = plt.Rectangle((left, bottom), width, height, facecolor="#aaaaaa")
+
+fig, ax = plt.subplots()
+ax.add_patch(rect)
+
+bbox = Bbox.from_bounds(left, bottom, width, height)
 
 for i in range(12):
     vertices = (np.random.random((2, 2)) - 0.5) * 6.0
@@ -14,6 +18,6 @@ for i in range(12):
         color = 'r'
     else:
         color = 'b'
-    plt.plot(vertices[:, 0], vertices[:, 1], color=color)
+    ax.plot(vertices[:, 0], vertices[:, 1], color=color)
 
 plt.show()

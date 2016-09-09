@@ -169,14 +169,14 @@ if __name__ == '__main__':
     data = example_data()
     spoke_labels = data.pop(0)
 
-    fig = plt.figure(figsize=(9, 9))
+    fig, axes = plt.subplots(figsize=(9, 9), nrows=2, ncols=2,
+                             subplot_kw=dict(projection='radar'))
     fig.subplots_adjust(wspace=0.25, hspace=0.20, top=0.85, bottom=0.05)
 
     colors = ['b', 'r', 'g', 'm', 'y']
     # Plot the four cases from the example data on separate axes
-    for n, (title, case_data) in enumerate(data):
-        ax = fig.add_subplot(2, 2, n + 1, projection='radar')
-        plt.rgrids([0.2, 0.4, 0.6, 0.8])
+    for ax, (title, case_data) in zip(axes.flatten(), data):
+        ax.set_rgrids([0.2, 0.4, 0.6, 0.8])
         ax.set_title(title, weight='bold', size='medium', position=(0.5, 1.1),
                      horizontalalignment='center', verticalalignment='center')
         for d, color in zip(case_data, colors):
@@ -185,11 +185,12 @@ if __name__ == '__main__':
         ax.set_varlabels(spoke_labels)
 
     # add legend relative to top-left plot
-    plt.subplot(2, 2, 1)
+    ax = axes[0, 0]
     labels = ('Factor 1', 'Factor 2', 'Factor 3', 'Factor 4', 'Factor 5')
-    legend = plt.legend(labels, loc=(0.9, .95), labelspacing=0.1)
-    plt.setp(legend.get_texts(), fontsize='small')
+    legend = ax.legend(labels, loc=(0.9, .95), labelspacing=0.1, fontsize='small')
 
-    plt.figtext(0.5, 0.965, '5-Factor Solution Profiles Across Four Scenarios',
-                ha='center', color='black', weight='bold', size='large')
+    fig.text(0.5, 0.965, '5-Factor Solution Profiles Across Four Scenarios',
+             horizontalalignment='center', color='black', weight='bold',
+             size='large')
+
     plt.show()
