@@ -1351,3 +1351,76 @@ class FuncAnimation(TimedAnimation):
                                        'sequence of Artist objects.')
             for a in self._drawn_artists:
                 a.set_animated(self._blit)
+
+
+class Grabber:
+    def __init__(self, fig, writer=None,
+                 fname_format_str='/tmp/animated_{i}.gif', dpi=100):
+
+        if writer is None:
+            writer = ImageMagickWriter()
+
+        self.writer = writer
+        self.fig = fig
+        self._capture = False
+        self._format_str = fname_format_str
+        self.count = 0
+        self.dpi = dpi
+
+    @property
+    def capture(self):
+        return self._capture
+
+    @capture.setter
+    def capture(self, value):
+        value = bool(value)
+        if self._capture and value:
+            self.capture = False
+
+        self._capture = value
+        if not value:
+            self.writer.finish()
+            self.count += 1
+        else:
+            self.writer.setup(fig=self.fig,
+                              outfile=self._format_str.format(i=self.count),
+                              dpi=self.dpi)
+
+
+class LiveGrabber(Grabber):
+    def __init__(self, fig, *args, **kwargs):
+        super().__init__(fig, *args, **kwargs)
+        self.cid = fig.canvas.mpl_connect('draw_event', self)
+
+    def __call__(self, draw_event):
+        if self.capture:
+            self.fig.canvas.mpl_disconnect(self.cid)
+            self.cid = None
+            self.writer.grab_frame()
+            self.cid = self.fig.canvas.mpl_connect('draw_event', self)
+
+
+class StaleGrabber(Grabber):
+    def __init__(self, fig, *args, **kwargs):
+        super().__init__(fig, *args, **kwargs)
+        self._old_cb = fig.stale_callback
+        fig.stale_callback = self
+        self.last_state = fig.stale
+        self._saving = False
+        self._count = 0
+
+    def __call__(self, fig, stale):
+        self.fig.stale_callback = self._old_cb
+        need_draw = stale and self._count == 0 and self.capture
+        if not stale:
+            print(stale, self._count)
+        self._count += 1
+        if self._old_cb is not None:
+            self._old_cb(fig, stale)
+
+        if need_draw:
+            self.writer.grab_frame()
+
+        self._count -= 1
+        self.fig.stale = False
+        self.fig.stale_callback = self
