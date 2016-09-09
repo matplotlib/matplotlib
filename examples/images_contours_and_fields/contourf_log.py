@@ -30,7 +30,8 @@ z = ma.masked_where(z <= 0, z)
 
 # Automatic selection of levels works; setting the
 # log locator tells contourf to use a log scale:
-cs = plt.contourf(X, Y, z, locator=ticker.LogLocator(), cmap=cm.PuBu_r)
+fig, ax = plt.subplots()
+cs = ax.contourf(X, Y, z, locator=ticker.LogLocator(), cmap=cm.PuBu_r)
 
 # Alternatively, you can manually set the levels
 # and the norm:
@@ -41,6 +42,6 @@ cs = plt.contourf(X, Y, z, locator=ticker.LogLocator(), cmap=cm.PuBu_r)
 
 # The 'extend' kwarg does not work yet with a log scale.
 
-cbar = plt.colorbar()
+cbar = fig.colorbar(cs)
 
 plt.show()
