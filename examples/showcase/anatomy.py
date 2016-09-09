@@ -118,9 +118,9 @@ text(3.70, 3.55, "Legend")
 circle(0.5, 0.5)
 text(0.5, 0.3, "Axis")
 
-# Plot
+# Figure
 circle(-0.3, 0.65)
-text(-0.3, 0.45, "Plot")
+text(-0.3, 0.45, "Figure")
 
 color = 'blue'
 plt.annotate('Spines', xy=(4.0, 0.35), xycoords='data',
