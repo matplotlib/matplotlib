@@ -1415,7 +1415,7 @@ class Axes(_AxesBase):
                   **kwargs):
         """
         A plot with data that contains dates.
-        
+
         Similar to the :func:`~matplotlib.pyplot.plot` command, except
         the *x* or *y* (or both) data is considered to be dates, and the
         axis is labeled accordingly.
