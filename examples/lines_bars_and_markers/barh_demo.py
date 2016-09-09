@@ -16,7 +16,9 @@ error = np.random.rand(len(people))
 
 ax.barh(y_pos, performance, xerr=error, align='center',
         color='green', ecolor='black')
-ax.set_yticks(y_pos, people)
+ax.set_yticks(y_pos)
+ax.set_yticklabels(people)
+ax.invert_yaxis()  # labels read top-to-bottom
 ax.set_xlabel('Performance')
 ax.set_title('How fast do you want to go today?')
 
