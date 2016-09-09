@@ -75,8 +75,8 @@ plt.title("triangular head; scale with x view; black edges")
 # 6
 plt.figure()
 M = np.zeros(U.shape, dtype='bool')
-M[U.shape[0]/3:2*U.shape[0]/3,
-  U.shape[1]/3:2*U.shape[1]/3] = True
+M[U.shape[0]//3:2*U.shape[0]//3,
+  U.shape[1]//3:2*U.shape[1]//3] = True
 U = ma.masked_array(U, mask=M)
 V = ma.masked_array(V, mask=M)
 Q = plt.quiver(U, V)
