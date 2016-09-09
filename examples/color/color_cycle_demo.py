@@ -31,5 +31,5 @@ ax1.plot(yy)
 ax1.set_title('Set axes color cycle to cmyk')
 
 # Tweak spacing between subplots to prevent labels from overlapping
-plt.subplots_adjust(hspace=0.3)
+fig.subplots_adjust(hspace=0.3)
 plt.show()
