@@ -164,7 +164,6 @@ files['pylab'] = [
     'figure_title.py',
     'fill_between_demo.py',
     'fill_spiral.py',
-    'finance_demo.py',
     'findobj_demo.py',
     'fonts_demo.py',
     'fonts_demo_kw.py',
