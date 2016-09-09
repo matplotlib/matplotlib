@@ -13,7 +13,7 @@ Y2 = 1+np.cos(1+X/0.75)/2
 Y3 = np.random.uniform(Y1, Y2, len(X))
 
 plt.figure(figsize=(8, 8), facecolor="w")
-ax = plt.subplot(111, aspect=1)
+ax = plt.subplot(1, 1, 1, aspect=1)
 
 
 def minor_tick(x, pos):
