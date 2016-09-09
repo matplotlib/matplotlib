@@ -49,15 +49,10 @@ plt.legend(frameon=False)
 
 
 def circle(x, y, radius=0.15):
-    center = x, y
-    circle = Circle(center, radius, clip_on=False, zorder=10,
-                    edgecolor='white', facecolor='none', linewidth=5.0)
-    plt.axes().add_artist(circle)
-    circle = Circle(center, radius, clip_on=False, zorder=20,
-                    edgecolor='none', facecolor='black', alpha=.025)
-    plt.axes().add_artist(circle)
-    circle = Circle(center, radius, clip_on=False, zorder=30,
-                    edgecolor='black', facecolor='none', linewidth=1.0)
+    from matplotlib.patheffects import withStroke
+    circle = Circle((x, y), radius, clip_on=False, zorder=10, linewidth=1,
+                    edgecolor='black', facecolor=(0, 0, 0, .0125),
+                    path_effects=[withStroke(linewidth=5, foreground='w')])
     plt.axes().add_artist(circle)
 
 
