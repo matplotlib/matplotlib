@@ -7,23 +7,25 @@ GitHub stats for 2015/10/29 - 2016/07/13 (tag: v1.5.0)
 
 These lists are automatically generated, and may be incomplete or contain duplicates.
 
-We closed 490 issues and merged 387 pull requests.
+We closed 605 issues and merged 483 pull requests.
 
-The following 148 authors contributed 1788 commits.
+The following 173 authors contributed 2121 commits.
 
+* 4over7
 * AbdealiJK
 * Acanthostega
-* Adrien F Vincent
-* Adrien F. VINCENT
+* Adrien Chardon
 * Adrien F. Vincent
 * Adrien VINCENT
-* afvincent
 * Alberto
 * Alex Rothberg
 * Ali Uneri
+* Andreas Hilboll
 * Andreas Mayer
 * Anton Akhmerov
 * Antony Lee
+* bcongdon
+* Ben Congdon
 * Ben Root
 * Benjamin Berg
 * Benjamin Congdon
@@ -36,12 +38,13 @@ The following 148 authors contributed 1788 commits.
 * Cimarron Mittelsteadt
 * CJ Carey
 * DaCoEx
-* danhickstein
 * DanHickstein
+* danhickstein
 * David Stansby
 * deeenes
 * Devashish Deshpande
 * Diego Mora Cespedes
+* dlmccaffrey
 * Dora Fraeman
 * dsquareindia
 * Dylan Evans
@@ -65,6 +68,8 @@ The following 148 authors contributed 1788 commits.
 * hannah
 * Hans Moritz Günther
 * Hassan Kibirige
+* Hastings Greer
+* Heiko Oberdiek
 * Henning Pohl
 * Herbert Kruitbosch
 * Ian Thomas
@@ -76,6 +81,7 @@ The following 148 authors contributed 1788 commits.
 * Jacob McDonald
 * Jae-Joon Lee
 * James A. Bednar
+* Jan Schlüter
 * Jan Schulz
 * Jason Zheng
 * Jeffrey Hokanson @ Loki
@@ -100,18 +106,27 @@ The following 148 authors contributed 1788 commits.
 * Kyle Bridgemohansingh
 * Kyler Brown
 * Leo Singer
+* LindyBalboa
 * Luis Pedro Coelho
 * Magnus Nord
+* maluethi
 * mamrehn
 * Matt Hancock
 * Matthew Brett
+* matthias
 * Matthias Bussonnier
 * Maximilian Albert
+* Maximilian Maahn
 * Michael Droettboom
 * Michiel de Hoon
+* Min RK
+* mlub
 * muahah
 * myyc
 * Nathan Goldbaum
+* Nathan Musoke
+* Nelle Varoquaux
+* Nicolas P. Rougier
 * Nicolas Tessore
 * Nikita Kniazev
 * Nils Werner
@@ -123,10 +138,15 @@ The following 148 authors contributed 1788 commits.
 * Paul Hobson
 * Paul Kirow
 * Paul Romano
+* Pete Peterson
+* Peter Mortensen
 * Peter Würtz
 * Phil Elson
 * Przemysław Dąbek
 * Ramiro Gómez
+* Pierre de Buyl
+* Qingpeng "Q.P." Zhang
+* Randy Olson
 * rasbt
 * Robin Dunn
 * Robin Wilson
@@ -141,11 +161,13 @@ The following 148 authors contributed 1788 commits.
 * Sebastián Vanrell
 * Simon Gibbons
 * Stefan Pfenninger
+* Sterling Smith
 * Steven Silvester
 * story645
 * Terrence J. Katzenbaer
 * Thomas A Caswell
 * Thomas Hisch
+* Thomas Robitaille
 * Thorsten Liebig
 * Till Stensitzki
 * tmdavison
@@ -159,11 +181,108 @@ The following 148 authors contributed 1788 commits.
 * Warren Weckesser
 * Wieland Hoffmann
 * Xufeng Wang
+* Zbigniew Jędrzejewski-Szmek
 
 GitHub issues and pull requests:
 
-Pull Requests (387):
+Pull Requests (483):
 
+* :ghpull:`7037`: DOC change axhspan to numpydoc format
+* :ghpull:`7047`: DOC - SpanSelector widget documentation
+* :ghpull:`7049`: [MRG] Documentated dependencies to the doc and remove unecessary dependencies.
+* :ghpull:`7063`: Tweek tol for test_hist_steplog to fix tests on appveyor
+* :ghpull:`7055`: FIX: testings.nose was not installed
+* :ghpull:`7058`: Minor animation fixes
+* :ghpull:`7057`: FIX: Removed financial demos that stalled because of yahoo requests
+* :ghpull:`7052`: Uncaught exns are fatal for PyQt5, so catch them.
+* :ghpull:`7048`: FIX: remove unused variable
+* :ghpull:`7042`: FIX: ticks filtered by Axis, not in Tick.draw
+* :ghpull:`7026`: Merge 2.x to master
+* :ghpull:`6988`: Text box widget, take over of PR5375
+* :ghpull:`6957`: DOC: clearing out some instances of using pylab in the docs
+* :ghpull:`7012`: Don't blacklist test_usetex using pytest
+* :ghpull:`7011`: TST: Fixed ``skip_if_command_unavailable`` decorator problem
+* :ghpull:`6918`: enable previously leftout test_usetex
+* :ghpull:`7006`: FIX: sphinx 1.4.0 details
+* :ghpull:`6900`: Enh: break website screenshot banner into 4 pieces and introduce a responsive layout
+* :ghpull:`6997`: FIX: slow plots of pandas objects (Second try)
+* :ghpull:`6792`: PGF Backend: Support interpolation='none'
+* :ghpull:`6983`: Catch invalid interactive switch to log scale.
+* :ghpull:`6491`: Don't warn in Collections.contains if picker is not numlike.
+* :ghpull:`6978`: Add link to O'Reilly video course covering matplotlib
+* :ghpull:`6930`: BUG: PcolorImage handles non-contiguous arrays, provides data readout
+* :ghpull:`6889`: support for updating axis ticks for categorical data
+* :ghpull:`6974`: Fixed wrong expression
+* :ghpull:`6730`: Add Py.test testing framework support
+* :ghpull:`6904`: Use edgecolor rather than linewidth to control edge display.
+* :ghpull:`6919`: Rework MaxNLocator, eliminating infinite loop; closes #6849
+* :ghpull:`6955`: Add parameter checks to DayLocator initiator
+* :ghpull:`5161`: [WIP] Proposed change to default log scale tick formatting
+* :ghpull:`6875`: Add keymap (default: G) to toggle minor grid.
+* :ghpull:`6920`: Prepare for cross-framework test suite
+* :ghpull:`6944`: Restore cbook.report_memory, which was deleted in d063dee.
+* :ghpull:`6961`: remove extra "a"
+* :ghpull:`6947`: Changed error message. Issue #6933
+* :ghpull:`6923`: Make sure nose is only imported when needed
+* :ghpull:`6851`: Do not restrict coverage to ``matplotlib`` module only
+* :ghpull:`6938`: Image interpolation selector in Qt figure options.
+* :ghpull:`6787`: Python3.5 dictview support
+* :ghpull:`6407`: adding default toggled state for toggle tools
+* :ghpull:`6898`: Fix read mode when loading cached AFM fonts
+* :ghpull:`6892`: Don't force anncoords to fig coords upon dragging.
+* :ghpull:`6895`: Prevent forced alpha in figureoptions.
+* :ghpull:`6877`: Fix Path deepcopy signature
+* :ghpull:`6822`: Use travis native cache
+* :ghpull:`6821`: Break reference cycle Line2D <-> Line2D._lineFunc.
+* :ghpull:`6879`: Delete font cache in one of the configurations
+* :ghpull:`6832`: Fix for ylabel title in example tex_unicode_demo.py
+* :ghpull:`6848`: ``test_tinypages``: pytest compatible module level setup
+* :ghpull:`6881`: add doi to bibtex entry for Hunter (2007)
+* :ghpull:`6842`: Clarify Axes.hexbin *extent* docstring
+* :ghpull:`6861`: Update ggplot URLs
+* :ghpull:`6878`: DOC: use venv instead of virtualenv on python 3
+* :ghpull:`6837`: Fix Normalize(<signed integer array>).
+* :ghpull:`6874`: Update bachelors_degree_by_gender example.
+* :ghpull:`6867`: Mark ``make_all_2d_testfuncs`` as not a test
+* :ghpull:`6854`: Fix for PyQt5.7 support.
+* :ghpull:`6862`: Change default doc image format to png and pdf
+* :ghpull:`6819`: Add mpl_toolkits to coveragerc.
+* :ghpull:`6840`: Fixed broken ``test_pickle.test_complete`` test
+* :ghpull:`6841`: DOC: Switch to OO code style & ensure fixed y-range in ``psd_demo3``
+* :ghpull:`6843`: DOC: Fix ``psd_demo_complex`` similarly to ``psd_demo3``
+* :ghpull:`6829`: Tick label rotation via ``set_tick_params``
+* :ghpull:`6799`: Allow creating annotation arrows w/ default props.
+* :ghpull:`6262`: Properly handle UTC conversion in date2num.
+* :ghpull:`6777`: Raise lock timeout as actual exception
+* :ghpull:`6817`: DOC: Fix a few typos and formulations
+* :ghpull:`6826`: Clarify doc for "norm" kwarg to ``imshow``.
+* :ghpull:`6807`: Deprecate ``{get,set}_cursorprops``.
+* :ghpull:`6811`: Add xkcd font as one of the options
+* :ghpull:`6815`: Rename tests in ``test_mlab.py``
+* :ghpull:`6808`: Don't forget to disconnect callbacks for dragging.
+* :ghpull:`6803`: better freetype version checking
+* :ghpull:`6778`: Added contribute information to readme
+* :ghpull:`6786`: 2.0 Examples fixes. See #6762
+* :ghpull:`6774`: Appveyor: use newer conda packages and only run all tests on one platform
+* :ghpull:`6779`: Fix tutorial pyplot scales (issue #6775)
+* :ghpull:`6768`: Takeover #6535
+* :ghpull:`6763`: Invalidate test cache on gs/inkscape version
+* :ghpull:`6765`: Get more rcParams for 3d
+* :ghpull:`6764`: Support returning polylines from to_polygons
+* :ghpull:`6760`: DOC: clean up of demo_annotation_box.py
+* :ghpull:`6735`: Added missing side tick rcParams
+* :ghpull:`6761`: Fixed warnings catching and counting with ``warnings.catch_warnings``
+* :ghpull:`5349`: Add a Gitter chat badge to README.rst
+* :ghpull:`6755`: PEP: fix minor formatting issues
+* :ghpull:`6699`: Warn if MPLBACKEND is invalid.
+* :ghpull:`6754`: Fixed error handling in ``ImageComparisonTest.setup_class``
+* :ghpull:`6734`: register IPython's eventloop integration in plt.install_repl_displayhook
+* :ghpull:`6745`: DOC: typo in broken_axis pylab example
+* :ghpull:`6747`: Also output the actual error on svg backend tests using subprocess
+* :ghpull:`6744`: Add workaround for failures due to newer miktex
+* :ghpull:`6741`: Missing ``cleanup`` decorator in ``test_subplots.test_exceptions``
+* :ghpull:`6736`: doc: fix unescaped backslash
+* :ghpull:`6733`: Mergev2.x to master
 * :ghpull:`6729`: Fix crash if byte-compiled level 2
 * :ghpull:`6575`: setup.py: Recommend installation command for pkgs
 * :ghpull:`6645`: Fix containment and subslice optim. for steps.
@@ -171,7 +290,7 @@ Pull Requests (387):
 * :ghpull:`6639`: Simplify get_legend_handler method
 * :ghpull:`6694`: Improve Line2D and MarkerStyle instantiation
 * :ghpull:`6692`: Remove explicit children invalidation in update_position method
-* :ghpull:`6703`: WIP/DOC: explain behavior of notches beyond quartiles
+* :ghpull:`6703`: DOC: explain behavior of notches beyond quartiles
 * :ghpull:`6707`: Call ``gc.collect`` after each test only if the user asks for it
 * :ghpull:`6711`: Added support for ``mgs`` to Ghostscript dependecy checker
 * :ghpull:`6700`: Don't convert vmin, vmax to floats.
@@ -552,8 +671,123 @@ Pull Requests (387):
 * :ghpull:`5357`: Fixed typo
 * :ghpull:`4920`: ENH: Add TransformedPatchPath for clipping.
 
-Issues (490):
+Issues (605):
 
+* :ghissue:`7009`: No good way to disable SpanSelector
+* :ghissue:`7040`: It is getting increasingly difficult to build the matplotlib documentation
+* :ghissue:`6965`: ArtistAnimation cannot animate Figure-only artists
+* :ghissue:`6964`: Docstring for ArtistAnimation is incorrect
+* :ghissue:`7062`: remove the contour on a Basemap object
+* :ghissue:`7061`: remove the contour on Basemap
+* :ghissue:`7054`: Whether the new version 2.0 will support high-definition screen?
+* :ghissue:`7053`: When will release 2.0 official version?
+* :ghissue:`6797`: Undefined Symbol Error On Ubuntu
+* :ghissue:`6523`: matplotlib-2.0.0b1 test errors on Windows
+* :ghissue:`4753`: rubber band in qt5agg slow
+* :ghissue:`6959`: extra box on histogram plot with a single value
+* :ghissue:`6816`: Segmentation fault on Qt5Agg when using the wrong linestyle
+* :ghissue:`4212`: Hist showing wrong first bin
+* :ghissue:`4602`: bar / hist : gap between first bar and other bars with lw=0.0
+* :ghissue:`6641`: Edge ticks sometimes disappear
+* :ghissue:`7041`: Python 3.5.2 crashes when launching matplotlib 1.5.1
+* :ghissue:`7028`: Latex Greek fonts not working in legend
+* :ghissue:`6998`: dash pattern scaling with linewidth should get it's own rcParam
+* :ghissue:`7021`: How to prevent matplotlib from importing qt4 libraries when only
+* :ghissue:`7020`: Using tick_right() removes any styling applied to tick labels.
+* :ghissue:`7018`: Website Down
+* :ghissue:`6785`: Callbacks of draggable artists should check that they have not been removed
+* :ghissue:`6783`: Draggable annotations specified in offset coordinates switch to figure coordinates after dragging
+* :ghissue:`7015`: pcolor() not using "data" keyword argument
+* :ghissue:`7014`: matplotlib works well in ipython note book but can't display in a terminal running
+* :ghissue:`6999`: cycler 0.10 is required due to change_key() usage
+* :ghissue:`6794`: Incorrect text clipping in presence of multiple subplots
+* :ghissue:`7004`: Zooming with a large range in y-values while using the linestyle "--" is very slow
+* :ghissue:`6828`: Spikes in small wedges of a pie chart
+* :ghissue:`6940`: large memory leak in new contour routine
+* :ghissue:`6894`: bar(..., linewidth=None) doesn't display bar edges with mpl2.0b3
+* :ghissue:`6989`: bar3d no longer allows default colors
+* :ghissue:`6980`: problem accessing canvas on MacOS 10.11.6 with matplotlib 2.0.0b3
+* :ghissue:`6804`: Histogram of xarray.DataArray can be extremely slow
+* :ghissue:`6859`: Update URL for links to ggplot
+* :ghissue:`6852`: Switching to log scale when there is no positive data crashes the Qt5 backend, causes inconsistent internal state in others
+* :ghissue:`6740`: PGF Backend: Support interpolation='none'?
+* :ghissue:`6665`: regression: builtin latex rendering doesn't find the right mathematical fonts
+* :ghissue:`6984`: plt.annotate(): segmentation fault when coordinates are too high
+* :ghissue:`6979`: plot won't show with plt.show(block=False)
+* :ghissue:`6981`: link to ggplot is broken...
+* :ghissue:`6975`: [Feature request] Simple ticks generator for given range
+* :ghissue:`6905`: pcolorfast results in invalid cursor data
+* :ghissue:`6970`: quiver problems when angles is an array of values rather than 'uv' or 'xy'
+* :ghissue:`6966`: No Windows wheel available on PyPI for new version of matplotlib (1.5.2)
+* :ghissue:`6721`: Font cache building of matplotlib blocks requests made to HTTPd
+* :ghissue:`6844`: scatter edgecolor is broken in Matplotlib 2.0.0b3
+* :ghissue:`6849`: BUG: endless loop with MaxNLocator integer kwarg and short axis
+* :ghissue:`6935`: matplotlib.dates.DayLocator cannot handle invalid input
+* :ghissue:`6951`: Ring over A in \AA is too high in Matplotlib 1.5.1
+* :ghissue:`6960`: axvline is sometimes not shown
+* :ghissue:`6473`: Matplotlib manylinux wheel - ready to ship?
+* :ghissue:`5013`: Add Hershey Fonts a la IDL
+* :ghissue:`6953`: ax.vlines adds unwanted padding, changes ticks
+* :ghissue:`6946`: No Coveralls reports on GitHub
+* :ghissue:`6933`: Misleading error message for matplotlib.pyplot.errorbar()
+* :ghissue:`6945`: Matplotlib 2.0.0b3 wheel can't load libpng in OS X 10.6
+* :ghissue:`3865`: Improvement suggestions for matplotlib.Animation.save('video.mp4')
+* :ghissue:`6932`: Investigate issue with pyparsing 2.1.6
+* :ghissue:`6941`: Interfering with yahoo_finance
+* :ghissue:`6913`: Cant get currency from yahoo finance with matplotlib
+* :ghissue:`6901`: Add API function for removing legend label from graph
+* :ghissue:`6510`: 2.0 beta: Boxplot patches zorder differs from lines
+* :ghissue:`6911`: freetype build won't become local
+* :ghissue:`6866`: examples/misc/longshort.py is outdated
+* :ghissue:`6912`: Matplotlib fail to compile matplotlib._png
+* :ghissue:`1711`: Autoscale to automatically include a tiny margin with ``Axes.errorbar()``
+* :ghissue:`6903`: RuntimeError('Invalid DISPLAY variable') - With docker and django
+* :ghissue:`6888`: Can not maintain zoom level when left key is pressed
+* :ghissue:`6855`: imsave-generated PNG files missing edges for certain resolutions
+* :ghissue:`6479`: Hexbin with log scale takes extent range as logarithm of the data along the log axis
+* :ghissue:`6795`: suggestion: set_xticklabels and set_yticklabels default to current labels
+* :ghissue:`6825`: I broke imshow(<signed integer array>) :-(
+* :ghissue:`6858`: PyQt5 pyplot error
+* :ghissue:`6853`: PyQt5 (v5.7) backend - TypeError upon calling figure()
+* :ghissue:`6835`: Which image formats to build in docs.
+* :ghissue:`6856`: Incorrect plotting for versions > 1.3.1 and GTK.
+* :ghissue:`6838`: Figures not showing in interactive mode with macosx backend
+* :ghissue:`6846`: GTK Warning
+* :ghissue:`6839`: Test ``test_pickle.test_complete`` is broken
+* :ghissue:`6691`: rcParam missing tick side parameters
+* :ghissue:`6833`: plot contour with levels from discrete data
+* :ghissue:`6636`: DOC: gallery supplies 2 pngs, neither of which is default
+* :ghissue:`3896`: dates.date2num bug with daylight switching hour
+* :ghissue:`6685`: 2.0 dev legend breaks on scatterplot
+* :ghissue:`3655`: ensure removal of font cache on version upgrade
+* :ghissue:`6818`: Failure to build docs: unknown property
+* :ghissue:`6798`: clean and regenerate travis cache
+* :ghissue:`6782`: 2.x: Contour level count is not respected
+* :ghissue:`6796`: plot/lines not working for datetime objects that span old dates
+* :ghissue:`6660`: cell focus/cursor issue when plotting to nbagg
+* :ghissue:`6775`: Last figure in http://matplotlib.org/users/pyplot_tutorial.html is not displayed correctly
+* :ghissue:`5981`: Increased tick width in 3D plots looks odd
+* :ghissue:`6771`: ImportError: No module named artist
+* :ghissue:`6289`: Grids are not rendered in backend implementation
+* :ghissue:`6621`: Change in the result of test_markevery_linear_scales_zoomed
+* :ghissue:`6515`: Dotted grid lines in v2.0.0b1
+* :ghissue:`6511`: Dependencies in installation of 2.0.0b1
+* :ghissue:`6668`: “Bachelor's degrees…” picture in the gallery is cropped
+* :ghissue:`6751`: Tableau style
+* :ghissue:`6742`: import matplotlib.pyplot as plt throws an erro
+* :ghissue:`6097`: anaconda package missing nose dependency
+* :ghissue:`6299`: savefig() to eps/pdf does not work
+* :ghissue:`6393`: Pair of floats breaks plotting renderer (weirdest bug I've ever seen)
+* :ghissue:`6387`: import matplotlib causes UnicodeDecodeError
+* :ghissue:`6471`: Colorbar label position different when executing a block of code
+* :ghissue:`6732`: Adding ``pairplot`` functionality?
+* :ghissue:`6749`: Step diagram does not support xlim() and ylim()
+* :ghissue:`6748`: Step diagram does not suppot
+* :ghissue:`6615`: Bad event index for step plots
+* :ghissue:`6588`: Different line styles between PNG and PDF exports.
+* :ghissue:`6693`: linestyle="None" argument for fill_between() doesn't work
+* :ghissue:`6592`: Linestyle pattern depends on current style, not style set at creation
+* :ghissue:`5430`: Linestyle: dash tuple with offset
 * :ghissue:`6728`: Can't install matplotlib with specific python version
 * :ghissue:`6546`: Recommendation to install packages for various OS
 * :ghissue:`6536`: get_sample_data() in cbook.py duplicates code from _get_data_path() __init__.py
@@ -624,7 +858,7 @@ Issues (490):
 * :ghissue:`5977`: legend needs logic to deal with new linestyle scaling by linewidth
 * :ghissue:`6365`: Default format time series xtick labels changed
 * :ghissue:`6104`: docs: latex required for PDF plotting?
-* :ghissue:`6451`: Inequality error on web page http://matplotlib.org/faq/howto_faq.htm
+* :ghissue:`6451`: Inequality error on web page http://matplotlib.org/faq/howto_faq.html
 * :ghissue:`6459`: use conda already installed on appveyor
 * :ghissue:`6043`: Advanced hillshading example looks strange with new defaults.
 * :ghissue:`6440`: BUG: set_tick_params labelcolor should apply to offset
@@ -656,7 +890,7 @@ Issues (490):
 * :ghissue:`6058`: "Configure subplots" tool is initialized very inefficiently in the Qt backends
 * :ghissue:`6363`: Change ``legend`` to accept ``alpha`` instead of (only) ``framealpha``.
 * :ghissue:`6394`: Severe bug in ````imshow```` when plotting images with small values
-* :ghissue:`6368`: Bug: matplotlib.pyplot.spy: does not work correctly for sparse matrices with many entries
+* :ghissue:`6368`: Bug: matplotlib.pyplot.spy: does not work correctly for sparse matrices with many entries (>= 2**32)
 * :ghissue:`6419`: Imshow does not copy data array but determines colormap values upon call
 * :ghissue:`3615`: mouse scroll event in Gtk3 backend
 * :ghissue:`3373`: add link to gtk embedding cookbook to website
@@ -809,8 +1043,8 @@ Issues (490):
 * :ghissue:`6034`: colormap name is broken for ListedColormap?
 * :ghissue:`5982`: Styles need update after default style changes
 * :ghissue:`6017`: Include tests.py in archive of release
-* :ghissue:`4280`: imsave reduces 1row from the image
 * :ghissue:`5520`: 'nearest' interpolation not working with low dpi
+* :ghissue:`4280`: imsave reduces 1row from the image
 * :ghissue:`3057`: DPI-connected bug of imshow when using multiple masked arrays
 * :ghissue:`5490`: Don't interpolate images in RGB space
 * :ghissue:`5996`: 2.x: Figure.add_axes(..., facecolor='color') does not set axis background colour
