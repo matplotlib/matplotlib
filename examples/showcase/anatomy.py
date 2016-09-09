@@ -114,9 +114,9 @@ text(3.00, 2.80, "Grid")
 circle(3.70, 3.75)
 text(3.70, 3.55, "Legend")
 
-# Axis
+# Axes
 circle(0.5, 0.5)
-text(0.5, 0.3, "Axis")
+text(0.5, 0.3, "Axes")
 
 # Figure
 circle(-0.3, 0.65)
