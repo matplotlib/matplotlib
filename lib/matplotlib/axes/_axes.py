@@ -2770,12 +2770,12 @@ class Axes(_AxesBase):
 
         Other Parameters
         ----------------
-        kwargs : All other keyword arguments are passed on to the plot 
-            command for the markers. For example, this code makes big red 
+        kwargs : All other keyword arguments are passed on to the plot
+            command for the markers. For example, this code makes big red
             squares with thick green edges::
 
                 x,y,yerr = rand(3,10)
-                errorbar(x, y, yerr, marker='s', mfc='red', 
+                errorbar(x, y, yerr, marker='s', mfc='red',
                          mec='green', ms=20, mew=4)
 
             where mfc, mec, ms and mew are aliases for the longer
