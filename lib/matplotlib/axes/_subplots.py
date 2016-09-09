@@ -134,15 +134,15 @@ class SubplotBase(object):
         """
         lastrow = self.is_last_row()
         firstcol = self.is_first_col()
-        for label in self.get_xticklabels():
-            label.set_visible(lastrow)
-        self.get_xaxis().get_offset_text().set_visible(lastrow)
         if not lastrow:
+            for label in self.get_xticklabels(which="both"):
+                label.set_visible(False)
+            self.get_xaxis().get_offset_text().set_visible(False)
             self.set_xlabel("")
-        for label in self.get_yticklabels():
-            label.set_visible(firstcol)
-        self.get_yaxis().get_offset_text().set_visible(firstcol)
         if not firstcol:
+            for label in self.get_yticklabels(which="both"):
+                label.set_visible(False)
+            self.get_yaxis().get_offset_text().set_visible(False)
             self.set_ylabel("")
 
     def _make_twin_axes(self, *kl, **kwargs):
