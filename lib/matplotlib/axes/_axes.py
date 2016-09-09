@@ -801,13 +801,6 @@ class Axes(_AxesBase):
         """
         Add a horizontal span (rectangle) across the axis.
 
-        Call signature::
-
-          axhspan(ymin, ymax, xmin=0, xmax=1, **kwargs)
-
-        *y* coords are in data units and *x* coords are in axes (relative
-        0-1) units.
-
         Draw a horizontal span (rectangle) from *ymin* to *ymax*.
         With the default values of *xmin* = 0 and *xmax* = 1, this
         always spans the xrange, regardless of the xlim settings, even
@@ -816,22 +809,35 @@ class Axes(_AxesBase):
         0.5=middle, 1.0=right but the *y* location is in data
         coordinates.
 
-        Return value is a :class:`matplotlib.patches.Polygon`
-        instance.
+        Parameters
+        ----------
+        ymin : float
+               Lower limit of the horizontal span in data units.
+        ymax : float
+               Upper limit of the horizontal span in data units.
+        xmin : float, optional, default: 0
+               Lower limit of the vertical span in axes (relative
+               0-1) units.
+        xmax : float, optional, default: 1
+               Upper limit of the vertical span in axes (relative
+               0-1) units.
 
-       Examples:
+        Returns
+        -------
+        Polygon : `~matplotlib.patches.Polygon`
 
-        * draw a gray rectangle from *y* = 0.25-0.75 that spans the
-          horizontal extent of the axes::
-
-            >>> axhspan(0.25, 0.75, facecolor='0.5', alpha=0.5)
-
-        Valid kwargs are :class:`~matplotlib.patches.Polygon` properties:
+        Other Parameters
+        ----------------
+        kwargs : `~matplotlib.patches.Polygon` properties.
 
         %(Polygon)s
 
-        **Example:**
+        See Also
+        --------
+        axvspan : Add a vertical span (rectangle) across the axes.
 
+        Examples
+        --------
         .. plot:: mpl_examples/pylab_examples/axhspan_demo.py
 
         """
