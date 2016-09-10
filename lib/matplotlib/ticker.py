@@ -1757,13 +1757,11 @@ class LogLocator(Locator):
     Determine the tick locations for log axes
     """
 
-    def __init__(self, base=10.0, subs=None, numdecs=4, numticks=15):
+    def __init__(self, base=10.0, subs=(1.0,), numdecs=4, numticks=15):
         """
         place ticks on the location= base**i*subs[j]
         """
         self.base(base)
-        if subs is None:
-            subs = [1.0]
         self.subs(subs)
         # this needs to be validated > 1 with traitlets
         self.numticks = numticks
