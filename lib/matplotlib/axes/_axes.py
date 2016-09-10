@@ -4689,7 +4689,7 @@ or tuple of floats
         ----------------
         kwargs : :class:`~matplotlib.patches.Polygon` properties
 
-        %(Polygons)
+        %(Polygon)s
 
         Notes
         -----
@@ -4700,8 +4700,8 @@ or tuple of floats
         between 0 and *y* along *x*, use :meth:`fill_between`
 
 
-        Example
-        -------
+        Examples
+        --------
         .. plot:: mpl_examples/lines_bars_and_markers/fill_demo.py
 
 
