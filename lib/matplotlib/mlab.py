@@ -1255,49 +1255,49 @@ def specgram(x, NFFT=None, Fs=None, detrend=None, window=None,
     %(PSD)s
 
     noverlap : int, optional
-        The number of points of overlap between blocks.  The default 
+        The number of points of overlap between blocks.  The default
         value is 128.
     mode : str, optional
-          What sort of spectrum to use, default is 'psd'.  
-          
-          'psd'
-              Returns the power spectral density.     
-              
-          'complex' 
-              Returns the complex-valued frequency spectrum.  
-              
-          'magnitude' 
-              Returns the magnitude spectrum.
-              
-          'angle' 
-              Returns the phase spectrum without unwrapping.     
-              
-          'phase'
-              Returns the phase spectrum with unwrapping.
+        What sort of spectrum to use, default is 'psd'.
+            'psd'
+                Returns the power spectral density.
+
+            'complex'
+                Returns the complex-valued frequency spectrum.
+
+            'magnitude'
+                Returns the magnitude spectrum.
+
+            'angle'
+                Returns the phase spectrum without unwrapping.
+
+            'phase'
+                Returns the phase spectrum with unwrapping.
 
     Returns
     -------
-    spectrum: array_like 
+    spectrum : array_like
         2-D array, columns are the periodograms of successive segments.
 
-    freqs: array_like
+    freqs : array_like
         1-D array, frequencies corresponding to the rows in *spectrum*.
 
     t : array_like
-        1-D array, the times corresponding to midpoints of segments 
+        1-D array, the times corresponding to midpoints of segments
         (i.e the columns in *spectrum*).
 
     See Also
     --------
-    psd : differs in the default overlap; in returning the mean of the segment periodograms; and in not returning times.
-    complex_spectrum : A single spectrum, similar to having a single segment when mode is 'complex'.
-    magnitude_spectrum : A single spectrum, similar to having a single segment when mode is 'magnitude'.
-    angle_spectrum : A single spectrum, similar to having a single segment when mode is 'angle'.
-    phase_spectrum : A single spectrum, similar to having a single segment when mode is 'phase'.
+    psd : differs in the overlap and in the return values.
+    complex_spectrum : similar, but with complex valued frequencies.
+    magnitude_spectrum : similar single segment when mode is 'magnitude'.
+    angle_spectrum : similar to single segment when mode is 'angle'.
+    phase_spectrum : similar to single segment when mode is 'phase'.
 
     Notes
     -----
     detrend and scale_by_freq only apply when *mode* is set to 'psd'.
+
     """
     if noverlap is None:
         noverlap = 128
