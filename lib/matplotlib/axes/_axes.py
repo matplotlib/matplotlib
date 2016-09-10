@@ -1459,22 +1459,16 @@ class Axes(_AxesBase):
 
         See Also
         --------
-        mod : matplotlib.dates for helper functions
-        :func:`~matplotlib.dates.date2num`
-        :func:`~matplotlib.dates.num2date`
-        :func:`~matplotlib.dates.drange` for help on creating the required
-        floating point dates
+        matplotlib.dates : helper functions on dates
+        matplotlib.dates.date2num : how to convert dates to num
+        matplotlib.dates.num2date : how to convert num to dates
+        matplotlib.dates.drange : how floating point dates
 
 
         Other Parameters
         ----------------
-        kwargs : class : matplotlib.lines.Line2D
+        kwargs : :class:`matplotlib.lines.Line2D`
         properties : %(Line2D)s
-
-
-        Examples
-        --------
-            plot:: mpl_examples/pylab_examples/date_demo1.py
 
         """
 
