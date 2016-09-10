@@ -1,4 +1,6 @@
-# Show the different tick locators
+"""
+Show the different tick locators
+"""
 
 import numpy as np
 import matplotlib.pyplot as plt
