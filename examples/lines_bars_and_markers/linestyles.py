@@ -40,6 +40,4 @@ for i, (name, linestyle) in enumerate(linestyles.items()):
             color="blue", family="monospace")
 
 plt.tight_layout()
-# plt.savefig("linestyles.pdf")
-# plt.savefig("linestyles.png", dpi=150)
 plt.show()
