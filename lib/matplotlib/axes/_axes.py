@@ -1822,23 +1822,23 @@ class Axes(_AxesBase):
 
         Returns
         -------
-        out : list
+        list
             List of lines that were added.
 
         Other parameters
         ---------------------
         where : [ 'pre' | 'post' | 'mid'  ]
-          If 'pre' (the default), the interval from 
-          x[i] to x[i+1] has level y[i+1].
+            If 'pre' (the default), the interval from
+            x[i] to x[i+1] has level y[i+1].
 
-          If 'post', that interval has level y[i].
+            If 'post', that interval has level y[i].
 
-          If 'mid', the jumps in *y* occur half-way between the
-          *x*-values.
+            If 'mid', the jumps in *y* occur half-way between the
+        *x*-values.
 
         Note
         ----
-        Additional parameters are the same as those for 
+        Additional parameters are the same as those for
         :func:`~matplotlib.pyplot.plot`.
         """
 
