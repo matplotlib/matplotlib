@@ -362,6 +362,13 @@ or by setting::
 
 in your :file:`matplotlibrc` file.
 
+Errorbar
+--------
+
+- By default, caps on the ends of errorbars are not present.  Use the
+  rcParam ``errorbar.capsize`` to control this.
+
+
 Patch edges and color
 ---------------------
 
@@ -695,8 +702,63 @@ TEMPORARY NOTES TOM IS KEEPING IN THE SOURCE SO THEY DO NOT GET LOST
 Plot layout
 ===========
 
+Ticks
+-----
+
+Direction
+~~~~~~~~~
+
+To reduce the collision of tick marks with data, the default ticks now
+point outward by default.  In addition, ticks are now only drawn on
+the bottom and left spines to reduce the plot looking like a
+porcupine.
+
+
+.. plot::
+
+   import matplotlib as mpl
+   import matplotlib.pyplot as plt
+   import numpy as np
+
+   th = np.linspace(0, 2*np.pi, 128)
+   y = np.sin(th)
+
+   def demo(fig, rcparams, title, j):
+       np.random.seed(2)
+       with mpl.rc_context(rc=rcparams):
+
+           ax = fig.add_subplot(2, 2, j)
+           ax.hist(np.random.beta(0.5, 0.5, 10000), 100, normed=True)
+           ax.set_xlim([0, 1])
+           ax.set_title(title)
+
+           ax = fig.add_subplot(2, 2, j + 2)
+           ax.imshow(np.random.rand(5, 5))
+
+   classic = {'xtick.direction': 'in',
+              'ytick.direction': 'in',
+              'xtick.top': True,
+              'ytick.right': True
+   }
+
+   fig = plt.figure(figsize=(4, 4), tight_layout=True)
+
+
+
+   demo(fig, classic, 'classic', 1)
+   demo(fig, {}, 'v2.0', 2)
+
+Number
+~~~~~~
+
 - The number of ticks on an axis is now automatically determined based
   on the length of the axis.
+
+
+Auto limits
+-----------
+
+
 
 - The limits of an axes are scaled to exactly the dimensions of the data,
   plus 5% padding.  The old behavior was to scale to the nearest "round"
@@ -710,16 +772,13 @@ Plot layout
   - ``left_margin=False``
   - ``right_margin=False``
 
-- Ticks now point outward by default.  To have ticks pointing inward,
-  use the ``rcParams`` ``xtick.direction`` and ``ytick.direction``.
+Z-order
+-------
 
 - Ticks and grids are now plotted above solid elements such as
   filled contours, but below lines.  To return to the previous
   behavior of plotting ticks and grids above lines, set
   ``rcParams['axes.axisbelow'] = False``.
-
-- By default, caps on the ends of errorbars are not present.  Use the
-  rcParam ``errorbar.capsize`` to control this.
 
 
 
