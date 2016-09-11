@@ -41,7 +41,7 @@ def test_otf():
 
 def test_cache_invalidation():
     f1 = findfont(FontProperties())
-    del matplotlib.rcParams['font.sans-serif'][0]
+    matplotlib.rcParams['font.sans-serif'] = matplotlib.rcParams['font.serif']
     f2 = findfont(FontProperties())
 
     assert f1 != f2
