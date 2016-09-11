@@ -2764,7 +2764,7 @@ class Axes(_AxesBase):
             x, y plot markers and/or line
         caplines : list of :class:`~matplotlib.lines.Line2D` instances
             error bar cap
-        barlinecols : list of :class:`~matplotlib.collections.LineCollection` instances
+        barlinecols : list of :class:`~matplotlib.collections.LineCollection`
             horizontal and vertical error ranges.
 
         Other Parameters
