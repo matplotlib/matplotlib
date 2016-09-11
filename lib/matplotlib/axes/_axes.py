@@ -2725,15 +2725,15 @@ class Axes(_AxesBase):
             A matplotlib color arg which gives the color the errorbar lines;
             if None, use the color of the line connecting the markers.
 
-        elinewidth: scalar, optional, default: None
+        elinewidth : scalar, optional, default: None
             The linewidth of the errorbar lines. If None, use the linewidth.
 
-        capsize: scalar, optional, default: None
+        capsize : scalar, optional, default: None
             The length of the error bar caps in points; if None, it will
             take the value from ``errorbar.capsize``
             :data:`rcParam<matplotlib.rcParams>`.
 
-        capthick: scalar, optional, default: None
+        capthick : scalar, optional, default: None
             An alias kwarg to markeredgewidth (a.k.a. - mew). This
             setting is a more sensible name for the property that
             controls the thickness of the error bar cap in points. For
@@ -2741,11 +2741,11 @@ class Axes(_AxesBase):
             then they will over-ride capthick. This may change in future
             releases.
 
-        barsabove: bool, optional, default: False
+        barsabove : bool, optional, default: False
             if True , will plot the errorbars above the plot
             symbols. Default is below.
 
-        lolims / uplims / xlolims / xuplims: bool, optional, default:None
+        lolims / uplims / xlolims / xuplims : bool, optional, default:None
             These arguments can be used to indicate that a value gives
             only upper/lower limits. In that case a caret symbol is
             used to indicate this. lims-arguments may be of the same
@@ -2753,7 +2753,7 @@ class Axes(_AxesBase):
             axes, :meth:`set_xlim` or :meth:`set_ylim` must be called
             before :meth:`errorbar`.
 
-        errorevery: positive integer, optional, default:1
+        errorevery : positive integer, optional, default:1
             subsamples the errorbars. e.g., if errorevery=5, errorbars for
             every 5-th datapoint will be plotted. The data plot itself still
             shows all data points.
@@ -2762,11 +2762,10 @@ class Axes(_AxesBase):
         -------
         plotline : :class:`~matplotlib.lines.Line2D` instance
             x, y plot markers and/or line
-        caplines :
-            list of error bar cap :class:`~matplotlib.lines.Line2D` instances
-        barlinecols :
-            list of :class:`~matplotlib.collections.LineCollection` instances
-            for the horizontal and vertical error ranges.
+        caplines : list of :class:`~matplotlib.lines.Line2D` instances
+            error bar cap
+        barlinecols : list of :class:`~matplotlib.collections.LineCollection` instances
+            horizontal and vertical error ranges.
 
         Other Parameters
         ----------------
