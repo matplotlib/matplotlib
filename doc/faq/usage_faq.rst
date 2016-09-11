@@ -50,12 +50,12 @@ completely, leaving a purely object-oriented approach.
 
 Parts of a Figure
 =================
-.. image:: fig_map.png
+.. image:: anatomy.png
 
 :class:`~matplotlib.figure.Figure`
 ----------------------------------
 
-The **whole** figure (marked as the outer red box).  The figure keeps
+The **whole** figure.  The figure keeps
 track of all the child :class:`~matplotlib.axes.Axes`, a smattering of
 'special' artists (titles, figure legends, etc), and the **canvas**.
 (Don't worry too much about the canvas, it is crucial as it is the
