@@ -444,7 +444,7 @@ The behavior of the PS and Agg backends was DPI dependent, thus::
    mpl.rcParams['hatch.linewidth'] = 1.0 / dpi  # previous ps and Agg hatch linewidth
 
 
-There is no API level control of the hacth linewidth.
+There is no API level control of the hatch linewidth.
 
 
 .. _default_changes_font:
@@ -460,9 +460,9 @@ Sans".  "DejaVu Sans" is an improvement on "Bistream Vera Sans" that
 adds more international and math characters, but otherwise has the
 same appearance.  Latin, Greek, Cyrillic, Armenian, Georgian, Hebrew,
 and Arabic are `all supported
-<http://dejavu-fonts.org/wiki/Main_Page>`__ (but right-to-left render
+<http://dejavu-fonts.org/wiki/Main_Page>`__ (but right-to-left rendering
 is still not handled by matplotlib).  In addition , DejaVu contains a
-sub-set of emoji symbols
+sub-set of emoji symbols.
 
 .. plot::
 
@@ -506,7 +506,7 @@ TeX backend is used (i.e. ``text.usetex`` is ``True``).
 
    fig, ax  = plt.subplots(tight_layout=True, figsize=(3, 3))
 
-   ax.plot(range(15), label='int: $15 \int_0^\infty dx$')
+   ax.plot(range(15), label=r'int: $15 \int_0^\infty dx$')
    ax.legend()
    ax.set_title('classic')
 
@@ -518,7 +518,7 @@ TeX backend is used (i.e. ``text.usetex`` is ``True``).
 
    fig, ax  = plt.subplots(tight_layout=True, figsize=(3, 3))
 
-   ax.plot(range(15), label='int: $15 \int_0^\infty dx$')
+   ax.plot(range(15), label=r'int: $15 \int_0^\infty dx$')
    ax.legend()
    ax.set_title('v2.0')
 
@@ -531,7 +531,7 @@ To revert to the old behavior set the::
 
 or by setting::
 
-  mathetxt.fontset: cm
+  mathtext.fontset: cm
   mathtext.rm : serif
 
 
@@ -556,7 +556,6 @@ Legends
 .. plot::
 
    import matplotlib as mpl
-   import numpy as np
    import matplotlib.pyplot as plt
    import numpy as np
 
@@ -567,8 +566,8 @@ Legends
            x = range(N)
            y = np.cumsum(np.random.randn(N) )
            ln, = ax.plot(x, y, marker='s',
-	                 linestyle='-', label='plot')
-	   ax.fill_between(x, y, 0, label='fill', alpha=.5, color=ln.get_color())
+                         linestyle='-', label='plot')
+           ax.fill_between(x, y, 0, label='fill', alpha=.5, color=ln.get_color())
            ax.scatter(N*np.random.rand(N), np.random.rand(N), label='scatter')
            ax.set_title(title)
            ax.legend()
@@ -605,9 +604,9 @@ or by setting::
    legend.loc           : upper right
    legend.numpoints     : 2      # the number of points in the legend line
    legend.fontsize      : large
-   legend.framealpha    : None    # opacity of of legend frame
+   legend.framealpha    : None    # opacity of legend frame
    legend.scatterpoints : 3 # number of scatter points
-   legend.edgecolor     : inherit   # legend edge color (when None inherits from axes.facecolor)
+   legend.edgecolor     : inherit   # legend edge color (when 'inherit' uses axes.edgecolor)
 
 in your :file:`matplotlibrc` file.
 
@@ -617,9 +616,9 @@ Image
 Interpolation
 -------------
 
-The default interpolation method for `~matplotlib.axes.Axes.imshow` is now
-``'nearest'`` and by default resamples the data to both up and down sample
-then input before color mapping.
+The default interpolation method for `~matplotlib.axes.Axes.imshow` is
+now ``'nearest'`` and by default resamples the data (both up and down
+sampling) before color mapping.
 
 
 .. plot::
@@ -645,21 +644,6 @@ then input before color mapping.
    demo(ax1, classic_rcparams, 'classic')
    demo(ax2, {}, 'v2.0')
 
-The default value for the rcParam ``image.resample`` is now ``True``.
-This will apply interpolation for both upsampling and downsampling
-of an image.  ``image.interpolation``, is now ``nearest``.
-
-Previously, the input data was normalized, then color mapped, and the
-resampled to the resolution required for the screen.  This means that
-the final resampling was being done in color space.  Because the color
-maps are not always linear in RGB space this can result in colors not
-in the color map appearing in the final image.  This bug was addressed
-by an almost complete overhaul of how the image handling code works.
-The input data is now normalized, then resampled to the correct
-resolution (in scaled dataspace), and then finally color mapped to
-RGBA space which prevents any colors not in the color map from
-appearing in the final image (if your viewer subsequently resamples
-the image the artifact may reappear).
 
 To restore the previous behavior set::
 
@@ -672,6 +656,24 @@ or set::
   image.resample  : False
 
 in your :file:`matplotlibrc` file.
+
+Colormapping pipeline
+---------------------
+
+Previously, the input data was normalized, then color mapped, and then
+resampled to the resolution required for the screen.  This meant that
+the final resampling was being done in color space.  Because the color
+maps are not generally linear in RGB space colors not in the color map
+may appear in the final image.  This bug was addressed by an almost
+complete overhaul of how the image handling code works.
+
+The input data is now normalized, then resampled to the correct
+resolution (in normalized dataspace), and then finally color mapped to
+RGB space.  This ensures only colors actually in the color map appear
+in the final image (if your viewer subsequently resamples the image
+the artifact may reappear).
+
+The previous behavior can not be restored.
 
 
 Shading
