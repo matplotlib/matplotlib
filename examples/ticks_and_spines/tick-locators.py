@@ -66,9 +66,9 @@ ax.text(0.0, 0.5, "Auto locator", fontsize=16, transform=ax.transAxes)
 # MaxN Locator
 ax = plt.subplot(n, 1, 6)
 setup(ax)
-ax.xaxis.set_major_locator(ticker.MaxNLocator(5))
-ax.xaxis.set_minor_locator(ticker.MaxNLocator(50))
-ax.text(0.0, 0.5, "MaxN locator", fontsize=16, transform=ax.transAxes)
+ax.xaxis.set_major_locator(ticker.MaxNLocator(4))
+ax.xaxis.set_minor_locator(ticker.MaxNLocator(40))
+ax.text(0.0, 0.5, "MaxN locator (n=4)", fontsize=16, transform=ax.transAxes)
 
 # Log Locator
 ax = plt.subplot(n, 1, 7)
