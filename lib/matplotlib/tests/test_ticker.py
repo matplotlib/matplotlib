@@ -94,11 +94,11 @@ def test_LogLocator_set_params():
     Should not exception.
     """
     loc = mticker.LogLocator()
-    loc.set_params(numticks=8, numdecs=8, subs=[2.0], base=8)
-    nose.tools.assert_equal(loc.numticks, 8)
+    loc.set_params(numticks=7, numdecs=8, subs=[2.0], base=4)
+    nose.tools.assert_equal(loc.numticks, 7)
     nose.tools.assert_equal(loc.numdecs, 8)
-    nose.tools.assert_equal(loc.base, 8)
-    nose.tools.assert_equal(loc.subs, [2.0])
+    nose.tools.assert_equal(loc._base, 4)
+    nose.tools.assert_equal(list(loc._subs), [2.0])
 
 
 def test_NullLocator_set_params():
