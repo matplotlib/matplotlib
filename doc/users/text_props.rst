@@ -127,7 +127,7 @@ glyphs that may be required by mpl users.  For example, DejaVu has no
 coverage of Chinese, Korean, or Japanese.
 
 
-To set the default font to be one that support the code points you
+To set the default font to be one that supportsthe code points you
 need prepend the font name to ``'font.family'`` or the desired alias
 lists ::
 
@@ -143,7 +143,7 @@ To control the font used on per-artist basis use the ``'name'``,
 
 
 On linux `fc-list <http://linux.die.net/man/1/fc-list>`__ can be a
-useful tool to discover the font name for example ::
+useful tool to discover the font name; for example ::
 
    $ fc-list :lang=zh family
    Source Han Sans TW,思源黑體 TW,思源黑體 TW ExtraLight,Source Han Sans TW ExtraLight
