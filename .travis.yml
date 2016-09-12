@@ -80,6 +80,10 @@ install:
     pip install $PRE python-dateutil $NUMPY pyparsing!=2.1.6 $PANDAS pep8 cycler coveralls coverage
     pip install $PRE -r doc-requirements.txt
 
+    # Install nose from a build which has partial
+    # support for python36 and suport for coverage output suppressing
+    pip install git+https://github.com/jenshnielsen/nose.git@matplotlibnose
+
   # Install mock on python 2. Python 2.6 requires mock 1.0.1
   # Since later versions have dropped support
   - |
