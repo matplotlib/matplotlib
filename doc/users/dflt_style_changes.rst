@@ -837,7 +837,7 @@ Auto limits
 The previous auto-scaling behavior was to find 'nice' round numbers
 that enclosed the data limits, however this could produce
 pathologically bad plots if the data happened to fall on a vertical or
-horizontal line near a 'round number'.  The new default is set the
+horizontal line near a 'round number'.  The new default sets the
 view limits to 5% wider than the data range
 
 .. plot::
@@ -863,7 +863,7 @@ view limits to 5% wider than the data range
    demo(fig, {}, 'v2.0', 2)
 
 The size of the padding in the x and y directions is controlled by the
-``'axes.xmargin'`` and ``'axes.ymargin'`` rcParams respectively. If
+``'axes.xmargin'`` and ``'axes.ymargin'`` rcParams respectively. Whether
 the view limits should be 'round numbers' is controlled by the
 ``'axes.autolimit_mode'`` rcParam.  The default value, ``'data'``,
 does not guaranteed that tick at the end of the view where as
