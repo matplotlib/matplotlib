@@ -419,7 +419,6 @@ def _image_directories(func):
 def switch_backend(backend):
     # Local import to avoid a hard nose dependency and only incur the
     # import time overhead at actual test-time.
-    import nose
     def switch_backend_decorator(func):
         def backend_switcher(*args, **kwargs):
             try:
