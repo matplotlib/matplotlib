@@ -25,13 +25,13 @@ persistently and selectively revert many of these changes.
 
 
 
-colors, color cycles, and color maps
+Colors, color cycles, and color maps
 ====================================
 
 Colors in default property cycle
 --------------------------------
 
-The colors in the default proprety cycle have been changed from
+The colors in the default property cycle have been changed from
 ``['b', 'g', 'r', 'c', 'm', 'y', 'k']`` to the `Vega category10 palette
 <https://github.com/vega/vega/wiki/Scales#scale-range-literals>`__
 
@@ -74,7 +74,8 @@ The colors in the default proprety cycle have been changed from
   color_demo(ax1, old_colors, 'classic')
   color_demo(ax2, new_colors, 'v2.0')
 
-  fig.subplots_adjust(**{'bottom': 0.0, 'left': 0.059, 'right': 0.869, 'top': 0.895})
+  fig.subplots_adjust(**{'bottom': 0.0, 'left': 0.059,
+                         'right': 0.869, 'top': 0.895})
 
 In addition to changing the colors, an additional method to specify
 colors was added.  Previously, the default colors were the single
@@ -82,7 +83,8 @@ character short-hand notations for red, green, blue, cyan, magenta,
 yellow, and black.  This made them easy to type and usable in the
 abbreviated style string in ``plot``, however the new default colors
 are only specified via hex values.  To access these colors outside of
-the property cycling the notation for colors ``'CN'`` was added to
+the property cycling the notation for colors ``'CN'``, where ``N``
+takes values 0-9, was added to
 denote the first 10 colors in ``mpl.rcParams['axes.prop_cycle']`` See
 :ref:`colors` for more details.
 
@@ -93,7 +95,7 @@ To restore the old color cycle use
    from cycler import cycler
    mpl.rcParams['axes.prop_cycle'] = cycler(color='bgrcmyk')
 
-or setting
+or set
 
 .. code::
 
@@ -130,7 +132,7 @@ For an introduction to color theory and how 'viridis' was generated
 watch Nathaniel Smith and Stéfan van der Walt's talk from SciPy2015.
 See `here for many more details <https://bids.github.io/colormap/>`__
 about the other alternatives and the tools used to create the color
-map.  For details on all of color maps available in matplotlib see
+map.  For details on all of the color maps available in matplotlib see
 :ref:`colormaps`.
 
 .. raw:: html
@@ -162,7 +164,7 @@ The previous defaults can be restored by ::
 
    mpl.rcParams['figure.facecolor'] = '0.75'
 
-or setting ::
+or by setting ::
 
 
     figure.facecolor : '0.75'
@@ -173,7 +175,7 @@ in your :file:`matplotlibrc` file.
 Grid lines
 ----------
 
-The default style of grid lines was changed from, black dashed lines to thicker
+The default style of grid lines was changed from black dashed lines to thicker
 solid light grey lines.
 
 .. plot::
@@ -192,7 +194,7 @@ The previous default can be restored by using::
    mpl.rcParams['grid.linestyle'] = ':'
    mpl.rcParams['grid.linewidth'] = 0.5
 
-or setting::
+or by setting::
 
    grid.color       :   k       # grid color
    grid.linestyle   :   :       # dotted
@@ -204,12 +206,12 @@ in your :file:`matplotlibrc` file.
 Figure size, font size, and screen dpi
 ======================================
 
-The default dpi used for on-screen display was changed from 80dpi to
-100dpi, the same as the default dpi for saving files.  Due to this
+The default dpi used for on-screen display was changed from 80 dpi to
+100 dpi, the same as the default dpi for saving files.  Due to this
 change, the on-screen display is now more what-you-see-is-what-you-get
-for saved files.  To keep figure the same size in terms of pixels, in
+for saved files.  To keep the figure the same size in terms of pixels, in
 order to maintain approximately the same size on the screen, the
-default figure size was reduced from 8in by 6in to 6.4in by 4.8in.  As
+default figure size was reduced from 8x6 inches to 6.4x4.8 inches.  As
 a consequence of this the default font sizes used for the title, tick
 labels, and axes labels were reduced to maintain their size relative
 to the overall size of the figure.  By default the dpi of the saved
@@ -230,7 +232,7 @@ The previous defaults can be restored by ::
    mpl.rcParams['legend.fontsize'] = 'large'
    mpl.rcParams['figure.titlesize'] = 'medium'
 
-or set::
+or by setting::
 
    figure.figsize   : [8.0, 6.0]
    figure.dpi       : 80
@@ -249,14 +251,15 @@ Plotting functions
 ``scatter``
 -----------
 
-The following changes were made to the default behavior of `~matplotlib.axes.Axes.scatter`
+The following changes were made to the default behavior of
+`~matplotlib.axes.Axes.scatter`
 
  - The default size of the elements in a scatter plot is now based on
    the rcParam ``lines.markersize`` so it is consistent with ``plot(X,
    Y, 'o')``.  The old value was 20, and the new value is 36 (6^2).
  - scatter markers no longer have a black edge.
- - if the color of the markers is not specified it will follow the property cycle
-   pulling from the 'patches' cycle on the ``Axes``.
+ - if the color of the markers is not specified it will follow the
+   property cycle, pulling from the 'patches' cycle on the ``Axes``.
 
 .. plot::
 
@@ -296,7 +299,7 @@ a per-call basis pass the following kwargs::
 The following changes were made to the default behavior of
 `~matplotlib.axes.Axes.plot`
 
- - the default linewidth change from 1 to 1.5
+ - the default linewidth increased from 1 to 1.5
  - the dash patterns associated with ``'--'``, ``':'``, and ``'-.'`` have
    changed
  - the dash patterns now scale with line width
@@ -405,7 +408,7 @@ in your :file:`matplotlibrc` file.
 Patch edges and color
 ---------------------
 
-Artists drawn with a patch (``~matplotlib.axes.Axes.bar``,
+Most artists drawn with a patch (``~matplotlib.axes.Axes.bar``,
 ``~matplotlib.axes.Axes.pie``, etc) no longer have a black edge by
 default.  The default face color is now ``'C0'`` instead of ``'b'``.
 
@@ -435,7 +438,8 @@ default.  The default face color is now ``'C0'`` instead of ``'b'``.
 
            ax_bottom.set_xlim(0, .75)
            ax_bottom.set_ylim(0, .75)
-           ax_bottom.add_artist(mpatches.Rectangle(grid[1] - [0.025, 0.05], 0.05, 0.1))
+           ax_bottom.add_artist(mpatches.Rectangle(grid[1] - [0.025, 0.05],
+                                                   0.05, 0.1))
            ax_bottom.add_artist(mpatches.RegularPolygon(grid[3], 5, 0.1))
            ax_bottom.add_artist(mpatches.Ellipse(grid[4], 0.2, 0.1))
            ax_bottom.add_artist(mpatches.Circle(grid[0], 0.1))
@@ -496,13 +500,12 @@ Normal text
 -----------
 
 The default font has changed from "Bitstream Vera Sans" to "DejaVu
-Sans".  "DejaVu Sans" is an improvement on "Bistream Vera Sans" that
-adds more international and math characters, but otherwise has the
-same appearance.  Latin, Greek, Cyrillic, Armenian, Georgian, Hebrew,
-and Arabic are `all supported
-<http://dejavu-fonts.org/wiki/Main_Page>`__ (but right-to-left rendering
-is still not handled by matplotlib).  In addition , DejaVu contains a
-sub-set of emoji symbols.
+Sans".  DejaVu Sans has additional international and math characters,
+but otherwise has the same appearance as Bitstream Vera Sans.
+Latin, Greek, Cyrillic, Armenian, Georgian, Hebrew, and Arabic are
+`all supported <http://dejavu-fonts.org/wiki/Main_Page>`__
+(but right-to-left rendering is still not handled by matplotlib).
+In addition, DejaVu contains a sub-set of emoji symbols.
 
 .. plot::
 
@@ -569,7 +572,7 @@ To revert to the old behavior set the::
    mpl.rcParams['mathtext.fontset'] = 'cm'
    mpl.rcParams['mathtext.rm'] = 'serif'
 
-or by setting::
+or set::
 
   mathtext.fontset: cm
   mathtext.rm : serif
@@ -587,9 +590,7 @@ Legends
 
 - By default, the number of points displayed in a legend is now 1.
 - The default legend location is ``best``, so the legend will be
-  automatically placed in a location to obscure the least amount of
-  data possible.
-- The legend now has rounded corners by default.
+  automatically placed in a location to minimize overlap with data.
 - The legend defaults now include rounded corners, a lighter
   boundary, and partially transparent boundary and background.
 
@@ -645,7 +646,8 @@ or by setting::
    legend.fontsize      : large
    legend.framealpha    : None    # opacity of legend frame
    legend.scatterpoints : 3 # number of scatter points
-   legend.edgecolor     : inherit   # legend edge color (when 'inherit' uses axes.edgecolor)
+   legend.edgecolor     : inherit   # legend edge color ('inherit'
+                                    # means it uses axes.edgecolor)
 
 in your :file:`matplotlibrc` file.
 
@@ -656,7 +658,7 @@ Interpolation
 -------------
 
 The default interpolation method for `~matplotlib.axes.Axes.imshow` is
-now ``'nearest'`` and by default resamples the data (both up and down
+now ``'nearest'`` and by default it resamples the data (both up and down
 sampling) before color mapping.
 
 
@@ -702,15 +704,15 @@ Colormapping pipeline
 Previously, the input data was normalized, then color mapped, and then
 resampled to the resolution required for the screen.  This meant that
 the final resampling was being done in color space.  Because the color
-maps are not generally linear in RGB space colors not in the color map
+maps are not generally linear in RGB space, colors not in the color map
 may appear in the final image.  This bug was addressed by an almost
-complete overhaul of how the image handling code works.
+complete overhaul of the image handling code.
 
 The input data is now normalized, then resampled to the correct
-resolution (in normalized dataspace), and then finally color mapped to
-RGB space.  This ensures only colors actually in the color map appear
-in the final image (if your viewer subsequently resamples the image
-the artifact may reappear).
+resolution (in normalized dataspace), and then color mapped to
+RGB space.  This ensures that only colors from the color map appear
+in the final image. (If your viewer subsequently resamples the image,
+the artifact may reappear.)
 
 The previous behavior can not be restored.
 
@@ -733,9 +735,9 @@ Direction
 ~~~~~~~~~
 
 To reduce the collision of tick marks with data, the default ticks now
-point outward by default.  In addition, ticks are now only drawn on
-the bottom and left spines to reduce the plot looking like a
-porcupine.
+point outward by default.  In addition, ticks are now drawn only on
+the bottom and left spines to prevent a porcupine appearance, and for
+a cleaner separation between subplots.
 
 
 .. plot::
@@ -796,9 +798,10 @@ Number of ticks
 
 The default `~matplotlib.ticker.Locator` used for the x and y axis is
 `~matplotlib.ticker.AutoLocator` which tries to find, up to some
-maximum number, 'nicely' spaced ticks.  In earlier version of matplotlib
-this computation did not take into account the space available for the
-tick label, which could result in overlapping text.
+maximum number, 'nicely' spaced ticks.  The locator now includes
+an algorithm to estimate the maximum number of ticks that will leave
+room for the tick labels.  By default it also ensures that there are at least
+two ticks visible.
 
 .. plot::
 
@@ -815,13 +818,9 @@ tick label, which could result in overlapping text.
    ax1.set_title('classic')
    ax2.set_title('v2.0')
 
-
-By default, the algorithm will also ensure that there are at least two
-ticks visible.
-
-There is no way, other than using ``mpl.style.use('classic')`` to restore the
+There is no way, other than using ``mpl.style.use('classic')``, to restore the
 previous behavior as the default.  On an axis-by-axis basis you may either
-mutate the existing locator via: ::
+control the existing locator via: ::
 
   ax.xaxis.get_major_locator().set_params(nbins=9, steps=[1, 2, 5, 10])
 
@@ -835,10 +834,10 @@ Auto limits
 -----------
 
 The previous auto-scaling behavior was to find 'nice' round numbers
-that enclosed the data limits, however this could produce
-pathologically bad plots if the data happened to fall on a vertical or
-horizontal line near a 'round number'.  The new default sets the
-view limits to 5% wider than the data range
+as view limits that enclosed the data limits, but this could produce
+bad plots if the data happened to fall on a vertical or
+horizontal line near the chosen 'round number' limit.  The new default
+sets the view limits to 5% wider than the data range.
 
 .. plot::
 
@@ -865,13 +864,14 @@ view limits to 5% wider than the data range
 The size of the padding in the x and y directions is controlled by the
 ``'axes.xmargin'`` and ``'axes.ymargin'`` rcParams respectively. Whether
 the view limits should be 'round numbers' is controlled by the
-``'axes.autolimit_mode'`` rcParam.  The default value, ``'data'``,
-does not guaranteed that tick at the end of the view where as
-``'round_number'`` will.  Also see `~matplotlib.axes.Axes.margins`.
+``'axes.autolimit_mode'`` rcParam.  In the original ``'round_number'`` mode,
+the view limits coincide with ticks.  With the new default value, ``'data'``,
+the outermost ticks will usually be inside the view limits, not at the ends.
+Also see `~matplotlib.axes.Axes.margins`.
 
-Not all `~matplotlib.artist.Artist` classes make sense to add a margin to
-(for example a margin should not be added for a `~matplotlib.image.AxesImage`
-created with `~matplotlib.axes.Axes.imshow`).  To control the applications of
+For a few `~matplotlib.artist.Artist` classes, margins are undesirable.
+For example, a margin should not be added for a `~matplotlib.image.AxesImage`
+created with `~matplotlib.axes.Axes.imshow`.  To control the application of
 the margins, the `~matplotlib.artist.Artist` class has gained the properties :
 
     - `~matplotlib.artist.Artist.top_margin`
@@ -881,12 +881,12 @@ the margins, the `~matplotlib.artist.Artist` class has gained the properties :
     - `~matplotlib.artist.Artist.margins`
 
 along with the complimentary ``get_*`` and ``set_*`` methods.  When
-computing the view limits, each `~matplotlib.artist.Artist` that is
-considered is asked if it should have a margin applied on each side.
-If *any* artists does not want to have a margin added to a given side.
+computing the view limits, each `~matplotlib.artist.Artist` is checked.
+If *any* artist does not call for a margin on a given side, the margin
+will be omitted there.
 Some plotting methods and artists have margins disabled by default
-(for example `~matplotlib.axes.Axes.bar` disables the bottom margin).  To cancel
-the margins by a specific artist, pass the kwargs :
+(for example `~matplotlib.axes.Axes.bar` disables the bottom margin).
+To cancel the margins for a specific artist, pass the kwargs :
 
   - ``top_margin=False``
   - ``bottom_margin=False``
@@ -932,21 +932,21 @@ configurable through the ``date.autoformatter.*`` rcParams.
 
 
 +--------------------------------------+--------------------------------------+-------------------+-------------------+
-| Threshold (used if range > than)     | rcParam                              | classic           | v2.0              |
+| Threshold (tick interval >= than)    | rcParam                              | classic           | v2.0              |
 +======================================+======================================+===================+===================+
-| days per year (365)                  | ``'date.autoformatter.year'``        | ``'%Y'``          | ``'%Y'``          |
+| 365 days                             | ``'date.autoformatter.year'``        | ``'%Y'``          | ``'%Y'``          |
 +--------------------------------------+--------------------------------------+-------------------+-------------------+
-| days per month (30)                  | ``'date.autoformatter.month'``       | ``'%b %Y'``       | ``'%Y-%m'``       |
+| 30 days                              | ``'date.autoformatter.month'``       | ``'%b %Y'``       | ``'%Y-%m'``       |
 +--------------------------------------+--------------------------------------+-------------------+-------------------+
 | 1 day                                | ``'date.autoformatter.day'``         | ``'%b %d %Y'``    | ``'%Y-%m-%d'``    |
 +--------------------------------------+--------------------------------------+-------------------+-------------------+
-| 1 / hours per day                    | ``'date.autoformatter.hour'``        | ``'%H:%M:%S'``    | ``'%H:%M'``       |
+| 1 hour                               | ``'date.autoformatter.hour'``        | ``'%H:%M:%S'``    | ``'%H:%M'``       |
 +--------------------------------------+--------------------------------------+-------------------+-------------------+
-| 1 / minutes per day                  | ``'date.autoformatter.minute'``      | ``'%H:%M:%S.%f'`` | ``'%H:%M:%S'``    |
+| 1 minute                             | ``'date.autoformatter.minute'``      | ``'%H:%M:%S.%f'`` | ``'%H:%M:%S'``    |
 +--------------------------------------+--------------------------------------+-------------------+-------------------+
-| 1 / seconds per day                  | ``'date.autoformatter.second'``      | ``'%H:%M:%S.%f'`` | ``'%H:%M:%S'``    |
+| 1 second                             | ``'date.autoformatter.second'``      | ``'%H:%M:%S.%f'`` | ``'%H:%M:%S'``    |
 +--------------------------------------+--------------------------------------+-------------------+-------------------+
-| 1 / microseconds per day             | ``'date.autoformatter.microsecond'`` | ``'%H:%M:%S.%f'`` | ``'%H:%M:%S.%f'`` |
+| 1  microsecond                       | ``'date.autoformatter.microsecond'`` | ``'%H:%M:%S.%f'`` | ``'%H:%M:%S.%f'`` |
 +--------------------------------------+--------------------------------------+-------------------+-------------------+
 
 
