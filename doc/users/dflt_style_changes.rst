@@ -892,15 +892,59 @@ Z-order
 
 
 
-Dates
-=====
+`~matplotlib.dates.AutoDateFormatter` format strings
+====================================================
 
-- The default date formats are now all based on ISO format, i.e., with
-  the slowest-moving value first.  The date formatters are still
-  changeable through the ``date.autoformatter.*`` rcParams.  Python's
-  ``%x`` and ``%X`` date formats may be of particular interest to
-  format dates based on the current locale.
+The default date formats are now all based on ISO format, i.e., with
+the slowest-moving value first.  The date formatters are
+configurable through the ``date.autoformatter.*`` rcParams.
 
+
++--------------------------------------+--------------------------------------+-------------------+-------------------+
+| Threshold (used if range > than)     | rcParam                              | classic           | v2.0              |
++======================================+======================================+===================+===================+
+| days per year (365)                  | ``'date.autoformatter.year'``        | ``'%Y'``          | ``'%Y'``          |
++--------------------------------------+--------------------------------------+-------------------+-------------------+
+| days per month (30)                  | ``'date.autoformatter.month'``       | ``'%b %Y'``       | ``'%Y-%m'``       |
++--------------------------------------+--------------------------------------+-------------------+-------------------+
+| 1 day                                | ``'date.autoformatter.day'``         | ``'%b %d %Y'``    | ``'%Y-%m-%d'``    |
++--------------------------------------+--------------------------------------+-------------------+-------------------+
+| 1 / hours per day                    | ``'date.autoformatter.hour'``        | ``'%H:%M:%S'``    | ``'%H:%M'``       |
++--------------------------------------+--------------------------------------+-------------------+-------------------+
+| 1 / minutes per day                  | ``'date.autoformatter.minute'``      | ``'%H:%M:%S.%f'`` | ``'%H:%M:%S'``    |
++--------------------------------------+--------------------------------------+-------------------+-------------------+
+| 1 / seconds per day                  | ``'date.autoformatter.second'``      | ``'%H:%M:%S.%f'`` | ``'%H:%M:%S'``    |
++--------------------------------------+--------------------------------------+-------------------+-------------------+
+| 1 / microseconds per day             | ``'date.autoformatter.microsecond'`` | ``'%H:%M:%S.%f'`` | ``'%H:%M:%S.%f'`` |
++--------------------------------------+--------------------------------------+-------------------+-------------------+
+
+
+
+Python's ``%x`` and ``%X`` date formats may be of particular interest
+to format dates based on the current locale.
+
+The previous default can be restored by::
+
+   mpl.rcParams['date.autoformatter.year'] = '%Y'
+   mpl.rcParams['date.autoformatter.month'] = '%b %Y'
+   mpl.rcParams['date.autoformatter.day'] = '%b %d %Y'
+   mpl.rcParams['date.autoformatter.hour'] = '%H:%M:%S'
+   mpl.rcParams['date.autoformatter.minute'] = '%H:%M:%S.%f'
+   mpl.rcParams['date.autoformatter.second'] = '%H:%M:%S.%f'
+   mpl.rcParams['date.autoformatter.microsecond'] = '%H:%M:%S.%f'
+
+
+or setting ::
+
+   date.autoformatter.year   : %Y
+   date.autoformatter.month  : %b %Y
+   date.autoformatter.day    : %b %d %Y
+   date.autoformatter.hour   : %H:%M:%S
+   date.autoformatter.minute : %H:%M:%S.%f
+   date.autoformatter.second : %H:%M:%S.%f
+   date.autoformatter.microsecond : %H:%M:%S.%f
+
+in your :file:`matplotlibrc` file.
 
 mplot3d
 =======
