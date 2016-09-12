@@ -362,11 +362,44 @@ or by setting::
 
 in your :file:`matplotlibrc` file.
 
-Errorbar
---------
+``errorbar``
+------------
 
-- By default, caps on the ends of errorbars are not present.  Use the
-  rcParam ``errorbar.capsize`` to control this.
+By default, caps on the ends of errorbars are not present.
+
+.. plot::
+
+   import matplotlib as mpl
+   import matplotlib.pyplot as plt
+   import numpy as np
+
+   # example data
+   x = np.arange(0.1, 4, 0.5)
+   y = np.exp(-x)
+
+   # example variable error bar values
+   yerr = 0.1 + 0.2*np.sqrt(x)
+   xerr = 0.1 + yerr
+
+   def demo(ax, rc, title):
+       with mpl.rc_context(rc=rc):
+           ax.errorbar(x, y, xerr=0.2, yerr=0.4)
+       ax.set_title(title)
+
+   fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(6, 3), tight_layout=True)
+
+   demo(ax1, {'errorbar.capsize': 3}, 'classic')
+   demo(ax2, {}, 'v2.0')
+
+The previous defaults can be restored by setting::
+
+    mpl.rcParams['errorbar.capsize'] = 3
+
+or by setting ::
+
+   errorbar.capsize : 3
+
+in your :file:`matplotlibrc` file.
 
 
 Patch edges and color
@@ -587,8 +620,7 @@ Legends
                  'legend.framealpha': None,
                  'legend.edgecolor': 'inherit',
                  'legend.loc': 'upper right',
-                 'legend.fontsize': 'large',
-   }
+                 'legend.fontsize': 'large'}
 
    demo(ax1, classic_rc, 'classic')
    demo(ax2, {}, 'v2.0')
@@ -730,8 +762,7 @@ porcupine.
    classic = {'xtick.direction': 'in',
               'ytick.direction': 'in',
               'xtick.top': True,
-              'ytick.right': True
-   }
+              'ytick.right': True}
 
    fig = plt.figure(figsize=(6, 6), tight_layout=True)
 
@@ -892,8 +923,8 @@ Z-order
 
 
 
-`~matplotlib.dates.AutoDateFormatter` format strings
-====================================================
+``AutoDateFormatter`` format strings
+====================================
 
 The default date formats are now all based on ISO format, i.e., with
 the slowest-moving value first.  The date formatters are
