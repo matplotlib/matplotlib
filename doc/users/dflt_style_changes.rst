@@ -765,28 +765,122 @@ Number of ticks
 
 The default `~matplotlib.ticker.Locator` used for the x and y axis is
 `~matplotlib.ticker.AutoLocator` which tries to find, up to some
-maximum number, 'nicely' spaced ticks.
+maximum number, 'nicely' spaced ticks.  In earlier version of matplotlib
+this computation did not take into account the space available for the
+tick label, which could result in overlapping text.
 
-- The number of ticks on an axis is now automatically determined based
-  on the length of the axis.
+.. plot::
+
+   import matplotlib.pyplot as plt
+   import numpy as np
+
+   from matplotlib.ticker import AutoLocator
+
+   fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(4, 3), tight_layout=True)
+   ax1.set_xlim(0, .1)
+   ax2.set_xlim(0, .1)
+
+   ax1.xaxis.get_major_locator().set_params(nbins=9, steps=[1, 2, 5, 10])
+   ax1.set_title('classic')
+   ax2.set_title('v2.0')
+
+
+By default, the algorithm will also ensure that there are at least two
+ticks visible.
+
+There is no way, other than using ``mpl.style.use('classic')`` to restore the
+previous behavior as the default.  On an axis-by-axis basis you may either
+mutate the existing locator via: ::
+
+  ax.xaxis.get_major_locator().set_params(nbins=9, steps=[1, 2, 5, 10])
+
+or create a new `~matplotlib.ticker.MaxNLocator`::
+
+  import matplotlib.ticker as mticker
+  ax.set_major_locator(mticker.MaxNLocator(nbins=9, steps=[1, 2, 5, 10])
 
 
 Auto limits
 -----------
 
+The previous auto-scaling behavior was to find 'nice' round numbers
+that enclosed the data limits, however this could produce
+pathologically bad plots if the data happened to fall on a vertical or
+horizontal line near a 'round number'.  The new default is set the
+view limits to 5% wider than the data range
 
+.. plot::
 
-- The limits of an axes are scaled to exactly the dimensions of the data,
-  plus 5% padding.  The old behavior was to scale to the nearest "round"
-  numbers.  To use the old behavior, set the ``rcParam``
-  ``axes.autolimit_mode`` to ``round_numbers``.  To control the
-  margins on a particular side individually, pass any of the following
-  to any artist or plotting function:
+   import matplotlib as mpl
+   import matplotlib.pyplot as plt
+   import numpy
+
+   data = np.zeros(1000)
+   data[0] = 1
+
+   fig = plt.figure(figsize=(6, 3))
+
+   def demo(fig, rc, title, j):
+       with mpl.rc_context(rc=rc):
+           ax = fig.add_subplot(1, 2, j)
+           ax.plot(data)
+           ax.set_title(title)
+
+   demo(fig, {'axes.autolimit_mode': 'round_numbers',
+              'axes.xmargin': 0,
+              'axes.ymargin': 0}, 'classic', 1)
+   demo(fig, {}, 'v2.0', 2)
+
+The size of the padding in the x and y directions is controlled by the
+``'axes.xmargin'`` and ``'axes.ymargin'`` rcParams respectively. If
+the view limits should be 'round numbers' is controlled by the
+``'axes.autolimit_mode'`` rcParam.  The default value, ``'data'``,
+does not guaranteed that tick at the end of the view where as
+``'round_number'`` will.  Also see `~matplotlib.axes.Axes.margins`.
+
+Not all `~matplotlib.artist.Artist` classes make sense to add a margin to
+(for example a margin should not be added for a `~matplotlib.image.AxesImage`
+created with `~matplotlib.axes.Axes.imshow`).  To control the applications of
+the margins, the `~matplotlib.artist.Artist` class has gained the properties :
+
+    - `~matplotlib.artist.Artist.top_margin`
+    - `~matplotlib.artist.Artist.bottom_margin`
+    - `~matplotlib.artist.Artist.left_margin`
+    - `~matplotlib.artist.Artist.right_margin`
+    - `~matplotlib.artist.Artist.margins`
+
+along with the complimentary ``get_*`` and ``set_*`` methods.  When
+computing the view limits, each `~matplotlib.artist.Artist` that is
+considered is asked if it should have a margin applied on each side.
+If *any* artists does not want to have a margin added to a given side.
+Some plotting methods and artists have margins disabled by default
+(for example `~matplotlib.axes.Axes.bar` disables the bottom margin).  To cancel
+the margins by a specific artist, pass the kwargs :
 
   - ``top_margin=False``
   - ``bottom_margin=False``
   - ``left_margin=False``
   - ``right_margin=False``
+
+to any plotting method or artist ``__init__`` which supports ``**kwargs`` (as
+any unused kwargs eventually get passed to `~matplotlib.artist.Artist.update`).
+
+
+The previous default can be restored by using::
+
+   mpl.rcParams['axes.autolimit_mode'] = 'round_numbers'
+   mpl.rcParams['axes.xmargin'] = 0
+   mpl.rcParams['axes.ymargin'] = 0
+
+or setting::
+
+   axes.autolimit_mode: round_numbers
+   axes.xmargin: 0
+   axes.ymargin: 0
+
+in your :file:`matplotlibrc` file.
+
+
 
 Z-order
 -------
