@@ -59,7 +59,10 @@ def knownfailureif(fail_condition, msg=None, known_exception_class=None):
     """
     if is_called_from_pytest():
         import pytest
-        strict = fail_condition and fail_condition != 'indeterminate'
+        if fail_condition == 'indeterminate':
+            fail_condition, strict = True, False
+        else:
+            fail_condition, strict = bool(fail_condition), True
         return pytest.mark.xfail(condition=fail_condition, reason=msg,
                                  raises=known_exception_class, strict=strict)
     else:
