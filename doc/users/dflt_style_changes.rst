@@ -691,14 +691,6 @@ Shading
   Formerly, it was ``hsv``.
 
 
-
-
-TEMPORARY NOTES TOM IS KEEPING IN THE SOURCE SO THEY DO NOT GET LOST
-====================================================================
-
-- lines.color change, only hits raw usage of Line2D
-
-
 Plot layout
 ===========
 
@@ -728,7 +720,7 @@ porcupine.
        with mpl.rc_context(rc=rcparams):
 
            ax = fig.add_subplot(2, 2, j)
-           ax.hist(np.random.beta(0.5, 0.5, 10000), 100, normed=True)
+           ax.hist(np.random.beta(0.5, 0.5, 10000), 25, normed=True)
            ax.set_xlim([0, 1])
            ax.set_title(title)
 
@@ -741,15 +733,39 @@ porcupine.
               'ytick.right': True
    }
 
-   fig = plt.figure(figsize=(4, 4), tight_layout=True)
+   fig = plt.figure(figsize=(6, 6), tight_layout=True)
 
 
 
    demo(fig, classic, 'classic', 1)
    demo(fig, {}, 'v2.0', 2)
 
-Number
-~~~~~~
+
+To restore the previous behavior set::
+
+   mpl.rcParams['xtick.direction'] = 'in'
+   mpl.rcParams['ytick.direction'] = 'in'
+   mpl.rcParams['xtick.top'] = True
+   mpl.rcParams['ytick.right'] = True
+
+or set::
+
+   xtick.top: True
+   xtick.direction: in
+
+   ytick.right: True
+   ytick.direction: in
+
+in your :file:`matplotlibrc` file.
+
+
+
+Number of ticks
+~~~~~~~~~~~~~~~
+
+The default `~matplotlib.ticker.Locator` used for the x and y axis is
+`~matplotlib.ticker.AutoLocator` which tries to find, up to some
+maximum number, 'nicely' spaced ticks.
 
 - The number of ticks on an axis is now automatically determined based
   on the length of the axis.
@@ -807,3 +823,10 @@ mplot3d
   - grid.color
   - grid.linewidth
   - grid.linestyle
+
+
+
+TEMPORARY NOTES TOM IS KEEPING IN THE SOURCE SO THEY DO NOT GET LOST
+====================================================================
+
+- lines.color change, only hits raw usage of Line2D
