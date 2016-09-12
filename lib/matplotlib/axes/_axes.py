@@ -3889,17 +3889,25 @@ class Axes(_AxesBase):
         ----------------
         kwargs : `~matplotlib.collections.Collection` properties
 
-        Notes
-        ------
-        Any or all of `x`, `y`, `s`, and `c` may be masked arrays, in
-        which case all masks will be combined and only unmasked points
-        will be plotted.
+        See Also
+        --------
+        plot : to plot scatter plots when markers are identical in size and
+            color
 
-        Fundamentally, scatter works with 1-D arrays; `x`, `y`, `s`,
-        and `c` may be input as 2-D arrays, but within scatter
-        they will be flattened. The exception is `c`, which
-        will be flattened only if its size matches the size of `x`
-        and `y`.
+        Notes
+        -----
+
+        * When attempting to plot a scatter plots where markers don't vary in
+          size and color, the `plot` function will be faster.
+
+        * Any or all of `x`, `y`, `s`, and `c` may be masked arrays, in which
+          case all masks will be combined and only unmasked points will be
+          plotted.
+
+          Fundamentally, scatter works with 1-D arrays; `x`, `y`, `s`, and `c`
+          may be input as 2-D arrays, but within scatter they will be
+          flattened. The exception is `c`, which will be flattened only if its
+          size matches the size of `x` and `y`.
 
         Examples
         --------
