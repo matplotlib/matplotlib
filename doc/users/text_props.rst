@@ -43,7 +43,7 @@ zorder                      any number
 ==========================  ======================================================================================================================
 
 
-You can layout text with the alignment arguments
+You can lay out text with the alignment arguments
 ``horizontalalignment``, ``verticalalignment``, and
 ``multialignment``.  ``horizontalalignment`` controls whether the x
 positional argument for the text indicates the left, center or right
@@ -127,8 +127,8 @@ glyphs that may be required by mpl users.  For example, DejaVu has no
 coverage of Chinese, Korean, or Japanese.
 
 
-To set the default font to be one that supportsthe code points you
-need prepend the font name to ``'font.family'`` or the desired alias
+To set the default font to be one that supports the code points you
+need, prepend the font name to ``'font.family'`` or the desired alias
 lists ::
 
    matplotlib.rcParams['font.sans-serif'] = ['Source Han Sans TW', 'sans-serif']
@@ -142,7 +142,7 @@ To control the font used on per-artist basis use the ``'name'``,
 <text-properties>`.
 
 
-On linux `fc-list <http://linux.die.net/man/1/fc-list>`__ can be a
+On linux, `fc-list <http://linux.die.net/man/1/fc-list>`__ can be a
 useful tool to discover the font name; for example ::
 
    $ fc-list :lang=zh family
