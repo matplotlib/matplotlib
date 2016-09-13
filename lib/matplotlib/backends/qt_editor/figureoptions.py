@@ -33,9 +33,11 @@ LINESTYLES = {'-': 'Solid',
               'None': 'None',
               }
 
-DRAWSTYLES = {'default': 'Default',
-              'steps': 'Steps',
-              }
+DRAWSTYLES = {
+    'default': 'Default',
+    'steps-pre': 'Steps (Pre)', 'steps': 'Steps (Pre)',
+    'steps-mid': 'Steps (Mid)',
+    'steps-post': 'Steps (Post)'}
 
 MARKERS = markers.MarkerStyle.markers
 
