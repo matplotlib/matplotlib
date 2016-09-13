@@ -335,6 +335,16 @@ class ToolCursorPosition(ToolBase):
             except (ValueError, OverflowError):
                 pass
             else:
+                artists = [a for a in event.inaxes.mouseover_set
+                           if a.contains(event) and a.get_visible()]
+
+                if artists:
+                    a = max(enumerate(artists), key=lambda x: x[1].zorder)[1]
+                    if a is not event.inaxes.patch:
+                        data = a.get_cursor_data(event)
+                        if data is not None:
+                            s += ' [%s]' % a.format_cursor_data(data)
+
                 message = s
         self.toolmanager.message_event(message, self)
 
