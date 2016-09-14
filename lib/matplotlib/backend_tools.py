@@ -339,7 +339,7 @@ class ToolCursorPosition(ToolBase):
                            if a.contains(event) and a.get_visible()]
 
                 if artists:
-                    a = max(enumerate(artists), key=lambda x: x[1].zorder)[1]
+                    a = max(artists, key=lambda x: x.zorder)
                     if a is not event.inaxes.patch:
                         data = a.get_cursor_data(event)
                         if data is not None:
