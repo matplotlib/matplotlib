@@ -2700,63 +2700,58 @@ class Axes(_AxesBase):
         """
         Plot an errorbar graph.
 
-        Call signature::
+        Plot x versus y with error deltas in yerr and xerr.
+        Vertical errorbars are plotted if yerr is not None.
+        Horizontal errorbars are plotted if xerr is not None.
 
-          errorbar(x, y, yerr=None, xerr=None,
-                   fmt='', ecolor=None, elinewidth=None, capsize=None,
-                   barsabove=False, lolims=False, uplims=False,
-                   xlolims=False, xuplims=False, errorevery=1,
-                   capthick=None)
+        x, y, xerr, and yerr can all be scalars, which plots a
+        single error bar at x, y.
 
-        Plot *x* versus *y* with error deltas in *yerr* and *xerr*.
-        Vertical errorbars are plotted if *yerr* is not *None*.
-        Horizontal errorbars are plotted if *xerr* is not *None*.
+        Parameters
+        ----------
+        x : scalar
+        y : scalar
 
-        *x*, *y*, *xerr*, and *yerr* can all be scalars, which plots a
-        single error bar at *x*, *y*.
-
-        Optional keyword arguments:
-
-          *xerr*/*yerr*: [ scalar | N, Nx1, or 2xN array-like ]
+        xerr/yerr : scalar or array-like, shape(n,1) or shape(2,n), optional
             If a scalar number, len(N) array-like object, or an Nx1
             array-like object, errorbars are drawn at +/-value relative
-            to the data.
+            to the data. Default is None.
 
             If a sequence of shape 2xN, errorbars are drawn at -row1
             and +row2 relative to the data.
 
-          *fmt*: [ '' | 'none' | plot format string ]
-            The plot format symbol. If *fmt* is 'none' (case-insensitive),
+        fmt : plot format string, optional, default: None
+            The plot format symbol. If fmt is 'none' (case-insensitive),
             only the errorbars are plotted.  This is used for adding
             errorbars to a bar plot, for example.  Default is '',
             an empty plot format string; properties are
             then identical to the defaults for :meth:`plot`.
 
-          *ecolor*: [ *None* | mpl color ]
+        ecolor : mpl color, optional, default: None
             A matplotlib color arg which gives the color the errorbar lines;
-            if *None*, use the color of the line connecting the markers.
+            if None, use the color of the line connecting the markers.
 
-          *elinewidth*: scalar
-            The linewidth of the errorbar lines. If *None*, use the linewidth.
+        elinewidth : scalar, optional, default: None
+            The linewidth of the errorbar lines. If None, use the linewidth.
 
-          *capsize*: scalar
-            The length of the error bar caps in points; if *None*, it will
+        capsize : scalar, optional, default: None
+            The length of the error bar caps in points; if None, it will
             take the value from ``errorbar.capsize``
             :data:`rcParam<matplotlib.rcParams>`.
 
-          *capthick*: scalar
-            An alias kwarg to *markeredgewidth* (a.k.a. - *mew*). This
+        capthick : scalar, optional, default: None
+            An alias kwarg to markeredgewidth (a.k.a. - mew). This
             setting is a more sensible name for the property that
             controls the thickness of the error bar cap in points. For
-            backwards compatibility, if *mew* or *markeredgewidth* are given,
-            then they will over-ride *capthick*.  This may change in future
+            backwards compatibility, if mew or markeredgewidth are given,
+            then they will over-ride capthick. This may change in future
             releases.
 
-          *barsabove*: [ *True* | *False* ]
-            if *True*, will plot the errorbars above the plot
+        barsabove : bool, optional, default: False
+            if True , will plot the errorbars above the plot
             symbols. Default is below.
 
-          *lolims* / *uplims* / *xlolims* / *xuplims*: [ *False* | *True* ]
+        lolims / uplims / xlolims / xuplims : bool, optional, default:None
             These arguments can be used to indicate that a value gives
             only upper/lower limits. In that case a caret symbol is
             used to indicate this. lims-arguments may be of the same
@@ -2764,42 +2759,41 @@ class Axes(_AxesBase):
             axes, :meth:`set_xlim` or :meth:`set_ylim` must be called
             before :meth:`errorbar`.
 
-          *errorevery*: positive integer
+        errorevery : positive integer, optional, default:1
             subsamples the errorbars. e.g., if errorevery=5, errorbars for
             every 5-th datapoint will be plotted. The data plot itself still
             shows all data points.
 
-        All other keyword arguments are passed on to the plot command for the
-        markers. For example, this code makes big red squares with
-        thick green edges::
+        Returns
+        -------
+        plotline : :class:`~matplotlib.lines.Line2D` instance
+            x, y plot markers and/or line
+        caplines : list of :class:`~matplotlib.lines.Line2D` instances
+            error bar cap
+        barlinecols : list of :class:`~matplotlib.collections.LineCollection`
+            horizontal and vertical error ranges.
 
-          x,y,yerr = rand(3,10)
-          errorbar(x, y, yerr, marker='s',
-                   mfc='red', mec='green', ms=20, mew=4)
+        Other Parameters
+        ----------------
+        kwargs : All other keyword arguments are passed on to the plot
+            command for the markers. For example, this code makes big red
+            squares with thick green edges::
 
-        where *mfc*, *mec*, *ms* and *mew* are aliases for the longer
-        property names, *markerfacecolor*, *markeredgecolor*, *markersize*
-        and *markeredgewidth*.
+                x,y,yerr = rand(3,10)
+                errorbar(x, y, yerr, marker='s', mfc='red',
+                         mec='green', ms=20, mew=4)
 
-        valid kwargs for the marker properties are
+            where mfc, mec, ms and mew are aliases for the longer
+            property names, markerfacecolor, markeredgecolor, markersize
+            and markeredgewidth.
 
-        %(Line2D)s
+            valid kwargs for the marker properties are
 
-        Returns (*plotline*, *caplines*, *barlinecols*):
+            %(Line2D)s
 
-            *plotline*: :class:`~matplotlib.lines.Line2D` instance
-                *x*, *y* plot markers and/or line
-
-            *caplines*: list of error bar cap
-                :class:`~matplotlib.lines.Line2D` instances
-            *barlinecols*: list of
-                :class:`~matplotlib.collections.LineCollection` instances for
-                the horizontal and vertical error ranges.
-
-        **Example:**
-
+        Examples
+        --------
         .. plot:: mpl_examples/statistics/errorbar_demo.py
-
         """
         kwargs = cbook.normalize_kwargs(kwargs, _alias_map)
         kwargs.setdefault('zorder', 2)
