@@ -93,5 +93,5 @@ ax.text(0.0, 0.5, "StrMethodFormatter('{x}')",
 
 plt.tight_layout()
 # plt.savefig("tick-formatters.pdf")
-plt.savefig("tick-formatters.png", dpi=150)
+# plt.savefig("tick-formatters.png", dpi=150)
 plt.show()
