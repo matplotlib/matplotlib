@@ -33,8 +33,8 @@ your custom style sheet with a call to ``style.use(<style-name>)``. By default
 ``mpl_configdir`` should be ``~/.config/matplotlib``, but you can check where
 yours is with ``matplotlib.get_configdir()``; you may need to create this
 directory. You also can change the directory where matplotlib looks for 
-the stylelib/ folder by setting the MPLCONFIG environment variable
-, see :ref:`locating-matplotlib-config-dir`. 
+the stylelib/ folder by setting the MPLCONFIGDIR environment variable, 
+see :ref:`locating-matplotlib-config-dir`. 
 
 Note that a custom style sheet in ``mpl_configdir/stylelib`` will
 override a style sheet defined by matplotlib if the styles have the same name.
