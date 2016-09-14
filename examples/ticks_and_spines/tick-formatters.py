@@ -43,7 +43,7 @@ ax.xaxis.set_major_formatter(ticker.FixedFormatter(majors))
 minors = [""] + ["%.2f" % (x-int(x)) if (x-int(x))
                  else "" for x in np.arange(0, 5, 0.25)]
 ax.xaxis.set_minor_formatter(ticker.FixedFormatter(minors))
-ax.text(0.0, 0.5, "FixedFormatter(['','0','1',...])",
+ax.text(0.0, 0.5, "FixedFormatter(['', '0', '1', ...])",
         fontsize=15, transform=ax.transAxes)
 
 
