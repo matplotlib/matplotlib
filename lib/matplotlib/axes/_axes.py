@@ -3897,8 +3897,8 @@ class Axes(_AxesBase):
         Notes
         -----
 
-        * When attempting to plot a scatter plots where markers don't vary in
-          size and color, the `plot` function will be faster.
+        * The `plot` function will be faster for scatterplots where markers
+          don't vary in size or color.
 
         * Any or all of `x`, `y`, `s`, and `c` may be masked arrays, in which
           case all masks will be combined and only unmasked points will be
