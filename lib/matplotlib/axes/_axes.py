@@ -1602,41 +1602,40 @@ class Axes(_AxesBase):
     # @unpack_labeled_data() # let 'plot' do the unpacking..
     @docstring.dedent_interpd
     def semilogy(self, *args, **kwargs):
-        """
-        Make a plot with log scaling on the *y* axis.
+        r"""Make a plot with log scaling on the `y` axis.
 
-        call signature::
+        Parameters
+        ----------
+        basey : scalar > 1
+            Base of the `y` logarithm.
 
-          semilogy(*args, **kwargs)
-
-        :func:`semilogy` supports all the keyword arguments of
-        :func:`~matplotlib.pylab.plot` and
-        :meth:`matplotlib.axes.Axes.set_yscale`.
-
-        Notable keyword arguments:
-
-          *basey*: scalar > 1
-            Base of the *y* logarithm
-
-          *subsy*: [ *None* | sequence ]
-            The location of the minor yticks; *None* defaults to
+        subsy : None or iterable
+            The location of the minor yticks. None defaults to
             autosubs, which depend on the number of decades in the
-            plot; see :meth:`~matplotlib.axes.Axes.set_yscale` for
+            plot. See :meth:`~matplotlib.axes.Axes.set_yscale` for
             details.
 
-          *nonposy*: [ 'mask' | 'clip' ]
-            Non-positive values in *y* can be masked as
-            invalid, or clipped to a very small positive number
+        nonposy : {'mask' | 'clip'} str
+            Non-positive values in `y` can be masked as
+            invalid, or clipped to a very small positive number.
 
-        The remaining valid kwargs are
-        :class:`~matplotlib.lines.Line2D` properties:
+        Returns
+        -------
+        `~matplotlib.lines.Line2D`
+            Line instance of the plot.
+
+        Other Parameters
+        ----------------
+        kwargs : `~matplotlib.lines.Line2D` properties,
+        `~matplotlib.pylab.plot` and
+        `matplotlib.axes.Axes.set_yscale` arguments.
 
         %(Line2D)s
 
-        .. seealso::
+        See also
+        --------
+        :meth:`loglog`: For example code and figure.
 
-            :meth:`loglog`
-                For example code and figure
         """
         if not self._hold:
             self.cla()
