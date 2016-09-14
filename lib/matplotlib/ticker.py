@@ -6,7 +6,7 @@ This module contains classes to support completely configurable tick
 locating and formatting.  Although the locators know nothing about major
 or minor ticks, they are used by the Axis class to support major and
 minor tick locating and formatting.  Generic tick locators and
-formatters are provided, as well as domain specific custom ones..
+formatters are provided, as well as domain specific custom ones.
 
 
 Default Formatter
@@ -131,9 +131,6 @@ axis.
 
 :class:`LogFormatter`
     Formatter for log axes
-
-:class:`EngFormatter`
-    Format labels in engineering notation
 
 :class:`EngFormatter`
     Format labels in engineering notation
