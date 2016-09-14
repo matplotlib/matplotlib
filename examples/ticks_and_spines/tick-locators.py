@@ -36,9 +36,10 @@ ax.text(0.0, 0.5, "Null locator", fontsize=16, transform=ax.transAxes)
 # Multiple Locator
 ax = plt.subplot(n, 1, 2)
 setup(ax)
-ax.xaxis.set_major_locator(ticker.MultipleLocator(1.0))
-ax.xaxis.set_minor_locator(ticker.MultipleLocator(0.5))
-ax.text(0.0, 0.5, "Multiple locator", fontsize=16, transform=ax.transAxes)
+ax.xaxis.set_major_locator(ticker.MultipleLocator(0.5))
+ax.xaxis.set_minor_locator(ticker.MultipleLocator(0.1))
+ax.text(0.0, 0.5, "Multiple locator (0.5)", fontsize=16,
+        transform=ax.transAxes)
 
 # Fixed Locator
 ax = plt.subplot(n, 1, 3)
