@@ -38,7 +38,7 @@ ax = plt.subplot(n, 1, 2)
 setup(ax)
 ax.xaxis.set_major_locator(ticker.MultipleLocator(0.5))
 ax.xaxis.set_minor_locator(ticker.MultipleLocator(0.1))
-ax.text(0.0, 0.5, "MultipleLocator (0.5)", fontsize=14,
+ax.text(0.0, 0.5, "MultipleLocator(0.5)", fontsize=14,
         transform=ax.transAxes)
 
 # Fixed Locator
@@ -48,14 +48,16 @@ majors = [0, 1, 5]
 ax.xaxis.set_major_locator(ticker.FixedLocator(majors))
 minors = np.linspace(0, 1, 11)[1:-1]
 ax.xaxis.set_minor_locator(ticker.FixedLocator(minors))
-ax.text(0.0, 0.5, "FixedLocator([0,1,5])", fontsize=14, transform=ax.transAxes)
+ax.text(0.0, 0.5, "FixedLocator([0, 1, 5])", fontsize=14,
+        transform=ax.transAxes)
 
 # Linear Locator
 ax = plt.subplot(n, 1, 4)
 setup(ax)
 ax.xaxis.set_major_locator(ticker.LinearLocator(3))
 ax.xaxis.set_minor_locator(ticker.LinearLocator(31))
-ax.text(0.0, 0.5, "LinearLocator(3)", fontsize=14, transform=ax.transAxes)
+ax.text(0.0, 0.5, "LinearLocator(numticks=3)",
+        fontsize=14, transform=ax.transAxes)
 
 # Index Locator
 ax = plt.subplot(n, 1, 5)
