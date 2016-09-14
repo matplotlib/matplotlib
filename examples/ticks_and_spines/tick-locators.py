@@ -24,7 +24,7 @@ def setup(ax):
 
 
 plt.figure(figsize=(8, 8))
-n = 7
+n = 8
 
 # Null Locator
 ax = plt.subplot(n, 1, 1)
@@ -56,22 +56,31 @@ ax.xaxis.set_major_locator(ticker.LinearLocator(3))
 ax.xaxis.set_minor_locator(ticker.LinearLocator(31))
 ax.text(0.0, 0.5, "Linear locator", fontsize=16, transform=ax.transAxes)
 
-# Auto Locator
+# Index Locator
 ax = plt.subplot(n, 1, 5)
+setup(ax)
+ax.set_xlim(5, 55)
+ax.plot(range(5, 55), [0]*50, color='White')
+ax.xaxis.set_major_locator(ticker.IndexLocator(base=5, offset=2))
+ax.text(0.0, 0.5, "IndexLocator (base=5, offset=2)",
+        fontsize=16, transform=ax.transAxes)
+
+# Auto Locator
+ax = plt.subplot(n, 1, 6)
 setup(ax)
 ax.xaxis.set_major_locator(ticker.AutoLocator())
 ax.xaxis.set_minor_locator(ticker.AutoMinorLocator())
 ax.text(0.0, 0.5, "Auto locator", fontsize=16, transform=ax.transAxes)
 
 # MaxN Locator
-ax = plt.subplot(n, 1, 6)
+ax = plt.subplot(n, 1, 7)
 setup(ax)
 ax.xaxis.set_major_locator(ticker.MaxNLocator(4))
 ax.xaxis.set_minor_locator(ticker.MaxNLocator(40))
 ax.text(0.0, 0.5, "MaxN locator (n=4)", fontsize=16, transform=ax.transAxes)
 
 # Log Locator
-ax = plt.subplot(n, 1, 7)
+ax = plt.subplot(n, 1, 8)
 setup(ax)
 ax.set_xlim(10**3, 10**10)
 ax.set_xscale('log')
