@@ -31,14 +31,14 @@ ax = plt.subplot(n, 1, 1)
 setup(ax)
 ax.xaxis.set_major_locator(ticker.NullLocator())
 ax.xaxis.set_minor_locator(ticker.NullLocator())
-ax.text(0.0, 0.5, "Null locator", fontsize=16, transform=ax.transAxes)
+ax.text(0.0, 0.5, "NullLocator()", fontsize=14, transform=ax.transAxes)
 
 # Multiple Locator
 ax = plt.subplot(n, 1, 2)
 setup(ax)
 ax.xaxis.set_major_locator(ticker.MultipleLocator(0.5))
 ax.xaxis.set_minor_locator(ticker.MultipleLocator(0.1))
-ax.text(0.0, 0.5, "Multiple locator (0.5)", fontsize=16,
+ax.text(0.0, 0.5, "MultipleLocator (0.5)", fontsize=14,
         transform=ax.transAxes)
 
 # Fixed Locator
@@ -48,14 +48,14 @@ majors = [0, 1, 5]
 ax.xaxis.set_major_locator(ticker.FixedLocator(majors))
 minors = np.linspace(0, 1, 11)[1:-1]
 ax.xaxis.set_minor_locator(ticker.FixedLocator(minors))
-ax.text(0.0, 0.5, "Fixed locator", fontsize=16, transform=ax.transAxes)
+ax.text(0.0, 0.5, "FixedLocator([0,1,5])", fontsize=14, transform=ax.transAxes)
 
 # Linear Locator
 ax = plt.subplot(n, 1, 4)
 setup(ax)
 ax.xaxis.set_major_locator(ticker.LinearLocator(3))
 ax.xaxis.set_minor_locator(ticker.LinearLocator(31))
-ax.text(0.0, 0.5, "Linear locator", fontsize=16, transform=ax.transAxes)
+ax.text(0.0, 0.5, "LinearLocator(3)", fontsize=14, transform=ax.transAxes)
 
 # Index Locator
 ax = plt.subplot(n, 1, 5)
@@ -63,22 +63,22 @@ setup(ax)
 ax.set_xlim(5, 55)
 ax.plot(range(5, 55), [0]*50, color='White')
 ax.xaxis.set_major_locator(ticker.IndexLocator(base=5, offset=2))
-ax.text(0.0, 0.5, "Index locator (base=5, offset=2)",
-        fontsize=16, transform=ax.transAxes)
+ax.text(0.0, 0.5, "IndexLocator (base=5, offset=2)",
+        fontsize=14, transform=ax.transAxes)
 
 # Auto Locator
 ax = plt.subplot(n, 1, 6)
 setup(ax)
 ax.xaxis.set_major_locator(ticker.AutoLocator())
 ax.xaxis.set_minor_locator(ticker.AutoMinorLocator())
-ax.text(0.0, 0.5, "Auto locator", fontsize=16, transform=ax.transAxes)
+ax.text(0.0, 0.5, "AutoLocator()", fontsize=14, transform=ax.transAxes)
 
 # MaxN Locator
 ax = plt.subplot(n, 1, 7)
 setup(ax)
 ax.xaxis.set_major_locator(ticker.MaxNLocator(4))
 ax.xaxis.set_minor_locator(ticker.MaxNLocator(40))
-ax.text(0.0, 0.5, "MaxN locator (n=4)", fontsize=16, transform=ax.transAxes)
+ax.text(0.0, 0.5, "MaxNLocator (n=4)", fontsize=14, transform=ax.transAxes)
 
 # Log Locator
 ax = plt.subplot(n, 1, 8)
@@ -86,7 +86,7 @@ setup(ax)
 ax.set_xlim(10**3, 10**10)
 ax.set_xscale('log')
 ax.xaxis.set_major_locator(ticker.LogLocator(base=10.0, numticks=15))
-ax.text(0.0, 0.5, "Log locator", fontsize=16, transform=ax.transAxes)
+ax.text(0.0, 0.5, "LogLocator(10,15)", fontsize=15, transform=ax.transAxes)
 
 plt.tight_layout()
 # plt.savefig("tick-locators.pdf")
