@@ -62,7 +62,7 @@ setup(ax)
 ax.set_xlim(5, 55)
 ax.plot(range(5, 55), [0]*50, color='White')
 ax.xaxis.set_major_locator(ticker.IndexLocator(base=5, offset=2))
-ax.text(0.0, 0.5, "IndexLocator (base=5, offset=2)",
+ax.text(0.0, 0.5, "Index locator (base=5, offset=2)",
         fontsize=16, transform=ax.transAxes)
 
 # Auto Locator
