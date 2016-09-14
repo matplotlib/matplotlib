@@ -31,7 +31,7 @@ ax.xaxis.set_major_locator(ticker.MultipleLocator(1.00))
 ax.xaxis.set_minor_locator(ticker.MultipleLocator(0.25))
 ax.xaxis.set_major_formatter(ticker.NullFormatter())
 ax.xaxis.set_minor_formatter(ticker.NullFormatter())
-ax.text(0.0, 0.5, "Null formatter", fontsize=16, transform=ax.transAxes)
+ax.text(0.0, 0.5, "NullFormatter()", fontsize=16, transform=ax.transAxes)
 
 # Fixed formatter
 ax = plt.subplot(n, 1, 2)
@@ -43,7 +43,8 @@ ax.xaxis.set_major_formatter(ticker.FixedFormatter(majors))
 minors = [""] + ["%.2f" % (x-int(x)) if (x-int(x))
                  else "" for x in np.arange(0, 5, 0.25)]
 ax.xaxis.set_minor_formatter(ticker.FixedFormatter(minors))
-ax.text(0.0, 0.5, "Fixed formatter", fontsize=16, transform=ax.transAxes)
+ax.text(0.0, 0.5, "FixedFormatter(['','0','1',...])",
+        fontsize=16, transform=ax.transAxes)
 
 
 # Func formatter
@@ -60,7 +61,7 @@ setup(ax)
 ax.xaxis.set_major_locator(ticker.MultipleLocator(1.00))
 ax.xaxis.set_minor_locator(ticker.MultipleLocator(0.25))
 ax.xaxis.set_major_formatter(ticker.FuncFormatter(major_formatter))
-ax.text(0.0, 0.5, "Func formatter", fontsize=16, transform=ax.transAxes)
+ax.text(0.0, 0.5, "FuncFormatter(myfunc)", fontsize=16, transform=ax.transAxes)
 
 
 # FormatStr formatter
@@ -69,7 +70,8 @@ setup(ax)
 ax.xaxis.set_major_locator(ticker.MultipleLocator(1.00))
 ax.xaxis.set_minor_locator(ticker.MultipleLocator(0.25))
 ax.xaxis.set_major_formatter(ticker.FormatStrFormatter(">%d<"))
-ax.text(0.0, 0.5, "FormatStr formatter", fontsize=16, transform=ax.transAxes)
+ax.text(0.0, 0.5, "FormatStrFormatter('>%d<')",
+        fontsize=16, transform=ax.transAxes)
 
 # Scalar formatter
 ax = plt.subplot(n, 1, 5)
@@ -77,7 +79,7 @@ setup(ax)
 ax.xaxis.set_major_locator(ticker.AutoLocator())
 ax.xaxis.set_minor_locator(ticker.AutoMinorLocator())
 ax.xaxis.set_major_formatter(ticker.ScalarFormatter(useMathText=True))
-ax.text(0.0, 0.5, "Scalar formatter", fontsize=16, transform=ax.transAxes)
+ax.text(0.0, 0.5, "ScalarFormatter()", fontsize=16, transform=ax.transAxes)
 
 # StrMethod formatter
 ax = plt.subplot(n, 1, 6)
@@ -85,10 +87,11 @@ setup(ax)
 ax.xaxis.set_major_locator(ticker.MultipleLocator(1.00))
 ax.xaxis.set_minor_locator(ticker.MultipleLocator(0.25))
 ax.xaxis.set_major_formatter(ticker.StrMethodFormatter("{x}"))
-ax.text(0.0, 0.5, "StrMethod formatter", fontsize=16, transform=ax.transAxes)
+ax.text(0.0, 0.5, "StrMethodFormatter('{x}')",
+        fontsize=16, transform=ax.transAxes)
 
 
 plt.tight_layout()
 # plt.savefig("tick-formatters.pdf")
-# plt.savefig("tick-formatters.png", dpi=150)
+plt.savefig("tick-formatters.png", dpi=150)
 plt.show()
