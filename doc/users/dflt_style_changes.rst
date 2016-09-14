@@ -547,7 +547,7 @@ TeX backend is used (i.e. ``text.usetex`` is ``True``).
    mpl.rcParams['mathtext.fontset'] = 'cm'
    mpl.rcParams['mathtext.rm'] = 'serif'
 
-   fig, ax  = plt.subplots(tight_layout=True, figsize=(3, 3))
+   fig, ax = plt.subplots(tight_layout=True, figsize=(3, 3))
 
    ax.plot(range(15), label=r'int: $15 \int_0^\infty dx$')
    ax.legend()
@@ -606,6 +606,7 @@ Legends
        with mpl.rc_context(rc=rcparams):
            x = range(N)
            y = np.cumsum(np.random.randn(N) )
+	   # unpack the single Line2D artist
            ln, = ax.plot(x, y, marker='s',
                          linestyle='-', label='plot')
            ax.fill_between(x, y, 0, label='fill', alpha=.5, color=ln.get_color())
@@ -768,8 +769,6 @@ a cleaner separation between subplots.
 
    fig = plt.figure(figsize=(6, 6), tight_layout=True)
 
-
-
    demo(fig, classic, 'classic', 1)
    demo(fig, {}, 'v2.0', 2)
 
@@ -881,12 +880,12 @@ the margins, the `~matplotlib.artist.Artist` class has gained the properties :
     - `~matplotlib.artist.Artist.margins`
 
 along with the complimentary ``get_*`` and ``set_*`` methods.  When
-computing the view limits, each `~matplotlib.artist.Artist` is checked.
-If *any* artist does not call for a margin on a given side, the margin
-will be omitted there.
-Some plotting methods and artists have margins disabled by default
-(for example `~matplotlib.axes.Axes.bar` disables the bottom margin).
-To cancel the margins for a specific artist, pass the kwargs :
+computing the view limits, each `~matplotlib.artist.Artist` is
+checked.  If *any* artist returns `False`  on a given side,
+the margin will be omitted there.  Some plotting methods and artists
+have margins disabled (`False`) by default (for example
+`~matplotlib.axes.Axes.bar` disables the bottom margin).  To cancel
+the margins for a specific artist, pass the kwargs :
 
   - ``top_margin=False``
   - ``bottom_margin=False``
