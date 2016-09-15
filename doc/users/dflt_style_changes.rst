@@ -606,7 +606,7 @@ Legends
        with mpl.rc_context(rc=rcparams):
            x = range(N)
            y = np.cumsum(np.random.randn(N) )
-	   # unpack the single Line2D artist
+           # unpack the single Line2D artist
            ln, = ax.plot(x, y, marker='s',
                          linestyle='-', label='plot')
            ax.fill_between(x, y, 0, label='fill', alpha=.5, color=ln.get_color())
