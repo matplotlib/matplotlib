@@ -1810,28 +1810,36 @@ or tuple of floats
         """
         Make a step plot.
 
-        Call signature::
+        Parameters
+        ----------
+        x : array_like
+            1-D sequence, and it is assumed, but not checked,
+            that it is uniformly increasing.
 
-          step(x, y, *args, **kwargs)
+        y : array_like
+            1-D sequence, and it is assumed, but not checked,
+            that it is uniformly increasing.
 
-        Additional keyword args to :func:`step` are the same as those
-        for :func:`~matplotlib.pyplot.plot`.
+        Returns
+        -------
+        list
+            List of lines that were added.
 
-        *x* and *y* must be 1-D sequences, and it is assumed, but not checked,
-        that *x* is uniformly increasing.
+        Other parameters
+        ----------------
+        where : [ 'pre' | 'post' | 'mid'  ]
+            If 'pre' (the default), the interval from
+            x[i] to x[i+1] has level y[i+1].
 
-        Keyword arguments:
+            If 'post', that interval has level y[i].
 
-        *where*: [ 'pre' | 'post' | 'mid'  ]
-          If 'pre' (the default), the interval from x[i] to x[i+1] has level
-          y[i+1].
+            If 'mid', the jumps in *y* occur half-way between the
+            *x*-values.
 
-          If 'post', that interval has level y[i].
-
-          If 'mid', the jumps in *y* occur half-way between the
-          *x*-values.
-
-        Return value is a list of lines that were added.
+        Notes
+        -----
+        Additional parameters are the same as those for
+        :func:`~matplotlib.pyplot.plot`.
         """
 
         where = kwargs.pop('where', 'pre')
