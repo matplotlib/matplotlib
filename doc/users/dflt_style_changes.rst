@@ -405,6 +405,74 @@ or by setting ::
 in your :file:`matplotlibrc` file.
 
 
+``boxplot``
+-----------
+
+Previously, boxplots were composed of a mish-mash styles that were, for
+better for worse, inherited from Matlab. Most of the elements were blue,
+but the medians were red. The fliers (outliers) were black plus-symbols
+(`+`) and the whiskers were dashed lines, which created ambiguity if
+the (solid and black) caps were not drawn.
+
+For the new defaults, everything is black except for the median and mean
+lines (if drawn), which are set to the first two elements of the current
+color cycle. Also, the default flier markers are now hollow circles,
+which maintain the ability of the plus-symbols to overlap without
+obscuring data too much.
+
+.. plot::
+
+    data = np.random.lognormal(size=(37, 4))
+    fig, (old, new) = plt.subplots(ncols=2, sharey=True)
+    with plt.style.context('default'):
+        new.boxplot(data, labels=['A', 'B', 'C', 'D'])
+        new.set_title('New boxplots')
+
+    with plt.style.context('classic'):
+        old.boxplot(data, labels=['A', 'B', 'C', 'D'])
+        old.set_title('Old boxplots')
+
+    new.set_ylim(bottom=0)
+
+The previous defaults can be restored by setting::
+
+    mpl.rcParams['boxplot.flierprops.color'] = 'k'
+    mpl.rcParams['boxplot.flierprops.marker'] = '+'
+    mpl.rcParams['boxplot.flierprops.markerfacecolor'] = 'none'
+    mpl.rcParams['boxplot.flierprops.markeredgecolor'] = 'k'
+    mpl.rcParams['boxplot.boxprops.color'] = 'b'
+    mpl.rcParams['boxplot.whiskerprops.color'] = 'b'
+    mpl.rcParams['boxplot.whiskerprops.linestyle'] = '--'
+    mpl.rcParams['boxplot.medianprops.color'] = 'r'
+    mpl.rcParams['boxplot.meanprops.color'] = 'r'
+    mpl.rcParams['boxplot.meanprops.marker'] = '^'
+    mpl.rcParams['boxplot.meanprops.markerfacecolor'] = 'r'
+    mpl.rcParams['boxplot.meanprops.markeredgecolor'] = 'k'
+    mpl.rcParams['boxplot.meanprops.markersize'] = 6
+    mpl.rcParams['boxplot.meanprops.linestyle'] = '--'
+    mpl.rcParams['boxplot.meanprops.linewidth'] = 1.0
+
+or by setting::
+
+    boxplot.flierprops.color:           'k'
+    boxplot.flierprops.marker:          '+'
+    boxplot.flierprops.markerfacecolor: 'none'
+    boxplot.flierprops.markeredgecolor: 'k'
+    boxplot.boxprops.color:             'b'
+    boxplot.whiskerprops.color:         'b'
+    boxplot.whiskerprops.linestyle:     '--'
+    boxplot.medianprops.color:          'r'
+    boxplot.meanprops.color:            'r'
+    boxplot.meanprops.marker:           '^'
+    boxplot.meanprops.markerfacecolor:  'r'
+    boxplot.meanprops.markeredgecolor:  'k'
+    boxplot.meanprops.markersize:        6
+    boxplot.meanprops.linestyle:         '--'
+    boxplot.meanprops.linewidth:         1.0
+
+in your :file:`matplotlibrc` file.
+
+
 Patch edges and color
 ---------------------
 
