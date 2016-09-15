@@ -357,7 +357,7 @@ class Axes(_AxesBase):
             ``bbox_to_anchor`` will be ignored).
 
         bbox_to_anchor : :class:`matplotlib.transforms.BboxBase` instance \
-                         or tuple of floats
+or tuple of floats
             Specify any arbitrary location for the legend in `bbox_transform`
             coordinates (default Axes coordinates).
 
@@ -373,8 +373,8 @@ class Axes(_AxesBase):
             The font properties of the legend. If None (default), the current
             :data:`matplotlib.rcParams` will be used.
 
-        fontsize : int or float or {'xx-small', 'x-small', 'small', 'medium',\
-                   'large', 'x-large', 'xx-large'}
+        fontsize : int or float or {'xx-small', 'x-small', 'small', 'medium', \
+'large', 'x-large', 'xx-large'}
             Controls the font size of the legend. If the value is numeric the
             size will be the absolute font size in points. String values are
             relative to the current default font size. This argument is only
@@ -404,7 +404,7 @@ class Axes(_AxesBase):
             drawn ones. Default is ``None`` which will take the value from
             the ``legend.markerscale`` :data:`rcParam <matplotlib.rcParams>`.
 
-        *markerfirst*: [ *True* | *False* ]
+        markerfirst : bool
             if *True*, legend marker is placed to the left of the legend label
             if *False*, legend marker is placed to the right of the legend
             label
