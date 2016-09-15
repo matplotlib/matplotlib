@@ -160,7 +160,7 @@ upstream changes, and resolving conflicts.
 In git, rebasing is a mild form of re-writing history: it effectively forwards
 all your commits to the updated upstream commit. For a much more detailed
 explanation (with pictures!) see `this nice write up
-<http://git-scm.com/book/en/Git-Branching-Rebasing>`.  The numpy team has also
+<https://git-scm.com/book/en/Git-Branching-Rebasing>`.  The NumPy team has also
 `documented how to do this
 <http://docs.scipy.org/doc/numpy/dev/gitwash/development_workflow.html#rebasing-on-master>`
 In general, re-writing history, particularly published history, is considered
@@ -207,9 +207,9 @@ and git will then give a bunch of feed back::
      To check out the original branch and stop rebasing, run "git rebase --abort".
 
 A number of commits could be cleanly applied to
-the tip of `matplotlib/master`,  however, git eventually hits a commit
-that had conflicts.  In this case in the file
-`lib/matplotlib/backends/backend_gtk3.py`.  For more verbose information run ::
+the tip of `matplotlib/master`.  However, git may eventually hit a commit
+that had conflicts: in the example above, this happens in the file
+`lib/matplotlib/backends/backend_gtk3.py`).  For more verbose information run ::
 
      $ git status
 
