@@ -1239,78 +1239,65 @@ def specgram(x, NFFT=None, Fs=None, detrend=None, window=None,
     """
     Compute a spectrogram.
 
-    Call signature::
-
-        specgram(x, NFFT=256, Fs=2,detrend=mlab.detrend_none,
-                window=mlab.window_hanning, noverlap=128,
-                cmap=None, xextent=None, pad_to=None, sides='default',
-                scale_by_freq=None, mode='default')
-
-    Compute and plot a spectrogram of data in *x*.  Data are split into
-    *NFFT* length segments and the spectrum of each section is
-    computed.  The windowing function *window* is applied to each
+    Compute and plot a spectrogram of data in x.  Data are split into
+    NFFT length segments and the spectrum of each section is
+    computed.  The windowing function window is applied to each
     segment, and the amount of overlap of each segment is
-    specified with *noverlap*.
+    specified with noverlap.
 
-      *x*: 1-D array or sequence
-        Array or sequence containing the data
+    Parameters
+    ----------
+    x : array_like
+        1-D array or sequence.
 
     %(Spectral)s
 
     %(PSD)s
 
-      *mode*: [ 'default' | 'psd' | 'complex' | 'magnitude'
-                'angle' | 'phase' ]
+    noverlap : int, optional
+        The number of points of overlap between blocks.  The default
+        value is 128.
+    mode : str, optional
+        What sort of spectrum to use, default is 'psd'.
+            'psd'
+                Returns the power spectral density.
 
-          What sort of spectrum to use.  Default is 'psd'. which takes the
-          power spectral density.  'complex' returns the complex-valued
-          frequency spectrum.  'magnitude' returns the magnitude spectrum.
-          'angle' returns the phase spectrum without unwrapping.  'phase'
-          returns the phase spectrum with unwrapping.
+            'complex'
+                Returns the complex-valued frequency spectrum.
 
-      *noverlap*: integer
-          The number of points of overlap between blocks.  The default value
-          is 128.
+            'magnitude'
+                Returns the magnitude spectrum.
 
-    Returns the tuple (*spectrum*, *freqs*, *t*):
+            'angle'
+                Returns the phase spectrum without unwrapping.
 
-      *spectrum*: 2-D array
-        columns are the periodograms of successive segments
+            'phase'
+                Returns the phase spectrum with unwrapping.
 
-      *freqs*: 1-D array
-        The frequencies corresponding to the rows in *spectrum*
+    Returns
+    -------
+    spectrum : array_like
+        2-D array, columns are the periodograms of successive segments.
 
-      *t*: 1-D array
-        The times corresponding to midpoints of segments (i.e the columns
-        in *spectrum*).
+    freqs : array_like
+        1-D array, frequencies corresponding to the rows in *spectrum*.
 
-    .. note::
+    t : array_like
+        1-D array, the times corresponding to midpoints of segments
+        (i.e the columns in *spectrum*).
 
-        *detrend* and *scale_by_freq* only apply when *mode* is set to
-        'psd'
+    See Also
+    --------
+    psd : differs in the overlap and in the return values.
+    complex_spectrum : similar, but with complex valued frequencies.
+    magnitude_spectrum : similar single segment when mode is 'magnitude'.
+    angle_spectrum : similar to single segment when mode is 'angle'.
+    phase_spectrum : similar to single segment when mode is 'phase'.
 
-    .. seealso::
+    Notes
+    -----
+    detrend and scale_by_freq only apply when *mode* is set to 'psd'.
 
-        :func:`psd`
-            :func:`psd` differs in the default overlap; in returning
-            the mean of the segment periodograms; and in not returning
-            times.
-
-        :func:`complex_spectrum`
-            A single spectrum, similar to having a single segment when
-            *mode* is 'complex'.
-
-        :func:`magnitude_spectrum`
-            A single spectrum, similar to having a single segment when
-            *mode* is 'magnitude'.
-
-        :func:`angle_spectrum`
-            A single spectrum, similar to having a single segment when
-            *mode* is 'angle'.
-
-        :func:`phase_spectrum`
-            A single spectrum, similar to having a single segment when
-            *mode* is 'phase'.
     """
     if noverlap is None:
         noverlap = 128
