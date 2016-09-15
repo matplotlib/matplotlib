@@ -90,7 +90,4 @@ ax.xaxis.set_major_locator(ticker.LogLocator(base=10.0, numticks=15))
 ax.text(0.0, 0.5, "LogLocator(base=10, numticks=15)",
         fontsize=15, transform=ax.transAxes)
 
-plt.tight_layout()
-# plt.savefig("tick-locators.pdf")
-# plt.savefig("tick-locators.png", dpi=150)
 plt.show()
