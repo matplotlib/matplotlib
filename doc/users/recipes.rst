@@ -53,7 +53,7 @@ code.  e.g.
 
 Fernando Perez has provided a nice top level method to create in
 :func:`~matplotlib.pyplots.subplots` (note the "s" at the end)
-everything at once, and turn off x and y sharing for the whole bunch.
+everything at once, and turn on x and y sharing for the whole bunch.
 You can either unpack the axes individually::
 
   # new style method 1; unpack the axes
@@ -255,7 +255,7 @@ alpha channel is useful, not just aesthetic.
    # plot it!
    fig, ax = plt.subplots(1)
    ax.plot(t, mu1, lw=2, label='mean population 1', color='blue')
-   ax.plot(t, mu1, lw=2, label='mean population 2', color='yellow')
+   ax.plot(t, mu2, lw=2, label='mean population 2', color='yellow')
    ax.fill_between(t, mu1+sigma1, mu1-sigma1, facecolor='blue', alpha=0.5)
    ax.fill_between(t, mu2+sigma2, mu2-sigma2, facecolor='yellow', alpha=0.5)
    ax.set_title('random walkers empirical $\mu$ and $\pm \sigma$ interval')
