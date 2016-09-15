@@ -90,8 +90,4 @@ ax.xaxis.set_major_formatter(ticker.StrMethodFormatter("{x}"))
 ax.text(0.0, 0.5, "StrMethodFormatter('{x}')",
         fontsize=15, transform=ax.transAxes)
 
-
-plt.tight_layout()
-# plt.savefig("tick-formatters.pdf")
-# plt.savefig("tick-formatters.png", dpi=150)
 plt.show()
