@@ -397,38 +397,6 @@ Deleting a branch on GitHub_
 (Note the colon ``:`` before ``test-branch``.  See also:
 http://github.com/guides/remove-a-remote-branch
 
-<<<<<<< b3d268fa14cd1d19ac7ce337425602944b6e52b3
-=======
-Several people sharing a single repository
-==========================================
-
-If you want to work on some stuff with other people, where you are all
-committing into the same repository, or even the same branch, then just
-share it via GitHub_.
-
-First fork matplotlib into your account, as from :ref:`forking`.
-
-Then, go to your forked repository GitHub page, say
-``http://github.com/your-user-name/matplotlib``
-
-Click on the 'Admin' button, and add anyone else to the repo as a
-collaborator:
-
-   .. image:: pull_button.png
-
-Now all those people can do::
-
-    git clone git@github.com:your-user-name/matplotlib.git
-
-Remember that links starting with ``git@`` use the ssh protocol and are
-read-write; links starting with ``git://`` are read-only.
-
-Your collaborators can then commit directly into that repo with the
-usual::
-
-     git commit -am 'ENH - much better code'
-     git push origin master # pushes directly into your repo
->>>>>>> FIX github -> GitHub
 
 Exploring your repository
 =========================
