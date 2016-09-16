@@ -163,6 +163,8 @@ C/C++ extensions
   docstrings, and the Numpydoc format is well understood in the
   scientific Python community.
 
+
+
 Style guide
 ===========
 
