@@ -366,12 +366,12 @@ class HammerAxes(GeoAxes):
     A custom class for the Aitoff-Hammer projection, an equal-area map
     projection.
 
-    http://en.wikipedia.org/wiki/Hammer_projection
+    https://en.wikipedia.org/wiki/Hammer_projection
     """
 
-    # The projection must specify a name.  This will be used be the
-    # user to select the projection, i.e. ``subplot(111,
-    # projection='custom_hammer')``.
+    # The projection must specify a name. This will be used by the
+    # user to select the projection,
+    # i.e. ``subplot(111, projection='custom_hammer')``.
     name = 'custom_hammer'
 
     class HammerTransform(Transform):
