@@ -159,7 +159,8 @@ def test_tight_layout8():
     example_plot(ax, fontsize=24)
 
 
-@image_comparison(baseline_images=['outward_ticks'], remove_text=True)
+# The following test is misleading when the text is removed.
+@image_comparison(baseline_images=['outward_ticks'], remove_text=False)
 def test_outward_ticks():
     'Test automatic use of tight_layout'
     fig = plt.figure()
@@ -170,6 +171,8 @@ def test_outward_ticks():
         tickdir='out', length=32, width=3, tick1On=True, which='minor')
     ax.yaxis.set_tick_params(
         tickdir='out', length=32, width=3, tick1On=True, which='minor')
+    # The following minor ticks are not labelled, and they
+    # are drawn over the major ticks and labels--ugly!
     ax.xaxis.set_ticks([0], minor=True)
     ax.yaxis.set_ticks([0], minor=True)
     ax = fig.add_subplot(222)
