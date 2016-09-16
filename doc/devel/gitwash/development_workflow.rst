@@ -150,7 +150,7 @@ Rebasing a Pull Request (PR)
 When working on a PR, changes may occur in the parent branch (usually master).
 This can lead to conflict with changes in your branch. The conflicts can be
 trivial: for example both the parent branch and your branch add an entry to
-the top of `CHANGELOG`.  Git can not unambiguously tell what to with both
+the top of `CHANGELOG`.  Git can not unambiguously tell what to do with both
 changes (should one go above the other? if so, which order? should it try to
 merge them?) so it declares the branches can not be merged
 cleanly. GitHub can only automatically merge PR without conflicts, so you will
@@ -206,10 +206,11 @@ and git will then give a bunch of feed back::
      If you prefer to skip this patch, run "git rebase --skip" instead.
      To check out the original branch and stop rebasing, run "git rebase --abort".
 
-A number of commits could be cleanly applied to
-the tip of `matplotlib/master`.  However, git may eventually hit a commit
-that had conflicts: in the example above, this happens in the file
-`lib/matplotlib/backends/backend_gtk3.py`).  For more verbose information run ::
+We see that a number of commits could be cleanly applied to the tip of
+`matplotlib/master`.  However, git may eventually hit a commit that
+had conflicts: in the example above, this happens in the file
+`lib/matplotlib/backends/backend_gtk3.py`).  For more verbose
+information run ::
 
      $ git status
 
@@ -226,9 +227,10 @@ that had conflicts: in the example above, this happens in the file
 
      no changes added to commit (use "git add" and/or "git commit -a")
 
-This tells you exactly where the conflict is and provides some advice
-on how to proceed.  Opening up the file in question, you will see
-blocks that look something like this::
+This tells you exactly where the conflict (caused by the target branch
+and your commits modifying the same lines of code) is and provides
+some advice on how to proceed.  Opening up the file in question, you
+will see blocks that look something like this::
 
      <<<<<<< HEAD
      =======
@@ -237,10 +239,11 @@ blocks that look something like this::
 
 The block of code between `<<<<<<<` and `=======` is the code on the
 target branch (in this case nothing) and the code between `=======`
-and `>>>>>>>` is the code on your branch.  The rest of the code is the
-same between the two branches.  You need to determine how to resolve the
-conflict (in this case, the code on HEAD is correct).  Once you have
-resolved all the conflicts, `add` the file to the index::
+and `>>>>>>>` is the code in the commit you are trying to rebase.  The
+rest of the code is either the same or the diff can be unambiguously
+applied.  You need to determine how to resolve the conflict (in this
+case, the code on HEAD is correct).  Once you have resolved all the
+conflicts, `add` the file to the index::
 
      $ git add lib/matplotlib/backends/backend_gtk3.py
 
