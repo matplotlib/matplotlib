@@ -1814,6 +1814,9 @@ def test_bxp_bad_positions():
                   tol=1,
                   style='default')
 def test_boxplot():
+    # Randomness used for bootstrapping.
+    np.random.seed(937)
+
     x = np.linspace(-7, 7, 140)
     x = np.hstack([-25, x, 25])
     fig, ax = plt.subplots()
@@ -1832,6 +1835,9 @@ def test_boxplot():
                   remove_text=True, extensions=['png'],
                   style='default')
 def test_boxplot_sym2():
+    # Randomness used for bootstrapping.
+    np.random.seed(937)
+
     x = np.linspace(-7, 7, 140)
     x = np.hstack([-25, x, 25])
     fig, [ax1, ax2] = plt.subplots(1, 2)
@@ -1863,6 +1869,9 @@ def test_boxplot_sym():
     style='default'
 )
 def test_boxplot_autorange_whiskers():
+    # Randomness used for bootstrapping.
+    np.random.seed(937)
+
     x = np.ones(140)
     x = np.hstack([0, x, 2])
 
@@ -1885,6 +1894,9 @@ def _rc_test_bxp_helper(ax, rc_dict):
                   savefig_kwarg={'dpi': 100}, remove_text=True,
                   tol=1, style='default')
 def test_boxplot_rc_parameters():
+    # Randomness used for bootstrapping.
+    np.random.seed(937)
+
     fig, ax = plt.subplots(3)
 
     rc_axis0 = {
@@ -1947,6 +1959,9 @@ def test_boxplot_rc_parameters():
                   remove_text=True, extensions=['png'],
                   savefig_kwarg={'dpi': 40}, style='default')
 def test_boxplot_with_CIarray():
+    # Randomness used for bootstrapping.
+    np.random.seed(937)
+
     x = np.linspace(-7, 7, 140)
     x = np.hstack([-25, x, 25])
     fig = plt.figure()

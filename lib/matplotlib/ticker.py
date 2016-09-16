@@ -1881,7 +1881,7 @@ class LogLocator(Locator):
     Determine the tick locations for log axes
     """
 
-    def __init__(self, base=10.0, subs=[1.0], numdecs=4, numticks=15):
+    def __init__(self, base=10.0, subs=(1.0,), numdecs=4, numticks=15):
         """
         place ticks on the location= base**i*subs[j]
         """
@@ -1894,9 +1894,9 @@ class LogLocator(Locator):
     def set_params(self, base=None, subs=None, numdecs=None, numticks=None):
         """Set parameters within this locator."""
         if base is not None:
-            self.base = base
+            self.base(base)
         if subs is not None:
-            self.subs = subs
+            self.subs(subs)
         if numdecs is not None:
             self.numdecs = numdecs
         if numticks is not None:
@@ -1906,7 +1906,7 @@ class LogLocator(Locator):
         """
         set the base of the log scaling (major tick every base**i, i integer)
         """
-        self._base = base + 0.0
+        self._base = float(base)
 
     def subs(self, subs):
         """
@@ -1915,7 +1915,7 @@ class LogLocator(Locator):
         if subs is None:
             self._subs = None  # autosub
         else:
-            self._subs = np.asarray(subs) + 0.0
+            self._subs = np.asarray(subs, dtype=float)
 
     def __call__(self):
         'Return the locations of the ticks'
@@ -1963,6 +1963,7 @@ class LogLocator(Locator):
         if not self.numticks > 1:
             raise RuntimeError('The number of ticks must be greater than 1 '
                                'for LogLocator.')
+        # FIXME: The following was designed for integer division in py2.
         while numdec / stride + 1 > self.numticks:
             stride += 1
 
