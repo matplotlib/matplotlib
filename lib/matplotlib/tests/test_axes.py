@@ -4418,7 +4418,17 @@ def test_adjust_numtick_aspect():
 @image_comparison(baseline_images=["auto_numticks"], style='default',
                   extensions=['png'])
 def test_auto_numticks():
+    # Make tiny, empty subplots, verify that there are only 3 ticks.
     fig, axes = plt.subplots(4, 4)
+
+
+@image_comparison(baseline_images=["auto_numticks_log"], style='default',
+                  extensions=['png'])
+def test_auto_numticks_log():
+    # Verify that there are not too many ticks with a large log range.
+    fig, ax = plt.subplots()
+    matplotlib.rcParams['axes.autolimit_mode'] = 'round_numbers'
+    ax.loglog([1e-20, 1e5], [1e-16, 10])
 
 
 @cleanup
