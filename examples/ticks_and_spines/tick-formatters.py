@@ -52,16 +52,13 @@ def major_formatter(x, pos):
     return "[%.2f]" % x
 
 
-def minor_formatter(x, pos):
-    return "(%.2f)" % x
-
-
 ax = plt.subplot(n, 1, 3)
 setup(ax)
 ax.xaxis.set_major_locator(ticker.MultipleLocator(1.00))
 ax.xaxis.set_minor_locator(ticker.MultipleLocator(0.25))
 ax.xaxis.set_major_formatter(ticker.FuncFormatter(major_formatter))
-ax.text(0.0, 0.5, "FuncFormatter(myfunc)", fontsize=15, transform=ax.transAxes)
+ax.text(0.0, 0.5, 'FuncFormatter(lambda x, pos: "[%.2f]" % x)',
+        fontsize=15, transform=ax.transAxes)
 
 
 # FormatStr formatter
