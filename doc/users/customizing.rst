@@ -135,7 +135,7 @@ locations, in the following order:
 1. :file:`matplotlibrc` in the current working directory, usually used for
    specific customizations that you do not want to apply elsewhere.
 
-2. :file:`$MATPLOTLIBRC` if it is a file, else :file:`$MATPLOTLIBRC/matplotlibrc`.
+2. :file:`$MATPLOTLIBRC/matplotlibrc`.
 
 3. It next looks in a user-specific place, depending on your platform:
 
