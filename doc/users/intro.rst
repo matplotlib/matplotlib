@@ -3,7 +3,7 @@ Introduction
 
 matplotlib is a library for making 2D plots of arrays in `Python
 <http://www.python.org>`_.  Although it has its origins in emulating
-the MATLAB |reg| [*]_ graphics commands, it is
+the MATLAB |reg| [#]_ graphics commands, it is
 independent of MATLAB, and can be used in a Pythonic, object oriented
 way.  Although matplotlib is written primarily in pure Python, it
 makes heavy use of `NumPy <http://www.numpy.org>`_ and other extension
@@ -91,4 +91,4 @@ from the Python shell in Tkinter on Windows™. My primary use is to
 embed matplotlib in a Gtk+ EEG application that runs on Windows, Linux
 and Macintosh OS X.
 
-.. [*] MATLAB is a registered trademark of The MathWorks, Inc.
+.. [#] MATLAB is a registered trademark of The MathWorks, Inc.
