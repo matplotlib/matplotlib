@@ -2,16 +2,17 @@
 
 import numpy as np
 import matplotlib.pyplot as plt
-from matplotlib.ticker import MultipleLocator, FuncFormatter
+from matplotlib.ticker import AutoMinorLocator, MultipleLocator, FuncFormatter
 
-np.random.seed(123)
+
+np.random.seed(19680801)
 
 X = np.linspace(0.5, 3.5, 100)
 Y1 = 3+np.cos(X)
 Y2 = 1+np.cos(1+X/0.75)/2
 Y3 = np.random.uniform(Y1, Y2, len(X))
 
-fig = plt.figure(figsize=(8, 8), facecolor="w")
+fig = plt.figure(figsize=(8, 8))
 ax = fig.add_subplot(1, 1, 1, aspect=1)
 
 
@@ -21,9 +22,9 @@ def minor_tick(x, pos):
     return "%.2f" % x
 
 ax.xaxis.set_major_locator(MultipleLocator(1.000))
-ax.xaxis.set_minor_locator(MultipleLocator(0.250))
+ax.xaxis.set_minor_locator(AutoMinorLocator(4))
 ax.yaxis.set_major_locator(MultipleLocator(1.000))
-ax.yaxis.set_minor_locator(MultipleLocator(0.250))
+ax.yaxis.set_minor_locator(AutoMinorLocator(4))
 ax.xaxis.set_minor_formatter(FuncFormatter(minor_tick))
 
 ax.set_xlim(0, 4)
@@ -38,13 +39,14 @@ ax.grid(linestyle="--", linewidth=0.5, color='.25', zorder=-10)
 
 ax.plot(X, Y1, c=(0.25, 0.25, 1.00), lw=2, label="Blue signal", zorder=10)
 ax.plot(X, Y2, c=(1.00, 0.25, 0.25), lw=2, label="Red signal")
-ax.scatter(X, Y3, c='w')
+ax.plot(X, Y3, linewidth=0,
+        marker='o', markerfacecolor='w', markeredgecolor='k')
 
-ax.set_title("Anatomy of a figure", fontsize=20)
+ax.set_title("Anatomy of a figure", fontsize=20, verticalalignment='bottom')
 ax.set_xlabel("X axis label")
 ax.set_ylabel("Y axis label")
 
-ax.legend(frameon=False)
+ax.legend()
 
 
 def circle(x, y, radius=0.15):
@@ -62,32 +64,32 @@ def text(x, y, text):
 
 
 # Minor tick
-circle(0.50, -.05)
-text(0.50, -0.25, "Minor tick label")
+circle(0.50, -0.10)
+text(0.50, -0.32, "Minor tick label")
 
 # Major tick
-circle(4.00, 2.00)
-text(4.00, 1.80, "Major tick")
+circle(-0.03, 4.00)
+text(0.03, 3.80, "Major tick")
 
 # Minor tick
-circle(0.25, 4.00)
-text(0.25, 3.80, "Minor tick")
+circle(0.00, 3.50)
+text(0.00, 3.30, "Minor tick")
 
 # Major tick label
-circle(-0.05, 3.00)
-text(-0.05, 2.80, "Major tick label")
+circle(-0.15, 3.00)
+text(-0.15, 2.80, "Major tick label")
 
 # X Label
-circle(1.80, -0.22)
-text(1.80, -0.4, "X axis label")
+circle(1.80, -0.27)
+text(1.80, -0.45, "X axis label")
 
 # Y Label
-circle(-0.20, 1.80)
-text(-0.20, 1.6, "Y axis label")
+circle(-0.27, 1.80)
+text(-0.27, 1.6, "Y axis label")
 
 # Title
-circle(1.60, 4.10)
-text(1.60, 3.9, "Title")
+circle(1.60, 4.13)
+text(1.60, 3.93, "Title")
 
 # Blue plot
 circle(1.75, 2.80)
@@ -106,8 +108,8 @@ circle(3.00, 3.00)
 text(3.00, 2.80, "Grid")
 
 # Legend
-circle(3.70, 3.75)
-text(3.70, 3.55, "Legend")
+circle(3.70, 3.80)
+text(3.70, 3.60, "Legend")
 
 # Axes
 circle(0.5, 0.5)
