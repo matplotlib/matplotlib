@@ -1334,8 +1334,6 @@ class OffsetImage(OffsetBox):
         return mtransforms.Bbox.from_bounds(ox - xd, oy - yd, w, h)
 
     def get_extent(self, renderer):
-
-        # FIXME dpi_cor is never used
         if self._dpi_cor:  # True, do correction
             dpi_cor = renderer.points_to_pixels(1.)
         else:
@@ -1344,7 +1342,7 @@ class OffsetImage(OffsetBox):
         zoom = self.get_zoom()
         data = self.get_data()
         ny, nx = data.shape[:2]
-        w, h = nx * zoom, ny * zoom
+        w, h = dpi_cor * nx * zoom, dpi_cor * ny * zoom
 
         return w, h, 0, 0
 
