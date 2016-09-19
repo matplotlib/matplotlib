@@ -1406,7 +1406,12 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
                     ymin = xc[1]
 
         return (conmin, segmin, imin, xmin, ymin, dmin)
-
+  def remove(self):
+    """
+    remove all contour lines
+    """
+    for i in self.collections:
+      i.remove()
 
 class QuadContourSet(ContourSet):
     """
