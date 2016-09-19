@@ -51,9 +51,7 @@ coordinates, one could do::
                 )
 
 For physical coordinate systems (points or pixels) the origin is the
-(bottom, left) of the figure or axes.  If the value is negative,
-however, the origin is from the (right, top) of the figure or axes,
-analogous to negative indexing of sequences.
+bottom-left of the figure or axes.
 
 Optionally, you can enable drawing of an arrow from the text to the annotated
 point by giving a dictionary of arrow properties in the optional keyword
