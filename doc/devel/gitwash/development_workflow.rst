@@ -398,7 +398,7 @@ Deleting a branch on GitHub_
    git push origin :my-unwanted-branch
 
 Note the colon ``:`` before ``my-unwanted-branch``.  See also:
-https://help.github.com/articles/removing-a-remote/
+https://help.github.com/articles/pushing-to-a-remote/#deleting-a-remote-branch-or-tag
 
 Exploring your repository
 =========================
