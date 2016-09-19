@@ -9,7 +9,7 @@ from matplotlib.ticker import EngFormatter
 
 fig, ax = plt.subplots()
 ax.set_xscale('log')
-formatter = EngFormatter(unit='Hz', places=1)
+formatter = EngFormatter(unit='Hz')
 ax.xaxis.set_major_formatter(formatter)
 
 xs = np.logspace(1, 9, 100)
