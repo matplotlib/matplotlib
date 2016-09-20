@@ -3893,17 +3893,25 @@ or tuple of floats
         ----------------
         kwargs : `~matplotlib.collections.Collection` properties
 
-        Notes
-        ------
-        Any or all of `x`, `y`, `s`, and `c` may be masked arrays, in
-        which case all masks will be combined and only unmasked points
-        will be plotted.
+        See Also
+        --------
+        plot : to plot scatter plots when markers are identical in size and
+            color
 
-        Fundamentally, scatter works with 1-D arrays; `x`, `y`, `s`,
-        and `c` may be input as 2-D arrays, but within scatter
-        they will be flattened. The exception is `c`, which
-        will be flattened only if its size matches the size of `x`
-        and `y`.
+        Notes
+        -----
+
+        * The `plot` function will be faster for scatterplots where markers
+          don't vary in size or color.
+
+        * Any or all of `x`, `y`, `s`, and `c` may be masked arrays, in which
+          case all masks will be combined and only unmasked points will be
+          plotted.
+
+          Fundamentally, scatter works with 1-D arrays; `x`, `y`, `s`, and `c`
+          may be input as 2-D arrays, but within scatter they will be
+          flattened. The exception is `c`, which will be flattened only if its
+          size matches the size of `x` and `y`.
 
         Examples
         --------
