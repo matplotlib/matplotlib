@@ -704,6 +704,7 @@ class Matplotlib(SetupPackage):
             'matplotlib.style',
             'matplotlib.testing',
             'matplotlib.testing.nose',
+            'matplotlib.testing.nose.plugins',
             'matplotlib.testing.jpl_units',
             'matplotlib.tri',
             ]
