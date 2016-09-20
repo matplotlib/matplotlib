@@ -62,7 +62,7 @@ def getrawcode(obj, trycall=True):
 
 def copy_metadata(src_func, tgt_func):
     """Replicates metadata of the function. Returns target function."""
-    tgt_func.__dict__ = src_func.__dict__
+    tgt_func.__dict__.update(src_func.__dict__)
     tgt_func.__doc__ = src_func.__doc__
     tgt_func.__module__ = src_func.__module__
     tgt_func.__name__ = src_func.__name__

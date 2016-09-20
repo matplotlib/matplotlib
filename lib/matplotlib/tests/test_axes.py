@@ -1268,14 +1268,14 @@ def test_hist2d_transpose():
 
 @image_comparison(baseline_images=['scatter', 'scatter'])
 def test_scatter_plot():
-    ax = plt.axes()
+    fig, ax = plt.subplots()
     data = {"x": [3, 4, 2, 6], "y": [2, 5, 2, 3], "c": ['r', 'y', 'b', 'lime'],
             "s": [24, 15, 19, 29]}
 
     ax.scatter(data["x"], data["y"], c=data["c"], s=data["s"])
 
     # Reuse testcase from above for a labeled data test
-    ax = plt.axes()
+    fig, ax = plt.subplots()
     ax.scatter("x", "y", c="c", s="s", data=data)
 
 
@@ -1375,8 +1375,8 @@ def test_as_mpl_axes_api():
 @image_comparison(baseline_images=['log_scales'])
 def test_log_scales():
     fig = plt.figure()
-    ax = plt.gca()
-    plt.plot(np.log(np.linspace(0.1, 100)))
+    ax = fig.add_subplot(1, 1, 1)
+    ax.plot(np.log(np.linspace(0.1, 100)))
     ax.set_yscale('log', basey=5.5)
     ax.invert_yaxis()
     ax.set_xscale('log', basex=9.0)
