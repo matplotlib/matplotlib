@@ -317,7 +317,7 @@ class PathPatch3D(Patch3D):
 
     def do_3d_projection(self, renderer):
         # pad ones
-        s = np.vstack(self._segments3d, np.ones(self._segments3d.shape[1]))
+        s = np.vstack(self._segment3d, np.ones(self._segment3d.shape[1]))
         vxyzis = proj3d.proj_transform_vec_clip(s, renderer.M)
         self._path2d = mpath.Path(vxyzis[0:2].T, self._code3d)
         # FIXME: coloring
@@ -348,6 +348,7 @@ def pathpatch_2d_to_3d(pathpatch, z=0, zdir='z'):
     mpath = trans.transform_path(path)
     pathpatch.__class__ = PathPatch3D
     pathpatch.set_3d_properties(mpath, z, zdir)
+
 
 class Patch3DCollection(PatchCollection):
     '''
