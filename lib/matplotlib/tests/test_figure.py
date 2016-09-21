@@ -99,6 +99,17 @@ def test_suptitle():
     fig.suptitle('title', color='g', rotation='30')
 
 
+@cleanup
+def test_suptitle_fontproperties():
+    from matplotlib.font_manager import FontProperties
+    fig = plt.figure()
+    ax = fig.add_subplot(1, 1, 1)
+    fps = FontProperties(size='large', weight='bold')
+    txt = fig.suptitle('fontprops title', fontproperties=fps)
+    assert_equal(txt.get_fontsize(), fps.get_size_in_points())
+    assert_equal(txt.get_weight(), fps.get_weight())
+
+
 @image_comparison(baseline_images=['alpha_background'],
                   # only test png and svg. The PDF output appears correct,
                   # but Ghostscript does not preserve the background color.
