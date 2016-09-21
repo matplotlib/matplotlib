@@ -896,6 +896,17 @@ or create a new `~matplotlib.ticker.MaxNLocator`::
   import matplotlib.ticker as mticker
   ax.set_major_locator(mticker.MaxNLocator(nbins=9, steps=[1, 2, 5, 10])
 
+For a log-scaled axis the default locator is the
+`~matplotlib.ticker.LogLocator`.  Previously the maximum number
+of ticks was set to 15, and could not be changed. Now there is a
+`numticks` kwarg for setting the maximum to any integer value,
+to the string 'auto', or to its default value of None which is
+equivalent to 'auto'.  With the 'auto' setting the maximum number
+will be no larger than 9, and will be reduced depending on the
+length of the axis in units of the tick font size.  As in the
+case of the AutoLocator, the heuristic algorithm reduces the
+incidence of overlapping tick labels but does not prevent it.
+
 
 Auto limits
 -----------
