@@ -169,10 +169,11 @@ PR Review guidelines
 ====================
 
 * We run on a 'use your judgement' system (for better or worse) and do
-  not have a strict nose-count rule.  If you have a commit bit, then
-  you are trusted to use it and to know when to ask for more review.
+  not have a strict 'N devs must sign off on' rule.  If you have a
+  commit bit, then you are trusted to use it and to know when to ask
+  for more review.
 
-* Do not self merge with the exception of un-breaking travis.
+* Do not self merge, except for 'small' patches to un-break the CI.
 
 * Squashing is case-by-case.  The balance is between burden on the
   contributor, keeping a relatively clean history, and keeping a
@@ -187,10 +188,10 @@ Backports
 =========
 
 
-When doing back ports please include the branch you backported the
+When doing backports please include the branch you backported the
 commit to along with the SHA in a comment on the original PR.
 
-A quick guide to how to back port a merge commit::
+A quick guide to how to backport a merge commit::
 
   git remote update
   git checkout target_branch
@@ -202,7 +203,9 @@ A quick guide to how to back port a merge commit::
   # leave a comment on PR noting sha of the resulting commit
   # from the cherry-pick + branch it was moved to
 
-here matplotlib is a read-only remote to the matplotlib/matplotlib repo and DANGER in a read/write remote to the matplotlib/matplotlib repo.
+here ``matplotlib`` is a read-only remote to the matplotlib/matplotlib
+repo and ``DANGER`` is a read/write remote to the matplotlib/matplotlib
+repo.
 
 These commands work on git 2.7.1.
 
