@@ -40,7 +40,7 @@ verts[:, 1] *= -1
 xmin, xmax = verts[:, 0].min()-1, verts[:, 0].max()+1
 ymin, ymax = verts[:, 1].min()-1, verts[:, 1].max()+1
 
-fig = plt.figure(figsize=(5, 5), facecolor='0.85')
+fig = plt.figure(figsize=(5, 5))
 ax = fig.add_axes([0.0, 0.0, 1.0, 1.0], frameon=False, aspect=1)
 
 # White outline (width = 6)
@@ -58,9 +58,6 @@ ax.set_ylim(ymin, ymax)
 # No ticks
 ax.set_xticks([])
 ax.set_yticks([])
-
-# Save figure
-plt.savefig('firefox.png', facecolor=fig.get_facecolor())
 
 # Display
 plt.show()
