@@ -4532,9 +4532,9 @@ class Axes(_AxesBase):
         y : float
             Y-coordinate of the arrow base
         dx : float
-            Length of arrow in x-coordinate
+            Length of arrow along x-coordinate
         dy : float
-            Length of arrow in y-coordinate
+            Length of arrow along y-coordinate
 
         Returns
         -------
@@ -4563,6 +4563,7 @@ class Axes(_AxesBase):
         --------
 
         .. plot:: mpl_examples/pylab_examples/arrow_demo.py
+
         """
         # Strip away units for the underlying patch since units
         # do not make sense to most patch-like code
