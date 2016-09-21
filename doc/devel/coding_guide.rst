@@ -165,6 +165,24 @@ C/C++ extensions
 
 
 
+PR Review guidelines
+====================
+
+* We run on a 'use your judgement' system (for better or worse) and do
+  not have a strict nose-count rule.  If you have a commit bit, then
+  you are trusted to use it and to know when to ask for more review.
+
+* Do not self merge with the exception of un-breaking travis.
+
+* Squashing is case-by-case.  The balance is between burden on the
+  contributor, keeping a relatively clean history, and keeping a
+  history usable for bisecting.  The only time we are really strict
+  about it is to eliminate binary files (ex multiple test image
+  re-generations) and to remove upstream merges.
+
+* Be patient with new contributors.
+
+
 Style guide
 ===========
 
