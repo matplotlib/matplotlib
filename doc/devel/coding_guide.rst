@@ -183,6 +183,30 @@ PR Review guidelines
 * Be patient with new contributors.
 
 
+Backports
+=========
+
+
+When doing back ports please include the branch you backported the
+commit to along with the SHA in a comment on the original PR.
+
+A quick guide to how to back port a merge commit::
+
+  git remote update
+  git checkout target_branch
+  git merge --ff-only matplotlib/target_branch
+  git cherry-pick -m 1 TARGET_SHA
+  gitk   # to look at it
+  # local tests? (use your judgment)
+  git push DANGER target_branch
+  # leave a comment on PR noting sha of the resulting commit
+  # from the cherry-pick + branch it was moved to
+
+here matplotlib is a read-only remote to the matplotlib/matplotlib repo and DANGER in a read/write remote to the matplotlib/matplotlib repo.
+
+These commands work on git 2.7.1.
+
+
 Style guide
 ===========
 
