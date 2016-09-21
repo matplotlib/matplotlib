@@ -523,6 +523,11 @@ class Figure(Artist):
           *verticalalignment* : 'top'
             The vertical alignment of the text
 
+        If the `fontproperties` keyword argument is given then the
+        rcParams defaults for `fontsize` (`figure.titlesize`) and
+        `fontweight` (`figure.titleweight`) will be ignored in favour
+        of the `FontProperties` defaults.
+
         A :class:`matplotlib.text.Text` instance is returned.
 
         Example::
@@ -537,10 +542,11 @@ class Figure(Artist):
         if ('verticalalignment' not in kwargs) and ('va' not in kwargs):
             kwargs['verticalalignment'] = 'top'
 
-        if 'fontsize' not in kwargs and 'size' not in kwargs:
-            kwargs['size'] = rcParams['figure.titlesize']
-        if 'fontweight' not in kwargs and 'weight' not in kwargs:
-            kwargs['weight'] = rcParams['figure.titleweight']
+        if 'fontproperties' not in kwargs:
+            if 'fontsize' not in kwargs and 'size' not in kwargs:
+                kwargs['size'] = rcParams['figure.titlesize']
+            if 'fontweight' not in kwargs and 'weight' not in kwargs:
+                kwargs['weight'] = rcParams['figure.titleweight']
 
         sup = self.text(x, y, t, **kwargs)
         if self._suptitle is not None:
