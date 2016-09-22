@@ -4362,12 +4362,6 @@ def test_axes_margins():
     assert ax.get_ybound() == (-0.5, 9.5)
 
 
-@image_comparison(baseline_images=["auto_numticks"], style='default',
-                  extensions=['png'])
-def test_auto_numticks():
-    fig, axes = plt.subplots(4, 4)
-
-
 @cleanup
 def test_remove_shared_axes():
     def _helper_x(ax):
@@ -4423,6 +4417,22 @@ def test_adjust_numtick_aspect():
     ax.set_ylim(0, 1000)
     fig.canvas.draw()
     assert len(ax.yaxis.get_major_locator()()) > 2
+
+
+@image_comparison(baseline_images=["auto_numticks"], style='default',
+                  extensions=['png'])
+def test_auto_numticks():
+    # Make tiny, empty subplots, verify that there are only 3 ticks.
+    fig, axes = plt.subplots(4, 4)
+
+
+@image_comparison(baseline_images=["auto_numticks_log"], style='default',
+                  extensions=['png'])
+def test_auto_numticks_log():
+    # Verify that there are not too many ticks with a large log range.
+    fig, ax = plt.subplots()
+    matplotlib.rcParams['axes.autolimit_mode'] = 'round_numbers'
+    ax.loglog([1e-20, 1e5], [1e-16, 10])
 
 
 @cleanup
