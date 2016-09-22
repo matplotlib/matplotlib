@@ -190,6 +190,12 @@ PR Review guidelines
 
 * Be patient with new contributors.
 
+* Do not let perfect be the enemy of the good, particularly for
+  documentation or example PRs.  If you find your self making many
+  small suggestions, either open a PR against the original branch or
+  merge the PR and then open a new PR against upstream.
+
+
 
 Backports
 =========
