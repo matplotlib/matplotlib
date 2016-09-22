@@ -1553,15 +1553,28 @@ class Axes3D(Axes):
 
         The `rstride` and `cstride` kwargs set the stride used to
         sample the input data to generate the graph.  If 1k by 1k
-        arrays are passed in the default values for the strides will
-        result in a 100x100 grid being plotted.
+        arrays are passed in, the default values for the strides will
+        result in a 100x100 grid being plotted. Defaults to 10.
+        Raises a ValueError if both stride and count kwargs
+        (see next section) are provided.
+
+        The `rcount` and `ccount` kwargs supersedes `rstride` and
+        `cstride` for default sampling method for surface plotting.
+        These arguments will determine at most how many evenly spaced
+        samples will be taken from the input data to generate the graph.
+        This is the default sampling method unless using the 'classic'
+        style. Will raise ValueError if both stride and count are
+        specified.
+        Added in v2.0.0.
 
         ============= ================================================
         Argument      Description
         ============= ================================================
         *X*, *Y*, *Z* Data values as 2D arrays
-        *rstride*     Array row stride (step size), defaults to 10
-        *cstride*     Array column stride (step size), defaults to 10
+        *rstride*     Array row stride (step size)
+        *cstride*     Array column stride (step size)
+        *rcount*      Use at most this many rows, defaults to 50
+        *ccount*      Use at most this many columns, defaults to 50
         *color*       Color of the surface patches
         *cmap*        A colormap for the surface patches.
         *facecolors*  Face colors for the individual patches
@@ -1582,8 +1595,30 @@ class Axes3D(Axes):
         X, Y, Z = np.broadcast_arrays(X, Y, Z)
         rows, cols = Z.shape
 
+        has_stride = 'rstride' in kwargs or 'cstride' in kwargs
+        has_count = 'rcount' in kwargs or 'ccount' in kwargs
+
+        if has_stride and has_count:
+            raise ValueError("Cannot specify both stride and count arguments")
+
         rstride = kwargs.pop('rstride', 10)
         cstride = kwargs.pop('cstride', 10)
+        rcount = kwargs.pop('rcount', 50)
+        ccount = kwargs.pop('ccount', 50)
+
+        if rcParams['_internal.classic_mode']:
+            # Strides have priority over counts in classic mode.
+            # So, only compute strides from counts
+            # if counts were explicitly given
+            if has_count:
+                rstride = int(np.ceil(rows / rcount))
+                cstride = int(np.ceil(cols / ccount))
+        else:
+            # If the strides are provided then it has priority.
+            # Otherwise, compute the strides from the counts.
+            if not has_stride:
+                rstride = int(np.ceil(rows / rcount))
+                cstride = int(np.ceil(cols / ccount))
 
         if 'facecolors' in kwargs:
             fcolors = kwargs.pop('facecolors')
@@ -1733,7 +1768,21 @@ class Axes3D(Axes):
         The `rstride` and `cstride` kwargs set the stride used to
         sample the input data to generate the graph. If either is 0
         the input data in not sampled along this direction producing a
-        3D line plot rather than a wireframe plot.
+        3D line plot rather than a wireframe plot. The stride arguments
+        are only used by default if in the 'classic' mode. They are
+        now superseded by `rcount` and `ccount`. Will raise ValueError
+        if both stride and count are used.
+
+`       The `rcount` and `ccount` kwargs supersedes `rstride` and
+        `cstride` for default sampling method for wireframe plotting.
+        These arguments will determine at most how many evenly spaced
+        samples will be taken from the input data to generate the graph.
+        This is the default sampling method unless using the 'classic'
+        style. Will raise ValueError if both stride and count are
+        specified. If either is zero, then the input data is not sampled
+        along this direction, producing a 3D line plot rather than a
+        wireframe plot.
+        Added in v2.0.0.
 
         ==========  ================================================
         Argument    Description
@@ -1742,6 +1791,8 @@ class Axes3D(Axes):
         *Z*
         *rstride*   Array row stride (step size), defaults to 1
         *cstride*   Array column stride (step size), defaults to 1
+        *rcount*    Use at most this many rows, defaults to 50
+        *ccount*    Use at most this many columns, defaults to 50
         ==========  ================================================
 
         Keyword arguments are passed on to
@@ -1750,14 +1801,36 @@ class Axes3D(Axes):
         Returns a :class:`~mpl_toolkits.mplot3d.art3d.Line3DCollection`
         '''
 
-        rstride = kwargs.pop("rstride", 1)
-        cstride = kwargs.pop("cstride", 1)
-
         had_data = self.has_data()
         Z = np.atleast_2d(Z)
         # FIXME: Support masked arrays
         X, Y, Z = np.broadcast_arrays(X, Y, Z)
         rows, cols = Z.shape
+
+        has_stride = 'rstride' in kwargs or 'cstride' in kwargs
+        has_count = 'rcount' in kwargs or 'ccount' in kwargs
+
+        if has_stride and has_count:
+            raise ValueError("Cannot specify both stride and count arguments")
+
+        rstride = kwargs.pop('rstride', 1)
+        cstride = kwargs.pop('cstride', 1)
+        rcount = kwargs.pop('rcount', 50)
+        ccount = kwargs.pop('ccount', 50)
+
+        if rcParams['_internal.classic_mode']:
+            # Strides have priority over counts in classic mode.
+            # So, only compute strides from counts
+            # if counts were explicitly given
+            if has_count:
+                rstride = int(np.ceil(rows / rcount)) if rcount else 0
+                cstride = int(np.ceil(cols / ccount)) if ccount else 0
+        else:
+            # If the strides are provided then it has priority.
+            # Otherwise, compute the strides from the counts.
+            if not has_stride:
+                rstride = int(np.ceil(rows / rcount)) if rcount else 0
+                cstride = int(np.ceil(cols / ccount)) if ccount else 0
 
         # We want two sets of lines, one running along the "rows" of
         # Z and another set of lines running along the "columns" of Z.
