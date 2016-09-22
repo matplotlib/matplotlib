@@ -168,10 +168,17 @@ C/C++ extensions
 PR Review guidelines
 ====================
 
-* We run on a 'use your judgement' system (for better or worse) and do
-  not have a strict 'N devs must sign off on' rule.  If you have a
-  commit bit, then you are trusted to use it and to know when to ask
-  for more review.
+* If you have a commit bit, then you are trusted to use it.  Please
+  help review and merge PRs!
+
+* Two developers (those with commit rights) should review all pull
+  requests.  If you are the first to review a PR please and approve of
+  the changes please edit the title to include ``'[MRG+1]'`` and use
+  the github 'approve review' tool to mark it as such.  If you are a
+  subsequent reviewer and you approve either merge (and backport if
+  needed) or increment the number in the title to ask for further
+  review (and trigger the gh 'approve review').  If you do the merge please
+  removed the ``'[MRG+N']`` prefix.
 
 * Do not self merge, except for 'small' patches to un-break the CI.
 
