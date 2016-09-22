@@ -4543,11 +4543,10 @@ class Axes(_AxesBase):
 
         Other Parameters
         -----------------
-        kwargs : `~matplotlib.patches.FancyArrow` properties.
+        Optional kwargs (inherited from FancyArrow patch) control the arrow
+        construction and properties:
 
-        More valid arguments include:
-
-        %(FancyArrow)s : Parent object type.
+        %(FancyArrow)s
 
         Notes
         -----
