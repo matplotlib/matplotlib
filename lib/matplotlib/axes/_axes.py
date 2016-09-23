@@ -3555,14 +3555,6 @@ or tuple of floats
         # empty list of xticklabels
         datalabels = []
 
-        # translates between line2D and patch linestyles
-        linestyle_map = {
-            'solid': '-',
-            'dashed': '--',
-            'dashdot': '-.',
-            'dotted': ':'
-        }
-
         zorder = mlines.Line2D.zorder
         zdelta = 0.1
         # box properties
