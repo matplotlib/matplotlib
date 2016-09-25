@@ -559,7 +559,7 @@ The default value of the ``align`` kwarg for both
    demo(ax4.barh, {'align': 'edge'})
 
 
-To restore the previous default explicitly pass a the kwarg
+To restore the previous default explicitly pass the kwarg
 ``align='edge'`` to the method call.
 
 
