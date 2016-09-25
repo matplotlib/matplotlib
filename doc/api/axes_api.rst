@@ -14,71 +14,159 @@
 Plotting
 --------
 
+Basic
+~~~~~
+
+.. autosummary::
+   :toctree: _as_gen
+   :nosignatures:
+
+   Axes.plot
+   Axes.errorbar
+   Axes.scatter
+
+   Axes.plot_date
+   Axes.step
+
+   Axes.loglog
+   Axes.semilogx
+   Axes.semilogy
+
+   Axes.fill_between
+   Axes.fill_betweenx
+
+   Axes.bar
+   Axes.barh
+
+   Axes.stem
+   Axes.eventplot
+
+   Axes.pie
+
+   Axes.stackplot
+
+
+   Axes.broken_barh
+   Axes.vlines
+   Axes.hlines
+   Axes.fill
+
+Spans
+~~~~~
+
+.. autosummary::
+   :toctree: _as_gen
+   :nosignatures:
+
+   Axes.axhline
+   Axes.axhspan
+   Axes.axvline
+   Axes.axvspan
+
+Spectral
+~~~~~~~~
+
 .. autosummary::
    :toctree: _as_gen
    :nosignatures:
 
    Axes.acorr
    Axes.angle_spectrum
-   Axes.annotate
-   Axes.arrow
-   Axes.axhline
-   Axes.axhspan
-   Axes.axvline
-   Axes.axvspan
-   Axes.bar
-   Axes.barbs
-   Axes.barh
-   Axes.boxplot
-   Axes.broken_barh
-   Axes.bxp
-   Axes.clabel
    Axes.cohere
-   Axes.contour
-   Axes.contourf
    Axes.csd
-   Axes.errorbar
-   Axes.eventplot
-   Axes.fill
-   Axes.fill_between
-   Axes.fill_betweenx
+   Axes.magnitude_spectrum
+   Axes.phase_spectrum
+   Axes.psd
+   Axes.specgram
+   Axes.xcorr
+
+Statistics
+~~~~~~~~~~
+
+.. autosummary::
+   :toctree: _as_gen
+   :nosignatures:
+
+   Axes.boxplot
+   Axes.violinplot
+
+   Axes.violin
+   Axes.bxp
+
+Binned
+~~~~~~
+
+.. autosummary::
+   :toctree: _as_gen
+   :nosignatures:
+
    Axes.hexbin
    Axes.hist
    Axes.hist2d
-   Axes.hlines
+
+Contours
+~~~~~~~~
+
+.. autosummary::
+   :toctree: _as_gen
+   :nosignatures:
+
+   Axes.clabel
+   Axes.contour
+   Axes.contourf
+
+Array
+~~~~~
+
+.. autosummary::
+   :toctree: _as_gen
+   :nosignatures:
+
    Axes.imshow
-   Axes.loglog
-   Axes.magnitude_spectrum
    Axes.matshow
    Axes.pcolor
    Axes.pcolorfast
    Axes.pcolormesh
-   Axes.phase_spectrum
-   Axes.pie
-   Axes.plot
-   Axes.plot_date
-   Axes.psd
-   Axes.quiver
-   Axes.quiverkey
-   Axes.scatter
-   Axes.semilogx
-   Axes.semilogy
-   Axes.specgram
    Axes.spy
-   Axes.stackplot
-   Axes.stem
-   Axes.step
-   Axes.streamplot
-   Axes.table
-   Axes.text
-   Axes.tricontour
-   Axes.tricontourf
+
+Unstructured Triangles
+~~~~~~~~~~~~~~~~~~~~~~
+
+.. autosummary::
+   :toctree: _as_gen
+   :nosignatures:
+
    Axes.tripcolor
    Axes.triplot
-   Axes.violin
-   Axes.violinplot
-   Axes.vlines
-   Axes.xcorr
+   Axes.tricontour
+   Axes.tricontourf
+
+
+Text and Annotations
+~~~~~~~~~~~~~~~~~~~~
+
+.. autosummary::
+   :toctree: _as_gen
+   :nosignatures:
+
+   Axes.annotate
+   Axes.text
+   Axes.table
+   Axes.arrow
+
+
+Fields
+~~~~~~
+
+.. autosummary::
+   :toctree: _as_gen
+   :nosignatures:
+
+   Axes.barbs
+   Axes.quiver
+   Axes.quiverkey
+   Axes.streamplot
+
 
 Clearing
 --------
