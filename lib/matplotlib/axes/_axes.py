@@ -1980,7 +1980,11 @@ or tuple of floats
         error_kw.setdefault('ecolor', ecolor)
         error_kw.setdefault('capsize', capsize)
 
-        align = kwargs.pop('align', 'edge')
+        if rcParams['_internal.classic_mode']:
+            align = kwargs.pop('align', 'edge')
+        else:
+            align = kwargs.pop('align', 'center')
+
         orientation = kwargs.pop('orientation', 'vertical')
         log = kwargs.pop('log', False)
         label = kwargs.pop('label', '')
