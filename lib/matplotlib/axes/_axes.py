@@ -4188,7 +4188,8 @@ or tuple of floats
             sequence of floats, as required by
             :class:`~matplotlib.collections.RegularPolyCollection`.
 
-        edgecolors : {'none'}, mpl color, color sequence, optional, default is 'none'
+        edgecolors : {'none'}, mpl color, color sequence, optional,
+        default is 'none'
             If 'none', draws the edges in the same color as the fill color.
             This is the default, as it avoids unsightly unpainted pixels
             between the hexagons.
