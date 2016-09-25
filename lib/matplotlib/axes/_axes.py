@@ -357,7 +357,7 @@ class Axes(_AxesBase):
             ``bbox_to_anchor`` will be ignored).
 
         bbox_to_anchor : :class:`matplotlib.transforms.BboxBase` instance \
-                         or tuple of floats
+or tuple of floats
             Specify any arbitrary location for the legend in `bbox_transform`
             coordinates (default Axes coordinates).
 
@@ -373,8 +373,8 @@ class Axes(_AxesBase):
             The font properties of the legend. If None (default), the current
             :data:`matplotlib.rcParams` will be used.
 
-        fontsize : int or float or {'xx-small', 'x-small', 'small', 'medium',\
-                   'large', 'x-large', 'xx-large'}
+        fontsize : int or float or {'xx-small', 'x-small', 'small', 'medium', \
+'large', 'x-large', 'xx-large'}
             Controls the font size of the legend. If the value is numeric the
             size will be the absolute font size in points. String values are
             relative to the current default font size. This argument is only
@@ -404,7 +404,7 @@ class Axes(_AxesBase):
             drawn ones. Default is ``None`` which will take the value from
             the ``legend.markerscale`` :data:`rcParam <matplotlib.rcParams>`.
 
-        *markerfirst*: [ *True* | *False* ]
+        markerfirst : bool
             if *True*, legend marker is placed to the left of the legend label
             if *False*, legend marker is placed to the right of the legend
             label
@@ -801,13 +801,6 @@ class Axes(_AxesBase):
         """
         Add a horizontal span (rectangle) across the axis.
 
-        Call signature::
-
-          axhspan(ymin, ymax, xmin=0, xmax=1, **kwargs)
-
-        *y* coords are in data units and *x* coords are in axes (relative
-        0-1) units.
-
         Draw a horizontal span (rectangle) from *ymin* to *ymax*.
         With the default values of *xmin* = 0 and *xmax* = 1, this
         always spans the xrange, regardless of the xlim settings, even
@@ -816,22 +809,35 @@ class Axes(_AxesBase):
         0.5=middle, 1.0=right but the *y* location is in data
         coordinates.
 
-        Return value is a :class:`matplotlib.patches.Polygon`
-        instance.
+        Parameters
+        ----------
+        ymin : float
+               Lower limit of the horizontal span in data units.
+        ymax : float
+               Upper limit of the horizontal span in data units.
+        xmin : float, optional, default: 0
+               Lower limit of the vertical span in axes (relative
+               0-1) units.
+        xmax : float, optional, default: 1
+               Upper limit of the vertical span in axes (relative
+               0-1) units.
 
-       Examples:
+        Returns
+        -------
+        Polygon : `~matplotlib.patches.Polygon`
 
-        * draw a gray rectangle from *y* = 0.25-0.75 that spans the
-          horizontal extent of the axes::
-
-            >>> axhspan(0.25, 0.75, facecolor='0.5', alpha=0.5)
-
-        Valid kwargs are :class:`~matplotlib.patches.Polygon` properties:
+        Other Parameters
+        ----------------
+        kwargs : `~matplotlib.patches.Polygon` properties.
 
         %(Polygon)s
 
-        **Example:**
+        See Also
+        --------
+        axvspan : Add a vertical span (rectangle) across the axes.
 
+        Examples
+        --------
         .. plot:: mpl_examples/pylab_examples/axhspan_demo.py
 
         """
@@ -1408,12 +1414,7 @@ class Axes(_AxesBase):
     def plot_date(self, x, y, fmt='o', tz=None, xdate=True, ydate=False,
                   **kwargs):
         """
-        Plot with data with dates.
-
-        Call signature::
-
-           plot_date(x, y, fmt='bo', tz=None, xdate=True,
-                     ydate=False, **kwargs)
+        A plot with data that contains dates.
 
         Similar to the :func:`~matplotlib.pyplot.plot` command, except
         the *x* or *y* (or both) data is considered to be dates, and the
@@ -1422,45 +1423,53 @@ class Axes(_AxesBase):
         *x* and/or *y* can be a sequence of dates represented as float
         days since 0001-01-01 UTC.
 
-        Keyword arguments:
+        Note if you are using custom date tickers and formatters, it
+        may be necessary to set the formatters/locators after the call
+        to meth:`plot_date` since meth:`plot_date` will set the
+        default tick locator to
+        class:`matplotlib.dates.AutoDateLocator` (if the tick
+        locator is not already set to a
+        class:`matplotlib.dates.DateLocator` instance) and the
+        default tick formatter to
+        class:`matplotlib.dates.AutoDateFormatter` (if the tick
+        formatter is not already set to a
+        class:`matplotlib.dates.DateFormatter` instance).
 
-          *fmt*: string
+
+        Parameters
+        ----------
+        fmt : string
             The plot format string.
 
-          *tz*: [ *None* | timezone string | :class:`tzinfo` instance]
+        tz : [ *None* | timezone string | :class:`tzinfo` instance]
             The time zone to use in labeling dates. If *None*, defaults to rc
             value.
 
-          *xdate*: [ *True* | *False* ]
+        xdate : boolean
             If *True*, the *x*-axis will be labeled with dates.
 
-          *ydate*: [ *False* | *True* ]
+        ydate : boolean
             If *True*, the *y*-axis will be labeled with dates.
 
-        Note if you are using custom date tickers and formatters, it
-        may be necessary to set the formatters/locators after the call
-        to :meth:`plot_date` since :meth:`plot_date` will set the
-        default tick locator to
-        :class:`matplotlib.dates.AutoDateLocator` (if the tick
-        locator is not already set to a
-        :class:`matplotlib.dates.DateLocator` instance) and the
-        default tick formatter to
-        :class:`matplotlib.dates.AutoDateFormatter` (if the tick
-        formatter is not already set to a
-        :class:`matplotlib.dates.DateFormatter` instance).
 
-        Valid kwargs are :class:`~matplotlib.lines.Line2D` properties:
+        Returns
+        -------
+        lines
 
-        %(Line2D)s
 
-        .. seealso::
+        See Also
+        --------
+        matplotlib.dates : helper functions on dates
+        matplotlib.dates.date2num : how to convert dates to num
+        matplotlib.dates.num2date : how to convert num to dates
+        matplotlib.dates.drange : how floating point dates
 
-           :mod:`~matplotlib.dates` for helper functions
 
-           :func:`~matplotlib.dates.date2num`,
-           :func:`~matplotlib.dates.num2date` and
-           :func:`~matplotlib.dates.drange` for help on creating the required
-           floating point dates.
+        Other Parameters
+        ----------------
+        kwargs : :class:`matplotlib.lines.Line2D`
+        properties : %(Line2D)s
+
         """
 
         if not self._hold:
@@ -1595,41 +1604,40 @@ class Axes(_AxesBase):
     # @_preprocess_data() # let 'plot' do the unpacking..
     @docstring.dedent_interpd
     def semilogy(self, *args, **kwargs):
-        """
-        Make a plot with log scaling on the *y* axis.
+        r"""Make a plot with log scaling on the `y` axis.
 
-        call signature::
+        Parameters
+        ----------
+        basey : scalar > 1
+            Base of the `y` logarithm.
 
-          semilogy(*args, **kwargs)
-
-        :func:`semilogy` supports all the keyword arguments of
-        :func:`~matplotlib.pylab.plot` and
-        :meth:`matplotlib.axes.Axes.set_yscale`.
-
-        Notable keyword arguments:
-
-          *basey*: scalar > 1
-            Base of the *y* logarithm
-
-          *subsy*: [ *None* | sequence ]
-            The location of the minor yticks; *None* defaults to
+        subsy : None or iterable
+            The location of the minor yticks. None defaults to
             autosubs, which depend on the number of decades in the
-            plot; see :meth:`~matplotlib.axes.Axes.set_yscale` for
+            plot. See :meth:`~matplotlib.axes.Axes.set_yscale` for
             details.
 
-          *nonposy*: [ 'mask' | 'clip' ]
-            Non-positive values in *y* can be masked as
-            invalid, or clipped to a very small positive number
+        nonposy : {'mask' | 'clip'} str
+            Non-positive values in `y` can be masked as
+            invalid, or clipped to a very small positive number.
 
-        The remaining valid kwargs are
-        :class:`~matplotlib.lines.Line2D` properties:
+        Returns
+        -------
+        `~matplotlib.lines.Line2D`
+            Line instance of the plot.
+
+        Other Parameters
+        ----------------
+        kwargs : `~matplotlib.lines.Line2D` properties,
+        `~matplotlib.pylab.plot` and
+        `matplotlib.axes.Axes.set_yscale` arguments.
 
         %(Line2D)s
 
-        .. seealso::
+        See also
+        --------
+        :meth:`loglog`: For example code and figure.
 
-            :meth:`loglog`
-                For example code and figure
         """
         if not self._hold:
             self.cla()
@@ -1802,28 +1810,36 @@ class Axes(_AxesBase):
         """
         Make a step plot.
 
-        Call signature::
+        Parameters
+        ----------
+        x : array_like
+            1-D sequence, and it is assumed, but not checked,
+            that it is uniformly increasing.
 
-          step(x, y, *args, **kwargs)
+        y : array_like
+            1-D sequence, and it is assumed, but not checked,
+            that it is uniformly increasing.
 
-        Additional keyword args to :func:`step` are the same as those
-        for :func:`~matplotlib.pyplot.plot`.
+        Returns
+        -------
+        list
+            List of lines that were added.
 
-        *x* and *y* must be 1-D sequences, and it is assumed, but not checked,
-        that *x* is uniformly increasing.
+        Other parameters
+        ----------------
+        where : [ 'pre' | 'post' | 'mid'  ]
+            If 'pre' (the default), the interval from
+            x[i] to x[i+1] has level y[i+1].
 
-        Keyword arguments:
+            If 'post', that interval has level y[i].
 
-        *where*: [ 'pre' | 'post' | 'mid'  ]
-          If 'pre' (the default), the interval from x[i] to x[i+1] has level
-          y[i+1].
+            If 'mid', the jumps in *y* occur half-way between the
+            *x*-values.
 
-          If 'post', that interval has level y[i].
-
-          If 'mid', the jumps in *y* occur half-way between the
-          *x*-values.
-
-        Return value is a list of lines that were added.
+        Notes
+        -----
+        Additional parameters are the same as those for
+        :func:`~matplotlib.pyplot.plot`.
         """
 
         where = kwargs.pop('where', 'pre')
@@ -2694,63 +2710,58 @@ class Axes(_AxesBase):
         """
         Plot an errorbar graph.
 
-        Call signature::
+        Plot x versus y with error deltas in yerr and xerr.
+        Vertical errorbars are plotted if yerr is not None.
+        Horizontal errorbars are plotted if xerr is not None.
 
-          errorbar(x, y, yerr=None, xerr=None,
-                   fmt='', ecolor=None, elinewidth=None, capsize=None,
-                   barsabove=False, lolims=False, uplims=False,
-                   xlolims=False, xuplims=False, errorevery=1,
-                   capthick=None)
+        x, y, xerr, and yerr can all be scalars, which plots a
+        single error bar at x, y.
 
-        Plot *x* versus *y* with error deltas in *yerr* and *xerr*.
-        Vertical errorbars are plotted if *yerr* is not *None*.
-        Horizontal errorbars are plotted if *xerr* is not *None*.
+        Parameters
+        ----------
+        x : scalar
+        y : scalar
 
-        *x*, *y*, *xerr*, and *yerr* can all be scalars, which plots a
-        single error bar at *x*, *y*.
-
-        Optional keyword arguments:
-
-          *xerr*/*yerr*: [ scalar | N, Nx1, or 2xN array-like ]
+        xerr/yerr : scalar or array-like, shape(n,1) or shape(2,n), optional
             If a scalar number, len(N) array-like object, or an Nx1
             array-like object, errorbars are drawn at +/-value relative
-            to the data.
+            to the data. Default is None.
 
             If a sequence of shape 2xN, errorbars are drawn at -row1
             and +row2 relative to the data.
 
-          *fmt*: [ '' | 'none' | plot format string ]
-            The plot format symbol. If *fmt* is 'none' (case-insensitive),
+        fmt : plot format string, optional, default: None
+            The plot format symbol. If fmt is 'none' (case-insensitive),
             only the errorbars are plotted.  This is used for adding
             errorbars to a bar plot, for example.  Default is '',
             an empty plot format string; properties are
             then identical to the defaults for :meth:`plot`.
 
-          *ecolor*: [ *None* | mpl color ]
+        ecolor : mpl color, optional, default: None
             A matplotlib color arg which gives the color the errorbar lines;
-            if *None*, use the color of the line connecting the markers.
+            if None, use the color of the line connecting the markers.
 
-          *elinewidth*: scalar
-            The linewidth of the errorbar lines. If *None*, use the linewidth.
+        elinewidth : scalar, optional, default: None
+            The linewidth of the errorbar lines. If None, use the linewidth.
 
-          *capsize*: scalar
-            The length of the error bar caps in points; if *None*, it will
+        capsize : scalar, optional, default: None
+            The length of the error bar caps in points; if None, it will
             take the value from ``errorbar.capsize``
             :data:`rcParam<matplotlib.rcParams>`.
 
-          *capthick*: scalar
-            An alias kwarg to *markeredgewidth* (a.k.a. - *mew*). This
+        capthick : scalar, optional, default: None
+            An alias kwarg to markeredgewidth (a.k.a. - mew). This
             setting is a more sensible name for the property that
             controls the thickness of the error bar cap in points. For
-            backwards compatibility, if *mew* or *markeredgewidth* are given,
-            then they will over-ride *capthick*.  This may change in future
+            backwards compatibility, if mew or markeredgewidth are given,
+            then they will over-ride capthick. This may change in future
             releases.
 
-          *barsabove*: [ *True* | *False* ]
-            if *True*, will plot the errorbars above the plot
+        barsabove : bool, optional, default: False
+            if True , will plot the errorbars above the plot
             symbols. Default is below.
 
-          *lolims* / *uplims* / *xlolims* / *xuplims*: [ *False* | *True* ]
+        lolims / uplims / xlolims / xuplims : bool, optional, default:None
             These arguments can be used to indicate that a value gives
             only upper/lower limits. In that case a caret symbol is
             used to indicate this. lims-arguments may be of the same
@@ -2758,42 +2769,41 @@ class Axes(_AxesBase):
             axes, :meth:`set_xlim` or :meth:`set_ylim` must be called
             before :meth:`errorbar`.
 
-          *errorevery*: positive integer
+        errorevery : positive integer, optional, default:1
             subsamples the errorbars. e.g., if errorevery=5, errorbars for
             every 5-th datapoint will be plotted. The data plot itself still
             shows all data points.
 
-        All other keyword arguments are passed on to the plot command for the
-        markers. For example, this code makes big red squares with
-        thick green edges::
+        Returns
+        -------
+        plotline : :class:`~matplotlib.lines.Line2D` instance
+            x, y plot markers and/or line
+        caplines : list of :class:`~matplotlib.lines.Line2D` instances
+            error bar cap
+        barlinecols : list of :class:`~matplotlib.collections.LineCollection`
+            horizontal and vertical error ranges.
 
-          x,y,yerr = rand(3,10)
-          errorbar(x, y, yerr, marker='s',
-                   mfc='red', mec='green', ms=20, mew=4)
+        Other Parameters
+        ----------------
+        kwargs : All other keyword arguments are passed on to the plot
+            command for the markers. For example, this code makes big red
+            squares with thick green edges::
 
-        where *mfc*, *mec*, *ms* and *mew* are aliases for the longer
-        property names, *markerfacecolor*, *markeredgecolor*, *markersize*
-        and *markeredgewidth*.
+                x,y,yerr = rand(3,10)
+                errorbar(x, y, yerr, marker='s', mfc='red',
+                         mec='green', ms=20, mew=4)
 
-        valid kwargs for the marker properties are
+            where mfc, mec, ms and mew are aliases for the longer
+            property names, markerfacecolor, markeredgecolor, markersize
+            and markeredgewidth.
 
-        %(Line2D)s
+            valid kwargs for the marker properties are
 
-        Returns (*plotline*, *caplines*, *barlinecols*):
+            %(Line2D)s
 
-            *plotline*: :class:`~matplotlib.lines.Line2D` instance
-                *x*, *y* plot markers and/or line
-
-            *caplines*: list of error bar cap
-                :class:`~matplotlib.lines.Line2D` instances
-            *barlinecols*: list of
-                :class:`~matplotlib.collections.LineCollection` instances for
-                the horizontal and vertical error ranges.
-
-        **Example:**
-
+        Examples
+        --------
         .. plot:: mpl_examples/statistics/errorbar_demo.py
-
         """
         kwargs = cbook.normalize_kwargs(kwargs, _alias_map)
         kwargs.setdefault('zorder', 2)
@@ -3545,14 +3555,6 @@ class Axes(_AxesBase):
         # empty list of xticklabels
         datalabels = []
 
-        # translates between line2D and patch linestyles
-        linestyle_map = {
-            'solid': '-',
-            'dashed': '--',
-            'dashdot': '-.',
-            'dotted': ':'
-        }
-
         zorder = mlines.Line2D.zorder
         zdelta = 0.1
         # box properties
@@ -3883,17 +3885,25 @@ class Axes(_AxesBase):
         ----------------
         kwargs : `~matplotlib.collections.Collection` properties
 
-        Notes
-        ------
-        Any or all of `x`, `y`, `s`, and `c` may be masked arrays, in
-        which case all masks will be combined and only unmasked points
-        will be plotted.
+        See Also
+        --------
+        plot : to plot scatter plots when markers are identical in size and
+            color
 
-        Fundamentally, scatter works with 1-D arrays; `x`, `y`, `s`,
-        and `c` may be input as 2-D arrays, but within scatter
-        they will be flattened. The exception is `c`, which
-        will be flattened only if its size matches the size of `x`
-        and `y`.
+        Notes
+        -----
+
+        * The `plot` function will be faster for scatterplots where markers
+          don't vary in size or color.
+
+        * Any or all of `x`, `y`, `s`, and `c` may be masked arrays, in which
+          case all masks will be combined and only unmasked points will be
+          plotted.
+
+          Fundamentally, scatter works with 1-D arrays; `x`, `y`, `s`, and `c`
+          may be input as 2-D arrays, but within scatter they will be
+          flattened. The exception is `c`, which will be flattened only if its
+          size matches the size of `x` and `y`.
 
         Examples
         --------
@@ -4522,13 +4532,34 @@ class Axes(_AxesBase):
         """
         Add an arrow to the axes.
 
-        Call signature::
+        Draws arrow on specified axis from (`x`, `y`) to (`x` + `dx`,
+        `y` + `dy`). Uses FancyArrow patch to construct the arrow.
 
-           arrow(x, y, dx, dy, **kwargs)
+        Parameters
+        ----------
+        x : float
+            X-coordinate of the arrow base
+        y : float
+            Y-coordinate of the arrow base
+        dx : float
+            Length of arrow along x-coordinate
+        dy : float
+            Length of arrow along y-coordinate
 
-        Draws arrow on specified axis from (*x*, *y*) to (*x* + *dx*,
-        *y* + *dy*). Uses FancyArrow patch to construct the arrow.
+        Returns
+        -------
+        a : FancyArrow
+            patches.FancyArrow object
 
+        Other Parameters
+        -----------------
+        Optional kwargs (inherited from FancyArrow patch) control the arrow
+        construction and properties:
+
+        %(FancyArrow)s
+
+        Notes
+        -----
         The resulting arrow is affected by the axes aspect ratio and limits.
         This may produce an arrow whose head is not square with its stem. To
         create an arrow whose head is square with its stem, use
@@ -4537,13 +4568,11 @@ class Axes(_AxesBase):
             ax.annotate("", xy=(0.5, 0.5), xytext=(0, 0),
                 arrowprops=dict(arrowstyle="->"))
 
-        Optional kwargs control the arrow construction and properties:
-
-        %(FancyArrow)s
-
-        **Example:**
+        Examples
+        --------
 
         .. plot:: mpl_examples/pylab_examples/arrow_demo.py
+
         """
         # Strip away units for the underlying patch since units
         # do not make sense to most patch-like code
@@ -6212,7 +6241,8 @@ class Axes(_AxesBase):
 
             if rwidth is not None:
                 dr = min(1.0, max(0.0, rwidth))
-            elif len(n) > 1:
+            elif (len(n) > 1 and
+                  ((not stacked) or rcParams['_internal.classic_mode'])):
                 dr = 0.8
             else:
                 dr = 1.0
@@ -6382,8 +6412,6 @@ class Axes(_AxesBase):
                 p.update(kwargs)
                 if lbl is not None:
                     p.set_label(lbl)
-
-                p.set_snap(False)
 
                 for p in patch[1:]:
                     p.update(kwargs)

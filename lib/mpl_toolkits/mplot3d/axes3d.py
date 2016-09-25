@@ -2449,7 +2449,7 @@ class Axes3D(Axes):
 
         facecolors = []
         if color is None:
-            color = [self._get_lines.get_next_color()]
+            color = [self._get_patches_for_fill.get_next_color()]
 
         if len(color) == len(x):
             # bar colors specified, need to expand to number of faces

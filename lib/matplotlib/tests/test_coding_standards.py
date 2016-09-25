@@ -100,6 +100,7 @@ def assert_pep8_conformance(module=matplotlib, exclude_files=None,
     The file should be a line separated list of filenames/directories
     as can be passed to the "pep8" tool's exclude list.
     """
+    __tracebackhide__ = True
 
     if not HAS_PEP8:
         raise SkipTest('The pep8 tool is required for this test')
@@ -156,6 +157,8 @@ def assert_pep8_conformance(module=matplotlib, exclude_files=None,
 
 
 def test_pep8_conformance_installed_files():
+    __tracebackhide__ = True
+
     exclude_files = ['_delaunay.py',
                      '_image.py',
                      '_tri.py',
@@ -191,7 +194,6 @@ def test_pep8_conformance_installed_files():
                           'texmanager.py',
                           'transforms.py',
                           'type1font.py',
-                          'widgets.py',
                           'testing/decorators.py',
                           'testing/jpl_units/Duration.py',
                           'testing/jpl_units/Epoch.py',

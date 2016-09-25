@@ -2541,9 +2541,13 @@ def key_press_handler(event, canvas, toolbar=None):
 
     ax = event.inaxes
     # toggle major grids in current axes (default key 'g')
-    # Both here and below (for 'G'), we do nothing is the grids are not in a
-    # uniform state, to avoid messing up user customization.
-    if event.key in grid_keys:
+    # Both here and below (for 'G'), we do nothing if *any* grid (major or
+    # minor, x or y) is not in a uniform state, to avoid messing up user
+    # customization.
+    if (event.key in grid_keys
+            # Exclude minor grids not in a uniform state.
+            and None not in [_get_uniform_gridstate(ax.xaxis.minorTicks),
+                             _get_uniform_gridstate(ax.yaxis.minorTicks)]):
         x_state = _get_uniform_gridstate(ax.xaxis.majorTicks)
         y_state = _get_uniform_gridstate(ax.yaxis.majorTicks)
         cycle = [(False, False), (True, False), (True, True), (False, True)]
@@ -2554,8 +2558,9 @@ def key_press_handler(event, canvas, toolbar=None):
             # Exclude major grids not in a uniform state.
             pass
         else:
-            ax.grid(x_state, which="major", axis="x")
-            ax.grid(y_state, which="major", axis="y")
+            # If turning major grids off, also turn minor grids off.
+            ax.grid(x_state, which="major" if x_state else "both", axis="x")
+            ax.grid(y_state, which="major" if y_state else "both", axis="y")
             canvas.draw_idle()
     # toggle major and minor grids in current axes (default key 'G')
     if (event.key in grid_minor_keys
@@ -2606,14 +2611,14 @@ def key_press_handler(event, canvas, toolbar=None):
         # keys in list 'all' enables all axes (default key 'a'),
         # otherwise if key is a number only enable this particular axes
         # if it was the axes, where the event was raised
-        if not (event.key in all):
+        if not (event.key in all_keys):
             n = int(event.key) - 1
         for i, a in enumerate(canvas.figure.get_axes()):
             # consider axes, in which the event was raised
             # FIXME: Why only this axes?
             if event.x is not None and event.y is not None \
                     and a.in_axes(event):
-                if event.key in all:
+                if event.key in all_keys:
                     a.set_navigate(True)
                 else:
                     a.set_navigate(i == n)
@@ -2881,11 +2886,10 @@ class NavigationToolbar2(object):
                 pass
             else:
                 artists = [a for a in event.inaxes.mouseover_set
-                           if a.contains(event)]
+                           if a.contains(event) and a.get_visible()]
 
                 if artists:
-
-                    a = max(enumerate(artists), key=lambda x: x[1].zorder)[1]
+                    a = max(artists, key=lambda x: x.zorder)
                     if a is not event.inaxes.patch:
                         data = a.get_cursor_data(event)
                         if data is not None:

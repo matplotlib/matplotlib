@@ -335,6 +335,16 @@ class ToolCursorPosition(ToolBase):
             except (ValueError, OverflowError):
                 pass
             else:
+                artists = [a for a in event.inaxes.mouseover_set
+                           if a.contains(event) and a.get_visible()]
+
+                if artists:
+                    a = max(artists, key=lambda x: x.zorder)
+                    if a is not event.inaxes.patch:
+                        data = a.get_cursor_data(event)
+                        if data is not None:
+                            s += ' [%s]' % a.format_cursor_data(data)
+
                 message = s
         self.toolmanager.message_event(message, self)
 
@@ -430,12 +440,12 @@ class _ToolGridBase(ToolBase):
         if ax is None:
             return
         try:
-            x_state, y_state, which = self._get_next_grid_states(ax)
+            x_state, x_which, y_state, y_which = self._get_next_grid_states(ax)
         except ValueError:
             pass
         else:
-            ax.grid(x_state, which=which, axis="x")
-            ax.grid(y_state, which=which, axis="y")
+            ax.grid(x_state, which=x_which, axis="x")
+            ax.grid(y_state, which=y_which, axis="y")
             ax.figure.canvas.draw_idle()
 
     @staticmethod
@@ -461,13 +471,18 @@ class ToolGrid(_ToolGridBase):
     default_keymap = rcParams['keymap.grid']
 
     def _get_next_grid_states(self, ax):
+        if None in map(self._get_uniform_grid_state,
+                       [ax.xaxis.minorTicks, ax.yaxis.minorTicks]):
+            # Bail out if minor grids are not in a uniform state.
+            raise ValueError
         x_state, y_state = map(self._get_uniform_grid_state,
                                [ax.xaxis.majorTicks, ax.yaxis.majorTicks])
         cycle = self._cycle
         # Bail out (via ValueError) if major grids are not in a uniform state.
         x_state, y_state = (
             cycle[(cycle.index((x_state, y_state)) + 1) % len(cycle)])
-        return x_state, y_state, "major"
+        return (x_state, "major" if x_state else "both",
+                y_state, "major" if y_state else "both")
 
 
 class ToolMinorGrid(_ToolGridBase):
@@ -487,7 +502,7 @@ class ToolMinorGrid(_ToolGridBase):
         # Bail out (via ValueError) if minor grids are not in a uniform state.
         x_state, y_state = (
             cycle[(cycle.index((x_state, y_state)) + 1) % len(cycle)])
-        return x_state, y_state, "both"
+        return x_state, "both", y_state, "both"
 
 
 class ToolFullScreen(ToolToggleBase):

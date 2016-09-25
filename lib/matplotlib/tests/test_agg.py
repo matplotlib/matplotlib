@@ -16,6 +16,7 @@ from nose.tools import assert_raises
 from matplotlib.image import imread
 from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
 from matplotlib.figure import Figure
+from matplotlib.testing import skip
 from matplotlib.testing.decorators import (
     cleanup, image_comparison, knownfailureif)
 from matplotlib import pyplot as plt
@@ -251,7 +252,7 @@ def test_agg_filter():
             return t2
 
     if V(np.__version__) < V('1.7.0'):
-        return
+        skip('Disabled on Numpy < 1.7.0')
 
     fig = plt.figure()
     ax = fig.add_subplot(111)

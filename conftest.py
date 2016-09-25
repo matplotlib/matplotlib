@@ -10,13 +10,10 @@ import matplotlib
 matplotlib.use('agg')
 
 from matplotlib import default_test_modules
-from matplotlib.testing.decorators import ImageComparisonTest
 
 
 IGNORED_TESTS = {
-    'matplotlib': [
-        'test_usetex',
-    ],
+    'matplotlib': [],
 }
 
 
@@ -88,12 +85,6 @@ def pytest_ignore_collect(path, config):
 
 def pytest_pycollect_makeitem(collector, name, obj):
     if inspect.isclass(obj):
-        if issubclass(obj, ImageComparisonTest):
-            # Workaround `image_compare` decorator as it returns class
-            # instead of function and this confuses pytest because it crawls
-            # original names and sees 'test_*', but not 'Test*' in that case
-            return pytest.Class(name, parent=collector)
-
         if is_nose_class(obj) and not issubclass(obj, unittest.TestCase):
             # Workaround unittest-like setup/teardown names in pure classes
             setup = getattr(obj, 'setUp', None)

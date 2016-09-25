@@ -1142,7 +1142,7 @@ def test_hist_step_empty():
     ax = plt.gca()
     ax.hist([], histtype='step')
 
-@image_comparison(baseline_images=['hist_steplog'], remove_text=True, tol=0.05)
+@image_comparison(baseline_images=['hist_steplog'], remove_text=True, tol=0.1)
 def test_hist_steplog():
     np.random.seed(0)
     data = np.random.standard_normal(2000)
@@ -1281,14 +1281,14 @@ def test_hist2d_transpose():
 
 @image_comparison(baseline_images=['scatter', 'scatter'])
 def test_scatter_plot():
-    ax = plt.axes()
+    fig, ax = plt.subplots()
     data = {"x": [3, 4, 2, 6], "y": [2, 5, 2, 3], "c": ['r', 'y', 'b', 'lime'],
             "s": [24, 15, 19, 29]}
 
     ax.scatter(data["x"], data["y"], c=data["c"], s=data["s"])
 
     # Reuse testcase from above for a labeled data test
-    ax = plt.axes()
+    fig, ax = plt.subplots()
     ax.scatter("x", "y", c="c", s="s", data=data)
 
 
@@ -1388,8 +1388,8 @@ def test_as_mpl_axes_api():
 @image_comparison(baseline_images=['log_scales'])
 def test_log_scales():
     fig = plt.figure()
-    ax = plt.gca()
-    plt.plot(np.log(np.linspace(0.1, 100)))
+    ax = fig.add_subplot(1, 1, 1)
+    ax.plot(np.log(np.linspace(0.1, 100)))
     ax.set_yscale('log', basey=5.5)
     ax.invert_yaxis()
     ax.set_xscale('log', basex=9.0)
@@ -1827,6 +1827,9 @@ def test_bxp_bad_positions():
                   tol=1,
                   style='default')
 def test_boxplot():
+    # Randomness used for bootstrapping.
+    np.random.seed(937)
+
     x = np.linspace(-7, 7, 140)
     x = np.hstack([-25, x, 25])
     fig, ax = plt.subplots()
@@ -1845,6 +1848,9 @@ def test_boxplot():
                   remove_text=True, extensions=['png'],
                   style='default')
 def test_boxplot_sym2():
+    # Randomness used for bootstrapping.
+    np.random.seed(937)
+
     x = np.linspace(-7, 7, 140)
     x = np.hstack([-25, x, 25])
     fig, [ax1, ax2] = plt.subplots(1, 2)
@@ -1876,6 +1882,9 @@ def test_boxplot_sym():
     style='default'
 )
 def test_boxplot_autorange_whiskers():
+    # Randomness used for bootstrapping.
+    np.random.seed(937)
+
     x = np.ones(140)
     x = np.hstack([0, x, 2])
 
@@ -1898,6 +1907,9 @@ def _rc_test_bxp_helper(ax, rc_dict):
                   savefig_kwarg={'dpi': 100}, remove_text=True,
                   tol=1, style='default')
 def test_boxplot_rc_parameters():
+    # Randomness used for bootstrapping.
+    np.random.seed(937)
+
     fig, ax = plt.subplots(3)
 
     rc_axis0 = {
@@ -1960,6 +1972,9 @@ def test_boxplot_rc_parameters():
                   remove_text=True, extensions=['png'],
                   savefig_kwarg={'dpi': 40}, style='default')
 def test_boxplot_with_CIarray():
+    # Randomness used for bootstrapping.
+    np.random.seed(937)
+
     x = np.linspace(-7, 7, 140)
     x = np.hstack([-25, x, 25])
     fig = plt.figure()
@@ -4360,12 +4375,6 @@ def test_axes_margins():
     assert ax.get_ybound() == (-0.5, 9.5)
 
 
-@image_comparison(baseline_images=["auto_numticks"], style='default',
-                  extensions=['png'])
-def test_auto_numticks():
-    fig, axes = plt.subplots(4, 4)
-
-
 @cleanup
 def test_remove_shared_axes():
     def _helper_x(ax):
@@ -4421,6 +4430,22 @@ def test_adjust_numtick_aspect():
     ax.set_ylim(0, 1000)
     fig.canvas.draw()
     assert len(ax.yaxis.get_major_locator()()) > 2
+
+
+@image_comparison(baseline_images=["auto_numticks"], style='default',
+                  extensions=['png'])
+def test_auto_numticks():
+    # Make tiny, empty subplots, verify that there are only 3 ticks.
+    fig, axes = plt.subplots(4, 4)
+
+
+@image_comparison(baseline_images=["auto_numticks_log"], style='default',
+                  extensions=['png'])
+def test_auto_numticks_log():
+    # Verify that there are not too many ticks with a large log range.
+    fig, ax = plt.subplots()
+    matplotlib.rcParams['axes.autolimit_mode'] = 'round_numbers'
+    ax.loglog([1e-20, 1e5], [1e-16, 10])
 
 
 @cleanup

@@ -6,7 +6,7 @@ This module contains classes to support completely configurable tick
 locating and formatting.  Although the locators know nothing about major
 or minor ticks, they are used by the Axis class to support major and
 minor tick locating and formatting.  Generic tick locators and
-formatters are provided, as well as domain specific custom ones..
+formatters are provided, as well as domain specific custom ones.
 
 
 Default Formatter
@@ -80,6 +80,9 @@ The Locator subclasses defined here are
     tick interval into a specified number of minor intervals,
     defaulting to 4 or 5 depending on the major interval.
 
+:class:`LogitLocator`
+    Locator for logit scaling.
+
 
 There are a number of locators specialized for date locations - see
 the dates module
@@ -132,8 +135,18 @@ axis.
 :class:`LogFormatter`
     Formatter for log axes
 
-:class:`EngFormatter`
-    Format labels in engineering notation
+:class:`LogFormatterExponent`
+    Format values for log axis using ``exponent = log_base(value)``.
+
+:class:`LogFormatterMathtext`
+    Format values for log axis using ``exponent = log_base(value)``
+    using Math text.
+
+:class:`LogFormatterSciNotation`
+    Format values for log axis using scientific notation.
+
+:class:`LogitFormatter`
+    Probability formatter.
 
 :class:`EngFormatter`
     Format labels in engineering notation
@@ -180,11 +193,12 @@ __all__ = ('TickHelper', 'Formatter', 'FixedFormatter',
            'NullFormatter', 'FuncFormatter', 'FormatStrFormatter',
            'StrMethodFormatter', 'ScalarFormatter', 'LogFormatter',
            'LogFormatterExponent', 'LogFormatterMathtext',
+           'IndexFormatter', 'LogFormatterSciNotation',
            'LogitFormatter', 'EngFormatter', 'PercentFormatter',
            'Locator', 'IndexLocator', 'FixedLocator', 'NullLocator',
            'LinearLocator', 'LogLocator', 'AutoLocator',
            'MultipleLocator', 'MaxNLocator', 'AutoMinorLocator',
-           'SymmetricalLogLocator')
+           'SymmetricalLogLocator', 'LogitLocator')
 
 
 if six.PY3:
@@ -1749,8 +1763,11 @@ class MaxNLocator(Locator):
 
     def _raw_ticks(self, vmin, vmax):
         if self._nbins == 'auto':
-            nbins = max(min(self.axis.get_tick_space(), 9),
-                        max(1, self._min_n_ticks - 1))
+            if self.axis is not None:
+                nbins = max(min(self.axis.get_tick_space(), 9),
+                            max(1, self._min_n_ticks - 1))
+            else:
+                nbins = 9
         else:
             nbins = self._nbins
 
@@ -1867,22 +1884,26 @@ class LogLocator(Locator):
     Determine the tick locations for log axes
     """
 
-    def __init__(self, base=10.0, subs=[1.0], numdecs=4, numticks=15):
+    def __init__(self, base=10.0, subs=(1.0,), numdecs=4, numticks=None):
         """
         place ticks on the location= base**i*subs[j]
         """
+        if numticks is None:
+            if rcParams['_internal.classic_mode']:
+                numticks = 15
+            else:
+                numticks = 'auto'
         self.base(base)
         self.subs(subs)
-        # this needs to be validated > 1 with traitlets
-        self.numticks = numticks
         self.numdecs = numdecs
+        self.numticks = numticks
 
     def set_params(self, base=None, subs=None, numdecs=None, numticks=None):
         """Set parameters within this locator."""
         if base is not None:
-            self.base = base
+            self.base(base)
         if subs is not None:
-            self.subs = subs
+            self.subs(subs)
         if numdecs is not None:
             self.numdecs = numdecs
         if numticks is not None:
@@ -1892,16 +1913,16 @@ class LogLocator(Locator):
         """
         set the base of the log scaling (major tick every base**i, i integer)
         """
-        self._base = base + 0.0
+        self._base = float(base)
 
     def subs(self, subs):
         """
-        set the minor ticks the log scaling every base**i*subs[j]
+        set the minor ticks for the log scaling every base**i*subs[j]
         """
         if subs is None:
             self._subs = None  # autosub
         else:
-            self._subs = np.asarray(subs) + 0.0
+            self._subs = np.asarray(subs, dtype=float)
 
     def __call__(self):
         'Return the locations of the ticks'
@@ -1909,6 +1930,14 @@ class LogLocator(Locator):
         return self.tick_values(vmin, vmax)
 
     def tick_values(self, vmin, vmax):
+        if self.numticks == 'auto':
+            if self.axis is not None:
+                numticks = max(min(self.axis.get_tick_space(), 9), 2)
+            else:
+                numticks = 9
+        else:
+            numticks = self.numticks
+
         b = self._base
         # dummy axis has no axes attribute
         if hasattr(self.axis, 'axes') and self.axis.axes.name == 'polar':
@@ -1946,11 +1975,14 @@ class LogLocator(Locator):
             subs = self._subs
 
         stride = 1
-        if not self.numticks > 1:
-            raise RuntimeError('The number of ticks must be greater than 1 '
-                               'for LogLocator.')
-        while numdec / stride + 1 > self.numticks:
-            stride += 1
+
+        if rcParams['_internal.classic_mode']:
+            # Leave the bug left over from the PY2-PY3 transition.
+            while numdec / stride + 1 > numticks:
+                stride += 1
+        else:
+            while numdec // stride + 1 > numticks:
+                stride += 1
 
         decades = np.arange(math.floor(vmin) - stride,
                             math.ceil(vmax) + 2 * stride, stride)

@@ -102,9 +102,7 @@ command, which includes customizations such as error bars:
 
 It's also simple to create stacked bars
 (`bar_stacked.py <../examples/pylab_examples/bar_stacked.html>`_),
-candlestick bars
-(`finance_demo.py <../examples/pylab_examples/finance_demo.html>`_),
-and horizontal bar charts
+or horizontal bar charts
 (`barh_demo.py <../examples/lines_bars_and_markers/barh_demo.html>`_).
 
 .. _screenshots_pie_demo:
@@ -184,28 +182,6 @@ for both.
 
 See :mod:`matplotlib.ticker` and :mod:`matplotlib.dates` for details and usage.
 
-.. _screenshots_jdh_demo:
-
-Financial charts
-================
-
-You can make sophisticated financial plots by combining the various
-plot functions, layout commands, and labeling tools provided by matplotlib.
-The following example emulates one of the financial plots in
-`ChartDirector <http://www.advsofteng.com/gallery_finance.html>`_:
-
-
-.. plot:: mpl_examples/pylab_examples/finance_work2.py
-
-
-.. _screenshots_basemap_demo:
-
-Basemap demo
-============
-
-Jeff Whitaker's :ref:`toolkit_basemap` add-on toolkit makes it possible to plot data on many different map projections.  This example shows how to plot contours, markers and text on an orthographic projection, with NASA's "blue marble" satellite image as a background.
-
-.. plot:: pyplots/plotmap.py
 
 .. _screenshots_log_demo:
 

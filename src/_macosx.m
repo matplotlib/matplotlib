@@ -1971,6 +1971,9 @@ static WindowServerConnectionManager *sharedWindowServerConnectionManager = nil;
     CFMachPortRef port;
     CFRunLoopSourceRef source;
     NSDictionary* dictionary = [notification userInfo];
+    if (! [[dictionary valueForKey:@"NSApplicationName"]
+           isEqualToString:@"Python"])
+        return;
     NSNumber* psnLow = [dictionary valueForKey: @"NSApplicationProcessSerialNumberLow"];
     NSNumber* psnHigh = [dictionary valueForKey: @"NSApplicationProcessSerialNumberHigh"];
     ProcessSerialNumber psn;
@@ -3091,8 +3094,9 @@ static bool verify_framework(void)
         "framework. See the Python documentation for more information on "
         "installing Python as a framework on Mac OS X. Please either reinstall "
         "Python as a framework, or try one of the other backends. If you are "
-        "Working with Matplotlib in a virtual enviroment see 'Working with "
-        "Matplotlib in Virtual environments' in the Matplotlib FAQ");
+        "using (Ana)Conda please install python.app and replace the use of 'python' "
+        "with 'pythonw'. See 'Working with Matplotlib on OSX' "
+        "in the Matplotlib FAQ for more information.");
     return false;
 }
 

@@ -8,7 +8,6 @@
 PyObject *convert_polygon_vector(std::vector<Polygon> &polygons)
 {
     PyObject *pyresult = PyList_New(polygons.size());
-    bool fix_endpoints;
 
     for (size_t i = 0; i < polygons.size(); ++i) {
         Polygon poly = polygons[i];
