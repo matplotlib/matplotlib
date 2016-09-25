@@ -4764,6 +4764,14 @@ or tuple of floats
                 for filling between two sets of x-values
 
         """
+        if not rcParams['_internal.classic_mode']:
+            color_aliases = mcoll._color_aliases
+            kwargs = cbook.normalize_kwargs(kwargs, color_aliases)
+
+            if not any(c in kwargs for c in ('color', 'facecolors')):
+                fc = self._get_patches_for_fill.get_next_color()
+                kwargs['facecolors'] = fc
+
         # Handle united data, such as dates
         self._process_unit_info(xdata=x, ydata=y1, kwargs=kwargs)
         self._process_unit_info(ydata=y2)
@@ -4914,6 +4922,13 @@ or tuple of floats
                 for filling between two sets of y-values
 
         """
+        if not rcParams['_internal.classic_mode']:
+            color_aliases = mcoll._color_aliases
+            kwargs = cbook.normalize_kwargs(kwargs, color_aliases)
+
+            if not any(c in kwargs for c in ('color', 'facecolors')):
+                fc = self._get_patches_for_fill.get_next_color()
+                kwargs['facecolors'] = fc
         # Handle united data, such as dates
         self._process_unit_info(ydata=y, xdata=x1, kwargs=kwargs)
         self._process_unit_info(xdata=x2)

@@ -39,6 +39,10 @@ import matplotlib.lines as mlines
 CIRCLE_AREA_FACTOR = 1.0 / np.sqrt(np.pi)
 
 
+_color_aliases = {'facecolors': ['facecolor'],
+                  'edgecolors': ['edgecolor']}
+
+
 class Collection(artist.Artist, cm.ScalarMappable):
     """
     Base class for Collections.  Must be subclassed to be usable.
