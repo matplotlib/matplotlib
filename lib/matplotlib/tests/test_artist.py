@@ -185,7 +185,7 @@ def test_default_edges():
 
     ax1.plot(np.arange(10), np.arange(10), 'x',
              np.arange(10) + 1, np.arange(10), 'o')
-    ax2.bar(np.arange(10), np.arange(10))
+    ax2.bar(np.arange(10), np.arange(10), align='edge')
     ax3.text(0, 0, "BOX", size=24, bbox=dict(boxstyle='sawtooth'))
     ax3.set_xlim((-1, 1))
     ax3.set_ylim((-1, 1))
