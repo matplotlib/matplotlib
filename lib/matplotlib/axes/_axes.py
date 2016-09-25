@@ -4094,22 +4094,22 @@ or tuple of floats
         defaults to numpy's mean function (np.mean). (If *C* is
         specified, it must also be a 1-D sequence of the same length
         as *x* and *y*.)
-        
+
         Parameters
         ----------
         x : array
             may be masked array, in which case only unmasked points
             will be plotted
-        
+
         y : array
             may be masked array, in which case only unmasked points
             will be plotted
-            
-        C : array
+
+        C : array, default is *None*
             may be masked array, in which case only unmasked points
             will be plotted
 
-        gridsize : int, optional
+        gridsize : int, optional, default is 100
             The number of hexagons in the *x*-direction, default is
             100. The corresponding number of hexagons in the
             *y*-direction is chosen such that the hexagons are
@@ -4117,7 +4117,7 @@ or tuple of floats
             tuple with two elements specifying the number of hexagons
             in the *x*-direction and the *y*-direction.
 
-        bins : {'log'} or int or sequence, optional
+        bins : {'log'} or int or sequence, optional, default is *None*
             If *None*, no binning is applied; the color of each hexagon
             directly corresponds to its count value.
 
@@ -4131,22 +4131,22 @@ or tuple of floats
             If a sequence of values, the values of the lower bound of
             the bins to be used.
 
-        xscale : {'linear', 'log'}, optional
+        xscale : {'linear', 'log'}, optional, default is 'linear'
             Use a linear or log10 scale on the horizontal axis.
 
-        yscale : {'linear', 'log'}, optional
+        yscale : {'linear', 'log'}, optional, default is 'linear'
             Use a linear or log10 scale on the vertical axis.
 
-        mincnt : int > 0, optional
+        mincnt : int > 0, optional, default is *None*
             If not *None*, only display cells with more than *mincnt*
             number of points in the cell
 
-        marginals : bool, optional
+        marginals : bool, optional, default is *False*
             if marginals is *True*, plot the marginal density as
             colormapped rectagles along the bottom of the x-axis and
             left of the y-axis
 
-        extent : scalar, optional
+        extent : scalar, optional, default is *None*
             The limits of the bins. The default assigns the limits
             based on *gridsize*, *x*, *y*, *xscale* and *yscale*.
 
@@ -4154,46 +4154,41 @@ or tuple of floats
             expected to be the exponent for a power of 10. E.g. for
             x-limits of 1 and 50 in 'linear' scale and y-limits
             of 10 and 1000 in 'log' scale, enter (1, 50, 1, 3).
-           
+
             Order of scalars is (left, right, bottom, top).
-           
+
         Other parameters
         ----------------
-        Other keyword arguments controlling color mapping and normalization
-        arguments.
-
-        cmap : object, optional
+        cmap : object, optional, default is *None*
             a :class:`matplotlib.colors.Colormap` instance. If *None*,
             defaults to rc ``image.cmap``.
-           
-        norm : object, optional
+
+        norm : object, optional, default is *None*
             :class:`matplotlib.colors.Normalize` instance is used to
             scale luminance data to 0,1.
 
-        vmin : scalar, optional
-            *vmin* is used in conjunction with *norm* to normalize 
+        vmin : scalar, optional, default is *None*
+            *vmin* is used in conjunction with *norm* to normalize
             luminance data. If *None*, the min of the color array *C*
             is used.  Note if you pass a norm instance, your settings
             for *vmin* will be ignored.
-           
-        vmax : scalar, optional
+
+        vmax : scalar, optional, default is *None*
             *vmax* is used in conjunction with *norm* to normalize
             luminance data. If *None*, the max of the color array *C*
             is used.  Note if you pass a norm instance, your settings
             for *vmax* will be ignored.
 
-        alpha : scalar between 0 and 1, optional
+        alpha : scalar between 0 and 1, optional, default is *None*
             the alpha value for the patches
 
-        linewidths : scalar, optional
+        linewidths : scalar, optional, default is *None*
             If *None*, defaults to 1.0. Note that this is a tuple, and
             if you set the linewidths argument you must set it as a
             sequence of floats, as required by
             :class:`~matplotlib.collections.RegularPolyCollection`.
 
-        Other keyword arguments controlling the Collection properties.
-
-        edgecolors : {'none'}, mpl color, color sequence, optional
+        edgecolors : {'none'}, mpl color, color sequence, optional, default is 'none'
             If 'none', draws the edges in the same color as the fill color.
             This is the default, as it avoids unsightly unpainted pixels
             between the hexagons.
@@ -4202,7 +4197,7 @@ or tuple of floats
 
             If a matplotlib color arg or sequence of rgba tuples, draws the
             outlines in the specified color.
-           
+
         Returns
         -------
         object
@@ -4210,16 +4205,16 @@ or tuple of floats
             :meth:`~matplotlib.collections.PolyCollection.get_array` on
             this :class:`~matplotlib.collections.PolyCollection` to get
             the counts in each hexagon.
-            
+
             If *marginals* is *True*, horizontal
             bar and vertical bar (both PolyCollections) will be attached
             to the return collection as attributes *hbar* and *vbar*.
-        
+
         Examples
         --------
         .. plot:: mpl_examples/pylab_examples/hexbin_demo.py
-        
-        See also
+
+        Notes
         --------
         The standard descriptions of all the
         :class:`~matplotlib.collections.Collection` parameters:
