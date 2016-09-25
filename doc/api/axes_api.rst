@@ -12,10 +12,10 @@
 
 
 Plotting
---------
+========
 
 Basic
-~~~~~
+-----
 
 .. autosummary::
    :toctree: _as_gen
@@ -52,7 +52,7 @@ Basic
    Axes.fill
 
 Spans
-~~~~~
+-----
 
 .. autosummary::
    :toctree: _as_gen
@@ -64,7 +64,7 @@ Spans
    Axes.axvspan
 
 Spectral
-~~~~~~~~
+--------
 
 .. autosummary::
    :toctree: _as_gen
@@ -81,7 +81,7 @@ Spectral
    Axes.xcorr
 
 Statistics
-~~~~~~~~~~
+----------
 
 .. autosummary::
    :toctree: _as_gen
@@ -94,7 +94,7 @@ Statistics
    Axes.bxp
 
 Binned
-~~~~~~
+------
 
 .. autosummary::
    :toctree: _as_gen
@@ -105,7 +105,7 @@ Binned
    Axes.hist2d
 
 Contours
-~~~~~~~~
+--------
 
 .. autosummary::
    :toctree: _as_gen
@@ -116,7 +116,7 @@ Contours
    Axes.contourf
 
 Array
-~~~~~
+-----
 
 .. autosummary::
    :toctree: _as_gen
@@ -130,7 +130,7 @@ Array
    Axes.spy
 
 Unstructured Triangles
-~~~~~~~~~~~~~~~~~~~~~~
+----------------------
 
 .. autosummary::
    :toctree: _as_gen
@@ -143,7 +143,7 @@ Unstructured Triangles
 
 
 Text and Annotations
-~~~~~~~~~~~~~~~~~~~~
+--------------------
 
 .. autosummary::
    :toctree: _as_gen
@@ -156,7 +156,7 @@ Text and Annotations
 
 
 Fields
-~~~~~~
+------
 
 .. autosummary::
    :toctree: _as_gen
@@ -169,7 +169,7 @@ Fields
 
 
 Clearing
---------
+========
 
 .. autosummary::
    :toctree: _as_gen
@@ -181,7 +181,7 @@ Clearing
 
 
 Appearance
-----------
+==========
 
 .. autosummary::
    :toctree: _as_gen
@@ -211,7 +211,7 @@ Appearance
 
 
 Property cycle
---------------
+==============
 
 .. autosummary::
    :toctree: _as_gen
@@ -222,7 +222,7 @@ Property cycle
 
 
 Axis / limits
--------------
+=============
 
 .. autosummary::
    :toctree: _as_gen
@@ -235,7 +235,7 @@ Axis / limits
 
 
 Axis Limits and direction
-~~~~~~~~~~~~~~~~~~~~~~~~~
+-------------------------
 
 .. autosummary::
    :toctree: _as_gen
@@ -261,7 +261,7 @@ Axis Limits and direction
    Axes.get_xbound
 
 Axis Labels, title, and legend
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+------------------------------
 
 .. autosummary::
    :toctree: _as_gen
@@ -281,7 +281,7 @@ Axis Labels, title, and legend
 
 
 Axis scales
-~~~~~~~~~~~
+-----------
 
 .. autosummary::
    :toctree: _as_gen
@@ -296,7 +296,7 @@ Axis scales
 
 
 Autoscaling
-~~~~~~~~~~~
+-----------
 
 .. autosummary::
    :toctree: _as_gen
@@ -319,7 +319,7 @@ Autoscaling
 
 
 Margins
-+++++++
+~~~~~~~
 
 .. autosummary::
    :toctree: _as_gen
@@ -345,7 +345,7 @@ Margins
 
 
 Aspect ratio
-~~~~~~~~~~~~
+------------
 
 .. autosummary::
    :toctree: _as_gen
@@ -360,7 +360,7 @@ Aspect ratio
 
 
 Ticks and tick labels
-~~~~~~~~~~~~~~~~~~~~~
+---------------------
 
 
 .. autosummary::
@@ -401,21 +401,9 @@ Ticks and tick labels
    Axes.locator_params
 
 
-Internal
-~~~~~~~~
-.. autosummary::
-   :toctree: _as_gen
-   :nosignatures:
-
-   Axes.get_xaxis_text1_transform
-   Axes.get_xaxis_text2_transform
-   Axes.get_yaxis_text1_transform
-   Axes.get_yaxis_text2_transform
-
-
 
 Units
------
+=====
 
 .. autosummary::
    :toctree: _as_gen
@@ -427,7 +415,7 @@ Units
 
 
 Adding Artists
---------------
+==============
 
 .. autosummary::
    :toctree: _as_gen
@@ -443,7 +431,7 @@ Adding Artists
 
 
 Twinning
---------
+========
 
 .. autosummary::
    :toctree: _as_gen
@@ -457,7 +445,7 @@ Twinning
 
 
 Axes Position
--------------
+=============
 .. autosummary::
    :toctree: _as_gen
    :nosignatures:
@@ -475,7 +463,7 @@ Axes Position
 
 
 Async/Event based
------------------
+=================
 
 .. autosummary::
    :toctree: _as_gen
@@ -488,7 +476,7 @@ Async/Event based
 
 
 Interactive
------------
+===========
 
 .. autosummary::
    :toctree: _as_gen
@@ -532,7 +520,7 @@ Interactive
    Axes.set_cursor_props
 
 Children
---------
+========
 
 .. autosummary::
    :toctree: _as_gen
@@ -545,7 +533,7 @@ Children
 
 
 Drawing
--------
+=======
 
 .. autosummary::
    :toctree: _as_gen
@@ -564,7 +552,7 @@ Drawing
 
 
 Bulk property manipulation
---------------------------
+==========================
 
 .. autosummary::
    :toctree: _as_gen
@@ -577,7 +565,7 @@ Bulk property manipulation
 
 
 General Artist Properties
--------------------------
+=========================
 
 .. autosummary::
    :toctree: _as_gen
@@ -625,7 +613,7 @@ General Artist Properties
    Axes.get_figure
 
 Artist Methods
---------------
+==============
 
 .. autosummary::
    :toctree: _as_gen
@@ -637,7 +625,7 @@ Artist Methods
 
 
 Projection
-----------
+==========
 
 Methods used by `~matplotlib.axis.Axis` that must be overridden for
 non-rectilinear Axes.
@@ -652,9 +640,14 @@ non-rectilinear Axes.
    Axes.get_data_ratio
    Axes.get_data_ratio_log
 
+   Axes.get_xaxis_text1_transform
+   Axes.get_xaxis_text2_transform
+   Axes.get_yaxis_text1_transform
+   Axes.get_yaxis_text2_transform
+
 
 Other
------
+=====
 
 .. autosummary::
    :toctree: _as_gen
@@ -670,6 +663,6 @@ Other
 
 
 Inheritance
------------
+===========
 .. inheritance-diagram:: matplotlib.axes.Axes
    :private-bases:
