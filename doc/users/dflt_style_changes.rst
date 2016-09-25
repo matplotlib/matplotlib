@@ -500,7 +500,7 @@ default.  The default face color is now ``'C0'`` instead of ``'b'``.
        with rc_context(rc=rcparams):
            ax_top.pie(fracs, labels=labels)
            ax_top.set_aspect('equal')
-           ax_mid.bar(range(len(fracs)), fracs, tick_label=labels, align='center')
+           ax_mid.bar(range(len(fracs)), fracs, tick_label=labels)
            plt.setp(ax_mid.get_xticklabels(), rotation=-45)
            grid = np.mgrid[0.2:0.8:3j, 0.2:0.8:3j].reshape(2, -1).T
 
@@ -559,7 +559,7 @@ The default value of the ``align`` kwarg for both
    demo(ax4.barh, {'align': 'edge'})
 
 
-To restore the previous default explicitly pass the kwarg
+To restore the previous behavior explicitly pass the keyword argument
 ``align='edge'`` to the method call.
 
 
