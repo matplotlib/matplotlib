@@ -3095,7 +3095,7 @@ or tuple of floats
                 showbox=None, showfliers=None, boxprops=None,
                 labels=None, flierprops=None, medianprops=None,
                 meanprops=None, capprops=None, whiskerprops=None,
-                manage_xticks=True, autorange=False):
+                manage_xticks=True, autorange=False, zorder=2):
         """
         Make a box and whisker plot.
 
@@ -3108,7 +3108,7 @@ or tuple of floats
                   showbox=True, showfliers=True, boxprops=None,
                   labels=None, flierprops=None, medianprops=None,
                   meanprops=None, capprops=None, whiskerprops=None,
-                  manage_xticks=True, autorange=False):
+                  manage_xticks=True, autorange=False, zorder=2):
 
         Make a box and whisker plot for each column of ``x`` or each
         vector in sequence ``x``.  The box extends from the lower to
@@ -3219,6 +3219,9 @@ or tuple of floats
             according to ``meanprops`` (see below). Not recommended if
             ``shownotches`` is also True. Otherwise, means will be shown
             as points.
+
+        zorder : scalar, optional (2)
+            Sets the zorder of the boxplot.
 
         Other Parameters
         ----------------
@@ -3390,7 +3393,7 @@ or tuple of floats
                            medianprops=medianprops, meanprops=meanprops,
                            meanline=meanline, showfliers=showfliers,
                            capprops=capprops, whiskerprops=whiskerprops,
-                           manage_xticks=manage_xticks)
+                           manage_xticks=manage_xticks, zorder=zorder)
         return artists
 
     def bxp(self, bxpstats, positions=None, widths=None, vert=True,
@@ -3398,7 +3401,7 @@ or tuple of floats
             showcaps=True, showbox=True, showfliers=True,
             boxprops=None, whiskerprops=None, flierprops=None,
             medianprops=None, capprops=None, meanprops=None,
-            meanline=False, manage_xticks=True):
+            meanline=False, manage_xticks=True, zorder=2):
         """
         Drawing function for box and whisker plots.
 
@@ -3409,7 +3412,7 @@ or tuple of floats
               showcaps=True, showbox=True, showfliers=True,
               boxprops=None, whiskerprops=None, flierprops=None,
               medianprops=None, capprops=None, meanprops=None,
-              meanline=False, manage_xticks=True):
+              meanline=False, manage_xticks=True, zorder=2):
 
         Make a box and whisker plot for each column of *x* or each
         vector in sequence *x*.  The box extends from the lower to
@@ -3513,6 +3516,9 @@ or tuple of floats
         manage_xticks : bool, default = True
           If the function should adjust the xlim and xtick locations.
 
+        zorder : scalar,  default = 2
+          The zorder of the resulting boxplot
+
         Returns
         -------
         result : dict
@@ -3555,7 +3561,6 @@ or tuple of floats
         # empty list of xticklabels
         datalabels = []
 
-        zorder = mlines.Line2D.zorder
         zdelta = 0.1
         # box properties
         if patch_artist:
