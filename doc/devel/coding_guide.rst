@@ -174,11 +174,13 @@ PR Review guidelines
 * Two developers (those with commit rights) should review all pull
   requests.  If you are the first to review a PR please and approve of
   the changes please edit the title to include ``'[MRG+1]'`` and use
-  the github 'approve review' tool to mark it as such.  If you are a
-  subsequent reviewer and you approve either merge (and backport if
-  needed) or increment the number in the title to ask for further
-  review (and trigger the gh 'approve review').  If you do the merge please
-  removed the ``'[MRG+N']`` prefix.
+  the github `'approve review'
+  <https://help.github.com/articles/reviewing-changes-in-pull-requests/>`__
+  tool to mark it as such.  If you are a subsequent reviewer and you
+  approve either merge (and backport if needed) or increment the
+  number in the title to ask for further review (and trigger the gh
+  'approve review').  If you do the merge please removed the
+  ``'[MRG+N']`` prefix.
 
 * Do not self merge, except for 'small' patches to un-break the CI.
 
