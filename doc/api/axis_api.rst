@@ -7,8 +7,13 @@
    :local:
    :backlinks: entry
 
-
 .. automodule:: matplotlib.axis
+
+Inheritance
+===========
+
+.. inheritance-diagram:: Tick Ticker XAxis YAxis XTick YTick
+   :private-bases:
 
 
 ``Axis`` objects
@@ -20,77 +25,139 @@
 .. autoclass:: Ticker
 
 
-Methods
--------
+.. autosummary::
+   :toctree: _as_gen
+   :nosignatures:
 
-Axis
-~~~~
+   Axis.cla
+   Axis.get_scale
+
+
+Formatters and Locators
+-----------------------
+
+.. autosummary::
+   :toctree: _as_gen
+   :nosignatures:
+
+   Axis.get_major_formatter
+   Axis.get_major_locator
+   Axis.get_minor_formatter
+   Axis.get_minor_locator
+   Axis.set_major_formatter
+   Axis.set_major_locator
+   Axis.set_minor_formatter
+   Axis.set_minor_locator
+
+
+Axis Label
+----------
+
+.. autosummary::
+   :toctree: _as_gen
+   :nosignatures:
+
+   Axis.set_label_coords
+   Axis.set_label_position
+   Axis.set_label_text
+   Axis.get_label_position
+   Axis.get_label_text
+
+Ticks, tick labels and Offset text
+----------------------------------
+
+.. autosummary::
+   :toctree: _as_gen
+   :nosignatures:
+
+   Axis.get_major_ticks
+   Axis.get_majorticklabels
+   Axis.get_majorticklines
+   Axis.get_majorticklocs
+   Axis.get_minor_ticks
+   Axis.get_minorticklabels
+   Axis.get_minorticklines
+   Axis.get_minorticklocs
+
+   Axis.get_offset_text
+
+   Axis.get_tick_padding
+   Axis.get_ticklabels
+   Axis.get_ticklines
+   Axis.get_ticklocs
+
+   Axis.get_gridlines
+   Axis.grid
+
+   Axis.iter_ticks
+   Axis.set_tick_params
+
+   Axis.axis_date
+
+
+Data and view internvals
+------------------------
+
+.. autosummary::
+   :toctree: _as_gen
+   :nosignatures:
+
+   Axis.get_data_interval
+   Axis.get_view_interval
+   Axis.set_data_interval
+   Axis.set_view_interval
+
+Rendering helpers
+-----------------
+
+.. autosummary::
+   :toctree: _as_gen
+   :nosignatures:
+
+   Axis.get_minpos
+   Axis.get_tick_space
+   Axis.get_ticklabel_extents
+   Axis.get_tightbbox
+
+
+Interactive
+-----------
 
 .. autosummary::
    :toctree: _as_gen
    :nosignatures:
 
 
-   Axis.OFFSETTEXTPAD
-   Axis.axis_date
-   Axis.cla
-   Axis.convert_units
-   Axis.get_data_interval
-   Axis.get_gridlines
-   Axis.get_label_position
-   Axis.get_label_text
-   Axis.get_major_formatter
-   Axis.get_major_locator
-   Axis.get_major_ticks
-   Axis.get_majorticklabels
-   Axis.get_majorticklines
-   Axis.get_majorticklocs
-   Axis.get_minor_formatter
-   Axis.get_minor_locator
-   Axis.get_minor_ticks
-   Axis.get_minorticklabels
-   Axis.get_minorticklines
-   Axis.get_minorticklocs
-   Axis.get_minpos
-   Axis.get_offset_text
    Axis.get_pickradius
-   Axis.get_scale
-   Axis.get_smart_bounds
-   Axis.get_tick_padding
-   Axis.get_tick_space
-   Axis.get_ticklabel_extents
-   Axis.get_ticklabels
-   Axis.get_ticklines
-   Axis.get_ticklocs
-   Axis.get_tightbbox
-   Axis.get_units
-   Axis.get_view_interval
-   Axis.grid
-   Axis.iter_ticks
-   Axis.limit_range_for_scale
-   Axis.pan
-   Axis.reset_ticks
-   Axis.set_data_interval
-   Axis.set_default_intervals
-   Axis.set_label_coords
-   Axis.set_label_position
-   Axis.set_label_text
-   Axis.set_major_formatter
-   Axis.set_major_locator
-   Axis.set_minor_formatter
-   Axis.set_minor_locator
    Axis.set_pickradius
-   Axis.set_smart_bounds
-   Axis.set_tick_params
-   Axis.set_ticklabels
-   Axis.set_ticks
+
+
+Units
+-----
+
+.. autosummary::
+   :toctree: _as_gen
+   :nosignatures:
+
+   Axis.convert_units
    Axis.set_units
-   Axis.set_view_interval
+   Axis.get_units
    Axis.update_units
+
+
+Incremental navigation
+----------------------
+
+.. autosummary::
+   :toctree: _as_gen
+   :nosignatures:
+
+   Axis.pan
    Axis.zoom
 
-YAxis
-~~~~~
+
+YAxis Specific
+--------------
 
 .. autosummary::
    :toctree: _as_gen
@@ -104,8 +171,9 @@ YAxis
    YAxis.tick_left
    YAxis.tick_right
 
-XAxis
-~~~~~
+
+XAxis Specific
+--------------
 .. autosummary::
    :toctree: _as_gen
    :nosignatures:
@@ -118,6 +186,38 @@ XAxis
    XAxis.tick_top
 
 
+Other
+-----
+
+.. autosummary::
+   :toctree: _as_gen
+   :nosignatures:
+
+
+   Axis.OFFSETTEXTPAD
+
+   Axis.limit_range_for_scale
+   Axis.reset_ticks
+   Axis.set_default_intervals
+   Axis.get_smart_bounds
+   Axis.set_smart_bounds
+
+Discouraged
+-----------
+
+These methods implicitly use `~matplotlib.ticker.FixedLocator` and
+`~matplotlib.ticker.FixedFormatter`.  They can be convenient, but if
+not used together may de-couple your tick labels from your data.
+
+.. autosummary::
+   :toctree: _as_gen
+   :nosignatures:
+
+   Axis.set_ticklabels
+   Axis.set_ticks
+
+
+
 ``Tick`` objects
 ================
 
@@ -125,9 +225,6 @@ XAxis
 .. autoclass:: XTick
 .. autoclass:: YTick
 
-
-Methods
--------
 
 .. autosummary::
    :toctree: _as_gen
@@ -147,18 +244,11 @@ Methods
    Tick.update_position
 
 
-
-Inheritance
-===========
-
-.. inheritance-diagram:: Tick Ticker XAxis YAxis XTick YTick
-   :private-bases:
-
 Common and inherited methods
 ============================
 
-XTick
------
+``XTick``
+---------
 
 .. autosummary::
    :toctree: _as_gen
@@ -265,8 +355,8 @@ YAxis
    YAxis.update_units
    YAxis.zoom
 
-YAxis
------
+``YAxis``
+---------
 
 .. autosummary::
    :toctree: _as_gen
