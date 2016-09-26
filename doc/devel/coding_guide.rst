@@ -206,7 +206,10 @@ commit to along with the SHA in a comment on the original PR.
 
 Assuming we have ``matplotlib`` as a read-only remote to the
 matplotlib/matplotlib repo and ``DANGER`` as a read/write remote to
-the matplotlib/matplotlib repo, we do a backport from master to 2.x ::
+the matplotlib/matplotlib repo, we do a backport from master to 2.x.
+The ``TARGET_SHA`` is the hash of the merge commit you would like to
+backport.  This can be read off of the github PR page (in the UI with
+the merge notification) or through the git CLI tools.::
 
   git fetch matplotlib
   git checkout v2.x
