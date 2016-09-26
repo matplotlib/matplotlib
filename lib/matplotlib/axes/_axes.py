@@ -4176,9 +4176,9 @@ or tuple of floats
             This is the default, as it avoids unsightly unpainted pixels
             between the hexagons.
 
-            If *None*, draws the outlines in the default color.
+            If *None*, draws outlines in the default color.
 
-            If a matplotlib color arg, draws the outlines in the specified color.
+            If a matplotlib color arg, draws outlines in the specified color.
 
         Returns
         -------
