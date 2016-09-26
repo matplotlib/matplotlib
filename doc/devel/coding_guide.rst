@@ -165,6 +165,67 @@ C/C++ extensions
 
 
 
+PR Review guidelines
+====================
+
+* If you have a commit bit, then you are trusted to use it.  Please
+  help review and merge PRs!
+
+* Two developers (those with commit rights) should review all pull
+  requests.  If you are the first to review a PR please and approve of
+  the changes please edit the title to include ``'[MRG+1]'`` and use
+  the github `'approve review'
+  <https://help.github.com/articles/reviewing-changes-in-pull-requests/>`__
+  tool to mark it as such.  If you are a subsequent reviewer and you
+  approve either merge (and backport if needed) or increment the
+  number in the title to ask for further review (and trigger the gh
+  'approve review').  If you do the merge please removed the
+  ``'[MRG+N']`` prefix.
+
+* Do not self merge, except for 'small' patches to un-break the CI.
+
+* Squashing is case-by-case.  The balance is between burden on the
+  contributor, keeping a relatively clean history, and keeping a
+  history usable for bisecting.  The only time we are really strict
+  about it is to eliminate binary files (ex multiple test image
+  re-generations) and to remove upstream merges.
+
+* Be patient with new contributors.
+
+* Do not let perfect be the enemy of the good, particularly for
+  documentation or example PRs.  If you find yourself making many
+  small suggestions, either open a PR against the original branch or
+  merge the PR and then open a new PR against upstream.
+
+
+
+Backports
+=========
+
+
+When doing backports please include the branch you backported the
+commit to along with the SHA in a comment on the original PR.
+
+Assuming we have ``matplotlib`` as a read-only remote to the
+matplotlib/matplotlib repo and ``DANGER`` as a read/write remote to
+the matplotlib/matplotlib repo, we do a backport from master to 2.x.
+The ``TARGET_SHA`` is the hash of the merge commit you would like to
+backport.  This can be read off of the github PR page (in the UI with
+the merge notification) or through the git CLI tools.::
+
+  git fetch matplotlib
+  git checkout v2.x
+  git merge --ff-only matplotlib/v2.x
+  git cherry-pick -m 1 TARGET_SHA
+  gitk   # to look at it
+  # local tests? (use your judgment)
+  git push DANGER v2.x
+  # leave a comment on PR noting sha of the resulting commit
+  # from the cherry-pick + branch it was moved to
+
+These commands work on git 2.7.1.
+
+
 Style guide
 ===========
 
