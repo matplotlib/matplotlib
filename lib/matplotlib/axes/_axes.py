@@ -4097,17 +4097,9 @@ or tuple of floats
 
         Parameters
         ----------
-        x : array
-            may be masked array, in which case only unmasked points
-            will be plotted
+        x, y : array, masked array
 
-        y : array
-            may be masked array, in which case only unmasked points
-            will be plotted
-
-        C : array, default is *None*
-            may be masked array, in which case only unmasked points
-            will be plotted
+        C : array, masked array, optional, default is *None*
 
         gridsize : int, optional, default is 100
             The number of hexagons in the *x*-direction, default is
@@ -4167,37 +4159,26 @@ or tuple of floats
             :class:`matplotlib.colors.Normalize` instance is used to
             scale luminance data to 0,1.
 
-        vmin : scalar, optional, default is *None*
-            *vmin* is used in conjunction with *norm* to normalize
-            luminance data. If *None*, the min of the color array *C*
-            is used.  Note if you pass a norm instance, your settings
-            for *vmin* will be ignored.
-
-        vmax : scalar, optional, default is *None*
-            *vmax* is used in conjunction with *norm* to normalize
-            luminance data. If *None*, the max of the color array *C*
-            is used.  Note if you pass a norm instance, your settings
-            for *vmax* will be ignored.
+        vmin, vmax : scalar, optional, default is *None*
+            *vmin* and *vmax* are used in conjunction with *norm* to
+            normalize luminance data. If *None*, the min and max of the
+            color array *C* are used.  Note if you pass a norm instance
+            your settings for *vmin* and *vmax* will be ignored.
 
         alpha : scalar between 0 and 1, optional, default is *None*
             the alpha value for the patches
 
         linewidths : scalar, optional, default is *None*
-            If *None*, defaults to 1.0. Note that this is a tuple, and
-            if you set the linewidths argument you must set it as a
-            sequence of floats, as required by
-            :class:`~matplotlib.collections.RegularPolyCollection`.
+            If *None*, defaults to 1.0.
 
-        edgecolors : {'none'}, mpl color, color sequence, optional,
-        default is 'none'
+        edgecolors : {'none'}, mpl color, optional, default is 'none'
             If 'none', draws the edges in the same color as the fill color.
             This is the default, as it avoids unsightly unpainted pixels
             between the hexagons.
 
             If *None*, draws the outlines in the default color.
 
-            If a matplotlib color arg or sequence of rgba tuples, draws the
-            outlines in the specified color.
+            If a matplotlib color arg, draws the outlines in the specified color.
 
         Returns
         -------
