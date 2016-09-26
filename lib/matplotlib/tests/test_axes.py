@@ -2013,6 +2013,14 @@ def test_boxplot_bad_ci_1():
 
 
 @cleanup
+def test_boxplot_zorder():
+    x = np.arange(10)
+    fix, ax = plt.subplots()
+    assert ax.boxplot(x)['boxes'][0].get_zorder() == 2
+    assert ax.boxplot(x, zorder=10)['boxes'][0].get_zorder() == 10
+
+
+@cleanup
 def test_boxplot_bad_ci_2():
     x = np.linspace(-7, 7, 140)
     x = np.hstack([-25, x, 25])
