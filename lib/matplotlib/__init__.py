@@ -639,8 +639,10 @@ def _get_config_or_cache_dir(xdg_base):
     h = get_home()
     if h is not None:
         p = os.path.join(h, '.matplotlib')
-    if (sys.platform.startswith('linux') and xdg_base):
-        p = os.path.join(xdg_base, 'matplotlib')
+    if sys.platform.startswith('linux'):
+        p = None
+        if xdg_base is not None:
+            p = os.path.join(xdg_base, 'matplotlib')
 
     if p is not None:
         if os.path.exists(p):
@@ -665,9 +667,8 @@ def _get_configdir():
 
     1. If the MPLCONFIGDIR environment variable is supplied, choose that.
 
-    2a. On Linux, if `$HOME/.matplotlib` exists, choose that, but warn that
-        that is the old location.  Barring that, follow the XDG specification
-        and look first in `$XDG_CONFIG_HOME`, if defined, or `$HOME/.config`.
+    2a. On Linux, follow the XDG specification and look first in
+        `$XDG_CONFIG_HOME`, if defined, or `$HOME/.config`.
 
     2b. On other platforms, choose `$HOME/.matplotlib`.
 
@@ -794,9 +795,7 @@ def matplotlib_fname():
 
     - On Linux,
 
-          - `$HOME/.matplotlib/matplotlibrc`, if it exists
-
-          - or `$XDG_CONFIG_HOME/matplotlib/matplotlibrc` (if
+          - `$XDG_CONFIG_HOME/matplotlib/matplotlibrc` (if
             $XDG_CONFIG_HOME is defined)
 
           - or `$HOME/.config/matplotlib/matplotlibrc` (if
@@ -827,24 +826,9 @@ def matplotlib_fname():
                 return fname
 
     configdir = _get_configdir()
-    if configdir is not None:
+    if os.path.exists(configdir):
         fname = os.path.join(configdir, 'matplotlibrc')
         if os.path.exists(fname):
-            home = get_home()
-            if (sys.platform.startswith('linux') and
-                home is not None and
-                os.path.exists(os.path.join(
-                    home, '.matplotlib', 'matplotlibrc'))):
-                warnings.warn(
-                    "Found matplotlib configuration in ~/.matplotlib/. "
-                    "To conform with the XDG base directory standard, "
-                    "this configuration location has been deprecated "
-                    "on Linux, and the new location is now %s/matplotlib/. "
-                    "Please move your configuration there to ensure that "
-                    "matplotlib will continue to find it in the future." %
-                    _get_xdg_config_dir())
-                return os.path.join(
-                    home, '.matplotlib', 'matplotlibrc')
             return fname
 
     path = get_data_path()  # guaranteed to exist or raise
