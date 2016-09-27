@@ -1565,38 +1565,43 @@ or tuple of floats
         """
         Make a plot with log scaling on the *x* axis.
 
-        Call signature::
+        Parameters
+        ----------
+        basex : float, optional
+            Base of the *x* logarithm. The scalar should be larger
+            than 1.
 
-          semilogx(*args, **kwargs)
-
-        :func:`semilogx` supports all the keyword arguments of
-        :func:`~matplotlib.pyplot.plot` and
-        :meth:`matplotlib.axes.Axes.set_xscale`.
-
-        Notable keyword arguments:
-
-          *basex*: scalar > 1
-            Base of the *x* logarithm
-
-          *subsx*: [ *None* | sequence ]
+        subsx : array_like, optional
             The location of the minor xticks; *None* defaults to
             autosubs, which depend on the number of decades in the
             plot; see :meth:`~matplotlib.axes.Axes.set_xscale` for
             details.
 
-          *nonposx*: [ 'mask' | 'clip' ]
+        nonposx : string, optional, {'mask', 'clip'}
             Non-positive values in *x* can be masked as
-            invalid, or clipped to a very small positive number
+            invalid, or clipped to a very small positive number.
 
-        The remaining valid kwargs are
+        Returns
+        -------
+        `~matplotlib.pyplot.plot`
+            Log-scaled plot on the *x* axis.
+
+        Other Parameters
+        ----------------
         :class:`~matplotlib.lines.Line2D` properties:
 
         %(Line2D)s
 
-        .. seealso::
+        See Also
+        --------
+        loglog : For example code and figure.
 
-            :meth:`loglog`
-                For example code and figure
+        Notes
+        -----
+        This function supports all the keyword arguments of
+        :func:`~matplotlib.pyplot.plot` and
+        :meth:`matplotlib.axes.Axes.set_xscale`.
+
         """
         if not self._hold:
             self.cla()
