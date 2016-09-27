@@ -283,4 +283,4 @@ import datetime
 
 # This is needed, or bytes will be numpy.random.bytes from
 # "from numpy.random import *" above
-bytes = __builtins__['bytes']
+bytes = __builtins__.bytes
