@@ -4097,11 +4097,11 @@ or tuple of floats
 
         Parameters
         ----------
-        x, y : array, masked array
+        x, y : array or masked array
 
-        C : array, masked array, optional, default is *None*
+        C : array or masked array, optional, default is *None*
 
-        gridsize : int, optional, default is 100
+        gridsize : int or (int, int), optional, default is 100
             The number of hexagons in the *x*-direction, default is
             100. The corresponding number of hexagons in the
             *y*-direction is chosen such that the hexagons are
@@ -4171,7 +4171,7 @@ or tuple of floats
         linewidths : scalar, optional, default is *None*
             If *None*, defaults to 1.0.
 
-        edgecolors : {'none'}, mpl color, optional, default is 'none'
+        edgecolors : {'none'} or mpl color, optional, default is 'none'
             If 'none', draws the edges in the same color as the fill color.
             This is the default, as it avoids unsightly unpainted pixels
             between the hexagons.
