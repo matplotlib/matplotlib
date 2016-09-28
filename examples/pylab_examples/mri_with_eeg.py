@@ -12,6 +12,7 @@ import matplotlib.cbook as cbook
 import matplotlib.cm as cm
 
 from matplotlib.collections import LineCollection
+from matplotlib.ticker import MultipleLocator
 
 # NB: one uses "if 1:" to break up the different regions of code visually
 fig = plt.figure("MRI_with_EEG")
@@ -33,7 +34,7 @@ if 1:  # Plot the histogram of MRI intensity
     im = im[np.nonzero(im)]  # Ignore the background
     im = im / (2**15)  # Normalize
     ax1.hist(im, 100)
-    ax1.set_xticks([-1, -0.5, 0, 0.5, 1])
+    ax1.xaxis.set_major_locator(MultipleLocator(0.5))
     ax1.set_yticks([])
     ax1.set_xlabel('Intensity')
     ax1.set_ylabel('MRI density')
