@@ -1,4 +1,4 @@
-"""Displays a set of subplots with an MRI image, its density histogram and
+"""Displays a set of subplots with an MRI image, its intensity histogram and
 some EEG traces.
 
 NB: ones uses the imshow command instead of pcolor which *is much faster*.
