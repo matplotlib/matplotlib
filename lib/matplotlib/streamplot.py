@@ -13,6 +13,7 @@ import matplotlib
 import matplotlib.cm as cm
 import matplotlib.colors as mcolors
 import matplotlib.collections as mcollections
+import matplotlib.lines as mlines
 import matplotlib.patches as patches
 
 
@@ -21,7 +22,7 @@ __all__ = ['streamplot']
 
 def streamplot(axes, x, y, u, v, density=1, linewidth=None, color=None,
                cmap=None, norm=None, arrowsize=1, arrowstyle='-|>',
-               minlength=0.1, transform=None, zorder=2, start_points=None):
+               minlength=0.1, transform=None, zorder=None, start_points=None):
     """Draws streamlines of a vector flow.
 
     *x*, *y* : 1d arrays
@@ -77,6 +78,9 @@ def streamplot(axes, x, y, u, v, density=1, linewidth=None, color=None,
     grid = Grid(x, y)
     mask = StreamMask(density)
     dmap = DomainMap(grid, mask)
+
+    if zorder is None:
+        zorder = mlines.Line2D.zorder
 
     # default to data coordinates
     if transform is None:
