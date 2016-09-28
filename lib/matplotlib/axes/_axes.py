@@ -4617,8 +4617,6 @@ or tuple of floats
                    start_points=None):
         if not self._hold:
             self.cla()
-        if zorder is None:
-            zorder = mlines.Line2D.zorder
         stream_container = mstream.streamplot(self, x, y, u, v,
                                               density=density,
                                               linewidth=linewidth,
