@@ -398,7 +398,12 @@ TEMPLATE = """
 
    {% for img in images %}
    {% if 'pdf' in img.formats -%}
-   .. image:: {{ build_dir }}/{{ img.basename }}.pdf
+   .. figure:: {{ build_dir }}/{{ img.basename }}.pdf
+      {% for option in options -%}
+      {{ option }}
+      {% endfor %}
+
+      {{ caption }}
    {% endif -%}
    {% endfor %}
 
