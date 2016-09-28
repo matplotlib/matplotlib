@@ -1,6 +1,7 @@
-"""
-This now uses the imshow command instead of pcolor which *is much
-faster*
+"""Displays a set of subplots with an MRI image, its density histogram and
+some EEG traces.
+
+NB: ones uses the imshow command instead of pcolor which *is much faster*.
 """
 
 from __future__ import division, print_function
@@ -11,38 +12,37 @@ import matplotlib.cbook as cbook
 import matplotlib.cm as cm
 
 from matplotlib.collections import LineCollection
-# I use if 1 to break up the different regions of code visually
 
+# NB: one uses "if 1:" to break up the different regions of code visually
 fig = plt.figure("MRI_with_EEG")
 
-if 1:   # load the data
-    # data are 256x256 16 bit integers
+if 1:   # Load the data
+    # Data are 256x256 16 bit integers
     dfile = cbook.get_sample_data('s1045.ima.gz')
     im = np.fromstring(dfile.read(), np.uint16).astype(float)
     im.shape = (256, 256)
 
-if 1:  # plot the MRI in pcolor
+if 1:  # Plot the MRI image
     ax0 = fig.add_subplot(2, 2, 1)
     ax0.imshow(im, cmap=cm.gray)
     ax0.axis('off')
 
-if 1:  # plot the histogram of MRI intensity
+if 1:  # Plot the histogram of MRI intensity
     ax1 = fig.add_subplot(2, 2, 2)
     im = np.ravel(im)
-    im = im[np.nonzero(im)]  # ignore the background
-    im = im / (2**15)  # normalize
+    im = im[np.nonzero(im)]  # Ignore the background
+    im = im / (2**15)  # Normalize
     ax1.hist(im, 100)
     ax1.set_xticks([-1, -0.5, 0, 0.5, 1])
     ax1.set_yticks([])
-    ax1.set_xlabel('intensity')
+    ax1.set_xlabel('Intensity')
     ax1.set_ylabel('MRI density')
 
-if 1:   # plot the EEG
-    # load the data
-
+if 1:   # Plot the EEG
+    # Load the data
     numSamples, numRows = 800, 4
     eegfile = cbook.get_sample_data('eeg.dat', asfileobj=False)
-    print('loading eeg %s' % eegfile)
+    print('Loading EEG %s' % eegfile)
     data = np.fromstring(open(eegfile, 'rb').read(), float)
     data.shape = (numSamples, numRows)
     t = 10.0 * np.arange(numSamples) / numSamples
@@ -68,10 +68,11 @@ if 1:   # plot the EEG
     lines = LineCollection(segs, offsets=offsets, transOffset=None)
     ax2.add_collection(lines)
 
-    # set the yticks to use axes coords on the y axis
+    # Set the yticks to use axes coords on the y axis
     ax2.set_yticks(ticklocs)
     ax2.set_yticklabels(['PG3', 'PG5', 'PG7', 'PG9'])
 
-    ax2.set_xlabel('time (s)')
+    ax2.set_xlabel('Time (s)')
 
+plt.tight_layout()
 plt.show()
