@@ -14,66 +14,75 @@ import matplotlib.cm as cm
 from matplotlib.collections import LineCollection
 from matplotlib.ticker import MultipleLocator
 
-# NB: one uses "if 1:" to break up the different regions of code visually
 fig = plt.figure("MRI_with_EEG")
 
-if 1:   # Load the data
-    # Data are 256x256 16 bit integers
-    dfile = cbook.get_sample_data('s1045.ima.gz')
-    im = np.fromstring(dfile.read(), np.uint16).astype(float)
-    im.shape = (256, 256)
+"""
+Load the data
+"""
+# Data are 256x256 16 bit integers
+dfile = cbook.get_sample_data('s1045.ima.gz')
+im = np.fromstring(dfile.read(), np.uint16).astype(float)
+im.shape = (256, 256)
 
-if 1:  # Plot the MRI image
-    ax0 = fig.add_subplot(2, 2, 1)
-    ax0.imshow(im, cmap=cm.gray)
-    ax0.axis('off')
+"""
+Plot the MRI image
+"""
+ax0 = fig.add_subplot(2, 2, 1)
+ax0.imshow(im, cmap=cm.gray)
+ax0.axis('off')
 
-if 1:  # Plot the histogram of MRI intensity
-    ax1 = fig.add_subplot(2, 2, 2)
-    im = np.ravel(im)
-    im = im[np.nonzero(im)]  # Ignore the background
-    im = im / (2**15)  # Normalize
-    ax1.hist(im, 100)
-    ax1.xaxis.set_major_locator(MultipleLocator(0.5))
-    ax1.set_yticks([])
-    ax1.set_xlabel('Intensity')
-    ax1.set_ylabel('MRI density')
+"""
+Plot the histogram of MRI intensity
+"""
+ax1 = fig.add_subplot(2, 2, 2)
+im = np.ravel(im)
+im = im[np.nonzero(im)]  # Ignore the background
+im = im / (2**15)  # Normalize
+ax1.hist(im, 100)
+ax1.xaxis.set_major_locator(MultipleLocator(0.5))
+ax1.set_yticks([])
+ax1.set_xlabel('Intensity')
+ax1.set_ylabel('MRI density')
 
-if 1:   # Plot the EEG
-    # Load the data
-    numSamples, numRows = 800, 4
-    eegfile = cbook.get_sample_data('eeg.dat', asfileobj=False)
-    print('Loading EEG %s' % eegfile)
-    data = np.fromstring(open(eegfile, 'rb').read(), float)
-    data.shape = (numSamples, numRows)
-    t = 10.0 * np.arange(numSamples) / numSamples
-    ticklocs = []
-    ax2 = fig.add_subplot(2, 1, 2)
-    ax2.set_xlim(0, 10)
-    ax2.set_xticks(np.arange(10))
-    dmin = data.min()
-    dmax = data.max()
-    dr = (dmax - dmin) * 0.7  # Crowd them a bit.
-    y0 = dmin
-    y1 = (numRows - 1) * dr + dmax
-    ax2.set_ylim(y0, y1)
+"""
+Plot the EEG
+"""
+# Load the data
+numSamples, numRows = 800, 4
+eegfile = cbook.get_sample_data('eeg.dat', asfileobj=False)
+print('Loading EEG %s' % eegfile)
+data = np.fromstring(open(eegfile, 'rb').read(), float)
+data.shape = (numSamples, numRows)
+t = 10.0 * np.arange(numSamples) / numSamples
 
-    segs = []
-    for i in range(numRows):
-        segs.append(np.hstack((t[:, np.newaxis], data[:, i, np.newaxis])))
-        ticklocs.append(i * dr)
+ticklocs = []
+ax2 = fig.add_subplot(2, 1, 2)
+ax2.set_xlim(0, 10)
+ax2.set_xticks(np.arange(10))
+dmin = data.min()
+dmax = data.max()
+dr = (dmax - dmin) * 0.7  # Crowd them a bit.
+y0 = dmin
+y1 = (numRows - 1) * dr + dmax
+ax2.set_ylim(y0, y1)
 
-    offsets = np.zeros((numRows, 2), dtype=float)
-    offsets[:, 1] = ticklocs
+segs = []
+for i in range(numRows):
+    segs.append(np.hstack((t[:, np.newaxis], data[:, i, np.newaxis])))
+    ticklocs.append(i * dr)
 
-    lines = LineCollection(segs, offsets=offsets, transOffset=None)
-    ax2.add_collection(lines)
+offsets = np.zeros((numRows, 2), dtype=float)
+offsets[:, 1] = ticklocs
 
-    # Set the yticks to use axes coords on the y axis
-    ax2.set_yticks(ticklocs)
-    ax2.set_yticklabels(['PG3', 'PG5', 'PG7', 'PG9'])
+lines = LineCollection(segs, offsets=offsets, transOffset=None)
+ax2.add_collection(lines)
 
-    ax2.set_xlabel('Time (s)')
+# Set the yticks to use axes coords on the y axis
+ax2.set_yticks(ticklocs)
+ax2.set_yticklabels(['PG3', 'PG5', 'PG7', 'PG9'])
+
+ax2.set_xlabel('Time (s)')
+
 
 plt.tight_layout()
 plt.show()
