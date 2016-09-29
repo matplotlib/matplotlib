@@ -130,12 +130,7 @@ interest.
 API documentation
 =================
 
-matplotlib.scale
-----------------
-
-.. automodule:: matplotlib.scale
-   :members:
-   :show-inheritance:
+* :mod:`matplotlib.scale`
 
 matplotlib.projections
 ----------------------
