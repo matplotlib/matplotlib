@@ -659,7 +659,6 @@ class Collection(artist.Artist, cm.ScalarMappable):
         self._facecolors = mcolors.to_rgba_array(c, self._alpha)
         self.stale = True
 
-
     def set_facecolor(self, c):
         """
         Set the facecolor(s) of the collection.  *c* can be a
@@ -673,7 +672,6 @@ class Collection(artist.Artist, cm.ScalarMappable):
         """
         self._original_facecolor = c
         self._set_facecolor(c)
-
 
     def set_facecolors(self, c):
         """alias for set_facecolor"""
