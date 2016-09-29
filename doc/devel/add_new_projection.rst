@@ -131,17 +131,5 @@ API documentation
 =================
 
 * :mod:`matplotlib.scale`
-
-matplotlib.projections
-----------------------
-
-.. automodule:: matplotlib.projections
-   :members:
-   :show-inheritance:
-
-matplotlib.projections.polar
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-.. automodule:: matplotlib.projections.polar
-   :members:
-   :show-inheritance:
+* :mod:`matplotlib.projections`
+* :mod:`matplotlib.projections.polar`
