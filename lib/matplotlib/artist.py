@@ -426,7 +426,8 @@ class Artist(object):
                 self._picker is not None)
 
     def pick(self, mouseevent):
-        """
+        """Process pick event
+
         call signature::
 
           pick(mouseevent)

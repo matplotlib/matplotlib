@@ -107,6 +107,8 @@ class Axes(_AxesBase):
     """
     ### Labelling, legend and texts
 
+    aname = 'Axes'
+
     def get_title(self, loc="center"):
         """Get an axes title.
 
