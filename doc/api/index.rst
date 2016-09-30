@@ -42,8 +42,10 @@
    patches_api.rst
    path_api.rst
    patheffects_api.rst
+   projections_api.rst
    pyplot_api.rst
    sankey_api.rst
+   scale_api.rst
    spines_api.rst
    style_api.rst
    text_api.rst
