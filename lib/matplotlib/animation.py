@@ -169,7 +169,7 @@ class MovieWriter(object):
         width_inches, height_inches = self.fig.get_size_inches()
         return width_inches * self.dpi, height_inches * self.dpi
 
-    def setup(self, fig, outfile, dpi, *args):
+    def setup(self, fig, outfile, dpi):
         '''
         Perform setup for writing the movie file.
 
@@ -190,14 +190,14 @@ class MovieWriter(object):
         self._run()
 
     @contextlib.contextmanager
-    def saving(self, *args):
+    def saving(self, *args, **kw):
         '''
         Context manager to facilitate writing the movie file.
 
-        ``*args`` are any parameters that should be passed to `setup`.
+        ``*args, **kw`` are any parameters that should be passed to `setup`.
         '''
         # This particular sequence is what contextlib.contextmanager wants
-        self.setup(*args)
+        self.setup(*args, **kw)
         yield
         self.finish()
 
