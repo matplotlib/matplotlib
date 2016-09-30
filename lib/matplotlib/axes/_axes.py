@@ -109,6 +109,8 @@ class Axes(_AxesBase):
     """
     ### Labelling, legend and texts
 
+    aname = 'Axes'
+
     def get_title(self, loc="center"):
         """Get an axes title.
 
@@ -1987,7 +1989,11 @@ or tuple of floats
         error_kw.setdefault('ecolor', ecolor)
         error_kw.setdefault('capsize', capsize)
 
-        align = kwargs.pop('align', 'edge')
+        if rcParams['_internal.classic_mode']:
+            align = kwargs.pop('align', 'edge')
+        else:
+            align = kwargs.pop('align', 'center')
+
         orientation = kwargs.pop('orientation', 'vertical')
         log = kwargs.pop('log', False)
         label = kwargs.pop('label', '')
@@ -4773,6 +4779,14 @@ or tuple of floats
                 for filling between two sets of x-values
 
         """
+        if not rcParams['_internal.classic_mode']:
+            color_aliases = mcoll._color_aliases
+            kwargs = cbook.normalize_kwargs(kwargs, color_aliases)
+
+            if not any(c in kwargs for c in ('color', 'facecolors')):
+                fc = self._get_patches_for_fill.get_next_color()
+                kwargs['facecolors'] = fc
+
         # Handle united data, such as dates
         self._process_unit_info(xdata=x, ydata=y1, kwargs=kwargs)
         self._process_unit_info(ydata=y2)
@@ -4923,6 +4937,13 @@ or tuple of floats
                 for filling between two sets of y-values
 
         """
+        if not rcParams['_internal.classic_mode']:
+            color_aliases = mcoll._color_aliases
+            kwargs = cbook.normalize_kwargs(kwargs, color_aliases)
+
+            if not any(c in kwargs for c in ('color', 'facecolors')):
+                fc = self._get_patches_for_fill.get_next_color()
+                kwargs['facecolors'] = fc
         # Handle united data, such as dates
         self._process_unit_info(ydata=y, xdata=x1, kwargs=kwargs)
         self._process_unit_info(xdata=x2)

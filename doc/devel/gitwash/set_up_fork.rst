@@ -61,12 +61,29 @@ that you make.  It is not tracked in your personal repository on
 github_.
 
 Just for your own satisfaction, show yourself that you now have a new
-'remote', with ``git remote -v show``, giving you something like::
+'remote', with ``git remote -v``, giving you something like::
 
    upstream     git://github.com/matplotlib/matplotlib.git (fetch)
    upstream     git://github.com/matplotlib/matplotlib.git (push)
    origin       git@github.com:your-user-name/matplotlib.git (fetch)
    origin       git@github.com:your-user-name/matplotlib.git (push)
 
-.. include:: links.inc
 
+Read-only remote / push access to ``matplotlib/matplotlib``
+-----------------------------------------------------------
+
+If you have commit rights to ``matplotlib/matplotlib`` the ``git://``
+protocol URL will still be read-only (due to it not supporting
+authentication and restrictions on github's side).  To reduce the
+chance of accidentally pushing to upstream, we suggest setting up a
+read-only remote of upstream as above and a read/write remote as ::
+
+   git remote add DANGER git@github.com:matplotlib/matplotlib.git
+
+or ::
+
+  git remote add HOLY_COMMIT_RIGHTS_BATMAN https://github.com/matplotlib/matplotlib.git
+
+
+
+.. include:: links.inc
