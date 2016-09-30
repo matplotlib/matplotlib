@@ -216,6 +216,11 @@ Support for HiDPI (Retina) displays in the NbAgg and WebAgg backends
 The NbAgg and WebAgg backends will now use the full resolution of your
 high-pixel-density display.
 
+Change in the default animation codec
+-------------------------------------
+
+The default animation codec has been changed from ``mpeg4`` to ``h264``,
+which is more efficient. It can be set via the ``animation.codec`` rcParam.
 
 
 Previous Whats New
