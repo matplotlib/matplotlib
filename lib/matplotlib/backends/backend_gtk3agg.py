@@ -46,7 +46,7 @@ class FigureCanvasGTK3Agg(backend_gtk3.FigureCanvasGTK3,
         else:
             bbox_queue = self._bbox_queue
 
-        if HAS_CAIRO_CFFI:
+        if HAS_CAIRO_CFFI and not isinstance(ctx, cairo.Context):
             ctx = cairo.Context._from_pointer(
                 cairo.ffi.cast('cairo_t **',
                                id(ctx) + object.__basicsize__)[0],

@@ -410,7 +410,7 @@ validate_colorlist.__doc__ = 'return a list of colorspecs'
 validate_stringlist = _listify_validator(six.text_type)
 validate_stringlist.__doc__ = 'return a list'
 
-validate_gi_preference = _listify_validator(ValidateInStrings('backend.gi_preference',
+validate_gi_preference = _listify_validator(ValidateInStrings(
     'backend.gi_preference', ['gi', 'pgi']))
 
 validate_orientation = ValidateInStrings(
