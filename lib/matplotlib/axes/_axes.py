@@ -547,8 +547,6 @@ or tuple of floats
         elif len(args) == 0:
             handles, labels = self.get_legend_handles_labels(handlers)
             if not handles:
-                warnings.warn("No labelled objects found. "
-                              "Use label='...' kwarg on individual plots.")
                 return None
 
         # One argument. User defined labels - automatic handle detection.
