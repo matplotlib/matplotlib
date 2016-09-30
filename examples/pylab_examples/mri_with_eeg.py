@@ -16,38 +16,28 @@ from matplotlib.ticker import MultipleLocator
 
 fig = plt.figure("MRI_with_EEG")
 
-"""
-Load the data
-"""
-# Data are 256x256 16 bit integers
+# Load the MRI data (256x256 16 bit integers)
 dfile = cbook.get_sample_data('s1045.ima.gz')
 im = np.fromstring(dfile.read(), np.uint16).astype(float)
 im.shape = (256, 256)
 
-"""
-Plot the MRI image
-"""
+# Plot the MRI image
 ax0 = fig.add_subplot(2, 2, 1)
 ax0.imshow(im, cmap=cm.gray)
 ax0.axis('off')
 
-"""
-Plot the histogram of MRI intensity
-"""
+# Plot the histogram of MRI intensity
 ax1 = fig.add_subplot(2, 2, 2)
 im = np.ravel(im)
 im = im[np.nonzero(im)]  # Ignore the background
 im = im / (2**15)  # Normalize
-ax1.hist(im, 100)
+ax1.hist(im, bins=100)
 ax1.xaxis.set_major_locator(MultipleLocator(0.5))
 ax1.set_yticks([])
 ax1.set_xlabel('Intensity')
 ax1.set_ylabel('MRI density')
 
-"""
-Plot the EEG
-"""
-# Load the data
+# Load the EEG data
 numSamples, numRows = 800, 4
 eegfile = cbook.get_sample_data('eeg.dat', asfileobj=False)
 print('Loading EEG %s' % eegfile)
@@ -55,6 +45,7 @@ data = np.fromstring(open(eegfile, 'rb').read(), float)
 data.shape = (numSamples, numRows)
 t = 10.0 * np.arange(numSamples) / numSamples
 
+# Plot the EEG
 ticklocs = []
 ax2 = fig.add_subplot(2, 1, 2)
 ax2.set_xlim(0, 10)
@@ -77,7 +68,7 @@ offsets[:, 1] = ticklocs
 lines = LineCollection(segs, offsets=offsets, transOffset=None)
 ax2.add_collection(lines)
 
-# Set the yticks to use axes coords on the y axis
+# Set the yticks to use axes coordinates on the y axis
 ax2.set_yticks(ticklocs)
 ax2.set_yticklabels(['PG3', 'PG5', 'PG7', 'PG9'])
 
