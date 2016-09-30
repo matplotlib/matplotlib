@@ -473,6 +473,37 @@ or by setting::
 in your :file:`matplotlibrc` file.
 
 
+``fill_between`` and ``fill_betweenx``
+--------------------------------------
+
+`~matplotlib.axes.Axes.fill_between` and
+`~matplotlib.axes.Axes.fill_betweenx` both follow the patch color
+cycle.
+
+.. plot::
+
+   import matplotlib.pyplot as plt
+   import numpy as np
+
+   fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(6, 3))
+   th = np.linspace(0, 2*np.pi, 128)
+   N = 5
+
+   def demo(ax, extra_kwargs, title):
+       ax.set_title(title)
+       return [ax.fill_between(th, np.sin((j / N) * np.pi + th), alpha=.5, **extra_kwargs)
+               for j in range(N)]
+
+   demo(ax1, {}, '2.x')
+   demo(ax2, {'facecolor': 'C0'}, 'non-cycled')
+
+If the facecolor is set via the ``facecolors`` or ``color`` keyword argument,
+then the color is not cycled.
+
+To restore the previous behavior, explicitly pass the keyword argument
+``facecolors='C0'`` to the method call.
+
+
 Patch edges and color
 ---------------------
 
@@ -500,7 +531,7 @@ default.  The default face color is now ``'C0'`` instead of ``'b'``.
        with rc_context(rc=rcparams):
            ax_top.pie(fracs, labels=labels)
            ax_top.set_aspect('equal')
-           ax_mid.bar(range(len(fracs)), fracs, tick_label=labels, align='center')
+           ax_mid.bar(range(len(fracs)), fracs, tick_label=labels)
            plt.setp(ax_mid.get_xticklabels(), rotation=-45)
            grid = np.mgrid[0.2:0.8:3j, 0.2:0.8:3j].reshape(2, -1).T
 
@@ -528,6 +559,39 @@ or by setting::
    patch.force_edgecolor  : True
 
 in your :file:`matplotlibrc` file.
+
+``bar`` and ``barh``
+====================
+
+The default value of the ``align`` kwarg for both
+`~matplotlib.Axes.bar` and `~matplotlib.Axes.barh` is changed from
+``'edge'`` to ``'center'``.
+
+
+.. plot::
+
+   import matplotlib.pyplot as plt
+   import numpy as np
+
+   fig, ((ax1, ax2), (ax3, ax4)) = plt.subplots(2, 2, figsize=(5, 5))
+
+   def demo(bar_func, bar_kwargs):
+       return bar_func([1, 2, 3], [1, 2, 3], tick_label=['a', 'b', 'c'],
+                       **bar_kwargs)
+
+
+   ax1.set_title('2.0')
+
+   ax2.set_title("classic alignment")
+
+   demo(ax1.bar, {})
+   demo(ax2.bar, {'align': 'edge'})
+   demo(ax3.barh, {})
+   demo(ax4.barh, {'align': 'edge'})
+
+
+To restore the previous behavior explicitly pass the keyword argument
+``align='edge'`` to the method call.
 
 
 Hatching

@@ -841,8 +841,9 @@ class _AxesBase(martist.Artist):
             return self._position.frozen()
 
     def set_position(self, pos, which='both'):
-        """
-        Set the axes position with::
+        """Set the axes position
+
+        The expected shape of ``pos`` is::
 
           pos = [left, bottom, width, height]
 
@@ -1185,13 +1186,14 @@ class _AxesBase(martist.Artist):
         return self._hold
 
     def hold(self, b=None):
-        """
+        """Set the hold state
+
         Call signature::
 
           hold(b=None)
 
-        Set the hold state.  If *hold* is *None* (default), toggle the
-        *hold* state.  Else set the *hold* state to boolean value *b*.
+        If *hold* is *None* (default), toggle the *hold* state.  Else
+        set the *hold* state to boolean value *b*.
 
         Examples::
 
@@ -2621,61 +2623,69 @@ class _AxesBase(martist.Artist):
         self.autoscale_view(tight=tight, scalex=_x, scaley=_y)
 
     def tick_params(self, axis='both', **kwargs):
-        """
-        Change the appearance of ticks and tick labels.
+        """Change the appearance of ticks and tick labels.
 
-        Keyword arguments:
+        Parameters
+        ----------
+        axis : {'x', 'y', 'both'}, optional
+            Which axis to apply the parameters to.
 
-        *axis* : ['x' | 'y' | 'both']
+        Other Parameters
+        ----------------
+
+        axis : {'x', 'y', 'both'}
             Axis on which to operate; default is 'both'.
 
-        *reset* : [True | False]
+        reset : bool
             If *True*, set all parameters to defaults
             before processing other keyword arguments.  Default is
             *False*.
 
-        *which* : ['major' | 'minor' | 'both']
+        which : {'major', 'minor', 'both'}
             Default is 'major'; apply arguments to *which* ticks.
 
-        *direction* : ['in' | 'out' | 'inout']
+        direction : {'in', 'out', 'inout'}
             Puts ticks inside the axes, outside the axes, or both.
 
-        *length*
+        length : float
             Tick length in points.
 
-        *width*
+        width : float
             Tick width in points.
 
-        *color*
+        color : color
             Tick color; accepts any mpl color spec.
 
-        *pad*
+        pad : float
             Distance in points between tick and label.
 
-        *labelsize*
+        labelsize : float or str
             Tick label font size in points or as a string (e.g., 'large').
 
-        *labelcolor*
+        labelcolor : color
             Tick label color; mpl color spec.
 
-        *colors*
+        colors : color
             Changes the tick color and the label color to the same value:
             mpl color spec.
 
-        *zorder*
+        zorder : float
             Tick and label zorder.
 
-        *bottom*, *top*, *left*, *right* : [bool | 'on' | 'off']
+        bottom, top, left, right : bool or  {'on', 'off'}
             controls whether to draw the respective ticks.
 
-        *labelbottom*, *labeltop*, *labelleft*, *labelright*
-            Boolean or ['on' | 'off'], controls whether to draw the
+        labelbottom, labeltop, labelleft, labelright : bool or  {'on', 'off'}
+            controls whether to draw the
             respective tick labels.
 
-        *labelrotation*
-            Tick label rotation.
+        labelrotation : float
+            Tick label rotation
 
-        Example::
+        Examples
+        --------
+
+        Usage ::
 
             ax.tick_params(direction='out', length=6, width=2, colors='r')
 
@@ -2736,10 +2746,15 @@ class _AxesBase(martist.Artist):
         return right < left
 
     def get_xbound(self):
-        """
-        Returns the x-axis numerical bounds where::
+        """Returns the x-axis numerical bounds
+
+        This always returns::
 
           lowerBound < upperBound
+
+        Returns
+        -------
+        lowerBound, upperBound : float
 
         """
         left, right = self.get_xlim()
@@ -2782,7 +2797,8 @@ class _AxesBase(martist.Artist):
         return tuple(self.viewLim.intervalx)
 
     def set_xlim(self, left=None, right=None, emit=True, auto=False, **kw):
-        """
+        """Set the data limits for the xaxis
+
         Call signature::
 
           set_xlim(self, *args, **kwargs):
@@ -2880,7 +2896,8 @@ class _AxesBase(martist.Artist):
 
     @docstring.dedent_interpd
     def set_xscale(self, value, **kwargs):
-        """
+        """Set the x-axis scale
+
         Call signature::
 
           set_xscale(value)
@@ -2962,12 +2979,13 @@ class _AxesBase(martist.Artist):
 
     @docstring.dedent_interpd
     def set_xticklabels(self, labels, fontdict=None, minor=False, **kwargs):
-        """
+        """Set the xtick labels with list of strings *labels*
+
         Call signature::
 
           set_xticklabels(labels, fontdict=None, minor=False, **kwargs)
 
-        Set the xtick labels with list of strings *labels*. Return a
+        Return a
         list of axis text instances.
 
         *kwargs* set the :class:`~matplotlib.text.Text` properties.
@@ -3040,12 +3058,11 @@ class _AxesBase(martist.Artist):
         return tuple(self.viewLim.intervaly)
 
     def set_ylim(self, bottom=None, top=None, emit=True, auto=False, **kw):
-        """
+        """Set the data limits for the yaxis
+
         Call signature::
 
           set_ylim(self, *args, **kwargs):
-
-        Set the data limits for the yaxis
 
         Examples::
 
@@ -3139,7 +3156,8 @@ class _AxesBase(martist.Artist):
 
     @docstring.dedent_interpd
     def set_yscale(self, value, **kwargs):
-        """
+        """Set the y-axis scale
+
         Call signature::
 
           set_yscale(value)
@@ -3224,12 +3242,13 @@ class _AxesBase(martist.Artist):
 
     @docstring.dedent_interpd
     def set_yticklabels(self, labels, fontdict=None, minor=False, **kwargs):
-        """
+        """Set the y tick labels with list of strings *labels*
+
         Call signature::
 
           set_yticklabels(labels, fontdict=None, minor=False, **kwargs)
 
-        Set the y tick labels with list of strings *labels*.  Return a list of
+        Return a list of
         :class:`~matplotlib.text.Text` instances.
 
         *kwargs* set :class:`~matplotlib.text.Text` properties for the labels.
@@ -3678,8 +3697,9 @@ class _AxesBase(martist.Artist):
 
     @cbook.deprecated("2.1")
     def set_cursor_props(self, *args):
-        """
-        Set the cursor property as::
+        """Set the cursor property as
+
+        Call signature ::
 
           ax.set_cursor_props(linewidth, color)
 
@@ -3740,7 +3760,8 @@ class _AxesBase(martist.Artist):
         return self.patch.contains_point(point, radius=1.0)
 
     def pick(self, *args):
-        """
+        """Trigger pick event
+
         Call signature::
 
             pick(mouseevent)
@@ -3812,7 +3833,8 @@ class _AxesBase(martist.Artist):
         return ax2
 
     def twinx(self):
-        """
+        """Create a twin Axes sharing the xaxis
+
         Call signature::
 
           ax = twinx()
@@ -3837,7 +3859,8 @@ class _AxesBase(martist.Artist):
         return ax2
 
     def twiny(self):
-        """
+        """Create a twin Axes sharing the yaxis
+
         Call signature::
 
           ax = twiny()

@@ -344,6 +344,10 @@ class Tick(artist.Artist):
                 v = getattr(self.label1, 'get_' + k)()
                 setattr(self, '_label' + k, v)
 
+    def update_position(self, loc):
+        'Set the location of tick in data coords with scalar *loc*'
+        raise NotImplementedError('Derived must override')
+
 
 class XTick(Tick):
     """
@@ -1677,6 +1681,23 @@ class Axis(artist.Artist):
         # Must be overridden in the subclass
         raise NotImplementedError()
 
+    def get_label_position(self):
+        """
+        Return the label position (top or bottom)
+        """
+        return self.label_position
+
+    def set_label_position(self, position):
+        """
+        Set the label position (top or bottom)
+
+        ACCEPTS: [ 'top' | 'bottom' ]
+        """
+        raise NotImplementedError()
+
+    def get_minpos(self):
+        raise NotImplementedError()
+
 
 class XAxis(Axis):
     __name__ = 'xaxis'
@@ -1775,12 +1796,6 @@ class XAxis(Axis):
         dx = abs(ptp[0] - where)
 
         return dx
-
-    def get_label_position(self):
-        """
-        Return the label position (top or bottom)
-        """
-        return self.label_position
 
     def set_label_position(self, position):
         """
@@ -2104,12 +2119,6 @@ class YAxis(Axis):
         ptp = transinv.transform_point((pix[0], pix[1] + perturb))
         dy = abs(ptp[1] - where)
         return dy
-
-    def get_label_position(self):
-        """
-        Return the label position (left or right)
-        """
-        return self.label_position
 
     def set_label_position(self, position):
         """

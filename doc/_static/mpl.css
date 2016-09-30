@@ -6,7 +6,6 @@
 body {
     font-family: "Helvetica Neue", Helvetica, 'Lucida Grande', 'Lucida Sans Unicode', 'Geneva', 'Verdana', sans-serif;
     font-size: 14px;
-    letter-spacing: -0.01em;
     line-height: 150%;
     text-align: center;
     background-color: #BFD1D4;
@@ -272,7 +271,7 @@ h2 {
 }
 
 h3 {
-    margin: 1em 0 -0.3em 0;
+    margin: 0.2em 0 0.1em 0;
     font-size: 1.2em;
 }
 
@@ -513,19 +512,13 @@ table.docutils {
 .longtable.docutils {
     font-size: 12px;
     margin-bottom: 30px;
-    background-color: #ccc;
 }
 .longtable.docutils, .longtable.docutils td {
     border-color: #ccc;
 }
 
-/* module summary table */
-.longtable.docutils {
-    font-size: 12px;
-    margin-bottom: 30px;
-}
-.longtable.docutils, .longtable.docutils td {
-    border-color: #ccc;
+.longtable.docutils tr.row-even{
+    background-color: #eff3f4;
 }
 
 /* function and class description */
@@ -560,16 +553,20 @@ dl.class dd, dl.function dd {
 }
 
 /* function and class description */
-dl.class, dl.function, dl.method, dl.attribute {
+dl.function, dl.method, dl.attribute {
     border-top: 1px solid #ccc;
     padding-top: 6px;
 }
 
-dl.class, dl.function {
+dl.function {
     border-top: 1px solid #888;
-  margin-top: 15px;
+    margin-top: 15px;
 }
 
+dl.class {
+    padding-top: 6px;
+    margin-top: 15px;
+}
 
 .descclassname {
     color: #aaa;
@@ -705,7 +702,7 @@ div.responsive_subfig{
 
     /* Include content, padding and border in width. This should */
     /* avoid having to use tricks like "width: 24.9999%"         */
-    box-sizing: border-box; 
+    box-sizing: border-box;
 }
 
 div.responsive_subfig img {

@@ -62,6 +62,7 @@ doc/_templates/gallery.html
 doc/users/installing.rst
 doc/_static/matplotlibrc
 doc/pyplots/tex_demo.png
+doc/api/_as_gen
 lib/dateutil
 examples/*/*.pdf
 examples/*/*.png
