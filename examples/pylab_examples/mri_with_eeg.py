@@ -20,6 +20,7 @@ fig = plt.figure("MRI_with_EEG")
 dfile = cbook.get_sample_data('s1045.ima.gz')
 im = np.fromstring(dfile.read(), np.uint16).astype(float)
 im.shape = (256, 256)
+dfile.close()
 
 # Plot the MRI image
 ax0 = fig.add_subplot(2, 2, 1)
@@ -41,7 +42,7 @@ ax1.set_ylabel('MRI density')
 numSamples, numRows = 800, 4
 eegfile = cbook.get_sample_data('eeg.dat', asfileobj=False)
 print('Loading EEG %s' % eegfile)
-data = np.fromstring(open(eegfile, 'rb').read(), float)
+data = np.fromfile(eegfile, dtype=float)
 data.shape = (numSamples, numRows)
 t = 10.0 * np.arange(numSamples) / numSamples
 
