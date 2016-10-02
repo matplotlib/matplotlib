@@ -1,11 +1,14 @@
-from __future__ import print_function
+"""Displays an MRI image."""
+
 import matplotlib.pyplot as plt
 import matplotlib.cbook as cbook
 import numpy as np
-# data are 256x256 16 bit integers
+
+# Data are 256x256 16 bit integers
 dfile = cbook.get_sample_data('s1045.ima.gz')
 im = np.fromstring(dfile.read(), np.uint16).astype(float)
-im.shape = 256, 256
+im.shape = (256, 256)
+dfile.close()
 
 plt.imshow(im, cmap=plt.cm.gray)
 plt.axis('off')
