@@ -29,11 +29,12 @@ ax0.axis('off')
 ax1 = fig.add_subplot(2, 2, 2)
 im = np.ravel(im)
 im = im[np.nonzero(im)]  # Ignore the background
-im = im / (2**15)  # Normalize
+im = im / (2**16 - 1)  # Normalize
 ax1.hist(im, bins=100)
-ax1.xaxis.set_major_locator(MultipleLocator(0.5))
+ax1.xaxis.set_major_locator(MultipleLocator(0.4))
+ax1.minorticks_on()
 ax1.set_yticks([])
-ax1.set_xlabel('Intensity')
+ax1.set_xlabel('Intensity (a.u.)')
 ax1.set_ylabel('MRI density')
 
 # Load the EEG data
