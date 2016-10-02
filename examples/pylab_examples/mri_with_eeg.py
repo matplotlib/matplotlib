@@ -1,7 +1,5 @@
 """Displays a set of subplots with an MRI image, its intensity histogram and
 some EEG traces.
-
-NB: ones uses the imshow command instead of pcolor which *is much faster*.
 """
 
 from __future__ import division, print_function
