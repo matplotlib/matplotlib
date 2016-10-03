@@ -1197,7 +1197,7 @@ class FancyArrow(Polygon):
 
         """
         if head_width is None:
-            head_width = 20 * width
+            head_width = 3 * width
         if head_length is None:
             head_length = 1.5 * head_width
 
