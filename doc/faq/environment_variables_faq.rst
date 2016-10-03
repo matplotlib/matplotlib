@@ -25,10 +25,11 @@ Environment Variables
 
   This is the directory used to store user customizations to matplotlib, as
   well as some caches to improve performance. If :envvar:`MPLCONFIGDIR` is not
-  defined, :file:`{HOME}/.matplotlib` is used if it is writable.
-  Otherwise, the python standard library :func:`tempfile.gettmpdir` is
-  used to find a base directory in which the :file:`matplotlib`
-  subdirectory is created.
+  defined, :file:`{HOME}/.config/matplotlib` is generally used on unix-like
+  systems and :file:`{HOME}/.matplotlib` is used on other platforms, if they are
+  writable. Otherwise, the python standard library :func:`tempfile.gettempdir`
+  is used to find a base directory in which the :file:`matplotlib` subdirectory 
+  is created.
 
 .. envvar:: MPLBACKEND
 
