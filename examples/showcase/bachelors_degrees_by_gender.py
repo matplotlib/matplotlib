@@ -1,9 +1,9 @@
-"""Timeline graph comparison with aligned colored annotation.
+"""
+A graph of multiple time series which demonstrates extensive custom
+styling of plot frame, tick lines and labels, and line graph properties.
 
-This example shows lines tracking change over time.  It features dashed
-lines at fixed increments on the Y axis.
-
-It adds a text label at the right end of every line in the corresponding color.
+Also demonstrates the custom placement of text labels along the right edge
+as an alternative to a conventional legend.
 """
 
 import matplotlib.pyplot as plt
