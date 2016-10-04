@@ -9,7 +9,7 @@ import re
 from matplotlib import pyplot as plt
 
 
-def _test_determinism_save(filename, objects='mhi', format="pdf"):
+def _determinism_save(filename, objects='mhi', format="pdf"):
     # save current value of SOURCE_DATE_EPOCH and set it
     # to a constant value, so that time difference is not
     # taken into account
@@ -60,7 +60,7 @@ def _test_determinism_save(filename, objects='mhi', format="pdf"):
         os.environ['SOURCE_DATE_EPOCH'] = sde
 
 
-def _test_determinism(objects='mhi', format="pdf", uid=""):
+def _determinism_check(objects='mhi', format="pdf", uid=""):
     """
     Output three times the same graphs and checks that the outputs are exactly
     the same.
@@ -87,8 +87,8 @@ def _test_determinism(objects='mhi', format="pdf", uid=""):
                     'import matplotlib; '
                     'matplotlib.use(%r); '
                     'from matplotlib.testing.determinism '
-                    'import _test_determinism_save;'
-                    '_test_determinism_save(%r,%r,%r)'
+                    'import _determinism_save;'
+                    '_determinism_save(%r,%r,%r)'
                     % (format, filename, objects, format)])
         with open(filename, 'rb') as fd:
             plots.append(fd.read())
@@ -97,7 +97,7 @@ def _test_determinism(objects='mhi', format="pdf", uid=""):
         assert_equal(p, plots[0])
 
 
-def _test_source_date_epoch(format, string, keyword=b"CreationDate"):
+def _determinism_source_date_epoch(format, string, keyword=b"CreationDate"):
     """
     Test SOURCE_DATE_EPOCH support. Output a document with the envionment
     variable SOURCE_DATE_EPOCH set to 2000-01-01 00:00 UTC and check that the
@@ -121,8 +121,8 @@ def _test_source_date_epoch(format, string, keyword=b"CreationDate"):
                 'import matplotlib; '
                 'matplotlib.use(%r); '
                 'from matplotlib.testing.determinism '
-                'import _test_determinism_save;'
-                '_test_determinism_save(%r,%r,%r)'
+                'import _determinism_save;'
+                '_determinism_save(%r,%r,%r)'
                 % (format, filename, "", format)])
     find_keyword = re.compile(b".*" + keyword + b".*")
     with open(filename, 'rb') as fd:

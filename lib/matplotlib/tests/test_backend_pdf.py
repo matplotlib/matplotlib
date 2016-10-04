@@ -12,8 +12,8 @@ import numpy as np
 from matplotlib import cm, rcParams
 from matplotlib.backends.backend_pdf import PdfPages
 from matplotlib import pyplot as plt
-from matplotlib.testing.determinism import (_test_source_date_epoch,
-                                            _test_determinism)
+from matplotlib.testing.determinism import (_determinism_source_date_epoch,
+                                            _determinism_check)
 from matplotlib.testing.decorators import (image_comparison, knownfailureif,
                                            cleanup)
 
@@ -114,37 +114,37 @@ def test_composite_image():
 @cleanup
 def test_source_date_epoch():
     """Test SOURCE_DATE_EPOCH support for PDF output"""
-    _test_source_date_epoch("pdf", b"/CreationDate (D:20000101000000Z)")
+    _determinism_source_date_epoch("pdf", b"/CreationDate (D:20000101000000Z)")
 
 
 @cleanup
 def test_determinism_plain():
     """Test for reproducible PDF output: simple figure"""
-    _test_determinism('', format="pdf")
+    _determinism_check('', format="pdf")
 
 
 @cleanup
 def test_determinism_images():
     """Test for reproducible PDF output: figure with different images"""
-    _test_determinism('i', format="pdf")
+    _determinism_check('i', format="pdf")
 
 
 @cleanup
 def test_determinism_hatches():
     """Test for reproducible PDF output: figure with different hatches"""
-    _test_determinism('h', format="pdf")
+    _determinism_check('h', format="pdf")
 
 
 @cleanup
 def test_determinism_markers():
     """Test for reproducible PDF output: figure with different markers"""
-    _test_determinism('m', format="pdf")
+    _determinism_check('m', format="pdf")
 
 
 @cleanup
 def test_determinism_all():
     """Test for reproducible PDF output"""
-    _test_determinism(format="pdf")
+    _determinism_check(format="pdf")
 
 
 @image_comparison(baseline_images=['hatching_legend'],
