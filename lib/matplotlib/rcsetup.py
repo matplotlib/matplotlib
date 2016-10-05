@@ -1175,7 +1175,7 @@ defaultParams = {
     'xtick.major.pad':   [3.5, validate_float],    # distance to label in points
     'xtick.minor.pad':   [3.4, validate_float],    # distance to label in points
     'xtick.color':       ['k', validate_color],  # color of the xtick labels
-    'xtick.minor.visible':   [False, validate_bool],    # visiablility of the x axis minor ticks
+    'xtick.minor.visible':   [False, validate_bool],    # visibility of the x axis minor ticks
     'xtick.minor.top':   [True, validate_bool],  # draw x axis top minor ticks
     'xtick.minor.bottom':    [True, validate_bool],    # draw x axis bottom minor ticks
     'xtick.major.top':   [True, validate_bool],  # draw x axis top major ticks
@@ -1194,7 +1194,7 @@ defaultParams = {
     'ytick.major.pad':   [3.5, validate_float],     # distance to label in points
     'ytick.minor.pad':   [3.4, validate_float],     # distance to label in points
     'ytick.color':       ['k', validate_color],   # color of the ytick labels
-    'ytick.minor.visible':   [False, validate_bool],    # visiablility of the y axis minor ticks
+    'ytick.minor.visible':   [False, validate_bool],    # visibility of the y axis minor ticks
     'ytick.minor.left':   [True, validate_bool],  # draw y axis left minor ticks
     'ytick.minor.right':    [True, validate_bool],    # draw y axis right minor ticks
     'ytick.major.left':   [True, validate_bool],  # draw y axis left major ticks
