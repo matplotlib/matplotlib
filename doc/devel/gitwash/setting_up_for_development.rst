@@ -1,8 +1,8 @@
 .. _setting_up_for_development:
 
-=====================
- Setting up for development
-=====================
+==========================
+Setting up for development
+==========================
 
 Contents:
 
