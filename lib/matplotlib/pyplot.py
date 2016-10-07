@@ -1038,115 +1038,125 @@ def subplot(*args, **kwargs):
 
 
 def subplots(nrows=1, ncols=1, sharex=False, sharey=False, squeeze=True,
-                subplot_kw=None, gridspec_kw=None, **fig_kw):
+             subplot_kw=None, gridspec_kw=None, **fig_kw):
     """
     Create a figure with a set of subplots already made.
 
     This utility wrapper makes it convenient to create common layouts of
     subplots, including the enclosing figure object, in a single call.
 
-    Keyword arguments:
+    Parameters
+    ----------
+    nrows : int, optional, default: 1
+        Number of rows of the subplot grid.
 
-      *nrows* : int
-        Number of rows of the subplot grid.  Defaults to 1.
+    ncols : int, optional, default: 1
+        Number of columns of the subplot grid.
 
-      *ncols* : int
-        Number of columns of the subplot grid.  Defaults to 1.
+    sharex : bool or string, optional, default: False
+        - If True, the X axis will be shared amongst all subplots. Note that
+          if nrows > 1 then the x tick labels won't be displayed on any of
+          plots but the ones on the bottom row.
+        - If False, no axis will be shared amongst subplots.
+        - If a string must be one of "row", "col", "all", or "none".
+            - "all" has the same effect as True.
+            - "none" has the same effect as False.
+            - If "row", each subplot row will share a X axis.
+            - If "col", each subplot column will share a X axis. Note that if
+              nrows > 1 then the x tick labels won't be displayed on any of
+              the plots but the ones on the bottom row.
 
-      *sharex* : string or bool
-        If *True*, the X axis will be shared amongst all subplots.  If
-        *True* and you have multiple rows, the x tick labels on all but
-        the last row of plots will have visible set to *False*
-        If a string must be one of "row", "col", "all", or "none".
-        "all" has the same effect as *True*, "none" has the same effect
-        as *False*.
-        If "row", each subplot row will share a X axis.
-        If "col", each subplot column will share a X axis and the x tick
-        labels on all but the last row will have visible set to *False*.
+    sharey : bool or string, optional, default: False
+        - If True, the Y axis will be shared amongst all subplots. Note that
+          if ncols > 1 then the y tick labels won't be displayed on any of
+          plots but the ones on first column.
+        - If False, no y-axis will be shared amongst subplots.
+        - If a string must be one of "row", "col", "all", or "none".
+            - "all" has the same effect as True.
+            - "none" has the same effect as False.
+            - If "row", each subplot row will share a y-axis.
+            - If "col", each subplot column will share a y-axis. Note that if
+              ncols > 1 then the y tick labels won't be displayed on any of
+              the plots but the ones on the first column.
 
-      *sharey* : string or bool
-        If *True*, the Y axis will be shared amongst all subplots. If
-        *True* and you have multiple columns, the y tick labels on all but
-        the first column of plots will have visible set to *False*
-        If a string must be one of "row", "col", "all", or "none".
-        "all" has the same effect as *True*, "none" has the same effect
-        as *False*.
-        If "row", each subplot row will share a Y axis and the y tick
-        labels on all but the first column will have visible set to *False*.
-        If "col", each subplot column will share a Y axis.
+    squeeze : bool, optional, default: True
+        - If True, extra dimensions are squeezed out from the returned axis
+          object:
 
-      *squeeze* : bool
-        If *True*, extra dimensions are squeezed out from the
-        returned axis object:
+            - if only one subplot is constructed (nrows=ncols=1), the
+              resulting single Axis object is returned as a scalar.
+            - for Nx1 or 1xN subplots, the returned object is a 1-d numpy
+              object array of Axis objects are returned as numpy 1-d arrays.
+            - for NxM subplots with N>1 and M>1 are returned as a 2d arrays.
 
-        - if only one subplot is constructed (nrows=ncols=1), the
-          resulting single Axis object is returned as a scalar.
+        - If False, no squeezing at all is done: the returned axis object is
+          always a 2-d array containing Axis instances, even if it ends up
+          being 1x1.
 
-        - for Nx1 or 1xN subplots, the returned object is a 1-d numpy
-          object array of Axis objects are returned as numpy 1-d
-          arrays.
-
-        - for NxM subplots with N>1 and M>1 are returned as a 2d
-          array.
-
-        If *False*, no squeezing at all is done: the returned axis
-        object is always a 2-d array containing Axis instances, even if it
-        ends up being 1x1.
-
-      *subplot_kw* : dict
+    subplot_kw : dict, optional
         Dict with keywords passed to the
-        :meth:`~matplotlib.figure.Figure.add_subplot` call used to
-        create each subplots.
+        :meth:`~matplotlib.figure.Figure.add_subplot` call used to create each
+        subplot.
 
-      *gridspec_kw* : dict
+    gridspec_kw : dict, optional
         Dict with keywords passed to the
-        :class:`~matplotlib.gridspec.GridSpec` constructor used to create
-        the grid the subplots are placed on.
+        :class:`~matplotlib.gridspec.GridSpec` constructor used to create the
+        grid the subplots are placed on.
 
-      *fig_kw* : dict
+    fig_kw : dict, optional
         Dict with keywords passed to the :func:`figure` call.  Note that all
         keywords not recognized above will be automatically included here.
 
-    Returns:
+    Returns
+    -------
+    fig : :class:`matplotlib.figure.Figure` object
 
-    fig, ax : tuple
+    ax : axis or array of axis objects.
+        ax can be either a single axis object or an array of axis objects if
+        more than one subplot was created.  The dimensions of the resulting
+        array can be controlled with the squeeze keyword, see above.
 
-      - *fig* is the :class:`matplotlib.figure.Figure` object
+    Examples
+    --------
+    First create some toy data:
 
-      - *ax* can be either a single axis object or an array of axis
-        objects if more than one subplot was created.  The dimensions
-        of the resulting array can be controlled with the squeeze
-        keyword, see above.
+    >>> x = np.linspace(0, 2*np.pi, 400)
+    >>> y = np.sin(x**2)
 
-    Examples::
+    Creates just a figure and only one subplot.
 
-        x = np.linspace(0, 2*np.pi, 400)
-        y = np.sin(x**2)
+    >>> fig, ax = plt.subplots()
+    >>> ax.plot(x, y)
+    >>> ax.set_title('Simple plot')
 
-        # Just a figure and one subplot
-        f, ax = plt.subplots()
-        ax.plot(x, y)
-        ax.set_title('Simple plot')
+    Creates two subplots and unpacks the output array immediately
 
-        # Two subplots, unpack the output array immediately
-        f, (ax1, ax2) = plt.subplots(1, 2, sharey=True)
-        ax1.plot(x, y)
-        ax1.set_title('Sharing Y axis')
-        ax2.scatter(x, y)
+    >>> f, (ax1, ax2) = plt.subplots(1, 2, sharey=True)
+    >>> ax1.plot(x, y)
+    >>> ax1.set_title('Sharing Y axis')
+    >>> ax2.scatter(x, y)
 
-        # Four polar axes
-        plt.subplots(2, 2, subplot_kw=dict(polar=True))
+    Creates four polar axes, and accesses them through the returned array
 
-        # Share a X axis with each column of subplots
-        plt.subplots(2, 2, sharex='col')
+    >>> fig, axes = plt.subplots(2, 2, subplot_kw=dict(polar=True))
+    >>> axes[0, 0].plot(x, y)
+    >>> axes[1, 1].scatter(x, y)
 
-        # Share a Y axis with each row of subplots
-        plt.subplots(2, 2, sharey='row')
+    Share a X axis with each column of subplots
 
-        # Share a X and Y axis with all subplots
-        plt.subplots(2, 2, sharex='all', sharey='all')
-        # same as
-        plt.subplots(2, 2, sharex=True, sharey=True)
+    >>> plt.subplots(2, 2, sharex='col')
+
+    Share a Y axis with each row of subplots
+
+    >>> plt.subplots(2, 2, sharey='row')
+
+    Share a X and Y axis with all subplots
+
+    >>> plt.subplots(2, 2, sharex='all', sharey='all')
+
+    Note that this is the same as
+
+    >>> plt.subplots(2, 2, sharex=True, sharey=True)
     """
     fig = figure(**fig_kw)
     axs = fig.subplots(nrows=nrows, ncols=ncols, sharex=sharex, sharey=sharey,
