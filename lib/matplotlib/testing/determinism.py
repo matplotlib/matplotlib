@@ -2,14 +2,18 @@
 Provides utilities to test output reproducibility.
 """
 
+import six
+
 import io
 import os
 import re
+import sys
+from subprocess import check_output
 
 from matplotlib import pyplot as plt
 
 
-def _determinism_save(filename, objects='mhi', format="pdf"):
+def _determinism_save(objects='mhi', format="pdf"):
     # save current value of SOURCE_DATE_EPOCH and set it
     # to a constant value, so that time difference is not
     # taken into account
@@ -51,7 +55,13 @@ def _determinism_save(filename, objects='mhi', format="pdf"):
     x = range(5)
     fig.add_subplot(1, 6, 6).plot(x, x)
 
-    fig.savefig(filename, format=format)
+    if six.PY2 and format == 'ps':
+        stdout = io.StringIO()
+    else:
+        stdout = getattr(sys.stdout, 'buffer', sys.stdout)
+    fig.savefig(stdout, format=format)
+    if six.PY2 and format == 'ps':
+        sys.stdout.write(stdout.getvalue())
 
     # Restores SOURCE_DATE_EPOCH
     if sde is None:
@@ -77,22 +87,17 @@ def _determinism_check(objects='mhi', format="pdf", uid=""):
         some string to add to the filename used to store the output. Use it to
         allow parallel execution of two tests with the same objects parameter.
     """
-    import sys
-    from subprocess import check_call
     from nose.tools import assert_equal
-    filename = 'determinism_O%s%s.%s' % (objects, uid, format)
     plots = []
     for i in range(3):
-        check_call([sys.executable, '-R', '-c',
-                    'import matplotlib; '
-                    'matplotlib.use(%r); '
-                    'from matplotlib.testing.determinism '
-                    'import _determinism_save;'
-                    '_determinism_save(%r,%r,%r)'
-                    % (format, filename, objects, format)])
-        with open(filename, 'rb') as fd:
-            plots.append(fd.read())
-        os.unlink(filename)
+        result = check_output([sys.executable, '-R', '-c',
+                               'import matplotlib; '
+                               'matplotlib.use(%r); '
+                               'from matplotlib.testing.determinism '
+                               'import _determinism_save;'
+                               '_determinism_save(%r,%r)'
+                               % (format, objects, format)])
+        plots.append(result)
     for p in plots[1:]:
         assert_equal(p, plots[0])
 
@@ -114,23 +119,17 @@ def _determinism_source_date_epoch(format, string, keyword=b"CreationDate"):
         a string to look at when searching for the timestamp in the document
         (used in case the test fails).
     """
-    import sys
-    from subprocess import check_call
-    filename = 'test_SDE_on.%s' % format
-    check_call([sys.executable, '-R', '-c',
-                'import matplotlib; '
-                'matplotlib.use(%r); '
-                'from matplotlib.testing.determinism '
-                'import _determinism_save;'
-                '_determinism_save(%r,%r,%r)'
-                % (format, filename, "", format)])
+    buff = check_output([sys.executable, '-R', '-c',
+                         'import matplotlib; '
+                         'matplotlib.use(%r); '
+                         'from matplotlib.testing.determinism '
+                         'import _determinism_save;'
+                         '_determinism_save(%r,%r)'
+                         % (format, "", format)])
     find_keyword = re.compile(b".*" + keyword + b".*")
-    with open(filename, 'rb') as fd:
-        buff = fd.read()
-        key = find_keyword.search(buff)
-        if key:
-            print(key.group())
-        else:
-            print("Timestamp keyword (%s) not found!" % keyword)
-        assert string in buff
-    os.unlink(filename)
+    key = find_keyword.search(buff)
+    if key:
+        print(key.group())
+    else:
+        print("Timestamp keyword (%s) not found!" % keyword)
+    assert string in buff
