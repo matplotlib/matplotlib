@@ -15,12 +15,15 @@ The Matplotlib Developers' Guide
    contributing.rst
    reviewers_guide.rst
    portable_code.rst
-   license.rst
    gitwash/index.rst
    testing.rst
    documenting_mpl.rst
    release_guide.rst
-   transformations.rst
    add_new_projection.rst
    color_changes
    MEP/index
+
+.. toctree::
+   :hidden:
+
+   license.rst

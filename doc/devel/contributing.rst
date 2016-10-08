@@ -47,7 +47,7 @@ environment is set up properly::
 
   python tests.py
 
-You can read more about testing :ref:`testings:
+You can read more about testing :ref:`testing`
 
 .. note::
   
