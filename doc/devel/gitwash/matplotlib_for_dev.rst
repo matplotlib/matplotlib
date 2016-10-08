@@ -11,6 +11,10 @@ navigate to the matplotlib directory and run the following in the shell:
     
     python setup.py develop
 
+or::
+  
+   pip install -v -e .
+
 This installs matplotlib for development (i.e., builds everything and places the
 symbolic links back to the source code). Note that this command has to be
 called everytime a `c` file is changed.
