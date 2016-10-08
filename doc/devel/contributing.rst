@@ -41,10 +41,13 @@ or::
   
    pip install -v -e .
 
-This installs matplotlib for development (i.e., builds everything and places
-the symbolic links back to the source code). This command has to be called
-everytime a `c` file is changed. Note that changing branches may change the
-`c`-code.
+This installs matplotlib for development (i.e., builds everything and places the
+symbolic links back to the source code). You can then run the tests your work
+environment is set up properly::
+
+  python tests.py
+
+You can read more about testing :ref:`testings:
 
 .. note::
   
@@ -75,17 +78,69 @@ For more information on using git and Github, see :ref:`using-git`.
 Contributing code
 =================
 
-Here are some guidelines on how new code should be written:
+How to contribute
+-----------------
+
+The preferred way to contribute to matplotlib is to fork the `main
+repository <https://github.com/matplotlib/matplibtl/>`__ on GitHub,
+then submit a "pull request" (PR):
+
+ 1. `Create an account <https://github.com/join>`_ on
+    GitHub if you do not already have one.
+
+ 2. Fork the `project repository
+    <https://github.com/matplotlib/matplotlib>`__: click on the 'Fork' button
+    near the top of the page. This creates a copy of the code under your
+    account scikit-learnon the GitHub server.
+
+ 3. Clone this copy to your local disk::
+
+        $ git clone git@github.com:YourLogin/matplotlib.git
+
+ 4. Create a branch to hold your changes::
+
+        $ git checkout -b my-feature
+
+    and start making changes. Never work in the ``master`` branch!
+
+ 5. Work on this copy, on your computer, using Git to do the version
+    control. When you're done editing, do::
+
+        $ git add modified_files
+        $ git commit
+
+    to record your changes in Git, then push them to GitHub with::
+
+        $ git push -u origin my-feature
+
+Finally, go to the web page of the your fork of the matplotlib repo,
+and click 'Pull request' to send your changes to the maintainers for review.
+You may want to consider sending an email to the mailing list for more
+visibility.
+
+If any of the above seems like magic to you, then look up the 
+`Git documentation <https://git-scm.com/documentation>`_ and our
+`Git development workflow <gitwash/development_workflow>`_.
+
+Contributing pull requests
+--------------------------
+
+It is recommended to check that your contribution complies with the following
+rules before submitting a pull request:
+
+  * If your pull request addresses an issue, please use the title todescribe
+    the issue and mention the issue number in the pull request description
+    to ensure a link is created to the original issue.
+
+  * All public methods should have informative docstrings with sample
+    usage presented as doctests when appropriate. Use the
+    `numpy docstring standard <https://github.com/numpy/numpy/blob/master/doc/HOWTO_DOCUMENT.rst.txt>`_
 
   * Formatting should follow `PEP8
     <http://www.python.org/dev/peps/pep-0008/>`_. You should consider
     installing/enabling automatic PEP8 checking in your editor.  Part of the
     test suite is checking PEP8 compliance, things go smoother if the code is
     mostly PEP8 compliant to begin with.
-
-   * Every new feature should be documented. Use the
-     `numpy docstring standard <https://github.com/numpy/numpy/blob/master/doc/HOWTO_DOCUMENT.rst.txt>`_
-     in all your docstrings.
 
   * Each high-level plotting function should have a simple example in
     the `Example` section of the docstring.  This should be as simple as
@@ -122,6 +177,28 @@ Here are some guidelines on how new code should be written:
     :ref:`keyword-argument-processing`, if code in your pull request
     does that.
 
+In addition, you can check for common programming errors with the following
+tools:
+
+    * Code with a good unittest coverage (at least 70%, better 100%), check
+      with::
+      
+        pip install coverage
+        python tests.py --with-coverage
+
+    * No pyflakes warnings, check with::
+      
+        pip install pyflakes
+        pyflakes path/to/module.py
+
+.. note::
+
+    The current state of the matplotlib code base is not compliant with all
+    of those guidelines, but we expect that enforcing those constraints on all
+    new contributions will get the overall code base quality in the right
+    direction.
+
+
 More on :ref:`coding_guidelines`
 
 .. _other_ways_to_contribute:
@@ -138,13 +215,7 @@ list or submit a GitHub pull request. Full documentation can be found under
 the doc/ directory.
 
 It also helps us if you spread the word: reference the project from your blog
-and articles, link to it from your website, or simply say "I use it":
-
-.. raw:: html
-
-      <script type="text/javascript"
-      src="http://www.ohloh.net/p/480792/widgets/project_users.js?style=rainbow"></script>
-
+and articles or link to it from your website!
 
 .. _coding_guidelines:
 
