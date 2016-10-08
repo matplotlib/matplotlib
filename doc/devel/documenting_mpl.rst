@@ -1,8 +1,8 @@
 .. _documenting-matplotlib:
 
-**********************
-Documenting matplotlib
-**********************
+===========================================
+Developer's tips for documenting matplotlib
+===========================================
 
 Getting started
 ===============
