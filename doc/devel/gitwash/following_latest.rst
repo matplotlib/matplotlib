@@ -10,7 +10,7 @@ These are the instructions if you just want to follow the latest
 The steps are:
 
 * :ref:`install-git`
-* get local copy of the git repository from github_
+* get local copy of the `matplotlib github`_ git repository
 * update local copy from time to time
 
 Get the local copy of the code
