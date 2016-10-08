@@ -1054,20 +1054,20 @@ def subplots(nrows=1, ncols=1, sharex=False, sharey=False, squeeze=True,
         Number of columns of the subplot grid.
 
     sharex : bool or string, optional, default: False
-        - If True, the X axis will be shared amongst all subplots.
+        - If True, the x-axis will be shared amongst all subplots.
         - If False, no axis will be shared amongst subplots.
         - If a string must be one of "row", "col", "all", or "none".
             - "all" has the same effect as True.
             - "none" has the same effect as False.
-            - If "row", each subplot row will share a X axis.
-            - If "col", each subplot column will share a X axis.
+            - If "row", each subplot row will share a x-axis.
+            - If "col", each subplot column will share a x-axis.
 
         Note that if the x-axis is shared across rows (sharex=True or
-        sharex="col") and nrows > 1 then the x tick labels won't be displayed
-        on any of plots but the ones on the bottom row.
+        sharex="col"), then the x tick labels will only be display on subplots
+        of the bottom row.
 
     sharey : bool or string, optional, default: False
-        - If True, the Y axis will be shared amongst all subplots.
+        - If True, the y-axis will be shared amongst all subplots.
         - If False, no y-axis will be shared amongst subplots.
         - If a string must be one of "row", "col", "all", or "none".
             - "all" has the same effect as True.
@@ -1076,8 +1076,8 @@ def subplots(nrows=1, ncols=1, sharex=False, sharey=False, squeeze=True,
             - If "col", each subplot column will share a y-axis
 
         Note that if the y-axis is shared across columns (sharey=False or
-        sharey="col") and ncols > 1 then the y tick labels won't be displayed
-        on any of the plots but the ones on the first column.
+        sharey="col"), 1 then the y tick labels will only be displayed on
+        subplots of the first column.
 
     squeeze : bool, optional, default: True
         - If True, extra dimensions are squeezed out from the returned axis
