@@ -11,7 +11,6 @@ Contents:
 
    forking_hell
    set_up_fork
-   matplotlib_for_dev
    configure_git
    development_workflow
    dot2_dot3

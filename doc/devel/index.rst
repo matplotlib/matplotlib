@@ -12,7 +12,8 @@ The Matplotlib Developers' Guide
 .. toctree::
    :maxdepth: 2
 
-   coding_guide.rst
+   contributing.rst
+   reviewers_guide.rst
    portable_code.rst
    license.rst
    gitwash/index.rst
