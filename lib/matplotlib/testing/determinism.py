@@ -2,6 +2,8 @@
 Provides utilities to test output reproducibility.
 """
 
+import six
+
 import io
 import os
 import re
@@ -53,7 +55,13 @@ def _determinism_save(objects='mhi', format="pdf"):
     x = range(5)
     fig.add_subplot(1, 6, 6).plot(x, x)
 
-    fig.savefig(sys.stdout.buffer, format=format)
+    if six.PY2 and format == 'ps':
+        stdout = io.StringIO()
+    else:
+        stdout = getattr(sys.stdout, 'buffer', sys.stdout)
+    fig.savefig(stdout, format=format)
+    if six.PY2 and format == 'ps':
+        sys.stdout.write(stdout.getvalue())
 
     # Restores SOURCE_DATE_EPOCH
     if sde is None:
