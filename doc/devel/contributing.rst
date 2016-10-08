@@ -82,7 +82,7 @@ How to contribute
 -----------------
 
 The preferred way to contribute to matplotlib is to fork the `main
-repository <https://github.com/matplotlib/matplibtl/>`__ on GitHub,
+repository <https://github.com/matplotlib/matplotlib/>`__ on GitHub,
 then submit a "pull request" (PR):
 
  1. `Create an account <https://github.com/join>`_ on
@@ -120,7 +120,7 @@ visibility.
 
 If any of the above seems like magic to you, then look up the 
 `Git documentation <https://git-scm.com/documentation>`_ and our
-`Git development workflow <gitwash/development_workflow>`_.
+:ref:`development-workflow`.
 
 Contributing pull requests
 --------------------------
