@@ -1,7 +1,8 @@
 .. _testing:
 
-Testing
-=======
+============================
+Developer's tips for testing
+============================
 
 Matplotlib has a testing infrastructure based on nose_, making it easy
 to write new tests. The tests are in :mod:`matplotlib.tests`, and

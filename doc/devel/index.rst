@@ -13,17 +13,17 @@ The Matplotlib Developers' Guide
    :maxdepth: 2
 
    contributing.rst
-   reviewers_guide.rst
-   portable_code.rst
-   gitwash/index.rst
    testing.rst
    documenting_mpl.rst
-   release_guide.rst
    add_new_projection.rst
-   color_changes
+   portable_code.rst
+   gitwash/index.rst
+   reviewers_guide.rst
+   release_guide.rst
    MEP/index
 
 .. toctree::
    :hidden:
 
    license.rst
+   color_changes
