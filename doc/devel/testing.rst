@@ -17,20 +17,16 @@ Requirements
 The following software is required to run the tests:
 
   - nose_, version 1.0 or later
-
   - `mock <http://www.voidspace.org.uk/python/mock/>`_, when running python
     versions < 3.3
-
   - `Ghostscript <http://pages.cs.wisc.edu/~ghost/>`_ (to render PDF
     files)
-
   - `Inkscape <http://inkscape.org>`_ (to render SVG files)
 
 Optionally you can install:
 
   - `coverage <http://nedbatchelder.com/code/coverage/>`_ to collect coverage
     information
-
   - `pep8 <http://pep8.readthedocs.org/en/latest>`_ to test coding standards
 
 Building matplotlib for image comparison tests
