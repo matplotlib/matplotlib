@@ -187,6 +187,65 @@ class TestPlot(object):
         self.axis_test(ax.yaxis, self.dmticks, self.dmlabels, self.dmunit_data)
 
     @cleanup
+    @pytest.mark.usefixtures("data")
+    def test_plot_bytes(self):
+        counts = np.array([4, 6, 5, 1])
+        fig, ax = plt.subplots(ncols=3)
+
+        ax[0].bar(self.d, counts)
+
+        types = [v.encode('ascii') for v in self.d]
+        ax[1].bar(types, counts)
+
+        types = np.array(types)
+        ax[2].bar(types, counts)
+
+        fig.canvas.draw()
+
+        # All three plots should look like the string one.
+        self.axis_test(ax[1].xaxis,
+                       ax[0].xaxis.get_majorticklocs(),
+                       lt(ax[0].xaxis.get_majorticklabels()),
+                       ax[0].xaxis.unit_data)
+        self.axis_test(ax[2].xaxis,
+                       ax[0].xaxis.get_majorticklocs(),
+                       lt(ax[0].xaxis.get_majorticklabels()),
+                       ax[0].xaxis.unit_data)
+
+    @cleanup
+    def test_plot_numlike(self):
+        counts = np.array([4, 6, 5, 1])
+        fig, ax = plt.subplots(ncols=4)
+
+        types = ['1', '11', '3', '1']
+        ax[0].bar(types, counts)
+
+        types = np.array(types)
+        ax[1].bar(types, counts)
+
+        types = [b'1', b'11', b'3', b'1']
+        ax[2].bar(types, counts)
+
+        types = np.array(types)
+        ax[3].bar(types, counts)
+
+        fig.canvas.draw()
+
+        # All four plots should look like the string one.
+        self.axis_test(ax[1].xaxis,
+                       ax[0].xaxis.get_majorticklocs(),
+                       lt(ax[0].xaxis.get_majorticklabels()),
+                       ax[0].xaxis.unit_data)
+        self.axis_test(ax[2].xaxis,
+                       ax[0].xaxis.get_majorticklocs(),
+                       lt(ax[0].xaxis.get_majorticklabels()),
+                       ax[0].xaxis.unit_data)
+        self.axis_test(ax[3].xaxis,
+                       ax[0].xaxis.get_majorticklocs(),
+                       lt(ax[0].xaxis.get_majorticklabels()),
+                       ax[0].xaxis.unit_data)
+
+    @cleanup
     @pytest.mark.usefixtures("data", "missing_data")
     def test_plot_2d(self):
         fig, ax = plt.subplots()
