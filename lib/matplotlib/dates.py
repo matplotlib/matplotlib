@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """
 Matplotlib provides sophisticated date plotting capabilities, standing on the
 shoulders of python :mod:`datetime`, the add-on modules :mod:`pytz` and

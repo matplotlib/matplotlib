@@ -1,4 +1,3 @@
-#!/usr/bin/python
 # 3dproj.py
 #
 """
