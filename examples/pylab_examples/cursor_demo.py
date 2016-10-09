@@ -8,8 +8,10 @@ requires redrawing the figure with every mouse move.
 Faster cursoring is possible using native GUI drawing, as in
 wxcursor_demo.py.
 
-Also, mpldatacursor can be used to achieve a similar effect. See webpage:
-https://github.com/joferkington/mpldatacursor
+The mpldatacursor and mplcursors third-party packages can be used to achieve a
+similar effect.  See
+    https://github.com/joferkington/mpldatacursor
+    https://github.com/anntzer/mplcursors
 """
 from __future__ import print_function
 import matplotlib.pyplot as plt
