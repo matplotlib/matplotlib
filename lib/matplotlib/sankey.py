@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """
 Module for creating Sankey diagrams using matplotlib
 """
