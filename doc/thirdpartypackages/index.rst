@@ -134,6 +134,15 @@ toolkit written by Joe Kington to provide interactive "data cursors"
 (clickable annotation boxes) for matplotlib.
 
 
+.. _toolkit_mplcursors:
+
+mplcursors
+==========
+
+`mplcursors <https://mplcursors.readthedocs.io>`_ provides interactive
+data cursors for matplotlib.
+
+
 .. _toolkit_natgrid:
 
 Natgrid
