@@ -96,6 +96,15 @@ distributed with matplotlib source.
 .. image:: /_static/demo_axes_grid.png
 
 
+.. _toolkit_mplcursors:
+
+mplcursors
+==========
+
+`mplcursors <https://mplcursors.readthedocs.io>`_ provides interactive
+data cursors for matplotlib.
+
+
 .. _toolkit_mpldatacursor:
 
 MplDataCursor
