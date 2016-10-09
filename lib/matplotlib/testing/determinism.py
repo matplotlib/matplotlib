@@ -2,6 +2,9 @@
 Provides utilities to test output reproducibility.
 """
 
+from __future__ import (absolute_import, division, print_function,
+                        unicode_literals)
+
 import six
 
 import io
