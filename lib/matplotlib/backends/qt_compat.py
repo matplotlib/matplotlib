@@ -69,7 +69,8 @@ if (QT_API_ENV is not None) and QT_API is None:
     except KeyError:
         raise RuntimeError(
             ('Unrecognized environment variable %r, valid values are:'
-             ' %r, %r or %r' % (QT_API_ENV, 'pyqt', 'pyside', 'pyqt5', 'pyside2')))
+             ' %r, %r, %r or %r' 
+             % (QT_API_ENV, 'pyqt', 'pyside', 'pyqt5', 'pyside2')))
     if QT_ENV_MAJOR_VERSION == QT_RC_MAJOR_VERSION:
         # Only if backend and env qt major version are
         # compatible use the env variable.
