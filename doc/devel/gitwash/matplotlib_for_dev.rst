@@ -15,10 +15,13 @@ or::
   
    pip install -v -e .
 
-This installs matplotlib for development (i.e., builds everything and places the
-symbolic links back to the source code). Note that this command has to be
-called everytime a `c` file is changed.
+This installs matplotlib for development (i.e., builds everything and places
+the symbolic links back to the source code). This command has to be called
+everytime a `c` file is changed. Note that changing branches may change the
+`c`-code.
 
-You may want to consider setting up a `virtual environment
+When working on bleeding edge packages, setting up a
+`virtual environment
 <http://docs.python-guide.org/en/latest/dev/virtualenvs/>`_ or a `conda
-environment <http://conda.pydata.org/docs/using/envs.html>`_
+environment <http://conda.pydata.org/docs/using/envs.html>`_ is recommended.
+
