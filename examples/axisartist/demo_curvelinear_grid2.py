@@ -1,3 +1,8 @@
+"""
+Demo of defining curvilinear coordinate using GridHelper.
+"""
+
+
 import numpy as np
 import matplotlib.pyplot as plt
 
