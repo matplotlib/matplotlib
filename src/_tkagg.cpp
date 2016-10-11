@@ -1,8 +1,10 @@
 /* -*- mode: c++; c-basic-offset: 4 -*- */
 
 /*
- * The Python Imaging Library.
- * $Id$
+ * This code is derived from The Python Imaging Library and is covered
+ * by the PIL license.
+ *
+ * See LICENSE/LICENSE.PIL for details.
  *
  */
 
