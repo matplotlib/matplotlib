@@ -23,16 +23,13 @@ small_im = np.array([[0.25, 0.75, 1.0, 0.75], [0.1, 0.65, 0.5, 0.4],
                      [0.6, 0.3, 0.0, 0.2], [0.7, 0.9, 0.4, 0.6]])
 
 # Create a 2x2 table of plots
-fig = plt.figure(figsize=[8.0, 7.5])
-ax = plt.subplot(2, 2, 1)
-ax.imshow(big_im, interpolation='none')
-ax = plt.subplot(2, 2, 2)
-ax.imshow(big_im, interpolation='nearest')
-ax = plt.subplot(2, 2, 3)
-ax.imshow(small_im, interpolation='none')
-ax = plt.subplot(2, 2, 4)
-ax.imshow(small_im, interpolation='nearest')
-plt.subplots_adjust(left=0.24, wspace=0.2, hspace=0.1,
+fig, axes = plt.subplots(figsize=[8.0, 7.5], ncols=2, nrows=2)
+
+axes[0, 0].imshow(big_im, interpolation='none')
+axes[0, 1].imshow(big_im, interpolation='nearest')
+axes[1, 0].imshow(small_im, interpolation='none')
+axes[1, 1].imshow(small_im, interpolation='nearest')
+fig.subplots_adjust(left=0.24, wspace=0.2, hspace=0.1,
                     bottom=0.05, top=0.86)
 
 # Label the rows and columns of the table
@@ -60,6 +57,6 @@ txt = fig.text(0.452, 0.95, 'Saved as a PNG', fontsize=18)
 pdf_im_path = cbook.get_sample_data('None_vs_nearest-pdf.png')
 pdf_im = plt.imread(pdf_im_path)
 fig2 = plt.figure(figsize=[8.0, 7.5])
-plt.figimage(pdf_im)
+fig2.figimage(pdf_im)
 
 plt.show()
