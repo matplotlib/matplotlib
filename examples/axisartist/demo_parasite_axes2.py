@@ -41,5 +41,3 @@ if 1:
 
     plt.draw()
     plt.show()
-
-    #plt.savefig("Test")

@@ -1,6 +1,12 @@
 """
 An experimental support for curvilinear grid.
 """
+import numpy as np
+import matplotlib.pyplot as plt
+from matplotlib.projections import PolarAxes
+from matplotlib.transforms import Affine2D
+from mpl_toolkits.axisartist import SubplotHost
+from mpl_toolkits.axisartist import GridHelperCurveLinear
 
 
 def curvelinear_test2(fig):
@@ -8,23 +14,16 @@ def curvelinear_test2(fig):
     polar projection, but in a rectangular box.
     """
     global ax1
-    import numpy as np
-    import mpl_toolkits.axisartist.angle_helper as angle_helper
-    from matplotlib.projections import PolarAxes
-    from matplotlib.transforms import Affine2D
-
-    from mpl_toolkits.axisartist import SubplotHost
-
-    from mpl_toolkits.axisartist import GridHelperCurveLinear
-
     # see demo_curvelinear_grid.py for details
     tr = Affine2D().scale(np.pi/180., 1.) + PolarAxes.PolarTransform()
 
-    extreme_finder = angle_helper.ExtremeFinderCycle(20, 20,
+    extreme_finder = angle_helper.ExtremeFinderCycle(20,
+                                                     20,
                                                      lon_cycle=360,
                                                      lat_cycle=None,
                                                      lon_minmax=None,
-                                                     lat_minmax=(0, np.inf),
+                                                     lat_minmax=(0,
+                                                                 np.inf),
                                                      )
 
     grid_locator1 = angle_helper.LocatorDMS(12)
@@ -43,7 +42,6 @@ def curvelinear_test2(fig):
 
     # Now creates floating axis
 
-    #grid_helper = ax1.get_grid_helper()
     # floating axis whose first coordinate (theta) is fixed at 60
     ax1.axis["lat"] = axis = ax1.new_floating_axis(0, 60)
     axis.label.set_text(r"$\theta = 60^{\circ}$")
@@ -59,7 +57,6 @@ def curvelinear_test2(fig):
 
     ax1.grid(True)
 
-import matplotlib.pyplot as plt
 fig = plt.figure(1, figsize=(5, 5))
 fig.clf()
 
