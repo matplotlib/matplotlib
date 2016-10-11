@@ -1047,13 +1047,10 @@ def subplots(nrows=1, ncols=1, sharex=False, sharey=False, squeeze=True,
 
     Parameters
     ----------
-    nrows : int, optional, default: 1
-        Number of rows of the subplot grid.
+    nrows, ncols : int, optional, default: 1
+        Number of rows/columns of the subplot grid.
 
-    ncols : int, optional, default: 1
-        Number of columns of the subplot grid.
-
-    sharex : bool or string, optional, default: False
+    sharex : {"none", "all", "row", "col"} or bool, default: False
         - If True, the x-axis will be shared amongst all subplots.
         - If False, no axis will be shared amongst subplots.
         - If a string must be one of "row", "col", "all", or "none".
@@ -1066,7 +1063,7 @@ def subplots(nrows=1, ncols=1, sharex=False, sharey=False, squeeze=True,
         sharex="col"), then the x tick labels will only be display on subplots
         of the bottom row.
 
-    sharey : bool or string, optional, default: False
+    sharey : {"none", "all", "row", "col"} or bool, default: False
         - If True, the y-axis will be shared amongst all subplots.
         - If False, no y-axis will be shared amongst subplots.
         - If a string must be one of "row", "col", "all", or "none".
