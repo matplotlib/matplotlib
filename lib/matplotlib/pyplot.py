@@ -1052,12 +1052,12 @@ def subplots(nrows=1, ncols=1, sharex=False, sharey=False, squeeze=True,
 
     sharex : {"none", "all", "row", "col"} or bool, default: False
         - If True, the x-axis will be shared amongst all subplots.
-        - If False, no axis will be shared amongst subplots.
+        - If False, no x-axis will be shared amongst subplots.
         - If a string must be one of "row", "col", "all", or "none".
             - "all" has the same effect as True.
             - "none" has the same effect as False.
-            - If "row", each subplot row will share a x-axis.
-            - If "col", each subplot column will share a x-axis.
+            - If "row", each subplot row will share an x-axis.
+            - If "col", each subplot column will share an x-axis.
 
         Note that if the x-axis is shared across rows (sharex=True or
         sharex="col"), then the x tick labels will only be display on subplots
@@ -1070,24 +1070,24 @@ def subplots(nrows=1, ncols=1, sharex=False, sharey=False, squeeze=True,
             - "all" has the same effect as True.
             - "none" has the same effect as False.
             - If "row", each subplot row will share a y-axis.
-            - If "col", each subplot column will share a y-axis
+            - If "col", each subplot column will share an y-axis
 
-        Note that if the y-axis is shared across columns (sharey=False or
-        sharey="col"), 1 then the y tick labels will only be displayed on
+        Note that if the y-axis is shared across columns (sharey=True or
+        sharey="col"), then the y tick labels will only be displayed on
         subplots of the first column.
 
     squeeze : bool, optional, default: True
-        - If True, extra dimensions are squeezed out from the returned axis
+        - If True, extra dimensions are squeezed out from the returned Axes
           object:
 
             - if only one subplot is constructed (nrows=ncols=1), the
-              resulting single Axis object is returned as a scalar.
-            - for Nx1 or 1xN subplots, the returned object is a 1-d numpy
-              object array of Axis objects are returned as numpy 1-d arrays.
-            - for NxM subplots with N>1 and M>1 are returned as a 2d arrays.
+              resulting single Axes object is returned as a scalar.
+            - for Nx1 or 1xN subplots, the returned object is a 1D numpy
+              object array of Axes objects are returned as numpy 1D arrays.
+            - for NxM, subplots with N>1 and M>1 are returned as a 2D arrays.
 
-        - If False, no squeezing at all is done: the returned axis object is
-          always a 2-d array containing Axis instances, even if it ends up
+        - If False, no squeezing at all is done: the returned Axes object is
+          always a 2D array containing Axes instances, even if it ends up
           being 1x1.
 
     subplot_kw : dict, optional
