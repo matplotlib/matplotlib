@@ -67,10 +67,9 @@ environment <http://conda.pydata.org/docs/using/envs.html>`_
 
 .. note::
     
-    **Additional dependencies for testing**: nose_ (version 1.0 or later),
-      `mock <http://www.voidspace.org.uk/python/mock/>`_ (if python < 3.3),
-      `Ghostscript <http://pages.cs.wisc.edu/~ghost/>`_, `Inkscape
-      <http://inkscape.org>`_
+  **Additional dependencies for testing**: nose_ (version 1.0 or later), `mock
+  <http://www.voidspace.org.uk/python/mock/>`_ (if python < 3.3), `Ghostscript
+  <http://pages.cs.wisc.edu/~ghost/>`_, `Inkscape <http://inkscape.org>`_
 
 .. note:: To make sure the tests run locally:
 
@@ -87,7 +86,6 @@ environment <http://conda.pydata.org/docs/using/envs.html>`_ is recommended.
 .. seealso::
   
   * :ref:`testing`
-  * :ref:`using-git`
 
 
 Contributing code
@@ -106,7 +104,7 @@ then submit a "pull request" (PR):
  2. Fork the `project repository
     <https://github.com/matplotlib/matplotlib>`__: click on the 'Fork' button
     near the top of the page. This creates a copy of the code under your
-    account scikit-learnon the GitHub server.
+    account on the GitHub server.
 
  3. Clone this copy to your local disk::
 
@@ -137,6 +135,7 @@ visibility.
    
   * `Git documentation <https://git-scm.com/documentation>`_
   * :ref:`development-workflow`.
+  * :ref:`using-git`
 
 Contributing pull requests
 --------------------------
