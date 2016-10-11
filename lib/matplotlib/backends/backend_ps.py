@@ -1283,7 +1283,7 @@ class FigureCanvasPS(FigureCanvasBase):
             source_date_epoch = os.getenv("SOURCE_DATE_EPOCH")
             if source_date_epoch:
                 source_date = datetime.datetime.utcfromtimestamp(
-                    int(source_date_epoch) ).strftime("%a %b %e %T %Y")
+                    int(source_date_epoch) ).strftime("%a %b %d %H:%M:%S %Y")
             else:
                 source_date = time.ctime()
             print("%%CreationDate: "+source_date, file=fh)
