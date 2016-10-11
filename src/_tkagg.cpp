@@ -351,7 +351,8 @@ int load_tkinter_funcs(void)
 // From module __file__ attribute to char *string for dlopen.
 char *fname2char(PyObject *fname)
 {
-    PyObject *bytes = PyUnicode_EncodeFSDefault(fname);
+    PyObject* bytes;
+    bytes = PyUnicode_EncodeFSDefault(fname);
     if (bytes == NULL) {
         return NULL;
     }
@@ -372,9 +373,10 @@ void *_dfunc(void *lib_handle, const char *func_name)
     // Set Python exception if we can't find `func_name` in `lib_handle`.
     // Returns function pointer or NULL if not present.
 
+    void* func;
     // Reset errors.
     dlerror();
-    void *func = dlsym(lib_handle, func_name);
+    func = dlsym(lib_handle, func_name);
     if (func == NULL) {
         const char *error = dlerror();
         PyErr_SetString(PyExc_RuntimeError, error);
