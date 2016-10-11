@@ -47,7 +47,11 @@ environment is set up properly::
 
   python tests.py
 
-You can read more about testing :ref:`testing`
+
+You may want to consider setting up a `virtual environment
+<http://docs.python-guide.org/en/latest/dev/virtualenvs/>`_ or a `conda
+environment <http://conda.pydata.org/docs/using/envs.html>`_
+
 
 .. note::
   
@@ -58,22 +62,33 @@ You can read more about testing :ref:`testing`
     every time the source code of a compiled extension is changed (for
     instance when switching branches or pulling changes from upstream).
 
+.. _nose: http://nose.readthedocs.org/en/latest/
+.. _pep8: http://pep8.readthedocs.org/en/latest/
+
 .. note::
     
-    To make sure the tests run locally:
+    **Additional dependencies for testing**: nose_ (version 1.0 or later),
+      `mock <http://www.voidspace.org.uk/python/mock/>`_ (if python < 3.3),
+      `Ghostscript <http://pages.cs.wisc.edu/~ghost/>`_, `Inkscape
+      <http://inkscape.org>`_
+
+.. note:: To make sure the tests run locally:
 
       * Copy setup.cfg.template to setup.cfg
       * Edit setup.cfg to set `test` to True, and `local_freetype` to True
       * If you have build matplotlib previously, remove the build folder.
       * Execute the build command.
-
+<<<<<<< 8301de2110774994b720461335e5923998d80c99
 When working on bleeding edge packages, setting up a
 `virtual environment
 <http://docs.python-guide.org/en/latest/dev/virtualenvs/>`_ or a `conda
 environment <http://conda.pydata.org/docs/using/envs.html>`_ is recommended.
 
+.. seealso::
+  
+  * :ref:`testing`
+  * :ref:`using-git`
 
-For more information on using git and Github, see :ref:`using-git`.
 
 Contributing code
 =================
@@ -118,9 +133,10 @@ and click 'Pull request' to send your changes to the maintainers for review.
 You may want to consider sending an email to the mailing list for more
 visibility.
 
-If any of the above seems like magic to you, then look up the 
-`Git documentation <https://git-scm.com/documentation>`_ and our
-:ref:`development-workflow`.
+.. seealso::
+   
+  * `Git documentation <https://git-scm.com/documentation>`_
+  * :ref:`development-workflow`.
 
 Contributing pull requests
 --------------------------
@@ -136,7 +152,7 @@ rules before submitting a pull request:
     usage presented as doctests when appropriate. Use the
     `numpy docstring standard <https://github.com/numpy/numpy/blob/master/doc/HOWTO_DOCUMENT.rst.txt>`_
 
-  * Formatting should follow `PEP8
+  * Formatting should follow `PEP8 recommandation
     <http://www.python.org/dev/peps/pep-0008/>`_. You should consider
     installing/enabling automatic PEP8 checking in your editor.  Part of the
     test suite is checking PEP8 compliance, things go smoother if the code is
@@ -199,7 +215,11 @@ tools:
     direction.
 
 
-More on :ref:`coding_guidelines`
+.. seealso::
+
+  * :ref:`coding_guidelines`
+  * :ref:`testing`
+  * :ref:`documenting-matplotlib`
 
 .. _other_ways_to_contribute:
 
