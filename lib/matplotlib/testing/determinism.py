@@ -13,15 +13,18 @@ import re
 import sys
 from subprocess import check_output
 
+import matplotlib
 from matplotlib import pyplot as plt
 
 
-def _determinism_save(objects='mhi', format="pdf"):
+def _determinism_save(objects='mhi', format="pdf", usetex=False):
     # save current value of SOURCE_DATE_EPOCH and set it
     # to a constant value, so that time difference is not
     # taken into account
     sde = os.environ.pop('SOURCE_DATE_EPOCH', None)
     os.environ['SOURCE_DATE_EPOCH'] = "946684800"
+
+    matplotlib.rcParams['text.usetex'] = usetex
 
     fig = plt.figure()
 
@@ -73,7 +76,7 @@ def _determinism_save(objects='mhi', format="pdf"):
         os.environ['SOURCE_DATE_EPOCH'] = sde
 
 
-def _determinism_check(objects='mhi', format="pdf", uid=""):
+def _determinism_check(objects='mhi', format="pdf", uid="", usetex=False):
     """
     Output three times the same graphs and checks that the outputs are exactly
     the same.
@@ -98,8 +101,8 @@ def _determinism_check(objects='mhi', format="pdf", uid=""):
                                'matplotlib.use(%r); '
                                'from matplotlib.testing.determinism '
                                'import _determinism_save;'
-                               '_determinism_save(%r,%r)'
-                               % (format, objects, format)])
+                               '_determinism_save(%r,%r,%r)'
+                               % (format, objects, format, usetex)])
         plots.append(result)
     for p in plots[1:]:
         assert_equal(p, plots[0])
