@@ -93,6 +93,11 @@ def test_xelatex():
 @cleanup(style='classic')
 @switch_backend('pgf')
 def test_pdflatex():
+    import os
+    if os.environ.get('APPVEYOR', False):
+        from matplotlib.testing import xfail
+        xfail("pdflatex test does not work on appveyor due "
+              "to missing latex fonts")
     if not check_for('pdflatex'):
         raise SkipTest('pdflatex + pgf is required')
 
