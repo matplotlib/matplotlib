@@ -50,6 +50,7 @@ requirements:
     - pytz
     - pyparsing
 #    - py2cairo  # [linux and py2k]
+    - qt 4*
     - libpng >=1.6.21,<1.7
     - pyqt  # [not osx]
     - tk 8.5*  # [linux and win]
