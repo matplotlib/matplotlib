@@ -1,8 +1,8 @@
 .. _adding-new-scales:
 
-========================================================
-Developer's guide for creating scales and transformation
-========================================================
+=========================================================
+Developer's guide for creating scales and transformations
+=========================================================
 
 .. ::author Michael Droettboom
 
