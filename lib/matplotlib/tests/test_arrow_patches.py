@@ -97,6 +97,32 @@ def test_fancyarrow_dpi_cor_200dpi():
     __prepare_fancyarrow_dpi_cor_test()
 
 
+@image_comparison(baseline_images=['fancyarrow_dash'],
+                  remove_text=True, extensions=['png'],
+                  style='default')
+def test_fancyarrow_dash():
+    from matplotlib.patches import FancyArrowPatch
+    fig, ax = plt.subplots()
+
+    e = FancyArrowPatch((0, 0), (0.5, 0.5),
+                        arrowstyle='-|>',
+                        connectionstyle='angle3,angleA=0,angleB=90',
+                        mutation_scale=10.0,
+                        linewidth=2,
+                        linestyle='dashed',
+                        color='k')
+
+    e2 = FancyArrowPatch((0, 0), (0.5, 0.5),
+                         arrowstyle='-|>',
+                         connectionstyle='angle3',
+                         mutation_scale=10.0,
+                         linewidth=2,
+                         linestyle='dotted',
+                         color='k')
+    ax.add_patch(e)
+    ax.add_patch(e2)
+
+
 if __name__ == '__main__':
     import nose
     nose.runmodule(argv=['-s', '--with-doctest'], exit=False)
