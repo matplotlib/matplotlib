@@ -77,7 +77,7 @@ environment <http://conda.pydata.org/docs/using/envs.html>`_
       * Edit setup.cfg to set `test` to True, and `local_freetype` to True
       * If you have build matplotlib previously, remove the build folder.
       * Execute the build command.
-<<<<<<< 8301de2110774994b720461335e5923998d80c99
+
 When working on bleeding edge packages, setting up a
 `virtual environment
 <http://docs.python-guide.org/en/latest/dev/virtualenvs/>`_ or a `conda
@@ -214,6 +214,32 @@ tools:
   * :ref:`coding_guidelines`
   * :ref:`testing`
   * :ref:`documenting-matplotlib`
+
+
+
+.. _new_contributors:
+
+Issues for New Contributors
+---------------------------
+
+New contributors should look for the following tags when looking for issues.
+We strongly recommend that new contributors tackle "new-contributor-friendly"
+issues (easy, well documented issues, that do not require an understanding of
+the different submodules of matplotlib) and "Easy-fix" issues. This helps the
+contributor become familiar with the contribution workflow, and for the core
+devs to become acquainted with the contributor; besides which, we frequently
+underestimate how easy an issue is to solve!
+
+.. topic:: new-contributor-friendly
+
+    A great way to start contributing to matplotlib is to pick an item from
+    the list of
+    `new-contributor-friendly <https://github.com/matplotlib/matplotlib/labels/new-contributor-friendly>`_ 
+    in the issue tracker. Resolving these issues allow you to start
+    contributing to the project without much prior knowledge. Your assistance
+    in this area will be greatly appreciated by the more experienced
+    developers as it helps free up their time to concentrate on other issues.
+ 
 
 .. _other_ways_to_contribute:
 
