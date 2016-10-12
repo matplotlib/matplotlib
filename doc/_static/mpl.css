@@ -400,9 +400,14 @@ div.admonition {
   }
 
 
-div.note {
+div.note, div.topic {
     background-color: #eee;
     border: 1px solid #ccc;
+}
+
+p.topic-title {
+    font-size: 1.1em;
+    font-weight: bold;
 }
 
 div.seealso {
