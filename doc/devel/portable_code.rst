@@ -2,7 +2,7 @@
 .. _portable_code:
 
 =====================================================
-Developer's tips for writing code for python 2 and 3
+Developer's tips for writing code for Python 2 and 3
 =====================================================
 
 As of matplotlib 1.4, the `six <http://pythonhosted.org/six/>`_

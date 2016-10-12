@@ -12,7 +12,7 @@ The project is hosted on https://github.com/matplotlib/matplotlib
 Submitting a bug report
 =======================
 
-In case you experience issues using this package, do not hesitate to submit a
+If you find a bug in the code or documentation, do not hesitate to submit a
 ticket to the
 `Bug Tracker <https://github.com/matplotlib/matplotlib/issues>`_. You are
 also welcome to post feature requests or pull requests.
@@ -30,10 +30,8 @@ You can check out the latest sources with the command::
     git clone git@github.com:matplotlib/matplotlib.git
 
 
-After obtaining a local copy of the matpotlib source code (:ref:`set-up-fork`),
-navigate to the matplotlib directory and run the following in the shell:
-
-::
+After obtaining a local copy of the matplotlib source code (:ref:`set-up-fork`),
+navigate to the matplotlib directory and run the following in the shell::
     
     python setup.py develop
 
@@ -41,41 +39,47 @@ or::
   
    pip install -v -e .
 
+
 This installs matplotlib for development (i.e., builds everything and places the
-symbolic links back to the source code). You can then run the tests your work
-environment is set up properly::
+symbolic links back to the source code).
 
-  python tests.py
+.. warning::
 
-
-You may want to consider setting up a `virtual environment
-<http://docs.python-guide.org/en/latest/dev/virtualenvs/>`_ or a `conda
-environment <http://conda.pydata.org/docs/using/envs.html>`_
+   If you already have a version of matplotlib installed, you will need to
+   uninstall it.
 
 
 .. note::
   
-    If you decide to do this, you will have to rerun::
+    If you decide to do install with ``python setup.py develop`` or ``pip
+    install -v -e``, you will have to rerun::
    
       python setup.py build
 
     every time the source code of a compiled extension is changed (for
     instance when switching branches or pulling changes from upstream).
 
-.. _nose: http://nose.readthedocs.org/en/latest/
-.. _pep8: http://pep8.readthedocs.org/en/latest/
+
+
+You can then run the tests to check your work environment is set up properly::
+
+  python tests.py
+
+
+.. _nose: https://nose.readthedocs.io/en/latest/
+.. _pep8: https://pep8.readthedocs.io/en/latest/
 
 .. note::
     
   **Additional dependencies for testing**: nose_ (version 1.0 or later), `mock
-  <http://www.voidspace.org.uk/python/mock/>`_ (if python < 3.3), `Ghostscript
-  <http://pages.cs.wisc.edu/~ghost/>`_, `Inkscape <http://inkscape.org>`_
+  <https://docs.python.org/dev/library/unittest.mock.html>`_ (if python < 3.3), `Ghostscript
+  <http://www.ghostscript.com/>`_, `Inkscape <http://inkscape.org>`_
 
 .. note:: To make sure the tests run locally:
 
       * Copy setup.cfg.template to setup.cfg
-      * Edit setup.cfg to set `test` to True, and `local_freetype` to True
-      * If you have build matplotlib previously, remove the build folder.
+      * Edit setup.cfg to set ``test`` to True, and ``local_freetype`` to True
+      * If you have built matplotlib previously, remove the ``build`` folder.
       * Execute the build command.
 
 When working on bleeding edge packages, setting up a
@@ -112,21 +116,22 @@ then submit a "pull request" (PR):
 
  4. Create a branch to hold your changes::
 
-        $ git checkout -b my-feature
+        $ git checkout -b my-feature origin/master
 
     and start making changes. Never work in the ``master`` branch!
 
  5. Work on this copy, on your computer, using Git to do the version
-    control. When you're done editing, do::
+    control. When you're done editing e.g., ``lib/matplotlib/collections.py``,
+    do::
 
-        $ git add modified_files
+        $ git add lib/matplotlib/collections.py
         $ git commit
 
     to record your changes in Git, then push them to GitHub with::
 
         $ git push -u origin my-feature
 
-Finally, go to the web page of the your fork of the matplotlib repo,
+Finally, go to the web page of your fork of the matplotlib repo,
 and click 'Pull request' to send your changes to the maintainers for review.
 You may want to consider sending an email to the mailing list for more
 visibility.
@@ -143,24 +148,24 @@ Contributing pull requests
 It is recommended to check that your contribution complies with the following
 rules before submitting a pull request:
 
-  * If your pull request addresses an issue, please use the title todescribe
+  * If your pull request addresses an issue, please use the title to describe
     the issue and mention the issue number in the pull request description
     to ensure a link is created to the original issue.
 
   * All public methods should have informative docstrings with sample
-    usage presented as doctests when appropriate. Use the
+    usage when appropriate. Use the
     `numpy docstring standard <https://github.com/numpy/numpy/blob/master/doc/HOWTO_DOCUMENT.rst.txt>`_
 
-  * Formatting should follow `PEP8 recommandation
-    <http://www.python.org/dev/peps/pep-0008/>`_. You should consider
+  * Formatting should follow `PEP8 recommendation
+    <https://www.python.org/dev/peps/pep-0008/>`_. You should consider
     installing/enabling automatic PEP8 checking in your editor.  Part of the
     test suite is checking PEP8 compliance, things go smoother if the code is
     mostly PEP8 compliant to begin with.
 
   * Each high-level plotting function should have a simple example in
-    the `Example` section of the docstring.  This should be as simple as
+    the ``Example`` section of the docstring.  This should be as simple as
     possible to demonstrate the method.  More complex examples should go
-    in the `examples` tree.
+    in the ``examples`` tree.
 
   * Changes (both new features and bugfixes) should be tested. See
     :ref:`testing` for more details.
@@ -170,13 +175,12 @@ rules before submitting a pull request:
       import numpy as np
       import numpy.ma as ma
       import matplotlib as mpl
-      from matplotlib import pyplot as plt
+      import matplotlib.pyplot as plt
       import matplotlib.cbook as cbook
-      import matplotlib.collections as mcol
       import matplotlib.patches as mpatches
 
-  * If your change is a major new feature, add an entry to `What's new`
-    section by adding a new file in `doc/users/whats_new` (see
+  * If your change is a major new feature, add an entry to the ``What's new``
+    section by adding a new file in ``doc/users/whats_new`` (see
     :file:`doc/users/whats_new/README` for more information).
 
   * If you change the API in a backward-incompatible way, please
@@ -205,7 +209,7 @@ tools:
 
     The current state of the matplotlib code base is not compliant with all
     of those guidelines, but we expect that enforcing those constraints on all
-    new contributions will get the overall code base quality in the right
+    new contributions will move the overall code base quality in the right
     direction.
 
 
@@ -223,23 +227,14 @@ Issues for New Contributors
 ---------------------------
 
 New contributors should look for the following tags when looking for issues.
-We strongly recommend that new contributors tackle "new-contributor-friendly"
+We strongly recommend that new contributors tackle 
+`new-contributor-friendly <https://github.com/matplotlib/matplotlib/labels/new-contributor-friendly>`_
 issues (easy, well documented issues, that do not require an understanding of
-the different submodules of matplotlib) and "Easy-fix" issues. This helps the
-contributor become familiar with the contribution workflow, and for the core
-devs to become acquainted with the contributor; besides which, we frequently
-underestimate how easy an issue is to solve!
-
-.. topic:: new-contributor-friendly
-
-    A great way to start contributing to matplotlib is to pick an item from
-    the list of
-    `new-contributor-friendly <https://github.com/matplotlib/matplotlib/labels/new-contributor-friendly>`_ 
-    in the issue tracker. Resolving these issues allow you to start
-    contributing to the project without much prior knowledge. Your assistance
-    in this area will be greatly appreciated by the more experienced
-    developers as it helps free up their time to concentrate on other issues.
- 
+the different submodules of matplotlib) and 
+`Easy-fix <https://github.com/matplotlib/matplotlib/labels/Difficulty%3A%20Easy>`_
+issues. This helps the contributor become familiar with the contribution
+workflow, and for the core devs to become acquainted with the contributor;
+besides which, we frequently underestimate how easy an issue is to solve!
 
 .. _other_ways_to_contribute:
 
@@ -266,7 +261,7 @@ New modules and files: installation
 -----------------------------------
 
 * If you have added new files or directories, or reorganized existing
-  ones, make sure the new files included in the match patterns in
+  ones, make sure the new files are included in the match patterns in
   :file:`MANIFEST.in`, and/or in `package_data` in `setup.py`.
 
 C/C++ extensions
@@ -276,9 +271,6 @@ C/C++ extensions
 
 * Code style should conform to PEP7 (understanding that PEP7 doesn't
   address C++, but most of its admonitions still apply).
-
-* Interfacing with Python may be done either with the raw Python/C API
-  or Cython.
 
 * Python/C interface code should be kept separate from the core C/C++
   code.  The interface code should be named `FOO_wrap.cpp` or
@@ -296,7 +288,7 @@ Keyword argument processing
 
 Matplotlib makes extensive use of ``**kwargs`` for pass-through
 customizations from one function to another.  A typical example is in
-:func:`matplotlib.pylab.text`.  The definition of the pylab text
+:func:`matplotlib.pyplot.text`.  The definition of the pylab text
 function is a simple pass-through to
 :meth:`matplotlib.axes.Axes.text`::
 
@@ -310,7 +302,7 @@ function is a simple pass-through to
 i.e., it just passes all ``args`` and ``kwargs`` on to
 :meth:`matplotlib.text.Text.__init__`::
 
-  # in axes.py
+  # in axes/_axes.py
   def text(self, x, y, s, fontdict=None, withdash=False, **kwargs):
       t = Text(x=x, y=y, text=s, **kwargs)
 
@@ -342,7 +334,7 @@ used locally and pass on the rest.  For example, in
 local arguments and the rest are passed on as
 :meth:`~matplotlib.lines.Line2D` keyword arguments::
 
-  # in axes.py
+  # in axes/_axes.py
   def plot(self, *args, **kwargs):
       scalex = kwargs.pop('scalex', True)
       scaley = kwargs.pop('scaley', True)
@@ -381,7 +373,7 @@ If you are working on a custom backend, the *backend* setting in
 :file:`matplotlibrc` (:ref:`customizing-matplotlib`) supports an
 external backend via the ``module`` directive.  if
 :file:`my_backend.py` is a matplotlib backend in your
-:envvar:`PYTHONPATH`, you can set use it on one of several ways
+:envvar:`PYTHONPATH`, you can set it on one of several ways
 
 * in matplotlibrc::
 

@@ -400,9 +400,18 @@ div.admonition {
   }
 
 
-div.note, div.topic {
+div.note {
     background-color: #eee;
     border: 1px solid #ccc;
+}
+
+div.topic {
+    background-color: #eee;
+    border: 1px solid #CCC;
+    margin: 10px 0px;
+    padding: 7px 7px 0px;
+    border-radius: 4px;
+    -moz-border-radius: 4px;
 }
 
 p.topic-title {
