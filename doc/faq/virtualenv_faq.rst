@@ -53,7 +53,7 @@ to virtualenv when creating an environment. This adds all system wide packages
 to the virtual environment. However, this breaks the isolation between the
 virtual environment and the system install. Among other issues it results in
 hard to debug problems with system packages shadowing the environment packages.
-If you use `virtualenvwrapper <https://virtualenvwrapper.readthedocs.org/>`_
+If you use `virtualenvwrapper <https://virtualenvwrapper.readthedocs.io/>`_
 this can be toggled with the ``toggleglobalsitepackages`` command.
 
 Alternatively, you can manually symlink the GUI frameworks into the environment.
