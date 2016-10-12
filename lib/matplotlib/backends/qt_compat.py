@@ -49,6 +49,10 @@ if 'PySide' in sys.modules:
     # user has imported PySide before importing mpl
     QT_API = QT_API_PYSIDE
 
+if 'PySide2' in sys.modules:
+    # user has imported PySide before importing mpl
+    QT_API = QT_API_PYSIDE2
+
 if 'PyQt4' in sys.modules:
     # user has imported PyQt4 before importing mpl
     # this case also handles the PyQt4v2 case as once sip is imported
@@ -65,7 +69,8 @@ if (QT_API_ENV is not None) and QT_API is None:
     except KeyError:
         raise RuntimeError(
             ('Unrecognized environment variable %r, valid values are:'
-             ' %r, %r or %r' % (QT_API_ENV, 'pyqt', 'pyside', 'pyqt5')))
+             ' %r, %r, %r or %r'
+             % (QT_API_ENV, 'pyqt', 'pyside', 'pyqt5', 'pyside2')))
     if QT_ENV_MAJOR_VERSION == QT_RC_MAJOR_VERSION:
         # Only if backend and env qt major version are
         # compatible use the env variable.
@@ -99,7 +104,10 @@ if QT_API in (QT_API_PYQT, QT_API_PYQTv2, QT_API_PYQT5):
         _sip_imported = True
     except ImportError:
         # Try using PySide
-        QT_API = QT_API_PYSIDE
+        if QT_RC_MAJOR_VERSION == 5:
+            QT_API = QT_API_PYSIDE2
+        else:
+            QT_API = QT_API_PYSIDE
         cond = ("Could not import sip; falling back on PySide\n"
                 "in place of PyQt4 or PyQt5.\n")
         verbose.report(cond, 'helpful')
@@ -166,7 +174,10 @@ if _sip_imported:
         __version__ = QtCore.PYQT_VERSION_STR
     except NameError:
         # QtCore did not get imported, fall back to pyside
-        QT_API = QT_API_PYSIDE
+        if QT_RC_MAJOR_VERSION == 5:
+            QT_API = QT_API_PYSIDE2
+        else:
+            QT_API = QT_API_PYSIDE
 
 
 if QT_API == QT_API_PYSIDE2:
