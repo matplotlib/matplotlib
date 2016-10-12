@@ -15,11 +15,10 @@ Branch selection
 * In general, simple bugfixes that are unlikely to introduce new bugs
   of their own should be merged onto the maintenance branch.  New
   features, or anything that changes the API, should be made against
-  master.  The rules are fuzzy here -- when in doubt, try to get some
-  consensus.
+  master.  The rules are fuzzy here -- when in doubt, target master.
 
-  * Once changes are merged into the maintenance branch, they should
-    be merged into master.
+* Once changes are merged into the maintenance branch, they should
+  be merged into master.
 
 Documentation
 -------------
