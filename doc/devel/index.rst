@@ -18,7 +18,7 @@ The Matplotlib Developers' Guide
    add_new_projection.rst
    portable_code.rst
    gitwash/index.rst
-   reviewers_guide.rst
+   coding_guide.rst
    release_guide.rst
    MEP/index
 
