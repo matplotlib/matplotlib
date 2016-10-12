@@ -6,25 +6,7 @@ import six
 import os, sys
 def fn_name(): return sys._getframe(1).f_code.co_name
 
-try:
-    import gi
-except ImportError:
-    raise ImportError("Gtk3 backend requires pygobject to be installed.")
-
-try:
-    gi.require_version("Gtk", "3.0")
-except AttributeError:
-    raise ImportError(
-        "pygobject version too old -- it must have require_version")
-except ValueError:
-    raise ImportError(
-        "Gtk3 backend requires the GObject introspection bindings for Gtk 3 "
-        "to be installed.")
-
-try:
-    from gi.repository import Gtk, Gdk, GObject, GLib
-except ImportError:
-    raise ImportError("Gtk3 backend requires pygobject to be installed.")
+from .gtk3_compat import Gtk, Gdk, GObject, GLib
 
 import matplotlib
 from matplotlib._pylab_helpers import Gcf
@@ -167,6 +149,12 @@ class FigureCanvasGTK3 (Gtk.DrawingArea, FigureCanvasBase):
                65421 : 'enter',
                }
 
+    modifier_keys = [
+                     (Gdk.ModifierType.MOD4_MASK, 'super'),
+                     (Gdk.ModifierType.MOD1_MASK, 'alt'),
+                     (Gdk.ModifierType.CONTROL_MASK, 'ctrl'),
+                    ]
+
     # Setting this as a static constant prevents
     # this resulting expression from leaking
     event_mask = (Gdk.EventMask.BUTTON_PRESS_MASK   |
@@ -293,12 +281,7 @@ class FigureCanvasGTK3 (Gtk.DrawingArea, FigureCanvasBase):
         else:
             key = None
 
-        modifiers = [
-                     (Gdk.ModifierType.MOD4_MASK, 'super'),
-                     (Gdk.ModifierType.MOD1_MASK, 'alt'),
-                     (Gdk.ModifierType.CONTROL_MASK, 'ctrl'),
-                    ]
-        for key_mask, prefix in modifiers:
+        for key_mask, prefix in self.modifier_keys:
             if event.state & key_mask:
                 key = '{0}+{1}'.format(prefix, key)
 

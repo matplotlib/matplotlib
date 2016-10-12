@@ -9,7 +9,7 @@ import warnings
 
 from . import backend_agg
 from . import backend_gtk3
-from .backend_cairo import cairo, HAS_CAIRO_CFFI
+from .cairo_compat import cairo, HAS_CAIRO_CFFI
 from matplotlib.figure import Figure
 from matplotlib import transforms
 
@@ -46,7 +46,7 @@ class FigureCanvasGTK3Agg(backend_gtk3.FigureCanvasGTK3,
         else:
             bbox_queue = self._bbox_queue
 
-        if HAS_CAIRO_CFFI:
+        if HAS_CAIRO_CFFI and not isinstance(ctx, cairo.Context):
             ctx = cairo.Context._from_pointer(
                 cairo.ffi.cast('cairo_t **',
                                id(ctx) + object.__basicsize__)[0],

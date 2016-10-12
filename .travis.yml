@@ -27,6 +27,9 @@ addons:
       - graphviz
       - libgeos-dev
       - otf-freefont
+      - libpangocairo-1.0-0
+      - libgirepository-1.0-1
+      - gir1.2-gtk-3.0
 #     - fonts-humor-sans
 #    sources:
 #      - debian-sid
@@ -112,7 +115,7 @@ install:
     pip install --upgrade setuptools
   - |
     # Install dependencies from pypi
-    pip install $PRE python-dateutil $NUMPY pyparsing!=2.1.6 $PANDAS pep8 cycler coveralls coverage
+    pip install $PRE python-dateutil $NUMPY pyparsing!=2.1.6 $PANDAS pep8 cycler coveralls coverage pgi cairocffi
     pip install $PRE -r doc-requirements.txt
 
     # Install nose from a build which has partial
@@ -160,7 +163,7 @@ script:
         if [[ $TRAVIS_OS_NAME == 'osx' ]]; then
           python tests.py $NOSE_ARGS $TEST_ARGS
         else
-          gdb -return-child-result -batch -ex r -ex bt --args python $PYTHON_ARGS tests.py $NOSE_ARGS $TEST_ARGS
+          xvfb-run gdb -return-child-result -batch -ex r -ex bt --args python $PYTHON_ARGS tests.py $NOSE_ARGS $TEST_ARGS
         fi
       else
         echo The following args are passed to pytest $PYTEST_ARGS

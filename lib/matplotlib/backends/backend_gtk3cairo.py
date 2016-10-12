@@ -5,12 +5,12 @@ import six
 
 from . import backend_gtk3
 from . import backend_cairo
-from .backend_cairo import cairo, HAS_CAIRO_CFFI
+from .cairo_compat import cairo, HAS_CAIRO_CFFI
 from matplotlib.figure import Figure
 
 class RendererGTK3Cairo(backend_cairo.RendererCairo):
     def set_context(self, ctx):
-        if HAS_CAIRO_CFFI:
+        if HAS_CAIRO_CFFI and not isinstance(ctx, cairo.Context):
             ctx = cairo.Context._from_pointer(
                 cairo.ffi.cast(
                     'cairo_t **',

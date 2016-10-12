@@ -410,6 +410,9 @@ validate_colorlist.__doc__ = 'return a list of colorspecs'
 validate_stringlist = _listify_validator(six.text_type)
 validate_stringlist.__doc__ = 'return a list'
 
+validate_gi_preference = _listify_validator(ValidateInStrings(
+    'backend.gi_preference', ['gi', 'pgi']))
+
 validate_orientation = ValidateInStrings(
     'orientation', ['landscape', 'portrait'])
 
@@ -888,6 +891,7 @@ defaultParams = {
     'backend_fallback':  [True, validate_bool],  # agg is certainly present
     'backend.qt4':       ['PyQt4', validate_qt4],
     'backend.qt5':       ['PyQt5', validate_qt5],
+    'backend.gi_preference':  [['gi', 'pgi'], validate_gi_preference],
     'webagg.port':       [8988, validate_int],
     'webagg.open_in_browser': [True, validate_bool],
     'webagg.port_retries': [50, validate_int],
