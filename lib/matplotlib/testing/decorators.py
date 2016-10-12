@@ -250,6 +250,12 @@ class ImageComparisonDecorator(CleanupTest):
         self.savefig_kwargs = savefig_kwargs
         self.style = style
 
+    def delayed_init(self, func):
+        assert callable(func), "func must be callable"
+        assert self.func is None, "it looks like same decorator used twice"
+        self.func = func
+        self.baseline_dir, self.result_dir = _image_directories(func)
+
     def setup(self):
         func = self.func
         self.setup_class()
@@ -275,25 +281,26 @@ class ImageComparisonDecorator(CleanupTest):
             orig_expected_fname = baseline_path + '.pdf'
         expected_fname = make_test_filename(os.path.join(
             self.result_dir, os.path.basename(orig_expected_fname)), 'expected')
-        actual_fname = os.path.join(self.result_dir, baseline) + '.' + extension
         if os.path.exists(orig_expected_fname):
             shutil.copyfile(orig_expected_fname, expected_fname)
         else:
             xfail("Do not have baseline image {0} because this "
                   "file does not exist: {1}".format(expected_fname,
                                                     orig_expected_fname))
-        return expected_fname, actual_fname
+        return expected_fname
 
     def compare(self, idx, baseline, extension):
         __tracebackhide__ = True
-        if self.baseline_dir is None:
-            self.baseline_dir, self.result_dir = _image_directories(self.func)
-        expected_fname, actual_fname = self.copy_baseline(baseline, extension)
         fignum = plt.get_fignums()[idx]
         fig = plt.figure(fignum)
+
         if self.remove_text:
             remove_ticks_and_titles(fig)
+
+        actual_fname = os.path.join(self.result_dir, baseline) + '.' + extension
         fig.savefig(actual_fname, **self.savefig_kwargs)
+
+        expected_fname = self.copy_baseline(baseline, extension)
         raise_on_image_difference(expected_fname, actual_fname, self.tol)
 
     def nose_runner(self):
@@ -324,7 +331,7 @@ class ImageComparisonDecorator(CleanupTest):
         return wrapper
 
     def __call__(self, func):
-        self.func = func
+        self.delayed_init(func)
         if is_called_from_pytest():
             return copy_metadata(func, self.pytest_runner())
         else:
