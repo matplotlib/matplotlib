@@ -1050,31 +1050,21 @@ def subplots(nrows=1, ncols=1, sharex=False, sharey=False, squeeze=True,
     nrows, ncols : int, optional, default: 1
         Number of rows/columns of the subplot grid.
 
-    sharex : {"none", "all", "row", "col"} or bool, default: False
-        - If True, the x-axis will be shared amongst all subplots.
-        - If False, no x-axis will be shared amongst subplots.
-        - If a string must be one of "row", "col", "all", or "none".
-            - "all" has the same effect as True.
-            - "none" has the same effect as False.
-            - If "row", each subplot row will share an x-axis.
-            - If "col", each subplot column will share an x-axis.
+    sharex, sharey : bool or {'none', 'all', 'row', 'col'}, default: False
+        Controls sharing of properties among x (`sharex`) or y (`sharey`)
+        axes:
 
-        Note that if the x-axis is shared across rows (sharex=True or
-        sharex="col"), then the x tick labels will only be display on subplots
-        of the bottom row.
+            - True or 'all': x- or y-axis will be shared among all
+              subplots.
+            - False or 'none': each subplot x- or y-axis will be
+              independent.
+            - 'row': each subplot row will share an x- or y-axis.
+            - 'col': each subplot column will share an x- or y-axis.
 
-    sharey : {"none", "all", "row", "col"} or bool, default: False
-        - If True, the y-axis will be shared amongst all subplots.
-        - If False, no y-axis will be shared amongst subplots.
-        - If a string must be one of "row", "col", "all", or "none".
-            - "all" has the same effect as True.
-            - "none" has the same effect as False.
-            - If "row", each subplot row will share a y-axis.
-            - If "col", each subplot column will share an y-axis
-
-        Note that if the y-axis is shared across columns (sharey=True or
-        sharey="col"), then the y tick labels will only be displayed on
-        subplots of the first column.
+        When subplots have a shared x-axis along a column, only the x tick
+        labels of the bottom subplot are visible.  Similarly, when subplots
+        have a shared y-axis along a row, only the y tick labels of the first
+        column subplot are visible.
 
     squeeze : bool, optional, default: True
         - If True, extra dimensions are squeezed out from the returned Axes
