@@ -188,62 +188,38 @@ class TestPlot(object):
 
     @cleanup
     @pytest.mark.usefixtures("data")
-    def test_plot_bytes(self):
-        counts = np.array([4, 6, 5, 1])
-        fig, ax = plt.subplots(ncols=3)
+    @pytest.mark.parametrize("bars",
+                             [['a', 'b', 'c'],
+                              [b'a', b'b', b'c'],
+                              np.array([b'a', b'b', b'c'])],
+                             ids=['string list', 'bytes list',
+                                  'bytes ndarray'])
+    def test_plot_bytes(self, bars):
+        counts = np.array([4, 6, 5])
 
-        ax[0].bar(self.d, counts)
-
-        types = [v.encode('ascii') for v in self.d]
-        ax[1].bar(types, counts)
-
-        types = np.array(types)
-        ax[2].bar(types, counts)
-
+        fig, ax = plt.subplots()
+        ax.bar(bars, counts)
         fig.canvas.draw()
 
-        # All three plots should look like the string one.
-        self.axis_test(ax[1].xaxis,
-                       ax[0].xaxis.get_majorticklocs(),
-                       lt(ax[0].xaxis.get_majorticklabels()),
-                       ax[0].xaxis.unit_data)
-        self.axis_test(ax[2].xaxis,
-                       ax[0].xaxis.get_majorticklocs(),
-                       lt(ax[0].xaxis.get_majorticklabels()),
-                       ax[0].xaxis.unit_data)
+        self.axis_test(ax.xaxis, self.dticks, self.dlabels, self.dunit_data)
 
     @cleanup
-    def test_plot_numlike(self):
-        counts = np.array([4, 6, 5, 1])
-        fig, ax = plt.subplots(ncols=4)
+    @pytest.mark.parametrize("bars",
+                             [['1', '11', '3'],
+                              np.array(['1', '11', '3']),
+                              [b'1', b'11', b'3'],
+                              np.array([b'1', b'11', b'3'])],
+                             ids=['string list', 'string ndarray',
+                                  'bytes list', 'bytes ndarray'])
+    def test_plot_numlike(self, bars):
+        counts = np.array([4, 6, 5])
 
-        types = ['1', '11', '3', '1']
-        ax[0].bar(types, counts)
-
-        types = np.array(types)
-        ax[1].bar(types, counts)
-
-        types = [b'1', b'11', b'3', b'1']
-        ax[2].bar(types, counts)
-
-        types = np.array(types)
-        ax[3].bar(types, counts)
-
+        fig, ax = plt.subplots()
+        ax.bar(bars, counts)
         fig.canvas.draw()
 
-        # All four plots should look like the string one.
-        self.axis_test(ax[1].xaxis,
-                       ax[0].xaxis.get_majorticklocs(),
-                       lt(ax[0].xaxis.get_majorticklabels()),
-                       ax[0].xaxis.unit_data)
-        self.axis_test(ax[2].xaxis,
-                       ax[0].xaxis.get_majorticklocs(),
-                       lt(ax[0].xaxis.get_majorticklabels()),
-                       ax[0].xaxis.unit_data)
-        self.axis_test(ax[3].xaxis,
-                       ax[0].xaxis.get_majorticklocs(),
-                       lt(ax[0].xaxis.get_majorticklabels()),
-                       ax[0].xaxis.unit_data)
+        unitmap = MockUnitData([('1', 0), ('11', 1), ('3', 2)])
+        self.axis_test(ax.xaxis, [0, 1, 2], ['1', '11', '3'], unitmap)
 
     @cleanup
     @pytest.mark.usefixtures("data", "missing_data")
