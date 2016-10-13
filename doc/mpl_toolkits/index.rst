@@ -176,10 +176,9 @@ seaborn
 =======
 (*Not distributed with matplotlib*)
 
-`seaborn <http://web.stanford.edu/~mwaskom/software/seaborn>`_ is a high
-level interface for drawing statistical graphics with matplotlib. It
-aims to make visualization a central part of exploring and
-understanding complex datasets.
+`seaborn <https://seaborn.github.io/>`_ is a high level interface for drawing
+statistical graphics with matplotlib. It aims to make visualization a central
+part of exploring and understanding complex datasets.
 
 .. image:: /_static/seaborn.png
     :height: 157px
