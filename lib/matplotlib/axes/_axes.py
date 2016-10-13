@@ -883,7 +883,7 @@ or tuple of floats
         ymax : scalar, optional
             Number indicating the second Y-axis coordinate of the vertical
             span rectangle in relative Y-axis units (0-1). Default to 1.
-        
+
         Returns
         -------
         rectangle : matplotlib.patches.Polygon
@@ -898,10 +898,10 @@ or tuple of floats
         See Also
         --------
         axhspan
-        
+
         Examples
         --------
-        Draw a vertical, green, translucent rectangle from x = 1.25 to 
+        Draw a vertical, green, translucent rectangle from x = 1.25 to
         x = 1.55 that spans the yrange of the axes.
 
         >>> axvspan(1.25, 1.55, facecolor='g', alpha=0.5)
