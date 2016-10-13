@@ -1,15 +1,5 @@
 """
-Demo of defining curvilinear coordinate using GridHelperCurveLinear and Transformation.
-In curvelinear_test1: Use GridHelper class
-    * User provides two transformtions function between curved coordinate and rectlinear coordinate
-    * Calling GridHelperCurveLinear on those two functions.
-    * Setting a subplot positioned by the given gird definition
-In curvelinear_test2: Use Affine2D transform
-    * Calling PolerTransform 
-    * Setting the range of coordinate using Extream Finder
-    * Locate the coordinate with LocatorDMS and format them with FormatterDMS
-    * Calling GridHelperCurveLinear
-    * Setting a subplot positioned by the given gird definition
+Examples illustrate how to define curvilinar coordinates using GridHelperCurveLinear and Transformation.
 """
 
 import numpy as np
