@@ -4689,8 +4689,6 @@ or tuple of floats
         ----------------
         kwargs : :class:`~matplotlib.patches.Polygon` properties
 
-        %(Polygon)s
-
         Notes
         -----
         The same color strings that :func:`~matplotlib.pyplot.plot`
@@ -4698,7 +4696,6 @@ or tuple of floats
 
         If you would like to fill below a curve, e.g., shade a region
         between 0 and *y* along *x*, use :meth:`fill_between`
-
 
         Examples
         --------
