@@ -1025,48 +1025,40 @@ class Figure(Artist):
 
         Parameters
         ----------
-        nrows : int, default: 1
-            Number of rows of the subplot grid.
+        nrows, ncols : int, default: 1
+            Number of rows/cols of the subplot grid.
 
-        ncols : int, default: 1
-            Number of columns of the subplot grid.
+        sharex, sharey : bool or {'none', 'all', 'row', 'col'}, default: False
+            Controls sharing of properties among x (`sharex`) or y (`sharey`)
+            axes:
 
-        sharex : {"none", "all", "row", "col"} or bool, default: False
-            If *False*, or "none", each subplot has its own X axis.
+                - True or 'all': x- or y-axis will be shared among all
+                  subplots.
+                - False or 'none': each subplot x- or y-axis will be
+                  independent.
+                - 'row': each subplot row will share an x- or y-axis.
+                - 'col': each subplot column will share an x- or y-axis.
 
-            If *True*, or "all", all subplots will share an X axis, and the x
-            tick labels on all but the last row of plots will be invisible.
-
-            If "col", each subplot column will share an X axis, and the x
-            tick labels on all but the last row of plots will be invisible.
-
-            If "row", each subplot row will share an X axis.
-
-        sharey : {"none", "all", "row", "col"} or bool, default: False
-            If *False*, or "none", each subplot has its own Y axis.
-
-            If *True*, or "all", all subplots will share an Y axis, and the y
-            tick labels on all but the first column of plots will be invisible.
-
-            If "row", each subplot row will share an Y axis, and the y tick
-            labels on all but the first column of plots will be invisible.
-
-            If "col", each subplot column will share an Y axis.
+            When subplots have a shared x-axis along a column, only the x tick
+            labels of the bottom subplot are visible.  Similarly, when
+            subplots have a shared y-axis along a row, only the y tick labels
+            of the first column subplot are visible.
 
         squeeze : bool, default: True
-            If *True*, extra dimensions are squeezed out from the returned axes
-            array:
+            - If True, extra dimensions are squeezed out from the returned
+              axis object:
 
-            - if only one subplot is constructed (nrows=ncols=1), the resulting
-              single Axes object is returned as a scalar.
+                - if only one subplot is constructed (nrows=ncols=1), the
+                  resulting single Axes object is returned as a scalar.
+                - for Nx1 or 1xN subplots, the returned object is a 1D numpy
+                  object array of Axes objects are returned as numpy 1D
+                  arrays.
+                - for NxM, subplots with N>1 and M>1 are returned as a 2D
+                  arrays.
 
-            - for Nx1 or 1xN subplots, the returned object is a 1-d numpy
-              object array of Axes objects are returned as numpy 1-d arrays.
-
-            - for NxM subplots with N>1 and M>1 are returned as a 2d array.
-
-            If *False*, no squeezing at all is done: the returned object is
-            always a 2-d array of Axes instances, even if it ends up being 1x1.
+            - If False, no squeezing at all is done: the returned Axes object
+              is always a 2D array containing Axes instances, even if it ends
+              up being 1x1.
 
         subplot_kw : dict, default: {}
             Dict with keywords passed to the
