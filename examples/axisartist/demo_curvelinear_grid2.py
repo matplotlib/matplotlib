@@ -1,7 +1,6 @@
 """
-Demo of defining curvilinear coordinate using GridHelper.
+Example illustrates how to define curvilinar coordinates using GridHelperCurveLinear.
 """
-
 
 import numpy as np
 import matplotlib.pyplot as plt
