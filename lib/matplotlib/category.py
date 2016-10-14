@@ -131,7 +131,10 @@ class UnitData(object):
                 self.locs.append(value)
                 value += 1
 
+
 # Connects the convertor to matplotlib
 units.registry[str] = StrCategoryConverter()
-units.registry[bytes] = StrCategoryConverter()
+units.registry[np.str_] = StrCategoryConverter()
 units.registry[six.text_type] = StrCategoryConverter()
+units.registry[bytes] = StrCategoryConverter()
+units.registry[np.bytes_] = StrCategoryConverter()
