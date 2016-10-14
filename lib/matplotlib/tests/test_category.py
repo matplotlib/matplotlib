@@ -187,6 +187,41 @@ class TestPlot(object):
         self.axis_test(ax.yaxis, self.dmticks, self.dmlabels, self.dmunit_data)
 
     @cleanup
+    @pytest.mark.usefixtures("data")
+    @pytest.mark.parametrize("bars",
+                             [['a', 'b', 'c'],
+                              [b'a', b'b', b'c'],
+                              np.array([b'a', b'b', b'c'])],
+                             ids=['string list', 'bytes list',
+                                  'bytes ndarray'])
+    def test_plot_bytes(self, bars):
+        counts = np.array([4, 6, 5])
+
+        fig, ax = plt.subplots()
+        ax.bar(bars, counts)
+        fig.canvas.draw()
+
+        self.axis_test(ax.xaxis, self.dticks, self.dlabels, self.dunit_data)
+
+    @cleanup
+    @pytest.mark.parametrize("bars",
+                             [['1', '11', '3'],
+                              np.array(['1', '11', '3']),
+                              [b'1', b'11', b'3'],
+                              np.array([b'1', b'11', b'3'])],
+                             ids=['string list', 'string ndarray',
+                                  'bytes list', 'bytes ndarray'])
+    def test_plot_numlike(self, bars):
+        counts = np.array([4, 6, 5])
+
+        fig, ax = plt.subplots()
+        ax.bar(bars, counts)
+        fig.canvas.draw()
+
+        unitmap = MockUnitData([('1', 0), ('11', 1), ('3', 2)])
+        self.axis_test(ax.xaxis, [0, 1, 2], ['1', '11', '3'], unitmap)
+
+    @cleanup
     @pytest.mark.usefixtures("data", "missing_data")
     def test_plot_2d(self):
         fig, ax = plt.subplots()
