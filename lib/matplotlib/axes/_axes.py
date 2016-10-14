@@ -4715,8 +4715,6 @@ or tuple of floats
         self.autoscale_view()
         return patches
 
-
-
     @_preprocess_data(replace_names=["x", "y1", "y2", "where"],
                          label_namer=None)
     @docstring.dedent_interpd
