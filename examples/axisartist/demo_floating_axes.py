@@ -4,7 +4,7 @@ This demo shows features of functions in floating_axes:
     * Using scatter function and bar function with changing the
       shape of the plot.
     * Using GridHelperCurveLinear to rotate the plot and set the
-      boundary of the plot .
+      boundary of the plot.
     * Using FloatingSubplot to create a subplot using the return
       value from GridHelperCurveLinear.
     * Making sector plot by adding more features to GridHelperCurveLinear.
