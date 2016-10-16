@@ -16,7 +16,6 @@ def plot_scatter(ax, prng, nb_samples=100):
         x, y = prng.normal(loc=mu, scale=sigma, size=(2, nb_samples))
         ax.plot(x, y, ls='none', marker=marker)
     ax.set_xlabel('X-label')
-    ax.set_ylabel('Y-label')
     return ax
 
 
@@ -104,15 +103,22 @@ def plot_figure(style_label=None):
     # across the different figures.
     prng = np.random.RandomState(96917002)
 
-    fig, axes = plt.subplots(ncols=3, nrows=2, num=style_label)
-    fig.suptitle(style_label)
+    # Tweak the figure size to be better suited for a row of numerous plots:
+    # double the width and halve the height. NB: use relative changes because
+    # some styles may have a figure size different from the default one.
+    (fig_width, fig_height) = plt.rcParams['figure.figsize']
+    fig_size = [fig_width * 2, fig_height / 2]
 
-    plot_scatter(axes[0, 0], prng)
-    plot_image_and_patch(axes[0, 1], prng)
-    plot_bar_graphs(axes[0, 2], prng)
-    plot_colored_circles(axes[1, 0], prng)
-    plot_colored_sinusoidal_lines(axes[1, 1])
-    plot_histograms(axes[1, 2], prng)
+    fig, axes = plt.subplots(ncols=6, nrows=1, num=style_label,
+                             figsize=fig_size, squeeze=True)
+    axes[0].set_ylabel(style_label)
+
+    plot_scatter(axes[0], prng)
+    plot_image_and_patch(axes[1], prng)
+    plot_bar_graphs(axes[2], prng)
+    plot_colored_circles(axes[3], prng)
+    plot_colored_sinusoidal_lines(axes[4])
+    plot_histograms(axes[5], prng)
 
     fig.tight_layout()
 
