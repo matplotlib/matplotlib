@@ -98,14 +98,9 @@ def plot_histograms(ax, prng, nb_samples=10000):
     return ax
 
 
-def plot_figure(style_label=None):
+def plot_figure(style_label=""):
     """Setup and plot the demonstration figure with a given style.
-
-    If `style_label` is None, fall back to the `default` style.
     """
-    if style_label is None:
-        style_label = 'default'
-
     # Use a dedicated RandomState instance to draw the same "random" values
     # across the different figures.
     prng = np.random.RandomState(96917002)
