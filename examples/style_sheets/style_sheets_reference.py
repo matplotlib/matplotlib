@@ -134,8 +134,17 @@ def plot_figure(style_label=None):
 
 if __name__ == "__main__":
 
+    # Setup a list of all available styles, in alphabetical order but
+    # the `default` and `classic` ones, which will be forced resp. in
+    # first and second position.
+    style_list = list(plt.style.available)  # *new* list: avoids side effects.
+    style_list.remove('classic')  # `classic` is in the list: first remove it.
+    style_list.sort()
+    style_list.insert(0, u'default')
+    style_list.insert(1, u'classic')
+
     # Plot a demonstration figure for every available style sheet.
-    for style_label in plt.style.available:
+    for style_label in style_list:
         with plt.style.context(style_label):
             fig = plot_figure(style_label=style_label)
 
