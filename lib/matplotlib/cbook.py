@@ -291,7 +291,7 @@ class todatetime(converter):
 class todate(converter):
     """convert to a date or None"""
     def __init__(self, fmt='%Y-%m-%d', missing='Null', missingval=None):
-        'use a :func:`time.strptime` format string for conversion'
+        """use a :func:`time.strptime` format string for conversion"""
         converter.__init__(self, missing, missingval)
         self.fmt = fmt
 
@@ -408,10 +408,10 @@ class _BoundMethodProxy(object):
         return mtd(*args, **kwargs)
 
     def __eq__(self, other):
-        '''
+        """
         Compare the held function and instance with that held by
         another proxy.
-        '''
+        """
         try:
             if self.inst is None:
                 return self.func == other.func and other.inst is None
@@ -1204,7 +1204,7 @@ def get_recursive_filelist(args):
 
 
 def pieces(seq, num=2):
-    "Break up the *seq* into *num* tuples"
+    """Break up the *seq* into *num* tuples"""
     start = 0
     while 1:
         item = seq[start:start + num]
@@ -2116,7 +2116,7 @@ def align_iterators(func, *iterables):
     # iteration
     iters = [myiter(it) for it in iterables]
     minvals = minkey = True
-    while 1:
+    while True:
         minvals = ([_f for _f in [it.key for it in iters] if _f])
         if minvals:
             minkey = min(minvals)
