@@ -6,7 +6,7 @@ This module contains classes to support completely configurable tick
 locating and formatting.  Although the locators know nothing about major
 or minor ticks, they are used by the Axis class to support major and
 minor tick locating and formatting.  Generic tick locators and
-formatters are provided, as well as domain specific custom ones..
+formatters are provided, as well as domain specific custom ones.
 
 
 Default Formatter
@@ -80,6 +80,9 @@ The Locator subclasses defined here are
     tick interval into a specified number of minor intervals,
     defaulting to 4 or 5 depending on the major interval.
 
+:class:`LogitLocator`
+    Locator for logit scaling.
+
 
 There are a number of locators specialized for date locations - see
 the dates module
@@ -132,8 +135,18 @@ axis.
 :class:`LogFormatter`
     Formatter for log axes
 
-:class:`EngFormatter`
-    Format labels in engineering notation
+:class:`LogFormatterExponent`
+    Format values for log axis using ``exponent = log_base(value)``.
+
+:class:`LogFormatterMathtext`
+    Format values for log axis using ``exponent = log_base(value)``
+    using Math text.
+
+:class:`LogFormatterSciNotation`
+    Format values for log axis using scientific notation.
+
+:class:`LogitFormatter`
+    Probability formatter.
 
 
 You can derive your own formatter from the Formatter base class by

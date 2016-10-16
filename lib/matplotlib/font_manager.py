@@ -594,6 +594,9 @@ def createFontList(fontfiles, fontext='ttf'):
                 verbose.report("Cannot handle unicode filenames")
                 # print >> sys.stderr, 'Bad file is', fpath
                 continue
+            except IOError:
+                verbose.report("IO error - cannot open font file %s" % fpath)
+                continue
             try:
                 prop = ttfFontProperty(font)
             except (KeyError, RuntimeError, ValueError):
