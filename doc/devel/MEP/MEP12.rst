@@ -87,6 +87,22 @@ the gallery would remain in those directories until they are cleaned
 up. After clean-up, they would be moved to one of the new gallery
 sections described above. "Clean-up" should involve:
 
+* `sphinx-gallery docstrings <http://sphinx-gallery.readthedocs.io/>`_: a
+  title and a description formatted as follows::
+
+    """
+    ===============================
+    Colormaps alter your perception
+    ===============================
+
+    Here I plot the function
+
+    .. math:: f(x, y) = \sin(x) + \cos(y)
+
+    with different colormaps. Look at how colormaps alter your perception!
+    """
+
+
 * PEP8_ clean-ups (running `flake8
   <https://pypi.python.org/pypi/flake8>`_, or a similar checker, is
   highly recommended)
