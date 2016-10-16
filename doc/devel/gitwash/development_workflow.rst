@@ -160,9 +160,9 @@ upstream changes, and resolving conflicts.
 In git, rebasing is a mild form of re-writing history: it effectively forwards
 all your commits to the updated upstream commit. For a much more detailed
 explanation (with pictures!) see `this nice write up
-<https://git-scm.com/book/en/Git-Branching-Rebasing>`.  The NumPy team has also
+<https://git-scm.com/book/en/Git-Branching-Rebasing>`_.  The NumPy team has also
 `documented how to do this
-<http://docs.scipy.org/doc/numpy/dev/gitwash/development_workflow.html#rebasing-on-master>`
+<http://docs.scipy.org/doc/numpy/dev/gitwash/development_workflow.html#rebasing-on-master>`_.
 In general, re-writing history, particularly published history, is considered
 bad practice, but in this case it is very useful.
 
