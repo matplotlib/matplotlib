@@ -2331,7 +2331,7 @@ def pts_to_prestep(x, *args):
 
     Given a set of N points convert to 2 N -1 points
     which when connected linearly give a step function
-    which changes values at the begining the intervals.
+    which changes values at the beginning of the intervals.
 
     Parameters
     ----------
@@ -2371,7 +2371,7 @@ def pts_to_poststep(x, *args):
 
     Given a set of N points convert to 2 N -1 points
     which when connected linearly give a step function
-    which changes values at the begining the intervals.
+    which changes values at the end of the intervals.
 
     Parameters
     ----------
@@ -2392,7 +2392,7 @@ def pts_to_poststep(x, *args):
 
     Examples
     --------
-    >> x_s, y1_s, y2_s = pts_to_prestep(x, y1, y2)
+    >> x_s, y1_s, y2_s = pts_to_poststep(x, y1, y2)
     """
     # do normalization
     vertices = _step_validation(x, *args)
@@ -2412,7 +2412,7 @@ def pts_to_midstep(x, *args):
 
     Given a set of N points convert to 2 N -1 points
     which when connected linearly give a step function
-    which changes values at the begining the intervals.
+    which changes values at the middle of the intervals.
 
     Parameters
     ----------
@@ -2433,7 +2433,7 @@ def pts_to_midstep(x, *args):
 
     Examples
     --------
-    >> x_s, y1_s, y2_s = pts_to_prestep(x, y1, y2)
+    >> x_s, y1_s, y2_s = pts_to_midstep(x, y1, y2)
     """
     # do normalization
     vertices = _step_validation(x, *args)
