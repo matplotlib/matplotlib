@@ -1,4 +1,8 @@
 """
+=================================
+Triangular 3D filled contour plot
+=================================
+
 Filled contour plots of unstructured triangular grids.
 
 The data used is the same as in the second plot of trisurf3d_demo2.

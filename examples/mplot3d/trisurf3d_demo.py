@@ -1,4 +1,8 @@
 '''
+======================
+Triangular 3D surfaces
+======================
+
 Plot a 3D surface with a triangular mesh.
 '''
 

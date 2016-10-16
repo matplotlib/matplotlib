@@ -1,4 +1,8 @@
 '''
+======================
+3D surface (color map)
+======================
+
 Demonstrates plotting a 3D surface colored with the coolwarm color map.
 The surface is made opaque by using antialiased=False.
 

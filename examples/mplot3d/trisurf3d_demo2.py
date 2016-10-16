@@ -1,4 +1,8 @@
 '''
+===========================
+More triangular 3D surfaces
+===========================
+
 Two additional examples of plotting surfaces with triangular mesh.
 
 The first demonstrates use of plot_trisurf's triangles argument, and the
