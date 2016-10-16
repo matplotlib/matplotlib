@@ -1,4 +1,8 @@
 '''
+====================
+3D plots as subplots
+====================
+
 Demonstrate including 3D plots as subplots.
 '''
 

@@ -1,4 +1,8 @@
 '''
+=================================
+3D surface with polar coordinates
+=================================
+
 Demonstrates plotting a surface defined in polar coordinates.
 Uses the reversed version of the YlGnBu color map.
 Also demonstrates writing axis labels with latex math mode.

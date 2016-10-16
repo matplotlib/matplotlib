@@ -1,4 +1,8 @@
 '''
+=================
+3D wireframe plot
+=================
+
 A very basic demonstration of a wireframe plot.
 '''
 

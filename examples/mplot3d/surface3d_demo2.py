@@ -1,4 +1,8 @@
 '''
+========================
+3D surface (solid color)
+========================
+
 Demonstrates a very basic plot of a 3D surface using a solid color.
 '''
 

@@ -1,4 +1,8 @@
 '''
+==============
+3D scatterplot
+==============
+
 Demonstration of a basic scatterplot in 3D.
 '''
 

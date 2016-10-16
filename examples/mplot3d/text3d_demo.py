@@ -1,4 +1,8 @@
 '''
+======================
+Text annotations in 3D
+======================
+
 Demonstrates the placement of text annotations on a 3D plot.
 
 Functionality shown:

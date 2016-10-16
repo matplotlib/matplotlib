@@ -1,4 +1,8 @@
 '''
+==============
+3D quiver plot
+==============
+
 Demonstrates plotting directional arrows at points on a 3d meshgrid.
 '''
 
