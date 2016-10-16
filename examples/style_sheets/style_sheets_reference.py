@@ -1,8 +1,12 @@
 """
-This example demonstrates different available style sheets on a common example.
+======================
+Style sheets reference
+======================
 
-The different plots are heavily similar to the other ones in the style sheet
-gallery.
+This scripts demonstrates the different available style sheets on a
+common set of example plots: scatter plot, image, bar graph, patches,
+line plot and histogram,
+
 """
 
 import numpy as np
