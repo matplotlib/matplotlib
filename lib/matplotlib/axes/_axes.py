@@ -3723,9 +3723,6 @@ or tuple of floats
         for pos, width, stats in zip(positions, widths, bxpstats):
             # try to find a new label
             datalabels.append(stats.get('label', pos))
-            # fliers coords
-            flier_x = np.ones(len(stats['fliers'])) * pos
-            flier_y = stats['fliers']
 
             # whisker coords
             whisker_x = np.ones(2) * pos
@@ -3799,6 +3796,10 @@ or tuple of floats
 
             # maybe draw the fliers
             if showfliers:
+                # fliers coords
+                flier_x = np.ones(len(stats['fliers'])) * pos
+                flier_y = stats['fliers']
+
                 fliers.extend(doplot(
                     flier_x, flier_y, **final_flierprops
                 ))

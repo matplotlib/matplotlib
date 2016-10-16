@@ -1713,6 +1713,23 @@ def test_bxp_nobox():
     ax.bxp(logstats, showbox=False)
 
 
+@image_comparison(baseline_images=['bxp_no_flier_stats'],
+                  remove_text=True, extensions=['png'],
+                  savefig_kwarg={'dpi': 40},
+                  style='default')
+def test_bxp_no_flier_stats():
+    np.random.seed(937)
+    logstats = matplotlib.cbook.boxplot_stats(
+        np.random.lognormal(mean=1.25, sigma=1., size=(37, 4))
+    )
+    for ls in logstats:
+        ls.pop('fliers', None)
+
+    fig, ax = plt.subplots()
+    ax.set_yscale('log')
+    ax.bxp(logstats, showfliers=False)
+
+
 @image_comparison(baseline_images=['bxp_withmean_point'],
                   remove_text=True, extensions=['png'],
                   savefig_kwarg={'dpi': 40},
