@@ -38,6 +38,7 @@ from matplotlib.ft2font import (LOAD_FORCE_AUTOHINT, LOAD_NO_HINTING,
 from matplotlib.mathtext import MathTextParser
 from matplotlib.path import Path
 from matplotlib.transforms import Bbox, BboxBase
+from matplotlib import colors as mcolors
 
 from matplotlib.backends._backend_agg import RendererAgg as _RendererAgg
 from matplotlib import _png
@@ -571,7 +572,6 @@ class FigureCanvasAgg(FigureCanvasBase):
         return result
 
     if _has_pil:
-
         # add JPEG support
         def print_jpg(self, filename_or_obj, *args, **kwargs):
             """
@@ -593,14 +593,21 @@ class FigureCanvasAgg(FigureCanvasBase):
             buf, size = self.print_to_buffer()
             if kwargs.pop("dryrun", False):
                 return
+            # The image is "pasted" onto a white background image to safely
+            # handle any transparency
             image = Image.frombuffer('RGBA', size, buf, 'raw', 'RGBA', 0, 1)
+            color = mcolors.colorConverter.to_rgb(
+                rcParams.get('savefig.facecolor', 'white'))
+            color = tuple([int(x * 255.0) for x in color])
+            background = Image.new('RGB', size, color)
+            background.paste(image, image)
             options = restrict_dict(kwargs, ['quality', 'optimize',
                                              'progressive'])
 
             if 'quality' not in options:
                 options['quality'] = rcParams['savefig.jpeg_quality']
 
-            return image.save(filename_or_obj, format='jpeg', **options)
+            return background.save(filename_or_obj, format='jpeg', **options)
         print_jpeg = print_jpg
 
         # add TIFF support

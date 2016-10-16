@@ -17,30 +17,19 @@ import matplotlib
 matplotlib.use('agg')
 
 import nose
-from nose.plugins import attrib
-from matplotlib.testing.noseclasses import KnownFailure
 from matplotlib import default_test_modules
-
-plugins = [KnownFailure, attrib.Plugin]
-
-# Nose doesn't automatically instantiate all of the plugins in the
-# child processes, so we have to provide the multiprocess plugin with
-# a list.
-from nose.plugins import multiprocess
-multiprocess._instantiate_plugins = plugins
 
 
 def run(extra_args):
-    try:
-        import faulthandler
-    except ImportError:
-        pass
-    else:
-        faulthandler.enable()
+    from nose.plugins import multiprocess
 
-    if not os.path.isdir(
-            os.path.join(os.path.dirname(matplotlib.__file__), 'tests')):
-        raise ImportError("matplotlib test data is not installed")
+    matplotlib._init_tests()
+
+    # Nose doesn't automatically instantiate all of the plugins in the
+    # child processes, so we have to provide the multiprocess plugin with
+    # a list.
+    plugins = matplotlib._get_extra_test_plugins()
+    multiprocess._instantiate_plugins = plugins
 
     nose.main(addplugins=[x() for x in plugins],
               defaultTest=default_test_modules,

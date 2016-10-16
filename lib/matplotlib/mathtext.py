@@ -2656,11 +2656,12 @@ class Parser(object):
 
             # Do not space commas between brackets
             if c == ',':
+                prev_char, next_char = '', ''
                 for i in six.moves.xrange(1, loc + 1):
                     prev_char = s[loc - i]
                     if prev_char != ' ':
                         break
-                for i in six.moves.xrange(1, loc + 1):
+                for i in six.moves.xrange(1, len(s) - loc):
                     next_char = s[loc + i]
                     if next_char != ' ':
                         break
