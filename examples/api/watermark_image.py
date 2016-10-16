@@ -1,4 +1,6 @@
 """
+Watermark image example
+
 Use a PNG file as a watermark
 """
 from __future__ import print_function
