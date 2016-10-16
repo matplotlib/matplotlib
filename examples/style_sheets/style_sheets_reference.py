@@ -22,13 +22,13 @@ def plot_scatter(ax, prng, nb_samples=100):
 def plot_colored_sinusoidal_lines(ax):
     """Plot sinusoidal lines with colors following the style color cycle.
     """
-    L = 2*np.pi
+    L = 2 * np.pi
     x = np.linspace(0, L)
     nb_colors = len(plt.rcParams['axes.prop_cycle'])
     shift = np.linspace(0, L, nb_colors, endpoint=False)
     for s in shift:
         ax.plot(x, np.sin(x + s), '-')
-    ax.margins(0)
+    ax.set_xlim([x[0], x[-1]])
     return ax
 
 
@@ -57,7 +57,7 @@ def plot_colored_circles(ax, prng, nb_samples=15):
                                 radius=1.0, color=sty_dict['color']))
     # Force the limits to be the same across the styles (because different
     # styles may have different numbers of available colors).
-    ax.set_xlim([-4, 7])
+    ax.set_xlim([-4, 8])
     ax.set_ylim([-5, 6])
     ax.set_aspect('equal', adjustable='box')  # to plot circles as circles
     return ax
@@ -70,6 +70,9 @@ def plot_image_and_patch(ax, prng, size=(20, 20)):
     ax.imshow(values, interpolation='none')
     c = plt.Circle((5, 5), radius=5, label='patch')
     ax.add_patch(c)
+    # Remove ticks
+    ax.set_xticks([])
+    ax.set_yticks([])
 
 
 def plot_histograms(ax, prng, nb_samples=10000):
