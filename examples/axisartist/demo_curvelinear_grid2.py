@@ -1,5 +1,9 @@
 """
-Example illustrates how to define curvilinar coordinates using GridHelperCurveLinear.
+Custom grid and ticklines.
+
+This example demonstrates how to use GridHelperCurveLinear to define
+custom grids and ticklines by applying a transformation on the grid.
+As showcase on the plot, a 5x5 matrix is displayed on the axes.
 """
 
 import numpy as np
