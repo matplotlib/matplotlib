@@ -15,16 +15,16 @@ the buttons at the bottom of the toolbar
 
 .. image:: ../../lib/matplotlib/mpl-data/images/forward_large.png
 
-The ``Forward`` and ``Back`` buttons
-    These are akin to the web browser forward and back buttons.  They
-    are used to navigate back and forth between previously defined
-    views.  They have no meaning unless you have already navigated
-    somewhere else using the pan and zoom buttons.  This is analogous
+The ``Home``, ``Forward`` and ``Back`` buttons
+    These are akin to a web browser's home, forward and back controls.
+    ``Forward`` and ``Back`` are used to navigate back and forth between
+    previously defined views.  They have no meaning unless you have already
+    navigated somewhere else using the pan and zoom buttons.  This is analogous
     to trying to click ``Back`` on your web browser before visiting a
-    new page --nothing happens.  ``Home`` always takes you to the
-    first, default view of your data.  For ``Home``, ``Forward`` and
-    ``Back``, think web browser where data views are web pages.  Use
-    the pan and zoom to rectangle to define new views.
+    new page or ``Forward`` before you have gone back to a page --
+    nothing happens.  ``Home`` always takes you to the
+    first, default view of your data. Again, all of these buttons should
+    feel very familiar to any user of a web browser.
 
 .. image:: ../../lib/matplotlib/mpl-data/images/move_large.png
 
@@ -37,11 +37,11 @@ The ``Pan/Zoom`` button
     where you released.  If you press 'x' or 'y' while panning the
     motion will be constrained to the x or y axis, respectively.  Press
     the right mouse button to zoom, dragging it to a new position.
-    The x axis will be zoomed in proportionate to the rightward
-    movement and zoomed out proportionate to the leftward movement.
-    Ditto for the y axis and up/down motions.  The point under your
+    The x axis will be zoomed in proportionately to the rightward
+    movement and zoomed out proportionately to the leftward movement.
+    The same is true for the y axis and up/down motions.  The point under your
     mouse when you begin the zoom remains stationary, allowing you to
-    zoom to an arbitrary point in the figure.  You can use the
+    zoom in or out around that point as much as you wish.  You can use the
     modifier keys 'x', 'y' or 'CONTROL' to constrain the zoom to the x
     axis, the y axis, or aspect ratio preserve, respectively.
 
@@ -54,7 +54,7 @@ The ``Pan/Zoom`` button
 
 The ``Zoom-to-rectangle`` button
     Click this toolbar button to activate this mode.  Put your mouse
-    somewhere over and axes and press the left mouse button.  Drag the
+    somewhere over an axes and press the left mouse button.  Drag the
     mouse while holding the button to a new location and release.  The
     axes view limits will be zoomed to the rectangle you have defined.
     There is also an experimental 'zoom out to rectangle' in this mode

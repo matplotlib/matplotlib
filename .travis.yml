@@ -41,6 +41,7 @@ env:
     - PANDAS=
     - NPROC=2
     - TEST_ARGS=--no-pep8
+    - DELETE_FONT_CACHE=
 
 language: python
 
@@ -50,7 +51,7 @@ matrix:
       env: MOCK=mock NUMPY=numpy==1.6
     - python: 3.4
     - python: 3.5
-      env: PANDAS=pandas
+      env: PANDAS=pandas DELETE_FONT_CACHE=1
     - python: 2.7
       env: TEST_ARGS=--pep8
     - python: 2.7
@@ -123,6 +124,9 @@ script:
     echo Testing using $NPROC processes
     echo The following args are passed to nose $NOSE_ARGS
     if [[ $BUILD_DOCS == false ]]; then
+      if [[ $DELETE_FONT_CACHE == 1 ]]; then
+        rm -rf ~/.cache/matplotlib
+      fi
       export MPL_REPO_DIR=$PWD  # needed for pep8-conformance test of the examples
       gdb -return-child-result -batch -ex r -ex bt --args python tests.py -s --processes=$NPROC --process-timeout=300 $TEST_ARGS
     else
