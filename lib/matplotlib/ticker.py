@@ -1701,9 +1701,13 @@ class MaxNLocator(Locator):
         return self.tick_values(vmin, vmax)
 
     def tick_values(self, vmin, vmax):
+        if self._symmetric:
+            vmax = max(abs(vmin), abs(vmax))
+            vmin = -vmax
         vmin, vmax = mtransforms.nonsingular(
             vmin, vmax, expander=1e-13, tiny=1e-14)
         locs = self._raw_ticks(vmin, vmax)
+
         prune = self._prune
         if prune == 'lower':
             locs = locs[1:]
@@ -1715,9 +1719,8 @@ class MaxNLocator(Locator):
 
     def view_limits(self, dmin, dmax):
         if self._symmetric:
-            maxabs = max(abs(dmin), abs(dmax))
-            dmin = -maxabs
-            dmax = maxabs
+            dmax = max(abs(dmin), abs(dmax))
+            dmin = -dmax
 
         dmin, dmax = mtransforms.nonsingular(
             dmin, dmax, expander=1e-12, tiny=1e-13)
