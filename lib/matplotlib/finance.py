@@ -2,7 +2,7 @@
 A collection of functions for collecting, analyzing and plotting
 financial data.   User contributions welcome!
 
-This module is deprecated in 1.4 and will be moved to `mpl_toolkits`
+This module is deprecated in 2.0 and will be moved to `mpl_toolkits`
 or it's own project in the future.
 
 """
@@ -23,11 +23,17 @@ import numpy as np
 
 from matplotlib import colors as mcolors, verbose, get_cachedir
 from matplotlib.dates import date2num
-from matplotlib.cbook import iterable, mkdirs
+from matplotlib.cbook import iterable, mkdirs, warn_deprecated
 from matplotlib.collections import LineCollection, PolyCollection
 from matplotlib.lines import Line2D, TICKLEFT, TICKRIGHT
 from matplotlib.patches import Rectangle
 from matplotlib.transforms import Affine2D
+
+warn_deprecated(
+    since=2.0,
+    message=("The finance module has been deprecated in mpl 2.0 and will "
+             "be removed in mpl 2.2. Please use the matplotlib toolkit "
+             "finance instead."))
 
 
 if six.PY3:
