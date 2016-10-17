@@ -1,8 +1,14 @@
 """
-An experimental support for curvilinear grid.
+Axis Within Rectangular Frame
+
+The following code demonstrates how to put a floating
+polar curve within a rectangular box. In order to get
+a better sense of polar curbes, please look at 
+demo_curvelinear_grid.py. 
 """
 import numpy as np
 import matplotlib.pyplot as plt
+import mpl_toolkits.axisartist.angle_helper as angle_helper
 from matplotlib.projections import PolarAxes
 from matplotlib.transforms import Affine2D
 from mpl_toolkits.axisartist import SubplotHost
@@ -15,7 +21,7 @@ def curvelinear_test2(fig):
     """
     global ax1
     # see demo_curvelinear_grid.py for details
-    tr = Affine2D().scale(np.pi/180., 1.) + PolarAxes.PolarTransform()
+    tr = Affine2D().scale(np.pi / 180., 1.) + PolarAxes.PolarTransform()
 
     extreme_finder = angle_helper.ExtremeFinderCycle(20,
                                                      20,
