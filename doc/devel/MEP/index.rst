@@ -30,3 +30,5 @@ Matplotlib Enhancement Proposals
    MEP26
    MEP27
    MEP28
+   MEP29
+
