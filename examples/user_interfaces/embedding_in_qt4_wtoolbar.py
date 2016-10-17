@@ -3,13 +3,15 @@ from __future__ import print_function
 import sys
 
 import numpy as np
+import matplotlib
+matplotlib.use("Qt4Agg")
 from matplotlib.figure import Figure
 from matplotlib.backend_bases import key_press_handler
 from matplotlib.backends.backend_qt4agg import (
     FigureCanvasQTAgg as FigureCanvas,
     NavigationToolbar2QT as NavigationToolbar)
-from matplotlib.backends import qt4_compat
-use_pyside = qt4_compat.QT_API == qt4_compat.QT_API_PYSIDE
+from matplotlib.backends import qt_compat
+use_pyside = qt_compat.QT_API == qt_compat.QT_API_PYSIDE
 
 if use_pyside:
     from PySide.QtCore import *
@@ -69,6 +71,7 @@ def main():
     form = AppForm()
     form.show()
     app.exec_()
+
 
 if __name__ == "__main__":
     main()
