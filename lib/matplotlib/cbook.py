@@ -1280,7 +1280,7 @@ def allpairs(x):
 class maxdict(dict):
     """
     A dictionary with a maximum size; this doesn't override all the
-    relevant methods to contain size, just setitem, so use with
+    relevant methods to constrain the size, just setitem, so use with
     caution
     """
     def __init__(self, maxsize):
