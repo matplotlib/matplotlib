@@ -43,8 +43,7 @@ Some markup examples::
 Implementation
 ==============
 
-One proof of concept is provided in `markup_example.py <https://github.com/rougier/matplotlib/blob/markup/examples/text_labels_and_annotations/markup.py
->`_ but it currently only handles the horizontal direction.
+A proof of concept is provided in `markup_example.py <https://github.com/rougier/matplotlib/blob/markup/examples/text_labels_and_annotations/markup.py>`_ but it currently only handles the horizontal direction.
 
 
 Backward compatibility
