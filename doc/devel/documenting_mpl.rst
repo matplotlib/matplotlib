@@ -15,14 +15,9 @@ The documentation sources are found in the :file:`doc/` directory in
 the trunk.  To build the users guide in html format, cd into
 :file:`doc/` and do::
 
-  python make.py html
+  make
 
-or::
-
-  ./make.py html
-
-you can also pass a ``latex`` flag to make.py to build a pdf, or pass no
-arguments to build everything.
+you can also pass a ``latex`` flag to make to build a pdf.
 
 The output produced by Sphinx can be configured by editing the :file:`conf.py`
 file located in the :file:`doc/`.

@@ -143,14 +143,14 @@ def gen_gallery(app, doctree):
     gallery_path = os.path.join(app.builder.srcdir,
                                 '_templates', 'gallery.html')
     if os.path.exists(gallery_path):
-        fh = open(gallery_path, 'r')
+        fh = open(gallery_path, 'r', encoding="utf-8")
         regenerate = fh.read() != content
         fh.close()
     else:
         regenerate = True
 
     if regenerate:
-        fh = open(gallery_path, 'w')
+        fh = open(gallery_path, 'w', encoding="utf-8")
         fh.write(content)
         fh.close()
 
