@@ -22,6 +22,7 @@ from matplotlib.artist import allow_rasterization
 import matplotlib.colors as mcolors
 import matplotlib.cm as cm
 import matplotlib.cbook as cbook
+from matplotlib import patches as mpatches
 
 # For clarity, names from _image are given explicitly in this module:
 import matplotlib._image as _image
@@ -346,8 +347,7 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
         # non-rectangular axes, this refinement isn't required.
         if (round_to_pixel_border and
             t.is_affine and
-            # deliberate exact class match
-            type(self.axes) in (maxes.Axes, maxes._subplots.Subplot) and
+            isinstance(self.axes, mpatches.Rectangle) and
             (out_width_base % 1.0 != 0.0 or
              out_height_base % 1.0 != 0.0)):
             out_width = int(ceil(out_width_base) + 1)
