@@ -87,13 +87,27 @@ the gallery would remain in those directories until they are cleaned
 up. After clean-up, they would be moved to one of the new gallery
 sections described above. "Clean-up" should involve:
 
+* `sphinx-gallery docstrings <https://sphinx-gallery.readthedocs.io/>`_: a
+  title and a description of the example formatted as follows, at the top of
+  the example::
+
+    """
+    ===============================
+    Colormaps alter your perception
+    ===============================
+
+    Here I plot the function
+
+    .. math:: f(x, y) = \sin(x) + \cos(y)
+
+    with different colormaps. Look at how colormaps alter your perception!
+    """
+
+
 * PEP8_ clean-ups (running `flake8
   <https://pypi.python.org/pypi/flake8>`_, or a similar checker, is
   highly recommended)
 * Commented-out code should be removed.
-* Add introductory sentence or paragraph in the main docstring. See
-  `6d1b8a2
-  <https://github.com/tonysyu/matplotlib/commit/6d1b8a2ef277091eb718690e4443e6fa30cbc488>`_.
 * Replace uses of ``pylab`` interface with ``pyplot`` (+ ``numpy``,
   etc.). See `c25ef1e
   <https://github.com/tonysyu/matplotlib/commit/c25ef1e02b3a0ecb279492409dac0de9b3d2c0e2>`_
