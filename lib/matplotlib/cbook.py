@@ -278,13 +278,13 @@ class converter(object):
 
 
 class tostr(converter):
-    'convert to string or None'
+    """convert to string or None"""
     def __init__(self, missing='Null', missingval=''):
         converter.__init__(self, missing=missing, missingval=missingval)
 
 
 class todatetime(converter):
-    'convert to a datetime or None'
+    """convert to a datetime or None"""
     def __init__(self, fmt='%Y-%m-%d', missing='Null', missingval=None):
         'use a :func:`time.strptime` format string for conversion'
         converter.__init__(self, missing, missingval)
@@ -298,9 +298,9 @@ class todatetime(converter):
 
 
 class todate(converter):
-    'convert to a date or None'
+    """convert to a date or None"""
     def __init__(self, fmt='%Y-%m-%d', missing='Null', missingval=None):
-        'use a :func:`time.strptime` format string for conversion'
+        """use a :func:`time.strptime` format string for conversion"""
         converter.__init__(self, missing, missingval)
         self.fmt = fmt
 
@@ -312,7 +312,7 @@ class todate(converter):
 
 
 class tofloat(converter):
-    'convert to a float or None'
+    """convert to a float or None"""
     def __init__(self, missing='Null', missingval=None):
         converter.__init__(self, missing)
         self.missingval = missingval
@@ -324,7 +324,7 @@ class tofloat(converter):
 
 
 class toint(converter):
-    'convert to an int or None'
+    """convert to an int or None"""
     def __init__(self, missing='Null', missingval=None):
         converter.__init__(self, missing)
 
@@ -335,7 +335,7 @@ class toint(converter):
 
 
 class _BoundMethodProxy(object):
-    '''
+    """
     Our own proxy object which enables weak references to bound and unbound
     methods and arbitrary callables. Pulls information about the function,
     class, and instance out of a bound method. Stores a weak reference to the
@@ -346,7 +346,7 @@ class _BoundMethodProxy(object):
     @license: The BSD License
 
     Minor bugfixes by Michael Droettboom
-    '''
+    """
     def __init__(self, cb):
         self._hash = hash(cb)
         self._destroy_callbacks = []
@@ -395,13 +395,13 @@ class _BoundMethodProxy(object):
             self.inst = ref(inst)
 
     def __call__(self, *args, **kwargs):
-        '''
+        """
         Proxy for a call to the weak referenced object. Take
         arbitrary params to pass to the callable.
 
         Raises `ReferenceError`: When the weak reference refers to
         a dead object
-        '''
+        """
         if self.inst is not None and self.inst() is None:
             raise ReferenceError
         elif self.inst is not None:
@@ -417,10 +417,10 @@ class _BoundMethodProxy(object):
         return mtd(*args, **kwargs)
 
     def __eq__(self, other):
-        '''
+        """
         Compare the held function and instance with that held by
         another proxy.
-        '''
+        """
         try:
             if self.inst is None:
                 return self.func == other.func and other.inst is None
@@ -430,9 +430,9 @@ class _BoundMethodProxy(object):
             return False
 
     def __ne__(self, other):
-        '''
+        """
         Inverse of __eq__.
-        '''
+        """
         return not self.__eq__(other)
 
     def __hash__(self):
@@ -635,7 +635,7 @@ def local_over_kwdict(local_var, kwargs, *keys):
 
 
 def strip_math(s):
-    'remove latex formatting from mathtext'
+    """remove latex formatting from mathtext"""
     remove = (r'\mathdefault', r'\rm', r'\cal', r'\tt', r'\it', '\\', '{', '}')
     s = s[1:-1]
     for r in remove:
@@ -667,12 +667,12 @@ class Bunch(object):
 
 
 def unique(x):
-    'Return a list of unique elements of *x*'
+    """Return a list of unique elements of *x*"""
     return list(six.iterkeys(dict([(val, 1) for val in x])))
 
 
 def iterable(obj):
-    'return true if *obj* is iterable'
+    """return true if *obj* is iterable"""
     try:
         iter(obj)
     except TypeError:
@@ -681,7 +681,7 @@ def iterable(obj):
 
 
 def is_string_like(obj):
-    'Return True if *obj* looks like a string'
+    """Return True if *obj* looks like a string"""
     if isinstance(obj, six.string_types):
         return True
     # numpy strings are subclass of str, ma strings are not
@@ -698,9 +698,7 @@ def is_string_like(obj):
 
 
 def is_sequence_of_strings(obj):
-    """
-    Returns true if *obj* is iterable and contains strings
-    """
+    """Returns true if *obj* is iterable and contains strings"""
     if not iterable(obj):
         return False
     if is_string_like(obj) and not isinstance(obj, np.ndarray):
@@ -716,9 +714,7 @@ def is_sequence_of_strings(obj):
 
 
 def is_hashable(obj):
-    """
-    Returns true if *obj* can be hashed
-    """
+    """Returns true if *obj* can be hashed"""
     try:
         hash(obj)
     except TypeError:
@@ -727,7 +723,7 @@ def is_hashable(obj):
 
 
 def is_writable_file_like(obj):
-    'return true if *obj* looks like a file object with a *write* method'
+    """return true if *obj* looks like a file object with a *write* method"""
     return hasattr(obj, 'write') and six.callable(obj.write)
 
 
@@ -745,12 +741,12 @@ def file_requires_unicode(x):
 
 
 def is_scalar(obj):
-    'return true if *obj* is not string like and is not iterable'
+    """return true if *obj* is not string like and is not iterable"""
     return not is_string_like(obj) and not iterable(obj)
 
 
 def is_numlike(obj):
-    'return true if *obj* looks like a number'
+    """return true if *obj* looks like a number"""
     try:
         obj + 1
     except:
@@ -1041,7 +1037,7 @@ get_realpath_and_stat = GetRealpathAndStat()
 
 
 def dict_delall(d, keys):
-    'delete all of the *keys* from the :class:`dict` *d*'
+    """delete all of the *keys* from the :class:`dict` *d*"""
     for key in keys:
         try:
             del d[key]
@@ -1091,17 +1087,17 @@ def get_split_ind(seq, N):
     .
     """
 
-    sLen = 0
+    s_len = 0
     # todo: use Alex's xrange pattern from the cbook for efficiency
     for (word, ind) in zip(seq, xrange(len(seq))):
-        sLen += len(word) + 1  # +1 to account for the len(' ')
-        if sLen >= N:
+        s_len += len(word) + 1  # +1 to account for the len(' ')
+        if s_len >= N:
             return ind
     return len(seq)
 
 
 def wrap(prefix, text, cols):
-    'wrap *text* with *prefix* at length *cols*'
+    """wrap *text* with *prefix* at length *cols*"""
     pad = ' ' * len(prefix.expandtabs())
     available = cols - len(pad)
 
@@ -1215,7 +1211,7 @@ def get_recursive_filelist(args):
 
 
 def pieces(seq, num=2):
-    "Break up the *seq* into *num* tuples"
+    """Break up the *seq* into *num* tuples"""
     start = 0
     while 1:
         item = seq[start:start + num]
@@ -1291,7 +1287,7 @@ def allpairs(x):
 class maxdict(dict):
     """
     A dictionary with a maximum size; this doesn't override all the
-    relevant methods to contrain size, just setitem, so use with
+    relevant methods to constrain the size, just setitem, so use with
     caution
     """
     def __init__(self, maxsize):
@@ -1320,7 +1316,7 @@ class Stack(object):
         self._default = default
 
     def __call__(self):
-        'return the current element, or None'
+        """return the current element, or None"""
         if not len(self._elements):
             return self._default
         else:
@@ -1333,14 +1329,14 @@ class Stack(object):
         return self._elements.__getitem__(ind)
 
     def forward(self):
-        'move the position forward and return the current element'
-        N = len(self._elements)
-        if self._pos < N - 1:
+        """move the position forward and return the current element"""
+        n = len(self._elements)
+        if self._pos < n - 1:
             self._pos += 1
         return self()
 
     def back(self):
-        'move the position back and return the current element'
+        """move the position back and return the current element"""
         if self._pos > 0:
             self._pos -= 1
         return self()
@@ -1356,7 +1352,7 @@ class Stack(object):
         return self()
 
     def home(self):
-        'push the first element onto the top of the stack'
+        """push the first element onto the top of the stack"""
         if not len(self._elements):
             return
         self.push(self._elements[0])
@@ -1366,7 +1362,7 @@ class Stack(object):
         return len(self._elements) == 0
 
     def clear(self):
-        'empty the stack'
+        """empty the stack"""
         self._pos = -1
         self._elements = []
 
@@ -1424,7 +1420,7 @@ def finddir(o, match, case=False):
 
 
 def reverse_dict(d):
-    'reverse the dictionary -- may lose data if values are not unique!'
+    """reverse the dictionary -- may lose data if values are not unique!"""
     return dict([(v, k) for k, v in six.iteritems(d)])
 
 
@@ -1437,7 +1433,7 @@ def restrict_dict(d, keys):
 
 
 def report_memory(i=0):  # argument may go away
-    'return the memory consumed by process'
+    """return the memory consumed by process"""
     from matplotlib.compat.subprocess import Popen, PIPE
     pid = os.getpid()
     if sys.platform == 'sunos5':
@@ -1485,7 +1481,7 @@ _safezip_msg = 'In safezip, len(args[0])=%d but len(args[%d])=%d'
 
 
 def safezip(*args):
-    'make sure *args* are equal len before zipping'
+    """make sure *args* are equal len before zipping"""
     Nx = len(args[0])
     for i, arg in enumerate(args[1:]):
         if len(arg) != Nx:
@@ -1494,7 +1490,7 @@ def safezip(*args):
 
 
 def issubclass_safe(x, klass):
-    'return issubclass(x, klass) and return False on a TypeError'
+    """return issubclass(x, klass) and return False on a TypeError"""
 
     try:
         return issubclass(x, klass)
@@ -2184,7 +2180,7 @@ def align_iterators(func, *iterables):
     # iteration
     iters = [myiter(it) for it in iterables]
     minvals = minkey = True
-    while 1:
+    while True:
         minvals = ([_f for _f in [it.key for it in iters] if _f])
         if minvals:
             minkey = min(minvals)
@@ -2262,7 +2258,7 @@ def _reshape_2D(X):
 
 
 def violin_stats(X, method, points=100):
-    '''
+    """
     Returns a list of dictionaries of data which can be used to draw a series
     of violin plots. See the `Returns` section below to view the required keys
     of the dictionary. Users can skip this function and pass a user-defined set
@@ -2299,7 +2295,7 @@ def violin_stats(X, method, points=100):
         - median: The median value for this column of data.
         - min: The minimum value for this column of data.
         - max: The maximum value for this column of data.
-    '''
+    """
 
     # List of dictionaries describing each of the violins.
     vpstats = []
@@ -2382,7 +2378,7 @@ def _step_validation(x, *args):
     args = tuple(np.asanyarray(y) for y in args)
     x = np.asanyarray(x)
     if x.ndim != 1:
-        raise ValueError("x must be 1 dimenional")
+        raise ValueError("x must be 1 dimensional")
     if len(args) == 0:
         raise ValueError("At least one Y value must be passed")
 
