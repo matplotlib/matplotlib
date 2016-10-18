@@ -1,5 +1,12 @@
 """
-Demonstration of using the ArbitraryNorm classes for normalization.
+============================================
+Examples of arbitrary colormap normalization
+============================================
+
+Here I plot an image array with data spanning for a large dynamic range, 
+using different normalizations. Look at how each of them enhances
+different features.
+
 """
 
 import numpy as np

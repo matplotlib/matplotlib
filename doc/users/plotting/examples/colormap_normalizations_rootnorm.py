@@ -1,5 +1,12 @@
 """
-Demonstration of using the RootNorm classes for normalization.
+============================================
+Examples of colormap root normalization
+============================================
+
+Here I plot an image array with data spanning for a large dynamic range, 
+using different normalizations. Look at how each of them enhances
+different features.
+
 """
 
 import numpy as np
