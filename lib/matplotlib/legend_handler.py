@@ -314,7 +314,7 @@ class HandlerRegularPolyCollection(HandlerNpointsYoffsets):
             numpoints = self.get_numpoints(legend)
             if numpoints < 4:
                 sizes = [.5 * (size_max + size_min), size_max,
-                         size_min]
+                         size_min][:numpoints]
             else:
                 rng = (size_max - size_min)
                 sizes = rng * np.linspace(0, 1, numpoints) + size_min
