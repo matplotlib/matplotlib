@@ -1628,14 +1628,12 @@ def _replacer(data, key):
 
 _DATA_DOC_APPENDIX = """
 
-Notes
------
+.. note::
+    In addition to the above described arguments, this function can take a
+    **data** keyword argument. If such a **data** argument is given, the
+    following arguments are replaced by **data[<arg>]**:
 
-In addition to the above described arguments, this function can take a
-**data** keyword argument. If such a **data** argument is given, the
-following arguments are replaced by **data[<arg>]**:
-
-{replaced}
+    {replaced}
 """
 
 
