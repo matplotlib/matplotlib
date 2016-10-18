@@ -4676,7 +4676,8 @@ or tuple of floats
                         positional_parameter_names=["x", "y", "c"])
     @docstring.dedent_interpd
     def fill(self, *args, **kwargs):
-        """Plot filled polygons.
+        """
+        Plot filled polygons.
 
         Parameters
         ----------
