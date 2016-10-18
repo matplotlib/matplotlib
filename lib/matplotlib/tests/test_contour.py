@@ -10,6 +10,7 @@ from matplotlib import mlab
 from matplotlib.testing.decorators import cleanup, image_comparison
 from matplotlib import pyplot as plt
 from nose.tools import assert_equal, assert_raises
+from numpy.testing import assert_array_almost_equal
 import warnings
 
 import re
@@ -312,6 +313,15 @@ def test_vminvmax_warning():
         assert len(w) == 1
         msg = "vmax is deprecated and will be removed in 2.2 "
         assert str(w[0].message).startswith(msg)
+
+
+@cleanup
+def test_contourf_symmetric_locator():
+    # github issue 7271
+    z = np.arange(12).reshape((3, 4))
+    locator = plt.MaxNLocator(nbins=4, symmetric=True)
+    cs = plt.contourf(z, locator=locator)
+    assert_array_almost_equal(cs.levels, np.linspace(-12, 12, 5))
 
 
 if __name__ == '__main__':

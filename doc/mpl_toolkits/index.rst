@@ -73,3 +73,102 @@ Excel Tools
 ``mpl_toolkits.exceltools`` provides some utilities for working with
 Excel.  This toolkit ships with matplotlib, but requires
 `xlwt <http://pypi.python.org/pypi/xlwt>`_
+
+
+.. _toolkit_natgrid:
+
+Natgrid
+=======
+(*Not distributed with matplotlib*)
+
+mpl_toolkits.natgrid is an interface to natgrid C library for gridding
+irregularly spaced data.  This requires a separate installation of the
+`natgrid toolkit <http://github.com/matplotlib/natgrid>`__.
+
+
+.. _toolkit_matplotlibvenn:
+
+Matplotlib-Venn
+===============
+(*Not distributed with matplotlib*)
+
+`Matplotlib-Venn <https://github.com/konstantint/matplotlib-venn>`_ provides a set of functions for plotting 2- and 3-set area-weighted (or unweighted) Venn diagrams.
+
+mplstereonet
+===============
+(*Not distributed with matplotlib*)
+
+`mplstereonet <https://github.com/joferkington/mplstereonet>`_ provides stereonets for plotting and analyzing orientation data in Matplotlib.
+
+
+.. _hl_plotting:
+
+High-Level Plotting
+*******************
+
+Several projects have started to provide a higher-level interface to
+matplotlib.  These are independent projects.
+
+.. _toolkit_seaborn:
+
+seaborn
+=======
+(*Not distributed with matplotlib*)
+
+`seaborn <https://seaborn.github.io/>`_ is a high level interface for drawing
+statistical graphics with matplotlib. It aims to make visualization a central
+part of exploring and understanding complex datasets.
+
+.. image:: /_static/seaborn.png
+    :height: 157px
+
+.. _toolkit_holoviews:
+
+holoviews
+=========
+(*Not distributed with matplotlib*)
+
+`holoviews <http://holoviews.org>`_ makes it easier to visualize data
+interactively, especially in a `Jupyter notebook
+<http://jupyter.org>`_, by providing a set of declarative
+plotting objects that store your data and associated metadata.  Your
+data is then immediately visualizable alongside or overlaid with other
+data, either statically or with automatically provided widgets for
+parameter exploration.
+
+.. image:: /_static/holoviews.png
+    :height: 354px
+
+.. _toolkit_ggplot:
+
+ggplot
+======
+(*Not distributed with matplotlib*)
+
+`ggplot <https://github.com/yhat/ggplot>`_ is a port of the R ggplot2
+to python based on matplotlib.
+
+.. image:: /_static/ggplot.png
+    :height: 195px
+
+
+.. _toolkit_prettyplotlib:
+
+prettyplotlib
+=============
+(*Not distributed with matplotlib*)
+
+`prettyplotlib <https://olgabot.github.io/prettyplotlib>`_ is an extension
+to matplotlib which changes many of the defaults to make plots some
+consider more attractive.
+
+
+iTerm2 terminal backend
+=======================
+(*Not distributed with matplotlib*)
+
+`matplotlib_iterm2 <https://github.com/oselivanov/matplotlib_iterm2>`_ is an
+external matplotlib backend uses iTerm2 nightly build inline image display
+feature.
+
+.. image:: /_static/matplotlib_iterm2_demo.png
