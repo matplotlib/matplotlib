@@ -3245,22 +3245,26 @@ or tuple of floats
 
         Other Parameters
         ----------------
-        The following boolean options toggle the drawing of individual
-        components of the boxplots:
-            - showcaps: the caps on the ends of whiskers
-              (default is True)
-            - showbox: the central box (default is True)
-            - showfliers: the outliers beyond the caps (default is True)
-            - showmeans: the arithmetic means (default is False)
-
-        The remaining options can accept dictionaries that specify the
-        style of the individual artists:
-            - capprops
-            - boxprops
-            - whiskerprops
-            - flierprops
-            - medianprops
-            - meanprops
+        showcaps : bool, optional (True)
+            Show the caps on the ends of whiskers.
+        showbox : bool, optional (True)
+            Show the central box.
+        showfliers : bool, optional (True)
+            Show the outliers beyond the caps.
+        showmeans : bool, optional (False)
+            Show the arithmetic means.
+        capprops : dict, optional (None)
+            Specifies the style of the caps.
+        boxprops : dict, optional (None)
+            Specifies the style of the box.
+        whiskerprops : dict, optional (None)
+            Specifies the style of the whiskers.
+        flierprops : dict, optional (None)
+            Specifies the style of the fliers.
+        medianprops : dict, optional (None)
+            Specifies the style of the median.
+        meanprops : dict, optional (None)
+            Specifies the style of the mean.
 
         Returns
         -------
