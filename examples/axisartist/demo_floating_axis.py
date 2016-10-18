@@ -1,5 +1,5 @@
 """
-Axis Within Rectangular Frame
+Axis within rectangular frame
 
 The following code demonstrates how to put a floating
 polar curve within a rectangular box. In order to get

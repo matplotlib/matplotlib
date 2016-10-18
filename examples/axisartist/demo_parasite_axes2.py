@@ -1,5 +1,5 @@
 """
-Parasite Axis Demo
+Parasite axis demo
 
 The following code is an example of a parasite axis.
 It aims to show a user how to plot multiple different values
