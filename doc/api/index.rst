@@ -29,7 +29,6 @@
    dates_api.rst
    dviread.rst
    figure_api.rst
-   finance_api.rst
    font_manager_api.rst
    gridspec_api.rst
    image_api.rst
