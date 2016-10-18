@@ -3,7 +3,7 @@
 Style sheets reference
 ======================
 
-This scripts demonstrates the different available style sheets on a
+This script demonstrates the different available style sheets on a
 common set of example plots: scatter plot, image, bar graph, patches,
 line plot and histogram,
 
