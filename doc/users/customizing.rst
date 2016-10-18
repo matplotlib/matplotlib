@@ -8,7 +8,8 @@ Using style sheets
 ==================
 
 The ``style`` package adds support for easy-to-switch plotting "styles" with
-the same parameters as a matplotlibrc_ file.
+the same parameters as a matplotlibrc_ file (which is read at startup to
+configure matplotlib).
 
 There are a number of pre-defined styles provided by matplotlib. For
 example, there's a pre-defined style called "ggplot", which emulates the
