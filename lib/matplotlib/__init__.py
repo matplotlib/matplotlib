@@ -1341,10 +1341,13 @@ def rc_file_defaults():
     """
     rcParams.update(rcParamsOrig)
 
-_use_error_msg = """ This call to matplotlib.use() has no effect
-because the backend has already been chosen;
-matplotlib.use() must be called *before* pylab, matplotlib.pyplot,
+_use_error_msg = """
+This call to matplotlib.use() has no effect because the backend has already
+been chosen; matplotlib.use() must be called *before* pylab, matplotlib.pyplot,
 or matplotlib.backends is imported for the first time.
+
+The backend was *originally* set to {backend!r} by the following code:
+{tb}
 """
 
 
@@ -1385,7 +1388,12 @@ def use(arg, warn=True, force=False):
     if 'matplotlib.backends' in sys.modules:
         # Warn only if called with a different name
         if (rcParams['backend'] != name) and warn:
-            warnings.warn(_use_error_msg, stacklevel=2)
+            import matplotlib.backends
+            warnings.warn(
+                _use_error_msg.format(
+                    backend=rcParams['backend'],
+                    tb=matplotlib.backends._backend_loading_tb),
+                stacklevel=2)
 
         # Unless we've been told to force it, just return
         if not force:
