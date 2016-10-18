@@ -1,10 +1,9 @@
 """
 A collection of functions for collecting, analyzing and plotting
-financial data.   User contributions welcome!
+financial data.
 
-This module is deprecated in 2.0 and will be moved to `mpl_toolkits`
-or it's own project in the future.
-
+This module is deprecated in 2.0 and has been moved to a mpl_toolkit called
+`finance`.
 """
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
