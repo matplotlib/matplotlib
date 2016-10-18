@@ -1,10 +1,12 @@
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 import six
+
 from matplotlib import docstring
 from matplotlib.offsetbox import (AnchoredOffsetbox, AuxTransformBox,
                                   DrawingArea, TextArea, VPacker)
 from matplotlib.patches import Rectangle, Ellipse
+
 
 __all__ = ['AnchoredDrawingArea', 'AnchoredAuxTransformBox',
            'AnchoredEllipse', 'AnchoredSizeBar']
