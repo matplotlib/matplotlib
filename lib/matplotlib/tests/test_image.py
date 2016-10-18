@@ -511,12 +511,12 @@ def test_jpeg_alpha():
 
     # If this fails, there will be only one color (all black). If this
     # is working, we should have all 256 shades of grey represented.
-    print("num colors: ", len(image.getcolors(256)))
-    assert len(image.getcolors(256)) >= 175 and len(image.getcolors(256)) <= 185
+    num_colors = len(image.getcolors(256))
+    assert 175 <= num_colors <= 185, 'num colors: %d' % (num_colors, )
     # The fully transparent part should be red, not white or black
     # or anything else
-    print("corner pixel: ", image.getpixel((0, 0)))
-    assert image.getpixel((0, 0)) == (254, 0, 0)
+    corner_pixel = image.getpixel((0, 0))
+    assert corner_pixel == (254, 0, 0), "corner pixel: %r" % (corner_pixel, )
 
 
 @cleanup
