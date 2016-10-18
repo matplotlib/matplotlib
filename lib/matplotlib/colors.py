@@ -997,11 +997,11 @@ class ArbitraryNorm(Normalize):
         if vmin is not None and vmax is not None:
             if vmin > vmax:
                 raise ValueError("vmin must be less than vmax")
-        self.fneg = fneg
-        self.fpos = fpos
-        self.fneginv = fneginv
-        self.fposinv = fposinv
-        self.center = center
+        self._fneg = fneg
+        self._fpos = fpos
+        self._fneginv = fneginv
+        self._fposinv = fposinv
+        self._center = center
         Normalize.__init__(self, vmin, vmax, clip)
 
     def __call__(self, value, clip=None):
@@ -1013,8 +1013,8 @@ class ArbitraryNorm(Normalize):
         vmin = self.vmin
         vmax = self.vmax
 
-        widthpos = 1 - self.center
-        widthneg = self.center
+        widthpos = 1 - self._center
+        widthneg = self._center
 
         result[result > vmax] = vmax
         result[result < vmin] = vmin
@@ -1023,17 +1023,17 @@ class ArbitraryNorm(Normalize):
         masknegative = result < 0
         if vmax > 0 and vmin < 0:
             result[masknegative] = - \
-                self.fneg(result[masknegative] / vmin) * widthneg
-            result[maskpositive] = self.fpos(
+                self._fneg(result[masknegative] / vmin) * widthneg
+            result[maskpositive] = self._fpos(
                 result[maskpositive] / vmax) * widthpos
 
         elif vmax > 0 and vmin >= 0:
-            result[maskpositive] = self.fpos(
+            result[maskpositive] = self._fpos(
                 (result[maskpositive] - vmin) / (vmax - vmin)) * widthpos
 
         elif vmax <= 0 and vmin < 0:
             result[masknegative] = - \
-                self.fneg((result[maskpositive] - vmax) /
+                self._fneg((result[maskpositive] - vmax) /
                           (vmin - vmax)) * widthneg
 
         result = result + widthneg
@@ -1045,8 +1045,8 @@ class ArbitraryNorm(Normalize):
 
         vmin = self.vmin
         vmax = self.vmax
-        widthpos = 1 - self.center
-        widthneg = self.center
+        widthpos = 1 - self._center
+        widthneg = self._center
 
         value = value - widthneg
 
@@ -1057,35 +1057,35 @@ class ArbitraryNorm(Normalize):
 
             if vmax > 0 and vmin < 0:
                 value[masknegative] = \
-                    self.fneginv(-value[masknegative] / widthneg) * vmin
-                value[maskpositive] = self.fposinv(
+                    self._fneginv(-value[masknegative] / widthneg) * vmin
+                value[maskpositive] = self._fposinv(
                     value[maskpositive] / widthpos) * vmax
 
             elif vmax > 0 and vmin >= 0:
-                value[maskpositive] = self.fposinv(
+                value[maskpositive] = self._fposinv(
                     value[maskpositive] / widthpos) * (vmax - vmin) + vmin
-                value[masknegative] = -self.fposinv(
+                value[masknegative] = -self._fposinv(
                     value[masknegative] / widthneg) * (vmax - vmin) + vmin
             elif vmax <= 0 and vmin < 0:
-                value[masknegative] = self.fneginv(
+                value[masknegative] = self._fneginv(
                     -value[masknegative] / widthneg) * (vmin - vmax) + vmax
 
         else:
 
             if vmax > 0 and vmin < 0:
                 if value < 0:
-                    value = self.fneginv(-value / widthneg) * vmin
+                    value = self._fneginv(-value / widthneg) * vmin
                 else:
-                    value = self.fposinv(value / widthpos) * vmax
+                    value = self._fposinv(value / widthpos) * vmax
 
             elif vmax > 0 and vmin >= 0:
                 if value > 0:
-                    value = self.fposinv(value / widthpos) * \
+                    value = self._fposinv(value / widthpos) * \
                         (vmax - vmin) + vmin
 
             elif vmax <= 0 and vmin < 0:
                 if value < 0:
-                    value = self.fneginv(-value / widthneg) * \
+                    value = self._fneginv(-value / widthneg) * \
                         (vmin - vmax) + vmax
         return value
 
@@ -1141,8 +1141,8 @@ class PositiveArbitraryNorm(Normalize):
         if vmin is not None and vmax is not None:
             if vmin > vmax:
                 raise ValueError("vmin must be less than vmax")
-        self.fpos = fpos
-        self.fposinv = fposinv
+        self._fpos = fpos
+        self._fposinv = fposinv
         Normalize.__init__(self, vmin, vmax, clip)
 
     def __call__(self, value, clip=None):
@@ -1157,7 +1157,7 @@ class PositiveArbitraryNorm(Normalize):
         result[result > vmax] = vmax
         result[result < vmin] = vmin
 
-        result = self.fpos((result - vmin) / (vmax - vmin))
+        result = self._fpos((result - vmin) / (vmax - vmin))
 
         self.autoscale_None(result)
         return result
@@ -1168,9 +1168,9 @@ class PositiveArbitraryNorm(Normalize):
         vmax = self.vmax
 
         if cbook.iterable(value):
-            value = self.fposinv(value) * (vmax - vmin) + vmin
+            value = self._fposinv(value) * (vmax - vmin) + vmin
         else:
-            value = self.fposinv(value) * (vmax - vmin) + vmin
+            value = self._fposinv(value) * (vmax - vmin) + vmin
         return value
 
     def ticks(self, N=11):
@@ -1211,8 +1211,8 @@ class NegativeArbitraryNorm(Normalize):
         if vmin is not None and vmax is not None:
             if vmin > vmax:
                 raise ValueError("vmin must be less than vmax")
-        self.fneg = fneg
-        self.fneginv = fneginv
+        self._fneg = fneg
+        self._fneginv = fneginv
         Normalize.__init__(self, vmin, vmax, clip)
 
     def __call__(self, value, clip=None):
@@ -1227,7 +1227,7 @@ class NegativeArbitraryNorm(Normalize):
         result[result > vmax] = vmax
         result[result < vmin] = vmin
 
-        result = -self.fneg((result - vmax) / (vmin - vmax))
+        result = -self._fneg((result - vmax) / (vmin - vmax))
         result = result + 1
 
         self.autoscale_None(result)
@@ -1241,9 +1241,9 @@ class NegativeArbitraryNorm(Normalize):
         value = value - 1
 
         if cbook.iterable(value):
-            value = self.fneginv(-value) * (vmin - vmax) + vmax
+            value = self._fneginv(-value) * (vmin - vmax) + vmax
         else:
-            value = self.fneginv(value) * (vmin - vmax) + vmax
+            value = self._fneginv(value) * (vmin - vmax) + vmax
 
         return value
 
@@ -1311,64 +1311,6 @@ class NegativeRootNorm(NegativeArbitraryNorm):
     """
     Root normalization for negative data.
     >>> norm=NegativeRootNorm(vmax=0,orderneg=2)
-    """
-    def __init__(self, orderneg=2, vmin=None, vmax=None, clip=False):
-        """
-        *orderneg*:
-        Degree of the root used to normalize the data for the negative
-        direction.
-        """
-        NegativeArbitraryNorm.__init__(self,
-                                       fneg=(lambda x: x**(1. / orderneg)),
-                                       fneginv=(lambda x: x**(orderneg)),
-                                       vmin=vmin, vmax=vmax, clip=clip)
-
-
-class SymRootNorm(ArbitraryNorm):
-    """
-    Root normalization for positive and negative data.
-    """
-    def __init__(self, orderpos=2, orderneg=None,
-                 vmin=None, vmax=None, clip=False, center=0.5):
-        """
-        *orderpos*:
-        Degree of the root used to normalize the data for the positive
-        direction.
-        *orderneg*:
-        Degree of the root used to normalize the data for the negative
-        direction. By default equal to *orderpos*.
-        """
-
-        if orderneg is None:
-            orderneg = orderpos
-        ArbitraryNorm.__init__(self,
-                               fneg=(lambda x: x**(1. / orderneg)),
-                               fneginv=(lambda x: x**(orderneg)),
-                               fpos=(lambda x: x**(1. / orderpos)),
-                               fposinv=(lambda x: x**(orderpos)),
-                               center=center,
-                               vmin=vmin, vmax=vmax, clip=clip)
-
-
-class PositiveRootNorm(PositiveArbitraryNorm):
-    """
-    Root normalization for positive data.
-    """
-    def __init__(self, orderpos=2, vmin=None, vmax=None, clip=False):
-        """
-        *orderpos*:
-        Degree of the root used to normalize the data for the positive
-        direction.
-        """
-        PositiveArbitraryNorm.__init__(self,
-                                       fpos=(lambda x: x**(1. / orderpos)),
-                                       fposinv=(lambda x: x**(orderpos)),
-                                       vmin=vmin, vmax=vmax, clip=clip)
-
-
-class NegativeRootNorm(NegativeArbitraryNorm):
-    """
-    Root normalization for negative data.
     """
     def __init__(self, orderneg=2, vmin=None, vmax=None, clip=False):
         """
