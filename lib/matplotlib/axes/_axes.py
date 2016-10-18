@@ -137,7 +137,6 @@ class Axes(_AxesBase):
             raise ValueError("'%s' is not a valid location" % loc)
         return title.get_text()
 
-    @docstring.dedent_interpd
     def set_title(self, label, fontdict=None, loc="center", **kwargs):
         """
         Set a title for the axes.
@@ -200,7 +199,6 @@ class Axes(_AxesBase):
         label = self.xaxis.get_label()
         return label.get_text()
 
-    @docstring.dedent_interpd
     def set_xlabel(self, xlabel, fontdict=None, labelpad=None, **kwargs):
         """
         Set the label for the xaxis.
@@ -232,7 +230,6 @@ class Axes(_AxesBase):
         label = self.yaxis.get_label()
         return label.get_text()
 
-    @docstring.dedent_interpd
     def set_ylabel(self, ylabel, fontdict=None, labelpad=None, **kwargs):
         """
         Set the label for the yaxis
@@ -857,7 +854,6 @@ or tuple of floats
         self.autoscale_view(scalex=False)
         return p
 
-    @docstring.dedent_interpd
     def axvspan(self, xmin, xmax, ymin=0, ymax=1, **kwargs):
         """
         Add a vertical span (rectangle) across the axes.
@@ -924,7 +920,6 @@ or tuple of floats
         return p
 
     @_preprocess_data(replace_names=['y', 'xmin', 'xmax'], label_namer="y")
-    @docstring.dedent
     def hlines(self, y, xmin, xmax, colors='k', linestyles='solid',
                label='', **kwargs):
         """
@@ -1004,7 +999,6 @@ or tuple of floats
 
     @_preprocess_data(replace_names=["x", "ymin", "ymax", "colors"],
                          label_namer="x")
-    @docstring.dedent_interpd
     def vlines(self, x, ymin, ymax, colors='k', linestyles='solid',
                label='', **kwargs):
         """
@@ -1670,7 +1664,6 @@ or tuple of floats
         return l
 
     @_preprocess_data(replace_names=["x"], label_namer="x")
-    @docstring.dedent_interpd
     def acorr(self, x, **kwargs):
         """
         Plot the autocorrelation of `x`.
@@ -1732,7 +1725,6 @@ or tuple of floats
         return self.xcorr(x, x, **kwargs)
 
     @_preprocess_data(replace_names=["x", "y"], label_namer="y")
-    @docstring.dedent_interpd
     def xcorr(self, x, y, normed=True, detrend=mlab.detrend_none,
               usevlines=True, maxlags=10, **kwargs):
         """
@@ -3844,7 +3836,6 @@ or tuple of floats
                                         "edgecolors", "c", 'facecolor',
                                         'facecolors', 'color'],
                          label_namer="y")
-    @docstring.dedent_interpd
     def scatter(self, x, y, s=None, c=None, marker=None, cmap=None, norm=None,
                 vmin=None, vmax=None, alpha=None, linewidths=None,
                 verts=None, edgecolors=None,
@@ -4677,8 +4668,7 @@ or tuple of floats
         return b
 
     @_preprocess_data(replace_names=["x", "y"], label_namer=None,
-                        positional_parameter_names=["x", "y", "c"])
-    @docstring.dedent_interpd
+                      positional_parameter_names=["x", "y", "c"])
     def fill(self, *args, **kwargs):
         """
         Plot filled polygons.
@@ -5029,7 +5019,6 @@ or tuple of floats
 
     #### plotting z(x,y): imshow, pcolor and relatives, contour
     @_preprocess_data(label_namer=None)
-    @docstring.dedent_interpd
     def imshow(self, X, cmap=None, norm=None, aspect=None,
                interpolation=None, alpha=None, vmin=None, vmax=None,
                origin=None, extent=None, shape=None, filternorm=1,
@@ -5909,7 +5898,6 @@ or tuple of floats
     #### Data analysis
 
     @_preprocess_data(replace_names=["x", 'weights'], label_namer="x")
-    @docstring.dedent_interpd
     def hist(self, x, bins=None, range=None, normed=False, weights=None,
              cumulative=False, bottom=None, histtype='bar', align='mid',
              orientation='vertical', rwidth=None, log=False,
@@ -6474,7 +6462,6 @@ or tuple of floats
             return n, bins, cbook.silent_list('Lists of Patches', patches)
 
     @_preprocess_data(replace_names=["x", "y", "weights"], label_namer=None)
-    @docstring.dedent_interpd
     def hist2d(self, x, y, bins=10, range=None, normed=False, weights=None,
                cmin=None, cmax=None, **kwargs):
         """
