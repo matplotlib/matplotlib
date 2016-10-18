@@ -372,9 +372,8 @@ class Patch(artist.Artist):
         self._linewidth = float(w)
         # scale the dash pattern by the linewidth
         offset, ls = self._us_dashes
-        self._dashes = mlines._scale_dashes(offset,
-                                            ls,
-                                            self._linewidth)[1]
+        self._dashoffset, self._dashes = mlines._scale_dashes(
+            offset, ls, self._linewidth)
         self.stale = True
 
     def set_lw(self, lw):
@@ -417,9 +416,8 @@ class Patch(artist.Artist):
         # get the unscalled dash pattern
         offset, ls = self._us_dashes = mlines._get_dash_pattern(ls)
         # scale the dash pattern by the linewidth
-        self._dashes = mlines._scale_dashes(offset,
-                                            ls,
-                                            self._linewidth)[1]
+        self._dashoffset, self._dashes = mlines._scale_dashes(
+            offset, ls, self._linewidth)
         self.stale = True
 
     def set_ls(self, ls):
@@ -4271,7 +4269,7 @@ class FancyArrowPatch(Patch):
         if self._edgecolor[3] == 0:
             lw = 0
         gc.set_linewidth(lw)
-        gc.set_linestyle(self._linestyle)
+        gc.set_dashes(self._dashoffset, self._dashes)
 
         gc.set_antialiased(self._antialiased)
         self._set_gc_clip(gc)
