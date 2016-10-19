@@ -85,7 +85,6 @@ mpl_packages = [
     setupext.Path(),
     setupext.ContourLegacy(),
     setupext.Contour(),
-    setupext.Delaunay(),
     setupext.QhullWrap(),
     setupext.Tri(),
     'Optional subpackages',
