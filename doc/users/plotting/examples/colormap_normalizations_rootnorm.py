@@ -3,7 +3,7 @@
 Examples of colormap root normalization
 ============================================
 
-Here I plot an image array with data spanning for a large dynamic range, 
+Here I plot an image array with data spanning for a large dynamic range,
 using different normalizations. Look at how each of them enhances
 different features.
 
@@ -44,16 +44,8 @@ for i, val in enumerate(np.linspace(-1, 1, N)):
 
 cmap = cm.gist_rainbow
 
-norms = [('Linear Scale', None),
-         ('Symmetric root norm',
-          colors.SymRootNorm(orderpos=7, orderneg=2, center=0.3)),
-         ('Positive root norm',
-          colors.PositiveRootNorm(vmin=0, orderpos=5)),
-         ('Negative root norm',
-          colors.NegativeRootNorm(vmax=0, orderneg=5))]
 
-
-for label, norm in norms:
+def makePlot(norm, label):
     fig, ax = plt.subplots()
     cax = ax.pcolormesh(x, y, data, cmap=cmap, norm=norm)
     ax.set_title(label)
@@ -64,5 +56,15 @@ for label, norm in norms:
     else:
         ticks = None
     cbar = fig.colorbar(cax, format='%.3g', ticks=ticks)
+
+
+makePlot(None, 'Regular linear scale')
+
+norm = colors.RootNorm(vmin=0, orderpos=5)
+makePlot(norm, 'Root norm')
+
+norm = colors.MirrorRootNorm(
+    orderpos=7, orderneg=2, center_cm=0.3, center_data=0.)
+makePlot(norm, 'Mirror root norm')
 
 plt.show()

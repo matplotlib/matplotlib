@@ -45,24 +45,8 @@ for i, val in enumerate(np.linspace(-1, 1, N)):
 
 cmap = cm.gist_rainbow
 
-norms = [('Linear Scale', None),
-         ('Arbitrary norm',
-          colors.ArbitraryNorm(fpos=(lambda x: x**0.2),
-                               fposinv=(lambda x: x**5),
-                               fneg=(lambda x: x**0.5),
-                               fneginv=(lambda x: x**2),
-                               center=0.4)),
-         ('Positive arbitrary norm',
-          colors.PositiveArbitraryNorm(vmin=0,
-                                       fpos=(lambda x: x**0.5),
-                                       fposinv=(lambda x: x**2))),
-         ('Negative arbitrary norm',
-          colors.NegativeArbitraryNorm(vmax=0,
-                                       fneg=(lambda x: x**0.5),
-                                       fneginv=(lambda x: x**2)))]
 
-
-for label, norm in norms:
+def makePlot(norm, label):
     fig, ax = plt.subplots()
     cax = ax.pcolormesh(x, y, data, cmap=cmap, norm=norm)
     ax.set_title(label)
@@ -73,5 +57,30 @@ for label, norm in norms:
     else:
         ticks = None
     cbar = fig.colorbar(cax, format='%.3g', ticks=ticks)
+
+
+makePlot(None, 'Regular linear scale')
+
+
+norm = colors.SingleArbitraryNorm(vmin=0, f='sqrt')
+makePlot(norm, 'Single arbitrary norm')
+
+norm = colors.SingleArbitraryNorm(vmin=0,
+                                  f=(lambda x: x**0.25),
+                                  finv=(lambda x: x**4))
+makePlot(norm, 'Simple arbitrary norm, custom function')
+
+
+norm = colors.MirrorArbitraryNorm(fpos='crt',
+                                  fneg='linear',
+                                  center_cm=0.3,
+                                  center_data=0.0)
+makePlot(norm, 'Mirror arbitrary norm')
+
+
+norm = colors.ArbitraryNorm(flist=['linear', 'quadratic', 'cubic'],
+                            refpoints_cm=[0.5, 0.75],
+                            refpoints_data=[0., 1.])
+makePlot(norm, 'Arbitrary norm')
 
 plt.show()
