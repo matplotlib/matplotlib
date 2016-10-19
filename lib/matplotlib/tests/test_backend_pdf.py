@@ -14,6 +14,7 @@ from matplotlib.backends.backend_pdf import PdfPages
 from matplotlib import pyplot as plt
 from matplotlib.testing.decorators import (image_comparison, knownfailureif,
                                            cleanup)
+from matplotlib.testing import skip, closed_tempfile
 
 
 @image_comparison(baseline_images=['pdf_use14corefonts'],
@@ -64,14 +65,12 @@ def test_multipage_pagecount():
 @cleanup
 def test_multipage_keep_empty():
     from matplotlib.backends.backend_pdf import PdfPages
-    from tempfile import NamedTemporaryFile
     # test empty pdf files
     # test that an empty pdf is left behind with keep_empty=True (default)
-    with NamedTemporaryFile(delete=False) as tmp:
+    with closed_tempfile(".pdf") as tmp:
         with PdfPages(tmp) as pdf:
             filename = pdf._file.fh.name
         assert os.path.exists(filename)
-    os.remove(filename)
     # test if an empty pdf is deleting itself afterwards with keep_empty=False
     with PdfPages(filename, keep_empty=False) as pdf:
         pass
@@ -81,19 +80,17 @@ def test_multipage_keep_empty():
     ax = fig.add_subplot(111)
     ax.plot([1, 2, 3])
     # test that a non-empty pdf is left behind with keep_empty=True (default)
-    with NamedTemporaryFile(delete=False) as tmp:
+    with closed_tempfile(".pdf") as tmp:
         with PdfPages(tmp) as pdf:
             filename = pdf._file.fh.name
             pdf.savefig()
         assert os.path.exists(filename)
-    os.remove(filename)
     # test that a non-empty pdf is left behind with keep_empty=False
-    with NamedTemporaryFile(delete=False) as tmp:
+    with closed_tempfile(".pdf") as tmp:
         with PdfPages(tmp, keep_empty=False) as pdf:
             filename = pdf._file.fh.name
             pdf.savefig()
         assert os.path.exists(filename)
-    os.remove(filename)
 
 
 @cleanup
@@ -140,3 +137,34 @@ def test_grayscale_alpha():
     ax.imshow(dd, interpolation='none', cmap='gray_r')
     ax.set_xticks([])
     ax.set_yticks([])
+
+
+@cleanup
+def test_pdfpages_accept_pep_519():
+    class FakeFSPathClass(object):
+        def __init__(self, path):
+            self._path = path
+
+        def __fspath__(self):
+            return self._path
+    with closed_tempfile(suffix='.pdf') as fname:
+        with PdfPages(FakeFSPathClass(fname)) as pdf:
+            fig, ax = plt.subplots()
+            ax.plot([1, 2], [3, 4])
+            pdf.savefig(fig)
+
+
+@cleanup
+def test_savefig_accept_pathlib():
+    try:
+        from pathlib import Path
+    except ImportError:
+        skip("pathlib not installed")
+
+    fig, ax = plt.subplots()
+    ax.plot([1, 2], [3, 4])
+    with closed_tempfile(suffix='.pdf') as fname:
+        with PdfPages(Path(fname)) as pdf:
+            fig, ax = plt.subplots()
+            ax.plot([1, 2], [3, 4])
+            pdf.savefig(fig)

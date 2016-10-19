@@ -9,6 +9,7 @@ from nose.plugins.attrib import attr
 
 import numpy as np
 
+from matplotlib.testing import skip, closed_tempfile
 from matplotlib.testing.decorators import (image_comparison,
                                            knownfailureif, cleanup)
 from matplotlib.image import (BboxImage, imread, NonUniformImage,
@@ -752,5 +753,33 @@ def test_imshow_endianess():
     ax2.imshow(Z.astype('>f8'), **kwargs)
 
 
-if __name__ == '__main__':
-    nose.runmodule(argv=['-s', '--with-doctest'], exit=False)
+@cleanup
+def test_imsave_accept_pep_519():
+    class FakeFSPathClass(object):
+        def __init__(self, path):
+            self._path = path
+
+        def __fspath__(self):
+            return self._path
+
+    a = np.array([[1, 2], [3, 4]])
+    with closed_tempfile(suffix='.pdf') as fname:
+        pep519_path = FakeFSPathClass(fname)
+        plt.imsave(pep519_path, a)
+
+
+@cleanup
+def test_imsave_accept_pathlib():
+    try:
+        from pathlib import Path
+    except ImportError:
+        skip("pathlib not installed")
+
+    a = np.array([[1, 2], [3, 4]])
+    with closed_tempfile(suffix='.pdf') as fname:
+        path = Path(fname)
+        plt.imsave(path, a)
+
+
+if __name__=='__main__':
+    nose.runmodule(argv=['-s','--with-doctest'], exit=False)

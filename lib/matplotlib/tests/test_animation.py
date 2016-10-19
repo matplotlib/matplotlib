@@ -12,7 +12,7 @@ from nose.tools import assert_false, assert_true
 import matplotlib as mpl
 from matplotlib import pyplot as plt
 from matplotlib import animation
-from ..testing import xfail, skip
+from ..testing import xfail, skip, closed_tempfile
 from ..testing.decorators import cleanup
 
 
@@ -107,6 +107,12 @@ def test_save_animation_smoketest():
     for writer, extension in six.iteritems(WRITER_OUTPUT):
         yield check_save_animation, writer, extension
 
+    for writer, extension in six.iteritems(WRITER_OUTPUT):
+        yield check_save_animation_pep_519, writer, extension
+
+    for writer, extension in six.iteritems(WRITER_OUTPUT):
+        yield check_save_animation_pathlib, writer, extension
+
 
 @cleanup
 def check_save_animation(writer, extension='mp4'):
@@ -135,20 +141,72 @@ def check_save_animation(writer, extension='mp4'):
         line.set_data(x, y)
         return line,
 
-    # Use NamedTemporaryFile: will be automatically deleted
-    F = tempfile.NamedTemporaryFile(suffix='.' + extension)
-    F.close()
-    anim = animation.FuncAnimation(fig, animate, init_func=init, frames=5)
+    with closed_tempfile(suffix='.' + extension) as fname:
+        anim = animation.FuncAnimation(fig, animate, init_func=init, frames=5)
+        anim.save(fname, fps=30, writer=writer, bitrate=500)
+
+
+@cleanup
+def check_save_animation_pep_519(writer, extension='mp4'):
+    class FakeFSPathClass(object):
+        def __init__(self, path):
+            self._path = path
+
+        def __fspath__(self):
+            return self._path
+
+    if not animation.writers.is_available(writer):
+        skip("writer '%s' not available on this system"
+                               % writer)
+    fig, ax = plt.subplots()
+    line, = ax.plot([], [])
+
+    ax.set_xlim(0, 10)
+    ax.set_ylim(-1, 1)
+
+    def init():
+        line.set_data([], [])
+        return line,
+
+    def animate(i):
+        x = np.linspace(0, 10, 100)
+        y = np.sin(x + i)
+        line.set_data(x, y)
+        return line,
+
+    with closed_tempfile(suffix='.' + extension) as fname:
+        anim = animation.FuncAnimation(fig, animate, init_func=init, frames=5)
+        anim.save(FakeFSPathClass(fname), fps=30, writer=writer, bitrate=500)
+
+
+@cleanup
+def check_save_animation_pathlib(writer, extension='mp4'):
     try:
-        anim.save(F.name, fps=30, writer=writer, bitrate=500)
-    except UnicodeDecodeError:
-        xfail("There can be errors in the numpy import stack, "
-              "see issues #1891 and #2679")
-    finally:
-        try:
-            os.remove(F.name)
-        except Exception:
-            pass
+        from pathlib import Path
+    except ImportError:
+        skip("pathlib not installed")
+
+    if not animation.writers.is_available(writer):
+        skip("writer '%s' not available on this system" % writer)
+    fig, ax = plt.subplots()
+    line, = ax.plot([], [])
+
+    ax.set_xlim(0, 10)
+    ax.set_ylim(-1, 1)
+
+    def init():
+        line.set_data([], [])
+        return line,
+
+    def animate(i):
+        x = np.linspace(0, 10, 100)
+        y = np.sin(x + i)
+        line.set_data(x, y)
+        return line,
+
+    with closed_tempfile(suffix='.' + extension) as fname:
+        anim = animation.FuncAnimation(fig, animate, init_func=init, frames=5)
+        anim.save(Path(fname), fps=30, writer=writer, bitrate=500)
 
 
 @cleanup
