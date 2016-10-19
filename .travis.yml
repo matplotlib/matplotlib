@@ -89,7 +89,8 @@ before_install:
   - |
     # Install into our own pristine virtualenv
     if [[ $TRAVIS_OS_NAME != 'osx' ]]; then
-      virtualenv --python=python venv
+      pip install --upgrade virtualenv
+      python -m virtualenv venv
       source venv/bin/activate
       export PATH=/usr/lib/ccache:$PATH
     else
