@@ -56,6 +56,8 @@ matrix:
       env: TEST_ARGS=--pep8
     - python: 2.7
       env: BUILD_DOCS=true MOCK=mock
+    - python: "3.6-dev"
+      env: PRE=--pre
     - python: "nightly"
       env: PRE=--pre
   allow_failures:
