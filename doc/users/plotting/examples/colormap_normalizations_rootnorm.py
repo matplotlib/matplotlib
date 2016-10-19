@@ -60,7 +60,7 @@ def makePlot(norm, label):
 
 makePlot(None, 'Regular linear scale')
 
-norm = colors.RootNorm(vmin=0, orderpos=5)
+norm = colors.RootNorm(vmin=0, order=5)
 makePlot(norm, 'Root norm')
 
 norm = colors.MirrorRootNorm(

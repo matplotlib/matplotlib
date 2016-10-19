@@ -1211,8 +1211,8 @@ class MirrorArbitraryNorm(ArbitraryNorm):
         refpoints_cm = np.array([center_cm])
         refpoints_data = np.array([center_data])
 
-        flist = [lambda (x):(-fneg(-x + 1) + 1), fpos]
-        finvlist = [lambda (x):(-fneginv(-x + 1) + 1), fposinv]
+        flist = [(lambda x:(-fneg(-x + 1) + 1)), fpos]
+        finvlist = [(lambda x:(-fneginv(-x + 1) + 1)), fposinv]
 
         super(MirrorArbitraryNorm, self).__init__(flist=flist,
                                                   finvlist=finvlist,
@@ -1293,14 +1293,14 @@ class RootNorm(SingleArbitraryNorm):
     >>> norm=PositiveRootNorm(vmin=0,orderpos=7)
     """
 
-    def __init__(self, orderpos=2, vmin=None, vmax=None, clip=False):
+    def __init__(self, order=2, vmin=None, vmax=None, clip=False):
         """
-        *orderpos*:
+        *order*:
         Degree of the root used to normalize the data for the positive
         direction.
         """
-        super(RootNorm, self).__init__(f=(lambda x: x**(1. / orderpos)),
-                                       finv=(lambda x: x**(orderpos)),
+        super(RootNorm, self).__init__(f=(lambda x: x**(1. / order)),
+                                       finv=(lambda x: x**(order)),
                                        vmin=vmin, vmax=vmax, clip=clip)
 
 
