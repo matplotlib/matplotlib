@@ -7,7 +7,7 @@ from itertools import chain
 from distutils.version import LooseVersion
 import io
 
-from nose.tools import assert_equal, assert_raises, assert_false, assert_true
+from nose.tools import assert_raises
 from nose.plugins.skip import SkipTest
 
 import datetime
@@ -129,22 +129,22 @@ def test_twinx_cla():
     ax2 = ax.twinx()
     ax3 = ax2.twiny()
     plt.draw()
-    assert_false(ax2.xaxis.get_visible())
-    assert_false(ax2.patch.get_visible())
+    assert not ax2.xaxis.get_visible()
+    assert not ax2.patch.get_visible()
     ax2.cla()
     ax3.cla()
 
-    assert_false(ax2.xaxis.get_visible())
-    assert_false(ax2.patch.get_visible())
-    assert_true(ax2.yaxis.get_visible())
+    assert not ax2.xaxis.get_visible()
+    assert not ax2.patch.get_visible()
+    assert ax2.yaxis.get_visible()
 
-    assert_true(ax3.xaxis.get_visible())
-    assert_false(ax3.patch.get_visible())
-    assert_false(ax3.yaxis.get_visible())
+    assert ax3.xaxis.get_visible()
+    assert not ax3.patch.get_visible()
+    assert not ax3.yaxis.get_visible()
 
-    assert_true(ax.xaxis.get_visible())
-    assert_true(ax.patch.get_visible())
-    assert_true(ax.yaxis.get_visible())
+    assert ax.xaxis.get_visible()
+    assert ax.patch.get_visible()
+    assert ax.yaxis.get_visible()
 
 
 @image_comparison(baseline_images=["minorticks_on_rcParams_both"], extensions=['png'])
@@ -420,7 +420,6 @@ def test_polar_wrap():
 @image_comparison(baseline_images=['polar_units', 'polar_units_2'])
 def test_polar_units():
     import matplotlib.testing.jpl_units as units
-    from nose.tools import assert_true
     units.register()
 
     pi = np.pi
@@ -445,7 +444,7 @@ def test_polar_units():
     # make sure runits and theta units work
     y1 = [y*km for y in y1]
     plt.polar(x2, y1, color="blue", thetaunits="rad", runits="km")
-    assert_true(isinstance(plt.gca().get_xaxis().get_major_formatter(), units.UnitDblFormatter))
+    assert isinstance(plt.gca().get_xaxis().get_major_formatter(), units.UnitDblFormatter)
 
 
 @image_comparison(baseline_images=['polar_rmin'])
@@ -2671,7 +2670,7 @@ def test_eventplot():
                             linelengths=linelengths)
 
     num_collections = len(colls)
-    np.testing.assert_equal(num_collections, num_datasets)
+    assert num_collections == num_datasets
 
     # Reuse testcase from above for a labeled data test
     data = {"pos": data, "c": colors, "lo": lineoffsets, "ll": linelengths}
@@ -2680,7 +2679,7 @@ def test_eventplot():
     colls = axobj.eventplot("pos", colors="c", lineoffsets="lo",
                             linelengths="ll", data=data)
     num_collections = len(colls)
-    np.testing.assert_equal(num_collections, num_datasets)
+    assert num_collections == num_datasets
 
 
 @image_comparison(baseline_images=['test_eventplot_defaults'], extensions=['png'], remove_text=True)
@@ -2727,9 +2726,8 @@ def test_eventplot_problem_kwargs():
                                 linestyle=['dashdot', 'dotted'])
 
         # check that three IgnoredKeywordWarnings were raised
-        assert_equal(len(w), 3)
-        assert_true(all(issubclass(wi.category, IgnoredKeywordWarning)
-                    for wi in w))
+        assert len(w) == 3
+        assert all(issubclass(wi.category, IgnoredKeywordWarning) for wi in w)
 
 
 @cleanup
@@ -2870,7 +2868,7 @@ def test_mixed_collection():
 def test_subplot_key_hash():
     ax = plt.subplot(np.float64(5.5), np.int64(1), np.float64(1.2))
     ax.twinx()
-    assert_equal((5, 1, 0, None), ax.get_subplotspec().get_geometry())
+    assert (5, 1, 0, None) == ax.get_subplotspec().get_geometry()
 
 
 @image_comparison(baseline_images=['specgram_freqs',
@@ -3825,7 +3823,7 @@ def test_rcparam_grid_minor():
         matplotlib.rcParams['axes.grid.which'] = locator
         fig = plt.figure()
         ax = fig.add_subplot(1, 1, 1)
-        assert((ax.xaxis._gridOnMajor, ax.xaxis._gridOnMinor) == result)
+        assert (ax.xaxis._gridOnMajor, ax.xaxis._gridOnMinor) == result
 
     matplotlib.rcParams['axes.grid'] = orig_grid
     matplotlib.rcParams['axes.grid.which'] = orig_locator
@@ -4043,17 +4041,17 @@ def test_margins():
     fig1, ax1 = plt.subplots(1, 1)
     ax1.plot(data)
     ax1.margins(1)
-    assert_equal(ax1.margins(), (1, 1))
+    assert ax1.margins() == (1, 1)
 
     fig2, ax2 = plt.subplots(1, 1)
     ax2.plot(data)
     ax2.margins(1, 0.5)
-    assert_equal(ax2.margins(), (1, 0.5))
+    assert ax2.margins() == (1, 0.5)
 
     fig3, ax3 = plt.subplots(1, 1)
     ax3.plot(data)
     ax3.margins(x=1, y=0.5)
-    assert_equal(ax3.margins(), (1, 0.5))
+    assert ax3.margins() == (1, 0.5)
 
 
 @cleanup
@@ -4074,7 +4072,7 @@ def test_pathological_hexbin():
         fig, ax = plt.subplots(1, 1)
         ax.hexbin(mylist, mylist)
         fig.savefig(out)
-        assert_equal(len(w), 0)
+        assert len(w) == 0
 
 
 @cleanup
@@ -4089,7 +4087,7 @@ def test_color_alias():
     # issues 4157 and 4162
     fig, ax = plt.subplots()
     line = ax.plot([0, 1], c='lime')[0]
-    assert_equal('lime', line.get_color())
+    assert 'lime' == line.get_color()
 
 
 @cleanup
@@ -4120,7 +4118,7 @@ def test_move_offsetlabel():
     fig, ax = plt.subplots()
     ax.plot(data)
     ax.yaxis.tick_right()
-    assert_equal((1, 0.5), ax.yaxis.offsetText.get_position())
+    assert (1, 0.5) == ax.yaxis.offsetText.get_position()
 
 
 @image_comparison(baseline_images=['rc_spines'], extensions=['png'],
@@ -4209,11 +4207,11 @@ def test_rc_major_minor_tick():
 def test_bar_negative_width():
     fig, ax = plt.subplots()
     res = ax.bar(range(1, 5), range(1, 5), width=-1)
-    assert_equal(len(res), 4)
+    assert len(res) == 4
     for indx, b in enumerate(res):
-        assert_equal(b._x, indx)
-        assert_equal(b._width, 1)
-        assert_equal(b._height, indx + 1)
+        assert b._x == indx
+        assert b._width == 1
+        assert b._height == indx + 1
 
 
 @cleanup
@@ -4224,8 +4222,8 @@ def test_square_plot():
     ax.plot(x, y, 'mo')
     ax.axis('square')
     xlim, ylim = ax.get_xlim(), ax.get_ylim()
-    assert_true(np.diff(xlim) == np.diff(ylim))
-    assert_true(ax.get_aspect() == 'equal')
+    assert np.diff(xlim) == np.diff(ylim)
+    assert ax.get_aspect() == 'equal'
 
 
 @cleanup
@@ -4254,15 +4252,15 @@ def test_shared_scale():
     axs[0, 0].set_yscale("log")
 
     for ax in axs.flat:
-        assert_equal(ax.get_yscale(), 'log')
-        assert_equal(ax.get_xscale(), 'log')
+        assert ax.get_yscale() == 'log'
+        assert ax.get_xscale() == 'log'
 
     axs[1, 1].set_xscale("linear")
     axs[1, 1].set_yscale("linear")
 
     for ax in axs.flat:
-        assert_equal(ax.get_yscale(), 'linear')
-        assert_equal(ax.get_xscale(), 'linear')
+        assert ax.get_yscale() == 'linear'
+        assert ax.get_xscale() == 'linear'
 
 
 @cleanup
@@ -4336,9 +4334,9 @@ def test_title_location_roundtrip():
     ax.set_title('left', loc='left')
     ax.set_title('right', loc='right')
 
-    assert_equal('left', ax.get_title(loc='left'))
-    assert_equal('right', ax.get_title(loc='right'))
-    assert_equal('aardvark', ax.get_title())
+    assert 'left' == ax.get_title(loc='left')
+    assert 'right' == ax.get_title(loc='right')
+    assert 'aardvark' == ax.get_title()
 
     assert_raises(ValueError, ax.get_title, loc='foo')
     assert_raises(ValueError, ax.set_title, 'fail', loc='foo')
