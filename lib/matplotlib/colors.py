@@ -1043,7 +1043,13 @@ class FuncNorm(Normalize):
             return (lambda x: (fun(x) - fun(0.)) / (fun(1.) - fun(0.)))
 
     def ticks(self, N=13):
-        return self.inverse(np.linspace(0, 1, N))
+        ticks = self.inverse(np.linspace(0, 1, N))
+        finalticks = np.zeros(ticks.shape, dtype=np.bool)
+        finalticks[0] = True
+        finalticks[0] = True
+        ticks = FuncNorm._round_ticks(ticks, finalticks)
+
+        return ticks
 
     def autoscale(self, A):
         self.vmin = np.ma.min(A)
@@ -1056,6 +1062,19 @@ class FuncNorm(Normalize):
             self.vmin = np.ma.min(A)
         if self.vmax is None:
             self.vmax = np.ma.max(A)
+
+    @staticmethod
+    def _round_ticks(ticks, permanenttick):
+        ticks = ticks.copy()
+        for i in range(len(ticks)):
+            if i == 0 or i == len(ticks) - 1 or permanenttick[i]:
+                continue
+            d1 = ticks[i] - ticks[i - 1]
+            d2 = ticks[i + 1] - ticks[i]
+            d = min([d1, d2])
+            order = -np.floor(np.log10(d))
+            ticks[i] = float(np.round(ticks[i] * 10**order)) / 10**order
+        return ticks
 
 
 class PiecewiseNorm(FuncNorm):
@@ -1168,8 +1187,8 @@ class PiecewiseNorm(FuncNorm):
                 (x - rp_d[i]) / widths_d[i]) * widths_cm[i] + rp_cm[i])
             masks.append(mask)
             funcs.append(func)
-        maskmaker = (lambda x: [np.array([mi(x) == True]) if np.isscalar(
-            x) else mi(x) == True for mi in masks])
+        maskmaker = (lambda x: [np.array([mi(x)]) if np.isscalar(
+            x) else mi(x) for mi in masks])
         f = (lambda x: np.piecewise(x, maskmaker(x), funcs))
         return f
 
@@ -1195,8 +1214,8 @@ class PiecewiseNorm(FuncNorm):
             funcs.append(lambda x, i=i: self._finvlist[i](
                 (x - rp_cm[i]) / widths_cm[i]) * widths_d[i] + rp_d[i])
 
-        maskmaker = (lambda x: [np.array([mi(x) == True]) if np.isscalar(
-            x) else mi(x) == True for mi in masks])
+        maskmaker = (lambda x: [np.array([mi(x)]) if np.isscalar(
+            x) else mi(x) for mi in masks])
         x = np.array([0.5, 1])
         finv = (lambda x: np.piecewise(x, maskmaker(x), funcs))
         return finv
@@ -1242,12 +1261,22 @@ class PiecewiseNorm(FuncNorm):
                 N = nticks[i]
                 auxticks = np.linspace(rp_cm[i], rp_cm[i + 1], N + 2)
                 ticks = np.concatenate([ticks, auxticks[1:-1]])
-        return self.inverse(np.sort(ticks))
+
+        finalticks = np.zeros(ticks.shape, dtype=np.bool)
+        finalticks[0:len(rp_cm)] = True
+
+        inds = np.argsort(ticks)
+        ticks = ticks[inds]
+        finalticks = finalticks[inds]
+
+        ticks = PiecewiseNorm._round_ticks(self.inverse(ticks), finalticks)
+
+        return ticks
 
 
 class MirrorPiecewiseNorm(PiecewiseNorm):
     """
-    Normalization allowing the definition of data ranges and colormap ranges, 
+    Normalization allowing the definition of data ranges and colormap ranges,
     with a non linear map between each.
     >>> norm=PiecewiseNorm(fpos=(lambda x: x**0.5),
     >>>                    fposinv=(lambda x: x**2),
