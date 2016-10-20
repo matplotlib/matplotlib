@@ -18,6 +18,7 @@ import numpy as np
 from numpy import ma
 from numpy import arange
 from cycler import cycler
+import pytest
 
 import warnings
 
@@ -4269,13 +4270,7 @@ def test_violin_point_mass():
     plt.violinplot(np.array([0, 0]))
 
 
-def _eb_succes_helper(ax, x, y, xerr=None, yerr=None):
-    eb = ax.errorbar(x, y, xerr=xerr, yerr=yerr)
-    eb.remove()
-
-
-@cleanup
-def test_errorbar_inputs_shotgun():
+def generate_errorbar_inputs():
     base_xy = cycler('x', [np.arange(5)]) + cycler('y', [np.ones((5, ))])
     err_cycler = cycler('err', [1,
                                 [1, 1, 1, 1, 1],
@@ -4296,15 +4291,17 @@ def test_errorbar_inputs_shotgun():
     yerr_only = base_xy * yerr_cy
     both_err = base_xy * yerr_cy * xerr_cy
 
-    test_cyclers = xerr_only, yerr_only, both_err, empty
+    test_cyclers = chain(xerr_only, yerr_only, both_err, empty)
 
+    return test_cyclers
+
+
+@cleanup
+@pytest.mark.parametrize('kwargs', generate_errorbar_inputs())
+def test_errorbar_inputs_shotgun(kwargs):
     ax = plt.gca()
-    # should do this as a generative test, but @cleanup seems to break that
-    # for p in chain(*test_cyclers):
-    #     yield (_eb_succes_helper, ax) + tuple(p.get(k, None) for
-    #                                          k in ['x', 'y', 'xerr', 'yerr'])
-    for p in chain(*test_cyclers):
-        _eb_succes_helper(ax, **p)
+    eb = ax.errorbar(**kwargs)
+    eb.remove()
 
 
 @cleanup
@@ -4386,8 +4383,8 @@ def test_axes_margins():
     assert ax.get_ybound() == (-0.5, 9.5)
 
 
-@cleanup
-def test_remove_shared_axes():
+@pytest.fixture(params=['x', 'y'])
+def shared_axis_remover(request):
     def _helper_x(ax):
         ax2 = ax.twinx()
         ax2.remove()
@@ -4402,26 +4399,43 @@ def test_remove_shared_axes():
         r = ax.yaxis.get_major_locator()()
         assert r[-1] > 14
 
+    if request.param == 'x':
+        return _helper_x
+    elif request.param == 'y':
+        return _helper_y
+    else:
+        assert False, 'Request param %s is invalid.' % (request.param, )
+
+
+@pytest.fixture(params=['gca', 'subplots', 'subplots_shared', 'add_axes'])
+def shared_axes_generator(request):
     # test all of the ways to get fig/ax sets
-    fig = plt.figure()
-    ax = fig.gca()
-    yield _helper_x, ax
-    yield _helper_y, ax
+    if request.param == 'gca':
+        fig = plt.figure()
+        ax = fig.gca()
+    elif request.param == 'subplots':
+        fig, ax = plt.subplots()
+    elif request.param == 'subplots_shared':
+        fig, ax_lst = plt.subplots(2, 2, sharex='all', sharey='all')
+        ax = ax_lst[0][0]
+    elif request.param == 'add_axes':
+        fig = plt.figure()
+        ax = fig.add_axes([.1, .1, .8, .8])
+    else:
+        assert False, 'Request param %s is invalid.' % (request.param, )
 
-    fig, ax = plt.subplots()
-    yield _helper_x, ax
-    yield _helper_y, ax
+    return fig, ax
 
-    fig, ax_lst = plt.subplots(2, 2, sharex='all', sharey='all')
-    ax = ax_lst[0][0]
-    yield _helper_x, ax
-    yield _helper_y, ax
 
-    fig = plt.figure()
-    ax = fig.add_axes([.1, .1, .8, .8])
-    yield _helper_x, ax
-    yield _helper_y, ax
+@cleanup
+def test_remove_shared_axes(shared_axes_generator, shared_axis_remover):
+    # test all of the ways to get fig/ax sets
+    fig, ax = shared_axes_generator
+    shared_axis_remover(ax)
 
+
+@cleanup
+def test_remove_shared_axes_relim():
     fig, ax_lst = plt.subplots(2, 2, sharex='all', sharey='all')
     ax = ax_lst[0][0]
     orig_xlim = ax_lst[0][1].get_xlim()

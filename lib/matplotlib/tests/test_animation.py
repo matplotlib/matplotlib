@@ -6,7 +6,10 @@ import six
 import os
 import sys
 import tempfile
+
 import numpy as np
+import pytest
+
 import matplotlib as mpl
 from matplotlib import pyplot as plt
 from matplotlib import animation
@@ -91,23 +94,25 @@ class RegisteredNullMovieWriter(NullMovieWriter):
         return True
 
 
-WRITER_OUTPUT = dict(ffmpeg='mp4', ffmpeg_file='mp4',
-                     mencoder='mp4', mencoder_file='mp4',
-                     avconv='mp4', avconv_file='mp4',
-                     imagemagick='gif', imagemagick_file='gif',
-                     null='null')
+WRITER_OUTPUT = [
+    ('ffmpeg', 'mp4'),
+    ('ffmpeg_file', 'mp4'),
+    ('mencoder', 'mp4'),
+    ('mencoder_file', 'mp4'),
+    ('avconv', 'mp4'),
+    ('avconv_file', 'mp4'),
+    ('imagemagick', 'gif'),
+    ('imagemagick_file', 'gif'),
+    ('null', 'null')
+]
 
 
 # Smoke test for saving animations.  In the future, we should probably
 # design more sophisticated tests which compare resulting frames a-la
 # matplotlib.testing.image_comparison
-def test_save_animation_smoketest():
-    for writer, extension in six.iteritems(WRITER_OUTPUT):
-        yield check_save_animation, writer, extension
-
-
 @cleanup
-def check_save_animation(writer, extension='mp4'):
+@pytest.mark.parametrize('writer, extension', WRITER_OUTPUT)
+def test_save_animation_smoketest(writer, extension):
     try:
         # for ImageMagick the rcparams must be patched to account for
         # 'convert' being a built in MS tool, not the imagemagick
