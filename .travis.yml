@@ -66,6 +66,7 @@ matrix:
 before_install:
   - source tools/travis_tools.sh
   # Install into our own pristine virtualenv
+  - pip install --upgrade virtualenv
   - virtualenv --python=python venv
   - source venv/bin/activate
   - export PATH=/usr/lib/ccache:$PATH
