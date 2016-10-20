@@ -11,7 +11,7 @@ Status
 ..
 .. MEPs go through a number of phases in their lifetime:
 
- - **Discussion**
+**Discussion**
 ..
 .. - **Progress**: Consensus was reached on the mailing list and
 ..  implementation work has begun.
@@ -94,6 +94,44 @@ This will be achieved in the following way:
      of its optional parameters).
   3. Outdated parameters from ``Axes.boxplot`` will be deprecated and
      later removed.
+
+Importance
+----------
+
+Since the limits of the whiskers are computed arithmetically, there
+is an implicit assumption of normality in box and whisker plots.
+This primarily affects which data points are classified as outliers.
+
+Allowing transformations to the data and the results used to draw
+boxplots will allow users to opt-out of that assumption if the
+data are known to not fit a normal distribution.
+
+Below is an example of how ``Axes.boxplot`` classifies outliers of lognormal
+data differently depending one these types of transforms.
+
+.. plot::
+   :include-source: true
+
+   import numpy as np
+   import matplotlib.pyplot as plt
+   from matplotlib import cbook
+   np.random.seed(0)
+
+   fig, ax = plt.subplots(figsize=(4, 6))
+   ax.set_yscale('log')
+   data = np.random.lognormal(-1.75, 2.75, size=37)
+
+   stats = cbook.boxplot_stats(data, labels=['arimetic'])
+   logstats = cbook.boxplot_stats(np.log(data), labels=['log-transformed'])
+
+   for lsdict in logstats:
+       for key, value in lsdict.items():
+           if key != 'label':
+               lsdict[key] = np.exp(value)
+
+   stats.extend(logstats)
+   ax.bxp(stats)
+   fig.show()
 
 Implementation
 ==============
@@ -209,7 +247,6 @@ This MEP can be divided into a few loosely coupled components:
 #. Removing redundant statistical options in ``Axes.boxplot``
 #. Shifting all styling parameter processing from ``Axes.boxplot`` to ``Axes.bxp``.
 
-
 With this approach, #2 depends and #1, and #4 depends on #3.
 
 There are two possible approaches to #2. The first and most direct would
@@ -222,7 +259,8 @@ value of ``statfxn`` would be ``cbook.boxplot_stats``, but users could
 pass their own function. Then ``transform_in`` and ``tranform_out`` would
 then be passed as elements of the ``statfxn_args`` parameter.
 
-.. python:
+.. code:: python
+
    def boxplot_stats(data, ..., transform_in=None, transform_out=None):
        if transform_in is None:
            transform_in = lambda x: x
@@ -256,7 +294,8 @@ then be passed as elements of the ``statfxn_args`` parameter.
 
 Both cases would allow users to do the following:
 
-.. python:
+.. code:: python
+
    fig, ax1 = plt.subplots()
    artists1 = ax1.boxplot_optionX(data, transform_in=np.log,
                                   transform_out=np.exp)
@@ -268,7 +307,8 @@ whiskers set differently depending on some attribute of the data.
 
 This is available under the current API:
 
-.. python:
+.. code:: python
+
    fig, ax1 = plt.subplots()
    my_stats = my_box_stats(data, bootstrap_method='BCA',
                            whisker_method='dynamic')
@@ -276,14 +316,16 @@ This is available under the current API:
 
 And would be more concise with Option Two
 
-.. python:
+.. code:: python
+
    fig, ax = plt.subplots()
    statopts = dict(transform_in=np.log, transform_out=np.exp)
    ax.boxplot(data, ..., **statopts)
 
 Users could also pass their own function to compute the stats:
 
-.. python:
+.. code:: python
+
    fig, ax1 = plt.subplots()
    ax1.boxplot(data, statfxn=my_box_stats, bootstrap_method='BCA',
                whisker_method='dynamic')
@@ -293,7 +335,8 @@ but in the context of downstream libraries like seaborn, its advantage
 is more apparent as the following would be possible without any patches
 to seaborn:
 
-.. python:
+.. code:: python
+
    import seaborn
    tips = seaborn.load_data('tips')
    g = seaborn.factorplot(x="day", y="total_bill", hue="sex", data=tips,
