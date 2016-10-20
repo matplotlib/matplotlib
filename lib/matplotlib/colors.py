@@ -958,11 +958,111 @@ class Normalize(object):
         return (self.vmin is not None and self.vmax is not None)
 
 
-class ArbitraryNorm(Normalize):
+class FuncNorm(Normalize):
+
+    def __init__(self, f, finv=None,
+                 vmin=None, vmax=None, clip=False):
+
+        f, finv = FuncNorm._fun_parser([f, finv])
+
+        if finv is None:
+            raise ValueError("Inverse function not provided")
+
+        if vmin is not None and vmax is not None:
+            if vmin >= vmax:
+                raise ValueError("vmin must be less than vmax")
+
+        self._f = f
+        self._finv = finv
+
+        super(FuncNorm, self).__init__(vmin, vmax, clip)
+
+    def _update_f(self, vmin, vmax):
+        return
+
+    def __call__(self, value, clip=None):
+        if clip is None:
+            clip = self.clip
+
+        result, is_scalar = self.process_value(value)
+
+        vmin = self.vmin
+        vmax = self.vmax
+
+        self._update_f(vmin, vmax)
+
+        result[result >= vmax] = vmax
+        result[result <= vmin] = vmin
+        resultnorm = (self._f(result) - self._f(vmin)) / \
+            (self._f(vmax) - self._f(vmin))
+
+        self.autoscale_None(resultnorm)
+        return np.ma.array(resultnorm)
+
+    def inverse(self, value):
+        vmin = self.vmin
+        vmax = self.vmax
+        self._update_f(vmin, vmax)
+        value = self._finv(
+            value * (self._f(vmax) - self._f(vmin)) + self._f(vmin))
+        return value
+
+    @staticmethod
+    def _fun_parser(funsin):
+        flog = 2000
+        funs = [('linear', (lambda x: x), (lambda x: x)),
+                ('quadratic', (lambda x: x**2), (lambda x: x**(1. / 2))),
+                ('cubic', (lambda x: x**3), (lambda x: x**(1. / 3))),
+                ('sqrt', (lambda x: x**(1. / 2)), (lambda x: x**2)),
+                ('crt', (lambda x: x**(1. / 3)), (lambda x: x**3)),
+                ('log(x+1)',
+                 (lambda x: np.log10(x * flog + 1) / np.log10(flog + 1)),
+                 (lambda x: (10**(np.log10(flog + 1) * x) - 1) / flog)),
+                ('log',
+                 (lambda x: np.log10(x)),
+                 (lambda x: (10**(x))))]
+
+        if isinstance(funsin[0], basestring):
+            funstrs = []
+            for fstr, fun, inv in funs:
+                funstrs.append(fstr)
+                if funsin[0] == fstr:
+                    return fun, inv
+            raise ValueError(
+                "the only strings recognized as functions are %s" % funstrs)
+        else:
+            return funsin
+
+    @staticmethod
+    def _fun_normalizer(fun):
+        if fun(0.) == 0. and fun(1.) == 1.:
+            return fun
+        elif fun(0.) == 0.:
+            return (lambda x: fun(x) / fun(1.))
+        else:
+            return (lambda x: (fun(x) - fun(0.)) / (fun(1.) - fun(0.)))
+
+    def ticks(self, N=13):
+        return self.inverse(np.linspace(0, 1, N))
+
+    def autoscale(self, A):
+        self.vmin = np.ma.min(A)
+        self.vmax = np.ma.max(A)
+
+    def autoscale_None(self, A):
+        if self.vmin is not None and self.vmax is not None:
+            return
+        if self.vmin is None:
+            self.vmin = np.ma.min(A)
+        if self.vmax is None:
+            self.vmax = np.ma.max(A)
+
+
+class PiecewiseNorm(FuncNorm):
     """
     Normalization allowing the definition of any non linear
     function for different ranges of the colorbar.
-    >>> norm=ArbitraryNorm(fpos=(lambda x: x**0.5),
+    >>> norm=PiecewiseNorm(fpos=(lambda x: x**0.5),
     >>>                    fposinv=(lambda x: x**2),
     >>>                    fneg=(lambda x: x**0.25),
     >>>                    fneginv=(lambda x: x**4))
@@ -992,7 +1092,7 @@ class ArbitraryNorm(Normalize):
             if vmin >= vmax:
                 raise ValueError("vmin must be less than vmax")
 
-        if finvlist == None:
+        if finvlist is None:
             finvlist = [None] * len(flist)
 
         if len(flist) != len(finvlist):
@@ -1010,12 +1110,14 @@ class ArbitraryNorm(Normalize):
             ([0.0], np.array(refpoints_cm), [1.0]))
         if any(np.diff(self._refpoints_cm) <= 0):
             raise ValueError(
-                "refpoints_cm values must be monotonically increasing and within the (0.0,1.0) interval")
+                "refpoints_cm values must be monotonically increasing "
+                "and within the (0.0,1.0) interval")
 
         self._refpoints_data = np.concatenate(
             ([None], np.array(refpoints_data), [None]))
 
-        if len(self._refpoints_data[1:-1]) > 2 and any(np.diff(self._refpoints_data[1:-1]) <= 0):
+        if (len(self._refpoints_data[1:-1]) > 2 and
+                any(np.diff(self._refpoints_data[1:-1]) <= 0)):
             raise ValueError(
                 "refpoints_data values must be monotonically increasing")
 
@@ -1023,50 +1125,55 @@ class ArbitraryNorm(Normalize):
         self._flist = []
         self._finvlist = []
         for i in range(len(flist)):
-            funs = ArbitraryNorm._fun_parser((flist[i], finvlist[i]))
+            funs = FuncNorm._fun_parser((flist[i], finvlist[i]))
             if funs[0] is None or funs[1] is None:
                 raise ValueError(
                     "Inverse function not provided for %i range" % i)
 
-            self._flist.append(ArbitraryNorm._fun_normalizer(funs[0]))
-            self._finvlist.append(ArbitraryNorm._fun_normalizer(funs[1]))
+            self._flist.append(FuncNorm._fun_normalizer(funs[0]))
+            self._finvlist.append(FuncNorm._fun_normalizer(funs[1]))
 
-        super(ArbitraryNorm, self).__init__(vmin, vmax, clip)
+        # We just say linear, becuase we cannot really make the function unless
+        # We now vmin, and vmax, and that does happen till the object is called
+        super(PiecewiseNorm, self).__init__('linear', None, vmin, vmax, clip)
 
-    def __call__(self, value, clip=None):
-        if clip is None:
-            clip = self.clip
-
-        result, is_scalar = self.process_value(value)
-
+    def _build_f(self):
         vmin = self.vmin
         vmax = self.vmax
         self._refpoints_data[0] = vmin
         self._refpoints_data[-1] = vmax
         rp_d = self._refpoints_data
         rp_cm = self._refpoints_cm
-        if len(rp_d[1:-1]) > 0 and (any(rp_d[1:-1]) <= vmin or any(rp_d[1:-1]) >= vmax):
+        if (len(rp_d[1:-1]) > 0 and
+                (any(rp_d[1:-1]) <= vmin or any(rp_d[1:-1]) >= vmax)):
             raise ValueError(
-                "data reference points must be within the (vmin,vmax) interval")
+                "data reference points must be "
+                "within the (vmin,vmax) interval")
 
         widths_cm = np.diff(rp_cm)
         widths_d = np.diff(rp_d)
-        resultnorm = result.copy() * 0
 
-        result[result >= vmax] = vmax
-        result[result <= vmin] = vmin
+        masks = []
+        funcs = []
 
         for i in range(len(widths_cm)):
-            width_cm = widths_cm[i]
-            width_d = widths_d[i]
-            mask = (result >= rp_d[i]) * (result <= rp_d[i + 1])
-            resultnorm[mask] = self._flist[i](
-                (result[mask] - rp_d[i]) / width_d) * width_cm + rp_cm[i]
-        self.autoscale_None(resultnorm)
-        return resultnorm
+            if i == 0:
+                mask = (lambda x, i=i: (x >= float(
+                    rp_d[i])) * (x <= float(rp_d[i + 1])))
+            else:
+                mask = (lambda x, i=i: (
+                    x > float(rp_d[i])) * (x <= float(rp_d[i + 1])))
 
-    def inverse(self, value):
+            func = (lambda x, i=i: self._flist[i](
+                (x - rp_d[i]) / widths_d[i]) * widths_cm[i] + rp_cm[i])
+            masks.append(mask)
+            funcs.append(func)
+        maskmaker = (lambda x: [np.array([mi(x) == True]) if np.isscalar(
+            x) else mi(x) == True for mi in masks])
+        f = (lambda x: np.piecewise(x, maskmaker(x), funcs))
+        return f
 
+    def _build_finv(self):
         vmin = self.vmin
         vmax = self.vmax
         self._refpoints_data[0] = vmin
@@ -1076,54 +1183,36 @@ class ArbitraryNorm(Normalize):
         widths_cm = np.diff(rp_cm)
         widths_d = np.diff(rp_d)
 
-        if cbook.iterable(value):
-            value_aux = value.copy() * 0
-            for i in range(len(widths_cm)):
-                width_cm = widths_cm[i]
-                width_d = widths_d[i]
-                mask = (value >= rp_cm[i]) * (value <= rp_cm[i + 1])
-                value_aux[mask] = self._finvlist[i](
-                    (value[mask] - rp_cm[i]) / width_cm) * width_d + rp_d[i]
-            value = value_aux
-        else:
-            for i in range(len(widths_cm)):
-                width_cm = widths_cm[i]
-                width_d = widths_d[i]
-                if (value >= rp_cm[i]) and (value <= rp_cm[i + 1]):
-                    value = self._finvlist[i](
-                        (result[mask] - rp_cm[i]) / width_cm) * width_d + rp_d[i]
-        return value
+        masks = []
+        funcs = []
 
-    @staticmethod
-    def _fun_parser(funsin):
-        flog = 2000
-        funs = [('linear', (lambda x: x), (lambda x: x)),
-                ('quadratic', (lambda x: x**2), (lambda x: x**(1. / 2))),
-                ('cubic', (lambda x: x**3), (lambda x: x**(1. / 3))),
-                ('sqrt', (lambda x: x**(1. / 2)), (lambda x: x**2)),
-                ('crt', (lambda x: x**(1. / 3)), (lambda x: x**3)),
-                ('log', (lambda x: np.log10(x * flog + 1) / np.log10(flog + 1)),
-                 (lambda x: (10**(np.log10(flog + 1) * x) - 1) / flog))]
+        for i in range(len(widths_cm)):
+            if i == 0:
+                mask = (lambda x, i=i: (x >= rp_cm[i]) * (x <= rp_cm[i + 1]))
+            else:
+                mask = (lambda x, i=i: (x > rp_cm[i]) * (x <= rp_cm[i + 1]))
+            masks.append(mask)
+            funcs.append(lambda x, i=i: self._finvlist[i](
+                (x - rp_cm[i]) / widths_cm[i]) * widths_d[i] + rp_d[i])
 
-        if isinstance(funsin[0], basestring):
-            funstrs = []
-            for fstr, fun, inv in funs:
-                funstrs.append(fstr)
-                if funsin[0] == fstr:
-                    return fun, inv
-            raise ValueError(
-                "the only strings recognized as functions are %s" % funstrs)
-        else:
-            return funsin
+        maskmaker = (lambda x: [np.array([mi(x) == True]) if np.isscalar(
+            x) else mi(x) == True for mi in masks])
+        x = np.array([0.5, 1])
+        finv = (lambda x: np.piecewise(x, maskmaker(x), funcs))
+        return finv
 
-    @staticmethod
-    def _fun_normalizer(fun):
-        if fun(0.) == 0. and fun(1.) == 1.:
-            return fun
-        elif fun(0.) == 0.:
-            return (lambda x: fun(x) / fun(1.))
-        else:
-            return (lambda x: (fun(x) - fun(0.)) / (fun(1.) - fun(0.)))
+    def _update_f(self, vmin, vmax):
+        self._f = self._build_f()
+        self._finv = self._build_finv()
+        #import matplotlib.pyplot as plt
+        # plt.figure()
+        # x=np.linspace(-1,2,100)
+        # plt.plot(x,self._f(x))
+        # y=np.linspace(0,1,100)
+        # plt.plot(self._finv(y),y)
+        # plt.show()
+
+        return
 
     def ticks(self, N=None):
 
@@ -1135,7 +1224,8 @@ class ArbitraryNorm(Normalize):
 
         if N < len(rp_cm):
             ValueError(
-                "the number of ticks must me larger that the number or intervals +1")
+                "the number of ticks must me larger "
+                "that the number or intervals +1")
 
         ticks = rp_cm.copy()
 
@@ -1154,25 +1244,12 @@ class ArbitraryNorm(Normalize):
                 ticks = np.concatenate([ticks, auxticks[1:-1]])
         return self.inverse(np.sort(ticks))
 
-    def autoscale(self, A):
-        self.vmin = np.ma.min(A)
-        self.vmax = np.ma.max(A)
 
-    def autoscale_None(self, A):
-        if self.vmin is not None and self.vmax is not None:
-            return
-        if self.vmin is None:
-            self.vmin = np.ma.min(A)
-        if self.vmax is None:
-            self.vmax = np.ma.max(A)
-
-
-class MirrorArbitraryNorm(ArbitraryNorm):
+class MirrorPiecewiseNorm(PiecewiseNorm):
     """
-    Normalization allowing the definition of any arbitrary non linear
-    function for the colorbar, for both, the positive, and the negative
-    directions.
-    >>> norm=ArbitraryNorm(fpos=(lambda x: x**0.5),
+    Normalization allowing the definition of data ranges and colormap ranges, 
+    with a non linear map between each.
+    >>> norm=PiecewiseNorm(fpos=(lambda x: x**0.5),
     >>>                    fposinv=(lambda x: x**2),
     >>>                    fneg=(lambda x: x**0.25),
     >>>                    fneginv=(lambda x: x**4))
@@ -1191,8 +1268,8 @@ class MirrorArbitraryNorm(ArbitraryNorm):
             fneg = fpos
             fneginv = fposinv
 
-        fpos, fposinv = ArbitraryNorm._fun_parser([fpos, fposinv])
-        fneg, fneginv = ArbitraryNorm._fun_parser([fneg, fneginv])
+        fpos, fposinv = PiecewiseNorm._fun_parser([fpos, fposinv])
+        fneg, fneginv = PiecewiseNorm._fun_parser([fneg, fneginv])
 
         if fposinv is None:
             raise ValueError(
@@ -1214,50 +1291,15 @@ class MirrorArbitraryNorm(ArbitraryNorm):
         flist = [(lambda x:(-fneg(-x + 1) + 1)), fpos]
         finvlist = [(lambda x:(-fneginv(-x + 1) + 1)), fposinv]
 
-        super(MirrorArbitraryNorm, self).__init__(flist=flist,
-                                                  finvlist=finvlist,
-                                                  refpoints_cm=refpoints_cm,
-                                                  refpoints_data=refpoints_data,
-                                                  vmin=vmin, vmax=vmax, clip=clip)
+        (super(MirrorPiecewiseNorm, self)
+         .__init__(flist=flist,
+                   finvlist=finvlist,
+                   refpoints_cm=refpoints_cm,
+                   refpoints_data=refpoints_data,
+                   vmin=vmin, vmax=vmax, clip=clip))
 
 
-class SingleArbitraryNorm(ArbitraryNorm):
-    """
-    Normalization allowing the definition of any arbitrary non linear
-    function for the colorbar, for both, the positive, and the negative
-    directions.
-    >>> norm=ArbitraryNorm(fpos=(lambda x: x**0.5),
-    >>>                    fposinv=(lambda x: x**2),
-    >>>                    fneg=(lambda x: x**0.25),
-    >>>                    fneginv=(lambda x: x**4))
-    """
-
-    def __init__(self, f, finv=None,
-                 vmin=None, vmax=None, clip=False):
-
-        fp, finv = ArbitraryNorm._fun_parser([f, finv])
-
-        if finv is None:
-            raise ValueError("Inverse function not provided")
-
-        if vmin is not None and vmax is not None:
-            if vmin >= vmax:
-                raise ValueError("vmin must be less than vmax")
-
-        refpoints_cm = np.array([])
-        refpoints_data = np.array([])
-
-        flist = [f]
-        finvlist = [finv]
-
-        super(SingleArbitraryNorm, self).__init__(flist=flist,
-                                                  finvlist=finvlist,
-                                                  refpoints_cm=refpoints_cm,
-                                                  refpoints_data=refpoints_data,
-                                                  vmin=vmin, vmax=vmax, clip=clip)
-
-
-class MirrorRootNorm(MirrorArbitraryNorm):
+class MirrorRootNorm(MirrorPiecewiseNorm):
     """
     Root normalization for positive and negative data.
     >>> norm=PositiveRootNorm(orderneg=3,orderpos=7)
@@ -1278,16 +1320,17 @@ class MirrorRootNorm(MirrorArbitraryNorm):
 
         if orderneg is None:
             orderneg = orderpos
-        super(MirrorRootNorm, self).__init__(fneg=(lambda x: x**(1. / orderneg)),
-                                             fneginv=(lambda x: x**(orderneg)),
-                                             fpos=(lambda x: x **
-                                                   (1. / orderpos)),
-                                             fposinv=(lambda x: x**(orderpos)),
-                                             center_cm=center_cm, center_data=center_data,
-                                             vmin=vmin, vmax=vmax, clip=clip)
+        (super(MirrorRootNorm, self)
+         .__init__(fneg=(lambda x: x**(1. / orderneg)),
+                   fneginv=(lambda x: x**(orderneg)),
+                   fpos=(lambda x: x ** (1. / orderpos)),
+                   fposinv=(lambda x: x**(orderpos)),
+                   center_cm=center_cm,
+                   center_data=center_data,
+                   vmin=vmin, vmax=vmax, clip=clip))
 
 
-class RootNorm(SingleArbitraryNorm):
+class RootNorm(FuncNorm):
     """
     Root normalization for positive data.
     >>> norm=PositiveRootNorm(vmin=0,orderpos=7)
@@ -1299,9 +1342,10 @@ class RootNorm(SingleArbitraryNorm):
         Degree of the root used to normalize the data for the positive
         direction.
         """
-        super(RootNorm, self).__init__(f=(lambda x: x**(1. / order)),
-                                       finv=(lambda x: x**(order)),
-                                       vmin=vmin, vmax=vmax, clip=clip)
+        (super(FuncNorm, self)
+         .__init__(f=(lambda x: x**(1. / order)),
+                   finv=(lambda x: x**(order)),
+                   vmin=vmin, vmax=vmax, clip=clip))
 
 
 class LogNorm(Normalize):
