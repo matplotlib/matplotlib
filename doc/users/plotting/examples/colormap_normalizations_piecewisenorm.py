@@ -9,10 +9,8 @@ different features.
 
 """
 
-import ArbitraryNorm as colors
-
 import numpy as np
-# import matplotlib.colors as colors
+import matplotlib.colors as colors
 import matplotlib.pyplot as plt
 import matplotlib.cm as cm
 
