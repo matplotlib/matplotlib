@@ -1,3 +1,12 @@
+"""
+Custom grid and ticklines.
+
+This example demonstrates how to use GridHelperCurveLinear to define
+custom grids and ticklines by applying a transformation on the grid.
+This can be used, as showcase on the second plot, to create polar
+projections in a rectangular box.
+"""
+
 import numpy as np
 
 import matplotlib.pyplot as plt
@@ -46,6 +55,7 @@ def curvelinear_test1(fig):
 
 
 import mpl_toolkits.axisartist.angle_helper as angle_helper
+
 from matplotlib.projections import PolarAxes
 from matplotlib.transforms import Affine2D
 
