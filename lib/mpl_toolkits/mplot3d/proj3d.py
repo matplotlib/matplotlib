@@ -195,6 +195,6 @@ def rot_x(V, alpha):
     M1 = np.array([[1,0,0,0],
                    [0,cosa,-sina,0],
                    [0,sina,cosa,0],
-                   [0,0,0,0]])
+                   [0,0,0,1]])
 
     return np.dot(M1, V)
