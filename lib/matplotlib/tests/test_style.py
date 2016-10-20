@@ -2,12 +2,11 @@ from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
 import os
-import sys
 import shutil
 import tempfile
+from collections import OrderedDict
 from contextlib import contextmanager
 
-from nose import SkipTest
 from nose.tools import assert_raises
 from nose.plugins.attrib import attr
 
@@ -121,12 +120,6 @@ def test_context_with_union_of_dict_and_namedstyle():
 
 
 def test_context_with_badparam():
-    if sys.version_info[:2] >= (2, 7):
-        from collections import OrderedDict
-    else:
-        m = "Test can only be run in Python >= 2.7 as it requires OrderedDict"
-        raise SkipTest(m)
-
     original_value = 'gray'
     other_value = 'blue'
     d = OrderedDict([(PARAM, original_value), ('badparam', None)])

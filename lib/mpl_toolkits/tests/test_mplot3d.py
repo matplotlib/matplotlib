@@ -1,5 +1,3 @@
-import sys
-import nose
 from nose.tools import assert_raises
 from mpl_toolkits.mplot3d import Axes3D, axes3d
 from matplotlib import cm
@@ -218,9 +216,6 @@ def test_wireframe3dzerorstride():
 
 @cleanup
 def test_wireframe3dzerostrideraises():
-    if sys.version_info[:2] < (2, 7):
-        raise nose.SkipTest("assert_raises as context manager "
-                            "not supported with Python < 2.7")
     fig = plt.figure()
     ax = fig.add_subplot(111, projection='3d')
     X, Y, Z = axes3d.get_test_data(0.05)
