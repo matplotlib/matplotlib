@@ -12,6 +12,7 @@ import numpy as np
 from numpy.testing.utils import (assert_array_equal, assert_approx_equal,
                                  assert_array_almost_equal)
 from nose.tools import raises, assert_raises
+import pytest
 
 import matplotlib.cbook as cbook
 import matplotlib.colors as mcolors
@@ -343,65 +344,61 @@ def test_sanitize_sequence():
     assert k == cbook.sanitize_sequence(k)
 
 
-def _kwarg_norm_helper(inp, expected, kwargs_to_norm, warn_count=0):
+fail_mapping = (
+    ({'a': 1}, {'forbidden': ('a')}),
+    ({'a': 1}, {'required': ('b')}),
+    ({'a': 1, 'b': 2}, {'required': ('a'), 'allowed': ()})
+)
 
+warn_passing_mapping = (
+    ({'a': 1, 'b': 2}, {'a': 1}, {'alias_mapping': {'a': ['b']}}, 1),
+    ({'a': 1, 'b': 2}, {'a': 1},
+     {'alias_mapping': {'a': ['b']}, 'allowed': ('a',)}, 1),
+    ({'a': 1, 'b': 2}, {'a': 2}, {'alias_mapping': {'a': ['a', 'b']}}, 1),
+    ({'a': 1, 'b': 2, 'c': 3}, {'a': 1, 'c': 3},
+     {'alias_mapping': {'a': ['b']}, 'required': ('a', )}, 1),
+)
+
+pass_mapping = (
+    ({'a': 1, 'b': 2}, {'a': 1, 'b': 2}, {}),
+    ({'b': 2}, {'a': 2}, {'alias_mapping': {'a': ['a', 'b']}}),
+    ({'b': 2}, {'a': 2},
+     {'alias_mapping': {'a': ['b']}, 'forbidden': ('b', )}),
+    ({'a': 1, 'c': 3}, {'a': 1, 'c': 3},
+     {'required': ('a', ), 'allowed': ('c', )}),
+    ({'a': 1, 'c': 3}, {'a': 1, 'c': 3},
+     {'required': ('a', 'c'), 'allowed': ('c', )}),
+    ({'a': 1, 'c': 3}, {'a': 1, 'c': 3},
+     {'required': ('a', 'c'), 'allowed': ('a', 'c')}),
+    ({'a': 1, 'c': 3}, {'a': 1, 'c': 3},
+     {'required': ('a', 'c'), 'allowed': ()}),
+    ({'a': 1, 'c': 3}, {'a': 1, 'c': 3}, {'required': ('a', 'c')}),
+    ({'a': 1, 'c': 3}, {'a': 1, 'c': 3}, {'allowed': ('a', 'c')}),
+)
+
+
+@pytest.mark.parametrize('inp, kwargs_to_norm', fail_mapping)
+def test_normalize_kwargs_fail(inp, kwargs_to_norm):
+    with pytest.raises(TypeError):
+        cbook.normalize_kwargs(inp, **kwargs_to_norm)
+
+
+@pytest.mark.parametrize('inp, expected, kwargs_to_norm, warn_count',
+                         warn_passing_mapping)
+def test_normalize_kwargs_warn(inp, expected, kwargs_to_norm, warn_count):
     with warnings.catch_warnings(record=True) as w:
         warnings.simplefilter("always")
         assert expected == cbook.normalize_kwargs(inp, **kwargs_to_norm)
         assert len(w) == warn_count
 
 
-def _kwarg_norm_fail_helper(inp, kwargs_to_norm):
-    assert_raises(TypeError, cbook.normalize_kwargs, inp, **kwargs_to_norm)
-
-
-def test_normalize_kwargs():
-    fail_mapping = (
-        ({'a': 1}, {'forbidden': ('a')}),
-        ({'a': 1}, {'required': ('b')}),
-        ({'a': 1, 'b': 2}, {'required': ('a'), 'allowed': ()})
-    )
-
-    for inp, kwargs in fail_mapping:
-        yield _kwarg_norm_fail_helper, inp, kwargs
-
-    warn_passing_mapping = (
-        ({'a': 1, 'b': 2}, {'a': 1}, {'alias_mapping': {'a': ['b']}}, 1),
-        ({'a': 1, 'b': 2}, {'a': 1}, {'alias_mapping': {'a': ['b']},
-                                      'allowed': ('a',)}, 1),
-        ({'a': 1, 'b': 2}, {'a': 2}, {'alias_mapping': {'a': ['a', 'b']}}, 1),
-
-        ({'a': 1, 'b': 2, 'c': 3}, {'a': 1, 'c': 3},
-         {'alias_mapping': {'a': ['b']}, 'required': ('a', )}, 1),
-
-    )
-
-    for inp, exp, kwargs, wc in warn_passing_mapping:
-        yield _kwarg_norm_helper, inp, exp, kwargs, wc
-
-    pass_mapping = (
-        ({'a': 1, 'b': 2}, {'a': 1, 'b': 2}, {}),
-        ({'b': 2}, {'a': 2}, {'alias_mapping': {'a': ['a', 'b']}}),
-        ({'b': 2}, {'a': 2}, {'alias_mapping': {'a': ['b']},
-                              'forbidden': ('b', )}),
-
-        ({'a': 1, 'c': 3}, {'a': 1, 'c': 3}, {'required': ('a', ),
-                                              'allowed': ('c', )}),
-
-        ({'a': 1, 'c': 3}, {'a': 1, 'c': 3}, {'required': ('a', 'c'),
-                                              'allowed': ('c', )}),
-        ({'a': 1, 'c': 3}, {'a': 1, 'c': 3}, {'required': ('a', 'c'),
-                                              'allowed': ('a', 'c')}),
-        ({'a': 1, 'c': 3}, {'a': 1, 'c': 3}, {'required': ('a', 'c'),
-                                              'allowed': ()}),
-
-        ({'a': 1, 'c': 3}, {'a': 1, 'c': 3}, {'required': ('a', 'c')}),
-        ({'a': 1, 'c': 3}, {'a': 1, 'c': 3}, {'allowed': ('a', 'c')}),
-
-    )
-
-    for inp, exp, kwargs in pass_mapping:
-        yield _kwarg_norm_helper, inp, exp, kwargs
+@pytest.mark.parametrize('inp, expected, kwargs_to_norm',
+                         pass_mapping)
+def test_normalize_kwargs_pass(inp, expected, kwargs_to_norm):
+    with warnings.catch_warnings(record=True) as w:
+        warnings.simplefilter("always")
+        assert expected == cbook.normalize_kwargs(inp, **kwargs_to_norm)
+        assert len(w) == 0
 
 
 def test_to_prestep():
