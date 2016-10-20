@@ -2,7 +2,6 @@ from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
 import six
-import sys
 import io
 import os
 
@@ -573,10 +572,6 @@ def test_minimized_rasterized():
     # in Postscript, the best way to detect it is to generate SVG
     # and then parse the output to make sure the two colorbar images
     # are the same size.
-    if sys.version_info[:2] < (2, 7):
-        raise nose.SkipTest("xml.etree.ElementTree.Element.iter "
-                            "added in py 2.7")
-
     from xml.etree import ElementTree
 
     np.random.seed(0)
