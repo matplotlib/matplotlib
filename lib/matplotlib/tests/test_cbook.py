@@ -11,8 +11,7 @@ from datetime import datetime
 import numpy as np
 from numpy.testing.utils import (assert_array_equal, assert_approx_equal,
                                  assert_array_almost_equal)
-from nose.tools import (assert_equal, assert_not_equal, raises, assert_true,
-                        assert_raises)
+from nose.tools import raises, assert_raises
 
 import matplotlib.cbook as cbook
 import matplotlib.colors as mcolors
@@ -21,20 +20,20 @@ from matplotlib.cbook import delete_masked_points as dmp
 
 def test_is_string_like():
     y = np.arange(10)
-    assert_equal(cbook.is_string_like(y), False)
+    assert not cbook.is_string_like(y)
     y.shape = 10, 1
-    assert_equal(cbook.is_string_like(y), False)
+    assert not cbook.is_string_like(y)
     y.shape = 1, 10
-    assert_equal(cbook.is_string_like(y), False)
+    assert not cbook.is_string_like(y)
 
     assert cbook.is_string_like("hello world")
-    assert_equal(cbook.is_string_like(10), False)
+    assert not cbook.is_string_like(10)
 
     y = ['a', 'b', 'c']
-    assert_equal(cbook.is_string_like(y), False)
+    assert not cbook.is_string_like(y)
 
     y = np.array(y)
-    assert_equal(cbook.is_string_like(y), False)
+    assert not cbook.is_string_like(y)
 
     y = np.array(y, dtype=object)
     assert cbook.is_string_like(y)
@@ -59,17 +58,17 @@ def test_is_hashable():
 def test_restrict_dict():
     d = {'foo': 'bar', 1: 2}
     d1 = cbook.restrict_dict(d, ['foo', 1])
-    assert_equal(d1, d)
+    assert d1 == d
     d2 = cbook.restrict_dict(d, ['bar', 2])
-    assert_equal(d2, {})
+    assert d2 == {}
     d3 = cbook.restrict_dict(d, {'foo': 1})
-    assert_equal(d3, {'foo': 'bar'})
+    assert d3 == {'foo': 'bar'}
     d4 = cbook.restrict_dict(d, {})
-    assert_equal(d4, {})
+    assert d4 == {}
     d5 = cbook.restrict_dict(d, set(['foo', 2]))
-    assert_equal(d5, {'foo': 'bar'})
+    assert d5 == {'foo': 'bar'}
     # check that d was not modified
-    assert_equal(d, {'foo': 'bar', 1: 2})
+    assert d == {'foo': 'bar', 1: 2}
 
 
 class Test_delete_masked_points(object):
@@ -117,11 +116,11 @@ class Test_delete_masked_points(object):
 
 
 def test_allequal():
-    assert(cbook.allequal([1, 1, 1]))
-    assert(not cbook.allequal([1, 1, 0]))
-    assert(cbook.allequal([]))
-    assert(cbook.allequal(('a', 'a')))
-    assert(not cbook.allequal(('a', 'b')))
+    assert cbook.allequal([1, 1, 1])
+    assert not cbook.allequal([1, 1, 0])
+    assert cbook.allequal([])
+    assert cbook.allequal(('a', 'a'))
+    assert not cbook.allequal(('a', 'b'))
 
 
 class Test_boxplot_stats(object):
@@ -176,17 +175,17 @@ class Test_boxplot_stats(object):
         }
 
     def test_form_main_list(self):
-        assert_true(isinstance(self.std_results, list))
+        assert isinstance(self.std_results, list)
 
     def test_form_each_dict(self):
         for res in self.std_results:
-            assert_true(isinstance(res, dict))
+            assert isinstance(res, dict)
 
     def test_form_dict_keys(self):
         for res in self.std_results:
             keys = sorted(list(res.keys()))
             for key in keys:
-                assert_true(key in self.known_keys)
+                assert key in self.known_keys
 
     def test_results_baseline(self):
         res = self.std_results[0]
@@ -257,11 +256,11 @@ class Test_boxplot_stats(object):
         results = cbook.boxplot_stats(self.data, labels=labels)
         res = results[0]
         for lab, res in zip(labels, results):
-            assert_equal(res['label'], lab)
+            assert res['label'] == lab
 
         results = cbook.boxplot_stats(self.data)
         for res in results:
-            assert('label' not in res)
+            assert 'label' not in res
 
     @raises(ValueError)
     def test_label_error(self):
@@ -279,12 +278,12 @@ class Test_boxplot_stats(object):
         bstats_false = cbook.boxplot_stats(x, autorange=False)
         bstats_true = cbook.boxplot_stats(x, autorange=True)
 
-        assert_equal(bstats_false[0]['whislo'], 0)
-        assert_equal(bstats_false[0]['whishi'], 0)
+        assert bstats_false[0]['whislo'] == 0
+        assert bstats_false[0]['whishi'] == 0
         assert_array_almost_equal(bstats_false[0]['fliers'], [-25, 25])
 
-        assert_equal(bstats_true[0]['whislo'], -25)
-        assert_equal(bstats_true[0]['whishi'], 25)
+        assert bstats_true[0]['whislo'] == -25
+        assert bstats_true[0]['whishi'] == 25
         assert_array_almost_equal(bstats_true[0]['fliers'], [])
 
 
@@ -297,12 +296,12 @@ class Test_callback_registry(object):
         return self.callbacks.connect(s, func)
 
     def is_empty(self):
-        assert_equal(self.callbacks._func_cid_map, {})
-        assert_equal(self.callbacks.callbacks, {})
+        assert self.callbacks._func_cid_map == {}
+        assert self.callbacks.callbacks == {}
 
     def is_not_empty(self):
-        assert_not_equal(self.callbacks._func_cid_map, {})
-        assert_not_equal(self.callbacks.callbacks, {})
+        assert self.callbacks._func_cid_map != {}
+        assert self.callbacks.callbacks != {}
 
     def test_callback_complete(self):
         # ensure we start with an empty registry
@@ -313,15 +312,15 @@ class Test_callback_registry(object):
 
         # test that we can add a callback
         cid1 = self.connect(self.signal, mini_me.dummy)
-        assert_equal(type(cid1), int)
+        assert type(cid1) == int
         self.is_not_empty()
 
         # test that we don't add a second callback
         cid2 = self.connect(self.signal, mini_me.dummy)
-        assert_equal(cid1, cid2)
+        assert cid1 == cid2
         self.is_not_empty()
-        assert_equal(len(self.callbacks._func_cid_map), 1)
-        assert_equal(len(self.callbacks.callbacks), 1)
+        assert len(self.callbacks._func_cid_map) == 1
+        assert len(self.callbacks.callbacks) == 1
 
         del mini_me
 
