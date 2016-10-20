@@ -1263,15 +1263,17 @@ class _AxesBase(martist.Artist):
         .. deprecated:: 1.2
             the option 'normal' for aspect is deprecated. Use 'auto' instead.
         """
-        if aspect == 'normal':
-            cbook.warn_deprecated(
-                '1.2', name='normal', alternative='auto', obj_type='aspect')
-            self._aspect = 'auto'
-
-        elif aspect in ('equal', 'auto'):
-            self._aspect = aspect
-        else:
+        try:
             self._aspect = float(aspect)  # raise ValueError if necessary
+        except ValueError:
+            if aspect in ('equal', 'auto'):
+                self._aspect = aspect
+            elif aspect == 'normal':
+                cbook.warn_deprecated(
+                    '1.2', name='normal', alternative='auto', obj_type='aspect')
+                self._aspect = 'auto'
+            else:
+                raise ValueError("error in aspect")
 
         if adjustable is not None:
             self.set_adjustable(adjustable)
