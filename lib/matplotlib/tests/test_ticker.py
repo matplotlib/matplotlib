@@ -544,7 +544,3 @@ def test_EngFormatter_formatting():
     assert with_unit(1) == u'1 s'
     assert with_unit(999.9) == u'999.9 s'
     assert with_unit(1001) == u'1.001 ks'
-
-if __name__ == '__main__':
-    import nose
-    nose.runmodule(argv=['-s', '--with-doctest'], exit=False)

@@ -195,8 +195,3 @@ def test_movie_writer_registry():
     assert not animation.writers._dirty
     assert animation.writers.is_available("ffmpeg")
     mpl.rcParams['animation.ffmpeg_path'] = ffmpeg_path
-
-
-if __name__ == "__main__":
-    import nose
-    nose.runmodule(argv=['-s', '--with-doctest'], exit=False)

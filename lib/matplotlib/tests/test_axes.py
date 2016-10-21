@@ -32,7 +32,7 @@ import matplotlib.colors as mcolors
 
 # Note: Some test cases are run twice: once normally and once with labeled data
 #       These two must be defined in the same test function or need to have
-#       different baseline images to prevent race conditions when nose runs
+#       different baseline images to prevent race conditions when pytest runs
 #       the tests with multiple threads.
 
 
@@ -4713,13 +4713,3 @@ def test_fillbetween_cycle():
         face_target = mcolors.to_rgba('C{}'.format(j))
         assert tuple(cc.get_facecolors().squeeze()) == tuple(face_target)
         assert tuple(cc.get_edgecolors().squeeze()) == tuple(edge_target)
-
-
-if __name__ == '__main__':
-    import nose
-    import sys
-
-    args = ['-s', '--with-doctest']
-    argv = sys.argv
-    argv = argv[:1] + args + argv[1:]
-    nose.runmodule(argv=argv, exit=False)

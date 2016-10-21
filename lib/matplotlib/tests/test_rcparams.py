@@ -16,7 +16,6 @@ import matplotlib.pyplot as plt
 from matplotlib.tests import assert_str_equal
 from matplotlib.testing.decorators import cleanup, knownfailureif
 import matplotlib.colors as mcolors
-import nose
 from itertools import chain
 import numpy as np
 from matplotlib.rcsetup import (validate_bool_maybe_none,
@@ -391,7 +390,3 @@ def test_rcparams_reset_after_fail():
                 pass
 
         assert mpl.rcParams['text.usetex'] is False
-
-
-if __name__ == '__main__':
-    nose.runmodule(argv=['-s', '--with-doctest'], exit=False)
