@@ -1,3 +1,11 @@
+"""
+A graph of multiple time series which demonstrates extensive custom
+styling of plot frame, tick lines and labels, and line graph properties.
+
+Also demonstrates the custom placement of text labels along the right edge
+as an alternative to a conventional legend.
+"""
+
 import matplotlib.pyplot as plt
 from matplotlib.mlab import csv2rec
 from matplotlib.cbook import get_sample_data
