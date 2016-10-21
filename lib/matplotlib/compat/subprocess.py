@@ -17,7 +17,7 @@ from __future__ import absolute_import    # Required to import subprocess
 from __future__ import print_function
 import os
 import sys
-if os.name == 'posix' and sys.version_info[:2] < (3, 2):
+if os.name == 'posix' and sys.version_info[0] < 3:
     # work around for https://github.com/matplotlib/matplotlib/issues/5314
     try:
         import subprocess32 as subprocess
