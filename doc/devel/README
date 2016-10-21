@@ -1,0 +1,11 @@
+The gitwash folder is auto-generated from
+https://github.com/matthew-brett/gitwash.
+
+Modification to the content of the gitwash folder should be done through the
+gitwash repository, and a regeneration of this documentation.
+
+python gitwash_dumper.py . matplotlib --repo-name matplotlib \
+  --github-user matplotlib \
+  --project-url=http://matplotlib.org \
+  --project-ml-url=matplotlib-devel@python.org
+
