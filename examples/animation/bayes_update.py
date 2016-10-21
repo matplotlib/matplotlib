@@ -1,3 +1,14 @@
+"""
+================
+The Bayes update
+================
+
+This animation displays the posterior estimate updates as it is refitted when
+new data arrives.
+The vertical line represents the theoretical value to which the plotted
+distribution should converge.
+"""
+
 # update a distribution based on new data.
 import numpy as np
 import matplotlib.pyplot as plt
