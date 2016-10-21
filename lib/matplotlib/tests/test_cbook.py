@@ -11,7 +11,6 @@ from datetime import datetime
 import numpy as np
 from numpy.testing.utils import (assert_array_equal, assert_approx_equal,
                                  assert_array_almost_equal)
-from nose.tools import raises, assert_raises
 import pytest
 
 import matplotlib.cbook as cbook
@@ -88,9 +87,9 @@ class Test_delete_masked_points(object):
         self.arr_colors = ['r', 'g', 'b', 'c', 'm', 'y']
         self.arr_rgba = mcolors.to_rgba_array(self.arr_colors)
 
-    @raises(ValueError)
     def test_bad_first_arg(self):
-        dmp('a string', self.arr0)
+        with pytest.raises(ValueError):
+            dmp('a string', self.arr0)
 
     def test_string_seq(self):
         actual = dmp(self.arr_s, self.arr1)
@@ -263,15 +262,15 @@ class Test_boxplot_stats(object):
         for res in results:
             assert 'label' not in res
 
-    @raises(ValueError)
     def test_label_error(self):
         labels = [1, 2]
-        results = cbook.boxplot_stats(self.data, labels=labels)
+        with pytest.raises(ValueError):
+            results = cbook.boxplot_stats(self.data, labels=labels)
 
-    @raises(ValueError)
     def test_bad_dims(self):
         data = np.random.normal(size=(34, 34, 34))
-        results = cbook.boxplot_stats(data)
+        with pytest.raises(ValueError):
+            results = cbook.boxplot_stats(data)
 
     def test_boxplot_stats_autorange_false(self):
         x = np.zeros(shape=140)
@@ -462,14 +461,17 @@ def test_to_midstep():
 
 
 def test_step_fails():
-    assert_raises(ValueError, cbook._step_validation,
-                  np.arange(12).reshape(3, 4), 'a')
-    assert_raises(ValueError, cbook._step_validation,
-                  np.arange(12), 'a')
-    assert_raises(ValueError, cbook._step_validation,
-                  np.arange(12))
-    assert_raises(ValueError, cbook._step_validation,
-                  np.arange(12), np.arange(3))
+    with pytest.raises(ValueError):
+        cbook._step_validation(np.arange(12).reshape(3, 4), 'a')
+
+    with pytest.raises(ValueError):
+        cbook._step_validation(np.arange(12), 'a')
+
+    with pytest.raises(ValueError):
+        cbook._step_validation(np.arange(12))
+
+    with pytest.raises(ValueError):
+        cbook._step_validation(np.arange(12), np.arange(3))
 
 
 def test_grouper():

@@ -16,7 +16,6 @@ import matplotlib.pyplot as plt
 from matplotlib.tests import assert_str_equal
 from matplotlib.testing.decorators import cleanup, knownfailureif
 import matplotlib.colors as mcolors
-from nose.tools import assert_raises
 import nose
 from itertools import chain
 import numpy as np
@@ -118,7 +117,7 @@ def test_rcparams_update():
     rc = mpl.RcParams({'figure.figsize': (3.5, 42)})
     bad_dict = {'figure.figsize': (3.5, 42, 1)}
     # make sure validation happens on input
-    with assert_raises(ValueError):
+    with pytest.raises(ValueError):
 
         with warnings.catch_warnings():
             warnings.filterwarnings('ignore',
@@ -128,7 +127,7 @@ def test_rcparams_update():
 
 
 def test_rcparams_init():
-    with assert_raises(ValueError):
+    with pytest.raises(ValueError):
         with warnings.catch_warnings():
             warnings.filterwarnings('ignore',
                                 message='.*(validate)',
@@ -166,11 +165,11 @@ def test_Bug_2543():
             mpl.rcParams['svg.embed_char_paths'] = False
             assert mpl.rcParams['svg.fonttype'] == "none"
 
-    with assert_raises(ValueError):
+    with pytest.raises(ValueError):
         validate_bool_maybe_none("blah")
-    with assert_raises(ValueError):
+    with pytest.raises(ValueError):
         validate_bool(None)
-    with assert_raises(ValueError):
+    with pytest.raises(ValueError):
         with mpl.rc_context():
             mpl.rcParams['svg.fonttype'] = True
 
@@ -367,7 +366,7 @@ def test_validator_valid(validator, arg, target):
 @pytest.mark.parametrize('validator, arg, exception_type',
                          generate_validator_testcases(False))
 def test_validator_invalid(validator, arg, exception_type):
-    with assert_raises(exception_type):
+    with pytest.raises(exception_type):
         validator(arg)
 
 
@@ -387,7 +386,7 @@ def test_rcparams_reset_after_fail():
 
         assert mpl.rcParams['text.usetex'] is False
 
-        with assert_raises(KeyError):
+        with pytest.raises(KeyError):
             with mpl.rc_context(rc=OrderedDict([('text.usetex', True),('test.blah', True)])):
                 pass
 

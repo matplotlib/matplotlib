@@ -7,9 +7,6 @@ from itertools import chain
 from distutils.version import LooseVersion
 import io
 
-from nose.tools import assert_raises
-from nose.plugins.skip import SkipTest
-
 import datetime
 
 import pytz
@@ -375,7 +372,8 @@ def test_shaped_data():
     plt.plot(y2)
 
     plt.subplot(413)
-    assert_raises(ValueError, plt.plot, (y1, y2))
+    with pytest.raises(ValueError):
+        plt.plot((y1, y2))
 
     plt.subplot(414)
     plt.plot(xdata[:, 1], xdata[1, :], 'o')
@@ -863,12 +861,14 @@ def test_pcolorargs():
     Z = np.sqrt(X**2 + Y**2)/5
 
     _, ax = plt.subplots()
-    assert_raises(TypeError, ax.pcolormesh, y, x, Z)
-    assert_raises(TypeError, ax.pcolormesh, X, Y, Z.T)
-    assert_raises(TypeError, ax.pcolormesh, x, y, Z[:-1, :-1],
-                  shading="gouraud")
-    assert_raises(TypeError, ax.pcolormesh, X, Y, Z[:-1, :-1],
-                  shading="gouraud")
+    with pytest.raises(TypeError):
+        ax.pcolormesh(y, x, Z)
+    with pytest.raises(TypeError):
+        ax.pcolormesh(X, Y, Z.T)
+    with pytest.raises(TypeError):
+        ax.pcolormesh(x, y, Z[:-1, :-1], shading="gouraud")
+    with pytest.raises(TypeError):
+        ax.pcolormesh(X, Y, Z[:-1, :-1], shading="gouraud")
 
 
 @image_comparison(baseline_images=['canonical'])
@@ -1316,13 +1316,15 @@ def test_scatter_2D():
     fig, ax = plt.subplots()
     ax.scatter(x, y, c=z, s=200, edgecolors='face')
 
+
 @cleanup
 def test_scatter_color():
     # Try to catch cases where 'c' kwarg should have been used.
-    assert_raises(ValueError, plt.scatter, [1, 2], [1, 2],
-                  color=[0.1, 0.2])
-    assert_raises(ValueError, plt.scatter, [1, 2, 3], [1, 2, 3],
-                  color=[1, 2, 3])
+    with pytest.raises(ValueError):
+        plt.scatter([1, 2], [1, 2], color=[0.1, 0.2])
+    with pytest.raises(ValueError):
+        plt.scatter([1, 2, 3], [1, 2, 3], color=[1, 2, 3])
+
 
 @cleanup
 def test_as_mpl_axes_api():
@@ -1813,7 +1815,8 @@ def test_bxp_bad_widths():
 
     fig, ax = plt.subplots()
     ax.set_yscale('log')
-    assert_raises(ValueError, ax.bxp, logstats, widths=[1])
+    with pytest.raises(ValueError):
+        ax.bxp(logstats, widths=[1])
 
 
 @cleanup
@@ -1825,7 +1828,8 @@ def test_bxp_bad_positions():
 
     fig, ax = plt.subplots()
     ax.set_yscale('log')
-    assert_raises(ValueError, ax.bxp, logstats, positions=[2, 3])
+    with pytest.raises(ValueError):
+        ax.bxp(logstats, positions=[2, 3])
 
 
 @image_comparison(baseline_images=['boxplot', 'boxplot'],
@@ -2010,7 +2014,8 @@ def test_boxplot_bad_medians_1():
     x = np.linspace(-7, 7, 140)
     x = np.hstack([-25, x, 25])
     fig, ax = plt.subplots()
-    assert_raises(ValueError, ax.boxplot, x,  usermedians=[1, 2])
+    with pytest.raises(ValueError):
+        ax.boxplot(x, usermedians=[1, 2])
 
 
 @cleanup
@@ -2018,7 +2023,8 @@ def test_boxplot_bad_medians_2():
     x = np.linspace(-7, 7, 140)
     x = np.hstack([-25, x, 25])
     fig, ax = plt.subplots()
-    assert_raises(ValueError, ax.boxplot, [x, x],  usermedians=[[1, 2], [1, 2]])
+    with pytest.raises(ValueError):
+        ax.boxplot([x, x], usermedians=[[1, 2], [1, 2]])
 
 
 @cleanup
@@ -2026,8 +2032,8 @@ def test_boxplot_bad_ci_1():
     x = np.linspace(-7, 7, 140)
     x = np.hstack([-25, x, 25])
     fig, ax = plt.subplots()
-    assert_raises(ValueError, ax.boxplot, [x, x],
-                  conf_intervals=[[1, 2]])
+    with pytest.raises(ValueError):
+        ax.boxplot([x, x], conf_intervals=[[1, 2]])
 
 
 @cleanup
@@ -2043,8 +2049,8 @@ def test_boxplot_bad_ci_2():
     x = np.linspace(-7, 7, 140)
     x = np.hstack([-25, x, 25])
     fig, ax = plt.subplots()
-    assert_raises(ValueError, ax.boxplot, [x, x],
-                  conf_intervals=[[1, 2], [1]])
+    with pytest.raises(ValueError):
+        ax.boxplot([x, x], conf_intervals=[[1, 2], [1]])
 
 
 @image_comparison(baseline_images=['boxplot_mod_artists_after_plotting'],
@@ -2227,7 +2233,8 @@ def test_violinplot_bad_positions():
     # First 9 digits of frac(sqrt(47))
     np.random.seed(855654600)
     data = [np.random.normal(size=100) for i in range(4)]
-    assert_raises(ValueError, ax.violinplot, data, positions=range(5))
+    with pytest.raises(ValueError):
+        ax.violinplot(data, positions=range(5))
 
 
 @cleanup
@@ -2236,8 +2243,8 @@ def test_violinplot_bad_widths():
     # First 9 digits of frac(sqrt(53))
     np.random.seed(280109889)
     data = [np.random.normal(size=100) for i in range(4)]
-    assert_raises(ValueError, ax.violinplot, data, positions=range(4),
-                  widths=[1, 2, 3])
+    with pytest.raises(ValueError):
+        ax.violinplot(data, positions=range(4), widths=[1, 2, 3])
 
 
 @cleanup
@@ -2319,9 +2326,12 @@ def test_errorbar_shape():
     yerr = np.vstack((yerr1, 2*yerr1)).T
     xerr = 0.1 + yerr
 
-    assert_raises(ValueError, ax.errorbar, x, y, yerr=yerr, fmt='o')
-    assert_raises(ValueError, ax.errorbar, x, y, xerr=xerr, fmt='o')
-    assert_raises(ValueError, ax.errorbar, x, y, yerr=yerr, xerr=xerr, fmt='o')
+    with pytest.raises(ValueError):
+        ax.errorbar(x, y, yerr=yerr, fmt='o')
+    with pytest.raises(ValueError):
+        ax.errorbar(x, y, xerr=xerr, fmt='o')
+    with pytest.raises(ValueError):
+        ax.errorbar(x, y, yerr=yerr, xerr=xerr, fmt='o')
 
 
 @image_comparison(baseline_images=['errorbar_limits'])
@@ -3119,17 +3129,20 @@ def test_specgram_angle_freqs():
     spec13 = ax13.specgram(y, NFFT=NFFT, Fs=Fs, noverlap=noverlap,
                            pad_to=pad_to, sides='twosided', mode='angle')
 
-    assert_raises(ValueError, ax11.specgram, y, NFFT=NFFT, Fs=Fs,
-                  noverlap=noverlap, pad_to=pad_to, sides='default',
-                  mode='phase', scale='dB')
+    with pytest.raises(ValueError):
+        ax11.specgram(y, NFFT=NFFT, Fs=Fs,
+                      noverlap=noverlap, pad_to=pad_to, sides='default',
+                      mode='phase', scale='dB')
 
-    assert_raises(ValueError, ax12.specgram, y, NFFT=NFFT, Fs=Fs,
-                  noverlap=noverlap, pad_to=pad_to, sides='onesided',
-                  mode='phase', scale='dB')
+    with pytest.raises(ValueError):
+        ax12.specgram(y, NFFT=NFFT, Fs=Fs,
+                      noverlap=noverlap, pad_to=pad_to, sides='onesided',
+                      mode='phase', scale='dB')
 
-    assert_raises(ValueError, ax13.specgram, y, NFFT=NFFT, Fs=Fs,
-                  noverlap=noverlap, pad_to=pad_to, sides='twosided',
-                  mode='phase', scale='dB')
+    with pytest.raises(ValueError):
+        ax13.specgram(y, NFFT=NFFT, Fs=Fs,
+                      noverlap=noverlap, pad_to=pad_to, sides='twosided',
+                      mode='phase', scale='dB')
 
 
 @image_comparison(baseline_images=['specgram_angle_noise'],
@@ -3166,17 +3179,20 @@ def test_specgram_noise_angle():
     spec13 = ax13.specgram(y, NFFT=NFFT, Fs=Fs, noverlap=noverlap,
                            pad_to=pad_to, sides='twosided', mode='angle')
 
-    assert_raises(ValueError, ax11.specgram, y, NFFT=NFFT, Fs=Fs,
-                  noverlap=noverlap, pad_to=pad_to, sides='default',
-                  mode='phase', scale='dB')
+    with pytest.raises(ValueError):
+        ax11.specgram(y, NFFT=NFFT, Fs=Fs,
+                      noverlap=noverlap, pad_to=pad_to, sides='default',
+                      mode='phase', scale='dB')
 
-    assert_raises(ValueError, ax12.specgram, y, NFFT=NFFT, Fs=Fs,
-                  noverlap=noverlap, pad_to=pad_to, sides='onesided',
-                  mode='phase', scale='dB')
+    with pytest.raises(ValueError):
+        ax12.specgram(y, NFFT=NFFT, Fs=Fs,
+                      noverlap=noverlap, pad_to=pad_to, sides='onesided',
+                      mode='phase', scale='dB')
 
-    assert_raises(ValueError, ax13.specgram, y, NFFT=NFFT, Fs=Fs,
-                  noverlap=noverlap, pad_to=pad_to, sides='twosided',
-                  mode='phase', scale='dB')
+    with pytest.raises(ValueError):
+        ax13.specgram(y, NFFT=NFFT, Fs=Fs,
+                      noverlap=noverlap, pad_to=pad_to, sides='twosided',
+                      mode='phase', scale='dB')
 
 
 @image_comparison(baseline_images=['specgram_phase_freqs'],
@@ -3221,17 +3237,20 @@ def test_specgram_freqs_phase():
     spec13 = ax13.specgram(y, NFFT=NFFT, Fs=Fs, noverlap=noverlap,
                            pad_to=pad_to, sides='twosided', mode='phase')
 
-    assert_raises(ValueError, ax11.specgram, y, NFFT=NFFT, Fs=Fs,
-                  noverlap=noverlap, pad_to=pad_to, sides='default',
-                  mode='phase', scale='dB')
+    with pytest.raises(ValueError):
+        ax11.specgram(y, NFFT=NFFT, Fs=Fs,
+                      noverlap=noverlap, pad_to=pad_to, sides='default',
+                      mode='phase', scale='dB')
 
-    assert_raises(ValueError, ax12.specgram, y, NFFT=NFFT, Fs=Fs,
-                  noverlap=noverlap, pad_to=pad_to, sides='onesided',
-                  mode='phase', scale='dB')
+    with pytest.raises(ValueError):
+        ax12.specgram(y, NFFT=NFFT, Fs=Fs,
+                      noverlap=noverlap, pad_to=pad_to, sides='onesided',
+                      mode='phase', scale='dB')
 
-    assert_raises(ValueError, ax13.specgram, y, NFFT=NFFT, Fs=Fs,
-                  noverlap=noverlap, pad_to=pad_to, sides='twosided',
-                  mode='phase', scale='dB')
+    with pytest.raises(ValueError):
+        ax13.specgram(y, NFFT=NFFT, Fs=Fs,
+                      noverlap=noverlap, pad_to=pad_to, sides='twosided',
+                      mode='phase', scale='dB')
 
 
 @image_comparison(baseline_images=['specgram_phase_noise'],
@@ -3271,17 +3290,20 @@ def test_specgram_noise_phase():
                            pad_to=pad_to, sides='twosided',
                            mode='phase', )
 
-    assert_raises(ValueError, ax11.specgram, y, NFFT=NFFT, Fs=Fs,
-                  noverlap=noverlap, pad_to=pad_to, sides='default',
-                  mode='phase', scale='dB')
+    with pytest.raises(ValueError):
+        ax11.specgram(y, NFFT=NFFT, Fs=Fs,
+                      noverlap=noverlap, pad_to=pad_to, sides='default',
+                      mode='phase', scale='dB')
 
-    assert_raises(ValueError, ax12.specgram, y, NFFT=NFFT, Fs=Fs,
-                  noverlap=noverlap, pad_to=pad_to, sides='onesided',
-                  mode='phase', scale='dB')
+    with pytest.raises(ValueError):
+        ax12.specgram(y, NFFT=NFFT, Fs=Fs,
+                      noverlap=noverlap, pad_to=pad_to, sides='onesided',
+                      mode='phase', scale='dB')
 
-    assert_raises(ValueError, ax13.specgram, y, NFFT=NFFT, Fs=Fs,
-                  noverlap=noverlap, pad_to=pad_to, sides='twosided',
-                  mode='phase', scale='dB')
+    with pytest.raises(ValueError):
+        ax13.specgram(y, NFFT=NFFT, Fs=Fs,
+                      noverlap=noverlap, pad_to=pad_to, sides='twosided',
+                      mode='phase', scale='dB')
 
 
 @image_comparison(baseline_images=['psd_freqs'], remove_text=True,
@@ -4230,8 +4252,10 @@ def test_square_plot():
 @cleanup
 def test_no_None():
     fig, ax = plt.subplots()
-    assert_raises(ValueError, plt.plot, None)
-    assert_raises(ValueError, plt.plot, None, None)
+    with pytest.raises(ValueError):
+        plt.plot(None)
+    with pytest.raises(ValueError):
+        plt.plot(None, None)
 
 
 @cleanup
@@ -4335,8 +4359,10 @@ def test_title_location_roundtrip():
     assert 'right' == ax.get_title(loc='right')
     assert 'aardvark' == ax.get_title()
 
-    assert_raises(ValueError, ax.get_title, loc='foo')
-    assert_raises(ValueError, ax.set_title, 'fail', loc='foo')
+    with pytest.raises(ValueError):
+        ax.get_title(loc='foo')
+    with pytest.raises(ValueError):
+        ax.set_title('fail', loc='foo')
 
 
 @image_comparison(baseline_images=["loglog"], remove_text=True,
@@ -4484,7 +4510,7 @@ def test_pandas_indexing_dates():
     try:
         import pandas as pd
     except ImportError:
-        raise SkipTest("Pandas not installed")
+        pytest.skip("Pandas not installed")
 
     dates = np.arange('2005-02', '2005-03', dtype='datetime64[D]')
     values = np.sin(np.array(range(len(dates))))
@@ -4501,7 +4527,7 @@ def test_pandas_errorbar_indexing():
     try:
         import pandas as pd
     except ImportError:
-        raise SkipTest("Pandas not installed")
+        pytest.skip("Pandas not installed")
 
     df = pd.DataFrame(np.random.uniform(size=(5, 4)),
                       columns=['x', 'y', 'xe', 'ye'],
@@ -4515,7 +4541,7 @@ def test_pandas_indexing_hist():
     try:
         import pandas as pd
     except ImportError:
-        raise SkipTest("Pandas not installed")
+        pytest.skip("Pandas not installed")
 
     ser_1 = pd.Series(data=[1, 2, 2, 3, 3, 4, 4, 4, 4, 5])
     ser_2 = ser_1.iloc[1:]
@@ -4545,8 +4571,8 @@ def test_none_kwargs():
 
 @cleanup
 def test_ls_ds_conflict():
-    assert_raises(ValueError, plt.plot, range(32),
-                  linestyle='steps-pre:', drawstyle='steps-post')
+    with pytest.raises(ValueError):
+        plt.plot(range(32), linestyle='steps-pre:', drawstyle='steps-post')
 
 
 @image_comparison(baseline_images=['date_timezone_x'], extensions=['png'])
