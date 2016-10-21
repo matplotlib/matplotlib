@@ -1,4 +1,8 @@
 """
+=====================
+Marker filling-styles
+=====================
+
 Reference for marker fill-styles included with Matplotlib.
 """
 import numpy as np

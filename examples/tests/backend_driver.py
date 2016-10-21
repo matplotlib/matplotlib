@@ -1,4 +1,3 @@
-from __future__ import print_function, division
 """
 This is used to drive many of the examples across the backends, for
 regression testing, and comparing backend efficiency.
@@ -18,6 +17,7 @@ option parsing error with the driver script, separate them from driver
 switches with a --.
 """
 
+from __future__ import print_function, division
 import os
 import time
 import sys
@@ -51,11 +51,11 @@ dirs = dict(files=os.path.join('..', 'lines_bars_and_markers'),
 files = dict()
 
 files['lines'] = [
-    'barh_demo.py',
-    'fill_demo.py',
-    'fill_demo_features.py',
-    'line_demo_dash_control.py',
-    'line_styles_reference.py',
+    'plot_barh.py',
+    'plot_fill.py',
+    'plot_fill_features.py',
+    'plot_line_dash_control.py',
+    'plot_line_styles_reference.py',
     'scatter_with_legend.py'
     ]
 
