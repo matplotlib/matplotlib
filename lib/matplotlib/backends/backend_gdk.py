@@ -394,11 +394,6 @@ class GraphicsContextGDK(GraphicsContextBase):
         self.gdkGC.foreground = self.rgb_to_gdk_color(self.get_rgb())
 
 
-    def set_graylevel(self, frac):
-        GraphicsContextBase.set_graylevel(self, frac)
-        self.gdkGC.foreground = self.rgb_to_gdk_color(self.get_rgb())
-
-
     def set_joinstyle(self, js):
         GraphicsContextBase.set_joinstyle(self, js)
         self.gdkGC.join_style = self._joind[self._joinstyle]
