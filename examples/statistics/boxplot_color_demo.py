@@ -1,9 +1,9 @@
 """Box plots with custom fill colors.
 
-This plot illustrates how to create two types of boxplots
+This plot illustrates how to create two types of box plots
 (rectangular and notched), and how to fill them with custom
 colors by accessing the properties of the artists of the
-boxplots. Additionally, the ``labels`` parameter is used to
+box plots. Additionally, the ``labels`` parameter is used to
 provide x-tick labels for each sample.
 """
 
@@ -19,16 +19,18 @@ fig, axes = plt.subplots(nrows=1, ncols=2, figsize=(12, 5))
 
 # rectangular box plot
 bplot1 = axes[0].boxplot(all_data,
-                         vert=True,  # vertical box aligmnent
+                         vert=True,  # vertical box alignment
                          patch_artist=True,  # fill with color
                          labels=labels)  # will be used to label x-ticks
+axes[0].set_title('Rectangular box plot')
 
 # notch shape box plot
 bplot2 = axes[1].boxplot(all_data,
                          notch=True,  # notch shape
-                         vert=True,  # vertical box aligmnent
+                         vert=True,  # vertical box alignment
                          patch_artist=True,  # fill with color
                          labels=labels)  # will be used to label x-ticks
+axes[1].set_title('Notched box plot')
 
 # fill with colors
 colors = ['pink', 'lightblue', 'lightgreen']
@@ -39,7 +41,7 @@ for bplot in (bplot1, bplot2):
 # adding horizontal grid lines
 for ax in axes:
     ax.yaxis.grid(True)
-    ax.set_xlabel('Three Separate Samples')
+    ax.set_xlabel('Three separate samples')
     ax.set_ylabel('Observed values')
 
 plt.show()
