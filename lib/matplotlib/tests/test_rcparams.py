@@ -10,6 +10,10 @@ import warnings
 
 from cycler import cycler, Cycler
 
+try:
+    from unittest import mock
+except ImportError:
+    import mock
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 from matplotlib.tests import assert_str_equal
@@ -227,13 +231,9 @@ def test_legend_edgecolor():
 def test_Issue_1713():
     utf32_be = os.path.join(os.path.dirname(__file__),
                            'test_utf32_be_rcparams.rc')
-    old_lang = os.environ.get('LANG', None)
-    os.environ['LANG'] = 'en_US.UTF-32-BE'
-    rc = mpl.rc_params_from_file(utf32_be, True)
-    if old_lang:
-        os.environ['LANG'] = old_lang
-    else:
-        del os.environ['LANG']
+    import locale
+    with mock.patch('locale.getpreferredencoding', return_value='UTF-32-BE'):
+        rc = mpl.rc_params_from_file(utf32_be, True, False)
     assert rc.get('timezone') == 'UTC'
 
 
