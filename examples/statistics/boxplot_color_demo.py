@@ -12,7 +12,7 @@ import numpy as np
 
 # Random test data
 np.random.seed(123)
-all_data = [np.random.normal(0, std, size=(100, 4)) for std in range(1, 4)]
+all_data = [np.random.normal(0, std, size=100) for std in range(1, 4)]
 labels = ['x1', 'x2', 'x3']
 
 fig, axes = plt.subplots(nrows=1, ncols=2, figsize=(12, 5))
