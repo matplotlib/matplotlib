@@ -1,4 +1,8 @@
 """
+================================
+Filled and unfilled-marker types
+================================
+
 Reference for filled- and unfilled-marker types included with Matplotlib.
 """
 from six import iteritems
