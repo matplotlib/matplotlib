@@ -23,8 +23,6 @@ class SimpleChainedObjects(object):
 
 
 class Axes(maxes.Axes):
-    def toggle_axisline(self, b):
-        warnings.warn("toggle_axisline is not necessary and deprecated in axes_grid1")
 
     class AxisDict(dict):
         def __init__(self, axes):

@@ -1016,17 +1016,6 @@ class GraphicsContextBase(object):
         else:
             self._rgb = colors.to_rgba(fg)
 
-    def set_graylevel(self, frac):
-        """
-        Set the foreground color to be a gray level with *frac*
-        """
-        # When removing, remember to remove all overrides in subclasses.
-        msg = ("set_graylevel is deprecated for removal in 1.6; "
-                "you can achieve the same result by using "
-                "set_foreground((frac, frac, frac))")
-        warnings.warn(msg, mplDeprecation)
-        self._rgb = (frac, frac, frac, self._alpha)
-
     def set_joinstyle(self, js):
         """
         Set the join style to be one of ('miter', 'round', 'bevel')
@@ -1726,53 +1715,6 @@ class FigureCanvasBase(object):
                     parent = p
                     break
             h = parent
-
-    def onHilite(self, ev):
-        """
-        Mouse event processor which highlights the artists
-        under the cursor.  Connect this to the 'motion_notify_event'
-        using::
-
-            canvas.mpl_connect('motion_notify_event',canvas.onHilite)
-        """
-        msg = ("onHilite has been deprecated in 1.5 and will be removed "
-               "in 1.6.  This function has not been used internally by mpl "
-               "since 2007.")
-        warnings.warn(msg, mplDeprecation)
-        if not hasattr(self, '_active'):
-            self._active = dict()
-
-        under = self.figure.hitlist(ev)
-        enter = [a for a in under if a not in self._active]
-        leave = [a for a in self._active if a not in under]
-        # On leave restore the captured colour
-        for a in leave:
-            if hasattr(a, 'get_color'):
-                a.set_color(self._active[a])
-            elif hasattr(a, 'get_edgecolor'):
-                a.set_edgecolor(self._active[a][0])
-                a.set_facecolor(self._active[a][1])
-            del self._active[a]
-        # On enter, capture the color and repaint the artist
-        # with the highlight colour.  Capturing colour has to
-        # be done first in case the parent recolouring affects
-        # the child.
-        for a in enter:
-            if hasattr(a, 'get_color'):
-                self._active[a] = a.get_color()
-            elif hasattr(a, 'get_edgecolor'):
-                self._active[a] = (a.get_edgecolor(), a.get_facecolor())
-            else:
-                self._active[a] = None
-        for a in enter:
-            if hasattr(a, 'get_color'):
-                a.set_color('red')
-            elif hasattr(a, 'get_edgecolor'):
-                a.set_edgecolor('red')
-                a.set_facecolor('lightblue')
-            else:
-                self._active[a] = None
-        self.draw_idle()
 
     def pick(self, mouseevent):
         if not self.widgetlock.locked():

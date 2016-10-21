@@ -1227,7 +1227,6 @@ class _AxesBase(martist.Artist):
           value      description
           ========   ================================================
           'auto'     automatic; fill position rectangle with data
-          'normal'   same as 'auto'; deprecated
           'equal'    same scaling from data to plot units for x and y
            num       a circle will be stretched such that the height
                      is num times the width. aspect=1 is the same as
@@ -1259,16 +1258,8 @@ class _AxesBase(martist.Artist):
           'SE'    lower right corner
           etc.
           =====   =====================
-
-        .. deprecated:: 1.2
-            the option 'normal' for aspect is deprecated. Use 'auto' instead.
         """
-        if aspect == 'normal':
-            cbook.warn_deprecated(
-                '1.2', name='normal', alternative='auto', obj_type='aspect')
-            self._aspect = 'auto'
-
-        elif aspect in ('equal', 'auto'):
+        if aspect in ('equal', 'auto'):
             self._aspect = aspect
         else:
             self._aspect = float(aspect)  # raise ValueError if necessary

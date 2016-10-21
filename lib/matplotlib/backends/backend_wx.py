@@ -467,19 +467,6 @@ class GraphicsContextWx(GraphicsContextBase):
         self.gfx_ctx.SetPen(self._pen)
         self.unselect()
 
-    def set_graylevel(self, frac):
-        """
-        Set the foreground color.  fg can be a matlab format string, a
-        html hex color string, an rgb unit tuple, or a float between 0
-        and 1.  In the latter case, grayscale is used.
-        """
-        DEBUG_MSG("set_graylevel()", 1, self)
-        self.select()
-        GraphicsContextBase.set_graylevel(self, frac)
-        self._pen.SetColour(self.get_wxcolour(self.get_rgb()))
-        self.gfx_ctx.SetPen(self._pen)
-        self.unselect()
-
     def set_linewidth(self, w):
         """
         Set the line width.

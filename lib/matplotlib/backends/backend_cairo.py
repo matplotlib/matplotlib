@@ -468,13 +468,6 @@ class GraphicsContextCairo(GraphicsContextBase):
         else:
             self.ctx.set_source_rgba(*self._rgb)
 
-    def set_graylevel(self, frac):
-        GraphicsContextBase.set_graylevel(self, frac)
-        if len(self._rgb) == 3:
-            self.ctx.set_source_rgb(*self._rgb)
-        else:
-            self.ctx.set_source_rgba(*self._rgb)
-
     def get_rgb(self):
         return self.ctx.get_source().get_rgba()[:3]
 

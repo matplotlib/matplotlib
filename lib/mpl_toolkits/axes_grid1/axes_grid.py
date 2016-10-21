@@ -3,19 +3,16 @@ from __future__ import (absolute_import, division, print_function,
 
 import six
 
-import matplotlib.cbook as cbook
-
-import matplotlib.axes as maxes
-#import matplotlib.colorbar as mcolorbar
-from . import colorbar as mcolorbar
 import matplotlib as mpl
-import matplotlib.patches as mpatches
+import matplotlib.axes as maxes
+import matplotlib.cbook as cbook
 import matplotlib.lines as mlines
+import matplotlib.patches as mpatches
 import matplotlib.ticker as ticker
-
 from matplotlib.gridspec import SubplotSpec
 
 from .axes_divider import Size, SubplotDivider, LocatableAxes, Divider
+from .colorbar import Colorbar
 
 
 def _extend_axes_pad(value):
@@ -35,43 +32,6 @@ def _tick_only(ax, bottom_on, left_on):
     # ax.yaxis.label.set_visible(left_off)
     ax.axis["bottom"].toggle(ticklabels=bottom_off, label=bottom_off)
     ax.axis["left"].toggle(ticklabels=left_off, label=left_off)
-
-
-class Colorbar(mcolorbar.Colorbar):
-    def _config_axes_deprecated(self, X, Y):
-        '''
-        Make an axes patch and outline.
-        '''
-        ax = self.ax
-        ax.set_frame_on(False)
-        ax.set_navigate(False)
-        xy = self._outline(X, Y)
-        ax.update_datalim(xy)
-        ax.set_xlim(*ax.dataLim.intervalx)
-        ax.set_ylim(*ax.dataLim.intervaly)
-        self.outline = mlines.Line2D(xy[:, 0], xy[:, 1],
-                                     color=mpl.rcParams['axes.edgecolor'],
-                                     linewidth=mpl.rcParams['axes.linewidth'])
-        ax.add_artist(self.outline)
-        self.outline.set_clip_box(None)
-        self.outline.set_clip_path(None)
-        c = mpl.rcParams['axes.facecolor']
-        self.patch = mpatches.Polygon(xy, edgecolor=c,
-                                      facecolor=c,
-                                      linewidth=0.01,
-                                      zorder=-1)
-        ax.add_artist(self.patch)
-        ticks, ticklabels, offset_string = self._ticker()
-
-        if self.orientation == 'vertical':
-            ax.set_yticks(ticks)
-            ax.set_yticklabels(ticklabels)
-            ax.yaxis.get_major_formatter().set_offset_string(offset_string)
-
-        else:
-            ax.set_xticks(ticks)
-            ax.set_xticklabels(ticklabels)
-            ax.xaxis.get_major_formatter().set_offset_string(offset_string)
 
 
 class CbarAxesBase(object):
