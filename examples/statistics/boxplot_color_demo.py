@@ -1,24 +1,36 @@
-# Box plots with custom fill colors
+"""Box plots with custom fill colors.
+
+This plot illustrates how to create two types of box plots
+(rectangular and notched), and how to fill them with custom
+colors by accessing the properties of the artists of the
+box plots. Additionally, the ``labels`` parameter is used to
+provide x-tick labels for each sample.
+"""
 
 import matplotlib.pyplot as plt
 import numpy as np
 
 # Random test data
 np.random.seed(123)
-all_data = [np.random.normal(0, std, 100) for std in range(1, 4)]
+all_data = [np.random.normal(0, std, size=100) for std in range(1, 4)]
+labels = ['x1', 'x2', 'x3']
 
 fig, axes = plt.subplots(nrows=1, ncols=2, figsize=(12, 5))
 
 # rectangular box plot
 bplot1 = axes[0].boxplot(all_data,
-                         vert=True,   # vertical box aligmnent
-                         patch_artist=True)   # fill with color
+                         vert=True,  # vertical box alignment
+                         patch_artist=True,  # fill with color
+                         labels=labels)  # will be used to label x-ticks
+axes[0].set_title('Rectangular box plot')
 
 # notch shape box plot
 bplot2 = axes[1].boxplot(all_data,
                          notch=True,  # notch shape
-                         vert=True,   # vertical box aligmnent
-                         patch_artist=True)   # fill with color
+                         vert=True,  # vertical box alignment
+                         patch_artist=True,  # fill with color
+                         labels=labels)  # will be used to label x-ticks
+axes[1].set_title('Notched box plot')
 
 # fill with colors
 colors = ['pink', 'lightblue', 'lightgreen']
@@ -29,12 +41,7 @@ for bplot in (bplot1, bplot2):
 # adding horizontal grid lines
 for ax in axes:
     ax.yaxis.grid(True)
-    ax.set_xticks([y+1 for y in range(len(all_data))], )
-    ax.set_xlabel('xlabel')
-    ax.set_ylabel('ylabel')
-
-# add x-tick labels
-plt.setp(axes, xticks=[y+1 for y in range(len(all_data))],
-         xticklabels=['x1', 'x2', 'x3', 'x4'])
+    ax.set_xlabel('Three separate samples')
+    ax.set_ylabel('Observed values')
 
 plt.show()
