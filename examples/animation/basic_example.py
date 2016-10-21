@@ -3,7 +3,7 @@
 Simple animation examples
 =========================
 
-This example contains two animations. The first is a random walk plot. the
+This example contains two animations. The first is a random walk plot. The
 second is an image animation.
 """
 
