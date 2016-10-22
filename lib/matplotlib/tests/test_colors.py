@@ -202,34 +202,34 @@ def test_PiecewiseNorm():
                                            lambda x:x**(1. / 3), None],
                                  refpoints_cm=[0.2, 0.5, 0.7],
                                  refpoints_data=[-1, 1, 3])
-    assert_array_equal(norm([-2, -1, 1, 3, 4]), [0., 0.2, 0.5, 0.7, 1.0])
+    assert_array_equal(norm([-2., -1, 1, 3, 4]), [0., 0.2, 0.5, 0.7, 1.0])
 
     # Testing using only strings
     norm = mcolors.PiecewiseNorm(flist=['cubic', 'crt', 'cubic', 'crt'],
                                  refpoints_cm=[0.2, 0.5, 0.7],
                                  refpoints_data=[-1, 1, 3])
-    assert_array_equal(norm([-2, -1, 1, 3, 4]), [0., 0.2, 0.5, 0.7, 1.0])
+    assert_array_equal(norm([-2., -1, 1, 3, 4]), [0., 0.2, 0.5, 0.7, 1.0])
 
     # Testing with limits
     norm = mcolors.PiecewiseNorm(flist=['cubic', 'crt', 'cubic', 'crt'],
                                  refpoints_cm=[0.2, 0.5, 0.7],
                                  refpoints_data=[-1, 1, 3],
                                  vmin=-2, vmax=4)
-    assert_array_equal(norm([-2, -1, 1, 3, 4]), [0., 0.2, 0.5, 0.7, 1.0])
+    assert_array_equal(norm([-2., -1, 1, 3, 4]), [0., 0.2, 0.5, 0.7, 1.0])
 
     # Testing with vmin
     norm = mcolors.PiecewiseNorm(flist=['cubic', 'crt', 'cubic', 'crt'],
                                  refpoints_cm=[0.2, 0.5, 0.7],
                                  refpoints_data=[-1, 1, 3],
                                  vmin=-2)
-    assert_array_equal(norm([-2, -1, 1, 3, 4]), [0., 0.2, 0.5, 0.7, 1.0])
+    assert_array_equal(norm([-2., -1, 1, 3, 4]), [0., 0.2, 0.5, 0.7, 1.0])
 
     # Testing with vmax
     norm = mcolors.PiecewiseNorm(flist=['cubic', 'crt', 'cubic', 'crt'],
                                  refpoints_cm=[0.2, 0.5, 0.7],
                                  refpoints_data=[-1, 1, 3],
                                  vmax=4)
-    assert_array_equal(norm([-2, -1, 1, 3, 4]), [0., 0.2, 0.5, 0.7, 1.0])
+    assert_array_equal(norm([-2., -1, 1, 3, 4]), [0., 0.2, 0.5, 0.7, 1.0])
 
     # Testing intermediate values
     norm = mcolors.PiecewiseNorm(flist=['cubic', 'crt', 'cubic', 'crt'],
@@ -268,7 +268,7 @@ def test_MirrorPiecewiseNorm():
 
     # Single argument positive range, defaults
     norm = mcolors.MirrorPiecewiseNorm(fpos='crt')
-    assert_array_equal(norm([-2, 0, 1]), [0., 0.5, 1.0])
+    assert_array_equal(norm([-2, 0., 1]), [0., 0.5, 1.0])
 
     # Single argument positive, and negative range, with ref point
     norm = mcolors.MirrorPiecewiseNorm(fpos='crt', fneg='sqrt',
