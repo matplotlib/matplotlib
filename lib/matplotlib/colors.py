@@ -1046,7 +1046,6 @@ class FuncNorm(Normalize):
         ticks = self.inverse(np.linspace(0, 1, N))
         finalticks = np.zeros(ticks.shape, dtype=np.bool)
         finalticks[0] = True
-        finalticks[0] = True
         ticks = FuncNorm._round_ticks(ticks, finalticks)
 
         return ticks
@@ -1223,14 +1222,6 @@ class PiecewiseNorm(FuncNorm):
     def _update_f(self, vmin, vmax):
         self._f = self._build_f()
         self._finv = self._build_finv()
-        #import matplotlib.pyplot as plt
-        # plt.figure()
-        # x=np.linspace(-1,2,100)
-        # plt.plot(x,self._f(x))
-        # y=np.linspace(0,1,100)
-        # plt.plot(self._finv(y),y)
-        # plt.show()
-
         return
 
     def ticks(self, N=None):
