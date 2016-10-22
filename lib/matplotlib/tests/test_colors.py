@@ -158,12 +158,12 @@ def test_LogNorm():
 
 def test_FuncNorm():
     # Testing limits using a string
-    norm = mcolors.FuncNorm(f='log', vmin=0.01, vmax=2)
+    norm = mcolors.FuncNorm(f='log', vmin=0.01, vmax=2.)
     assert_array_equal(norm([0.01, 2]), [0, 1.0])
 
     # Testing limits using a string
     norm = mcolors.FuncNorm(f=lambda x: np.log10(x),
-                            finv=lambda x: 10.**(x), vmin=0.01, vmax=2)
+                            finv=lambda x: 10.**(x), vmin=0.01, vmax=2.)
     assert_array_equal(norm([0.01, 2]), [0, 1.0])
 
     # Testing limits without vmin, vmax
@@ -171,7 +171,7 @@ def test_FuncNorm():
     assert_array_equal(norm([0.01, 2]), [0, 1.0])
 
     # Testing limits without vmin
-    norm = mcolors.FuncNorm(f='log', vmax=2)
+    norm = mcolors.FuncNorm(f='log', vmax=2.)
     assert_array_equal(norm([0.01, 2]), [0, 1.0])
 
     # Testing limits without vmin
@@ -183,12 +183,12 @@ def test_FuncNorm():
     assert_array_almost_equal(norm([0.01, 0.5, 2]), [0, 0.73835195870437, 1.0])
 
     # Checking inverse
-    norm = mcolors.FuncNorm(f='log', vmin=0.01, vmax=2)
+    norm = mcolors.FuncNorm(f='log', vmin=0.01, vmax=2.)
     x = np.linspace(0.01, 2, 10)
     assert_array_almost_equal(x, norm.inverse(norm(x)))
 
     # Checking ticks
-    norm = mcolors.FuncNorm(f='log', vmin=0.01, vmax=2)
+    norm = mcolors.FuncNorm(f='log', vmin=0.01, vmax=2.)
     expected = [0.01,  0.016,  0.024,  0.04,  0.06,
                 0.09,  0.14,  0.22, 0.3,  0.5,
                 0.8,  1.3,  2.]
@@ -214,28 +214,28 @@ def test_PiecewiseNorm():
     norm = mcolors.PiecewiseNorm(flist=['cubic', 'crt', 'cubic', 'crt'],
                                  refpoints_cm=[0.2, 0.5, 0.7],
                                  refpoints_data=[-1, 1, 3],
-                                 vmin=-2, vmax=4)
+                                 vmin=-2., vmax=4.)
     assert_array_equal(norm([-2., -1, 1, 3, 4]), [0., 0.2, 0.5, 0.7, 1.0])
 
     # Testing with vmin
     norm = mcolors.PiecewiseNorm(flist=['cubic', 'crt', 'cubic', 'crt'],
                                  refpoints_cm=[0.2, 0.5, 0.7],
                                  refpoints_data=[-1, 1, 3],
-                                 vmin=-2)
+                                 vmin=-2.)
     assert_array_equal(norm([-2., -1, 1, 3, 4]), [0., 0.2, 0.5, 0.7, 1.0])
 
     # Testing with vmax
     norm = mcolors.PiecewiseNorm(flist=['cubic', 'crt', 'cubic', 'crt'],
                                  refpoints_cm=[0.2, 0.5, 0.7],
                                  refpoints_data=[-1, 1, 3],
-                                 vmax=4)
+                                 vmax=4.)
     assert_array_equal(norm([-2., -1, 1, 3, 4]), [0., 0.2, 0.5, 0.7, 1.0])
 
     # Testing intermediate values
     norm = mcolors.PiecewiseNorm(flist=['cubic', 'crt', 'cubic', 'crt'],
                                  refpoints_cm=[0.2, 0.5, 0.7],
                                  refpoints_data=[-1, 1, 3],
-                                 vmin=-2, vmax=4)
+                                 vmin=-2., vmax=4.)
     expected = [0.38898816,
                 0.47256809,
                 0.503125,
@@ -247,7 +247,7 @@ def test_PiecewiseNorm():
     norm = mcolors.PiecewiseNorm(flist=['cubic', 'crt', 'cubic', 'crt'],
                                  refpoints_cm=[0.2, 0.5, 0.7],
                                  refpoints_data=[-1, 1, 3],
-                                 vmin=-2, vmax=4)
+                                 vmin=-2., vmax=4.)
     x = np.linspace(-2, 4, 10)
     assert_array_almost_equal(x, norm.inverse(norm(x)))
 
@@ -255,7 +255,7 @@ def test_PiecewiseNorm():
     norm = mcolors.PiecewiseNorm(flist=['cubic', 'crt', 'cubic', 'crt'],
                                  refpoints_cm=[0.2, 0.5, 0.7],
                                  refpoints_data=[-1, 1, 3],
-                                 vmin=-2, vmax=4)
+                                 vmin=-2., vmax=4.)
     expected = [-2., -1.3, -1.1, -1., -0.93,
                 -0.4,  1.,  2.4,  2.7, 3.,
                 3.04,  3.3,  4.]

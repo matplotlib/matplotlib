@@ -973,6 +973,10 @@ class FuncNorm(Normalize):
 
         self._f = f
         self._finv = finv
+        if vmin is not None:
+            vmin = float(vmin)
+        if vmax is not None:
+            vmax = float(vmax)
 
         super(FuncNorm, self).__init__(vmin, vmax, clip)
 
@@ -1059,9 +1063,9 @@ class FuncNorm(Normalize):
         if self.vmin is not None and self.vmax is not None:
             return
         if self.vmin is None:
-            self.vmin = np.ma.min(A)
+            self.vmin = float(np.ma.min(A))
         if self.vmax is None:
-            self.vmax = np.ma.max(A)
+            self.vmax = float(np.ma.max(A))
 
     @staticmethod
     def _round_ticks(ticks, permanenttick):
