@@ -3841,8 +3841,9 @@ or tuple of floats
                 verts=None, edgecolors=None,
                 **kwargs):
         """
-        Make a scatter plot of x vs y, where x and y are sequence like objects
-        of the same length.
+        Make a scatter plot of `x` vs `y`
+
+        Marker size is scaled by `s` and marker color is mapped to `c`
 
         Parameters
         ----------
@@ -3889,6 +3890,12 @@ or tuple of floats
 
         linewidths : scalar or array_like, optional, default: None
             If None, defaults to (lines.linewidth,).
+
+        verts : sequence of (x, y), optional
+            If `marker` is None, these vertices will be used to
+            construct the marker.  The center of the marker is located
+            at (0,0) in normalized units.  The overall marker is rescaled
+            by ``s``.
 
         edgecolors : color or sequence of color, optional, default: None
             If None, defaults to 'face'

@@ -67,6 +67,8 @@ matrix:
       env: BUILD_DOCS=true
     - python: 3.5
       env: USE_PYTEST=true PANDAS=pandas DELETE_FONT_CACHE=1 TEST_ARGS=
+    - python: "3.6-dev"
+      env: PRE=--pre
     - python: "nightly"
       env: PRE=--pre
     - os: osx
