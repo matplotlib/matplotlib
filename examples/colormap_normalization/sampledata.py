@@ -3,7 +3,7 @@
 Creating sample data for the different examples on normalization
 ================================================================
 
-Data with special features tailored to the need of the different examples on 
+Data with special features tailored to the need of the different examples on
 colormal normalization is created.
 
 """
@@ -14,7 +14,7 @@ import numpy as np
 def PiecewiseNormData(NX=512, NY=256):
     """Sample data for the PiecewiseNorm class.
 
-    Returns a 2d array with sample data, along with the X and Y values for the 
+    Returns a 2d array with sample data, along with the X and Y values for the
     array.
 
     Parameters

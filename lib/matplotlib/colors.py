@@ -1021,7 +1021,9 @@ class FuncNorm(Normalize):
                  (lambda x: np.log10(x)),
                  (lambda x: (10**(x))))]
 
-        if isinstance(funsin[0], basestring):
+        if isinstance(funsin[0], ("".__class__,
+                                  u"".__class__,
+                                  str("").__class__)):
             funstrs = []
             for fstr, fun, inv in funs:
                 funstrs.append(fstr)
@@ -1162,7 +1164,7 @@ class PiecewiseNorm(FuncNorm):
         rp_d = self._refpoints_data
         rp_cm = self._refpoints_cm
         if (len(rp_d[1:-1]) > 0 and
-                (any(rp_d[1:-1]) <= vmin or any(rp_d[1:-1]) >= vmax)):
+                (any(rp_d[1:-1] <= vmin) or any(rp_d[1:-1] >= vmax))):
             raise ValueError(
                 "data reference points must be "
                 "within the (vmin,vmax) interval")

@@ -155,6 +155,7 @@ def test_LogNorm():
     ln = mcolors.LogNorm(clip=True, vmax=5)
     assert_array_equal(ln([1, 6]), [0, 1.0])
 
+
 def test_FuncNorm():
     # Testing limits using a string
     norm = mcolors.FuncNorm(f='log', vmin=0.01, vmax=2)
@@ -169,9 +170,66 @@ def test_FuncNorm():
     norm = mcolors.FuncNorm(f='log')
     assert_array_equal(norm([0.01, 2]), [0, 1.0])
 
+    # Testing limits without vmin
+    norm = mcolors.FuncNorm(f='log', vmax=2)
+    assert_array_equal(norm([0.01, 2]), [0, 1.0])
+
+    # Testing limits without vmin
+    norm = mcolors.FuncNorm(f='log', vmin=0.01)
+    assert_array_equal(norm([0.01, 2]), [0, 1.0])
+
     # Testing intermediate values
     norm = mcolors.FuncNorm(f='log')
     assert_array_almost_equal(norm([0.01, 0.5, 2]), [0, 0.73835195870437, 1.0])
+
+
+def test_PieceWiseNorm():
+    # Testing using both strings and functions
+    norm = mcolors.PiecewiseNorm(flist=['cubic', 'crt', lambda x:x**3, 'crt'],
+                                 finvlist=[None, None,
+                                           lambda x:x**(1. / 3), None],
+                                 refpoints_cm=[0.2, 0.5, 0.7],
+                                 refpoints_data=[-1, 1, 3])
+    assert_array_equal(norm([-2, -1, 1, 3, 4]), [0., 0.2, 0.5, 0.7, 1.0])
+
+    # Testing using only strings
+    norm = mcolors.PiecewiseNorm(flist=['cubic', 'crt', 'cubic', 'crt'],
+                                 refpoints_cm=[0.2, 0.5, 0.7],
+                                 refpoints_data=[-1, 1, 3])
+    assert_array_equal(norm([-2, -1, 1, 3, 4]), [0., 0.2, 0.5, 0.7, 1.0])
+
+    # Testing with limits
+    norm = mcolors.PiecewiseNorm(flist=['cubic', 'crt', 'cubic', 'crt'],
+                                 refpoints_cm=[0.2, 0.5, 0.7],
+                                 refpoints_data=[-1, 1, 3],
+                                 vmin=-2, vmax=4)
+    assert_array_equal(norm([-2, -1, 1, 3, 4]), [0., 0.2, 0.5, 0.7, 1.0])
+
+    # Testing with vmin
+    norm = mcolors.PiecewiseNorm(flist=['cubic', 'crt', 'cubic', 'crt'],
+                                 refpoints_cm=[0.2, 0.5, 0.7],
+                                 refpoints_data=[-1, 1, 3],
+                                 vmin=-2)
+    assert_array_equal(norm([-2, -1, 1, 3, 4]), [0., 0.2, 0.5, 0.7, 1.0])
+
+    # Testing with vmin
+    norm = mcolors.PiecewiseNorm(flist=['cubic', 'crt', 'cubic', 'crt'],
+                                 refpoints_cm=[0.2, 0.5, 0.7],
+                                 refpoints_data=[-1, 1, 3],
+                                 vmax=4)
+    assert_array_equal(norm([-2, -1, 1, 3, 4]), [0., 0.2, 0.5, 0.7, 1.0])
+
+    # Testing intermediate values
+    norm = mcolors.PiecewiseNorm(flist=['cubic', 'crt', 'cubic', 'crt'],
+                                 refpoints_cm=[0.2, 0.5, 0.7],
+                                 refpoints_data=[-1, 1, 3],
+                                 vmin=-2, vmax=4)
+    expected = [0.38898816,
+                0.47256809,
+                0.503125,
+                0.584375,
+                0.93811016]
+    assert_array_almost_equal(norm(np.linspace(-0.5, 3.5, 5)), expected)
 
 
 def test_PowerNorm():
