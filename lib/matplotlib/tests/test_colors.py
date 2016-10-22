@@ -155,6 +155,24 @@ def test_LogNorm():
     ln = mcolors.LogNorm(clip=True, vmax=5)
     assert_array_equal(ln([1, 6]), [0, 1.0])
 
+def test_FuncNorm():
+    # Testing limits using a string
+    norm = mcolors.FuncNorm(f='log', vmin=0.01, vmax=2)
+    assert_array_equal(norm([0.01, 2]), [0, 1.0])
+
+    # Testing limits using a string
+    norm = mcolors.FuncNorm(f=lambda x: np.log10(x),
+                            finv=lambda x: 10.**(x), vmin=0.01, vmax=2)
+    assert_array_equal(norm([0.01, 2]), [0, 1.0])
+
+    # Testing limits without vmin, vmax
+    norm = mcolors.FuncNorm(f='log')
+    assert_array_equal(norm([0.01, 2]), [0, 1.0])
+
+    # Testing intermediate values
+    norm = mcolors.FuncNorm(f='log')
+    assert_array_almost_equal(norm([0.01, 0.5, 2]), [0, 0.73835195870437, 1.0])
+
 
 def test_PowerNorm():
     a = np.array([0, 0.5, 1, 1.5], dtype=float)

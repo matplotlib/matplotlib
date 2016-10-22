@@ -964,7 +964,6 @@ class FuncNorm(Normalize):
                  vmin=None, vmax=None, clip=False):
 
         f, finv = FuncNorm._fun_parser([f, finv])
-
         if finv is None:
             raise ValueError("Inverse function not provided")
 
@@ -985,6 +984,7 @@ class FuncNorm(Normalize):
             clip = self.clip
 
         result, is_scalar = self.process_value(value)
+        self.autoscale_None(result)
 
         vmin = self.vmin
         vmax = self.vmax
@@ -996,7 +996,6 @@ class FuncNorm(Normalize):
         resultnorm = (self._f(result) - self._f(vmin)) / \
             (self._f(vmax) - self._f(vmin))
 
-        self.autoscale_None(resultnorm)
         return np.ma.array(resultnorm)
 
     def inverse(self, value):
