@@ -2,10 +2,11 @@ from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
 import six
-import nose.tools
-from nose.tools import assert_equal, assert_raises
+
 from numpy.testing import assert_almost_equal
 import numpy as np
+import pytest
+
 import matplotlib
 import matplotlib.pyplot as plt
 import matplotlib.ticker as mticker
@@ -63,7 +64,8 @@ def test_AutoMinorLocator():
 
 def test_LogLocator():
     loc = mticker.LogLocator(numticks=5)
-    assert_raises(ValueError, loc.tick_values, 0, 1000)
+    with pytest.raises(ValueError):
+        loc.tick_values(0, 1000)
 
     test_value = np.array([1.00000000e-05, 1.00000000e-03, 1.00000000e-01,
                            1.00000000e+01, 1.00000000e+03, 1.00000000e+05,
@@ -82,8 +84,8 @@ def test_LinearLocator_set_params():
     """
     loc = mticker.LinearLocator(numticks=2)
     loc.set_params(numticks=8, presets={(0, 1): []})
-    nose.tools.assert_equal(loc.numticks, 8)
-    nose.tools.assert_equal(loc.presets, {(0, 1): []})
+    assert loc.numticks == 8
+    assert loc.presets == {(0, 1): []}
 
 
 def test_LogLocator_set_params():
@@ -95,10 +97,10 @@ def test_LogLocator_set_params():
     """
     loc = mticker.LogLocator()
     loc.set_params(numticks=7, numdecs=8, subs=[2.0], base=4)
-    nose.tools.assert_equal(loc.numticks, 7)
-    nose.tools.assert_equal(loc.numdecs, 8)
-    nose.tools.assert_equal(loc._base, 4)
-    nose.tools.assert_equal(list(loc._subs), [2.0])
+    assert loc.numticks == 7
+    assert loc.numdecs == 8
+    assert loc._base == 4
+    assert list(loc._subs) == [2.0]
 
 
 def test_NullLocator_set_params():
@@ -110,7 +112,7 @@ def test_NullLocator_set_params():
     with warnings.catch_warnings(record=True) as w:
         warnings.simplefilter("always")
         loc.set_params()
-        nose.tools.assert_equal(len(w), 1)
+        assert len(w) == 1
 
 
 def test_MultipleLocator_set_params():
@@ -121,7 +123,7 @@ def test_MultipleLocator_set_params():
     """
     mult = mticker.MultipleLocator(base=0.7)
     mult.set_params(base=1.7)
-    nose.tools.assert_equal(mult._base, 1.7)
+    assert mult._base == 1.7
 
 
 def test_LogitLocator_set_params():
@@ -131,7 +133,7 @@ def test_LogitLocator_set_params():
     """
     loc = mticker.LogitLocator()  # Defaults to false.
     loc.set_params(minor=True)
-    nose.tools.assert_true(loc.minor)
+    assert loc.minor
 
 
 def test_FixedLocator_set_params():
@@ -142,7 +144,7 @@ def test_FixedLocator_set_params():
     """
     fixed = mticker.FixedLocator(range(0, 24), nbins=5)
     fixed.set_params(nbins=7)
-    nose.tools.assert_equal(fixed.nbins, 7)
+    assert fixed.nbins == 7
 
 
 def test_IndexLocator_set_params():
@@ -153,8 +155,8 @@ def test_IndexLocator_set_params():
     """
     index = mticker.IndexLocator(base=3, offset=4)
     index.set_params(base=7, offset=7)
-    nose.tools.assert_equal(index._base, 7)
-    nose.tools.assert_equal(index.offset, 7)
+    assert index._base == 7
+    assert index.offset == 7
 
 
 def test_SymmetricalLogLocator_set_params():
@@ -167,55 +169,55 @@ def test_SymmetricalLogLocator_set_params():
     # since we only test for the params change. I will pass empty transform
     sym = mticker.SymmetricalLogLocator(None)
     sym.set_params(subs=[2.0], numticks=8)
-    nose.tools.assert_equal(sym._subs, [2.0])
-    nose.tools.assert_equal(sym.numticks, 8)
+    assert sym._subs == [2.0]
+    assert sym.numticks == 8
 
 
 @cleanup
-def test_ScalarFormatter_offset_value():
+@pytest.mark.parametrize('left, right, offset',
+                         [(123, 189, 0),
+                          (-189, -123, 0),
+                          (12341, 12349, 12340),
+                          (-12349, -12341, -12340),
+                          (99999.5, 100010.5, 100000),
+                          (-100010.5, -99999.5, -100000),
+                          (99990.5, 100000.5, 100000),
+                          (-100000.5, -99990.5, -100000),
+                          (1233999, 1234001, 1234000),
+                          (-1234001, -1233999, -1234000),
+                          (1, 1, 1),
+                          (123, 123, 120),
+                          # Test cases courtesy of @WeatherGod
+                          (.4538, .4578, .45),
+                          (3789.12, 3783.1, 3780),
+                          (45124.3, 45831.75, 45000),
+                          (0.000721, 0.0007243, 0.00072),
+                          (12592.82, 12591.43, 12590),
+                          (9., 12., 0),
+                          (900., 1200., 0),
+                          (1900., 1200., 0),
+                          (0.99, 1.01, 1),
+                          (9.99, 10.01, 10),
+                          (99.99, 100.01, 100),
+                          (5.99, 6.01, 6),
+                          (15.99, 16.01, 16),
+                          (-0.452, 0.492, 0),
+                          (-0.492, 0.492, 0),
+                          (12331.4, 12350.5, 12300),
+                          (-12335.3, 12335.3, 0)])
+def test_ScalarFormatter_offset_value(left, right, offset):
     fig, ax = plt.subplots()
     formatter = ax.get_xaxis().get_major_formatter()
 
-    def check_offset_for(left, right, offset):
-        ax.set_xlim(left, right)
-        # Update ticks.
-        next(ax.get_xaxis().iter_ticks())
-        assert_equal(formatter.offset, offset)
+    ax.set_xlim(left, right)
+    # Update ticks.
+    next(ax.get_xaxis().iter_ticks())
+    assert formatter.offset == offset
 
-    test_data = [(123, 189, 0),
-                 (-189, -123, 0),
-                 (12341, 12349, 12340),
-                 (-12349, -12341, -12340),
-                 (99999.5, 100010.5, 100000),
-                 (-100010.5, -99999.5, -100000),
-                 (99990.5, 100000.5, 100000),
-                 (-100000.5, -99990.5, -100000),
-                 (1233999, 1234001, 1234000),
-                 (-1234001, -1233999, -1234000),
-                 (1, 1, 1),
-                 (123, 123, 120),
-                 # Test cases courtesy of @WeatherGod
-                 (.4538, .4578, .45),
-                 (3789.12, 3783.1, 3780),
-                 (45124.3, 45831.75, 45000),
-                 (0.000721, 0.0007243, 0.00072),
-                 (12592.82, 12591.43, 12590),
-                 (9., 12., 0),
-                 (900., 1200., 0),
-                 (1900., 1200., 0),
-                 (0.99, 1.01, 1),
-                 (9.99, 10.01, 10),
-                 (99.99, 100.01, 100),
-                 (5.99, 6.01, 6),
-                 (15.99, 16.01, 16),
-                 (-0.452, 0.492, 0),
-                 (-0.492, 0.492, 0),
-                 (12331.4, 12350.5, 12300),
-                 (-12335.3, 12335.3, 0)]
-
-    for left, right, offset in test_data:
-        yield check_offset_for, left, right, offset
-        yield check_offset_for, right, left, offset
+    ax.set_xlim(right, left)
+    # Update ticks.
+    next(ax.get_xaxis().iter_ticks())
+    assert formatter.offset == offset
 
 
 def _sub_labels(axis, subs=()):
@@ -226,7 +228,7 @@ def _sub_labels(axis, subs=()):
     coefs = minor_tlocs / 10**(np.floor(np.log10(minor_tlocs)))
     label_expected = [np.round(c) in subs for c in coefs]
     label_test = [fmt(x) != '' for x in minor_tlocs]
-    assert_equal(label_test, label_expected)
+    assert label_test == label_expected
 
 
 @cleanup
@@ -260,49 +262,44 @@ def test_LogFormatter_sublabel():
     _sub_labels(ax.xaxis, subs=[2, 3, 6])
 
 
-def _logfe_helper(formatter, base, locs, i, expected_result):
+class FakeAxis(object):
+    """Allow Formatter to be called without having a "full" plot set up."""
+    def __init__(self, vmin=1, vmax=10):
+        self.vmin = vmin
+        self.vmax = vmax
+
+    def get_view_interval(self):
+        return self.vmin, self.vmax
+
+
+@pytest.mark.parametrize(
+    'labelOnlyBase, exponent, locs, positions, expected',
+    [
+        (True, 4, np.arange(-3, 4.0), np.arange(-3, 4.0),
+         ['-3', '-2', '-1', '0', '1', '2', '3']),
+        # With labelOnlyBase=False, non-integer powers should be nicely
+        # formatted.
+        (False, 10, np.array([0.1, 0.00001, np.pi, 0.2, -0.2, -0.00001]),
+         range(6), ['0.1', '1e-05', '3.14', '0.2', '-0.2', '-1e-05']),
+        (False, 50, np.array([3, 5, 12, 42], dtype='float'), range(6),
+         ['3', '5', '12', '42']),
+    ])
+@pytest.mark.parametrize('base', [2.0, 5.0, 10.0, np.pi, np.e])
+def test_LogFormatterExponent(labelOnlyBase, base, exponent,
+                              locs, positions, expected):
+    formatter = mticker.LogFormatterExponent(base=base,
+                                             labelOnlyBase=labelOnlyBase)
+    formatter.axis = FakeAxis(1, base**exponent)
     vals = base**locs
-    labels = [formatter(x, pos) for (x, pos) in zip(vals, i)]
-    nose.tools.assert_equal(labels, expected_result)
+    labels = [formatter(x, pos) for (x, pos) in zip(vals, positions)]
+    assert labels == expected
 
 
-def test_LogFormatterExponent():
-    class FakeAxis(object):
-        """Allow Formatter to be called without having a "full" plot set up."""
-        def __init__(self, vmin=1, vmax=10):
-            self.vmin = vmin
-            self.vmax = vmax
-
-        def get_view_interval(self):
-            return self.vmin, self.vmax
-
-    i = np.arange(-3, 4, dtype=float)
-    expected_result = ['-3', '-2', '-1', '0', '1', '2', '3']
-    for base in [2, 5.0, 10.0, np.pi, np.e]:
-        formatter = mticker.LogFormatterExponent(base=base)
-        formatter.axis = FakeAxis(1, base**4)
-        yield _logfe_helper, formatter, base, i, i, expected_result
-
+def test_LogFormatterExponent_blank():
     # Should be a blank string for non-integer powers if labelOnlyBase=True
     formatter = mticker.LogFormatterExponent(base=10, labelOnlyBase=True)
     formatter.axis = FakeAxis()
-    nose.tools.assert_equal(formatter(10**0.1), '')
-
-    # Otherwise, non-integer powers should be nicely formatted
-    locs = np.array([0.1, 0.00001, np.pi, 0.2, -0.2, -0.00001])
-    i = range(len(locs))
-    expected_result = ['0.1', '1e-05', '3.14', '0.2', '-0.2', '-1e-05']
-    for base in [2, 5, 10, np.pi, np.e]:
-        formatter = mticker.LogFormatterExponent(base, labelOnlyBase=False)
-        formatter.axis = FakeAxis(1, base**10)
-        yield _logfe_helper, formatter, base, locs, i, expected_result
-
-    expected_result = ['3', '5', '12', '42']
-    locs = np.array([3, 5, 12, 42], dtype='float')
-    for base in [2, 5.0, 10.0, np.pi, np.e]:
-        formatter = mticker.LogFormatterExponent(base, labelOnlyBase=False)
-        formatter.axis = FakeAxis(1, base**50)
-        yield _logfe_helper, formatter, base, locs, i, expected_result
+    assert formatter(10**0.1) == ''
 
 
 def test_LogFormatterSciNotation():
@@ -333,17 +330,10 @@ def test_LogFormatterSciNotation():
         formatter.sublabel = set([1, 2, 5, 1.2])
         for value, expected in test_cases[base]:
             with matplotlib.rc_context({'text.usetex': False}):
-                nose.tools.assert_equal(formatter(value), expected)
+                assert formatter(value) == expected
 
 
-def _pprint_helper(value, domain, expected):
-    fmt = mticker.LogFormatter()
-    label = fmt.pprint_val(value, domain)
-    nose.tools.assert_equal(label, expected)
-
-
-def test_logformatter_pprint():
-    test_cases = (
+@pytest.mark.parametrize('value, domain, expected', [
         (3.141592654e-05, 0.001, '3.142e-5'),
         (0.0003141592654, 0.001, '3.142e-4'),
         (0.003141592654, 0.001, '3.142e-3'),
@@ -476,63 +466,63 @@ def test_logformatter_pprint():
         (1000, 1000000.0, '1000'),
         (10000, 1000000.0, '1e4'),
         (100000, 1000000.0, '1e5')
-    )
-
-    for value, domain, expected in test_cases:
-        yield _pprint_helper, value, domain, expected
+])
+def test_logformatter_pprint(value, domain, expected):
+    fmt = mticker.LogFormatter()
+    label = fmt.pprint_val(value, domain)
+    assert label == expected
 
 
 def test_use_offset():
     for use_offset in [True, False]:
         with matplotlib.rc_context({'axes.formatter.useoffset': use_offset}):
             tmp_form = mticker.ScalarFormatter()
-            nose.tools.assert_equal(use_offset, tmp_form.get_useOffset())
+            assert use_offset == tmp_form.get_useOffset()
 
 
 def test_formatstrformatter():
     # test % style formatter
     tmp_form = mticker.FormatStrFormatter('%05d')
-    nose.tools.assert_equal('00002', tmp_form(2))
+    assert '00002' == tmp_form(2)
 
     # test str.format() style formatter
     tmp_form = mticker.StrMethodFormatter('{x:05d}')
-    nose.tools.assert_equal('00002', tmp_form(2))
+    assert '00002' == tmp_form(2)
 
 
-def _percent_format_helper(xmax, decimals, symbol, x, display_range, expected):
+percentformatter_test_cases = (
+    # Check explicitly set decimals over different intervals and values
+    (100, 0, '%', 120, 100, '120%'),
+    (100, 0, '%', 100, 90, '100%'),
+    (100, 0, '%', 90, 50, '90%'),
+    (100, 0, '%', 1.7, 40, '2%'),
+    (100, 1, '%', 90.0, 100, '90.0%'),
+    (100, 1, '%', 80.1, 90, '80.1%'),
+    (100, 1, '%', 70.23, 50, '70.2%'),
+    # 60.554 instead of 60.55: see https://bugs.python.org/issue5118
+    (100, 1, '%', 60.554, 40, '60.6%'),
+    # Check auto decimals over different intervals and values
+    (100, None, '%', 95, 1, '95.00%'),
+    (1.0, None, '%', 3, 6, '300%'),
+    (17.0, None, '%', 1, 8.5, '6%'),
+    (17.0, None, '%', 1, 8.4, '5.9%'),
+    (5, None, '%', -100, 0.000001, '-2000.00000%'),
+    # Check percent symbol
+    (1.0, 2, None, 1.2, 100, '120.00'),
+    (75, 3, '', 50, 100, '66.667'),
+    (42, None, '^^Foobar$$', 21, 12, '50.0^^Foobar$$'),
+)
+
+
+@pytest.mark.parametrize('xmax, decimals, symbol, x, display_range, expected',
+                         percentformatter_test_cases)
+def test_percentformatter(xmax, decimals, symbol, x, display_range, expected):
     formatter = mticker.PercentFormatter(xmax, decimals, symbol)
-    nose.tools.assert_equal(formatter.format_pct(x, display_range), expected)
+    assert formatter.format_pct(x, display_range) == expected
 
     # test str.format() style formatter with `pos`
     tmp_form = mticker.StrMethodFormatter('{x:03d}-{pos:02d}')
-    nose.tools.assert_equal('002-01', tmp_form(2, 1))
-
-
-def test_percentformatter():
-    test_cases = (
-        # Check explicitly set decimals over different intervals and values
-        (100, 0, '%', 120, 100, '120%'),
-        (100, 0, '%', 100, 90, '100%'),
-        (100, 0, '%', 90, 50, '90%'),
-        (100, 0, '%', 1.7, 40, '2%'),
-        (100, 1, '%', 90.0, 100, '90.0%'),
-        (100, 1, '%', 80.1, 90, '80.1%'),
-        (100, 1, '%', 70.23, 50, '70.2%'),
-        # 60.554 instead of 60.55: see https://bugs.python.org/issue5118
-        (100, 1, '%', 60.554, 40, '60.6%'),
-        # Check auto decimals over different intervals and values
-        (100, None, '%', 95, 1, '95.00%'),
-        (1.0, None, '%', 3, 6, '300%'),
-        (17.0, None, '%', 1, 8.5, '6%'),
-        (17.0, None, '%', 1, 8.4, '5.9%'),
-        (5, None, '%', -100, 0.000001, '-2000.00000%'),
-        # Check percent symbol
-        (1.0, 2, None, 1.2, 100, '120.00'),
-        (75, 3, '', 50, 100, '66.667'),
-        (42, None, '^^Foobar$$', 21, 12, '50.0^^Foobar$$'),
-    )
-    for case in test_cases:
-        yield (_percent_format_helper,) + case
+    assert '002-01' == tmp_form(2, 1)
 
 
 def test_EngFormatter_formatting():
@@ -544,17 +534,13 @@ def test_EngFormatter_formatting():
     Should not raise exceptions.
     """
     unitless = mticker.EngFormatter()
-    nose.tools.assert_equal(unitless(0.1), u'100 m')
-    nose.tools.assert_equal(unitless(1), u'1')
-    nose.tools.assert_equal(unitless(999.9), u'999.9')
-    nose.tools.assert_equal(unitless(1001), u'1.001 k')
+    assert unitless(0.1) == u'100 m'
+    assert unitless(1) == u'1'
+    assert unitless(999.9) == u'999.9'
+    assert unitless(1001) == u'1.001 k'
 
     with_unit = mticker.EngFormatter(unit=u's')
-    nose.tools.assert_equal(with_unit(0.1), u'100 ms')
-    nose.tools.assert_equal(with_unit(1), u'1 s')
-    nose.tools.assert_equal(with_unit(999.9), u'999.9 s')
-    nose.tools.assert_equal(with_unit(1001), u'1.001 ks')
-
-if __name__ == '__main__':
-    import nose
-    nose.runmodule(argv=['-s', '--with-doctest'], exit=False)
+    assert with_unit(0.1) == u'100 ms'
+    assert with_unit(1) == u'1 s'
+    assert with_unit(999.9) == u'999.9 s'
+    assert with_unit(1001) == u'1.001 ks'
