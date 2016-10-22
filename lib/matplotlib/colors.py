@@ -1363,7 +1363,7 @@ class RootNorm(FuncNorm):
         Degree of the root used to normalize the data for the positive
         direction.
         """
-        (super(FuncNorm, self)
+        (super(RootNorm, self)
          .__init__(f=(lambda x: x**(1. / order)),
                    finv=(lambda x: x**(order)),
                    vmin=vmin, vmax=vmax, clip=clip))
