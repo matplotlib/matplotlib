@@ -9,14 +9,13 @@ import warnings
 from collections import OrderedDict
 
 from cycler import cycler, Cycler
+import pytest
 
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 from matplotlib.tests import assert_str_equal
 from matplotlib.testing.decorators import cleanup, knownfailureif
 import matplotlib.colors as mcolors
-from nose.tools import assert_true, assert_raises, assert_equal
-import nose
 from itertools import chain
 import numpy as np
 from matplotlib.rcsetup import (validate_bool_maybe_none,
@@ -117,7 +116,7 @@ def test_rcparams_update():
     rc = mpl.RcParams({'figure.figsize': (3.5, 42)})
     bad_dict = {'figure.figsize': (3.5, 42, 1)}
     # make sure validation happens on input
-    with assert_raises(ValueError):
+    with pytest.raises(ValueError):
 
         with warnings.catch_warnings():
             warnings.filterwarnings('ignore',
@@ -127,7 +126,7 @@ def test_rcparams_update():
 
 
 def test_rcparams_init():
-    with assert_raises(ValueError):
+    with pytest.raises(ValueError):
         with warnings.catch_warnings():
             warnings.filterwarnings('ignore',
                                 message='.*(validate)',
@@ -157,56 +156,55 @@ def test_Bug_2543():
             from copy import deepcopy
             _deep_copy = deepcopy(mpl.rcParams)
         # real test is that this does not raise
-        assert_true(validate_bool_maybe_none(None) is None)
-        assert_true(validate_bool_maybe_none("none") is None)
+        assert validate_bool_maybe_none(None) is None
+        assert validate_bool_maybe_none("none") is None
         _fonttype = mpl.rcParams['svg.fonttype']
-        assert_true(_fonttype == mpl.rcParams['svg.embed_char_paths'])
+        assert _fonttype == mpl.rcParams['svg.embed_char_paths']
         with mpl.rc_context():
             mpl.rcParams['svg.embed_char_paths'] = False
-            assert_true(mpl.rcParams['svg.fonttype'] == "none")
+            assert mpl.rcParams['svg.fonttype'] == "none"
 
-    with assert_raises(ValueError):
+    with pytest.raises(ValueError):
         validate_bool_maybe_none("blah")
-    with assert_raises(ValueError):
+    with pytest.raises(ValueError):
         validate_bool(None)
-    with assert_raises(ValueError):
+    with pytest.raises(ValueError):
         with mpl.rc_context():
             mpl.rcParams['svg.fonttype'] = True
 
 
+legend_color_tests = [
+    ('face', {'color': 'r'}, mcolors.to_rgba('r')),
+    ('face', {'color': 'inherit', 'axes.facecolor': 'r'},
+     mcolors.to_rgba('r')),
+    ('face', {'color': 'g', 'axes.facecolor': 'r'}, mcolors.to_rgba('g')),
+    ('edge', {'color': 'r'}, mcolors.to_rgba('r')),
+    ('edge', {'color': 'inherit', 'axes.edgecolor': 'r'},
+     mcolors.to_rgba('r')),
+    ('edge', {'color': 'g', 'axes.facecolor': 'r'}, mcolors.to_rgba('g'))
+]
+legend_color_test_ids = [
+    'same facecolor',
+    'inherited facecolor',
+    'different facecolor',
+    'same edgecolor',
+    'inherited edgecolor',
+    'different facecolor',
+]
+
+
 @cleanup
-def _legend_rcparam_helper(param_dict, target, get_func):
+@pytest.mark.parametrize('color_type, param_dict, target', legend_color_tests,
+                         ids=legend_color_test_ids)
+def test_legend_colors(color_type, param_dict, target):
+    param_dict['legend.%scolor' % (color_type, )] = param_dict.pop('color')
+    get_func = 'get_%scolor' % (color_type, )
+
     with mpl.rc_context(param_dict):
         _, ax = plt.subplots()
         ax.plot(range(3), label='test')
         leg = ax.legend()
-        assert_equal(getattr(leg.legendPatch, get_func)(), target)
-
-
-def test_legend_facecolor():
-    get_func = 'get_facecolor'
-    rcparam = 'legend.facecolor'
-    test_values = [({rcparam: 'r'},
-                    mcolors.to_rgba('r')),
-                   ({rcparam: 'inherit', 'axes.facecolor': 'r'},
-                    mcolors.to_rgba('r')),
-                   ({rcparam: 'g', 'axes.facecolor': 'r'},
-                    mcolors.to_rgba('g'))]
-    for rc_dict, target in test_values:
-        yield _legend_rcparam_helper, rc_dict, target, get_func
-
-
-def test_legend_edgecolor():
-    get_func = 'get_edgecolor'
-    rcparam = 'legend.edgecolor'
-    test_values = [({rcparam: 'r'},
-                    mcolors.to_rgba('r')),
-                   ({rcparam: 'inherit', 'axes.edgecolor': 'r'},
-                    mcolors.to_rgba('r')),
-                   ({rcparam: 'g', 'axes.facecolor': 'r'},
-                    mcolors.to_rgba('g'))]
-    for rc_dict, target in test_values:
-        yield _legend_rcparam_helper, rc_dict, target, get_func
+        assert getattr(leg.legendPatch, get_func)() == target
 
 
 def test_Issue_1713():
@@ -222,23 +220,7 @@ def test_Issue_1713():
     assert rc.get('timezone') == 'UTC'
 
 
-def _validation_test_helper(validator, arg, target):
-    res = validator(arg)
-    if isinstance(target, np.ndarray):
-        assert_true(np.all(res == target))
-    elif not isinstance(target, Cycler):
-        assert_equal(res, target)
-    else:
-        # Cyclers can't simply be asserted equal. They don't implement __eq__
-        assert_equal(list(res), list(target))
-
-
-def _validation_fail_helper(validator, arg, exception_type):
-    with assert_raises(exception_type):
-        validator(arg)
-
-
-def test_validators():
+def generate_validator_testcases(valid):
     validation_tests = (
         {'validator': validate_bool,
          'success': chain(((_, True) for _ in
@@ -359,16 +341,38 @@ def test_validators():
 
     for validator_dict in validation_tests:
         validator = validator_dict['validator']
-        for arg, target in validator_dict['success']:
-            yield _validation_test_helper, validator, arg, target
-        for arg, error_type in validator_dict['fail']:
-            yield _validation_fail_helper, validator, arg, error_type
+        if valid:
+            for arg, target in validator_dict['success']:
+                yield validator, arg, target
+        else:
+            for arg, error_type in validator_dict['fail']:
+                yield validator, arg, error_type
+
+
+@pytest.mark.parametrize('validator, arg, target',
+                         generate_validator_testcases(True))
+def test_validator_valid(validator, arg, target):
+    res = validator(arg)
+    if isinstance(target, np.ndarray):
+        assert np.all(res == target)
+    elif not isinstance(target, Cycler):
+        assert res == target
+    else:
+        # Cyclers can't simply be asserted equal. They don't implement __eq__
+        assert list(res) == list(target)
+
+
+@pytest.mark.parametrize('validator, arg, exception_type',
+                         generate_validator_testcases(False))
+def test_validator_invalid(validator, arg, exception_type):
+    with pytest.raises(exception_type):
+        validator(arg)
 
 
 def test_keymaps():
     key_list = [k for k in mpl.rcParams if 'keymap' in k]
     for k in key_list:
-        assert(isinstance(mpl.rcParams[k], list))
+        assert isinstance(mpl.rcParams[k], list)
 
 
 def test_rcparams_reset_after_fail():
@@ -381,12 +385,8 @@ def test_rcparams_reset_after_fail():
 
         assert mpl.rcParams['text.usetex'] is False
 
-        with assert_raises(KeyError):
+        with pytest.raises(KeyError):
             with mpl.rc_context(rc=OrderedDict([('text.usetex', True),('test.blah', True)])):
                 pass
 
         assert mpl.rcParams['text.usetex'] is False
-
-
-if __name__ == '__main__':
-    nose.runmodule(argv=['-s', '--with-doctest'], exit=False)

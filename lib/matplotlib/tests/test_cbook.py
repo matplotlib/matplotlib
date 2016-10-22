@@ -11,8 +11,7 @@ from datetime import datetime
 import numpy as np
 from numpy.testing.utils import (assert_array_equal, assert_approx_equal,
                                  assert_array_almost_equal)
-from nose.tools import (assert_equal, assert_not_equal, raises, assert_true,
-                        assert_raises)
+import pytest
 
 import matplotlib.cbook as cbook
 import matplotlib.colors as mcolors
@@ -21,20 +20,20 @@ from matplotlib.cbook import delete_masked_points as dmp
 
 def test_is_string_like():
     y = np.arange(10)
-    assert_equal(cbook.is_string_like(y), False)
+    assert not cbook.is_string_like(y)
     y.shape = 10, 1
-    assert_equal(cbook.is_string_like(y), False)
+    assert not cbook.is_string_like(y)
     y.shape = 1, 10
-    assert_equal(cbook.is_string_like(y), False)
+    assert not cbook.is_string_like(y)
 
     assert cbook.is_string_like("hello world")
-    assert_equal(cbook.is_string_like(10), False)
+    assert not cbook.is_string_like(10)
 
     y = ['a', 'b', 'c']
-    assert_equal(cbook.is_string_like(y), False)
+    assert not cbook.is_string_like(y)
 
     y = np.array(y)
-    assert_equal(cbook.is_string_like(y), False)
+    assert not cbook.is_string_like(y)
 
     y = np.array(y, dtype=object)
     assert cbook.is_string_like(y)
@@ -59,17 +58,17 @@ def test_is_hashable():
 def test_restrict_dict():
     d = {'foo': 'bar', 1: 2}
     d1 = cbook.restrict_dict(d, ['foo', 1])
-    assert_equal(d1, d)
+    assert d1 == d
     d2 = cbook.restrict_dict(d, ['bar', 2])
-    assert_equal(d2, {})
+    assert d2 == {}
     d3 = cbook.restrict_dict(d, {'foo': 1})
-    assert_equal(d3, {'foo': 'bar'})
+    assert d3 == {'foo': 'bar'}
     d4 = cbook.restrict_dict(d, {})
-    assert_equal(d4, {})
+    assert d4 == {}
     d5 = cbook.restrict_dict(d, set(['foo', 2]))
-    assert_equal(d5, {'foo': 'bar'})
+    assert d5 == {'foo': 'bar'}
     # check that d was not modified
-    assert_equal(d, {'foo': 'bar', 1: 2})
+    assert d == {'foo': 'bar', 1: 2}
 
 
 class Test_delete_masked_points(object):
@@ -88,9 +87,9 @@ class Test_delete_masked_points(object):
         self.arr_colors = ['r', 'g', 'b', 'c', 'm', 'y']
         self.arr_rgba = mcolors.to_rgba_array(self.arr_colors)
 
-    @raises(ValueError)
     def test_bad_first_arg(self):
-        dmp('a string', self.arr0)
+        with pytest.raises(ValueError):
+            dmp('a string', self.arr0)
 
     def test_string_seq(self):
         actual = dmp(self.arr_s, self.arr1)
@@ -117,11 +116,11 @@ class Test_delete_masked_points(object):
 
 
 def test_allequal():
-    assert(cbook.allequal([1, 1, 1]))
-    assert(not cbook.allequal([1, 1, 0]))
-    assert(cbook.allequal([]))
-    assert(cbook.allequal(('a', 'a')))
-    assert(not cbook.allequal(('a', 'b')))
+    assert cbook.allequal([1, 1, 1])
+    assert not cbook.allequal([1, 1, 0])
+    assert cbook.allequal([])
+    assert cbook.allequal(('a', 'a'))
+    assert not cbook.allequal(('a', 'b'))
 
 
 class Test_boxplot_stats(object):
@@ -176,17 +175,17 @@ class Test_boxplot_stats(object):
         }
 
     def test_form_main_list(self):
-        assert_true(isinstance(self.std_results, list))
+        assert isinstance(self.std_results, list)
 
     def test_form_each_dict(self):
         for res in self.std_results:
-            assert_true(isinstance(res, dict))
+            assert isinstance(res, dict)
 
     def test_form_dict_keys(self):
         for res in self.std_results:
             keys = sorted(list(res.keys()))
             for key in keys:
-                assert_true(key in self.known_keys)
+                assert key in self.known_keys
 
     def test_results_baseline(self):
         res = self.std_results[0]
@@ -257,21 +256,21 @@ class Test_boxplot_stats(object):
         results = cbook.boxplot_stats(self.data, labels=labels)
         res = results[0]
         for lab, res in zip(labels, results):
-            assert_equal(res['label'], lab)
+            assert res['label'] == lab
 
         results = cbook.boxplot_stats(self.data)
         for res in results:
-            assert('label' not in res)
+            assert 'label' not in res
 
-    @raises(ValueError)
     def test_label_error(self):
         labels = [1, 2]
-        results = cbook.boxplot_stats(self.data, labels=labels)
+        with pytest.raises(ValueError):
+            results = cbook.boxplot_stats(self.data, labels=labels)
 
-    @raises(ValueError)
     def test_bad_dims(self):
         data = np.random.normal(size=(34, 34, 34))
-        results = cbook.boxplot_stats(data)
+        with pytest.raises(ValueError):
+            results = cbook.boxplot_stats(data)
 
     def test_boxplot_stats_autorange_false(self):
         x = np.zeros(shape=140)
@@ -279,12 +278,12 @@ class Test_boxplot_stats(object):
         bstats_false = cbook.boxplot_stats(x, autorange=False)
         bstats_true = cbook.boxplot_stats(x, autorange=True)
 
-        assert_equal(bstats_false[0]['whislo'], 0)
-        assert_equal(bstats_false[0]['whishi'], 0)
+        assert bstats_false[0]['whislo'] == 0
+        assert bstats_false[0]['whishi'] == 0
         assert_array_almost_equal(bstats_false[0]['fliers'], [-25, 25])
 
-        assert_equal(bstats_true[0]['whislo'], -25)
-        assert_equal(bstats_true[0]['whishi'], 25)
+        assert bstats_true[0]['whislo'] == -25
+        assert bstats_true[0]['whishi'] == 25
         assert_array_almost_equal(bstats_true[0]['fliers'], [])
 
 
@@ -297,12 +296,12 @@ class Test_callback_registry(object):
         return self.callbacks.connect(s, func)
 
     def is_empty(self):
-        assert_equal(self.callbacks._func_cid_map, {})
-        assert_equal(self.callbacks.callbacks, {})
+        assert self.callbacks._func_cid_map == {}
+        assert self.callbacks.callbacks == {}
 
     def is_not_empty(self):
-        assert_not_equal(self.callbacks._func_cid_map, {})
-        assert_not_equal(self.callbacks.callbacks, {})
+        assert self.callbacks._func_cid_map != {}
+        assert self.callbacks.callbacks != {}
 
     def test_callback_complete(self):
         # ensure we start with an empty registry
@@ -313,15 +312,15 @@ class Test_callback_registry(object):
 
         # test that we can add a callback
         cid1 = self.connect(self.signal, mini_me.dummy)
-        assert_equal(type(cid1), int)
+        assert type(cid1) == int
         self.is_not_empty()
 
         # test that we don't add a second callback
         cid2 = self.connect(self.signal, mini_me.dummy)
-        assert_equal(cid1, cid2)
+        assert cid1 == cid2
         self.is_not_empty()
-        assert_equal(len(self.callbacks._func_cid_map), 1)
-        assert_equal(len(self.callbacks.callbacks), 1)
+        assert len(self.callbacks._func_cid_map) == 1
+        assert len(self.callbacks.callbacks) == 1
 
         del mini_me
 
@@ -344,65 +343,61 @@ def test_sanitize_sequence():
     assert k == cbook.sanitize_sequence(k)
 
 
-def _kwarg_norm_helper(inp, expected, kwargs_to_norm, warn_count=0):
+fail_mapping = (
+    ({'a': 1}, {'forbidden': ('a')}),
+    ({'a': 1}, {'required': ('b')}),
+    ({'a': 1, 'b': 2}, {'required': ('a'), 'allowed': ()})
+)
 
+warn_passing_mapping = (
+    ({'a': 1, 'b': 2}, {'a': 1}, {'alias_mapping': {'a': ['b']}}, 1),
+    ({'a': 1, 'b': 2}, {'a': 1},
+     {'alias_mapping': {'a': ['b']}, 'allowed': ('a',)}, 1),
+    ({'a': 1, 'b': 2}, {'a': 2}, {'alias_mapping': {'a': ['a', 'b']}}, 1),
+    ({'a': 1, 'b': 2, 'c': 3}, {'a': 1, 'c': 3},
+     {'alias_mapping': {'a': ['b']}, 'required': ('a', )}, 1),
+)
+
+pass_mapping = (
+    ({'a': 1, 'b': 2}, {'a': 1, 'b': 2}, {}),
+    ({'b': 2}, {'a': 2}, {'alias_mapping': {'a': ['a', 'b']}}),
+    ({'b': 2}, {'a': 2},
+     {'alias_mapping': {'a': ['b']}, 'forbidden': ('b', )}),
+    ({'a': 1, 'c': 3}, {'a': 1, 'c': 3},
+     {'required': ('a', ), 'allowed': ('c', )}),
+    ({'a': 1, 'c': 3}, {'a': 1, 'c': 3},
+     {'required': ('a', 'c'), 'allowed': ('c', )}),
+    ({'a': 1, 'c': 3}, {'a': 1, 'c': 3},
+     {'required': ('a', 'c'), 'allowed': ('a', 'c')}),
+    ({'a': 1, 'c': 3}, {'a': 1, 'c': 3},
+     {'required': ('a', 'c'), 'allowed': ()}),
+    ({'a': 1, 'c': 3}, {'a': 1, 'c': 3}, {'required': ('a', 'c')}),
+    ({'a': 1, 'c': 3}, {'a': 1, 'c': 3}, {'allowed': ('a', 'c')}),
+)
+
+
+@pytest.mark.parametrize('inp, kwargs_to_norm', fail_mapping)
+def test_normalize_kwargs_fail(inp, kwargs_to_norm):
+    with pytest.raises(TypeError):
+        cbook.normalize_kwargs(inp, **kwargs_to_norm)
+
+
+@pytest.mark.parametrize('inp, expected, kwargs_to_norm, warn_count',
+                         warn_passing_mapping)
+def test_normalize_kwargs_warn(inp, expected, kwargs_to_norm, warn_count):
     with warnings.catch_warnings(record=True) as w:
         warnings.simplefilter("always")
         assert expected == cbook.normalize_kwargs(inp, **kwargs_to_norm)
         assert len(w) == warn_count
 
 
-def _kwarg_norm_fail_helper(inp, kwargs_to_norm):
-    assert_raises(TypeError, cbook.normalize_kwargs, inp, **kwargs_to_norm)
-
-
-def test_normalize_kwargs():
-    fail_mapping = (
-        ({'a': 1}, {'forbidden': ('a')}),
-        ({'a': 1}, {'required': ('b')}),
-        ({'a': 1, 'b': 2}, {'required': ('a'), 'allowed': ()})
-    )
-
-    for inp, kwargs in fail_mapping:
-        yield _kwarg_norm_fail_helper, inp, kwargs
-
-    warn_passing_mapping = (
-        ({'a': 1, 'b': 2}, {'a': 1}, {'alias_mapping': {'a': ['b']}}, 1),
-        ({'a': 1, 'b': 2}, {'a': 1}, {'alias_mapping': {'a': ['b']},
-                                      'allowed': ('a',)}, 1),
-        ({'a': 1, 'b': 2}, {'a': 2}, {'alias_mapping': {'a': ['a', 'b']}}, 1),
-
-        ({'a': 1, 'b': 2, 'c': 3}, {'a': 1, 'c': 3},
-         {'alias_mapping': {'a': ['b']}, 'required': ('a', )}, 1),
-
-    )
-
-    for inp, exp, kwargs, wc in warn_passing_mapping:
-        yield _kwarg_norm_helper, inp, exp, kwargs, wc
-
-    pass_mapping = (
-        ({'a': 1, 'b': 2}, {'a': 1, 'b': 2}, {}),
-        ({'b': 2}, {'a': 2}, {'alias_mapping': {'a': ['a', 'b']}}),
-        ({'b': 2}, {'a': 2}, {'alias_mapping': {'a': ['b']},
-                              'forbidden': ('b', )}),
-
-        ({'a': 1, 'c': 3}, {'a': 1, 'c': 3}, {'required': ('a', ),
-                                              'allowed': ('c', )}),
-
-        ({'a': 1, 'c': 3}, {'a': 1, 'c': 3}, {'required': ('a', 'c'),
-                                              'allowed': ('c', )}),
-        ({'a': 1, 'c': 3}, {'a': 1, 'c': 3}, {'required': ('a', 'c'),
-                                              'allowed': ('a', 'c')}),
-        ({'a': 1, 'c': 3}, {'a': 1, 'c': 3}, {'required': ('a', 'c'),
-                                              'allowed': ()}),
-
-        ({'a': 1, 'c': 3}, {'a': 1, 'c': 3}, {'required': ('a', 'c')}),
-        ({'a': 1, 'c': 3}, {'a': 1, 'c': 3}, {'allowed': ('a', 'c')}),
-
-    )
-
-    for inp, exp, kwargs in pass_mapping:
-        yield _kwarg_norm_helper, inp, exp, kwargs
+@pytest.mark.parametrize('inp, expected, kwargs_to_norm',
+                         pass_mapping)
+def test_normalize_kwargs_pass(inp, expected, kwargs_to_norm):
+    with warnings.catch_warnings(record=True) as w:
+        warnings.simplefilter("always")
+        assert expected == cbook.normalize_kwargs(inp, **kwargs_to_norm)
+        assert len(w) == 0
 
 
 def test_to_prestep():
@@ -466,14 +461,17 @@ def test_to_midstep():
 
 
 def test_step_fails():
-    assert_raises(ValueError, cbook._step_validation,
-                  np.arange(12).reshape(3, 4), 'a')
-    assert_raises(ValueError, cbook._step_validation,
-                  np.arange(12), 'a')
-    assert_raises(ValueError, cbook._step_validation,
-                  np.arange(12))
-    assert_raises(ValueError, cbook._step_validation,
-                  np.arange(12), np.arange(3))
+    with pytest.raises(ValueError):
+        cbook._step_validation(np.arange(12).reshape(3, 4), 'a')
+
+    with pytest.raises(ValueError):
+        cbook._step_validation(np.arange(12), 'a')
+
+    with pytest.raises(ValueError):
+        cbook._step_validation(np.arange(12))
+
+    with pytest.raises(ValueError):
+        cbook._step_validation(np.arange(12), np.arange(3))
 
 
 def test_grouper():
