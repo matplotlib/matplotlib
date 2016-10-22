@@ -180,9 +180,6 @@ script:
       pip install $PRE requests==2.9.2 linkchecker
       linkchecker build/html/index.html
     fi
-  # Currently disabled because of differece in behaviour
-  # between `pytest-cov` and `nose-coverage`
-  #- if [[ $USE_PYTEST == true ]]; then coveralls; fi
   - rm -rf $HOME/.cache/matplotlib/tex.cache
   - rm -rf $HOME/.cache/matplotlib/test_cache
 
@@ -223,6 +220,6 @@ after_success:
     else
       echo "Will only deploy docs build from matplotlib master branch"
     fi
-    if [[ $NOSE_ARGS =~ "--with-coverage" ]]; then
+    if [[ $NOSE_ARGS =~ "--with-coverage" || $USE_PYTEST == true ]]; then
       coveralls
     fi
