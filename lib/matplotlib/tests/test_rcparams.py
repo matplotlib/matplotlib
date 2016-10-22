@@ -5,8 +5,8 @@ import six
 
 import io
 import os
-import sys
 import warnings
+from collections import OrderedDict
 
 from cycler import cycler, Cycler
 
@@ -16,7 +16,6 @@ from matplotlib.tests import assert_str_equal
 from matplotlib.testing.decorators import cleanup, knownfailureif
 import matplotlib.colors as mcolors
 from nose.tools import assert_true, assert_raises, assert_equal
-from nose.plugins.skip import SkipTest
 import nose
 from itertools import chain
 import numpy as np
@@ -115,9 +114,6 @@ font.weight: normal""".lstrip()
 
 
 def test_rcparams_update():
-    if sys.version_info[:2] < (2, 7):
-        raise nose.SkipTest("assert_raises as context manager "
-                            "not supported with Python < 2.7")
     rc = mpl.RcParams({'figure.figsize': (3.5, 42)})
     bad_dict = {'figure.figsize': (3.5, 42, 1)}
     # make sure validation happens on input
@@ -131,9 +127,6 @@ def test_rcparams_update():
 
 
 def test_rcparams_init():
-    if sys.version_info[:2] < (2, 7):
-        raise nose.SkipTest("assert_raises as context manager "
-                            "not supported with Python < 2.7")
     with assert_raises(ValueError):
         with warnings.catch_warnings():
             warnings.filterwarnings('ignore',
@@ -172,14 +165,6 @@ def test_Bug_2543():
             mpl.rcParams['svg.embed_char_paths'] = False
             assert_true(mpl.rcParams['svg.fonttype'] == "none")
 
-
-@cleanup
-def test_Bug_2543_newer_python():
-    # only split from above because of the usage of assert_raises
-    # as a context manager, which only works in 2.7 and above
-    if sys.version_info[:2] < (2, 7):
-        raise nose.SkipTest("assert_raises as context manager not supported with Python < 2.7")
-    from matplotlib.rcsetup import validate_bool_maybe_none, validate_bool
     with assert_raises(ValueError):
         validate_bool_maybe_none("blah")
     with assert_raises(ValueError):
@@ -249,9 +234,6 @@ def _validation_test_helper(validator, arg, target):
 
 
 def _validation_fail_helper(validator, arg, exception_type):
-    if sys.version_info[:2] < (2, 7):
-        raise nose.SkipTest("assert_raises as context manager not "
-                            "supported with Python < 2.7")
     with assert_raises(exception_type):
         validator(arg)
 
@@ -394,11 +376,6 @@ def test_rcparams_reset_after_fail():
     # There was previously a bug that meant that if rc_context failed and
     # raised an exception due to issues in the supplied rc parameters, the
     # global rc parameters were left in a modified state.
-
-    if sys.version_info[:2] >= (2, 7):
-        from collections import OrderedDict
-    else:
-        raise SkipTest("Test can only be run in Python >= 2.7 as it requires OrderedDict")
 
     with mpl.rc_context(rc={'text.usetex': False}):
 

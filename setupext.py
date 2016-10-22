@@ -18,7 +18,6 @@ import versioneer
 
 
 PY3min = (sys.version_info[0] >= 3)
-PY32min = (PY3min and sys.version_info[1] >= 2 or sys.version_info[0] > 3)
 
 
 def _get_home():
@@ -92,7 +91,7 @@ options = {
 
 setup_cfg = os.environ.get('MPLSETUPCFG', 'setup.cfg')
 if os.path.exists(setup_cfg):
-    if PY32min:
+    if PY3min:
         config = configparser.ConfigParser()
     else:
         config = configparser.SafeConfigParser()
@@ -799,7 +798,7 @@ class Tests(OptionalPackage):
         except ImportError:
             msgs += [bad_nose]
 
-        if sys.version_info >= (3, 3):
+        if PY3min:
             msgs += ['using unittest.mock']
         else:
             try:
@@ -924,7 +923,7 @@ class Numpy(SetupPackage):
 
     @staticmethod
     def include_dirs_hook():
-        if sys.version_info[0] >= 3:
+        if PY3min:
             import builtins
             if hasattr(builtins, '__NUMPY_SETUP__'):
                 del builtins.__NUMPY_SETUP__
@@ -1141,11 +1140,11 @@ class FreeType(SetupPackage):
                         pass
 
             if not os.path.isfile(tarball_path):
-
-                if sys.version_info[0] == 2:
-                    from urllib import urlretrieve
-                else:
+                if PY3min:
                     from urllib.request import urlretrieve
+                else:
+                    from urllib import urlretrieve
+
                 if not os.path.exists('build'):
                     os.makedirs('build')
 
@@ -1494,14 +1493,6 @@ class Dateutil(SetupPackage):
         try:
             import dateutil
         except ImportError:
-            # dateutil 2.1 has a file encoding bug that breaks installation on
-            # python 3.3
-            # https://github.com/matplotlib/matplotlib/issues/2373
-            # hack around the problem by installing the (working) v2.0
-            major, minor1, _, _, _ = sys.version_info
-            if self.version is None and (major, minor1) == (3, 3):
-                self.version = '!=2.1'
-
             return (
                 "dateutil was not found. It is required for date axis "
                 "support. pip/easy_install may attempt to install it "
@@ -1520,7 +1511,7 @@ class FuncTools32(SetupPackage):
     name = "functools32"
 
     def check(self):
-        if sys.version_info[:2] < (3, 2):
+        if not PY3min:
             try:
                 import functools32
             except ImportError:
@@ -1533,7 +1524,7 @@ class FuncTools32(SetupPackage):
             return "Not required"
 
     def get_install_requires(self):
-        if sys.version_info[:2] < (3, 2):
+        if not PY3min:
             return ['functools32']
         else:
             return []
@@ -1543,7 +1534,7 @@ class Subprocess32(SetupPackage):
     name = "subprocess32"
 
     def check(self):
-        if sys.version_info[:2] < (3, 2):
+        if not PY3min:
             try:
                 import subprocess32
             except ImportError:
@@ -1557,7 +1548,7 @@ class Subprocess32(SetupPackage):
             return "Not required"
 
     def get_install_requires(self):
-        if sys.version_info[:2] < (3, 2) and os.name == 'posix':
+        if not PY3min and os.name == 'posix':
             return ['subprocess32']
         else:
             return []
