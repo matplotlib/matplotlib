@@ -6397,7 +6397,7 @@ or tuple of floats
                     xvals.append(x.copy())
                     yvals.append(y.copy())
 
-            #stepfill is closed, step is not
+            # stepfill is closed, step is not
             split = -1 if fill else 2 * len(bins)
             # add patches in reverse order so that when stacking,
             # items lower in the stack are plottted on top of
@@ -6419,9 +6419,13 @@ or tuple of floats
                 xmin0 = max(_saved_bounds[0]*0.9, minimum)
                 xmax = self.dataLim.intervalx[1]
                 for m in n:
-                    if np.sum(m) > 0:  # make sure there are counts
-                        xmin = np.amin(m[m != 0])
+                    # make sure there are counts
+                    if np.sum(m) > 0:
                         # filter out the 0 height bins
+                        xmin = np.amin(m[m != 0])
+                    # If no counts, set min to zero
+                    else:
+                        xmin = 0.0
                 xmin = max(xmin*0.9, minimum) if not input_empty else minimum
                 xmin = min(xmin0, xmin)
                 self.dataLim.intervalx = (xmin, xmax)
@@ -6430,9 +6434,13 @@ or tuple of floats
                 ymax = self.dataLim.intervaly[1]
 
                 for m in n:
-                    if np.sum(m) > 0:  # make sure there are counts
-                        ymin = np.amin(m[m != 0])
+                    # make sure there are counts
+                    if np.sum(m) > 0:
                         # filter out the 0 height bins
+                        ymin = np.amin(m[m != 0])
+                    # If no counts, set min to zero
+                    else:
+                        ymin = 0.0
                 ymin = max(ymin*0.9, minimum) if not input_empty else minimum
                 ymin = min(ymin0, ymin)
                 self.dataLim.intervaly = (ymin, ymax)
