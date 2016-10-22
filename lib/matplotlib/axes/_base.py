@@ -582,6 +582,13 @@ class _AxesBase(martist.Artist):
             right=rcParams['ytick.right'] and rcParams['ytick.major.right'],
             which='major')
 
+    def __getstate__(self):
+        # The renderer should be re-created by the figure, and then cached at
+        # that point.
+        state = super(_AxesBase, self).__getstate__()
+        state['_cachedRenderer'] = None
+        return state
+
     def __setstate__(self, state):
         self.__dict__ = state
         # put the _remove_method back on all artists contained within the axes
