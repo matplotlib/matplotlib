@@ -79,7 +79,7 @@ Functions that don't exist in MATLAB, but are useful anyway:
     Remove the mean from a line.
 
 :func:`demean`
-    Remove the mean from a line. This function is the same as as
+    Remove the mean from a line. This function is the same as
     :func:`detrend_mean` except for the default *axis*.
 
 :func:`detrend_linear`
@@ -369,7 +369,7 @@ def demean(x, axis=0):
         :func:`delinear` and :func:`denone` are other detrend algorithms.
 
     :func:`detrend_mean`
-        This function is the same as as :func:`detrend_mean` except for the
+        This function is the same as :func:`detrend_mean` except for the
         default *axis*.
     '''
     return detrend_mean(x, axis=axis)
@@ -392,7 +392,7 @@ def detrend_mean(x, axis=None):
     See Also
     --------
     :func:`demean`
-        This function is the same as as :func:`demean` except for the default
+        This function is the same as :func:`demean` except for the default
         *axis*.
 
     :func:`detrend_linear`
@@ -438,7 +438,7 @@ def detrend_none(x, axis=None):
     See Also
     --------
     :func:`denone`
-        This function is the same as as :func:`denone` except for the default
+        This function is the same as :func:`denone` except for the default
         *axis*, which has no effect.
 
     :func:`detrend_mean`
@@ -469,7 +469,7 @@ def detrend_linear(y):
     See Also
     --------
     :func:`delinear`
-        This function is the same as as :func:`delinear` except for the default
+        This function is the same as :func:`delinear` except for the default
         *axis*.
 
     :func:`detrend_mean`
