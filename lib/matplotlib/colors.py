@@ -959,39 +959,73 @@ class Normalize(object):
 
 
 class FuncNorm(Normalize):
+    """
+    Creates a normalizer using a custom function
 
-    def __init__(self, f, finv=None,
-                 vmin=None, vmax=None, clip=False):
+    The normalizer will be a function mapping the data values into colormap
+    values in the [0,1] range.
+    """
+
+    def __init__(self, f, finv=None, **normalize_kw):
+        """
+        Specify the function to be used (and its inverse), as well as other
+        parameters to be passed to `Normalize`. The normalization will be
+        calculated as (f(x)-f(vmin))/(f(max)-f(vmin)).
+
+        Parameters
+        ----------
+        f : callable or string
+            Function to be used for the normalization receiving a single
+            parameter, compatible with scalar values, and ndarrays.
+            Alternatively a string from the list ['linear','quadratic',
+            'cubic','sqrt','crt','log'] can be used.
+        finv : callable, optional
+            Inverse function of `f` that satisfies finv(f(x))==x. It is
+            optional in cases where f is provided as a string.
+        normalize_kw : dict, optional
+            Dict with keywords passed to `matplotlib.colors.Normalize`.
+
+        """
 
         f, finv = FuncNorm._fun_parser([f, finv])
         if finv is None:
             raise ValueError("Inverse function not provided")
 
-        if vmin is not None and vmax is not None:
-            if vmin >= vmax:
-                raise ValueError("vmin must be less than vmax")
-
         self._f = f
         self._finv = finv
-        if vmin is not None:
-            vmin = float(vmin)
-        if vmax is not None:
-            vmax = float(vmax)
 
-        super(FuncNorm, self).__init__(vmin, vmax, clip)
+        super(FuncNorm, self).__init__(**normalize_kw)
 
     def _update_f(self, vmin, vmax):
         return
 
     def __call__(self, value, clip=None):
+        """
+        Normalizes `value` data in the `[vmin, vmax]` interval into
+        the `[0.0, 1.0]` interval and returns it.
+
+        Parameters
+        ----------
+        value : float or ndarray of floats
+            Data to be normalized.
+        clip : boolean, optional
+            Whether to clip the data outside the `[vmin, vmax]` limits.
+            Default `self.clip` from `Normalize` (which defaults to `False`).
+
+        Returns
+        -------
+        result : masked array of floats
+            Normalized data in the `[0.0, 1.0]` interval.
+
+        """
         if clip is None:
             clip = self.clip
 
         result, is_scalar = self.process_value(value)
         self.autoscale_None(result)
 
-        vmin = self.vmin
-        vmax = self.vmax
+        vmin = float(self.vmin)
+        vmax = float(self.vmax)
 
         self._update_f(vmin, vmax)
 
@@ -1003,6 +1037,21 @@ class FuncNorm(Normalize):
         return np.ma.array(resultnorm)
 
     def inverse(self, value):
+        """
+        Performs the inverse normalization from the `[0.0, 1.0]` into the
+        `[vmin, vmax]` interval and returns it.
+
+        Parameters
+        ----------
+        value : float or ndarray of floats
+            Data in the `[0.0, 1.0]` interval.
+
+        Returns
+        -------
+        result : float or ndarray of floats
+            Data before normalization.
+
+        """
         vmin = self.vmin
         vmax = self.vmax
         self._update_f(vmin, vmax)
@@ -1048,24 +1097,60 @@ class FuncNorm(Normalize):
             return (lambda x: (fun(x) - fun(0.)) / (fun(1.) - fun(0.)))
 
     def ticks(self, N=13):
+        """
+        Returns an automatic list of `N` points in the data space to be used
+        as ticks in the colorbar.
+
+        Parameters
+        ----------
+        N : integer, optional
+            Number of ticks to be returned. Default 13.
+
+        Returns
+        -------
+        ticks : ndarray
+            1d array of length `N` with the proposed tick locations.
+
+        """
         ticks = self.inverse(np.linspace(0, 1, N))
         finalticks = np.zeros(ticks.shape, dtype=np.bool)
         finalticks[0] = True
         ticks = FuncNorm._round_ticks(ticks, finalticks)
-
         return ticks
 
     def autoscale(self, A):
-        self.vmin = np.ma.min(A)
-        self.vmax = np.ma.max(A)
+        """
+        Autoscales the normalization based on the maximum and minimum values
+        of `A`.
+
+        Parameters
+        ----------
+        A : ndarray or maskedarray
+            Array used to calculate the maximum and minimum values.
+
+        """
+        self.vmin = float(np.ma.min(A))
+        self.vmax = float(np.ma.max(A))
 
     def autoscale_None(self, A):
-        if self.vmin is not None and self.vmax is not None:
-            return
+        """
+        Autoscales the normalization based on the maximum and minimum values
+        of `A`, only if the limits were not already set.
+
+        Parameters
+        ----------
+        A : ndarray or maskedarray
+            Array used to calculate the maximum and minimum values.
+
+        """
         if self.vmin is None:
             self.vmin = float(np.ma.min(A))
         if self.vmax is None:
             self.vmax = float(np.ma.max(A))
+        self.vmin = float(self.vmin)
+        self.vmax = float(self.vmax)
+        if self.vmin > self.vmax:
+            raise ValueError("vmin must be smaller than vmax")
 
     @staticmethod
     def _round_ticks(ticks, permanenttick):
@@ -1083,37 +1168,56 @@ class FuncNorm(Normalize):
 
 class PiecewiseNorm(FuncNorm):
     """
-    Normalization allowing the definition of any non linear
+    Normalization allowing the definition of any linear or non-linear
     function for different ranges of the colorbar.
-    >>> norm=PiecewiseNorm(fpos=(lambda x: x**0.5),
-    >>>                    fposinv=(lambda x: x**2),
-    >>>                    fneg=(lambda x: x**0.25),
-    >>>                    fneginv=(lambda x: x**4))
+
     """
 
     def __init__(self, flist,
                  finvlist=None,
-                 refpoints_cm=[None], refpoints_data=[None],
-                 vmin=None, vmax=None, clip=False):
+                 refpoints_data=[None],
+                 refpoints_cm=[None],
+                 **normalize_kw):
         """
-        *fpos*:
-        Non-linear function used to normalize the positive range. Must be
-        able to operate take floating point numbers and numpy arrays.
-        *fposinv*:
-        Inverse function of *fpos*.
-        *fneg*:
-        Non-linear function used to normalize the negative range. It
-        not need to take in to account the negative sign. Must be
-        able to operate take floating point numbers and numpy arrays.
-        *fneginv*:
-        Inverse function of *fneg*.
-        *center*: Value between 0. and 1. indicating the color in the colorbar
-        that will be assigned to the zero value.
-        """
+        Specify a series of functions, as well as intervals to map the data
+        space into `[0,1]`. Each individual function may not diverge in the
+        [0,1] interval, as they will be normalized as
+        fnorm(x)=(f(x)-f(0))/(f(1)-f(0)), to guarantee that fnorm(0)=0 and
+        fnorm(1)=1. Then each function will be transformed to map a different
+        data range [d0, d1] into colormap ranges [cm0, cm1] as
+        ftrans=fnorm((x-d0)/(d1-d0))*(cm1-cm0)+cm0.
 
-        if vmin is not None and vmax is not None:
-            if vmin >= vmax:
-                raise ValueError("vmin must be less than vmax")
+        Parameters
+        ----------
+        flist : list of callable or strings
+            List of functions to be used for each of the intervals.
+            Each of the elements must meet the same requirements as the
+            parameter `f` from `FuncNorm`.
+        finvlist : list of callable or strings optional
+            List of the inverse functions corresponding to each function in
+            `flist`. Each of the elements must meet the same requirements as
+            the parameter `finv` from `FuncNorm`. None may be provided as
+            inverse for the functions that were specified as a string in
+            `flist`. It must satisfy `len(flist)==len(finvlist)`.
+        refpoints_cm, refpoints_data : list or array of scalars
+            Reference points for the colorbar ranges which will go as
+            `[0., refpoints_cm[0]]`,... , `[refpoints_cm[i],
+             refpoints_cm[i+1]]`, `[refpoints_cm[-1], 0.]`, and for the data
+             ranges which will go as `[self.vmin, refpoints_data[0]]`,... ,
+             `[refpoints_data[i], refpoints_data[i+1]]`,
+             `[refpoints_cm[-1], self.vmax]`
+             It must satisfy
+             `len(flist)==len(refpoints_cm)+1==len(refpoints_data)+1`.
+             `refpoints_data` must consist of increasing values
+             in the (vmin, vmax) range.
+             `refpoints_cm` must consist of increasing values be in
+             the (0.0, 1.0) range.
+            The final normalization will meet:
+            `norm(refpoints_data[i])==refpoints_cm[i]`.
+        normalize_kw : dict, optional
+            Dict with keywords passed to `matplotlib.colors.Normalize`.
+
+        """
 
         if finvlist is None:
             finvlist = [None] * len(flist)
@@ -1158,7 +1262,9 @@ class PiecewiseNorm(FuncNorm):
 
         # We just say linear, becuase we cannot really make the function unless
         # We now vmin, and vmax, and that does happen till the object is called
-        super(PiecewiseNorm, self).__init__('linear', None, vmin, vmax, clip)
+        super(PiecewiseNorm, self).__init__('linear', None, **normalize_kw)
+        if self.vmin is not None and self.vmax is not None:
+            self._update_f(self.vmin, self.vmax)
 
     def _build_f(self):
         vmin = self.vmin
@@ -1220,7 +1326,6 @@ class PiecewiseNorm(FuncNorm):
 
         maskmaker = (lambda x: [np.array([mi(x)]) if np.isscalar(
             x) else mi(x) for mi in masks])
-        x = np.array([0.5, 1])
         finv = (lambda x: np.piecewise(x, maskmaker(x), funcs))
         return finv
 
@@ -1230,7 +1335,21 @@ class PiecewiseNorm(FuncNorm):
         return
 
     def ticks(self, N=None):
+        """
+        Returns an automatic list of *N* points in the data space to be used
+        as ticks in the colorbar.
 
+        Parameters
+        ----------
+        N : integer, optional
+            Number of ticks to be returned. Default 13.
+
+        Returns
+        -------
+        ticks : ndarray
+            1d array of length *N* with the proposed tick locations.
+
+        """
         rp_cm = self._refpoints_cm
         widths_cm = np.diff(rp_cm)
 
@@ -1272,20 +1391,51 @@ class PiecewiseNorm(FuncNorm):
 
 class MirrorPiecewiseNorm(PiecewiseNorm):
     """
-    Normalization allowing the definition of data ranges and colormap ranges,
-    with a non linear map between each.
-    >>> norm=PiecewiseNorm(fpos=(lambda x: x**0.5),
-    >>>                    fposinv=(lambda x: x**2),
-    >>>                    fneg=(lambda x: x**0.25),
-    >>>                    fneginv=(lambda x: x**4))
+    Normalization alowing a dual `PiecewiseNorm` simmetrically around a point.
+
+    Data above `center_data` will be normalized independently that data below
+    it. If only one function is give, the normalization will be symmetric
+    around that point.
     """
 
     def __init__(self,
                  fpos, fposinv=None,
                  fneg=None, fneginv=None,
-                 center_cm=.5, center_data=0.0,
-                 vmin=None, vmax=None, clip=False):
+                 center_data=0.0, center_cm=.5,
+                 **normalize_kw):
+        """
+        Specify a series of functions, as well as intervals to map the data
+        space into `[0,1]`. Each individual function may not diverge in the
+        [0,1] interval, as they will be normalized as
+        fnorm(x)=(f(x)-f(0))/(f(1)-f(0)), to guarantee that fnorm(0)=0 and
+        fnorm(1)=1. Then each function will be transformed to map a different
+        data range [d0, d1] into colormap ranges [cm0, cm1] as
+        ftrans=fnorm((x-d0)/(d1-d0))*(cm1-cm0)+cm0.
 
+        Parameters
+        ----------
+        fpos, fposinv : callable or string
+            Functions to be used for normalization for values
+            above `center_data` using `PiecewiseNorm`. They must meet the
+            same requirements as the parameters `f` and `finv` from `FuncNorm`.
+        fneg, fneginv : callable or string, optional
+            Functions to be used for normalization for values
+            below `center_data` using `PiecewiseNorm`. They must meet the
+            same requirements as the parameters `f` and `finv` from `FuncNorm`.
+            The transformation will be applied mirrored around center_data,
+            i.e. the actual normalization passed to `PiecewiseNorm` will be
+            (-fneg(-x + 1) + 1)). Default `fneg`=`fpos`.
+        center_data : float, optional
+            Value in the data that will separate the use of `fneg` and `fpos`.
+            Must be in the (vmin, vmax) range. Default 0.0.
+        center_cm : float, optional
+            Normalized value that will correspond to `center_data`.
+            Must be in the (0.0, 1.0) range.
+            Default 0.5.
+        normalize_kw : dict, optional
+            Dict with keywords passed to `matplotlib.colors.Normalize`.
+
+        """
         if fneg is None and fneginv is not None:
             raise ValueError("fneginv not expected without fneg")
 
@@ -1303,10 +1453,6 @@ class MirrorPiecewiseNorm(PiecewiseNorm):
             raise ValueError(
                 "Inverse function must be provided for the negative interval")
 
-        if vmin is not None and vmax is not None:
-            if vmin >= vmax:
-                raise ValueError("vmin must be less than vmax")
-
         if center_cm <= 0.0 or center_cm >= 1.0:
             raise ValueError("center must be within the (0.0,1.0) interval")
 
@@ -1321,26 +1467,42 @@ class MirrorPiecewiseNorm(PiecewiseNorm):
                    finvlist=finvlist,
                    refpoints_cm=refpoints_cm,
                    refpoints_data=refpoints_data,
-                   vmin=vmin, vmax=vmax, clip=clip))
+                   **normalize_kw))
 
 
 class MirrorRootNorm(MirrorPiecewiseNorm):
     """
     Root normalization for positive and negative data.
-    >>> norm=PositiveRootNorm(orderneg=3,orderpos=7)
+
+    Data above `center_data` will be normalized with a root of the order
+    `orderpos` and data below it with a symmetric root of order `orderg neg`.
+    If only `orderpos` function is given, the normalization will be completely
+    mirrored.
     """
 
     def __init__(self, orderpos=2, orderneg=None,
                  center_cm=0.5, center_data=0.0,
-                 vmin=None, vmax=None, clip=False,
-                 ):
+                 **normalize_kw):
         """
-        *orderpos*:
-        Degree of the root used to normalize the data for the positive
-        direction.
-        *orderneg*:
-        Degree of the root used to normalize the data for the negative
-        direction. By default equal to *orderpos*.
+        Parameters
+        ----------
+        orderpos : float or int, optional
+            Degree of the root to be used for normalization of values
+            above `center_data` using `MirrorPiecewiseNorm`. Default 2.
+        fneg, fneginv : callable or string, optional
+            Degree of the root to be used for normalization of values
+            below `center_data` using `MirrorPiecewiseNorm`. Default
+            `orderpos`.
+        center_data : float, optional
+            Value in the data that will separate range. Must be
+            in the (vmin, vmax) range.
+            Default 0.0.
+        center_cm : float, optional
+            Normalized value that will correspond do `center_data`. Must be
+            in the (0.0, 1.0) range.
+            Default 0.5.
+        normalize_kw : dict, optional
+            Dict with keywords passed to `matplotlib.colors.Normalize`.
         """
 
         if orderneg is None:
@@ -1352,25 +1514,36 @@ class MirrorRootNorm(MirrorPiecewiseNorm):
                    fposinv=(lambda x: x**(orderpos)),
                    center_cm=center_cm,
                    center_data=center_data,
-                   vmin=vmin, vmax=vmax, clip=clip))
+                   **normalize_kw))
 
 
 class RootNorm(FuncNorm):
     """
-    Root normalization for positive data.
-    >>> norm=PositiveRootNorm(vmin=0,orderpos=7)
+    Simple root normalization using FuncNorm.
+
+    It defines the root normalization as function of the order of the root.
+    Data will be normalized as (f(x)-f(`vmin`))/(f(`vmax`)-f(`vmin`)), where
+    f(x)=x**(1./`order`)
+
     """
 
-    def __init__(self, order=2, vmin=None, vmax=None, clip=False):
+    def __init__(self, order=2, **normalize_kw):
         """
-        *order*:
-        Degree of the root used to normalize the data for the positive
-        direction.
+        Parameters
+        ----------
+        order : float or int, optional
+            Degree of the root to be used for normalization. Default 2.
+        normalize_kw : dict, optional
+            Dict with keywords passed to `matplotlib.colors.Normalize`.
+
+        Notes
+        -----
+        Only valid for arrays with possitive values, or setting `vmin >= 0`.
         """
         (super(RootNorm, self)
          .__init__(f=(lambda x: x**(1. / order)),
                    finv=(lambda x: x**(order)),
-                   vmin=vmin, vmax=vmax, clip=clip))
+                   **normalize_kw))
 
 
 class LogNorm(Normalize):
