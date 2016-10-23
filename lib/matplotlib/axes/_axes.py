@@ -6544,40 +6544,37 @@ or tuple of floats
 
         Parameters
         ----------
-          *x*: 1-D array or sequence
+        x: 1-D array or sequence
             Array or sequence containing the data
 
         %(Spectral)s
 
         %(PSD)s
 
-          *noverlap*: integer
+        noverlap: integer
             The number of points of overlap between segments.
             The default value is 0 (no overlap).
 
-          *Fc*: integer
+        Fc: integer
             The center frequency of *x* (defaults to 0), which offsets
             the x extents of the plot to reflect the frequency range used
             when a signal is acquired and then filtered and downsampled to
             baseband.
 
-          *return_line*: bool
+        return_line: bool
             Whether to include the line object plotted in the returned values.
             Default is False.
 
         Returns
         -------
-        If *return_line* is False, returns the tuple (*Pxx*, *freqs*).
-        If *return_line* is True, returns the tuple (*Pxx*, *freqs*. *line*):
-
-          *Pxx*: 1-D array
+        Pxx: 1-D array
             The values for the power spectrum `P_{xx}` before scaling
             (real valued)
 
-          *freqs*: 1-D array
+        freqs: 1-D array
             The frequencies corresponding to the elements in *Pxx*
 
-          *line*: a :class:`~matplotlib.lines.Line2D` instance
+        line: a :class:`~matplotlib.lines.Line2D` instance
             The line created by this function.
             Only returend if *return_line* is True.
 
@@ -6589,8 +6586,8 @@ or tuple of floats
 
         References
         ----------
-          Bendat & Piersol -- Random Data: Analysis and Measurement
-          Procedures, John Wiley & Sons (1986)
+        Bendat & Piersol -- Random Data: Analysis and Measurement Procedures,
+        John Wiley & Sons (1986)
 
         kwargs control the :class:`~matplotlib.lines.Line2D` properties:
 
@@ -6602,17 +6599,16 @@ or tuple of floats
 
         See Also
         --------
-            :func:`specgram`
-                :func:`specgram` differs in the default overlap; in not
-                returning the mean of the segment periodograms; in  returning
-                the times of the segments; and in plotting a colormap instead
-                of a line.
+        :func:`specgram`
+            :func:`specgram` differs in the default overlap; in not returning
+            the mean of the segment periodograms; in returning the times of the
+            segments; and in plotting a colormap instead of a line.
 
-            :func:`magnitude_spectrum`
-                :func:`magnitude_spectrum` plots the magnitude spectrum.
+        :func:`magnitude_spectrum`
+            :func:`magnitude_spectrum` plots the magnitude spectrum.
 
-            :func:`csd`
-                :func:`csd` plots the spectral density between two signals.
+        :func:`csd`
+            :func:`csd` plots the spectral density between two signals.
         """
         if not self._hold:
             self.cla()
@@ -6678,40 +6674,37 @@ or tuple of floats
 
         Parameters
         ----------
-          *x*, *y*: 1-D arrays or sequences
+        x, y: 1-D arrays or sequences
             Arrays or sequences containing the data
 
         %(Spectral)s
 
         %(PSD)s
 
-          *noverlap*: integer
+        noverlap: integer
             The number of points of overlap between segments.
             The default value is 0 (no overlap).
 
-          *Fc*: integer
+        Fc: integer
             The center frequency of *x* (defaults to 0), which offsets
             the x extents of the plot to reflect the frequency range used
             when a signal is acquired and then filtered and downsampled to
             baseband.
 
-          *return_line*: bool
+        return_line: bool
             Whether to include the line object plotted in the returned values.
             Default is False.
 
         Returns
         -------
-        If *return_line* is False, returns the tuple (*Pxy*, *freqs*).
-        If *return_line* is True, returns the tuple (*Pxy*, *freqs*. *line*):
-
-          *Pxy*: 1-D array
+        Pxy: 1-D array
             The values for the cross spectrum `P_{xy}` before scaling
             (complex valued)
 
-          *freqs*: 1-D array
+        freqs: 1-D array
             The frequencies corresponding to the elements in *Pxy*
 
-          *line*: a :class:`~matplotlib.lines.Line2D` instance
+        line: a :class:`~matplotlib.lines.Line2D` instance
             The line created by this function.
             Only returend if *return_line* is True.
 
@@ -6723,8 +6716,8 @@ or tuple of floats
 
         References
         ----------
-          Bendat & Piersol -- Random Data: Analysis and Measurement
-          Procedures, John Wiley & Sons (1986)
+        Bendat & Piersol -- Random Data: Analysis and Measurement Procedures,
+        John Wiley & Sons (1986)
 
         kwargs control the Line2D properties:
 
@@ -6736,8 +6729,8 @@ or tuple of floats
 
         See Also
         --------
-            :func:`psd`
-                :func:`psd` is the equivalent to setting y=x.
+        :func:`psd`
+            :func:`psd` is the equivalent to setting y=x.
         """
         if not self._hold:
             self.cla()
@@ -6788,20 +6781,20 @@ or tuple of floats
 
         Parameters
         ----------
-          *x*: 1-D array or sequence
+        x: 1-D array or sequence
             Array or sequence containing the data
 
         %(Spectral)s
 
         %(Single_Spectrum)s
 
-          *scale*: [ 'default' | 'linear' | 'dB' ]
+        scale: [ 'default' | 'linear' | 'dB' ]
             The scaling of the values in the *spec*.  'linear' is no scaling.
             'dB' returns the values in dB scale.  When *mode* is 'density',
             this is dB power (10 * log10).  Otherwise this is dB amplitude
             (20 * log10). 'default' is 'linear'.
 
-          *Fc*: integer
+        Fc: integer
             The center frequency of *x* (defaults to 0), which offsets
             the x extents of the plot to reflect the frequency range used
             when a signal is acquired and then filtered and downsampled to
@@ -6809,15 +6802,13 @@ or tuple of floats
 
         Returns
         -------
-        Returns the tuple (*spectrum*, *freqs*, *line*):
-
-          *spectrum*: 1-D array
+        spectrum: 1-D array
             The values for the magnitude spectrum before scaling (real valued)
 
-          *freqs*: 1-D array
+        freqs: 1-D array
             The frequencies corresponding to the elements in *spectrum*
 
-          *line*: a :class:`~matplotlib.lines.Line2D` instance
+        line: a :class:`~matplotlib.lines.Line2D` instance
             The line created by this function
 
         kwargs control the :class:`~matplotlib.lines.Line2D` properties:
@@ -6830,20 +6821,20 @@ or tuple of floats
 
         See Also
         --------
-            :func:`psd`
-                :func:`psd` plots the power spectral density.`.
+        :func:`psd`
+            :func:`psd` plots the power spectral density.`.
 
-            :func:`angle_spectrum`
-                :func:`angle_spectrum` plots the angles of the corresponding
-                frequencies.
+        :func:`angle_spectrum`
+            :func:`angle_spectrum` plots the angles of the corresponding
+            frequencies.
 
-            :func:`phase_spectrum`
-                :func:`phase_spectrum` plots the phase (unwrapped angle) of the
-                corresponding frequencies.
+        :func:`phase_spectrum`
+            :func:`phase_spectrum` plots the phase (unwrapped angle) of the
+            corresponding frequencies.
 
-            :func:`specgram`
-                :func:`specgram` can plot the magnitude spectrum of segments
-                within the signal in a colormap.
+        :func:`specgram`
+            :func:`specgram` can plot the magnitude spectrum of segments within
+            the signal in a colormap.
         """
         if not self._hold:
             self.cla()
@@ -6891,14 +6882,14 @@ or tuple of floats
 
         Parameters
         ----------
-          *x*: 1-D array or sequence
+        x: 1-D array or sequence
             Array or sequence containing the data
 
         %(Spectral)s
 
         %(Single_Spectrum)s
 
-          *Fc*: integer
+        Fc: integer
             The center frequency of *x* (defaults to 0), which offsets
             the x extents of the plot to reflect the frequency range used
             when a signal is acquired and then filtered and downsampled to
@@ -6906,15 +6897,13 @@ or tuple of floats
 
         Returns
         -------
-        Returns the tuple (*spectrum*, *freqs*, *line*):
-
-          *spectrum*: 1-D array
+        spectrum: 1-D array
             The values for the angle spectrum in radians (real valued)
 
-          *freqs*: 1-D array
+        freqs: 1-D array
             The frequencies corresponding to the elements in *spectrum*
 
-          *line*: a :class:`~matplotlib.lines.Line2D` instance
+        line: a :class:`~matplotlib.lines.Line2D` instance
             The line created by this function
 
         kwargs control the :class:`~matplotlib.lines.Line2D` properties:
@@ -6927,17 +6916,17 @@ or tuple of floats
 
         See Also
         --------
-            :func:`magnitude_spectrum`
-                :func:`angle_spectrum` plots the magnitudes of the
-                corresponding frequencies.
+        :func:`magnitude_spectrum`
+            :func:`angle_spectrum` plots the magnitudes of the corresponding
+            frequencies.
 
-            :func:`phase_spectrum`
-                :func:`phase_spectrum` plots the unwrapped version of this
-                function.
+        :func:`phase_spectrum`
+            :func:`phase_spectrum` plots the unwrapped version of this
+            function.
 
-            :func:`specgram`
-                :func:`specgram` can plot the angle spectrum of segments
-                within the signal in a colormap.
+        :func:`specgram`
+            :func:`specgram` can plot the angle spectrum of segments within the
+            signal in a colormap.
         """
         if not self._hold:
             self.cla()
@@ -6973,14 +6962,14 @@ or tuple of floats
 
         Parameters
         ----------
-          *x*: 1-D array or sequence
+        x: 1-D array or sequence
             Array or sequence containing the data
 
         %(Spectral)s
 
         %(Single_Spectrum)s
 
-          *Fc*: integer
+        Fc: integer
             The center frequency of *x* (defaults to 0), which offsets
             the x extents of the plot to reflect the frequency range used
             when a signal is acquired and then filtered and downsampled to
@@ -6988,15 +6977,13 @@ or tuple of floats
 
         Returns
         -------
-        Returns the tuple (*spectrum*, *freqs*, *line*):
-
-          *spectrum*: 1-D array
+        spectrum: 1-D array
             The values for the phase spectrum in radians (real valued)
 
-          *freqs*: 1-D array
+        freqs: 1-D array
             The frequencies corresponding to the elements in *spectrum*
 
-          *line*: a :class:`~matplotlib.lines.Line2D` instance
+        line: a :class:`~matplotlib.lines.Line2D` instance
             The line created by this function
 
         kwargs control the :class:`~matplotlib.lines.Line2D` properties:
@@ -7009,17 +6996,16 @@ or tuple of floats
 
         See Also
         --------
-            :func:`magnitude_spectrum`
-                :func:`magnitude_spectrum` plots the magnitudes of the
-                corresponding frequencies.
+        :func:`magnitude_spectrum`
+            :func:`magnitude_spectrum` plots the magnitudes of the
+            corresponding frequencies.
 
-            :func:`angle_spectrum`
-                :func:`angle_spectrum` plots the wrapped version of this
-                function.
+        :func:`angle_spectrum`
+            :func:`angle_spectrum` plots the wrapped version of this function.
 
-            :func:`specgram`
-                :func:`specgram` can plot the phase spectrum of segments
-                within the signal in a colormap.
+        :func:`specgram`
+            :func:`specgram` can plot the phase spectrum of segments within the
+            signal in a colormap.
         """
         if not self._hold:
             self.cla()
@@ -7058,11 +7044,11 @@ or tuple of floats
 
         %(PSD)s
 
-          *noverlap*: integer
+        noverlap: integer
             The number of points of overlap between blocks.  The
             default value is 0 (no overlap).
 
-          *Fc*: integer
+        Fc: integer
             The center frequency of *x* (defaults to 0), which offsets
             the x extents of the plot to reflect the frequency range used
             when a signal is acquired and then filtered and downsampled to
@@ -7077,9 +7063,8 @@ or tuple of floats
 
         References
         ----------
-
-          * Bendat & Piersol -- Random Data: Analysis and Measurement
-            Procedures, John Wiley & Sons (1986)
+        Bendat & Piersol -- Random Data: Analysis and Measurement Procedures,
+        John Wiley & Sons (1986)
 
         kwargs control the :class:`~matplotlib.lines.Line2D`
         properties of the coherence plot:
@@ -7131,25 +7116,25 @@ or tuple of floats
 
         Parameters
         ----------
-        *x*: 1-D array or sequence
+        x: 1-D array or sequence
             Array or sequence containing the data
 
         %(Spectral)s
 
         %(PSD)s
 
-          *mode*: [ 'default' | 'psd' | 'magnitude' | 'angle' | 'phase' ]
+        mode: [ 'default' | 'psd' | 'magnitude' | 'angle' | 'phase' ]
             What sort of spectrum to use.  Default is 'psd'. which takes
             the power spectral density.  'complex' returns the complex-valued
             frequency spectrum.  'magnitude' returns the magnitude spectrum.
             'angle' returns the phase spectrum without unwrapping.  'phase'
             returns the phase spectrum with unwrapping.
 
-          *noverlap*: integer
+        noverlap: integer
             The number of points of overlap between blocks.  The
             default value is 128.
 
-          *scale*: [ 'default' | 'linear' | 'dB' ]
+        scale: [ 'default' | 'linear' | 'dB' ]
             The scaling of the values in the *spec*.  'linear' is no scaling.
             'dB' returns the values in dB scale.  When *mode* is 'psd',
             this is dB power (10 * log10).  Otherwise this is dB amplitude
@@ -7157,22 +7142,22 @@ or tuple of floats
             'magnitude' and 'linear' otherwise.  This must be 'linear'
             if *mode* is 'angle' or 'phase'.
 
-          *Fc*: integer
+        Fc: integer
             The center frequency of *x* (defaults to 0), which offsets
             the x extents of the plot to reflect the frequency range used
             when a signal is acquired and then filtered and downsampled to
             baseband.
 
-          *cmap*:
+        cmap:
             A :class:`matplotlib.colors.Colormap` instance; if *None*, use
             default determined by rc
 
-          *xextent*:
+        xextent:
             The image extent along the x-axis. xextent = (xmin,xmax)
             The default is (0,max(bins)), where bins is the return
             value from :func:`~matplotlib.mlab.specgram`
 
-          *kwargs*:
+        **kwargs:
             Additional kwargs are passed on to imshow which makes the
             specgram image
 
@@ -7183,19 +7168,17 @@ or tuple of floats
 
         Returns
         -------
-        Returns the tuple (*spectrum*, *freqs*, *t*, *im*):
-
-          *spectrum*: 2-D array
+        spectrum: 2-D array
             columns are the periodograms of successive segments
 
-          *freqs*: 1-D array
+        freqs: 1-D array
             The frequencies corresponding to the rows in *spectrum*
 
-          *t*: 1-D array
+        t: 1-D array
             The times corresponding to midpoints of segments (i.e the columns
             in *spectrum*)
 
-          *im*: instance of class :class:`~matplotlib.image.AxesImage`
+        im: instance of class :class:`~matplotlib.image.AxesImage`
             The image created by imshow containing the spectrogram
 
         Examples
@@ -7204,22 +7187,22 @@ or tuple of floats
 
         See Also
         --------
-            :func:`psd`
-                :func:`psd` differs in the default overlap; in returning
-                the mean of the segment periodograms; in not returning
-                times; and in generating a line plot instead of colormap.
+        :func:`psd`
+            :func:`psd` differs in the default overlap; in returning the mean
+            of the segment periodograms; in not returning times; and in
+            generating a line plot instead of colormap.
 
-            :func:`magnitude_spectrum`
-                A single spectrum, similar to having a single segment when
-                *mode* is 'magnitude'.  Plots a line instead of a colormap.
+        :func:`magnitude_spectrum`
+            A single spectrum, similar to having a single segment when *mode*
+            is 'magnitude'. Plots a line instead of a colormap.
 
-            :func:`angle_spectrum`
-                A single spectrum, similar to having a single segment when
-                *mode* is 'angle'.  Plots a line instead of a colormap.
+        :func:`angle_spectrum`
+            A single spectrum, similar to having a single segment when *mode*
+            is 'angle'. Plots a line instead of a colormap.
 
-            :func:`phase_spectrum`
-                A single spectrum, similar to having a single segment when
-                *mode* is 'phase'.  Plots a line instead of a colormap.
+        :func:`phase_spectrum`
+            A single spectrum, similar to having a single segment when *mode*
+            is 'phase'. Plots a line instead of a colormap.
         """
         if not self._hold:
             self.cla()
