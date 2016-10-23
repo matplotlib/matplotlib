@@ -6542,6 +6542,8 @@ or tuple of floats
 
         If len(*x*) < *NFFT*, it will be zero padded to *NFFT*.
 
+        Parameters
+        ----------
           *x*: 1-D array or sequence
             Array or sequence containing the data
 
@@ -6563,6 +6565,8 @@ or tuple of floats
             Whether to include the line object plotted in the returned values.
             Default is False.
 
+        Returns
+        -------
         If *return_line* is False, returns the tuple (*Pxx*, *freqs*).
         If *return_line* is True, returns the tuple (*Pxx*, *freqs*. *line*):
 
@@ -6577,11 +6581,14 @@ or tuple of floats
             The line created by this function.
             Only returend if *return_line* is True.
 
+        Notes
+        -----
         For plotting, the power is plotted as
         :math:`10\log_{10}(P_{xx})` for decibels, though *Pxx* itself
         is returned.
 
-        References:
+        References
+        ----------
           Bendat & Piersol -- Random Data: Analysis and Measurement
           Procedures, John Wiley & Sons (1986)
 
@@ -6589,12 +6596,12 @@ or tuple of floats
 
         %(Line2D)s
 
-        **Example:**
-
+        Examples
+        --------
         .. plot:: mpl_examples/pylab_examples/psd_demo.py
 
-        .. seealso::
-
+        See Also
+        --------
             :func:`specgram`
                 :func:`specgram` differs in the default overlap; in not
                 returning the mean of the segment periodograms; in  returning
@@ -6669,6 +6676,8 @@ or tuple of floats
         If len(*x*) < *NFFT* or len(*y*) < *NFFT*, they will be zero
         padded to *NFFT*.
 
+        Parameters
+        ----------
           *x*, *y*: 1-D arrays or sequences
             Arrays or sequences containing the data
 
@@ -6690,6 +6699,8 @@ or tuple of floats
             Whether to include the line object plotted in the returned values.
             Default is False.
 
+        Returns
+        -------
         If *return_line* is False, returns the tuple (*Pxy*, *freqs*).
         If *return_line* is True, returns the tuple (*Pxy*, *freqs*. *line*):
 
@@ -6704,11 +6715,14 @@ or tuple of floats
             The line created by this function.
             Only returend if *return_line* is True.
 
+        Notes
+        -----
         For plotting, the power is plotted as
         :math:`10\log_{10}(P_{xy})` for decibels, though `P_{xy}` itself
         is returned.
 
-        References:
+        References
+        ----------
           Bendat & Piersol -- Random Data: Analysis and Measurement
           Procedures, John Wiley & Sons (1986)
 
@@ -6716,12 +6730,12 @@ or tuple of floats
 
         %(Line2D)s
 
-        **Example:**
-
+        Examples
+        --------
         .. plot:: mpl_examples/pylab_examples/csd_demo.py
 
-        .. seealso::
-
+        See Also
+        --------
             :func:`psd`
                 :func:`psd` is the equivalent to setting y=x.
         """
@@ -6772,6 +6786,8 @@ or tuple of floats
         length of *pad_to* and the windowing function *window* is applied to
         the signal.
 
+        Parameters
+        ----------
           *x*: 1-D array or sequence
             Array or sequence containing the data
 
@@ -6791,6 +6807,8 @@ or tuple of floats
             when a signal is acquired and then filtered and downsampled to
             baseband.
 
+        Returns
+        -------
         Returns the tuple (*spectrum*, *freqs*, *line*):
 
           *spectrum*: 1-D array
@@ -6806,12 +6824,12 @@ or tuple of floats
 
         %(Line2D)s
 
-        **Example:**
-
+        Examples
+        --------
         .. plot:: mpl_examples/pylab_examples/spectrum_demo.py
 
-        .. seealso::
-
+        See Also
+        --------
             :func:`psd`
                 :func:`psd` plots the power spectral density.`.
 
@@ -6871,6 +6889,8 @@ or tuple of floats
         Data is padded to a length of *pad_to* and the windowing function
         *window* is applied to the signal.
 
+        Parameters
+        ----------
           *x*: 1-D array or sequence
             Array or sequence containing the data
 
@@ -6884,6 +6904,8 @@ or tuple of floats
             when a signal is acquired and then filtered and downsampled to
             baseband.
 
+        Returns
+        -------
         Returns the tuple (*spectrum*, *freqs*, *line*):
 
           *spectrum*: 1-D array
@@ -6899,12 +6921,12 @@ or tuple of floats
 
         %(Line2D)s
 
-        **Example:**
-
+        Examples
+        --------
         .. plot:: mpl_examples/pylab_examples/spectrum_demo.py
 
-        .. seealso::
-
+        See Also
+        --------
             :func:`magnitude_spectrum`
                 :func:`angle_spectrum` plots the magnitudes of the
                 corresponding frequencies.
@@ -6949,6 +6971,8 @@ or tuple of floats
         Data is padded to a length of *pad_to* and the windowing function
         *window* is applied to the signal.
 
+        Parameters
+        ----------
           *x*: 1-D array or sequence
             Array or sequence containing the data
 
@@ -6962,6 +6986,8 @@ or tuple of floats
             when a signal is acquired and then filtered and downsampled to
             baseband.
 
+        Returns
+        -------
         Returns the tuple (*spectrum*, *freqs*, *line*):
 
           *spectrum*: 1-D array
@@ -6977,12 +7003,12 @@ or tuple of floats
 
         %(Line2D)s
 
-        **Example:**
-
+        Examples
+        --------
         .. plot:: mpl_examples/pylab_examples/spectrum_demo.py
 
-        .. seealso::
-
+        See Also
+        --------
             :func:`magnitude_spectrum`
                 :func:`magnitude_spectrum` plots the magnitudes of the
                 corresponding frequencies.
@@ -7026,6 +7052,8 @@ or tuple of floats
 
           C_{xy} = \\frac{|P_{xy}|^2}{P_{xx}P_{yy}}
 
+        Parameters
+        ----------
         %(Spectral)s
 
         %(PSD)s
@@ -7040,12 +7068,15 @@ or tuple of floats
             when a signal is acquired and then filtered and downsampled to
             baseband.
 
+        Returns
+        -------
         The return value is a tuple (*Cxy*, *f*), where *f* are the
         frequencies of the coherence vector.
 
         kwargs are applied to the lines.
 
-        References:
+        References
+        ----------
 
           * Bendat & Piersol -- Random Data: Analysis and Measurement
             Procedures, John Wiley & Sons (1986)
@@ -7055,8 +7086,8 @@ or tuple of floats
 
         %(Line2D)s
 
-        **Example:**
-
+        Examples
+        --------
         .. plot:: mpl_examples/pylab_examples/cohere_demo.py
         """
         if not self._hold:
@@ -7098,6 +7129,8 @@ or tuple of floats
         specified with *noverlap*. The spectrogram is plotted as a colormap
         (using imshow).
 
+        Parameters
+        ----------
         *x*: 1-D array or sequence
             Array or sequence containing the data
 
@@ -7143,11 +7176,13 @@ or tuple of floats
             Additional kwargs are passed on to imshow which makes the
             specgram image
 
-        .. note::
-
+        Notes
+        -----
             *detrend* and *scale_by_freq* only apply when *mode* is set to
             'psd'
 
+        Returns
+        -------
         Returns the tuple (*spectrum*, *freqs*, *t*, *im*):
 
           *spectrum*: 2-D array
@@ -7163,12 +7198,12 @@ or tuple of floats
           *im*: instance of class :class:`~matplotlib.image.AxesImage`
             The image created by imshow containing the spectrogram
 
-        **Example:**
-
+        Examples
+        --------
         .. plot:: mpl_examples/pylab_examples/specgram_demo.py
 
-        .. seealso::
-
+        See Also
+        --------
             :func:`psd`
                 :func:`psd` differs in the default overlap; in returning
                 the mean of the segment periodograms; in not returning
