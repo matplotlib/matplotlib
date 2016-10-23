@@ -210,9 +210,8 @@ def window_hanning(x):
 
     See Also
     --------
-
-        :func:`window_none`
-            :func:`window_none` is another window algorithm.
+    :func:`window_none`
+        :func:`window_none` is another window algorithm.
     '''
     return np.hanning(len(x))*x
 
@@ -223,9 +222,8 @@ def window_none(x):
 
     See Also
     --------
-
-        :func:`window_hanning`
-            :func:`window_hanning` is another window algorithm.
+    :func:`window_hanning`
+        :func:`window_hanning` is another window algorithm.
     '''
     return x
 
@@ -236,18 +234,18 @@ def apply_window(x, window, axis=0, return_window=None):
 
     Parameters
     ----------
-      *x*: 1D or 2D array or sequence
+    x: 1D or 2D array or sequence
         Array or sequence containing the data.
 
-      *window*: function or array.
+    window: function or array.
         Either a function to generate a window or an array with length
         *x*.shape[*axis*]
 
-      *axis*: integer
+    axis: integer
         The axis over which to do the repetition.
         Must be 0 or 1.  The default is 0
 
-      *return_window*: bool
+    return_window: bool
         If true, also return the 1D values of the window that was applied
     '''
     x = np.asarray(x)
@@ -292,31 +290,30 @@ def detrend(x, key=None, axis=None):
 
     Parameters
     ----------
-      *x*: array or sequence
+    x: array or sequence
         Array or sequence containing the data.
 
-      *key*: [ 'default' | 'constant' | 'mean' | 'linear' | 'none'] or function
-          Specifies the detrend algorithm to use.  'default' is 'mean',
-          which is the same as :func:`detrend_mean`.  'constant' is the same.
-          'linear' is the same as :func:`detrend_linear`.  'none' is the same
-          as :func:`detrend_none`.  The default is 'mean'.  See the
-          corresponding functions for more details regarding the algorithms.
-          Can also be a function that carries out the detrend operation.
+    key: [ 'default' | 'constant' | 'mean' | 'linear' | 'none'] or function
+        Specifies the detrend algorithm to use. 'default' is 'mean', which is
+        the same as :func:`detrend_mean`. 'constant' is the same. 'linear' is
+        the same as :func:`detrend_linear`. 'none' is the same as
+        :func:`detrend_none`. The default is 'mean'. See the corresponding
+        functions for more details regarding the algorithms. Can also be a
+        function that carries out the detrend operation.
 
-      *axis*: integer
+    axis: integer
         The axis along which to do the detrending.
 
     See Also
     --------
+    :func:`detrend_mean`
+        :func:`detrend_mean` implements the 'mean' algorithm.
 
-        :func:`detrend_mean`
-            :func:`detrend_mean` implements the 'mean' algorithm.
+    :func:`detrend_linear`
+        :func:`detrend_linear` implements the 'linear' algorithm.
 
-        :func:`detrend_linear`
-            :func:`detrend_linear` implements the 'linear' algorithm.
-
-        :func:`detrend_none`
-            :func:`detrend_none` implements the 'none' algorithm.
+    :func:`detrend_none`
+        :func:`detrend_none` implements the 'none' algorithm.
     '''
     if key is None or key in ['constant', 'mean', 'default']:
         return detrend(x, key=detrend_mean, axis=axis)
@@ -356,25 +353,24 @@ def demean(x, axis=0):
 
     Parameters
     ----------
-      *x*: array or sequence
+    x: array or sequence
         Array or sequence containing the data
         Can have any dimensionality
 
-      *axis*: integer
+    axis: integer
         The axis along which to take the mean.  See numpy.mean for a
         description of this argument.
 
     See Also
     --------
+    :func:`delinear`
 
-        :func:`delinear`
+    :func:`denone`
+        :func:`delinear` and :func:`denone` are other detrend algorithms.
 
-        :func:`denone`
-            :func:`delinear` and :func:`denone` are other detrend algorithms.
-
-        :func:`detrend_mean`
-            This function is the same as as :func:`detrend_mean` except
-            for the default *axis*.
+    :func:`detrend_mean`
+        This function is the same as as :func:`detrend_mean` except for the
+        default *axis*.
     '''
     return detrend_mean(x, axis=axis)
 
@@ -385,29 +381,28 @@ def detrend_mean(x, axis=None):
 
     Parameters
     ----------
-      *x*: array or sequence
+    x: array or sequence
         Array or sequence containing the data
         Can have any dimensionality
 
-      *axis*: integer
+    axis: integer
         The axis along which to take the mean.  See numpy.mean for a
         description of this argument.
 
     See Also
     --------
+    :func:`demean`
+        This function is the same as as :func:`demean` except for the default
+        *axis*.
 
-        :func:`demean`
-            This function is the same as as :func:`demean` except
-            for the default *axis*.
+    :func:`detrend_linear`
 
-        :func:`detrend_linear`
+    :func:`detrend_none`
+        :func:`detrend_linear` and :func:`detrend_none` are other detrend
+        algorithms.
 
-        :func:`detrend_none`
-            :func:`detrend_linear` and :func:`detrend_none` are other
-            detrend algorithms.
-
-        :func:`detrend`
-            :func:`detrend` is a wrapper around all the detrend algorithms.
+    :func:`detrend`
+        :func:`detrend` is a wrapper around all the detrend algorithms.
     '''
     x = np.asarray(x)
 
@@ -433,28 +428,27 @@ def detrend_none(x, axis=None):
 
     Parameters
     ----------
-      *x*: any object
+    x: any object
         An object containing the data
 
-      *axis*: integer
+    axis: integer
         This parameter is ignored.
         It is included for compatibility with detrend_mean
 
     See Also
     --------
+    :func:`denone`
+        This function is the same as as :func:`denone` except for the default
+        *axis*, which has no effect.
 
-        :func:`denone`
-            This function is the same as as :func:`denone` except
-            for the default *axis*, which has no effect.
+    :func:`detrend_mean`
 
-        :func:`detrend_mean`
+    :func:`detrend_linear`
+        :func:`detrend_mean` and :func:`detrend_linear` are other detrend
+        algorithms.
 
-        :func:`detrend_linear`
-            :func:`detrend_mean` and :func:`detrend_linear` are other
-            detrend algorithms.
-
-        :func:`detrend`
-            :func:`detrend` is a wrapper around all the detrend algorithms.
+    :func:`detrend`
+        :func:`detrend` is a wrapper around all the detrend algorithms.
     '''
     return x
 
@@ -465,28 +459,27 @@ def detrend_linear(y):
 
     Parameters
     ----------
-      *y*: 0-D or 1-D array or sequence
+    y: 0-D or 1-D array or sequence
         Array or sequence containing the data
 
-      *axis*: integer
+    axis: integer
         The axis along which to take the mean.  See numpy.mean for a
         description of this argument.
 
     See Also
     --------
+    :func:`delinear`
+        This function is the same as as :func:`delinear` except for the default
+        *axis*.
 
-        :func:`delinear`
-            This function is the same as as :func:`delinear` except
-            for the default *axis*.
+    :func:`detrend_mean`
 
-        :func:`detrend_mean`
+    :func:`detrend_none`
+        :func:`detrend_mean` and :func:`detrend_none` are other detrend
+        algorithms.
 
-        :func:`detrend_none`
-            :func:`detrend_mean` and :func:`detrend_none` are other
-            detrend algorithms.
-
-        :func:`detrend`
-            :func:`detrend` is a wrapper around all the detrend algorithms.
+    :func:`detrend`
+        :func:`detrend` is a wrapper around all the detrend algorithms.
     '''
     # This is faster than an algorithm based on linalg.lstsq.
     y = np.asarray(y)
@@ -520,25 +513,25 @@ def stride_windows(x, n, noverlap=None, axis=0):
 
     Parameters
     ----------
-      *x*: 1D array or sequence
+    x: 1D array or sequence
         Array or sequence containing the data.
 
-      *n*: integer
+    n: integer
         The number of data points in each window.
 
-      *noverlap*: integer
+    noverlap: integer
         The overlap between adjacent windows.
         Default is 0 (no overlap)
 
-      *axis*: integer
+    axis: integer
         The axis along which the windows will run.
 
     References
     ----------
-        `stackoverflaw: Rolling window for 1D arrays in Numpy?
-        <http://stackoverflow.com/a/6811241>`_
-        `stackoverflaw: Using strides for an efficient moving average filter
-        <http://stackoverflow.com/a/4947453>`_
+    `stackoverflow: Rolling window for 1D arrays in Numpy?
+    <http://stackoverflow.com/a/6811241>`_
+    `stackoverflow: Using strides for an efficient moving average filter
+    <http://stackoverflow.com/a/4947453>`_
     '''
     if noverlap is None:
         noverlap = 0
@@ -588,19 +581,19 @@ def stride_repeat(x, n, axis=0):
 
     Parameters
     ----------
-      *x*: 1D array or sequence
+    x: 1D array or sequence
         Array or sequence containing the data.
 
-      *n*: integer
+    n: integer
         The number of time to repeat the array.
 
-      *axis*: integer
+    axis: integer
         The axis along which the data will run.
 
     References
     ----------
-        `stackoverflaw: Repeat NumPy array without replicating data?
-        <http://stackoverflow.com/a/5568169>`_
+    `stackoverflow: Repeat NumPy array without replicating data?
+    <http://stackoverflow.com/a/5568169>`_
     '''
     if axis not in [0, 1]:
         raise ValueError('axis must be 0 or 1')
@@ -819,82 +812,77 @@ def _single_spectrum_helper(x, mode, Fs=None, window=None, pad_to=None,
 
 # Split out these keyword docs so that they can be used elsewhere
 docstring.interpd.update(Spectral=cbook.dedent("""
-    Keyword arguments
-    -----------------
+    Fs: scalar
+        The sampling frequency (samples per time unit).  It is used
+        to calculate the Fourier frequencies, freqs, in cycles per time
+        unit. The default value is 2.
 
-      *Fs*: scalar
-          The sampling frequency (samples per time unit).  It is used
-          to calculate the Fourier frequencies, freqs, in cycles per time
-          unit. The default value is 2.
+    window: callable or ndarray
+        A function or a vector of length *NFFT*. To create window
+        vectors see :func:`window_hanning`, :func:`window_none`,
+        :func:`numpy.blackman`, :func:`numpy.hamming`,
+        :func:`numpy.bartlett`, :func:`scipy.signal`,
+        :func:`scipy.signal.get_window`, etc. The default is
+        :func:`window_hanning`.  If a function is passed as the
+        argument, it must take a data segment as an argument and
+        return the windowed version of the segment.
 
-      *window*: callable or ndarray
-          A function or a vector of length *NFFT*. To create window
-          vectors see :func:`window_hanning`, :func:`window_none`,
-          :func:`numpy.blackman`, :func:`numpy.hamming`,
-          :func:`numpy.bartlett`, :func:`scipy.signal`,
-          :func:`scipy.signal.get_window`, etc. The default is
-          :func:`window_hanning`.  If a function is passed as the
-          argument, it must take a data segment as an argument and
-          return the windowed version of the segment.
-
-      *sides*: [ 'default' | 'onesided' | 'twosided' ]
-          Specifies which sides of the spectrum to return.  Default gives the
-          default behavior, which returns one-sided for real data and both
-          for complex data.  'onesided' forces the return of a one-sided
-          spectrum, while 'twosided' forces two-sided.
+    sides: [ 'default' | 'onesided' | 'twosided' ]
+        Specifies which sides of the spectrum to return.  Default gives the
+        default behavior, which returns one-sided for real data and both
+        for complex data.  'onesided' forces the return of a one-sided
+        spectrum, while 'twosided' forces two-sided.
 """))
 
 
 docstring.interpd.update(Single_Spectrum=cbook.dedent("""
-      *pad_to*: integer
-          The number of points to which the data segment is padded when
-          performing the FFT.  While not increasing the actual resolution of
-          the spectrum (the minimum distance between resolvable peaks),
-          this can give more points in the plot, allowing for more
-          detail. This corresponds to the *n* parameter in the call to fft().
-          The default is None, which sets *pad_to* equal to the length of the
-          input signal (i.e. no padding).
+    pad_to: integer
+        The number of points to which the data segment is padded when
+        performing the FFT.  While not increasing the actual resolution of
+        the spectrum (the minimum distance between resolvable peaks),
+        this can give more points in the plot, allowing for more
+        detail. This corresponds to the *n* parameter in the call to fft().
+        The default is None, which sets *pad_to* equal to the length of the
+        input signal (i.e. no padding).
 """))
 
 
 docstring.interpd.update(PSD=cbook.dedent("""
-      *pad_to*: integer
-          The number of points to which the data segment is padded when
-          performing the FFT.  This can be different from *NFFT*, which
-          specifies the number of data points used.  While not increasing
-          the actual resolution of the spectrum (the minimum distance between
-          resolvable peaks), this can give more points in the plot,
-          allowing for more detail. This corresponds to the *n* parameter
-          in the call to fft(). The default is None, which sets *pad_to*
-          equal to *NFFT*
+    pad_to: integer
+        The number of points to which the data segment is padded when
+        performing the FFT.  This can be different from *NFFT*, which
+        specifies the number of data points used.  While not increasing
+        the actual resolution of the spectrum (the minimum distance between
+        resolvable peaks), this can give more points in the plot,
+        allowing for more detail. This corresponds to the *n* parameter
+        in the call to fft(). The default is None, which sets *pad_to*
+        equal to *NFFT*
 
-      *NFFT*: integer
-          The number of data points used in each block for the FFT.
-          A power 2 is most efficient.  The default value is 256.
-          This should *NOT* be used to get zero padding, or the scaling of the
-          result will be incorrect. Use *pad_to* for this instead.
+    NFFT: integer
+        The number of data points used in each block for the FFT.
+        A power 2 is most efficient.  The default value is 256.
+        This should *NOT* be used to get zero padding, or the scaling of the
+        result will be incorrect. Use *pad_to* for this instead.
 
-      *detrend*: [ 'default' | 'constant' | 'mean' | 'linear' | 'none'] or
-                 callable
+    detrend: {'default', 'constant', 'mean', 'linear', 'none'} or callable
+        The function applied to each segment before fft-ing,
+        designed to remove the mean or linear trend.  Unlike in
+        MATLAB, where the *detrend* parameter is a vector, in
+        matplotlib is it a function.  The :mod:`~matplotlib.pylab`
+        module defines :func:`~matplotlib.pylab.detrend_none`,
+        :func:`~matplotlib.pylab.detrend_mean`, and
+        :func:`~matplotlib.pylab.detrend_linear`, but you can use
+        a custom function as well.  You can also use a string to choose
+        one of the functions.  'default', 'constant', and 'mean' call
+        :func:`~matplotlib.pylab.detrend_mean`.  'linear' calls
+        :func:`~matplotlib.pylab.detrend_linear`.  'none' calls
+        :func:`~matplotlib.pylab.detrend_none`.
 
-          The function applied to each segment before fft-ing,
-          designed to remove the mean or linear trend.  Unlike in
-          MATLAB, where the *detrend* parameter is a vector, in
-          matplotlib is it a function.  The :mod:`~matplotlib.pylab`
-          module defines :func:`~matplotlib.pylab.detrend_none`,
-          :func:`~matplotlib.pylab.detrend_mean`, and
-          :func:`~matplotlib.pylab.detrend_linear`, but you can use
-          a custom function as well.  You can also use a string to choose
-          one of the functions.  'default', 'constant', and 'mean' call
-          :func:`~matplotlib.pylab.detrend_mean`.  'linear' calls
-          :func:`~matplotlib.pylab.detrend_linear`.  'none' calls
-          :func:`~matplotlib.pylab.detrend_none`.
-
-      *scale_by_freq*: boolean
-          Specifies whether the resulting density values should be scaled
-          by the scaling frequency, which gives density in units of Hz^-1.
-          This allows for integration over the returned frequency values.
-          The default is True for MATLAB compatibility.
+    scale_by_freq: boolean, optional
+        Specifies whether the resulting density values should be scaled
+        by the scaling frequency, which gives density in units of Hz^-1.
+        This allows for integration over the returned frequency values.
+        The default is True for MATLAB compatibility.
 """))
 
 
@@ -921,45 +909,42 @@ def psd(x, NFFT=None, Fs=None, detrend=None, window=None,
 
     Parameters
     ----------
-      *x*: 1-D array or sequence
+    x: 1-D array or sequence
         Array or sequence containing the data
 
     %(Spectral)s
 
     %(PSD)s
 
-        *noverlap*: integer
+    noverlap: integer
         The number of points of overlap between segments.
         The default value is 0 (no overlap).
 
     Returns
     -------
+    Pxx: 1-D array
+        The values for the power spectrum `P_{xx}` (real valued)
 
-          *Pxx*: 1-D array
-            The values for the power spectrum `P_{xx}` (real valued)
-
-          *freqs*: 1-D array
-            The frequencies corresponding to the elements in *Pxx*
-
+    freqs: 1-D array
+        The frequencies corresponding to the elements in *Pxx*
 
     References
     ----------
-        Bendat & Piersol -- Random Data: Analysis and Measurement
-        Procedures, John Wiley & Sons (1986)
+    Bendat & Piersol -- Random Data: Analysis and Measurement Procedures, John
+    Wiley & Sons (1986)
 
     See Also
     --------
+    :func:`specgram`
+        :func:`specgram` differs in the default overlap; in not returning the
+        mean of the segment periodograms; and in returning the times of the
+        segments.
 
-        :func:`specgram`
-            :func:`specgram` differs in the default overlap; in not returning
-            the mean of the segment periodograms; and in returning the
-            times of the segments.
+    :func:`magnitude_spectrum`
+        :func:`magnitude_spectrum` returns the magnitude spectrum.
 
-        :func:`magnitude_spectrum`
-            :func:`magnitude_spectrum` returns the magnitude spectrum.
-
-        :func:`csd`
-            :func:`csd` returns the spectral density between two signals.
+    :func:`csd`
+        :func:`csd` returns the spectral density between two signals.
     """
     Pxx, freqs = csd(x=x, y=None, NFFT=NFFT, Fs=Fs, detrend=detrend,
                      window=window, noverlap=noverlap, pad_to=pad_to,
@@ -993,37 +978,34 @@ def csd(x, y, NFFT=None, Fs=None, detrend=None, window=None,
 
     Parameters
     ----------
-      *x*, *y*: 1-D arrays or sequences
+    x, y: 1-D arrays or sequences
         Arrays or sequences containing the data
 
     %(Spectral)s
 
     %(PSD)s
 
-      *noverlap*: integer
-          The number of points of overlap between segments.
-          The default value is 0 (no overlap).
-
+    noverlap: integer
+        The number of points of overlap between segments.
+        The default value is 0 (no overlap).
 
     Returns
     -------
-          *Pxy*: 1-D array
-            The values for the cross spectrum `P_{xy}` before scaling
-            (real valued)
+    Pxy: 1-D array
+        The values for the cross spectrum `P_{xy}` before scaling (real valued)
 
-          *freqs*: 1-D array
-            The frequencies corresponding to the elements in *Pxy*
+    freqs: 1-D array
+        The frequencies corresponding to the elements in *Pxy*
 
     References
     ----------
-        Bendat & Piersol -- Random Data: Analysis and Measurement
-        Procedures, John Wiley & Sons (1986)
+    Bendat & Piersol -- Random Data: Analysis and Measurement Procedures, John
+    Wiley & Sons (1986)
 
     See Also
     --------
-
-        :func:`psd`
-            :func:`psd` is the equivalent to setting y=x.
+    :func:`psd`
+        :func:`psd` is the equivalent to setting y=x.
     """
     if NFFT is None:
         NFFT = 256
@@ -1051,7 +1033,7 @@ def complex_spectrum(x, Fs=None, window=None, pad_to=None,
 
     Parameters
     ----------
-      *x*: 1-D array or sequence
+    x: 1-D array or sequence
         Array or sequence containing the data
 
     %(Spectral)s
@@ -1060,31 +1042,27 @@ def complex_spectrum(x, Fs=None, window=None, pad_to=None,
 
     Returns
     -------
-
-      *spectrum*: 1-D array
+    spectrum: 1-D array
         The values for the complex spectrum (complex valued)
 
-      *freqs*: 1-D array
+    freqs: 1-D array
         The frequencies corresponding to the elements in *spectrum*
 
     See Also
     --------
+    :func:`magnitude_spectrum`
+        :func:`magnitude_spectrum` returns the absolute value of this function.
 
-        :func:`magnitude_spectrum`
-            :func:`magnitude_spectrum` returns the absolute value of this
-            function.
+    :func:`angle_spectrum`
+        :func:`angle_spectrum` returns the angle of this function.
 
-        :func:`angle_spectrum`
-            :func:`angle_spectrum` returns the angle of this
-            function.
+    :func:`phase_spectrum`
+        :func:`phase_spectrum` returns the phase (unwrapped angle) of this
+        function.
 
-        :func:`phase_spectrum`
-            :func:`phase_spectrum` returns the phase (unwrapped angle) of this
-            function.
-
-        :func:`specgram`
-            :func:`specgram` can return the complex spectrum of segments
-            within the signal.
+    :func:`specgram`
+        :func:`specgram` can return the complex spectrum of segments within the
+        signal.
     """
     return _single_spectrum_helper(x=x, Fs=Fs, window=window, pad_to=pad_to,
                                    sides=sides, mode='complex')
@@ -1100,7 +1078,7 @@ def magnitude_spectrum(x, Fs=None, window=None, pad_to=None,
 
     Parameters
     ----------
-      *x*: 1-D array or sequence
+    x: 1-D array or sequence
         Array or sequence containing the data
 
     %(Spectral)s
@@ -1109,34 +1087,31 @@ def magnitude_spectrum(x, Fs=None, window=None, pad_to=None,
 
     Returns
     -------
-
-      *spectrum*: 1-D array
+    spectrum: 1-D array
         The values for the magnitude spectrum (real valued)
 
-      *freqs*: 1-D array
+    freqs: 1-D array
         The frequencies corresponding to the elements in *spectrum*
 
     See Also
     --------
+    :func:`psd`
+        :func:`psd` returns the power spectral density.
 
-        :func:`psd`
-            :func:`psd` returns the power spectral density.
+    :func:`complex_spectrum`
+        This function returns the absolute value of :func:`complex_spectrum`.
 
-        :func:`complex_spectrum`
-            This function returns the absolute value of
-            :func:`complex_spectrum`.
+    :func:`angle_spectrum`
+        :func:`angle_spectrum` returns the angles of the corresponding
+        frequencies.
 
-        :func:`angle_spectrum`
-            :func:`angle_spectrum` returns the angles of the corresponding
-            frequencies.
+    :func:`phase_spectrum`
+        :func:`phase_spectrum` returns the phase (unwrapped angle) of the
+        corresponding frequencies.
 
-        :func:`phase_spectrum`
-            :func:`phase_spectrum` returns the phase (unwrapped angle) of the
-            corresponding frequencies.
-
-        :func:`specgram`
-            :func:`specgram` can return the magnitude spectrum of segments
-            within the signal.
+    :func:`specgram`
+        :func:`specgram` can return the magnitude spectrum of segments within
+        the signal.
     """
     return _single_spectrum_helper(x=x, Fs=Fs, window=window, pad_to=pad_to,
                                    sides=sides, mode='magnitude')
@@ -1152,7 +1127,7 @@ def angle_spectrum(x, Fs=None, window=None, pad_to=None,
 
     Parameters
     ----------
-      *x*: 1-D array or sequence
+    x: 1-D array or sequence
         Array or sequence containing the data
 
     %(Spectral)s
@@ -1161,31 +1136,27 @@ def angle_spectrum(x, Fs=None, window=None, pad_to=None,
 
     Returns
     -------
-
-      *spectrum*: 1-D array
+    spectrum: 1-D array
         The values for the angle spectrum in radians (real valued)
 
-      *freqs*: 1-D array
+    freqs: 1-D array
         The frequencies corresponding to the elements in *spectrum*
 
     See Also
     --------
+    :func:`complex_spectrum`
+        This function returns the angle value of :func:`complex_spectrum`.
 
-        :func:`complex_spectrum`
-            This function returns the angle value of
-            :func:`complex_spectrum`.
+    :func:`magnitude_spectrum`
+        :func:`angle_spectrum` returns the magnitudes of the corresponding
+        frequencies.
 
-        :func:`magnitude_spectrum`
-            :func:`angle_spectrum` returns the magnitudes of the
-            corresponding frequencies.
+    :func:`phase_spectrum`
+        :func:`phase_spectrum` returns the unwrapped version of this function.
 
-        :func:`phase_spectrum`
-            :func:`phase_spectrum` returns the unwrapped version of this
-            function.
-
-        :func:`specgram`
-            :func:`specgram` can return the angle spectrum of segments
-            within the signal.
+    :func:`specgram`
+        :func:`specgram` can return the angle spectrum of segments within the
+        signal.
     """
     return _single_spectrum_helper(x=x, Fs=Fs, window=window, pad_to=pad_to,
                                    sides=sides, mode='angle')
@@ -1201,7 +1172,7 @@ def phase_spectrum(x, Fs=None, window=None, pad_to=None,
 
     Parameters
     ----------
-      *x*: 1-D array or sequence
+    x: 1-D array or sequence
         Array or sequence containing the data
 
     %(Spectral)s
@@ -1210,31 +1181,27 @@ def phase_spectrum(x, Fs=None, window=None, pad_to=None,
 
     Returns
     -------
-
-      *spectrum*: 1-D array
+    spectrum: 1-D array
         The values for the phase spectrum in radians (real valued)
 
-      *freqs*: 1-D array
+    freqs: 1-D array
         The frequencies corresponding to the elements in *spectrum*
 
     See Also
     --------
+    :func:`complex_spectrum`
+        This function returns the angle value of :func:`complex_spectrum`.
 
-        :func:`complex_spectrum`
-            This function returns the angle value of
-            :func:`complex_spectrum`.
+    :func:`magnitude_spectrum`
+        :func:`magnitude_spectrum` returns the magnitudes of the corresponding
+        frequencies.
 
-        :func:`magnitude_spectrum`
-            :func:`magnitude_spectrum` returns the magnitudes of the
-            corresponding frequencies.
+    :func:`angle_spectrum`
+        :func:`angle_spectrum` returns the wrapped version of this function.
 
-        :func:`angle_spectrum`
-            :func:`angle_spectrum` returns the wrapped version of this
-            function.
-
-        :func:`specgram`
-            :func:`specgram` can return the phase spectrum of segments
-            within the signal.
+    :func:`specgram`
+        :func:`specgram` can return the phase spectrum of segments within the
+        signal.
     """
     return _single_spectrum_helper(x=x, Fs=Fs, window=window, pad_to=pad_to,
                                    sides=sides, mode='phase')
@@ -1341,16 +1308,16 @@ def cohere(x, y, NFFT=256, Fs=2, detrend=detrend_none, window=window_hanning,
 
     Parameters
     ----------
-    *x*, *y*
+    x, y
         Array or sequence containing the data
 
     %(Spectral)s
 
     %(PSD)s
 
-      *noverlap*: integer
-          The number of points of overlap between blocks.  The default value
-          is 0 (no overlap).
+    noverlap: integer
+        The number of points of overlap between blocks.  The default value
+        is 0 (no overlap).
 
     Returns
     -------
@@ -1361,10 +1328,9 @@ def cohere(x, y, NFFT=256, Fs=2, detrend=detrend_none, window=window_hanning,
 
     See Also
     --------
-
-        :func:`psd` and :func:`csd`
-            For information about the methods used to compute
-            :math:`P_{xy}`, :math:`P_{xx}` and :math:`P_{yy}`.
+    :func:`psd`, :func:`csd` :
+        For information about the methods used to compute :math:`P_{xy}`,
+        :math:`P_{xx}` and :math:`P_{yy}`.
     """
 
     if len(x) < 2 * NFFT:
@@ -1422,19 +1388,14 @@ def cohere_pairs(X, ij, NFFT=256, Fs=2, detrend=detrend_none,
 
     Returns
     -------
-
-       (Cxy, Phase, freqs)
-
-    where:
-
-      - *Cxy*: dictionary of (*i*, *j*) tuples -> coherence vector for
+    Cxy: dictionary of (*i*, *j*) tuples -> coherence vector for
         that pair.  i.e., ``Cxy[(i,j) = cohere(X[:,i], X[:,j])``.
         Number of dictionary keys is ``len(ij)``.
 
-      - *Phase*: dictionary of phases of the cross spectral density at
+    Phase: dictionary of phases of the cross spectral density at
         each frequency for each pair.  Keys are (*i*, *j*).
 
-      - *freqs*: vector of frequencies, equal in length to either the
+    freqs: vector of frequencies, equal in length to either the
          coherence or phase vectors for any (*i*, *j*) key.
 
     e.g., to make a coherence Bode plot::
@@ -1459,10 +1420,9 @@ def cohere_pairs(X, ij, NFFT=256, Fs=2, detrend=detrend_none,
 
     See Also
     --------
-
-        :func:`psd`
-            For information about the methods used to compute
-            :math:`P_{xy}`, :math:`P_{xx}` and :math:`P_{yy}`.
+    :func:`psd`
+        For information about the methods used to compute :math:`P_{xy}`,
+        :math:`P_{xx}` and :math:`P_{yy}`.
     """
     numRows, numCols = X.shape
 
@@ -1853,13 +1813,13 @@ def rk4(derivs, y0, t):
 
     Parameters
     ----------
-    *y0*
+    y0
         initial state vector
 
-    *t*
+    t
         sample times
 
-    *derivs*
+    derivs
         returns the derivative of the system and has the
         signature ``dy = derivs(yi, ti)``
 
@@ -3154,27 +3114,30 @@ def rec2txt(r, header=None, padding=3, precision=3, fields=None):
     """
     Returns a textual representation of a record array.
 
-    *r*: numpy recarray
+    Parameters
+    ----------
+    r: numpy recarray
 
-    *header*: list of column headers
+    header: list
+        column headers
 
-    *padding*: space between each column
+    padding:
+        space between each column
 
-    *precision*: number of decimal places to use for floats.
+    precision: number of decimal places to use for floats.
         Set to an integer to apply to all floats.  Set to a
         list of integers to apply precision individually.
         Precision for non-floats is simply ignored.
 
-    *fields* : if not None, a list of field names to print.  fields
-    can be a list of strings like ['field1', 'field2'] or a single
-    comma separated string like 'field1,field2'
+    fields : list
+        If not None, a list of field names to print.  fields
+        can be a list of strings like ['field1', 'field2'] or a single
+        comma separated string like 'field1,field2'
 
     Examples
     --------
 
-      precision=[0,2,3]
-
-    Output::
+    For ``precision=[0,2,3]``, the output is ::
 
       ID    Price   Return
       ABC   12.54    0.234
@@ -3285,10 +3248,9 @@ def rec2csv(r, fname, delimiter=',', formatd=None, missing='',
 
     See Also
     --------
-
-        :func:`csv2rec`
-            For information about *missing* and *missingd*, which can
-            be used to fill in masked values into your CSV file.
+    :func:`csv2rec`
+        For information about *missing* and *missingd*, which can be used to
+        fill in masked values into your CSV file.
     """
 
     delimiter = str(delimiter)
@@ -3944,8 +3906,7 @@ def cross_from_below(x, threshold):
 
     See Also
     --------
-
-        :func:`cross_from_above` and :func:`contiguous_regions`
+    :func:`cross_from_above` and :func:`contiguous_regions`
 
     """
     x = np.asarray(x)
@@ -3966,8 +3927,7 @@ def cross_from_above(x, threshold):
 
     See Also
     --------
-
-        :func:`cross_from_below` and :func:`contiguous_regions`
+    :func:`cross_from_below` and :func:`contiguous_regions`
 
     """
     x = np.asarray(x)
