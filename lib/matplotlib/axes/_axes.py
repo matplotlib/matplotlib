@@ -6565,6 +6565,12 @@ or tuple of floats
             Whether to include the line object plotted in the returned values.
             Default is False.
 
+        **kwargs:
+            Keyword arguments control the :class:`~matplotlib.lines.Line2D`
+            properties:
+
+        %(Line2D)s
+
         Returns
         -------
         Pxx: 1-D array
@@ -6588,10 +6594,6 @@ or tuple of floats
         ----------
         Bendat & Piersol -- Random Data: Analysis and Measurement Procedures,
         John Wiley & Sons (1986)
-
-        kwargs control the :class:`~matplotlib.lines.Line2D` properties:
-
-        %(Line2D)s
 
         Examples
         --------
@@ -6695,6 +6697,12 @@ or tuple of floats
             Whether to include the line object plotted in the returned values.
             Default is False.
 
+        **kwargs:
+            Keyword arguments control the :class:`~matplotlib.lines.Line2D`
+            properties:
+
+        %(Line2D)s
+
         Returns
         -------
         Pxy: 1-D array
@@ -6718,10 +6726,6 @@ or tuple of floats
         ----------
         Bendat & Piersol -- Random Data: Analysis and Measurement Procedures,
         John Wiley & Sons (1986)
-
-        kwargs control the Line2D properties:
-
-        %(Line2D)s
 
         Examples
         --------
@@ -6800,6 +6804,12 @@ or tuple of floats
             when a signal is acquired and then filtered and downsampled to
             baseband.
 
+        **kwargs:
+            Keyword arguments control the :class:`~matplotlib.lines.Line2D`
+            properties:
+
+        %(Line2D)s
+
         Returns
         -------
         spectrum: 1-D array
@@ -6810,10 +6820,6 @@ or tuple of floats
 
         line: a :class:`~matplotlib.lines.Line2D` instance
             The line created by this function
-
-        kwargs control the :class:`~matplotlib.lines.Line2D` properties:
-
-        %(Line2D)s
 
         Examples
         --------
@@ -6895,6 +6901,12 @@ or tuple of floats
             when a signal is acquired and then filtered and downsampled to
             baseband.
 
+        **kwargs:
+            Keyword arguments control the :class:`~matplotlib.lines.Line2D`
+            properties:
+
+        %(Line2D)s
+
         Returns
         -------
         spectrum: 1-D array
@@ -6905,10 +6917,6 @@ or tuple of floats
 
         line: a :class:`~matplotlib.lines.Line2D` instance
             The line created by this function
-
-        kwargs control the :class:`~matplotlib.lines.Line2D` properties:
-
-        %(Line2D)s
 
         Examples
         --------
@@ -6975,6 +6983,12 @@ or tuple of floats
             when a signal is acquired and then filtered and downsampled to
             baseband.
 
+        **kwargs:
+            Keyword arguments control the :class:`~matplotlib.lines.Line2D`
+            properties:
+
+        %(Line2D)s
+
         Returns
         -------
         spectrum: 1-D array
@@ -6985,10 +6999,6 @@ or tuple of floats
 
         line: a :class:`~matplotlib.lines.Line2D` instance
             The line created by this function
-
-        kwargs control the :class:`~matplotlib.lines.Line2D` properties:
-
-        %(Line2D)s
 
         Examples
         --------
@@ -7054,6 +7064,12 @@ or tuple of floats
             when a signal is acquired and then filtered and downsampled to
             baseband.
 
+        **kwargs:
+            Keyword arguments control the :class:`~matplotlib.lines.Line2D`
+            properties of the coherence plot:
+
+        %(Line2D)s
+
         Returns
         -------
         The return value is a tuple (*Cxy*, *f*), where *f* are the
@@ -7065,11 +7081,6 @@ or tuple of floats
         ----------
         Bendat & Piersol -- Random Data: Analysis and Measurement Procedures,
         John Wiley & Sons (1986)
-
-        kwargs control the :class:`~matplotlib.lines.Line2D`
-        properties of the coherence plot:
-
-        %(Line2D)s
 
         Examples
         --------
