@@ -985,6 +985,20 @@ class FuncNorm(Normalize):
         normalize_kw : dict, optional
             Dict with keywords passed to `matplotlib.colors.Normalize`.
 
+        Examples
+        --------
+        Creating a logarithmic normalization using the predefined strings:
+
+        >>> import matplotlib.colors as colors
+        >>> norm = colors.FuncNorm(f='log', vmin=0.01, vmax=2)
+
+        Or doing it manually:
+
+        >>> import matplotlib.colors as colors
+        >>> norm = colors.FuncNorm(f=lambda x: np.log10(x),
+        >>>                        finv=lambda x: 10.**(x),
+        >>>                        vmin=0.01, vmax=2)
+
         """
 
         f, finv = FuncNorm._fun_parser([f, finv])
