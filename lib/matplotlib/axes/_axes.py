@@ -6582,7 +6582,7 @@ or tuple of floats
 
         line: a :class:`~matplotlib.lines.Line2D` instance
             The line created by this function.
-            Only returend if *return_line* is True.
+            Only returned if *return_line* is True.
 
         Notes
         -----
@@ -6714,7 +6714,7 @@ or tuple of floats
 
         line: a :class:`~matplotlib.lines.Line2D` instance
             The line created by this function.
-            Only returend if *return_line* is True.
+            Only returned if *return_line* is True.
 
         Notes
         -----
