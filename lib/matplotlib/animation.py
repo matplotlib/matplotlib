@@ -573,8 +573,10 @@ class MencoderBase(object):
         return args
 
 
-mencoder_dep = """Support for mencoder is only partially functional,
-and will be removed entirely in 2.2.  Please use ffmpeg instead."""
+# The message must be a single line; internal newlines cause sphinx failure.
+mencoder_dep = ("Support for mencoder is only partially functional, "
+                "and will be removed entirely in 2.2. "
+                "Please use ffmpeg instead.")
 
 
 @writers.register('mencoder')
