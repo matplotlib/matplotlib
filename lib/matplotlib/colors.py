@@ -1168,7 +1168,9 @@ class FuncNorm(Normalize):
 
 class PiecewiseNorm(FuncNorm):
     """
-    Normalization allowing the definition of any linear or non-linear
+    Normalization defined as a piecewise function
+
+    It allows the definition of any linear or non-linear
     function for different ranges of the colorbar.
 
     """
@@ -1193,7 +1195,7 @@ class PiecewiseNorm(FuncNorm):
             List of functions to be used for each of the intervals.
             Each of the elements must meet the same requirements as the
             parameter `f` from `FuncNorm`.
-        finvlist : list of callable or strings optional
+        finvlist : list of callable or strings, optional
             List of the inverse functions corresponding to each function in
             `flist`. Each of the elements must meet the same requirements as
             the parameter `finv` from `FuncNorm`. None may be provided as
@@ -1201,17 +1203,18 @@ class PiecewiseNorm(FuncNorm):
             `flist`. It must satisfy `len(flist)==len(finvlist)`.
         refpoints_cm, refpoints_data : list or array of scalars
             Reference points for the colorbar ranges which will go as
-            `[0., refpoints_cm[0]]`,... , `[refpoints_cm[i],
-             refpoints_cm[i+1]]`, `[refpoints_cm[-1], 0.]`, and for the data
-             ranges which will go as `[self.vmin, refpoints_data[0]]`,... ,
-             `[refpoints_data[i], refpoints_data[i+1]]`,
-             `[refpoints_cm[-1], self.vmax]`
-             It must satisfy
-             `len(flist)==len(refpoints_cm)+1==len(refpoints_data)+1`.
-             `refpoints_data` must consist of increasing values
-             in the (vmin, vmax) range.
-             `refpoints_cm` must consist of increasing values be in
-             the (0.0, 1.0) range.
+            `[0., refpoints_cm[0]]`,... ,
+            `[refpoints_cm[i], refpoints_cm[i+1]]`,
+            `[refpoints_cm[-1], 0.]`, and for the data
+            ranges which will go as `[self.vmin, refpoints_data[0]]`,... ,
+            `[refpoints_data[i], refpoints_data[i+1]]`,
+            `[refpoints_cm[-1], self.vmax]`
+            It must satisfy
+            `len(flist)==len(refpoints_cm)+1==len(refpoints_data)+1`.
+            `refpoints_data` must consist of increasing values
+            in the (vmin, vmax) range.
+            `refpoints_cm` must consist of increasing values be in
+            the (0.0, 1.0) range.
             The final normalization will meet:
             `norm(refpoints_data[i])==refpoints_cm[i]`.
         normalize_kw : dict, optional
