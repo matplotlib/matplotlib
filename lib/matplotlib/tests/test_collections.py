@@ -578,7 +578,7 @@ def test_regularpolycollection_scale():
 @cleanup
 def test_picking():
     fig, ax = plt.subplots()
-    col = ax.scatter([0], [0], [1000])
+    col = ax.scatter([0], [0], [1000], picker=True)
     fig.savefig(io.BytesIO(), dpi=fig.dpi)
 
     class MouseEvent(object):
