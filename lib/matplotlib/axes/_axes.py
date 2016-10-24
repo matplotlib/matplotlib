@@ -5358,7 +5358,7 @@ or tuple of floats
 
         MATLAB :func:`pcolor` always discards the last row and column
         of `C`, but matplotlib displays the last row and column if `X` and
-        `Y` are not specified, or if *X* and *Y* have one more row and
+        `Y` are not specified, or if `X` and `Y` have one more row and
         column than `C`.
 
         """
