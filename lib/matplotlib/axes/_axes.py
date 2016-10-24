@@ -5218,52 +5218,49 @@ or tuple of floats
     def pcolor(self, *args, **kwargs):
         """
         Create a pseudocolor plot of a 2-D array.
-        EXTENDED TODO
 
-        *X* and *Y*, if given, specify the (*x*, *y*) coordinates of
-        the colored quadrilaterals; the quadrilateral for C[i,j] has
-        corners at::
+        Call signatures::
+          pcolor(C, **kwargs)
+          pcolor(X, Y, C, **kwargs)
 
-          (X[i,   j],   Y[i,   j]),
-          (X[i,   j+1], Y[i,   j+1]),
-          (X[i+1, j],   Y[i+1, j]),
-          (X[i+1, j+1], Y[i+1, j+1]).
-
-        Ideally the dimensions of *X* and *Y* should be one greater
-        than those of *C*; if the dimensions are the same, then the
-        last row and column of *C* will be ignored.
-
-        Note that the column index corresponds to the
-        *x*-coordinate, and the row index corresponds to *y*; for
-        details, see the :ref:`Grid Orientation
-        <axes-pcolor-grid-orientation>` section below.
-
-        If either or both of *X* and *Y* are 1-D arrays or column vectors,
-        they will be expanded as needed into the appropriate 2-D arrays,
-        making a rectangular grid.
-
-        *X*, *Y* and *C* may be masked arrays.  If either C[i, j], or one
-        of the vertices surrounding C[i,j] (*X* or *Y* at [i, j], [i+1, j],
-        [i, j+1],[i+1, j+1]) is masked, nothing is plotted.
-
-
-        .. note::
-
-            pcolor can be very slow for large arrays; consider
-            using the similar but much faster
-            :func:`~matplotlib.pyplot.pcolormesh` instead.
+        pcolor can be very slow for large arrays; consider
+          using the similar but much faster
+          :func:`~matplotlib.pyplot.pcolormesh` instead.
 
         Parameters
         ----------
         C : array_like
             An array of color values.
+
         X, Y : array_like, optional
-            Coordinates of the colored quadrilaterals.
+          If given, specify the (x, y) coordinates of
+          the colored quadrilaterals; the quadrilateral for C[i,j] has
+          corners at::
+            (X[i,   j],   Y[i,   j]),
+            (X[i,   j+1], Y[i,   j+1]),
+            (X[i+1, j],   Y[i+1, j]),
+            (X[i+1, j+1], Y[i+1, j+1]).
+
+          Ideally the dimensions of `X` and `Y` should be one greater
+          than those of `C`; if the dimensions are the same, then the
+          last row and column of `C` will be ignored.
+
+          Note that the column index corresponds to the
+          x-coordinate, and the row index corresponds to y; for
+          details, see the :ref:`Grid Orientation
+          <axes-pcolor-grid-orientation>` section below.
+
+          If either or both of `X` and `Y` are 1-D arrays or column vectors,
+          they will be expanded as needed into the appropriate 2-D arrays,
+          making a rectangular grid.
+
         cmap : `~matplotlib.colors.Colormap`, optional, default: None
             If `None`, default to rc settings.
+
         norm :`matplotlib.colors.Normalize`, optional, default: None
-            An instance is used to scale luminance data to 0,1.
+            An instance is used to scale luminance data to (0, 1).
             If `None`, defaults to :func:`normalize`.
+
         vmin, vmax : scalar, optional, default: None
             `vmin` and `vmax` are used in conjunction with `norm` to
             normalize luminance data.  If either is `None`, it
@@ -5271,19 +5268,24 @@ or tuple of floats
             of the color array `C`.  If not `None`, `vmin` or
             `vmax` passed in here override any pre-existing values
             supplied in the `norm` instance.
+
         shading : {'flat', 'faceted'}, optional, default: 'flat'
             If 'faceted', a black grid is drawn around each rectangle; if
             'flat', edges are not drawn. Default is 'flat', contrary to
             MATLAB.
+
             This kwarg is deprecated; please use 'edgecolors' instead:
               `shading`='flat' -- `edgecolors`='none'
               `shading`='faceted'  -- `edgecolors`='k'
+
         edgecolors : {None, ``'none'``, color, color sequence}
             If `None`, the rc setting is used by default.
             If ``'none'``, edges will not be visible.
             An mpl color or sequence of colors will set the edge color
+
         alpha : scalar, optional, default: None
             The alpha blending value, between 0 (transparent) and 1 (opaque).
+
         snap : bool, optional, default: False
             Whether to snap the mesh to pixel boundaries.
 
@@ -5291,20 +5293,40 @@ or tuple of floats
         -------
         collection : `matplotlib.collections.Collection`
 
+        Other Parameters
+        -------
+        kwargs : `~matplotlib.collections.PolyCollection` properties:
+
+        %(PolyCollection)s
+
+        The default `antialiaseds` is False if the default
+        `edgecolors`="none" is used.  This eliminates artificial lines
+        at patch boundaries, and works regardless of the value of
+        alpha.  If `edgecolors` is not "none", then the default
+        `antialiaseds` is taken from
+        `rcParams['patch.antialiased']`, which defaults to True.
+        Stroking the edges may be preferred if `alpha` is 1, but
+        will cause artifacts otherwise.
+
         See Also
         --------
-        :func:`~matplotlib.pyplot.pcolormesh`
-            For an explanation of the differences between
+        pcolormesh : for an explanation of the differences between
             pcolor and pcolormesh.
 
         Notes
         -----
+        .. _axes-pcolor-grid-orientation:
+
+        `X`, `Y` and `C` may be masked arrays.  If either C[i, j], or one
+        of the vertices surrounding C[i,j] (`X` or `Y` at [i, j], [i+1, j],
+        [i, j+1],[i+1, j+1]) is masked, nothing is plotted.
+
         The grid orientation follows the MATLAB convention: an
-        array `C` with shape (`nrows`, `ncolumns`) is plotted with
+        array `C` with shape (nrows, ncolumns) is plotted with
         the column number as `X` and the row number as `Y`, increasing
         up; hence it is plotted the way the array would be printed,
         except that the `Y` axis is reversed.  That is, `C` is taken
-        as `C`(`y`, `x`).
+        as `C`(y, x).
 
         Similarly for :func:`meshgrid`::
 
@@ -5335,24 +5357,9 @@ or tuple of floats
           pcolor(C.T)
 
         MATLAB :func:`pcolor` always discards the last row and column
-        of *C*, but matplotlib displays the last row and column if *X* and
-        *Y* are not specified, or if *X* and *Y* have one more row and
-        column than *C*.
-
-        kwargs can be used to control the
-        :class:`~matplotlib.collections.PolyCollection` properties:
-
-        %(PolyCollection)s
-
-
-        The default *antialiaseds* is False if the default
-        *edgecolors*="none" is used.  This eliminates artificial lines
-        at patch boundaries, and works regardless of the value of
-        alpha.  If *edgecolors* is not "none", then the default
-        *antialiaseds* is taken from
-        rcParams['patch.antialiased'], which defaults to *True*.
-        Stroking the edges may be preferred if *alpha* is 1, but
-        will cause artifacts otherwise.
+        of `C`, but matplotlib displays the last row and column if `X` and
+        `Y` are not specified, or if *X* and *Y* have one more row and
+        column than `C`.
 
         """
 
