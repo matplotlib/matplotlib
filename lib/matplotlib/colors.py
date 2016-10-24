@@ -983,7 +983,8 @@ class FuncNorm(Normalize):
             Inverse function of `f` that satisfies finv(f(x))==x. It is
             optional in cases where f is provided as a string.
         normalize_kw : dict, optional
-            Dict with keywords passed to `matplotlib.colors.Normalize`.
+            Dict with keywords (`vmin`,`vmax`,`clip`) passed
+            to `matplotlib.colors.Normalize`.
 
         Examples
         --------
@@ -1232,7 +1233,18 @@ class PiecewiseNorm(FuncNorm):
             The final normalization will meet:
             `norm(refpoints_data[i])==refpoints_cm[i]`.
         normalize_kw : dict, optional
-            Dict with keywords passed to `matplotlib.colors.Normalize`.
+            Dict with keywords (`vmin`,`vmax`,`clip`) passed
+            to `matplotlib.colors.Normalize`.
+
+        Examples
+        --------
+        Obtaining a normalization to amplify features near both -0.4 and
+        1.2 using four intervals:
+
+        >>> import matplotlib.colors as colors
+        >>> norm = colors.PiecewiseNorm(flist=['cubic', 'crt', 'cubic', 'crt'],
+        >>>                             refpoints_cm=[0.25, 0.5, 0.75],
+        >>>                             refpoints_data=[-0.4, 1, 1.2])
 
         """
 
@@ -1450,7 +1462,22 @@ class MirrorPiecewiseNorm(PiecewiseNorm):
             Must be in the (0.0, 1.0) range.
             Default 0.5.
         normalize_kw : dict, optional
-            Dict with keywords passed to `matplotlib.colors.Normalize`.
+            Dict with keywords (`vmin`,`vmax`,`clip`) passed
+            to `matplotlib.colors.Normalize`.
+
+        Examples
+        --------
+        Obtaining a symmetric amplification of the features around 0:
+
+        >>> import matplotlib.colors as colors
+        >>> norm = colors.MirrorPiecewiseNorm(fpos='crt'):
+
+        Obtaining an asymmetric amplification of the features around 0.6:
+
+        >>> import matplotlib.colors as colors
+        >>> norm = colors.MirrorPiecewiseNorm(fpos='sqrt', fneg='crt',
+        >>>                                   center_cm=0.35,
+        >>>                                   center_data=0.6)
 
         """
         if fneg is None and fneginv is not None:
@@ -1519,7 +1546,24 @@ class MirrorRootNorm(MirrorPiecewiseNorm):
             in the (0.0, 1.0) range.
             Default 0.5.
         normalize_kw : dict, optional
-            Dict with keywords passed to `matplotlib.colors.Normalize`.
+            Dict with keywords (`vmin`,`vmax`,`clip`) passed
+            to `matplotlib.colors.Normalize`.
+
+        Examples
+        --------
+        Obtaining a symmetric amplification of the features around 0:
+
+        >>> import matplotlib.colors as colors
+        >>> norm = mcolors.MirrorRootNorm(orderpos=2)
+
+        Obtaining an asymmetric amplification of the features around 0.6:
+
+        >>> import matplotlib.colors as colors
+        >>> norm = mcolors.MirrorRootNorm(orderpos=3,
+        >>>                               orderneg=4,
+        >>>                               center_data=0.6,
+        >>>                               center_cm=0.3)
+
         """
 
         if orderneg is None:
@@ -1551,11 +1595,20 @@ class RootNorm(FuncNorm):
         order : float or int, optional
             Degree of the root to be used for normalization. Default 2.
         normalize_kw : dict, optional
-            Dict with keywords passed to `matplotlib.colors.Normalize`.
+            Dict with keywords (`vmin`,`vmax`,`clip`) passed
+            to `matplotlib.colors.Normalize`.
 
         Notes
         -----
         Only valid for arrays with possitive values, or setting `vmin >= 0`.
+
+        Examples
+        --------
+        Obtaining a root normalization of order 3:
+
+        >>> import matplotlib.colors as colors
+        >>> norm = mcolors.RootNorm(order=3, vmin=0)
+
         """
         (super(RootNorm, self)
          .__init__(f=(lambda x: x**(1. / order)),

@@ -91,7 +91,8 @@ norm = colors.PiecewiseNorm(flist=['cubic', 'crt', 'cubic', 'crt'],
 make_plot(norm, "Amplifying positive and negative features standing\n"
                 " on -0.4 and 1.2 with PiecewiseNorm")
 
-# Amplifying features near both -1, -0.2 and near 1.2 with PiecewiseNorm
+# Amplifying positive features near -1, -0.2 and 1.2  simultaneously with
+# PiecewiseNorm
 norm = colors.PiecewiseNorm(flist=['crt', 'crt', 'crt'],
                             refpoints_cm=[0.4, 0.7],
                             refpoints_data=[-0.2, 1.2])
