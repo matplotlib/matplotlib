@@ -125,11 +125,11 @@ class AxesStack(Stack):
         except TypeError:
             raise ValueError("first argument, %s, is not a valid key" % key)
 
-        a_existing = self.get(key)
+        a_existing = dict(self._elements).get(key)
         if a_existing is not None:
             Stack.remove(self, (key, a_existing))
             warnings.warn(
-                "key %s already existed; Axes is being replaced" % key)
+                "key %s already existed; Axes is being replaced" % str(key))
             # I don't think the above should ever happen.
 
         if a in self:
@@ -362,7 +362,7 @@ class Figure(Artist):
         # We can't use "isinstance" here, because then we'd end up importing
         # webagg unconditiionally.
         if (self.canvas is not None and
-            'WebAgg' in self.canvas.__class__.__name__):
+                'WebAgg' in self.canvas.__class__.__name__):
             from matplotlib.backends import backend_webagg
             return backend_webagg.ipython_inline_display(self)
 
@@ -816,7 +816,7 @@ class Figure(Artist):
         'make a hashable key out of args and kwargs'
 
         def fixitems(items):
-            #items may have arrays and lists in them, so convert them
+            # items may have arrays and lists in them, so convert them
             # to tuples for the key
             ret = []
             for k, v in items:
@@ -1745,7 +1745,7 @@ class Figure(Artist):
             if not isinstance(ax, SubplotBase):
                 # Check if sharing a subplots axis
                 if (ax._sharex is not None and
-                    isinstance(ax._sharex, SubplotBase)):
+                        isinstance(ax._sharex, SubplotBase)):
                     ax._sharex.update_params()
                     ax.set_position(ax._sharex.figbox)
                 elif (ax._sharey is not None and
@@ -1921,8 +1921,8 @@ def figaspect(arg):
     # could become rc parameters, for now they're hardwired.
     figsize_min = np.array((4.0, 2.0))  # min length for width/height
     figsize_max = np.array((16.0, 16.0))  # max length for width/height
-    #figsize_min = rcParams['figure.figsize_min']
-    #figsize_max = rcParams['figure.figsize_max']
+    # figsize_min = rcParams['figure.figsize_min']
+    # figsize_max = rcParams['figure.figsize_max']
 
     # Extract the aspect ratio of the array
     if isarray:
