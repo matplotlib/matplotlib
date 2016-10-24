@@ -108,11 +108,10 @@ def test_contour_shape_mismatch_4():
     try:
         ax.contour(b, g, z)
     except TypeError as exc:
-        print(exc.args[0])
         assert re.match(
             r'Shape of x does not match that of z: ' +
             r'found \(9L?, 9L?\) instead of \(9L?, 10L?\)\.',
-            exc.args[0]) is not None
+            exc.args[0]) is not None, exc.args[0]
 
     try:
         ax.contour(g, b, z)
@@ -120,7 +119,7 @@ def test_contour_shape_mismatch_4():
         assert re.match(
             r'Shape of y does not match that of z: ' +
             r'found \(9L?, 9L?\) instead of \(9L?, 10L?\)\.',
-            exc.args[0]) is not None
+            exc.args[0]) is not None, exc.args[0]
 
 
 @cleanup
