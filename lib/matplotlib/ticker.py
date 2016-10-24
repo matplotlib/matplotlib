@@ -905,11 +905,11 @@ class LogFormatter(Formatter):
         coeff = np.round(abs(x) / b ** exponent)
         if coeff in self.sublabel:
             if not isDecade and self.labelOnlyBase:
-                s = ''
+                return ''
             elif x > 10000:
-                s = '%1.0e' % x
+                s = '%1.0e' % abs(x)
             elif x < 1:
-                s = '%1.0e' % x
+                s = '%1.0e' % abs(x)
             else:
                 s = self.pprint_val(x, self.d)
             if sign == -1:
