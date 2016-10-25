@@ -1,7 +1,9 @@
 from nose.tools import assert_raises
-from mpl_toolkits.mplot3d import Axes3D, axes3d
+from mpl_toolkits.mplot3d import Axes3D, axes3d, proj3d
 from matplotlib import cm
 from matplotlib.testing.decorators import image_comparison, cleanup
+from matplotlib.collections import LineCollection
+from matplotlib.patches import Circle
 import matplotlib.pyplot as plt
 import numpy as np
 
@@ -340,7 +342,120 @@ def test_plotsurface_1d_raises():
     fig = plt.figure(figsize=(14,6))
     ax = fig.add_subplot(1, 2, 1, projection='3d')
     assert_raises(ValueError, ax.plot_surface, X, Y, z)
-    
+
+
+def _test_proj_make_M():
+    # eye point
+    E = np.array([1000, -1000, 2000])
+    R = np.array([100, 100, 100])
+    V = np.array([0, 0, 1])
+    viewM = proj3d.view_transformation(E, R, V)
+    perspM = proj3d.persp_transformation(100, -100)
+    M = np.dot(perspM, viewM)
+    return M
+
+
+def test_proj_transform():
+    M = _test_proj_make_M()
+
+    xs = np.array([0, 1, 1, 0, 0, 0, 1, 1, 0, 0]) * 300.0
+    ys = np.array([0, 0, 1, 1, 0, 0, 0, 1, 1, 0]) * 300.0
+    zs = np.array([0, 0, 0, 0, 0, 1, 1, 1, 1, 1]) * 300.0
+
+    txs, tys, tzs = proj3d.proj_transform(xs, ys, zs, M)
+    ixs, iys, izs = proj3d.inv_transform(txs, tys, tzs, M)
+
+    np.testing.assert_almost_equal(ixs, xs)
+    np.testing.assert_almost_equal(iys, ys)
+    np.testing.assert_almost_equal(izs, zs)
+
+
+def _test_proj_draw_axes(M, s=1, *args, **kwargs):
+    xs = [0, s, 0, 0]
+    ys = [0, 0, s, 0]
+    zs = [0, 0, 0, s]
+    txs, tys, tzs = proj3d.proj_transform(xs, ys, zs, M)
+    o, ax, ay, az = zip(txs, tys)
+    lines = [(o, ax), (o, ay), (o, az)]
+
+    fig, ax = plt.subplots(*args, **kwargs)
+    linec = LineCollection(lines)
+    ax.add_collection(linec)
+    for x, y, t in zip(txs, tys, ['o', 'x', 'y', 'z']):
+        ax.text(x, y, t)
+
+    return fig, ax
+
+
+@image_comparison(baseline_images=['proj3d_axes_cube'], extensions=['png'],
+                  remove_text=True, style='default')
+def test_proj_axes_cube():
+    M = _test_proj_make_M()
+
+    ts = '0 1 2 3 0 4 5 6 7 4'.split()
+    xs = np.array([0, 1, 1, 0, 0, 0, 1, 1, 0, 0]) * 300.0
+    ys = np.array([0, 0, 1, 1, 0, 0, 0, 1, 1, 0]) * 300.0
+    zs = np.array([0, 0, 0, 0, 0, 1, 1, 1, 1, 1]) * 300.0
+
+    txs, tys, tzs = proj3d.proj_transform(xs, ys, zs, M)
+
+    fig, ax = _test_proj_draw_axes(M, s=400)
+
+    ax.scatter(txs, tys, c=tzs)
+    ax.plot(txs, tys, c='r')
+    for x, y, t in zip(txs, tys, ts):
+        ax.text(x, y, t)
+
+    ax.set_xlim(-0.2, 0.2)
+    ax.set_ylim(-0.2, 0.2)
+
+
+def test_rot():
+    V = [1, 0, 0, 1]
+    rotated_V = proj3d.rot_x(V, np.pi / 6)
+    np.testing.assert_allclose(rotated_V, [1, 0, 0, 1])
+
+    V = [0, 1, 0, 1]
+    rotated_V = proj3d.rot_x(V, np.pi / 6)
+    np.testing.assert_allclose(rotated_V, [0, np.sqrt(3) / 2, 0.5, 1])
+
+
+def test_world():
+    xmin, xmax = 100, 120
+    ymin, ymax = -100, 100
+    zmin, zmax = 0.1, 0.2
+    M = proj3d.world_transformation(xmin, xmax, ymin, ymax, zmin, zmax)
+    np.testing.assert_allclose(M,
+                               [[5e-2, 0, 0, -5],
+                                [0, 5e-3, 0, 5e-1],
+                                [0, 0, 1e1, -1],
+                                [0, 0, 0, 1]])
+
+
+@image_comparison(baseline_images=['proj3d_lines_dists'], extensions=['png'],
+                  remove_text=True, style='default')
+def test_lines_dists():
+    fig, ax = plt.subplots(figsize=(4, 6), subplot_kw=dict(aspect='equal'))
+
+    xs = (0, 30)
+    ys = (20, 150)
+    ax.plot(xs, ys)
+    p0, p1 = zip(xs, ys)
+
+    xs = (0, 0, 20, 30)
+    ys = (100, 150, 30, 200)
+    ax.scatter(xs, ys)
+
+    dist = proj3d.line2d_seg_dist(p0, p1, (xs[0], ys[0]))
+    dist = proj3d.line2d_seg_dist(p0, p1, np.array((xs, ys)))
+    for x, y, d in zip(xs, ys, dist):
+        c = Circle((x, y), d, fill=0)
+        ax.add_patch(c)
+
+    ax.set_xlim(-50, 150)
+    ax.set_ylim(0, 300)
+
+
 if __name__ == '__main__':
     import nose
     nose.runmodule(argv=['-s', '--with-doctest'], exit=False)

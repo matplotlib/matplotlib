@@ -9,8 +9,6 @@ from __future__ import (absolute_import, division, print_function,
 import six
 from six.moves import zip
 
-from matplotlib.collections import LineCollection
-from matplotlib.patches import Circle
 import numpy as np
 import numpy.linalg as linalg
 
@@ -69,27 +67,6 @@ def line2d_seg_dist(p1, p2, p0):
 
     return d
 
-def test_lines_dists():
-    import pylab
-    ax = pylab.gca()
-
-    xs, ys = (0,30), (20,150)
-    pylab.plot(xs, ys)
-    points = list(zip(xs, ys))
-    p0, p1 = points
-
-    xs, ys = (0,0,20,30), (100,150,30,200)
-    pylab.scatter(xs, ys)
-
-    dist = line2d_seg_dist(p0, p1, (xs[0], ys[0]))
-    dist = line2d_seg_dist(p0, p1, np.array((xs, ys)))
-    for x, y, d in zip(xs, ys, dist):
-        c = Circle((x, y), d, fill=0)
-        ax.add_patch(c)
-
-    pylab.xlim(-200, 200)
-    pylab.ylim(-200, 200)
-    pylab.show()
 
 def mod(v):
     """3d vector length"""
@@ -105,12 +82,6 @@ def world_transformation(xmin, xmax,
         [0,0,1.0/dz,-zmin/dz],
         [0,0,0,1.0]])
 
-def test_world():
-    xmin, xmax = 100, 120
-    ymin, ymax = -100, 100
-    zmin, zmax = 0.1, 0.2
-    M = world_transformation(xmin, xmax, ymin, ymax, zmin, zmax)
-    print(M)
 
 def view_transformation(E, R, V):
     n = (E - R)
@@ -218,69 +189,12 @@ def proj_trans_clip_points(points, M):
     xs, ys, zs = list(zip(*points))
     return proj_transform_clip(xs, ys, zs, M)
 
-def test_proj_draw_axes(M, s=1):
-    import pylab
-    xs, ys, zs = [0, s, 0, 0], [0, 0, s, 0], [0, 0, 0, s]
-    txs, tys, tzs = proj_transform(xs, ys, zs, M)
-    o, ax, ay, az = (txs[0], tys[0]), (txs[1], tys[1]), \
-            (txs[2], tys[2]), (txs[3], tys[3])
-    lines = [(o, ax), (o, ay), (o, az)]
-
-    ax = pylab.gca()
-    linec = LineCollection(lines)
-    ax.add_collection(linec)
-    for x, y, t in zip(txs, tys, ['o', 'x', 'y', 'z']):
-        pylab.text(x, y, t)
-
-def test_proj_make_M(E=None):
-    # eye point
-    E = E or np.array([1, -1, 2]) * 1000
-    #E = np.array([20,10,20])
-    R = np.array([1, 1, 1]) * 100
-    V = np.array([0, 0, 1])
-    viewM = view_transformation(E, R, V)
-    perspM = persp_transformation(100, -100)
-    M = np.dot(perspM, viewM)
-    return M
-
-def test_proj():
-    import pylab
-    M = test_proj_make_M()
-
-    ts = ['%d' % i for i in [0,1,2,3,0,4,5,6,7,4]]
-    xs, ys, zs = [0,1,1,0,0, 0,1,1,0,0], [0,0,1,1,0, 0,0,1,1,0], \
-            [0,0,0,0,0, 1,1,1,1,1]
-    xs, ys, zs = [np.array(v)*300 for v in (xs, ys, zs)]
-    #
-    test_proj_draw_axes(M, s=400)
-    txs, tys, tzs = proj_transform(xs, ys, zs, M)
-    ixs, iys, izs = inv_transform(txs, tys, tzs, M)
-
-    pylab.scatter(txs, tys, c=tzs)
-    pylab.plot(txs, tys, c='r')
-    for x, y, t in zip(txs, tys, ts):
-        pylab.text(x, y, t)
-
-    pylab.xlim(-0.2, 0.2)
-    pylab.ylim(-0.2, 0.2)
-
-    pylab.show()
 
 def rot_x(V, alpha):
     cosa, sina = np.cos(alpha), np.sin(alpha)
     M1 = np.array([[1,0,0,0],
                    [0,cosa,-sina,0],
                    [0,sina,cosa,0],
-                   [0,0,0,0]])
+                   [0,0,0,1]])
 
     return np.dot(M1, V)
-
-def test_rot():
-    V = [1,0,0,1]
-    print(rot_x(V, np.pi/6))
-    V = [0,1,0,1]
-    print(rot_x(V, np.pi/6))
-
-
-if __name__ == "__main__":
-    test_proj()
