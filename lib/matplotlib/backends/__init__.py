@@ -5,10 +5,15 @@ import six
 
 import matplotlib
 import inspect
+import traceback
 import warnings
 
 
 backend = matplotlib.get_backend()
+_backend_loading_tb = "".join(
+    line for line in traceback.format_stack()
+    # Filter out line noise from importlib line.
+    if not line.startswith('  File "<frozen importlib._bootstrap'))
 
 
 def pylab_setup(name=None):
