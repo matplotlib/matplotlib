@@ -124,10 +124,16 @@ static PyObject *Py_write_png(PyObject *self, PyObject *args, PyObject *kwds)
 {
     numpy::array_view<unsigned char, 3> buffer;
     PyObject *filein;
+    PyObject *metadata;
+    PyObject *meta_key, *meta_val;
+    png_text *text;
+    Py_ssize_t pos = 0;
+    int meta_pos = 0;
+    Py_ssize_t meta_size;
     double dpi = 0;
     int compression = 6;
     int filter = -1;
-    const char *names[] = { "buffer", "file", "dpi", "compression", "filter", NULL };
+    const char *names[] = { "buffer", "file", "dpi", "compression", "filter", "metadata", NULL };
 
     // We don't need strict contiguity, just for each row to be
     // contiguous, and libpng has special handling for getting RGB out
@@ -135,14 +141,15 @@ static PyObject *Py_write_png(PyObject *self, PyObject *args, PyObject *kwds)
     // enforce contiguity using array_view::converter_contiguous.
     if (!PyArg_ParseTupleAndKeywords(args,
                                      kwds,
-                                     "O&O|dii:write_png",
+                                     "O&O|diiO:write_png",
                                      (char **)names,
                                      &buffer.converter_contiguous,
                                      &buffer,
                                      &filein,
                                      &dpi,
                                      &compression,
-                                     &filter)) {
+                                     &filter,
+                                     &metadata)) {
         return NULL;
     }
 
@@ -275,6 +282,36 @@ static PyObject *Py_write_png(PyObject *self, PyObject *args, PyObject *kwds)
         png_uint_32 dots_per_meter = (png_uint_32)(dpi / (2.54 / 100.0));
         png_set_pHYs(png_ptr, info_ptr, dots_per_meter, dots_per_meter, PNG_RESOLUTION_METER);
     }
+
+#ifdef PNG_TEXT_SUPPORTED
+    // Save the metadata
+    if (metadata != NULL)
+    {
+       meta_size = PyDict_Size(metadata);
+       text = new png_text[meta_size];
+
+       printf("meta_size = %d\n", meta_size);
+       while (PyDict_Next(metadata, &pos, &meta_key, &meta_val)) {
+          printf("pos = %i\n", meta_pos);
+          printf("key = %s\n", PyBytes_AsString(meta_key));
+          printf("val = %s\n", PyBytes_AsString(meta_val));
+          text[meta_pos].compression = PNG_TEXT_COMPRESSION_NONE;
+#if PY3K
+          text[meta_pos].key = PyBytes_AsString(meta_key);
+          text[meta_pos].text = PyBytes_AsString(meta_val);
+#else
+          text[meta_pos].key = PyString_AsString(meta_key);
+          text[meta_pos].text = PyString_AsString(meta_val);
+#endif
+#ifdef PNG_iTXt_SUPPORTED
+          text[meta_pos].lang = NULL;
+#endif
+          meta_pos++;
+       }
+       png_set_text(png_ptr, info_ptr, text, meta_size);
+       delete[] text;
+    }
+#endif
 
     sig_bit.alpha = 0;
     switch (png_color_type) {
