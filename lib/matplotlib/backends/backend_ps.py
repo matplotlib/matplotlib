@@ -1059,13 +1059,19 @@ class FigureCanvasPS(FigureCanvasBase):
         self.figure.set_facecolor(origfacecolor)
         self.figure.set_edgecolor(origedgecolor)
 
+        # check for custom metadata
+        metadata = kwargs.pop("metadata", None)
+        if metadata is not None and 'Creator' in metadata:
+            creator_str = metadata['Creator']
+        else:
+            creator_str = "matplotlib version " + __version__ + \
+                ", http://matplotlib.org/"
         def print_figure_impl():
             # write the PostScript headers
             if isEPSF: print("%!PS-Adobe-3.0 EPSF-3.0", file=fh)
             else: print("%!PS-Adobe-3.0", file=fh)
             if title: print("%%Title: "+title, file=fh)
-            print(("%%Creator: matplotlib version "
-                         +__version__+", http://matplotlib.org/"), file=fh)
+            print("%%Creator: " + creator_str, file=fh)
             # get source date from SOURCE_DATE_EPOCH, if set
             # See https://reproducible-builds.org/specs/source-date-epoch/
             source_date_epoch = os.getenv("SOURCE_DATE_EPOCH")
@@ -1249,12 +1255,21 @@ class FigureCanvasPS(FigureCanvasBase):
         self.figure.set_facecolor(origfacecolor)
         self.figure.set_edgecolor(origedgecolor)
 
+        # check for custom metadata
+        metadata = kwargs.pop("metadata", None)
+        if metadata is not None and 'Creator' in metadata:
+            creator_str = metadata['Creator']
+        else:
+            creator_str = "matplotlib version " + __version__ + \
+                ", http://matplotlib.org/"
+
         # write to a temp file, we'll move it to outfile when done
         fd, tmpfile = mkstemp()
         with io.open(fd, 'w', encoding='latin-1') as fh:
             # write the Encapsulated PostScript headers
             print("%!PS-Adobe-3.0 EPSF-3.0", file=fh)
             if title: print("%%Title: "+title, file=fh)
+<<<<<<< d8cac234387c1bc50b4686b9568b4f5e43149957
             print(("%%Creator: matplotlib version "
                          +__version__+", http://matplotlib.org/"), file=fh)
             # get source date from SOURCE_DATE_EPOCH, if set
@@ -1266,6 +1281,10 @@ class FigureCanvasPS(FigureCanvasBase):
             else:
                 source_date = time.ctime()
             print("%%CreationDate: "+source_date, file=fh)
+=======
+            print("%%Creator: " + creator_str, file=fh)
+            print("%%CreationDate: "+time.ctime(time.time()), file=fh)
+>>>>>>> Allow to pass custom Creator to images created with ps backend
             print("%%%%BoundingBox: %d %d %d %d" % bbox, file=fh)
             print("%%EndComments", file=fh)
 
