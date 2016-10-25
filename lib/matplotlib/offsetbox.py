@@ -898,6 +898,8 @@ class AuxTransformBox(OffsetBox):
         self.ref_offset_transform = mtransforms.Affine2D()
         self.ref_offset_transform.clear()
 
+        self.dpi_transform = mtransforms.Affine2D()
+
     def add_artist(self, a):
         'Add any :class:`~matplotlib.artist.Artist` to the container box'
         self._children.append(a)
@@ -911,6 +913,7 @@ class AuxTransformBox(OffsetBox):
         """
         return self.aux_transform + \
                self.ref_offset_transform + \
+               self.dpi_transform + \
                self.offset_transform
 
     def set_transform(self, t):
@@ -947,10 +950,12 @@ class AuxTransformBox(OffsetBox):
 
     def get_extent(self, renderer):
 
-        # clear the offset transforms
-        _off = self.offset_transform.to_values()  # to be restored later
+        # clear the transforms, restored later
+        _off = self.offset_transform.to_values()
+        _dpi = self.dpi_transform.to_values()
         self.ref_offset_transform.clear()
         self.offset_transform.clear()
+        self.dpi_transform.clear()
 
         # calculate the extent
         bboxes = [c.get_window_extent(renderer) for c in self._children]
@@ -959,16 +964,25 @@ class AuxTransformBox(OffsetBox):
         # adjust ref_offset_tansform
         self.ref_offset_transform.translate(-ub.x0, -ub.y0)
 
-        # restor offset transform
+        # restore offset transform
         mtx = self.offset_transform.matrix_from_values(*_off)
         self.offset_transform.set_matrix(mtx)
 
-        return ub.width, ub.height, 0., 0.
+        # restore dpi transform
+        mtx = self.dpi_transform.matrix_from_values(*_dpi)
+        self.dpi_transform.set_matrix(mtx)
+
+        dpi_cor = renderer.points_to_pixels(1.)
+        return ub.width*dpi_cor, ub.height*dpi_cor, 0., 0.
 
     def draw(self, renderer):
         """
         Draw the children
         """
+
+        dpi_cor = renderer.points_to_pixels(1.)
+        self.dpi_transform.clear()
+        self.dpi_transform.scale(dpi_cor, dpi_cor)
 
         for c in self._children:
             c.draw(renderer)
