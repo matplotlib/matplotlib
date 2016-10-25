@@ -486,7 +486,8 @@ class PdfFile(object):
             self.infoDict = metadata
         else:
             self.infoDict = {
-                'Creator': 'matplotlib %s, http://matplotlib.org' % __version__,
+                'Creator': 'matplotlib ' + __version__ +
+                           ', http://matplotlib.org',
                 'Producer': 'matplotlib pdf backend%s' % revision,
                 'CreationDate': source_date
             }
