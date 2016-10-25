@@ -17,6 +17,9 @@ it can be provided as:
 * a name from the `xkcd color survey <https://xkcd.com/color/rgb/>`__
   prefixed with ``'xkcd:'`` (e.g., ``'xkcd:sky blue'``)
 * one of ``{'C0', 'C1', 'C2', 'C3', 'C4', 'C5', 'C6', 'C7', 'C8', 'C9'}``
+* one of ``{'vega:blue', 'vega:orange', 'vega:green',
+  'vega:red', 'vega:purple', 'vega:brown', 'vega:pink',
+  'vega:gray', 'vega:olive', 'vega:cyan'}``
 
 All string specifications of color are case-insensitive.
 
