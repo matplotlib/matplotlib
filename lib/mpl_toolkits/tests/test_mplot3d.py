@@ -1,6 +1,6 @@
 from nose.tools import assert_raises
 from mpl_toolkits.mplot3d import Axes3D, axes3d
-from matplotlib import cm
+from matplotlib import cm, transforms
 from matplotlib.testing.decorators import image_comparison, cleanup
 import matplotlib.pyplot as plt
 import numpy as np
@@ -152,6 +152,12 @@ def test_text3d():
     fig = plt.figure()
     ax = fig.gca(projection='3d')
 
+    theta = np.deg2rad(-57)
+    S = np.sin(theta)
+    C = np.cos(theta)
+    R = transforms.Affine2D(matrix=np.array([[ C, S, 0.4],
+                                             [ -S, C, 0.6],
+                                             [ 0, 0, 1.0]]))
     zdirs = (None, 'x', 'y', 'z', (1, 1, 0), (1, 1, 1))
     xs = (2, 6, 4, 9, 7, 2)
     ys = (6, 4, 8, 7, 2, 2)
@@ -161,6 +167,8 @@ def test_text3d():
         label = '(%d, %d, %d), dir=%s' % (x, y, z, zdir)
         ax.text(x, y, z, label, zdir)
 
+    ax.text(8, 3, 8, "Fixed at -57 deg", None, color='green',
+            transform=R + ax.transAxes, trans_rotate=True)
     ax.text(1, 1, 1, "red", color='red')
     ax.text2D(0.05, 0.95, "2D Text", transform=ax.transAxes)
     ax.set_xlim3d(0, 10)
