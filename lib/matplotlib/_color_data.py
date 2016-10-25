@@ -15,6 +15,23 @@ BASE_COLORS = {
     'w': (1, 1, 1)}
 
 
+VEGA_COLORS = {
+    'blue': '#1f77b4',
+    'orange': '#ff7f0e',
+    'green': '#2ca02c',
+    'red': '#d62728',
+    'purple': '#9467bd',
+    'brown': '#8c564b',
+    'pink': '#e377c2',
+    'gray': '#7f7f7f',
+    'olive': '#bcbd22',
+    'cyan': '#17becf'}
+
+
+# Normalize name to "vega10:<name>" to avoid name collisions.
+VEGA_COLORS = {'vega:' + name: value for name, value in VEGA_COLORS.items()}
+
+
 # This mapping of color names -> hex values is taken from
 # a survey run by Randel Monroe see:
 # http://blog.xkcd.com/2010/05/03/color-survey-results/
