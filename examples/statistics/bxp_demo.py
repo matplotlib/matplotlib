@@ -1,5 +1,17 @@
 """
-Demo of the new boxplot drawer function
+===================================
+Demo of the boxplot drawer function
+===================================
+
+This example demonstrates how to pass pre-computed box plot
+statistics to the box plot drawer. The first figure demonstrates
+how to remove and add individual components (note that the
+mean is the only value not shown by default). The second
+figure demonstrates how the styles of the artists can
+be customized.
+
+A good general reference on boxplots and their history can be found
+here: http://vita.had.co.nz/papers/boxplots.pdf
 """
 
 import numpy as np
@@ -21,6 +33,7 @@ for n in range(len(stats)):
     stats[n]['mean'] *= 2
 
 print(stats[0].keys())
+
 fs = 10  # fontsize
 
 # demonstrate how to toggle the display of different elements:
@@ -35,7 +48,8 @@ axes[0, 2].bxp(stats, showmeans=True, meanline=True)
 axes[0, 2].set_title('showmeans=True,\nmeanline=True', fontsize=fs)
 
 axes[1, 0].bxp(stats, showbox=False, showcaps=False)
-axes[1, 0].set_title('Tufte Style\n(showbox=False,\nshowcaps=False)', fontsize=fs)
+tufte_title = 'Tufte Style\n(showbox=False,\nshowcaps=False)'
+axes[1, 0].set_title(tufte_title, fontsize=fs)
 
 axes[1, 1].bxp(stats, shownotches=True)
 axes[1, 1].set_title('notch=True', fontsize=fs)
@@ -49,7 +63,6 @@ for ax in axes.flatten():
 
 fig.subplots_adjust(hspace=0.4)
 plt.show()
-
 
 # demonstrate how to customize the display different elements:
 boxprops = dict(linestyle='--', linewidth=3, color='darkgoldenrod')
@@ -71,7 +84,8 @@ axes[1, 0].bxp(stats, meanprops=meanpointprops, meanline=False,
                showmeans=True)
 axes[1, 0].set_title('Custom mean\nas point', fontsize=fs)
 
-axes[1, 1].bxp(stats, meanprops=meanlineprops, meanline=True, showmeans=True)
+axes[1, 1].bxp(stats, meanprops=meanlineprops, meanline=True,
+               showmeans=True)
 axes[1, 1].set_title('Custom mean\nas line', fontsize=fs)
 
 for ax in axes.flatten():

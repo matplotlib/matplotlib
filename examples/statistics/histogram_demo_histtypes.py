@@ -1,17 +1,25 @@
 """
-Demo of the histogram (hist) function with different ``histtype`` settings.
+================================================================
+Demo of the histogram function's different ``histtype`` settings
+================================================================
 
 * Histogram with step curve that has a color fill.
-* Histogram with with unequal bin widths.
+* Histogram with custom and unequal bin widths.
 
+Selecting different bin counts and sizes can significantly affect the
+shape of a histogram. The Astropy docs have a great section on how to
+select these parameters:
+http://docs.astropy.org/en/stable/visualization/histogram.html
 """
+
 import numpy as np
 import matplotlib.pyplot as plt
 
+np.random.seed(0)
 
 mu = 200
 sigma = 25
-x = mu + sigma*np.random.randn(10000)
+x = np.random.normal(mu, sigma, size=100)
 
 fig, (ax0, ax1) = plt.subplots(ncols=2, figsize=(8, 4))
 
@@ -23,5 +31,5 @@ bins = [100, 150, 180, 195, 205, 220, 250, 300]
 ax1.hist(x, bins, normed=1, histtype='bar', rwidth=0.8)
 ax1.set_title('unequal bins')
 
-plt.tight_layout()
+fig.tight_layout()
 plt.show()
