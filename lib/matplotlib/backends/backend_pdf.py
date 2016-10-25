@@ -482,15 +482,14 @@ class PdfFile(object):
         else:
             source_date = datetime.today()
 
+        self.infoDict = {
+            'Creator': 'matplotlib ' + __version__ +
+                       ', http://matplotlib.org',
+            'Producer': 'matplotlib pdf backend%s' % revision,
+            'CreationDate': source_date
+        }
         if metadata is not None:
-            self.infoDict = metadata
-        else:
-            self.infoDict = {
-                'Creator': 'matplotlib ' + __version__ +
-                           ', http://matplotlib.org',
-                'Producer': 'matplotlib pdf backend%s' % revision,
-                'CreationDate': source_date
-            }
+            self.infoDict.update(metadata)
 
         self.fontNames = {}     # maps filenames to internal font names
         self.nextFont = 1       # next free internal font name
