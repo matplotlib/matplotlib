@@ -290,11 +290,7 @@ static PyObject *Py_write_png(PyObject *self, PyObject *args, PyObject *kwds)
        meta_size = PyDict_Size(metadata);
        text = new png_text[meta_size];
 
-       printf("meta_size = %d\n", meta_size);
        while (PyDict_Next(metadata, &pos, &meta_key, &meta_val)) {
-          printf("pos = %i\n", meta_pos);
-          printf("key = %s\n", PyBytes_AsString(meta_key));
-          printf("val = %s\n", PyBytes_AsString(meta_val));
           text[meta_pos].compression = PNG_TEXT_COMPRESSION_NONE;
 #if PY3K
           text[meta_pos].key = PyBytes_AsString(meta_key);
