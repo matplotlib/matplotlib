@@ -27,7 +27,7 @@ import six
 import threading
 import numpy as np
 from math import radians, cos, sin
-from matplotlib import verbose, rcParams
+from matplotlib import verbose, rcParams, __version__
 from matplotlib.backend_bases import (RendererBase, FigureManagerBase,
                                       FigureCanvasBase)
 from matplotlib.cbook import is_string_like, maxdict, restrict_dict
@@ -554,8 +554,14 @@ class FigureCanvasAgg(FigureCanvasBase):
         else:
             close = False
 
+        metadata = kwargs.pop("metadata", None)
+        if metadata is None:
+            version_str = 'matplotlib version ' + __version__ + \
+                ', http://matplotlib.org/'
+            metadata = {six.b('software'): six.b(version_str)}
         try:
-            _png.write_png(renderer._renderer, filename_or_obj, self.figure.dpi)
+            _png.write_png(renderer._renderer, filename_or_obj, self.figure.dpi,
+                           metadata=metadata)
         finally:
             if close:
                 filename_or_obj.close()
