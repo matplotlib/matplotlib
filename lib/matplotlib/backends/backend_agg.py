@@ -558,7 +558,7 @@ class FigureCanvasAgg(FigureCanvasBase):
         if metadata is None:
             version_str = 'matplotlib version ' + __version__ + \
                 ', http://matplotlib.org/'
-            metadata = {six.b('software'): six.b(version_str)}
+            metadata = {six.b('Software'): six.b(version_str)}
         try:
             _png.write_png(renderer._renderer, filename_or_obj, self.figure.dpi,
                            metadata=metadata)
