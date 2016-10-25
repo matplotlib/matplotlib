@@ -1,5 +1,19 @@
 """
-Demo of the new boxplot functionality
+=========================================
+Demo of artist customization in box plots
+=========================================
+
+This example demonstrates how to use the various kwargs
+to fully customize box plots. The first figure demonstrates
+how to remove and add individual components (note that the
+mean is the only value not shown by default). The second
+figure demonstrates how the styles of the artists can
+be customized. It also demonstrates how to set the limit
+of the whiskers to specific percentiles (lower right axes)
+
+A good general reference on boxplots and their history can be found
+here: http://vita.had.co.nz/papers/boxplots.pdf
+
 """
 
 import numpy as np
@@ -23,7 +37,8 @@ axes[0, 2].boxplot(data, labels=labels, showmeans=True, meanline=True)
 axes[0, 2].set_title('showmeans=True,\nmeanline=True', fontsize=fs)
 
 axes[1, 0].boxplot(data, labels=labels, showbox=False, showcaps=False)
-axes[1, 0].set_title('Tufte Style \n(showbox=False,\nshowcaps=False)', fontsize=fs)
+tufte_title = 'Tufte Style \n(showbox=False,\nshowcaps=False)'
+axes[1, 0].set_title(tufte_title, fontsize=fs)
 
 axes[1, 1].boxplot(data, labels=labels, notch=True, bootstrap=10000)
 axes[1, 1].set_title('notch=True,\nbootstrap=10000', fontsize=fs)
@@ -62,7 +77,8 @@ axes[1, 0].boxplot(data, meanprops=meanpointprops, meanline=False,
                    showmeans=True)
 axes[1, 0].set_title('Custom mean\nas point', fontsize=fs)
 
-axes[1, 1].boxplot(data, meanprops=meanlineprops, meanline=True, showmeans=True)
+axes[1, 1].boxplot(data, meanprops=meanlineprops, meanline=True,
+                   showmeans=True)
 axes[1, 1].set_title('Custom mean\nas line', fontsize=fs)
 
 axes[1, 2].boxplot(data, whis=[15, 85])
