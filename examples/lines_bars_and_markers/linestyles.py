@@ -4,6 +4,7 @@ Different linestyles copying those of Tikz/PGF
 import numpy as np
 import matplotlib.pyplot as plt
 from collections import OrderedDict
+from matplotlib.transforms import blended_transform_factory
 
 linestyles = OrderedDict(
     [('solid',               (0, ())),
@@ -35,9 +36,13 @@ ax.set_ylim(-0.5, len(linestyles)-0.5)
 plt.yticks(np.arange(len(linestyles)), linestyles.keys())
 plt.xticks([])
 
+# For each line style, add a text annotation with a small offset from
+# the reference point (0 in Axes coords, y tick value in Data coords).
+reference_transform = blended_transform_factory(ax.transAxes, ax.transData)
 for i, (name, linestyle) in enumerate(linestyles.items()):
-    ax.text(-0.5, i-0.4, str(linestyle), fontsize=8, ha="right",
-            color="blue", family="monospace")
+    ax.annotate(str(linestyle), xy=(0.0, i), xycoords=reference_transform,
+                xytext=(-6, -12), textcoords='offset points', color="blue",
+                fontsize=8, ha="right", family="monospace")
 
 plt.tight_layout()
 plt.show()
