@@ -1205,8 +1205,22 @@ class FigureCanvasSVG(FigureCanvasBase):
                 svgwriter = io.TextIOWrapper(svgwriter, 'utf-8')
             else:
                 svgwriter = codecs.getwriter('utf-8')(svgwriter)
+            detach = True
+        else:
+            detach = False
 
-        return self._print_svg(filename, svgwriter, **kwargs)
+        result = self._print_svg(filename, svgwriter, **kwargs)
+
+        # Detach underlying stream from wrapper so that it remains open in the
+        # caller.
+        if detach:
+            if six.PY3:
+                svgwriter.detach()
+            else:
+                svgwriter.reset()
+                svgwriter.stream = io.BytesIO()
+
+        return result
 
     def print_svgz(self, filename, *args, **kwargs):
         if is_string_like(filename):
