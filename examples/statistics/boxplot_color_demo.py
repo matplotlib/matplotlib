@@ -1,4 +1,17 @@
-# Box plots with custom fill colors
+"""
+=================================
+Box plots with custom fill colors
+=================================
+
+This plot illustrates how to create two types of box plots
+(rectangular and notched), and how to fill them with custom
+colors by accessing the properties of the artists of the
+box plots. Additionally, the ``labels`` parameter is used to
+provide x-tick labels for each sample.
+
+A good general reference on boxplots and their history can be found
+here: http://vita.had.co.nz/papers/boxplots.pdf
+"""
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -7,7 +20,7 @@ import numpy as np
 np.random.seed(123)
 all_data = [np.random.normal(0, std, 100) for std in range(1, 4)]
 
-fig, axes = plt.subplots(nrows=1, ncols=2, figsize=(12, 5))
+fig, axes = plt.subplots(nrows=1, ncols=2, figsize=(9, 4))
 
 # rectangular box plot
 bplot1 = axes[0].boxplot(all_data,
