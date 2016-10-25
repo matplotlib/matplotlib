@@ -124,7 +124,7 @@ static PyObject *Py_write_png(PyObject *self, PyObject *args, PyObject *kwds)
 {
     numpy::array_view<unsigned char, 3> buffer;
     PyObject *filein;
-    PyObject *metadata;
+    PyObject *metadata = NULL;
     PyObject *meta_key, *meta_val;
     png_text *text;
     Py_ssize_t pos = 0;
