@@ -28,8 +28,8 @@ VEGA10_COLORS = {
     'cyan': '#17becf'}
 
 
-# Normalize name to "vega:<name>" to avoid name collisions.
-VEGA10_COLORS = {'vega:' + name: value for name,
+# Normalize name to "vega10:<name>" to avoid name collisions.
+VEGA10_COLORS = {'vega10:' + name: value for name,
                  value in VEGA10_COLORS.items()}
 
 
