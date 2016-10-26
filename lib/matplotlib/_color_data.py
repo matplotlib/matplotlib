@@ -29,7 +29,8 @@ VEGA10_COLORS = {
 
 
 # Normalize name to "vega:<name>" to avoid name collisions.
-VEGA10_COLORS = {'vega:' + name: value for name, value in VEGA10_COLORS.items()}
+VEGA10_COLORS = {'vega:' + name: value for name,
+                 value in VEGA10_COLORS.items()}
 
 
 # This mapping of color names -> hex values is taken from
