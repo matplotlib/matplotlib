@@ -1002,7 +1002,7 @@ class FuncNorm(Normalize):
 
         """
 
-        f, finv = FuncNorm._fun_parser([f, finv])
+        f, finv = FuncNorm._func_parser([f, finv])
         if finv is None:
             raise ValueError("Inverse function not provided")
 
@@ -1044,10 +1044,23 @@ class FuncNorm(Normalize):
 
         self._update_f(vmin, vmax)
 
-        result[result >= vmax] = vmax
-        result[result <= vmin] = vmin
-        resultnorm = (self._f(result) - self._f(vmin)) / \
-            (self._f(vmax) - self._f(vmin))
+        if clip:
+            result[result >= vmax] = vmax
+            result[result <= vmin] = vmin
+            resultnorm = (self._f(result) - self._f(vmin)) / \
+                         (self._f(vmax) - self._f(vmin))
+        else:
+            resultnorm = result.copy()
+            mask_over = result > vmax
+            mask_under = result < vmin
+            mask = (result >= vmin) * (result <= vmax)
+            # Since the non linear function is arbitrary and may not be
+            # defined outside the boundaries, we just set obvious under
+            # and over values
+            resultnorm[mask_over] = 1.1
+            resultnorm[mask_under] = -0.1
+            resultnorm[mask] = (self._f(result[mask]) - self._f(vmin)) / \
+                               (self._f(vmax) - self._f(vmin))
 
         return np.ma.array(resultnorm)
 
@@ -1075,32 +1088,32 @@ class FuncNorm(Normalize):
         return value
 
     @staticmethod
-    def _fun_parser(funsin):
-        flog = 2000
-        funs = [('linear', (lambda x: x), (lambda x: x)),
-                ('quadratic', (lambda x: x**2), (lambda x: x**(1. / 2))),
-                ('cubic', (lambda x: x**3), (lambda x: x**(1. / 3))),
-                ('sqrt', (lambda x: x**(1. / 2)), (lambda x: x**2)),
-                ('crt', (lambda x: x**(1. / 3)), (lambda x: x**3)),
-                ('log(x+1)',
-                 (lambda x: np.log10(x * flog + 1) / np.log10(flog + 1)),
-                 (lambda x: (10**(np.log10(flog + 1) * x) - 1) / flog)),
-                ('log',
-                 (lambda x: np.log10(x)),
-                 (lambda x: (10**(x))))]
+    def _func_parser(funcsin):
+        if hasattr(funcsin[0], '__call__'):
+            return funcsin
 
-        if isinstance(funsin[0], ("".__class__,
-                                  u"".__class__,
-                                  str("").__class__)):
-            funstrs = []
-            for fstr, fun, inv in funs:
-                funstrs.append(fstr)
-                if funsin[0] == fstr:
-                    return fun, inv
-            raise ValueError(
-                "the only strings recognized as functions are %s" % funstrs)
-        else:
-            return funsin
+        flog = 2000
+        funcs = {'linear': (lambda x: x, lambda x: x),
+                 'quadratic': (lambda x: x**2, lambda x: x**(1. / 2)),
+                 'cubic': (lambda x: x**3, lambda x: x**(1. / 3)),
+                 'sqrt': (lambda x: x**(1. / 2), lambda x: x**2),
+                 'crt': (lambda x: x**(1. / 3), lambda x: x**3),
+                 'log(x+1)': (lambda x: (np.log10(x * flog + 1) /
+                                         np.log10(flog + 1),
+                              lambda x: ((10**(np.log10(flog + 1) * x) - 1) /
+                                         flog))),
+                 'log': (lambda x: np.log10(x),
+                         lambda x: (10**(x)))}
+        try:
+            return funcs[six.text_type(funcsin[0])]
+        except KeyError:
+            raise ValueError("%s: invalid function. The only strings "
+                             "recognized as functions are %s." %
+                             (funcsin[0], funcs.keys()))
+        except:
+            raise ValueError("Invalid function. The only strings recognized "
+                             "as functions are %s." %
+                             (funcs.keys()))
 
     @staticmethod
     def _fun_normalizer(fun):
@@ -1281,7 +1294,7 @@ class PiecewiseNorm(FuncNorm):
         self._flist = []
         self._finvlist = []
         for i in range(len(flist)):
-            funs = FuncNorm._fun_parser((flist[i], finvlist[i]))
+            funs = FuncNorm._func_parser((flist[i], finvlist[i]))
             if funs[0] is None or funs[1] is None:
                 raise ValueError(
                     "Inverse function not provided for %i range" % i)
@@ -1487,8 +1500,8 @@ class MirrorPiecewiseNorm(PiecewiseNorm):
             fneg = fpos
             fneginv = fposinv
 
-        fpos, fposinv = PiecewiseNorm._fun_parser([fpos, fposinv])
-        fneg, fneginv = PiecewiseNorm._fun_parser([fneg, fneginv])
+        fpos, fposinv = PiecewiseNorm._func_parser([fpos, fposinv])
+        fneg, fneginv = PiecewiseNorm._func_parser([fneg, fneginv])
 
         if fposinv is None:
             raise ValueError(
