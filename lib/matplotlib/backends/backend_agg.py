@@ -556,7 +556,7 @@ class FigureCanvasAgg(FigureCanvasBase):
 
         version_str = 'matplotlib version ' + __version__ + \
             ', http://matplotlib.org/'
-        metadata = {six.b('Software'): six.b(version_str)}
+        metadata = {'Software': version_str}
         user_metadata = kwargs.pop("metadata", None)
         if user_metadata is not None:
             metadata.update(user_metadata)

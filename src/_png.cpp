@@ -292,8 +292,26 @@ static PyObject *Py_write_png(PyObject *self, PyObject *args, PyObject *kwds)
         while (PyDict_Next(metadata, &pos, &meta_key, &meta_val)) {
             text[meta_pos].compression = PNG_TEXT_COMPRESSION_NONE;
 #if PY3K
-            text[meta_pos].key = PyBytes_AsString(meta_key);
-            text[meta_pos].text = PyBytes_AsString(meta_val);
+            if (PyUnicode_Check(meta_key)) {
+                PyObject *temp_key = PyUnicode_AsEncodedString(meta_key, "ASCII", "strict");
+                if (temp_key != NULL) {
+                    text[meta_pos].key = PyBytes_AsString(temp_key);
+                }
+            } else if (PyBytes_Check(meta_key)) {
+                text[meta_pos].key = PyBytes_AsString(meta_key);
+            } else {
+                text[meta_pos].key = NULL;  // Silently drops entry
+            }
+            if (PyUnicode_Check(meta_val)) {
+                PyObject *temp_val = PyUnicode_AsEncodedString(meta_val, "ASCII", "strict");
+                if (temp_val != NULL) {
+                    text[meta_pos].text = PyBytes_AsString(temp_val);
+                }
+            } else if (PyBytes_Check(meta_val)) {
+                text[meta_pos].text = PyBytes_AsString(meta_val);
+            } else {
+                text[meta_pos].text = (char *)"Invalid value in metadata";
+            }
 #else
             text[meta_pos].key = PyString_AsString(meta_key);
             text[meta_pos].text = PyString_AsString(meta_val);
