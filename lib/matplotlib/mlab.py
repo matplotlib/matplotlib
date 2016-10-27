@@ -4,7 +4,7 @@ Numerical python functions written for compatability with MATLAB
 commands with the same names.
 
 MATLAB compatible functions
--------------------------------
+---------------------------
 
 :func:`cohere`
     Coherence (normalized cross spectral density)
@@ -39,7 +39,7 @@ MATLAB compatible functions
     Spectrogram (spectrum over segments of time)
 
 Miscellaneous functions
--------------------------
+-----------------------
 
 Functions that don't exist in MATLAB, but are useful anyway:
 
@@ -99,7 +99,7 @@ Functions that don't exist in MATLAB, but are useful anyway:
 
 
 record array helper functions
--------------------------------
+-----------------------------
 
 A collection of helper methods for numpyrecord arrays
 
@@ -192,9 +192,6 @@ def logspace(xmin, xmax, N):
     '''
     Return N values logarithmically spaced between xmin and xmax.
 
-    Call signature::
-
-        logspace(xmin, xmax, N)
     '''
     return np.exp(np.linspace(np.log(xmin), np.log(xmax), N))
 
@@ -203,9 +200,6 @@ def _norm(x):
     '''
     Return sqrt(x dot x).
 
-    Call signature::
-
-        _norm(x)
     '''
     return np.sqrt(np.dot(x, x))
 
@@ -213,10 +207,6 @@ def _norm(x):
 def window_hanning(x):
     '''
     Return x times the hanning window of len(x).
-
-    Call signature::
-
-        window_hanning(x)
 
     .. seealso::
 
@@ -230,10 +220,6 @@ def window_none(x):
     '''
     No window function; simply return x.
 
-    Call signature::
-
-        window_none(x)
-
     .. seealso::
 
         :func:`window_hanning`
@@ -245,10 +231,6 @@ def window_none(x):
 def apply_window(x, window, axis=0, return_window=None):
     '''
     Apply the given window to the given 1D or 2D array along the given axis.
-
-    Call signature::
-
-        apply_window(x, window, axis=0, return_window=False)
 
       *x*: 1D or 2D array or sequence
         Array or sequence containing the data.
@@ -303,10 +285,6 @@ def apply_window(x, window, axis=0, return_window=None):
 def detrend(x, key=None, axis=None):
     '''
     Return x with its trend removed.
-
-    Call signature::
-
-        detrend(x, key='mean')
 
       *x*: array or sequence
         Array or sequence containing the data.
@@ -369,10 +347,6 @@ def demean(x, axis=0):
     '''
     Return x minus its mean along the specified axis.
 
-    Call signature::
-
-        demean(x, axis=0)
-
       *x*: array or sequence
         Array or sequence containing the data
         Can have any dimensionality
@@ -398,10 +372,6 @@ def demean(x, axis=0):
 def detrend_mean(x, axis=None):
     '''
     Return x minus the mean(x).
-
-    Call signature::
-
-        detrend_mean(x, axis=None)
 
       *x*: array or sequence
         Array or sequence containing the data
@@ -448,10 +418,6 @@ def detrend_none(x, axis=None):
     '''
     Return x: no detrending.
 
-    Call signature::
-
-        detrend_none(x, axis=None)
-
       *x*: any object
         An object containing the data
 
@@ -480,10 +446,6 @@ def detrend_none(x, axis=None):
 def detrend_linear(y):
     '''
     Return x minus best fit line; 'linear' detrending.
-
-    Call signature::
-
-        detrend_linear(y)
 
       *y*: 0-D or 1-D array or sequence
         Array or sequence containing the data
@@ -536,10 +498,6 @@ def stride_windows(x, n, noverlap=None, axis=0):
         It is not safe to write to the output array.  Multiple
         elements may point to the same piece of memory,
         so modifying one value may change others.
-
-    Call signature::
-
-        stride_windows(x, n, noverlap=0)
 
       *x*: 1D array or sequence
         Array or sequence containing the data.
@@ -605,10 +563,6 @@ def stride_repeat(x, n, axis=0):
         It is not safe to write to the output array.  Multiple
         elements may point to the same piece of memory, so
         modifying one value may change others.
-
-    Call signature::
-
-        stride_repeat(x, n, axis=0)
 
       *x*: 1D array or sequence
         Array or sequence containing the data.
@@ -1381,10 +1335,6 @@ def cohere_pairs(X, ij, NFFT=256, Fs=2, detrend=detrend_none,
                  returnPxx=False):
 
     """
-    Call signature::
-
-      Cxy, Phase, freqs = cohere_pairs( X, ij, ...)
-
     Compute the coherence and phase for all pairs *ij*, in *X*.
 
     *X* is a *numSamples* * *numCols* array
@@ -3628,9 +3578,6 @@ def stineman_interp(xi, x, y, yp=None):
 class GaussianKDE(object):
     """
     Representation of a kernel-density estimate using Gaussian kernels.
-
-    Call signature::
-    kde = GaussianKDE(dataset, bw_method='silverman')
 
     Parameters
     ----------
