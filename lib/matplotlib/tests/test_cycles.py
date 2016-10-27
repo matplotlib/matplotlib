@@ -1,6 +1,7 @@
 import warnings
 
 from matplotlib.testing.decorators import image_comparison, cleanup
+from matplotlib.cbook import MatplotlibDeprecationWarning
 import matplotlib.pyplot as plt
 import numpy as np
 from nose.tools import assert_raises
@@ -184,6 +185,7 @@ def test_cycle_reset():
     fig, ax = plt.subplots()
     # Need to double-check the old set/get_color_cycle(), too
     with warnings.catch_warnings():
+        warnings.simplefilter("ignore", MatplotlibDeprecationWarning)
         prop = next(ax._get_lines.prop_cycler)
         ax.set_color_cycle(['c', 'm', 'y', 'k'])
         assert prop != next(ax._get_lines.prop_cycler)

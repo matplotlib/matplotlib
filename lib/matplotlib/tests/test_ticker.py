@@ -176,7 +176,12 @@ def test_ScalarFormatter_offset_value():
     formatter = ax.get_xaxis().get_major_formatter()
 
     def check_offset_for(left, right, offset):
-        ax.set_xlim(left, right)
+        with warnings.catch_warnings(record=True) as w:
+            warnings.filterwarnings('always', 'Attempting to set identical',
+                                    UserWarning)
+            ax.set_xlim(left, right)
+        assert_equal(len(w), 1 if left == right else 0)
+
         # Update ticks.
         next(ax.get_xaxis().iter_ticks())
         assert_equal(formatter.offset, offset)
