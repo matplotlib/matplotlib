@@ -483,8 +483,7 @@ class PdfFile(object):
             source_date = datetime.today()
 
         self.infoDict = {
-            'Creator': 'matplotlib ' + __version__ +
-                       ', http://matplotlib.org',
+            'Creator': 'matplotlib %s, http://matplotlib.org' % __version__,
             'Producer': 'matplotlib pdf backend%s' % revision,
             'CreationDate': source_date
         }
