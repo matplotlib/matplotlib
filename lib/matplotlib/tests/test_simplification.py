@@ -8,8 +8,6 @@ import matplotlib
 from matplotlib.testing.decorators import image_comparison, knownfailureif, cleanup
 import matplotlib.pyplot as plt
 
-from pylab import *
-import numpy as np
 from matplotlib import patches, path, transforms
 
 from nose.tools import raises
@@ -24,7 +22,7 @@ Path = path.Path
 @image_comparison(baseline_images=['clipping'], remove_text=True)
 def test_clipping():
     t = np.arange(0.0, 2.0, 0.01)
-    s = np.sin(2*pi*t)
+    s = np.sin(2*np.pi*t)
 
     fig = plt.figure()
     ax = fig.add_subplot(111)
@@ -101,16 +99,16 @@ def test_simplify_curve():
 def test_hatch():
     fig = plt.figure()
     ax = fig.add_subplot(111)
-    ax.add_patch(Rectangle((0, 0), 1, 1, fill=False, hatch="/"))
+    ax.add_patch(plt.Rectangle((0, 0), 1, 1, fill=False, hatch="/"))
     ax.set_xlim((0.45, 0.55))
     ax.set_ylim((0.45, 0.55))
 
 @image_comparison(baseline_images=['fft_peaks'], remove_text=True)
 def test_fft_peaks():
     fig = plt.figure()
-    t = arange(65536)
+    t = np.arange(65536)
     ax = fig.add_subplot(111)
-    p1 = ax.plot(abs(fft(sin(2*pi*.01*t)*blackman(len(t)))))
+    p1 = ax.plot(abs(np.fft.fft(np.sin(2*np.pi*.01*t)*np.blackman(len(t)))))
 
     path = p1[0].get_path()
     transform = p1[0].get_transform()
@@ -163,7 +161,7 @@ AAj1//+nPwAA/////w=="""
 @cleanup
 @raises(OverflowError)
 def test_throw_rendering_complexity_exceeded():
-    rcParams['path.simplify'] = False
+    plt.rcParams['path.simplify'] = False
     xx = np.arange(200000)
     yy = np.random.rand(200000)
     yy[1000] = np.nan
@@ -173,7 +171,7 @@ def test_throw_rendering_complexity_exceeded():
     try:
         fig.savefig(io.BytesIO())
     finally:
-        rcParams['path.simplify'] = True
+        plt.rcParams['path.simplify'] = True
 
 @image_comparison(baseline_images=['clipper_edge'], remove_text=True)
 def test_clipper():

@@ -92,7 +92,9 @@ def stackplot(axes, x, *args, **kwargs):
         center = np.zeros(n)
         total = np.sum(y, 0)
         # multiply by 1/total (or zero) to avoid infinities in the division:
-        inv_total = np.where(total > 0, 1./total, 0)
+        inv_total = np.zeros_like(total)
+        mask = total > 0
+        inv_total[mask] = 1.0 / total[mask]
         increase = np.hstack((y[:, 0:1], np.diff(y)))
         below_size = total - stack
         below_size += 0.5 * y
