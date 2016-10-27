@@ -751,7 +751,7 @@ or tuple of floats
 
 
         Examples
-        ---------
+        --------
         * draw a thick red vline at *x* = 0 that spans the yrange::
 
             >>> axvline(linewidth=4, color='r')
@@ -1034,7 +1034,7 @@ or tuple of floats
         hlines : horizontal lines
 
         Examples
-        ---------
+        --------
         .. plot:: mpl_examples/pylab_examples/vline_hline_demo.py
 
         """
@@ -1088,12 +1088,6 @@ or tuple of floats
                   linestyles='solid', **kwargs):
         """
         Plot identical parallel lines at specific positions.
-
-        Call signature::
-
-          eventplot(positions, orientation='horizontal', lineoffsets=0,
-                    linelengths=1, linewidths=None, color =None,
-                    linestyles='solid'
 
         Plot parallel lines at the given positions.  positions should be a 1D
         or 2D array-like object, with each row corresponding to a row or column
@@ -1497,10 +1491,6 @@ or tuple of floats
         """
         Make a plot with log scaling on both the *x* and *y* axis.
 
-        Call signature::
-
-          loglog(*args, **kwargs)
-
         :func:`~matplotlib.pyplot.loglog` supports all the keyword
         arguments of :func:`~matplotlib.pyplot.plot` and
         :meth:`matplotlib.axes.Axes.set_xscale` /
@@ -1702,7 +1692,7 @@ or tuple of floats
           - `b` is the x-axis.
 
         Other parameters
-        -----------------
+        ----------------
         linestyle : `~matplotlib.lines.Line2D` prop, optional, default: None
             Only used if usevlines is False.
 
@@ -1766,7 +1756,7 @@ or tuple of floats
           - `b` is the x-axis (none, if plot is used).
 
         Other parameters
-        -----------------
+        ----------------
         linestyle : `~matplotlib.lines.Line2D` prop, optional, default: None
             Only used if usevlines is False.
 
@@ -2231,7 +2221,7 @@ or tuple of floats
             the x coordinates of the left sides of the bars
 
         Returns
-        --------
+        -------
         `matplotlib.patches.Rectangle` instances.
 
         Other parameters
@@ -2303,10 +2293,6 @@ or tuple of floats
     def broken_barh(self, xranges, yrange, **kwargs):
         """
         Plot horizontal bars.
-
-        Call signature::
-
-          broken_barh(self, xranges, yrange, **kwargs)
 
         A collection of horizontal bars spanning *yrange* with a sequence of
         *xranges*.
@@ -2493,15 +2479,6 @@ or tuple of floats
             frame=False):
         r"""
         Plot a pie chart.
-
-        Call signature::
-
-          pie(x, explode=None, labels=None,
-              colors=None,
-              autopct=None, pctdistance=0.6, shadow=False,
-              labeldistance=1.1, startangle=None, radius=None,
-              counterclock=True, wedgeprops=None, textprops=None,
-              center = (0, 0), frame = False )
 
         Make a pie chart of array *x*.  The fractional area of each
         wedge is given by x/sum(x).  If sum(x) <= 1, then the values
@@ -3111,17 +3088,6 @@ or tuple of floats
         """
         Make a box and whisker plot.
 
-        Call signature::
-
-          boxplot(self, x, notch=None, sym=None, vert=None, whis=None,
-                  positions=None, widths=None, patch_artist=False,
-                  bootstrap=None, usermedians=None, conf_intervals=None,
-                  meanline=False, showmeans=False, showcaps=True,
-                  showbox=True, showfliers=True, boxprops=None,
-                  labels=None, flierprops=None, medianprops=None,
-                  meanprops=None, capprops=None, whiskerprops=None,
-                  manage_xticks=True, autorange=False, zorder=None):
-
         Make a box and whisker plot for each column of ``x`` or each
         vector in sequence ``x``.  The box extends from the lower to
         upper quartile values of the data, with a line at the median.
@@ -3420,15 +3386,6 @@ or tuple of floats
             meanline=False, manage_xticks=True, zorder=None):
         """
         Drawing function for box and whisker plots.
-
-        Call signature::
-
-          bxp(self, bxpstats, positions=None, widths=None, vert=True,
-              patch_artist=False, shownotches=False, showmeans=False,
-              showcaps=True, showbox=True, showfliers=True,
-              boxprops=None, whiskerprops=None, flierprops=None,
-              medianprops=None, capprops=None, meanprops=None,
-              meanline=False, manage_xticks=True, zorder=None):
 
         Make a box and whisker plot for each column of *x* or each
         vector in sequence *x*.  The box extends from the lower to
@@ -4900,10 +4857,6 @@ or tuple of floats
         """
         Make filled polygons between two horizontal curves.
 
-        Call signature::
-
-          fill_betweenx(y, x1, x2=0, where=None, **kwargs)
-
         Create a :class:`~matplotlib.collections.PolyCollection`
         filling the regions between *x1* and *x2* where
         ``where==True``
@@ -5034,7 +4987,7 @@ or tuple of floats
         Display an image on the axes.
 
         Parameters
-        -----------
+        ----------
         X : array_like, shape (n, m) or (n, m, 3) or (n, m, 4)
             Display the image in `X` to current axes.  `X` may be an
             array or a PIL image. If `X` is an array, it
@@ -5117,7 +5070,7 @@ or tuple of floats
             when interpolation is one of: 'sinc', 'lanczos' or 'blackman'
 
         Returns
-        --------
+        -------
         image : `~matplotlib.image.AxesImage`
 
         Other parameters
@@ -6528,7 +6481,7 @@ or tuple of floats
         The return value is ``(counts, xedges, yedges, Image)``.
 
         Other parameters
-        -----------------
+        ----------------
         kwargs : :meth:`pcolorfast` properties.
 
         See also
@@ -7066,12 +7019,6 @@ or tuple of floats
         """
         Plot the coherence between *x* and *y*.
 
-        Call signature::
-
-          cohere(x, y, NFFT=256, Fs=2, Fc=0, detrend = mlab.detrend_none,
-                 window = mlab.window_hanning, noverlap=0, pad_to=None,
-                 sides='default', scale_by_freq=None, **kwargs)
-
         Plot the coherence between *x* and *y*.  Coherence is the
         normalized cross spectral density:
 
@@ -7448,13 +7395,8 @@ or tuple of floats
     def violinplot(self, dataset, positions=None, vert=True, widths=0.5,
                    showmeans=False, showextrema=True, showmedians=False,
                    points=100, bw_method=None):
-        """Make a violin plot.
-
-        Call signature::
-
-          violinplot(dataset, positions=None, vert=True, widths=0.5,
-                     showmeans=False, showextrema=True, showmedians=False,
-                     points=100, bw_method=None):
+        """
+        Make a violin plot.
 
         Make a violin plot for each column of *dataset* or each vector in
         sequence *dataset*.  Each filled area extends to represent the
@@ -7552,11 +7494,6 @@ or tuple of floats
     def violin(self, vpstats, positions=None, vert=True, widths=0.5,
                showmeans=False, showextrema=True, showmedians=False):
         """Drawing function for violin plots.
-
-        Call signature::
-
-          violin(vpstats, positions=None, vert=True, widths=0.5,
-                 showmeans=False, showextrema=True, showmedians=False):
 
         Draw a violin plot for each column of `vpstats`. Each filled area
         extends to represent the entire data range, with optional lines at the

@@ -1189,11 +1189,8 @@ class _AxesBase(martist.Artist):
         return self._hold
 
     def hold(self, b=None):
-        """Set the hold state
-
-        Call signature::
-
-          hold(b=None)
+        """
+        Set the hold state
 
         If *hold* is *None* (default), toggle the *hold* state.  Else
         set the *hold* state to boolean value *b*.
@@ -2454,10 +2451,6 @@ class _AxesBase(martist.Artist):
         """
         Turn the axes grids on or off.
 
-        Call signature::
-
-           grid(self, b=None, which='major', axis='both', **kwargs)
-
         Set the axes grids on or off; *b* is a boolean.  (For MATLAB
         compatibility, *b* may also be a string, 'on' or 'off'.)
 
@@ -2788,12 +2781,7 @@ class _AxesBase(martist.Artist):
         return tuple(self.viewLim.intervalx)
 
     def set_xlim(self, left=None, right=None, emit=True, auto=False, **kw):
-        """Set the data limits for the xaxis
-
-        Call signature::
-
-          set_xlim(self, *args, **kwargs):
-
+        """
         Set the data limits for the xaxis
 
         Examples::
@@ -2887,11 +2875,8 @@ class _AxesBase(martist.Artist):
 
     @docstring.dedent_interpd
     def set_xscale(self, value, **kwargs):
-        """Set the x-axis scale
-
-        Call signature::
-
-          set_xscale(value)
+        """
+        Set the x-axis scale
 
         Set the scaling of the x-axis: %(scale)s
 
@@ -2970,14 +2955,10 @@ class _AxesBase(martist.Artist):
 
     @docstring.dedent_interpd
     def set_xticklabels(self, labels, fontdict=None, minor=False, **kwargs):
-        """Set the xtick labels with list of strings *labels*
+        """
+        Set the xtick labels with list of strings *labels*
 
-        Call signature::
-
-          set_xticklabels(labels, fontdict=None, minor=False, **kwargs)
-
-        Return a
-        list of axis text instances.
+        Return a list of axis text instances.
 
         *kwargs* set the :class:`~matplotlib.text.Text` properties.
         Valid properties are
@@ -3049,11 +3030,8 @@ class _AxesBase(martist.Artist):
         return tuple(self.viewLim.intervaly)
 
     def set_ylim(self, bottom=None, top=None, emit=True, auto=False, **kw):
-        """Set the data limits for the yaxis
-
-        Call signature::
-
-          set_ylim(self, *args, **kwargs):
+        """
+        Set the data limits for the yaxis
 
         Examples::
 
@@ -3149,10 +3127,6 @@ class _AxesBase(martist.Artist):
     def set_yscale(self, value, **kwargs):
         """Set the y-axis scale
 
-        Call signature::
-
-          set_yscale(value)
-
         Set the scaling of the y-axis: %(scale)s
 
         ACCEPTS: [%(scale)s]
@@ -3233,14 +3207,10 @@ class _AxesBase(martist.Artist):
 
     @docstring.dedent_interpd
     def set_yticklabels(self, labels, fontdict=None, minor=False, **kwargs):
-        """Set the y tick labels with list of strings *labels*
+        """
+        Set the y tick labels with list of strings *labels*
 
-        Call signature::
-
-          set_yticklabels(labels, fontdict=None, minor=False, **kwargs)
-
-        Return a list of
-        :class:`~matplotlib.text.Text` instances.
+        Return a list of :class:`~matplotlib.text.Text` instances.
 
         *kwargs* set :class:`~matplotlib.text.Text` properties for the labels.
         Valid properties are
@@ -3781,11 +3751,8 @@ class _AxesBase(martist.Artist):
         return ax2
 
     def twinx(self):
-        """Create a twin Axes sharing the xaxis
-
-        Call signature::
-
-          ax = twinx()
+        """
+        Create a twin Axes sharing the xaxis
 
         create a twin of Axes for generating a plot with a sharex
         x-axis but independent y axis.  The y-axis of self will have
@@ -3807,11 +3774,8 @@ class _AxesBase(martist.Artist):
         return ax2
 
     def twiny(self):
-        """Create a twin Axes sharing the yaxis
-
-        Call signature::
-
-          ax = twiny()
+        """
+        Create a twin Axes sharing the yaxis
 
         create a twin of Axes for generating a plot with a shared
         y-axis but independent x axis.  The x-axis of self will have

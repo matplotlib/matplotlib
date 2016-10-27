@@ -426,11 +426,8 @@ class Artist(object):
                 self._picker is not None)
 
     def pick(self, mouseevent):
-        """Process pick event
-
-        call signature::
-
-          pick(mouseevent)
+        """
+        Process pick event
 
         each child artist will fire a pick event if *mouseevent* is over
         the artist and the artist has picker set
