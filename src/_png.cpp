@@ -285,27 +285,26 @@ static PyObject *Py_write_png(PyObject *self, PyObject *args, PyObject *kwds)
 
 #ifdef PNG_TEXT_SUPPORTED
     // Save the metadata
-    if (metadata != NULL)
-    {
-       meta_size = PyDict_Size(metadata);
-       text = new png_text[meta_size];
+    if (metadata != NULL) {
+        meta_size = PyDict_Size(metadata);
+        text = new png_text[meta_size];
 
-       while (PyDict_Next(metadata, &pos, &meta_key, &meta_val)) {
-          text[meta_pos].compression = PNG_TEXT_COMPRESSION_NONE;
+        while (PyDict_Next(metadata, &pos, &meta_key, &meta_val)) {
+            text[meta_pos].compression = PNG_TEXT_COMPRESSION_NONE;
 #if PY3K
-          text[meta_pos].key = PyBytes_AsString(meta_key);
-          text[meta_pos].text = PyBytes_AsString(meta_val);
+            text[meta_pos].key = PyBytes_AsString(meta_key);
+            text[meta_pos].text = PyBytes_AsString(meta_val);
 #else
-          text[meta_pos].key = PyString_AsString(meta_key);
-          text[meta_pos].text = PyString_AsString(meta_val);
+            text[meta_pos].key = PyString_AsString(meta_key);
+            text[meta_pos].text = PyString_AsString(meta_val);
 #endif
 #ifdef PNG_iTXt_SUPPORTED
-          text[meta_pos].lang = NULL;
+            text[meta_pos].lang = NULL;
 #endif
-          meta_pos++;
-       }
-       png_set_text(png_ptr, info_ptr, text, meta_size);
-       delete[] text;
+            meta_pos++;
+        }
+        png_set_text(png_ptr, info_ptr, text, meta_size);
+        delete[] text;
     }
 #endif
 
