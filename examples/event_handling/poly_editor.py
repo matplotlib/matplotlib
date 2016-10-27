@@ -141,6 +141,10 @@ class PolygonInteractor(object):
         x, y = event.xdata, event.ydata
 
         self.poly.xy[self._ind] = x, y
+        if self._ind == 0:
+            self.poly.xy[-1] = x, y
+        elif self._ind == len(self.poly.xy) - 1:
+            self.poly.xy[0] = x, y
         self.line.set_data(zip(*self.poly.xy))
 
         self.canvas.restore_region(self.background)
