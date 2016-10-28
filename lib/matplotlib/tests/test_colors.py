@@ -194,6 +194,7 @@ def test_FuncNorm():
                 0.8, 1.3, 2.]
     assert_array_almost_equal(norm.ticks(), expected)
 
+
 def test_FuncNorm_func_parser():
     validstrings = ['linear', 'square', 'cubic', 'sqrt', 'crt',
                     'log', 'log10', 'power{1.5}', 'root{2.5}',
