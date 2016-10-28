@@ -5295,9 +5295,8 @@ or tuple of floats
 
         Other Parameters
         -------
-        kwargs : `~matplotlib.collections.PolyCollection` properties:
+        kwargs : `~matplotlib.collections.PolyCollection`
 
-        %(PolyCollection)s
 
         The default `antialiaseds` is False if the default
         `edgecolors`="none" is used.  This eliminates artificial lines
