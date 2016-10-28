@@ -977,8 +977,10 @@ class FuncNorm(Normalize):
         f : callable or string
             Function to be used for the normalization receiving a single
             parameter, compatible with scalar values, and ndarrays.
-            Alternatively a string from the list ['linear','quadratic',
-            'cubic','sqrt','crt','log'] can be used.
+            Alternatively a string from the list ['linear', 'quadratic',
+            'cubic', 'sqrt', 'crt','log', 'log10', 'power{a}', 'root{a}',
+            'log(x+{a})', 'log10(x+{a})'] can be used, replacing 'a' by a
+            number different than 0 when necessary.
         finv : callable, optional
             Inverse function of `f` that satisfies finv(f(x))==x. It is
             optional in cases where f is provided as a string.
@@ -991,7 +993,7 @@ class FuncNorm(Normalize):
         Creating a logarithmic normalization using the predefined strings:
 
         >>> import matplotlib.colors as colors
-        >>> norm = colors.FuncNorm(f='log', vmin=0.01, vmax=2)
+        >>> norm = colors.FuncNorm(f='log10', vmin=0.01, vmax=2)
 
         Or doing it manually:
 
@@ -1032,7 +1034,7 @@ class FuncNorm(Normalize):
         result : masked array of floats
             Normalized data to the `[0.0, 1.0]` interval. If clip == False,
             the values original below vmin or above vmax will be assigned to
-            -0.1 or 1.1, respectively
+            -0.1 or 1.1, respectively.
 
         """
         if clip is None:
@@ -1047,8 +1049,7 @@ class FuncNorm(Normalize):
         self._update_f(vmin, vmax)
 
         if clip:
-            result[result >= vmax] = vmax
-            result[result <= vmin] = vmin
+            result = np.clip(result, vmin, vmax)
             resultnorm = (self._f(result) - self._f(vmin)) / \
                          (self._f(vmax) - self._f(vmin))
         else:
@@ -1090,24 +1091,58 @@ class FuncNorm(Normalize):
         return value
 
     @staticmethod
-    def _func_parser(funcsin):
+    def _func_parser(funcsin, onlybounded=False):
         if hasattr(funcsin[0], '__call__'):
             return funcsin
+        # Each element has the direct, the inverse, and and interval indicating
+        # wether the function is bounded in the interval 0-1
+        funcs = {'linear': (lambda x: x, lambda x: x, True),
+                 'quadratic': (lambda x: x**2, lambda x: x**(1. / 2), True),
+                 'cubic': (lambda x: x**3, lambda x: x**(1. / 3), True),
+                 'sqrt': (lambda x: x**(1. / 2), lambda x: x**2, True),
+                 'crt': (lambda x: x**(1. / 3), lambda x: x**3, True),
+                 'log10': (lambda x: np.log10(x), lambda x: (10**(x)), False),
+                 'log': (lambda x: np.log(x), lambda x: (np.exp(x)), False),
+                 'power{a}': (lambda x, a: x**a,
+                              lambda x, a: x**(1. / a), True),
+                 'root{a}': (lambda x, a: x**(1. / a),
+                             lambda x, a: x**a, True),
+                 'log10(x+{a})': (lambda x, a: np.log10(x + a),
+                                  lambda x, a: 10**x - a, True),
+                 'log(x+{a})': (lambda x, a: np.log(x + a),
+                                lambda x, a: np.exp(x) - a, True)}
 
-        flog = 2000
-        funcs = {'linear': (lambda x: x, lambda x: x),
-                 'quadratic': (lambda x: x**2, lambda x: x**(1. / 2)),
-                 'cubic': (lambda x: x**3, lambda x: x**(1. / 3)),
-                 'sqrt': (lambda x: x**(1. / 2), lambda x: x**2),
-                 'crt': (lambda x: x**(1. / 3), lambda x: x**3),
-                 'log(x+1)': (lambda x: (np.log10(x * flog + 1) /
-                                         np.log10(flog + 1),
-                              lambda x: ((10**(np.log10(flog + 1) * x) - 1) /
-                                         flog))),
-                 'log': (lambda x: np.log10(x),
-                         lambda x: (10**(x)))}
+        # Checking if it comes with a parameter
+        param = None
+        regex = '\{(.*?)\}'
+        search = re.search(regex, funcsin[0])
+        if search is not None:
+            parstring = search.group(1)
+
+            try:
+                param = float(parstring)
+            except:
+                raise ValueError("'a' in parametric function strings must be "
+                                 "replaced by a number different than 0, "
+                                 "e.g. 'log10(x+{0.1})'.")
+            if param == 0:
+                raise ValueError("'a' in parametric function strings must be "
+                                 "replaced by a number different than 0.")
+            funcsin[0] = re.sub(regex, '{a}', funcsin[0])
+
         try:
-            return funcs[six.text_type(funcsin[0])]
+            output = funcs[six.text_type(funcsin[0])]
+            if onlybounded and not output[2]:
+                raise ValueError("Only functions bounded in the (0, 1)"
+                                 "domain are allowed: %s" %
+                                 [key for key in funcs.keys() if funcs[key][2]]
+                                 )
+
+            if param is not None:
+                output = (lambda x, output=output: output[0](x, param),
+                          lambda x, output=output: output[1](x, param),
+                          output[2])
+            return output[0:2]
         except KeyError:
             raise ValueError("%s: invalid function. The only strings "
                              "recognized as functions are %s." %
@@ -1126,23 +1161,23 @@ class FuncNorm(Normalize):
         else:
             return (lambda x: (fun(x) - fun(0.)) / (fun(1.) - fun(0.)))
 
-    def ticks(self, N=13):
+    def ticks(self, nticks=13):
         """
-        Returns an automatic list of `N` points in the data space to be used
-        as ticks in the colorbar.
+        Returns an automatic list of `nticks` points in the data space
+        to be used as ticks in the colorbar.
 
         Parameters
         ----------
-        N : integer, optional
+        nticks : integer, optional
             Number of ticks to be returned. Default 13.
 
         Returns
         -------
         ticks : ndarray
-            1d array of length `N` with the proposed tick locations.
+            1d array of length `nticks` with the proposed tick locations.
 
         """
-        ticks = self.inverse(np.linspace(0, 1, N))
+        ticks = self.inverse(np.linspace(0, 1, nticks))
         finalticks = np.zeros(ticks.shape, dtype=np.bool)
         finalticks[0] = True
         ticks = FuncNorm._round_ticks(ticks, finalticks)
@@ -1378,47 +1413,47 @@ class PiecewiseNorm(FuncNorm):
         self._finv = self._build_finv()
         return
 
-    def ticks(self, N=None):
+    def ticks(self, nticks=None):
         """
-        Returns an automatic list of *N* points in the data space to be used
-        as ticks in the colorbar.
+        Returns an automatic list of `nticks` points in the data space
+        to be used as ticks in the colorbar.
 
         Parameters
         ----------
-        N : integer, optional
+        nticks : integer, optional
             Number of ticks to be returned. Default 13.
 
         Returns
         -------
         ticks : ndarray
-            1d array of length *N* with the proposed tick locations.
+            1d array of length `nticks` with the proposed tick locations.
 
         """
         rp_cm = self._refpoints_cm
         widths_cm = np.diff(rp_cm)
 
-        if N is None:
-            N = max([13, len(rp_cm)])
+        if nticks is None:
+            nticks = max([13, len(rp_cm)])
 
-        if N < len(rp_cm):
+        if nticks < len(rp_cm):
             ValueError(
                 "the number of ticks must me larger "
                 "that the number or intervals +1")
 
         ticks = rp_cm.copy()
 
-        available_ticks = N - len(-rp_cm)
+        available_ticks = nticks - len(-rp_cm)
         distribution = widths_cm * (available_ticks) / widths_cm.sum()
-        nticks = np.floor(distribution)
+        nticks_each = np.floor(distribution)
 
-        while(nticks.sum() < available_ticks):
-            ind = np.argmax((distribution - nticks))
-            nticks[ind] += 1
+        while(nticks_each.sum() < available_ticks):
+            ind = np.argmax((distribution - nticks_each))
+            nticks_each[ind] += 1
 
-        for i in range(len(nticks)):
-            if nticks[i] > 0:
-                N = nticks[i]
-                auxticks = np.linspace(rp_cm[i], rp_cm[i + 1], N + 2)
+        for i in range(len(nticks_each)):
+            if nticks_each[i] > 0:
+                nticks_this = nticks_each[i]
+                auxticks = np.linspace(rp_cm[i], rp_cm[i + 1], nticks_this + 2)
                 ticks = np.concatenate([ticks, auxticks[1:-1]])
 
         finalticks = np.zeros(ticks.shape, dtype=np.bool)
