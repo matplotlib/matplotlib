@@ -158,7 +158,7 @@ def test_LogNorm():
 
 def test_FuncNorm():
     # Testing limits using a string
-    norm = mcolors.FuncNorm(f='log', vmin=0.01, vmax=2.)
+    norm = mcolors.FuncNorm(f='log10', vmin=0.01, vmax=2.)
     assert_array_equal(norm([0.01, 2]), [0, 1.0])
 
     # Testing limits using a string
@@ -167,32 +167,42 @@ def test_FuncNorm():
     assert_array_equal(norm([0.01, 2]), [0, 1.0])
 
     # Testing limits without vmin, vmax
-    norm = mcolors.FuncNorm(f='log')
+    norm = mcolors.FuncNorm(f='log10')
     assert_array_equal(norm([0.01, 2]), [0, 1.0])
 
     # Testing limits without vmin
-    norm = mcolors.FuncNorm(f='log', vmax=2.)
+    norm = mcolors.FuncNorm(f='log10', vmax=2.)
     assert_array_equal(norm([0.01, 2]), [0, 1.0])
 
     # Testing limits without vmin
-    norm = mcolors.FuncNorm(f='log', vmin=0.01)
+    norm = mcolors.FuncNorm(f='log10', vmin=0.01)
     assert_array_equal(norm([0.01, 2]), [0, 1.0])
 
     # Testing intermediate values
-    norm = mcolors.FuncNorm(f='log')
+    norm = mcolors.FuncNorm(f='log10')
     assert_array_almost_equal(norm([0.01, 0.5, 2]), [0, 0.73835195870437, 1.0])
 
     # Checking inverse
-    norm = mcolors.FuncNorm(f='log', vmin=0.01, vmax=2.)
+    norm = mcolors.FuncNorm(f='log10', vmin=0.01, vmax=2.)
     x = np.linspace(0.01, 2, 10)
     assert_array_almost_equal(x, norm.inverse(norm(x)))
 
     # Checking ticks
-    norm = mcolors.FuncNorm(f='log', vmin=0.01, vmax=2.)
-    expected = [0.01,  0.016,  0.024,  0.04,  0.06,
-                0.09,  0.14,  0.22, 0.3,  0.5,
-                0.8,  1.3,  2.]
+    norm = mcolors.FuncNorm(f='log10', vmin=0.01, vmax=2.)
+    expected = [0.01, 0.016, 0.024, 0.04, 0.06,
+                0.09, 0.14, 0.22, 0.3, 0.5,
+                0.8, 1.3, 2.]
     assert_array_almost_equal(norm.ticks(), expected)
+
+def test_FuncNorm_func_parser():
+    validstrings = ['linear', 'square', 'cubic', 'sqrt', 'crt',
+                    'log', 'log10', 'power{1.5}', 'root{2.5}',
+                    'log(x+{0.5})', 'log10(x+{0.1})']
+
+    x = np.linspace(0.01, 0.5, 1)
+    for string in validstrings:
+        funcs = mcolors.FuncNorm._func_parser(validstrings)
+        assert_array_almost_equal(funcs[1](funcs[0](x)), x)
 
 
 def test_PiecewiseNorm():
@@ -257,8 +267,8 @@ def test_PiecewiseNorm():
                                  refpoints_data=[-1, 1, 3],
                                  vmin=-2., vmax=4.)
     expected = [-2., -1.3, -1.1, -1., -0.93,
-                -0.4,  1.,  2.4,  2.7, 3.,
-                3.04,  3.3,  4.]
+                -0.4, 1., 2.4, 2.7, 3.,
+                3.04, 3.3, 4.]
     assert_array_almost_equal(norm.ticks(), expected)
 
 

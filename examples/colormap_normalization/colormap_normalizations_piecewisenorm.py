@@ -65,7 +65,7 @@ norm = colors.FuncNorm(f=lambda x: np.log10(x),
                        finv=lambda x: 10.**(x), vmin=0.01, vmax=2)
 make_plot(norm, "Log normalization using FuncNorm")
 # The same can be achived with
-# norm = colors.FuncNorm(f='log', vmin=0.01, vmax=2)
+# norm = colors.FuncNorm(f='log10', vmin=0.01, vmax=2)
 
 # Example of root normalization using FuncNorm
 norm = colors.FuncNorm(f='sqrt', vmin=0.0, vmax=2)

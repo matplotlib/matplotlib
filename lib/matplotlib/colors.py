@@ -1030,7 +1030,9 @@ class FuncNorm(Normalize):
         Returns
         -------
         result : masked array of floats
-            Normalized data in the `[0.0, 1.0]` interval.
+            Normalized data to the `[0.0, 1.0]` interval. If clip == False,
+            the values original below vmin or above vmax will be assigned to
+            -0.1 or 1.1, respectively
 
         """
         if clip is None:
