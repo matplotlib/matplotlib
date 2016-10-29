@@ -18,71 +18,44 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 
-# functions to calculate percentiles and adjacent values
-def percentile(vals, p):
-    N = len(vals)
-    n = p*(N+1)
-    k = int(n)
-    d = n-k
-    if k <= 0:
-        return vals[0]
-    if k >= N:
-        return vals[N-1]
-    return vals[k-1] + d*(vals[k] - vals[k-1])
-
-
 def adjacent_values(vals):
-    q1 = percentile(vals, 0.25)
-    q3 = percentile(vals, 0.75)
-    iqr = q3 - q1  # inter-quartile range
-
+    q1, q3 = np.percentile(vals, [25, 75])
+    # inter-quartile range iqr
+    iqr = q3 - q1
     # upper adjacent values
     uav = q3 + iqr * 1.5
-    if uav > vals[-1]:
-        uav = vals[-1]
-    if uav < q3:
-        uav = q3
-
+    uav = np.clip(uav, q3, vals[-1])
     # lower adjacent values
     lav = q1 - iqr * 1.5
-    if lav < vals[0]:
-        lav = vals[0]
-    if lav > q1:
-        lav = q1
+    lav = np.clip(lav, q1, vals[0])
     return [lav, uav]
+
+
+def set_axis_style(ax, labels):
+    ax.get_xaxis().set_tick_params(direction='out')
+    ax.xaxis.set_ticks_position('bottom')
+    ax.set_xticks(np.arange(1, len(labels) + 1))
+    ax.set_xticklabels(labels)
+    ax.set_xlim(0.25, len(labels) + 0.75)
+    ax.set_xlabel('Sample name')
 
 
 # create test data
 np.random.seed(123)
-dat = [np.random.normal(0, std, 100) for std in range(1, 5)]
-lab = ['A', 'B', 'C', 'D']    # labels
-med = []    # medians
-iqr = []    # inter-quantile ranges
-avs = []    # upper and lower adjacent values
-for arr in dat:
-    sarr = sorted(arr)
-    med.append(percentile(sarr, 0.5))
-    iqr.append([percentile(sarr, 0.25), percentile(sarr, 0.75)])
-    avs.append(adjacent_values(sarr))
+dat = [sorted(np.random.normal(0, std, 100)) for std in range(1, 5)]
 
-# plot the violins
-fig, (ax1, ax2) = plt.subplots(nrows=1, ncols=2, figsize=(9, 4),
-                               sharey=True)
-_ = ax1.violinplot(dat)
-parts = ax2.violinplot(dat, showmeans=False, showmedians=False,
-                       showextrema=False)
+fig, (ax1, ax2) = plt.subplots(nrows=1, ncols=2, figsize=(9, 4), sharey=True)
 
+# plot the default violin
 ax1.set_title('Default violin plot')
-ax2.set_title('Customized violin plot')
+ax1.set_ylabel('Observed values')
+ax1.violinplot(dat)
 
-# plot whiskers as thin lines, quartiles as fat lines,
-# and medians as points
-for i in range(len(med)):
-    # whiskers
-    ax2.plot([i + 1, i + 1], avs[i], '-', color='black', linewidth=1)
-    ax2.plot([i + 1, i + 1], iqr[i], '-', color='black', linewidth=5)
-    ax2.plot(i + 1, med[i], 'o', color='white',
-             markersize=6, markeredgecolor='none')
+# customized violin
+ax2.set_title('Customized violin plot')
+parts = ax2.violinplot(
+        dat, showmeans=False, showmedians=False,
+        showextrema=False)
 
 # customize colors
 for pc in parts['bodies']:
@@ -90,15 +63,29 @@ for pc in parts['bodies']:
     pc.set_edgecolor('black')
     pc.set_alpha(1)
 
-ax1.set_ylabel('Observed values')
+# medians
+med = [np.percentile(sarr, 50) for sarr in dat]
+# inter-quartile ranges
+iqr = [[np.percentile(sarr, 25), np.percentile(sarr, 75)] for sarr in dat]
+# upper and lower adjacent values
+avs = [adjacent_values(sarr) for sarr in dat]
+
+# plot whiskers as thin lines, quartiles as fat lines,
+# and medians as points
+for i, median in enumerate(med):
+    # whiskers
+    ax2.plot([i + 1, i + 1], avs[i], '-', color='black', linewidth=1)
+    # quartiles
+    ax2.plot([i + 1, i + 1], iqr[i], '-', color='black', linewidth=5)
+    # medians
+    ax2.plot(
+        i + 1, median, 'o', color='white',
+        markersize=6, markeredgecolor='none')
+
+# set style for the axes
+labels = ['A', 'B', 'C', 'D']    # labels
 for ax in [ax1, ax2]:
-    ax.get_xaxis().set_tick_params(direction='out')
-    ax.xaxis.set_ticks_position('bottom')
-    ax.set_xticks(np.arange(1, len(lab) + 1))
-    ax.set_xticklabels(lab)
-    ax.set_xlim(0.25, len(lab) + 0.75)
-    ax.set_xlabel('Sample name')
+    set_axis_style(ax, labels)
 
 plt.subplots_adjust(bottom=0.15, wspace=0.05)
-
 plt.show()
