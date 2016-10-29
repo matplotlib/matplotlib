@@ -27,7 +27,7 @@ def adjacent_values(vals):
     uav = np.clip(uav, q3, vals[-1])
     # lower adjacent values
     lav = q1 - iqr * 1.5
-    lav = np.clip(lav, q1, vals[0])
+    lav = np.clip(lav, vals[0], q1)
     return [lav, uav]
 
 
