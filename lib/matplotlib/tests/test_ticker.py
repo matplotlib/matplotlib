@@ -1,7 +1,6 @@
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
-import six
 import nose.tools
 from nose.tools import assert_equal, assert_raises
 from numpy.testing import assert_almost_equal
@@ -312,6 +311,7 @@ def test_LogFormatterExponent():
 def test_LogFormatterSciNotation():
     test_cases = {
         10: (
+             (-1, '${-10^{0}}$'),
              (1e-05, '${10^{-5}}$'),
              (1, '${10^{0}}$'),
              (100000, '${10^{5}}$'),
