@@ -869,14 +869,15 @@ class LogFormatter(Formatter):
         if x == 0.0:
             return '0'
         sign = np.sign(x)
+        x = abs(x)
         # only label the decades
-        fx = math.log(abs(x)) / math.log(b)
+        fx = math.log(x) / math.log(b)
         isDecade = is_close_to_int(fx)
         exponent = np.round(fx) if isDecade else np.floor(fx)
         coeff = np.round(x / b ** exponent)
         if coeff in self.sublabel:
             if not isDecade and self.labelOnlyBase:
-                s = ''
+                return ''
             elif x > 10000:
                 s = '%1.0e' % x
             elif x < 1:
@@ -1003,7 +1004,7 @@ class LogFormatterMathtext(LogFormatter):
         fx = math.log(abs(x)) / math.log(b)
         is_decade = is_close_to_int(fx)
         exponent = np.round(fx) if is_decade else np.floor(fx)
-        coeff = np.round(x / b ** exponent)
+        coeff = np.round(abs(x) / b ** exponent)
 
         sign_string = '-' if x < 0 else ''
 
