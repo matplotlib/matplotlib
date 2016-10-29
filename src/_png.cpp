@@ -293,7 +293,7 @@ static PyObject *Py_write_png(PyObject *self, PyObject *args, PyObject *kwds)
             text[meta_pos].compression = PNG_TEXT_COMPRESSION_NONE;
 #if PY3K
             if (PyUnicode_Check(meta_key)) {
-                PyObject *temp_key = PyUnicode_AsEncodedString(meta_key, "ASCII", "strict");
+                PyObject *temp_key = PyUnicode_AsEncodedString(meta_key, "latin_1", "strict");
                 if (temp_key != NULL) {
                     text[meta_pos].key = PyBytes_AsString(temp_key);
                 }
@@ -303,7 +303,7 @@ static PyObject *Py_write_png(PyObject *self, PyObject *args, PyObject *kwds)
                 text[meta_pos].key = NULL;  // Silently drops entry
             }
             if (PyUnicode_Check(meta_val)) {
-                PyObject *temp_val = PyUnicode_AsEncodedString(meta_val, "ASCII", "strict");
+                PyObject *temp_val = PyUnicode_AsEncodedString(meta_val, "latin_1", "strict");
                 if (temp_val != NULL) {
                     text[meta_pos].text = PyBytes_AsString(temp_val);
                 }
