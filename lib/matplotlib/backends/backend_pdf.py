@@ -2447,14 +2447,14 @@ class PdfPages(object):
         Parameters
         ----------
 
-        filename: str
+        filename : str
             Plots using :meth:`PdfPages.savefig` will be written to a file at
             this location. The file is opened at once and any older file with
             the same name is overwritten.
-        keep_empty: bool, optional
+        keep_empty : bool, optional
             If set to False, then empty pdf files will be deleted automatically
             when closed.
-        metadata: dictionary, optional
+        metadata : dictionary, optional
             Information dictionary object (see PDF reference section 10.2.1
             'Document Information Dictionary').
         """
@@ -2497,7 +2497,7 @@ class PdfPages(object):
         Parameters
         ----------
 
-        figure: :class:`~matplotlib.figure.Figure` or int, optional
+        figure : :class:`~matplotlib.figure.Figure` or int, optional
             Specifies what figure is saved to file. If not specified, the
             active figure is saved. If a :class:`~matplotlib.figure.Figure`
             instance is provided, this figure is saved. If an int is specified,
