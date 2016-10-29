@@ -234,18 +234,18 @@ def apply_window(x, window, axis=0, return_window=None):
 
     Parameters
     ----------
-    x: 1D or 2D array or sequence
+    x : 1D or 2D array or sequence
         Array or sequence containing the data.
 
-    window: function or array.
+    window : function or array.
         Either a function to generate a window or an array with length
         *x*.shape[*axis*]
 
-    axis: integer
+    axis : integer
         The axis over which to do the repetition.
         Must be 0 or 1.  The default is 0
 
-    return_window: bool
+    return_window : bool
         If true, also return the 1D values of the window that was applied
     '''
     x = np.asarray(x)
@@ -290,10 +290,10 @@ def detrend(x, key=None, axis=None):
 
     Parameters
     ----------
-    x: array or sequence
+    x : array or sequence
         Array or sequence containing the data.
 
-    key: [ 'default' | 'constant' | 'mean' | 'linear' | 'none'] or function
+    key : [ 'default' | 'constant' | 'mean' | 'linear' | 'none'] or function
         Specifies the detrend algorithm to use. 'default' is 'mean', which is
         the same as :func:`detrend_mean`. 'constant' is the same. 'linear' is
         the same as :func:`detrend_linear`. 'none' is the same as
@@ -301,7 +301,7 @@ def detrend(x, key=None, axis=None):
         functions for more details regarding the algorithms. Can also be a
         function that carries out the detrend operation.
 
-    axis: integer
+    axis : integer
         The axis along which to do the detrending.
 
     See Also
@@ -353,11 +353,11 @@ def demean(x, axis=0):
 
     Parameters
     ----------
-    x: array or sequence
+    x : array or sequence
         Array or sequence containing the data
         Can have any dimensionality
 
-    axis: integer
+    axis : integer
         The axis along which to take the mean.  See numpy.mean for a
         description of this argument.
 
@@ -381,11 +381,11 @@ def detrend_mean(x, axis=None):
 
     Parameters
     ----------
-    x: array or sequence
+    x : array or sequence
         Array or sequence containing the data
         Can have any dimensionality
 
-    axis: integer
+    axis : integer
         The axis along which to take the mean.  See numpy.mean for a
         description of this argument.
 
@@ -428,10 +428,10 @@ def detrend_none(x, axis=None):
 
     Parameters
     ----------
-    x: any object
+    x : any object
         An object containing the data
 
-    axis: integer
+    axis : integer
         This parameter is ignored.
         It is included for compatibility with detrend_mean
 
@@ -459,10 +459,10 @@ def detrend_linear(y):
 
     Parameters
     ----------
-    y: 0-D or 1-D array or sequence
+    y : 0-D or 1-D array or sequence
         Array or sequence containing the data
 
-    axis: integer
+    axis : integer
         The axis along which to take the mean.  See numpy.mean for a
         description of this argument.
 
@@ -513,17 +513,17 @@ def stride_windows(x, n, noverlap=None, axis=0):
 
     Parameters
     ----------
-    x: 1D array or sequence
+    x : 1D array or sequence
         Array or sequence containing the data.
 
-    n: integer
+    n : integer
         The number of data points in each window.
 
-    noverlap: integer
+    noverlap : integer
         The overlap between adjacent windows.
         Default is 0 (no overlap)
 
-    axis: integer
+    axis : integer
         The axis along which the windows will run.
 
     References
@@ -581,13 +581,13 @@ def stride_repeat(x, n, axis=0):
 
     Parameters
     ----------
-    x: 1D array or sequence
+    x : 1D array or sequence
         Array or sequence containing the data.
 
-    n: integer
+    n : integer
         The number of time to repeat the array.
 
-    axis: integer
+    axis : integer
         The axis along which the data will run.
 
     References
@@ -812,12 +812,12 @@ def _single_spectrum_helper(x, mode, Fs=None, window=None, pad_to=None,
 
 # Split out these keyword docs so that they can be used elsewhere
 docstring.interpd.update(Spectral=cbook.dedent("""
-    Fs: scalar
+    Fs : scalar
         The sampling frequency (samples per time unit).  It is used
         to calculate the Fourier frequencies, freqs, in cycles per time
         unit. The default value is 2.
 
-    window: callable or ndarray
+    window : callable or ndarray
         A function or a vector of length *NFFT*. To create window
         vectors see :func:`window_hanning`, :func:`window_none`,
         :func:`numpy.blackman`, :func:`numpy.hamming`,
@@ -827,7 +827,7 @@ docstring.interpd.update(Spectral=cbook.dedent("""
         argument, it must take a data segment as an argument and
         return the windowed version of the segment.
 
-    sides: [ 'default' | 'onesided' | 'twosided' ]
+    sides : [ 'default' | 'onesided' | 'twosided' ]
         Specifies which sides of the spectrum to return.  Default gives the
         default behavior, which returns one-sided for real data and both
         for complex data.  'onesided' forces the return of a one-sided
@@ -836,7 +836,7 @@ docstring.interpd.update(Spectral=cbook.dedent("""
 
 
 docstring.interpd.update(Single_Spectrum=cbook.dedent("""
-    pad_to: integer
+    pad_to : integer
         The number of points to which the data segment is padded when
         performing the FFT.  While not increasing the actual resolution of
         the spectrum (the minimum distance between resolvable peaks),
@@ -848,7 +848,7 @@ docstring.interpd.update(Single_Spectrum=cbook.dedent("""
 
 
 docstring.interpd.update(PSD=cbook.dedent("""
-    pad_to: integer
+    pad_to : integer
         The number of points to which the data segment is padded when
         performing the FFT.  This can be different from *NFFT*, which
         specifies the number of data points used.  While not increasing
@@ -858,13 +858,13 @@ docstring.interpd.update(PSD=cbook.dedent("""
         in the call to fft(). The default is None, which sets *pad_to*
         equal to *NFFT*
 
-    NFFT: integer
+    NFFT : integer
         The number of data points used in each block for the FFT.
         A power 2 is most efficient.  The default value is 256.
         This should *NOT* be used to get zero padding, or the scaling of the
         result will be incorrect. Use *pad_to* for this instead.
 
-    detrend: {'default', 'constant', 'mean', 'linear', 'none'} or callable
+    detrend : {'default', 'constant', 'mean', 'linear', 'none'} or callable
         The function applied to each segment before fft-ing,
         designed to remove the mean or linear trend.  Unlike in
         MATLAB, where the *detrend* parameter is a vector, in
@@ -878,7 +878,7 @@ docstring.interpd.update(PSD=cbook.dedent("""
         :func:`~matplotlib.pylab.detrend_linear`.  'none' calls
         :func:`~matplotlib.pylab.detrend_none`.
 
-    scale_by_freq: boolean, optional
+    scale_by_freq : boolean, optional
         Specifies whether the resulting density values should be scaled
         by the scaling frequency, which gives density in units of Hz^-1.
         This allows for integration over the returned frequency values.
@@ -909,23 +909,23 @@ def psd(x, NFFT=None, Fs=None, detrend=None, window=None,
 
     Parameters
     ----------
-    x: 1-D array or sequence
+    x : 1-D array or sequence
         Array or sequence containing the data
 
     %(Spectral)s
 
     %(PSD)s
 
-    noverlap: integer
+    noverlap : integer
         The number of points of overlap between segments.
         The default value is 0 (no overlap).
 
     Returns
     -------
-    Pxx: 1-D array
+    Pxx : 1-D array
         The values for the power spectrum `P_{xx}` (real valued)
 
-    freqs: 1-D array
+    freqs : 1-D array
         The frequencies corresponding to the elements in *Pxx*
 
     References
@@ -978,23 +978,23 @@ def csd(x, y, NFFT=None, Fs=None, detrend=None, window=None,
 
     Parameters
     ----------
-    x, y: 1-D arrays or sequences
+    x, y : 1-D arrays or sequences
         Arrays or sequences containing the data
 
     %(Spectral)s
 
     %(PSD)s
 
-    noverlap: integer
+    noverlap : integer
         The number of points of overlap between segments.
         The default value is 0 (no overlap).
 
     Returns
     -------
-    Pxy: 1-D array
+    Pxy : 1-D array
         The values for the cross spectrum `P_{xy}` before scaling (real valued)
 
-    freqs: 1-D array
+    freqs : 1-D array
         The frequencies corresponding to the elements in *Pxy*
 
     References
@@ -1033,7 +1033,7 @@ def complex_spectrum(x, Fs=None, window=None, pad_to=None,
 
     Parameters
     ----------
-    x: 1-D array or sequence
+    x : 1-D array or sequence
         Array or sequence containing the data
 
     %(Spectral)s
@@ -1042,10 +1042,10 @@ def complex_spectrum(x, Fs=None, window=None, pad_to=None,
 
     Returns
     -------
-    spectrum: 1-D array
+    spectrum : 1-D array
         The values for the complex spectrum (complex valued)
 
-    freqs: 1-D array
+    freqs : 1-D array
         The frequencies corresponding to the elements in *spectrum*
 
     See Also
@@ -1078,7 +1078,7 @@ def magnitude_spectrum(x, Fs=None, window=None, pad_to=None,
 
     Parameters
     ----------
-    x: 1-D array or sequence
+    x : 1-D array or sequence
         Array or sequence containing the data
 
     %(Spectral)s
@@ -1087,10 +1087,10 @@ def magnitude_spectrum(x, Fs=None, window=None, pad_to=None,
 
     Returns
     -------
-    spectrum: 1-D array
+    spectrum : 1-D array
         The values for the magnitude spectrum (real valued)
 
-    freqs: 1-D array
+    freqs : 1-D array
         The frequencies corresponding to the elements in *spectrum*
 
     See Also
@@ -1127,7 +1127,7 @@ def angle_spectrum(x, Fs=None, window=None, pad_to=None,
 
     Parameters
     ----------
-    x: 1-D array or sequence
+    x : 1-D array or sequence
         Array or sequence containing the data
 
     %(Spectral)s
@@ -1136,10 +1136,10 @@ def angle_spectrum(x, Fs=None, window=None, pad_to=None,
 
     Returns
     -------
-    spectrum: 1-D array
+    spectrum : 1-D array
         The values for the angle spectrum in radians (real valued)
 
-    freqs: 1-D array
+    freqs : 1-D array
         The frequencies corresponding to the elements in *spectrum*
 
     See Also
@@ -1172,7 +1172,7 @@ def phase_spectrum(x, Fs=None, window=None, pad_to=None,
 
     Parameters
     ----------
-    x: 1-D array or sequence
+    x : 1-D array or sequence
         Array or sequence containing the data
 
     %(Spectral)s
@@ -1181,10 +1181,10 @@ def phase_spectrum(x, Fs=None, window=None, pad_to=None,
 
     Returns
     -------
-    spectrum: 1-D array
+    spectrum : 1-D array
         The values for the phase spectrum in radians (real valued)
 
-    freqs: 1-D array
+    freqs : 1-D array
         The frequencies corresponding to the elements in *spectrum*
 
     See Also
@@ -1315,7 +1315,7 @@ def cohere(x, y, NFFT=256, Fs=2, detrend=detrend_none, window=window_hanning,
 
     %(PSD)s
 
-    noverlap: integer
+    noverlap : integer
         The number of points of overlap between blocks.  The default value
         is 0 (no overlap).
 
@@ -1388,14 +1388,14 @@ def cohere_pairs(X, ij, NFFT=256, Fs=2, detrend=detrend_none,
 
     Returns
     -------
-    Cxy: dictionary of (*i*, *j*) tuples -> coherence vector for
+    Cxy : dictionary of (*i*, *j*) tuples -> coherence vector for
         that pair.  i.e., ``Cxy[(i,j) = cohere(X[:,i], X[:,j])``.
         Number of dictionary keys is ``len(ij)``.
 
-    Phase: dictionary of phases of the cross spectral density at
+    Phase : dictionary of phases of the cross spectral density at
         each frequency for each pair.  Keys are (*i*, *j*).
 
-    freqs: vector of frequencies, equal in length to either the
+    freqs : vector of frequencies, equal in length to either the
          coherence or phase vectors for any (*i*, *j*) key.
 
     e.g., to make a coherence Bode plot::
@@ -1589,9 +1589,9 @@ class PCA(object):
 
         Parameters
         ----------
-        a: np.ndarray
+        a : np.ndarray
             A numobservations x numdims array
-        standardize: bool
+        standardize : bool
             True if input data are to be standardized. If False, only centering
             will be carried out.
 
