@@ -6544,28 +6544,28 @@ or tuple of floats
 
         Parameters
         ----------
-        x: 1-D array or sequence
+        x : 1-D array or sequence
             Array or sequence containing the data
 
         %(Spectral)s
 
         %(PSD)s
 
-        noverlap: integer
+        noverlap : integer
             The number of points of overlap between segments.
             The default value is 0 (no overlap).
 
-        Fc: integer
+        Fc : integer
             The center frequency of *x* (defaults to 0), which offsets
             the x extents of the plot to reflect the frequency range used
             when a signal is acquired and then filtered and downsampled to
             baseband.
 
-        return_line: bool
+        return_line : bool
             Whether to include the line object plotted in the returned values.
             Default is False.
 
-        **kwargs:
+        **kwargs :
             Keyword arguments control the :class:`~matplotlib.lines.Line2D`
             properties:
 
@@ -6573,14 +6573,14 @@ or tuple of floats
 
         Returns
         -------
-        Pxx: 1-D array
+        Pxx : 1-D array
             The values for the power spectrum `P_{xx}` before scaling
             (real valued)
 
-        freqs: 1-D array
+        freqs : 1-D array
             The frequencies corresponding to the elements in *Pxx*
 
-        line: a :class:`~matplotlib.lines.Line2D` instance
+        line : a :class:`~matplotlib.lines.Line2D` instance
             The line created by this function.
             Only returned if *return_line* is True.
 
@@ -6676,28 +6676,28 @@ or tuple of floats
 
         Parameters
         ----------
-        x, y: 1-D arrays or sequences
+        x, y : 1-D arrays or sequences
             Arrays or sequences containing the data
 
         %(Spectral)s
 
         %(PSD)s
 
-        noverlap: integer
+        noverlap : integer
             The number of points of overlap between segments.
             The default value is 0 (no overlap).
 
-        Fc: integer
+        Fc : integer
             The center frequency of *x* (defaults to 0), which offsets
             the x extents of the plot to reflect the frequency range used
             when a signal is acquired and then filtered and downsampled to
             baseband.
 
-        return_line: bool
+        return_line : bool
             Whether to include the line object plotted in the returned values.
             Default is False.
 
-        **kwargs:
+        **kwargs :
             Keyword arguments control the :class:`~matplotlib.lines.Line2D`
             properties:
 
@@ -6705,14 +6705,14 @@ or tuple of floats
 
         Returns
         -------
-        Pxy: 1-D array
+        Pxy : 1-D array
             The values for the cross spectrum `P_{xy}` before scaling
             (complex valued)
 
-        freqs: 1-D array
+        freqs : 1-D array
             The frequencies corresponding to the elements in *Pxy*
 
-        line: a :class:`~matplotlib.lines.Line2D` instance
+        line : a :class:`~matplotlib.lines.Line2D` instance
             The line created by this function.
             Only returned if *return_line* is True.
 
@@ -6785,26 +6785,26 @@ or tuple of floats
 
         Parameters
         ----------
-        x: 1-D array or sequence
+        x : 1-D array or sequence
             Array or sequence containing the data
 
         %(Spectral)s
 
         %(Single_Spectrum)s
 
-        scale: [ 'default' | 'linear' | 'dB' ]
+        scale : [ 'default' | 'linear' | 'dB' ]
             The scaling of the values in the *spec*.  'linear' is no scaling.
             'dB' returns the values in dB scale.  When *mode* is 'density',
             this is dB power (10 * log10).  Otherwise this is dB amplitude
             (20 * log10). 'default' is 'linear'.
 
-        Fc: integer
+        Fc : integer
             The center frequency of *x* (defaults to 0), which offsets
             the x extents of the plot to reflect the frequency range used
             when a signal is acquired and then filtered and downsampled to
             baseband.
 
-        **kwargs:
+        **kwargs :
             Keyword arguments control the :class:`~matplotlib.lines.Line2D`
             properties:
 
@@ -6812,13 +6812,13 @@ or tuple of floats
 
         Returns
         -------
-        spectrum: 1-D array
+        spectrum : 1-D array
             The values for the magnitude spectrum before scaling (real valued)
 
-        freqs: 1-D array
+        freqs : 1-D array
             The frequencies corresponding to the elements in *spectrum*
 
-        line: a :class:`~matplotlib.lines.Line2D` instance
+        line : a :class:`~matplotlib.lines.Line2D` instance
             The line created by this function
 
         Examples
@@ -6888,20 +6888,20 @@ or tuple of floats
 
         Parameters
         ----------
-        x: 1-D array or sequence
+        x : 1-D array or sequence
             Array or sequence containing the data
 
         %(Spectral)s
 
         %(Single_Spectrum)s
 
-        Fc: integer
+        Fc : integer
             The center frequency of *x* (defaults to 0), which offsets
             the x extents of the plot to reflect the frequency range used
             when a signal is acquired and then filtered and downsampled to
             baseband.
 
-        **kwargs:
+        **kwargs :
             Keyword arguments control the :class:`~matplotlib.lines.Line2D`
             properties:
 
@@ -6909,13 +6909,13 @@ or tuple of floats
 
         Returns
         -------
-        spectrum: 1-D array
+        spectrum : 1-D array
             The values for the angle spectrum in radians (real valued)
 
-        freqs: 1-D array
+        freqs : 1-D array
             The frequencies corresponding to the elements in *spectrum*
 
-        line: a :class:`~matplotlib.lines.Line2D` instance
+        line : a :class:`~matplotlib.lines.Line2D` instance
             The line created by this function
 
         Examples
@@ -6970,20 +6970,20 @@ or tuple of floats
 
         Parameters
         ----------
-        x: 1-D array or sequence
+        x : 1-D array or sequence
             Array or sequence containing the data
 
         %(Spectral)s
 
         %(Single_Spectrum)s
 
-        Fc: integer
+        Fc : integer
             The center frequency of *x* (defaults to 0), which offsets
             the x extents of the plot to reflect the frequency range used
             when a signal is acquired and then filtered and downsampled to
             baseband.
 
-        **kwargs:
+        **kwargs :
             Keyword arguments control the :class:`~matplotlib.lines.Line2D`
             properties:
 
@@ -6991,13 +6991,13 @@ or tuple of floats
 
         Returns
         -------
-        spectrum: 1-D array
+        spectrum : 1-D array
             The values for the phase spectrum in radians (real valued)
 
-        freqs: 1-D array
+        freqs : 1-D array
             The frequencies corresponding to the elements in *spectrum*
 
-        line: a :class:`~matplotlib.lines.Line2D` instance
+        line : a :class:`~matplotlib.lines.Line2D` instance
             The line created by this function
 
         Examples
@@ -7054,17 +7054,17 @@ or tuple of floats
 
         %(PSD)s
 
-        noverlap: integer
+        noverlap : integer
             The number of points of overlap between blocks.  The
             default value is 0 (no overlap).
 
-        Fc: integer
+        Fc : integer
             The center frequency of *x* (defaults to 0), which offsets
             the x extents of the plot to reflect the frequency range used
             when a signal is acquired and then filtered and downsampled to
             baseband.
 
-        **kwargs:
+        **kwargs :
             Keyword arguments control the :class:`~matplotlib.lines.Line2D`
             properties of the coherence plot:
 
@@ -7127,25 +7127,25 @@ or tuple of floats
 
         Parameters
         ----------
-        x: 1-D array or sequence
+        x : 1-D array or sequence
             Array or sequence containing the data
 
         %(Spectral)s
 
         %(PSD)s
 
-        mode: [ 'default' | 'psd' | 'magnitude' | 'angle' | 'phase' ]
+        mode : [ 'default' | 'psd' | 'magnitude' | 'angle' | 'phase' ]
             What sort of spectrum to use.  Default is 'psd'. which takes
             the power spectral density.  'complex' returns the complex-valued
             frequency spectrum.  'magnitude' returns the magnitude spectrum.
             'angle' returns the phase spectrum without unwrapping.  'phase'
             returns the phase spectrum with unwrapping.
 
-        noverlap: integer
+        noverlap : integer
             The number of points of overlap between blocks.  The
             default value is 128.
 
-        scale: [ 'default' | 'linear' | 'dB' ]
+        scale : [ 'default' | 'linear' | 'dB' ]
             The scaling of the values in the *spec*.  'linear' is no scaling.
             'dB' returns the values in dB scale.  When *mode* is 'psd',
             this is dB power (10 * log10).  Otherwise this is dB amplitude
@@ -7153,22 +7153,22 @@ or tuple of floats
             'magnitude' and 'linear' otherwise.  This must be 'linear'
             if *mode* is 'angle' or 'phase'.
 
-        Fc: integer
+        Fc : integer
             The center frequency of *x* (defaults to 0), which offsets
             the x extents of the plot to reflect the frequency range used
             when a signal is acquired and then filtered and downsampled to
             baseband.
 
-        cmap:
+        cmap :
             A :class:`matplotlib.colors.Colormap` instance; if *None*, use
             default determined by rc
 
-        xextent:
+        xextent :
             The image extent along the x-axis. xextent = (xmin,xmax)
             The default is (0,max(bins)), where bins is the return
             value from :func:`~matplotlib.mlab.specgram`
 
-        **kwargs:
+        **kwargs :
             Additional kwargs are passed on to imshow which makes the
             specgram image
 
@@ -7179,17 +7179,17 @@ or tuple of floats
 
         Returns
         -------
-        spectrum: 2-D array
+        spectrum : 2-D array
             columns are the periodograms of successive segments
 
-        freqs: 1-D array
+        freqs : 1-D array
             The frequencies corresponding to the rows in *spectrum*
 
-        t: 1-D array
+        t : 1-D array
             The times corresponding to midpoints of segments (i.e the columns
             in *spectrum*)
 
-        im: instance of class :class:`~matplotlib.image.AxesImage`
+        im : instance of class :class:`~matplotlib.image.AxesImage`
             The image created by imshow containing the spectrogram
 
         Examples
