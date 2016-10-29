@@ -2456,7 +2456,9 @@ class PdfPages(object):
             when closed.
         metadata : dictionary, optional
             Information dictionary object (see PDF reference section 10.2.1
-            'Document Information Dictionary').
+            'Document Information Dictionary'), e.g.:
+            `{'Creator': 'My software', 'Author': 'Me',
+            'Title': 'Awesome fig'}`
         """
         self._file = PdfFile(filename, metadata=metadata)
         self.keep_empty = keep_empty
