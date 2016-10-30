@@ -28,6 +28,14 @@ if __name__ == '__main__':
         disable_internet.turn_off_internet()
         extra_args.extend(['-a', '!network'])
         sys.argv.remove('--no-network')
+    if '-j' in sys.argv:
+        nproc = sys.argv[sys.argv.index('-j') + 1]
+        extra_args.extend([
+            '--processes={}'.format(int(nproc)),
+            '--process-timeout=300'
+        ])
+        sys.argv.remove('-j')
+        sys.argv.remove(nproc)
 
     print('Python byte-compilation optimization level: %d' % sys.flags.optimize)
 
