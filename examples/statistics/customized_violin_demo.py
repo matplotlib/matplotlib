@@ -62,9 +62,9 @@ for pc in parts['bodies']:
     pc.set_edgecolor('black')
     pc.set_alpha(1)
 
-tmp = (np.percentile(data, [25, 50, 75], axis=1)).T
-medians = tmp[:, 1]
-inter_quartile_ranges = tmp[:, [0, 2]]
+quartiles = (np.percentile(data, [25, 50, 75], axis=1))
+medians = quartiles[1]
+inter_quartile_ranges = quartiles[[0, 2]].T
 whiskers = [adjacent_values(sorted_array) for sorted_array in data]
 
 # plot whiskers as thin lines, quartiles as fat lines,
