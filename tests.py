@@ -19,10 +19,14 @@ if __name__ == '__main__':
     extra_args = []
 
     parser = argparse.ArgumentParser()
-    parser.add_argument('--no-pep8', action="store_true")
-    parser.add_argument('--pep8', action="store_true")
-    parser.add_argument('--no-network', action="store_true")
-    parser.add_argument('-j', type=int)
+    parser.add_argument('--no-pep8', action='store_true',
+                        help='Run all tests except PEP8 testing')
+    parser.add_argument('--pep8', action='store_true',
+                        help='Run only PEP8 testing')
+    parser.add_argument('--no-network', action='store_true',
+                        help='Run tests without network connection')
+    parser.add_argument('-j', type=int,
+                        help='Shortcut for specifying number of test processes')
     args = parser.parse_args()
 
     if args.no_pep8:
