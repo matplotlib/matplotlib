@@ -3974,14 +3974,15 @@ or tuple of floats
         else:
             try:
                 c_array = np.asanyarray(c, dtype=float)
-                if c_array.size == x.size:
-                    c = np.ma.ravel(c_array)
-                else:
-                    # Wrong size; it must not be intended for mapping.
-                    c_array = None
             except ValueError:
                 # Failed to make a floating-point array; c must be color specs.
                 c_array = None
+            else:
+                if c_array.size == x.size:
+                    c = np.ma.ravel(c_array)
+                elif c_array.size not in (3, 4):
+                    # Wrong size. Not a rgb/rgba and not same size as x
+                    raise ValueError("x and c must be the same size")
 
         if c_array is None:
             colors = c     # must be acceptable as PathCollection facecolors
