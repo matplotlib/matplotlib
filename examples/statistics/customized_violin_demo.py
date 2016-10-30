@@ -18,14 +18,11 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 
-def adjacent_values(vals):
-    q1, q3 = np.percentile(vals, [25, 75])
-    inter_quartile_range = q3 - q1
-
-    upper_adjacent_value = q3 + inter_quartile_range * 1.5
+def adjacent_values(vals, q1, q3):
+    upper_adjacent_value = q3 + (q3 - q1) * 1.5
     upper_adjacent_value = np.clip(upper_adjacent_value, q3, vals[-1])
 
-    lower_adjacent_value = q1 - inter_quartile_range * 1.5
+    lower_adjacent_value = q1 - (q3 - q1) * 1.5
     lower_adjacent_value = np.clip(lower_adjacent_value, vals[0], q1)
     return [lower_adjacent_value, upper_adjacent_value]
 
@@ -62,10 +59,11 @@ for pc in parts['bodies']:
     pc.set_edgecolor('black')
     pc.set_alpha(1)
 
-quartiles = (np.percentile(data, [25, 50, 75], axis=1))
-medians = quartiles[1]
-inter_quartile_ranges = quartiles[[0, 2]].T
-whiskers = [adjacent_values(sorted_array) for sorted_array in data]
+quartile1, medians, quartile3 = np.percentile(data, [25, 50, 75], axis=1)
+inter_quartile_ranges = np.vstack([quartile1, quartile3]).T
+whiskers = [
+    adjacent_values(sorted_array, q1, q3) 
+    for sorted_array, q1, q3 in zip(data, quartile1, quartile3)]
 
 # plot whiskers as thin lines, quartiles as fat lines,
 # and medians as points
