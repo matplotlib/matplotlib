@@ -1,17 +1,27 @@
+"""
+Animated plot showing a decay process with updating x-scale.
+"""
+
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 
 
 def data_gen(t=0):
-    cnt = 0
-    while cnt < 1000:
-        cnt += 1
+    """Generate data
+
+    Generates a decaying sine wave.
+    """
+    for count in range(1000):
         t += 0.1
         yield t, np.sin(2*np.pi*t) * np.exp(-t/10.)
 
 
 def init():
+    """Create a line
+
+    Returns a matplotlib line object.
+    """
     ax.set_ylim(-1.1, 1.1)
     ax.set_xlim(0, 10)
     del xdata[:]
@@ -26,7 +36,7 @@ xdata, ydata = [], []
 
 
 def run(data):
-    # update the data
+    """Update the data, check and set axis scale"""
     t, y = data
     xdata.append(t)
     ydata.append(y)
