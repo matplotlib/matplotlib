@@ -62,19 +62,15 @@ for pc in parts['bodies']:
 quartile1, medians, quartile3 = np.percentile(data, [25, 50, 75], axis=1)
 inter_quartile_ranges = np.vstack([quartile1, quartile3]).T
 whiskers = [
-    adjacent_values(sorted_array, q1, q3) 
+    adjacent_values(sorted_array, q1, q3)
     for sorted_array, q1, q3 in zip(data, quartile1, quartile3)]
-
-# plot whiskers as thin lines, quartiles as fat lines,
-# and medians as points
-for i, median in enumerate(medians):
-    ax2.plot([i + 1, i + 1], whiskers[i], '-', color='black', linewidth=1)
-    ax2.plot(
-        [i + 1, i + 1], inter_quartile_ranges[i], '-', color='black',
-        linewidth=5)
-    ax2.plot(
-        i + 1, median, 'o', color='white',
-        markersize=6, markeredgecolor='none')
+whiskersMin, whiskersMax = list(zip(*whiskers))
+# plot medians as points,
+# whiskers as thin lines, quartiles as fat lines
+inds = np.arange(1, len(medians) + 1)
+ax2.scatter(inds, medians, marker='o', color='white', s=30, zorder=3)
+ax2.vlines(inds, quartile1, quartile3, color='k', linestyle='-', lw=5)
+ax2.vlines(inds, whiskersMin, whiskersMax, color='k', linestyle='-', lw=1)
 
 # set style for the axes
 labels = ['A', 'B', 'C', 'D']    # labels
