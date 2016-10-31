@@ -2865,7 +2865,7 @@ class _AxesBase(martist.Artist):
         if self.get_xscale() == 'log' and (left <= 0.0 or right <= 0.0):
             warnings.warn(
                 'Attempted to set non-positive xlimits for log-scale axis; '
-                'automatically adjusting.')
+                'invalid limits will be ignored.')
         left, right = self.xaxis.limit_range_for_scale(left, right)
 
         self.viewLim.intervalx = (left, right)
@@ -3130,7 +3130,7 @@ class _AxesBase(martist.Artist):
         if self.get_yscale() == 'log' and (bottom <= 0.0 or top <= 0.0):
             warnings.warn(
                 'Attempted to set non-positive ylimits for log-scale axis; '
-                'automatically adjusting.')
+                'invalid limits will be ignored.')
         bottom, top = self.yaxis.limit_range_for_scale(bottom, top)
 
         self.viewLim.intervaly = (bottom, top)
