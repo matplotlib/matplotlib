@@ -1,3 +1,11 @@
+"""
+===========================
+The double pendulum problem
+===========================
+
+This animation illustrates the double pendulum problem.
+"""
+
 # Double pendulum formula translated from the C code at
 # http://www.physics.usyd.edu.au/~wheat/dpend_html/solve_dpend.c
 
@@ -85,5 +93,5 @@ def animate(i):
 ani = animation.FuncAnimation(fig, animate, np.arange(1, len(y)),
                               interval=25, blit=True, init_func=init)
 
-#ani.save('double_pendulum.mp4', fps=15)
+# ani.save('double_pendulum.mp4', fps=15)
 plt.show()
