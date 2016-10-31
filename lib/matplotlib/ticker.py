@@ -689,9 +689,9 @@ class ScalarFormatter(Formatter):
             # are no more than 1 apart at that precision?
             oom = 1 + next(oom for oom in itertools.count(oom_max, -1)
                            if abs_max // 10 ** oom - abs_min // 10 ** oom > 1)
-        # Only use offset if it saves at least two significant digits.
+        # Only use offset if it saves at least 4 significant digits.
         self.offset = (sign * (abs_max // 10 ** oom) * 10 ** oom
-                       if abs_max // 10 ** oom >= 10
+                       if abs_max // 10 ** oom >= 10**3  # 10**(4-1)
                        else 0)
 
     def _set_orderOfMagnitude(self, range):
