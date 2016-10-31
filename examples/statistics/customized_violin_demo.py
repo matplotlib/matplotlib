@@ -42,18 +42,15 @@ data = [sorted(np.random.normal(0, std, 100)) for std in range(1, 5)]
 
 fig, (ax1, ax2) = plt.subplots(nrows=1, ncols=2, figsize=(9, 4), sharey=True)
 
-# plot the default violin
 ax1.set_title('Default violin plot')
 ax1.set_ylabel('Observed values')
 ax1.violinplot(data)
 
-# customized violin
 ax2.set_title('Customized violin plot')
 parts = ax2.violinplot(
         data, showmeans=False, showmedians=False,
         showextrema=False)
 
-# customize colors
 for pc in parts['bodies']:
     pc.set_facecolor('#D43F3A')
     pc.set_edgecolor('black')
@@ -71,7 +68,7 @@ ax2.vlines(inds, quartile1, quartile3, color='k', linestyle='-', lw=5)
 ax2.vlines(inds, whiskersMin, whiskersMax, color='k', linestyle='-', lw=1)
 
 # set style for the axes
-labels = ['A', 'B', 'C', 'D']    # labels
+labels = ['A', 'B', 'C', 'D']
 for ax in [ax1, ax2]:
     set_axis_style(ax, labels)
 
