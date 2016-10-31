@@ -2823,7 +2823,7 @@ class _AxesBase(martist.Artist):
         For example, suppose *x* is years before present.
         Then one might use::
 
-          set_ylim(5000, 0)
+          set_xlim(5000, 0)
 
         so 5000 years ago is on the left of the plot and the
         present is on the right.
@@ -2861,6 +2861,11 @@ class _AxesBase(martist.Artist):
                  'in singular transformations; automatically expanding.\n'
                  'left=%s, right=%s') % (left, right))
         left, right = mtransforms.nonsingular(left, right, increasing=False)
+
+        if self.get_xscale() == 'log' and (left <= 0.0 or right <= 0.0):
+            warnings.warn(
+                'Attempted to set non-positive xlimits for log-scale axis; '
+                'invalid limits will be ignored.')
         left, right = self.xaxis.limit_range_for_scale(left, right)
 
         self.viewLim.intervalx = (left, right)
@@ -3121,6 +3126,11 @@ class _AxesBase(martist.Artist):
                  'bottom=%s, top=%s') % (bottom, top))
 
         bottom, top = mtransforms.nonsingular(bottom, top, increasing=False)
+
+        if self.get_yscale() == 'log' and (bottom <= 0.0 or top <= 0.0):
+            warnings.warn(
+                'Attempted to set non-positive ylimits for log-scale axis; '
+                'invalid limits will be ignored.')
         bottom, top = self.yaxis.limit_range_for_scale(bottom, top)
 
         self.viewLim.intervaly = (bottom, top)
