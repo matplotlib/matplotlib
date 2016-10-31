@@ -1590,10 +1590,10 @@ class MirrorRootNorm(MirrorPiecewiseNorm):
     to `colors.MirrorPiecewiseNorm(fpos='sqrt')`
 
     `mcolors.MirrorRootNorm(orderpos=2, orderneg=3)` is equivalent
-    to `colors.MirrorPiecewiseNorm(fpos='sqrt',fneg='crt')`
+    to `colors.MirrorPiecewiseNorm(fpos='sqrt', fneg='crt')`
 
     `mcolors.MirrorRootNorm(orderpos=N1, orderneg=N2)` is equivalent
-    to `colors.MirrorPiecewiseNorm(fpos=root{N1}',fneg=root{N2}')`
+    to `colors.MirrorPiecewiseNorm(fpos=root{N1}', fneg=root{N2}')`
 
     """
 
