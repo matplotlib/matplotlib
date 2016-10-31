@@ -44,6 +44,13 @@ instead of `virtualenv <https://virtualenv.pypa.io/en/latest/>`_::
 
 Otherwise you will need one of the workarounds below.
 
+Pyenv
+-----
+
+If you are using pyenv and virtualenv you can enable your python version to be installed as a framework:
+
+    PYTHON_CONFIGURE_OPTS="--enable-framework" pyenv install x.x.x
+
 Conda
 -----
 
