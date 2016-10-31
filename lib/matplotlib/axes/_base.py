@@ -2823,7 +2823,7 @@ class _AxesBase(martist.Artist):
         For example, suppose *x* is years before present.
         Then one might use::
 
-          set_ylim(5000, 0)
+          set_xlim(5000, 0)
 
         so 5000 years ago is on the left of the plot and the
         present is on the right.
