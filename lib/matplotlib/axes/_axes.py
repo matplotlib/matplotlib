@@ -6533,7 +6533,7 @@ or tuple of floats
 
         Other parameters
         -----------------
-        kwargs : :meth:`pcolorfast` properties.
+        kwargs : :meth:`pcolormesh` properties.
 
         See also
         --------
@@ -6563,7 +6563,7 @@ or tuple of floats
         if cmax is not None:
             h[h > cmax] = None
 
-        pc = self.pcolorfast(xedges, yedges, h.T, **kwargs)
+        pc = self.pcolormesh(xedges, yedges, h.T, **kwargs)
         self.set_xlim(xedges[0], xedges[-1])
         self.set_ylim(yedges[0], yedges[-1])
 
