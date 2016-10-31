@@ -14,6 +14,7 @@ try:
 except ImportError:
     assert_sequence_equal = None
 
+import pytest
 import numpy as np
 from numpy.testing.utils import assert_array_equal, assert_array_almost_equal
 from nose.plugins.skip import SkipTest
@@ -156,202 +157,204 @@ def test_LogNorm():
     assert_array_equal(ln([1, 6]), [0, 1.0])
 
 
-def test_FuncNorm():
-    # Testing limits using a string
-    norm = mcolors.FuncNorm(f='log10', vmin=0.01, vmax=2.)
-    assert_array_equal(norm([0.01, 2]), [0, 1.0])
+class TestFuncNorm(object):
+    def test_limits_with_string(self):
+        norm = mcolors.FuncNorm(f='log10', vmin=0.01, vmax=2.)
+        assert_array_equal(norm([0.01, 2]), [0, 1.0])
 
-    # Testing limits using a string
-    norm = mcolors.FuncNorm(f=lambda x: np.log10(x),
-                            finv=lambda x: 10.**(x), vmin=0.01, vmax=2.)
-    assert_array_equal(norm([0.01, 2]), [0, 1.0])
+    def test_limits_with_lambda(self):
+        norm = mcolors.FuncNorm(f=lambda x: np.log10(x),
+                                finv=lambda x: 10.**(x),
+                                vmin=0.01, vmax=2.)
+        assert_array_equal(norm([0.01, 2]), [0, 1.0])
 
-    # Testing limits without vmin, vmax
-    norm = mcolors.FuncNorm(f='log10')
-    assert_array_equal(norm([0.01, 2]), [0, 1.0])
+    def test_limits_without_vmin_vmax(self):
+        norm = mcolors.FuncNorm(f='log10')
+        assert_array_equal(norm([0.01, 2]), [0, 1.0])
 
-    # Testing limits without vmin
-    norm = mcolors.FuncNorm(f='log10', vmax=2.)
-    assert_array_equal(norm([0.01, 2]), [0, 1.0])
+    def test_limits_without_vmin(self):
+        norm = mcolors.FuncNorm(f='log10', vmax=2.)
+        assert_array_equal(norm([0.01, 2]), [0, 1.0])
 
-    # Testing limits without vmin
-    norm = mcolors.FuncNorm(f='log10', vmin=0.01)
-    assert_array_equal(norm([0.01, 2]), [0, 1.0])
+    def test_limits_without_vmax(self):
+        norm = mcolors.FuncNorm(f='log10', vmin=0.01)
+        assert_array_equal(norm([0.01, 2]), [0, 1.0])
 
-    # Testing intermediate values
-    norm = mcolors.FuncNorm(f='log10')
-    assert_array_almost_equal(norm([0.01, 0.5, 2]), [0, 0.73835195870437, 1.0])
+    def test_intermediate_values(self):
+        norm = mcolors.FuncNorm(f='log10')
+        assert_array_almost_equal(norm([0.01, 0.5, 2]),
+                                  [0, 0.73835195870437, 1.0])
 
-    # Checking inverse
-    norm = mcolors.FuncNorm(f='log10', vmin=0.01, vmax=2.)
-    x = np.linspace(0.01, 2, 10)
-    assert_array_almost_equal(x, norm.inverse(norm(x)))
+    def test_inverse(self):
+        norm = mcolors.FuncNorm(f='log10', vmin=0.01, vmax=2.)
+        x = np.linspace(0.01, 2, 10)
+        assert_array_almost_equal(x, norm.inverse(norm(x)))
 
-    # Checking ticks
-    norm = mcolors.FuncNorm(f='log10', vmin=0.01, vmax=2.)
-    expected = [0.01, 0.016, 0.024, 0.04, 0.06,
-                0.09, 0.14, 0.22, 0.3, 0.5,
-                0.8, 1.3, 2.]
-    assert_array_almost_equal(norm.ticks(), expected)
+    def test_ticks(self):
+        norm = mcolors.FuncNorm(f='log10', vmin=0.01, vmax=2.)
+        expected = [0.01, 0.016, 0.024, 0.04, 0.06,
+                    0.09, 0.14, 0.22, 0.3, 0.5,
+                    0.8, 1.3, 2.]
+        assert_array_almost_equal(norm.ticks(), expected)
 
-
-def test_FuncNorm_func_parser():
-    validstrings = ['linear', 'square', 'cubic', 'sqrt', 'crt',
+    validstrings = ['linear', 'quadratic', 'cubic', 'sqrt', 'crt',
                     'log', 'log10', 'power{1.5}', 'root{2.5}',
                     'log(x+{0.5})', 'log10(x+{0.1})']
 
-    x = np.linspace(0.01, 0.5, 1)
-    for string in validstrings:
-        funcs = mcolors.FuncNorm._func_parser(validstrings)
+    @pytest.mark.parametrize("string", validstrings, ids=validstrings)
+    def test_func_parser(self, string):
+        x = np.linspace(0.01, 0.5, 1)
+        funcs = mcolors.FuncNorm._func_parser([string, None])
         assert_array_almost_equal(funcs[1](funcs[0](x)), x)
 
 
-def test_PiecewiseNorm():
-    # Testing using both strings and functions
-    norm = mcolors.PiecewiseNorm(flist=['cubic', 'crt', lambda x:x**3, 'crt'],
-                                 finvlist=[None, None,
-                                           lambda x:x**(1. / 3), None],
-                                 refpoints_cm=[0.2, 0.5, 0.7],
-                                 refpoints_data=[-1, 1, 3])
-    assert_array_equal(norm([-2., -1, 1, 3, 4]), [0., 0.2, 0.5, 0.7, 1.0])
+class TestPiecewiseNorm(object):
+    def test_strings_and_funcs(self):
+        norm = mcolors.PiecewiseNorm(flist=['cubic', 'crt',
+                                            lambda x:x**3, 'crt'],
+                                     finvlist=[None, None,
+                                               lambda x:x**(1. / 3), None],
+                                     refpoints_cm=[0.2, 0.5, 0.7],
+                                     refpoints_data=[-1, 1, 3])
+        assert_array_equal(norm([-2., -1, 1, 3, 4]), [0., 0.2, 0.5, 0.7, 1.0])
 
-    # Testing using only strings
-    norm = mcolors.PiecewiseNorm(flist=['cubic', 'crt', 'cubic', 'crt'],
-                                 refpoints_cm=[0.2, 0.5, 0.7],
-                                 refpoints_data=[-1, 1, 3])
-    assert_array_equal(norm([-2., -1, 1, 3, 4]), [0., 0.2, 0.5, 0.7, 1.0])
+    def test_only_strings(self):
+        norm = mcolors.PiecewiseNorm(flist=['cubic', 'crt', 'cubic', 'crt'],
+                                     refpoints_cm=[0.2, 0.5, 0.7],
+                                     refpoints_data=[-1, 1, 3])
+        assert_array_equal(norm([-2., -1, 1, 3, 4]), [0., 0.2, 0.5, 0.7, 1.0])
 
-    # Testing with limits
-    norm = mcolors.PiecewiseNorm(flist=['cubic', 'crt', 'cubic', 'crt'],
-                                 refpoints_cm=[0.2, 0.5, 0.7],
-                                 refpoints_data=[-1, 1, 3],
-                                 vmin=-2., vmax=4.)
-    assert_array_equal(norm([-2., -1, 1, 3, 4]), [0., 0.2, 0.5, 0.7, 1.0])
+    def test_with_vminvmax(self):
+        norm = mcolors.PiecewiseNorm(flist=['cubic', 'crt', 'cubic', 'crt'],
+                                     refpoints_cm=[0.2, 0.5, 0.7],
+                                     refpoints_data=[-1, 1, 3],
+                                     vmin=-2., vmax=4.)
+        assert_array_equal(norm([-2., -1, 1, 3, 4]), [0., 0.2, 0.5, 0.7, 1.0])
 
-    # Testing with vmin
-    norm = mcolors.PiecewiseNorm(flist=['cubic', 'crt', 'cubic', 'crt'],
-                                 refpoints_cm=[0.2, 0.5, 0.7],
-                                 refpoints_data=[-1, 1, 3],
-                                 vmin=-2.)
-    assert_array_equal(norm([-2., -1, 1, 3, 4]), [0., 0.2, 0.5, 0.7, 1.0])
+    def test_with_vmin(self):
+        norm = mcolors.PiecewiseNorm(flist=['cubic', 'crt', 'cubic', 'crt'],
+                                     refpoints_cm=[0.2, 0.5, 0.7],
+                                     refpoints_data=[-1, 1, 3],
+                                     vmin=-2.)
+        assert_array_equal(norm([-2., -1, 1, 3, 4]), [0., 0.2, 0.5, 0.7, 1.0])
 
-    # Testing with vmax
-    norm = mcolors.PiecewiseNorm(flist=['cubic', 'crt', 'cubic', 'crt'],
-                                 refpoints_cm=[0.2, 0.5, 0.7],
-                                 refpoints_data=[-1, 1, 3],
-                                 vmax=4.)
-    assert_array_equal(norm([-2., -1, 1, 3, 4]), [0., 0.2, 0.5, 0.7, 1.0])
+    def test_with_vmax(self):
+        norm = mcolors.PiecewiseNorm(flist=['cubic', 'crt', 'cubic', 'crt'],
+                                     refpoints_cm=[0.2, 0.5, 0.7],
+                                     refpoints_data=[-1, 1, 3],
+                                     vmax=4.)
+        assert_array_equal(norm([-2., -1, 1, 3, 4]), [0., 0.2, 0.5, 0.7, 1.0])
 
-    # Testing intermediate values
-    norm = mcolors.PiecewiseNorm(flist=['cubic', 'crt', 'cubic', 'crt'],
-                                 refpoints_cm=[0.2, 0.5, 0.7],
-                                 refpoints_data=[-1, 1, 3],
-                                 vmin=-2., vmax=4.)
-    expected = [0.38898816,
-                0.47256809,
-                0.503125,
-                0.584375,
-                0.93811016]
-    assert_array_almost_equal(norm(np.linspace(-0.5, 3.5, 5)), expected)
+    def test_intermediate_values(self):
+        norm = mcolors.PiecewiseNorm(flist=['cubic', 'crt', 'cubic', 'crt'],
+                                     refpoints_cm=[0.2, 0.5, 0.7],
+                                     refpoints_data=[-1, 1, 3],
+                                     vmin=-2., vmax=4.)
+        expected = [0.38898816,
+                    0.47256809,
+                    0.503125,
+                    0.584375,
+                    0.93811016]
+        assert_array_almost_equal(norm(np.linspace(-0.5, 3.5, 5)), expected)
 
-    # Checking inverse
-    norm = mcolors.PiecewiseNorm(flist=['cubic', 'crt', 'cubic', 'crt'],
-                                 refpoints_cm=[0.2, 0.5, 0.7],
-                                 refpoints_data=[-1, 1, 3],
-                                 vmin=-2., vmax=4.)
-    x = np.linspace(-2, 4, 10)
-    assert_array_almost_equal(x, norm.inverse(norm(x)))
+    def test_inverse(self):
+        norm = mcolors.PiecewiseNorm(flist=['cubic', 'crt', 'cubic', 'crt'],
+                                     refpoints_cm=[0.2, 0.5, 0.7],
+                                     refpoints_data=[-1, 1, 3],
+                                     vmin=-2., vmax=4.)
+        x = np.linspace(-2, 4, 10)
+        assert_array_almost_equal(x, norm.inverse(norm(x)))
 
-    # Checking ticks
-    norm = mcolors.PiecewiseNorm(flist=['cubic', 'crt', 'cubic', 'crt'],
-                                 refpoints_cm=[0.2, 0.5, 0.7],
-                                 refpoints_data=[-1, 1, 3],
-                                 vmin=-2., vmax=4.)
-    expected = [-2., -1.3, -1.1, -1., -0.93,
-                -0.4, 1., 2.4, 2.7, 3.,
-                3.04, 3.3, 4.]
-    assert_array_almost_equal(norm.ticks(), expected)
+    def test_ticks(self):
+        norm = mcolors.PiecewiseNorm(flist=['cubic', 'crt', 'cubic', 'crt'],
+                                     refpoints_cm=[0.2, 0.5, 0.7],
+                                     refpoints_data=[-1, 1, 3],
+                                     vmin=-2., vmax=4.)
+        expected = [-2., -1.3, -1.1, -1., -0.93,
+                    -0.4, 1., 2.4, 2.7, 3.,
+                    3.04, 3.3, 4.]
+        assert_array_almost_equal(norm.ticks(), expected)
 
 
-def test_MirrorPiecewiseNorm():
+class TestMirrorPiecewiseNorm(object):
     # Not necessary to test vmin,vmax, as they are just passed to the
     # base class
+    def test_defaults_only_fpos(self):
+        norm = mcolors.MirrorPiecewiseNorm(fpos='crt')
+        assert_array_equal(norm([-2, 0., 1]), [0., 0.5, 1.0])
 
-    # Single argument positive range, defaults
-    norm = mcolors.MirrorPiecewiseNorm(fpos='crt')
-    assert_array_equal(norm([-2, 0., 1]), [0., 0.5, 1.0])
+    def test_fposfneg_refpoint_data_cm(self):
+        norm = mcolors.MirrorPiecewiseNorm(fpos='crt', fneg='sqrt',
+                                           center_cm=0.35,
+                                           center_data=0.6)
+        assert_array_equal(norm([-2, 0.6, 1]), [0., 0.35, 1.0])
 
-    # Single argument positive, and negative range, with ref point
-    norm = mcolors.MirrorPiecewiseNorm(fpos='crt', fneg='sqrt',
-                                       center_cm=0.35,
-                                       center_data=0.6)
-    assert_array_equal(norm([-2, 0.6, 1]), [0., 0.35, 1.0])
+    def test_fposfneg_refpoint_data(self):
+        norm = mcolors.MirrorPiecewiseNorm(fpos='crt', fneg='sqrt',
+                                           center_data=0.6)
+        assert_array_equal(norm([-2, 0.6, 1]), [0., 0.5, 1.0])
 
-    # Single argument positive, and negative range, with ref point
-    norm = mcolors.MirrorPiecewiseNorm(fpos='crt', fneg='sqrt',
-                                       center_data=0.6)
-    assert_array_equal(norm([-2, 0.6, 1]), [0., 0.5, 1.0])
+    def test_fpos_lambdafunc(self):
+        norm = mcolors.MirrorPiecewiseNorm(fpos=lambda x: x**2,
+                                           fposinv=lambda x: x**0.5)
+        assert_array_equal(norm([-2, 0., 1]), [0., 0.5, 1.0])
 
-    # Providing lambda function
-    norm = mcolors.MirrorPiecewiseNorm(fpos=lambda x: x**2,
-                                       fposinv=lambda x: x**0.5)
-    assert_array_equal(norm([-2, 0., 1]), [0., 0.5, 1.0])
+    def test_fpos_lambdafunc_fneg_string(self):
+        norm = mcolors.MirrorPiecewiseNorm(fpos=lambda x: x**2,
+                                           fposinv=lambda x: x**0.5,
+                                           fneg='crt')
+        assert_array_equal(norm([-2, 0., 1]), [0., 0.5, 1.0])
 
-    # Providing lambda function and negative function string
-    norm = mcolors.MirrorPiecewiseNorm(fpos=lambda x: x**2,
-                                       fposinv=lambda x: x**0.5,
-                                       fneg='crt')
-    assert_array_equal(norm([-2, 0., 1]), [0., 0.5, 1.0])
-
-    # Testing intermediate values
-    norm = mcolors.MirrorPiecewiseNorm(fpos=lambda x: x**2,
-                                       fposinv=lambda x: x**0.5,
-                                       fneg='crt')
-    expected = [0.,
-                0.1606978,
-                0.52295918,
-                0.68431122,
-                1.]
-    assert_array_almost_equal(norm(np.linspace(-2, 3.5, 5)), expected)
+    def test_intermediate_values(self):
+        norm = mcolors.MirrorPiecewiseNorm(fpos=lambda x: x**2,
+                                           fposinv=lambda x: x**0.5,
+                                           fneg='crt')
+        expected = [0.,
+                    0.1606978,
+                    0.52295918,
+                    0.68431122,
+                    1.]
+        assert_array_almost_equal(norm(np.linspace(-2, 3.5, 5)), expected)
 
 
-def test_MirrorRootNorm():
+class TestMirrorRootNorm(object):
     # All parameters except the order are just passed to the base class
-    norm = mcolors.MirrorRootNorm(orderpos=2)
-    assert_array_equal(norm([-2, 0., 1]), [0., 0.5, 1.0])
+    def test_orderpos_only(self):
+        norm = mcolors.MirrorRootNorm(orderpos=2)
+        assert_array_equal(norm([-2, 0., 1]), [0., 0.5, 1.0])
 
-    # Checking that the order is copied by default
-    norm1 = mcolors.MirrorRootNorm(orderpos=3,
-                                   orderneg=3)
-    norm2 = mcolors.MirrorRootNorm(orderpos=3)
-    x = np.linspace(-2, 1, 10)
-    assert_array_equal(norm1(x), norm2(x))
+    def test_symmetric_default(self):
+        norm1 = mcolors.MirrorRootNorm(orderpos=3,
+                                       orderneg=3)
+        norm2 = mcolors.MirrorRootNorm(orderpos=3)
+        x = np.linspace(-2, 1, 10)
+        assert_array_equal(norm1(x), norm2(x))
 
-    # Checking intermediate values
-    norm = mcolors.MirrorRootNorm(orderpos=3,
-                                  orderneg=4)
-    expected = [0.,
-                0.0710536,
-                0.23135752,
-                0.79920424,
-                0.89044833,
-                0.95186372,
-                1.]
-    assert_array_almost_equal(norm(np.linspace(-2, 3.5, 7)), expected)
+    def test_intermediate_values(self):
+        norm = mcolors.MirrorRootNorm(orderpos=3,
+                                      orderneg=4)
+        expected = [0.,
+                    0.0710536,
+                    0.23135752,
+                    0.79920424,
+                    0.89044833,
+                    0.95186372,
+                    1.]
+        assert_array_almost_equal(norm(np.linspace(-2, 3.5, 7)), expected)
 
 
-def test_RootNorm():
+class TestRootNorm(object):
     # All parameters except the order are just passed to the base class
-
-    norm = mcolors.RootNorm(order=3)
-    expected = [0.,
-                0.55032121,
-                0.69336127,
-                0.79370053,
-                0.87358046,
-                0.94103603,
-                1.]
-    assert_array_almost_equal(norm(np.linspace(0, 10, 7)), expected)
+    def test_intermediate_values(self):
+        norm = mcolors.RootNorm(order=3)
+        expected = [0.,
+                    0.55032121,
+                    0.69336127,
+                    0.79370053,
+                    0.87358046,
+                    0.94103603,
+                    1.]
+        assert_array_almost_equal(norm(np.linspace(0, 10, 7)), expected)
 
 
 def test_PowerNorm():

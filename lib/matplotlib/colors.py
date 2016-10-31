@@ -1006,7 +1006,7 @@ class FuncNorm(Normalize):
 
         f, finv = FuncNorm._func_parser([f, finv])
         if finv is None:
-            raise ValueError("Inverse function not provided")
+            raise ValueError("Inverse function finv not provided")
 
         self._f = f
         self._finv = finv
@@ -1133,7 +1133,7 @@ class FuncNorm(Normalize):
         try:
             output = funcs[six.text_type(funcsin[0])]
             if onlybounded and not output[2]:
-                raise ValueError("Only functions bounded in the (0, 1)"
+                raise ValueError("Only functions bounded in the [0, 1]"
                                  "domain are allowed: %s" %
                                  [key for key in funcs.keys() if funcs[key][2]]
                                  )
@@ -1302,21 +1302,28 @@ class PiecewiseNorm(FuncNorm):
             finvlist = [None] * len(flist)
 
         if len(flist) != len(finvlist):
-            raise ValueError("len(flist) must be equal than len(finvlist)")
+            raise ValueError("The number of provided inverse functions"
+                             " `len(finvlist)` must be equal to the number"
+                             " of provided functions `len(flist)`")
 
         if len(refpoints_cm) != len(flist) - 1:
             raise ValueError(
-                "len(refpoints_cm) must be equal than len(flist) -1")
+                "The number of reference points for the colorbar "
+                "`len(refpoints_cm)` must be equal to the number of "
+                "provided functions `len(flist)` minus 1")
 
         if len(refpoints_data) != len(refpoints_cm):
             raise ValueError(
-                "len(refpoints_data) must be equal than len(refpoints_cm)")
+                "The number of reference points for the colorbar "
+                "`len(refpoints_cm)` must be equal to the number of "
+                "reference points for the data `len(refpoints_data)`")
 
         self._refpoints_cm = np.concatenate(
             ([0.0], np.array(refpoints_cm), [1.0]))
         if any(np.diff(self._refpoints_cm) <= 0):
             raise ValueError(
-                "refpoints_cm values must be monotonically increasing "
+                "The values for the reference points for the colorbar "
+                "`refpoints_cm` must be monotonically increasing "
                 "and within the (0.0,1.0) interval")
 
         self._refpoints_data = np.concatenate(
@@ -1325,7 +1332,8 @@ class PiecewiseNorm(FuncNorm):
         if (len(self._refpoints_data[1:-1]) > 2 and
                 any(np.diff(self._refpoints_data[1:-1]) <= 0)):
             raise ValueError(
-                "refpoints_data values must be monotonically increasing")
+                "The values for the reference points for the data "
+                "`refpoints_data` must be monotonically increasing")
 
         # Parsing the function strings if any:
         self._flist = []
@@ -1355,8 +1363,9 @@ class PiecewiseNorm(FuncNorm):
         if (len(rp_d[1:-1]) > 0 and
                 (any(rp_d[1:-1] <= vmin) or any(rp_d[1:-1] >= vmax))):
             raise ValueError(
-                "data reference points must be "
-                "within the (vmin,vmax) interval")
+                "The values for the reference points for the data "
+                "`refpoints_data` must be contained within "
+                "the minimum and maximum values (vmin,vmax) interval")
 
         widths_cm = np.diff(rp_cm)
         widths_d = np.diff(rp_d)
@@ -1531,7 +1540,9 @@ class MirrorPiecewiseNorm(PiecewiseNorm):
 
         """
         if fneg is None and fneginv is not None:
-            raise ValueError("fneginv not expected without fneg")
+            raise ValueError("Inverse function for the negative range "
+                             "`fneginv`not expected without function for "
+                             "the negative range `fneg`")
 
         if fneg is None:
             fneg = fpos
@@ -1548,7 +1559,8 @@ class MirrorPiecewiseNorm(PiecewiseNorm):
                 "Inverse function must be provided for the negative interval")
 
         if center_cm <= 0.0 or center_cm >= 1.0:
-            raise ValueError("center must be within the (0.0,1.0) interval")
+            raise ValueError("The center point for the colorbar `center_cm` "
+                             "must be within the (0.0,1.0) interval")
 
         refpoints_cm = np.array([center_cm])
         refpoints_data = np.array([center_data])
@@ -1566,12 +1578,23 @@ class MirrorPiecewiseNorm(PiecewiseNorm):
 
 class MirrorRootNorm(MirrorPiecewiseNorm):
     """
-    Root normalization for positive and negative data.
+    Root normalization for positive and negative data using
+    `MirrorPiecewiseNorm`.
 
     Data above `center_data` will be normalized with a root of the order
     `orderpos` and data below it with a symmetric root of order `orderg neg`.
     If only `orderpos` function is given, the normalization will be completely
     mirrored.
+
+    `mcolors.MirrorRootNorm(orderpos=2)` is equivalent
+    to `colors.MirrorPiecewiseNorm(fpos='sqrt')`
+
+    `mcolors.MirrorRootNorm(orderpos=2, orderneg=3)` is equivalent
+    to `colors.MirrorPiecewiseNorm(fpos='sqrt',fneg='crt')`
+
+    `mcolors.MirrorRootNorm(orderpos=N1, orderneg=N2)` is equivalent
+    to `colors.MirrorPiecewiseNorm(fpos=root{N1}',fneg=root{N2}')`
+
     """
 
     def __init__(self, orderpos=2, orderneg=None,
@@ -1630,11 +1653,17 @@ class MirrorRootNorm(MirrorPiecewiseNorm):
 
 class RootNorm(FuncNorm):
     """
-    Simple root normalization using FuncNorm.
+    Simple root normalization using `FuncNorm`.
 
     It defines the root normalization as function of the order of the root.
     Data will be normalized as (f(x)-f(`vmin`))/(f(`vmax`)-f(`vmin`)), where
     f(x)=x**(1./`order`)
+
+    `mcolors.RootNorm(order=2)` is equivalent to `colors.FuncNorm(f='sqrt')`
+
+    `mcolors.RootNorm(order=3)` is equivalent to `colors.FuncNorm(f='crt')`
+
+    `mcolors.RootNorm(order=N)` is equivalent to `colors.FuncNorm(f='root{N}')`
 
     """
 
