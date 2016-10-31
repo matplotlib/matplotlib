@@ -1,3 +1,12 @@
+"""
+=========================
+Simple animation examples
+=========================
+
+This example contains two animations. The first is a random walk plot. The
+second is an image animation.
+"""
+
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
@@ -17,7 +26,8 @@ plt.xlabel('x')
 plt.title('test')
 line_ani = animation.FuncAnimation(fig1, update_line, 25, fargs=(data, l),
                                    interval=50, blit=True)
-#line_ani.save('lines.mp4')
+
+# To save the animation, use the command: line_ani.save('lines.mp4')
 
 fig2 = plt.figure()
 
@@ -30,6 +40,7 @@ for add in np.arange(15):
 
 im_ani = animation.ArtistAnimation(fig2, ims, interval=50, repeat_delay=3000,
                                    blit=True)
-#im_ani.save('im.mp4', metadata={'artist':'Guido'})
+# To save this second animation with some metadata, use the following command:
+# im_ani.save('im.mp4', metadata={'artist':'Guido'})
 
 plt.show()

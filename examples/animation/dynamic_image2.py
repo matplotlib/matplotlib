@@ -1,5 +1,10 @@
 """
-An animated image
+========================================
+An animated image using a list of images
+========================================
+
+This examples demonstrates how to animate an image from a list of images (or
+Artists).
 """
 import numpy as np
 import matplotlib.pyplot as plt
@@ -20,13 +25,12 @@ ims = []
 for i in range(60):
     x += np.pi / 15.
     y += np.pi / 20.
-    im = plt.imshow(f(x, y), cmap='viridis', animated=True)
+    im = plt.imshow(f(x, y), animated=True)
     ims.append([im])
 
 ani = animation.ArtistAnimation(fig, ims, interval=50, blit=True,
                                 repeat_delay=1000)
 
-#ani.save('dynamic_images.mp4')
-
+# ani.save('dynamic_images.mp4')
 
 plt.show()

@@ -1,6 +1,9 @@
 """
-Emulate an oscilloscope.  Requires the animation API introduced in
-matplotlib 1.0 SVN.
+============
+Oscilloscope
+============
+
+Emulates an oscilloscope.
 """
 import numpy as np
 from matplotlib.lines import Line2D

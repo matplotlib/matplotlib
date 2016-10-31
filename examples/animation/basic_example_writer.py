@@ -1,5 +1,13 @@
-# Same as basic_example, but writes files using a single MovieWriter instance
-# without putting on screen
+"""
+===================
+Saving an animation
+===================
+
+This example showcases the same animations as `basic_example.py`, but instead
+of displaying the animation to the user, it writes to files using a
+MovieWriter instance.
+"""
+
 # -*- noplot -*-
 import numpy as np
 import matplotlib
