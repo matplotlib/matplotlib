@@ -3990,7 +3990,9 @@ or tuple of floats
                 mcolors.to_rgba_array(colors)
             except ValueError:
                 # c not acceptable as PathCollection facecolor
-                raise ValueError("c not acceptable as color sequence")
+                msg = ("c of shape {0} not acceptable as a color sequence "
+                       "for x with shape {1}, y with shape {2}")
+                raise ValueError(msg.format(c.shape, x.shape, y.shape))
         else:
             colors = None  # use cmap, norm after collection is created
 
