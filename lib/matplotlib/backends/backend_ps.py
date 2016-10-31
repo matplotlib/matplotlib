@@ -1197,12 +1197,15 @@ class FigureCanvasPS(FigureCanvasBase):
                 os.chmod(outfile, mode)
 
     def _print_figure_tex(self, outfile, format, dpi, facecolor, edgecolor,
-                          orientation, isLandscape, papertype,
+                          orientation, isLandscape, papertype, metadata=None,
                           **kwargs):
         """
         If text.usetex is True in rc, a temporary pair of tex/eps files
         are created to allow tex to manage the text layout via the PSFrags
         package. These files are processed to yield the final ps or eps file.
+
+        metadata must be a dictionary. Currently, only the value for
+        the key 'Creator' is used.
         """
         isEPSF = format == 'eps'
         if is_string_like(outfile):
@@ -1258,7 +1261,6 @@ class FigureCanvasPS(FigureCanvasBase):
         self.figure.set_edgecolor(origedgecolor)
 
         # check for custom metadata
-        metadata = kwargs.pop("metadata", None)
         if metadata is not None and 'Creator' in metadata:
             creator_str = metadata['Creator']
         else:
