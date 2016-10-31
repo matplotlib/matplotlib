@@ -24,7 +24,7 @@ def adjacent_values(vals, q1, q3):
 
     lower_adjacent_value = q1 - (q3 - q1) * 1.5
     lower_adjacent_value = np.clip(lower_adjacent_value, vals[0], q1)
-    return [lower_adjacent_value, upper_adjacent_value]
+    return lower_adjacent_value, upper_adjacent_value
 
 
 def set_axis_style(ax, labels):
@@ -60,13 +60,11 @@ for pc in parts['bodies']:
     pc.set_alpha(1)
 
 quartile1, medians, quartile3 = np.percentile(data, [25, 50, 75], axis=1)
-inter_quartile_ranges = np.vstack([quartile1, quartile3]).T
-whiskers = [
+whiskers = np.array([
     adjacent_values(sorted_array, q1, q3)
-    for sorted_array, q1, q3 in zip(data, quartile1, quartile3)]
-whiskersMin, whiskersMax = list(zip(*whiskers))
-# plot medians as points,
-# whiskers as thin lines, quartiles as fat lines
+    for sorted_array, q1, q3 in zip(data, quartile1, quartile3)])
+whiskersMin, whiskersMax = whiskers[:, 0], whiskers[:, 1]
+
 inds = np.arange(1, len(medians) + 1)
 ax2.scatter(inds, medians, marker='o', color='white', s=30, zorder=3)
 ax2.vlines(inds, quartile1, quartile3, color='k', linestyle='-', lw=5)
