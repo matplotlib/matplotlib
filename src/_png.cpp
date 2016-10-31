@@ -318,7 +318,9 @@ static PyObject *Py_write_png(PyObject *self, PyObject *args, PyObject *kwds)
             } else if (PyBytes_Check(meta_key)) {
                 text[meta_pos].key = PyBytes_AsString(meta_key);
             } else {
-                text[meta_pos].key = NULL;  // Silently drops entry
+                char invalid_key[79];
+                sprintf(invalid_key,"INVALID KEY %d", meta_pos);
+                text[meta_pos].key = invalid_key;
             }
             if (PyUnicode_Check(meta_val)) {
                 PyObject *temp_val = PyUnicode_AsEncodedString(meta_val, "latin_1", "strict");
