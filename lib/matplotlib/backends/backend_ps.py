@@ -965,7 +965,7 @@ class FigureCanvasPS(FigureCanvasBase):
 
     def _print_figure(self, outfile, format, dpi=72, facecolor='w', edgecolor='w',
                       orientation='portrait', isLandscape=False, papertype=None,
-                      **kwargs):
+                      metadata=None, **kwargs):
         """
         Render the figure to hardcopy.  Set the figure patch face and
         edge colors.  This is useful because some of the GUIs have a
@@ -978,6 +978,9 @@ class FigureCanvasPS(FigureCanvasBase):
 
         If outfile is a file object, a stand-alone PostScript file is
         written into this file object.
+
+        metadata must be a dictionary. Currently, only the value for
+        the key 'Creator' is used.
         """
         isEPSF = format == 'eps'
         passed_in_file_object = False
@@ -1060,7 +1063,6 @@ class FigureCanvasPS(FigureCanvasBase):
         self.figure.set_edgecolor(origedgecolor)
 
         # check for custom metadata
-        metadata = kwargs.pop("metadata", None)
         if metadata is not None and 'Creator' in metadata:
             creator_str = metadata['Creator']
         else:
