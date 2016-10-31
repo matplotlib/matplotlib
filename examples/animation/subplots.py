@@ -1,14 +1,22 @@
+"""
+=================
+Animated subplots
+=================
+
+This example uses subclassing, but there is no reason that the proper function
+couldn't be set up and then use FuncAnimation. The code is long, but not
+really complex. The length is due solely to the fact that there are a total of
+9 lines that need to be changed for the animation as well as 3 subplots that
+need initial set up.
+
+"""
+
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.lines import Line2D
 import matplotlib.animation as animation
 
 
-# This example uses subclassing, but there is no reason that the proper
-# function couldn't be set up and then use FuncAnimation. The code is long, but
-# not really complex. The length is due solely to the fact that there are a
-# total of 9 lines that need to be changed for the animation as well as 3
-# subplots that need initial set up.
 class SubplotAnimation(animation.TimedAnimation):
     def __init__(self):
         fig = plt.figure()
@@ -63,7 +71,6 @@ class SubplotAnimation(animation.TimedAnimation):
     def _draw_frame(self, framedata):
         i = framedata
         head = i - 1
-        head_len = 10
         head_slice = (self.t > self.t[i] - 1.0) & (self.t < self.t[i])
 
         self.line1.set_data(self.x[:i], self.y[:i])
@@ -93,5 +100,5 @@ class SubplotAnimation(animation.TimedAnimation):
             l.set_data([], [])
 
 ani = SubplotAnimation()
-#ani.save('test_sub.mp4')
+# ani.save('test_sub.mp4')
 plt.show()

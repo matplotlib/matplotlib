@@ -1,4 +1,8 @@
 """
+============
+3D animation
+============
+
 A simple example of an animated plot... In 3D!
 """
 import numpy as np
