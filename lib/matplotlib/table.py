@@ -278,8 +278,6 @@ class Table(Artist):
 
         self.set_clip_on(False)
 
-        self._cachedRenderer = None
-
     def add_cell(self, row, col, *args, **kwargs):
         """ Add a cell to the table. """
         xy = (0, 0)
@@ -310,10 +308,9 @@ class Table(Artist):
         # Need a renderer to do hit tests on mouseevent; assume the last one
         # will do
         if renderer is None:
-            renderer = self._cachedRenderer
+            renderer = self.figure._cachedRenderer
         if renderer is None:
             raise RuntimeError('No renderer defined')
-        self._cachedRenderer = renderer
 
         if not self.get_visible():
             return
@@ -350,8 +347,9 @@ class Table(Artist):
 
         # TODO: Return index of the cell containing the cursor so that the user
         # doesn't have to bind to each one individually.
-        if self._cachedRenderer is not None:
-            boxes = [self._cells[pos].get_window_extent(self._cachedRenderer)
+        renderer = self.figure._cachedRenderer
+        if renderer is not None:
+            boxes = [self._cells[pos].get_window_extent(renderer)
                      for pos in six.iterkeys(self._cells)
                      if pos[0] >= 0 and pos[1] >= 0]
             bbox = Bbox.union(boxes)

@@ -919,7 +919,7 @@ def gca(**kwargs):
     current figure matching the given keyword args, or create one.
 
     Examples
-    ---------
+    --------
     To get the current polar axes on the current figure::
 
         plt.gca(projection='polar')

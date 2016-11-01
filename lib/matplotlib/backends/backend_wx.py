@@ -757,10 +757,6 @@ class FigureCanvasWx(FigureCanvasBase, wx.Panel):
         confused with the main GUI event loop, which is always running
         and has nothing to do with this.
 
-        Call signature::
-
-        start_event_loop(self,timeout=0)
-
         This call blocks until a callback function triggers
         stop_event_loop() or *timeout* is reached.  If *timeout* is
         <=0, never timeout.
@@ -786,9 +782,6 @@ class FigureCanvasWx(FigureCanvasBase, wx.Panel):
         loop so that interactive functions, such as ginput and
         waitforbuttonpress, can wait for events.
 
-        Call signature::
-
-        stop_event_loop_default(self)
         """
         if hasattr(self, '_event_loop'):
             if self._event_loop.IsRunning():

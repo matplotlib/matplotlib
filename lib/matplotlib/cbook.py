@@ -85,7 +85,7 @@ def warn_deprecated(
     Used to display deprecation warning in a standard way.
 
     Parameters
-    ------------
+    ----------
     since : str
         The release at which this API became deprecated.
 
@@ -134,7 +134,7 @@ def deprecated(since, message='', name='', alternative='', pending=False,
     Decorator to mark a function as deprecated.
 
     Parameters
-    ------------
+    ----------
     since : str
         The release at which this API became deprecated.  This is
         required.
@@ -590,7 +590,7 @@ def local_over_kwdict(local_var, kwargs, *keys):
     kwargs dict in place.
 
     Parameters
-    ------------
+    ----------
         local_var: any object
             The local variable (highest priority)
 
@@ -602,12 +602,12 @@ def local_over_kwdict(local_var, kwargs, *keys):
             priority
 
     Returns
-    ---------
+    -------
         out: any object
             Either local_var or one of kwargs[key] for key in keys
 
     Raises
-    --------
+    ------
         IgnoredKeywordWarning
             For each key in keys that is removed from kwargs but not used as
             the output value

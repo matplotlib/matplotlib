@@ -1349,11 +1349,6 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
         Returns a tuple containing the contour, segment, index of
         segment, x & y of segment point and distance to minimum point.
 
-        Call signature::
-
-          conmin,segmin,imin,xmin,ymin,dmin = find_nearest_contour(
-                     self, x, y, indices=None, pixel=True )
-
         Optional keyword arguments:
 
           *indices*:

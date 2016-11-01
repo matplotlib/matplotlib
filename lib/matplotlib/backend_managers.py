@@ -116,7 +116,7 @@ class ToolManager(object):
         Connect event with string *s* to *func*.
 
         Parameters
-        -----------
+        ----------
         s : String
             Name of the event
 
@@ -175,7 +175,7 @@ class ToolManager(object):
             Name of the Tool
 
         Returns
-        ----------
+        -------
         list : list of keys associated with the Tool
         """
 
@@ -421,7 +421,7 @@ class ToolManager(object):
         Return the tool object, also accepts the actual tool for convenience
 
         Parameters
-        -----------
+        ----------
         name : str, ToolBase
             Name of the tool, or the tool itself
         warn : bool, optional

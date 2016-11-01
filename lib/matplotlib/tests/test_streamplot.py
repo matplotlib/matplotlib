@@ -51,8 +51,8 @@ def test_masks_and_nans():
     X, Y, U, V = velocity_field()
     mask = np.zeros(U.shape, dtype=bool)
     mask[40:60, 40:60] = 1
-    U = np.ma.array(U, mask=mask)
     U[:20, :20] = np.nan
+    U = np.ma.array(U, mask=mask)
     with np.errstate(invalid='ignore'):
         plt.streamplot(X, Y, U, V, color=U, cmap=plt.cm.Blues)
 
