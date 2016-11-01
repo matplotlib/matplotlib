@@ -2804,7 +2804,7 @@ class _AxesBase(martist.Artist):
         emit : bool, optional
             Whether to notify observers of limit change (default: True).
 
-        auto : {True, False, None}, optional
+        auto : bool or None, optional
             Whether to turn on autoscaling of the x-axis. True turns on,
             False turns off (default action), None leaves unchanged.
 
@@ -2834,10 +2834,11 @@ class _AxesBase(martist.Artist):
 
         >>> set_xlim(right=right_lim)
 
-        Limits may be passed in reverse order. For example, suppose `x`
-        represents the number of years before present. The x-axis limits
-        might be set like the following so 5000 years ago is on the left
-        of the plot and the present is on the right.
+        Limits may be passed in reverse order to flip the direction of
+        the x-axis. For example, suppose `x` represents the number of
+        years before present. The x-axis limits might be set like the
+        following so 5000 years ago is on the left of the plot and the
+        present is on the right.
 
         >>> set_xlim(5000, 0)
 
@@ -3058,43 +3059,60 @@ class _AxesBase(martist.Artist):
 
     def set_ylim(self, bottom=None, top=None, emit=True, auto=False, **kw):
         """
-        Set the data limits for the yaxis
+        Set the data limits for the y-axis
 
-        Examples::
+        Parameters
+        ----------
+        bottom : scalar, optional
+            The bottom ylim (default: None, which leaves the bottom
+            limit unchanged). The previous name `ymin` may be used
+            instead.
 
-          set_ylim((bottom, top))
-          set_ylim(bottom, top)
-          set_ylim(bottom=1) # top unchanged
-          set_ylim(top=1) # bottom unchanged
+        top : scalar, optional
+            The top ylim (default: None, which leaves the top limit
+            unchanged). The previous name `ymax` may be used instead.
 
-        Keyword arguments:
+        emit : bool, optional
+            Whether to notify observers of limit change (default: True).
 
-          *bottom*: scalar
-            The bottom ylim; the previous name, *ymin*, may still be used
+        auto : bool or None, optional
+            Whether to turn on autoscaling of the y-axis. True turns on,
+            False turns off (default action), None leaves unchanged.
 
-          *top*: scalar
-            The top ylim; the previous name, *ymax*, may still be used
+        ylimits : tuple, optional
+            The bottom and top yxlims may be passed as the tuple
+            (`bottom`, `top`) as the first positional argument (or as
+            the `bottom` keyword argument).
 
-          *emit*: [ *True* | *False* ]
-            Notify observers of limit change
+        Returns
+        -------
+        ylimits : tuple
+            Returns the current y-axis limits, reflecting any changes
+            made by this call, as (`bottom`, `top`).
 
-          *auto*: [ *True* | *False* | *None* ]
-            Turn *y* autoscaling on (*True*), off (*False*; default),
-            or leave unchanged (*None*)
+        Notes
+        -----
+        The `bottom` value may be greater than the `top` value, in which
+        case the y-axis values will decrease from bottom to top.
 
-        Note, the *bottom* (formerly *ymin*) value may be greater than
-        the *top* (formerly *ymax*).
-        For example, suppose *y* is depth in the ocean.
-        Then one might use::
+        Examples
+        --------
+        >>> set_ylim(bottom, top)
+        >>> set_ylim((bottom, top))
+        >>> bottom, top = set_ylim(bottom, top)
 
-          set_ylim(5000, 0)
+        One limit may be left unchanged.
 
-        so 5000 m depth is at the bottom of the plot and the
-        surface, 0 m, is at the top.
+        >>> set_ylim(top=top_lim)
 
-        Returns the current ylimits as a length 2 tuple
+        Limits may be passed in reverse order to flip the direction of
+        the y-axis. For example, suppose `y` represents depth of the
+        ocean in m. The y-axis limits might be set like the following
+        so 5000 m depth is at the bottom of the plot and the surface,
+        0 m, is at the top.
 
-        ACCEPTS: length 2 sequence of floats
+        >>> set_ylim(5000, 0)
+
         """
         if 'ymin' in kw:
             bottom = kw.pop('ymin')
