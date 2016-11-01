@@ -968,7 +968,7 @@ class FuncNorm(Normalize):
 
     def __init__(self, f, finv=None, **normalize_kw):
         """
-        Specify the function to be used (and its inverse), as well as other
+        Specify the function to be used, and its inverse, as well as other
         parameters to be passed to `Normalize`. The normalization will be
         calculated as (f(x)-f(vmin))/(f(max)-f(vmin)).
 
@@ -976,7 +976,7 @@ class FuncNorm(Normalize):
         ----------
         f : callable or string
             Function to be used for the normalization receiving a single
-            parameter, compatible with scalar values, and ndarrays.
+            parameter, compatible with scalar values and ndarrays.
             Alternatively a string from the list ['linear', 'quadratic',
             'cubic', 'sqrt', 'crt','log', 'log10', 'power{a}', 'root{a}',
             'log(x+{a})', 'log10(x+{a})'] can be used, replacing 'a' by a
@@ -1004,7 +1004,11 @@ class FuncNorm(Normalize):
 
         """
 
-        f, finv = FuncNorm._func_parser([f, finv])
+        func_parser = cbook._StringFuncParser(f)
+        if func_parser.is_string():
+            f = func_parser.get_func()
+            finv = func_parser.get_invfunc()
+
         if finv is None:
             raise ValueError("Inverse function finv not provided")
 
@@ -1033,8 +1037,8 @@ class FuncNorm(Normalize):
         -------
         result : masked array of floats
             Normalized data to the `[0.0, 1.0]` interval. If clip == False,
-            the values original below vmin or above vmax will be assigned to
-            -0.1 or 1.1, respectively.
+            the values original below vmin and above vmax will be assigned to
+            -0.1 and 1.1, respectively.
 
         """
         if clip is None:
@@ -1089,68 +1093,6 @@ class FuncNorm(Normalize):
         value = self._finv(
             value * (self._f(vmax) - self._f(vmin)) + self._f(vmin))
         return value
-
-    @staticmethod
-    def _func_parser(funcsin, onlybounded=False):
-        if hasattr(funcsin[0], '__call__'):
-            return funcsin
-        # Each element has the direct, the inverse, and and interval indicating
-        # wether the function is bounded in the interval 0-1
-        funcs = {'linear': (lambda x: x, lambda x: x, True),
-                 'quadratic': (lambda x: x**2, lambda x: x**(1. / 2), True),
-                 'cubic': (lambda x: x**3, lambda x: x**(1. / 3), True),
-                 'sqrt': (lambda x: x**(1. / 2), lambda x: x**2, True),
-                 'crt': (lambda x: x**(1. / 3), lambda x: x**3, True),
-                 'log10': (lambda x: np.log10(x), lambda x: (10**(x)), False),
-                 'log': (lambda x: np.log(x), lambda x: (np.exp(x)), False),
-                 'power{a}': (lambda x, a: x**a,
-                              lambda x, a: x**(1. / a), True),
-                 'root{a}': (lambda x, a: x**(1. / a),
-                             lambda x, a: x**a, True),
-                 'log10(x+{a})': (lambda x, a: np.log10(x + a),
-                                  lambda x, a: 10**x - a, True),
-                 'log(x+{a})': (lambda x, a: np.log(x + a),
-                                lambda x, a: np.exp(x) - a, True)}
-
-        # Checking if it comes with a parameter
-        param = None
-        regex = '\{(.*?)\}'
-        search = re.search(regex, funcsin[0])
-        if search is not None:
-            parstring = search.group(1)
-
-            try:
-                param = float(parstring)
-            except:
-                raise ValueError("'a' in parametric function strings must be "
-                                 "replaced by a number different than 0, "
-                                 "e.g. 'log10(x+{0.1})'.")
-            if param == 0:
-                raise ValueError("'a' in parametric function strings must be "
-                                 "replaced by a number different than 0.")
-            funcsin[0] = re.sub(regex, '{a}', funcsin[0])
-
-        try:
-            output = funcs[six.text_type(funcsin[0])]
-            if onlybounded and not output[2]:
-                raise ValueError("Only functions bounded in the [0, 1]"
-                                 "domain are allowed: %s" %
-                                 [key for key in funcs.keys() if funcs[key][2]]
-                                 )
-
-            if param is not None:
-                output = (lambda x, output=output: output[0](x, param),
-                          lambda x, output=output: output[1](x, param),
-                          output[2])
-            return output[0:2]
-        except KeyError:
-            raise ValueError("%s: invalid function. The only strings "
-                             "recognized as functions are %s." %
-                             (funcsin[0], funcs.keys()))
-        except:
-            raise ValueError("Invalid function. The only strings recognized "
-                             "as functions are %s." %
-                             (funcs.keys()))
 
     @staticmethod
     def _fun_normalizer(fun):
@@ -1246,10 +1188,10 @@ class PiecewiseNorm(FuncNorm):
                  refpoints_cm=[None],
                  **normalize_kw):
         """
-        Specify a series of functions, as well as intervals to map the data
+        Specify a series of functions, as well as intervals, to map the data
         space into `[0,1]`. Each individual function may not diverge in the
         [0,1] interval, as they will be normalized as
-        fnorm(x)=(f(x)-f(0))/(f(1)-f(0)), to guarantee that fnorm(0)=0 and
+        fnorm(x)=(f(x)-f(0))/(f(1)-f(0)) to guarantee that fnorm(0)=0 and
         fnorm(1)=1. Then each function will be transformed to map a different
         data range [d0, d1] into colormap ranges [cm0, cm1] as
         ftrans=fnorm((x-d0)/(d1-d0))*(cm1-cm0)+cm0.
@@ -1270,8 +1212,9 @@ class PiecewiseNorm(FuncNorm):
             Reference points for the colorbar ranges which will go as
             `[0., refpoints_cm[0]]`,... ,
             `[refpoints_cm[i], refpoints_cm[i+1]]`,
-            `[refpoints_cm[-1], 0.]`, and for the data
-            ranges which will go as `[self.vmin, refpoints_data[0]]`,... ,
+            `[refpoints_cm[-1], 0.]`,
+            and for the data ranges which will go as
+            `[self.vmin, refpoints_data[0]]`,... ,
             `[refpoints_data[i], refpoints_data[i+1]]`,
             `[refpoints_cm[-1], self.vmax]`
             It must satisfy
@@ -1335,17 +1278,30 @@ class PiecewiseNorm(FuncNorm):
                 "The values for the reference points for the data "
                 "`refpoints_data` must be monotonically increasing")
 
-        # Parsing the function strings if any:
         self._flist = []
         self._finvlist = []
         for i in range(len(flist)):
-            funs = FuncNorm._func_parser((flist[i], finvlist[i]))
-            if funs[0] is None or funs[1] is None:
+            func_parser = cbook._StringFuncParser(flist[i])
+            if func_parser.is_string():
+                if not func_parser.is_bounded_0_1():
+                    raise ValueError("Only functions bounded in the "
+                                     "[0, 1] domain are allowed.")
+
+                f = func_parser.get_func()
+                finv = func_parser.get_invfunc()
+            else:
+                f = flist[i]
+                finv = finvlist[i]
+            if f is None:
+                raise ValueError(
+                    "Function not provided for %i range" % i)
+
+            if finv is None:
                 raise ValueError(
                     "Inverse function not provided for %i range" % i)
 
-            self._flist.append(FuncNorm._fun_normalizer(funs[0]))
-            self._finvlist.append(FuncNorm._fun_normalizer(funs[1]))
+            self._flist.append(FuncNorm._fun_normalizer(f))
+            self._finvlist.append(FuncNorm._fun_normalizer(finv))
 
         # We just say linear, becuase we cannot really make the function unless
         # We now vmin, and vmax, and that does happen till the object is called
@@ -1479,10 +1435,10 @@ class PiecewiseNorm(FuncNorm):
 
 class MirrorPiecewiseNorm(PiecewiseNorm):
     """
-    Normalization alowing a dual `PiecewiseNorm` simmetrically around a point.
+    Normalization allowing a dual `PiecewiseNorm` symmetrically around a point.
 
     Data above `center_data` will be normalized independently that data below
-    it. If only one function is give, the normalization will be symmetric
+    it. If only one function is given, the normalization will be symmetric
     around that point.
     """
 
@@ -1492,13 +1448,8 @@ class MirrorPiecewiseNorm(PiecewiseNorm):
                  center_data=0.0, center_cm=.5,
                  **normalize_kw):
         """
-        Specify a series of functions, as well as intervals to map the data
-        space into `[0,1]`. Each individual function may not diverge in the
-        [0,1] interval, as they will be normalized as
-        fnorm(x)=(f(x)-f(0))/(f(1)-f(0)), to guarantee that fnorm(0)=0 and
-        fnorm(1)=1. Then each function will be transformed to map a different
-        data range [d0, d1] into colormap ranges [cm0, cm1] as
-        ftrans=fnorm((x-d0)/(d1-d0))*(cm1-cm0)+cm0.
+        Specify two functions to normalize the data above and below a
+        provided reference point.
 
         Parameters
         ----------
@@ -1548,8 +1499,22 @@ class MirrorPiecewiseNorm(PiecewiseNorm):
             fneg = fpos
             fneginv = fposinv
 
-        fpos, fposinv = PiecewiseNorm._func_parser([fpos, fposinv])
-        fneg, fneginv = PiecewiseNorm._func_parser([fneg, fneginv])
+        error_bounded = ("Only functions bounded in the "
+                         "[0, 1] domain are allowed.")
+
+        func_parser = cbook._StringFuncParser(fpos)
+        if func_parser.is_string():
+            if not func_parser.is_bounded_0_1():
+                raise ValueError(error_bounded)
+            fpos = func_parser.get_func()
+            fposinv = func_parser.get_invfunc()
+
+        func_parser = cbook._StringFuncParser(fneg)
+        if func_parser.is_string():
+            if not func_parser.is_bounded_0_1():
+                raise ValueError(error_bounded)
+            fneg = func_parser.get_func()
+            fneginv = func_parser.get_invfunc()
 
         if fposinv is None:
             raise ValueError(
@@ -1564,6 +1529,13 @@ class MirrorPiecewiseNorm(PiecewiseNorm):
 
         refpoints_cm = np.array([center_cm])
         refpoints_data = np.array([center_data])
+
+        # It is important to normalize the functions before
+        # applying the -fneg(-x + 1) + 1) transformation
+        fneg = FuncNorm._fun_normalizer(fneg)
+        fpos = FuncNorm._fun_normalizer(fpos)
+        fposinv = FuncNorm._fun_normalizer(fposinv)
+        fneginv = FuncNorm._fun_normalizer(fneginv)
 
         flist = [(lambda x:(-fneg(-x + 1) + 1)), fpos]
         finvlist = [(lambda x:(-fneginv(-x + 1) + 1)), fposinv]
@@ -1582,7 +1554,7 @@ class MirrorRootNorm(MirrorPiecewiseNorm):
     `MirrorPiecewiseNorm`.
 
     Data above `center_data` will be normalized with a root of the order
-    `orderpos` and data below it with a symmetric root of order `orderg neg`.
+    `orderpos` and data below it with a symmetric root of order `orderneg`.
     If only `orderpos` function is given, the normalization will be completely
     mirrored.
 
@@ -1611,7 +1583,7 @@ class MirrorRootNorm(MirrorPiecewiseNorm):
             below `center_data` using `MirrorPiecewiseNorm`. Default
             `orderpos`.
         center_data : float, optional
-            Value in the data that will separate range. Must be
+            Value in the data that will separate the ranges. Must be
             in the (vmin, vmax) range.
             Default 0.0.
         center_cm : float, optional

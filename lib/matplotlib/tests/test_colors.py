@@ -14,7 +14,6 @@ try:
 except ImportError:
     assert_sequence_equal = None
 
-import pytest
 import numpy as np
 from numpy.testing.utils import assert_array_equal, assert_array_almost_equal
 from nose.plugins.skip import SkipTest
@@ -196,16 +195,6 @@ class TestFuncNorm(object):
                     0.09, 0.14, 0.22, 0.3, 0.5,
                     0.8, 1.3, 2.]
         assert_array_almost_equal(norm.ticks(), expected)
-
-    validstrings = ['linear', 'quadratic', 'cubic', 'sqrt', 'crt',
-                    'log', 'log10', 'power{1.5}', 'root{2.5}',
-                    'log(x+{0.5})', 'log10(x+{0.1})']
-
-    @pytest.mark.parametrize("string", validstrings, ids=validstrings)
-    def test_func_parser(self, string):
-        x = np.linspace(0.01, 0.5, 1)
-        funcs = mcolors.FuncNorm._func_parser([string, None])
-        assert_array_almost_equal(funcs[1](funcs[0](x)), x)
 
 
 class TestPiecewiseNorm(object):
