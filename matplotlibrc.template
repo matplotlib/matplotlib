@@ -322,10 +322,10 @@ backend      : $TEMPLATE_BACKEND
                                          # value of the data.
 
 
-# axes.spines.left   : True   # Turn off the top and right axes spines
+# axes.spines.left   : True   # display axis spines
 # axes.spines.bottom : True
-# axes.spines.top    : False
-# axes.spines.right  : False
+# axes.spines.top    : True
+# axes.spines.right  : True
 
 
 #axes.unicode_minus  : True    # use unicode for the minus symbol
