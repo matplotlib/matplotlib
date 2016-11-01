@@ -124,13 +124,11 @@ class AxesStack(Stack):
             hash(key)
         except TypeError:
             raise ValueError("first argument, %s, is not a valid key" % key)
-
+        
         a_existing = dict(self._elements).get(key)
         if a_existing is not None:
-            Stack.remove(self, (key, a_existing))
-            warnings.warn(
-                "key %s already existed; Axes is being replaced" % str(key))
-            # I don't think the above should ever happen.
+            raise KeyError('Key %s already exists in the AxesStack' % key)
+            # This only happens if user call this function directly
 
         if a in self:
             return None

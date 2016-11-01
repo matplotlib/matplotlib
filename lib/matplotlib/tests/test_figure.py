@@ -232,17 +232,11 @@ def test_stack_remove():
       raise ValueError('Unknown element o')
     ValueError: Unknown element o
     '''
-    with warnings.catch_warnings(record=True) as w:
-        # Cause all warnings to always be triggered.
-        warnings.simplefilter("always")
-        # Trigger a warning.
-        key = '123'
-        a = figure.AxesStack()
-        a.add(key, plt.figure().add_subplot(111))
-        a.add(key, plt.figure().add_subplot(111))
-        # Verify some things
-        assert len(w) == 1
-        assert key in str(w[-1].message)
+    key = '123'
+    a = figure.AxesStack()
+    a.add(key, plt.figure().add_subplot(111))
+    assert_raises(KeyError, a.add, key, plt.figure().add_subplot(111))
+    # Verify some things
 
 
 if __name__ == "__main__":
