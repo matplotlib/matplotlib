@@ -5,11 +5,12 @@ import six
 from six.moves import xrange
 
 from nose.tools import assert_equal, assert_true
-from matplotlib import rcParams
+from matplotlib import rcParams, figure
 from matplotlib.testing.decorators import image_comparison, cleanup
 from matplotlib.axes import Axes
 import matplotlib.pyplot as plt
 import numpy as np
+import warnings
 
 
 @cleanup
@@ -214,6 +215,20 @@ def test_figaspect():
     assert h / w == 0.5
     w, h = plt.figaspect(np.zeros((2, 2)))
     assert h / w == 1
+
+@cleanup
+def test_stack_remove():
+    with warnings.catch_warnings(record=True) as w:
+        # Cause all warnings to always be triggered.
+        warnings.simplefilter("always")
+        # Trigger a warning.
+        key = '123'
+        a = figure.AxesStack()
+        a.add(key, plt.figure().add_subplot(111))
+        a.add(key, plt.figure().add_subplot(111))
+        # Verify some things
+        assert len(w) == 1
+        assert key in str(w[-1].message)
 
 
 if __name__ == "__main__":
