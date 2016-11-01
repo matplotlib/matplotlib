@@ -598,7 +598,7 @@ backend      : $TEMPLATE_BACKEND
                                    # the IPython notebook. 'html5' uses
                                    # HTML5 video tag.
 #animation.writer : ffmpeg         # MovieWriter 'backend' to use
-#animation.codec : mpeg4           # Codec to use for writing movie
+#animation.codec : h264            # Codec to use for writing movie
 #animation.bitrate: -1             # Controls size/quality tradeoff for movie.
                                    # -1 implies let utility auto-determine
 #animation.frame_format: 'png'     # Controls frame format used by temp files

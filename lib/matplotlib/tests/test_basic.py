@@ -4,6 +4,8 @@ from __future__ import (absolute_import, division, print_function,
 import six
 import sys
 
+import warnings
+
 from nose.tools import assert_equal
 
 from ..testing.decorators import knownfailureif, skipif

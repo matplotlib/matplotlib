@@ -1031,9 +1031,7 @@ def make_axes(parents, location=None, orientation=None, fraction=0.15,
               shrink=1.0, aspect=20, **kw):
     '''
     Resize and reposition parent axes, and return a child
-    axes suitable for a colorbar::
-
-        cax, kw = make_axes(parent, **kw)
+    axes suitable for a colorbar.
 
     Keyword arguments may include the following (with defaults):
 
@@ -1167,9 +1165,7 @@ def make_axes_gridspec(parent, **kw):
         of the parent with a new one.
 
     While this function is meant to be compatible with *make_axes*,
-    there could be some minor differences.::
-
-        cax, kw = make_axes_gridspec(parent, **kw)
+    there could be some minor differences.
 
     Keyword arguments may include the following (with defaults):
 

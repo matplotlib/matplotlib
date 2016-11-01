@@ -803,10 +803,6 @@ class Axes3D(Axes):
     @docstring.dedent_interpd
     def set_zscale(self, value, **kwargs) :
         """
-        call signature::
-
-          set_zscale(value)
-
         Set the scaling of the z-axis: %(scale)s
 
         ACCEPTS: [%(scale)s]

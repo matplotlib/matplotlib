@@ -2365,10 +2365,6 @@ class FigureCanvasBase(object):
         functions for each of the GUI backends can be written.  As
         such, it throws a deprecated warning.
 
-        Call signature::
-
-            start_event_loop_default(self,timeout=0)
-
         This call blocks until a callback function triggers
         stop_event_loop() or *timeout* is reached.  If *timeout* is
         <=0, never timeout.
@@ -2393,9 +2389,6 @@ class FigureCanvasBase(object):
         loop so that interactive functions, such as ginput and
         waitforbuttonpress, can wait for events.
 
-        Call signature::
-
-          stop_event_loop_default(self)
         """
         self._looping = False
 

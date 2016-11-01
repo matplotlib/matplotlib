@@ -1326,7 +1326,7 @@ defaultParams = {
     # Animation settings
     'animation.html':         ['none', validate_movie_html_fmt],
     'animation.writer':       ['ffmpeg', validate_movie_writer],
-    'animation.codec':        ['mpeg4', six.text_type],
+    'animation.codec':        ['h264', six.text_type],
     'animation.bitrate':      [-1, validate_int],
     # Controls image format when frames are written to disk
     'animation.frame_format': ['png', validate_movie_frame_fmt],
