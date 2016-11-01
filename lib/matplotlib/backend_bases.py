@@ -246,22 +246,22 @@ class RendererBase(object):
         that behavior, those vertices should be removed before calling
         this function.
 
-        Parameters
-        ----------
-        gc
-            the :class:`GraphicsContextBase` instance
-
-        marker_trans
-            is an affine transform applied to the marker.
-
-        trans
-             is an affine transform applied to the path.
-
-
         This provides a fallback implementation of draw_markers that
         makes multiple calls to :meth:`draw_path`.  Some backends may
         want to override this method in order to draw the marker only
         once and reuse it multiple times.
+
+        Parameters
+        ----------
+        gc
+            The :class:`GraphicsContextBase` instance
+
+        marker_trans
+            An affine transform applied to the marker.
+
+        trans
+            An affine transform applied to the path.
+
         """
         for vertices, codes in path.iter_segments(trans, simplify=False):
             if len(vertices):
@@ -601,7 +601,8 @@ class RendererBase(object):
         mtext
             a :class:`matplotlib.text.Text` instance
 
-
+        Notes
+        -----
         **backend implementers note**
 
         When you are trying to determine if you have gotten your bounding box
@@ -747,19 +748,20 @@ class RendererBase(object):
         """
         Convert points to display units
 
-        Parameters
-        ----------
-        points
-            a float or a numpy array of float
-
-
-        return points converted to pixels
-
         You need to override this function (unless your backend
         doesn't have a dpi, e.g., postscript or svg).  Some imaging
         systems assume some value for pixels per inch::
 
             points to pixels = points * pixels_per_inch/72.0 * dpi/72.0
+
+        Parameters
+        ----------
+        points
+            a float or a numpy array of float
+
+        Returns
+        -------
+        Points converted to pixels
         """
         return points
 
@@ -1211,11 +1213,11 @@ class TimerBase(object):
     interval
         The time between timer events in milliseconds. Default is 1000 ms.
 
-    single_shot: bool
+    single_shot : bool
         Boolean flag indicating whether this timer should operate as single
         shot (run once and then stop). Defaults to `False`.
 
-    callbacks: list
+    callbacks : list
         Stores list of (func, args) tuples that will be called upon timer
         events. This list can be manipulated directly, or the functions
         `add_callback` and `remove_callback` can be used.
@@ -1541,8 +1543,9 @@ class MouseEvent(LocationEvent):
     step
         number of scroll steps (positive for 'up', negative for 'down')
 
-
-    Example usage::
+    Examples
+    --------
+    Usage::
 
         def on_press(event):
             print('you pressed', event.button, event.xdata, event.ydata)
@@ -1599,8 +1602,9 @@ class PickEvent(Event):
         extra attributes than a
         :class:`~matplotlib.collections.PatchCollection` pick event
 
-
-    Example usage::
+    Examples
+    --------
+    Usage::
 
         ax.plot(np.rand(100), 'o', picker=5)  # 5 points tolerance
 
@@ -1640,15 +1644,16 @@ class KeyEvent(LocationEvent):
         combination of the above (e.g., "ctrl+alt+g", "ctrl+alt+G").
 
 
-    .. note::
+    Notes
+    -----
+    Modifier keys will be prefixed to the pressed key and will be in the order
+    "ctrl", "alt", "super". The exception to this rule is when the pressed key
+    is itself a modifier key, therefore "ctrl+alt" and "alt+control" can both
+    be valid key values.
 
-        Modifier keys will be prefixed to the pressed key and will be in the
-        order "ctrl", "alt", "super". The exception to this rule is when the
-        pressed key is itself a modifier key, therefore "ctrl+alt" and
-        "alt+control" can both be valid key values.
-
-
-    Example usage::
+    Examples
+    --------
+    Usage::
 
         def on_key(event):
             print('you pressed', event.key, event.xdata, event.ydata)
@@ -1891,6 +1896,9 @@ class FigureCanvasBase(object):
         Backend derived classes should call this function on any mouse
         button release.
 
+        This method will call all functions connected to the
+        'button_release_event' with a :class:`MouseEvent` instance.
+
         Parameters
         ----------
         x
@@ -1901,10 +1909,6 @@ class FigureCanvasBase(object):
 
         guiEvent
             the native UI event that generated the mpl event
-
-
-        This method will be call all functions connected to the
-        'button_release_event' with a :class:`MouseEvent` instance.
 
         """
         s = 'button_release_event'
@@ -1917,6 +1921,9 @@ class FigureCanvasBase(object):
         Backend derived classes should call this function on any
         motion-notify-event.
 
+        This method will call all functions connected to the
+        'motion_notify_event' with a :class:`MouseEvent` instance.
+
         Parameters
         ----------
         x
@@ -1927,10 +1934,6 @@ class FigureCanvasBase(object):
 
         guiEvent
             the native UI event that generated the mpl event
-
-
-        This method will be call all functions connected to the
-        'motion_notify_event' with a :class:`MouseEvent` instance.
 
         """
         self._lastx, self._lasty = x, y
@@ -2078,8 +2081,8 @@ class FigureCanvasBase(object):
         face color background and you'll probably want to override this on
         hardcopy.
 
-        Arguments
-        ---------
+        Parameters
+        ----------
         filename
             can also be a file object on image backends
 
@@ -2336,7 +2339,9 @@ class FigureCanvasBase(object):
         Return value is a connection id that can be used with
         :meth:`~matplotlib.backend_bases.Event.mpl_disconnect`.
 
-        Example usage::
+        Examples
+        --------
+        Usage::
 
             def on_press(event):
                 print('you pressed', event.button, event.xdata, event.ydata)
@@ -2356,7 +2361,9 @@ class FigureCanvasBase(object):
         """
         Disconnect callback id cid
 
-        Example usage::
+        Examples
+        --------
+        Usage::
 
             cid = canvas.mpl_connect('button_press_event', on_press)
             #...later
@@ -2371,13 +2378,13 @@ class FigureCanvasBase(object):
         events through the backend's native event loop. Implemented only for
         backends with GUIs.
 
-        Keyword Arguments
-        -----------------
+        Other Parameters
+        ----------------
         interval
-          Timer interval in milliseconds
+            Timer interval in milliseconds
         callbacks
-          Sequence of (func, args, kwargs) where func(\*args, \*\*kwargs) will
-          be executed by the timer every *interval*.
+            Sequence of (func, args, kwargs) where ``func(*args, **kwargs)``
+            will be executed by the timer every *interval*.
 
         """
         return TimerBase(*args, **kwargs)
@@ -3233,7 +3240,7 @@ class ToolContainerBase(object):
     Attributes
     ----------
     toolmanager : `ToolManager`
-        The tools that this `ToolContainer` wants to communicate with.
+        The tools with which this `ToolContainer` wants to communicate.
     """
 
     def __init__(self, toolmanager):
