@@ -216,8 +216,22 @@ def test_figaspect():
     w, h = plt.figaspect(np.zeros((2, 2)))
     assert h / w == 1
 
+
 @cleanup
 def test_stack_remove():
+    '''
+    Before fixing the bug, doing the following will give you following error:
+    >>> a.add('123',plt.figure().add_subplot(111))
+    Traceback (most recent call last):
+    File "<stdin>", line 1, in <module>
+    File "/usr/lib/pymodules/python2.7/matplotlib/figure.py", line 120, in
+    add
+      Stack.remove(self, (key, a_existing))
+    File "/usr/lib/pymodules/python2.7/matplotlib/cbook.py", line 1343, in
+    remove
+      raise ValueError('Unknown element o')
+    ValueError: Unknown element o
+    '''
     with warnings.catch_warnings(record=True) as w:
         # Cause all warnings to always be triggered.
         warnings.simplefilter("always")
