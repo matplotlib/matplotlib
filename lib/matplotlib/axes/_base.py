@@ -2789,43 +2789,58 @@ class _AxesBase(martist.Artist):
 
     def set_xlim(self, left=None, right=None, emit=True, auto=False, **kw):
         """
-        Set the data limits for the xaxis
+        Set the data limits for the x-axis
 
-        Examples::
+        Parameters
+        ----------
+        left : scalar, optional
+            The left xlim (default: None, which leaves the left limit
+            unchanged). The previous name `xmin` may be used instead.
 
-          set_xlim((left, right))
-          set_xlim(left, right)
-          set_xlim(left=1) # right unchanged
-          set_xlim(right=1) # left unchanged
+        right : scalar, optional
+            The right xlim (default: None, which leaves the right limit
+            unchanged). The previous name `xmax` may be used instead.
 
-        Keyword arguments:
+        emit : bool, optional
+            Whether to notify observers of limit change (default: True).
 
-          *left*: scalar
-            The left xlim; *xmin*, the previous name, may still be used
+        auto : {True, False, None}, optional
+            Whether to turn on autoscaling of the x-axis. True turns on,
+            False turns off (default action), None leaves unchanged.
 
-          *right*: scalar
-            The right xlim; *xmax*, the previous name, may still be used
+        xlimits : tuple, optional
+            The left and right xlims may be passed as the tuple
+            (`left`, `right`) as the first positional argument (or as
+            the `left` keyword argument).
 
-          *emit*: [ *True* | *False* ]
-            Notify observers of limit change
+        Returns
+        -------
+        xlimits : tuple
+            Returns the current x-axis limits, reflecting any changes
+            made by this call, as (`left`, `right`).
 
-          *auto*: [ *True* | *False* | *None* ]
-            Turn *x* autoscaling on (*True*), off (*False*; default),
-            or leave unchanged (*None*)
+        Notes
+        -----
+        The `left` value may be greater than the `right` value, in which
+        case the x-axis values will decrease from left to right.
 
-        Note, the *left* (formerly *xmin*) value may be greater than
-        the *right* (formerly *xmax*).
-        For example, suppose *x* is years before present.
-        Then one might use::
+        Examples
+        --------
+        >>> set_xlim(left, right)
+        >>> set_xlim((left, right))
+        >>> left, right = set_xlim(left, right)
 
-          set_xlim(5000, 0)
+        One limit may be left unchanged.
 
-        so 5000 years ago is on the left of the plot and the
-        present is on the right.
+        >>> set_xlim(right=right_lim)
 
-        Returns the current xlimits as a length 2 tuple
+        Limits may be passed in reverse order. For example, suppose `x`
+        represents the number of years before present. The x-axis limits
+        might be set like the following so 5000 years ago is on the left
+        of the plot and the present is on the right.
 
-        ACCEPTS: length 2 sequence of floats
+        >>> set_xlim(5000, 0)
+
         """
         if 'xmin' in kw:
             left = kw.pop('xmin')
