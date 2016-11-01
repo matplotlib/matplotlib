@@ -219,17 +219,17 @@ class FigureCanvasTemplate(FigureCanvasBase):
     The canvas the figure renders into.  Calls the draw and print fig
     methods, creates the renderers, etc...
 
-    Attributes
-    ----------
-    figure
-        A Figure instance
-
-
     Note GUI templates will want to connect events for button presses,
     mouse movements and key presses to functions that call the base
     class methods button_press_event, button_release_event,
     motion_notify_event, key_press_event, and key_release_event.  See,
     e.g., backend_gtk.py, backend_wx.py and backend_tkagg.py
+
+    Attributes
+    ----------
+    figure
+        A Figure instance
+
     """
 
     def draw(self):

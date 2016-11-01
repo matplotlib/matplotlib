@@ -80,12 +80,12 @@ class TimerGTK3(TimerBase):
 
     Attributes
     ----------
-    interval: int
+    interval : int
         The time between timer events in milliseconds. Default is 1000 ms.
-    single_shot: bool
+    single_shot : bool
         Boolean flag indicating whether this timer should operate as single
         shot (run once and then stop). Defaults to False.
-    callbacks: list
+    callbacks : list
         Stores list of (func, args) tuples that will be called upon timer
         events. This list can be manipulated directly, or the functions
         `add_callback` and `remove_callback` can be used.
@@ -352,13 +352,13 @@ class FigureCanvasGTK3 (Gtk.DrawingArea, FigureCanvasBase):
         This is useful for getting periodic events through the backend's native
         event loop. Implemented only for backends with GUIs.
 
-        Keyword Arguments
-        -----------------
+        Other Parameters
+        ----------------
         interval
-          Timer interval in milliseconds
+            Timer interval in milliseconds
         callbacks
-          Sequence of (func, args, kwargs) where func(\*args, \*\*kwargs) will
-          be executed by the timer every *interval*.
+            Sequence of (func, args, kwargs) where ``func(*args, **kwargs)``
+            will be executed by the timer every *interval*.
         """
         return TimerGTK3(*args, **kwargs)
 
