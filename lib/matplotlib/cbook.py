@@ -2752,11 +2752,12 @@ class _StringFuncParser(object):
                 param = float(parstring)
             except:
                 raise ValueError("'a' in parametric function strings must be "
-                                 "replaced by a number different than 0, "
-                                 "e.g. 'log10(x+{0.1})'.")
+                                 "replaced by a number that is not "
+                                 "zero, e.g. 'log10(x+{0.1})'.")
             if param == 0:
                 raise ValueError("'a' in parametric function strings must be "
-                                 "replaced by a number different than 0.")
+                                 "replaced by a number that is not "
+                                 "zero.")
             str_func = re.sub(regex, '{a}', str_func)
 
         try:

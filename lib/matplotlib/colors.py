@@ -1010,7 +1010,7 @@ class FuncNorm(Normalize):
             finv = func_parser.get_invfunc()
 
         if finv is None:
-            raise ValueError("Inverse function finv not provided")
+            raise ValueError("Inverse function `finv` not provided")
 
         self._f = f
         self._finv = finv
@@ -1037,8 +1037,8 @@ class FuncNorm(Normalize):
         -------
         result : masked array of floats
             Normalized data to the `[0.0, 1.0]` interval. If clip == False,
-            the values original below vmin and above vmax will be assigned to
-            -0.1 and 1.1, respectively.
+            values smaller than vmin or greater than vmax will be clipped to
+            -0.1 and 1.1 respectively.
 
         """
         if clip is None:
@@ -1177,8 +1177,8 @@ class PiecewiseNorm(FuncNorm):
     """
     Normalization defined as a piecewise function
 
-    It allows the definition of any linear or non-linear
-    function for different ranges of the colorbar.
+    It allows the definition of different linear or non-linear
+    functions for different ranges of the colorbar.
 
     """
 
@@ -1190,11 +1190,11 @@ class PiecewiseNorm(FuncNorm):
         """
         Specify a series of functions, as well as intervals, to map the data
         space into `[0,1]`. Each individual function may not diverge in the
-        [0,1] interval, as they will be normalized as
+        [0,1] interval, as it will be normalized as
         fnorm(x)=(f(x)-f(0))/(f(1)-f(0)) to guarantee that fnorm(0)=0 and
-        fnorm(1)=1. Then each function will be transformed to map a different
-        data range [d0, d1] into colormap ranges [cm0, cm1] as
-        ftrans=fnorm((x-d0)/(d1-d0))*(cm1-cm0)+cm0.
+        fnorm(1)=1. Then each function will be transformed to map each
+        different data range [d0, d1] into its respective colormap range
+        [cm0, cm1] as ftrans=fnorm((x-d0)/(d1-d0))*(cm1-cm0)+cm0.
 
         Parameters
         ----------
@@ -1209,11 +1209,12 @@ class PiecewiseNorm(FuncNorm):
             inverse for the functions that were specified as a string in
             `flist`. It must satisfy `len(flist)==len(finvlist)`.
         refpoints_cm, refpoints_data : list or array of scalars
-            Reference points for the colorbar ranges which will go as
+            Depending on the reference points,
+            the colorbar ranges will be:
             `[0., refpoints_cm[0]]`,... ,
             `[refpoints_cm[i], refpoints_cm[i+1]]`,
             `[refpoints_cm[-1], 0.]`,
-            and for the data ranges which will go as
+            and the data ranges will be:
             `[self.vmin, refpoints_data[0]]`,... ,
             `[refpoints_data[i], refpoints_data[i+1]]`,
             `[refpoints_cm[-1], self.vmax]`
@@ -1435,11 +1436,29 @@ class PiecewiseNorm(FuncNorm):
 
 class MirrorPiecewiseNorm(PiecewiseNorm):
     """
-    Normalization allowing a dual `PiecewiseNorm` symmetrically around a point.
+    Normalization allowing a dual :class:`~matplotlib.colors.PiecewiseNorm`
+    symmetrically around a point.
 
-    Data above `center_data` will be normalized independently that data below
-    it. If only one function is given, the normalization will be symmetric
-    around that point.
+    Data above `center_data` will be normalized with the `fpos` function and
+    mapped into the inverval [`center_cm`,1] of the colorbar.
+
+    Data below `center_data` will be process in a similar way after a mirror
+    transformation:
+
+    * The interval [`vmin`, `center_data`] is mirrored around center_data,
+      so the upper side of the interval becomes the lower, and viceversa.
+    * The function `fneg` will be applied to the inverted interval to give an
+      interval in the colorbar.
+    * The obtained interval is mirrored again and mapped into  the
+      [0, center_cm] interval of the colorbar.
+
+    In practice this is effectively the same as applying a transformed
+    function: `lambda x:(-fneg(-x + 1) + 1))`
+
+    If `fneg` is set to be equal to `fpos`, `center_cm` is set to 0.5 and
+    `center_data` is set to be the exact middle point between `vmin` and
+    `vmax`, then the normalization will be perfectly symmetric.
+
     """
 
     def __init__(self,
@@ -1448,9 +1467,6 @@ class MirrorPiecewiseNorm(PiecewiseNorm):
                  center_data=0.0, center_cm=.5,
                  **normalize_kw):
         """
-        Specify two functions to normalize the data above and below a
-        provided reference point.
-
         Parameters
         ----------
         fpos, fposinv : callable or string
@@ -1465,11 +1481,11 @@ class MirrorPiecewiseNorm(PiecewiseNorm):
             i.e. the actual normalization passed to `PiecewiseNorm` will be
             (-fneg(-x + 1) + 1)). Default `fneg`=`fpos`.
         center_data : float, optional
-            Value in the data that will separate the use of `fneg` and `fpos`.
+            Value at which the normalization will be mirrored.
             Must be in the (vmin, vmax) range. Default 0.0.
         center_cm : float, optional
-            Normalized value that will correspond to `center_data`.
-            Must be in the (0.0, 1.0) range.
+            Normalized value that will correspond do `center_data` in the
+            colorbar. Must be in the (0.0, 1.0) range.
             Default 0.5.
         normalize_kw : dict, optional
             Dict with keywords (`vmin`,`vmax`,`clip`) passed
@@ -1550,21 +1566,25 @@ class MirrorPiecewiseNorm(PiecewiseNorm):
 
 class MirrorRootNorm(MirrorPiecewiseNorm):
     """
-    Root normalization for positive and negative data using
-    `MirrorPiecewiseNorm`.
+    Root normalization using :class:`~matplotlib.colors.MirrorPiecewiseNorm`.
+
+    :class:`~matplotlib.backend_bases.LocationEvent`
 
     Data above `center_data` will be normalized with a root of the order
-    `orderpos` and data below it with a symmetric root of order `orderneg`.
-    If only `orderpos` function is given, the normalization will be completely
-    mirrored.
+    `orderpos` and mapped into the inverval [`center_cm`,1] of the colorbar.
 
-    `mcolors.MirrorRootNorm(orderpos=2)` is equivalent
+    Data below `center_data` will be normalized with a root of the order
+    `orderneg` and mapped into the inverval [0, `center_cm`] under a mirror
+    transformation (see :class:`~matplotlib.colors.MirrorPiecewiseNorm` for
+    more details).
+
+    `colors.MirrorRootNorm(orderpos=2)` is equivalent
     to `colors.MirrorPiecewiseNorm(fpos='sqrt')`
 
-    `mcolors.MirrorRootNorm(orderpos=2, orderneg=3)` is equivalent
+    `colors.MirrorRootNorm(orderpos=2, orderneg=3)` is equivalent
     to `colors.MirrorPiecewiseNorm(fpos='sqrt', fneg='crt')`
 
-    `mcolors.MirrorRootNorm(orderpos=N1, orderneg=N2)` is equivalent
+    `colors.MirrorRootNorm(orderpos=N1, orderneg=N2)` is equivalent
     to `colors.MirrorPiecewiseNorm(fpos=root{N1}', fneg=root{N2}')`
 
     """
@@ -1583,12 +1603,11 @@ class MirrorRootNorm(MirrorPiecewiseNorm):
             below `center_data` using `MirrorPiecewiseNorm`. Default
             `orderpos`.
         center_data : float, optional
-            Value in the data that will separate the ranges. Must be
-            in the (vmin, vmax) range.
-            Default 0.0.
+            Value at which the normalization will be mirrored.
+            Must be in the (vmin, vmax) range. Default 0.0.
         center_cm : float, optional
-            Normalized value that will correspond do `center_data`. Must be
-            in the (0.0, 1.0) range.
+            Normalized value that will correspond do `center_data` in the
+            colorbar. Must be in the (0.0, 1.0) range.
             Default 0.5.
         normalize_kw : dict, optional
             Dict with keywords (`vmin`,`vmax`,`clip`) passed
@@ -1625,17 +1644,17 @@ class MirrorRootNorm(MirrorPiecewiseNorm):
 
 class RootNorm(FuncNorm):
     """
-    Simple root normalization using `FuncNorm`.
+    Simple root normalization using :class:`~matplotlib.colors.FuncNorm`.
 
     It defines the root normalization as function of the order of the root.
     Data will be normalized as (f(x)-f(`vmin`))/(f(`vmax`)-f(`vmin`)), where
     f(x)=x**(1./`order`)
 
-    `mcolors.RootNorm(order=2)` is equivalent to `colors.FuncNorm(f='sqrt')`
+    `colors.RootNorm(order=2)` is equivalent to `colors.FuncNorm(f='sqrt')`
 
-    `mcolors.RootNorm(order=3)` is equivalent to `colors.FuncNorm(f='crt')`
+    `colors.RootNorm(order=3)` is equivalent to `colors.FuncNorm(f='crt')`
 
-    `mcolors.RootNorm(order=N)` is equivalent to `colors.FuncNorm(f='root{N}')`
+    `colors.RootNorm(order=N)` is equivalent to `colors.FuncNorm(f='root{N}')`
 
     """
 
