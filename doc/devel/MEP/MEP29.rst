@@ -45,13 +45,38 @@ Implementation
 
 A proof of concept is provided in `markup_example.py <https://github.com/rougier/matplotlib/blob/markup/examples/text_labels_and_annotations/markup.py>`_ but it currently only handles the horizontal direction.
 
+Improvements
+------------
+
+ * This proof of concept uses regex to parse the text but it may be better
+   to use the html.parser from the standard library.
+
+ * Computation of text fragment positions could benefit from the OffsetFrom
+   class. See for example item 5 in `Using Complex Coordinates with Annotations <http://matplotlib.org/devdocs/users/annotations.html#using-complex-coordinates-with-annotations>`_
+
+Problems
+--------
+
+ * One serious problem is how to deal with text having both latex and
+   html-like tags. For example, consider the follwing::
+
+     $<b>Bold$</b>
+
+   Recommendation would be to have mutual exclusion.
+
 
 Backward compatibility
 ======================
 
 None at the moment since it is only a proof of concept
 
+
 Alternatives
 ============
 
-None (to my knowledge)
+As proposed by @anntzer, this could be also implemented as improvements to
+mathtext. For example::
+
+  r"$\text{Hello \textbf{world}}$"
+  r"$\text{Hello \textcolor{blue}{world}}$"
+  r"$\text{Hello \textsf{\small world}}$"
