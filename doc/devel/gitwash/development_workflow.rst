@@ -1,8 +1,8 @@
 .. _development-workflow:
 
-====================
-Development workflow
-====================
+=========================
+Git Development workflow
+=========================
 
 You've discovered a bug or something else you want to change
 in matplotlib_ .. |emdash| excellent!

@@ -39,7 +39,7 @@ assumed.  If you want to use a custom time zone, pass a
 locators you create.  See `pytz <http://pythonhosted.org/pytz/>`_ for
 information on :mod:`pytz` and timezone handling.
 
-The `dateutil module <https://dateutil.readthedocs.org>`_ provides
+The `dateutil module <https://dateutil.readthedocs.io>`_ provides
 additional code to handle date ticking, making it easy to place ticks
 on any kinds of dates.  See examples below.
 
@@ -87,7 +87,7 @@ Here are all the date tickers:
       :class:`matplotlib.dates.rrulewrapper`.  The
       :class:`rrulewrapper` is a simple wrapper around a
       :class:`dateutil.rrule` (`dateutil
-      <https://dateutil.readthedocs.org>`_) which allow almost
+      <https://dateutil.readthedocs.io>`_) which allow almost
       arbitrary date tick specifications.  See `rrule example
       <../examples/pylab_examples/date_demo_rrule.html>`_.
 
