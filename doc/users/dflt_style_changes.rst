@@ -1065,6 +1065,17 @@ Z-order
 
 
 
+``ScalarFormatter`` tick label formatting with offsets
+======================================================
+
+With the default of ``rcParams['axes.formatter.useoffset'] = True``,
+an offset will be used when it will save 4 or more digits.  This can
+be controlled with the new rcParam, ``axes.formatter.offset_threshold``.
+To restore the previous behavior of using an offset to save 2 or more
+digits, use ``rcParams['axes.formatter.offset_threshold'] = 2``.
+
+
+
 ``AutoDateFormatter`` format strings
 ====================================
 
