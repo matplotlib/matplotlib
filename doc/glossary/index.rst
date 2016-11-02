@@ -16,7 +16,7 @@ Glossary
 
 
   dateutil
-      The `dateutil <https://dateutil.readthedocs.org>`_ library
+      The `dateutil <https://dateutil.readthedocs.io>`_ library
       provides extensions to the standard datetime module
 
   EPS
