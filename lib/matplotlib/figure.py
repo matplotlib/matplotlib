@@ -124,7 +124,7 @@ class AxesStack(Stack):
             hash(key)
         except TypeError:
             raise ValueError("first argument, %s, is not a valid key" % key)
-        
+
         a_existing = dict(self._elements).get(key)
         if a_existing is not None:
             raise KeyError('Key %s already exists in the AxesStack' % key)
