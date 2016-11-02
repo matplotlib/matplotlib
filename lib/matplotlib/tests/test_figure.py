@@ -4,7 +4,7 @@ from __future__ import (absolute_import, division, print_function,
 import six
 from six.moves import xrange
 
-from nose.tools import assert_equal, assert_true
+from nose.tools import assert_equal, assert_true, assert_raises
 from matplotlib import rcParams, figure
 from matplotlib.testing.decorators import image_comparison, cleanup
 from matplotlib.axes import Axes
@@ -219,24 +219,13 @@ def test_figaspect():
 
 @cleanup
 def test_stack_remove():
-    '''
-    Before fixing the bug, doing the following will give you following error:
-    >>> a.add('123',plt.figure().add_subplot(111))
-    Traceback (most recent call last):
-    File "<stdin>", line 1, in <module>
-    File "/usr/lib/pymodules/python2.7/matplotlib/figure.py", line 120, in
-    add
-      Stack.remove(self, (key, a_existing))
-    File "/usr/lib/pymodules/python2.7/matplotlib/cbook.py", line 1343, in
-    remove
-      raise ValueError('Unknown element o')
-    ValueError: Unknown element o
-    '''
-    key = '123'
     a = figure.AxesStack()
-    a.add(key, plt.figure().add_subplot(111))
-    assert_raises(KeyError, a.add, key, plt.figure().add_subplot(111))
+    key = '123'
+    axes = plt.figure().add_subplot(111)
+    a.add(key, axes)
     # Verify some things
+    assert_raises(KeyError, a.add, key, plt.figure().add_subplot(111))
+    assert_equal(a._elements, [(key, (1, axes))])
 
 
 if __name__ == "__main__":
