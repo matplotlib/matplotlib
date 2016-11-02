@@ -1,7 +1,8 @@
 .. _testing:
 
-Testing
-=======
+============================
+Developer's tips for testing
+============================
 
 Matplotlib has a testing infrastructure based on nose_, making it easy
 to write new tests. The tests are in :mod:`matplotlib.tests`, and
@@ -9,7 +10,7 @@ customizations to the nose testing infrastructure are in
 :mod:`matplotlib.testing`. (There is other old testing cruft around,
 please ignore it while we consolidate our testing to these locations.)
 
-.. _nose: http://nose.readthedocs.org/en/latest/
+.. _nose: https://nose.readthedocs.io/en/latest/
 
 Requirements
 ------------
@@ -17,21 +18,17 @@ Requirements
 The following software is required to run the tests:
 
   - nose_, version 1.0 or later
-
-  - `mock <http://www.voidspace.org.uk/python/mock/>`_, when running python
+  - `mock <https://docs.python.org/dev/library/unittest.mock.html>`_, when running python
     versions < 3.3
-
-  - `Ghostscript <http://pages.cs.wisc.edu/~ghost/>`_ (to render PDF
+  - `Ghostscript <http://www.ghostscript.com/>`_ (to render PDF
     files)
-
   - `Inkscape <http://inkscape.org>`_ (to render SVG files)
 
 Optionally you can install:
 
   - `coverage <http://nedbatchelder.com/code/coverage/>`_ to collect coverage
     information
-
-  - `pep8 <http://pep8.readthedocs.org/en/latest>`_ to test coding standards
+  - `pep8 <http://pep8.readthedocs.io/en/latest>`_ to test coding standards
 
 Building matplotlib for image comparison tests
 ----------------------------------------------
@@ -106,7 +103,7 @@ matplotlib library function :func:`matplotlib.test`::
       pip install mock
 
 
-.. _`nosetest arguments`: http://nose.readthedocs.org/en/latest/usage.html
+.. _`nosetest arguments`: http://nose.readthedocs.io/en/latest/usage.html
 
 
 Writing a simple test

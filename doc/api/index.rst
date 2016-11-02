@@ -51,6 +51,7 @@
    text_api.rst
    ticker_api.rst
    tight_layout_api.rst
+   transformations.rst
    tri_api.rst
    type1font.rst
    units_api.rst
