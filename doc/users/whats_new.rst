@@ -82,13 +82,16 @@ New rcparams added
 |`ytick.minor.right`,             |                                                  |
 |`ytick.major.right`              |                                                  |
 +---------------------------------+--------------------------------------------------+
-|`hist.bins`                      | the default number of bins to use in             |
+|`hist.bins`                      | The default number of bins to use in             |
 |                                 | `~matplotlib.axes.Axes.hist`.  This can be an    |
 |                                 | `int`, a list of floats, or ``'auto'`` if numpy  |
 |                                 | >= 1.11 is installed.                            |
 +---------------------------------+--------------------------------------------------+
-|`lines.scale_dashes`             | If the line dash patterns should scale with      |
-|                                 | linewidth                                        |
+|`lines.scale_dashes`             | Whether the line dash patterns should scale with |
+|                                 | linewidth.                                       |
++---------------------------------+--------------------------------------------------+
+|`axes.formatter.offset_threshold`| Minimum number of digits saved in tick labels    |
+|                                 | that triggers using an offset.                   |
 +---------------------------------+--------------------------------------------------+
 
 
