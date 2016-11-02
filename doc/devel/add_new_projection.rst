@@ -1,8 +1,8 @@
 .. _adding-new-scales:
 
-***********************************************
-Adding new scales and projections to matplotlib
-***********************************************
+=========================================================
+Developer's guide for creating scales and transformations
+=========================================================
 
 .. ::author Michael Droettboom
 
