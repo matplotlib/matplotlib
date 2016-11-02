@@ -46,6 +46,7 @@ from matplotlib.ft2font import (FIXED_WIDTH, ITALIC, LOAD_NO_SCALE,
 from matplotlib.mathtext import MathTextParser
 from matplotlib.transforms import Affine2D, BboxBase
 from matplotlib.path import Path
+from matplotlib.dates import UTC
 from matplotlib import _path
 from matplotlib import _png
 from matplotlib import ttconv
@@ -134,20 +135,6 @@ def _string_escape(match):
     elif m == b'\r':
         return br'\r'
     assert False
-
-
-# tzinfo class for UTC
-class UTCtimezone(tzinfo):
-    """UTC timezone"""
-
-    def utcoffset(self, dt):
-        return timedelta(0)
-
-    def tzname(self, dt):
-        return "UTC"
-
-    def dst(self, dt):
-        return timedelta(0)
 
 
 def pdfRepr(obj):
@@ -492,7 +479,7 @@ class PdfFile(object):
         source_date_epoch = os.getenv("SOURCE_DATE_EPOCH")
         if source_date_epoch:
             source_date = datetime.utcfromtimestamp(int(source_date_epoch))
-            source_date = source_date.replace(tzinfo=UTCtimezone())
+            source_date = source_date.replace(tzinfo=UTC)
         else:
             source_date = datetime.today()
 
