@@ -750,6 +750,12 @@ class NavigationToolbar2TkAgg(NavigationToolbar2, Tk.Frame):
         b.pack(side=Tk.LEFT)
         return b
 
+    def _Spacer(self):
+        # Buttons are 30px high, so make this 26px tall with padding to center it
+        s = Tk.Frame(master=self, height=26, relief=Tk.RIDGE, pady=2, bg="DarkGray")
+        s.pack(side=Tk.LEFT, padx=5)
+        return s
+        
     def _init_toolbar(self):
         xmin, xmax = self.canvas.figure.bbox.intervalx
         height, width = 50, xmax-xmin
@@ -761,8 +767,8 @@ class NavigationToolbar2TkAgg(NavigationToolbar2, Tk.Frame):
 
         for text, tooltip_text, image_file, callback in self.toolitems:
             if text is None:
-                # spacer, unhandled in Tk
-                pass
+                # Add a spacer -- we don't need to use the return value for anything
+                self._Spacer()
             else:
                 button = self._Button(text=text, file=image_file,
                                    command=getattr(self, callback))
