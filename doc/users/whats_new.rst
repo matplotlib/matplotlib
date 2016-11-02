@@ -147,7 +147,7 @@ unrelated to style.  These parameters include::
   'interactive', 'backend', 'backend.qt4', 'webagg.port',
   'webagg.port_retries', 'webagg.open_in_browser', 'backend_fallback',
   'toolbar', 'timezone', 'datapath', 'figure.max_open_warning',
-  'savefig.directory', 'tk.window_focus', 'hardcopy.docstring'
+  'savefig.directory', 'tk.window_focus', 'docstring.hardcopy'
 
 
 Change in default font
