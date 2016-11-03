@@ -9,6 +9,10 @@ from matplotlib.dates import YEARLY, DateFormatter, rrulewrapper, RRuleLocator, 
 import numpy as np
 import datetime
 
+# Fixing random state for reproducibility
+np.random.seed(19680801)
+
+
 # tick every 5th easter
 rule = rrulewrapper(YEARLY, byeaster=1, interval=5)
 loc = RRuleLocator(rule)

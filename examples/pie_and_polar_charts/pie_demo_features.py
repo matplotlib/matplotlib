@@ -18,6 +18,7 @@ positive y-axis.
 """
 import matplotlib.pyplot as plt
 
+
 # The slices will be ordered and plotted counter-clockwise.
 labels = 'Frogs', 'Hogs', 'Dogs', 'Logs'
 sizes = [15, 30, 45, 10]
@@ -31,6 +32,10 @@ plt.axis('equal')
 fig = plt.figure()
 ax = fig.gca()
 import numpy as np
+
+# Fixing random state for reproducibility
+np.random.seed(19680801)
+
 
 ax.pie(np.random.random(4), explode=explode, labels=labels,
        autopct='%1.1f%%', shadow=True, startangle=90,

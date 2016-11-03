@@ -1,6 +1,9 @@
 import matplotlib.pyplot as plt
 import numpy as np
 
+# Fixing random state for reproducibility
+np.random.seed(19680801)
+
 # fake up some data
 spread = np.random.rand(50) * 100
 center = np.ones(25) * 50

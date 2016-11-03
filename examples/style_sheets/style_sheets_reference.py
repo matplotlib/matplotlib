@@ -12,6 +12,9 @@ line plot and histogram,
 import numpy as np
 import matplotlib.pyplot as plt
 
+# Fixing random state for reproducibility
+np.random.seed(19680801)
+
 
 def plot_scatter(ax, prng, nb_samples=100):
     """Scatter plot.

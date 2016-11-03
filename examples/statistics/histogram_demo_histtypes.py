@@ -15,7 +15,7 @@ http://docs.astropy.org/en/stable/visualization/histogram.html
 import numpy as np
 import matplotlib.pyplot as plt
 
-np.random.seed(0)
+np.random.seed(19680801)
 
 mu = 200
 sigma = 25

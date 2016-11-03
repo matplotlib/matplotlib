@@ -93,6 +93,9 @@ if 1:
     from matplotlib.transforms import Bbox, TransformedBbox
     from matplotlib.ticker import ScalarFormatter
 
+    # Fixing random state for reproducibility
+    np.random.seed(19680801)
+
     fig, ax = plt.subplots()
 
     years = np.arange(2004, 2009)

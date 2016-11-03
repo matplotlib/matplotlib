@@ -17,6 +17,10 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import matplotlib.animation as manimation
 
+# Fixing random state for reproducibility
+np.random.seed(19680801)
+
+
 FFMpegWriter = manimation.writers['ffmpeg']
 metadata = dict(title='Movie Test', artist='Matplotlib',
                 comment='Movie support!')

@@ -8,7 +8,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.mlab as mlab
 
-prng = np.random.RandomState(123456)  # to ensure reproducibility
+prng = np.random.RandomState(19680801)  # to ensure reproducibility
+
 
 fs = 1000
 t = np.linspace(0, 0.3, 301)

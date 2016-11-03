@@ -6,6 +6,9 @@ import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.widgets import SpanSelector
 
+# Fixing random state for reproducibility
+np.random.seed(19680801)
+
 fig = plt.figure(figsize=(8, 6))
 ax = fig.add_subplot(211, facecolor='#FFFFCC')
 

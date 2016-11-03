@@ -19,6 +19,9 @@ from mpl_toolkits.axisartist.grid_finder import (FixedLocator, MaxNLocator,
                                                  DictFormatter)
 import matplotlib.pyplot as plt
 
+# Fixing random state for reproducibility
+np.random.seed(19680801)
+
 
 def setup_axes1(fig, rect):
     """

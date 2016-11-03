@@ -12,6 +12,9 @@ import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation
 
+# Fixing random state for reproducibility
+np.random.seed(19680801)
+
 
 # Create new Figure and an Axes which fills it.
 fig = plt.figure(figsize=(7, 7))

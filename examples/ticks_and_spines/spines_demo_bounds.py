@@ -4,6 +4,8 @@ Demo of spines using custom bounds to limit the extent of the spine.
 import numpy as np
 import matplotlib.pyplot as plt
 
+# Fixing random state for reproducibility
+np.random.seed(19680801)
 
 x = np.linspace(0, 2*np.pi, 50)
 y = np.sin(x)

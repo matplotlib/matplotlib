@@ -7,6 +7,9 @@ plot elements default to colors defined by an rc parameter.
 import numpy as np
 import matplotlib.pyplot as plt
 
+# Fixing random state for reproducibility
+np.random.seed(19680801)
+
 
 def color_cycle_example(ax):
     L = 6

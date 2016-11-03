@@ -3,6 +3,10 @@ import matplotlib.pyplot as plt
 import matplotlib.cm as cm
 import matplotlib.colors as colors
 
+# Fixing random state for reproducibility
+np.random.seed(19680801)
+
+
 fig, ax = plt.subplots()
 Ntotal = 1000
 N, bins, patches = ax.hist(np.random.rand(Ntotal), 20)
