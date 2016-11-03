@@ -2783,7 +2783,19 @@ class _AxesBase(martist.Artist):
 
     def get_xlim(self):
         """
-        Get the x-axis range [*left*, *right*]
+        Get the x-axis range
+
+        Returns
+        -------
+        xlimits : tuple
+            Returns the current x-axis limits as the tuple
+            (`left`, `right`).
+
+        Notes
+        -----
+        The x-axis may be inverted, in which case the `left` value will
+        be greater than the `right` value.
+
         """
         return tuple(self.viewLim.intervalx)
 
@@ -3053,7 +3065,19 @@ class _AxesBase(martist.Artist):
 
     def get_ylim(self):
         """
-        Get the y-axis range [*bottom*, *top*]
+        Get the y-axis range
+
+        Returns
+        -------
+        ylimits : tuple
+            Returns the current y-axis limits as the tuple
+            (`bottom`, `top`).
+
+        Notes
+        -----
+        The y-axis may be inverted, in which case the `bottom` value
+        will be greater than the `top` value.
+
         """
         return tuple(self.viewLim.intervaly)
 
