@@ -999,8 +999,8 @@ class FuncNorm(Normalize):
 
         >>> import matplotlib.colors as colors
         >>> norm = colors.FuncNorm(f=lambda x: np.log10(x),
-        >>>                        finv=lambda x: 10.**(x),
-        >>>                        vmin=0.01, vmax=2)
+        ...                        finv=lambda x: 10.**(x),
+        ...                        vmin=0.01, vmax=2)
 
         """
 
@@ -1236,9 +1236,10 @@ class PiecewiseNorm(FuncNorm):
         1.2 using four intervals:
 
         >>> import matplotlib.colors as colors
-        >>> norm = colors.PiecewiseNorm(flist=['cubic', 'cbrt', 'cubic', 'cbrt'],
-        >>>                             refpoints_cm=[0.25, 0.5, 0.75],
-        >>>                             refpoints_data=[-0.4, 1, 1.2])
+        >>> norm = colors.PiecewiseNorm(flist=['cubic', 'cbrt',
+        ...                                    'cubic', 'cbrt'],
+        ...                             refpoints_cm=[0.25, 0.5, 0.75],
+        ...                             refpoints_data=[-0.4, 1, 1.2])
 
         """
 
@@ -1502,8 +1503,8 @@ class MirrorPiecewiseNorm(PiecewiseNorm):
 
         >>> import matplotlib.colors as colors
         >>> norm = colors.MirrorPiecewiseNorm(fpos='sqrt', fneg='cbrt',
-        >>>                                   center_cm=0.35,
-        >>>                                   center_data=0.6)
+        ...                                   center_cm=0.35,
+        ...                                   center_data=0.6)
 
         """
         if fneg is None and fneginv is not None:
@@ -1624,9 +1625,9 @@ class MirrorRootNorm(MirrorPiecewiseNorm):
 
         >>> import matplotlib.colors as colors
         >>> norm = mcolors.MirrorRootNorm(orderpos=3,
-        >>>                               orderneg=4,
-        >>>                               center_data=0.6,
-        >>>                               center_cm=0.3)
+        ...                               orderneg=4,
+        ...                               center_data=0.6,
+        ...                               center_cm=0.3)
 
         """
 
