@@ -1,11 +1,11 @@
 """
 =====================================================================
-Examples of normalization using  :class:`~matplotlib.colors.FuncNorm`
+Examples of normalization using  :class:`~matplotlib.colors.RootNorm`
 =====================================================================
 
-This is an example on how to perform a normalization using an arbitrary
-function with :class:`~matplotlib.colors.FuncNorm`. A logarithm normalization
-and a square root normalization will be use as examples.
+This is an example on how to perform a root normalization using
+:class:`~matplotlib.colors.RootNorm`. Normalizations of order 2
+and order 3 ar compared.
 
 """
 
@@ -25,26 +25,18 @@ def main():
     cax = make_plot(None, 'Regular linear scale', fig, ax11, ax12)
     fig.colorbar(cax, format='%.3g', ax=ax12, ticks=np.linspace(0, 1, 6))
 
-    # Example of logarithm normalization using FuncNorm
-    norm = colors.FuncNorm(f='log10', vmin=0.01)
-    cax = make_plot(norm, 'Log normalization', fig, ax21, ax22)
+    # Root normalization of order 2
+    norm = colors.RootNorm(order=2, vmin=0.01)
+    cax = make_plot(norm, 'Root normalization or order 2', fig, ax21, ax22)
     fig.colorbar(cax, format='%.3g', ticks=cax.norm.ticks(5), ax=ax22)
-    # The same can be achieved with
-    # norm = colors.FuncNorm(f=np.log10,
-    #                        finv=lambda x: 10.**(x), vmin=0.01)
 
-    # Example of root normalization using FuncNorm
-    norm = colors.FuncNorm(f='sqrt', vmin=0.0)
-    cax = make_plot(norm, 'Root normalization', fig, ax31, ax32)
+    # Root normalization of order 3
+    norm = colors.RootNorm(order=3, vmin=0.0)
+    cax = make_plot(norm, 'Root normalization of order 3', fig, ax31, ax32)
     fig.colorbar(cax, format='%.3g', ticks=cax.norm.ticks(5), ax=ax32)
-    # The same can be achieved with
-    # norm = colors.FuncNorm(f='root{2}', vmin=0.)
-    # or with
-    # norm = colors.FuncNorm(f=lambda x: x**0.5,
-    #                        finv=lambda x: x**2, vmin=0.0)
 
     fig.subplots_adjust(hspace=0.4, wspace=0.15)
-    fig.suptitle('Normalization with FuncNorm')
+    fig.suptitle('Normalization with RootNorm')
     plt.show()
 
 

@@ -23,32 +23,32 @@ def main():
               'width_ratios': [1, 3.5]}, figsize=plt.figaspect(0.6))
 
     cax = make_plot(None, 'Regular linear scale', fig, ax11, ax12)
-    fig.colorbar(cax, format='%.3g', ax=ax12)
+    fig.colorbar(cax, format='%.3g', ax=ax12, ticks=np.linspace(-1, 1, 5))
 
     # Example of symmetric root normalization using MirrorPiecewiseNorm
-    norm = colors.MirrorPiecewiseNorm(fpos=lambda x: x**(1 / 3.),
-                                      fposinv=lambda x: x**3)
+    norm = colors.MirrorPiecewiseNorm(fpos='cbrt')
     cax = make_plot(norm, 'Symmetric cubic root normalization around zero',
                     fig, ax21, ax22)
     fig.colorbar(cax, format='%.3g', ticks=cax.norm.ticks(5), ax=ax22)
     # The same can be achieved with
-    # norm = colors.MirrorPiecewiseNorm(fpos='cbrt')
-    # or with
     # norm = colors.MirrorPiecewiseNorm(fpos='root{3}')
+    # or with
+    # norm = colors.MirrorPiecewiseNorm(fpos=lambda x: x**(1 / 3.),
+    #                                   fposinv=lambda x: x**3)
 
     # Example of asymmetric root normalization using MirrorPiecewiseNorm
-    norm = colors.MirrorPiecewiseNorm(fpos=lambda x: x**(1 / 3.),
-                                      fposinv=lambda x: x**3,
-                                      fneg=lambda x: x,
-                                      fneginv=lambda x: x)
+    norm = colors.MirrorPiecewiseNorm(fpos='cbrt', fneg='linear')
     cax = make_plot(norm, 'Cubic root normalization above zero\n'
                           'and linear below zero',
                     fig, ax31, ax32)
     fig.colorbar(cax, format='%.3g', ticks=cax.norm.ticks(5), ax=ax32)
     # The same can be achieved with
-    # norm = colors.MirrorPiecewiseNorm(fpos='cbrt', fneg='linear')
-    # or with
     # norm = colors.MirrorPiecewiseNorm(fpos='root{3}', fneg='linear')
+    # or with
+    # norm = colors.MirrorPiecewiseNorm(fpos=lambda x: x**(1 / 3.),
+    #                                   fposinv=lambda x: x**3,
+    #                                   fneg=lambda x: x,
+    #                                   fneginv=lambda x: x)
 
     fig.subplots_adjust(hspace=0.4, wspace=0.15)
     fig.suptitle('Normalization with MirrorPiecewiseNorm')

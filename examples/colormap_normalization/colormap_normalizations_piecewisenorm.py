@@ -21,7 +21,7 @@ def main():
               'width_ratios': [1, 3]}, figsize=plt.figaspect(0.6))
 
     cax = make_plot(None, 'Regular linear scale', fig, ax11, ax12)
-    fig.colorbar(cax, format='%.3g', ax=ax12)
+    fig.colorbar(cax, format='%.3g', ax=ax12, ticks=np.linspace(0, 1, 6))
 
     # Example of amplification of features above 0.2 and 0.6
     norm = colors.PiecewiseNorm(flist=['linear', 'root{4}', 'linear',
