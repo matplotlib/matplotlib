@@ -5,7 +5,7 @@ License
 ***********************************************
 
 
-Matplotlib only uses BSD compatible code, and its license is based on
+matplotlib only uses BSD compatible code, and its license is based on
 the `PSF <http://www.python.org/psf/license>`_ license.  See the Open
 Source Initiative `licenses page
 <http://www.opensource.org/licenses>`_ for details on individual
@@ -36,14 +36,14 @@ changes/contributions they have specific copyright on, they should
 indicate their copyright in the commit message of the change, when
 they commit the change to one of the matplotlib repositories.
 
-The Matplotlib Development Team is the set of all contributors to the
+The matplotlib Development Team is the set of all contributors to the
 matplotlib project.  A full list can be obtained from the git version
 control logs.
 
 License agreement for matplotlib |version|
 ==============================================
 
-1. This LICENSE AGREEMENT is between the Matplotlib Development Team
+1. This LICENSE AGREEMENT is between the matplotlib Development Team
 ("MDT"), and the Individual or Organization ("Licensee") accessing and
 otherwise using matplotlib software in source or binary form and its
 associated documentation.
@@ -54,7 +54,7 @@ to reproduce, analyze, test, perform and/or display publicly, prepare
 derivative works, distribute, and otherwise use matplotlib |version|
 alone or in any derivative version, provided, however, that MDT's
 License Agreement and MDT's notice of copyright, i.e., "Copyright (c)
-2012-2013 Matplotlib Development Team; All Rights Reserved" are retained in
+2012-2013 matplotlib Development Team; All Rights Reserved" are retained in
 matplotlib |version| alone or in any derivative version prepared by
 Licensee.
 

@@ -6,7 +6,7 @@ Developer's guide for creating scales and transformations
 
 .. ::author Michael Droettboom
 
-Matplotlib supports the addition of custom procedures that transform
+matplotlib supports the addition of custom procedures that transform
 the data before it is displayed.
 
 There is an important distinction between two kinds of

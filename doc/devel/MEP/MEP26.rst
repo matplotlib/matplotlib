@@ -220,7 +220,7 @@ MEP25, which may assist in this development
 Appendix
 ========
 
-Matplotlib primitives
+matplotlib primitives
 ---------------------
 
 This will form the initial selectors which stylesheets can use.

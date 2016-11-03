@@ -1,7 +1,7 @@
 
 .. _toolkit_axesgrid1-index:
 
-Matplotlib axes_grid1 Toolkit
+matplotlib axes_grid1 Toolkit
 =============================
 
 The matplotlib :class:`mpl_toolkits.axes_grid1` toolkit is a collection of

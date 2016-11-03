@@ -1,7 +1,7 @@
 .. _osxframework-faq:
 
 ******************************
-Working with Matplotlib on OSX
+Working with matplotlib on OSX
 ******************************
 
 .. contents::
@@ -20,7 +20,7 @@ At the time of writing the ``macosx`` and ``WXAgg`` backends require a
 framework build to function correctly. This can result in issues for
 a python installation not build as a framework and may also happen in 
 virtual envs and when using (Ana)Conda.
-From Matplotlib 1.5 onwards the ``macosx`` backend
+From matplotlib 1.5 onwards the ``macosx`` backend
 checks that a framework build is available and fails if a non framework
 build is found. WX has a similar check build in.
 

@@ -5,7 +5,7 @@
 mplot3d
 *******
 
-Matplotlib mplot3d toolkit
+matplotlib mplot3d toolkit
 ==========================
 The mplot3d toolkit adds simple 3D plotting capabilities to matplotlib by
 supplying an axes object that can create a 2D projection of a 3D scene.

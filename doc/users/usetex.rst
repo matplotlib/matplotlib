@@ -4,7 +4,7 @@
 Text rendering With LaTeX
 *************************
 
-Matplotlib has the option to use LaTeX to manage all text layout.  This
+matplotlib has the option to use LaTeX to manage all text layout.  This
 option is available with the following backends:
 
 * Agg
@@ -19,7 +19,7 @@ packages (font packages, math packages, etc.)  can be used. The
 results can be striking, especially when you take care to use the same
 fonts in your figures as in the main document.
 
-Matplotlib's LaTeX support requires a working LaTeX_ installation, dvipng_
+matplotlib's LaTeX support requires a working LaTeX_ installation, dvipng_
 (which may be included with your LaTeX installation), and Ghostscript_
 (GPL Ghostscript 8.60 or later is recommended). The executables for these
 external dependencies must all be located on your :envvar:`PATH`.

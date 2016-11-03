@@ -60,7 +60,7 @@ needs to be drawn. At the moment, that logic contains 9 separate if/else
 statements nested up to 5 levels deep with a for loop, and may raise up to 2 errors.
 These parameters were added prior to the creation of the ``Axes.bxp`` method,
 which draws boxplots from a list of dictionaries containing the relevant
-statistics. Matplotlib also provides a function that computes these
+statistics. matplotlib also provides a function that computes these
 statistics via ``cbook.boxplot_stats``. Note that advanced users can now
 either a) write their own function to compute the stats required by
 ``Axes.bxp``, or b) modify the output returned by ``cbook.boxplots_stats``

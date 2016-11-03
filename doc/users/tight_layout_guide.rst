@@ -37,7 +37,7 @@ clipped.
 
 To prevent this, the location of axes needs to be adjusted. For
 subplots, this can be done by adjusting the subplot params
-(:ref:`howto-subplots-adjust`). Matplotlib v1.1 introduces a new
+(:ref:`howto-subplots-adjust`). matplotlib v1.1 introduces a new
 command :func:`~matplotlib.pyplot.tight_layout` that does this
 automatically for you.
 
@@ -286,7 +286,7 @@ Colorbar
 
 If you create a colorbar with the :func:`~matplotlib.pyplot.colorbar`
 command, the created colorbar is an instance of Axes, *not* Subplot, so
-tight_layout does not work. With Matplotlib v1.1, you may create a
+tight_layout does not work. With matplotlib v1.1, you may create a
 colorbar as a subplot using the gridspec.
 
 .. plot::

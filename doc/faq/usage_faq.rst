@@ -138,10 +138,10 @@ and to covert a `np.matrix` ::
 
 .. _pylab:
 
-Matplotlib, pyplot and pylab: how are they related?
+matplotlib, pyplot and pylab: how are they related?
 ====================================================
 
-Matplotlib is the whole package; :mod:`matplotlib.pyplot`
+matplotlib is the whole package; :mod:`matplotlib.pyplot`
 is a module in matplotlib; and :mod:`pylab` is a module
 that gets installed alongside :mod:`matplotlib`.
 
@@ -461,7 +461,7 @@ WX backends
 At present the release version of `wxPython` (also known as wxPython classic)
 does not support python3. A work in progress redesigned version known as
 wxPython-Phoenix_ does support python3.
-Matplotlib should work with both versions.
+matplotlib should work with both versions.
 
 .. _wxPython-Phoenix: http://wxpython.org/Phoenix/docs/html/main.html
 
@@ -469,7 +469,7 @@ GTK and Cairo
 =============
 
 Both `GTK2` and `GTK3` have implicit dependencies on PyCairo regardless of the
-specific Matplotlib backend used. Unfortunatly the latest release of PyCairo
+specific matplotlib backend used. Unfortunatly the latest release of PyCairo
 for Python3 does not implement the Python wrappers needed for the `GTK3Agg`
 backend. `Cairocffi` can be used as a replacement which implements the correct
 wrapper.

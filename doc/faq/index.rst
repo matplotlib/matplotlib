@@ -1,7 +1,7 @@
 .. _faq-index:
 
 ##################
-The Matplotlib FAQ
+The matplotlib FAQ
 ##################
 
 .. htmlonly::

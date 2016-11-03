@@ -614,7 +614,7 @@ or look at the open issues on github.
 
 .. _howto-webapp:
 
-Matplotlib in a web application server
+matplotlib in a web application server
 ======================================
 
 Many users report initial problems trying to use maptlotlib in web
@@ -719,11 +719,11 @@ ellipse, :ref:`search` for ``codex ellipse``.
 
 .. _how-to-cite-mpl:
 
-Cite Matplotlib
+Cite matplotlib
 ===============
 
 If you want to refer to matplotlib in a publication, you can use
-"Matplotlib: A 2D Graphics Environment" by J. D. Hunter In Computing
+"matplotlib: A 2D Graphics Environment" by J. D. Hunter In Computing
 in Science & Engineering, Vol. 9, No. 3. (2007), pp. 90-95 (see `this
 reference page <http://dx.doi.org/10.1109/MCSE.2007.55>`_)::
 
@@ -740,11 +740,11 @@ reference page <http://dx.doi.org/10.1109/MCSE.2007.55>`_)::
 	  Pages = {90--95},
 	  Publisher = {IEEE COMPUTER SOC},
 	  Times-Cited = {21},
-	  Title = {Matplotlib: A 2D graphics environment},
+	  Title = {matplotlib: A 2D graphics environment},
 	  Type = {Editorial Material},
 	  Volume = {9},
 	  Year = {2007},
-	  Abstract = {Matplotlib is a 2D graphics package used for Python for application
+	  Abstract = {matplotlib is a 2D graphics package used for Python for application
                       development, interactive scripting, and publication-quality image
                       generation across user interfaces and operating systems.},
 	  Bdsk-Url-1 = {http://gateway.isiknowledge.com/gateway/Gateway.cgi?GWVersion=2&SrcAuth=Alerting&SrcApp=Alerting&DestApp=WOS&DestLinkType=FullRecord;KeyUT=000245668100019}}

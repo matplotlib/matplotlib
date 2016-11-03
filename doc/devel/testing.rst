@@ -4,7 +4,7 @@
 Developer's tips for testing
 ============================
 
-Matplotlib has a testing infrastructure based on nose_, making it easy
+matplotlib has a testing infrastructure based on nose_, making it easy
 to write new tests. The tests are in :mod:`matplotlib.tests`, and
 customizations to the nose testing infrastructure are in
 :mod:`matplotlib.testing`. (There is other old testing cruft around,
@@ -109,7 +109,7 @@ matplotlib library function :func:`matplotlib.test`::
 Writing a simple test
 ---------------------
 
-Many elements of Matplotlib can be tested using standard tests. For
+Many elements of matplotlib can be tested using standard tests. For
 example, here is a test from :mod:`matplotlib.tests.test_basic`::
 
   from nose.tools import assert_equal

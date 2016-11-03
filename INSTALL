@@ -74,9 +74,9 @@ or
 `32 bit <http://www.microsoft.com/en-us/download/details.aspx?id=5555>`__
 for Python 3.4) redistributable packages need to be installed.
 
-Matplotlib depends on `Pillow <https://pypi.python.org/pypi/Pillow>`_
+matplotlib depends on `Pillow <https://pypi.python.org/pypi/Pillow>`_
 for reading and saving JPEG, BMP, and TIFF image files.
-Matplotlib requires `MiKTeX <http://miktex.org/>`_ and
+matplotlib requires `MiKTeX <http://miktex.org/>`_ and
 `GhostScript <http://www.ghostscript.com/download/>`_ for rendering text
 with LaTeX.
 `FFmpeg <https://www.ffmpeg.org/>`_, `avconv <https://libav.org/>`_,

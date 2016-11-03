@@ -1,7 +1,7 @@
 .. _api-index:
 
 ####################
-  The Matplotlib API
+  The matplotlib API
 ####################
 
 .. htmlonly::

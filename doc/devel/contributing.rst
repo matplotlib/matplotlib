@@ -286,7 +286,7 @@ C/C++ extensions
 Keyword argument processing
 ---------------------------
 
-Matplotlib makes extensive use of ``**kwargs`` for pass-through
+matplotlib makes extensive use of ``**kwargs`` for pass-through
 customizations from one function to another.  A typical example is in
 :func:`matplotlib.pyplot.text`.  The definition of the pylab text
 function is a simple pass-through to

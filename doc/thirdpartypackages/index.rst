@@ -4,14 +4,14 @@
  Third party packages
 *********************
 
-Several external packages that extend or build on Matplotlib functionality
+Several external packages that extend or build on matplotlib functionality
 exist. Below we list a number of these. Note that they are each
-maintained and distributed separately from Matplotlib, and will need
+maintained and distributed separately from matplotlib, and will need
 to be installed individually.
 
 Please submit an issue or pull request
 on Github if you have created a package that you would like to have included.
-We are also happy to host third party packages within the `Matplotlib Github
+We are also happy to host third party packages within the `matplotlib Github
 Organization <https://github.com/matplotlib>`_.
 
 .. _hl_plotting:
@@ -154,15 +154,15 @@ irregularly spaced data.  This requires a separate installation of the
 
 .. _toolkit_matplotlibvenn:
 
-Matplotlib-Venn
+matplotlib-Venn
 ===============
 
-`Matplotlib-Venn <https://github.com/konstantint/matplotlib-venn>`_ provides a set of functions for plotting 2- and 3-set area-weighted (or unweighted) Venn diagrams.
+`matplotlib-Venn <https://github.com/konstantint/matplotlib-venn>`_ provides a set of functions for plotting 2- and 3-set area-weighted (or unweighted) Venn diagrams.
 
 mplstereonet
 ===============
 
-`mplstereonet <https://github.com/joferkington/mplstereonet>`_ provides stereonets for plotting and analyzing orientation data in Matplotlib.
+`mplstereonet <https://github.com/joferkington/mplstereonet>`_ provides stereonets for plotting and analyzing orientation data in matplotlib.
 
 pyupset
 ===============
@@ -170,4 +170,4 @@ pyupset
 
 Windrose
 ===============
-`Windrose <https://github.com/scls19fr/windrose>`_ is a Python Matplotlib, Numpy library to manage wind data, draw windrose (also known as a polar rose plot), draw probability density function and fit Weibull distribution
+`Windrose <https://github.com/scls19fr/windrose>`_ is a Python matplotlib, Numpy library to manage wind data, draw windrose (also known as a polar rose plot), draw probability density function and fit Weibull distribution

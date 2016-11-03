@@ -12,7 +12,7 @@ Startup commands
 
 First, let's start IPython.  It is a most excellent enhancement to the
 standard Python prompt, and it ties in especially well with
-Matplotlib.  Start IPython either at a shell, or the IPython Notebook now.
+matplotlib.  Start IPython either at a shell, or the IPython Notebook now.
 
 With IPython started, we now need to connect to a GUI event loop.  This
 tells IPython where (and how) to display plots.  To connect to a GUI
@@ -99,10 +99,10 @@ And here we go...
             [ 0.44705883,  0.44705883,  0.44705883],
             [ 0.44313726,  0.44313726,  0.44313726]]], dtype=float32)
 
-Note the dtype there - float32.  Matplotlib has rescaled the 8 bit
+Note the dtype there - float32.  matplotlib has rescaled the 8 bit
 data from each channel to floating point data between 0.0 and 1.0.  As
 a side note, the only datatype that Pillow can work with is uint8.
-Matplotlib plotting can handle float32 and uint8, but image
+matplotlib plotting can handle float32 and uint8, but image
 reading/writing for any format other than PNG is limited to uint8
 data.  Why 8 bits? Most displays can only render 8 bits per channel
 worth of color gradation.  Why can they only render 8 bits/channel?
@@ -125,7 +125,7 @@ Plotting numpy arrays as images
 ===================================
 
 So, you have your data in a numpy array (either by importing it, or by
-generating it).  Let's render it.  In Matplotlib, this is performed
+generating it).  Let's render it.  In matplotlib, this is performed
 using the :func:`~matplotlib.pyplot.imshow` function.  Here we'll grab
 the plot object.  This object gives you an easy way to manipulate the
 plot from the prompt.

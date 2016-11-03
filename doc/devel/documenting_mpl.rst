@@ -36,7 +36,7 @@ The actual ReStructured Text files are kept in :file:`doc/users`,
 :file:`doc/index.rst`, which pulls in the :file:`index.rst` file for the users
 guide, developers guide, api reference, and faqs. The documentation suite is
 built as a single document in order to make the most effective use of cross
-referencing, we want to make navigating the Matplotlib documentation as easy as
+referencing, we want to make navigating the matplotlib documentation as easy as
 possible.
 
 Additional files can be added to the various guides by including their base
@@ -55,7 +55,7 @@ For the most part, these are standard Python docstrings, but
 matplotlib also includes some features to better support documenting
 getters and setters.
 
-Matplotlib uses artist introspection of docstrings to support
+matplotlib uses artist introspection of docstrings to support
 properties.  All properties that you want to support through ``setp``
 and ``getp`` should have a ``set_property`` and ``get_property``
 method in the :class:`~matplotlib.artist.Artist` class.  Yes, this is
@@ -76,7 +76,7 @@ Since matplotlib uses a lot of pass-through ``kwargs``, e.g., in every
 function that creates a line (:func:`~matplotlib.pyplot.plot`,
 :func:`~matplotlib.pyplot.semilogx`,
 :func:`~matplotlib.pyplot.semilogy`, etc...), it can be difficult for
-the new user to know which ``kwargs`` are supported.  Matplotlib uses
+the new user to know which ``kwargs`` are supported.  matplotlib uses
 a docstring interpolation scheme to support documentation of every
 function that takes a ``**kwargs``.  The requirements are:
 
@@ -135,7 +135,7 @@ The Sphinx website contains plenty of documentation_ concerning ReST markup and
 working with Sphinx in general. Here are a few additional things to keep in mind:
 
 * Please familiarize yourself with the Sphinx directives for `inline
-  markup`_. Matplotlib's documentation makes heavy use of cross-referencing and
+  markup`_. matplotlib's documentation makes heavy use of cross-referencing and
   other semantic markup. For example, when referring to external files, use the
   ``:file:`` directive.
 

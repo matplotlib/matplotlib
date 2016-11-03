@@ -240,13 +240,13 @@ Here is the solution::
 
 **Extra credit**: use the animation blit techniques discussed in the
 `animations recipe
-<http://www.scipy.org/Cookbook/Matplotlib/Animations>`_ to make the
+<http://www.scipy.org/Cookbook/matplotlib/Animations>`_ to make the
 animated drawing faster and smoother.
 
 Extra credit solution::
 
     # draggable rectangle with the animation blit techniques; see
-    # http://www.scipy.org/Cookbook/Matplotlib/Animations
+    # http://www.scipy.org/Cookbook/matplotlib/Animations
     import numpy as np
     import matplotlib.pyplot as plt
 

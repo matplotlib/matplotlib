@@ -690,8 +690,8 @@ Previously, the last two prints returned false.
 New ``close-figs`` argument for plot directive
 ----------------------------------------------
 
-Matplotlib has a sphinx extension ``plot_directive`` that creates plots for
-inclusion in sphinx documents.  Matplotlib 1.5 adds a new option to the plot
+matplotlib has a sphinx extension ``plot_directive`` that creates plots for
+inclusion in sphinx documents.  matplotlib 1.5 adds a new option to the plot
 directive - ``close-figs`` - that closes any previous figure windows before
 creating the plots.  This can help avoid some surprising duplicates of plots
 when using ``plot_directive``.

@@ -7,7 +7,7 @@ Path effects guide
 .. py:module:: matplotlib.patheffects
 
 
-Matplotlib's :mod:`~matplotlib.patheffects` module provides functionality to
+matplotlib's :mod:`~matplotlib.patheffects` module provides functionality to
 apply a multiple draw stage to any Artist which can be rendered via a
 :class:`~matplotlib.path.Path`.
 
