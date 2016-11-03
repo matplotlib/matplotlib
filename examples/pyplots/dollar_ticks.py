@@ -2,6 +2,9 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.ticker as ticker
 
+# Fixing random state for reproducibility
+np.random.seed(19680801)
+
 fig = plt.figure()
 ax = fig.add_subplot(111)
 ax.plot(100*np.random.rand(20))

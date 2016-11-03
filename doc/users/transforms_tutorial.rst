@@ -112,7 +112,7 @@ dpi setting.  Likewise, in the figure below, the display labeled
 points are probably not the same as in the ipython session because the
 documentation figure size defaults are different.
 
-.. plot:: pyplots/annotate_transform.py
+.. plot:: mpl_examples/pyplots/annotate_transform.py
 
 
 .. note::

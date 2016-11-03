@@ -6,6 +6,8 @@ box = dict(facecolor='yellow', pad=5, alpha=0.2)
 fig = plt.figure()
 fig.subplots_adjust(left=0.2, wspace=0.6)
 
+# Fixing random state for reproducibility
+np.random.seed(19680801)
 
 ax1 = fig.add_subplot(221)
 ax1.plot(2000*np.random.rand(10))

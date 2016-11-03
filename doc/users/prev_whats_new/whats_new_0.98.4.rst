@@ -30,7 +30,7 @@ multiple columns and rows, as well as fancy box drawing.  See
 :func:`~matplotlib.pyplot.legend` and
 :class:`matplotlib.legend.Legend`.
 
-.. plot:: pyplots/whats_new_98_4_legend.py
+.. plot:: mpl_examples/pyplots/whats_new_98_4_legend.py
 
 .. _fancy-annotations:
 
@@ -44,7 +44,7 @@ boxes and connectors in annotations.  See
 :class:`~matplotlib.patches.ArrowStyle`, and
 :class:`~matplotlib.patches.ConnectionStyle`.
 
-.. plot:: pyplots/whats_new_98_4_fancy.py
+.. plot:: mpl_examples/pyplots/whats_new_98_4_fancy.py
 
 .. _psd-amplitude:
 
@@ -84,7 +84,7 @@ can pass an *x* array and a *ylower* and *yupper* array to fill
 between, and an optional *where* argument which is a logical mask
 where you want to do the filling.
 
-.. plot:: pyplots/whats_new_98_4_fill_between.py
+.. plot:: mpl_examples/pyplots/whats_new_98_4_fill_between.py
 
 Lots more
 -----------
