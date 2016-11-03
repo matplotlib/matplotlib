@@ -78,7 +78,7 @@ def _determinism_save(objects='mhi', format="pdf", usetex=False):
         os.environ['SOURCE_DATE_EPOCH'] = sde
 
 
-def _determinism_check(objects='mhi', format="pdf", uid="", usetex=False):
+def _determinism_check(objects='mhi', format="pdf", usetex=False):
     """
     Output three times the same graphs and checks that the outputs are exactly
     the same.
@@ -91,9 +91,6 @@ def _determinism_check(objects='mhi', format="pdf", uid="", usetex=False):
         default value is "mhi", so that the test includes all these objects.
     format : str
         format string. The default value is "pdf".
-    uid : str
-        some string to add to the filename used to store the output. Use it to
-        allow parallel execution of two tests with the same objects parameter.
     """
     from nose.tools import assert_equal
     plots = []
@@ -127,7 +124,7 @@ def _determinism_source_date_epoch(format, string, keyword=b"CreationDate"):
         format string, such as "pdf".
     string : str
         timestamp string for 2000-01-01 00:00 UTC.
-    keyword : str
+    keyword : bytes
         a string to look at when searching for the timestamp in the document
         (used in case the test fails).
     """
