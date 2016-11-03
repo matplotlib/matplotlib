@@ -2,6 +2,10 @@ import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.ticker import NullFormatter
 
+# Fixing random state for reproducibility
+np.random.seed(19680801)
+
+
 # the random data
 x = np.random.randn(1000)
 y = np.random.randn(1000)

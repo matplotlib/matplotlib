@@ -22,6 +22,10 @@ The second figure shows how to control the zorder of individual lines.
 import matplotlib.pyplot as plt
 import numpy as np
 
+# Fixing random state for reproducibility
+np.random.seed(19680801)
+
+
 x = np.random.random(20)
 y = np.random.random(20)
 

@@ -1,6 +1,10 @@
 import matplotlib.pyplot as plt
 import numpy as np
 
+# Fixing random state for reproducibility
+np.random.seed(19680801)
+
+
 # create some data to use for the plot
 dt = 0.001
 t = np.arange(0.0, 10.0, dt)

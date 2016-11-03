@@ -25,6 +25,10 @@ import numpy as np
 
 fig, axes = plt.subplots(nrows=1, ncols=2, figsize=(9, 4))
 
+# Fixing random state for reproducibility
+np.random.seed(19680801)
+
+
 # generate some random test data
 all_data = [np.random.normal(0, std, 100) for std in range(6, 10)]
 

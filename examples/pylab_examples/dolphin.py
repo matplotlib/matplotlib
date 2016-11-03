@@ -5,6 +5,9 @@ from matplotlib.path import Path
 from matplotlib.transforms import Affine2D
 import numpy as np
 
+# Fixing random state for reproducibility
+np.random.seed(19680801)
+
 
 r = np.random.rand(50)
 t = np.random.rand(50) * np.pi * 2.0

@@ -12,6 +12,10 @@ import numpy as np
 
 import time
 
+# Fixing random state for reproducibility
+np.random.seed(19680801)
+
+
 for N in (20, 100, 1000, 10000, 50000):
     tstart = time.time()
     x = 0.9*np.random.rand(N)

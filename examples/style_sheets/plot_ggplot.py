@@ -15,6 +15,9 @@ import matplotlib.pyplot as plt
 
 plt.style.use('ggplot')
 
+# Fixing random state for reproducibility
+np.random.seed(19680801)
+
 fig, axes = plt.subplots(ncols=2, nrows=2)
 ax1, ax2, ax3, ax4 = axes.ravel()
 

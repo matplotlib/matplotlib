@@ -4,7 +4,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.ticker import MultipleLocator, FuncFormatter
 
-np.random.seed(123)
+np.random.seed(19680801)
 
 X = np.linspace(0.5, 3.5, 100)
 Y1 = 3+np.cos(X)

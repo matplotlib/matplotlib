@@ -2,6 +2,10 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
+# Fixing random state for reproducibility
+np.random.seed(19680801)
+
+
 dt = np.pi / 100.
 fs = 1. / dt
 t = np.arange(0, 8, dt)

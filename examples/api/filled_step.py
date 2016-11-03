@@ -176,8 +176,9 @@ color_cycle = cycler(facecolor=plt.rcParams['axes.prop_cycle'][:4])
 label_cycle = cycler('label', ['set {n}'.format(n=n) for n in range(4)])
 hatch_cycle = cycler('hatch', ['/', '*', '+', '|'])
 
-# make some synthetic data
-np.random.seed(0)
+# Fixing random state for reproducibility
+np.random.seed(19680801)
+
 stack_data = np.random.randn(4, 12250)
 dict_data = OrderedDict(zip((c['label'] for c in label_cycle), stack_data))
 

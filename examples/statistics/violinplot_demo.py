@@ -20,6 +20,10 @@ import random
 import numpy as np
 import matplotlib.pyplot as plt
 
+# Fixing random state for reproducibility
+np.random.seed(19680801)
+
+
 # fake data
 fs = 10  # fontsize
 pos = [1, 2, 4, 5, 7, 8]

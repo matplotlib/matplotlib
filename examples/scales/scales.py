@@ -5,7 +5,9 @@ import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.ticker import NullFormatter
 
-np.random.seed(1)
+# Fixing random state for reproducibility
+np.random.seed(19680801)
+
 # make up some data in the interval ]0, 1[
 y = np.random.normal(loc=0.5, scale=0.4, size=1000)
 y = y[(y > 0) & (y < 1)]

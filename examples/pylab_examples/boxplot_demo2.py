@@ -16,7 +16,10 @@ numDists = 5
 randomDists = ['Normal(1,1)', ' Lognormal(1,1)', 'Exp(1)', 'Gumbel(6,4)',
                'Triangular(2,9,11)']
 N = 500
-np.random.seed(0)
+
+# Fixing random state for reproducibility
+np.random.seed(19680801)
+
 norm = np.random.normal(1, 1, N)
 logn = np.random.lognormal(1, 1, N)
 expo = np.random.exponential(1, N)

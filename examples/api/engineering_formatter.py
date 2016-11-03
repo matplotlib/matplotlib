@@ -7,7 +7,8 @@ import numpy as np
 
 from matplotlib.ticker import EngFormatter
 
-prng = np.random.RandomState(123)
+# Fixing random state for reproducibility
+prng = np.random.RandomState(19680801)
 
 fig, ax = plt.subplots()
 ax.set_xscale('log')

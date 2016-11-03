@@ -1,6 +1,10 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.patches as patches
+
+# Fixing random state for reproducibility
+np.random.seed(19680801)
+
 x, y = np.random.rand(2, 200)
 
 fig, ax = plt.subplots()
