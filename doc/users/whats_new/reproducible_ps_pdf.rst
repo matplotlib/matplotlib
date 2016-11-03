@@ -2,7 +2,7 @@ Reproducible PS and PDF output
 ------------------------------
 
 The ``SOURCE_DATE_EPOCH`` environment variable can now be used to set
-the timestamps value in the PS and PDF outputs. See
+the timestamp value in the PS and PDF outputs. See
 https://reproducible-builds.org/specs/source-date-epoch/
 
 The reproducibility of the output from the PS and PDF backends has so
