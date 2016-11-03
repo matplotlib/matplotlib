@@ -525,7 +525,7 @@ def test_flatiter():
 
 class TestFuncParser(object):
     x_test = np.linspace(0.01, 0.5, 3)
-    validstrings = ['linear', 'quadratic', 'cubic', 'sqrt', 'crt',
+    validstrings = ['linear', 'quadratic', 'cubic', 'sqrt', 'cbrt',
                     'log', 'log10', 'power{1.5}', 'root{2.5}',
                     'log(x+{0.5})', 'log10(x+{0.1})']
     results = [(lambda x: x),

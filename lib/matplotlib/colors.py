@@ -978,7 +978,7 @@ class FuncNorm(Normalize):
             Function to be used for the normalization receiving a single
             parameter, compatible with scalar values and ndarrays.
             Alternatively a string from the list ['linear', 'quadratic',
-            'cubic', 'sqrt', 'crt','log', 'log10', 'power{a}', 'root{a}',
+            'cubic', 'sqrt', 'cbrt','log', 'log10', 'power{a}', 'root{a}',
             'log(x+{a})', 'log10(x+{a})'] can be used, replacing 'a' by a
             number different than 0 when necessary.
         finv : callable, optional
@@ -1236,7 +1236,7 @@ class PiecewiseNorm(FuncNorm):
         1.2 using four intervals:
 
         >>> import matplotlib.colors as colors
-        >>> norm = colors.PiecewiseNorm(flist=['cubic', 'crt', 'cubic', 'crt'],
+        >>> norm = colors.PiecewiseNorm(flist=['cubic', 'cbrt', 'cubic', 'cbrt'],
         >>>                             refpoints_cm=[0.25, 0.5, 0.75],
         >>>                             refpoints_data=[-0.4, 1, 1.2])
 
@@ -1496,12 +1496,12 @@ class MirrorPiecewiseNorm(PiecewiseNorm):
         Obtaining a symmetric amplification of the features around 0:
 
         >>> import matplotlib.colors as colors
-        >>> norm = colors.MirrorPiecewiseNorm(fpos='crt'):
+        >>> norm = colors.MirrorPiecewiseNorm(fpos='cbrt'):
 
         Obtaining an asymmetric amplification of the features around 0.6:
 
         >>> import matplotlib.colors as colors
-        >>> norm = colors.MirrorPiecewiseNorm(fpos='sqrt', fneg='crt',
+        >>> norm = colors.MirrorPiecewiseNorm(fpos='sqrt', fneg='cbrt',
         >>>                                   center_cm=0.35,
         >>>                                   center_data=0.6)
 
@@ -1582,7 +1582,7 @@ class MirrorRootNorm(MirrorPiecewiseNorm):
     to `colors.MirrorPiecewiseNorm(fpos='sqrt')`
 
     `colors.MirrorRootNorm(orderpos=2, orderneg=3)` is equivalent
-    to `colors.MirrorPiecewiseNorm(fpos='sqrt', fneg='crt')`
+    to `colors.MirrorPiecewiseNorm(fpos='sqrt', fneg='cbrt')`
 
     `colors.MirrorRootNorm(orderpos=N1, orderneg=N2)` is equivalent
     to `colors.MirrorPiecewiseNorm(fpos=root{N1}', fneg=root{N2}')`
@@ -1652,7 +1652,7 @@ class RootNorm(FuncNorm):
 
     `colors.RootNorm(order=2)` is equivalent to `colors.FuncNorm(f='sqrt')`
 
-    `colors.RootNorm(order=3)` is equivalent to `colors.FuncNorm(f='crt')`
+    `colors.RootNorm(order=3)` is equivalent to `colors.FuncNorm(f='cbrt')`
 
     `colors.RootNorm(order=N)` is equivalent to `colors.FuncNorm(f='root{N}')`
 

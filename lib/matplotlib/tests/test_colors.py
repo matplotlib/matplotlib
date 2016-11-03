@@ -199,8 +199,8 @@ class TestFuncNorm(object):
 
 class TestPiecewiseNorm(object):
     def test_strings_and_funcs(self):
-        norm = mcolors.PiecewiseNorm(flist=['cubic', 'crt',
-                                            lambda x:x**3, 'crt'],
+        norm = mcolors.PiecewiseNorm(flist=['cubic', 'cbrt',
+                                            lambda x:x**3, 'cbrt'],
                                      finvlist=[None, None,
                                                lambda x:x**(1. / 3), None],
                                      refpoints_cm=[0.2, 0.5, 0.7],
@@ -208,34 +208,34 @@ class TestPiecewiseNorm(object):
         assert_array_equal(norm([-2., -1, 1, 3, 4]), [0., 0.2, 0.5, 0.7, 1.0])
 
     def test_only_strings(self):
-        norm = mcolors.PiecewiseNorm(flist=['cubic', 'crt', 'cubic', 'crt'],
+        norm = mcolors.PiecewiseNorm(flist=['cubic', 'cbrt', 'cubic', 'cbrt'],
                                      refpoints_cm=[0.2, 0.5, 0.7],
                                      refpoints_data=[-1, 1, 3])
         assert_array_equal(norm([-2., -1, 1, 3, 4]), [0., 0.2, 0.5, 0.7, 1.0])
 
     def test_with_vminvmax(self):
-        norm = mcolors.PiecewiseNorm(flist=['cubic', 'crt', 'cubic', 'crt'],
+        norm = mcolors.PiecewiseNorm(flist=['cubic', 'cbrt', 'cubic', 'cbrt'],
                                      refpoints_cm=[0.2, 0.5, 0.7],
                                      refpoints_data=[-1, 1, 3],
                                      vmin=-2., vmax=4.)
         assert_array_equal(norm([-2., -1, 1, 3, 4]), [0., 0.2, 0.5, 0.7, 1.0])
 
     def test_with_vmin(self):
-        norm = mcolors.PiecewiseNorm(flist=['cubic', 'crt', 'cubic', 'crt'],
+        norm = mcolors.PiecewiseNorm(flist=['cubic', 'cbrt', 'cubic', 'cbrt'],
                                      refpoints_cm=[0.2, 0.5, 0.7],
                                      refpoints_data=[-1, 1, 3],
                                      vmin=-2.)
         assert_array_equal(norm([-2., -1, 1, 3, 4]), [0., 0.2, 0.5, 0.7, 1.0])
 
     def test_with_vmax(self):
-        norm = mcolors.PiecewiseNorm(flist=['cubic', 'crt', 'cubic', 'crt'],
+        norm = mcolors.PiecewiseNorm(flist=['cubic', 'cbrt', 'cubic', 'cbrt'],
                                      refpoints_cm=[0.2, 0.5, 0.7],
                                      refpoints_data=[-1, 1, 3],
                                      vmax=4.)
         assert_array_equal(norm([-2., -1, 1, 3, 4]), [0., 0.2, 0.5, 0.7, 1.0])
 
     def test_intermediate_values(self):
-        norm = mcolors.PiecewiseNorm(flist=['cubic', 'crt', 'cubic', 'crt'],
+        norm = mcolors.PiecewiseNorm(flist=['cubic', 'cbrt', 'cubic', 'cbrt'],
                                      refpoints_cm=[0.2, 0.5, 0.7],
                                      refpoints_data=[-1, 1, 3],
                                      vmin=-2., vmax=4.)
@@ -247,7 +247,7 @@ class TestPiecewiseNorm(object):
         assert_array_almost_equal(norm(np.linspace(-0.5, 3.5, 5)), expected)
 
     def test_inverse(self):
-        norm = mcolors.PiecewiseNorm(flist=['cubic', 'crt', 'cubic', 'crt'],
+        norm = mcolors.PiecewiseNorm(flist=['cubic', 'cbrt', 'cubic', 'cbrt'],
                                      refpoints_cm=[0.2, 0.5, 0.7],
                                      refpoints_data=[-1, 1, 3],
                                      vmin=-2., vmax=4.)
@@ -255,7 +255,7 @@ class TestPiecewiseNorm(object):
         assert_array_almost_equal(x, norm.inverse(norm(x)))
 
     def test_ticks(self):
-        norm = mcolors.PiecewiseNorm(flist=['cubic', 'crt', 'cubic', 'crt'],
+        norm = mcolors.PiecewiseNorm(flist=['cubic', 'cbrt', 'cubic', 'cbrt'],
                                      refpoints_cm=[0.2, 0.5, 0.7],
                                      refpoints_data=[-1, 1, 3],
                                      vmin=-2., vmax=4.)
@@ -269,17 +269,17 @@ class TestMirrorPiecewiseNorm(object):
     # Not necessary to test vmin,vmax, as they are just passed to the
     # base class
     def test_defaults_only_fpos(self):
-        norm = mcolors.MirrorPiecewiseNorm(fpos='crt')
+        norm = mcolors.MirrorPiecewiseNorm(fpos='cbrt')
         assert_array_equal(norm([-2, 0., 1]), [0., 0.5, 1.0])
 
     def test_fposfneg_refpoint_data_cm(self):
-        norm = mcolors.MirrorPiecewiseNorm(fpos='crt', fneg='sqrt',
+        norm = mcolors.MirrorPiecewiseNorm(fpos='cbrt', fneg='sqrt',
                                            center_cm=0.35,
                                            center_data=0.6)
         assert_array_equal(norm([-2, 0.6, 1]), [0., 0.35, 1.0])
 
     def test_fposfneg_refpoint_data(self):
-        norm = mcolors.MirrorPiecewiseNorm(fpos='crt', fneg='sqrt',
+        norm = mcolors.MirrorPiecewiseNorm(fpos='cbrt', fneg='sqrt',
                                            center_data=0.6)
         assert_array_equal(norm([-2, 0.6, 1]), [0., 0.5, 1.0])
 
@@ -291,13 +291,13 @@ class TestMirrorPiecewiseNorm(object):
     def test_fpos_lambdafunc_fneg_string(self):
         norm = mcolors.MirrorPiecewiseNorm(fpos=lambda x: x**2,
                                            fposinv=lambda x: x**0.5,
-                                           fneg='crt')
+                                           fneg='cbrt')
         assert_array_equal(norm([-2, 0., 1]), [0., 0.5, 1.0])
 
     def test_intermediate_values(self):
         norm = mcolors.MirrorPiecewiseNorm(fpos=lambda x: x**2,
                                            fposinv=lambda x: x**0.5,
-                                           fneg='crt')
+                                           fneg='cbrt')
         expected = [0.,
                     0.1606978,
                     0.52295918,

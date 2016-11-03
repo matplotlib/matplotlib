@@ -2709,7 +2709,7 @@ class _StringFuncParser(object):
              'quadratic': (lambda x: x**2, lambda x: x**(1. / 2), True),
              'cubic': (lambda x: x**3, lambda x: x**(1. / 3), True),
              'sqrt': (lambda x: x**(1. / 2), lambda x: x**2, True),
-             'crt': (lambda x: x**(1. / 3), lambda x: x**3, True),
+             'cbrt': (lambda x: x**(1. / 3), lambda x: x**3, True),
              'log10': (lambda x: np.log10(x), lambda x: (10**(x)), False),
              'log': (lambda x: np.log(x), lambda x: (np.exp(x)), False),
              'power{a}': (lambda x, a: x**a,
