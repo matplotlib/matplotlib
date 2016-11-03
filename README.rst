@@ -56,6 +56,4 @@ You've worked out a way to fix it – even better!
 
 You want to tell us about it – best of all!
 
-The easiest way to contribute is through GitHub; if interested in doing so, browse the `development workflow <http://matplotlib.org/devel/gitwash/development_workflow.html>`_ guide.
-
-If you don't want to submit your changes via Github, take a look at the guide to `making patches <http://matplotlib.org/devel/gitwash/patching.html>`_.
+Start at the `contributing guide <http://matplotlib.org/devdocs/devel/contributing.html>`_!
