@@ -17,7 +17,7 @@ and in most places in the documentation refers to the *axes*
 `part of a figure <http://matplotlib.org/faq/usage_faq.html#parts-of-a-figure>`__
 and not the strict mathematical term for more than one axis).
 
-.. plot:: pyplots/pyplot_simple.py
+.. plot:: mpl_examples/pyplots/pyplot_simple.py
    :include-source:
 
 You may be wondering why the x-axis ranges from 0-3 and the y-axis
@@ -41,7 +41,7 @@ MATLAB, and you concatenate a color string with a line style string.
 The default format string is 'b-', which is a solid blue line.  For
 example, to plot the above with red circles, you would issue
 
-.. plot:: pyplots/pyplot_formatstr.py
+.. plot:: mpl_examples/pyplots/pyplot_formatstr.py
    :include-source:
 
 See the :func:`~matplotlib.pyplot.plot` documentation for a complete
@@ -57,7 +57,7 @@ converted to numpy arrays internally.  The example below illustrates a
 plotting several lines with different format styles in one command
 using arrays.
 
-.. plot:: pyplots/pyplot_three.py
+.. plot:: mpl_examples/pyplots/pyplot_three.py
    :include-source:
 
 .. _controlling-line-properties:
@@ -164,7 +164,7 @@ current axes (a :class:`matplotlib.axes.Axes` instance), and
 to worry about this, because it is all taken care of behind the
 scenes.  Below is a script to create two subplots.
 
-.. plot:: pyplots/pyplot_two_subplots.py
+.. plot:: mpl_examples/pyplots/pyplot_two_subplots.py
    :include-source:
 
 The :func:`~matplotlib.pyplot.figure` command here is optional because
@@ -231,7 +231,7 @@ an arbitrary location, and the :func:`~matplotlib.pyplot.xlabel`,
 are used to add text in the indicated locations (see :ref:`text-intro`
 for a more detailed example)
 
-.. plot:: pyplots/pyplot_text.py
+.. plot:: mpl_examples/pyplots/pyplot_text.py
    :include-source:
 
 
@@ -277,7 +277,7 @@ two points to consider: the location being annotated represented by
 the argument ``xy`` and the location of the text ``xytext``.  Both of
 these arguments are ``(x,y)`` tuples.
 
-.. plot:: pyplots/pyplot_annotate.py
+.. plot:: mpl_examples/pyplots/pyplot_annotate.py
    :include-source:
 
 In this basic example, both the ``xy`` (arrow tip) and ``xytext``
@@ -300,7 +300,7 @@ of magnitude. Changing the scale of an axis is easy:
 An example of four plots with the same data and different scales for the y axis
 is shown below.
 
-.. plot:: pyplots/pyplot_scales.py
+.. plot:: mpl_examples/pyplots/pyplot_scales.py
    :include-source:
 
 It is also possible to add your own scale, see :ref:`adding-new-scales` for
