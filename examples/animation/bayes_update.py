@@ -51,6 +51,10 @@ class UpdateDist(object):
         self.line.set_data(self.x, y)
         return self.line,
 
+# Fixing random state for reproducibility
+np.random.seed(19680801)
+
+
 fig, ax = plt.subplots()
 ud = UpdateDist(ax, prob=0.7)
 anim = FuncAnimation(fig, ud, frames=np.arange(100), init_func=ud.init,

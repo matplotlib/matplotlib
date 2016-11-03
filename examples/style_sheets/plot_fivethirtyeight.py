@@ -9,6 +9,9 @@ import numpy as np
 
 x = np.linspace(0, 10)
 
+# Fixing random state for reproducibility
+np.random.seed(19680801)
+
 with plt.style.context('fivethirtyeight'):
     plt.plot(x, np.sin(x) + x + np.random.randn(50))
     plt.plot(x, np.sin(x) + 0.5 * x + np.random.randn(50))

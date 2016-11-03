@@ -18,7 +18,9 @@ methods = [None, 'none', 'nearest', 'bilinear', 'bicubic', 'spline16',
            'spline36', 'hanning', 'hamming', 'hermite', 'kaiser', 'quadric',
            'catrom', 'gaussian', 'bessel', 'mitchell', 'sinc', 'lanczos']
 
-np.random.seed(0)
+# Fixing random state for reproducibility
+np.random.seed(19680801)
+
 grid = np.random.rand(4, 4)
 
 fig, axes = plt.subplots(3, 6, figsize=(12, 6),

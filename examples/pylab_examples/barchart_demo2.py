@@ -13,6 +13,10 @@ import matplotlib.pyplot as plt
 from matplotlib.ticker import MaxNLocator
 from collections import namedtuple
 
+# Fixing random state for reproducibility
+np.random.seed(19680801)
+
+
 Student = namedtuple('Student', ['name', 'grade', 'gender'])
 Score = namedtuple('Score', ['score', 'percentile'])
 

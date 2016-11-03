@@ -4,6 +4,8 @@ Demo of spines offset from the axes (a.k.a. "dropped spines").
 import numpy as np
 import matplotlib.pyplot as plt
 
+# Fixing random state for reproducibility
+np.random.seed(19680801)
 
 fig, ax = plt.subplots()
 

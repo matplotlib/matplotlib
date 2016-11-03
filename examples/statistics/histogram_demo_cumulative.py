@@ -39,7 +39,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib import mlab
 
-np.random.seed(0)
+np.random.seed(19680801)
 
 mu = 200
 sigma = 25

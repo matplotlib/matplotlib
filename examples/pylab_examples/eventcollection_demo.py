@@ -7,8 +7,10 @@ import matplotlib.pyplot as plt
 from matplotlib.collections import EventCollection
 import numpy as np
 
+# Fixing random state for reproducibility
+np.random.seed(19680801)
+
 # create random data
-np.random.seed(50)
 xdata = np.random.random([2, 10])
 
 # split the data into two parts

@@ -24,7 +24,7 @@ http://docs.astropy.org/en/stable/visualization/histogram.html
 import numpy as np
 import matplotlib.pyplot as plt
 
-np.random.seed(0)
+np.random.seed(19680801)
 number_of_bins = 20
 
 # An example of three data sets to compare

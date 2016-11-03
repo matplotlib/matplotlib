@@ -44,6 +44,11 @@ def make_yaxis(ax, xloc=0, offset=0.05, **props):
 
 
 props = dict(color='black', linewidth=2, markeredgewidth=2)
+
+# Fixing random state for reproducibility
+np.random.seed(19680801)
+
+
 x = np.arange(200.)
 y = np.sin(2*np.pi*x/200.) + np.random.rand(200) - 0.5
 fig = plt.figure(facecolor='white')

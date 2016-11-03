@@ -13,6 +13,9 @@ matplotlib.use('GtkAgg')
 import matplotlib.pyplot as plt
 import gobject
 
+# Fixing random state for reproducibility
+np.random.seed(19680801)
+
 
 class ProcessPlotter(object):
     def __init__(self):

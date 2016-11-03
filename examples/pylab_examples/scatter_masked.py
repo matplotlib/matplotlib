@@ -1,6 +1,10 @@
 import matplotlib.pyplot as plt
 import numpy as np
 
+# Fixing random state for reproducibility
+np.random.seed(19680801)
+
+
 N = 100
 r0 = 0.6
 x = 0.9*np.random.rand(N)

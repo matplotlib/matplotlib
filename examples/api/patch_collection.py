@@ -4,6 +4,9 @@ from matplotlib.patches import Circle, Wedge, Polygon
 from matplotlib.collections import PatchCollection
 import matplotlib.pyplot as plt
 
+# Fixing random state for reproducibility
+np.random.seed(19680801)
+
 
 fig, ax = plt.subplots()
 

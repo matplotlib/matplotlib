@@ -1,7 +1,8 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-np.random.seed(0)
+# Fixing random state for reproducibility
+np.random.seed(19680801)
 
 
 def layers(n, m):

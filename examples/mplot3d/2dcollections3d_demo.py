@@ -17,6 +17,10 @@ ax.plot(x, y, zs=0, zdir='z', label='curve in (x,y)')
 
 # Plot scatterplot data (20 2D points per colour) on the x and z axes.
 colors = ('r', 'g', 'b', 'k')
+
+# Fixing random state for reproducibility
+np.random.seed(19680801)
+
 x = np.random.sample(20*len(colors))
 y = np.random.sample(20*len(colors))
 c_list = []

@@ -42,6 +42,8 @@ plt.rcParams['svg.embed_char_paths'] = 'none'
 # space with ns0.
 ET.register_namespace("", "http://www.w3.org/2000/svg")
 
+# Fixing random state for reproducibility
+np.random.seed(19680801)
 
 # --- Create histogram, legend and title ---
 plt.figure()
