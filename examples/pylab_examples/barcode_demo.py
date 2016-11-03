@@ -1,6 +1,10 @@
 import matplotlib.pyplot as plt
 import numpy as np
 
+# Fixing random state for reproducibility
+np.random.seed(19680801)
+
+
 # the bar
 x = np.where(np.random.rand(500) > 0.7, 1.0, 0.0)
 

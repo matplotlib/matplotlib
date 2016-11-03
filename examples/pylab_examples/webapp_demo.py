@@ -22,6 +22,9 @@ from matplotlib.backends.backend_agg import FigureCanvasAgg
 from matplotlib.figure import Figure
 import numpy as np
 
+# Fixing random state for reproducibility
+np.random.seed(19680801)
+
 
 def make_fig():
     """

@@ -11,6 +11,10 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 
+# Fixing random state for reproducibility
+np.random.seed(19680801)
+
+
 fig, ax = plt.subplots()
 line, = ax.plot(np.random.rand(10))
 ax.set_ylim(0, 1)

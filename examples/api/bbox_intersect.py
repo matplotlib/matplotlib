@@ -3,6 +3,10 @@ import matplotlib.pyplot as plt
 from matplotlib.transforms import Bbox
 from matplotlib.path import Path
 
+# Fixing random state for reproducibility
+np.random.seed(19680801)
+
+
 left, bottom, width, height = (-1, -1, 2, 2)
 rect = plt.Rectangle((left, bottom), width, height, facecolor="#aaaaaa")
 

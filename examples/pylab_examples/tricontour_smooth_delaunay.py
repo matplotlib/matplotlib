@@ -59,7 +59,7 @@ min_circle_ratio = .01  # Minimum circle ratio - border triangles with circle
                         # all triangles.
 
 # Random points
-random_gen = np.random.mtrand.RandomState(seed=127260)
+random_gen = np.random.RandomState(seed=19680801)
 x_test = random_gen.uniform(-1., 1., size=n_test)
 y_test = random_gen.uniform(-1., 1., size=n_test)
 z_test = experiment_res(x_test, y_test)

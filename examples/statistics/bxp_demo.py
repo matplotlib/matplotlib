@@ -19,7 +19,7 @@ import matplotlib.pyplot as plt
 import matplotlib.cbook as cbook
 
 # fake data
-np.random.seed(937)
+np.random.seed(19680801)
 data = np.random.lognormal(size=(37, 4), mean=1.5, sigma=1.75)
 labels = list('ABCD')
 

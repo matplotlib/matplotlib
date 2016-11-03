@@ -18,6 +18,9 @@ def update_line(num, data, line):
 
 fig1 = plt.figure()
 
+# Fixing random state for reproducibility
+np.random.seed(19680801)
+
 data = np.random.rand(2, 25)
 l, = plt.plot([], [], 'r-')
 plt.xlim(0, 1)

@@ -12,6 +12,10 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 
+# Fixing random state for reproducibility
+np.random.seed(19680801)
+
+
 # Create new Figure with black background
 fig = plt.figure(figsize=(8, 8), facecolor='black')
 

@@ -12,6 +12,10 @@ fig2 = plt.figure()
 ax1 = fig1.add_subplot(111)
 ax2 = fig2.add_subplot(111, sharex=ax1, sharey=ax1)
 
+# Fixing random state for reproducibility
+np.random.seed(19680801)
+
+
 ax1.plot(np.random.rand(100), 'o')
 ax2.plot(np.random.rand(100), 'o')
 

@@ -44,6 +44,9 @@ class MyLine(lines.Line2D):
         lines.Line2D.draw(self, renderer)
         self.text.draw(renderer)
 
+# Fixing random state for reproducibility
+np.random.seed(19680801)
+
 
 fig, ax = plt.subplots()
 x, y = np.random.rand(2, 20)

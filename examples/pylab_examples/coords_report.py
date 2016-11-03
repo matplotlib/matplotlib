@@ -7,6 +7,9 @@ import numpy as np
 def millions(x):
     return '$%1.1fM' % (x*1e-6)
 
+# Fixing random state for reproducibility
+np.random.seed(19680801)
+
 x = np.random.rand(20)
 y = 1e7*np.random.rand(20)
 

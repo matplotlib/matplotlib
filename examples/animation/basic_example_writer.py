@@ -20,6 +20,10 @@ def update_line(num, data, line):
     line.set_data(data[..., :num])
     return line,
 
+# Fixing random state for reproducibility
+np.random.seed(19680801)
+
+
 # Set up formatting for the movie files
 Writer = animation.writers['ffmpeg']
 writer = Writer(fps=15, metadata=dict(artist='Me'), bitrate=1800)

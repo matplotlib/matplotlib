@@ -19,8 +19,9 @@ def fakeBootStrapper(n):
 
     return med, CI
 
+# Fixing random state for reproducibility
+np.random.seed(19680801)
 
-np.random.seed(2)
 inc = 0.1
 e1 = np.random.normal(0, 1, size=(500,))
 e2 = np.random.normal(0, 1, size=(500,))

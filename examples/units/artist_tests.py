@@ -20,6 +20,9 @@ fig, ax = plt.subplots()
 ax.xaxis.set_units(cm)
 ax.yaxis.set_units(cm)
 
+# Fixing random state for reproducibility
+np.random.seed(19680801)
+
 if 0:
     # test a line collection
     # Not supported at present.

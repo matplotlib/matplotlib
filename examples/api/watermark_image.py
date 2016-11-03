@@ -9,6 +9,10 @@ import matplotlib.cbook as cbook
 import matplotlib.image as image
 import matplotlib.pyplot as plt
 
+# Fixing random state for reproducibility
+np.random.seed(19680801)
+
+
 datafile = cbook.get_sample_data('logo2.png', asfileobj=False)
 print('loading %s' % datafile)
 im = image.imread(datafile)

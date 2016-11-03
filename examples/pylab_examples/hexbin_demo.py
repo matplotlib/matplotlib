@@ -8,7 +8,9 @@ below, try substituting 'scatter' for 'hexbin'.
 import numpy as np
 import matplotlib.pyplot as plt
 
-np.random.seed(0)
+# Fixing random state for reproducibility
+np.random.seed(19680801)
+
 n = 100000
 x = np.random.standard_normal(n)
 y = 2.0 + 3.0 * x + 4.0 * np.random.standard_normal(n)

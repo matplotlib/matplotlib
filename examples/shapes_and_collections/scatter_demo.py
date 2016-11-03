@@ -4,6 +4,9 @@ Simple demo of a scatter plot.
 import numpy as np
 import matplotlib.pyplot as plt
 
+# Fixing random state for reproducibility
+np.random.seed(19680801)
+
 
 N = 50
 x = np.random.rand(N)

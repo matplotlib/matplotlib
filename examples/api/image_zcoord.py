@@ -6,6 +6,10 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.cm as cm
 
+# Fixing random state for reproducibility
+np.random.seed(19680801)
+
+
 X = 10*np.random.rand(5, 3)
 
 fig, ax = plt.subplots()

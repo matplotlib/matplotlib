@@ -20,7 +20,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 # fake data
-np.random.seed(937)
+np.random.seed(19680801)
 data = np.random.lognormal(size=(37, 4), mean=1.5, sigma=1.75)
 labels = list('ABCD')
 fs = 10  # fontsize
