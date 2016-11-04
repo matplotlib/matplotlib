@@ -168,23 +168,25 @@ class SubplotParams(object):
 
         The following attributes are available
 
-        *left*  : 0.125
+        left  : 0.125
             The left side of the subplots of the figure
 
-        *right* : 0.9
+        right : 0.9
             The right side of the subplots of the figure
 
-        *bottom* : 0.1
+        bottom : 0.1
             The bottom of the subplots of the figure
 
-        *top* : 0.9
+        top : 0.9
             The top of the subplots of the figure
 
-        *wspace* : 0.2
-            The amount of width reserved for blank space between subplots
+        wspace : 0.2
+            The amount of width reserved for blank space between subplots,
+            expressed as a fraction of the average axis width
 
-        *hspace* : 0.2
-            The amount of height reserved for white space between subplots
+        hspace : 0.2
+            The amount of height reserved for white space between subplots,
+            expressed as a fraction of the average axis height
         """
 
         self.validate = True
@@ -510,16 +512,16 @@ class Figure(Artist):
         kwargs are :class:`matplotlib.text.Text` properties.  Using figure
         coordinates, the defaults are:
 
-          *x* : 0.5
+          x : 0.5
             The x location of the text in figure coords
 
-          *y* : 0.98
+          y : 0.98
             The y location of the text in figure coords
 
-          *horizontalalignment* : 'center'
+          horizontalalignment : 'center'
             The horizontal alignment of the text
 
-          *verticalalignment* : 'top'
+          verticalalignment : 'top'
             The vertical alignment of the text
 
         If the `fontproperties` keyword argument is given then the
@@ -1189,67 +1191,67 @@ class Figure(Artist):
 
         Keyword arguments:
 
-          *prop*: [ *None* | FontProperties | dict ]
+          prop: [ *None* | FontProperties | dict ]
             A :class:`matplotlib.font_manager.FontProperties`
             instance. If *prop* is a dictionary, a new instance will be
             created with *prop*. If *None*, use rc settings.
 
-          *numpoints*: integer
+          numpoints: integer
             The number of points in the legend line, default is 4
 
-          *scatterpoints*: integer
+          scatterpoints: integer
             The number of points in the legend line, default is 4
 
-          *scatteryoffsets*: list of floats
+          scatteryoffsets: list of floats
             a list of yoffsets for scatter symbols in legend
 
-          *markerscale*: [ *None* | scalar ]
+          markerscale: [ *None* | scalar ]
             The relative size of legend markers vs. original. If *None*, use rc
             settings.
 
-          *markerfirst*: [ *True* | *False* ]
+          markerfirst: [ *True* | *False* ]
             if *True*, legend marker is placed to the left of the legend label
             if *False*, legend marker is placed to the right of the legend
             label
 
-          *frameon*: [ *None* | bool ]
+          frameon: [ *None* | bool ]
             Control whether the legend should be drawn on a patch (frame).
             Default is *None* which will take the value from the
             ``legend.frameon`` :data:`rcParam<matplotlib.rcParams>`.
 
-          *fancybox*: [ *None* | *False* | *True* ]
+          fancybox: [ *None* | *False* | *True* ]
             if *True*, draw a frame with a round fancybox.  If *None*, use rc
 
-          *shadow*: [ *None* | *False* | *True* ]
+          shadow: [ *None* | *False* | *True* ]
             If *True*, draw a shadow behind legend. If *None*, use rc settings.
 
-          *framealpha*: [ *None* | float ]
+          framealpha: [ *None* | float ]
             Control the alpha transparency of the legend's background.
             Default is *None* which will take the value from the
             ``legend.framealpha`` :data:`rcParam<matplotlib.rcParams>`.
 
-          *facecolor*: [ *None* | "inherit" | a color spec ]
+          facecolor: [ *None* | "inherit" | a color spec ]
             Control the legend's background color.
             Default is *None* which will take the value from the
             ``legend.facecolor`` :data:`rcParam<matplotlib.rcParams>`.
             If ``"inherit"``, it will take the ``axes.facecolor``
             :data:`rcParam<matplotlib.rcParams>`.
 
-          *edgecolor*: [ *None* | "inherit" | a color spec ]
+          edgecolor: [ *None* | "inherit" | a color spec ]
             Control the legend's background patch edge color.
             Default is *None* which will take the value from the
             ``legend.edgecolor`` :data:`rcParam<matplotlib.rcParams>`.
             If ``"inherit"``, it will take the ``axes.edgecolor``
             :data:`rcParam<matplotlib.rcParams>`.
 
-          *ncol* : integer
+          ncol : integer
             number of columns. default is 1
 
-          *mode* : [ "expand" | *None* ]
+          mode : [ "expand" | *None* ]
             if mode is "expand", the legend will be horizontally expanded
             to fill the axes area (or *bbox_to_anchor*)
 
-          *title* : string
+          title : string
             the legend title
 
         Padding and spacing between various elements use following keywords
@@ -1713,13 +1715,13 @@ class Figure(Artist):
 
         Parameters:
 
-          *pad* : float
+          pad : float
             padding between the figure edge and the edges of subplots,
             as a fraction of the font-size.
-          *h_pad*, *w_pad* : float
+          h_pad, w_pad : float
             padding (height/width) between edges of adjacent subplots.
             Defaults to `pad_inches`.
-          *rect* : if rect is given, it is interpreted as a rectangle
+          rect : if rect is given, it is interpreted as a rectangle
             (left, bottom, right, top) in the normalized figure
             coordinate that the whole subplots area (including
             labels) will fit into. Default is (0, 0, 1, 1).
