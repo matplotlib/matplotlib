@@ -392,6 +392,12 @@ def _parse_args(*args):
     return X, Y, U, V, C
 
 
+def _check_consistent_shapes(*arrays):
+    all_shapes = set(a.shape for a in arrays)
+    if len(all_shapes) != 1:
+        raise ValueError('The shapes of the passed in arrays do not match.')
+
+
 class Quiver(mcollections.PolyCollection):
     """
     Specialized PolyCollection for arrows.
@@ -1124,9 +1130,11 @@ class Barbs(mcollections.PolyCollection):
             x, y, u, v, c = delete_masked_points(self.x.ravel(),
                                                  self.y.ravel(),
                                                  self.u, self.v, c)
+            _check_consistent_shapes(x, y, u, v, c)
         else:
             x, y, u, v = delete_masked_points(self.x.ravel(), self.y.ravel(),
                                               self.u, self.v)
+            _check_consistent_shapes(x, y, u, v)
 
         magnitude = np.hypot(u, v)
         flags, barbs, halves, empty = self._find_tails(magnitude,
@@ -1151,9 +1159,9 @@ class Barbs(mcollections.PolyCollection):
 
     def set_offsets(self, xy):
         """
-        Set the offsets for the barb polygons.  This saves the offets passed in
-        and actually sets version masked as appropriate for the existing U/V
-        data. *offsets* should be a sequence.
+        Set the offsets for the barb polygons.  This saves the offsets passed
+        in and actually sets version masked as appropriate for the existing
+        U/V data. *offsets* should be a sequence.
 
         ACCEPTS: sequence of pairs of floats
         """
@@ -1161,6 +1169,7 @@ class Barbs(mcollections.PolyCollection):
         self.y = xy[:, 1]
         x, y, u, v = delete_masked_points(self.x.ravel(), self.y.ravel(),
                                           self.u, self.v)
+        _check_consistent_shapes(x, y, u, v)
         xy = np.hstack((x[:, np.newaxis], y[:, np.newaxis]))
         mcollections.PolyCollection.set_offsets(self, xy)
         self.stale = True
