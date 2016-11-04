@@ -1242,8 +1242,10 @@ def subplots_adjust(*args, **kwargs):
       right = 0.9    # the right side of the subplots of the figure
       bottom = 0.1   # the bottom of the subplots of the figure
       top = 0.9      # the top of the subplots of the figure
-      wspace = 0.2   # the amount of width reserved for blank space between subplots
-      hspace = 0.2   # the amount of height reserved for white space between subplots
+      wspace = 0.2   # the amount of width reserved for blank space between subplots,
+                     # expressed as a fraction of the average axis width
+      hspace = 0.2   # the amount of height reserved for white space between subplots,
+                     # expressed as a fraction of the average axis height
 
     The actual defaults are controlled by the rc file
     """

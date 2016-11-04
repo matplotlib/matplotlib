@@ -449,8 +449,10 @@ backend      : $TEMPLATE_BACKEND
 #figure.subplot.right   : 0.9    # the right side of the subplots of the figure
 #figure.subplot.bottom  : 0.11    # the bottom of the subplots of the figure
 #figure.subplot.top     : 0.88    # the top of the subplots of the figure
-#figure.subplot.wspace  : 0.2    # the amount of width reserved for blank space between subplots
-#figure.subplot.hspace  : 0.2    # the amount of height reserved for white space between subplots
+#figure.subplot.wspace  : 0.2    # the amount of width reserved for blank space between subplots,
+                                 # expressed as a fraction of the average axis width
+#figure.subplot.hspace  : 0.2    # the amount of height reserved for white space between subplots,
+                                 # expressed as a fraction of the average axis height
 
 
 ### IMAGES
