@@ -1,8 +1,6 @@
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
-from matplotlib.externals import six
-
 from mpl_toolkits.axes_grid1.parasite_axes import \
      subplot_class_factory, \
      parasite_axes_class_factory, parasite_axes_auxtrans_class_factory, \
