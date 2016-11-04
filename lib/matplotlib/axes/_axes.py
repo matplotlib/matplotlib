@@ -965,6 +965,8 @@ or tuple of floats
         xmin = self.convert_xunits(xmin)
         xmax = self.convert_xunits(xmax)
 
+        y, xmin, xmax = cbook.delete_masked_points(y, xmin, xmax)
+
         if not iterable(y):
             y = [y]
         if not iterable(xmin):
@@ -973,20 +975,19 @@ or tuple of floats
             xmax = [xmax]
 
         y = np.ravel(y)
-
         xmin = np.resize(xmin, y.shape)
         xmax = np.resize(xmax, y.shape)
 
         verts = [((thisxmin, thisy), (thisxmax, thisy))
                  for thisxmin, thisxmax, thisy in zip(xmin, xmax, y)]
-        coll = mcoll.LineCollection(verts, colors=colors,
-                                    linestyles=linestyles, label=label)
-        self.add_collection(coll, autolim=False)
-        coll.update(kwargs)
+        lines = mcoll.LineCollection(verts, colors=colors,
+                                     linestyles=linestyles, label=label)
+        self.add_collection(lines, autolim=False)
+        lines.update(kwargs)
 
         if len(y) > 0:
-            minx = min(xmin.min(), xmax.min())
-            maxx = max(xmin.max(), xmax.max())
+            minx = np.min([xmin.min(), xmax.min()])
+            maxx = np.max([xmin.max(), xmax.max()])
             miny = y.min()
             maxy = y.max()
 
@@ -995,7 +996,7 @@ or tuple of floats
             self.update_datalim(corners)
             self.autoscale_view()
 
-        return coll
+        return lines
 
     @_preprocess_data(replace_names=["x", "ymin", "ymax", "colors"],
                          label_namer="x")
@@ -1046,6 +1047,8 @@ or tuple of floats
         ymin = self.convert_yunits(ymin)
         ymax = self.convert_yunits(ymax)
 
+        x, ymin, ymax = cbook.delete_masked_points(x, ymin, ymax)
+
         if not iterable(x):
             x = [x]
         if not iterable(ymin):
@@ -1060,23 +1063,22 @@ or tuple of floats
         verts = [((thisx, thisymin), (thisx, thisymax))
                  for thisx, thisymin, thisymax in zip(x, ymin, ymax)]
         #print 'creating line collection'
-        coll = mcoll.LineCollection(verts, colors=colors,
-                                    linestyles=linestyles, label=label)
-        self.add_collection(coll, autolim=False)
-        coll.update(kwargs)
+        lines = mcoll.LineCollection(verts, colors=colors,
+                                     linestyles=linestyles, label=label)
+        self.add_collection(lines, autolim=False)
+        lines.update(kwargs)
 
         if len(x) > 0:
-            minx = min(x)
-            maxx = max(x)
-
-            miny = min(min(ymin), min(ymax))
-            maxy = max(max(ymin), max(ymax))
+            minx = x.min()
+            maxx = x.max()
+            miny = np.min([ymin.min(), ymax.min()])
+            maxy = np.max([ymin.max(), ymax.max()])
 
             corners = (minx, miny), (maxx, maxy)
             self.update_datalim(corners)
             self.autoscale_view()
 
-        return coll
+        return lines
 
     @_preprocess_data(replace_names=["positions", "lineoffsets",
                                         "linelengths", "linewidths",
