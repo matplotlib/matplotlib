@@ -182,10 +182,12 @@ class SubplotParams(object):
             The top of the subplots of the figure
 
         *wspace* : 0.2
-            The amount of width reserved for blank space between subplots
+            The amount of width reserved for blank space between subplots,
+            expressed as a fraction of the average axis width
 
         *hspace* : 0.2
-            The amount of height reserved for white space between subplots
+            The amount of height reserved for white space between subplots,
+            expressed as a fraction of the average axis height
         """
 
         self.validate = True
