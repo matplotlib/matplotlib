@@ -495,7 +495,7 @@ class FigureManagerGTK3(FigureManagerBase):
 
     def _get_toolmanager(self):
         # must be initialised after toolbar has been setted
-        if rcParams['toolbar'] != 'toolbar2':
+        if rcParams['toolbar'] == 'toolmanager':
             toolmanager = ToolManager(self.canvas.figure)
         else:
             toolmanager = None
