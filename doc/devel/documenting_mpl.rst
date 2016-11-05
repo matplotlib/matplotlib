@@ -281,7 +281,7 @@ script, this will be done automatically at build time to ensure that
 the code that is included runs and produces the advertised figure.
 
 The path should be relative to the ``doc`` directory.  Any plots
-specific to the documentation should be added to the ``doc/pyplots``
+specific to the documentation should be added to the ``doc/mpl_examples/pyplots``
 directory and committed to git.  Plots from the ``examples`` directory
 may be referenced through the symlink ``mpl_examples`` in the ``doc``
 directory.  e.g.::
@@ -310,7 +310,7 @@ git. Please also add a line to the README in doc/pyplots for any additional
 requirements necessary to generate a new figure. Once these steps have been
 taken, these figures can be included in the usual way::
 
-   .. plot:: pyplots/tex_unicode_demo.py
+   .. plot:: mpl_examples/pyplots/tex_unicode_demo.py
       :include-source:
 
 Examples
