@@ -2605,20 +2605,57 @@ LABELS_CMAP = ListedColormap(['white', 'red', 'dodgerblue', 'gold',
 
 
 class Painter(_SelectorWidget):
-
-    """Interactive paint tool that is connected to a single
-    :class:`~matplotlib.axes.Axes`.
     """
-    def __init__(self, ax, on_select=None, on_motion=None,
-                 overlay_props=None, cursor_props=None, radius=5,
-                 useblit=True, button=None, state_modifier_keys=None):
-        """Initialize the tool.
-        %(BaseInteractiveToolInit)s
+    Paint regions on an axes.
+
+    For the widget to remain responsive you must keep a reference to it.
+
+    Example usage::
+
+        import numpy as np
+        import matplotlib.pyplot as plt
+        from matplotlib.widgets import Painter
+
+        data = np.random.rand(100, 2)
+        data[:, 1] *= 2
+
+        fig, ax = plt.subplots()
+        pts = ax.scatter(data[:, 0], data[:, 1], s=80)
+
+        def test(x, y):
+            print(x, y)
+
+        p = Painter(ax, test)
+        plt.show()
+    """
+
+    def __init__(self, ax, on_select=None, overlay_props=None,
+                 cursor_props=None, radius=5, cmap=LABELS_CMAP,
+                 useblit=True, button=None):
+        """
+        Parameters:
+
+        *ax* : :class:`~matplotlib.axes.Axes`
+            The parent axes for the widget
+        *on_select* : function
+           A callback for when a region is painted. Called with the
+           (x, y) coordinates of the region.
+        *overlay_props* : dict
+           The properties to apply to the overlay.
+        *cursor_props* : ditc
+            - The properties to apply to the cursor.
+        *radius* : int
+           - The radius of the cursor in pixels.
+        *cmap* : :class:~matplotlib.colorls.ListedColormap`
+            - The colormap to use for the cursors.
+        *useblit* : bool
+           - Whether to use blitting.
+        *button* : list
+            The button numbers supported for the tool (defaults to [1, 2, 3])
         """
         super(Painter, self).__init__(ax, on_select,
-            useblit=useblit, button=button,
-            state_modifier_keys=state_modifier_keys)
-        self.cmap = LABELS_CMAP
+            useblit=useblit, button=button)
+        self.cmap = cmap
         self._previous = None
         self._overlay = None
         self._overlay_plot = None
@@ -2659,6 +2696,7 @@ class Painter(_SelectorWidget):
 
     @property
     def overlay(self):
+        """The paint overlay image"""
         return self._overlay
 
     @overlay.setter
@@ -2679,6 +2717,7 @@ class Painter(_SelectorWidget):
 
     @property
     def label(self):
+        """The label index"""
         return self._label
 
     @label.setter
@@ -2690,6 +2729,7 @@ class Painter(_SelectorWidget):
 
     @property
     def radius(self):
+        """The label radius in pixels"""
         return self._radius
 
     @radius.setter
@@ -2713,6 +2753,7 @@ class Painter(_SelectorWidget):
         if event.button and event.button in self.validButtons:
             self._update_overlay(event.x, event.y)
         self.update()
+        self.onselect(event.xdata, event.ydata)
 
     def _release(self, event):
         pass
