@@ -18,7 +18,7 @@ if __name__ == '__main__':
 
     extra_args = []
 
-    parser = argparse.ArgumentParser()
+    parser = argparse.ArgumentParser(add_help=False)
     parser.add_argument('--no-pep8', action='store_true',
                         help='Run all tests except PEP8 testing')
     parser.add_argument('--pep8', action='store_true',
