@@ -930,6 +930,7 @@ defaultParams = {
     'patch.antialiased': [True, validate_bool],     # antialiased (no jaggies)
 
     ## hatch props
+    'hatch.color': ['k', validate_color],
     'hatch.linewidth': [1.0, validate_float],
 
     ## Histogram properties
