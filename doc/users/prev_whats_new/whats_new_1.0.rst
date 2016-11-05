@@ -82,7 +82,7 @@ supporting mixing of 2D and 3D graphs in the same figure, and/or
 multiple 3D graphs in a single figure, using the "projection" keyword
 argument to add_axes or add_subplot.  Thanks Ben Root.
 
-.. plot:: pyplots/whats_new_1_subplot3d.py
+.. plot:: mpl_examples/pyplots/whats_new_1_subplot3d.py
 
 tick_params
 ------------

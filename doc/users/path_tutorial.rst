@@ -184,4 +184,4 @@ All that remains is to create the path, attach it to a
 
 Here is the result
 
-.. plot:: pyplots/compound_path_demo.py
+.. plot:: mpl_examples/pyplots/compound_path_demo.py

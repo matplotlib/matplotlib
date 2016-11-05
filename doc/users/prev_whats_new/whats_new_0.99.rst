@@ -29,7 +29,7 @@ toolkit mpl_toolkits.mplot3d (which now comes standard with all mpl
 installs).  See :ref:`mplot3d-examples-index` and
 :ref:`toolkit_mplot3d-tutorial`
 
-.. plot:: pyplots/whats_new_99_mplot3d.py
+.. plot:: mpl_examples/pyplots/whats_new_99_mplot3d.py
 
 .. _whats-new-axes-grid:
 
@@ -42,7 +42,7 @@ the world coordinate system. The toolkit is included standard with all
 new mpl installs.  See :ref:`axes_grid-examples-index` and
 :ref:`axes_grid_users-guide-index`.
 
-.. plot:: pyplots/whats_new_99_axes_grid.py
+.. plot:: mpl_examples/pyplots/whats_new_99_axes_grid.py
 
 .. _whats-new-spine:
 
@@ -57,4 +57,4 @@ well as "detach" the spine to offset it away from the data.  See
 :ref:`pylab_examples-spine_placement_demo` and
 :class:`matplotlib.spines.Spine`.
 
-.. plot:: pyplots/whats_new_99_spines.py
+.. plot:: mpl_examples/pyplots/whats_new_99_spines.py

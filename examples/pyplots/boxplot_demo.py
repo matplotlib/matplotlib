@@ -7,7 +7,8 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-np.random.seed(0)
+# Fixing random state for reproducibility
+np.random.seed(19680801)
 
 # fake up some data
 spread = np.random.rand(50) * 100
