@@ -2681,7 +2681,8 @@ class Painter(_SelectorWidget):
         extents = self.ax.get_window_extent().extents
         self._offsetx = extents[0]
         self._offsety = extents[1]
-        self._shape = (extents[3] - extents[1], extents[2] - extents[0])
+        self._shape = (int(extents[3] - extents[1]),
+                       int(extents[2] - extents[0]))
         self._overlay = np.zeros(self._shape, dtype='uint8')
         self._overlay_plot = self.ax.imshow(self._overlay, **props)
 
