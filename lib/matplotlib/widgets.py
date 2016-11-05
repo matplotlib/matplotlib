@@ -369,10 +369,10 @@ class Slider(AxesWidget):
         ax.set_xticks([])
         ax.set_navigate(False)
 
-        self.connect_event('button_press_event', self.update)
-        self.connect_event('button_release_event', self.update)
+        self.connect_event('button_press_event', self._update)
+        self.connect_event('button_release_event', self._update)
         if dragging:
-            self.connect_event('motion_notify_event', self.update)
+            self.connect_event('motion_notify_event', self._update)
         self.label = ax.text(-0.02, 0.5, label, transform=ax.transAxes,
                              verticalalignment='center',
                              horizontalalignment='right')
@@ -1312,7 +1312,7 @@ class Cursor(AxesWidget):
         self.linev.set_visible(self.visible and self.vertOn)
         self.lineh.set_visible(self.visible and self.horizOn)
 
-        self.update()
+        self._update()
 
     def _update(self):
 
@@ -1432,7 +1432,7 @@ class MultiCursor(Widget):
             for line in self.hlines:
                 line.set_ydata((event.ydata, event.ydata))
                 line.set_visible(self.visible)
-        self.update()
+        self._update()
 
     def _update(self):
         if self.useblit:
