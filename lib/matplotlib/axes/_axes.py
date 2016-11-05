@@ -4853,9 +4853,10 @@ or tuple of floats
                          label_namer=None)
     @docstring.dedent_interpd
     def fill_betweenx(self, y, x1, x2=0, where=None,
-                      step=None, **kwargs):
+                      step=None, interpolate=False, **kwargs):
         """
         Make filled polygons between two horizontal curves.
+
 
         Create a :class:`~matplotlib.collections.PolyCollection`
         filling the regions between *x1* and *x2* where
@@ -4879,6 +4880,12 @@ or tuple of floats
 
         step : {'pre', 'post', 'mid'}, optional
             If not None, fill with step logic.
+
+        interpolate : bool, optional
+            If `True`, interpolate between the two lines to find the
+            precise point of intersection.  Otherwise, the start and
+            end points of the filled region will only occur on explicit
+            values in the *x* array.
 
         Notes
         -----
@@ -4948,13 +4955,37 @@ or tuple of floats
                 continue
 
             N = len(yslice)
-            Y = np.zeros((2 * N + 2, 2), float)
+            Y = np.zeros((2 * N + 2, 2), np.float)
+            if interpolate:
+                def get_interp_point(ind):
+                    im1 = max(ind - 1, 0)
+                    y_values = y[im1:ind + 1]
+                    diff_values = x1[im1:ind + 1] - x2[im1:ind + 1]
+                    x1_values = x1[im1:ind + 1]
 
-            # the purpose of the next two lines is for when x2 is a
-            # scalar like 0 and we want the fill to go all the way
-            # down to 0 even if none of the x1 sample points do
-            Y[0] = x2slice[0], yslice[0]
-            Y[N + 1] = x2slice[-1], yslice[-1]
+                    if len(diff_values) == 2:
+                        if np.ma.is_masked(diff_values[1]):
+                            return x1[im1], y[im1]
+                        elif np.ma.is_masked(diff_values[0]):
+                            return x1[ind], y[ind]
+
+                    diff_order = diff_values.argsort()
+                    diff_root_y = np.interp(
+                        0, diff_values[diff_order], y_values[diff_order])
+                    diff_root_x = np.interp(diff_root_y, y_values, x1_values)
+                    return diff_root_x, diff_root_y
+
+                start = get_interp_point(ind0)
+                end = get_interp_point(ind1)
+            else:
+                # the purpose of the next two lines is for when x2 is a
+                # scalar like 0 and we want the fill to go all the way
+                # down to 0 even if none of the x1 sample points do
+                start = x2slice[0], yslice[0]
+                end = x2slice[-1], yslice[-1]
+
+            Y[0] = start
+            Y[N + 1] = end
 
             Y[1:N + 1, 0] = x1slice
             Y[1:N + 1, 1] = yslice
