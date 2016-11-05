@@ -52,7 +52,7 @@ matplotlibrc use::
 
 Here is the standard example, `tex_demo.py`:
 
-.. plot:: pyplots/tex_demo.py
+.. plot:: mpl_examples/pyplots/tex_demo.py
    :include-source:
 
 Note that display math mode (``$$ e=mc^2 $$``) is  not supported, but adding the

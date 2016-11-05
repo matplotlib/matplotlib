@@ -58,7 +58,7 @@ code indicates that the coordinates are given relative to the axes
 bounding box, with 0,0 being the lower left of the axes and 1,1 the
 upper right.
 
-.. plot:: pyplots/text_layout.py
+.. plot:: mpl_examples/pyplots/text_layout.py
    :include-source:
 
 

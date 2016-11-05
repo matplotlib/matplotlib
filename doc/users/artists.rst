@@ -133,7 +133,7 @@ drawing of the ticks, tick labels and axis labels.
 
 Try creating the figure below.
 
-.. plot:: pyplots/fig_axes_labels_simple.py
+.. plot:: mpl_examples/pyplots/fig_axes_labels_simple.py
 
 .. _customizing-artists:
 
@@ -323,7 +323,7 @@ obtain by setting the ``Artist`` transform to :attr:`fig.transFigure
 
     In [195]: fig.canvas.draw()
 
-.. plot:: pyplots/fig_x.py
+.. plot:: mpl_examples/pyplots/fig_x.py
 
 
 Here is a summary of the Artists the figure contains
@@ -598,7 +598,7 @@ grid                    Turn the grid on or off for the major or minor ticks
 Here is an example, not recommended for its beauty, which customizes
 the axes and tick properties
 
-.. plot:: pyplots/fig_axes_customize_simple.py
+.. plot:: mpl_examples/pyplots/fig_axes_customize_simple.py
    :include-source:
 
 
@@ -635,5 +635,5 @@ label2On         boolean which determines whether to draw tick label
 Here is an example which sets the formatter for the right side ticks with
 dollar signs and colors them green on the right side of the yaxis
 
-.. plot:: pyplots/dollar_ticks.py
+.. plot:: mpl_examples/pyplots/dollar_ticks.py
    :include-source:
