@@ -271,3 +271,35 @@ def test_CheckButtons():
         pass
     cid = check.on_clicked(clicked_function)
     check.disconnect(cid)
+
+
+@cleanup
+def test_paint_tool():
+    ax = get_ax()
+
+    def onselect(x, y):
+        pass
+
+    tool = widgets.Painter(ax, onselect)
+
+    tool.radius = 10
+    assert tool.radius == 10
+    tool.label = 2
+    assert tool.label == 2
+
+    do_event(tool, 'press', xdata=100, ydata=100)
+    do_event(tool, 'onmove', xdata=110, ydata=110)
+    do_event(tool, 'release')
+
+    assert tool.overlay[tool.overlay == 2].size == 878
+
+    tool.label = 5
+    do_event(tool, 'press', xdata=20, ydata=20)
+    do_event(tool, 'onmove', xdata=40, ydata=40)
+    do_event(tool, 'release')
+
+    assert tool.overlay[tool.overlay == 5].size == 882
+    assert tool.overlay[tool.overlay == 2].size == 878
+
+    tool.overlay = tool.overlay * 0
+    assert tool.overlay.sum() == 0

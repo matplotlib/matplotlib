@@ -2707,11 +2707,11 @@ class Painter(_SelectorWidget):
             self.ax.images.remove(self._overlay_plot)
             self.update()
             return
-        self.ax.set_data(image)
+        self._overlay_plot.set_data(image)
         self._shape = image.shape
         x0, x1 = self.ax.get_xlim()
         y0, y1 = self.ax.get_ylim()
-        self._overlay_plot.set_extent(x0, x1, y0, y1)
+        self._overlay_plot.set_extent((x0, x1, y0, y1))
         # Update the radii and window.
         self.radius = self._radius
         self.update()
