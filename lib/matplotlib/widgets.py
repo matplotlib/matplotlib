@@ -19,6 +19,7 @@ from six.moves import zip
 import numpy as np
 from matplotlib import rcParams
 
+from .colors import ListedColormap, NoNorm
 from .mlab import dist
 from .patches import Circle, Rectangle, Ellipse
 from .lines import Line2D
@@ -368,10 +369,10 @@ class Slider(AxesWidget):
         ax.set_xticks([])
         ax.set_navigate(False)
 
-        self.connect_event('button_press_event', self._update)
-        self.connect_event('button_release_event', self._update)
+        self.connect_event('button_press_event', self.update)
+        self.connect_event('button_release_event', self.update)
         if dragging:
-            self.connect_event('motion_notify_event', self._update)
+            self.connect_event('motion_notify_event', self.update)
         self.label = ax.text(-0.02, 0.5, label, transform=ax.transAxes,
                              verticalalignment='center',
                              horizontalalignment='right')
@@ -1311,7 +1312,7 @@ class Cursor(AxesWidget):
         self.linev.set_visible(self.visible and self.vertOn)
         self.lineh.set_visible(self.visible and self.horizOn)
 
-        self._update()
+        self.update()
 
     def _update(self):
 
@@ -1431,7 +1432,7 @@ class MultiCursor(Widget):
             for line in self.hlines:
                 line.set_ydata((event.ydata, event.ydata))
                 line.set_visible(self.visible)
-        self._update()
+        self.update()
 
     def _update(self):
         if self.useblit:
@@ -1468,6 +1469,8 @@ class _SelectorWidget(AxesWidget):
 
         if isinstance(button, int):
             self.validButtons = [button]
+        elif button is None:
+            self.validButtons = [1, 2, 3]
         else:
             self.validButtons = button
 
@@ -2595,3 +2598,141 @@ class Lasso(AxesWidget):
             self.canvas.blit(self.ax.bbox)
         else:
             self.canvas.draw_idle()
+
+
+LABELS_CMAP = ListedColormap(['white', 'red', 'dodgerblue', 'gold',
+                              'greenyellow', 'blueviolet'])
+
+
+class Painter(_SelectorWidget):
+
+    """Interactive paint tool that is connected to a single
+    :class:`~matplotlib.axes.Axes`.
+    """
+    def __init__(self, ax, on_select=None, on_motion=None,
+                 overlay_props=None, cursor_props=None, radius=5,
+                 useblit=True, button=None, state_modifier_keys=None):
+        """Initialize the tool.
+        %(BaseInteractiveToolInit)s
+        """
+        super(Painter, self).__init__(ax, on_select,
+            useblit=useblit, button=button,
+            state_modifier_keys=state_modifier_keys)
+        self.cmap = LABELS_CMAP
+        self._previous = None
+        self._overlay = None
+        self._overlay_plot = None
+        self._cursor_shape = [0, 0, 0]
+
+        props = dict(edgecolor='r', facecolor='0.7', alpha=1,
+                     animated=self.useblit, visible=False, zorder=2)
+        props.update(cursor_props or {})
+        self._cursor = Rectangle((0, 0), 0, 0, **props)
+        self.ax.add_patch(self._cursor)
+
+        x0, x1 = self.ax.get_xlim()
+        y0, y1 = self.ax.get_ylim()
+        if y0 < y1:
+            origin = 'lower'
+        else:
+            origin = 'upper'
+        props = dict(cmap=self.cmap, alpha=0.5, origin=origin,
+                     norm=NoNorm(), visible=False, zorder=1,
+                     extent=(x0, x1, y0, y1), aspect=self.ax.get_aspect())
+        props.update(overlay_props or {})
+
+        extents = self.ax.get_window_extent().extents
+        self._offsetx = extents[0]
+        self._offsety = extents[1]
+        self._shape = (extents[3] - extents[1], extents[2] - extents[0])
+        self._overlay = np.zeros(self._shape, dtype='uint8')
+        self._overlay_plot = self.ax.imshow(self._overlay, **props)
+
+        self.artists = [self._cursor, self._overlay_plot]
+
+        # These must be called last
+        self.label = 1
+        self.radius = radius
+        self._drawing = True
+        for artist in self.artists:
+            artist.set_visible(True)
+
+    @property
+    def overlay(self):
+        return self._overlay
+
+    @overlay.setter
+    def overlay(self, image):
+        self._overlay = image
+        if image is None:
+            self.ax.images.remove(self._overlay_plot)
+            self.update()
+            return
+        self.ax.set_data(image)
+        self._shape = image.shape
+        x0, x1 = self.ax.get_xlim()
+        y0, y1 = self.ax.get_ylim()
+        self._overlay_plot.set_extent(x0, x1, y0, y1)
+        # Update the radii and window.
+        self.radius = self._radius
+        self.update()
+
+    @property
+    def label(self):
+        return self._label
+
+    @label.setter
+    def label(self, value):
+        if value >= self.cmap.N:
+            raise ValueError('Maximum label value = %s' % len(self.cmap - 1))
+        self._label = value
+        self._cursor.set_edgecolor(self.cmap(value))
+
+    @property
+    def radius(self):
+        return self._radius
+
+    @radius.setter
+    def radius(self, r):
+        self._radius = r
+        xfm = self.ax.transData.inverted()
+        x0, y0 = xfm.transform((0, 0))
+        x1, y1 = xfm.transform((r, r))
+        self._rx, self._ry = abs(x1 - x0), abs(y1 - y0)
+
+        self._cursor.set_width(self._rx * 2)
+        self._cursor.set_height(self._ry * 2)
+
+    def _press(self, event):
+        self._update_cursor(event.xdata, event.ydata)
+        self._update_overlay(event.x, event.y)
+        self.update()
+
+    def _onmove(self, event):
+        self._update_cursor(event.xdata, event.ydata)
+        if event.button and event.button in self.validButtons:
+            self._update_overlay(event.x, event.y)
+        self.update()
+
+    def _release(self, event):
+        pass
+
+    def _update_overlay(self, x, y):
+        col = x - self._offsetx
+        row = y - self._offsety
+
+        h, w = self._shape
+        r = self._radius
+
+        xmin = int(max(0, col - r))
+        xmax = int(min(w, col + r + 1))
+        ymin = int(max(0, row - r))
+        ymax = int(min(h, row + r + 1))
+
+        self._overlay[slice(ymin, ymax), slice(xmin, xmax)] = self.label
+        self._overlay_plot.set_data(self._overlay)
+
+    def _update_cursor(self, x, y):
+        x = x - self._rx
+        y = y - self._ry
+        self._cursor.set_xy((x, y))
