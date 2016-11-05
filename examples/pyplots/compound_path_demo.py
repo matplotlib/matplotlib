@@ -7,6 +7,9 @@ import matplotlib.path as path
 fig = plt.figure()
 ax = fig.add_subplot(111)
 
+# Fixing random state for reproducibility
+np.random.seed(19680801)
+
 # histogram our data with numpy
 data = np.random.randn(1000)
 n, bins = np.histogram(data, 100)

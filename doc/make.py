@@ -119,7 +119,7 @@ def clean():
                     'mpl_examples/pylab_examples/*.png',
                     'mpl_examples/pylab_examples/*.pdf',
                     'mpl_examples/units/*.png',
-                    'pyplots/tex_demo.png',
+                    'mpl_examples/pyplots/tex_demo.png',
                     '_static/matplotlibrc',
                     '_templates/gallery.html',
                     'users/installing.rst']:
