@@ -29,7 +29,7 @@ def test_imagegrid_cbar_mode_edge():
                          cbar_mode='edge')
         ax1, ax2, ax3, ax4, = grid
 
-        im1 = ax1.imshow(arr.real, cmap='spectral')
+        im1 = ax1.imshow(arr.real, cmap='nipy_spectral')
         im2 = ax2.imshow(arr.imag, cmap='hot')
         im3 = ax3.imshow(np.abs(arr), cmap='jet')
         im4 = ax4.imshow(np.arctan2(arr.imag, arr.real), cmap='hsv')
