@@ -2023,7 +2023,7 @@ class LogLocator(Locator):
                 "Data has no positive values, and therefore can not be "
                 "log-scaled.")
 
-        if vmin <= minpos:
+        if vmin <= 0:
             vmin = minpos
 
         if rcParams['axes.autolimit_mode'] == 'round_numbers':
