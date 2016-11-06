@@ -2807,11 +2807,11 @@ class _AxesBase(martist.Artist):
         ----------
         left : scalar, optional
             The left xlim (default: None, which leaves the left limit
-            unchanged). The previous name `xmin` may be used instead.
+            unchanged).
 
         right : scalar, optional
             The right xlim (default: None, which leaves the right limit
-            unchanged). The previous name `xmax` may be used instead.
+            unchanged).
 
         emit : bool, optional
             Whether to notify observers of limit change (default: True).
@@ -2828,8 +2828,7 @@ class _AxesBase(martist.Artist):
         Returns
         -------
         xlimits : tuple
-            Returns the current x-axis limits, reflecting any changes
-            made by this call, as (`left`, `right`).
+            Returns the new x-axis limits as (`left`, `right`).
 
         Notes
         -----
@@ -3089,12 +3088,11 @@ class _AxesBase(martist.Artist):
         ----------
         bottom : scalar, optional
             The bottom ylim (default: None, which leaves the bottom
-            limit unchanged). The previous name `ymin` may be used
-            instead.
+            limit unchanged).
 
         top : scalar, optional
             The top ylim (default: None, which leaves the top limit
-            unchanged). The previous name `ymax` may be used instead.
+            unchanged).
 
         emit : bool, optional
             Whether to notify observers of limit change (default: True).
@@ -3111,8 +3109,7 @@ class _AxesBase(martist.Artist):
         Returns
         -------
         ylimits : tuple
-            Returns the current y-axis limits, reflecting any changes
-            made by this call, as (`bottom`, `top`).
+            Returns the new y-axis limits as (`bottom`, `top`).
 
         Notes
         -----
