@@ -16,11 +16,11 @@ from numpy import ma
 import matplotlib as mpl
 import matplotlib.colors as colors
 import matplotlib.cbook as cbook
-from matplotlib._cm import datad
+from matplotlib._cm import datad, _deprecation_datad
 from matplotlib._cm import cubehelix
 from matplotlib._cm_listed import cmaps as cmaps_listed
 
-cmap_d = dict()
+cmap_d = _deprecation_datad()
 
 # reverse all the colormaps.
 # reversed colormaps have '_r' appended to the name.
