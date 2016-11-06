@@ -1,6 +1,7 @@
 from __future__ import print_function
 import warnings
 import numpy as np
+from nose.tools import raises
 import sys
 from matplotlib import pyplot as plt
 from matplotlib.testing.decorators import cleanup
@@ -131,6 +132,21 @@ def test_barbs():
     ax.barbs(X, Y, U, V, np.sqrt(U*U + V*V), fill_empty=True, rounding=False,
              sizes=dict(emptybarb=0.25, spacing=0.2, height=0.3),
              cmap='viridis')
+
+
+@cleanup
+@raises(ValueError)
+def test_bad_masked_sizes():
+    'Test error handling when given differing sized masked arrays'
+    x = np.arange(3)
+    y = np.arange(3)
+    u = np.ma.array(15. * np.ones((4,)))
+    v = np.ma.array(15. * np.ones_like(u))
+    u[1] = np.ma.masked
+    v[1] = np.ma.masked
+    fig, ax = plt.subplots()
+    ax.barbs(x, y, u, v)
+
 
 if __name__ == '__main__':
     import nose
