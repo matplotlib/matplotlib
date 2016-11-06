@@ -2631,7 +2631,7 @@ class Painter(_SelectorWidget):
 
     def __init__(self, ax, on_select=None, overlay_props=None,
                  cursor_props=None, radius=5, cmap=LABELS_CMAP,
-                 useblit=True, button=None):
+                 useblit=True, button=None, state_modifier_keys=None):
         """
         Parameters:
 
@@ -2652,9 +2652,11 @@ class Painter(_SelectorWidget):
            - Whether to use blitting.
         *button* : list
             The button numbers supported for the tool (defaults to [1, 2, 3])
+        *state_modifier_keys* : dict
+            A mapping of key names to state modifiers.
         """
         super(Painter, self).__init__(ax, on_select,
-            useblit=useblit, button=button)
+            useblit=useblit, button=button, state_modifier_keys=None)
         self.cmap = cmap
         self._previous = None
         self._overlay = None
