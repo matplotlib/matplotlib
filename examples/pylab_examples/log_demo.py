@@ -21,7 +21,7 @@ plt.grid(True)
 plt.subplot(223)
 plt.loglog(t, 20*np.exp(-t/10.0), basex=2)
 plt.grid(True)
-plt.title('loglog base 4 on x')
+plt.title('loglog base 2 on x')
 
 # with errorbars: clip non-positive values
 ax = plt.subplot(224)
