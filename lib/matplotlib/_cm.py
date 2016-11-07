@@ -1368,7 +1368,7 @@ _Vega20c_data = (
 
 class _deprecation_datad(dict):
     def __getitem__(self, key):
-        if key == "spectral":
+        if key in ["spectral", "spectral_r"]:
             warn_deprecated(
                 "2.0",
                 name="spectral",
