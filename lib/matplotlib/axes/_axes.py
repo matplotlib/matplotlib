@@ -919,7 +919,8 @@ or tuple of floats
         self.autoscale_view(scaley=False)
         return p
 
-    @_preprocess_data(replace_names=['y', 'xmin', 'xmax'], label_namer="y")
+    @_preprocess_data(replace_names=['y', 'xmin', 'xmax', 'colors'],
+                      label_namer='y')
     def hlines(self, y, xmin, xmax, colors='k', linestyles='solid',
                label='', **kwargs):
         """
@@ -986,8 +987,8 @@ or tuple of floats
         lines.update(kwargs)
 
         if len(y) > 0:
-            minx = np.min([xmin.min(), xmax.min()])
-            maxx = np.max([xmin.max(), xmax.max()])
+            minx = min(xmin.min(), xmax.min())
+            maxx = max(xmin.max(), xmax.max())
             miny = y.min()
             maxy = y.max()
 
@@ -998,8 +999,8 @@ or tuple of floats
 
         return lines
 
-    @_preprocess_data(replace_names=["x", "ymin", "ymax", "colors"],
-                         label_namer="x")
+    @_preprocess_data(replace_names=['x', 'ymin', 'ymax', 'colors'],
+                      label_namer='x')
     def vlines(self, x, ymin, ymax, colors='k', linestyles='solid',
                label='', **kwargs):
         """
@@ -1071,8 +1072,8 @@ or tuple of floats
         if len(x) > 0:
             minx = x.min()
             maxx = x.max()
-            miny = np.min([ymin.min(), ymax.min()])
-            maxy = np.max([ymin.max(), ymax.max()])
+            miny = min(ymin.min(), ymax.min())
+            maxy = max(ymin.max(), ymax.max())
 
             corners = (minx, miny), (maxx, maxy)
             self.update_datalim(corners)
