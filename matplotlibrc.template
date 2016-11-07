@@ -110,6 +110,7 @@ backend      : $TEMPLATE_BACKEND
 #patch.antialiased      : True    # render patches in antialiased (no jaggies)
 
 ### HATCHES
+#hatch.color     : k
 #hatch.linewidth : 1.0
 
 ### Boxplot

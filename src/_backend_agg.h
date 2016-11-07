@@ -371,7 +371,7 @@ RendererAgg::_draw_path(path_t &path, bool has_clippath, const facepair_t &face,
         renderer_base rb(hatch_img_pixf);
         renderer_aa rs(rb);
         rb.clear(_fill_color);
-        rs.color(gc.color);
+        rs.color(gc.hatch_color);
 
         theRasterizer.add_path(hatch_path_curve);
         agg::render_scanlines(theRasterizer, slineP8, rs);
