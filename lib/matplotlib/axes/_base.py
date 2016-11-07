@@ -2783,49 +2783,76 @@ class _AxesBase(martist.Artist):
 
     def get_xlim(self):
         """
-        Get the x-axis range [*left*, *right*]
+        Get the x-axis range
+
+        Returns
+        -------
+        xlimits : tuple
+            Returns the current x-axis limits as the tuple
+            (`left`, `right`).
+
+        Notes
+        -----
+        The x-axis may be inverted, in which case the `left` value will
+        be greater than the `right` value.
+
         """
         return tuple(self.viewLim.intervalx)
 
     def set_xlim(self, left=None, right=None, emit=True, auto=False, **kw):
         """
-        Set the data limits for the xaxis
+        Set the data limits for the x-axis
 
-        Examples::
+        Parameters
+        ----------
+        left : scalar, optional
+            The left xlim (default: None, which leaves the left limit
+            unchanged).
 
-          set_xlim((left, right))
-          set_xlim(left, right)
-          set_xlim(left=1) # right unchanged
-          set_xlim(right=1) # left unchanged
+        right : scalar, optional
+            The right xlim (default: None, which leaves the right limit
+            unchanged).
 
-        Keyword arguments:
+        emit : bool, optional
+            Whether to notify observers of limit change (default: True).
 
-          *left*: scalar
-            The left xlim; *xmin*, the previous name, may still be used
+        auto : bool or None, optional
+            Whether to turn on autoscaling of the x-axis. True turns on,
+            False turns off (default action), None leaves unchanged.
 
-          *right*: scalar
-            The right xlim; *xmax*, the previous name, may still be used
+        xlimits : tuple, optional
+            The left and right xlims may be passed as the tuple
+            (`left`, `right`) as the first positional argument (or as
+            the `left` keyword argument).
 
-          *emit*: [ *True* | *False* ]
-            Notify observers of limit change
+        Returns
+        -------
+        xlimits : tuple
+            Returns the new x-axis limits as (`left`, `right`).
 
-          *auto*: [ *True* | *False* | *None* ]
-            Turn *x* autoscaling on (*True*), off (*False*; default),
-            or leave unchanged (*None*)
+        Notes
+        -----
+        The `left` value may be greater than the `right` value, in which
+        case the x-axis values will decrease from left to right.
 
-        Note, the *left* (formerly *xmin*) value may be greater than
-        the *right* (formerly *xmax*).
-        For example, suppose *x* is years before present.
-        Then one might use::
+        Examples
+        --------
+        >>> set_xlim(left, right)
+        >>> set_xlim((left, right))
+        >>> left, right = set_xlim(left, right)
 
-          set_xlim(5000, 0)
+        One limit may be left unchanged.
 
-        so 5000 years ago is on the left of the plot and the
+        >>> set_xlim(right=right_lim)
+
+        Limits may be passed in reverse order to flip the direction of
+        the x-axis. For example, suppose `x` represents the number of
+        years before present. The x-axis limits might be set like the
+        following so 5000 years ago is on the left of the plot and the
         present is on the right.
 
-        Returns the current xlimits as a length 2 tuple
+        >>> set_xlim(5000, 0)
 
-        ACCEPTS: length 2 sequence of floats
         """
         if 'xmin' in kw:
             left = kw.pop('xmin')
@@ -3037,49 +3064,76 @@ class _AxesBase(martist.Artist):
 
     def get_ylim(self):
         """
-        Get the y-axis range [*bottom*, *top*]
+        Get the y-axis range
+
+        Returns
+        -------
+        ylimits : tuple
+            Returns the current y-axis limits as the tuple
+            (`bottom`, `top`).
+
+        Notes
+        -----
+        The y-axis may be inverted, in which case the `bottom` value
+        will be greater than the `top` value.
+
         """
         return tuple(self.viewLim.intervaly)
 
     def set_ylim(self, bottom=None, top=None, emit=True, auto=False, **kw):
         """
-        Set the data limits for the yaxis
+        Set the data limits for the y-axis
 
-        Examples::
+        Parameters
+        ----------
+        bottom : scalar, optional
+            The bottom ylim (default: None, which leaves the bottom
+            limit unchanged).
 
-          set_ylim((bottom, top))
-          set_ylim(bottom, top)
-          set_ylim(bottom=1) # top unchanged
-          set_ylim(top=1) # bottom unchanged
+        top : scalar, optional
+            The top ylim (default: None, which leaves the top limit
+            unchanged).
 
-        Keyword arguments:
+        emit : bool, optional
+            Whether to notify observers of limit change (default: True).
 
-          *bottom*: scalar
-            The bottom ylim; the previous name, *ymin*, may still be used
+        auto : bool or None, optional
+            Whether to turn on autoscaling of the y-axis. True turns on,
+            False turns off (default action), None leaves unchanged.
 
-          *top*: scalar
-            The top ylim; the previous name, *ymax*, may still be used
+        ylimits : tuple, optional
+            The bottom and top yxlims may be passed as the tuple
+            (`bottom`, `top`) as the first positional argument (or as
+            the `bottom` keyword argument).
 
-          *emit*: [ *True* | *False* ]
-            Notify observers of limit change
+        Returns
+        -------
+        ylimits : tuple
+            Returns the new y-axis limits as (`bottom`, `top`).
 
-          *auto*: [ *True* | *False* | *None* ]
-            Turn *y* autoscaling on (*True*), off (*False*; default),
-            or leave unchanged (*None*)
+        Notes
+        -----
+        The `bottom` value may be greater than the `top` value, in which
+        case the y-axis values will decrease from bottom to top.
 
-        Note, the *bottom* (formerly *ymin*) value may be greater than
-        the *top* (formerly *ymax*).
-        For example, suppose *y* is depth in the ocean.
-        Then one might use::
+        Examples
+        --------
+        >>> set_ylim(bottom, top)
+        >>> set_ylim((bottom, top))
+        >>> bottom, top = set_ylim(bottom, top)
 
-          set_ylim(5000, 0)
+        One limit may be left unchanged.
 
-        so 5000 m depth is at the bottom of the plot and the
-        surface, 0 m, is at the top.
+        >>> set_ylim(top=top_lim)
 
-        Returns the current ylimits as a length 2 tuple
+        Limits may be passed in reverse order to flip the direction of
+        the y-axis. For example, suppose `y` represents depth of the
+        ocean in m. The y-axis limits might be set like the following
+        so 5000 m depth is at the bottom of the plot and the surface,
+        0 m, is at the top.
 
-        ACCEPTS: length 2 sequence of floats
+        >>> set_ylim(5000, 0)
+
         """
         if 'ymin' in kw:
             bottom = kw.pop('ymin')
