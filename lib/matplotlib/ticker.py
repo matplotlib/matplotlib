@@ -853,7 +853,7 @@ class LogFormatter(Formatter):
             vmax = math.log(vmax) / math.log(b)
             numdec = abs(vmax - vmin)
 
-        if numdec > 3:
+        if numdec > 1:
             # Label only bases
             self.sublabel = set((1,))
         else:
@@ -1857,10 +1857,10 @@ class LogLocator(Locator):
 
         numdec = math.floor(vmax) - math.ceil(vmin)
 
-        if self._subs is None:  # autosub
-            if numdec > 10:
-                subs = np.array([1.0])
-            elif numdec > 6:
+        if self._subs is None:  # autosub for minor ticks
+            if numdec > 10 or b < 3:
+                return np.array([])  # no minor ticks
+            elif numdec > 5 and b >= 6:
                 subs = np.arange(2.0, b, 2.0)
             else:
                 subs = np.arange(2.0, b)
