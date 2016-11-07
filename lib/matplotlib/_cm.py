@@ -1367,12 +1367,17 @@ _Vega20c_data = (
 
 
 class _deprecation_datad(dict):
+    """
+    This class only exists for the purpose of raising an appropriate warning
+    for the deprecation of spectral. It should be remove in 2.2, once the
+    colormap spectral disappears.
+    """
     def __getitem__(self, key):
         if key in ["spectral", "spectral_r"]:
             warn_deprecated(
                 "2.0",
-                name="spectral",
-                alternative="nipy_spectral",
+                name="spectral and spectral_r",
+                alternative="nipy_spectral and nipy_spectral_r",
                 obj_type="colormap"
                 )
         return super(_deprecation_datad, self).__getitem__(key)
