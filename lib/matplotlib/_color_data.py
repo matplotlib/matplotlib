@@ -15,7 +15,7 @@ BASE_COLORS = {
     'w': (1, 1, 1)}
 
 
-VEGA10_COLORS = {
+VEGA_COLORS = {
     'blue': '#1f77b4',
     'orange': '#ff7f0e',
     'green': '#2ca02c',
@@ -29,8 +29,7 @@ VEGA10_COLORS = {
 
 
 # Normalize name to "vega10:<name>" to avoid name collisions.
-VEGA10_COLORS = {'vega10:' + name: value for name,
-                 value in VEGA10_COLORS.items()}
+VEGA_COLORS = {'vega:' + name: value for name, value in VEGA_COLORS.items()}
 
 
 # This mapping of color names -> hex values is taken from

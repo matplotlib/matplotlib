@@ -65,7 +65,7 @@ import warnings
 
 import numpy as np
 import matplotlib.cbook as cbook
-from ._color_data import BASE_COLORS, VEGA10_COLORS, CSS4_COLORS, XKCD_COLORS
+from ._color_data import BASE_COLORS, VEGA_COLORS, CSS4_COLORS, XKCD_COLORS
 
 
 class _ColorMapping(dict):
@@ -86,7 +86,7 @@ _colors_full_map = {}
 # Set by reverse priority order.
 _colors_full_map.update(XKCD_COLORS)
 _colors_full_map.update(CSS4_COLORS)
-_colors_full_map.update(VEGA10_COLORS)
+_colors_full_map.update(VEGA_COLORS)
 _colors_full_map.update(BASE_COLORS)
 _colors_full_map = _ColorMapping(_colors_full_map)
 
@@ -251,8 +251,7 @@ def to_hex(c, keep_alpha=False):
 ### Backwards-compatible color-conversion API
 
 cnames = CSS4_COLORS
-COLOR_NAMES = {'xkcd': XKCD_COLORS, 'css4': CSS4_COLORS,
-               'vega10': VEGA10_COLORS}
+COLOR_NAMES = {'xkcd': XKCD_COLORS, 'css4': CSS4_COLORS, 'vega': VEGA_COLORS}
 hexColorPattern = re.compile("\A#[a-fA-F0-9]{6}\Z")
 
 
