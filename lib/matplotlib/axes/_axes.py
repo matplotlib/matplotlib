@@ -966,14 +966,14 @@ or tuple of floats
         xmin = self.convert_xunits(xmin)
         xmax = self.convert_xunits(xmax)
 
-        y, xmin, xmax = cbook.delete_masked_points(y, xmin, xmax)
-
         if not iterable(y):
             y = [y]
         if not iterable(xmin):
             xmin = [xmin]
         if not iterable(xmax):
             xmax = [xmax]
+
+        y, xmin, xmax = cbook.delete_masked_points(y, xmin, xmax)
 
         y = np.ravel(y)
         xmin = np.resize(xmin, y.shape)
@@ -1048,14 +1048,14 @@ or tuple of floats
         ymin = self.convert_yunits(ymin)
         ymax = self.convert_yunits(ymax)
 
-        x, ymin, ymax = cbook.delete_masked_points(x, ymin, ymax)
-
         if not iterable(x):
             x = [x]
         if not iterable(ymin):
             ymin = [ymin]
         if not iterable(ymax):
             ymax = [ymax]
+
+        x, ymin, ymax = cbook.delete_masked_points(x, ymin, ymax)
 
         x = np.ravel(x)
         ymin = np.resize(ymin, x.shape)
