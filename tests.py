@@ -16,8 +16,6 @@ import argparse
 if __name__ == '__main__':
     from matplotlib import default_test_modules, test
 
-    extra_args = []
-
     parser = argparse.ArgumentParser(add_help=False)
     parser.add_argument('--no-pep8', action='store_true',
                         help='Run all tests except PEP8 testing')
@@ -27,7 +25,7 @@ if __name__ == '__main__':
                         help='Run tests without network connection')
     parser.add_argument('-j', type=int,
                         help='Shortcut for specifying number of test processes')
-    args = parser.parse_args()
+    args, extra_args = parser.parse_known_args()
 
     if args.no_pep8:
         default_test_modules.remove('matplotlib.tests.test_coding_standards')
