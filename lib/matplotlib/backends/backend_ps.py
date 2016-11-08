@@ -322,6 +322,7 @@ class RendererPS(RendererBase):
             self._convert_path(Path.hatch(hatch), Affine2D().scale(sidelen),
                                simplify=False))
         self._pswriter.write("""\
+        fill
         stroke
      } bind
    >>
