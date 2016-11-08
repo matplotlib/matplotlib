@@ -1190,7 +1190,7 @@ end"""
                 Path.hatch(path),
                 Affine2D().scale(sidelen),
                 simplify=False))
-            self.output(Op.stroke)
+            self.output(Op.fill_stroke)
 
             self.endStream()
         self.writeObject(self.hatchObject, hatchDict)
