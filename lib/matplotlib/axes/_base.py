@@ -2923,12 +2923,12 @@ class _AxesBase(martist.Artist):
         """
         Set the x-axis scale
 
-        Set the scaling of the x-axis: %(scale)s
+        Parameters
+        ----------
+        value: float
+            Value to scale x-axis by
 
-        ACCEPTS: [%(scale)s]
-
-        Different kwargs are accepted, depending on the scale:
-        %(scale_docs)s
+        Different kwargs are accepted, depending on the scale
         """
         # If the scale is being set to log, clip nonposx to prevent headaches
         # around zero
@@ -3001,15 +3001,21 @@ class _AxesBase(martist.Artist):
     @docstring.dedent_interpd
     def set_xticklabels(self, labels, fontdict=None, minor=False, **kwargs):
         """
-        Set the xtick labels with list of strings *labels*
+        Set the xtick labels with list of strings labels
 
-        Return a list of axis text instances.
+        Parameters
+        ----------
+        labels: list of str
+            list of string labels
 
-        *kwargs* set the :class:`~matplotlib.text.Text` properties.
-        Valid properties are
-        %(Text)s
+        Returns
+        -------
+        list of str
+            A list of axis text instances
 
-        ACCEPTS: sequence of strings
+        Other Parameters
+        -----------------
+        kwargs : :class:`~matplotlib.text.Text` properties.
         """
         if fontdict is not None:
             kwargs.update(fontdict)
@@ -3139,7 +3145,6 @@ class _AxesBase(martist.Artist):
         0 m, is at the top.
 
         >>> set_ylim(5000, 0)
-
         """
         if 'ymin' in kw:
             bottom = kw.pop('ymin')
@@ -3201,14 +3206,18 @@ class _AxesBase(martist.Artist):
 
     @docstring.dedent_interpd
     def set_yscale(self, value, **kwargs):
-        """Set the y-axis scale
+        """
+        Set the y-axis scale
 
-        Set the scaling of the y-axis: %(scale)s
+        Parameters
+        ----------
+        value: float
+            Value to scale y-axis by
 
-        ACCEPTS: [%(scale)s]
+        Other Parameters
+        -----------------
+        kwargs : :class:`~matplotlib.text.Text` properties.
 
-        Different kwargs are accepted, depending on the scale:
-        %(scale_docs)s
         """
         # If the scale is being set to log, clip nonposy to prevent headaches
         # around zero
@@ -3284,15 +3293,22 @@ class _AxesBase(martist.Artist):
     @docstring.dedent_interpd
     def set_yticklabels(self, labels, fontdict=None, minor=False, **kwargs):
         """
-        Set the y tick labels with list of strings *labels*
+        Set the xtick labels with list of strings labels
 
-        Return a list of :class:`~matplotlib.text.Text` instances.
+        Parameters
+        ----------
+        labels: list of str
+            list of string labels
 
-        *kwargs* set :class:`~matplotlib.text.Text` properties for the labels.
-        Valid properties are
-        %(Text)s
+        Returns
+        -------
+        list of str
+            A list of :class:`~matplotlib.text.Text` instances.
 
-        ACCEPTS: sequence of strings
+        Other Parameters
+        ----------------
+        *kwargs* set the :class:`~matplotlib.text.Text` properties.
+
         """
         if fontdict is not None:
             kwargs.update(fontdict)
@@ -3872,15 +3888,19 @@ class _AxesBase(martist.Artist):
         """
         Create a twin Axes sharing the xaxis
 
-        create a twin of Axes for generating a plot with a sharex
+        Create a twin of Axes for generating a plot with a sharex
         x-axis but independent y axis.  The y-axis of self will have
         ticks on left and the returned axes will have ticks on the
         right. To ensure tick marks of both axis align, see
         :class:`~matplotlib.ticker.LinearLocator`
 
-        .. note::
-            For those who are 'picking' artists while using twinx, pick
-            events are only called for the artists in the top-most axes.
+        Returns
+        -------
+        Axis
+            The newly created axis
+
+        For those who are 'picking' artists while using twinx, pick
+        events are only called for the artists in the top-most axes.
         """
         ax2 = self._make_twin_axes(sharex=self)
         ax2.yaxis.tick_right()
@@ -3895,14 +3915,18 @@ class _AxesBase(martist.Artist):
         """
         Create a twin Axes sharing the yaxis
 
-        create a twin of Axes for generating a plot with a shared
+        Create a twin of Axes for generating a plot with a shared
         y-axis but independent x axis.  The x-axis of self will have
         ticks on bottom and the returned axes will have ticks on the
         top.
 
-        .. note::
-            For those who are 'picking' artists while using twiny, pick
-            events are only called for the artists in the top-most axes.
+        Returns
+        -------
+        Axis
+            The newly created axis
+
+        For those who are 'picking' artists while using twiny, pick
+        events are only called for the artists in the top-most axes.
         """
 
         ax2 = self._make_twin_axes(sharey=self)

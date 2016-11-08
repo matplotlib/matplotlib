@@ -3801,7 +3801,7 @@ or tuple of floats
     def scatter(self, x, y, s=None, c=None, marker=None, cmap=None, norm=None,
                 vmin=None, vmax=None, alpha=None, linewidths=None,
                 verts=None, edgecolors=None,
-                **kwargs):
+                **kx`wargs):
         """
         Make a scatter plot of `x` vs `y`
 
