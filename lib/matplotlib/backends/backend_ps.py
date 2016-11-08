@@ -305,6 +305,7 @@ class RendererPS(RendererBase):
             return self._hatches[hatch]
         name = 'H%d' % len(self._hatches)
         linewidth = rcParams['hatch.linewidth']
+        pageheight = self.height * 72
         self._pswriter.write("""\
   << /PatternType 1
      /PaintType 2
@@ -325,6 +326,7 @@ class RendererPS(RendererBase):
      } bind
    >>
    matrix
+   0.0 %(pageheight)f translate
    makepattern
    /%(name)s exch def
 """ % locals())

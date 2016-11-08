@@ -1171,7 +1171,9 @@ end"""
                  'PatternType': 1, 'PaintType': 1, 'TilingType': 1,
                  'BBox': [0, 0, sidelen, sidelen],
                  'XStep': sidelen, 'YStep': sidelen,
-                 'Resources': res})
+                 'Resources': res,
+                 # Change origin to match Agg at top-left.
+                 'Matrix': [1, 0, 0, 1, 0, self.height * 72]})
 
             stroke_rgb, fill_rgb, path = hatch_style
             self.output(stroke_rgb[0], stroke_rgb[1], stroke_rgb[2],
