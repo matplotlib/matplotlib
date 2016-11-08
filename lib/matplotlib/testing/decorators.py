@@ -237,7 +237,7 @@ class ImageComparisonTest(CleanupTest):
                 @knownfailureif(
                     will_fail, fail_msg,
                     known_exception_class=ImageComparisonFailure)
-                def do_test():
+                def do_test(fignum, actual_fname, expected_fname):
                     figure = plt.figure(fignum)
 
                     if self._remove_text:
@@ -264,7 +264,7 @@ class ImageComparisonTest(CleanupTest):
                                 (self._freetype_version, ft2font.__freetype_version__))
                         raise
 
-                yield (do_test,)
+                yield do_test, fignum, actual_fname, expected_fname
 
 def image_comparison(baseline_images=None, extensions=None, tol=0,
                      freetype_version=None, remove_text=False,
