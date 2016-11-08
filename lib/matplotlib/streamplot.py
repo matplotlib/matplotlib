@@ -61,7 +61,7 @@ def streamplot(axes, x, y, u, v, density=1, linewidth=None, color=None,
         any number
     *maxlength* : float
         Maximum length of streamline in axes coordinates.
-    *integration_direction* : ['foward','backward','both']
+    *integration_direction* : ['forward', 'backward', 'both']
         Integrate the streamline in forward, backward or both directions.
 
     Returns:
@@ -101,9 +101,9 @@ def streamplot(axes, x, y, u, v, density=1, linewidth=None, color=None,
     arrow_kw = dict(arrowstyle=arrowstyle, mutation_scale=10 * arrowsize)
 
     if integration_direction not in ['both', 'forward', 'backward']:
-        errstr = ("Integration direction '%s' not recognised." %
-          integration_direction)
-        errstr += "Expected 'both', 'forward' or 'backward'."
+        errstr = ("Integration direction '%s' not recognised."
+                  "Expected 'both', 'forward' or 'backward'." %
+                  integration_direction)
         raise ValueError(errstr)
 
     if integration_direction == 'both':
@@ -466,8 +466,8 @@ def get_integrator(u, v, dmap, minlength, maxlength, integration_direction):
             dmap.reset_start_point(x0, y0)
             s, xt, yt = _integrate_rk12(x0, y0, dmap, forward_time, maxlength)
             if len(x_traj) > 0:
-              xt = xt[1:]
-              yt = yt[1:]
+                xt = xt[1:]
+                yt = yt[1:]
             stotal += s
             x_traj += xt
             y_traj += yt

@@ -17,9 +17,9 @@ def velocity_field():
     return X, Y, U, V
 
 def swirl_velocity_field():
-    x = np.linspace(-3.,3.,100)
-    y = np.linspace(-3.,3.,100)
-    X,Y = np.meshgrid(x,y)
+    x = np.linspace(-3., 3., 100)
+    y = np.linspace(-3., 3., 100)
+    X, Y = np.meshgrid(x, y)
     a = 0.1
     U = np.cos(a) * (-Y) - np.sin(a) * X
     V = np.sin(a) * (-Y) + np.cos(a) * X
@@ -69,8 +69,8 @@ def test_masks_and_nans():
                   extensions=['png'])
 def test_maxlength():
     x, y, U, V = swirl_velocity_field()
-    plt.streamplot(x, y, U, V, maxlength=10., start_points=[[0.,1.5]],
-                   linewidth=2,density=2)
+    plt.streamplot(x, y, U, V, maxlength=10., start_points=[[0., 1.5]],
+                   linewidth=2, density=2)
 
 
 @image_comparison(baseline_images=['streamplot_direction'],
@@ -78,7 +78,7 @@ def test_maxlength():
 def test_direction():
     x, y, U, V = swirl_velocity_field()
     plt.streamplot(x, y, U, V, integration_direction='backward',
-                   maxlength=1.5, start_points=[[1.5,0.]],
+                   maxlength=1.5, start_points=[[1.5, 0.]],
                    linewidth=2, density=2)
 
 
