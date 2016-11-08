@@ -205,6 +205,10 @@ axes.formatter.useoffset      : True    # If True, the tick label formatter
                                         # to an offset when the data range is very
                                         # small compared to the minimum absolute
                                         # value of the data.
+axes.formatter.offset_threshold : 2      # When useoffset is True, the offset
+                                         # will be used when it can remove
+                                         # at least this number of significant
+                                         # digits from tick labels.
 
 axes.unicode_minus  : True    # use unicode for the minus symbol
                               # rather than hyphen.  See

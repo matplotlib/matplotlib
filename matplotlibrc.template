@@ -318,10 +318,13 @@ backend      : $TEMPLATE_BACKEND
                                      # notation.
 #axes.formatter.useoffset      : True    # If True, the tick label formatter
                                          # will default to labeling ticks relative
-                                         # to an offset when the data range is very
+                                         # to an offset when the data range is
                                          # small compared to the minimum absolute
                                          # value of the data.
-
+#axes.formatter.offset_threshold : 4     # When useoffset is True, the offset
+                                         # will be used when it can remove
+                                         # at least this number of significant
+                                         # digits from tick labels.
 
 # axes.spines.left   : True   # display axis spines
 # axes.spines.bottom : True
