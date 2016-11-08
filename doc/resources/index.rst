@@ -13,7 +13,7 @@
   <https://www.packtpub.com/big-data-and-business-intelligence/mastering-matplotlib>`_
   by Duncan M. McGreggor
 
-* `Interactive Applications Using matplotlib
+* `Interactive Applications Using Matplotlib
   <https://www.packtpub.com/application-development/interactive-applications-using-matplotlib>`_
   by Benjamin Root
 

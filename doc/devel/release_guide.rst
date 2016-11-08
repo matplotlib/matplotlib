@@ -152,7 +152,7 @@ Then copy the build products into your local checkout of the
 `~/matplotlib.github.com`::
 
   cp -r build/html/* ~/matplotlib.github.com
-  cp build/latex/matplotlib.pdf ~/matplotlib.github.com
+  cp build/latex/Matplotlib.pdf ~/matplotlib.github.com
 
 Then, from the `matplotlib.github.com` directory, commit and push the
 changes upstream::
