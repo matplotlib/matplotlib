@@ -162,6 +162,7 @@ def test_valid_input_forms():
     ax.set_prop_cycle('color', np.array([[1, 0, 0],
                                          [0, 1, 0],
                                          [0, 0, 1]]))
+    ax.set_prop_cycle('dashes', [[], [13, 2], [8, 3, 1, 3]])
     ax.set_prop_cycle(lw=[1, 2], color=['k', 'w'], ls=['-', '--'])
     ax.set_prop_cycle(lw=np.array([1, 2]),
                       color=np.array(['k', 'w']),
