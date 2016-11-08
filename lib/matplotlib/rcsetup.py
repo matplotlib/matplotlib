@@ -1086,6 +1086,7 @@ defaultParams = {
                                # Use the current locale to format ticks
     'axes.formatter.use_mathtext': [False, validate_bool],
     'axes.formatter.useoffset': [True, validate_bool],
+    'axes.formatter.offset_threshold': [4, validate_int],
     'axes.unicode_minus': [True, validate_bool],
     'axes.color_cycle': [
         ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728',

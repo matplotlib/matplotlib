@@ -169,7 +169,7 @@ def test_SymmetricalLogLocator_set_params():
     nose.tools.assert_equal(sym.numticks, 8)
 
 
-@cleanup
+@cleanup(style='classic')
 def test_ScalarFormatter_offset_value():
     fig, ax = plt.subplots()
     formatter = ax.get_xaxis().get_major_formatter()
