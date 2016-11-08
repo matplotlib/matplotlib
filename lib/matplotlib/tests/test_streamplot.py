@@ -57,7 +57,7 @@ def test_masks_and_nans():
         plt.streamplot(X, Y, U, V, color=U, cmap=plt.cm.Blues)
 
 
-@image_comparison(baseline_images=['streamplot_maxlength_test_image'],
+@image_comparison(baseline_images=['streamplot_maxlength'],
                   extensions=['png'])
 def test_maxlength():
     x = np.linspace(-3.,3.,100)
