@@ -682,7 +682,7 @@ def validate_hatch(s):
         raise ValueError("Unknown hatch symbol(s): %s" % list(unknown))
     return s
 validate_hatchlist = _listify_validator(validate_hatch)
-
+validate_dashlist = _listify_validator(validate_nseq_float())
 
 _prop_validators = {
         'color': _listify_validator(validate_color_for_prop_cycle,
@@ -701,6 +701,7 @@ _prop_validators = {
         'alpha': validate_floatlist,
         'marker': validate_stringlist,
         'hatch': validate_hatchlist,
+        'dashes': validate_dashlist,
     }
 _prop_aliases = {
         'c': 'color',
