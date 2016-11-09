@@ -101,7 +101,7 @@ def streamplot(axes, x, y, u, v, density=1, linewidth=None, color=None,
     arrow_kw = dict(arrowstyle=arrowstyle, mutation_scale=10 * arrowsize)
 
     if integration_direction not in ['both', 'forward', 'backward']:
-        errstr = ("Integration direction '%s' not recognised."
+        errstr = ("Integration direction '%s' not recognised. "
                   "Expected 'both', 'forward' or 'backward'." %
                   integration_direction)
         raise ValueError(errstr)
