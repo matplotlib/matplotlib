@@ -3952,6 +3952,7 @@ or tuple of floats
 
         # np.ma.ravel yields an ndarray, not a masked array,
         # unless its argument is a masked array.
+        xy_shape = (np.shape(x), np.shape(y))
         x = np.ma.ravel(x)
         y = np.ma.ravel(y)
         if x.size != y.size:
@@ -3974,7 +3975,7 @@ or tuple of floats
         else:
             try:
                 c_array = np.asanyarray(c, dtype=float)
-                if c_array.size == x.size:
+                if c_array.shape in xy_shape:
                     c = np.ma.ravel(c_array)
                 else:
                     # Wrong size; it must not be intended for mapping.
@@ -3984,7 +3985,14 @@ or tuple of floats
                 c_array = None
 
         if c_array is None:
-            colors = c     # must be acceptable as PathCollection facecolors
+            try:
+                # must be acceptable as PathCollection facecolors
+                colors = mcolors.to_rgba_array(c)
+            except ValueError:
+                # c not acceptable as PathCollection facecolor
+                msg = ("c of shape {0} not acceptable as a color sequence "
+                       "for x with size {1}, y with size {2}")
+                raise ValueError(msg.format(c.shape, x.size, y.size))
         else:
             colors = None  # use cmap, norm after collection is created
 
