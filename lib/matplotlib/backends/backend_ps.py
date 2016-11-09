@@ -318,10 +318,10 @@ class RendererPS(RendererBase):
         %(linewidth)f setlinewidth
 """ % locals())
         self._pswriter.write(
-            self._convert_path(Path.hatch(hatch), Affine2D().scale(72.0),
+            self._convert_path(Path.hatch(hatch), Affine2D().scale(sidelen),
                                simplify=False))
         self._pswriter.write("""\
-          stroke
+        stroke
      } bind
    >>
    matrix
@@ -861,6 +861,7 @@ grestore
         stroke = stroke and mightstroke
         fill = (fill and rgbFace is not None and
                 (len(rgbFace) <= 3 or rgbFace[3] != 0.0))
+        hatch = gc.get_hatch()
 
         if mightstroke:
             self.set_linewidth(gc.get_linewidth())
@@ -886,19 +887,18 @@ grestore
         write("\n")
 
         if fill:
-            if stroke:
+            if stroke or hatch:
                 write("gsave\n")
             self.set_color(store=0, *rgbFace[:3])
             write("fill\n")
-            if stroke:
+            if stroke or hatch:
                 write("grestore\n")
 
-        hatch = gc.get_hatch()
         if hatch:
             hatch_name = self.create_hatch(hatch)
             write("gsave\n")
-            write("[/Pattern [/DeviceRGB]] setcolorspace %f %f %f " % gc.get_hatch_color()[:3])
-            write("%s setcolor fill grestore\n" % hatch_name)
+            write("%f %f %f " % gc.get_hatch_color()[:3])
+            write("%s setpattern fill grestore\n" % hatch_name)
 
         if stroke:
             write("stroke\n")
