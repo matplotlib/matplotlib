@@ -1,16 +1,17 @@
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
+import os
 import six
 
 import numpy as np
 from io import BytesIO
 import xml.parsers.expat
 
-import matplotlib.pyplot as plt
-from matplotlib.testing.decorators import cleanup
-from matplotlib.testing.decorators import image_comparison, knownfailureif
 import matplotlib
+import matplotlib.pyplot as plt
+from ..testing.decorators import (cleanup, image_comparison,
+                                  knownfailureif, switch_backend)
 
 needs_tex = knownfailureif(
     not matplotlib.checkdep_tex(),
@@ -123,6 +124,7 @@ def test_bold_font_output_with_none_fonttype():
     ax.set_title('bold-title', fontweight='bold')
 
 
+@switch_backend('svg')
 def _test_determinism_save(filename, usetex):
     # This function is mostly copy&paste from "def test_visibility"
     # To require no GUI, we use Figure and FigureCanvasSVG
@@ -150,48 +152,78 @@ def _test_determinism_save(filename, usetex):
     FigureCanvasSVG(fig).print_svg(filename)
 
 
-def _test_determinism(filename, usetex):
-    import os
-    import sys
-    from subprocess import check_output, STDOUT, CalledProcessError
-    from nose.tools import assert_equal
-    plots = []
+def _test_determinism_helper(pipe, usetex):
+    guard = list({str(i): i for i in range(10)})
+    try:
+        stream = BytesIO()
+        _test_determinism_save(stream, usetex)
+        stream.seek(0)  # TODO: remove on close #6926
+        img = stream.getvalue()
+        pipe.send((guard, img))
+    except Exception as e:
+        pipe.send(e)
+        raise
+    finally:
+        pipe.close()
+
+
+def _test_determinism(usetex):
+    from multiprocessing import Process, Pipe
+
+    def spawn_child(target, *args):
+        out_pipe, in_pipe = Pipe(duplex=False)
+        proc = Process(target=target, args=(in_pipe,) + args)
+        proc.start()
+        in_pipe.close()
+        return proc, out_pipe
+
+    def collect_results(results):
+        for proc, pipe in results:
+            result = pipe.recv()
+            proc.join()
+            ec = proc.exitcode
+            if ec is None or ec != 0:
+                if isinstance(result, Exception):
+                    raise result
+                else:
+                    raise RuntimeError("Process exited with %d code" % ec)
+            yield result
+
+    # The test does not make sense with PYTHONHASHSEED variable
+    seed = os.environ.pop('PYTHONHASHSEED', None)
+
+    results = []
     for i in range(3):
-        # Using check_output and setting stderr to STDOUT will capture the real
-        # problem in the output property of the exception
-        try:
-            check_output([sys.executable, '-R', '-c',
-                          'import matplotlib; '
-                          'matplotlib.use("svg"); '
-                          'from matplotlib.tests.test_backend_svg '
-                          'import _test_determinism_save;'
-                          '_test_determinism_save(%r, %r)' % (filename,
-                                                              usetex)],
-                         stderr=STDOUT)
-        except CalledProcessError as e:
-            # it's easier to use utf8 and ask for forgiveness than try
-            # to figure out what the current console has as an
-            # encoding :-/
-            print(e.output.decode(encoding="utf-8", errors="ignore"))
-            raise e
-        with open(filename, 'rb') as fd:
-            plots.append(fd.read())
-        os.unlink(filename)
-    for p in plots[1:]:
-        assert_equal(p, plots[0])
+        os.environ['PYTHONHASHSEED'] = str(i)
+        results.append(spawn_child(_test_determinism_helper, usetex))
+
+    if seed is not None:
+        os.environ['PYTHONHASHSEED'] = seed
+    else:
+        os.environ.pop('PYTHONHASHSEED')
+
+    try:
+        it = iter(collect_results(results))
+        g1, p1 = next(it)
+        assert len(p1), "Image data is empty"
+        for g, p in it:
+            assert p1 == p, "Images are different"
+            assert g1 != g, "Dict keys order is the same in subprocesses"
+    finally:
+        for proc, pipe in results:
+            pipe.close()
+            proc.terminate()
 
 
 @cleanup
 def test_determinism_notex():
-    # unique filename to allow for parallel testing
-    _test_determinism('determinism_notex.svg', usetex=False)
+    _test_determinism(usetex=False)
 
 
 @cleanup
 @needs_tex
 def test_determinism_tex():
-    # unique filename to allow for parallel testing
-    _test_determinism('determinism_tex.svg', usetex=True)
+    _test_determinism(usetex=True)
 
 
 if __name__ == '__main__':
