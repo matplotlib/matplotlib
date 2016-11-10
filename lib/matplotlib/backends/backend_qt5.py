@@ -10,6 +10,8 @@ from six import unichr
 
 import matplotlib
 
+import time as ttime
+
 from matplotlib.cbook import is_string_like
 from matplotlib.backend_bases import FigureManagerBase
 from matplotlib.backend_bases import FigureCanvasBase
@@ -242,6 +244,7 @@ class FigureCanvasQT(QtWidgets.QWidget, FigureCanvasBase):
         self.setMouseTracking(True)
         w, h = self.get_width_height()
         self.resize(w, h)
+        self._last_mouse_move_time = 0
 
         # Key auto-repeat enabled by default
         self._keyautorepeat = True
@@ -277,6 +280,11 @@ class FigureCanvasQT(QtWidgets.QWidget, FigureCanvasBase):
             print('button doubleclicked:', event.button())
 
     def mouseMoveEvent(self, event):
+        cur_time = ttime.time()
+        if cur_time - self._last_mouse_move_time < 1 / 30:
+            return
+        self._last_mouse_move_time = cur_time
+
         x = event.x()
         # flipy so y=0 is bottom of canvas
         y = self.figure.bbox.height - event.y()
