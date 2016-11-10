@@ -10,17 +10,17 @@ from __future__ import (absolute_import, division, print_function,
 import six
 
 import os
-
+import warnings as _warnings  # To remove once spectral is removed
 import numpy as np
 from numpy import ma
 import matplotlib as mpl
 import matplotlib.colors as colors
 import matplotlib.cbook as cbook
-from matplotlib._cm import datad
+from matplotlib._cm import datad, _deprecation_datad
 from matplotlib._cm import cubehelix
 from matplotlib._cm_listed import cmaps as cmaps_listed
 
-cmap_d = dict()
+cmap_d = _deprecation_datad()
 
 # reverse all the colormaps.
 # reversed colormaps have '_r' appended to the name.
@@ -81,17 +81,22 @@ def _generate_cmap(name, lutsize):
 
 LUTSIZE = mpl.rcParams['image.lut']
 
-# Generate the reversed specifications ...
-for cmapname in list(six.iterkeys(datad)):
-    spec = datad[cmapname]
-    spec_reversed = _reverse_cmap_spec(spec)
-    datad[cmapname + '_r'] = spec_reversed
+# We silence warnings here to avoid raising the deprecation warning for
+# spectral/spectral_r when this module is imported.
+with _warnings.catch_warnings():
+    _warnings.simplefilter("ignore")
+    # Generate the reversed specifications ...
+    for cmapname in list(six.iterkeys(datad)):
+        spec = datad[cmapname]
+        spec_reversed = _reverse_cmap_spec(spec)
+        datad[cmapname + '_r'] = spec_reversed
 
-# Precache the cmaps with ``lutsize = LUTSIZE`` ...
+    # Precache the cmaps with ``lutsize = LUTSIZE`` ...
 
-# Use datad.keys() to also add the reversed ones added in the section above:
-for cmapname in six.iterkeys(datad):
-    cmap_d[cmapname] = _generate_cmap(cmapname, LUTSIZE)
+    # Use datad.keys() to also add the reversed ones added in the section
+    # above:
+    for cmapname in six.iterkeys(datad):
+        cmap_d[cmapname] = _generate_cmap(cmapname, LUTSIZE)
 
 cmap_d.update(cmaps_listed)
 
