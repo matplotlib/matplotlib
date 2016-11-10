@@ -203,7 +203,7 @@ Note that you can also change colormaps on existing plot objects using the
 .. sourcecode:: ipython
 
     In [10]: imgplot = plt.imshow(lum_img)
-    In [11]: imgplot.set_cmap('spectral')
+    In [11]: imgplot.set_cmap('nipy_spectral')
 
 .. plot::
 
@@ -213,7 +213,7 @@ Note that you can also change colormaps on existing plot objects using the
         img = mpimg.imread('../_static/stinkbug.png')
         lum_img = img[:, :, 0]
         imgplot = plt.imshow(lum_img)
-        imgplot.set_cmap('spectral')
+        imgplot.set_cmap('nipy_spectral')
 
 .. note::
 
@@ -249,7 +249,7 @@ do that by adding color bars.
             img = mpimg.imread('../_static/stinkbug.png')
             lum_img = img[:, :, 0]
             imgplot = plt.imshow(lum_img)
-            imgplot.set_cmap('spectral')
+            imgplot.set_cmap('nipy_spectral')
             plt.colorbar()
 
 This adds a colorbar to your existing figure.  This won't

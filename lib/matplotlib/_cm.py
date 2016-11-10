@@ -9,6 +9,7 @@ with the purpose and type of your colormap if you add data for one here.
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
+from matplotlib.cbook import warn_deprecated
 import numpy as np
 
 _binary_data = {
@@ -1365,7 +1366,24 @@ _Vega20c_data = (
     )
 
 
-datad = {
+class _deprecation_datad(dict):
+    """
+    This class only exists for the purpose of raising an appropriate warning
+    for the deprecation of spectral. It should be remove in 2.2, once the
+    colormap spectral disappears.
+    """
+    def __getitem__(self, key):
+        if key in ["spectral", "spectral_r"]:
+            warn_deprecated(
+                "2.0",
+                name="spectral and spectral_r",
+                alternative="nipy_spectral and nipy_spectral_r",
+                obj_type="colormap"
+                )
+        return super(_deprecation_datad, self).__getitem__(key)
+
+
+datad = _deprecation_datad({
     'afmhot': _afmhot_data,
     'autumn': _autumn_data,
     'bone':   _bone_data,
@@ -1394,7 +1412,7 @@ datad = {
     'winter': _winter_data,
     'nipy_spectral': _nipy_spectral_data,
     'spectral': _nipy_spectral_data,  # alias for backward compatibility
-    }
+    })
 
 
 datad['Blues'] = _Blues_data

@@ -87,6 +87,27 @@ def {name}():
 
 """
 
+CMAP_TEMPLATE_DEPRECATED = AUTOGEN_MSG + """
+def {name}():
+    '''
+    set the default colormap to {name} and apply to current image if any.
+    See help(colormaps) for more information
+    '''
+    from matplotlib.cbook import warn_deprecated
+    warn_deprecated(
+                    "2.0",
+                    name="{name}",
+                    obj_type="colormap"
+                    )
+
+    rc('image', cmap='{name}')
+    im = gci()
+
+    if im is not None:
+        im.set_cmap(cm.{name})
+
+"""
+
 
 def boilerplate_gen():
     """Generator of lines for the automated part of pyplot."""
@@ -322,16 +343,18 @@ def boilerplate_gen():
         'spring',
         'summer',
         'winter',
-        'spectral',
-
         'magma',
         'inferno',
         'plasma',
-        'viridis'
+        'viridis',
+        "nipy_spectral"
     )
+    deprecated_cmaps = ("spectral", )
     # add all the colormaps (autumn, hsv, ....)
     for name in cmaps:
         yield CMAP_TEMPLATE.format(name=name)
+    for name in deprecated_cmaps:
+        yield CMAP_TEMPLATE_DEPRECATED.format(name=name)
 
     yield ''
     yield '_setup_pyplot_info_docstrings()'

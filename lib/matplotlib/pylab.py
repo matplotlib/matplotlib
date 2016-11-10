@@ -121,7 +121,6 @@ _Plotting commands
   spring - set the default colormap to spring
   summer - set the default colormap to summer
   winter - set the default colormap to winter
-  spectral - set the default colormap to spectral
 
 _Event handling
 
