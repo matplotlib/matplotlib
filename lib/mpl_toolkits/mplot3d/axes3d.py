@@ -1587,8 +1587,8 @@ class Axes3D(Axes):
         X, Y, Z = np.broadcast_arrays(X, Y, Z)
         rows, cols = Z.shape
 
-        rstride = kwargs.pop('rstride', 10)
-        cstride = kwargs.pop('cstride', 10)
+        rstride = kwargs.pop('rstride', max(1, rows/100))
+        cstride = kwargs.pop('cstride', max(1, cols/100))
 
         if 'facecolors' in kwargs:
             fcolors = kwargs.pop('facecolors')
@@ -1755,15 +1755,15 @@ class Axes3D(Axes):
         Returns a :class:`~mpl_toolkits.mplot3d.art3d.Line3DCollection`
         '''
 
-        rstride = kwargs.pop("rstride", 1)
-        cstride = kwargs.pop("cstride", 1)
-
         had_data = self.has_data()
         if Z.ndim != 2:
             raise ValueError("Argument Z must be 2-dimensional.")
         # FIXME: Support masked arrays
         X, Y, Z = np.broadcast_arrays(X, Y, Z)
         rows, cols = Z.shape
+
+        rstride = kwargs.pop("rstride", max(1, rows/100))
+        cstride = kwargs.pop("cstride", max(1, cols/100))
 
         # We want two sets of lines, one running along the "rows" of
         # Z and another set of lines running along the "columns" of Z.
