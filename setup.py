@@ -139,6 +139,12 @@ class NoopTestCommand(TestCommand):
               "'python setup.py test'. Please run 'python tests.py'")
 
 
+class NoopCleanCommand(TestCommand):
+    def run(self):
+        print("Matplotlib does not support 'python setup.py clean' "
+              "Please use 'git clean' or manually delete the build folder.")
+
+
 class BuildExtraLibraries(BuildExtCommand):
     def run(self):
         for package in good_packages:
@@ -149,6 +155,7 @@ class BuildExtraLibraries(BuildExtCommand):
 
 cmdclass = versioneer.get_cmdclass()
 cmdclass['test'] = NoopTestCommand
+cmdclass['clean'] = NoopCleanCommand
 cmdclass['build_ext'] = BuildExtraLibraries
 
 # One doesn't normally see `if __name__ == '__main__'` blocks in a setup.py,
