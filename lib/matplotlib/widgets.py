@@ -1478,6 +1478,8 @@ class _SelectorWidget(AxesWidget):
         self._prev_event = None
         self.state = set()
 
+        self._override_press = False
+
     def set_active(self, active):
         AxesWidget.set_active(self, active)
         if active:
@@ -1584,6 +1586,7 @@ class _SelectorWidget(AxesWidget):
     def press(self, event):
         """Button press handler and validator"""
         if not self.ignore(event):
+            self._override_press = False
             event = self._clean_event(event)
             self.eventpress = event
             self._prev_event = event
@@ -1618,7 +1621,8 @@ class _SelectorWidget(AxesWidget):
 
     def onmove(self, event):
         """Cursor move event handler and validator"""
-        if not self.ignore(event) and self.eventpress:
+        valid_press = self.eventpress or self._override_press
+        if not self.ignore(event) and valid_press:
             event = self._clean_event(event)
             self._onmove(event)
             return True
@@ -1646,6 +1650,7 @@ class _SelectorWidget(AxesWidget):
                 for artist in self.artists:
                     artist.set_visible(False)
                 self.update()
+                self.eventpress = None
                 return
             for (state, modifier) in self.state_modifier_keys.items():
                 if modifier in key:
@@ -2073,8 +2078,10 @@ class RectangleSelector(_SelectorWidget):
                                  alpha=0.2, fill=True)
             rectprops['animated'] = self.useblit
             self.rectprops = rectprops
-            self.to_draw = self._shape_klass((0, 0),
-                                     0, 1, visible=False, **self.rectprops)
+            self.to_draw = (
+                self._shape_klass((0, 0), 0, 1, visible=False,
+                                  **self.rectprops)
+            )
             self.ax.add_patch(self.to_draw)
         if drawtype == 'line':
             if lineprops is None:
@@ -2207,8 +2214,8 @@ class RectangleSelector(_SelectorWidget):
                 y2 = event.ydata
 
         # move existing shape
-        elif (('move' in self.state or self.active_handle == 'C')
-              and self._extents_on_press is not None):
+        elif (('move' in self.state or self.active_handle == 'C') and
+              self._extents_on_press is not None):
             x1, x2, y1, y2 = self._extents_on_press
             dx = event.xdata - self.eventpress.xdata
             dy = event.ydata - self.eventpress.ydata
@@ -2462,6 +2469,14 @@ class LassoSelector(_SelectorWidget):
     *onselect* : function
         Whenever the lasso is released, the `onselect` function is called and
         passed the vertices of the selected path.
+    *persist*: boolean
+        Whether to leave the lasso drawn until the next one is drawn.
+
+    *state_modifier_keys* are keyboard modifiers that affect the behavior
+        of the widget.
+
+        The defaults are:
+        dict(polygon='shift', clear='escape')
 
     Example usage::
 
@@ -2485,10 +2500,12 @@ class LassoSelector(_SelectorWidget):
     """
 
     def __init__(self, ax, onselect=None, useblit=True, lineprops=None,
-            button=None):
+                 button=None, persist=False, state_modifier_keys=None):
         _SelectorWidget.__init__(self, ax, onselect, useblit=useblit,
-            button=button)
+                                 button=button,
+                                 state_modifier_keys=state_modifier_keys)
 
+        self.state_modifier_keys.setdefault('polygon', 'shift')
         self.verts = None
 
         if lineprops is None:
@@ -2499,32 +2516,61 @@ class LassoSelector(_SelectorWidget):
         self.line.set_visible(False)
         self.ax.add_line(self.line)
         self.artists = [self.line]
+        self.persist = persist
 
     def onpress(self, event):
         self.press(event)
 
     def _press(self, event):
-        self.verts = [self._get_data(event)]
-        self.line.set_visible(True)
+        if (not event.key == self.state_modifier_keys['polygon'] or
+                self.verts is None):
+            self.verts = [(event.xdata, event.ydata)]
+
+    def _on_key_release(self, event):
+        if event.key == self.state_modifier_keys['polygon']:
+            if self._override_press:
+                self._finish(event)
 
     def onrelease(self, event):
         self.release(event)
 
-    def _release(self, event):
-        if self.verts is not None:
-            self.verts.append(self._get_data(event))
-            self.onselect(self.verts)
-        self.line.set_data([[], []])
-        self.line.set_visible(False)
+    def _finish(self, event):
+        self.verts.append(self.verts[0])
+        self.line.set_data(list(zip(*self.verts)))
+        self.onselect(self.verts)
+        if not self.persist:
+            self.line.set_data([[], []])
+            self.line.set_visible(False)
+            self._override_press = False
         self.verts = None
+        self.update()
+
+    def _release(self, event):
+        if self.verts is None:
+            return
+        self.verts.append((event.xdata, event.ydata))
+        if event.key != self.state_modifier_keys['polygon']:
+            self._finish(event)
+        else:
+            self._override_press = True
+            self.verts.append((event.xdata, event.ydata))
+            self.line.set_data(list(zip(*self.verts)))
+            self.update()
 
     def _onmove(self, event):
         if self.verts is None:
             return
-        self.verts.append(self._get_data(event))
-
+        self.line.set_visible(True)
+        if event.key == self.state_modifier_keys['polygon']:
+            if len(self.verts) == 1:
+                self.verts.append((event.xdata, event.ydata))
+            else:
+                self.verts[-1] = (event.xdata, event.ydata)
+        elif event.button:
+            self.verts.append((event.xdata, event.ydata))
+        else:
+            return self._finish(event)
         self.line.set_data(list(zip(*self.verts)))
-
         self.update()
 
 

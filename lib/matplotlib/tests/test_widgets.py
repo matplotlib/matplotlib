@@ -243,14 +243,36 @@ def check_lasso_selector(**kwargs):
 
     def onselect(verts):
         ax._got_onselect = True
-        assert verts == [(100, 100), (125, 125), (150, 150)]
+        assert verts == [(100, 100), (125, 125), (126, 126), (130, 130),
+                         (150, 150), (170, 170), (185, 185), (190, 190),
+                         (195, 195), (100, 100)], verts
 
     tool = widgets.LassoSelector(ax, onselect, **kwargs)
     do_event(tool, 'press', xdata=100, ydata=100, button=1)
     do_event(tool, 'onmove', xdata=125, ydata=125, button=1)
-    do_event(tool, 'release', xdata=150, ydata=150, button=1)
+    do_event(tool, 'onmove', xdata=126, ydata=126, button=1)
+    do_event(tool, 'onmove', xdata=127, ydata=127, button=1)
+    do_event(tool, 'onmove', key='shift', xdata=128, ydata=128, button=1)
+    do_event(tool, 'onmove', key='shift', xdata=129, ydata=129, button=1)
+    do_event(tool, 'onmove', key='shift', xdata=130, ydata=130, button=1)
+    do_event(tool, 'release', key='shift', xdata=150, ydata=150, button=1)
+    do_event(tool, 'onmove', key='shift', xdata=160, ydata=160, button=1)
+    do_event(tool, 'onmove', key='shift', xdata=170, ydata=170, button=1)
+    do_event(tool, 'press', key='shift', xdata=180, ydata=180, button=1)
+    do_event(tool, 'onmove', xdata=185, ydata=185, button=1)
+    do_event(tool, 'onmove', xdata=190, ydata=190, button=1)
+    do_event(tool, 'release', xdata=195, ydata=195, button=1)
 
     assert ax._got_onselect
+
+    ax._got_onselect = False
+    do_event(tool, 'press', xdata=100, ydata=100, button=1)
+    do_event(tool, 'onmove', xdata=125, ydata=125, button=1)
+    do_event(tool, 'onmove', xdata=126, ydata=126, button=1)
+    do_event(tool, 'onmove', xdata=127, ydata=127, button=1)
+    do_event(tool, 'on_key_press', key='escape', button=1)
+    do_event(tool, 'release', button=1)
+    assert not ax._got_onselect
 
 
 def test_lasso_selector():
