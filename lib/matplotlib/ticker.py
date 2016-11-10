@@ -836,7 +836,11 @@ class LogFormatter(Formatter):
         """
         Switch minor tick labeling on or off.
 
-        ``labelOnlyBase=True`` to turn off minor ticks.
+        Parameters
+        ----------
+        labelOnlyBase : bool, optional, default: True
+            If True, only label decades.
+
         """
         self.labelOnlyBase = labelOnlyBase
 
@@ -878,7 +882,7 @@ class LogFormatter(Formatter):
 
     def __call__(self, x, pos=None):
         """
-        Return the format for tick val `x` at position `pos`.
+        Return the format for tick val `x`.
         """
         b = self._base
         if x == 0.0:
@@ -960,8 +964,6 @@ class LogFormatterExponent(LogFormatter):
     def __call__(self, x, pos=None):
         """
         Return the format for tick value `x`.
-
-        The position `pos` is ignored.
         """
         vmin, vmax = self.axis.get_view_interval()
         vmin, vmax = mtransforms.nonsingular(vmin, vmax, expander=0.05)
@@ -1068,11 +1070,11 @@ class LogFormatterSciNotation(LogFormatterMathtext):
         if is_close_to_int(coeff):
             coeff = nearest_long(coeff)
         if usetex:
-            return (r'$%g\times%s^{%d}$') % \
-                                        (coeff, base, exponent)
+            return (r'$%s%g\times%s^{%d}$') % \
+                                        (sign_string, coeff, base, exponent)
         else:
-            return ('$%s$' % _mathdefault(r'%g\times%s^{%d}' %
-                                        (coeff, base, exponent)))
+            return ('$%s$' % _mathdefault(r'%s%g\times%s^{%d}' %
+                                        (sign_string, coeff, base, exponent)))
 
 
 class LogitFormatter(Formatter):
