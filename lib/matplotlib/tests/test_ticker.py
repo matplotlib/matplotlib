@@ -171,7 +171,7 @@ def test_SymmetricalLogLocator_set_params():
     assert sym.numticks == 8
 
 
-@cleanup
+@cleanup(style='classic')
 @pytest.mark.parametrize('left, right, offset',
                          [(123, 189, 0),
                           (-189, -123, 0),
@@ -255,13 +255,16 @@ def test_LogFormatter_sublabel():
     assert np.all(show_major_labels)
     _sub_labels(ax.xaxis, subs=[])
 
-    # axis range at 2 to 3 decades, label sub 3
+    # For the next two, if the numdec threshold in LogFormatter.set_locs
+    # were 3, then the label sub would be 3 for 2-3 decades and (2,5)
+    # for 1-2 decades.  With a threshold of 1, subs are not labeled.
+    # axis range at 2 to 3 decades
     ax.set_xlim(1, 800)
-    _sub_labels(ax.xaxis, subs=[3])
+    _sub_labels(ax.xaxis, subs=[])
 
-    # axis range at 1 to 2 decades, label subs 2 and 5
+    # axis range at 1 to 2 decades
     ax.set_xlim(1, 80)
-    _sub_labels(ax.xaxis, subs=[2, 5])
+    _sub_labels(ax.xaxis, subs=[])
 
     # axis range at 0 to 1 decades, label subs 2, 3, 6
     ax.set_xlim(1, 8)

@@ -481,6 +481,7 @@ int convert_gcagg(PyObject *pygc, void *gcp)
           convert_from_method(pygc, "get_clip_path", &convert_clippath, &gc->clippath) &&
           convert_from_method(pygc, "get_snap", &convert_snap, &gc->snap_mode) &&
           convert_from_method(pygc, "get_hatch_path", &convert_path, &gc->hatchpath) &&
+          convert_from_method(pygc, "get_hatch_color", &convert_rgba, &gc->hatch_color) &&
           convert_from_method(pygc, "get_hatch_linewidth", &convert_double, &gc->hatch_linewidth) &&
           convert_from_method(pygc, "get_sketch_params", &convert_sketch_params, &gc->sketch))) {
         return 0;

@@ -523,6 +523,7 @@ class ScalarFormatter(Formatter):
 
         if useOffset is None:
             useOffset = rcParams['axes.formatter.useoffset']
+        self._offset_threshold = rcParams['axes.formatter.offset_threshold']
         self.set_useOffset(useOffset)
         self._usetex = rcParams['text.usetex']
         if useMathText is None:
@@ -718,9 +719,10 @@ class ScalarFormatter(Formatter):
             # are no more than 1 apart at that precision?
             oom = 1 + next(oom for oom in itertools.count(oom_max, -1)
                            if abs_max // 10 ** oom - abs_min // 10 ** oom > 1)
-        # Only use offset if it saves at least two significant digits.
+        # Only use offset if it saves at least _offset_threshold digits.
+        n = self._offset_threshold - 1
         self.offset = (sign * (abs_max // 10 ** oom) * 10 ** oom
-                       if abs_max // 10 ** oom >= 10
+                       if abs_max // 10 ** oom >= 10**n
                        else 0)
 
     def _set_orderOfMagnitude(self, range):
@@ -882,7 +884,7 @@ class LogFormatter(Formatter):
             vmax = math.log(vmax) / math.log(b)
             numdec = abs(vmax - vmin)
 
-        if numdec > 3:
+        if numdec > 1:
             # Label only bases
             self.sublabel = set((1,))
         else:
@@ -1968,10 +1970,10 @@ class LogLocator(Locator):
 
         numdec = math.floor(vmax) - math.ceil(vmin)
 
-        if self._subs is None:  # autosub
-            if numdec > 10:
-                subs = np.array([1.0])
-            elif numdec > 6:
+        if self._subs is None:  # autosub for minor ticks
+            if numdec > 10 or b < 3:
+                return np.array([])  # no minor ticks
+            elif numdec > 5 and b >= 6:
                 subs = np.arange(2.0, b, 2.0)
             else:
                 subs = np.arange(2.0, b)

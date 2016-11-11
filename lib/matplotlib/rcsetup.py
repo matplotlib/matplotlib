@@ -682,7 +682,7 @@ def validate_hatch(s):
         raise ValueError("Unknown hatch symbol(s): %s" % list(unknown))
     return s
 validate_hatchlist = _listify_validator(validate_hatch)
-
+validate_dashlist = _listify_validator(validate_nseq_float())
 
 _prop_validators = {
         'color': _listify_validator(validate_color_for_prop_cycle,
@@ -701,6 +701,7 @@ _prop_validators = {
         'alpha': validate_floatlist,
         'marker': validate_stringlist,
         'hatch': validate_hatchlist,
+        'dashes': validate_dashlist,
     }
 _prop_aliases = {
         'c': 'color',
@@ -930,6 +931,7 @@ defaultParams = {
     'patch.antialiased': [True, validate_bool],     # antialiased (no jaggies)
 
     ## hatch props
+    'hatch.color': ['k', validate_color],
     'hatch.linewidth': [1.0, validate_float],
 
     ## Histogram properties
@@ -1085,6 +1087,7 @@ defaultParams = {
                                # Use the current locale to format ticks
     'axes.formatter.use_mathtext': [False, validate_bool],
     'axes.formatter.useoffset': [True, validate_bool],
+    'axes.formatter.offset_threshold': [4, validate_int],
     'axes.unicode_minus': [True, validate_bool],
     'axes.color_cycle': [
         ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728',

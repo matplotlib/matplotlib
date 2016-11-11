@@ -890,7 +890,7 @@ grestore
         if hatch:
             hatch_name = self.create_hatch(hatch)
             write("gsave\n")
-            write("[/Pattern [/DeviceRGB]] setcolorspace %f %f %f " % gc.get_rgb()[:3])
+            write("[/Pattern [/DeviceRGB]] setcolorspace %f %f %f " % gc.get_hatch_color()[:3])
             write("%s setcolor fill grestore\n" % hatch_name)
 
         if stroke:
