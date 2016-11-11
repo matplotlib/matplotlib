@@ -1,5 +1,7 @@
-'''Demonstration of LineCollection, PolyCollection, and
-RegularPolyCollection with autoscaling.
+'''
+=========================================================
+Line and Poly and RegularPoly Collection with autoscaling
+=========================================================
 
 For the first two subplots, we will use spirals.  Their
 size will be set in plot units, not data units.  Their positions

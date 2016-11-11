@@ -1,5 +1,9 @@
 """
-Make a compund path -- in this case two simple polygons, a rectangle
+=============
+Compound path
+=============
+
+Make a compound path -- in this case two simple polygons, a rectangle
 and a triangle.  Use CLOSEOPOLY and MOVETO for the different parts of
 the compound path
 """

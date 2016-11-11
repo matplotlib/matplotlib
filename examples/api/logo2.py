@@ -1,4 +1,8 @@
 """
+==========
+matplotlib
+==========
+
 Thanks to Tony Yu <tsyu80@gmail.com> for the logo design
 """
 
@@ -13,7 +17,6 @@ mpl.rcParams['axes.edgecolor'] = 'gray'
 
 
 axalpha = 0.05
-#figcolor = '#EFEFEF'
 figcolor = 'white'
 dpi = 80
 fig = plt.figure(figsize=(6, 1.1), dpi=dpi)
@@ -37,8 +40,6 @@ def add_math_background():
                  (0.35, 0.9), 20))
     text.append((r"$\int_{-\infty}^\infty e^{-x^2}dx=\sqrt{\pi}$",
                  (0.15, 0.3), 25))
-    #text.append((r"$E = mc^2 = \sqrt{{m_0}^2c^4 + p^2c^2}$",
-    #            (0.7, 0.42), 30))
     text.append((r"$F_G = G\frac{m_1m_2}{r^2}$",
                  (0.85, 0.7), 30))
     for eq, (x, y), size in text:
@@ -79,6 +80,7 @@ def add_polar_bar():
 
     ax.set_yticks(np.arange(1, 9, 2))
     ax.set_rmax(9)
+
 
 if __name__ == '__main__':
     main_axes = add_math_background()

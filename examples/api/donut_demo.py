@@ -1,3 +1,11 @@
+"""
+=============
+Mmh Donuts!!!
+=============
+
+This example draws donuts (miam!) using Path and Patches.
+"""
+
 import numpy as np
 import matplotlib.path as mpath
 import matplotlib.patches as mpatches
