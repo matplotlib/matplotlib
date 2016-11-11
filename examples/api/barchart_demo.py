@@ -1,4 +1,8 @@
 """
+========
+Barchart
+========
+
 A bar plot with errorbars and height labels on individual bars
 """
 import numpy as np

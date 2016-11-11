@@ -1,5 +1,9 @@
 """
-Load a mathtext image as numpy array
+===============================
+A mathtext image as numpy array
+===============================
+
+This example shows how to make images from LaTeX strings.
 """
 
 import matplotlib.mathtext as mathtext

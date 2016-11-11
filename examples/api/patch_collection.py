@@ -1,3 +1,9 @@
+"""
+============================
+Circles, Wedges and Polygons
+============================
+"""
+
 import numpy as np
 import matplotlib
 from matplotlib.patches import Circle, Wedge, Polygon
