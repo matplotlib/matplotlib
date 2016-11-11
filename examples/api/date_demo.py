@@ -1,4 +1,8 @@
 """
+================
+Date tick labels
+================
+
 Show how to make date plots in matplotlib using date tick locators and
 formatters.  See major_minor_demo1.py for more information on
 controlling major and minor ticks

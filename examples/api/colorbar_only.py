@@ -1,5 +1,9 @@
 '''
-Make a colorbar as a separate figure.
+====================
+Customized colorbars
+====================
+
+This example shows how to build colorbars without an attached mappable.
 '''
 
 import matplotlib.pyplot as plt

@@ -1,3 +1,13 @@
+"""
+=================
+Custom projection
+=================
+
+This example showcases the Hammer projection by alleviating many features of
+matplotlib.
+"""
+
+
 from __future__ import unicode_literals
 
 import matplotlib

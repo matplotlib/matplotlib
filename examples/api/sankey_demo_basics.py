@@ -1,4 +1,9 @@
-"""Demonstrate the Sankey class by producing three basic diagrams.
+"""
+================
+The Sankey class
+================
+
+Demonstrate the Sankey class by producing three basic diagrams.
 """
 import numpy as np
 import matplotlib.pyplot as plt
