@@ -1,4 +1,7 @@
 """
+===========================
+Plots with different scales
+===========================
 
 Demonstrate how to do two plots on the same axes with different left
 right scales.

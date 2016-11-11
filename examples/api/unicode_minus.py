@@ -1,4 +1,8 @@
 """
+=============
+Unicode minus
+=============
+
 You can use the proper typesetting unicode minus (see
 http://en.wikipedia.org/wiki/Plus_sign#Plus_sign) or the ASCII hypen
 for minus, which some people prefer.  The matplotlibrc param

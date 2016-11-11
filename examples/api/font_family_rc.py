@@ -1,4 +1,8 @@
 """
+===========================
+Configuring the font family
+===========================
+
 You can explicitly set which font family is picked up for a given font
 style (e.g., 'serif', 'sans-serif', or 'monospace').
 

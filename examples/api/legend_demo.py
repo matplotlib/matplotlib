@@ -1,3 +1,12 @@
+"""
+===============================
+Legend using pre-defined labels
+===============================
+
+Notice how the legend labels are defined with the plots!
+"""
+
+
 import numpy as np
 import matplotlib.pyplot as plt
 
