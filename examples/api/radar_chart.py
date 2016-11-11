@@ -1,5 +1,9 @@
 """
-Example of creating a radar chart (a.k.a. a spider or star chart) [1]_.
+======================================
+Radar chart (aka spider or star chart)
+======================================
+
+This example creates a radar chart, also known as a spider or star chart [1]_.
 
 Although this example allows a frame of either 'circle' or 'polygon', polygon
 frames don't have proper gridlines (the lines are circles instead of polygons).
@@ -187,7 +191,8 @@ if __name__ == '__main__':
     # add legend relative to top-left plot
     ax = axes[0, 0]
     labels = ('Factor 1', 'Factor 2', 'Factor 3', 'Factor 4', 'Factor 5')
-    legend = ax.legend(labels, loc=(0.9, .95), labelspacing=0.1, fontsize='small')
+    legend = ax.legend(labels, loc=(0.9, .95),
+                       labelspacing=0.1, fontsize='small')
 
     fig.text(0.5, 0.965, '5-Factor Solution Profiles Across Four Scenarios',
              horizontalalignment='center', color='black', weight='bold',

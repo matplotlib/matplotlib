@@ -1,4 +1,8 @@
 """
+========================================================
+Building histograms using Rectangles and PolyCollections
+========================================================
+
 This example shows how to use a path patch to draw a bunch of
 rectangles.  The technique of using lots of Rectangle instances, or
 the faster method of using PolyCollections, were implemented before we
@@ -36,7 +40,7 @@ XY = np.array([[left, left, right, right], [bottom, top, top, bottom]]).T
 barpath = path.Path.make_compound_path_from_polys(XY)
 
 # make a patch out of it
-patch = patches.PathPatch(barpath, facecolor='blue')
+patch = patches.PathPatch(barpath)
 ax.add_patch(patch)
 
 # update the view limits

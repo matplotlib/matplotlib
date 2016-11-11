@@ -1,3 +1,12 @@
+"""
+=========================
+Hatch-filled histograms
+=========================
+
+This example showcases the hatching capabilities of matplotlib by plotting
+various histograms.
+"""
+
 import itertools
 from collections import OrderedDict
 from functools import partial

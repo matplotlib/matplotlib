@@ -1,4 +1,8 @@
 """
+===========
+Join styles
+===========
+
 Illustrate the three different join styles
 """
 

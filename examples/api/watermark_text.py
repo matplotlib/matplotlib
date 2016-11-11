@@ -1,4 +1,8 @@
 """
+==============
+Text watermark
+==============
+
 Use a Text as a watermark
 """
 import numpy as np

@@ -1,4 +1,8 @@
 """
+============================
+Affine transform of an image
+============================
+
 For the backends that support draw_image with optional affine
 transform (e.g., agg, ps backend), the image of the output should
 have its boundary match the dashed yellow rectangle.
