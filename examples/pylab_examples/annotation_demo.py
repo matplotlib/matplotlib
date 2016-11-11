@@ -39,104 +39,94 @@ from matplotlib.patches import Ellipse
 import numpy as np
 
 
-if 1:
-    # if only one location is given, the text and xypoint being
-    # annotated are assumed to be the same
-    fig = plt.figure()
-    ax = fig.add_subplot(111, autoscale_on=False, xlim=(-1, 5), ylim=(-3, 5))
+# If only one location is given, the text and xypoint being
+# annotated are assumed to be the same
+fig = plt.figure()
+ax = fig.add_subplot(111, autoscale_on=False, xlim=(-1, 5), ylim=(-3, 5))
 
-    t = np.arange(0.0, 5.0, 0.01)
-    s = np.cos(2*np.pi*t)
-    line, = ax.plot(t, s)
+t = np.arange(0.0, 5.0, 0.01)
+s = np.cos(2*np.pi*t)
+line, = ax.plot(t, s)
 
-    ax.annotate('figure pixels',
-                xy=(10, 10), xycoords='figure pixels')
+ax.annotate('figure pixels',
+            xy=(10, 10), xycoords='figure pixels')
 
-    ax.annotate('figure points', xy=(80, 80),
-                xycoords='figure points')
+ax.annotate('figure points',
+            xy=(80, 80), xycoords='figure points')
 
-    ax.annotate('point offset from data', xy=(2, 1),
-                xycoords='data',
-                xytext=(-15, 25), textcoords='offset points',
-                arrowprops=dict(facecolor='black', shrink=0.05),
-                horizontalalignment='right', verticalalignment='bottom',
-                )
+ax.annotate('point offset from data',
+            xy=(2, 1), xycoords='data',
+            xytext=(-15, 25), textcoords='offset points',
+            arrowprops=dict(facecolor='black', shrink=0.05),
+            horizontalalignment='right', verticalalignment='bottom')
 
-    ax.annotate('axes fraction', xy=(3, 1), xycoords='data',
-                xytext=(0.8, 0.95), textcoords='axes fraction',
-                arrowprops=dict(facecolor='black', shrink=0.05),
-                horizontalalignment='right', verticalalignment='top',
-                )
+ax.annotate('axes fraction',
+            xy=(3, 1), xycoords='data',
+            xytext=(0.8, 0.95), textcoords='axes fraction',
+            arrowprops=dict(facecolor='black', shrink=0.05),
+            horizontalalignment='right', verticalalignment='top')
 
-    ax.annotate('figure fraction', xy=(.025, .975),
-                xycoords='figure fraction',
-                horizontalalignment='left', verticalalignment='top',
-                fontsize=20)
+ax.annotate('figure fraction',
+            xy=(.025, .975), xycoords='figure fraction',
+            horizontalalignment='left', verticalalignment='top',
+            fontsize=20)
 
-    # use negative points or pixels to specify from right, top -10, 10
-    # is 10 points to the left of the right side of the axes and 10
-    # points above the bottom
-    ax.annotate('pixel offset from axes fraction', xy=(1, 0),
-                xycoords='axes fraction',
-                xytext=(-20, 20),
-                textcoords='offset pixels',
-                horizontalalignment='right',
-                verticalalignment='bottom')
+# use negative points or pixels to specify from right, top -10, 10
+# is 10 points to the left of the right side of the axes and 10
+# points above the bottom
+ax.annotate('pixel offset from axes fraction',
+            xy=(1, 0), xycoords='axes fraction',
+            xytext=(-20, 20), textcoords='offset pixels',
+            horizontalalignment='right',
+            verticalalignment='bottom')
 
 
-if 1:
-    # you can specify the xypoint and the xytext in different
-    # positions and coordinate systems, and optionally turn on a
-    # connecting line and mark the point with a marker.  Annotations
-    # work on polar axes too.  In the example below, the xy point is
-    # in native coordinates (xycoords defaults to 'data').  For a
-    # polar axes, this is in (theta, radius) space.  The text in this
-    # example is placed in the fractional figure coordinate system.
-    # Text keyword args like horizontal and vertical alignment are
-    # respected
-    fig = plt.figure()
-    ax = fig.add_subplot(111, projection='polar')
-    r = np.arange(0, 1, 0.001)
-    theta = 2*2*np.pi*r
-    line, = ax.plot(theta, r)
+# You can specify the xypoint and the xytext in different positions and
+# coordinate systems, and optionally turn on a connecting line and mark
+# the point with a marker.  Annotations work on polar axes too.
+# In the example below, the xy point is in native coordinates (xycoords
+# defaults to 'data').  For a polar axes, this is in (theta, radius) space.
+# The text in the example is placed in the fractional figure coordinate system.
+# Text keyword args like horizontal and vertical alignment are respected.
+fig = plt.figure()
+ax = fig.add_subplot(111, projection='polar')
+r = np.arange(0, 1, 0.001)
+theta = 2*2*np.pi*r
+line, = ax.plot(theta, r)
 
-    ind = 800
-    thisr, thistheta = r[ind], theta[ind]
-    ax.plot([thistheta], [thisr], 'o')
-    ax.annotate('a polar annotation',
-                xy=(thistheta, thisr),  # theta, radius
-                xytext=(0.05, 0.05),    # fraction, fraction
-                textcoords='figure fraction',
-                arrowprops=dict(facecolor='black', shrink=0.05),
-                horizontalalignment='left',
-                verticalalignment='bottom',
-                )
+ind = 800
+thisr, thistheta = r[ind], theta[ind]
+ax.plot([thistheta], [thisr], 'o')
+ax.annotate('a polar annotation',
+            xy=(thistheta, thisr),  # theta, radius
+            xytext=(0.05, 0.05),    # fraction, fraction
+            textcoords='figure fraction',
+            arrowprops=dict(facecolor='black', shrink=0.05),
+            horizontalalignment='left',
+            verticalalignment='bottom')
 
 
-if 1:
-    # You can also use polar notation on a cartesian axes.  Here the
-    # native coordinate system ('data') is cartesian, so you need to
-    # specify the xycoords and textcoords as 'polar' if you want to
-    # use (theta, radius)
+# You can also use polar notation on a cartesian axes.  Here the native
+# coordinate system ('data') is cartesian, so you need to specify the
+# xycoords and textcoords as 'polar' if you want to use (theta, radius).
 
-    el = Ellipse((0, 0), 10, 20, facecolor='r', alpha=0.5)
+el = Ellipse((0, 0), 10, 20, facecolor='r', alpha=0.5)
 
-    fig = plt.figure()
-    ax = fig.add_subplot(111, aspect='equal')
-    ax.add_artist(el)
-    el.set_clip_box(ax.bbox)
-    ax.annotate('the top',
-                xy=(np.pi/2., 10.),      # theta, radius
-                xytext=(np.pi/3, 20.),   # theta, radius
-                xycoords='polar',
-                textcoords='polar',
-                arrowprops=dict(facecolor='black', shrink=0.05),
-                horizontalalignment='left',
-                verticalalignment='bottom',
-                clip_on=True,  # clip to the axes bounding box
-                )
+fig = plt.figure()
+ax = fig.add_subplot(111, aspect='equal')
+ax.add_artist(el)
+el.set_clip_box(ax.bbox)
+ax.annotate('the top',
+            xy=(np.pi/2., 10.),      # theta, radius
+            xytext=(np.pi/3, 20.),   # theta, radius
+            xycoords='polar',
+            textcoords='polar',
+            arrowprops=dict(facecolor='black', shrink=0.05),
+            horizontalalignment='left',
+            verticalalignment='bottom',
+            clip_on=True)  # clip to the axes bounding box
 
-    ax.set_xlim(-20, 20)
-    ax.set_ylim(-20, 20)
+ax.set_xlim([-20, 20])
+ax.set_ylim([-20, 20])
 
 plt.show()
