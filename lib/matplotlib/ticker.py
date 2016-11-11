@@ -801,25 +801,25 @@ class LogFormatter(Formatter):
     Format values for log axis.
     """
     def __init__(self, base=10.0, labelOnlyBase=False,
-                 sublabel_filtering=False):
+                 label_pruning=False):
         """
         `base` is used to locate the decade tick, which will be the only
         one to be labeled if `labelOnlyBase` is ``True``.
 
-        Parameter
-        ---------
+        Parameters
+        ----------
         base : float, optional, default: 10.
             base of the logarithm.
 
         labelOnlyBase : bool, optional, default: False
-             whether to only label decades ticks.
+            whether to only label decades ticks.
 
-        sublabel_filtering : bool, optional, default: False
-            When set to True, label on a subset of ticks.
+        label_pruning : bool, optional, default: False
+            when set to True, label on a subset of ticks.
         """
         self._base = base + 0.0
         self.labelOnlyBase = labelOnlyBase
-        self.sublabel_filtering = sublabel_filtering
+        self.label_pruning = label_pruning
         self._sublabels = [1, ]
 
     def base(self, base):
@@ -895,7 +895,7 @@ class LogFormatter(Formatter):
         exponent = np.round(fx) if isDecade else np.floor(fx)
         coeff = np.round(x / b ** exponent)
 
-        if self.sublabel_filtering and coeff not in self._sublabels:
+        if self.label_pruning and coeff not in self._sublabels:
             return ''
         if not isDecade and self.labelOnlyBase:
             return ''
@@ -976,10 +976,10 @@ class LogFormatterExponent(LogFormatter):
         fx = math.log(abs(x)) / math.log(b)
 
         isDecade = is_close_to_int(fx)
-        exponent = np.round(fx) if is_decade else np.floor(fx)
+        exponent = np.round(fx) if isDecade else np.floor(fx)
         coeff = np.round(abs(x) / b ** exponent)
 
-        if self.sublabel_filtering and coeff not in self._sublabels:
+        if self.label_pruning and coeff not in self._sublabels:
             return ''
         if not isDecade and self.labelOnlyBase:
             return ''
@@ -1039,7 +1039,7 @@ class LogFormatterMathtext(LogFormatter):
         else:
             base = '%s' % b
 
-        if self.sublabel_filtering and coeff not in self._sublabels:
+        if self.label_pruning and coeff not in self._sublabels:
             return ''
         if not is_decade and self.labelOnlyBase:
             return ''
