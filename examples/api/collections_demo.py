@@ -1,6 +1,6 @@
 '''
 =========================================================
-Line and Poly and RegularPoly Collection with autoscaling
+Line, Poly and RegularPoly Collection with autoscaling
 =========================================================
 
 For the first two subplots, we will use spirals.  Their

@@ -1,6 +1,6 @@
 '''
 =========================================
-Labeling ticks using engineering notations
+Labeling ticks using engineering notation
 =========================================
 
 Demo to show use of the engineering Formatter.

@@ -3,7 +3,7 @@
 Bezier Curve
 ============
 
-This example showcases the PathPatch object to create a bezier polycurve path
+This example showcases the PathPatch object to create a Bezier polycurve path
 patch.
 """
 

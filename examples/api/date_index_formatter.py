@@ -1,10 +1,10 @@
 """
-====================================
-Custom tick formatter for timeseries
-====================================
+=====================================
+Custom tick formatter for time series
+=====================================
 
 When plotting time series, e.g., financial time series, one often wants
-to leave out days on which there is no data, eh weekends.  The example
+to leave out days on which there is no data, i.e. weekends.  The example
 below shows how to use an 'index formatter' to achieve the desired plot
 """
 from __future__ import print_function

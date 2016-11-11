@@ -1,6 +1,6 @@
 """
 =========================
-Hatched filled histograms
+Hatch-filled histograms
 =========================
 
 This example showcases the hatching capabilities of matplotlib by plotting
