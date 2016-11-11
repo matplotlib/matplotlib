@@ -808,7 +808,7 @@ class LogFormatter(Formatter):
 
         Parameter
         ---------
-        base : float, optional, default: 10.
+        base : float, optional, default: 10.
             base of the logarithm.
 
         labelOnlyBase : bool, optional, default: False
