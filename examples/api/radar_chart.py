@@ -1,7 +1,7 @@
 """
-=====================================
-Radar chart (aka spider or star chart
-=====================================
+======================================
+Radar chart (aka spider or star chart)
+======================================
 
 This example creates a radar chart, also known as a spider or star chart [1]_.
 

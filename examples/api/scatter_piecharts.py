@@ -1,7 +1,7 @@
 """
-====================================
-Scatter plot with pie charts markers
-====================================
+===================================
+Scatter plot with pie chart markers
+===================================
 
 This example makes custom 'pie charts' as the markers for a scatter plot.
 

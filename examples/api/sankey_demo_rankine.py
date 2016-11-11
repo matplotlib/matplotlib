@@ -1,9 +1,9 @@
 """
 ===================
-Rankine power Cycle
+Rankine power cycle
 ===================
 
-Demonstrate the Sankey class with a practicle example of a Rankine power
+Demonstrate the Sankey class with a practical example of a Rankine power
 cycle.
 
 """

@@ -3,7 +3,7 @@
 A mathtext image as numpy array
 ===============================
 
-This example shows how to make images from latex strings.
+This example shows how to make images from LaTeX strings.
 """
 
 import matplotlib.mathtext as mathtext

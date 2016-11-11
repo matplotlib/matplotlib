@@ -1,7 +1,7 @@
 """
-========================
-Yet another Sankey chart
-========================
+==========================
+Yet another Sankey diagram
+==========================
 
 This example showcases a more complex sankey diagram.
 """
