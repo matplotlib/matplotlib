@@ -2227,7 +2227,7 @@ class GraphicsContextPdf(GraphicsContextBase):
             else:
                 return [Name('DeviceRGB'), Op.setcolorspace_nonstroke]
         else:
-            hatch_style = (self._rgb, self._fillcolor, hatch)
+            hatch_style = (self._hatch_color, self._fillcolor, hatch)
             name = self.file.hatchPattern(hatch_style)
             return [Name('Pattern'), Op.setcolorspace_nonstroke,
                     name, Op.setcolor_nonstroke]

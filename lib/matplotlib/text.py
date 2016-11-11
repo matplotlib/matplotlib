@@ -332,7 +332,7 @@ class Text(Artist):
         multiple-alignment information. Note that it returns an extent
         of a rotated text when necessary.
         """
-        key = self.get_prop_tup()
+        key = self.get_prop_tup(renderer=renderer)
         if key in self._cached:
             return self._cached[key]
 
@@ -896,7 +896,7 @@ class Text(Artist):
         # specified with 'set_x' and 'set_y'.
         return self._x, self._y
 
-    def get_prop_tup(self):
+    def get_prop_tup(self, renderer=None):
         """
         Return a hashable tuple of properties.
 
@@ -909,7 +909,7 @@ class Text(Artist):
                 self._verticalalignment, self._horizontalalignment,
                 hash(self._fontproperties),
                 self._rotation, self._rotation_mode,
-                self.figure.dpi, id(self._renderer),
+                self.figure.dpi, id(renderer or self._renderer),
                 )
 
     def get_text(self):
@@ -1392,7 +1392,7 @@ class TextWithDash(Text):
         # specified with set_x and set_y
         return self._dashx, self._dashy
 
-    def get_prop_tup(self):
+    def get_prop_tup(self, renderer=None):
         """
         Return a hashable tuple of properties.
 
@@ -1400,7 +1400,7 @@ class TextWithDash(Text):
         want to cache derived information about text (e.g., layouts) and
         need to know if the text has changed.
         """
-        props = [p for p in Text.get_prop_tup(self)]
+        props = [p for p in Text.get_prop_tup(self, renderer=renderer)]
         props.extend([self._x, self._y, self._dashlength,
                       self._dashdirection, self._dashrotation, self._dashpad,
                       self._dashpush])

@@ -349,7 +349,7 @@ class RendererSVG(RendererBase):
         """
         if rgbFace is not None:
             rgbFace = tuple(rgbFace)
-        edge = gc.get_rgb()
+        edge = gc.get_hatch_color()
         if edge is not None:
             edge = tuple(edge)
         dictkey = (gc.get_hatch(), rgbFace, edge)
