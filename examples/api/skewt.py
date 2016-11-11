@@ -1,13 +1,18 @@
-# This serves as an intensive exercise of matplotlib's transforms
-# and custom projection API. This example produces a so-called
-# SkewT-logP diagram, which is a common plot in meteorology for
-# displaying vertical profiles of temperature. As far as matplotlib is
-# concerned, the complexity comes from having X and Y axes that are
-# not orthogonal. This is handled by including a skew component to the
-# basic Axes transforms. Additional complexity comes in handling the
-# fact that the upper and lower X-axes have different data ranges, which
-# necessitates a bunch of custom classes for ticks,spines, and the axis
-# to handle this.
+"""
+===========================================================
+SkewT-logP diagram: using transforms and custom projections
+===========================================================
+
+This serves as an intensive exercise of matplotlib's transforms and custom
+projection API. This example produces a so-called SkewT-logP diagram, which is
+a common plot in meteorology for displaying vertical profiles of temperature.
+As far as matplotlib is concerned, the complexity comes from having X and Y
+axes that are not orthogonal. This is handled by including a skew component to
+the basic Axes transforms. Additional complexity comes in handling the fact
+that the upper and lower X-axes have different data ranges, which necessitates
+a bunch of custom classes for ticks,spines, and the axis to handle this.
+
+"""
 
 from matplotlib.axes import Axes
 import matplotlib.transforms as transforms

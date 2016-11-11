@@ -1,3 +1,12 @@
+"""
+============
+Bezier Curve
+============
+
+This example showcases the PathPatch object to create a Bezier polycurve path
+patch.
+"""
+
 import matplotlib.path as mpath
 import matplotlib.patches as mpatches
 import matplotlib.pyplot as plt

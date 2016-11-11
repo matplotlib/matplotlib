@@ -1,4 +1,8 @@
 """
+================
+Using span_where
+================
+
 Illustrate some helper functions for shading regions where a logical
 mask is True
 

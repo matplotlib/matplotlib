@@ -1,3 +1,11 @@
+"""
+==========================
+Yet another Sankey diagram
+==========================
+
+This example showcases a more complex sankey diagram.
+"""
+
 from __future__ import print_function
 
 __author__ = "Yannick Copin <ycopin@ipnl.in2p3.fr>"

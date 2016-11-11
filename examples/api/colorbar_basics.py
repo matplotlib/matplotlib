@@ -1,3 +1,12 @@
+"""
+========
+Colorbar
+========
+
+This example shows how to use colorbar by specifying the mappable object (here
+the imshow returned object) and the axes to attach the colorbar to.
+"""
+
 import numpy as np
 import matplotlib.pyplot as plt
 

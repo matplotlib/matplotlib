@@ -1,5 +1,7 @@
 """
-Watermark image example
+===============
+Watermark image
+===============
 
 Use a PNG file as a watermark
 """

@@ -1,3 +1,13 @@
+"""
+============
+Custom scale
+============
+
+This example showcases how to create a custom scale, by implementing the
+scaling use for latitude data in a Mercator Projection.
+"""
+
+
 from __future__ import unicode_literals
 
 import numpy as np
