@@ -58,8 +58,7 @@ if __name__ == '__main__':
     ax.text(xmin+0.025, ymin+0.025,
             "The Mandelbrot fractal set\n"
             "Rendered with matplotlib 2.0, 2016 — http://www.matplotlib.org",
-            color="white", fontsize=12, alpha=0.5,
-            family="Source Sans Pro Light")
+            color="white", fontsize=12, alpha=0.5)
 
     # plt.savefig("mandelbrot.png")
     plt.show()
