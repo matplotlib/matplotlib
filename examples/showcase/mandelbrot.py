@@ -3,7 +3,10 @@
 import numpy as np
 
 
-def mandelbrot(C, maxiter, horizon=4.0):
+def mandelbrot_set(xmin, xmax, ymin, ymax, xn, yn, maxiter, horizon=2.0):
+    X = np.linspace(xmin, xmax, xn, dtype=np.float32)
+    Y = np.linspace(ymin, ymax, yn, dtype=np.float32)
+    C = X + Y[:, None]*1j
     N = np.zeros(C.shape, dtype=int)
     Z = np.zeros(C.shape, np.complex64)
     for n in range(maxiter):
@@ -14,14 +17,9 @@ def mandelbrot(C, maxiter, horizon=4.0):
     return Z, N
 
 
-def mandelbrot_set(xmin, xmax, ymin, ymax, xn, yn, maxiter, horizon=2.0):
-    X = np.linspace(xmin, xmax, xn, dtype=np.float32)
-    Y = np.linspace(ymin, ymax, yn, dtype=np.float32)
-    C = X + Y[:, None]*1j
-    return mandelbrot(C, maxiter, horizon)
-
-
 if __name__ == '__main__':
+    import time
+    import matplotlib
     from matplotlib import colors
     import matplotlib.pyplot as plt
 
@@ -55,10 +53,12 @@ if __name__ == '__main__':
     ax.set_yticks([])
 
     # Some advertisement for matplotlib
-    ax.text(xmin+0.025, ymin+0.025,
-            "The Mandelbrot fractal set\n"
-            "Rendered with matplotlib 2.0, 2016 — http://www.matplotlib.org",
-            color="white", fontsize=12, alpha=0.5)
+    year = time.strftime("%Y")
+    major, minor, micro = matplotlib.__version__.split('.')
+    text = ("The Mandelbrot fractal set\n"
+            "Rendered with matplotlib %s.%s, %s — http://matplotlib.org"
+            % (major, minor, year))
+    ax.text(xmin+.025, ymin+.025, text, color="white", fontsize=12, alpha=0.5)
 
     # plt.savefig("mandelbrot.png")
     plt.show()
