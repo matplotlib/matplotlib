@@ -84,24 +84,6 @@ class LinearScale(ScaleBase):
         return IdentityTransform()
 
 
-def _mask_non_positives(a):
-    """
-    Return a Numpy array where all non-positive values are
-    replaced with NaNs. If there are no non-positive values, the
-    original array is returned.
-    """
-    mask = a <= 0.0
-    if mask.any():
-        return np.where(mask, np.nan, a)
-    return a
-
-
-def _clip_non_positives(a):
-    a = np.array(a, float)
-    a[a <= 0.0] = 1e-300
-    return a
-
-
 class LogTransformBase(Transform):
     input_dims = 1
     output_dims = 1
@@ -111,31 +93,35 @@ class LogTransformBase(Transform):
     def __init__(self, nonpos):
         Transform.__init__(self)
         if nonpos == 'mask':
-            self._handle_nonpos = _mask_non_positives
+            self._fill_value = np.nan
         else:
-            self._handle_nonpos = _clip_non_positives
+            self._fill_value = 1e-300
+
+    def transform_non_affine(self, a):
+        with np.errstate(invalid="ignore"):
+            a = np.where(a <= 0, self._fill_value, a)
+        return np.divide(np.log(a, out=a), np.log(self.base), out=a)
+
+
+class InvertedLogTransformBase(Transform):
+    input_dims = 1
+    output_dims = 1
+    is_separable = True
+    has_inverse = True
+
+    def transform_non_affine(self, a):
+        return ma.power(self.base, a)
 
 
 class Log10Transform(LogTransformBase):
     base = 10.0
 
-    def transform_non_affine(self, a):
-        a = self._handle_nonpos(a * 10.0)
-        return np.log10(a)
-
     def inverted(self):
         return InvertedLog10Transform()
 
 
-class InvertedLog10Transform(Transform):
-    input_dims = 1
-    output_dims = 1
-    is_separable = True
-    has_inverse = True
+class InvertedLog10Transform(InvertedLogTransformBase):
     base = 10.0
-
-    def transform_non_affine(self, a):
-        return ma.power(10.0, a) / 10.0
 
     def inverted(self):
         return Log10Transform()
@@ -144,23 +130,12 @@ class InvertedLog10Transform(Transform):
 class Log2Transform(LogTransformBase):
     base = 2.0
 
-    def transform_non_affine(self, a):
-        a = self._handle_nonpos(a * 2.0)
-        return np.log2(a)
-
     def inverted(self):
         return InvertedLog2Transform()
 
 
-class InvertedLog2Transform(Transform):
-    input_dims = 1
-    output_dims = 1
-    is_separable = True
-    has_inverse = True
+class InvertedLog2Transform(InvertedLogTransformBase):
     base = 2.0
-
-    def transform_non_affine(self, a):
-        return ma.power(2.0, a) / 2.0
 
     def inverted(self):
         return Log2Transform()
@@ -169,62 +144,30 @@ class InvertedLog2Transform(Transform):
 class NaturalLogTransform(LogTransformBase):
     base = np.e
 
-    def transform_non_affine(self, a):
-        a = self._handle_nonpos(a * np.e)
-        return np.log(a)
-
     def inverted(self):
         return InvertedNaturalLogTransform()
 
 
-class InvertedNaturalLogTransform(Transform):
-    input_dims = 1
-    output_dims = 1
-    is_separable = True
-    has_inverse = True
+class InvertedNaturalLogTransform(InvertedLogTransformBase):
     base = np.e
-
-    def transform_non_affine(self, a):
-        return ma.power(np.e, a) / np.e
 
     def inverted(self):
         return NaturalLogTransform()
 
 
-class LogTransform(Transform):
-    input_dims = 1
-    output_dims = 1
-    is_separable = True
-    has_inverse = True
-
+class LogTransform(LogTransformBase):
     def __init__(self, base, nonpos):
-        Transform.__init__(self)
+        LogTransformBase.__init__(self, nonpos)
         self.base = base
-        if nonpos == 'mask':
-            self._handle_nonpos = _mask_non_positives
-        else:
-            self._handle_nonpos = _clip_non_positives
-
-    def transform_non_affine(self, a):
-        a = self._handle_nonpos(a * self.base)
-        return np.log(a) / np.log(self.base)
 
     def inverted(self):
         return InvertedLogTransform(self.base)
 
 
-class InvertedLogTransform(Transform):
-    input_dims = 1
-    output_dims = 1
-    is_separable = True
-    has_inverse = True
-
+class InvertedLogTransform(InvertedLogTransformBase):
     def __init__(self, base):
-        Transform.__init__(self)
+        InvertedLogTransformBase.__init__(self)
         self.base = base
-
-    def transform_non_affine(self, a):
-        return ma.power(self.base, a) / self.base
 
     def inverted(self):
         return LogTransform(self.base)
@@ -474,25 +417,6 @@ class SymmetricalLogScale(ScaleBase):
         return self._transform
 
 
-def _mask_non_logit(a):
-    """
-    Return a Numpy array where all values outside ]0, 1[ are
-    replaced with NaNs. If all values are inside ]0, 1[, the original
-    array is returned.
-    """
-    mask = (a <= 0.0) | (a >= 1.0)
-    if mask.any():
-        return np.where(mask, np.nan, a)
-    return a
-
-
-def _clip_non_logit(a):
-    a = np.array(a, float)
-    a[a <= 0.0] = 1e-300
-    a[a >= 1.0] = 1 - 1e-300
-    return a
-
-
 class LogitTransform(Transform):
     input_dims = 1
     output_dims = 1
@@ -502,15 +426,17 @@ class LogitTransform(Transform):
     def __init__(self, nonpos):
         Transform.__init__(self)
         if nonpos == 'mask':
-            self._handle_nonpos = _mask_non_logit
+            self._fill_value = np.nan
         else:
-            self._handle_nonpos = _clip_non_logit
+            self._fill_value = 1e-300
         self._nonpos = nonpos
 
     def transform_non_affine(self, a):
         """logit transform (base 10), masked or clipped"""
-        a = self._handle_nonpos(a)
-        return np.log10(1.0 * a / (1.0 - a))
+        with np.errstate(invalid="ignore"):
+            a = np.select(
+                [a <= 0, a >= 1], [self._fill_value, 1 - self._fill_value], a)
+        return np.log10(a / (1 - a))
 
     def inverted(self):
         return LogisticTransform(self._nonpos)
