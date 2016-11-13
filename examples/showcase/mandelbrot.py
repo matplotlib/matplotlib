@@ -41,7 +41,7 @@ if __name__ == '__main__':
     Z, N = mandelbrot_set(xmin, xmax, ymin, ymax, xn, yn, maxiter, horizon)
 
     # Normalized recount as explained in:
-    # http://linas.org/art-gallery/escape/smooth.html
+    # https://linas.org/art-gallery/escape/smooth.html
     # https://www.ibm.com/developerworks/community/blogs/jfp/entry/My_Christmas_Gift
 
     # This line will generate warnings for null values but it is faster to
