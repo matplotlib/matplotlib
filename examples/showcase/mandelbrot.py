@@ -46,7 +46,8 @@ if __name__ == '__main__':
 
     # This line will generate warnings for null values but it is faster to
     # process them afterwards using the nan_to_num
-    M = np.nan_to_num(N + 1 - np.log(np.log(abs(Z)))/np.log(2) + log_horizon)
+    with np.errstate(invalid='ignore'):
+        M = np.nan_to_num(N + 1 - np.log(np.log(abs(Z)))/np.log(2) + log_horizon)
 
     dpi = 72
     width = 10
@@ -64,11 +65,10 @@ if __name__ == '__main__':
 
     # Some advertisement for matplotlib
     year = time.strftime("%Y")
-    major, minor, micro = matplotlib.__version__.split('.')
+    major, minor, micro = matplotlib.__version__.split('.', maxsplit=3)
     text = ("The Mandelbrot fractal set\n"
             "Rendered with matplotlib %s.%s, %s — http://matplotlib.org"
             % (major, minor, year))
     ax.text(xmin+.025, ymin+.025, text, color="white", fontsize=12, alpha=0.5)
 
-    # plt.savefig("mandelbrot.png")
     plt.show()
