@@ -2680,15 +2680,10 @@ class Painter(_SelectorWidget):
                      extent=(x0, x1, y0, y1), aspect=self.ax.get_aspect())
         props.update(overlay_props or {})
 
-        extents = self.ax.get_window_extent().extents
-        self._offsetx = extents[0]
-        self._offsety = extents[1]
-        self._shape = (int(extents[3] - extents[1]),
-                       int(extents[2] - extents[0]))
-        self._overlay = np.zeros(self._shape, dtype='uint8')
+        self._resize(None)
         self._overlay_plot = self.ax.imshow(self._overlay, **props)
-
         self.artists = [self._cursor, self._overlay_plot]
+        self.connect_event('resize_event', self._resize)
 
         # These must be called last
         self.label = 1
@@ -2757,6 +2752,16 @@ class Painter(_SelectorWidget):
             self._update_overlay(event.x, event.y)
         self.update()
         self.onselect(event.xdata, event.ydata)
+
+    def _resize(self, event):
+        extents = self.ax.get_window_extent().extents
+        self._offsetx = extents[0]
+        self._offsety = extents[1]
+        self._shape = (int(extents[3] - extents[1]),
+                       int(extents[2] - extents[0]))
+        self._overlay = np.zeros(self._shape, dtype='uint8')
+        if self._overlay_plot:
+            self._overlay_plot.set_data(self._overlay)
 
     def _release(self, event):
         pass
