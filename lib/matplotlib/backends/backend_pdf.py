@@ -1141,12 +1141,12 @@ end"""
     def hatchPattern(self, hatch_style):
         # The colors may come in as numpy arrays, which aren't hashable
         if hatch_style is not None:
-            face, edge, hatch = hatch_style
-            if face is not None:
-                face = tuple(face)
+            edge, face, hatch = hatch_style
             if edge is not None:
                 edge = tuple(edge)
-            hatch_style = (face, edge, hatch)
+            if face is not None:
+                face = tuple(face)
+            hatch_style = (edge, face, hatch)
 
         pattern = self.hatchPatterns.get(hatch_style, None)
         if pattern is not None:
@@ -1171,7 +1171,9 @@ end"""
                  'PatternType': 1, 'PaintType': 1, 'TilingType': 1,
                  'BBox': [0, 0, sidelen, sidelen],
                  'XStep': sidelen, 'YStep': sidelen,
-                 'Resources': res})
+                 'Resources': res,
+                 # Change origin to match Agg at top-left.
+                 'Matrix': [1, 0, 0, 1, 0, self.height * 72]})
 
             stroke_rgb, fill_rgb, path = hatch_style
             self.output(stroke_rgb[0], stroke_rgb[1], stroke_rgb[2],
@@ -1184,13 +1186,11 @@ end"""
 
             self.output(rcParams['hatch.linewidth'], Op.setlinewidth)
 
-            # TODO: We could make this dpi-dependent, but that would be
-            # an API change
             self.output(*self.pathOperations(
                 Path.hatch(path),
                 Affine2D().scale(sidelen),
                 simplify=False))
-            self.output(Op.stroke)
+            self.output(Op.fill_stroke)
 
             self.endStream()
         self.writeObject(self.hatchObject, hatchDict)
