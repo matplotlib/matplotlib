@@ -1050,7 +1050,7 @@ class LogFormatterMathtext(LogFormatter):
             if usetex:
                 return (r'$%s%s^{%d}$') % (sign_string,
                                            base,
-                                            nearest_long(fx))
+                                           nearest_long(fx))
             else:
                 return ('$%s$' % _mathdefault(
                     '%s%s^{%d}' %
