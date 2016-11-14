@@ -167,7 +167,7 @@ def test_autoscale_tiny_range():
         ax[i].plot([0, 1], [1, 1 + y1])
 
 
-@cleanup
+@cleanup(style='default')
 def test_autoscale_tight():
     fig, ax = plt.subplots(1, 1)
     ax.plot([1, 2, 3, 4])
