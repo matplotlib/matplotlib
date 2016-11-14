@@ -406,9 +406,9 @@ class RendererPgf(RendererBase):
 
         Attributes
         ----------
-        figure
+        figure : `matplotlib.figure.Figure`
             Matplotlib figure to initialize height, width and dpi from.
-        fh
+        fh : file-like
             File handle for the output of the drawing commands.
 
         """

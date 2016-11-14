@@ -354,9 +354,9 @@ class FigureCanvasGTK3 (Gtk.DrawingArea, FigureCanvasBase):
 
         Other Parameters
         ----------------
-        interval
+        interval : scalar
             Timer interval in milliseconds
-        callbacks
+        callbacks : list
             Sequence of (func, args, kwargs) where ``func(*args, **kwargs)``
             will be executed by the timer every *interval*.
         """
@@ -382,15 +382,15 @@ class FigureManagerGTK3(FigureManagerBase):
     """
     Attributes
     ----------
-    canvas
+    canvas : `FigureCanvas`
         The FigureCanvas instance
-    num
+    num : int or str
         The Figure number
-    toolbar
+    toolbar : Gtk.Toolbar
         The Gtk.Toolbar  (gtk only)
-    vbox
+    vbox : Gtk.VBox
         The Gtk.VBox containing the canvas and toolbar (gtk only)
-    window
+    window : Gtk.Window
         The Gtk.Window   (gtk only)
 
     """

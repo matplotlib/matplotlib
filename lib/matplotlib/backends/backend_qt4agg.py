@@ -67,8 +67,8 @@ class FigureCanvasQTAgg(FigureCanvasQTAggBase,
 
     Attributes
     ----------
-    figure
-        A Figure instance
+    figure : `matplotlib.figure.Figure`
+        A high-level Figure instance
 
     """
 

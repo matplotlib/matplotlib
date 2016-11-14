@@ -408,11 +408,11 @@ class FigureCanvasQT(QtWidgets.QWidget, FigureCanvasBase):
 
         Other Parameters
         ----------------
-        interval
+        interval : scalar
             Timer interval in milliseconds
 
-        callbacks
-            Sequence of (func, args, kwargs) where func(\*args, \*\*kwargs)
+        callbacks : list
+            Sequence of (func, args, kwargs) where ``func(*args, **kwargs)``
             will be executed by the timer every *interval*.
 
         """
@@ -446,13 +446,13 @@ class FigureManagerQT(FigureManagerBase):
     """
     Attributes
     ----------
-    canvas
+    canvas : `FigureCanvas`
         The FigureCanvas instance
-    num
+    num : int or str
         The Figure number
-    toolbar
+    toolbar : qt.QToolBar
         The qt.QToolBar
-    window
+    window : qt.QMainWindow
         The qt.QMainWindow
 
     """

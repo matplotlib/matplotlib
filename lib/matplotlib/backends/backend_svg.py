@@ -882,16 +882,16 @@ class RendererSVG(RendererBase):
 
         Parameters
         ----------
-        prop
+        prop : `matplotlib.font_manager.FontProperties`
           font property
 
-        s
+        s : str
           text to be converted
 
-        usetex
+        usetex : bool
           If True, use matplotlib usetex mode.
 
-        ismath
+        ismath : bool
           If True, use mathtext parser. If "TeX", use *usetex* mode.
 
         """

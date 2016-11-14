@@ -742,9 +742,9 @@ class FigureCanvasWx(FigureCanvasBase, wx.Panel):
 
         Other Parameters
         ----------------
-        interval
+        interval : scalar
             Timer interval in milliseconds
-        callbacks
+        callbacks : list
             Sequence of (func, args, kwargs) where ``func(*args, **kwargs)``
             will be executed by the timer every *interval*.
 
@@ -1338,9 +1338,9 @@ class FigureManagerWx(FigureManagerBase):
 
     Attributes
     ----------
-    canvas
+    canvas : `FigureCanvas`
         a FigureCanvasWx(wx.Panel) instance
-    window
+    window : wxFrame
         a wxFrame instance - wxpython.org/Phoenix/docs/html/Frame.html
 
     """
