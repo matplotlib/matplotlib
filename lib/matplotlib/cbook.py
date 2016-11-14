@@ -2302,147 +2302,112 @@ class _InstanceMethodPickler(object):
         return getattr(self.parent_obj, self.instancemethod_name)
 
 
-def _step_validation(x, *args):
-    """
-    Helper function of `pts_to_*step` functions
-
-    This function does all of the normalization required to the
-    input and generate the template for output
-
-
-    """
-    args = tuple(np.asanyarray(y) for y in args)
-    x = np.asanyarray(x)
-    if x.ndim != 1:
-        raise ValueError("x must be 1 dimensional")
-    if len(args) == 0:
-        raise ValueError("At least one Y value must be passed")
-
-    return np.vstack((x, ) + args)
-
-
 def pts_to_prestep(x, *args):
     """
-    Covert continuous line to pre-steps
+    Convert continuous line to pre-steps.
 
-    Given a set of N points convert to 2 N -1 points
-    which when connected linearly give a step function
-    which changes values at the beginning of the intervals.
+    Given a set of ``N`` points, convert to ``2N - 1`` points, which when
+    connected linearly give a step function which changes values at the
+    beginning of the intervals.
 
     Parameters
     ----------
     x : array
-        The x location of the steps
+        The x location of the steps.
 
-    y1, y2, ... : array
-        Any number of y arrays to be turned into steps.
-        All must be the same length as ``x``
+    y1, ..., yp : array
+        y arrays to be turned into steps; all must be the same length as ``x``.
 
     Returns
     -------
-    x, y1, y2, .. : array
-        The x and y values converted to steps in the same order
-        as the input.  If the input is length ``N``, each of these arrays
-        will be length ``2N + 1``
-
+    out : array
+        The x and y values converted to steps in the same order as the input;
+        can be unpacked as ``x_out, y1_out, ..., yp_out``.  If the input is
+        length ``N``, each of these arrays will be length ``2N + 1``.
 
     Examples
     --------
     >> x_s, y1_s, y2_s = pts_to_prestep(x, y1, y2)
     """
-    # do normalization
-    vertices = _step_validation(x, *args)
-    # create the output array
-    steps = np.zeros((vertices.shape[0], 2 * len(x) - 1), float)
-    # do the to step conversion logic
-    steps[0, 0::2], steps[0, 1::2] = vertices[0, :], vertices[0, :-1]
-    steps[1:, 0::2], steps[1:, 1:-1:2] = vertices[1:, :], vertices[1:, 1:]
-    # convert 2D array back to tuple
-    return tuple(steps)
+    steps = np.zeros((1 + len(args), 2 * len(x) - 1))
+    # In all `pts_to_*step` functions, only assign *once* using `x` and `args`,
+    # as converting to an array may be expensive.
+    steps[0, 0::2] = x
+    steps[0, 1::2] = steps[0, 0:-2:2]
+    steps[1:, 0::2] = args
+    steps[1:, 1::2] = steps[1:, 2::2]
+    return steps
 
 
 def pts_to_poststep(x, *args):
     """
-    Covert continuous line to pre-steps
+    Convert continuous line to post-steps.
 
-    Given a set of N points convert to 2 N -1 points
-    which when connected linearly give a step function
-    which changes values at the end of the intervals.
+    Given a set of ``N`` points convert to ``2N + 1`` points, which when
+    connected linearly give a step function which changes values at the end of
+    the intervals.
 
     Parameters
     ----------
     x : array
-        The x location of the steps
+        The x location of the steps.
 
-    y1, y2, ... : array
-        Any number of y arrays to be turned into steps.
-        All must be the same length as ``x``
+    y1, ..., yp : array
+        y arrays to be turned into steps; all must be the same length as ``x``.
 
     Returns
     -------
-    x, y1, y2, .. : array
-        The x and y values converted to steps in the same order
-        as the input.  If the input is length ``N``, each of these arrays
-        will be length ``2N + 1``
-
+    out : array
+        The x and y values converted to steps in the same order as the input;
+        can be unpacked as ``x_out, y1_out, ..., yp_out``.  If the input is
+        length ``N``, each of these arrays will be length ``2N + 1``.
 
     Examples
     --------
     >> x_s, y1_s, y2_s = pts_to_poststep(x, y1, y2)
     """
-    # do normalization
-    vertices = _step_validation(x, *args)
-    # create the output array
-    steps = np.zeros((vertices.shape[0], 2 * len(x) - 1), float)
-    # do the to step conversion logic
-    steps[0, ::2], steps[0, 1:-1:2] = vertices[0, :], vertices[0, 1:]
-    steps[1:, 0::2], steps[1:, 1::2] = vertices[1:, :], vertices[1:, :-1]
-
-    # convert 2D array back to tuple
-    return tuple(steps)
+    steps = np.zeros((1 + len(args), 2 * len(x) - 1))
+    steps[0, 0::2] = x
+    steps[0, 1::2] = steps[0, 2::2]
+    steps[1:, 0::2] = args
+    steps[1:, 1::2] = steps[1:, 0:-2:2]
+    return steps
 
 
 def pts_to_midstep(x, *args):
     """
-    Covert continuous line to pre-steps
+    Convert continuous line to mid-steps.
 
-    Given a set of N points convert to 2 N -1 points
-    which when connected linearly give a step function
-    which changes values at the middle of the intervals.
+    Given a set of ``N`` points convert to ``2N`` points which when connected
+    linearly give a step function which changes values at the middle of the
+    intervals.
 
     Parameters
     ----------
     x : array
-        The x location of the steps
+        The x location of the steps.
 
-    y1, y2, ... : array
-        Any number of y arrays to be turned into steps.
-        All must be the same length as ``x``
+    y1, ..., yp : array
+        y arrays to be turned into steps; all must be the same length as ``x``.
 
     Returns
     -------
-    x, y1, y2, .. : array
-        The x and y values converted to steps in the same order
-        as the input.  If the input is length ``N``, each of these arrays
-        will be length ``2N + 1``
-
+    out : array
+        The x and y values converted to steps in the same order as the input;
+        can be unpacked as ``x_out, y1_out, ..., yp_out``.  If the input is
+        length ``N``, each of these arrays will be length ``2N``.
 
     Examples
     --------
     >> x_s, y1_s, y2_s = pts_to_midstep(x, y1, y2)
     """
-    # do normalization
-    vertices = _step_validation(x, *args)
-    # create the output array
-    steps = np.zeros((vertices.shape[0], 2 * len(x)), float)
-    steps[0, 1:-1:2] = 0.5 * (vertices[0, :-1] + vertices[0, 1:])
-    steps[0, 2::2] = 0.5 * (vertices[0, :-1] + vertices[0, 1:])
-    steps[0, 0] = vertices[0, 0]
-    steps[0, -1] = vertices[0, -1]
-    steps[1:, 0::2], steps[1:, 1::2] = vertices[1:, :], vertices[1:, :]
-
-    # convert 2D array back to tuple
-    return tuple(steps)
+    steps = np.zeros((1 + len(args), 2 * len(x)))
+    x = np.asanyarray(x)
+    steps[0, 1:-1:2] = steps[0, 2::2] = (x[:-1] + x[1:]) / 2
+    steps[0, 0], steps[0, -1] = x[0], x[-1]
+    steps[1:, 0::2] = args
+    steps[1:, 1::2] = steps[1:, 0::2]
+    return steps
 
 
 STEP_LOOKUP_MAP = {'default': lambda x, y: (x, y),

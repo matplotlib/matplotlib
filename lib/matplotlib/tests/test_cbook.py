@@ -460,18 +460,14 @@ def test_to_midstep():
     assert_array_equal(y1_target, y1s)
 
 
-def test_step_fails():
+@pytest.mark.parametrize(
+    "args",
+    [(np.arange(12).reshape(3, 4), 'a'),
+     (np.arange(12), 'a'),
+     (np.arange(12), np.arange(3))])
+def test_step_fails(args):
     with pytest.raises(ValueError):
-        cbook._step_validation(np.arange(12).reshape(3, 4), 'a')
-
-    with pytest.raises(ValueError):
-        cbook._step_validation(np.arange(12), 'a')
-
-    with pytest.raises(ValueError):
-        cbook._step_validation(np.arange(12))
-
-    with pytest.raises(ValueError):
-        cbook._step_validation(np.arange(12), np.arange(3))
+        cbook.pts_to_prestep(*args)
 
 
 def test_grouper():
