@@ -72,8 +72,9 @@ texput.log
 texput.aux
 result_images
 
-# Nose generated files #
-########################
+# Nose/Pytest generated files #
+###############################
+.cache/
 .coverage
 .coverage.*
 cover/
