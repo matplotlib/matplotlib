@@ -506,9 +506,9 @@ class FigureCanvasTkAgg(FigureCanvasAgg):
 
         Other Parameters
         ----------------
-        interval
+        interval : scalar
             Timer interval in milliseconds
-        callbacks
+        callbacks : list
             Sequence of (func, args, kwargs) where ``func(*args, **kwargs)``
             will be executed by the timer every *interval*.
 
@@ -530,13 +530,13 @@ class FigureManagerTkAgg(FigureManagerBase):
     """
     Attributes
     ----------
-    canvas
+    canvas : `FigureCanvas`
         The FigureCanvas instance
-    num
+    num : int or str
         The Figure number
-    toolbar
+    toolbar : tk.Toolbar
         The tk.Toolbar
-    window
+    window : tk.Window
         The tk.Window
 
     """
@@ -713,10 +713,10 @@ class NavigationToolbar2TkAgg(NavigationToolbar2, Tk.Frame):
     """
     Attributes
     ----------
-    canvas
-        the FigureCanvas  (gtk.DrawingArea)
-    win
-        the gtk.Window
+    canvas : `FigureCanvas`
+        the figure canvas on which to operate
+    win : tk.Window
+        the tk.Window which owns this toolbar
 
     """
     def __init__(self, canvas, window):

@@ -107,7 +107,7 @@ def register_backend(format, backend, description=None):
     Parameters
     ----------
     format : str
-        File extention
+        File extension
 
     backend : module string or canvas class
         Backend for handling file output
@@ -253,13 +253,13 @@ class RendererBase(object):
 
         Parameters
         ----------
-        gc
-            The :class:`GraphicsContextBase` instance
+        gc : `GraphicsContextBase`
+            The graphics context
 
-        marker_trans
+        marker_trans : `matplotlib.transforms.Transform`
             An affine transform applied to the marker.
 
-        trans
+        trans : `matplotlib.transforms.Transform`
             An affine transform applied to the path.
 
         """
@@ -337,13 +337,13 @@ class RendererBase(object):
 
         Parameters
         ----------
-        points
-            A 3x2 array of (x, y) points for the triangle.
+        points : array_like, shape=(3, 2)
+            Array of (x, y) points for the triangle.
 
-        colors
-            A 3x4 array of RGBA colors for each point of the triangle.
+        colors : array_like, shape=(3, 4)
+            RGBA colors for each point of the triangle.
 
-        transform
+        transform : `matplotlib.transforms.Transform`
             An affine transform to apply to the points.
 
         """
@@ -356,13 +356,13 @@ class RendererBase(object):
 
         Parameters
         ----------
-        points
-            A Nx3x2 array of (x, y) points for the triangles.
+        points : array_like, shape=(N, 3, 2)
+            Array of *N* (x, y) points for the triangles.
 
-        colors
-            A Nx3x4 array of RGBA colors for each point of the triangles.
+        colors : array_like, shape=(N, 3, 4)
+            Array of *N* RGBA colors for each point of the triangles.
 
-        transform
+        transform : `matplotlib.transforms.Transform`
             An affine transform to apply to the points.
         """
         transform = transform.frozen()
@@ -528,21 +528,21 @@ class RendererBase(object):
 
         Parameters
         ----------
-        gc
-            a :class:`GraphicsContextBase` instance with clipping information.
+        gc : `GraphicsContextBase`
+            a graphics context with clipping information.
 
-        x
+        x : scalar
             the distance in physical units (i.e., dots or pixels) from the left
             hand side of the canvas.
 
-        y
+        y : scalar
             the distance in physical units (i.e., dots or pixels) from the
             bottom side of the canvas.
 
-        im
-            An NxMx4 array of RGBA pixels (of dtype uint8).
+        im : array_like, shape=(N, M, 4), dtype=np.uint8
+            An array of RGBA pixels.
 
-        transform
+        transform : `matplotlib.transforms.Affine2DBase`
             If and only if the concrete backend is written such that
             :meth:`option_scale_image` returns ``True``, an affine
             transformation *may* be passed to :meth:`draw_image`. It takes the
@@ -580,26 +580,26 @@ class RendererBase(object):
 
         Parameters
         ----------
-        gc
-            the :class:`GraphicsContextBase` instance
+        gc : `GraphicsContextBase`
+            the graphics context
 
-        x
+        x : scalar
             the x location of the text in display coords
 
-        y
+        y : scalar
             the y location of the text baseline in display coords
 
-        s
+        s : str
             the text string
 
-        prop
-          a :class:`matplotlib.font_manager.FontProperties` instance
+        prop : `matplotlib.font_manager.FontProperties`
+            font properties
 
-        angle
+        angle : scalar
             the rotation angle in degrees
 
-        mtext
-            a :class:`matplotlib.text.Text` instance
+        mtext : `matplotlib.text.Text`
+            the original text object to be rendered
 
         Notes
         -----
@@ -623,16 +623,16 @@ class RendererBase(object):
 
         Parameters
         ----------
-        prop
+        prop : `matplotlib.font_manager.FontProperties`
           font property
 
-        s
+        s : str
           text to be converted
 
-        usetex
+        usetex : bool
           If True, use matplotlib usetex mode.
 
-        ismath
+        ismath : bool
           If True, use mathtext parser. If "TeX", use *usetex* mode.
         """
 
@@ -665,16 +665,16 @@ class RendererBase(object):
 
         Parameters
         ----------
-        prop
+        prop : `matplotlib.font_manager.FontProperties`
           font property
 
-        s
+        s : str
           text to be converted
 
-        usetex
+        usetex : bool
           If True, use matplotlib usetex mode.
 
-        ismath
+        ismath : bool
           If True, use mathtext parser. If "TeX", use *usetex* mode.
         """
         path, transform = self._get_text_path_transform(
@@ -756,7 +756,7 @@ class RendererBase(object):
 
         Parameters
         ----------
-        points
+        points : scalar or array_like
             a float or a numpy array of float
 
         Returns
@@ -1016,10 +1016,10 @@ class GraphicsContextBase(object):
 
         Parameters
         ----------
-        dash_offset
+        dash_offset : float
             is the offset (usually 0).
 
-        dash_list
+        dash_list : array_like
             specifies the on-off sequence as points.
             ``(None, None)`` specifies a solid line
 
@@ -1210,7 +1210,7 @@ class TimerBase(object):
 
     Attributes
     ----------
-    interval
+    interval : scalar
         The time between timer events in milliseconds. Default is 1000 ms.
 
     single_shot : bool
@@ -1339,11 +1339,11 @@ class Event(object):
 
     Attributes
     ----------
-    name
+    name : str
         the event name
 
-    canvas
-        the FigureCanvas instance generating the event
+    canvas : `FigureCanvasBase`
+        the backend-specific canvas instance generating the event
 
     guiEvent
         the GUI event that triggered the matplotlib event
@@ -1372,8 +1372,8 @@ class DrawEvent(Event):
 
     Attributes
     ----------
-    renderer
-        the :class:`RendererBase` instance for the draw event
+    renderer : `RendererBase`
+        the renderer for the draw event
 
     """
     def __init__(self, name, canvas, renderer):
@@ -1390,10 +1390,10 @@ class ResizeEvent(Event):
 
     Attributes
     ----------
-    width
+    width : scalar
         width of the canvas in pixels
 
-    height
+    height : scalar
         height of the canvas in pixels
 
     """
@@ -1423,19 +1423,19 @@ class LocationEvent(Event):
 
     Attributes
     ----------
-    x
+    x : scalar
         x position - pixels from left of canvas
 
-    y
+    y : scalar
         y position - pixels from bottom of canvas
 
-    inaxes
+    inaxes : bool
         the :class:`~matplotlib.axes.Axes` instance if mouse is over axes
 
-    xdata
+    xdata : scalar
         x coord of mouse in data coords
 
-    ydata
+    ydata : scalar
         y coord of mouse in data coords
 
     """
@@ -1530,17 +1530,17 @@ class MouseEvent(LocationEvent):
 
     Attributes
     ----------
-    button
+    button : None, scalar, or str
         button pressed None, 1, 2, 3, 'up', 'down' (up and down are used
         for scroll events).  Note that in the nbagg backend, both the
         middle and right clicks return 3 since right clicking will bring
         up the context menu in some browsers.
 
-    key
+    key : None, or str
         the key depressed when the mouse event triggered (see
         :class:`KeyEvent`)
 
-    step
+    step : scalar
         number of scroll steps (positive for 'up', negative for 'down')
 
     Examples
@@ -1590,11 +1590,11 @@ class PickEvent(Event):
 
     Attributes
     ----------
-    mouseevent
-        the :class:`MouseEvent` that generated the pick
+    mouseevent : `MouseEvent`
+        the mouse event that generated the pick
 
-    artist
-        the :class:`~matplotlib.artist.Artist` picked
+    artist : `matplotlib.artist.Artist`
+        the picked artist
 
     other
         extra class dependent attrs -- e.g., a
@@ -1637,12 +1637,11 @@ class KeyEvent(LocationEvent):
 
     Attributes
     ----------
-    key
+    key : None or str
         the key(s) pressed. Could be **None**, a single case sensitive ascii
         character ("g", "G", "#", etc.), a special key
         ("control", "shift", "f1", "up", etc.) or a
         combination of the above (e.g., "ctrl+alt+g", "ctrl+alt+G").
-
 
     Notes
     -----
@@ -1674,8 +1673,8 @@ class FigureCanvasBase(object):
 
     Attributes
     ----------
-    figure
-        A :class:`matplotlib.figure.Figure` instance
+    figure : `matplotlib.figure.Figure`
+        A high-level figure instance
 
     """
     events = [
@@ -1901,10 +1900,10 @@ class FigureCanvasBase(object):
 
         Parameters
         ----------
-        x
+        x : scalar
             the canvas coordinates where 0=left
 
-        y
+        y : scalar
             the canvas coordinates where 0=bottom
 
         guiEvent
@@ -1926,10 +1925,10 @@ class FigureCanvasBase(object):
 
         Parameters
         ----------
-        x
+        x : scalar
             the canvas coordinates where 0=left
 
-        y
+        y : scalar
             the canvas coordinates where 0=bottom
 
         guiEvent
@@ -1967,7 +1966,7 @@ class FigureCanvasBase(object):
         ----------
         guiEvent
             the native UI event that generated the mpl event
-        xy
+        xy : tuple of 2 scalars
             the coordinate location of the pointer when the canvas is
             entered
 
@@ -2086,34 +2085,31 @@ class FigureCanvasBase(object):
         filename
             can also be a file object on image backends
 
-        orientation
+        orientation : {'landscape', 'portrait'}, optional
             only currently applies to PostScript printing.
 
-        dpi
+        dpi : scalar, optional
             the dots per inch to save the figure in; if None, use savefig.dpi
 
-        facecolor
+        facecolor : color spec or None, optional
             the facecolor of the figure; if None, defaults to savefig.facecolor
 
-        edgecolor
+        edgecolor : color spec or None, optional
             the edgecolor of the figure; if None, defaults to savefig.edgecolor
 
-        orientation
-            landscape' | 'portrait' (not supported on all backends)
-
-        format
+        format : str, optional
             when set, forcibly set the file format to save to
 
-        bbox_inches
+        bbox_inches : str or `~matplotlib.transforms.Bbox`, optional
             Bbox in inches. Only the given portion of the figure is
             saved. If 'tight', try to figure out the tight bbox of
             the figure. If None, use savefig.bbox
 
-        pad_inches
+        pad_inches : scalar, optional
             Amount of padding around the figure when bbox_inches is
             'tight'. If None, use savefig.pad_inches
 
-        bbox_extra_artists
+        bbox_extra_artists : list of `~matplotlib.artist.Artist`, optional
             A list of extra artists that will be considered when the
             tight bbox is calculated.
 
@@ -2380,9 +2376,9 @@ class FigureCanvasBase(object):
 
         Other Parameters
         ----------------
-        interval
+        interval : scalar
             Timer interval in milliseconds
-        callbacks
+        callbacks : list
             Sequence of (func, args, kwargs) where ``func(*args, **kwargs)``
             will be executed by the timer every *interval*.
 
@@ -2466,12 +2462,12 @@ def key_press_handler(event, canvas, toolbar=None):
 
     Parameters
     ----------
-    event
-      a :class:`KeyEvent` instance
-    canvas
-      a :class:`FigureCanvasBase` instance
-    toolbar
-      a :class:`NavigationToolbar2` instance
+    event : :class:`KeyEvent`
+        a key press/release event
+    canvas : :class:`FigureCanvasBase`
+        the backend-specific canvas instance
+    toolbar : :class:`NavigationToolbar2`
+        the navigation cursor toolbar
 
     """
     # these bindings happen whether you are over an axes or not
@@ -2637,10 +2633,10 @@ class FigureManagerBase(object):
 
     Attributes
     ----------
-    canvas
-        A :class:`FigureCanvasBase` instance
+    canvas : :class:`FigureCanvasBase`
+        The backend-specific canvas instance
 
-    num
+    num : int or str
         The figure number
 
     """

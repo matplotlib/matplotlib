@@ -99,8 +99,8 @@ class FigureCanvasMac(_macosx.FigureCanvas, FigureCanvasAgg):
 
     Attributes
     ----------
-    figure
-        A Figure instance
+    figure : `matplotlib.figure.Figure`
+        A high-level Figure instance
 
     """
 
@@ -169,9 +169,9 @@ class FigureCanvasMac(_macosx.FigureCanvas, FigureCanvasAgg):
 
         Other Parameters
         ----------------
-        interval
+        interval : scalar
             Timer interval in milliseconds
-        callbacks
+        callbacks : list
             Sequence of (func, args, kwargs) where ``func(*args, **kwargs)``
             will be executed by the timer every *interval*.
         """
