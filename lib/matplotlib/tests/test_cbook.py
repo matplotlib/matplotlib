@@ -522,8 +522,8 @@ def test_flatiter():
 class TestFuncParser(object):
     x_test = np.linspace(0.01, 0.5, 3)
     validstrings = ['linear', 'quadratic', 'cubic', 'sqrt', 'cbrt',
-                    'log', 'log10', 'power{1.5}', 'root{2.5}',
-                    'log(x+{0.5})', 'log10(x+{0.1})']
+                    'log', 'log10', 'x**{1.5}', 'root{2.5}(x)',
+                    'log(x+{0.5})', 'log10(x+{0.1})', 'log{2}(x+{0.1})']
     results = [(lambda x: x),
                (lambda x: x**2),
                (lambda x: x**3),
@@ -534,19 +534,40 @@ class TestFuncParser(object):
                (lambda x: x**1.5),
                (lambda x: x**(1 / 2.5)),
                (lambda x: np.log(x + 0.5)),
-               (lambda x: np.log10(x + 0.1))]
+               (lambda x: np.log10(x + 0.1)),
+               (lambda x: np.log2(x + 0.1))]
 
-    @pytest.mark.parametrize("string", validstrings, ids=validstrings)
-    def test_inverse(self, string):
-        func_parser = cbook._StringFuncParser(string)
-        f = func_parser.get_func()
-        finv = func_parser.get_invfunc()
-        assert_array_almost_equal(finv(f(self.x_test)), self.x_test)
+    bounded_list = [True, True, True, True, True,
+                    False, False, True, True,
+                    True, True, True]
 
     @pytest.mark.parametrize("string, func",
                              zip(validstrings, results),
                              ids=validstrings)
     def test_values(self, string, func):
         func_parser = cbook._StringFuncParser(string)
-        f = func_parser.get_func()
+        f = func_parser.get_directfunc()
         assert_array_almost_equal(f(self.x_test), func(self.x_test))
+
+    @pytest.mark.parametrize("string", validstrings, ids=validstrings)
+    def test_inverse(self, string):
+        func_parser = cbook._StringFuncParser(string)
+        f = func_parser.get_func()
+        fdir = f.direct
+        finv = f.inverse
+        assert_array_almost_equal(finv(fdir(self.x_test)), self.x_test)
+
+    @pytest.mark.parametrize("string", validstrings, ids=validstrings)
+    def test_get_invfunc(self, string):
+        func_parser = cbook._StringFuncParser(string)
+        finv1 = func_parser.get_invfunc()
+        finv2 = func_parser.get_func().inverse
+        assert_array_almost_equal(finv1(self.x_test), finv2(self.x_test))
+
+    @pytest.mark.parametrize("string, bounded",
+                             zip(validstrings, bounded_list),
+                             ids=validstrings)
+    def test_bounded(self, string, bounded):
+        func_parser = cbook._StringFuncParser(string)
+        b = func_parser.is_bounded_0_1()
+        assert_array_equal(b, bounded)
