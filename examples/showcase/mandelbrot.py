@@ -65,7 +65,7 @@ if __name__ == '__main__':
 
     # Some advertisement for matplotlib
     year = time.strftime("%Y")
-    major, minor, micro = matplotlib.__version__.split('.', maxsplit=3)
+    major, minor, micro = matplotlib.__version__.split('.', maxsplit=2)
     text = ("The Mandelbrot fractal set\n"
             "Rendered with matplotlib %s.%s, %s — http://matplotlib.org"
             % (major, minor, year))
