@@ -675,10 +675,11 @@ def clf():
 def draw():
     """Redraw the current figure.
 
-    This is used in interactive mode to update a figure that has been
-    altered, but not automatically re-drawn.  This should be only rarely
-    needed, but there may be ways to modify the state of a figure with
-    out marking it as `stale`.  Please report these cases as bugs.
+    This is used to update a figure that has been altered, but not
+    automatically re-drawn.  If interactive mode is on (:func:`.ion()`), this
+    should be only rarely needed, but there may be ways to modify the state of
+    a figure without marking it as `stale`.  Please report these cases as
+    bugs.
 
     A more object-oriented alternative, given any
     :class:`~matplotlib.figure.Figure` instance, :attr:`fig`, that
