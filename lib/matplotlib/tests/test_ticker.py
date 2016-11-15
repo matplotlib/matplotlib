@@ -241,9 +241,7 @@ def test_LogFormatter_sublabel():
     ax.xaxis.set_minor_locator(mticker.LogLocator(base=10,
                                                   subs=np.arange(2, 10)))
     ax.xaxis.set_major_formatter(mticker.LogFormatter(labelOnlyBase=True))
-    ax.xaxis.set_minor_formatter(mticker.LogFormatter(
-        labelOnlyBase=False,
-        label_pruning=True))
+    ax.xaxis.set_minor_formatter(mticker.LogFormatter(labelOnlyBase=False))
     # axis range above 3 decades, only bases are labeled
     ax.set_xlim(1, 1e4)
     fmt = ax.xaxis.get_major_formatter()
@@ -263,9 +261,13 @@ def test_LogFormatter_sublabel():
     ax.set_xlim(1, 80)
     _sub_labels(ax.xaxis, subs=[])
 
-    # axis range at 0 to 1 decades, label subs 2, 3, 6
+    # axis range at 0.4 to 1 decades, label subs 2, 3, 4, 6
     ax.set_xlim(1, 8)
-    _sub_labels(ax.xaxis, subs=[2, 3, 6])
+    _sub_labels(ax.xaxis, subs=[2, 3, 4, 6])
+
+    # axis range at 0 to 0.4 decades, label all
+    ax.set_xlim(0.5, 0.9)
+    _sub_labels(ax.xaxis, subs=np.arange(2, 10, dtype=int))
 
 
 def _logfe_helper(formatter, base, locs, i, expected_result):

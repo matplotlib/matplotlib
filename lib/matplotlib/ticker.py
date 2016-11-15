@@ -801,7 +801,7 @@ class LogFormatter(Formatter):
     Format values for log axis.
     """
     def __init__(self, base=10.0, labelOnlyBase=False,
-                 label_pruning=False):
+                 minor_thresholds=(1, 0.4)):
         """
         `base` is used to locate the decade tick, which will be the only
         one to be labeled if `labelOnlyBase` is ``True``.
@@ -812,15 +812,21 @@ class LogFormatter(Formatter):
             base of the logarithm.
 
         labelOnlyBase : bool, optional, default: False
-            whether to only label decades ticks.
+            whether label ticks only at integer multiples of base.
+            This is normally True for major ticks and False for
+            minor ticks.
 
-        label_pruning : bool, optional, default: False
-            when set to True, label on a subset of ticks.
+        minor_thresholds : (subset, all), optional, default: (1, 0.4)
+            Thresholds applied to the data range measured in powers
+            of the base (numbers of "decades", or 'numdec'), and
+            effective only when labelOnlyBase is False.  Then a
+            subset of minor ticks will be labeled if `numdec <= subset`,
+            and all will be labeled if `numdec <= all`.
         """
         self._base = base + 0.0
         self.labelOnlyBase = labelOnlyBase
-        self.label_pruning = label_pruning
-        self._sublabels = [1, ]
+        self.minor_thresholds = minor_thresholds
+        self._sublabels = None
 
     def base(self, base):
         """
@@ -872,13 +878,15 @@ class LogFormatter(Formatter):
             vmax = math.log(vmax) / math.log(b)
             numdec = abs(vmax - vmin)
 
-        if numdec > 1:
+        if numdec > self.minor_thresholds[0]:
             # Label only bases
             self._sublabels = set((1,))
-        else:
+        elif numdec > self.minor_thresholds[1]:
             # Add labels between bases at log-spaced coefficients
-            c = np.logspace(0, 1, (4 - int(numdec)) + 1, base=b)
+            c = np.logspace(0, 1, b//2 + 1, base=b)[1:-1]
             self._sublabels = set(np.round(c))
+        else:
+            self._sublabels = set(np.linspace(2, b-1, b-2))
 
     def __call__(self, x, pos=None):
         """
@@ -895,9 +903,9 @@ class LogFormatter(Formatter):
         exponent = np.round(fx) if isDecade else np.floor(fx)
         coeff = np.round(x / b ** exponent)
 
-        if self.label_pruning and coeff not in self._sublabels:
+        if self.labelOnlyBase and not isDecade:
             return ''
-        if not isDecade and self.labelOnlyBase:
+        if self._sublabels is not None and coeff not in self._sublabels:
             return ''
 
         if x > 10000:
@@ -972,16 +980,17 @@ class LogFormatterExponent(LogFormatter):
         if x == 0:
             return '0'
         sign = np.sign(x)
+        x = abs(x)
         # only label the decades
-        fx = math.log(abs(x)) / math.log(b)
+        fx = math.log(x) / math.log(b)
 
         isDecade = is_close_to_int(fx)
         exponent = np.round(fx) if isDecade else np.floor(fx)
-        coeff = np.round(abs(x) / b ** exponent)
+        coeff = np.round(x / b ** exponent)
 
-        if self.label_pruning and coeff not in self._sublabels:
+        if self.labelOnlyBase and not isDecade:
             return ''
-        if not isDecade and self.labelOnlyBase:
+        if self._sublabels is not None and coeff not in self._sublabels:
             return ''
 
         if abs(fx) > 10000:
@@ -1039,9 +1048,9 @@ class LogFormatterMathtext(LogFormatter):
         else:
             base = '%s' % b
 
-        if self.label_pruning and coeff not in self._sublabels:
+        if self.labelOnlyBase and not isDecade:
             return ''
-        if not is_decade and self.labelOnlyBase:
+        if self._sublabels is not None and coeff not in self._sublabels:
             return ''
 
         if not is_decade:
