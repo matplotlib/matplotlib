@@ -2,8 +2,10 @@ from numpy.random import uniform, seed
 from matplotlib.mlab import griddata
 import matplotlib.pyplot as plt
 import numpy as np
+from six.moves import input
+
 # make up data.
-#npts = int(raw_input('enter # of random points to plot:'))
+#npts = int(input('enter # of random points to plot:'))
 seed(0)
 npts = 200
 x = uniform(-2, 2, npts)
