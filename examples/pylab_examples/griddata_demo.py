@@ -1,15 +1,13 @@
-from numpy.random import uniform, seed
 from matplotlib.mlab import griddata
 import matplotlib.pyplot as plt
 import numpy as np
-from six.moves import input
 
 # make up data.
-#npts = int(input('enter # of random points to plot:'))
-seed(0)
+random_state = np.random.RandomState(19680801)
+
 npts = 200
-x = uniform(-2, 2, npts)
-y = uniform(-2, 2, npts)
+x = random_state.uniform(-2, 2, npts)
+y = random_state.uniform(-2, 2, npts)
 z = x*np.exp(-x**2 - y**2)
 # define grid.
 xi = np.linspace(-2.1, 2.1, 100)
