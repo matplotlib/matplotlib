@@ -1,9 +1,14 @@
-from __future__ import print_function
 """
+===============================
+Painter Tool Demo
+===============================
+
 Drag the mouse to paint selected areas of the plot. The callback prints
 the (x, y) coordinates of the center of the painted region.
 
 """
+from __future__ import print_function
+
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.widgets import Painter
@@ -19,12 +24,12 @@ pts = ax.scatter(data[:, 0], data[:, 1], s=80)
 
 
 # Define the "on_select" callback.
-def test(x, y):
+def callback(x, y):
     print("(%3.2f, %3.2f)" % (x, y))
 
 
 print("\n click and drag \n (x, y)")
 
 # Create the painter tool and show the plot.
-p = Painter(ax, test)
+p = Painter(ax, callback)
 plt.show()

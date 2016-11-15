@@ -291,6 +291,7 @@ def test_paint_tool():
     do_event(tool, 'onmove', xdata=110, ydata=110)
     do_event(tool, 'release')
 
+    # Ensure that the correct number of pixels are labeled.
     assert tool.overlay[tool.overlay == 2].size == 878
 
     tool.label = 5

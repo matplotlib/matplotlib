@@ -2610,6 +2610,10 @@ class Painter(_SelectorWidget):
 
     For the widget to remain responsive you must keep a reference to it.
 
+    This is not meant to be used with polar coordinate plots.
+
+    Resizing the plot will clear the existing selection.
+
     Example usage::
 
         import numpy as np
@@ -2633,30 +2637,33 @@ class Painter(_SelectorWidget):
                  cursor_props=None, radius=5, cmap=LABELS_CMAP,
                  useblit=True, button=None, state_modifier_keys=None):
         """
-        Parameters:
+        Parameters
+        ==========
 
-        *ax* : :class:`~matplotlib.axes.Axes`
-            The parent axes for the widget
-        *on_select* : function
-           A callback for when a region is painted. Called with the
-           (x, y) coordinates of the region.
-        *overlay_props* : dict
-           The properties to apply to the overlay.
-        *cursor_props* : ditc
-            - The properties to apply to the cursor.
-        *radius* : int
-           - The radius of the cursor in pixels.
-        *cmap* : :class:~matplotlib.colorls.ListedColormap`
-            - The colormap to use for the cursors.
-        *useblit* : bool
-           - Whether to use blitting.
-        *button* : list
+        ax: :class:`~matplotlib.axes.Axes`
+            The parent axes for the widget.
+        on_select: function
+            A callback for when a region is painted. Called with the
+            (x, y) coordinates of the region.
+        overlay_props: dict
+            The properties to apply to the overlay.
+        cursor_props: dcit
+            The properties to apply to the cursor.
+        radius: int
+            The radius of the cursor in pixels.
+        cmap: :class:~matplotlib.colorls.ListedColormap`
+            The colormap to use for the cursors.
+        useblit: bool
+            Whether to use blitting.
+        button: list
             The button numbers supported for the tool (defaults to [1, 2, 3])
-        *state_modifier_keys* : dict
+        state_modifier_keys: dict
             A mapping of key names to state modifiers.
         """
-        super(Painter, self).__init__(ax, on_select,
-            useblit=useblit, button=button, state_modifier_keys=None)
+        super(Painter, self).__init__(
+            ax, on_select, useblit=useblit, button=button,
+            state_modifier_keys=None
+        )
         self.cmap = cmap
         self._previous = None
         self._overlay = None
