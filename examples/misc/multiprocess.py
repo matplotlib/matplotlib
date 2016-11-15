@@ -2,6 +2,7 @@
 # Demo of using multiprocessing for generating data in one process and plotting
 # in another.
 # Written by Robert Cimrman
+from six.moves import input
 
 from __future__ import print_function
 import time
@@ -76,10 +77,6 @@ def main():
     for ii in range(10):
         pl.plot()
         time.sleep(0.5)
-    try:
-        input = raw_input
-    except NameError:
-        pass
     input('press Enter...')
     pl.plot(finished=True)
 
