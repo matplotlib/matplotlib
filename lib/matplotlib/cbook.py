@@ -1014,6 +1014,7 @@ def mkdirs(newdir, mode=0o777):
             if exception.errno != errno.EEXIST:
                 raise
 
+
 class GetRealpathAndStat(object):
     def __init__(self):
         self._cache = {}
@@ -1734,7 +1735,7 @@ def recursive_remove(path):
                 os.removedirs(fname)
             else:
                 os.remove(fname)
-        #os.removedirs(path)
+        # os.removedirs(path)
     else:
         os.remove(path)
 
@@ -2701,3 +2702,15 @@ class Locked(object):
                     os.rmdir(path)
                 except OSError:
                     pass
+
+
+def is_matrix(obj):
+    '''
+    This is a test for whether the input is a matrix.
+    If the input is a matrix, raise an error. Otherwise,
+    return the object as it is.
+    '''
+    cast_result = np.asanyarray(obj)
+    if type(cast_result) == np.matrix:
+        raise ValueError("The input cannot be matrix")
+    return obj
