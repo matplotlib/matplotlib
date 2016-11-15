@@ -12,27 +12,24 @@ import six
 import warnings
 
 import numpy as np
-from numpy import ma
-from . import artist, colors as mcolors
-from .artist import Artist
-from .cbook import (iterable, is_string_like, is_numlike, ls_mapper_r,
-                    pts_to_prestep, pts_to_poststep, pts_to_midstep, ls_mapper,
-                    is_hashable, STEP_LOOKUP_MAP)
 
+from . import artist, colors as mcolors, docstring, rcParams
+from .artist import Artist, allow_rasterization
+from .cbook import (
+    iterable, is_string_like, is_numlike, ls_mapper, ls_mapper_r, is_hashable,
+    STEP_LOOKUP_MAP)
+from .markers import MarkerStyle
 from .path import Path
 from .transforms import Bbox, TransformedPath, IdentityTransform
 
-from matplotlib import rcParams
-from .artist import allow_rasterization
-from matplotlib import docstring
-from matplotlib.markers import MarkerStyle
 # Imported here for backward compatibility, even though they don't
 # really belong.
-from matplotlib.markers import TICKLEFT, TICKRIGHT, TICKUP, TICKDOWN
-from matplotlib.markers import (
+from numpy import ma
+from . import _path
+from .markers import (
     CARETLEFT, CARETRIGHT, CARETUP, CARETDOWN,
-    CARETLEFTBASE, CARETRIGHTBASE, CARETUPBASE, CARETDOWNBASE)
-from matplotlib import _path
+    CARETLEFTBASE, CARETRIGHTBASE, CARETUPBASE, CARETDOWNBASE,
+    TICKLEFT, TICKRIGHT, TICKUP, TICKDOWN)
 
 
 def _get_dash_pattern(style):
