@@ -2711,6 +2711,6 @@ def is_matrix(obj):
     return the object as it is.
     '''
     cast_result = np.asanyarray(obj)
-    if type(cast_result) == np.matrix:
+    if isinstance(cast_result, np.matrix):
         raise ValueError("The input cannot be matrix")
     return obj

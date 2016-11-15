@@ -422,16 +422,11 @@ class Quiver(mcollections.PolyCollection):
         """
         self.ax = ax
         X, Y, U, V, C = _parse_args(*args)
-        if X:
-            cbook.is_matrix(X)
-        if Y:
-            cbook.is_matrix(Y)
-        if U:
-            cbook.is_matrix(U)
-        if V:
-            cbook.is_matrix(V)
-        if C:
-            cbook.is_matrix(C)
+        cbook.is_matrix(X)
+        cbook.is_matrix(Y)
+        cbook.is_matrix(U)
+        cbook.is_matrix(V)
+        cbook.is_matrix(C)
         self.X = X
         self.Y = Y
         self.XY = np.hstack((X[:, np.newaxis], Y[:, np.newaxis]))
