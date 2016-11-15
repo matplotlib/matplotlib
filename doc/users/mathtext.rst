@@ -214,13 +214,12 @@ When using the `STIX <http://www.stixfonts.org/>`_ fonts, you also have the choi
     ``\mathfrak{Fraktur}``                 :math-stix:`\mathfrak{Fraktur}`
     ``\mathsf{sansserif}``                 :math-stix:`\mathsf{sansserif}`
     ``\mathrm{\mathsf{sansserif}}``        :math-stix:`\mathrm{\mathsf{sansserif}}`
-    ====================================== =========================================    
+    ====================================== =========================================
 
-  .. htmlonly::   
+  .. htmlonly::
 
-    ====================================== =========================================    
+    ====================================== =========================================
     ``\mathcircled{circled}``              :math-stix:`\mathcircled{circled}`
-
     ====================================== =========================================
 
 There are also three global "font sets" to choose from, which are

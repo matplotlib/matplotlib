@@ -2,9 +2,10 @@
 # Demo of using multiprocessing for generating data in one process and plotting
 # in another.
 # Written by Robert Cimrman
-from six.moves import input
 
 from __future__ import print_function
+from six.moves import input
+
 import time
 from multiprocessing import Process, Pipe
 import numpy as np
