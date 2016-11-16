@@ -899,11 +899,11 @@ class LogFormatter(Formatter):
         x = abs(x)
         # only label the decades
         fx = math.log(x) / math.log(b)
-        isDecade = is_close_to_int(fx)
-        exponent = np.round(fx) if isDecade else np.floor(fx)
+        is_x_decade = is_close_to_int(fx)
+        exponent = np.round(fx) if is_x_decade else np.floor(fx)
         coeff = np.round(x / b ** exponent)
 
-        if self.labelOnlyBase and not isDecade:
+        if self.labelOnlyBase and not is_x_decade:
             return ''
         if self._sublabels is not None and coeff not in self._sublabels:
             return ''
@@ -984,11 +984,11 @@ class LogFormatterExponent(LogFormatter):
         # only label the decades
         fx = math.log(x) / math.log(b)
 
-        isDecade = is_close_to_int(fx)
-        exponent = np.round(fx) if isDecade else np.floor(fx)
+        is_x_decade = is_close_to_int(fx)
+        exponent = np.round(fx) if is_x_decade else np.floor(fx)
         coeff = np.round(x / b ** exponent)
 
-        if self.labelOnlyBase and not isDecade:
+        if self.labelOnlyBase and not is_x_decade:
             return ''
         if self._sublabels is not None and coeff not in self._sublabels:
             return ''
@@ -1036,8 +1036,8 @@ class LogFormatterMathtext(LogFormatter):
                 return '$%s$' % _mathdefault('0')
 
         fx = math.log(abs(x)) / math.log(b)
-        is_decade = is_close_to_int(fx)
-        exponent = np.round(fx) if is_decade else np.floor(fx)
+        is_x_decade = is_close_to_int(fx)
+        exponent = np.round(fx) if is_x_decade else np.floor(fx)
         coeff = np.round(abs(x) / b ** exponent)
 
         sign_string = '-' if x < 0 else ''
@@ -1048,12 +1048,12 @@ class LogFormatterMathtext(LogFormatter):
         else:
             base = '%s' % b
 
-        if self.labelOnlyBase and not is_decade:
+        if self.labelOnlyBase and not is_x_decade:
             return ''
         if self._sublabels is not None and coeff not in self._sublabels:
             return ''
 
-        if not is_decade:
+        if not is_x_decade:
             return self._non_decade_format(sign_string, base, fx, usetex)
         else:
             if usetex:
