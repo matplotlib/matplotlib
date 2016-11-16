@@ -530,7 +530,7 @@ class TestFuncParser(object):
                np.square,
                (lambda x: x**3),
                np.sqrt,
-               np.cbrt,
+               (lambda x: x**(1. / 3)),
                np.log,
                np.log10,
                np.log2,

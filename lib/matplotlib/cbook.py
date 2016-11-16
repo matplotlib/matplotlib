@@ -2719,12 +2719,12 @@ class _StringFuncParser(object):
                                     np.sqrt,
                                     True)
     _funcs['cubic'] = _FuncInfo(lambda x: x**3,
-                                np.cbrt,
+                                lambda x: x**(1. / 3),
                                 True)
     _funcs['sqrt'] = _FuncInfo(np.sqrt,
                                np.square,
                                True)
-    _funcs['cbrt'] = _FuncInfo(np.cbrt,
+    _funcs['cbrt'] = _FuncInfo(lambda x: x**(1. / 3),
                                lambda x: x**3,
                                True)
     _funcs['log10'] = _FuncInfo(np.log10,
