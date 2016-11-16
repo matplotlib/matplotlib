@@ -2671,18 +2671,36 @@ class _FuncInfo(object):
     * The direct function (direct)
     * The inverse function (inverse)
     * A boolean indicating whether the function
-      is bounded in the interval 0-1 (bounded_0_1)
+      is bounded in the interval 0-1 (bounded_0_1), or
+      a method that returns the information depending
+      on this
+    * A callable (check_params) that returns a bool specifying if a
+      certain combination of parameters is valid.
 
     """
-    def __init__(self, direct, inverse, bounded_0_1):
+    def __init__(self, direct, inverse, bounded_0_1=True, check_params=None):
         self.direct = direct
         self.inverse = inverse
-        self.bounded_0_1 = bounded_0_1
 
-    def copy(self):
-        return _FuncInfo(self.direct,
-                         self.inverse,
-                         self.bounded_0_1)
+        if (hasattr(bounded_0_1, '__call__')):
+            self._bounded_0_1 = bounded_0_1
+        else:
+            self._bounded_0_1 = lambda x: bounded_0_1
+
+        if check_params is None:
+            self._check_params = lambda x: True
+        elif (hasattr(check_params, '__call__')):
+            self._check_params = check_params
+        else:
+            raise ValueError("Check params must be a callable, returning "
+                             "a boolean with the validity of the passed "
+                             "parameters or None.")
+
+    def is_bounded_0_1(self, params=None):
+        return self._bounded_0_1(params)
+
+    def check_params(self, params=None):
+        return self._check_params(params)
 
 
 class _StringFuncParser(object):
@@ -2697,40 +2715,49 @@ class _StringFuncParser(object):
     _funcs['linear'] = _FuncInfo(lambda x: x,
                                  lambda x: x,
                                  True)
-    _funcs['quadratic'] = _FuncInfo(lambda x: x**2,
-                                    lambda x: x**(1. / 2),
+    _funcs['quadratic'] = _FuncInfo(np.square,
+                                    np.sqrt,
                                     True)
     _funcs['cubic'] = _FuncInfo(lambda x: x**3,
-                                lambda x: x**(1. / 3),
+                                np.cbrt,
                                 True)
-    _funcs['sqrt'] = _FuncInfo(lambda x: x**(1. / 2),
-                               lambda x: x**2,
+    _funcs['sqrt'] = _FuncInfo(np.sqrt,
+                               np.square,
                                True)
-    _funcs['cbrt'] = _FuncInfo(lambda x: x**(1. / 3),
+    _funcs['cbrt'] = _FuncInfo(np.cbrt,
                                lambda x: x**3,
                                True)
-    _funcs['log10'] = _FuncInfo(lambda x: np.log10(x),
+    _funcs['log10'] = _FuncInfo(np.log10,
                                 lambda x: (10**(x)),
                                 False)
-    _funcs['log'] = _FuncInfo(lambda x: np.log(x),
-                              lambda x: (np.exp(x)),
+    _funcs['log'] = _FuncInfo(np.log,
+                              np.exp,
                               False)
+    _funcs['log2'] = _FuncInfo(np.log2,
+                               lambda x: (2**x),
+                               False)
     _funcs['x**{p}'] = _FuncInfo(lambda x, p: x**p[0],
                                  lambda x, p: x**(1. / p[0]),
                                  True)
     _funcs['root{p}(x)'] = _FuncInfo(lambda x, p: x**(1. / p[0]),
                                      lambda x, p: x**p,
                                      True)
+    _funcs['log{p}(x)'] = _FuncInfo(lambda x, p: (np.log(x) /
+                                                  np.log(p[0])),
+                                    lambda x, p: p[0]**(x),
+                                    False,
+                                    lambda p: p[0] > 0)
     _funcs['log10(x+{p})'] = _FuncInfo(lambda x, p: np.log10(x + p[0]),
                                        lambda x, p: 10**x - p[0],
-                                       True)
+                                       lambda p: p[0] > 0)
     _funcs['log(x+{p})'] = _FuncInfo(lambda x, p: np.log(x + p[0]),
                                      lambda x, p: np.exp(x) - p[0],
-                                     True)
+                                     lambda p: p[0] > 0)
     _funcs['log{p}(x+{p})'] = _FuncInfo(lambda x, p: (np.log(x + p[1]) /
                                                       np.log(p[0])),
                                         lambda x, p: p[0]**(x) - p[1],
-                                        True)
+                                        lambda p: p[1] > 0,
+                                        lambda p: p[0] > 0)
 
     def __init__(self, str_func):
         """
@@ -2749,44 +2776,57 @@ class _StringFuncParser(object):
             raise ValueError("The argument passed is not a string.")
         self._str_func = str_func
         self._key, self._params = self._get_key_params()
-        self._func = self.get_func()
+        self._func = self.func
 
-    def get_func(self):
+    @property
+    def func(self):
         """
         Returns the _FuncInfo object, replacing the relevant parameters if
         necessary in the lambda functions.
 
         """
 
-        func = self._funcs[self._key].copy()
-        if len(self._params) > 0:
+        func = self._funcs[self._key]
+        if self._params:
             m = func.direct
-            func.direct = (lambda x, m=m: m(x, self._params))
+            direct = (lambda x, m=m: m(x, self._params))
+
             m = func.inverse
-            func.inverse = (lambda x, m=m: m(x, self._params))
+            inverse = (lambda x, m=m: m(x, self._params))
+
+            is_bounded_0_1 = func.is_bounded_0_1(self._params)
+
+            func = _FuncInfo(direct, inverse,
+                             is_bounded_0_1)
+        else:
+            func = _FuncInfo(func.direct, func.inverse,
+                             func.is_bounded_0_1())
         return func
 
-    def get_directfunc(self):
+    @property
+    def directfunc(self):
         """
         Returns the callable for the direct function.
 
         """
         return self._func.direct
 
-    def get_invfunc(self):
+    @property
+    def invfunc(self):
         """
         Returns the callable for the inverse function.
 
         """
         return self._func.inverse
 
+    @property
     def is_bounded_0_1(self):
         """
         Returns a boolean indicating if the function is bounded
         in the [0-1 interval].
 
         """
-        return self._func.bounded_0_1
+        return self._func.is_bounded_0_1()
 
     def _get_key_params(self):
         str_func = six.text_type(self._str_func)
@@ -2794,37 +2834,30 @@ class _StringFuncParser(object):
         regex = '\{(.*?)\}'
         params = re.findall(regex, str_func)
 
-        if len(params) > 0:
+        if params:
             for i in range(len(params)):
                 try:
                     params[i] = float(params[i])
                 except:
-                    raise ValueError("'p' in parametric function strings must"
+                    raise ValueError("Error with parameter number %i: '%s'. "
+                                     "'p' in parametric function strings must "
                                      " be replaced by a number that is not "
-                                     "zero, e.g. 'log10(x+{0.1})'.")
+                                     "zero, e.g. 'log10(x+{0.1})'." %
+                                     (i, params[i]))
 
-                if params[i] == 0:
-                    raise ValueError("'p' in parametric function strings must"
-                                     " be replaced by a number that is not "
-                                     "zero.")
             str_func = re.sub(regex, '{p}', str_func)
 
         try:
             func = self._funcs[str_func]
-        except KeyError:
-            raise ValueError("%s: invalid function. The only strings "
-                             "recognized as functions are %s." %
-                             (str_func, self.funcs.keys()))
         except:
-            raise ValueError("Invalid function. The only strings recognized "
-                             "as functions are %s." %
-                             (self.funcs.keys()))
-        if len(params) > 0:
-            func.direct(0.5, params)
-            try:
-                func.direct(0.5, params)
-            except:
-                raise ValueError("Invalid parameters set for '%s'." %
-                                 (str_func))
+            raise ValueError("%s: invalid string. The only strings "
+                             "recognized as functions are %s." %
+                             (str_func, self._funcs.keys()))
+
+        # Checking that the parameters are valid
+        if not func.check_params(params):
+            raise ValueError("%s: are invalid values for the parameters "
+                             "in %s." %
+                             (params, str_func))
 
         return str_func, params
