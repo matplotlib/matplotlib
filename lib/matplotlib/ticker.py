@@ -1048,7 +1048,7 @@ class LogFormatterMathtext(LogFormatter):
         else:
             base = '%s' % b
 
-        if self.labelOnlyBase and not isDecade:
+        if self.labelOnlyBase and not is_decade:
             return ''
         if self._sublabels is not None and coeff not in self._sublabels:
             return ''
