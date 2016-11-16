@@ -224,4 +224,5 @@ after_success:
     fi
     if [[ $NOSE_ARGS =~ "--with-coverage" || $USE_PYTEST == true ]]; then
       coveralls
+      bash <(curl -s https://codecov.io/bash)
     fi
