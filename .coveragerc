@@ -10,3 +10,6 @@ omit =
 
 exclude_lines =
     raise NotImplemented
+    def __str__
+    def __repr__
+    if __name__ == .__main__.:
