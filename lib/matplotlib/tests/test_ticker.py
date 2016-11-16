@@ -499,6 +499,10 @@ def test_formatstrformatter():
     tmp_form = mticker.StrMethodFormatter('{x:05d}')
     assert '00002' == tmp_form(2)
 
+    # test str.format() style formatter with `pos`
+    tmp_form = mticker.StrMethodFormatter('{x:03d}-{pos:02d}')
+    assert '002-01' == tmp_form(2, 1)
+
 
 percentformatter_test_cases = (
     # Check explicitly set decimals over different intervals and values
@@ -529,10 +533,6 @@ percentformatter_test_cases = (
 def test_percentformatter(xmax, decimals, symbol, x, display_range, expected):
     formatter = mticker.PercentFormatter(xmax, decimals, symbol)
     assert formatter.format_pct(x, display_range) == expected
-
-    # test str.format() style formatter with `pos`
-    tmp_form = mticker.StrMethodFormatter('{x:03d}-{pos:02d}')
-    assert '002-01' == tmp_form(2, 1)
 
 
 def test_EngFormatter_formatting():
