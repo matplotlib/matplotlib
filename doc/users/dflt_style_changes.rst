@@ -625,6 +625,11 @@ The behavior of the PS and Agg backends was DPI dependent, thus::
 
 There is no API level control of the hatch color or linewidth.
 
+Hatching patterns are now rendered at a consistent density, regardless of DPI.
+Formerly, high DPI figures would be more dense than the default, and low DPI
+figures would be less dense.  This old behavior cannot be directly restored,
+but the density may be increased by repeating the hatch specifier.
+
 
 .. _default_changes_font:
 
