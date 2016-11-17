@@ -58,11 +58,14 @@ RendererAgg::RendererAgg(unsigned int width, unsigned int height, double dpi)
     rendererBase.clear(_fill_color);
     rendererAA.attach(rendererBase);
     rendererBin.attach(rendererBase);
-    hatchRenderingBuffer.attach(hatchBuffer, HATCH_SIZE, HATCH_SIZE, HATCH_SIZE * 4);
+    hatch_size = int(dpi);
+    hatchBuffer = new agg::int8u[hatch_size * hatch_size * 4];
+    hatchRenderingBuffer.attach(hatchBuffer, hatch_size, hatch_size, hatch_size * 4);
 }
 
 RendererAgg::~RendererAgg()
 {
+    delete[] hatchBuffer;
     delete[] alphaBuffer;
     delete[] pixBuffer;
 }
