@@ -146,7 +146,8 @@ register_projection(SkewXAxes)
 
 if __name__ == '__main__':
     # Now make a simple example using the custom projection.
-    from matplotlib.ticker import ScalarFormatter, MultipleLocator
+    from matplotlib.ticker import (MultipleLocator, NullFormatter,
+                                   ScalarFormatter)
     import matplotlib.pyplot as plt
     from six import StringIO
     import numpy as np
@@ -248,6 +249,7 @@ if __name__ == '__main__':
 
     # Disables the log-formatting that comes with semilogy
     ax.yaxis.set_major_formatter(ScalarFormatter())
+    ax.yaxis.set_minor_formatter(NullFormatter())
     ax.set_yticks(np.linspace(100, 1000, 10))
     ax.set_ylim(1050, 100)
 
