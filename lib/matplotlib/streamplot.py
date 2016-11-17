@@ -156,10 +156,10 @@ def streamplot(axes, x, y, u, v, density=1, linewidth=None, color=None,
 
         # Check if start_points are outside the data boundaries
         for xs, ys in sp2:
-            if (xs < grid.x_origin or xs > grid.x_origin + grid.width
-                or ys < grid.y_origin or ys > grid.y_origin + grid.height):
-                    raise ValueError("Starting point ({}, {}) outside of"
-                                     " data boundaries".format(xs, ys))
+            if not (grid.x_origin <= xs <= grid.x_origin + grid.width
+                    and grid.y_origin <= ys <= grid.y_origin + grid.height):
+                raise ValueError("Starting point ({}, {}) outside of data "
+                                 "boundaries".format(xs, ys))
 
         # Convert start_points from data to array coords
         # Shift the seed points from the bottom left of the data so that
