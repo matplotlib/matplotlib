@@ -6273,7 +6273,7 @@ or tuple of floats
             totwidth = np.diff(bins)
 
             if rwidth is not None:
-                dr = min(1.0, max(0.0, rwidth))
+                dr = np.clip(rwidth, 0, 1)
             elif (len(n) > 1 and
                   ((not stacked) or rcParams['_internal.classic_mode'])):
                 dr = 0.8
@@ -6281,20 +6281,15 @@ or tuple of floats
                 dr = 1.0
 
             if histtype == 'bar' and not stacked:
-                width = dr*totwidth/nx
+                width = dr * totwidth / nx
                 dw = width
-
-                if nx > 1:
-                    boffset = -0.5*dr*totwidth*(1.0-1.0/nx)
-                else:
-                    boffset = 0.0
-                stacked = False
+                boffset = -0.5 * dr * totwidth * (1 - 1 / nx)
             elif histtype == 'barstacked' or stacked:
-                width = dr*totwidth
+                width = dr * totwidth
                 boffset, dw = 0.0, 0.0
 
             if align == 'mid' or align == 'edge':
-                boffset += 0.5*totwidth
+                boffset += 0.5 * totwidth
             elif align == 'right':
                 boffset += totwidth
 
@@ -6307,7 +6302,7 @@ or tuple of floats
 
             for m, c in zip(n, color):
                 if bottom is None:
-                    bottom = np.zeros(len(m), float)
+                    bottom = np.zeros(len(m))
                 if stacked:
                     height = m - bottom
                 else:
@@ -6326,14 +6321,14 @@ or tuple of floats
 
         elif histtype.startswith('step'):
             # these define the perimeter of the polygon
-            x = np.zeros(4 * len(bins) - 3, float)
-            y = np.zeros(4 * len(bins) - 3, float)
+            x = np.zeros(4 * len(bins) - 3)
+            y = np.zeros(4 * len(bins) - 3)
 
             x[0:2*len(bins)-1:2], x[1:2*len(bins)-1:2] = bins, bins[:-1]
             x[2*len(bins)-1:] = x[1:2*len(bins)-1][::-1]
 
             if bottom is None:
-                bottom = np.zeros(len(bins)-1, float)
+                bottom = np.zeros(len(bins) - 1)
 
             y[1:2*len(bins)-1:2], y[2:2*len(bins):2] = bottom, bottom
             y[2*len(bins)-1:] = y[1:2*len(bins)-1][::-1]
