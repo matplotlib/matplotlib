@@ -2097,13 +2097,6 @@ or tuple of floats
             if yerr is not None:
                 yerr = self.convert_yunits(yerr)
 
-        margins = {}
-
-        if orientation == 'vertical':
-            margins = {'bottom': False}
-        elif orientation == 'horizontal':
-            margins = {'left': False}
-
         if align == 'center':
             if orientation == 'vertical':
                 left = [left[i] - width[i] / 2. for i in xrange(len(left))]
@@ -2128,11 +2121,13 @@ or tuple of floats
                 edgecolor=e,
                 linewidth=lw,
                 label='_nolegend_',
-                margins=margins
                 )
             r.update(kwargs)
             r.get_path()._interpolation_steps = 100
-            #print r.get_label(), label, 'label' in kwargs
+            if orientation == 'vertical':
+                r.stickies.y.append(0)
+            elif orientation == 'horizontal':
+                r.stickies.x.append(0)
             self.add_patch(r)
             patches.append(r)
 
@@ -5452,7 +5447,7 @@ or tuple of floats
 
         kwargs.setdefault('snap', False)
 
-        collection = mcoll.PolyCollection(verts, margins=False, **kwargs)
+        collection = mcoll.PolyCollection(verts, **kwargs)
 
         collection.set_alpha(alpha)
         collection.set_array(C)
@@ -5486,8 +5481,10 @@ or tuple of floats
         miny = np.amin(y)
         maxy = np.amax(y)
 
-        corners = (minx, miny), (maxx, maxy)
         self.add_collection(collection, autolim=False)
+        corners = (minx, miny), (maxx, maxy)
+        collection.stickies.x[:] = [minx, maxx]
+        collection.stickies.y[:] = [miny, maxy]
         self.update_datalim(corners)
         self.autoscale_view()
         return collection
@@ -5603,10 +5600,9 @@ or tuple of floats
         coords[:, 0] = X
         coords[:, 1] = Y
 
-        collection = mcoll.QuadMesh(
-            Nx - 1, Ny - 1, coords,
-            antialiased=antialiased, shading=shading, margins=False,
-            **kwargs)
+        collection = mcoll.QuadMesh(Nx - 1, Ny - 1, coords,
+                                    antialiased=antialiased, shading=shading,
+                                    **kwargs)
         collection.set_alpha(alpha)
         collection.set_array(C)
         if norm is not None and not isinstance(norm, mcolors.Normalize):
@@ -5637,8 +5633,10 @@ or tuple of floats
         miny = np.amin(Y)
         maxy = np.amax(Y)
 
-        corners = (minx, miny), (maxx, maxy)
         self.add_collection(collection, autolim=False)
+        corners = (minx, miny), (maxx, maxy)
+        collection.stickies.x[:] = [minx, maxx]
+        collection.stickies.y[:] = [miny, maxy]
         self.update_datalim(corners)
         self.autoscale_view()
         return collection
@@ -5790,8 +5788,7 @@ or tuple of floats
             # The QuadMesh class can also be changed to
             # handle relevant superclass kwargs; the initializer
             # should do much more than it does now.
-            collection = mcoll.QuadMesh(nc, nr, coords, 0, edgecolors="None",
-                                        margins=False)
+            collection = mcoll.QuadMesh(nc, nr, coords, 0, edgecolors="None")
             collection.set_alpha(alpha)
             collection.set_array(C)
             collection.set_cmap(cmap)
@@ -5828,6 +5825,8 @@ or tuple of floats
             ret.set_clim(vmin, vmax)
         else:
             ret.autoscale_None()
+        collection.stickies.x[:] = [xl, xr]
+        collection.stickies.y[:] = [yb, yt]
         self.update_datalim(np.array([[xl, yb], [xr, yt]]))
         self.autoscale_view(tight=True)
         return ret
@@ -6240,21 +6239,17 @@ or tuple of floats
             else:
                 n = [m[slc].cumsum()[slc] for m in n]
 
-        if orientation == 'horizontal':
-            margins = {'left': False}
-        else:
-            margins = {'bottom': False}
-
         patches = []
 
+        # Save autoscale state for later restoration; turn autoscaling
+        # off so we can do it all a single time at the end, instead
+        # of having it done by bar or fill and then having to be redone.
+        _saved_autoscalex = self.get_autoscalex_on()
+        _saved_autoscaley = self.get_autoscaley_on()
+        self.set_autoscalex_on(False)
+        self.set_autoscaley_on(False)
+
         if histtype.startswith('bar'):
-            # Save autoscale state for later restoration; turn autoscaling
-            # off so we can do it all a single time at the end, instead
-            # of having it done by bar or fill and then having to be redone.
-            _saved_autoscalex = self.get_autoscalex_on()
-            _saved_autoscaley = self.get_autoscaley_on()
-            self.set_autoscalex_on(False)
-            self.set_autoscaley_on(False)
 
             totwidth = np.diff(bins)
 
@@ -6300,10 +6295,6 @@ or tuple of floats
                 if stacked:
                     bottom[:] = m
                 boffset += dw
-
-            self.set_autoscalex_on(_saved_autoscalex)
-            self.set_autoscaley_on(_saved_autoscaley)
-            self.autoscale_view()
 
         elif histtype.startswith('step'):
             # these define the perimeter of the polygon
@@ -6384,8 +6375,13 @@ or tuple of floats
                     closed=True if fill else None,
                     facecolor=c,
                     edgecolor=None if fill else c,
-                    fill=fill if fill else None,
-                    margins=margins))
+                    fill=fill if fill else None))
+            for patch_list in patches:
+                for patch in patch_list:
+                    if orientation == 'vertical':
+                        patch.stickies.y.append(0)
+                    elif orientation == 'horizontal':
+                        patch.stickies.x.append(0)
 
             # we return patches, so put it back in the expected order
             patches.reverse()
@@ -6420,6 +6416,10 @@ or tuple of floats
                 ymin = max(ymin*0.9, minimum) if not input_empty else minimum
                 ymin = min(ymin0, ymin)
                 self.dataLim.intervaly = (ymin, ymax)
+
+        self.set_autoscalex_on(_saved_autoscalex)
+        self.set_autoscaley_on(_saved_autoscaley)
+        self.autoscale_view()
 
         if label is None:
             labels = [None]
