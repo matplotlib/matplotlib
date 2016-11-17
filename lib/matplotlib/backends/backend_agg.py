@@ -26,6 +26,7 @@ import six
 
 import threading
 import numpy as np
+from collections import OrderedDict
 from math import radians, cos, sin
 from matplotlib import verbose, rcParams, __version__
 from matplotlib.backend_bases import (RendererBase, FigureManagerBase,
@@ -556,7 +557,7 @@ class FigureCanvasAgg(FigureCanvasBase):
 
         version_str = 'matplotlib version ' + __version__ + \
             ', http://matplotlib.org/'
-        metadata = {'Software': version_str}
+        metadata = OrderedDict({'Software': version_str})
         user_metadata = kwargs.pop("metadata", None)
         if user_metadata is not None:
             metadata.update(user_metadata)
