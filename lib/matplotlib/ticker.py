@@ -151,6 +151,9 @@ axis.
 :class:`PercentFormatter`
     Format labels as a percentage
 
+:class:`TransformFormatter`
+    Generic form of :class:`FuncFormatter` that transforms input values.
+
 You can derive your own formatter from the Formatter base class by
 simply overriding the ``__call__`` method. The formatter class has
 access to the axis view and data limits.
@@ -192,10 +195,10 @@ __all__ = ('TickHelper', 'Formatter', 'FixedFormatter',
            'LogFormatterExponent', 'LogFormatterMathtext',
            'IndexFormatter', 'LogFormatterSciNotation',
            'LogitFormatter', 'EngFormatter', 'PercentFormatter',
-           'Locator', 'IndexLocator', 'FixedLocator', 'NullLocator',
-           'LinearLocator', 'LogLocator', 'AutoLocator',
-           'MultipleLocator', 'MaxNLocator', 'AutoMinorLocator',
-           'SymmetricalLogLocator', 'LogitLocator')
+           'TransformFormatter', 'Locator', 'IndexLocator',
+           'FixedLocator', 'NullLocator', 'LinearLocator', 'LogLocator',
+           'AutoLocator', 'MultipleLocator', 'MaxNLocator',
+           'AutoMinorLocator', 'SymmetricalLogLocator', 'LogitLocator')
 
 
 if six.PY3:
@@ -239,6 +242,9 @@ class _DummyAxis(object):
     def get_minpos(self):
         return self._minpos
 
+    def set_minpos(self, minpos=0):
+        self._minpos = minpos
+
     def get_data_interval(self):
         return self.dataLim.intervalx
 
@@ -251,6 +257,13 @@ class _DummyAxis(object):
 
 
 class TickHelper(object):
+    """
+    A base class for objects that interact with an axis and its bounds.
+    Specifically, this is the base class for `Formatter` and `Locator`.
+    """
+    # Note to the developer: Please make the appropriate changes to
+    # `TransformFormatter` if methods or other attributes are added or
+    # removed from this class.
     axis = None
 
     def set_axis(self, axis):
@@ -275,6 +288,10 @@ class Formatter(TickHelper):
     """
     Create a string based on a tick value and location.
     """
+    # Note to the developer: Please make the appropriate changes to
+    # `TransformFormatter` if methods or other attributes are added or
+    # removed from this class.
+
     # some classes want to see all the locs to help format
     # individual ones
     locs = []
@@ -672,7 +689,7 @@ class ScalarFormatter(Formatter):
         Set the locations of the ticks.
         """
         self.locs = locs
-        if len(self.locs) > 0:
+        if self.locs is not None and len(self.locs) > 0:
             vmin, vmax = self.axis.get_view_interval()
             d = abs(vmax - vmin)
             if self._useOffset:
@@ -1381,6 +1398,186 @@ class PercentFormatter(Formatter):
     @symbol.setter
     def symbol(self):
         self._symbol = symbol
+
+
+class TransformFormatter(Formatter):
+    """
+    A generalized alternative to `FuncFormatter` that allows the tick
+    values to be transformed arbitrarily before being passed off to
+    the formatting function.
+
+    This class accepts a callable transform and a callable formatter.
+    The transform function may return any type that is acceptable to the
+    formatter, not necessarily just a `float`. For example, using
+    ``int`` as the transform allows integer format strings such as
+    `'{x:d}'` to be used with :class:`StrMethodFormatter`.
+
+    The formatter can be either a :class:`matplotlib.ticker.Formatter`
+    or any other callable with the signature ``formatter(x, pos=None)``.
+    If the formatter is a :class:`matplotlib.ticker.Formatter` instance,
+    most methods of this class will delegate directly to it. Notable
+    exceptions are `set_locs`, `set_bounds`, `set_view_interval`, and
+    `set_data_interval`, which will apply the transformation to each
+    of the passed in values before delegating. In the case of a generic
+    callable, this class will handle all of the ``Formatter``
+    functionality directly.
+
+    If the underlying formatter is a simple callable, setting
+    ``transform=lambda x: x`` makes this class exactly equivalent to
+    :class:`matplotlib.ticker.FuncFormatter`.
+    """
+    def __init__(self, transform, formatter=ScalarFormatter()):
+        # Since we only need to call _update_locs and _transform_axis
+        # once, only one of set_transform/set_formatter needs to be
+        # called. set_formatter is chosen because it creates the
+        # self._need_redirect attribute while set_transform does not.
+        self.transform = transform
+        self.set_formatter(formatter)
+
+    def __call__(self, x, pos=None):
+        return self.formatter(self.transform(x), pos)
+
+    def _redirect(self, name, *args, **kwargs):
+        """
+        Invokes the specified method on the underlying formatter if
+        possible, or on `self` if not. This method allows the actual
+        formatter to be a generic callable rather than a Formatter.
+        """
+        if self._need_redirect:
+            return getattr(self.formatter, name)(*args, **kwargs)
+        # only evaluate this if necessary
+        default = getattr(super(TransformFormatter, self), name)
+        return default(*args, **kwargs)
+
+    def _itransform(self, arg):
+        """
+        Transforms an iterable element-by-element, returns a list.
+        """
+        return [self.transform(x) for x in arg]
+
+    def _invoke_both(self, name, *args):
+        """
+        Invokes the specified method on both the underlying formatter
+        and on `self`. All arguments are transformed before being passed
+        to the formatter. If the underlying formatter is not a
+        `Formatter` instance, it is ignored. The return value from the
+        underlying formatter is returned when possible.
+        """
+        default = getattr(super(TransformFormatter, self), name)
+        ret = default(*args)
+        if self._need_redirect:
+            xargs = self._itransform(args)
+            ret = getattr(self.formatter, name)(*xargs)
+        return ret
+
+    def _update_locs(self):
+        if self._need_redirect:
+            if self.locs is None:
+                self.formatter.set_locs(None)
+            else:
+                self.formatter.set_locs(self._itransform(self.locs))
+
+    def _transform_axis(self):
+        """
+        Ensure that the underlying formatter has a Dummy axis with a
+        transformed version of the bounds.
+        """
+        if not self._need_redirect:
+            return
+        if self.axis is None:
+            self.formatter.set_axis(None)
+        else:
+            minpos = self.transform(self.axis.get_minpos())
+            if isinstance(self.formatter.axis, _DummyAxis):
+                ax_t = self.formatter.axis
+                ax_t.set_minpos(minpos)
+            else:
+                ax_t = _DummyAxis(minpos=minpos)
+                self.formatter.set_axis(ax_t)
+            ax_t.set_view_interval(
+                    *self._itransform(self.axis.get_view_interval()))
+            ax_t.set_data_interval(
+                    *self._itransform(self.axis.get_data_interval()))
+
+    def set_transform(self, transform):
+        """
+        Changes the transform used to convert the values.
+
+        The input is a callable that takes a single argument and returns
+        a single value. This method will update all the locs and bounds
+        for the formatter if it is an instance of
+        :class:`matplotlib.ticker.Formatter`.
+        """
+        self.transform = transform
+        self._update_locs()
+        self._transform_axis()
+
+    def set_formatter(self, formatter):
+        """
+        Changes the underlying formatter used to actually format the
+        transformed values.
+
+        The input may be an instance of
+        :class:`matplotlib.ticker.Formatter` or an other callable with
+        the same signature.
+
+        .. note::
+
+            The `axis` attribute of a `Formatter` instance will *always*
+            be replaced by a dummy axis that contains the transformed
+            bounds of the outer formatter.
+        """
+        self.formatter = formatter
+        self._need_redirect = isinstance(formatter, Formatter)
+        self._update_locs()
+        self._transform_axis()
+
+    def set_axis(self, ax):
+        """
+        Sets the axis for this formatter.
+
+        If the underlying formatter is a `Formatter` instance, it will
+        get a dummy axis with bounds adjusted to the transformed version
+        of the bounds of the new axis.
+
+        Setting the axis to None will also set the underlying
+        formatter's axis to None.
+        """
+        super(TransformFormatter, self).set_axis(ax)
+        self._transform_axis()
+
+    def create_dummy_axis(self, **kwargs):
+        super(TransformFormatter, self).create_dummy_axis(**kwargs)
+        self._transform_axis()
+
+    def set_view_interval(self, vmin, vmax):
+        self._invoke_both('set_view_interval', vmin, vmax)
+
+    def set_data_interval(self, vmin, vmax):
+        self._invoke_both('set_data_interval', vmin, vmax)
+
+    def set_bounds(self, vmin, vmax):
+        self._invoke_both('set_bounds', vmin, vmax)
+
+    def format_data(self, value):
+        return self._redirect('format_data', self.transform(value))
+
+    def format_data_short(self, value):
+        return self._redirect('format_data_short', self.transform(value))
+
+    def get_offset(self):
+        return self._redirect('get_offset')
+
+    def set_locs(self, locs):
+        """
+        Sets the transformed locs to the underlying formatter, if
+        possible, and the untransformed version to `self`.
+        """
+        super(TransformFormatter, self).set_locs(locs)
+        self._update_locs()
+
+    def fix_minus(self, s):
+        return self._redirect('fix_minus', s)
 
 
 class Locator(TickHelper):
