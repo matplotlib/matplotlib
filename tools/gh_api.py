@@ -43,6 +43,13 @@ def get_auth_token():
     if token is not None:
         return token
 
+    try:
+        with open(os.path.join(os.path.expanduser('~'), '.ghoauth')) as f:
+            token, = f
+            return token
+    except:
+        pass
+
     import keyring
     token = keyring.get_password('github', fake_username)
     if token is not None:
