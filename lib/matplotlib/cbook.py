@@ -2704,13 +2704,17 @@ class Locked(object):
                     pass
 
 
-def is_matrix(obj):
-    '''
-    This is a test for whether the input is a matrix.
-    If the input is a matrix, raise an error. Otherwise,
-    return the object as it is.
-    '''
-    cast_result = np.asanyarray(obj)
-    if isinstance(cast_result, np.matrix):
+def check_array(obj):
+    """
+    Helper function to check whether the input is an array or
+    can be casted to an array type object.
+    
+    If it is not an array or cannot be casted to an array 
+    type obejct, it will raise an error to notify users that
+    they should use array. Otherwise, it will return the casted
+    array type object.
+    """
+    cast_obj = np.asanyarray(obj)
+    if isinstance(cast_obj, np.matrix):
         raise ValueError("The input cannot be matrix")
-    return obj
+    return cast_obj
