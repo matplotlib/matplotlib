@@ -25,3 +25,10 @@ removed.
 
 Support for setting an ``Axes``' aspect to ``"normal"`` has been removed, in
 favor of the synonym ``"auto"``.
+
+
+``shading`` kwarg to ``pcolor``
+-------------------------------
+
+The ``shading`` kwarg to ``pcolor`` has been removed.  Set ``edgecolors``
+appropriately instead.
