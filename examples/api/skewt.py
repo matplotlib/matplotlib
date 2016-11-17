@@ -241,11 +241,11 @@ if __name__ == '__main__':
 
     # Plot the data using normal plotting functions, in this case using
     # log scaling in Y, as dictated by the typical meteorological plot
-    ax.semilogy(T, p)
-    ax.semilogy(Td, p)
+    ax.semilogy(T, p, color='C3')
+    ax.semilogy(Td, p, color='C2')
 
     # An example of a slanted line at constant X
-    l = ax.axvline(0)
+    l = ax.axvline(0, color='C0')
 
     # Disables the log-formatting that comes with semilogy
     ax.yaxis.set_major_formatter(ScalarFormatter())
