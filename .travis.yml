@@ -56,7 +56,7 @@ env:
 matrix:
   include:
     - python: 2.7
-      env: MOCK=mock NUMPY=numpy==1.6
+      env: MOCK=mock NUMPY=numpy==1.7.1
     - python: 3.4
       env: PYTHON_ARGS=-OO
     - python: 3.5

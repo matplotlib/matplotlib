@@ -138,7 +138,7 @@ from ._version import get_versions
 __version__ = str(get_versions()['version'])
 del get_versions
 
-__version__numpy__ = str('1.6')  # minimum required numpy version
+__version__numpy__ = str('1.7.1')  # minimum required numpy version
 
 __bibtex__ = """@Article{Hunter:2007,
   Author    = {Hunter, J. D.},
