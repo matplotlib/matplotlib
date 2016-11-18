@@ -24,31 +24,58 @@ from matplotlib.projections import register_projection
 # The sole purpose of this class is to look at the upper, lower, or total
 # interval as appropriate and see what parts of the tick to draw, if any.
 class SkewXTick(maxis.XTick):
-    def draw(self, renderer):
-        if not self.get_visible():
-            return
-        renderer.open_group(self.__name__)
+    def _need_lower(self):
+        return transforms.interval_contains(self.axes.lower_xlim,
+                                            self.get_loc())
 
-        lower_interval = self.axes.xaxis.lower_interval
-        upper_interval = self.axes.xaxis.upper_interval
+    def _need_upper(self):
+        return transforms.interval_contains(self.axes.upper_xlim,
+                                            self.get_loc())
 
-        if self.gridOn and transforms.interval_contains(
-                self.axes.xaxis.get_view_interval(), self.get_loc()):
-            self.gridline.draw(renderer)
+    @property
+    def gridOn(self):
+        return (self._gridOn and
+                transforms.interval_contains(self.get_view_interval(),
+                                             self.get_loc()))
 
-        if transforms.interval_contains(lower_interval, self.get_loc()):
-            if self.tick1On:
-                self.tick1line.draw(renderer)
-            if self.label1On:
-                self.label1.draw(renderer)
+    @gridOn.setter
+    def gridOn(self, value):
+        self._gridOn = value
 
-        if transforms.interval_contains(upper_interval, self.get_loc()):
-            if self.tick2On:
-                self.tick2line.draw(renderer)
-            if self.label2On:
-                self.label2.draw(renderer)
+    @property
+    def tick1On(self):
+        return self._tick1On and self._need_lower()
 
-        renderer.close_group(self.__name__)
+    @tick1On.setter
+    def tick1On(self, value):
+        self._tick1On = value
+
+    @property
+    def label1On(self):
+        return self._label1On and self._need_lower()
+
+    @label1On.setter
+    def label1On(self, value):
+        self._label1On = value
+
+    @property
+    def tick2On(self):
+        return self._tick2On and self._need_upper()
+
+    @tick2On.setter
+    def tick2On(self, value):
+        self._tick2On = value
+
+    @property
+    def label2On(self):
+        return self._label2On and self._need_upper()
+
+    @label2On.setter
+    def label2On(self, value):
+        self._label2On = value
+
+    def get_view_interval(self):
+        return self.axes.xaxis.get_view_interval()
 
 
 # This class exists to provide two separate sets of intervals to the tick,
@@ -57,16 +84,8 @@ class SkewXAxis(maxis.XAxis):
     def _get_tick(self, major):
         return SkewXTick(self.axes, 0, '', major=major)
 
-    @property
-    def lower_interval(self):
-        return self.axes.viewLim.intervalx
-
-    @property
-    def upper_interval(self):
-        return self.axes.upper_xlim
-
     def get_view_interval(self):
-        return self.upper_interval[0], self.lower_interval[1]
+        return self.axes.upper_xlim[0], self.axes.lower_xlim[1]
 
 
 # This class exists to calculate the separate data range of the
@@ -76,9 +95,9 @@ class SkewSpine(mspines.Spine):
     def _adjust_location(self):
         pts = self._path.vertices
         if self.spine_type == 'top':
-            pts[:, 0] = self.axis.upper_interval
+            pts[:, 0] = self.axes.upper_xlim
         else:
-            pts[:, 0] = self.axis.lower_interval
+            pts[:, 0] = self.axes.lower_xlim
 
 
 # This class handles registration of the skew-xaxes as a projection as well
@@ -133,6 +152,10 @@ class SkewXAxes(Axes):
             self.transScale + self.transLimits,
             transforms.IdentityTransform()) +
             transforms.Affine2D().skew_deg(rot, 0)) + self.transAxes
+
+    @property
+    def lower_xlim(self):
+        return self.axes.viewLim.intervalx
 
     @property
     def upper_xlim(self):
