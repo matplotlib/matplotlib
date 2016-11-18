@@ -898,10 +898,10 @@ class Numpy(SetupPackage):
                                   'NPY_1_7_API_VERSION'))
 
     def get_setup_requires(self):
-        return ['numpy>=1.6']
+        return ['numpy>=1.7.1']
 
     def get_install_requires(self):
-        return ['numpy>=1.6']
+        return ['numpy>=1.7.1']
 
 
 class LibAgg(SetupPackage):
