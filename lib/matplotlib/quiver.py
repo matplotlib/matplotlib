@@ -523,7 +523,7 @@ class Quiver(mcollections.PolyCollection):
                                             (ax.bbox.width, ax.bbox.height))
             self.span = sx
             if self.width is None:
-                sn = max(8, min(25, math.sqrt(self.N)))
+                sn = np.clip(math.sqrt(self.N), 8, 25)
                 self.width = 0.06 * self.span / sn
 
             # _make_verts sets self.scale if not already specified

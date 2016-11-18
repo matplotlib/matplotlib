@@ -417,10 +417,10 @@ class CubicTriInterpolator(TriInterpolator):
         self._z = self._z[~node_mask]
 
         # Computing scale factors
-        self._unit_x = np.max(compressed_x) - np.min(compressed_x)
-        self._unit_y = np.max(compressed_y) - np.min(compressed_y)
-        self._pts = np.vstack((compressed_x/float(self._unit_x),
-                               compressed_y/float(self._unit_y))).T
+        self._unit_x = np.ptp(compressed_x)
+        self._unit_y = np.ptp(compressed_y)
+        self._pts = np.column_stack([compressed_x / self._unit_x,
+                                     compressed_y / self._unit_y])
         # Computing triangle points
         self._tris_pts = self._pts[self._triangles]
         # Computing eccentricities

@@ -1875,8 +1875,8 @@ class MaxNLocator(Locator):
     def _raw_ticks(self, vmin, vmax):
         if self._nbins == 'auto':
             if self.axis is not None:
-                nbins = max(min(self.axis.get_tick_space(), 9),
-                            max(1, self._min_n_ticks - 1))
+                nbins = np.clip(self.axis.get_tick_space(),
+                                max(1, self._min_n_ticks - 1), 9)
             else:
                 nbins = 9
         else:
@@ -2074,7 +2074,7 @@ class LogLocator(Locator):
     def tick_values(self, vmin, vmax):
         if self.numticks == 'auto':
             if self.axis is not None:
-                numticks = max(min(self.axis.get_tick_space(), 9), 2)
+                numticks = np.clip(self.axis.get_tick_space(), 2, 9)
             else:
                 numticks = 9
         else:
