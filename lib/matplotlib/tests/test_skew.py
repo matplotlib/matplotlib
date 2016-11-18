@@ -20,19 +20,30 @@ from matplotlib.projections import register_projection
 # The sole purpose of this class is to look at the upper, lower, or total
 # interval as appropriate and see what parts of the tick to draw, if any.
 class SkewXTick(maxis.XTick):
+    def update_position(self, loc):
+        # This ensures that the new value of the location is set before
+        # any other updates take place
+        self._loc = loc
+        super(SkewXTick, self).update_position(loc)
+
+    def _has_default_loc(self):
+        return self.get_loc() is None
+
     def _need_lower(self):
-        return transforms.interval_contains(self.axes.lower_xlim,
-                                            self.get_loc())
+        return (self._has_default_loc() or
+                transforms.interval_contains(self.axes.lower_xlim,
+                                             self.get_loc()))
 
     def _need_upper(self):
-        return transforms.interval_contains(self.axes.upper_xlim,
-                                            self.get_loc())
+        return (self._has_default_loc() or
+                transforms.interval_contains(self.axes.upper_xlim,
+                                             self.get_loc()))
 
     @property
     def gridOn(self):
-        return (self._gridOn and
+        return (self._gridOn and (self._has_default_loc() or
                 transforms.interval_contains(self.get_view_interval(),
-                                             self.get_loc()))
+                                             self.get_loc())))
 
     @gridOn.setter
     def gridOn(self, value):
@@ -78,7 +89,7 @@ class SkewXTick(maxis.XTick):
 # as well as create instances of the custom tick
 class SkewXAxis(maxis.XAxis):
     def _get_tick(self, major):
-        return SkewXTick(self.axes, 0, '', major=major)
+        return SkewXTick(self.axes, None, '', major=major)
 
     def get_view_interval(self):
         return self.axes.upper_xlim[0], self.axes.lower_xlim[1]
