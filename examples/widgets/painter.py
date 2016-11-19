@@ -32,4 +32,5 @@ print("\n click and drag \n (x, y)")
 
 # Create the painter tool and show the plot.
 p = Painter(ax, callback)
+p.label = 1  # set the color
 plt.show()
