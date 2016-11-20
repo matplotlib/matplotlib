@@ -120,7 +120,8 @@ def is_color_like(c):
 def to_rgba(c, alpha=None):
     """Convert `c` to an RGBA color.
 
-    If `alpha` is not `None`, it forces the alpha value.
+    If `alpha` is not `None`, it forces the alpha value, except if `c` is
+    "none" (case-insensitive), which always maps to `(0, 0, 0, 0)`.
     """
     # Special-case nth color syntax because it should not be cached.
     if _is_nth_color(c):
@@ -142,7 +143,8 @@ def to_rgba(c, alpha=None):
 def _to_rgba_no_colorcycle(c, alpha=None):
     """Convert `c` to an RGBA color, with no support for color-cycle syntax.
 
-    If `alpha` is not `None`, it forces the alpha value.
+    If `alpha` is not `None`, it forces the alpha value, except if `c` is
+    "none" (case-insensitive), which always maps to `(0, 0, 0, 0)`.
     """
     orig_c = c
     if isinstance(c, six.string_types):
