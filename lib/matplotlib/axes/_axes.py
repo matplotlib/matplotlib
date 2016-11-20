@@ -5825,8 +5825,8 @@ or tuple of floats
             ret.set_clim(vmin, vmax)
         else:
             ret.autoscale_None()
-        collection.stickies.x[:] = [xl, xr]
-        collection.stickies.y[:] = [yb, yt]
+        ret.stickies.x[:] = [xl, xr]
+        ret.stickies.y[:] = [yb, yt]
         self.update_datalim(np.array([[xl, yb], [xr, yt]]))
         self.autoscale_view(tight=True)
         return ret
