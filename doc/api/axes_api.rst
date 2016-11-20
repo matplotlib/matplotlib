@@ -318,32 +318,6 @@ Autoscaling
 
 
 
-Margins
-~~~~~~~
-
-.. autosummary::
-   :toctree: _as_gen
-   :nosignatures:
-
-
-   Axes.margins
-   Axes.set_margins
-   Axes.get_margins
-   Axes.bottom_margin
-   Axes.get_bottom_margin
-   Axes.get_left_margin
-   Axes.get_right_margin
-   Axes.get_top_margin
-   Axes.left_margin
-   Axes.right_margin
-   Axes.set_bottom_margin
-   Axes.set_left_margin
-   Axes.set_top_margin
-   Axes.set_right_margin
-   Axes.set_xmargin
-   Axes.top_margin
-
-
 Aspect ratio
 ------------
 
