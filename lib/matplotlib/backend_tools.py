@@ -895,23 +895,15 @@ class ToolZoom(ZoomPanBase):
 
         if self._xypress:
             x, y = event.x, event.y
-            lastx, lasty, a, _ind, _view = self._xypress[0]
-
-            # adjust x, last, y, last
-            x1, y1, x2, y2 = a.bbox.extents
-            x, lastx = max(min(x, lastx), x1), min(max(x, lastx), x2)
-            y, lasty = max(min(y, lasty), y1), min(max(y, lasty), y2)
-
+            lastx, lasty, a, ind, view = self._xypress[0]
+            (x1, y1), (x2, y2) = np.clip(
+                [[lastx, lasty], [x, y]], a.bbox.min, a.bbox.max)
             if self._zoom_mode == "x":
-                x1, y1, x2, y2 = a.bbox.extents
-                y, lasty = y1, y2
+                y1, y2 = a.bbox.intervaly
             elif self._zoom_mode == "y":
-                x1, y1, x2, y2 = a.bbox.extents
-                x, lastx = x1, x2
-
-            self.toolmanager.trigger_tool('rubberband',
-                                          self,
-                                          data=(x, y, lastx, lasty))
+                x1, x2 = a.bbox.intervalx
+            self.toolmanager.trigger_tool(
+                'rubberband', self, data=(x1, y1, x2, y2))
 
     def _release(self, event):
         """the release mouse button callback in zoom to rect mode"""

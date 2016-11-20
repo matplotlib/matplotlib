@@ -2780,7 +2780,10 @@ class NavigationToolbar2(object):
         self.canvas.draw_idle()
 
     def draw_rubberband(self, event, x0, y0, x1, y1):
-        """Draw a rectangle rubberband to indicate zoom limits."""
+        """Draw a rectangle rubberband to indicate zoom limits.
+
+        Note that it is not guaranteed that ``x0 <= x1`` and ``y0 <= y1``.
+        """
 
     def remove_rubberband(self):
         """Remove the rubberband."""
@@ -3029,20 +3032,13 @@ class NavigationToolbar2(object):
         if self._xypress:
             x, y = event.x, event.y
             lastx, lasty, a, ind, view = self._xypress[0]
-
-            # adjust x, last, y, last
-            x1, y1, x2, y2 = a.bbox.extents
-            x, lastx = max(min(x, lastx), x1), min(max(x, lastx), x2)
-            y, lasty = max(min(y, lasty), y1), min(max(y, lasty), y2)
-
+            (x1, y1), (x2, y2) = np.clip(
+                [[lastx, lasty], [x, y]], a.bbox.min, a.bbox.max)
             if self._zoom_mode == "x":
-                x1, y1, x2, y2 = a.bbox.extents
-                y, lasty = y1, y2
+                y1, y2 = a.bbox.intervaly
             elif self._zoom_mode == "y":
-                x1, y1, x2, y2 = a.bbox.extents
-                x, lastx = x1, x2
-
-            self.draw_rubberband(event, x, y, lastx, lasty)
+                x1, x2 = a.bbox.intervalx
+            self.draw_rubberband(event, x1, y1, x2, y2)
 
     def release_zoom(self, event):
         """Callback for mouse button release in zoom to rect mode."""

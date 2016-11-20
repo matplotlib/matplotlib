@@ -684,11 +684,7 @@ class NavigationToolbar2QT(NavigationToolbar2, QtWidgets.QToolBar):
         height = self.canvas.figure.bbox.height
         y1 = height - y1
         y0 = height - y0
-
-        w = abs(x1 - x0)
-        h = abs(y1 - y0)
-
-        rect = [int(val) for val in (min(x0, x1), min(y0, y1), w, h)]
+        rect = [int(val) for val in (x0, y0, x1 - x0, y1 - y0)]
         self.canvas.drawRectangle(rect)
 
     def remove_rubberband(self):
