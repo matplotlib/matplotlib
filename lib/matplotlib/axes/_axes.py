@@ -1672,8 +1672,7 @@ or tuple of floats
             normalization.
 
         normed : boolean, optional, default: True
-            if True, normalize the data by the autocorrelation at the 0-th
-            lag.
+            if True, input vectors are normalised to unit length.
 
         usevlines : boolean, optional, default: True
             if True, Axes.vlines is used to plot the vertical lines from the
@@ -1722,6 +1721,8 @@ or tuple of floats
         """
         Plot the cross correlation between *x* and *y*.
 
+        The correlation with lag k is defined as sum_n x[n+k] * conj(y[n]).
+
         Parameters
         ----------
 
@@ -1736,8 +1737,7 @@ or tuple of floats
             normalization.
 
         normed : boolean, optional, default: True
-            if True, normalize the data by the autocorrelation at the 0-th
-            lag.
+            if True, input vectors are normalised to unit length.
 
         usevlines : boolean, optional, default: True
             if True, Axes.vlines is used to plot the vertical lines from the
