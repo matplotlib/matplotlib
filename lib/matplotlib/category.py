@@ -60,10 +60,6 @@ class StrCategoryFormatter(ticker.FixedFormatter):
         self.offset_string = ''
 
 
-def convert_to_string(value):
-    return np.asarray(value, dtype=str)[np.newaxis][0]
-
-
 class UnitData(object):
     # debatable makes sense to special code missing values
     spdict = {'nan': -1.0, 'inf': -2.0, '-inf': -3.0}
@@ -90,7 +86,7 @@ class UnitData(object):
         # np.unique makes dateframes work
         new_s = [d for d in np.unique(strdata) if d not in self.seq]
         for ns in new_s:
-            self.seq.append(convert_to_string(ns))
+            self.seq.append(ns)
             if ns in UnitData.spdict.keys():
                 self.locs.append(UnitData.spdict[ns])
             else:
