@@ -81,7 +81,6 @@ class UnitData(object):
         self._set_seq_locs(new_data, value)
 
     def _set_seq_locs(self, data, value):
-        # magic to make it work under np1.6
         strdata = np.array(data, dtype=np.unicode)
         # np.unique makes dateframes work
         new_s = [d for d in np.unique(strdata) if d not in self.seq]
