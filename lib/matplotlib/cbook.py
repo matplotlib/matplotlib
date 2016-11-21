@@ -2582,23 +2582,6 @@ def get_label(y, default_name):
     except AttributeError:
         return default_name
 
-# Numpy > 1.6.x deprecates putmask in favor of the new copyto.
-# So long as we support versions 1.6.x and less, we need the
-# following local version of putmask.  We choose to make a
-# local version of putmask rather than of copyto because the
-# latter includes more functionality than the former. Therefore
-# it is easy to make a local version that gives full putmask
-# behavior, but duplicating the full copyto behavior would be
-# more difficult.
-
-try:
-    np.copyto
-except AttributeError:
-    _putmask = np.putmask
-else:
-    def _putmask(a, mask, values):
-        return np.copyto(a, values, where=mask)
-
 _lockstr = """\
 LOCKERROR: matplotlib is trying to acquire the lock
     {!r}
