@@ -275,7 +275,6 @@ class strpdate2num(object):
     """
     Use this class to parse date strings to matplotlib datenums when
     you know the date format string of the date you are parsing.
-    :file: needs to be updated.
     """
     def __init__(self, fmt):
         """ fmt: any valid strptime format is supported """
