@@ -18,57 +18,85 @@ from matplotlib.axes import Axes
 import matplotlib.transforms as transforms
 import matplotlib.axis as maxis
 import matplotlib.spines as mspines
-import matplotlib.path as mpath
 from matplotlib.projections import register_projection
+
 
 # The sole purpose of this class is to look at the upper, lower, or total
 # interval as appropriate and see what parts of the tick to draw, if any.
-
-
 class SkewXTick(maxis.XTick):
-    def draw(self, renderer):
-        if not self.get_visible():
-            return
-        renderer.open_group(self.__name__)
+    def update_position(self, loc):
+        # This ensures that the new value of the location is set before
+        # any other updates take place
+        self._loc = loc
+        super(SkewXTick, self).update_position(loc)
 
-        lower_interval = self.axes.xaxis.lower_interval
-        upper_interval = self.axes.xaxis.upper_interval
+    def _has_default_loc(self):
+        return self.get_loc() is None
 
-        if self.gridOn and transforms.interval_contains(
-                self.axes.xaxis.get_view_interval(), self.get_loc()):
-            self.gridline.draw(renderer)
+    def _need_lower(self):
+        return (self._has_default_loc() or
+                transforms.interval_contains(self.axes.lower_xlim,
+                                             self.get_loc()))
 
-        if transforms.interval_contains(lower_interval, self.get_loc()):
-            if self.tick1On:
-                self.tick1line.draw(renderer)
-            if self.label1On:
-                self.label1.draw(renderer)
+    def _need_upper(self):
+        return (self._has_default_loc() or
+                transforms.interval_contains(self.axes.upper_xlim,
+                                             self.get_loc()))
 
-        if transforms.interval_contains(upper_interval, self.get_loc()):
-            if self.tick2On:
-                self.tick2line.draw(renderer)
-            if self.label2On:
-                self.label2.draw(renderer)
+    @property
+    def gridOn(self):
+        return (self._gridOn and (self._has_default_loc() or
+                transforms.interval_contains(self.get_view_interval(),
+                                             self.get_loc())))
 
-        renderer.close_group(self.__name__)
+    @gridOn.setter
+    def gridOn(self, value):
+        self._gridOn = value
+
+    @property
+    def tick1On(self):
+        return self._tick1On and self._need_lower()
+
+    @tick1On.setter
+    def tick1On(self, value):
+        self._tick1On = value
+
+    @property
+    def label1On(self):
+        return self._label1On and self._need_lower()
+
+    @label1On.setter
+    def label1On(self, value):
+        self._label1On = value
+
+    @property
+    def tick2On(self):
+        return self._tick2On and self._need_upper()
+
+    @tick2On.setter
+    def tick2On(self, value):
+        self._tick2On = value
+
+    @property
+    def label2On(self):
+        return self._label2On and self._need_upper()
+
+    @label2On.setter
+    def label2On(self, value):
+        self._label2On = value
+
+    def get_view_interval(self):
+        return self.axes.xaxis.get_view_interval()
 
 
 # This class exists to provide two separate sets of intervals to the tick,
 # as well as create instances of the custom tick
 class SkewXAxis(maxis.XAxis):
-    def __init__(self, *args, **kwargs):
-        maxis.XAxis.__init__(self, *args, **kwargs)
-        self.upper_interval = 0.0, 1.0
-
     def _get_tick(self, major):
-        return SkewXTick(self.axes, 0, '', major=major)
-
-    @property
-    def lower_interval(self):
-        return self.axes.viewLim.intervalx
+        return SkewXTick(self.axes, None, '', major=major)
 
     def get_view_interval(self):
-        return self.upper_interval[0], self.axes.viewLim.intervalx[1]
+        return self.axes.upper_xlim[0], self.axes.lower_xlim[1]
 
 
 # This class exists to calculate the separate data range of the
@@ -76,18 +104,11 @@ class SkewXAxis(maxis.XAxis):
 # to the X-axis artist for ticking and gridlines
 class SkewSpine(mspines.Spine):
     def _adjust_location(self):
-        trans = self.axes.transDataToAxes.inverted()
-        if self.spine_type == 'top':
-            yloc = 1.0
-        else:
-            yloc = 0.0
-        left = trans.transform_point((0.0, yloc))[0]
-        right = trans.transform_point((1.0, yloc))[0]
-
         pts = self._path.vertices
-        pts[0, 0] = left
-        pts[1, 0] = right
-        self.axis.upper_interval = (left, right)
+        if self.spine_type == 'top':
+            pts[:, 0] = self.axes.upper_xlim
+        else:
+            pts[:, 0] = self.axes.lower_xlim
 
 
 # This class handles registration of the skew-xaxes as a projection as well
@@ -143,13 +164,24 @@ class SkewXAxes(Axes):
             transforms.IdentityTransform()) +
             transforms.Affine2D().skew_deg(rot, 0)) + self.transAxes
 
+    @property
+    def lower_xlim(self):
+        return self.axes.viewLim.intervalx
+
+    @property
+    def upper_xlim(self):
+        pts = [[0., 1.], [1., 1.]]
+        return self.transDataToAxes.inverted().transform(pts)[:, 0]
+
+
 # Now register the projection with matplotlib so the user can select
 # it.
 register_projection(SkewXAxes)
 
 if __name__ == '__main__':
     # Now make a simple example using the custom projection.
-    from matplotlib.ticker import ScalarFormatter, MultipleLocator
+    from matplotlib.ticker import (MultipleLocator, NullFormatter,
+                                   ScalarFormatter)
     import matplotlib.pyplot as plt
     from six import StringIO
     import numpy as np
@@ -242,15 +274,16 @@ if __name__ == '__main__':
     plt.grid(True)
 
     # Plot the data using normal plotting functions, in this case using
-    # log scaling in Y, as dicatated by the typical meteorological plot
-    ax.semilogy(T, p)
-    ax.semilogy(Td, p)
+    # log scaling in Y, as dictated by the typical meteorological plot
+    ax.semilogy(T, p, color='C3')
+    ax.semilogy(Td, p, color='C2')
 
     # An example of a slanted line at constant X
-    l = ax.axvline(0)
+    l = ax.axvline(0, color='C0')
 
     # Disables the log-formatting that comes with semilogy
     ax.yaxis.set_major_formatter(ScalarFormatter())
+    ax.yaxis.set_minor_formatter(NullFormatter())
     ax.set_yticks(np.linspace(100, 1000, 10))
     ax.set_ylim(1050, 100)
 

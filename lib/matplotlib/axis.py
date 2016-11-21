@@ -344,6 +344,12 @@ class Tick(artist.Artist):
         'Set the location of tick in data coords with scalar *loc*'
         raise NotImplementedError('Derived must override')
 
+    def _get_text1_transform(self):
+        raise NotImplementedError('Derived must override')
+
+    def _get_text2_transform(self):
+        raise NotImplementedError('Derived must override')
+
 
 class XTick(Tick):
     """
