@@ -70,10 +70,10 @@ def filled_hist(ax, edges, values, bottoms=None, orientation='v',
     values = np.r_[values, values[-1]]
     bottoms = np.r_[bottoms, bottoms[-1]]
     if orientation == 'h':
-        return ax.fill_betweenx(edges, values, bottoms, left_margin=False,
+        return ax.fill_betweenx(edges, values, bottoms,
                                 **kwargs)
     elif orientation == 'v':
-        return ax.fill_between(edges, values, bottoms, bottom_margin=False,
+        return ax.fill_between(edges, values, bottoms,
                                **kwargs)
     else:
         raise AssertionError("you should never be here")
