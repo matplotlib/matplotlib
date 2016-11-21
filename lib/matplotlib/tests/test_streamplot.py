@@ -16,6 +16,14 @@ def velocity_field():
     V = 1 + X - Y**2
     return X, Y, U, V
 
+def swirl_velocity_field():
+    x = np.linspace(-3., 3., 100)
+    y = np.linspace(-3., 3., 100)
+    X, Y = np.meshgrid(x, y)
+    a = 0.1
+    U = np.cos(a) * (-Y) - np.sin(a) * X
+    V = np.sin(a) * (-Y) + np.cos(a) * X
+    return x, y, U, V
 
 @image_comparison(baseline_images=['streamplot_startpoints'])
 def test_startpoints():
@@ -55,6 +63,23 @@ def test_masks_and_nans():
     U = np.ma.array(U, mask=mask)
     with np.errstate(invalid='ignore'):
         plt.streamplot(X, Y, U, V, color=U, cmap=plt.cm.Blues)
+
+
+@image_comparison(baseline_images=['streamplot_maxlength'],
+                  extensions=['png'])
+def test_maxlength():
+    x, y, U, V = swirl_velocity_field()
+    plt.streamplot(x, y, U, V, maxlength=10., start_points=[[0., 1.5]],
+                   linewidth=2, density=2)
+
+
+@image_comparison(baseline_images=['streamplot_direction'],
+                  extensions=['png'])
+def test_direction():
+    x, y, U, V = swirl_velocity_field()
+    plt.streamplot(x, y, U, V, integration_direction='backward',
+                   maxlength=1.5, start_points=[[1.5, 0.]],
+                   linewidth=2, density=2)
 
 
 @cleanup
