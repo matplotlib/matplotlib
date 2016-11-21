@@ -61,7 +61,7 @@ class StrCategoryFormatter(ticker.FixedFormatter):
 
 
 def convert_to_string(value):
-    return np.array(value, dtype=np.unicode)
+    return np.asarray(value, dtype=str)[np.newaxis][0]
 
 
 class UnitData(object):
