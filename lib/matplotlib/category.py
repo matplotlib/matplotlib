@@ -14,10 +14,6 @@ import matplotlib.units as units
 import matplotlib.ticker as ticker
 
 
-def to_array(data, maxlen=100):
-    return np.array(data, dtype=np.unicode)
-
-
 class StrCategoryConverter(units.ConversionInterface):
     @staticmethod
     def convert(value, unit, axis):
@@ -29,7 +25,7 @@ class StrCategoryConverter(units.ConversionInterface):
         if isinstance(value, six.string_types):
             return vmap[value]
 
-        vals = to_array(value)
+        vals = np.array(value, dtype=np.unicode)
         for lab, loc in vmap.items():
             vals[vals == lab] = loc
 
@@ -105,7 +101,7 @@ class UnitData(object):
 
     def _set_seq_locs(self, data, value):
         # magic to make it work under np1.6
-        strdata = to_array(data)
+        strdata = np.array(data, dtype=np.unicode)
         # np.unique makes dateframes work
         new_s = [d for d in np.unique(strdata) if d not in self.seq]
         for ns in new_s:
