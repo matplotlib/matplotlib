@@ -2969,16 +2969,17 @@ def test_subplot_key_hash():
 
 @image_comparison(baseline_images=['specgram_freqs',
                                    'specgram_freqs_linear'],
-                  remove_text=True, extensions=['png'], tol=0.07)
+                  remove_text=True, extensions=['png'], tol=0.07,
+                  style='default')
 def test_specgram_freqs():
     '''test axes.specgram in default (psd) mode with sinusoidal stimuli'''
-    n = 10000
-    Fs = 100.
+    n = 1000
+    Fs = 10.
 
     fstims1 = [Fs/4, Fs/5, Fs/11]
     fstims2 = [Fs/4.7, Fs/5.6, Fs/11.9]
 
-    NFFT = int(1000 * Fs / min(fstims1 + fstims2))
+    NFFT = int(10 * Fs / min(fstims1 + fstims2))
     noverlap = int(NFFT / 2)
     pad_to = int(2 ** np.ceil(np.log2(NFFT)))
 
@@ -3022,15 +3023,16 @@ def test_specgram_freqs():
 
 @image_comparison(baseline_images=['specgram_noise',
                                    'specgram_noise_linear'],
-                  remove_text=True, extensions=['png'], tol=0.01)
+                  remove_text=True, extensions=['png'], tol=0.01,
+                  style='default')
 def test_specgram_noise():
     '''test axes.specgram in default (psd) mode with noise stimuli'''
     np.random.seed(0)
 
-    n = 10000
-    Fs = 100.
+    n = 1000
+    Fs = 10.
 
-    NFFT = int(1000 * Fs / 11)
+    NFFT = int(10 * Fs / 11)
     noverlap = int(NFFT / 2)
     pad_to = int(2 ** np.ceil(np.log2(NFFT)))
 
@@ -3069,16 +3071,17 @@ def test_specgram_noise():
 
 @image_comparison(baseline_images=['specgram_magnitude_freqs',
                                    'specgram_magnitude_freqs_linear'],
-                  remove_text=True, extensions=['png'], tol=0.07)
+                  remove_text=True, extensions=['png'], tol=0.07,
+                  style='default')
 def test_specgram_magnitude_freqs():
     '''test axes.specgram in magnitude mode with sinusoidal stimuli'''
-    n = 10000
-    Fs = 100.
+    n = 1000
+    Fs = 10.
 
     fstims1 = [Fs/4, Fs/5, Fs/11]
     fstims2 = [Fs/4.7, Fs/5.6, Fs/11.9]
 
-    NFFT = int(1000 * Fs / min(fstims1 + fstims2))
+    NFFT = int(100 * Fs / min(fstims1 + fstims2))
     noverlap = int(NFFT / 2)
     pad_to = int(2 ** np.ceil(np.log2(NFFT)))
 
@@ -3124,15 +3127,16 @@ def test_specgram_magnitude_freqs():
 
 @image_comparison(baseline_images=['specgram_magnitude_noise',
                                    'specgram_magnitude_noise_linear'],
-                  remove_text=True, extensions=['png'])
+                  remove_text=True, extensions=['png'],
+                  style='default')
 def test_specgram_magnitude_noise():
     '''test axes.specgram in magnitude mode with noise stimuli'''
     np.random.seed(0)
 
-    n = 10000
-    Fs = 100.
+    n = 1000
+    Fs = 10.
 
-    NFFT = int(1000 * Fs / 11)
+    NFFT = int(10 * Fs / 11)
     noverlap = int(NFFT / 2)
     pad_to = int(2 ** np.ceil(np.log2(NFFT)))
 
@@ -3170,16 +3174,17 @@ def test_specgram_magnitude_noise():
 
 
 @image_comparison(baseline_images=['specgram_angle_freqs'],
-                  remove_text=True, extensions=['png'], tol=0.007)
+                  remove_text=True, extensions=['png'], tol=0.007,
+                  style='default')
 def test_specgram_angle_freqs():
     '''test axes.specgram in angle mode with sinusoidal stimuli'''
-    n = 10000
-    Fs = 100.
+    n = 1000
+    Fs = 10.
 
     fstims1 = [Fs/4, Fs/5, Fs/11]
     fstims2 = [Fs/4.7, Fs/5.6, Fs/11.9]
 
-    NFFT = int(1000 * Fs / min(fstims1 + fstims2))
+    NFFT = int(10 * Fs / min(fstims1 + fstims2))
     noverlap = int(NFFT / 2)
     pad_to = int(2 ** np.ceil(np.log2(NFFT)))
 
@@ -3225,15 +3230,16 @@ def test_specgram_angle_freqs():
 
 
 @image_comparison(baseline_images=['specgram_angle_noise'],
-                  remove_text=True, extensions=['png'])
+                  remove_text=True, extensions=['png'],
+                  style='default')
 def test_specgram_noise_angle():
     '''test axes.specgram in angle mode with noise stimuli'''
     np.random.seed(0)
 
-    n = 10000
-    Fs = 100.
+    n = 1000
+    Fs = 10.
 
-    NFFT = int(1000 * Fs / 11)
+    NFFT = int(10 * Fs / 11)
     noverlap = int(NFFT / 2)
     pad_to = int(2 ** np.ceil(np.log2(NFFT)))
 
@@ -3272,16 +3278,17 @@ def test_specgram_noise_angle():
 
 
 @image_comparison(baseline_images=['specgram_phase_freqs'],
-                  remove_text=True, extensions=['png'])
+                  remove_text=True, extensions=['png'],
+                  style='default')
 def test_specgram_freqs_phase():
     '''test axes.specgram in phase mode with sinusoidal stimuli'''
-    n = 10000
-    Fs = 100.
+    n = 1000
+    Fs = 10.
 
     fstims1 = [Fs/4, Fs/5, Fs/11]
     fstims2 = [Fs/4.7, Fs/5.6, Fs/11.9]
 
-    NFFT = int(1000 * Fs / min(fstims1 + fstims2))
+    NFFT = int(10 * Fs / min(fstims1 + fstims2))
     noverlap = int(NFFT / 2)
     pad_to = int(2 ** np.ceil(np.log2(NFFT)))
 
@@ -3327,15 +3334,16 @@ def test_specgram_freqs_phase():
 
 
 @image_comparison(baseline_images=['specgram_phase_noise'],
-                  remove_text=True, extensions=['png'])
+                  remove_text=True, extensions=['png'],
+                  style='default')
 def test_specgram_noise_phase():
     '''test axes.specgram in phase mode with noise stimuli'''
     np.random.seed(0)
 
-    n = 10000
-    Fs = 100.
+    n = 1000
+    Fs = 10.
 
-    NFFT = int(1000 * Fs / 11)
+    NFFT = int(10 * Fs / 11)
     noverlap = int(NFFT / 2)
     pad_to = int(2 ** np.ceil(np.log2(NFFT)))
 
