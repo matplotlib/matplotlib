@@ -14,23 +14,8 @@ import matplotlib.units as units
 import matplotlib.ticker as ticker
 
 
-#  pure hack for numpy 1.6 support
-from distutils.version import LooseVersion
-
-NP_NEW = (LooseVersion(np.version.version) >= LooseVersion('1.7'))
-
-
 def to_array(data, maxlen=100):
-    if NP_NEW:
-        return np.array(data, dtype=np.unicode)
-    if cbook.is_scalar_or_string(data):
-        data = [data]
-    try:
-        vals = np.array(data, dtype=('|S', maxlen))
-    except UnicodeEncodeError:
-        # this yields gibberish
-        vals = np.array([convert_to_string(d) for d in data])
-    return vals
+    return np.array(data, dtype=np.unicode)
 
 
 class StrCategoryConverter(units.ConversionInterface):
