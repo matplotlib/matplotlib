@@ -61,22 +61,7 @@ class StrCategoryFormatter(ticker.FixedFormatter):
 
 
 def convert_to_string(value):
-    """Helper function for numpy 1.6, can be replaced with
-    np.array(...,dtype=unicode) for all later versions of numpy"""
-
-    if isinstance(value, six.string_types):
-        pass
-    elif np.isfinite(value):
-        value = np.asarray(value, dtype=str)[np.newaxis][0]
-    elif np.isnan(value):
-        value = 'nan'
-    elif np.isposinf(value):
-        value = 'inf'
-    elif np.isneginf(value):
-        value = '-inf'
-    else:
-        raise ValueError("Unconvertable {}".format(value))
-    return value
+    return np.array(value, dtype=unicode)
 
 
 class UnitData(object):
