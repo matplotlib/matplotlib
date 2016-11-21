@@ -473,7 +473,7 @@ class Colormap(object):
             # Treat 1.0 as slightly less than 1.
             vals = np.array([1, 0], dtype=xa.dtype)
             almost_one = np.nextafter(*vals)
-            cbook._putmask(xa, xa == 1.0, almost_one)
+            np.copyto(xa, almost_one, where=xa == 1.0)
             # The following clip is fast, and prevents possible
             # conversion of large positive values to negative integers.
 
@@ -482,15 +482,15 @@ class Colormap(object):
 
             # ensure that all 'under' values will still have negative
             # value after casting to int
-            cbook._putmask(xa, xa < 0.0, -1)
+            np.copyto(xa, -1, where=xa < 0.0)
             xa = xa.astype(int)
         # Set the over-range indices before the under-range;
         # otherwise the under-range values get converted to over-range.
-        cbook._putmask(xa, xa > self.N - 1, self._i_over)
-        cbook._putmask(xa, xa < 0, self._i_under)
+        np.copyto(xa, self._i_over, where=xa > self.N - 1)
+        np.copyto(xa, self._i_under, where=xa < 0)
         if mask_bad is not None:
             if mask_bad.shape == xa.shape:
-                cbook._putmask(xa, mask_bad, self._i_bad)
+                np.copyto(xa, self._i_bad, where=mask_bad)
             elif mask_bad:
                 xa.fill(self._i_bad)
         if bytes:
@@ -990,7 +990,7 @@ class LogNorm(Normalize):
                 mask = (resdat <= 0)
             else:
                 mask |= resdat <= 0
-            cbook._putmask(resdat, mask, 1)
+            np.copyto(resdat, 1, where=mask)
             np.log(resdat, resdat)
             resdat -= np.log(vmin)
             resdat /= (np.log(vmax) - np.log(vmin))
