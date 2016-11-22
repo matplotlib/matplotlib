@@ -1,4 +1,5 @@
 # -*- coding: UTF-8 -*-
+import codecs
 import os
 import re
 import glob
@@ -143,16 +144,14 @@ def gen_gallery(app, doctree):
     gallery_path = os.path.join(app.builder.srcdir,
                                 '_templates', 'gallery.html')
     if os.path.exists(gallery_path):
-        fh = open(gallery_path, 'r')
-        regenerate = fh.read() != content
-        fh.close()
+        with codecs.open(gallery_path, 'r', encoding='utf-8') as fh:
+            regenerate = fh.read() != content
     else:
         regenerate = True
 
     if regenerate:
-        fh = open(gallery_path, 'w')
-        fh.write(content)
-        fh.close()
+        with codecs.open(gallery_path, 'w', encoding='utf-8') as fh:
+            fh.write(content)
 
     for key in app.builder.status_iterator(
             iter(thumbnails.keys()), "generating thumbnails... ",
