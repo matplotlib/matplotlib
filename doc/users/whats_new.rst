@@ -19,6 +19,13 @@ New in matplotlib 2.0
 
    matplotlib 2.0 supports Python 2.7, and 3.4+
 
+The behavior of AxesStack re-add key changes
+--------------------------------------------
+
+The AxesStack does not allow users to re-add the same key. If the user try
+to do so, a KeyError will raise.
+
+:func:`~figure.AxesStack.add`
 
 
 Default style changes
