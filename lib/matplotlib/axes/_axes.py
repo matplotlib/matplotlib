@@ -4069,7 +4069,7 @@ or tuple of floats
     def hexbin(self, x, y, C=None, gridsize=100, bins=None,
                xscale='linear', yscale='linear', extent=None,
                cmap=None, norm=None, vmin=None, vmax=None,
-               alpha=None, linewidths=None, edgecolors='none',
+               alpha=None, linewidths=None, edgecolors='face',
                reduce_C_function=np.mean, mincnt=None, marginals=False,
                **kwargs):
         """
@@ -4163,10 +4163,12 @@ or tuple of floats
         linewidths : scalar, optional, default is *None*
             If *None*, defaults to 1.0.
 
-        edgecolors : {'none'} or mpl color, optional, default is 'none'
-            If 'none', draws the edges in the same color as the fill color.
-            This is the default, as it avoids unsightly unpainted pixels
-            between the hexagons.
+        edgecolors : {'face', 'none', *None*} or mpl color, optional, default is 'face'
+
+            If 'face', draws the edges in the same color as the fill color.
+
+            If 'none', no edge is drawn; this can sometimes lead to unsightly
+            unpainted pixels between the hexagons.
 
             If *None*, draws outlines in the default color.
 
@@ -4353,8 +4355,6 @@ or tuple of floats
         polygon[:, 0] = sx * np.array([0.5, 0.5, 0.0, -0.5, -0.5, 0.0])
         polygon[:, 1] = sy * np.array([-0.5, 0.5, 1.0, 0.5, -0.5, -1.0]) / 3.0
 
-        if edgecolors == 'none':
-            edgecolors = 'face'
         if linewidths is None:
             linewidths = [1.0]
 
