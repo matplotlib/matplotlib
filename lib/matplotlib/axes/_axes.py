@@ -5297,15 +5297,6 @@ or tuple of floats
             *vmax* passed in here override any pre-existing values
             supplied in the *norm* instance.
 
-          *shading*: [ 'flat' | 'faceted' ]
-            If 'faceted', a black grid is drawn around each rectangle; if
-            'flat', edges are not drawn. Default is 'flat', contrary to
-            MATLAB.
-
-            This kwarg is deprecated; please use 'edgecolors' instead:
-              * shading='flat' -- edgecolors='none'
-              * shading='faceted  -- edgecolors='k'
-
           *edgecolors*: [ *None* | ``'none'`` | color | color sequence]
             If *None*, the rc setting is used by default.
 
@@ -5395,11 +5386,6 @@ or tuple of floats
         cmap = kwargs.pop('cmap', None)
         vmin = kwargs.pop('vmin', None)
         vmax = kwargs.pop('vmax', None)
-        if 'shading' in kwargs:
-            cbook.warn_deprecated(
-                '1.2', name='shading', alternative='edgecolors',
-                obj_type='option')
-        shading = kwargs.pop('shading', 'flat')
 
         X, Y, C = self._pcolorargs('pcolor', *args, allmatch=False)
         Ny, Nx = X.shape
@@ -5449,14 +5435,9 @@ or tuple of floats
             kwargs['linewidths'] = kwargs.pop('linewidth')
         kwargs.setdefault('linewidths', linewidths)
 
-        if shading == 'faceted':
-            edgecolors = 'k',
-        else:
-            edgecolors = 'none'
-
         if 'edgecolor' in kwargs:
             kwargs['edgecolors'] = kwargs.pop('edgecolor')
-        ec = kwargs.setdefault('edgecolors', edgecolors)
+        ec = kwargs.setdefault('edgecolors', 'none')
 
         # aa setting will default via collections to patch.antialiased
         # unless the boundary is not stroked, in which case the
