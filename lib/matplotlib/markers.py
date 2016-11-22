@@ -42,11 +42,15 @@ CARETDOWN                      caretdown (centered at tip)
 CARETLEFTBASE                  caretleft (centered at base)
 CARETRIGHTBASE                 caretright (centered at base)
 CARETUPBASE                    caretup (centered at base)
-`"None"`, None, `" "`, or `""` nothing
+`" "`, or `""`                 nothing
 ``'$...$'``                    render the string using mathtext.
 `verts`                        a list of (x, y) pairs used for Path vertices.
                                The center of the marker is located at (0,0) and
-                               the size is normalized.
+                               the size is normalized. For backward
+                               compatibility, the form (`verts`, 0) is also
+                               accepted, but it  is equivalent to just `verts`
+                               for giving a raw set of vertices that define the
+                               shape.
 path                           a `~matplotlib.path.Path` instance.
 (`numsides`, `style`, `angle`) The marker can also be a tuple (`numsides`,
                                `style`, `angle`), which will create a custom,
@@ -71,9 +75,9 @@ path                           a `~matplotlib.path.Path` instance.
                                    the angle of rotation of the symbol
 ============================== ===============================================
 
-For backward compatibility, the form (`verts`, 0) is also accepted,
-but it is equivalent to just `verts` for giving a raw set of vertices
-that define the shape.
+`None` is the default which often means 'nothing', however this table is
+referred to from other docs for the valid inputs from marker inputs and in
+those cases `None` still means 'default'.
 """
 
 from __future__ import (absolute_import, division, print_function,
