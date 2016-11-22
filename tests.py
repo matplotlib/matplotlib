@@ -29,24 +29,19 @@ if __name__ == '__main__':
 
     if args.no_pep8:
         default_test_modules.remove('matplotlib.tests.test_coding_standards')
-        sys.argv.remove('--no-pep8')
     elif args.pep8:
         default_test_modules[:] = ['matplotlib.tests.test_coding_standards']
-        sys.argv.remove('--pep8')
     if args.no_network:
         from matplotlib.testing import disable_internet
         disable_internet.turn_off_internet()
         extra_args.extend(['-a', '!network'])
-        sys.argv.remove('--no-network')
     if args.j:
         extra_args.extend([
             '--processes={}'.format(args.j),
             '--process-timeout=300'
         ])
-        sys.argv.pop(sys.argv.index('-j') + 1)
-        sys.argv.remove('-j')
 
     print('Python byte-compilation optimization level: %d' % sys.flags.optimize)
 
-    success = test(argv=sys.argv + extra_args, switch_backend_warn=False)
+    success = test(argv=sys.argv[0:1] + extra_args, switch_backend_warn=False)
     sys.exit(not success)
