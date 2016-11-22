@@ -274,8 +274,7 @@ _from_ordinalf_np_vectorized = np.vectorize(_from_ordinalf)
 class strpdate2num(object):
     """
     Use this class to parse date strings to matplotlib datenums when
-    you know the date format string of the date you are parsing.  See
-    :file:`examples/load_demo.py`.
+    you know the date format string of the date you are parsing.
     """
     def __init__(self, fmt):
         """ fmt: any valid strptime format is supported """
@@ -292,7 +291,7 @@ class bytespdate2num(strpdate2num):
     """
     Use this class to parse date strings to matplotlib datenums when
     you know the date format string of the date you are parsing.  See
-    :file:`examples/load_demo.py`.
+    :file:`examples/pylab_examples/load_converter.py`.
     """
     def __init__(self, fmt, encoding='utf-8'):
         """
