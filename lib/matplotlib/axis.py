@@ -1000,7 +1000,9 @@ class Axis(artist.Artist):
         else:
             interval_expanded = interval[1], interval[0]
 
-        if hasattr(self, '_get_pixel_distance_along_axis'):
+        # Don't call `_get_pixel_distance_along_axis` when there are no ticks,
+        # to support the "empty axes" trick used by suptitle.
+        if tick_tups:
             # normally, one does not want to catch all exceptions that
             # could possibly happen, but it is not clear exactly what
             # exceptions might arise from a user's projection (their
@@ -1048,6 +1050,19 @@ class Axis(artist.Artist):
             ticks_to_draw.append(tick)
 
         return ticks_to_draw
+
+    def _get_pixel_distance_along_axis(self, where, perturb):
+        """
+        Returns the amount, in data coordinates, that a single pixel
+        corresponds to in the locality given by "where", which is also given
+        in data coordinates, and is an x coordinate. "perturb" is the amount
+        to perturb the pixel.  Usually +0.5 or -0.5.
+
+        Implementing this routine for an axis is optional; if present, it will
+        ensure that no ticks are lost due to round-off at the extreme ends of
+        an axis.
+        """
+        return 0
 
     def _get_tick_bboxes(self, ticks, renderer):
         """

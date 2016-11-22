@@ -511,81 +511,22 @@ class Figure(Artist):
         """
         Add a centered title to the figure.
 
-        kwargs are :class:`matplotlib.text.Text` properties.  Using figure
-        coordinates, the defaults are:
-
-          x : 0.5
-            The x location of the text in figure coords
-
-          y : 0.98
-            The y location of the text in figure coords
-
-          horizontalalignment : 'center'
-            The horizontal alignment of the text
-
-          verticalalignment : 'top'
-            The vertical alignment of the text
-
-        If the `fontproperties` keyword argument is given then the
-        rcParams defaults for `fontsize` (`figure.titlesize`) and
-        `fontweight` (`figure.titleweight`) will be ignored in favour
-        of the `FontProperties` defaults.
-
-        A :class:`matplotlib.text.Text` instance is returned.
+        kwargs are :class:`matplotlib.text.Text` properties.  A
+        :class:`matplotlib.text.Text` instance is returned.
 
         Example::
 
           fig.suptitle('this is the figure title', fontsize=12)
         """
-        x = kwargs.pop('x', 0.5)
-        y = kwargs.pop('y', 0.98)
 
-        if ('horizontalalignment' not in kwargs) and ('ha' not in kwargs):
-            kwargs['horizontalalignment'] = 'center'
-        if ('verticalalignment' not in kwargs) and ('va' not in kwargs):
-            kwargs['verticalalignment'] = 'top'
-
-        if 'fontproperties' not in kwargs:
-            if 'fontsize' not in kwargs and 'size' not in kwargs:
-                kwargs['size'] = rcParams['figure.titlesize']
-            if 'fontweight' not in kwargs and 'weight' not in kwargs:
-                kwargs['weight'] = rcParams['figure.titleweight']
-
-        sup = self.text(x, y, t, **kwargs)
-        if self._suptitle is not None:
-            self._suptitle.set_text(t)
-            self._suptitle.set_position((x, y))
-            self._suptitle.update_from(sup)
-            sup.remove()
+        if self._suptitle is None:
+            gs = GridSpec(2, 1, height_ratios=[0, 1])
+            title_axes = self.add_subplot(gs[0], frameon=False)
+            title_axes.xaxis.set_major_locator(NullLocator())
+            title_axes.yaxis.set_major_locator(NullLocator())
         else:
-            self._suptitle = sup
-
-        self.stale = True
-        return self._suptitle
-
-    def suptitle2(self, text):
-        from .tight_layout import get_subplotspec_list
-        subplotspec_list = get_subplotspec_list(self.axes)
-        if None in subplotspec_list:
-            warnings.warn("This figure includes Axes that are not "
-                          "compatible with suptitle2, so its "
-                          "results might be incorrect.")
-
-        gs = GridSpec(2, 1, height_ratios=[0, 1])
-        title_axes = self.add_subplot(gs[0], frameon=False)
-        self._suptitle = title_axes.set_title(text)
-
-        class empty_axis:
-            @property
-            def _get_pixel_distance_along_axis(self):
-                raise AttributeError
-
-        title_axes.xaxis.__class__ = type(
-            "_", (empty_axis, type(title_axes.xaxis)), {})
-        title_axes.yaxis.__class__ = type(
-            "_", (empty_axis, type(title_axes.yaxis)), {})
-        title_axes.xaxis.set_major_locator(NullLocator())
-        title_axes.yaxis.set_major_locator(NullLocator())
+            title_axes = self._suptitle.axes
+        self._suptitle = title_axes.set_title(t, **kwargs)
 
         self.stale = True
         return self._suptitle
