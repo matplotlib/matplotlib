@@ -2704,7 +2704,7 @@ class Locked(object):
                     pass
 
 
-def check_array(obj):
+def _check_array(obj):
     """
     Helper function to check whether the input is an array or
     can be casted to an array type object.

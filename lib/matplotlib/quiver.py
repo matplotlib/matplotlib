@@ -389,6 +389,11 @@ def _parse_args(*args):
     else:
         indexgrid = np.meshgrid(np.arange(nc), np.arange(nr))
         X, Y = [np.ravel(a) for a in indexgrid]
+    cbook._check_array(X)
+    cbook._check_array(Y)
+    cbook._check_array(U)
+    cbook._check_array(V)
+    cbook._check_array(C)
     return X, Y, U, V, C
 
 
@@ -422,11 +427,6 @@ class Quiver(mcollections.PolyCollection):
         """
         self.ax = ax
         X, Y, U, V, C = _parse_args(*args)
-        cbook.is_matrix(X)
-        cbook.is_matrix(Y)
-        cbook.is_matrix(U)
-        cbook.is_matrix(V)
-        cbook.is_matrix(C)
         self.X = X
         self.Y = Y
         self.XY = np.hstack((X[:, np.newaxis], Y[:, np.newaxis]))
