@@ -193,14 +193,16 @@ class Patch(artist.Artist):
         Updates this :class:`Patch` from the properties of *other*.
         """
         artist.Artist.update_from(self, other)
-        self.set_edgecolor(other.get_edgecolor())
-        self.set_facecolor(other.get_facecolor())
-        self.set_fill(other.get_fill())
-        self.set_hatch(other.get_hatch())
-        self.set_linewidth(other.get_linewidth())
-        self.set_linestyle(other.get_linestyle())
+        # For some properties we don't need or don't want to go through the
+        # getters/setters, so we just copy them directly.
+        self._edgecolor = other._edgecolor
+        self._facecolor = other._facecolor
+        self._fill = other._fill
+        self._hatch = other._hatch
+        self._linewidth = other._linewidth
+        # Use setters, getters where we need the extra work they do.
+        self.set_linestyle(other._linestyle)  # also sets dash properties
         self.set_transform(other.get_data_transform())
-        self.set_alpha(other.get_alpha())
 
     def get_extents(self):
         """
