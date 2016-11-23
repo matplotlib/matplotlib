@@ -560,10 +560,9 @@ class FFMpegFileWriter(FileMovieWriter, FFMpegBase):
     def _args(self):
         # Returns the command line parameters for subprocess to use
         # ffmpeg to create a movie using a collection of temp images
-        return [self.bin_path(),  # -r option is not needed before -i option
+        return [self.bin_path(), '-r', str(self.fps),
                 '-i', self._base_temp_name(),
-                '-vframes', str(self._frame_counter),
-                '-r', str(self.fps)] + self.output_args
+                '-vframes', str(self._frame_counter)] + self.output_args
 
 
 # Base class of avconv information.  AVConv has identical arguments to
