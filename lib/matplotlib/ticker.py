@@ -877,7 +877,7 @@ class LogFormatter(Formatter):
         Parameters
         ----------
         labelOnlyBase : bool, optional, default: True
-            If True, only label decades.
+            If true, label ticks only at integer powers of base.
 
         """
         self.labelOnlyBase = labelOnlyBase
