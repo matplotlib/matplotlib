@@ -356,7 +356,7 @@ class Patch(artist.Artist):
             except TypeError:
                 raise TypeError('alpha must be a float or None')
         artist.Artist.set_alpha(self, alpha)
-        self._set_facecolor(self._facecolor)
+        self._set_facecolor(self._original_facecolor)
         self._set_edgecolor(self._original_edgecolor)
         # stale is already True
 
