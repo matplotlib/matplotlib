@@ -824,6 +824,10 @@ class LogFormatter(Formatter):
         avoid crowding. If ``numdec > subset`` then no minor ticks will
         be labeled.
 
+    linthresh: None or float, optional, default: None
+        If a symmetric log scale is in use, its ``linthresh``
+        parameter must be supplied here.
+
     Notes
     -----
     The `set_locs` method must be called to enable the subsetting
@@ -847,12 +851,14 @@ class LogFormatter(Formatter):
 
     """
     def __init__(self, base=10.0, labelOnlyBase=False,
-                 minor_thresholds=(1, 0.4)):
+                 minor_thresholds=(1, 0.4),
+                 linthresh=None):
 
         self._base = float(base)
         self.labelOnlyBase = labelOnlyBase
         self.minor_thresholds = minor_thresholds
         self._sublabels = None
+        self._linthresh = linthresh
 
     def base(self, base):
         """
@@ -892,20 +898,24 @@ class LogFormatter(Formatter):
         vmin, vmax = self.axis.get_view_interval()
         self.d = abs(vmax - vmin)
 
-        if (hasattr(self.axis, 'get_transform') and
-                hasattr(self.axis.get_transform(), 'linthresh')):
-            t = self.axis.get_transform()
-            linthresh = t.linthresh
+        # Handle symlog case:
+        linthresh = self._linthresh
+        if linthresh is None:
+            try:
+                linthresh = self.axis.get_transform().linthresh
+            except AttributeError:
+                pass
+
+        if linthresh is not None: # symlog
             # Only compute the number of decades in the logarithmic part of the
             # axis
             numdec = 0
             if vmin < -linthresh:
-                numdec += math.log(-vmin / linthresh) / math.log(b)
-
-            if vmax > linthresh and vmin < linthresh:
-                numdec += math.log(vmax / linthresh) / math.log(b)
-            elif vmin >= linthresh:
-                numdec += math.log(vmax / vmin) / math.log(b)
+                rhs = min(vmax, -linthresh)
+                numdec += math.log(vmin / rhs) / math.log(b)
+            if vmax > linthresh:
+                lhs = max(vmin, linthresh)
+                numdec += math.log(vmax / lhs) / math.log(b)
         else:
             vmin = math.log(vmin) / math.log(b)
             vmax = math.log(vmax) / math.log(b)
@@ -1070,12 +1080,13 @@ class LogFormatterMathtext(LogFormatter):
             else:
                 return '$%s$' % _mathdefault('0')
 
-        fx = math.log(abs(x)) / math.log(b)
+        sign_string = '-' if x < 0 else ''
+        x = abs(x)
+
+        fx = math.log(x) / math.log(b)
         is_x_decade = is_close_to_int(fx)
         exponent = np.round(fx) if is_x_decade else np.floor(fx)
-        coeff = np.round(abs(x) / b ** exponent)
-
-        sign_string = '-' if x < 0 else ''
+        coeff = np.round(x / b ** exponent)
 
         # use string formatting of the base if it is not an integer
         if b % 1 == 0.0:
@@ -2021,14 +2032,22 @@ class LogLocator(Locator):
 
 class SymmetricalLogLocator(Locator):
     """
-    Determine the tick locations for log axes
+    Determine the tick locations for symmetric log axes
     """
 
-    def __init__(self, transform, subs=None):
+    def __init__(self, transform=None, subs=None, linthresh=None, base=None):
         """
         place ticks on the location= base**i*subs[j]
         """
-        self._transform = transform
+        if transform is not None:
+            self._base = transform.base
+            self._linthresh = transform.linthresh
+        elif linthresh is not None and base is not None:
+            self._base = base
+            self._linthresh = linthresh
+        else:
+            raise ValueError("Either transform or linthresh "
+                             "and base must be provided.")
         if subs is None:
             self._subs = [1.0]
         else:
@@ -2049,8 +2068,8 @@ class SymmetricalLogLocator(Locator):
         return self.tick_values(vmin, vmax)
 
     def tick_values(self, vmin, vmax):
-        b = self._transform.base
-        t = self._transform.linthresh
+        b = self._base
+        t = self._linthresh
 
         if vmax < vmin:
             vmin, vmax = vmax, vmin
