@@ -310,8 +310,11 @@ class ColorbarBase(cm.ScalarMappable):
         else:
             self.locator = ticks    # Handle default in _ticker()
         if format is None:
-            if isinstance(self.norm, (colors.LogNorm, colors.SymLogNorm)):
+            if isinstance(self.norm, colors.LogNorm):
                 self.formatter = ticker.LogFormatterSciNotation()
+            elif isinstance(self.norm, colors.SymLogNorm):
+                self.formatter = ticker.LogFormatterSciNotation(
+                                        linthresh=self.norm.linthresh)
             else:
                 self.formatter = ticker.ScalarFormatter()
         elif cbook.is_string_like(format):
@@ -575,11 +578,13 @@ class ColorbarBase(cm.ScalarMappable):
                     locator = ticker.FixedLocator(b, nbins=10)
                 elif isinstance(self.norm, colors.LogNorm):
                     locator = ticker.LogLocator(subs='all')
-                # FIXME: we should be able to use the SymmetricalLogLocator
-                # but we need to give it a transform, or modify the
-                # locator to get what it needs from the Norm.
-                # elif isinstance(self.norm, colors.SymLogNorm):
-                #     locator = ticker.SymmetricalLogLocator(...)
+                elif isinstance(self.norm, colors.SymLogNorm):
+                    # The subs setting here should be replaced
+                    # by logic in the locator.
+                    locator = ticker.SymmetricalLogLocator(
+                                      subs=np.arange(1, 10),
+                                      linthresh=self.norm.linthresh,
+                                      base=10)
                 else:
                     if mpl.rcParams['_internal.classic_mode']:
                         locator = ticker.MaxNLocator()
