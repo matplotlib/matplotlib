@@ -11,10 +11,10 @@
 
 import sys
 import argparse
-
+import warnings
 
 if __name__ == '__main__':
-    from matplotlib import default_test_modules, test
+    from matplotlib import test
 
     parser = argparse.ArgumentParser(add_help=False)
     parser.add_argument('--no-pep8', action='store_true',
@@ -24,16 +24,16 @@ if __name__ == '__main__':
     parser.add_argument('--no-network', action='store_true',
                         help='Run tests without network connection')
     parser.add_argument('-j', type=int,
-                        help='Shortcut for specifying number of test processes')
+                        help=("Shortcut for specifying number "
+                              "of test processes"))
     args, extra_args = parser.parse_known_args()
 
-    if args.no_pep8:
-        default_test_modules.remove('matplotlib.tests.test_coding_standards')
+    if '--no-pep8' in sys.argv:
         sys.argv.remove('--no-pep8')
-    elif args.pep8:
-        default_test_modules[:] = ['matplotlib.tests.test_coding_standards']
-        sys.argv.remove('--pep8')
-    if args.no_network:
+    elif '--pep8' in sys.argv:
+        warnings.warn("Please use make flake8-diff instead")
+        sys.exit(0)
+    if '--no-network' in sys.argv:
         from matplotlib.testing import disable_internet
         disable_internet.turn_off_internet()
         extra_args.extend(['-a', '!network'])
@@ -46,7 +46,8 @@ if __name__ == '__main__':
         sys.argv.pop(sys.argv.index('-j') + 1)
         sys.argv.remove('-j')
 
-    print('Python byte-compilation optimization level: %d' % sys.flags.optimize)
+    print(
+        'Python byte-compilation optimization level: %d' % sys.flags.optimize)
 
     success = test(argv=sys.argv + extra_args, switch_backend_warn=False)
     sys.exit(not success)
