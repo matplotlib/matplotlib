@@ -906,7 +906,7 @@ class LogFormatter(Formatter):
             except AttributeError:
                 pass
 
-        if linthresh is not None: # symlog
+        if linthresh is not None:  # symlog
             # Only compute the number of decades in the logarithmic part of the
             # axis
             numdec = 0
@@ -931,7 +931,7 @@ class LogFormatter(Formatter):
             c = np.logspace(0, 1, b//2 + 1, base=b)
             self._sublabels = set(np.round(c))
         else:
-            self._sublabels = set(np.linspace(1, b, b-2))
+            self._sublabels = set(np.linspace(1, b, b))
 
     def __call__(self, x, pos=None):
         """
@@ -947,7 +947,6 @@ class LogFormatter(Formatter):
         is_x_decade = is_close_to_int(fx)
         exponent = np.round(fx) if is_x_decade else np.floor(fx)
         coeff = np.round(x / b ** exponent)
-
         if self.labelOnlyBase and not is_x_decade:
             return ''
         if self._sublabels is not None and coeff not in self._sublabels:
@@ -2172,7 +2171,7 @@ class SymmetricalLogLocator(Locator):
 
     def view_limits(self, vmin, vmax):
         'Try to choose the view limits intelligently'
-        b = self._transform.base
+        b = self._base
         if vmax < vmin:
             vmin, vmax = vmax, vmin
 
