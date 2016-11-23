@@ -4163,7 +4163,8 @@ or tuple of floats
         linewidths : scalar, optional, default is *None*
             If *None*, defaults to 1.0.
 
-        edgecolors : {'face', 'none', *None*} or mpl color, optional, default is 'face'
+        edgecolors : {'face', 'none', *None*} or mpl color, optional, default\
+            is 'face'
 
             If 'face', draws the edges in the same color as the fill color.
 
