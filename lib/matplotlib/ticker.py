@@ -824,7 +824,7 @@ class LogFormatter(Formatter):
         avoid crowding. If ``numdec > subset`` then no minor ticks will
         be labeled.
 
-    linthresh: None or float, optional, default: None
+    linthresh : None or float, optional, default: None
         If a symmetric log scale is in use, its ``linthresh``
         parameter must be supplied here.
 
