@@ -162,8 +162,7 @@ def test_SymmetricalLogLocator_set_params():
     See if change was successful.
     Should not exception.
     """
-    # since we only test for the params change. I will pass empty transform
-    sym = mticker.SymmetricalLogLocator(None)
+    sym = mticker.SymmetricalLogLocator(base=10, linthresh=1)
     sym.set_params(subs=[2.0], numticks=8)
     nose.tools.assert_equal(sym._subs, [2.0])
     nose.tools.assert_equal(sym.numticks, 8)
