@@ -1,0 +1,5 @@
+New `axline` method
+-------------------
+
+A new `axline` method has been added to draw infinitely long lines that pass
+through two points.
