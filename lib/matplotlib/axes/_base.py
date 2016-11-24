@@ -2206,6 +2206,10 @@ class _AxesBase(martist.Artist):
             stickies = [artist.stickies for artist in self.get_children()]
             x_stickies = sum([sticky.x for sticky in stickies], [])
             y_stickies = sum([sticky.y for sticky in stickies], [])
+            if self.get_xscale().lower() == 'log':
+                x_stickies = [xs for xs in x_stickies if xs > 0]
+            if self.get_yscale().lower() == 'log':
+                y_stickies = [ys for ys in y_stickies if ys > 0]
         else:  # Small optimization.
             x_stickies, y_stickies = [], []
 
