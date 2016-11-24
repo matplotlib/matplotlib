@@ -13,17 +13,6 @@ import matplotlib.category as cat
 import unittest
 
 
-class TestConvertToString(object):
-    testdata = [("abc", "abc"), ("Здравствуйте мир", "Здравствуйте мир"),
-                ("3.14", 3.14), ("nan", np.nan),
-                ("inf", np.inf), ("-inf", -np.inf)]
-    ids = ["string", "unicode", "decimal", "nan", "posinf", "neginf", ]
-
-    @pytest.mark.parametrize("expected, test", testdata, ids=ids)
-    def test_convert_to_string(self, expected, test):
-        assert expected == cat.convert_to_string(test)
-
-
 class TestUnitData(object):
     testdata = [("hello world", ["hello world"], [0]),
                 ("Здравствуйте мир", ["Здравствуйте мир"], [0]),
@@ -157,7 +146,6 @@ class TestPlot(object):
 
     @cleanup
     def test_plot_unicode(self):
-        # Image test would fail on numpy 1.6
         words = ['Здравствуйте', 'привет']
         locs = [0.0, 1.0]
         unit_data = MockUnitData(zip(words, locs))
