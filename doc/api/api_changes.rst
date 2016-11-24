@@ -155,6 +155,15 @@ where "ax" is an ``Axes3d`` object created with something like ::
    ax = plt.sublot(111, projection='3d')
 
 
+Stale figure behavior
+---------------------
+
+Attempting to draw the figure will now mark it as not stale (independent if
+the draw succeeds).  This change is to prevent repeatedly trying to re-draw a
+figure which is raising an error on draw.  The previous behavior would only mark
+a figure as not stale after a full re-draw succeeded.
+
+
 Changes in 1.5.3
 ================
 
