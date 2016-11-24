@@ -243,6 +243,11 @@ class FigureCanvasQT(QtWidgets.QWidget, FigureCanvasBase):
         w, h = self.get_width_height()
         self.resize(w, h)
 
+    def get_width_height(self):
+        dpi_ratio = self.devicePixelRatio()
+        w, h = FigureCanvasBase.get_width_height(self)
+        return int(w / dpi_ratio), int(h / dpi_ratio)
+
     def enterEvent(self, event):
         FigureCanvasBase.enter_notify_event(self, guiEvent=event)
 
@@ -320,7 +325,7 @@ class FigureCanvasQT(QtWidgets.QWidget, FigureCanvasBase):
             print('key release', key)
 
     def resizeEvent(self, event):
-        dpi_ratio = getattr(self, '_dpi_ratio', 1)
+        dpi_ratio = self.devicePixelRatio()
         w = event.size().width() * dpi_ratio
         h = event.size().height() * dpi_ratio
         if DEBUG:
