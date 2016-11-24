@@ -243,10 +243,17 @@ class FigureCanvasQT(QtWidgets.QWidget, FigureCanvasBase):
         w, h = self.get_width_height()
         self.resize(w, h)
 
+    @property
+    def _dpi_ratio(self):
+        # Not available on Qt4 or some older Qt5.
+        try:
+            return self.devicePixelRatio()
+        except AttributeError:
+            return 1
+
     def get_width_height(self):
-        dpi_ratio = self.devicePixelRatio()
         w, h = FigureCanvasBase.get_width_height(self)
-        return int(w / dpi_ratio), int(h / dpi_ratio)
+        return int(w / self._dpi_ratio), int(h / self._dpi_ratio)
 
     def enterEvent(self, event):
         FigureCanvasBase.enter_notify_event(self, guiEvent=event)
@@ -256,9 +263,9 @@ class FigureCanvasQT(QtWidgets.QWidget, FigureCanvasBase):
         FigureCanvasBase.leave_notify_event(self, guiEvent=event)
 
     def mouseEventCoords(self, pos):
-        x = pos.x() * self.devicePixelRatio()
+        x = pos.x() * self._dpi_ratio
         # flip y so y=0 is bottom of canvas
-        y = self.figure.bbox.height - pos.y() * self.devicePixelRatio()
+        y = self.figure.bbox.height - pos.y() * self._dpi_ratio
         return x, y
 
     def mousePressEvent(self, event):
@@ -325,9 +332,8 @@ class FigureCanvasQT(QtWidgets.QWidget, FigureCanvasBase):
             print('key release', key)
 
     def resizeEvent(self, event):
-        dpi_ratio = self.devicePixelRatio()
-        w = event.size().width() * dpi_ratio
-        h = event.size().height() * dpi_ratio
+        w = event.size().width() * self._dpi_ratio
+        h = event.size().height() * self._dpi_ratio
         if DEBUG:
             print('resize (%d x %d)' % (w, h))
             print("FigureCanvasQt.resizeEvent(%d, %d)" % (w, h))

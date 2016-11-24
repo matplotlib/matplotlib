@@ -104,7 +104,9 @@ class FigureCanvasQTAggBase(object):
             qImage = QtGui.QImage(stringBuffer, self.renderer.width,
                                   self.renderer.height,
                                   QtGui.QImage.Format_ARGB32)
-            qImage.setDevicePixelRatio(self._dpi_ratio)
+            if hasattr(qImage, 'setDevicePixelRatio'):
+                # Not available on Qt4 or some older Qt5.
+                qImage.setDevicePixelRatio(self._dpi_ratio)
             # get the rectangle for the image
             rect = qImage.rect()
             p = QtGui.QPainter(self)
@@ -142,7 +144,9 @@ class FigureCanvasQTAggBase(object):
                 stringBuffer = reg.to_string_argb()
                 qImage = QtGui.QImage(stringBuffer, w, h,
                                       QtGui.QImage.Format_ARGB32)
-                qImage.setDevicePixelRatio(self._dpi_ratio)
+                if hasattr(qImage, 'setDevicePixelRatio'):
+                    # Not available on Qt4 or some older Qt5.
+                    qImage.setDevicePixelRatio(self._dpi_ratio)
                 # Adjust the stringBuffer reference count to work
                 # around a memory leak bug in QImage() under PySide on
                 # Python 3.x
@@ -238,7 +242,6 @@ class FigureCanvasQTAgg(FigureCanvasQTAggBase,
         super(FigureCanvasQTAgg, self).__init__(figure=figure)
         self._drawRect = None
         self.blitbox = []
-        self._dpi_ratio = self.devicePixelRatio()
         # We don't want to scale up the figure DPI more than once.
         # Note, we don't handle a signal for changing DPI yet.
         if not hasattr(self.figure, '_original_dpi'):
