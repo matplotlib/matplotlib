@@ -6322,19 +6322,19 @@ or tuple of floats
                 if np.min(bottom) > 0:
                     minimum = np.min(bottom)
                 elif normed or weights is not None:
-                    # For normed data, set to log base * minimum data value
+                    # For normed data, set to minimum data value / logbase
                     # (gives 1 full tick-label unit for the lowest filled bin)
                     ndata = np.array(n)
                     minimum = (np.min(ndata[ndata > 0])) / logbase
                 else:
-                    # For non-normed data, set the min to log base,
+                    # For non-normed data, set the min to 1 / log base,
                     # again so that there is 1 full tick-label unit
                     # for the lowest bin
                     minimum = 1.0 / logbase
 
                 y[0], y[-1] = minimum, minimum
             else:
-                minimum = 0  # np.min(bins)
+                minimum = 0
 
             if align == 'left' or align == 'center':
                 x -= 0.5*(bins[1]-bins[0])
@@ -6379,9 +6379,9 @@ or tuple of floats
             for patch_list in patches:
                 for patch in patch_list:
                     if orientation == 'vertical':
-                        patch.stickies.y.append(0)
+                        patch.stickies.y.append(minimum)
                     elif orientation == 'horizontal':
-                        patch.stickies.x.append(0)
+                        patch.stickies.x.append(minimum)
 
             # we return patches, so put it back in the expected order
             patches.reverse()
@@ -6407,14 +6407,6 @@ or tuple of floats
                 for p in patch[1:]:
                     p.update(kwargs)
                     p.set_label('_nolegend_')
-
-        if binsgiven:
-            if orientation == 'vertical':
-                self.update_datalim(
-                    [(bins[0], 0), (bins[-1], 0)], updatey=False)
-            else:
-                self.update_datalim(
-                    [(0, bins[0]), (0, bins[-1])], updatex=False)
 
         if nx == 1:
             return n[0], bins, cbook.silent_list('Patch', patches[0])
