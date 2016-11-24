@@ -1,4 +1,4 @@
-# -*- coding: UTF-8 -*-
+# -*- coding: utf-8 -*-
 import codecs
 import os
 import re
@@ -14,7 +14,7 @@ exclude_example_sections = ['units']
 multiimage = re.compile('(.*?)(_\d\d){1,2}')
 
 # generate a thumbnail gallery of examples
-gallery_template = """\
+gallery_template = u"""\
 {{% extends "layout.html" %}}
 {{% set title = "Thumbnail gallery" %}}
 
@@ -35,7 +35,7 @@ gallery_template = """\
 {{% endblock %}}
 """
 
-header_template = """\
+header_template = u"""\
 <div class="section" id="{section}">
 <h4>
     {title}<a class="headerlink" href="#{section}" title="Permalink to this headline">¶</a>
@@ -48,7 +48,7 @@ link_template = """\
 </figure>
 """
 
-toc_template = """\
+toc_template = u"""\
 <li><a class="reference internal" href="#{section}">{title}</a></li>"""
 
 
@@ -133,10 +133,10 @@ def gen_gallery(app, doctree):
             warnings.warn("No thumbnails were found in %s" % subdir)
 
         # Close out the <div> opened up at the top of this loop
-        rows.append("</div>")
+        rows.append(u"</div>")
 
-    content = gallery_template.format(toc='\n'.join(toc_rows),
-                                      gallery='\n'.join(rows))
+    content = gallery_template.format(toc=u'\n'.join(toc_rows),
+                                      gallery=u'\n'.join(rows))
 
     # Only write out the file if the contents have actually changed.
     # Otherwise, this triggers a full rebuild of the docs
