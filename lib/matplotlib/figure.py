@@ -1091,19 +1091,6 @@ class Figure(Artist):
         if not self.get_visible():
             return
 
-        renderer.open_group('figure')
-        # prevent triggering call backs during the draw process
-        self._stale = True
-        if self.get_tight_layout() and self.axes:
-            try:
-                self.tight_layout(renderer, **self._tight_parameters)
-            except ValueError:
-                pass
-                # ValueError can occur when resizing a window.
-
-        if self.frameon:
-            self.patch.draw(renderer)
-
         # a list of (zorder, func_to_call, list_of_args)
         dsu = []
 
@@ -1133,11 +1120,24 @@ class Figure(Artist):
         dsu = [row for row in dsu if not row[1].get_animated()]
         dsu.sort(key=itemgetter(0))
 
-        mimage._draw_list_compositing_images(
-            renderer, self, dsu, self.suppressComposite)
+        try:
+            renderer.open_group('figure')
+            if self.get_tight_layout() and self.axes:
+                try:
+                    self.tight_layout(renderer, **self._tight_parameters)
+                except ValueError:
+                    pass
+                    # ValueError can occur when resizing a window.
 
-        renderer.close_group('figure')
-        self.stale = False
+            if self.frameon:
+                self.patch.draw(renderer)
+
+            mimage._draw_list_compositing_images(
+                renderer, self, dsu, self.suppressComposite)
+
+            renderer.close_group('figure')
+        finally:
+            self.stale = False
 
         self._cachedRenderer = renderer
         self.canvas.draw_event(renderer)
