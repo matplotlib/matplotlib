@@ -149,8 +149,9 @@ class FigureCanvasQTAggBase(object):
                 if QT_API == 'PySide' and six.PY3:
                     ctypes.c_long.from_address(id(stringBuffer)).value = 1
 
+                origin = QtCore.QPoint(l, self.renderer.height - t)
                 pixmap = QtGui.QPixmap.fromImage(qImage)
-                p.drawPixmap(QtCore.QPoint(l, self.renderer.height-t), pixmap)
+                p.drawPixmap(origin / self._dpi_ratio, pixmap)
 
             # draw the zoom rectangle to the QPainter
             if self._drawRect is not None:
@@ -207,9 +208,11 @@ class FigureCanvasQTAggBase(object):
             bbox = self.figure.bbox
 
         self.blitbox.append(bbox)
-        l, b, w, h = bbox.bounds
+
+        # repaint uses logical pixels, not physical pixels like the renderer.
+        l, b, w, h = [pt / self._dpi_ratio for pt in bbox.bounds]
         t = b + h
-        self.repaint(l, self.renderer.height-t, w, h)
+        self.repaint(l, self.renderer.height / self._dpi_ratio - t, w, h)
 
     def print_figure(self, *args, **kwargs):
         FigureCanvasAgg.print_figure(self, *args, **kwargs)
