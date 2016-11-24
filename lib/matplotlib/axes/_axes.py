@@ -909,6 +909,79 @@ class Axes(_AxesBase):
         return l
 
     @docstring.dedent_interpd
+    def axline(self, xy1, xy2, **kwargs):
+        """
+        Add an infinitely long straight line that passes through two points.
+
+        Parameters
+        ----------
+        xy1, xy2 : (float, float)
+            Points for the line to pass through.
+
+        Returns
+        -------
+        :class:`~matplotlib.lines.Line2D`
+
+        Other Parameters
+        ----------------
+        Valid kwargs are :class:`~matplotlib.lines.Line2D` properties,
+        with the exception of 'transform':
+
+        %(_Line2D_docstr)s
+
+        Examples
+        --------
+        * Draw a thick red line passing through (0, 0) with a gradient of 1::
+
+            >>> axline((0, 0), (1, 1), linewidth=4, color='r')
+
+
+        See Also
+        --------
+        axhline : for horizontal lines
+        axvline : for vertical lines
+
+        Notes
+        -----
+        Currently this method does not work properly with non-linear axes.
+        """
+        if not self.get_xscale() == self.get_yscale() == 'linear':
+            raise NotImplementedError('axline() is only supported on '
+                                      'linearly scaled axes')
+
+        if "transform" in kwargs:
+            raise TypeError("'transform' is not allowed as a kwarg; "
+                            "axline generates its own transform.")
+
+        x1, y1 = xy1
+        x2, y2 = xy2
+        # If x values the same, we have a vertical line
+        if np.allclose(x1, x2):
+            if np.allclose(y1, y2):
+                raise ValueError(
+                    'Cannot draw a line through two identical points '
+                    f'(got x1={x1}, x2={x2}, y1={y1}, y2={y2}).')
+            line = self.axvline(x1, **kwargs)
+            return line
+
+        slope = (y2 - y1) / (x2 - x1)
+        intercept = y1 - (slope * x1)
+
+        xtrans = mtransforms.BboxTransformTo(self.viewLim)
+        viewLimT = mtransforms.TransformedBbox(
+            self.viewLim,
+            mtransforms.Affine2D().rotate_deg(90).scale(-1, 1))
+        ytrans = (mtransforms.BboxTransformTo(viewLimT) +
+                  mtransforms.Affine2D().scale(slope).translate(0, intercept))
+        trans = mtransforms.blended_transform_factory(xtrans, ytrans)
+
+        line = mlines.Line2D([0, 1], [0, 1],
+                             transform=trans + self.transData,
+                             **kwargs)
+        self.add_line(line)
+        return line
+
+    @docstring.dedent_interpd
     def axhspan(self, ymin, ymax, xmin=0, xmax=1, **kwargs):
         """
         Add a horizontal span (rectangle) across the axis.

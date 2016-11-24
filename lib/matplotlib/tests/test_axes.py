@@ -3504,6 +3504,21 @@ def test_eb_line_zorder():
     ax.set_title("errorbar zorder test")
 
 
+@check_figures_equal()
+def test_axline(fig_test, fig_ref):
+    ax = fig_test.subplots()
+    ax.set(xlim=(-1, 1), ylim=(-1, 1))
+    ax.axline((0, 0), (1, 1))
+    ax.axline((0, 0), (1, 0), color='C1')
+    ax.axline((0, 0.5), (1, 0.5), color='C2')
+
+    ax = fig_ref.subplots()
+    ax.set(xlim=(-1, 1), ylim=(-1, 1))
+    ax.plot([-1, 1], [-1, 1])
+    ax.axhline(0, color='C1')
+    ax.axhline(0.5, color='C2')
+
+
 @image_comparison(
     baseline_images=['vlines_basic', 'vlines_with_nan', 'vlines_masked'],
     extensions=['png']
