@@ -229,6 +229,11 @@ class FigureCanvasQTAgg(FigureCanvasQTAggBase,
         self._drawRect = None
         self.blitbox = []
         self._dpi_ratio = self.devicePixelRatio()
+        # We don't want to scale up the figure DPI more than once.
+        # Note, we don't handle a signal for changing DPI yet.
+        if not hasattr(self.figure, '_original_dpi'):
+            self.figure._original_dpi = self.figure.dpi
+        self.figure.dpi = self._dpi_ratio * self.figure._original_dpi
         self.setAttribute(QtCore.Qt.WA_OpaquePaintEvent)
 
 
