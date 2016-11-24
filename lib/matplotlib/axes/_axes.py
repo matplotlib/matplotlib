@@ -6334,7 +6334,7 @@ or tuple of floats
 
                 y[0], y[-1] = minimum, minimum
             else:
-                minimum = np.min(bins)
+                minimum = 0  # np.min(bins)
 
             if align == 'left' or align == 'center':
                 x -= 0.5*(bins[1]-bins[0])
@@ -6385,14 +6385,6 @@ or tuple of floats
 
             # we return patches, so put it back in the expected order
             patches.reverse()
-
-            # adopted from adjust_x/ylim part of the bar method
-            if orientation == 'horizontal':
-                xmax = self.dataLim.intervalx[1]
-                self.dataLim.intervalx = (0, xmax)
-            elif orientation == 'vertical':
-                ymax = self.dataLim.intervaly[1]
-                self.dataLim.intervaly = (0, ymax)
 
         self.set_autoscalex_on(_saved_autoscalex)
         self.set_autoscaley_on(_saved_autoscaley)
