@@ -67,7 +67,10 @@ class FigureCanvasQTAggBase(object):
         self._agg_draw_pending = False
 
     def drawRectangle(self, rect):
-        self._drawRect = rect
+        if rect is not None:
+            self._drawRect = [pt / self._dpi_ratio for pt in rect]
+        else:
+            self._drawRect = None
         self.update()
 
     def paintEvent(self, e):
@@ -112,7 +115,9 @@ class FigureCanvasQTAggBase(object):
 
             # draw the zoom rectangle to the QPainter
             if self._drawRect is not None:
-                p.setPen(QtGui.QPen(QtCore.Qt.black, 1, QtCore.Qt.DotLine))
+                pen = QtGui.QPen(QtCore.Qt.black, 1 / self._dpi_ratio,
+                                 QtCore.Qt.DotLine)
+                p.setPen(pen)
                 x, y, w, h = self._drawRect
                 p.drawRect(x, y, w, h)
             p.end()
@@ -149,7 +154,9 @@ class FigureCanvasQTAggBase(object):
 
             # draw the zoom rectangle to the QPainter
             if self._drawRect is not None:
-                p.setPen(QtGui.QPen(QtCore.Qt.black, 1, QtCore.Qt.DotLine))
+                pen = QtGui.QPen(QtCore.Qt.black, 1 / self._dpi_ratio,
+                                 QtCore.Qt.DotLine)
+                p.setPen(pen)
                 x, y, w, h = self._drawRect
                 p.drawRect(x, y, w, h)
 
