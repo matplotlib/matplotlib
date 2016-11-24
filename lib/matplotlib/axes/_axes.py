@@ -794,6 +794,69 @@ or tuple of floats
         return l
 
     @docstring.dedent_interpd
+    def axline(self, slope=1, intercept=0, **kwargs):
+        """
+        Add an infinite line across the axes.
+
+        Parameters
+        ----------
+        slope : scalar, optional, default: 1
+            Slope of the line.
+
+        intercept : scalar, optional, default: 0
+            Intercept of the line with the y-axis.
+
+        Returns
+        -------
+        :class:`~matplotlib.lines.Line2D`
+
+        Other Parameters
+        ----------------
+        Valid kwargs are :class:`~matplotlib.lines.Line2D` properties,
+        with the exception of 'transform':
+
+        %(Line2D)s
+
+        Examples
+        --------
+        * draw a thick red line with slope 1 and y-intercept 0::
+
+            >>> axline(linewidth=4, color='r')
+
+        * draw a default line with slope 1 and y-intercept 1::
+
+            >>> axline(intercept=1)
+
+        * draw a default line with slope 5 and y-intercept 0::
+
+            >>> axline(slope=5)
+
+        See Also
+        --------
+        axhline : for strictly horizontal lines
+        axvline : for strictly vertical lines
+
+        """
+
+        if "transform" in kwargs:
+            raise ValueError("'transform' is not allowed as a kwarg; "
+                             "axline generates its own transform.")
+
+        xtrans = mtransforms.BboxTransformTo(self.viewLim)
+        viewLimT = mtransforms.TransformedBbox(
+            self.viewLim,
+            mtransforms.Affine2D().rotate_deg(90).scale(-1, 1))
+        ytrans = (mtransforms.BboxTransformTo(viewLimT) +
+                  mtransforms.Affine2D().scale(slope).translate(0, intercept))
+        trans = mtransforms.blended_transform_factory(xtrans, ytrans)
+
+        l = mlines.Line2D([0, 1], [0, 1],
+                          transform=trans + self.transData,
+                          **kwargs)
+        self.add_line(l)
+        return l
+
+    @docstring.dedent_interpd
     def axhspan(self, ymin, ymax, xmin=0, xmax=1, **kwargs):
         """
         Add a horizontal span (rectangle) across the axis.
