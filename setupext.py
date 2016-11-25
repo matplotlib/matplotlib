@@ -3,6 +3,7 @@ from __future__ import print_function, absolute_import
 from distutils import sysconfig
 from distutils import version
 from distutils.core import Extension
+import distutils.command.build_ext
 import glob
 import multiprocessing
 import os
@@ -228,8 +229,8 @@ else:
     print_status = print_message = print_raw = print_line
 
 
-# Remove the -Wstrict-prototypesoption, is it's not valid for C++
-customize_compiler = sysconfig.customize_compiler
+# Remove the -Wstrict-prototypes option, is it's not valid for C++
+customize_compiler = distutils.command.build_ext.customize_compiler
 
 
 def my_customize_compiler(compiler):
@@ -240,7 +241,7 @@ def my_customize_compiler(compiler):
         pass
     return retval
 
-sysconfig.customize_compiler = my_customize_compiler
+distutils.command.build_ext.customize_compiler = my_customize_compiler
 
 
 def make_extension(name, files, *args, **kwargs):
