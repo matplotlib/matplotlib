@@ -34,7 +34,7 @@ f.add_subplot(ax5)
 ax6 = plt.Subplot(f, gs01[-1, -1])
 f.add_subplot(ax6)
 
-plt.suptitle("GirdSpec Inside GridSpec")
+plt.suptitle("GridSpec Inside GridSpec")
 make_ticklabels_invisible(plt.gcf())
 
 plt.show()
