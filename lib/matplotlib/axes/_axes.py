@@ -4421,7 +4421,7 @@ or tuple of floats
         self.update_datalim(corners)
         collection.sticky_edges.x[:] = [xmin, xmax]
         collection.sticky_edges.y[:] = [ymin, ymax]
-        self.autoscale_view()
+        self.autoscale_view(tight=True)
 
         # add the collection last
         self.add_collection(collection, autolim=False)
@@ -5830,7 +5830,7 @@ or tuple of floats
         ret.sticky_edges.x[:] = [xl, xr]
         ret.sticky_edges.y[:] = [yb, yt]
         self.update_datalim(np.array([[xl, yb], [xr, yt]]))
-        self.autoscale_view()
+        self.autoscale_view(tight=True)
         return ret
 
     @_preprocess_data()

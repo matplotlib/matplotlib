@@ -968,7 +968,7 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
             col.sticky_edges.x[:] = [self._mins[0], self._maxs[0]]
             col.sticky_edges.y[:] = [self._mins[1], self._maxs[1]]
         self.ax.update_datalim([self._mins, self._maxs])
-        self.ax.autoscale_view()
+        self.ax.autoscale_view(tight=True)
 
         self.changed()  # set the colors
 
