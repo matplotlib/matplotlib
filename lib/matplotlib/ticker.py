@@ -876,8 +876,8 @@ class LogFormatter(Formatter):
 
         Parameters
         ----------
-        labelOnlyBase : bool, optional, default: True
-            If true, label ticks only at integer powers of base.
+        labelOnlyBase : bool
+            If True, label ticks only at integer powers of base.
 
         """
         self.labelOnlyBase = labelOnlyBase
@@ -1908,7 +1908,9 @@ class LogLocator(Locator):
         if subs is None:  # consistency with previous bad API
             self._subs = 'auto'
         elif cbook.is_string_like(subs):
-            # TODO: validation ('all', 'auto')
+            if subs not in ('all', 'auto'):
+                raise ValueError("A subs string must be 'all' or 'auto'; "
+                                 "found '%s'." % subs)
             self._subs = subs
         else:
             self._subs = np.asarray(subs, dtype=float)
@@ -2045,8 +2047,8 @@ class SymmetricalLogLocator(Locator):
             self._base = base
             self._linthresh = linthresh
         else:
-            raise ValueError("Either transform or linthresh "
-                             "and base must be provided.")
+            raise ValueError("Either transform, or both linthresh "
+                             "and base, must be provided.")
         if subs is None:
             self._subs = [1.0]
         else:
