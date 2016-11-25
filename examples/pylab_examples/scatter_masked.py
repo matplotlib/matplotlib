@@ -10,7 +10,7 @@ c = np.sqrt(area)
 r = np.sqrt(x*x + y*y)
 area1 = np.ma.masked_where(r < r0, area)
 area2 = np.ma.masked_where(r >= r0, area)
-plt.scatter(x, y, s=area1, marker='^', c=c, hold='on')
+plt.scatter(x, y, s=area1, marker='^', c=c)
 plt.scatter(x, y, s=area2, marker='o', c=c)
 # Show the boundary between the regions:
 theta = np.arange(0, np.pi/2, 0.01)
