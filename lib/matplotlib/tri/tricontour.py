@@ -50,8 +50,8 @@ class TriContourSet(ContourSet):
         else:
             tri, z = self._contour_args(args, kwargs)
             C = _tri.TriContourGenerator(tri.get_cpp_triangulation(), z)
-            self._stickies = [(tri.x.min(), tri.y.min()),
-                              (tri.x.max(), tri.y.max())]
+            self._mins = [tri.x.min(), tri.y.min()]
+            self._maxs = [tri.x.max(), tri.y.max()]
             self.ax.autoscale_view()
 
         self.cppContourGenerator = C

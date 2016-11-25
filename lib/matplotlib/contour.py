@@ -964,11 +964,10 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
                 self.ax.add_collection(col, autolim=False)
                 self.collections.append(col)
 
-        mins, maxs = self._stickies
         for col in self.collections:
-            col.stickies.x[:] = [mins[0], maxs[0]]
-            col.stickies.y[:] = [mins[1], maxs[1]]
-        self.ax.update_datalim([mins, maxs])
+            col.sticky_edges.x[:] = [self._mins[0], self._maxs[0]]
+            col.sticky_edges.y[:] = [self._mins[1], self._maxs[1]]
+        self.ax.update_datalim([self._mins, self._maxs])
         self.ax.autoscale_view(tight=True)
 
         self.changed()  # set the colors
@@ -1076,13 +1075,9 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
             raise ValueError('allkinds has different length to allsegs')
 
         # Determine x,y bounds and update axes data limits.
-        mins = np.min(
-            [np.min(seg, axis=0) for segs in self.allsegs for seg in segs],
-            axis=0)
-        maxs = np.max(
-            [np.max(seg, axis=0) for segs in self.allsegs for seg in segs],
-            axis=0)
-        self._stickies = [mins, maxs]
+        points = np.concatenate(self.allsegs, axis=0)
+        self._mins = points.min(axis=0)
+        self._maxs = points.max(axis=0)
 
     def _get_allsegs_and_allkinds(self):
         """
@@ -1437,7 +1432,8 @@ class QuadContourSet(ContourSet):
                 contour_generator = args[0].Cntr
             else:
                 contour_generator = args[0]._contour_generator
-            self._stickies = args[0]._stickies
+            self._mins = args[0]._mins
+            self._maxs = args[0]._maxs
         else:
             self._corner_mask = kwargs.get('corner_mask', None)
             if self._corner_mask is None:
@@ -1470,7 +1466,8 @@ class QuadContourSet(ContourSet):
                 x = transformed_pts[..., 0]
                 y = transformed_pts[..., 1]
 
-            self._stickies = [(ma.min(x), ma.min(y)), (ma.max(x), ma.max(y))]
+            self._mins = [ma.min(x), ma.min(y)]
+            self._maxs = [ma.max(x), ma.max(y)]
 
         if self._corner_mask == 'legacy':
             self.Cntr = contour_generator
