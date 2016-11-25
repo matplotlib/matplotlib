@@ -2125,9 +2125,9 @@ or tuple of floats
             r.update(kwargs)
             r.get_path()._interpolation_steps = 100
             if orientation == 'vertical':
-                r.stickies.y.append(0)
+                r.sticky_edges.y.append(0)
             elif orientation == 'horizontal':
-                r.stickies.x.append(0)
+                r.sticky_edges.x.append(0)
             self.add_patch(r)
             patches.append(r)
 
@@ -5483,8 +5483,8 @@ or tuple of floats
 
         self.add_collection(collection, autolim=False)
         corners = (minx, miny), (maxx, maxy)
-        collection.stickies.x[:] = [minx, maxx]
-        collection.stickies.y[:] = [miny, maxy]
+        collection.sticky_edges.x[:] = [minx, maxx]
+        collection.sticky_edges.y[:] = [miny, maxy]
         self.update_datalim(corners)
         self.autoscale_view()
         return collection
@@ -5635,8 +5635,8 @@ or tuple of floats
 
         self.add_collection(collection, autolim=False)
         corners = (minx, miny), (maxx, maxy)
-        collection.stickies.x[:] = [minx, maxx]
-        collection.stickies.y[:] = [miny, maxy]
+        collection.sticky_edges.x[:] = [minx, maxx]
+        collection.sticky_edges.y[:] = [miny, maxy]
         self.update_datalim(corners)
         self.autoscale_view()
         return collection
@@ -5825,8 +5825,8 @@ or tuple of floats
             ret.set_clim(vmin, vmax)
         else:
             ret.autoscale_None()
-        ret.stickies.x[:] = [xl, xr]
-        ret.stickies.y[:] = [yb, yt]
+        ret.sticky_edges.x[:] = [xl, xr]
+        ret.sticky_edges.y[:] = [yb, yt]
         self.update_datalim(np.array([[xl, yb], [xr, yt]]))
         self.autoscale_view(tight=True)
         return ret
@@ -6379,9 +6379,9 @@ or tuple of floats
             for patch_list in patches:
                 for patch in patch_list:
                     if orientation == 'vertical':
-                        patch.stickies.y.append(minimum)
+                        patch.sticky_edges.y.append(minimum)
                     elif orientation == 'horizontal':
-                        patch.stickies.x.append(minimum)
+                        patch.sticky_edges.x.append(minimum)
 
             # we return patches, so put it back in the expected order
             patches.reverse()

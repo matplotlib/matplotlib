@@ -740,8 +740,8 @@ class AxesImage(_ImageBase):
         xmin, xmax, ymin, ymax = extent
         corners = (xmin, ymin), (xmax, ymax)
         self.axes.update_datalim(corners)
-        self.stickies.x[:] = [xmin, xmax]
-        self.stickies.y[:] = [ymin, ymax]
+        self.sticky_edges.x[:] = [xmin, xmax]
+        self.sticky_edges.y[:] = [ymin, ymax]
         if self.axes._autoscaleXon:
             self.axes.set_xlim((xmin, xmax), auto=None)
         if self.axes._autoscaleYon:

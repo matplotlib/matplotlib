@@ -47,7 +47,7 @@ Margins and Autoscaling
    :toctree: _as_gen
    :nosignatures:
 
-   Artist.stickies
+   Artist.sticky_edges
 
 Clipping
 --------

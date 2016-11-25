@@ -126,7 +126,7 @@ class Artist(object):
         self._snap = None
         self._sketch = rcParams['path.sketch']
         self._path_effects = rcParams['path.effects']
-        self._stickies = _XYPair([], [])
+        self._sticky_edges = _XYPair([], [])
 
     def __getstate__(self):
         d = self.__dict__.copy()
@@ -929,14 +929,14 @@ class Artist(object):
         self.stale = True
 
     @property
-    def stickies(self):
+    def sticky_edges(self):
         """
         The `x` and `y` sticky lists for the artist.
 
         This attribute cannot be assigned to; however, the `x` and `y` lists
         can be modified in place as needed.
         """
-        return self._stickies
+        return self._sticky_edges
 
     def update_from(self, other):
         'Copy properties from *other* to *self*.'
