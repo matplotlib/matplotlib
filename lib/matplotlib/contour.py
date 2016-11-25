@@ -968,7 +968,7 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
             col.sticky_edges.x[:] = [self._mins[0], self._maxs[0]]
             col.sticky_edges.y[:] = [self._mins[1], self._maxs[1]]
         self.ax.update_datalim([self._mins, self._maxs])
-        self.ax.autoscale_view(tight=True)
+        self.ax.autoscale_view()
 
         self.changed()  # set the colors
 
@@ -1075,7 +1075,8 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
             raise ValueError('allkinds has different length to allsegs')
 
         # Determine x,y bounds and update axes data limits.
-        points = np.concatenate(self.allsegs, axis=0)
+        flatseglist = [s for seg in self.allsegs for s in seg]
+        points = np.concatenate(flatseglist, axis=0)
         self._mins = points.min(axis=0)
         self._maxs = points.max(axis=0)
 
