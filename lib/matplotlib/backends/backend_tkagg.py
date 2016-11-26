@@ -120,14 +120,18 @@ class TimerTk(TimerBase):
     '''
     Subclass of :class:`backend_bases.TimerBase` that uses Tk's timer events.
 
-    Attributes:
-    * interval: The time between timer events in milliseconds. Default
-        is 1000 ms.
-    * single_shot: Boolean flag indicating whether this timer should
-        operate as single shot (run once and then stop). Defaults to False.
-    * callbacks: Stores list of (func, args) tuples that will be called
-        upon timer events. This list can be manipulated directly, or the
-        functions add_callback and remove_callback can be used.
+    Attributes
+    ----------
+    interval : int
+        The time between timer events in milliseconds. Default is 1000 ms.
+    single_shot : bool
+        Boolean flag indicating whether this timer should operate as single
+        shot (run once and then stop). Defaults to False.
+    callbacks : list
+        Stores list of (func, args) tuples that will be called upon timer
+        events. This list can be manipulated directly, or the functions
+        `add_callback` and `remove_callback` can be used.
+
     '''
     def __init__(self, parent, *args, **kwargs):
         TimerBase.__init__(self, *args, **kwargs)
@@ -500,13 +504,14 @@ class FigureCanvasTkAgg(FigureCanvasAgg):
         This is useful for getting periodic events through the backend's native
         event loop. Implemented only for backends with GUIs.
 
-        optional arguments:
+        Other Parameters
+        ----------------
+        interval : scalar
+            Timer interval in milliseconds
+        callbacks : list
+            Sequence of (func, args, kwargs) where ``func(*args, **kwargs)``
+            will be executed by the timer every *interval*.
 
-        *interval*
-          Timer interval in milliseconds
-        *callbacks*
-          Sequence of (func, args, kwargs) where func(*args, **kwargs) will
-          be executed by the timer every *interval*.
         """
         return TimerTk(self._tkcanvas, *args, **kwargs)
 
@@ -523,12 +528,17 @@ class FigureCanvasTkAgg(FigureCanvasAgg):
 
 class FigureManagerTkAgg(FigureManagerBase):
     """
-    Public attributes
+    Attributes
+    ----------
+    canvas : `FigureCanvas`
+        The FigureCanvas instance
+    num : int or str
+        The Figure number
+    toolbar : tk.Toolbar
+        The tk.Toolbar
+    window : tk.Window
+        The tk.Window
 
-    canvas      : The FigureCanvas instance
-    num         : The Figure number
-    toolbar     : The tk.Toolbar
-    window      : The tk.Window
     """
     def __init__(self, canvas, num, window):
         FigureManagerBase.__init__(self, canvas, num)
@@ -701,10 +711,13 @@ class AxisMenu(object):
 
 class NavigationToolbar2TkAgg(NavigationToolbar2, Tk.Frame):
     """
-    Public attributes
+    Attributes
+    ----------
+    canvas : `FigureCanvas`
+        the figure canvas on which to operate
+    win : tk.Window
+        the tk.Window which owns this toolbar
 
-      canvas   - the FigureCanvas  (gtk.DrawingArea)
-      win   - the gtk.Window
     """
     def __init__(self, canvas, window):
         self.canvas = canvas

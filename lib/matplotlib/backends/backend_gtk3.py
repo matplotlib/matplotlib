@@ -76,16 +76,20 @@ show = Show()
 
 class TimerGTK3(TimerBase):
     '''
-    Subclass of :class:`backend_bases.TimerBase` that uses GTK3 for timer events.
+    Subclass of :class:`backend_bases.TimerBase` using GTK3 for timer events.
 
-    Attributes:
-    * interval: The time between timer events in milliseconds. Default
-        is 1000 ms.
-    * single_shot: Boolean flag indicating whether this timer should
-        operate as single shot (run once and then stop). Defaults to False.
-    * callbacks: Stores list of (func, args) tuples that will be called
-        upon timer events. This list can be manipulated directly, or the
-        functions add_callback and remove_callback can be used.
+    Attributes
+    ----------
+    interval : int
+        The time between timer events in milliseconds. Default is 1000 ms.
+    single_shot : bool
+        Boolean flag indicating whether this timer should operate as single
+        shot (run once and then stop). Defaults to False.
+    callbacks : list
+        Stores list of (func, args) tuples that will be called upon timer
+        events. This list can be manipulated directly, or the functions
+        `add_callback` and `remove_callback` can be used.
+
     '''
     def _timer_start(self):
         # Need to stop it, otherwise we potentially leak a timer id that will
@@ -348,13 +352,13 @@ class FigureCanvasGTK3 (Gtk.DrawingArea, FigureCanvasBase):
         This is useful for getting periodic events through the backend's native
         event loop. Implemented only for backends with GUIs.
 
-        optional arguments:
-
-        *interval*
-          Timer interval in milliseconds
-        *callbacks*
-          Sequence of (func, args, kwargs) where func(*args, **kwargs) will
-          be executed by the timer every *interval*.
+        Other Parameters
+        ----------------
+        interval : scalar
+            Timer interval in milliseconds
+        callbacks : list
+            Sequence of (func, args, kwargs) where ``func(*args, **kwargs)``
+            will be executed by the timer every *interval*.
         """
         return TimerGTK3(*args, **kwargs)
 
@@ -376,13 +380,19 @@ class FigureCanvasGTK3 (Gtk.DrawingArea, FigureCanvasBase):
 
 class FigureManagerGTK3(FigureManagerBase):
     """
-    Public attributes
+    Attributes
+    ----------
+    canvas : `FigureCanvas`
+        The FigureCanvas instance
+    num : int or str
+        The Figure number
+    toolbar : Gtk.Toolbar
+        The Gtk.Toolbar  (gtk only)
+    vbox : Gtk.VBox
+        The Gtk.VBox containing the canvas and toolbar (gtk only)
+    window : Gtk.Window
+        The Gtk.Window   (gtk only)
 
-    canvas      : The FigureCanvas instance
-    num         : The Figure number
-    toolbar     : The Gtk.Toolbar  (gtk only)
-    vbox        : The Gtk.VBox containing the canvas and toolbar (gtk only)
-    window      : The Gtk.Window   (gtk only)
     """
     def __init__(self, canvas, num):
         if _debug: print('FigureManagerGTK3.%s' % fn_name())

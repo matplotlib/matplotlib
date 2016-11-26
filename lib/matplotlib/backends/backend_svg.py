@@ -880,17 +880,20 @@ class RendererSVG(RendererBase):
         """
         draw the text by converting them to paths using textpath module.
 
-        *prop*
+        Parameters
+        ----------
+        prop : `matplotlib.font_manager.FontProperties`
           font property
 
-        *s*
+        s : str
           text to be converted
 
-        *usetex*
+        usetex : bool
           If True, use matplotlib usetex mode.
 
-        *ismath*
+        ismath : bool
           If True, use mathtext parser. If "TeX", use *usetex* mode.
+
         """
         writer = self.writer
 
