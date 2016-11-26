@@ -2515,6 +2515,9 @@ def spy(Z, precision=0, marker=None, markersize=None, aspect='equal', **kwargs):
 
     if hold is not None:
         ax._hold = hold
+        from matplotlib.cbook import mplDeprecation
+        warnings.warn("The 'hold' keyword argument is deprecated since 2.0.",
+                      mplDeprecation)
     try:
         ret = ax.spy(Z, precision, marker, markersize, aspect, **kwargs)
     finally:
@@ -2545,7 +2548,7 @@ def acorr(x, hold=None, data=None, **kwargs):
     if hold is not None:
         ax._hold = hold
         from matplotlib.cbook import mplDeprecation
-        warnings.warn("The 'hold' kwarg is deprecated since 2.0.",
+        warnings.warn("The 'hold' keyword argument is deprecated since 2.0.",
                       mplDeprecation)
     try:
         ret = ax.acorr(x, data=data, **kwargs)
@@ -2567,7 +2570,7 @@ def angle_spectrum(x, Fs=None, Fc=None, window=None, pad_to=None, sides=None,
     if hold is not None:
         ax._hold = hold
         from matplotlib.cbook import mplDeprecation
-        warnings.warn("The 'hold' kwarg is deprecated since 2.0.",
+        warnings.warn("The 'hold' keyword argument is deprecated since 2.0.",
                       mplDeprecation)
     try:
         ret = ax.angle_spectrum(x, Fs=Fs, Fc=Fc, window=window, pad_to=pad_to,
@@ -2589,7 +2592,7 @@ def arrow(x, y, dx, dy, hold=None, **kwargs):
     if hold is not None:
         ax._hold = hold
         from matplotlib.cbook import mplDeprecation
-        warnings.warn("The 'hold' kwarg is deprecated since 2.0.",
+        warnings.warn("The 'hold' keyword argument is deprecated since 2.0.",
                       mplDeprecation)
     try:
         ret = ax.arrow(x, y, dx, dy, **kwargs)
@@ -2610,7 +2613,7 @@ def axhline(y=0, xmin=0, xmax=1, hold=None, **kwargs):
     if hold is not None:
         ax._hold = hold
         from matplotlib.cbook import mplDeprecation
-        warnings.warn("The 'hold' kwarg is deprecated since 2.0.",
+        warnings.warn("The 'hold' keyword argument is deprecated since 2.0.",
                       mplDeprecation)
     try:
         ret = ax.axhline(y=y, xmin=xmin, xmax=xmax, **kwargs)
@@ -2631,7 +2634,7 @@ def axhspan(ymin, ymax, xmin=0, xmax=1, hold=None, **kwargs):
     if hold is not None:
         ax._hold = hold
         from matplotlib.cbook import mplDeprecation
-        warnings.warn("The 'hold' kwarg is deprecated since 2.0.",
+        warnings.warn("The 'hold' keyword argument is deprecated since 2.0.",
                       mplDeprecation)
     try:
         ret = ax.axhspan(ymin, ymax, xmin=xmin, xmax=xmax, **kwargs)
@@ -2652,7 +2655,7 @@ def axvline(x=0, ymin=0, ymax=1, hold=None, **kwargs):
     if hold is not None:
         ax._hold = hold
         from matplotlib.cbook import mplDeprecation
-        warnings.warn("The 'hold' kwarg is deprecated since 2.0.",
+        warnings.warn("The 'hold' keyword argument is deprecated since 2.0.",
                       mplDeprecation)
     try:
         ret = ax.axvline(x=x, ymin=ymin, ymax=ymax, **kwargs)
@@ -2673,7 +2676,7 @@ def axvspan(xmin, xmax, ymin=0, ymax=1, hold=None, **kwargs):
     if hold is not None:
         ax._hold = hold
         from matplotlib.cbook import mplDeprecation
-        warnings.warn("The 'hold' kwarg is deprecated since 2.0.",
+        warnings.warn("The 'hold' keyword argument is deprecated since 2.0.",
                       mplDeprecation)
     try:
         ret = ax.axvspan(xmin, xmax, ymin=ymin, ymax=ymax, **kwargs)
@@ -2694,7 +2697,7 @@ def bar(left, height, width=0.8, bottom=None, hold=None, data=None, **kwargs):
     if hold is not None:
         ax._hold = hold
         from matplotlib.cbook import mplDeprecation
-        warnings.warn("The 'hold' kwarg is deprecated since 2.0.",
+        warnings.warn("The 'hold' keyword argument is deprecated since 2.0.",
                       mplDeprecation)
     try:
         ret = ax.bar(left, height, width=width, bottom=bottom, data=data,
@@ -2716,7 +2719,7 @@ def barh(bottom, width, height=0.8, left=None, hold=None, **kwargs):
     if hold is not None:
         ax._hold = hold
         from matplotlib.cbook import mplDeprecation
-        warnings.warn("The 'hold' kwarg is deprecated since 2.0.",
+        warnings.warn("The 'hold' keyword argument is deprecated since 2.0.",
                       mplDeprecation)
     try:
         ret = ax.barh(bottom, width, height=height, left=left, **kwargs)
@@ -2737,7 +2740,7 @@ def broken_barh(xranges, yrange, hold=None, data=None, **kwargs):
     if hold is not None:
         ax._hold = hold
         from matplotlib.cbook import mplDeprecation
-        warnings.warn("The 'hold' kwarg is deprecated since 2.0.",
+        warnings.warn("The 'hold' keyword argument is deprecated since 2.0.",
                       mplDeprecation)
     try:
         ret = ax.broken_barh(xranges, yrange, data=data, **kwargs)
@@ -2764,7 +2767,7 @@ def boxplot(x, notch=None, sym=None, vert=None, whis=None, positions=None,
     if hold is not None:
         ax._hold = hold
         from matplotlib.cbook import mplDeprecation
-        warnings.warn("The 'hold' kwarg is deprecated since 2.0.",
+        warnings.warn("The 'hold' keyword argument is deprecated since 2.0.",
                       mplDeprecation)
     try:
         ret = ax.boxplot(x, notch=notch, sym=sym, vert=vert, whis=whis,
@@ -2799,7 +2802,7 @@ def cohere(x, y, NFFT=256, Fs=2, Fc=0, detrend=mlab.detrend_none,
     if hold is not None:
         ax._hold = hold
         from matplotlib.cbook import mplDeprecation
-        warnings.warn("The 'hold' kwarg is deprecated since 2.0.",
+        warnings.warn("The 'hold' keyword argument is deprecated since 2.0.",
                       mplDeprecation)
     try:
         ret = ax.cohere(x, y, NFFT=NFFT, Fs=Fs, Fc=Fc, detrend=detrend,
@@ -2823,7 +2826,7 @@ def clabel(CS, *args, **kwargs):
     if hold is not None:
         ax._hold = hold
         from matplotlib.cbook import mplDeprecation
-        warnings.warn("The 'hold' kwarg is deprecated since 2.0.",
+        warnings.warn("The 'hold' keyword argument is deprecated since 2.0.",
                       mplDeprecation)
     try:
         ret = ax.clabel(CS, *args, **kwargs)
@@ -2844,7 +2847,7 @@ def contour(*args, **kwargs):
     if hold is not None:
         ax._hold = hold
         from matplotlib.cbook import mplDeprecation
-        warnings.warn("The 'hold' kwarg is deprecated since 2.0.",
+        warnings.warn("The 'hold' keyword argument is deprecated since 2.0.",
                       mplDeprecation)
     try:
         ret = ax.contour(*args, **kwargs)
@@ -2865,7 +2868,7 @@ def contourf(*args, **kwargs):
     if hold is not None:
         ax._hold = hold
         from matplotlib.cbook import mplDeprecation
-        warnings.warn("The 'hold' kwarg is deprecated since 2.0.",
+        warnings.warn("The 'hold' keyword argument is deprecated since 2.0.",
                       mplDeprecation)
     try:
         ret = ax.contourf(*args, **kwargs)
@@ -2888,7 +2891,7 @@ def csd(x, y, NFFT=None, Fs=None, Fc=None, detrend=None, window=None,
     if hold is not None:
         ax._hold = hold
         from matplotlib.cbook import mplDeprecation
-        warnings.warn("The 'hold' kwarg is deprecated since 2.0.",
+        warnings.warn("The 'hold' keyword argument is deprecated since 2.0.",
                       mplDeprecation)
     try:
         ret = ax.csd(x, y, NFFT=NFFT, Fs=Fs, Fc=Fc, detrend=detrend,
@@ -2915,7 +2918,7 @@ def errorbar(x, y, yerr=None, xerr=None, fmt='', ecolor=None, elinewidth=None,
     if hold is not None:
         ax._hold = hold
         from matplotlib.cbook import mplDeprecation
-        warnings.warn("The 'hold' kwarg is deprecated since 2.0.",
+        warnings.warn("The 'hold' keyword argument is deprecated since 2.0.",
                       mplDeprecation)
     try:
         ret = ax.errorbar(x, y, yerr=yerr, xerr=xerr, fmt=fmt, ecolor=ecolor,
@@ -2943,7 +2946,7 @@ def eventplot(positions, orientation='horizontal', lineoffsets=1, linelengths=1,
     if hold is not None:
         ax._hold = hold
         from matplotlib.cbook import mplDeprecation
-        warnings.warn("The 'hold' kwarg is deprecated since 2.0.",
+        warnings.warn("The 'hold' keyword argument is deprecated since 2.0.",
                       mplDeprecation)
     try:
         ret = ax.eventplot(positions, orientation=orientation,
@@ -2967,7 +2970,7 @@ def fill(*args, **kwargs):
     if hold is not None:
         ax._hold = hold
         from matplotlib.cbook import mplDeprecation
-        warnings.warn("The 'hold' kwarg is deprecated since 2.0.",
+        warnings.warn("The 'hold' keyword argument is deprecated since 2.0.",
                       mplDeprecation)
     try:
         ret = ax.fill(*args, **kwargs)
@@ -2989,7 +2992,7 @@ def fill_between(x, y1, y2=0, where=None, interpolate=False, step=None,
     if hold is not None:
         ax._hold = hold
         from matplotlib.cbook import mplDeprecation
-        warnings.warn("The 'hold' kwarg is deprecated since 2.0.",
+        warnings.warn("The 'hold' keyword argument is deprecated since 2.0.",
                       mplDeprecation)
     try:
         ret = ax.fill_between(x, y1, y2=y2, where=where,
@@ -3013,7 +3016,7 @@ def fill_betweenx(y, x1, x2=0, where=None, step=None, hold=None, data=None,
     if hold is not None:
         ax._hold = hold
         from matplotlib.cbook import mplDeprecation
-        warnings.warn("The 'hold' kwarg is deprecated since 2.0.",
+        warnings.warn("The 'hold' keyword argument is deprecated since 2.0.",
                       mplDeprecation)
     try:
         ret = ax.fill_betweenx(y, x1, x2=x2, where=where, step=step, data=data,
@@ -3039,7 +3042,7 @@ def hexbin(x, y, C=None, gridsize=100, bins=None, xscale='linear',
     if hold is not None:
         ax._hold = hold
         from matplotlib.cbook import mplDeprecation
-        warnings.warn("The 'hold' kwarg is deprecated since 2.0.",
+        warnings.warn("The 'hold' keyword argument is deprecated since 2.0.",
                       mplDeprecation)
     try:
         ret = ax.hexbin(x, y, C=C, gridsize=gridsize, bins=bins, xscale=xscale,
@@ -3068,7 +3071,7 @@ def hist(x, bins=None, range=None, normed=False, weights=None, cumulative=False,
     if hold is not None:
         ax._hold = hold
         from matplotlib.cbook import mplDeprecation
-        warnings.warn("The 'hold' kwarg is deprecated since 2.0.",
+        warnings.warn("The 'hold' keyword argument is deprecated since 2.0.",
                       mplDeprecation)
     try:
         ret = ax.hist(x, bins=bins, range=range, normed=normed,
@@ -3094,7 +3097,7 @@ def hist2d(x, y, bins=10, range=None, normed=False, weights=None, cmin=None,
     if hold is not None:
         ax._hold = hold
         from matplotlib.cbook import mplDeprecation
-        warnings.warn("The 'hold' kwarg is deprecated since 2.0.",
+        warnings.warn("The 'hold' keyword argument is deprecated since 2.0.",
                       mplDeprecation)
     try:
         ret = ax.hist2d(x, y, bins=bins, range=range, normed=normed,
@@ -3118,7 +3121,7 @@ def hlines(y, xmin, xmax, colors='k', linestyles='solid', label='', hold=None,
     if hold is not None:
         ax._hold = hold
         from matplotlib.cbook import mplDeprecation
-        warnings.warn("The 'hold' kwarg is deprecated since 2.0.",
+        warnings.warn("The 'hold' keyword argument is deprecated since 2.0.",
                       mplDeprecation)
     try:
         ret = ax.hlines(y, xmin, xmax, colors=colors, linestyles=linestyles,
@@ -3143,7 +3146,7 @@ def imshow(X, cmap=None, norm=None, aspect=None, interpolation=None, alpha=None,
     if hold is not None:
         ax._hold = hold
         from matplotlib.cbook import mplDeprecation
-        warnings.warn("The 'hold' kwarg is deprecated since 2.0.",
+        warnings.warn("The 'hold' keyword argument is deprecated since 2.0.",
                       mplDeprecation)
     try:
         ret = ax.imshow(X, cmap=cmap, norm=norm, aspect=aspect,
@@ -3169,7 +3172,7 @@ def loglog(*args, **kwargs):
     if hold is not None:
         ax._hold = hold
         from matplotlib.cbook import mplDeprecation
-        warnings.warn("The 'hold' kwarg is deprecated since 2.0.",
+        warnings.warn("The 'hold' keyword argument is deprecated since 2.0.",
                       mplDeprecation)
     try:
         ret = ax.loglog(*args, **kwargs)
@@ -3191,7 +3194,7 @@ def magnitude_spectrum(x, Fs=None, Fc=None, window=None, pad_to=None,
     if hold is not None:
         ax._hold = hold
         from matplotlib.cbook import mplDeprecation
-        warnings.warn("The 'hold' kwarg is deprecated since 2.0.",
+        warnings.warn("The 'hold' keyword argument is deprecated since 2.0.",
                       mplDeprecation)
     try:
         ret = ax.magnitude_spectrum(x, Fs=Fs, Fc=Fc, window=window,
@@ -3214,7 +3217,7 @@ def pcolor(*args, **kwargs):
     if hold is not None:
         ax._hold = hold
         from matplotlib.cbook import mplDeprecation
-        warnings.warn("The 'hold' kwarg is deprecated since 2.0.",
+        warnings.warn("The 'hold' keyword argument is deprecated since 2.0.",
                       mplDeprecation)
     try:
         ret = ax.pcolor(*args, **kwargs)
@@ -3235,7 +3238,7 @@ def pcolormesh(*args, **kwargs):
     if hold is not None:
         ax._hold = hold
         from matplotlib.cbook import mplDeprecation
-        warnings.warn("The 'hold' kwarg is deprecated since 2.0.",
+        warnings.warn("The 'hold' keyword argument is deprecated since 2.0.",
                       mplDeprecation)
     try:
         ret = ax.pcolormesh(*args, **kwargs)
@@ -3257,7 +3260,7 @@ def phase_spectrum(x, Fs=None, Fc=None, window=None, pad_to=None, sides=None,
     if hold is not None:
         ax._hold = hold
         from matplotlib.cbook import mplDeprecation
-        warnings.warn("The 'hold' kwarg is deprecated since 2.0.",
+        warnings.warn("The 'hold' keyword argument is deprecated since 2.0.",
                       mplDeprecation)
     try:
         ret = ax.phase_spectrum(x, Fs=Fs, Fc=Fc, window=window, pad_to=pad_to,
@@ -3282,7 +3285,7 @@ def pie(x, explode=None, labels=None, colors=None, autopct=None,
     if hold is not None:
         ax._hold = hold
         from matplotlib.cbook import mplDeprecation
-        warnings.warn("The 'hold' kwarg is deprecated since 2.0.",
+        warnings.warn("The 'hold' keyword argument is deprecated since 2.0.",
                       mplDeprecation)
     try:
         ret = ax.pie(x, explode=explode, labels=labels, colors=colors,
@@ -3308,7 +3311,7 @@ def plot(*args, **kwargs):
     if hold is not None:
         ax._hold = hold
         from matplotlib.cbook import mplDeprecation
-        warnings.warn("The 'hold' kwarg is deprecated since 2.0.",
+        warnings.warn("The 'hold' keyword argument is deprecated since 2.0.",
                       mplDeprecation)
     try:
         ret = ax.plot(*args, **kwargs)
@@ -3330,7 +3333,7 @@ def plot_date(x, y, fmt='o', tz=None, xdate=True, ydate=False, hold=None,
     if hold is not None:
         ax._hold = hold
         from matplotlib.cbook import mplDeprecation
-        warnings.warn("The 'hold' kwarg is deprecated since 2.0.",
+        warnings.warn("The 'hold' keyword argument is deprecated since 2.0.",
                       mplDeprecation)
     try:
         ret = ax.plot_date(x, y, fmt=fmt, tz=tz, xdate=xdate, ydate=ydate,
@@ -3354,7 +3357,7 @@ def psd(x, NFFT=None, Fs=None, Fc=None, detrend=None, window=None,
     if hold is not None:
         ax._hold = hold
         from matplotlib.cbook import mplDeprecation
-        warnings.warn("The 'hold' kwarg is deprecated since 2.0.",
+        warnings.warn("The 'hold' keyword argument is deprecated since 2.0.",
                       mplDeprecation)
     try:
         ret = ax.psd(x, NFFT=NFFT, Fs=Fs, Fc=Fc, detrend=detrend,
@@ -3378,7 +3381,7 @@ def quiver(*args, **kw):
     if hold is not None:
         ax._hold = hold
         from matplotlib.cbook import mplDeprecation
-        warnings.warn("The 'hold' kwarg is deprecated since 2.0.",
+        warnings.warn("The 'hold' keyword argument is deprecated since 2.0.",
                       mplDeprecation)
     try:
         ret = ax.quiver(*args, **kw)
@@ -3399,7 +3402,7 @@ def quiverkey(*args, **kw):
     if hold is not None:
         ax._hold = hold
         from matplotlib.cbook import mplDeprecation
-        warnings.warn("The 'hold' kwarg is deprecated since 2.0.",
+        warnings.warn("The 'hold' keyword argument is deprecated since 2.0.",
                       mplDeprecation)
     try:
         ret = ax.quiverkey(*args, **kw)
@@ -3422,7 +3425,7 @@ def scatter(x, y, s=None, c=None, marker=None, cmap=None, norm=None, vmin=None,
     if hold is not None:
         ax._hold = hold
         from matplotlib.cbook import mplDeprecation
-        warnings.warn("The 'hold' kwarg is deprecated since 2.0.",
+        warnings.warn("The 'hold' keyword argument is deprecated since 2.0.",
                       mplDeprecation)
     try:
         ret = ax.scatter(x, y, s=s, c=c, marker=marker, cmap=cmap, norm=norm,
@@ -3446,7 +3449,7 @@ def semilogx(*args, **kwargs):
     if hold is not None:
         ax._hold = hold
         from matplotlib.cbook import mplDeprecation
-        warnings.warn("The 'hold' kwarg is deprecated since 2.0.",
+        warnings.warn("The 'hold' keyword argument is deprecated since 2.0.",
                       mplDeprecation)
     try:
         ret = ax.semilogx(*args, **kwargs)
@@ -3467,7 +3470,7 @@ def semilogy(*args, **kwargs):
     if hold is not None:
         ax._hold = hold
         from matplotlib.cbook import mplDeprecation
-        warnings.warn("The 'hold' kwarg is deprecated since 2.0.",
+        warnings.warn("The 'hold' keyword argument is deprecated since 2.0.",
                       mplDeprecation)
     try:
         ret = ax.semilogy(*args, **kwargs)
@@ -3491,7 +3494,7 @@ def specgram(x, NFFT=None, Fs=None, Fc=None, detrend=None, window=None,
     if hold is not None:
         ax._hold = hold
         from matplotlib.cbook import mplDeprecation
-        warnings.warn("The 'hold' kwarg is deprecated since 2.0.",
+        warnings.warn("The 'hold' keyword argument is deprecated since 2.0.",
                       mplDeprecation)
     try:
         ret = ax.specgram(x, NFFT=NFFT, Fs=Fs, Fc=Fc, detrend=detrend,
@@ -3516,7 +3519,7 @@ def stackplot(x, *args, **kwargs):
     if hold is not None:
         ax._hold = hold
         from matplotlib.cbook import mplDeprecation
-        warnings.warn("The 'hold' kwarg is deprecated since 2.0.",
+        warnings.warn("The 'hold' keyword argument is deprecated since 2.0.",
                       mplDeprecation)
     try:
         ret = ax.stackplot(x, *args, **kwargs)
@@ -3537,7 +3540,7 @@ def stem(*args, **kwargs):
     if hold is not None:
         ax._hold = hold
         from matplotlib.cbook import mplDeprecation
-        warnings.warn("The 'hold' kwarg is deprecated since 2.0.",
+        warnings.warn("The 'hold' keyword argument is deprecated since 2.0.",
                       mplDeprecation)
     try:
         ret = ax.stem(*args, **kwargs)
@@ -3558,7 +3561,7 @@ def step(x, y, *args, **kwargs):
     if hold is not None:
         ax._hold = hold
         from matplotlib.cbook import mplDeprecation
-        warnings.warn("The 'hold' kwarg is deprecated since 2.0.",
+        warnings.warn("The 'hold' keyword argument is deprecated since 2.0.",
                       mplDeprecation)
     try:
         ret = ax.step(x, y, *args, **kwargs)
@@ -3582,7 +3585,7 @@ def streamplot(x, y, u, v, density=1, linewidth=None, color=None, cmap=None,
     if hold is not None:
         ax._hold = hold
         from matplotlib.cbook import mplDeprecation
-        warnings.warn("The 'hold' kwarg is deprecated since 2.0.",
+        warnings.warn("The 'hold' keyword argument is deprecated since 2.0.",
                       mplDeprecation)
     try:
         ret = ax.streamplot(x, y, u, v, density=density, linewidth=linewidth,
@@ -3607,7 +3610,7 @@ def tricontour(*args, **kwargs):
     if hold is not None:
         ax._hold = hold
         from matplotlib.cbook import mplDeprecation
-        warnings.warn("The 'hold' kwarg is deprecated since 2.0.",
+        warnings.warn("The 'hold' keyword argument is deprecated since 2.0.",
                       mplDeprecation)
     try:
         ret = ax.tricontour(*args, **kwargs)
@@ -3628,7 +3631,7 @@ def tricontourf(*args, **kwargs):
     if hold is not None:
         ax._hold = hold
         from matplotlib.cbook import mplDeprecation
-        warnings.warn("The 'hold' kwarg is deprecated since 2.0.",
+        warnings.warn("The 'hold' keyword argument is deprecated since 2.0.",
                       mplDeprecation)
     try:
         ret = ax.tricontourf(*args, **kwargs)
@@ -3649,7 +3652,7 @@ def tripcolor(*args, **kwargs):
     if hold is not None:
         ax._hold = hold
         from matplotlib.cbook import mplDeprecation
-        warnings.warn("The 'hold' kwarg is deprecated since 2.0.",
+        warnings.warn("The 'hold' keyword argument is deprecated since 2.0.",
                       mplDeprecation)
     try:
         ret = ax.tripcolor(*args, **kwargs)
@@ -3670,7 +3673,7 @@ def triplot(*args, **kwargs):
     if hold is not None:
         ax._hold = hold
         from matplotlib.cbook import mplDeprecation
-        warnings.warn("The 'hold' kwarg is deprecated since 2.0.",
+        warnings.warn("The 'hold' keyword argument is deprecated since 2.0.",
                       mplDeprecation)
     try:
         ret = ax.triplot(*args, **kwargs)
@@ -3693,7 +3696,7 @@ def violinplot(dataset, positions=None, vert=True, widths=0.5, showmeans=False,
     if hold is not None:
         ax._hold = hold
         from matplotlib.cbook import mplDeprecation
-        warnings.warn("The 'hold' kwarg is deprecated since 2.0.",
+        warnings.warn("The 'hold' keyword argument is deprecated since 2.0.",
                       mplDeprecation)
     try:
         ret = ax.violinplot(dataset, positions=positions, vert=vert,
@@ -3718,7 +3721,7 @@ def vlines(x, ymin, ymax, colors='k', linestyles='solid', label='', hold=None,
     if hold is not None:
         ax._hold = hold
         from matplotlib.cbook import mplDeprecation
-        warnings.warn("The 'hold' kwarg is deprecated since 2.0.",
+        warnings.warn("The 'hold' keyword argument is deprecated since 2.0.",
                       mplDeprecation)
     try:
         ret = ax.vlines(x, ymin, ymax, colors=colors, linestyles=linestyles,
@@ -3741,7 +3744,7 @@ def xcorr(x, y, normed=True, detrend=mlab.detrend_none, usevlines=True,
     if hold is not None:
         ax._hold = hold
         from matplotlib.cbook import mplDeprecation
-        warnings.warn("The 'hold' kwarg is deprecated since 2.0.",
+        warnings.warn("The 'hold' keyword argument is deprecated since 2.0.",
                       mplDeprecation)
     try:
         ret = ax.xcorr(x, y, normed=normed, detrend=detrend,
@@ -3764,7 +3767,7 @@ def barbs(*args, **kw):
     if hold is not None:
         ax._hold = hold
         from matplotlib.cbook import mplDeprecation
-        warnings.warn("The 'hold' kwarg is deprecated since 2.0.",
+        warnings.warn("The 'hold' keyword argument is deprecated since 2.0.",
                       mplDeprecation)
     try:
         ret = ax.barbs(*args, **kw)

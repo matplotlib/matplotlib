@@ -57,7 +57,7 @@ def %(func)s(%(argspec)s):
     if hold is not None:
         %(ax)s._hold = hold
         from matplotlib.cbook import mplDeprecation
-        warnings.warn("The 'hold' kwarg is deprecated since 2.0.",
+        warnings.warn("The 'hold' keyword argument is deprecated since 2.0.",
                       mplDeprecation)
     try:
         %(ret)s = %(ax)s.%(func)s(%(call)s)
