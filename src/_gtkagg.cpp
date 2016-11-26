@@ -1,9 +1,9 @@
 /* -*- mode: c++; c-basic-offset: 4 -*- */
 
-#include <vector>
-
 #include <pygobject.h>
 #include <pygtk/pygtk.h>
+
+#include <vector>
 
 #include "agg_basics.h"
 #include "agg_pixfmt_rgba.h"
