@@ -1,7 +1,7 @@
 """ toggle between two images by pressing "t"
 
 The basic idea is to load two images (they can be different shapes) and plot
-them to the same axes with hold "on".  Then, toggle the visible property of
+them to the same axes.  Then, toggle the visible property of
 them using keypress event handling
 
 If you want two images with different shapes to be plotted with the same
@@ -27,7 +27,7 @@ x2 = np.random.random((150, 175))
 # them to be resampled into the same axes space
 extent = (0, 1, 0, 1)
 im1 = plt.imshow(x1, extent=extent)
-im2 = plt.imshow(x2, extent=extent, hold=True)
+im2 = plt.imshow(x2, extent=extent)
 im2.set_visible(False)
 
 
