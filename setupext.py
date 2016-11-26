@@ -898,6 +898,9 @@ class Numpy(SetupPackage):
         ext.define_macros.append(('NPY_NO_DEPRECATED_API',
                                   'NPY_1_7_API_VERSION'))
 
+        # Allow NumPy's printf format specifiers in C++.
+        ext.define_macros.append(('__STDC_FORMAT_MACROS', 1))
+
     def get_setup_requires(self):
         return ['numpy>=1.7.1']
 
