@@ -5478,15 +5478,15 @@ or tuple of floats
             x = transformed_pts[..., 0]
             y = transformed_pts[..., 1]
 
+        self.add_collection(collection, autolim=False)
+
         minx = np.amin(x)
         maxx = np.amax(x)
         miny = np.amin(y)
         maxy = np.amax(y)
-
-        self.add_collection(collection, autolim=False)
-        corners = (minx, miny), (maxx, maxy)
         collection.sticky_edges.x[:] = [minx, maxx]
         collection.sticky_edges.y[:] = [miny, maxy]
+        corners = (minx, miny), (maxx, maxy)
         self.update_datalim(corners)
         self.autoscale_view()
         return collection
@@ -5630,15 +5630,15 @@ or tuple of floats
             X = transformed_pts[..., 0]
             Y = transformed_pts[..., 1]
 
+        self.add_collection(collection, autolim=False)
+
         minx = np.amin(X)
         maxx = np.amax(X)
         miny = np.amin(Y)
         maxy = np.amax(Y)
-
-        self.add_collection(collection, autolim=False)
-        corners = (minx, miny), (maxx, maxy)
         collection.sticky_edges.x[:] = [minx, maxx]
         collection.sticky_edges.y[:] = [miny, maxy]
+        corners = (minx, miny), (maxx, maxy)
         self.update_datalim(corners)
         self.autoscale_view()
         return collection
@@ -5799,27 +5799,23 @@ or tuple of floats
             xl, xr, yb, yt = X.min(), X.max(), Y.min(), Y.max()
             ret = collection
 
-        else:
-            # One of the image styles:
+        else:  # It's one of the two image styles.
             xl, xr, yb, yt = x[0], x[-1], y[0], y[-1]
-        if style == "image":
 
-            im = mimage.AxesImage(self, cmap, norm,
-                                        interpolation='nearest',
-                                        origin='lower',
-                                        extent=(xl, xr, yb, yt),
-                                         **kwargs)
-            im.set_data(C)
-            im.set_alpha(alpha)
-            self.add_image(im)
-            ret = im
-
-        if style == "pcolorimage":
-            im = mimage.PcolorImage(self, x, y, C,
-                                    cmap=cmap,
-                                    norm=norm,
-                                    alpha=alpha,
-                                    **kwargs)
+            if style == "image":
+                im = mimage.AxesImage(self, cmap, norm,
+                                            interpolation='nearest',
+                                            origin='lower',
+                                            extent=(xl, xr, yb, yt),
+                                             **kwargs)
+                im.set_data(C)
+                im.set_alpha(alpha)
+            elif style == "pcolorimage":
+                im = mimage.PcolorImage(self, x, y, C,
+                                        cmap=cmap,
+                                        norm=norm,
+                                        alpha=alpha,
+                                        **kwargs)
             self.add_image(im)
             ret = im
 
@@ -5827,6 +5823,7 @@ or tuple of floats
             ret.set_clim(vmin, vmax)
         else:
             ret.autoscale_None()
+
         ret.sticky_edges.x[:] = [xl, xr]
         ret.sticky_edges.y[:] = [yb, yt]
         self.update_datalim(np.array([[xl, yb], [xr, yt]]))
