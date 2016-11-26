@@ -104,8 +104,10 @@ def register_backend(format, backend, description=None):
     """
     Register a backend for saving to a given file format.
 
+    Parameters
+    ----------
     format : str
-        File extention
+        File extension
 
     backend : module string or canvas class
         Backend for handling file output
@@ -244,19 +246,22 @@ class RendererBase(object):
         that behavior, those vertices should be removed before calling
         this function.
 
-        *gc*
-            the :class:`GraphicsContextBase` instance
-
-        *marker_trans*
-            is an affine transform applied to the marker.
-
-        *trans*
-             is an affine transform applied to the path.
-
         This provides a fallback implementation of draw_markers that
         makes multiple calls to :meth:`draw_path`.  Some backends may
         want to override this method in order to draw the marker only
         once and reuse it multiple times.
+
+        Parameters
+        ----------
+        gc : `GraphicsContextBase`
+            The graphics context
+
+        marker_trans : `matplotlib.transforms.Transform`
+            An affine transform applied to the marker.
+
+        trans : `matplotlib.transforms.Transform`
+            An affine transform applied to the path.
+
         """
         for vertices, codes in path.iter_segments(trans, simplify=False):
             if len(vertices):
@@ -330,12 +335,17 @@ class RendererBase(object):
         """
         Draw a Gouraud-shaded triangle.
 
-        *points* is a 3x2 array of (x, y) points for the triangle.
+        Parameters
+        ----------
+        points : array_like, shape=(3, 2)
+            Array of (x, y) points for the triangle.
 
-        *colors* is a 3x4 array of RGBA colors for each point of the
-        triangle.
+        colors : array_like, shape=(3, 4)
+            RGBA colors for each point of the triangle.
 
-        *transform* is an affine transform to apply to the points.
+        transform : `matplotlib.transforms.Transform`
+            An affine transform to apply to the points.
+
         """
         raise NotImplementedError
 
@@ -344,12 +354,16 @@ class RendererBase(object):
         """
         Draws a series of Gouraud triangles.
 
-        *points* is a Nx3x2 array of (x, y) points for the trianglex.
+        Parameters
+        ----------
+        points : array_like, shape=(N, 3, 2)
+            Array of *N* (x, y) points for the triangles.
 
-        *colors* is a Nx3x4 array of RGBA colors for each point of the
-        triangles.
+        colors : array_like, shape=(N, 3, 4)
+            Array of *N* RGBA colors for each point of the triangles.
 
-        *transform* is an affine transform to apply to the points.
+        transform : `matplotlib.transforms.Transform`
+            An affine transform to apply to the points.
         """
         transform = transform.frozen()
         for tri, col in zip(triangles_array, colors_array):
@@ -512,21 +526,23 @@ class RendererBase(object):
         """
         Draw an RGBA image.
 
-        *gc*
-            a :class:`GraphicsContextBase` instance with clipping information.
+        Parameters
+        ----------
+        gc : `GraphicsContextBase`
+            a graphics context with clipping information.
 
-        *x*
+        x : scalar
             the distance in physical units (i.e., dots or pixels) from the left
             hand side of the canvas.
 
-        *y*
+        y : scalar
             the distance in physical units (i.e., dots or pixels) from the
             bottom side of the canvas.
 
-        *im*
-            An NxMx4 array of RGBA pixels (of dtype uint8).
+        im : array_like, shape=(N, M, 4), dtype=np.uint8
+            An array of RGBA pixels.
 
-        *transform*
+        transform : `matplotlib.transforms.Affine2DBase`
             If and only if the concrete backend is written such that
             :meth:`option_scale_image` returns ``True``, an affine
             transformation *may* be passed to :meth:`draw_image`. It takes the
@@ -562,27 +578,31 @@ class RendererBase(object):
         """
         Draw the text instance
 
-        *gc*
-            the :class:`GraphicsContextBase` instance
+        Parameters
+        ----------
+        gc : `GraphicsContextBase`
+            the graphics context
 
-        *x*
+        x : scalar
             the x location of the text in display coords
 
-        *y*
+        y : scalar
             the y location of the text baseline in display coords
 
-        *s*
+        s : str
             the text string
 
-        *prop*
-          a :class:`matplotlib.font_manager.FontProperties` instance
+        prop : `matplotlib.font_manager.FontProperties`
+            font properties
 
-        *angle*
+        angle : scalar
             the rotation angle in degrees
 
-        *mtext*
-            a :class:`matplotlib.text.Text` instance
+        mtext : `matplotlib.text.Text`
+            the original text object to be rendered
 
+        Notes
+        -----
         **backend implementers note**
 
         When you are trying to determine if you have gotten your bounding box
@@ -601,16 +621,18 @@ class RendererBase(object):
         """
         return the text path and transform
 
-        *prop*
+        Parameters
+        ----------
+        prop : `matplotlib.font_manager.FontProperties`
           font property
 
-        *s*
+        s : str
           text to be converted
 
-        *usetex*
+        usetex : bool
           If True, use matplotlib usetex mode.
 
-        *ismath*
+        ismath : bool
           If True, use mathtext parser. If "TeX", use *usetex* mode.
         """
 
@@ -641,16 +663,18 @@ class RendererBase(object):
         """
         draw the text by converting them to paths using textpath module.
 
-        *prop*
+        Parameters
+        ----------
+        prop : `matplotlib.font_manager.FontProperties`
           font property
 
-        *s*
+        s : str
           text to be converted
 
-        *usetex*
+        usetex : bool
           If True, use matplotlib usetex mode.
 
-        *ismath*
+        ismath : bool
           If True, use mathtext parser. If "TeX", use *usetex* mode.
         """
         path, transform = self._get_text_path_transform(
@@ -724,16 +748,20 @@ class RendererBase(object):
         """
         Convert points to display units
 
-        *points*
-            a float or a numpy array of float
-
-        return points converted to pixels
-
         You need to override this function (unless your backend
         doesn't have a dpi, e.g., postscript or svg).  Some imaging
         systems assume some value for pixels per inch::
 
             points to pixels = points * pixels_per_inch/72.0 * dpi/72.0
+
+        Parameters
+        ----------
+        points : scalar or array_like
+            a float or a numpy array of float
+
+        Returns
+        -------
+        Points converted to pixels
         """
         return points
 
@@ -986,10 +1014,12 @@ class GraphicsContextBase(object):
         """
         Set the dash style for the gc.
 
-        *dash_offset*
+        Parameters
+        ----------
+        dash_offset : float
             is the offset (usually 0).
 
-        *dash_list*
+        dash_list : array_like
             specifies the on-off sequence as points.
             ``(None, None)`` specifies a solid line
 
@@ -1178,19 +1208,20 @@ class TimerBase(object):
           object should call, which will handle the task of running
           all callbacks that have been set.
 
-    Attributes:
+    Attributes
+    ----------
+    interval : scalar
+        The time between timer events in milliseconds. Default is 1000 ms.
 
-        * `interval`: The time between timer events in
-          milliseconds. Default is 1000 ms.
+    single_shot : bool
+        Boolean flag indicating whether this timer should operate as single
+        shot (run once and then stop). Defaults to `False`.
 
-        * `single_shot`: Boolean flag indicating whether this timer
-          should operate as single shot (run once and then
-          stop). Defaults to `False`.
+    callbacks : list
+        Stores list of (func, args) tuples that will be called upon timer
+        events. This list can be manipulated directly, or the functions
+        `add_callback` and `remove_callback` can be used.
 
-        * `callbacks`: Stores list of (func, args) tuples that will be
-          called upon timer events. This list can be manipulated
-          directly, or the functions `add_callback` and
-          `remove_callback` can be used.
     '''
     def __init__(self, interval=None, callbacks=None):
         #Initialize empty callbacks list and setup default settings if necssary
@@ -1306,15 +1337,16 @@ class Event(object):
     :meth:`FigureCanvasBase.mpl_connect`.  The following attributes
     are defined and shown with their default values
 
-    *name*
+    Attributes
+    ----------
+    name : str
         the event name
 
-    *canvas*
-        the FigureCanvas instance generating the event
+    canvas : `FigureCanvasBase`
+        the backend-specific canvas instance generating the event
 
-    *guiEvent*
+    guiEvent
         the GUI event that triggered the matplotlib event
-
 
     """
     def __init__(self, name, canvas, guiEvent=None):
@@ -1338,8 +1370,10 @@ class DrawEvent(Event):
     In addition to the :class:`Event` attributes, the following event
     attributes are defined:
 
-    *renderer*
-        the :class:`RendererBase` instance for the draw event
+    Attributes
+    ----------
+    renderer : `RendererBase`
+        the renderer for the draw event
 
     """
     def __init__(self, name, canvas, renderer):
@@ -1354,10 +1388,12 @@ class ResizeEvent(Event):
     In addition to the :class:`Event` attributes, the following event
     attributes are defined:
 
-    *width*
+    Attributes
+    ----------
+    width : scalar
         width of the canvas in pixels
 
-    *height*
+    height : scalar
         height of the canvas in pixels
 
     """
@@ -1370,8 +1406,6 @@ class CloseEvent(Event):
     """
     An event triggered by a figure being closed
 
-    In addition to the :class:`Event` attributes, the following event
-    attributes are defined:
     """
     def __init__(self, name, canvas, guiEvent=None):
         Event.__init__(self, name, canvas, guiEvent)
@@ -1387,19 +1421,21 @@ class LocationEvent(Event):
     In addition to the :class:`Event` attributes, the following
     event attributes are defined:
 
-    *x*
+    Attributes
+    ----------
+    x : scalar
         x position - pixels from left of canvas
 
-    *y*
+    y : scalar
         y position - pixels from bottom of canvas
 
-    *inaxes*
+    inaxes : bool
         the :class:`~matplotlib.axes.Axes` instance if mouse is over axes
 
-    *xdata*
+    xdata : scalar
         x coord of mouse in data coords
 
-    *ydata*
+    ydata : scalar
         y coord of mouse in data coords
 
     """
@@ -1492,21 +1528,24 @@ class MouseEvent(LocationEvent):
     In addition to the :class:`Event` and :class:`LocationEvent`
     attributes, the following attributes are defined:
 
-    *button*
+    Attributes
+    ----------
+    button : None, scalar, or str
         button pressed None, 1, 2, 3, 'up', 'down' (up and down are used
         for scroll events).  Note that in the nbagg backend, both the
         middle and right clicks return 3 since right clicking will bring
         up the context menu in some browsers.
 
-    *key*
+    key : None, or str
         the key depressed when the mouse event triggered (see
         :class:`KeyEvent`)
 
-    *step*
+    step : scalar
         number of scroll steps (positive for 'up', negative for 'down')
 
-
-    Example usage::
+    Examples
+    --------
+    Usage::
 
         def on_press(event):
             print('you pressed', event.button, event.xdata, event.ydata)
@@ -1549,11 +1588,13 @@ class PickEvent(Event):
 
     Attrs: all the :class:`Event` attributes plus
 
-    *mouseevent*
-        the :class:`MouseEvent` that generated the pick
+    Attributes
+    ----------
+    mouseevent : `MouseEvent`
+        the mouse event that generated the pick
 
-    *artist*
-        the :class:`~matplotlib.artist.Artist` picked
+    artist : `matplotlib.artist.Artist`
+        the picked artist
 
     other
         extra class dependent attrs -- e.g., a
@@ -1561,8 +1602,9 @@ class PickEvent(Event):
         extra attributes than a
         :class:`~matplotlib.collections.PatchCollection` pick event
 
-
-    Example usage::
+    Examples
+    --------
+    Usage::
 
         ax.plot(np.rand(100), 'o', picker=5)  # 5 points tolerance
 
@@ -1593,21 +1635,24 @@ class KeyEvent(LocationEvent):
     In addition to the :class:`Event` and :class:`LocationEvent`
     attributes, the following attributes are defined:
 
-    *key*
+    Attributes
+    ----------
+    key : None or str
         the key(s) pressed. Could be **None**, a single case sensitive ascii
         character ("g", "G", "#", etc.), a special key
         ("control", "shift", "f1", "up", etc.) or a
         combination of the above (e.g., "ctrl+alt+g", "ctrl+alt+G").
 
-    .. note::
+    Notes
+    -----
+    Modifier keys will be prefixed to the pressed key and will be in the order
+    "ctrl", "alt", "super". The exception to this rule is when the pressed key
+    is itself a modifier key, therefore "ctrl+alt" and "alt+control" can both
+    be valid key values.
 
-        Modifier keys will be prefixed to the pressed key and will be in the
-        order "ctrl", "alt", "super". The exception to this rule is when the
-        pressed key is itself a modifier key, therefore "ctrl+alt" and
-        "alt+control" can both be valid key values.
-
-
-    Example usage::
+    Examples
+    --------
+    Usage::
 
         def on_key(event):
             print('you pressed', event.key, event.xdata, event.ydata)
@@ -1626,10 +1671,12 @@ class FigureCanvasBase(object):
 
     Public attributes
 
-        *figure*
-            A :class:`matplotlib.figure.Figure` instance
+    Attributes
+    ----------
+    figure : `matplotlib.figure.Figure`
+        A high-level figure instance
 
-      """
+    """
     events = [
         'resize_event',
         'draw_event',
@@ -1848,18 +1895,19 @@ class FigureCanvasBase(object):
         Backend derived classes should call this function on any mouse
         button release.
 
-        *x*
+        This method will call all functions connected to the
+        'button_release_event' with a :class:`MouseEvent` instance.
+
+        Parameters
+        ----------
+        x : scalar
             the canvas coordinates where 0=left
 
-        *y*
+        y : scalar
             the canvas coordinates where 0=bottom
 
-        *guiEvent*
+        guiEvent
             the native UI event that generated the mpl event
-
-
-        This method will be call all functions connected to the
-        'button_release_event' with a :class:`MouseEvent` instance.
 
         """
         s = 'button_release_event'
@@ -1872,18 +1920,19 @@ class FigureCanvasBase(object):
         Backend derived classes should call this function on any
         motion-notify-event.
 
-        *x*
+        This method will call all functions connected to the
+        'motion_notify_event' with a :class:`MouseEvent` instance.
+
+        Parameters
+        ----------
+        x : scalar
             the canvas coordinates where 0=left
 
-        *y*
+        y : scalar
             the canvas coordinates where 0=bottom
 
-        *guiEvent*
+        guiEvent
             the native UI event that generated the mpl event
-
-
-        This method will be call all functions connected to the
-        'motion_notify_event' with a :class:`MouseEvent` instance.
 
         """
         self._lastx, self._lasty = x, y
@@ -1897,7 +1946,9 @@ class FigureCanvasBase(object):
         Backend derived classes should call this function when leaving
         canvas
 
-        *guiEvent*
+        Parameters
+        ----------
+        guiEvent
             the native UI event that generated the mpl event
 
         """
@@ -1911,9 +1962,11 @@ class FigureCanvasBase(object):
         Backend derived classes should call this function when entering
         canvas
 
-        *guiEvent*
+        Parameters
+        ----------
+        guiEvent
             the native UI event that generated the mpl event
-        *xy*
+        xy : tuple of 2 scalars
             the coordinate location of the pointer when the canvas is
             entered
 
@@ -2027,39 +2080,36 @@ class FigureCanvasBase(object):
         face color background and you'll probably want to override this on
         hardcopy.
 
-        Arguments are:
-
-        *filename*
+        Parameters
+        ----------
+        filename
             can also be a file object on image backends
 
-        *orientation*
+        orientation : {'landscape', 'portrait'}, optional
             only currently applies to PostScript printing.
 
-        *dpi*
+        dpi : scalar, optional
             the dots per inch to save the figure in; if None, use savefig.dpi
 
-        *facecolor*
+        facecolor : color spec or None, optional
             the facecolor of the figure; if None, defaults to savefig.facecolor
 
-        *edgecolor*
+        edgecolor : color spec or None, optional
             the edgecolor of the figure; if None, defaults to savefig.edgecolor
 
-        *orientation*
-            landscape' | 'portrait' (not supported on all backends)
-
-        *format*
+        format : str, optional
             when set, forcibly set the file format to save to
 
-        *bbox_inches*
+        bbox_inches : str or `~matplotlib.transforms.Bbox`, optional
             Bbox in inches. Only the given portion of the figure is
             saved. If 'tight', try to figure out the tight bbox of
             the figure. If None, use savefig.bbox
 
-        *pad_inches*
+        pad_inches : scalar, optional
             Amount of padding around the figure when bbox_inches is
             'tight'. If None, use savefig.pad_inches
 
-        *bbox_extra_artists*
+        bbox_extra_artists : list of `~matplotlib.artist.Artist`, optional
             A list of extra artists that will be considered when the
             tight bbox is calculated.
 
@@ -2285,7 +2335,9 @@ class FigureCanvasBase(object):
         Return value is a connection id that can be used with
         :meth:`~matplotlib.backend_bases.Event.mpl_disconnect`.
 
-        Example usage::
+        Examples
+        --------
+        Usage::
 
             def on_press(event):
                 print('you pressed', event.button, event.xdata, event.ydata)
@@ -2305,7 +2357,9 @@ class FigureCanvasBase(object):
         """
         Disconnect callback id cid
 
-        Example usage::
+        Examples
+        --------
+        Usage::
 
             cid = canvas.mpl_connect('button_press_event', on_press)
             #...later
@@ -2320,13 +2374,14 @@ class FigureCanvasBase(object):
         events through the backend's native event loop. Implemented only for
         backends with GUIs.
 
-        optional arguments:
+        Other Parameters
+        ----------------
+        interval : scalar
+            Timer interval in milliseconds
+        callbacks : list
+            Sequence of (func, args, kwargs) where ``func(*args, **kwargs)``
+            will be executed by the timer every *interval*.
 
-        *interval*
-          Timer interval in milliseconds
-        *callbacks*
-          Sequence of (func, args, kwargs) where func(*args, **kwargs) will
-          be executed by the timer every *interval*.
         """
         return TimerBase(*args, **kwargs)
 
@@ -2405,12 +2460,14 @@ def key_press_handler(event, canvas, toolbar=None):
     Implement the default mpl key bindings for the canvas and toolbar
     described at :ref:`key-event-handling`
 
-    *event*
-      a :class:`KeyEvent` instance
-    *canvas*
-      a :class:`FigureCanvasBase` instance
-    *toolbar*
-      a :class:`NavigationToolbar2` instance
+    Parameters
+    ----------
+    event : :class:`KeyEvent`
+        a key press/release event
+    canvas : :class:`FigureCanvasBase`
+        the backend-specific canvas instance
+    toolbar : :class:`NavigationToolbar2`
+        the navigation cursor toolbar
 
     """
     # these bindings happen whether you are over an axes or not
@@ -2574,13 +2631,14 @@ class FigureManagerBase(object):
     """
     Helper class for pyplot mode, wraps everything up into a neat bundle
 
-    Public attibutes:
+    Attributes
+    ----------
+    canvas : :class:`FigureCanvasBase`
+        The backend-specific canvas instance
 
-    *canvas*
-        A :class:`FigureCanvasBase` instance
-
-    *num*
+    num : int or str
         The figure number
+
     """
     def __init__(self, canvas, num):
         self.canvas = canvas
@@ -3177,8 +3235,8 @@ class ToolContainerBase(object):
 
     Attributes
     ----------
-    toolmanager : `ToolManager` object that holds the tools that
-        this `ToolContainer` wants to communicate with.
+    toolmanager : `ToolManager`
+        The tools with which this `ToolContainer` wants to communicate.
     """
 
     def __init__(self, toolmanager):

@@ -65,10 +65,12 @@ class FigureCanvasQTAgg(FigureCanvasQTAggBase,
     The canvas the figure renders into.  Calls the draw and print fig
     methods, creates the renderers, etc...
 
-    Public attribute
+    Attributes
+    ----------
+    figure : `matplotlib.figure.Figure`
+        A high-level Figure instance
 
-      figure - A Figure instance
-   """
+    """
 
     def __init__(self, figure):
         if DEBUG:
