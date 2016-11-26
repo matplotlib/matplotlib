@@ -931,10 +931,20 @@ class Artist(object):
     @property
     def sticky_edges(self):
         """
-        The `x` and `y` sticky lists for the artist.
+        The `x` and `y` sticky edge lists for the artist.
+
+        When autoscaling, if a data limit coincides with a value
+        in the corresponding sticky_edges list, then no margin
+        will be added--the view limit "sticks" to the edge.
 
         This attribute cannot be assigned to; however, the `x` and `y` lists
         can be modified in place as needed.
+
+        Example usage::
+
+            artist.sticky_edges.x[:] = (xmin, xmax)
+            artist.sticky_edges.y[:] = (ymin, ymax)
+
         """
         return self._sticky_edges
 
@@ -950,6 +960,8 @@ class Artist(object):
         self._label = other._label
         self._sketch = other._sketch
         self._path_effects = other._path_effects
+        self.sticky_edges.x[:] = other.sticky_edges.x[:]
+        self.sticky_edges.y[:] = other.sticky_edges.y[:]
         self.pchanged()
         self.stale = True
 
