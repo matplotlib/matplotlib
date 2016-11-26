@@ -776,7 +776,11 @@ def figlegend(handles, labels, loc, **kwargs):
 
 ## Figure and Axes hybrid ##
 
-@deprecated("2.0")
+_hold_msg = """Future behavior will be consistent with the long-time
+    default: plot commands add elements without first
+    clearing the Axes and/or Figure."""
+
+@deprecated("2.0", message=_hold_msg)
 def hold(b=None):
     """
     Set the hold state.  If *b* is None (default), toggle the
@@ -786,12 +790,10 @@ def hold(b=None):
       hold(True)  # hold is on
       hold(False) # hold is off
 
-    When *hold* is *True*, subsequent plot commands will be added to
+    When *hold* is *True*, subsequent plot commands will add elements to
     the current axes.  When *hold* is *False*, the current axes and
     figure will be cleared on the next plot command.
 
-    Deprecated.  Future behavior will be consistent with the
-    long-time default of True.
     """
 
     fig = gcf()
@@ -812,17 +814,16 @@ def hold(b=None):
     # a second warning, but "Oh, well...".
     rc('axes', hold=b)
 
-@deprecated("2.0")
+@deprecated("2.0", message=_hold_msg)
 def ishold():
     """
     Return the hold status of the current axes.
 
-    Deprecated.
     """
     return gca()._hold
 
 
-@deprecated("2.0")
+@deprecated("2.0", message=_hold_msg)
 def over(func, *args, **kwargs):
     """
     Call a function with hold(True).
@@ -833,7 +834,6 @@ def over(func, *args, **kwargs):
 
     with ``hold(True)`` and then restores the hold state.
 
-    Deprecated.
     """
     ax = gca()
     h = ax._hold

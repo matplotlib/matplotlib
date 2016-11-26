@@ -22,7 +22,6 @@ Color of Axes
 The ``axisbg`` and ``axis_bgcolor`` properties on ``Axes`` have been
 deprecated in favor of ``facecolor``.
 
-
 GTK and GDK backends deprecated
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 The GDK and GTK backends have been deprecated. These obsolete backends
@@ -40,6 +39,16 @@ backend for rendering figures to WX windows.
 CocoaAgg backend removed
 ~~~~~~~~~~~~~~~~~~~~~~~~
 The deprecated and not fully functional CocoaAgg backend has been removed.
+
+'hold' functionality deprecated
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+The 'hold' keyword argument and all functions and methods related
+to it are deprecated, along with the 'axes.hold' `rcParams` entry.
+The behavior will remain consistent with the default ``hold=True``
+state that has long been in place.  Instead of using a function
+or keyword argument (``hold=False``) to change that behavior,
+explicitly clear the axes or figure as needed prior to subsequent
+plotting commands.
 
 
 `Artist.update` has return value
