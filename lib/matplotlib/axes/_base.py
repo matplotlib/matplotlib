@@ -1191,13 +1191,24 @@ class _AxesBase(martist.Artist):
         else:
             self.set_prop_cycle('color', clist)
 
+    @cbook.deprecated("2.0")
     def ishold(self):
-        """return the HOLD status of the axes"""
+        """return the HOLD status of the axes
+
+        The `hold` mechanism is deprecated and will be removed in
+        v3.0.
+        """
+
         return self._hold
 
+    @cbook.deprecated("2.0")
     def hold(self, b=None):
         """
         Set the hold state
+
+        The ``hold`` mechanism is deprecated and will be removed in
+        v3.0.  The behavior will remain consistent with the
+        long-time default value of True.
 
         If *hold* is *None* (default), toggle the *hold* state.  Else
         set the *hold* state to boolean value *b*.

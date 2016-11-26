@@ -145,6 +145,13 @@ def validate_bool_maybe_none(b):
         raise ValueError('Could not convert "%s" to boolean' % b)
 
 
+def deprecate_axes_hold(value):
+    if value is None:
+        return True
+    warnings.warn("axes.hold is deprecated, will be removed in 3.0")
+    return validate_bool(value)
+
+
 def validate_float(s):
     """convert s to float or raise"""
     try:
@@ -1053,7 +1060,7 @@ defaultParams = {
 
     # axes props
     'axes.axisbelow':        ['line', validate_axisbelow],
-    'axes.hold':             [True, validate_bool],
+    'axes.hold':             [None, deprecate_axes_hold],
     'axes.facecolor':        ['w', validate_color],  # background color; white
     'axes.edgecolor':        ['k', validate_color],  # edge color; black
     'axes.linewidth':        [0.8, validate_float],  # edge linewidth

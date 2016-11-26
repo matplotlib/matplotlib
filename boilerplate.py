@@ -50,15 +50,19 @@ PLOT_TEMPLATE = AUTOGEN_MSG + """
 @_autogen_docstring(Axes.%(func)s)
 def %(func)s(%(argspec)s):
     %(ax)s = gca()
-    # allow callers to override the hold state by passing hold=True|False
-    %(washold)s = %(ax)s.ishold()
+    # Deprecated: allow callers to override the hold state
+    # by passing hold=True|False
+    %(washold)s = %(ax)s._hold
 %(sethold)s
     if hold is not None:
-        %(ax)s.hold(hold)
+        %(ax)s._hold = hold
+        from matplotlib.cbook import mplDeprecation
+        warnings.warn("The 'hold' kwarg is deprecated since 2.0.",
+                      mplDeprecation)
     try:
         %(ret)s = %(ax)s.%(func)s(%(call)s)
     finally:
-        %(ax)s.hold(%(washold)s)
+        %(ax)s._hold = %(washold)s
 %(mappable)s
     return %(ret)s
 """
