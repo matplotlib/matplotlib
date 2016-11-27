@@ -3,6 +3,7 @@ from __future__ import print_function, absolute_import
 from distutils import sysconfig
 from distutils import version
 from distutils.core import Extension
+import distutils.command.build_ext
 import glob
 import multiprocessing
 import os
@@ -242,8 +243,8 @@ else:
     print_status = print_message = print_raw = print_line
 
 
-# Remove the -Wstrict-prototypesoption, is it's not valid for C++
-customize_compiler = sysconfig.customize_compiler
+# Remove the -Wstrict-prototypes option, is it's not valid for C++
+customize_compiler = distutils.command.build_ext.customize_compiler
 
 
 def my_customize_compiler(compiler):
@@ -254,7 +255,7 @@ def my_customize_compiler(compiler):
         pass
     return retval
 
-sysconfig.customize_compiler = my_customize_compiler
+distutils.command.build_ext.customize_compiler = my_customize_compiler
 
 
 def make_extension(name, files, *args, **kwargs):
@@ -971,6 +972,9 @@ class Numpy(SetupPackage):
 
         ext.define_macros.append(('NPY_NO_DEPRECATED_API',
                                   'NPY_1_7_API_VERSION'))
+
+        # Allow NumPy's printf format specifiers in C++.
+        ext.define_macros.append(('__STDC_FORMAT_MACROS', 1))
 
     def get_setup_requires(self):
         return ['numpy>=1.7.1']

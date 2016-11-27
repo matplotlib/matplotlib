@@ -11,17 +11,6 @@
 #define PY3K 0
 #endif
 
-#if (PY_MAJOR_VERSION == 3 && PY_MINOR_VERSION >=3)
-#define PY33 1
-#else
-#define PY33 0
-#endif
-
-/* Must define Py_TYPE for Python 2.5 or older */
-#ifndef Py_TYPE
-# define Py_TYPE(o) ((o)->ob_type)
-#endif
-
 /* Proper way to check for the OS X version we are compiling for, from
    http://developer.apple.com/documentation/DeveloperTools/Conceptual/cross_development */
 #if __MAC_OS_X_VERSION_MIN_REQUIRED >= 1050
@@ -1895,7 +1884,7 @@ choose_save_file(PyObject* unused, PyObject* args)
         unsigned int n = [filename length];
         unichar* buffer = malloc(n*sizeof(unichar));
         [filename getCharacters: buffer];
-#if PY33
+#if PY3K
         PyObject* string =  PyUnicode_FromKindAndData(PyUnicode_2BYTE_KIND, buffer, n);
 #else
         PyObject* string =  PyUnicode_FromUnicode(buffer, n);

@@ -32,7 +32,6 @@ Z1 = np.array(([0, 1]*4 + [1, 0]*4)*4)
 Z1.shape = (8, 8)  # chessboard
 im1 = plt.imshow(Z1, cmap=plt.cm.gray, interpolation='nearest',
                  extent=extent)
-plt.hold(True)
 
 Z2 = func3(X, Y)
 

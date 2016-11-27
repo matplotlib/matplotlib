@@ -3214,10 +3214,6 @@ def test_specgram_angle_freqs():
     ax12 = fig1.add_subplot(3, 1, 2)
     ax13 = fig1.add_subplot(3, 1, 3)
 
-    ax11.hold(True)
-    ax12.hold(True)
-    ax13.hold(True)
-
     spec11 = ax11.specgram(y, NFFT=NFFT, Fs=Fs, noverlap=noverlap,
                            pad_to=pad_to, sides='default', mode='angle')
     spec12 = ax12.specgram(y, NFFT=NFFT, Fs=Fs, noverlap=noverlap,
@@ -3264,10 +3260,6 @@ def test_specgram_noise_angle():
     ax11 = fig1.add_subplot(3, 1, 1)
     ax12 = fig1.add_subplot(3, 1, 2)
     ax13 = fig1.add_subplot(3, 1, 3)
-
-    ax11.hold(True)
-    ax12.hold(True)
-    ax13.hold(True)
 
     spec11 = ax11.specgram(y, NFFT=NFFT, Fs=Fs, noverlap=noverlap,
                            pad_to=pad_to, sides='default', mode='angle')
@@ -3324,10 +3316,6 @@ def test_specgram_freqs_phase():
     ax12 = fig1.add_subplot(3, 1, 2)
     ax13 = fig1.add_subplot(3, 1, 3)
 
-    ax11.hold(True)
-    ax12.hold(True)
-    ax13.hold(True)
-
     spec11 = ax11.specgram(y, NFFT=NFFT, Fs=Fs, noverlap=noverlap,
                            pad_to=pad_to, sides='default', mode='phase')
     spec12 = ax12.specgram(y, NFFT=NFFT, Fs=Fs, noverlap=noverlap,
@@ -3374,10 +3362,6 @@ def test_specgram_noise_phase():
     ax11 = fig1.add_subplot(3, 1, 1)
     ax12 = fig1.add_subplot(3, 1, 2)
     ax13 = fig1.add_subplot(3, 1, 3)
-
-    ax11.hold(True)
-    ax12.hold(True)
-    ax13.hold(True)
 
     spec11 = ax11.specgram(y, NFFT=NFFT, Fs=Fs, noverlap=noverlap,
                            pad_to=pad_to, sides='default',

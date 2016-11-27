@@ -820,7 +820,7 @@ def colorbar(mappable, cax=None, ax=None, **kw):
         ax = plt.gca()
     if cax is None:
         cax, kw = make_axes(ax, **kw)
-    cax.hold(True)
+    cax._hold = True
     cb = Colorbar(cax, mappable, **kw)
 
     def on_changed(m):

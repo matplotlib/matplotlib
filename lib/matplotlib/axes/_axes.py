@@ -1666,7 +1666,7 @@ or tuple of floats
 
         x : sequence of scalar
 
-        hold : boolean, optional, default: True
+        hold : boolean, optional, *deprecated*, default: True
 
         detrend : callable, optional, default: `mlab.detrend_none`
             x is detrended by the `detrend` callable. Default is no
@@ -1714,6 +1714,8 @@ or tuple of floats
         .. plot:: mpl_examples/pylab_examples/xcorr_demo.py
 
         """
+        if "hold" in kwargs:
+            warnings.warn("the 'hold' kwarg is deprecated", mplDeprecation)
         return self.xcorr(x, x, **kwargs)
 
     @_preprocess_data(replace_names=["x", "y"], label_namer="y")
@@ -1731,7 +1733,7 @@ or tuple of floats
 
         y : sequence of scalars of length n
 
-        hold : boolean, optional, default: True
+        hold : boolean, optional, *deprecated*, default: True
 
         detrend : callable, optional, default: `mlab.detrend_none`
             x is detrended by the `detrend` callable. Default is no
@@ -1770,6 +1772,8 @@ or tuple of floats
         The cross correlation is performed with :func:`numpy.correlate` with
         `mode` = 2.
         """
+        if "hold" in kwargs:
+            warnings.warn("the 'hold' kwarg is deprecated", mplDeprecation)
 
         Nx = len(x)
         if Nx != len(y):
@@ -2137,7 +2141,7 @@ or tuple of floats
             patches.append(r)
 
         holdstate = self._hold
-        self.hold(True)  # ensure hold is on before plotting errorbars
+        self._hold = True  # ensure hold is on before plotting errorbars
 
         if xerr is not None or yerr is not None:
             if orientation == 'vertical':
@@ -2159,7 +2163,7 @@ or tuple of floats
         else:
             errorbar = None
 
-        self.hold(holdstate)  # restore previous hold state
+        self._hold = holdstate  # restore previous hold state
 
         if adjust_xlim:
             xmin, xmax = self.dataLim.intervalx
@@ -2381,7 +2385,7 @@ or tuple of floats
         remember_hold = self._hold
         if not self._hold:
             self.cla()
-        self.hold(True)
+        self._hold = True
 
         # Assume there's at least one data array
         y = np.asarray(args[0])
@@ -2465,7 +2469,7 @@ or tuple of floats
                               color=basecolor, linestyle=basestyle,
                               marker=basemarker, label="_nolegend_")
 
-        self.hold(remember_hold)
+        self._hold = remember_hold
 
         stem_container = StemContainer((markerline, stemlines, baseline),
                                        label=label)
@@ -3787,7 +3791,7 @@ or tuple of floats
             setlabels(datalabels)
 
         # reset hold status
-        self.hold(holdStatus)
+        self._hold = holdStatus
 
         return dict(whiskers=whiskers, caps=caps, boxes=boxes,
                     medians=medians, fliers=fliers, means=means)
