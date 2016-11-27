@@ -558,7 +558,7 @@ def table(ax,
         # assume just colours are needed
         rows = len(cellColours)
         cols = len(cellColours[0])
-        cellText = [[''] * rows] * cols
+        cellText = [[''] * cols] * rows
 
     rows = len(cellText)
     cols = len(cellText[0])
