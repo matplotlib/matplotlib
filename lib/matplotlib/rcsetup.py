@@ -147,7 +147,8 @@ def validate_bool_maybe_none(b):
 
 def deprecate_axes_hold(value):
     if value is None:
-        return True
+        return None  # converted to True where accessed in figure.py,
+                     # axes/_base.py
     warnings.warn("axes.hold is deprecated, will be removed in 3.0")
     return validate_bool(value)
 

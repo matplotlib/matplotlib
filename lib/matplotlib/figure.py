@@ -342,6 +342,9 @@ class Figure(Artist):
         self.patch.set_aa(False)
 
         self._hold = rcParams['axes.hold']
+        if self._hold is None:
+            self._hold = True
+
         self.canvas = None
         self._suptitle = None
 
