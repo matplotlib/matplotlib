@@ -501,10 +501,10 @@ class ColorbarBase(cm.ScalarMappable):
         # Save, set, and restore hold state to keep pcolor from
         # clearing the axes. Ordinarily this will not be needed,
         # since the axes object should already have hold set.
-        _hold = self.ax.ishold()
-        self.ax.hold(True)
+        _hold = self.ax._hold
+        self.ax._hold = True
         col = self.ax.pcolormesh(*args, **kw)
-        self.ax.hold(_hold)
+        self.ax._hold = _hold
         #self.add_observer(col) # We should observe, not be observed...
 
         if self.solids is not None:
@@ -1262,8 +1262,8 @@ class ColorbarPatch(Colorbar):
         # Save, set, and restore hold state to keep pcolor from
         # clearing the axes. Ordinarily this will not be needed,
         # since the axes object should already have hold set.
-        _hold = self.ax.ishold()
-        self.ax.hold(True)
+        _hold = self.ax._hold
+        self.ax._hold = True
 
         kw = {'alpha': self.alpha, }
 
@@ -1309,7 +1309,7 @@ class ColorbarPatch(Colorbar):
                     linewidths=(0.5 * mpl.rcParams['axes.linewidth'],))
             self.ax.add_collection(self.dividers)
 
-        self.ax.hold(_hold)
+        self.ax._hold = _hold
 
 
 def colorbar_factory(cax, mappable, **kwargs):

@@ -89,7 +89,7 @@ class CbarAxesBase(object):
             else:
                 kwargs["ticks"] = locator
 
-        self.hold(True)
+        self._hold = True
         if self.orientation in ["top", "bottom"]:
             orientation = "horizontal"
         else:

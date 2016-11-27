@@ -870,8 +870,13 @@ _deprecated_ignore_map = {
     }
 
 _obsolete_set = set(['tk.pythoninspect', 'legend.isaxes'])
+
+# The following may use a value of None to suppress the warning.
+_deprecated_set = set(['axes.hold'])  # do NOT include in _all_deprecated
+
 _all_deprecated = set(chain(_deprecated_ignore_map,
-                            _deprecated_map, _obsolete_set))
+                            _deprecated_map,
+                            _obsolete_set))
 
 
 class RcParams(dict):
@@ -887,6 +892,8 @@ class RcParams(dict):
                     six.iteritems(defaultParams)
                     if key not in _all_deprecated)
     msg_depr = "%s is deprecated and replaced with %s; please use the latter."
+    msg_depr_set = ("%s is deprecated. Please remove it from your "
+                    "matplotlibrc and/or style files.")
     msg_depr_ignore = "%s is deprecated and ignored. Use %s"
     msg_obsolete = ("%s is obsolete. Please remove it from your matplotlibrc "
                     "and/or style files.")
@@ -903,6 +910,8 @@ class RcParams(dict):
                 warnings.warn(self.msg_depr % (key, alt_key))
                 key = alt_key
                 val = alt_val(val)
+            elif key in _deprecated_set and val is not None:
+                warnings.warn(self.msg_depr_set % key)
             elif key in _deprecated_ignore_map:
                 alt = _deprecated_ignore_map[key]
                 warnings.warn(self.msg_depr_ignore % (key, alt))
