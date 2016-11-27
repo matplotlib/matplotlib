@@ -8,7 +8,6 @@
 PyObject *convert_polygon_vector(std::vector<Polygon> &polygons)
 {
     PyObject *pyresult = PyList_New(polygons.size());
-    bool fix_endpoints;
 
     for (size_t i = 0; i < polygons.size(); ++i) {
         Polygon poly = polygons[i];
@@ -202,7 +201,7 @@ static PyObject *Py_update_path_extents(PyObject *self, PyObject *args, PyObject
 
     if (minpos.dim(0) != 2) {
         PyErr_Format(PyExc_ValueError,
-                     "minpos must be of length 2, got %d",
+                     "minpos must be of length 2, got %" NPY_INTP_FMT,
                      minpos.dim(0));
         return NULL;
     }
