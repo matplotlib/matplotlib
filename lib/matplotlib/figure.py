@@ -342,6 +342,9 @@ class Figure(Artist):
         self.patch.set_aa(False)
 
         self._hold = rcParams['axes.hold']
+        if self._hold is None:
+            self._hold = True
+
         self.canvas = None
         self._suptitle = None
 
@@ -569,6 +572,7 @@ class Figure(Artist):
         """
         self.canvas = canvas
 
+    @cbook.deprecated("2.0")
     def hold(self, b=None):
         """
         Set the hold state.  If hold is None (default), toggle the
@@ -579,6 +583,8 @@ class Figure(Artist):
             hold()      # toggle hold
             hold(True)  # hold is on
             hold(False) # hold is off
+
+        All "hold" machinery is deprecated.
         """
         if b is None:
             self._hold = not self._hold
@@ -1591,7 +1597,7 @@ class Figure(Artist):
                 cax, kw = cbar.make_axes_gridspec(ax, **kw)
             else:
                 cax, kw = cbar.make_axes(ax, **kw)
-        cax.hold(True)
+        cax._hold = True
         cb = cbar.colorbar_factory(cax, mappable, **kw)
 
         self.sca(current_ax)
