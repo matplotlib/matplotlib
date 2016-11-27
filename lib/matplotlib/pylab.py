@@ -49,14 +49,12 @@ _Plotting commands
   getp      - get a graphics property
   grid     - set whether gridding is on
   hist     - make a histogram
-  hold     - set the axes hold state
   ioff     - turn interaction mode off
   ion      - turn interaction mode on
   isinteractive - return True if interaction mode is on
   imread   - load image file into array
   imsave   - save array as an image file
   imshow   - plot image data
-  ishold   - return the hold state of the current axes
   legend   - make an axes legend
   locator_params - adjust parameters used in locating axis ticks
   loglog   - a log log plot

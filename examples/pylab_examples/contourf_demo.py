@@ -27,7 +27,6 @@ Z[:nr//6, :nc//6] = np.ma.masked
 interior = np.sqrt((X**2) + (Y**2)) < 0.5
 Z[interior] = np.ma.masked
 
-
 # We are using automatic selection of contour levels;
 # this is usually not such a good idea, because they don't
 # occur on nice boundaries, but we do it here for purposes
@@ -45,8 +44,7 @@ CS = plt.contourf(X, Y, Z, 10,
 
 CS2 = plt.contour(CS, levels=CS.levels[::2],
                   colors='r',
-                  origin=origin,
-                  hold='on')
+                  origin=origin)
 
 plt.title('Nonsense (3 masked regions)')
 plt.xlabel('word length anomaly')
@@ -97,6 +95,8 @@ cmap.set_over("yellow")
 # cmap.set_bad("red")
 
 fig, axs = plt.subplots(2, 2)
+fig.subplots_adjust(hspace=0.3)
+
 for ax, extend in zip(axs.ravel(), extends):
     cs = ax.contourf(X, Y, Z, levels, cmap=cmap, extend=extend, origin=origin)
     fig.colorbar(cs, ax=ax, shrink=0.9)
