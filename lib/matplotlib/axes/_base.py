@@ -540,6 +540,9 @@ class _AxesBase(martist.Artist):
         self._rasterization_zorder = None
 
         self._hold = rcParams['axes.hold']
+        if self._hold is None:
+            self._hold = True
+
         self._connected = {}  # a dict from events to (id, func)
         self.cla()
         # funcs used to format x and y - fall back on major formatters
