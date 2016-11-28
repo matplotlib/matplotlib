@@ -5843,10 +5843,10 @@ or tuple of floats
                 colLabels=None, colColours=None, colLoc='center',
                 loc='bottom', bbox=None):
 
-        Returns a :class:`matplotlib.table.Table` instance.  For finer
-        grained control over tables, use the
-        :class:`~matplotlib.table.Table` class and add it to the axes
-        with :meth:`~matplotlib.axes.Axes.add_table`.
+        Returns a :class:`matplotlib.table.Table` instance. Either `cellText`
+        or `cellColours` must be provided. For finer grained control over
+        tables, use the :class:`~matplotlib.table.Table` class and add it to
+        the axes with :meth:`~matplotlib.axes.Axes.add_table`.
 
         Thanks to John Gill for providing the class and table.
 
