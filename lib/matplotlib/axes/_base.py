@@ -462,6 +462,13 @@ class _AxesBase(martist.Artist):
                              to share the x-axis with
           *sharey*           an class:`~matplotlib.axes.Axes` instance
                              to share the y-axis with
+          *share_tickers*    [ *True* | *False* ] whether the major and
+                             minor `Formatter` and `Locator` instances
+                             are always shared (if `True`) or can be set
+                             independently (if `False`) between this set
+                             of axes and `sharex` and `sharey`. This
+                             argument has no meaning if neither `sharex`
+                             nor `sharey` are set. Defaults to `True`.
           *title*            the title string
           *visible*          [ *True* | *False* ] whether the axes is
                              visible
@@ -476,6 +483,14 @@ class _AxesBase(martist.Artist):
           *yticklabels*      sequence of strings
           *yticks*           sequence of floats
           ================   =========================================
+
+        .. warning::
+
+            Setting `share_tickers` to `False` and changing the
+            `Locator`s of a shared axis may not play with autoscaling.
+            Autoscaling may need to access the `Locator` object of the
+            base axis. Normally, with `share_tickers=True`, the axes
+            are guaranteed to share a `Locator` instance.
         """ % {'scale': ' | '.join(
             [repr(x) for x in mscale.get_scale_names()])}
         martist.Artist.__init__(self)
@@ -493,6 +508,10 @@ class _AxesBase(martist.Artist):
         self.set_anchor('C')
         self._sharex = sharex
         self._sharey = sharey
+        # share_tickers is only used as a modifier for sharex/y. It
+        # should not remain in kwargs by the time kwargs updates the
+        # instance dictionary.
+        self._share_tickers = kwargs.pop('share_tickers', True)
         if sharex is not None:
             self._shared_x_axes.join(self, sharex)
             if sharex._adjustable == 'box':
@@ -968,50 +987,52 @@ class _AxesBase(martist.Artist):
         self.callbacks = cbook.CallbackRegistry()
 
         if self._sharex is not None:
-            # major and minor are class instances with
-            # locator and formatter attributes
-            self.xaxis.major = self._sharex.xaxis.major
-            self.xaxis.minor = self._sharex.xaxis.minor
+            # The tickers need to exist but can be empty until after the
+            # call to Axis._set_scale since they will be overwritten
+            # anyway
+            self.xaxis.major = maxis.Ticker()
+            self.xaxis.minor = maxis.Ticker()
+
+            # Copy the axis limits
             x0, x1 = self._sharex.get_xlim()
             self.set_xlim(x0, x1, emit=False, auto=None)
-
-            # Save the current formatter/locator so we don't lose it
-            majf = self._sharex.xaxis.get_major_formatter()
-            minf = self._sharex.xaxis.get_minor_formatter()
-            majl = self._sharex.xaxis.get_major_locator()
-            minl = self._sharex.xaxis.get_minor_locator()
 
             # This overwrites the current formatter/locator
             self.xaxis._set_scale(self._sharex.xaxis.get_scale())
 
-            # Reset the formatter/locator
-            self.xaxis.set_major_formatter(majf)
-            self.xaxis.set_minor_formatter(minf)
-            self.xaxis.set_major_locator(majl)
-            self.xaxis.set_minor_locator(minl)
+            # Reset the formatter/locator. Axis handle gets marked as
+            # stale in previous line, no need to repeat.
+            if self._share_tickers:
+                self.xaxis.major = self._sharex.xaxis.major
+                self.xaxis.minor = self._sharex.xaxis.minor
+            else:
+                self.xaxis.major.update_from(self._sharex.xaxis.major)
+                self.xaxis.minor.update_from(self._sharex.xaxis.minor)
         else:
             self.xaxis._set_scale('linear')
 
         if self._sharey is not None:
-            self.yaxis.major = self._sharey.yaxis.major
-            self.yaxis.minor = self._sharey.yaxis.minor
+            # The tickers need to exist but can be empty until after the
+            # call to Axis._set_scale since they will be overwritten
+            # anyway
+            self.yaxis.major = maxis.Ticker()
+            self.yaxis.minor = maxis.Ticker()
+
+            # Copy the axis limits
             y0, y1 = self._sharey.get_ylim()
             self.set_ylim(y0, y1, emit=False, auto=None)
-
-            # Save the current formatter/locator so we don't lose it
-            majf = self._sharey.yaxis.get_major_formatter()
-            minf = self._sharey.yaxis.get_minor_formatter()
-            majl = self._sharey.yaxis.get_major_locator()
-            minl = self._sharey.yaxis.get_minor_locator()
 
             # This overwrites the current formatter/locator
             self.yaxis._set_scale(self._sharey.yaxis.get_scale())
 
-            # Reset the formatter/locator
-            self.yaxis.set_major_formatter(majf)
-            self.yaxis.set_minor_formatter(minf)
-            self.yaxis.set_major_locator(majl)
-            self.yaxis.set_minor_locator(minl)
+            # Reset the formatter/locator. Axis handle gets marked as
+            # stale in previous line, no need to repeat.
+            if self._share_tickers:
+                self.yaxis.major = self._sharey.yaxis.major
+                self.yaxis.minor = self._sharey.yaxis.minor
+            else:
+                self.yaxis.major.update_from(self._sharey.yaxis.major)
+                self.yaxis.minor.update_from(self._sharey.yaxis.minor)
         else:
             self.yaxis._set_scale('linear')
 
@@ -3898,15 +3919,29 @@ class _AxesBase(martist.Artist):
         ax2 = self.figure.add_axes(self.get_position(True), *kl, **kwargs)
         return ax2
 
-    def twinx(self):
+    def twinx(self, share_tickers=True):
         """
-        Create a twin Axes sharing the xaxis
+        Create a twin Axes sharing the xaxis.
 
-        Create a new Axes instance with an invisible x-axis and an independent
-        y-axis positioned opposite to the original one (i.e. at right). The
-        x-axis autoscale setting will be inherited from the original Axes.
-        To ensure that the tick marks of both y-axes align, see
-        `~matplotlib.ticker.LinearLocator`
+        Create a new Axes instance with an invisible x-axis and an
+        independent y-axis positioned opposite to the original one (i.e.
+        at right). The x-axis autoscale setting will be inherited from
+        the original Axes. To ensure that the tick marks of both y-axes
+        align, see :class:`matplotlib.ticker.LinearLocator`.
+
+        `share_tickers` determines if the shared axis will always have
+        the same major and minor `Formatter` and `Locator` objects as
+        this one. This is usually desirable since the axes overlap.
+        However, if one of the axes is shifted so that they are both
+        visible, it may be useful to set this parameter to ``False``.
+
+        .. warning::
+
+            Setting `share_tickers` to `False` and modifying the
+            `Locator` of either axis may cause problems with
+            autoscaling. Autoscaling may require access to the
+            `Locator`, so the behavior will be undefined if the base and
+            twinned axis do not share a `Locator` instance.
 
         Returns
         -------
@@ -3918,7 +3953,7 @@ class _AxesBase(martist.Artist):
         For those who are 'picking' artists while using twinx, pick
         events are only called for the artists in the top-most axes.
         """
-        ax2 = self._make_twin_axes(sharex=self)
+        ax2 = self._make_twin_axes(sharex=self, share_tickers=share_tickers)
         ax2.yaxis.tick_right()
         ax2.yaxis.set_label_position('right')
         ax2.yaxis.set_offset_position('right')
@@ -3928,15 +3963,29 @@ class _AxesBase(martist.Artist):
         ax2.patch.set_visible(False)
         return ax2
 
-    def twiny(self):
+    def twiny(self, share_tickers=True):
         """
-        Create a twin Axes sharing the yaxis
+        Create a twin Axes sharing the yaxis.
 
-        Create a new Axes instance with an invisible y-axis and an independent
-        x-axis positioned opposite to the original one (i.e. at top). The
-        y-axis autoscale setting will be inherited from the original Axes.
-        To ensure that the tick marks of both x-axes align, see
-        `~matplotlib.ticker.LinearLocator`
+        Create a new Axes instance with an invisible y-axis and an
+        independent x-axis positioned opposite to the original one (i.e.
+        at top). The y-axis autoscale setting will be inherited from the
+        original Axes. To ensure that the tick marks of both x-axes
+        align, see :class:`matplotlib.ticker.LinearLocator`
+
+        `share_tickers` determines if the shared axis will always have
+        the same major and minor `Formatter` and `Locator` objects as
+        this one. This is usually desirable since the axes overlap.
+        However, if one of the axes is shifted so that they are both
+        visible, it may be useful to set this parameter to ``False``.
+
+        .. warning::
+
+            Setting `share_tickers` to `False` and modifying the
+            `Locator` of either axis may cause problems with
+            autoscaling. Autoscaling may require access to the
+            `Locator`, so the behavior will be undefined if the base and
+            twinned axis do not share a `Locator` instance.
 
         Returns
         -------
@@ -3948,7 +3997,7 @@ class _AxesBase(martist.Artist):
         For those who are 'picking' artists while using twiny, pick
         events are only called for the artists in the top-most axes.
         """
-        ax2 = self._make_twin_axes(sharey=self)
+        ax2 = self._make_twin_axes(sharey=self, share_tickers=share_tickers)
         ax2.xaxis.tick_top()
         ax2.xaxis.set_label_position('top')
         ax2.set_autoscaley_on(self.get_autoscaley_on())
