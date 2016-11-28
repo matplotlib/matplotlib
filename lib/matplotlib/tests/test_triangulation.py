@@ -773,7 +773,7 @@ def test_tri_smooth_contouring():
 
 @image_comparison(baseline_images=['tri_smooth_gradient'],
                   extensions=['png'], remove_text=True,
-                  tol=0.015 if on_win else 0)
+                  tol=0.03 if on_win else 0)
 def test_tri_smooth_gradient():
     # Image comparison based on example trigradient_demo.
 
