@@ -59,6 +59,19 @@ def test_no_warnings():
     assert len(w) == 0
 
 
+@cleanup
+def test_zero_headlength():
+    # Based on report by Doug McNeil:
+    # http://matplotlib.1069221.n5.nabble.com/quiver-warnings-td28107.html
+    fig, ax = plt.subplots()
+    X,Y = np.meshgrid(np.arange(10),np.arange(10))
+    U, V = np.cos(X), np.sin(Y)
+    with warnings.catch_warnings(record=True) as w:
+        ax.quiver(U, V, headlength=0, headaxislength=0)
+        fig.canvas.draw()
+    assert len(w) == 0
+
+
 @image_comparison(baseline_images=['quiver_animated_test_image'],
                   extensions=['png'])
 def test_quiver_animate():

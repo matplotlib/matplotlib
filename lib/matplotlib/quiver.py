@@ -702,7 +702,7 @@ class Quiver(mcollections.PolyCollection):
         X0 = x0.take(ii)
         Y0 = y0.take(ii)
         Y0[3:-1] *= -1
-        shrink = length / minsh
+        shrink = length / minsh if minsh > 0. else 0.
         X0 = shrink * X0[np.newaxis, :]
         Y0 = shrink * Y0[np.newaxis, :]
         short = np.repeat(length < minsh, 8, axis=1)
