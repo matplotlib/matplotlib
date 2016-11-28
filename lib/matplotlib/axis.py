@@ -647,6 +647,14 @@ class Ticker(object):
     locator = None
     formatter = None
 
+    def update_from(self, ticker):
+        """
+        Copies the formatter and locator of another ticker into this
+        one.
+        """
+        self.locator = ticker.locator
+        self.formatter = ticker.formatter
+
 
 class _LazyTickList(object):
     """
