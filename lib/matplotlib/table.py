@@ -553,6 +553,10 @@ def table(ax,
     Thanks to John Gill for providing the class and table.
     """
 
+    if cellColours is None and cellText is None:
+        raise ValueError('At least one argument from "cellColours" or '
+                         '"cellText" must be provided to create a table.')
+
     # Check we have some cellText
     if cellText is None:
         # assume just colours are needed
