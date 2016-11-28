@@ -25,12 +25,14 @@ marker                         description
 `"*"`                          star
 `"h"`                          hexagon1
 `"H"`                          hexagon2
-`"+"`                          plus (filled)
-`"x"`                          x (filled)
+`"+"`                          plus
+`"x"`                          x
 `"D"`                          diamond
 `"d"`                          thin_diamond
 `"|"`                          vline
 `"_"`                          hline
+`"P"`                          plus (filled)
+`"X"`                          x (filled)
 TICKLEFT                       tickleft
 TICKRIGHT                      tickright
 TICKUP                         tickup
@@ -42,15 +44,11 @@ CARETDOWN                      caretdown (centered at tip)
 CARETLEFTBASE                  caretleft (centered at base)
 CARETRIGHTBASE                 caretright (centered at base)
 CARETUPBASE                    caretup (centered at base)
-`" "`, or `""`                 nothing
+`"None"`, `" "` or `""`        nothing
 ``'$...$'``                    render the string using mathtext.
 `verts`                        a list of (x, y) pairs used for Path vertices.
                                The center of the marker is located at (0,0) and
-                               the size is normalized. For backward
-                               compatibility, the form (`verts`, 0) is also
-                               accepted, but it  is equivalent to just `verts`
-                               for giving a raw set of vertices that define the
-                               shape.
+                               the size is normalized.
 path                           a `~matplotlib.path.Path` instance.
 (`numsides`, `style`, `angle`) The marker can also be a tuple (`numsides`,
                                `style`, `angle`), which will create a custom,
@@ -75,7 +73,11 @@ path                           a `~matplotlib.path.Path` instance.
                                    the angle of rotation of the symbol
 ============================== ===============================================
 
-`None` is the default which often means 'nothing', however this table is
+For backward compatibility, the form (`verts`, 0) is also accepted,
+but it is equivalent to just `verts` for giving a raw set of vertices
+that define the shape.
+
+`None` is the default which means 'nothing', however this table is
 referred to from other docs for the valid inputs from marker inputs and in
 those cases `None` still means 'default'.
 """
