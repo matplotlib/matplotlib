@@ -4,6 +4,7 @@ import numpy as np
 import matplotlib.cbook as cbook
 from matplotlib.ticker import MultipleLocator
 
+
 def get_two_stock_data():
     """
     load stock time and price data for two stocks The return values
@@ -24,7 +25,6 @@ def get_two_stock_data():
     d1, p1 = M1[:, 0], M1[:, 1]
     d2, p2 = M2[:, 0], M2[:, 1]
     return (d1, p1, d2, p2)
-
 
 d1, p1, d2, p2 = get_two_stock_data()
 
