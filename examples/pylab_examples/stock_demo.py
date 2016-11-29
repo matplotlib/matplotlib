@@ -3,8 +3,8 @@
 Stock Demo Plots
 ================
 
-The following example displays Matplotlibs capabilities of creating
-graphs that can be used for stocks. The example specfically uses
+The following example displays Matplotlib's capabilities of creating
+graphs that can be used for stocks. The example specifically uses
 Apple and Intel stock data and graphs the normalized prices on the
 same plot.
 """
