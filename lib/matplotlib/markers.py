@@ -22,17 +22,17 @@ marker                         description
 `"8"`                          octagon
 `"s"`                          square
 `"p"`                          pentagon
+`"P"`                          plus (filled)
 `"*"`                          star
 `"h"`                          hexagon1
 `"H"`                          hexagon2
 `"+"`                          plus
 `"x"`                          x
+`"X"`                          x (filled)
 `"D"`                          diamond
 `"d"`                          thin_diamond
 `"|"`                          vline
 `"_"`                          hline
-`"P"`                          plus (filled)
-`"X"`                          x (filled)
 TICKLEFT                       tickleft
 TICKRIGHT                      tickright
 TICKUP                         tickup
