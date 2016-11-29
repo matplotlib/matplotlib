@@ -26,7 +26,7 @@ if os.name == 'posix' and sys.version_info[0] < 3:
 else:
     import subprocess
 
-__all__ = ['Popen', 'PIPE', 'STDOUT', 'check_output', 'CalledProcessError']
+__all__ = ['Popen', 'PIPE', 'STDOUT', 'check_output', 'CalledProcessError', 'TimeoutExpired']
 
 
 if hasattr(subprocess, 'Popen'):
@@ -36,6 +36,7 @@ if hasattr(subprocess, 'Popen'):
     STDOUT = subprocess.STDOUT
     CalledProcessError = subprocess.CalledProcessError
     check_output = subprocess.check_output
+    TimeoutExpired = subprocess.TimeoutExpired
 else:
     # In restricted environments (such as Google App Engine), these are
     # non-existent. Replace them with dummy versions that always raise OSError.
@@ -49,3 +50,4 @@ else:
     # There is no need to catch CalledProcessError. These stubs cannot raise
     # it. None in an except clause will simply not match any exceptions.
     CalledProcessError = None
+    TimeoutExpired = None
