@@ -1,5 +1,7 @@
 from __future__ import print_function, absolute_import
 
+from importlib import import_module
+
 from distutils import sysconfig
 from distutils import version
 from distutils.core import Extension
@@ -1655,7 +1657,7 @@ class BackendTkAgg(OptionalBackendPackage):
         """
         pkg_name = 'tkinter' if PY3min else 'Tkinter'
         try:
-            __import__(pkg_name)
+            import_module(pkg_name)
         except ImportError:
             return False
         return True
