@@ -194,8 +194,8 @@ if __name__ == '__main__':
             else:
                 good_packages.append(package)
                 if (isinstance(package, setupext.OptionalBackendPackage)
-                    and package.runtime_check()
-                    and default_backend is None):
+                        and package.runtime_check()
+                        and default_backend is None):
                     default_backend = package.name
     print_raw('')
 
