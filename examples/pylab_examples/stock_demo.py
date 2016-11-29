@@ -4,6 +4,15 @@ import numpy as np
 import matplotlib.cbook as cbook
 from matplotlib.ticker import MultipleLocator
 
+"""
+Stock Demo Plots
+
+The following example displays Matplotlibs capabilities of creating
+graphs that can be used for stocks. The example specfically uses
+Apple and Intel stock data and graphs the normalized prices on the
+same plot. 
+
+"""
 
 def get_two_stock_data():
     """
