@@ -372,12 +372,13 @@ def _parse_args(*args):
     X, Y, U, V, C = [None] * 5
     args = list(args)
 
-    # The use of atleast_1d allows for handling scalar arguments while also
-    # keeping masked arrays
-    if len(args) == 3 or len(args) == 5:
+    if len(args) == 2 or len(args) == 4:
+        V = np.atleast_1d(args.pop(-1))
+        U = np.atleast_1d(args.pop(-1))
+    elif len(args) == 3 or len(args) == 5:
         C = np.atleast_1d(args.pop(-1))
-    V = np.atleast_1d(args.pop(-1))
-    U = np.atleast_1d(args.pop(-1))
+        V = np.atleast_1d(args.pop(-1))
+        U = np.atleast_1d(args.pop(-1))
     if U.ndim == 1:
         nr, nc = 1, U.shape[0]
     else:
@@ -389,8 +390,6 @@ def _parse_args(*args):
     else:
         indexgrid = np.meshgrid(np.arange(nc), np.arange(nr))
         X, Y = [np.ravel(a) for a in indexgrid]
-    cbook._check_array(X)
-    cbook._check_array(Y)
     cbook._check_array(U)
     cbook._check_array(V)
     cbook._check_array(C)
