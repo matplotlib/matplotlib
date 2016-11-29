@@ -1,6 +1,7 @@
 import matplotlib.pyplot as plt
 import numpy as np
 
+import matplotlib.cbook as cbook
 from matplotlib.ticker import MultipleLocator
 
 def get_two_stock_data():
@@ -32,7 +33,7 @@ lines1 = plt.plot(d1, p1, 'b', label="INTC")
 lines2 = plt.plot(d2, p2, 'r', label="AAPL")
 plt.xlabel('Days')
 plt.ylabel('Normalized price')
-plt.xlim(0, 3 )
+plt.xlim(0, 3)
 ax.xaxis.set_major_locator(MultipleLocator(1))
 
 plt.title('INTC vs AAPL')
