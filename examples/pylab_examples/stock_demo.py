@@ -1,4 +1,3 @@
-import matplotlib.pyplot as plt
 """
 ================
 Stock Demo Plots
@@ -10,9 +9,9 @@ Apple and Intel stock data and graphs the normalized prices on the
 same plot.
 """
 
-
 import numpy as np
 
+import matplotlib.pyplot as plt
 import matplotlib.cbook as cbook
 from matplotlib.ticker import MultipleLocator
 
