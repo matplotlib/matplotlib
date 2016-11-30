@@ -146,14 +146,12 @@ On linux, `fc-list <http://linux.die.net/man/1/fc-list>`__ can be a
 useful tool to discover the font name; for example ::
 
    $ fc-list :lang=zh family
-   Source Han Sans TW,思源黑體 TW,思源黑體 TW ExtraLight,Source Han Sans TW ExtraLight
-   Source Han Sans TW,思源黑體 TW,思源黑體 TW Regular,Source Han Sans TW Regular
-   Droid Sans Fallback
-   Source Han Sans TW,思源黑體 TW,思源黑體 TW Bold,Source Han Sans TW Bold
-   Source Han Sans TW,思源黑體 TW,思源黑體 TW Medium,Source Han Sans TW Medium
-   Source Han Sans TW,思源黑體 TW,思源黑體 TW Normal,Source Han Sans TW Normal
-   Fixed
-   Source Han Sans TW,思源黑體 TW,思源黑體 TW Heavy,Source Han Sans TW Heavy
-   Source Han Sans TW,思源黑體 TW,思源黑體 TW Light,Source Han Sans TW Light
+   Noto to Sans Mono CJK TC,Noto Sans Mono CJK TC Bold
+   Noto Sans CJK TC,Noto Sans CJK TC Medium
+   Noto Sans CJK TC,Noto Sans CJK TC DemiLight
+   Noto Sans CJK KR,Noto Sans CJK KR Black
+   Noto Sans CJK TC,Noto Sans CJK TC Black
+   Noto Sans Mono CJK TC,Noto Sans Mono CJK TC Regular
+   Noto Sans CJK SC,Noto Sans CJK SC Light
 
 lists all of the fonts that support Chinese.
