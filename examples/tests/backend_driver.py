@@ -237,7 +237,6 @@ files['pylab'] = [
     'stem_plot.py',
     'step_demo.py',
     'stix_fonts_demo.py',
-    'stock_demo.py',
     'subplots_adjust.py',
     'symlog_demo.py',
     'table_demo.py',
