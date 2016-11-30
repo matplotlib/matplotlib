@@ -278,12 +278,19 @@ def get_fontconfig_fonts(fontext='ttf'):
                                 stderr=subprocess.PIPE)
         # We emit a warning if the process has not completed after 5 seconds.
         # We avoid showing it before since if this takes < 5 seconds, the user
-        # probably won't notice.
-        try:
-            output = pipe.communicate(timeout=5)[0]
-        except subprocess.TimeoutExpired:
-            warnings.warn('Matplotlib is building the font cache using fc-list. This may take a moment.')
+        # probably won't notice. However, this only works on Python 3 because
+        # the timeout keyword argument for communicate is not implemented in 2.
+        if six.PY2:
+            warnings.warn('Matplotlib is building the font cache using fc-list. '
+                          'This may take a moment.')
             output = pipe.communicate()[0]
+        else:
+            try:
+                output = pipe.communicate(timeout=5)[0]
+            except subprocess.TimeoutExpired:
+                warnings.warn('Matplotlib is building the font cache using '
+                              'fc-list. This may take a moment.')
+                output = pipe.communicate()[0]
     except (OSError, IOError):
         # Calling fc-list did not work, so we'll just return nothing
         return fontfiles
