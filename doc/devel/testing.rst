@@ -266,7 +266,8 @@ example <https://travis-ci.org/msabramo/matplotlib>`_.
 Using tox
 ---------
 
-`Tox <http://tox.testrun.org/>`_ is a tool for running tests against
+`Tox <https://tox.readthedocs.io/en/latest/>`_ is a tool for running
+tests against
 multiple Python environments, including multiple versions of Python
 (e.g., 2.7, 3.4, 3.5) and even different Python implementations
 altogether (e.g., CPython, PyPy, Jython, etc.)

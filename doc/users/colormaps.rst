@@ -186,6 +186,6 @@ References
 .. [mycarta-lablinear] http://mycarta.wordpress.com/2012/12/06/the-rainbow-is-deadlong-live-the-rainbow-part-5-cie-lab-linear-l-rainbow/
 .. [mycarta-cubelaw] http://mycarta.wordpress.com/2013/02/21/perceptual-rainbow-palette-the-method/
 .. [bw] http://www.tannerhelland.com/3643/grayscale-image-algorithm-vb6/
-.. [colorblindness] http://aspnetresources.com/tools/colorBlindness
+.. [colorblindness] http://www.color-blindness.com/
 .. [asp] http://aspnetresources.com/tools/colorBlindness
 .. [IBM] http://www.research.ibm.com/people/l/lloydt/color/color.HTM
