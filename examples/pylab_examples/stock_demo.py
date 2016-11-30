@@ -39,8 +39,8 @@ def get_two_stock_data():
 d1, p1, d2, p2 = get_two_stock_data()
 
 fig, ax = plt.subplots()
-lines1 = ax.plot(d1, p1, 'b', label="INTC")
-lines2 = ax.plot(d2, p2, 'r', label="AAPL")
+lines1 = ax.plot(d1, p1, label="INTC")
+lines2 = ax.plot(d2, p2, label="AAPL")
 ax.set_xlabel('Days')
 ax.set_ylabel('Normalized price')
 ax.set_xlim(0, 3)
