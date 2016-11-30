@@ -13,7 +13,7 @@
 # set this to True.  It will download and build a specific version of
 # FreeType, and then use that to build the ft2font extension.  This
 # ensures that test images are exactly reproducible.
-#local_freetype = False
+local_freetype = True
 
 [status]
 # To suppress display of the dependencies and their versions
@@ -25,7 +25,7 @@
 # optional.  They are all installed by default, but they may be turned
 # off here.
 #
-#tests = True
+tests = True
 #sample_data = True
 #toolkits = True
 # Tests for the toolkits are only automatically installed
