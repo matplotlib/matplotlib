@@ -69,7 +69,7 @@ figures since the last call.  Eric has done a lot of testing on the
 user interface toolkits and versions and platforms he has access to,
 but it is not possible to test them all, so please report problems to
 the `mailing list
-<http://mail.python.org/mailman/listinfo/matplotlib-users>`__
+<https://mail.python.org/mailman/listinfo/matplotlib-users>`__
 and `bug tracker
 <http://github.com/matplotlib/matplotlib/issues>`__.
 
