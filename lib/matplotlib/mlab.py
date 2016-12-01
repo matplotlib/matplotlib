@@ -723,11 +723,11 @@ def _spectral_helper(x, y=None, NFFT=None, Fs=None, detrend_func=None,
         resultY = apply_window(resultY, window, axis=0)
         resultY = detrend(resultY, detrend_func, axis=0)
         resultY = np.fft.fft(resultY, n=pad_to, axis=0)[:numFreqs, :]
-        result = np.conjugate(result) * resultY
+        result = np.conj(result) * resultY
     elif mode == 'psd':
-        result = np.conjugate(result) * result
+        result = np.conj(result) * result
     elif mode == 'magnitude':
-        result = np.absolute(result)
+        result = np.abs(result)
     elif mode == 'angle' or mode == 'phase':
         # we unwrap the phase later to handle the onesided vs. twosided case
         result = np.angle(result)
@@ -1470,7 +1470,7 @@ def cohere_pairs(X, ij, NFFT=256, Fs=2, detrend=detrend_none,
 
         FFTSlices[iCol] = Slices
         if preferSpeedOverMemory:
-            FFTConjSlices[iCol] = np.conjugate(Slices)
+            FFTConjSlices[iCol] = np.conj(Slices)
         Pxx[iCol] = np.divide(np.mean(abs(Slices)**2, axis=0), normVal)
     del Slices, ind, windowVals
 
@@ -1488,7 +1488,7 @@ def cohere_pairs(X, ij, NFFT=256, Fs=2, detrend=detrend_none,
         if preferSpeedOverMemory:
             Pxy = FFTSlices[i] * FFTConjSlices[j]
         else:
-            Pxy = FFTSlices[i] * np.conjugate(FFTSlices[j])
+            Pxy = FFTSlices[i] * np.conj(FFTSlices[j])
         if numSlices > 1:
             Pxy = np.mean(Pxy, axis=0)
 #       Pxy = np.divide(Pxy, normVal)
@@ -2080,7 +2080,7 @@ def rms_flat(a):
     """
     Return the root mean square of all the elements of *a*, flattened out.
     """
-    return np.sqrt(np.mean(np.absolute(a)**2))
+    return np.sqrt(np.mean(np.abs(a) ** 2))
 
 
 def l1norm(a):
@@ -2089,7 +2089,7 @@ def l1norm(a):
 
     Implemented as a separate function (not a call to :func:`norm` for speed).
     """
-    return np.sum(np.absolute(a))
+    return np.sum(np.abs(a))
 
 
 def l2norm(a):
@@ -2098,7 +2098,7 @@ def l2norm(a):
 
     Implemented as a separate function (not a call to :func:`norm` for speed).
     """
-    return np.sqrt(np.sum(np.absolute(a)**2))
+    return np.sqrt(np.sum(np.abs(a) ** 2))
 
 
 def norm_flat(a, p=2):
@@ -2113,9 +2113,9 @@ def norm_flat(a, p=2):
     # This function was being masked by a more general norm later in
     # the file.  We may want to simply delete it.
     if p == 'Infinity':
-        return np.amax(np.absolute(a))
+        return np.max(np.abs(a))
     else:
-        return (np.sum(np.absolute(a)**p))**(1.0/p)
+        return np.sum(np.abs(a) ** p) ** (1 / p)
 
 
 def frange(xini, xfin=None, delta=None, **kw):

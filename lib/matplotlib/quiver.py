@@ -607,7 +607,7 @@ class Quiver(mcollections.PolyCollection):
         xyp = self.ax.transData.transform(self.XY + eps * uv)
         dxy = xyp - xy
         angles = np.arctan2(dxy[:, 1], dxy[:, 0])
-        lengths = np.absolute(dxy[:, 0] + dxy[:, 1] * 1j) / eps
+        lengths = np.hypot(*dxy.T) / eps
         return angles, lengths
 
     def _make_verts(self, U, V):
@@ -627,7 +627,7 @@ class Quiver(mcollections.PolyCollection):
         if self.scale_units == 'xy':
             a = lengths
         else:
-            a = np.absolute(uv)
+            a = np.abs(uv)
         if self.scale is None:
             sn = max(10, math.sqrt(self.N))
             if self.Umask is not ma.nomask:

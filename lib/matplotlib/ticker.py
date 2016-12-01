@@ -732,7 +732,7 @@ class ScalarFormatter(Formatter):
         if not self._scientific:
             self.orderOfMagnitude = 0
             return
-        locs = np.absolute(self.locs)
+        locs = np.abs(self.locs)
         if self.offset:
             oom = math.floor(math.log10(range))
         else:
@@ -788,7 +788,7 @@ class ScalarFormatter(Formatter):
 
     def pprint_val(self, x):
         xp = (x - self.offset) / (10. ** self.orderOfMagnitude)
-        if np.absolute(xp) < 1e-8:
+        if np.abs(xp) < 1e-8:
             xp = 0
         if self._useLocale:
             return locale.format_string(self.format, (xp,))
@@ -1535,7 +1535,7 @@ class FixedLocator(Locator):
         ticks = self.locs[::step]
         for i in range(1, step):
             ticks1 = self.locs[i::step]
-            if np.absolute(ticks1).min() < np.absolute(ticks).min():
+            if np.abs(ticks1).min() < np.abs(ticks).min():
                 ticks = ticks1
         return self.raise_if_exceeds(ticks)
 

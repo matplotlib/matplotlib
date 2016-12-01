@@ -7,8 +7,7 @@ It also illustrates colorbar tick labelling with a multiplier.
 from matplotlib.pyplot import figure, show, axes, sci
 from matplotlib import cm, colors
 from matplotlib.font_manager import FontProperties
-from numpy import amin, amax, ravel
-from numpy.random import rand
+import numpy as np
 
 Nr = 3
 Nc = 2
@@ -37,12 +36,12 @@ for i in range(Nr):
             a.set_xticklabels([])
         # Make some fake data with a range that varies
         # somewhat from one plot to the next.
-        data = ((1 + i + j)/10.0)*rand(10, 20)*1e-6
-        dd = ravel(data)
+        data = ((1 + i + j) / 10) * np.random.rand(10, 20) * 1e-6
+        dd = data.ravel()
         # Manually find the min and max of all colors for
         # use in setting the color scale.
-        vmin = min(vmin, amin(dd))
-        vmax = max(vmax, amax(dd))
+        vmin = min(vmin, np.min(dd))
+        vmax = max(vmax, np.max(dd))
         images.append(a.imshow(data, cmap=cmap))
 
         ax.append(a)

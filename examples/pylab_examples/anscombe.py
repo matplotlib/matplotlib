@@ -22,7 +22,7 @@ def fit(x):
     return 3 + 0.5*x
 
 
-xfit = np.array([np.amin(x), np.amax(x)])
+xfit = np.array([np.min(x), np.max(x)])
 
 plt.subplot(221)
 plt.plot(x, y1, 'ks', xfit, fit(xfit), 'r-', lw=2)
@@ -43,8 +43,7 @@ plt.text(3, 12, 'III', fontsize=20)
 plt.setp(plt.gca(), yticks=(4, 8, 12), xticks=(0, 10, 20))
 
 plt.subplot(224)
-
-xfit = np.array([np.amin(x4), np.amax(x4)])
+xfit = np.array([np.min(x4), np.max(x4)])
 plt.plot(x4, y4, 'ks', xfit, fit(xfit), 'r-', lw=2)
 plt.axis([2, 20, 2, 14])
 plt.setp(plt.gca(), yticklabels=[], yticks=(4, 8, 12), xticks=(0, 10, 20))
