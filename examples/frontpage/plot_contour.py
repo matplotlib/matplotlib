@@ -1,3 +1,11 @@
+"""
+=========================
+Frontpage contour example
+=========================
+
+This example reproduces the frontpage contour example.
+"""
+
 import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib import mlab, cm
@@ -18,7 +26,7 @@ Z = (Z1 - Z2) * 10
 levels = np.linspace(-2.0, 1.601, 40)
 norm = cm.colors.Normalize(vmax=abs(Z).max(), vmin=-abs(Z).max())
 
-fig, ax = plt.subplots()
+fig, ax = plt.subplots(figsize=(2.25, 2))
 cset1 = ax.contourf(
     X, Y, Z, levels,
     norm=norm)
