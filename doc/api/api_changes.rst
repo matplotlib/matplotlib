@@ -139,7 +139,7 @@ to the axis length relative to the ticklabel font size.
 New defaults for 3D quiver function in mpl_toolkits.mplot3d.axes3d.py
 ---------------------------------------------------------------------
 
-Matplotlib has both a 2D and a 3D ``quiver`` function. These changes
+matplotlib has both a 2D and a 3D ``quiver`` function. These changes
 affect only the 3D function and make the default behavior of the 3D
 function match the 2D version. There are two changes:
 
@@ -2094,7 +2094,7 @@ Changes for 0.86
 
 ::
 
-     Matplotlib data is installed into the matplotlib module.
+     matplotlib data is installed into the matplotlib module.
      This is similar to package_data.  This should get rid of
      having to check for many possibilities in _get_data_path().
      The MATPLOTLIBDATA env key is still checked first to allow

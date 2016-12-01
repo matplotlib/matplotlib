@@ -1,7 +1,7 @@
 .. _axes_grid1-api-index:
 
 #######################################
-  The Matplotlib axes_grid1 Toolkit API
+  The matplotlib axes_grid1 Toolkit API
 #######################################
 
 :Release: |version|

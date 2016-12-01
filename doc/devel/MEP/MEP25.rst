@@ -31,7 +31,7 @@ interpretations.
 Detailed description
 --------------------
 
-Matplotlib is a core plotting engine with an API that many users
+matplotlib is a core plotting engine with an API that many users
 already understand. It's difficult/impossible for other graphing
 libraries to (1) get a complete figure description, (2) output raw
 data from the figure object as the user has provided it, (3)

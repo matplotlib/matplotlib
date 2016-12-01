@@ -1,7 +1,7 @@
 .. _axisartist-api-index:
 
 #######################################
-  The Matplotlib axisartist Toolkit API
+  The matplotlib axisartist Toolkit API
 #######################################
 
 :Release: |version|

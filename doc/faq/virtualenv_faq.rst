@@ -1,7 +1,7 @@
 .. _virtualenv-faq:
 
 ***********************************************
-Working with Matplotlib in Virtual environments
+Working with matplotlib in Virtual environments
 ***********************************************
 
 .. contents::
@@ -18,20 +18,20 @@ When running :mod:`matplotlib` in a
 a few issues. :mod:`matplotlib` itself has no issue with virtual environments.
 However, the GUI frameworks that :mod:`matplotlib` uses for interactive
 figures have some issues with virtual environments. Everything below assumes
-some familiarity with the Matplotlib backends as found in :ref:`What is a
+some familiarity with the matplotlib backends as found in :ref:`What is a
 backend? <what-is-a-backend>`.
 
 If you only use the ``IPython/Jupyter Notebook``'s ``inline`` and ``notebook``
 backends and non interactive backends you should not have any issues and can
 ignore everything below.
 
-If you are using Matplotlib on OSX you may also want to consider the
+If you are using matplotlib on OSX you may also want to consider the
 :ref:`OSX framework FAQ <osxframework-faq>`.
 
 GUI Frameworks
 ==============
 
-Interactive Matplotlib relies heavily on the interaction with external GUI
+Interactive matplotlib relies heavily on the interaction with external GUI
 frameworks.
 
 Most GUI frameworks are not pip installable. This makes it tricky to install

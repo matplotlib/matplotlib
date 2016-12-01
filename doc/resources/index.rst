@@ -17,15 +17,15 @@
   <https://www.packtpub.com/application-development/interactive-applications-using-matplotlib>`_
   by Benjamin Root
 
-* `Matplotlib for Python Developers
+* `matplotlib for Python Developers
   <http://www.packtpub.com/matplotlib-python-development/book?mid/171109cna1h>`_
   by Sandro Tosi
 
-* `Matplotlib chapter <http://www.aosabook.org/en/matplotlib.html>`_
+* `matplotlib chapter <http://www.aosabook.org/en/matplotlib.html>`_
   by John Hunter and Michael Droettboom in The Architecture of Open Source
   Applications
 
-* `Graphics with Matplotlib
+* `Graphics with matplotlib
   <http://physics.nmt.edu/~raymond/software/python_notes/paper004.html>`_
   by David J. Raymond
 
@@ -37,17 +37,17 @@
  Videos
 =======
 
-* `Getting started with Matplotlib
+* `Getting started with matplotlib
   <http://showmedo.com/videotutorials/video?name=7200090&fromSeriesID=720>`_
   by `unpingco <http://showmedo.com/videotutorials/?author=6237>`_
 
 * `Plotting with matplotlib <http://www.youtube.com/watch?v=P7SVi0YTIuE>`_
   by Mike Müller
 
-* `Introduction to NumPy and Matplotlib
+* `Introduction to NumPy and matplotlib
   <http://www.youtube.com/watch?v=3Fp1zn5ao2M&feature=plcp>`_ by Eric Jones
 
-* `Anatomy of Matplotlib
+* `Anatomy of matplotlib
   <https://conference.scipy.org/scipy2013/tutorial_detail.php?id=103>`_
   by Benjamin Root
   
@@ -59,9 +59,9 @@
  Tutorials
 ==========
 
-* `Matplotlib tutorial <http://www.labri.fr/perso/nrougier/teaching/matplotlib/>`_
+* `matplotlib tutorial <http://www.labri.fr/perso/nrougier/teaching/matplotlib/>`_
   by Nicolas P. Rougier
 
-* `Anatomy of Matplotlib - IPython Notebooks
-  <https://github.com/WeatherGod/AnatomyOfMatplotlib>`_
+* `Anatomy of matplotlib - IPython Notebooks
+  <https://github.com/WeatherGod/AnatomyOfmatplotlib>`_
   by Benjamin Root

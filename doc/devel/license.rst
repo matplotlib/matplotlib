@@ -3,7 +3,7 @@
 Licenses
 ========
 
-Matplotlib only uses BSD compatible code.  If you bring in code from
+matplotlib only uses BSD compatible code.  If you bring in code from
 another project make sure it has a PSF, BSD, MIT or compatible license
 (see the Open Source Initiative `licenses page
 <http://www.opensource.org/licenses>`_ for details on individual

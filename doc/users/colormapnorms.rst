@@ -12,7 +12,7 @@ will map the data in *Z* linearly from -1 to +1, so *Z=0* will
 give a color at the center of the colormap *RdBu_r* (white in this
 case).
 
-Matplotlib does this mapping in two steps, with a normalization from
+matplotlib does this mapping in two steps, with a normalization from
 [0,1] occurring first, and then mapping onto the indices in the
 colormap.  Normalizations are classes defined in the
 :func:`matplotlib.colors` module.  The default, linear normalization is

@@ -1,7 +1,7 @@
 .. _MEP-index:
 
 ################################
-Matplotlib Enhancement Proposals
+matplotlib Enhancement Proposals
 ################################
 
 .. htmlonly::

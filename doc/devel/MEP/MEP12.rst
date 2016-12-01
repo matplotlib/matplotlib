@@ -176,7 +176,7 @@ Additional suggestions
 Backward compatibility
 ======================
 
-The website for each Matplotlib version is readily accessible, so
+The website for each matplotlib version is readily accessible, so
 users who want to refer to old examples can still do so.
 
 
@@ -196,6 +196,6 @@ navigate the gallery. Thus, tags are complementary to this reorganization.
 
 .. [1] http://github.com/matplotlib/matplotlib/pull/714
 .. [2] http://github.com/matplotlib/matplotlib/issues/524
-.. [3] http://matplotlib.1069221.n5.nabble.com/Matplotlib-gallery-td762.html#a33379091
+.. [3] http://matplotlib.1069221.n5.nabble.com/matplotlib-gallery-td762.html#a33379091
 .. [4] http://www.loria.fr/~rougier/teaching/matplotlib/
 .. [5] http://www.loria.fr/~rougier/coding/gallery/

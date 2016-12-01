@@ -720,17 +720,17 @@ Issues (605):
 * :ghissue:`6970`: quiver problems when angles is an array of values rather than 'uv' or 'xy'
 * :ghissue:`6966`: No Windows wheel available on PyPI for new version of matplotlib (1.5.2)
 * :ghissue:`6721`: Font cache building of matplotlib blocks requests made to HTTPd
-* :ghissue:`6844`: scatter edgecolor is broken in Matplotlib 2.0.0b3
+* :ghissue:`6844`: scatter edgecolor is broken in matplotlib 2.0.0b3
 * :ghissue:`6849`: BUG: endless loop with MaxNLocator integer kwarg and short axis
 * :ghissue:`6935`: matplotlib.dates.DayLocator cannot handle invalid input
-* :ghissue:`6951`: Ring over A in \AA is too high in Matplotlib 1.5.1
+* :ghissue:`6951`: Ring over A in \AA is too high in matplotlib 1.5.1
 * :ghissue:`6960`: axvline is sometimes not shown
-* :ghissue:`6473`: Matplotlib manylinux wheel - ready to ship?
+* :ghissue:`6473`: matplotlib manylinux wheel - ready to ship?
 * :ghissue:`5013`: Add Hershey Fonts a la IDL
 * :ghissue:`6953`: ax.vlines adds unwanted padding, changes ticks
 * :ghissue:`6946`: No Coveralls reports on GitHub
 * :ghissue:`6933`: Misleading error message for matplotlib.pyplot.errorbar()
-* :ghissue:`6945`: Matplotlib 2.0.0b3 wheel can't load libpng in OS X 10.6
+* :ghissue:`6945`: matplotlib 2.0.0b3 wheel can't load libpng in OS X 10.6
 * :ghissue:`3865`: Improvement suggestions for matplotlib.Animation.save('video.mp4')
 * :ghissue:`6932`: Investigate issue with pyparsing 2.1.6
 * :ghissue:`6941`: Interfering with yahoo_finance
@@ -739,7 +739,7 @@ Issues (605):
 * :ghissue:`6510`: 2.0 beta: Boxplot patches zorder differs from lines
 * :ghissue:`6911`: freetype build won't become local
 * :ghissue:`6866`: examples/misc/longshort.py is outdated
-* :ghissue:`6912`: Matplotlib fail to compile matplotlib._png
+* :ghissue:`6912`: matplotlib fail to compile matplotlib._png
 * :ghissue:`1711`: Autoscale to automatically include a tiny margin with ``Axes.errorbar()``
 * :ghissue:`6903`: RuntimeError('Invalid DISPLAY variable') - With docker and django
 * :ghissue:`6888`: Can not maintain zoom level when left key is pressed
@@ -914,7 +914,7 @@ Issues (605):
 * :ghissue:`5219`: Notebook backend: possible to remove javascript/html when figure is closed?
 * :ghissue:`5111`: nbagg backend captures exceptions raised by callbacks
 * :ghissue:`4940`: NBAgg figure management issues
-* :ghissue:`4582`: Matplotlib IPython Widget
+* :ghissue:`4582`: matplotlib IPython Widget
 * :ghissue:`6142`: matplotlib.ticker.LinearLocator view_limits algorithm improvement?
 * :ghissue:`6326`: Unicode invisible after image saved
 * :ghissue:`5980`: Gridlines on top of plot by default in 2.0?
@@ -1008,10 +1008,10 @@ Issues (605):
 * :ghissue:`5331`: Boxplot with zero IQR sets whiskers to max and min and leaves no outliers
 * :ghissue:`5575`: plot_date() ignores timezone
 * :ghissue:`6143`: drawstyle accepts anything as default rather than raising
-* :ghissue:`6151`: Matplotlib 1.5.1 ignores annotation_clip parameter
+* :ghissue:`6151`: matplotlib 1.5.1 ignores annotation_clip parameter
 * :ghissue:`6147`: colormaps issue
 * :ghissue:`5916`: Headless get_window_extent or equivalent
-* :ghissue:`6141`: Matplotlib subplots and datetime x-axis functionality not working as intended?
+* :ghissue:`6141`: matplotlib subplots and datetime x-axis functionality not working as intended?
 * :ghissue:`6138`: No figure shows, no error
 * :ghissue:`6134`: Cannot plot a line of width=1 without antialiased
 * :ghissue:`6120`: v2.x failures on travis
@@ -1031,14 +1031,14 @@ Issues (605):
 * :ghissue:`6063`: Axes.relim() seems not to work when copying Line2D objects
 * :ghissue:`6065`: Proposal to change color -- 'indianred'
 * :ghissue:`6056`: quiver plot in polar projection - how to make the quiver density latitude-dependent ?
-* :ghissue:`6051`: Matplotlib v1.5.1 apparently not compatible with python-dateutil 2.4.2
+* :ghissue:`6051`: matplotlib v1.5.1 apparently not compatible with python-dateutil 2.4.2
 * :ghissue:`5513`: Call get_backend in pylab_setup
 * :ghissue:`5983`: Option to Compress Graphs for pgf-backend
 * :ghissue:`5895`: Polar Projection PDF Issue
 * :ghissue:`5948`: tilted line visible in generated pdf file
 * :ghissue:`5737`: matplotlib 1.5 compatibility with wxPython
 * :ghissue:`5645`: Missing line in a self-sufficient example in navigation_toolbar.rst :: a minor bug in docs
-* :ghissue:`6037`: Matplotlib xtick appends .%f after %H:%M%:%S on chart
+* :ghissue:`6037`: matplotlib xtick appends .%f after %H:%M%:%S on chart
 * :ghissue:`6025`: Exception in Tkinter/to_rgb with new colormaps
 * :ghissue:`6034`: colormap name is broken for ListedColormap?
 * :ghissue:`5982`: Styles need update after default style changes
@@ -1144,7 +1144,7 @@ Issues (605):
 * :ghissue:`5747`: Figure.suptitle does not respect ``size`` argument
 * :ghissue:`5641`: plt.errorbar error with empty list
 * :ghissue:`5476`: annotate doesn't trigger redraw
-* :ghissue:`5572`: Matplotlib 1.5  broken_barh fails on empty data.
+* :ghissue:`5572`: matplotlib 1.5  broken_barh fails on empty data.
 * :ghissue:`5089`: axes.properties calls get_axes internally
 * :ghissue:`5745`: Using internal qhull despite the presence of pyqhull installed in the system
 * :ghissue:`5744`: cycler is required, is missing, yet build succeeds.
@@ -1255,7 +1255,7 @@ Issues (605):
 * :ghissue:`5444`: \overline and subscripts/superscripts in mathtext
 * :ghissue:`4859`: Call ``tight_layout()`` by default
 * :ghissue:`5429`: Segfault in matplotlib.tests.test_image:test_get_window_extent_for_AxisImage on python3.5
-* :ghissue:`5431`: Matplotlib 1.4.3 broken on Windows
+* :ghissue:`5431`: matplotlib 1.4.3 broken on Windows
 * :ghissue:`5409`: Match zdata cursor display scalling with colorbar ?
 * :ghissue:`5128`: ENH: Better default font
 * :ghissue:`5420`: [Mac OS X 10.10.5] Macports install error :unknown locale: UTF-8

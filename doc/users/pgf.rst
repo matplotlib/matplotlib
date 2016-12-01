@@ -27,7 +27,7 @@ or registering it for handling pdf output
 The second method allows you to keep using regular interactive backends and to
 save xelatex, lualatex or pdflatex compiled PDF files from the graphical user interface.
 
-Matplotlib's pgf support requires a recent LaTeX_ installation that includes
+matplotlib's pgf support requires a recent LaTeX_ installation that includes
 the TikZ/PGF packages (such as TeXLive_), preferably with XeLaTeX or LuaLaTeX
 installed. If either pdftocairo or ghostscript is present on your system,
 figures can optionally be saved to PNG images as well. The executables

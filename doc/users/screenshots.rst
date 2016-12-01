@@ -150,7 +150,7 @@ alpha attribute is used to make semitransparent circle markers.
 Slider demo
 ===========
 
-Matplotlib has basic GUI widgets that are independent of the graphical
+matplotlib has basic GUI widgets that are independent of the graphical
 user interface you are using, allowing you to write cross GUI figures
 and widgets.  See :mod:`matplotlib.widgets` and the
 `widget examples <../examples/widgets/index.html>`_.
@@ -234,7 +234,7 @@ fonts.  See the :mod:`matplotlib.mathtext` module for additional details.
 
 .. plot:: mpl_examples/pylab_examples/mathtext_examples.py
 
-Matplotlib's mathtext infrastructure is an independent implementation and
+matplotlib's mathtext infrastructure is an independent implementation and
 does not require TeX or any external packages installed on your computer. See
 the tutorial at :ref:`mathtext-tutorial`.
 
@@ -245,7 +245,7 @@ Native TeX rendering
 ====================
 
 Although matplotlib's internal math rendering engine is quite
-powerful, sometimes you need TeX. Matplotlib supports external TeX
+powerful, sometimes you need TeX. matplotlib supports external TeX
 rendering of strings with the *usetex* option.
 
 .. plot:: mpl_examples/pyplots/tex_demo.py

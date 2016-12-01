@@ -14,7 +14,7 @@ New in matplotlib 1.2
 Python 3.x support
 ------------------
 
-Matplotlib 1.2 is the first version to support Python 3.x,
+matplotlib 1.2 is the first version to support Python 3.x,
 specifically Python 3.1 and 3.2.  To make this happen in a reasonable
 way, we also had to drop support for Python versions earlier than 2.6.
 

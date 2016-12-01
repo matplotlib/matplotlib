@@ -108,7 +108,7 @@ the matplotlib package. rcParams can be modified directly, for example::
     mpl.rcParams['lines.linewidth'] = 2
     mpl.rcParams['lines.color'] = 'r'
 
-Matplotlib also provides a couple of convenience functions for modifying rc
+matplotlib also provides a couple of convenience functions for modifying rc
 settings. The :func:`matplotlib.rc` command can be used to modify multiple
 settings in a single group at once, using keyword arguments::
 

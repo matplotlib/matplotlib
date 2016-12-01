@@ -294,7 +294,7 @@ background. ``nbagg.transparent`` is ``True`` by default.
 
 XDG compliance
 ``````````````
-Matplotlib now looks for configuration files (both rcparams and style) in XDG
+matplotlib now looks for configuration files (both rcparams and style) in XDG
 compliant locations.
 
 ``style`` package added
@@ -416,4 +416,4 @@ rectangle stay on the axes after you release the mouse.
 
 GAE integration
 ---------------
-Matplotlib will now run on google app engine.
+matplotlib will now run on google app engine.
