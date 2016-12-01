@@ -304,7 +304,7 @@ class FormatterDMS(object):
                     l_hm_old = l_hm
                     l = l_hm + s1 #l_s
                 else:
-                    l = "$"+s1 #l_s
+                    l = "$" + s + s1
                 r.append(l)
 
             if inverse_order:
