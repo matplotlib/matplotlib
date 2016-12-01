@@ -1,5 +1,10 @@
 """
-Demonstrates using custom hillshading in a 3D surface plot.
+====================
+Frontpage 3D example
+====================
+
+This example reproduces the frontpage 3D example.
+
 """
 from mpl_toolkits.mplot3d import Axes3D
 from matplotlib import cbook
@@ -19,7 +24,7 @@ with np.load(filename) as dem:
 region = np.s_[5:50, 5:50]
 x, y, z = x[region], y[region], z[region]
 
-fig, ax = plt.subplots(subplot_kw=dict(projection='3d'))
+fig, ax = plt.subplots(subplot_kw=dict(projection='3d'), figsize=(2.25, 2))
 
 ls = LightSource(270, 45)
 # To use a custom hillshading mode, override the built-in shading and pass
@@ -30,4 +35,4 @@ surf = ax.plot_surface(x, y, z, rstride=1, cstride=1, facecolors=rgb,
 ax.set_xticks([])
 ax.set_yticks([])
 ax.set_zticks([])
-fig.savefig("surface3D_frontpage.png")
+fig.savefig("surface3d_frontpage.png")

@@ -1,3 +1,12 @@
+"""
+======================
+Frontpage plot example
+======================
+
+
+This example reproduces the frontpage simple plot example.
+"""
+
 import matplotlib.pyplot as plt
 import matplotlib.cbook as cbook
 import numpy as np
@@ -7,7 +16,7 @@ datafile = cbook.get_sample_data('membrane.dat', asfileobj=False)
 x = np.fromstring(open(datafile, 'rb').read(), np.float32)
 # 0.0005 is the sample interval
 
-fig, ax = plt.subplots()
+fig, ax = plt.subplots(figsize=(2.25, 2))
 ax.plot(x, linewidth=4)
 ax.set_xlim(5000, 6000)
 ax.set_ylim(-0.6, 0.1)
