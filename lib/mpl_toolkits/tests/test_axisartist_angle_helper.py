@@ -7,34 +7,41 @@ import numpy as np
 import pytest
 
 from mpl_toolkits.axisartist.angle_helper import (
-    FormatterDMS, select_step, select_step360)
+    FormatterDMS, FormatterHMS, select_step, select_step24, select_step360)
 
 
-DMS_RE = re.compile(
+_MS_RE = (
     r'''\$  # Mathtext
         (
             # The sign sometimes appears on a 0 when a fraction is shown.
             # Check later that there's only one.
             (?P<degree_sign>-)?
             (?P<degree>[0-9.]+)  # Degrees value
-            \^{\\circ}  # Degree symbol
+            {degree}  # Degree symbol (to be replaced by format.)
         )?
         (
             (?(degree)\\,)  # Separator if degrees are also visible.
             (?P<minute_sign>-)?
             (?P<minute>[0-9.]+)  # Minutes value
-            \^{\\prime}  # Minute symbol
+            {minute}  # Minute symbol (to be replaced by format.)
         )?
         (
             (?(minute)\\,)  # Separator if minutes are also visible.
             (?P<second_sign>-)?
             (?P<second>[0-9.]+)  # Seconds value
-            \^{\\prime\\prime}  # Second symbol
+            {second}  # Second symbol (to be replaced by format.)
         )?
         \$  # Mathtext
-    ''',
-    re.VERBOSE
+    '''
 )
+DMS_RE = re.compile(_MS_RE.format(degree=re.escape(FormatterDMS.deg_mark),
+                                  minute=re.escape(FormatterDMS.min_mark),
+                                  second=re.escape(FormatterDMS.sec_mark)),
+                    re.VERBOSE)
+HMS_RE = re.compile(_MS_RE.format(degree=re.escape(FormatterHMS.deg_mark),
+                                  minute=re.escape(FormatterHMS.min_mark),
+                                  second=re.escape(FormatterHMS.sec_mark)),
+                    re.VERBOSE)
 
 
 def dms2float(degrees, minutes=0, seconds=0):
@@ -47,6 +54,18 @@ def dms2float(degrees, minutes=0, seconds=0):
 ])
 def test_select_step(args, kwargs, expected_levels, expected_factor):
     levels, n, factor = select_step(*args, **kwargs)
+
+    assert n == len(levels)
+    np.testing.assert_array_equal(levels, expected_levels)
+    assert factor == expected_factor
+
+
+@pytest.mark.parametrize('args, kwargs, expected_levels, expected_factor', [
+    ((-180, 180, 10), {}, np.arange(-180, 181, 30), 1.0),
+    ((-12, 12, 10), {}, np.arange(-750, 751, 150), 60.0)
+])
+def test_select_step24(args, kwargs, expected_levels, expected_factor):
+    levels, n, factor = select_step24(*args, **kwargs)
 
     assert n == len(levels)
     np.testing.assert_array_equal(levels, expected_levels)
@@ -82,6 +101,10 @@ def test_select_step360(args, kwargs, expected_levels, expected_factor):
     assert factor == expected_factor
 
 
+@pytest.mark.parametrize('Formatter, regex',
+                         [(FormatterDMS, DMS_RE),
+                          (FormatterHMS, HMS_RE)],
+                         ids=['Degree/Minute/Second', 'Hour/Minute/Second'])
 @pytest.mark.parametrize('direction, factor, values', [
     ("left", 60, [0, -30, -60]),
     ("left", 600, [12301, 12302, 12303]),
@@ -91,13 +114,13 @@ def test_select_step360(args, kwargs, expected_levels, expected_factor):
     ("left", 1., [45, 46, 47]),
     ("left", 10., [452, 453, 454]),
 ])
-def test_formatters(direction, factor, values):
-    fmt = FormatterDMS()
+def test_formatters(Formatter, regex, direction, factor, values):
+    fmt = Formatter()
     result = fmt(direction, factor, values)
 
     prev_degree = prev_minute = prev_second = None
     for tick, value in zip(result, values):
-        m = DMS_RE.match(tick)
+        m = regex.match(tick)
         assert m is not None, '"%s" is not an expected tick format.' % (tick, )
 
         sign = sum(m.group(sign + '_sign') is not None
@@ -109,7 +132,12 @@ def test_formatters(direction, factor, values):
         degree = float(m.group('degree') or prev_degree or 0)
         minute = float(m.group('minute') or prev_minute or 0)
         second = float(m.group('second') or prev_second or 0)
-        assert sign * dms2float(degree, minute, second) == value / factor, \
+        if Formatter == FormatterHMS:
+            # 360 degrees as plot range -> 24 hours as labelled range
+            expected_value = pytest.approx((value // 15) / factor)
+        else:
+            expected_value = pytest.approx(value / factor)
+        assert sign * dms2float(degree, minute, second) == expected_value, \
             '"%s" does not match expected tick value.' % (tick, )
 
         prev_degree = degree
