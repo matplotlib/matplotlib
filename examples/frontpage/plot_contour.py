@@ -26,7 +26,7 @@ Z = (Z1 - Z2) * 10
 levels = np.linspace(-2.0, 1.601, 40)
 norm = cm.colors.Normalize(vmax=abs(Z).max(), vmin=-abs(Z).max())
 
-fig, ax = plt.subplots(figsize=(2.25, 2))
+fig, ax = plt.subplots(figsize=(1.62, 1.38))
 cset1 = ax.contourf(
     X, Y, Z, levels,
     norm=norm)

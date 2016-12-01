@@ -24,7 +24,7 @@ with np.load(filename) as dem:
 region = np.s_[5:50, 5:50]
 x, y, z = x[region], y[region], z[region]
 
-fig, ax = plt.subplots(subplot_kw=dict(projection='3d'), figsize=(2.25, 2))
+fig, ax = plt.subplots(subplot_kw=dict(projection='3d'), figsize=(1.62, 1.38))
 
 ls = LightSource(270, 45)
 # To use a custom hillshading mode, override the built-in shading and pass
