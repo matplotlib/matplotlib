@@ -162,7 +162,6 @@ def select_step360(v1, v2, nv, include_last=True, threshold_factor=3600):
                        threshold_factor=threshold_factor)
 
 
-
 class LocatorBase(object):
     def __init__(self, den, include_last=True):
         self.den = den
@@ -211,25 +210,21 @@ class LocatorD(LocatorBase):
                               threshold_factor=1)
 
 
-
 class FormatterDMS(object):
-
     deg_mark = "^{\circ}"
     min_mark = "^{\prime}"
     sec_mark = "^{\prime\prime}"
 
-    fmt_d = "$%d"+deg_mark+"$"
-    fmt_ds = r"$%d.\!\!"+deg_mark+"%s$"
+    fmt_d = "$%d" + deg_mark + "$"
+    fmt_ds = r"$%d.%s" + deg_mark + "$"
 
     # %s for signe
-    fmt_d_m = r"$%s%d"+deg_mark+"\,%02d"+min_mark+"$"
-    fmt_d_ms = r"$%s%d"+deg_mark+"\,%02d.\mkern-4mu"+min_mark+"%s$"
+    fmt_d_m = r"$%s%d" + deg_mark + "\,%02d" + min_mark + "$"
+    fmt_d_ms = r"$%s%d" + deg_mark + "\,%02d.%s" + min_mark + "$"
 
-
-    fmt_d_m_partial = "$%s%d"+deg_mark+"\,%02d"+min_mark+"\,"
-    fmt_s_partial = "%02d"+sec_mark+"$"
-    fmt_ss_partial = "%02d.\!\!"+sec_mark+"%s$"
-
+    fmt_d_m_partial = "$%s%d" + deg_mark + "\,%02d" + min_mark + "\,"
+    fmt_s_partial = "%02d" + sec_mark + "$"
+    fmt_ss_partial = "%02d.%s" + sec_mark + "$"
 
     def _get_number_fraction(self, factor):
         ## check for fractional numbers
@@ -320,23 +315,22 @@ class FormatterDMS(object):
         else: # factor > 3600.
             return [r"$%s^{\circ}$" % (str(v),) for v in ss*values]
 
+
 class FormatterHMS(FormatterDMS):
     deg_mark = "^\mathrm{h}"
     min_mark = "^\mathrm{m}"
     sec_mark = "^\mathrm{s}"
 
-    fmt_d = "$%d"+deg_mark+"$"
-    fmt_ds = r"$%d.\!\!"+deg_mark+"%s$"
+    fmt_d = "$%d" + deg_mark + "$"
+    fmt_ds = r"$%d.%s" + deg_mark + "$"
 
     # %s for signe
-    fmt_d_m = r"$%s%d"+deg_mark+"\,%02d"+min_mark+"$"
-    fmt_d_ms = r"$%s%d"+deg_mark+"\,%02d.\!\!"+min_mark+"%s$"
+    fmt_d_m = r"$%s%d" + deg_mark + "\,%02d" + min_mark+"$"
+    fmt_d_ms = r"$%s%d" + deg_mark + "\,%02d.%s" + min_mark+"$"
 
-
-    fmt_d_m_partial = "$%s%d"+deg_mark+"\,%02d"+min_mark+"\,"
-    fmt_s_partial = "%02d"+sec_mark+"$"
-    fmt_ss_partial = "%02d.\!\!"+sec_mark+"%s$"
-
+    fmt_d_m_partial = "$%s%d" + deg_mark + "\,%02d" + min_mark + "\,"
+    fmt_s_partial = "%02d" + sec_mark + "$"
+    fmt_ss_partial = "%02d.%s" + sec_mark + "$"
 
     def __call__(self, direction, factor, values): # hour
         return FormatterDMS.__call__(self, direction, factor, np.asarray(values)/15.)
