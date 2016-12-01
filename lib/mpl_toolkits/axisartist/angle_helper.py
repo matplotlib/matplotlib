@@ -283,7 +283,7 @@ class FormatterDMS(object):
             if ss[-1] == -1:
                 inverse_order = True
                 values = values[::-1]
-                sings = signs[::-1]
+                signs = signs[::-1]
             else:
                 inverse_order = False
 
