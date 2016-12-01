@@ -1,5 +1,7 @@
 from __future__ import print_function, absolute_import
 
+from importlib import import_module
+
 from distutils import sysconfig
 from distutils import version
 from distutils.core import Extension
@@ -424,12 +426,19 @@ class SetupPackage(object):
 
     def check(self):
         """
-        Checks whether the dependencies are met.  Should raise a
-        `CheckFailed` exception if the dependency could not be met,
-        otherwise return a string indicating a version number or some
-        other message indicating what was found.
+        Checks whether the build dependencies are met.  Should raise a
+        `CheckFailed` exception if the dependency could not be met, otherwise
+        return a string indicating a version number or some other message
+        indicating what was found.
         """
         pass
+
+    def runtime_check(self):
+        """
+        True if the runtime dependencies of the backend are met.  Assumes that
+        the build-time dependencies are met.
+        """
+        return True
 
     def get_packages(self):
         """
@@ -1642,6 +1651,16 @@ class BackendTkAgg(OptionalBackendPackage):
 
     def check(self):
         return "installing; run-time loading from Python Tcl / Tk"
+
+    def runtime_check(self):
+        """ Checks whether TkAgg runtime dependencies are met
+        """
+        pkg_name = 'tkinter' if PY3min else 'Tkinter'
+        try:
+            import_module(pkg_name)
+        except ImportError:
+            return False
+        return True
 
     def get_extension(self):
         sources = [
