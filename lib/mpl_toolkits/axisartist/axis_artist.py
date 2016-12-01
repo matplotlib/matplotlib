@@ -714,37 +714,37 @@ class TickLabels(AxisLabel, AttributeCopier): # mtext.Text
         va, ha = self.get_va(), self.get_ha()
 
         if label_direction == "left":
-            pad = max([w for (w, h, d) in whd_list])
+            pad = max(w for w, h, d in whd_list)
             if ha == "left":
                 r = pad
             elif ha == "center":
                 r = .5 * pad
         elif label_direction == "right":
-            pad = max([w for (w, h, d) in whd_list])
+            pad = max(w for w, h, d in whd_list)
             if ha == "right":
                 r = pad
             elif ha == "center":
                 r = .5 * pad
         elif label_direction == "bottom":
-            pad = max([h for (w, h, d) in whd_list])
+            pad = max(h for w, h, d in whd_list)
             if va == "bottom":
                 r = pad
             elif va == "center":
                 r =.5 * pad
             elif va == "baseline":
-                max_ascent = max([(h-d) for (w, h, d) in whd_list])
-                max_descent = max([d for (w, h, d) in whd_list])
+                max_ascent = max(h - d for w, h, d in whd_list)
+                max_descent = max(d for w, h, d in whd_list)
                 r  = max_ascent
                 pad = max_ascent + max_descent
         elif label_direction == "top":
-            pad = max([h for (w, h, d) in whd_list])
+            pad = max(h for w, h, d in whd_list)
             if va == "top":
                 r = pad
             elif va == "center":
                 r =.5 * pad
             elif va == "baseline":
-                max_ascent = max([(h-d) for (w, h, d) in whd_list])
-                max_descent = max([d for (w, h, d) in whd_list])
+                max_ascent = max(h - d for w, h, d in whd_list)
+                max_descent = max(d for w, h, d in whd_list)
                 r  = max_descent
                 pad = max_ascent + max_descent
 
@@ -1432,7 +1432,7 @@ class AxisArtist(martist.Artist):
 
         #print self._ticklabel_add_angle - self._axislabel_add_angle
         #if abs(self._ticklabel_add_angle - self._axislabel_add_angle)%360 > 90:
-        if self._ticklabel_add_angle !=  self._axislabel_add_angle:
+        if self._ticklabel_add_angle != self._axislabel_add_angle:
             if (self.major_ticks.get_visible() and not self.major_ticks.get_tick_out()) \
                or \
                (self.minor_ticks.get_visible() and not self.major_ticks.get_tick_out()):
@@ -1440,8 +1440,8 @@ class AxisArtist(martist.Artist):
             else:
                 axislabel_pad = 0
         else:
-            axislabel_pad = max([self.major_ticklabels._axislabel_pad,
-                                 self.minor_ticklabels._axislabel_pad])
+            axislabel_pad = max(self.major_ticklabels._axislabel_pad,
+                                self.minor_ticklabels._axislabel_pad)
 
 
         #label_offset =  axislabel_pad + self.LABELPAD
@@ -1477,7 +1477,7 @@ class AxisArtist(martist.Artist):
 
         #print self._ticklabel_add_angle - self._axislabel_add_angle
         #if abs(self._ticklabel_add_angle - self._axislabel_add_angle)%360 > 90:
-        if self._ticklabel_add_angle !=  self._axislabel_add_angle:
+        if self._ticklabel_add_angle != self._axislabel_add_angle:
             if (self.major_ticks.get_visible() and not self.major_ticks.get_tick_out()) \
                or \
                (self.minor_ticks.get_visible() and not self.major_ticks.get_tick_out()):
@@ -1485,9 +1485,8 @@ class AxisArtist(martist.Artist):
             else:
                 axislabel_pad = 0
         else:
-            axislabel_pad = max([self.major_ticklabels._axislabel_pad,
-                                 self.minor_ticklabels._axislabel_pad])
-
+            axislabel_pad = max(self.major_ticklabels._axislabel_pad,
+                                self.minor_ticklabels._axislabel_pad)
 
         #label_offset =  axislabel_pad + self.LABELPAD
 
@@ -1497,8 +1496,7 @@ class AxisArtist(martist.Artist):
         xy, angle_tangent = self._axis_artist_helper.get_axislabel_pos_angle(self.axes)
         if xy is None: return
 
-        angle_label = angle_tangent  - 90
-
+        angle_label = angle_tangent - 90
 
         x, y = xy
         self.label._set_ref_angle(angle_label+self._axislabel_add_angle)

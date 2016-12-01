@@ -761,10 +761,10 @@ class BboxBase(TransformNode):
                           bbox2.ymax < bbox1.ymin)
 
         if intersects:
-            x0 = max([bbox1.xmin, bbox2.xmin])
-            x1 = min([bbox1.xmax, bbox2.xmax])
-            y0 = max([bbox1.ymin, bbox2.ymin])
-            y1 = min([bbox1.ymax, bbox2.ymax])
+            x0 = max(bbox1.xmin, bbox2.xmin)
+            x1 = min(bbox1.xmax, bbox2.xmax)
+            y0 = max(bbox1.ymin, bbox2.ymin)
+            y1 = min(bbox1.ymax, bbox2.ymax)
             return Bbox.from_extents(x0, y0, x1, y1)
 
         return None
@@ -2115,7 +2115,7 @@ class BlendedGenericTransform(Transform):
 
     @property
     def depth(self):
-        return max([self._x.depth, self._y.depth])
+        return max(self._x.depth, self._y.depth)
 
     def contains_branch(self, other):
         # a blended transform cannot possibly contain a branch from two different transforms.
