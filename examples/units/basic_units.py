@@ -61,9 +61,8 @@ class ConvertReturnProxy(PassThroughProxy):
 
     def __call__(self, *args):
         ret = PassThroughProxy.__call__(self, *args)
-        if (type(ret) == type(NotImplemented)):
-            return NotImplemented
-        return TaggedValue(ret, self.unit)
+        return (NotImplemented if ret is NotImplemented
+                else TaggedValue(ret, self.unit))
 
 
 class ConvertAllProxy(PassThroughProxy):
@@ -95,10 +94,10 @@ class ConvertAllProxy(PassThroughProxy):
                     arg_units.append(None)
         converted_args = tuple(converted_args)
         ret = PassThroughProxy.__call__(self, *converted_args)
-        if (type(ret) == type(NotImplemented)):
+        if ret is NotImplemented:
             return NotImplemented
         ret_unit = unit_resolver(self.fn_name, arg_units)
-        if (ret_unit == NotImplemented):
+        if ret_unit is NotImplemented:
             return NotImplemented
         return TaggedValue(ret, ret_unit)
 
@@ -216,7 +215,7 @@ class BasicUnit(object):
             value = rhs.get_value()
             unit = rhs.get_unit()
             unit = unit_resolver('__mul__', (self, unit))
-        if (unit == NotImplemented):
+        if unit is NotImplemented:
             return NotImplemented
         return TaggedValue(value, unit)
 
