@@ -214,9 +214,12 @@ Required Dependencies
 `cycler <http://matplotlib.org/cycler/>`__ 0.10.0 or later
    Composable cycle class used for constructing style-cycles
 
-`functools32`
+`functools32 <https://pypi.python.org/pypi/functools32>`_
     Required for compatibility if running on versions of Python before
     Python 3.2.
+
+`six <https://pypi.python.org/pypi/six>`_
+  Required for compatibility if running python2.7
 
 
 Optional GUI framework
@@ -265,6 +268,9 @@ Optional dependencies
     required, but can make installation go more smoothly if the libraries and
     headers are not in the expected locations.
 
+`subprocess32 <https://pypi.python.org/pypi/subprocess32/>`_
+    Backport of the subprocess standard library from 3.2 for python2. It
+    includes better timeout support.
 
 Required libraries that ship with matplotlib
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
