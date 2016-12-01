@@ -137,12 +137,12 @@ class FixedAxisArtistHelper(grid_helper_curvelinear.FloatingAxisArtistHelper):
 
             xx1, yy1 = transform_xy(xx0, yy0)
 
-            xx00 = xx0.copy()
+            xx00 = xx0.astype(float, copy=True)
             xx00[xx0+dx>xmax] -= dx
             xx1a, yy1a = transform_xy(xx00, yy0)
             xx1b, yy1b = transform_xy(xx00+dx, yy0)
 
-            yy00 = yy0.copy()
+            yy00 = yy0.astype(float, copy=True)
             yy00[yy0+dy>ymax] -= dy
             xx2a, yy2a = transform_xy(xx0, yy00)
             xx2b, yy2b = transform_xy(xx0, yy00+dy)
@@ -158,12 +158,12 @@ class FixedAxisArtistHelper(grid_helper_curvelinear.FloatingAxisArtistHelper):
             xx1, yy1 = transform_xy(xx0, yy0)
 
 
-            yy00 = yy0.copy()
+            yy00 = yy0.astype(float, copy=True)
             yy00[yy0+dy>ymax] -= dy
             xx1a, yy1a = transform_xy(xx0, yy00)
             xx1b, yy1b = transform_xy(xx0, yy00+dy)
 
-            xx00 = xx0.copy()
+            xx00 = xx0.astype(float, copy=True)
             xx00[xx0+dx>xmax] -= dx
             xx2a, yy2a = transform_xy(xx00, yy0)
             xx2b, yy2b = transform_xy(xx00+dx, yy0)
