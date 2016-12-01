@@ -805,11 +805,11 @@ def test_pcolormesh():
     Qx = np.cos(Y) - np.cos(X)
     Qz = np.sin(Y) + np.sin(X)
     Qx = (Qx + 1.1)
-    Z = np.sqrt(X**2 + Y**2)/5
-    Z = (Z - Z.min()) / (Z.max() - Z.min())
+    Z = np.hypot(X, Y) / 5
+    Z = (Z - Z.min()) / Z.ptp()
 
     # The color array can include masked values:
-    Zm = ma.masked_where(np.fabs(Qz) < 0.5*np.amax(Qz), Z)
+    Zm = ma.masked_where(np.abs(Qz) < 0.5 * np.max(Qz), Z)
 
     fig = plt.figure()
     ax = fig.add_subplot(131)

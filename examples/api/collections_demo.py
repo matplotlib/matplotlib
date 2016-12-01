@@ -89,9 +89,8 @@ ax2.set_title('PolyCollection using offsets')
 
 # 7-sided regular polygons
 
-col = collections.RegularPolyCollection(7,
-                                        sizes=np.fabs(xx) * 10.0, offsets=xyo,
-                                        transOffset=ax3.transData)
+col = collections.RegularPolyCollection(
+    7, sizes=np.abs(xx) * 10.0, offsets=xyo, transOffset=ax3.transData)
 trans = transforms.Affine2D().scale(fig.dpi / 72.0)
 col.set_transform(trans)  # the points to pixels transform
 ax3.add_collection(col, autolim=True)
@@ -109,7 +108,7 @@ ncurves = 20
 offs = (0.1, 0.0)
 
 yy = np.linspace(0, 2*np.pi, nverts)
-ym = np.amax(yy)
+ym = np.max(yy)
 xx = (0.2 + (ym - yy)/ym)**2 * np.cos(yy - 0.4)*0.5
 segs = []
 for i in range(ncurves):
