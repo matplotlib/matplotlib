@@ -641,10 +641,9 @@ class Axes(maxes.Axes):
             axisline.major_ticklabels.set_visible(False)
             axisline.minor_ticklabels.set_visible(False)
 
-    def _get_axislines(self):
+    @property
+    def axis(self):
         return self._axislines
-
-    axis = property(_get_axislines)
 
     def new_gridlines(self, grid_helper=None):
         """

@@ -168,21 +168,17 @@ class LocatorBase(object):
         self.den = den
         self._include_last = include_last
 
-    def _get_nbins(self):
+    @property
+    def nbins(self):
         return self.den
 
-    def _set_nbins(self, v):
+    @nbins.setter
+    def nbins(self, v):
         self.den = v
 
-    nbins = property(_get_nbins, _set_nbins)
-
-    def set_params(self, **kwargs):
-        if "nbins" in kwargs:
-            self.den = int(kwargs.pop("nbins"))
-
-        if kwargs:
-            raise ValueError("Following keys are not processed: %s"
-                             % ", ".join(kwargs))
+    def set_params(self, nbins=None):
+        if nbins is not None:
+            self.den = int(nbins)
 
 
 class LocatorHMS(LocatorBase):

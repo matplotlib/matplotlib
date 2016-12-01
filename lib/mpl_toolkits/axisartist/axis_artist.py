@@ -928,14 +928,13 @@ class AxisArtist(martist.Artist):
 
     ZORDER=2.5
 
-    # LABELPAD : as property
-    def _set_labelpad(self, v):
-        return self.label.set_pad(v)
-
-    def _get_labelpad(self):
+    @property
+    def LABELPAD(self):
         return self.label.get_pad()
 
-    LABELPAD = property(_get_labelpad, _set_labelpad)
+    @LABELPAD.setter
+    def LABELPAD(self, v):
+        return self.label.set_pad(v)
 
     def __init__(self, axes,
                  helper,
