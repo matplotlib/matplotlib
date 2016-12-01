@@ -496,13 +496,11 @@ class Figure(Artist):
         """
         Test whether the mouse event occurred on the figure.
 
-        Returns True,{}
+        Returns True, {}.
         """
-        if six.callable(self._contains):
+        if callable(self._contains):
             return self._contains(self, mouseevent)
-        # inside = mouseevent.x >= 0 and mouseevent.y >= 0
         inside = self.bbox.contains(mouseevent.x, mouseevent.y)
-
         return inside, {}
 
     def get_window_extent(self, *args, **kwargs):

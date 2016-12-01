@@ -360,7 +360,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
         Returns True | False, ``dict(ind=itemlist)``, where every
         item in itemlist contains the event.
         """
-        if six.callable(self._contains):
+        if callable(self._contains):
             return self._contains(self, mouseevent)
 
         if not self.get_visible():

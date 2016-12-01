@@ -171,7 +171,7 @@ class Patch(artist.Artist):
 
         Returns T/F, {}
         """
-        if six.callable(self._contains):
+        if callable(self._contains):
             return self._contains(self, mouseevent)
         radius = self._process_radius(radius)
         inside = self.get_path().contains_point(
@@ -2520,9 +2520,7 @@ class FancyBboxPatch(Patch):
         if boxstyle is None:
             return BoxStyle.pprint_styles()
 
-        if isinstance(boxstyle, BoxStyle._Base):
-            self._bbox_transmuter = boxstyle
-        elif six.callable(boxstyle):
+        if isinstance(boxstyle, BoxStyle._Base) or callable(boxstyle):
             self._bbox_transmuter = boxstyle
         else:
             self._bbox_transmuter = BoxStyle(boxstyle, **kw)
@@ -4137,10 +4135,8 @@ class FancyArrowPatch(Patch):
         if connectionstyle is None:
             return ConnectionStyle.pprint_styles()
 
-        if isinstance(connectionstyle, ConnectionStyle._Base):
-            self._connector = connectionstyle
-        elif six.callable(connectionstyle):
-            # we may need check the calling convention of the given function
+        if (isinstance(connectionstyle, ConnectionStyle._Base)
+                or callable(connectionstyle)):
             self._connector = connectionstyle
         else:
             self._connector = ConnectionStyle(connectionstyle, **kw)

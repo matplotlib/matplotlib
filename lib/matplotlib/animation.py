@@ -1290,14 +1290,14 @@ class FuncAnimation(TimedAnimation):
         # will be treated as a number of frames.
         if frames is None:
             self._iter_gen = itertools.count
-        elif six.callable(frames):
+        elif callable(frames):
             self._iter_gen = frames
         elif iterable(frames):
             self._iter_gen = lambda: iter(frames)
             if hasattr(frames, '__len__'):
                 self.save_count = len(frames)
         else:
-            self._iter_gen = lambda: xrange(frames).__iter__()
+            self._iter_gen = lambda: iter(xrange(frames))
             self.save_count = frames
 
         # If we're passed in and using the default, set it to 100.

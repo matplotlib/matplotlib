@@ -333,7 +333,7 @@ class Verbose(object):
         if always is True, the report will occur on every function
         call; otherwise only on the first time the function is called
         """
-        assert six.callable(func)
+        assert callable(func)
 
         def wrapper(*args, **kwargs):
             ret = func(*args, **kwargs)

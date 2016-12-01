@@ -36,7 +36,7 @@ def revcmap(data):
     """Can only handle specification *data* in dictionary format."""
     data_r = {}
     for key, val in six.iteritems(data):
-        if six.callable(val):
+        if callable(val):
             valnew = _reverser(val)
             # This doesn't work: lambda x: val(1-x)
             # The same "val" (the first one) is used

@@ -457,7 +457,7 @@ class Line2D(Artist):
 
         TODO: sort returned indices by distance
         """
-        if six.callable(self._contains):
+        if callable(self._contains):
             return self._contains(self, mouseevent)
 
         if not is_numlike(self.pickradius):
@@ -598,7 +598,7 @@ class Line2D(Artist):
         ACCEPTS: float distance in points or callable pick function
         ``fn(artist, event)``
         """
-        if six.callable(p):
+        if callable(p):
             self._contains = p
         else:
             self.pickradius = p
