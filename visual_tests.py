@@ -86,7 +86,7 @@ def run():
         import webbrowser
         webbrowser.open(index)
     except:
-        print("Open {0} in a browser for a visual comparison.".format(str(index)))
+        print("Open {} in a browser for a visual comparison.".format(index))
 
 if __name__ == '__main__':
     run()

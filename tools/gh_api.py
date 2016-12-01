@@ -47,7 +47,7 @@ def get_auth_token():
         with open(os.path.join(os.path.expanduser('~'), '.ghoauth')) as f:
             token, = f
             return token
-    except:
+    except Exception:
         pass
 
     import keyring

@@ -561,7 +561,7 @@ class FigureManagerGTK(FigureManagerBase):
 
         self.window = gtk.Window()
         self.set_window_title("Figure %d" % num)
-        if (window_icon):
+        if window_icon:
             try:
                 self.window.set_icon_from_file(window_icon)
             except:
@@ -790,13 +790,13 @@ class NavigationToolbar2GTK(NavigationToolbar2, gtk.Toolbar):
         toolfig.subplots_adjust(top=0.9)
         tool =  SubplotTool(self.canvas.figure, toolfig)
 
-        w = int (toolfig.bbox.width)
-        h = int (toolfig.bbox.height)
-
+        w = int(toolfig.bbox.width)
+        h = int(toolfig.bbox.height)
 
         window = gtk.Window()
-        if (window_icon):
-            try: window.set_icon_from_file(window_icon)
+        if window_icon:
+            try:
+                window.set_icon_from_file(window_icon)
             except:
                 # we presumably already logged a message on the
                 # failure of the main plot, don't keep reporting
@@ -1056,7 +1056,6 @@ class DialogLineprops(object):
 # Unfortunately, the SVG renderer (rsvg) leaks memory under earlier
 # versions of pygtk, so we have to use a PNG file instead.
 try:
-
     if gtk.pygtk_version < (2, 8, 0) or sys.platform == 'win32':
         icon_filename = 'matplotlib.png'
     else:
