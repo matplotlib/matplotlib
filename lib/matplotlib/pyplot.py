@@ -1797,9 +1797,9 @@ def get_plot_commands():
 
     import inspect
 
-    exclude = set(['colormaps', 'colors', 'connect', 'disconnect',
-                   'get_plot_commands', 'get_current_fig_manager',
-                   'ginput', 'plotting', 'waitforbuttonpress'])
+    exclude = {'colormaps', 'colors', 'connect', 'disconnect',
+               'get_plot_commands', 'get_current_fig_manager', 'ginput',
+               'plotting', 'waitforbuttonpress'}
     exclude |= set(colormaps())
     this_module = inspect.getmodule(get_plot_commands)
 

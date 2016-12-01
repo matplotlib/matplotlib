@@ -234,7 +234,7 @@ Could not rename old TeX cache dir "%s": a suitable configuration
     def get_font_config(self):
         """Reinitializes self if relevant rcParams on have changed."""
         if self._rc_cache is None:
-            self._rc_cache = dict([(k, None) for k in self._rc_cache_keys])
+            self._rc_cache = dict.fromkeys(self._rc_cache_keys)
         changed = [par for par in self._rc_cache_keys
                    if rcParams[par] != self._rc_cache[par]]
         if changed:

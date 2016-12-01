@@ -263,7 +263,7 @@ class _process_plot_var_args(object):
         """
         prop_keys = self._prop_keys
         if ignore is None:
-            ignore = set([])
+            ignore = set()
         prop_keys = prop_keys - ignore
 
         if any(all(kw.get(k, None) is None for kw in kwargs)
@@ -309,8 +309,8 @@ class _process_plot_var_args(object):
         # *user* explicitly specifies a marker which should be an error.
         # We also want to prevent advancing the cycler if there are no
         # defaults needed after ignoring the given properties.
-        ignores = set(['marker', 'markersize', 'markeredgecolor',
-                       'markerfacecolor', 'markeredgewidth'])
+        ignores = {'marker', 'markersize', 'markeredgecolor',
+                   'markerfacecolor', 'markeredgewidth'}
         # Also ignore anything provided by *kwargs*.
         for k, v in six.iteritems(kwargs):
             if v is not None:

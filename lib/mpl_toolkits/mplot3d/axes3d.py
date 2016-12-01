@@ -2599,7 +2599,7 @@ class Axes3D(Axes):
         # must all be ndarray
         assert all(isinstance(k, np.ndarray) for k in input_args)
         # must all in same shape
-        assert len(set([k.shape for k in input_args])) == 1
+        assert len({k.shape for k in input_args}) == 1
 
         shaft_dt = np.linspace(0, length, num=2)
         arrow_dt = shaft_dt * arrow_length_ratio

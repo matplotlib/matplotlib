@@ -1867,7 +1867,7 @@ class _Style(object):
 
         try:
             _args_pair = [cs.split("=") for cs in _list[1:]]
-            _args = dict([(k, float(v)) for k, v in _args_pair])
+            _args = {k: float(v) for k, v in _args_pair}
         except ValueError:
             raise ValueError("Incorrect style argument : %s" % stylename)
         _args.update(kw)

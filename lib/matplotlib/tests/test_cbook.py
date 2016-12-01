@@ -63,7 +63,7 @@ def test_restrict_dict():
     assert d3 == {'foo': 'bar'}
     d4 = cbook.restrict_dict(d, {})
     assert d4 == {}
-    d5 = cbook.restrict_dict(d, set(['foo', 2]))
+    d5 = cbook.restrict_dict(d, {'foo', 2})
     assert d5 == {'foo': 'bar'}
     # check that d was not modified
     assert d == {'foo': 'bar', 1: 2}

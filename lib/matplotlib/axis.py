@@ -324,8 +324,8 @@ class Tick(artist.Artist):
             self.label1.set_transform(trans)
             trans = self._get_text2_transform()[0]
             self.label2.set_transform(trans)
-        tick_kw = dict([kv for kv in six.iteritems(kw)
-                        if kv[0] in ['color', 'zorder']])
+        tick_kw = {k: v for k, v in six.iteritems(kw)
+                   if k in ['color', 'zorder']}
         if tick_kw:
             self.tick1line.set(**tick_kw)
             self.tick2line.set(**tick_kw)
@@ -334,7 +334,7 @@ class Tick(artist.Artist):
         label_list = [k for k in six.iteritems(kw)
                       if k[0] in ['labelsize', 'labelcolor', 'labelrotation']]
         if label_list:
-            label_kw = dict([(k[5:], v) for (k, v) in label_list])
+            label_kw = {k[5:]: v for k, v in label_list}
             self.label1.set(**label_kw)
             self.label2.set(**label_kw)
             for k, v in six.iteritems(label_kw):

@@ -14,8 +14,8 @@ import numpy as np
 rates_to_bases = {'r1': 'AT', 'r2': 'TA', 'r3': 'GA', 'r4': 'AG', 'r5': 'CA',
                   'r6': 'AC', 'r7': 'GT', 'r8': 'TG', 'r9': 'CT', 'r10': 'TC',
                   'r11': 'GC', 'r12': 'CG'}
-numbered_bases_to_rates = dict([(v, k) for k, v in rates_to_bases.items()])
-lettered_bases_to_rates = dict([(v, 'r' + v) for k, v in rates_to_bases.items()])
+numbered_bases_to_rates = {v: k for k, v in rates_to_bases.items()}
+lettered_bases_to_rates = {v: 'r' + v for k, v in rates_to_bases.items()}
 
 
 def add_dicts(d1, d2):

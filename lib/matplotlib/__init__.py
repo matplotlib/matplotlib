@@ -263,7 +263,7 @@ class Verbose(object):
     instance to handle the output.  Default is sys.stdout
     """
     levels = ('silent', 'helpful', 'debug', 'debug-annoying')
-    vald = dict([(level, i) for i, level in enumerate(levels)])
+    vald = {level: i for i, level in enumerate(levels)}
 
     # parse the verbosity from the command line; flags look like
     # --verbose-silent or --verbose-helpful
@@ -860,10 +860,10 @@ _deprecated_map = {
 _deprecated_ignore_map = {
     }
 
-_obsolete_set = set(['tk.pythoninspect', 'legend.isaxes'])
+_obsolete_set = {'tk.pythoninspect', 'legend.isaxes'}
 
 # The following may use a value of None to suppress the warning.
-_deprecated_set = set(['axes.hold'])  # do NOT include in _all_deprecated
+_deprecated_set = {'axes.hold'}  # do NOT include in _all_deprecated
 
 _all_deprecated = set(chain(_deprecated_ignore_map,
                             _deprecated_map,
