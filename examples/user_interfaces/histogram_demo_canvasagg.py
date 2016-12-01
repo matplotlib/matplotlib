@@ -48,8 +48,7 @@ w, h = int(w), int(h)
 
 if 0:
     # convert to a numpy array
-    X = numpy.fromstring(s, numpy.uint8)
-    X.shape = h, w, 3
+    X = numpy.fromstring(s, numpy.uint8).reshape((h, w, 3))
 
 if 0:
     # pass off to PIL

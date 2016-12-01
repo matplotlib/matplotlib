@@ -4264,35 +4264,23 @@ or tuple of floats
         d2 = (x - ix2 - 0.5) ** 2 + 3.0 * (y - iy2 - 0.5) ** 2
         bdist = (d1 < d2)
         if C is None:
-            accum = np.zeros(n)
-            # Create appropriate views into "accum" array.
-            lattice1 = accum[:nx1 * ny1]
-            lattice2 = accum[nx1 * ny1:]
-            lattice1.shape = (nx1, ny1)
-            lattice2.shape = (nx2, ny2)
+            lattice1 = np.zeros((nx1, ny1))
+            lattice2 = np.zeros((nx2, ny2))
 
             for i in xrange(len(x)):
                 if bdist[i]:
-                    if ((ix1[i] >= 0) and (ix1[i] < nx1) and
-                        (iy1[i] >= 0) and (iy1[i] < ny1)):
+                    if 0 <= ix1[i] < nx1 and 0 <= iy1[i] < ny1:
                         lattice1[ix1[i], iy1[i]] += 1
                 else:
-                    if ((ix2[i] >= 0) and (ix2[i] < nx2) and
-                        (iy2[i] >= 0) and (iy2[i] < ny2)):
+                    if 0 <= ix2[i] < nx2 and 0 <= iy2[i] < ny2:
                         lattice2[ix2[i], iy2[i]] += 1
 
             # threshold
             if mincnt is not None:
-                for i in xrange(nx1):
-                    for j in xrange(ny1):
-                        if lattice1[i, j] < mincnt:
-                            lattice1[i, j] = np.nan
-                for i in xrange(nx2):
-                    for j in xrange(ny2):
-                        if lattice2[i, j] < mincnt:
-                            lattice2[i, j] = np.nan
-            accum = np.hstack((lattice1.astype(float).ravel(),
-                               lattice2.astype(float).ravel()))
+                lattice1[lattice1 < mincnt] = np.nan
+                lattice2[lattice2 < mincnt] = np.nan
+            accum = np.hstack((lattice1.ravel(),
+                               lattice2.ravel()))
             good_idxs = ~np.isnan(accum)
 
         else:
@@ -4311,12 +4299,10 @@ or tuple of floats
 
             for i in xrange(len(x)):
                 if bdist[i]:
-                    if ((ix1[i] >= 0) and (ix1[i] < nx1) and
-                        (iy1[i] >= 0) and (iy1[i] < ny1)):
+                    if 0 <= ix1[i] < nx1 and 0 <= iy1[i] < ny1:
                         lattice1[ix1[i], iy1[i]].append(C[i])
                 else:
-                    if ((ix2[i] >= 0) and (ix2[i] < nx2) and
-                        (iy2[i] >= 0) and (iy2[i] < ny2)):
+                    if 0 <= ix2[i] < nx2 and 0 <= iy2[i] < ny2:
                         lattice2[ix2[i], iy2[i]].append(C[i])
 
             for i in xrange(nx1):
@@ -6612,7 +6598,6 @@ or tuple of floats
         pxx, freqs = mlab.psd(x=x, NFFT=NFFT, Fs=Fs, detrend=detrend,
                               window=window, noverlap=noverlap, pad_to=pad_to,
                               sides=sides, scale_by_freq=scale_by_freq)
-        pxx.shape = len(freqs),
         freqs += Fc
 
         if scale_by_freq in (None, True):
@@ -6736,7 +6721,6 @@ or tuple of floats
         pxy, freqs = mlab.csd(x=x, y=y, NFFT=NFFT, Fs=Fs, detrend=detrend,
                               window=window, noverlap=noverlap, pad_to=pad_to,
                               sides=sides, scale_by_freq=scale_by_freq)
-        pxy.shape = len(freqs),
         # pxy is complex
         freqs += Fc
 
