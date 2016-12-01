@@ -1081,15 +1081,7 @@ class Artist(object):
             raise ValueError('match must be None, a matplotlib.artist.Artist '
                              'subclass, or a callable')
 
-        artists = []
-
-        for c in self.get_children():
-            if matchfunc(c):
-                artists.append(c)
-            artists.extend([thisc for thisc in
-                            c.findobj(matchfunc, include_self=False)
-                            if matchfunc(thisc)])
-
+        artists = sum([c.findobj(matchfunc) for c in self.get_children()], [])
         if include_self and matchfunc(self):
             artists.append(self)
         return artists
@@ -1408,45 +1400,6 @@ class ArtistInspector(object):
             name = self.aliased_name(name)
             lines.append('    %s = %s' % (name, s))
         return lines
-
-    def findobj(self, match=None):
-        """
-        Recursively find all :class:`matplotlib.artist.Artist`
-        instances contained in *self*.
-
-        If *match* is not None, it can be
-
-          - function with signature ``boolean = match(artist)``
-
-          - class instance: e.g., :class:`~matplotlib.lines.Line2D`
-
-        used to filter matches.
-        """
-        if match is None:  # always return True
-            def matchfunc(x):
-                return True
-        elif issubclass(match, Artist):
-            def matchfunc(x):
-                return isinstance(x, match)
-        elif callable(match):
-            matchfunc = func
-        else:
-            raise ValueError('match must be None, a matplotlib.artist.Artist '
-                             'subclass, or a callable')
-
-        artists = []
-
-        for c in self.get_children():
-            if matchfunc(c):
-                artists.append(c)
-            artists.extend([thisc
-                            for thisc
-                            in c.findobj(matchfunc)
-                            if matchfunc(thisc)])
-
-        if matchfunc(self):
-            artists.append(self)
-        return artists
 
 
 def getp(obj, property=None):
