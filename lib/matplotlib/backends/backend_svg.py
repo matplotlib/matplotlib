@@ -1041,7 +1041,7 @@ class RendererSVG(RendererBase):
                 # Don't do vertical anchor alignment. Most applications do not
                 # support 'alignment-baseline' yet. Apply the vertical layout
                 # to the anchor point manually for now.
-                angle_rad = angle * np.pi / 180.
+                angle_rad = np.deg2rad(angle)
                 dir_vert = np.array([np.sin(angle_rad), np.cos(angle_rad)])
                 v_offset = np.dot(dir_vert, [(x - ax), (y - ay)])
                 ax = ax + v_offset * dir_vert[0]

@@ -59,12 +59,12 @@ def bullseye_plot(ax, data, segBold=None, cmap=None, norm=None):
 
     # Create the bounds for the segments  1-12
     for i in range(6):
-        theta_i = i*60*np.pi/180
+        theta_i = np.deg2rad(i * 60)
         ax.plot([theta_i, theta_i], [r[1], 1], '-k', lw=linewidth)
 
     # Create the bounds for the segmentss 13-16
     for i in range(4):
-        theta_i = i*90*np.pi/180 - 45*np.pi/180
+        theta_i = np.deg2rad(i * 90 - 45)
         ax.plot([theta_i, theta_i], [r[0], r[1]], '-k', lw=linewidth)
 
     # Fill the segments 1-6
@@ -72,7 +72,7 @@ def bullseye_plot(ax, data, segBold=None, cmap=None, norm=None):
     r0 = np.repeat(r0[:, np.newaxis], 128, axis=1).T
     for i in range(6):
         # First segment start at 60 degrees
-        theta0 = theta[i*128:i*128+128] + 60*np.pi/180
+        theta0 = theta[i*128:i*128+128] + np.deg2rad(60)
         theta0 = np.repeat(theta0[:, np.newaxis], 2, axis=1)
         z = np.ones((128, 2))*data[i]
         ax.pcolormesh(theta0, r0, z, cmap=cmap, norm=norm)
@@ -86,7 +86,7 @@ def bullseye_plot(ax, data, segBold=None, cmap=None, norm=None):
     r0 = np.repeat(r0[:, np.newaxis], 128, axis=1).T
     for i in range(6):
         # First segment start at 60 degrees
-        theta0 = theta[i*128:i*128+128] + 60*np.pi/180
+        theta0 = theta[i*128:i*128+128] + np.deg2rad(60)
         theta0 = np.repeat(theta0[:, np.newaxis], 2, axis=1)
         z = np.ones((128, 2))*data[i+6]
         ax.pcolormesh(theta0, r0, z, cmap=cmap, norm=norm)
@@ -100,7 +100,7 @@ def bullseye_plot(ax, data, segBold=None, cmap=None, norm=None):
     r0 = np.repeat(r0[:, np.newaxis], 192, axis=1).T
     for i in range(4):
         # First segment start at 45 degrees
-        theta0 = theta[i*192:i*192+192] + 45*np.pi/180
+        theta0 = theta[i*192:i*192+192] + np.deg2rad(45)
         theta0 = np.repeat(theta0[:, np.newaxis], 2, axis=1)
         z = np.ones((192, 2))*data[i+12]
         ax.pcolormesh(theta0, r0, z, cmap=cmap, norm=norm)

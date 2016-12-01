@@ -1567,7 +1567,7 @@ class EllipseCollection(Collection):
         Collection.__init__(self, **kwargs)
         self._widths = 0.5 * np.asarray(widths).ravel()
         self._heights = 0.5 * np.asarray(heights).ravel()
-        self._angles = np.asarray(angles).ravel() * (np.pi / 180.0)
+        self._angles = np.deg2rad(angles).ravel()
         self._units = units
         self.set_transform(transforms.IdentityTransform())
         self._transforms = np.empty((0, 3, 3))

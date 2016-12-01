@@ -864,9 +864,7 @@ class Path(object):
            polylines, quadratic or cubic Bezier curves
            <http://www.spaceroots.org/documents/ellipse/index.html>`_.
         """
-        # degrees to radians
-        theta1 *= np.pi / 180.0
-        theta2 *= np.pi / 180.0
+        theta1, theta2 = np.deg2rad([theta1, theta2])
 
         twopi = np.pi * 2.0
         halfpi = np.pi * 0.5

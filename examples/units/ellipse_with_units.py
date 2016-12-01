@@ -12,7 +12,7 @@ xcenter, ycenter = 0.38*cm, 0.52*cm
 width, height = 1e-1*cm, 3e-1*cm
 angle = -30
 
-theta = np.arange(0.0, 360.0, 1.0)*np.pi/180.0
+theta = np.deg2rad(np.arange(0.0, 360.0, 1.0))
 x = 0.5 * width * np.cos(theta)
 y = 0.5 * height * np.sin(theta)
 
