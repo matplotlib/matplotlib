@@ -108,14 +108,14 @@ weight_dict = {
     'extra bold' : 800,
     'black'      : 900}
 
-font_family_aliases = set([
-        'serif',
-        'sans-serif',
-        'sans serif',
-        'cursive',
-        'fantasy',
-        'monospace',
-        'sans'])
+font_family_aliases = {
+    'serif',
+    'sans-serif',
+    'sans serif',
+    'cursive',
+    'fantasy',
+    'monospace',
+    'sans'}
 
 #  OS Font paths
 MSFolders = \

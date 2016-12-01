@@ -321,14 +321,13 @@ def report_missing(dir, flist):
     globstr = os.path.join(dir, '*.py')
     fnames = glob.glob(globstr)
 
-    pyfiles = set([os.path.split(fullpath)[-1] for fullpath in set(fnames)])
+    pyfiles = {os.path.split(fullpath)[-1] for fullpath in set(fnames)}
 
     exclude = set(excluded.get(dir, []))
     flist = set(flist)
     missing = list(pyfiles - flist - exclude)
-    missing.sort()
     if missing:
-        print('%s files not tested: %s' % (dir, ', '.join(missing)))
+        print('%s files not tested: %s' % (dir, ', '.join(sorted(missing))))
 
 
 def report_all_missing(directories):

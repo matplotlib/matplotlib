@@ -2495,8 +2495,8 @@ def rec_join(key, r1, r2, jointype='inner', defaults=None, r1postfix='1',
     def makekey(row):
         return tuple([row[name] for name in key])
 
-    r1d = dict([(makekey(row), i) for i, row in enumerate(r1)])
-    r2d = dict([(makekey(row), i) for i, row in enumerate(r2)])
+    r1d = {makekey(row): i for i, row in enumerate(r1)}
+    r2d = {makekey(row): i for i, row in enumerate(r2)}
 
     r1keys = set(r1d.keys())
     r2keys = set(r2d.keys())

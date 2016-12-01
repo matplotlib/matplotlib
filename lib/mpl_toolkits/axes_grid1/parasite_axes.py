@@ -26,8 +26,8 @@ is_string_like = cbook.is_string_like
 class ParasiteAxesBase(object):
 
     def get_images_artists(self):
-        artists = set([a for a in self.get_children() if a.get_visible()])
-        images = set([a for a in self.images if a.get_visible()])
+        artists = {a for a in self.get_children() if a.get_visible()}
+        images = {a for a in self.images if a.get_visible()}
 
         return list(images), list(artists - images)
 

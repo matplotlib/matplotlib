@@ -255,8 +255,6 @@ class GridSpec(GridSpecBase):
                         ax.update_params()
                         ax.set_position(ax.figbox)
 
-
-
     def get_subplot_params(self, fig=None):
         """
         return a dictionary of subplot layout parameters. The default
@@ -265,13 +263,12 @@ class GridSpec(GridSpecBase):
         from matplotlib.figure import SubplotParams
         import copy
         if fig is None:
-            kw = dict([(k, rcParams["figure.subplot."+k]) \
-                       for k in self._AllowedKeys])
+            kw = {k: rcParams["figure.subplot."+k] for k in self._AllowedKeys}
             subplotpars = SubplotParams(**kw)
         else:
             subplotpars = copy.copy(fig.subplotpars)
 
-        update_kw = dict([(k, getattr(self, k)) for k in self._AllowedKeys])
+        update_kw = {k: getattr(self, k) for k in self._AllowedKeys}
         subplotpars.update(**update_kw)
 
         return subplotpars
@@ -427,7 +424,6 @@ class SubplotSpec(object):
 
         figBottoms, figTops, figLefts, figRights = \
                     gridspec.get_grid_positions(fig)
-
 
         rowNum, colNum =  divmod(self.num1, ncols)
         figBottom = figBottoms[rowNum]

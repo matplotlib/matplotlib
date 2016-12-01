@@ -2410,7 +2410,7 @@ class Parser(object):
         p.ambi_delim    <<= oneOf(list(self._ambi_delim))
         p.left_delim    <<= oneOf(list(self._left_delim))
         p.right_delim   <<= oneOf(list(self._right_delim))
-        p.right_delim_safe <<= oneOf(list(self._right_delim - set(['}'])) + [r'\}'])
+        p.right_delim_safe <<= oneOf(list(self._right_delim - {'}'}) + [r'\}'])
 
         p.genfrac       <<= Group(
                              Suppress(Literal(r"\genfrac"))

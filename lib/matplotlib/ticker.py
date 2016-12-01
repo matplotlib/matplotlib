@@ -952,7 +952,7 @@ class LogFormatter(Formatter):
 
         if numdec > self.minor_thresholds[0]:
             # Label only bases
-            self._sublabels = set((1,))
+            self._sublabels = {1}
         elif numdec > self.minor_thresholds[1]:
             # Add labels between bases at log-spaced coefficients;
             # include base powers in case the locations include

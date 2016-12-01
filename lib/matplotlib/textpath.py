@@ -49,7 +49,7 @@ class TextToPath(object):
     def _get_adobe_standard_encoding(self):
         enc_name = dviread.find_tex_file('8a.enc')
         enc = dviread.Encoding(enc_name)
-        return dict([(c, i) for i, c in enumerate(enc.encoding)])
+        return {c: i for i, c in enumerate(enc.encoding)}
 
     def _get_font(self, prop):
         """
@@ -354,10 +354,10 @@ class TextToPath(object):
 
                 if charmap_name == "ADOBE_STANDARD" and font_bunch.encoding:
                     enc0 = dviread.Encoding(font_bunch.encoding)
-                    enc = dict([(i, self._adobe_standard_encoding.get(c, None))
-                                for i, c in enumerate(enc0.encoding)])
+                    enc = {i: self._adobe_standard_encoding.get(c, None)
+                           for i, c in enumerate(enc0.encoding)}
                 else:
-                    enc = dict()
+                    enc = {}
                 self._ps_fontd[dvifont.texname] = font, enc
 
             else:
