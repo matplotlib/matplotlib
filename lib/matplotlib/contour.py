@@ -433,7 +433,7 @@ class ContourLabeler(object):
         if np.all(dd == 0):  # Must deal with case of zero length label
             rotation = 0.0
         else:
-            rotation = np.arctan2(dd[1], dd[0]) * 180.0 / np.pi
+            rotation = np.rad2deg(np.arctan2(dd[1], dd[0]))
 
         if self.rightside_up:
             # Fix angle so text is never upside-down

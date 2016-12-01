@@ -283,7 +283,7 @@ class RendererCairo(RendererBase):
 
             ctx.save()
             if angle:
-                ctx.rotate (-angle * np.pi / 180)
+                ctx.rotate(np.deg2rad(-angle))
             ctx.set_font_size (size)
 
             if HAS_CAIRO_CFFI:
@@ -306,7 +306,7 @@ class RendererCairo(RendererBase):
         ctx.save()
         ctx.translate(x, y)
         if angle:
-            ctx.rotate (-angle * np.pi / 180)
+            ctx.rotate(np.deg2rad(-angle))
 
         for font, fontsize, s, ox, oy in glyphs:
             ctx.new_path()

@@ -288,13 +288,13 @@ class FloatingAxisArtistHelper(AxisArtistHelper.Floating):
             dd = np.arctan2(yy1b-yy1a, xx1b-xx1a) # angle normal
             dd2 = np.arctan2(yy2b-yy2a, xx2b-xx2a) # angle tangent
             mm = ((yy1b-yy1a)==0.) & ((xx1b-xx1a)==0.) # mask where dd1 is not defined
-            dd[mm] = dd2[mm]+3.14159/2.
+            dd[mm] = dd2[mm] + np.pi / 2
             #dd = np.arctan2(yy2-yy1, xx2-xx1) # angle normal
             #dd2 = np.arctan2(yy3-yy1, xx3-xx1) # angle tangent
             #mm = ((yy2-yy1)==0.) & ((xx2-xx1)==0.) # mask where dd1 is not defined
-            #dd[mm] = dd2[mm]+3.14159/2.
+            #dd[mm] = dd2[mm] + np.pi / 2
 
-            #dd += 3.14159
+            #dd += np.pi
 
             #dd = np.arctan2(xx2-xx1, angle_tangent-yy1)
             trans_tick = self.get_tick_transform(axes)

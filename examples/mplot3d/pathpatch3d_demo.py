@@ -49,9 +49,9 @@ art3d.pathpatch_2d_to_3d(p, z=0, zdir="x")
 text3d(ax, (4, -2, 0), "X-axis", zdir="z", size=.5, usetex=False,
        ec="none", fc="k")
 text3d(ax, (12, 4, 0), "Y-axis", zdir="z", size=.5, usetex=False,
-       angle=.5*3.14159, ec="none", fc="k")
+       angle=np.pi / 2, ec="none", fc="k")
 text3d(ax, (12, 10, 4), "Z-axis", zdir="y", size=.5, usetex=False,
-       angle=.5*3.14159, ec="none", fc="k")
+       angle=np.pi / 2, ec="none", fc="k")
 
 # Write a Latex formula on the z=0 'floor'
 text3d(ax, (1, 5, 0),
