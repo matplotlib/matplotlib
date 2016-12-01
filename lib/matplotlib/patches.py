@@ -652,7 +652,7 @@ class Shadow(Patch):
 class Rectangle(Patch):
     """
     Draw a rectangle with lower left at *xy* = (*x*, *y*) with
-    specified *width* and *height*.
+    specified *width*, *height* and rotation *angle*.
     """
 
     def __str__(self):
@@ -678,7 +678,7 @@ class Rectangle(Patch):
         self._y = float(xy[1])
         self._width = float(width)
         self._height = float(height)
-        self._angle = float(angle)
+        self.angle = float(angle)
         # Note: This cannot be calculated until this is added to an Axes
         self._rect_transform = transforms.IdentityTransform()
 
@@ -700,7 +700,7 @@ class Rectangle(Patch):
         height = self.convert_yunits(self._height)
         bbox = transforms.Bbox.from_bounds(x, y, width, height)
         rot_trans = transforms.Affine2D()
-        rot_trans.rotate_deg_around(x, y, self._angle)
+        rot_trans.rotate_deg_around(x, y, self.angle)
         self._rect_transform = transforms.BboxTransformTo(bbox)
         self._rect_transform += rot_trans
 
