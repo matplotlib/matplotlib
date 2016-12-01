@@ -1435,8 +1435,7 @@ class ArtistInspector(object):
         elif six.callable(match):
             matchfunc = func
         else:
-            raise ValueError('match must be None, an '
-                             'matplotlib.artist.Artist '
+            raise ValueError('match must be None, a matplotlib.artist.Artist '
                              'subclass, or a callable')
 
         artists = []

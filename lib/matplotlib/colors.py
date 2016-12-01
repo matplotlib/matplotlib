@@ -358,7 +358,7 @@ def makeMappingArray(N, data, gamma=1.0):
 
     try:
         adata = np.array(data)
-    except:
+    except Exception:
         raise TypeError("data must be convertable to an array")
     shape = adata.shape
     if len(shape) != 2 or shape[1] != 3:

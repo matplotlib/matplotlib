@@ -240,11 +240,11 @@ def validate_fonttype(s):
     try:
         fonttype = validate_int(s)
     except ValueError:
-        if s.lower() in six.iterkeys(fonttypes):
+        try:
             return fonttypes[s.lower()]
-        raise ValueError(
-            'Supported Postscript/PDF font types are %s' %
-            list(six.iterkeys(fonttypes)))
+        except KeyError:
+            raise ValueError(
+                'Supported Postscript/PDF font types are %s' % list(fonttypes))
     else:
         if fonttype not in six.itervalues(fonttypes):
             raise ValueError(
@@ -253,9 +253,8 @@ def validate_fonttype(s):
         return fonttype
 
 
-_validate_standard_backends = ValidateInStrings('backend',
-                                                all_backends,
-                                                ignorecase=True)
+_validate_standard_backends = ValidateInStrings(
+    'backend', all_backends, ignorecase=True)
 
 
 def validate_backend(s):
@@ -288,13 +287,11 @@ def validate_maskedarray(v):
                   ' please delete it from your matplotlibrc file')
 
 
+_seq_err_msg = ('You must supply exactly {n} values, you provided {num} '
+                'values: {s}')
 
-_seq_err_msg = ('You must supply exactly {n:d} values, you provided '
-                   '{num:d} values: {s}')
-
-_str_err_msg = ('You must supply exactly {n:d} comma-separated values, '
-                'you provided '
-                '{num:d} comma-separated values: {s}')
+_str_err_msg = ('You must supply exactly {n} comma-separated values, you '
+                'provided {num} comma-separated values: {s}')
 
 
 class validate_nseq_float(object):
@@ -466,20 +463,19 @@ validate_verbose = ValidateInStrings(
     ['silent', 'helpful', 'debug', 'debug-annoying'])
 
 def validate_whiskers(s):
-    if s=='range':
+    if s == 'range':
         return 'range'
     else:
         try:
             v = validate_nseq_float(2)(s)
             return v
-        except:
+        except (TypeError, ValueError):
             try:
                 v = float(s)
                 return v
-            except:
-                err_str = ("Not a valid whisker value ['range',"
-                            "float, (float, float)]")
-                raise ValueError(err_str)
+            except ValueError:
+                raise ValueError("Not a valid whisker value ['range', float, "
+                                 "(float, float)]")
 
 
 def deprecate_savefig_extension(value):
@@ -653,7 +649,7 @@ class ValidateInterval(object):
     def __call__(self, s):
         try:
             s = float(s)
-        except:
+        except ValueError:
             raise RuntimeError('Value must be a float; found "%s"' % s)
 
         if self.cmin and s < self.vmin:

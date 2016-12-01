@@ -496,10 +496,7 @@ class AFM(object):
         Return the kerning pair distance (possibly 0) for chars
         *name1* and *name2*
         """
-        try:
-            return self._kern[(name1, name2)]
-        except:
-            return 0
+        return self._kern.get((name1, name2), 0)
 
     def get_fontname(self):
         "Return the font name, e.g., 'Times-Roman'"

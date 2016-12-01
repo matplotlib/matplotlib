@@ -1179,8 +1179,8 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
                         lev = np.asarray(level_arg).astype(np.float64)
                 except:
                     raise TypeError(
-                        "Last %s arg must give levels; see help(%s)" %
-                        (fn, fn))
+                        "Last {0} arg must give levels; see help({0})"
+                        .format(fn))
             self.levels = lev
         if self.filled and len(self.levels) < 2:
             raise ValueError("Filled contours require at least 2 levels.")

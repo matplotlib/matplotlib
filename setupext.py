@@ -1787,12 +1787,6 @@ class BackendGtk(OptionalBackendPackage):
 class BackendGtkAgg(BackendGtk):
     name = "gtkagg"
 
-    def check(self):
-        try:
-            return super(BackendGtkAgg, self).check()
-        except:
-            raise
-
     def get_package_data(self):
         return {'matplotlib': ['mpl-data/*.glade']}
 
@@ -2049,17 +2043,14 @@ class BackendQtBase(OptionalBackendPackage):
             p = multiprocessing.Pool()
 
         except:
-            # Can't do multiprocessing, fall back to normal approach ( this will fail if importing both PyQt4 and PyQt5 )
+            # Can't do multiprocessing, fall back to normal approach
+            # (this will fail if importing both PyQt4 and PyQt5).
             try:
                 # Try in-process
                 msg = self.callback(self)
-
             except RuntimeError:
-                raise CheckFailed("Could not import: are PyQt4 & PyQt5 both installed?")
-
-            except:
-                # Raise any other exceptions
-                raise
+                raise CheckFailed(
+                    "Could not import: are PyQt4 & PyQt5 both installed?")
 
         else:
             # Multiprocessing OK

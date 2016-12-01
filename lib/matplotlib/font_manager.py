@@ -566,17 +566,16 @@ def createFontList(fontfiles, fontext='ttf'):
         if fontext == 'afm':
             try:
                 fh = open(fpath, 'rb')
-            except:
+            except EnvironmentError:
                 verbose.report("Could not open font file %s" % fpath)
                 continue
             try:
-                try:
-                    font = afm.AFM(fh)
-                finally:
-                    fh.close()
+                font = afm.AFM(fh)
             except RuntimeError:
                 verbose.report("Could not parse font file %s" % fpath)
                 continue
+            finally:
+                fh.close()
             try:
                 prop = afmFontProperty(fpath, font)
             except KeyError:

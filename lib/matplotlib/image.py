@@ -1025,7 +1025,7 @@ class PcolorImage(AxesImage):
         i = np.searchsorted(self._Ay, y) - 1
         try:
             return self._A[i, j]
-        except:
+        except IndexError:
             return None
 
 
