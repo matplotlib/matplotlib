@@ -258,7 +258,7 @@ class Text(Artist):
 
         Returns True or False.
         """
-        if six.callable(self._contains):
+        if callable(self._contains):
             return self._contains(self, mouseevent)
 
         if not self.get_visible() or self._renderer is None:
@@ -1780,8 +1780,7 @@ class _AnnotationBase(object):
             tr2 = self._get_xy_transform(renderer, s2)
             tr = blended_transform_factory(tr1, tr2)
             return tr
-
-        if six.callable(s):
+        elif callable(s):
             tr = s(renderer)
             if isinstance(tr, BboxBase):
                 return BboxTransformTo(tr)
@@ -1789,7 +1788,7 @@ class _AnnotationBase(object):
                 return tr
             else:
                 raise RuntimeError("unknown return type ...")
-        if isinstance(s, Artist):
+        elif isinstance(s, Artist):
             bbox = s.get_window_extent(renderer)
             return BboxTransformTo(bbox)
         elif isinstance(s, BboxBase):
@@ -1843,8 +1842,7 @@ class _AnnotationBase(object):
             elif unit == "fontsize":
                 fontsize = self.get_size()
                 dpp = fontsize * self.figure.get_dpi() / 72.
-                tr = Affine2D().scale(dpp,
-                                      dpp)
+                tr = Affine2D().scale(dpp, dpp)
             elif unit == "fraction":
                 w, h = bbox0.bounds[2:]
                 tr = Affine2D().scale(w, h)

@@ -351,7 +351,7 @@ def makeMappingArray(N, data, gamma=1.0):
     gives the closest value for values of x between 0 and 1.
     """
 
-    if six.callable(data):
+    if callable(data):
         xind = np.linspace(0, 1, N) ** gamma
         lut = np.clip(np.array(data(xind), dtype=float), 0, 1)
         return lut
@@ -733,7 +733,7 @@ class LinearSegmentedColormap(Colormap):
 
         data_r = dict()
         for key, data in six.iteritems(self._segmentdata):
-            if six.callable(data):
+            if callable(data):
                 data_r[key] = factory(data)
             else:
                 new_data = [(1.0 - x, y1, y0) for x, y0, y1 in reversed(data)]

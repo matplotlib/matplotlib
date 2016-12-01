@@ -392,7 +392,7 @@ class Artist(object):
         selection, such as which points are contained in the pick radius.  See
         individual artists for details.
         """
-        if six.callable(self._contains):
+        if callable(self._contains):
             return self._contains(self, mouseevent)
         warnings.warn("'%s' needs 'contains' method" % self.__class__.__name__)
         return False, {}
@@ -435,7 +435,7 @@ class Artist(object):
         # Pick self
         if self.pickable():
             picker = self.get_picker()
-            if six.callable(picker):
+            if picker is not None:
                 inside, prop = picker(self, mouseevent)
             else:
                 inside, prop = self.contains(mouseevent)
@@ -446,8 +446,8 @@ class Artist(object):
         for a in self.get_children():
             # make sure the event happened in the same axes
             ax = getattr(a, 'axes', None)
-            if mouseevent.inaxes is None or ax is None or \
-                    mouseevent.inaxes == ax:
+            if (mouseevent.inaxes is None or ax is None
+                    or mouseevent.inaxes == ax):
                 # we need to check if mouseevent.inaxes is None
                 # because some objects associated with an axes (e.g., a
                 # tick label) can be outside the bounding box of the
@@ -873,7 +873,7 @@ class Artist(object):
                 return setattr(self, k, v)
             else:
                 func = getattr(self, 'set_' + k, None)
-                if func is None or not six.callable(func):
+                if not callable(func):
                     raise AttributeError('Unknown property %s' % k)
                 return func(v)
 
@@ -1075,7 +1075,7 @@ class Artist(object):
         elif cbook.issubclass_safe(match, Artist):
             def matchfunc(x):
                 return isinstance(x, match)
-        elif six.callable(match):
+        elif callable(match):
             matchfunc = match
         else:
             raise ValueError('match must be None, a matplotlib.artist.Artist '
@@ -1166,9 +1166,9 @@ class ArtistInspector(object):
           }
 
         """
-        names = [name for name in dir(self.o) if
-                 (name.startswith('set_') or name.startswith('get_'))
-                 and six.callable(getattr(self.o, name))]
+        names = [name for name in dir(self.o)
+                 if name.startswith(('set_', 'get_'))
+                    and callable(getattr(self.o, name))]
         aliases = {}
         for name in names:
             func = getattr(self.o, name)
@@ -1222,17 +1222,14 @@ class ArtistInspector(object):
         for name in dir(self.o):
             if not name.startswith('set_'):
                 continue
-            o = getattr(self.o, name)
-            if not six.callable(o):
+            func = getattr(self.o, name)
+            if not callable(func):
                 continue
             if six.PY2:
-                nargs = len(inspect.getargspec(o)[0])
+                nargs = len(inspect.getargspec(func)[0])
             else:
-                nargs = len(inspect.getfullargspec(o)[0])
-            if nargs < 2:
-                continue
-            func = o
-            if self.is_alias(func):
+                nargs = len(inspect.getfullargspec(func)[0])
+            if nargs < 2 or self.is_alias(func):
                 continue
             source_class = self.o.__module__ + "." + self.o.__name__
             for cls in self.o.mro():
@@ -1371,8 +1368,7 @@ class ArtistInspector(object):
         """
         o = self.oorig
         getters = [name for name in dir(o)
-                   if name.startswith('get_')
-                   and six.callable(getattr(o, name))]
+                   if name.startswith('get_') and callable(getattr(o, name))]
         getters.sort()
         d = dict()
         for name in getters:
@@ -1432,7 +1428,7 @@ class ArtistInspector(object):
         elif issubclass(match, Artist):
             def matchfunc(x):
                 return isinstance(x, match)
-        elif six.callable(match):
+        elif callable(match):
             matchfunc = func
         else:
             raise ValueError('match must be None, a matplotlib.artist.Artist '
