@@ -3183,8 +3183,8 @@ class Parser(object):
     def _auto_sized_delimiter(self, front, middle, back):
         state = self.get_state()
         if len(middle):
-            height = max([x.height for x in middle])
-            depth = max([x.depth for x in middle])
+            height = max(x.height for x in middle)
+            depth = max(x.depth for x in middle)
             factor = None
         else:
             height = 0

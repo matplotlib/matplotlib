@@ -119,11 +119,11 @@ def _get_aligned_offsets(hd_list, height, align="baseline"):
     """
 
     if height is None:
-        height = max([h for h, d in hd_list])
+        height = max(h for h, d in hd_list)
 
     if align == "baseline":
-        height_descent = max([h - d for h, d in hd_list])
-        descent = max([d for h, d in hd_list])
+        height_descent = max(h - d for h, d in hd_list)
+        descent = max(d for h, d in hd_list)
         height = height_descent + descent
         offsets = [0. for h, d in hd_list]
     elif align in ["left", "top"]:
@@ -465,8 +465,8 @@ class HPacker(PackerBase):
             return 2 * pad, 2 * pad, pad, pad, []
 
         if self.height is None:
-            height_descent = max([h - yd for w, h, xd, yd in whd_list])
-            ydescent = max([yd for w, h, xd, yd in whd_list])
+            height_descent = max(h - yd for w, h, xd, yd in whd_list)
+            ydescent = max(yd for w, h, xd, yd in whd_list)
             height = height_descent + ydescent
         else:
             height = self.height - 2 * pad  # width w/o pad

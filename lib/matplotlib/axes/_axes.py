@@ -2162,17 +2162,17 @@ or tuple of floats
 
         if adjust_xlim:
             xmin, xmax = self.dataLim.intervalx
-            xmin = np.amin([w for w in width if w > 0])
+            xmin = np.min(w for w in width if w > 0)
             if xerr is not None:
-                xmin = xmin - np.amax(xerr)
+                xmin = xmin - np.max(xerr)
             xmin = max(xmin * 0.9, 1e-100)
             self.dataLim.intervalx = (xmin, xmax)
 
         if adjust_ylim:
             ymin, ymax = self.dataLim.intervaly
-            ymin = np.amin([h for h in height if h > 0])
+            ymin = np.min(h for h in height if h > 0)
             if yerr is not None:
-                ymin = ymin - np.amax(yerr)
+                ymin = ymin - np.max(yerr)
             ymin = max(ymin * 0.9, 1e-100)
             self.dataLim.intervaly = (ymin, ymax)
         self.autoscale_view()

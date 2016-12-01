@@ -1773,7 +1773,7 @@ def _pprint_table(_table, leadingspace=2):
         for column, cell in zip(columns, row):
             column.append(cell)
 
-    col_len = [max([len(cell) for cell in column]) for column in columns]
+    col_len = [max(len(cell) for cell in column) for column in columns]
 
     lines = []
     table_formatstr = pad + '   '.join([('=' * cl) for cl in col_len])
@@ -2050,8 +2050,8 @@ class BoxStyle(_Style):
 
             # boundary of the padded box
             x0, y0 = x0 - pad, y0 - pad,
-            return Path.circle((x0 + width/2., y0 + height/2.),
-                               (max([width, height]) / 2.))
+            return Path.circle((x0 + width / 2, y0 + height / 2),
+                               max(width, height) / 2)
 
     _style_list["circle"] = Circle
 
