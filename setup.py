@@ -194,9 +194,10 @@ if __name__ == '__main__':
                     required_failed.append(package)
             else:
                 good_packages.append(package)
-                if isinstance(package, setupext.OptionalBackendPackage):
-                    if default_backend is None:
-                        default_backend = package.name
+                if (isinstance(package, setupext.OptionalBackendPackage) and
+                        package.runtime_check() and
+                        default_backend is None):
+                    default_backend = package.name
     print_raw('')
 
     # Abort if any of the required packages can not be built.
