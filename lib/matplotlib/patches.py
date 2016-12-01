@@ -656,8 +656,9 @@ class Rectangle(Patch):
     """
 
     def __str__(self):
-        return self.__class__.__name__ \
-            + "(%g,%g;%gx%g)" % (self._x, self._y, self._width, self._height)
+        pars = self._x, self._y, self._width, self._height, self.angle
+        fmt = "Rectangle(xy=(%g, %g), width=%g, height=%g, angle=%g)"
+        return fmt % pars
 
     @docstring.dedent_interpd
     def __init__(self, xy, width, height, angle=0.0, **kwargs):
@@ -1024,7 +1025,10 @@ class Wedge(Patch):
     Wedge shaped patch.
     """
     def __str__(self):
-        return "Wedge(%g,%g)" % (self.theta1, self.theta2)
+        pars = (self.center[0], self.center[1], self.r,
+                self.theta1, self.theta2, self.width)
+        fmt = "Wedge(center=(%g, %g), r=%g, theta1=%g, theta2=%g, width=%s)"
+        return fmt % pars
 
     @docstring.dedent_interpd
     def __init__(self, center, r, theta1, theta2, width=None, **kwargs):
@@ -1394,8 +1398,10 @@ class Ellipse(Patch):
     A scale-free ellipse.
     """
     def __str__(self):
-        return "Ellipse(%s,%s;%sx%s)" % (self.center[0], self.center[1],
-                                         self.width, self.height)
+        pars = (self.center[0], self.center[1],
+                self.width, self.height, self.angle)
+        fmt = "Ellipse(xy=(%s, %s), width=%s, height=%s, angle=%s)"
+        return fmt % pars
 
     @docstring.dedent_interpd
     def __init__(self, xy, width, height, angle=0.0, **kwargs):
@@ -1455,9 +1461,9 @@ class Circle(Ellipse):
     A circle patch.
     """
     def __str__(self):
-        return "Circle((%g,%g),r=%g)" % (self.center[0],
-                                         self.center[1],
-                                         self.radius)
+        pars = self.center[0], self.center[1], self.radius
+        fmt = "Circle(xy=(%g, %g), radius=%g)"
+        return fmt % pars
 
     @docstring.dedent_interpd
     def __init__(self, xy, radius=5, **kwargs):
@@ -1502,8 +1508,11 @@ class Arc(Ellipse):
     with high resolution.
     """
     def __str__(self):
-        return "Arc(%s,%s;%sx%s)" % (self.center[0], self.center[1],
-                                     self.width, self.height)
+        pars = (self.center[0], self.center[1], self.width,
+                self.height, self.angle, self.theta1, self.theta2)
+        fmt = ("Arc(xy=(%g, %g), width=%g, "
+               "height=%g, angle=%g, theta1=%g, theta2=%g)")
+        return fmt % pars
 
     @docstring.dedent_interpd
     def __init__(self, xy, width, height, angle=0.0,
