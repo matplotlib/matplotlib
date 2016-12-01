@@ -37,10 +37,6 @@
  Videos
 =======
 
-* `Getting started with Matplotlib
-  <http://showmedo.com/videotutorials/video?name=7200090&fromSeriesID=720>`_
-  by `unpingco <http://showmedo.com/videotutorials/?author=6237>`_
-
 * `Plotting with matplotlib <http://www.youtube.com/watch?v=P7SVi0YTIuE>`_
   by Mike Müller
 
