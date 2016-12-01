@@ -1339,9 +1339,7 @@ def cohere(x, y, NFFT=256, Fs=2, detrend=detrend_none, window=window_hanning,
                  scale_by_freq)
     Pxy, f = csd(x, y, NFFT, Fs, detrend, window, noverlap, pad_to, sides,
                  scale_by_freq)
-
-    Cxy = np.divide(np.absolute(Pxy)**2, Pxx*Pyy)
-    Cxy.shape = (len(f),)
+    Cxy = np.abs(Pxy) ** 2 / (Pxx * Pxy)
     return Cxy, f
 
 

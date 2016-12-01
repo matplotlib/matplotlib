@@ -28,8 +28,7 @@ xmin, xmax, ymin, ymax = np.amin(x), np.amax(x), np.amin(y), np.amax(y)
 extent = xmin, xmax, ymin, ymax
 fig = plt.figure(frameon=False)
 
-Z1 = np.array(([0, 1]*4 + [1, 0]*4)*4)
-Z1.shape = (8, 8)  # chessboard
+Z1 = np.add.outer(range(8), range(8)) % 2  # chessboard
 im1 = plt.imshow(Z1, cmap=plt.cm.gray, interpolation='nearest',
                  extent=extent)
 

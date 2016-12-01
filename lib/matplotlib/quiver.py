@@ -656,11 +656,8 @@ class Quiver(mcollections.PolyCollection):
         elif str_angles and (self.angles == 'uv'):
             theta = np.angle(uv)
         else:
-            # Make a copy to avoid changing the input array.
-            theta = ma.masked_invalid(self.angles, copy=True).filled(0)
-            theta = theta.ravel()
-            theta *= (np.pi / 180.0)
-        theta.shape = (theta.shape[0], 1)  # for broadcasting
+            theta = ma.masked_invalid(np.deg2rad(self.angles)).filled(0)
+            theta = theta.reshape((-1, 1))  # for broadcasting
         xy = (X + Y * 1j) * np.exp(1j * theta) * self.width
         xy = xy[:, :, np.newaxis]
         XY = np.concatenate((xy.real, xy.imag), axis=2)

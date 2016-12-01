@@ -21,10 +21,8 @@ from matplotlib.cbook import delete_masked_points as dmp
 def test_is_string_like():
     y = np.arange(10)
     assert not cbook.is_string_like(y)
-    y.shape = 10, 1
-    assert not cbook.is_string_like(y)
-    y.shape = 1, 10
-    assert not cbook.is_string_like(y)
+    assert not cbook.is_string_like(y.reshape((-1, 1)))
+    assert not cbook.is_string_like(y.reshape((1, -1)))
 
     assert cbook.is_string_like("hello world")
     assert not cbook.is_string_like(10)

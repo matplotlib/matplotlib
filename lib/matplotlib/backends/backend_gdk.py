@@ -134,7 +134,6 @@ class RendererGDK(RendererBase):
                                   int(x), int(y), cols, rows,
                                   gdk.RGB_DITHER_NONE, 0, 0)
 
-
     def draw_text(self, gc, x, y, s, prop, angle, ismath=False, mtext=None):
         x, y = int(x), int(y)
 
@@ -158,31 +157,17 @@ class RendererGDK(RendererBase):
 
             self.gdkDrawable.draw_layout(gc.gdkGC, x, y-h-b, layout)
 
-
     def _draw_mathtext(self, gc, x, y, s, prop, angle):
         ox, oy, width, height, descent, font_image, used_characters = \
             self.mathtext_parser.parse(s, self.dpi, prop)
 
-        if angle==90:
+        if angle == 90:
             width, height = height, width
             x -= width
         y -= height
 
         imw = font_image.get_width()
         imh = font_image.get_height()
-        N = imw * imh
-
-        # a numpixels by num fonts array
-        Xall = np.zeros((N,1), np.uint8)
-
-        image_str = font_image.as_str()
-        Xall[:,0] = np.fromstring(image_str, np.uint8)
-
-        # get the max alpha at each pixel
-        Xs = np.amax(Xall,axis=1)
-
-        # convert it to it's proper shape
-        Xs.shape = imh, imw
 
         pixbuf = gtk.gdk.Pixbuf(gtk.gdk.COLORSPACE_RGB, has_alpha=True,
                                 bits_per_sample=8, width=imw, height=imh)
@@ -190,22 +175,16 @@ class RendererGDK(RendererBase):
         array = pixbuf_get_pixels_array(pixbuf)
 
         rgb = gc.get_rgb()
-        array[:,:,0]=int(rgb[0]*255)
-        array[:,:,1]=int(rgb[1]*255)
-        array[:,:,2]=int(rgb[2]*255)
-        array[:,:,3]=Xs
+        array[:,:,0] = int(rgb[0]*255)
+        array[:,:,1] = int(rgb[1]*255)
+        array[:,:,2] = int(rgb[2]*255)
+        array[:,:,3] = (
+            np.fromstring(font_image.as_str(), np.uint8).reshape((imh, imw)))
 
-        try: # new in 2.2
-            # can use None instead of gc.gdkGC, if don't need clipping
-            self.gdkDrawable.draw_pixbuf (gc.gdkGC, pixbuf, 0, 0,
-                                          int(x), int(y), imw, imh,
-                                          gdk.RGB_DITHER_NONE, 0, 0)
-        except AttributeError:
-            # deprecated in 2.2
-            pixbuf.render_to_drawable(self.gdkDrawable, gc.gdkGC, 0, 0,
-                                  int(x), int(y), imw, imh,
-                                  gdk.RGB_DITHER_NONE, 0, 0)
-
+        # can use None instead of gc.gdkGC, if don't need clipping
+        self.gdkDrawable.draw_pixbuf(gc.gdkGC, pixbuf, 0, 0,
+                                     int(x), int(y), imw, imh,
+                                     gdk.RGB_DITHER_NONE, 0, 0)
 
     def _draw_rotated_text(self, gc, x, y, s, prop, angle):
         """
@@ -259,7 +238,6 @@ class RendererGDK(RendererBase):
         gdrawable.draw_image(ggc, imageVert, 0, 0, x, y, h, w)
         self.rotated[key] = imageVert
 
-
     def _get_pango_layout(self, s, prop):
         """
         Create a pango layout instance for Text 's' with properties 'prop'.
@@ -293,7 +271,6 @@ class RendererGDK(RendererBase):
         self.layoutd[key] = layout, inkRect, logicalRect
         return layout, inkRect, logicalRect
 
-
     def flipy(self):
         return True
 
@@ -314,7 +291,6 @@ class RendererGDK(RendererBase):
 
     def new_gc(self):
         return GraphicsContextGDK(renderer=self)
-
 
     def points_to_pixels(self, points):
         return points/72.0 * self.dpi

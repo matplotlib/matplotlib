@@ -386,11 +386,8 @@ def test_shaped_data():
                       [0.01383268,  0.34060930,  0.76084285,  0.70800694,  0.87634056,
                        0.08213693,  0.54655021,  0.98123181,  0.44080053,  0.86815815]])
 
-    y1 = np.arange(10)
-    y1.shape = 1, 10
-
-    y2 = np.arange(10)
-    y2.shape = 10, 1
+    y1 = np.arange(10).reshape((1, -1))
+    y2 = np.arange(10).reshape((-1, 1))
 
     fig = plt.figure()
     plt.subplot(411)
@@ -551,8 +548,7 @@ def test_hexbin_extent():
     fig = plt.figure()
 
     ax = fig.add_subplot(111)
-    data = np.arange(2000.)/2000.
-    data.shape = 2, 1000
+    data = (np.arange(2000) / 2000).reshape((2, 1000))
     x, y = data
 
     ax.hexbin(x, y, extent=[.1, .3, .6, .7])
@@ -583,8 +579,7 @@ def test_hexbin_pickable():
     fig = plt.figure()
 
     ax = fig.add_subplot(111)
-    data = np.arange(200.)/200.
-    data.shape = 2, 100
+    data = (np.arange(200) / 200).reshape((2, 100))
     x, y = data
     hb = ax.hexbin(x, y, extent=[.1, .3, .6, .7], picker=-1)
 

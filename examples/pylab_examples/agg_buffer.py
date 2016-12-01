@@ -26,8 +26,7 @@ s = agg.tostring_rgb()
 l, b, w, h = agg.figure.bbox.bounds
 w, h = int(w), int(h)
 
-X = np.fromstring(s, np.uint8)
-X.shape = h, w, 3
+X = np.fromstring(s, np.uint8).reshape((h, w, 3))
 
 try:
     im = Image.fromstring("RGB", (w, h), s)
