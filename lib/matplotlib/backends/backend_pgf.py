@@ -424,7 +424,7 @@ class RendererPgf(RendererBase):
         if dummy:
             # dummy==True deactivate all methods
             nop = lambda *args, **kwargs: None
-            for m in RendererPgf.__dict__.keys():
+            for m in RendererPgf.__dict__:
                 if m.startswith("draw_"):
                     self.__dict__[m] = nop
         else:

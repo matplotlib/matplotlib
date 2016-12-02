@@ -86,7 +86,7 @@ class UnitData(object):
         new_s = [d for d in np.unique(strdata) if d not in self.seq]
         for ns in new_s:
             self.seq.append(ns)
-            if ns in UnitData.spdict.keys():
+            if ns in UnitData.spdict:
                 self.locs.append(UnitData.spdict[ns])
             else:
                 self.locs.append(value)

@@ -2096,7 +2096,7 @@ def colormaps():
 
 
     """
-    return sorted(cm.cmap_d.keys())
+    return sorted(cm.cmap_d)
 
 
 def _setup_pyplot_info_docstrings():

@@ -67,7 +67,7 @@ def _get_packed_offsets(wd_list, total, sep, mode="fixed"):
     *mode* : packing mode. 'fixed', 'expand', or 'equal'.
     """
 
-    w_list, d_list = list(zip(*wd_list))
+    w_list, d_list = zip(*wd_list)
     # d_list is currently not used.
 
     if mode == "fixed":
@@ -1183,7 +1183,7 @@ class AnchoredOffsetbox(OffsetBox):
         """
         assert loc in range(1, 11)  # called only internally
 
-        BEST, UR, UL, LL, LR, R, CL, CR, LC, UC, C = list(xrange(11))
+        BEST, UR, UL, LL, LR, R, CL, CR, LC, UC, C = xrange(11)
 
         anchor_coefs = {UR: "NE",
                         UL: "NW",

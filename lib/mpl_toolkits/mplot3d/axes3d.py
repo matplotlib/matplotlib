@@ -589,7 +589,7 @@ class Axes3D(Axes):
         if 'xmax' in kw:
             right = kw.pop('xmax')
         if kw:
-            raise ValueError("unrecognized kwargs: %s" % kw.keys())
+            raise ValueError("unrecognized kwargs: %s" % list(kw))
 
         if right is None and cbook.iterable(left):
             left, right = left
@@ -644,7 +644,7 @@ class Axes3D(Axes):
         if 'ymax' in kw:
             top = kw.pop('ymax')
         if kw:
-            raise ValueError("unrecognized kwargs: %s" % kw.keys())
+            raise ValueError("unrecognized kwargs: %s" % list(kw))
 
         if top is None and cbook.iterable(bottom):
             bottom, top = bottom
@@ -698,7 +698,7 @@ class Axes3D(Axes):
         if 'zmax' in kw:
             top = kw.pop('zmax')
         if kw:
-            raise ValueError("unrecognized kwargs: %s" % kw.keys())
+            raise ValueError("unrecognized kwargs: %s" % list(kw))
 
         if top is None and cbook.iterable(bottom):
             bottom, top = bottom

@@ -479,8 +479,7 @@ class RecTreeView(gtk.TreeView):
 
         gtk.TreeView.__init__(self, recliststore)
 
-        combostrings = set(recliststore.stringd.keys())
-
+        combostrings = set(recliststore.stringd)
 
         if constant is None:
             constant = []

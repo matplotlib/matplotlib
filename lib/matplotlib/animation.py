@@ -108,7 +108,7 @@ class MovieWriterRegistry(object):
     def list(self):
         ''' Get a list of available MovieWriters.'''
         self.ensure_not_dirty()
-        return list(self.avail.keys())
+        return list(self.avail)
 
     def is_available(self, name):
         '''Check if given writer is available by name.

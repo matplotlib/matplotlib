@@ -24,18 +24,16 @@ class ListTools(ToolBase):
 
     def trigger(self, *args, **kwargs):
         print('_' * 80)
-        print("{0:12} {1:45} {2}".format('Name (id)',
-                                         'Tool description',
-                                         'Keymap'))
+        print("{0:12} {1:45} {2}".format(
+            'Name (id)', 'Tool description', 'Keymap'))
         print('-' * 80)
         tools = self.toolmanager.tools
-        for name in sorted(tools.keys()):
+        for name in sorted(tools):
             if not tools[name].description:
                 continue
             keys = ', '.join(sorted(self.toolmanager.get_tool_keymap(name)))
-            print("{0:12} {1:45} {2}".format(name,
-                                             tools[name].description,
-                                             keys))
+            print("{0:12} {1:45} {2}".format(
+                name, tools[name].description, keys))
         print('_' * 80)
         print("Active Toggle tools")
         print("{0:12} {1:45}".format("Group", "Active"))
