@@ -136,9 +136,9 @@ def proj_transform_vec_clip(vec, M):
     w = vecw[3]
     # clip here..
     txs, tys, tzs = vecw[0]/w, vecw[1]/w, vecw[2]/w
-    tis = (vecw[0] >= 0) * (vecw[0] <= 1) * (vecw[1] >= 0) * (vecw[1] <= 1)
-    if np.sometrue(tis):
-        tis =  vecw[1] < 1
+    tis = (vecw[0] >= 0) & (vecw[0] <= 1) & (vecw[1] >= 0) & (vecw[1] <= 1)
+    if np.any(tis):
+        tis = vecw[1] < 1
     return txs, tys, tzs, tis
 
 def inv_transform(xs, ys, zs, M):
