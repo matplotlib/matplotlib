@@ -1519,15 +1519,8 @@ class VertexSelector(object):
         """When the line is picked, update the set of selected indicies."""
         if event.artist is not self.line:
             return
-
-        for i in event.ind:
-            if i in self.ind:
-                self.ind.remove(i)
-            else:
-                self.ind.add(i)
-
-        ind = list(self.ind)
-        ind.sort()
+        self.ind ^= set(event.ind)
+        ind = sorted(self.ind)
         xdata, ydata = self.line.get_data()
         self.process_selected(ind, xdata[ind], ydata[ind])
 

@@ -1730,31 +1730,27 @@ def prctile(x, p=(0.0, 25.0, 50.0, 75.0, 100.0)):
         """Returns the point at the given fraction between a and b, where
         'fraction' must be between 0 and 1.
         """
-        return a + (b - a)*fraction
+        return a + (b - a) * fraction
 
-    scalar = True
-    if cbook.iterable(p):
-        scalar = False
     per = np.array(p)
-    values = np.array(x).ravel()  # copy
-    values.sort()
+    values = np.sort(x, axis=None)
 
-    idxs = per/100. * (values.shape[0] - 1)
-    ai = idxs.astype(np.int)
+    idxs = per / 100 * (values.shape[0] - 1)
+    ai = idxs.astype(int)
     bi = ai + 1
     frac = idxs % 1
 
     # handle cases where attempting to interpolate past last index
     cond = bi >= len(values)
-    if scalar:
+    if per.ndim:
+        ai[cond] -= 1
+        bi[cond] -= 1
+        frac[cond] += 1
+    else:
         if cond:
             ai -= 1
             bi -= 1
             frac += 1
-    else:
-        ai[cond] -= 1
-        bi[cond] -= 1
-        frac[cond] += 1
 
     return _interpolate(values[ai], values[bi], frac)
 
@@ -2413,17 +2409,14 @@ def rec_groupby(r, groupby, stats):
     """
     # build a dictionary from groupby keys-> list of indices into r with
     # those keys
-    rowd = dict()
+    rowd = {}
     for i, row in enumerate(r):
         key = tuple([row[attr] for attr in groupby])
         rowd.setdefault(key, []).append(i)
 
-    # sort the output by groupby keys
-    keys = list(six.iterkeys(rowd))
-    keys.sort()
-
     rows = []
-    for key in keys:
+    # sort the output by groupby keys
+    for key in sorted(rowd):
         row = list(key)
         # get the indices for this groupby key
         ind = rowd[key]

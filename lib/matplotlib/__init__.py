@@ -968,9 +968,7 @@ See rcParams.keys() for a list of valid parameters.' % (key,))
         """
         Return sorted list of keys.
         """
-        k = list(dict.keys(self))
-        k.sort()
-        return k
+        return sorted(self)
 
     def values(self):
         """

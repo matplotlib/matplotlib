@@ -519,9 +519,7 @@ _scale_mapping = {
 
 
 def get_scale_names():
-    names = list(six.iterkeys(_scale_mapping))
-    names.sort()
-    return names
+    return sorted(_scale_mapping)
 
 
 def scale_factory(scale, axis, **kwargs):

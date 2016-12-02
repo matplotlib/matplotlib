@@ -16,7 +16,6 @@ import six
 from six.moves import map, xrange, zip, reduce
 
 import warnings
-from operator import itemgetter
 
 import matplotlib.axes as maxes
 from matplotlib.axes import Axes, rcParams
@@ -267,17 +266,17 @@ class Axes3D(Axes):
         renderer.get_axis_position = self.get_axis_position
 
         # Calculate projection of collections and zorder them
-        zlist = [(col.do_3d_projection(renderer), col) \
-                 for col in self.collections]
-        zlist.sort(key=itemgetter(0), reverse=True)
-        for i, (z, col) in enumerate(zlist):
+        for i, col in enumerate(
+                sorted(self.collections,
+                       key=lambda col: col.do_3d_projection(renderer),
+                       reverse=True)):
             col.zorder = i
 
         # Calculate projection of patches and zorder them
-        zlist = [(patch.do_3d_projection(renderer), patch) \
-                for patch in self.patches]
-        zlist.sort(key=itemgetter(0), reverse=True)
-        for i, (z, patch) in enumerate(zlist):
+        for i, patch in enumerate(
+                sorted(self.patches,
+                       key=lambda patch: patch.do_3d_projection(renderer),
+                       reverse=True)):
             patch.zorder = i
 
         if self._axis3don:
@@ -1118,16 +1117,10 @@ class Axes3D(Axes):
             return 'azimuth=%d deg, elevation=%d deg ' % (self.azim, self.elev)
             # ignore xd and yd and display angles instead
 
-        p = (xd, yd)
-        edges = self.tunit_edges()
-        #lines = [proj3d.line2d(p0,p1) for (p0,p1) in edges]
-        ldists = [(proj3d.line2d_seg_dist(p0, p1, p), i) for \
-                i, (p0, p1) in enumerate(edges)]
-        ldists.sort()
         # nearest edge
-        edgei = ldists[0][1]
-
-        p0, p1 = edges[edgei]
+        p0, p1 = min(self.tunit_edges(),
+                     key=lambda edge: proj3d.line2d_seg_dist(
+                         edge[0], edge[1], (xd, yd)))
 
         # scale the z value to match
         x0, y0, z0 = p0
