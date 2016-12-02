@@ -560,7 +560,8 @@ class PdfFile(object):
             {val[0]: val[1] for val in six.itervalues(self.alphaStates)})
         self.writeHatches()
         self.writeGouraudTriangles()
-        xobjects = dict(x[1:] for x in six.itervalues(self._images))
+        xobjects = {
+            name: ob for image, name, ob in six.itervalues(self._images)}
         for tup in six.itervalues(self.markers):
             xobjects[tup[0]] = tup[1]
         for name, value in six.iteritems(self.multi_byte_charprocs):

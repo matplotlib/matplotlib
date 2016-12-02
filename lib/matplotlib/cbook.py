@@ -2067,16 +2067,10 @@ def unmasked_index_ranges(mask, compressed=True):
     ic1 = breakpoints
     return np.concatenate((ic0[:, np.newaxis], ic1[:, np.newaxis]), axis=1)
 
-# a dict to cross-map linestyle arguments
-_linestyles = [('-', 'solid'),
-               ('--', 'dashed'),
-               ('-.', 'dashdot'),
-               (':', 'dotted')]
 
-ls_mapper = dict(_linestyles)
-# The ls_mapper maps short codes for line style to their full name used
-# by backends
-# The reverse mapper is for mapping full names to short ones
+# The ls_mapper maps short codes for line style to their full name used by
+# backends; the reverse mapper is for mapping full names to short ones.
+ls_mapper = {'-': 'solid', '--': 'dashed', '-.': 'dashdot', ':': 'dotted'}
 ls_mapper_r = reverse_dict(ls_mapper)
 
 

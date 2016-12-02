@@ -657,7 +657,7 @@ class Quiver(mcollections.PolyCollection):
             theta = np.angle(uv)
         else:
             theta = ma.masked_invalid(np.deg2rad(self.angles)).filled(0)
-            theta = theta.reshape((-1, 1))  # for broadcasting
+        theta = theta.reshape((-1, 1))  # for broadcasting
         xy = (X + Y * 1j) * np.exp(1j * theta) * self.width
         xy = xy[:, :, np.newaxis]
         XY = np.concatenate((xy.real, xy.imag), axis=2)
