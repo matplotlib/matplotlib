@@ -8,31 +8,31 @@ All possible markers are defined here:
 ============================== ===============================================
 marker                         description
 ============================== ===============================================
-"."                            point
-","                            pixel
-"o"                            circle
-"v"                            triangle_down
-"^"                            triangle_up
-"<"                            triangle_left
-">"                            triangle_right
-"1"                            tri_down
-"2"                            tri_up
-"3"                            tri_left
-"4"                            tri_right
-"8"                            octagon
-"s"                            square
-"p"                            pentagon
-"*"                            star
-"h"                            hexagon1
-"H"                            hexagon2
-"+"                            plus
-"x"                            x
-"D"                            diamond
-"d"                            thin_diamond
-"|"                            vline
-"_"                            hline
-"P"                            plus (filled)
-"X"                            x (filled)
+`"."`                          point
+`","`                          pixel
+`"o"`                          circle
+`"v"`                          triangle_down
+`"^"`                          triangle_up
+`"<"`                          triangle_left
+`">"`                          triangle_right
+`"1"`                          tri_down
+`"2"`                          tri_up
+`"3"`                          tri_left
+`"4"`                          tri_right
+`"8"`                          octagon
+`"s"`                          square
+`"p"`                          pentagon
+`"P"`                          plus (filled)
+`"*"`                          star
+`"h"`                          hexagon1
+`"H"`                          hexagon2
+`"+"`                          plus
+`"x"`                          x
+`"X"`                          x (filled)
+`"D"`                          diamond
+`"d"`                          thin_diamond
+`"|"`                          vline
+`"_"`                          hline
 TICKLEFT                       tickleft
 TICKRIGHT                      tickright
 TICKUP                         tickup
@@ -44,43 +44,44 @@ CARETDOWN                      caretdown (centered at tip)
 CARETLEFTBASE                  caretleft (centered at base)
 CARETRIGHTBASE                 caretright (centered at base)
 CARETUPBASE                    caretup (centered at base)
-"None"                         nothing
-None                           nothing
-" "                            nothing
-""                             nothing
+`"None"`, `" "` or `""`        nothing
 ``'$...$'``                    render the string using mathtext.
 `verts`                        a list of (x, y) pairs used for Path vertices.
                                The center of the marker is located at (0,0) and
                                the size is normalized.
 path                           a `~matplotlib.path.Path` instance.
-(`numsides`, `style`, `angle`) see below
+(`numsides`, `style`, `angle`) The marker can also be a tuple (`numsides`,
+                               `style`, `angle`), which will create a custom,
+                               regular symbol.
+
+                               `numsides`:
+                                   the number of sides
+
+                               `style`:
+                                   the style of the regular symbol:
+                                   """"""
+                                   =====   ===================================
+                                   Value   Description
+                                   0       a regular polygon
+                                   1       a star-like symbol
+                                   2       an asterisk
+                                   3       a circle (`numsides` and `angle` is
+                                           ignored)
+                                   =====   ===================================
+                                   """"""
+                               `angle`:
+                                   the angle of rotation of the symbol
 ============================== ===============================================
-
-The marker can also be a tuple (`numsides`, `style`, `angle`), which
-will create a custom, regular symbol.
-
-    `numsides`:
-      the number of sides
-
-    `style`:
-      the style of the regular symbol:
-
-      =====   =============================================
-      Value   Description
-      =====   =============================================
-      0       a regular polygon
-      1       a star-like symbol
-      2       an asterisk
-      3       a circle (`numsides` and `angle` is ignored)
-      =====   =============================================
-
-    `angle`:
-      the angle of rotation of the symbol, in degrees
 
 For backward compatibility, the form (`verts`, 0) is also accepted,
 but it is equivalent to just `verts` for giving a raw set of vertices
 that define the shape.
+
+`None` is the default which means 'nothing', however this table is
+referred to from other docs for the valid inputs from marker inputs and in
+those cases `None` still means 'default'.
 """
+
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
