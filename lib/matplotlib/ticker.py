@@ -579,7 +579,7 @@ class ScalarFormatter(Formatter):
         if rcParams['text.usetex'] or not rcParams['axes.unicode_minus']:
             return s
         else:
-            return s.replace('-', '\u2212')
+            return s.replace('-', '\N{MINUS SIGN}')
 
     def __call__(self, x, pos=None):
         """
@@ -1202,7 +1202,7 @@ class EngFormatter(Formatter):
         -15: "f",
         -12: "p",
          -9: "n",
-         -6: "\u03bc",
+         -6: "\N{GREEK SMALL LETTER MU}",
          -3: "m",
           0: "",
           3: "k",
@@ -1236,7 +1236,7 @@ class EngFormatter(Formatter):
         '1.0 M'
 
         >>> format_eng("-1e-6") # for self.places = 2
-        u'-1.00 \u03bc'
+        u'-1.00 \N{GREEK SMALL LETTER MU}'
 
         `num` may be a numeric value or a string that can be converted
         to a numeric value with the `decimal.Decimal` constructor.
