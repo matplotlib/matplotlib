@@ -1031,7 +1031,7 @@ end"""
 
             # Make the 'W' (Widths) array, CidToGidMap and ToUnicode CMap
             # at the same time
-            cid_to_gid_map = ['\u0000'] * 65536
+            cid_to_gid_map = ['\0'] * 65536
             widths = []
             max_ccode = 0
             for c in characters:
