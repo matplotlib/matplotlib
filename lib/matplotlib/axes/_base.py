@@ -1030,6 +1030,7 @@ class _AxesBase(martist.Artist):
         self._xmargin = rcParams['axes.xmargin']
         self._ymargin = rcParams['axes.ymargin']
         self._tight = None
+        self._use_sticky_edges = True
         self._update_transScale()  # needed?
 
         self._get_lines = _process_plot_var_args(self)
@@ -2034,6 +2035,28 @@ class _AxesBase(martist.Artist):
         """
         self._autoscaleYon = b
 
+    @property
+    def use_sticky_edges(self):
+        """
+        When autoscaling, whether to obey all `Artist.sticky_edges`.
+
+        Default is ``True``.
+
+        Setting this to ``False`` ensures that the specified margins
+        will be applied, even if the plot includes an image, for
+        example, which would otherwise force a view limit to coincide
+        with its data limit.
+
+        The changing this property does not change the plot until
+        `autoscale` or `autoscale_view` is called.
+        """
+        return self._use_sticky_edges
+
+    @use_sticky_edges.setter
+    def use_sticky_edges(self, b):
+        self._use_sticky_edges = bool(b)
+        self.stale = True
+
     def set_xmargin(self, m):
         """
         Set padding of X data limits prior to autoscaling.
@@ -2202,7 +2225,7 @@ class _AxesBase(martist.Artist):
         if tight is not None:
             self._tight = bool(tight)
 
-        if self._xmargin or self._ymargin:
+        if self.use_sticky_edges and (self._xmargin or self._ymargin):
             stickies = [artist.sticky_edges for artist in self.get_children()]
             x_stickies = sum([sticky.x for sticky in stickies], [])
             y_stickies = sum([sticky.y for sticky in stickies], [])
