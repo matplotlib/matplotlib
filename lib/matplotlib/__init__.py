@@ -916,8 +916,9 @@ class RcParams(dict):
                 raise ValueError("Key %s: %s" % (key, str(ve)))
             dict.__setitem__(self, key, cval)
         except KeyError:
-            raise KeyError('%s is not a valid rc parameter.\
-See rcParams.keys() for a list of valid parameters.' % (key,))
+            raise KeyError(
+                '%s is not a valid rc parameter. See rcParams.keys() for a '
+                'list of valid parameters.' % (key,))
 
     def __getitem__(self, key):
         inverse_alt = None
@@ -974,7 +975,7 @@ See rcParams.keys() for a list of valid parameters.' % (key,))
         """
         Return values in order of sorted keys.
         """
-        return [self[k] for k in self.keys()]
+        return [self[k] for k in self]
 
     def find_all(self, pattern):
         """

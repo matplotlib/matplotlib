@@ -683,10 +683,7 @@ class TextBox(AxesWidget):
 
         self.DIST_FROM_LEFT = .05
 
-        self.params_to_disable = []
-        for key in rcParams.keys():
-            if u'keymap' in key:
-                self.params_to_disable += [key]
+        self.params_to_disable = [key for key in rcParams if u'keymap' in key]
 
         self.text = initial
         self.label = ax.text(-label_pad, 0.5, label,

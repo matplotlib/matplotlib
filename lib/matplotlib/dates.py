@@ -958,8 +958,7 @@ class AutoDateLocator(DateLocator):
                 # Assume we were given an integer. Use this as the maximum
                 # number of ticks for every frequency and create a
                 # dictionary for this
-                self.maxticks = dict(zip(self._freqs,
-                                         [maxticks] * len(self._freqs)))
+                self.maxticks = dict.fromkeys(self._freqs, maxticks)
         self.interval_multiples = interval_multiples
         self.intervald = {
             YEARLY:   [1, 2, 4, 5, 10, 20, 40, 50, 100, 200, 400, 500,

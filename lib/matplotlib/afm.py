@@ -199,10 +199,9 @@ def _parse_char_metrics(fh):
         if line.startswith('EndCharMetrics'):
             return ascii_d, name_d
         # Split the metric line into a dictonary, keyed by metric identifiers
-        vals = filter(lambda s: len(s) > 0, line.split(';'))
-        vals = dict(map(lambda s: tuple(s.strip().split(' ', 1)), vals))
+        vals = dict(s.strip().split(' ', 1) for s in line.split(';') if s)
         # There may be other metrics present, but only these are needed
-        if any([id not in vals.keys() for id in ('C', 'WX', 'N', 'B')]):
+        if not {'C', 'WX', 'N', 'B'}.issubset(vals):
             raise RuntimeError('Bad char metrics line: %s' % line)
         num = _to_int(vals['C'])
         wx = _to_float(vals['WX'])

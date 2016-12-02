@@ -112,7 +112,7 @@ font.weight: normal""".lstrip()
     assert_str_equal(expected_str, str(rc))
 
     # test the find_all functionality
-    assert ['font.cursive', 'font.size'] == sorted(rc.find_all('i[vz]').keys())
+    assert ['font.cursive', 'font.size'] == sorted(rc.find_all('i[vz]'))
     assert ['font.family'] == list(rc.find_all('family'))
 
 

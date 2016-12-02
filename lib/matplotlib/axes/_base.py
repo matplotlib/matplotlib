@@ -2942,7 +2942,7 @@ class _AxesBase(martist.Artist):
         """
         # If the scale is being set to log, clip nonposx to prevent headaches
         # around zero
-        if value.lower() == 'log' and 'nonposx' not in kwargs.keys():
+        if value.lower() == 'log' and 'nonposx' not in kwargs:
             kwargs['nonposx'] = 'clip'
 
         g = self.get_shared_x_axes()
@@ -3222,7 +3222,7 @@ class _AxesBase(martist.Artist):
         """
         # If the scale is being set to log, clip nonposy to prevent headaches
         # around zero
-        if value.lower() == 'log' and 'nonposy' not in kwargs.keys():
+        if value.lower() == 'log' and 'nonposy' not in kwargs:
             kwargs['nonposy'] = 'clip'
 
         g = self.get_shared_y_axes()

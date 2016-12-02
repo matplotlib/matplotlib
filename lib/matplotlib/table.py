@@ -520,7 +520,7 @@ class Table(Artist):
         else:
             # Position using loc
             (BEST, UR, UL, LL, LR, CL, CR, LC, UC, C,
-             TR, TL, BL, BR, R, L, T, B) = list(xrange(len(self.codes)))
+             TR, TL, BL, BR, R, L, T, B) = xrange(len(self.codes))
             # defaults for center
             ox = (0.5 - w / 2) - l
             oy = (0.5 - h / 2) - b

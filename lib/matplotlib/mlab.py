@@ -2487,8 +2487,8 @@ def rec_join(key, r1, r2, jointype='inner', defaults=None, r1postfix='1',
     r1d = {makekey(row): i for i, row in enumerate(r1)}
     r2d = {makekey(row): i for i, row in enumerate(r2)}
 
-    r1keys = set(r1d.keys())
-    r2keys = set(r2d.keys())
+    r1keys = set(r1d)
+    r2keys = set(r2d)
 
     common_keys = r1keys & r2keys
 

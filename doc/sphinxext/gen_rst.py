@@ -51,8 +51,7 @@ def generate_example_rst(app):
             relpath = os.path.split(root)[-1]
             datad.setdefault(relpath, []).append((fullpath, fname, contents))
 
-    subdirs = list(datad.keys())
-    subdirs.sort()
+    subdirs = sorted(datad)
 
     fhindex = open(os.path.join(exampledir, 'index.rst'), 'w')
     fhindex.write("""\

@@ -218,7 +218,6 @@ available = []
 
 def reload_library():
     """Reload style library."""
-    global library, available
-    library = update_user_library(_base_library)
-    available[:] = library.keys()
+    global library
+    available[:] = library = update_user_library(_base_library)
 reload_library()

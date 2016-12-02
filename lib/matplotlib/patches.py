@@ -1840,10 +1840,7 @@ def _simpleprint_styles(_styles):
     (stylename : styleclass), return a string rep of the list of keys.
     Used to update the documentation.
     """
-    styles = "[ \'"
-    styles += "\' | \'".join(str(i) for i in sorted(_styles.keys()))
-    styles += "\' ]"
-    return styles
+    return "[{}]".format("|".join(map(" '{}' ".format, sorted(_styles))))
 
 
 class _Style(object):

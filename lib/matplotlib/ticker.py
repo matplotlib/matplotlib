@@ -1254,8 +1254,8 @@ class EngFormatter(Formatter):
         else:
             pow10 = decimal.Decimal(0)
 
-        pow10 = pow10.min(max(self.ENG_PREFIXES.keys()))
-        pow10 = pow10.max(min(self.ENG_PREFIXES.keys()))
+        pow10 = pow10.min(max(self.ENG_PREFIXES))
+        pow10 = pow10.max(min(self.ENG_PREFIXES))
 
         prefix = self.ENG_PREFIXES[int(pow10)]
 

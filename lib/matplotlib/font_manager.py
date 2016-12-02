@@ -891,11 +891,10 @@ class FontProperties(object):
                 scale = font_scalings[size]
             except KeyError:
                 raise ValueError(
-                    "Size is invalid. Valid font size are " + ", ".join(
-                        str(i) for i in font_scalings.keys()))
+                    "Size is invalid. Valid font size are "
+                    + ", ".join(map(str, font_scalings)))
             else:
                 size = scale * FontManager.get_default_size()
-
         self._size = size
 
     def set_file(self, file):
