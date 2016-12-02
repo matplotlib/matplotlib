@@ -561,8 +561,8 @@ class Colormap(object):
     def is_gray(self):
         if not self._isinit:
             self._init()
-        return (np.alltrue(self._lut[:, 0] == self._lut[:, 1]) and
-                np.alltrue(self._lut[:, 0] == self._lut[:, 2]))
+        return (np.all(self._lut[:, 0] == self._lut[:, 1]) and
+                np.all(self._lut[:, 0] == self._lut[:, 2]))
 
     def _resample(self, lutsize):
         """

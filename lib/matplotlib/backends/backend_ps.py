@@ -170,21 +170,7 @@ def quote_ps_string(s):
     return s.decode('ascii')
 
 
-def seq_allequal(seq1, seq2):
-    """
-    seq1 and seq2 are either None or sequences or arrays
-    Return True if both are None or both are seqs with identical
-    elements
-    """
-    if seq1 is None:
-        return seq2 is None
-
-    if seq2 is None:
-        return False
-    #ok, neither are None:, assuming iterable
-
-    if len(seq1) != len(seq2): return False
-    return np.alltrue(np.equal(seq1, seq2))
+seq_allequal = np.array_equal
 
 
 class RendererPS(RendererBase):

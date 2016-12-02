@@ -457,8 +457,7 @@ class Figure(Artist):
         *ha*
             The horizontal alignment of the xticklabels
         """
-        allsubplots = np.alltrue([hasattr(ax, 'is_last_row') for ax
-                                  in self.axes])
+        allsubplots = all(hasattr(ax, 'is_last_row') for ax in self.axes)
         if len(self.axes) == 1:
             for label in self.axes[0].get_xticklabels():
                 label.set_ha(ha)
