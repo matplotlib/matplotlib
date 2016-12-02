@@ -45,13 +45,10 @@ env:
     - NPROC=2
     - TEST_ARGS=--no-pep8
     - NOSE_ARGS="-j $NPROC"
-    - PYTEST_ARGS="-ra --timeout=300 --durations=25 --cov-report= --cov=lib" # -n $NPROC
+    - PYTEST_ARGS="-ra --timeout=300 --durations=25 --cov-report= --cov=lib -n $NPROC"
     - PYTHON_ARGS=
     - DELETE_FONT_CACHE=
     - USE_PYTEST=false
-    #- PYTHONHASHSEED=0  # Workaround for pytest-xdist flaky colletion order
-    #                    # https://github.com/pytest-dev/pytest/issues/920
-    #                    # https://github.com/pytest-dev/pytest/issues/1075
 
 matrix:
   include:
@@ -166,6 +163,12 @@ script:
           gdb -return-child-result -batch -ex r -ex bt --args python $PYTHON_ARGS tests.py $NOSE_ARGS $TEST_ARGS
         fi
       else
+        # Workaround for pytest-xdist flaky colletion order
+        # https://github.com/pytest-dev/pytest/issues/920
+        # https://github.com/pytest-dev/pytest/issues/1075
+        export PYTHONHASHSEED=$(shuf -i 1-4294967295 -n 1)
+        echo PYTHONHASHSEED=$PYTHONHASHSEED
+
         echo The following args are passed to pytest $PYTEST_ARGS
         py.test $PYTEST_ARGS $TEST_ARGS
       fi
