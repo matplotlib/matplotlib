@@ -225,7 +225,9 @@ from matplotlib.cbook import (
 import matplotlib as mpl
 # make mpl.finance module available for backwards compatability, in case folks
 # using pylab interface depended on not having to import it
-import matplotlib.finance
+with warnings.catch_warnings():
+    warnings.simplefilter("ignore")  # deprecation: moved to a toolkit
+    import matplotlib.finance
 
 from matplotlib.dates import (
     date2num, num2date, datestr2num, strpdate2num, drange, epoch2num,
