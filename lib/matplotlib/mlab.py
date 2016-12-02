@@ -802,7 +802,7 @@ def _single_spectrum_helper(x, mode, Fs=None, window=None, pad_to=None,
     if mode != 'complex':
         spec = spec.real
 
-    if len(spec.shape) == 2 and spec.shape[1] == 1:
+    if spec.ndim == 2 and spec.shape[1] == 1:
         spec = spec[:, 0]
 
     return spec, freqs
@@ -1013,7 +1013,7 @@ def csd(x, y, NFFT=None, Fs=None, detrend=None, window=None,
                                      sides=sides, scale_by_freq=scale_by_freq,
                                      mode='psd')
 
-    if len(Pxy.shape) == 2:
+    if Pxy.ndim == 2:
         if Pxy.shape[1] > 1:
             Pxy = Pxy.mean(axis=1)
         else:
@@ -1671,16 +1671,12 @@ class PCA(object):
         of variance<minfrac
         '''
         x = np.asarray(x)
-
-        ndims = len(x.shape)
-
-        if (x.shape[-1] != self.numcols):
+        if x.shape[-1] != self.numcols:
             raise ValueError('Expected an array with dims[-1]==%d' %
                              self.numcols)
-
         Y = np.dot(self.Wt, self.center(x).T).T
         mask = self.fracs >= minfrac
-        if ndims == 2:
+        if x.ndim == 2:
             Yreduced = Y[:, mask]
         else:
             Yreduced = Y[mask]

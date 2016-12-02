@@ -152,14 +152,7 @@ def inv_transform(xs, ys, zs, M):
     return vecr[0], vecr[1], vecr[2]
 
 def vec_pad_ones(xs, ys, zs):
-    try:
-        try:
-            vec = np.array([xs,ys,zs,np.ones(xs.shape)])
-        except (AttributeError,TypeError):
-            vec = np.array([xs,ys,zs,np.ones((len(xs)))])
-    except TypeError:
-        vec = np.array([xs,ys,zs,1])
-    return vec
+    return np.array([xs, ys, zs, np.ones_like(xs)])
 
 def proj_transform(xs, ys, zs, M):
     """

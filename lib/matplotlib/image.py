@@ -848,8 +848,7 @@ class NonUniformImage(AxesImage):
         x = np.array(x, np.float32)
         y = np.array(y, np.float32)
         A = cbook.safe_masked_invalid(A, copy=True)
-        if len(x.shape) != 1 or len(y.shape) != 1\
-           or A.shape[0:2] != (y.shape[0], x.shape[0]):
+        if not (x.ndim == y.ndim == 1 and A.shape[0:2] == y.shape + x.shape):
             raise TypeError("Axes don't match array shape")
         if A.ndim not in [2, 3]:
             raise TypeError("Can only plot 2D or 3D data")

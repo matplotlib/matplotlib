@@ -2390,13 +2390,13 @@ def test_errorbar_limits():
     plt.errorbar(x, y, xerr=xerr, yerr=yerr, ls=ls, color='blue')
 
     # including upper limits
-    uplims = np.zeros(x.shape)
+    uplims = np.zeros_like(x)
     uplims[[1, 5, 9]] = True
     plt.errorbar(x, y+0.5, xerr=xerr, yerr=yerr, uplims=uplims, ls=ls,
                  color='green')
 
     # including lower limits
-    lolims = np.zeros(x.shape)
+    lolims = np.zeros_like(x)
     lolims[[2, 4, 8]] = True
     plt.errorbar(x, y+1.0, xerr=xerr, yerr=yerr, lolims=lolims, ls=ls,
                  color='red')
@@ -2407,12 +2407,12 @@ def test_errorbar_limits():
 
     # including xlower and xupper limits
     xerr = 0.2
-    yerr = np.zeros(x.shape) + 0.2
+    yerr = np.zeros_like(x) + 0.2
     yerr[[3, 6]] = 0.3
     xlolims = lolims
     xuplims = uplims
-    lolims = np.zeros(x.shape)
-    uplims = np.zeros(x.shape)
+    lolims = np.zeros_like(x)
+    uplims = np.zeros_like(x)
     lolims[[6]] = True
     uplims[[3]] = True
     plt.errorbar(x, y+2.1, marker='o', ms=8, xerr=xerr, yerr=yerr,
