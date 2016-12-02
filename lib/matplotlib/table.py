@@ -256,7 +256,7 @@ class Table(Artist):
         if is_string_like(loc) and loc not in self.codes:
             warnings.warn('Unrecognized location %s. Falling back on '
                           'bottom; valid locations are\n%s\t' %
-                          (loc, '\n\t'.join(six.iterkeys(self.codes))))
+                          (loc, '\n\t'.join(self.codes)))
             loc = 'bottom'
         if is_string_like(loc):
             loc = self.codes.get(loc, 1)
@@ -328,8 +328,7 @@ class Table(Artist):
 
         Only include those in the range (0,0) to (maxRow, maxCol)"""
         boxes = [self._cells[pos].get_window_extent(renderer)
-                 for pos in six.iterkeys(self._cells)
-                 if pos[0] >= 0 and pos[1] >= 0]
+                 for pos in self._cells if pos[0] >= 0 and pos[1] >= 0]
 
         bbox = Bbox.union(boxes)
         return bbox.inverse_transformed(self.get_transform())
@@ -346,9 +345,9 @@ class Table(Artist):
         # doesn't have to bind to each one individually.
         renderer = self.figure._cachedRenderer
         if renderer is not None:
-            boxes = [self._cells[pos].get_window_extent(renderer)
-                     for pos in six.iterkeys(self._cells)
-                     if pos[0] >= 0 and pos[1] >= 0]
+            boxes = [cell.get_window_extent(renderer)
+                     for (row, col), cell in six.iteritems(self._cells)
+                     if row >= 0 and col >= 0]
             bbox = Bbox.union(boxes)
             return bbox.contains(mouseevent.x, mouseevent.y), {}
         else:

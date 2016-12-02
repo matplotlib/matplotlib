@@ -247,7 +247,7 @@ def win32InstalledFonts(directory=None, fontext='ttf'):
                     continue
                 except MemoryError:
                     continue
-            return list(six.iterkeys(items))
+            return list(items)
         finally:
             winreg.CloseKey(local)
     return None
@@ -439,11 +439,7 @@ def ttfFontProperty(font):
     #    600 (semibold, demibold), 700 (bold), 800 (heavy), 900 (black)
     #    lighter and bolder are also allowed.
 
-    weight = None
-    for w in six.iterkeys(weight_dict):
-        if sfnt4.find(w) >= 0:
-            weight = w
-            break
+    weight = next((w for w in weight_dict if sfnt4.find(w) >= 0), None)
     if not weight:
         if font.style_flags & ft2font.BOLD:
             weight = 700

@@ -668,10 +668,8 @@ class Bunch(object):
         self.__dict__.update(kwds)
 
     def __repr__(self):
-        keys = six.iterkeys(self.__dict__)
-        return 'Bunch(%s)' % ', '.join(['%s=%s' % (k, self.__dict__[k])
-                                        for k
-                                        in keys])
+        return 'Bunch(%s)' % ', '.join(
+            '%s=%s' % kv for kv in six.iteritems(vars(self)))
 
 
 @deprecated('2.1')
@@ -940,7 +938,7 @@ class Xlator(dict):
 
     def _make_regex(self):
         """ Build re object based on the keys of the current dictionary """
-        return re.compile("|".join(map(re.escape, list(six.iterkeys(self)))))
+        return re.compile("|".join(map(re.escape, self)))
 
     def __call__(self, match):
         """ Handler invoked for each regex *match* """

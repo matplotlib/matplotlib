@@ -203,9 +203,7 @@ class Path(object):
         if internals:
             raise ValueError('Unexpected internals provided to '
                              '_fast_from_codes_and_verts: '
-                             '{0}'.format('\n *'.join(six.iterkeys(
-                                 internals
-                             ))))
+                             '{0}'.format('\n *'.join(internals)))
         return pth
 
     def _update_values(self):

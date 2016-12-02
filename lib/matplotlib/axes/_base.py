@@ -1332,12 +1332,11 @@ class _AxesBase(martist.Artist):
           =====  ============
 
         """
-        if (anchor in list(six.iterkeys(mtransforms.Bbox.coefs)) or
-                len(anchor) == 2):
+        if anchor in mtransforms.Bbox.coefs or len(anchor) == 2:
             self._anchor = anchor
         else:
             raise ValueError('argument must be among %s' %
-                             ', '.join(six.iterkeys(mtransforms.Bbox.coefs)))
+                             ', '.join(mtransforms.Bbox.coefs))
         self.stale = True
 
     def get_data_ratio(self):
@@ -2877,8 +2876,7 @@ class _AxesBase(martist.Artist):
         if 'xmax' in kw:
             right = kw.pop('xmax')
         if kw:
-            raise ValueError("unrecognized kwargs: %s" %
-                             list(six.iterkeys(kw)))
+            raise ValueError("unrecognized kwargs: %s" % list(kw))
 
         if right is None and iterable(left):
             left, right = left
@@ -3158,8 +3156,7 @@ class _AxesBase(martist.Artist):
         if 'ymax' in kw:
             top = kw.pop('ymax')
         if kw:
-            raise ValueError("unrecognized kwargs: %s" %
-                             list(six.iterkeys(kw)))
+            raise ValueError("unrecognized kwargs: %s" % list(kw))
 
         if top is None and iterable(bottom):
             bottom, top = bottom

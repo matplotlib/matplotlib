@@ -86,16 +86,13 @@ LUTSIZE = mpl.rcParams['image.lut']
 with _warnings.catch_warnings():
     _warnings.simplefilter("ignore")
     # Generate the reversed specifications ...
-    for cmapname in list(six.iterkeys(datad)):
-        spec = datad[cmapname]
-        spec_reversed = _reverse_cmap_spec(spec)
-        datad[cmapname + '_r'] = spec_reversed
+    for cmapname, spec in list(six.iteritems(datad)):
+        datad[cmapname + '_r'] = _reverse_cmap_spec(spec)
 
     # Precache the cmaps with ``lutsize = LUTSIZE`` ...
 
-    # Use datad.keys() to also add the reversed ones added in the section
-    # above:
-    for cmapname in six.iterkeys(datad):
+    # Also add the reversed ones added in the section above:
+    for cmapname in datad:
         cmap_d[cmapname] = _generate_cmap(cmapname, LUTSIZE)
 
 cmap_d.update(cmaps_listed)

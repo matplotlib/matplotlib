@@ -958,8 +958,8 @@ class FigureCanvasPS(FigureCanvasBase):
         if papertype == 'auto':
             pass
         elif papertype not in papersize:
-            raise RuntimeError( '%s is not a valid papertype. Use one \
-                    of %s'% (papertype, ', '.join(six.iterkeys(papersize))))
+            raise RuntimeError('%s is not a valid papertype. Use one of %s' %
+                               (papertype, ', '.join(papersize)))
 
         orientation = kwargs.pop("orientation", "portrait").lower()
         if orientation == 'landscape': isLandscape = True

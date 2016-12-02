@@ -264,8 +264,7 @@ class Line2D(Artist):
     drawStyles.update(_drawStyles_l)
     drawStyles.update(_drawStyles_s)
     # Need a list ordered with long names first:
-    drawStyleKeys = (list(six.iterkeys(_drawStyles_l)) +
-                     list(six.iterkeys(_drawStyles_s)))
+    drawStyleKeys = list(_drawStyles_l) + list(_drawStyles_s)
 
     # Referenced here to maintain API.  These are defined in
     # MarkerStyle
