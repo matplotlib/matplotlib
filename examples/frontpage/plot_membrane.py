@@ -13,7 +13,7 @@ import numpy as np
 
 
 datafile = cbook.get_sample_data('membrane.dat', asfileobj=False)
-x = np.fromstring(open(datafile, 'rb').read(), np.float32)
+x = np.fromfile(datafile, np.float32)
 # 0.0005 is the sample interval
 
 fig, ax = plt.subplots(figsize=(1.62, 1.38))
