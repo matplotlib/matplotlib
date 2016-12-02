@@ -10,12 +10,9 @@ import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib import mlab, cm
 
-# Default delta is large because that makes it fast, and it illustrates
-# the correct registration between image and contours.
-delta = 0.5
-
 extent = (-3, 3, -3, 3)
 
+delta = 0.5
 x = np.arange(-3.0, 4.001, delta)
 y = np.arange(-4.0, 3.001, delta)
 X, Y = np.meshgrid(x, y)
