@@ -593,10 +593,8 @@ class RendererSVG(RendererBase):
         style = self._get_style_dict(gc, rgbFace)
         dictkey = (path_data, generate_css(style))
         oid = self._markers.get(dictkey)
-        for key in list(six.iterkeys(style)):
-            if not key.startswith('stroke'):
-                del style[key]
-        style = generate_css(style)
+        style = generate_css({k: v for k, v in six.iteritems(style)
+                              if k.startswith('stroke')})
 
         if oid is None:
             oid = self._make_id('m', dictkey)

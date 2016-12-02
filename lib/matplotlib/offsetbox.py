@@ -1236,20 +1236,16 @@ class AnchoredText(AnchoredOffsetbox):
 
         if prop is None:
             prop = {}
-        propkeys = list(six.iterkeys(prop))
-        badkwargs = ('ha', 'horizontalalignment', 'va', 'verticalalignment')
-        if set(badkwargs) & set(propkeys):
+        badkwargs = {'ha', 'horizontalalignment', 'va', 'verticalalignment'}
+        if badkwargs & set(prop):
             warnings.warn("Mixing horizontalalignment or verticalalignment "
-                    "with AnchoredText is not supported.")
+                          "with AnchoredText is not supported.")
 
-        self.txt = TextArea(s, textprops=prop,
-                            minimumdescent=False)
+        self.txt = TextArea(s, textprops=prop, minimumdescent=False)
         fp = self.txt._text.get_fontproperties()
-
-        super(AnchoredText, self).__init__(loc, pad=pad, borderpad=borderpad,
-                                           child=self.txt,
-                                           prop=fp,
-                                           **kwargs)
+        super(AnchoredText, self).__init__(
+            loc, pad=pad, borderpad=borderpad, child=self.txt, prop=fp,
+            **kwargs)
 
 
 class OffsetImage(OffsetBox):

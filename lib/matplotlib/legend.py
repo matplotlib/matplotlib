@@ -323,15 +323,13 @@ class Legend(Artist):
                 if self.isaxes:
                     warnings.warn('Unrecognized location "%s". Falling back '
                                   'on "best"; valid locations are\n\t%s\n'
-                                  % (loc, '\n\t'.join(
-                                    six.iterkeys(self.codes))))
+                                  % (loc, '\n\t'.join(self.codes)))
                     loc = 0
                 else:
                     warnings.warn('Unrecognized location "%s". Falling back '
                                   'on "upper right"; '
                                   'valid locations are\n\t%s\n'
-                                  % (loc, '\n\t'.join(
-                                    six.iterkeys(self.codes))))
+                                  % (loc, '\n\t'.join(self.codes)))
                     loc = 1
             else:
                 loc = self.codes[loc]

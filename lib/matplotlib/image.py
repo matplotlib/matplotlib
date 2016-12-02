@@ -56,7 +56,7 @@ _interpd_ = {
     'blackman': _image.BLACKMAN,
 }
 
-interpolations_names = set(six.iterkeys(_interpd_))
+interpolations_names = set(_interpd_)
 
 
 def composite_images(images, renderer, magnification=1.0):
@@ -1224,7 +1224,7 @@ def imread(fname, format=None):
         if im is None:
             raise ValueError('Only know how to handle extensions: %s; '
                              'with Pillow installed matplotlib can handle '
-                             'more images' % list(six.iterkeys(handlers)))
+                             'more images' % list(handlers))
         return im
 
     handler = handlers[ext]

@@ -1533,7 +1533,7 @@ end"""
                     'CreationDate': is_date,
                     'ModDate': is_date,
                     'Trapped': check_trapped}
-        for k in six.iterkeys(self.infoDict):
+        for k in self.infoDict:
             if k not in keywords:
                 warnings.warn('Unknown infodict keyword: %s' % k)
             else:
