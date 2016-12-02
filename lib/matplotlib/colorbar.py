@@ -693,9 +693,9 @@ class ColorbarBase(cm.ScalarMappable):
 
             b = self.norm.inverse(self._uniform_y(self.cmap.N + 1))
             if self._extend_lower():
-                b[0] = b[0] - 1
+                b[0] = 0.9 * b[0]
             if self._extend_upper():
-                b[-1] = b[-1] + 1
+                b[-1] = 1.1 * b[-1]     
         self._process_values(b)
 
     def _find_range(self):
