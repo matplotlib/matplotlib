@@ -145,8 +145,7 @@ class XMLWriter(object):
         if attrib or extra:
             attrib = attrib.copy()
             attrib.update(extra)
-            attrib = list(six.iteritems(attrib))
-            attrib.sort()
+            attrib = sorted(six.iteritems(attrib))
             for k, v in attrib:
                 if not v == '':
                     k = escape_cdata(k)
@@ -248,8 +247,7 @@ def generate_transform(transform_list=[]):
 def generate_css(attrib={}):
     if attrib:
         output = io.StringIO()
-        attrib = list(six.iteritems(attrib))
-        attrib.sort()
+        attrib = sorted(six.iteritems(attrib))
         for k, v in attrib:
             k = escape_attrib(k)
             v = escape_attrib(v)

@@ -4,11 +4,9 @@ autogenerate some tables for pylab namespace
 """
 from pylab import *
 d = locals()
-keys = d.keys()
-keys.sort()
 
 modd = dict()
-for k in keys:
+for k in sorted(d):
     o = d[k]
     if not callable(o):
         continue
@@ -37,10 +35,8 @@ for k in keys:
     mod, k, doc = mod.strip(), k.strip(), doc.strip()[:80]
     modd.setdefault(mod, []).append((k, doc))
 
-mods = modd.keys()
-mods.sort()
-for mod in mods:
-    border = '*'*len(mod)
+for mod in sorted(modd):
+    border = '*' * len(mod)
     print(mod)
     print(border)
 

@@ -2365,36 +2365,35 @@ class _AxesBase(martist.Artist):
             artists.remove(self._left_title)
             artists.remove(self._right_title)
 
-        if self.figure.canvas.is_saving():
-            dsu = [(a.zorder, a) for a in artists]
-        else:
-            dsu = [(a.zorder, a) for a in artists
-                   if (not a.get_animated() or a in self.images)]
-
-        dsu.sort(key=itemgetter(0))
+        if not self.figure.canvas.is_saving():
+            artists = [a for a in artists
+                       if not a.get_animated() or a in self.images]
+        artists = sorted(artists, key=lambda artist: artist.get_zorder())
 
         # rasterize artists with negative zorder
         # if the minimum zorder is negative, start rasterization
         rasterization_zorder = self._rasterization_zorder
         if (rasterization_zorder is not None and
-                len(dsu) > 0 and dsu[0][0] < rasterization_zorder):
+                artists and artists[0].get_zorder() < rasterization_zorder):
             renderer.start_rasterizing()
-            dsu_rasterized = [l for l in dsu if l[0] < rasterization_zorder]
-            dsu = [l for l in dsu if l[0] >= rasterization_zorder]
+            artists_rasterized = [a for a in artists
+                                  if a.get_zorder() < rasterization_zorder]
+            artists = [a for a in artists
+                       if a.get_zorder() >= rasterization_zorder]
         else:
-            dsu_rasterized = []
+            artists_rasterized = []
 
         # the patch draws the background rectangle -- the frame below
         # will draw the edges
         if self.axison and self._frameon:
             self.patch.draw(renderer)
 
-        if dsu_rasterized:
-            for zorder, a in dsu_rasterized:
+        if artists_rasterized:
+            for a in artists_rasterized:
                 a.draw(renderer)
             renderer.stop_rasterizing()
 
-        mimage._draw_list_compositing_images(renderer, self, dsu)
+        mimage._draw_list_compositing_images(renderer, self, artists)
 
         renderer.close_group('axes')
         self._cachedRenderer = renderer

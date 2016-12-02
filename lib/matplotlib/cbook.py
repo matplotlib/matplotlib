@@ -903,8 +903,7 @@ class Sorter(object):
                 data.sort()
                 result = data
             else:
-                result = data[:]
-                result.sort()
+                result = sorted(data)
             return result
         else:
             aux = [(data[i][itemindex], i) for i in range(len(data))]

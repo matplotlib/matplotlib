@@ -185,7 +185,7 @@ class CustomCell(Cell):
                     msg = ('Invalid edge param {0}, must only be one of'
                            ' {1} or string of {2}.').format(
                                    value,
-                                   ", ".join(self._edge_aliases.keys()),
+                                   ", ".join(self._edge_aliases),
                                    ", ".join(self._edges),
                                    )
                     raise ValueError(msg)
@@ -317,12 +317,9 @@ class Table(Artist):
         renderer.open_group('table')
         self._update_positions(renderer)
 
-        keys = list(six.iterkeys(self._cells))
-        keys.sort()
-        for key in keys:
+        for key in sorted(self._cells):
             self._cells[key].draw(renderer)
-        # for c in self._cells.itervalues():
-        #     c.draw(renderer)
+
         renderer.close_group('table')
         self.stale = False
 
@@ -386,18 +383,13 @@ class Table(Artist):
         # work out left position for each column
         xpos = 0
         lefts = {}
-        cols = list(six.iterkeys(widths))
-        cols.sort()
-        for col in cols:
+        for col in sorted(widths):
             lefts[col] = xpos
             xpos += widths[col]
 
         ypos = 0
         bottoms = {}
-        rows = list(six.iterkeys(heights))
-        rows.sort()
-        rows.reverse()
-        for row in rows:
+        for row in sorted(heights, reverse=True):
             bottoms[row] = ypos
             ypos += heights[row]
 
