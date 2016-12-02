@@ -164,8 +164,7 @@ def test_SymmetricalLogLocator_set_params():
     See if change was successful.
     Should not exception.
     """
-    # since we only test for the params change. I will pass empty transform
-    sym = mticker.SymmetricalLogLocator(None)
+    sym = mticker.SymmetricalLogLocator(base=10, linthresh=1)
     sym.set_params(subs=[2.0], numticks=8)
     assert sym._subs == [2.0]
     assert sym.numticks == 8
@@ -245,7 +244,7 @@ def test_LogFormatter_sublabel():
     ax.xaxis.set_major_locator(mticker.LogLocator(base=10, subs=[]))
     ax.xaxis.set_minor_locator(mticker.LogLocator(base=10,
                                                   subs=np.arange(2, 10)))
-    ax.xaxis.set_major_formatter(mticker.LogFormatter())
+    ax.xaxis.set_major_formatter(mticker.LogFormatter(labelOnlyBase=True))
     ax.xaxis.set_minor_formatter(mticker.LogFormatter(labelOnlyBase=False))
     # axis range above 3 decades, only bases are labeled
     ax.set_xlim(1, 1e4)
@@ -266,9 +265,13 @@ def test_LogFormatter_sublabel():
     ax.set_xlim(1, 80)
     _sub_labels(ax.xaxis, subs=[])
 
-    # axis range at 0 to 1 decades, label subs 2, 3, 6
+    # axis range at 0.4 to 1 decades, label subs 2, 3, 4, 6
     ax.set_xlim(1, 8)
-    _sub_labels(ax.xaxis, subs=[2, 3, 6])
+    _sub_labels(ax.xaxis, subs=[2, 3, 4, 6])
+
+    # axis range at 0 to 0.4 decades, label all
+    ax.set_xlim(0.5, 0.9)
+    _sub_labels(ax.xaxis, subs=np.arange(2, 10, dtype=int))
 
 
 class FakeAxis(object):
