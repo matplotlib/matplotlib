@@ -28,7 +28,7 @@ class ProcessPlotter(object):
     def poll_draw(self):
 
         def call_back():
-            while 1:
+            while True:
                 if not self.pipe.poll():
                     break
 

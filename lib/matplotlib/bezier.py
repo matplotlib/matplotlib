@@ -113,7 +113,7 @@ def find_bezier_t_intersecting_with_closedpath(bezier_point_at_t,
 
     - bezier_point_at_t : a function which returns x, y coordinates at *t*
 
-    - inside_closedpath : return True if the point is insed the path
+    - inside_closedpath : return True if the point is inside the path
 
     """
     # inside_closedpath : function
@@ -124,17 +124,14 @@ def find_bezier_t_intersecting_with_closedpath(bezier_point_at_t,
     start_inside = inside_closedpath(start)
     end_inside = inside_closedpath(end)
 
-    if start_inside == end_inside:
-        if start != end:
-            raise NonIntersectingPathException(
-                "the segment does not seem to intersect with the path"
-            )
+    if start_inside == end_inside and start != end:
+        raise NonIntersectingPathException(
+            "Both points are on the same side of the closed path")
 
-    while 1:
+    while True:
 
         # return if the distance is smaller than the tolerence
-        if (start[0] - end[0]) ** 2 + \
-           (start[1] - end[1]) ** 2 < tolerence ** 2:
+        if np.hypot(start[0] - end[0], start[1] - end[1]) < tolerence:
             return t0, t1
 
         # calculate the middle point
