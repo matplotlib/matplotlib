@@ -1147,7 +1147,7 @@ class YearLocator(DateLocator):
         ymax = self.base.ge(vmax.year)
 
         ticks = [vmin.replace(year=ymin, **self.replaced)]
-        while 1:
+        while True:
             dt = ticks[-1]
             if dt.year >= ymax:
                 return date2num(ticks)

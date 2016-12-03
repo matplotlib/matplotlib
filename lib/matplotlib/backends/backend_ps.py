@@ -1654,55 +1654,48 @@ def pstoeps(tmpfile, bbox=None, rotated=False):
         bbox_info, rotate = None, None
 
     epsfile = tmpfile + '.eps'
-    with io.open(epsfile, 'wb') as epsh:
+    with io.open(epsfile, 'wb') as epsh, io.open(tmpfile, 'rb') as tmph:
         write = epsh.write
-        with io.open(tmpfile, 'rb') as tmph:
-            line = tmph.readline()
-            # Modify the header:
-            while line:
-                if line.startswith(b'%!PS'):
-                    write(b"%!PS-Adobe-3.0 EPSF-3.0\n")
-                    if bbox:
-                        write(bbox_info.encode('ascii') + b'\n')
-                elif line.startswith(b'%%EndComments'):
-                    write(line)
-                    write(b'%%BeginProlog\n')
-                    write(b'save\n')
-                    write(b'countdictstack\n')
-                    write(b'mark\n')
-                    write(b'newpath\n')
-                    write(b'/showpage {} def\n')
-                    write(b'/setpagedevice {pop} def\n')
-                    write(b'%%EndProlog\n')
-                    write(b'%%Page 1 1\n')
-                    if rotate:
-                        write(rotate.encode('ascii') + b'\n')
-                    break
-                elif bbox and (line.startswith(b'%%Bound') \
-                               or line.startswith(b'%%HiResBound') \
-                               or line.startswith(b'%%DocumentMedia') \
-                               or line.startswith(b'%%Pages')):
-                    pass
-                else:
-                    write(line)
-                line = tmph.readline()
-            # Now rewrite the rest of the file, and modify the trailer.
-            # This is done in a second loop such that the header of the embedded
-            # eps file is not modified.
-            line = tmph.readline()
-            while line:
-                if line.startswith(b'%%EOF'):
-                    write(b'cleartomark\n')
-                    write(b'countdictstack\n')
-                    write(b'exch sub { end } repeat\n')
-                    write(b'restore\n')
-                    write(b'showpage\n')
-                    write(b'%%EOF\n')
-                elif line.startswith(b'%%PageBoundingBox'):
-                    pass
-                else:
-                    write(line)
-                line = tmph.readline()
+        # Modify the header:
+        for line in tmph:
+            if line.startswith(b'%!PS'):
+                write(b"%!PS-Adobe-3.0 EPSF-3.0\n")
+                if bbox:
+                    write(bbox_info.encode('ascii') + b'\n')
+            elif line.startswith(b'%%EndComments'):
+                write(line)
+                write(b'%%BeginProlog\n'
+                      b'save\n'
+                      b'countdictstack\n'
+                      b'mark\n'
+                      b'newpath\n'
+                      b'/showpage {} def\n'
+                      b'/setpagedevice {pop} def\n'
+                      b'%%EndProlog\n'
+                      b'%%Page 1 1\n')
+                if rotate:
+                    write(rotate.encode('ascii') + b'\n')
+                break
+            elif bbox and line.startswith((b'%%Bound', b'%%HiResBound',
+                                           b'%%DocumentMedia', b'%%Pages')):
+                pass
+            else:
+                write(line)
+        # Now rewrite the rest of the file, and modify the trailer.
+        # This is done in a second loop such that the header of the embedded
+        # eps file is not modified.
+        for line in tmph:
+            if line.startswith(b'%%EOF'):
+                write(b'cleartomark\n'
+                      b'countdictstack\n'
+                      b'exch sub { end } repeat\n'
+                      b'restore\n'
+                      b'showpage\n'
+                      b'%%EOF\n')
+            elif line.startswith(b'%%PageBoundingBox'):
+                pass
+            else:
+                write(line)
 
     os.remove(tmpfile)
     shutil.move(epsfile, tmpfile)

@@ -2898,7 +2898,7 @@ def csv2rec(fname, comments='#', skiprows=0, checkrows=0, delimiter=',',
     process_skiprows(reader)
 
     if needheader:
-        while 1:
+        while True:
             # skip past any comments and consume one line of column header
             row = next(reader)
             if (len(row) and comments is not None and

@@ -396,25 +396,15 @@ class _process_plot_var_args(object):
         return ret
 
     def _grab_next_args(self, *args, **kwargs):
-
-        remaining = args
-        while 1:
-
-            if len(remaining) == 0:
+        while True:
+            if not args:
                 return
-            if len(remaining) <= 3:
-                for seg in self._plot_args(remaining, kwargs):
-                    yield seg
-                return
-
-            if is_string_like(remaining[2]):
-                isplit = 3
-            else:
-                isplit = 2
-
-            for seg in self._plot_args(remaining[:isplit], kwargs):
+            this, args = args[:2], args[2:]
+            if args and is_string_like(args[0]):
+                this += args[0],
+                args = args[1:]
+            for seg in self._plot_args(this, kwargs):
                 yield seg
-            remaining = remaining[isplit:]
 
 
 class _AxesBase(martist.Artist):
