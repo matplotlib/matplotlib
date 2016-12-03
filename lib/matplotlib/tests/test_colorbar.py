@@ -328,10 +328,11 @@ def test_colorbar_get_ticks():
 @cleanup
 def test_colorbar_lognorm_extension():
     # Test that colorbar with lognorm is extended correctly
-    ax = plt.gca()
+    f, ax = plt.subplots()
     cb = ColorbarBase(ax, norm=LogNorm(vmin=0.1, vmax=1000.0),
                       orientation='vertical', extend='both')
     assert cb._values[0] >= 0.0
+
 
 if __name__ == '__main__':
     import nose
