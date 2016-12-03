@@ -222,12 +222,11 @@ Dependencies for python 2
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 
 `functools32 <https://pypi.python.org/pypi/functools32>`_
-    Required for compatibility if running on versions of Python before
-    Python 3.2.
+    Required for compatibility if running on Python 2.7.
 
 `subprocess32 <https://pypi.python.org/pypi/subprocess32/>`_
-    Optional, unix only.  Backport of the subprocess standard library from 3.2
-    for python2. It includes better timeout support.
+    Optional, unix only.  Backport of the subprocess standard library from 3.2+
+    for Python 2.7. It provides better error messages and timeout support.
 
 
 Optional GUI framework
