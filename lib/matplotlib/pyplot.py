@@ -465,8 +465,11 @@ def figure(num=None,  # autoincrement if None, else integer from 1-N
     frameon : bool, optional, default: True
         If False, suppress drawing the figure frame
 
+    FigureClass : class derived from matplotlib.figure.Figure
+        This parameter allows to optionally use a custom Figure instance.
+
     clear : bool, optinal, default: False
-        If True and figure already exists, then it is cleared.
+        If True and the figure already exists, then it is cleared.
 
     Returns
     -------
