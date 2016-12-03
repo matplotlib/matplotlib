@@ -1222,7 +1222,7 @@ class Text(Artist):
         """
         # Did we find an even number of non-escaped dollar signs?
         # If so, treat is as math text.
-        if rcParams['text.usetex']:
+        if self.get_usetex():
             if s == ' ':
                 s = r'\ '
             return s, 'TeX'
@@ -1256,7 +1256,7 @@ class Text(Artist):
         `rcParams['text.usetex']`
         """
         if usetex is None:
-            self._usetex = None
+            self._usetex = rcParams['text.usetex']
         else:
             self._usetex = bool(usetex)
         self.stale = True
