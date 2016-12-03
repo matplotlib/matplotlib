@@ -122,11 +122,13 @@ font_family_aliases = set([
 MSFolders = \
     r'Software\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders'
 
-MSFontDirectories   = [
+
+MSFontDirectories = [
     r'SOFTWARE\Microsoft\Windows NT\CurrentVersion\Fonts',
     r'SOFTWARE\Microsoft\Windows\CurrentVersion\Fonts']
 
-X11FontDirectories  = [
+
+X11FontDirectories = [
     # an old standard installation point
     "/usr/X11R6/lib/X11/fonts/TTF/",
     "/usr/X11/lib/X11/fonts",
@@ -156,6 +158,7 @@ if not USE_FONTCONFIG and sys.platform != 'win32':
         path = os.path.join(home, '.fonts')
         X11FontDirectories.append(path)
 
+
 def get_fontext_synonyms(fontext):
     """
     Return a list of file extensions extensions that are synonyms for
@@ -165,6 +168,7 @@ def get_fontext_synonyms(fontext):
             'otf': ('ttf', 'otf'),
             'afm': ('afm',)}[fontext]
 
+
 def list_fonts(directory, extensions):
     """
     Return a list of all fonts matching any of the extensions,
@@ -173,6 +177,7 @@ def list_fonts(directory, extensions):
     pattern = ';'.join(['*.%s;*.%s' % (ext, ext.upper())
                         for ext in extensions])
     return cbook.listFiles(directory, pattern)
+
 
 def win32FontDirectory():
     """
@@ -186,7 +191,7 @@ def win32FontDirectory():
     try:
         from six.moves import winreg
     except ImportError:
-        pass # Fall through to default
+        pass  # Fall through to default
     else:
         try:
             user = winreg.OpenKey(winreg.HKEY_CURRENT_USER, MSFolders)
@@ -194,12 +199,13 @@ def win32FontDirectory():
                 try:
                     return winreg.QueryValueEx(user, 'Fonts')[0]
                 except OSError:
-                    pass # Fall through to default
+                    pass  # Fall through to default
             finally:
                 winreg.CloseKey(user)
         except OSError:
-            pass # Fall through to default
+            pass  # Fall through to default
     return os.path.join(os.environ['WINDIR'], 'Fonts')
+
 
 def win32InstalledFonts(directory=None, fontext='ttf'):
     """
@@ -245,6 +251,7 @@ def win32InstalledFonts(directory=None, fontext='ttf'):
         finally:
             winreg.CloseKey(local)
     return None
+
 
 def OSXInstalledFonts(directories=None, fontext='ttf'):
     """
@@ -297,6 +304,7 @@ def get_fontconfig_fonts(fontext='ttf'):
             if os.path.splitext(fname)[1][1:] in fontext]
 
 
+
 def findSystemFonts(fontpaths=None, fontext='ttf'):
     """
     Search for fonts in the specified font paths.  If no paths are
@@ -337,6 +345,7 @@ def findSystemFonts(fontpaths=None, fontext='ttf'):
             fontfiles.add(os.path.abspath(fname))
 
     return [fname for fname in fontfiles if os.path.exists(fname)]
+
 
 def weight_as_number(weight):
     """
@@ -419,7 +428,6 @@ def ttfFontProperty(font):
     else:
         style = 'normal'
 
-
     #  Variants are: small-caps and normal (default)
 
     #  !!!!  Untested
@@ -451,8 +459,8 @@ def ttfFontProperty(font):
     #  Relative stretches are: wider, narrower
     #  Child value is: inherit
 
-    if sfnt4.find('narrow') >= 0 or sfnt4.find('condensed') >= 0 or \
-           sfnt4.find('cond') >= 0:
+    if (sfnt4.find('narrow') >= 0 or sfnt4.find('condensed') >= 0 or
+            sfnt4.find('cond') >= 0):
         stretch = 'condensed'
     elif sfnt4.find('demi cond') >= 0:
         stretch = 'semi-condensed'
