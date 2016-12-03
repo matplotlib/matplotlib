@@ -10,7 +10,7 @@ from matplotlib import rc_context
 from matplotlib.testing.decorators import image_comparison, cleanup
 import matplotlib.pyplot as plt
 from matplotlib import rcParams
-from matplotlib.colors import BoundaryNorm
+from matplotlib.colors import BoundaryNorm, LogNorm
 from matplotlib.cm import get_cmap
 from matplotlib import cm
 from matplotlib.colorbar import ColorbarBase
@@ -323,6 +323,15 @@ def test_colorbar_get_ticks():
     # testing getter when no ticks are assigned
     defTicks = plt.colorbar(orientation='horizontal')
     assert defTicks.get_ticks().tolist() == levels
+
+
+@cleanup
+def test_colorbar_lognorm_extension():
+    # Test that colorbar with lognorm is extended correctly
+    f, ax = plt.subplots()
+    cb = ColorbarBase(ax, norm=LogNorm(vmin=0.1, vmax=1000.0),
+                      orientation='vertical', extend='both')
+    assert cb._values[0] >= 0.0
 
 
 if __name__ == '__main__':
