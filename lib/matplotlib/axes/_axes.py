@@ -5804,10 +5804,10 @@ or tuple of floats
 
             if style == "image":
                 im = mimage.AxesImage(self, cmap, norm,
-                                            interpolation='nearest',
-                                            origin='lower',
-                                            extent=(xl, xr, yb, yt),
-                                             **kwargs)
+                                      interpolation='nearest',
+                                      origin='lower',
+                                      extent=(xl, xr, yb, yt),
+                                      **kwargs)
                 im.set_data(C)
                 im.set_alpha(alpha)
             elif style == "pcolorimage":

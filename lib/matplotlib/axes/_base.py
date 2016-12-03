@@ -2055,7 +2055,7 @@ class _AxesBase(martist.Artist):
     @use_sticky_edges.setter
     def use_sticky_edges(self, b):
         self._use_sticky_edges = bool(b)
-        self.stale = True
+        # No effect until next autoscaling, which will mark the axes as stale.
 
     def set_xmargin(self, m):
         """
