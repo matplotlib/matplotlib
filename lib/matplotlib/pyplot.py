@@ -429,8 +429,8 @@ def figure(num=None,  # autoincrement if None, else integer from 1-N
            facecolor=None,  # defaults to rc figure.facecolor
            edgecolor=None,  # defaults to rc figure.edgecolor
            frameon=True,
-           clear=False,
            FigureClass=Figure,
+           clear=False,
            **kwargs
            ):
     """
