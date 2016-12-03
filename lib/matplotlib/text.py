@@ -355,7 +355,7 @@ class Text(Artist):
 
         baseline = 0
         for i, line in enumerate(lines):
-            clean_line, ismath = self.is_math_text(line)
+            clean_line, ismath = self.is_math_text(line, self.get_usetex())
             if clean_line:
                 w, h, d = renderer.get_text_width_height_descent(clean_line,
                                                         self._fontproperties,
@@ -782,7 +782,7 @@ class Text(Artist):
                 y = y + posy
                 if renderer.flipy():
                     y = canvash - y
-                clean_line, ismath = textobj.is_math_text(line)
+                clean_line, ismath = textobj.is_math_text(line, self.get_usetex())
 
                 if textobj.get_path_effects():
                     from matplotlib.patheffects import PathEffectRenderer
@@ -1212,7 +1212,7 @@ class Text(Artist):
         self.stale = True
 
     @staticmethod
-    def is_math_text(s):
+    def is_math_text(s, usetex=None):
         """
         Returns a cleaned string and a boolean flag.
         The flag indicates if the given string *s* contains any mathtext,
@@ -1222,7 +1222,9 @@ class Text(Artist):
         """
         # Did we find an even number of non-escaped dollar signs?
         # If so, treat is as math text.
-        if self.get_usetex():
+        if usetex is None:
+            usetex = rcParams['text.usetex']
+        if usetex:
             if s == ' ':
                 s = r'\ '
             return s, 'TeX'

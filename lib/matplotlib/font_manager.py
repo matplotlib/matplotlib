@@ -682,11 +682,11 @@ class FontProperties(object):
                  _init   = None  # used only by copy()
                  ):
         self._family = None
-        self._slant = None
-        self._variant = None
-        self._weight = None
-        self._stretch = None
-        self._size = None
+        self._slant = rcParams['font.style']
+        self._variant = rcParams['font.variant']
+        self._weight = rcParams['font.weight']
+        self._stretch = rcParams['font.stretch']
+        self._size = rcParams['font.size']
         self._file = None
 
         # This is used only by copy()
@@ -740,11 +740,6 @@ class FontProperties(object):
         """
         Return a list of font names that comprise the font family.
         """
-        if self._family is None:
-            family = rcParams['font.family']
-            if is_string_like(family):
-                return [family]
-            return family
         return self._family
 
     def get_name(self):
@@ -759,8 +754,6 @@ class FontProperties(object):
         Return the font style.  Values are: 'normal', 'italic' or
         'oblique'.
         """
-        if self._slant is None:
-            return rcParams['font.style']
         return self._slant
     get_slant = get_style
 
@@ -769,8 +762,6 @@ class FontProperties(object):
         Return the font variant.  Values are: 'normal' or
         'small-caps'.
         """
-        if self._variant is None:
-            return rcParams['font.variant']
         return self._variant
 
     def get_weight(self):
@@ -780,8 +771,6 @@ class FontProperties(object):
         'medium', 'roman', 'semibold', 'demibold', 'demi', 'bold',
         'heavy', 'extra bold', 'black'
         """
-        if self._weight is None:
-            return rcParams['font.weight']
         return self._weight
 
     def get_stretch(self):
@@ -790,26 +779,16 @@ class FontProperties(object):
         'extra-condensed', 'condensed', 'semi-condensed', 'normal',
         'semi-expanded', 'expanded', 'extra-expanded', 'ultra-expanded'.
         """
-        if self._stretch is None:
-            return rcParams['font.stretch']
         return self._stretch
 
     def get_size(self):
         """
         Return the font size.
         """
-        if self._size is None:
-            return rcParams['font.size']
         return self._size
 
     def get_size_in_points(self):
-        if self._size is not None:
-            try:
-                return float(self._size)
-            except ValueError:
-                pass
-        default_size = FontManager.get_default_size()
-        return default_size * font_scalings.get(self._size)
+        return self._size
 
     def get_file(self):
         """
