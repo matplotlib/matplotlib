@@ -631,9 +631,8 @@ class NavigationToolbar2GTK3(NavigationToolbar2, Gtk.Toolbar):
         toolfig.subplots_adjust(top=0.9)
         tool =  SubplotTool(self.canvas.figure, toolfig)
 
-        w = int (toolfig.bbox.width)
-        h = int (toolfig.bbox.height)
-
+        w = int(toolfig.bbox.width)
+        h = int(toolfig.bbox.height)
 
         window = Gtk.Window()
         try:

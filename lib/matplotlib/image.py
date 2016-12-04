@@ -499,7 +499,7 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
         """
         Test whether the mouse event occured within the image.
         """
-        if six.callable(self._contains):
+        if callable(self._contains):
             return self._contains(self, mouseevent)
         # TODO: make sure this is consistent with patch and patch
         # collection on nonlinear transformed coordinates.
@@ -513,8 +513,7 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
             ymin, ymax = ymax, ymin
 
         if x is not None and y is not None:
-            inside = ((x >= xmin) and (x <= xmax) and
-                      (y >= ymin) and (y <= ymax))
+            inside = (xmin <= x <= xmax) and (ymin <= y <= ymax)
         else:
             inside = False
 
@@ -1026,7 +1025,7 @@ class PcolorImage(AxesImage):
         i = np.searchsorted(self._Ay, y) - 1
         try:
             return self._A[i, j]
-        except:
+        except IndexError:
             return None
 
 
@@ -1137,14 +1136,14 @@ class BboxImage(_ImageBase):
 
         if isinstance(self.bbox, BboxBase):
             return self.bbox
-        elif six.callable(self.bbox):
+        elif callable(self.bbox):
             return self.bbox(renderer)
         else:
             raise ValueError("unknown type of bbox")
 
     def contains(self, mouseevent):
         """Test whether the mouse event occured within the image."""
-        if six.callable(self._contains):
+        if callable(self._contains):
             return self._contains(self, mouseevent)
 
         if not self.get_visible():  # or self.get_figure()._renderer is None:

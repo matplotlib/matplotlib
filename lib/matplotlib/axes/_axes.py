@@ -2659,7 +2659,7 @@ or tuple of floats
                 yt = y + pctdistance * radius * math.sin(thetam)
                 if is_string_like(autopct):
                     s = autopct % (100. * frac)
-                elif six.callable(autopct):
+                elif callable(autopct):
                     s = autopct(100. * frac)
                 else:
                     raise TypeError(

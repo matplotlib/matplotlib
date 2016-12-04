@@ -12,10 +12,12 @@ from __future__ import (absolute_import, division, print_function,
 import six
 from six.moves import zip
 
-from matplotlib import lines, text as mtext, path as mpath, colors as mcolors
-from matplotlib import artist
-from matplotlib.collections import Collection, LineCollection, \
-        PolyCollection, PatchCollection, PathCollection
+from matplotlib import (
+    artist, cbook, colors as mcolors, lines, text as mtext, path as mpath)
+from matplotlib._backports import numpy as _backports_np
+from matplotlib.collections import (
+    Collection, LineCollection, PolyCollection, PatchCollection,
+    PathCollection)
 from matplotlib.cm import ScalarMappable
 from matplotlib.patches import Patch
 from matplotlib.colors import Normalize
@@ -26,6 +28,7 @@ import numpy as np
 import math
 from . import proj3d
 
+
 def norm_angle(a):
     """Return angle between -180 and +180"""
     a = (a + 360) % 360
@@ -33,12 +36,14 @@ def norm_angle(a):
         a = a - 360
     return a
 
+
 def norm_text_angle(a):
     """Return angle between -90 and +90"""
     a = (a + 180) % 180
     if a > 90:
         a = a - 180
     return a
+
 
 def get_dir_vector(zdir):
     if zdir == 'x':
@@ -53,6 +58,7 @@ def get_dir_vector(zdir):
         return zdir
     else:
         raise ValueError("'x', 'y', 'z', None or vector of length 3 expected")
+
 
 class Text3D(mtext.Text):
     '''
@@ -139,6 +145,7 @@ def line_2d_to_3d(line, zs=0, zdir='z'):
     line.__class__ = Line3D
     line.set_3d_properties(zs, zdir)
 
+
 def path_to_3d_segment(path, zs=0, zdir='z'):
     '''Convert a path to a 3D segment.'''
 
@@ -152,6 +159,7 @@ def path_to_3d_segment(path, zs=0, zdir='z'):
     seg3d = [juggle_axes(x, y, z, zdir) for (x, y, z) in seg]
     return seg3d
 
+
 def paths_to_3d_segments(paths, zs=0, zdir='z'):
     '''
     Convert paths from a collection object to 3D segments.
@@ -164,6 +172,7 @@ def paths_to_3d_segments(paths, zs=0, zdir='z'):
     for path, pathz in zip(paths, zs):
         segments.append(path_to_3d_segment(path, pathz, zdir))
     return segments
+
 
 def path_to_3d_segment_with_codes(path, zs=0, zdir='z'):
     '''Convert a path to a 3D segment with path codes.'''
@@ -180,6 +189,7 @@ def path_to_3d_segment_with_codes(path, zs=0, zdir='z'):
     seg3d = [juggle_axes(x, y, z, zdir) for (x, y, z) in seg]
     return seg3d, codes
 
+
 def paths_to_3d_segments_with_codes(paths, zs=0, zdir='z'):
     '''
     Convert paths from a collection object to 3D segments with path codes.
@@ -195,6 +205,7 @@ def paths_to_3d_segments_with_codes(paths, zs=0, zdir='z'):
         segments.append(segs)
         codes_list.append(codes)
     return segments, codes_list
+
 
 class Line3DCollection(LineCollection):
     '''
@@ -310,6 +321,7 @@ class PathPatch3D(Patch3D):
         self._facecolor2d = self._facecolor3d
         return min(vzs)
 
+
 def get_patch_verts(patch):
     """Return a list of vertices for the path of a patch."""
     trans = patch.get_patch_transform()
@@ -320,11 +332,13 @@ def get_patch_verts(patch):
     else:
         return []
 
+
 def patch_2d_to_3d(patch, z=0, zdir='z'):
     """Convert a Patch to a Patch3D object."""
     verts = get_patch_verts(patch)
     patch.__class__ = Patch3D
     patch.set_3d_properties(verts, z, zdir)
+
 
 def pathpatch_2d_to_3d(pathpatch, z=0, zdir='z'):
     """Convert a PathPatch to a PathPatch3D object."""
@@ -334,6 +348,7 @@ def pathpatch_2d_to_3d(pathpatch, z=0, zdir='z'):
     mpath = trans.transform_path(path)
     pathpatch.__class__ = PathPatch3D
     pathpatch.set_3d_properties(mpath, z, zdir)
+
 
 class Patch3DCollection(PatchCollection):
     '''
@@ -715,6 +730,7 @@ def poly_collection_2d_to_3d(col, zs=0, zdir='z'):
     col.set_verts_and_codes(segments_3d, codes)
     col.set_3d_properties()
 
+
 def juggle_axes(xs, ys, zs, zdir):
     """
     Reorder coordinates so that 2D xs, ys can be plotted in the plane
@@ -729,6 +745,7 @@ def juggle_axes(xs, ys, zs, zdir):
         return rotate_axes(xs, ys, zs, zdir)
     else:
         return xs, ys, zs
+
 
 def rotate_axes(xs, ys, zs, zdir):
     """
@@ -749,35 +766,18 @@ def rotate_axes(xs, ys, zs, zdir):
     else:
         return xs, ys, zs
 
+
+@cbook.deprecated('2.0', alternative='matplotlib.colors.is_color_like')
 def iscolor(c):
-    try:
-        if len(c) == 4 or len(c) == 3:
-            if iterable(c[0]):
-                return False
-            if hasattr(c[0], '__float__'):
-                return True
-    except:
-        return False
-    return False
+    return mcolors.is_color_like(c)
+
 
 def get_colors(c, num):
     """Stretch the color argument to provide the required number num"""
+    return _backports_np.broadcast_to(
+        mcolors.to_rgba_array(c) if len(c) else [0, 0, 0, 0],
+        (num, 4))
 
-    if type(c) == type("string"):
-        c = mcolors.to_rgba(c)
-
-    if iscolor(c):
-        return [c] * num
-    if len(c) == num:
-        return c
-    elif iscolor(c):
-        return [c] * num
-    elif len(c) == 0: #if edgecolor or facecolor is specified as 'none'
-        return [[0,0,0,0]] * num
-    elif iscolor(c[0]):
-        return [c[0]] * num
-    else:
-        raise ValueError('unknown color format %s' % c)
 
 def zalpha(colors, zs):
     """Modify the alphas of the color list according to depth"""
@@ -786,7 +786,7 @@ def zalpha(colors, zs):
     #        the min and max zs are very close together.
     #        Should really normalize against the viewing depth.
     colors = get_colors(colors, len(zs))
-    if zs.size > 0 :
+    if len(zs):
         norm = Normalize(min(zs), max(zs))
         sats = 1 - norm(zs) * 0.7
         colors = [(c[0], c[1], c[2], c[3] * s) for c, s in zip(colors, sats)]

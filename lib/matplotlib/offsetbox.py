@@ -217,10 +217,9 @@ class OffsetBox(martist.Artist):
 
         accepts extent of the box
         """
-        if six.callable(self._offset):
-            return self._offset(width, height, xdescent, ydescent, renderer)
-        else:
-            return self._offset
+        return (self._offset(width, height, xdescent, ydescent, renderer)
+                if callable(self._offset)
+                else self._offset)
 
     def set_width(self, width):
         """

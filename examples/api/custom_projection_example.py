@@ -43,8 +43,7 @@ class GeoAxes(Axes):
             self._round_to = round_to
 
         def __call__(self, x, pos=None):
-            degrees = (x / np.pi) * 180.0
-            degrees = np.round(degrees / self._round_to) * self._round_to
+            degrees = np.round(np.rad2deg(x) / self._round_to) * self._round_to
             if rcParams['text.usetex'] and not rcParams['text.latex.unicode']:
                 return r"$%0.0f^\circ$" % degrees
             else:
@@ -278,8 +277,7 @@ class GeoAxes(Axes):
 
         In this case, we want them to be displayed in degrees N/S/E/W.
         """
-        lon = lon * (180.0 / np.pi)
-        lat = lat * (180.0 / np.pi)
+        lon, lat = np.rad2deg([lon, lat])
         if lat >= 0.0:
             ns = 'N'
         else:
@@ -330,7 +328,7 @@ class GeoAxes(Axes):
         class -- it provides an interface to something that has no
         analogy in the base Axes class.
         """
-        self._longitude_cap = degrees * (np.pi / 180.0)
+        self._longitude_cap = np.deg2rad(degrees)
         self._xaxis_pretransform \
             .clear() \
             .scale(1.0, self._longitude_cap * 2.0) \

@@ -683,18 +683,15 @@ class AutoDateFormatter(ticker.Formatter):
 
     def __call__(self, x, pos=None):
         locator_unit_scale = float(self._locator._get_unit())
-        fmt = self.defaultfmt
-
         # Pick the first scale which is greater than the locator unit.
-        for possible_scale in sorted(self.scaled):
-            if possible_scale >= locator_unit_scale:
-                fmt = self.scaled[possible_scale]
-                break
+        fmt = next((fmt for scale, fmt in sorted(self.scaled.items())
+                    if scale >= locator_unit_scale),
+                   self.defaultfmt)
 
         if isinstance(fmt, six.string_types):
             self._formatter = DateFormatter(fmt, self._tz)
             result = self._formatter(x, pos)
-        elif six.callable(fmt):
+        elif callable(fmt):
             result = fmt(x, pos)
         else:
             raise TypeError('Unexpected type passed to {0!r}.'.format(self))

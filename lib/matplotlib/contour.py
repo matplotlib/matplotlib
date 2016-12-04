@@ -338,7 +338,7 @@ class ContourLabeler(object):
         else:
             if isinstance(fmt, dict):
                 return fmt[lev]
-            elif six.callable(fmt):
+            elif callable(fmt):
                 return fmt(lev)
             else:
                 return fmt % lev
@@ -433,7 +433,7 @@ class ContourLabeler(object):
         if np.all(dd == 0):  # Must deal with case of zero length label
             rotation = 0.0
         else:
-            rotation = np.arctan2(dd[1], dd[0]) * 180.0 / np.pi
+            rotation = np.rad2deg(np.arctan2(dd[1], dd[0]))
 
         if self.rightside_up:
             # Fix angle so text is never upside-down
@@ -1174,8 +1174,8 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
                         lev = np.asarray(level_arg).astype(np.float64)
                 except:
                     raise TypeError(
-                        "Last %s arg must give levels; see help(%s)" %
-                        (fn, fn))
+                        "Last {0} arg must give levels; see help({0})"
+                        .format(fn))
             self.levels = lev
         if self.filled and len(self.levels) < 2:
             raise ValueError("Filled contours require at least 2 levels.")

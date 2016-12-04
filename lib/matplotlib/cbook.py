@@ -714,7 +714,7 @@ def is_hashable(obj):
 
 def is_writable_file_like(obj):
     """return true if *obj* looks like a file object with a *write* method"""
-    return hasattr(obj, 'write') and six.callable(obj.write)
+    return callable(getattr(obj, 'write', None))
 
 
 def file_requires_unicode(x):

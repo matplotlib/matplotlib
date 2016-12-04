@@ -647,7 +647,7 @@ class RendererBase(object):
                                                    usetex=False)
 
         path = Path(verts, codes)
-        angle = angle / 180. * 3.141592
+        angle = np.deg2rad(angle)
         if self.flipy():
             transform = Affine2D().scale(fontsize / text2path.FONT_SCALE,
                                          fontsize / text2path.FONT_SCALE)
