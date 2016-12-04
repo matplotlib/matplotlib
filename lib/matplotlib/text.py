@@ -782,7 +782,8 @@ class Text(Artist):
                 y = y + posy
                 if renderer.flipy():
                     y = canvash - y
-                clean_line, ismath = textobj.is_math_text(line, self.get_usetex())
+                clean_line, ismath = textobj.is_math_text(line,
+                                                          self.get_usetex())
 
                 if textobj.get_path_effects():
                     from matplotlib.patheffects import PathEffectRenderer
