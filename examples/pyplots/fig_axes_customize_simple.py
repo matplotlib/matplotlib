@@ -23,5 +23,4 @@ for line in ax1.yaxis.get_ticklines():
     line.set_markersize(25)
     line.set_markeredgewidth(3)
 
-
-
+plt.show()
