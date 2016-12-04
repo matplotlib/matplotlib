@@ -47,21 +47,7 @@ Margins and Autoscaling
    :toctree: _as_gen
    :nosignatures:
 
-   Artist.get_bottom_margin
-   Artist.get_left_margin
-   Artist.get_margins
-   Artist.get_top_margin
-   Artist.margins
-   Artist.left_margin
-   Artist.get_right_margin
-   Artist.bottom_margin
-   Artist.right_margin
-   Artist.set_bottom_margin
-   Artist.set_left_margin
-   Artist.set_margins
-   Artist.set_right_margin
-   Artist.set_top_margin
-   Artist.top_margin
+   Artist.sticky_edges
 
 Clipping
 --------

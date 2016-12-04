@@ -156,10 +156,10 @@ def streamplot(axes, x, y, u, v, density=1, linewidth=None, color=None,
 
         # Check if start_points are outside the data boundaries
         for xs, ys in sp2:
-            if (xs < grid.x_origin or xs > grid.x_origin + grid.width
-                or ys < grid.y_origin or ys > grid.y_origin + grid.height):
-                    raise ValueError("Starting point ({}, {}) outside of"
-                                     " data boundaries".format(xs, ys))
+            if not (grid.x_origin <= xs <= grid.x_origin + grid.width
+                    and grid.y_origin <= ys <= grid.y_origin + grid.height):
+                raise ValueError("Starting point ({}, {}) outside of data "
+                                 "boundaries".format(xs, ys))
 
         # Convert start_points from data to array coords
         # Shift the seed points from the bottom left of the data so that
@@ -210,18 +210,15 @@ def streamplot(axes, x, y, u, v, density=1, linewidth=None, color=None,
             line_colors.append(color_values)
             arrow_kw['color'] = cmap(norm(color_values[n]))
 
-        p = patches.FancyArrowPatch(arrow_tail,
-                                    arrow_head,
-                                    transform=transform,
-                                    margins=False,
-                                    **arrow_kw)
+        p = patches.FancyArrowPatch(
+            arrow_tail, arrow_head, transform=transform, **arrow_kw)
         axes.add_patch(p)
         arrows.append(p)
 
-    lc = mcollections.LineCollection(streamlines,
-                                     transform=transform,
-                                     margins=False,
-                                     **line_kw)
+    lc = mcollections.LineCollection(
+        streamlines, transform=transform, **line_kw)
+    lc.sticky_edges.x[:] = [grid.x_origin, grid.x_origin + grid.width]
+    lc.sticky_edges.y[:] = [grid.y_origin, grid.y_origin + grid.height]
     if use_multicolor_lines:
         lc.set_array(np.ma.hstack(line_colors))
         lc.set_cmap(cmap)
@@ -229,7 +226,7 @@ def streamplot(axes, x, y, u, v, density=1, linewidth=None, color=None,
     axes.add_collection(lc)
     axes.autoscale_view()
 
-    ac = matplotlib.collections.PatchCollection(arrows, margins=False)
+    ac = matplotlib.collections.PatchCollection(arrows)
     stream_container = StreamplotSet(lc, ac)
     return stream_container
 

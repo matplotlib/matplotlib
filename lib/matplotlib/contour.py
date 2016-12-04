@@ -766,6 +766,7 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
         same as levels for line contours; half-way between
         levels for filled contours.  See :meth:`_process_colors`.
     """
+
     def __init__(self, ax, *args, **kwargs):
         """
         Draw contour lines or filled regions, depending on
@@ -804,7 +805,7 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
             level0segs = [polygon0] and level0kinds = [polygon0kinds].
 
         Keyword arguments are as described in
-        :class:`~matplotlib.contour.QuadContourSet` object.
+        :attr:`matplotlib.contour.QuadContourSet.contour_doc`.
 
         **Examples:**
 
@@ -937,8 +938,7 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
                     edgecolors='none',
                     alpha=self.alpha,
                     transform=self.get_transform(),
-                    zorder=zorder,
-                    margins=False)
+                    zorder=zorder)
                 self.ax.add_collection(col, autolim=False)
                 self.collections.append(col)
         else:
@@ -959,11 +959,17 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
                     linestyles=[lstyle],
                     alpha=self.alpha,
                     transform=self.get_transform(),
-                    zorder=zorder,
-                    margins=False)
+                    zorder=zorder)
                 col.set_label('_nolegend_')
                 self.ax.add_collection(col, autolim=False)
                 self.collections.append(col)
+
+        for col in self.collections:
+            col.sticky_edges.x[:] = [self._mins[0], self._maxs[0]]
+            col.sticky_edges.y[:] = [self._mins[1], self._maxs[1]]
+        self.ax.update_datalim([self._mins, self._maxs])
+        self.ax.autoscale_view(tight=True)
+
         self.changed()  # set the colors
 
     def get_transform(self):
@@ -1069,21 +1075,10 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
             raise ValueError('allkinds has different length to allsegs')
 
         # Determine x,y bounds and update axes data limits.
-        havelimits = False
-        for segs in self.allsegs:
-            for seg in segs:
-                seg = np.asarray(seg)
-                if havelimits:
-                    min = np.minimum(min, seg.min(axis=0))
-                    max = np.maximum(max, seg.max(axis=0))
-                else:
-                    min = seg.min(axis=0)
-                    max = seg.max(axis=0)
-                    havelimits = True
-
-        if havelimits:
-            self.ax.update_datalim([min, max])
-            self.ax.autoscale_view(tight=True)
+        flatseglist = [s for seg in self.allsegs for s in seg]
+        points = np.concatenate(flatseglist, axis=0)
+        self._mins = points.min(axis=0)
+        self._maxs = points.max(axis=0)
 
     def _get_allsegs_and_allkinds(self):
         """
@@ -1423,16 +1418,6 @@ class QuadContourSet(ContourSet):
         Same as levels for line contours; half-way between
         levels for filled contours.  See :meth:`_process_colors` method.
     """
-    def __init__(self, ax, *args, **kwargs):
-        """
-        Calculate and draw contour lines or filled regions, depending
-        on whether keyword arg 'filled' is False (default) or True.
-
-        The first argument of the initializer must be an axes
-        object.  The remaining arguments and keyword arguments
-        are described in QuadContourSet.contour_doc.
-        """
-        ContourSet.__init__(self, ax, *args, **kwargs)
 
     def _process_args(self, *args, **kwargs):
         """
@@ -1448,6 +1433,8 @@ class QuadContourSet(ContourSet):
                 contour_generator = args[0].Cntr
             else:
                 contour_generator = args[0]._contour_generator
+            self._mins = args[0]._mins
+            self._maxs = args[0]._maxs
         else:
             self._corner_mask = kwargs.get('corner_mask', None)
             if self._corner_mask is None:
@@ -1480,12 +1467,8 @@ class QuadContourSet(ContourSet):
                 x = transformed_pts[..., 0]
                 y = transformed_pts[..., 1]
 
-            x0 = ma.minimum(x)
-            x1 = ma.maximum(x)
-            y0 = ma.minimum(y)
-            y1 = ma.maximum(y)
-            self.ax.update_datalim([(x0, y0), (x1, y1)])
-            self.ax.autoscale_view(tight=True)
+            self._mins = [ma.min(x), ma.min(y)]
+            self._maxs = [ma.max(x), ma.max(y)]
 
         if self._corner_mask == 'legacy':
             self.Cntr = contour_generator

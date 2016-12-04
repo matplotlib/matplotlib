@@ -2101,13 +2101,6 @@ or tuple of floats
             if yerr is not None:
                 yerr = self.convert_yunits(yerr)
 
-        margins = {}
-
-        if orientation == 'vertical':
-            margins = {'bottom': False}
-        elif orientation == 'horizontal':
-            margins = {'left': False}
-
         if align == 'center':
             if orientation == 'vertical':
                 left = [left[i] - width[i] / 2. for i in xrange(len(left))]
@@ -2132,11 +2125,13 @@ or tuple of floats
                 edgecolor=e,
                 linewidth=lw,
                 label='_nolegend_',
-                margins=margins
                 )
             r.update(kwargs)
             r.get_path()._interpolation_steps = 100
-            #print r.get_label(), label, 'label' in kwargs
+            if orientation == 'vertical':
+                r.sticky_edges.y.append(0)
+            elif orientation == 'horizontal':
+                r.sticky_edges.x.append(0)
             self.add_patch(r)
             patches.append(r)
 
@@ -4428,6 +4423,8 @@ or tuple of floats
 
         corners = ((xmin, ymin), (xmax, ymax))
         self.update_datalim(corners)
+        collection.sticky_edges.x[:] = [xmin, xmax]
+        collection.sticky_edges.y[:] = [ymin, ymax]
         self.autoscale_view(tight=True)
 
         # add the collection last
@@ -5456,7 +5453,7 @@ or tuple of floats
 
         kwargs.setdefault('snap', False)
 
-        collection = mcoll.PolyCollection(verts, margins=False, **kwargs)
+        collection = mcoll.PolyCollection(verts, **kwargs)
 
         collection.set_alpha(alpha)
         collection.set_array(C)
@@ -5485,13 +5482,15 @@ or tuple of floats
             x = transformed_pts[..., 0]
             y = transformed_pts[..., 1]
 
+        self.add_collection(collection, autolim=False)
+
         minx = np.amin(x)
         maxx = np.amax(x)
         miny = np.amin(y)
         maxy = np.amax(y)
-
+        collection.sticky_edges.x[:] = [minx, maxx]
+        collection.sticky_edges.y[:] = [miny, maxy]
         corners = (minx, miny), (maxx, maxy)
-        self.add_collection(collection, autolim=False)
         self.update_datalim(corners)
         self.autoscale_view()
         return collection
@@ -5607,10 +5606,9 @@ or tuple of floats
         coords[:, 0] = X
         coords[:, 1] = Y
 
-        collection = mcoll.QuadMesh(
-            Nx - 1, Ny - 1, coords,
-            antialiased=antialiased, shading=shading, margins=False,
-            **kwargs)
+        collection = mcoll.QuadMesh(Nx - 1, Ny - 1, coords,
+                                    antialiased=antialiased, shading=shading,
+                                    **kwargs)
         collection.set_alpha(alpha)
         collection.set_array(C)
         if norm is not None and not isinstance(norm, mcolors.Normalize):
@@ -5636,13 +5634,15 @@ or tuple of floats
             X = transformed_pts[..., 0]
             Y = transformed_pts[..., 1]
 
+        self.add_collection(collection, autolim=False)
+
         minx = np.amin(X)
         maxx = np.amax(X)
         miny = np.amin(Y)
         maxy = np.amax(Y)
-
+        collection.sticky_edges.x[:] = [minx, maxx]
+        collection.sticky_edges.y[:] = [miny, maxy]
         corners = (minx, miny), (maxx, maxy)
-        self.add_collection(collection, autolim=False)
         self.update_datalim(corners)
         self.autoscale_view()
         return collection
@@ -5794,8 +5794,7 @@ or tuple of floats
             # The QuadMesh class can also be changed to
             # handle relevant superclass kwargs; the initializer
             # should do much more than it does now.
-            collection = mcoll.QuadMesh(nc, nr, coords, 0, edgecolors="None",
-                                        margins=False)
+            collection = mcoll.QuadMesh(nc, nr, coords, 0, edgecolors="None")
             collection.set_alpha(alpha)
             collection.set_array(C)
             collection.set_cmap(cmap)
@@ -5804,27 +5803,23 @@ or tuple of floats
             xl, xr, yb, yt = X.min(), X.max(), Y.min(), Y.max()
             ret = collection
 
-        else:
-            # One of the image styles:
+        else:  # It's one of the two image styles.
             xl, xr, yb, yt = x[0], x[-1], y[0], y[-1]
-        if style == "image":
 
-            im = mimage.AxesImage(self, cmap, norm,
-                                        interpolation='nearest',
-                                        origin='lower',
-                                        extent=(xl, xr, yb, yt),
-                                         **kwargs)
-            im.set_data(C)
-            im.set_alpha(alpha)
-            self.add_image(im)
-            ret = im
-
-        if style == "pcolorimage":
-            im = mimage.PcolorImage(self, x, y, C,
-                                    cmap=cmap,
-                                    norm=norm,
-                                    alpha=alpha,
-                                    **kwargs)
+            if style == "image":
+                im = mimage.AxesImage(self, cmap, norm,
+                                      interpolation='nearest',
+                                      origin='lower',
+                                      extent=(xl, xr, yb, yt),
+                                      **kwargs)
+                im.set_data(C)
+                im.set_alpha(alpha)
+            elif style == "pcolorimage":
+                im = mimage.PcolorImage(self, x, y, C,
+                                        cmap=cmap,
+                                        norm=norm,
+                                        alpha=alpha,
+                                        **kwargs)
             self.add_image(im)
             ret = im
 
@@ -5832,6 +5827,9 @@ or tuple of floats
             ret.set_clim(vmin, vmax)
         else:
             ret.autoscale_None()
+
+        ret.sticky_edges.x[:] = [xl, xr]
+        ret.sticky_edges.y[:] = [yb, yt]
         self.update_datalim(np.array([[xl, yb], [xr, yt]]))
         self.autoscale_view(tight=True)
         return ret
@@ -6244,21 +6242,17 @@ or tuple of floats
             else:
                 n = [m[slc].cumsum()[slc] for m in n]
 
-        if orientation == 'horizontal':
-            margins = {'left': False}
-        else:
-            margins = {'bottom': False}
-
         patches = []
 
+        # Save autoscale state for later restoration; turn autoscaling
+        # off so we can do it all a single time at the end, instead
+        # of having it done by bar or fill and then having to be redone.
+        _saved_autoscalex = self.get_autoscalex_on()
+        _saved_autoscaley = self.get_autoscaley_on()
+        self.set_autoscalex_on(False)
+        self.set_autoscaley_on(False)
+
         if histtype.startswith('bar'):
-            # Save autoscale state for later restoration; turn autoscaling
-            # off so we can do it all a single time at the end, instead
-            # of having it done by bar or fill and then having to be redone.
-            _saved_autoscalex = self.get_autoscalex_on()
-            _saved_autoscaley = self.get_autoscaley_on()
-            self.set_autoscalex_on(False)
-            self.set_autoscaley_on(False)
 
             totwidth = np.diff(bins)
 
@@ -6305,10 +6299,6 @@ or tuple of floats
                     bottom[:] = m
                 boffset += dw
 
-            self.set_autoscalex_on(_saved_autoscalex)
-            self.set_autoscaley_on(_saved_autoscaley)
-            self.autoscale_view()
-
         elif histtype.startswith('step'):
             # these define the perimeter of the polygon
             x = np.zeros(4 * len(bins) - 3)
@@ -6335,19 +6325,19 @@ or tuple of floats
                 if np.min(bottom) > 0:
                     minimum = np.min(bottom)
                 elif normed or weights is not None:
-                    # For normed data, set to log base * minimum data value
+                    # For normed data, set to minimum data value / logbase
                     # (gives 1 full tick-label unit for the lowest filled bin)
                     ndata = np.array(n)
                     minimum = (np.min(ndata[ndata > 0])) / logbase
                 else:
-                    # For non-normed data, set the min to log base,
+                    # For non-normed data, set the min to 1 / log base,
                     # again so that there is 1 full tick-label unit
                     # for the lowest bin
                     minimum = 1.0 / logbase
 
                 y[0], y[-1] = minimum, minimum
             else:
-                minimum = np.min(bins)
+                minimum = 0
 
             if align == 'left' or align == 'center':
                 x -= 0.5*(bins[1]-bins[0])
@@ -6388,42 +6378,20 @@ or tuple of floats
                     closed=True if fill else None,
                     facecolor=c,
                     edgecolor=None if fill else c,
-                    fill=fill if fill else None,
-                    margins=margins))
+                    fill=fill if fill else None))
+            for patch_list in patches:
+                for patch in patch_list:
+                    if orientation == 'vertical':
+                        patch.sticky_edges.y.append(minimum)
+                    elif orientation == 'horizontal':
+                        patch.sticky_edges.x.append(minimum)
 
             # we return patches, so put it back in the expected order
             patches.reverse()
 
-            # adopted from adjust_x/ylim part of the bar method
-            if orientation == 'horizontal':
-                xmin0 = max(_saved_bounds[0]*0.9, minimum)
-                xmax = self.dataLim.intervalx[1]
-                for m in n:
-                    # make sure there are counts
-                    if np.sum(m) > 0:
-                        # filter out the 0 height bins
-                        xmin = np.amin(m[m != 0])
-                    # If no counts, set min to zero
-                    else:
-                        xmin = 0.0
-                xmin = max(xmin*0.9, minimum) if not input_empty else minimum
-                xmin = min(xmin0, xmin)
-                self.dataLim.intervalx = (xmin, xmax)
-            elif orientation == 'vertical':
-                ymin0 = max(_saved_bounds[1]*0.9, minimum)
-                ymax = self.dataLim.intervaly[1]
-
-                for m in n:
-                    # make sure there are counts
-                    if np.sum(m) > 0:
-                        # filter out the 0 height bins
-                        ymin = np.amin(m[m != 0])
-                    # If no counts, set min to zero
-                    else:
-                        ymin = 0.0
-                ymin = max(ymin*0.9, minimum) if not input_empty else minimum
-                ymin = min(ymin0, ymin)
-                self.dataLim.intervaly = (ymin, ymax)
+        self.set_autoscalex_on(_saved_autoscalex)
+        self.set_autoscaley_on(_saved_autoscaley)
+        self.autoscale_view()
 
         if label is None:
             labels = [None]
@@ -6442,14 +6410,6 @@ or tuple of floats
                 for p in patch[1:]:
                     p.update(kwargs)
                     p.set_label('_nolegend_')
-
-        if binsgiven:
-            if orientation == 'vertical':
-                self.update_datalim(
-                    [(bins[0], 0), (bins[-1], 0)], updatey=False)
-            else:
-                self.update_datalim(
-                    [(0, bins[0]), (0, bins[-1])], updatex=False)
 
         if nx == 1:
             return n[0], bins, cbook.silent_list('Patch', patches[0])
