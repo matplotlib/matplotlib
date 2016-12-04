@@ -114,20 +114,16 @@ class Line3D(lines.Line2D):
         xs = self.get_xdata()
         ys = self.get_ydata()
 
-        try:
-            # If *zs* is a list or array, then this will fail and
-            # just proceed to juggle_axes().
-            zs = float(zs)
-            zs = [zs for x in xs]
-        except TypeError:
-            pass
-        self._verts3d = juggle_axes(xs, ys, zs, zdir)
+        if not iterable(zs):
+            zs = np.ones(len(xs)) * zs
+        xyz = np.asarray([xs, ys, zs])
+        self._verts3d = juggle_axes_vec(xyz, zdir)
         self.stale = True
 
     def draw(self, renderer):
         xs3d, ys3d, zs3d = self._verts3d
-        xs, ys, zs = proj3d.proj_transform(xs3d, ys3d, zs3d, renderer.M)
-        self.set_data(xs, ys)
+        xyz = proj3d.proj_transform(xs3d, ys3d, zs3d, renderer.M)
+        self.set_data(xyz[0], xyz[1])
         lines.Line2D.draw(self, renderer)
         self.stale = False
 
@@ -142,15 +138,17 @@ def line_2d_to_3d(line, zs=0, zdir='z'):
 def path_to_3d_segment(path, zs=0, zdir='z'):
     '''Convert a path to a 3D segment.'''
 
-    if not iterable(zs):
-        zs = np.ones(len(path)) * zs
+    # Pre allocate memory
+    seg3d = np.ones((3, len(path)))
 
-    seg = []
+    # Works either if zs is array or scalar
+    seg3d[2] *= zs
+       
     pathsegs = path.iter_segments(simplify=False, curves=False)
-    for (((x, y), code), z) in zip(pathsegs, zs):
-        seg.append((x, y, z))
-    seg3d = [juggle_axes(x, y, z, zdir) for (x, y, z) in seg]
-    return seg3d
+    for i, ((x, y), code) in enumerate(pathsegs):
+        seg3d[0:2, i] = x, y
+    seg3d = juggle_axes_vec(seg3d, zdir)
+    return seg3d.T
 
 def paths_to_3d_segments(paths, zs=0, zdir='z'):
     '''
@@ -163,22 +161,24 @@ def paths_to_3d_segments(paths, zs=0, zdir='z'):
     segments = []
     for path, pathz in zip(paths, zs):
         segments.append(path_to_3d_segment(path, pathz, zdir))
-    return segments
+    return np.asarray(segments)
 
 def path_to_3d_segment_with_codes(path, zs=0, zdir='z'):
     '''Convert a path to a 3D segment with path codes.'''
+    # Pre allocate memory
+    # XXX should we consider a 4d array?
+    seg3d = np.ones((3, len(path)))
 
-    if not iterable(zs):
-        zs = np.ones(len(path)) * zs
+    # Works either if zs is array or scalar
+    seg3d[2] *= zs
 
-    seg = []
-    codes = []
     pathsegs = path.iter_segments(simplify=False, curves=False)
-    for (((x, y), code), z) in zip(pathsegs, zs):
-        seg.append((x, y, z))
-        codes.append(code)
-    seg3d = [juggle_axes(x, y, z, zdir) for (x, y, z) in seg]
-    return seg3d, codes
+    codes = np.empty(len(path))
+    for i, ((x, y), code) in enumerate(pathsegs):
+        seg3d[0:2, i] = x, y
+        codes[i] = code
+    seg3d = juggle_axes_vec(seg3d, zdir)
+    return seg3d.T, codes
 
 def paths_to_3d_segments_with_codes(paths, zs=0, zdir='z'):
     '''
@@ -194,7 +194,7 @@ def paths_to_3d_segments_with_codes(paths, zs=0, zdir='z'):
         segs, codes = path_to_3d_segment_with_codes(path, pathz, zdir)
         segments.append(segs)
         codes_list.append(codes)
-    return segments, codes_list
+    return np.asarray(segments), np.asarray(codes_list)
 
 class Line3DCollection(LineCollection):
     '''
@@ -216,23 +216,39 @@ class Line3DCollection(LineCollection):
         '''
         Set 3D segments
         '''
-        self._segments3d = np.asanyarray(segments)
+        self._seg_sizes = [len(c) for c in segments]
+        self._segments3d = []
+        if len(segments) > 0:
+            # Store the points in a single array for easier projection
+            n_segments = np.sum(self._seg_sizes)
+            # Put all segments in a big array
+            self._segments3d_data = np.vstack(segments)
+            # Add a fourth dimension for quaternions
+            self._segments3d_data = np.hstack([self._segments3d_data,
+                                               np.ones((n_segments, 1))])
+
+            # For coveniency, store a view of the array in the original shape
+            cum_s = 0
+            for s in self._seg_sizes:
+                self._segments3d.append(
+                    self._segments3d_data[cum_s:cum_s + s, :3])
+                cum_s += s
         LineCollection.set_segments(self, [])
 
     def do_3d_projection(self, renderer):
         '''
         Project the points according to renderer matrix.
         '''
-        xyslist = [
-            proj3d.proj_trans_points(points, renderer.M) for points in
-            self._segments3d]
-        segments_2d = [list(zip(xs, ys)) for (xs, ys, zs) in xyslist]
+        if len(self._segments3d) == 0:
+            return 1e9
+        xys = proj3d.proj_transform_vec(self._segments3d_data.T, renderer.M).T
+        segments_2d = []
+        cum_s = 0
+        for s in self._seg_sizes:
+            segments_2d.append(xys[cum_s:cum_s + s, :2])
+            cum_s += s
         LineCollection.set_segments(self, segments_2d)
-
-        # FIXME
-        minz = 1e9
-        for (xs, ys, zs) in xyslist:
-            minz = min(minz, min(zs))
+        minz = np.min(xys[:, 2])
         return minz
 
     def draw(self, renderer, project=False):
@@ -260,11 +276,8 @@ class Patch3D(Patch):
         self.set_3d_properties(zs, zdir)
 
     def set_3d_properties(self, verts, zs=0, zdir='z'):
-        if not iterable(zs):
-            zs = np.ones(len(verts)) * zs
-
-        self._segment3d = [juggle_axes(x, y, z, zdir) \
-                for ((x, y), z) in zip(verts, zs)]
+        verts = np.hstack([verts, np.ones((len(verts), 1)) * zs])
+        self._segment3d = juggle_axes_vec(verts.T, zdir)
         self._facecolor3d = Patch.get_facecolor(self)
 
     def get_path(self):
@@ -274,13 +287,13 @@ class Patch3D(Patch):
         return self._facecolor2d
 
     def do_3d_projection(self, renderer):
-        s = self._segment3d
-        xs, ys, zs = list(zip(*s))
-        vxs, vys,vzs, vis = proj3d.proj_transform_clip(xs, ys, zs, renderer.M)
-        self._path2d = mpath.Path(list(zip(vxs, vys)))
+        # pad ones
+        s = np.vstack([self._segment3d, np.ones(self._segment3d.shape[1])])
+        vxyzis = proj3d.proj_transform_vec_clip(s, renderer.M)
+        self._path2d = mpath.Path(vxyzis[0:2].T)
         # FIXME: coloring
         self._facecolor2d = self._facecolor3d
-        return min(vzs)
+        return min(vxyzis[2])
 
     def draw(self, renderer):
         Patch.draw(self, renderer)
@@ -302,13 +315,13 @@ class PathPatch3D(Patch3D):
         self._code3d = path.codes
 
     def do_3d_projection(self, renderer):
-        s = self._segment3d
-        xs, ys, zs = list(zip(*s))
-        vxs, vys,vzs, vis = proj3d.proj_transform_clip(xs, ys, zs, renderer.M)
-        self._path2d = mpath.Path(list(zip(vxs, vys)), self._code3d)
+        # pad ones
+        s = np.vstack([self._segment3d, np.ones(self._segment3d.shape[1])])
+        vxyzis = proj3d.proj_transform_vec_clip(s, renderer.M)
+        self._path2d = mpath.Path(vxyzis[0:2].T, self._code3d)
         # FIXME: coloring
         self._facecolor2d = self._facecolor3d
-        return min(vzs)
+        return min(vxyzis[2])
 
 def get_patch_verts(patch):
     """Return a list of vertices for the path of a patch."""
@@ -334,6 +347,7 @@ def pathpatch_2d_to_3d(pathpatch, z=0, zdir='z'):
     mpath = trans.transform_path(path)
     pathpatch.__class__ = PathPatch3D
     pathpatch.set_3d_properties(mpath, z, zdir)
+
 
 class Patch3DCollection(PatchCollection):
     '''
@@ -371,34 +385,30 @@ class Patch3DCollection(PatchCollection):
         # Force the collection to initialize the face and edgecolors
         # just in case it is a scalarmappable with a colormap.
         self.update_scalarmappable()
-        offsets = self.get_offsets()
-        if len(offsets) > 0:
-            xs, ys = list(zip(*offsets))
-        else:
-            xs = []
-            ys = []
-        self._offsets3d = juggle_axes(xs, ys, np.atleast_1d(zs), zdir)
+        offsets = np.vstack(self.get_offsets(), np.ones(len(verts)) * zs)
+        self._offsets3d = juggle_axes_vec(offsets, zdir)
         self._facecolor3d = self.get_facecolor()
         self._edgecolor3d = self.get_edgecolor()
         self.stale = True
 
     def do_3d_projection(self, renderer):
-        xs, ys, zs = self._offsets3d
-        vxs, vys, vzs, vis = proj3d.proj_transform_clip(xs, ys, zs, renderer.M)
+        # pad ones
+        s = np.vstack(self._offsets3d, np.ones(self._offsets3d.shape[1]))
+        vxyzis = proj3d.proj_transform_vec_clip(s, renderer.M)
 
-        fcs = (zalpha(self._facecolor3d, vzs) if self._depthshade else
+        fcs = (zalpha(self._facecolor3d, vxyzis[2]) if self._depthshade else
                self._facecolor3d)
         fcs = mcolors.to_rgba_array(fcs, self._alpha)
         self.set_facecolors(fcs)
 
-        ecs = (zalpha(self._edgecolor3d, vzs) if self._depthshade else
+        ecs = (zalpha(self._edgecolor3d, vxyzis[2]) if self._depthshade else
                self._edgecolor3d)
         ecs = mcolors.to_rgba_array(ecs, self._alpha)
         self.set_edgecolors(ecs)
-        PatchCollection.set_offsets(self, list(zip(vxs, vys)))
+        PatchCollection.set_offsets(self, vxyzis[0:2].T)
 
-        if vzs.size > 0:
-            return min(vzs)
+        if len(vxyzis) > 0:
+            return min(vxyzis[2])
         else:
             return np.nan
 
@@ -440,34 +450,31 @@ class Path3DCollection(PathCollection):
         # just in case it is a scalarmappable with a colormap.
         self.update_scalarmappable()
         offsets = self.get_offsets()
-        if len(offsets) > 0:
-            xs, ys = list(zip(*offsets))
-        else:
-            xs = []
-            ys = []
-        self._offsets3d = juggle_axes(xs, ys, np.atleast_1d(zs), zdir)
+        offsets = np.hstack([offsets,
+                             (np.ones(len(offsets)) * zs)[:, np.newaxis]])
+        self._offsets3d = juggle_axes_vec(offsets, zdir).T
         self._facecolor3d = self.get_facecolor()
         self._edgecolor3d = self.get_edgecolor()
         self.stale = True
 
     def do_3d_projection(self, renderer):
         xs, ys, zs = self._offsets3d
-        vxs, vys, vzs, vis = proj3d.proj_transform_clip(xs, ys, zs, renderer.M)
+        vxyzis = proj3d.proj_transform_clip(xs, ys, zs, renderer.M)
 
-        fcs = (zalpha(self._facecolor3d, vzs) if self._depthshade else
+        fcs = (zalpha(self._facecolor3d, vxyzis[2]) if self._depthshade else
                self._facecolor3d)
         fcs = mcolors.to_rgba_array(fcs, self._alpha)
         self.set_facecolors(fcs)
 
-        ecs = (zalpha(self._edgecolor3d, vzs) if self._depthshade else
+        ecs = (zalpha(self._edgecolor3d, vxyzis[2]) if self._depthshade else
                self._edgecolor3d)
         ecs = mcolors.to_rgba_array(ecs, self._alpha)
         self.set_edgecolors(ecs)
-        PathCollection.set_offsets(self, list(zip(vxs, vys)))
+        PathCollection.set_offsets(self, vxyzis[0:2].T)
 
-        if vzs.size > 0 :
-            return min(vzs)
-        else :
+        if len(vxyzis) > 0:
+            return min(vxyzis[2])
+        else:
             return np.nan
 
 
@@ -550,30 +557,22 @@ class Poly3DCollection(PolyCollection):
 
     def get_vector(self, segments3d):
         """Optimize points for projection"""
-        si = 0
-        ei = 0
-        segis = []
-        points = []
-        for p in segments3d:
-            points.extend(p)
-            ei = si+len(p)
-            segis.append((si, ei))
-            si = ei
 
-        if len(segments3d) > 0 :
-            xs, ys, zs = list(zip(*points))
-        else :
-            # We need this so that we can skip the bad unpacking from zip()
-            xs, ys, zs = [], [], []
-
-        ones = np.ones(len(xs))
-        self._vec = np.array([xs, ys, zs, ones])
-        self._segis = segis
+        self._seg_sizes = [len(c) for c in segments3d]
+        self._vec = []
+        if len(segments3d) > 0:
+            # Store the points in a single array for easier projection
+            n_segments = np.sum(self._seg_sizes)
+            # Put all segments in a big array
+            self._vec = np.vstack(segments3d)
+            # Add a fourth dimension for quaternions
+            self._vec = np.hstack([self._vec, np.ones((n_segments, 1))]).T
 
     def set_verts(self, verts, closed=True):
         '''Set 3D vertices.'''
         self.get_vector(verts)
         # 2D verts will be updated at draw time
+        # XXX Is this line useful?
         PolyCollection.set_verts(self, [], closed)
 
     def set_verts_and_codes(self, verts, codes):
@@ -595,7 +594,7 @@ class Poly3DCollection(PolyCollection):
         self._alpha3d = PolyCollection.get_alpha(self)
         self.stale = True
 
-    def set_sort_zpos(self,val):
+    def set_sort_zpos(self, val):
         '''Set the position to use for z-sorting.'''
         self._sort_zpos = val
         self.stale = True
@@ -609,9 +608,12 @@ class Poly3DCollection(PolyCollection):
             self.update_scalarmappable()
             self._facecolors3d = self._facecolors
 
-        txs, tys, tzs = proj3d.proj_transform_vec(self._vec, renderer.M)
-        xyzlist = [(txs[si:ei], tys[si:ei], tzs[si:ei])
-                   for si, ei in self._segis]
+        xys = proj3d.proj_transform_vec(self._vec, renderer.M).T
+        xyzlist = []
+        cum_s = 0
+        for s in self._seg_sizes:
+            xyzlist.append(xys[cum_s:cum_s + s, :3])
+            cum_s += s
 
         # This extra fuss is to re-order face / edge colors
         cface = self._facecolors3d
@@ -626,24 +628,21 @@ class Poly3DCollection(PolyCollection):
 
         # if required sort by depth (furthest drawn first)
         if self._zsort:
-            indices = range(len(xyzlist))
-            z_segments_2d = [(self._zsortfunc(zs), list(zip(xs, ys)), fc, ec,
-                              idx) for (xs, ys, zs), fc, ec, idx in
-                             zip(xyzlist, cface, cedge, indices)]
-            z_segments_2d.sort(key=lambda x: x[0], reverse=True)
+            z_argsort = np.argsort(
+                [self._zsortfunc(xyz[:, 2]) for xyz in xyzlist])[::-1]
         else:
             raise ValueError("whoops")
 
-        segments_2d = [s for z, s, fc, ec, idx in z_segments_2d]
+        segments_2d = [xyzlist[i][:, 0:2] for i in z_argsort]
         if self._codes3d is not None:
-            codes = [self._codes3d[idx] for z, s, fc, ec, idx in z_segments_2d]
+            codes = self._codes3d[z_argsort]
             PolyCollection.set_verts_and_codes(self, segments_2d, codes)
         else:
             PolyCollection.set_verts(self, segments_2d)
 
-        self._facecolors2d = [fc for z, s, fc, ec, idx in z_segments_2d]
+        self._facecolors2d = cface[z_argsort]
         if len(self._edgecolors3d) == len(cface):
-            self._edgecolors2d = [ec for z, s, fc, ec, idx in z_segments_2d]
+            self._edgecolors2d = cedge[z_argsort]
         else:
             self._edgecolors2d = self._edgecolors3d
 
@@ -652,11 +651,11 @@ class Poly3DCollection(PolyCollection):
             zvec = np.array([[0], [0], [self._sort_zpos], [1]])
             ztrans = proj3d.proj_transform_vec(zvec, renderer.M)
             return ztrans[2][0]
-        elif tzs.size > 0 :
+        elif xys[2].size > 0 :
             # FIXME: Some results still don't look quite right.
             #        In particular, examine contourf3d_demo2.py
             #        with az = -54 and elev = -45.
-            return np.min(tzs)
+            return np.min(xys[2])
         else :
             return np.nan
 
@@ -730,6 +729,21 @@ def juggle_axes(xs, ys, zs, zdir):
     else:
         return xs, ys, zs
 
+def juggle_axes_vec(xyz, zdir):
+    """
+    Reorder coordinates so that 2D xs, ys can be plotted in the plane
+    orthogonal to zdir. zdir is normally x, y or z. However, if zdir
+    starts with a '-' it is interpreted as a compensation for rotate_axes.
+    """
+    if zdir == 'x':
+        return xyz[[2, 0, 1]]
+    elif zdir == 'y':
+        return xyz[[0, 2, 1]]
+    elif zdir[0] == '-':
+        return rotate_axes_vec(xyz, zdir)
+    else:
+        return xyz
+
 def rotate_axes(xs, ys, zs, zdir):
     """
     Reorder coordinates so that the axes are rotated with zdir along
@@ -748,6 +762,25 @@ def rotate_axes(xs, ys, zs, zdir):
 
     else:
         return xs, ys, zs
+
+def rotate_axes_vec(xyz, zdir):
+    """
+    Reorder coordinates so that the axes are rotated with zdir along
+    the original z axis. Prepending the axis with a '-' does the
+    inverse transform, so zdir can be x, -x, y, -y, z or -z
+    """
+    if zdir == 'x':
+        return xyz[[1, 2, 0]]
+    elif zdir == '-x':
+        return xyz[[2, 0, 1]]
+
+    elif zdir == 'y':
+        return xyz[[2, 0, 1]]
+    elif zdir == '-y':
+        return xyz[[1, 2, 0]]
+
+    else:
+        return xyz
 
 def iscolor(c):
     try:

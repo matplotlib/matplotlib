@@ -126,20 +126,21 @@ def persp_transformation(zfront, zback):
 
 def proj_transform_vec(vec, M):
     vecw = np.dot(M, vec)
-    w = vecw[3]
-    # clip here..
-    txs, tys, tzs = vecw[0]/w, vecw[1]/w, vecw[2]/w
-    return txs, tys, tzs
+    vecw /= vecw[3]
+    return vecw[0:3]
 
 def proj_transform_vec_clip(vec, M):
     vecw = np.dot(M, vec)
-    w = vecw[3]
-    # clip here..
-    txs, tys, tzs = vecw[0]/w, vecw[1]/w, vecw[2]/w
+    # Determine clipping before rescaling
     tis = (vecw[0] >= 0) * (vecw[0] <= 1) * (vecw[1] >= 0) * (vecw[1] <= 1)
+    # clip here..
+    # Can anybody comment on this piece of code? I don't understand it...
     if np.sometrue(tis):
-        tis =  vecw[1] < 1
-    return txs, tys, tzs, tis
+        tis = vecw[1] < 1
+    vecw /= vecw[3]
+    # Integrating tis in the numpy array for optimization purposes
+    vecw[3, :] = tis
+    return vecw
 
 def inv_transform(xs, ys, zs, M):
     iM = linalg.inv(M)
@@ -182,6 +183,9 @@ def proj_points(points, M):
     return list(zip(*proj_trans_points(points, M)))
 
 def proj_trans_points(points, M):
+    """
+    Apply transformation matrix M on a set of points
+    """
     xs, ys, zs = list(zip(*points))
     return proj_transform(xs, ys, zs, M)
 
