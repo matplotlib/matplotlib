@@ -234,7 +234,6 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
         self.set_filterrad(filterrad)
         self.set_interpolation(interpolation)
         self.set_resample(resample)
-        self.set_margins(False)
         self.axes = ax
 
         self._imcache = None
@@ -741,6 +740,8 @@ class AxesImage(_ImageBase):
         xmin, xmax, ymin, ymax = extent
         corners = (xmin, ymin), (xmax, ymax)
         self.axes.update_datalim(corners)
+        self.sticky_edges.x[:] = [xmin, xmax]
+        self.sticky_edges.y[:] = [ymin, ymax]
         if self.axes._autoscaleXon:
             self.axes.set_xlim((xmin, xmax), auto=None)
         if self.axes._autoscaleYon:

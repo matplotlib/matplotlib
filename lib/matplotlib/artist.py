@@ -2,7 +2,7 @@ from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
 import six
-from collections import OrderedDict
+from collections import OrderedDict, namedtuple
 
 import re
 import warnings
@@ -76,6 +76,9 @@ def _stale_axes_callback(self, val):
         self.axes.stale = val
 
 
+_XYPair = namedtuple("_XYPair", "x y")
+
+
 class Artist(object):
     """
     Abstract base class for someone who renders into a
@@ -123,8 +126,7 @@ class Artist(object):
         self._snap = None
         self._sketch = rcParams['path.sketch']
         self._path_effects = rcParams['path.effects']
-
-        self._margins = {}
+        self._sticky_edges = _XYPair([], [])
 
     def __getstate__(self):
         d = self.__dict__.copy()
@@ -926,98 +928,28 @@ class Artist(object):
         self.pchanged()
         self.stale = True
 
-    def get_top_margin(self):
+    @property
+    def sticky_edges(self):
         """
-        Get whether a margin should be applied to the top of the Artist.
-        """
-        return self._margins.get('top', True)
+        `x` and `y` sticky edge lists.
 
-    def set_top_margin(self, margin):
-        """
-        Set whether a margin should be applied to the top of the Artist.
-        """
-        if margin != self._margins.get('top', True):
-            self.stale = True
-        self._margins['top'] = margin
+        When performing autoscaling, if a data limit coincides with a value in
+        the corresponding sticky_edges list, then no margin will be added--the
+        view limit "sticks" to the edge. A typical usecase is histograms,
+        where one usually expects no margin on the bottom edge (0) of the
+        histogram.
 
-    top_margin = property(get_top_margin, set_top_margin)
+        This attribute cannot be assigned to; however, the `x` and `y` lists
+        can be modified in place as needed.
 
-    def get_bottom_margin(self):
-        """
-        Get whether a margin should be applied to the bottom of the Artist.
-        """
-        return self._margins.get('bottom', True)
+        Examples
+        --------
 
-    def set_bottom_margin(self, margin):
-        """
-        Set whether a margin should be applied to the bottom of the Artist.
-        """
-        if margin != self._margins.get('bottom', True):
-            self.stale = True
-        self._margins['bottom'] = margin
+        >>> artist.sticky_edges.x[:] = (xmin, xmax)
+        >>> artist.sticky_edges.y[:] = (ymin, ymax)
 
-    bottom_margin = property(get_bottom_margin, set_bottom_margin)
-
-    def get_left_margin(self):
         """
-        Get whether a margin should be applied to the left of the Artist.
-        """
-        return self._margins.get('left', True)
-
-    def set_left_margin(self, margin):
-        """
-        Set whether a margin should be applied to the left of the Artist.
-        """
-        if margin != self._margins.get('left', True):
-            self.stale = True
-        self._margins['left'] = margin
-
-    left_margin = property(get_left_margin, set_left_margin)
-
-    def get_right_margin(self):
-        """
-        Get whether a margin should be applied to the right of the Artist.
-        """
-        return self._margins.get('right', True)
-
-    def set_right_margin(self, margin):
-        """
-        Set whether a margin should be applied to the right of the Artist.
-        """
-        if margin != self._margins.get('right', True):
-            self.stale = True
-        self._margins['right'] = margin
-
-    right_margin = property(get_right_margin, set_right_margin)
-
-    def get_margins(self):
-        """
-        Returns a dictionary describing whether a margin should be applied on
-        each of the sides (top, bottom, left and right).
-        """
-        return self._margins
-
-    def set_margins(self, margins):
-        """
-        Set the dictionary describing whether a margin should be applied on
-        each of the sides (top, bottom, left and right).  Missing keys are
-        assumed to be `True`.  If `True` or `False` are passed in, all
-        sides are set to that value.
-        """
-        if margins in (True, False):
-            margins = {
-                'top': margins,
-                'bottom': margins,
-                'left': margins,
-                'right': margins
-            }
-
-        if margins != self._margins:
-            self.stale = True
-
-        self._margins = margins
-
-    margins = property(get_margins, set_margins)
+        return self._sticky_edges
 
     def update_from(self, other):
         'Copy properties from *other* to *self*.'
@@ -1031,6 +963,8 @@ class Artist(object):
         self._label = other._label
         self._sketch = other._sketch
         self._path_effects = other._path_effects
+        self.sticky_edges.x[:] = other.sticky_edges.x[:]
+        self.sticky_edges.y[:] = other.sticky_edges.y[:]
         self.pchanged()
         self.stale = True
 

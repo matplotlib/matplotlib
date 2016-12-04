@@ -70,11 +70,8 @@ def stackplot(axes, x, *args, **kwargs):
     # Assume data passed has not been 'stacked', so stack it here.
     stack = np.cumsum(y, axis=0)
 
-    r = []
-    margins = {}
     if baseline == 'zero':
         first_line = 0.
-        margins['bottom'] = False
 
     elif baseline == 'sym':
         first_line = -np.sum(y, 0) * 0.5
@@ -85,7 +82,6 @@ def stackplot(axes, x, *args, **kwargs):
         first_line = (y * (m - 0.5 - np.arange(0, m)[:, None])).sum(0)
         first_line /= -m
         stack += first_line
-        margins['bottom'] = False
 
     elif baseline == 'weighted_wiggle':
         m, n = y.shape
@@ -104,7 +100,6 @@ def stackplot(axes, x, *args, **kwargs):
         center = np.cumsum(center.sum(0))
         first_line = center - 0.5 * total
         stack += first_line
-        margins['bottom'] = False
 
     else:
         errstr = "Baseline method %s not recognised. " % baseline
@@ -113,11 +108,11 @@ def stackplot(axes, x, *args, **kwargs):
 
     # Color between x = 0 and the first array.
     color = axes._get_lines.get_next_color()
-    r.append(axes.fill_between(x, first_line, stack[0, :],
-                               facecolor=color,
-                               label= six.next(labels, None),
-                               margins=margins,
-                               **kwargs))
+    coll = axes.fill_between(x, first_line, stack[0, :],
+                             facecolor=color, label=six.next(labels, None),
+                             **kwargs)
+    coll.sticky_edges.y[:] = [0]
+    r = [coll]
 
     # Color between array i-1 and array i
     for i in xrange(len(y) - 1):
@@ -125,6 +120,5 @@ def stackplot(axes, x, *args, **kwargs):
         r.append(axes.fill_between(x, stack[i, :], stack[i + 1, :],
                                    facecolor=color,
                                    label= six.next(labels, None),
-                                   margins=margins,
                                    **kwargs))
     return r

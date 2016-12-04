@@ -264,8 +264,8 @@ class LogScale(ScaleBase):
         """
         Limit the domain to positive values.
         """
-        return (vmin <= 0.0 and minpos or vmin,
-                vmax <= 0.0 and minpos or vmax)
+        return (minpos if vmin <= 0 else vmin,
+                minpos if vmax <= 0 else vmax)
 
 
 class SymmetricalLogTransform(Transform):
@@ -499,8 +499,8 @@ class LogitScale(ScaleBase):
         """
         Limit the domain to values between 0 and 1 (excluded).
         """
-        return (vmin <= 0 and minpos or vmin,
-                vmax >= 1 and (1 - minpos) or vmax)
+        return (minpos if vmin <= 0 else minpos,
+                1 - minpos if vmax >= 1 else vmax)
 
 
 _scale_mapping = {
