@@ -8,7 +8,7 @@ an abstract representation of the probability distribution of the
 sample. Rather than showing counts of data points that fall into bins
 or order statistics, violin plots use kernel density estimation (KDE) to
 compute an empirical distribution of the sample. That computation
-is controlled by several parameters. This example demostrates how to
+is controlled by several parameters. This example demonstrates how to
 modify the number of points at which the KDE is evaluated (``points``)
 and how to modify the band-width of the KDE (``bw_method``).
 

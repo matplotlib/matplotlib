@@ -8,7 +8,7 @@ pyplot interface, particularly the figure, close, subplot, axes, and
 show commands.  These hide a lot of complexity from you that you don't
 need to see in normal figure creation, like instantiating DPI
 instances, managing the bounding boxes of the figure elements,
-creating and reaslizing GUI windows and embedding figures in them.
+creating and realizing GUI windows and embedding figures in them.
 
 
 If you are an application developer and want to embed matplotlib in
@@ -19,7 +19,7 @@ embedding them in application windows, etc.
 
 If you are a web application developer, you may want to use the
 example in webapp_demo.py, which shows how to use the backend agg
-figure canvase directly, with none of the globals (current figure,
+figure canvas directly, with none of the globals (current figure,
 current axes) that are present in the pyplot interface.  Note that
 there is no reason why the pyplot interface won't work for web
 application developers, however.

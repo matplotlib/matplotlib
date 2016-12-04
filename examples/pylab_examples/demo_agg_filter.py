@@ -265,7 +265,7 @@ def drop_shadow_line(ax):
 
 
 def drop_shadow_patches(ax):
-    # copyed from barchart_demo.py
+    # Copied from barchart_demo.py
     N = 5
     menMeans = (20, 35, 30, 35, 27)
 

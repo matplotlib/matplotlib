@@ -17,7 +17,7 @@ class UpdatingRect(Rectangle):
 # A class that will regenerate a fractal set as we zoom in, so that you
 # can actually see the increasing detail.  A box in the left panel will show
 # the area to which we are zoomed.
-class MandlebrotDisplay(object):
+class MandelbrotDisplay(object):
     def __init__(self, h=500, w=500, niter=50, radius=2., power=2):
         self.height = h
         self.width = w
@@ -57,7 +57,7 @@ class MandlebrotDisplay(object):
         im.set_extent((xstart, xend, ystart, yend))
         ax.figure.canvas.draw_idle()
 
-md = MandlebrotDisplay()
+md = MandelbrotDisplay()
 Z = md(-2., 0.5, -1.25, 1.25)
 
 fig1, (ax1, ax2) = plt.subplots(1, 2)
