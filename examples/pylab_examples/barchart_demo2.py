@@ -160,3 +160,4 @@ scores = dict(zip(testNames,
 cohort_size = 62  # The number of other 2nd grade boys
 
 arts = plot_student_results(student, scores, cohort_size)
+plt.show()

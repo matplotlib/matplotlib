@@ -1,6 +1,5 @@
 import matplotlib.pyplot as plt
 import numpy as np
-from matplotlib.pyplot import show
 
 
 def adjust_spines(ax,spines):
@@ -44,4 +43,4 @@ ax = fig.add_subplot(2,2,4)
 ax.plot(x,y)
 adjust_spines(ax,['bottom'])
 
-show()
+plt.show()
