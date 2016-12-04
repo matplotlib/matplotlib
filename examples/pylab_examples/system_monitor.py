@@ -29,14 +29,12 @@ plt.show(block=False)
 
 
 pm, pc, pn = plt.bar(ind, get_stats(0))
-centers = ind + 0.5*pm.get_width()
 pm.set_facecolor('r')
 pc.set_facecolor('g')
 pn.set_facecolor('b')
-ax.set_xlim([0.5, 4])
-ax.set_xticks(centers)
-ax.set_ylim([0, 100])
+ax.set_xticks(ind)
 ax.set_xticklabels(['Memory', 'CPU', 'Bandwidth'])
+ax.set_ylim([0, 100])
 ax.set_ylabel('Percent usage')
 ax.set_title('System Monitor')
 

@@ -38,7 +38,7 @@ rects2 = plt.bar(index + bar_width, means_women, bar_width,
 plt.xlabel('Group')
 plt.ylabel('Scores')
 plt.title('Scores by group and gender')
-plt.xticks(index + bar_width, ('A', 'B', 'C', 'D', 'E'))
+plt.xticks(index + bar_width / 2, ('A', 'B', 'C', 'D', 'E'))
 plt.legend()
 
 plt.tight_layout()
