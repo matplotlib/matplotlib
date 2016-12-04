@@ -85,12 +85,12 @@ LUTSIZE = mpl.rcParams['image.lut']
 # spectral/spectral_r when this module is imported.
 with _warnings.catch_warnings():
     _warnings.simplefilter("ignore")
-    # Generate the reversed specifications ...
-    for cmapname, spec in list(six.iteritems(datad)):
-        datad[cmapname + '_r'] = _reverse_cmap_spec(spec)
+    # Generate the reversed specifications (all at once, to avoid
+    # modify-when-iterating).
+    datad.update({cmapname + '_r': _reverse_cmap_spec(spec)
+                  for cmapname, spec in six.iteritems(datad)})
 
-    # Precache the cmaps with ``lutsize = LUTSIZE`` ...
-
+    # Precache the cmaps with ``lutsize = LUTSIZE``.
     # Also add the reversed ones added in the section above:
     for cmapname in datad:
         cmap_d[cmapname] = _generate_cmap(cmapname, LUTSIZE)

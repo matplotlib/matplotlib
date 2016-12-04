@@ -35,3 +35,9 @@ favor of the synonym ``"auto"``.
 
 The ``shading`` kwarg to ``pcolor`` has been removed.  Set ``edgecolors``
 appropriately instead.
+
+Removed internal functions
+--------------------------
+
+The ``matplotlib.backends.backend_ps.seq_allequal`` function has been removed.
+Use ``np.array_equal`` instead.

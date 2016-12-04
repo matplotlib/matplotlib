@@ -36,7 +36,7 @@ backend_version = "%d.%d.%d" % gtk.pygtk_version
 _debug = False
 
 # Image formats that this backend supports - for FileChooser and print_figure()
-IMAGE_FORMAT = sorted(['eps', 'jpg', 'png', 'ps', 'svg'] + ['bmp']) # , 'raw', 'rgb']
+IMAGE_FORMAT = sorted(['bmp', 'eps', 'jpg', 'png', 'ps', 'svg']) # 'raw', 'rgb'
 IMAGE_FORMAT_DEFAULT = 'png'
 
 

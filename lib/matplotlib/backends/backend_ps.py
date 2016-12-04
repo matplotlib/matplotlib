@@ -170,9 +170,6 @@ def quote_ps_string(s):
     return s.decode('ascii')
 
 
-seq_allequal = np.array_equal
-
-
 class RendererPS(RendererBase):
     """
     The renderer handles all the drawing primitives using a graphics
@@ -256,7 +253,7 @@ class RendererPS(RendererBase):
     def set_linedash(self, offset, seq, store=1):
         if self.linedash is not None:
             oldo, oldseq = self.linedash
-            if seq_allequal(seq, oldseq) and oldo == offset:
+            if np.array_equal(seq, oldseq) and oldo == offset:
                 return
 
         if seq is not None and len(seq):

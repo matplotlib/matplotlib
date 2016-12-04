@@ -952,9 +952,9 @@ class Axis(artist.Artist):
 
         interval = self.get_view_interval()
         tick_tups = list(self.iter_ticks())
-        if self._smart_bounds:
+        if self._smart_bounds and tick_tups:
             # handle inverted limits
-            view_low, view_high = min(interval), max(interval)
+            view_low, view_high = sorted(interval)
             data_low, data_high = sorted(self.get_data_interval())
             locs = np.sort([ti[1] for ti in tick_tups])
             if data_low <= view_low:
@@ -963,7 +963,7 @@ class Axis(artist.Artist):
             else:
                 # data stops within view, take best tick
                 good_locs = locs[locs <= data_low]
-                if len(good_locs) > 0:
+                if len(good_locs):
                     # last tick prior or equal to first data point
                     ilow = good_locs[-1]
                 else:
@@ -975,7 +975,7 @@ class Axis(artist.Artist):
             else:
                 # data stops within view, take best tick
                 good_locs = locs[locs >= data_high]
-                if len(good_locs) > 0:
+                if len(good_locs):
                     # first tick after or equal to last data point
                     ihigh = good_locs[0]
                 else:

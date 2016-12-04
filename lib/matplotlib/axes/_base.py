@@ -9,7 +9,7 @@ from six.moves import xrange
 import itertools
 import warnings
 import math
-from operator import itemgetter
+from operator import attrgetter
 
 import numpy as np
 
@@ -396,9 +396,7 @@ class _process_plot_var_args(object):
         return ret
 
     def _grab_next_args(self, *args, **kwargs):
-        while True:
-            if not args:
-                return
+        while args:
             this, args = args[:2], args[2:]
             if args and is_string_like(args[0]):
                 this += args[0],
@@ -2357,18 +2355,18 @@ class _AxesBase(martist.Artist):
         if not self.figure.canvas.is_saving():
             artists = [a for a in artists
                        if not a.get_animated() or a in self.images]
-        artists = sorted(artists, key=lambda artist: artist.get_zorder())
+        artists = sorted(artists, key=attrgetter('zorder'))
 
         # rasterize artists with negative zorder
         # if the minimum zorder is negative, start rasterization
         rasterization_zorder = self._rasterization_zorder
         if (rasterization_zorder is not None and
-                artists and artists[0].get_zorder() < rasterization_zorder):
+                artists and artists[0].zorder < rasterization_zorder):
             renderer.start_rasterizing()
             artists_rasterized = [a for a in artists
-                                  if a.get_zorder() < rasterization_zorder]
+                                  if a.zorder < rasterization_zorder]
             artists = [a for a in artists
-                       if a.get_zorder() >= rasterization_zorder]
+                       if a.zorder >= rasterization_zorder]
         else:
             artists_rasterized = []
 
