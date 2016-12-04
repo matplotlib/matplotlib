@@ -283,7 +283,6 @@ def drop_shadow_patches(ax):
     ax.add_artist(shadow)
     shadow.set_zorder(rects1[0].get_zorder() - 0.1)
 
-    ax.set_xlim(ind[0] - 0.5, ind[-1] + 1.5)
     ax.set_ylim(0, 40)
 
     ax.xaxis.set_visible(False)
