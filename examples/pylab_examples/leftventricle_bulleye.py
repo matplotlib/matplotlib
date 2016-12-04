@@ -62,7 +62,7 @@ def bullseye_plot(ax, data, segBold=None, cmap=None, norm=None):
         theta_i = i*60*np.pi/180
         ax.plot([theta_i, theta_i], [r[1], 1], '-k', lw=linewidth)
 
-    # Create the bounds for the segmentss 13-16
+    # Create the bounds for the segments 13-16
     for i in range(4):
         theta_i = i*90*np.pi/180 - 45*np.pi/180
         ax.plot([theta_i, theta_i], [r[0], r[1]], '-k', lw=linewidth)

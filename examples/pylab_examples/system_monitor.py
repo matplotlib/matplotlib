@@ -55,7 +55,7 @@ for i in range(200):  # run for a little while
     try:
         # make sure that the GUI framework has a chance to run its event loop
         # and clear any GUI events.  This needs to be in a try/except block
-        # because the default implemenation of this method is to raise
+        # because the default implementation of this method is to raise
         # NotImplementedError
         fig.canvas.flush_events()
     except NotImplementedError:

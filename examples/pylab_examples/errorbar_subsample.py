@@ -25,6 +25,6 @@ ax.errorbar(x, y, yerr=yerr, errorevery=5)
 ax.set_title('only every 5th errorbar')
 
 
-fig.suptitle('Errorbar subsampling for better visualibility')
+fig.suptitle('Errorbar subsampling for better appearance')
 
 plt.show()
