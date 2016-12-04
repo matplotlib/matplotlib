@@ -4841,3 +4841,13 @@ def test_color_length_mismatch():
     c_rgb = (0.5, 0.5, 0.5)
     ax.scatter(x, y, c=c_rgb)
     ax.scatter(x, y, c=[c_rgb] * N)
+
+
+@cleanup
+def test_scatter_color_masking():
+    x = np.array([1, 2, 3])
+    y = np.array([1, np.nan, 3])
+    colors = np.array(['k', 'w', 'k'])
+    s = plt.scatter(x, y, color=colors)
+    facecolors = s.get_facecolors()
+    assert_array_equal(facecolors[1], np.array([0, 0, 0, 1]))
