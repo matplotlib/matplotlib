@@ -820,6 +820,8 @@ def test_tri_smooth_gradient():
     plt.quiver(triang.x, triang.y, Ex/E_norm, Ey/E_norm,
                units='xy', scale=10., zorder=3, color='blue',
                width=0.007, headwidth=3., headlength=4.)
+    # We are leaving ax.use_sticky_margins as True, so the
+    # view limits are the contour data limits.
 
 
 def test_tritools():

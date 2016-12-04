@@ -64,18 +64,22 @@ E_norm = np.sqrt(Ex**2 + Ey**2)
 #-----------------------------------------------------------------------------
 # Plot the triangulation, the potential iso-contours and the vector field
 #-----------------------------------------------------------------------------
-plt.figure()
-plt.gca().set_aspect('equal')
-plt.triplot(triang, color='0.8')
+fig, ax = plt.subplots()
+ax.set_aspect('equal')
+# Enforce the margins, and enlarge them to give room for the vectors.
+ax.use_sticky_edges = False
+ax.margins(0.07)
+
+ax.triplot(triang, color='0.8')
 
 levels = np.arange(0., 1., 0.01)
 cmap = cm.get_cmap(name='hot', lut=None)
-plt.tricontour(tri_refi, z_test_refi, levels=levels, cmap=cmap,
-               linewidths=[2.0, 1.0, 1.0, 1.0])
+ax.tricontour(tri_refi, z_test_refi, levels=levels, cmap=cmap,
+              linewidths=[2.0, 1.0, 1.0, 1.0])
 # Plots direction of the electrical vector field
-plt.quiver(triang.x, triang.y, Ex/E_norm, Ey/E_norm,
-           units='xy', scale=10., zorder=3, color='blue',
-           width=0.007, headwidth=3., headlength=4.)
+ax.quiver(triang.x, triang.y, Ex/E_norm, Ey/E_norm,
+          units='xy', scale=10., zorder=3, color='blue',
+          width=0.007, headwidth=3., headlength=4.)
 
-plt.title('Gradient plot: an electrical dipole')
+ax.set_title('Gradient plot: an electrical dipole')
 plt.show()

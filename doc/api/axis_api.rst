@@ -437,7 +437,6 @@ Ticks
    Tick.add_callback
    Tick.aname
    Tick.axes
-   Tick.bottom_margin
    Tick.contains
    Tick.convert_xunits
    Tick.convert_yunits
@@ -448,7 +447,6 @@ Ticks
    Tick.get_alpha
    Tick.get_animated
    Tick.get_axes
-   Tick.get_bottom_margin
    Tick.get_children
    Tick.get_clip_box
    Tick.get_clip_on
@@ -458,15 +456,11 @@ Ticks
    Tick.get_figure
    Tick.get_gid
    Tick.get_label
-   Tick.get_left_margin
-   Tick.get_margins
    Tick.get_path_effects
    Tick.get_picker
    Tick.get_rasterized
-   Tick.get_right_margin
    Tick.get_sketch_params
    Tick.get_snap
-   Tick.get_top_margin
    Tick.get_transform
    Tick.get_transformed_clip_path_and_affine
    Tick.get_url
@@ -477,8 +471,6 @@ Ticks
    Tick.hitlist
    Tick.is_figure_set
    Tick.is_transform_set
-   Tick.left_margin
-   Tick.margins
    Tick.mouseover
    Tick.pchanged
    Tick.pick
@@ -486,13 +478,11 @@ Ticks
    Tick.properties
    Tick.remove
    Tick.remove_callback
-   Tick.right_margin
    Tick.set
    Tick.set_agg_filter
    Tick.set_alpha
    Tick.set_animated
    Tick.set_axes
-   Tick.set_bottom_margin
    Tick.set_clip_box
    Tick.set_clip_on
    Tick.set_clip_path
@@ -500,21 +490,16 @@ Ticks
    Tick.set_figure
    Tick.set_gid
    Tick.set_label
-   Tick.set_left_margin
-   Tick.set_margins
    Tick.set_path_effects
    Tick.set_picker
    Tick.set_rasterized
-   Tick.set_right_margin
    Tick.set_sketch_params
    Tick.set_snap
-   Tick.set_top_margin
    Tick.set_transform
    Tick.set_url
    Tick.set_visible
    Tick.set_zorder
    Tick.stale
-   Tick.top_margin
    Tick.update
    Tick.update_from
    Tick.zorder
@@ -522,7 +507,6 @@ Ticks
    XTick.add_callback
    XTick.aname
    XTick.axes
-   XTick.bottom_margin
    XTick.contains
    XTick.convert_xunits
    XTick.convert_yunits
@@ -533,7 +517,6 @@ Ticks
    XTick.get_alpha
    XTick.get_animated
    XTick.get_axes
-   XTick.get_bottom_margin
    XTick.get_children
    XTick.get_clip_box
    XTick.get_clip_on
@@ -543,15 +526,11 @@ Ticks
    XTick.get_figure
    XTick.get_gid
    XTick.get_label
-   XTick.get_left_margin
-   XTick.get_margins
    XTick.get_path_effects
    XTick.get_picker
    XTick.get_rasterized
-   XTick.get_right_margin
    XTick.get_sketch_params
    XTick.get_snap
-   XTick.get_top_margin
    XTick.get_transform
    XTick.get_transformed_clip_path_and_affine
    XTick.get_url
@@ -562,8 +541,6 @@ Ticks
    XTick.hitlist
    XTick.is_figure_set
    XTick.is_transform_set
-   XTick.left_margin
-   XTick.margins
    XTick.mouseover
    XTick.pchanged
    XTick.pick
@@ -571,13 +548,11 @@ Ticks
    XTick.properties
    XTick.remove
    XTick.remove_callback
-   XTick.right_margin
    XTick.set
    XTick.set_agg_filter
    XTick.set_alpha
    XTick.set_animated
    XTick.set_axes
-   XTick.set_bottom_margin
    XTick.set_clip_box
    XTick.set_clip_on
    XTick.set_clip_path
@@ -585,21 +560,16 @@ Ticks
    XTick.set_figure
    XTick.set_gid
    XTick.set_label
-   XTick.set_left_margin
-   XTick.set_margins
    XTick.set_path_effects
    XTick.set_picker
    XTick.set_rasterized
-   XTick.set_right_margin
    XTick.set_sketch_params
    XTick.set_snap
-   XTick.set_top_margin
    XTick.set_transform
    XTick.set_url
    XTick.set_visible
    XTick.set_zorder
    XTick.stale
-   XTick.top_margin
    XTick.update
    XTick.update_from
    XTick.zorder
@@ -607,7 +577,6 @@ Ticks
    YTick.add_callback
    YTick.aname
    YTick.axes
-   YTick.bottom_margin
    YTick.contains
    YTick.convert_xunits
    YTick.convert_yunits
@@ -618,7 +587,6 @@ Ticks
    YTick.get_alpha
    YTick.get_animated
    YTick.get_axes
-   YTick.get_bottom_margin
    YTick.get_children
    YTick.get_clip_box
    YTick.get_clip_on
@@ -628,15 +596,11 @@ Ticks
    YTick.get_figure
    YTick.get_gid
    YTick.get_label
-   YTick.get_left_margin
-   YTick.get_margins
    YTick.get_path_effects
    YTick.get_picker
    YTick.get_rasterized
-   YTick.get_right_margin
    YTick.get_sketch_params
    YTick.get_snap
-   YTick.get_top_margin
    YTick.get_transform
    YTick.get_transformed_clip_path_and_affine
    YTick.get_url
@@ -647,8 +611,6 @@ Ticks
    YTick.hitlist
    YTick.is_figure_set
    YTick.is_transform_set
-   YTick.left_margin
-   YTick.margins
    YTick.mouseover
    YTick.pchanged
    YTick.pick
@@ -656,13 +618,11 @@ Ticks
    YTick.properties
    YTick.remove
    YTick.remove_callback
-   YTick.right_margin
    YTick.set
    YTick.set_agg_filter
    YTick.set_alpha
    YTick.set_animated
    YTick.set_axes
-   YTick.set_bottom_margin
    YTick.set_clip_box
    YTick.set_clip_on
    YTick.set_clip_path
@@ -670,21 +630,16 @@ Ticks
    YTick.set_figure
    YTick.set_gid
    YTick.set_label
-   YTick.set_left_margin
-   YTick.set_margins
    YTick.set_path_effects
    YTick.set_picker
    YTick.set_rasterized
-   YTick.set_right_margin
    YTick.set_sketch_params
    YTick.set_snap
-   YTick.set_top_margin
    YTick.set_transform
    YTick.set_url
    YTick.set_visible
    YTick.set_zorder
    YTick.stale
-   YTick.top_margin
    YTick.update
    YTick.update_from
    YTick.zorder
@@ -701,7 +656,6 @@ Axis
    Axis.add_callback
    Axis.aname
    Axis.axes
-   Axis.bottom_margin
    Axis.contains
    Axis.convert_xunits
    Axis.convert_yunits
@@ -712,7 +666,6 @@ Axis
    Axis.get_alpha
    Axis.get_animated
    Axis.get_axes
-   Axis.get_bottom_margin
    Axis.get_children
    Axis.get_clip_box
    Axis.get_clip_on
@@ -722,15 +675,11 @@ Axis
    Axis.get_figure
    Axis.get_gid
    Axis.get_label
-   Axis.get_left_margin
-   Axis.get_margins
    Axis.get_path_effects
    Axis.get_picker
    Axis.get_rasterized
-   Axis.get_right_margin
    Axis.get_sketch_params
    Axis.get_snap
-   Axis.get_top_margin
    Axis.get_transform
    Axis.get_transformed_clip_path_and_affine
    Axis.get_url
@@ -741,8 +690,6 @@ Axis
    Axis.hitlist
    Axis.is_figure_set
    Axis.is_transform_set
-   Axis.left_margin
-   Axis.margins
    Axis.mouseover
    Axis.pchanged
    Axis.pick
@@ -750,13 +697,11 @@ Axis
    Axis.properties
    Axis.remove
    Axis.remove_callback
-   Axis.right_margin
    Axis.set
    Axis.set_agg_filter
    Axis.set_alpha
    Axis.set_animated
    Axis.set_axes
-   Axis.set_bottom_margin
    Axis.set_clip_box
    Axis.set_clip_on
    Axis.set_clip_path
@@ -764,21 +709,16 @@ Axis
    Axis.set_figure
    Axis.set_gid
    Axis.set_label
-   Axis.set_left_margin
-   Axis.set_margins
    Axis.set_path_effects
    Axis.set_picker
    Axis.set_rasterized
-   Axis.set_right_margin
    Axis.set_sketch_params
    Axis.set_snap
-   Axis.set_top_margin
    Axis.set_transform
    Axis.set_url
    Axis.set_visible
    Axis.set_zorder
    Axis.stale
-   Axis.top_margin
    Axis.update
    Axis.update_from
    Axis.zorder
@@ -786,7 +726,6 @@ Axis
    XAxis.add_callback
    XAxis.aname
    XAxis.axes
-   XAxis.bottom_margin
    XAxis.contains
    XAxis.convert_xunits
    XAxis.convert_yunits
@@ -797,7 +736,6 @@ Axis
    XAxis.get_alpha
    XAxis.get_animated
    XAxis.get_axes
-   XAxis.get_bottom_margin
    XAxis.get_children
    XAxis.get_clip_box
    XAxis.get_clip_on
@@ -807,15 +745,11 @@ Axis
    XAxis.get_figure
    XAxis.get_gid
    XAxis.get_label
-   XAxis.get_left_margin
-   XAxis.get_margins
    XAxis.get_path_effects
    XAxis.get_picker
    XAxis.get_rasterized
-   XAxis.get_right_margin
    XAxis.get_sketch_params
    XAxis.get_snap
-   XAxis.get_top_margin
    XAxis.get_transform
    XAxis.get_transformed_clip_path_and_affine
    XAxis.get_url
@@ -826,8 +760,6 @@ Axis
    XAxis.hitlist
    XAxis.is_figure_set
    XAxis.is_transform_set
-   XAxis.left_margin
-   XAxis.margins
    XAxis.mouseover
    XAxis.pchanged
    XAxis.pick
@@ -835,13 +767,11 @@ Axis
    XAxis.properties
    XAxis.remove
    XAxis.remove_callback
-   XAxis.right_margin
    XAxis.set
    XAxis.set_agg_filter
    XAxis.set_alpha
    XAxis.set_animated
    XAxis.set_axes
-   XAxis.set_bottom_margin
    XAxis.set_clip_box
    XAxis.set_clip_on
    XAxis.set_clip_path
@@ -849,21 +779,16 @@ Axis
    XAxis.set_figure
    XAxis.set_gid
    XAxis.set_label
-   XAxis.set_left_margin
-   XAxis.set_margins
    XAxis.set_path_effects
    XAxis.set_picker
    XAxis.set_rasterized
-   XAxis.set_right_margin
    XAxis.set_sketch_params
    XAxis.set_snap
-   XAxis.set_top_margin
    XAxis.set_transform
    XAxis.set_url
    XAxis.set_visible
    XAxis.set_zorder
    XAxis.stale
-   XAxis.top_margin
    XAxis.update
    XAxis.update_from
    XAxis.zorder
@@ -871,7 +796,6 @@ Axis
    YAxis.add_callback
    YAxis.aname
    YAxis.axes
-   YAxis.bottom_margin
    YAxis.contains
    YAxis.convert_xunits
    YAxis.convert_yunits
@@ -882,7 +806,6 @@ Axis
    YAxis.get_alpha
    YAxis.get_animated
    YAxis.get_axes
-   YAxis.get_bottom_margin
    YAxis.get_children
    YAxis.get_clip_box
    YAxis.get_clip_on
@@ -892,15 +815,11 @@ Axis
    YAxis.get_figure
    YAxis.get_gid
    YAxis.get_label
-   YAxis.get_left_margin
-   YAxis.get_margins
    YAxis.get_path_effects
    YAxis.get_picker
    YAxis.get_rasterized
-   YAxis.get_right_margin
    YAxis.get_sketch_params
    YAxis.get_snap
-   YAxis.get_top_margin
    YAxis.get_transform
    YAxis.get_transformed_clip_path_and_affine
    YAxis.get_url
@@ -911,8 +830,6 @@ Axis
    YAxis.hitlist
    YAxis.is_figure_set
    YAxis.is_transform_set
-   YAxis.left_margin
-   YAxis.margins
    YAxis.mouseover
    YAxis.pchanged
    YAxis.pick
@@ -920,13 +837,11 @@ Axis
    YAxis.properties
    YAxis.remove
    YAxis.remove_callback
-   YAxis.right_margin
    YAxis.set
    YAxis.set_agg_filter
    YAxis.set_alpha
    YAxis.set_animated
    YAxis.set_axes
-   YAxis.set_bottom_margin
    YAxis.set_clip_box
    YAxis.set_clip_on
    YAxis.set_clip_path
@@ -934,21 +849,16 @@ Axis
    YAxis.set_figure
    YAxis.set_gid
    YAxis.set_label
-   YAxis.set_left_margin
-   YAxis.set_margins
    YAxis.set_path_effects
    YAxis.set_picker
    YAxis.set_rasterized
-   YAxis.set_right_margin
    YAxis.set_sketch_params
    YAxis.set_snap
-   YAxis.set_top_margin
    YAxis.set_transform
    YAxis.set_url
    YAxis.set_visible
    YAxis.set_zorder
    YAxis.stale
-   YAxis.top_margin
    YAxis.update
    YAxis.update_from
    YAxis.zorder
