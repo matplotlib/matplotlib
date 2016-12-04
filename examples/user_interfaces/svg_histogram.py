@@ -35,7 +35,8 @@ import xml.etree.ElementTree as ET
 from io import BytesIO
 import json
 
-plt.rcParams['svg.embed_char_paths'] = 'none'
+
+plt.rcParams['svg.fonttype'] = 'none'
 
 # Apparently, this `register_namespace` method works only with
 # python 2.7 and up and is necessary to avoid garbling the XML name
