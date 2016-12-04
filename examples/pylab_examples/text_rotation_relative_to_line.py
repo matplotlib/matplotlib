@@ -26,12 +26,12 @@ l2 = np.array((5, 5))
 # Rotate angle
 angle = 45
 trans_angle = plt.gca().transData.transform_angles(np.array((45,)),
-                                               l2.reshape((1, 2)))[0]
+                                                   l2.reshape((1, 2)))[0]
 
 # Plot text
 th1 = plt.text(l1[0], l1[1], 'text not rotated correctly', fontsize=16,
-           rotation=angle)
-th2 = plt.text(l2[0], l2[1], 'text not rotated correctly', fontsize=16,
-           rotation=trans_angle)
+               rotation=angle, rotation_mode='anchor')
+th2 = plt.text(l2[0], l2[1], 'text rotated correctly', fontsize=16,
+               rotation=trans_angle, rotation_mode='anchor')
 
 plt.show()
