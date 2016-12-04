@@ -287,7 +287,7 @@ class Table(Artist):
         cell.set_transform(self.get_transform())
 
         cell.set_clip_on(False)
-        self._cells[(row, col)] = cell
+        self._cells[row, col] = cell
         self.stale = True
 
     @property
@@ -327,9 +327,9 @@ class Table(Artist):
         """Get a bbox, in axes co-ordinates for the cells.
 
         Only include those in the range (0,0) to (maxRow, maxCol)"""
-        boxes = [self._cells[pos].get_window_extent(renderer)
-                 for pos in self._cells if pos[0] >= 0 and pos[1] >= 0]
-
+        boxes = [cell.get_window_extent(renderer)
+                 for (row, col), cell in six.iteritems(self._cells)
+                 if row >= 0 and col >= 0]
         bbox = Bbox.union(boxes)
         return bbox.inverse_transformed(self.get_transform())
 
@@ -362,7 +362,6 @@ class Table(Artist):
         'Return the bounding box of the table in window coords'
         boxes = [cell.get_window_extent(renderer)
                  for cell in six.itervalues(self._cells)]
-
         return Bbox.union(boxes)
 
     def _do_cell_alignment(self):

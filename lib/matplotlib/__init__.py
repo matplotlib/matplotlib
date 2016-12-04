@@ -107,6 +107,7 @@ import sys
 import distutils.version
 from itertools import chain
 
+from collections import MutableMapping
 import io
 import inspect
 import locale
@@ -870,7 +871,7 @@ _all_deprecated = set(chain(_deprecated_ignore_map,
                             _obsolete_set))
 
 
-class RcParams(dict):
+class RcParams(MutableMapping, dict):
 
     """
     A dictionary object including validation
@@ -891,8 +892,7 @@ class RcParams(dict):
 
     # validate values on the way in
     def __init__(self, *args, **kwargs):
-        for k, v in six.iteritems(dict(*args, **kwargs)):
-            self[k] = v
+        self.update(*args, **kwargs)
 
     def __setitem__(self, key, val):
         try:
@@ -942,16 +942,6 @@ class RcParams(dict):
         else:
             return val
 
-    # http://stackoverflow.com/questions/2390827
-    # (how-to-properly-subclass-dict-and-override-get-set)
-    # the default dict `update` does not use __setitem__
-    # so rcParams.update(...) (such as in seaborn) side-steps
-    # all of the validation over-ride update to force
-    # through __setitem__
-    def update(self, *args, **kwargs):
-        for k, v in six.iteritems(dict(*args, **kwargs)):
-            self[k] = v
-
     def __repr__(self):
         import pprint
         class_name = self.__class__.__name__
@@ -965,17 +955,12 @@ class RcParams(dict):
         return '\n'.join('{0}: {1}'.format(k, v)
                          for k, v in sorted(self.items()))
 
-    def keys(self):
+    def __iter__(self):
         """
-        Return sorted list of keys.
+        Yield sorted list of keys.
         """
-        return sorted(self)
-
-    def values(self):
-        """
-        Return values in order of sorted keys.
-        """
-        return [self[k] for k in self]
+        for k in sorted(dict.__iter__(self)):
+            yield k
 
     def find_all(self, pattern):
         """
