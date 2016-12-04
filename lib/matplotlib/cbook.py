@@ -13,7 +13,6 @@ import six
 from six.moves import xrange, zip
 from itertools import repeat
 import collections
-
 import datetime
 import errno
 from functools import reduce

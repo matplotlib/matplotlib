@@ -1015,37 +1015,7 @@ The size of the padding in the x and y directions is controlled by the
 ``'axes.xmargin'`` and ``'axes.ymargin'`` rcParams respectively. Whether
 the view limits should be 'round numbers' is controlled by the
 ``'axes.autolimit_mode'`` rcParam.  In the original ``'round_number'`` mode,
-the view limits coincide with ticks.  With the new default value, ``'data'``,
-the outermost ticks will usually be inside the view limits, not at the ends.
-Also see `~matplotlib.axes.Axes.margins`.
-
-For a few `~matplotlib.artist.Artist` classes, margins are undesirable.
-For example, a margin should not be added for a `~matplotlib.image.AxesImage`
-created with `~matplotlib.axes.Axes.imshow`.  To control the application of
-the margins, the `~matplotlib.artist.Artist` class has gained the properties :
-
-    - `~matplotlib.artist.Artist.top_margin`
-    - `~matplotlib.artist.Artist.bottom_margin`
-    - `~matplotlib.artist.Artist.left_margin`
-    - `~matplotlib.artist.Artist.right_margin`
-    - `~matplotlib.artist.Artist.margins`
-
-along with the complimentary ``get_*`` and ``set_*`` methods.  When
-computing the view limits, each `~matplotlib.artist.Artist` is
-checked.  If *any* artist returns `False`  on a given side,
-the margin will be omitted there.  Some plotting methods and artists
-have margins disabled (`False`) by default (for example
-`~matplotlib.axes.Axes.bar` disables the bottom margin).  To cancel
-the margins for a specific artist, pass the kwargs :
-
-  - ``top_margin=False``
-  - ``bottom_margin=False``
-  - ``left_margin=False``
-  - ``right_margin=False``
-
-to any plotting method or artist ``__init__`` which supports ``**kwargs`` (as
-any unused kwargs eventually get passed to `~matplotlib.artist.Artist.update`).
-
+the view limits coincide with ticks.
 
 The previous default can be restored by using::
 

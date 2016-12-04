@@ -1036,6 +1036,7 @@ class _AxesBase(martist.Artist):
         self._xmargin = rcParams['axes.xmargin']
         self._ymargin = rcParams['axes.ymargin']
         self._tight = None
+        self._use_sticky_edges = True
         self._update_transScale()  # needed?
 
         self._get_lines = _process_plot_var_args(self)
@@ -2060,6 +2061,28 @@ class _AxesBase(martist.Artist):
         """
         self._autoscaleYon = b
 
+    @property
+    def use_sticky_edges(self):
+        """
+        When autoscaling, whether to obey all `Artist.sticky_edges`.
+
+        Default is ``True``.
+
+        Setting this to ``False`` ensures that the specified margins
+        will be applied, even if the plot includes an image, for
+        example, which would otherwise force a view limit to coincide
+        with its data limit.
+
+        The changing this property does not change the plot until
+        `autoscale` or `autoscale_view` is called.
+        """
+        return self._use_sticky_edges
+
+    @use_sticky_edges.setter
+    def use_sticky_edges(self, b):
+        self._use_sticky_edges = bool(b)
+        # No effect until next autoscaling, which will mark the axes as stale.
+
     def set_xmargin(self, m):
         """
         Set padding of X data limits prior to autoscaling.
@@ -2225,53 +2248,22 @@ class _AxesBase(martist.Artist):
         case, use :meth:`matplotlib.axes.Axes.relim` prior to calling
         autoscale_view.
         """
-        if tight is None:
-            _tight = self._tight
-        else:
-            _tight = self._tight = bool(tight)
+        if tight is not None:
+            self._tight = bool(tight)
 
-        if self._xmargin or self._ymargin:
-            margins = {
-                'top': True,
-                'bottom': True,
-                'left': True,
-                'right': True
-            }
-            for artist_set in [self.collections, self.patches, self.lines,
-                               self.artists, self.images]:
-                for artist in artist_set:
-                    artist_margins = artist.margins
-                    for key in ['left', 'right', 'top', 'bottom']:
-                        margins[key] &= artist_margins.get(key, True)
-
-            if self._xmargin:
-                for axes in self._shared_x_axes.get_siblings(self):
-                    for artist_set in [axes.collections, axes.patches,
-                                       axes.lines, axes.artists, axes.images]:
-                        for artist in artist_set:
-                            artist_margins = artist.margins
-                            for key in ['left', 'right']:
-                                margins[key] &= artist_margins.get(key, True)
-
-            if self._ymargin:
-                for axes in self._shared_y_axes.get_siblings(self):
-                    for artist_set in [axes.collections, axes.patches,
-                                       axes.lines, axes.artists, axes.images]:
-                        for artist in artist_set:
-                            artist_margins = artist.margins
-                            for key in ['top', 'bottom']:
-                                margins[key] &= artist_margins.get(key, True)
-        else:
-            margins = {
-                'top': False,
-                'bottom': False,
-                'left': False,
-                'right': False
-            }
+        if self.use_sticky_edges and (self._xmargin or self._ymargin):
+            stickies = [artist.sticky_edges for artist in self.get_children()]
+            x_stickies = sum([sticky.x for sticky in stickies], [])
+            y_stickies = sum([sticky.y for sticky in stickies], [])
+            if self.get_xscale().lower() == 'log':
+                x_stickies = [xs for xs in x_stickies if xs > 0]
+            if self.get_yscale().lower() == 'log':
+                y_stickies = [ys for ys in y_stickies if ys > 0]
+        else:  # Small optimization.
+            x_stickies, y_stickies = [], []
 
         def handle_single_axis(scale, autoscaleon, shared_axes, interval,
-                               minpos, axis, margin, do_lower_margin,
-                               do_upper_margin, set_bound):
+                               minpos, axis, margin, stickies, set_bound):
 
             if not (scale and autoscaleon):
                 return  # nothing to do...
@@ -2294,43 +2286,35 @@ class _AxesBase(martist.Artist):
                 x0, x1 = mtransforms.nonsingular(
                     x0, x1, increasing=False, expander=0.05)
 
-            if margin > 0 and (do_lower_margin or do_upper_margin):
-                if axis.get_scale() == 'linear':
-                    delta = (x1 - x0) * margin
-                    if do_lower_margin:
-                        x0 -= delta
-                    if do_upper_margin:
-                        x1 += delta
-                else:
-                    # If we have a non-linear scale, we need to
-                    # add the margin in figure space and then
-                    # transform back
-                    minpos = getattr(bb, minpos)
-                    transform = axis.get_transform()
-                    inverse_trans = transform.inverted()
-                    x0, x1 = axis._scale.limit_range_for_scale(
-                        x0, x1, minpos)
-                    x0t, x1t = transform.transform([x0, x1])
-                    delta = (x1t - x0t) * margin
-                    if do_lower_margin:
-                        x0t -= delta
-                    if do_upper_margin:
-                        x1t += delta
-                    x0, x1 = inverse_trans.transform([x0t, x1t])
+            # Add the margin in figure space and then transform back, to handle
+            # non-linear scales.
+            minpos = getattr(bb, minpos)
+            transform = axis.get_transform()
+            inverse_trans = transform.inverted()
+            # We cannot use exact equality due to floating point issues e.g.
+            # with streamplot.
+            do_lower_margin = not np.any(np.isclose(x0, stickies))
+            do_upper_margin = not np.any(np.isclose(x1, stickies))
+            x0, x1 = axis._scale.limit_range_for_scale(x0, x1, minpos)
+            x0t, x1t = transform.transform([x0, x1])
+            delta = (x1t - x0t) * margin
+            if do_lower_margin:
+                x0t -= delta
+            if do_upper_margin:
+                x1t += delta
+            x0, x1 = inverse_trans.transform([x0t, x1t])
 
-            if not _tight:
+            if not self._tight:
                 x0, x1 = locator.view_limits(x0, x1)
             set_bound(x0, x1)
             # End of definition of internal function 'handle_single_axis'.
 
         handle_single_axis(
-            scalex, self._autoscaleXon, self._shared_x_axes,
-            'intervalx', 'minposx', self.xaxis, self._xmargin,
-            margins['left'], margins['right'], self.set_xbound)
+            scalex, self._autoscaleXon, self._shared_x_axes, 'intervalx',
+            'minposx', self.xaxis, self._xmargin, x_stickies, self.set_xbound)
         handle_single_axis(
-            scaley, self._autoscaleYon, self._shared_y_axes,
-            'intervaly', 'minposy', self.yaxis, self._ymargin,
-            margins['bottom'], margins['top'], self.set_ybound)
+            scaley, self._autoscaleYon, self._shared_y_axes, 'intervaly',
+            'minposy', self.yaxis, self._ymargin, y_stickies, self.set_ybound)
 
     def _get_axis_list(self):
         return (self.xaxis, self.yaxis)
