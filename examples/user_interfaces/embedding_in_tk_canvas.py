@@ -42,7 +42,7 @@ canvas = tk.Canvas(window, width=w, height=h)
 canvas.pack()
 
 # Generate some example data
-X = np.linspace(0, 2.0*3.14, 50)
+X = np.linspace(0, 2 * np.pi, 50)
 Y = np.sin(X)
 
 # Create the figure we desire to add to an existing canvas

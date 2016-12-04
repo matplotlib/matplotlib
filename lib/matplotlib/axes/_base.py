@@ -3791,9 +3791,8 @@ class _AxesBase(martist.Artist):
 
         Returns *True* / *False*, {}
         """
-        if six.callable(self._contains):
+        if callable(self._contains):
             return self._contains(self, mouseevent)
-
         return self.patch.contains(mouseevent)
 
     def contains_point(self, point):

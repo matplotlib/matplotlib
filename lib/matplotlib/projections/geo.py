@@ -174,8 +174,7 @@ class GeoAxes(Axes):
 
     def format_coord(self, lon, lat):
         'return a format string formatting the coordinate'
-        lon = lon * (180.0 / np.pi)
-        lat = lat * (180.0 / np.pi)
+        lon, lat = np.rad2deg([lon, lat])
         if lat >= 0.0:
             ns = 'N'
         else:

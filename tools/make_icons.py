@@ -69,8 +69,8 @@ def make_matplotlib_icon():
     ax.set_axisbelow(True)
 
     N = 7
-    arc = 2. * np.pi
-    theta = np.arange(0.0, arc, arc/N)
+    arc = 2 * np.pi
+    theta = np.arange(0, arc, arc / N)
     radii = 10 * np.array([0.2, 0.6, 0.8, 0.7, 0.4, 0.5, 0.8])
     width = np.pi / 4 * np.array([0.4, 0.4, 0.6, 0.8, 0.2, 0.5, 0.3])
     bars = ax.bar(theta, radii, width=width, bottom=0.0, linewidth=1,

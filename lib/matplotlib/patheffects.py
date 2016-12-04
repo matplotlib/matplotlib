@@ -54,7 +54,7 @@ class AbstractPathEffect(object):
 
         for k, v in six.iteritems(new_gc_dict):
             set_method = getattr(gc, 'set_' + k, None)
-            if set_method is None or not six.callable(set_method):
+            if not callable(set_method):
                 raise AttributeError('Unknown property {0}'.format(k))
             set_method(v)
         return gc

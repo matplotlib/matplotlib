@@ -2778,11 +2778,7 @@ def csv2rec(fname, comments='#', skiprows=0, checkrows=0, delimiter=',',
 
     def ismissing(name, val):
         "Should the value val in column name be masked?"
-
-        if val == missing or val == missingd.get(name) or val == '':
-            return True
-        else:
-            return False
+        return val == missing or val == missingd.get(name) or val == ''
 
     def with_default_value(func, default):
         def newfunc(name, val):
@@ -2825,18 +2821,14 @@ def csv2rec(fname, comments='#', skiprows=0, checkrows=0, delimiter=',',
 
     def get_func(name, item, func):
         # promote functions in this order
-        funcmap = {mybool: myint, myint: myfloat, myfloat: mydate,
-                   mydate: mydateparser, mydateparser: mystr}
-        try:
-            func(name, item)
-        except:
-            if func == mystr:
-                raise ValueError('Could not find a working conversion '
-                                 'function')
-            else:
-                return get_func(name, item, funcmap[func])    # recurse
-        else:
+        funcs = [mybool, myint, myfloat, mydate, mydateparser, mystr]
+        for func in funcs[funcs.index(func):]:
+            try:
+                func(name, item)
+            except Exception:
+                continue
             return func
+        raise ValueError('Could not find a working conversion function')
 
     # map column names that clash with builtins -- TODO - extend this list
     itemd = {

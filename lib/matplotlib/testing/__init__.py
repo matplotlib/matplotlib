@@ -111,10 +111,7 @@ def assert_produces_warning(expected_warning=Warning, filter_level="always",
             if not _is_list_like(clear):
                 clear = [clear]
             for m in clear:
-                try:
-                    m.__warningregistry__.clear()
-                except:
-                    pass
+                getattr(m, "__warningregistry__", {}).clear()
 
         saw_warning = False
         warnings.simplefilter(filter_level)
