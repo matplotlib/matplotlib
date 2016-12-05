@@ -286,7 +286,10 @@ latex_appendices = []
 # If false, no module index is generated.
 latex_use_modindex = True
 
-latex_use_parts = True
+if hasattr(sphinx, 'version_info') and sphinx.version_info[:2] >= (1, 4):
+    latex_toplevel_sectioning = 'part'
+else:
+    latex_use_parts = True
 
 # Show both class-level docstring and __init__ docstring in class
 # documentation
