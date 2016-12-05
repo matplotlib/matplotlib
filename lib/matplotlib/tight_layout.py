@@ -238,9 +238,9 @@ def get_subplotspec_list(axes_list, grid_spec=None):
             elif gs.locally_modified_subplot_params():
                 subplotspec = None
         else:
-            warnings.warn("This figure includes Axes that are not "
+            warnings.warn("The Axes %s in this figure are not "
                           "compatible with tight_layout, so its "
-                          "results might be incorrect.")
+                          "results might be incorrect." % axes_or_locator)
             subplotspec = gridspec.GridSpec(1, 1)
 
         subplotspec_list.append(subplotspec)
