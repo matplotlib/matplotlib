@@ -29,7 +29,7 @@ index = np.arange(len(columns)) + 0.3
 bar_width = 0.4
 
 # Initialize the vertical-offset for the stacked bar chart.
-y_offset = np.array([0.0] * len(columns))
+y_offset = np.zeros(len(columns))
 
 # Plot bars and create text labels for the table
 cell_text = []

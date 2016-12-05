@@ -58,10 +58,12 @@ are supported.
 
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
+
 import six
 from six.moves import zip
 
 from collections import Sized
+import itertools
 import re
 import warnings
 
@@ -793,25 +795,23 @@ class ListedColormap(Colormap):
 
             the list will be extended by repetition.
         """
-        self.colors = colors
         self.monochrome = False  # True only if all colors in map are
                                  # identical; needed for contouring.
         if N is None:
-            N = len(self.colors)
+            self.colors = colors
+            N = len(colors)
         else:
-            if isinstance(self.colors, six.string_types):
-                self.colors = [self.colors] * N
+            if isinstance(colors, six.string_types):
+                self.colors = [colors] * N
                 self.monochrome = True
-            elif cbook.iterable(self.colors):
-                self.colors = list(self.colors)  # in case it was a tuple
-                if len(self.colors) == 1:
+            elif cbook.iterable(colors):
+                if len(colors) == 1:
                     self.monochrome = True
-                if len(self.colors) < N:
-                    self.colors = list(self.colors) * N
-                del(self.colors[N:])
+                self.colors = list(
+                    itertools.islice(itertools.cycle(colors), N))
             else:
                 try:
-                    gray = float(self.colors)
+                    gray = float(colors)
                 except TypeError:
                     pass
                 else:

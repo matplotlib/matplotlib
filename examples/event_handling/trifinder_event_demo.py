@@ -11,16 +11,15 @@ import matplotlib.pyplot as plt
 from matplotlib.tri import Triangulation
 from matplotlib.patches import Polygon
 import numpy as np
-import math
 
 
 def update_polygon(tri):
     if tri == -1:
         points = [0, 0, 0]
     else:
-        points = triangulation.triangles[tri]
-    xs = triangulation.x[points]
-    ys = triangulation.y[points]
+        points = triang.triangles[tri]
+    xs = triang.x[points]
+    ys = triang.y[points]
     polygon.set_xy(list(zip(xs, ys)))
 
 
@@ -39,23 +38,22 @@ n_angles = 16
 n_radii = 5
 min_radius = 0.25
 radii = np.linspace(min_radius, 0.95, n_radii)
-angles = np.linspace(0, 2*math.pi, n_angles, endpoint=False)
+angles = np.linspace(0, 2 * np.pi, n_angles, endpoint=False)
 angles = np.repeat(angles[..., np.newaxis], n_radii, axis=1)
-angles[:, 1::2] += math.pi / n_angles
+angles[:, 1::2] += np.pi / n_angles
 x = (radii*np.cos(angles)).flatten()
 y = (radii*np.sin(angles)).flatten()
-triangulation = Triangulation(x, y)
-xmid = x[triangulation.triangles].mean(axis=1)
-ymid = y[triangulation.triangles].mean(axis=1)
-mask = np.where(xmid*xmid + ymid*ymid < min_radius*min_radius, 1, 0)
-triangulation.set_mask(mask)
+triang = Triangulation(x, y)
+triang.set_mask(np.hypot(x[triang.triangles].mean(axis=1),
+                         y[triang.triangles].mean(axis=1))
+                < min_radius)
 
 # Use the triangulation's default TriFinder object.
-trifinder = triangulation.get_trifinder()
+trifinder = triang.get_trifinder()
 
 # Setup plot and callbacks.
 plt.subplot(111, aspect='equal')
-plt.triplot(triangulation, 'bo-')
+plt.triplot(triang, 'bo-')
 polygon = Polygon([[0, 0], [0, 0]], facecolor='y')  # dummy data for xs,ys
 update_polygon(-1)
 plt.gca().add_patch(polygon)

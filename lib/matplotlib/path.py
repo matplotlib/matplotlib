@@ -758,7 +758,7 @@ class Path(object):
         """
         MAGIC = 0.2652031
         SQRTHALF = np.sqrt(0.5)
-        MAGIC45 = np.sqrt((MAGIC*MAGIC) / 2.0)
+        MAGIC45 = SQRTHALF * MAGIC
 
         vertices = np.array([[0.0, -1.0],
 
@@ -818,7 +818,7 @@ class Path(object):
         if cls._unit_circle_righthalf is None:
             MAGIC = 0.2652031
             SQRTHALF = np.sqrt(0.5)
-            MAGIC45 = np.sqrt((MAGIC*MAGIC) / 2.0)
+            MAGIC45 = SQRTHALF * MAGIC
 
             vertices = np.array(
                 [[0.0, -1.0],

@@ -648,8 +648,8 @@ class NavigationToolbar2QT(NavigationToolbar2, QtWidgets.QToolBar):
             QtWidgets.QMessageBox.warning(
                 self.parent, "Error", "There are no axes to edit.")
             return
-        if len(allaxes) == 1:
-            axes = allaxes[0]
+        elif len(allaxes) == 1:
+            axes, = allaxes
         else:
             titles = []
             for axes in allaxes:

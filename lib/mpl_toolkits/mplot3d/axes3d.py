@@ -11,27 +11,28 @@ Module containing Axes3D, an object which can plot 3D objects on a
 """
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
-import math
 
 import six
 from six.moves import map, xrange, zip, reduce
 
+import math
 import warnings
 from collections import defaultdict
 
 import numpy as np
+
 import matplotlib.axes as maxes
-from matplotlib.axes import Axes, rcParams
-from matplotlib import cbook
-import matplotlib.transforms as mtransforms
-from matplotlib.transforms import Bbox
+import matplotlib.cbook as cbook
 import matplotlib.collections as mcoll
-from matplotlib import docstring
+import matplotlib.colors as mcolors
+import matplotlib.docstring as docstring
 import matplotlib.scale as mscale
-from matplotlib.tri.triangulation import Triangulation
-from matplotlib import colors as mcolors
+import matplotlib.transforms as mtransforms
+from matplotlib.axes import Axes, rcParams
+from matplotlib.cbook import _backports
 from matplotlib.colors import Normalize, LightSource
-from matplotlib.cbook._backports import broadcast_to
+from matplotlib.transforms import Bbox
+from matplotlib.tri.triangulation import Triangulation
 
 from . import art3d
 from . import proj3d
@@ -1538,8 +1539,7 @@ class Axes3D(Axes):
         zdir = kwargs.pop('zdir', 'z')
 
         # Match length
-        if not cbook.iterable(zs):
-            zs = np.ones(len(xs)) * zs
+        zs = _backports.broadcast_to(zs, len(xs))
 
         lines = super(Axes3D, self).plot(xs, ys, *args, **kwargs)
         for line in lines:
@@ -2334,29 +2334,16 @@ class Axes3D(Axes):
 
         had_data = self.has_data()
 
-        xs = np.ma.ravel(xs)
-        ys = np.ma.ravel(ys)
-        zs = np.ma.ravel(zs)
-        if xs.size != ys.size:
-            raise ValueError("Arguments 'xs' and 'ys' must be of same size.")
-        if xs.size != zs.size:
-            if zs.size == 1:
-                zs = np.tile(zs[0], xs.size)
-            else:
-                raise ValueError(("Argument 'zs' must be of same size as 'xs' "
-                    "and 'ys' or of size 1."))
-
+        xs, ys, zs = np.broadcast_arrays(
+            *[np.ravel(np.ma.filled(t, np.nan)) for t in [xs, ys, zs]])
         s = np.ma.ravel(s)  # This doesn't have to match x, y in size.
 
         xs, ys, zs, s, c = cbook.delete_masked_points(xs, ys, zs, s, c)
 
-        patches = super(Axes3D, self).scatter(xs, ys, s=s, c=c, *args,
-                                              **kwargs)
-        if not cbook.iterable(zs):
-            is_2d = True
-            zs = np.ones(len(xs)) * zs
-        else:
-            is_2d = False
+        patches = super(Axes3D, self).scatter(
+            xs, ys, s=s, c=c, *args, **kwargs)
+        is_2d = not cbook.iterable(zs)
+        zs = _backports.broadcast_to(zs, len(xs))
         art3d.patch_collection_2d_to_3d(patches, zs=zs, zdir=zdir,
                                         depthshade=depthshade)
 
@@ -2395,8 +2382,7 @@ class Axes3D(Axes):
 
         patches = super(Axes3D, self).bar(left, height, *args, **kwargs)
 
-        if not cbook.iterable(zs):
-            zs = np.ones(len(left)) * zs
+        zs = _backports.broadcast_to(zs, len(left))
 
         verts = []
         verts_zs = []
@@ -2478,43 +2464,17 @@ class Axes3D(Axes):
 
         had_data = self.has_data()
 
-        if not cbook.iterable(x):
-            x = [x]
-        if not cbook.iterable(y):
-            y = [y]
-        if not cbook.iterable(z):
-            z = [z]
-
-        if not cbook.iterable(dx):
-            dx = [dx]
-        if not cbook.iterable(dy):
-            dy = [dy]
-        if not cbook.iterable(dz):
-            dz = [dz]
-
-        if len(dx) == 1:
-            dx = dx * len(x)
-        if len(dy) == 1:
-            dy = dy * len(y)
-        if len(dz) == 1:
-            dz = dz * len(z)
-
-        if len(x) != len(y) or len(x) != len(z):
-            warnings.warn('x, y, and z must be the same length.')
-
-        # FIXME: This is archaic and could be done much better.
-        minx, miny, minz = 1e20, 1e20, 1e20
-        maxx, maxy, maxz = -1e20, -1e20, -1e20
+        x, y, z, dx, dy, dz = np.broadcast_arrays(
+            np.atleast_1d(x), y, z, dx, dy, dz)
+        minx = np.min(x)
+        maxx = np.max(x + dx)
+        miny = np.min(y)
+        maxy = np.max(y + dy)
+        minz = np.min(z)
+        maxz = np.max(z + dz)
 
         polys = []
         for xi, yi, zi, dxi, dyi, dzi in zip(x, y, z, dx, dy, dz):
-            minx = min(xi, minx)
-            maxx = max(xi + dxi, maxx)
-            miny = min(yi, miny)
-            maxy = max(yi + dyi, maxy)
-            minz = min(zi, minz)
-            maxz = max(zi + dzi, maxz)
-
             polys.extend([
                 ((xi, yi, zi), (xi + dxi, yi, zi),
                     (xi + dxi, yi + dyi, zi), (xi, yi + dyi, zi)),
@@ -2836,12 +2796,13 @@ class Axes3D(Axes):
         if xyz is None:
             x, y, z = np.indices(coord_shape)
         else:
-            x, y, z = (broadcast_to(c, coord_shape) for c in xyz)
+            x, y, z = (_backports.broadcast_to(c, coord_shape) for c in xyz)
 
         def _broadcast_color_arg(color, name):
             if np.ndim(color) in (0, 1):
                 # single color, like "red" or [1, 0, 0]
-                return broadcast_to(color, filled.shape + np.shape(color))
+                return _backports.broadcast_to(
+                    color, filled.shape + np.shape(color))
             elif np.ndim(color) in (3, 4):
                 # 3D array of strings, or 4D array with last axis rgb
                 if np.shape(color)[:3] != filled.shape:

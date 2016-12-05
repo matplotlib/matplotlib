@@ -434,15 +434,11 @@ class HammerAxes(GeoAxes):
             self._resolution = resolution
 
         def transform_non_affine(self, xy):
-            x = xy[:, 0:1]
-            y = xy[:, 1:2]
-
-            quarter_x = 0.25 * x
-            half_y = 0.5 * y
-            z = np.sqrt(1.0 - quarter_x*quarter_x - half_y*half_y)
-            longitude = 2 * np.arctan((z*x) / (2.0 * (2.0*z*z - 1.0)))
+            x, y = xy.T
+            z = np.sqrt(1 - (x / 4) ** 2 - (y / 2) ** 2)
+            longitude = 2 * np.arctan((z * x) / (2 * (2 * z ** 2 - 1)))
             latitude = np.arcsin(y*z)
-            return np.concatenate((longitude, latitude), 1)
+            return np.column_stack([longitude, latitude])
         transform_non_affine.__doc__ = Transform.transform_non_affine.__doc__
 
         def inverted(self):

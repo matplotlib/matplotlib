@@ -61,7 +61,7 @@ angles[:, 1::2] += np.pi/n_angles
 # Map radius, angle pairs to x, y, z points.
 x = (radii*np.cos(angles)).flatten()
 y = (radii*np.sin(angles)).flatten()
-z = (np.cos(radii)*np.cos(angles*3.0)).flatten()
+z = (np.cos(radii)*np.cos(3*angles)).flatten()
 
 # Create the Triangulation; no triangles so Delaunay triangulation created.
 triang = mtri.Triangulation(x, y)

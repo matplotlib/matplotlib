@@ -64,7 +64,7 @@ t = arange(0.0, 1.0, 0.01)
 fig = figure(1)
 
 ax1 = fig.add_subplot(211)
-ax1.plot(t, sin(2*pi*t))
+ax1.plot(t, sin(2*pi * t))
 ax1.grid(True)
 ax1.set_ylim((-2, 2))
 ax1.set_ylabel('1 Hz')
@@ -74,7 +74,7 @@ ax1.xaxis.set_tick_params(labelcolor='r')
 
 
 ax2 = fig.add_subplot(212)
-ax2.plot(t, sin(2*2*pi*t))
+ax2.plot(t, sin(2 * 2*pi * t))
 ax2.grid(True)
 ax2.set_ylim((-2, 2))
 l = ax2.set_xlabel('Hi mom')

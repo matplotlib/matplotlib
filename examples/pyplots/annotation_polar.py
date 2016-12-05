@@ -10,7 +10,7 @@ import matplotlib.pyplot as plt
 fig = plt.figure()
 ax = fig.add_subplot(111, polar=True)
 r = np.arange(0,1,0.001)
-theta = 2*2*np.pi*r
+theta = 2 * 2*np.pi * r
 line, = ax.plot(theta, r, color='#ee8d18', lw=3)
 
 ind = 800

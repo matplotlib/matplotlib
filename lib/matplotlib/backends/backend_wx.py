@@ -316,7 +316,7 @@ class RendererWx(RendererBase):
         if angle == 0.0:
             gfx_ctx.DrawText(s, x, y)
         else:
-            rads = angle / 180.0 * math.pi
+            rads = math.radians(angle)
             xo = h * math.sin(rads)
             yo = h * math.cos(rads)
             gfx_ctx.DrawRotatedText(s, x - xo, y - yo, rads)

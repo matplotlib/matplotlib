@@ -313,10 +313,8 @@ def test_image_edges():
 
     data = np.tile(np.arange(12), 15).reshape(20, 9)
 
-    im = ax.imshow(data, origin='upper',
-                   extent=[-10, 10, -10, 10], interpolation='none',
-                   cmap='gray'
-                   )
+    im = ax.imshow(data, origin='upper', extent=[-10, 10, -10, 10],
+                   interpolation='none', cmap='gray')
 
     x = y = 2
     ax.set_xlim([-x, x])

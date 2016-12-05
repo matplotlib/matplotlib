@@ -1389,10 +1389,10 @@ class YAArrow(Patch):
         b = -2 * y2
         c = y2 ** 2. - k ** 2. * pm ** 2. / (1. + pm ** 2.)
 
-        y3a = (-b + math.sqrt(b ** 2. - 4 * a * c)) / (2. * a)
+        y3a = (-b + math.sqrt(b ** 2 - 4 * a * c)) / (2 * a)
         x3a = (y3a - y2) / pm + x2
 
-        y3b = (-b - math.sqrt(b ** 2. - 4 * a * c)) / (2. * a)
+        y3b = (-b - math.sqrt(b ** 2 - 4 * a * c)) / (2 * a)
         x3b = (y3b - y2) / pm + x2
         return x3a, y3a, x3b, y3b
 
@@ -1651,8 +1651,7 @@ class Arc(Ellipse):
         theta2 = theta_stretch(self.theta2, width / height)
 
         # Get width and height in pixels
-        width, height = self.get_transform().transform_point(
-            (width, height))
+        width, height = self.get_transform().transform_point((width, height))
         inv_error = (1.0 / 1.89818e-6) * 0.5
         if width < inv_error and height < inv_error:
             self._path = Path.arc(theta1, theta2)
@@ -2883,10 +2882,10 @@ class ConnectionStyle(_Style):
             x1, y1 = posA
             x2, y2 = posB
 
-            cosA, sinA = (math.cos(self.angleA / 180. * math.pi),
-                          math.sin(self.angleA / 180. * math.pi))
-            cosB, sinB = (math.cos(self.angleB / 180. * math.pi),
-                          math.sin(self.angleB / 180. * math.pi))
+            cosA = math.cos(math.radians(self.angleA))
+            sinA = math.sin(math.radians(self.angleA))
+            cosB = math.cos(math.radians(self.angleB))
+            sinB = math.sin(math.radians(self.angleB))
 
             cx, cy = get_intersection(x1, y1, cosA, sinA,
                                       x2, y2, cosB, sinB)
@@ -2928,10 +2927,10 @@ class ConnectionStyle(_Style):
             x1, y1 = posA
             x2, y2 = posB
 
-            cosA, sinA = (math.cos(self.angleA / 180. * math.pi),
-                          math.sin(self.angleA / 180. * math.pi))
-            cosB, sinB = (math.cos(self.angleB / 180. * math.pi),
-                          math.sin(self.angleB / 180. * math.pi))
+            cosA = math.cos(math.radians(self.angleA))
+            sinA = math.sin(math.radians(self.angleA))
+            cosB = math.cos(math.radians(self.angleB))
+            sinB = math.sin(math.radians(self.angleB))
 
             cx, cy = get_intersection(x1, y1, cosA, sinA,
                                       x2, y2, cosB, sinB)
@@ -3004,8 +3003,8 @@ class ConnectionStyle(_Style):
             codes = [Path.MOVETO]
 
             if self.armA:
-                cosA = math.cos(self.angleA / 180. * math.pi)
-                sinA = math.sin(self.angleA / 180. * math.pi)
+                cosA = math.cos(math.radians(self.angleA))
+                sinA = math.sin(math.radians(self.angleA))
                 # x_armA, y_armB
                 d = self.armA - self.rad
                 rounded.append((x1 + d * cosA, y1 + d * sinA))
@@ -3013,8 +3012,8 @@ class ConnectionStyle(_Style):
                 rounded.append((x1 + d * cosA, y1 + d * sinA))
 
             if self.armB:
-                cosB = math.cos(self.angleB / 180. * math.pi)
-                sinB = math.sin(self.angleB / 180. * math.pi)
+                cosB = math.cos(math.radians(self.angleB))
+                sinB = math.sin(math.radians(self.angleB))
                 x_armB, y_armB = x2 + self.armB * cosB, y2 + self.armB * sinB
 
                 if rounded:
@@ -3099,14 +3098,11 @@ class ConnectionStyle(_Style):
             armA, armB = self.armA, self.armB
 
             if self.angle is not None:
-                theta0 = self.angle / 180. * math.pi
+                theta0 = np.deg2rad(self.angle)
                 dtheta = theta1 - theta0
-
                 dl = dd * math.sin(dtheta)
                 dL = dd * math.cos(dtheta)
-
                 x2, y2 = x1 + dL * math.cos(theta0), y1 + dL * math.sin(theta0)
-
                 armB = armB - dl
 
                 # update
@@ -3354,8 +3350,8 @@ class ArrowStyle(_Style):
 
         def transmute(self, path, mutation_size, linewidth):
 
-            head_length, head_width = self.head_length * mutation_size, \
-                                      self.head_width * mutation_size
+            head_length = self.head_length * mutation_size
+            head_width = self.head_width * mutation_size
             head_dist = math.sqrt(head_length ** 2 + head_width ** 2)
             cos_t, sin_t = head_length / head_dist, head_width / head_dist
 
@@ -3364,8 +3360,7 @@ class ArrowStyle(_Style):
             x1, y1 = path.vertices[1]
 
             # If there is no room for an arrow and a line, then skip the arrow
-            has_begin_arrow = (self.beginarrow and
-                               not ((x0 == x1) and (y0 == y1)))
+            has_begin_arrow = self.beginarrow and not (x0 == x1 and y0 == y1)
             if has_begin_arrow:
                 verticesA, codesA, ddxA, ddyA = \
                            self._get_arrow_wedge(x1, y1, x0, y0,

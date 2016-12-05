@@ -772,10 +772,9 @@ def test_tri_smooth_contouring():
     y0 = (radii*np.sin(angles)).flatten()
     triang0 = mtri.Triangulation(x0, y0)  # Delaunay triangulation
     z0 = z(x0, y0)
-    xmid = x0[triang0.triangles].mean(axis=1)
-    ymid = y0[triang0.triangles].mean(axis=1)
-    mask = np.where(xmid*xmid + ymid*ymid < min_radius*min_radius, 1, 0)
-    triang0.set_mask(mask)
+    triang0.set_mask(np.hypot(x0[triang0.triangles].mean(axis=1),
+                              y0[triang0.triangles].mean(axis=1))
+                     < min_radius)
 
     # Then the plot
     refiner = mtri.UniformTriRefiner(triang0)
@@ -810,10 +809,9 @@ def test_tri_smooth_gradient():
     y = (radii*np.sin(angles)).flatten()
     V = dipole_potential(x, y)
     triang = mtri.Triangulation(x, y)
-    xmid = x[triang.triangles].mean(axis=1)
-    ymid = y[triang.triangles].mean(axis=1)
-    mask = np.where(xmid*xmid + ymid*ymid < min_radius*min_radius, 1, 0)
-    triang.set_mask(mask)
+    triang.set_mask(np.hypot(x[triang.triangles].mean(axis=1),
+                             y[triang.triangles].mean(axis=1))
+                    < min_radius)
 
     # Refine data - interpolates the electrical potential V
     refiner = mtri.UniformTriRefiner(triang)
