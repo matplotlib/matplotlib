@@ -241,9 +241,6 @@ html_favicon = '_static/favicon.ico'
 # The paper size ('letter' or 'a4').
 latex_paper_size = 'letter'
 
-# The font size ('10pt', '11pt' or '12pt').
-latex_font_size = '11pt'
-
 # Grouping the document tree into LaTeX files. List of tuples
 # (source start file, target name, title, author, document class [howto/manual]).
 
@@ -258,8 +255,9 @@ latex_documents = [
 # the title page.
 latex_logo = None
 
+latex_elements = {}
 # Additional stuff for the LaTeX preamble.
-latex_preamble = r"""
+latex_elements['preamble'] = r"""
    % In the parameters section, place a newline after the Parameters
    % header.  (This is stolen directly from Numpy's conf.py, since it
    % affects Numpy-style docstrings).
@@ -279,6 +277,7 @@ latex_preamble = r"""
    \usepackage{enumitem}
    \setlistdepth{2048}
 """
+latex_elements['pointsize'] = '11pt'
 
 # Documents to append as an appendix to all manuals.
 latex_appendices = []
