@@ -291,6 +291,30 @@ def test_wedge_range():
     ax.set_ylim([-2, 9])
 
 
+def test_patch_str():
+    """
+    Check that patches have nice and working `str` representation.
+
+    Note that the logic is that `__str__` is defined such that:
+    str(eval(str(p))) == str(p)
+    """
+    p = mpatches.Circle(xy=(1, 2), radius=3)
+    assert str(p) == 'Circle(xy=(1, 2), radius=3)'
+
+    p = mpatches.Ellipse(xy=(1, 2), width=3, height=4, angle=5)
+    assert str(p) == 'Ellipse(xy=(1, 2), width=3, height=4, angle=5)'
+
+    p = mpatches.Rectangle(xy=(1, 2), width=3, height=4, angle=5)
+    assert str(p) == 'Rectangle(xy=(1, 2), width=3, height=4, angle=5)'
+
+    p = mpatches.Wedge(center=(1, 2), r=3, theta1=4, theta2=5, width=6)
+    assert str(p) == 'Wedge(center=(1, 2), r=3, theta1=4, theta2=5, width=6)'
+
+    p = mpatches.Arc(xy=(1, 2), width=3, height=4, angle=5, theta1=6, theta2=7)
+    expected = 'Arc(xy=(1, 2), width=3, height=4, angle=5, theta1=6, theta2=7)'
+    assert str(p) == expected
+
+
 if __name__ == '__main__':
     import nose
     nose.runmodule(argv=['-s', '--with-doctest'], exit=False)
