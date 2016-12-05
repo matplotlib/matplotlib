@@ -305,4 +305,4 @@ edit this file if you want to add new environments to test (e.g.,
 ``py33``) or if you want to tweak the dependencies or the way the
 tests are run. For more info on the ``tox.ini`` file, see the `Tox
 Configuration Specification
-<http://tox.testrun.org/latest/config.html>`_.
+<https://tox.readthedocs.io/en/latest/config.html>`_.
