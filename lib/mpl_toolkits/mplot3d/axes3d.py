@@ -1519,18 +1519,17 @@ class Axes3D(Axes):
 
         argsi = 0
         # First argument is array of zs
-        if len(args) > 0 and cbook.iterable(args[0]) and \
-                len(xs) == len(args[0]) :
+        if args and cbook.iterable(args[0]) and len(xs) == len(args[0]):
             # So, we know that it is an array with
             # first dimension the same as xs.
             # Next, check to see if the data contained
             # therein (if any) is scalar (and not another array).
-            if len(args[0]) == 0 or cbook.is_scalar(args[0][0]) :
+            if len(args[0]) == 0 or cbook.is_scalar(args[0][0]):
                 zs = args[argsi]
                 argsi += 1
 
         # First argument is z value
-        elif len(args) > 0 and cbook.is_scalar(args[0]):
+        elif args and cbook.is_scalar(args[0]):
             zs = args[argsi]
             argsi += 1
 

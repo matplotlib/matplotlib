@@ -1006,7 +1006,7 @@ class Artist(object):
         if match is None:  # always return True
             def matchfunc(x):
                 return True
-        elif cbook.issubclass_safe(match, Artist):
+        elif isinstance(match, type) and issubclass(match, Artist):
             def matchfunc(x):
                 return isinstance(x, match)
         elif callable(match):
