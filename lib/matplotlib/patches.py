@@ -652,12 +652,13 @@ class Shadow(Patch):
 class Rectangle(Patch):
     """
     Draw a rectangle with lower left at *xy* = (*x*, *y*) with
-    specified *width* and *height*.
+    specified *width*, *height* and rotation *angle*.
     """
 
     def __str__(self):
-        return self.__class__.__name__ \
-            + "(%g,%g;%gx%g)" % (self._x, self._y, self._width, self._height)
+        pars = self._x, self._y, self._width, self._height, self.angle
+        fmt = "Rectangle(xy=(%g, %g), width=%g, height=%g, angle=%g)"
+        return fmt % pars
 
     @docstring.dedent_interpd
     def __init__(self, xy, width, height, angle=0.0, **kwargs):
@@ -678,7 +679,7 @@ class Rectangle(Patch):
         self._y = float(xy[1])
         self._width = float(width)
         self._height = float(height)
-        self._angle = float(angle)
+        self.angle = float(angle)
         # Note: This cannot be calculated until this is added to an Axes
         self._rect_transform = transforms.IdentityTransform()
 
@@ -700,7 +701,7 @@ class Rectangle(Patch):
         height = self.convert_yunits(self._height)
         bbox = transforms.Bbox.from_bounds(x, y, width, height)
         rot_trans = transforms.Affine2D()
-        rot_trans.rotate_deg_around(x, y, self._angle)
+        rot_trans.rotate_deg_around(x, y, self.angle)
         self._rect_transform = transforms.BboxTransformTo(bbox)
         self._rect_transform += rot_trans
 
@@ -1024,7 +1025,10 @@ class Wedge(Patch):
     Wedge shaped patch.
     """
     def __str__(self):
-        return "Wedge(%g,%g)" % (self.theta1, self.theta2)
+        pars = (self.center[0], self.center[1], self.r,
+                self.theta1, self.theta2, self.width)
+        fmt = "Wedge(center=(%g, %g), r=%g, theta1=%g, theta2=%g, width=%s)"
+        return fmt % pars
 
     @docstring.dedent_interpd
     def __init__(self, center, r, theta1, theta2, width=None, **kwargs):
@@ -1394,8 +1398,10 @@ class Ellipse(Patch):
     A scale-free ellipse.
     """
     def __str__(self):
-        return "Ellipse(%s,%s;%sx%s)" % (self.center[0], self.center[1],
-                                         self.width, self.height)
+        pars = (self.center[0], self.center[1],
+                self.width, self.height, self.angle)
+        fmt = "Ellipse(xy=(%s, %s), width=%s, height=%s, angle=%s)"
+        return fmt % pars
 
     @docstring.dedent_interpd
     def __init__(self, xy, width, height, angle=0.0, **kwargs):
@@ -1455,9 +1461,9 @@ class Circle(Ellipse):
     A circle patch.
     """
     def __str__(self):
-        return "Circle((%g,%g),r=%g)" % (self.center[0],
-                                         self.center[1],
-                                         self.radius)
+        pars = self.center[0], self.center[1], self.radius
+        fmt = "Circle(xy=(%g, %g), radius=%g)"
+        return fmt % pars
 
     @docstring.dedent_interpd
     def __init__(self, xy, radius=5, **kwargs):
@@ -1502,8 +1508,11 @@ class Arc(Ellipse):
     with high resolution.
     """
     def __str__(self):
-        return "Arc(%s,%s;%sx%s)" % (self.center[0], self.center[1],
-                                     self.width, self.height)
+        pars = (self.center[0], self.center[1], self.width,
+                self.height, self.angle, self.theta1, self.theta2)
+        fmt = ("Arc(xy=(%g, %g), width=%g, "
+               "height=%g, angle=%g, theta1=%g, theta2=%g)")
+        return fmt % pars
 
     @docstring.dedent_interpd
     def __init__(self, xy, width, height, angle=0.0,
