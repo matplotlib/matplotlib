@@ -681,7 +681,7 @@ class FontProperties(object):
                  fname  = None, # if this is set, it's a hardcoded filename to use
                  _init   = None  # used only by copy()
                  ):
-        self._family = None
+        self._family = _normalize_font_family(rcParams['font.family'])
         self._slant = rcParams['font.style']
         self._variant = rcParams['font.variant']
         self._weight = rcParams['font.weight']
@@ -820,10 +820,7 @@ class FontProperties(object):
         """
         if family is None:
             family = rcParams['font.family']
-        if is_string_like(family):
-            family = [six.text_type(family)]
-        elif not is_string_like(family) and isinstance(family, Iterable):
-            family = [six.text_type(f) for f in family]
+        family = _normalize_font_family(family)
         self._family = family
     set_name = set_family
 
@@ -965,6 +962,14 @@ def pickle_load(filename):
     with open(filename, 'rb') as fh:
         data = pickle.load(fh)
     return data
+
+
+def _normalize_font_family(family):
+    if is_string_like(family):
+        family = [six.text_type(family)]
+    elif (not is_string_like(family) and isinstance(family, Iterable)):
+        family = [six.text_type(f) for f in family]
+    return family
 
 
 class TempCache(object):
