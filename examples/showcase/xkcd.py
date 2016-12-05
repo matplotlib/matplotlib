@@ -34,7 +34,7 @@ with plt.xkcd():
 
     fig = plt.figure()
     ax = fig.add_axes((0.1, 0.2, 0.8, 0.7))
-    ax.bar([-0.125, 1.0 - 0.125], [0, 100], 0.25)
+    ax.bar([0, 1], [0, 100], 0.25)
     ax.spines['right'].set_color('none')
     ax.spines['top'].set_color('none')
     ax.xaxis.set_ticks_position('bottom')
