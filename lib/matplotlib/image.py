@@ -186,7 +186,7 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
     # backward compatibility just in case.
     _interpd = _interpd_
     # reverse interp dict
-    _interpdr = dict([(v, k) for k, v in six.iteritems(_interpd_)])
+    _interpdr = {v: k for k, v in six.iteritems(_interpd_)}
     iterpnames = interpolations_names
     # <end unused keys>
 

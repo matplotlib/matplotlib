@@ -230,7 +230,6 @@ class SortedStringsScrolledWindow(gtk.ScrolledWindow):
         self.model.clear()
         self.datad = dict()
 
-
     def flat(self, row):
         seq = []
         for i,val in enumerate(row):
@@ -239,9 +238,7 @@ class SortedStringsScrolledWindow(gtk.ScrolledWindow):
         return seq
 
     def __delete_selected(self, *unused): # untested
-
-
-        keyd = dict([(thisiter, key) for key, thisiter in self.iterd.values()])
+        keyd = {thisiter: key for key, thisiter in self.iterd.values()}
         for row in self.get_selected():
             key = tuple(row)
             thisiter = self.iterd[key]
@@ -252,8 +249,6 @@ class SortedStringsScrolledWindow(gtk.ScrolledWindow):
 
         for i, thisiter in enumerate(self.iters):
             self.rownumd[i] = keyd[thisiter]
-
-
 
     def delete_row(self, row):
         key = tuple(row)

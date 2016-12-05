@@ -21,10 +21,8 @@ from matplotlib.cbook import delete_masked_points as dmp
 def test_is_string_like():
     y = np.arange(10)
     assert not cbook.is_string_like(y)
-    y.shape = 10, 1
-    assert not cbook.is_string_like(y)
-    y.shape = 1, 10
-    assert not cbook.is_string_like(y)
+    assert not cbook.is_string_like(y.reshape((-1, 1)))
+    assert not cbook.is_string_like(y.reshape((1, -1)))
 
     assert cbook.is_string_like("hello world")
     assert not cbook.is_string_like(10)
@@ -65,7 +63,7 @@ def test_restrict_dict():
     assert d3 == {'foo': 'bar'}
     d4 = cbook.restrict_dict(d, {})
     assert d4 == {}
-    d5 = cbook.restrict_dict(d, set(['foo', 2]))
+    d5 = cbook.restrict_dict(d, {'foo', 2})
     assert d5 == {'foo': 'bar'}
     # check that d was not modified
     assert d == {'foo': 'bar', 1: 2}

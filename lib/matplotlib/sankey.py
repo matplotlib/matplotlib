@@ -494,7 +494,7 @@ class Sankey(object):
             raise ValueError(
             "trunklength is negative.\nThis isn't allowed, because it would "
             "cause poor layout.")
-        if np.absolute(np.sum(flows)) > self.tolerance:
+        if np.abs(np.sum(flows)) > self.tolerance:
             verbose.report(
                 "The sum of the flows is nonzero (%f).\nIs the "
                 "system not at steady state?" % np.sum(flows), 'helpful')

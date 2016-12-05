@@ -905,12 +905,11 @@ class DialogLineprops(object):
         )
 
     linestyles = [ls for ls in lines.Line2D.lineStyles if ls.strip()]
-    linestyled = dict([ (s,i) for i,s in enumerate(linestyles)])
+    linestyled = {s: i for i, s in enumerate(linestyles)}
 
-
-    markers =  [m for m in markers.MarkerStyle.markers if cbook.is_string_like(m)]
-
-    markerd = dict([(s,i) for i,s in enumerate(markers)])
+    markers =  [m for m in markers.MarkerStyle.markers
+                if cbook.is_string_like(m)]
+    markerd = {s: i for i, s in enumerate(markers)}
 
     def __init__(self, lines):
         import gtk.glade
@@ -918,12 +917,14 @@ class DialogLineprops(object):
         datadir = matplotlib.get_data_path()
         gladefile = os.path.join(datadir, 'lineprops.glade')
         if not os.path.exists(gladefile):
-            raise IOError('Could not find gladefile lineprops.glade in %s'%datadir)
+            raise IOError(
+                'Could not find gladefile lineprops.glade in %s' % datadir)
 
         self._inited = False
         self._updateson = True # suppress updates when setting widgets manually
         self.wtree = gtk.glade.XML(gladefile, 'dialog_lineprops')
-        self.wtree.signal_autoconnect(dict([(s, getattr(self, s)) for s in self.signals]))
+        self.wtree.signal_autoconnect(
+            {s: getattr(self, s) for s in self.signals})
 
         self.dlg = self.wtree.get_widget('dialog_lineprops')
 
@@ -947,7 +948,6 @@ class DialogLineprops(object):
         self._lastcnt = 0
         self._inited = True
 
-
     def show(self):
         'populate the combo box'
         self._updateson = False
@@ -970,7 +970,6 @@ class DialogLineprops(object):
         ind = self.cbox_lineprops.get_active()
         line = self.lines[ind]
         return line
-
 
     def get_active_linestyle(self):
         'get the active lineinestyle'
@@ -1004,8 +1003,6 @@ class DialogLineprops(object):
         line.set_markerfacecolor((r,g,b))
 
         line.figure.canvas.draw()
-
-
 
     def on_combobox_lineprops_changed(self, item):
         'update the widgets from the active line'

@@ -607,7 +607,7 @@ class Quiver(mcollections.PolyCollection):
         xyp = self.ax.transData.transform(self.XY + eps * uv)
         dxy = xyp - xy
         angles = np.arctan2(dxy[:, 1], dxy[:, 0])
-        lengths = np.absolute(dxy[:, 0] + dxy[:, 1] * 1j) / eps
+        lengths = np.hypot(*dxy.T) / eps
         return angles, lengths
 
     def _make_verts(self, U, V):
@@ -627,7 +627,7 @@ class Quiver(mcollections.PolyCollection):
         if self.scale_units == 'xy':
             a = lengths
         else:
-            a = np.absolute(uv)
+            a = np.abs(uv)
         if self.scale is None:
             sn = max(10, math.sqrt(self.N))
             if self.Umask is not ma.nomask:
@@ -656,11 +656,8 @@ class Quiver(mcollections.PolyCollection):
         elif str_angles and (self.angles == 'uv'):
             theta = np.angle(uv)
         else:
-            # Make a copy to avoid changing the input array.
-            theta = ma.masked_invalid(self.angles, copy=True).filled(0)
-            theta = theta.ravel()
-            theta *= (np.pi / 180.0)
-        theta.shape = (theta.shape[0], 1)  # for broadcasting
+            theta = ma.masked_invalid(np.deg2rad(self.angles)).filled(0)
+        theta = theta.reshape((-1, 1))  # for broadcasting
         xy = (X + Y * 1j) * np.exp(1j * theta) * self.width
         xy = xy[:, :, np.newaxis]
         XY = np.concatenate((xy.real, xy.imag), axis=2)

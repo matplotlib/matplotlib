@@ -21,8 +21,7 @@ Z = np.sqrt(X**2 + Y**2)/5
 Z = (Z - Z.min()) / (Z.max() - Z.min())
 
 # The color array can include masked values:
-Zm = ma.masked_where(np.fabs(Qz) < 0.5*np.amax(Qz), Z)
-
+Zm = ma.masked_where(np.abs(Qz) < 0.5 * np.max(Qz), Z)
 
 fig = figure()
 ax = fig.add_subplot(121)

@@ -7,9 +7,8 @@ w, h = 512, 512
 
 datafile = cbook.get_sample_data('ct.raw.gz', asfileobj=True)
 s = datafile.read()
-A = np.fromstring(s, np.uint16).astype(float)
-A *= 1.0 / max(A)
-A.shape = w, h
+A = np.fromstring(s, np.uint16).astype(float).reshape((w, h))
+A /= A.max()
 
 extent = (0, 25, 0, 25)
 im = plt.imshow(A, cmap=plt.cm.hot, origin='upper', extent=extent)

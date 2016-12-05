@@ -188,22 +188,18 @@ def auto_adjust_subplotpars(fig, renderer,
                   top=1 - margin_top)
 
     if cols > 1:
-        hspace = max([sum(s)
-                      for i in range(rows)
-                      for s
-                      in hspaces[i * (cols + 1) + 1:(i + 1) * (cols + 1) - 1]])
-        hspace += hpad_inches / fig_width_inch
-        h_axes = ((1 - margin_right - margin_left) -
-                  hspace * (cols - 1)) / cols
-
+        hspace = (
+            max(sum(s)
+                for i in range(rows)
+                for s in hspaces[i * (cols + 1) + 1:(i + 1) * (cols + 1) - 1])
+            + hpad_inches / fig_width_inch)
+        h_axes = (1 - margin_right - margin_left - hspace * (cols - 1)) / cols
         kwargs["wspace"] = hspace / h_axes
 
     if rows > 1:
-        vspace = max([sum(s) for s in vspaces[cols:-cols]])
-        vspace += vpad_inches / fig_height_inch
-        v_axes = ((1 - margin_top - margin_bottom) -
-                  vspace * (rows - 1)) / rows
-
+        vspace = (max(sum(s) for s in vspaces[cols:-cols])
+                  + vpad_inches / fig_height_inch)
+        v_axes = (1 - margin_top - margin_bottom - vspace * (rows - 1)) / rows
         kwargs["hspace"] = vspace / v_axes
 
     return kwargs

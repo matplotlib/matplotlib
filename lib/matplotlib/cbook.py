@@ -658,7 +658,7 @@ class Bunch(object):
 
 def unique(x):
     """Return a list of unique elements of *x*"""
-    return list(six.iterkeys(dict([(val, 1) for val in x])))
+    return list(set(x))
 
 
 def iterable(obj):
@@ -1407,7 +1407,7 @@ def finddir(o, match, case=False):
 
 def reverse_dict(d):
     """reverse the dictionary -- may lose data if values are not unique!"""
-    return dict([(v, k) for k, v in six.iteritems(d)])
+    return {v: k for k, v in six.iteritems(d)}
 
 
 def restrict_dict(d, keys):
@@ -1415,7 +1415,7 @@ def restrict_dict(d, keys):
     Return a dictionary that contains those keys that appear in both
     d and keys, with values from d.
     """
-    return dict([(k, v) for (k, v) in six.iteritems(d) if k in keys])
+    return {k: v for k, v in six.iteritems(d) if k in keys}
 
 
 def report_memory(i=0):  # argument may go away
@@ -2067,17 +2067,11 @@ def unmasked_index_ranges(mask, compressed=True):
     ic1 = breakpoints
     return np.concatenate((ic0[:, np.newaxis], ic1[:, np.newaxis]), axis=1)
 
-# a dict to cross-map linestyle arguments
-_linestyles = [('-', 'solid'),
-               ('--', 'dashed'),
-               ('-.', 'dashdot'),
-               (':', 'dotted')]
 
-ls_mapper = dict(_linestyles)
-# The ls_mapper maps short codes for line style to their full name used
-# by backends
-# The reverse mapper is for mapping full names to short ones
-ls_mapper_r = dict([(ls[1], ls[0]) for ls in _linestyles])
+# The ls_mapper maps short codes for line style to their full name used by
+# backends; the reverse mapper is for mapping full names to short ones.
+ls_mapper = {'-': 'solid', '--': 'dashed', '-.': 'dashdot', ':': 'dotted'}
+ls_mapper_r = reverse_dict(ls_mapper)
 
 
 def align_iterators(func, *iterables):

@@ -2162,17 +2162,17 @@ or tuple of floats
 
         if adjust_xlim:
             xmin, xmax = self.dataLim.intervalx
-            xmin = np.amin([w for w in width if w > 0])
+            xmin = np.min(w for w in width if w > 0)
             if xerr is not None:
-                xmin = xmin - np.amax(xerr)
+                xmin = xmin - np.max(xerr)
             xmin = max(xmin * 0.9, 1e-100)
             self.dataLim.intervalx = (xmin, xmax)
 
         if adjust_ylim:
             ymin, ymax = self.dataLim.intervaly
-            ymin = np.amin([h for h in height if h > 0])
+            ymin = np.min(h for h in height if h > 0)
             if yerr is not None:
-                ymin = ymin - np.amax(yerr)
+                ymin = ymin - np.max(yerr)
             ymin = max(ymin * 0.9, 1e-100)
             self.dataLim.intervaly = (ymin, ymax)
         self.autoscale_view()
@@ -2460,7 +2460,7 @@ or tuple of floats
                            marker=linemarker, label="_nolegend_")
             stemlines.append(l)
 
-        baseline, = self.plot([np.amin(x), np.amax(x)], [bottom, bottom],
+        baseline, = self.plot([np.min(x), np.max(x)], [bottom, bottom],
                               color=basecolor, linestyle=basestyle,
                               marker=basemarker, label="_nolegend_")
 
@@ -4228,8 +4228,8 @@ or tuple of floats
         if extent is not None:
             xmin, xmax, ymin, ymax = extent
         else:
-            xmin, xmax = (np.amin(x), np.amax(x)) if len(x) else (0, 1)
-            ymin, ymax = (np.amin(y), np.amax(y)) if len(y) else (0, 1)
+            xmin, xmax = (np.min(x), np.max(x)) if len(x) else (0, 1)
+            ymin, ymax = (np.min(y), np.max(y)) if len(y) else (0, 1)
 
             # to avoid issues with singular data, expand the min/max pairs
             xmin, xmax = mtrans.nonsingular(xmin, xmax, expander=0.1)
@@ -4264,35 +4264,23 @@ or tuple of floats
         d2 = (x - ix2 - 0.5) ** 2 + 3.0 * (y - iy2 - 0.5) ** 2
         bdist = (d1 < d2)
         if C is None:
-            accum = np.zeros(n)
-            # Create appropriate views into "accum" array.
-            lattice1 = accum[:nx1 * ny1]
-            lattice2 = accum[nx1 * ny1:]
-            lattice1.shape = (nx1, ny1)
-            lattice2.shape = (nx2, ny2)
+            lattice1 = np.zeros((nx1, ny1))
+            lattice2 = np.zeros((nx2, ny2))
 
             for i in xrange(len(x)):
                 if bdist[i]:
-                    if ((ix1[i] >= 0) and (ix1[i] < nx1) and
-                        (iy1[i] >= 0) and (iy1[i] < ny1)):
+                    if 0 <= ix1[i] < nx1 and 0 <= iy1[i] < ny1:
                         lattice1[ix1[i], iy1[i]] += 1
                 else:
-                    if ((ix2[i] >= 0) and (ix2[i] < nx2) and
-                        (iy2[i] >= 0) and (iy2[i] < ny2)):
+                    if 0 <= ix2[i] < nx2 and 0 <= iy2[i] < ny2:
                         lattice2[ix2[i], iy2[i]] += 1
 
             # threshold
             if mincnt is not None:
-                for i in xrange(nx1):
-                    for j in xrange(ny1):
-                        if lattice1[i, j] < mincnt:
-                            lattice1[i, j] = np.nan
-                for i in xrange(nx2):
-                    for j in xrange(ny2):
-                        if lattice2[i, j] < mincnt:
-                            lattice2[i, j] = np.nan
-            accum = np.hstack((lattice1.astype(float).ravel(),
-                               lattice2.astype(float).ravel()))
+                lattice1[lattice1 < mincnt] = np.nan
+                lattice2[lattice2 < mincnt] = np.nan
+            accum = np.hstack((lattice1.ravel(),
+                               lattice2.ravel()))
             good_idxs = ~np.isnan(accum)
 
         else:
@@ -4311,12 +4299,10 @@ or tuple of floats
 
             for i in xrange(len(x)):
                 if bdist[i]:
-                    if ((ix1[i] >= 0) and (ix1[i] < nx1) and
-                        (iy1[i] >= 0) and (iy1[i] < ny1)):
+                    if 0 <= ix1[i] < nx1 and 0 <= iy1[i] < ny1:
                         lattice1[ix1[i], iy1[i]].append(C[i])
                 else:
-                    if ((ix2[i] >= 0) and (ix2[i] < nx2) and
-                        (iy2[i] >= 0) and (iy2[i] < ny2)):
+                    if 0 <= ix2[i] < nx2 and 0 <= iy2[i] < ny2:
                         lattice2[ix2[i], iy2[i]].append(C[i])
 
             for i in xrange(nx1):
@@ -5484,10 +5470,10 @@ or tuple of floats
 
         self.add_collection(collection, autolim=False)
 
-        minx = np.amin(x)
-        maxx = np.amax(x)
-        miny = np.amin(y)
-        maxy = np.amax(y)
+        minx = np.min(x)
+        maxx = np.max(x)
+        miny = np.min(y)
+        maxy = np.max(y)
         collection.sticky_edges.x[:] = [minx, maxx]
         collection.sticky_edges.y[:] = [miny, maxy]
         corners = (minx, miny), (maxx, maxy)
@@ -5636,10 +5622,10 @@ or tuple of floats
 
         self.add_collection(collection, autolim=False)
 
-        minx = np.amin(X)
-        maxx = np.amax(X)
-        miny = np.amin(Y)
-        maxy = np.amax(Y)
+        minx = np.min(X)
+        maxx = np.max(X)
+        miny = np.min(Y)
+        maxy = np.max(Y)
         collection.sticky_edges.x[:] = [minx, maxx]
         collection.sticky_edges.y[:] = [miny, maxy]
         corners = (minx, miny), (maxx, maxy)
@@ -6400,7 +6386,7 @@ or tuple of floats
         else:
             labels = [six.text_type(lab) for lab in label]
 
-        for (patch, lbl) in zip_longest(patches, labels, fillvalue=None):
+        for patch, lbl in zip_longest(patches, labels, fillvalue=None):
             if patch:
                 p = patch[0]
                 p.update(kwargs)
@@ -6612,7 +6598,6 @@ or tuple of floats
         pxx, freqs = mlab.psd(x=x, NFFT=NFFT, Fs=Fs, detrend=detrend,
                               window=window, noverlap=noverlap, pad_to=pad_to,
                               sides=sides, scale_by_freq=scale_by_freq)
-        pxx.shape = len(freqs),
         freqs += Fc
 
         if scale_by_freq in (None, True):
@@ -6736,11 +6721,10 @@ or tuple of floats
         pxy, freqs = mlab.csd(x=x, y=y, NFFT=NFFT, Fs=Fs, detrend=detrend,
                               window=window, noverlap=noverlap, pad_to=pad_to,
                               sides=sides, scale_by_freq=scale_by_freq)
-        pxy.shape = len(freqs),
         # pxy is complex
         freqs += Fc
 
-        line = self.plot(freqs, 10 * np.log10(np.absolute(pxy)), **kwargs)
+        line = self.plot(freqs, 10 * np.log10(np.abs(pxy)), **kwargs)
         self.set_xlabel('Frequency')
         self.set_ylabel('Cross Spectrum Magnitude (dB)')
         self.grid(True)
@@ -7243,7 +7227,7 @@ or tuple of floats
         Z = np.flipud(Z)
 
         if xextent is None:
-            xextent = 0, np.amax(t)
+            xextent = 0, np.max(t)
         xmin, xmax = xextent
         freqs += Fc
         extent = xmin, xmax, freqs[0], freqs[-1]
@@ -7316,7 +7300,7 @@ or tuple of floats
             marker = 's'
         if marker is None and markersize is None:
             Z = np.asarray(Z)
-            mask = np.absolute(Z) > precision
+            mask = np.abs(Z) > precision
 
             if 'cmap' not in kwargs:
                 kwargs['cmap'] = mcolors.ListedColormap(['w', 'k'],
@@ -7332,12 +7316,12 @@ or tuple of floats
                     y = c.row
                     x = c.col
                 else:
-                    nonzero = np.absolute(c.data) > precision
+                    nonzero = np.abs(c.data) > precision
                     y = c.row[nonzero]
                     x = c.col[nonzero]
             else:
                 Z = np.asarray(Z)
-                nonzero = np.absolute(Z) > precision
+                nonzero = np.abs(Z) > precision
                 y, x = np.nonzero(nonzero)
             if marker is None:
                 marker = 's'

@@ -1330,15 +1330,14 @@ def rgb_to_hsv(arr):
     # check length of the last dimension, should be _some_ sort of rgb
     if arr.shape[-1] != 3:
         raise ValueError("Last dimension of input array must be 3; "
-                         "shape {shp} was found.".format(shp=arr.shape))
+                         "shape {} was found.".format(arr.shape))
 
     in_ndim = arr.ndim
     if arr.ndim == 1:
         arr = np.array(arr, ndmin=2)
 
     # make sure we don't have an int image
-    if arr.dtype.kind in ('iu'):
-        arr = arr.astype(np.float32)
+    arr = arr.astype(np.promote_types(arr.dtype, np.float32))
 
     out = np.zeros_like(arr)
     arr_max = arr.max(-1)
@@ -1396,8 +1395,7 @@ def hsv_to_rgb(hsv):
         hsv = np.array(hsv, ndmin=2)
 
     # make sure we don't have an int image
-    if hsv.dtype.kind in ('iu'):
-        hsv = hsv.astype(np.float32)
+    hsv = hsv.astype(np.promote_types(hsv.dtype, np.float32))
 
     h = hsv[..., 0]
     s = hsv[..., 1]
@@ -1448,13 +1446,11 @@ def hsv_to_rgb(hsv):
     g[idx] = v[idx]
     b[idx] = v[idx]
 
-    rgb = np.empty_like(hsv)
-    rgb[..., 0] = r
-    rgb[..., 1] = g
-    rgb[..., 2] = b
+    # `np.stack([r, g, b], axis=-1)` (numpy 1.10).
+    rgb = np.concatenate([r[..., None], g[..., None], b[..., None]], -1)
 
     if in_ndim == 1:
-        rgb.shape = (3, )
+        rgb.shape = (3,)
 
     return rgb
 

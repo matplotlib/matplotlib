@@ -1267,12 +1267,11 @@ class ArtistInspector(object):
 
         ########
         names = [self.aliased_name_rest(prop, target)
-                 for prop, target
-                 in attrs]
+                 for prop, target in attrs]
         accepts = [self.get_valid_values(prop) for prop, target in attrs]
 
-        col0_len = max([len(n) for n in names])
-        col1_len = max([len(a) for a in accepts])
+        col0_len = max(len(n) for n in names)
+        col1_len = max(len(a) for a in accepts)
         table_formatstr = pad + '=' * col0_len + '   ' + '=' * col1_len
 
         lines.append('')

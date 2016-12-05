@@ -61,8 +61,8 @@ class TrapezoidMapTriFinder(TriFinder):
             raise ValueError("x and y must be array-like with the same shape")
 
         # C++ does the heavy lifting, and expects 1D arrays.
-        indices = self._cpp_trifinder.find_many(x.ravel(), y.ravel())
-        indices.shape = x.shape
+        indices = (self._cpp_trifinder.find_many(x.ravel(), y.ravel())
+                   .reshape(x.shape))
         return indices
 
     def _get_tree_stats(self):
