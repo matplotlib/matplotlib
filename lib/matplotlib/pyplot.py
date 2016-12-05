@@ -468,7 +468,7 @@ def figure(num=None,  # autoincrement if None, else integer from 1-N
     FigureClass : class derived from matplotlib.figure.Figure
         This parameter allows to optionally use a custom Figure instance.
 
-    clear : bool, optinal, default: False
+    clear : bool, optional, default: False
         If True and the figure already exists, then it is cleared.
 
     Returns
