@@ -9,7 +9,7 @@ Formatter to get the appropriate date string for a given index.
 """
 
 from __future__ import print_function
-import numpy
+import numpy as np
 from matplotlib.mlab import csv2rec
 import matplotlib.pyplot as plt
 import matplotlib.cbook as cbook
@@ -27,7 +27,7 @@ class MyFormatter(Formatter):
 
     def __call__(self, x, pos=0):
         'Return the label for time x at position pos'
-        ind = int(round(x))
+        ind = int(np.round(x))
         if ind >= len(self.dates) or ind < 0:
             return ''
 
@@ -37,6 +37,6 @@ formatter = MyFormatter(r.date)
 
 fig, ax = plt.subplots()
 ax.xaxis.set_major_formatter(formatter)
-ax.plot(numpy.arange(len(r)), r.close, 'o-')
+ax.plot(np.arange(len(r)), r.close, 'o-')
 fig.autofmt_xdate()
 plt.show()

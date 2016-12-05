@@ -1760,8 +1760,8 @@ class MaxNLocator(Locator):
                 step = max(1, step)
             best_vmin = (_vmin // step) * step
 
-            low = round(Base(step).le(_vmin - best_vmin) / step)
-            high = round(Base(step).ge(_vmax - best_vmin) / step)
+            low = np.round(Base(step).le(_vmin - best_vmin) / step)
+            high = np.round(Base(step).ge(_vmax - best_vmin) / step)
             ticks = np.arange(low, high + 1) * step + best_vmin + offset
             nticks = ((ticks <= vmax) & (ticks >= vmin)).sum()
             if nticks >= self._min_n_ticks:
