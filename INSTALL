@@ -214,9 +214,19 @@ Required Dependencies
 `cycler <http://matplotlib.org/cycler/>`__ 0.10.0 or later
    Composable cycle class used for constructing style-cycles
 
-`functools32`
-    Required for compatibility if running on versions of Python before
-    Python 3.2.
+`six <https://pypi.python.org/pypi/six>`_
+  Required for compatibility between python 2 and python 3
+
+
+Dependencies for python 2
+^^^^^^^^^^^^^^^^^^^^^^^^^
+
+`functools32 <https://pypi.python.org/pypi/functools32>`_
+    Required for compatibility if running on Python 2.7.
+
+`subprocess32 <https://pypi.python.org/pypi/subprocess32/>`_
+    Optional, unix only.  Backport of the subprocess standard library from 3.2+
+    for Python 2.7. It provides better error messages and timeout support.
 
 Optional GUI framework
 ^^^^^^^^^^^^^^^^^^^^^^
@@ -277,10 +287,6 @@ Required libraries that ship with matplotlib
 
 `ttconv`
    truetype font utility
-
-six 1.9.0
-    Python 2/3 compatibility library.  Do not use this in third-party
-    code.
 
 
 .. _build_linux:
