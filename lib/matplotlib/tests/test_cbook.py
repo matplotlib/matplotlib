@@ -113,14 +113,6 @@ class Test_delete_masked_points(object):
         assert_array_equal(actual[1], expected[1])
 
 
-def test_allequal():
-    assert cbook.allequal([1, 1, 1])
-    assert not cbook.allequal([1, 1, 0])
-    assert cbook.allequal([])
-    assert cbook.allequal(('a', 'a'))
-    assert not cbook.allequal(('a', 'b'))
-
-
 class Test_boxplot_stats(object):
     def setup(self):
         np.random.seed(937)
