@@ -169,7 +169,7 @@ if __name__ == '__main__':
     # If the user just queries for information, don't bother figuring out which
     # packages to build or install.
     if (any('--' + opt in sys.argv for opt in
-        Distribution.display_option_names + ['help']) or
+            Distribution.display_option_names + ['help']) or
             'clean' in sys.argv):
         setup_requires = []
     else:
