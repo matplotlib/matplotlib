@@ -318,8 +318,7 @@ _pdfops = dict(
     grestore=b'Q', textpos=b'Td', selectfont=b'Tf', textmatrix=b'Tm',
     show=b'Tj', showkern=b'TJ', setlinewidth=b'w', clip=b'W', shading=b'sh')
 
-Op = Bunch(**dict([(name, Operator(value))
-                   for name, value in six.iteritems(_pdfops)]))
+Op = Bunch(**{name: Operator(value) for name, value in six.iteritems(_pdfops)})
 
 
 def _paint_path(fill, stroke):
@@ -556,12 +555,13 @@ class PdfFile(object):
         self.endStream()
         # Write out the various deferred objects
         self.writeFonts()
-        self.writeObject(self.alphaStateObject,
-                         dict([(val[0], val[1])
-                               for val in six.itervalues(self.alphaStates)]))
+        self.writeObject(
+            self.alphaStateObject,
+            {val[0]: val[1] for val in six.itervalues(self.alphaStates)})
         self.writeHatches()
         self.writeGouraudTriangles()
-        xobjects = dict(x[1:] for x in six.itervalues(self._images))
+        xobjects = {
+            name: ob for image, name, ob in six.itervalues(self._images)}
         for tup in six.itervalues(self.markers):
             xobjects[tup[0]] = tup[1]
         for name, value in six.iteritems(self.multi_byte_charprocs):

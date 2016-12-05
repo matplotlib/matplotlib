@@ -732,7 +732,7 @@ class ScalarFormatter(Formatter):
         if not self._scientific:
             self.orderOfMagnitude = 0
             return
-        locs = np.absolute(self.locs)
+        locs = np.abs(self.locs)
         if self.offset:
             oom = math.floor(math.log10(range))
         else:
@@ -788,7 +788,7 @@ class ScalarFormatter(Formatter):
 
     def pprint_val(self, x):
         xp = (x - self.offset) / (10. ** self.orderOfMagnitude)
-        if np.absolute(xp) < 1e-8:
+        if np.abs(xp) < 1e-8:
             xp = 0
         if self._useLocale:
             return locale.format_string(self.format, (xp,))
@@ -952,7 +952,7 @@ class LogFormatter(Formatter):
 
         if numdec > self.minor_thresholds[0]:
             # Label only bases
-            self._sublabels = set((1,))
+            self._sublabels = {1}
         elif numdec > self.minor_thresholds[1]:
             # Add labels between bases at log-spaced coefficients;
             # include base powers in case the locations include
@@ -1535,7 +1535,7 @@ class FixedLocator(Locator):
         ticks = self.locs[::step]
         for i in range(1, step):
             ticks1 = self.locs[i::step]
-            if np.absolute(ticks1).min() < np.absolute(ticks).min():
+            if np.abs(ticks1).min() < np.abs(ticks).min():
                 ticks = ticks1
         return self.raise_if_exceeds(ticks)
 
@@ -1623,11 +1623,10 @@ class LinearLocator(Locator):
             vmax += 1
 
         if rcParams['axes.autolimit_mode'] == 'round_numbers':
-            exponent, remainder = _divmod(math.log10(vmax - vmin),
-                                         math.log10(max([self.numticks-1, 1])))
-            if remainder < 0.5:
-                exponent -= 1
-            scale = max([self.numticks-1, 1]) ** (-exponent)
+            exponent, remainder = _divmod(
+                math.log10(vmax - vmin), math.log10(max(self.numticks - 1, 1)))
+            exponent -= (remainder < .5)
+            scale = max(self.numticks - 1, 1) ** (-exponent)
             vmin = math.floor(scale * vmin) / scale
             vmax = math.ceil(scale * vmax) / scale
 

@@ -83,9 +83,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
     (i.e., a call to set_array has been made), at draw time a call to
     scalar mappable will be made to set the face colors.
     """
-    _offsets = np.array([], float)
-    # _offsets must be a Nx2 array!
-    _offsets.shape = (0, 2)
+    _offsets = np.zeros((0, 2))
     _transOffset = transforms.IdentityTransform()
     #: Either a list of 3x3 arrays or an Nx3x3 array of transforms, suitable
     #: for the `all_transforms` argument to
@@ -147,8 +145,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
         self._uniform_offsets = None
         self._offsets = np.array([[0, 0]], float)
         if offsets is not None:
-            offsets = np.asanyarray(offsets)
-            offsets.shape = (-1, 2)             # Make it Nx2
+            offsets = np.asanyarray(offsets).reshape((-1, 2))
             if transOffset is not None:
                 self._offsets = offsets
                 self._transOffset = transOffset
@@ -213,11 +210,10 @@ class Collection(artist.Artist, cm.ScalarMappable):
             offsets = transOffset.transform_non_affine(offsets)
             transOffset = transOffset.get_affine()
 
-        offsets = np.asanyarray(offsets, float)
+        offsets = np.asanyarray(offsets, float).reshape((-1, 2))
         if isinstance(offsets, np.ma.MaskedArray):
             offsets = offsets.filled(np.nan)
             # get_path_collection_extents handles nan but not masked arrays
-        offsets.shape = (-1, 2)                     # Make it Nx2
 
         if len(paths) and len(offsets):
             result = mpath.get_path_collection_extents(
@@ -255,8 +251,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
                 ys = self.convert_yunits(offsets[:, 1])
                 offsets = list(zip(xs, ys))
 
-        offsets = np.asanyarray(offsets, float)
-        offsets.shape = (-1, 2)             # Make it Nx2
+        offsets = np.asanyarray(offsets, float).reshape((-1, 2))
 
         if not transform.is_affine:
             paths = [transform.transform_path_non_affine(path)
@@ -436,8 +431,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
 
         ACCEPTS: float or sequence of floats
         """
-        offsets = np.asanyarray(offsets, float)
-        offsets.shape = (-1, 2)             # Make it Nx2
+        offsets = np.asanyarray(offsets, float).reshape((-1, 2))
         #This decision is based on how they are initialized above
         if self._uniform_offsets is None:
             self._offsets = offsets
@@ -1889,8 +1883,7 @@ class QuadMesh(Collection):
                 ys = self.convert_yunits(self._offsets[:, 1])
                 offsets = list(zip(xs, ys))
 
-        offsets = np.asarray(offsets, float)
-        offsets.shape = (-1, 2)                 # Make it Nx2
+        offsets = np.asarray(offsets, float).reshape((-1, 2))
 
         self.update_scalarmappable()
 

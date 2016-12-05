@@ -226,20 +226,8 @@ class ContourLabeler(object):
 
     def print_label(self, linecontour, labelwidth):
         "Return *False* if contours are too short for a label."
-        lcsize = len(linecontour)
-        if lcsize > 10 * labelwidth:
-            return True
-
-        xmax = np.amax(linecontour[:, 0])
-        xmin = np.amin(linecontour[:, 0])
-        ymax = np.amax(linecontour[:, 1])
-        ymin = np.amin(linecontour[:, 1])
-
-        lw = labelwidth
-        if (xmax - xmin) > 1.2 * lw or (ymax - ymin) > 1.2 * lw:
-            return True
-        else:
-            return False
+        return (len(linecontour) > 10 * labelwidth
+                or (np.ptp(linecontour, axis=0) > 1.2 * labelwidth).any())
 
     def too_close(self, x, y, lw):
         "Return *True* if a label is already near this location."
@@ -1056,8 +1044,8 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
         self.levels = args[0]
         self.allsegs = args[1]
         self.allkinds = len(args) > 2 and args[2] or None
-        self.zmax = np.amax(self.levels)
-        self.zmin = np.amin(self.levels)
+        self.zmax = np.max(self.levels)
+        self.zmin = np.min(self.levels)
         self._auto = False
 
         # Check lengths of levels and allsegs.
@@ -1180,7 +1168,7 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
         if self.filled and len(self.levels) < 2:
             raise ValueError("Filled contours require at least 2 levels.")
 
-        if len(self.levels) > 1 and np.amin(np.diff(self.levels)) <= 0.0:
+        if len(self.levels) > 1 and np.min(np.diff(self.levels)) <= 0.0:
             if hasattr(self, '_corner_mask') and self._corner_mask == 'legacy':
                 warnings.warn("Contour levels are not increasing")
             else:
@@ -1210,8 +1198,8 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
         with line contours.
         """
         # following are deprecated and will be removed in 2.2
-        self._vmin = np.amin(self.levels)
-        self._vmax = np.amax(self.levels)
+        self._vmin = np.min(self.levels)
+        self._vmax = np.max(self.levels)
 
         # Make a private _levels to include extended regions; we
         # want to leave the original levels attribute unchanged.

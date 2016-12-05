@@ -46,16 +46,13 @@ for mod in mods:
 
     print()
     funcs, docs = zip(*modd[mod])
-    maxfunc = max([len(f) for f in funcs])
-    maxdoc = max(40, max([len(d) for d in docs]) )
-    border = ' '.join(['='*maxfunc, '='*maxdoc])
+    maxfunc = max(len(f) for f in funcs)
+    maxdoc = max(40, max(len(d) for d in docs))
+    border = '=' * maxfunc + ' ' + '=' * maxdoc
     print(border)
-    print(' '.join(['symbol'.ljust(maxfunc), 'description'.ljust(maxdoc)]))
+    print('{:<{}} {:<{}}'.format('symbol', maxfunc, 'description', maxdoc))
     print(border)
     for func, doc in modd[mod]:
-        row = ' '.join([func.ljust(maxfunc), doc.ljust(maxfunc)])
-        print(row)
-
+        print('{:<{}} {:<{}}'.format(func, maxfunc, doc, maxdoc))
     print(border)
     print()
-    #break

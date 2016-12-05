@@ -74,7 +74,7 @@ class PlotPanel(wx.Panel):
         z = np.sin(self.x) + np.cos(self.y)
         self.im = a.imshow(z, cmap=cm.RdBu)  # , interpolation='nearest')
 
-        zmax = np.amax(z) - ERR_TOL
+        zmax = np.max(z) - ERR_TOL
         ymax_i, xmax_i = np.nonzero(z >= zmax)
         if self.im.origin == 'upper':
             ymax_i = z.shape[0] - ymax_i
@@ -93,7 +93,7 @@ class PlotPanel(wx.Panel):
         z = np.sin(self.x) + np.cos(self.y)
         self.im.set_array(z)
 
-        zmax = np.amax(z) - ERR_TOL
+        zmax = np.max(z) - ERR_TOL
         ymax_i, xmax_i = np.nonzero(z >= zmax)
         if self.im.origin == 'upper':
             ymax_i = z.shape[0] - ymax_i

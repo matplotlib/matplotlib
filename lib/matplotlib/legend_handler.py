@@ -551,7 +551,7 @@ class HandlerStem(HandlerNpointsYoffsets):
         for lm, m in zip(leg_stemlines, stemlines):
             self.update_prop(lm, m, legend)
 
-        leg_baseline = Line2D([np.amin(xdata), np.amax(xdata)],
+        leg_baseline = Line2D([np.min(xdata), np.max(xdata)],
                               [bottom, bottom])
 
         self.update_prop(leg_baseline, baseline, legend)

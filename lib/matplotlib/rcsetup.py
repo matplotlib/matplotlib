@@ -62,7 +62,7 @@ class ValidateInStrings(object):
                 return s.lower()
             else:
                 return s
-        self.valid = dict([(func(k), k) for k in valid])
+        self.valid = {func(k): k for k in valid}
 
     def __call__(self, s):
         if self.ignorecase:
@@ -679,9 +679,7 @@ def validate_hatch(s):
     """
     if not isinstance(s, six.string_types):
         raise ValueError("Hatch pattern must be a string")
-    unique_chars = set(s)
-    unknown = (unique_chars -
-                set(['\\', '/', '|', '-', '+', '*', '.', 'x', 'o', 'O']))
+    unknown = set(s) - {'\\', '/', '|', '-', '+', '*', '.', 'x', 'o', 'O'}
     if unknown:
         raise ValueError("Unknown hatch symbol(s): %s" % list(unknown))
     return s

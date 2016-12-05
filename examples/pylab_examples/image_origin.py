@@ -7,8 +7,7 @@ matplotlibrc file; see http://matplotlib.org/matplotlibrc
 import matplotlib.pyplot as plt
 import numpy as np
 
-x = np.arange(120)
-x.shape = (10, 12)
+x = np.arange(120).reshape((10, 12))
 
 interp = 'bilinear'
 fig, axs = plt.subplots(nrows=2, sharex=True, figsize=(3, 5))

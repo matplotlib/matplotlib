@@ -340,7 +340,7 @@ def test_LogFormatterSciNotation():
 
     for base in test_cases.keys():
         formatter = mticker.LogFormatterSciNotation(base=base)
-        formatter.sublabel = set([1, 2, 5, 1.2])
+        formatter.sublabel = {1, 2, 5, 1.2}
         for value, expected in test_cases[base]:
             with matplotlib.rc_context({'text.usetex': False}):
                 assert formatter(value) == expected

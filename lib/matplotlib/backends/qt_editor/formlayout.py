@@ -56,7 +56,7 @@ from matplotlib import colors as mcolors
 from matplotlib.backends.qt_compat import QtGui, QtWidgets, QtCore
 
 
-BLACKLIST = set(["title", "label"])
+BLACKLIST = {"title", "label"}
 
 
 class ColorButton(QtWidgets.QPushButton):

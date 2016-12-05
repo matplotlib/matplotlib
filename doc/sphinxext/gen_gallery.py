@@ -76,12 +76,10 @@ def gen_gallery(app, doctree):
     # images we want to skip for the gallery because they are an unusual
     # size that doesn't layout well in a table, or because they may be
     # redundant with other images or uninteresting
-    skips = set([
-        'mathtext_examples',
-        'matshow_02',
-        'matshow_03',
-        'matplotlib_icon',
-        ])
+    skips = {'mathtext_examples',
+             'matshow_02',
+             'matshow_03',
+             'matplotlib_icon'}
 
     thumbnails = {}
     rows = []

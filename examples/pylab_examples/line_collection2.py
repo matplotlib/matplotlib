@@ -13,8 +13,8 @@ ys = [x + i for i in x]
 
 # We need to set the plot limits, they will not autoscale
 ax = plt.axes()
-ax.set_xlim((np.amin(x), np.amax(x)))
-ax.set_ylim((np.amin(np.amin(ys)), np.amax(np.amax(ys))))
+ax.set_xlim(np.min(x), np.max(x))
+ax.set_ylim(np.min(ys), np.max(ys))
 
 # colors is sequence of rgba tuples
 # linestyle is a string or dash tuple. Legal string values are

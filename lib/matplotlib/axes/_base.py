@@ -263,7 +263,7 @@ class _process_plot_var_args(object):
         """
         prop_keys = self._prop_keys
         if ignore is None:
-            ignore = set([])
+            ignore = set()
         prop_keys = prop_keys - ignore
 
         if any(all(kw.get(k, None) is None for kw in kwargs)
@@ -309,8 +309,8 @@ class _process_plot_var_args(object):
         # *user* explicitly specifies a marker which should be an error.
         # We also want to prevent advancing the cycler if there are no
         # defaults needed after ignoring the given properties.
-        ignores = set(['marker', 'markersize', 'markeredgecolor',
-                       'markerfacecolor', 'markeredgewidth'])
+        ignores = {'marker', 'markersize', 'markeredgecolor',
+                   'markerfacecolor', 'markeredgewidth'}
         # Also ignore anything provided by *kwargs*.
         for k, v in six.iteritems(kwargs):
             if v is not None:
@@ -1346,8 +1346,8 @@ class _AxesBase(martist.Artist):
         xmin, xmax = self.get_xbound()
         ymin, ymax = self.get_ybound()
 
-        xsize = max(math.fabs(xmax - xmin), 1e-30)
-        ysize = max(math.fabs(ymax - ymin), 1e-30)
+        xsize = max(abs(xmax - xmin), 1e-30)
+        ysize = max(abs(ymax - ymin), 1e-30)
 
         return ysize / xsize
 
@@ -1359,8 +1359,8 @@ class _AxesBase(martist.Artist):
         xmin, xmax = self.get_xbound()
         ymin, ymax = self.get_ybound()
 
-        xsize = max(math.fabs(math.log10(xmax) - math.log10(xmin)), 1e-30)
-        ysize = max(math.fabs(math.log10(ymax) - math.log10(ymin)), 1e-30)
+        xsize = max(abs(math.log10(xmax) - math.log10(xmin)), 1e-30)
+        ysize = max(abs(math.log10(ymax) - math.log10(ymin)), 1e-30)
 
         return ysize / xsize
 
@@ -1432,8 +1432,8 @@ class _AxesBase(martist.Artist):
             xmin, xmax = math.log10(xmin), math.log10(xmax)
             ymin, ymax = math.log10(ymin), math.log10(ymax)
 
-        xsize = max(math.fabs(xmax - xmin), 1e-30)
-        ysize = max(math.fabs(ymax - ymin), 1e-30)
+        xsize = max(abs(xmax - xmin), 1e-30)
+        ysize = max(abs(ymax - ymin), 1e-30)
 
         l, b, w, h = position.bounds
         box_aspect = fig_aspect * (h / w)

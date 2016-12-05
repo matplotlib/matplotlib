@@ -37,11 +37,11 @@ def sankey(ax,
     import matplotlib.patches as mpatches
     from matplotlib.path import Path
 
-    outs = np.absolute(outputs)
+    outs = np.abs(outputs)
     outsigns = np.sign(outputs)
     outsigns[-1] = 0  # Last output
 
-    ins = np.absolute(inputs)
+    ins = np.abs(inputs)
     insigns = np.sign(inputs)
     insigns[0] = 0  # First input
 

@@ -36,11 +36,11 @@ STYLE_FILE_PATTERN = re.compile('([\S]+).%s$' % STYLE_EXTENSION)
 
 
 # A list of rcParams that should not be applied from styles
-STYLE_BLACKLIST = set([
+STYLE_BLACKLIST = {
     'interactive', 'backend', 'backend.qt4', 'webagg.port',
     'webagg.port_retries', 'webagg.open_in_browser', 'backend_fallback',
     'toolbar', 'timezone', 'datapath', 'figure.max_open_warning',
-    'savefig.directory', 'tk.window_focus', 'docstring.hardcopy'])
+    'savefig.directory', 'tk.window_focus', 'docstring.hardcopy'}
 
 
 def _remove_blacklisted_style_params(d, warn=True):
