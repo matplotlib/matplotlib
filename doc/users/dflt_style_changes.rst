@@ -432,7 +432,8 @@ obscuring data too much.
         old.boxplot(data, labels=['A', 'B', 'C', 'D'])
         old.set_title('classic')
 
-    new.set_ylim(bottom=0)
+    new.set_yscale('log')
+    old.set_yscale('log')
 
 The previous defaults can be restored by setting::
 
