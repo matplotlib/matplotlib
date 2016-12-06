@@ -422,17 +422,19 @@ obscuring data too much.
 
 .. plot::
 
+    np.random.seed(0)
     data = np.random.lognormal(size=(37, 4))
     fig, (old, new) = plt.subplots(ncols=2, sharey=True)
     with plt.style.context('default'):
         new.boxplot(data, labels=['A', 'B', 'C', 'D'])
         new.set_title('New boxplots')
+        new.set_yscale('log')
 
     with plt.style.context('classic'):
         old.boxplot(data, labels=['A', 'B', 'C', 'D'])
         old.set_title('Old boxplots')
+        old.set_yscale('log')
 
-    new.set_ylim(bottom=0)
 
 The previous defaults can be restored by setting::
 
