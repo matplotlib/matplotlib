@@ -551,7 +551,7 @@ default.  The default face color is now ``'C0'`` instead of ``'b'``.
 The previous defaults can be restored by setting::
 
     mpl.rcParams['patch.force_edgecolor'] = True
-    mpl.rcParams['patch.facecolor'] = True
+    mpl.rcParams['patch.facecolor'] = 'b'
 
 or by setting::
 
