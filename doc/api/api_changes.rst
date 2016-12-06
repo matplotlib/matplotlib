@@ -40,6 +40,12 @@ CocoaAgg backend removed
 ~~~~~~~~~~~~~~~~~~~~~~~~
 The deprecated and not fully functional CocoaAgg backend has been removed.
 
+`round` removed from TkAgg Backend
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+The TkAgg backend had its own implementation of the `round` function. This
+was unused internally and has been removed. Instead, use either the
+`round` builtin function or `numpy.round`.
+
 'hold' functionality deprecated
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 The 'hold' keyword argument and all functions and methods related
