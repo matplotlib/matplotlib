@@ -3995,10 +3995,11 @@ or tuple of floats
         else:
             colors = None  # use cmap, norm after collection is created
 
-        # s, c, colors, or edgecolors will be unchanged unless they are the
-        # same length as x:
-        maskargs = x, y, s, c, colors, edgecolors
-        x, y, s, c, colors, edgecolors = cbook.delete_masked_points(*maskargs)
+        # Anything in maskargs will be unchanged unless it is the same length
+        # as x:
+        maskargs = x, y, s, c, colors, edgecolors, linewidths
+        x, y, s, c, colors, edgecolors, linewidths =\
+            cbook.delete_masked_points(*maskargs)
 
         scales = s   # Renamed for readability below.
 
