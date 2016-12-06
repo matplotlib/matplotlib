@@ -4849,5 +4849,8 @@ def test_scatter_color_masking():
     y = np.array([1, np.nan, 3])
     colors = np.array(['k', 'w', 'k'])
     s = plt.scatter(x, y, color=colors)
+
     facecolors = s.get_facecolors()
+    linecolors = s.get_edgecolors()
     assert_array_equal(facecolors[1], np.array([0, 0, 0, 1]))
+    assert_array_equal(linecolors[1], np.array([0, 0, 0, 1]))
