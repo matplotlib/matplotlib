@@ -152,7 +152,7 @@ def _draw_list_compositing_images(
                     gc = renderer.new_gc()
                     gc.set_clip_rectangle(parent.bbox)
                     gc.set_clip_path(parent.get_clip_path())
-                    renderer.draw_image(gc, round(l), round(b), data)
+                    renderer.draw_image(gc, np.round(l), np.round(b), data)
                     gc.restore()
             del image_group[:]
 
