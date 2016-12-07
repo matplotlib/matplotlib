@@ -1941,6 +1941,7 @@ class _AxesBase(martist.Artist):
                                          updatex=updatex, updatey=updatey)
         self.ignore_existing_data_limits = False
 
+    @cbook.deprecated('2.0', alternative='update_datalim')
     def update_datalim_numerix(self, x, y):
         """
         Update the data lim bbox with seq of xy tups
