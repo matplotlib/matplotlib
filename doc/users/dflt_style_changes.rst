@@ -426,13 +426,14 @@ obscuring data too much.
     fig, (old, new) = plt.subplots(ncols=2, sharey=True)
     with plt.style.context('default'):
         new.boxplot(data, labels=['A', 'B', 'C', 'D'])
-        new.set_title('New boxplots')
+        new.set_title('v2.0')
 
     with plt.style.context('classic'):
         old.boxplot(data, labels=['A', 'B', 'C', 'D'])
-        old.set_title('Old boxplots')
+        old.set_title('classic')
 
-    new.set_ylim(bottom=0)
+    new.set_yscale('log')
+    old.set_yscale('log')
 
 The previous defaults can be restored by setting::
 
@@ -551,7 +552,7 @@ default.  The default face color is now ``'C0'`` instead of ``'b'``.
 The previous defaults can be restored by setting::
 
     mpl.rcParams['patch.force_edgecolor'] = True
-    mpl.rcParams['patch.facecolor'] = True
+    mpl.rcParams['patch.facecolor'] = 'b'
 
 or by setting::
 
@@ -1123,10 +1124,3 @@ mplot3d
   - grid.color
   - grid.linewidth
   - grid.linestyle
-
-
-
-TEMPORARY NOTES TOM IS KEEPING IN THE SOURCE SO THEY DO NOT GET LOST
-====================================================================
-
-- lines.color change, only hits raw usage of Line2D
