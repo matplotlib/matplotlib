@@ -68,6 +68,8 @@ def adjusted_figsize(w, h, dpi, n):
 
 # A registry for available MovieWriter classes
 class MovieWriterRegistry(object):
+    '''Registry of of available writer classes by human readable name
+    '''
     def __init__(self):
         self.avail = dict()
         self._registered = dict()
@@ -109,6 +111,15 @@ class MovieWriterRegistry(object):
         return list(self.avail.keys())
 
     def is_available(self, name):
+        '''If given writer is available
+
+        Parameters
+        ----------
+        name : str
+
+        Returns
+        available : bool
+        '''
         self.ensure_not_dirty()
         return name in self.avail
 
@@ -122,11 +133,36 @@ writers = MovieWriterRegistry()
 
 
 class MovieWriter(object):
-    '''
-    Base class for writing movies. Fundamentally, what a MovieWriter does
-    is provide is a way to grab frames by calling grab_frame(). setup()
-    is called to start the process and finish() is called afterwards.
-    This class is set up to provide for writing movie frame data to a pipe.
+    '''Base class for writing movies.
+
+    This class is set up to provide for writing movie frame data to a
+    pipe.  See examples for how to use these classes.
+
+    Attributes
+    ----------
+
+    frame_format : string
+        The format used in writing frame data, defaults to 'rgba'
+
+    fig : `~matplotlib.figure.Figure`
+        The figure to capture data from.
+        This must be provided by the sub-classes
+
+    Examples
+    --------
+
+    Fundamentally, what a MovieWriter does is provide is a way to grab
+    frames by calling grab_frame(). setup() is called to start the
+    process and finish() is called afterwards ::
+
+       moviewriter = MovieWriter(...)
+       moveiewriter.setup()
+       for j in range(n):
+           update_figure(n)
+           moviewriter.grab_frame()
+       moviewriter.finish()
+
+
     saving() is provided as a context manager to facilitate this process as::
 
       with moviewriter.saving('myfile.mp4'):
@@ -136,15 +172,13 @@ class MovieWriter(object):
     The use of the context manager ensures that setup and cleanup are
     performed as necessary.
 
-    frame_format: string
-        The format used in writing frame data, defaults to 'rgba'
     '''
 
     def __init__(self, fps=5, codec=None, bitrate=None, extra_args=None,
                  metadata=None):
         '''
-        Construct a new MovieWriter object.
-
+        Parameters
+        ----------
         fps: int
             Framerate for movie.
         codec: string or None, optional
@@ -210,11 +244,14 @@ class MovieWriter(object):
         '''
         Perform setup for writing the movie file.
 
-        fig: `matplotlib.Figure` instance
+        Parameters
+        ----------
+
+        fig : `matplotlib.Figure` instance
             The figure object that contains the information for frames
-        outfile: string
+        outfile : string
             The filename of the resulting movie file
-        dpi: int
+        dpi : int
             The DPI (or resolution) for the file.  This controls the size
             in pixels of the resulting movie file.
         '''
@@ -329,9 +366,30 @@ class MovieWriter(object):
 
 
 class FileMovieWriter(MovieWriter):
-    '`MovieWriter` subclass that handles writing to a file.'
+    '''`MovieWriter` for writing to individual files and stitching at the end
 
+    This must be sub-classed to be useful.
+    '''
     def __init__(self, *args, **kwargs):
+        '''
+        Parameters
+        ----------
+        fig : `matplotlib.Figure` instance
+            The figure object that contains the information for frames
+        outfile : string
+            The filename of the resulting movie file
+        dpi : int
+            The DPI (or resolution) for the file.  This controls the size
+            in pixels of the resulting movie file.
+        frame_prefix : string, optional
+            The filename prefix to use for the temporary files. Defaults
+            to '_tmp'
+        clear_temp : bool
+            Specifies whether the temporary files should be deleted after
+            the movie is written. (Useful for debugging.) Defaults to True.
+
+        '''
+
         MovieWriter.__init__(self, *args, **kwargs)
         self.frame_format = rcParams['animation.frame_format']
 
@@ -339,19 +397,6 @@ class FileMovieWriter(MovieWriter):
         '''
         Perform setup for writing the movie file.
 
-        fig: `matplotlib.Figure` instance
-            The figure object that contains the information for frames
-        outfile: string
-            The filename of the resulting movie file
-        dpi: int
-            The DPI (or resolution) for the file.  This controls the size
-            in pixels of the resulting movie file.
-        frame_prefix: string, optional
-            The filename prefix to use for the temporary files. Defaults
-            to '_tmp'
-        clear_temp: bool
-            Specifies whether the temporary files should be deleted after
-            the movie is written. (Useful for debugging.) Defaults to True.
         '''
         self.fig = fig
         self.outfile = outfile
@@ -463,6 +508,12 @@ class FileMovieWriter(MovieWriter):
 # Base class of ffmpeg information. Has the config keys and the common set
 # of arguments that controls the *output* side of things.
 class FFMpegBase(object):
+    '''Mixin class for FFMpeg output
+
+    To be useful this must be multiply-inherited from with a
+    `MoveWriterBase` sub-class.
+    '''
+
     exec_key = 'animation.ffmpeg_path'
     args_key = 'animation.ffmpeg_args'
 
@@ -490,6 +541,11 @@ class FFMpegBase(object):
 # Combine FFMpeg options with pipe-based writing
 @writers.register('ffmpeg')
 class FFMpegWriter(MovieWriter, FFMpegBase):
+    '''Pipe based ffmpeg writer.
+
+    Frames are streamed directly to ffmpeg via a pipe and written in a single
+    pass.
+    '''
     def _args(self):
         # Returns the command line parameters for subprocess to use
         # ffmpeg to create a movie using a pipe.
@@ -506,6 +562,12 @@ class FFMpegWriter(MovieWriter, FFMpegBase):
 # Combine FFMpeg options with temp file-based writing
 @writers.register('ffmpeg_file')
 class FFMpegFileWriter(FileMovieWriter, FFMpegBase):
+    '''File based ffmpeg writer
+
+    Frames are written to temporary files on disk and then stitched
+    together at the end.
+
+    '''
     supported_formats = ['png', 'jpeg', 'ppm', 'tiff', 'sgi', 'bmp',
                          'pbm', 'raw', 'rgba']
 
@@ -520,6 +582,12 @@ class FFMpegFileWriter(FileMovieWriter, FFMpegBase):
 # Base class of avconv information.  AVConv has identical arguments to
 # FFMpeg
 class AVConvBase(FFMpegBase):
+    '''Mixin class for avconv output
+
+    To be useful this must be multiply-inherited from with a
+    `MoveWriterBase` sub-class.
+    '''
+
     exec_key = 'animation.avconv_path'
     args_key = 'animation.avconv_args'
 
@@ -527,13 +595,22 @@ class AVConvBase(FFMpegBase):
 # Combine AVConv options with pipe-based writing
 @writers.register('avconv')
 class AVConvWriter(AVConvBase, FFMpegWriter):
-    pass
+    '''Pipe based avconv writer.
+
+    Frames are streamed directly to avconv via a pipe and written in a single
+    pass.
+    '''
 
 
 # Combine AVConv options with file-based writing
 @writers.register('avconv_file')
 class AVConvFileWriter(AVConvBase, FFMpegFileWriter):
-    pass
+    '''File based avconv writer
+
+    Frames are written to temporary files on disk and then stitched
+    together at the end.
+
+    '''
 
 
 # Base class of mencoder information. Contains configuration key information
@@ -616,6 +693,12 @@ class MencoderFileWriter(FileMovieWriter, MencoderBase):
 
 # Base class for animated GIFs with convert utility
 class ImageMagickBase(object):
+    '''Mixin class for ImageMagick output
+
+    To be useful this must be multiply-inherited from with a
+    `MoveWriterBase` sub-class.
+    '''
+
     exec_key = 'animation.convert_path'
     args_key = 'animation.convert_args'
 
@@ -667,6 +750,12 @@ ImageMagickBase._init_from_registry()
 # former.
 @writers.register('imagemagick')
 class ImageMagickWriter(ImageMagickBase, MovieWriter):
+    '''Pipe based animated gif
+
+    Frames are streamed directly to ImageMagick via a pipe and written
+    in a single pass.
+
+    '''
     def _args(self):
         return ([self.bin_path(),
                  '-size', '%ix%i' % self.frame_size, '-depth', '8',
@@ -681,6 +770,13 @@ class ImageMagickWriter(ImageMagickBase, MovieWriter):
 # former.
 @writers.register('imagemagick_file')
 class ImageMagickFileWriter(ImageMagickBase, FileMovieWriter):
+    '''File based animated gif writer
+
+    Frames are written to temporary files on disk and then stitched
+    together at the end.
+
+    '''
+
     supported_formats = ['png', 'jpeg', 'ppm', 'tiff', 'sgi', 'bmp',
                          'pbm', 'raw', 'rgba']
 
@@ -691,19 +787,34 @@ class ImageMagickFileWriter(ImageMagickBase, FileMovieWriter):
 
 
 class Animation(object):
-    '''
-    This class wraps the creation of an animation using matplotlib. It is
-    only a base class which should be subclassed to provide needed behavior.
+    '''This class wraps the creation of an animation using matplotlib.
 
-    *fig* is the figure object that is used to get draw, resize, and any
-    other needed events.
+    It is only a base class which should be subclassed to provide
+    needed behavior.
 
-    *event_source* is a class that can run a callback when desired events
-    are generated, as well as be stopped and started. Examples include timers
-    (see :class:`TimedAnimation`) and file system notifications.
+    This class is not typically used directly.
 
-    *blit* is a boolean that controls whether blitting is used to optimize
-    drawing.
+    Parameters
+    ----------
+    fig : matplotlib.figure.Figure
+       The figure object that is used to get draw, resize, and any
+       other needed events.
+
+    event_source : object, optional
+       A class that can run a callback when desired events
+       are generated, as well as be stopped and started.
+
+       Examples include timers (see :class:`TimedAnimation`) and file
+       system notifications.
+
+    blit : bool, optional
+       controls whether blitting is used to optimize drawing.  Defaults
+       to `False`.
+
+    See Also
+    --------
+    FuncAnimation,  ArtistAnimation
+
     '''
     def __init__(self, fig, event_source=None, blit=False):
         self._fig = fig
@@ -758,55 +869,72 @@ class Animation(object):
     def save(self, filename, writer=None, fps=None, dpi=None, codec=None,
              bitrate=None, extra_args=None, metadata=None, extra_anim=None,
              savefig_kwargs=None):
-        '''
-        Saves a movie file by drawing every frame.
+        '''Saves a movie file by drawing every frame.
 
-        *filename* is the output filename, e.g., :file:`mymovie.mp4`
+        Parameters
+        ----------
 
-        *writer* is either an instance of :class:`MovieWriter` or a string
-        key that identifies a class to use, such as 'ffmpeg' or 'mencoder'.
-        If nothing is passed, the value of the rcparam `animation.writer` is
-        used.
+        filename : str
+            the output filename, e.g., :file:`mymovie.mp4`
 
-        *dpi* controls the dots per inch for the movie frames. This combined
-        with the figure's size in inches controls the size of the movie.
+        writer : :class:`MovieWriter` or str, optional
+            A `MovieWriter` instance to use or a key that identifies a
+            class to use, such as 'ffmpeg' or 'mencoder'. If `None`,
+            defaults to ``rcParams['animation.writer']``
 
-        *savefig_kwargs* is a dictionary containing keyword arguments to be
-        passed on to the 'savefig' command which is called repeatedly to save
-        the individual frames. This can be used to set tight bounding boxes,
-        for example.
+        fps : number, optional
+           frames per second in the movie. Defaults to None,
+           which will use the animation's specified interval to set
+           the frames per second.
 
-        *extra_anim* is a list of additional `Animation` objects that should
-        be included in the saved movie file. These need to be from the same
-        `matplotlib.Figure` instance. Also, animation frames will just be
-        simply combined, so there should be a 1:1 correspondence between
-        the frames from the different animations.
+        dpi : number, optional
+           controls the dots per inch for the movie frames. This
+           combined with the figure's size in inches controls the size of
+           the movie.  If None, defaults to ``rcparam['savefig.dpi']``
 
-        These remaining arguments are used to construct a :class:`MovieWriter`
-        instance when necessary and are only considered valid if *writer* is
-        not a :class:`MovieWriter` instance.
+        codec : str, optional
+           the video codec to be used. Not all codecs are supported by
+           a given :class:`MovieWriter`. If `None`,
+           default to  ``rcParams['animation.codec']``
 
-        *fps* is the frames per second in the movie. Defaults to None,
-        which will use the animation's specified interval to set the frames
-        per second.
+        bitrate : number, optional
+           specifies the amount of bits used per second in the
+           compressed movie, in kilobits per second. A higher number
+           means a higher quality movie, but at the cost of increased
+           file size. If `None`, defaults to
+           ``rcParam['animation.bitrate']``
 
-        *codec* is the video codec to be used. Not all codecs are supported
-        by a given :class:`MovieWriter`. If none is given, this defaults to the
-        value specified by the rcparam `animation.codec`.
+        extra_args : list, optional
+           list of extra string arguments to be passed to the
+           underlying movie utility. If `None`, defaults to
+           ``rcParams['animation.extra_args']``
 
-        *bitrate* specifies the amount of bits used per second in the
-        compressed movie, in kilobits per second. A higher number means a
-        higher quality movie, but at the cost of increased file size. If no
-        value is given, this defaults to the value given by the rcparam
-        `animation.bitrate`.
+        metadata : dict, optional
+           dictionary of keys and values for metadata to include in
+           the output file. Some keys that may be of use include:
+           title, artist, genre, subject, copyright, srcform, comment.
 
-        *extra_args* is a list of extra string arguments to be passed to the
-        underlying movie utility. The default is None, which passes the
-        additional arguments in the 'animation.extra_args' rcParam.
+        extra_anim : list, optional
+           additional `Animation` objects that should be included in
+           the saved movie file. These need to be from the same
+           `matplotlib.Figure` instance. Also, animation frames will
+           just be simply combined, so there should be a 1:1
+           correspondence between the frames from the different
+           animations.
 
-        *metadata* is a dictionary of keys and values for metadata to include
-        in the output file. Some keys that may be of use include:
-        title, artist, genre, subject, copyright, srcform, comment.
+        savefig_kwargs : dict, optional
+           is a dictionary containing keyword arguments to be passed
+           on to the 'savefig' command which is called repeatedly to
+           save the individual frames.
+
+        Notes
+        -----
+        fps, codec, bitrate, extra_args, metadata are used are used to
+        construct a :class:`MovieWriter` instance and can only be
+        passed if `writer` is a string.  If they are pass as
+        non-`None` and ``writer`` is a :class:`MovieWriter`, a
+        `RuntimeError` will be raised.
+
         '''
         # If the writer is None, use the rc param to find the name of the one
         # to use
@@ -1081,15 +1209,31 @@ class Animation(object):
 
 
 class TimedAnimation(Animation):
-    '''
-    :class:`Animation` subclass that supports time-based animation, drawing
-    a new frame every *interval* milliseconds.
+    ''':class:`Animation` subclass for time-based animation
 
-    *repeat* controls whether the animation should repeat when the sequence
-    of frames is completed.
+    A new frame is drawn every *interval* milliseconds.
 
-    *repeat_delay* optionally adds a delay in milliseconds before repeating
-    the animation.
+    Parameters
+    ----------
+    fig : matplotlib.figure.Figure
+       The figure object that is used to get draw, resize, and any
+       other needed events.
+
+    interval : number, optional
+       Delay between frames.  Defaults to 200
+
+    repeat_delay : number, optional
+        If the animation in repeated, adds a delay in milliseconds
+        before repeating the animation.  Defaults to None
+
+    repeat: bool, optional
+        controls whether the animation should repeat when the sequence
+        of frames is completed.
+
+    blit : bool, optional
+       controls whether blitting is used to optimize drawing.  Defaults
+       to `False`.
+
     '''
     def __init__(self, fig, interval=200, repeat_delay=None, repeat=True,
                  event_source=None, *args, **kwargs):
@@ -1147,13 +1291,38 @@ class TimedAnimation(Animation):
 
 
 class ArtistAnimation(TimedAnimation):
-    '''
-    Before calling this function, all plotting should have taken place
+    '''Animation using a fixed set of `Artist` objects.
+
+    Before creating an instance, all plotting should have taken place
     and the relevant artists saved.
 
-    *artists* is a list, with each list entry a collection of artists that
-    represent what needs to be enabled on each frame. These will be disabled
-    for other frames.
+
+    Parameters
+    ----------
+    fig : matplotlib.figure.Figure
+       The figure object that is used to get draw, resize, and any
+       other needed events.
+
+    artists : list
+        with each list entry a collection of artists that
+        represent what needs to be enabled on each frame. These will
+        be disabled for other frames.
+
+    interval : number, optional
+       Delay between frames.  Defaults to 200
+
+    repeat_delay : number, optional
+        If the animation in repeated, adds a delay in milliseconds
+        before repeating the animation.  Defaults to None
+
+    repeat: bool, optional
+        controls whether the animation should repeat when the sequence
+        of frames is completed.
+
+    blit : bool, optional
+       controls whether blitting is used to optimize drawing.  Defaults
+       to `False`.
+
     '''
     def __init__(self, fig, artists, *args, **kwargs):
         # Internal list of artists drawn in the most recent frame.
@@ -1202,25 +1371,75 @@ class ArtistAnimation(TimedAnimation):
 
 
 class FuncAnimation(TimedAnimation):
-    '''
-    Makes an animation by repeatedly calling a function *func*, passing in
-    (optional) arguments in *fargs*.
+    '''Makes an animation by repeatedly calling a function ``func``
 
-    *frames* can be a generator, an iterable, or a number of frames.
 
-    *init_func* is a function used to draw a clear frame. If not given, the
-    results of drawing from the first item in the frames sequence will be
-    used. This function will be called once before the first frame.
+    Parameters
+    ----------
+    fig : matplotlib.figure.Figure
+       The figure object that is used to get draw, resize, and any
+       other needed events.
 
-    If blit=True, *func* and *init_func* must return an iterable of
-    artists to be re-drawn.
+    func : callable
 
-    *kwargs* include *repeat*, *repeat_delay*, and *interval*:
-    *interval* draws a new frame every *interval* milliseconds.
-    *repeat* controls whether the animation should repeat when the sequence
-    of frames is completed.
-    *repeat_delay* optionally adds a delay in milliseconds before repeating
-    the animation.
+       The function to call at each frame.  The first argument will
+       be the next value in ``frames``.   Any additional positional
+       arguments can be supplied via the ``fargs`` parameter.
+
+       The required signature is ::
+
+          def func(fr: object, *fargs) -> iterable_of_artists:
+
+
+    frames : iterable, int, generator function, or None, optional
+        Source of data to pass ``func`` and each frame of the animation
+
+        If an iterable, then simply use the values provided.  If the
+        iterable has a length, it will override the ``save_count`` kwarg.
+
+        If an integer, equivalent to passing ``range(frames)``
+
+        If a generator function, then must have the signature ::
+
+           def gen_function():
+
+        If `None`, then equivalent to passing ``itertools.count``
+
+    init_func : callable, optional
+
+       a function used to draw a clear frame. If not given, the
+       results of drawing from the first item in the frames sequence
+       will be used. This function will be called once before the
+       first frame.
+
+       If blit=True, ``init_func`` must return an iterable of artists
+       to be re-drawn.
+
+       The required signature is ::
+
+          def init_func() -> iterable_of_artists:
+
+    fargs : tuple or None, optional
+       Additional arguments to pass to each call to ``func``
+
+    save_count : int, optional
+       The number of values from `frames` to cache.
+
+    interval : number, optional
+       Delay between frames.  Defaults to 200
+
+    repeat_delay : number, optional
+       If the animation in repeated, adds a delay in milliseconds
+       before repeating the animation.  Defaults to None
+
+    repeat: bool, optional
+       controls whether the animation should repeat when the sequence
+       of frames is completed.
+
+    blit : bool, optional
+       controls whether blitting is used to optimize drawing.  Defaults
+       to `False`.
+
     '''
     def __init__(self, fig, func, frames=None, init_func=None, fargs=None,
                  save_count=None, **kwargs):
