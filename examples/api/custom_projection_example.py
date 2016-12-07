@@ -297,7 +297,7 @@ class GeoAxes(Axes):
         class -- it provides a more convenient interface to set the
         ticking than set_xticks would.
         """
-        number = (360.0 / degrees) + 1
+        number = int(360 / degrees) + 1
         self.xaxis.set_major_locator(
             FixedLocator(
                 np.linspace(-np.pi, np.pi, number, True)[1:-1]))
@@ -311,7 +311,7 @@ class GeoAxes(Axes):
         class -- it provides a more convenient interface than
         set_yticks would.
         """
-        number = (180.0 / degrees) + 1
+        number = int(180 / degrees) + 1
         self.yaxis.set_major_locator(
             FixedLocator(
                 np.linspace(-np.pi / 2.0, np.pi / 2.0, number, True)[1:-1]))
