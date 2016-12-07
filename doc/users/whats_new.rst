@@ -73,7 +73,7 @@ New rcparams added
 +---------------------------------+--------------------------------------------------+
 |`xtick.top`, `xtick.minor.top`,  | Control where major and minor ticks are drawn.   |
 |`xtick.major.top`                | The global values are `and` ed with the          |
-|`xtick.bottom`,                  | corosponding major/minor values.                 |
+|`xtick.bottom`,                  | corresponding major/minor values.                |
 |`xtick.minor.bottom`,            |                                                  |
 |`xtick.major.bottom`             |                                                  |
 |`ytick.left`, `ytick.minor.left`,|                                                  |
