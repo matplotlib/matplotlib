@@ -166,97 +166,97 @@ if __name__ == '__main__':
     setup_requires = []
     default_backend = None
 
-    # Go through all of the packages and figure out which ones we are
-    # going to build/install.
-    print_line()
-    print_raw("Edit setup.cfg to change the build options")
-
-    required_failed = []
-    good_packages = []
-    for package in mpl_packages:
-        if isinstance(package, str):
-            print_raw('')
-            print_raw(package.upper())
-        else:
-            try:
-                result = package.check()
-                if result is not None:
-                    message = 'yes [%s]' % result
-                    print_status(package.name, message)
-            except setupext.CheckFailed as e:
-                msg = str(e).strip()
-                if len(msg):
-                    print_status(package.name, 'no  [%s]' % msg)
-                else:
-                    print_status(package.name, 'no')
-                if not package.optional:
-                    required_failed.append(package)
-            else:
-                good_packages.append(package)
-                if (isinstance(package, setupext.OptionalBackendPackage) and
-                        package.runtime_check() and
-                        default_backend is None):
-                    default_backend = package.name
-    print_raw('')
-
-    # Abort if any of the required packages can not be built.
-    if required_failed:
+    # If the user just queries for information, don't bother figuring out which
+    # packages to build or install.
+    if (any('--' + opt in sys.argv for opt in
+            Distribution.display_option_names + ['help']) or
+            'clean' in sys.argv):
+        setup_requires = []
+    else:
+        # Go through all of the packages and figure out which ones we are
+        # going to build/install.
         print_line()
-        message = ("The following required packages can not "
-                   "be built: %s" %
-                   ", ".join(x.name for x in required_failed))
-        for pkg in required_failed:
-            pkg_help = pkg.install_help_msg()
-            if pkg_help:
-                message += "\n* " + pkg_help
-        print_message(message)
-        sys.exit(1)
+        print_raw("Edit setup.cfg to change the build options")
 
-    # Now collect all of the information we need to build all of the
-    # packages.
-    for package in good_packages:
-        packages.extend(package.get_packages())
-        namespace_packages.extend(package.get_namespace_packages())
-        py_modules.extend(package.get_py_modules())
-        ext = package.get_extension()
-        if ext is not None:
-            ext_modules.append(ext)
-        data = package.get_package_data()
-        for key, val in data.items():
-            package_data.setdefault(key, [])
-            package_data[key] = list(set(val + package_data[key]))
-        install_requires.extend(package.get_install_requires())
-        setup_requires.extend(package.get_setup_requires())
+        required_failed = []
+        good_packages = []
+        for package in mpl_packages:
+            if isinstance(package, str):
+                print_raw('')
+                print_raw(package.upper())
+            else:
+                try:
+                    result = package.check()
+                    if result is not None:
+                        message = 'yes [%s]' % result
+                        print_status(package.name, message)
+                except setupext.CheckFailed as e:
+                    msg = str(e).strip()
+                    if len(msg):
+                        print_status(package.name, 'no  [%s]' % msg)
+                    else:
+                        print_status(package.name, 'no')
+                    if not package.optional:
+                        required_failed.append(package)
+                else:
+                    good_packages.append(package)
+                    if (isinstance(package, setupext.OptionalBackendPackage) and
+                            package.runtime_check() and
+                            default_backend is None):
+                        default_backend = package.name
+        print_raw('')
 
-    # Write the default matplotlibrc file
-    if default_backend is None:
-        default_backend = 'svg'
-    if setupext.options['backend']:
-        default_backend = setupext.options['backend']
-    with open('matplotlibrc.template') as fd:
-        template = fd.read()
-    template = Template(template)
-    with open('lib/matplotlib/mpl-data/matplotlibrc', 'w') as fd:
-        fd.write(template.safe_substitute(TEMPLATE_BACKEND=default_backend))
+        # Abort if any of the required packages can not be built.
+        if required_failed:
+            print_line()
+            message = ("The following required packages can not "
+                       "be built: %s" %
+                       ", ".join(x.name for x in required_failed))
+            for pkg in required_failed:
+                pkg_help = pkg.install_help_msg()
+                if pkg_help:
+                    message += "\n* " + pkg_help
+            print_message(message)
+            sys.exit(1)
 
-    # Build in verbose mode if requested
-    if setupext.options['verbose']:
+        # Now collect all of the information we need to build all of the
+        # packages.
+        for package in good_packages:
+            packages.extend(package.get_packages())
+            namespace_packages.extend(package.get_namespace_packages())
+            py_modules.extend(package.get_py_modules())
+            ext = package.get_extension()
+            if ext is not None:
+                ext_modules.append(ext)
+            data = package.get_package_data()
+            for key, val in data.items():
+                package_data.setdefault(key, [])
+                package_data[key] = list(set(val + package_data[key]))
+            install_requires.extend(package.get_install_requires())
+            setup_requires.extend(package.get_setup_requires())
+
+        # Write the default matplotlibrc file
+        if default_backend is None:
+            default_backend = 'svg'
+        if setupext.options['backend']:
+            default_backend = setupext.options['backend']
+        with open('matplotlibrc.template') as fd:
+            template = fd.read()
+        template = Template(template)
+        with open('lib/matplotlib/mpl-data/matplotlibrc', 'w') as fd:
+            fd.write(template.safe_substitute(TEMPLATE_BACKEND=default_backend))
+
+        # Build in verbose mode if requested
+        if setupext.options['verbose']:
+            for mod in ext_modules:
+                mod.extra_compile_args.append('-DVERBOSE')
+
+        # Finalize the extension modules so they can get the Numpy include
+        # dirs
         for mod in ext_modules:
-            mod.extra_compile_args.append('-DVERBOSE')
-
-    # Finalize the extension modules so they can get the Numpy include
-    # dirs
-    for mod in ext_modules:
-        mod.finalize()
+            mod.finalize()
 
     extra_args = {}
-
-    # Avoid installing setup_requires dependencies if the user just
-    # queries for information
-    if (any('--' + opt in sys.argv for opt in
-           Distribution.display_option_names + ['help']) or
-        'clean' in sys.argv):
-        setup_requires = []
 
     # Finally, pass this all along to distutils to do the heavy lifting.
     distrib = setup(
