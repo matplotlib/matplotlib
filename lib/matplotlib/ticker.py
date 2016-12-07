@@ -1685,6 +1685,33 @@ class MaxNLocator(Locator):
         self.set_params(**self.default_params)
         self.set_params(**kwargs)
 
+    @staticmethod
+    def _validate_steps(steps):
+        if not np.iterable(steps):
+            raise ValueError('steps argument must be a sequence of numbers '
+                             'from 1 to 10')
+        steps = np.asarray(steps)
+        if np.any(np.diff(steps) <= 0):
+            raise ValueError('steps argument must be uniformly increasing')
+        if np.any((steps > 10) | (steps < 1)):
+            warnings.warn('Steps argument should be a sequence of numbers\n'
+                          'increasing from 1 to 10, inclusive. Behavior with\n'
+                          'values outside this range is undefined, and will\n'
+                          'raise a ValueError in future versions of mpl.')
+        if steps[0] != 1:
+            steps = np.hstack((1, steps))
+        if steps[-1] != 10:
+            steps = np.hstack((steps, 10))
+        return steps
+
+    @staticmethod
+    def _staircase(steps):
+        # Make an extended staircase within which the needed
+        # step will be found.  This is probably much larger
+        # than necessary.
+        flights = (0.1 * steps[:-1], steps, 10 * steps[1])
+        return np.hstack(flights)
+
     def set_params(self, **kwargs):
         """Set parameters within this locator."""
         if 'nbins' in kwargs:
@@ -1706,23 +1733,16 @@ class MaxNLocator(Locator):
         if 'steps' in kwargs:
             steps = kwargs['steps']
             if steps is None:
-                self._steps = [1, 1.5, 2, 2.5, 3, 4, 5, 6, 8, 10]
+                self._steps = np.array([1, 1.5, 2, 2.5, 3, 4, 5, 6, 8, 10])
             else:
-                if int(steps[-1]) != 10:
-                    steps = list(steps)
-                    steps.append(10)
-                self._steps = steps
-            # Make an extended staircase within which the needed
-            # step will be found.  This is probably much larger
-            # than necessary.
-            flights = (0.1 * np.array(self._steps[:-1]),
-                       self._steps,
-                       [10 * self._steps[1]])
-            self._extended_steps = np.hstack(flights)
+                self._steps = self._validate_steps(steps)
+            self._extended_steps = self._staircase(self._steps)
         if 'integer' in kwargs:
             self._integer = kwargs['integer']
         if self._integer:
-            self._steps = [n for n in self._steps if _divmod(n, 1)[1] < 0.001]
+            self._steps = np.array([n for n in self._steps
+                                    if _divmod(n, 1)[1] < 0.001])
+            self._extended_steps = self._staircase(self._steps)
         if 'min_n_ticks' in kwargs:
             self._min_n_ticks = max(1, kwargs['min_n_ticks'])
 
