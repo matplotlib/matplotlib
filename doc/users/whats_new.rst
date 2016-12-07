@@ -53,7 +53,7 @@ New rcparams added
 +---------------------------------+--------------------------------------------------+
 | Parameter                       | Description                                      |
 +=================================+==================================================+
-|`date.autoformatter.year`        | foramt string for 'year' scale dates             |
+|`date.autoformatter.year`        | format string for 'year' scale dates             |
 +---------------------------------+--------------------------------------------------+
 |`date.autoformatter.month`       | format string for 'month' scale dates            |
 +---------------------------------+--------------------------------------------------+
