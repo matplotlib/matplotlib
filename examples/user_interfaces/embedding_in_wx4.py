@@ -37,11 +37,11 @@ class MyNavigationToolbar(NavigationToolbar2WxAgg):
         # probably want to add your own.
         if 'phoenix' in wx.PlatformInfo:
             self.AddTool(self.ON_CUSTOM, 'Click me',
-                         _load_bitmap('stock_left.xpm'),
+                         _load_bitmap('back.png'),
                          'Activate custom contol')
             self.Bind(wx.EVT_TOOL, self._on_custom, id=self.ON_CUSTOM)
         else:
-            self.AddSimpleTool(self.ON_CUSTOM, _load_bitmap('stock_left.xpm'),
+            self.AddSimpleTool(self.ON_CUSTOM, _load_bitmap('back.png'),
                                'Click me', 'Activate custom contol')
             self.Bind(wx.EVT_TOOL, self._on_custom, id=self.ON_CUSTOM)
 
