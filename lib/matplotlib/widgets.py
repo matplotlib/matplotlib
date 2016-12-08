@@ -879,7 +879,7 @@ class TextBox(AxesWidget):
         if self.ignore(event):
             return
         if event.inaxes != self.ax:
-             self.stop_typing()
+            self.stop_typing()
             return
         if not self.eventson:
             return
