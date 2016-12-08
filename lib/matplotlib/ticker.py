@@ -837,7 +837,12 @@ class LogFormatter(Formatter):
     major and minor ticks; the tick locations might be set manually,
     or by a locator that puts ticks at integer powers of base and
     at intermediate locations.  For this situation, disable the
-    minor_thresholds logic by using ``minor_thresholds=(np.inf, np.inf)``.
+    minor_thresholds logic by using ``minor_thresholds=(np.inf, np.inf)``,
+    so that all ticks will be labeled.
+
+    To disable labeling of minor ticks when 'labelOnlyBase' is False,
+    use ``minor_thresholds=(0, 0)``.  This is the default for the
+    "classic" style.
 
     Examples
     --------
@@ -848,14 +853,18 @@ class LogFormatter(Formatter):
     To label all minor ticks when the view limits span up to 1.5
     decades, use ``minor_thresholds=(1.5, 1.5)``.
 
-
     """
     def __init__(self, base=10.0, labelOnlyBase=False,
-                 minor_thresholds=(1, 0.4),
+                 minor_thresholds=None,
                  linthresh=None):
 
         self._base = float(base)
         self.labelOnlyBase = labelOnlyBase
+        if minor_thresholds is None:
+            if rcParams['_internal.classic_mode']:
+                minor_thresholds = (0, 0)
+            else:
+                minor_thresholds = (1, 0.4)
         self.minor_thresholds = minor_thresholds
         self._sublabels = None
         self._linthresh = linthresh
@@ -896,7 +905,6 @@ class LogFormatter(Formatter):
         b = self._base
 
         vmin, vmax = self.axis.get_view_interval()
-        self.d = abs(vmax - vmin)
 
         # Handle symlog case:
         linthresh = self._linthresh
@@ -937,6 +945,9 @@ class LogFormatter(Formatter):
         """
         Return the format for tick val `x`.
         """
+        vmin, vmax = self.axis.get_view_interval()
+        vmin, vmax = mtransforms.nonsingular(vmin, vmax, expander=0.05)
+        d = abs(vmax - vmin)
         b = self._base
         if x == 0.0:
             return '0'
@@ -957,7 +968,7 @@ class LogFormatter(Formatter):
         elif x < 1:
             s = '%1.0e' % x
         else:
-            s = self.pprint_val(x, self.d)
+            s = self.pprint_val(x, d)
         if sign == -1:
             s = '-%s' % s
 
