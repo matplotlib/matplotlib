@@ -1693,7 +1693,7 @@ class MaxNLocator(Locator):
         steps = np.asarray(steps)
         if np.any(np.diff(steps) <= 0):
             raise ValueError('steps argument must be uniformly increasing')
-        if np.any((steps > 10) | (steps < 1)):
+        if steps[-1] > 10 or steps[0] < 1:
             warnings.warn('Steps argument should be a sequence of numbers\n'
                           'increasing from 1 to 10, inclusive. Behavior with\n'
                           'values outside this range is undefined, and will\n'
