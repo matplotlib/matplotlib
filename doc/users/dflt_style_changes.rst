@@ -968,6 +968,11 @@ or create a new `~matplotlib.ticker.MaxNLocator`::
   import matplotlib.ticker as mticker
   ax.set_major_locator(mticker.MaxNLocator(nbins=9, steps=[1, 2, 5, 10])
 
+The algorithm used by `~matplotlib.ticker.MaxNLocator` has been
+improved, and this may change the choice of tick locations in some
+cases.  This also affects `~matplotlib.ticker.AutoLocator`, which
+uses ``MaxNLocator`` internally.
+
 For a log-scaled axis the default locator is the
 `~matplotlib.ticker.LogLocator`.  Previously the maximum number
 of ticks was set to 15, and could not be changed. Now there is a
