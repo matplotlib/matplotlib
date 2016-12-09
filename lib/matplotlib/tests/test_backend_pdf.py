@@ -12,6 +12,8 @@ import numpy as np
 from matplotlib import cm, rcParams
 from matplotlib.backends.backend_pdf import PdfPages
 from matplotlib import pyplot as plt
+from matplotlib.testing.determinism import (_determinism_source_date_epoch,
+                                            _determinism_check)
 from matplotlib.testing.decorators import (image_comparison, knownfailureif,
                                            cleanup)
 
@@ -98,8 +100,8 @@ def test_multipage_keep_empty():
 
 @cleanup
 def test_composite_image():
-    #Test that figures can be saved with and without combining multiple images
-    #(on a single set of axes) into a single composite image.
+    # Test that figures can be saved with and without combining multiple images
+    # (on a single set of axes) into a single composite image.
     X, Y = np.meshgrid(np.arange(-5, 5, 1), np.arange(-5, 5, 1))
     Z = np.sin(Y ** 2)
     fig = plt.figure()
@@ -115,6 +117,42 @@ def test_composite_image():
     with PdfPages(io.BytesIO()) as pdf:
         fig.savefig(pdf, format="pdf")
         assert len(pdf._file._images.keys()) == 2
+
+
+@cleanup
+def test_source_date_epoch():
+    """Test SOURCE_DATE_EPOCH support for PDF output"""
+    _determinism_source_date_epoch("pdf", b"/CreationDate (D:20000101000000Z)")
+
+
+@cleanup
+def test_determinism_plain():
+    """Test for reproducible PDF output: simple figure"""
+    _determinism_check('', format="pdf")
+
+
+@cleanup
+def test_determinism_images():
+    """Test for reproducible PDF output: figure with different images"""
+    _determinism_check('i', format="pdf")
+
+
+@cleanup
+def test_determinism_hatches():
+    """Test for reproducible PDF output: figure with different hatches"""
+    _determinism_check('h', format="pdf")
+
+
+@cleanup
+def test_determinism_markers():
+    """Test for reproducible PDF output: figure with different markers"""
+    _determinism_check('m', format="pdf")
+
+
+@cleanup
+def test_determinism_all():
+    """Test for reproducible PDF output"""
+    _determinism_check(format="pdf")
 
 
 @image_comparison(baseline_images=['hatching_legend'],
