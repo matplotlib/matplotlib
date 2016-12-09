@@ -8,7 +8,7 @@ from __future__ import (absolute_import, division, print_function,
 import six
 from six.moves import StringIO
 
-import glob, math, os, shutil, sys, time
+import glob, math, os, shutil, sys, time, datetime
 def _fn_name(): return sys._getframe(1).f_code.co_name
 import io
 
@@ -1083,7 +1083,15 @@ class FigureCanvasPS(FigureCanvasBase):
             if title: print("%%Title: "+title, file=fh)
             print(("%%Creator: matplotlib version "
                          +__version__+", http://matplotlib.org/"), file=fh)
-            print("%%CreationDate: "+time.ctime(time.time()), file=fh)
+            # get source date from SOURCE_DATE_EPOCH, if set
+            # See https://reproducible-builds.org/specs/source-date-epoch/
+            source_date_epoch = os.getenv("SOURCE_DATE_EPOCH")
+            if source_date_epoch:
+                source_date = datetime.datetime.utcfromtimestamp(
+                    int(source_date_epoch) ).strftime("%a %b %d %H:%M:%S %Y")
+            else:
+                source_date = time.ctime()
+            print("%%CreationDate: "+source_date, file=fh)
             print("%%Orientation: " + orientation, file=fh)
             if not isEPSF: print("%%DocumentPaperSizes: "+papertype, file=fh)
             print("%%%%BoundingBox: %d %d %d %d" % bbox, file=fh)
@@ -1266,7 +1274,15 @@ class FigureCanvasPS(FigureCanvasBase):
             if title: print("%%Title: "+title, file=fh)
             print(("%%Creator: matplotlib version "
                          +__version__+", http://matplotlib.org/"), file=fh)
-            print("%%CreationDate: "+time.ctime(time.time()), file=fh)
+            # get source date from SOURCE_DATE_EPOCH, if set
+            # See https://reproducible-builds.org/specs/source-date-epoch/
+            source_date_epoch = os.getenv("SOURCE_DATE_EPOCH")
+            if source_date_epoch:
+                source_date = datetime.datetime.utcfromtimestamp(
+                    int(source_date_epoch) ).strftime("%a %b %d %H:%M:%S %Y")
+            else:
+                source_date = time.ctime()
+            print("%%CreationDate: "+source_date, file=fh)
             print("%%%%BoundingBox: %d %d %d %d" % bbox, file=fh)
             print("%%EndComments", file=fh)
 

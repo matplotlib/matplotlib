@@ -11,6 +11,8 @@ import six
 import matplotlib
 import matplotlib.pyplot as plt
 from matplotlib import patheffects
+from matplotlib.testing.determinism import (_determinism_source_date_epoch,
+                                            _determinism_check)
 from matplotlib.testing.decorators import cleanup, knownfailureif
 
 
@@ -160,7 +162,7 @@ def test_tilde_in_tempfilename():
         plt.rc('text', usetex=True)
         plt.plot([1, 2, 3, 4])
         plt.xlabel(r'\textbf{time} (s)')
-        #matplotlib.verbose.set_level("debug")
+        # matplotlib.verbose.set_level("debug")
         output_eps = os.path.join(base_tempdir, 'tex_demo.eps')
         # use the PS backend to write the file...
         plt.savefig(output_eps, format="ps")
@@ -172,6 +174,31 @@ def test_tilde_in_tempfilename():
             except Exception as e:
                 # do not break if this is not removeable...
                 print(e)
+
+
+@cleanup
+def test_source_date_epoch():
+    """Test SOURCE_DATE_EPOCH support for PS output"""
+    # SOURCE_DATE_EPOCH support is not tested with text.usetex,
+    # because the produced timestamp comes from ghostscript:
+    # %%CreationDate: D:20000101000000Z00\'00\', and this could change
+    # with another ghostscript version.
+    _determinism_source_date_epoch(
+        "ps", b"%%CreationDate: Sat Jan 01 00:00:00 2000")
+
+
+@cleanup
+def test_determinism_all():
+    """Test for reproducible PS output"""
+    _determinism_check(format="ps")
+
+
+@cleanup
+@needs_tex
+@needs_ghostscript
+def test_determinism_all_tex():
+    """Test for reproducible PS/tex output"""
+    _determinism_check(format="ps", usetex=True)
 
 
 if __name__ == '__main__':
