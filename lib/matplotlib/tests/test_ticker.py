@@ -231,7 +231,7 @@ def _sub_labels(axis, subs=()):
     assert_equal(label_test, label_expected)
 
 
-@cleanup
+@cleanup(style='default')
 def test_LogFormatter_sublabel():
     # test label locator
     fig, ax = plt.subplots()
