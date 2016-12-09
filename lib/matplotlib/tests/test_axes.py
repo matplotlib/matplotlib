@@ -4849,7 +4849,7 @@ def test_scatter_color_masking():
     y = np.array([1, np.nan, 3])
     colors = np.array(['k', 'w', 'k'])
     linewidths = np.array([1, 2, 3])
-    s = plt.scatter(x, y, color=colors)
+    s = plt.scatter(x, y, color=colors, linewidths=linewidths)
 
     facecolors = s.get_facecolors()
     linecolors = s.get_edgecolors()
