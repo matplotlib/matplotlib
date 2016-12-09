@@ -1,0 +1,7 @@
+`afm.get_fontconfig_fonts` returns a list of paths and does not check for existence
+```````````````````````````````````````````````````````````````````````````````````
+
+`afm.get_fontconfig_fonts` used to return a set of paths encoded as a
+``{key: 1, ...}`` dict, and checked for the existence of the paths.  It now
+returns a list and dropped the existence check, as the same check is performed
+by the caller (`afm.findSystemFonts`) as well.
