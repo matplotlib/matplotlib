@@ -50,9 +50,6 @@ cursord = {
     }
 
 
-def round(x):
-    return int(math.floor(x+0.5))
-
 def raise_msg_to_str(msg):
     """msg is a return arg from a raise.  Join with new lines"""
     if not is_string_like(msg):

@@ -866,7 +866,12 @@ class LogFormatter(Formatter):
     major and minor ticks; the tick locations might be set manually,
     or by a locator that puts ticks at integer powers of base and
     at intermediate locations.  For this situation, disable the
-    minor_thresholds logic by using ``minor_thresholds=(np.inf, np.inf)``.
+    minor_thresholds logic by using ``minor_thresholds=(np.inf, np.inf)``,
+    so that all ticks will be labeled.
+
+    To disable labeling of minor ticks when 'labelOnlyBase' is False,
+    use ``minor_thresholds=(0, 0)``.  This is the default for the
+    "classic" style.
 
     Examples
     --------
@@ -877,14 +882,18 @@ class LogFormatter(Formatter):
     To label all minor ticks when the view limits span up to 1.5
     decades, use ``minor_thresholds=(1.5, 1.5)``.
 
-
     """
     def __init__(self, base=10.0, labelOnlyBase=False,
-                 minor_thresholds=(1, 0.4),
+                 minor_thresholds=None,
                  linthresh=None):
 
         self._base = float(base)
         self.labelOnlyBase = labelOnlyBase
+        if minor_thresholds is None:
+            if rcParams['_internal.classic_mode']:
+                minor_thresholds = (0, 0)
+            else:
+                minor_thresholds = (1, 0.4)
         self.minor_thresholds = minor_thresholds
         self._sublabels = None
         self._linthresh = linthresh
@@ -925,7 +934,6 @@ class LogFormatter(Formatter):
         b = self._base
 
         vmin, vmax = self.axis.get_view_interval()
-        self.d = abs(vmax - vmin)
 
         # Handle symlog case:
         linthresh = self._linthresh
@@ -957,15 +965,20 @@ class LogFormatter(Formatter):
             # Add labels between bases at log-spaced coefficients;
             # include base powers in case the locations include
             # "major" and "minor" points, as in colorbar.
-            c = np.logspace(0, 1, b//2 + 1, base=b)
+            c = np.logspace(0, 1, int(b)//2 + 1, base=b)
             self._sublabels = set(np.round(c))
+            # For base 10, this yields (1, 2, 3, 4, 6, 10).
         else:
-            self._sublabels = set(np.linspace(1, b, b))
+            # Label all integer multiples of base**n.
+            self._sublabels = set(np.arange(1, b + 1))
 
     def __call__(self, x, pos=None):
         """
         Return the format for tick val `x`.
         """
+        vmin, vmax = self.axis.get_view_interval()
+        vmin, vmax = mtransforms.nonsingular(vmin, vmax, expander=0.05)
+        d = abs(vmax - vmin)
         b = self._base
         if x == 0.0:
             return '0'
@@ -986,7 +999,7 @@ class LogFormatter(Formatter):
         elif x < 1:
             s = '%1.0e' % x
         else:
-            s = self.pprint_val(x, self.d)
+            s = self.pprint_val(x, d)
         if sign == -1:
             s = '-%s' % s
 
@@ -1795,6 +1808,33 @@ class MaxNLocator(Locator):
         self.set_params(**self.default_params)
         self.set_params(**kwargs)
 
+    @staticmethod
+    def _validate_steps(steps):
+        if not np.iterable(steps):
+            raise ValueError('steps argument must be a sequence of numbers '
+                             'from 1 to 10')
+        steps = np.asarray(steps)
+        if np.any(np.diff(steps) <= 0):
+            raise ValueError('steps argument must be uniformly increasing')
+        if steps[-1] > 10 or steps[0] < 1:
+            warnings.warn('Steps argument should be a sequence of numbers\n'
+                          'increasing from 1 to 10, inclusive. Behavior with\n'
+                          'values outside this range is undefined, and will\n'
+                          'raise a ValueError in future versions of mpl.')
+        if steps[0] != 1:
+            steps = np.hstack((1, steps))
+        if steps[-1] != 10:
+            steps = np.hstack((steps, 10))
+        return steps
+
+    @staticmethod
+    def _staircase(steps):
+        # Make an extended staircase within which the needed
+        # step will be found.  This is probably much larger
+        # than necessary.
+        flights = (0.1 * steps[:-1], steps, 10 * steps[1])
+        return np.hstack(flights)
+
     def set_params(self, **kwargs):
         """Set parameters within this locator."""
         if 'nbins' in kwargs:
@@ -1816,23 +1856,16 @@ class MaxNLocator(Locator):
         if 'steps' in kwargs:
             steps = kwargs['steps']
             if steps is None:
-                self._steps = [1, 1.5, 2, 2.5, 3, 4, 5, 6, 8, 10]
+                self._steps = np.array([1, 1.5, 2, 2.5, 3, 4, 5, 6, 8, 10])
             else:
-                if int(steps[-1]) != 10:
-                    steps = list(steps)
-                    steps.append(10)
-                self._steps = steps
-            # Make an extended staircase within which the needed
-            # step will be found.  This is probably much larger
-            # than necessary.
-            flights = (0.1 * np.array(self._steps[:-1]),
-                       self._steps,
-                       [10 * self._steps[1]])
-            self._extended_steps = np.hstack(flights)
+                self._steps = self._validate_steps(steps)
+            self._extended_steps = self._staircase(self._steps)
         if 'integer' in kwargs:
             self._integer = kwargs['integer']
         if self._integer:
-            self._steps = [n for n in self._steps if _divmod(n, 1)[1] < 0.001]
+            self._steps = np.array([n for n in self._steps
+                                    if _divmod(n, 1)[1] < 0.001])
+            self._extended_steps = self._staircase(self._steps)
         if 'min_n_ticks' in kwargs:
             self._min_n_ticks = max(1, kwargs['min_n_ticks'])
 
@@ -1870,8 +1903,8 @@ class MaxNLocator(Locator):
                 step = max(1, step)
             best_vmin = (_vmin // step) * step
 
-            low = round(Base(step).le(_vmin - best_vmin) / step)
-            high = round(Base(step).ge(_vmax - best_vmin) / step)
+            low = np.round(Base(step).le(_vmin - best_vmin) / step)
+            high = np.round(Base(step).ge(_vmax - best_vmin) / step)
             ticks = np.arange(low, high + 1) * step + best_vmin + offset
             nticks = ((ticks <= vmax) & (ticks >= vmin)).sum()
             if nticks >= self._min_n_ticks:
