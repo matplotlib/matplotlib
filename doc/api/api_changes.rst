@@ -40,6 +40,12 @@ CocoaAgg backend removed
 ~~~~~~~~~~~~~~~~~~~~~~~~
 The deprecated and not fully functional CocoaAgg backend has been removed.
 
+`round` removed from TkAgg Backend
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+The TkAgg backend had its own implementation of the `round` function. This
+was unused internally and has been removed. Instead, use either the
+`round` builtin function or `numpy.round`.
+
 'hold' functionality deprecated
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 The 'hold' keyword argument and all functions and methods related
@@ -134,6 +140,16 @@ via setting the new 'numticks' kwarg to an integer.  By default
 the kwarg is None which internally sets it to the 'auto' string,
 triggering a new algorithm for adjusting the maximum according
 to the axis length relative to the ticklabel font size.
+
+`matplotlib.ticker.LogFormatter` gains minor_thresholds kwarg
+-------------------------------------------------------------
+
+Previously, minor ticks on log-scaled axes were not labeled by
+default.  An algorithm has been added to the
+`~matplotlib.ticker.LogFormatter` to control the labeling of
+ticks between integer powers of the base.  The algorithm uses
+two parameters supplied in a kwarg tuple named 'minor_thresholds'.
+See the docstring for further explanation.
 
 
 New defaults for 3D quiver function in mpl_toolkits.mplot3d.axes3d.py
