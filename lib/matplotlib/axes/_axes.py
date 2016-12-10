@@ -1187,9 +1187,9 @@ or tuple of floats
         if len(linelengths) == 0:
             linelengths = [None]
         if len(linewidths) == 0:
-            lineoffsets = [None]
-        if len(linewidths) == 0:
-            lineoffsets = [None]
+            linewidths = [None]
+        if len(linestyles) == 0:
+            linestyles = [None]
         if len(colors) == 0:
             colors = [None]
 
