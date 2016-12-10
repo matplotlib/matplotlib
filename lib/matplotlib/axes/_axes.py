@@ -1110,10 +1110,12 @@ or tuple of floats
           "vertical' : lines will be horizontal and arranged in columns
 
         *lineoffsets* :
-          A float or array-like containing floats.
+          A float or array-like containing floats. If a zero length array,
+          defaults to 0.
 
         *linelengths* :
-          A float or array-like containing floats.
+          A float or array-like containing floats. If a zero length array,
+          defaults to 1.
 
         *linewidths* :
           A float or array-like containing floats.
@@ -1124,7 +1126,7 @@ or tuple of floats
 
         *linestyles* :
           [ 'solid' | 'dashed' | 'dashdot' | 'dotted' ] or an array of these
-          values
+          values. If a zero length array, defaults to 'solid'.
 
         For linelengths, linewidths, colors, and linestyles, if only a single
         value is given, that value is applied to all lines.  If an array-like
