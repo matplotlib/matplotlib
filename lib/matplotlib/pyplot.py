@@ -2279,6 +2279,11 @@ def polar(*args, **kwargs):
     strings, as in :func:`~matplotlib.pyplot.plot`.
 
     """
+    # If an axis already exists, check if it has a polar projection
+    if gcf().get_axes():
+        if not isinstance(gca(), PolarAxes):
+            warnings.warn('Trying to create polar plot on an axis that does '
+                          'not have a polar projection.')
     ax = gca(polar=True)
     ret = ax.plot(*args, **kwargs)
     return ret
