@@ -1183,13 +1183,13 @@ or tuple of floats
         linewidths = np.asarray(linewidths)
 
         if len(lineoffsets) == 0:
-            lineoffsets = [None]
+            lineoffsets = [0]
         if len(linelengths) == 0:
-            linelengths = [None]
+            linelengths = [1]
         if len(linewidths) == 0:
             linewidths = [None]
         if len(linestyles) == 0:
-            linestyles = [None]
+            linestyles = ['solid']
         if len(colors) == 0:
             colors = [None]
 
