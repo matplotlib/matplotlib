@@ -902,10 +902,6 @@ class LogFormatter(Formatter):
             self._sublabels = None
             return
 
-        b = self._base
-
-        vmin, vmax = self.axis.get_view_interval()
-
         # Handle symlog case:
         linthresh = self._linthresh
         if linthresh is None:
@@ -914,6 +910,7 @@ class LogFormatter(Formatter):
             except AttributeError:
                 pass
 
+        vmin, vmax = self.axis.get_view_interval()
         if vmin > vmax:
             vmin, vmax = vmax, vmin
 
@@ -924,6 +921,7 @@ class LogFormatter(Formatter):
             self._sublabels = set((1,))  # label powers of base
             return
 
+        b = self._base
         if linthresh is not None:  # symlog
             # Only compute the number of decades in the logarithmic part of the
             # axis
@@ -953,37 +951,38 @@ class LogFormatter(Formatter):
             # Label all integer multiples of base**n.
             self._sublabels = set(np.arange(1, b + 1))
 
-    def __call__(self, x, pos=None):
-        """
-        Return the format for tick val `x`.
-        """
-        vmin, vmax = self.axis.get_view_interval()
-        vmin, vmax = mtransforms.nonsingular(vmin, vmax, expander=0.05)
-        d = abs(vmax - vmin)
-        b = self._base
-        if x == 0.0:  # Symlog
-            return '0'
-        sign = np.sign(x)
-        x = abs(x)
-        # only label the decades
-        fx = math.log(x) / math.log(b)
-        is_x_decade = is_close_to_int(fx)
-        exponent = np.round(fx) if is_x_decade else np.floor(fx)
-        coeff = np.round(x / b ** exponent)
-        if self.labelOnlyBase and not is_x_decade:
-            return ''
-        if self._sublabels is not None and coeff not in self._sublabels:
-            return ''
-
+    def _num_to_string(self, x, vmin, vmax):
         if x > 10000:
             s = '%1.0e' % x
         elif x < 1:
             s = '%1.0e' % x
         else:
-            s = self.pprint_val(x, d)
-        if sign == -1:
-            s = '-%s' % s
+            s = self.pprint_val(x, vmax - vmin)
 
+    def __call__(self, x, pos=None):
+        """
+        Return the format for tick val `x`.
+        """
+        if x == 0.0:  # Symlog
+            return '0'
+
+        sign = np.sign(x)
+        x = abs(x)
+        b = self._base
+        # only label the decades
+        fx = math.log(x) / math.log(b)
+        is_x_decade = is_close_to_int(fx)
+        exponent = np.round(fx) if is_x_decade else np.floor(fx)
+        coeff = np.round(x / b ** exponent)
+
+        if self.labelOnlyBase and not is_x_decade:
+            return ''
+        if self._sublabels is not None and coeff not in self._sublabels:
+            return ''
+
+        vmin, vmax = self.axis.get_view_interval()
+        vmin, vmax = mtransforms.nonsingular(vmin, vmax, expander=0.05)
+        s = self._num_to_string(x, vmin, vmax)
         return self.fix_minus(s)
 
     def format_data(self, value):
@@ -1036,41 +1035,16 @@ class LogFormatterExponent(LogFormatter):
     """
     Format values for log axis using ``exponent = log_base(value)``.
     """
-    def __call__(self, x, pos=None):
-        """
-        Return the format for tick value `x`.
-        """
-        vmin, vmax = self.axis.get_view_interval()
-        vmin, vmax = mtransforms.nonsingular(vmin, vmax, expander=0.05)
-        d = abs(vmax - vmin)
-        b = self._base
-        if x == 0:
-            return '0'
-        sign = np.sign(x)
-        x = abs(x)
-        # only label the decades
-        fx = math.log(x) / math.log(b)
-
-        is_x_decade = is_close_to_int(fx)
-        exponent = np.round(fx) if is_x_decade else np.floor(fx)
-        coeff = np.round(x / b ** exponent)
-
-        if self.labelOnlyBase and not is_x_decade:
-            return ''
-        if self._sublabels is not None and coeff not in self._sublabels:
-            return ''
-
+    def _num_to_string(self, x, vmin, vmax):
+        fx = math.log(x) / math.log(self._base)
         if abs(fx) > 10000:
             s = '%1.0g' % fx
         elif abs(fx) < 1:
             s = '%1.0g' % fx
         else:
-            fd = math.log(abs(d)) / math.log(b)
+            fd = math.log(vmax - vmin) / math.log(self._base)
             s = self.pprint_val(fx, fd)
-        if sign == -1:
-            s = '-%s' % s
-
-        return self.fix_minus(s)
+        return s
 
 
 class LogFormatterMathtext(LogFormatter):
@@ -1092,11 +1066,8 @@ class LogFormatterMathtext(LogFormatter):
 
         The position `pos` is ignored.
         """
-        b = self._base
         usetex = rcParams['text.usetex']
-
-        # only label the decades
-        if x == 0:
+        if x == 0:  # Symlog
             if usetex:
                 return '$0$'
             else:
@@ -1104,22 +1075,24 @@ class LogFormatterMathtext(LogFormatter):
 
         sign_string = '-' if x < 0 else ''
         x = abs(x)
+        b = self._base
 
+        # only label the decades
         fx = math.log(x) / math.log(b)
         is_x_decade = is_close_to_int(fx)
         exponent = np.round(fx) if is_x_decade else np.floor(fx)
         coeff = np.round(x / b ** exponent)
+
+        if self.labelOnlyBase and not is_x_decade:
+            return ''
+        if self._sublabels is not None and coeff not in self._sublabels:
+            return ''
 
         # use string formatting of the base if it is not an integer
         if b % 1 == 0.0:
             base = '%d' % b
         else:
             base = '%s' % b
-
-        if self.labelOnlyBase and not is_x_decade:
-            return ''
-        if self._sublabels is not None and coeff not in self._sublabels:
-            return ''
 
         if not is_x_decade:
             return self._non_decade_format(sign_string, base, fx, usetex)
