@@ -23,7 +23,7 @@ The easiest way to make a live animation in mpl is to use one of the
    FuncAnimation
    ArtistAnimation
 
-In both cases it is critical to keep a reference to tho instance
+In both cases it is critical to keep a reference to the instance
 object.  The animation is advanced by a timer (typically from the host
 GUI framework) which the `Animation` object holds the only reference
 to.  If you do not hold a reference to the `Animation` object, it (and
@@ -115,9 +115,9 @@ artist at a global scope and let Python sort things out.  For example ::
        ax.set_ylim(-1, 1)
        return ln,
 
-   def update(i):
-       xdata.append(i)
-       ydata.append(np.sin(i))
+   def update(frame):
+       xdata.append(frame)
+       ydata.append(np.sin(frame))
        ln.set_data(xdata, ydata)
        return ln,
 
@@ -128,7 +128,7 @@ artist at a global scope and let Python sort things out.  For example ::
 
 The second method is to us `functools.partial` to 'bind' artists to
 function.  A third method is to use closures to build up the required
-artists and functions.  A forth method is to create a class.
+artists and functions.  A fourth method is to create a class.
 
 
 
