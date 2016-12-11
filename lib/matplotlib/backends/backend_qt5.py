@@ -611,7 +611,15 @@ class NavigationToolbar2QT(NavigationToolbar2, QtWidgets.QToolBar):
         if is_pyqt5():
             self.setIconSize(QtCore.QSize(24, 24))
             self.layout().setSpacing(12)
-            self.setMinimumHeight(48)
+
+    if is_pyqt5():
+        # For some reason, self.setMinimumHeight doesn't seem to carry over to
+        # the actual sizeHint, so override it instead in order to make the
+        # aesthetic adjustments noted above.
+        def sizeHint(self):
+            size = super().sizeHint()
+            size.setHeight(max(48, size.height()))
+            return size
 
     def edit_parameters(self):
         allaxes = self.canvas.figure.get_axes()
