@@ -2129,9 +2129,9 @@ or tuple of floats
             r.update(kwargs)
             r.get_path()._interpolation_steps = 100
             if orientation == 'vertical':
-                r.sticky_edges.y.append(0)
+                r.sticky_edges.y.append(b)
             elif orientation == 'horizontal':
-                r.sticky_edges.x.append(0)
+                r.sticky_edges.x.append(l)
             self.add_patch(r)
             patches.append(r)
 
