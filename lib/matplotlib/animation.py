@@ -68,8 +68,7 @@ def adjusted_figsize(w, h, dpi, n):
 
 # A registry for available MovieWriter classes
 class MovieWriterRegistry(object):
-    '''Registry of available writer classes by human readable name
-    '''
+    '''Registry of available writer classes by human readable name.'''
     def __init__(self):
         self.avail = dict()
         self._registered = dict()
@@ -111,7 +110,7 @@ class MovieWriterRegistry(object):
         return list(self.avail.keys())
 
     def is_available(self, name):
-        '''Check if given writer is available by name
+        '''Check if given writer is available by name.
 
         Parameters
         ----------
@@ -277,6 +276,7 @@ class MovieWriter(object):
     def grab_frame(self, **savefig_kwargs):
         '''
         Grab the image information from the figure and save as a movie frame.
+
         All keyword arguments in savefig_kwargs are passed on to the 'savefig'
         command that saves the figure.
         '''
@@ -344,7 +344,7 @@ class MovieWriter(object):
 
 
 class FileMovieWriter(MovieWriter):
-    '''`MovieWriter` for writing to individual files and stitching at the end
+    '''`MovieWriter` for writing to individual files and stitching at the end.
 
     This must be sub-classed to be useful.
     '''
@@ -483,7 +483,7 @@ class FileMovieWriter(MovieWriter):
 # Base class of ffmpeg information. Has the config keys and the common set
 # of arguments that controls the *output* side of things.
 class FFMpegBase(object):
-    '''Mixin class for FFMpeg output
+    '''Mixin class for FFMpeg output.
 
     To be useful this must be multiply-inherited from with a
     `MovieWriterBase` sub-class.
@@ -537,7 +537,7 @@ class FFMpegWriter(MovieWriter, FFMpegBase):
 # Combine FFMpeg options with temp file-based writing
 @writers.register('ffmpeg_file')
 class FFMpegFileWriter(FileMovieWriter, FFMpegBase):
-    '''File-based ffmpeg writer
+    '''File-based ffmpeg writer.
 
     Frames are written to temporary files on disk and then stitched
     together at the end.
@@ -557,7 +557,7 @@ class FFMpegFileWriter(FileMovieWriter, FFMpegBase):
 # Base class of avconv information.  AVConv has identical arguments to
 # FFMpeg
 class AVConvBase(FFMpegBase):
-    '''Mixin class for avconv output
+    '''Mixin class for avconv output.
 
     To be useful this must be multiply-inherited from with a
     `MovieWriterBase` sub-class.
@@ -580,7 +580,7 @@ class AVConvWriter(AVConvBase, FFMpegWriter):
 # Combine AVConv options with file-based writing
 @writers.register('avconv_file')
 class AVConvFileWriter(AVConvBase, FFMpegFileWriter):
-    '''File-based avconv writer
+    '''File-based avconv writer.
 
     Frames are written to temporary files on disk and then stitched
     together at the end.
@@ -668,7 +668,7 @@ class MencoderFileWriter(FileMovieWriter, MencoderBase):
 
 # Base class for animated GIFs with convert utility
 class ImageMagickBase(object):
-    '''Mixin class for ImageMagick output
+    '''Mixin class for ImageMagick output.
 
     To be useful this must be multiply-inherited from with a
     `MovieWriterBase` sub-class.
@@ -706,7 +706,7 @@ class ImageMagickBase(object):
     @classmethod
     def isAvailable(cls):
         '''
-        Check to see if a ImageMagickWriter is actually available
+        Check to see if a ImageMagickWriter is actually available.
 
         Done by first checking the windows registry (if applicable) and then
         running the commandline tool.
@@ -725,7 +725,7 @@ ImageMagickBase._init_from_registry()
 # former.
 @writers.register('imagemagick')
 class ImageMagickWriter(ImageMagickBase, MovieWriter):
-    '''Pipe-based animated gif
+    '''Pipe-based animated gif.
 
     Frames are streamed directly to ImageMagick via a pipe and written
     in a single pass.
@@ -745,7 +745,7 @@ class ImageMagickWriter(ImageMagickBase, MovieWriter):
 # former.
 @writers.register('imagemagick_file')
 class ImageMagickFileWriter(ImageMagickBase, FileMovieWriter):
-    '''File-based animated gif writer
+    '''File-based animated gif writer.
 
     Frames are written to temporary files on disk and then stitched
     together at the end.
@@ -873,7 +873,7 @@ class Animation(object):
            default to ``rcParams['animation.codec']``
 
         bitrate : number, optional
-           Specifies the amount of bits used per second in the
+           Specifies the number of bits used per second in the
            compressed movie, in kilobits per second. A higher number
            means a higher quality movie, but at the cost of increased
            file size. If `None`, defaults to
@@ -1184,7 +1184,7 @@ class Animation(object):
 
 
 class TimedAnimation(Animation):
-    ''':class:`Animation` subclass for time-based animation
+    ''':class:`Animation` subclass for time-based animation.
 
     A new frame is drawn every *interval* milliseconds.
 
@@ -1199,7 +1199,7 @@ class TimedAnimation(Animation):
 
     repeat_delay : number, optional
         If the animation in repeated, adds a delay in milliseconds
-        before repeating the animation.  Defaults to None
+        before repeating the animation.  Defaults to `None`
 
     repeat : bool, optional
         Controls whether the animation should repeat when the sequence
@@ -1284,7 +1284,7 @@ class ArtistAnimation(TimedAnimation):
         be disabled for other frames.
 
     interval : number, optional
-       Delay between frames in miliseconds.  Defaults to 200.
+       Delay between frames in milliseconds.  Defaults to 200.
 
     repeat_delay : number, optional
         If the animation in repeated, adds a delay in milliseconds
@@ -1346,7 +1346,8 @@ class ArtistAnimation(TimedAnimation):
 
 
 class FuncAnimation(TimedAnimation):
-    '''Makes an animation by repeatedly calling a function ``func``
+    '''
+    Makes an animation by repeatedly calling a function ``func``.
 
 
     Parameters
@@ -1410,7 +1411,7 @@ class FuncAnimation(TimedAnimation):
 
     repeat : bool, optional
        Controls whether the animation should repeat when the sequence
-       of frames is completed.  Defaults to `True`
+       of frames is completed.  Defaults to `True`.
 
     blit : bool, optional
        Controls whether blitting is used to optimize drawing.  Defaults

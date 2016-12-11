@@ -200,12 +200,11 @@ slower, these writers can be easier to debug.
    AVConvFileWriter
 
 
-Fundamentally, a `MovieWriter` does is provide is a way to grab
-sequential frames from the same underlying `~matplotlib.figure.Figure`
-object.  The base class `MovieWriter` implements 3 methods and a
-context manager.  The only difference between the pipe-based and
-file-based writers in the arguments to their respective ``setup``
-methods.
+Fundamentally, a `MovieWriter` provides a way to grab sequential frames
+from the same underlying `~matplotlib.figure.Figure` object.  The base
+class `MovieWriter` implements 3 methods and a context manager.  The
+only difference between the pipe-based and file-based writers is in the
+arguments to their respective ``setup`` methods.
 
 
 .. autosummary::
@@ -225,7 +224,7 @@ at a time and ``finish()`` finalizes the movie and writes the output
 file to disk.  For example ::
 
    moviewriter = MovieWriter(...)
-   moveiewriter.setup(fig=fig, 'my_movie.ext', dpi=100)
+   moviewriter.setup(fig=fig, 'my_movie.ext', dpi=100)
    for j in range(n):
        update_figure(n)
        moviewriter.grab_frame()
