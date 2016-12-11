@@ -236,8 +236,10 @@ class MovieWriter(object):
         '''
         # This particular sequence is what contextlib.contextmanager wants
         self.setup(*args, **kw)
-        yield
-        self.finish()
+        try:
+            yield self
+        finally:
+            self.finish()
 
     def _run(self):
         # Uses subprocess to call the program for assembling frames into a
