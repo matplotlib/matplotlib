@@ -68,7 +68,7 @@ def adjusted_figsize(w, h, dpi, n):
 
 # A registry for available MovieWriter classes
 class MovieWriterRegistry(object):
-    '''Registry of of available writer classes by human readable name
+    '''Registry of available writer classes by human readable name
     '''
     def __init__(self):
         self.avail = dict()
@@ -111,13 +111,14 @@ class MovieWriterRegistry(object):
         return list(self.avail.keys())
 
     def is_available(self, name):
-        '''If given writer is available
+        '''Check if given writer is available by name
 
         Parameters
         ----------
         name : str
 
         Returns
+        -------
         available : bool
         '''
         self.ensure_not_dirty()
@@ -141,42 +142,19 @@ class MovieWriter(object):
     Attributes
     ----------
 
-    frame_format : string
+    frame_format : str
         The format used in writing frame data, defaults to 'rgba'
 
     fig : `~matplotlib.figure.Figure`
         The figure to capture data from.
-        This must be provided by the sub-classes
-
-    Examples
-    --------
-
-    Fundamentally, what a MovieWriter does is provide is a way to grab
-    frames by calling grab_frame(). setup() is called to start the
-    process and finish() is called afterwards ::
-
-       moviewriter = MovieWriter(...)
-       moveiewriter.setup()
-       for j in range(n):
-           update_figure(n)
-           moviewriter.grab_frame()
-       moviewriter.finish()
-
-
-    saving() is provided as a context manager to facilitate this process as::
-
-      with moviewriter.saving('myfile.mp4'):
-          # Iterate over frames
-          moviewriter.grab_frame()
-
-    The use of the context manager ensures that setup and cleanup are
-    performed as necessary.
+        This must be provided by the sub-classes.
 
     '''
 
     def __init__(self, fps=5, codec=None, bitrate=None, extra_args=None,
                  metadata=None):
-        '''
+        '''MovieWriter
+
         Parameters
         ----------
         fps: int
@@ -371,31 +349,28 @@ class FileMovieWriter(MovieWriter):
     This must be sub-classed to be useful.
     '''
     def __init__(self, *args, **kwargs):
-        '''
-        Parameters
-        ----------
-        fig : `matplotlib.Figure` instance
-            The figure object that contains the information for frames
-        outfile : string
-            The filename of the resulting movie file
-        dpi : int
-            The DPI (or resolution) for the file.  This controls the size
-            in pixels of the resulting movie file.
-        frame_prefix : string, optional
-            The filename prefix to use for the temporary files. Defaults
-            to '_tmp'
-        clear_temp : bool
-            Specifies whether the temporary files should be deleted after
-            the movie is written. (Useful for debugging.) Defaults to True.
-
-        '''
-
         MovieWriter.__init__(self, *args, **kwargs)
         self.frame_format = rcParams['animation.frame_format']
 
     def setup(self, fig, outfile, dpi, frame_prefix='_tmp', clear_temp=True):
-        '''
-        Perform setup for writing the movie file.
+        '''Perform setup for writing the movie file.
+
+        Parameters
+        ----------
+        fig : matplotlib.figure.Figure
+            The figure to grab the rendered frames from.
+        outfile : str
+            The filename of the resulting movie file.
+        dpi : number
+            The dpi of the output file. This, with the figure size,
+            controls the size in pixels of the resulting movie file.
+        frame_prefix : str, optional
+            The filename prefix to use for temporary files.  Defaults to
+            '_tmp'.
+        clear_temp : bool, optional
+            If the temporary files should be deleted after stitching
+            the final result.  Setting this to `False` can be useful for
+            debugging.  Defaults to `True`.
 
         '''
         self.fig = fig
@@ -541,7 +516,7 @@ class FFMpegBase(object):
 # Combine FFMpeg options with pipe-based writing
 @writers.register('ffmpeg')
 class FFMpegWriter(MovieWriter, FFMpegBase):
-    '''Pipe based ffmpeg writer.
+    '''Pipe-based ffmpeg writer.
 
     Frames are streamed directly to ffmpeg via a pipe and written in a single
     pass.
@@ -562,7 +537,7 @@ class FFMpegWriter(MovieWriter, FFMpegBase):
 # Combine FFMpeg options with temp file-based writing
 @writers.register('ffmpeg_file')
 class FFMpegFileWriter(FileMovieWriter, FFMpegBase):
-    '''File based ffmpeg writer
+    '''File-based ffmpeg writer
 
     Frames are written to temporary files on disk and then stitched
     together at the end.
@@ -595,7 +570,7 @@ class AVConvBase(FFMpegBase):
 # Combine AVConv options with pipe-based writing
 @writers.register('avconv')
 class AVConvWriter(AVConvBase, FFMpegWriter):
-    '''Pipe based avconv writer.
+    '''Pipe-based avconv writer.
 
     Frames are streamed directly to avconv via a pipe and written in a single
     pass.
@@ -605,7 +580,7 @@ class AVConvWriter(AVConvBase, FFMpegWriter):
 # Combine AVConv options with file-based writing
 @writers.register('avconv_file')
 class AVConvFileWriter(AVConvBase, FFMpegFileWriter):
-    '''File based avconv writer
+    '''File-based avconv writer
 
     Frames are written to temporary files on disk and then stitched
     together at the end.
@@ -750,7 +725,7 @@ ImageMagickBase._init_from_registry()
 # former.
 @writers.register('imagemagick')
 class ImageMagickWriter(ImageMagickBase, MovieWriter):
-    '''Pipe based animated gif
+    '''Pipe-based animated gif
 
     Frames are streamed directly to ImageMagick via a pipe and written
     in a single pass.
@@ -770,7 +745,7 @@ class ImageMagickWriter(ImageMagickBase, MovieWriter):
 # former.
 @writers.register('imagemagick_file')
 class ImageMagickFileWriter(ImageMagickBase, FileMovieWriter):
-    '''File based animated gif writer
+    '''File-based animated gif writer
 
     Frames are written to temporary files on disk and then stitched
     together at the end.
@@ -895,7 +870,7 @@ class Animation(object):
         codec : str, optional
            the video codec to be used. Not all codecs are supported by
            a given :class:`MovieWriter`. If `None`,
-           default to  ``rcParams['animation.codec']``
+           default to ``rcParams['animation.codec']``
 
         bitrate : number, optional
            specifies the amount of bits used per second in the
@@ -931,7 +906,7 @@ class Animation(object):
         -----
         fps, codec, bitrate, extra_args, metadata are used are used to
         construct a :class:`MovieWriter` instance and can only be
-        passed if `writer` is a string.  If they are pass as
+        passed if `writer` is a string.  If they are passed as
         non-`None` and ``writer`` is a :class:`MovieWriter`, a
         `RuntimeError` will be raised.
 
@@ -1220,7 +1195,7 @@ class TimedAnimation(Animation):
        other needed events.
 
     interval : number, optional
-       Delay between frames.  Defaults to 200
+       Delay between frames in milliseconds.  Defaults to 200.
 
     repeat_delay : number, optional
         If the animation in repeated, adds a delay in milliseconds
@@ -1228,7 +1203,7 @@ class TimedAnimation(Animation):
 
     repeat: bool, optional
         controls whether the animation should repeat when the sequence
-        of frames is completed.
+        of frames is completed. Defaults to `True`.
 
     blit : bool, optional
        controls whether blitting is used to optimize drawing.  Defaults
@@ -1309,15 +1284,15 @@ class ArtistAnimation(TimedAnimation):
         be disabled for other frames.
 
     interval : number, optional
-       Delay between frames.  Defaults to 200
+       Delay between frames in miliseconds.  Defaults to 200.
 
     repeat_delay : number, optional
         If the animation in repeated, adds a delay in milliseconds
-        before repeating the animation.  Defaults to None
+        before repeating the animation.  Defaults to `None`.
 
     repeat: bool, optional
         controls whether the animation should repeat when the sequence
-        of frames is completed.
+        of frames is completed. Defaults to `True`.
 
     blit : bool, optional
        controls whether blitting is used to optimize drawing.  Defaults
@@ -1381,7 +1356,6 @@ class FuncAnimation(TimedAnimation):
        other needed events.
 
     func : callable
-
        The function to call at each frame.  The first argument will
        be the next value in ``frames``.   Any additional positional
        arguments can be supplied via the ``fargs`` parameter.
@@ -1389,7 +1363,6 @@ class FuncAnimation(TimedAnimation):
        The required signature is ::
 
           def func(fr: object, *fargs) -> iterable_of_artists:
-
 
     frames : iterable, int, generator function, or None, optional
         Source of data to pass ``func`` and each frame of the animation
@@ -1406,7 +1379,6 @@ class FuncAnimation(TimedAnimation):
         If `None`, then equivalent to passing ``itertools.count``
 
     init_func : callable, optional
-
        a function used to draw a clear frame. If not given, the
        results of drawing from the first item in the frames sequence
        will be used. This function will be called once before the
@@ -1426,15 +1398,15 @@ class FuncAnimation(TimedAnimation):
        The number of values from `frames` to cache.
 
     interval : number, optional
-       Delay between frames.  Defaults to 200
+       Delay between frames in milliseconds.  Defaults to 200.
 
     repeat_delay : number, optional
        If the animation in repeated, adds a delay in milliseconds
-       before repeating the animation.  Defaults to None
+       before repeating the animation.  Defaults to `None`.
 
     repeat: bool, optional
        controls whether the animation should repeat when the sequence
-       of frames is completed.
+       of frames is completed.  Defaults to `True`
 
     blit : bool, optional
        controls whether blitting is used to optimize drawing.  Defaults
