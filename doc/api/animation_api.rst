@@ -13,7 +13,7 @@
 Animation
 =========
 
-The easiest way to make a live animation in mpl is to use one of the
+The easiest way to make a live animation in matplotlib is to use one of the
 `Animation` classes.
 
 .. autosummary::
@@ -30,7 +30,7 @@ to.  If you do not hold a reference to the `Animation` object, it (and
 hence the timers), will be garbage collected which will stop the
 animation.
 
-To save an animation use to disk use
+To save an animation to disk use
 
 .. autosummary::
    :toctree: _as_gen
@@ -48,7 +48,7 @@ See :ref:`ani_writer_classes` below for details about what movie formats are sup
 The inner workings of `FuncAnimation` is more-or-less::
 
   for d in frames:
-     arts = func(d, *fargs)
+     artists = func(d, *fargs)
      fig.canvas.draw_idle()
      plt.pause(interval)
 
@@ -59,7 +59,7 @@ axes, and easily save the animation to a movie file.
 
 'Blitting' is a `old technique
 <https://en.wikipedia.org/wiki/Bit_blit>`__ in computer graphics.  The
-general gist is to take as existing bit map (in our case a mostly
+general gist is to take an existing bit map (in our case a mostly
 rasterized figure) and then 'blit' one more artist on top.  Thus, by
 managing a saved 'clean' bitmap, we can only re-draw the few artists
 that are changing at each frame and possibly save significant amounts of
@@ -68,24 +68,24 @@ time.  When using blitting (by passing ``blit=True``) the core loop of
 
    ax = fig.gca()
 
-   def update_blit(arts):
+   def update_blit(artists):
        fig.canvas.restore_region(bg_cache)
-       for a in arts:
+       for a in artists:
            a.axes.draw_artist(a)
 
        ax.figure.canvas.blit(ax.bbox)
 
-   arts = init_func()
+   artists = init_func()
 
-   for a in arts:
+   for a in artists:
       a.set_animated(True)
 
    fig.canvas.draw()
    bg_cache = fig.canvas.copy_from_bbox(ax.bbox)
 
    for f in frames:
-       arts = func(f, *fargs)
-       update_blit(arts)
+       artists = func(f, *fargs)
+       update_blit(artists)
        plt.pause(interval)
 
 This is of course leaving out many details (such as updating the
@@ -98,7 +98,7 @@ The expected signature on ``func`` and ``init_func`` is very simple to
 keep `FuncAnimation` out of your book keeping and plotting logic, but
 this means that the callable objects you pass in must know what
 artists they should be working on.  There are several approaches to
-handling this, of varying complexity and encapsulation.   The simplest
+handling this, of varying complexity and encapsulation.  The simplest
 approach, which works quite well in the case of a script, is to define the
 artist at a global scope and let Python sort things out.  For example ::
 
@@ -200,7 +200,7 @@ slower, these writers can be easier to debug.
    AVConvFileWriter
 
 
-Fundamentally, a MovieWriter does is provide is a way to grab
+Fundamentally, a `MovieWriter` does is provide is a way to grab
 sequential frames from the same underlying `~matplotlib.figure.Figure`
 object.  The base class `MovieWriter` implements 3 methods and a
 context manager.  The only difference between the pipe-based and

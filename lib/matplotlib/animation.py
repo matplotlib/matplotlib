@@ -486,7 +486,7 @@ class FFMpegBase(object):
     '''Mixin class for FFMpeg output
 
     To be useful this must be multiply-inherited from with a
-    `MoveWriterBase` sub-class.
+    `MovieWriterBase` sub-class.
     '''
 
     exec_key = 'animation.ffmpeg_path'
@@ -560,7 +560,7 @@ class AVConvBase(FFMpegBase):
     '''Mixin class for avconv output
 
     To be useful this must be multiply-inherited from with a
-    `MoveWriterBase` sub-class.
+    `MovieWriterBase` sub-class.
     '''
 
     exec_key = 'animation.avconv_path'
@@ -671,7 +671,7 @@ class ImageMagickBase(object):
     '''Mixin class for ImageMagick output
 
     To be useful this must be multiply-inherited from with a
-    `MoveWriterBase` sub-class.
+    `MovieWriterBase` sub-class.
     '''
 
     exec_key = 'animation.convert_path'
@@ -850,7 +850,7 @@ class Animation(object):
         ----------
 
         filename : str
-            the output filename, e.g., :file:`mymovie.mp4`
+            The output filename, e.g., :file:`mymovie.mp4`
 
         writer : :class:`MovieWriter` or str, optional
             A `MovieWriter` instance to use or a key that identifies a
@@ -863,34 +863,34 @@ class Animation(object):
            the frames per second.
 
         dpi : number, optional
-           controls the dots per inch for the movie frames. This
+           Controls the dots per inch for the movie frames.  This
            combined with the figure's size in inches controls the size of
            the movie.  If None, defaults to ``rcparam['savefig.dpi']``
 
         codec : str, optional
-           the video codec to be used. Not all codecs are supported by
+           The video codec to be used. Not all codecs are supported by
            a given :class:`MovieWriter`. If `None`,
            default to ``rcParams['animation.codec']``
 
         bitrate : number, optional
-           specifies the amount of bits used per second in the
+           Specifies the amount of bits used per second in the
            compressed movie, in kilobits per second. A higher number
            means a higher quality movie, but at the cost of increased
            file size. If `None`, defaults to
            ``rcParam['animation.bitrate']``
 
         extra_args : list, optional
-           list of extra string arguments to be passed to the
+           List of extra string arguments to be passed to the
            underlying movie utility. If `None`, defaults to
            ``rcParams['animation.extra_args']``
 
         metadata : dict, optional
-           dictionary of keys and values for metadata to include in
+           Dictionary of keys and values for metadata to include in
            the output file. Some keys that may be of use include:
            title, artist, genre, subject, copyright, srcform, comment.
 
         extra_anim : list, optional
-           additional `Animation` objects that should be included in
+           Additional `Animation` objects that should be included in
            the saved movie file. These need to be from the same
            `matplotlib.Figure` instance. Also, animation frames will
            just be simply combined, so there should be a 1:1
@@ -898,13 +898,13 @@ class Animation(object):
            animations.
 
         savefig_kwargs : dict, optional
-           is a dictionary containing keyword arguments to be passed
+           Is a dictionary containing keyword arguments to be passed
            on to the 'savefig' command which is called repeatedly to
            save the individual frames.
 
         Notes
         -----
-        fps, codec, bitrate, extra_args, metadata are used are used to
+        fps, codec, bitrate, extra_args, metadata are used to
         construct a :class:`MovieWriter` instance and can only be
         passed if `writer` is a string.  If they are passed as
         non-`None` and ``writer`` is a :class:`MovieWriter`, a
@@ -1201,13 +1201,13 @@ class TimedAnimation(Animation):
         If the animation in repeated, adds a delay in milliseconds
         before repeating the animation.  Defaults to None
 
-    repeat: bool, optional
-        controls whether the animation should repeat when the sequence
+    repeat : bool, optional
+        Controls whether the animation should repeat when the sequence
         of frames is completed. Defaults to `True`.
 
     blit : bool, optional
-       controls whether blitting is used to optimize drawing.  Defaults
-       to `False`.
+        Controls whether blitting is used to optimize drawing.  Defaults
+        to `False`.
 
     '''
     def __init__(self, fig, interval=200, repeat_delay=None, repeat=True,
@@ -1279,7 +1279,7 @@ class ArtistAnimation(TimedAnimation):
        other needed events.
 
     artists : list
-        with each list entry a collection of artists that
+        With each list entry a collection of artists that
         represent what needs to be enabled on each frame. These will
         be disabled for other frames.
 
@@ -1290,13 +1290,13 @@ class ArtistAnimation(TimedAnimation):
         If the animation in repeated, adds a delay in milliseconds
         before repeating the animation.  Defaults to `None`.
 
-    repeat: bool, optional
-        controls whether the animation should repeat when the sequence
+    repeat : bool, optional
+        Controls whether the animation should repeat when the sequence
         of frames is completed. Defaults to `True`.
 
     blit : bool, optional
-       controls whether blitting is used to optimize drawing.  Defaults
-       to `False`.
+        Controls whether blitting is used to optimize drawing.  Defaults
+        to `False`.
 
     '''
     def __init__(self, fig, artists, *args, **kwargs):
@@ -1374,12 +1374,16 @@ class FuncAnimation(TimedAnimation):
 
         If a generator function, then must have the signature ::
 
-           def gen_function():
+           def gen_function() -> obj:
 
-        If `None`, then equivalent to passing ``itertools.count``
+        In all of these cases, the values in `frames` is simply
+        passed through to the user-supplied `func` and thus can be
+        of any type.
+
+        If `None`, then equivalent to passing ``itertools.count``.
 
     init_func : callable, optional
-       a function used to draw a clear frame. If not given, the
+       A function used to draw a clear frame. If not given, the
        results of drawing from the first item in the frames sequence
        will be used. This function will be called once before the
        first frame.
@@ -1404,12 +1408,12 @@ class FuncAnimation(TimedAnimation):
        If the animation in repeated, adds a delay in milliseconds
        before repeating the animation.  Defaults to `None`.
 
-    repeat: bool, optional
-       controls whether the animation should repeat when the sequence
+    repeat : bool, optional
+       Controls whether the animation should repeat when the sequence
        of frames is completed.  Defaults to `True`
 
     blit : bool, optional
-       controls whether blitting is used to optimize drawing.  Defaults
+       Controls whether blitting is used to optimize drawing.  Defaults
        to `False`.
 
     '''
