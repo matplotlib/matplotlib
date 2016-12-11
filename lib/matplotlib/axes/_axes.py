@@ -2162,7 +2162,7 @@ or tuple of floats
 
         if adjust_xlim:
             xmin, xmax = self.dataLim.intervalx
-            xmin = np.min(w for w in width if w > 0)
+            xmin = min(w for w in width if w > 0)
             if xerr is not None:
                 xmin = xmin - np.max(xerr)
             xmin = max(xmin * 0.9, 1e-100)
@@ -2170,7 +2170,7 @@ or tuple of floats
 
         if adjust_ylim:
             ymin, ymax = self.dataLim.intervaly
-            ymin = np.min(h for h in height if h > 0)
+            ymin = min(h for h in height if h > 0)
             if yerr is not None:
                 ymin = ymin - np.max(yerr)
             ymin = max(ymin * 0.9, 1e-100)
