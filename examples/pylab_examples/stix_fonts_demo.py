@@ -1,6 +1,6 @@
 from __future__ import unicode_literals
 
-import os
+import subprocess
 import sys
 import re
 import gc
@@ -53,6 +53,6 @@ if '--latex' in sys.argv:
     fd.write("\\end{document}\n")
     fd.close()
 
-    os.system("pdflatex stix_fonts_examples.ltx")
+    subprocess.call(["pdflatex", "stix_fonts_examples.ltx"])
 else:
     doall()

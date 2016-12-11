@@ -349,7 +349,7 @@ try:
             return ret
 except ImportError:
     def run(arglist):
-        os.system(' '.join(arglist))
+        os.system(arglist)
 
 
 def drive(backend, directories, python=['python'], switches=[]):
@@ -420,7 +420,7 @@ def drive(backend, directories, python=['python'], switches=[]):
         ret = run(program + [tmpfile_name] + switches)
         end_time = time.time()
         print("%s %s" % ((end_time - start_time), ret))
-        #os.system('%s %s %s' % (python, tmpfile_name, ' '.join(switches)))
+        # subprocess.call([python, tmpfile_name] + switches)
         os.remove(tmpfile_name)
         if ret:
             failures.append(fullpath)
