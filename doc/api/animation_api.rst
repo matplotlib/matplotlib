@@ -173,16 +173,76 @@ Writer Classes
 
 
 
+The provided writers fall into two broad categories: pipe-based and
+file-based.  The pipe-based writers stream the captured frames over a
+pipe to an external process.  The pipe-based variants tend to be more
+performant, but may not work on all systems.
+
 .. autosummary::
    :toctree: _as_gen
    :nosignatures:
 
-   AVConvFileWriter
-   AVConvWriter
-   FFMpegFileWriter
+
    FFMpegWriter
    ImageMagickFileWriter
+   AVConvWriter
+
+Alternatively the file-based writers save temporary files for each
+frame which are stitched into a single file at the end.  Although
+slower, these writers can be easier to debug.
+
+.. autosummary::
+   :toctree: _as_gen
+   :nosignatures:
+
+   FFMpegFileWriter
    ImageMagickWriter
+   AVConvFileWriter
+
+
+Fundamentally, a MovieWriter does is provide is a way to grab
+sequential frames from the same underlying `~matplotlib.figure.Figure`
+object.  The base class `MovieWriter` implements 3 methods and a
+context manager.  The only difference between the pipe-based and
+file-based writers in the arguments to their respective ``setup``
+methods.
+
+
+.. autosummary::
+   :toctree: _as_gen
+   :nosignatures:
+
+   MovieWriter.setup
+   FileMovieWriter.setup
+   MovieWriter.grab_frame
+   MovieWriter.finish
+   MovieWriter.saving
+
+
+The ``setup()`` method is used to prepare the writer (possibly opening
+a pipe), successive calls to ``grab_frame()`` capture a single frame
+at a time and ``finish()`` finalizes the movie and writes the output
+file to disk.  For example ::
+
+   moviewriter = MovieWriter(...)
+   moveiewriter.setup(fig=fig, 'my_movie.ext', dpi=100)
+   for j in range(n):
+       update_figure(n)
+       moviewriter.grab_frame()
+   moviewriter.finish()
+
+
+If using the writer classes directly (not through `Animation.save`), it is strongly encouraged
+to use the `~MovieWriter.saving` context manager ::
+
+  with moviewriter.saving(fig, 'myfile.mp4', dpi=100):
+      for j in range(n):
+          update_figure(n)
+          moviewriter.grab_frame()
+
+
+to ensures that setup and cleanup are performed as necessary.
+
 
 :ref:`animation-moviewriter`
 
