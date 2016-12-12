@@ -1199,7 +1199,7 @@ class TimedAnimation(Animation):
 
     repeat_delay : number, optional
         If the animation in repeated, adds a delay in milliseconds
-        before repeating the animation.  Defaults to `None`
+        before repeating the animation.  Defaults to `None`.
 
     repeat : bool, optional
         Controls whether the animation should repeat when the sequence
@@ -1279,9 +1279,9 @@ class ArtistAnimation(TimedAnimation):
        other needed events.
 
     artists : list
-        With each list entry a collection of artists that
-        represent what needs to be enabled on each frame. These will
-        be disabled for other frames.
+        Each list entry a collection of artists that represent what
+        needs to be enabled on each frame. These will be disabled for
+        other frames.
 
     interval : number, optional
        Delay between frames in milliseconds.  Defaults to 200.
