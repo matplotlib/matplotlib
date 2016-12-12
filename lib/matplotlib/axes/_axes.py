@@ -5295,7 +5295,7 @@ or tuple of floats
 
         Other Parameters
         -------
-        antialiaseds : bool, optional, default: False or `rcParams['patch.antialiased']`
+        antialiaseds : bool, optional, default: False
             The default `antialiaseds` is False if the default
             `edgecolors`="none" is used.  This eliminates artificial lines
             at patch boundaries, and works regardless of the value of
@@ -5305,7 +5305,7 @@ or tuple of floats
             Stroking the edges may be preferred if `alpha` is 1, but
             will cause artifacts otherwise.
 
-        kwargs : `~matplotlib.collections.PolyCollection` 
+        kwargs : `~matplotlib.collections.PolyCollection`
 
         See Also
         --------
