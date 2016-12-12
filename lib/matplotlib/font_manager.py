@@ -47,21 +47,19 @@ License   : matplotlib license (PSF compatible)
             see license/LICENSE_TTFQUERY.
 """
 
-import os, sys, warnings
-try:
-    set
-except NameError:
-    from sets import Set as set
 from collections import Iterable
+import json
+import os
+import sys
+from threading import Timer
+import warnings
+
 import matplotlib
-from matplotlib import afm
-from matplotlib import ft2font
-from matplotlib import rcParams, get_cachedir
+from matplotlib import afm, cbook, ft2font, rcParams, get_cachedir
 from matplotlib.cbook import is_string_like
-import matplotlib.cbook as cbook
 from matplotlib.compat import subprocess
-from matplotlib.fontconfig_pattern import \
-    parse_fontconfig_pattern, generate_fontconfig_pattern
+from matplotlib.fontconfig_pattern import (
+    parse_fontconfig_pattern, generate_fontconfig_pattern)
 
 try:
     from functools import lru_cache
@@ -265,39 +263,39 @@ def OSXInstalledFonts(directories=None, fontext='ttf'):
             files.extend(list_fonts(path, fontext))
     return files
 
-def get_fontconfig_fonts(fontext='ttf'):
+
+@lru_cache()
+def _call_fc_list():
+    """Cache and list the font filenames known to `fc-list`.
     """
-    Grab a list of all the fonts that are being tracked by fontconfig
-    by making a system call to ``fc-list``.  This is an easy way to
-    grab all of the fonts the user wants to be made available to
-    applications, without needing knowing where all of them reside.
+    # Delay the warning by 5s.
+    timer = Timer(5, lambda: warnings.warn(
+        'Matplotlib is building the font cache using fc-list. '
+        'This may take a moment.'))
+    timer.start()
+    try:
+        out = subprocess.check_output(['fc-list', '--format=%{file}'])
+    except (OSError, subprocess.CalledProcessError):
+        return []
+    finally:
+        timer.cancel()
+    fnames = []
+    for fname in out.split(b'\n'):
+        try:
+            fname = six.text_type(fname, sys.getfilesystemencoding())
+        except UnicodeDecodeError:
+            continue
+        fnames.append(fname)
+    return fnames
+
+
+def get_fontconfig_fonts(fontext='ttf'):
+    """List the font filenames known to `fc-list` having the given extension.
     """
     fontext = get_fontext_synonyms(fontext)
+    return [fname for fname in _call_fc_list()
+            if os.path.splitext(fname)[1][1:] in fontext]
 
-    fontfiles = {}
-    try:
-        warnings.warn('Matplotlib is building the font cache using fc-list. This may take a moment.')
-        pipe = subprocess.Popen(['fc-list', '--format=%{file}\\n'],
-                                stdout=subprocess.PIPE,
-                                stderr=subprocess.PIPE)
-        output = pipe.communicate()[0]
-    except (OSError, IOError):
-        # Calling fc-list did not work, so we'll just return nothing
-        return fontfiles
-
-    if pipe.returncode == 0:
-        # The line breaks between results are in ascii, but each entry
-        # is in in sys.filesystemencoding().
-        for fname in output.split(b'\n'):
-            try:
-                fname = six.text_type(fname, sys.getfilesystemencoding())
-            except UnicodeDecodeError:
-                continue
-            if (os.path.splitext(fname)[1][1:] in fontext and
-                os.path.exists(fname)):
-                fontfiles[fname] = 1
-
-    return fontfiles
 
 def findSystemFonts(fontpaths=None, fontext='ttf'):
     """
@@ -307,7 +305,7 @@ def findSystemFonts(fontpaths=None, fontext='ttf'):
     available.  A list of TrueType fonts are returned by default with
     AFM fonts as an option.
     """
-    fontfiles = {}
+    fontfiles = set()
     fontexts = get_fontext_synonyms(fontext)
 
     if fontpaths is None:
@@ -319,16 +317,16 @@ def findSystemFonts(fontpaths=None, fontext='ttf'):
             for f in win32InstalledFonts(fontdir):
                 base, ext = os.path.splitext(f)
                 if len(ext)>1 and ext[1:].lower() in fontexts:
-                    fontfiles[f] = 1
+                    fontfiles.add(f)
         else:
             fontpaths = X11FontDirectories
             # check for OS X & load its fonts if present
             if sys.platform == 'darwin':
                 for f in OSXInstalledFonts(fontext=fontext):
-                    fontfiles[f] = 1
+                    fontfiles.add(f)
 
             for f in get_fontconfig_fonts(fontext):
-                fontfiles[f] = 1
+                fontfiles.add(f)
 
     elif isinstance(fontpaths, six.string_types):
         fontpaths = [fontpaths]
@@ -336,9 +334,9 @@ def findSystemFonts(fontpaths=None, fontext='ttf'):
     for path in fontpaths:
         files = list_fonts(path, fontexts)
         for fname in files:
-            fontfiles[os.path.abspath(fname)] = 1
+            fontfiles.add(os.path.abspath(fname))
 
-    return [fname for fname in six.iterkeys(fontfiles) if os.path.exists(fname)]
+    return [fname for fname in fontfiles if os.path.exists(fname)]
 
 def weight_as_number(weight):
     """
@@ -837,7 +835,7 @@ class FontProperties(object):
             family = rcParams['font.family']
         if is_string_like(family):
             family = [six.text_type(family)]
-        elif (not is_string_like(family) and isinstance(family, Iterable)):
+        elif not is_string_like(family) and isinstance(family, Iterable):
             family = [six.text_type(f) for f in family]
         self._family = family
     set_name = set_family
