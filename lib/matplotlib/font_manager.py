@@ -122,11 +122,13 @@ font_family_aliases = set([
 MSFolders = \
     r'Software\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders'
 
-MSFontDirectories   = [
+
+MSFontDirectories = [
     r'SOFTWARE\Microsoft\Windows NT\CurrentVersion\Fonts',
     r'SOFTWARE\Microsoft\Windows\CurrentVersion\Fonts']
 
-X11FontDirectories  = [
+
+X11FontDirectories = [
     # an old standard installation point
     "/usr/X11R6/lib/X11/fonts/TTF/",
     "/usr/X11/lib/X11/fonts",
@@ -156,6 +158,7 @@ if not USE_FONTCONFIG and sys.platform != 'win32':
         path = os.path.join(home, '.fonts')
         X11FontDirectories.append(path)
 
+
 def get_fontext_synonyms(fontext):
     """
     Return a list of file extensions extensions that are synonyms for
@@ -165,6 +168,7 @@ def get_fontext_synonyms(fontext):
             'otf': ('ttf', 'otf'),
             'afm': ('afm',)}[fontext]
 
+
 def list_fonts(directory, extensions):
     """
     Return a list of all fonts matching any of the extensions,
@@ -173,6 +177,7 @@ def list_fonts(directory, extensions):
     pattern = ';'.join(['*.%s;*.%s' % (ext, ext.upper())
                         for ext in extensions])
     return cbook.listFiles(directory, pattern)
+
 
 def win32FontDirectory():
     """
@@ -186,7 +191,7 @@ def win32FontDirectory():
     try:
         from six.moves import winreg
     except ImportError:
-        pass # Fall through to default
+        pass  # Fall through to default
     else:
         try:
             user = winreg.OpenKey(winreg.HKEY_CURRENT_USER, MSFolders)
@@ -194,12 +199,13 @@ def win32FontDirectory():
                 try:
                     return winreg.QueryValueEx(user, 'Fonts')[0]
                 except OSError:
-                    pass # Fall through to default
+                    pass  # Fall through to default
             finally:
                 winreg.CloseKey(user)
         except OSError:
-            pass # Fall through to default
+            pass  # Fall through to default
     return os.path.join(os.environ['WINDIR'], 'Fonts')
+
 
 def win32InstalledFonts(directory=None, fontext='ttf'):
     """
@@ -245,6 +251,7 @@ def win32InstalledFonts(directory=None, fontext='ttf'):
         finally:
             winreg.CloseKey(local)
     return None
+
 
 def OSXInstalledFonts(directories=None, fontext='ttf'):
     """
@@ -297,6 +304,7 @@ def get_fontconfig_fonts(fontext='ttf'):
             if os.path.splitext(fname)[1][1:] in fontext]
 
 
+
 def findSystemFonts(fontpaths=None, fontext='ttf'):
     """
     Search for fonts in the specified font paths.  If no paths are
@@ -337,6 +345,7 @@ def findSystemFonts(fontpaths=None, fontext='ttf'):
             fontfiles.add(os.path.abspath(fname))
 
     return [fname for fname in fontfiles if os.path.exists(fname)]
+
 
 def weight_as_number(weight):
     """
@@ -419,7 +428,6 @@ def ttfFontProperty(font):
     else:
         style = 'normal'
 
-
     #  Variants are: small-caps and normal (default)
 
     #  !!!!  Untested
@@ -451,8 +459,8 @@ def ttfFontProperty(font):
     #  Relative stretches are: wider, narrower
     #  Child value is: inherit
 
-    if sfnt4.find('narrow') >= 0 or sfnt4.find('condensed') >= 0 or \
-           sfnt4.find('cond') >= 0:
+    if (sfnt4.find('narrow') >= 0 or sfnt4.find('condensed') >= 0 or
+            sfnt4.find('cond') >= 0):
         stretch = 'condensed'
     elif sfnt4.find('demi cond') >= 0:
         stretch = 'semi-condensed'
@@ -673,12 +681,12 @@ class FontProperties(object):
                  fname  = None, # if this is set, it's a hardcoded filename to use
                  _init   = None  # used only by copy()
                  ):
-        self._family = None
-        self._slant = None
-        self._variant = None
-        self._weight = None
-        self._stretch = None
-        self._size = None
+        self._family = _normalize_font_family(rcParams['font.family'])
+        self._slant = rcParams['font.style']
+        self._variant = rcParams['font.variant']
+        self._weight = rcParams['font.weight']
+        self._stretch = rcParams['font.stretch']
+        self._size = rcParams['font.size']
         self._file = None
 
         # This is used only by copy()
@@ -732,11 +740,6 @@ class FontProperties(object):
         """
         Return a list of font names that comprise the font family.
         """
-        if self._family is None:
-            family = rcParams['font.family']
-            if is_string_like(family):
-                return [family]
-            return family
         return self._family
 
     def get_name(self):
@@ -751,8 +754,6 @@ class FontProperties(object):
         Return the font style.  Values are: 'normal', 'italic' or
         'oblique'.
         """
-        if self._slant is None:
-            return rcParams['font.style']
         return self._slant
     get_slant = get_style
 
@@ -761,8 +762,6 @@ class FontProperties(object):
         Return the font variant.  Values are: 'normal' or
         'small-caps'.
         """
-        if self._variant is None:
-            return rcParams['font.variant']
         return self._variant
 
     def get_weight(self):
@@ -772,8 +771,6 @@ class FontProperties(object):
         'medium', 'roman', 'semibold', 'demibold', 'demi', 'bold',
         'heavy', 'extra bold', 'black'
         """
-        if self._weight is None:
-            return rcParams['font.weight']
         return self._weight
 
     def get_stretch(self):
@@ -782,26 +779,16 @@ class FontProperties(object):
         'extra-condensed', 'condensed', 'semi-condensed', 'normal',
         'semi-expanded', 'expanded', 'extra-expanded', 'ultra-expanded'.
         """
-        if self._stretch is None:
-            return rcParams['font.stretch']
         return self._stretch
 
     def get_size(self):
         """
         Return the font size.
         """
-        if self._size is None:
-            return rcParams['font.size']
         return self._size
 
     def get_size_in_points(self):
-        if self._size is not None:
-            try:
-                return float(self._size)
-            except ValueError:
-                pass
-        default_size = FontManager.get_default_size()
-        return default_size * font_scalings.get(self._size)
+        return self._size
 
     def get_file(self):
         """
@@ -833,11 +820,7 @@ class FontProperties(object):
         """
         if family is None:
             family = rcParams['font.family']
-        if is_string_like(family):
-            family = [six.text_type(family)]
-        elif not is_string_like(family) and isinstance(family, Iterable):
-            family = [six.text_type(f) for f in family]
-        self._family = family
+        self._family = _normalize_font_family(family)
     set_name = set_family
 
     def set_style(self, style):
@@ -847,7 +830,7 @@ class FontProperties(object):
         """
         if style is None:
             style = rcParams['font.style']
-        if style not in ('normal', 'italic', 'oblique', None):
+        if style not in ('normal', 'italic', 'oblique'):
             raise ValueError("style must be normal, italic or oblique")
         self._slant = style
     set_slant = set_style
@@ -858,7 +841,7 @@ class FontProperties(object):
         """
         if variant is None:
             variant = rcParams['font.variant']
-        if variant not in ('normal', 'small-caps', None):
+        if variant not in ('normal', 'small-caps'):
             raise ValueError("variant must be normal or small-caps")
         self._variant = variant
 
@@ -910,10 +893,15 @@ class FontProperties(object):
         try:
             size = float(size)
         except ValueError:
-            if size is not None and size not in font_scalings:
+            try:
+                scale = font_scalings[size]
+            except KeyError:
                 raise ValueError(
                     "Size is invalid. Valid font size are " + ", ".join(
                         str(i) for i in font_scalings.keys()))
+            else:
+                size = scale * FontManager.get_default_size()
+
         self._size = size
 
     def set_file(self, file):
@@ -942,7 +930,8 @@ class FontProperties(object):
 
     def copy(self):
         """Return a deep copy of self"""
-        return FontProperties(_init = self)
+        return FontProperties(_init=self)
+
 
 def ttfdict_to_fnames(d):
     """
@@ -958,6 +947,7 @@ def ttfdict_to_fnames(d):
                             fnames.append(fname)
     return fnames
 
+
 def pickle_dump(data, filename):
     """
     Equivalent to pickle.dump(data, open(filename, 'w'))
@@ -965,6 +955,7 @@ def pickle_dump(data, filename):
     """
     with open(filename, 'wb') as fh:
         pickle.dump(data, fh)
+
 
 def pickle_load(filename):
     """
@@ -974,6 +965,14 @@ def pickle_load(filename):
     with open(filename, 'rb') as fh:
         data = pickle.load(fh)
     return data
+
+
+def _normalize_font_family(family):
+    if is_string_like(family):
+        family = [six.text_type(family)]
+    elif isinstance(family, Iterable):
+        family = [six.text_type(f) for f in family]
+    return family
 
 
 class TempCache(object):
