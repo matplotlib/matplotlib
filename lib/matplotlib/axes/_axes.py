@@ -5295,17 +5295,17 @@ or tuple of floats
 
         Other Parameters
         -------
-        kwargs : `~matplotlib.collections.PolyCollection`
+        antialiaseds : bool, optional, default: False or `rcParams['patch.antialiased']`
+            The default `antialiaseds` is False if the default
+            `edgecolors`="none" is used.  This eliminates artificial lines
+            at patch boundaries, and works regardless of the value of
+            alpha.  If `edgecolors` is not "none", then the default
+            `antialiaseds` is taken from
+            `rcParams['patch.antialiased']`, which defaults to True.
+            Stroking the edges may be preferred if `alpha` is 1, but
+            will cause artifacts otherwise.
 
-
-        The default `antialiaseds` is False if the default
-        `edgecolors`="none" is used.  This eliminates artificial lines
-        at patch boundaries, and works regardless of the value of
-        alpha.  If `edgecolors` is not "none", then the default
-        `antialiaseds` is taken from
-        `rcParams['patch.antialiased']`, which defaults to True.
-        Stroking the edges may be preferred if `alpha` is 1, but
-        will cause artifacts otherwise.
+        kwargs : `~matplotlib.collections.PolyCollection` 
 
         See Also
         --------
