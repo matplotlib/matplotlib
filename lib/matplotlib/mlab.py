@@ -10,7 +10,7 @@ MATLAB compatible functions
     Coherence (normalized cross spectral density)
 
 :func:`csd`
-    Cross spectral density uing Welch's average periodogram
+    Cross spectral density using Welch's average periodogram
 
 :func:`detrend`
     Remove the mean or best fit line from an array
@@ -30,7 +30,7 @@ MATLAB compatible functions
     Principal Component Analysis
 
 :func:`psd`
-    Power spectral density uing Welch's average periodogram
+    Power spectral density using Welch's average periodogram
 
 :func:`rk4`
     A 4th order runge kutta integrator for 1D or ND systems
