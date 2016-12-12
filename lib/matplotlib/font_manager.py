@@ -820,8 +820,7 @@ class FontProperties(object):
         """
         if family is None:
             family = rcParams['font.family']
-        family = _normalize_font_family(family)
-        self._family = family
+        self._family = _normalize_font_family(family)
     set_name = set_family
 
     def set_style(self, style):
@@ -948,6 +947,7 @@ def ttfdict_to_fnames(d):
                             fnames.append(fname)
     return fnames
 
+
 def pickle_dump(data, filename):
     """
     Equivalent to pickle.dump(data, open(filename, 'w'))
@@ -955,6 +955,7 @@ def pickle_dump(data, filename):
     """
     with open(filename, 'wb') as fh:
         pickle.dump(data, fh)
+
 
 def pickle_load(filename):
     """
@@ -969,7 +970,7 @@ def pickle_load(filename):
 def _normalize_font_family(family):
     if is_string_like(family):
         family = [six.text_type(family)]
-    elif (not is_string_like(family) and isinstance(family, Iterable)):
+    elif isinstance(family, Iterable):
         family = [six.text_type(f) for f in family]
     return family
 
