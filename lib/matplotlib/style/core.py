@@ -188,7 +188,14 @@ def read_style_directory(style_dir):
     """Return dictionary of styles defined in `style_dir`."""
     styles = dict()
     for path, name in iter_style_files(style_dir):
-        styles[name] = rc_params_from_file(path, use_default_template=False)
+        with warnings.catch_warnings(record=True) as warns:
+            styles[name] = rc_params_from_file(path,
+                                               use_default_template=False)
+
+        for w in warns:
+            w.message = 'While reading %s: %s' % (path, w.message)
+            warnings.warn(w)
+
     return styles
 
 
