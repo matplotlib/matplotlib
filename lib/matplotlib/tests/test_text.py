@@ -399,3 +399,15 @@ def test_agg_text_clip():
         ax1.text(x, y, "foo", clip_on=True)
         ax2.text(x, y, "foo")
     plt.show()
+
+
+@cleanup
+def test_text_size_binding():
+    from matplotlib.font_manager import FontProperties
+
+    matplotlib.rcParams['font.size'] = 10
+    fp = FontProperties(size='large')
+    sz1 = fp.get_size_in_points()
+    matplotlib.rcParams['font.size'] = 100
+
+    assert sz1 == fp.get_size_in_points()
