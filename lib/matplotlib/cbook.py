@@ -2637,3 +2637,81 @@ class Locked(object):
                     os.rmdir(path)
                 except OSError:
                     pass
+
+
+class _StringFuncParser(object):
+    # Each element has:
+    #     -The direct function,
+    #     -The inverse function,
+    #     -A boolean indicating whether the function
+    #      is bounded in the interval 0-1
+
+    funcs = {'linear': (lambda x: x, lambda x: x, True),
+             'quadratic': (lambda x: x**2, lambda x: x**(1. / 2), True),
+             'cubic': (lambda x: x**3, lambda x: x**(1. / 3), True),
+             'sqrt': (lambda x: x**(1. / 2), lambda x: x**2, True),
+             'cbrt': (lambda x: x**(1. / 3), lambda x: x**3, True),
+             'log10': (lambda x: np.log10(x), lambda x: (10**(x)), False),
+             'log': (lambda x: np.log(x), lambda x: (np.exp(x)), False),
+             'power{a}': (lambda x, a: x**a,
+                          lambda x, a: x**(1. / a), True),
+             'root{a}': (lambda x, a: x**(1. / a),
+                         lambda x, a: x**a, True),
+             'log10(x+{a})': (lambda x, a: np.log10(x + a),
+                              lambda x, a: 10**x - a, True),
+             'log(x+{a})': (lambda x, a: np.log(x + a),
+                            lambda x, a: np.exp(x) - a, True)}
+
+    def __init__(self, str_func):
+        self.str_func = str_func
+
+    def is_string(self):
+        return not hasattr(self.str_func, '__call__')
+
+    def get_func(self):
+        return self._get_element(0)
+
+    def get_invfunc(self):
+        return self._get_element(1)
+
+    def is_bounded_0_1(self):
+        return self._get_element(2)
+
+    def _get_element(self, ind):
+        if not self.is_string():
+            raise ValueError("The argument passed is not a string.")
+
+        str_func = six.text_type(self.str_func)
+        # Checking if it comes with a parameter
+        param = None
+        regex = '\{(.*?)\}'
+        search = re.search(regex, str_func)
+        if search is not None:
+            parstring = search.group(1)
+
+            try:
+                param = float(parstring)
+            except:
+                raise ValueError("'a' in parametric function strings must be "
+                                 "replaced by a number that is not "
+                                 "zero, e.g. 'log10(x+{0.1})'.")
+            if param == 0:
+                raise ValueError("'a' in parametric function strings must be "
+                                 "replaced by a number that is not "
+                                 "zero.")
+            str_func = re.sub(regex, '{a}', str_func)
+
+        try:
+            output = self.funcs[str_func][ind]
+            if param is not None:
+                output = (lambda x, output=output: output(x, param))
+
+            return output
+        except KeyError:
+            raise ValueError("%s: invalid function. The only strings "
+                             "recognized as functions are %s." %
+                             (str_func, self.funcs.keys()))
+        except:
+            raise ValueError("Invalid function. The only strings recognized "
+                             "as functions are %s." %
+                             (self.funcs.keys()))

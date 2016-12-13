@@ -515,3 +515,36 @@ def test_flatiter():
 
     assert 0 == next(it)
     assert 1 == next(it)
+
+
+class TestFuncParser(object):
+    x_test = np.linspace(0.01, 0.5, 3)
+    validstrings = ['linear', 'quadratic', 'cubic', 'sqrt', 'cbrt',
+                    'log', 'log10', 'power{1.5}', 'root{2.5}',
+                    'log(x+{0.5})', 'log10(x+{0.1})']
+    results = [(lambda x: x),
+               (lambda x: x**2),
+               (lambda x: x**3),
+               (lambda x: x**(1. / 2)),
+               (lambda x: x**(1. / 3)),
+               (lambda x: np.log(x)),
+               (lambda x: np.log10(x)),
+               (lambda x: x**1.5),
+               (lambda x: x**(1 / 2.5)),
+               (lambda x: np.log(x + 0.5)),
+               (lambda x: np.log10(x + 0.1))]
+
+    @pytest.mark.parametrize("string", validstrings, ids=validstrings)
+    def test_inverse(self, string):
+        func_parser = cbook._StringFuncParser(string)
+        f = func_parser.get_func()
+        finv = func_parser.get_invfunc()
+        assert_array_almost_equal(finv(f(self.x_test)), self.x_test)
+
+    @pytest.mark.parametrize("string, func",
+                             zip(validstrings, results),
+                             ids=validstrings)
+    def test_values(self, string, func):
+        func_parser = cbook._StringFuncParser(string)
+        f = func_parser.get_func()
+        assert_array_almost_equal(f(self.x_test), func(self.x_test))
