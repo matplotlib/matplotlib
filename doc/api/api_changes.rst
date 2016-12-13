@@ -141,8 +141,8 @@ the kwarg is None which internally sets it to the 'auto' string,
 triggering a new algorithm for adjusting the maximum according
 to the axis length relative to the ticklabel font size.
 
-`matplotlib.ticker.LogFormatter` gains minor_thresholds kwarg
--------------------------------------------------------------
+`matplotlib.ticker.LogFormatter`: two new kwargs
+------------------------------------------------
 
 Previously, minor ticks on log-scaled axes were not labeled by
 default.  An algorithm has been added to the
@@ -150,6 +150,9 @@ default.  An algorithm has been added to the
 ticks between integer powers of the base.  The algorithm uses
 two parameters supplied in a kwarg tuple named 'minor_thresholds'.
 See the docstring for further explanation.
+
+To improve support for axes using `~matplotlib.ticker.SymmetricLogLocator`,
+a 'linthresh' kwarg was added.
 
 
 New defaults for 3D quiver function in mpl_toolkits.mplot3d.axes3d.py
