@@ -105,7 +105,7 @@ def test_mixedsubplots():
     R = np.sqrt(X ** 2 + Y ** 2)
     Z = np.sin(R)
 
-    surf = ax.plot_surface(X, Y, Z, rstride=1, cstride=1,
+    surf = ax.plot_surface(X, Y, Z, rcount=40, ccount=40,
                            linewidth=0, antialiased=False)
 
     ax.set_zlim3d(-1, 1)
@@ -141,7 +141,7 @@ def test_surface3d():
     X, Y = np.meshgrid(X, Y)
     R = np.sqrt(X ** 2 + Y ** 2)
     Z = np.sin(R)
-    surf = ax.plot_surface(X, Y, Z, rstride=1, cstride=1, cmap=cm.coolwarm,
+    surf = ax.plot_surface(X, Y, Z, rcount=40, ccount=40, cmap=cm.coolwarm,
                            lw=0, antialiased=False)
     ax.set_zlim(-1.01, 1.01)
     fig.colorbar(surf, shrink=0.5, aspect=5)
@@ -194,7 +194,7 @@ def test_wireframe3d():
     fig = plt.figure()
     ax = fig.add_subplot(111, projection='3d')
     X, Y, Z = axes3d.get_test_data(0.05)
-    ax.plot_wireframe(X, Y, Z, rstride=10, cstride=10)
+    ax.plot_wireframe(X, Y, Z, rcount=13, ccount=13)
 
 
 @image_comparison(baseline_images=['wireframe3dzerocstride'], remove_text=True,
@@ -203,7 +203,7 @@ def test_wireframe3dzerocstride():
     fig = plt.figure()
     ax = fig.add_subplot(111, projection='3d')
     X, Y, Z = axes3d.get_test_data(0.05)
-    ax.plot_wireframe(X, Y, Z, rstride=10, cstride=0)
+    ax.plot_wireframe(X, Y, Z, rcount=13, ccount=0)
 
 
 @image_comparison(baseline_images=['wireframe3dzerorstride'], remove_text=True,
@@ -214,6 +214,7 @@ def test_wireframe3dzerorstride():
     X, Y, Z = axes3d.get_test_data(0.05)
     ax.plot_wireframe(X, Y, Z, rstride=0, cstride=10)
 
+
 @cleanup
 def test_wireframe3dzerostrideraises():
     fig = plt.figure()
@@ -221,6 +222,18 @@ def test_wireframe3dzerostrideraises():
     X, Y, Z = axes3d.get_test_data(0.05)
     with assert_raises(ValueError):
         ax.plot_wireframe(X, Y, Z, rstride=0, cstride=0)
+
+
+@cleanup
+def test_mixedsamplesraises():
+    fig = plt.figure()
+    ax = fig.add_subplot(111, projection='3d')
+    X, Y, Z = axes3d.get_test_data(0.05)
+    with assert_raises(ValueError):
+        ax.plot_wireframe(X, Y, Z, rstride=10, ccount=50)
+    with assert_raises(ValueError):
+        ax.plot_surface(X, Y, Z, cstride=50, rcount=10)
+
 
 @image_comparison(baseline_images=['quiver3d'], remove_text=True)
 def test_quiver3d():
