@@ -553,22 +553,22 @@ class TestFuncParser(object):
                              ids=validstrings)
     def test_values(self, string, func):
         func_parser = cbook._StringFuncParser(string)
-        f = func_parser.directfunc
+        f = func_parser.function
         assert_array_almost_equal(f(self.x_test), func(self.x_test))
 
     @pytest.mark.parametrize("string", validstrings, ids=validstrings)
     def test_inverse(self, string):
         func_parser = cbook._StringFuncParser(string)
-        f = func_parser.func
-        fdir = f.direct
+        f = func_parser.func_info
+        fdir = f.function
         finv = f.inverse
         assert_array_almost_equal(finv(fdir(self.x_test)), self.x_test)
 
     @pytest.mark.parametrize("string", validstrings, ids=validstrings)
-    def test_get_invfunc(self, string):
+    def test_get_inverse(self, string):
         func_parser = cbook._StringFuncParser(string)
-        finv1 = func_parser.invfunc
-        finv2 = func_parser.func.inverse
+        finv1 = func_parser.inverse
+        finv2 = func_parser.func_info.inverse
         assert_array_almost_equal(finv1(self.x_test), finv2(self.x_test))
 
     @pytest.mark.parametrize("string, bounded",

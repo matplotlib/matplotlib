@@ -2668,7 +2668,7 @@ class _FuncInfo(object):
     Class used to store a function
 
     Each object has:
-    * The direct function (direct)
+    * The direct function (function)
     * The inverse function (inverse)
     * A boolean indicating whether the function
       is bounded in the interval 0-1 (bounded_0_1), or
@@ -2678,23 +2678,23 @@ class _FuncInfo(object):
       certain combination of parameters is valid.
 
     """
-    def __init__(self, direct, inverse, bounded_0_1=True, check_params=None):
-        self.direct = direct
+    def __init__(self, function, inverse, bounded_0_1=True, check_params=None):
+        self.function = function
         self.inverse = inverse
 
-        if (hasattr(bounded_0_1, '__call__')):
+        if callable(bounded_0_1):
             self._bounded_0_1 = bounded_0_1
         else:
             self._bounded_0_1 = lambda x: bounded_0_1
 
         if check_params is None:
             self._check_params = lambda x: True
-        elif (hasattr(check_params, '__call__')):
+        elif callable(check_params):
             self._check_params = check_params
         else:
             raise ValueError("Check params must be a callable, returning "
                              "a boolean with the validity of the passed "
-                             "parameters or None.")
+                             "parameters, or None.")
 
     def is_bounded_0_1(self, params=None):
         return self._bounded_0_1(params)
@@ -2767,52 +2767,56 @@ class _StringFuncParser(object):
             String to be parsed.
 
         """
-        try:  # For python 2.7 and python 3+ compatibility
-            is_str = isinstance(str_func, basestring)
-        except NameError:
-            is_str = isinstance(str_func, str)
 
-        if not is_str:
+        if not isinstance(str_func, six.string_types):
             raise ValueError("The argument passed is not a string.")
-        self._str_func = str_func
+        self._str_func = six.text_type(str_func)
         self._key, self._params = self._get_key_params()
-        self._func = self.func
+        self._func = self._parse_func()
 
-    @property
-    def func(self):
+    def _parse_func(self):
         """
-        Returns the _FuncInfo object, replacing the relevant parameters if
-        necessary in the lambda functions.
+        Parses the parameters to build a new _FuncInfo object,
+        replacing the relevant parameters if necessary in the lambda
+        functions.
 
         """
 
         func = self._funcs[self._key]
         if self._params:
-            m = func.direct
-            direct = (lambda x, m=m: m(x, self._params))
+            m = func.function
+            function = (lambda x, m=m: m(x, self._params))
 
             m = func.inverse
             inverse = (lambda x, m=m: m(x, self._params))
 
             is_bounded_0_1 = func.is_bounded_0_1(self._params)
 
-            func = _FuncInfo(direct, inverse,
+            func = _FuncInfo(function, inverse,
                              is_bounded_0_1)
         else:
-            func = _FuncInfo(func.direct, func.inverse,
+            func = _FuncInfo(func.function, func.inverse,
                              func.is_bounded_0_1())
         return func
 
     @property
-    def directfunc(self):
+    def func_info(self):
+        """
+        Returns the _FuncInfo object.
+
+        """
+        return self._func
+
+    @property
+    def function(self):
         """
         Returns the callable for the direct function.
 
         """
-        return self._func.direct
+        return self._func.function
 
     @property
-    def invfunc(self):
+    def inverse(self):
         """
         Returns the callable for the inverse function.
 
@@ -2829,30 +2833,28 @@ class _StringFuncParser(object):
         return self._func.is_bounded_0_1()
 
     def _get_key_params(self):
-        str_func = six.text_type(self._str_func)
+        str_func = self._str_func
         # Checking if it comes with parameters
         regex = '\{(.*?)\}'
         params = re.findall(regex, str_func)
 
         if params:
-            for i in range(len(params)):
+            for i, param in enumerate(params):
                 try:
-                    params[i] = float(params[i])
-                except:
-                    raise ValueError("Error with parameter number %i: '%s'. "
-                                     "'p' in parametric function strings must "
-                                     " be replaced by a number that is not "
-                                     "zero, e.g. 'log10(x+{0.1})'." %
-                                     (i, params[i]))
+                    params[i] = float(param)
+                except ValueError:
+                    raise ValueError("Parameter %i is '%s', which is "
+                                     "not a number." %
+                                     (i, param))
 
             str_func = re.sub(regex, '{p}', str_func)
 
         try:
             func = self._funcs[str_func]
-        except:
+        except ValueError, KeyError:
             raise ValueError("%s: invalid string. The only strings "
                              "recognized as functions are %s." %
-                             (str_func, self._funcs.keys()))
+                             (str_func, list(self._funcs)))
 
         # Checking that the parameters are valid
         if not func.check_params(params):
