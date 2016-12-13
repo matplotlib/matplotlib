@@ -2851,7 +2851,7 @@ class _StringFuncParser(object):
 
         try:
             func = self._funcs[str_func]
-        except ValueError, KeyError:
+        except (ValueError, KeyError):
             raise ValueError("%s: invalid string. The only strings "
                              "recognized as functions are %s." %
                              (str_func, list(self._funcs)))
