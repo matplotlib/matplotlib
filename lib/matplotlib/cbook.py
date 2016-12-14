@@ -2676,7 +2676,7 @@ class _FuncInfo(object):
       on this
     * A callable (check_params) that takes a list of the parameters
       and returns a boolean specifying if a certain combination of
-      parameters is valid. It is only required if the function as
+      parameters is valid. It is only required if the function has
       parameters and some of them are restricted.
 
     """
