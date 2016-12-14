@@ -2674,8 +2674,10 @@ class _FuncInfo(object):
       is bounded in the interval 0-1 (bounded_0_1), or
       a method that returns the information depending
       on this
-    * A callable (check_params) that returns a bool specifying if a
-      certain combination of parameters is valid.
+    * A callable (check_params) that takes a list of the parameters
+      and returns a boolean specifying if a certain combination of
+      parameters is valid. It is only required if the function as
+      parameters and some of them are restricted.
 
     """
     def __init__(self, function, inverse, bounded_0_1=True, check_params=None):
@@ -2692,9 +2694,12 @@ class _FuncInfo(object):
         elif callable(check_params):
             self._check_params = check_params
         else:
-            raise ValueError("Check params must be a callable, returning "
-                             "a boolean with the validity of the passed "
-                             "parameters, or None.")
+            raise ValueError("Check params must be a callable taking a list "
+                             "with function parameters and returning a "
+                             "boolean indicating whether that combination of "
+                             "parameters is valid. In case of validity for "
+                             "any combination of parameters it may be set "
+                             "to None.")
 
     def is_bounded_0_1(self, params=None):
         return self._bounded_0_1(params)
@@ -2769,7 +2774,7 @@ class _StringFuncParser(object):
         """
 
         if not isinstance(str_func, six.string_types):
-            raise ValueError("The argument passed is not a string.")
+            raise ValueError("'%s' is not a string." % str_func)
         self._str_func = six.text_type(str_func)
         self._key, self._params = self._get_key_params()
         self._func = self._parse_func()
@@ -2783,7 +2788,11 @@ class _StringFuncParser(object):
         """
 
         func = self._funcs[self._key]
-        if self._params:
+
+        if not self._params:
+            func = _FuncInfo(func.function, func.inverse,
+                             func.is_bounded_0_1())
+        else:
             m = func.function
             function = (lambda x, m=m: m(x, self._params))
 
@@ -2794,9 +2803,6 @@ class _StringFuncParser(object):
 
             func = _FuncInfo(function, inverse,
                              is_bounded_0_1)
-        else:
-            func = _FuncInfo(func.function, func.inverse,
-                             func.is_bounded_0_1())
         return func
 
     @property
@@ -2838,27 +2844,26 @@ class _StringFuncParser(object):
         regex = '\{(.*?)\}'
         params = re.findall(regex, str_func)
 
-        if params:
-            for i, param in enumerate(params):
-                try:
-                    params[i] = float(param)
-                except ValueError:
-                    raise ValueError("Parameter %i is '%s', which is "
-                                     "not a number." %
-                                     (i, param))
+        for i, param in enumerate(params):
+            try:
+                params[i] = float(param)
+            except ValueError:
+                raise ValueError("Parameter %i is '%s', which is "
+                                 "not a number." %
+                                 (i, param))
 
-            str_func = re.sub(regex, '{p}', str_func)
+        str_func = re.sub(regex, '{p}', str_func)
 
         try:
             func = self._funcs[str_func]
         except (ValueError, KeyError):
-            raise ValueError("%s: invalid string. The only strings "
+            raise ValueError("'%s' is an invalid string. The only strings "
                              "recognized as functions are %s." %
                              (str_func, list(self._funcs)))
 
         # Checking that the parameters are valid
         if not func.check_params(params):
-            raise ValueError("%s: are invalid values for the parameters "
+            raise ValueError("%s are invalid values for the parameters "
                              "in %s." %
                              (params, str_func))
 
