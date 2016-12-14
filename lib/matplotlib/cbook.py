@@ -2694,12 +2694,7 @@ class _FuncInfo(object):
         elif callable(check_params):
             self._check_params = check_params
         else:
-            raise ValueError("Check params must be a callable taking a list "
-                             "with function parameters and returning a "
-                             "boolean indicating whether that combination of "
-                             "parameters is valid. In case of validity for "
-                             "any combination of parameters it may be set "
-                             "to None.")
+            raise ValueError("Invalid 'check_params' argument.")
 
     def is_bounded_0_1(self, params=None):
         return self._bounded_0_1(params)
