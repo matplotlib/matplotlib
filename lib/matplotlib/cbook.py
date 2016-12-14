@@ -2774,7 +2774,7 @@ class _StringFuncParser(object):
         """
 
         if not isinstance(str_func, six.string_types):
-            raise ValueError("'%s' is not a string." % str_func)
+            raise ValueError("'%s' must be a string." % str_func)
         self._str_func = six.text_type(str_func)
         self._key, self._params = self._get_key_params()
         self._func = self._parse_func()
