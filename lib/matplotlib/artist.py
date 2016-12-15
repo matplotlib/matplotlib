@@ -437,7 +437,7 @@ class Artist(object):
         # Pick self
         if self.pickable():
             picker = self.get_picker()
-            if picker is not None:
+            if callable(picker):
                 inside, prop = picker(self, mouseevent)
             else:
                 inside, prop = self.contains(mouseevent)
