@@ -596,8 +596,7 @@ matplotlib is documented using the `sphinx
 extensible python framework for documentation projects which generates
 HTML and PDF, and is pretty easy to write; you can see the source for this
 document or any page on this site by clicking on the *Show Source* link
-at the end of the page in the sidebar (or `here
-<../_sources/faq/howto_faq.txt>`_ for this document).
+at the end of the page in the sidebar.
 
 The sphinx website is a good resource for learning sphinx, but we have
 put together a cheat-sheet at :ref:`documenting-matplotlib` which
