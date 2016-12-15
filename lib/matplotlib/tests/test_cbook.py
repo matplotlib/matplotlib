@@ -515,3 +515,64 @@ def test_flatiter():
 
     assert 0 == next(it)
     assert 1 == next(it)
+
+
+class TestFuncParser(object):
+    x_test = np.linspace(0.01, 0.5, 3)
+    validstrings = ['linear', 'quadratic', 'cubic', 'sqrt', 'cbrt',
+                    'log', 'log10', 'log2', 'x**{1.5}', 'root{2.5}(x)',
+                    'log{2}(x)',
+                    'log(x+{0.5})', 'log10(x+{0.1})', 'log{2}(x+{0.1})',
+                    'log{2}(x+{0})']
+    results = [(lambda x: x),
+               np.square,
+               (lambda x: x**3),
+               np.sqrt,
+               (lambda x: x**(1. / 3)),
+               np.log,
+               np.log10,
+               np.log2,
+               (lambda x: x**1.5),
+               (lambda x: x**(1 / 2.5)),
+               (lambda x: np.log2(x)),
+               (lambda x: np.log(x + 0.5)),
+               (lambda x: np.log10(x + 0.1)),
+               (lambda x: np.log2(x + 0.1)),
+               (lambda x: np.log2(x))]
+
+    bounded_list = [True, True, True, True, True,
+                    False, False, False, True, True,
+                    False,
+                    True, True, True,
+                    False]
+
+    @pytest.mark.parametrize("string, func",
+                             zip(validstrings, results),
+                             ids=validstrings)
+    def test_values(self, string, func):
+        func_parser = cbook._StringFuncParser(string)
+        f = func_parser.function
+        assert_array_almost_equal(f(self.x_test), func(self.x_test))
+
+    @pytest.mark.parametrize("string", validstrings, ids=validstrings)
+    def test_inverse(self, string):
+        func_parser = cbook._StringFuncParser(string)
+        f = func_parser.func_info
+        fdir = f.function
+        finv = f.inverse
+        assert_array_almost_equal(finv(fdir(self.x_test)), self.x_test)
+
+    @pytest.mark.parametrize("string", validstrings, ids=validstrings)
+    def test_get_inverse(self, string):
+        func_parser = cbook._StringFuncParser(string)
+        finv1 = func_parser.inverse
+        finv2 = func_parser.func_info.inverse
+        assert_array_almost_equal(finv1(self.x_test), finv2(self.x_test))
+
+    @pytest.mark.parametrize("string, bounded",
+                             zip(validstrings, bounded_list),
+                             ids=validstrings)
+    def test_bounded(self, string, bounded):
+        func_parser = cbook._StringFuncParser(string)
+        b = func_parser.is_bounded_0_1
+        assert_array_equal(b, bounded)
