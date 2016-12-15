@@ -2665,22 +2665,38 @@ class Locked(object):
 
 class _FuncInfo(object):
     """
-    Class used to store a function
-
-    Each object has:
-    * The direct function (function)
-    * The inverse function (inverse)
-    * A boolean indicating whether the function
-      is bounded in the interval 0-1 (bounded_0_1), or
-      a method that returns the information depending
-      on this
-    * A callable (check_params) that takes a list of the parameters
-      and returns a boolean specifying if a certain combination of
-      parameters is valid. It is only required if the function has
-      parameters and some of them are restricted.
+    Class used to store a function.
 
     """
+
     def __init__(self, function, inverse, bounded_0_1=True, check_params=None):
+        """
+        Parameters
+        ----------
+
+        function : callable
+            A callable implementing the function receiving the variable as
+            first argument and any additional parameters in a list as second
+            argument.
+        inverse : callable
+            A callable implementing the inverse function receiving the variable
+            as first argument and any additional parameters in a list as
+            second argument. It must satisfy 'inverse(function(x, p), p) == x'.
+        bounded_0_1: bool or callable
+            A boolean indicating whether the function is bounded in the [0,1]
+            interval, or a callable taking a list of values for the additional
+            parameters, and returning a boolean indicating whether the function
+            is bounded in the [0,1] interval for that combination of
+            parameters. Default True.
+        check_params: callable or None
+            A callable taking a list of values for the additional parameters
+            and returning a boolean indicating whether that combination of
+            parameters is valid. It is only required if the function has
+            additional parameters and some of them are restricted.
+            Default None.
+
+        """
+
         self.function = function
         self.inverse = inverse
 
@@ -2697,9 +2713,47 @@ class _FuncInfo(object):
             raise ValueError("Invalid 'check_params' argument.")
 
     def is_bounded_0_1(self, params=None):
+        """
+        Returns a boolean indicating if the function is bounded in the [0,1]
+        interval for a particular set of additional parameters.
+
+        Parameters
+        ----------
+
+        params : list
+            The list of additional parameters. Default None.
+
+        Returns
+        -------
+
+        out : bool
+            True if the function is bounded in the [0,1] interval for
+            parameters 'params'. Otherwise False.
+
+        """
+
         return self._bounded_0_1(params)
 
     def check_params(self, params=None):
+        """
+        Returns a boolean indicating if the set of additional parameters is
+        valid.
+
+        Parameters
+        ----------
+
+        params : list
+            The list of additional parameters. Default None.
+
+        Returns
+        -------
+
+        out : bool
+            True if 'params' is a valid set of additional parameters for the
+            function. Otherwise False.
+
+        """
+
         return self._check_params(params)
 
 
