@@ -34,8 +34,7 @@ for y in range(ylen):
         colors[x, y] = colortuple[(x + y) % len(colortuple)]
 
 # Plot the surface with face colors taken from the array we made.
-surf = ax.plot_surface(X, Y, Z, rstride=1, cstride=1, facecolors=colors,
-                       linewidth=0)
+surf = ax.plot_surface(X, Y, Z, facecolors=colors, linewidth=0)
 
 # Customize the z axis.
 ax.set_zlim(-1, 1)
