@@ -28,7 +28,7 @@ Z = ((R**2 - 1)**2)
 X, Y = R*np.cos(P), R*np.sin(P)
 
 # Plot the surface.
-ax.plot_surface(X, Y, Z, rstride=1, cstride=1, cmap=plt.cm.YlGnBu_r)
+ax.plot_surface(X, Y, Z, cmap=plt.cm.YlGnBu_r)
 
 # Tweak the limits and add latex math labels.
 ax.set_zlim(0, 1)

@@ -30,7 +30,7 @@ import os
 import shutil
 import sys
 
-from PyQt4 import QtCore, QtGui
+from matplotlib.backends.qt_compat import QtCore, QtGui, QtWidgets
 
 
 # matplotlib stores the baseline images under two separate subtrees,
@@ -49,7 +49,7 @@ BASELINE_IMAGES = [
 exts = ['pdf', 'svg']
 
 
-class Thumbnail(QtGui.QFrame):
+class Thumbnail(QtWidgets.QFrame):
     """
     Represents one of the three thumbnails at the top of the window.
     """
@@ -59,14 +59,14 @@ class Thumbnail(QtGui.QFrame):
         self.parent = parent
         self.index = index
 
-        layout = QtGui.QVBoxLayout()
+        layout = QtWidgets.QVBoxLayout()
 
-        label = QtGui.QLabel(name)
+        label = QtWidgets.QLabel(name)
         label.setAlignment(QtCore.Qt.AlignHCenter |
                            QtCore.Qt.AlignVCenter)
         layout.addWidget(label, 0)
 
-        self.image = QtGui.QLabel()
+        self.image = QtWidgets.QLabel()
         self.image.setAlignment(QtCore.Qt.AlignHCenter |
                                 QtCore.Qt.AlignVCenter)
         self.image.setMinimumSize(800/3, 600/3)
@@ -77,7 +77,7 @@ class Thumbnail(QtGui.QFrame):
         self.parent.set_large_image(self.index)
 
 
-class ListWidget(QtGui.QListWidget):
+class ListWidget(QtWidgets.QListWidget):
     """
     The list of files on the left-hand side
     """
@@ -107,7 +107,7 @@ class EventFilter(QtCore.QObject):
             return super(EventFilter, self).eventFilter(receiver, event)
 
 
-class Dialog(QtGui.QDialog):
+class Dialog(QtWidgets.QDialog):
     """
     The main dialog window.
     """
@@ -126,17 +126,17 @@ class Dialog(QtGui.QDialog):
         for entry in entries:
             self.filelist.addItem(entry.display)
 
-        images_box = QtGui.QWidget()
-        images_layout = QtGui.QVBoxLayout()
-        thumbnails_box = QtGui.QWidget()
-        thumbnails_layout = QtGui.QHBoxLayout()
+        images_box = QtWidgets.QWidget()
+        images_layout = QtWidgets.QVBoxLayout()
+        thumbnails_box = QtWidgets.QWidget()
+        thumbnails_layout = QtWidgets.QHBoxLayout()
         self.thumbnails = []
         for i, name in enumerate(('test', 'expected', 'diff')):
             thumbnail = Thumbnail(self, i, name)
             thumbnails_layout.addWidget(thumbnail)
             self.thumbnails.append(thumbnail)
         thumbnails_box.setLayout(thumbnails_layout)
-        self.image_display = QtGui.QLabel()
+        self.image_display = QtWidgets.QLabel()
         self.image_display.setAlignment(QtCore.Qt.AlignHCenter |
                                         QtCore.Qt.AlignVCenter)
         self.image_display.setMinimumSize(800, 600)
@@ -144,18 +144,18 @@ class Dialog(QtGui.QDialog):
         images_layout.addWidget(self.image_display, 6)
         images_box.setLayout(images_layout)
 
-        buttons_box = QtGui.QWidget()
-        buttons_layout = QtGui.QHBoxLayout()
-        accept_button = QtGui.QPushButton("Accept (A)")
+        buttons_box = QtWidgets.QWidget()
+        buttons_layout = QtWidgets.QHBoxLayout()
+        accept_button = QtWidgets.QPushButton("Accept (A)")
         accept_button.clicked.connect(self.accept_test)
         buttons_layout.addWidget(accept_button)
-        reject_button = QtGui.QPushButton("Reject (R)")
+        reject_button = QtWidgets.QPushButton("Reject (R)")
         reject_button.clicked.connect(self.reject_test)
         buttons_layout.addWidget(reject_button)
         buttons_box.setLayout(buttons_layout)
         images_layout.addWidget(buttons_box)
 
-        main_layout = QtGui.QHBoxLayout()
+        main_layout = QtWidgets.QHBoxLayout()
         main_layout.addWidget(self.filelist, 3)
         main_layout.addWidget(images_box, 6)
 
@@ -358,7 +358,7 @@ def launch(result_images, source):
         print("No failed tests")
         sys.exit(0)
 
-    app = QtGui.QApplication(sys.argv)
+    app = QtWidgets.QApplication(sys.argv)
     dialog = Dialog(entries)
     dialog.show()
     filter = EventFilter(dialog)
