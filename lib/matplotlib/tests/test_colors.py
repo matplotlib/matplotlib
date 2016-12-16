@@ -146,6 +146,47 @@ def test_BoundaryNorm():
     assert_true(np.all(bn(vals).mask))
 
 
+class TestFuncNorm(object):
+    def test_limits_with_string(self):
+        norm = mcolors.FuncNorm(f='log10', vmin=0.01, vmax=2.)
+        assert_array_equal(norm([0.01, 2]), [0, 1.0])
+
+    def test_limits_with_lambda(self):
+        norm = mcolors.FuncNorm(f=lambda x: np.log10(x),
+                                finv=lambda x: 10.**(x),
+                                vmin=0.01, vmax=2.)
+        assert_array_equal(norm([0.01, 2]), [0, 1.0])
+
+    def test_limits_without_vmin_vmax(self):
+        norm = mcolors.FuncNorm(f='log10')
+        assert_array_equal(norm([0.01, 2]), [0, 1.0])
+
+    def test_limits_without_vmin(self):
+        norm = mcolors.FuncNorm(f='log10', vmax=2.)
+        assert_array_equal(norm([0.01, 2]), [0, 1.0])
+
+    def test_limits_without_vmax(self):
+        norm = mcolors.FuncNorm(f='log10', vmin=0.01)
+        assert_array_equal(norm([0.01, 2]), [0, 1.0])
+
+    def test_intermediate_values(self):
+        norm = mcolors.FuncNorm(f='log10')
+        assert_array_almost_equal(norm([0.01, 0.5, 2]),
+                                  [0, 0.73835195870437, 1.0])
+
+    def test_inverse(self):
+        norm = mcolors.FuncNorm(f='log10', vmin=0.01, vmax=2.)
+        x = np.linspace(0.01, 2, 10)
+        assert_array_almost_equal(x, norm.inverse(norm(x)))
+
+    def test_ticks(self):
+        norm = mcolors.FuncNorm(f='log10', vmin=0.01, vmax=2.)
+        expected = [0.01, 0.016, 0.024, 0.04, 0.06,
+                    0.09, 0.14, 0.22, 0.3, 0.5,
+                    0.8, 1.3, 2.]
+        assert_array_almost_equal(norm.ticks(), expected)
+
+
 def test_LogNorm():
     """
     LogNorm ignored clip, now it has the same

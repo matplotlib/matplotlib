@@ -960,6 +960,229 @@ class Normalize(object):
         return (self.vmin is not None and self.vmax is not None)
 
 
+class FuncNorm(Normalize):
+    """
+    Creates a normalizer using a custom function
+
+    The normalizer will be a function mapping the data values into colormap
+    values in the [0,1] range.
+    """
+
+    def __init__(self, f, finv=None, **normalize_kw):
+        """
+        Specify the function to be used, and its inverse, as well as other
+        parameters to be passed to `Normalize`. The normalization will be
+        calculated as (f(x)-f(vmin))/(f(max)-f(vmin)).
+
+        Parameters
+        ----------
+        f : callable or string
+            Function to be used for the normalization receiving a single
+            parameter, compatible with scalar values and ndarrays.
+            Alternatively a string from the list ['linear', 'quadratic',
+            'cubic', 'sqrt', 'cbrt','log', 'log10', 'power{a}', 'root{a}',
+            'log(x+{a})', 'log10(x+{a})'] can be used, replacing 'a' by a
+            number different than 0 when necessary.
+        finv : callable, optional
+            Inverse function of `f` that satisfies finv(f(x))==x. It is
+            optional in cases where `f` is provided as a string.
+        normalize_kw : dict, optional
+            Dict with keywords (`vmin`,`vmax`,`clip`) passed
+            to `matplotlib.colors.Normalize`.
+
+        Examples
+        --------
+        Creating a logarithmic normalization using the predefined strings:
+
+        >>> import matplotlib.colors as colors
+        >>> norm = colors.FuncNorm(f='log10', vmin=0.01, vmax=2)
+
+        Or doing it manually:
+
+        >>> import matplotlib.colors as colors
+        >>> norm = colors.FuncNorm(f=lambda x: np.log10(x),
+        ...                        finv=lambda x: 10.**(x),
+        ...                        vmin=0.01, vmax=2)
+
+        """
+
+        if isinstance(f, six.string_types):
+            func_parser = cbook._StringFuncParser(f)
+            f = func_parser.function
+            finv = func_parser.inverse
+        if not callable(f):
+            raise ValueError("`f` must be a callable or a string.")
+
+        if finv is None:
+            raise ValueError("Inverse function `finv` not provided.")
+        elif not callable(finv):
+            raise ValueError("`finv` must be a callable.")
+
+        self._f = f
+        self._finv = finv
+
+        super(FuncNorm, self).__init__(**normalize_kw)
+
+    def _update_f(self, vmin, vmax):
+        # This method is to be used by derived classes in cases where
+        # the limits vmin and vmax may require changing/updating the
+        # function depending on vmin/vmax, for example rescaling it
+        # to accomodate to the new interval.
+        return
+
+    def __call__(self, value, clip=None):
+        """
+        Normalizes `value` data in the `[vmin, vmax]` interval into
+        the `[0.0, 1.0]` interval and returns it.
+
+        Parameters
+        ----------
+        value : float or ndarray of floats
+            Data to be normalized.
+        clip : boolean, optional
+            Whether to clip the data outside the `[vmin, vmax]` limits.
+            Default `self.clip` from `Normalize` (which defaults to `False`).
+
+        Returns
+        -------
+        result : masked array of floats
+            Normalized data to the `[0.0, 1.0]` interval. If clip == False,
+            values smaller than `vmin` or greater than `vmax` will be clipped
+            to -0.1 and 1.1 respectively.
+
+        """
+        if clip is None:
+            clip = self.clip
+
+        result, is_scalar = self.process_value(value)
+        self.autoscale_None(result)
+
+        vmin = float(self.vmin)
+        vmax = float(self.vmax)
+
+        self._update_f(vmin, vmax)
+
+        if clip:
+            result = np.clip(result, vmin, vmax)
+            resultnorm = (self._f(result) - self._f(vmin)) / \
+                         (self._f(vmax) - self._f(vmin))
+        else:
+            resultnorm = result.copy()
+            mask_over = result > vmax
+            mask_under = result < vmin
+            mask = (result >= vmin) * (result <= vmax)
+            # Since the non linear function is arbitrary and may not be
+            # defined outside the boundaries, we just set obvious under
+            # and over values
+            resultnorm[mask_over] = 1.1
+            resultnorm[mask_under] = -0.1
+            resultnorm[mask] = (self._f(result[mask]) - self._f(vmin)) / \
+                               (self._f(vmax) - self._f(vmin))
+
+        return np.ma.array(resultnorm)
+
+    def inverse(self, value):
+        """
+        Performs the inverse normalization from the `[0.0, 1.0]` into the
+        `[vmin, vmax]` interval and returns it.
+
+        Parameters
+        ----------
+        value : float or ndarray of floats
+            Data in the `[0.0, 1.0]` interval.
+
+        Returns
+        -------
+        result : float or ndarray of floats
+            Data before normalization.
+
+        """
+        vmin = self.vmin
+        vmax = self.vmax
+        self._update_f(vmin, vmax)
+        value = self._finv(
+            value * (self._f(vmax) - self._f(vmin)) + self._f(vmin))
+        return value
+
+    @staticmethod
+    def _fun_normalizer(fun):
+        if fun(0.) == 0. and fun(1.) == 1.:
+            return fun
+        elif fun(0.) == 0.:
+            return (lambda x: fun(x) / fun(1.))
+        else:
+            return (lambda x: (fun(x) - fun(0.)) / (fun(1.) - fun(0.)))
+
+    def autoscale(self, A):
+        """
+        Autoscales the normalization based on the maximum and minimum values
+        of `A`.
+
+        Parameters
+        ----------
+        A : ndarray or maskedarray
+            Array used to calculate the maximum and minimum values.
+
+        """
+        self.vmin = float(np.ma.min(A))
+        self.vmax = float(np.ma.max(A))
+
+    def autoscale_None(self, A):
+        """
+        Autoscales the normalization based on the maximum and minimum values
+        of `A`, only if the limits were not already set.
+
+        Parameters
+        ----------
+        A : ndarray or maskedarray
+            Array used to calculate the maximum and minimum values.
+
+        """
+        if self.vmin is None:
+            self.vmin = float(np.ma.min(A))
+        if self.vmax is None:
+            self.vmax = float(np.ma.max(A))
+        self.vmin = float(self.vmin)
+        self.vmax = float(self.vmax)
+        if self.vmin > self.vmax:
+            raise ValueError("vmin must be smaller than vmax")
+
+    def ticks(self, nticks=13):
+        """
+        Returns an automatic list of `nticks` points in the data space
+        to be used as ticks in the colorbar.
+
+        Parameters
+        ----------
+        nticks : integer, optional
+            Number of ticks to be returned. Default 13.
+
+        Returns
+        -------
+        ticks : ndarray
+            1d array of length `nticks` with the proposed tick locations.
+
+        """
+        ticks = self.inverse(np.linspace(0, 1, nticks))
+        finalticks = np.zeros(ticks.shape, dtype=np.bool)
+        finalticks[0] = True
+        ticks = FuncNorm._round_ticks(ticks, finalticks)
+        return ticks
+
+    @staticmethod
+    def _round_ticks(ticks, permanenttick):
+        ticks = ticks.copy()
+        for i in range(len(ticks)):
+            if i == 0 or i == len(ticks) - 1 or permanenttick[i]:
+                continue
+            d1 = ticks[i] - ticks[i - 1]
+            d2 = ticks[i + 1] - ticks[i]
+            d = min([d1, d2])
+            order = -np.floor(np.log10(d))
+            ticks[i] = float(np.round(ticks[i] * 10**order)) / 10**order
+        return ticks
+
+
 class LogNorm(Normalize):
     """
     Normalize a given value to the 0-1 range on a log scale
