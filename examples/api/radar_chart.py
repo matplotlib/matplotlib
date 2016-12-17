@@ -135,7 +135,7 @@ def example_data():
     #     Pyrolized Organic Carbon (OP)
     #  2)Inclusion of gas-phase specie carbon monoxide (CO)
     #  3)Inclusion of gas-phase specie ozone (O3).
-    #  4)Inclusion of both gas-phase speciesis present...
+    #  4)Inclusion of both gas-phase species is present...
     data = [
         ['Sulfate', 'Nitrate', 'EC', 'OC1', 'OC2', 'OC3', 'OP', 'CO', 'O3'],
         ('Basecase', [

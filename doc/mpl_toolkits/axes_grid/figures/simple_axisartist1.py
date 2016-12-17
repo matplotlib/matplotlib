@@ -10,7 +10,7 @@ fig.add_subplot(ax)
 ax.axis["bottom", "top", "right"].set_visible(False)
 
 # make an new axis along the first axis axis (x-axis) which pass
-# throught y=0.
+# through y=0.
 ax.axis["y=0"] = ax.new_floating_axis(nth_coord=0, value=0,
                                       axis_direction="bottom")
 ax.axis["y=0"].toggle(all=True)

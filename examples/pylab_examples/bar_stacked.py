@@ -17,7 +17,7 @@ p2 = plt.bar(ind, womenMeans, width,
 
 plt.ylabel('Scores')
 plt.title('Scores by group and gender')
-plt.xticks(ind + width/2., ('G1', 'G2', 'G3', 'G4', 'G5'))
+plt.xticks(ind, ('G1', 'G2', 'G3', 'G4', 'G5'))
 plt.yticks(np.arange(0, 81, 10))
 plt.legend((p1[0], p2[0]), ('Men', 'Women'))
 
