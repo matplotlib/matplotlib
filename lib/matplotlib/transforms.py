@@ -2844,10 +2844,13 @@ def offset_copy(trans, fig=None, x=0.0, y=0.0, units='inches'):
         trans is any transform
       kwargs:
         fig is the current figure; it can be None if units are 'dots'
+        or 'pixels'.
+
         x, y give the offset
-        units is 'inches', 'points' or 'dots'
+
+        units is 'inches', 'points' or 'dots'/'pixels'
     '''
-    if units == 'dots':
+    if units in ('dots', 'pixels'):
         return trans + Affine2D().translate(x, y)
     if fig is None:
         raise ValueError('For units of inches or points a fig kwarg is needed')
@@ -2855,5 +2858,5 @@ def offset_copy(trans, fig=None, x=0.0, y=0.0, units='inches'):
         x /= 72.0
         y /= 72.0
     elif not units == 'inches':
-        raise ValueError('units must be dots, points, or inches')
+        raise ValueError('units must be dots, pixels, points, or inches')
     return trans + ScaledTranslation(x, y, fig.dpi_scale_trans)

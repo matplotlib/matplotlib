@@ -1542,8 +1542,8 @@ class EllipseCollection(Collection):
         *angles*: sequence
             angles of first axes, degrees CCW from the X-axis
 
-        *units*: ['points' | 'inches' | 'dots' | 'width' | 'height'
-        | 'x' | 'y' | 'xy']
+        *units*: ['points' | 'inches' | 'dots' | 'pixels' |'width' | 'height'
+                  | 'x' | 'y' | 'xy']
 
             units in which majors and minors are given; 'width' and
             'height' refer to the dimensions of the axes, while 'x'
@@ -1588,7 +1588,7 @@ class EllipseCollection(Collection):
             sc = ax.bbox.width
         elif self._units == 'height':
             sc = ax.bbox.height
-        elif self._units == 'dots':
+        elif self._units in ('dots', 'pixels'):
             sc = 1.0
         else:
             raise ValueError('unrecognized units: %s' % self._units)

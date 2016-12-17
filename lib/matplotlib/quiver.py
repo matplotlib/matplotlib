@@ -68,22 +68,22 @@ supported at present.
 
 Keyword arguments:
 
-  *units*: [ 'width' | 'height' | 'dots' | 'inches' | 'x' | 'y' | 'xy' ]
-    Arrow units; the arrow dimensions *except for length* are in
-    multiples of this unit.
+  *units*: [ 'width' | 'height' | 'dots' | 'pixels' | 'inches' | 'x' | 'y' |
+    'xy' ] Arrow units; the arrow dimensions *except for length* are
+    in multiples of this unit.
 
     * 'width' or 'height': the width or height of the axes
 
-    * 'dots' or 'inches': pixels or inches, based on the figure dpi
+    * 'dots'/'pixels' or 'inches': pixels or inches, based on the figure dpi
 
     * 'x', 'y', or 'xy': *X*, *Y*, or sqrt(X^2+Y^2) data units
 
-    The arrows scale differently depending on the units.  For
-    'x' or 'y', the arrows get larger as one zooms in; for other
-    units, the arrow size is independent of the zoom state.  For
-    'width or 'height', the arrow size increases with the width and
-    height of the axes, respectively, when the window is resized;
-    for 'dots' or 'inches', resizing does not change the arrows.
+    The arrows scale differently depending on the units.  For 'x' or
+    'y', the arrows get larger as one zooms in; for other units, the
+    arrow size is independent of the zoom state.  For 'width or
+    'height', the arrow size increases with the width and height of
+    the axes, respectively, when the window is resized; for
+    'dots'/'pixels' or 'inches', resizing does not change the arrows.
 
 
   *angles*: [ 'uv' | 'xy' | array ]
@@ -582,7 +582,7 @@ class Quiver(mcollections.PolyCollection):
                 dx = ax.bbox.width
             elif units == 'height':
                 dx = ax.bbox.height
-            elif units == 'dots':
+            elif units in ('dots', 'pixels'):
                 dx = 1.0
             elif units == 'inches':
                 dx = ax.figure.dpi
