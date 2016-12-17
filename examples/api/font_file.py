@@ -7,7 +7,7 @@ Using a ttf font file in matplotlib
 Although it is usually not a good idea to explicitly point to a single
 ttf file for a font instance, you can do so using the
 font_manager.FontProperties fname argument (for a more flexible
-solution, see the font_fmaily_rc.py and fonts_demo.py examples).
+solution, see the font_family_rc.py and fonts_demo.py examples).
 """
 import sys
 import os

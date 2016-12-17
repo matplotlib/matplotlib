@@ -12,7 +12,7 @@ the tooltip placement and appearance, at the expense of more code up
 front.
 
 The alternative approach would be to put the tooltip content in `title`
-atttributes of SVG objects. Then, using an existing js/CSS library, it
+attributes of SVG objects. Then, using an existing js/CSS library, it
 would be relatively straightforward to create the tooltip in the
 browser. The content would be dictated by the `title` attribute, and
 the appearance by the CSS.

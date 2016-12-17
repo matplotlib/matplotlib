@@ -19,7 +19,7 @@ ax.plot(x, y, '-')
 ax.set_ylim(-2, 2)
 ax.set_title('Press left mouse button and drag to test')
 
-ax2 = fig.add_subplot(212, axisbg='#FFFFCC')
+ax2 = fig.add_subplot(212, facecolor='#FFFFCC')
 line2, = ax2.plot(x, y, '-')
 
 

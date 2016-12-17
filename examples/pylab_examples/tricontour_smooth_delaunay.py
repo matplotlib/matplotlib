@@ -113,10 +113,10 @@ plt.gca().set_aspect('equal')
 plt.title("Filtering a Delaunay mesh\n" +
           "(application to high-resolution tricontouring)")
 
-# 1) plot of the refined (computed) data countours:
+# 1) plot of the refined (computed) data contours:
 plt.tricontour(tri_refi, z_test_refi, levels=levels, cmap=cmap,
                linewidths=[2.0, 0.5, 1.0, 0.5])
-# 2) plot of the expected (analytical) data countours (dashed):
+# 2) plot of the expected (analytical) data contours (dashed):
 if plot_expected:
     plt.tricontour(tri_refi, z_expected, levels=levels, cmap=cmap,
                    linestyles='--')

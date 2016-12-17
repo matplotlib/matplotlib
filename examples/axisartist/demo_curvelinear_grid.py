@@ -113,7 +113,7 @@ def curvelinear_test2(fig):
     # A parasite axes with given transform
     ax2 = ParasiteAxesAuxTrans(ax1, tr, "equal")
     # note that ax2.transData == tr + ax1.transData
-    # Anthing you draw in ax2 will match the ticks and grids of ax1.
+    # Anything you draw in ax2 will match the ticks and grids of ax1.
     ax1.parasites.append(ax2)
     intp = cbook.simple_linear_interpolation
     ax2.plot(intp(np.array([0, 30]), 50),

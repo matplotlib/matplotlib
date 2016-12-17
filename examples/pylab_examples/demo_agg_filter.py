@@ -265,7 +265,7 @@ def drop_shadow_line(ax):
 
 
 def drop_shadow_patches(ax):
-    # copyed from barchart_demo.py
+    # Copied from barchart_demo.py
     N = 5
     menMeans = (20, 35, 30, 35, 27)
 
@@ -283,7 +283,6 @@ def drop_shadow_patches(ax):
     ax.add_artist(shadow)
     shadow.set_zorder(rects1[0].get_zorder() - 0.1)
 
-    ax.set_xlim(ind[0] - 0.5, ind[-1] + 1.5)
     ax.set_ylim(0, 40)
 
     ax.xaxis.set_visible(False)

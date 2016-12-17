@@ -38,9 +38,8 @@ class LassoManager(object):
 
         facecolors = [d.color for d in data]
         self.xys = [(d.x, d.y) for d in data]
-        fig = ax.figure
         self.collection = RegularPolyCollection(
-            fig.dpi, 6, sizes=(100,),
+            6, sizes=(100,),
             facecolors=facecolors,
             offsets=self.xys,
             transOffset=ax.transData)
