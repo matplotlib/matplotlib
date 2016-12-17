@@ -229,9 +229,9 @@ def _mark_every_path(markevery, tpath, affine, ax_transform):
             'markevery=%s' % (markevery,))
 
 
-def _reduce_path(tpath, ax):
+def _downsample_path(tpath, ax):
     """
-    Helper function to compute the reduced path.
+    Helper function to compute the downsampled path.
     """
     # TODO: Ensure the following conditions:
     #   - monotonically increasing x values (???)
@@ -258,22 +258,25 @@ def _reduce_path(tpath, ax):
     # Convert vertices from data space to pixel space.
     # TODO: Find out if this is already stored somewhere.
     verts_trans = ax.transData.transform(verts)
-    x_pixel_columns = np.floor(verts_trans[:,0]).astype(int)
 
     # This approach assumes monotonically increasing x values!
-    unique_indices = np.unique(x_pixel_columns, return_index=True)[1]
+    unique_indices = np.unique(np.floor(verts_trans[:,0]),
+                               return_index=True)[1]
     keep_inds = np.ones((unique_indices.size, 4), dtype=int) * -1
-    for i, x_pixel_column in enumerate(np.split(x_pixel_columns,
-                                                unique_indices[1:])):
+    for i, y_pixel_col in enumerate(np.split(verts_trans[:,1],
+                                             unique_indices[1:])):
         # np.split already starts the first slice at 0, and unique_indices
         # is guaranteed to start at 0, so skip the 0th element in the split.
         pixel_col_start = unique_indices[i]
         if i+1 == unique_indices.size:
-            pixel_col_end = x_pixel_columns.size
+            pixel_col_end = verts_trans.shape[0]
         else:
             pixel_col_end = unique_indices[i+1]
-        keep_inds[i] = (pixel_col_start, np.argmin(x_pixel_column),
-                        np.argmax(x_pixel_column), pixel_col_end-1)
+        keep_inds[i] = (pixel_col_start,
+                        pixel_col_start + np.argmin(y_pixel_col),
+                        pixel_col_start + np.argmax(y_pixel_col),
+                        pixel_col_end-1)
+    # TODO: Not strictly necessary, worth doing benchmarks to see if worth it.
     keep_inds = np.unique(keep_inds)
 
     # TODO: Develop approach that does not assume monotonicity.
@@ -644,6 +647,16 @@ class Line2D(Artist):
         """return the markevery setting"""
         return self._markevery
 
+    def set_downsample(self, downsample):
+        """TODO"""
+        if self._downsample != downsample:
+            self.stale = True
+        self._downsample = downsample
+
+    def get_downsample(self):
+        """return the downsample setting"""
+        return self._downsample
+
     def set_picker(self, p):
         """Sets the event picker details for the line.
 
@@ -827,6 +840,8 @@ class Line2D(Artist):
         if funcname != '_draw_nothing':
             tpath, affine = transf_path.get_transformed_path_and_affine()
             if len(tpath.vertices):
+                if self._downsample:
+                    tpath = _downsample_path(tpath, self.axes)
                 line_func = getattr(self, funcname)
                 gc = renderer.new_gc()
                 self._set_gc_clip(gc)
@@ -875,6 +890,9 @@ class Line2D(Artist):
             marker = self._marker
             tpath, affine = transf_path.get_transformed_points_and_affine()
             if len(tpath.vertices):
+                if self._downsample:
+                    tpath = _downsample_path(tpath, self.axes)
+
                 # subsample the markers if markevery is not None
                 markevery = self.get_markevery()
                 if markevery is not None:
