@@ -456,6 +456,7 @@ class Line2D(Artist):
         self._marker = MarkerStyle(marker, fillstyle)
 
         self._markevery = None
+        self._downsample = None
         self._markersize = None
         self._antialiased = None
 
