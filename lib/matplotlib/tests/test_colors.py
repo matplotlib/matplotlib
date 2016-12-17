@@ -169,6 +169,20 @@ class TestFuncNorm(object):
         norm = mcolors.FuncNorm(f='log10', vmin=0.01)
         assert_array_equal(norm([0.01, 2]), [0, 1.0])
 
+    def test_clip_true(self):
+        norm = mcolors.FuncNorm(f='log10', vmin=0.01, vmax=2.,
+                                clip=True)
+        assert_array_equal(norm([0.0, 2.5]), [0.0, 1.0])
+
+    def test_clip_false(self):
+        norm = mcolors.FuncNorm(f='log10', vmin=0.01, vmax=2.,
+                                clip=False)
+        assert_array_equal(norm([0.0, 2.5]), [-0.1, 1.1])
+
+    def test_clip_default_false(self):
+        norm = mcolors.FuncNorm(f='log10', vmin=0.01, vmax=2.)
+        assert_array_equal(norm([0.0, 2.5]), [-0.1, 1.1])
+
     def test_intermediate_values(self):
         norm = mcolors.FuncNorm(f='log10')
         assert_array_almost_equal(norm([0.01, 0.5, 2]),

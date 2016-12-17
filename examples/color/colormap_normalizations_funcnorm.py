@@ -15,71 +15,60 @@ import matplotlib.pyplot as plt
 
 import numpy as np
 
+norm_log = colors.FuncNorm(f='log10', vmin=0.01)
+# The same can be achieved with
+# norm_log = colors.FuncNorm(f=np.log10,
+#                            finv=lambda x: 10.**(x), vmin=0.01)
 
-def main():
-    fig, axes = plt.subplots(3, 2, gridspec_kw={
-              'width_ratios': [1, 3.5]}, figsize=plt.figaspect(0.6))
+norm_sqrt = colors.FuncNorm(f='sqrt', vmin=0.0)
+# The same can be achieved with
+# norm_sqrt = colors.FuncNorm(f='root{2}', vmin=0.)
+# or with
+# norm_sqrt = colors.FuncNorm(f=lambda x: x**0.5,
+#                             finv=lambda x: x**2, vmin=0.0)
 
-    # Example of logarithm normalization using FuncNorm
-    norm_log = colors.FuncNorm(f='log10', vmin=0.01)
-    # The same can be achieved with
-    # norm_log = colors.FuncNorm(f=np.log10,
-    #                            finv=lambda x: 10.**(x), vmin=0.01)
+normalizations = [(None, 'Regular linear scale'),
+                  (norm_log, 'Log normalization'),
+                  (norm_sqrt, 'Root normalization')]
 
-    # Example of root normalization using FuncNorm
-    norm_sqrt = colors.FuncNorm(f='sqrt', vmin=0.0)
-    # The same can be achieved with
-    # norm_sqrt = colors.FuncNorm(f='root{2}', vmin=0.)
-    # or with
-    # norm_sqrt = colors.FuncNorm(f=lambda x: x**0.5,
-    #                             finv=lambda x: x**2, vmin=0.0)
+# Fabricating some data
+x = np.linspace(0, 1, 300)
+y = np.linspace(-1, 1, 90)
+X, Y = np.meshgrid(x, y)
 
-    normalizations = [(None, 'Regular linear scale'),
-                      (norm_log, 'Log normalization'),
-                      (norm_sqrt, 'Root normalization')]
-
-    for i, (norm, title) in enumerate(normalizations):
-        X, Y, data = get_data()
-
-        # Showing the normalization effect on an image
-        ax2 = axes[i][1]
-        cax = ax2.imshow(data, cmap=cm.afmhot, norm=norm)
-        ticks = cax.norm.ticks(5) if norm else np.linspace(0, 1, 6)
-        fig.colorbar(cax, format='%.3g', ticks=ticks, ax=ax2)
-        ax2.set_title(title)
-        ax2.axes.get_xaxis().set_ticks([])
-        ax2.axes.get_yaxis().set_ticks([])
-
-        # Plotting the behaviour of the normalization
-        ax1 = axes[i][0]
-        d_values = np.linspace(cax.norm.vmin, cax.norm.vmax, 100)
-        cm_values = cax.norm(d_values)
-        ax1.plot(d_values, cm_values)
-        ax1.set_xlabel('Data values')
-        ax1.set_ylabel('Colormap values')
-
-    plt.show()
+data = np.zeros(X.shape)
 
 
-def get_data(_cache=[]):
-    if len(_cache) > 0:
-        return _cache[0]
-    x = np.linspace(0, 1, 300)
-    y = np.linspace(-1, 1, 90)
-    X, Y = np.meshgrid(x, y)
+def gauss2d(x, y, a0, x0, y0, wx, wy):
+    return a0 * np.exp(-(x - x0)**2 / wx**2 - (y - y0)**2 / wy**2)
 
-    data = np.zeros(X.shape)
+for x in np.linspace(0., 1, 15):
+    data += gauss2d(X, Y, x, x, 0, 0.25 / 15, 0.25)
 
-    def gauss2d(x, y, a0, x0, y0, wx, wy):
-        return a0 * np.exp(-(x - x0)**2 / wx**2 - (y - y0)**2 / wy**2)
-    N = 15
-    for x in np.linspace(0., 1, N):
-        data += gauss2d(X, Y, x, x, 0, 0.25 / N, 0.25)
+data -= data.min()
+data /= data.max()
 
-    data = data - data.min()
-    data = data / data.max()
-    _cache.append((X, Y, data))
+# Using the custom normalizations to plot the data
+fig, axes = plt.subplots(3, 2, sharex='col',
+                         gridspec_kw={'width_ratios': [1, 3.5]},
+                         figsize=plt.figaspect(0.6))
 
-    return _cache[0]
+for (ax_left, ax_right), (norm, title) in zip(axes, normalizations):
 
-main()
+    # Showing the normalization effect on an image
+    cax = ax_right.imshow(data, cmap=cm.afmhot, norm=norm, aspect='auto')
+    ticks = cax.norm.ticks(5) if norm else np.linspace(0, 1, 6)
+    fig.colorbar(cax, format='%.3g', ticks=ticks, ax=ax_right)
+    ax_right.set_title(title)
+    ax_right.xaxis.set_ticks([])
+    ax_right.yaxis.set_ticks([])
+
+    # Plotting the behaviour of the normalization
+    d_values = np.linspace(cax.norm.vmin, cax.norm.vmax, 100)
+    cm_values = cax.norm(d_values)
+    ax_left.plot(d_values, cm_values)
+    ax_left.set_ylabel('Colormap values')
+
+ax_left.set_xlabel('Data values')
+
+plt.show()
