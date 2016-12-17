@@ -8,7 +8,7 @@ import six
 import itertools
 import matplotlib.lines as mlines
 import nose
-from nose.tools import assert_true, assert_raises
+from nose.tools import assert_true, assert_raises, assert_equal
 from timeit import repeat
 import numpy as np
 from cycler import cycler
@@ -189,6 +189,37 @@ def test_nan_is_sorted():
     assert_true(line._is_sorted(np.array([1, 2, 3])))
     assert_true(line._is_sorted(np.array([1, np.nan, 3])))
     assert_true(not line._is_sorted([3, 5] + [np.nan] * 100 + [0, 2]))
+
+
+@cleanup
+def test_downsample_lines():
+    x = np.array([0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1.0])
+    y = np.array([2, 8, 3, 6, 1, 5, 5, 8, 7, 6, 6, 7.0])
+
+    line = mlines.Line2D(x, y, downsample=True)
+
+    fig, ax = plt.subplots()
+
+    # Adjust size of figure to ensure downsampling occurs
+    fig.set_dpi(1)
+    fig.set_size_inches([2,1])
+
+    ax.add_line(line)
+
+    tpath, _ = line._get_transformed_path().get_transformed_path_and_affine()
+    down_verts = line._downsample_path(tpath).vertices
+
+    expected_down_verts = np.array([
+        [0.0, 2.0],
+        [0.0, 1.0],
+        [0.0, 8.0],
+        [0.0, 5.0],
+        [1.0, 5.0],
+        [1.0, 5.0],
+        [1.0, 8.0],
+        [1.0, 7.0]
+    ])
+    assert_equal(down_verts, expected_down_verts)
 
 
 if __name__ == '__main__':
