@@ -69,7 +69,7 @@ def plot_student_results(student, scores, cohort_size):
     fig.subplots_adjust(left=0.115, right=0.88)
     fig.canvas.set_window_title('Eldorado K-8 Fitness Chart')
 
-    pos = np.arange(len(testNames)) + 0.5  # Center bars on the Y-axis ticks
+    pos = np.arange(len(testNames))
 
     rects = ax1.barh(pos, [scores[k].percentile for k in testNames],
                      align='center',
@@ -160,3 +160,4 @@ scores = dict(zip(testNames,
 cohort_size = 62  # The number of other 2nd grade boys
 
 arts = plot_student_results(student, scores, cohort_size)
+plt.show()

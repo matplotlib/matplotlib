@@ -29,14 +29,12 @@ plt.show(block=False)
 
 
 pm, pc, pn = plt.bar(ind, get_stats(0))
-centers = ind + 0.5*pm.get_width()
 pm.set_facecolor('r')
 pc.set_facecolor('g')
 pn.set_facecolor('b')
-ax.set_xlim([0.5, 4])
-ax.set_xticks(centers)
-ax.set_ylim([0, 100])
+ax.set_xticks(ind)
 ax.set_xticklabels(['Memory', 'CPU', 'Bandwidth'])
+ax.set_ylim([0, 100])
 ax.set_ylabel('Percent usage')
 ax.set_title('System Monitor')
 
@@ -57,7 +55,7 @@ for i in range(200):  # run for a little while
     try:
         # make sure that the GUI framework has a chance to run its event loop
         # and clear any GUI events.  This needs to be in a try/except block
-        # because the default implemenation of this method is to raise
+        # because the default implementation of this method is to raise
         # NotImplementedError
         fig.canvas.flush_events()
     except NotImplementedError:

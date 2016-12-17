@@ -24,7 +24,7 @@ z = dem['elevation']
 # If you need topographically accurate vertical exaggeration, or you don't want
 # to guess at what *vert_exag* should be, you'll need to specify the cellsize
 # of the grid (i.e. the *dx* and *dy* parameters).  Otherwise, any *vert_exag*
-# value you specify will be realitive to the grid spacing of your input data
+# value you specify will be relative to the grid spacing of your input data
 # (in other words, *dx* and *dy* default to 1.0, and *vert_exag* is calculated
 # relative to those parameters).  Similarly, *dx* and *dy* are assumed to be in
 # the same units as your input z-values.  Therefore, we'll need to convert the

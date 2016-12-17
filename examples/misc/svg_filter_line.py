@@ -1,7 +1,7 @@
 """
 Demonstrate SVG filtering effects which might be used with mpl.
 
-Note that the filtering effects are only effective if your svg rederer
+Note that the filtering effects are only effective if your svg renderer
 support it.
 """
 
@@ -78,7 +78,7 @@ tree.insert(0, ET.XML(filter_def))
 for l in [l1, l2]:
     # pick up the svg element with given id
     shadow = xmlid[l.get_label() + "_shadow"]
-    # apply shdow filter
+    # apply shadow filter
     shadow.set("filter", 'url(#dropshadow)')
 
 fn = "svg_filter_line.svg"

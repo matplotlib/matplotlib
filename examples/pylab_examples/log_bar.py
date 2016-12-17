@@ -16,6 +16,7 @@ x = np.arange(len(data))
 for i in range(len(data[0])):
     y = [d[i] for d in data]
     b = plt.bar(x + i * dimw, y, dimw, bottom=0.001)
-plt.xticks(x + w / 2)
+
+plt.xticks(x + dimw / 2, map(str, x))
 
 plt.show()

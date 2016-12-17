@@ -9,5 +9,7 @@ import matplotlib.pyplot as plt
 
 plt.plot([1, 2, 3])
 
-plt.savefig(sys.stdout)
-plt.show()
+if sys.version_info[0] >= 3:
+    plt.savefig(sys.stdout.buffer)
+else:
+    plt.savefig(sys.stdout)
