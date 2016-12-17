@@ -229,61 +229,6 @@ def _mark_every_path(markevery, tpath, affine, ax_transform):
             'markevery=%s' % (markevery,))
 
 
-def _downsample_path(tpath, ax):
-    """
-    Helper function to compute the downsampled path.
-    """
-    # TODO: Ensure the following conditions:
-    #   - monotonically increasing x values (???)
-
-    # pull out the two bits of data we want from the path
-    codes, verts = tpath.codes, tpath.vertices
-
-    def _slice_or_none(in_v, slc):
-        """
-        Helper function to cope with `codes` being an
-        ndarray or `None`
-        """
-        if in_v is None:
-            return None
-        return in_v[slc]
-
-    x0, x1 = ax.get_xbound()
-    num_pixel_columns = np.diff(ax.transData.transform([[x0, 0],
-                                                        [x1, 0]])[:,0])
-    if verts.shape[0] <= num_pixel_columns * 4:
-        # Not worth reducing
-        return tpath
-
-    # Convert vertices from data space to pixel space.
-    # TODO: Find out if this is already stored somewhere.
-    verts_trans = ax.transData.transform(verts)
-
-    # This approach assumes monotonically increasing x values!
-    unique_indices = np.unique(np.floor(verts_trans[:,0]),
-                               return_index=True)[1]
-    keep_inds = np.ones((unique_indices.size, 4), dtype=int) * -1
-    for i, y_pixel_col in enumerate(np.split(verts_trans[:,1],
-                                             unique_indices[1:])):
-        # np.split already starts the first slice at 0, and unique_indices
-        # is guaranteed to start at 0, so skip the 0th element in the split.
-        pixel_col_start = unique_indices[i]
-        if i+1 == unique_indices.size:
-            pixel_col_end = verts_trans.shape[0]
-        else:
-            pixel_col_end = unique_indices[i+1]
-        keep_inds[i] = (pixel_col_start,
-                        pixel_col_start + np.argmin(y_pixel_col),
-                        pixel_col_start + np.argmax(y_pixel_col),
-                        pixel_col_end-1)
-    # TODO: Not strictly necessary, worth doing benchmarks to see if worth it.
-    keep_inds = np.unique(keep_inds)
-
-    # TODO: Develop approach that does not assume monotonicity.
-
-    return Path(verts[keep_inds], _slice_or_none(codes, keep_inds))
-
-
 class Line2D(Artist):
     """
     A line - the line can have both a solid linestyle connecting all
@@ -365,6 +310,7 @@ class Line2D(Artist):
                  pickradius=5,
                  drawstyle=None,
                  markevery=None,
+                 downsample=None,
                  **kwargs
                  ):
         """
@@ -461,6 +407,7 @@ class Line2D(Artist):
         self._antialiased = None
 
         self.set_markevery(markevery)
+        self.set_downsample(downsample)
         self.set_antialiased(antialiased)
         self.set_markersize(markersize)
 
@@ -639,6 +586,10 @@ class Line2D(Artist):
         markers is always determined from the display-coordinates
         axes-bounding-box-diagonal regardless of the actual axes data limits.
 
+        See also
+        --------
+        downsample : for downsampling the line segments that are plotted.
+
         """
         if self._markevery != every:
             self.stale = True
@@ -649,7 +600,50 @@ class Line2D(Artist):
         return self._markevery
 
     def set_downsample(self, downsample):
-        """TODO"""
+        """Set the downsample property to subsample the plotted line segments.
+
+        If True, then only a subset of line segments will be plotted. The
+        subset is carefully chosen so that the rendering of the downsampled
+        plot looks very similar to the rending of the non-downsampled plot. In
+        fact, if there is no anti-aliasing and plotting uses a solid line only,
+        then the renderings will be identical.
+
+        Recommended *only* when plotting with a solid line (e.g. no dashes,
+        no markers).
+
+        ACCEPTS: [True | False]
+
+        Parameters
+        ----------
+        downsample: None | boolean-like
+            Whether or not to downsample.
+
+            - downsample=True, a downsampled set of points will be plotted.
+            - downsample=False, every point will be plotted.
+
+        Notes
+        -----
+        If the x values of the line are monotonic, then the downsampling
+        algorithm will plot at most 4 times the width of the parent
+        :class:`matplotlib.axes.Axes` in pixels of vertices. If the x values
+        are not monotonic, the plot will still render correctly, but you are
+        not guaranteed any faster rendering.
+
+        If plotting with a non-solid line format (e.g. '--'), then
+        the downsampled plot could render quite differently from the
+        non-downsampled plot.
+
+        Markers will not be downsampled.
+
+        If the line is anti-aliased, then the downsampled plot will not
+        render *exactly* the same as a non-dowsampled plot,
+        but will be very similar.
+
+        See also
+        --------
+        markevery : for downsampling the markers that are plotted.
+
+        """
         if self._downsample != downsample:
             self.stale = True
         self._downsample = downsample
@@ -813,6 +807,58 @@ class Line2D(Artist):
         # We don't handle the monotonically decreasing case.
         return _path.is_sorted(x)
 
+    def _downsample_path(self, tpath):
+        """
+        Helper function to compute the downsampled path.
+        """
+        # pull out the two bits of data we want from the path
+        codes, verts = tpath.codes, tpath.vertices
+
+        def _slice_or_none(in_v, slc):
+            """
+            Helper function to cope with `codes` being an ndarray or `None`
+            """
+            if in_v is None:
+                return None
+            return in_v[slc]
+
+        # Don't waste time downsampling if it won't give us any benefit
+        x0, x1 = self.axes.get_xbound()
+        pixel_width = np.diff(self.axes.transData.transform([[x0, 0],
+                                                             [x1, 0]])[:,0])
+        if verts.shape[0] <= pixel_width * 4:
+            return tpath
+
+        # Convert vertices from data space to pixel space.
+        # TODO: Find out if this is already stored somewhere.
+        verts_trans = self.axes.transData.transform(verts)
+
+        # Find where the pixel column of the x data changes
+        split_indices = np.diff(np.floor(verts_trans[:,0]).astype(int)) != 0
+        split_indices = np.where(split_indices)[0]+1
+
+        keep_inds = np.zeros((split_indices.size + 1, 4), dtype=int)
+        for i, y_pixel_col in enumerate(np.split(verts_trans[:,1],
+                                                 split_indices)):
+            if i == 0:
+                pixel_col_start = 0
+            else:
+                pixel_col_start = split_indices[i-1]
+
+            if i == split_indices.size:
+                pixel_col_end = verts_trans.shape[0]
+            else:
+                pixel_col_end = split_indices[i]
+
+            keep_inds[i] = (pixel_col_start,
+                            pixel_col_start + np.argmin(y_pixel_col),
+                            pixel_col_start + np.argmax(y_pixel_col),
+                            pixel_col_end-1)
+
+        keep_inds = keep_inds.flatten()
+
+        return Path(verts[keep_inds], _slice_or_none(codes, keep_inds))
+
     @allow_rasterization
     def draw(self, renderer):
         """draw the Line with `renderer` unless visibility is False"""
@@ -842,7 +888,7 @@ class Line2D(Artist):
             tpath, affine = transf_path.get_transformed_path_and_affine()
             if len(tpath.vertices):
                 if self._downsample:
-                    tpath = _downsample_path(tpath, self.axes)
+                    tpath = self._downsample_path(tpath)
                 line_func = getattr(self, funcname)
                 gc = renderer.new_gc()
                 self._set_gc_clip(gc)
@@ -891,9 +937,6 @@ class Line2D(Artist):
             marker = self._marker
             tpath, affine = transf_path.get_transformed_points_and_affine()
             if len(tpath.vertices):
-                if self._downsample:
-                    tpath = _downsample_path(tpath, self.axes)
-
                 # subsample the markers if markevery is not None
                 markevery = self.get_markevery()
                 if markevery is not None:
