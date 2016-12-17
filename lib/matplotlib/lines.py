@@ -229,6 +229,58 @@ def _mark_every_path(markevery, tpath, affine, ax_transform):
             'markevery=%s' % (markevery,))
 
 
+def _reduce_path(tpath, ax):
+    """
+    Helper function to compute the reduced path.
+    """
+    # TODO: Ensure the following conditions:
+    #   - monotonically increasing x values (???)
+
+    # pull out the two bits of data we want from the path
+    codes, verts = tpath.codes, tpath.vertices
+
+    def _slice_or_none(in_v, slc):
+        """
+        Helper function to cope with `codes` being an
+        ndarray or `None`
+        """
+        if in_v is None:
+            return None
+        return in_v[slc]
+
+    x0, x1 = ax.get_xbound()
+    num_pixel_columns = np.diff(ax.transData.transform([[x0, 0],
+                                                        [x1, 0]])[:,0])
+    if verts.shape[0] <= num_pixel_columns * 4:
+        # Not worth reducing
+        return tpath
+
+    # Convert vertices from data space to pixel space.
+    # TODO: Find out if this is already stored somewhere.
+    verts_trans = ax.transData.transform(verts)
+    x_pixel_columns = np.floor(verts_trans[:,0]).astype(int)
+
+    # This approach assumes monotonically increasing x values!
+    unique_indices = np.unique(x_pixel_columns, return_index=True)[1]
+    keep_inds = np.ones((unique_indices.size, 4), dtype=int) * -1
+    for i, x_pixel_column in enumerate(np.split(x_pixel_columns,
+                                                unique_indices[1:])):
+        # np.split already starts the first slice at 0, and unique_indices
+        # is guaranteed to start at 0, so skip the 0th element in the split.
+        pixel_col_start = unique_indices[i]
+        if i+1 == unique_indices.size:
+            pixel_col_end = x_pixel_columns.size
+        else:
+            pixel_col_end = unique_indices[i+1]
+        keep_inds[i] = (pixel_col_start, np.argmin(x_pixel_column),
+                        np.argmax(x_pixel_column), pixel_col_end-1)
+    keep_inds = np.unique(keep_inds)
+
+    # TODO: Develop approach that does not assume monotonicity.
+
+    return Path(verts[keep_inds], _slice_or_none(codes, keep_inds))
+
+
 class Line2D(Artist):
     """
     A line - the line can have both a solid linestyle connecting all
