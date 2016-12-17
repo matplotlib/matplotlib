@@ -1,4 +1,4 @@
-"""
+r"""
 matplotlib supports accented characters via TeX mathtext
 
 The following accents are provided: \hat, \breve, \grave, \bar,

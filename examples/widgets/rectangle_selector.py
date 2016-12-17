@@ -4,7 +4,7 @@ Do a mouseclick somewhere, move the mouse to some destination, release
 the button.  This class gives click- and release-events and also draws
 a line or a box from the click-point to the actual mouseposition
 (within the same axes) until the button is released.  Within the
-method 'self.ignore()' it is checked wether the button from eventpress
+method 'self.ignore()' it is checked whether the button from eventpress
 and eventrelease are the same.
 
 """
@@ -31,7 +31,7 @@ def toggle_selector(event):
         toggle_selector.RS.set_active(True)
 
 
-fig, current_ax = plt.subplots()                    # make a new plotingrange
+fig, current_ax = plt.subplots()                 # make a new plotting range
 N = 100000                                       # If N is large one can see
 x = np.linspace(0.0, 10.0, N)                    # improvement by use blitting!
 

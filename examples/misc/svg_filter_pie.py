@@ -2,7 +2,7 @@
 Demonstrate SVG filtering effects which might be used with mpl.
 The pie chart drawing code is borrowed from pie_demo.py
 
-Note that the filtering effects are only effective if your svg rederer
+Note that the filtering effects are only effective if your svg renderer
 support it.
 """
 
@@ -50,12 +50,12 @@ import xml.etree.cElementTree as ET
 
 
 # filter definition for shadow using a gaussian blur
-# and lighteneing effect.
-# The lightnening filter is copied from http://www.w3.org/TR/SVG/filters.html
+# and lightening effect.
+# The lightening filter is copied from http://www.w3.org/TR/SVG/filters.html
 
 # I tested it with Inkscape and Firefox3. "Gaussian blur" is supported
-# in both, but the lightnening effect only in the inkscape. Also note
-# that, inkscape's exporting also may not support it.
+# in both, but the lightening effect only in the Inkscape. Also note
+# that, Inkscape's exporting also may not support it.
 
 filter_def = """
   <defs  xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink'>

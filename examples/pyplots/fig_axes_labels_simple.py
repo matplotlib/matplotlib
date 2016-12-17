@@ -19,4 +19,4 @@ n, bins, patches = ax2.hist(np.random.randn(1000), 50,
     facecolor='yellow', edgecolor='yellow')
 ax2.set_xlabel('time (s)')
 
-
+plt.show()

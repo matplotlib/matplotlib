@@ -8,7 +8,7 @@ rectangles.  The technique of using lots of Rectangle instances, or
 the faster method of using PolyCollections, were implemented before we
 had proper paths with moveto/lineto, closepoly etc in mpl.  Now that
 we have them, we can draw collections of regularly shaped objects with
-homogeous properties more efficiently with a PathCollection.  This
+homogeneous properties more efficiently with a PathCollection.  This
 example makes a histogram -- its more work to set up the vertex arrays
 at the outset, but it should be much faster for large numbers of
 objects

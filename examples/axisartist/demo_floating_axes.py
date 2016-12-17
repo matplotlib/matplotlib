@@ -30,7 +30,7 @@ def setup_axes1(fig, rect):
     tr = Affine2D().scale(2, 1).rotate_deg(30)
 
     grid_helper = floating_axes.GridHelperCurveLinear(
-        tr, extremes=(0, 4, 0, 4))
+        tr, extremes=(-0.5, 3.5, 0, 4))
 
     ax1 = floating_axes.FloatingSubplot(fig, rect, grid_helper=grid_helper)
     fig.add_subplot(ax1)

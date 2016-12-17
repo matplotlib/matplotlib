@@ -1,2 +1,2 @@
-Examples of how to write primitive, but GUI agnoistic, widgets in
+Examples of how to write primitive, but GUI agnostic, widgets in
 matplotlib

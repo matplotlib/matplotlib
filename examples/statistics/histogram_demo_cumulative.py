@@ -48,7 +48,7 @@ x = np.random.normal(mu, sigma, size=100)
 
 fig, ax = plt.subplots(figsize=(8, 4))
 
-# plot the cumulative histograme
+# plot the cumulative histogram
 n, bins, patches = ax.hist(x, n_bins, normed=1, histtype='step',
                            cumulative=True, label='Empirical')
 

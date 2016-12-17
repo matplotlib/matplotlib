@@ -19,7 +19,7 @@ womenStd = (30*cm, 25*cm, 20*cm, 31*cm, 22*cm)
 p2 = ax.bar(ind + width, womenMeans, width, color='y', bottom=0*cm, yerr=womenStd)
 
 ax.set_title('Scores by group and gender')
-ax.set_xticks(ind + width)
+ax.set_xticks(ind + width / 2)
 ax.set_xticklabels(('G1', 'G2', 'G3', 'G4', 'G5'))
 
 ax.legend((p1[0], p2[0]), ('Men', 'Women'))

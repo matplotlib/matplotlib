@@ -1,6 +1,6 @@
 """
 Demonstrate how to create an interactive histogram, in which bars
-are hidden or shown by cliking on legend markers.
+are hidden or shown by clicking on legend markers.
 
 The interactivity is encoded in ecmascript (javascript) and inserted in
 the SVG code in a post-processing step. To render the image, open it in
@@ -15,14 +15,14 @@ the corresponding SVG constructs that are parsed in the second step.
 While flexible, ids are cumbersome to use for large collection of
 objects. Two mechanisms could be used to simplify things:
  * systematic grouping of objects into SVG <g> tags,
- * assingning classes to each SVG object according to its origin.
+ * assigning classes to each SVG object according to its origin.
 
 For example, instead of modifying the properties of each individual bar,
 the bars from the `hist` function could either be grouped in
 a PatchCollection, or be assigned a class="hist_##" attribute.
 
 CSS could also be used more extensively to replace repetitive markup
-troughout the generated SVG.
+throughout the generated SVG.
 
 Author: david.huard@gmail.com
 
@@ -35,7 +35,8 @@ import xml.etree.ElementTree as ET
 from io import BytesIO
 import json
 
-plt.rcParams['svg.embed_char_paths'] = 'none'
+
+plt.rcParams['svg.fonttype'] = 'none'
 
 # Apparently, this `register_namespace` method works only with
 # python 2.7 and up and is necessary to avoid garbling the XML name
@@ -115,7 +116,7 @@ function toggle(oid, attribute, values) {
     oid : str
       Object identifier.
     attribute : str
-      Name of syle attribute.
+      Name of style attribute.
     values : [on state, off state]
       The two values that are switched between.
     */
