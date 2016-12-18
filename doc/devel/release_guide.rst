@@ -24,7 +24,7 @@ tagged commit should be tested locally before it is uploaded::
 
 In addition the following two tests should be run and manually inspected::
 
-   python unit/memleak_hawaii3.py``
+   python unit/memleak_hawaii3.py
    pushd examples/tests/
    python backend_driver.py
    popd
@@ -32,10 +32,10 @@ In addition the following two tests should be run and manually inspected::
 
 .. _release_ghstats:
 
-Github Stats
+GitHub Stats
 ------------
 
-We automatically extract github issue, PRs, and authors from the github via the API::
+We automatically extract GitHub issue, PRs, and authors from the GitHub via the API::
 
   python tools/github_stats.py --since-tag $TAG --project 'matplotlib/matplotlib' --links --milestone v2.0.0 > doc/users/github_stats.rst
 
@@ -50,12 +50,12 @@ Check Docs
 Before tagging, make sure that the docs build cleanly ::
 
   pushd doc
-  python make.py html pdf -n 16
+  python make.py html latex -n 16
   popd
 
 After the docs are built, check that all of the links, internal and external, are still
 valid.  We use ``linkchecker`` for this, which has not been ported to python3 yet.  You will
-need to create a python2 enviroment with ``requests==2.9.0`` and linkchecker ::
+need to create a python2 environment with ``requests==2.9.0`` and linkchecker ::
 
   conda create -p /tmp/lnkchk python=2 requests==2.9.0
   source activate /tmp/lnkchk
@@ -82,19 +82,35 @@ message ::
   git tag -a -s v2.0.0
 
 which will prompt you for your gpg key password and an annotation.
-For pre releases it is important to follow :pep:`440` so than the
-build artifacts will sort correctly in pypi.  Finally, push the tag to github ::
+For pre releases it is important to follow :pep:`440` so that the
+build artifacts will sort correctly in pypi.  Finally, push the tag to GitHub ::
 
   git push -t DANGER v2.0.0
 
 Congratulations, the scariest part is done!
 
 To prevent issues with any down-stream builders which download the
-tarball from github it is important to move all branches away from the commit
-with the tag ::
+tarball from GitHub it is important to move all branches away from the commit
+with the tag [#]_::
 
   git commit --allow-empty
   git push DANGER master
+
+
+.. [#] The tarball that is provided by GitHub is produced using `git
+       archive <https://git-scm.com/docs/git-archive>`__.  We use
+       `versioneer <https://github.com/warner/python-versioneer>`__
+       which uses a format string in
+       :file:`lib/matplotlib/_version.py` to have ``git`` insert a
+       list of references to exported commit (see
+       :file:`.gitattributes` for the configuration).  This string is
+       then used by ``versioneer`` to produce the correct version,
+       based on the git tag, when users install from the tarball.
+       However, if there is a branch pointed at the tagged commit,
+       then the branch name will also be included in the tarball.
+       When the branch eventually moves, anyone how checked the hash
+       of the tarball before the branch moved will have an incorrect
+       hash.
 
 If this is a final release, also create a 'doc' branch (this is not
 done for pre-releases)::
@@ -110,18 +126,20 @@ micro release will be cut off of this branch)::
 
 
 
-.. _release_tag:
+.. _release_DOI:
 
 Release Management / DOI
 ------------------------
 
-Via the github UI (chase down link), turn the newly pushed tag into a
+Via the GitHub UI (chase down link), turn the newly pushed tag into a
 release.  If this is a pre-release remember to mark it as such.
 
 For final releases also get a DOI from `zenodo
 <https://zenodo.org/>`__ and edit :file:`doc/_templates/citing.html`
-with DOI link and commit to the VER-doc branch and push to github ::
+with DOI link and commit to the VER-doc branch and push to GitHub ::
 
+  git checkout v2.0.0-doc
+  emacs doc/_templates/citing.html
   git push DANGER v2.0.0-doc:v2.0.0-doc
 
 .. _release_bld_bin:
@@ -131,26 +149,25 @@ Building binaries
 
 We distribute mac, windows, and many linux wheels as well as a source
 tarball via pypi.  Before uploading anything, contact the various
-builders.  Mac and manylinux wheels are built on travis
-.  You need to edit the
-:file:`.travis.yml` file and push to master of `the build
+builders.  Mac and manylinux wheels are built on travis .  You need to
+edit the :file:`.travis.yml` file and push to master of `the build
 project <https://github.com/MacPython/matplotlib-wheels>`__.
 
 Update the ``master`` branch (for pre-releases the ``devel`` branch)
 of the `conda-forge feedstock
 <https://github.com/conda-forge/matplotlib-feedstock>`__ via pull request.
 
-If this is a final release the following down-steam packagers should be contacted:
+If this is a final release the following downsteam packagers should be contacted:
 
-- debian
-- fedora
-- arch
-- gentoo
-- macports
-- homebrew
+- Debian
+- Fedora
+- Arch
+- Gentoo
+- Macports
+- Homebrew
 - Christoph Gohlke
-- continuum
-- enthought
+- Continuum
+- Enthought
 
 This can be done ahead of collecting all of the binaries and uploading to pypi.
 
@@ -202,7 +219,7 @@ always the documentation for the latest stable release.  Under that,
 there are directories containing the documentation for older versions.
 The documentation for current master are built on travis and push to
 the `devdocs <https://github.com/matplotlib/devdocs/>`__ repository.
-These are available `matplotlib.org/devdocs
+These are available at `matplotlib.org/devdocs
 <http://matplotlib.org/devdocs>`__.
 
 Assuming you have this repository checked out in the same directory as
@@ -211,7 +228,7 @@ matplotlib ::
   cd ../matplotlib.github.com
   mkdir 2.0.0
   rsync -a ../matplotlib/doc/build/html/* 2.0.0
-  cp ../matplotlib/doc/build/html/Matplotlib.pdf 2.0.0
+  cp ../matplotlib/doc/build/latex/Matplotlib.pdf 2.0.0
 
 which will copy the built docs over.  If this is a final release, also
 replace the top-level docs ::
@@ -219,7 +236,7 @@ replace the top-level docs ::
   rsync -a 2.0.0/* ./
 
 You will need to manually edit :file:`versions.html` to show the last
-3 tagged versions.  Now commit and push everything to github ::
+3 tagged versions.  Now commit and push everything to GitHub ::
 
   git add *
   git commit -a -m 'Updating docs for v2.0.0
@@ -227,7 +244,7 @@ You will need to manually edit :file:`versions.html` to show the last
 
 Congratulations you have now done the third scariest part!
 
-It typically takes about 5-10 minutes for github to process the push
+It typically takes about 5-10 minutes for GitHub to process the push
 and update the live web page (remember to clear your browser cache).
 
 
@@ -244,7 +261,7 @@ version of the release notes along with acknowledgments should be sent to
 For final releases announcements should also be sent to the
 numpy/scipy/jupyter mailing lists and python-announce.
 
-In addition, annoucments should be made on social networks (twitter,
-g+, FB).  For major release, numFOCUS should be contacted for
-inclusion in their news letter and maybe to have something posted on
-their blog.
+In addition, announcements should be made on social networks (twitter,
+g+, FB).  For major release, `NumFOCUS <http://www.numfocus.org/>`__
+should be contacted for inclusion in their news letter and maybe to
+have something posted on their blog.
