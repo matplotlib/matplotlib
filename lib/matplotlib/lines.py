@@ -825,7 +825,7 @@ class Line2D(Artist):
         # Don't waste time downsampling if it won't give us any benefit
         x0, x1 = self.axes.get_xbound()
         pixel_width = np.diff(self.axes.transData.transform([[x0, 0],
-                                                             [x1, 0]])[:,0])
+                                                             [x1, 0]])[:, 0])
         if verts.shape[0] <= pixel_width * 4:
             return tpath
 
@@ -834,16 +834,16 @@ class Line2D(Artist):
         verts_trans = self.axes.transData.transform(verts)
 
         # Find where the pixel column of the x data changes
-        split_indices = np.diff(np.floor(verts_trans[:,0]).astype(int)) != 0
-        split_indices = np.where(split_indices)[0]+1
+        split_indices = np.diff(np.floor(verts_trans[:, 0]).astype(int)) != 0
+        split_indices = np.where(split_indices)[0] + 1
 
         keep_inds = np.zeros((split_indices.size + 1, 4), dtype=int)
-        for i, y_pixel_col in enumerate(np.split(verts_trans[:,1],
+        for i, y_pixel_col in enumerate(np.split(verts_trans[:, 1],
                                                  split_indices)):
             if i == 0:
                 pixel_col_start = 0
             else:
-                pixel_col_start = split_indices[i-1]
+                pixel_col_start = split_indices[i - 1]
 
             if i == split_indices.size:
                 pixel_col_end = verts_trans.shape[0]
@@ -853,7 +853,7 @@ class Line2D(Artist):
             keep_inds[i] = (pixel_col_start,
                             pixel_col_start + np.argmin(y_pixel_col),
                             pixel_col_start + np.argmax(y_pixel_col),
-                            pixel_col_end-1)
+                            pixel_col_end - 1)
 
         keep_inds = keep_inds.flatten()
 
