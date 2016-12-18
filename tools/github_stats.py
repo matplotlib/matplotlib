@@ -181,7 +181,11 @@ if __name__ == "__main__":
     n_total = n_issues + n_pulls
     
     # Print summary report we can directly include into release notes.
-    
+    print('.. _github-stats:')
+    print()
+    print('Github Stats')
+    print('============')
+
     print()
     since_day = since.strftime("%Y/%m/%d")
     today = datetime.today().strftime("%Y/%m/%d")
