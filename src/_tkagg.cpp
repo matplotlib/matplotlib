@@ -183,15 +183,6 @@ static int PyAggImagePhoto(ClientData clientdata, Tcl_Interp *interp, int
     return TCL_OK;
 }
 
-static PyObject *_pyobj_addr(PyObject *self, PyObject *args)
-{
-    PyObject *pyobj;
-    if (!PyArg_ParseTuple(args, "O", &pyobj)) {
-        return NULL;
-    }
-    return Py_BuildValue("n", (Py_ssize_t)pyobj);
-}
-
 static PyObject *_tkinit(PyObject *self, PyObject *args)
 {
     Tcl_Interp *interp;
@@ -226,7 +217,7 @@ static PyObject *_tkinit(PyObject *self, PyObject *args)
 
 static PyMethodDef functions[] = {
     /* Tkinter interface stuff */
-    { "_pyobj_addr", (PyCFunction)_pyobj_addr, 1 }, { "tkinit", (PyCFunction)_tkinit, 1 },
+    { "tkinit", (PyCFunction)_tkinit, 1 },
     { NULL, NULL } /* sentinel */
 };
 
