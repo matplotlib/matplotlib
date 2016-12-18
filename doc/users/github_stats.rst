@@ -1,15 +1,15 @@
 .. _github-stats:
 
-Github Stats
+GitHub Stats
 ============
 
-GitHub stats for 2015/10/29 - 2016/12/04 (tag: v1.5.0)
+GitHub stats for 2015/10/29 - 2016/12/18 (tag: v1.5.0)
 
 These lists are automatically generated, and may be incomplete or contain duplicates.
 
-We closed 776 issues and merged 638 pull requests.
+We closed 809 issues and merged 655 pull requests.
 
-The following 211 authors contributed 2839 commits.
+The following 219 authors contributed 3010 commits.
 
 * 4over7
 * AbdealiJK
@@ -19,7 +19,10 @@ The following 211 authors contributed 2839 commits.
 * Alberto
 * alcinos
 * Alex Rothberg
+* Alexis Bienvenüe
 * Ali Uneri
+* Alvaro Sanchez
+* alvarosg
 * AndersonDaniel
 * Andreas Hilboll
 * Andreas Mayer
@@ -39,6 +42,7 @@ The following 211 authors contributed 2839 commits.
 * Chen Karako
 * Chris Holdgraf
 * Christian Stade-Schuldt
+* Christoph Deil
 * Christoph Gohlke
 * Cimarron Mittelsteadt
 * CJ Carey
@@ -46,6 +50,8 @@ The following 211 authors contributed 2839 commits.
 * DaCoEx
 * Dan Hickstein
 * Daniel C. Marcu
+* danielballan
+* Danny Hermes
 * David A
 * David Kent
 * David Stansby
@@ -104,6 +110,7 @@ The following 211 authors contributed 2839 commits.
 * Jeffrey Hokanson @ Loki
 * Jens Hedegaard Nielsen
 * John Vandenberg
+* JojoBoulix
 * jonchar
 * Joseph Fox-Rabinovitz
 * Joseph Jon Booker
@@ -143,6 +150,7 @@ The following 211 authors contributed 2839 commits.
 * Mher Kazandjian
 * Michael Droettboom
 * Michiel de Hoon
+* Mike Henninger
 * Mike Jarvis
 * MinRK
 * mlub
@@ -224,19 +232,36 @@ The following 211 authors contributed 2839 commits.
 
 GitHub issues and pull requests:
 
-Pull Requests (638):
+Pull Requests (655):
 
+* :ghpull:`7585`: [MRG+1] Fix a bug in TextBox where shortcut keys were not being reenabled
+* :ghpull:`7628`: picker may not be callable.
+* :ghpull:`7464`: ENH: _StringFuncParser to get numerical functions callables from strings
+* :ghpull:`7622`: Mrg animation merge
+* :ghpull:`7618`: DOC: fixed typo in mlab.py
+* :ghpull:`7596`: Delay fc-list warning by 5s.
+* :ghpull:`7607`: TST: regenerate patheffect2
+* :ghpull:`7608`: Don't call np.min on generator.
+* :ghpull:`7570`: Correctly skip colors for nan points given to scatter
+* :ghpull:`7605`: Make bars stick to explicitly-specified edges.
+* :ghpull:`6597`: Reproducible PS/PDF output (master)
+* :ghpull:`7546`: Deprecate update_datalim_numerix&update_from_data.
+* :ghpull:`7574`: Docs edits
+* :ghpull:`7538`: Don't work out packages to install if user requests information from setup.p
+* :ghpull:`7577`: Spelling fix: corosponding -> corresponding
+* :ghpull:`7536`: Rectangle patch angle attribute and patch __str__ improvements
+* :ghpull:`7547`: Additional cleanups
 * :ghpull:`7544`: Cleanups
 * :ghpull:`7548`: Clarify to_rgba docstring.
 * :ghpull:`7476`: Sticky margins
 * :ghpull:`7552`: Correctly extend a lognormed colorbar
-* :ghpull:`7499`: [MRG] Improve the the marker table in markers_api documentation
+* :ghpull:`7499`: Improve the the marker table in markers_api documentation
 * :ghpull:`7468`: TST: Enable pytest-xdist
 * :ghpull:`7530`: MAINT: TkAgg default backend depends on tkinter
 * :ghpull:`7531`: double tolerance for test_png.py/pngsuite on Windows
 * :ghpull:`7533`: FIX chinese character are hard to deal with in latex
 * :ghpull:`7525`: Avoid division by zero if headlength=0 for quiver
-* :ghpull:`7522`: [MRG+1] Check at least one argument is provided for plt.table
+* :ghpull:`7522`: Check at least one argument is provided for plt.table
 * :ghpull:`7520`: Fix table.py bug
 * :ghpull:`7397`: Numpydoc for backends
 * :ghpull:`7513`: Doc: Typo in gridspec example subtitle
@@ -282,11 +307,11 @@ Pull Requests (638):
 * :ghpull:`7386`: ENH examples are now reproducible
 * :ghpull:`7395`: Drop code that supports numpy pre-1.6.
 * :ghpull:`7385`: [MRG+1] remove unused random import
-* :ghpull:`7236`: [MRG+1] ENH Improving the contribution guidelines
+* :ghpull:`7236`: ENH Improving the contribution guidelines
 * :ghpull:`7370`: [MRG+1] Add example use of axes.spines.SIDE prop in matplotlibrc
-* :ghpull:`7367`: [MRG+1] Warn on invalid log axis limits, per issue #7299
+* :ghpull:`7367`: Warn on invalid log axis limits, per issue #7299
 * :ghpull:`7360`: Updated violin plot example as per suggestions in issue #7251
-* :ghpull:`7357`: [mrg+1] Added notes on how to use matplotlib in pyenv
+* :ghpull:`7357`: Added notes on how to use matplotlib in pyenv
 * :ghpull:`7329`: DOC MEP12 - converted animation to SG/MEP12 compatible
 * :ghpull:`7337`: FIX symlog scale now shows negative labels.
 * :ghpull:`7354`: fix small error in poly_editor example
@@ -315,12 +340,12 @@ Pull Requests (638):
 * :ghpull:`7298`: Changed Examples for Pep8 Compliance
 * :ghpull:`7295`: MAINT finance module is deprecated
 * :ghpull:`7214`: FIX: Only render single patch for scatter
-* :ghpull:`7297`: [MRG] MAINT docstring appending doesn't mess with rendering anymore.
-* :ghpull:`6907`: [MRG+1] Filled + and x markers
+* :ghpull:`7297`: MAINT docstring appending doesn't mess with rendering anymore.
+* :ghpull:`6907`: Filled + and x markers
 * :ghpull:`7288`: Style typos fixes
 * :ghpull:`7277`: MEP12 - added sphinx-gallery docstrings
 * :ghpull:`7286`: DOC: Fix for #7283 by adding a trailing underscore to misrendered URLs
-* :ghpull:`7285`: [MRG+1] added some fixes to the documentation of the functions
+* :ghpull:`7285`: added some fixes to the documentation of the functions
 * :ghpull:`6690`: Tidying up and tweaking mplot3d examples [MEP12]
 * :ghpull:`7273`: Fix image watermark example where image was hidden by axes (#7265)
 * :ghpull:`7276`: FIX: don't compute flier positions if not showing
@@ -332,7 +357,7 @@ Pull Requests (638):
 * :ghpull:`7256`: CI: skip failing test on appveyor
 * :ghpull:`7255`: CI: pin to qt4
 * :ghpull:`7229`: DOC: instructions on installing matplotlib for dev
-* :ghpull:`7252`: [MRG+2] ENH: improve PySide2 loading
+* :ghpull:`7252`: ENH: improve PySide2 loading
 * :ghpull:`7245`: TST: Always produce image comparison test result images
 * :ghpull:`6677`: Remove a copy in pcolormesh.
 * :ghpull:`6814`: Customize violin plot demo, see #6723
@@ -359,12 +384,12 @@ Pull Requests (638):
 * :ghpull:`7019`: Check for fontproperties in figure.suptitle.
 * :ghpull:`7145`: Add ``style`` to api doc; fix capitalization.
 * :ghpull:`7097`: ``image_comparison`` decorator refactor
-* :ghpull:`7096`: [MRG] DOC refer to plot in the scatter plot doc
+* :ghpull:`7096`: DOC refer to plot in the scatter plot doc
 * :ghpull:`7140`: FIX added matplotlib.testing.nose.plugins to setupext.py
 * :ghpull:`5112`: OffsetImage: use dpi_cor in get_extent
 * :ghpull:`7136`: DOC: minor fix  in development_workflow.rst
 * :ghpull:`7137`: DOC: improve engineering formatter example
-* :ghpull:`7131`: Fix branch name in "Deleting a branch on GitHub\_" section
+* :ghpull:`7131`: Fix branch name in "Deleting a branch on GitHub" section
 * :ghpull:`6521`: Issue #6429 fix
 * :ghpull:`7111`: [DOC] Fix example following comments in  issue #6865
 * :ghpull:`7118`: PR # 7038 rebased (DOC specgram() documentation now in numpy style)
@@ -383,7 +408,7 @@ Pull Requests (638):
 * :ghpull:`7077`: label_outer() should remove inner minor ticks too.
 * :ghpull:`7037`: DOC change axhspan to numpydoc format
 * :ghpull:`7047`: DOC - SpanSelector widget documentation
-* :ghpull:`7049`: [MRG] Documentated dependencies to the doc and remove unecessary dependencies.
+* :ghpull:`7049`: Documentated dependencies to the doc and remove unecessary dependencies.
 * :ghpull:`7063`: Tweek tol for test_hist_steplog to fix tests on appveyor
 * :ghpull:`7055`: FIX: testings.nose was not installed
 * :ghpull:`7058`: Minor animation fixes
@@ -546,7 +571,7 @@ Pull Requests (638):
 * :ghpull:`6472`: Install all dependencies from pypi
 * :ghpull:`6482`: Skip test broken with numpy 1.11
 * :ghpull:`6475`: Do not turn on interactive mode on in example script
-* :ghpull:`6442`: MRG: loading TCL / Tk symbols dynamically
+* :ghpull:`6442`: loading TCL / Tk symbols dynamically
 * :ghpull:`6467`: ENH: add unified seaborn style sheet
 * :ghpull:`6465`: updated boxplot figure
 * :ghpull:`6462`: CI: Use Miniconda already installed on AppVeyor.
@@ -865,8 +890,42 @@ Pull Requests (638):
 * :ghpull:`5357`: Fixed typo
 * :ghpull:`4920`: ENH: Add TransformedPatchPath for clipping.
 
-Issues (776):
+Issues (809):
 
+* :ghissue:`7637`: Stacked 2D plots with interconnections in Matplotlib
+* :ghissue:`7353`: auto legend position changes upon saving the figure
+* :ghissue:`7626`: Saturation mask for imshow()
+* :ghissue:`7623`: potential bug with plt.arrow and plt.annotate when setting linestyle via tuples
+* :ghissue:`7005`: rcParams['font.size'] is consulted at render time
+* :ghissue:`7587`: BUG: shared log axes lose _minpos and revert to default
+* :ghissue:`7493`: Plotting zero values with logarithmic axes triggers OverflowError, Matplotlib hangs permanently
+* :ghissue:`7595`: math domain error using symlog norm
+* :ghissue:`7588`: 2.0.0rc1  cannot import name '_macosx'
+* :ghissue:`2051`: Consider making default verticalalignment ``baseline``
+* :ghissue:`4867`: Add additional minor labels in log axis with a span less than two decades
+* :ghissue:`7489`: Too small axis arrow when savefig to png
+* :ghissue:`7611`: UnicodeDecodeError when using matplotlib save SVG file and open it again
+* :ghissue:`7592`: font cache: a possibility to disable building it
+* :ghissue:`5836`: Repeated warning about fc-list
+* :ghissue:`7609`: The best channel to ask questions related to using matplotlib
+* :ghissue:`7141`: Feature request: auto locate minor ticks on log scaled color bar
+* :ghissue:`3489`: matplotlib scatter shifts color codes when NaN is present
+* :ghissue:`4414`: Specifying histtype='stepfilled' and normed=True when using plt.hist causes ymax to be set incorrectly
+* :ghissue:`7597`: python  complain about "This application failed to start because it could not find or load the Qt platform plugin  'xcb' "  after an update of matplotlib
+* :ghissue:`7578`: Validate steps input to ``MaxNLocator``
+* :ghissue:`7590`: Subtick labels are not disabled in classic style
+* :ghissue:`6317`: PDF file generation is not deterministic - results in different outputs on the same input
+* :ghissue:`6543`: Why does fill_betweenx  not  have interpolate?
+* :ghissue:`7437`: Broken path to example with strpdate2num
+* :ghissue:`7593`: Issue: Applying Axis Limits
+* :ghissue:`7591`: Number of subplots in mpl.axes.Subplot object
+* :ghissue:`7056`: setup.py --name and friends broken
+* :ghissue:`7044`: location of convert in rcparams on windows
+* :ghissue:`6813`: avoid hiding edge pixels of images
+* :ghissue:`7579`: OS X libpng incompatability
+* :ghissue:`7576`: v2.0.0rc1 conda-forge dependency issue
+* :ghissue:`7558`: Colorbar becomes 0 to 1 after colorbar ax.yaxis.set_major_formatter
+* :ghissue:`7526`: Cannot Disable TkAgg Backend
 * :ghissue:`6565`: Questionable margin-cancellation logic
 * :ghissue:`7175`: new margin system doesn't handle negative values in bars
 * :ghissue:`5201`: issue with colorbar using LogNorm and extend='min'
@@ -898,8 +957,8 @@ Issues (776):
 * :ghissue:`7478`: 'alpha' kwarg overrides facecolor='none' when plotting circle
 * :ghissue:`7375`: Patch edgecolor of a legend item does not follow look of figure
 * :ghissue:`6873`: examples/api/skewt.py is not displaying the right part of the grid by default
-* :ghissue:`7350`: Colors drawn outside axis for hist2d
 * :ghissue:`6773`: Shifted image extents in 2.0.0.b3
+* :ghissue:`7350`: Colors drawn outside axis for hist2d
 * :ghissue:`7485`: Is there a way to subclass the zoom() function from the NavigationToolbar backends and modify its mouse button definition?
 * :ghissue:`7396`: Bump numpy minimal version to 1.7.0?
 * :ghissue:`7466`: missing trigger for autoscale
@@ -910,7 +969,6 @@ Issues (776):
 * :ghissue:`5076`: RuntimeError: LaTeX was not able to process the following string: 'z=$\\\\mathregular{{}^{}_{\\\\}}$' in matplotlib
 * :ghissue:`7450`: Using Matplotlib in Abaqus
 * :ghissue:`7314`: Better error message in scatter plot when len(x) != len(c)
-* :ghissue:`7341`: slightly imprecise tick positioning
 * :ghissue:`7432`: Failure to re-render after Line2D.set_color
 * :ghissue:`6695`: support markdown or similar
 * :ghissue:`6228`: Rasterizing patch changes filling of hatches in pdf backend
@@ -944,9 +1002,9 @@ Issues (776):
 * :ghissue:`7391`: How to apply ax.margins to current axes limits?
 * :ghissue:`7234`: Improving documentation: Tests failing on a osx setup
 * :ghissue:`7379`: Mp4's generated by movie writer do not appear work in browser
-* :ghissue:`6926`: SVG backend closes BytesIO on print if were ``usetex=True`` and ``cleanup`` decorator used
 * :ghissue:`6870`: Figure is unpicklable after ``savefig``
 * :ghissue:`6181`: When using Agg driver, pickling fails with TypeError after writing figure to PDF
+* :ghissue:`6926`: SVG backend closes BytesIO on print if were ``usetex=True`` and ``cleanup`` decorator used
 * :ghissue:`3899`: Pickle not working in interactive ipython session
 * :ghissue:`7251`: Improve violin plot demo
 * :ghissue:`7146`: symlog scale no longer shows labels on the negative side
@@ -1042,8 +1100,8 @@ Issues (776):
 * :ghissue:`3645`: Proposal: Add rc setting to control dash spacing
 * :ghissue:`7009`: No good way to disable SpanSelector
 * :ghissue:`7040`: It is getting increasingly difficult to build the matplotlib documentation
-* :ghissue:`6965`: ArtistAnimation cannot animate Figure-only artists
 * :ghissue:`6964`: Docstring for ArtistAnimation is incorrect
+* :ghissue:`6965`: ArtistAnimation cannot animate Figure-only artists
 * :ghissue:`7062`: remove the contour on a Basemap object
 * :ghissue:`7061`: remove the contour on Basemap
 * :ghissue:`7054`: Whether the new version 2.0 will support high-definition screen?
