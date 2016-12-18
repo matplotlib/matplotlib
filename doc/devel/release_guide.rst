@@ -37,10 +37,11 @@ GitHub Stats
 
 We automatically extract GitHub issue, PRs, and authors from the GitHub via the API::
 
-  python tools/github_stats.py --since-tag $TAG --project 'matplotlib/matplotlib' --links --milestone v2.0.0 > doc/users/github_stats.rst
+  python tools/github_stats.py --since-tag $TAG --project 'matplotlib/matplotlib' --links > doc/users/github_stats.rst
 
 Review and commit changes.  Some issue/PR titles may not be valid rst (the most common issue is
 ``*`` which is interpreted as unclosed markup).
+
 
 .. _release_chkdocs:
 
@@ -60,7 +61,7 @@ need to create a python2 environment with ``requests==2.9.0`` and linkchecker ::
   conda create -p /tmp/lnkchk python=2 requests==2.9.0
   source activate /tmp/lnkchk
   pip install linkchecker
-  pushd docs/build/html
+  pushd doc/build/html
   linkchecker index.html --check-extern
 
 Address any issues which may arise.  The internal links are checked on travis, this should only
@@ -111,6 +112,11 @@ with the tag [#]_::
        When the branch eventually moves, anyone how checked the hash
        of the tarball before the branch moved will have an incorrect
        hash.
+
+       To generate the file that GitHub does use ::
+
+	 git archive v2.0.0 -o matplotlib-2.0.0.tar.gz --prefix=matplotlib-2.0.0/
+
 
 If this is a final release, also create a 'doc' branch (this is not
 done for pre-releases)::
@@ -263,5 +269,5 @@ numpy/scipy/jupyter mailing lists and python-announce.
 
 In addition, announcements should be made on social networks (twitter,
 g+, FB).  For major release, `NumFOCUS <http://www.numfocus.org/>`__
-should be contacted for inclusion in their news letter and maybe to
+should be contacted for inclusion in their newsletter and maybe to
 have something posted on their blog.
