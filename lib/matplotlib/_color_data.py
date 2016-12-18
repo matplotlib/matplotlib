@@ -1,6 +1,6 @@
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
-
+from collections import OrderedDict
 import six
 
 
@@ -15,22 +15,23 @@ BASE_COLORS = {
     'w': (1, 1, 1)}
 
 
-VEGA_COLORS = {
-    'blue': '#1f77b4',
-    'orange': '#ff7f0e',
-    'green': '#2ca02c',
-    'red': '#d62728',
-    'purple': '#9467bd',
-    'brown': '#8c564b',
-    'pink': '#e377c2',
-    'gray': '#7f7f7f',
-    'olive': '#bcbd22',
-    'cyan': '#17becf'}
+# These colors are from Tableau
+TABLEAU_COLORS = OrderedDict((
+    ('blue', '#1f77b4'),
+    ('orange', '#ff7f0e'),
+    ('green', '#2ca02c'),
+    ('red', '#d62728'),
+    ('purple', '#9467bd'),
+    ('brown', '#8c564b'),
+    ('pink', '#e377c2'),
+    ('gray', '#7f7f7f'),
+    ('olive', '#bcbd22'),
+    ('cyan', '#17becf'))
+)
 
-
-# Normalize name to "vega10:<name>" to avoid name collisions.
-VEGA_COLORS = {'vega:' + name: value for name, value in VEGA_COLORS.items()}
-
+# Normalize name to "tab:<name>" to avoid name collisions.
+TABLEAU_COLORS = OrderedDict(
+    ('tab:' + name, value) for name, value in TABLEAU_COLORS.items())
 
 # This mapping of color names -> hex values is taken from
 # a survey run by Randel Monroe see:
@@ -989,7 +990,6 @@ XKCD_COLORS = {
     'blue': '#0343df',
     'green': '#15b01a',
     'purple': '#7e1e9c'}
-
 
 # Normalize name to "xkcd:<name>" to avoid name collisions.
 XKCD_COLORS = {'xkcd:' + name: value for name, value in XKCD_COLORS.items()}

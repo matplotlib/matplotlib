@@ -32,8 +32,13 @@ Colors in default property cycle
 --------------------------------
 
 The colors in the default property cycle have been changed from
-``['b', 'g', 'r', 'c', 'm', 'y', 'k']`` to the `Vega category10 palette
-<https://github.com/vega/vega/wiki/Scales#scale-range-literals>`__
+``['b', 'g', 'r', 'c', 'm', 'y', 'k']`` to the category10
+color palette used by `Vega
+<https://github.com/vega/vega/wiki/Scales#scale-range-literals>`__ and
+`d3
+<https://github.com/d3/d3-3.x-api-reference/blob/master/Ordinal-Scales.md#category10>`__
+originally developed at Tableau.
+
 
 .. plot::
 
