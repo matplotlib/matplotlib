@@ -615,7 +615,7 @@ class Line2D(Artist):
 
         Parameters
         ----------
-        downsample: None | boolean-like
+        downsample: True | False
             Whether or not to downsample.
 
             - downsample=True, a downsampled set of points will be plotted.
@@ -651,6 +651,8 @@ class Line2D(Artist):
     def get_downsample(self):
         """return the downsample setting"""
         return self._downsample
+
+    downsample = property(get_downsample, set_downsample)
 
     def set_picker(self, p):
         """Sets the event picker details for the line.
