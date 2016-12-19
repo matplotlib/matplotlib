@@ -842,20 +842,12 @@ class Line2D(Artist):
         keep_inds = np.zeros((split_indices.size + 1, 4), dtype=int)
         for i, y_pixel_col in enumerate(np.split(verts_trans[:, 1],
                                                  split_indices)):
-            if i == 0:
-                pixel_col_start = 0
-            else:
-                pixel_col_start = split_indices[i - 1]
+            keep_inds[i, 1:3] = np.argmin(y_pixel_col), np.argmax(y_pixel_col)
 
-            if i == split_indices.size:
-                pixel_col_end = verts_trans.shape[0]
-            else:
-                pixel_col_end = split_indices[i]
-
-            keep_inds[i] = (pixel_col_start,
-                            pixel_col_start + np.argmin(y_pixel_col),
-                            pixel_col_start + np.argmax(y_pixel_col),
-                            pixel_col_end - 1)
+        starts = np.hstack((0, split_indices))
+        ends = np.hstack((split_indices, verts_trans.shape[0]))
+        keep_inds[:, :3] += starts[:, np.newaxis]
+        keep_inds[:, 3] = ends - 1
 
         keep_inds = keep_inds.flatten()
 
