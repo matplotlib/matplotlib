@@ -335,6 +335,12 @@ class TextToPath(object):
             font_bunch = self.tex_font_map[dvifont.texname]
 
             if font_and_encoding is None:
+                if font_bunch.filename is None:
+                    raise ValueError(
+                        ("No usable font file found for %s (%s). "
+                         "The font may lack a Type-1 version.")
+                        % (font_bunch.psname, dvifont.texname))
+
                 font = get_font(font_bunch.filename)
 
                 for charmap_name, charmap_code in [("ADOBE_CUSTOM",
