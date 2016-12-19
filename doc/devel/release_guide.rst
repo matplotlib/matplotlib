@@ -115,7 +115,7 @@ with the tag [#]_::
 
        To generate the file that GitHub does use ::
 
-	 git archive v2.0.0 -o matplotlib-2.0.0.tar.gz --prefix=matplotlib-2.0.0/
+          git archive v2.0.0 -o matplotlib-2.0.0.tar.gz --prefix=matplotlib-2.0.0/
 
 
 If this is a final release, also create a 'doc' branch (this is not
