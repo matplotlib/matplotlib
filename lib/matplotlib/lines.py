@@ -824,13 +824,6 @@ class Line2D(Artist):
                 return None
             return in_v[slc]
 
-        # Don't waste time downsampling if it won't give us any benefit
-        x0, x1 = self.axes.get_xbound()
-        pixel_width = np.diff(self.axes.transData.transform([[x0, 0],
-                                                             [x1, 0]])[:, 0])
-        if verts.shape[0] <= pixel_width * 4:
-            return tpath
-
         # Convert vertices from data space to pixel space.
         # Any non-affine axis transformation has already been applied
         # to tpath, so we just need to apply affine part.
@@ -840,10 +833,23 @@ class Line2D(Artist):
         split_indices = np.diff(np.floor(verts_trans[:, 0]).astype(int)) != 0
         split_indices = np.where(split_indices)[0] + 1
 
+        # Don't waste time downsampling if it won't give us any benefit
+        # 4.0 was chosen somewhat arbitrarily.
+        if split_indices.size >= verts_trans.shape[0] / 4.0:
+            return tpath
+
         keep_inds = np.zeros((split_indices.size + 1, 4), dtype=int)
         for i, y_pixel_col in enumerate(np.split(verts_trans[:, 1],
                                                  split_indices)):
-            keep_inds[i, 1:3] = np.argmin(y_pixel_col), np.argmax(y_pixel_col)
+            try:
+                keep_inds[i, 1:3] = (np.nanargmin(y_pixel_col),
+                                     np.nanargmax(y_pixel_col))
+            except ValueError:
+                # np.nanarg* raises a ValueError if all elements are NaN.
+                # If either np.nanargmin or np.nanargmax raise this error,
+                # then all y_pixel_col is NaN. In this case, the argmin
+                # and argmax are both undefined, just keep the first value.
+                keep_inds[i, 1:3] = 0
 
         starts = np.hstack((0, split_indices))
         ends = np.hstack((split_indices, verts_trans.shape[0]))
