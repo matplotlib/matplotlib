@@ -4877,3 +4877,11 @@ def test_scatter_color_masking():
 def test_eventplot_legend():
     plt.eventplot([1.0], label='Label')
     plt.legend()
+
+
+@cleanup
+def test_bar_single_height():
+    # Check that a bar chart with a single height for all bars works
+    plt.bar(range(4), 1)
+    # Check that a horizontal chart with one width works
+    plt.bar(0, 1, bottom=range(4), width=1, orientation='horizontal')
