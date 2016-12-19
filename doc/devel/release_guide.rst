@@ -35,7 +35,7 @@ In addition the following two tests should be run and manually inspected::
 GitHub Stats
 ------------
 
-We automatically extract GitHub issue, PRs, and authors from the GitHub via the API::
+We automatically extract GitHub issue, PRs, and authors from GitHub via the API::
 
   python tools/github_stats.py --since-tag $TAG --project 'matplotlib/matplotlib' --links > doc/users/github_stats.rst
 
@@ -163,7 +163,7 @@ Update the ``master`` branch (for pre-releases the ``devel`` branch)
 of the `conda-forge feedstock
 <https://github.com/conda-forge/matplotlib-feedstock>`__ via pull request.
 
-If this is a final release the following downsteam packagers should be contacted:
+If this is a final release the following downstream packagers should be contacted:
 
 - Debian
 - Fedora
@@ -191,7 +191,7 @@ Once you have collected all of the wheels, generate the tarball ::
 and copy all of the wheels into :file:`dist` directory.  You should use
 ``twine`` to upload all of the files to pypi ::
 
-   twine -s upload dist/matplotlib*tar.gz
+   twine upload -s dist/matplotlib*tar.gz
    twine upload dist/*whl
 
 Congratulations, you have now done the second scariest part!
@@ -211,7 +211,7 @@ build the docs from the ``ver-doc`` branch.  An easy way to arrange this is::
   git checkout v2.0.0-doc
   git clean -xfd
   cd doc
-  pyhton make.py html latex -n 16
+  python make.py html latex -n 16
 
 which will build both the html and pdf version of the documentation.
 
