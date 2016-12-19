@@ -128,9 +128,9 @@ def warn_deprecated(
 
 
 def deprecated(since, message='', name='', alternative='', pending=False,
-               obj_type='function'):
+               obj_type=None):
     """
-    Decorator to mark a function as deprecated.
+    Decorator to mark a function or a class as deprecated.
 
     Parameters
     ----------
@@ -176,33 +176,49 @@ def deprecated(since, message='', name='', alternative='', pending=False,
                 pass
 
     """
-    def deprecate(func, message=message, name=name, alternative=alternative,
+    def deprecate(obj, message=message, name=name, alternative=alternative,
                   pending=pending):
-        import functools
         import textwrap
 
-        if isinstance(func, classmethod):
-            func = func.__func__
-            is_classmethod = True
-        else:
-            is_classmethod = False
-
         if not name:
-            name = func.__name__
+            name = obj.__name__
+
+        if isinstance(obj, type):
+            obj_type = "class"
+            old_doc = obj.__doc__
+            func = obj.__init__
+            def finalize(wrapper, new_doc):
+                try:
+                    obj.__doc__ = new_doc
+                except AttributeError:
+                    pass  # cls.__doc__ is not writeable on Py2.
+                obj.__init__ = wrapper
+                return obj
+        else:
+            obj_type = "function"
+            if isinstance(obj, classmethod):
+                func = obj.__func__
+                old_doc = func.__doc__
+                def finalize(wrapper, new_doc):
+                    wrapper = functools.wraps(func)(wrapper)
+                    wrapper.__doc__ = new_doc
+                    return classmethod(wrapper)
+            else:
+                func = obj
+                old_doc = func.__doc__
+                def finalize(wrapper, new_doc):
+                    wrapper = functools.wraps(func)(wrapper)
+                    wrapper.__doc__ = new_doc
+                    return wrapper
 
         message = _generate_deprecation_message(
             since, message, name, alternative, pending, obj_type)
 
-        @functools.wraps(func)
-        def deprecated_func(*args, **kwargs):
+        def wrapper(*args, **kwargs):
             warnings.warn(message, mplDeprecation, stacklevel=2)
-
             return func(*args, **kwargs)
 
-        old_doc = deprecated_func.__doc__
-        if not old_doc:
-            old_doc = ''
-        old_doc = textwrap.dedent(old_doc).strip('\n')
+        old_doc = textwrap.dedent(old_doc or '').strip('\n')
         message = message.strip()
         new_doc = (('\n.. deprecated:: %(since)s'
                     '\n    %(message)s\n\n' %
@@ -212,11 +228,7 @@ def deprecated(since, message='', name='', alternative='', pending=False,
             # docutils when the original docstring was blank.
             new_doc += r'\ '
 
-        deprecated_func.__doc__ = new_doc
-
-        if is_classmethod:
-            deprecated_func = classmethod(deprecated_func)
-        return deprecated_func
+        return finalize(wrapper, new_doc)
 
     return deprecate
 
@@ -249,6 +261,7 @@ def unicode_safe(s):
     return s
 
 
+@deprecated('2.1')
 class converter(object):
     """
     Base class for handling string -> python type with support for
@@ -267,12 +280,14 @@ class converter(object):
         return not s.strip() or s == self.missing
 
 
+@deprecated('2.1')
 class tostr(converter):
     """convert to string or None"""
     def __init__(self, missing='Null', missingval=''):
         converter.__init__(self, missing=missing, missingval=missingval)
 
 
+@deprecated('2.1')
 class todatetime(converter):
     """convert to a datetime or None"""
     def __init__(self, fmt='%Y-%m-%d', missing='Null', missingval=None):
@@ -287,6 +302,7 @@ class todatetime(converter):
         return datetime.datetime(*tup[:6])
 
 
+@deprecated('2.1')
 class todate(converter):
     """convert to a date or None"""
     def __init__(self, fmt='%Y-%m-%d', missing='Null', missingval=None):
@@ -301,6 +317,7 @@ class todate(converter):
         return datetime.date(*tup[:3])
 
 
+@deprecated('2.1')
 class tofloat(converter):
     """convert to a float or None"""
     def __init__(self, missing='Null', missingval=None):
@@ -313,6 +330,7 @@ class tofloat(converter):
         return float(s)
 
 
+@deprecated('2.1')
 class toint(converter):
     """convert to an int or None"""
     def __init__(self, missing='Null', missingval=None):
@@ -656,6 +674,7 @@ class Bunch(object):
                                         in keys])
 
 
+@deprecated('2.1')
 def unique(x):
     """Return a list of unique elements of *x*"""
     return list(set(x))
@@ -851,6 +870,7 @@ def flatten(seq, scalarp=is_scalar_or_string):
                 yield subitem
 
 
+@deprecated('2.1', "sorted(..., key=itemgetter(...))")
 class Sorter(object):
     """
     Sort by attribute or item
@@ -899,6 +919,7 @@ class Sorter(object):
     __call__ = byItem
 
 
+@deprecated('2.1')
 class Xlator(dict):
     """
     All-in-one multiple-string-substitution class
@@ -931,6 +952,7 @@ class Xlator(dict):
         return self._make_regex().sub(self, text)
 
 
+@deprecated('2.1')
 def soundex(name, len=4):
     """ soundex module conforming to Odell-Russell algorithm """
 
@@ -959,6 +981,7 @@ def soundex(name, len=4):
     return (sndx + (len * '0'))[:len]
 
 
+@deprecated('2.1')
 class Null(object):
     """ Null objects always and reliably "do nothing." """
 
@@ -1028,6 +1051,7 @@ class GetRealpathAndStat(object):
 get_realpath_and_stat = GetRealpathAndStat()
 
 
+@deprecated('2.1')
 def dict_delall(d, keys):
     """delete all of the *keys* from the :class:`dict` *d*"""
     for key in keys:
@@ -1037,6 +1061,7 @@ def dict_delall(d, keys):
             pass
 
 
+@deprecated('2.1')
 class RingBuffer(object):
     """ class that implements a not-yet-full buffer """
     def __init__(self, size_max):
@@ -1088,6 +1113,7 @@ def get_split_ind(seq, N):
     return len(seq)
 
 
+@deprecated('2.1', alternative='textwrap.TextWrapper')
 def wrap(prefix, text, cols):
     """wrap *text* with *prefix* at length *cols*"""
     pad = ' ' * len(prefix.expandtabs())
@@ -1202,6 +1228,7 @@ def get_recursive_filelist(args):
     return [f for f in files if not os.path.islink(f)]
 
 
+@deprecated('2.1')
 def pieces(seq, num=2):
     """Break up the *seq* into *num* tuples"""
     start = 0
@@ -1213,6 +1240,7 @@ def pieces(seq, num=2):
         start += num
 
 
+@deprecated('2.1')
 def exception_to_str(s=None):
     if six.PY3:
         sh = io.StringIO()
@@ -1224,6 +1252,7 @@ def exception_to_str(s=None):
     return sh.getvalue()
 
 
+@deprecated('2.1')
 def allequal(seq):
     """
     Return *True* if all elements of *seq* compare equal.  If *seq* is
@@ -1239,6 +1268,7 @@ def allequal(seq):
     return True
 
 
+@deprecated('2.1')
 def alltrue(seq):
     """
     Return *True* if all elements of *seq* evaluate to *True*.  If
@@ -1252,6 +1282,7 @@ def alltrue(seq):
     return True
 
 
+@deprecated('2.1')
 def onetrue(seq):
     """
     Return *True* if one element of *seq* is *True*.  It *seq* is
@@ -1265,6 +1296,7 @@ def onetrue(seq):
     return False
 
 
+@deprecated('2.1')
 def allpairs(x):
     """
     return all possible pairs in sequence *x*
@@ -1391,6 +1423,7 @@ class Stack(object):
                 self.push(thiso)
 
 
+@deprecated('2.1')
 def finddir(o, match, case=False):
     """
     return all attributes of *o* which match string in match.  if case
@@ -1405,6 +1438,7 @@ def finddir(o, match, case=False):
     return [orig for name, orig in names if name.find(match) >= 0]
 
 
+@deprecated('2.1')
 def reverse_dict(d):
     """reverse the dictionary -- may lose data if values are not unique!"""
     return {v: k for k, v in six.iteritems(d)}
@@ -1476,6 +1510,7 @@ def safezip(*args):
     return list(zip(*args))
 
 
+@deprecated('2.1')
 def issubclass_safe(x, klass):
     """return issubclass(x, klass) and return False on a TypeError"""
 
@@ -1720,6 +1755,7 @@ def simple_linear_interpolation(a, steps):
     return result
 
 
+@deprecated('2.1', alternative='shutil.rmtree')
 def recursive_remove(path):
     if os.path.isdir(path):
         for fname in (glob.glob(os.path.join(path, '*')) +
@@ -2018,6 +2054,7 @@ def boxplot_stats(X, whis=1.5, bootstrap=None, labels=None,
 
 
 # FIXME I don't think this is used anywhere
+@deprecated('2.1')
 def unmasked_index_ranges(mask, compressed=True):
     """
     Find index ranges where *mask* is *False*.
@@ -2071,7 +2108,7 @@ def unmasked_index_ranges(mask, compressed=True):
 # The ls_mapper maps short codes for line style to their full name used by
 # backends; the reverse mapper is for mapping full names to short ones.
 ls_mapper = {'-': 'solid', '--': 'dashed', '-.': 'dashdot', ':': 'dotted'}
-ls_mapper_r = reverse_dict(ls_mapper)
+ls_mapper_r = {v: k for k, v in six.iteritems(ls_mapper)}
 
 
 def align_iterators(func, *iterables):

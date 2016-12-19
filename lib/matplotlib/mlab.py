@@ -3423,12 +3423,9 @@ def less_simple_linear_interpolation(x, y, xi, extrap=False):
     only for a small number of points in relatively non-intensive use
     cases.  For real linear interpolation, use scipy.
     """
-    if cbook.is_scalar(xi):
-        xi = [xi]
-
     x = np.asarray(x)
     y = np.asarray(y)
-    xi = np.asarray(xi)
+    xi = np.atleast_1d(xi)
 
     s = list(y.shape)
     s[0] = len(xi)
