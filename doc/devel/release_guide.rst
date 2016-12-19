@@ -245,7 +245,7 @@ You will need to manually edit :file:`versions.html` to show the last
 3 tagged versions.  Now commit and push everything to GitHub ::
 
   git add *
-  git commit -a -m 'Updating docs for v2.0.0
+  git commit -a -m 'Updating docs for v2.0.0'
   git push DANGER master
 
 Congratulations you have now done the third scariest part!
