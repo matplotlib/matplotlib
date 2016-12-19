@@ -206,8 +206,8 @@ def test_downsample_lines():
 
     ax.add_line(line)
 
-    tpath, _ = line._get_transformed_path().get_transformed_path_and_affine()
-    down_verts = line._downsample_path(tpath).vertices
+    tpath, affine = line._get_transformed_path().get_transformed_path_and_affine()
+    down_verts = line._downsample_path(tpath, affine).vertices
 
     expected_down_verts = np.array([
         [0.0, 2.0],

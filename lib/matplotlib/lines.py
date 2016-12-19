@@ -402,14 +402,14 @@ class Line2D(Artist):
         self._marker = MarkerStyle(marker, fillstyle)
 
         self._markevery = None
-        self._downsample = None
         self._markersize = None
         self._antialiased = None
 
         self.set_markevery(markevery)
-        self.set_downsample(downsample)
         self.set_antialiased(antialiased)
         self.set_markersize(markersize)
+
+        self._downsample = downsample
 
         self._markeredgecolor = None
         self._markeredgewidth = None
@@ -599,7 +599,8 @@ class Line2D(Artist):
         """return the markevery setting"""
         return self._markevery
 
-    def set_downsample(self, downsample):
+    @property
+    def downsample(self):
         """Set the downsample property to subsample the plotted line segments.
 
         If True, then only a subset of line segments will be plotted. The
@@ -644,15 +645,14 @@ class Line2D(Artist):
         markevery : for downsampling the markers that are plotted.
 
         """
+        return self._downsample
+
+    @downsample.setter
+    def downsample(self, downsample):
+        """Sets the downsample property."""
         if self._downsample != downsample:
             self.stale = True
         self._downsample = downsample
-
-    def get_downsample(self):
-        """return the downsample setting"""
-        return self._downsample
-
-    downsample = property(get_downsample, set_downsample)
 
     def set_picker(self, p):
         """Sets the event picker details for the line.
@@ -809,7 +809,7 @@ class Line2D(Artist):
         # We don't handle the monotonically decreasing case.
         return _path.is_sorted(x)
 
-    def _downsample_path(self, tpath):
+    def _downsample_path(self, tpath, affine):
         """
         Helper function to compute the downsampled path.
         """
@@ -832,8 +832,9 @@ class Line2D(Artist):
             return tpath
 
         # Convert vertices from data space to pixel space.
-        # TODO: Find out if this is already stored somewhere.
-        verts_trans = self.axes.transData.transform(verts)
+        # Any non-affine axis transformation has already been applied
+        # to tpath, so we just need to apply affine part.
+        verts_trans = affine.transform_path(tpath).vertices
 
         # Find where the pixel column of the x data changes
         split_indices = np.diff(np.floor(verts_trans[:, 0]).astype(int)) != 0
@@ -882,7 +883,7 @@ class Line2D(Artist):
             tpath, affine = transf_path.get_transformed_path_and_affine()
             if len(tpath.vertices):
                 if self._downsample:
-                    tpath = self._downsample_path(tpath)
+                    tpath = self._downsample_path(tpath, affine)
                 line_func = getattr(self, funcname)
                 gc = renderer.new_gc()
                 self._set_gc_clip(gc)
