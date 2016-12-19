@@ -7,10 +7,10 @@ approaching the release.
 
 For the full details of what has been changed see a `draft of the
 release notes
-<http://matplotlib.org/2.0.0rc1/users/dflt_style_changes.html>`_.
+<http://matplotlib.org/2.0.0rc2/users/dflt_style_changes.html>`_.
 
 The current pre-release is
-`v2.0.0rc1 <https://github.com/matplotlib/matplotlib/releases/tag/v2.0.0rc1>`_
+`v2.0.0rc2 <https://github.com/matplotlib/matplotlib/releases/tag/v2.0.0rc2>`_
 
 You can install pre-releases via ::
 
@@ -29,13 +29,13 @@ git ::
 
   git clone https://github.com/matplotlib/matplotlib.git
   cd matplotlib
-  git checkout v2.0.0rc1
+  git checkout v2.0.0rc2
 
 or tarball ::
 
-  wget https://github.com/matplotlib/matplotlib/archive/v2.0.0rc1.tar.gz -O matplotlib-v2.0.0rc1.tar.gz
-  tar -xzvf matplotlib-v2.0.0rc1.tar.gz
-  cd matplotlib-v2.0.0rc1
+  wget https://github.com/matplotlib/matplotlib/archive/v2.0.0rc2.tar.gz -O matplotlib-v2.0.0rc2.tar.gz
+  tar -xzvf matplotlib-v2.0.0rc2.tar.gz
+  cd matplotlib-v2.0.0rc2
 
 via ::
 
