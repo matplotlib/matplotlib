@@ -1485,6 +1485,10 @@ class Figure(Artist):
                 # continue and a new axes will be created
                 if key == ckey and isinstance(cax, projection_class):
                     return cax
+                else:
+                    warnings.warn('Requested projection is different from '
+                                  'current axis projection, creating new axis '
+                                  'with requested projection.')
 
         # no axes found, so create one which spans the figure
         return self.add_subplot(1, 1, 1, **kwargs)
