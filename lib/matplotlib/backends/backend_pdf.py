@@ -567,9 +567,10 @@ class PdfFile(object):
         self.writeObject(annotObject, theNote)
         self.pageAnnotations.append(annotObject)
 
-    def close(self):
+    def finalize(self):
+        "Write out the various deferred objects and the pdf end matter."
+
         self.endStream()
-        # Write out the various deferred objects
         self.writeFonts()
         self.writeObject(
             self.alphaStateObject,
@@ -598,12 +599,16 @@ class PdfFile(object):
         # Finalize the file
         self.writeXref()
         self.writeTrailer()
+
+    def close(self):
+        "Flush all buffers and free all resources."
+
+        self.endStream()
         if self.passed_in_file_object:
             self.fh.flush()
-        elif self.original_file_like is not None:
-            self.original_file_like.write(self.fh.getvalue())
-            self.fh.close()
         else:
+            if self.original_file_like is not None:
+                self.original_file_like.write(self.fh.getvalue())
             self.fh.close()
 
     def write(self, data):
@@ -1889,6 +1894,12 @@ class RendererPdf(RendererBase):
                 pdfname = self.file.fontName(dvifont.texname)
                 if dvifont.texname not in self.file.dviFontInfo:
                     psfont = self.tex_font_mapping(dvifont.texname)
+                    if psfont.filename is None:
+                        self.file.broken = True
+                        raise ValueError(
+                            ("No usable font file found for %s (%s). "
+                             "The font may lack a Type-1 version.")
+                            % (psfont.psname, dvifont.texname))
                     self.file.dviFontInfo[dvifont.texname] = Bunch(
                         fontfile=psfont.filename,
                         basefont=psfont.psname,
@@ -2456,6 +2467,7 @@ class PdfPages(object):
         Finalize this object, making the underlying file a complete
         PDF file.
         """
+        self._file.finalize()
         self._file.close()
         if (self.get_pagecount() == 0 and not self.keep_empty and
                 not self._file.passed_in_file_object):
@@ -2554,6 +2566,7 @@ class FigureCanvasPdf(FigureCanvasBase):
                 bbox_inches_restore=_bbox_inches_restore)
             self.figure.draw(renderer)
             renderer.finalize()
+            file.finalize()
         finally:
             if isinstance(filename, PdfPages):  # finish off this page
                 file.endStream()

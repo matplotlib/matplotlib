@@ -5,12 +5,22 @@ import six
 
 import numpy as np
 from io import BytesIO
+import os
+import tempfile
 import xml.parsers.expat
+
+try:
+    from unittest.mock import patch
+except ImportError:
+    from mock import patch
+from nose.tools import raises
 
 import matplotlib.pyplot as plt
 from matplotlib.testing.decorators import cleanup
 from matplotlib.testing.decorators import image_comparison, knownfailureif
 import matplotlib
+from matplotlib import dviread
+
 
 needs_tex = knownfailureif(
     not matplotlib.checkdep_tex(),
@@ -192,6 +202,23 @@ def test_determinism_notex():
 def test_determinism_tex():
     # unique filename to allow for parallel testing
     _test_determinism('determinism_tex.svg', usetex=True)
+
+
+@cleanup
+@needs_tex
+@raises(ValueError)
+@patch('matplotlib.dviread.PsfontsMap.__getitem__')
+def test_missing_psfont(mock):
+    """An error is raised if a TeX font lacks a Type-1 equivalent"""
+    from matplotlib import rc
+    psfont = dviread.PsFont(texname='texfont', psname='Some Font',
+                            effects=None, encoding=None, filename=None)
+    mock.configure_mock(return_value=psfont)
+    rc('text', usetex=True)
+    fig, ax = plt.subplots()
+    ax.text(0.5, 0.5, 'hello')
+    with tempfile.NamedTemporaryFile(suffix='.svg') as tmpfile:
+        fig.savefig(tmpfile.name)
 
 
 if __name__ == '__main__':
