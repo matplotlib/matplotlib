@@ -199,15 +199,12 @@ def test_downsample_lines():
 
     line = mlines.Line2D(x, y, downsample=True)
 
-    fig, ax = plt.subplots()
-
-    # Adjust size of figure to ensure downsampling occurs
-    fig.set_dpi(1)
-    fig.set_size_inches([2, 1])
+    _, ax = plt.subplots()
 
     ax.add_line(line)
 
-    tpath, affine = line._get_transformed_path().get_transformed_path_and_affine()
+    transf_path = line._get_transformed_path()
+    tpath, affine = transf_path.get_transformed_path_and_affine()
     down_verts = line._downsample_path(tpath, affine).vertices
 
     expected_down_verts = np.array([
