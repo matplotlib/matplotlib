@@ -4881,7 +4881,8 @@ def test_eventplot_legend():
 
 @cleanup
 def test_bar_single_height():
+    fig, ax = plt.subplots()
     # Check that a bar chart with a single height for all bars works
-    plt.bar(range(4), 1)
+    ax.bar(range(4), 1)
     # Check that a horizontal chart with one width works
-    plt.bar(0, 1, bottom=range(4), width=1, orientation='horizontal')
+    ax.bar(0, 1, bottom=range(4), width=1, orientation='horizontal')
