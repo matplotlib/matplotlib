@@ -775,9 +775,10 @@ def figlegend(handles, labels, loc, **kwargs):
 
 ## Figure and Axes hybrid ##
 
-_hold_msg = """Future behavior will be consistent with the long-time
-    default: plot commands add elements without first
-    clearing the Axes and/or Figure."""
+_hold_msg = """pyplot.hold is deprecated.
+    Future behavior will be consistent with the long-time default:
+    plot commands add elements without first clearing the
+    Axes and/or Figure."""
 
 @deprecated("2.0", message=_hold_msg)
 def hold(b=None):
