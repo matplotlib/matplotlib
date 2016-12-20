@@ -43,6 +43,10 @@ rcParams = matplotlib.rcParams
 is_string_like = cbook.is_string_like
 is_sequence_of_strings = cbook.is_sequence_of_strings
 
+_hold_msg = """axes.hold is deprecated.
+    See the API Changes document (http://matplotlib.org/api/api_changes.html)
+    for more details."""
+
 
 def _process_plot_format(fmt):
     """
@@ -1205,7 +1209,7 @@ class _AxesBase(martist.Artist):
 
         return self._hold
 
-    @cbook.deprecated("2.0")
+    @cbook.deprecated("2.0", message=_hold_msg)
     def hold(self, b=None):
         """
         Set the hold state

@@ -192,6 +192,15 @@ figure which is raising an error on draw.  The previous behavior would only mark
 a figure as not stale after a full re-draw succeeded.
 
 
+The spectral colormap is now nipy_spectral
+------------------------------------------
+
+The colormaps formerly known as ``spectral`` and ``spectral_r`` have been
+replaced by ``nipy_spectral`` and ``nipy_spectral_r`` since matplotlib
+1.3.0. Even though the colormap was deprecated in matplotlib 1.3.0, it never
+raised a warning. As of matplotlib 2.0.0, using the old names raises a
+deprecation warning. In the future, using the old names will raise an error.
+
 Changes in 1.5.3
 ================
 
