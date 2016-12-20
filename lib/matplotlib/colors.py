@@ -1060,6 +1060,8 @@ class SymLogNorm(Normalize):
         Normalize.__init__(self, vmin, vmax, clip)
         self.linthresh = float(linthresh)
         self._linscale_adj = (linscale / (1.0 - np.e ** -1))
+        if vmin is not None and vmax is not None:
+            self._transform_vmin_vmax()
 
     def __call__(self, value, clip=None):
         if clip is None:

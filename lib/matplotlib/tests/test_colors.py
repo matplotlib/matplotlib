@@ -22,6 +22,7 @@ from matplotlib import cycler
 import matplotlib
 import matplotlib.colors as mcolors
 import matplotlib.cm as cm
+import matplotlib.colorbar as mcolorbar
 import matplotlib.cbook as cbook
 import matplotlib.pyplot as plt
 from matplotlib.testing.decorators import (image_comparison,
@@ -230,6 +231,17 @@ def test_SymLogNorm():
     norm = mcolors.SymLogNorm(3, vmin=-30, vmax=5, linscale=1.2)
     normed_vals = norm(vals)
     assert_array_almost_equal(normed_vals, expected)
+
+
+@cleanup
+def test_SymLogNorm_colorbar():
+    """
+    Test un-called SymLogNorm in a colorbar.
+    """
+    norm = mcolors.SymLogNorm(0.1, vmin=-1, vmax=1, linscale=1)
+    fig = plt.figure()
+    cbar = mcolorbar.ColorbarBase(fig.add_subplot(111), norm=norm)
+    plt.close(fig)
 
 
 def _inverse_tester(norm_instance, vals):
