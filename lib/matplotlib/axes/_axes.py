@@ -2025,10 +2025,6 @@ or tuple of floats
                 bottom = [0]
 
             nbars = len(left)
-            if len(height) == 1:
-                height *= nbars
-            if len(width) == 1:
-                width *= nbars
             if len(bottom) == 1:
                 bottom *= nbars
 
@@ -2047,16 +2043,16 @@ or tuple of floats
             nbars = len(bottom)
             if len(left) == 1:
                 left *= nbars
-            if len(height) == 1:
-                height *= nbars
-            if len(width) == 1:
-                width *= nbars
 
             tick_label_axis = self.yaxis
             tick_label_position = bottom
         else:
             raise ValueError('invalid orientation: %s' % orientation)
 
+        if len(height) == 1:
+            height *= nbars
+        if len(width) == 1:
+            width *= nbars
         if len(linewidth) < nbars:
             linewidth *= nbars
 
