@@ -1157,7 +1157,7 @@ class Line2D(Artist):
         """
         if ec is None:
             ec = 'auto'
-        if self._markeredgecolor != ec:
+        if self._markeredgecolor is None or self._markeredgecolor != ec:
             self.stale = True
         self._markeredgecolor = ec
 
