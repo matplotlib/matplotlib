@@ -1028,7 +1028,6 @@ class FigureCanvasWx(FigureCanvasBase, wx.Panel):
         x = evt.GetX()
         y = self.figure.bbox.height - evt.GetY()
         evt.Skip()
-        self.CaptureMouse()
         FigureCanvasBase.button_press_event(self, x, y, 3, guiEvent=evt)
 
     def _onRightButtonDClick(self, evt):
@@ -1036,7 +1035,6 @@ class FigureCanvasWx(FigureCanvasBase, wx.Panel):
         x = evt.GetX()
         y = self.figure.bbox.height - evt.GetY()
         evt.Skip()
-        self.CaptureMouse()
         FigureCanvasBase.button_press_event(self, x, y, 3,
                                             dblclick=True, guiEvent=evt)
 
@@ -1045,8 +1043,6 @@ class FigureCanvasWx(FigureCanvasBase, wx.Panel):
         x = evt.GetX()
         y = self.figure.bbox.height - evt.GetY()
         evt.Skip()
-        if self.HasCapture():
-            self.ReleaseMouse()
         FigureCanvasBase.button_release_event(self, x, y, 3, guiEvent=evt)
 
     def _onLeftButtonDown(self, evt):
@@ -1054,7 +1050,6 @@ class FigureCanvasWx(FigureCanvasBase, wx.Panel):
         x = evt.GetX()
         y = self.figure.bbox.height - evt.GetY()
         evt.Skip()
-        self.CaptureMouse()
         FigureCanvasBase.button_press_event(self, x, y, 1, guiEvent=evt)
 
     def _onLeftButtonDClick(self, evt):
@@ -1062,7 +1057,6 @@ class FigureCanvasWx(FigureCanvasBase, wx.Panel):
         x = evt.GetX()
         y = self.figure.bbox.height - evt.GetY()
         evt.Skip()
-        self.CaptureMouse()
         FigureCanvasBase.button_press_event(self, x, y, 1,
                                             dblclick=True, guiEvent=evt)
 
@@ -1072,8 +1066,6 @@ class FigureCanvasWx(FigureCanvasBase, wx.Panel):
         y = self.figure.bbox.height - evt.GetY()
         # print 'release button', 1
         evt.Skip()
-        if self.HasCapture():
-            self.ReleaseMouse()
         FigureCanvasBase.button_release_event(self, x, y, 1, guiEvent=evt)
 
     # Add middle button events
@@ -1082,7 +1074,6 @@ class FigureCanvasWx(FigureCanvasBase, wx.Panel):
         x = evt.GetX()
         y = self.figure.bbox.height - evt.GetY()
         evt.Skip()
-        self.CaptureMouse()
         FigureCanvasBase.button_press_event(self, x, y, 2, guiEvent=evt)
 
     def _onMiddleButtonDClick(self, evt):
@@ -1090,7 +1081,6 @@ class FigureCanvasWx(FigureCanvasBase, wx.Panel):
         x = evt.GetX()
         y = self.figure.bbox.height - evt.GetY()
         evt.Skip()
-        self.CaptureMouse()
         FigureCanvasBase.button_press_event(self, x, y, 2,
                                             dblclick=True, guiEvent=evt)
 
@@ -1100,8 +1090,6 @@ class FigureCanvasWx(FigureCanvasBase, wx.Panel):
         y = self.figure.bbox.height - evt.GetY()
         # print 'release button', 1
         evt.Skip()
-        if self.HasCapture():
-            self.ReleaseMouse()
         FigureCanvasBase.button_release_event(self, x, y, 2, guiEvent=evt)
 
     def _onMouseWheel(self, evt):
