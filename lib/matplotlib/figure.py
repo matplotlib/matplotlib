@@ -650,7 +650,7 @@ class Figure(Artist):
         (:meth:`~matplotlib.axes.Axes.imshow`) which will be resampled
         to fit the current axes.  If you want a resampled image to
         fill the entire figure, you can define an
-        :class:`~matplotlib.axes.Axes` with size [0,1,0,1].
+        :class:`~matplotlib.axes.Axes` with extent [0,0,1,1].
 
         An :class:`matplotlib.image.FigureImage` instance is returned.
 
