@@ -1282,7 +1282,7 @@ class _AxesBase(martist.Artist):
           etc.
           =====   =====================
         """
-        if isinstance(aspect, str) and aspect in ('equal', 'auto'):
+        if cbook.is_string_like(aspect) and aspect in ('equal', 'auto'):
             self._aspect = aspect
         else:
             self._aspect = float(aspect)  # raise ValueError if necessary
