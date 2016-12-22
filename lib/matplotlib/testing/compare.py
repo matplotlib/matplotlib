@@ -224,8 +224,8 @@ def verify(filename):
     verifier = verifiers.get(extension, None)
     if verifier is not None:
         cmd = verifier(filename)
-        pipe = subprocess.Popen(
-            cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        pipe = subprocess.Popen(cmd, universal_newlines=True,
+                                stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         stdout, stderr = pipe.communicate()
         errcode = pipe.wait()
         if errcode != 0:
