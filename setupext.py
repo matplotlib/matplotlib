@@ -704,6 +704,7 @@ class Matplotlib(SetupPackage):
     def get_packages(self):
         return [
             'matplotlib',
+            'matplotlib._backports',
             'matplotlib.backends',
             'matplotlib.backends.qt_editor',
             'matplotlib.compat',
