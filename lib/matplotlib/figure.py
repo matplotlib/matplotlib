@@ -1383,6 +1383,10 @@ class Figure(Artist):
           title : string
             the legend title
 
+          *uniform_size*: [ *None* | scalar ]
+            a uniform size of legend markers. If *None*, use original plot
+            settings
+
         Padding and spacing between various elements use following keywords
         parameters. The dimensions of these values are given as a fraction
         of the fontsize. Values from rcParams will be used if None.

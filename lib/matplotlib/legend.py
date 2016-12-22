@@ -188,6 +188,7 @@ class Legend(Artist):
                  bbox_transform=None,  # transform for the bbox
                  frameon=None,  # draw frame
                  handler_map=None,
+                 uniform_size=None,  # set legend points to be a uniform size
                  ):
         """
         - *parent*: the artist that contains the legend
@@ -225,6 +226,7 @@ class Legend(Artist):
         title              the legend title
         bbox_to_anchor     the bbox that the legend will be anchored.
         bbox_transform     the transform for the bbox. transAxes if None.
+        uniform_size       the uniform size of legend marker
         ================   ====================================================
 
 
@@ -246,6 +248,13 @@ class Legend(Artist):
         from matplotlib.figure import Figure
 
         Artist.__init__(self)
+
+        if uniform_size is not None:
+            uniform_handler_map = {
+                PathCollection:
+                    legend_handler.HandlerPathCollection(sizes=[uniform_size]),
+                }
+            self.update_default_handler_map(uniform_handler_map)
 
         if prop is None:
             if fontsize is not None:
