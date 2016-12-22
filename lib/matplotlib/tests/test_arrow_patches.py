@@ -44,7 +44,7 @@ def test_boxarrow():
 
     fontsize = 0.3 * 72
 
-    for i, stylename in enumerate(sorted(styles.keys())):
+    for i, stylename in enumerate(sorted(styles)):
         fig1.text(0.5, ((n - i) * spacing - 0.5)/figheight, stylename,
                   ha="center",
                   size=fontsize,

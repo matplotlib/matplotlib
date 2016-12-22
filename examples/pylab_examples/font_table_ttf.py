@@ -32,8 +32,7 @@ else:
                             'fonts', 'ttf', 'DejaVuSans.ttf')
 
 font = FT2Font(fontname)
-codes = list(font.get_charmap().items())
-codes.sort()
+codes = sorted(font.get_charmap().items())
 
 # a 16,16 array of character strings
 chars = [['' for c in range(16)] for r in range(16)]

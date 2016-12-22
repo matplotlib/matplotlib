@@ -2390,13 +2390,13 @@ def test_errorbar_limits():
     plt.errorbar(x, y, xerr=xerr, yerr=yerr, ls=ls, color='blue')
 
     # including upper limits
-    uplims = np.zeros(x.shape)
+    uplims = np.zeros_like(x)
     uplims[[1, 5, 9]] = True
     plt.errorbar(x, y+0.5, xerr=xerr, yerr=yerr, uplims=uplims, ls=ls,
                  color='green')
 
     # including lower limits
-    lolims = np.zeros(x.shape)
+    lolims = np.zeros_like(x)
     lolims[[2, 4, 8]] = True
     plt.errorbar(x, y+1.0, xerr=xerr, yerr=yerr, lolims=lolims, ls=ls,
                  color='red')
@@ -2407,12 +2407,12 @@ def test_errorbar_limits():
 
     # including xlower and xupper limits
     xerr = 0.2
-    yerr = np.zeros(x.shape) + 0.2
+    yerr = np.zeros_like(x) + 0.2
     yerr[[3, 6]] = 0.3
     xlolims = lolims
     xuplims = uplims
-    lolims = np.zeros(x.shape)
-    uplims = np.zeros(x.shape)
+    lolims = np.zeros_like(x)
+    uplims = np.zeros_like(x)
     lolims[[6]] = True
     uplims[[3]] = True
     plt.errorbar(x, y+2.1, marker='o', ms=8, xerr=xerr, yerr=yerr,
@@ -2793,7 +2793,7 @@ def test_empty_eventplot():
 def test_marker_styles():
     fig = plt.figure()
     ax = fig.add_subplot(111)
-    for y, marker in enumerate(sorted(matplotlib.markers.MarkerStyle.markers.keys(),
+    for y, marker in enumerate(sorted(matplotlib.markers.MarkerStyle.markers,
                                       key=lambda x: str(type(x))+str(x))):
         ax.plot((y % 2)*5 + np.arange(10)*10, np.ones(10)*10*y, linestyle='', marker=marker,
                 markersize=10+y/5, label=marker)

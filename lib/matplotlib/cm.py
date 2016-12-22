@@ -85,17 +85,14 @@ LUTSIZE = mpl.rcParams['image.lut']
 # spectral/spectral_r when this module is imported.
 with _warnings.catch_warnings():
     _warnings.simplefilter("ignore")
-    # Generate the reversed specifications ...
-    for cmapname in list(six.iterkeys(datad)):
-        spec = datad[cmapname]
-        spec_reversed = _reverse_cmap_spec(spec)
-        datad[cmapname + '_r'] = spec_reversed
+    # Generate the reversed specifications (all at once, to avoid
+    # modify-when-iterating).
+    datad.update({cmapname + '_r': _reverse_cmap_spec(spec)
+                  for cmapname, spec in six.iteritems(datad)})
 
-    # Precache the cmaps with ``lutsize = LUTSIZE`` ...
-
-    # Use datad.keys() to also add the reversed ones added in the section
-    # above:
-    for cmapname in six.iterkeys(datad):
+    # Precache the cmaps with ``lutsize = LUTSIZE``.
+    # Also add the reversed ones added in the section above:
+    for cmapname in datad:
         cmap_d[cmapname] = _generate_cmap(cmapname, LUTSIZE)
 
 cmap_d.update(cmaps_listed)
@@ -173,7 +170,7 @@ def get_cmap(name=None, lut=None):
     else:
         raise ValueError(
             "Colormap %s is not recognized. Possible values are: %s"
-            % (name, ', '.join(sorted(cmap_d.keys()))))
+            % (name, ', '.join(sorted(cmap_d))))
 
 
 class ScalarMappable(object):

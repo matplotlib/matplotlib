@@ -624,7 +624,7 @@ def test_pandas_iterable():
 def test_colormap_reversing():
     """Check the generated _lut data of a colormap and corresponding
     reversed colormap if they are almost the same."""
-    for name in six.iterkeys(cm.cmap_d):
+    for name in cm.cmap_d:
         cmap = plt.get_cmap(name)
         cmap_r = cmap.reversed()
         if not cmap_r._isinit:

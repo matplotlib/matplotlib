@@ -185,7 +185,7 @@ class CustomCell(Cell):
                     msg = ('Invalid edge param {0}, must only be one of'
                            ' {1} or string of {2}.').format(
                                    value,
-                                   ", ".join(self._edge_aliases.keys()),
+                                   ", ".join(self._edge_aliases),
                                    ", ".join(self._edges),
                                    )
                     raise ValueError(msg)
@@ -256,7 +256,7 @@ class Table(Artist):
         if is_string_like(loc) and loc not in self.codes:
             warnings.warn('Unrecognized location %s. Falling back on '
                           'bottom; valid locations are\n%s\t' %
-                          (loc, '\n\t'.join(six.iterkeys(self.codes))))
+                          (loc, '\n\t'.join(self.codes)))
             loc = 'bottom'
         if is_string_like(loc):
             loc = self.codes.get(loc, 1)
@@ -287,7 +287,7 @@ class Table(Artist):
         cell.set_transform(self.get_transform())
 
         cell.set_clip_on(False)
-        self._cells[(row, col)] = cell
+        self._cells[row, col] = cell
         self.stale = True
 
     @property
@@ -317,12 +317,9 @@ class Table(Artist):
         renderer.open_group('table')
         self._update_positions(renderer)
 
-        keys = list(six.iterkeys(self._cells))
-        keys.sort()
-        for key in keys:
+        for key in sorted(self._cells):
             self._cells[key].draw(renderer)
-        # for c in self._cells.itervalues():
-        #     c.draw(renderer)
+
         renderer.close_group('table')
         self.stale = False
 
@@ -330,10 +327,9 @@ class Table(Artist):
         """Get a bbox, in axes co-ordinates for the cells.
 
         Only include those in the range (0,0) to (maxRow, maxCol)"""
-        boxes = [self._cells[pos].get_window_extent(renderer)
-                 for pos in six.iterkeys(self._cells)
-                 if pos[0] >= 0 and pos[1] >= 0]
-
+        boxes = [cell.get_window_extent(renderer)
+                 for (row, col), cell in six.iteritems(self._cells)
+                 if row >= 0 and col >= 0]
         bbox = Bbox.union(boxes)
         return bbox.inverse_transformed(self.get_transform())
 
@@ -349,9 +345,9 @@ class Table(Artist):
         # doesn't have to bind to each one individually.
         renderer = self.figure._cachedRenderer
         if renderer is not None:
-            boxes = [self._cells[pos].get_window_extent(renderer)
-                     for pos in six.iterkeys(self._cells)
-                     if pos[0] >= 0 and pos[1] >= 0]
+            boxes = [cell.get_window_extent(renderer)
+                     for (row, col), cell in six.iteritems(self._cells)
+                     if row >= 0 and col >= 0]
             bbox = Bbox.union(boxes)
             return bbox.contains(mouseevent.x, mouseevent.y), {}
         else:
@@ -366,7 +362,6 @@ class Table(Artist):
         'Return the bounding box of the table in window coords'
         boxes = [cell.get_window_extent(renderer)
                  for cell in six.itervalues(self._cells)]
-
         return Bbox.union(boxes)
 
     def _do_cell_alignment(self):
@@ -386,18 +381,13 @@ class Table(Artist):
         # work out left position for each column
         xpos = 0
         lefts = {}
-        cols = list(six.iterkeys(widths))
-        cols.sort()
-        for col in cols:
+        for col in sorted(widths):
             lefts[col] = xpos
             xpos += widths[col]
 
         ypos = 0
         bottoms = {}
-        rows = list(six.iterkeys(heights))
-        rows.sort()
-        rows.reverse()
-        for row in rows:
+        for row in sorted(heights, reverse=True):
             bottoms[row] = ypos
             ypos += heights[row]
 
@@ -529,7 +519,7 @@ class Table(Artist):
         else:
             # Position using loc
             (BEST, UR, UL, LL, LR, CL, CR, LC, UC, C,
-             TR, TL, BL, BR, R, L, T, B) = list(xrange(len(self.codes)))
+             TR, TL, BL, BR, R, L, T, B) = xrange(len(self.codes))
             # defaults for center
             ox = (0.5 - w / 2) - l
             oy = (0.5 - h / 2) - b

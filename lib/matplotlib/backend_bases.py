@@ -1469,15 +1469,12 @@ class LocationEvent(Event):
         else:
             axes_list = [self.canvas.mouse_grabber]
 
-        if len(axes_list) == 0:  # None found
+        if axes_list:  # Use highest zorder.
+            self.inaxes = max(axes_list, key=lambda x: x.zorder)
+        else:  # None found.
             self.inaxes = None
             self._update_enter_leave()
             return
-        elif (len(axes_list) > 1):  # Overlap, get the highest zorder
-            axes_list.sort(key=lambda x: x.zorder)
-            self.inaxes = axes_list[-1]  # Use the highest zorder
-        else:  # Just found one hit
-            self.inaxes = axes_list[0]
 
         try:
             trans = self.inaxes.transData.inverted()
@@ -1751,8 +1748,7 @@ class FigureCanvasBase(object):
             canvas.mpl_connect('mouse_press_event',canvas.onRemove)
         """
         # Find the top artist under the cursor
-        under = self.figure.hitlist(ev)
-        under.sort(key=lambda x: x.zorder)
+        under = sorted(self.figure.hitlist(ev), key=lambda x: x.zorder)
         h = None
         if under:
             h = under[-1]

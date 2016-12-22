@@ -402,18 +402,14 @@ class RecListStore(gtk.ListStore):
         self.combod = dict()
         if len(stringd):
             types.extend([gobject.TYPE_INT]*len(stringd))
-
-            keys = list(six.iterkeys(stringd))
-            keys.sort()
-
+            keys = sorted(stringd)
             valid = set(r.dtype.names)
             for ikey, key in enumerate(keys):
-                assert(key in valid)
+                assert key in valid
                 combostore = gtk.ListStore(gobject.TYPE_STRING)
                 for s in stringd[key]:
                     combostore.append([s])
                 self.combod[key] = combostore, len(self.headers)+ikey
-
 
         gtk.ListStore.__init__(self, *types)
 
@@ -483,8 +479,7 @@ class RecTreeView(gtk.TreeView):
 
         gtk.TreeView.__init__(self, recliststore)
 
-        combostrings = set(recliststore.stringd.keys())
-
+        combostrings = set(recliststore.stringd)
 
         if constant is None:
             constant = []

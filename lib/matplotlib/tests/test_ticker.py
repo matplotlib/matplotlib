@@ -338,7 +338,7 @@ def test_LogFormatterSciNotation():
         )
     }
 
-    for base in test_cases.keys():
+    for base in test_cases:
         formatter = mticker.LogFormatterSciNotation(base=base)
         formatter.sublabel = {1, 2, 5, 1.2}
         for value, expected in test_cases[base]:

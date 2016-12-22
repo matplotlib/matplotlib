@@ -2260,13 +2260,8 @@ class Annotation(Text, _AnnotationBase):
                 xpos = ((l, 0), (xc, 0.5), (r, 1))
                 ypos = ((b, 0), (yc, 0.5), (t, 1))
 
-                dsu = [(abs(val[0] - x0), val) for val in xpos]
-                dsu.sort()
-                _, (x, relposx) = dsu[0]
-
-                dsu = [(abs(val[0] - y0), val) for val in ypos]
-                dsu.sort()
-                _, (y, relposy) = dsu[0]
+                _, (x, relposx) = min((abs(val[0] - x0), val) for val in xpos)
+                _, (y, relposy) = min((abs(val[0] - y0), val) for val in ypos)
 
                 self._arrow_relpos = (relposx, relposy)
 

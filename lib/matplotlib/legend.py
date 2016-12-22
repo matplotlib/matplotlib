@@ -33,8 +33,7 @@ import numpy as np
 
 from matplotlib import rcParams
 from matplotlib.artist import Artist, allow_rasterization
-from matplotlib.cbook import (is_string_like, iterable, silent_list, safezip,
-                              is_hashable)
+from matplotlib.cbook import is_string_like, iterable, silent_list, is_hashable
 from matplotlib.font_manager import FontProperties
 from matplotlib.lines import Line2D
 from matplotlib.patches import Patch, Rectangle, Shadow, FancyBboxPatch
@@ -323,15 +322,13 @@ class Legend(Artist):
                 if self.isaxes:
                     warnings.warn('Unrecognized location "%s". Falling back '
                                   'on "best"; valid locations are\n\t%s\n'
-                                  % (loc, '\n\t'.join(
-                                    six.iterkeys(self.codes))))
+                                  % (loc, '\n\t'.join(self.codes)))
                     loc = 0
                 else:
                     warnings.warn('Unrecognized location "%s". Falling back '
                                   'on "upper right"; '
                                   'valid locations are\n\t%s\n'
-                                  % (loc, '\n\t'.join(
-                                    six.iterkeys(self.codes))))
+                                  % (loc, '\n\t'.join(self.codes)))
                     loc = 1
             else:
                 loc = self.codes[loc]
@@ -655,29 +652,23 @@ class Legend(Artist):
                 handle_list.append(handler.legend_artist(self, orig_handle,
                                                          fontsize, handlebox))
 
-        if len(handleboxes) > 0:
-
+        if handleboxes:
             # We calculate number of rows in each column. The first
             # (num_largecol) columns will have (nrows+1) rows, and remaining
             # (num_smallcol) columns will have (nrows) rows.
             ncol = min(self._ncol, len(handleboxes))
             nrows, num_largecol = divmod(len(handleboxes), ncol)
             num_smallcol = ncol - num_largecol
-
             # starting index of each column and number of rows in it.
-            largecol = safezip(list(xrange(0,
-                                           num_largecol * (nrows + 1),
-                                           (nrows + 1))),
-                               [nrows + 1] * num_largecol)
-            smallcol = safezip(list(xrange(num_largecol * (nrows + 1),
-                                           len(handleboxes), nrows)),
-                               [nrows] * num_smallcol)
+            rows_per_col = [nrows + 1] * num_largecol + [nrows] * num_smallcol
+            start_idxs = np.concatenate([[0], np.cumsum(rows_per_col)[:-1]])
+            cols = zip(start_idxs, rows_per_col)
         else:
-            largecol, smallcol = [], []
+            cols = []
 
-        handle_label = safezip(handleboxes, labelboxes)
+        handle_label = list(zip(handleboxes, labelboxes))
         columnbox = []
-        for i0, di in largecol + smallcol:
+        for i0, di in cols:
             # pack handleBox and labelBox into itemBox
             itemBoxes = [HPacker(pad=0,
                                  sep=self.handletextpad * fontsize,
@@ -691,20 +682,13 @@ class Legend(Artist):
                 itemBoxes[-1].get_children()[0].set_minimumdescent(False)
 
             # pack columnBox
-            if markerfirst:
-                alignment = "baseline"
-            else:
-                alignment = "right"
+            alignment = "baseline" if markerfirst else "right"
             columnbox.append(VPacker(pad=0,
                                      sep=self.labelspacing * fontsize,
                                      align=alignment,
                                      children=itemBoxes))
 
-        if self._mode == "expand":
-            mode = "expand"
-        else:
-            mode = "fixed"
-
+        mode = "expand" if self._mode == "expand" else "fixed"
         sep = self.columnspacing * fontsize
         self._legend_handle_box = HPacker(pad=0,
                                           sep=sep, align="baseline",

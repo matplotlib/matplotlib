@@ -807,15 +807,10 @@ class NavigationToolbar2TkAgg(NavigationToolbar2, Tk.Frame):
 
         # Tk doesn't provide a way to choose a default filetype,
         # so we just have to put it first
-        default_filetype_name = filetypes[default_filetype]
-        del filetypes[default_filetype]
-
-        sorted_filetypes = list(six.iteritems(filetypes))
-        sorted_filetypes.sort()
-        sorted_filetypes.insert(0, (default_filetype, default_filetype_name))
-
-        tk_filetypes = [
-            (name, '*.%s' % ext) for (ext, name) in sorted_filetypes]
+        default_filetype_name = filetypes.pop(default_filetype)
+        sorted_filetypes = ([(default_filetype, default_filetype_name)]
+                            + sorted(six.iteritems(filetypes)))
+        tk_filetypes = [(name, '*.%s' % ext) for ext, name in sorted_filetypes]
 
         # adding a default extension seems to break the
         # asksaveasfilename dialog when you choose various save types
@@ -1047,15 +1042,10 @@ class SaveFigureTk(backend_tools.SaveFigureBase):
 
         # Tk doesn't provide a way to choose a default filetype,
         # so we just have to put it first
-        default_filetype_name = filetypes[default_filetype]
-        del filetypes[default_filetype]
-
-        sorted_filetypes = list(six.iteritems(filetypes))
-        sorted_filetypes.sort()
-        sorted_filetypes.insert(0, (default_filetype, default_filetype_name))
-
-        tk_filetypes = [
-            (name, '*.%s' % ext) for (ext, name) in sorted_filetypes]
+        default_filetype_name = filetypes.pop(default_filetype)
+        sorted_filetypes = ([(default_filetype, default_filetype_name)]
+                            + sorted(six.iteritems(filetypes)))
+        tk_filetypes = [(name, '*.%s' % ext) for ext, name in sorted_filetypes]
 
         # adding a default extension seems to break the
         # asksaveasfilename dialog when you choose various save types

@@ -113,15 +113,6 @@ def test_imread_pil_uint16():
     assert (img.dtype == np.uint16)
     assert np.sum(img) == 134184960
 
-# def test_image_unicode_io():
-#     fig = plt.figure()
-#     ax = fig.add_subplot(111)
-#     ax.plot([1,2,3])
-#     fname = u"\u0a3a\u0a3a.png"
-#     fig.savefig(fname)
-#     plt.imread(fname)
-#     os.remove(fname)
-
 
 @cleanup
 def test_imsave():

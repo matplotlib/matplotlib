@@ -166,7 +166,7 @@ class TriInterpolator(object):
         x = np.asarray(x, dtype=np.float64)
         y = np.asarray(y, dtype=np.float64)
         sh_ret = x.shape
-        if (x.shape != y.shape):
+        if x.shape != y.shape:
             raise ValueError("x and y shall have same shapes."
                              " Given: {0} and {1}".format(x.shape, y.shape))
         x = np.ravel(x)

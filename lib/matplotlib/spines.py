@@ -207,14 +207,9 @@ class Spine(mpatches.Patch):
 
             if self._smart_bounds:
                 # attempt to set bounds in sophisticated way
-                if low > high:
-                    # handle inverted limits
-                    low, high = high, low
 
-                viewlim_low = low
-                viewlim_high = high
-
-                del low, high
+                # handle inverted limits
+                viewlim_low, viewlim_high = sorted([low, high])
 
                 if self.spine_type in ('left', 'right'):
                     datalim_low, datalim_high = self.axes.dataLim.intervaly
@@ -223,11 +218,8 @@ class Spine(mpatches.Patch):
                     datalim_low, datalim_high = self.axes.dataLim.intervalx
                     ticks = self.axes.get_xticks()
                 # handle inverted limits
-                ticks = list(ticks)
-                ticks.sort()
-                ticks = np.array(ticks)
-                if datalim_low > datalim_high:
-                    datalim_low, datalim_high = datalim_high, datalim_low
+                ticks = np.sort(ticks)
+                datalim_low, datalim_high = sorted([datalim_low, datalim_high])
 
                 if datalim_low < viewlim_low:
                     # Data extends past view. Clip line to view.
