@@ -113,8 +113,8 @@ def get_file_hash(path, block_size=2 ** 20):
 def make_external_conversion_command(cmd):
     def convert(old, new):
         cmdline = cmd(old, new)
-        pipe = subprocess.Popen(
-            cmdline, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        pipe = subprocess.Popen(cmdline, universal_newlines=True,
+                                stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         stdout, stderr = pipe.communicate()
         errcode = pipe.wait()
         if not os.path.exists(new) or errcode:
