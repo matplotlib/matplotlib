@@ -562,7 +562,7 @@ or by setting::
 in your :file:`matplotlibrc` file.
 
 ``bar`` and ``barh``
-====================
+--------------------
 
 The default value of the ``align`` kwarg for both
 `~matplotlib.Axes.bar` and `~matplotlib.Axes.barh` is changed from
