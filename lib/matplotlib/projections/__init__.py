@@ -33,9 +33,7 @@ class ProjectionRegistry(object):
         Get a list of the names of all projections currently
         registered.
         """
-        names = list(six.iterkeys(self._all_projection_types))
-        names.sort()
-        return names
+        return sorted(self._all_projection_types)
 projection_registry = ProjectionRegistry()
 
 projection_registry.register(

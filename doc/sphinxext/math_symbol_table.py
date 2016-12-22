@@ -106,14 +106,10 @@ def run(state_machine):
 
     lines = []
     for category, columns, syms in symbols:
-        syms = syms.split()
-        syms.sort()
+        syms = sorted(syms.split())
         lines.append("**%s**" % category)
         lines.append('')
-        max_width = 0
-        for sym in syms:
-            max_width = max(max_width, len(sym))
-        max_width = max_width * 2 + 16
+        max_width = max(map(len, syms)) * 2 + 16
         header = "    " + (('=' * max_width) + ' ') * columns
         format = '%%%ds' % max_width
         for chunk in get_n(20, get_n(columns, syms)):

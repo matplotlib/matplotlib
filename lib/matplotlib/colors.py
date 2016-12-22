@@ -372,10 +372,9 @@ def makeMappingArray(N, data, gamma=1.0):
 
     if x[0] != 0. or x[-1] != 1.0:
         raise ValueError(
-            "data mapping points must start with x=0. and end with x=1")
-    if np.sometrue(np.sort(x) - x):
-        raise ValueError(
-            "data mapping points must have x in increasing order")
+            "data mapping points must start with x=0 and end with x=1")
+    if (np.diff(x) < 0).any():
+        raise ValueError("data mapping points must have x in increasing order")
     # begin generation of lookup table
     x = x * (N - 1)
     lut = np.zeros((N,), float)
@@ -562,8 +561,8 @@ class Colormap(object):
     def is_gray(self):
         if not self._isinit:
             self._init()
-        return (np.alltrue(self._lut[:, 0] == self._lut[:, 1]) and
-                np.alltrue(self._lut[:, 0] == self._lut[:, 2]))
+        return (np.all(self._lut[:, 0] == self._lut[:, 1]) and
+                np.all(self._lut[:, 0] == self._lut[:, 2]))
 
     def _resample(self, lutsize):
         """

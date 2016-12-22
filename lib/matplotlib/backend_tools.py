@@ -618,7 +618,7 @@ class ToolViewsPositions(ToolBase):
                 cur_view = home_views[a]
             a._set_view(cur_view)
 
-        if set(all_axes).issubset(pos.keys()):
+        if set(all_axes).issubset(pos):
             for a in all_axes:
                 # Restore both the original and modified positions
                 a.set_position(pos[a][0], 'original')

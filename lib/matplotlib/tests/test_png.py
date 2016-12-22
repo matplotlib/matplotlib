@@ -23,8 +23,7 @@ def test_pngsuite():
         os.path.dirname(__file__),
         'baseline_images',
         'pngsuite')
-    files = glob.glob(os.path.join(dirname, 'basn*.png'))
-    files.sort()
+    files = sorted(glob.iglob(os.path.join(dirname, 'basn*.png')))
 
     fig = plt.figure(figsize=(len(files), 2))
 

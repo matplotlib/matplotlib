@@ -41,7 +41,7 @@ class Triangulation(object):
     def __init__(self, x, y, triangles=None, mask=None):
         self.x = np.asarray(x, dtype=np.float64)
         self.y = np.asarray(y, dtype=np.float64)
-        if self.x.shape != self.y.shape or len(self.x.shape) != 1:
+        if self.x.shape != self.y.shape or self.x.ndim != 1:
             raise ValueError("x and y must be equal-length 1-D arrays")
 
         self.mask = None
@@ -67,8 +67,7 @@ class Triangulation(object):
 
         if mask is not None:
             self.mask = np.asarray(mask, dtype=np.bool)
-            if (len(self.mask.shape) != 1 or
-                    self.mask.shape[0] != self.triangles.shape[0]):
+            if self.mask.shape != (self.triangles.shape[0],):
                 raise ValueError('mask array must have same length as '
                                  'triangles array')
 
@@ -202,8 +201,7 @@ class Triangulation(object):
             self.mask = None
         else:
             self.mask = np.asarray(mask, dtype=np.bool)
-            if (len(self.mask.shape) != 1 or
-                    self.mask.shape[0] != self.triangles.shape[0]):
+            if self.mask.shape != (self.triangles.shape[0],):
                 raise ValueError('mask array must have same length as '
                                  'triangles array')
 

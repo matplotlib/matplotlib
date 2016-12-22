@@ -52,7 +52,7 @@ ax.errorbar(x, y + 1.5, xerr=xerr, yerr=yerr,
 # Plot a series with lower and upper limits in both x & y
 # constant x-error with varying y-error
 xerr = 0.2
-yerr = np.zeros(x.shape) + 0.2
+yerr = np.zeros_like(x) + 0.2
 yerr[[3, 6]] = 0.3
 
 # mock up some limits by modifying previous data

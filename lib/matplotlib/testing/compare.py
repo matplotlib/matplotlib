@@ -157,7 +157,7 @@ def comparable_formats():
     on this system.
 
     """
-    return ['png'] + list(six.iterkeys(converter))
+    return ['png'] + list(converter)
 
 
 def convert(filename, cache):
@@ -254,7 +254,7 @@ def calculate_rms(expectedImage, actualImage):
         raise ImageComparisonFailure(
             "image sizes do not match expected size: {0} "
             "actual size {1}".format(expectedImage.shape, actualImage.shape))
-    num_values = np.prod(expectedImage.shape)
+    num_values = expectedImage.size
     abs_diff_image = abs(expectedImage - actualImage)
     histogram = np.bincount(abs_diff_image.ravel(), minlength=256)
     sum_of_squares = np.sum(histogram * np.arange(len(histogram)) ** 2)

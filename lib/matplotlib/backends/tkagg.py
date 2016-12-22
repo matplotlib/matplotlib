@@ -40,4 +40,4 @@ def test(aggimage):
     blit(p, aggimage)
     c.create_image(aggimage.width,aggimage.height,image=p)
     blit(p, aggimage)
-    while 1: r.update_idletasks()
+    while True: r.update_idletasks()

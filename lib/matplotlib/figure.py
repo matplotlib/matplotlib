@@ -17,7 +17,6 @@ from __future__ import (absolute_import, division, print_function,
 import six
 
 import warnings
-from operator import itemgetter
 
 import numpy as np
 
@@ -458,8 +457,7 @@ class Figure(Artist):
         *ha*
             The horizontal alignment of the xticklabels
         """
-        allsubplots = np.alltrue([hasattr(ax, 'is_last_row') for ax
-                                  in self.axes])
+        allsubplots = all(hasattr(ax, 'is_last_row') for ax in self.axes)
         if len(self.axes) == 1:
             for label in self.axes[0].get_xticklabels():
                 label.set_ha(ha)
@@ -1220,34 +1218,12 @@ class Figure(Artist):
         if not self.get_visible():
             return
 
-        # a list of (zorder, func_to_call, list_of_args)
-        dsu = []
-
-        for a in self.patches:
-            dsu.append((a.get_zorder(), a))
-
-        for a in self.lines:
-            dsu.append((a.get_zorder(), a))
-
-        for a in self.artists:
-            dsu.append((a.get_zorder(), a))
-
-        for a in self.images:
-            dsu.append((a.get_zorder(), a))
-
-        # render the axes
-        for a in self.axes:
-            dsu.append((a.get_zorder(), a))
-
-        # render the figure text
-        for a in self.texts:
-            dsu.append((a.get_zorder(), a))
-
-        for a in self.legends:
-            dsu.append((a.get_zorder(), a))
-
-        dsu = [row for row in dsu if not row[1].get_animated()]
-        dsu.sort(key=itemgetter(0))
+        artists = sorted(
+            (artist for artist in (self.patches + self.lines + self.artists
+                                   + self.images + self.axes + self.texts
+                                   + self.legends)
+             if not artist.get_animated()),
+            key=lambda artist: artist.get_zorder())
 
         try:
             renderer.open_group('figure')
@@ -1262,7 +1238,7 @@ class Figure(Artist):
                 self.patch.draw(renderer)
 
             mimage._draw_list_compositing_images(
-                renderer, self, dsu, self.suppressComposite)
+                renderer, self, artists, self.suppressComposite)
 
             renderer.close_group('figure')
         finally:

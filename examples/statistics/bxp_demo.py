@@ -32,7 +32,7 @@ for n in range(len(stats)):
     stats[n]['med'] = np.median(data)
     stats[n]['mean'] *= 2
 
-print(stats[0].keys())
+print(list(stats[0]))
 
 fs = 10  # fontsize
 

@@ -1317,12 +1317,8 @@ class ArtistInspector(object):
         Return the getters and actual values as list of strings.
         """
 
-        d = self.properties()
-        names = list(six.iterkeys(d))
-        names.sort()
         lines = []
-        for name in names:
-            val = d[name]
+        for name, val in sorted(six.iteritems(self.properties())):
             if getattr(val, 'shape', ()) != () and len(val) > 6:
                 s = str(val[:6]) + '...'
             else:

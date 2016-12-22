@@ -173,73 +173,36 @@ class Test_boxplot_stats(object):
 
     def test_form_dict_keys(self):
         for res in self.std_results:
-            keys = sorted(list(res.keys()))
-            for key in keys:
-                assert key in self.known_keys
+            assert set(res) <= set(self.known_keys)
 
     def test_results_baseline(self):
         res = self.std_results[0]
-        for key in list(self.known_nonbootstrapped_res.keys()):
-            if key != 'fliers':
-                assert_statement = assert_approx_equal
-            else:
-                assert_statement = assert_array_almost_equal
-
-            assert_statement(
-                res[key],
-                self.known_nonbootstrapped_res[key]
-            )
+        for key, value in self.known_nonbootstrapped_res.items():
+            assert_array_almost_equal(res[key], value)
 
     def test_results_bootstrapped(self):
         results = cbook.boxplot_stats(self.data, bootstrap=10000)
         res = results[0]
-        for key in list(self.known_bootstrapped_ci.keys()):
-            assert_approx_equal(
-                res[key],
-                self.known_bootstrapped_ci[key]
-            )
+        for key, value in self.known_bootstrapped_ci.items():
+            assert_approx_equal(res[key], value)
 
     def test_results_whiskers_float(self):
         results = cbook.boxplot_stats(self.data, whis=3)
         res = results[0]
-        for key in list(self.known_whis3_res.keys()):
-            if key != 'fliers':
-                assert_statement = assert_approx_equal
-            else:
-                assert_statement = assert_array_almost_equal
-
-            assert_statement(
-                res[key],
-                self.known_whis3_res[key]
-            )
+        for key, value in self.known_whis3_res.items():
+            assert_array_almost_equal(res[key], value)
 
     def test_results_whiskers_range(self):
         results = cbook.boxplot_stats(self.data, whis='range')
         res = results[0]
-        for key in list(self.known_res_range.keys()):
-            if key != 'fliers':
-                assert_statement = assert_approx_equal
-            else:
-                assert_statement = assert_array_almost_equal
-
-            assert_statement(
-                res[key],
-                self.known_res_range[key]
-            )
+        for key, value in self.known_res_range.items():
+            assert_array_almost_equal(res[key], value)
 
     def test_results_whiskers_percentiles(self):
         results = cbook.boxplot_stats(self.data, whis=[5, 95])
         res = results[0]
-        for key in list(self.known_res_percentiles.keys()):
-            if key != 'fliers':
-                assert_statement = assert_approx_equal
-            else:
-                assert_statement = assert_array_almost_equal
-
-            assert_statement(
-                res[key],
-                self.known_res_percentiles[key]
-            )
+        for key, value in self.known_res_percentiles.items():
+            assert_array_almost_equal(res[key], value)
 
     def test_results_withlabels(self):
         labels = ['Test1', 2, 'ardvark', 4]

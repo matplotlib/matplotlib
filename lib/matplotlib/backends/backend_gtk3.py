@@ -695,8 +695,7 @@ class FileChooserDialog(Gtk.FileChooserDialog):
         hbox.pack_start(cbox, False, False, 0)
 
         self.filetypes = filetypes
-        self.sorted_filetypes = list(six.iteritems(filetypes))
-        self.sorted_filetypes.sort()
+        self.sorted_filetypes = sorted(six.iteritems(filetypes))
         default = 0
         for i, (ext, name) in enumerate(self.sorted_filetypes):
             liststore.append(["%s (*.%s)" % (name, ext)])

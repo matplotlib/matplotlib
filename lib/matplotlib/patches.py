@@ -1670,13 +1670,9 @@ class Arc(Ellipse):
             self.get_transform().inverted()
         box_path = box_path.transformed(box_path_transform)
 
-        PI = np.pi
-        TWOPI = PI * 2.0
-        RAD2DEG = 180.0 / PI
-        DEG2RAD = PI / 180.0
         theta1 = self.theta1
         theta2 = self.theta2
-        thetas = {}
+        thetas = set()
         # For each of the point pairs, there is a line segment
         for p0, p1 in zip(box_path.vertices[:-1], box_path.vertices[1:]):
             x0, y0 = p0
@@ -1684,18 +1680,15 @@ class Arc(Ellipse):
             for x, y in iter_circle_intersect_on_line_seg(x0, y0, x1, y1):
                 theta = np.arccos(x)
                 if y < 0:
-                    theta = TWOPI - theta
+                    theta = 2 * np.pi - theta
                 # Convert radians to angles
-                theta *= RAD2DEG
-                if theta > theta1 and theta < theta2:
-                    thetas[theta] = None
-
-        thetas = list(six.iterkeys(thetas))
-        thetas.sort()
-        thetas.append(theta2)
+                theta = np.rad2deg(theta)
+                if theta1 < theta < theta2:
+                    thetas.add(theta)
+        thetas = sorted(thetas) + [theta2]
 
         last_theta = theta1
-        theta1_rad = theta1 * DEG2RAD
+        theta1_rad = np.deg2rad(theta1)
         inside = box_path.contains_point((np.cos(theta1_rad),
                                           np.sin(theta1_rad)))
 
@@ -1847,10 +1840,7 @@ def _simpleprint_styles(_styles):
     (stylename : styleclass), return a string rep of the list of keys.
     Used to update the documentation.
     """
-    styles = "[ \'"
-    styles += "\' | \'".join(str(i) for i in sorted(_styles.keys()))
-    styles += "\' ]"
-    return styles
+    return "[{}]".format("|".join(map(" '{}' ".format, sorted(_styles))))
 
 
 class _Style(object):

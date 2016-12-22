@@ -17,9 +17,9 @@ class ProxyDelegate(object):
         return self.proxy_type(self.fn_name, obj)
 
 
-class TaggedValueMeta (type):
+class TaggedValueMeta(type):
     def __init__(cls, name, bases, dict):
-        for fn_name in cls._proxies.keys():
+        for fn_name in cls._proxies:
             try:
                 dummy = getattr(cls, fn_name)
             except AttributeError:
