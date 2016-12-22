@@ -840,11 +840,13 @@ class Line2D(Artist):
                 marker_path = marker.get_path()
                 marker_trans = marker.get_transform()
                 w = renderer.points_to_pixels(self._markersize)
-                if marker.get_marker() != ',':
+
+                if (is_string_like(marker.get_marker()) and
+                        marker.get_marker() == ','):
+                    gc.set_linewidth(0)
+                else:
                     # Don't scale for pixels, and don't stroke them
                     marker_trans = marker_trans.scale(w)
-                else:
-                    gc.set_linewidth(0)
 
                 renderer.draw_markers(gc, marker_path, marker_trans,
                                       subsampled, affine.frozen(),
