@@ -50,36 +50,41 @@ mplDeprecation = MatplotlibDeprecationWarning
 
 def _generate_deprecation_message(since, message='', name='',
                                   alternative='', pending=False,
-                                  obj_type='attribute'):
+                                  obj_type='attribute',
+                                  addendum=''):
 
     if not message:
-        altmessage = ''
 
         if pending:
             message = (
-                'The %(func)s %(obj_type)s will be deprecated in a '
+                'The %(name)s %(obj_type)s will be deprecated in a '
                 'future version.')
         else:
             message = (
-                'The %(func)s %(obj_type)s was deprecated in version '
+                'The %(name)s %(obj_type)s was deprecated in version '
                 '%(since)s.')
-        if alternative:
-            altmessage = ' Use %s instead.' % alternative
 
-        message = ((message % {
-            'func': name,
-            'name': name,
-            'alternative': alternative,
-            'obj_type': obj_type,
-            'since': since}) +
-            altmessage)
+    altmessage = ''
+    if alternative:
+        altmessage = ' Use %s instead.' % alternative
+
+    message = ((message % {
+        'func': name,
+        'name': name,
+        'alternative': alternative,
+        'obj_type': obj_type,
+        'since': since}) +
+        altmessage)
+
+    if addendum:
+        message += addendum
 
     return message
 
 
 def warn_deprecated(
         since, message='', name='', alternative='', pending=False,
-        obj_type='attribute'):
+        obj_type='attribute', addendum=''):
     """
     Used to display deprecation warning in a standard way.
 
@@ -90,7 +95,7 @@ def warn_deprecated(
 
     message : str, optional
         Override the default deprecation message.  The format
-        specifier `%(func)s` may be used for the name of the function,
+        specifier `%(name)s` may be used for the name of the function,
         and `%(alternative)s` may be used in the deprecation message
         to insert the name of an alternative to the deprecated
         function.  `%(obj_type)s` may be used to insert a friendly name
@@ -111,6 +116,9 @@ def warn_deprecated(
     obj_type : str, optional
         The object type being deprecated.
 
+    addendum : str, optional
+        Additional text appended directly to the final message.
+
     Examples
     --------
 
@@ -122,13 +130,13 @@ def warn_deprecated(
 
     """
     message = _generate_deprecation_message(
-        since, message, name, alternative, pending, obj_type)
+                since, message, name, alternative, pending, obj_type)
 
     warnings.warn(message, mplDeprecation, stacklevel=1)
 
 
 def deprecated(since, message='', name='', alternative='', pending=False,
-               obj_type=None):
+               obj_type=None, addendum=''):
     """
     Decorator to mark a function or a class as deprecated.
 
@@ -140,15 +148,15 @@ def deprecated(since, message='', name='', alternative='', pending=False,
 
     message : str, optional
         Override the default deprecation message.  The format
-        specifier `%(func)s` may be used for the name of the function,
+        specifier `%(name)s` may be used for the name of the object,
         and `%(alternative)s` may be used in the deprecation message
         to insert the name of an alternative to the deprecated
-        function.  `%(obj_type)s` may be used to insert a friendly name
+        object.  `%(obj_type)s` may be used to insert a friendly name
         for the type of object being deprecated.
 
     name : str, optional
-        The name of the deprecated function; if not provided the name
-        is automatically determined from the passed in function,
+        The name of the deprecated object; if not provided the name
+        is automatically determined from the passed in object,
         though this is useful in the case of renamed functions, where
         the new function is just assigned to the name of the
         deprecated function.  For example::
@@ -158,13 +166,16 @@ def deprecated(since, message='', name='', alternative='', pending=False,
             oldFunction = new_function
 
     alternative : str, optional
-        An alternative function that the user may use in place of the
-        deprecated function.  The deprecation warning will tell the user
+        An alternative object that the user may use in place of the
+        deprecated object.  The deprecation warning will tell the user
         about this alternative if provided.
 
     pending : bool, optional
         If True, uses a PendingDeprecationWarning instead of a
         DeprecationWarning.
+
+    addendum : str, optional
+        Additional text appended directly to the final message.
 
     Examples
     --------
@@ -177,7 +188,7 @@ def deprecated(since, message='', name='', alternative='', pending=False,
 
     """
     def deprecate(obj, message=message, name=name, alternative=alternative,
-                  pending=pending):
+                  pending=pending, addendum=addendum):
         import textwrap
 
         if not name:
@@ -212,7 +223,8 @@ def deprecated(since, message='', name='', alternative='', pending=False,
                     return wrapper
 
         message = _generate_deprecation_message(
-            since, message, name, alternative, pending, obj_type)
+                    since, message, name, alternative, pending,
+                    obj_type, addendum)
 
         def wrapper(*args, **kwargs):
             warnings.warn(message, mplDeprecation, stacklevel=2)
