@@ -267,7 +267,7 @@ class HandlerLineCollection(HandlerLine2D):
             return self._numpoints
 
     def _default_update_prop(self, legend_handle, orig_handle):
-        lw = orig_handle.get_linewidth()[0]
+        lw = orig_handle.get_linewidths()[0]
         dashes = orig_handle.get_dashes()[0]
         color = orig_handle.get_colors()[0]
         legend_handle.set_color(color)
