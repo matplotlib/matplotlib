@@ -217,8 +217,8 @@ def test_missing_psfont(mock):
     rc('text', usetex=True)
     fig, ax = plt.subplots()
     ax.text(0.5, 0.5, 'hello')
-    with tempfile.NamedTemporaryFile(suffix='.svg') as tmpfile:
-        fig.savefig(tmpfile.name)
+    with tempfile.TemporaryFile() as tmpfile:
+        fig.savefig(tmpfile, format='svg')
 
 
 if __name__ == '__main__':
