@@ -496,7 +496,7 @@ cycle.
                for j in range(N)]
 
    demo(ax1, {'facecolor': 'C0'}, 'classic')
-   demo(ax2, {}, '2.x')
+   demo(ax2, {}, 'v2.0')
 
 
 If the facecolor is set via the ``facecolors`` or ``color`` keyword argument,
@@ -590,7 +590,7 @@ The default value of the ``align`` kwarg for both
 
 
    ax1.set_title("classic")
-   ax2.set_title('2.0')
+   ax2.set_title('v2.0')
 
    demo(ax1.bar, {'align': 'edge'})
    demo(ax2.bar, {})
