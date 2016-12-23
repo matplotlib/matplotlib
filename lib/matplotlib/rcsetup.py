@@ -1074,7 +1074,7 @@ defaultParams = {
     'axes.titlesize':        ['large', validate_fontsize],  # fontsize of the
                                                             # axes title
     'axes.titleweight':      ['normal', six.text_type],  # font weight of axes title
-    'axes.titlepad':         [4.0, validate_float],  # pad from axes top to title in points
+    'axes.titlepad':         [6.0, validate_float],  # pad from axes top to title in points
     'axes.grid':             [False, validate_bool],   # display grid or not
     'axes.grid.which':       ['major', validate_axis_locator],  # set wether the gid are by
                                                                 # default draw on 'major'
