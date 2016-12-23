@@ -495,8 +495,9 @@ cycle.
        return [ax.fill_between(th, np.sin((j / N) * np.pi + th), alpha=.5, **extra_kwargs)
                for j in range(N)]
 
-   demo(ax1, {}, '2.x')
-   demo(ax2, {'facecolor': 'C0'}, 'non-cycled')
+   demo(ax1, {'facecolor': 'C0'}, 'classic')
+   demo(ax2, {}, '2.x')
+
 
 If the facecolor is set via the ``facecolors`` or ``color`` keyword argument,
 then the color is not cycled.
@@ -588,14 +589,13 @@ The default value of the ``align`` kwarg for both
                        **bar_kwargs)
 
 
-   ax1.set_title('2.0')
+   ax1.set_title("classic")
+   ax2.set_title('2.0')
 
-   ax2.set_title("classic alignment")
-
-   demo(ax1.bar, {})
-   demo(ax2.bar, {'align': 'edge'})
-   demo(ax3.barh, {})
-   demo(ax4.barh, {'align': 'edge'})
+   demo(ax1.bar, {'align': 'edge'})
+   demo(ax2.bar, {})
+   demo(ax3.barh, {'align': 'edge'})
+   demo(ax4.barh, {})
 
 
 To restore the previous behavior explicitly pass the keyword argument
