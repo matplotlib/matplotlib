@@ -640,7 +640,7 @@ class NavigationToolbar2QT(NavigationToolbar2, QtWidgets.QToolBar):
         # the actual sizeHint, so override it instead in order to make the
         # aesthetic adjustments noted above.
         def sizeHint(self):
-            size = super().sizeHint()
+            size = super(NavigationToolbar2QT, self).sizeHint()
             size.setHeight(max(48, size.height()))
             return size
 
@@ -719,8 +719,7 @@ class NavigationToolbar2QT(NavigationToolbar2, QtWidgets.QToolBar):
 
     def save_figure(self, *args):
         filetypes = self.canvas.get_supported_filetypes_grouped()
-        sorted_filetypes = list(six.iteritems(filetypes))
-        sorted_filetypes.sort()
+        sorted_filetypes = sorted(six.iteritems(filetypes))
         default_filetype = self.canvas.get_default_filetype()
 
         startpath = matplotlib.rcParams.get('savefig.directory', '')

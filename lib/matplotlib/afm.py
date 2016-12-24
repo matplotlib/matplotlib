@@ -91,7 +91,7 @@ def _sanity_check(fh):
     # do something else with the file.
     pos = fh.tell()
     try:
-        line = fh.readline()
+        line = next(fh)
     finally:
         fh.seek(pos, 0)
 
@@ -148,10 +148,7 @@ def _parse_header(fh):
         }
 
     d = {}
-    while 1:
-        line = fh.readline()
-        if not line:
-            break
+    for line in fh:
         line = line.rstrip()
         if line.startswith(b'Comment'):
             continue
@@ -191,18 +188,14 @@ def _parse_char_metrics(fh):
 
     ascii_d = {}
     name_d = {}
-    while 1:
-        line = fh.readline()
-        if not line:
-            break
+    for line in fh:
         line = line.rstrip().decode('ascii')  # Convert from byte-literal
         if line.startswith('EndCharMetrics'):
             return ascii_d, name_d
         # Split the metric line into a dictonary, keyed by metric identifiers
-        vals = filter(lambda s: len(s) > 0, line.split(';'))
-        vals = dict(map(lambda s: tuple(s.strip().split(' ', 1)), vals))
+        vals = dict(s.strip().split(' ', 1) for s in line.split(';') if s)
         # There may be other metrics present, but only these are needed
-        if any([id not in vals.keys() for id in ('C', 'WX', 'N', 'B')]):
+        if not {'C', 'WX', 'N', 'B'}.issubset(vals):
             raise RuntimeError('Bad char metrics line: %s' % line)
         num = _to_int(vals['C'])
         wx = _to_float(vals['WX'])
@@ -232,20 +225,17 @@ def _parse_kern_pairs(fh):
 
     """
 
-    line = fh.readline()
+    line = next(fh)
     if not line.startswith(b'StartKernPairs'):
         raise RuntimeError('Bad start of kern pairs data: %s' % line)
 
     d = {}
-    while 1:
-        line = fh.readline()
-        if not line:
-            break
+    for line in fh:
         line = line.rstrip()
-        if len(line) == 0:
+        if not line:
             continue
         if line.startswith(b'EndKernPairs'):
-            fh.readline()  # EndKernData
+            next(fh)  # EndKernData
             return d
         vals = line.split()
         if len(vals) != 4 or vals[0] != b'KPX':
@@ -270,12 +260,9 @@ def _parse_composites(fh):
 
     """
     d = {}
-    while 1:
-        line = fh.readline()
-        if not line:
-            break
+    for line in fh:
         line = line.rstrip()
-        if len(line) == 0:
+        if not line:
             continue
         if line.startswith(b'EndComposites'):
             return d
@@ -307,12 +294,9 @@ def _parse_optional(fh):
         }
 
     d = {b'StartKernData': {}, b'StartComposites': {}}
-    while 1:
-        line = fh.readline()
-        if not line:
-            break
+    for line in fh:
         line = line.rstrip()
-        if len(line) == 0:
+        if not line:
             continue
         key = line.split()[0]
 

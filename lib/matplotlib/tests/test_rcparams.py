@@ -112,8 +112,8 @@ font.weight: normal""".lstrip()
     assert_str_equal(expected_str, str(rc))
 
     # test the find_all functionality
-    assert ['font.cursive', 'font.size'] == sorted(rc.find_all('i[vz]').keys())
-    assert ['font.family'] == list(six.iterkeys(rc.find_all('family')))
+    assert ['font.cursive', 'font.size'] == sorted(rc.find_all('i[vz]'))
+    assert ['font.family'] == list(rc.find_all('family'))
 
 
 def test_rcparams_update():
@@ -153,7 +153,7 @@ def test_Bug_2543():
                                 category=UserWarning)
         with mpl.rc_context():
             _copy = mpl.rcParams.copy()
-            for key in six.iterkeys(_copy):
+            for key in _copy:
                 mpl.rcParams[key] = _copy[key]
             mpl.rcParams['text.dvipnghack'] = None
         with mpl.rc_context():

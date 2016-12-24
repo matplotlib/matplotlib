@@ -67,7 +67,7 @@ def _get_packed_offsets(wd_list, total, sep, mode="fixed"):
     *mode* : packing mode. 'fixed', 'expand', or 'equal'.
     """
 
-    w_list, d_list = list(zip(*wd_list))
+    w_list, d_list = zip(*wd_list)
     # d_list is currently not used.
 
     if mode == "fixed":
@@ -1183,7 +1183,7 @@ class AnchoredOffsetbox(OffsetBox):
         """
         assert loc in range(1, 11)  # called only internally
 
-        BEST, UR, UL, LL, LR, R, CL, CR, LC, UC, C = list(xrange(11))
+        BEST, UR, UL, LL, LR, R, CL, CR, LC, UC, C = xrange(11)
 
         anchor_coefs = {UR: "NE",
                         UL: "NW",
@@ -1236,20 +1236,16 @@ class AnchoredText(AnchoredOffsetbox):
 
         if prop is None:
             prop = {}
-        propkeys = list(six.iterkeys(prop))
-        badkwargs = ('ha', 'horizontalalignment', 'va', 'verticalalignment')
-        if set(badkwargs) & set(propkeys):
+        badkwargs = {'ha', 'horizontalalignment', 'va', 'verticalalignment'}
+        if badkwargs & set(prop):
             warnings.warn("Mixing horizontalalignment or verticalalignment "
-                    "with AnchoredText is not supported.")
+                          "with AnchoredText is not supported.")
 
-        self.txt = TextArea(s, textprops=prop,
-                            minimumdescent=False)
+        self.txt = TextArea(s, textprops=prop, minimumdescent=False)
         fp = self.txt._text.get_fontproperties()
-
-        super(AnchoredText, self).__init__(loc, pad=pad, borderpad=borderpad,
-                                           child=self.txt,
-                                           prop=fp,
-                                           **kwargs)
+        super(AnchoredText, self).__init__(
+            loc, pad=pad, borderpad=borderpad, child=self.txt, prop=fp,
+            **kwargs)
 
 
 class OffsetImage(OffsetBox):

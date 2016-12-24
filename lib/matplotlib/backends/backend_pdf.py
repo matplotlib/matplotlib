@@ -1031,7 +1031,7 @@ end"""
 
             # Make the 'W' (Widths) array, CidToGidMap and ToUnicode CMap
             # at the same time
-            cid_to_gid_map = ['\u0000'] * 65536
+            cid_to_gid_map = ['\0'] * 65536
             widths = []
             max_ccode = 0
             for c in characters:
@@ -1533,7 +1533,7 @@ end"""
                     'CreationDate': is_date,
                     'ModDate': is_date,
                     'Trapped': check_trapped}
-        for k in six.iterkeys(self.infoDict):
+        for k in self.infoDict:
             if k not in keywords:
                 warnings.warn('Unknown infodict keyword: %s' % k)
             else:

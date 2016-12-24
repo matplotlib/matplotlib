@@ -641,11 +641,11 @@ class Poly3DCollection(PolyCollection):
 
         # if required sort by depth (furthest drawn first)
         if self._zsort:
-            indices = range(len(xyzlist))
-            z_segments_2d = [(self._zsortfunc(zs), list(zip(xs, ys)), fc, ec,
-                              idx) for (xs, ys, zs), fc, ec, idx in
-                             zip(xyzlist, cface, cedge, indices)]
-            z_segments_2d.sort(key=lambda x: x[0], reverse=True)
+            z_segments_2d = sorted(
+                ((self._zsortfunc(zs), list(zip(xs, ys)), fc, ec, idx)
+                 for idx, ((xs, ys, zs), fc, ec)
+                 in enumerate(zip(xyzlist, cface, cedge))),
+                key=lambda x: x[0], reverse=True)
         else:
             raise ValueError("whoops")
 

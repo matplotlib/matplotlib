@@ -591,9 +591,7 @@ def fignum_exists(num):
 
 def get_fignums():
     """Return a list of existing figure numbers."""
-    fignums = list(six.iterkeys(_pylab_helpers.Gcf.figs))
-    fignums.sort()
-    return fignums
+    return sorted(_pylab_helpers.Gcf.figs)
 
 
 def get_figlabels():
@@ -1811,9 +1809,8 @@ def get_plot_commands():
         if inspect.isfunction(obj) and inspect.getmodule(obj) is this_module:
             commands.add(name)
 
-    commands = list(commands)
-    commands.sort()
-    return commands
+    return sorted(commands)
+
 
 def colors():
     """
@@ -2099,7 +2096,7 @@ def colormaps():
 
 
     """
-    return sorted(cm.cmap_d.keys())
+    return sorted(cm.cmap_d)
 
 
 def _setup_pyplot_info_docstrings():

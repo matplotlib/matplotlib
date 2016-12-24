@@ -124,11 +124,11 @@ def test_composite_image():
     plt.rcParams['image.composite_image'] = True
     with PdfPages(io.BytesIO()) as pdf:
         fig.savefig(pdf, format="pdf")
-        assert len(pdf._file._images.keys()) == 1
+        assert len(pdf._file._images) == 1
     plt.rcParams['image.composite_image'] = False
     with PdfPages(io.BytesIO()) as pdf:
         fig.savefig(pdf, format="pdf")
-        assert len(pdf._file._images.keys()) == 2
+        assert len(pdf._file._images) == 2
 
 
 @cleanup

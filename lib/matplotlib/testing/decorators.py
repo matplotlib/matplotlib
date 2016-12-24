@@ -317,12 +317,22 @@ class ImageComparisonDecorator(CleanupTest):
 
         extensions = map(mark_xfail_if_format_is_uncomparable, self.extensions)
 
-        @mark.parametrize("extension", extensions)
-        @mark.parametrize("idx,baseline", enumerate(self.baseline_images))
-        @checked_on_freetype_version(self.freetype_version)
-        def wrapper(idx, baseline, extension):
-            __tracebackhide__ = True
-            self.compare(idx, baseline, extension)
+        if len(set(self.baseline_images)) == len(self.baseline_images):
+            @mark.parametrize("extension", extensions)
+            @mark.parametrize("idx,baseline", enumerate(self.baseline_images))
+            @checked_on_freetype_version(self.freetype_version)
+            def wrapper(idx, baseline, extension):
+                __tracebackhide__ = True
+                self.compare(idx, baseline, extension)
+        else:
+            # Some baseline images are repeated, so run this in serial.
+            @mark.parametrize("extension", extensions)
+            @checked_on_freetype_version(self.freetype_version)
+            def wrapper(extension):
+                __tracebackhide__ = True
+                for idx, baseline in enumerate(self.baseline_images):
+                    self.compare(idx, baseline, extension)
+
 
         # sadly we cannot use fixture here because of visibility problems
         # and for for obvious reason avoid `nose.tools.with_setup`

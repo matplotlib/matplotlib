@@ -9,7 +9,7 @@ from six.moves import xrange
 import itertools
 import warnings
 import math
-from operator import itemgetter
+from operator import attrgetter
 
 import numpy as np
 
@@ -396,25 +396,13 @@ class _process_plot_var_args(object):
         return ret
 
     def _grab_next_args(self, *args, **kwargs):
-
-        remaining = args
-        while 1:
-
-            if len(remaining) == 0:
-                return
-            if len(remaining) <= 3:
-                for seg in self._plot_args(remaining, kwargs):
-                    yield seg
-                return
-
-            if is_string_like(remaining[2]):
-                isplit = 3
-            else:
-                isplit = 2
-
-            for seg in self._plot_args(remaining[:isplit], kwargs):
+        while args:
+            this, args = args[:2], args[2:]
+            if args and is_string_like(args[0]):
+                this += args[0],
+                args = args[1:]
+            for seg in self._plot_args(this, kwargs):
                 yield seg
-            remaining = remaining[isplit:]
 
 
 class _AxesBase(martist.Artist):
@@ -1282,7 +1270,7 @@ class _AxesBase(martist.Artist):
           etc.
           =====   =====================
         """
-        if aspect in ('equal', 'auto'):
+        if cbook.is_string_like(aspect) and aspect in ('equal', 'auto'):
             self._aspect = aspect
         else:
             self._aspect = float(aspect)  # raise ValueError if necessary
@@ -1332,12 +1320,11 @@ class _AxesBase(martist.Artist):
           =====  ============
 
         """
-        if (anchor in list(six.iterkeys(mtransforms.Bbox.coefs)) or
-                len(anchor) == 2):
+        if anchor in mtransforms.Bbox.coefs or len(anchor) == 2:
             self._anchor = anchor
         else:
             raise ValueError('argument must be among %s' %
-                             ', '.join(six.iterkeys(mtransforms.Bbox.coefs)))
+                             ', '.join(mtransforms.Bbox.coefs))
         self.stale = True
 
     def get_data_ratio(self):
@@ -2365,36 +2352,35 @@ class _AxesBase(martist.Artist):
             artists.remove(self._left_title)
             artists.remove(self._right_title)
 
-        if self.figure.canvas.is_saving():
-            dsu = [(a.zorder, a) for a in artists]
-        else:
-            dsu = [(a.zorder, a) for a in artists
-                   if (not a.get_animated() or a in self.images)]
-
-        dsu.sort(key=itemgetter(0))
+        if not self.figure.canvas.is_saving():
+            artists = [a for a in artists
+                       if not a.get_animated() or a in self.images]
+        artists = sorted(artists, key=attrgetter('zorder'))
 
         # rasterize artists with negative zorder
         # if the minimum zorder is negative, start rasterization
         rasterization_zorder = self._rasterization_zorder
         if (rasterization_zorder is not None and
-                len(dsu) > 0 and dsu[0][0] < rasterization_zorder):
+                artists and artists[0].zorder < rasterization_zorder):
             renderer.start_rasterizing()
-            dsu_rasterized = [l for l in dsu if l[0] < rasterization_zorder]
-            dsu = [l for l in dsu if l[0] >= rasterization_zorder]
+            artists_rasterized = [a for a in artists
+                                  if a.zorder < rasterization_zorder]
+            artists = [a for a in artists
+                       if a.zorder >= rasterization_zorder]
         else:
-            dsu_rasterized = []
+            artists_rasterized = []
 
         # the patch draws the background rectangle -- the frame below
         # will draw the edges
         if self.axison and self._frameon:
             self.patch.draw(renderer)
 
-        if dsu_rasterized:
-            for zorder, a in dsu_rasterized:
+        if artists_rasterized:
+            for a in artists_rasterized:
                 a.draw(renderer)
             renderer.stop_rasterizing()
 
-        mimage._draw_list_compositing_images(renderer, self, dsu)
+        mimage._draw_list_compositing_images(renderer, self, artists)
 
         renderer.close_group('axes')
         self._cachedRenderer = renderer
@@ -2878,8 +2864,7 @@ class _AxesBase(martist.Artist):
         if 'xmax' in kw:
             right = kw.pop('xmax')
         if kw:
-            raise ValueError("unrecognized kwargs: %s" %
-                             list(six.iterkeys(kw)))
+            raise ValueError("unrecognized kwargs: %s" % list(kw))
 
         if right is None and iterable(left):
             left, right = left
@@ -2945,7 +2930,7 @@ class _AxesBase(martist.Artist):
         """
         # If the scale is being set to log, clip nonposx to prevent headaches
         # around zero
-        if value.lower() == 'log' and 'nonposx' not in kwargs.keys():
+        if value.lower() == 'log' and 'nonposx' not in kwargs:
             kwargs['nonposx'] = 'clip'
 
         g = self.get_shared_x_axes()
@@ -3159,8 +3144,7 @@ class _AxesBase(martist.Artist):
         if 'ymax' in kw:
             top = kw.pop('ymax')
         if kw:
-            raise ValueError("unrecognized kwargs: %s" %
-                             list(six.iterkeys(kw)))
+            raise ValueError("unrecognized kwargs: %s" % list(kw))
 
         if top is None and iterable(bottom):
             bottom, top = bottom
@@ -3226,7 +3210,7 @@ class _AxesBase(martist.Artist):
         """
         # If the scale is being set to log, clip nonposy to prevent headaches
         # around zero
-        if value.lower() == 'log' and 'nonposy' not in kwargs.keys():
+        if value.lower() == 'log' and 'nonposy' not in kwargs:
             kwargs['nonposy'] = 'clip'
 
         g = self.get_shared_y_axes()

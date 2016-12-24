@@ -301,14 +301,11 @@ class Entry(object):
         Get the display string for this entry.  This is the text that
         appears in the list widget.
         """
-        status_map = {
-            'unknown': '\u2610',
-            'accept':  '\u2611',
-            'reject':  '\u2612'
-            }
+        status_map = {'unknown': '\N{BALLOT BOX}',
+                      'accept':  '\N{BALLOT BOX WITH CHECK}',
+                      'reject':  '\N{BALLOT BOX WITH X}'}
         box = status_map[self.status]
-        return '{} {} [{}]'.format(
-            box, self.name, self.extension)
+        return '{} {} [{}]'.format(box, self.name, self.extension)
 
     def accept(self):
         """

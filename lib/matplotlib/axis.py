@@ -951,45 +951,37 @@ class Axis(artist.Artist):
         """
 
         interval = self.get_view_interval()
-        tick_tups = [t for t in self.iter_ticks()]
-        if self._smart_bounds:
+        tick_tups = list(self.iter_ticks())
+        if self._smart_bounds and tick_tups:
             # handle inverted limits
-            view_low, view_high = min(*interval), max(*interval)
-            data_low, data_high = self.get_data_interval()
-            if data_low > data_high:
-                data_low, data_high = data_high, data_low
-            locs = [ti[1] for ti in tick_tups]
-            locs.sort()
-            locs = np.array(locs)
-            if len(locs):
-                if data_low <= view_low:
-                    # data extends beyond view, take view as limit
-                    ilow = view_low
+            view_low, view_high = sorted(interval)
+            data_low, data_high = sorted(self.get_data_interval())
+            locs = np.sort([ti[1] for ti in tick_tups])
+            if data_low <= view_low:
+                # data extends beyond view, take view as limit
+                ilow = view_low
+            else:
+                # data stops within view, take best tick
+                good_locs = locs[locs <= data_low]
+                if len(good_locs):
+                    # last tick prior or equal to first data point
+                    ilow = good_locs[-1]
                 else:
-                    # data stops within view, take best tick
-                    cond = locs <= data_low
-                    good_locs = locs[cond]
-                    if len(good_locs) > 0:
-                        # last tick prior or equal to first data point
-                        ilow = good_locs[-1]
-                    else:
-                        # No ticks (why not?), take first tick
-                        ilow = locs[0]
-                if data_high >= view_high:
-                    # data extends beyond view, take view as limit
-                    ihigh = view_high
+                    # No ticks (why not?), take first tick
+                    ilow = locs[0]
+            if data_high >= view_high:
+                # data extends beyond view, take view as limit
+                ihigh = view_high
+            else:
+                # data stops within view, take best tick
+                good_locs = locs[locs >= data_high]
+                if len(good_locs):
+                    # first tick after or equal to last data point
+                    ihigh = good_locs[0]
                 else:
-                    # data stops within view, take best tick
-                    cond = locs >= data_high
-                    good_locs = locs[cond]
-                    if len(good_locs) > 0:
-                        # first tick after or equal to last data point
-                        ihigh = good_locs[0]
-                    else:
-                        # No ticks (why not?), take last tick
-                        ihigh = locs[-1]
-                tick_tups = [ti for ti in tick_tups
-                             if (ti[1] >= ilow) and (ti[1] <= ihigh)]
+                    # No ticks (why not?), take last tick
+                    ihigh = locs[-1]
+            tick_tups = [ti for ti in tick_tups if ilow <= ti[1] <= ihigh]
 
         # so that we don't lose ticks on the end, expand out the interval ever
         # so slightly.  The "ever so slightly" is defined to be the width of a

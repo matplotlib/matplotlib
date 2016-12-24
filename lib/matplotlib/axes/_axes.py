@@ -2571,11 +2571,11 @@ or tuple of floats
           labels.
         """
 
-        x = np.asarray(x).astype(np.float32)
+        x = np.array(x, np.float32)
 
-        sx = float(x.sum())
+        sx = x.sum()
         if sx > 1:
-            x = np.divide(x, sx)
+            x /= sx
 
         if labels is None:
             labels = [''] * len(x)
@@ -2605,20 +2605,18 @@ or tuple of floats
         # set default values in wedge_prop
         if wedgeprops is None:
             wedgeprops = {}
-        if 'clip_on' not in wedgeprops:
-            wedgeprops['clip_on'] = False
+        wedgeprops.setdefault('clip_on', False)
 
         if textprops is None:
             textprops = {}
-        if 'clip_on' not in textprops:
-            textprops['clip_on'] = False
+        textprops.setdefault('clip_on', False)
 
         texts = []
         slices = []
         autotexts = []
 
         i = 0
-        for frac, label, expl in cbook.safezip(x, labels, explode):
+        for frac, label, expl in zip(x, labels, explode):
             x, y = center
             theta2 = (theta1 + frac) if counterclock else (theta1 - frac)
             thetam = 2 * math.pi * 0.5 * (theta1 + theta2)
@@ -5200,10 +5198,10 @@ or tuple of floats
 
         Nx = X.shape[-1]
         Ny = Y.shape[0]
-        if len(X.shape) != 2 or X.shape[0] == 1:
+        if X.ndim != 2 or X.shape[0] == 1:
             x = X.reshape(1, Nx)
             X = x.repeat(Ny, axis=0)
-        if len(Y.shape) != 2 or Y.shape[1] == 1:
+        if Y.ndim != 2 or Y.shape[1] == 1:
             y = Y.reshape(Ny, 1)
             Y = y.repeat(Nx, axis=1)
         if X.shape != Y.shape:

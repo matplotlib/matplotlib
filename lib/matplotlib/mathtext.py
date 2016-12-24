@@ -2358,7 +2358,7 @@ class Parser(object):
         p.rbracket      <<= Literal(']').suppress()
         p.bslash        <<= Literal('\\')
 
-        p.space         <<= oneOf(list(six.iterkeys(self._space_widths)))
+        p.space         <<= oneOf(list(self._space_widths))
         p.customspace   <<= (Suppress(Literal(r'\hspace'))
                           - ((p.lbrace + p.float_literal + p.rbrace)
                             | Error(r"Expected \hspace{n}")))
@@ -2367,17 +2367,17 @@ class Parser(object):
         p.single_symbol <<= Regex(r"([a-zA-Z0-9 +\-*/<>=:,.;!\?&'@()\[\]|%s])|(\\[%%${}\[\]_|])" %
                                unicode_range)
         p.snowflake     <<= Suppress(p.bslash) + oneOf(self._snowflake)
-        p.symbol_name   <<= (Combine(p.bslash + oneOf(list(six.iterkeys(tex2uni)))) +
+        p.symbol_name   <<= (Combine(p.bslash + oneOf(list(tex2uni))) +
                           FollowedBy(Regex("[^A-Za-z]").leaveWhitespace() | StringEnd()))
         p.symbol        <<= (p.single_symbol | p.symbol_name).leaveWhitespace()
 
         p.apostrophe    <<= Regex("'+")
 
-        p.c_over_c      <<= Suppress(p.bslash) + oneOf(list(six.iterkeys(self._char_over_chars)))
+        p.c_over_c      <<= Suppress(p.bslash) + oneOf(list(self._char_over_chars))
 
         p.accent        <<= Group(
                              Suppress(p.bslash)
-                           + oneOf(list(six.iterkeys(self._accent_map)) + list(self._wide_accents))
+                           + oneOf(list(self._accent_map) + list(self._wide_accents))
                            - p.placeable
                          )
 

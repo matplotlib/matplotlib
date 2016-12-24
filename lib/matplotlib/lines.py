@@ -264,8 +264,7 @@ class Line2D(Artist):
     drawStyles.update(_drawStyles_l)
     drawStyles.update(_drawStyles_s)
     # Need a list ordered with long names first:
-    drawStyleKeys = (list(six.iterkeys(_drawStyles_l)) +
-                     list(six.iterkeys(_drawStyles_s)))
+    drawStyleKeys = list(_drawStyles_l) + list(_drawStyles_s)
 
     # Referenced here to maintain API.  These are defined in
     # MarkerStyle
@@ -840,11 +839,13 @@ class Line2D(Artist):
                 marker_path = marker.get_path()
                 marker_trans = marker.get_transform()
                 w = renderer.points_to_pixels(self._markersize)
-                if marker.get_marker() != ',':
+
+                if (is_string_like(marker.get_marker()) and
+                        marker.get_marker() == ','):
+                    gc.set_linewidth(0)
+                else:
                     # Don't scale for pixels, and don't stroke them
                     marker_trans = marker_trans.scale(w)
-                else:
-                    gc.set_linewidth(0)
 
                 renderer.draw_markers(gc, marker_path, marker_trans,
                                       subsampled, affine.frozen(),
@@ -1519,15 +1520,8 @@ class VertexSelector(object):
         """When the line is picked, update the set of selected indicies."""
         if event.artist is not self.line:
             return
-
-        for i in event.ind:
-            if i in self.ind:
-                self.ind.remove(i)
-            else:
-                self.ind.add(i)
-
-        ind = list(self.ind)
-        ind.sort()
+        self.ind ^= set(event.ind)
+        ind = sorted(self.ind)
         xdata, ydata = self.line.get_data()
         self.process_selected(ind, xdata[ind], ydata[ind])
 

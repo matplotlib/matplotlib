@@ -47,7 +47,7 @@ class GeoAxes(Axes):
             if rcParams['text.usetex'] and not rcParams['text.latex.unicode']:
                 return r"$%0.0f^\circ$" % degrees
             else:
-                return "%0.0f\u00b0" % degrees
+                return "%0.0f\N{DEGREE SIGN}" % degrees
 
     RESOLUTION = 75
 
@@ -286,7 +286,8 @@ class GeoAxes(Axes):
             ew = 'E'
         else:
             ew = 'W'
-        return '%f\u00b0%s, %f\u00b0%s' % (abs(lat), ns, abs(lon), ew)
+        return ('%f\N{DEGREE SIGN}%s, %f\N{DEGREE SIGN}%s'
+                % (abs(lat), ns, abs(lon), ew))
 
     def set_longitude_grid(self, degrees):
         """

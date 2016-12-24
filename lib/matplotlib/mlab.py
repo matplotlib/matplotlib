@@ -802,7 +802,7 @@ def _single_spectrum_helper(x, mode, Fs=None, window=None, pad_to=None,
     if mode != 'complex':
         spec = spec.real
 
-    if len(spec.shape) == 2 and spec.shape[1] == 1:
+    if spec.ndim == 2 and spec.shape[1] == 1:
         spec = spec[:, 0]
 
     return spec, freqs
@@ -1013,7 +1013,7 @@ def csd(x, y, NFFT=None, Fs=None, detrend=None, window=None,
                                      sides=sides, scale_by_freq=scale_by_freq,
                                      mode='psd')
 
-    if len(Pxy.shape) == 2:
+    if Pxy.ndim == 2:
         if Pxy.shape[1] > 1:
             Pxy = Pxy.mean(axis=1)
         else:
@@ -1671,16 +1671,12 @@ class PCA(object):
         of variance<minfrac
         '''
         x = np.asarray(x)
-
-        ndims = len(x.shape)
-
-        if (x.shape[-1] != self.numcols):
+        if x.shape[-1] != self.numcols:
             raise ValueError('Expected an array with dims[-1]==%d' %
                              self.numcols)
-
         Y = np.dot(self.Wt, self.center(x).T).T
         mask = self.fracs >= minfrac
-        if ndims == 2:
+        if x.ndim == 2:
             Yreduced = Y[:, mask]
         else:
             Yreduced = Y[mask]
@@ -1730,31 +1726,27 @@ def prctile(x, p=(0.0, 25.0, 50.0, 75.0, 100.0)):
         """Returns the point at the given fraction between a and b, where
         'fraction' must be between 0 and 1.
         """
-        return a + (b - a)*fraction
+        return a + (b - a) * fraction
 
-    scalar = True
-    if cbook.iterable(p):
-        scalar = False
     per = np.array(p)
-    values = np.array(x).ravel()  # copy
-    values.sort()
+    values = np.sort(x, axis=None)
 
-    idxs = per/100. * (values.shape[0] - 1)
-    ai = idxs.astype(np.int)
+    idxs = per / 100 * (values.shape[0] - 1)
+    ai = idxs.astype(int)
     bi = ai + 1
     frac = idxs % 1
 
     # handle cases where attempting to interpolate past last index
     cond = bi >= len(values)
-    if scalar:
+    if per.ndim:
+        ai[cond] -= 1
+        bi[cond] -= 1
+        frac[cond] += 1
+    else:
         if cond:
             ai -= 1
             bi -= 1
             frac += 1
-    else:
-        ai[cond] -= 1
-        bi[cond] -= 1
-        frac[cond] += 1
 
     return _interpolate(values[ai], values[bi], frac)
 
@@ -2413,17 +2405,14 @@ def rec_groupby(r, groupby, stats):
     """
     # build a dictionary from groupby keys-> list of indices into r with
     # those keys
-    rowd = dict()
+    rowd = {}
     for i, row in enumerate(r):
         key = tuple([row[attr] for attr in groupby])
         rowd.setdefault(key, []).append(i)
 
-    # sort the output by groupby keys
-    keys = list(six.iterkeys(rowd))
-    keys.sort()
-
     rows = []
-    for key in keys:
+    # sort the output by groupby keys
+    for key in sorted(rowd):
         row = list(key)
         # get the indices for this groupby key
         ind = rowd[key]
@@ -2498,8 +2487,8 @@ def rec_join(key, r1, r2, jointype='inner', defaults=None, r1postfix='1',
     r1d = {makekey(row): i for i, row in enumerate(r1)}
     r2d = {makekey(row): i for i, row in enumerate(r2)}
 
-    r1keys = set(r1d.keys())
-    r2keys = set(r2d.keys())
+    r1keys = set(r1d)
+    r2keys = set(r2d)
 
     common_keys = r1keys & r2keys
 
@@ -2579,7 +2568,7 @@ def rec_join(key, r1, r2, jointype='inner', defaults=None, r1postfix='1',
 
     if jointype != 'inner' and defaults is not None:
         # fill in the defaults enmasse
-        newrec_fields = list(six.iterkeys(newrec.dtype.fields))
+        newrec_fields = list(newrec.dtype.fields)
         for k, v in six.iteritems(defaults):
             if k in newrec_fields:
                 newrec[k] = v
@@ -2909,7 +2898,7 @@ def csv2rec(fname, comments='#', skiprows=0, checkrows=0, delimiter=',',
     process_skiprows(reader)
 
     if needheader:
-        while 1:
+        while True:
             # skip past any comments and consume one line of column header
             row = next(reader)
             if (len(row) and comments is not None and

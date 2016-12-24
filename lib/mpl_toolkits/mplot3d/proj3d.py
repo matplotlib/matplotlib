@@ -134,11 +134,11 @@ def proj_transform_vec(vec, M):
 def proj_transform_vec_clip(vec, M):
     vecw = np.dot(M, vec)
     w = vecw[3]
-    # clip here..
-    txs, tys, tzs = vecw[0]/w, vecw[1]/w, vecw[2]/w
-    tis = (vecw[0] >= 0) * (vecw[0] <= 1) * (vecw[1] >= 0) * (vecw[1] <= 1)
-    if np.sometrue(tis):
-        tis =  vecw[1] < 1
+    # clip here.
+    txs, tys, tzs = vecw[0] / w, vecw[1] / w, vecw[2] / w
+    tis = (0 <= vecw[0]) & (vecw[0] <= 1) & (0 <= vecw[1]) & (vecw[1] <= 1)
+    if np.any(tis):
+        tis = vecw[1] < 1
     return txs, tys, tzs, tis
 
 def inv_transform(xs, ys, zs, M):
@@ -152,14 +152,7 @@ def inv_transform(xs, ys, zs, M):
     return vecr[0], vecr[1], vecr[2]
 
 def vec_pad_ones(xs, ys, zs):
-    try:
-        try:
-            vec = np.array([xs,ys,zs,np.ones(xs.shape)])
-        except (AttributeError,TypeError):
-            vec = np.array([xs,ys,zs,np.ones((len(xs)))])
-    except TypeError:
-        vec = np.array([xs,ys,zs,1])
-    return vec
+    return np.array([xs, ys, zs, np.ones_like(xs)])
 
 def proj_transform(xs, ys, zs, M):
     """

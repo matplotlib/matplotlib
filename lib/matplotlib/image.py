@@ -56,7 +56,7 @@ _interpd_ = {
     'blackman': _image.BLACKMAN,
 }
 
-interpolations_names = set(six.iterkeys(_interpd_))
+interpolations_names = set(_interpd_)
 
 
 def composite_images(images, renderer, magnification=1.0):
@@ -118,7 +118,7 @@ def composite_images(images, renderer, magnification=1.0):
 
 
 def _draw_list_compositing_images(
-        renderer, parent, dsu, suppress_composite=None):
+        renderer, parent, artists, suppress_composite=None):
     """
     Draw a sorted list of artists, compositing images into a single
     image where possible.
@@ -127,7 +127,7 @@ def _draw_list_compositing_images(
     between `Figure.draw` and `Axes.draw`, but otherwise should not be
     generally useful.
     """
-    has_images = any(isinstance(x[1], _ImageBase) for x in dsu)
+    has_images = any(isinstance(x, _ImageBase) for x in artists)
 
     # override the renderer default if suppressComposite is not None
     not_composite = renderer.option_image_nocomposite()
@@ -135,7 +135,7 @@ def _draw_list_compositing_images(
         not_composite = suppress_composite
 
     if not_composite or not has_images:
-        for zorder, a in dsu:
+        for a in artists:
             a.draw(renderer)
     else:
         # Composite any adjacent images together
@@ -156,7 +156,7 @@ def _draw_list_compositing_images(
                     gc.restore()
             del image_group[:]
 
-        for zorder, a in dsu:
+        for a in artists:
             if isinstance(a, _ImageBase) and a.can_composite():
                 image_group.append(a)
             else:
@@ -848,8 +848,7 @@ class NonUniformImage(AxesImage):
         x = np.array(x, np.float32)
         y = np.array(y, np.float32)
         A = cbook.safe_masked_invalid(A, copy=True)
-        if len(x.shape) != 1 or len(y.shape) != 1\
-           or A.shape[0:2] != (y.shape[0], x.shape[0]):
+        if not (x.ndim == y.ndim == 1 and A.shape[0:2] == y.shape + x.shape):
             raise TypeError("Axes don't match array shape")
         if A.ndim not in [2, 3]:
             raise TypeError("Can only plot 2D or 3D data")
@@ -1224,7 +1223,7 @@ def imread(fname, format=None):
         if im is None:
             raise ValueError('Only know how to handle extensions: %s; '
                              'with Pillow installed matplotlib can handle '
-                             'more images' % list(six.iterkeys(handlers)))
+                             'more images' % list(handlers))
         return im
 
     handler = handlers[ext]

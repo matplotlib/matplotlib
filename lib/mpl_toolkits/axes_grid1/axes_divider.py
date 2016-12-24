@@ -148,7 +148,7 @@ class Divider(object):
             self._anchor = anchor
         else:
             raise ValueError('argument must be among %s' %
-                                ', '.join(mtransforms.BBox.coefs.keys()))
+                             ', '.join(mtransforms.BBox.coefs))
 
     def get_anchor(self):
         "return the anchor"

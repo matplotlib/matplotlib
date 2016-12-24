@@ -99,7 +99,7 @@ from .transforms import IdentityTransform, Affine2D
 # special-purpose marker identifiers:
 (TICKLEFT, TICKRIGHT, TICKUP, TICKDOWN,
  CARETLEFT, CARETRIGHT, CARETUP, CARETDOWN,
- CARETLEFTBASE, CARETRIGHTBASE, CARETUPBASE, CARETDOWNBASE) = list(xrange(12))
+ CARETLEFTBASE, CARETRIGHTBASE, CARETUPBASE, CARETDOWNBASE) = xrange(12)
 
 _empty_path = Path(np.empty((0, 2)))
 

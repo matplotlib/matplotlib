@@ -186,8 +186,8 @@ class LocatorBase(object):
             self.den = int(kwargs.pop("nbins"))
 
         if kwargs:
-            raise ValueError("Following keys are not processed: %s" % \
-                             ", ".join([str(k) for k in kwargs.keys()]))
+            raise ValueError("Following keys are not processed: %s"
+                             % ", ".join(kwargs))
 
 
 class LocatorHMS(LocatorBase):
