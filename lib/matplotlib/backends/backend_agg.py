@@ -26,8 +26,9 @@ import six
 
 import threading
 import numpy as np
+from collections import OrderedDict
 from math import radians, cos, sin
-from matplotlib import verbose, rcParams
+from matplotlib import verbose, rcParams, __version__
 from matplotlib.backend_bases import (RendererBase, FigureManagerBase,
                                       FigureCanvasBase)
 from matplotlib.cbook import is_string_like, maxdict, restrict_dict
@@ -554,8 +555,16 @@ class FigureCanvasAgg(FigureCanvasBase):
         else:
             close = False
 
+        version_str = 'matplotlib version ' + __version__ + \
+            ', http://matplotlib.org/'
+        metadata = OrderedDict({'Software': version_str})
+        user_metadata = kwargs.pop("metadata", None)
+        if user_metadata is not None:
+            metadata.update(user_metadata)
+
         try:
-            _png.write_png(renderer._renderer, filename_or_obj, self.figure.dpi)
+            _png.write_png(renderer._renderer, filename_or_obj,
+                           self.figure.dpi, metadata=metadata)
         finally:
             if close:
                 filename_or_obj.close()

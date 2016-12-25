@@ -965,7 +965,7 @@ class FigureCanvasPS(FigureCanvasBase):
 
     def _print_figure(self, outfile, format, dpi=72, facecolor='w', edgecolor='w',
                       orientation='portrait', isLandscape=False, papertype=None,
-                      **kwargs):
+                      metadata=None, **kwargs):
         """
         Render the figure to hardcopy.  Set the figure patch face and
         edge colors.  This is useful because some of the GUIs have a
@@ -978,6 +978,9 @@ class FigureCanvasPS(FigureCanvasBase):
 
         If outfile is a file object, a stand-alone PostScript file is
         written into this file object.
+
+        metadata must be a dictionary. Currently, only the value for
+        the key 'Creator' is used.
         """
         isEPSF = format == 'eps'
         passed_in_file_object = False
@@ -1059,13 +1062,18 @@ class FigureCanvasPS(FigureCanvasBase):
         self.figure.set_facecolor(origfacecolor)
         self.figure.set_edgecolor(origedgecolor)
 
+        # check for custom metadata
+        if metadata is not None and 'Creator' in metadata:
+            creator_str = metadata['Creator']
+        else:
+            creator_str = "matplotlib version " + __version__ + \
+                ", http://matplotlib.org/"
         def print_figure_impl():
             # write the PostScript headers
             if isEPSF: print("%!PS-Adobe-3.0 EPSF-3.0", file=fh)
             else: print("%!PS-Adobe-3.0", file=fh)
             if title: print("%%Title: "+title, file=fh)
-            print(("%%Creator: matplotlib version "
-                         +__version__+", http://matplotlib.org/"), file=fh)
+            print("%%Creator: " + creator_str, file=fh)
             # get source date from SOURCE_DATE_EPOCH, if set
             # See https://reproducible-builds.org/specs/source-date-epoch/
             source_date_epoch = os.getenv("SOURCE_DATE_EPOCH")
@@ -1189,12 +1197,15 @@ class FigureCanvasPS(FigureCanvasBase):
                 os.chmod(outfile, mode)
 
     def _print_figure_tex(self, outfile, format, dpi, facecolor, edgecolor,
-                          orientation, isLandscape, papertype,
+                          orientation, isLandscape, papertype, metadata=None,
                           **kwargs):
         """
         If text.usetex is True in rc, a temporary pair of tex/eps files
         are created to allow tex to manage the text layout via the PSFrags
         package. These files are processed to yield the final ps or eps file.
+
+        metadata must be a dictionary. Currently, only the value for
+        the key 'Creator' is used.
         """
         isEPSF = format == 'eps'
         if is_string_like(outfile):
@@ -1249,14 +1260,20 @@ class FigureCanvasPS(FigureCanvasBase):
         self.figure.set_facecolor(origfacecolor)
         self.figure.set_edgecolor(origedgecolor)
 
+        # check for custom metadata
+        if metadata is not None and 'Creator' in metadata:
+            creator_str = metadata['Creator']
+        else:
+            creator_str = "matplotlib version " + __version__ + \
+                ", http://matplotlib.org/"
+
         # write to a temp file, we'll move it to outfile when done
         fd, tmpfile = mkstemp()
         with io.open(fd, 'w', encoding='latin-1') as fh:
             # write the Encapsulated PostScript headers
             print("%!PS-Adobe-3.0 EPSF-3.0", file=fh)
             if title: print("%%Title: "+title, file=fh)
-            print(("%%Creator: matplotlib version "
-                         +__version__+", http://matplotlib.org/"), file=fh)
+            print("%%Creator: " + creator_str, file=fh)
             # get source date from SOURCE_DATE_EPOCH, if set
             # See https://reproducible-builds.org/specs/source-date-epoch/
             source_date_epoch = os.getenv("SOURCE_DATE_EPOCH")
