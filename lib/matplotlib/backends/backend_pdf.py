@@ -428,7 +428,7 @@ class Stream(object):
 class PdfFile(object):
     """PDF file object."""
 
-    def __init__(self, filename):
+    def __init__(self, filename, metadata=None):
         self.nextObject = 1     # next free object id
         self.xrefTable = [[0, 65535, 'the zero object']]
         self.passed_in_file_object = False
@@ -486,7 +486,9 @@ class PdfFile(object):
             'Creator': 'matplotlib %s, http://matplotlib.org' % __version__,
             'Producer': 'matplotlib pdf backend%s' % revision,
             'CreationDate': source_date
-            }
+        }
+        if metadata is not None:
+            self.infoDict.update(metadata)
 
         self.fontNames = {}     # maps filenames to internal font names
         self.nextFont = 1       # next free internal font name
@@ -2438,22 +2440,27 @@ class PdfPages(object):
     """
     __slots__ = ('_file', 'keep_empty')
 
-    def __init__(self, filename, keep_empty=True):
+    def __init__(self, filename, keep_empty=True, metadata=None):
         """
         Create a new PdfPages object.
 
         Parameters
         ----------
 
-        filename: str
+        filename : str
             Plots using :meth:`PdfPages.savefig` will be written to a file at
             this location. The file is opened at once and any older file with
             the same name is overwritten.
-        keep_empty: bool, optional
+        keep_empty : bool, optional
             If set to False, then empty pdf files will be deleted automatically
             when closed.
+        metadata : dictionary, optional
+            Information dictionary object (see PDF reference section 10.2.1
+            'Document Information Dictionary'), e.g.:
+            `{'Creator': 'My software', 'Author': 'Me',
+            'Title': 'Awesome fig'}`
         """
-        self._file = PdfFile(filename)
+        self._file = PdfFile(filename, metadata=metadata)
         self.keep_empty = keep_empty
 
     def __enter__(self):
@@ -2492,7 +2499,7 @@ class PdfPages(object):
         Parameters
         ----------
 
-        figure: :class:`~matplotlib.figure.Figure` or int, optional
+        figure : :class:`~matplotlib.figure.Figure` or int, optional
             Specifies what figure is saved to file. If not specified, the
             active figure is saved. If a :class:`~matplotlib.figure.Figure`
             instance is provided, this figure is saved. If an int is specified,
@@ -2556,7 +2563,7 @@ class FigureCanvasPdf(FigureCanvasBase):
         if isinstance(filename, PdfPages):
             file = filename._file
         else:
-            file = PdfFile(filename)
+            file = PdfFile(filename, metadata=kwargs.pop("metadata", None))
         try:
             file.newPage(width, height)
             _bbox_inches_restore = kwargs.pop("bbox_inches_restore", None)

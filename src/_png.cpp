@@ -114,6 +114,24 @@ const char *Py_write_png__doc__ =
     "    If not provided, libpng will try to automatically determine the\n"
     "    best filter on a line-by-line basis.\n"
     "\n"
+    "metadata : dictionary\n"
+    "    The keyword-text pairs that are stored as comments in the image.\n"
+    "    Keys must be shorter than 79 chars. The only supported encoding\n"
+    "    for both keywords and values is Latin-1 (ISO 8859-1).\n"
+    "    Examples given in the PNG Specification are:\n"
+    "    - Title: Short (one line) title or caption for image\n"
+    "    - Author: Name of image's creator\n"
+    "    - Description: Description of image (possibly long)\n"
+    "    - Copyright: Copyright notice\n"
+    "    - Creation Time: Time of original image creation\n"
+    "                     (usually RFC 1123 format, see below)\n"
+    "    - Software: Software used to create the image\n"
+    "    - Disclaimer: Legal disclaimer\n"
+    "    - Warning: Warning of nature of content\n"
+    "    - Source: Device used to create the image\n"
+    "    - Comment: Miscellaneous comment; conversion\n"
+    "               from other image format\n"
+    "\n"
     "Returns\n"
     "-------\n"
     "buffer : bytes or None\n"
@@ -124,10 +142,16 @@ static PyObject *Py_write_png(PyObject *self, PyObject *args, PyObject *kwds)
 {
     numpy::array_view<unsigned char, 3> buffer;
     PyObject *filein;
+    PyObject *metadata = NULL;
+    PyObject *meta_key, *meta_val;
+    png_text *text;
+    Py_ssize_t pos = 0;
+    int meta_pos = 0;
+    Py_ssize_t meta_size;
     double dpi = 0;
     int compression = 6;
     int filter = -1;
-    const char *names[] = { "buffer", "file", "dpi", "compression", "filter", NULL };
+    const char *names[] = { "buffer", "file", "dpi", "compression", "filter", "metadata", NULL };
 
     // We don't need strict contiguity, just for each row to be
     // contiguous, and libpng has special handling for getting RGB out
@@ -135,14 +159,15 @@ static PyObject *Py_write_png(PyObject *self, PyObject *args, PyObject *kwds)
     // enforce contiguity using array_view::converter_contiguous.
     if (!PyArg_ParseTupleAndKeywords(args,
                                      kwds,
-                                     "O&O|dii:write_png",
+                                     "O&O|diiO:write_png",
                                      (char **)names,
                                      &buffer.converter_contiguous,
                                      &buffer,
                                      &filein,
                                      &dpi,
                                      &compression,
-                                     &filter)) {
+                                     &filter,
+                                     &metadata)) {
         return NULL;
     }
 
@@ -275,6 +300,51 @@ static PyObject *Py_write_png(PyObject *self, PyObject *args, PyObject *kwds)
         png_uint_32 dots_per_meter = (png_uint_32)(dpi / (2.54 / 100.0));
         png_set_pHYs(png_ptr, info_ptr, dots_per_meter, dots_per_meter, PNG_RESOLUTION_METER);
     }
+
+#ifdef PNG_TEXT_SUPPORTED
+    // Save the metadata
+    if (metadata != NULL) {
+        meta_size = PyDict_Size(metadata);
+        text = new png_text[meta_size];
+
+        while (PyDict_Next(metadata, &pos, &meta_key, &meta_val)) {
+            text[meta_pos].compression = PNG_TEXT_COMPRESSION_NONE;
+#if PY3K
+            if (PyUnicode_Check(meta_key)) {
+                PyObject *temp_key = PyUnicode_AsEncodedString(meta_key, "latin_1", "strict");
+                if (temp_key != NULL) {
+                    text[meta_pos].key = PyBytes_AsString(temp_key);
+                }
+            } else if (PyBytes_Check(meta_key)) {
+                text[meta_pos].key = PyBytes_AsString(meta_key);
+            } else {
+                char invalid_key[79];
+                sprintf(invalid_key,"INVALID KEY %d", meta_pos);
+                text[meta_pos].key = invalid_key;
+            }
+            if (PyUnicode_Check(meta_val)) {
+                PyObject *temp_val = PyUnicode_AsEncodedString(meta_val, "latin_1", "strict");
+                if (temp_val != NULL) {
+                    text[meta_pos].text = PyBytes_AsString(temp_val);
+                }
+            } else if (PyBytes_Check(meta_val)) {
+                text[meta_pos].text = PyBytes_AsString(meta_val);
+            } else {
+                text[meta_pos].text = (char *)"Invalid value in metadata";
+            }
+#else
+            text[meta_pos].key = PyString_AsString(meta_key);
+            text[meta_pos].text = PyString_AsString(meta_val);
+#endif
+#ifdef PNG_iTXt_SUPPORTED
+            text[meta_pos].lang = NULL;
+#endif
+            meta_pos++;
+        }
+        png_set_text(png_ptr, info_ptr, text, meta_size);
+        delete[] text;
+    }
+#endif
 
     sig_bit.alpha = 0;
     switch (png_color_type) {
