@@ -1273,9 +1273,7 @@ class FigureCanvasPS(FigureCanvasBase):
             # write the Encapsulated PostScript headers
             print("%!PS-Adobe-3.0 EPSF-3.0", file=fh)
             if title: print("%%Title: "+title, file=fh)
-<<<<<<< d8cac234387c1bc50b4686b9568b4f5e43149957
-            print(("%%Creator: matplotlib version "
-                         +__version__+", http://matplotlib.org/"), file=fh)
+            print("%%Creator: " + creator_str, file=fh)
             # get source date from SOURCE_DATE_EPOCH, if set
             # See https://reproducible-builds.org/specs/source-date-epoch/
             source_date_epoch = os.getenv("SOURCE_DATE_EPOCH")
@@ -1285,10 +1283,6 @@ class FigureCanvasPS(FigureCanvasBase):
             else:
                 source_date = time.ctime()
             print("%%CreationDate: "+source_date, file=fh)
-=======
-            print("%%Creator: " + creator_str, file=fh)
-            print("%%CreationDate: "+time.ctime(time.time()), file=fh)
->>>>>>> Allow to pass custom Creator to images created with ps backend
             print("%%%%BoundingBox: %d %d %d %d" % bbox, file=fh)
             print("%%EndComments", file=fh)
 
