@@ -5,11 +5,11 @@ The second subplot illustrates the use of BoundaryNorm to
 get a filled contour effect.
 """
 from copy import copy
-from numpy import ma
-import matplotlib.colors as colors
-import matplotlib.pyplot as plt
-import matplotlib.mlab as mlab
+
 import numpy as np
+import matplotlib.pyplot as plt
+import matplotlib.colors as colors
+import matplotlib.mlab as mlab
 
 # compute some interesting data
 x0, x1 = -5, 5
@@ -33,14 +33,14 @@ palette.set_bad('b', 1.0)
 # If you comment out all the palette.set* lines, you will see
 # all the defaults; under and over will be colored with the
 # first and last colors in the palette, respectively.
-Zm = ma.masked_where(Z > 1.2, Z)
+Zm = np.ma.masked_where(Z > 1.2, Z)
 
 # By setting vmin and vmax in the norm, we establish the
 # range to which the regular palette color scale is applied.
 # Anything above that range is colored based on palette.set_over, etc.
 
 # set up the axes
-fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(6, 5.4))
+fig, (ax1, ax2) = plt.subplots(nrows=2, figsize=(6, 5.4))
 
 # plot using 'continuous' color map
 im = ax1.imshow(Zm, interpolation='bilinear',
