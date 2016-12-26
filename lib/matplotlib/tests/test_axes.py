@@ -4871,3 +4871,9 @@ def test_scatter_color_masking():
     assert_array_equal(facecolors[1], np.array([0, 0, 0, 1]))
     assert_array_equal(linecolors[1], np.array([0, 0, 0, 1]))
     assert linewidths[1] == 3
+
+
+@cleanup
+def test_eventplot_legend():
+    plt.eventplot([1.0], label='Label')
+    plt.legend()
