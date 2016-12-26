@@ -422,15 +422,15 @@ class Slider(AxesWidget):
                 return
             val = self.valmax
 
-        if self.slidermin is not None and val <= self.slidermin.val:
+        if self.slidermin is not None and val <= self.slidermin:
             if not self.closedmin:
                 return
-            val = self.slidermin.val
+            val = self.slidermin
 
-        if self.slidermax is not None and val >= self.slidermax.val:
+        if self.slidermax is not None and val >= self.slidermax:
             if not self.closedmax:
                 return
-            val = self.slidermax.val
+            val = self.slidermax
 
         self.set_val(val)
 
