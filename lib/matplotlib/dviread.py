@@ -869,8 +869,6 @@ class PsfontsMap(object):
         return result._replace(filename=fn, encoding=enc)
 
     def _parse(self, file):
-        """Parse each line into words and process them."""
-
         for line in file:
             line = six.b(line)
             line = line.strip()
