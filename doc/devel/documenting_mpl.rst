@@ -255,10 +255,10 @@ working with Sphinx in general. Here are a few additional things to keep in mind
 * The autodoc extension will handle index entries for the API, but additional
   entries in the index_ need to be explicitly added.
 
-.. _Sphinx: http://sphinx.pocoo.org
-.. _documentation: http://sphinx.pocoo.org/contents.html
-.. _`inline markup`: http://sphinx.pocoo.org/markup/inline.html
-.. _index: http://sphinx.pocoo.org/markup/para.html#index-generating-markup
+.. _Sphinx: http://www.sphinx-doc.org
+.. _documentation: http://www.sphinx-doc.org/contents.html
+.. _`inline markup`: http://sphinx-doc.org/markup/inline.html
+.. _index: http://sphinx-doc.org/markup/para.html#index-generating-markup
 
 * Please limit the text width of docstrings to 70 characters.
 

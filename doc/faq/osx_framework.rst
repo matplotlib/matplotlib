@@ -18,7 +18,7 @@ framework build. In order to interact correctly with OSX through the native
 GUI frameworks you need a framework build of Python.
 At the time of writing the ``macosx`` and ``WXAgg`` backends require a
 framework build to function correctly. This can result in issues for
-a python installation not build as a framework and may also happen in 
+a python installation not build as a framework and may also happen in
 virtual envs and when using (Ana)Conda.
 From Matplotlib 1.5 onwards the ``macosx`` backend
 checks that a framework build is available and fails if a non framework
@@ -26,7 +26,7 @@ build is found. WX has a similar check build in.
 
 Without this check a partially functional figure is created.
 Among the issues with it is that it is produced in the background and
-cannot be put in front of any other window. Several solutions and work 
+cannot be put in front of any other window. Several solutions and work
 arounds exist see below.
 
 Short version
@@ -35,7 +35,7 @@ Short version
 VirtualEnv
 ----------
 
-If you are on Python 3, use 
+If you are on Python 3, use
 `venv <https://docs.python.org/3/library/venv.html>`_
 instead of `virtualenv <https://virtualenv.pypa.io/en/latest/>`_::
 

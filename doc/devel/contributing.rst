@@ -32,11 +32,11 @@ You can check out the latest sources with the command::
 
 After obtaining a local copy of the matplotlib source code (:ref:`set-up-fork`),
 navigate to the matplotlib directory and run the following in the shell::
-    
+
     python setup.py develop
 
 or::
-  
+
    pip install -v -e .
 
 
@@ -50,10 +50,10 @@ symbolic links back to the source code).
 
 
 .. note::
-  
+
     If you decide to do install with ``python setup.py develop`` or ``pip
     install -v -e``, you will have to rerun::
-   
+
       python setup.py build
 
     every time the source code of a compiled extension is changed (for
@@ -88,7 +88,7 @@ When working on bleeding edge packages, setting up a
 environment <http://conda.pydata.org/docs/using/envs.html>`_ is recommended.
 
 .. seealso::
-  
+
   * :ref:`testing`
 
 
@@ -137,7 +137,7 @@ You may want to consider sending an email to the mailing list for more
 visibility.
 
 .. seealso::
-   
+
   * `Git documentation <https://git-scm.com/documentation>`_
   * :ref:`development-workflow`.
   * :ref:`using-git`
@@ -196,12 +196,12 @@ tools:
 
     * Code with a good unittest coverage (at least 70%, better 100%), check
       with::
-      
+
         pip install coverage
         python tests.py --with-coverage
 
     * No pyflakes warnings, check with::
-      
+
         pip install pyflakes
         pyflakes path/to/module.py
 
@@ -227,10 +227,10 @@ Issues for New Contributors
 ---------------------------
 
 New contributors should look for the following tags when looking for issues.
-We strongly recommend that new contributors tackle 
+We strongly recommend that new contributors tackle
 `new-contributor-friendly <https://github.com/matplotlib/matplotlib/labels/new-contributor-friendly>`_
 issues (easy, well documented issues, that do not require an understanding of
-the different submodules of matplotlib) and 
+the different submodules of matplotlib) and
 `Easy-fix <https://github.com/matplotlib/matplotlib/labels/Difficulty%3A%20Easy>`_
 issues. This helps the contributor become familiar with the contribution
 workflow, and for the core devs to become acquainted with the contributor;

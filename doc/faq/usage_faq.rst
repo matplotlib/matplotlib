@@ -447,7 +447,7 @@ macosx         Cocoa rendering in OSX windows
 .. _`Cairo graphics`: https://en.wikipedia.org/wiki/Cairo_(graphics)
 .. _`Gimp Drawing Kit`: https://en.wikipedia.org/wiki/GDK
 .. _PyGTK: http://www.pygtk.org
-.. _PyGObject: https://live.gnome.org/PyGObject
+.. _PyGObject: https://wiki.gnome.org/action/show/Projects/PyGObject
 .. _pycairo: https://www.cairographics.org/pycairo/
 .. _cairocffi: https://pythonhosted.org/cairocffi/
 .. _wxPython: https://www.wxpython.org/
@@ -463,7 +463,7 @@ does not support python3. A work in progress redesigned version known as
 wxPython-Phoenix_ does support python3.
 Matplotlib should work with both versions.
 
-.. _wxPython-Phoenix: http://wxpython.org/Phoenix/docs/html/main.html
+.. _wxPython-Phoenix: https://wxpython.org/Phoenix/docs/html/main.html
 
 GTK and Cairo
 =============
@@ -523,8 +523,8 @@ and turned off via :func:`matplotlib.pyplot.ioff`.
 
 .. note::
    Interactive mode works with suitable backends in ipython and in
-   the ordinary python shell, but it does *not* work in the IDLE IDE. 
-   If the default backend does not support interactivity, an interactive 
+   the ordinary python shell, but it does *not* work in the IDLE IDE.
+   If the default backend does not support interactivity, an interactive
    backend can be explicitly activated using any of the methods discussed in `What is a backend?`_.
 
 

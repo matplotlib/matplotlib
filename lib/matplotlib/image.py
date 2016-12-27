@@ -1355,7 +1355,7 @@ def thumbnail(infile, thumbfile, scale=0.1, interpolation='bilinear',
     *thumbfile*.
 
       *infile* the image file -- must be PNG or Pillow-readable if you
-         have `Pillow <http://python-pillow.github.io/>`_ installed
+         have `Pillow <http://python-pillow.org/>`_ installed
 
       *thumbfile*
         the thumbnail filename

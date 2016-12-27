@@ -73,7 +73,7 @@ run so you can continue tweaking the figure manually.
 There has been a lot of recent work to embed ipython, with pylab
 support, into various GUI applications, so check on the ipython
 mailing `list
-<http://mail.scipy.org/mailman/listinfo/ipython-user>`_ for the
+<https://mail.scipy.org/mailman/listinfo/ipython-user>`_ for the
 latest status.
 
 .. _other-shells:

@@ -6,7 +6,7 @@ License
 
 
 Matplotlib only uses BSD compatible code, and its license is based on
-the `PSF <http://www.python.org/psf/license>`_ license.  See the Open
+the `PSF <https://python.org/psf/license>`_ license.  See the Open
 Source Initiative `licenses page
 <https://www.opensource.org/licenses>`_ for details on individual
 licenses. Non-BSD compatible licenses (e.g., LGPL) are acceptable in

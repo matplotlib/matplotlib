@@ -126,7 +126,7 @@ Implementation
 
     * A simple NB demonstrating some functionality for
       ``Line2DController`` objects:
-      http://nbviewer.ipython.org/gist/theengineear/f0aa8d79f64325e767c0
+      http://nbviewer.jupyter.org/gist/theengineear/f0aa8d79f64325e767c0
 
 2. Write in protocols for the ``Controller`` to *update* the model.
 

@@ -39,7 +39,7 @@ def stackplot(axes, x, *args, **kwargs):
                 sum of the squared slopes. 'weighted_wiggle' does the
                 same but weights to account for size of each layer.
                 It is also called `Streamgraph`-layout. More details
-                can be found at http://www.leebyron.com/else/streamgraph/.
+                can be found at http://leebyron.com/streamgraph/.
 
 
     *labels* : A list or tuple of labels to assign to each data series.

@@ -26,7 +26,7 @@ The following software is required to run the tests:
 
 Optionally you can install:
 
-  - `coverage <http://nedbatchelder.com/code/coverage/>`_ to collect coverage
+  - `coverage <http://coverage.readthedocs.io/en/latest/>`_ to collect coverage
     information
   - `pep8 <http://pep8.readthedocs.io/en/latest>`_ to test coding standards
 
@@ -254,7 +254,7 @@ If you want to enable Travis CI for your personal matplotlib GitHub
 repo, simply enable the repo to use Travis CI in either the Travis CI
 UI or the GitHub UI (Admin | Service Hooks). For details, see `the
 Travis CI Getting Started page
-<http://about.travis-ci.org/docs/user/getting-started/>`_.  This
+<https://docs.travis-ci.com/user/getting-started/>`_.  This
 generally isn't necessary, since any pull request submitted against
 the main matplotlib repository will be tested.
 

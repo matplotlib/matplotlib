@@ -172,10 +172,10 @@ excellent Python scientific software collections that are now available:
 - Anaconda_ from `Continuum Analytics`_
 - Canopy_ from Enthought_
 
-.. _Canopy: https://enthought.com/products/canopy/
-.. _Anaconda: https://store.continuum.io/cshop/anaconda/
-.. _Enthought: http://enthought.com
-.. _Continuum Analytics: http://continuum.io
+.. _Canopy: https://www.enthought.com/products/canopy/
+.. _Anaconda: https://www.continuum.io/downloads
+.. _Enthought: https://www.enthought.com
+.. _Continuum Analytics: https://www.continuum.io
 
 These collections include Python itself and a wide range of libraries; if you
 need a library that is not available from the collection, you can install it
@@ -205,7 +205,7 @@ Python.org Python
 ^^^^^^^^^^^^^^^^^
 
 Install pip following the `standard pip install instructions
-<http://pip.readthedocs.io/en/latest/installing.html>`_.  For the impatient,
+<http://pip.readthedocs.io/en/latest/installing/>`_.  For the impatient,
 open a new Terminal.app window and::
 
     curl -O https://bootstrap.pypa.io/get-pip.py
