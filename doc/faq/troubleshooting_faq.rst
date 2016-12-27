@@ -47,18 +47,18 @@ locate your :file:`matplotlib/` configuration directory, use
     '/home/darren/.config/matplotlib'
 
 On unix-like systems, this directory is generally located in your
-:envvar:`HOME` directory under the :file:`.config/` directory. 
+:envvar:`HOME` directory under the :file:`.config/` directory.
 
-In addition, users have a cache directory. On unix-like systems, this is 
-separate from the configuration directory by default. To locate your 
+In addition, users have a cache directory. On unix-like systems, this is
+separate from the configuration directory by default. To locate your
 :file:`.cache/` directory, use :func:`matplotlib.get_cachedir`::
 
     >>> import matplotlib as mpl
     >>> mpl.get_cachedir()
     '/home/darren/.cache/matplotlib'
-    
-On windows, both the config directory and the cache directory are 
-the same and are in your :file:`Documents and Settings` or :file:`Users` 
+
+On windows, both the config directory and the cache directory are
+the same and are in your :file:`Documents and Settings` or :file:`Users`
 directory by default::
 
     >>> import matplotlib
@@ -104,7 +104,7 @@ please provide the following information in your e-mail to the
     packages, github, PyPi, or Anaconda_ or `Enthought Canopy
     <https://www.enthought.com/products/canopy/>`_).
 
-.. _Anaconda: https://store.continuum.io/cshop/anaconda/
+.. _Anaconda: https://www.continuum.io/downloads
 
 
   * any customizations to your ``matplotlibrc`` file (see

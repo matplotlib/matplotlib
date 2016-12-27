@@ -52,7 +52,7 @@ axes.
 
 If matplotlib were limited to working with lists, it would be fairly
 useless for numeric processing.  Generally, you will use `numpy
-<http://numpy.scipy.org>`_ arrays.  In fact, all sequences are
+<http://www.numpy.org>`_ arrays.  In fact, all sequences are
 converted to numpy arrays internally.  The example below illustrates a
 plotting several lines with different format styles in one command
 using arrays.

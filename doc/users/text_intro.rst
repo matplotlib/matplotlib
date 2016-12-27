@@ -9,7 +9,7 @@ vector outputs, newline separated text with arbitrary
 rotations, and unicode support.  Because it embeds
 fonts directly in output documents, e.g., for postscript
 or PDF, what you see on the screen is what you get in the hardcopy.
-`FreeType <http://www.freetype.org/>`_ support
+`FreeType <https://www.freetype.org/>`_ support
 produces very nice, antialiased fonts, that look good even at small
 raster sizes.  matplotlib includes its own
 :mod:`matplotlib.font_manager` (thanks to Paul Barrett), which

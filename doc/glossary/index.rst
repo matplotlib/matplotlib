@@ -40,7 +40,7 @@ Glossary
       file format for photographic images
 
   numpy
-      `numpy <http://numpy.scipy.org>`_ is the standard numerical
+      `numpy <http://www.numpy.org/>`_ is the standard numerical
       array library for python, the successor to Numeric and numarray.
       numpy provides fast operations for homogeneous data sets and
       common mathematical operations like correlations, standard

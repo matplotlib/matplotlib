@@ -2,8 +2,8 @@
 A module for parsing and generating fontconfig patterns.
 
 See the `fontconfig pattern specification
-<http://www.fontconfig.org/fontconfig-user.html>`_ for more
-information.
+<https://www.freedesktop.org/software/fontconfig/fontconfig-user.html>`_ for
+more information.
 """
 
 # This class is defined here because it must be available in:
@@ -37,8 +37,8 @@ class FontconfigPatternParser(object):
     """A simple pyparsing-based parser for fontconfig-style patterns.
 
     See the `fontconfig pattern specification
-    <http://www.fontconfig.org/fontconfig-user.html>`_ for more
-    information.
+    <https://www.freedesktop.org/software/fontconfig/fontconfig-user.html>`_
+    for more information.
     """
 
     _constants = {

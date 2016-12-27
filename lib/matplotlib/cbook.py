@@ -674,7 +674,7 @@ class Bunch(object):
       >>> point.datum
 
       By: Alex Martelli
-      From: http://aspn.activestate.com/ASPN/Cookbook/Python/Recipe/52308
+      From: http://code.activestate.com/recipes/121294/
     """
     def __init__(self, **kwds):
         self.__dict__.update(kwds)
@@ -869,7 +869,7 @@ def flatten(seq, scalarp=is_scalar_or_string):
         ['John', 'Hunter', 1, 23, 42, 5, 23]
 
     By: Composite of Holger Krekel and Luther Blissett
-    From: http://aspn.activestate.com/ASPN/Cookbook/Python/Recipe/121294
+    From: http://code.activestate.com/recipes/121294/
     and Recipe 1.12 in cookbook
     """
     for item in seq:
@@ -2636,7 +2636,7 @@ class Locked(object):
 
     Based on code from conda.
 
-    (c) 2012-2013 Continuum Analytics, Inc. / http://continuum.io
+    (c) 2012-2013 Continuum Analytics, Inc. / https://www.continuum.io/
     All Rights Reserved
 
     conda is distributed under the terms of the BSD 3-clause license.

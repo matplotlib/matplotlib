@@ -163,7 +163,7 @@ mpl_example_sections = [
 
 # Github extension
 
-github_project_url = "http://github.com/matplotlib/matplotlib/"
+github_project_url = "https://github.com/matplotlib/matplotlib/"
 
 # Options for HTML output
 # -----------------------

@@ -591,7 +591,7 @@ for it in the :ref:`users-guide-index`.  Bundle matplotlib in a
 `py2exe <http://www.py2exe.org/>`_ app?  ... I think you get the idea.
 
 matplotlib is documented using the `sphinx
-<http://sphinx.pocoo.org/index.html>`_ extensions to restructured text
+<http://sphinx-doc.org/index.html>`_ extensions to restructured text
 `(ReST) <http://docutils.sourceforge.net/rst.html>`_.  sphinx is an
 extensible python framework for documentation projects which generates
 HTML and PDF, and is pretty easy to write; you can see the source for this

@@ -87,8 +87,8 @@ the gallery would remain in those directories until they are cleaned
 up. After clean-up, they would be moved to one of the new gallery
 sections described above. "Clean-up" should involve:
 
-* `sphinx-gallery docstrings <https://sphinx-gallery.readthedocs.io/>`_: a
-  title and a description of the example formatted as follows, at the top of
+* `sphinx-gallery docstrings <https://sphinx-gallery.readthedocs.io/en/latest/>`_:
+  a title and a description of the example formatted as follows, at the top of
   the example::
 
     """
@@ -197,5 +197,5 @@ navigate the gallery. Thus, tags are complementary to this reorganization.
 .. [1] https://github.com/matplotlib/matplotlib/pull/714
 .. [2] https://github.com/matplotlib/matplotlib/issues/524
 .. [3] http://matplotlib.1069221.n5.nabble.com/Matplotlib-gallery-td762.html#a33379091
-.. [4] http://www.loria.fr/~rougier/teaching/matplotlib/
-.. [5] http://www.loria.fr/~rougier/coding/gallery/
+.. [4] http://www.labri.fr/perso/nrougier/teaching/matplotlib/
+.. [5] http://www.labri.fr/perso/nrougier/coding/gallery/
