@@ -64,7 +64,7 @@ also use the LaTeX default Computer Modern fonts by clearing the lists for
 ``font.serif``, ``font.sans-serif`` or ``font.monospace``. Please note that
 the glyph coverage of these fonts is very limited. If you want to keep the
 Computer Modern font face but require extended unicode support, consider
-installing the `Computer Modern Unicode <http://sourceforge.net/projects/cm-unicode/>`_
+installing the `Computer Modern Unicode <https://sourceforge.net/projects/cm-unicode/>`_
 fonts *CMU Serif*, *CMU Sans Serif*, etc.
 
 When saving to ``.pgf``, the font configuration matplotlib used for the

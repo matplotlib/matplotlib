@@ -186,7 +186,7 @@ Canopy web pages for more information.
 Other options for a fresh Python install are the standard installer from
 `python.org <https://www.python.org/downloads/mac-osx/>`_, or installing
 Python using a general OSX package management system such as `homebrew
-<http://brew.sh>`_ or `macports <http://www.macports.org>`_.  Power users on
+<http://brew.sh>`_ or `macports <https://www.macports.org>`_.  Power users on
 OSX will likely want one of homebrew or macports on their system to install
 open source software packages, but it is perfectly possible to use these
 systems with another source for your Python binary, such as Anaconda, Canopy
@@ -197,7 +197,7 @@ or Python.org Python.
 Installing OSX binary wheels
 ----------------------------
 
-If you are using recent Python from http://www.python.org, Macports or
+If you are using recent Python from https://www.python.org, Macports or
 Homebrew, then you can use the standard pip installer to install matplotlib
 binaries in the form of wheels.
 

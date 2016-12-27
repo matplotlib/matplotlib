@@ -37,11 +37,11 @@
  Videos
 =======
 
-* `Plotting with matplotlib <http://www.youtube.com/watch?v=P7SVi0YTIuE>`_
+* `Plotting with matplotlib <https://www.youtube.com/watch?v=P7SVi0YTIuE>`_
   by Mike Müller
 
 * `Introduction to NumPy and Matplotlib
-  <http://www.youtube.com/watch?v=3Fp1zn5ao2M&feature=plcp>`_ by Eric Jones
+  <https://www.youtube.com/watch?v=3Fp1zn5ao2M&feature=plcp>`_ by Eric Jones
 
 * `Anatomy of Matplotlib
   <https://conference.scipy.org/scipy2013/tutorial_detail.php?id=103>`_

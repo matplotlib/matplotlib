@@ -70,10 +70,10 @@ You can then run the tests to check your work environment is set up properly::
 .. _pep8: https://pep8.readthedocs.io/en/latest/
 
 .. note::
-    
+
   **Additional dependencies for testing**: nose_ (version 1.0 or later), `mock
   <https://docs.python.org/dev/library/unittest.mock.html>`_ (if python < 3.3), `Ghostscript
-  <http://www.ghostscript.com/>`_, `Inkscape <http://inkscape.org>`_
+  <https://www.ghostscript.com/>`_, `Inkscape <https://inkscape.org>`_
 
 .. note:: To make sure the tests run locally:
 

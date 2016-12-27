@@ -228,7 +228,7 @@ Mathtext_examples
 
 Below is a sampling of the many TeX expressions now supported by matplotlib's
 internal mathtext engine.  The mathtext module provides TeX style mathematical
-expressions using `FreeType <http://www.freetype.org/>`_
+expressions using `FreeType <https://www.freetype.org/>`_
 and the DejaVu, BaKoMa computer modern, or `STIX <http://www.stixfonts.org>`_
 fonts.  See the :mod:`matplotlib.mathtext` module for additional details.
 
@@ -257,7 +257,7 @@ EEG demo
 
 You can embed matplotlib into pygtk, wx, Tk, or Qt applications.
 Here is a screenshot of an EEG viewer called `pbrain
-<http://github.com/nipy/pbrain>`__.
+<https://github.com/nipy/pbrain>`__.
 
 .. image:: ../_static/eeg_small.png
 
