@@ -906,38 +906,43 @@ class PsfontsMap(object):
             assert isinstance(word, bytes)
 
         texname, psname = words[:2]
+        words = words[2:]
         effects, encoding, filename = b'', None, None
-        for word in words[2:]:
-            if not word.startswith(b'<'):
-                effects = word
-            else:
-                word = word.lstrip(b'<')
-                if word.startswith(b'[') or word.endswith(b'.enc'):
-                    if encoding is not None:
-                        matplotlib.verbose.report(
-                            'Multiple encodings for %s = %s'
-                            % (texname, psname), 'debug')
-                    if word.startswith(b'['):
-                        encoding = word[1:]
-                    else:
-                        encoding = word
-                else:
-                    assert filename is None
-                    filename = word
 
-        eff = effects.split()
-        effects = {}
-        try:
-            effects['slant'] = float(eff[eff.index(b'SlantFont')-1])
-        except ValueError:
-            pass
-        try:
-            effects['extend'] = float(eff[eff.index(b'ExtendFont')-1])
-        except ValueError:
-            pass
+        # pick the last non-filename word for effects
+        effects_words = [word for word in words if not word.startswith(b'<')]
+        if effects_words:
+            effects = effects_words[-1]
+
+        encoding_re = br'<<?(\[.*|.*\.enc)'
+        encoding_files = [word.lstrip(b'<').lstrip(b'[')
+                          for word in words
+                          if re.match(encoding_re, word)]
+        if len(encoding_files) > 1:
+            matplotlib.verbose.report(
+                'Multiple encodings for %s = %s' % (texname, psname), 'debug')
+        if encoding_files:
+            encoding = encoding_files[-1]
+
+        font_files = [word.lstrip(b'<')
+                      for word in words
+                      if word.startswith(b'<')
+                      and not re.match(encoding_re, word)]
+        if font_files:
+            filename = font_files[-1]
+
+        eff = {}
+        for psword, keyword in ((b'SlantFont', 'slant'),
+                                (b'ExtendFont', 'extend')):
+            match = re.search(b'([^ ]+) +' + psword, effects)
+            if match:
+                try:
+                    eff[keyword] = float(match.group(1))
+                except ValueError:
+                    pass
 
         self._font[texname] = PsFont(
-            texname=texname, psname=psname, effects=effects,
+            texname=texname, psname=psname, effects=eff,
             encoding=encoding, filename=filename)
 
 
