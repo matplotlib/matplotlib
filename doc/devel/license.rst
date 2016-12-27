@@ -6,7 +6,7 @@ Licenses
 Matplotlib only uses BSD compatible code.  If you bring in code from
 another project make sure it has a PSF, BSD, MIT or compatible license
 (see the Open Source Initiative `licenses page
-<http://www.opensource.org/licenses>`_ for details on individual
+<http://opensource.org/licenses>`_ for details on individual
 licenses).  If it doesn't, you may consider contacting the author and
 asking them to relicense it.  GPL and LGPL code are not acceptable in
 the main code base, though we are considering an alternative way of
