@@ -217,24 +217,32 @@ class Dvi(object):
         return None
 
     def __enter__(self):
+        """
+        Context manager enter method, does nothing.
+        """
         return self
 
     def __exit__(self, etype, evalue, etrace):
+        """
+        Context manager exit method, closes the underlying file if it is open.
+        """
         self.close()
 
     def __iter__(self):
         """
         Iterate through the pages of the file.
 
-        Returns (text, boxes) pairs, where:
-          text is a list of (x, y, fontnum, glyphnum, width) tuples
-          boxes is a list of (x, y, height, width) tuples
-
-        The coordinates are transformed into a standard Cartesian
-        coordinate system at the dpi value given when initializing.
-        The coordinates are floating point numbers, but otherwise
-        precision is not lost and coordinate values are not clipped to
-        integers.
+        Yields
+        ------
+        Page
+            Details of all the text and box objects on the page.
+            The Page tuple contains lists of Text and Box tuples and
+            the page dimensions, and the Text and Box tuples contain
+            coordinates transformed into a standard Cartesian
+            coordinate system at the dpi value given when initializing.
+            The coordinates are floating point numbers, but otherwise
+            precision is not lost and coordinate values are not clipped to
+            integers.
         """
         while True:
             have_page = self._read()
@@ -499,27 +507,38 @@ class Dvi(object):
 
 class DviFont(object):
     """
-    Object that holds a font's texname and size, supports comparison,
+    Encapsulation of a font that a DVI file can refer to.
+
+    This class holds a font's texname and size, supports comparison,
     and knows the widths of glyphs in the same units as the AFM file.
     There are also internal attributes (for use by dviread.py) that
     are *not* used for comparison.
 
     The size is in Adobe points (converted from TeX points).
 
-    .. attribute:: texname
+    Parameters
+    ----------
 
-       Name of the font as used internally by TeX and friends. This
-       is usually very different from any external font names, and
-       :class:`dviread.PsfontsMap` can be used to find the external
-       name of the font. ASCII bytestring.
+    scale : float
+        Factor by which the font is scaled from its natural size.
+    tfm : Tfm
+        TeX font metrics for this font
+    texname : bytes
+       Name of the font as used internally by TeX and friends, as an
+       ASCII bytestring. This is usually very different from any external
+       font names, and :class:`dviread.PsfontsMap` can be used to find
+       the external name of the font.
+    vf : Vf
+       A TeX "virtual font" file, or None if this font is not virtual.
 
-    .. attribute:: size
+    Attributes
+    ----------
 
+    texname : bytes
+    size : float
        Size of the font in Adobe points, converted from the slightly
        smaller TeX points.
-
-    .. attribute:: widths
-
+    widths : list
        Widths of glyphs in glyph-space units, typically 1/1000ths of
        the point size.
 
@@ -579,12 +598,6 @@ class DviFont(object):
         return result
 
 
-# The virtual font format is a derivative of dvi:
-# http://mirrors.ctan.org/info/knuth/virtual-fonts
-# The following class reuses some of the machinery of Dvi
-# but replaces the _read loop and dispatch mechanism.
-
-
 class Vf(Dvi):
     """
     A virtual font (\*.vf file) containing subroutines for dvi files.
@@ -594,6 +607,19 @@ class Vf(Dvi):
       vf = Vf(filename)
       glyph = vf[code]
       glyph.text, glyph.boxes, glyph.width
+
+    Parameters
+    ----------
+
+    filename : string or bytestring
+
+    Notes
+    -----
+
+    The virtual font format is a derivative of dvi:
+    http://mirrors.ctan.org/info/knuth/virtual-fonts
+    This class reuses some of the machinery of `Dvi`
+    but replaces the `_read` loop and dispatch mechanism.
     """
 
     def __init__(self, filename):
@@ -704,29 +730,27 @@ def _mul2012(num1, num2):
 
 class Tfm(object):
     """
-    A TeX Font Metric file. This implementation covers only the bare
-    minimum needed by the Dvi class.
+    A TeX Font Metric file.
 
-    .. attribute:: checksum
+    This implementation covers only the bare minimum needed by the Dvi class.
 
+    Parameters
+    ----------
+    filename : string or bytestring
+
+    Attributes
+    ----------
+    checksum : int
        Used for verifying against the dvi file.
-
-    .. attribute:: design_size
-
-       Design size of the font (in what units?)
-
-    .. attribute::  width
-
+    design_size : int
+       Design size of the font (unknown units)
+    width : dict
        Width of each character, needs to be scaled by the factor
        specified in the dvi file. This is a dict because indexing may
        not start from 0.
-
-    .. attribute:: height
-
+    height : dict
        Height of each character.
-
-    .. attribute:: depth
-
+    depth : dict
        Depth of each character.
     """
     __slots__ = ('checksum', 'design_size', 'width', 'height', 'depth')
@@ -767,6 +791,7 @@ PsFont = namedtuple('Font', 'texname psname effects encoding filename')
 class PsfontsMap(object):
     """
     A psfonts.map formatted file, mapping TeX fonts to PS fonts.
+
     Usage::
 
      >>> map = PsfontsMap(find_tex_file('pdftex.map'))
@@ -781,6 +806,14 @@ class PsfontsMap(object):
      {'slant': 0.16700000000000001}
      >>> entry.filename
 
+    Parameters
+    ----------
+
+    filename : string or bytestring
+
+    Notes
+    -----
+
     For historical reasons, TeX knows many Type-1 fonts by different
     names than the outside world. (For one thing, the names have to
     fit in eight characters.) Also, TeX's native fonts are not Type-1
@@ -792,12 +825,14 @@ class PsfontsMap(object):
     file names.
 
     A texmf tree typically includes mapping files called e.g.
-    psfonts.map, pdftex.map, dvipdfm.map. psfonts.map is used by
-    dvips, pdftex.map by pdfTeX, and dvipdfm.map by dvipdfm.
-    psfonts.map might avoid embedding the 35 PostScript fonts (i.e.,
-    have no filename for them, as in the Times-Bold example above),
-    while the pdf-related files perhaps only avoid the "Base 14" pdf
-    fonts. But the user may have configured these files differently.
+    :file:`psfonts.map`, :file:`pdftex.map`, or :file:`dvipdfm.map`.
+    The file :file:`psfonts.map` is used by :program:`dvips`,
+    :file:`pdftex.map` by :program:`pdfTeX`, and :file:`dvipdfm.map`
+    by :program:`dvipdfm`. :file:`psfonts.map` might avoid embedding
+    the 35 PostScript fonts (i.e., have no filename for them, as in
+    the Times-Bold example above), while the pdf-related files perhaps
+    only avoid the "Base 14" pdf fonts. But the user may have
+    configured these files differently.
     """
     __slots__ = ('_font', '_filename')
 
@@ -928,6 +963,15 @@ class Encoding(object):
 
       for name in Encoding(filename):
           whatever(name)
+
+    Parameters
+    ----------
+    filename : string or bytestring
+
+    Attributes
+    ----------
+    encoding : list
+        List of character names
     """
     __slots__ = ('encoding',)
 
@@ -978,17 +1022,24 @@ class Encoding(object):
 
 def find_tex_file(filename, format=None):
     """
-    Call :program:`kpsewhich` to find a file in the texmf tree. If
-    *format* is not None, it is used as the value for the
-    `--format` option.
+    Find a file in the texmf tree.
 
-    Apparently most existing TeX distributions on Unix-like systems
-    use kpathsea. It's also available as part of MikTeX, a popular
+    Calls :program:`kpsewhich` which is an interface to the kpathsea
+    library [1]_. Most existing TeX distributions on Unix-like systems use
+    kpathsea. It is also available as part of MikTeX, a popular
     distribution on Windows.
 
-    .. seealso::
+    Parameters
+    ----------
+    filename : string or bytestring
+    format : string or bytestring
+        Used as the value of the `--format` option to :program:`kpsewhich`.
+        Could be e.g. 'tfm' or 'vf' to limit the search to that type of files.
 
-      `Kpathsea documentation <http://www.tug.org/kpathsea/>`_
+    References
+    ----------
+
+    .. [1] `Kpathsea documentation <http://www.tug.org/kpathsea/>`_
         The library that :program:`kpsewhich` is part of.
     """
 
