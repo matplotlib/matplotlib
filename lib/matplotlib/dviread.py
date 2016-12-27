@@ -546,7 +546,9 @@ class DviFont(object):
     __slots__ = ('texname', 'size', 'widths', '_scale', '_vf', '_tfm')
 
     def __init__(self, scale, tfm, texname, vf):
-        assert(isinstance(texname, bytes))
+        if not isinstance(texname, bytes):
+            raise ValueError("texname must be a bytestring, got %s"
+                             % type(texname))
         self._scale, self._tfm, self.texname, self._vf = \
             scale, tfm, texname, vf
         self.size = scale * (72.0 / (72.27 * 2**16))
