@@ -125,7 +125,7 @@ sure your pull request is ready for merging.
 
 
 #. Go to your repo URL |emdash| e.g.,
-   ``http://github.com/your-user-name/matplotlib``.
+   ``https://github.com/your-user-name/matplotlib``.
 
 #. Select your feature branch from the drop down menu:
 
@@ -162,7 +162,7 @@ all your commits to the updated upstream commit. For a much more detailed
 explanation (with pictures!) see `this nice write up
 <https://git-scm.com/book/en/Git-Branching-Rebasing>`_.  The NumPy team has also
 `documented how to do this
-<http://docs.scipy.org/doc/numpy/dev/gitwash/development_workflow.html#rebasing-on-master>`_.
+<https://docs.scipy.org/doc/numpy/dev/gitwash/development_workflow.html#rebasing-on-master>`_.
 In general, re-writing history, particularly published history, is considered
 bad practice, but in this case it is very useful.
 

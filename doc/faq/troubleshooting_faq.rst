@@ -167,7 +167,7 @@ simple test script in debug mode::
 
 and post :file:`build.out` and :file:`run.out` to the
 `matplotlib-devel
-<http://mail.python.org/mailman/listinfo/matplotlib-devel>`_
+<https://mail.python.org/mailman/listinfo/matplotlib-devel>`_
 mailing list (please do not post git problems to the `users list
 <https://mail.python.org/mailman/listinfo/matplotlib-users>`_).
 

@@ -104,7 +104,7 @@ build within the virtual environment you can do ``frameworkpython -m IPython``
 ^^^^^^^^^^^^^^^^^^^^^
 
 An alternative work around borrowed from the `WX wiki
-<http://wiki.wxpython.org/wxPythonVirtualenvOnMac>`_, is to use the non
+<https://wiki.wxpython.org/wxPythonVirtualenvOnMac>`_, is to use the non
 virtualenv python along with the PYTHONHOME environment variable.  This can be
 implemented in a script as below. To use this modify ``PYVER`` and
 ``PATHTOPYTHON`` and put the script in the virtualenv bin directory i.e.

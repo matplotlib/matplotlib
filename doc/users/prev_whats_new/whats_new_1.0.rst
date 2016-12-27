@@ -71,7 +71,7 @@ but it is not possible to test them all, so please report problems to
 the `mailing list
 <https://mail.python.org/mailman/listinfo/matplotlib-users>`__
 and `bug tracker
-<http://github.com/matplotlib/matplotlib/issues>`__.
+<https://github.com/matplotlib/matplotlib/issues>`__.
 
 
 mplot3d graphs can be embedded in arbitrary axes

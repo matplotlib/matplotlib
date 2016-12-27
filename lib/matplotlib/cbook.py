@@ -41,7 +41,7 @@ class MatplotlibDeprecationWarning(UserWarning):
     allow for the signaling of deprecation, but via UserWarnings which are not
     ignored by default.
 
-    http://docs.python.org/dev/whatsnew/2.7.html#the-future-for-python-2-x
+    https://docs.python.org/dev/whatsnew/2.7.html#the-future-for-python-2-x
     """
     pass
 
@@ -2640,7 +2640,7 @@ class Locked(object):
     All Rights Reserved
 
     conda is distributed under the terms of the BSD 3-clause license.
-    Consult LICENSE_CONDA or http://opensource.org/licenses/BSD-3-Clause.
+    Consult LICENSE_CONDA or https://opensource.org/licenses/BSD-3-Clause.
     """
     LOCKFN = '.matplotlib_lock'
 

@@ -320,7 +320,7 @@ operator in::
 showing that can chain transformations using the addition operator.
 This code says: first apply the data transformation ``ax.transData``
 and then translate the data by `dx` and `dy` points.  In typography,
-a`point <http://en.wikipedia.org/wiki/Point_%28typography%29>`_ is
+a`point <https://en.wikipedia.org/wiki/Point_%28typography%29>`_ is
 1/72 inches, and by specifying your offsets in points, your figure
 will look the same regardless of the dpi resolution it is saved in.
 

@@ -154,5 +154,5 @@ Troubleshooting
 .. _dvipng: http://www.nongnu.org/dvipng/
 .. _Ghostscript: http://www.cs.wisc.edu/~ghost/
 .. _PSNFSS: http://www.ctan.org/tex-archive/macros/latex/required/psnfss/psnfss2e.pdf
-.. _Poppler: http://poppler.freedesktop.org/
+.. _Poppler: https://poppler.freedesktop.org/
 .. _Xpdf: http://www.foolabs.com/xpdf

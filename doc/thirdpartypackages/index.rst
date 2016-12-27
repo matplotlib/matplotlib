@@ -149,7 +149,7 @@ Natgrid
 
 mpl_toolkits.natgrid is an interface to natgrid C library for gridding
 irregularly spaced data.  This requires a separate installation of the
-`natgrid toolkit <http://github.com/matplotlib/natgrid>`__.
+`natgrid toolkit <https://github.com/matplotlib/natgrid>`__.
 
 
 .. _toolkit_matplotlibvenn:

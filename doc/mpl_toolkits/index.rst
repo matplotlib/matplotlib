@@ -72,4 +72,4 @@ Excel Tools
 
 ``mpl_toolkits.exceltools`` provides some utilities for working with
 Excel.  This toolkit ships with matplotlib, but requires
-`xlwt <http://pypi.python.org/pypi/xlwt>`_
+`xlwt <https://pypi.python.org/pypi/xlwt>`_

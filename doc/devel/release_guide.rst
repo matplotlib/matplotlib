@@ -100,7 +100,7 @@ releases, since doing so will hide any available stable releases.
 
 You may need to set up your `.pypirc` file as described in the
 `distutils register command documentation
-<http://docs.python.org/2/distutils/packageindex.html>`_.
+<https://docs.python.org/2/distutils/packageindex.html>`_.
 
 Then updating the record on PyPI is as simple as::
 

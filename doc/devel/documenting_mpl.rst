@@ -333,7 +333,7 @@ purposes, like hosting google docs or youtube videos.  You can embed a
 matplotlib animation in the docs by first saving the animation as a
 movie using :meth:`matplotlib.animation.Animation.save`, and then
 uploading to `matplotlib's youtube
-channel <http://www.youtube.com/user/matplotlib>`_ and inserting the
+channel <https://www.youtube.com/user/matplotlib>`_ and inserting the
 embedding string youtube provides like::
 
   .. raw:: html
