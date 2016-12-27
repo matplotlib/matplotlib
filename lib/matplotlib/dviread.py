@@ -31,6 +31,7 @@ import matplotlib.cbook as mpl_cbook
 from matplotlib.compat import subprocess
 from matplotlib import rcParams
 import numpy as np
+import re
 import struct
 import sys
 import textwrap
@@ -876,21 +877,8 @@ class PsfontsMap(object):
             line = line.strip()
             if line == b'' or line.startswith(b'%'):
                 continue
-            words, pos = [], 0
-            while pos < len(line):
-                if line[pos:pos+1] == b'"':   # double quoted word
-                    pos += 1
-                    end = line.index(b'"', pos)
-                    words.append(line[pos:end])
-                    pos = end + 1
-                else:                  # ordinary word
-                    end = line.find(b' ', pos+1)
-                    if end == -1:
-                        end = len(line)
-                    words.append(line[pos:end])
-                    pos = end
-                while pos < len(line) and line[pos:pos+1] == b' ':
-                    pos += 1
+            words = [word.strip(b'"') for word in
+                     re.findall(b'("[^"]*"|[^ ]+)', line)]
             self._register(words)
 
     def _register(self, words):
