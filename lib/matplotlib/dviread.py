@@ -915,7 +915,7 @@ class PsfontsMap(object):
 
         # input must be bytestrings (the file format is ASCII)
         for word in words:
-            assert(isinstance(word, bytes))
+            assert isinstance(word, bytes)
 
         texname, psname = words[:2]
         effects, encoding, filename = b'', None, None
