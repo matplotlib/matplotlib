@@ -74,7 +74,7 @@ Supporting these things is difficult, and is the "full-time job" of a
 number of other projects:
 
   - `pango <http://www.pango.org/>`_/`harfbuzz
-    <https://www.freedesktop.org/wiki/Software/HarfBuzz`_
+    <https://www.freedesktop.org/wiki/Software/HarfBuzz/>`_
   - `QtTextLayout
     <http://doc.qt.io/qt-4.8/qtextlayout.html>`_
   - `Microsoft DirectWrite
