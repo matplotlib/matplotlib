@@ -86,17 +86,6 @@ def test_formatter_ticker():
     ax.autoscale_view()
 
 
-@image_comparison(baseline_images=["formatter_large_small"])
-def test_formatter_large_small():
-    # github issue #617, pull #619
-    if LooseVersion(np.__version__) >= LooseVersion('1.11.0'):
-        skip("Fall out from a fixed numpy bug")
-    fig, ax = plt.subplots(1)
-    x = [0.500000001, 0.500000002]
-    y = [1e64, 1.1e64]
-    ax.plot(x, y)
-
-
 @image_comparison(baseline_images=["twin_axis_locaters_formatters"])
 def test_twin_axis_locaters_formatters():
     vals = np.linspace(0, 1, num=5, endpoint=True)
