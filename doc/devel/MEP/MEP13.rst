@@ -20,7 +20,7 @@ Abstract
 
 Wrap all of the matplotlib getter and setter methods with python
 `properties
-<https://docs.python.org/2/library/functions.html#property>`_, allowing
+<https://docs.python.org/3/library/functions.html#property>`_, allowing
 them to be read and written like class attributes.
 
 Detailed description

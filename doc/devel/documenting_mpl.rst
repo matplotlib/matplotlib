@@ -257,8 +257,8 @@ working with Sphinx in general. Here are a few additional things to keep in mind
 
 .. _Sphinx: http://www.sphinx-doc.org
 .. _documentation: http://www.sphinx-doc.org/contents.html
-.. _`inline markup`: http://sphinx-doc.org/markup/inline.html
-.. _index: http://sphinx-doc.org/markup/para.html#index-generating-markup
+.. _`inline markup`: http://www.sphinx-doc.org/markup/inline.html
+.. _index: http://www.sphinx-doc.org/markup/para.html#index-generating-markup
 
 * Please limit the text width of docstrings to 70 characters.
 

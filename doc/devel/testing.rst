@@ -26,7 +26,7 @@ The following software is required to run the tests:
 
 Optionally you can install:
 
-  - `coverage <http://coverage.readthedocs.io/en/latest/>`_ to collect coverage
+  - `coverage <https://coverage.readthedocs.io/en/latest/>`_ to collect coverage
     information
   - `pep8 <http://pep8.readthedocs.io/en/latest>`_ to test coding standards
 
