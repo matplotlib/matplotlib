@@ -67,11 +67,11 @@ In case Python 2.7 or 3.4 are not installed for all users,
 the Microsoft Visual C++ 2008 (
 `64 bit <https://www.microsoft.com/en-us/download/details.aspx?id=15336>`__
 or
-`32 bit <http://www.microsoft.com/en-us/download/details.aspx?id=29>`__
+`32 bit <https://www.microsoft.com/en-us/download/details.aspx?id=29>`__
 for Python 2.7) or Microsoft Visual C++ 2010 (
-`64 bit <http://www.microsoft.com/en-us/download/details.aspx?id=14632>`__
+`64 bit <https://www.microsoft.com/en-us/download/details.aspx?id=14632>`__
 or
-`32 bit <http://www.microsoft.com/en-us/download/details.aspx?id=5555>`__
+`32 bit <https://www.microsoft.com/en-us/download/details.aspx?id=5555>`__
 for Python 3.4) redistributable packages need to be installed.
 
 Matplotlib depends on `Pillow <https://pypi.python.org/pypi/Pillow>`_
@@ -146,7 +146,7 @@ python, numpy, libpng and freetype), you can build matplotlib::
   python setup.py install
 
 We provide a `setup.cfg
-<https://raw.githubusercontent.com/matplotlib/matplotlib/master/setup.cfg.templatef>`_
+<https://raw.githubusercontent.com/matplotlib/matplotlib/master/setup.cfg.template>`_
 file that goes with :file:`setup.py` which you can use to customize
 the build process. For example, which default backend to use, whether
 some of the optional libraries that matplotlib ships with are

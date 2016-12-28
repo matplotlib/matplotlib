@@ -20,7 +20,7 @@ Glossary
       provides extensions to the standard datetime module
 
   EPS
-      Encapsulated Postscript (`EPS <https://en.wikipedia.org/w/index.php?title=Encapsulated_PostScript>`_)
+      Encapsulated Postscript (`EPS <https://en.wikipedia.org/wiki/Encapsulated_PostScript>`_)
 
   FreeType
       `FreeType <https://www.freetype.org/>`_ is a font rasterization
@@ -36,7 +36,7 @@ Glossary
 
   JPG
       The Joint Photographic Experts Group (`JPEG
-      <https://en.wikipedia.org/w/index.php?title=Jpeg>`_) compression method and
+      <https://en.wikipedia.org/wiki/Jpeg>`_) compression method and
       file format for photographic images
 
   numpy
@@ -47,17 +47,17 @@ Glossary
       deviation, fourier transforms, and convolutions.
 
   PDF
-      Adobe's Portable Document Format (`PDF <https://en.wikipedia.org/w/index.php?title=Portable_Document_Format>`_)
+      Adobe's Portable Document Format (`PDF <https://en.wikipedia.org/wiki/Portable_Document_Format>`_)
 
   PNG
       Portable Network Graphics (`PNG
-      <https://en.wikipedia.org/w/index.php?title=Portable_Network_Graphics>`_), a raster graphics format
+      <https://en.wikipedia.org/wiki/Portable_Network_Graphics>`_), a raster graphics format
       that employs lossless data compression which is more suitable
       for line art than the lossy jpg format. Unlike the gif format,
       png is not encumbered by requirements for a patent license.
 
   PS
-      Postscript (`PS <https://en.wikipedia.org/w/index.php?title=PostScript>`_) is a
+      Postscript (`PS <https://en.wikipedia.org/wiki/PostScript>`_) is a
       vector graphics ASCII text language widely used in printers and
       publishing.  Postscript was developed by adobe systems and is
       starting to show its age: for example is does not have an alpha
@@ -106,7 +106,7 @@ Glossary
 
   raster graphics
       `Raster graphics
-      <https://en.wikipedia.org/w/index.php?title=Raster_graphics>`_, or bitmaps,
+      <https://en.wikipedia.org/wiki/Raster_graphics>`_, or bitmaps,
       represent an image as an array of pixels which is resolution
       dependent. Raster graphics are generally most practical for
       photo-realistic images, but do not scale easily without loss of
@@ -114,12 +114,12 @@ Glossary
 
   SVG
       The Scalable Vector Graphics format (`SVG
-      <https://en.wikipedia.org/w/index.php?title=Svg>`_).  An XML based vector
+      <https://en.wikipedia.org/wiki/Svg>`_).  An XML based vector
       graphics format supported by many web browsers.
 
   TIFF
       Tagged Image File Format (`TIFF
-      <https://en.wikipedia.org/w/index.php?title=Tagged_Image_File_Format>`_) is a
+      <https://en.wikipedia.org/wiki/Tagged_Image_File_Format>`_) is a
       file format for storing images, including photographs and line
       art.
 
@@ -131,7 +131,7 @@ Glossary
 
   vector graphics
       `vector graphics
-      <https://en.wikipedia.org/w/index.php?title=Vector_graphics>`_ use geometrical
+      <https://en.wikipedia.org/wiki/Vector_graphics>`_ use geometrical
       primitives based upon mathematical equations to represent images
       in computer graphics. Primitives can include points, lines,
       curves, and shapes or polygons. Vector graphics are scalable,

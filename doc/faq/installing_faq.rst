@@ -205,7 +205,7 @@ Python.org Python
 ^^^^^^^^^^^^^^^^^
 
 Install pip following the `standard pip install instructions
-<http://pip.readthedocs.io/en/latest/installing/>`_.  For the impatient,
+<https://pip.readthedocs.io/en/latest/installing/>`_.  For the impatient,
 open a new Terminal.app window and::
 
     curl -O https://bootstrap.pypa.io/get-pip.py
