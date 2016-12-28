@@ -7230,8 +7230,8 @@ or tuple of floats
 
         if xextent is None:
             # padding is needed for first and last segment:
-            pad_xextnt = (NFFT-noverlap) / Fs / 2
-            xextent = np.min(t) - pad_xextnt, np.max(t) + pad_xextnt
+            pad_xextent = (NFFT-noverlap) / Fs / 2
+            xextent = np.min(t) - pad_xextent, np.max(t) + pad_xextent
         xmin, xmax = xextent
         freqs += Fc
         extent = xmin, xmax, freqs[0], freqs[-1]
