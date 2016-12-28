@@ -39,15 +39,23 @@
 .. _git log: http://schacon.github.com/git/git-log.html
 .. _git branch: http://schacon.github.com/git/git-branch.html
 .. _git remote: http://schacon.github.com/git/git-remote.html
+.. _git rebase: http://schacon.github.com/git/git-rebase.html
 .. _git config: http://schacon.github.com/git/git-config.html
 .. _why the -a flag?: http://www.gitready.com/beginner/2009/01/18/the-staging-area.html
 .. _git staging area: http://www.gitready.com/beginner/2009/01/18/the-staging-area.html
-.. _tangled working copy problem: http://tomayko.com/writings/the-thing-about-git
+.. _tangled working copy problem: http://tomayko.com/writings/the-thing-about-git 
+.. _git management: http://kerneltrap.org/Linux/Git_Management
 .. _linux git workflow: http://www.mail-archive.com/dri-devel@lists.sourceforge.net/msg39091.html
 .. _git parable: http://tom.preston-werner.com/2009/05/19/the-git-parable.html
 .. _git foundation: http://matthew-brett.github.com/pydagogue/foundation.html
+.. _deleting master on github: http://matthew-brett.github.com/pydagogue/gh_delete_master.html
+.. _rebase without tears: http://matthew-brett.github.com/pydagogue/rebase_without_tears.html
+.. _resolving a merge: http://schacon.github.com/git/user-manual.html#resolving-a-merge
+.. _ipython git workflow: http://mail.scipy.org/pipermail/ipython-dev/2010-October/006746.html
 
 .. other stuff
 .. _python: http://www.python.org
 
 .. |emdash| unicode:: U+02014
+
+.. vim: ft=rst
