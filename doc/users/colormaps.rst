@@ -168,7 +168,8 @@ Color vision deficiencies
 
 There is a lot of information available about color blindness (*e.g.*,
 [colorblindness]_). Additionally, there are tools available to convert images to
-how they look for different types of color vision deficiencies (*e.g.*, [asp]_).
+how they look for different types of color vision deficiencies (*e.g.*,
+[vischeck]_).
 
 The most common form of color vision deficiency involves differentiating between
 red and green. Thus, avoiding colormaps with both red and green will avoid many
@@ -187,5 +188,5 @@ References
 .. [mycarta-cubelaw] http://mycarta.wordpress.com/2013/02/21/perceptual-rainbow-palette-the-method/
 .. [bw] http://www.tannerhelland.com/3643/grayscale-image-algorithm-vb6/
 .. [colorblindness] http://www.color-blindness.com/
-.. [asp] http://aspnetresources.com/tools/colorBlindness
+.. [vischeck] http://www.vischeck.com/vischeck/
 .. [IBM] http://www.research.ibm.com/people/l/lloydt/color/color.HTM
