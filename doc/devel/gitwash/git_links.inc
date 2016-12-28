@@ -22,7 +22,7 @@
 .. _network graph visualizer: http://github.com/blog/39-say-hello-to-the-network-graph-visualizer
 .. _git user manual: http://schacon.github.com/git/user-manual.html
 .. _git tutorial: http://schacon.github.com/git/gittutorial.html
-.. _git community book: http://book.git-scm.com/
+.. _git community book: https://git-scm.com/book/en/v2
 .. _git ready: http://www.gitready.com/
 .. _git casts: http://www.gitcasts.com/
 .. _Fernando's git page: http://www.fperez.org/py4science/git.html
