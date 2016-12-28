@@ -37,6 +37,8 @@ The colors in the default property cycle have been changed from
 
 .. plot::
 
+  import numpy as np
+  import matplotlib.pyplot as plt
 
   th = np.linspace(0, 2*np.pi, 512)
 
@@ -113,6 +115,8 @@ The new default color map used by `matplotlib.cm.ScalarMappable` instances is
 .. plot::
 
    import numpy as np
+   import matplotlib.pyplot as plt
+
    N = M = 200
    X, Y = np.ogrid[0:20:N*1j, 0:20:M*1j]
    data = np.sin(np.pi * X*2 / 20) * np.cos(np.pi * Y*2 / 20)
@@ -120,10 +124,10 @@ The new default color map used by `matplotlib.cm.ScalarMappable` instances is
    fig, (ax2, ax1) = plt.subplots(1, 2, figsize=(7, 3))
    im = ax1.imshow(data, extent=[0, 200, 0, 200])
    ax1.set_title("v2.0: 'viridis'")
-   fig.colorbar(im, ax=ax1, shrink=.9)
+   fig.colorbar(im, ax=ax1, shrink=0.8)
 
    im2 = ax2.imshow(data, extent=[0, 200, 0, 200], cmap='jet')
-   fig.colorbar(im2, ax=ax2, shrink=.9)
+   fig.colorbar(im2, ax=ax2, shrink=0.8)
    ax2.set_title("classic: 'jet'")
 
    fig.tight_layout()
@@ -179,6 +183,9 @@ The default style of grid lines was changed from black dashed lines to thicker
 solid light grey lines.
 
 .. plot::
+
+   import numpy as np
+   import matplotlib.pyplot as plt
 
    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(6, 3))
 
@@ -262,6 +269,9 @@ The following changes were made to the default behavior of
    property cycle, pulling from the 'patches' cycle on the ``Axes``.
 
 .. plot::
+
+   import numpy as np
+   import matplotlib.pyplot as plt
 
    np.random.seed(2)
 
@@ -408,7 +418,7 @@ in your :file:`matplotlibrc` file.
 ``boxplot``
 -----------
 
-Previously, boxplots were composed of a mish-mash styles that were, for
+Previously, boxplots were composed of a mish-mash of styles that were, for
 better for worse, inherited from Matlab. Most of the elements were blue,
 but the medians were red. The fliers (outliers) were black plus-symbols
 (`+`) and the whiskers were dashed lines, which created ambiguity if
@@ -421,6 +431,9 @@ which maintain the ability of the plus-symbols to overlap without
 obscuring data too much.
 
 .. plot::
+
+    import numpy as np
+    import matplotlib.pyplot as plt
 
     data = np.random.lognormal(size=(37, 4))
     fig, (old, new) = plt.subplots(ncols=2, sharey=True)
@@ -487,6 +500,7 @@ cycle.
    import numpy as np
 
    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(6, 3))
+   fig.subplots_adjust(wspace=0.3)
    th = np.linspace(0, 2*np.pi, 128)
    N = 5
 
@@ -730,7 +744,7 @@ Legends
 =======
 
 - By default, the number of points displayed in a legend is now 1.
-- The default legend location is ``best``, so the legend will be
+- The default legend location is ``'best'``, so the legend will be
   automatically placed in a location to minimize overlap with data.
 - The legend defaults now include rounded corners, a lighter
   boundary, and partially transparent boundary and background.
@@ -856,7 +870,7 @@ RGB space.  This ensures that only colors from the color map appear
 in the final image. (If your viewer subsequently resamples the image,
 the artifact may reappear.)
 
-The previous behavior can not be restored.
+The previous behavior cannot be restored.
 
 
 Shading
@@ -869,6 +883,67 @@ Shading
 
 Plot layout
 ===========
+
+Auto limits
+-----------
+
+The previous auto-scaling behavior was to find 'nice' round numbers
+as view limits that enclosed the data limits, but this could produce
+bad plots if the data happened to fall on a vertical or
+horizontal line near the chosen 'round number' limit.  The new default
+sets the view limits to 5% wider than the data range.
+
+.. plot::
+
+   import matplotlib as mpl
+   import matplotlib.pyplot as plt
+   import numpy
+
+   data = np.zeros(1000)
+   data[0] = 1
+
+   fig = plt.figure(figsize=(6, 3))
+
+   def demo(fig, rc, title, j):
+       with mpl.rc_context(rc=rc):
+           ax = fig.add_subplot(1, 2, j)
+           ax.plot(data)
+           ax.set_title(title)
+
+   demo(fig, {'axes.autolimit_mode': 'round_numbers',
+              'axes.xmargin': 0,
+              'axes.ymargin': 0}, 'classic', 1)
+   demo(fig, {}, 'v2.0', 2)
+
+The size of the padding in the x and y directions is controlled by the
+``'axes.xmargin'`` and ``'axes.ymargin'`` rcParams respectively. Whether
+the view limits should be 'round numbers' is controlled by the
+``'axes.autolimit_mode'`` rcParam.  In the original ``'round_number'`` mode,
+the view limits coincide with ticks.
+
+The previous default can be restored by using::
+
+   mpl.rcParams['axes.autolimit_mode'] = 'round_numbers'
+   mpl.rcParams['axes.xmargin'] = 0
+   mpl.rcParams['axes.ymargin'] = 0
+
+or setting::
+
+   axes.autolimit_mode: round_numbers
+   axes.xmargin: 0
+   axes.ymargin: 0
+
+in your :file:`matplotlibrc` file.
+
+
+Z-order
+-------
+
+- Ticks and grids are now plotted above solid elements such as
+  filled contours, but below lines.  To return to the previous
+  behavior of plotting ticks and grids above lines, set
+  ``rcParams['axes.axisbelow'] = False``.
+
 
 Ticks
 -----
@@ -986,70 +1061,11 @@ case of the AutoLocator, the heuristic algorithm reduces the
 incidence of overlapping tick labels but does not prevent it.
 
 
-Auto limits
------------
-
-The previous auto-scaling behavior was to find 'nice' round numbers
-as view limits that enclosed the data limits, but this could produce
-bad plots if the data happened to fall on a vertical or
-horizontal line near the chosen 'round number' limit.  The new default
-sets the view limits to 5% wider than the data range.
-
-.. plot::
-
-   import matplotlib as mpl
-   import matplotlib.pyplot as plt
-   import numpy
-
-   data = np.zeros(1000)
-   data[0] = 1
-
-   fig = plt.figure(figsize=(6, 3))
-
-   def demo(fig, rc, title, j):
-       with mpl.rc_context(rc=rc):
-           ax = fig.add_subplot(1, 2, j)
-           ax.plot(data)
-           ax.set_title(title)
-
-   demo(fig, {'axes.autolimit_mode': 'round_numbers',
-              'axes.xmargin': 0,
-              'axes.ymargin': 0}, 'classic', 1)
-   demo(fig, {}, 'v2.0', 2)
-
-The size of the padding in the x and y directions is controlled by the
-``'axes.xmargin'`` and ``'axes.ymargin'`` rcParams respectively. Whether
-the view limits should be 'round numbers' is controlled by the
-``'axes.autolimit_mode'`` rcParam.  In the original ``'round_number'`` mode,
-the view limits coincide with ticks.
-
-The previous default can be restored by using::
-
-   mpl.rcParams['axes.autolimit_mode'] = 'round_numbers'
-   mpl.rcParams['axes.xmargin'] = 0
-   mpl.rcParams['axes.ymargin'] = 0
-
-or setting::
-
-   axes.autolimit_mode: round_numbers
-   axes.xmargin: 0
-   axes.ymargin: 0
-
-in your :file:`matplotlibrc` file.
-
-
-
-Z-order
--------
-
-- Ticks and grids are now plotted above solid elements such as
-  filled contours, but below lines.  To return to the previous
-  behavior of plotting ticks and grids above lines, set
-  ``rcParams['axes.axisbelow'] = False``.
-
+Tick label formatting
+---------------------
 
 ``LogFormatter`` labeling of minor ticks
-========================================
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Minor ticks on a log axis are now labeled when the axis view limits
 span a range less than or equal to the interval between two major
@@ -1081,7 +1097,7 @@ but cannot be controlled independently via ``rcParams``.
 
 
 ``ScalarFormatter`` tick label formatting with offsets
-======================================================
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 With the default of ``rcParams['axes.formatter.useoffset'] = True``,
 an offset will be used when it will save 4 or more digits.  This can
@@ -1089,10 +1105,31 @@ be controlled with the new rcParam, ``axes.formatter.offset_threshold``.
 To restore the previous behavior of using an offset to save 2 or more
 digits, use ``rcParams['axes.formatter.offset_threshold'] = 2``.
 
+.. plot::
+
+   import numpy as np
+   import matplotlib.pyplot as plt
+
+   np.random.seed(5)
+
+   fig = plt.figure(figsize=(6, 3))
+   fig.subplots_adjust(bottom=0.15, wspace=0.3, left=0.09, right=0.95)
+
+   x = np.linspace(2000, 2008, 9)
+   y = np.random.randn(9) + 50000
+
+   with plt.rc_context(rc={'axes.formatter.offset_threshold' : 2}):
+       ax1 = fig.add_subplot(1, 2, 1)
+       ax1.plot(x, y)
+       ax1.set_title('classic')
+
+   ax2 = fig.add_subplot(1, 2, 2)
+   ax2.plot(x, y)
+   ax2.set_title('v2.0')
 
 
 ``AutoDateFormatter`` format strings
-====================================
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 The default date formats are now all based on ISO format, i.e., with
 the slowest-moving value first.  The date formatters are
