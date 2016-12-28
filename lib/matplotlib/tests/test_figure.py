@@ -53,20 +53,20 @@ def test_fignum_exists():
 
 @cleanup
 def test_clf_keyword():
-   # test if existing figure is cleared with figure() and subplots()
-   fig0 = plt.figure(num=1)
-   fig0.suptitle("A fancy plot")
-   assert_equal([t.get_text() for t in fig0.texts], ["A fancy plot"])
+    # test if existing figure is cleared with figure() and subplots()
+    fig0 = plt.figure(num=1)
+    fig0.suptitle("A fancy plot")
+    assert_equal([t.get_text() for t in fig0.texts], ["A fancy plot"])
 
-   fig1 = plt.figure(num=1, clear=False)
-   fig1.text(0.5, 0.5, "Really fancy!")
-   assert_true(fig0 is fig1)
-   assert_equal([t.get_text() for t in fig1.texts],
-                ["A fancy plot", 'Really fancy!'])
+    fig1 = plt.figure(num=1, clear=False)
+    fig1.text(0.5, 0.5, "Really fancy!")
+    assert_true(fig0 is fig1)
+    assert_equal([t.get_text() for t in fig1.texts],
+                 ["A fancy plot", 'Really fancy!'])
 
-   fig2, ax2 = plt.subplots(2, 1, num=1, clear=True)
-   assert_true(fig0 is fig2)
-   assert_equal([t.get_text() for t in fig2.texts], [])
+    fig2, ax2 = plt.subplots(2, 1, num=1, clear=True)
+    assert_true(fig0 is fig2)
+    assert_equal([t.get_text() for t in fig2.texts], [])
 
 
 @image_comparison(baseline_images=['figure_today'])
