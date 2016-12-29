@@ -177,7 +177,7 @@ themselves.
 Required Dependencies
 ^^^^^^^^^^^^^^^^^^^^^
 
-:term:`python` 2.7, 3.4, or 3.5
+:term:`python` 2.7, 3.4, 3.5 or 3.6
     `Download python <http://www.python.org/download/>`_.
 
 :term:`numpy` |minimum_numpy_version| (or later)
@@ -331,7 +331,7 @@ Building on Windows
 
 The Python shipped from http://www.python.org is compiled with Visual Studio
 2008 for versions before 3.3, Visual Studio 2010 for 3.3 and 3.4, and
-Visual Studio 2015 for 3.5.  Python extensions are recommended to be compiled
+Visual Studio 2015 for 3.5 and 3.6.  Python extensions are recommended to be compiled
 with the same compiler.
 
 Since there is no canonical Windows package manager, the methods for building
