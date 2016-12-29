@@ -509,10 +509,8 @@ validate_ps_papersize = ValidateInStrings(
 def validate_ps_distiller(s):
     if isinstance(s, six.string_types):
         s = s.lower()
-    if s in ('none', None):
+    if s in ('none', None, 'false', False):
         return None
-    elif s in ('false', False):
-        return False
     elif s in ('ghostscript', 'xpdf'):
         return s
     else:
@@ -1337,7 +1335,7 @@ defaultParams = {
     'ps.papersize':     ['letter', validate_ps_papersize],
     'ps.useafm':        [False, validate_bool],  # Set PYTHONINSPECT
     # use ghostscript or xpdf to distill ps output
-    'ps.usedistiller':  [False, validate_ps_distiller],
+    'ps.usedistiller':  [None, validate_ps_distiller],
     'ps.distiller.res': [6000, validate_int],     # dpi
     'ps.fonttype':      [3, validate_fonttype],  # 3 (Type3) or 42 (Truetype)
     # compression level from 0 to 9; 0 to disable

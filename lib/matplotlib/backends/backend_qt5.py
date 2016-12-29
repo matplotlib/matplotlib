@@ -12,18 +12,17 @@ import traceback
 
 import matplotlib
 
+from matplotlib import backend_tools
 from matplotlib._pylab_helpers import Gcf
 from matplotlib.backend_bases import (
     _Backend, FigureCanvasBase, FigureManagerBase, NavigationToolbar2,
-    TimerBase, cursors, ToolContainerBase, StatusbarBase)
-import matplotlib.backends.qt_editor.figureoptions as figureoptions
-from matplotlib.backends.qt_editor.formsubplottool import UiSubplotTool
-from matplotlib.figure import Figure
+    StatusbarBase, TimerBase, ToolContainerBase, cursors)
 from matplotlib.backend_managers import ToolManager
-from matplotlib import backend_tools
 
 from .qt_compat import (
     QtCore, QtGui, QtWidgets, _getSaveFileName, is_pyqt5, __version__, QT_API)
+from .qt_editor import figureoptions, formlayout
+from .qt_editor.formsubplottool import UiSubplotTool
 
 backend_version = __version__
 
@@ -838,30 +837,121 @@ class NavigationToolbar2QT(NavigationToolbar2, QtWidgets.QToolBar):
         startpath = os.path.expanduser(
             matplotlib.rcParams['savefig.directory'])
         start = os.path.join(startpath, self.canvas.get_default_filename())
+
         filters = []
-        selectedFilter = None
+        selected_filter = None
         for name, exts in sorted_filetypes:
-            exts_list = " ".join(['*.%s' % ext for ext in exts])
-            filter = '%s (%s)' % (name, exts_list)
+            filters.append(
+                '{} ({})'.format(name, ' '.join(map('*.{}'.format, exts))))
             if default_filetype in exts:
-                selectedFilter = filter
-            filters.append(filter)
+                selected_filter = filters[-1]
         filters = ';;'.join(filters)
 
-        fname, filter = _getSaveFileName(self.parent,
-                                         "Choose a filename to save to",
-                                         start, filters, selectedFilter)
+        fname, selected_filter = _getSaveFileName(
+            self.parent, "Choose a filename to save to",
+            start, filters, selected_filter)
         if fname:
-            # Save dir for next time, unless empty str (i.e., use cwd).
             if startpath != "":
                 matplotlib.rcParams['savefig.directory'] = (
                     os.path.dirname(six.text_type(fname)))
+            options = _default_savefig_options
+            try:
+                options = (options
+                           + [None]
+                           + _extra_savefig_options[
+                               os.path.splitext(fname)[1].lower()])
+            except KeyError:
+                pass
+            fedit_arg = []
+            for option in options:
+                if option is None:
+                    fedit_arg.append((None, None))
+                else:
+                    fedit_arg.append(option.make_fedit_entry())
+            fedit_res = formlayout.fedit(fedit_arg, "Options")
+            if not fedit_res:
+                return
+            for option, res in zip(filter(None, options), fedit_res):
+                option.setter(res)
             try:
                 self.canvas.figure.savefig(six.text_type(fname))
             except Exception as e:
                 QtWidgets.QMessageBox.critical(
                     self, "Error saving file", six.text_type(e),
                     QtWidgets.QMessageBox.Ok, QtWidgets.QMessageBox.NoButton)
+
+
+class _Option(object):
+
+    def __init__(self, name, rc_key=None, getter=None, setter=None):
+        if rc_key and not (getter or setter):
+            def make_fedit_entry():
+                return (name, matplotlib.rcParams[rc_key])
+
+            def setter(val):
+                matplotlib.rcParams[rc_key] = val
+
+        elif getter and setter and not rc_key:
+            def make_fedit_entry():
+                return (name, getter())
+
+        else:
+            raise ValueError("Invalid entry")
+
+        self.name = name
+        self.make_fedit_entry = make_fedit_entry
+        self.setter = setter
+
+
+_default_savefig_options = [
+    _Option("DPI", "savefig.dpi"),
+    _Option("Face color", "savefig.facecolor"),
+    _Option("Edge color", "savefig.edgecolor"),
+    _Option("Tight bounding box",
+            getter=lambda: matplotlib.rcParams["savefig.bbox"] == "tight",
+            setter=lambda val: matplotlib.rcParams.__setitem__(
+                "savefig.bbox", "tight" if val else "standard")),
+    _Option("Tight bounding box padding", "savefig.pad_inches"),
+    _Option("Transparent background", "savefig.transparent")]
+
+
+_extra_savefig_options = {
+    ".jpg": [
+        _Option("JPEG quality", "savefig.jpeg_quality")],
+    ".jpeg": [
+        _Option("JPEG quality", "savefig.jpeg_quality")],
+    ".pdf": [
+        _Option("PDF compression", "pdf.compression"),
+        _Option("PDF font type",
+                getter=lambda:
+                    [str(matplotlib.rcParams["pdf.fonttype"]),
+                     "3", "42"],
+                setter=lambda val:
+                    matplotlib.rcParams.__setitem__("pdf.fonttype", val))],
+    ".ps": [
+        _Option("PS paper size",
+                getter=lambda:
+                    [matplotlib.rcParams["ps.papersize"]]
+                    + ["auto", "letter", "legal", "ledger"]
+                    + ["A{}".format(i) for i in range(11)]
+                    + ["B{}".format(i) for i in range(11)],
+                setter=lambda val:
+                    matplotlib.rcParams.__setitem__("ps.papersize", val)),
+        _Option("PS use AFM font", "ps.useafm"),
+        _Option("PS distiller",
+                getter=lambda:
+                    [str(matplotlib.rcParams["ps.usedistiller"])]
+                    + ["None", "ghostscript", "xpdf"],
+                setter=lambda val:
+                    matplotlib.rcParams.__setitem__("ps.usedistiller", val)),
+        _Option("PS distiller resolution", "ps.distiller.res"),
+        _Option("PS font type",
+                getter=lambda:
+                    [str(matplotlib.rcParams["ps.fonttype"]),
+                     "3", "42"],
+                setter=lambda val:
+                    matplotlib.rcParams.__setitem__("ps.fonttype", val))]
+}
 
 
 class SubplotToolQt(UiSubplotTool):
