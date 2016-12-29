@@ -185,6 +185,10 @@ Arguments:
 
 Keyword arguments:
 
+  *angle* = 0
+    The angle of the key arrow. Measured in degrees anti-clockwise from the
+    x-axis.
+
   *coordinates* = [ 'axes' | 'figure' | 'data' | 'inches' ]
     Coordinate system and units for *X*, *Y*: 'axes' and 'figure' are
     normalized coordinate systems with 0,0 in the lower left and 1,1
@@ -236,6 +240,7 @@ class QuiverKey(martist.Artist):
         self.X = X
         self.Y = Y
         self.U = U
+        self.angle = kw.pop('angle', 0)
         self.coord = kw.pop('coordinates', 'axes')
         self.color = kw.pop('color', None)
         self.label = label
@@ -296,7 +301,8 @@ class QuiverKey(martist.Artist):
             _mask = self.Q.Umask
             self.Q.Umask = ma.nomask
             self.verts = self.Q._make_verts(np.array([self.U]),
-                                            np.zeros((1,)))
+                                            np.zeros((1,)),
+                                            self.angle)
             self.Q.Umask = _mask
             self.Q.pivot = _pivot
             kw = self.Q.polykw
@@ -514,7 +520,7 @@ class Quiver(mcollections.PolyCollection):
 
             # _make_verts sets self.scale if not already specified
             if not self._initialized and self.scale is None:
-                self._make_verts(self.U, self.V)
+                self._make_verts(self.U, self.V, self.angles)
 
             self._initialized = True
 
@@ -530,7 +536,7 @@ class Quiver(mcollections.PolyCollection):
     @allow_rasterization
     def draw(self, renderer):
         self._init()
-        verts = self._make_verts(self.U, self.V)
+        verts = self._make_verts(self.U, self.V, self.angles)
         self.set_verts(verts, closed=False)
         self._new_UV = False
         mcollections.PolyCollection.draw(self, renderer)
@@ -610,15 +616,15 @@ class Quiver(mcollections.PolyCollection):
         lengths = np.hypot(*dxy.T) / eps
         return angles, lengths
 
-    def _make_verts(self, U, V):
+    def _make_verts(self, U, V, angles):
         uv = (U + V * 1j)
-        str_angles = isinstance(self.angles, six.string_types)
-        if str_angles and (self.angles == 'xy' and self.scale_units == 'xy'):
+        str_angles = isinstance(angles, six.string_types)
+        if str_angles and (angles == 'xy' and self.scale_units == 'xy'):
             # Here eps is 1 so that if we get U, V by diffing
             # the X, Y arrays, the vectors will connect the
             # points, regardless of the axis scaling (including log).
             angles, lengths = self._angles_lengths(U, V, eps=1)
-        elif str_angles and (self.angles == 'xy' or self.scale_units == 'xy'):
+        elif str_angles and (angles == 'xy' or self.scale_units == 'xy'):
             # Calculate eps based on the extents of the plot
             # so that we don't end up with roundoff error from
             # adding a small number to a large.
@@ -651,12 +657,12 @@ class Quiver(mcollections.PolyCollection):
                 self.scale = scale * widthu_per_lenu
         length = a * (widthu_per_lenu / (self.scale * self.width))
         X, Y = self._h_arrows(length)
-        if str_angles and (self.angles == 'xy'):
+        if str_angles and (angles == 'xy'):
             theta = angles
-        elif str_angles and (self.angles == 'uv'):
+        elif str_angles and (angles == 'uv'):
             theta = np.angle(uv)
         else:
-            theta = ma.masked_invalid(np.deg2rad(self.angles)).filled(0)
+            theta = ma.masked_invalid(np.deg2rad(angles)).filled(0)
         theta = theta.reshape((-1, 1))  # for broadcasting
         xy = (X + Y * 1j) * np.exp(1j * theta) * self.width
         xy = xy[:, :, np.newaxis]
