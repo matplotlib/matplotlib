@@ -27,7 +27,8 @@ steps in the color space. Researchers have found that the human brain
 perceives changes in the lightness parameter as changes in the data
 much better than, for example, changes in hue. Therefore, colormaps
 which have monotonically increasing lightness through the colormap
-will be better interpreted by the viewer.
+will be better interpreted by the viewer. A wonderful example of 
+perceptually uniform colormaps is [colorcet]_.
 
 Color can be represented in 3D space in various ways. One way to represent color
 is using CIELAB. In CIELAB, color space is represented by lightness,
@@ -179,6 +180,7 @@ problems in general.
 References
 ==========
 
+.. [colorcet] https://github.com/bokeh/colorcet
 .. [Ware] http://ccom.unh.edu/sites/default/files/publications/Ware_1988_CGA_Color_sequences_univariate_maps.pdf
 .. [Moreland] http://www.sandia.gov/~kmorel/documents/ColorMaps/ColorMapsExpanded.pdf
 .. [list-colormaps] https://gist.github.com/endolith/2719900#id7
