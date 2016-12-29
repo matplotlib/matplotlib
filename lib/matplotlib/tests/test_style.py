@@ -51,7 +51,7 @@ def test_deprecated_rc_warning_includes_filename():
     basename = 'color_cycle'
     with warnings.catch_warnings(record=True) as warns:
         with temp_style(basename, SETTINGS):
-            # style.reload_library in tempstyle() triggers the warning
+            # style.reload_library() in temp_style() triggers the warning
             pass
 
     for w in warns:
