@@ -193,8 +193,8 @@ def read_style_directory(style_dir):
                                                use_default_template=False)
 
         for w in warns:
-            w.message = 'While reading %s: %s' % (path, w.message)
-            warnings.warn(w)
+            message = 'In %s: %s' % (path, w.message)
+            warnings.warn(message)
 
     return styles
 
