@@ -901,10 +901,6 @@ class PsfontsMap(object):
         # http://tex.stackexchange.com/questions/10826/
         # http://article.gmane.org/gmane.comp.tex.pdftex/4914
 
-        # input must be bytestrings (the file format is ASCII)
-        for word in words:
-            assert isinstance(word, bytes)
-
         texname, psname = words[:2]
         words = words[2:]
         effects, encoding, filename = b'', None, None
