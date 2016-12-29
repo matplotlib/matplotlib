@@ -465,6 +465,11 @@ def test_DayLocator():
    mdates.DayLocator(interval=1.0)
 
 
+def test_tz_utc():
+    dt = datetime.datetime(1970, 1, 1, tzinfo=mdates.UTC)
+    dt.tzname()
+
+
 if __name__ == '__main__':
     import nose
     nose.runmodule(argv=['-s', '--with-doctest'], exit=False)
