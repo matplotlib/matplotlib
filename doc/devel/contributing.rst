@@ -21,44 +21,62 @@ also welcome to post feature requests or pull requests.
 Retrieving and installing the latest version of the code
 ========================================================
 
-
-We use `Git <https://git-scm.com/>`_ for version control and
-`GitHub <https://github.com/>`_ for hosting our main repository.
-
-You can check out the latest sources with the command::
-
-    git clone git@github.com:matplotlib/matplotlib.git
-
-
-After obtaining a local copy of the matplotlib source code (:ref:`set-up-fork`),
-navigate to the matplotlib directory and run the following in the shell::
-
-    python setup.py develop
-
-or::
-
-   pip install -v -e .
-
-
-This installs matplotlib for development (i.e., builds everything and places the
-symbolic links back to the source code).
+When working on the Matplotlib source, setting up a `virtual
+environment
+<http://docs.python-guide.org/en/latest/dev/virtualenvs/>`_ or a
+`conda environment <http://conda.pydata.org/docs/using/envs.html>`_ is
+recommended.
 
 .. warning::
 
    If you already have a version of matplotlib installed, you will need to
    uninstall it.
 
+We use `Git <https://git-scm.com/>`_ for version control and
+`GitHub <https://github.com/>`_ for hosting our main repository.
 
-.. note::
+You can check out the latest sources with the command (see
+:ref:`set-up-fork` for more details)::
 
-    If you decide to do install with ``python setup.py develop`` or ``pip
-    install -v -e``, you will have to rerun::
+    git clone git@github.com:matplotlib/matplotlib.git
 
-      python setup.py build
+and navigate to the matplotlib directory.
 
-    every time the source code of a compiled extension is changed (for
-    instance when switching branches or pulling changes from upstream).
+To make sure the tests run locally you must build against the correct version
+of freetype.  To configure the build system to fetch and build it either export
+the env ``MPLLOCALFREETYPE`` as::
 
+  export MPLLOCALFREETYPE=1
+
+or copy :file:`setup.cfg.template` to :file:`setup.cfg` and edit to contain ::
+
+  [test]
+  local_freetype = True
+
+
+To install Matplotlib (and compile the c-extensions) run the following
+command from the top-level directory ::
+
+    pip install -v -e ./
+
+This installs Matplotlib in 'editable/develop mode', i.e.,
+builds everything and places symbolic links back to the source code
+from the install directory.  Thus, any changes to the ``*.py`` files
+will be reflected the next time you import the library.  If you change
+the c-extension source (which might happen if you change branches) you
+will need to run::
+
+   python setup.py build
+
+or re-run ``pip install -v -e ./``.
+
+
+Alternatively, if you do ::
+
+  pip install -v ./
+
+all of the files will be copied to the installation directory however,
+you will have to rerun this command every time the source is changed.
 
 
 You can then run the tests to check your work environment is set up properly::
@@ -74,18 +92,6 @@ You can then run the tests to check your work environment is set up properly::
   **Additional dependencies for testing**: nose_ (version 1.0 or later), `mock
   <https://docs.python.org/dev/library/unittest.mock.html>`_ (if python < 3.3), `Ghostscript
   <https://www.ghostscript.com/>`_, `Inkscape <https://inkscape.org>`_
-
-.. note:: To make sure the tests run locally:
-
-      * Copy setup.cfg.template to setup.cfg
-      * Edit setup.cfg to set ``test`` to True, and ``local_freetype`` to True
-      * If you have built matplotlib previously, remove the ``build`` folder.
-      * Execute the build command.
-
-When working on bleeding edge packages, setting up a
-`virtual environment
-<http://docs.python-guide.org/en/latest/dev/virtualenvs/>`_ or a `conda
-environment <http://conda.pydata.org/docs/using/envs.html>`_ is recommended.
 
 .. seealso::
 
