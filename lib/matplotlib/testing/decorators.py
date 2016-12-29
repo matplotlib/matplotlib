@@ -392,7 +392,7 @@ def _image_directories(func):
                         file.close()
                 except ImportError:
                     # assume namespace package
-                    path = sys.modules[sub_mod].__path__
+                    path = list(sys.modules[sub_mod].__path__)
                     res = None, path, None
             return res
 
