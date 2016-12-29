@@ -17,6 +17,60 @@ ticket to the
 `Bug Tracker <https://github.com/matplotlib/matplotlib/issues>`_. You are
 also welcome to post feature requests or pull requests.
 
+If you are reporting a bug, please do your best to include each of the following:
+
+ 1. A short, top-level summary of the bug. In most cases, this should be 1-2
+    sentences.
+
+ 2. A short, self-contained code snippet to reproduce the bug, ideally allowing
+    a simple copy and paste to reproduce. Please do your best to reduce the code 
+    snippet to the minimum required.
+
+ 3. The actual outcome of the code snippet
+
+ 4. The expected outcome of the code snippet
+
+ 5. The version of matplotlib that you are using. You can grab the version with
+    the following command::
+
+        >>> import matplotlib
+        >>> matplotlib.__version__
+        '1.5.3'
+
+If you would like a template to organize this information in the issue, you may paste the following into your issue::
+
+        **Bug summary**
+        
+        A short 1-2 sentences that succinctly describes the bug.
+        
+        **Code for reproduction**
+        
+        ```python
+        # Paste your code here
+        #
+        #
+        ```
+
+        **Actual outcome**
+        
+        Ideally, a direct paste of the output produced by the above code.
+
+        ```python
+        # You can use this if it is a piece of console output
+        #
+        #
+        ```
+
+        **Expected outcome**
+        
+        A description of the expected outcome
+
+        **Matplotlib version**
+
+        1.5.3
+        
+Thank you for your help in keeping bug reports complete, targeted and descriptive.
+
 
 Retrieving and installing the latest version of the code
 ========================================================
