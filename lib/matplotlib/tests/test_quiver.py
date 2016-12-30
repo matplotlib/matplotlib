@@ -95,6 +95,7 @@ def test_quiver_with_key():
 
     qk = ax.quiverkey(Q, 0.5, 0.95, 2,
                       r'$2\, \mathrm{m}\, \mathrm{s}^{-1}$',
+                      angle=-10,
                       coordinates='figure',
                       labelpos='W',
                       fontproperties={'weight': 'bold',
