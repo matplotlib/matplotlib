@@ -612,11 +612,9 @@ class Line2D(Artist):
         Recommended *only* when plotting with a solid line (e.g. no dashes,
         no markers).
 
-        ACCEPTS: [True | False]
-
         Parameters
         ----------
-        downsample: True | False
+        downsample : True | False
             Whether or not to downsample.
 
             - downsample=True, a downsampled set of points will be plotted.
@@ -624,9 +622,9 @@ class Line2D(Artist):
 
         Notes
         -----
-        If the x values of the line are monotonic, then the downsampling
+        If the x-values of the line are monotonic, then the downsampling
         algorithm will plot at most 4 times the width of the parent
-        :class:`matplotlib.axes.Axes` in pixels of vertices. If the x values
+        :class:`matplotlib.axes.Axes` in pixels of vertices. If the x-values
         are not monotonic, the plot will still render correctly, but you are
         not guaranteed any faster rendering.
 
