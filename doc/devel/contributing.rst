@@ -29,7 +29,7 @@ recommended.
 
 .. warning::
 
-   If you already have a version of matplotlib installed, you will need to
+   If you already have a version of Matplotlib installed, you will need to
    uninstall it.
 
 We use `Git <https://git-scm.com/>`_ for version control and
@@ -40,7 +40,7 @@ You can check out the latest sources with the command (see
 
     git clone git@github.com:matplotlib/matplotlib.git
 
-and navigate to the matplotlib directory.
+and navigate to the Matplotlib directory.
 
 To make sure the tests run locally you must build against the correct version
 of freetype.  To configure the build system to fetch and build it either export
@@ -105,7 +105,7 @@ Contributing code
 How to contribute
 -----------------
 
-The preferred way to contribute to matplotlib is to fork the `main
+The preferred way to contribute to Matplotlib is to fork the `main
 repository <https://github.com/matplotlib/matplotlib/>`__ on GitHub,
 then submit a "pull request" (PR):
 
@@ -138,7 +138,7 @@ then submit a "pull request" (PR):
 
         $ git push -u origin my-feature
 
-Finally, go to the web page of your fork of the matplotlib repo,
+Finally, go to the web page of your fork of the Matplotlib repo,
 and click 'Pull request' to send your changes to the maintainers for review.
 You may want to consider sending an email to the mailing list for more
 visibility.
@@ -214,7 +214,7 @@ tools:
 
 .. note::
 
-    The current state of the matplotlib code base is not compliant with all
+    The current state of the Matplotlib code base is not compliant with all
     of those guidelines, but we expect that enforcing those constraints on all
     new contributions will move the overall code base quality in the right
     direction.
@@ -237,7 +237,7 @@ New contributors should look for the following tags when looking for issues.
 We strongly recommend that new contributors tackle
 `new-contributor-friendly <https://github.com/matplotlib/matplotlib/labels/new-contributor-friendly>`_
 issues (easy, well documented issues, that do not require an understanding of
-the different submodules of matplotlib) and
+the different submodules of Matplotlib) and
 `Easy-fix <https://github.com/matplotlib/matplotlib/labels/Difficulty%3A%20Easy>`_
 issues. This helps the contributor become familiar with the contribution
 workflow, and for the core devs to become acquainted with the contributor;
@@ -249,7 +249,7 @@ Other ways to contribute
 =========================
 
 
-Code is not the only way to contribute to matplotlib. For instance,
+Code is not the only way to contribute to Matplotlib. For instance,
 documentation is also a very important part of the project and often doesn't
 get as much attention as it deserves. If you find a typo in the documentation,
 or have made improvements, do not hesitate to send an email to the mailing
@@ -379,10 +379,10 @@ Developing a new backend
 If you are working on a custom backend, the *backend* setting in
 :file:`matplotlibrc` (:ref:`customizing-matplotlib`) supports an
 external backend via the ``module`` directive.  if
-:file:`my_backend.py` is a matplotlib backend in your
+:file:`my_backend.py` is a Matplotlib backend in your
 :envvar:`PYTHONPATH`, you can set it on one of several ways
 
-* in matplotlibrc::
+* in :file:`matplotlibrc`::
 
     backend : module://my_backend
 
@@ -413,7 +413,7 @@ when the website is built to show up both in the `examples
 <../gallery.html>`_ sections of the website.
 
 Any sample data that the example uses should be kept small and
-distributed with matplotlib in the
+distributed with Matplotlib in the
 `lib/matplotlib/mpl-data/sample_data/` directory.  Then in your
 example code you can load it into a file handle with::
 
