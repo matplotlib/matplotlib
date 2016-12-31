@@ -1,3 +1,12 @@
+"""
+Demo of downsampling line plots.
+
+This method of downsampling will greatly speed up interaction
+and rendering time, without changing the actual rasterization too much.
+Try interacting with the two figures (panning, zooming, etc.) to see
+the difference.
+
+"""
 import numpy as np
 import matplotlib.pyplot as plt
 
