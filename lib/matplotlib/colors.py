@@ -232,8 +232,8 @@ def to_rgba_array(c, alpha=None):
     # Special-case inputs that are already arrays, for performance.  (If the
     # array has the wrong kind or shape, raise the error during one-at-a-time
     # conversion.)
-    if (isinstance(c, np.ndarray) and c.dtype.kind in "if"
-            and c.ndim == 2 and c.shape[1] in [3, 4]):
+    if (isinstance(c, np.ndarray) and c.dtype.kind in "if" and
+            c.ndim == 2 and c.shape[1] in [3, 4]):
         if c.shape[1] == 3:
             result = np.column_stack([c, np.zeros(len(c))])
             result[:, -1] = alpha if alpha is not None else 1.
@@ -799,7 +799,7 @@ class LinearSegmentedColormap(Colormap):
         if name is None:
             name = '{}+{}'.format(self.name, other.name)
         assert 0 < frac_self and frac_self < 1, (
-            "The parameter ``frac_self`` must be in the interval ``(0.0, 1.0)``."
+            "The parameter frac_self must be in the interval (0.0, 1.0)."
         )
         map0 = self(np.linspace(0, 1, int(N * frac_self)))
         map1 = other(np.linspace(0, 1, int(N * (1 - frac_self))))
@@ -840,11 +840,11 @@ class LinearSegmentedColormap(Colormap):
         cmap_trunc = cmap.truncate(0.2, 0.7)
 
         """
-        assert minval < maxval, "``minval`` must be less than ``maxval``"
+        assert minval < maxval, "minval must be less than maxval"
         assert 0 <= minval and minval < 1, (
-            "The parameter ``minval`` must be in the interval ``(0.0, 1.0)``.")
+            "The parameter minval must be in the interval (0.0, 1.0).")
         assert 0 < maxval and maxval <= 1, (
-            "The parameter ``maxval`` must be in the interval ``(0.0, 1.0)``.")
+            "The parameter maxval must be in the interval (0.0, 1.0).")
         assert minval != 0 or maxval != 1, (
             "This is not a truncation.")
         # This was taken largely from
@@ -854,7 +854,11 @@ class LinearSegmentedColormap(Colormap):
         if N is None:
             N = np.ceil(self.N * (maxval - minval))
         name = "trunc({},{:.2f},{:.2f})".format(self.name, minval, maxval)
-        return LinearSegmentedColormap.from_list(name, self(np.linspace(minval, maxval, N)), N)
+        return LinearSegmentedColormap.from_list(name,
+                                                 self(np.linspace(minval,
+                                                                  maxval,
+                                                                  N)),
+                                                 N)
 
 
 class ListedColormap(Colormap):
@@ -982,7 +986,7 @@ class ListedColormap(Colormap):
         if name is None:
             name = '{}+{}'.format(self.name, other.name)
         assert 0 < frac_self and frac_self < 1, (
-            "The parameter ``frac_self`` must be in the interval ``(0.0, 1.0)``."
+            "The parameter frac_self must be in the interval (0.0, 1.0)."
         )
         map0 = self(np.linspace(0, 1, int(N * frac_self)))
         map1 = other(np.linspace(0, 1, int(N * (1 - frac_self))))
@@ -1023,11 +1027,11 @@ class ListedColormap(Colormap):
         cmap_trunc = cmap.truncate(0.2, 0.7)
 
         """
-        assert minval < maxval, "``minval`` must be less than ``maxval``"
+        assert minval < maxval, "minval must be less than maxval"
         assert 0 <= minval and minval < 1, (
-            "The parameter ``minval`` must be in the interval ``(0.0, 1.0)``.")
+            "The parameter minval must be in the interval (0.0, 1.0).")
         assert 0 < maxval and maxval <= 1, (
-            "The parameter ``maxval`` must be in the interval ``(0.0, 1.0)``.")
+            "The parameter maxval must be in the interval (0.0, 1.0).")
         assert minval != 0 or maxval != 1, (
             "This is not a truncation.")
         # This was taken largely from
