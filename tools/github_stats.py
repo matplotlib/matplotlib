@@ -77,7 +77,7 @@ def issues_closed_since(period=timedelta(days=365), project="ipython/ipython", p
         since = period
     url = "https://api.github.com/repos/%s/%s?state=closed&sort=updated&since=%s&per_page=%i" % (project, which, since.strftime(ISO8601), PER_PAGE)
     allclosed = get_paged_request(url, headers=make_auth_header())
-    
+
     filtered = [ i for i in allclosed if _parse_datetime(i['closed_at']) > since ]
     if pulls:
         filtered = [ i for i in filtered if _parse_datetime(i['merged_at']) > since ]
@@ -85,7 +85,7 @@ def issues_closed_since(period=timedelta(days=365), project="ipython/ipython", p
         filtered = [ i for i in filtered if i['base']['ref'] == 'master' ]
     else:
         filtered = [ i for i in filtered if not is_pull_request(i) ]
-    
+
     return filtered
 
 
@@ -113,10 +113,10 @@ if __name__ == "__main__":
     # deal with unicode
     if sys.version_info < (3,):
         sys.stdout = codecs.getwriter('utf8')(sys.stdout)
-    
+
     # Whether to add reST urls for all issues in printout.
     show_urls = True
-    
+
     parser = ArgumentParser()
     parser.add_argument('--since-tag', type=str,
         help="The git tag to use for the starting point (typically the last major release)."
@@ -133,10 +133,10 @@ if __name__ == "__main__":
     parser.add_argument('--links', action='store_true', default=False,
         help="Include links to all closed Issues and PRs in the output."
     )
-    
+
     opts = parser.parse_args()
     tag = opts.since_tag
-    
+
     # set `since` from days or git tag
     if opts.days:
         since = datetime.utcnow() - timedelta(days=opts.days)
@@ -153,9 +153,9 @@ if __name__ == "__main__":
             since += td
         else:
             since -= td
-    
+
     since = round_hour(since)
-    
+
     milestone = opts.milestone
     project = opts.project
 
@@ -172,16 +172,20 @@ if __name__ == "__main__":
     else:
         issues = issues_closed_since(since, project=project, pulls=False)
         pulls = issues_closed_since(since, project=project, pulls=True)
-    
+
     # For regular reports, it's nice to show them in reverse chronological order
     issues = sorted_by_field(issues, reverse=True)
     pulls = sorted_by_field(pulls, reverse=True)
-    
+
     n_issues, n_pulls = map(len, (issues, pulls))
     n_total = n_issues + n_pulls
-    
+
     # Print summary report we can directly include into release notes.
-    
+    print('.. _github-stats:')
+    print()
+    print('GitHub Stats')
+    print('============')
+
     print()
     since_day = since.strftime("%Y/%m/%d")
     today = datetime.today().strftime("%Y/%m/%d")
@@ -189,7 +193,7 @@ if __name__ == "__main__":
     print()
     print("These lists are automatically generated, and may be incomplete or contain duplicates.")
     print()
-    
+
     ncommits = 0
     all_authors = []
     if tag:
@@ -197,10 +201,10 @@ if __name__ == "__main__":
         since_tag = tag+'..'
         cmd = ['git', 'log', '--oneline', since_tag]
         ncommits += len(check_output(cmd).splitlines())
-        
+
         author_cmd = ['git', 'log', '--use-mailmap', "--format=* %aN", since_tag]
         all_authors.extend(check_output(author_cmd).decode('utf-8', 'replace').splitlines())
-    
+
     pr_authors = []
     for pr in pulls:
         pr_authors.extend(get_authors(pr))
@@ -215,12 +219,12 @@ if __name__ == "__main__":
         print("The full list can be seen `on GitHub <https://github.com/%s/milestone/%s>`__"
             % (project, milestone)
         )
-    
+
     print()
     print("The following %i authors contributed %i commits." % (len(unique_authors), ncommits))
     print()
     print('\n'.join(unique_authors))
-    
+
     if opts.links:
         print()
         print("GitHub issues and pull requests:")
