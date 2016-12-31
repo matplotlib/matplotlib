@@ -36,7 +36,7 @@ def skip(msg=""):
     __tracebackhide__ = True
     if is_called_from_pytest():
         import pytest
-        pytest.skip(msg)
+        pytest.mark.skip(msg)
     else:
         from nose import SkipTest
         raise SkipTest(msg)
