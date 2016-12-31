@@ -142,7 +142,7 @@ To control the font used on per-artist basis use the ``'name'``,
 <text-properties>`.
 
 
-On linux, `fc-list <http://linux.die.net/man/1/fc-list>`__ can be a
+On linux, `fc-list <https://linux.die.net/man/1/fc-list>`__ can be a
 useful tool to discover the font name; for example ::
 
    $ fc-list :lang=zh family

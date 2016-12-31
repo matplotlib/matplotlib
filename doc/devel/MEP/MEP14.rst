@@ -74,20 +74,20 @@ Supporting these things is difficult, and is the "full-time job" of a
 number of other projects:
 
   - `pango <http://www.pango.org/>`_/`harfbuzz
-    <http://www.harfbuzz.org/>`_
+    <https://www.freedesktop.org/wiki/Software/HarfBuzz/>`_
   - `QtTextLayout
-    <http://qt-project.org/doc/qt-4.8/qtextlayout.html>`_
+    <http://doc.qt.io/qt-4.8/qtextlayout.html>`_
   - `Microsoft DirectWrite
-    <http://msdn.microsoft.com/en-us/library/windows/desktop/dd371554(v=vs.85).aspx>`_
+    <https://msdn.microsoft.com/en-us/library/windows/desktop/dd371554(v=vs.85).aspx>`_
   - `Apple Core Text
-    <https://developer.apple.com/library/mac/#documentation/StringsTextFonts/Conceptual/CoreText_Programming/Overview/Overview.html>`_
+    <https://developer.apple.com/library/content/documentation/StringsTextFonts/Conceptual/CoreText_Programming/Overview/Overview.html>`_
 
 Of the above options, it should be noted that `harfbuzz` is designed
 from the start as a cross platform option with minimal dependencies,
 so therefore is a good candidate for a single option to support.
 
 Additionally, for supporting rich text, we could consider using
-`WebKit <http://www.webkit.org/>`_, and possibly whether than
+`WebKit <https://webkit.org/>`_, and possibly whether than
 represents a good single cross-platform option.  Again, however, rich
 text formatting is outside of the scope of this project.
 
@@ -133,7 +133,7 @@ which matches fonts using our own algorithm based on the `CSS font
 matching algorithm <http://www.w3.org/TR/CSS2/fonts.html#algorithm>`_.
 It doesn't always do the same thing as the native font selection
 algorithms on Linux (`fontconfig
-<http://www.freedesktop.org/wiki/Software/fontconfig/>`_), Mac and
+<https://www.freedesktop.org/wiki/Software/fontconfig/>`_), Mac and
 Windows, and it doesn't always find all of the fonts on the system
 that the OS would normally pick up.  However, it is cross-platform,
 and always finds the fonts that ship with matplotlib.  The Cairo and
@@ -152,7 +152,7 @@ lookup mechanism must only match against those fonts.  It is unclear
 whether the OS-native font lookup systems can handle this case.
 
 There is also experimental support for using `fontconfig
-<http://www.freedesktop.org/wiki/Software/fontconfig/>`_ for font
+<https://www.freedesktop.org/wiki/Software/fontconfig/>`_ for font
 selection in matplotlib, turned off by default.  fontconfig is the
 native font selection algorithm on Linux, but is also cross platform
 and works well on the other platforms (though obviously is an

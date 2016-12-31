@@ -1071,7 +1071,7 @@ Configuration and rcParams
 * On Linux, the user-specific `matplotlibrc` configuration file is now
   located in `~/.config/matplotlib/matplotlibrc` to conform to the
   `XDG Base Directory Specification
-  <http://standards.freedesktop.org/basedir-spec/basedir-spec-latest.html>`_.
+  <https://specifications.freedesktop.org/basedir-spec/basedir-spec-latest.html>`_.
 
 * The `font.*` rcParams now affect only text objects created after the
   rcParam has been set, and will not retroactively affect already

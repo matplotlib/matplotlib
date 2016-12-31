@@ -376,8 +376,8 @@ For example, with GTK, you can also select GDK rendering (backend
 ``GTK`` deprecated in 2.0) or Cairo rendering (backend ``GTKCairo``).
 
 For the rendering engines, one can also distinguish between `vector
-<http://en.wikipedia.org/wiki/Vector_graphics>`_ or `raster
-<http://en.wikipedia.org/wiki/Raster_graphics>`_ renderers.  Vector
+<https://en.wikipedia.org/wiki/Vector_graphics>`_ or `raster
+<https://en.wikipedia.org/wiki/Raster_graphics>`_ renderers.  Vector
 graphics languages issue drawing commands like "draw a line from this
 point to this point" and hence are scale free, and raster backends
 generate a pixel representation of the line whose accuracy depends on a
@@ -441,19 +441,19 @@ macosx         Cocoa rendering in OSX windows
 ============   ================================================================
 
 .. _`Anti-Grain Geometry`: http://antigrain.com/
-.. _Postscript: http://en.wikipedia.org/wiki/PostScript
-.. _`Portable Document Format`: http://en.wikipedia.org/wiki/Portable_Document_Format
-.. _`Scalable Vector Graphics`: http://en.wikipedia.org/wiki/Scalable_Vector_Graphics
-.. _`Cairo graphics`: http://en.wikipedia.org/wiki/Cairo_(graphics)
-.. _`Gimp Drawing Kit`: http://en.wikipedia.org/wiki/GDK
+.. _Postscript: https://en.wikipedia.org/wiki/PostScript
+.. _`Portable Document Format`: https://en.wikipedia.org/wiki/Portable_Document_Format
+.. _`Scalable Vector Graphics`: https://en.wikipedia.org/wiki/Scalable_Vector_Graphics
+.. _`Cairo graphics`: https://en.wikipedia.org/wiki/Cairo_(graphics)
+.. _`Gimp Drawing Kit`: https://en.wikipedia.org/wiki/GDK
 .. _PyGTK: http://www.pygtk.org
-.. _PyGObject: https://live.gnome.org/PyGObject
-.. _pycairo: http://www.cairographics.org/pycairo/
+.. _PyGObject: https://wiki.gnome.org/action/show/Projects/PyGObject
+.. _pycairo: https://www.cairographics.org/pycairo/
 .. _cairocffi: https://pythonhosted.org/cairocffi/
-.. _wxPython: http://www.wxpython.org/
-.. _TkInter: http://wiki.python.org/moin/TkInter
-.. _PyQt4: http://www.riverbankcomputing.co.uk/software/pyqt/intro
-.. _PyQt5: http://www.riverbankcomputing.co.uk/software/pyqt/intro
+.. _wxPython: https://www.wxpython.org/
+.. _TkInter: https://wiki.python.org/moin/TkInter
+.. _PyQt4: https://riverbankcomputing.com/software/pyqt/intro
+.. _PyQt5: https://riverbankcomputing.com/software/pyqt/intro
 
 WX backends
 ===========
@@ -463,7 +463,7 @@ does not support python3. A work in progress redesigned version known as
 wxPython-Phoenix_ does support python3.
 Matplotlib should work with both versions.
 
-.. _wxPython-Phoenix: http://wxpython.org/Phoenix/docs/html/main.html
+.. _wxPython-Phoenix: https://wxpython.org/Phoenix/docs/html/main.html
 
 GTK and Cairo
 =============
@@ -523,8 +523,8 @@ and turned off via :func:`matplotlib.pyplot.ioff`.
 
 .. note::
    Interactive mode works with suitable backends in ipython and in
-   the ordinary python shell, but it does *not* work in the IDLE IDE. 
-   If the default backend does not support interactivity, an interactive 
+   the ordinary python shell, but it does *not* work in the IDLE IDE.
+   If the default backend does not support interactivity, an interactive
    backend can be explicitly activated using any of the methods discussed in `What is a backend?`_.
 
 

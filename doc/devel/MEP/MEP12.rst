@@ -87,6 +87,7 @@ the gallery would remain in those directories until they are cleaned
 up. After clean-up, they would be moved to one of the new gallery
 sections described above. "Clean-up" should involve:
 
+
 * PEP8_ clean-ups (running `flake8
   <https://pypi.python.org/pypi/flake8>`_, or a similar checker, is
   highly recommended)
@@ -127,8 +128,8 @@ page instead of the gallery examples.
 references to that example.  For example, the API documentation for
 `axes.py` and `pyplot.py` may use these examples to generate
 plots. Use your favorite search tool (e.g., grep, ack, `grin
-<http://pypi.python.org/pypi/grin>`_, `pss
-<http://pypi.python.org/pypi/pss>`_) to search the matplotlib
+<https://pypi.python.org/pypi/grin>`_, `pss
+<https://pypi.python.org/pypi/pss>`_) to search the matplotlib
 package. See `2dc9a46
 <https://github.com/tonysyu/matplotlib/commit/2dc9a4651e5e566afc0866c603aa8d06aaf32b71>`_
 and `aa6b410
@@ -178,10 +179,10 @@ the entry point to these examples, and sections could really help users
 navigate the gallery. Thus, tags are complementary to this reorganization.
 
 
-.. _PEP8: http://www.python.org/dev/peps/pep-0008/
+.. _PEP8: https://www.python.org/dev/peps/pep-0008/
 
-.. [1] http://github.com/matplotlib/matplotlib/pull/714
-.. [2] http://github.com/matplotlib/matplotlib/issues/524
+.. [1] https://github.com/matplotlib/matplotlib/pull/714
+.. [2] https://github.com/matplotlib/matplotlib/issues/524
 .. [3] http://matplotlib.1069221.n5.nabble.com/Matplotlib-gallery-td762.html#a33379091
-.. [4] http://www.loria.fr/~rougier/teaching/matplotlib/
-.. [5] http://www.loria.fr/~rougier/coding/gallery/
+.. [4] http://www.labri.fr/perso/nrougier/teaching/matplotlib/
+.. [5] http://www.labri.fr/perso/nrougier/coding/gallery/

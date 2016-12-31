@@ -1933,7 +1933,7 @@ def dist_point_to_segment(p, s0, s1):
       *p*, *s0*, *s1* are *xy* sequences
 
     This algorithm from
-    http://softsurfer.com/Archive/algorithm_0102/algorithm_0102.htm#Distance%20to%20Ray%20or%20Segment
+    http://geomalgorithms.com/a02-_lines.html
     """
     p = np.asarray(p, np.float_)
     s0 = np.asarray(s0, np.float_)

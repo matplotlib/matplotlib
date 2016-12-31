@@ -12,7 +12,7 @@ Glossary
       high-quality images
 
   Cairo
-      The `Cairo graphics <http://cairographics.org>`_ engine
+      The `Cairo graphics <https://cairographics.org>`_ engine
 
 
   dateutil
@@ -20,10 +20,10 @@ Glossary
       provides extensions to the standard datetime module
 
   EPS
-      Encapsulated Postscript (`EPS <http://en.wikipedia.org/wiki/Encapsulated_PostScript>`_)
+      Encapsulated Postscript (`EPS <https://en.wikipedia.org/wiki/Encapsulated_PostScript>`_)
 
   FreeType
-      `FreeType <http://www.freetype.org/>`_ is a font rasterization
+      `FreeType <https://www.freetype.org/>`_ is a font rasterization
       library used by matplotlib which supports TrueType, Type 1, and
       OpenType fonts.
 
@@ -32,32 +32,32 @@ Glossary
       The Gimp Drawing Kit for GTK+
 
   GTK
-      The GIMP Toolkit (`GTK <http://www.gtk.org/>`_) graphical user interface library
+      The GIMP Toolkit (`GTK <https://www.gtk.org/>`_) graphical user interface library
 
   JPG
       The Joint Photographic Experts Group (`JPEG
-      <http://en.wikipedia.org/wiki/Jpeg>`_) compression method and
+      <https://en.wikipedia.org/wiki/Jpeg>`_) compression method and
       file format for photographic images
 
   numpy
-      `numpy <http://numpy.scipy.org>`_ is the standard numerical
+      `numpy <http://www.numpy.org/>`_ is the standard numerical
       array library for python, the successor to Numeric and numarray.
       numpy provides fast operations for homogeneous data sets and
       common mathematical operations like correlations, standard
       deviation, fourier transforms, and convolutions.
 
   PDF
-      Adobe's Portable Document Format (`PDF <http://en.wikipedia.org/wiki/Portable_Document_Format>`_)
+      Adobe's Portable Document Format (`PDF <https://en.wikipedia.org/wiki/Portable_Document_Format>`_)
 
   PNG
       Portable Network Graphics (`PNG
-      <http://en.wikipedia.org/wiki/Portable_Network_Graphics>`_), a raster graphics format
+      <https://en.wikipedia.org/wiki/Portable_Network_Graphics>`_), a raster graphics format
       that employs lossless data compression which is more suitable
       for line art than the lossy jpg format. Unlike the gif format,
       png is not encumbered by requirements for a patent license.
 
   PS
-      Postscript (`PS <http://en.wikipedia.org/wiki/PostScript>`_) is a
+      Postscript (`PS <https://en.wikipedia.org/wiki/PostScript>`_) is a
       vector graphics ASCII text language widely used in printers and
       publishing.  Postscript was developed by adobe systems and is
       starting to show its age: for example is does not have an alpha
@@ -71,14 +71,14 @@ Glossary
       'python-gtk2'
 
   pyqt
-      `pyqt <http://wiki.python.org/moin/PyQt>`_ provides python
+      `pyqt <https://wiki.python.org/moin/PyQt>`_ provides python
       wrappers for the :term:`Qt` widgets library and is required by
       the matplotlib Qt5Agg and Qt4Agg backends.  Widely used on linux
       and windows; many linux distributions package this as
       'python-qt5' or 'python-qt4'.
 
   python
-      `python <http://python.org>`_ is an object oriented interpreted
+      `python <https://www.python.org>`_ is an object oriented interpreted
       language widely used for scripting, application development, web
       application servers, scientific computing and more.
 
@@ -91,7 +91,7 @@ Glossary
 
 
   Qt
-      `Qt <http://www.qt.io/>`__ is a cross-platform
+      `Qt <https://www.qt.io/>`__ is a cross-platform
       application framework for desktop and embedded development.
 
   Qt4
@@ -106,7 +106,7 @@ Glossary
 
   raster graphics
       `Raster graphics
-      <http://en.wikipedia.org/wiki/Raster_graphics>`_, or bitmaps,
+      <https://en.wikipedia.org/wiki/Raster_graphics>`_, or bitmaps,
       represent an image as an array of pixels which is resolution
       dependent. Raster graphics are generally most practical for
       photo-realistic images, but do not scale easily without loss of
@@ -114,12 +114,12 @@ Glossary
 
   SVG
       The Scalable Vector Graphics format (`SVG
-      <http://en.wikipedia.org/wiki/Svg>`_).  An XML based vector
+      <https://en.wikipedia.org/wiki/Svg>`_).  An XML based vector
       graphics format supported by many web browsers.
 
   TIFF
       Tagged Image File Format (`TIFF
-      <http://en.wikipedia.org/wiki/Tagged_Image_File_Format>`_) is a
+      <https://en.wikipedia.org/wiki/Tagged_Image_File_Format>`_) is a
       file format for storing images, including photographs and line
       art.
 
@@ -131,7 +131,7 @@ Glossary
 
   vector graphics
       `vector graphics
-      <http://en.wikipedia.org/wiki/Vector_graphics>`_ use geometrical
+      <https://en.wikipedia.org/wiki/Vector_graphics>`_ use geometrical
       primitives based upon mathematical equations to represent images
       in computer graphics. Primitives can include points, lines,
       curves, and shapes or polygons. Vector graphics are scalable,
@@ -141,7 +141,7 @@ Glossary
       typesetting and graphic design applications.
 
   wxpython
-      `wxpython <http://www.wxpython.org/>`_ provides python wrappers
+      `wxpython <https://www.wxpython.org/>`_ provides python wrappers
       for the :term:`wxWidgets` library for use with the WX and WXAgg
       backends.  Widely used on linux, OS-X and windows, it is often
       packaged by linux distributions as 'python-wxgtk'

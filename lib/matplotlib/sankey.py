@@ -66,7 +66,7 @@ class Sankey(object):
       the width of the arrows is shown proportionally to the flow
       quantity.  They are typically used to visualize energy or
       material or cost transfers between processes.
-      `Wikipedia (6/1/2011) <http://en.wikipedia.org/wiki/Sankey_diagram>`_
+      `Wikipedia (6/1/2011) <https://en.wikipedia.org/wiki/Sankey_diagram>`_
 
     """
 
