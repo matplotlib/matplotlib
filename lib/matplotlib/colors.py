@@ -778,6 +778,10 @@ class LinearSegmentedColormap(Colormap):
             The fraction of the new colormap that should be occupied
             by self. By default, this is ``self.N / (self.N +
             other.N)``.
+        N : int
+            The number of entries in the color map.  The default is ``None``,
+            in which case the number of entries is the sum of the
+            number of entries in the two colormaps to be joined.
 
         Returns
         -------
@@ -965,6 +969,10 @@ class ListedColormap(Colormap):
             The fraction of the new colormap that should be occupied
             by self. By default, this is ``self.N / (self.N +
             other.N)``.
+        N : int
+            The number of entries in the color map.  The default is ``None``,
+            in which case the number of entries is the sum of the
+            number of entries in the two colormaps to be joined.
 
         Returns
         -------
