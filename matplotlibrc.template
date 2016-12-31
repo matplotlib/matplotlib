@@ -297,7 +297,7 @@ backend      : $TEMPLATE_BACKEND
 #axes.linewidth      : 0.8     # edge linewidth
 #axes.grid           : False   # display grid or not
 #axes.titlesize      : large   # fontsize of the axes title
-#axes.titlepad       : 4.0     # pad between axes and title in points
+#axes.titlepad       : 6.0     # pad between axes and title in points
 #axes.labelsize      : medium  # fontsize of the x any y labels
 #axes.labelpad       : 4.0     # space between label and axis
 #axes.labelweight    : normal  # weight of the x and y labels
