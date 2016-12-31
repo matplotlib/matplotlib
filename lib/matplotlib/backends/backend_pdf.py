@@ -491,7 +491,9 @@ class PdfFile(object):
         self.infoDict = {k: v for (k, v) in self.infoDict.items()
                          if v is not None}
 
-        self.fontNames = {}     # maps filenames to internal font names
+        # fontNames maps filenames/dvi names to internal font names;
+        # dvi font names have an entry in dviFontInfo
+        self.fontNames = {}
         self.nextFont = 1       # next free internal font name
         self.dviFontInfo = {}   # information on dvi fonts
         # differently encoded Type-1 fonts may share the same descriptor
@@ -636,11 +638,11 @@ class PdfFile(object):
     def fontName(self, fontprop):
         """
         Select a font based on fontprop and return a name suitable for
-        Op.selectfont. If fontprop is a string, it will be interpreted
-        as the filename (or dvi name) of the font.
+        Op.selectfont. If fontprop is a string or bytestring, it will
+        be interpreted as the filename or dvi name of the font.
         """
 
-        if is_string_like(fontprop):
+        if isinstance(fontprop, (str, bytes)):
             filename = fontprop
         elif rcParams['pdf.use14corefonts']:
             filename = findfont(
@@ -667,16 +669,16 @@ class PdfFile(object):
         for filename in sorted(self.fontNames):
             Fx = self.fontNames[filename]
             matplotlib.verbose.report('Embedding font %s' % filename, 'debug')
-            if filename.endswith('.afm'):
-                # from pdf.use14corefonts
-                matplotlib.verbose.report('Writing AFM font', 'debug')
-                fonts[Fx] = self._write_afm_font(filename)
-            elif filename in self.dviFontInfo:
+            if filename in self.dviFontInfo:
                 # a Type 1 font from a dvi file;
                 # the filename is really the TeX name
                 matplotlib.verbose.report('Writing Type-1 font', 'debug')
                 fonts[Fx] = self.embedTeXFont(filename,
                                               self.dviFontInfo[filename])
+            elif filename.endswith('.afm'):
+                # from pdf.use14corefonts
+                matplotlib.verbose.report('Writing AFM font', 'debug')
+                fonts[Fx] = self._write_afm_font(filename)
             else:
                 # a normal TrueType font
                 matplotlib.verbose.report('Writing TrueType font', 'debug')
@@ -699,8 +701,8 @@ class PdfFile(object):
         return fontdictObject
 
     def embedTeXFont(self, texname, fontinfo):
-        msg = ('Embedding TeX font ' + texname + ' - fontinfo=' +
-               repr(fontinfo.__dict__))
+        msg = ('Embedding TeX font {0} - fontinfo={1}'
+               .format(texname, fontinfo.__dict__))
         matplotlib.verbose.report(msg, 'debug')
 
         # Widths
