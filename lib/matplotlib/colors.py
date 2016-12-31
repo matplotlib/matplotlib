@@ -763,6 +763,99 @@ class LinearSegmentedColormap(Colormap):
 
         return LinearSegmentedColormap(name, data_r, self.N, self._gamma)
 
+    def join(self, other, name=None, frac_self=None, N=None):
+        """
+        Join colormap `self` to `other` and return the new colormap.
+
+        Parameters
+        ----------
+        other : cmap
+            The other colormap to be joined to this one.
+        name : str, optional
+            The name for the reversed colormap. If it's None the
+            name will be ``self.name + '-' + other.name``.
+        frac_self : float in the interval ``(0.0, 1.0)``, optional
+            The fraction of the new colormap that should be occupied
+            by self. By default, this is ``self.N / (self.N +
+            other.N)``.
+
+        Returns
+        -------
+        LinearSegmentedColormap
+            The joined colormap.
+
+        Examples
+        --------
+        import matplotlib.pyplat as plt
+        cmap1 = plt.get_cmap('jet')
+        cmap2 = plt.get_cmap('plasma_r')
+
+        joined_cmap = cmap1.join(cmap2)
+        """
+        if N is None:
+            N = self.N + other.N
+        if frac_self is None:
+            frac_self = self.N / (other.N + self.N)
+        if name is None:
+            name = '{}+{}'.format(self.name, other.name)
+        assert 0 < frac_self and frac_self < 1, (
+            "The parameter ``frac_self`` must be in the interval ``(0.0, 1.0)``."
+        )
+        map0 = self(np.linspace(0, 1, int(N * frac_self)))
+        map1 = other(np.linspace(0, 1, int(N * (1 - frac_self))))
+        # N is set by len of the vstack'd array:
+        return LinearSegmentedColormap.from_list(name, np.vstack((map0, map1)))
+
+    def truncate(self, minval=0.0, maxval=1.0, N=None):
+        """
+        Truncate a colormap.
+
+        Parameters
+        ----------
+        minval : float in the interval ``(0.0, 1.0)``, optional
+            The lower fraction of the colormap you want to truncate
+            (default 0.0).
+
+        maxval : float in the interval ``(0.0, 1.0)``, optional
+            The upper limit of the colormap you want to keep. i.e. truncate
+            the section above this value (default 1.0).
+
+        N : int
+            The number of entries in the map. The default is *None*,
+            in which case the same color-step density is preserved,
+            i.e.:  N = ceil(N * (maxval - minval))
+
+        Returns
+        -------
+        LinearSegmentedColormap
+            The truncated colormap.
+
+        Examples
+        --------
+        import matplotlib.pyplat as plt
+        cmap = plt.get_cmap('jet')
+
+        # This will return the `jet` colormap with the bottom 20%,
+        # and top 30% removed:
+        cmap_trunc = cmap.truncate(0.2, 0.7)
+
+        """
+        assert minval < maxval, "``minval`` must be less than ``maxval``"
+        assert 0 <= minval and minval < 1, (
+            "The parameter ``minval`` must be in the interval ``(0.0, 1.0)``.")
+        assert 0 < maxval and maxval <= 1, (
+            "The parameter ``maxval`` must be in the interval ``(0.0, 1.0)``.")
+        assert minval != 0 or maxval != 1, (
+            "This is not a truncation.")
+        # This was taken largely from
+        # https://gist.github.com/denis-bz/8052855
+        # Which, in turn was from @unutbu's SO answer:
+        # http://stackoverflow.com/a/18926541/2121597
+        if N is None:
+            N = np.ceil(self.N * (maxval - minval))
+        name = "trunc({},{:.2f},{:.2f})".format(self.name, minval, maxval)
+        return LinearSegmentedColormap.from_list(name, self(np.linspace(minval, maxval, N)), N)
+
 
 class ListedColormap(Colormap):
     """Colormap object generated from a list of colors.
@@ -852,6 +945,99 @@ class ListedColormap(Colormap):
 
         colors_r = list(reversed(self.colors))
         return ListedColormap(colors_r, name=name, N=self.N)
+
+    def join(self, other, name=None, frac_self=None, N=None):
+        """
+        Join colormap `self` to `other` and return the new colormap.
+
+        Parameters
+        ----------
+        other : cmap
+            The other colormap to be joined to this one.
+        name : str, optional
+            The name for the reversed colormap. If it's None the
+            name will be ``self.name + '-' + other.name``.
+        frac_self : float in the interval ``(0.0, 1.0)``, optional
+            The fraction of the new colormap that should be occupied
+            by self. By default, this is ``self.N / (self.N +
+            other.N)``.
+
+        Returns
+        -------
+        ListedColormap
+            The joined colormap.
+
+        Examples
+        --------
+        import matplotlib.pyplat as plt
+        cmap1 = plt.get_cmap('viridis')
+        cmap2 = plt.get_cmap('plasma_r')
+
+        joined_cmap = cmap1.join(cmap2)
+        """
+        if N is None:
+            N = self.N + other.N
+        if frac_self is None:
+            frac_self = self.N / (other.N + self.N)
+        if name is None:
+            name = '{}+{}'.format(self.name, other.name)
+        assert 0 < frac_self and frac_self < 1, (
+            "The parameter ``frac_self`` must be in the interval ``(0.0, 1.0)``."
+        )
+        map0 = self(np.linspace(0, 1, int(N * frac_self)))
+        map1 = other(np.linspace(0, 1, int(N * (1 - frac_self))))
+        # N is set by len of the vstack'd array:
+        return ListedColormap(np.vstack((map0, map1)), name, )
+
+    def truncate(self, minval=0.0, maxval=1.0, N=None):
+        """
+        Truncate a colormap.
+
+        Parameters
+        ----------
+        minval : float in the interval ``(0.0, 1.0)``, optional
+            The lower fraction of the colormap you want to truncate
+            (default 0.0).
+
+        maxval : float in the interval ``(0.0, 1.0)``, optional
+            The upper limit of the colormap you want to keep. i.e. truncate
+            the section above this value (default 1.0).
+
+        N : int
+            The number of entries in the map. The default is *None*,
+            in which case the same color-step density is preserved,
+            i.e.:  N = ceil(N * (maxval - minval))
+
+        Returns
+        -------
+        ListedColormap
+            The truncated colormap.
+
+        Examples
+        --------
+        import matplotlib.pyplat as plt
+        cmap = plt.get_cmap('viridis')
+
+        # This will return the `viridis` colormap with the bottom 20%,
+        # and top 30% removed:
+        cmap_trunc = cmap.truncate(0.2, 0.7)
+
+        """
+        assert minval < maxval, "``minval`` must be less than ``maxval``"
+        assert 0 <= minval and minval < 1, (
+            "The parameter ``minval`` must be in the interval ``(0.0, 1.0)``.")
+        assert 0 < maxval and maxval <= 1, (
+            "The parameter ``maxval`` must be in the interval ``(0.0, 1.0)``.")
+        assert minval != 0 or maxval != 1, (
+            "This is not a truncation.")
+        # This was taken largely from
+        # https://gist.github.com/denis-bz/8052855
+        # Which, in turn was from @unutbu's SO answer:
+        # http://stackoverflow.com/a/18926541/2121597
+        if N is None:
+            N = np.ceil(self.N * (maxval - minval))
+        name = "trunc({},{:.2f},{:.2f})".format(self.name, minval, maxval)
+        return ListedColormap(self(np.linspace(minval, maxval, N)), name)
 
 
 class Normalize(object):
@@ -1062,7 +1248,7 @@ class SymLogNorm(Normalize):
     *linthresh* allows the user to specify the size of this range
     (-*linthresh*, *linthresh*).
     """
-    def __init__(self,  linthresh, linscale=1.0,
+    def __init__(self, linthresh, linscale=1.0,
                  vmin=None, vmax=None, clip=False):
         """
         *linthresh*:
