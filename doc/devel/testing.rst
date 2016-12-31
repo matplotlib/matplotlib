@@ -20,13 +20,13 @@ The following software is required to run the tests:
   - nose_, version 1.0 or later
   - `mock <https://docs.python.org/dev/library/unittest.mock.html>`_, when running python
     versions < 3.3
-  - `Ghostscript <http://www.ghostscript.com/>`_ (to render PDF
+  - `Ghostscript <https://www.ghostscript.com/>`_ (to render PDF
     files)
-  - `Inkscape <http://inkscape.org>`_ (to render SVG files)
+  - `Inkscape <https://inkscape.org>`_ (to render SVG files)
 
 Optionally you can install:
 
-  - `coverage <http://nedbatchelder.com/code/coverage/>`_ to collect coverage
+  - `coverage <https://coverage.readthedocs.io/en/latest/>`_ to collect coverage
     information
   - `pep8 <http://pep8.readthedocs.io/en/latest>`_ to test coding standards
 
@@ -236,7 +236,7 @@ this module to the list of default tests, append its name to
 Using Travis CI
 ---------------
 
-`Travis CI <http://travis-ci.org/>`_ is a hosted CI system "in the
+`Travis CI <https://travis-ci.org/>`_ is a hosted CI system "in the
 cloud".
 
 Travis is configured to receive notifications of new commits to GitHub
@@ -254,12 +254,12 @@ If you want to enable Travis CI for your personal matplotlib GitHub
 repo, simply enable the repo to use Travis CI in either the Travis CI
 UI or the GitHub UI (Admin | Service Hooks). For details, see `the
 Travis CI Getting Started page
-<http://about.travis-ci.org/docs/user/getting-started/>`_.  This
+<https://docs.travis-ci.com/user/getting-started/>`_.  This
 generally isn't necessary, since any pull request submitted against
 the main matplotlib repository will be tested.
 
 Once this is configured, you can see the Travis CI results at
-http://travis-ci.org/your_GitHub_user_name/matplotlib -- here's `an
+https://travis-ci.org/your_GitHub_user_name/matplotlib -- here's `an
 example <https://travis-ci.org/msabramo/matplotlib>`_.
 
 

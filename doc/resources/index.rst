@@ -18,7 +18,7 @@
   by Benjamin Root
 
 * `Matplotlib for Python Developers
-  <http://www.packtpub.com/matplotlib-python-development/book?mid/171109cna1h>`_
+  <https://www.packtpub.com/application-development/matplotlib-python-developers>`_
   by Sandro Tosi
 
 * `Matplotlib chapter <http://www.aosabook.org/en/matplotlib.html>`_
@@ -26,7 +26,7 @@
   Applications
 
 * `Graphics with Matplotlib
-  <http://physics.nmt.edu/~raymond/software/python_notes/paper004.html>`_
+  <http://kestrel.nmt.edu/~raymond/software/python_notes/paper004.html>`_
   by David J. Raymond
 
 * `Ten Simple Rules for Better Figures
@@ -37,16 +37,16 @@
  Videos
 =======
 
-* `Plotting with matplotlib <http://www.youtube.com/watch?v=P7SVi0YTIuE>`_
+* `Plotting with matplotlib <https://www.youtube.com/watch?v=P7SVi0YTIuE>`_
   by Mike Müller
 
 * `Introduction to NumPy and Matplotlib
-  <http://www.youtube.com/watch?v=3Fp1zn5ao2M&feature=plcp>`_ by Eric Jones
+  <https://www.youtube.com/watch?v=3Fp1zn5ao2M&feature=plcp>`_ by Eric Jones
 
 * `Anatomy of Matplotlib
   <https://conference.scipy.org/scipy2013/tutorial_detail.php?id=103>`_
   by Benjamin Root
-  
+
 * `Data Visualization Basics with Python (O'Reilly)
   <http://shop.oreilly.com/product/0636920046592.do>`_
   by Randal S. Olson
