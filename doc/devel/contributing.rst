@@ -59,11 +59,12 @@ command from the top-level directory ::
 
     pip install -v -e ./
 
-This installs Matplotlib in 'editable/develop mode', i.e.,
-builds everything and places symbolic links back to the source code
-from the install directory.  Thus, any changes to the ``*.py`` files
-will be reflected the next time you import the library.  If you change
-the c-extension source (which might happen if you change branches) you
+This installs Matplotlib in 'editable/develop mode', i.e., builds
+everything and places the correct link entries in the install
+directory so that python will be able to import Matplotlib from the
+source directory.  Thus, any changes to the ``*.py`` files will be
+reflected the next time you import the library.  If you change the
+c-extension source (which might happen if you change branches) you
 will need to run::
 
    python setup.py build
