@@ -14,10 +14,9 @@ Submitting a bug report
 
 If you find a bug in the code or documentation, do not hesitate to submit a
 ticket to the
-`Bug Tracker <https://github.com/matplotlib/matplotlib/issues>`_. You are
-also welcome to post feature requests or pull requests.
+`Bug Tracker <https://github.com/matplotlib/matplotlib/issues>`_. You are also welcome to post feature requests or pull requests.
 
-If you are reporting a bug, please do your best to include each of the following:
+If you are reporting a bug, please do your best to include the following:
 
  1. A short, top-level summary of the bug. In most cases, this should be 1-2
     sentences.
@@ -30,47 +29,19 @@ If you are reporting a bug, please do your best to include each of the following
 
  4. The expected outcome of the code snippet
 
- 5. The version of matplotlib that you are using. You can grab the version with
-    the following command::
+ 5. The Matplotlib version, Python version and platform that you are using. You can grab the 
+    version with the following commands::
 
         >>> import matplotlib
         >>> matplotlib.__version__
         '1.5.3'
+        >>> import platform
+        >>> platform.python_version()
+        '2.7.12'
 
-If you would like a template to organize this information in the issue, you may paste the following into your issue::
-
-        **Bug summary**
-        
-        A short 1-2 sentences that succinctly describes the bug.
-        
-        **Code for reproduction**
-        
-        ```python
-        # Paste your code here
-        #
-        #
-        ```
-
-        **Actual outcome**
-        
-        Ideally, a direct paste of the output produced by the above code.
-
-        ```python
-        # You can use this if it is a piece of console output
-        #
-        #
-        ```
-
-        **Expected outcome**
-        
-        A description of the expected outcome
-
-        **Matplotlib version**
-
-        1.5.3
+We have preloaded the issue creation page with a Markdown template that you can use to organize this information.
         
 Thank you for your help in keeping bug reports complete, targeted and descriptive.
-
 
 Retrieving and installing the latest version of the code
 ========================================================
