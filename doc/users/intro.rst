@@ -2,7 +2,7 @@ Introduction
 ============
 
 matplotlib is a library for making 2D plots of arrays in `Python
-<http://www.python.org>`_.  Although it has its origins in emulating
+<https://www.python.org>`_.  Although it has its origins in emulating
 the MATLAB |reg| [#]_ graphics commands, it is
 independent of MATLAB, and can be used in a Pythonic, object oriented
 way.  Although matplotlib is written primarily in pure Python, it
@@ -75,11 +75,11 @@ creates `Scalable Vector Graphics <http://www.w3.org/Graphics/SVG/>`_
 hardcopy, Agg creates PNG output using the high quality `Anti-Grain
 Geometry <http://antigrain.com/>`_
 library that ships with matplotlib, GTK embeds matplotlib in a
-`Gtk+ <http://www.gtk.org/>`_
+`Gtk+ <https://www.gtk.org/>`_
 application, GTKAgg uses the Anti-Grain renderer to create a figure
 and embed it in a Gtk+ application, and so on for `PDF
-<http://www.adobe.com/products/acrobat/adobepdf.html>`_, `WxWidgets
-<http://www.wxpython.org/>`_, `Tkinter
+<https://acrobat.adobe.com/us/en/why-adobe/about-adobe-pdf.html>`_, `WxWidgets
+<https://www.wxpython.org/>`_, `Tkinter
 <https://docs.python.org/library/tkinter.html>`_, etc.
 
 matplotlib is used by many people in many different contexts.  Some

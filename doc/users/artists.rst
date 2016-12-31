@@ -14,7 +14,7 @@ a renderer to paint onto the canvas.  The
 :class:`~matplotlib.backend_bases.FigureCanvas` and
 :class:`~matplotlib.backend_bases.Renderer` handle all the details of
 talking to user interface toolkits like `wxPython
-<http://www.wxpython.org>`_ or drawing languages like PostScript®, and
+<https://www.wxpython.org>`_ or drawing languages like PostScript®, and
 the ``Artist`` handles all the high level constructs like representing
 and laying out the figure, text, and lines.  The typical user will
 spend 95% of his time working with the ``Artists``.

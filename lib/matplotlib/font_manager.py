@@ -659,10 +659,10 @@ class FontProperties(object):
     on the font manager's default font size.
 
     This class will also accept a `fontconfig
-    <http://www.fontconfig.org/>`_ pattern, if it is the only argument
-    provided.  See the documentation on `fontconfig patterns
-    <http://www.fontconfig.org/fontconfig-user.html>`_.  This support
-    does not require fontconfig to be installed.  We are merely
+    <https://www.freedesktop.org/wiki/Software/fontconfig/>`_ pattern, if it is
+    the only argument provided.  See the documentation on `fontconfig patterns
+    <https://www.freedesktop.org/software/fontconfig/fontconfig-user.html>`_.
+    This support does not require fontconfig to be installed.  We are merely
     borrowing its pattern syntax for use here.
 
     Note that matplotlib's internal font manager and fontconfig use a
@@ -802,7 +802,7 @@ class FontProperties(object):
         specified with fontconfig's ``fc-match`` utility.
 
         See the documentation on `fontconfig patterns
-        <http://www.fontconfig.org/fontconfig-user.html>`_.
+        <https://www.freedesktop.org/software/fontconfig/fontconfig-user.html>`_.
 
         This support does not require fontconfig to be installed or
         support for it to be enabled.  We are merely borrowing its
@@ -916,7 +916,7 @@ class FontProperties(object):
         Set the properties by parsing a fontconfig *pattern*.
 
         See the documentation on `fontconfig patterns
-        <http://www.fontconfig.org/fontconfig-user.html>`_.
+        <https://www.freedesktop.org/software/fontconfig/fontconfig-user.html>`_.
 
         This support does not require fontconfig to be installed or
         support for it to be enabled.  We are merely borrowing its

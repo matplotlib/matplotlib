@@ -67,7 +67,7 @@ Bézier example
 
 Some of the path components require multiple vertices to specify them:
 for example CURVE 3 is a `bézier
-<http://en.wikipedia.org/wiki/B%C3%A9zier_curve>`_ curve with one
+<https://en.wikipedia.org/wiki/B%C3%A9zier_curve>`_ curve with one
 control point and one end point, and CURVE4 has three vertices for the
 two control points and the end point.  The example below shows a
 CURVE4 Bézier spline -- the bézier curve will be contained in the

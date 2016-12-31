@@ -133,7 +133,7 @@ Excel Tools
 
 mpl_toolkits.exceltools provides some utilities for working with
 Excel.  This toolkit ships with matplotlib, but requires
-`xlwt <http://pypi.python.org/pypi/xlwt>`_
+`xlwt <https://pypi.python.org/pypi/xlwt>`_
 
 
 .. _toolkit_natgrid:
@@ -144,7 +144,7 @@ Natgrid
 
 mpl_toolkits.natgrid is an interface to natgrid C library for gridding
 irregularly spaced data.  This requires a separate installation of the
-`natgrid toolkit <http://github.com/matplotlib/natgrid>`__.
+`natgrid toolkit <https://github.com/matplotlib/natgrid>`__.
 
 
 .. _toolkit_matplotlibvenn:
@@ -159,7 +159,7 @@ mplstereonet
 ===============
 (*Not distributed with matplotlib*)
 
-`mplstereonet <https://github.com/joferkington/mplstereonet>`_ provides stereonets for plotting and analyzing orientation data in Matplotlib.  
+`mplstereonet <https://github.com/joferkington/mplstereonet>`_ provides stereonets for plotting and analyzing orientation data in Matplotlib.
 
 
 .. _hl_plotting:

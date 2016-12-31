@@ -6,7 +6,7 @@ Licenses
 Matplotlib only uses BSD compatible code.  If you bring in code from
 another project make sure it has a PSF, BSD, MIT or compatible license
 (see the Open Source Initiative `licenses page
-<http://opensource.org/licenses>`_ for details on individual
+<https://opensource.org/licenses>`_ for details on individual
 licenses).  If it doesn't, you may consider contacting the author and
 asking them to relicense it.  GPL and LGPL code are not acceptable in
 the main code base, though we are considering an alternative way of
@@ -57,7 +57,7 @@ compatible).  Also, we wanted to attract as many users and developers
 as possible, and many software companies will not use GPL code in
 software they plan to distribute, even those that are highly committed
 to open source development, such as `enthought
-<http://enthought.com>`_, out of legitimate concern that use of the
+<https://www.enthought.com>`_, out of legitimate concern that use of the
 GPL will "infect" their code base by its viral nature. In effect, they
 want to retain the right to release some proprietary code. Companies
 and institutions who use matplotlib often make significant

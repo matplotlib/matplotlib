@@ -57,7 +57,7 @@ one of the `scipy-stack compatible Python distributions
 Enthought Canopy, or Continuum Anaconda, which have matplotlib and many
 of its dependencies, plus other useful packages, preinstalled.
 
-For `standard Python <https://www.python.org/download/>`_ installations,
+For `standard Python <https://www.python.org/downloads/>`_ installations,
 install matplotlib using pip_::
 
     python -m pip install -U pip setuptools
@@ -65,23 +65,23 @@ install matplotlib using pip_::
 
 In case Python 2.7 or 3.4 are not installed for all users,
 the Microsoft Visual C++ 2008 (
-`64 bit <http://www.microsoft.com/download/en/details.aspx?id=15336>`__
+`64 bit <https://www.microsoft.com/en-us/download/details.aspx?id=15336>`__
 or
-`32 bit <http://www.microsoft.com/download/en/details.aspx?id=29>`__
+`32 bit <https://www.microsoft.com/en-us/download/details.aspx?id=29>`__
 for Python 2.7) or Microsoft Visual C++ 2010 (
-`64 bit <http://www.microsoft.com/en-us/download/details.aspx?id=14632>`__
+`64 bit <https://www.microsoft.com/en-us/download/details.aspx?id=14632>`__
 or
-`32 bit <http://www.microsoft.com/en-us/download/details.aspx?id=5555>`__
+`32 bit <https://www.microsoft.com/en-us/download/details.aspx?id=5555>`__
 for Python 3.4) redistributable packages need to be installed.
 
 Matplotlib depends on `Pillow <https://pypi.python.org/pypi/Pillow>`_
 for reading and saving JPEG, BMP, and TIFF image files.
-Matplotlib requires `MiKTeX <http://miktex.org/>`_ and
-`GhostScript <http://www.ghostscript.com/download/>`_ for rendering text
+Matplotlib requires `MiKTeX <https://miktex.org/>`_ and
+`GhostScript <https://ghostscript.com/download/>`_ for rendering text
 with LaTeX.
 `FFmpeg <https://www.ffmpeg.org/>`_, `avconv <https://libav.org/>`_,
 `mencoder <http://www.mplayerhq.hu>`_, or
-`ImageMagick <http://www.imagemagick.org/>`_ are required for the
+`ImageMagick <http://www.imagemagick.org/script/index.php>`_ are required for the
 animation module.
 
 The following backends should work out of the box: agg, tkagg, ps,
@@ -146,7 +146,7 @@ python, numpy, libpng and freetype), you can build matplotlib::
   python setup.py install
 
 We provide a `setup.cfg
-<https://github.com/matplotlib/matplotlib/raw/master/setup.cfg.template>`_
+<https://raw.githubusercontent.com/matplotlib/matplotlib/master/setup.cfg.template>`_
 file that goes with :file:`setup.py` which you can use to customize
 the build process. For example, which default backend to use, whether
 some of the optional libraries that matplotlib ships with are
@@ -178,10 +178,10 @@ Required Dependencies
 ^^^^^^^^^^^^^^^^^^^^^
 
 :term:`python` 2.7, 3.4, 3.5 or 3.6
-    `Download python <http://www.python.org/download/>`_.
+    `Download python <https://www.python.org/downloads/>`_.
 
 :term:`numpy` |minimum_numpy_version| (or later)
-    array support for python (`download numpy <http://numpy.org>`_)
+    array support for python (`download numpy <http://www.numpy.org>`_)
 
 `setuptools <http://pythonhosted.org/setuptools/>`__
     Setuptools provides extensions for python package installation.
@@ -202,7 +202,8 @@ Required Dependencies
     zlib.
 
 `pytz <http://pytz.sourceforge.net/>`__
-    Used to manipulate time-zone aware datetimes. http://pypi.python.org/pypi/pytz
+    Used to manipulate time-zone aware datetimes.
+    https://pypi.python.org/pypi/pytz
 
 :term:`FreeType` 2.3 or later
     Library for reading true type font files. If using pip, easy_install or
@@ -260,17 +261,17 @@ Optional external programs
     Required for the animation module to be save out put to movie
     formats.
 
-`ImageMagick <http://www.imagemagick.org/>`__
+`ImageMagick <http://www.imagemagick.org/script/index.php>`__
     Required for the animation module to be able to save to animated gif.
 
 Optional dependencies
 ^^^^^^^^^^^^^^^^^^^^^
 
-`Pillow <http://python-pillow.github.io/>`__
+`Pillow <http://python-pillow.org/>`__
     If Pillow is installed, matplotlib can read and write a larger
     selection of image file formats.
 
-`pkg-config <http://www.freedesktop.org/wiki/Software/pkg-config/>`__
+`pkg-config <https://www.freedesktop.org/wiki/Software/pkg-config/>`__
     A tool used to find required non-python libraries.  This is not strictly
     required, but can make installation go more smoothly if the libraries and
     headers are not in the expected locations.
@@ -330,7 +331,7 @@ git repository and follow the instruction in :file:`README.osx`.
 Building on Windows
 -------------------
 
-The Python shipped from http://www.python.org is compiled with Visual Studio
+The Python shipped from https://www.python.org is compiled with Visual Studio
 2008 for versions before 3.3, Visual Studio 2010 for 3.3 and 3.4, and
 Visual Studio 2015 for 3.5 and 3.6.  Python extensions are recommended to be compiled
 with the same compiler.
