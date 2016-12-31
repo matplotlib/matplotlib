@@ -585,13 +585,13 @@ compiling matplotlib for windows?  Write a FAQ or a section for the
 Write a tutorial on the signal analysis plotting functions like
 :func:`~matplotlib.pyplot.xcorr`, :func:`~matplotlib.pyplot.psd` and
 :func:`~matplotlib.pyplot.specgram`.  Do you use matplotlib with
-`django <http://www.djangoproject.com/>`_ or other popular web
+`django <https://www.djangoproject.com/>`_ or other popular web
 application servers?  Write a FAQ or tutorial and we'll find a place
 for it in the :ref:`users-guide-index`.  Bundle matplotlib in a
 `py2exe <http://www.py2exe.org/>`_ app?  ... I think you get the idea.
 
 matplotlib is documented using the `sphinx
-<http://sphinx.pocoo.org/index.html>`_ extensions to restructured text
+<http://www.sphinx-doc.org/index.html>`_ extensions to restructured text
 `(ReST) <http://docutils.sourceforge.net/rst.html>`_.  sphinx is an
 extensible python framework for documentation projects which generates
 HTML and PDF, and is pretty easy to write; you can see the source for this

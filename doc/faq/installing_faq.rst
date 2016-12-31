@@ -172,10 +172,10 @@ excellent Python scientific software collections that are now available:
 - Anaconda_ from `Continuum Analytics`_
 - Canopy_ from Enthought_
 
-.. _Canopy: https://enthought.com/products/canopy/
-.. _Anaconda: https://store.continuum.io/cshop/anaconda/
-.. _Enthought: http://enthought.com
-.. _Continuum Analytics: http://continuum.io
+.. _Canopy: https://www.enthought.com/products/canopy/
+.. _Anaconda: https://www.continuum.io/downloads
+.. _Enthought: https://www.enthought.com
+.. _Continuum Analytics: https://www.continuum.io
 
 These collections include Python itself and a wide range of libraries; if you
 need a library that is not available from the collection, you can install it
@@ -186,7 +186,7 @@ Canopy web pages for more information.
 Other options for a fresh Python install are the standard installer from
 `python.org <https://www.python.org/downloads/mac-osx/>`_, or installing
 Python using a general OSX package management system such as `homebrew
-<http://brew.sh>`_ or `macports <http://www.macports.org>`_.  Power users on
+<http://brew.sh>`_ or `macports <https://www.macports.org>`_.  Power users on
 OSX will likely want one of homebrew or macports on their system to install
 open source software packages, but it is perfectly possible to use these
 systems with another source for your Python binary, such as Anaconda, Canopy
@@ -197,7 +197,7 @@ or Python.org Python.
 Installing OSX binary wheels
 ----------------------------
 
-If you are using recent Python from http://www.python.org, Macports or
+If you are using recent Python from https://www.python.org, Macports or
 Homebrew, then you can use the standard pip installer to install matplotlib
 binaries in the form of wheels.
 
@@ -205,7 +205,7 @@ Python.org Python
 ^^^^^^^^^^^^^^^^^
 
 Install pip following the `standard pip install instructions
-<http://pip.readthedocs.io/en/latest/installing.html>`_.  For the impatient,
+<https://pip.readthedocs.io/en/latest/installing/>`_.  For the impatient,
 open a new Terminal.app window and::
 
     curl -O https://bootstrap.pypa.io/get-pip.py

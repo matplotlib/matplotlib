@@ -240,8 +240,8 @@ Here is the solution::
 
 **Extra credit**: use the animation blit techniques discussed in the
 `animations recipe
-<http://www.scipy.org/Cookbook/Matplotlib/Animations>`_ to make the
-animated drawing faster and smoother.
+<https://scipy-cookbook.readthedocs.io/items/Matplotlib_Animations.html>`_ to
+make the animated drawing faster and smoother.
 
 Extra credit solution::
 

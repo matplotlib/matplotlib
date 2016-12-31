@@ -184,10 +184,10 @@ References
 .. [Ware] http://ccom.unh.edu/sites/default/files/publications/Ware_1988_CGA_Color_sequences_univariate_maps.pdf
 .. [Moreland] http://www.kennethmoreland.com/color-maps/ColorMapsExpanded.pdf
 .. [list-colormaps] https://gist.github.com/endolith/2719900#id7
-.. [mycarta-banding] http://mycarta.wordpress.com/2012/10/14/the-rainbow-is-deadlong-live-the-rainbow-part-4-cie-lab-heated-body/
-.. [mycarta-jet] http://mycarta.wordpress.com/2012/10/06/the-rainbow-is-deadlong-live-the-rainbow-part-3/
-.. [mycarta-lablinear] http://mycarta.wordpress.com/2012/12/06/the-rainbow-is-deadlong-live-the-rainbow-part-5-cie-lab-linear-l-rainbow/
-.. [mycarta-cubelaw] http://mycarta.wordpress.com/2013/02/21/perceptual-rainbow-palette-the-method/
+.. [mycarta-banding] https://mycarta.wordpress.com/2012/10/14/the-rainbow-is-deadlong-live-the-rainbow-part-4-cie-lab-heated-body/
+.. [mycarta-jet] https://mycarta.wordpress.com/2012/10/06/the-rainbow-is-deadlong-live-the-rainbow-part-3/
+.. [mycarta-lablinear] https://mycarta.wordpress.com/2012/12/06/the-rainbow-is-deadlong-live-the-rainbow-part-5-cie-lab-linear-l-rainbow/
+.. [mycarta-cubelaw] https://mycarta.wordpress.com/2013/02/21/perceptual-rainbow-palette-the-method/
 .. [bw] http://www.tannerhelland.com/3643/grayscale-image-algorithm-vb6/
 .. [colorblindness] http://www.color-blindness.com/
 .. [vischeck] http://www.vischeck.com/vischeck/
