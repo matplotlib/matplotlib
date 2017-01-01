@@ -83,6 +83,60 @@ _colors_full_map.update(BASE_COLORS)
 _colors_full_map = _ColorMapping(_colors_full_map)
 
 
+def join_colormaps(cmaps, fractions=None, name=None, N=None):
+    """
+    Join a series of colormaps into one.
+
+    Parameters
+    ----------
+    cmaps : a sequence of colormaps to be joined (length M)
+    fractions : a sequence of floats or ints (length M)
+        The fraction of the new colormap that each colormap should
+        occupy. These are normalized so they sum to 1. By default, the
+        fractions are the ``N`` attribute of each cmap.
+    name : str, optional
+        The name for the joined colormap. This defaults to
+        ``cmap[0].name + '+' + cmap[1].name + '+' ...``
+    N : int
+        The number of entries in the color map.  This defaults to the
+        sum of the ``N`` attributes of the cmaps.
+
+    Returns
+    -------
+    ListedColormap
+        The joined colormap.
+
+    Examples
+    --------
+    import matplotlib.pyplat as plt
+    cmap1 = plt.get_cmap('viridis', 128)
+    cmap2 = plt.get_cmap('plasma_r', 64)
+    cmap3 = plt.get_cmap('jet', 64)
+
+    joined_cmap = join_colormaps((cmap1, cmap2, cmap3))
+
+    See Also
+    --------
+
+    :meth:`Colorbar.join` and :meth:`Colorbar.__add__` : a method
+        implementation of this functionality
+    """
+    if N is None:
+        N = np.sum([cm.N for cm in cmaps])
+    if fractions is None:
+        fractions = [cm.N for cm in cmaps]
+    fractions = np.array(fractions) / np.sum(fractions, dtype='float')
+    if name is None:
+        name = ""
+        for cm in cmaps:
+            name += cm.name + '+'
+        name.rstrip('+')
+    maps = [cm(np.linspace(0, 1, int(N * frac)))
+            for cm, frac in zip(cmaps, fractions)]
+    # N is set by len of the vstack'd array:
+    return ListedColormap(np.vstack(maps), name, )
+
+
 def get_named_colors_mapping():
     """Return the global mapping of names to named colors."""
     return _colors_full_map
@@ -656,18 +710,10 @@ class Colormap(object):
 
         joined_cmap = cmap1 + cmap2
         """
-        if N is None:
-            N = self.N + other.N
         if frac_self is None:
             frac_self = self.N / (other.N + self.N)
-        if name is None:
-            name = '{}+{}'.format(self.name, other.name)
-        if not (0 < frac_self and frac_self < 1):
-            raise ValueError("frac_self must be in the interval (0.0, 1.0)")
-        map0 = self(np.linspace(0, 1, int(N * frac_self)))
-        map1 = other(np.linspace(0, 1, int(N * (1 - frac_self))))
-        # N is set by len of the vstack'd array:
-        return ListedColormap(np.vstack((map0, map1)), name, )
+        fractions = [frac_self, 1 - frac_self]
+        return join_colormaps([self, other], fractions, name, N)
 
     __add__ = join
 
