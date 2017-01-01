@@ -770,6 +770,90 @@ class Colormap(object):
             name = "trunc({},{:.2f},{:.2f})".format(self.name, minval, maxval)
         return ListedColormap(self(np.linspace(minval, maxval, N)), name)
 
+    def __getitem__(self, item):
+        """Advanced indexing for colorbars.
+
+
+        Examples
+        --------
+        import matplotlib.pyplat as plt
+        cmap = plt.get_cmap('viridis', 128)
+
+        # ### float indexing
+        # for float-style indexing, the values must be in [0.0, 1.0]
+        # Truncate the colormap between 20 and 70%
+        new_cm = cmap[0.2, 0.7]
+        # equivalently:
+        new_cm = cmap[0.2:0.7]
+
+        # Same as above, but specify the number of points
+        new_cm = cmap[0.2, 0.7, 64]
+        # equivalently, use `np.mgrid` complex-indexing:
+        new_cm = cmap[0.2:0.7:1j * 64]
+
+        # ### Int-style indexing
+        # for int-style indexing, the values must be in [0, self.N]
+        new_cm = cmap[12:100]
+
+        # Same as above, but 4x fewer points
+        new_cm = cmap[12:100:4]
+
+        # negative values are supported (same as above)
+        new_cm = cmap[12:-28:4]
+
+        # And so is `np.mgrid` complex-indexing (same as above)
+        new_cm = cmap[12:-28:1j * 22]
+        """
+        if isinstance(item, tuple):
+            if len(item) == 2:
+                N = self.N
+            elif len(item) == 3:
+                N = item[2]
+            else:
+                raise IndexError("Invalid colorbar itemization")
+            return self.truncate(item[0], item[1], N=N)
+        elif isinstance(item, slice):
+            name = self.name + '[{:s}]'.format(str(item))
+            sss = [item.start, item.stop, item.step]
+            if any([isinstance(s, int) for s in sss]):
+                # This is an integer-style itemization
+                if sss[0] is None:
+                    sss[0] = 0
+                elif sss[0] < 0:
+                    sss[0] = sss[0] % self.N
+                if sss[1] is None:
+                    sss[1] = self.N
+                elif sss[1] < 0:
+                    sss[1] = sss[1] % self.N
+                if sss[2] is None:
+                    sss[2] = 1
+                sss[0] = sss[0] / self.N
+                sss[1] = sss[1] / self.N
+                if not isinstance(sss[2], complex):
+                    sss[2] = sss[2] / self.N
+            else:
+                if sss[0] is None:
+                    sss[0] = 0.0
+                if sss[1] is None:
+                    sss[1] = 1.0
+                if sss[2] is None:
+                    sss[2] = self.N * 1j
+            if sss[0] < 0 or sss[0] >= 1 or sss[1] <= 0 or sss[1] > 1:
+                raise IndexError("Invalid colorbar itemization - outside bounds")
+            points = np.mgrid[slice(*sss)]
+        elif isinstance(item, (list, np.ndarray)):
+            name = self.name + '[...]'
+            if isinstance(item, list):
+                item = np.array(item)
+            if item.dtype.kind in ('u', 'i'):
+                item = item.astype('f') / self.N
+            points = item
+        else:
+            raise IndexError("Invalid colorbar itemization")
+        if len(points) <= 1:
+            raise IndexError("Invalid colorbar itemization - too few points")
+        return ListedColormap(self(points), name=name)
+
 
 class LinearSegmentedColormap(Colormap):
     """Colormap objects based on lookup tables using linear segments.
