@@ -650,6 +650,11 @@ class Colormap(object):
         # Note that `joined_cmap` will be 2/3 `cmap1`, and 1/3 `cmap2`
         # because of the default behavior of frac_self
         # (i.e. proportional to N of each cmap).
+
+        # This is also available as :meth:`Colormap.__add__`, so that
+        # the following is possible:
+
+        joined_cmap = cmap1 + cmap2
         """
         if N is None:
             N = self.N + other.N
@@ -663,6 +668,8 @@ class Colormap(object):
         map1 = other(np.linspace(0, 1, int(N * (1 - frac_self))))
         # N is set by len of the vstack'd array:
         return ListedColormap(np.vstack((map0, map1)), name, )
+
+    __add__ = join
 
     def truncate(self, minval=0.0, maxval=1.0, N=None):
         """
