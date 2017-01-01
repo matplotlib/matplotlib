@@ -14,7 +14,8 @@ Submitting a bug report
 
 If you find a bug in the code or documentation, do not hesitate to submit a
 ticket to the
-`Bug Tracker <https://github.com/matplotlib/matplotlib/issues>`_. You are also welcome to post feature requests or pull requests.
+`Bug Tracker <https://github.com/matplotlib/matplotlib/issues>`_. You are also 
+welcome to post feature requests or pull requests.
 
 If you are reporting a bug, please do your best to include the following:
 
@@ -29,8 +30,8 @@ If you are reporting a bug, please do your best to include the following:
 
  4. The expected outcome of the code snippet
 
- 5. The Matplotlib version, Python version and platform that you are using. You can grab the 
-    version with the following commands::
+ 5. The Matplotlib version, Python version and platform that you are using. You
+    can grab the version with the following commands::
 
         >>> import matplotlib
         >>> matplotlib.__version__
@@ -39,7 +40,8 @@ If you are reporting a bug, please do your best to include the following:
         >>> platform.python_version()
         '2.7.12'
 
-We have preloaded the issue creation page with a Markdown template that you can use to organize this information.
+We have preloaded the issue creation page with a Markdown template that you can
+use to organize this information.
         
 Thank you for your help in keeping bug reports complete, targeted and descriptive.
 
