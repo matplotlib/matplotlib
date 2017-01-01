@@ -4820,6 +4820,12 @@ def test_scatter_color_masking():
     assert linewidths[1] == 3
 
 
+@cleanup
+def test_eventplot_legend():
+    plt.eventplot([1.0], label='Label')
+    plt.legend()
+
+
 if __name__ == '__main__':
     import nose
     import sys
