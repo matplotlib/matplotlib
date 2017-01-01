@@ -614,7 +614,7 @@ class Colormap(object):
         """
         raise NotImplementedError()
 
-    def join(self, other, name=None, frac_self=None, N=None):
+    def join(self, other, frac_self=None, name=None, N=None):
         """
         Join colormap `self` to `other` and return the new colormap.
 
@@ -622,13 +622,13 @@ class Colormap(object):
         ----------
         other : cmap
             The other colormap to be joined to this one.
-        name : str, optional
-            The name for the reversed colormap. If it's None the
-            name will be ``self.name + '-' + other.name``.
         frac_self : float in the interval ``(0.0, 1.0)``, optional
             The fraction of the new colormap that should be occupied
             by self. By default, this is ``self.N / (self.N +
             other.N)``.
+        name : str, optional
+            The name for the joined colormap. This defaults to
+            ``self.name + '+' + other.name``
         N : int
             The number of entries in the color map.  The default is ``None``,
             in which case the number of entries is the sum of the
@@ -671,7 +671,7 @@ class Colormap(object):
 
     __add__ = join
 
-    def truncate(self, minval=0.0, maxval=1.0, N=None):
+    def truncate(self, minval=0.0, maxval=1.0, name=None, N=None):
         """
         Truncate a colormap.
 
@@ -680,11 +680,12 @@ class Colormap(object):
         minval : float in the interval ``(0.0, 1.0)``, optional
             The lower fraction of the colormap you want to truncate
             (default 0.0).
-
         maxval : float in the interval ``(0.0, 1.0)``, optional
             The upper limit of the colormap you want to keep. i.e. truncate
             the section above this value (default 1.0).
-
+        name : str, optional
+            The name for the new truncated colormap. This defaults to
+            ``"trunc({},{:.2f},{:.2f})".format(self.name, minval, maxval)``
         N : int
             The number of entries in the map. The default is *None*,
             in which case the same color-step density is preserved,
@@ -719,7 +720,8 @@ class Colormap(object):
         # http://stackoverflow.com/a/18926541/2121597
         if N is None:
             N = np.ceil(self.N * (maxval - minval))
-        name = "trunc({},{:.2f},{:.2f})".format(self.name, minval, maxval)
+        if name is None:
+            name = "trunc({},{:.2f},{:.2f})".format(self.name, minval, maxval)
         return ListedColormap(self(np.linspace(minval, maxval, N)), name)
 
 
