@@ -713,7 +713,8 @@ class Figure(Artist):
         self.bbox_inches.p1 = w, h
 
         if forward:
-            dpival = self.dpi
+            ratio = getattr(self.canvas, '_dpi_ratio', 1)
+            dpival = self.dpi / ratio
             canvasw = w * dpival
             canvash = h * dpival
             manager = getattr(self.canvas, 'manager', None)
