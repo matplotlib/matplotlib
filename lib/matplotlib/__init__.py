@@ -898,17 +898,21 @@ class RcParams(MutableMapping, dict):
         try:
             if key in _deprecated_map:
                 alt_key, alt_val, inverse_alt = _deprecated_map[key]
-                warnings.warn(self.msg_depr % (key, alt_key))
+                warnings.warn(self.msg_depr % (key, alt_key),
+                              mplDeprecation)
                 key = alt_key
                 val = alt_val(val)
             elif key in _deprecated_set and val is not None:
-                warnings.warn(self.msg_depr_set % key)
+                warnings.warn(self.msg_depr_set % key,
+                              mplDeprecation)
             elif key in _deprecated_ignore_map:
                 alt = _deprecated_ignore_map[key]
-                warnings.warn(self.msg_depr_ignore % (key, alt))
+                warnings.warn(self.msg_depr_ignore % (key, alt),
+                              mplDeprecation)
                 return
             elif key in _obsolete_set:
-                warnings.warn(self.msg_obsolete % (key,))
+                warnings.warn(self.msg_obsolete % (key, ),
+                              mplDeprecation)
                 return
             try:
                 cval = self.validate[key](val)
@@ -924,16 +928,19 @@ class RcParams(MutableMapping, dict):
         inverse_alt = None
         if key in _deprecated_map:
             alt_key, alt_val, inverse_alt = _deprecated_map[key]
-            warnings.warn(self.msg_depr % (key, alt_key))
+            warnings.warn(self.msg_depr % (key, alt_key),
+                          mplDeprecation)
             key = alt_key
 
         elif key in _deprecated_ignore_map:
             alt = _deprecated_ignore_map[key]
-            warnings.warn(self.msg_depr_ignore % (key, alt))
+            warnings.warn(self.msg_depr_ignore % (key, alt),
+                          mplDeprecation)
             key = alt
 
         elif key in _obsolete_set:
-            warnings.warn(self.msg_obsolete % (key,))
+            warnings.warn(self.msg_obsolete % (key, ),
+                          mplDeprecation)
             return None
 
         val = dict.__getitem__(self, key)
@@ -1092,7 +1099,8 @@ def _rc_params_in_file(fname, fail_on_error=False):
                                   (val, error_details, msg))
         elif key in _deprecated_ignore_map:
             warnings.warn('%s is deprecated. Update your matplotlibrc to use '
-                          '%s instead.' % (key, _deprecated_ignore_map[key]))
+                          '%s instead.' % (key, _deprecated_ignore_map[key]),
+                          mplDeprecation)
 
         else:
             print("""

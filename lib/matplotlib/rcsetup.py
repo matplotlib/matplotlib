@@ -29,6 +29,8 @@ try:
 except ImportError:
     # python 2
     import collections as abc
+
+from matplotlib.cbook import mplDeprecation
 from matplotlib.fontconfig_pattern import parse_fontconfig_pattern
 from matplotlib.colors import is_color_like
 
@@ -149,7 +151,8 @@ def deprecate_axes_hold(value):
     if value is None:
         return None  # converted to True where accessed in figure.py,
                      # axes/_base.py
-    warnings.warn("axes.hold is deprecated, will be removed in 3.0")
+    warnings.warn("axes.hold is deprecated, will be removed in 3.0",
+                  mplDeprecation)
     return validate_bool(value)
 
 
@@ -284,7 +287,8 @@ def validate_maskedarray(v):
     except ValueError:
         pass
     warnings.warn('rcParams key "maskedarray" is obsolete and has no effect;\n'
-                  ' please delete it from your matplotlibrc file')
+                  ' please delete it from your matplotlibrc file',
+                  mplDeprecation)
 
 
 _seq_err_msg = ('You must supply exactly {n} values, you provided {num} '
@@ -405,7 +409,8 @@ def validate_color(s):
 
 def deprecate_axes_colorcycle(value):
     warnings.warn("axes.color_cycle is deprecated.  Use axes.prop_cycle "
-                  "instead. Will be removed in 2.1.0")
+                  "instead. Will be removed in 2.1.0",
+                  mplDeprecation)
     return validate_colorlist(value)
 
 
@@ -480,7 +485,8 @@ def validate_whiskers(s):
 
 def deprecate_savefig_extension(value):
     warnings.warn("savefig.extension is deprecated.  Use savefig.format "
-                  "instead. Will be removed in 1.4.x")
+                  "instead. Will be removed in 1.4.x",
+                  mplDeprecation)
     return value
 
 
@@ -541,7 +547,8 @@ def validate_negative_linestyle_legacy(s):
     except ValueError:
         dashes = validate_nseq_float(2)(s)
         warnings.warn("Deprecated negative_linestyle specification; use "
-                      "'solid' or 'dashed'")
+                      "'solid' or 'dashed'",
+                      mplDeprecation)
         return (0, dashes)  # (offset, (solid, blank))
 
 
@@ -554,7 +561,8 @@ def validate_corner_mask(s):
 
 def validate_tkpythoninspect(s):
     # Introduced 2010/07/05
-    warnings.warn("tk.pythoninspect is obsolete, and has no effect")
+    warnings.warn("tk.pythoninspect is obsolete, and has no effect",
+                  mplDeprecation)
     return validate_bool(s)
 
 validate_legend_loc = ValidateInStrings(
@@ -574,12 +582,14 @@ validate_legend_loc = ValidateInStrings(
 
 def deprecate_svg_image_noscale(value):
     warnings.warn("svg.image_noscale is deprecated. Set "
-                  "image.interpolation to 'none' instead.")
+                  "image.interpolation to 'none' instead.",
+                  mplDeprecation)
 
 
 def deprecate_svg_embed_char_paths(value):
     warnings.warn("svg.embed_char_paths is deprecated.  Use "
-                  "svg.fonttype instead.")
+                  "svg.fonttype instead.",
+                  mplDeprecation)
 
 
 validate_svg_fonttype = ValidateInStrings('svg.fonttype',
