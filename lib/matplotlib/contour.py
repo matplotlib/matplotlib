@@ -800,23 +800,23 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
         :attr:`matplotlib.contour.QuadContourSet.contour_doc`.
         """
         self.ax = ax
-        self.levels = kwargs.get('levels', None)
-        self.filled = kwargs.get('filled', False)
-        self.linewidths = kwargs.get('linewidths', None)
-        self.linestyles = kwargs.get('linestyles', None)
+        self.levels = kwargs.pop('levels', None)
+        self.filled = kwargs.pop('filled', False)
+        self.linewidths = kwargs.pop('linewidths', None)
+        self.linestyles = kwargs.pop('linestyles', None)
 
-        self.hatches = kwargs.get('hatches', [None])
+        self.hatches = kwargs.pop('hatches', [None])
 
-        self.alpha = kwargs.get('alpha', None)
-        self.origin = kwargs.get('origin', None)
-        self.extent = kwargs.get('extent', None)
-        cmap = kwargs.get('cmap', None)
-        self.colors = kwargs.get('colors', None)
-        norm = kwargs.get('norm', None)
-        vmin = kwargs.get('vmin', None)
-        vmax = kwargs.get('vmax', None)
-        self.extend = kwargs.get('extend', 'neither')
-        self.antialiased = kwargs.get('antialiased', None)
+        self.alpha = kwargs.pop('alpha', None)
+        self.origin = kwargs.pop('origin', None)
+        self.extent = kwargs.pop('extent', None)
+        cmap = kwargs.pop('cmap', None)
+        self.colors = kwargs.pop('colors', None)
+        norm = kwargs.pop('norm', None)
+        vmin = kwargs.pop('vmin', None)
+        vmax = kwargs.pop('vmax', None)
+        self.extend = kwargs.pop('extend', 'neither')
+        self.antialiased = kwargs.pop('antialiased', None)
         if self.antialiased is None and self.filled:
             self.antialiased = False  # eliminate artifacts; we are not
                                       # stroking the boundaries.
@@ -824,8 +824,8 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
             # the LineCollection default, which uses the
             # rcParams['lines.antialiased']
 
-        self.nchunk = kwargs.get('nchunk', 0)
-        self.locator = kwargs.get('locator', None)
+        self.nchunk = kwargs.pop('nchunk', 0)
+        self.locator = kwargs.pop('locator', None)
         if (isinstance(norm, colors.LogNorm)
                 or isinstance(self.locator, ticker.LogLocator)):
             self.logscale = True
@@ -848,9 +848,9 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
         if self.origin == 'image':
             self.origin = mpl.rcParams['image.origin']
 
-        self._transform = kwargs.get('transform', None)
+        self._transform = kwargs.pop('transform', None)
 
-        self._process_args(*args, **kwargs)
+        kwargs = self._process_args(*args, **kwargs)
         self._process_levels()
 
         if self.colors is not None:
@@ -915,11 +915,12 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
             if self.allkinds is None:
                 self.allkinds = [None] * len(self.allsegs)
 
+            # Default zorder taken from Collection
+            zorder = kwargs.pop('zorder', 1)
             for level, level_upper, segs, kinds in \
                     zip(lowers, uppers, self.allsegs, self.allkinds):
                 paths = self._make_paths(segs, kinds)
-                # Default zorder taken from Collection
-                zorder = kwargs.get('zorder', 1)
+
                 col = mcoll.PathCollection(
                     paths,
                     antialiaseds=(self.antialiased,),
@@ -936,10 +937,10 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
             aa = self.antialiased
             if aa is not None:
                 aa = (self.antialiased,)
+            # Default zorder taken from LineCollection
+            zorder = kwargs.pop('zorder', 2)
             for level, width, lstyle, segs in \
                     zip(self.levels, tlinewidths, tlinestyles, self.allsegs):
-                # Default zorder taken from LineCollection
-                zorder = kwargs.get('zorder', 2)
                 col = mcoll.LineCollection(
                     segs,
                     antialiaseds=aa,
@@ -959,6 +960,13 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
         self.ax.autoscale_view(tight=True)
 
         self.changed()  # set the colors
+
+        if kwargs:
+            s = ''
+            for key, value in kwargs.items():
+                s += '"' + str(key) + '"' + ', '
+            warnings.warn('The following kwargs were not used by contour: ' +
+                          s)
 
     def get_transform(self):
         """
@@ -1067,6 +1075,8 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
         points = np.concatenate(flatseglist, axis=0)
         self._mins = points.min(axis=0)
         self._maxs = points.max(axis=0)
+
+        return kwargs
 
     def _get_allsegs_and_allkinds(self):
         """
@@ -1431,7 +1441,7 @@ class QuadContourSet(ContourSet):
             self._mins = args[0]._mins
             self._maxs = args[0]._maxs
         else:
-            self._corner_mask = kwargs.get('corner_mask', None)
+            self._corner_mask = kwargs.pop('corner_mask', None)
             if self._corner_mask is None:
                 self._corner_mask = mpl.rcParams['contour.corner_mask']
 
@@ -1469,6 +1479,8 @@ class QuadContourSet(ContourSet):
             self.Cntr = contour_generator
         else:
             self._contour_generator = contour_generator
+
+        return kwargs
 
     def _get_allsegs_and_allkinds(self):
         """
@@ -1539,7 +1551,7 @@ class QuadContourSet(ContourSet):
         Exception class (here and elsewhere).
         """
         x, y = args[:2]
-        self.ax._process_unit_info(xdata=x, ydata=y, kwargs=kwargs)
+        kwargs = self.ax._process_unit_info(xdata=x, ydata=y, kwargs=kwargs)
         x = self.ax.convert_xunits(x)
         y = self.ax.convert_yunits(y)
 
