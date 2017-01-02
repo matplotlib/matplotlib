@@ -211,6 +211,9 @@ Keyword arguments:
     A dictionary with keyword arguments accepted by the
     :class:`~matplotlib.font_manager.FontProperties` initializer:
     *family*, *style*, *variant*, *size*, *weight*
+  
+  *vswap*:
+    Swap the horizontal key to a vertical key
 
 Any additional keyword arguments are used to override vector
 properties taken from *Q*.
@@ -240,6 +243,8 @@ class QuiverKey(martist.Artist):
         self.color = kw.pop('color', None)
         self.label = label
         self._labelsep_inches = kw.pop('labelsep', 0.1)
+        self._vswap = kw.pop('vswap', False)
+        vswap = {True: 'vertical', False: 0}
         self.labelsep = (self._labelsep_inches * Q.ax.figure.dpi)
 
         # try to prevent closure over the real self
@@ -267,6 +272,7 @@ class QuiverKey(martist.Artist):
                         text=label,  # bbox=boxprops,
                         horizontalalignment=self.halign[self.labelpos],
                         verticalalignment=self.valign[self.labelpos],
+                        rotation=vswap[self._vswap],
                         fontproperties=font_manager.FontProperties(**_fp))
 
         if self.labelcolor is not None:
@@ -295,8 +301,12 @@ class QuiverKey(martist.Artist):
             # Hack: save and restore the Umask
             _mask = self.Q.Umask
             self.Q.Umask = ma.nomask
-            self.verts = self.Q._make_verts(np.array([self.U]),
-                                            np.zeros((1,)))
+            if self._vswap:
+                self.verts = self.Q._make_verts(np.zeros((1,)),
+                                                np.array([self.U]))
+            else:
+                self.verts = self.Q._make_verts(np.array([self.U]),
+                                                np.zeros((1,)))
             self.Q.Umask = _mask
             self.Q.pivot = _pivot
             kw = self.Q.polykw
