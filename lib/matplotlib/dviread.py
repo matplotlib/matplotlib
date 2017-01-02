@@ -965,7 +965,7 @@ class Encoding(object):
     __slots__ = ('encoding',)
 
     def __init__(self, filename):
-        with open(filename, 'rt') as file:
+        with open(filename, 'rb') as file:
             matplotlib.verbose.report('Parsing TeX encoding ' + filename,
                                       'debug-annoying')
             self.encoding = self._parse(file)
@@ -979,34 +979,21 @@ class Encoding(object):
     def _parse(self, file):
         result = []
 
-        state = 0
-        for line in file:
-            line = six.b(line)
-            comment_start = line.find(b'%')
-            if comment_start > -1:
-                line = line[:comment_start]
-            line = line.strip()
+        lines = (line[:line.find(b'%')] if b'%' in line else line.strip()
+                 for line in file)
+        data = b''.join(lines)
+        match = re.search(six.b(r'\['), data)
+        if not match:
+            raise ValueError("Cannot locate beginning of encoding in {}"
+                             .format(file))
+        data = data[match.span()[1]:]
+        match = re.search(six.b(r'\]'), data)
+        if not match:
+            raise ValueError("Cannot locate end of encoding in {}"
+                             .format(file))
+        data = data[:match.span()[0]]
 
-            if state == 0:
-                # Expecting something like /FooEncoding [
-                if b'[' in line:
-                    state = 1
-                    line = line[line.index(b'[')+1:].strip()
-
-            if state == 1:
-                if b']' in line:  # ] def
-                    line = line[:line.index(b']')]
-                    state = 2
-                words = line.split()
-                for w in words:
-                    if w.startswith(b'/'):
-                        # Allow for /abc/def/ghi
-                        subwords = w.split(b'/')
-                        result.extend(subwords[1:])
-                    else:
-                        raise ValueError("Broken name in encoding file: " + w)
-
-        return result
+        return re.findall(six.b(r'/([^][{}<>\s]+)'), data)
 
 
 def find_tex_file(filename, format=None):
