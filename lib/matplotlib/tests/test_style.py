@@ -55,7 +55,7 @@ def test_deprecated_rc_warning_includes_filename():
             pass
 
     for w in warns:
-        assert basename in w.message.message
+        assert basename in str(w.message)
 
 
 def test_available():
