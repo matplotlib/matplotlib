@@ -67,7 +67,10 @@ class FigureCanvasQTAggBase(object):
         self._agg_draw_pending = False
 
     def drawRectangle(self, rect):
-        self._drawRect = rect
+        if rect is not None:
+            self._drawRect = [pt / self._dpi_ratio for pt in rect]
+        else:
+            self._drawRect = None
         self.update()
 
     def paintEvent(self, e):
@@ -101,6 +104,9 @@ class FigureCanvasQTAggBase(object):
             qImage = QtGui.QImage(stringBuffer, self.renderer.width,
                                   self.renderer.height,
                                   QtGui.QImage.Format_ARGB32)
+            if hasattr(qImage, 'setDevicePixelRatio'):
+                # Not available on Qt4 or some older Qt5.
+                qImage.setDevicePixelRatio(self._dpi_ratio)
             # get the rectangle for the image
             rect = qImage.rect()
             p = QtGui.QPainter(self)
@@ -111,7 +117,9 @@ class FigureCanvasQTAggBase(object):
 
             # draw the zoom rectangle to the QPainter
             if self._drawRect is not None:
-                p.setPen(QtGui.QPen(QtCore.Qt.black, 1, QtCore.Qt.DotLine))
+                pen = QtGui.QPen(QtCore.Qt.black, 1 / self._dpi_ratio,
+                                 QtCore.Qt.DotLine)
+                p.setPen(pen)
                 x, y, w, h = self._drawRect
                 p.drawRect(x, y, w, h)
             p.end()
@@ -136,18 +144,24 @@ class FigureCanvasQTAggBase(object):
                 stringBuffer = reg.to_string_argb()
                 qImage = QtGui.QImage(stringBuffer, w, h,
                                       QtGui.QImage.Format_ARGB32)
+                if hasattr(qImage, 'setDevicePixelRatio'):
+                    # Not available on Qt4 or some older Qt5.
+                    qImage.setDevicePixelRatio(self._dpi_ratio)
                 # Adjust the stringBuffer reference count to work
                 # around a memory leak bug in QImage() under PySide on
                 # Python 3.x
                 if QT_API == 'PySide' and six.PY3:
                     ctypes.c_long.from_address(id(stringBuffer)).value = 1
 
+                origin = QtCore.QPoint(l, self.renderer.height - t)
                 pixmap = QtGui.QPixmap.fromImage(qImage)
-                p.drawPixmap(QtCore.QPoint(l, self.renderer.height-t), pixmap)
+                p.drawPixmap(origin / self._dpi_ratio, pixmap)
 
             # draw the zoom rectangle to the QPainter
             if self._drawRect is not None:
-                p.setPen(QtGui.QPen(QtCore.Qt.black, 1, QtCore.Qt.DotLine))
+                pen = QtGui.QPen(QtCore.Qt.black, 1 / self._dpi_ratio,
+                                 QtCore.Qt.DotLine)
+                p.setPen(pen)
                 x, y, w, h = self._drawRect
                 p.drawRect(x, y, w, h)
 
@@ -198,9 +212,11 @@ class FigureCanvasQTAggBase(object):
             bbox = self.figure.bbox
 
         self.blitbox.append(bbox)
-        l, b, w, h = bbox.bounds
+
+        # repaint uses logical pixels, not physical pixels like the renderer.
+        l, b, w, h = [pt / self._dpi_ratio for pt in bbox.bounds]
         t = b + h
-        self.repaint(l, self.renderer.height-t, w, h)
+        self.repaint(l, self.renderer.height / self._dpi_ratio - t, w, h)
 
     def print_figure(self, *args, **kwargs):
         FigureCanvasAgg.print_figure(self, *args, **kwargs)
@@ -226,6 +242,11 @@ class FigureCanvasQTAgg(FigureCanvasQTAggBase,
         super(FigureCanvasQTAgg, self).__init__(figure=figure)
         self._drawRect = None
         self.blitbox = []
+        # We don't want to scale up the figure DPI more than once.
+        # Note, we don't handle a signal for changing DPI yet.
+        if not hasattr(self.figure, '_original_dpi'):
+            self.figure._original_dpi = self.figure.dpi
+        self.figure.dpi = self._dpi_ratio * self.figure._original_dpi
         self.setAttribute(QtCore.Qt.WA_OpaquePaintEvent)
 
 
