@@ -912,7 +912,7 @@ class GraphicsContextBase(object):
         """
         return self._joinstyle
 
-    def get_linestyle(self, style):
+    def get_linestyle(self):
         """
         Return the linestyle: one of ('solid', 'dashed', 'dashdot',
         'dotted').
