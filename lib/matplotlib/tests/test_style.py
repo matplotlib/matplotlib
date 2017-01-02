@@ -4,6 +4,7 @@ from __future__ import (absolute_import, division, print_function,
 import os
 import shutil
 import tempfile
+import warnings
 from collections import OrderedDict
 from contextlib import contextmanager
 
@@ -24,7 +25,8 @@ DUMMY_SETTINGS = {PARAM: VALUE}
 @contextmanager
 def temp_style(style_name, settings=None):
     """Context manager to create a style sheet in a temporary directory."""
-    settings = DUMMY_SETTINGS
+    if not settings:
+        settings = DUMMY_SETTINGS
     temp_file = '%s.%s' % (style_name, STYLE_EXTENSION)
 
     # Write style settings to file in the temp directory.
@@ -42,6 +44,18 @@ def temp_style(style_name, settings=None):
     finally:
         shutil.rmtree(tempdir)
         style.reload_library()
+
+
+def test_deprecated_rc_warning_includes_filename():
+    SETTINGS = {'axes.color_cycle': 'ffffff'}
+    basename = 'color_cycle'
+    with warnings.catch_warnings(record=True) as warns:
+        with temp_style(basename, SETTINGS):
+            # style.reload_library() in temp_style() triggers the warning
+            pass
+
+    for w in warns:
+        assert basename in str(w.message)
 
 
 def test_available():
