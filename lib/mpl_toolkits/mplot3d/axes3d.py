@@ -2771,17 +2771,12 @@ pivot='tail', normalize=False, **kwargs)
         return polygons
 
     def errorbar3d(self, x, y, z, zerr=None, yerr=None, xerr=None,
-                   ecolor=None,
-                   # FIXME: doesn't work
-                   elinewidth=None,
-
                    # TODO: sneak these in
                    #capsize=None, fmt='',
                    #barsabove=False, lolims=False, uplims=False,
                    #xlolims=False, xuplims=False, errorevery=1, capthick=None,
 
                    **kwargs):
-        # TODO: minimal example
         # TODO: double-check the docstring
         """
         Draws error bars on an Axis3D instance.
@@ -2800,13 +2795,6 @@ pivot='tail', normalize=False, **kwargs)
             If a sequence of shape 2xN, errorbars are drawn at -row1
             and +row2 relative to the data.
 
-        ecolor : mpl color, optional, default: None
-            A matplotlib color arg which gives the color the errorbar lines;
-            if None, use the color of the line connecting the markers.
-
-        elinewidth : scalar, optional, default: None
-            The linewidth of the errorbar lines. If None, use the linewidth.
-
         Keyword arguments are passed to
         :func:`~mpl_toolkits.mplot3d.art3d.Line3DCollection`
         """
@@ -2818,23 +2806,6 @@ pivot='tail', normalize=False, **kwargs)
             y = [y]
         if not cbook.iterable(z):
             z = [z]
-
-        ecolors = []
-        if ecolor is None:
-            ecolor = [self._get_patches_for_fill.get_next_color()]
-
-        # FIXME: doesn't work
-        if len(ecolor) == len(x):
-            for c in ecolor:
-                ecolors.extend([c] * 6)
-        else:
-            # a single color specified, or face colors specified explicitly
-            ecolors = list(mcolors.to_rgba_array(ecolor))
-            if len(ecolors) < len(x):
-                ecolors *= (6 * len(x))
-
-        # FIXME: doesn't work
-        elinewidth = kwargs.get('elinewidth', None)
 
         def unpack_errs(data, err):
             lefts = [coord - dcoord for coord, dcoord in zip(data, err)]
@@ -2861,8 +2832,7 @@ pivot='tail', normalize=False, **kwargs)
                 coorderr = [unpack_errs(coord, err*rolling_mask[i])
                           for i, coord in enumerate([x, y, z])]
                 line = art3d.Line3DCollection(segments=np.array(coorderr).T,
-                                              linewidths=elinewidth,
-                                              colors=ecolors, **kwargs)
+                                              **kwargs)
                 self.add_collection(line)
                 lines.append(line)
                 coorderrs.append(coorderr)
