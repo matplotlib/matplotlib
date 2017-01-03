@@ -2770,6 +2770,112 @@ pivot='tail', normalize=False, **kwargs)
 
         return polygons
 
+    def errorbar3d(self, x, y, z, zerr=None, yerr=None, xerr=None,
+                   ecolor=None,
+                   # FIXME: doesn't work
+                   elinewidth=None,
+
+                   # TODO: sneak these in
+                   #capsize=None, fmt='',
+                   #barsabove=False, lolims=False, uplims=False,
+                   #xlolims=False, xuplims=False, errorevery=1, capthick=None,
+
+                   **kwargs):
+        # TODO: minimal example
+        # TODO: double-check the docstring
+        """
+        Draws error bars on an Axis3D instance.
+
+        Parameters
+        ----------
+        x : scalar
+        y : scalar
+        z : scalar
+
+        xerr/yerr/zerr : scalar or array-like, shape(n,1) or shape(2,n).
+            If a scalar number, len(N) array-like object, or an Nx1
+            array-like object, errorbars are drawn at +/-value relative
+            to the data. Default is None.
+
+            If a sequence of shape 2xN, errorbars are drawn at -row1
+            and +row2 relative to the data.
+
+        ecolor : mpl color, optional, default: None
+            A matplotlib color arg which gives the color the errorbar lines;
+            if None, use the color of the line connecting the markers.
+
+        elinewidth : scalar, optional, default: None
+            The linewidth of the errorbar lines. If None, use the linewidth.
+
+        Keyword arguments are passed to
+        :func:`~mpl_toolkits.mplot3d.art3d.Line3DCollection`
+        """
+        had_data = self.has_data()
+
+        if not cbook.iterable(x):
+            x = [x]
+        if not cbook.iterable(y):
+            y = [y]
+        if not cbook.iterable(z):
+            z = [z]
+
+        ecolors = []
+        if ecolor is None:
+            ecolor = [self._get_patches_for_fill.get_next_color()]
+
+        # FIXME: doesn't work
+        if len(ecolor) == len(x):
+            for c in ecolor:
+                ecolors.extend([c] * 6)
+        else:
+            # a single color specified, or face colors specified explicitly
+            ecolors = list(mcolors.to_rgba_array(ecolor))
+            if len(ecolors) < len(x):
+                ecolors *= (6 * len(x))
+
+        # FIXME: doesn't work
+        elinewidth = kwargs.get('elinewidth', None)
+
+        def unpack_errs(data, err):
+            lefts = [coord - dcoord for coord, dcoord in zip(data, err)]
+            rights = [coord + dcoord for coord, dcoord in zip(data, err)]
+            return lefts, rights
+
+        lines, coorderrs = [], []
+        for data, err, shift in zip([x, y, z],
+                                    [xerr, yerr, zerr],
+                                    range(3)):
+            if err is None:
+                continue
+
+            if not cbook.iterable(err):
+                err = [err] * len(data)
+
+            # TODO: placeholder for future work on limits functionality
+            nolims = np.ones_like(err, dtype=bool)
+
+            if nolims.any():
+                rolling_mask=np.roll([1.,0.,0.], shift)
+                if err is not None:
+                    err = np.atleast_1d(err)
+                coorderr = [unpack_errs(coord, err*rolling_mask[i])
+                          for i, coord in enumerate([x, y, z])]
+                line = art3d.Line3DCollection(segments=np.array(coorderr).T,
+                                              linewidths=elinewidth,
+                                              colors=ecolors, **kwargs)
+                self.add_collection(line)
+                lines.append(line)
+                coorderrs.append(coorderr)
+
+        coorderrs = np.array(coorderrs)
+        minx, maxx = (coorderrs[:,0,:,:].min(), coorderrs[:,1,:,:].max())
+        miny, maxy = (coorderrs[:,1,:,:].min(), coorderrs[:,1,:,:].max())
+        minz, maxz = (coorderrs[:,2,:,:].min(), coorderrs[:,2,:,:].max())
+        self.auto_scale_xyz((minx, maxx), (miny, maxy), (minz, maxz), had_data)
+
+        # TODO: return one list instead of three maybe?
+        return lines
+
 
 docstring.interpd.update(Axes3D=artist.kwdoc(Axes3D))
 docstring.dedent_interpd(Axes3D.__init__)
