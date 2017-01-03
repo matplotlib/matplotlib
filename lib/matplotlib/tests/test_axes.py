@@ -1721,33 +1721,24 @@ def test_stackplot_baseline():
     np.random.seed(0)
 
     def layers(n, m):
-        def bump(a):
-            x = 1 / (.1 + np.random.random())
-            y = 2 * np.random.random() - .5
-            z = 10 / (.1 + np.random.random())
-            a += x * np.exp(-((np.arange(m) / m - y) * z) ** 2)
         a = np.zeros((m, n))
         for i in range(n):
             for j in range(5):
-                bump(a[:, i])
+                x = 1 / (.1 + np.random.random())
+                y = 2 * np.random.random() - .5
+                z = 10 / (.1 + np.random.random())
+                a[:, i] += x * np.exp(-((np.arange(m) / m - y) * z) ** 2)
         return a
 
     d = layers(3, 100)
     d[50, :] = 0  # test for fixed weighted wiggle (issue #6313)
 
-    fig = plt.figure()
+    fig, axs = plt.subplots(2, 2)
 
-    plt.subplot(2, 2, 1)
-    plt.stackplot(list(xrange(100)), d.T, baseline='zero')
-
-    plt.subplot(2, 2, 2)
-    plt.stackplot(list(xrange(100)), d.T, baseline='sym')
-
-    plt.subplot(2, 2, 3)
-    plt.stackplot(list(xrange(100)), d.T, baseline='wiggle')
-
-    plt.subplot(2, 2, 4)
-    plt.stackplot(list(xrange(100)), d.T, baseline='weighted_wiggle')
+    axs[0, 0].stackplot(range(100), d.T, baseline='zero')
+    axs[0, 1].stackplot(range(100), d.T, baseline='sym')
+    axs[1, 0].stackplot(range(100), d.T, baseline='wiggle')
+    axs[1, 1].stackplot(range(100), d.T, baseline='weighted_wiggle')
 
 
 @image_comparison(baseline_images=['bxp_baseline'],
