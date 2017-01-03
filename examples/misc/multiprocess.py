@@ -76,8 +76,10 @@ def main():
     for ii in range(10):
         pl.plot()
         time.sleep(0.5)
-    try: input = raw_input
-    except NameError: pass
+    try:
+        input = raw_input
+    except NameError:
+        pass
     input('press Enter...')
     pl.plot(finished=True)
 
