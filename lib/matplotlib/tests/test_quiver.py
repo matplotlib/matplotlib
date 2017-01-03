@@ -162,6 +162,7 @@ def test_bad_masked_sizes():
     ax.barbs(x, y, u, v)
 
 
+@cleanup
 def test_quiverkey_angles():
     # Check that only a single arrow is plotted for a quiverkey when an array
     # of angles is given to the original quiver plot
