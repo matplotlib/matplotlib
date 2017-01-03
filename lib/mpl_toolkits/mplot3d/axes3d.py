@@ -2838,7 +2838,7 @@ pivot='tail', normalize=False, **kwargs)
                 coorderrs.append(coorderr)
 
         coorderrs = np.array(coorderrs)
-        minx, maxx = (coorderrs[:,0,:,:].min(), coorderrs[:,1,:,:].max())
+        minx, maxx = (coorderrs[:,0,:,:].min(), coorderrs[:,0,:,:].max())
         miny, maxy = (coorderrs[:,1,:,:].min(), coorderrs[:,1,:,:].max())
         minz, maxz = (coorderrs[:,2,:,:].min(), coorderrs[:,2,:,:].max())
         self.auto_scale_xyz((minx, maxx), (miny, maxy), (minz, maxz), had_data)
