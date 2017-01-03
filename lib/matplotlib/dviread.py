@@ -868,16 +868,8 @@ class PsfontsMap(object):
         return result._replace(filename=fn, encoding=enc)
 
     def _parse(self, file):
-        for line in file:
-            line = line.strip()
-            if line == b'' or line.startswith(b'%'):
-                continue
-            words = [word.strip(b'"') for word in
-                     re.findall(b'("[^"]*"|[^ ]+)', line)]
-            self._register(words)
-
-    def _register(self, words):
-        """Register a font described by "words", a sequence of bytestrings.
+        """
+        Parse the font mapping file.
 
         The format is, AFAIK: texname fontname [effects and filenames]
         Effects are PostScript snippets like ".177 SlantFont",
@@ -889,52 +881,68 @@ class PsfontsMap(object):
         There is some difference between <foo.pfb and <<bar.pfb in
         subsetting, but I have no example of << in my TeX installation.
         """
-
         # If the map file specifies multiple encodings for a font, we
         # follow pdfTeX in choosing the last one specified. Such
         # entries are probably mistakes but they have occurred.
         # http://tex.stackexchange.com/questions/10826/
         # http://article.gmane.org/gmane.comp.tex.pdftex/4914
 
-        texname, psname = words[:2]
-        words = words[2:]
-        effects, encoding, filename = b'', None, None
+        empty_re = re.compile(br'%|\s*$')
+        word_re = re.compile(
+            br'''(?x) (?:
+                 "<\[ (?P<enc1>  [^"]+    )" | # quoted encoding marked by [
+                 "<   (?P<enc2>  [^"]+.enc)" | # quoted encoding, ends in .enc
+                 "<<? (?P<file1> [^"]+    )" | # quoted font file name
+                 "    (?P<eff1>  [^"]+    )" | # quoted effects or font name
+                 <\[  (?P<enc3>  \S+      )  | # encoding marked by [
+                 <    (?P<enc4>  \S+  .enc)  | # encoding, ends in .enc
+                 <<?  (?P<file2> \S+      )  | # font file name
+                      (?P<eff2>  \S+      )    # effects or font name
+            )''')
+        effects_re = re.compile(
+            br'''(?x) (?P<slant> -?[0-9]*(?:\.[0-9]+)) \s* SlantFont
+                    | (?P<extend>-?[0-9]*(?:\.[0-9]+)) \s* ExtendFont''')
 
-        # pick the last non-filename word for effects
-        effects_words = [word for word in words if not word.startswith(b'<')]
-        if effects_words:
-            effects = effects_words[-1]
+        lines = (line.strip()
+                 for line in file
+                 if not empty_re.match(line))
+        for line in lines:
+            effects, encoding, filename = b'', None, None
+            words = word_re.finditer(line)
 
-        encoding_re = br'<<?(\[.*|.*\.enc)'
-        encoding_files = [word.lstrip(b'<').lstrip(b'[')
-                          for word in words
-                          if re.match(encoding_re, word)]
-        if len(encoding_files) > 1:
-            matplotlib.verbose.report(
-                'Multiple encodings for %s = %s' % (texname, psname), 'debug')
-        if encoding_files:
-            encoding = encoding_files[-1]
+            w = next(words)
+            texname = w.group('eff2') or w.group('eff1')
+            w = next(words)
+            psname = w.group('eff2') or w.group('eff1')
 
-        font_files = [word.lstrip(b'<')
-                      for word in words
-                      if word.startswith(b'<')
-                      and not re.match(encoding_re, word)]
-        if font_files:
-            filename = font_files[-1]
+            for w in words:
+                eff = w.group('eff1') or w.group('eff2')
+                if eff:
+                    effects = eff
+                    continue
+                enc = (w.group('enc4') or w.group('enc3') or
+                       w.group('enc2') or w.group('enc1'))
+                if enc:
+                    if encoding is not None:
+                        matplotlib.verbose.report(
+                            'Multiple encodings for %s = %s'
+                            % (texname, psname),
+                            'debug')
+                    encoding = enc
+                    continue
+                filename = w.group('file2') or w.group('file1')
 
-        eff = {}
-        for psword, keyword in ((b'SlantFont', 'slant'),
-                                (b'ExtendFont', 'extend')):
-            match = re.search(b'([^ ]+) +' + psword, effects)
-            if match:
-                try:
-                    eff[keyword] = float(match.group(1))
-                except ValueError:
-                    pass
+            effects_dict = {}
+            for match in effects_re.finditer(effects):
+                slant = match.group('slant')
+                if slant:
+                    effects_dict['slant'] = float(slant)
+                else:
+                    effects_dict['extend'] = float(match.group('extend'))
 
-        self._font[texname] = PsFont(
-            texname=texname, psname=psname, effects=eff,
-            encoding=encoding, filename=filename)
+            self._font[texname] = PsFont(
+                texname=texname, psname=psname, effects=effects_dict,
+                encoding=encoding, filename=filename)
 
 
 class Encoding(object):
