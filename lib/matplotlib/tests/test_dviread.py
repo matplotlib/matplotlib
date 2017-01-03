@@ -61,7 +61,7 @@ def test_dviread():
     with open(os.path.join(dir, 'test.json')) as f:
         correct = json.load(f)
         for entry in correct:
-            entry['text'] = [[a, b, c, six.b(d), e]
+            entry['text'] = [[a, b, c, d.encode('ascii'), e]
                              for [a, b, c, d, e] in entry['text']]
     with dr.Dvi(os.path.join(dir, 'test.dvi'), None) as dvi:
         data = [{'text': [[t.x, t.y,

@@ -747,14 +747,10 @@ class Tfm(object):
        Used for verifying against the dvi file.
     design_size : int
        Design size of the font (unknown units)
-    width : dict
-       Width of each character, needs to be scaled by the factor
-       specified in the dvi file. This is a dict because indexing may
+    width, height, depth : dict
+       Dimensions of each character, need to be scaled by the factor
+       specified in the dvi file. These are dicts because indexing may
        not start from 0.
-    height : dict
-       Height of each character.
-    depth : dict
-       Depth of each character.
     """
     __slots__ = ('checksum', 'design_size', 'width', 'height', 'depth')
 
@@ -844,25 +840,25 @@ class PsfontsMap(object):
         self._filename = filename
         if six.PY3 and isinstance(filename, bytes):
             self._filename = filename.decode('ascii', errors='replace')
-        with open(filename, 'rt') as file:
+        with open(filename, 'rb') as file:
             self._parse(file)
 
     def __getitem__(self, texname):
-        assert(isinstance(texname, bytes))
+        assert isinstance(texname, bytes)
         try:
             result = self._font[texname]
         except KeyError:
-            matplotlib.verbose.report(textwrap.fill
-                ('A PostScript file for the font whose TeX name is "%s" '
-                 'could not be found in the file "%s". The dviread module '
-                 'can only handle fonts that have an associated PostScript '
-                 'font file. '
-                 'This problem can often be solved by installing '
-                 'a suitable PostScript font package in your (TeX) '
-                 'package manager.' % (texname.decode('ascii'),
-                                       self._filename),
-                 break_on_hyphens=False, break_long_words=False),
-                'helpful')
+            fmt = ('A PostScript file for the font whose TeX name is "{0}" '
+                   'could not be found in the file "{1}". The dviread module '
+                   'can only handle fonts that have an associated PostScript '
+                   'font file. '
+                   'This problem can often be solved by installing '
+                   'a suitable PostScript font package in your (TeX) '
+                   'package manager.')
+            msg = fmt.format(texname.decode('ascii'), self._filename)
+            msg = textwrap.fill(msg, break_on_hyphens=False,
+                                break_long_words=False)
+            matplotlib.verbose.report(msg, 'helpful')
             raise
         fn, enc = result.filename, result.encoding
         if fn is not None and not fn.startswith(b'/'):
@@ -873,7 +869,6 @@ class PsfontsMap(object):
 
     def _parse(self, file):
         for line in file:
-            line = six.b(line)
             line = line.strip()
             if line == b'' or line.startswith(b'%'):
                 continue
@@ -979,21 +974,20 @@ class Encoding(object):
     def _parse(self, file):
         result = []
 
-        lines = (line[:line.find(b'%')] if b'%' in line else line.strip()
-                 for line in file)
+        lines = (line.split(b'%', 1)[0].strip() for line in file)
         data = b''.join(lines)
-        match = re.search(six.b(r'\['), data)
-        if not match:
+        beginning = data.find(b'[')
+        if beginning < 0:
             raise ValueError("Cannot locate beginning of encoding in {}"
                              .format(file))
-        data = data[match.span()[1]:]
-        match = re.search(six.b(r'\]'), data)
-        if not match:
+        data = data[beginning:]
+        end = data.find(b']')
+        if end < 0:
             raise ValueError("Cannot locate end of encoding in {}"
                              .format(file))
-        data = data[:match.span()[0]]
+        data = data[:end]
 
-        return re.findall(six.b(r'/([^][{}<>\s]+)'), data)
+        return re.findall(br'/([^][{}<>\s]+)', data)
 
 
 def find_tex_file(filename, format=None):
