@@ -733,9 +733,9 @@ def cycler(*args, **kwargs):
     Creates a :class:`cycler.Cycler` object much like :func:`cycler.cycler`,
     but includes input validation.
 
-    cyler(arg)
-    cyler(label, itr)
-    cyler(label1=itr1[, label2=itr2[, ...]])
+    cycler(arg)
+    cycler(label, itr)
+    cycler(label1=itr1[, label2=itr2[, ...]])
 
     Form 1 simply copies a given `Cycler` object.
 

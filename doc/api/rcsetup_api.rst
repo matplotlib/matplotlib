@@ -1,6 +1,6 @@
-*****
+*******
 rcsetup
-*****
+*******
 
 
 :mod:`matplotlib.rcsetup`
