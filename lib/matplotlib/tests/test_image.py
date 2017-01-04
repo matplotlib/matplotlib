@@ -150,21 +150,24 @@ def test_imsave_color_alpha():
     # acceptably preserved through a save/read roundtrip.
     from numpy import random
     random.seed(1)
-    data = random.rand(16, 16, 4)
 
-    buff = io.BytesIO()
-    plt.imsave(buff, data)
+    for origin in ['lower', 'upper']:
+        data = random.rand(16, 16, 4)
+        buff = io.BytesIO()
+        plt.imsave(buff, data, origin=origin)
 
-    buff.seek(0)
-    arr_buf = plt.imread(buff)
+        buff.seek(0)
+        arr_buf = plt.imread(buff)
 
-    # Recreate the float -> uint8 conversion of the data
-    # We can only expect to be the same with 8 bits of precision,
-    # since that's what the PNG file used.
-    data = (255*data).astype('uint8')
-    arr_buf = (255*arr_buf).astype('uint8')
+        # Recreate the float -> uint8 conversion of the data
+        # We can only expect to be the same with 8 bits of precision,
+        # since that's what the PNG file used.
+        data = (255*data).astype('uint8')
+        if origin == 'lower':
+            data = data[::-1]
+        arr_buf = (255*arr_buf).astype('uint8')
 
-    assert_array_equal(data, arr_buf)
+        assert_array_equal(data, arr_buf)
 
 @image_comparison(baseline_images=['image_alpha'], remove_text=True)
 def test_image_alpha():
