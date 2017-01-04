@@ -24,7 +24,7 @@ with np.load(filename) as dem:
 region = np.s_[5:50, 5:50]
 x, y, z = x[region], y[region], z[region]
 
-fig, ax = plt.subplots(subplot_kw=dict(projection='3d'), figsize=(1.62, 1.38))
+fig, ax = plt.subplots(subplot_kw=dict(projection='3d'))
 
 ls = LightSource(270, 45)
 # To use a custom hillshading mode, override the built-in shading and pass
@@ -35,4 +35,4 @@ surf = ax.plot_surface(x, y, z, rstride=1, cstride=1, facecolors=rgb,
 ax.set_xticks([])
 ax.set_yticks([])
 ax.set_zticks([])
-fig.savefig("surface3d_frontpage.png")
+fig.savefig("surface3d_frontpage.png", dpi=25)  # results in 160x120 px image
