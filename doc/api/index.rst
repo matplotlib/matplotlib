@@ -44,6 +44,7 @@
    patheffects_api.rst
    projections_api.rst
    pyplot_api.rst
+   rcsetup_api.rst
    sankey_api.rst
    scale_api.rst
    spines_api.rst
