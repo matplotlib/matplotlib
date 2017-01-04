@@ -2807,6 +2807,7 @@ pivot='tail', normalize=False, **kwargs)
         if not cbook.iterable(z):
             z = [z]
 
+        # TODO: currently, only a scalar number or len(N) objects are ok...
         def unpack_errs(data, err):
             lefts = [coord - dcoord for coord, dcoord in zip(data, err)]
             rights = [coord + dcoord for coord, dcoord in zip(data, err)]
@@ -2825,6 +2826,11 @@ pivot='tail', normalize=False, **kwargs)
             # TODO: placeholder for future work on limits functionality
             nolims = np.ones_like(err, dtype=bool)
 
+            # NOTE: care needs to be taken here - using numpy is fine,
+            #       as long as the actual data plotted stays as lists.
+            #       This is due to unit preservation issues
+            #       (c.f. 2d errorbar case).
+            # FIXME: the above NOTE is violated below...
             if nolims.any():
                 rolling_mask=np.roll([1.,0.,0.], shift)
                 if err is not None:
@@ -2838,9 +2844,15 @@ pivot='tail', normalize=False, **kwargs)
                 coorderrs.append(coorderr)
 
         coorderrs = np.array(coorderrs)
-        minx, maxx = (coorderrs[:,0,:,:].min(), coorderrs[:,0,:,:].max())
-        miny, maxy = (coorderrs[:,1,:,:].min(), coorderrs[:,1,:,:].max())
-        minz, maxz = (coorderrs[:,2,:,:].min(), coorderrs[:,2,:,:].max())
+        def digout_minmax(err_arr, coord_label):
+            """ For brevity """
+            key = {'x': 0, 'y': 1, 'z': 2}
+            return (np.nanmin(err_arr[:, key[coord_label], :, :]),
+                    np.nanmax(err_arr[:, key[coord_label], :, :]) )
+
+        minx, maxx = digout_minmax(coorderrs, 'x')
+        miny, maxy = digout_minmax(coorderrs, 'y')
+        minz, maxz = digout_minmax(coorderrs, 'z')
         self.auto_scale_xyz((minx, maxx), (miny, maxy), (minz, maxz), had_data)
 
         # TODO: return one list instead of three maybe?
