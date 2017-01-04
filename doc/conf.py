@@ -133,6 +133,18 @@ default_role = 'obj'
 # Plot directive configuration
 # ----------------------------
 
+plot_pre_code = '''
+# Default imports from plot_directive sphinx extension.
+import numpy as np
+from matplotlib import pyplot as plt
+
+# Initialize random number generator for consistent plots.
+import random
+random.seed(20021210)
+del random
+np.random.seed(20021210)
+'''
+
 plot_formats = [('png', 100), ('pdf', 100)]
 
 # Subdirectories in 'examples/' directory of package and titles for gallery
