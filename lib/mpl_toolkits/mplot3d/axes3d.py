@@ -2770,21 +2770,19 @@ pivot='tail', normalize=False, **kwargs)
 
         return polygons
 
-    def errorbar3d(self, x, y, z, zerr=None, yerr=None, xerr=None,
-                   # TODO: sneak these in
-                   #fmt='',
-                   #barsabove=False,
-
-                   errorevery=1,
-                   capsize=None, capthick=None,
-                   xlolims=False, xuplims=False,
-                   ylolims=False, yuplims=False,
-                   zlolims=False, zuplims=False,
-
-                   **kwargs):
-        # TODO: write up a jupyter notebook using this as a template:
+    # NOTE: is it ok to redefine Axes.errorbar method?
+    #       some methods seem to append '3d' to the end instead?
+    def errorbar(self, x, y, z, zerr=None, yerr=None, xerr=None,
+                 # TODO: sneak this kwarg in:
+                 #fmt='',
+                 barsabove=False, errorevery=1,
+                 capsize=None, capthick=None, xlolims=False, xuplims=False,
+                 ylolims=False, yuplims=False, zlolims=False, zuplims=False,
+                 **kwargs):
+        # TODO: write up a proof of concept analogous to this one here:
         # http://matplotlib.org/examples/pylab_examples/errorbar_limits.html
-        # TODO: double-check the docstring
+        # TODO: triple-check the docstring: some data forms are probably not
+        #       going to work despite being allowed in the docstring :C
         """
         Draws error bars on an Axis3D instance.
 
@@ -2815,13 +2813,16 @@ pivot='tail', normalize=False, **kwargs)
             then they will over-ride capthick. This may change in future
             releases.
 
+        barsabove : bool, optional, default: False
+            if True , will plot the errorbars above the plot
+            symbols. Default is below.
+
         errorevery : positive integer, optional, default:1
             subsamples the errorbars. e.g., if errorevery=5, errorbars for
             every 5-th datapoint will be plotted. The data plot itself still
             shows all data points.
 
-
-        Keyword arguments are passed to
+        Additional keyword arguments for styling errorbar lines are passed to
         :func:`~mpl_toolkits.mplot3d.art3d.Line3DCollection`
         """
         had_data = self.has_data()
@@ -2836,6 +2837,13 @@ pivot='tail', normalize=False, **kwargs)
         everymask = np.arange(len(x)) % errorevery == 0
 
         # TODO: fully adhere to the styling rules in 2d-errorbar later on...
+        plot_line_style = {}
+        plot_line_style.update(**kwargs)
+        if barsabove:
+            plot_line_style['zorder'] = kwargs['zorder'] - .1
+        else:
+            plot_line_style['zorder'] = kwargs['zorder'] + .1
+
         eb_cap_style = {}
         if capsize is None:
             capsize = kwargs.pop('capsize', rcParams["errorbar.capsize"])
@@ -2873,7 +2881,7 @@ pivot='tail', normalize=False, **kwargs)
         errlines, caplines  = [], []
         coorderrs = [] # list of endpoint coordinates, used for auto-scaling
 
-        for data, err, shift, lolims, uplims in zip([x, y, z],
+        for data, err, i_xyz, lolims, uplims in zip([x, y, z],
                                     [xerr, yerr, zerr], range(3),
                                     [xlolims, ylolims, zlolims],
                                     [xuplims, yuplims, zuplims]):
@@ -2891,7 +2899,7 @@ pivot='tail', normalize=False, **kwargs)
             #       as long as the actual data plotted stays as lists.
             #       This is due to unit preservation issues
             #       (c.f. the 2d errorbar case).
-            rolling_mask = np.roll([1.,0.,0.], shift)
+            rolling_mask = np.roll([1.,0.,0.], i_xyz)
             # TODO: why is this here?
             if err is not None:
                 err = np.atleast_1d(err)
@@ -2918,17 +2926,18 @@ pivot='tail', normalize=False, **kwargs)
                     # Setting '_' for z-caps and '|' for x- and y-caps:
                     capmarker = {0: '|', 1: '|', 2: '_'}
                     cap_lo = art3d.Line3D(*lo_caps_xyz, ls='',
-                                          marker=capmarker[shift],
+                                          marker=capmarker[i_xyz],
                                           **eb_cap_style)
                     cap_hi = art3d.Line3D(*hi_caps_xyz, ls='',
-                                          marker=capmarker[shift],
+                                          marker=capmarker[i_xyz],
                                           **eb_cap_style)
                     self.add_line(cap_lo)
                     self.add_line(cap_hi)
                     caplines.append(cap_lo)
                     caplines.append(cap_hi)
 
-            errline = art3d.Line3DCollection(np.array(coorderr).T, **kwargs)
+            errline = art3d.Line3DCollection(np.array(coorderr).T,
+                                             **plot_line_style)
             self.add_collection(errline)
             errlines.append(errline)
             coorderrs.append(coorderr)
