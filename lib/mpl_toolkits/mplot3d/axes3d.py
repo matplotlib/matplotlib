@@ -2839,6 +2839,8 @@ pivot='tail', normalize=False, **kwargs)
         # TODO: fully adhere to the styling rules in 2d-errorbar later on...
         plot_line_style = {}
         plot_line_style.update(**kwargs)
+        if 'zorder' not in kwargs.keys():
+            kwargs['zorder'] = 2
         if barsabove:
             plot_line_style['zorder'] = kwargs['zorder'] - .1
         else:
