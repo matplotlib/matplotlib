@@ -30,7 +30,7 @@ recommended.
 .. warning::
 
    If you already have a version of Matplotlib installed, use an
-   virtual environment or uninstalling using the same method you used
+   virtual environment or uninstall using the same method you used
    to install it.  Installing multiple versions of Matplotlib via different
    methods into the same environment may not always work as expected.
 
