@@ -29,8 +29,10 @@ recommended.
 
 .. warning::
 
-   If you already have a version of Matplotlib installed, you will need to
-   uninstall it.
+   If you already have a version of Matplotlib installed, use an
+   virtual environment or uninstalling using the same method you used
+   to install it.  Installing multiple versions of Matplotlib via different
+   methods into the same environment may not always work as expected.
 
 We use `Git <https://git-scm.com/>`_ for version control and
 `GitHub <https://github.com/>`_ for hosting our main repository.
@@ -40,7 +42,7 @@ You can check out the latest sources with the command (see
 
     git clone git@github.com:matplotlib/matplotlib.git
 
-and navigate to the Matplotlib directory.
+and navigate to the :file:`matplotlib` directory.
 
 To make sure the tests run locally you must build against the correct version
 of freetype.  To configure the build system to fetch and build it either export
