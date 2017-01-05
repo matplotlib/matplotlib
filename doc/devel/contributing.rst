@@ -21,44 +21,65 @@ also welcome to post feature requests or pull requests.
 Retrieving and installing the latest version of the code
 ========================================================
 
+When working on the Matplotlib source, setting up a `virtual
+environment
+<http://docs.python-guide.org/en/latest/dev/virtualenvs/>`_ or a
+`conda environment <http://conda.pydata.org/docs/using/envs.html>`_ is
+recommended.
+
+.. warning::
+
+   If you already have a version of Matplotlib installed, use an
+   virtual environment or uninstall using the same method you used
+   to install it.  Installing multiple versions of Matplotlib via different
+   methods into the same environment may not always work as expected.
 
 We use `Git <https://git-scm.com/>`_ for version control and
 `GitHub <https://github.com/>`_ for hosting our main repository.
 
-You can check out the latest sources with the command::
+You can check out the latest sources with the command (see
+:ref:`set-up-fork` for more details)::
 
     git clone git@github.com:matplotlib/matplotlib.git
 
+and navigate to the :file:`matplotlib` directory.
 
-After obtaining a local copy of the matplotlib source code (:ref:`set-up-fork`),
-navigate to the matplotlib directory and run the following in the shell::
+To make sure the tests run locally you must build against the correct version
+of freetype.  To configure the build system to fetch and build it either export
+the env ``MPLLOCALFREETYPE`` as::
 
-    python setup.py develop
+  export MPLLOCALFREETYPE=1
 
-or::
+or copy :file:`setup.cfg.template` to :file:`setup.cfg` and edit to contain ::
 
-   pip install -v -e .
-
-
-This installs matplotlib for development (i.e., builds everything and places the
-symbolic links back to the source code).
-
-.. warning::
-
-   If you already have a version of matplotlib installed, you will need to
-   uninstall it.
+  [test]
+  local_freetype = True
 
 
-.. note::
+To install Matplotlib (and compile the c-extensions) run the following
+command from the top-level directory ::
 
-    If you decide to do install with ``python setup.py develop`` or ``pip
-    install -v -e``, you will have to rerun::
+    pip install -v -e ./
 
-      python setup.py build
+This installs Matplotlib in 'editable/develop mode', i.e., builds
+everything and places the correct link entries in the install
+directory so that python will be able to import Matplotlib from the
+source directory.  Thus, any changes to the ``*.py`` files will be
+reflected the next time you import the library.  If you change the
+c-extension source (which might happen if you change branches) you
+will need to run::
 
-    every time the source code of a compiled extension is changed (for
-    instance when switching branches or pulling changes from upstream).
+   python setup.py build
 
+or re-run ``pip install -v -e ./``.
+
+
+Alternatively, if you do ::
+
+  pip install -v ./
+
+all of the files will be copied to the installation directory however,
+you will have to rerun this command every time the source is changed.
 
 
 You can then run the tests to check your work environment is set up properly::
@@ -75,18 +96,6 @@ You can then run the tests to check your work environment is set up properly::
   <https://docs.python.org/dev/library/unittest.mock.html>`_ (if python < 3.3), `Ghostscript
   <https://www.ghostscript.com/>`_, `Inkscape <https://inkscape.org>`_
 
-.. note:: To make sure the tests run locally:
-
-      * Copy setup.cfg.template to setup.cfg
-      * Edit setup.cfg to set ``test`` to True, and ``local_freetype`` to True
-      * If you have built matplotlib previously, remove the ``build`` folder.
-      * Execute the build command.
-
-When working on bleeding edge packages, setting up a
-`virtual environment
-<http://docs.python-guide.org/en/latest/dev/virtualenvs/>`_ or a `conda
-environment <http://conda.pydata.org/docs/using/envs.html>`_ is recommended.
-
 .. seealso::
 
   * :ref:`testing`
@@ -98,7 +107,7 @@ Contributing code
 How to contribute
 -----------------
 
-The preferred way to contribute to matplotlib is to fork the `main
+The preferred way to contribute to Matplotlib is to fork the `main
 repository <https://github.com/matplotlib/matplotlib/>`__ on GitHub,
 then submit a "pull request" (PR):
 
@@ -131,7 +140,7 @@ then submit a "pull request" (PR):
 
         $ git push -u origin my-feature
 
-Finally, go to the web page of your fork of the matplotlib repo,
+Finally, go to the web page of your fork of the Matplotlib repo,
 and click 'Pull request' to send your changes to the maintainers for review.
 You may want to consider sending an email to the mailing list for more
 visibility.
@@ -207,7 +216,7 @@ tools:
 
 .. note::
 
-    The current state of the matplotlib code base is not compliant with all
+    The current state of the Matplotlib code base is not compliant with all
     of those guidelines, but we expect that enforcing those constraints on all
     new contributions will move the overall code base quality in the right
     direction.
@@ -230,7 +239,7 @@ New contributors should look for the following tags when looking for issues.
 We strongly recommend that new contributors tackle
 `new-contributor-friendly <https://github.com/matplotlib/matplotlib/labels/new-contributor-friendly>`_
 issues (easy, well documented issues, that do not require an understanding of
-the different submodules of matplotlib) and
+the different submodules of Matplotlib) and
 `Easy-fix <https://github.com/matplotlib/matplotlib/labels/Difficulty%3A%20Easy>`_
 issues. This helps the contributor become familiar with the contribution
 workflow, and for the core devs to become acquainted with the contributor;
@@ -242,7 +251,7 @@ Other ways to contribute
 =========================
 
 
-Code is not the only way to contribute to matplotlib. For instance,
+Code is not the only way to contribute to Matplotlib. For instance,
 documentation is also a very important part of the project and often doesn't
 get as much attention as it deserves. If you find a typo in the documentation,
 or have made improvements, do not hesitate to send an email to the mailing
@@ -372,10 +381,10 @@ Developing a new backend
 If you are working on a custom backend, the *backend* setting in
 :file:`matplotlibrc` (:ref:`customizing-matplotlib`) supports an
 external backend via the ``module`` directive.  if
-:file:`my_backend.py` is a matplotlib backend in your
+:file:`my_backend.py` is a Matplotlib backend in your
 :envvar:`PYTHONPATH`, you can set it on one of several ways
 
-* in matplotlibrc::
+* in :file:`matplotlibrc`::
 
     backend : module://my_backend
 
@@ -406,7 +415,7 @@ when the website is built to show up both in the `examples
 <../gallery.html>`_ sections of the website.
 
 Any sample data that the example uses should be kept small and
-distributed with matplotlib in the
+distributed with Matplotlib in the
 `lib/matplotlib/mpl-data/sample_data/` directory.  Then in your
 example code you can load it into a file handle with::
 
