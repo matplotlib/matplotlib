@@ -2772,11 +2772,18 @@ pivot='tail', normalize=False, **kwargs)
 
     def errorbar3d(self, x, y, z, zerr=None, yerr=None, xerr=None,
                    # TODO: sneak these in
-                   #capsize=None, fmt='',
-                   #barsabove=False, lolims=False, uplims=False,
-                   #xlolims=False, xuplims=False, errorevery=1, capthick=None,
+                   #fmt='',
+                   #barsabove=False,
+
+                   errorevery=1,
+                   capsize=None, capthick=None,
+                   xlolims=False, xuplims=False,
+                   ylolims=False, yuplims=False,
+                   zlolims=False, zuplims=False,
 
                    **kwargs):
+        # TODO: write up a jupyter notebook using this as a template:
+        # http://matplotlib.org/examples/pylab_examples/errorbar_limits.html
         # TODO: double-check the docstring
         """
         Draws error bars on an Axis3D instance.
@@ -2795,6 +2802,25 @@ pivot='tail', normalize=False, **kwargs)
             If a sequence of shape 2xN, errorbars are drawn at -row1
             and +row2 relative to the data.
 
+        capsize : scalar, optional, default: None
+            The length of the error bar caps in points; if None, it will
+            take the value from ``errorbar.capsize``
+            :data:`rcParam<matplotlib.rcParams>`.
+
+        capthick : scalar, optional, default: None
+            An alias kwarg to markeredgewidth (a.k.a. - mew). This
+            setting is a more sensible name for the property that
+            controls the thickness of the error bar cap in points. For
+            backwards compatibility, if mew or markeredgewidth are given,
+            then they will over-ride capthick. This may change in future
+            releases.
+
+        errorevery : positive integer, optional, default:1
+            subsamples the errorbars. e.g., if errorevery=5, errorbars for
+            every 5-th datapoint will be plotted. The data plot itself still
+            shows all data points.
+
+
         Keyword arguments are passed to
         :func:`~mpl_toolkits.mplot3d.art3d.Line3DCollection`
         """
@@ -2807,56 +2833,122 @@ pivot='tail', normalize=False, **kwargs)
         if not cbook.iterable(z):
             z = [z]
 
-        # TODO: currently, only a scalar number or len(N) objects are ok...
-        def unpack_errs(data, err):
-            lefts = [coord - dcoord for coord, dcoord in zip(data, err)]
-            rights = [coord + dcoord for coord, dcoord in zip(data, err)]
-            return lefts, rights
+        everymask = np.arange(len(x)) % errorevery == 0
 
-        lines, coorderrs = [], []
-        for data, err, shift in zip([x, y, z],
-                                    [xerr, yerr, zerr],
-                                    range(3)):
+        # TODO: fully adhere to the styling rules in 2d-errorbar later on...
+        eb_cap_style = {}
+        if capsize is None:
+            capsize = kwargs.pop('capsize', rcParams["errorbar.capsize"])
+        if capsize > 0:
+            eb_cap_style['markersize'] = 2. * capsize
+        if capthick is not None:
+            eb_cap_style['markeredgewidth'] = capthick
+
+        def _bool_asarray_helper(d, expected):
+            if not cbook.iterable(d):
+                return np.asarray([d] * expected, bool)
+            else:
+                return np.asarray(d, bool)
+
+        def _mask_lists(xs, ys, zs, mask=None):
+            """ Applies a mask to three lists. """
+            xs = [l for l, m in zip(xs, mask) if m]
+            ys = [l for l, m in zip(ys, mask) if m]
+            zs = [l for l, m in zip(zs, mask) if m]
+            return xs, ys, zs
+
+        def _debug_floatlists(*args):
+            for l in args:
+                s = ("["+', '.join(['%.2f']*len(l))+"]") % tuple(l)
+                print(s)
+            print('\n')
+
+        # TODO: currently, only a scalar number or len(N) objects are ok...
+        def _unpack_errs(data, err, lomask, himask):
+            lows =  [d - e if m else d for d, e, m in zip(data, err, lomask)]
+            highs = [d + e if m else d for d, e, m in zip(data, err, himask)]
+            return lows, highs
+
+        # TODO: things to init are barcaps and low-, high-limits
+        errlines, caplines  = [], []
+        coorderrs = [] # list of endpoint coordinates, used for auto-scaling
+
+        for data, err, shift, lolims, uplims in zip([x, y, z],
+                                    [xerr, yerr, zerr], range(3),
+                                    [xlolims, ylolims, zlolims],
+                                    [xuplims, yuplims, zuplims]):
             if err is None:
                 continue
 
             if not cbook.iterable(err):
                 err = [err] * len(data)
+            lolims = _bool_asarray_helper(lolims, len(x))
+            uplims = _bool_asarray_helper(uplims, len(x))
 
-            # TODO: placeholder for future work on limits functionality
-            nolims = np.ones_like(err, dtype=bool)
+            nolims = ~(lolims | uplims)
 
             # NOTE: care needs to be taken here - using numpy is fine,
             #       as long as the actual data plotted stays as lists.
             #       This is due to unit preservation issues
-            #       (c.f. 2d errorbar case).
-            # FIXME: the above NOTE is violated below...
+            #       (c.f. the 2d errorbar case).
+            rolling_mask = np.roll([1.,0.,0.], shift)
+            # TODO: why is this here?
+            if err is not None:
+                err = np.atleast_1d(err)
+
+            # a nested list structure that expands to (xl,xh),(yl,yh),(zl,zh),
+            # where x/y/z and l/h correspond to dimensions and low/high
+            # positions of errorbars in a dimension we're looping over
+            coorderr = [_unpack_errs(coord, err*rolling_mask[i], ~lolims,
+                        ~uplims) for i, coord in enumerate([x, y, z])]
+
             if nolims.any():
-                rolling_mask=np.roll([1.,0.,0.], shift)
-                if err is not None:
-                    err = np.atleast_1d(err)
-                coorderr = [unpack_errs(coord, err*rolling_mask[i])
-                          for i, coord in enumerate([x, y, z])]
-                line = art3d.Line3DCollection(segments=np.array(coorderr).T,
-                                              **kwargs)
-                self.add_collection(line)
-                lines.append(line)
-                coorderrs.append(coorderr)
+                if capsize > 0:
+                    (xl, xh), (yl, yh), (zl, zh) = coorderr
+                    lo_caps_xyz = _mask_lists(xl, yl, zl, nolims & everymask)
+                    hi_caps_xyz = _mask_lists(xh, yh, zh, nolims & everymask)
+                    #_debug_floatlists(*lo_caps_xyz)
+                    #_debug_floatlists(*hi_caps_xyz)
+
+                    # NOTE on the caps in 3D plots:
+                    # Using markers in interactive 3D plots is confusing to
+                    # say the least, as the cap lines don't stay aligned with
+                    # the coordinate axes!
+                    # Nevertheless, let's stick to it for now for consistency.
+                    # Setting '_' for z-caps and '|' for x- and y-caps:
+                    capmarker = {0: '|', 1: '|', 2: '_'}
+                    cap_lo = art3d.Line3D(*lo_caps_xyz, ls='',
+                                          marker=capmarker[shift],
+                                          **eb_cap_style)
+                    cap_hi = art3d.Line3D(*hi_caps_xyz, ls='',
+                                          marker=capmarker[shift],
+                                          **eb_cap_style)
+                    self.add_line(cap_lo)
+                    self.add_line(cap_hi)
+                    caplines.append(cap_lo)
+                    caplines.append(cap_hi)
+
+            errline = art3d.Line3DCollection(np.array(coorderr).T, **kwargs)
+            self.add_collection(errline)
+            errlines.append(errline)
+            coorderrs.append(coorderr)
 
         coorderrs = np.array(coorderrs)
-        def digout_minmax(err_arr, coord_label):
-            """ For brevity """
+        def _digout_minmax(err_arr, coord_label):
             key = {'x': 0, 'y': 1, 'z': 2}
             return (np.nanmin(err_arr[:, key[coord_label], :, :]),
                     np.nanmax(err_arr[:, key[coord_label], :, :]) )
 
-        minx, maxx = digout_minmax(coorderrs, 'x')
-        miny, maxy = digout_minmax(coorderrs, 'y')
-        minz, maxz = digout_minmax(coorderrs, 'z')
+        minx, maxx = _digout_minmax(coorderrs, 'x')
+        miny, maxy = _digout_minmax(coorderrs, 'y')
+        minz, maxz = _digout_minmax(coorderrs, 'z')
         self.auto_scale_xyz((minx, maxx), (miny, maxy), (minz, maxz), had_data)
 
         # TODO: return one list instead of three maybe?
-        return lines
+        # TODO: make a container of sorts? There's going to be a whole bunch
+        #       of artist objects bundled together here, with all the lines,
+        #       caps, and upper/lower limit arrow indicators...
+        return errlines
 
 
 docstring.interpd.update(Axes3D=artist.kwdoc(Axes3D))
