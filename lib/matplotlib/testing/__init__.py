@@ -136,6 +136,10 @@ def set_font_settings_for_testing():
     rcParams['text.hinting_factor'] = 8
 
 
+def set_reproducibility_for_testing():
+    rcParams['svg.hashsalt'] = 'matplotlib'
+
+
 def setup():
     # The baseline images are created in this locale, so we should use
     # it during all of the tests.
@@ -161,3 +165,4 @@ def setup():
     rcdefaults()  # Start with all defaults
 
     set_font_settings_for_testing()
+    set_reproducibility_for_testing()
