@@ -6,9 +6,9 @@
 
    see qh-poly.htm, libqhull.h and poly.c
 
-   Copyright (c) 1993-2012 The Geometry Center.
-   $Id: //main/2011/qhull/src/libqhull/poly.h#3 $$Change: 1464 $
-   $DateTime: 2012/01/25 22:58:41 $$Author: bbarber $
+   Copyright (c) 1993-2015 The Geometry Center.
+   $Id: //main/2015/qhull/src/libqhull/poly.h#3 $$Change: 2047 $
+   $DateTime: 2016/01/04 22:03:18 $$Author: bbarber $
 */
 
 #ifndef qhDEFpoly
@@ -209,10 +209,10 @@
 
 void    qh_appendfacet(facetT *facet);
 void    qh_appendvertex(vertexT *vertex);
-void    qh_attachnewfacets(void);
+void    qh_attachnewfacets(void /* qh.visible_list, qh.newfacet_list */);
 boolT   qh_checkflipped(facetT *facet, realT *dist, boolT allerror);
 void    qh_delfacet(facetT *facet);
-void    qh_deletevisible(void /*qh visible_list, qh horizon_list*/);
+void    qh_deletevisible(void /*qh.visible_list, qh.horizon_list*/);
 setT   *qh_facetintersect(facetT *facetA, facetT *facetB, int *skipAp,int *skipBp, int extra);
 int     qh_gethash(int hashsize, setT *set, int size, int firstindex, void *skipelem);
 facetT *qh_makenewfacet(setT *vertices, boolT toporient, facetT *facet);
@@ -236,6 +236,7 @@ void    qh_updatevertices(void);
 
 void    qh_addhash(void* newelem, setT *hashtable, int hashsize, int hash);
 void    qh_check_bestdist(void);
+void    qh_check_dupridge(facetT *facet1, realT dist1, facetT *facet2, realT dist2);
 void    qh_check_maxout(void);
 void    qh_check_output(void);
 void    qh_check_point(pointT *point, facetT *facet, realT *maxoutside, realT *maxdist, facetT **errfacet1, facetT **errfacet2);
@@ -257,7 +258,7 @@ facetT *qh_findfacet_all(pointT *point, realT *bestdist, boolT *isoutside,
                           int *numpart);
 int     qh_findgood(facetT *facetlist, int goodhorizon);
 void    qh_findgood_all(facetT *facetlist);
-void    qh_furthestnext(void /* qh facet_list */);
+void    qh_furthestnext(void /* qh.facet_list */);
 void    qh_furthestout(facetT *facet);
 void    qh_infiniteloop(facetT *facet);
 void    qh_initbuild(void);
@@ -274,21 +275,21 @@ ridgeT *qh_nextridge3d(ridgeT *atridge, facetT *facet, vertexT **vertexp);
 void    qh_outcoplanar(void /* facet_list */);
 pointT *qh_point(int id);
 void    qh_point_add(setT *set, pointT *point, void *elem);
-setT   *qh_pointfacet(void /*qh facet_list*/);
-setT   *qh_pointvertex(void /*qh facet_list*/);
+setT   *qh_pointfacet(void /*qh.facet_list*/);
+setT   *qh_pointvertex(void /*qh.facet_list*/);
 void    qh_prependfacet(facetT *facet, facetT **facetlist);
 void    qh_printhashtable(FILE *fp);
 void    qh_printlists(void);
-void    qh_resetlists(boolT stats, boolT resetVisible /*qh newvertex_list newfacet_list visible_list*/);
+void    qh_resetlists(boolT stats, boolT resetVisible /*qh.newvertex_list qh.newfacet_list qh.visible_list*/);
 void    qh_setvoronoi_all(void);
-void    qh_triangulate(void /*qh facet_list*/);
+void    qh_triangulate(void /*qh.facet_list*/);
 void    qh_triangulate_facet(facetT *facetA, vertexT **first_vertex);
 void    qh_triangulate_link(facetT *oldfacetA, facetT *facetA, facetT *oldfacetB, facetT *facetB);
 void    qh_triangulate_mirror(facetT *facetA, facetT *facetB);
 void    qh_triangulate_null(facetT *facetA);
 void    qh_vertexintersect(setT **vertexsetA,setT *vertexsetB);
 setT   *qh_vertexintersect_new(setT *vertexsetA,setT *vertexsetB);
-void    qh_vertexneighbors(void /*qh facet_list*/);
+void    qh_vertexneighbors(void /*qh.facet_list*/);
 boolT   qh_vertexsubset(setT *vertexsetA, setT *vertexsetB);
 
 

@@ -1,14 +1,16 @@
 /*<html><pre>  -<a                             href="index.htm#TOC"
   >-------------------------------</a><a name="TOP">-</a>
 
-   random.c -- utilities
+   random.c and utilities
      Park & Miller's minimimal standard random number generator
      argc/argv conversion
 
-     Used by rbox.  Do not use 'qh'
+     Used by rbox.  Do not use 'qh' 
 */
 
 #include "libqhull.h"
+#include "random.h"
+
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -138,7 +140,7 @@ int qh_argv_to_command_size(int argc, char *argv[]) {
 
 /* Global variables and constants */
 
-int qh_rand_seed= 1;  /* define as global variable instead of using qh */
+int qh_last_random= 1;  /* define as global variable instead of using qh */
 
 #define qh_rand_a 16807
 #define qh_rand_m 2147483647
@@ -147,7 +149,7 @@ int qh_rand_seed= 1;  /* define as global variable instead of using qh */
 
 int qh_rand( void) {
     int lo, hi, test;
-    int seed = qh_rand_seed;
+    int seed = qh_last_random;
 
     hi = seed / qh_rand_q;  /* seed div q */
     lo = seed % qh_rand_q;  /* seed mod q */
@@ -156,7 +158,7 @@ int qh_rand( void) {
         seed= test;
     else
         seed= test + qh_rand_m;
-    qh_rand_seed= seed;
+    qh_last_random= seed;
     /* seed = seed < qh_RANDOMmax/2 ? 0 : qh_RANDOMmax;  for testing */
     /* seed = qh_RANDOMmax;  for testing */
     return seed;
@@ -164,21 +166,21 @@ int qh_rand( void) {
 
 void qh_srand( int seed) {
     if (seed < 1)
-        qh_rand_seed= 1;
+        qh_last_random= 1;
     else if (seed >= qh_rand_m)
-        qh_rand_seed= qh_rand_m - 1;
+        qh_last_random= qh_rand_m - 1;
     else
-        qh_rand_seed= seed;
+        qh_last_random= seed;
 } /* qh_srand */
 
 /*-<a                             href="qh-geom.htm#TOC"
 >-------------------------------</a><a name="randomfactor">-</a>
 
 qh_randomfactor( scale, offset )
-return a random factor r * scale + offset
+  return a random factor r * scale + offset
 
 notes:
-qh.RANDOMa/b are defined in global.c
+  qh.RANDOMa/b are defined in global.c
 */
 realT qh_randomfactor(realT scale, realT offset) {
     realT randr;
@@ -191,13 +193,13 @@ realT qh_randomfactor(realT scale, realT offset) {
 >-------------------------------</a><a name="randommatrix">-</a>
 
 qh_randommatrix( buffer, dim, rows )
-generate a random dim X dim matrix in range [-1,1]
-assumes buffer is [dim+1, dim]
+  generate a random dim X dim matrix in range [-1,1]
+  assumes buffer is [dim+1, dim]
 
 returns:
-sets buffer to random numbers
-sets rows to rows of buffer
-sets row[dim] as scratch row
+  sets buffer to random numbers
+  sets rows to rows of buffer
+  sets row[dim] as scratch row
 */
 void qh_randommatrix(realT *buffer, int dim, realT **rows) {
     int i, k;

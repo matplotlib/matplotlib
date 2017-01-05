@@ -10,9 +10,9 @@
 
    see qhull_a.h for internal functions
 
-   Copyright (c) 1993-2012 The Geometry Center.
-   $Id: //main/2011/qhull/src/libqhull/libqhull.c#4 $$Change: 1464 $
-   $DateTime: 2012/01/25 22:58:41 $$Author: bbarber $
+   Copyright (c) 1993-2015 The Geometry Center.
+   $Id: //main/2015/qhull/src/libqhull/libqhull.c#3 $$Change: 2047 $
+   $DateTime: 2016/01/04 22:03:18 $$Author: bbarber $
 */
 
 #include "qhull_a.h"
@@ -85,10 +85,10 @@ void qh_qhull(void) {
              qh postmerge_cos, qh TESTvneighbors);
       if (qh visible_list == qh facet_list) { /* i.e., merging done */
         qh findbestnew= True;
-        qh_partitionvisible(/*visible_list, newfacet_list*/ !qh_ALL, &numoutside);
+        qh_partitionvisible(/*qh.visible_list*/ !qh_ALL, &numoutside);
         qh findbestnew= False;
-        qh_deletevisible(/*qh visible_list*/);
-        qh_resetlists(False, qh_RESETvisible /*qh visible_list newvertex_list newfacet_list */);
+        qh_deletevisible(/*qh.visible_list*/);
+        qh_resetlists(False, qh_RESETvisible /*qh.visible_list newvertex_list newfacet_list */);
       }
     }
     if (qh DOcheckmax){
@@ -174,7 +174,7 @@ boolT qh_addpoint(pointT *furthest, facetT *facet, boolT checkdist) {
   int numpart, numpoints, numnew, firstnew;
 
   qh maxoutdone= False;
-  if (qh_pointid(furthest) == -1)
+  if (qh_pointid(furthest) == qh_IDunknown)
     qh_setappend(&qh other_points, furthest);
   if (!facet) {
     qh_fprintf(qh ferr, 6213, "qhull internal error (qh_addpoint): NULL facet.  Need to call qh_findbestfacet first\n");
@@ -202,7 +202,7 @@ boolT qh_addpoint(pointT *furthest, facetT *facet, boolT checkdist) {
     facet->notfurthest= True;
     /* last point of outsideset is no longer furthest.  This is ok
        since all points of the outside are likely to be bad */
-    qh_resetlists(False, qh_RESETvisible /*qh visible_list newvertex_list newfacet_list */);
+    qh_resetlists(False, qh_RESETvisible /*qh.visible_list newvertex_list newfacet_list */);
     return True;
   }
   zzinc_(Zprocessed);
@@ -219,7 +219,7 @@ boolT qh_addpoint(pointT *furthest, facetT *facet, boolT checkdist) {
     FORALLnew_facets
       qh_delfacet(newfacet);
     qh_delvertex(vertex);
-    qh_resetlists(True, qh_RESETvisible /*qh visible_list newvertex_list newfacet_list */);
+    qh_resetlists(True, qh_RESETvisible /*qh.visible_list newvertex_list newfacet_list */);
     zinc_(Znotgoodnew);
     facet->notfurthest= True;
     return True;
@@ -247,7 +247,7 @@ boolT qh_addpoint(pointT *furthest, facetT *facet, boolT checkdist) {
     }
   }else if (qh BESToutside)
     qh findbestnew= True;
-  qh_partitionvisible(/*visible_list, newfacet_list*/ !qh_ALL, &numpoints);
+  qh_partitionvisible(/*qh.visible_list*/ !qh_ALL, &numpoints);
   qh findbestnew= False;
   qh findbest_notsharp= False;
   zinc_(Zpbalance);
@@ -255,7 +255,7 @@ boolT qh_addpoint(pointT *furthest, facetT *facet, boolT checkdist) {
                 * (qh num_points - qh num_vertices)/qh num_vertices;
   wadd_(Wpbalance, pbalance);
   wadd_(Wpbalance2, pbalance * pbalance);
-  qh_deletevisible(/*qh visible_list*/);
+  qh_deletevisible(/*qh.visible_list*/);
   zmax_(Zmaxvertex, qh num_vertices);
   qh NEWfacets= False;
   if (qh IStracing >= 4) {
@@ -271,7 +271,7 @@ boolT qh_addpoint(pointT *furthest, facetT *facet, boolT checkdist) {
   }
   if (qh STOPpoint > 0 && qh furthest_id == qh STOPpoint-1)
     return False;
-  qh_resetlists(True, qh_RESETvisible /*qh visible_list newvertex_list newfacet_list */);
+  qh_resetlists(True, qh_RESETvisible /*qh.visible_list newvertex_list newfacet_list */);
   /* qh_triangulate(); to test qh.TRInormals */
   trace2((qh ferr, 2056, "qh_addpoint: added p%d new facets %d new balance %2.2g point balance %2.2g\n",
     qh_pointid(furthest), numnew, newbalance, pbalance));
@@ -283,6 +283,7 @@ boolT qh_addpoint(pointT *furthest, facetT *facet, boolT checkdist) {
 
   qh_build_withrestart()
     allow restarts due to qh.JOGGLEmax while calling qh_buildhull()
+       qh_errexit always undoes qh_build_withrestart()
     qh.FIRSTpoint/qh.NUMpoints is point array
         it may be moved by qh_joggleinput()
 */
@@ -296,7 +297,7 @@ void qh_build_withrestart(void) {
       zzinc_(Zretry);
       wmax_(Wretrymax, qh JOGGLEmax);
       /* QH7078 warns about using 'TCn' with 'QJn' */
-      qh STOPcone= -1; /* if break from joggle, prevents normal output */
+      qh STOPcone= qh_IDunknown; /* if break from joggle, prevents normal output */
     }
     if (!qh RERUN && qh JOGGLEmax < REALmax/2) {
       if (qh build_cnt > qh_JOGGLEmaxretry) {
@@ -322,7 +323,7 @@ void qh_build_withrestart(void) {
     qh_option("_run", &qh build_cnt, NULL);
     if (qh build_cnt == qh RERUN) {
       qh IStracing= qh TRACElastrun;  /* duplicated from qh_initqhull_globals */
-      if (qh TRACEpoint != -1 || qh TRACEdist < REALmax/2 || qh TRACEmerge) {
+      if (qh TRACEpoint != qh_IDunknown || qh TRACEdist < REALmax/2 || qh TRACEmerge) {
         qh TRACElevel= (qh IStracing? qh IStracing : 3);
         qh IStracing= 0;
       }
@@ -458,7 +459,7 @@ At %02d:%02d:%02d & %2.5g CPU secs, qhull has created %d facets and merged %d.\n
   if (qh TRACEpoint == furthestid) {
     qh IStracing= qh TRACElevel;
     qhmem.IStracing= qh TRACElevel;
-  }else if (qh TRACEpoint != -1 && qh TRACEdist < REALmax/2) {
+  }else if (qh TRACEpoint != qh_IDunknown && qh TRACEdist < REALmax/2) {
     qh IStracing= 0;
     qhmem.IStracing= 0;
   }
@@ -487,14 +488,14 @@ At %02d:%02d:%02d & %2.5g CPU secs, qhull has created %d facets and merged %d.\n
       getid_(facet), qh num_outside+1, cpu, qh furthest_id);
   }
   zmax_(Zvisit2max, (int)qh visit_id/2);
-  if (qh visit_id > (unsigned) INT_MAX) {
+  if (qh visit_id > (unsigned) INT_MAX) { /* 31 bits */
     zinc_(Zvisit);
     qh visit_id= 0;
     FORALLfacets
       facet->visitid= 0;
   }
   zmax_(Zvvisit2max, (int)qh vertex_visit/2);
-  if (qh vertex_visit > (unsigned) INT_MAX/2) { /* 31 bits */
+  if (qh vertex_visit > (unsigned) INT_MAX) { /* 31 bits */
     zinc_(Zvvisit);
     qh vertex_visit= 0;
     FORALLvertices
@@ -692,7 +693,7 @@ pointT *qh_nextfurthest(facetT **visible) {
     }
     if (!qh RANDOMoutside && !qh VIRTUALmemory) {
       if (qh PICKfurthest) {
-        qh_furthestnext(/* qh facet_list */);
+        qh_furthestnext(/* qh.facet_list */);
         facet= qh facet_next;
       }
       *visible= facet;
@@ -1113,7 +1114,7 @@ void qh_partitionpoint(pointT *point, facetT *facet) {
       else
         partition vertex into coplanar sets of new facets
 */
-void qh_partitionvisible(/*visible_list*/ boolT allpoints, int *numoutside) {
+void qh_partitionvisible(/*qh.visible_list*/ boolT allpoints, int *numoutside) {
   facetT *visible, *newfacet;
   pointT *point, **pointp;
   int coplanar=0, size;
@@ -1181,6 +1182,7 @@ void qh_precision(const char *reason) {
   if (qh ALLOWrestart && !qh PREmerge && !qh MERGEexact) {
     if (qh JOGGLEmax < REALmax/2) {
       trace0((qh ferr, 26, "qh_precision: qhull restart because of %s\n", reason));
+      /* May be called repeatedly if qh->ALLOWrestart */
       longjmp(qh restartexit, qh_ERRprec);
     }
   }
@@ -1397,3 +1399,5 @@ Convex hull of %d points in %d-d:\n\n", size, qh hull_dim);
   }
   qh_fprintf(fp, 9345, "\n");
 } /* printsummary */
+
+

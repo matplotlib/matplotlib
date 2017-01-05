@@ -11,9 +11,9 @@
        and
      qh_errexit(qhmem_ERRqhull, NULL, NULL) otherwise
 
-   Copyright (c) 1993-2012 The Geometry Center.
-   $Id: //main/2011/qhull/src/libqhull/mem.h#4 $$Change: 1464 $
-   $DateTime: 2012/01/25 22:58:41 $$Author: bbarber $
+   Copyright (c) 1993-2015 The Geometry Center.
+   $Id: //main/2015/qhull/src/libqhull/mem.h#2 $$Change: 2062 $
+   $DateTime: 2016/01/17 13:13:18 $$Author: bbarber $
 */
 
 #ifndef qhDEFmem
@@ -78,7 +78,9 @@ Trace short and quick memory allocations at T5
     Qhull uses int instead of size_t except for system calls such as malloc, qsort, qh_malloc, etc.
     This matches Qt convention and is easier to work with.
 */
-#if _MSC_VER && defined(_WIN64)
+#if (defined(__MINGW64__)) && defined(_WIN64)
+typedef long long ptr_intT;
+#elif (_MSC_VER) && defined(_WIN64)
 typedef long long ptr_intT;
 #else
 typedef long ptr_intT;
@@ -125,7 +127,7 @@ struct qhmemT {               /* global memory management variables */
   void    *freemem;           /*   free memory in curbuffer */
   int      freesize;          /*   size of freemem in bytes */
   setT    *tempstack;         /* stack of temporary memory, managed by users */
-  FILE    *ferr;              /* file for reporting errors, only user is qh_fprintf() */
+  FILE    *ferr;              /* file for reporting errors when 'qh' may be undefined */
   int      IStracing;         /* =5 if tracing memory allocations */
   int      cntquick;          /* count of quick allocations */
                               /* Note: removing statistics doesn't effect speed */
@@ -150,7 +152,7 @@ struct qhmemT {               /* global memory management variables */
 /*-<a                             href="qh-mem.htm#TOC"
   >--------------------------------</a><a name="memalloc_">-</a>
 
-  qh_memalloc_(insize, object, type)
+  qh_memalloc_(insize, freelistp, object, type)
     returns object of size bytes
         assumes size<=qhmem.LASTsize and void **freelistp is a temp
 */
@@ -177,7 +179,7 @@ struct qhmemT {               /* global memory management variables */
 /*-<a                             href="qh-mem.htm#TOC"
   >--------------------------------</a><a name="memfree_">-</a>
 
-  qh_memfree_(object, insize)
+  qh_memfree_(object, insize, freelistp)
     free up an object
 
   notes:
@@ -195,7 +197,7 @@ struct qhmemT {               /* global memory management variables */
 
 #define qh_memfree_(object, insize, freelistp) {\
   if (object) { \
-    qhmem .freeshort++;\
+    qhmem.freeshort++;\
     freelistp= qhmem.freelists + qhmem.indextable[insize];\
     qhmem.totshort -= qhmem.sizetable[qhmem.indextable[insize]]; \
     qhmem.totfree += qhmem.sizetable[qhmem.indextable[insize]]; \
@@ -206,6 +208,7 @@ struct qhmemT {               /* global memory management variables */
 /*=============== prototypes in alphabetical order ============*/
 
 void *qh_memalloc(int insize);
+void qh_memcheck(void);
 void qh_memfree(void *object, int insize);
 void qh_memfreeshort(int *curlong, int *totlong);
 void qh_meminit(FILE *ferr);

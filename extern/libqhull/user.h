@@ -4,7 +4,10 @@
    user.h
    user redefinable constants
 
+   for each source file, user.h is included first
    see qh-user.htm.  see COPYING for copyright information.
+
+   See user.c for sample code.
 
    before reading any code, review libqhull.h for data structure definitions and
    the "qh" macro.
@@ -29,6 +32,12 @@ Code flags --
 #ifndef qhDEFuser
 #define qhDEFuser 1
 
+/* Derived from Qt's corelib/global/qglobal.h */
+#if !defined(SAG_COM) && !defined(__CYGWIN__) && (defined(WIN64) || defined(_WIN64) || defined(__WIN64__) || defined(WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(__NT__))
+#   define QHULL_OS_WIN
+#elif defined(__MWERKS__) && defined(__INTEL__) /* Metrowerks discontinued before the release of Intel Macs */
+#   define QHULL_OS_WIN
+#endif
 /*============================================================*/
 /*============= qhull library constants ======================*/
 /*============================================================*/
@@ -47,10 +56,11 @@ Code flags --
 
   msgcode -- Unique message codes for qh_fprintf
 
-  If add new messages, assign these values and increment.
+  If add new messages, assign these values and increment in user.h and user_r.h
+  See QhullError.h for 10000 errors.
 
-  def counters =  [27, 1047, 2059, 3025, 4068, 5003,
-     6241, 7079, 8143, 9410, 10000, 11026]
+  def counters =  [27, 1048, 2059, 3026, 4068, 5003,
+     6273, 7081, 8147, 9411, 10000, 11029]
 
   See: qh_ERR* [libqhull.h]
 */
@@ -65,7 +75,7 @@ Code flags --
 #define MSG_WARNING 7000
 #define MSG_STDERR  8000  /* log messages Written to qh.ferr */
 #define MSG_OUTPUT  9000
-#define MSG_QHULL_ERROR 10000 /* errors thrown by QhullError [QhullError.h] */
+#define MSG_QHULL_ERROR 10000 /* errors thrown by QhullError.cpp (QHULLlastError is in QhullError.h) */
 #define MSG_FIXUP  11000  /* FIXUP QH11... */
 #define MSG_MAXLEN  3000 /* qh_printhelp_degenerate() in user.c */
 
@@ -374,7 +384,7 @@ stop after qh_JOGGLEmaxretry attempts
     total hash slots / used hash slots.  Must be at least 1.1.
 
   notes:
-    =2 for at worst 50% occupancy for qh hash_table and normally 25% occupancy
+    =2 for at worst 50% occupancy for qh.hash_table and normally 25% occupancy
 */
 #define qh_HASHfactor 2
 
@@ -429,7 +439,7 @@ stop after qh_JOGGLEmaxretry attempts
     do not occur in data structures and pointers are the same size.  Be careful
     of machines (e.g., DEC Alpha) with large pointers.
 
-    If using gcc, best alignment is
+    If using gcc, best alignment is  [fmax_() is defined in geom_r.h]
               #define qh_MEMalign fmax_(__alignof__(realT),__alignof__(void *))
 */
 #define qh_MEMalign ((int)(fmax_(sizeof(realT), sizeof(void *))))
@@ -489,9 +499,11 @@ stop after qh_JOGGLEmaxretry attempts
   __MSC_VER
     defined by Microsoft Visual C++
 
-  __MWERKS__ && __POWERPC__
-    defined by Metrowerks when compiling for the Power Macintosh
+  __MWERKS__ && __INTEL__
+    defined by Metrowerks when compiling for Windows (not Intel-based Macintosh)
 
+  __MWERKS__ && __POWERPC__
+    defined by Metrowerks when compiling for PowerPC-based Macintosh
   __STDC__
     defined for strict ANSI C
 */
@@ -585,14 +597,12 @@ stop after qh_JOGGLEmaxretry attempts
   It is required for msvc-2005.  It is not needed for gcc.
 
   notes:
+    [jan'16] qh_QHpointer is deprecated for Qhull.  Use libqhull_r instead.
     all global variables for qhull are in qh, qhmem, and qhstat
     qh is defined in libqhull.h
     qhmem is defined in mem.h
     qhstat is defined in stat.h
-    C++ build defines qh_QHpointer [libqhullp.pro, libqhullcpp.pro]
 
-  see:
-    user_eg.c for an example
 */
 #ifdef qh_QHpointer
 #if qh_dllimport
@@ -806,6 +816,19 @@ stop after qh_JOGGLEmaxretry attempts
 #define qh_WIDEcoplanar 6
 
 /*-<a                             href="qh-user.htm#TOC"
+  >--------------------------------</a><a name="WIDEduplicate">-</a>
+
+  qh_WIDEduplicate
+    Merge ratio for errexit from qh_forcedmerges due to duplicate ridge
+    Override with option Q12 no-wide-duplicate
+
+    Notes:
+      Merging a duplicate ridge can lead to very wide facets.
+      A future release of qhull will avoid duplicate ridges by removing duplicate sub-ridges from the horizon
+*/
+#define qh_WIDEduplicate 100
+
+/*-<a                             href="qh-user.htm#TOC"
   >--------------------------------</a><a name="MAXnarrow">-</a>
 
   qh_MAXnarrow
@@ -852,4 +875,35 @@ stop after qh_JOGGLEmaxretry attempts
 */
 #define qh_ZEROdelaunay 2
 
+/*============================================================*/
+/*============= Microsoft DevStudio ==========================*/
+/*============================================================*/
+
+/*
+   Finding Memory Leaks Using the CRT Library
+   https://msdn.microsoft.com/en-us/library/x98tx3cf(v=vs.100).aspx
+
+   Reports enabled in qh_lib_check for Debug window and stderr
+
+   From 2005=>msvcr80d, 2010=>msvcr100d, 2012=>msvcr110d
+
+   Watch: {,,msvcr80d.dll}_crtBreakAlloc  Value from {n} in the leak report
+   _CrtSetBreakAlloc(689); // qh_lib_check() [global_r.c]
+
+   Examples
+     http://free-cad.sourceforge.net/SrcDocu/d2/d7f/MemDebug_8cpp_source.html
+     https://github.com/illlust/Game/blob/master/library/MemoryLeak.cpp
+*/
+#if 0   /* off (0) by default for QHULL_CRTDBG */
+#define QHULL_CRTDBG
+#endif
+
+#if defined(_MSC_VER) && defined(_DEBUG) && defined(QHULL_CRTDBG)
+#define _CRTDBG_MAP_ALLOC
+#include <stdlib.h>
+#include <crtdbg.h>
+#endif
 #endif /* qh_DEFuser */
+
+
+
