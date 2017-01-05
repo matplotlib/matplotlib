@@ -6,9 +6,9 @@
 
    see qh-merge.htm and merge.c
 
-   Copyright (c) 1993-2012 C.B. Barber.
-   $Id: //main/2011/qhull/src/libqhull/merge.h#3 $$Change: 1464 $
-   $DateTime: 2012/01/25 22:58:41 $$Author: bbarber $
+   Copyright (c) 1993-2015 C.B. Barber.
+   $Id: //main/2015/qhull/src/libqhull/merge.h#1 $$Change: 1981 $
+   $DateTime: 2015/09/28 20:26:32 $$Author: bbarber $
 */
 
 #ifndef qhDEFmerge
@@ -119,7 +119,7 @@ void    qh_postmerge(const char *reason, realT maxcentrum, realT maxangle,
 void    qh_all_merges(boolT othermerge, boolT vneighbors);
 void    qh_appendmergeset(facetT *facet, facetT *neighbor, mergeType mergetype, realT *angle);
 setT   *qh_basevertices( facetT *samecycle);
-void    qh_checkconnect(void /* qh new_facets */);
+void    qh_checkconnect(void /* qh.new_facets */);
 boolT   qh_checkzero(boolT testall);
 int     qh_compareangle(const void *p1, const void *p2);
 int     qh_comparemerge(const void *p1, const void *p2);
@@ -167,7 +167,7 @@ void    qh_renameridgevertex(ridgeT *ridge, vertexT *oldvertex, vertexT *newvert
 void    qh_renamevertex(vertexT *oldvertex, vertexT *newvertex, setT *ridges,
                         facetT *oldfacet, facetT *neighborA);
 boolT   qh_test_appendmerge(facetT *facet, facetT *neighbor);
-boolT   qh_test_vneighbors(void /* qh newfacet_list */);
+boolT   qh_test_vneighbors(void /* qh.newfacet_list */);
 void    qh_tracemerge(facetT *facet1, facetT *facet2);
 void    qh_tracemerging(void);
 void    qh_updatetested( facetT *facet1, facetT *facet2);

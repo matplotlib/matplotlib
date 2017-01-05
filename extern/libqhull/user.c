@@ -10,7 +10,7 @@
 
    see libqhull.h for data structures, macros, and user-callable functions.
 
-   see user_eg.c, unix.c, and qhull_interface.cpp for examples.
+   see user_eg.c, user_eg2.c, and unix.c for examples.
 
    see user.h for user-definable constants
 
@@ -27,7 +27,7 @@
 
    Please report any errors that you fix to qhull@qhull.org
 
-   call_qhull is a template for calling qhull from within your application
+   Qhull-template is a template for calling qhull from within your application
 
    if you recompile and load this module, then user.o will not be loaded
    from qhull.a
@@ -45,11 +45,10 @@
 #include <stdarg.h>
 
 /*-<a                             href="qh-user.htm#TOC"
-  >-------------------------------</a><a name="call_qhull">-</a>
+  >-------------------------------</a><a name="qhull_template">-</a>
 
-  qh_call_qhull( void )
-    template for calling qhull from inside your program
-    remove #if 0, #endif to compile
+  Qhull-template
+    Template for calling qhull from inside your program
 
   returns:
     exit code(see qh_ERR... in libqhull.h)
@@ -57,10 +56,6 @@
 
   notes:
     This can be called any number of times.
-
-  see:
-    qh_call_qhull_once()
-
 */
 #if 0
 {
@@ -76,12 +71,14 @@
   facetT *facet;            /* set by FORALLfacets */
   int curlong, totlong;     /* memory remaining after qh_memfreeshort */
 
+  QHULL_LIB_CHECK /* Check for compatible library */
+
 #if qh_QHpointer  /* see user.h */
-  if (qh_qh){
-      printf ("QH6238: Qhull link error.  The global variable qh_qh was not initialized\n\
+  if (qh_qh){ /* should be NULL */
+      qh_printf_stderr(6238, "Qhull link error.  The global variable qh_qh was not initialized\n\
               to NULL by global.c.  Please compile this program with -Dqh_QHpointer_dllimport\n\
               as well as -Dqh_QHpointer, or use libqhullstatic, or use a different tool chain.\n\n");
-      exit -1;
+      exit(1);
   }
 #endif
 
@@ -106,6 +103,7 @@
 
   qh_new_qhull( dim, numpoints, points, ismalloc, qhull_cmd, outfile, errfile )
     build new qhull data structure and return exitcode (0 if no errors)
+    if numpoints=0 and points=NULL, initializes qhull
 
   notes:
     do not modify points until finished with results.
@@ -113,7 +111,7 @@
     do not call qhull functions before qh_new_qhull().
       The qhull data structure is not initialized until qh_new_qhull().
 
-    outfile may be null
+    Default errfile is stderr, outfile may be null
     qhull_cmd must start with "qhull "
     projects points to a new point array for Delaunay triangulations ('d' and 'v')
     transforms points into a new point array for halfspace intersection ('H')
@@ -125,7 +123,8 @@
     - use qh_freeqhull(qh_ALL) to free intermediate convex hulls
 
   see:
-    user_eg.c for an example
+      Qhull-template at the beginning of this file.
+      An example of using qh_new_qhull is user_eg.c
 */
 int qh_new_qhull(int dim, int numpoints, coordT *points, boolT ismalloc,
                 char *qhull_cmd, FILE *outfile, FILE *errfile) {
@@ -134,15 +133,24 @@ int qh_new_qhull(int dim, int numpoints, coordT *points, boolT ismalloc,
   static boolT firstcall = True;
   coordT *new_points;
 
+  if(!errfile){
+      errfile= stderr;
+  }
   if (firstcall) {
     qh_meminit(errfile);
     firstcall= False;
+  } else {
+    qh_memcheck();
   }
-  if (strncmp(qhull_cmd,"qhull ", (size_t)6)) {
+  if (strncmp(qhull_cmd, "qhull ", (size_t)6)) {
     qh_fprintf(errfile, 6186, "qhull error (qh_new_qhull): start qhull_cmd argument with \"qhull \"\n");
-    qh_exit(qh_ERRinput);
+    return qh_ERRinput;
   }
   qh_initqhull_start(NULL, outfile, errfile);
+  if(numpoints==0 && points==NULL){
+      trace1((qh ferr, 1047, "qh_new_qhull: initialize Qhull\n"));
+      return 0;
+  }
   trace1((qh ferr, 1044, "qh_new_qhull: build new Qhull for %d %d-d points with %s\n", numpoints, dim, qhull_cmd));
   exitcode = setjmp(qh errexit);
   if (!exitcode)
@@ -246,11 +254,12 @@ void qh_errexit(int exitcode, facetT *facet, ridgeT *ridge) {
   else if (exitcode == qh_ERRprec && !qh PREmerge)
     qh_printhelp_degenerate(qh ferr);
   if (qh NOerrexit) {
-    qh_fprintf(qh ferr, 6187, "qhull error while ending program.  Exit program\n");
+    qh_fprintf(qh ferr, 6187, "qhull error while ending program, or qh->NOerrexit not cleared after setjmp(). Exit program with error.\n");
     qh_exit(qh_ERRqhull);
   }
   qh ERREXITcalled= False;
   qh NOerrexit= True;
+  qh ALLOWrestart= False;  /* longjmp will undo qh_build_withrestart */
   longjmp(qh errexit, exitcode);
 } /* errexit */
 
@@ -446,7 +455,7 @@ The center point is coplanar with a facet, or a vertex is coplanar\n\
 with a neighboring facet.  The maximum round off error for\n\
 computing distances is %2.2g.  The center point, facets and distances\n\
 to the center point are as follows:\n\n", qh DISTround);
-  qh_printpointid(fp, "center point", qh hull_dim, qh interior_point, -1);
+  qh_printpointid(fp, "center point", qh hull_dim, qh interior_point, qh_IDunknown);
   qh_fprintf(fp, 9378, "\n");
   FORALLfacets {
     qh_fprintf(fp, 9379, "facet");
@@ -523,3 +532,5 @@ void qh_user_memsizes(void) {
 
   /* qh_memsize(size); */
 } /* user_memsizes */
+
+

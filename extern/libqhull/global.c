@@ -11,16 +11,14 @@
 
    see qhull_a.h for internal functions
 
-   Copyright (c) 1993-2012 The Geometry Center.
-   $Id: //main/2011/qhull/src/libqhull/global.c#15 $$Change: 1490 $
-   $DateTime: 2012/02/19 20:27:01 $$Author: bbarber $
+   Copyright (c) 1993-2015 The Geometry Center.
+   $Id: //main/2015/qhull/src/libqhull/global.c#17 $$Change: 2066 $
+   $DateTime: 2016/01/18 19:29:17 $$Author: bbarber $
  */
 
 #include "qhull_a.h"
 
 /*========= qh definition -- globals defined in libqhull.h =======================*/
-
-int qhull_inuse= 0; /* not used */
 
 #if qh_QHpointer
 qhT *qh_qh= NULL;       /* pointer to all global variables */
@@ -35,19 +33,22 @@ qhT qh_qh;              /* all global variables.
 
   qh_version
     version string by year and date
+    qh_version2 for Unix users and -V
 
     the revision increases on code changes only
 
   notes:
     change date:    Changes.txt, Announce.txt, index.htm, README.txt,
                     qhull-news.html, Eudora signatures, CMakeLists.txt
-    change version: README.txt, qh-get.htm, File_id.diz, Makefile.txt
+    change version: README.txt, qh-get.htm, File_id.diz, Makefile.txt, CMakeLists.txt
+    check that CmakeLists @version is the same as qh_version2
     change year:    Copying.txt
     check download size
     recompile user_eg.c, rbox.c, libqhull.c, qconvex.c, qdelaun.c qvoronoi.c, qhalf.c, testqset.c
 */
 
-const char *qh_version = "2012.1 2012/02/18";
+const char qh_version[]= "2015.2 2016/01/18";
+const char qh_version2[]= "qhull 7.2.0 (2015.2 2016/01/18)";
 
 /*-<a                             href="qh-globa.htm#TOC"
   >-------------------------------</a><a name="appendprint">-</a>
@@ -73,7 +74,7 @@ void qh_appendprint(qh_PRINT format) {
 
   qh_checkflags( commandStr, hiddenFlags )
     errors if commandStr contains hiddenFlags
-    hiddenFlags starts and ends with a space and is space deliminated (checked)
+    hiddenFlags starts and ends with a space and is space delimited (checked)
 
   notes:
     ignores first word (e.g., "qconvex i")
@@ -200,7 +201,7 @@ void qh_clear_outputflags(void) {
   qh TRInormals= False;
   qh USEstdout= False;
   qh VERIFYoutput= False;
-  for (k=qh input_dim+1; k--; ) {  /* duplicated in qh_initqhull_buffers and qh_clear_ouputflags */
+  for (k=qh input_dim+1; k--; ) {  /* duplicated in qh_initqhull_buffers and qh_clear_outputflags */
     qh lower_threshold[k]= -REALmax;
     qh upper_threshold[k]= REALmax;
     qh lower_bound[k]= -REALmax;
@@ -239,7 +240,7 @@ unsigned long qh_clock(void) {
 
 #if (qh_CLOCKtype == 2)
   struct tms time;
-  static long clktck;  /* initialized first call */
+  static long clktck;  /* initialized first call and never updated */
   double ratio, cpu;
   unsigned long ticks;
 
@@ -433,12 +434,13 @@ void qh_freeqhull(boolT allmem) {
 >-------------------------------</a><a name="freeqhull2">-</a>
 
 qh_freeqhull2( allmem )
-  free global memory
+  free global memory and set qhT to 0
   if !allmem,
-    does not free short memory (freed by qh_memfreeshort)
+    does not free short memory (freed by qh_memfreeshort unless qh_NOmem)
 
 notes:
   sets qh.NOerrexit in case caller forgets to
+  Does not throw errors
 
 see:
   see qh_initqhull_start2()
@@ -450,8 +452,8 @@ design:
 */
 void qh_freeqhull2(boolT allmem) {
 
-  trace1((qh ferr, 1006, "qh_freeqhull2: free global memory\n"));
   qh NOerrexit= True;  /* no more setjmp since called at exit and ~QhullQh */
+  trace1((qh ferr, 1006, "qh_freeqhull: free global memory\n"));
   qh_freebuild(allmem);
   qh_freebuffers();
   qh_freestatistics();
@@ -560,6 +562,7 @@ void qh_init_B(coordT *points, int numpoints, int dim, boolT ismalloc) {
 
   qh_init_qhull_command( argc, argv )
     build qh.qhull_command from argc/argv
+    Calls qh_exit if qhull_command is too short
 
   returns:
     a space-delimited string of options (just as typed)
@@ -584,6 +587,7 @@ void qh_init_qhull_command(int argc, char *argv[]) {
 
   qh_initflags( commandStr )
     set flags and initialized constants from commandStr
+    calls qh_exit() if qh->NOerrexit
 
   returns:
     sets qh.qhull_command to command if needed
@@ -597,15 +601,15 @@ void qh_init_qhull_command(int argc, char *argv[]) {
     'prompt' in unix.c for documentation
 
   design:
-    for each space-deliminated option group
+    for each space-delimited option group
       if top-level option
         check syntax
-        append approriate option to option string
+        append appropriate option to option string
         set appropriate global variable or append printFormat to print options
       else
         for each sub-option
           check syntax
-          append approriate option to option string
+          append appropriate option to option string
           set appropriate global variable or append printFormat to print options
 */
 void qh_initflags(char *command) {
@@ -614,6 +618,10 @@ void qh_initflags(char *command) {
   boolT isgeom= False, wasproject;
   realT r;
 
+  if(qh NOerrexit){/* without this comment, segfault in gcc 4.4.0 mingw32 */
+    qh_fprintf(qh ferr, 6245, "qhull initflags error: qh.NOerrexit was not cleared before calling qh_initflags().  It should be cleared after setjmp().  Exit qhull.");
+    qh_exit(6245);
+  }
   if (command <= &qh qhull_command[0] || command > &qh qhull_command[0] + sizeof(qh qhull_command)) {
     if (command != &qh qhull_command[0]) {
       *qh qhull_command= '\0';
@@ -1149,6 +1157,10 @@ void qh_initflags(char *command) {
             qh TRInormals= True;
             qh TRIangulate= True;
             break;
+          case '2':
+            qh_option("Q12-no-wide-dup", NULL, NULL);
+            qh NOwide= True;
+            break;
           default:
             s--;
             qh_fprintf(qh ferr, 7016, "qhull warning: unknown 'Q' qhull option 1%c, rest ignored\n", (int)s[0]);
@@ -1334,7 +1346,9 @@ void qh_initflags(char *command) {
 
               qh_copyfilename(filename, (int)sizeof(filename), s, (int)(t-s));  /* WARN64 */
               s= t;
-              if (!freopen(filename, "w", stdout)) {
+              if (!qh fout) {
+                qh_fprintf(qh ferr, 6266, "qhull input warning: qh.fout was not set by caller.  Cannot use option 'TO' to redirect output.  Ignoring option 'TO'\n");
+              }else if (!freopen(filename, "w", qh fout)) {
                 qh_fprintf(qh ferr, 6044, "qhull error: could not open file \"%s\".", filename);
                 qh_errexit(qh_ERRinput, NULL, NULL);
               }else {
@@ -1439,7 +1453,7 @@ void qh_initqhull_buffers(void) {
   qh upper_threshold= (realT *)qh_memalloc((qh input_dim+1) * sizeof(realT));
   qh lower_bound= (realT *)qh_memalloc((qh input_dim+1) * sizeof(realT));
   qh upper_bound= (realT *)qh_memalloc((qh input_dim+1) * sizeof(realT));
-  for (k=qh input_dim+1; k--; ) {  /* duplicated in qh_initqhull_buffers and qh_clear_ouputflags */
+  for (k=qh input_dim+1; k--; ) {  /* duplicated in qh_initqhull_buffers and qh_clear_outputflags */
     qh lower_threshold[k]= -REALmax;
     qh upper_threshold[k]= REALmax;
     qh lower_bound[k]= -REALmax;
@@ -1594,7 +1608,7 @@ void qh_initqhull_globals(coordT *points, int numpoints, int dim, boolT ismalloc
     qh TRACElastrun= qh IStracing; /* qh_build_withrestart duplicates next conditional */
     if (qh IStracing != -1)
       qh IStracing= 0;
-  }else if (qh TRACEpoint != -1 || qh TRACEdist < REALmax/2 || qh TRACEmerge) {
+  }else if (qh TRACEpoint != qh_IDunknown || qh TRACEdist < REALmax/2 || qh TRACEmerge) {
     qh TRACElevel= (qh IStracing? qh IStracing : 3);
     qh IStracing= 0;
   }
@@ -1854,7 +1868,7 @@ void qh_initqhull_start2(FILE *infile, FILE *outfile, FILE *errfile) {
   qh ferr= errfile;
   qh fin= infile;
   qh fout= outfile;
-  qh furthest_id= -1;
+  qh furthest_id= qh_IDunknown;
   qh JOGGLEmax= REALmax;
   qh KEEPminArea = REALmax;
   qh last_low= REALmax;
@@ -1882,12 +1896,14 @@ void qh_initqhull_start2(FILE *infile, FILE *outfile, FILE *errfile) {
   qh totarea= 0.0;
   qh totvol= 0.0;
   qh TRACEdist= REALmax;
-  qh TRACEpoint= -1; /* recompile or use 'TPn' */
+  qh TRACEpoint= qh_IDunknown; /* recompile or use 'TPn' */
   qh tracefacet_id= UINT_MAX;  /* recompile to trace a facet */
   qh tracevertex_id= UINT_MAX; /* recompile to trace a vertex */
   seed= (int)time(&timedata);
   qh_RANDOMseed_(seed);
-  qh run_id= qh_RANDOMint+1; /* disallow 0 [UsingLibQhull::NOqhRunId] */
+  qh run_id= qh_RANDOMint;
+  if(!qh run_id)
+      qh run_id++;  /* guarantee non-zero */
   qh_option("run-id", &qh run_id, NULL);
   strcat(qh qhull, "qhull");
 } /* initqhull_start2 */
@@ -2012,6 +2028,80 @@ void qh_initthresholds(char *command) {
 } /* initthresholds */
 
 /*-<a                             href="qh-globa.htm#TOC"
+  >-------------------------------</a><a name="lib_check">-</a>
+
+  qh_lib_check( qhullLibraryType, qhTsize, vertexTsize, ridgeTsize, facetTsize, setTsize, qhmemTsize )
+    Report error if library does not agree with caller
+
+  notes:
+    NOerrors -- qh_lib_check can not call qh_errexit()
+*/
+void qh_lib_check(int qhullLibraryType, int qhTsize, int vertexTsize, int ridgeTsize, int facetTsize, int setTsize, int qhmemTsize) {
+    boolT iserror= False;
+
+#if defined(_MSC_VER) && defined(_DEBUG) && defined(QHULL_CRTDBG)  /* user_r.h */
+    // _CrtSetBreakAlloc(744);  /* Break at memalloc {744}, or 'watch' _crtBreakAlloc */
+    _CrtSetDbgFlag( _CRTDBG_ALLOC_MEM_DF | _CRTDBG_DELAY_FREE_MEM_DF | _CRTDBG_LEAK_CHECK_DF | _CrtSetDbgFlag(_CRTDBG_REPORT_FLAG) );
+    _CrtSetReportMode( _CRT_ERROR, _CRTDBG_MODE_FILE | _CRTDBG_MODE_DEBUG );
+    _CrtSetReportFile( _CRT_ERROR, _CRTDBG_FILE_STDERR );
+    _CrtSetReportMode( _CRT_WARN, _CRTDBG_MODE_FILE | _CRTDBG_MODE_DEBUG );
+    _CrtSetReportFile( _CRT_WARN, _CRTDBG_FILE_STDERR );
+    _CrtSetReportMode( _CRT_ASSERT, _CRTDBG_MODE_FILE | _CRTDBG_MODE_DEBUG );
+    _CrtSetReportFile( _CRT_ASSERT, _CRTDBG_FILE_STDERR );
+#endif
+
+    if (qhullLibraryType==QHULL_NON_REENTRANT) { /* 0 */
+        if (qh_QHpointer) {
+            qh_fprintf_stderr(6246, "qh_lib_check: Incorrect qhull library called.  Caller uses a static qhT while library uses a dynamic qhT via qh_QHpointer.  Both caller and library are non-reentrant.\n");
+            iserror= True;
+        }
+    }else if (qhullLibraryType==QHULL_QH_POINTER) { /* 1 */
+        if (!qh_QHpointer) {
+            qh_fprintf_stderr(6247, "qh_lib_check: Incorrect qhull library called.  Caller uses a dynamic qhT via qh_QHpointer while library uses a static qhT.  Both caller and library are non-reentrant.\n");
+            iserror= True;
+        }
+    }else if (qhullLibraryType==QHULL_REENTRANT) { /* 2 */
+        qh_fprintf_stderr(6248, "qh_lib_check: Incorrect qhull library called.  Caller uses reentrant Qhull while library is non-reentrant\n");
+        iserror= True;
+    }else{
+        qh_fprintf_stderr(6262, "qh_lib_check: Expecting qhullLibraryType QHULL_NON_REENTRANT(0), QHULL_QH_POINTER(1), or QHULL_REENTRANT(2).  Got %d\n", qhullLibraryType);
+        iserror= True;
+    }
+    if (qhTsize != sizeof(qhT)) {
+        qh_fprintf_stderr(6249, "qh_lib_check: Incorrect qhull library called.  Size of qhT for caller is %d, but for library is %d.\n", qhTsize, sizeof(qhT));
+        iserror= True;
+    }
+    if (vertexTsize != sizeof(vertexT)) {
+        qh_fprintf_stderr(6250, "qh_lib_check: Incorrect qhull library called.  Size of vertexT for caller is %d, but for library is %d.\n", vertexTsize, sizeof(vertexT));
+        iserror= True;
+    }
+    if (ridgeTsize != sizeof(ridgeT)) {
+        qh_fprintf_stderr(6251, "qh_lib_check: Incorrect qhull library called.  Size of ridgeT for caller is %d, but for library is %d.\n", ridgeTsize, sizeof(ridgeT));
+        iserror= True;
+    }
+    if (facetTsize != sizeof(facetT)) {
+        qh_fprintf_stderr(6252, "qh_lib_check: Incorrect qhull library called.  Size of facetT for caller is %d, but for library is %d.\n", facetTsize, sizeof(facetT));
+        iserror= True;
+    }
+    if (setTsize && setTsize != sizeof(setT)) {
+        qh_fprintf_stderr(6253, "qh_lib_check: Incorrect qhull library called.  Size of setT for caller is %d, but for library is %d.\n", setTsize, sizeof(setT));
+        iserror= True;
+    }
+    if (qhmemTsize && qhmemTsize != sizeof(qhmemT)) {
+        qh_fprintf_stderr(6254, "qh_lib_check: Incorrect qhull library called.  Size of qhmemT for caller is %d, but for library is %d.\n", qhmemTsize, sizeof(qhmemT));
+        iserror= True;
+    }
+    if (iserror) {
+        if(qh_QHpointer){
+            qh_fprintf_stderr(6255, "qh_lib_check: Cannot continue.  Library '%s' uses a dynamic qhT via qh_QHpointer (e.g., qhull_p.so)\n", qh_version2);
+        }else{
+            qh_fprintf_stderr(6256, "qh_lib_check: Cannot continue.  Library '%s' uses a static qhT (e.g., libqhull.so)\n", qh_version2);
+        }
+        qh_exit(qh_ERRqhull);  /* can not use qh_errexit() */
+    }
+} /* lib_check */
+
+/*-<a                             href="qh-globa.htm#TOC"
   >-------------------------------</a><a name="option">-</a>
 
   qh_option( option, intVal, realVal )
@@ -2124,3 +2214,4 @@ qhT *qh_save_qhull(void) {
 } /* save_qhull */
 
 #endif
+
