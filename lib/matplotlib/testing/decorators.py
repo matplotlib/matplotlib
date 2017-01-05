@@ -298,7 +298,12 @@ class ImageComparisonDecorator(CleanupTest):
             remove_ticks_and_titles(fig)
 
         actual_fname = os.path.join(self.result_dir, baseline) + '.' + extension
-        fig.savefig(actual_fname, **self.savefig_kwargs)
+        kwargs = self.savefig_kwargs.copy()
+        if extension == 'pdf':
+            kwargs.setdefault('metadata',
+                              {'Creator': None, 'Producer': None,
+                               'CreationDate': None})
+        fig.savefig(actual_fname, **kwargs)
 
         expected_fname = self.copy_baseline(baseline, extension)
         raise_on_image_difference(expected_fname, actual_fname, self.tol)
