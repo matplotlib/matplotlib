@@ -211,13 +211,13 @@ For example, this can be used for a figure with multiple gridspecs.
    :context:
 
     gs2 = gridspec.GridSpec(3, 1)
-    
+
     for ss in gs2:
         ax = fig.add_subplot(ss)
         example_plot(ax)
         ax.set_title("")
         ax.set_xlabel("")
-        
+
     ax.set_xlabel("x-label", fontsize=12)
 
     gs2.tight_layout(fig, rect=[0.5, 0, 1, 1], h_pad=0.5)
@@ -230,7 +230,7 @@ We may try to match the top and bottom of two grids ::
 
     gs1.update(top=top, bottom=bottom)
     gs2.update(top=top, bottom=bottom)
-    
+
 
 While this should be mostly good enough, adjusting top and bottom
 may require adjustment of hspace also.  To update hspace & vspace, we
@@ -269,7 +269,7 @@ While limited, the axes_grid1 toolkit is also supported.
     fig = plt.figure()
 
     from mpl_toolkits.axes_grid1 import Grid
-    grid = Grid(fig, rect=111, nrows_ncols=(2,2), 
+    grid = Grid(fig, rect=111, nrows_ncols=(2,2),
                 axes_pad=0.25, label_mode='L',
                 )
 
@@ -294,6 +294,7 @@ colorbar as a subplot using the gridspec.
    :context:
 
    plt.close('all')
+   arr = np.arange(100).reshape((10,10))
    fig = plt.figure(figsize=(4, 4))
    im = plt.imshow(arr, interpolation="none")
 
@@ -309,6 +310,7 @@ explicitly create an axes for colorbar.
    :context:
 
    plt.close('all')
+   arr = np.arange(100).reshape((10,10))
    fig = plt.figure(figsize=(4, 4))
    im = plt.imshow(arr, interpolation="none")
 
@@ -318,7 +320,3 @@ explicitly create an axes for colorbar.
    plt.colorbar(im, cax=cax)
 
    plt.tight_layout()
-
-
-
-
