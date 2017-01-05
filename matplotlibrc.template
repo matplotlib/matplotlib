@@ -587,7 +587,7 @@ backend      : $TEMPLATE_BACKEND
 # Customize these settings according to your needs.
 # Leave the field(s) empty if you don't need a key-map. (i.e., fullscreen : '')
 
-#keymap.fullscreen : f               # toggling
+#keymap.fullscreen : f, ctrl+f       # toggling
 #keymap.home : h, r, home            # home or reset mnemonic
 #keymap.back : left, c, backspace    # forward / backward keys to enable
 #keymap.forward : right, v           #   left handed quick navigation
