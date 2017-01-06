@@ -851,7 +851,10 @@ or tuple of floats
         p = mpatches.Polygon(verts, **kwargs)
         p.set_transform(trans)
         self.add_patch(p)
-        self.autoscale_view(scalex=False)
+
+        ybmin, ybmax = self.get_ybound()
+        scaley = (ymin < ybmin) or (ymax > ybmax)
+        self.autoscale_view(scalex=False, scaley=scaley)
         return p
 
     def axvspan(self, xmin, xmax, ymin=0, ymax=1, **kwargs):
@@ -916,7 +919,10 @@ or tuple of floats
         p = mpatches.Polygon(verts, **kwargs)
         p.set_transform(trans)
         self.add_patch(p)
-        self.autoscale_view(scaley=False)
+
+        xbmin, xbmax = self.get_xbound()
+        scalex = (xmin < xbmin) or (xmax > xbmax)
+        self.autoscale_view(scalex=scalex, scaley=False)
         return p
 
     @_preprocess_data(replace_names=['y', 'xmin', 'xmax', 'colors'],
