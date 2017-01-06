@@ -3126,9 +3126,12 @@ or tuple of floats
             everything is drawn horizontally.
 
         whis : float, sequence, or string (default = 1.5)
-            As a float, determines the reach of the whiskers past the
-            first and third quartiles (e.g., Q3 + whis*IQR,
-            IQR = interquartile range, Q3-Q1). Beyond the whiskers, data
+            As a float, determines the reach of the whiskers to the beyond the
+            first and third quartiles. In other words, where IQR is the
+            interquartile range (`Q3-Q1`), the upper whisker will extend to
+            last datum less than `Q3 + whis*IQR`). Similarly, the lower whisker
+            will extend to the first datum greater than `Q1 - whis*IQR`.
+            Beyond the whiskers, data
             are considered outliers and are plotted as individual
             points. Set this to an unreasonably high value to force the
             whiskers to show the min and max values. Alternatively, set
