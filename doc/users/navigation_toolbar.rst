@@ -93,7 +93,7 @@ Forward                            **v** or **right arrow**
 Pan/Zoom                           **p**
 Zoom-to-rect                       **o**
 Save                               **ctrl** + **s**
-Toggle fullscreen                  **ctrl** + **f**
+Toggle fullscreen                  **f** or **ctrl** + **f**
 Close plot                         **ctrl** + **w**
 Close all plots                    **shift** + **w**
 Constrain pan/zoom to x axis       hold **x** when panning/zooming with mouse
