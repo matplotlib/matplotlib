@@ -976,8 +976,8 @@ def subplot(*args, **kwargs):
 
     .. note::
 
-       Creating a new subplot with a position which is entirely inside a
-       pre-existing axes will trigger the larger axes to be deleted::
+       Creating a subplot will delete any pre-existing subplot that overlaps
+       with it::
 
           import matplotlib.pyplot as plt
           # plot a line, implicitly creating a subplot(111)
