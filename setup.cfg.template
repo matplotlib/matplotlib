@@ -22,10 +22,10 @@
 
 [packages]
 # There are a number of subpackages of matplotlib that are considered
-# optional.  They are all installed by default, but they may be turned
-# off here.
+# optional. All except tests are installed by default, but that can
+# be changed here.
 #
-#tests = True
+#tests = False
 #sample_data = True
 #toolkits = True
 # Tests for the toolkits are only automatically installed
