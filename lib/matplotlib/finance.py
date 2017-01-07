@@ -2,8 +2,8 @@
 A collection of functions for collecting, analyzing and plotting
 financial data.
 
-This module is deprecated in 2.0 and has been moved to a mpl_toolkit called
-`finance`.
+This module is deprecated in 2.0 and has been moved to a module called
+`mpl_finance`.
 """
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
@@ -31,8 +31,8 @@ from matplotlib.transforms import Affine2D
 warn_deprecated(
     since=2.0,
     message=("The finance module has been deprecated in mpl 2.0 and will "
-             "be removed in mpl 2.2. Please use the matplotlib toolkit "
-             "finance instead."))
+             "be removed in mpl 2.2. Please use the module mpl_finance "
+             "instead."))
 
 
 if six.PY3:
