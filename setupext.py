@@ -532,6 +532,7 @@ class OptionalPackage(SetupPackage):
     optional = True
     force = False
     config_category = "packages"
+    default_config = "auto"
 
     @classmethod
     def get_config(cls):
@@ -541,7 +542,7 @@ class OptionalPackage(SetupPackage):
         insensitively defined as 1, true, yes, on for True) or opted-out (case
         insensitively defined as 0, false, no, off for False).
         """
-        conf = "auto"
+        conf = cls.default_config
         if config is not None and config.has_option(cls.config_category, cls.name):
             try:
                 conf = config.getboolean(cls.config_category, cls.name)
@@ -712,6 +713,7 @@ class Toolkits(OptionalPackage):
 class Tests(OptionalPackage):
     name = "tests"
     nose_min_version = '0.11.1'
+    default_config = False
 
     def check(self):
         super(Tests, self).check()
