@@ -28,6 +28,7 @@ from matplotlib.testing.compare import comparable_formats, compare_images, \
      make_test_filename
 from . import _copy_metadata, is_called_from_pytest
 from .exceptions import ImageComparisonFailure
+from .conversion_cache import conversion_cache
 
 
 def _knownfailureif(fail_condition, msg=None, known_exception_class=None):
@@ -197,7 +198,8 @@ def remove_ticks_and_titles(figure):
 def _raise_on_image_difference(expected, actual, tol):
     __tracebackhide__ = True
 
-    err = compare_images(expected, actual, tol, in_decorator=True)
+    err = compare_images(expected, actual, tol, in_decorator=True,
+                         cache=conversion_cache)
 
     if not os.path.exists(expected):
         raise ImageComparisonFailure('image does not exist: %s' % expected)

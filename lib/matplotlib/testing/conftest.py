@@ -6,14 +6,42 @@ import pytest
 import matplotlib
 
 
+def pytest_addoption(parser):
+    group = parser.getgroup("matplotlib", "matplotlib custom options")
+    group.addoption("--conversion-cache-max-size", action="store",
+                    help="conversion cache maximum size in bytes")
+    group.addoption("--conversion-cache-report-misses",
+                    action="store_true",
+                    help="report conversion cache misses")
+
+
 def pytest_configure(config):
     matplotlib.use('agg')
     matplotlib._called_from_pytest = True
     matplotlib._init_tests()
 
+    max_size = config.getoption('--conversion-cache-max-size')
+    if max_size is not None:
+        ccache.conversion_cache = \
+            ccache.ConversionCache(max_size=int(max_size))
+    else:
+        ccache.conversion_cache = ccache.ConversionCache()
+
 
 def pytest_unconfigure(config):
+    ccache.conversion_cache.expire()
     matplotlib._called_from_pytest = False
+
+
+def pytest_terminal_summary(terminalreporter):
+    tr = terminalreporter
+    data = ccache.conversion_cache.report()
+    tr.write_sep('-', 'Image conversion cache report')
+    tr.write_line('Hit rate: %d/%d' % (len(data['hits']), len(data['gets'])))
+    if tr.config.getoption('--conversion-cache-report-misses'):
+        tr.write_line('Missed files:')
+        for filename in sorted(data['gets'].difference(data['hits'])):
+            tr.write_line('  %s' % filename)
 
 
 @pytest.fixture(autouse=True)

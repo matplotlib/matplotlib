@@ -5,11 +5,7 @@ Provides a collection of utilities for comparing (image) results.
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
-import six
-
-import hashlib
 import os
-import shutil
 
 import numpy as np
 
@@ -17,9 +13,6 @@ import matplotlib
 from matplotlib.compat import subprocess
 from matplotlib.testing.exceptions import ImageComparisonFailure
 from matplotlib import _png
-from matplotlib import _get_cachedir
-from matplotlib import cbook
-from distutils import version
 
 __all__ = ['compare_float', 'compare_images', 'comparable_formats']
 
@@ -76,40 +69,6 @@ def compare_float(expected, actual, relTol=None, absTol=None):
     return msg or None
 
 
-def get_cache_dir():
-    cachedir = _get_cachedir()
-    if cachedir is None:
-        raise RuntimeError('Could not find a suitable configuration directory')
-    cache_dir = os.path.join(cachedir, 'test_cache')
-    if not os.path.exists(cache_dir):
-        try:
-            cbook.mkdirs(cache_dir)
-        except IOError:
-            return None
-    if not os.access(cache_dir, os.W_OK):
-        return None
-    return cache_dir
-
-
-def get_file_hash(path, block_size=2 ** 20):
-    md5 = hashlib.md5()
-    with open(path, 'rb') as fd:
-        while True:
-            data = fd.read(block_size)
-            if not data:
-                break
-            md5.update(data)
-
-    if path.endswith('.pdf'):
-        from matplotlib import checkdep_ghostscript
-        md5.update(checkdep_ghostscript()[1].encode('utf-8'))
-    elif path.endswith('.svg'):
-        from matplotlib import checkdep_inkscape
-        md5.update(checkdep_inkscape().encode('utf-8'))
-
-    return md5.hexdigest()
-
-
 def make_external_conversion_command(cmd):
     def convert(old, new):
         cmdline = cmd(old, new)
@@ -160,16 +119,20 @@ def comparable_formats():
     return ['png'] + list(converter)
 
 
-def convert(filename, cache):
+def convert(filename, cache=None):
     """
     Convert the named file into a png file.  Returns the name of the
     created file.
 
-    If *cache* is True, the result of the conversion is cached in
-    `matplotlib._get_cachedir() + '/test_cache/'`.  The caching is based
-    on a hash of the exact contents of the input file.  The is no limit
-    on the size of the cache, so it may need to be manually cleared
-    periodically.
+    Parameters
+    ----------
+    filename : str
+    cache : ConversionCache, optional
+
+    Returns
+    -------
+    str
+        The converted file.
 
     """
     base, extension = filename.rsplit('.', 1)
@@ -190,23 +153,12 @@ def convert(filename, cache):
     # is out of date.
     if (not os.path.exists(newname) or
             os.stat(newname).st_mtime < os.stat(filename).st_mtime):
-        if cache:
-            cache_dir = get_cache_dir()
-        else:
-            cache_dir = None
-
-        if cache_dir is not None:
-            hash_value = get_file_hash(filename)
-            new_ext = os.path.splitext(newname)[1]
-            cached_file = os.path.join(cache_dir, hash_value + new_ext)
-            if os.path.exists(cached_file):
-                shutil.copyfile(cached_file, newname)
-                return newname
-
+        in_cache = cache and cache.get(filename, newname)
+        if in_cache:
+            return newname
         converter[extension](filename, newname)
-
-        if cache_dir is not None:
-            shutil.copyfile(newname, cached_file)
+        if cache:
+            cache.put(filename, newname)
 
     return newname
 
@@ -269,7 +221,7 @@ def calculate_rms(expectedImage, actualImage):
     return rms
 
 
-def compare_images(expected, actual, tol, in_decorator=False):
+def compare_images(expected, actual, tol, in_decorator=False, cache=None):
     """
     Compare two "image" files checking differences within a tolerance.
 
@@ -290,6 +242,7 @@ def compare_images(expected, actual, tol, in_decorator=False):
     in_decorator : bool
         If called from image_comparison decorator, this should be
         True. (default=False)
+    cache : cache.ConversionCache, optional
 
     Example
     -------
@@ -311,8 +264,8 @@ def compare_images(expected, actual, tol, in_decorator=False):
         raise IOError('Baseline image %r does not exist.' % expected)
 
     if extension != 'png':
-        actual = convert(actual, False)
-        expected = convert(expected, True)
+        actual = convert(actual, cache)
+        expected = convert(expected, cache)
 
     # open the image files and remove the alpha channel (if it exists)
     expectedImage = _png.read_png_int(expected)
