@@ -2496,7 +2496,7 @@ def key_press_handler(event, canvas, toolbar=None):
     toggle_xscale_keys = rcParams['keymap.xscale']
     all = rcParams['keymap.all_axes']
 
-    # toggle fullscreen mode (default key 'f')
+    # toggle fullscreen mode ('f', 'ctrl + f')
     if event.key in fullscreen_keys:
         try:
             canvas.manager.full_screen_toggle()
