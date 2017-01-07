@@ -2197,7 +2197,8 @@ or tuple of floats
 
     @docstring.dedent_interpd
     def barh(self, bottom, width, height=0.8, left=None, **kwargs):
-        """Make a horizontal bar plot.
+        """
+        Make a horizontal bar plot.
 
         Make a horizontal bar plot with rectangles bounded by:
 
@@ -2263,7 +2264,7 @@ or tuple of floats
             bars) and by their bottom edges (for horizontal bars). If
             'center', interpret the `bottom` argument as the
             coordinates of the centers of the bars.  To align on the
-            align bars on the top edge pass a negative `height`.
+            align bars on the top edge pass a negative 'height'.
 
         log : boolean, optional, default: False
             If true, sets the axis to be log scale
@@ -2285,7 +2286,6 @@ or tuple of floats
         See also
         --------
         bar: Plot a vertical bar plot.
-
         """
 
         patches = self.bar(left=left, height=height, width=width,
