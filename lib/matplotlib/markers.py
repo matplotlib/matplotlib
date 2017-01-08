@@ -89,10 +89,12 @@ from __future__ import (absolute_import, division, print_function,
 import six
 from six.moves import xrange
 
+from collections import Sized
+
 import numpy as np
 
-from .cbook import is_math_text, is_string_like, is_numlike, iterable
-from matplotlib import rcParams
+from . import rcParams
+from .cbook import is_math_text, is_string_like, is_numlike
 from .path import Path
 from .transforms import IdentityTransform, Affine2D
 
@@ -247,7 +249,7 @@ class MarkerStyle(object):
         return self._marker
 
     def set_marker(self, marker):
-        if (iterable(marker) and len(marker) in (2, 3) and
+        if (isinstance(marker, Sized) and len(marker) in (2, 3) and
                 marker[1] in (0, 1, 2, 3)):
             self._marker_function = self._set_tuple_marker
         elif isinstance(marker, np.ndarray):
