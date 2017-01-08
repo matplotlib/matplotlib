@@ -4,6 +4,7 @@ from __future__ import (absolute_import, division, print_function,
 import six
 from six.moves import reduce, xrange, zip, zip_longest
 
+from collections import Sized
 import itertools
 import math
 import warnings
@@ -2940,8 +2941,11 @@ or tuple of floats
             data : iterable
                 x or y from errorbar
             '''
-            if (iterable(err) and len(err) == 2):
+            try:
                 a, b = err
+            except (TypeError, ValueError):
+                pass
+            else:
                 if iterable(a) and iterable(b):
                     # using list comps rather than arrays to preserve units
                     low = [thisx - thiserr for (thisx, thiserr)
@@ -2955,8 +2959,8 @@ or tuple of floats
             # special case for empty lists
             if len(err) > 1:
                 fe = safe_first_element(err)
-                if not ((len(err) == len(data) and not (iterable(fe) and
-                                                        len(fe) > 1))):
+                if (len(err) != len(data)
+                        or isinstance(fe, Sized) and len(fe) > 1):
                     raise ValueError("err must be [ scalar | N, Nx1 "
                                      "or 2xN array-like ]")
             # using list comps rather than arrays to preserve units

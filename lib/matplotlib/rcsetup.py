@@ -18,17 +18,12 @@ from __future__ import (absolute_import, division, print_function,
 
 import six
 
+from collections import Iterable, Mapping
 from functools import reduce
 import operator
 import os
 import warnings
 import re
-
-try:
-    import collections.abc as abc
-except ImportError:
-    # python 2
-    import collections as abc
 
 from matplotlib.cbook import mplDeprecation
 from matplotlib.fontconfig_pattern import parse_fontconfig_pattern
@@ -92,7 +87,7 @@ def _listify_validator(scalar_validator, allow_stringlist=False):
         # Numpy ndarrays, and pandas data structures.  However, unordered
         # sequences, such as sets, should be allowed but discouraged unless the
         # user desires pseudorandom behavior.
-        elif isinstance(s, abc.Iterable) and not isinstance(s, abc.Mapping):
+        elif isinstance(s, Iterable) and not isinstance(s, Mapping):
             # The condition on this list comprehension will preserve the
             # behavior of filtering out any empty strings (behavior was
             # from the original validate_stringlist()), while allowing

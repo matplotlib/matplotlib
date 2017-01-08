@@ -7,8 +7,8 @@ from __future__ import (absolute_import, division, print_function,
 import io
 
 import numpy as np
-from numpy.testing import assert_array_equal, assert_array_almost_equal
-from numpy.testing import assert_equal
+from numpy.testing import (
+    assert_array_equal, assert_array_almost_equal, assert_equal)
 import pytest
 
 import matplotlib.pyplot as plt
@@ -641,9 +641,9 @@ def test_lslw_bcast():
     col.set_linestyles(['-', '-'])
     col.set_linewidths([1, 2, 3])
 
-    assert col.get_linestyles() == [(None, None)] * 6
-    assert col.get_linewidths() == [1, 2, 3] * 2
+    assert_equal(col.get_linestyles(), [(None, None)] * 6)
+    assert_equal(col.get_linewidths(), [1, 2, 3] * 2)
 
     col.set_linestyles(['-', '-', '-'])
-    assert col.get_linestyles() == [(None, None)] * 3
-    assert col.get_linewidths() == [1, 2, 3]
+    assert_equal(col.get_linestyles(), [(None, None)] * 3)
+    assert_equal(col.get_linewidths(), [1, 2, 3])

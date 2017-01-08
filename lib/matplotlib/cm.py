@@ -305,10 +305,11 @@ class ScalarMappable(object):
 
         ACCEPTS: a length 2 sequence of floats
         """
-        if (vmin is not None and vmax is None and
-                cbook.iterable(vmin) and len(vmin) == 2):
-            vmin, vmax = vmin
-
+        if vmax is None:
+            try:
+                vmin, vmax = vmin
+            except (TypeError, ValueError):
+                pass
         if vmin is not None:
             self.norm.vmin = vmin
         if vmax is not None:
