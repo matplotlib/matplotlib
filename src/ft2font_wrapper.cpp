@@ -971,7 +971,7 @@ static PyObject *PyFT2Font_get_char_index(PyFT2Font *self, PyObject *args, PyObj
     FT_UInt index;
     FT_ULong ccode;
 
-    if (!PyArg_ParseTuple(args, "I:get_char_index", &ccode)) {
+    if (!PyArg_ParseTuple(args, "k:get_char_index", &ccode)) {
         return NULL;
     }
 
