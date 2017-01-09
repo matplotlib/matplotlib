@@ -32,8 +32,12 @@ def test_MaxNLocator_integer():
     test_value = np.array([-1, 0, 1, 2])
     assert_almost_equal(loc.tick_values(-0.1, 1.1), test_value)
 
-    test_value = np.array([-0.3, 0, 0.3, 0.6, 0.9, 1.2])
+    test_value = np.array([-0.25, 0, 0.25, 0.5, 0.75, 1.0])
     assert_almost_equal(loc.tick_values(-0.1, 0.95), test_value)
+
+    loc = mticker.MaxNLocator(nbins=5, integer=True, steps=[1, 1.5, 5, 6, 10])
+    test_value = np.array([0, 15, 30, 45, 60])
+    assert_almost_equal(loc.tick_values(1, 55), test_value)
 
 
 def test_LinearLocator():
