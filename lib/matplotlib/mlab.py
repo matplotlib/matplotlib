@@ -887,7 +887,7 @@ docstring.interpd.update(PSD=cbook.dedent("""
 @docstring.dedent_interpd
 def psd(x, NFFT=None, Fs=None, detrend=None, window=None,
         noverlap=None, pad_to=None, sides=None, scale_by_freq=None):
-    """
+    r"""
     Compute the power spectral density.
 
     Call signature::
