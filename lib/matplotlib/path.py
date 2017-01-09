@@ -1025,26 +1025,3 @@ def get_paths_extents(paths, transforms=[]):
         raise ValueError("No paths provided")
     return Bbox.from_extents(*_path.get_path_collection_extents(
         Affine2D(), paths, transforms, [], Affine2D()))
-
-
-def _define_deprecated_functions(ns):
-    from .cbook import deprecated
-
-    # The C++ functions are not meant to be used directly.
-    # Users should use the more pythonic wrappers in the Path
-    # class instead.
-    for func, alternative in [
-            ('point_in_path', 'path.Path.contains_point'),
-            ('get_path_extents', 'path.Path.get_extents'),
-            ('point_in_path_collection', 'collection.Collection.contains'),
-            ('path_in_path', 'path.Path.contains_path'),
-            ('path_intersects_path', 'path.Path.intersects_path'),
-            ('convert_path_to_polygons', 'path.Path.to_polygons'),
-            ('cleanup_path', 'path.Path.cleaned'),
-            ('points_in_path', 'path.Path.contains_points'),
-            ('clip_path_to_rect', 'path.Path.clip_to_bbox')]:
-        ns[func] = deprecated(
-            since='1.3', alternative=alternative)(getattr(_path, func))
-
-
-_define_deprecated_functions(locals())
