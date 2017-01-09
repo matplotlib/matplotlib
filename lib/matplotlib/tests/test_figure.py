@@ -85,6 +85,7 @@ def test_gca():
     # the final request for a polar axes will end up creating one
     # with a spec of 111.
     with warnings.catch_warnings(record=True) as w:
+        warnings.simplefilter('always')
         # Changing the projection will throw a warning
         assert_true(fig.gca(polar=True) is not ax3)
         assert len(w) == 1
@@ -208,7 +209,6 @@ def test_axes_remove():
     assert_equal(len(fig.axes), 3)
 
 
-@cleanup
 def test_figaspect():
     w, h = plt.figaspect(np.float64(2) / np.float64(1))
     assert h / w == 2
