@@ -141,7 +141,7 @@ del get_versions
 
 __version__numpy__ = str('1.7.1')  # minimum required numpy version
 
-__bibtex__ = """@Article{Hunter:2007,
+__bibtex__ = r"""@Article{Hunter:2007,
   Author    = {Hunter, J. D.},
   Title     = {Matplotlib: A 2D graphics environment},
   Journal   = {Computing In Science \& Engineering},
@@ -398,7 +398,7 @@ def checkdep_tex():
                              stderr=subprocess.PIPE)
         stdout, stderr = s.communicate()
         line = stdout.decode('ascii').split('\n')[0]
-        pattern = '3\.1\d+'
+        pattern = r'3\.1\d+'
         match = re.search(pattern, line)
         v = match.group(0)
         return v
