@@ -2118,7 +2118,7 @@ def _setup_pyplot_info_docstrings():
 
     commands = get_plot_commands()
 
-    first_sentence = re.compile("(?:\s*).+?\.(?:\s+|$)", flags=re.DOTALL)
+    first_sentence = re.compile(r"(?:\s*).+?\.(?:\s+|$)", flags=re.DOTALL)
 
     # Collect the first sentence of the docstring for all of the
     # plotting commands.
