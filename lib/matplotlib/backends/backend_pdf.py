@@ -2352,8 +2352,6 @@ class GraphicsContextPdf(GraphicsContextBase):
         (('_hatch', '_hatch_color'), hatch_cmd),
         )
 
-    # TODO: _linestyle
-
     def delta(self, other):
         """
         Copy properties of other into self and return PDF commands

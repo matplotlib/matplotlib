@@ -355,7 +355,6 @@ class SimpleLineShadow(AbstractPathEffect):
 
         gc0.set_foreground(shadow_rgbFace)
         gc0.set_alpha(self._alpha)
-        gc0.set_linestyle("solid")
 
         gc0 = self._update_gc(gc0, self._gc)
         renderer.draw_path(gc0, tpath, affine0, fill_color)

@@ -28,6 +28,7 @@ import warnings
 import numpy as np
 
 import matplotlib
+from matplotlib import cbook
 from matplotlib.backend_bases import (RendererBase, GraphicsContextBase,
     FigureCanvasBase, FigureManagerBase, NavigationToolbar2,
     cursors, TimerBase)
@@ -408,8 +409,6 @@ class GraphicsContextWx(GraphicsContextBase):
               'miter': wx.JOIN_MITER,
               'round': wx.JOIN_ROUND}
 
-    _dashd_wx = wxc.dashd_wx
-
     _cache = weakref.WeakKeyDictionary()
 
     def __init__(self, bitmap, renderer):
@@ -509,6 +508,7 @@ class GraphicsContextWx(GraphicsContextBase):
         self.gfx_ctx.SetPen(self._pen)
         self.unselect()
 
+    @cbook.deprecated("2.1")
     def set_linestyle(self, ls):
         """
         Set the line style to be one of
@@ -517,7 +517,7 @@ class GraphicsContextWx(GraphicsContextBase):
         self.select()
         GraphicsContextBase.set_linestyle(self, ls)
         try:
-            self._style = GraphicsContextWx._dashd_wx[ls]
+            self._style = wxc.dashd_wx[ls]
         except KeyError:
             self._style = wx.LONG_DASH  # Style not used elsewhere...
 

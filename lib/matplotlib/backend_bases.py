@@ -51,7 +51,6 @@ import matplotlib.cbook as cbook
 import matplotlib.colors as colors
 import matplotlib.transforms as transforms
 import matplotlib.widgets as widgets
-#import matplotlib.path as path
 from matplotlib import rcParams
 from matplotlib import is_interactive
 from matplotlib import get_backend
@@ -300,8 +299,8 @@ class RendererBase(object):
             path_ids.append((path, transforms.Affine2D(transform)))
 
         for xo, yo, path_id, gc0, rgbFace in self._iter_collection(
-            gc, master_transform, all_transforms, path_ids, offsets,
-            offsetTrans, facecolors, edgecolors, linewidths, linestyles,
+                gc, master_transform, all_transforms, path_ids, offsets,
+                offsetTrans, facecolors, edgecolors, linewidths, linestyles,
                 antialiaseds, urls, offset_position):
             path, transform = path_id
             transform = transforms.Affine2D(
@@ -907,6 +906,7 @@ class GraphicsContextBase(object):
         """
         return self._joinstyle
 
+    @cbook.deprecated("2.1")
     def get_linestyle(self):
         """
         Return the linestyle: one of ('solid', 'dashed', 'dashdot',
@@ -1057,6 +1057,7 @@ class GraphicsContextBase(object):
         """
         self._linewidth = float(w)
 
+    @cbook.deprecated("2.1")
     def set_linestyle(self, style):
         """
         Set the linestyle to be one of ('solid', 'dashed', 'dashdot',
