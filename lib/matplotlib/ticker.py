@@ -1726,6 +1726,8 @@ class MaxNLocator(Locator):
                 raise ValueError(
                     "prune must be 'upper', 'lower', 'both', or None")
             self._prune = prune
+        if 'min_n_ticks' in kwargs:
+            self._min_n_ticks = max(1, kwargs['min_n_ticks'])
         if 'steps' in kwargs:
             steps = kwargs['steps']
             if steps is None:
@@ -1735,12 +1737,6 @@ class MaxNLocator(Locator):
             self._extended_steps = self._staircase(self._steps)
         if 'integer' in kwargs:
             self._integer = kwargs['integer']
-        if self._integer:
-            self._steps = np.array([n for n in self._steps
-                                    if _divmod(n, 1)[1] < 0.001])
-            self._extended_steps = self._staircase(self._steps)
-        if 'min_n_ticks' in kwargs:
-            self._min_n_ticks = max(1, kwargs['min_n_ticks'])
 
     def _raw_ticks(self, vmin, vmax):
         if self._nbins == 'auto':
@@ -1757,6 +1753,11 @@ class MaxNLocator(Locator):
         _vmax = vmax - offset
         raw_step = (vmax - vmin) / nbins
         steps = self._extended_steps * scale
+        if self._integer:
+            # For steps > 1, keep only integer values.
+            igood = (steps < 1) | (np.abs(steps - np.round(steps)) < 0.001)
+            steps = steps[igood]
+
         istep = np.nonzero(steps >= raw_step)[0][0]
 
         # Classic round_numbers mode may require a larger step.
