@@ -976,8 +976,8 @@ def subplot(*args, **kwargs):
 
     .. note::
 
-       Creating a subplot will delete any pre-existing subplot that fully 
-       overlaps with it::
+       Creating a subplot will delete any pre-existing subplot that overlaps 
+       with it beyond sharing a boundary::
 
           import matplotlib.pyplot as plt
           # plot a line, implicitly creating a subplot(111)
