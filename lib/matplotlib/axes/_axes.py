@@ -4023,7 +4023,7 @@ or tuple of floats
             edgecolors = 'face'
             linewidths = rcParams['lines.linewidth']
 
-        offsets = np.dstack((x, y))
+        offsets = np.column_stack([x, y])
 
         collection = mcoll.PathCollection(
                 (path,), scales,
