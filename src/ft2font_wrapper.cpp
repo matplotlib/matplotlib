@@ -621,9 +621,10 @@ const char *PyFT2Font_get_kerning__doc__ =
 
 static PyObject *PyFT2Font_get_kerning(PyFT2Font *self, PyObject *args, PyObject *kwds)
 {
-    int left, right, mode, result;
+    FT_UInt left, right, mode;
+    int result;
 
-    if (!PyArg_ParseTuple(args, "iii:get_kerning", &left, &right, &mode)) {
+    if (!PyArg_ParseTuple(args, "III:get_kerning", &left, &right, &mode)) {
         return NULL;
     }
 
@@ -643,12 +644,15 @@ static PyObject *PyFT2Font_set_text(PyFT2Font *self, PyObject *args, PyObject *k
 {
     PyObject *textobj;
     double angle = 0.0;
-    FT_UInt32 flags = FT_LOAD_FORCE_AUTOHINT;
+    FT_Int32 flags = FT_LOAD_FORCE_AUTOHINT;
     std::vector<double> xys;
     const char *names[] = { "string", "angle", "flags", NULL };
 
+    /* This makes a technically incorrect assumption that FT_Int32 is
+       int. In theory it can also be long, if the size of int is less
+       than 32 bits. This is very unlikely on modern platforms. */
     if (!PyArg_ParseTupleAndKeywords(
-             args, kwds, "O|dI:set_text", (char **)names, &textobj, &angle, &flags)) {
+             args, kwds, "O|di:set_text", (char **)names, &textobj, &angle, &flags)) {
         return NULL;
     }
 
@@ -712,11 +716,14 @@ const char *PyFT2Font_load_char__doc__ =
 static PyObject *PyFT2Font_load_char(PyFT2Font *self, PyObject *args, PyObject *kwds)
 {
     long charcode;
-    FT_UInt32 flags = FT_LOAD_FORCE_AUTOHINT;
+    FT_Int32 flags = FT_LOAD_FORCE_AUTOHINT;
     const char *names[] = { "charcode", "flags", NULL };
 
+    /* This makes a technically incorrect assumption that FT_Int32 is
+       int. In theory it can also be long, if the size of int is less
+       than 32 bits. This is very unlikely on modern platforms. */
     if (!PyArg_ParseTupleAndKeywords(
-             args, kwds, "k|I:load_char", (char **)names, &charcode, &flags)) {
+             args, kwds, "l|i:load_char", (char **)names, &charcode, &flags)) {
         return NULL;
     }
 
@@ -747,11 +754,14 @@ const char *PyFT2Font_load_glyph__doc__ =
 static PyObject *PyFT2Font_load_glyph(PyFT2Font *self, PyObject *args, PyObject *kwds)
 {
     FT_UInt glyph_index;
-    FT_UInt32 flags = FT_LOAD_FORCE_AUTOHINT;
+    FT_Int32 flags = FT_LOAD_FORCE_AUTOHINT;
     const char *names[] = { "glyph_index", "flags", NULL };
 
+    /* This makes a technically incorrect assumption that FT_Int32 is
+       int. In theory it can also be long, if the size of int is less
+       than 32 bits. This is very unlikely on modern platforms. */
     if (!PyArg_ParseTupleAndKeywords(
-             args, kwds, "I|I:load_glyph", (char **)names, &glyph_index, &flags)) {
+             args, kwds, "I|i:load_glyph", (char **)names, &glyph_index, &flags)) {
         return NULL;
     }
 
@@ -901,7 +911,7 @@ static PyObject *PyFT2Font_get_glyph_name(PyFT2Font *self, PyObject *args, PyObj
     unsigned int glyph_number;
     char buffer[128];
 
-    if (!PyArg_ParseTuple(args, "i:get_glyph_name", &glyph_number)) {
+    if (!PyArg_ParseTuple(args, "I:get_glyph_name", &glyph_number)) {
         return NULL;
     }
 
