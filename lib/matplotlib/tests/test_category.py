@@ -239,7 +239,7 @@ class TestPlot(object):
 
         labels = ['a', 'b', 'd', 'c']
         ticks = [0, 1, 2, 3]
-        unit_data = MockUnitData(list(zip(labels, ticks)))
+        unit_data = MockUnitData(zip(labels, ticks))
 
         self.axis_test(ax.yaxis, ticks, labels, unit_data)
 

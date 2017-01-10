@@ -3675,12 +3675,11 @@ class Axes(_AxesBase):
             final_meanprops.update(meanprops)
 
         def to_vc(xs, ys):
-            # convert arguments to verts and codes
-            verts = list(zip(xs, ys))
-            verts.append((0, 0))  # ignored
-            codes = [mpath.Path.MOVETO] + \
-                    [mpath.Path.LINETO] * (len(verts) - 2) + \
-                    [mpath.Path.CLOSEPOLY]
+            # convert arguments to verts and codes, append (0, 0) (ignored).
+            verts = np.append(np.column_stack([xs, ys]), [(0, 0)], 0)
+            codes = ([mpath.Path.MOVETO]
+                     + [mpath.Path.LINETO] * (len(verts) - 2)
+                     + [mpath.Path.CLOSEPOLY])
             return verts, codes
 
         def patch_list(xs, ys, **kwargs):

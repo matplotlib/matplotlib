@@ -226,12 +226,12 @@ class Line3DCollection(LineCollection):
         xyslist = [
             proj3d.proj_trans_points(points, renderer.M) for points in
             self._segments3d]
-        segments_2d = [list(zip(xs, ys)) for (xs, ys, zs) in xyslist]
+        segments_2d = [np.column_stack([xs, ys]) for xs, ys, zs in xyslist]
         LineCollection.set_segments(self, segments_2d)
 
         # FIXME
         minz = 1e9
-        for (xs, ys, zs) in xyslist:
+        for xs, ys, zs in xyslist:
             minz = min(minz, min(zs))
         return minz
 
@@ -273,9 +273,9 @@ class Patch3D(Patch):
 
     def do_3d_projection(self, renderer):
         s = self._segment3d
-        xs, ys, zs = list(zip(*s))
-        vxs, vys,vzs, vis = proj3d.proj_transform_clip(xs, ys, zs, renderer.M)
-        self._path2d = mpath.Path(list(zip(vxs, vys)))
+        xs, ys, zs = zip(*s)
+        vxs, vys, vzs, vis = proj3d.proj_transform_clip(xs, ys, zs, renderer.M)
+        self._path2d = mpath.Path(np.column_stack([vxs, vys]))
         # FIXME: coloring
         self._facecolor2d = self._facecolor3d
         return min(vzs)
@@ -301,9 +301,9 @@ class PathPatch3D(Patch3D):
 
     def do_3d_projection(self, renderer):
         s = self._segment3d
-        xs, ys, zs = list(zip(*s))
-        vxs, vys,vzs, vis = proj3d.proj_transform_clip(xs, ys, zs, renderer.M)
-        self._path2d = mpath.Path(list(zip(vxs, vys)), self._code3d)
+        xs, ys, zs = zip(*s)
+        vxs, vys, vzs, vis = proj3d.proj_transform_clip(xs, ys, zs, renderer.M)
+        self._path2d = mpath.Path(np.column_stack([vxs, vys]), self._code3d)
         # FIXME: coloring
         self._facecolor2d = self._facecolor3d
         return min(vzs)
@@ -375,7 +375,7 @@ class Patch3DCollection(PatchCollection):
         self.update_scalarmappable()
         offsets = self.get_offsets()
         if len(offsets) > 0:
-            xs, ys = list(zip(*offsets))
+            xs, ys = zip(*offsets)
         else:
             xs = []
             ys = []
@@ -397,7 +397,7 @@ class Patch3DCollection(PatchCollection):
                self._edgecolor3d)
         ecs = mcolors.to_rgba_array(ecs, self._alpha)
         self.set_edgecolors(ecs)
-        PatchCollection.set_offsets(self, list(zip(vxs, vys)))
+        PatchCollection.set_offsets(self, np.column_stack([vxs, vys]))
 
         if vzs.size > 0:
             return min(vzs)
@@ -443,7 +443,7 @@ class Path3DCollection(PathCollection):
         self.update_scalarmappable()
         offsets = self.get_offsets()
         if len(offsets) > 0:
-            xs, ys = list(zip(*offsets))
+            xs, ys = zip(*offsets)
         else:
             xs = []
             ys = []
@@ -465,7 +465,7 @@ class Path3DCollection(PathCollection):
                self._edgecolor3d)
         ecs = mcolors.to_rgba_array(ecs, self._alpha)
         self.set_edgecolors(ecs)
-        PathCollection.set_offsets(self, list(zip(vxs, vys)))
+        PathCollection.set_offsets(self, np.column_stack([vxs, vys]))
 
         if vzs.size > 0 :
             return min(vzs)
@@ -558,12 +558,12 @@ class Poly3DCollection(PolyCollection):
         points = []
         for p in segments3d:
             points.extend(p)
-            ei = si+len(p)
+            ei = si + len(p)
             segis.append((si, ei))
             si = ei
 
-        if len(segments3d) > 0 :
-            xs, ys, zs = list(zip(*points))
+        if len(segments3d):
+            xs, ys, zs = zip(*points)
         else :
             # We need this so that we can skip the bad unpacking from zip()
             xs, ys, zs = [], [], []
@@ -630,7 +630,7 @@ class Poly3DCollection(PolyCollection):
         # if required sort by depth (furthest drawn first)
         if self._zsort:
             z_segments_2d = sorted(
-                ((self._zsortfunc(zs), list(zip(xs, ys)), fc, ec, idx)
+                ((self._zsortfunc(zs), np.column_stack([xs, ys]), fc, ec, idx)
                  for idx, ((xs, ys, zs), fc, ec)
                  in enumerate(zip(xyzlist, cface, cedge))),
                 key=lambda x: x[0], reverse=True)

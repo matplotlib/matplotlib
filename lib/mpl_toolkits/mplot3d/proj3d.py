@@ -182,14 +182,14 @@ def proj_transform_clip(xs, ys, zs, M):
 transform = proj_transform
 
 def proj_points(points, M):
-    return list(zip(*proj_trans_points(points, M)))
+    return np.column_stack(proj_trans_points(points, M))
 
 def proj_trans_points(points, M):
-    xs, ys, zs = list(zip(*points))
+    xs, ys, zs = zip(*points)
     return proj_transform(xs, ys, zs, M)
 
 def proj_trans_clip_points(points, M):
-    xs, ys, zs = list(zip(*points))
+    xs, ys, zs = zip(*points)
     return proj_transform_clip(xs, ys, zs, M)
 
 

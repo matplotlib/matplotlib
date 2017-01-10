@@ -168,24 +168,17 @@ class BezierSegment(object):
         """
         _o = len(control_points)
         self._orders = np.arange(_o)
+
         _coeff = BezierSegment._binom_coeff[_o - 1]
-
-        _control_points = np.asarray(control_points)
-        xx = _control_points[:, 0]
-        yy = _control_points[:, 1]
-
+        xx, yy = np.asarray(control_points).T
         self._px = xx * _coeff
         self._py = yy * _coeff
 
     def point_at_t(self, t):
         "evaluate a point at t"
-        one_minus_t_powers = np.power(1. - t, self._orders)[::-1]
-        t_powers = np.power(t, self._orders)
-
-        tt = one_minus_t_powers * t_powers
-        _x = sum(tt * self._px)
-        _y = sum(tt * self._py)
-
+        tt = ((1 - t) ** self._orders)[::-1] * t ** self._orders
+        _x = np.dot(tt, self._px)
+        _y = np.dot(tt, self._py)
         return _x, _y
 
 
@@ -245,7 +238,6 @@ def split_path_inout(path, inside, tolerence=0.01, reorder_inout=False):
     ctl_points, command = next(path_iter)
     begin_inside = inside(ctl_points[-2:])  # true if begin point is inside
 
-    bezier_path = None
     ctl_points_old = ctl_points
 
     concat = np.concatenate
@@ -259,16 +251,13 @@ def split_path_inout(path, inside, tolerence=0.01, reorder_inout=False):
         if inside(ctl_points[-2:]) != begin_inside:
             bezier_path = concat([ctl_points_old[-2:], ctl_points])
             break
-
         ctl_points_old = ctl_points
+    else:
+        raise ValueError("The path does not intersect with the patch")
 
-    if bezier_path is None:
-        raise ValueError("The path does not seem to intersect with the patch")
-
-    bp = list(zip(bezier_path[::2], bezier_path[1::2]))
-    left, right = split_bezier_intersecting_with_closedpath(bp,
-                                                            inside,
-                                                            tolerence)
+    bp = bezier_path.reshape((-1, 2))
+    left, right = split_bezier_intersecting_with_closedpath(
+        bp, inside, tolerence)
     if len(left) == 2:
         codes_left = [Path.LINETO]
         codes_right = [Path.MOVETO, Path.LINETO]
@@ -279,7 +268,7 @@ def split_path_inout(path, inside, tolerence=0.01, reorder_inout=False):
         codes_left = [Path.CURVE4, Path.CURVE4, Path.CURVE4]
         codes_right = [Path.MOVETO, Path.CURVE4, Path.CURVE4, Path.CURVE4]
     else:
-        raise ValueError()
+        raise AssertionError("This should never be reached")
 
     verts_left = left[1:]
     verts_right = right[:]
