@@ -4,6 +4,7 @@ from __future__ import (absolute_import, division, print_function,
 import six
 import io
 import os
+import warnings
 
 from nose.plugins.attrib import attr
 
@@ -751,6 +752,13 @@ def test_imshow_endianess():
 
     ax1.imshow(Z.astype('<f8'), **kwargs)
     ax2.imshow(Z.astype('>f8'), **kwargs)
+
+
+@cleanup
+def test_imshow_no_warn_invalid():
+    with warnings.catch_warnings(record=True) as warns:
+        plt.imshow([[1, 2], [3, np.nan]])
+    assert len(warns) == 0
 
 
 if __name__ == '__main__':
