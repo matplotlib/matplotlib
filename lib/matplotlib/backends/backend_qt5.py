@@ -132,7 +132,7 @@ def _create_qApp():
             # check for DISPLAY env variable on X11 build of Qt
             if hasattr(QtGui, "QX11Info"):
                 display = os.environ.get('DISPLAY')
-                if display is None or not re.search(':\d', display):
+                if display is None or not re.search(r':\d', display):
                     raise RuntimeError('Invalid DISPLAY variable')
 
             qApp = QtWidgets.QApplication([str(" ")])
