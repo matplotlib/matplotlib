@@ -59,8 +59,6 @@ matrix:
     - python: 3.5
       env: PANDAS=pandas NOSE_ARGS=--with-coverage DELETE_FONT_CACHE=1
     - python: 3.5
-      env: TEST_ARGS=--pep8
-    - python: 3.5
       env: BUILD_DOCS=true
     - python: 3.5
       env: USE_PYTEST=true PANDAS=pandas DELETE_FONT_CACHE=1 TEST_ARGS=
