@@ -390,8 +390,8 @@ static PyObject *PyRendererAgg_draw_quad_mesh(PyRendererAgg *self, PyObject *arg
 {
     GCAgg gc;
     agg::trans_affine master_transform;
-    size_t mesh_width;
-    size_t mesh_height;
+    unsigned int mesh_width;
+    unsigned int mesh_height;
     numpy::array_view<const double, 3> coordinates;
     numpy::array_view<const double, 2> offsets;
     agg::trans_affine offset_trans;
