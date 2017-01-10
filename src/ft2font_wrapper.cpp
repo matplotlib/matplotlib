@@ -282,15 +282,15 @@ static PyObject *PyGlyph_get_bbox(PyGlyph *self, void *closure)
 static PyTypeObject *PyGlyph_init_type(PyObject *m, PyTypeObject *type)
 {
     static PyMemberDef members[] = {
-        {(char *)"width", T_INT, offsetof(PyGlyph, width), READONLY, (char *)""},
-        {(char *)"height", T_INT, offsetof(PyGlyph, height), READONLY, (char *)""},
-        {(char *)"horiBearingX", T_INT, offsetof(PyGlyph, horiBearingX), READONLY, (char *)""},
-        {(char *)"horiBearingY", T_INT, offsetof(PyGlyph, horiBearingY), READONLY, (char *)""},
-        {(char *)"horiAdvance", T_INT, offsetof(PyGlyph, horiAdvance), READONLY, (char *)""},
-        {(char *)"linearHoriAdvance", T_INT, offsetof(PyGlyph, linearHoriAdvance), READONLY, (char *)""},
-        {(char *)"vertBearingX", T_INT, offsetof(PyGlyph, vertBearingX), READONLY, (char *)""},
-        {(char *)"vertBearingY", T_INT, offsetof(PyGlyph, vertBearingY), READONLY, (char *)""},
-        {(char *)"vertAdvance", T_INT, offsetof(PyGlyph, vertAdvance), READONLY, (char *)""},
+        {(char *)"width", T_LONG, offsetof(PyGlyph, width), READONLY, (char *)""},
+        {(char *)"height", T_LONG, offsetof(PyGlyph, height), READONLY, (char *)""},
+        {(char *)"horiBearingX", T_LONG, offsetof(PyGlyph, horiBearingX), READONLY, (char *)""},
+        {(char *)"horiBearingY", T_LONG, offsetof(PyGlyph, horiBearingY), READONLY, (char *)""},
+        {(char *)"horiAdvance", T_LONG, offsetof(PyGlyph, horiAdvance), READONLY, (char *)""},
+        {(char *)"linearHoriAdvance", T_LONG, offsetof(PyGlyph, linearHoriAdvance), READONLY, (char *)""},
+        {(char *)"vertBearingX", T_LONG, offsetof(PyGlyph, vertBearingX), READONLY, (char *)""},
+        {(char *)"vertBearingY", T_LONG, offsetof(PyGlyph, vertBearingY), READONLY, (char *)""},
+        {(char *)"vertAdvance", T_LONG, offsetof(PyGlyph, vertAdvance), READONLY, (char *)""},
         {NULL}
     };
 
