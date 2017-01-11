@@ -622,6 +622,7 @@ def _get_xdg_cache_dir():
 def _get_config_or_cache_dir(xdg_base):
     from matplotlib.cbook import mkdirs
 
+    #user configurable
     configdir = os.environ.get('MPLCONFIGDIR')
     if configdir is not None:
         configdir = os.path.abspath(configdir)
@@ -631,6 +632,17 @@ def _get_config_or_cache_dir(xdg_base):
         if not _is_writable_dir(configdir):
             return _create_tmp_config_dir()
         return configdir
+
+    #fallback for all users
+    globalconfigdir = os.environ.get('MPLGLOBALCONFIGDIR')
+    if globalconfigdir is not None:
+        globalconfigdir = os.path.abspath(globalconfigdir)
+        if not os.path.exists(globalconfigdir):
+            mkdirs(globalconfigdir)
+
+        if not _is_writable_dir(globalconfigdir):
+            return _create_tmp_config_dir()
+        return globalconfigdir
 
     p = None
     h = get_home()
@@ -662,17 +674,19 @@ def _get_configdir():
 
     1. If the MPLCONFIGDIR environment variable is supplied, choose that.
 
-    2a. On Linux, if `$HOME/.matplotlib` exists, choose that, but warn that
+    2. If not, choose MPLGLOBALCONFIGDIR. 
+
+    3a. On Linux, if `$HOME/.matplotlib` exists, choose that, but warn that
         that is the old location.  Barring that, follow the XDG specification
         and look first in `$XDG_CONFIG_HOME`, if defined, or `$HOME/.config`.
 
-    2b. On other platforms, choose `$HOME/.matplotlib`.
+    3b. On other platforms, choose `$HOME/.matplotlib`.
 
-    3. If the chosen directory exists and is writable, use that as the
+    4. If the chosen directory exists and is writable, use that as the
        configuration directory.
-    4. If possible, create a temporary directory, and use it as the
+    5. If possible, create a temporary directory, and use it as the
        configuration directory.
-    5. A writable directory could not be found or created; return None.
+    6. A writable directory could not be found or created; return None.
     """
     return _get_config_or_cache_dir(_get_xdg_config_dir())
 
