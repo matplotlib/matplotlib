@@ -483,6 +483,8 @@ class _AxesBase(martist.Artist):
             self._position = rect
         else:
             self._position = mtransforms.Bbox.from_bounds(*rect)
+        if self._position.width < 0 or self._position.height < 0:
+            raise ValueError('Width and height specified must be non-negative')
         self._originalPosition = self._position.frozen()
         # self.set_axes(self)
         self.axes = self
