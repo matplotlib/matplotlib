@@ -43,19 +43,22 @@ function getSnippet(id, url) {
 
 {% block body %}
 
-  <h1>Introduction</h1>
-
-  <p>matplotlib is a python 2D plotting library which produces
-  publication quality figures in a variety of hardcopy formats and
-  interactive environments across platforms.  matplotlib can be used
-  in python scripts, the python and <a
-  href="http://ipython.org">ipython</a> shell (ala
-  MATLAB<sup>&reg;<a name="matlab" href="#ftn.matlab">*</a></sup>
-  or
-  Mathematica<sup>&reg;<a name="mathematica"
-  href="#ftn.mathematica">&#8224;</a></sup>),
-  web application servers, and six graphical user
-  interface toolkits.</p>
+<div style="padding-top: 30px; padding-bottom: 20px;">
+<table>
+<tr>
+<td style="float: left; width: 40%; font-size: 17px; line-height: 25px; font-family: 'Courier New';" bgcolor="#ddddff">
+ import matplotlib.pyplot as plt</br>
+ plt.plot(x, y, color='black')</br>
+ plt.show()
+</td>
+<td style="float: right; width: 50%; font-size:17px; line-height: 25px; font-weight: bold;">
+  matplotlib is a python plotting library which produces
+  publication quality figures in hardcopy formats
+  and interactive environments across platforms.
+</td>
+</tr>
+</table>
+</div>
 
   <div class="responsive_screenshots">
     <a a href="{{ pathto('users/screenshots') }}">
@@ -74,6 +77,21 @@ function getSnippet(id, url) {
     </a>
   </div>
   <span class="clear_screenshots"></span>
+
+  <div style="padding-top: 20px; padding-bottom: 30px;" align="center">
+   <a style="font-size: 17px; padding: 12px; text-align: center; color: #222; border: 1px solid #375EAB; background-color: #FFB380; -webkit-border-radius: 5px; -moz-border-radius: 5px; border-radius: 5px;" href="{{ pathto('users/pyplot_tutorial') }}">Tutorial</a>
+   <a style="font-size: 17px; padding: 12px; text-align: center; color: #222; border: 1px solid #375EAB; background-color: #FFB380; -webkit-border-radius: 5px; -moz-border-radius: 5px; border-radius: 5px;" href="{{ pathto('contents') }}">Docs</a>
+   <a style="font-size: 17px; padding: 12px; text-align: center; color: #222; border: 1px solid #375EAB; background-color: #FFB380; -webkit-border-radius: 5px; -moz-border-radius: 5px; border-radius: 5px;" href="{{ pathto('gallery') }}">Gallery</a>
+   <a style="font-size: 17px; padding: 12px; text-align: center; color: #222; border: 1px solid #375EAB; background-color: #FFB380; -webkit-border-radius: 5px; -moz-border-radius: 5px; border-radius: 5px;" href="http://matplotlib.org/downloads.html">Download</a>
+  </div>
+
+
+  <p>matplotlib can be used in python scripts, the python and <a
+  href="http://ipython.org">ipython</a> shell (ala MATLAB<sup>&reg;<a name="matlab"
+  href="#ftn.matlab">*</a></sup> or Mathematica<sup>&reg;<a name="mathematica"
+  href="#ftn.mathematica">&#8224;</a></sup>), web application servers, and six
+  graphical user interface toolkits.</p>
+  <!-- NOTE: Where is this documented? -->
 
   <p>matplotlib tries to make easy things easy and hard things possible.
   You can generate plots, histograms, power spectra, bar charts,
