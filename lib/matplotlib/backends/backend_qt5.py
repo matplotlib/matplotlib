@@ -257,10 +257,14 @@ class FigureCanvasQT(QtWidgets.QWidget, FigureCanvasBase):
         QtWidgets.QApplication.restoreOverrideCursor()
         FigureCanvasBase.leave_notify_event(self, guiEvent=event)
 
+    def mouseEventCoords(self, pos):
+        x = pos.x() * self.devicePixelRatio()
+        # flip y so y=0 is bottom of canvas
+        y = self.figure.bbox.height - pos.y() * self.devicePixelRatio()
+        return x, y
+
     def mousePressEvent(self, event):
-        x = event.pos().x()
-        # flipy so y=0 is bottom of canvas
-        y = self.figure.bbox.height - event.pos().y()
+        x, y = self.mouseEventCoords(event.pos())
         button = self.buttond.get(event.button())
         if button is not None:
             FigureCanvasBase.button_press_event(self, x, y, button,
@@ -269,9 +273,7 @@ class FigureCanvasQT(QtWidgets.QWidget, FigureCanvasBase):
             print('button pressed:', event.button())
 
     def mouseDoubleClickEvent(self, event):
-        x = event.pos().x()
-        # flipy so y=0 is bottom of canvas
-        y = self.figure.bbox.height - event.pos().y()
+        x, y = self.mouseEventCoords(event.pos())
         button = self.buttond.get(event.button())
         if button is not None:
             FigureCanvasBase.button_press_event(self, x, y,
@@ -281,16 +283,12 @@ class FigureCanvasQT(QtWidgets.QWidget, FigureCanvasBase):
             print('button doubleclicked:', event.button())
 
     def mouseMoveEvent(self, event):
-        x = event.x()
-        # flipy so y=0 is bottom of canvas
-        y = self.figure.bbox.height - event.y()
+        x, y = self.mouseEventCoords(event)
         FigureCanvasBase.motion_notify_event(self, x, y, guiEvent=event)
         # if DEBUG: print('mouse move')
 
     def mouseReleaseEvent(self, event):
-        x = event.x()
-        # flipy so y=0 is bottom of canvas
-        y = self.figure.bbox.height - event.y()
+        x, y = self.mouseEventCoords(event)
         button = self.buttond.get(event.button())
         if button is not None:
             FigureCanvasBase.button_release_event(self, x, y, button,
@@ -299,9 +297,7 @@ class FigureCanvasQT(QtWidgets.QWidget, FigureCanvasBase):
             print('button released')
 
     def wheelEvent(self, event):
-        x = event.x()
-        # flipy so y=0 is bottom of canvas
-        y = self.figure.bbox.height - event.y()
+        x, y = self.mouseEventCoords(event)
         # from QWheelEvent::delta doc
         if event.pixelDelta().x() == 0 and event.pixelDelta().y() == 0:
             steps = event.angleDelta().y() / 120
@@ -342,8 +338,9 @@ class FigureCanvasQT(QtWidgets.QWidget, FigureCanvasBase):
         self._keyautorepeat = bool(val)
 
     def resizeEvent(self, event):
-        w = event.size().width()
-        h = event.size().height()
+        dpi_ratio = getattr(self, '_dpi_ratio', 1)
+        w = event.size().width() * dpi_ratio
+        h = event.size().height() * dpi_ratio
         if DEBUG:
             print('resize (%d x %d)' % (w, h))
             print("FigureCanvasQt.resizeEvent(%d, %d)" % (w, h))
