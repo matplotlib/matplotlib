@@ -1427,6 +1427,9 @@ def setp(obj, *args, **kwargs):
     else:
         objs = list(cbook.flatten(obj))
 
+    if not objs:
+        return
+
     insp = ArtistInspector(objs[0])
 
     # file has to be popped before checking if kwargs is empty
