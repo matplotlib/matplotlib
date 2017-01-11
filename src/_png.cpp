@@ -532,10 +532,12 @@ static PyObject *_read_png(PyObject *filein, bool float_result)
         png_set_shift(png_ptr, sig_bit);
     }
 
+#if NPY_BYTE_ORDER == NPY_LITTLE_ENDIAN
     // Convert big endian to little
     if (bit_depth == 16) {
         png_set_swap(png_ptr);
     }
+#endif
 
     // Convert palletes to full RGB
     if (png_get_color_type(png_ptr, info_ptr) == PNG_COLOR_TYPE_PALETTE) {
