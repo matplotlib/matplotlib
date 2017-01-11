@@ -10,6 +10,7 @@ from matplotlib.testing.decorators import image_comparison, cleanup
 from matplotlib.axes import Axes
 import matplotlib.pyplot as plt
 import numpy as np
+import warnings
 
 
 @cleanup
@@ -83,7 +84,11 @@ def test_gca():
 
     # the final request for a polar axes will end up creating one
     # with a spec of 111.
-    assert_true(fig.gca(polar=True) is not ax3)
+    with warnings.catch_warnings(record=True) as w:
+        warnings.simplefilter('always')
+        # Changing the projection will throw a warning
+        assert_true(fig.gca(polar=True) is not ax3)
+        assert len(w) == 1
     assert_true(fig.gca(polar=True) is not ax2)
     assert_equal(fig.gca().get_geometry(), (1, 1, 1))
 
@@ -133,8 +138,6 @@ def test_alpha():
 
 @cleanup
 def test_too_many_figures():
-    import warnings
-
     with warnings.catch_warnings(record=True) as w:
         warnings.simplefilter("always")
         for i in range(rcParams['figure.max_open_warning'] + 1):
@@ -142,6 +145,7 @@ def test_too_many_figures():
         assert len(w) == 1
 
 
+@cleanup
 def test_iterability_axes_argument():
 
     # This is a regression test for matplotlib/matplotlib#3196. If one of the
