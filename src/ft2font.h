@@ -72,10 +72,10 @@ class FT2Font
     void set_charmap(int i);
     void select_charmap(unsigned long i);
     void set_text(
-        size_t N, uint32_t *codepoints, double angle, FT_UInt32 flags, std::vector<double> &xys);
-    int get_kerning(int left, int right, int mode);
-    void load_char(long charcode, FT_UInt32 flags);
-    void load_glyph(FT_UInt glyph_index, FT_UInt32 flags);
+        size_t N, uint32_t *codepoints, double angle, FT_Int32 flags, std::vector<double> &xys);
+    int get_kerning(FT_UInt left, FT_UInt right, FT_UInt mode);
+    void load_char(long charcode, FT_Int32 flags);
+    void load_glyph(FT_UInt glyph_index, FT_Int32 flags);
     void get_width_height(long *width, long *height);
     void get_bitmap_offset(long *x, long *y);
     long get_descent();
