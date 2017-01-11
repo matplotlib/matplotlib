@@ -757,6 +757,7 @@ def test_imshow_endianess():
 @cleanup
 def test_imshow_no_warn_invalid():
     with warnings.catch_warnings(record=True) as warns:
+        warnings.simplefilter("always")
         plt.imshow([[1, 2], [3, np.nan]])
     assert len(warns) == 0
 
