@@ -103,7 +103,7 @@ command, which includes customizations such as error bars:
 It's also simple to create stacked bars
 (`bar_stacked.py <../examples/pylab_examples/bar_stacked.html>`_),
 or horizontal bar charts
-(`plot_barh.py <../examples/lines_bars_and_markers/plot_barh.html>`_).
+(`barh_demo.py <../examples/lines_bars_and_markers/barh_demo.html>`_).
 
 .. _screenshots_pie_demo:
 
@@ -166,7 +166,7 @@ Fill demo
 The :func:`~matplotlib.pyplot.fill` command lets you
 plot filled curves and polygons:
 
-.. plot:: mpl_examples/lines_bars_and_markers/plot_fill.py
+.. plot:: mpl_examples/lines_bars_and_markers/fill_demo.py
 
 Thanks to Andrew Straw for adding this function.
 

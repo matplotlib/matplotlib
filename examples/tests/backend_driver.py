@@ -51,11 +51,11 @@ dirs = dict(files=os.path.join('..', 'lines_bars_and_markers'),
 files = dict()
 
 files['lines'] = [
-    'plot_barh.py',
-    'plot_fill.py',
-    'plot_fill_features.py',
-    'plot_line_dash_control.py',
-    'plot_line_styles_reference.py',
+    'barh_demo.py',
+    'fill_demo.py',
+    'fill_demo_features.py',
+    'line_demo_dash_control.py',
+    'line_styles_reference.py',
     'scatter_with_legend.py'
     ]
 

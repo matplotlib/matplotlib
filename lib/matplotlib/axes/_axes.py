@@ -4679,7 +4679,7 @@ or tuple of floats
 
         Examples
         --------
-        .. plot:: mpl_examples/lines_bars_and_markers/plot_fill.py
+        .. plot:: mpl_examples/lines_bars_and_markers/fill_demo.py
 
 
         """
