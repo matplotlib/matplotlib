@@ -69,6 +69,9 @@ before_install:
   - pip install --upgrade virtualenv
   - virtualenv --python=python venv
   - source venv/bin/activate
+  # test with non-ascii in path
+  - mkdir /tmp/λ
+  - export PATH=$PATH:/tmp/λ
   - export PATH=/usr/lib/ccache:$PATH
 
 install:
