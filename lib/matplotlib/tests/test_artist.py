@@ -239,6 +239,10 @@ def test_properties():
 
 @cleanup
 def test_setp():
+    # Check empty list
+    plt.setp([])
+    plt.setp([[]])
+
     # Check arbitrary iterables
     fig, axes = plt.subplots()
     lines1 = axes.plot(range(3))
