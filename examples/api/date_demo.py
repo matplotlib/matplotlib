@@ -24,22 +24,17 @@ years = mdates.YearLocator()   # every year
 months = mdates.MonthLocator()  # every month
 yearsFmt = mdates.DateFormatter('%Y')
 
-# load a numpy record array from yahoo csv data with fields date,
-# open, close, volume, adj_close from the mpl-data/example directory.
-# The record array stores python datetime.date as an object array in
-# the date column
-datafile = cbook.get_sample_data('goog.npy')
-try:
-    # Python3 cannot load python2 .npy files with datetime(object) arrays
-    # unless the encoding is set to bytes. However this option was
-    # not added until numpy 1.10 so this example will only work with
-    # python 2 or with numpy 1.10 and later.
-    r = np.load(datafile, encoding='bytes').view(np.recarray)
-except TypeError:
-    r = np.load(datafile).view(np.recarray)
+# Load a numpy record array from yahoo csv data with fields date, open, close,
+# volume, adj_close from the mpl-data/example directory. The record array
+# stores the date as an np.datetime64 with a day unit ('D') in the date column.
+with cbook.get_sample_data('goog.npz') as datafile:
+    r = np.load(datafile)['price_data'].view(np.recarray)
+# Matplotlib works better with datetime.datetime than np.datetime64, but the
+# latter is more portable.
+date = r.date.astype('O')
 
 fig, ax = plt.subplots()
-ax.plot(r.date, r.adj_close)
+ax.plot(date, r.adj_close)
 
 
 # format the ticks
@@ -47,8 +42,8 @@ ax.xaxis.set_major_locator(years)
 ax.xaxis.set_major_formatter(yearsFmt)
 ax.xaxis.set_minor_locator(months)
 
-datemin = datetime.date(r.date.min().year, 1, 1)
-datemax = datetime.date(r.date.max().year + 1, 1, 1)
+datemin = datetime.date(date.min().year, 1, 1)
+datemax = datetime.date(date.max().year + 1, 1, 1)
 ax.set_xlim(datemin, datemax)
 
 
