@@ -201,13 +201,13 @@ replaced by ``nipy_spectral`` and ``nipy_spectral_r`` since matplotlib
 raised a warning. As of matplotlib 2.0.0, using the old names raises a
 deprecation warning. In the future, using the old names will raise an error.
 
-Default install does not include test images
---------------------------------------------
+Default install no longer includes test images
+----------------------------------------------
 
-To reduce the default size of wheels and source installs, the tests
-and baseline images are no longer included by default.
+To reduce the size of wheels and source installs, the tests and
+baseline images are no longer included by default.
 
-To restore installing the tests and images have a `setup.cfg` with ::
+To restore installing the tests and images, use a `setup.cfg` with ::
 
    [packages]
    tests = True
