@@ -420,7 +420,8 @@ def checkdep_pdftops():
 def checkdep_inkscape():
     if checkdep_inkscape.version is None:
         try:
-            s = subprocess.Popen([str('inkscape'), '-V'], stdout=subprocess.PIPE,
+            s = subprocess.Popen([str('inkscape'), '-V'],
+                                 stdout=subprocess.PIPE,
                                  stderr=subprocess.PIPE)
             stdout, stderr = s.communicate()
             lines = stdout.decode('ascii').split('\n')
@@ -437,7 +438,8 @@ checkdep_inkscape.version = None
 
 def checkdep_xmllint():
     try:
-        s = subprocess.Popen([str('xmllint'), '--version'], stdout=subprocess.PIPE,
+        s = subprocess.Popen([str('xmllint'), '--version'],
+                             stdout=subprocess.PIPE,
                              stderr=subprocess.PIPE)
         stdout, stderr = s.communicate()
         lines = stderr.decode('ascii').split('\n')
