@@ -2924,7 +2924,7 @@ class _AxesBase(martist.Artist):
 
         Parameters
         ----------
-        value : ["linear", "log", "symlog", "logit"]
+        value : {"linear", "log", "symlog", "logit"}
             scaling strategy to apply
 
         Notes
@@ -3220,7 +3220,7 @@ class _AxesBase(martist.Artist):
 
         Parameters
         ----------
-        value : ["linear", "log", "symlog", "logit"]
+        value : {"linear", "log", "symlog", "logit"}
             scaling strategy to apply
 
         Notes
@@ -3311,7 +3311,7 @@ class _AxesBase(martist.Artist):
 
     def set_yticklabels(self, labels, fontdict=None, minor=False, **kwargs):
         """
-        Set the xtick labels with list of strings labels
+        Set the y-tick labels with list of strings labels
 
         Parameters
         ----------
