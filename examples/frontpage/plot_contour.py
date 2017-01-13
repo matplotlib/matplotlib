@@ -23,7 +23,7 @@ Z = (Z1 - Z2) * 10
 levels = np.linspace(-2.0, 1.601, 40)
 norm = cm.colors.Normalize(vmax=abs(Z).max(), vmin=-abs(Z).max())
 
-fig, ax = plt.subplots(figsize=(1.62, 1.38))
+fig, ax = plt.subplots()
 cset1 = ax.contourf(
     X, Y, Z, levels,
     norm=norm)
@@ -31,4 +31,4 @@ ax.set_xlim(-3, 3)
 ax.set_ylim(-3, 3)
 ax.set_xticks([])
 ax.set_yticks([])
-fig.savefig("contour_frontpage.png")
+fig.savefig("contour_frontpage.png", dpi=25)  # results in 160x120 px image
