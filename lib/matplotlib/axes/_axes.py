@@ -4757,6 +4757,13 @@ or tuple of floats
                 for filling between two sets of x-values
 
         """
+
+        for input in [('x', x), ('y1', y1), ('y2', y2)]:
+            if not (cbook.is_scalar(input[1]) or
+                    cbook.is_scalar(cbook.safe_first_element(input[1]))):
+                raise ValueError('Input passed into argument "' + input[0] +
+                                 '" is not 1-dimensional.')
+
         if not rcParams['_internal.classic_mode']:
             color_aliases = mcoll._color_aliases
             kwargs = cbook.normalize_kwargs(kwargs, color_aliases)
@@ -4918,6 +4925,12 @@ or tuple of floats
                 for filling between two sets of y-values
 
         """
+
+        for input in [('y', y), ('x1', x1), ('x2', x2), ('where', where)]:
+            if not cbook.is_scalar(cbook.safe_first_element(input[1])):
+                raise ValueError('Input passed into argument "' + input[0] +
+                                 '" is not 1-dimensional.')
+
         if not rcParams['_internal.classic_mode']:
             color_aliases = mcoll._color_aliases
             kwargs = cbook.normalize_kwargs(kwargs, color_aliases)

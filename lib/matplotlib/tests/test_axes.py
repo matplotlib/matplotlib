@@ -725,6 +725,42 @@ def test_polycollection_joinstyle():
     ax.set_ybound(0, 3)
 
 
+@raises(ValueError)
+def test_fill_between_2d_x_input():
+    x = np.zeros((2, 2))
+    y1 = 3
+    y2 = 3
+
+    fig = plt.figure()
+    ax = fig.add_subplot(211)
+    ax.plot(x, y1, x, y2, color='black')
+    ax.fill_between(x, y1, y2)
+
+
+@raises(ValueError)
+def test_fill_between_2d_y1_input():
+    x = np.arange(0.0, 2, 0.02)
+    y1 = np.zeros((2, 2))
+    y2 = 3
+
+    fig = plt.figure()
+    ax = fig.add_subplot(211)
+    ax.plot(x, y1, x, y2, color='black')
+    ax.fill_between(x, y1, y2)
+
+
+@raises(ValueError)
+def test_fill_between_2d_y2_input():
+    x = np.arange(0.0, 2, 0.02)
+    y1 = 3
+    y2 = np.zeros((2, 2))
+
+    fig = plt.figure()
+    ax = fig.add_subplot(211)
+    ax.plot(x, y1, x, y2, color='black')
+    ax.fill_between(x, y1, y2)
+
+
 @image_comparison(baseline_images=['fill_between_interpolate'],
                   remove_text=True)
 def test_fill_between_interpolate():
@@ -4799,6 +4835,42 @@ def test_tick_param_label_rotation():
         assert text.get_rotation() == 75
     for text in ax.get_yticklabels(which='both'):
         assert text.get_rotation() == 90
+
+
+@raises(ValueError)
+def test_fill_betweenx_2d_y_input():
+    y = np.zeros((2, 2))
+    x1 = 3
+    x2 = 3
+
+    fig = plt.figure()
+    ax = fig.add_subplot(211)
+    ax.plot(y, x1, y, x2, color='black')
+    ax.fill_betweenx(y, x1, x2)
+
+
+@raises(ValueError)
+def test_fill_betweenx_2d_x1_input():
+    y = np.arange(0.0, 2, 0.02)
+    x1 = np.zeros((2, 2))
+    x2 = 3
+
+    fig = plt.figure()
+    ax = fig.add_subplot(211)
+    ax.plot(y, x1, y, x2, color='black')
+    ax.fill_betweenx(y, x1, x2)
+
+
+@raises(ValueError)
+def test_fill_betweenx_2d_x2_input():
+    y = np.arange(0.0, 2, 0.02)
+    x1 = 3
+    x2 = np.zeros((2, 2))
+
+    fig = plt.figure()
+    ax = fig.add_subplot(211)
+    ax.plot(y, x1, y, x2, color='black')
+    ax.fill_betweenx(y, x1, x2)
 
 
 @cleanup(style='default')
