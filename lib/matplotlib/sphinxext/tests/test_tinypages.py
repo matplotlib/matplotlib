@@ -42,7 +42,7 @@ class TestTinyPages(object):
             cls.html_dir = pjoin(cls.page_build, 'html')
             cls.doctree_dir = pjoin(cls.page_build, 'doctrees')
             # Build the pages with warnings turned into errors
-            cmd = ['sphinx-build', '-W', '-b', 'html',
+            cmd = [str('sphinx-build'), '-W', '-b', 'html',
                    '-d', cls.doctree_dir,
                    TINY_PAGES,
                    cls.html_dir]
