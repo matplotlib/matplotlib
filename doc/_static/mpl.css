@@ -738,8 +738,8 @@ div.responsive_screenshots {
     margin: auto;
 
     /* Do not go beyond 1:1 scale (and ensure a 1x4 tight layout) */
-    max-width: 648px;  /* at most 4 x 1:1 subfig width  */
-    max-height: 139px; /* at most 1 x 1:1 subfig height */
+    max-width: 640px;  /* at most 4 x 1:1 subfig width  */
+    max-height: 120px; /* at most 1 x 1:1 subfig height */
 }
 
 /* To avoid subfigure parts outside of the responsive_screenshots  */

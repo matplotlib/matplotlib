@@ -16,48 +16,40 @@ positive x-axis. This example sets ``startangle = 90`` such that everything is
 rotated counter-clockwise by 90 degrees, and the frog slice starts on the
 positive y-axis.
 """
+import numpy as np
 import matplotlib.pyplot as plt
 
-
-# The slices will be ordered and plotted counter-clockwise.
+# Pie chart, where the slices will be ordered and plotted counter-clockwise:
 labels = 'Frogs', 'Hogs', 'Dogs', 'Logs'
 sizes = [15, 30, 45, 10]
 explode = (0, 0.1, 0, 0)  # only "explode" the 2nd slice (i.e. 'Hogs')
 
-plt.pie(sizes, explode=explode, labels=labels,
-        autopct='%1.1f%%', shadow=True, startangle=90)
-# Set aspect ratio to be equal so that pie is drawn as a circle.
-plt.axis('equal')
-
-fig = plt.figure()
-ax = fig.gca()
-import numpy as np
-
-# Fixing random state for reproducibility
-np.random.seed(19680801)
+fg1, ax1 = plt.subplots()
+ax1.pie(sizes, explode=explode, labels=labels, autopct='%1.1f%%',
+        shadow=True, startangle=90)
+ax1.axis('equal')  # Equal aspect ratio ensures that pie is drawn as a circle.
 
 
-ax.pie(np.random.random(4), explode=explode, labels=labels,
-       autopct='%1.1f%%', shadow=True, startangle=90,
-       radius=0.25, center=(0, 0), frame=True)
-ax.pie(np.random.random(4), explode=explode, labels=labels,
-       autopct='%1.1f%%', shadow=True, startangle=90,
-       radius=0.25, center=(1, 1), frame=True)
-ax.pie(np.random.random(4), explode=explode, labels=labels,
-       autopct='%1.1f%%', shadow=True, startangle=90,
-       radius=0.25, center=(0, 1), frame=True)
-ax.pie(np.random.random(4), explode=explode, labels=labels,
-       autopct='%1.1f%%', shadow=True, startangle=90,
-       radius=0.25, center=(1, 0), frame=True)
+# Plot four Pie charts in a 2x2 grid:
+pie_data = [np.roll(sizes, i) for i in range(4)]  # generate some data
+pie_centerpos = [(0, 0), (0, 1), (1, 0), (1, 1)]  # the grid positions
 
-ax.set_xticks([0, 1])
-ax.set_yticks([0, 1])
-ax.set_xticklabels(["Sunny", "Cloudy"])
-ax.set_yticklabels(["Dry", "Rainy"])
-ax.set_xlim((-0.5, 1.5))
-ax.set_ylim((-0.5, 1.5))
+fg2, ax2 = plt.subplots()
+for data, cpos in zip(pie_data, pie_centerpos):
+    _, txts = ax2.pie(data, explode=explode, shadow=True, startangle=90,
+                      radius=0.35, center=cpos, frame=True, labeldistance=.7)
+    # Make texts include number and labels:
+    for t, l, d in zip(txts, labels, data):
+        t.set_text("%s\n %.1f%%" % (l, d))
+        t.set_horizontalalignment("center")
+        t.set_fontsize(8)
 
-# Set aspect ratio to be equal so that pie is drawn as a circle.
-ax.set_aspect('equal')
+ax2.set_xticks([0, 1])
+ax2.set_yticks([0, 1])
+ax2.set_xticklabels(["Sunny", "Cloudy"])
+ax2.set_yticklabels(["Dry", "Rainy"])
+ax2.set_xlim((-0.5, 1.5))
+ax2.set_ylim((-0.5, 1.5))
+ax2.set_aspect('equal')  # Equal aspect ratio ensures that the pie is a circle.
 
 plt.show()
