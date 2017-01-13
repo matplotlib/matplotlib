@@ -11,11 +11,12 @@
    either the actual size of the set plus 1, or the NULL terminator
    of the set (i.e., setelemT).
 
-   Copyright (c) 1993-2012 The Geometry Center.
-   $Id: //main/2011/qhull/src/libqhull/qset.c#6 $$Change: 1475 $
-   $DateTime: 2012/01/27 22:32:16 $$Author: bbarber $
+   Copyright (c) 1993-2015 The Geometry Center.
+   $Id: //main/2015/qhull/src/libqhull/qset.c#3 $$Change: 2062 $
+   $DateTime: 2016/01/17 13:13:18 $$Author: bbarber $
 */
 
+#include "user.h" /* for QHULL_CRTDBG */
 #include "qset.h"
 #include "mem.h"
 #include <stdio.h>
@@ -425,15 +426,15 @@ void *qh_setdelnth(setT *set, int nth) {
   setelemT *sizep;
   setelemT *elemp, *lastp;
 
-  elemp= (setelemT *)SETelemaddr_(set, nth, void);
   sizep= SETsizeaddr_(set);
   if ((sizep->i--)==0)         /*  if was a full set */
-    sizep->i= set->maxsize;  /*     *sizep= (maxsize-1)+ 1 */
+      sizep->i= set->maxsize;  /*     *sizep= (maxsize-1)+ 1 */
   if (nth < 0 || nth >= sizep->i) {
     qh_fprintf(qhmem.ferr, 6174, "qhull internal error (qh_setdelnth): nth %d is out-of-bounds for set:\n", nth);
     qh_setprint(qhmem.ferr, "", set);
     qh_errexit(qhmem_ERRqhull, NULL, NULL);
   }
+  elemp= (setelemT *)SETelemaddr_(set, nth, void); /* nth valid by QH6174 */
   lastp= (setelemT *)SETelemaddr_(set, sizep->i-1, void);
   elem= elemp->p;
   elemp->p= lastp->p;      /* may overwrite itself */
@@ -572,7 +573,7 @@ void **qh_setendpointer(setT *set) {
 /*-<a                             href="qh-set.htm#TOC"
   >-------------------------------<a name="setequal">-</a>
 
-  qh_setequal(  )
+  qh_setequal( setA, setB )
     returns 1 if two sorted sets are equal, otherwise returns 0
 
   notes:
@@ -714,7 +715,7 @@ int qh_setequal_skip(setT *setA, int skipA, setT *setB, int skipB) {
 */
 void qh_setfree(setT **setp) {
   int size;
-  void **freelistp;  /* used !qh_NOmem */
+  void **freelistp;  /* used if !qh_NOmem by qh_memfree_() */
 
   if (*setp) {
     size= sizeof(setT) + ((*setp)->maxsize)*SETelemsize;
@@ -740,7 +741,7 @@ void qh_setfree(setT **setp) {
     free each element
     free set
 */
-void qh_setfree2 (setT **setp, int elemsize) {
+void qh_setfree2(setT **setp, int elemsize) {
   void          *elem, **elemp;
 
   FOREACHelem_(*setp)
@@ -882,7 +883,7 @@ void qh_setlarger(setT **oldsetp) {
 /*-<a                             href="qh-set.htm#TOC"
   >-------------------------------<a name="setlast">-</a>
 
-  qh_setlast(  )
+  qh_setlast( set )
     return last element of set or NULL (use type conversion)
 
   notes:
@@ -922,9 +923,9 @@ void *qh_setlast(setT *set) {
 */
 setT *qh_setnew(int setsize) {
   setT *set;
-  int sizereceived; /* used !qh_NOmem */
+  int sizereceived; /* used if !qh_NOmem */
   int size;
-  void **freelistp; /* used !qh_NOmem */
+  void **freelistp; /* used if !qh_NOmem by qh_memalloc_() */
 
   if (!setsize)
     setsize++;
@@ -1244,10 +1245,10 @@ setT *qh_settemppop(void) {
     append set to tempstack
 */
 void qh_settemppush(setT *set) {
-    if (!set) {
-        fprintf (qhmem.ferr, "qhull error (qh_settemppush): can not push a NULL temp\n");
-        qh_errexit (qhmem_ERRqhull, NULL, NULL);
-    }
+  if (!set) {
+    qh_fprintf(qhmem.ferr, 6267, "qhull error (qh_settemppush): can not push a NULL temp\n");
+    qh_errexit(qhmem_ERRqhull, NULL, NULL);
+  }
   qh_setappend(&qhmem.tempstack, set);
   if (qhmem.IStracing >= 5)
     qh_fprintf(qhmem.ferr, 8125, "qh_settemppush: depth %d temp set %p of %d elements\n",
@@ -1335,3 +1336,5 @@ void qh_setzero(setT *set, int idx, int size) {
   count= size - idx + 1;   /* +1 for NULL terminator */
   memset((char *)SETelemaddr_(set, idx, void), 0, (size_t)count * SETelemsize);
 } /* setzero */
+
+

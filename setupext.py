@@ -1315,14 +1315,14 @@ class Qhull(SetupPackage):
         self.__class__.found_external = True
         try:
             return self._check_for_pkg_config(
-                'qhull', 'qhull/qhull_a.h', min_version='2003.1')
+                'libqhull', 'libqhull/qhull_a.h', min_version='2015.2')
         except CheckFailed as e:
             self.__class__.found_pkgconfig = False
             # Qhull may not be in the pkg-config system but may still be
             # present on this system, so check if the header files can be
             # found.
             include_dirs = [
-                os.path.join(x, 'qhull') for x in get_include_dirs()]
+                os.path.join(x, 'libqhull') for x in get_include_dirs()]
             if has_include_file(include_dirs, 'qhull_a.h'):
                 return 'Using system Qhull (version unknown, no pkg-config info)'
             else:
@@ -1335,7 +1335,7 @@ class Qhull(SetupPackage):
                                        default_libraries=['qhull'])
         else:
             ext.include_dirs.append('extern')
-            ext.sources.extend(glob.glob('extern/qhull/*.c'))
+            ext.sources.extend(glob.glob('extern/libqhull/*.c'))
 
 
 class TTConv(SetupPackage):

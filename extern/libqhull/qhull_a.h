@@ -2,29 +2,30 @@
   >-------------------------------</a><a name="TOP">-</a>
 
    qhull_a.h
-   all header files for compiling qhull
+   all header files for compiling qhull with non-reentrant code
+   included before C++ headers for user_r.h:QHULL_CRTDBG
 
    see qh-qhull.htm
 
    see libqhull.h for user-level definitions
 
-   see user.h for user-defineable constants
+   see user.h for user-definable constants
 
    defines internal functions for libqhull.c global.c
 
-   Copyright (c) 1993-2012 The Geometry Center.
-   $Id: //main/2011/qhull/src/libqhull/qhull_a.h#3 $$Change: 1464 $
-   $DateTime: 2012/01/25 22:58:41 $$Author: bbarber $
+   Copyright (c) 1993-2015 The Geometry Center.
+   $Id: //main/2015/qhull/src/libqhull/qhull_a.h#4 $$Change: 2064 $
+   $DateTime: 2016/01/18 12:36:08 $$Author: bbarber $
 
    Notes:  grep for ((" and (" to catch fprintf("lkasdjf");
            full parens around (x?y:z)
-           use '#include qhull/qhull_a.h' to avoid name clashes
+           use '#include "libqhull/qhull_a.h"' to avoid name clashes
 */
 
 #ifndef qhDEFqhulla
 #define qhDEFqhulla 1
 
-#include "libqhull.h"  /* Defines data types */
+#include "libqhull.h"  /* Includes user_r.h and data types */
 
 #include "stat.h"
 #include "random.h"
@@ -94,16 +95,19 @@
 /*-<a                             href="qh-qhull.htm#TOC"
   >--------------------------------</a><a name="QHULL_UNUSED">-</a>
 
+  Define an unused variable to avoid compiler warnings
+
+  Derived from Qt's corelib/global/qglobal.h
+
 */
 
-/* See Qt's qglobal.h */
-#if !defined(SAG_COM) && (defined(WIN64) || defined(_WIN64) || defined(__WIN64__) || defined(WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(__NT__))
-#   define QHULL_OS_WIN
-#elif defined(__MWERKS__) && defined(__INTEL__)
-#   define QHULL_OS_WIN
+#if defined(__cplusplus) && defined(__INTEL_COMPILER) && !defined(QHULL_OS_WIN)
+template <typename T>
+inline void qhullUnused(T &x) { (void)x; }
+#  define QHULL_UNUSED(x) qhullUnused(x);
+#else
+#  define QHULL_UNUSED(x) (void)x;
 #endif
-
-#define QHULL_UNUSED(x) (void)x;
 
 /***** -libqhull.c prototypes (alphabetical after qhull) ********************/
 
@@ -136,7 +140,7 @@ void    qh_allstatB(void);
 void    qh_allstatC(void);
 void    qh_allstatD(void);
 void    qh_allstatE(void);
-void    qh_allstatE2 (void);
+void    qh_allstatE2(void);
 void    qh_allstatF(void);
 void    qh_allstatG(void);
 void    qh_allstatH(void);
