@@ -87,28 +87,38 @@ gracefully, and here are some tricks to help you work around them.
 We'll load up some sample date data which contains datetime.date
 objects in a numpy record array::
 
-  In [63]: datafile = cbook.get_sample_data('goog.npy')
+  In [63]: datafile = cbook.get_sample_data('goog.npz')
 
-  In [64]: r = np.load(datafile).view(np.recarray)
+  In [64]: r = np.load(datafile)['price_data'].view(np.recarray)
 
   In [65]: r.dtype
-  Out[65]: dtype([('date', '|O4'), ('', '|V4'), ('open', '<f8'),
+  Out[65]: dtype([('date', '<M8[D]'), ('', '|V4'), ('open', '<f8'),
                   ('high', '<f8'), ('low', '<f8'), ('close', '<f8'),
                   ('volume', '<i8'),  ('adj_close', '<f8')])
 
   In [66]: r.date
   Out[66]:
-  array([2004-08-19, 2004-08-20, 2004-08-23, ..., 2008-10-10, 2008-10-13,
-         2008-10-14], dtype=object)
+  array(['2004-08-19', '2004-08-20', '2004-08-23', ..., '2008-10-10',
+         '2008-10-13', '2008-10-14'], dtype='datetime64[D]')
 
-The dtype of the numpy record array for the field ``date`` is ``|O4``
-which means it is a 4-byte python object pointer; in this case the
-objects are datetime.date instances, which we can see when we print
-some samples in the ipython terminal window.
+The dtype of the NumPy record array for the field ``date`` is ``datetime64[D]``
+which means it is a 64-bit `np.datetime64` in 'day' units. While this format is
+more portable, Matplotlib cannot plot this format natively yet. We can plot
+this data by changing the dates to `datetime.date` instances instead, which can
+be achieved by converting to an object array::
+
+  In [67]: r.date.astype('O')
+  array([datetime.date(2004, 8, 19), datetime.date(2004, 8, 20),
+         datetime.date(2004, 8, 23), ..., datetime.date(2008, 10, 10),
+         datetime.date(2008, 10, 13), datetime.date(2008, 10, 14)],
+        dtype=object)
+
+The dtype of this converted array is now ``object`` and it is filled with
+datetime.date instances instead.
 
 If you plot the data, ::
 
-  In [67]: plot(r.date, r.close)
+  In [67]: plot(r.date.astype('O'), r.close)
   Out[67]: [<matplotlib.lines.Line2D object at 0x92a6b6c>]
 
 you will see that the x tick labels are all squashed together.
@@ -117,18 +127,12 @@ you will see that the x tick labels are all squashed together.
    :context:
 
    import matplotlib.cbook as cbook
-   datafile = cbook.get_sample_data('goog.npy')
-   try:
-       # Python3 cannot load python2 .npy files with datetime(object) arrays
-       # unless the encoding is set to bytes. Hovever this option was
-       # not added until numpy 1.10 so this example will only work with
-       # python 2 or with numpy 1.10 and later.
-       r = np.load(datafile, encoding='bytes').view(np.recarray)
-   except TypeError:
-       # Old Numpy
-       r = np.load(datafile).view(np.recarray)
+   with cbook.get_sample_data('goog.npz') as datafile:
+       r = np.load(datafile)['price_data'].view(np.recarray)
+   # Matplotlib prefers datetime instead of np.datetime64.
+   date = r.date.astype('O')
    plt.figure()
-   plt.plot(r.date, r.close)
+   plt.plot(date, r.close)
    plt.title('Default date handling can cause overlapping labels')
 
 Another annoyance is that if you hover the mouse over the window and
@@ -149,7 +153,7 @@ a number of date formatters built in, so we'll use one of those.
 
    plt.close('all')
    fig, ax = plt.subplots(1)
-   ax.plot(r.date, r.close)
+   ax.plot(date, r.close)
 
    # rotate and align the tick labels so they look better
    fig.autofmt_xdate()
@@ -186,22 +190,17 @@ right.
    import matplotlib.cbook as cbook
 
    # load up some sample financial data
-   datafile = cbook.get_sample_data('goog.npy')
-   try:
-       # Python3 cannot load python2 .npy files with datetime(object) arrays
-       # unless the encoding is set to bytes. Hovever this option was
-       # not added until numpy 1.10 so this example will only work with
-       # python 2 or with numpy 1.10 and later.
-       r = np.load(datafile, encoding='bytes').view(np.recarray)
-   except TypeError:
-       r = np.load(datafile).view(np.recarray)
+   with cbook.get_sample_data('goog.npz') as datafile:
+       r = np.load(datafile)['price_data'].view(np.recarray)
+   # Matplotlib prefers datetime instead of np.datetime64.
+   date = r.date.astype('O')
    # create two subplots with the shared x and y axes
    fig, (ax1, ax2) = plt.subplots(1,2, sharex=True, sharey=True)
 
    pricemin = r.close.min()
 
-   ax1.plot(r.date, r.close, lw=2)
-   ax2.fill_between(r.date, pricemin, r.close, facecolor='blue', alpha=0.5)
+   ax1.plot(date, r.close, lw=2)
+   ax2.fill_between(date, pricemin, r.close, facecolor='blue', alpha=0.5)
 
    for ax in ax1, ax2:
        ax.grid(True)
