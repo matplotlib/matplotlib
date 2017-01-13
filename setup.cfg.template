@@ -1,4 +1,4 @@
-# Rename this file to setup.cfg to modify matplotlib's
+# Rename this file to setup.cfg to modify Matplotlib's
 # build options.
 
 [egg_info]
@@ -9,7 +9,7 @@
 #basedirlist = /usr
 
 [test]
-# If you plan to develop matplotlib and run or add to the test suite,
+# If you plan to develop Matplotlib and run or add to the test suite,
 # set this to True.  It will download and build a specific version of
 # FreeType, and then use that to build the ft2font extension.  This
 # ensures that test images are exactly reproducible.
@@ -21,7 +21,7 @@
 #suppress = False
 
 [packages]
-# There are a number of subpackages of matplotlib that are considered
+# There are a number of subpackages of Matplotlib that are considered
 # optional. All except tests are installed by default, but that can
 # be changed here.
 #
@@ -36,10 +36,10 @@
 # Matplotlib supports multiple GUI toolkits, including
 # GTK, MacOSX, Qt4, Qt5, Tk, and WX. Support for many of
 # these toolkits requires AGG, the Anti-Grain Geometry library,
-# which is provided by matplotlib and built by default.
+# which is provided by Matplotlib and built by default.
 #
 # Some backends are written in pure Python, and others require
-# extension code to be compiled. By default, matplotlib checks for
+# extension code to be compiled. By default, Matplotlib checks for
 # these GUI toolkits during installation and, if present, compiles the
 # required extensions to support the toolkit.
 #
