@@ -50,7 +50,7 @@ the env ``MPLLOCALFREETYPE`` as::
 
   export MPLLOCALFREETYPE=1
 
-or copy :file:`setup.cfg.template` to :file:`setup.cfg` and edit to contain ::
+or copy :file:`setup.cfg.template` to :file:`setup.cfg` and edit it to contain ::
 
   [test]
   local_freetype = True
@@ -80,9 +80,15 @@ Alternatively, if you do ::
 
 all of the files will be copied to the installation directory however,
 you will have to rerun this command every time the source is changed.
+Additionally you will need to copy :file:`setup.cfg.template` to
+:file:`setup.cfg` and edit it to contain ::
 
+  [test]
+  local_freetype = True
+  tests = True
 
-You can then run the tests to check your work environment is set up properly::
+In either case you can then run the tests to check your work
+environment is set up properly::
 
   python tests.py
 
