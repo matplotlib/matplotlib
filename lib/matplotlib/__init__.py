@@ -354,7 +354,8 @@ verbose = Verbose()
 
 def checkdep_dvipng():
     try:
-        s = subprocess.Popen(['dvipng', '-version'], stdout=subprocess.PIPE,
+        s = subprocess.Popen([str('dvipng'), '-version'],
+                             stdout=subprocess.PIPE,
                              stderr=subprocess.PIPE)
         stdout, stderr = s.communicate()
         line = stdout.decode('ascii').split('\n')[1]
@@ -374,7 +375,7 @@ def checkdep_ghostscript():
         for gs_exec in gs_execs:
             try:
                 s = subprocess.Popen(
-                    [gs_exec, '--version'], stdout=subprocess.PIPE,
+                    [str(gs_exec), '--version'], stdout=subprocess.PIPE,
                     stderr=subprocess.PIPE)
                 stdout, stderr = s.communicate()
                 if s.returncode == 0:
@@ -390,7 +391,7 @@ checkdep_ghostscript.version = None
 
 def checkdep_tex():
     try:
-        s = subprocess.Popen(['tex', '-version'], stdout=subprocess.PIPE,
+        s = subprocess.Popen([str('tex'), '-version'], stdout=subprocess.PIPE,
                              stderr=subprocess.PIPE)
         stdout, stderr = s.communicate()
         line = stdout.decode('ascii').split('\n')[0]
@@ -404,7 +405,7 @@ def checkdep_tex():
 
 def checkdep_pdftops():
     try:
-        s = subprocess.Popen(['pdftops', '-v'], stdout=subprocess.PIPE,
+        s = subprocess.Popen([str('pdftops'), '-v'], stdout=subprocess.PIPE,
                              stderr=subprocess.PIPE)
         stdout, stderr = s.communicate()
         lines = stderr.decode('ascii').split('\n')
@@ -419,7 +420,8 @@ def checkdep_pdftops():
 def checkdep_inkscape():
     if checkdep_inkscape.version is None:
         try:
-            s = subprocess.Popen(['inkscape', '-V'], stdout=subprocess.PIPE,
+            s = subprocess.Popen([str('inkscape'), '-V'],
+                                 stdout=subprocess.PIPE,
                                  stderr=subprocess.PIPE)
             stdout, stderr = s.communicate()
             lines = stdout.decode('ascii').split('\n')
@@ -436,7 +438,8 @@ checkdep_inkscape.version = None
 
 def checkdep_xmllint():
     try:
-        s = subprocess.Popen(['xmllint', '--version'], stdout=subprocess.PIPE,
+        s = subprocess.Popen([str('xmllint'), '--version'],
+                             stdout=subprocess.PIPE,
                              stderr=subprocess.PIPE)
         stdout, stderr = s.communicate()
         lines = stderr.decode('ascii').split('\n')

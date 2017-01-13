@@ -30,7 +30,7 @@ def check_for(texsystem):
     \\@@end
     """
     try:
-        latex = subprocess.Popen([texsystem, "-halt-on-error"],
+        latex = subprocess.Popen([str(texsystem), "-halt-on-error"],
                                  stdin=subprocess.PIPE,
                                  stdout=subprocess.PIPE)
         stdout, stderr = latex.communicate(header.encode("utf8"))
