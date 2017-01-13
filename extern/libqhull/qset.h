@@ -16,9 +16,9 @@
     - every set is NULL terminated
     - sets may be sorted or unsorted, the caller must distinguish this
 
-   Copyright (c) 1993-2012 The Geometry Center.
-   $Id: //main/2011/qhull/src/libqhull/qset.h#4 $$Change: 1464 $
-   $DateTime: 2012/01/25 22:58:41 $$Author: bbarber $
+   Copyright (c) 1993-2015 The Geometry Center.
+   $Id: //main/2015/qhull/src/libqhull/qset.h#2 $$Change: 2062 $
+   $DateTime: 2016/01/17 13:13:18 $$Author: bbarber $
 */
 
 #ifndef qhDEFset
@@ -32,6 +32,8 @@
 #define DEFsetT 1
 typedef struct setT setT;   /* a set is a sorted or unsorted array of pointers */
 #endif
+
+/* [jan'15] Decided not to use countT.  Most sets are small.  The code uses signed tests */
 
 /*-<a                                      href="qh-set.htm#TOC"
 >----------------------------------------</a><a name="setT">-</a>
@@ -459,10 +461,10 @@ void *qh_setdelnth(setT *set, int nth);
 void *qh_setdelnthsorted(setT *set, int nth);
 void *qh_setdelsorted(setT *set, void *newelem);
 setT *qh_setduplicate( setT *set, int elemsize);
+void **qh_setendpointer(setT *set);
 int   qh_setequal(setT *setA, setT *setB);
 int   qh_setequal_except(setT *setA, void *skipelemA, setT *setB, void *skipelemB);
 int   qh_setequal_skip(setT *setA, int skipA, setT *setB, int skipB);
-void **qh_setendpointer(setT *set);
 void  qh_setfree(setT **set);
 void  qh_setfree2( setT **setp, int elemsize);
 void  qh_setfreelong(setT **set);

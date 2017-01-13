@@ -6,9 +6,9 @@
 
    see qh-stat.htm and stat.h
 
-   Copyright (c) 1993-2012 The Geometry Center.
-   $Id: //main/2011/qhull/src/libqhull/stat.c#3 $$Change: 1464 $
-   $DateTime: 2012/01/25 22:58:41 $$Author: bbarber $
+   Copyright (c) 1993-2015 The Geometry Center.
+   $Id: //main/2015/qhull/src/libqhull/stat.c#5 $$Change: 2062 $
+   $DateTime: 2016/01/17 13:13:18 $$Author: bbarber $
 */
 
 #include "qhull_a.h"
@@ -151,6 +151,8 @@ void qh_allstatE(void) {
   zdef_(zinc, Zcoplanarinside, "  inside points that were coplanar with a facet", -1);
   zdef_(zinc, Zbestlower, "calls to findbestlower", -1);
   zdef_(zinc, Zbestlowerv, "  with search of vertex neighbors", -1);
+  zdef_(zinc, Zbestlowerall, "  with rare search of all facets", -1);
+  zdef_(zmax, Zbestloweralln, "  facets per search of all facets", -1);
   zdef_(wadd, Wmaxout, "difference in max_outside at final check", -1);
   zzdef_(zinc, Zpartitionall, "distance tests for initial partition", -1);
   zdef_(zinc, Ztotpartition, "partitions of a point", -1);
@@ -441,7 +443,9 @@ void qh_freestatistics(void) {
 
   notes:
     uses qh_malloc() instead of qh_memalloc() since mem.c not set up yet
-    NOerrors -- qh_initstatistics can not use qh_errexit().  One first call, qh_memalloc is not initialized.  Also invoked by QhullQh().
+    NOerrors -- qh_initstatistics can not use qh_errexit(), qh_fprintf, or qh.ferr
+    On first call, only qhmem.ferr is defined.  qh_memalloc is not setup.
+    Also invoked by QhullQh().
 */
 void qh_initstatistics(void) {
   int i;
@@ -454,7 +458,7 @@ void qh_initstatistics(void) {
       qh_qhstat= 0;
   }
   if (!(qh_qhstat= (qhstatT *)qh_malloc(sizeof(qhstatT)))) {
-    qh_fprintf(qhmem.ferr, 6183, "qhull error (qh_initstatistics): insufficient memory\n");
+    qh_fprintf_stderr(6183, "qhull error (qh_initstatistics): insufficient memory\n");
     qh_exit(qh_ERRmem);  /* can not use qh_errexit() */
   }
 #endif
@@ -631,7 +635,7 @@ void qh_printstatistics(FILE *fp, const char *string) {
   notes:
     nop if id >= ZEND, printed, or same as initial value
 */
-void qh_printstatlevel(FILE *fp, int id, int start) {
+void qh_printstatlevel(FILE *fp, int id) {
 #define NULLfield "       "
 
   if (id >= ZEND || qhstat printed[id])
@@ -640,7 +644,6 @@ void qh_printstatlevel(FILE *fp, int id, int start) {
     qh_fprintf(fp, 9360, "%s\n", qhstat doc[id]);
     return;
   }
-  start= 0; /* not used */
   if (qh_nostatistic(id) || !qhstat doc[id])
     return;
   qhstat printed[id]= True;
@@ -674,7 +677,7 @@ void qh_printstats(FILE *fp, int idx, int *nextindex) {
   if (qh_newstats(idx, &nexti)) {
     qh_fprintf(fp, 9367, "\n");
     for (j=idx; j<nexti; j++)
-      qh_printstatlevel(fp, qhstat id[j], 0);
+      qh_printstatlevel(fp, qhstat id[j]);
   }
   if (nextindex)
     *nextindex= nexti;
@@ -711,3 +714,4 @@ void    qh_collectstatistics(void) {}
 void    qh_printallstatistics(FILE *fp, char *string) {};
 void    qh_printstatistics(FILE *fp, char *string) {}
 #endif
+
