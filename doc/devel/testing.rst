@@ -45,6 +45,7 @@ matplotlib source directory::
 
   [test]
   local_freetype = True
+  tests = True
 
 or by setting the ``MPLLOCALFREETYPE`` environmental variable to any true
 value.

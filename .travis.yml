@@ -116,7 +116,7 @@ install:
       cp .travis/setup.cfg .
     fi;
 
-  - python setup.py install
+  - pip install -ve ./
   - |
 
 script:
