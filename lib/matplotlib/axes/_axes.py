@@ -4777,8 +4777,8 @@ or tuple of floats
 
         for name, array in [('x', x), ('y1', y1), ('y2', y2)]:
             if array.ndim > 1:
-                raise ValueError('Input passed into argument "' + name +
-                                 '" is not 1-dimensional.')
+                raise ValueError('Input passed into argument "%r"' % name +
+                                 'is not 1-dimensional.')
 
         if y1.ndim == 0:
             y1 = np.ones_like(x) * y1
@@ -4941,10 +4941,10 @@ or tuple of floats
         x1 = ma.masked_invalid(self.convert_xunits(x1))
         x2 = ma.masked_invalid(self.convert_xunits(x2))
 
-        for array in [('x', x), ('y1', y1), ('y2', y2)]:
-            if array[1].ndim > 1:
-                raise ValueError('Input passed into argument "' + array[0] +
-                                 '" is not 1-dimensional.')
+        for name, array in [('y', y), ('x1', x1), ('x2', x2)]:
+            if array.ndim > 1:
+                raise ValueError('Input passed into argument "%r"' % name +
+                                 'is not 1-dimensional.')
 
         if x1.ndim == 0:
             x1 = np.ones_like(y) * x1
