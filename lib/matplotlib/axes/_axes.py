@@ -4758,12 +4758,6 @@ or tuple of floats
 
         """
 
-        for input in [('x', x), ('y1', y1), ('y2', y2)]:
-            if not (cbook.is_scalar(input[1]) or
-                    cbook.is_scalar(cbook.safe_first_element(input[1]))):
-                raise ValueError('Input passed into argument "' + input[0] +
-                                 '" is not 1-dimensional.')
-
         if not rcParams['_internal.classic_mode']:
             color_aliases = mcoll._color_aliases
             kwargs = cbook.normalize_kwargs(kwargs, color_aliases)
@@ -4780,6 +4774,11 @@ or tuple of floats
         x = ma.masked_invalid(self.convert_xunits(x))
         y1 = ma.masked_invalid(self.convert_yunits(y1))
         y2 = ma.masked_invalid(self.convert_yunits(y2))
+
+        for name, array in [('x', x), ('y1', y1), ('y2', y2)]:
+            if array.ndim > 1:
+                raise ValueError('Input passed into argument "' + name +
+                                 '" is not 1-dimensional.')
 
         if y1.ndim == 0:
             y1 = np.ones_like(x) * y1
@@ -4926,11 +4925,6 @@ or tuple of floats
 
         """
 
-        for input in [('y', y), ('x1', x1), ('x2', x2), ('where', where)]:
-            if not cbook.is_scalar(cbook.safe_first_element(input[1])):
-                raise ValueError('Input passed into argument "' + input[0] +
-                                 '" is not 1-dimensional.')
-
         if not rcParams['_internal.classic_mode']:
             color_aliases = mcoll._color_aliases
             kwargs = cbook.normalize_kwargs(kwargs, color_aliases)
@@ -4946,6 +4940,11 @@ or tuple of floats
         y = ma.masked_invalid(self.convert_yunits(y))
         x1 = ma.masked_invalid(self.convert_xunits(x1))
         x2 = ma.masked_invalid(self.convert_xunits(x2))
+
+        for array in [('x', x), ('y1', y1), ('y2', y2)]:
+            if array[1].ndim > 1:
+                raise ValueError('Input passed into argument "' + array[0] +
+                                 '" is not 1-dimensional.')
 
         if x1.ndim == 0:
             x1 = np.ones_like(y) * x1
