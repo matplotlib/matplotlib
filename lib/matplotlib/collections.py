@@ -788,6 +788,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
         self._facecolors = other._facecolors
         self._linewidths = other._linewidths
         self._linestyles = other._linestyles
+        self._us_linestyles = other._us_linestyles
         self._pickradius = other._pickradius
         self._hatch = other._hatch
 
