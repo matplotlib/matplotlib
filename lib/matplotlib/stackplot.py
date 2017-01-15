@@ -68,7 +68,8 @@ def stackplot(axes, x, *args, **kwargs):
 
     baseline = kwargs.pop('baseline', 'zero')
     # Assume data passed has not been 'stacked', so stack it here.
-    stack = np.cumsum(y, axis=0)
+    # We'll need a float buffer for the upcoming calculations.
+    stack = np.cumsum(y, axis=0, dtype=np.promote_types(y.dtype, np.float32))
 
     if baseline == 'zero':
         first_line = 0.
@@ -79,7 +80,7 @@ def stackplot(axes, x, *args, **kwargs):
 
     elif baseline == 'wiggle':
         m = y.shape[0]
-        first_line = (y * (m - 0.5 - np.arange(0, m)[:, None])).sum(0)
+        first_line = (y * (m - 0.5 - np.arange(m)[:, None])).sum(0)
         first_line /= -m
         stack += first_line
 
