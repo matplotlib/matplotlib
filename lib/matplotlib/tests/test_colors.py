@@ -202,13 +202,6 @@ class TestFuncNorm(object):
         assert_equal(norm(2.), 1.)
         assert_equal(norm(2.5), 1.)
 
-    def test_ticks(self):
-        norm = mcolors.FuncNorm(f='log10', vmin=0.01, vmax=2.)
-        expected = [0.01, 0.016, 0.024, 0.04, 0.06,
-                    0.09, 0.14, 0.22, 0.3, 0.5,
-                    0.8, 1.3, 2.]
-        assert_array_almost_equal(norm.ticks(), expected)
-
 
 def test_LogNorm():
     """

@@ -974,8 +974,8 @@ class FuncNorm(Normalize):
         Function to be used for the normalization receiving a single
         parameter, compatible with scalar values and arrays.
         Alternatively some predefined functions may be specified
-        as a string (See Notes). The chosen function must
-        be strictly increasing in the [`vmin`, `vmax`] interval.
+        as a string (See Notes). The chosen function must be strictly
+        increasing and bounded in the [`vmin`, `vmax`] interval.
     finv : callable, optional
         Inverse of `f` satisfying finv(f(x)) == x. Optional and ignored
         when `f` is a string; otherwise, required.
@@ -1070,8 +1070,8 @@ class FuncNorm(Normalize):
 
         if clip:
             result = np.clip(result, vmin, vmax)
-            resultnorm = (self._f(result) - self._f(vmin)) / \
-                         (self._f(vmax) - self._f(vmin))
+            resultnorm = ((self._f(result) - self._f(vmin)) /
+                          (self._f(vmax) - self._f(vmin)))
         else:
             resultnorm = result.copy()
             mask_over = result > vmax
@@ -1116,41 +1116,6 @@ class FuncNorm(Normalize):
         if self.vmin >= self.vmax:
             raise ValueError("vmin must be smaller than vmax")
         return float(self.vmin), float(self.vmax)
-
-    def ticks(self, nticks=13):
-        """
-        Returns an automatic list of `nticks` points in the data space
-        to be used as ticks in the colorbar.
-
-        Parameters
-        ----------
-        nticks : integer, optional
-            Number of ticks to be returned. Default 13.
-
-        Returns
-        -------
-        ticks : ndarray
-            1d array of length `nticks` with the proposed tick locations.
-
-        """
-        ticks = self.inverse(np.linspace(0, 1, nticks))
-        finalticks = np.zeros(ticks.shape, dtype=np.bool)
-        finalticks[0] = True
-        ticks = FuncNorm._round_ticks(ticks, finalticks)
-        return ticks
-
-    @staticmethod
-    def _round_ticks(ticks, permanenttick):
-        ticks = ticks.copy()
-        for i in range(len(ticks)):
-            if i == 0 or i == len(ticks) - 1 or permanenttick[i]:
-                continue
-            d1 = ticks[i] - ticks[i - 1]
-            d2 = ticks[i + 1] - ticks[i]
-            d = min([d1, d2])
-            order = -np.floor(np.log10(d))
-            ticks[i] = float(np.round(ticks[i] * 10**order)) / 10**order
-        return ticks
 
 
 class LogNorm(Normalize):

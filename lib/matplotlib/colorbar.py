@@ -583,6 +583,9 @@ class ColorbarBase(cm.ScalarMappable):
                     locator = ticker.FixedLocator(b, nbins=10)
                 elif isinstance(self.norm, colors.LogNorm):
                     locator = ticker.LogLocator(subs='all')
+                elif isinstance(self.norm, colors.FuncNorm):
+                    locator = ticker.FuncLocator(self.norm.__call__,
+                                                 self.norm.inverse)
                 elif isinstance(self.norm, colors.SymLogNorm):
                     # The subs setting here should be replaced
                     # by logic in the locator.

@@ -1973,6 +1973,93 @@ def is_close_to_int(x):
     return abs(x - nearest_long(x)) < 1e-10
 
 
+class FuncLocator(Locator):
+    """
+    Determines the tick locations for using user provided functions.
+
+    It attempts to provide a fixed number `numticks` of tick locations
+    relatively uniformly spread across the axis, while rounding the
+    values as much as possible.
+
+    Parameters
+    ----------
+    function : callable
+        Transformation of the axis using the ticks.
+    inverse : callable
+        Inverse transformation of `function`.
+    numticks : integer, optional
+        Number of ticks to include. Default 11.
+
+    """
+    def __init__(self, function, inverse, numticks=None):
+        self._numticks = numticks
+        self._function = function
+        self._inverse = inverse
+
+    def tick_values(self, vmin=None, vmax=None):
+        """
+        Returns the tick locations
+
+        Parameters
+        ----------
+        vmin, vmax : integer, optional
+            Maximum and minimum values. Not used.
+
+        Returns
+        -------
+        ticks : ndarray
+            1d array of length `numticks` with the proposed tick locations.
+
+        """
+
+        if self._numticks is None:
+            self._set_numticks()
+
+        ticks = self._inverse(np.linspace(0, 1, self._numticks))
+        finalticks = np.zeros(ticks.shape, dtype=np.bool)
+        finalticks[0] = True
+        finalticks[-1] = True
+        ticks = FuncLocator._round_ticks(ticks, finalticks)
+        return ticks
+
+    def _set_numticks(self):
+        self._numticks = 11
+
+    def set_params(self, function=None, inverse=None, numticks=None):
+        """Set parameters within this locator."""
+        if inverse is not None:
+            self._inverse = inverse
+        if function is not None:
+            self._function = function
+        if numticks is not None:
+            self._numticks = numticks
+
+    def __call__(self):
+        """
+        Returns the tick locations
+
+        Returns
+        -------
+        ticks : ndarray
+            1d array of length `numticks` with the proposed tick locations.
+
+        """
+        return self.tick_values()
+
+    @staticmethod
+    def _round_ticks(ticks, permanent_tick):
+        ticks = ticks.copy()
+        for i in range(len(ticks)):
+            if i == 0 or i == len(ticks) - 1 or permanent_tick[i]:
+                continue
+            d1 = ticks[i] - ticks[i - 1]
+            d2 = ticks[i + 1] - ticks[i]
+            d = min([d1, d2])
+            order = -np.floor(np.log10(d))
+            ticks[i] = float(np.round(ticks[i] * 10**order)) / 10**order
+        return ticks
+
+
 class LogLocator(Locator):
     """
     Determine the tick locations for log axes

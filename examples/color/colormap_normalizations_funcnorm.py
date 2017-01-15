@@ -57,8 +57,7 @@ for (ax_left, ax_right), (norm, title) in zip(axes, normalizations):
 
     # Showing the normalization effect on an image
     cax = ax_right.imshow(data, cmap=cm.afmhot, norm=norm, aspect='auto')
-    ticks = cax.norm.ticks(5) if norm else np.linspace(0, 1, 6)
-    fig.colorbar(cax, format='%.3g', ticks=ticks, ax=ax_right)
+    fig.colorbar(cax, format='%.3g', ax=ax_right)
     ax_right.set_title(title)
     ax_right.xaxis.set_ticks([])
     ax_right.yaxis.set_ticks([])
