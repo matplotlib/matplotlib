@@ -41,7 +41,7 @@ try:
     from IPython.sphinxext import ipython_console_highlighting
 except ImportError:
     raise ImportError(
-        "IPython must be installed to build the matplotlib docs")
+        "IPython must be installed to build the Matplotlib docs")
 else:
     extensions.append('IPython.sphinxext.ipython_console_highlighting')
     extensions.append('IPython.sphinxext.ipython_directive')
@@ -70,7 +70,7 @@ except ImportError:
 try:
     import matplotlib
 except ImportError:
-    msg = "Error: matplotlib must be installed before building the documentation"
+    msg = "Error: Matplotlib must be installed before building the documentation"
     sys.exit(msg)
 
 
@@ -93,8 +93,8 @@ master_doc = 'contents'
 # General substitutions.
 project = 'Matplotlib'
 copyright = ('2002 - 2012 John Hunter, Darren Dale, Eric Firing, '
-             'Michael Droettboom and the matplotlib development '
-             'team; 2012 - 2016 The matplotlib development team')
+             'Michael Droettboom and the Matplotlib development '
+             'team; 2012 - 2016 The Matplotlib development team')
 
 # The default replacements for |version| and |release|, also used in various
 # other places throughout the built documents.
