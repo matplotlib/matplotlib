@@ -89,6 +89,9 @@ before_install:
       pip install --upgrade virtualenv
       python -m virtualenv venv
       source venv/bin/activate
+      # test with non-ascii in path
+      mkdir /tmp/λ
+      export PATH=$PATH:/tmp/λ
       export PATH=/usr/lib/ccache:$PATH
     else
       brew update
@@ -138,8 +141,7 @@ install:
     fi;
   - |
     # Install matplotlib
-    pip install -e .
-  - |
+    pip install -ve .
 
 script:
   # The number of processes is hardcoded, because using too many causes the

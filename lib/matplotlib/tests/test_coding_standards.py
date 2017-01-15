@@ -206,7 +206,6 @@ def test_pep8_conformance_installed_files():
                           'tests/test_axes.py',
                           'tests/test_bbox_tight.py',
                           'tests/test_image.py',
-                          'tests/test_legend.py',
                           'tests/test_lines.py',
                           'tests/test_mathtext.py',
                           'tests/test_rcparams.py',

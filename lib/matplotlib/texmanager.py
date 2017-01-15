@@ -68,7 +68,7 @@ else:
 
 def dvipng_hack_alpha():
     try:
-        p = Popen(['dvipng', '-version'], stdin=PIPE, stdout=PIPE,
+        p = Popen([str('dvipng'), '-version'], stdin=PIPE, stdout=PIPE,
                   stderr=STDOUT, close_fds=(sys.platform != 'win32'))
         stdout, stderr = p.communicate()
     except OSError:

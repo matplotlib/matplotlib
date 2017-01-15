@@ -199,9 +199,9 @@ class Patch(artist.Artist):
         self._facecolor = other._facecolor
         self._fill = other._fill
         self._hatch = other._hatch
-        self._linewidth = other._linewidth
-        # Use setters, getters where we need the extra work they do.
-        self.set_linestyle(other._linestyle)  # also sets dash properties
+        # copy the unscaled dash pattern
+        self._us_dashes = other._us_dashes
+        self.set_linewidth(other._linewidth)  # also sets dash properties
         self.set_transform(other.get_data_transform())
 
     def get_extents(self):
