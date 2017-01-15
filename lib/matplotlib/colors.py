@@ -962,62 +962,58 @@ class Normalize(object):
 
 class FuncNorm(Normalize):
     """
-    Creates a normalizer using a custom function
+    A norm based on a monotonic custom function.
 
-    The normalizer will be a function mapping the data values into colormap
-    values in the ``[0,1]`` range.
+    The norm will use a provided custom function to map the data
+    values into colormap values in the [0,1] range. It will be calculated
+    as (f(x)-f(vmin))/(f(vmax)-f(vmin)).
+
+    Parameters
+    ----------
+    f : callable or string
+        Function to be used for the normalization receiving a single
+        parameter, compatible with scalar values and arrays.
+        Alternatively some predefined functions may be specified
+        as a string (See Notes). The chosen function must
+        be strictly increasing in the [`vmin`, `vmax`] interval.
+    finv : callable, optional
+        Inverse of `f` satisfying finv(f(x)) == x. Optional and ignored
+        when `f` is a string; otherwise, required.
+    vmin, vmax : None or float, optional
+        Data values to be mapped to 0 and 1. If either is None, it is
+        assigned the minimum or maximum value of the data supplied to
+        the first call of the norm. Default None.
+    clip : bool, optional
+        If True, clip data values to [`vmin`, `vmax`]. This effectively
+        defeats the purpose of setting the over and under values of the
+        color map. If False, values below `vmin` and above `vmax` will
+        be mapped to -0.1 and 1.1 respectively. Default False.
+
+    Notes
+    -----
+    Valid predefined functions are ['linear', 'quadratic',
+    'cubic', 'x**{p}', 'sqrt', 'cbrt', 'root{p}(x)', 'log', 'log10',
+    'log2', 'log{p}(x)', 'log(x+{p}) 'log10(x+{p})', 'log{p}(x+{p})]
+    where 'p' must be replaced by the corresponding value of the
+    parameter when present.
+
+    Examples
+    --------
+    Creating a logarithmic normalization using the predefined strings:
+
+    >>> import matplotlib.colors as colors
+    >>> norm = colors.FuncNorm(f='log10', vmin=0.01, vmax=2)
+
+    Or manually:
+
+    >>> import matplotlib.colors as colors
+    >>> norm = colors.FuncNorm(f=lambda x: np.log10(x),
+    ...                        finv=lambda x: 10.**(x),
+    ...                        vmin=0.01, vmax=2)
+
     """
 
     def __init__(self, f, finv=None, vmin=None, vmax=None, clip=False):
-        """
-        Specify the function to be used, and its inverse, as well as other
-        parameters to be passed to `Normalize`. The normalization will be
-        calculated as (f(x)-f(vmin))/(f(vmax)-f(vmin)).
-
-        Parameters
-        ----------
-        f : callable or string
-            Function to be used for the normalization receiving a single
-            parameter, compatible with scalar values and ndarrays.
-            Alternatively a string from the list ['linear', 'quadratic',
-            'cubic', 'x**{p}', 'sqrt', 'cbrt', 'root{p}(x)', 'log', 'log10',
-            'log2', 'log{p}(x)', 'log(x+{p}) 'log10(x+{p})', 'log{p}(x+{p})]
-            can be used, replacing 'p' by the corresponding value of the
-            parameter, when present.
-        finv : callable, optional
-            Inverse function of `f` that satisfies finv(f(x))==x.
-            Optional/ignored when `f` is a string.
-        vmin : float or None, optional
-            Value assigned to the lower limit of the colormap. If None, it
-            will be assigned to the minimum value of the data provided.
-            Default None.
-        vmax : float or None, optional
-            Value assigned to the upper limit of the colormap. If None, it
-            will be assigned to the maximum value of the data provided.
-            Default None.
-        clip : bool, optional
-            If True, any value below `vmin` will be clipped to `vmin`, and
-            any value above `vmax` will be clip to `vmin`. This effectively
-            defeats the purpose of setting the over and under values of the
-            color map. If False, values below `vmin` and above `vmax` will
-            be set to -0.1 and 1.1 respectively, after the normalization.
-            Default False.
-
-        Examples
-        --------
-        Creating a logarithmic normalization using the predefined strings:
-
-        >>> import matplotlib.colors as colors
-        >>> norm = colors.FuncNorm(f='log10', vmin=0.01, vmax=2)
-
-        Or manually:
-
-        >>> import matplotlib.colors as colors
-        >>> norm = colors.FuncNorm(f=lambda x: np.log10(x),
-        ...                        finv=lambda x: 10.**(x),
-        ...                        vmin=0.01, vmax=2)
-
-        """
         super(FuncNorm, self).__init__(vmin=vmin, vmax=vmax, clip=clip)
 
         if isinstance(f, six.string_types):
@@ -1026,10 +1022,9 @@ class FuncNorm(Normalize):
             finv = func_parser.inverse
         if not callable(f):
             raise ValueError("`f` must be a callable or a string.")
-
         if finv is None:
             raise ValueError("Inverse function `finv` not provided.")
-        elif not callable(finv):
+        if not callable(finv):
             raise ValueError("`finv` must be a callable.")
 
         self._f = f
@@ -1040,7 +1035,7 @@ class FuncNorm(Normalize):
         # the limits vmin and vmax may require changing/updating the
         # function depending on vmin/vmax, for example rescaling it
         # to accommodate to the new interval.
-        return
+        pass
 
     def __call__(self, value, clip=None):
         """
@@ -1049,7 +1044,7 @@ class FuncNorm(Normalize):
 
         Parameters
         ----------
-        value : float or ndarray of floats
+        value : scalar or array-like
             Data to be normalized.
         clip : boolean, optional
             Whether to clip the data outside the ``[`vmin`, `vmax`]`` limits.
@@ -1069,9 +1064,7 @@ class FuncNorm(Normalize):
         result, is_scalar = self.process_value(value)
         self.autoscale_None(result)
 
-        self._check_vmin_vmax()
-        vmin = float(self.vmin)
-        vmax = float(self.vmax)
+        vmin, vmax = self._check_vmin_vmax()
 
         self._update_f(vmin, vmax)
 
@@ -1089,10 +1082,9 @@ class FuncNorm(Normalize):
             # and over values
             resultnorm[mask_over] = 1.1
             resultnorm[mask_under] = -0.1
-            resultnorm[mask] = (self._f(result[mask]) - self._f(vmin)) / \
-                               (self._f(vmax) - self._f(vmin))
+            resultnorm[mask] = ((self._f(result[mask]) - self._f(vmin)) /
+                                (self._f(vmax) - self._f(vmin)))
 
-        resultnorm = np.ma.array(resultnorm)
         if is_scalar:
             return resultnorm[0]
         else:
@@ -1114,9 +1106,7 @@ class FuncNorm(Normalize):
             Data before normalization.
 
         """
-        self._check_vmin_vmax()
-        vmin = self.vmin
-        vmax = self.vmax
+        vmin, vmax = self._check_vmin_vmax()
         self._update_f(vmin, vmax)
         value = self._finv(
             value * (self._f(vmax) - self._f(vmin)) + self._f(vmin))
@@ -1125,6 +1115,7 @@ class FuncNorm(Normalize):
     def _check_vmin_vmax(self):
         if self.vmin >= self.vmax:
             raise ValueError("vmin must be smaller than vmax")
+        return float(self.vmin), float(self.vmax)
 
     def ticks(self, nticks=13):
         """

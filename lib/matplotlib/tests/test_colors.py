@@ -193,6 +193,15 @@ class TestFuncNorm(object):
         x = np.linspace(0.01, 2, 10)
         assert_array_almost_equal(x, norm.inverse(norm(x)))
 
+    def test_scalar(self):
+        norm = mcolors.FuncNorm(f='linear', vmin=1., vmax=2.,
+                                clip=True)
+        assert_equal(norm(1.5), 0.5)
+        assert_equal(norm(1.), 0.)
+        assert_equal(norm(0.5), 0.)
+        assert_equal(norm(2.), 1.)
+        assert_equal(norm(2.5), 1.)
+
     def test_ticks(self):
         norm = mcolors.FuncNorm(f='log10', vmin=0.01, vmax=2.)
         expected = [0.01, 0.016, 0.024, 0.04, 0.06,
