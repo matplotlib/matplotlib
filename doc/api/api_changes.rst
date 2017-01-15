@@ -3,11 +3,11 @@
  API Changes
 =============
 
-Log of changes to matplotlib that affect the outward-facing API.  If
-updating matplotlib breaks your scripts, this list may help you figure
+Log of changes to Matplotlib that affect the outward-facing API.  If
+updating Matplotlib breaks your scripts, this list may help you figure
 out what caused the breakage and how to fix it by updating your code.
 
-For new features that were added to matplotlib, please see
+For new features that were added to Matplotlib, please see
 :ref:`whats-new`.
 
 
@@ -196,9 +196,9 @@ The spectral colormap is now nipy_spectral
 ------------------------------------------
 
 The colormaps formerly known as ``spectral`` and ``spectral_r`` have been
-replaced by ``nipy_spectral`` and ``nipy_spectral_r`` since matplotlib
-1.3.0. Even though the colormap was deprecated in matplotlib 1.3.0, it never
-raised a warning. As of matplotlib 2.0.0, using the old names raises a
+replaced by ``nipy_spectral`` and ``nipy_spectral_r`` since Matplotlib
+1.3.0. Even though the colormap was deprecated in Matplotlib 1.3.0, it never
+raised a warning. As of Matplotlib 2.0.0, using the old names raises a
 deprecation warning. In the future, using the old names will raise an error.
 
 Changes in 1.5.3
@@ -314,7 +314,7 @@ demonstrates the difference.  Use of the old contouring algorithm, which is
 obtained with `corner_mask='legacy'`, is now deprecated.
 
 Contour labels may now appear in different places than in earlier versions of
-matplotlib.
+Matplotlib.
 
 In addition, the keyword argument `nchunk` now applies to
 :func:`~matplotlib.pyplot.contour` as well as
@@ -545,7 +545,7 @@ Removed `Lena` images from sample_data
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 The ``lena.png`` and ``lena.jpg`` images have been removed from
-matplotlib's sample_data directory. The images are also no longer
+Matplotlib's sample_data directory. The images are also no longer
 available from `matplotlib.cbook.get_sample_data`. We suggest using
 `matplotlib.cbook.get_sample_data('grace_hopper.png')` or
 `matplotlib.cbook.get_sample_data('grace_hopper.jpg')` instead.
@@ -715,7 +715,7 @@ original location:
 
 * The Sphinx extensions `ipython_directive` and
   `ipython_console_highlighting` have been moved to the IPython
-  project itself.  While they remain in matplotlib for this release,
+  project itself.  While they remain in Matplotlib for this release,
   they have been deprecated.  Update your extensions in `conf.py` to
   point to `IPython.sphinxext.ipython_directive` instead of
   `matplotlib.sphinxext.ipython_directive`.
@@ -850,7 +850,7 @@ original location:
 
 * Clipping is now off by default on offset boxes.
 
-* matplotlib now uses a less-aggressive call to ``gc.collect(1)`` when
+* Matplotlib now uses a less-aggressive call to ``gc.collect(1)`` when
   closing figures to avoid major delays with large numbers of user objects
   in memory.
 
@@ -964,7 +964,7 @@ Code deprecation
 * The `ScalarMappable` class' `set_colorbar` is now
   deprecated. Instead, the
   :attr:`matplotlib.cm.ScalarMappable.colorbar` attribute should be
-  used.  In previous matplotlib versions this attribute was an
+  used.  In previous Matplotlib versions this attribute was an
   undocumented tuple of ``(colorbar_instance, colorbar_axes)`` but is
   now just ``colorbar_instance``. To get the colorbar axes it is
   possible to just use the
@@ -1150,7 +1150,7 @@ Changes in 1.2.x
       ax = projection_class(self, rect, **kwargs)
 
   This change means that third party objects can expose themselves as
-  matplotlib axes by providing a ``_as_mpl_axes`` method. See
+  Matplotlib axes by providing a ``_as_mpl_axes`` method. See
   :ref:`adding-new-scales` for more detail.
 
 * A new keyword *extendfrac* in :meth:`~matplotlib.pyplot.colorbar` and
@@ -1405,7 +1405,7 @@ Changes in 0.99
 * Polar plots no longer accept a resolution kwarg.  Instead, each Path
   must specify its own number of interpolation steps.  This is
   unlikely to be a user-visible change -- if interpolation of data is
-  required, that should be done before passing it to matplotlib.
+  required, that should be done before passing it to Matplotlib.
 
 Changes for 0.98.x
 ==================
@@ -1542,7 +1542,7 @@ Changes for 0.98.0
   color cycle: :func:`matplotlib.axes.set_default_color_cycle` and
   :meth:`matplotlib.axes.Axes.set_color_cycle`.
 
-* matplotlib now requires Python 2.4, so :mod:`matplotlib.cbook` will
+* Matplotlib now requires Python 2.4, so :mod:`matplotlib.cbook` will
   no longer provide :class:`set`, :func:`enumerate`, :func:`reversed`
   or :func:`izip` compatibility functions.
 
