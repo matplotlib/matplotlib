@@ -211,7 +211,7 @@ To restore installing the tests and images, use a `setup.cfg` with ::
 
    [packages]
    tests = True
-   toolkit_tests = True
+   toolkits_tests = True
 
 in the source directory at build/install time.
 
