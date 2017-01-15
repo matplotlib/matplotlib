@@ -120,6 +120,7 @@ import distutils.sysconfig
 import functools
 # cbook must import matplotlib only within function
 # definitions, so it is safe to import from it here.
+from . import cbook
 from matplotlib.cbook import (is_string_like,
                               mplDeprecation,
                               dedent, get_label,
@@ -438,6 +439,7 @@ def checkdep_inkscape():
 checkdep_inkscape.version = None
 
 
+@cbook.deprecated("2.1")
 def checkdep_xmllint():
     try:
         s = subprocess.Popen(['xmllint', '--version'], stdout=subprocess.PIPE,
