@@ -970,7 +970,7 @@ def find_tex_file(filename, format=None):
         The library that :program:`kpsewhich` is part of.
     """
 
-    cmd = ['kpsewhich']
+    cmd = [str('kpsewhich')]
     if format is not None:
         cmd += ['--format=' + format]
     cmd += [filename]

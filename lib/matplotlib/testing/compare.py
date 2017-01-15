@@ -132,14 +132,14 @@ def _update_converter():
     gs, gs_v = matplotlib.checkdep_ghostscript()
     if gs_v is not None:
         def cmd(old, new):
-            return [gs, '-q', '-sDEVICE=png16m', '-dNOPAUSE', '-dBATCH',
+            return [str(gs), '-q', '-sDEVICE=png16m', '-dNOPAUSE', '-dBATCH',
              '-sOutputFile=' + new, old]
         converter['pdf'] = make_external_conversion_command(cmd)
         converter['eps'] = make_external_conversion_command(cmd)
 
     if matplotlib.checkdep_inkscape() is not None:
         def cmd(old, new):
-            return ['inkscape', '-z', old, '--export-png', new]
+            return [str('inkscape'), '-z', old, '--export-png', new]
         converter['svg'] = make_external_conversion_command(cmd)
 
 

@@ -372,7 +372,7 @@ class MovieWriter(AbstractMovieWriter):
         subclass. This is a class method so that the tool can be looked for
         before making a particular MovieWriter subclass available.
         '''
-        return rcParams[cls.exec_key]
+        return str(rcParams[cls.exec_key])
 
     @classmethod
     def isAvailable(cls):
