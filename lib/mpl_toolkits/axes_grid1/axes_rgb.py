@@ -202,22 +202,19 @@ class RGBAxesBase(object):
         g : matplotlib.image.AxesImage
         b : matplotlib.image.AxesImage
         """
-        ny, nx = r.shape
-        if not ((nx, ny) == g.shape == b.shape):
+        if not (r.shape == g.shape == b.shape):
             raise ValueError('Input shapes do not match.'
-                             '\nr.shape = {0}'
-                             '\ng.shape = {1}'
-                             '\nb.shape = {2}'
-                             ''.format(r.shape, g.shape, b.shape))
-
-        R = np.zeros([ny, nx, 3], dtype="d")
+                             '\nr.shape = {}'
+                             '\ng.shape = {}'
+                             '\nb.shape = {}'
+                             .format(r.shape, g.shape, b.shape))
+        RGB = np.dstack([r, g, b])
+        R = np.zeros_like(RGB)
         R[:,:,0] = r
-        G = np.zeros_like(R)
+        G = np.zeros_like(RGB)
         G[:,:,1] = g
-        B = np.zeros_like(R)
+        B = np.zeros_like(RGB)
         B[:,:,2] = b
-
-        RGB = R + G + B
 
         im_rgb = self.RGB.imshow(RGB, **kwargs)
         im_r = self.R.imshow(R, **kwargs)
