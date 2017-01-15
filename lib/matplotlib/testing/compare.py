@@ -216,6 +216,7 @@ if matplotlib.checkdep_xmllint() and False:
         'xmllint', '--valid', '--nowarning', '--noout', filename]
 
 
+@cbook.deprecated("2.1")
 def verify(filename):
     """Verify the file through some sort of verification tool."""
     if not os.path.exists(filename):
@@ -292,14 +293,10 @@ def compare_images(expected, actual, tol, in_decorator=False):
 
     """
     if not os.path.exists(actual):
-        msg = "Output image %s does not exist." % actual
-        raise Exception(msg)
+        raise Exception("Output image %s does not exist." % actual)
 
     if os.stat(actual).st_size == 0:
-        msg = "Output image file %s is empty." % actual
-        raise Exception(msg)
-
-    verify(actual)
+        raise Exception("Output image file %s is empty." % actual)
 
     # Convert the image to png
     extension = expected.split('.')[-1]
