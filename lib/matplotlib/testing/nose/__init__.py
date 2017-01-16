@@ -1,6 +1,8 @@
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
+import sys
+
 
 def get_extra_test_plugins():
     from .plugins.performgc import PerformGC
@@ -29,12 +31,16 @@ def check_deps():
         raise
 
 
-def test(verbosity=None, coverage=False, switch_backend_warn=True, **kwargs):
+def test(verbosity=None, coverage=False, switch_backend_warn=True,
+         recursionlimit=0, **kwargs):
     from ... import default_test_modules, get_backend, use
 
     old_backend = get_backend()
+    old_recursionlimit = sys.getrecursionlimit()
     try:
         use('agg')
+        if recursionlimit:
+            sys.setrecursionlimit(recursionlimit)
         import nose
         from nose.plugins import multiprocess
 
@@ -60,6 +66,8 @@ def test(verbosity=None, coverage=False, switch_backend_warn=True, **kwargs):
     finally:
         if old_backend.lower() != 'agg':
             use(old_backend, warn=switch_backend_warn)
+        if recursionlimit:
+            sys.setrecursionlimit(old_recursionlimit)
 
     return success
 
