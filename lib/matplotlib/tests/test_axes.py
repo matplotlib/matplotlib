@@ -581,7 +581,7 @@ def test_hexbin_extent():
 
 
 @image_comparison(baseline_images=['hexbin_empty'], remove_text=True,
-	extensions=['png'])
+    extensions=['png'])
 def test_hexbin_empty():
     # From #3886: creating hexbin from empty dataset raises ValueError
     ax = plt.gca()
@@ -1158,14 +1158,14 @@ def test_hist_log():
 
 
 @image_comparison(baseline_images=['hist_bar_empty'], remove_text=True,
-	extensions=['png'])
+    extensions=['png'])
 def test_hist_bar_empty():
     # From #3886: creating hist from empty dataset raises ValueError
     ax = plt.gca()
     ax.hist([], histtype='bar')
 
 @image_comparison(baseline_images=['hist_step_empty'], remove_text=True,
-	extensions=['png'])
+    extensions=['png'])
 def test_hist_step_empty():
     # From #3886: creating hist from empty dataset raises ValueError
     ax = plt.gca()
@@ -4877,3 +4877,21 @@ def test_scatter_color_masking():
 def test_eventplot_legend():
     plt.eventplot([1.0], label='Label')
     plt.legend()
+
+
+@cleanup
+def test_axhspan_autoscale_limits():
+    fig, ax = plt.subplots()
+    ax.imshow(np.zeros((10, 10)))
+    y0, y1 = ax.get_ylim()
+    ax.axhspan(4, 5, xmin=0.4, xmax=0.6)
+    assert ax.get_ylim() == (y0, y1)
+
+
+@cleanup
+def test_axvspan_autoscale_limits():
+    fig, ax = plt.subplots()
+    ax.imshow(np.zeros((10, 10)))
+    x0, x1 = ax.get_xlim()
+    ax.axvspan(4, 5, ymin=0.4, ymax=0.6)
+    assert ax.get_xlim() == (x0, x1)
