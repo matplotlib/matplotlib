@@ -7234,6 +7234,11 @@ or tuple of floats
         Z = np.flipud(Z)
 
         if xextent is None:
+            # define default values:
+            if noverlap is None:
+                noverlap = 128  # defined in mlab.specgram
+            if NFFT is None:
+                NFFT = 256  # defined in mlab._spectral_helper
             # padding is needed for first and last segment:
             pad_xextent = (NFFT-noverlap) / Fs / 2
             xextent = np.min(t) - pad_xextent, np.max(t) + pad_xextent
