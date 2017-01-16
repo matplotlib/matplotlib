@@ -17,13 +17,14 @@ import sys
 import time
 import warnings
 import zlib
+import collections
 from io import BytesIO
 
 import numpy as np
 from six import unichr
 
 
-from datetime import datetime
+from datetime import datetime, tzinfo, timedelta
 from math import ceil, cos, floor, pi, sin
 
 import matplotlib
@@ -134,6 +135,20 @@ def _string_escape(match):
     assert False
 
 
+# tzinfo class for UTC
+class UTCtimezone(tzinfo):
+    """UTC timezone"""
+
+    def utcoffset(self, dt):
+        return timedelta(0)
+
+    def tzname(self, dt):
+        return "UTC"
+
+    def dst(self, dt):
+        return timedelta(0)
+
+
 def pdfRepr(obj):
     """Map Python objects to PDF syntax."""
 
@@ -182,8 +197,8 @@ def pdfRepr(obj):
     # represented as Name objects.
     elif isinstance(obj, dict):
         r = [b"<<"]
-        r.extend([Name(key).pdfRepr() + b" " + pdfRepr(val)
-                  for key, val in six.iteritems(obj)])
+        r.extend(sorted([Name(key).pdfRepr() + b" " + pdfRepr(val)
+                         for key, val in six.iteritems(obj)]))
         r.append(b">>")
         return fill(r)
 
@@ -201,10 +216,14 @@ def pdfRepr(obj):
     # A date.
     elif isinstance(obj, datetime):
         r = obj.strftime('D:%Y%m%d%H%M%S')
-        if time.daylight:
-            z = time.altzone
+        z = obj.utcoffset()
+        if z is not None:
+            z = z.seconds
         else:
-            z = time.timezone
+            if time.daylight:
+                z = time.altzone
+            else:
+                z = time.timezone
         if z == 0:
             r += 'Z'
         elif z < 0:
@@ -457,10 +476,19 @@ class PdfFile(object):
         self.writeObject(self.rootObject, root)
 
         revision = ''
+        # get source date from SOURCE_DATE_EPOCH, if set
+        # See https://reproducible-builds.org/specs/source-date-epoch/
+        source_date_epoch = os.getenv("SOURCE_DATE_EPOCH")
+        if source_date_epoch:
+            source_date = datetime.utcfromtimestamp(int(source_date_epoch))
+            source_date = source_date.replace(tzinfo=UTCtimezone())
+        else:
+            source_date = datetime.today()
+
         self.infoDict = {
             'Creator': 'matplotlib %s, http://matplotlib.org' % __version__,
             'Producer': 'matplotlib pdf backend%s' % revision,
-            'CreationDate': datetime.today()
+            'CreationDate': source_date
             }
 
         self.fontNames = {}     # maps filenames to internal font names
@@ -472,14 +500,15 @@ class PdfFile(object):
 
         self.alphaStates = {}   # maps alpha values to graphics state objects
         self.nextAlphaState = 1
-        self.hatchPatterns = {}
+        # reproducible writeHatches needs an ordered dict:
+        self.hatchPatterns = collections.OrderedDict()
         self.nextHatch = 1
         self.gouraudTriangles = []
 
-        self._images = {}
+        self._images = collections.OrderedDict()   # reproducible writeImages
         self.nextImage = 1
 
-        self.markers = {}
+        self.markers = collections.OrderedDict()   # reproducible writeMarkers
         self.multi_byte_charprocs = {}
 
         self.paths = []
