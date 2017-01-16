@@ -17,6 +17,10 @@ it can be provided as:
 * a name from the `xkcd color survey <https://xkcd.com/color/rgb/>`__
   prefixed with ``'xkcd:'`` (e.g., ``'xkcd:sky blue'``)
 * one of ``{'C0', 'C1', 'C2', 'C3', 'C4', 'C5', 'C6', 'C7', 'C8', 'C9'}``
+* one of ``{'tab:blue', 'tab:orange', 'tab:green',
+  'tab:red', 'tab:purple', 'tab:brown', 'tab:pink',
+  'tab:gray', 'tab:olive', 'tab:cyan'}`` which are the Tableau Colors from the
+  'T10' categorical palette (which is the default color cycle).
 
 All string specifications of color are case-insensitive.
 

@@ -65,7 +65,7 @@ import warnings
 
 import numpy as np
 import matplotlib.cbook as cbook
-from ._color_data import BASE_COLORS, CSS4_COLORS, XKCD_COLORS
+from ._color_data import BASE_COLORS, TABLEAU_COLORS, CSS4_COLORS, XKCD_COLORS
 
 
 class _ColorMapping(dict):
@@ -85,7 +85,14 @@ class _ColorMapping(dict):
 _colors_full_map = {}
 # Set by reverse priority order.
 _colors_full_map.update(XKCD_COLORS)
+_colors_full_map.update({k.replace('grey', 'gray'): v
+                         for k, v in XKCD_COLORS.items()
+                         if 'grey' in k})
 _colors_full_map.update(CSS4_COLORS)
+_colors_full_map.update(TABLEAU_COLORS)
+_colors_full_map.update({k.replace('gray', 'grey'): v
+                         for k, v in TABLEAU_COLORS.items()
+                         if 'gray' in k})
 _colors_full_map.update(BASE_COLORS)
 _colors_full_map = _ColorMapping(_colors_full_map)
 
@@ -252,7 +259,7 @@ def to_hex(c, keep_alpha=False):
 ### Backwards-compatible color-conversion API
 
 cnames = CSS4_COLORS
-COLOR_NAMES = {'xkcd': XKCD_COLORS, 'css4': CSS4_COLORS}
+COLOR_NAMES = {'xkcd': XKCD_COLORS, 'css4': CSS4_COLORS, 'tc': TABLEAU_COLORS}
 hexColorPattern = re.compile("\A#[a-fA-F0-9]{6}\Z")
 
 
@@ -402,7 +409,7 @@ class Colormap(object):
 
     """
     def __init__(self, name, N=256):
-        r"""
+        """
         Parameters
         ----------
         name : str
