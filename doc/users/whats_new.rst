@@ -213,7 +213,7 @@ removed.  Instead, images will obey the transform of the axes on which
 they are drawn.
 
 Non-linear scales on image plots
-````````````````````````````````
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 :func:`imshow` now draws data at the requested points in data space after the
 application of non-linear scales.
@@ -222,8 +222,6 @@ The image on the left demonstrates the new, correct behavior.
 The old behavior can be recreated using :func:`pcolormesh` as
 demonstrated on the right.
 
-Non-linear scale example
-````````````````````````
 
 .. plot::
 
