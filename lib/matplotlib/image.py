@@ -368,6 +368,8 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
                     # values to carry the over/under/bad information
                     rgba = np.empty((A.shape[0], A.shape[1], 4), dtype=A.dtype)
                     rgba[..., 0] = A  # normalized data
+                    # this is to work around spurious warnings coming
+                    # out of masked arrays.
                     with np.errstate(invalid='ignore'):
                         rgba[..., 1] = A < 0  # under data
                         rgba[..., 2] = A > 1  # over data
