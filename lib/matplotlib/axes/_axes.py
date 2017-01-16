@@ -1876,8 +1876,8 @@ or tuple of floats
         left : sequence of scalars
             the x coordinates of the left sides of the bars
 
-        height : sequence of scalars
-            the heights of the bars
+        height : scalar or sequence of scalars
+            the height(s) of the bars
 
         width : scalar or array-like, optional
             the width(s) of the bars
@@ -2025,8 +2025,6 @@ or tuple of floats
                 bottom = [0]
 
             nbars = len(left)
-            if len(width) == 1:
-                width *= nbars
             if len(bottom) == 1:
                 bottom *= nbars
 
@@ -2045,14 +2043,16 @@ or tuple of floats
             nbars = len(bottom)
             if len(left) == 1:
                 left *= nbars
-            if len(height) == 1:
-                height *= nbars
 
             tick_label_axis = self.yaxis
             tick_label_position = bottom
         else:
             raise ValueError('invalid orientation: %s' % orientation)
 
+        if len(height) == 1:
+            height *= nbars
+        if len(width) == 1:
+            width *= nbars
         if len(linewidth) < nbars:
             linewidth *= nbars
 
@@ -2077,7 +2077,7 @@ or tuple of floats
                              "be length %d or scalar" % nbars)
         if len(height) != nbars:
             raise ValueError("incompatible sizes: argument 'height' "
-                              "must be length %d or scalar" % nbars)
+                             "must be length %d or scalar" % nbars)
         if len(width) != nbars:
             raise ValueError("incompatible sizes: argument 'width' "
                              "must be length %d or scalar" % nbars)
