@@ -260,7 +260,7 @@ def to_hex(c, keep_alpha=False):
 ### Backwards-compatible color-conversion API
 
 cnames = CSS4_COLORS
-COLOR_NAMES = {'xkcd': XKCD_COLORS, 'css4': CSS4_COLORS, 'tc': TABLEAU_COLORS}
+COLOR_NAMES = {'xkcd': XKCD_COLORS, 'css4': CSS4_COLORS, 'tab': TABLEAU_COLORS}
 hexColorPattern = re.compile("\A#[a-fA-F0-9]{6}\Z")
 
 
