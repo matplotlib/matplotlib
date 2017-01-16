@@ -583,9 +583,10 @@ def test_light_source_planar_hillshading():
             assert_array_almost_equal(h, np.cos(np.radians(angle)))
 
 
-def test_xkcd():
+def test_color_names():
     assert mcolors.to_hex("blue") == "#0000ff"
     assert mcolors.to_hex("xkcd:blue") == "#0343df"
+    assert mcolors.to_hex("tab:blue") == "#1f77b4"
 
 
 def _sph2cart(theta, phi):
@@ -653,6 +654,23 @@ def test_conversions():
     hex_color = "#1234abcd"
     assert_equal(mcolors.to_hex(mcolors.to_rgba(hex_color), keep_alpha=True),
                  hex_color)
+
+
+def test_grey_gray():
+    color_mapping = mcolors._colors_full_map
+    for k in color_mapping.keys():
+        if 'grey' in k:
+            assert color_mapping[k] == color_mapping[k.replace('grey', 'gray')]
+        if 'gray' in k:
+            assert color_mapping[k] == color_mapping[k.replace('gray', 'grey')]
+
+
+def test_tableau_order():
+    dflt_cycle = ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728',
+                  '#9467bd', '#8c564b', '#e377c2', '#7f7f7f',
+                  '#bcbd22', '#17becf']
+
+    assert list(mcolors.TABLEAU_COLORS.values()) == dflt_cycle
 
 
 if __name__ == '__main__':
