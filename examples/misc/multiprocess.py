@@ -4,6 +4,8 @@
 # Written by Robert Cimrman
 
 from __future__ import print_function
+from six.moves import input
+
 import time
 from multiprocessing import Process, Pipe
 import numpy as np
@@ -76,10 +78,6 @@ def main():
     for ii in range(10):
         pl.plot()
         time.sleep(0.5)
-    try:
-        input = raw_input
-    except NameError:
-        pass
     input('press Enter...')
     pl.plot(finished=True)
 
