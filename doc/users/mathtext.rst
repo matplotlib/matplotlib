@@ -216,7 +216,7 @@ When using the `STIX <http://www.stixfonts.org/>`_ fonts, you also have the choi
     ``\mathrm{\mathsf{sansserif}}``        :math-stix:`\mathrm{\mathsf{sansserif}}`
     ====================================== =========================================
 
-.. htmlonly::
+  .. htmlonly::
 
     ====================================== =========================================
     ``\mathcircled{circled}``              :math-stix:`\mathcircled{circled}`

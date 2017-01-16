@@ -2918,17 +2918,29 @@ class _AxesBase(martist.Artist):
     get_xscale.__doc__ = "Return the xaxis scale string: %s""" % (
         ", ".join(mscale.get_scale_names()))
 
-    @docstring.dedent_interpd
     def set_xscale(self, value, **kwargs):
         """
         Set the x-axis scale
 
-        Set the scaling of the x-axis: %(scale)s
+        Parameters
+        ----------
+        value : {"linear", "log", "symlog", "logit"}
+            scaling strategy to apply
 
-        ACCEPTS: [%(scale)s]
+        Notes
+        -----
+        Different kwargs are accepted, depending on the scale. See
+        the `~matplotlib.scale` module for more information.
 
-        Different kwargs are accepted, depending on the scale:
-        %(scale_docs)s
+        See also
+        --------
+        matplotlib.scale.LinearScale : linear transfrom
+
+        matplotlib.scale.LogTransform : log transform
+
+        matplotlib.scale.SymmetricalLogTransform : symlog transform
+
+        matplotlib.scale.LogisticTransform : logit transform
         """
         # If the scale is being set to log, clip nonposx to prevent headaches
         # around zero
@@ -2998,18 +3010,22 @@ class _AxesBase(martist.Artist):
                                  self.xaxis.get_ticklabels(minor=minor,
                                                            which=which))
 
-    @docstring.dedent_interpd
     def set_xticklabels(self, labels, fontdict=None, minor=False, **kwargs):
         """
-        Set the xtick labels with list of strings *labels*
+        Set the xtick labels with list of string labels
 
-        Return a list of axis text instances.
+        Parameters
+        ----------
+        labels : list of str
+            list of string labels
 
-        *kwargs* set the :class:`~matplotlib.text.Text` properties.
-        Valid properties are
-        %(Text)s
+        Returns
+        -------
+        A list of `~matplotlib.text.Text` instances
 
-        ACCEPTS: sequence of strings
+        Other Parameters
+        -----------------
+        **kwargs : `~matplotlib.text.Text` properties.
         """
         if fontdict is not None:
             kwargs.update(fontdict)
@@ -3139,7 +3155,6 @@ class _AxesBase(martist.Artist):
         0 m, is at the top.
 
         >>> set_ylim(5000, 0)
-
         """
         if 'ymin' in kw:
             bottom = kw.pop('ymin')
@@ -3199,16 +3214,29 @@ class _AxesBase(martist.Artist):
     get_yscale.__doc__ = "Return the yaxis scale string: %s""" % (
         ", ".join(mscale.get_scale_names()))
 
-    @docstring.dedent_interpd
     def set_yscale(self, value, **kwargs):
-        """Set the y-axis scale
+        """
+        Set the y-axis scale
 
-        Set the scaling of the y-axis: %(scale)s
+        Parameters
+        ----------
+        value : {"linear", "log", "symlog", "logit"}
+            scaling strategy to apply
 
-        ACCEPTS: [%(scale)s]
+        Notes
+        -----
+        Different kwargs are accepted, depending on the scale. See
+        the `~matplotlib.scale` module for more information.
 
-        Different kwargs are accepted, depending on the scale:
-        %(scale_docs)s
+        See also
+        --------
+        matplotlib.scale.LinearScale : linear transfrom
+
+        matplotlib.scale.LogTransform : log transform
+
+        matplotlib.scale.SymmetricalLogTransform : symlog transform
+
+        matplotlib.scale.LogisticTransform : logit transform
         """
         # If the scale is being set to log, clip nonposy to prevent headaches
         # around zero
@@ -3281,18 +3309,22 @@ class _AxesBase(martist.Artist):
                                  self.yaxis.get_ticklabels(minor=minor,
                                                            which=which))
 
-    @docstring.dedent_interpd
     def set_yticklabels(self, labels, fontdict=None, minor=False, **kwargs):
         """
-        Set the y tick labels with list of strings *labels*
+        Set the y-tick labels with list of strings labels
 
-        Return a list of :class:`~matplotlib.text.Text` instances.
+        Parameters
+        ----------
+        labels : list of str
+            list of string labels
 
-        *kwargs* set :class:`~matplotlib.text.Text` properties for the labels.
-        Valid properties are
-        %(Text)s
+        Returns
+        -------
+        A list of `~matplotlib.text.Text` instances.
 
-        ACCEPTS: sequence of strings
+        Other Parameters
+        ----------------
+        **kwargs : `~matplotlib.text.Text` properties.
         """
         if fontdict is not None:
             kwargs.update(fontdict)
@@ -3872,15 +3904,21 @@ class _AxesBase(martist.Artist):
         """
         Create a twin Axes sharing the xaxis
 
-        create a twin of Axes for generating a plot with a sharex
-        x-axis but independent y axis.  The y-axis of self will have
+        Create a twin of Axes for generating a plot with a shared
+        x-axis but independent y-axis.  The y-axis of self will have
         ticks on left and the returned axes will have ticks on the
         right. To ensure tick marks of both axis align, see
-        :class:`~matplotlib.ticker.LinearLocator`
+        `~matplotlib.ticker.LinearLocator`
 
-        .. note::
-            For those who are 'picking' artists while using twinx, pick
-            events are only called for the artists in the top-most axes.
+        Returns
+        -------
+        Axis
+            The newly created axis
+
+        Notes
+        -----
+        For those who are 'picking' artists while using twinx, pick
+        events are only called for the artists in the top-most axes.
         """
         ax2 = self._make_twin_axes(sharex=self)
         ax2.yaxis.tick_right()
@@ -3895,14 +3933,20 @@ class _AxesBase(martist.Artist):
         """
         Create a twin Axes sharing the yaxis
 
-        create a twin of Axes for generating a plot with a shared
-        y-axis but independent x axis.  The x-axis of self will have
+        Create a twin of Axes for generating a plot with a shared
+        y-axis but independent x-axis.  The x-axis of self will have
         ticks on bottom and the returned axes will have ticks on the
         top.
 
-        .. note::
-            For those who are 'picking' artists while using twiny, pick
-            events are only called for the artists in the top-most axes.
+        Returns
+        -------
+        Axis
+            The newly created axis
+
+        Notes
+        ------
+        For those who are 'picking' artists while using twiny, pick
+        events are only called for the artists in the top-most axes.
         """
 
         ax2 = self._make_twin_axes(sharey=self)
