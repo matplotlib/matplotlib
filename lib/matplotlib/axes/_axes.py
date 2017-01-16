@@ -7200,8 +7200,12 @@ or tuple of floats
         if not self._hold:
             self.cla()
 
+        if NFFT is None:
+            NFFT = 256  # same default as in mlab.specgram()
         if Fc is None:
-            Fc = 0
+            Fc = 0  # same default as in mlab._spectral_helper()
+        if noverlap is None:
+            noverlap = 128  # same default as in mlab.specgram()
 
         if mode == 'complex':
             raise ValueError('Cannot plot a complex specgram')
@@ -7234,11 +7238,6 @@ or tuple of floats
         Z = np.flipud(Z)
 
         if xextent is None:
-            # define default values:
-            if noverlap is None:
-                noverlap = 128  # defined in mlab.specgram
-            if NFFT is None:
-                NFFT = 256  # defined in mlab._spectral_helper
             # padding is needed for first and last segment:
             pad_xextent = (NFFT-noverlap) / Fs / 2
             xextent = np.min(t) - pad_xextent, np.max(t) + pad_xextent
