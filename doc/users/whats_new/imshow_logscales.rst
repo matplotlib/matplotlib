@@ -1,5 +1,5 @@
-Non-linears scales on image plots
----------------------------------
+Non-linear scales on image plots
+--------------------------------
 
 :func:`imshow` now draws data at the requested points in data space after the
 application of non-linear scales.
@@ -35,5 +35,5 @@ Example
 
 
 This can be understood by analogy to plotting a histogram with linearly spaced bins
-with a logarithmic x-axis.  Equal sized bins at will be displayed as wider for small
+with a logarithmic x-axis.  Equal sized bins will be displayed as wider for small
 *x* and narrower for large *x*.
