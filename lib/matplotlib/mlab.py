@@ -1273,8 +1273,10 @@ def specgram(x, NFFT=None, Fs=None, detrend=None, window=None,
 
     """
     if noverlap is None:
-        noverlap = 128
-    if len(x) <= (256 if NFFT is None else NFFT):  # see _spectral_helper()
+        noverlap = 128  # default in _spectral_helper() is noverlap = 0
+    if NFFT is None:
+        NFFT = 256  # same default as in _spectral_helper()
+    if len(x) <= NFFT:
         warnings.warn("Only one segment is calculated since parameter NFFT " +
                       "(=%d) >= signal length (=%d)." % (NFFT, len(x)))
 
