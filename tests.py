@@ -12,6 +12,7 @@
 import os
 import sys
 import time
+import argparse
 
 import matplotlib
 matplotlib.use('agg')
@@ -50,5 +51,11 @@ if __name__ == '__main__':
         disable_internet.turn_off_internet()
         extra_args.extend(['-a', '!network'])
         sys.argv.remove('--no-network')
-
+    # Get recursion limit
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--recursionlimit', type=int, default=0,
+                        help='Specify recursionlimit for test run')
+    found_args, sys.argv = parser.parse_known_args(sys.argv)
+    if found_args.recursionlimit:
+        sys.setrecursionlimit(found_args.recursionlimit)
     run(extra_args)
