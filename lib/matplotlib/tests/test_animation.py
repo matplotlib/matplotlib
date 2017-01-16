@@ -13,8 +13,8 @@ import pytest
 import matplotlib as mpl
 from matplotlib import pyplot as plt
 from matplotlib import animation
-from ..testing import xfail, skip
-from ..testing.decorators import cleanup
+from matplotlib.testing import xfail, skip
+from matplotlib.testing.decorators import cleanup
 
 
 class NullMovieWriter(animation.AbstractMovieWriter):
