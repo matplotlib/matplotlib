@@ -68,6 +68,13 @@ except ImportError:
                           "mock to build the documentation")
 
 try:
+    from PIL import Image
+except ImportError:
+    raise ImportError("No module named Image - you need to install "
+                      "pillow to build the documentation")
+
+
+try:
     import matplotlib
 except ImportError:
     msg = "Error: Matplotlib must be installed before building the documentation"
