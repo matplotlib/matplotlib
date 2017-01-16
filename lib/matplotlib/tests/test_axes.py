@@ -4877,3 +4877,28 @@ def test_scatter_color_masking():
 def test_eventplot_legend():
     plt.eventplot([1.0], label='Label')
     plt.legend()
+
+
+@cleanup
+def test_invalid_log_limits():
+    # Check that limits <= 0 are ignored on log scale plots
+    fig, ax = plt.subplots()
+    ax.scatter([0, 1, 2], [0, 1, 2])
+
+    ax.set_xscale('log')
+    old_lims = ax.get_xlim()
+    with warnings.catch_warnings(record=True) as w:
+        ax.set_xlim(left=-2, right=0)
+        # Check that a warning for each limit is raised
+        assert len(w) == 2
+    new_lims = ax.get_xlim()
+    assert old_lims == new_lims
+
+    ax.set_yscale('log')
+    old_lims = ax.get_ylim()
+    with warnings.catch_warnings(record=True) as w:
+        ax.set_ylim(bottom=-2, top=0)
+        # Check that a warning for each limit is raised
+        assert len(w) == 2
+    new_lims = ax.get_ylim()
+    assert old_lims == new_lims
