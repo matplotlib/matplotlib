@@ -341,7 +341,7 @@ class Axes3D(Axes):
         .. versionadded :: 1.1.0
             This function was added, but not tested. Please report any bugs.
         """
-        self._autoscalez_on = b
+        self._autoscaleZon = b
 
     def set_zmargin(self, m) :
         """
@@ -630,7 +630,6 @@ class Axes3D(Axes):
         self.stale = True
         return left, right
     set_xlim = set_xlim3d
-
 
     def set_ylim3d(self, bottom=None, top=None, emit=True, auto=False, **kw):
         """
