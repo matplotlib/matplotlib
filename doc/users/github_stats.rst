@@ -1454,7 +1454,7 @@ Issues (889):
 * :ghissue:`5977`: legend needs logic to deal with new linestyle scaling by linewidth
 * :ghissue:`6365`: Default format time series xtick labels changed
 * :ghissue:`6104`: docs: latex required for PDF plotting?
-* :ghissue:`6451`: Inequality error on web page http://matplotlib.org/faq/howto_faq.htm
+* :ghissue:`6451`: Inequality error on web page http://matplotlib.org/faq/howto_faq.html
 * :ghissue:`6459`: use conda already installed on appveyor
 * :ghissue:`6043`: Advanced hillshading example looks strange with new defaults.
 * :ghissue:`6440`: BUG: set_tick_params labelcolor should apply to offset

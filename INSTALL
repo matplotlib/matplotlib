@@ -183,7 +183,7 @@ Required Dependencies
 :term:`numpy` |minimum_numpy_version| (or later)
     array support for python (`download numpy <http://www.numpy.org>`_)
 
-`setuptools <http://pythonhosted.org/setuptools/>`__
+`setuptools <https://setuptools.readthedocs.io/en/latest/>`__
     Setuptools provides extensions for python package installation.
 
 :term:`dateutil` 1.1 or later

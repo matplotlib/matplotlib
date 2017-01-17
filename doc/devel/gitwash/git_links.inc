@@ -16,7 +16,7 @@
 .. _git-osx-installer: https://code.google.com/archive/p/git-osx-installer/downloads
 .. _subversion: http://subversion.tigris.org/
 .. _git cheat sheet: http://cheat.errtheblog.com/s/git
-.. _pro git book: http://progit.org/
+.. _pro git book: https://git-scm.com/book/en/v2
 .. _git svn crash course: https://git-scm.com/course/svn.html
 .. _learn.github: http://learn.github.com/
 .. _network graph visualizer: https://github.com/blog/39-say-hello-to-the-network-graph-visualizer
