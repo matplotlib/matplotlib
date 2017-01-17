@@ -5923,7 +5923,7 @@ or tuple of floats
 
             Default is ``None``
 
-        normed or density : boolean, optional
+        normed, density : boolean, optional
             Either the 'normed' or the 'density' arg can be set to
             accomplish this behavior:
 
@@ -5945,19 +5945,21 @@ or tuple of floats
         weights : (n, ) array_like or None, optional
             An array of weights, of the same shape as `x`.  Each value in `x`
             only contributes its associated weight towards the bin count
-            (instead of 1).  If `normed` and/or 'density' is True, the weights are normalized,
-            so that the integral of the density over the range remains 1.
+            (instead of 1).  If `normed` and/or 'density' is True,
+            the weights are normalized, so that the integral of the density
+            over the range remains 1.
 
             Default is ``None``
 
         cumulative : boolean, optional
             If `True`, then a histogram is computed where each bin gives the
             counts in that bin plus all bins for smaller values. The last bin
-            gives the total number of datapoints.  If `normed` and/or 'density' is also `True`
-            then the histogram is normalized such that the last bin equals 1.
-            If `cumulative` evaluates to less than 0 (e.g., -1), the direction
-            of accumulation is reversed.  In this case, if `normed` and/or 'density' is also
-            `True`, then the histogram is normalized such that the first bin
+            gives the total number of datapoints. If `normed` and/or 'density'
+            is also `True` then the histogram is normalized such that the last
+            bin equals 1. If `cumulative` evaluates to less than 0 (e.g., -1),
+            the direction of accumulation is reversed.  In this case, if
+            `normed` and/or 'density' is also `True`, then the histogram is
+            normalized such that the first bin
             equals 1.
 
             Default is ``False``
@@ -6077,12 +6079,14 @@ or tuple of floats
 
         """
 
-        # This sets the density variable, if necessary, to its predecessor, 'normed.'
-        if density != None and normed != None and density != normed:
-            raise ValueError('The density and normed arguments represent the same concept. Please set only one of them, or set them to the same value.')
-        elif normed != None and density == None:
+        # Sets the density variable, if necessary, to its predecessor, 'normed.'
+        if density is not None and normed is not None and density is not normed:
+            raise ValueError('The density and normed arguments represent the '
+                             'same concept. Please set only one of them, or '
+                             'set them to the same value.')
+        elif normed is not None and density is None:
             density = normed
-        elif normed == None and density == None:
+        elif normed is None and density is None:
             density = False
 
         def _normalize_input(inp, ename='input'):
