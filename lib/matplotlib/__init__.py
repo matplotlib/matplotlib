@@ -1474,13 +1474,6 @@ def _jupyter_nbextension_paths():
 
 
 default_test_modules = [
-    'matplotlib.tests.test_backend_bases',
-    'matplotlib.tests.test_backend_pdf',
-    'matplotlib.tests.test_backend_pgf',
-    'matplotlib.tests.test_backend_ps',
-    'matplotlib.tests.test_backend_qt4',
-    'matplotlib.tests.test_backend_qt5',
-    'matplotlib.tests.test_backend_svg',
     'matplotlib.tests.test_coding_standards',
     'matplotlib.tests.test_dviread',
     'matplotlib.tests.test_figure',

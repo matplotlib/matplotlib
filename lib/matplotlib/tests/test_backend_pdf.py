@@ -9,11 +9,7 @@ import io
 import os
 import tempfile
 
-try:
-    from unittest.mock import patch
-except ImportError:
-    from mock import patch
-from nose.tools import raises
+import pytest
 
 import numpy as np
 from matplotlib import checkdep_tex, cm, rcParams
@@ -194,15 +190,15 @@ def test_grayscale_alpha():
 
 @cleanup
 @needs_tex
-@raises(ValueError)
-@patch('matplotlib.dviread.PsfontsMap.__getitem__')
-def test_missing_psfont(mock):
+def test_missing_psfont(monkeypatch):
     """An error is raised if a TeX font lacks a Type-1 equivalent"""
-    psfont = dviread.PsFont(texname='texfont', psname='Some Font',
-                            effects=None, encoding=None, filename=None)
-    mock.configure_mock(return_value=psfont)
+    def psfont(*args, **kwargs):
+        return dviread.PsFont(texname='texfont', psname='Some Font',
+                              effects=None, encoding=None, filename=None)
+
+    monkeypatch.setattr(dviread.PsfontsMap, '__getitem__', psfont)
     rcParams['text.usetex'] = True
     fig, ax = plt.subplots()
     ax.text(0.5, 0.5, 'hello')
-    with tempfile.TemporaryFile() as tmpfile:
+    with tempfile.TemporaryFile() as tmpfile, pytest.raises(ValueError):
         fig.savefig(tmpfile, format='pdf')

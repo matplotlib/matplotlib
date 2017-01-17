@@ -9,11 +9,7 @@ import os
 import tempfile
 import xml.parsers.expat
 
-try:
-    from unittest.mock import patch
-except ImportError:
-    from mock import patch
-from nose.tools import raises
+import pytest
 
 import matplotlib.pyplot as plt
 from matplotlib.testing.decorators import cleanup
@@ -164,7 +160,6 @@ def _test_determinism(filename, usetex):
     import os
     import sys
     from subprocess import check_output, STDOUT, CalledProcessError
-    from nose.tools import assert_equal
     plots = []
     for i in range(3):
         # Using check_output and setting stderr to STDOUT will capture the real
@@ -188,7 +183,7 @@ def _test_determinism(filename, usetex):
             plots.append(fd.read())
         os.unlink(filename)
     for p in plots[1:]:
-        assert_equal(p, plots[0])
+        assert p == plots[0]
 
 
 @cleanup
@@ -206,21 +201,17 @@ def test_determinism_tex():
 
 @cleanup
 @needs_tex
-@raises(ValueError)
-@patch('matplotlib.dviread.PsfontsMap.__getitem__')
-def test_missing_psfont(mock):
+def test_missing_psfont(monkeypatch):
     """An error is raised if a TeX font lacks a Type-1 equivalent"""
     from matplotlib import rc
-    psfont = dviread.PsFont(texname='texfont', psname='Some Font',
-                            effects=None, encoding=None, filename=None)
-    mock.configure_mock(return_value=psfont)
+
+    def psfont(*args, **kwargs):
+        return dviread.PsFont(texname='texfont', psname='Some Font',
+                              effects=None, encoding=None, filename=None)
+
+    monkeypatch.setattr(dviread.PsfontsMap, '__getitem__', psfont)
     rc('text', usetex=True)
     fig, ax = plt.subplots()
     ax.text(0.5, 0.5, 'hello')
-    with tempfile.TemporaryFile() as tmpfile:
+    with tempfile.TemporaryFile() as tmpfile, pytest.raises(ValueError):
         fig.savefig(tmpfile, format='svg')
-
-
-if __name__ == '__main__':
-    import nose
-    nose.runmodule(argv=['-s', '--with-doctest'], exit=False)
