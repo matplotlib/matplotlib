@@ -5875,10 +5875,10 @@ or tuple of floats
     #### Data analysis
 
     @_preprocess_data(replace_names=["x", 'weights'], label_namer="x")
-    def hist(self, x, bins=None, range=None, normed=False, weights=None,
+    def hist(self, x, bins=None, range=None, density=None, weights=None,
              cumulative=False, bottom=None, histtype='bar', align='mid',
              orientation='vertical', rwidth=None, log=False,
-             color=None, label=None, stacked=False,
+             color=None, label=None, stacked=False, normed=None,
              **kwargs):
         """
         Plot a histogram.
@@ -5923,7 +5923,7 @@ or tuple of floats
 
             Default is ``None``
 
-        normed : boolean, optional
+        density : boolean, optional
             If `True`, the first element of the return tuple will
             be the counts normalized to form a probability density, i.e.,
             the area (or integral) under the histogram will sum to 1.
@@ -5932,7 +5932,7 @@ or tuple of floats
             of observations. If `stacked` is also `True`, the sum of the
             histograms is normalized to 1.
 
-            Default is ``False``
+            Default is ``None``
 
         weights : (n, ) array_like or None, optional
             An array of weights, of the same shape as `x`.  Each value in `x`
@@ -6068,6 +6068,15 @@ or tuple of floats
         .. plot:: mpl_examples/statistics/histogram_demo_features.py
 
         """
+
+        # This sets the density variable, if necessary, to its predecessor, 'normed.'
+        if density != None and normed != None and density != normed:
+            raise ValueError('The density and normed arguments represent the same concept. Please set only one of them, or set them to the same value.')
+        elif normed != None and density == None:
+            density = normed
+        elif normed == None and density == None:
+            density = False
+
         def _normalize_input(inp, ename='input'):
             """Normalize 1 or 2d input into list of np.ndarray or
             a single 2D np.ndarray.
@@ -6205,7 +6214,7 @@ or tuple of floats
             m = m.astype(float)  # causes problems later if it's an int
             if mlast is None:
                 mlast = np.zeros(len(bins)-1, m.dtype)
-            if normed and not stacked:
+            if density and not stacked:
                 db = np.diff(bins)
                 m = (m.astype(float) / db) / m.sum()
             if stacked:
@@ -6215,7 +6224,7 @@ or tuple of floats
                 mlast[:] = m
             n.append(m)
 
-        if stacked and normed:
+        if stacked and density:
             db = np.diff(bins)
             for m in n:
                 m[:] = (m.astype(float) / db) / n[-1].sum()
@@ -6224,7 +6233,7 @@ or tuple of floats
             if cbook.is_numlike(cumulative) and cumulative < 0:
                 slc = slice(None, None, -1)
 
-            if normed:
+            if density:
                 n = [(m * np.diff(bins))[slc].cumsum()[slc] for m in n]
             else:
                 n = [m[slc].cumsum()[slc] for m in n]
@@ -6311,7 +6320,7 @@ or tuple of floats
                 # Setting a minimum of 0 results in problems for log plots
                 if np.min(bottom) > 0:
                     minimum = np.min(bottom)
-                elif normed or weights is not None:
+                elif density or weights is not None:
                     # For normed data, set to minimum data value / logbase
                     # (gives 1 full tick-label unit for the lowest filled bin)
                     ndata = np.array(n)
