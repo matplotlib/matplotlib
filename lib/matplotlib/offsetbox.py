@@ -1043,12 +1043,12 @@ class AnchoredOffsetbox(OffsetBox):
         self.set_child(child)
 
         if is_string_like(loc):
-            if loc not in self.codes:
+            try:
+                loc = self.codes[loc]
+            except KeyError:
                 raise RuntimeError('Unrecognized location "%s". Valid '
                                    'locations are\n\t%s\n'
                                    % (loc, '\n\t'.join(self.codes)))
-            else:
-                loc = self.codes[loc]
 
         self.loc = loc
         self.borderpad = borderpad
