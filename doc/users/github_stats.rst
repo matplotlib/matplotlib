@@ -3,19 +3,21 @@
 GitHub Stats
 ============
 
-GitHub stats for 2015/10/29 - 2016/12/18 (tag: v1.5.0)
+GitHub stats for 2015/10/29 - 2017/01/16 (tag: v1.5.0)
 
 These lists are automatically generated, and may be incomplete or contain duplicates.
 
-We closed 809 issues and merged 655 pull requests.
+We closed 889 issues and merged 732 pull requests.
 
-The following 219 authors contributed 3010 commits.
+The following 233 authors contributed 3210 commits.
 
 * 4over7
 * AbdealiJK
 * Acanthostega
+* Adam Williamson
 * Adrien Chardon
 * Adrien F. Vincent
+* Alan Bernstein
 * Alberto
 * alcinos
 * Alex Rothberg
@@ -58,6 +60,7 @@ The following 219 authors contributed 3010 commits.
 * deeenes
 * Devashish Deshpande
 * Diego Mora Cespedes
+* Dietrich Brunn
 * dlmccaffrey
 * Dora Fraeman
 * DoriekeMG
@@ -70,6 +73,7 @@ The following 219 authors contributed 3010 commits.
 * endolith
 * Eric Dill
 * Eric Firing
+* Eric Larson
 * Eugene Yurtsev
 * Fabian-Robert Stöter
 * Federico Ariza
@@ -84,6 +88,7 @@ The following 219 authors contributed 3010 commits.
 * gepcel
 * greg-roper
 * Grillard
+* Guillermo Breto
 * Hakan Kucukdereli
 * hannah
 * Hans Moritz Günther
@@ -123,6 +128,7 @@ The following 219 authors contributed 3010 commits.
 * Julien Lhermitte
 * Julien Schueller
 * Jun Tan
+* Kacper Kowalik (Xarthisius)
 * Kanwar245
 * Kevin Keating
 * khyox
@@ -136,6 +142,7 @@ The following 219 authors contributed 3010 commits.
 * Laptop11_ASPP2016
 * lboogaard
 * Leo Singer
+* lspvic
 * Luis Pedro Coelho
 * lzkelley
 * Magnus Nord
@@ -157,10 +164,12 @@ The following 219 authors contributed 3010 commits.
 * mobando
 * muahah
 * myyc
+* Naoya Kanai
 * Nathan Goldbaum
 * Nathan Musoke
 * nbrunett
 * Nelle Varoquaux
+* nepix32
 * Nicolas P. Rougier
 * Nicolas Tessore
 * Nikita Kniazev
@@ -173,24 +182,29 @@ The following 219 authors contributed 3010 commits.
 * Paul Ivanov
 * Paul Kirow
 * Paul Romano
+* Pete Huang
 * Pete Peterson
+* Peter Iannucci
 * Peter Mortensen
 * Peter Würtz
 * Petr Danecek
 * Phil Elson
-* Przemysław Dąbek
 * Phil Ruffwind
 * Pierre de Buyl
 * productivememberofsociety666
+* Przemysław Dąbek
 * Qingpeng "Q.P." Zhang
 * Ramiro Gómez
 * Randy Olson
+* Rishikesh
 * Robin Dunn
 * Robin Wilson
 * Rui Lopes
 * Ryan May
 * RyanPan
+* Salganos
 * Salil Vanvari
+* Samson
 * Samuel St-Jean
 * Sander
 * scls19fr
@@ -201,6 +215,7 @@ The following 219 authors contributed 3010 commits.
 * Seraphim Alvanides
 * Simon Gibbons
 * Stefan Pfenninger
+* Stephan Erb
 * Sterling Smith
 * Steven Silvester
 * Steven Tilley
@@ -232,9 +247,86 @@ The following 219 authors contributed 3010 commits.
 
 GitHub issues and pull requests:
 
-Pull Requests (655):
+Pull Requests (732):
 
-* :ghpull:`7585`: [MRG+1] Fix a bug in TextBox where shortcut keys were not being reenabled
+* :ghpull:`7845`: Fixed bug with default parameters NFFT and noverlap in specgram()
+* :ghpull:`7800`: DOC: explain non-linear scales and imshow (closes #7661)
+* :ghpull:`7639`: Enh color names
+* :ghpull:`7829`: MAINT tests should not use relative imports
+* :ghpull:`7828`: MAINT added early checks for dependencies for doc building
+* :ghpull:`7424`: Numpy Doc Format
+* :ghpull:`7821`: DOC: Changes to screenshots plots.
+* :ghpull:`7644`: Allow scalar height for plt.bar
+* :ghpull:`7838`: Merge v2.x
+* :ghpull:`7823`: MAINT matplotlib -> Matplotlib
+* :ghpull:`7833`: Deprecate unused verification code.
+* :ghpull:`7827`: [MRG+1] Cast stackplot input to float when required.
+* :ghpull:`7834`: Remove deprecated get_example_data.
+* :ghpull:`7826`: Remove invalid dimension checking in axes_rgb.
+* :ghpull:`7831`: Function wrapper for examples/api/two_scales.py
+* :ghpull:`7801`: [MRG+1] Add short-circuit return to matplotlib.artist.setp if input is length 0
+* :ghpull:`7740`: Beautified frontpage plots and two pylab examples
+* :ghpull:`7730`: Fixed GraphicsContextBase linestyle getter
+* :ghpull:`7747`: Update qhull to 2015.2
+* :ghpull:`7645`: Clean up stock sample data.
+* :ghpull:`7753`: Clarify the uses of whiskers float parameter.
+* :ghpull:`7765`: TST: Clean up figure tests
+* :ghpull:`7729`: For make raw_input compatible with python3
+* :ghpull:`7783`: Raise exception if negative height or width is passed to axes()
+* :ghpull:`7727`: [MRG+1] DOC: Fix invalid nose argument in testing.rst
+* :ghpull:`7731`: Check origin when saving image to PNG
+* :ghpull:`7782`: Fix some more integer type inconsistencies in Freetype code
+* :ghpull:`7781`: Fix integer types for font metrics in PyGlyph class
+* :ghpull:`7791`: Use reliable int type for mesh size in draw_quad_mesh (#7788)
+* :ghpull:`7796`: Only byte-swap 16-bit PNGs on little-endian (#7792)
+* :ghpull:`7794`: Ignore images that doc build produces
+* :ghpull:`7790`: Adjust markdown and text in ISSUE_TEMPLATE.md
+* :ghpull:`7773`: Fix more invalid escapes sequences.
+* :ghpull:`7769`: [MRG+1] Remove redundant pep8 entry in .travis.yml.
+* :ghpull:`7760`: DOC: Correct subplot() doc
+* :ghpull:`7768`: Convert unicode index to long, not int, in get_char_index
+* :ghpull:`7770`: BUG: improve integer step selection in MaxNLocator
+* :ghpull:`7766`: Invalid escape sequences are deprecated in Py3.6.
+* :ghpull:`7758`: fix axes barh default align option document
+* :ghpull:`7749`: DOC: Sync keyboard shortcuts for fullscreen toggle
+* :ghpull:`7757`: By default, don't include tests in binary distributions.
+* :ghpull:`7762`: DOC: Fix finance depr docs to point to mpl_finance
+* :ghpull:`7737`: Ensure that pyenv command is in a literal block
+* :ghpull:`7732`: Add rcsetup_api.rst, fix typo for rcsetup.cycler
+* :ghpull:`7726`: FIX: Clean up in the new quiverkey test; make new figs in scale tests
+* :ghpull:`7620`: Add warning context
+* :ghpull:`7719`: Add angle kwarg to quiverkey
+* :ghpull:`7701`: DOC: Add bug report reqs and template to contributing guide
+* :ghpull:`7723`: Use mplDeprecation class for all deprecations.
+* :ghpull:`7676`: Makes eventplot legend work
+* :ghpull:`7714`: TST: switch from 3.6-dev to 3.6
+* :ghpull:`7713`: Declare Python 3.6 support via classifier in setup.py
+* :ghpull:`7693`: Change majority of redirected links in docs
+* :ghpull:`7705`: Fixes tzname return type
+* :ghpull:`7703`: BF: Convert namespace path to list
+* :ghpull:`7702`: DOC: Add link to bokeh/colorcet in colormaps.rst
+* :ghpull:`7700`: DOC: Add gitter to home page
+* :ghpull:`7692`: Corrected default values of xextent in specgram(). Fixes Bug #7666.
+* :ghpull:`7698`: Update INSTALL for Python 3.6
+* :ghpull:`7694`: Fix a few broken links in docs
+* :ghpull:`7349`: Add support for png_text metadata, allow to customize metadata for other backends.
+* :ghpull:`7670`: Decode error messages from image converters.
+* :ghpull:`7677`: Make new default style examples consistent
+* :ghpull:`7674`: Serialize comparison of multiple baseline images.
+* :ghpull:`7665`: FIX: Fix super call for Python 2.7
+* :ghpull:`7668`: Save SVG test directly to file instead of its name.
+* :ghpull:`7549`: Cleanup: sorted, dict iteration, array.{ndim,size}, ...
+* :ghpull:`7667`: FIX: Fix missing package
+* :ghpull:`7651`: BUG,ENH: make deprecated decorator work (and more flexibly)
+* :ghpull:`7658`: Avoid comparing numpy array to strings in two places
+* :ghpull:`7657`: Fix warning when setting markeredgecolor to a numpy array
+* :ghpull:`7659`: DOC: Original documentation was misleading
+* :ghpull:`6780`: Call _transform_vmin_vmax during SymLogNorm.__init__
+* :ghpull:`7646`: Improve deprecation documentation. Closes #7643
+* :ghpull:`7604`: Warn if different axis projection requested
+* :ghpull:`7568`: Deprecate unused functions in cbook.
+* :ghpull:`6428`: Give a better error message on missing PostScript fonts
+* :ghpull:`7585`: Fix a bug in TextBox where shortcut keys were not being reenabled
 * :ghpull:`7628`: picker may not be callable.
 * :ghpull:`7464`: ENH: _StringFuncParser to get numerical functions callables from strings
 * :ghpull:`7622`: Mrg animation merge
@@ -301,14 +393,14 @@ Pull Requests (655):
 * :ghpull:`7291`: MEP 29: Markup text
 * :ghpull:`6560`: Fillbetween
 * :ghpull:`7399`: Clarify wspace/hspace in documentation/comments
-* :ghpull:`7400`: [MRG+2] fix ReST tag
-* :ghpull:`7381`: [MRG]Updating the readme
+* :ghpull:`7400`: fix ReST tag
+* :ghpull:`7381`: Updating the readme
 * :ghpull:`7384`: change hardcopy.docstring to docstring.hardcopy
 * :ghpull:`7386`: ENH examples are now reproducible
 * :ghpull:`7395`: Drop code that supports numpy pre-1.6.
-* :ghpull:`7385`: [MRG+1] remove unused random import
+* :ghpull:`7385`: remove unused random import
 * :ghpull:`7236`: ENH Improving the contribution guidelines
-* :ghpull:`7370`: [MRG+1] Add example use of axes.spines.SIDE prop in matplotlibrc
+* :ghpull:`7370`: Add example use of axes.spines.SIDE prop in matplotlibrc
 * :ghpull:`7367`: Warn on invalid log axis limits, per issue #7299
 * :ghpull:`7360`: Updated violin plot example as per suggestions in issue #7251
 * :ghpull:`7357`: Added notes on how to use matplotlib in pyenv
@@ -389,7 +481,7 @@ Pull Requests (655):
 * :ghpull:`5112`: OffsetImage: use dpi_cor in get_extent
 * :ghpull:`7136`: DOC: minor fix  in development_workflow.rst
 * :ghpull:`7137`: DOC: improve engineering formatter example
-* :ghpull:`7131`: Fix branch name in "Deleting a branch on GitHub" section
+* :ghpull:`7131`: Fix branch name in "Deleting a branch on GitHub\_" section
 * :ghpull:`6521`: Issue #6429 fix
 * :ghpull:`7111`: [DOC] Fix example following comments in  issue #6865
 * :ghpull:`7118`: PR # 7038 rebased (DOC specgram() documentation now in numpy style)
@@ -890,8 +982,88 @@ Pull Requests (655):
 * :ghpull:`5357`: Fixed typo
 * :ghpull:`4920`: ENH: Add TransformedPatchPath for clipping.
 
-Issues (809):
+Issues (889):
 
+* :ghissue:`7810`: Dimensions sanity check in axes_rgb swaps x and y of shape when checking, prevents use with non-square images.
+* :ghissue:`7704`: screenshots in the front page of devdocs are ugly
+* :ghissue:`7746`: imshow should silence warnings on invalid values, at least when masked
+* :ghissue:`7661`: document that imshow now respects scale
+* :ghissue:`6820`: nonsensical error message for invalid input to plt.bar
+* :ghissue:`7814`: Legend for lines created using ``LineCollection`` show different handle line scale.
+* :ghissue:`7816`: re-enable or delete xmllint tests
+* :ghissue:`7802`: plt.stackplot not working for integer input with non-default 'baseline' parameters
+* :ghissue:`6149`: travis dedup
+* :ghissue:`7822`: Weird stroke join with patheffects
+* :ghissue:`7784`: Simple IndexError in artist.setp if empty list is passed
+* :ghissue:`3354`: Unecessary arguement in GraphicsContextBase get_linestyle
+* :ghissue:`7820`: Figure.savefig() not respecting bbox_inches='tight' when dpi specified
+* :ghissue:`7715`: Can't import pyplot in matplotlib 2.0 rc2
+* :ghissue:`7745`: Wheel distributables include unnecessary files
+* :ghissue:`7812`: On MacOS Sierra with IPython, inconsistent results with %gui, %matplotlib magic commands and --gui, and --matplotlib command-line options for ipython and qtconsole; complete failure of qtconsole inline figures
+* :ghissue:`7808`: Basemap uses deprecated methods
+* :ghissue:`7487`: Funny things happen when a rectangle with negative width/height is passed to ``axes()``
+* :ghissue:`7649`: --nose-verbose isn't a correct option for nose
+* :ghissue:`7656`: imsave ignores origin option
+* :ghissue:`7792`: test_png.test_pngsuite.test fails on ppc64 (big-endian)
+* :ghissue:`7788`: Colorbars contain no colors when created on ppc64 (big-endian)
+* :ghissue:`4285`: plt.yscale("log") gives FloatingPointError: underflow encountered in multiply
+* :ghissue:`7724`: Can't import Matplotlib.widgets.TextBox
+* :ghissue:`7798`: ``test_psd_csd_equal`` fails for 12 (but not all) of the ``test_mlab.spectral_testcase`` s on ppc64 (big-endian)
+* :ghissue:`7778`: Different font size between math mode and regular text
+* :ghissue:`7777`: mpl_toolkits.basemap: ValueError: level must be >= 0
+* :ghissue:`4353`: different behaviour of zoom while using ginput with MouseEvent vs KeyEvent
+* :ghissue:`4380`: horizontalalignment 'left' and 'right' do not handle spacing consistently
+* :ghissue:`7393`: ``subplot()``: incorrect description of deletion of overlapping axes in the docs
+* :ghissue:`7759`: matplotlib dynamic plotting
+* :ghissue:`2025`: TkAgg build seems to favor Framework Tcl/Tk on OS-X
+* :ghissue:`3991`: SIGINT is ignored by MacOSX backend
+* :ghissue:`2722`: limited number of grid lines in matplotlib?
+* :ghissue:`3983`: Issue when trying to plot points with transform that requires more/fewer coordinates than it returns
+* :ghissue:`7734`: inconsistent doc regarding keymap.fullscreen default value
+* :ghissue:`7761`: Deprecation warning for finance is very unclear
+* :ghissue:`7223`: matplotlib.rcsetup docs
+* :ghissue:`3917`: OS X Cursor Not working on command line
+* :ghissue:`4038`: Hist Plot Normalization should allow a 'Per Bin' Normalization
+* :ghissue:`3486`: Update Selection Widgets
+* :ghissue:`7457`: Improvements to pylab_examples/stock_demo.py
+* :ghissue:`7755`: Can't open figure
+* :ghissue:`7299`: Raise an error or a warning when ylim's min == 0 and yscale == "log"
+* :ghissue:`4977`: Improve resolution of canvas on HiDPI with PyQt5 backend
+* :ghissue:`7495`: Missing facecolor2d attribute
+* :ghissue:`3727`: plot_date() does not work with x values of type pandas.Timestamp (pandas version 0.15.0)?
+* :ghissue:`3368`: Variable number of ticks with LogLocator for a fixed number of tick labels displayed
+* :ghissue:`1835`: docstrings of cross-correlation functions (acorr and xcorr) need clarification
+* :ghissue:`6972`: quiverkey problem when angles=array
+* :ghissue:`6617`: Problem of fonts with LaTeX rendering due to fonts-lyx package
+* :ghissue:`7717`: make all deprecation warnings be ``mplDeprecation`` instances
+* :ghissue:`7662`: eventplot legend fails (linewidth)
+* :ghissue:`7673`: Baseline image reuse breaks parallel testing
+* :ghissue:`7666`: Default scaling of x-axis in specgram() is incorrect (i.e. the default value for the ``xextent`` parameter)
+* :ghissue:`7709`: Running into problems in seaborn after upgrading matpltolib
+* :ghissue:`7684`: 3-D scatter plot disappears when overlaid over a 3-D surface plot.
+* :ghissue:`7630`: Unicode issue in matplotlib.dates
+* :ghissue:`7678`: add link to bokeh/colorcet
+* :ghissue:`2078`: linespacing of multiline texts.
+* :ghissue:`6727`: scipy 2016 sprint ideas
+* :ghissue:`3212`: Why are numpoints and scatterpoints two different keywords?
+* :ghissue:`7697`: Update INSTALL file to include py3.6
+* :ghissue:`4428`: Hyphen as a subscript doesn't appear at certain font sizes
+* :ghissue:`2886`: The wrong \Game symbol is used
+* :ghissue:`7603`: scatter ``color`` vs ``c``
+* :ghissue:`7660`: 2.0rc2:  title too close to frame?
+* :ghissue:`7672`: standardize classic/v2.x order is docs
+* :ghissue:`7680`: OverflowError: Python int too large to convert to C long during ploting simple numbers on debian testing
+* :ghissue:`7664`: BUG: ``super`` requires at least 1 argument
+* :ghissue:`7669`: rc on conda-forge
+* :ghissue:`5363`: Warnings from test_contour.test_corner_mask
+* :ghissue:`7663`: BUG: Can't import ``matplotlib._backports``
+* :ghissue:`7647`: Decorator for deprecation ignores arguments other than 'message'
+* :ghissue:`5806`: FutureWarning with Numpy 1.10
+* :ghissue:`6480`: Setting markeredgecolor raises a warning
+* :ghissue:`7653`: legend doesn't show all markers
+* :ghissue:`7643`: Matplotlib 2.0 deprecations
+* :ghissue:`7642`: imshow seems to "shift" grid.
+* :ghissue:`7633`: All attempts to plot fail with "OverflowError: Python int too large to convert to C long"
 * :ghissue:`7637`: Stacked 2D plots with interconnections in Matplotlib
 * :ghissue:`7353`: auto legend position changes upon saving the figure
 * :ghissue:`7626`: Saturation mask for imshow()
@@ -1282,7 +1454,7 @@ Issues (809):
 * :ghissue:`5977`: legend needs logic to deal with new linestyle scaling by linewidth
 * :ghissue:`6365`: Default format time series xtick labels changed
 * :ghissue:`6104`: docs: latex required for PDF plotting?
-* :ghissue:`6451`: Inequality error on web page http://matplotlib.org/faq/howto_faq.html
+* :ghissue:`6451`: Inequality error on web page http://matplotlib.org/faq/howto_faq.htm
 * :ghissue:`6459`: use conda already installed on appveyor
 * :ghissue:`6043`: Advanced hillshading example looks strange with new defaults.
 * :ghissue:`6440`: BUG: set_tick_params labelcolor should apply to offset
