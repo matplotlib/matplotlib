@@ -5923,7 +5923,10 @@ or tuple of floats
 
             Default is ``None``
 
-        density : boolean, optional
+        normed or density : boolean, optional
+            Either the 'normed' or the 'density' arg can be set to
+            accomplish this behavior:
+
             If `True`, the first element of the return tuple will
             be the counts normalized to form a probability density, i.e.,
             the area (or integral) under the histogram will sum to 1.
@@ -5932,12 +5935,17 @@ or tuple of floats
             of observations. If `stacked` is also `True`, the sum of the
             histograms is normalized to 1.
 
-            Default is ``None``
+            Default is ``None`` for both 'normed' and 'density.' If either is
+            set, then that value will be used. If neither are set, then the args
+            will be treated as 'False.'
+
+            If both are set to different things, the hist function raises an
+            error.
 
         weights : (n, ) array_like or None, optional
             An array of weights, of the same shape as `x`.  Each value in `x`
             only contributes its associated weight towards the bin count
-            (instead of 1).  If `normed` is True, the weights are normalized,
+            (instead of 1).  If `normed` and/or 'density' is True, the weights are normalized,
             so that the integral of the density over the range remains 1.
 
             Default is ``None``
@@ -5945,10 +5953,10 @@ or tuple of floats
         cumulative : boolean, optional
             If `True`, then a histogram is computed where each bin gives the
             counts in that bin plus all bins for smaller values. The last bin
-            gives the total number of datapoints.  If `normed` is also `True`
+            gives the total number of datapoints.  If `normed` and/or 'density' is also `True`
             then the histogram is normalized such that the last bin equals 1.
             If `cumulative` evaluates to less than 0 (e.g., -1), the direction
-            of accumulation is reversed.  In this case, if `normed` is also
+            of accumulation is reversed.  In this case, if `normed` and/or 'density' is also
             `True`, then the histogram is normalized such that the first bin
             equals 1.
 
@@ -6032,7 +6040,7 @@ or tuple of floats
         Returns
         -------
         n : array or list of arrays
-            The values of the histogram bins. See **normed** and **weights**
+            The values of the histogram bins. See **normed or density** and **weights**
             for a description of the possible semantics. If input **x** is an
             array, then this is an array of length **nbins**. If input is a
             sequence arrays ``[data1, data2,..]``, then this is a list of
@@ -6321,7 +6329,8 @@ or tuple of floats
                 if np.min(bottom) > 0:
                     minimum = np.min(bottom)
                 elif density or weights is not None:
-                    # For normed data, set to minimum data value / logbase
+                    # For data that is normed to form a probability density,
+                    # set to minimum data value / logbase
                     # (gives 1 full tick-label unit for the lowest filled bin)
                     ndata = np.array(n)
                     minimum = (np.min(ndata[ndata > 0])) / logbase
