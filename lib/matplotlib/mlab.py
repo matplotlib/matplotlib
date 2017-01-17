@@ -1275,7 +1275,9 @@ def specgram(x, NFFT=None, Fs=None, detrend=None, window=None,
 
     """
     if noverlap is None:
-        noverlap = 128
+        noverlap = 128  # default in _spectral_helper() is noverlap = 0
+    if NFFT is None:
+        NFFT = 256  # same default as in _spectral_helper()
 
     spec, freqs, t = _spectral_helper(x=x, y=None, NFFT=NFFT, Fs=Fs,
                                       detrend_func=detrend, window=window,

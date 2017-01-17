@@ -7190,8 +7190,12 @@ or tuple of floats
         if not self._hold:
             self.cla()
 
+        if NFFT is None:
+            NFFT = 256  # same default as in mlab.specgram()
         if Fc is None:
-            Fc = 0
+            Fc = 0  # same default as in mlab._spectral_helper()
+        if noverlap is None:
+            noverlap = 128  # same default as in mlab.specgram()
 
         if mode == 'complex':
             raise ValueError('Cannot plot a complex specgram')
