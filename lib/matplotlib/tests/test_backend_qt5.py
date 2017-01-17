@@ -1,6 +1,5 @@
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
-import six
 
 from matplotlib import pyplot as plt
 from matplotlib.testing.decorators import cleanup, switch_backend
@@ -46,8 +45,41 @@ def test_fig_close():
     assert(init_figs == Gcf.figs)
 
 
+@pytest.mark.parametrize(
+    'qt_key, qt_mods, answer',
+    [
+        (QtCore.Qt.Key_A, ShiftModifier, 'A'),
+        (QtCore.Qt.Key_A, QtCore.Qt.NoModifier, 'a'),
+        (QtCore.Qt.Key_A, ControlModifier, 'ctrl+a'),
+        (QtCore.Qt.Key_Aacute, ShiftModifier,
+         '\N{LATIN CAPITAL LETTER A WITH ACUTE}'),
+        (QtCore.Qt.Key_Aacute, QtCore.Qt.NoModifier,
+         '\N{LATIN SMALL LETTER A WITH ACUTE}'),
+        (ControlKey, AltModifier, 'alt+control'),
+        (AltKey, ControlModifier, 'ctrl+alt'),
+        (QtCore.Qt.Key_Aacute, (ControlModifier | AltModifier | SuperModifier),
+         'ctrl+alt+super+\N{LATIN SMALL LETTER A WITH ACUTE}'),
+        (QtCore.Qt.Key_Backspace, QtCore.Qt.NoModifier, 'backspace'),
+        (QtCore.Qt.Key_Backspace, ControlModifier, 'ctrl+backspace'),
+        (QtCore.Qt.Key_Play, QtCore.Qt.NoModifier, None),
+    ],
+    ids=[
+        'shift',
+        'lower',
+        'control',
+        'unicode_upper',
+        'unicode_lower',
+        'alt_control',
+        'control_alt',
+        'modifier_order',
+        'backspace',
+        'backspace_mod',
+        'non_unicode_key',
+    ]
+)
+@cleanup
 @switch_backend('Qt5Agg')
-def assert_correct_key(qt_key, qt_mods, answer):
+def test_correct_key(qt_key, qt_mods, answer):
     """
     Make a figure
     Send a key_press_event event (using non-public, qt5 backend specific api)
@@ -66,80 +98,3 @@ def assert_correct_key(qt_key, qt_mods, answer):
 
     qt_canvas.mpl_connect('key_press_event', receive)
     qt_canvas.keyPressEvent(event)
-
-
-@cleanup
-def test_shift():
-    assert_correct_key(QtCore.Qt.Key_A,
-                       ShiftModifier,
-                       'A')
-
-
-@cleanup
-def test_lower():
-    assert_correct_key(QtCore.Qt.Key_A,
-                       QtCore.Qt.NoModifier,
-                       'a')
-
-
-@cleanup
-def test_control():
-    assert_correct_key(QtCore.Qt.Key_A,
-                       ControlModifier,
-                       'ctrl+a')
-
-
-@cleanup
-def test_unicode_upper():
-    assert_correct_key(QtCore.Qt.Key_Aacute,
-                       ShiftModifier,
-                       six.unichr(193))
-
-
-@cleanup
-def test_unicode_lower():
-    assert_correct_key(QtCore.Qt.Key_Aacute,
-                       QtCore.Qt.NoModifier,
-                       six.unichr(225))
-
-
-@cleanup
-def test_alt_control():
-    assert_correct_key(ControlKey,
-                       AltModifier,
-                       'alt+control')
-
-
-@cleanup
-def test_control_alt():
-    assert_correct_key(AltKey,
-                       ControlModifier,
-                       'ctrl+alt')
-
-
-@cleanup
-def test_modifier_order():
-    assert_correct_key(QtCore.Qt.Key_Aacute,
-                       (ControlModifier | AltModifier | SuperModifier),
-                       'ctrl+alt+super+' + six.unichr(225))
-
-
-@cleanup
-def test_backspace():
-    assert_correct_key(QtCore.Qt.Key_Backspace,
-                       QtCore.Qt.NoModifier,
-                       'backspace')
-
-
-@cleanup
-def test_backspace_mod():
-    assert_correct_key(QtCore.Qt.Key_Backspace,
-                       ControlModifier,
-                       'ctrl+backspace')
-
-
-@cleanup
-def test_non_unicode_key():
-    assert_correct_key(QtCore.Qt.Key_Play,
-                       QtCore.Qt.NoModifier,
-                       None)
