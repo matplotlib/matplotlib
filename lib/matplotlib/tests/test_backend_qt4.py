@@ -16,29 +16,23 @@ try:
 except ImportError:
     import mock
 
+with matplotlib.rc_context(rc={'backend': 'Qt4Agg'}):
+    qt_compat = pytest.importorskip('matplotlib.backends.qt_compat')
+from matplotlib.backends.backend_qt4 import (MODIFIER_KEYS,
+                                             SUPER, ALT, CTRL, SHIFT)  # noqa
+
+QtCore = qt_compat.QtCore
+_, ControlModifier, ControlKey = MODIFIER_KEYS[CTRL]
+_, AltModifier, AltKey = MODIFIER_KEYS[ALT]
+_, SuperModifier, SuperKey = MODIFIER_KEYS[SUPER]
+_, ShiftModifier, ShiftKey = MODIFIER_KEYS[SHIFT]
+
 try:
-    with matplotlib.rc_context(rc={'backend': 'Qt4Agg'}):
-        from matplotlib.backends.qt_compat import QtCore
+    py_qt_ver = int(QtCore.PYQT_VERSION_STR.split('.')[0])
+except AttributeError:
+    py_qt_ver = QtCore.__version_info__[0]
 
-    from matplotlib.backends.backend_qt4 import (MODIFIER_KEYS,
-                                                 SUPER, ALT, CTRL, SHIFT)
-
-    _, ControlModifier, ControlKey = MODIFIER_KEYS[CTRL]
-    _, AltModifier, AltKey = MODIFIER_KEYS[ALT]
-    _, SuperModifier, SuperKey = MODIFIER_KEYS[SUPER]
-    _, ShiftModifier, ShiftKey = MODIFIER_KEYS[SHIFT]
-
-    try:
-        py_qt_ver = int(QtCore.PYQT_VERSION_STR.split('.')[0])
-    except AttributeError:
-        py_qt_ver = QtCore.__version_info__[0]
-    print(py_qt_ver)
-    HAS_QT = py_qt_ver == 4
-
-except ImportError:
-    HAS_QT = False
-
-if not HAS_QT:
+if py_qt_ver != 4:
     pytestmark = pytest.mark.xfail(reason='Qt4 is not available')
 
 

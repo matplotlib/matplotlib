@@ -15,25 +15,17 @@ try:
 except ImportError:
     import mock
 
-try:
-    with matplotlib.rc_context(rc={'backend': 'Qt5Agg'}):
-        from matplotlib.backends.qt_compat import QtCore, __version__
-    from matplotlib.backends.backend_qt5 import (MODIFIER_KEYS,
-                                                 SUPER, ALT, CTRL, SHIFT)
+with matplotlib.rc_context(rc={'backend': 'Qt5Agg'}):
+    qt_compat = pytest.importorskip('matplotlib.backends.qt_compat',
+                                    minversion='5')
+from matplotlib.backends.backend_qt5 import (MODIFIER_KEYS,
+                                             SUPER, ALT, CTRL, SHIFT)  # noqa
 
-    _, ControlModifier, ControlKey = MODIFIER_KEYS[CTRL]
-    _, AltModifier, AltKey = MODIFIER_KEYS[ALT]
-    _, SuperModifier, SuperKey = MODIFIER_KEYS[SUPER]
-    _, ShiftModifier, ShiftKey = MODIFIER_KEYS[SHIFT]
-
-    py_qt_ver = int(__version__.split('.')[0])
-    HAS_QT = py_qt_ver == 5
-
-except ImportError:
-    HAS_QT = False
-
-if not HAS_QT:
-    pytestmark = pytest.mark.xfail(reason='Qt5 is not available')
+QtCore = qt_compat.QtCore
+_, ControlModifier, ControlKey = MODIFIER_KEYS[CTRL]
+_, AltModifier, AltKey = MODIFIER_KEYS[ALT]
+_, SuperModifier, SuperKey = MODIFIER_KEYS[SUPER]
+_, ShiftModifier, ShiftKey = MODIFIER_KEYS[SHIFT]
 
 
 @cleanup
