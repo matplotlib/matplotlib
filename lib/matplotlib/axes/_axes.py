@@ -2084,6 +2084,55 @@ or tuple of floats
             raise ValueError("incompatible sizes: argument 'bottom' "
                              "must be length %d or scalar" % nbars)
 
+        margins = {}
+
+        if orientation == 'vertical':
+            # base case of 'simple' bar plot
+            use_bottom_margin = False
+            use_top_margin = True
+            print(use_bottom_margin, use_top_margin)
+            # if negative height bars, do not pin the bottom
+            if any(h < 0 for h in height):
+                use_bottom_margin = True
+                use_top_margin = True
+            print(use_bottom_margin, use_top_margin)
+
+            # if all bars are negative pin top, but not bottom
+            if all(h < 0 for h in height):
+                use_bottom_margin = True
+                use_top_margin = False
+
+            print(use_bottom_margin, use_top_margin)
+            # if non-trivial bottom, do not pin the bottom
+            if _bottom is not None:
+                use_bottom_margin = True
+                use_top_margin = True
+            print(use_bottom_margin, use_top_margin)
+            margins = {'bottom': use_bottom_margin,
+                       'top': use_top_margin}
+
+        elif orientation == 'horizontal':
+            # base case of 'simple' bar plot
+            use_left_margin = False
+            use_right_margin = True
+            # if negative height bars, do not pin the bottom
+            if any(w < 0 for w in width):
+                use_left_margin = True
+                use_right_margin = True
+
+            # if all bars are negative pin top, but not bottom
+            if all(w < 0 for w in width):
+                use_left_margin = True
+                use_right_margin = False
+
+            # if non-trivial left, do not pin the anything
+            if _left is not None:
+                use_left_margin = True
+                use_right_margin = True
+
+            margins = {'left': use_left_margin,
+                       'right': use_right_margin}
+
         patches = []
 
         # lets do some conversions now since some types cannot be
