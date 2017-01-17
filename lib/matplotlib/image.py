@@ -483,7 +483,6 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
 
         gc = renderer.new_gc()
         self._set_gc_clip(gc)
-        gc.set_alpha(self.get_alpha())
         gc.set_url(self.get_url())
         gc.set_gid(self.get_gid())
 
