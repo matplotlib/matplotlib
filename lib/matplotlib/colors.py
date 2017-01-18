@@ -131,7 +131,7 @@ def join_colormaps(cmaps, fractions=None, name=None, N=None):
         for cm in cmaps:
             name += cm.name + '+'
         name.rstrip('+')
-    maps = [cm(np.linspace(0, 1, int(N * frac)))
+    maps = [cm(np.linspace(0, 1, int(round(N * frac))))
             for cm, frac in zip(cmaps, fractions)]
     # N is set by len of the vstack'd array:
     return ListedColormap(np.vstack(maps), name, )
