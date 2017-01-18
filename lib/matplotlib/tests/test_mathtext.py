@@ -243,8 +243,3 @@ def test_single_minus_sign():
 
     # If this fails, it would be all white
     assert not np.all(array == 0xff)
-
-
-if __name__ == '__main__':
-    import nose
-    nose.runmodule(argv=['-s', '--with-doctest'], exit=False)

@@ -1,20 +1,20 @@
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
+import pytest
+
 import matplotlib
 from matplotlib.testing.decorators import image_comparison
 from matplotlib.compat.subprocess import check_output
 import matplotlib.pyplot as plt
 
 
+@pytest.mark.skipif(not matplotlib.checkdep_usetex(True),
+                    reason='Missing TeX or Ghostscript or dvipng')
 @image_comparison(baseline_images=['test_usetex'],
                   extensions=['pdf', 'png'],
                   tol=0.3)
 def test_usetex():
-    canusetex = matplotlib.checkdep_usetex(True)
-    if not canusetex:
-        from nose import SkipTest
-        raise SkipTest('Cannot run usetex_test')
     matplotlib.rcParams['text.usetex'] = True
     fig = plt.figure()
     ax = fig.add_subplot(111)
