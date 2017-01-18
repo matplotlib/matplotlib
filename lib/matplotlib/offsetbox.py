@@ -33,6 +33,7 @@ from matplotlib.patches import FancyBboxPatch, FancyArrowPatch
 from matplotlib import rcParams
 
 from matplotlib import docstring
+from matplotlib.cbook import is_string_like
 
 #from bboximage import BboxImage
 from matplotlib.image import BboxImage
@@ -986,6 +987,19 @@ class AnchoredOffsetbox(OffsetBox):
     """
     zorder = 5  # zorder of the legend
 
+    # Location codes
+    codes = {'upper right': 1,
+             'upper left': 2,
+             'lower left': 3,
+             'lower right': 4,
+             'right': 5,
+             'center left': 6,
+             'center right': 7,
+             'lower center': 8,
+             'upper center': 9,
+             'center': 10,
+             }
+
     def __init__(self, loc,
                  pad=0.4, borderpad=0.5,
                  child=None, prop=None, frameon=True,
@@ -1027,6 +1041,14 @@ class AnchoredOffsetbox(OffsetBox):
 
         self.set_bbox_to_anchor(bbox_to_anchor, bbox_transform)
         self.set_child(child)
+
+        if is_string_like(loc):
+            try:
+                loc = self.codes[loc]
+            except KeyError:
+                raise ValueError('Unrecognized location "%s". Valid '
+                                 'locations are\n\t%s\n'
+                                 % (loc, '\n\t'.join(self.codes)))
 
         self.loc = loc
         self.borderpad = borderpad
