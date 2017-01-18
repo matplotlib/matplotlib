@@ -6,7 +6,7 @@ import warnings
 
 import numpy as np
 from numpy.testing import assert_almost_equal
-from nose.tools import eq_, assert_raises
+import pytest
 
 from matplotlib.transforms import Bbox
 import matplotlib
@@ -286,7 +286,7 @@ def test_get_rotation_int():
 
 def test_get_rotation_raises():
     from matplotlib import text
-    with assert_raises(ValueError):
+    with pytest.raises(ValueError):
         text.get_rotation('hozirontal')
 
 
