@@ -6080,10 +6080,9 @@ or tuple of floats
         """
 
         # Sets the density variable, if necessary, to its predecessor, 'normed.'
-        if density is not None and normed is not None and density is not normed:
+        if density is not None and normed is not None:
             raise ValueError('The density and normed arguments represent the '
-                             'same concept. Please set only one of them, or '
-                             'set them to the same value.')
+                             'same concept. Please set only one of them.')
         elif normed is not None and density is None:
             density = normed
         elif normed is None and density is None:
