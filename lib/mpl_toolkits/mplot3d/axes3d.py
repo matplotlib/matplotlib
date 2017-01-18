@@ -405,15 +405,21 @@ class Axes3D(Axes):
         mx = kw.pop('x', None)
         my = kw.pop('y', None)
         mz = kw.pop('z', None)
-        if len(args) == 1:
+        if not args:
+            pass
+        elif len(args) == 1:
             mx = my = mz = args[0]
         elif len(args) == 2:
-            # Maybe put out a warning because mz is not set?
+            warnings.warn(
+                "Passing exactly two positional arguments to Axes3D.margins "
+                "is deprecated.  If needed, pass them as keyword arguments "
+                "instead", cbook.mplDeprecation)
             mx, my = args
         elif len(args) == 3:
             mx, my, mz = args
         else:
-            raise ValueError("more than three arguments were supplied")
+            raise ValueError(
+                "Axes3D.margins takes at most three positional arguments")
         if mx is not None:
             self.set_xmargin(mx)
         if my is not None:
@@ -444,18 +450,18 @@ class Axes3D(Axes):
             scaley = True
             scalez = True
         else:
-            scalex = False
-            scaley = False
-            scalez = False
             if axis in ['x', 'both']:
-                self._autoscaleXon = bool(enable)
-                scalex = self._autoscaleXon
+                self._autoscaleXon = scalex = bool(enable)
+            else:
+                scalex = False
             if axis in ['y', 'both']:
-                self._autoscaleYon = bool(enable)
-                scaley = self._autoscaleYon
+                self._autoscaleYon = scaley = bool(enable)
+            else:
+                scaley = False
             if axis in ['z', 'both']:
-                self._autoscaleZon = bool(enable)
-                scalez = self._autoscaleZon
+                self._autoscaleZon = scalez = bool(enable)
+            else:
+                scalez = False
         self.autoscale_view(tight=tight, scalex=scalex, scaley=scaley,
                                          scalez=scalez)
 
