@@ -2285,7 +2285,7 @@ class FigureCanvasBase(object):
         a default filename.
         """
         default_basename = self.get_window_title() or 'image'
-        default_basename = default_basename.lower().replace(' ', '_')
+        default_basename = default_basename.replace(' ', '_')
         default_filetype = self.get_default_filetype()
         default_filename = default_basename + '.' + default_filetype
 
