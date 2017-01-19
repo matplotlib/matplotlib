@@ -1965,8 +1965,8 @@ def boxplot_stats(X, whis=1.5, bootstrap=None, labels=None,
         M = len(data)
         percentiles = [2.5, 97.5]
 
-        ii = np.random.randint(M, size=(N, M))
-        bsData = x[ii]
+        bs_index = np.random.randint(M, size=(N, M))
+        bsData = data[bs_index]
         estimate = np.median(bsData, axis=1, overwrite_input=True)
 
         CI = np.percentile(estimate, percentiles)
