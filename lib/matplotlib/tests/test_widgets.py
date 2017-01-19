@@ -9,7 +9,7 @@ except ImportError:
 
 import matplotlib.widgets as widgets
 import matplotlib.pyplot as plt
-from matplotlib.testing.decorators import cleanup
+from matplotlib.testing.decorators import cleanup, image_comparison
 
 from numpy.testing import assert_allclose
 
@@ -257,3 +257,29 @@ def test_lasso_selector():
     check_lasso_selector()
     check_lasso_selector(useblit=False, lineprops=dict(color='red'))
     check_lasso_selector(useblit=True, button=1)
+
+
+@cleanup
+def test_CheckButtons():
+    ax = get_ax()
+    check = widgets.CheckButtons(ax, ('a', 'b', 'c'), (True, False, True))
+    assert check.get_status() == [True, False, True]
+    check.set_active(0)
+    assert check.get_status() == [False, False, True]
+
+    def clicked_function():
+        pass
+    cid = check.on_clicked(clicked_function)
+    check.disconnect(cid)
+
+
+@image_comparison(baseline_images=['check_radio_buttons'], extensions=['png'],
+                  style='default')
+def test_check_radio_buttons_image():
+    get_ax()
+    plt.subplots_adjust(left=0.3)
+    rax1 = plt.axes([0.05, 0.7, 0.15, 0.15])
+    rax2 = plt.axes([0.05, 0.2, 0.15, 0.15])
+    widgets.RadioButtons(rax1, ('Radio 1', 'Radio 2', 'Radio 3'))
+    widgets.CheckButtons(rax2, ('Check 1', 'Check 2', 'Check 3'),
+                         (False, True, True))
