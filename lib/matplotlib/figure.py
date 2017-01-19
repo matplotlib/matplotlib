@@ -1412,11 +1412,19 @@ class Figure(Artist):
         .. plot:: mpl_examples/pylab_examples/figlegend_demo.py
         """
 
+        # If no arguments given, collect up all the artists on the figure
         if len(args) == 0:
             handles = []
             labels = []
 
             def in_handles(h, l):
+                '''
+                Method to check if we already have a given handle and label.
+
+                We consdier two handles to be the same if they share a label,
+                color, facecolor, and edgecolor.
+                '''
+                # Loop through each handle and label already collected
                 for f_h, f_l in zip(handles, labels):
                     if f_l != l:
                         continue
@@ -1428,11 +1436,13 @@ class Figure(Artist):
                             continue
                     except AttributeError:
                         pass
+
                     try:
                         if f_h.get_facecolor() != h.get_facecolor():
                             continue
                     except AttributeError:
                         pass
+
                     try:
                         if f_h.get_edgecolor() != h.get_edgecolor():
                             continue
