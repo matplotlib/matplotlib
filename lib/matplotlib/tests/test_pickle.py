@@ -273,9 +273,12 @@ def test_transform():
 
 def test_rrulewrapper():
     r = rrulewrapper(2)
-    with assert_raises(RecursionError):
+    try:
         pickle.loads(pickle.dumps(r))
-
+    except RecursionError:
+        print('rrulewrapper pickling test failed')
+        raise
+        
 
 if __name__ == '__main__':
     import nose
