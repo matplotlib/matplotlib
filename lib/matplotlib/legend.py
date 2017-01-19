@@ -1003,3 +1003,93 @@ class Legend(Artist):
             self._draggable = None
 
         return self._draggable
+
+
+class UniformLegend(Legend):
+    def __str__(self):
+        return "uniformLegend"
+
+    def __init__(self, parent, handles, labels, uniform_size,
+                 loc=None,
+                 numpoints=None,    # the number of points in the legend line
+                 markerfirst=True,  # controls ordering (left-to-right) of
+                                    # legend marker and label
+                 scatterpoints=None,    # number of scatter points
+                 scatteryoffsets=None,
+                 prop=None,          # properties for the legend texts
+                 fontsize=None,        # keyword to set font size directly
+
+                 # spacing & pad defined as a fraction of the font-size
+                 borderpad=None,      # the whitespace inside the legend border
+                 labelspacing=None,   # the vertical space between the legend
+                                      # entries
+                 handlelength=None,   # the length of the legend handles
+                 handleheight=None,   # the height of the legend handles
+                 handletextpad=None,  # the pad between the legend handle
+                                      # and text
+                 borderaxespad=None,  # the pad between the axes and legend
+                                      # border
+                 columnspacing=None,  # spacing between columns
+
+                 ncol=1,     # number of columns
+                 mode=None,  # mode for horizontal distribution of columns.
+                             # None, "expand"
+
+                 fancybox=None,  # True use a fancy box, false use a rounded
+                                 # box, none use rc
+                 shadow=None,
+                 title=None,  # set a title for the legend
+
+                 framealpha=None,  # set frame alpha
+
+                 bbox_to_anchor=None,  # bbox that the legend will be anchored.
+                 bbox_transform=None,  # transform for the bbox
+                 frameon=None
+                 ):
+        uniformHandlerMap = {
+            StemContainer:
+            legend_handler.HandlerUniformStem(uniform_size=uniform_size),
+            ErrorbarContainer:
+            legend_handler.HandlerUniformErrorBar(uniform_size=uniform_size),
+            Line2D:
+            legend_handler.HandlerUniformLine2D(uniform_size=uniform_size),
+            PathCollection:
+            legend_handler.HandlerPathCollection(sizes=[uniform_size]*3),
+            RegularPolyCollection:
+            legend_handler.HandlerRegularPolyCollection(
+                sizes=[uniform_size]*3),
+            CircleCollection:
+            legend_handler.HandlerCircleCollection(sizes=[uniform_size]*3),
+        }
+
+        # Consult Legend.__init__ for purpose of each parameter.
+        Legend.__init__(self, parent, handles, labels,
+                        loc=loc,
+                        numpoints=numpoints,
+                        # markerscale does nothing when using uniform sizing.
+                        markerscale=None,
+                        markerfirst=markerfirst,
+                        scatterpoints=scatterpoints,
+                        scatteryoffsets=scatteryoffsets,
+                        prop=prop,
+                        fontsize=fontsize,
+                        borderpad=borderpad,
+                        labelspacing=labelspacing,
+                        handlelength=handlelength,
+                        handleheight=handleheight,
+                        handletextpad=handletextpad,
+                        borderaxespad=borderaxespad,
+                        columnspacing=columnspacing,
+                        ncol=1,
+                        mode=mode,
+                        fancybox=fancybox,
+                        shadow=shadow,
+                        title=title,
+                        framealpha=framealpha,
+                        bbox_to_anchor=bbox_to_anchor,
+                        bbox_transform=bbox_transform,
+                        frameon=frameon,
+                        # Override with custom handler map that forces uniform
+                        # sizing.
+                        handler_map=uniformHandlerMap,
+                        )

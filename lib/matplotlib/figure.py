@@ -40,6 +40,7 @@ from matplotlib.axes import Axes, SubplotBase, subplot_class_factory
 from matplotlib.blocking_input import BlockingMouseInput, BlockingKeyMouseInput
 from matplotlib.gridspec import GridSpec
 from matplotlib.legend import Legend
+from matplotlib.legend import UniformLegend
 from matplotlib.patches import Rectangle
 from matplotlib.projections import (get_projection_names,
                                     process_projection_requirements)
@@ -1382,7 +1383,21 @@ class Figure(Artist):
 
         .. plot:: mpl_examples/pylab_examples/figlegend_demo.py
         """
-        l = Legend(self, handles, labels, *args, **kwargs)
+
+        # If uniform_size is specified, verify that there's no conflicting
+        # parameters.
+        l = None
+        if 'uniform_size' in kwargs:
+            if 'markerscale' in kwargs or 'handler_map' in kwargs:
+                raise TypeError("Cannot specify 'markerscale' or " +
+                                "'handler_map' to legend when " +
+                                "'uniform_size' is specified.")
+            uniform_size = kwargs.pop('uniform_size')
+            l = UniformLegend(self, handles, labels, uniform_size, *args,
+                              **kwargs)
+        else:
+            l = Legend(self, handles, labels, *args, **kwargs)
+
         self.legends.append(l)
         l._remove_method = lambda h: self.legends.remove(h)
         self.stale = True

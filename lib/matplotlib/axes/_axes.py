@@ -561,7 +561,19 @@ or tuple of floats
         else:
             raise TypeError('Invalid arguments to legend.')
 
-        self.legend_ = mlegend.Legend(self, handles, labels, **kwargs)
+        # If uniform_size is specified, verify that there's no conflicting
+        # parameters.
+        if 'uniform_size' in kwargs:
+            if 'markerscale' in kwargs or 'handler_map' in kwargs:
+                raise TypeError("Cannot specify 'markerscale' or " +
+                                "'handler_map' to legend when " +
+                                "'uniform_size' is specified.")
+            uniform_size = kwargs.pop('uniform_size')
+            self.legend_ = mlegend.UniformLegend(self, handles, labels,
+                                                 uniform_size, **kwargs)
+        else:
+            self.legend_ = mlegend.Legend(self, handles, labels, **kwargs)
+
         self.legend_._remove_method = lambda h: setattr(self, 'legend_', None)
         return self.legend_
 
