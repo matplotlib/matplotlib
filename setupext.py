@@ -1523,25 +1523,25 @@ class Dateutil(SetupPackage):
         return [dateutil]
 
 
-class FuncTools32(SetupPackage):
-    name = "functools32"
+class BackportsFuncToolsLRUCache(SetupPackage):
+    name = "backports.functools_lru_cache"
 
     def check(self):
         if not PY3min:
             try:
-                import functools32
+                import backports.functools_lru_cache
             except ImportError:
                 return (
-                    "functools32 was not found. It is required for"
+                    "backports.functools_lru_cache was not found. It is required for"
                     "Python versions prior to 3.2")
 
-            return "using functools32"
+            return "using backports.functools_lru_cache"
         else:
             return "Not required"
 
     def get_install_requires(self):
         if not PY3min:
-            return ['functools32']
+            return ['backports.functools_lru_cache']
         else:
             return []
 
