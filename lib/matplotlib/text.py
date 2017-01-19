@@ -1154,6 +1154,8 @@ class Text(Artist):
         """
         self.set_x(xy[0])
         self.set_y(xy[1])
+        if not np.all(np.isfinite(xy)):
+            self.set_visible(False)
 
     def set_x(self, x):
         """
