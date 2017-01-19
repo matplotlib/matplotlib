@@ -9,7 +9,7 @@ except ImportError:
 
 import matplotlib.widgets as widgets
 import matplotlib.pyplot as plt
-from matplotlib.testing.decorators import cleanup
+from matplotlib.testing.decorators import cleanup, image_comparison
 
 from numpy.testing import assert_allclose
 
@@ -271,3 +271,15 @@ def test_CheckButtons():
         pass
     cid = check.on_clicked(clicked_function)
     check.disconnect(cid)
+
+
+@image_comparison(baseline_images=['check_radio_buttons'], extensions=['png'],
+                  style='default')
+def test_check_radio_buttons_image():
+    get_ax()
+    plt.subplots_adjust(left=0.3)
+    rax1 = plt.axes([0.05, 0.7, 0.15, 0.15])
+    rax2 = plt.axes([0.05, 0.2, 0.15, 0.15])
+    widgets.RadioButtons(rax1, ('Radio 1', 'Radio 2', 'Radio 3'))
+    widgets.CheckButtons(rax2, ('Check 1', 'Check 2', 'Check 3'),
+                         (False, True, True))

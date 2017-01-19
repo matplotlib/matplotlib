@@ -540,9 +540,8 @@ class CheckButtons(AxesWidget):
             w, h = dy / 2., dy / 2.
             x, y = 0.05, y - h / 2.
 
-            p = Rectangle(xy=(x, y), width=w, height=h,
-                          facecolor=axcolor,
-                          transform=ax.transAxes)
+            p = Rectangle(xy=(x, y), width=w, height=h, edgecolor='black',
+                          facecolor=axcolor, transform=ax.transAxes)
 
             l1 = Line2D([x, x + w], [y + h, y], **lineparams)
             l2 = Line2D([x, x + w], [y, y + h], **lineparams)
@@ -997,8 +996,8 @@ class RadioButtons(AxesWidget):
             else:
                 facecolor = axcolor
 
-            p = Circle(xy=(0.15, y), radius=0.05, facecolor=facecolor,
-                       transform=ax.transAxes)
+            p = Circle(xy=(0.15, y), radius=0.05, edgecolor='black',
+                       facecolor=facecolor, transform=ax.transAxes)
 
             self.labels.append(t)
             self.circles.append(p)
@@ -2069,8 +2068,8 @@ class RectangleSelector(_SelectorWidget):
                                  alpha=0.2, fill=True)
             rectprops['animated'] = self.useblit
             self.rectprops = rectprops
-            self.to_draw = self._shape_klass((0, 0),
-                                     0, 1, visible=False, **self.rectprops)
+            self.to_draw = self._shape_klass((0, 0), 0, 1, visible=False,
+                                             **self.rectprops)
             self.ax.add_patch(self.to_draw)
         if drawtype == 'line':
             if lineprops is None:
@@ -2481,9 +2480,9 @@ class LassoSelector(_SelectorWidget):
     """
 
     def __init__(self, ax, onselect=None, useblit=True, lineprops=None,
-            button=None):
+                 button=None):
         _SelectorWidget.__init__(self, ax, onselect, useblit=useblit,
-            button=button)
+                                 button=button)
 
         self.verts = None
 
