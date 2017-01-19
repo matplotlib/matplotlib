@@ -278,7 +278,7 @@ def test_rrulewrapper():
     except RecursionError:
         print('rrulewrapper pickling test failed')
         raise
-        
+
 
 if __name__ == '__main__':
     import nose
