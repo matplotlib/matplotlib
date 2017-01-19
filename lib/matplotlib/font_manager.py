@@ -64,7 +64,7 @@ from matplotlib.fontconfig_pattern import (
 try:
     from functools import lru_cache
 except ImportError:
-    from functools32 import lru_cache
+    from backports.functools_lru_cache import lru_cache
 
 
 USE_FONTCONFIG = False

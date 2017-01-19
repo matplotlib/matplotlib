@@ -222,7 +222,7 @@ Required Dependencies
 Dependencies for python 2
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 
-`functools32 <https://pypi.python.org/pypi/functools32>`_
+`backports.functools_lru_cache <https://pypi.python.org/pypi/backports.functools_lru_cache>`_
     Required for compatibility if running on Python 2.7.
 
 `subprocess32 <https://pypi.python.org/pypi/subprocess32/>`_
