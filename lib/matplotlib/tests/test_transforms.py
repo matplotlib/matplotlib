@@ -6,16 +6,16 @@ from six.moves import xrange, zip
 
 import unittest
 
-import numpy.testing as np_test
-from numpy.testing import assert_almost_equal, assert_array_equal
-from numpy.testing import assert_array_almost_equal
+import numpy as np
+from numpy.testing import (assert_allclose, assert_almost_equal,
+                           assert_array_equal, assert_array_almost_equal)
 import pytest
+
 from matplotlib.transforms import (Affine2D, BlendedGenericTransform, Bbox,
                                    TransformedPath, TransformedPatchPath)
 from matplotlib.path import Path
 from matplotlib.scale import LogScale
 from matplotlib.testing.decorators import cleanup, image_comparison
-import numpy as np
 
 import matplotlib.transforms as mtrans
 import matplotlib.pyplot as plt
@@ -76,8 +76,8 @@ def test_external_transform_api():
     ax.set_xlim(0, 100)
     ax.set_ylim(0, 100)
     # assert that the top transform of the line is the scale transform.
-    np.testing.assert_allclose(line.get_transform()._a.get_matrix(),
-                               mtrans.Affine2D().scale(10).get_matrix())
+    assert_allclose(line.get_transform()._a.get_matrix(),
+                    mtrans.Affine2D().scale(10).get_matrix())
 
 
 @image_comparison(baseline_images=['pre_transform_data'],
@@ -208,7 +208,7 @@ def test_clipping_of_log():
                                  simplify=False)
 
     tpoints, tcodes = list(zip(*result))
-    assert np.allclose(tcodes, [M, L, L, L, C])
+    assert_allclose(tcodes, [M, L, L, L, C])
 
 
 class NonAffineForTest(mtrans.Transform):
@@ -344,26 +344,26 @@ class BasicTransformTests(unittest.TestCase):
                                 dtype=np.float64)
 
         # check we have the expected results from doing the affine part only
-        np_test.assert_array_almost_equal(na_pts, na_expected)
+        assert_array_almost_equal(na_pts, na_expected)
         # check we have the expected results from a full transformation
-        np_test.assert_array_almost_equal(all_pts, all_expected)
+        assert_array_almost_equal(all_pts, all_expected)
         # check we have the expected results from doing the transformation in
         # two steps
-        np_test.assert_array_almost_equal(self.stack1.transform_affine(na_pts),
-                                          all_expected)
+        assert_array_almost_equal(self.stack1.transform_affine(na_pts),
+                                  all_expected)
         # check that getting the affine transformation first, then fully
         # transforming using that yields the same result as before.
-        np_test.assert_array_almost_equal(
-            self.stack1.get_affine().transform(na_pts), all_expected)
+        assert_array_almost_equal(self.stack1.get_affine().transform(na_pts),
+                                  all_expected)
 
         # check that the affine part of stack1 & stack2 are equivalent
         # (i.e. the optimization is working)
         expected_result = (self.ta2 + self.ta3).get_matrix()
         result = self.stack1.get_affine().get_matrix()
-        np_test.assert_array_equal(expected_result, result)
+        assert_array_equal(expected_result, result)
 
         result = self.stack2.get_affine().get_matrix()
-        np_test.assert_array_equal(expected_result, result)
+        assert_array_equal(expected_result, result)
 
 
 class TestTransformPlotInterface(unittest.TestCase):
@@ -374,16 +374,16 @@ class TestTransformPlotInterface(unittest.TestCase):
         # a simple line in axes coordinates
         ax = plt.axes()
         ax.plot([0.1, 1.2, 0.8], [0.9, 0.5, 0.8], transform=ax.transAxes)
-        np.testing.assert_array_equal(ax.dataLim.get_points(),
-                                      np.array([[np.inf, np.inf],
-                                                [-np.inf, -np.inf]]))
+        assert_array_equal(ax.dataLim.get_points(),
+                           np.array([[np.inf, np.inf],
+                                     [-np.inf, -np.inf]]))
 
     def test_line_extent_data_coords(self):
         # a simple line in data coordinates
         ax = plt.axes()
         ax.plot([0.1, 1.2, 0.8], [0.9, 0.5, 0.8], transform=ax.transData)
-        np.testing.assert_array_equal(ax.dataLim.get_points(),
-                                      np.array([[0.1,  0.5], [1.2,  0.9]]))
+        assert_array_equal(ax.dataLim.get_points(),
+                           np.array([[0.1,  0.5], [1.2,  0.9]]))
 
     def test_line_extent_compound_coords1(self):
         # a simple line in data coordinates in the y component, and in axes
@@ -391,9 +391,9 @@ class TestTransformPlotInterface(unittest.TestCase):
         ax = plt.axes()
         trans = mtrans.blended_transform_factory(ax.transAxes, ax.transData)
         ax.plot([0.1, 1.2, 0.8], [35, -5, 18], transform=trans)
-        np.testing.assert_array_equal(ax.dataLim.get_points(),
-                                      np.array([[np.inf, -5.],
-                                                [-np.inf, 35.]]))
+        assert_array_equal(ax.dataLim.get_points(),
+                           np.array([[np.inf, -5.],
+                                     [-np.inf, 35.]]))
         plt.close()
 
     def test_line_extent_predata_transform_coords(self):
@@ -401,8 +401,8 @@ class TestTransformPlotInterface(unittest.TestCase):
         ax = plt.axes()
         trans = mtrans.Affine2D().scale(10) + ax.transData
         ax.plot([0.1, 1.2, 0.8], [35, -5, 18], transform=trans)
-        np.testing.assert_array_equal(ax.dataLim.get_points(),
-                                      np.array([[1., -50.], [12., 350.]]))
+        assert_array_equal(ax.dataLim.get_points(),
+                           np.array([[1., -50.], [12., 350.]]))
         plt.close()
 
     def test_line_extent_compound_coords2(self):
@@ -412,27 +412,24 @@ class TestTransformPlotInterface(unittest.TestCase):
         trans = mtrans.blended_transform_factory(
             ax.transAxes, mtrans.Affine2D().scale(10) + ax.transData)
         ax.plot([0.1, 1.2, 0.8], [35, -5, 18], transform=trans)
-        np.testing.assert_array_equal(
-            ax.dataLim.get_points(),
-            np.array([[np.inf, -50.], [-np.inf, 350.]]))
+        assert_array_equal(ax.dataLim.get_points(),
+                           np.array([[np.inf, -50.], [-np.inf, 350.]]))
         plt.close()
 
     def test_line_extents_affine(self):
         ax = plt.axes()
         offset = mtrans.Affine2D().translate(10, 10)
         plt.plot(list(xrange(10)), transform=offset + ax.transData)
-        expeted_data_lim = np.array([[0., 0.], [9.,  9.]]) + 10
-        np.testing.assert_array_almost_equal(ax.dataLim.get_points(),
-                                             expeted_data_lim)
+        expected_data_lim = np.array([[0., 0.], [9.,  9.]]) + 10
+        assert_array_almost_equal(ax.dataLim.get_points(), expected_data_lim)
 
     def test_line_extents_non_affine(self):
         ax = plt.axes()
         offset = mtrans.Affine2D().translate(10, 10)
         na_offset = NonAffineForTest(mtrans.Affine2D().translate(10, 10))
         plt.plot(list(xrange(10)), transform=offset + na_offset + ax.transData)
-        expeted_data_lim = np.array([[0., 0.], [9.,  9.]]) + 20
-        np.testing.assert_array_almost_equal(ax.dataLim.get_points(),
-                                             expeted_data_lim)
+        expected_data_lim = np.array([[0., 0.], [9.,  9.]]) + 20
+        assert_array_almost_equal(ax.dataLim.get_points(), expected_data_lim)
 
     def test_pathc_extents_non_affine(self):
         ax = plt.axes()
@@ -442,9 +439,8 @@ class TestTransformPlotInterface(unittest.TestCase):
         patch = mpatches.PathPatch(pth,
                                    transform=offset + na_offset + ax.transData)
         ax.add_patch(patch)
-        expeted_data_lim = np.array([[0., 0.], [10.,  10.]]) + 20
-        np.testing.assert_array_almost_equal(ax.dataLim.get_points(),
-                                             expeted_data_lim)
+        expected_data_lim = np.array([[0., 0.], [10.,  10.]]) + 20
+        assert_array_almost_equal(ax.dataLim.get_points(), expected_data_lim)
 
     def test_pathc_extents_affine(self):
         ax = plt.axes()
@@ -452,9 +448,8 @@ class TestTransformPlotInterface(unittest.TestCase):
         pth = mpath.Path(np.array([[0, 0], [0, 10], [10, 10], [10, 0]]))
         patch = mpatches.PathPatch(pth, transform=offset + ax.transData)
         ax.add_patch(patch)
-        expeted_data_lim = np.array([[0., 0.], [10.,  10.]]) + 10
-        np.testing.assert_array_almost_equal(ax.dataLim.get_points(),
-                                             expeted_data_lim)
+        expected_data_lim = np.array([[0., 0.], [10.,  10.]]) + 10
+        assert_array_almost_equal(ax.dataLim.get_points(), expected_data_lim)
 
     def test_line_extents_for_non_affine_transData(self):
         ax = plt.axes(projection='polar')
@@ -465,9 +460,8 @@ class TestTransformPlotInterface(unittest.TestCase):
         # the data lim of a polar plot is stored in coordinates
         # before a transData transformation, hence the data limits
         # are not what is being shown on the actual plot.
-        expeted_data_lim = np.array([[0., 0.], [9.,  9.]]) + [0, 10]
-        np.testing.assert_array_almost_equal(ax.dataLim.get_points(),
-                                             expeted_data_lim)
+        expected_data_lim = np.array([[0., 0.], [9.,  9.]]) + [0, 10]
+        assert_array_almost_equal(ax.dataLim.get_points(), expected_data_lim)
 
 
 def assert_bbox_eq(bbox1, bbox2):
@@ -585,19 +579,20 @@ def test_transformed_path():
 
     trans = mtrans.Affine2D()
     trans_path = TransformedPath(path, trans)
-    assert np.allclose(trans_path.get_fully_transformed_path().vertices,
-                       points)
+    assert_allclose(trans_path.get_fully_transformed_path().vertices, points)
 
     # Changing the transform should change the result.
     r2 = 1 / np.sqrt(2)
     trans.rotate(np.pi / 4)
-    assert np.allclose(trans_path.get_fully_transformed_path().vertices,
-                       [(0, 0), (r2, r2), (0, 2 * r2), (-r2, r2)])
+    assert_allclose(trans_path.get_fully_transformed_path().vertices,
+                    [(0, 0), (r2, r2), (0, 2 * r2), (-r2, r2)],
+                    atol=1e-15)
 
     # Changing the path does not change the result (it's cached).
     path.points = [(0, 0)] * 4
-    assert np.allclose(trans_path.get_fully_transformed_path().vertices,
-                       [(0, 0), (r2, r2), (0, 2 * r2), (-r2, r2)])
+    assert_allclose(trans_path.get_fully_transformed_path().vertices,
+                    [(0, 0), (r2, r2), (0, 2 * r2), (-r2, r2)],
+                    atol=1e-15)
 
 
 def test_transformed_patch_path():
@@ -609,11 +604,9 @@ def test_transformed_patch_path():
 
     # Changing the transform should change the result.
     trans.scale(2)
-    assert np.allclose(tpatch.get_fully_transformed_path().vertices,
-                       points * 2)
+    assert_allclose(tpatch.get_fully_transformed_path().vertices, points * 2)
 
     # Changing the path should change the result (and cancel out the scaling
     # from the transform).
     patch.set_radius(0.5)
-    assert np.allclose(tpatch.get_fully_transformed_path().vertices,
-                       points)
+    assert_allclose(tpatch.get_fully_transformed_path().vertices, points)
