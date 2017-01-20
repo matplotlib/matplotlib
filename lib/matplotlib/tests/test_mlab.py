@@ -5,12 +5,12 @@ import six
 
 import tempfile
 
-from numpy.testing import assert_allclose, assert_array_equal
+from numpy.testing import (assert_allclose, assert_almost_equal,
+                           assert_array_equal)
 import numpy.ma.testutils as matest
 import numpy as np
 import datetime as datetime
 import pytest
-from nose.tools import (assert_almost_equal)
 
 import matplotlib.mlab as mlab
 import matplotlib.cbook as cbook
@@ -2922,9 +2922,9 @@ class Test_gaussian_kde(object):
         xs = np.linspace(-7, 7, 51)
         kdepdf = gkde.evaluate(xs)
         kdepdf2 = gkde2.evaluate(xs)
-        assert_almost_equal(kdepdf.all(), kdepdf2.all())
+        assert kdepdf.all() == kdepdf2.all()
         kdepdf3 = gkde3.evaluate(xs)
-        assert_almost_equal(kdepdf.all(), kdepdf3.all())
+        assert kdepdf.all() == kdepdf3.all()
 
 
 class Test_gaussian_kde_custom(object):
