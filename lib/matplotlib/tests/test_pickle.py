@@ -11,6 +11,7 @@ from nose.tools import assert_equal, assert_not_equal
 import numpy as np
 
 from matplotlib.testing.decorators import cleanup, image_comparison
+from matplotlib.dates import rrulewrapper
 import matplotlib.pyplot as plt
 import matplotlib.transforms as mtransforms
 
@@ -268,6 +269,15 @@ def test_transform():
     # Check input and output dimensions are set as expected.
     assert_equal(obj.wrapper.input_dims, obj.composite.input_dims)
     assert_equal(obj.wrapper.output_dims, obj.composite.output_dims)
+
+
+def test_rrulewrapper():
+    r = rrulewrapper(2)
+    try:
+        pickle.loads(pickle.dumps(r))
+    except RecursionError:
+        print('rrulewrapper pickling test failed')
+        raise
 
 
 if __name__ == '__main__':
