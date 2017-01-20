@@ -1,12 +1,10 @@
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
-import six
-
 import os
 import shutil
 
-from nose.tools import assert_equal, assert_not_equal, assert_almost_equal
+from numpy.testing import assert_equal, assert_not_equal, assert_almost_equal
 
 from matplotlib.testing.compare import compare_images
 from matplotlib.testing.decorators import _image_directories
@@ -99,8 +97,3 @@ def test_image_compare_shade_difference():
 
     # Now test the reverse comparison.
     image_comparison_expect_rms(im2, im1, tol=0, expect_rms=1.0)
-
-
-if __name__ == '__main__':
-    import nose
-    nose.runmodule(argv=['-s', '--with-doctest'], exit=False)
