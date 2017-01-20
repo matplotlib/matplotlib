@@ -1,14 +1,13 @@
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
-import six
 from six.moves import xrange
 try:
     # mock in python 3.3+
     from unittest import mock
 except ImportError:
     import mock
-from nose.tools import assert_equal
+from numpy.testing import assert_equal
 import numpy as np
 
 from matplotlib.testing.decorators import image_comparison, cleanup
@@ -143,14 +142,14 @@ def test_framealpha():
                   remove_text=True)
 def test_rc():
     # using subplot triggers some offsetbox functionality untested elsewhere
-    fig = plt.figure()
+    plt.figure()
     ax = plt.subplot(121)
     ax.scatter(list(xrange(10)), list(xrange(10, 0, -1)), label='three')
     ax.legend(loc="center left", bbox_to_anchor=[1.0, 0.5],
               title="My legend")
 
     mpl.rcParams['legend.scatterpoints'] = 1
-    fig = plt.figure()
+    plt.figure()
     ax = plt.subplot(121)
     ax.scatter(list(xrange(10)), list(xrange(10, 0, -1)), label='one')
     ax.legend(loc="center left", bbox_to_anchor=[1.0, 0.5],
