@@ -830,6 +830,7 @@ def mkdirs(newdir, mode=0o777):
             if exception.errno != errno.EEXIST:
                 raise
 
+
 class GetRealpathAndStat(object):
     def __init__(self):
         self._cache = {}
@@ -846,6 +847,8 @@ class GetRealpathAndStat(object):
             result = realpath, stat_key
             self._cache[path] = result
         return result
+
+
 get_realpath_and_stat = GetRealpathAndStat()
 
 
@@ -931,6 +934,7 @@ def wrap(prefix, text, cols):
     for line in lines[1:]:
         ret += pad + ' '.join(line) + '\n'
     return ret
+
 
 # A regular expression used to determine the amount of space to
 # remove.  It looks for the first sequence of spaces immediately
@@ -1098,10 +1102,6 @@ def onetrue(seq):
 def allpairs(x):
     """
     return all possible pairs in sequence *x*
-
-    Condensed by Alex Martelli from this thread_ on c.l.python
-
-    .. _thread: http://groups.google.com/groups?q=all+pairs+group:*python*&hl=en&lr=&ie=UTF-8&selm=mailman.4028.1096403649.5135.python-list%40python.org&rnum=1
     """
     return [(s, f) for i, f in enumerate(x) for s in x[i + 1:]]
 
@@ -1563,7 +1563,7 @@ def recursive_remove(path):
                 os.removedirs(fname)
             else:
                 os.remove(fname)
-        #os.removedirs(path)
+        # os.removedirs(path)
     else:
         os.remove(path)
 
@@ -1849,7 +1849,6 @@ def boxplot_stats(X, whis=1.5, bootstrap=None, labels=None,
 
         # add in the remaining stats
         stats['q1'], stats['med'], stats['q3'] = q1, med, q3
-
 
     return bxpstats
 
@@ -2412,6 +2411,7 @@ def get_label(y, default_name):
         return y.name
     except AttributeError:
         return default_name
+
 
 _lockstr = """\
 LOCKERROR: matplotlib is trying to acquire the lock
