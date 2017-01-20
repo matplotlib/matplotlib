@@ -1650,6 +1650,7 @@ class DraggableBase(object):
     def __init__(self, ref_artist, use_blit=False):
         self.ref_artist = ref_artist
         self.got_artist = False
+        self.got_other_artist = False
 
         self.canvas = self.ref_artist.figure.canvas
         self._use_blit = use_blit and self.canvas.supports_blit
@@ -1677,7 +1678,9 @@ class DraggableBase(object):
             self.canvas.blit(self.ref_artist.figure.bbox)
 
     def on_pick(self, evt):
-        if evt.artist == self.ref_artist:
+        if self.got_other_artist:
+            return
+        if self.got_artist or evt.artist == self.ref_artist:
 
             self.mouse_x = evt.mouseevent.x
             self.mouse_y = evt.mouseevent.y
@@ -1696,8 +1699,11 @@ class DraggableBase(object):
                 self._c1 = self.canvas.mpl_connect('motion_notify_event',
                                                    self.on_motion)
             self.save_offset()
+        else:
+            self.got_other_artist = True
 
     def on_release(self, event):
+        self.got_other_artist = False
         if self.got_artist:
             self.finalize_offset()
             self.got_artist = False
