@@ -2,7 +2,7 @@ from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
 import six
-from six.moves import xrange, zip
+from six.moves import zip
 
 import unittest
 
@@ -49,7 +49,7 @@ def test_non_affine_caching():
 
     my_trans = AssertingNonAffineTransform()
     ax = plt.axes()
-    plt.plot(list(xrange(10)), transform=my_trans + ax.transData)
+    plt.plot(np.arange(10), transform=my_trans + ax.transData)
     plt.draw()
     # enable the transform to raise an exception if it's non-affine transform
     # method is triggered again.
@@ -68,7 +68,7 @@ def test_external_transform_api():
             return mtrans.Affine2D().scale(self._scale_factor) + axes.transData
 
     ax = plt.axes()
-    line, = plt.plot(list(xrange(10)), transform=ScaledBy(10))
+    line, = plt.plot(np.arange(10), transform=ScaledBy(10))
     ax.set_xlim(0, 100)
     ax.set_ylim(0, 100)
     # assert that the top transform of the line is the scale transform.
@@ -415,7 +415,7 @@ class TestTransformPlotInterface(unittest.TestCase):
     def test_line_extents_affine(self):
         ax = plt.axes()
         offset = mtrans.Affine2D().translate(10, 10)
-        plt.plot(list(xrange(10)), transform=offset + ax.transData)
+        plt.plot(np.arange(10), transform=offset + ax.transData)
         expected_data_lim = np.array([[0., 0.], [9.,  9.]]) + 10
         assert_array_almost_equal(ax.dataLim.get_points(), expected_data_lim)
 
@@ -423,7 +423,7 @@ class TestTransformPlotInterface(unittest.TestCase):
         ax = plt.axes()
         offset = mtrans.Affine2D().translate(10, 10)
         na_offset = NonAffineForTest(mtrans.Affine2D().translate(10, 10))
-        plt.plot(list(xrange(10)), transform=offset + na_offset + ax.transData)
+        plt.plot(np.arange(10), transform=offset + na_offset + ax.transData)
         expected_data_lim = np.array([[0., 0.], [9.,  9.]]) + 20
         assert_array_almost_equal(ax.dataLim.get_points(), expected_data_lim)
 
@@ -452,7 +452,7 @@ class TestTransformPlotInterface(unittest.TestCase):
         # add 10 to the radius of the data
         offset = mtrans.Affine2D().translate(0, 10)
 
-        plt.plot(list(xrange(10)), transform=offset + ax.transData)
+        plt.plot(np.arange(10), transform=offset + ax.transData)
         # the data lim of a polar plot is stored in coordinates
         # before a transData transformation, hence the data limits
         # are not what is being shown on the actual plot.
