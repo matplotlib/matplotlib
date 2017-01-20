@@ -1,5 +1,5 @@
 import matplotlib.gridspec as gridspec
-from nose.tools import assert_raises, assert_equal
+from numpy.testing import assert_raises, assert_equal
 
 
 def test_equal():
