@@ -11,15 +11,12 @@ from numpy.testing import (assert_allclose, assert_almost_equal,
                            assert_array_equal, assert_array_almost_equal)
 import pytest
 
-from matplotlib.transforms import (Affine2D, BlendedGenericTransform, Bbox,
-                                   TransformedPath, TransformedPatchPath)
+import matplotlib.pyplot as plt
+import matplotlib.patches as mpatches
+import matplotlib.transforms as mtrans
 from matplotlib.path import Path
 from matplotlib.scale import LogScale
 from matplotlib.testing.decorators import cleanup, image_comparison
-
-import matplotlib.transforms as mtrans
-import matplotlib.pyplot as plt
-import matplotlib.patches as mpatches
 
 
 @cleanup
@@ -199,8 +196,8 @@ def test_clipping_of_log():
     path = Path(points, codes)
 
     # something like this happens in plotting logarithmic histograms
-    trans = BlendedGenericTransform(Affine2D(),
-                                    LogScale.Log10Transform('clip'))
+    trans = mtrans.BlendedGenericTransform(mtrans.Affine2D(),
+                                           LogScale.Log10Transform('clip'))
     tpath = trans.transform_path_non_affine(path)
     result = tpath.iter_segments(trans.get_affine(),
                                  clip=(0, 0, 100, 100),
@@ -518,8 +515,8 @@ def test_log_transform():
 
 @cleanup
 def test_nan_overlap():
-    a = Bbox([[0, 0], [1, 1]])
-    b = Bbox([[0, 0], [1, np.nan]])
+    a = mtrans.Bbox([[0, 0], [1, 1]])
+    b = mtrans.Bbox([[0, 0], [1, np.nan]])
     assert not a.overlaps(b)
 
 
@@ -577,7 +574,7 @@ def test_transformed_path():
     path = Path(points, codes)
 
     trans = mtrans.Affine2D()
-    trans_path = TransformedPath(path, trans)
+    trans_path = mtrans.TransformedPath(path, trans)
     assert_allclose(trans_path.get_fully_transformed_path().vertices, points)
 
     # Changing the transform should change the result.
@@ -598,7 +595,7 @@ def test_transformed_patch_path():
     trans = mtrans.Affine2D()
     patch = mpatches.Wedge((0, 0), 1, 45, 135, transform=trans)
 
-    tpatch = TransformedPatchPath(patch)
+    tpatch = mtrans.TransformedPatchPath(patch)
     points = tpatch.get_fully_transformed_path().vertices
 
     # Changing the transform should change the result.
