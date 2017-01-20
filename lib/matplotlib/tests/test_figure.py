@@ -67,6 +67,18 @@ def test_figure():
     plt.close('tomorrow')
 
 
+@image_comparison(baseline_images=['figure_legend'])
+def test_figure_legend():
+    fig, axes = plt.subplots(2)
+    axes[0].plot([0, 1], [1, 0], label='x', color='g')
+    axes[0].plot([0, 1], [0, 1], label='y', color='r')
+    axes[0].plot([0, 1], [0.5, 0.5], label='y', color='k')
+
+    axes[1].plot([0, 1], [1, 0], label='y', color='r')
+    axes[1].plot([0, 1], [0, 1], label='z', color='b')
+    fig.legend()
+
+
 @cleanup
 def test_gca():
     fig = plt.figure()
