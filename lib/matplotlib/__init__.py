@@ -1497,7 +1497,6 @@ default_test_modules = [
     'matplotlib.tests.test_dviread',
     'matplotlib.tests.test_figure',
     'matplotlib.tests.test_font_manager',
-    'matplotlib.tests.test_gridspec',
     'matplotlib.tests.test_mathtext',
     'matplotlib.tests.test_mlab',
     'matplotlib.tests.test_offsetbox',
