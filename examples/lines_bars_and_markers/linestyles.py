@@ -1,5 +1,9 @@
 """
-Different linestyles copying those of Tikz/PGF
+==========
+Linestyles
+==========
+
+This examples showcases different linestyles copying those of Tikz/PGF.
 """
 import numpy as np
 import matplotlib.pyplot as plt
