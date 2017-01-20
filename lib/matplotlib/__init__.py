@@ -1495,7 +1495,6 @@ default_test_modules = [
     'matplotlib.tests.test_contour',
     'matplotlib.tests.test_dates',
     'matplotlib.tests.test_dviread',
-    'matplotlib.tests.test_figure',
     'matplotlib.tests.test_font_manager',
     'matplotlib.tests.test_gridspec',
     'matplotlib.tests.test_image',
