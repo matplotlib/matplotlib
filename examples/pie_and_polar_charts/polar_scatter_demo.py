@@ -11,6 +11,7 @@ Size increases radially in this example and color increases with angle
 import numpy as np
 import matplotlib.pyplot as plt
 
+
 # Fixing random state for reproducibility
 np.random.seed(19680801)
 
