@@ -1522,7 +1522,6 @@ default_test_modules = [
     'matplotlib.tests.test_text',
     'matplotlib.tests.test_texmanager',
     'matplotlib.tests.test_tightlayout',
-    'matplotlib.tests.test_transforms',
     'matplotlib.tests.test_triangulation',
     'matplotlib.tests.test_type1font',
     'matplotlib.tests.test_ttconv',

@@ -1,7 +1,6 @@
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
-import six
 from six.moves import zip
 
 import unittest
@@ -220,7 +219,7 @@ class NonAffineForTest(mtrans.Transform):
 
     def __init__(self, real_trans, *args, **kwargs):
         self.real_trans = real_trans
-        r = mtrans.Transform.__init__(self, *args, **kwargs)
+        mtrans.Transform.__init__(self, *args, **kwargs)
 
     def transform_non_affine(self, values):
         return self.real_trans.transform(values)
