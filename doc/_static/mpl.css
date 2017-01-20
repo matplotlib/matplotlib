@@ -13,8 +13,9 @@ body {
     padding: 0;
     border: 1px solid #aaa;
     color: #333;
-    margin: 0px 80px 0px 80px;
+    margin: auto;
     min-width: 740px;
+    max-width: 1200px;
 }
 
 a {
