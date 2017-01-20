@@ -6,10 +6,10 @@ from six.moves import xrange, zip
 
 import unittest
 
-from nose.tools import assert_equal, assert_raises
 import numpy.testing as np_test
 from numpy.testing import assert_almost_equal, assert_array_equal
 from numpy.testing import assert_array_almost_equal
+import pytest
 from matplotlib.transforms import (Affine2D, BlendedGenericTransform, Bbox,
                                    TransformedPath, TransformedPatchPath)
 from matplotlib.path import Path
@@ -262,9 +262,9 @@ class BasicTransformTests(unittest.TestCase):
 #        self.stack2_subset.write_graphviz(file('stack2_subset.dot', 'w'))
 
     def test_transform_depth(self):
-        assert_equal(self.stack1.depth, 4)
-        assert_equal(self.stack2.depth, 4)
-        assert_equal(self.stack2_subset.depth, 3)
+        assert self.stack1.depth == 4
+        assert self.stack2.depth == 4
+        assert self.stack2_subset.depth == 3
 
     def test_left_to_right_iteration(self):
         stack3 = (self.ta1 + (self.tn1 + (self.ta2 + self.tn2))) + self.ta3
@@ -286,12 +286,11 @@ class BasicTransformTests(unittest.TestCase):
         self.assertEqual(self.stack1 - self.stack2_subset, self.ta1)
         self.assertEqual(self.stack2 - self.stack2_subset, self.ta1)
 
-        assert_equal((self.stack2_subset - self.stack2),
-                     self.ta1.inverted(),
-                     )
-        assert_equal((self.stack2_subset - self.stack2).depth, 1)
+        assert self.stack2_subset - self.stack2 == self.ta1.inverted()
+        assert (self.stack2_subset - self.stack2).depth == 1
 
-        assert_raises(ValueError, self.stack1.__sub__, self.stack2)
+        with pytest.raises(ValueError):
+            self.stack1 - self.stack2
 
         aff1 = self.ta1 + (self.ta2 + self.ta3)
         aff2 = self.ta2 + self.ta3
@@ -496,7 +495,7 @@ def test_bbox_intersection():
     # r3 contains r2
     assert_bbox_eq(inter(r1, r3), r3)
     # no intersection
-    assert_equal(inter(r1, r4), None)
+    assert inter(r1, r4) is None
     # single point
     assert_bbox_eq(inter(r1, r5), bbox_from_ext(1, 1, 1, 1))
 
@@ -506,11 +505,11 @@ def test_bbox_as_strings():
     assert_bbox_eq(b, eval(repr(b), {'Bbox': mtrans.Bbox}))
     asdict = eval(str(b), {'Bbox': dict})
     for k, v in asdict.items():
-        assert_equal(getattr(b, k), v)
+        assert getattr(b, k) == v
     fmt = '.1f'
     asdict = eval(format(b, fmt), {'Bbox': dict})
     for k, v in asdict.items():
-        assert_equal(eval(format(getattr(b, k), fmt)), v)
+        assert eval(format(getattr(b, k), fmt)) == v
 
 
 def test_transform_single_point():
@@ -545,10 +544,12 @@ def test_transform_angles():
     assert_array_almost_equal(angles, new_angles)
 
     # points missing a 2nd dimension
-    assert_raises(ValueError, t.transform_angles, angles, points[0:2, 0:1])
+    with pytest.raises(ValueError):
+        t.transform_angles(angles, points[0:2, 0:1])
 
     # Number of angles != Number of points
-    assert_raises(ValueError, t.transform_angles, angles, points[0:2, :])
+    with pytest.raises(ValueError):
+        t.transform_angles(angles, points[0:2, :])
 
 
 def test_nonsingular():
@@ -567,12 +568,18 @@ def test_invalid_arguments():
     # raises a ValueError, and a wrong shape with a possible number
     # of dimensions is caught by our CALL_CPP macro, which always
     # raises the less precise RuntimeError.
-    assert_raises(ValueError, t.transform, 1)
-    assert_raises(ValueError, t.transform, [[[1]]])
-    assert_raises(RuntimeError, t.transform, [])
-    assert_raises(RuntimeError, t.transform, [1])
-    assert_raises(RuntimeError, t.transform, [[1]])
-    assert_raises(RuntimeError, t.transform, [[1, 2, 3]])
+    with pytest.raises(ValueError):
+        t.transform(1)
+    with pytest.raises(ValueError):
+        t.transform([[[1]]])
+    with pytest.raises(RuntimeError):
+        t.transform([])
+    with pytest.raises(RuntimeError):
+        t.transform([1])
+    with pytest.raises(RuntimeError):
+        t.transform([[1]])
+    with pytest.raises(RuntimeError):
+        t.transform([[1, 2, 3]])
 
 
 def test_transformed_path():
@@ -614,8 +621,3 @@ def test_transformed_patch_path():
     patch.set_radius(0.5)
     assert np.allclose(tpatch.get_fully_transformed_path().vertices,
                        points)
-
-
-if __name__ == '__main__':
-    import nose
-    nose.runmodule(argv=['-s', '--with-doctest'],  exit=False)
