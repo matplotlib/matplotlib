@@ -190,20 +190,18 @@ class GeoAxes(Axes):
         """
         Set the number of degrees between each longitude grid.
         """
-        number = int(360 / degrees) + 1
-        self.xaxis.set_major_locator(
-            FixedLocator(
-                np.linspace(-np.pi, np.pi, number, True)[1:-1]))
+        # Skip -180 and 180, which are the fixed limits.
+        grid = np.arange(-180 + degrees, 180, degrees)
+        self.xaxis.set_major_locator(FixedLocator(np.deg2rad(grid)))
         self.xaxis.set_major_formatter(self.ThetaFormatter(degrees))
 
     def set_latitude_grid(self, degrees):
         """
-        Set the number of degrees between each longitude grid.
+        Set the number of degrees between each latitude grid.
         """
-        number = int(180 / degrees) + 1
-        self.yaxis.set_major_locator(
-            FixedLocator(
-                np.linspace(-np.pi / 2.0, np.pi / 2.0, number, True)[1:-1]))
+        # Skip -90 and 90, which are the fixed limits.
+        grid = np.arange(-90 + degrees, 90, degrees)
+        self.yaxis.set_major_locator(FixedLocator(np.deg2rad(grid)))
         self.yaxis.set_major_formatter(self.ThetaFormatter(degrees))
 
     def set_longitude_grid_ends(self, degrees):
