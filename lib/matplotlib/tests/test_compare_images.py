@@ -4,7 +4,7 @@ from __future__ import (absolute_import, division, print_function,
 import os
 import shutil
 
-from numpy.testing import assert_equal, assert_not_equal, assert_almost_equal
+from numpy.testing import assert_equal, assert_almost_equal
 
 from matplotlib.testing.compare import compare_images
 from matplotlib.testing.decorators import _image_directories
@@ -37,8 +37,8 @@ def image_comparison_expect_rms(im1, im2, tol, expect_rms):
     if expect_rms is None:
         assert_equal(None, results)
     else:
-        assert_not_equal(None, results)
-        assert_almost_equal(expect_rms, results['rms'], places=4)
+        assert results is not None
+        assert_almost_equal(expect_rms, results['rms'], decimal=4)
 
 
 def test_image_compare_basic():
