@@ -9,7 +9,6 @@ from matplotlib.testing.decorators import image_comparison, cleanup
 
 from matplotlib.table import CustomCell
 from matplotlib.path import Path
-from nose.tools import assert_equal
 
 
 @cleanup
@@ -127,7 +126,7 @@ def test_customcell():
     for t, c in zip(types, codes):
         cell = CustomCell((0, 0), visible_edges=t, width=1, height=1)
         code = tuple(s for _, s in cell.get_path().iter_segments())
-        assert_equal(c, code)
+        assert c == code
 
 
 @image_comparison(baseline_images=['table_auto_column'],
