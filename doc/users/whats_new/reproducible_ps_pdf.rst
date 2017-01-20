@@ -17,9 +17,11 @@ versions need to be kept constant for reproducibility, and they may
 add sources of nondeterminism outside the control of matplotlib.
 
 For SVG output, the ``svg.hashsalt`` rc parameter has been added in an
-earlier release. It can be used to change some random id values in the
-output to be deterministic, at the cost that including multiple such
-SVG files in one document can lead to collisions.
+earlier release. This parameter changes some random identifiers in the
+SVG file to be deterministic. The downside of this setting is that if
+more than one file is generated using with deterministic identifiers
+and they end up as parts of one larger document, the identifiers can
+collide and cause the different parts to affect each other.
 
 These features are now enabled in the tests for the PDF and SVG
 backends, so most test output files (but not all of them) are now
