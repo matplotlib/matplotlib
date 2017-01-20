@@ -1,5 +1,9 @@
 """
-Simple demo of the fill function.
+==================
+A simple Fill plot
+==================
+
+This example showcases the most basic fill plot a user can do with matplotlib.
 """
 import numpy as np
 import matplotlib.pyplot as plt

@@ -1,5 +1,7 @@
 """
-Demo of the fill function with a few features.
+========================
+A more complex fill demo
+========================
 
 In addition to the basic fill plot, this demo shows a few optional features:
 

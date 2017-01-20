@@ -1,5 +1,7 @@
 """
-Demo of a simple plot with a custom dashed line.
+=======================================
+A simple plot with a custom dashed line
+=======================================
 
 A Line object's ``set_dashes`` method allows you to specify dashes with
 a series of on/off lengths (in points).
