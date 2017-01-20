@@ -1502,7 +1502,6 @@ default_test_modules = [
     'matplotlib.tests.test_legend',
     'matplotlib.tests.test_lines',
     'matplotlib.tests.test_mathtext',
-    'matplotlib.tests.test_mlab',
     'matplotlib.tests.test_offsetbox',
     'matplotlib.tests.test_patches',
     'matplotlib.tests.test_path',
