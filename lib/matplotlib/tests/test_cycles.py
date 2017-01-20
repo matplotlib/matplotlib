@@ -4,7 +4,7 @@ from matplotlib.testing.decorators import image_comparison, cleanup
 from matplotlib.cbook import MatplotlibDeprecationWarning
 import matplotlib.pyplot as plt
 import numpy as np
-from nose.tools import assert_raises
+from numpy.testing import assert_raises
 
 from cycler import cycler
 
@@ -213,8 +213,3 @@ def test_invalid_input_forms():
             cycler(foobar=[1, 2]))
     assert_raises(ValueError, ax.set_prop_cycle,
             cycler(color='rgb', c='cmy'))
-
-
-if __name__ == '__main__':
-    import nose
-    nose.runmodule(argv=['-s', '--with-doctest'], exit=False)
