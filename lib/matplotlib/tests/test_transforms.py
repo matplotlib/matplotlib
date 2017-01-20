@@ -40,16 +40,14 @@ def test_non_affine_caching():
             self.underlying_transform = mtrans.Affine2D().scale(10, 10)
 
         def transform_path_non_affine(self, path):
-            if self.raise_on_transform:
-                assert False, ('Invalidated affine part of transform '
-                               'unnecessarily.')
+            assert not self.raise_on_transform, \
+                'Invalidated affine part of transform unnecessarily.'
             return self.underlying_transform.transform_path(path)
         transform_path = transform_path_non_affine
 
         def transform_non_affine(self, path):
-            if self.raise_on_transform:
-                assert False, ('Invalidated affine part of transform '
-                               'unnecessarily.')
+            assert not self.raise_on_transform, \
+                'Invalidated affine part of transform unnecessarily.'
             return self.underlying_transform.transform(path)
         transform = transform_non_affine
 
@@ -277,14 +275,14 @@ class BasicTransformTests(unittest.TestCase):
                              self.ta3,
                              ]
         r = [rh for _, rh in stack3._iter_break_from_left_to_right()]
-        self.assertEqual(len(r), len(target_transforms))
+        assert len(r) == len(target_transforms)
 
         for target_stack, stack in zip(target_transforms, r):
-            self.assertEqual(target_stack, stack)
+            assert target_stack == stack
 
     def test_transform_shortcuts(self):
-        self.assertEqual(self.stack1 - self.stack2_subset, self.ta1)
-        self.assertEqual(self.stack2 - self.stack2_subset, self.ta1)
+        assert self.stack1 - self.stack2_subset == self.ta1
+        assert self.stack2 - self.stack2_subset == self.ta1
 
         assert self.stack2_subset - self.stack2 == self.ta1.inverted()
         assert (self.stack2_subset - self.stack2).depth == 1
@@ -295,42 +293,40 @@ class BasicTransformTests(unittest.TestCase):
         aff1 = self.ta1 + (self.ta2 + self.ta3)
         aff2 = self.ta2 + self.ta3
 
-        self.assertEqual(aff1 - aff2, self.ta1)
-        self.assertEqual(aff1 - self.ta2, aff1 + self.ta2.inverted())
+        assert aff1 - aff2 == self.ta1
+        assert aff1 - self.ta2 == aff1 + self.ta2.inverted()
 
-        self.assertEqual(self.stack1 - self.ta3,
-                         self.ta1 + (self.tn1 + self.ta2))
-        self.assertEqual(self.stack2 - self.ta3,
-                         self.ta1 + self.tn1 + self.ta2)
+        assert self.stack1 - self.ta3 == self.ta1 + (self.tn1 + self.ta2)
+        assert self.stack2 - self.ta3 == self.ta1 + self.tn1 + self.ta2
 
-        self.assertEqual((self.ta2 + self.ta3) - self.ta3 + self.ta3,
-                         self.ta2 + self.ta3)
+        assert ((self.ta2 + self.ta3) - self.ta3 + self.ta3 ==
+                self.ta2 + self.ta3)
 
     def test_contains_branch(self):
         r1 = (self.ta2 + self.ta1)
         r2 = (self.ta2 + self.ta1)
-        self.assertEqual(r1, r2)
-        self.assertNotEqual(r1, self.ta1)
-        self.assertTrue(r1.contains_branch(r2))
-        self.assertTrue(r1.contains_branch(self.ta1))
-        self.assertFalse(r1.contains_branch(self.ta2))
-        self.assertFalse(r1.contains_branch((self.ta2 + self.ta2)))
+        assert r1 == r2
+        assert r1 != self.ta1
+        assert r1.contains_branch(r2)
+        assert r1.contains_branch(self.ta1)
+        assert not r1.contains_branch(self.ta2)
+        assert not r1.contains_branch((self.ta2 + self.ta2))
 
-        self.assertEqual(r1, r2)
+        assert r1 == r2
 
-        self.assertTrue(self.stack1.contains_branch(self.ta3))
-        self.assertTrue(self.stack2.contains_branch(self.ta3))
+        assert self.stack1.contains_branch(self.ta3)
+        assert self.stack2.contains_branch(self.ta3)
 
-        self.assertTrue(self.stack1.contains_branch(self.stack2_subset))
-        self.assertTrue(self.stack2.contains_branch(self.stack2_subset))
+        assert self.stack1.contains_branch(self.stack2_subset)
+        assert self.stack2.contains_branch(self.stack2_subset)
 
-        self.assertFalse(self.stack2_subset.contains_branch(self.stack1))
-        self.assertFalse(self.stack2_subset.contains_branch(self.stack2))
+        assert not self.stack2_subset.contains_branch(self.stack1)
+        assert not self.stack2_subset.contains_branch(self.stack2)
 
-        self.assertTrue(self.stack1.contains_branch((self.ta2 + self.ta3)))
-        self.assertTrue(self.stack2.contains_branch((self.ta2 + self.ta3)))
+        assert self.stack1.contains_branch((self.ta2 + self.ta3))
+        assert self.stack2.contains_branch((self.ta2 + self.ta3))
 
-        self.assertFalse(self.stack1.contains_branch((self.tn1 + self.ta2)))
+        assert not self.stack1.contains_branch((self.tn1 + self.ta2))
 
     def test_affine_simplification(self):
         # tests that a transform stack only calls as much is absolutely
