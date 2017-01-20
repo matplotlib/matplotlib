@@ -4,14 +4,12 @@ Tests specific to the collections module.
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
-import six
-
 import io
 
-from nose.tools import assert_equal
 import numpy as np
 from numpy.testing import assert_array_equal, assert_array_almost_equal
-from nose.plugins.skip import SkipTest
+from numpy.testing import assert_equal
+import pytest
 
 import matplotlib.pyplot as plt
 import matplotlib.collections as mcollections
@@ -436,7 +434,7 @@ def test_add_collection():
 def test_quiver_limits():
     ax = plt.axes()
     x, y = np.arange(8), np.arange(10)
-    data = u = v = np.linspace(0, 10, 80).reshape(10, 8)
+    u = v = np.linspace(0, 10, 80).reshape(10, 8)
     q = plt.quiver(x, y, u, v)
     assert_equal(q.get_datalim(ax.transData).bounds, (0., 0., 7., 9.))
 
@@ -620,10 +618,7 @@ def test_size_in_xy():
 
 @cleanup
 def test_pandas_indexing():
-    try:
-        import pandas as pd
-    except ImportError:
-        raise SkipTest("Pandas not installed")
+    pd = pytest.importorskip('pandas')
 
     # Should not fail break when faced with a
     # non-zero indexed series
@@ -652,8 +647,3 @@ def test_lslw_bcast():
     col.set_linestyles(['-', '-', '-'])
     assert col.get_linestyles() == [(None, None)] * 3
     assert col.get_linewidths() == [1, 2, 3]
-
-
-if __name__ == '__main__':
-    import nose
-    nose.runmodule(argv=['-s', '--with-doctest'], exit=False)
