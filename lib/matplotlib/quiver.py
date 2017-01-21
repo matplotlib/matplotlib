@@ -45,18 +45,6 @@ call signatures::
   quiver(X, Y, U, V, **kw)
   quiver(X, Y, U, V, C, **kw)
 
-Arguments:
-
-  *X*, *Y*:
-    The x and y coordinates of the arrow locations (default is tail of
-    arrow; see *pivot* kwarg)
-
-  *U*, *V*:
-    Give the x and y components of the arrow vectors
-
-  *C*:
-    An optional array used to map colors to the arrows
-
 All arguments may be 1-D or 2-D arrays or sequences. If *X* and *Y*
 are absent, they will be generated as a uniform grid.  If *U* and *V*
 are 2-D arrays but *X* and *Y* are 1-D, and if ``len(X)`` and ``len(Y)``
@@ -66,17 +54,37 @@ expanded with :func:`numpy.meshgrid`.
 *U*, *V*, *C* may be masked arrays, but masked *X*, *Y* are not
 supported at present.
 
-Keyword arguments:
+The defaults give a slightly swept-back arrow; to make the head a
+triangle, make *headaxislength* the same as *headlength*. To make the
+arrow more pointed, reduce *headwidth* or increase *headlength* and
+*headaxislength*. To make the head smaller relative to the shaft,
+scale down all the head parameters. You will probably do best to leave
+minshaft alone.
 
-  *units*: [ 'width' | 'height' | 'dots' | 'inches' | 'x' | 'y' | 'xy' ]
+linewidths and edgecolors can be used to customize the arrow
+outlines.
+
+Parameters
+----------
+X : array, optional
+    The x coordinates of the arrow locations
+Y : array, optional
+    The y coordinates of the arrow locations
+U : array
+    The x components of the arrow vectors
+V : array
+    The y components of the arrow vectors
+C : array, optional
+    The arrow colors
+units : [ 'width' | 'height' | 'dots' | 'inches' | 'x' | 'y' | 'xy' ]
     Arrow units; the arrow dimensions *except for length* are in
-    multiples of this unit.
+    multiples of this unit
 
-    * 'width' or 'height': the width or height of the axes
+    *width* or *height*: the width or height of the axis
 
-    * 'dots' or 'inches': pixels or inches, based on the figure dpi
+    *dots* or *inches*: pixels or inches, based on the figure dpi
 
-    * 'x', 'y', or 'xy': *X*, *Y*, or sqrt(X^2+Y^2) data units
+    *x*, *y*, or *xy*: *X*, *Y*, or sqrt(X^2+Y^2) data units
 
     The arrows scale differently depending on the units.  For
     'x' or 'y', the arrows get larger as one zooms in; for other
@@ -84,10 +92,8 @@ Keyword arguments:
     'width or 'height', the arrow size increases with the width and
     height of the axes, respectively, when the window is resized;
     for 'dots' or 'inches', resizing does not change the arrows.
-
-
-  *angles*: [ 'uv' | 'xy' | array ]
-    With the default 'uv', the arrow axis aspect ratio is 1, so that
+angles : [ 'uv' | 'xy' ], array, optional
+    With the default *uv*, the arrow axis aspect ratio is 1, so that
     if *U*==*V* the orientation of the arrow on the plot is 45 degrees
     CCW from the horizontal axis (positive to the right).
     With 'xy', the arrow points from (x,y) to (x+u, y+v).
@@ -96,15 +102,13 @@ Keyword arguments:
     of values in degrees, CCW from the horizontal axis.
     Note: inverting a data axis will correspondingly invert the
     arrows *only* with `angles='xy'`.
-
-  *scale*: [ *None* | float ]
+scale : None, float, optional
     Data units per arrow length unit, e.g., m/s per plot width; a smaller
     scale parameter makes the arrow longer.  If *None*, a simple
     autoscaling algorithm is used, based on the average vector length
     and the number of vectors.  The arrow length unit is given by
     the *scale_units* parameter
-
-  *scale_units*: *None*, or any of the *units* options.
+scale_units : [ 'width' | 'height' | 'dots' | 'inches' | 'x' | 'y' | 'xy' ], None, optional
     For example, if *scale_units* is 'inches', *scale* is 2.0, and
     ``(u,v) = (1,0)``, then the vector will be 0.5 inches long.
     If *scale_units* is 'width', then the vector will be half the width
@@ -114,52 +118,39 @@ Keyword arguments:
     units.  To plot vectors in the x-y plane, with u and v having
     the same units as x and y, use
     "angles='xy', scale_units='xy', scale=1".
-
-  *width*:
+width : optional
     Shaft width in arrow units; default depends on choice of units,
     above, and number of vectors; a typical starting value is about
     0.005 times the width of the plot.
-
-  *headwidth*: scalar
+headwidth : scalar, optional
     Head width as multiple of shaft width, default is 3
-
-  *headlength*: scalar
+headlength : scalar, optional
     Head length as multiple of shaft width, default is 5
-
-  *headaxislength*: scalar
+headaxislength : scalar, optional
     Head length at shaft intersection, default is 4.5
-
-  *minshaft*: scalar
+minshaft : scalar, optional
     Length below which arrow scales, in units of head length. Do not
     set this to less than 1, or small arrows will look terrible!
     Default is 1
-
-  *minlength*: scalar
+minlength : scalar, optional
     Minimum length as a multiple of shaft width; if an arrow length
     is less than this, plot a dot (hexagon) of this diameter instead.
     Default is 1.
-
-  *pivot*: [ 'tail' | 'mid' | 'middle' | 'tip' ]
+pivot : [ 'tail' | 'mid' | 'middle' | 'tip' ], optional
     The part of the arrow that is at the grid point; the arrow rotates
     about this point, hence the name *pivot*.
-
-  *color*: [ color | color sequence ]
+color : [ color | color sequence ], optional
     This is a synonym for the
     :class:`~matplotlib.collections.PolyCollection` facecolor kwarg.
     If *C* has been set, *color* has no effect.
 
-The defaults give a slightly swept-back arrow; to make the head a
-triangle, make *headaxislength* the same as *headlength*. To make the
-arrow more pointed, reduce *headwidth* or increase *headlength* and
-*headaxislength*. To make the head smaller relative to the shaft,
-scale down all the head parameters. You will probably do best to leave
-minshaft alone.
-
-linewidths and edgecolors can be used to customize the arrow
-outlines. Additional :class:`~matplotlib.collections.PolyCollection`
+Notes
+-----
+Additional :class:`~matplotlib.collections.PolyCollection`
 keyword arguments:
 
 %(PolyCollection)s
+
 """ % docstring.interpd.params
 
 _quiverkey_doc = """
