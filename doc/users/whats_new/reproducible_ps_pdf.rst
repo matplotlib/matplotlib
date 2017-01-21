@@ -19,7 +19,7 @@ add sources of nondeterminism outside the control of matplotlib.
 For SVG output, the ``svg.hashsalt`` rc parameter has been added in an
 earlier release. This parameter changes some random identifiers in the
 SVG file to be deterministic. The downside of this setting is that if
-more than one file is generated using with deterministic identifiers
+more than one file is generated using deterministic identifiers
 and they end up as parts of one larger document, the identifiers can
 collide and cause the different parts to affect each other.
 
