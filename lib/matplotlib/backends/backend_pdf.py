@@ -472,7 +472,6 @@ class PdfFile(object):
                 'Pages': self.pagesObject}
         self.writeObject(self.rootObject, root)
 
-        revision = ''
         # get source date from SOURCE_DATE_EPOCH, if set
         # See https://reproducible-builds.org/specs/source-date-epoch/
         source_date_epoch = os.getenv("SOURCE_DATE_EPOCH")
@@ -484,11 +483,13 @@ class PdfFile(object):
 
         self.infoDict = {
             'Creator': 'matplotlib %s, http://matplotlib.org' % __version__,
-            'Producer': 'matplotlib pdf backend%s' % revision,
+            'Producer': 'matplotlib pdf backend %s' % __version__,
             'CreationDate': source_date
         }
         if metadata is not None:
             self.infoDict.update(metadata)
+        self.infoDict = {k: v for (k, v) in self.infoDict.items()
+                         if v is not None}
 
         self.fontNames = {}     # maps filenames to internal font names
         self.nextFont = 1       # next free internal font name
@@ -2459,6 +2460,13 @@ class PdfPages(object):
             'Document Information Dictionary'), e.g.:
             `{'Creator': 'My software', 'Author': 'Me',
             'Title': 'Awesome fig'}`
+
+            The standard keys are `'Title'`, `'Author'`, `'Subject'`,
+            `'Keywords'`, `'Creator'`, `'Producer'`, `'CreationDate'`,
+            `'ModDate'`, and `'Trapped'`. Values have been predefined
+            for `'Creator'`, `'Producer'` and `'CreationDate'`. They
+            can be removed by setting them to `None`.
+
         """
         self._file = PdfFile(filename, metadata=metadata)
         self.keep_empty = keep_empty
