@@ -3,20 +3,13 @@ from __future__ import (absolute_import, division, print_function,
 
 import six
 import itertools
+import pytest
 from distutils.version import LooseVersion as V
 
-from nose.tools import assert_raises, assert_equal, assert_true
-from nose.tools import assert_sequence_equal
-
-try:
-    # this is not available in nose + py2.6
-    from nose.tools import assert_sequence_equal
-except ImportError:
-    assert_sequence_equal = None
-
 import numpy as np
+
+from numpy.testing import assert_raises, assert_equal
 from numpy.testing.utils import assert_array_equal, assert_array_almost_equal
-from nose.plugins.skip import SkipTest
 
 from matplotlib import cycler
 import matplotlib
@@ -103,7 +96,7 @@ def test_BoundaryNorm():
     expected = [-1, 0, 1, 2]
     for v, ex in zip(vals, expected):
         ret = bn(v)
-        assert_true(isinstance(ret, six.integer_types))
+        assert isinstance(ret, six.integer_types)
         assert_array_equal(ret, ex)
         assert_array_equal(bn([v]), ex)
 
@@ -112,7 +105,7 @@ def test_BoundaryNorm():
     expected = [-1, 0, 2, 3]
     for v, ex in zip(vals, expected):
         ret = bn(v)
-        assert_true(isinstance(ret, six.integer_types))
+        assert isinstance(ret, six.integer_types)
         assert_array_equal(ret, ex)
         assert_array_equal(bn([v]), ex)
 
@@ -121,7 +114,7 @@ def test_BoundaryNorm():
     expected = [0, 0, 2, 2]
     for v, ex in zip(vals, expected):
         ret = bn(v)
-        assert_true(isinstance(ret, six.integer_types))
+        assert isinstance(ret, six.integer_types)
         assert_array_equal(ret, ex)
         assert_array_equal(bn([v]), ex)
 
@@ -142,9 +135,9 @@ def test_BoundaryNorm():
 
     # Non-trivial masked arrays
     vals = np.ma.masked_invalid([np.Inf, np.NaN])
-    assert_true(np.all(bn(vals).mask))
+    assert np.all(bn(vals).mask)
     vals = np.ma.masked_invalid([np.Inf])
-    assert_true(np.all(bn(vals).mask))
+    assert np.all(bn(vals).mask)
 
 
 def test_LogNorm():
@@ -606,12 +599,7 @@ def _azimuth2math(azimuth, elevation):
 
 
 def test_pandas_iterable():
-    try:
-        import pandas as pd
-    except ImportError:
-        raise SkipTest("Pandas not installed")
-    if assert_sequence_equal is None:
-        raise SkipTest("nose lacks required function")
+    pd = pytest.importorskip('pandas')
     # Using a list or series yields equivalent
     # color maps, i.e the series isn't seen as
     # a single color
@@ -619,7 +607,7 @@ def test_pandas_iterable():
     s = pd.Series(lst)
     cm1 = mcolors.ListedColormap(lst, N=5)
     cm2 = mcolors.ListedColormap(s, N=5)
-    assert_sequence_equal(cm1.colors, cm2.colors)
+    assert_array_equal(cm1.colors, cm2.colors)
 
 
 def test_colormap_reversing():
@@ -684,8 +672,3 @@ def test_tableau_order():
                   '#bcbd22', '#17becf']
 
     assert list(mcolors.TABLEAU_COLORS.values()) == dflt_cycle
-
-
-if __name__ == '__main__':
-    import nose
-    nose.runmodule(argv=['-s', '--with-doctest'], exit=False)
