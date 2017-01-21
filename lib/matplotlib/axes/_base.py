@@ -3904,16 +3904,16 @@ class _AxesBase(martist.Artist):
         """
         Create a twin Axes sharing the xaxis
 
-        Create a twin of Axes for generating a plot with a shared
-        x-axis but independent y-axis.  The y-axis of self will have
-        ticks on left and the returned axes will have ticks on the
-        right. To ensure tick marks of both axis align, see
+        Create a new Axes instance with an invisible x-axis and an independent
+        y-axis positioned opposite to the original one (i.e. at right). The
+        x-axis autoscale setting will be inherited from the original Axes.
+        To ensure that the tick marks of both y-axes align, see
         `~matplotlib.ticker.LinearLocator`
 
         Returns
         -------
-        Axis
-            The newly created axis
+        ax_twin : Axes
+            The newly created Axes instance
 
         Notes
         -----
@@ -3924,6 +3924,7 @@ class _AxesBase(martist.Artist):
         ax2.yaxis.tick_right()
         ax2.yaxis.set_label_position('right')
         ax2.yaxis.set_offset_position('right')
+        ax2.set_autoscalex_on(self.get_autoscalex_on())
         self.yaxis.tick_left()
         ax2.xaxis.set_visible(False)
         ax2.patch.set_visible(False)
@@ -3933,25 +3934,26 @@ class _AxesBase(martist.Artist):
         """
         Create a twin Axes sharing the yaxis
 
-        Create a twin of Axes for generating a plot with a shared
-        y-axis but independent x-axis.  The x-axis of self will have
-        ticks on bottom and the returned axes will have ticks on the
-        top.
+        Create a new Axes instance with an invisible y-axis and an independent
+        x-axis positioned opposite to the original one (i.e. at top). The
+        y-axis autoscale setting will be inherited from the original Axes.
+        To ensure that the tick marks of both x-axes align, see
+        `~matplotlib.ticker.LinearLocator`
 
         Returns
         -------
-        Axis
-            The newly created axis
+        ax_twin : Axes
+            The newly created Axes instance
 
         Notes
-        ------
+        -----
         For those who are 'picking' artists while using twiny, pick
         events are only called for the artists in the top-most axes.
         """
-
         ax2 = self._make_twin_axes(sharey=self)
         ax2.xaxis.tick_top()
         ax2.xaxis.set_label_position('top')
+        ax2.set_autoscaley_on(self.get_autoscaley_on())
         self.xaxis.tick_bottom()
         ax2.yaxis.set_visible(False)
         ax2.patch.set_visible(False)
