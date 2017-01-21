@@ -10,6 +10,7 @@ import os
 import numpy as np
 
 import matplotlib
+from matplotlib import cbook
 from matplotlib.compat import subprocess
 from matplotlib.testing.exceptions import ImageComparisonFailure
 from matplotlib import _png
