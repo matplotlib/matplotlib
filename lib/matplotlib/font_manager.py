@@ -281,7 +281,7 @@ def _call_fc_list():
         'This may take a moment.'))
     timer.start()
     try:
-        out = subprocess.check_output([str('fc-list'), '--format=%{file}'])
+        out = subprocess.check_output([str('fc-list'), '--format=%{file}\\n'])
     except (OSError, subprocess.CalledProcessError):
         return []
     finally:

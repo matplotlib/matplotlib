@@ -11,7 +11,7 @@ import warnings
 
 from matplotlib.font_manager import (
     findfont, FontProperties, fontManager, json_dump, json_load, get_font,
-    is_opentype_cff_font, fontManager as fm)
+    get_fontconfig_fonts, is_opentype_cff_font, fontManager as fm)
 import os.path
 
 
@@ -65,3 +65,7 @@ def test_otf():
         with open(f, 'rb') as fd:
             res = fd.read(4) == b'OTTO'
         assert res == is_opentype_cff_font(f)
+
+
+def test_get_fontconfig_fonts():
+    assert len(get_fontconfig_fonts()) > 1
