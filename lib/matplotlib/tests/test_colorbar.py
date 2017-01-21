@@ -1,18 +1,12 @@
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
-import six
-
 import numpy as np
-from numpy import ma
-import matplotlib
 from matplotlib import rc_context
 from matplotlib.testing.decorators import image_comparison, cleanup
 import matplotlib.pyplot as plt
-from matplotlib import rcParams
 from matplotlib.colors import BoundaryNorm, LogNorm
 from matplotlib.cm import get_cmap
-from matplotlib import cm
 from matplotlib.colorbar import ColorbarBase
 
 
@@ -91,10 +85,10 @@ def _colorbar_extension_length(spacing):
                     cax.get_xticklines() + cax.get_yticklines():
                 item.set_visible(False)
             # Generate the colorbar.
-            cb = ColorbarBase(cax, cmap=cmap, norm=norm,
-                    boundaries=boundaries, values=values,
-                    extend=extension_type, extendfrac=extendfrac,
-                    orientation='horizontal', spacing=spacing)
+            ColorbarBase(cax, cmap=cmap, norm=norm,
+                         boundaries=boundaries, values=values,
+                         extend=extension_type, extendfrac=extendfrac,
+                         orientation='horizontal', spacing=spacing)
     # Return the figure to the caller.
     return fig
 
@@ -106,8 +100,8 @@ def _colorbar_extension_length(spacing):
 def test_colorbar_extension_shape():
     '''Test rectangular colorbar extensions.'''
     # Create figures for uniform and proportionally spaced colorbars.
-    fig1 = _colorbar_extension_shape('uniform')
-    fig2 = _colorbar_extension_shape('proportional')
+    _colorbar_extension_shape('uniform')
+    _colorbar_extension_shape('proportional')
 
 
 @image_comparison(baseline_images=['colorbar_extensions_uniform',
@@ -116,8 +110,8 @@ def test_colorbar_extension_shape():
 def test_colorbar_extension_length():
     '''Test variable length colorbar extensions.'''
     # Create figures for uniform and proportionally spaced colorbars.
-    fig1 = _colorbar_extension_length('uniform')
-    fig2 = _colorbar_extension_length('proportional')
+    _colorbar_extension_length('uniform')
+    _colorbar_extension_length('proportional')
 
 
 @image_comparison(baseline_images=['cbar_with_orientation',
@@ -332,8 +326,3 @@ def test_colorbar_lognorm_extension():
     cb = ColorbarBase(ax, norm=LogNorm(vmin=0.1, vmax=1000.0),
                       orientation='vertical', extend='both')
     assert cb._values[0] >= 0.0
-
-
-if __name__ == '__main__':
-    import nose
-    nose.runmodule(argv=['-s', '--with-doctest'], exit=False)
