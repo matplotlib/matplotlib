@@ -1,15 +1,13 @@
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
-import six
-
 import datetime
 
 import numpy as np
 from matplotlib import mlab
 from matplotlib.testing.decorators import cleanup, image_comparison
 from matplotlib import pyplot as plt
-from nose.tools import assert_equal, assert_raises
+from numpy.testing import assert_equal, assert_raises
 from numpy.testing import assert_array_almost_equal
 import warnings
 
@@ -321,8 +319,3 @@ def test_contourf_symmetric_locator():
     locator = plt.MaxNLocator(nbins=4, symmetric=True)
     cs = plt.contourf(z, locator=locator)
     assert_array_almost_equal(cs.levels, np.linspace(-12, 12, 5))
-
-
-if __name__ == '__main__':
-    import nose
-    nose.runmodule(argv=['-s', '--with-doctest'], exit=False)

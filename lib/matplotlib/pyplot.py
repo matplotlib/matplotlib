@@ -740,7 +740,7 @@ def figimage(*args, **kwargs):
     return gcf().figimage(*args, **kwargs)
 
 
-def figlegend(handles, labels, loc, **kwargs):
+def figlegend(*args, **kwargs):
     """
     Place a legend in the figure.
 
@@ -757,7 +757,14 @@ def figlegend(handles, labels, loc, **kwargs):
 
     A :class:`matplotlib.legend.Legend` instance is returned.
 
-    Example::
+    Examples
+    --------
+
+    To make a legend from existing artists on every axes::
+
+      figlegend()
+
+    To make a legend for a list of lines and labels::
 
       figlegend( (line1, line2, line3),
                  ('label1', 'label2', 'label3'),
@@ -768,7 +775,7 @@ def figlegend(handles, labels, loc, **kwargs):
        :func:`~matplotlib.pyplot.legend`
 
     """
-    return gcf().legend(handles, labels, loc, **kwargs)
+    return gcf().legend(*args, **kwargs)
 
 
 ## Figure and Axes hybrid ##
@@ -976,7 +983,7 @@ def subplot(*args, **kwargs):
 
     .. note::
 
-       Creating a subplot will delete any pre-existing subplot that overlaps 
+       Creating a subplot will delete any pre-existing subplot that overlaps
        with it beyond sharing a boundary::
 
           import matplotlib.pyplot as plt
