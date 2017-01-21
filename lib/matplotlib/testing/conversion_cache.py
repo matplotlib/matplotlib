@@ -89,12 +89,13 @@ class ConversionCache(object):
         self.gets.add(filename)
         hash_value = self._get_file_hash(filename)
         cached_file = os.path.join(self.cachedir, hash_value + self.cached_ext)
-        if os.path.exists(cached_file):
-            shutil.copyfile(cached_file, newname)
-            self.hits.add(filename)
-            return True
-        else:
-            return False
+        with cbook.Locked(self.cachedir):
+            if os.path.exists(cached_file):
+                shutil.copyfile(cached_file, newname)
+                self.hits.add(filename)
+                return True
+            else:
+                return False
 
     def put(self, original, converted):
         """Insert a file into the cache.
@@ -108,7 +109,8 @@ class ConversionCache(object):
         """
         hash_value = self._get_file_hash(original)
         cached_file = os.path.join(self.cachedir, hash_value + self.cached_ext)
-        shutil.copyfile(converted, cached_file)
+        with cbook.Locked(self.cachedir):
+            shutil.copyfile(converted, cached_file)
 
     def _get_file_hash(self, path, block_size=2 ** 20):
         if path in self.hash_cache:
@@ -150,20 +152,22 @@ class ConversionCache(object):
         Orders files by access time, so the least recently used files
         get deleted first.
         """
-        stats = {filename: os.stat(os.path.join(self.cachedir, filename))
-                 for filename in os.listdir(self.cachedir)}
-        usage = sum(f.st_size for f in stats.values())
-        to_free = usage - self.max_size
-        if to_free <= 0:
-            return
+        with cbook.Locked(self.cachedir):
+            stats = {filename: os.stat(os.path.join(self.cachedir, filename))
+                     for filename in os.listdir(self.cachedir)
+                     if filename.endswith(self.cached_ext)}
+            usage = sum(f.st_size for f in stats.values())
+            to_free = usage - self.max_size
+            if to_free <= 0:
+                return
 
-        files = sorted(os.listdir(self.cachedir),
-                       key=lambda f: stats[f].st_atime,
-                       reverse=True)
-        while to_free > 0:
-            filename = files.pop()
-            os.remove(os.path.join(self.cachedir, filename))
-            to_free -= stats[filename].st_size
+            files = sorted(stats.keys(),
+                           key=lambda f: stats[f].st_atime,
+                           reverse=True)
+            while to_free > 0:
+                filename = files.pop()
+                os.remove(os.path.join(self.cachedir, filename))
+                to_free -= stats[filename].st_size
 
     @staticmethod
     def get_cache_dir():
