@@ -1,4 +1,8 @@
 """
+==================
+ggplot style sheet
+==================
+
 This example demonstrates the "ggplot" style, which adjusts the style to
 emulate ggplot_ (a popular plotting package for R_).
 
