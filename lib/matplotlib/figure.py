@@ -15,6 +15,7 @@ from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
 import six
+import io
 
 import warnings
 
@@ -1678,12 +1679,16 @@ class Figure(Artist):
           *fname*:
             A string containing a path to a filename, or a Python
             file-like object, or possibly some backend-dependent object
-            such as :class:`~matplotlib.backends.backend_pdf.PdfPages`.
+            such as :class:`~matplotlib.backends.backend_pdf.PdfPages`,
+            or None.
 
             If *format* is *None* and *fname* is a string, the output
             format is deduced from the extension of the filename. If
             the filename has no extension, the value of the rc parameter
             ``savefig.format`` is used.
+
+            If *fname* is explicitely set to None, the figure is not
+            saved to a file(-like), but returned as a bytes string.
 
             If *fname* is not a string, remember to specify *format* to
             ensure that the correct backend is used.
@@ -1736,8 +1741,16 @@ class Figure(Artist):
           *bbox_extra_artists*:
             A list of extra artists that will be considered when the
             tight bbox is calculated.
-
         """
+        if len(args) == 0:
+            raise TypeError("savefig() missing 1 required positional "
+                            "argument: 'fname'")
+
+        if args[0] is None:
+            in_memory_file = io.BytesIO()
+            self.savefig(in_memory_file, **kwargs)
+            in_memory_file.seek(0)
+            return in_memory_file.getvalue()
 
         kwargs.setdefault('dpi', rcParams['savefig.dpi'])
         frameon = kwargs.pop('frameon', rcParams['savefig.frameon'])
