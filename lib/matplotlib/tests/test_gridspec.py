@@ -1,5 +1,6 @@
 import matplotlib.gridspec as gridspec
-from numpy.testing import assert_raises, assert_equal
+from numpy.testing import assert_equal
+import pytest
 
 
 def test_equal():
@@ -13,8 +14,8 @@ def test_width_ratios():
     Addresses issue #5835.
     See at https://github.com/matplotlib/matplotlib/issues/5835.
     """
-    assert_raises(ValueError, gridspec.GridSpec,
-                  1, 1, width_ratios=[2, 1, 3])
+    with pytest.raises(ValueError):
+        gridspec.GridSpec(1, 1, width_ratios=[2, 1, 3])
 
 
 def test_height_ratios():
@@ -22,5 +23,5 @@ def test_height_ratios():
     Addresses issue #5835.
     See at https://github.com/matplotlib/matplotlib/issues/5835.
     """
-    assert_raises(ValueError, gridspec.GridSpec,
-                  1, 1, height_ratios=[2, 1, 3])
+    with pytest.raises(ValueError):
+        gridspec.GridSpec(1, 1, height_ratios=[2, 1, 3])
