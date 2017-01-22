@@ -6,8 +6,6 @@ import sys
 
 import warnings
 
-from nose.tools import assert_equal
-
 from ..testing.decorators import knownfailureif, skipif
 
 
@@ -19,13 +17,13 @@ def setup_module():
 
 
 def test_simple():
-    assert_equal(1 + 1, 2)
+    assert 1 + 1 == 2
 
 
 @knownfailureif(True)
 def test_simple_knownfail():
     # Test the known fail mechanism.
-    assert_equal(1 + 1, 3)
+    assert 1 + 1 == 3
 
 
 @skipif(True, reason="skipif decorator test with bool condition passed")
@@ -91,8 +89,3 @@ def test_override_builtins():
                 overridden = True
 
     assert not overridden
-
-
-if __name__ == '__main__':
-    import nose
-    nose.runmodule(argv=['-s', '--with-doctest'], exit=False)
