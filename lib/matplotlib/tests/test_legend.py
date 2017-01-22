@@ -331,8 +331,3 @@ def test_linecollection_scaled_dashes():
     for oh, lh in zip((lc1, lc2, lc3), (h1, h2, h3)):
         assert oh.get_linestyles()[0][1] == lh._dashSeq
         assert oh.get_linestyles()[0][0] == lh._dashOffset
-
-
-if __name__ == '__main__':
-    import nose
-    nose.runmodule(argv=['-s', '--with-doctest'], exit=False)

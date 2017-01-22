@@ -7,9 +7,7 @@ from __future__ import (absolute_import, division, print_function,
 import six
 
 import numpy as np
-from numpy.testing import assert_array_equal
-from numpy.testing import assert_equal
-from numpy.testing import assert_almost_equal
+from numpy.testing import assert_almost_equal, assert_array_equal
 
 from matplotlib.patches import Polygon
 from matplotlib.patches import Rectangle
@@ -255,9 +253,9 @@ def test_wedge_movement():
 
     w = mpatches.Wedge(**init_args)
     for attr, (old_v, new_v, func) in six.iteritems(param_dict):
-        assert_equal(getattr(w, attr), old_v)
+        assert getattr(w, attr) == old_v
         getattr(w, func)(new_v)
-        assert_equal(getattr(w, attr), new_v)
+        assert getattr(w, attr) == new_v
 
 
 # png needs tol>=0.06, pdf tol>=1.617
@@ -313,8 +311,3 @@ def test_patch_str():
     p = mpatches.Arc(xy=(1, 2), width=3, height=4, angle=5, theta1=6, theta2=7)
     expected = 'Arc(xy=(1, 2), width=3, height=4, angle=5, theta1=6, theta2=7)'
     assert str(p) == expected
-
-
-if __name__ == '__main__':
-    import nose
-    nose.runmodule(argv=['-s', '--with-doctest'], exit=False)
