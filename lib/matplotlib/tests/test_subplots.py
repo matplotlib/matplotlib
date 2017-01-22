@@ -2,8 +2,6 @@ from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
 import warnings
-import six
-from six.moves import xrange
 
 import numpy
 import matplotlib.pyplot as plt
@@ -30,7 +28,9 @@ def check_shared(axs, x_shared, y_shared):
 
 
 def check_visible(axs, x_visible, y_visible):
-    tostr = lambda v: "invisible" if v else "visible"
+    def tostr(v):
+        return "invisible" if v else "visible"
+
     for (ax, vx, vy) in zip(axs, x_visible, y_visible):
         for l in ax.get_xticklabels() + [ax.get_xaxis().offsetText]:
             assert l.get_visible() == vx, \
