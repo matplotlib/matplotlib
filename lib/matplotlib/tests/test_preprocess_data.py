@@ -3,9 +3,6 @@ from __future__ import (absolute_import, division, print_function)
 import re
 
 import pytest
-from nose.tools import assert_raises
-
-from ..testing import assert_produces_warning
 
 from .. import _preprocess_data
 
@@ -58,16 +55,12 @@ def test_compiletime_checks():
     _preprocess_data(replace_names=["x", "y"])(func_args)
 
     # no positional_parameter_names but needed due to replaces
-    def f():
+    with pytest.raises(AssertionError):
         # z is unknown
         _preprocess_data(replace_names=["x", "y", "z"])(func_args)
 
-    assert_raises(AssertionError, f)
-
-    def f():
+    with pytest.raises(AssertionError):
         _preprocess_data(replace_names=["x", "y"])(func_no_ax_args)
-
-    assert_raises(AssertionError, f)
 
     # no replacements at all -> all ok...
     _preprocess_data(replace_names=[], label_namer=None)(func)
@@ -76,15 +69,12 @@ def test_compiletime_checks():
     _preprocess_data(replace_names=[], label_namer=None)(func_no_ax_args)
 
     # label namer is unknown
-    def f():
+    with pytest.raises(AssertionError):
         _preprocess_data(label_namer="z")(func)
 
-    assert_raises(AssertionError, f)
-
-    def f():
+    with pytest.raises(AssertionError):
         _preprocess_data(label_namer="z")(func_args)
 
-    assert_raises(AssertionError, f)
     # but "ok-ish", if func has kwargs -> will show up at runtime :-(
     _preprocess_data(label_namer="z")(func_kwargs)
     _preprocess_data(label_namer="z")(func_no_ax_args)
@@ -97,15 +87,12 @@ def test_label_problems_at_runtime():
     def func(*args, **kwargs):
         pass
 
-    def f():
-        func(None, x="a", y="b")
-
     # This is a programming mistake: the parameter which should add the
     # label is not present in the function call. Unfortunately this was masked
     # due to the **kwargs useage
     # This would be nice to handle as a compiletime check (see above...)
-    with assert_produces_warning(RuntimeWarning):
-        f()
+    with pytest.warns(RuntimeWarning):
+        func(None, x="a", y="b")
 
     def real_func(x, y):
         pass
@@ -114,11 +101,9 @@ def test_label_problems_at_runtime():
     def func(*args, **kwargs):
         real_func(**kwargs)
 
-    def f():
-        func(None, x="a", y="b")
-
     # This sets a label although the function can't handle it.
-    assert_raises(TypeError, f)
+    with pytest.raises(TypeError):
+        func(None, x="a", y="b")
 
 
 def test_function_call_without_data():
@@ -252,7 +237,7 @@ def test_function_call_replace_all():
                                 data=data) ==
         "x: [1, 2], y: [8, 9], ls: x, w: xyz, label: text")
 
-    with assert_produces_warning():
+    with pytest.warns(RuntimeWarning):
         assert (func_varags_replace_all(None, "a", "b", w="x", data=data) ==
                 "x: [1, 2], y: [8, 9], ls: x, w: xyz, label: None")
 
@@ -282,11 +267,8 @@ def test_more_args_than_pos_parameter():
         pass
 
     data = {"a": [1, 2], "b": [8, 9], "w": "NOT"}
-
-    def f():
+    with pytest.raises(RuntimeError):
         func(None, "a", "b", "z", "z", data=data)
-
-    assert_raises(RuntimeError, f)
 
 
 def test_function_call_with_replace_all_args():
@@ -392,13 +374,12 @@ def test_positional_parameter_names_as_function():
     assert funcy(None, "x", "hy1", "c", data=data) == "('X', 'Y', 'c') | {}"
 
     # no arbitrary long args with data
-    def f():
+    with pytest.raises(ValueError):
         assert (funcy(None, "x", "y", "c", "x", "y", "x", "y", data=data) ==
                 "('X', 'Y', 'c', 'X', 'Y', 'X', 'Y') | {}")
-    assert_raises(ValueError, f)
 
     # In the two arg case, if a valid color spec is in data, we warn but use
     # it as data...
     data = {"x": "X", "y": "Y", "ro": "!!"}
-    with assert_produces_warning(RuntimeWarning):
+    with pytest.warns(RuntimeWarning):
         assert funcy(None, "y", "ro", data=data) == "('Y', '!!') | {}"
