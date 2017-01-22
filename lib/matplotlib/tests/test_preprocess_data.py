@@ -21,7 +21,7 @@ def plot_func(ax, x, y, ls="x", label=None, w="xyz"):
 
 
 @_preprocess_data(replace_names=["x", "y"], label_namer="y",
-                     positional_parameter_names=["x", "y", "ls", "label", "w"])
+                  positional_parameter_names=["x", "y", "ls", "label", "w"])
 def plot_func_varags(ax, *args, **kwargs):
     all_args = [None, None, "x", None, "xyz"]
     for i, v in enumerate(args):
@@ -287,7 +287,7 @@ def test_function_call_with_replace_all_args():
             list(x), list(y), ls, w, label)
 
     func = _preprocess_data(replace_all_args=True, replace_names=["w"],
-                               label_namer="y")(funcy)
+                            label_namer="y")(funcy)
 
     assert (func(None, "a", "b", w="x", label="", data=data) ==
             "x: [1, 2], y: [8, 9], ls: x, w: xyz, label: ")
@@ -295,10 +295,9 @@ def test_function_call_with_replace_all_args():
             "x: [1, 2], y: [8, 9], ls: x, w: xyz, label: text")
 
     func2 = _preprocess_data(replace_all_args=True, replace_names=["w"],
-                                label_namer="y",
-                                positional_parameter_names=["x", "y", "ls",
-                                                            "label", "w"])(
-        funcy)
+                             label_namer="y",
+                             positional_parameter_names=["x", "y", "ls",
+                                                         "label", "w"])(funcy)
 
     assert (func2(None, "a", "b", w="x", data=data) ==
             "x: [1, 2], y: [8, 9], ls: x, w: xyz, label: b")
@@ -364,7 +363,7 @@ def test_positional_parameter_names_as_function():
     from matplotlib.axes._axes import _plot_args_replacer
 
     @_preprocess_data(replace_names=["x", "y"],
-                         positional_parameter_names=_plot_args_replacer)
+                      positional_parameter_names=_plot_args_replacer)
     def funcy(ax, *args, **kwargs):
         return "{args} | {kwargs}".format(args=args, kwargs=kwargs)
 
