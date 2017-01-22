@@ -2,11 +2,8 @@ from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
 import numpy as np
-import six
 
-import matplotlib
 import matplotlib.pyplot as plt
-import matplotlib.transforms as mtransforms
 from matplotlib.testing.decorators import image_comparison, cleanup
 
 
