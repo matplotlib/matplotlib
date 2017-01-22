@@ -8,8 +8,6 @@ import numpy as np
 
 from matplotlib.testing.decorators import image_comparison, knownfailureif
 import matplotlib.pyplot as plt
-from nose.tools import assert_raises
-from numpy.testing import assert_array_equal
 from matplotlib.offsetbox import AnchoredOffsetbox, DrawingArea
 from matplotlib.patches import Rectangle
 
