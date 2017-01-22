@@ -12,13 +12,13 @@ This example demonstrates the style used in the Bayesian Methods for Hackers
 from numpy.random import beta
 import matplotlib.pyplot as plt
 
+
 plt.style.use('bmh')
 
 
 def plot_beta_hist(ax, a, b):
     ax.hist(beta(a, b, size=10000), histtype="stepfilled",
             bins=25, alpha=0.8, normed=True)
-    return ax
 
 
 fig, ax = plt.subplots()

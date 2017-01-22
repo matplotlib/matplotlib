@@ -1,9 +1,13 @@
 """
+====================================
+Colors in the default property cycle
+====================================
+
 Display the colors from the default prop_cycle.
 """
-
 import numpy as np
 import matplotlib.pyplot as plt
+
 
 prop_cycle = plt.rcParams['axes.prop_cycle']
 colors = prop_cycle.by_key()['color']
