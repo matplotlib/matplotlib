@@ -44,6 +44,7 @@ import io
 import os
 import sys
 import time
+import traceback
 import warnings
 
 import numpy as np
@@ -1494,23 +1495,21 @@ class LocationEvent(Event):
             last = LocationEvent.lastevent
             if last.inaxes != self.inaxes:
                 # process axes enter/leave events
-                try:
-                    if last.inaxes is not None:
-                        last.canvas.callbacks.process('axes_leave_event', last)
-                except:
-                    pass
-                    # See ticket 2901582.
-                    # I think this is a valid exception to the rule
-                    # against catching all exceptions; if anything goes
-                    # wrong, we simply want to move on and process the
-                    # current event.
+                if last.inaxes is not None:
+                    # The previous implementation *completely* suppressed any
+                    # exception that occured here.  It seems reasonable to
+                    # print them instead.
+                    last.canvas.callbacks.safe_process(
+                        'axes_leave_event', traceback.print_exc, last)
                 if self.inaxes is not None:
-                    self.canvas.callbacks.process('axes_enter_event', self)
+                    self.canvas.callbacks.safe_process(
+                        'axes_enter_event', traceback.print_exc, self)
 
         else:
             # process a figure enter event
             if self.inaxes is not None:
-                self.canvas.callbacks.process('axes_enter_event', self)
+                self.canvas.callbacks.safe_process(
+                    'axes_enter_event', traceback.print_exc, self)
 
         LocationEvent.lastevent = self
 
@@ -1790,7 +1789,7 @@ class FigureCanvasBase(object):
 
         s = 'draw_event'
         event = DrawEvent(s, self, renderer)
-        self.callbacks.process(s, event)
+        self.callbacks.safe_process(s, traceback.print_exc, event)
 
     def resize_event(self):
         """
@@ -1800,7 +1799,7 @@ class FigureCanvasBase(object):
 
         s = 'resize_event'
         event = ResizeEvent(s, self)
-        self.callbacks.process(s, event)
+        self.callbacks.safe_process(s, traceback.print_exc, event)
 
     def close_event(self, guiEvent=None):
         """
@@ -1808,16 +1807,17 @@ class FigureCanvasBase(object):
         'close_event' with a :class:`CloseEvent`
         """
         s = 'close_event'
-        try:
-            event = CloseEvent(s, self, guiEvent=guiEvent)
-            self.callbacks.process(s, event)
-        except (TypeError, AttributeError):
-            pass
+        def on_error():
             # Suppress the TypeError when the python session is being killed.
             # It may be that a better solution would be a mechanism to
             # disconnect all callbacks upon shutdown.
             # AttributeError occurs on OSX with qt4agg upon exiting
             # with an open window; 'callbacks' attribute no longer exists.
+            tp, value, traceback = sys.exc_info()
+            if not isinstance(value, (TypeError, AttributeError)):
+                traceback.print_exc()
+        event = CloseEvent(s, self, guiEvent=guiEvent)
+        self.callbacks.safe_process(s, on_error, event)
 
     def key_press_event(self, key, guiEvent=None):
         """
@@ -1828,7 +1828,7 @@ class FigureCanvasBase(object):
         s = 'key_press_event'
         event = KeyEvent(
             s, self, key, self._lastx, self._lasty, guiEvent=guiEvent)
-        self.callbacks.process(s, event)
+        self.callbacks.safe_process(s, traceback.print_exc, event)
 
     def key_release_event(self, key, guiEvent=None):
         """
@@ -1838,7 +1838,7 @@ class FigureCanvasBase(object):
         s = 'key_release_event'
         event = KeyEvent(
             s, self, key, self._lastx, self._lasty, guiEvent=guiEvent)
-        self.callbacks.process(s, event)
+        self.callbacks.safe_process(s, traceback.print_exc, event)
         self._key = None
 
     def pick_event(self, mouseevent, artist, **kwargs):
@@ -1850,7 +1850,7 @@ class FigureCanvasBase(object):
         event = PickEvent(s, self, mouseevent, artist,
                           guiEvent=mouseevent.guiEvent,
                           **kwargs)
-        self.callbacks.process(s, event)
+        self.callbacks.safe_process(s, traceback.print_exc, event)
 
     def scroll_event(self, x, y, step, guiEvent=None):
         """
@@ -1866,9 +1866,9 @@ class FigureCanvasBase(object):
         else:
             self._button = 'down'
         s = 'scroll_event'
-        mouseevent = MouseEvent(s, self, x, y, self._button, self._key,
-                                step=step, guiEvent=guiEvent)
-        self.callbacks.process(s, mouseevent)
+        event = MouseEvent(s, self, x, y, self._button, self._key,
+                           step=step, guiEvent=guiEvent)
+        self.callbacks.safe_process(s, traceback.print_exc, event)
 
     def button_press_event(self, x, y, button, dblclick=False, guiEvent=None):
         """
@@ -1882,9 +1882,9 @@ class FigureCanvasBase(object):
         """
         self._button = button
         s = 'button_press_event'
-        mouseevent = MouseEvent(s, self, x, y, button, self._key,
-                                dblclick=dblclick, guiEvent=guiEvent)
-        self.callbacks.process(s, mouseevent)
+        event = MouseEvent(s, self, x, y, button, self._key,
+                           dblclick=dblclick, guiEvent=guiEvent)
+        self.callbacks.safe_process(s, traceback.print_exc, event)
 
     def button_release_event(self, x, y, button, guiEvent=None):
         """
@@ -1908,7 +1908,7 @@ class FigureCanvasBase(object):
         """
         s = 'button_release_event'
         event = MouseEvent(s, self, x, y, button, self._key, guiEvent=guiEvent)
-        self.callbacks.process(s, event)
+        self.callbacks.safe_process(s, traceback.print_exc, event)
         self._button = None
 
     def motion_notify_event(self, x, y, guiEvent=None):
@@ -1935,7 +1935,7 @@ class FigureCanvasBase(object):
         s = 'motion_notify_event'
         event = MouseEvent(s, self, x, y, self._button, self._key,
                            guiEvent=guiEvent)
-        self.callbacks.process(s, event)
+        self.callbacks.safe_process(s, traceback.print_exc, event)
 
     def leave_notify_event(self, guiEvent=None):
         """
@@ -1949,7 +1949,8 @@ class FigureCanvasBase(object):
 
         """
 
-        self.callbacks.process('figure_leave_event', LocationEvent.lastevent)
+        self.callbacks.safe_process(
+            'figure_leave_event', traceback.print_exc, LocationEvent.lastevent)
         LocationEvent.lastevent = None
         self._lastx, self._lasty = None, None
 
@@ -1970,15 +1971,15 @@ class FigureCanvasBase(object):
         if xy is not None:
             x, y = xy
             self._lastx, self._lasty = x, y
-
-        event = Event('figure_enter_event', self, guiEvent)
-        self.callbacks.process('figure_enter_event', event)
+        s = 'figure_enter_event'
+        event = Event(s, self, guiEvent)
+        self.callbacks.safe_process(s, traceback.print_exc, event)
 
     def idle_event(self, guiEvent=None):
         """Called when GUI is idle."""
         s = 'idle_event'
         event = IdleEvent(s, self, guiEvent=guiEvent)
-        self.callbacks.process(s, event)
+        self.callbacks.safe_process(s, traceback.print_exc, event)
 
     def grab_mouse(self, ax):
         """

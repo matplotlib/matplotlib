@@ -571,6 +571,21 @@ class CallbackRegistry(object):
                 except ReferenceError:
                     self._remove_proxy(proxy)
 
+    def safe_process(self, s, on_error, *args, **kwargs):
+        """Call all callbacks registered for signal `s` with `*args, **kwargs`.
+
+        If a callback raises an exception, `on_error` will be called with no
+        argument.
+        """
+        if s in self.callbacks:
+            for cid, proxy in list(six.iteritems(self.callbacks[s])):
+                try:
+                    proxy(*args, **kwargs)
+                except ReferenceError:
+                    self._remove_proxy(proxy)
+                except Exception:
+                    on_error()
+
 
 class silent_list(list):
     """
