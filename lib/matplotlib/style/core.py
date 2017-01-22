@@ -17,6 +17,7 @@ Core functions and attributes for the matplotlib style library:
 """
 import os
 import re
+import sys
 import contextlib
 import warnings
 
@@ -33,7 +34,7 @@ BASE_LIBRARY_PATH = os.path.join(mpl.get_data_path(), 'stylelib')
 USER_LIBRARY_PATHS = [os.path.join(mpl._get_configdir(), 'stylelib')]
 STYLE_EXTENSION = 'mplstyle'
 STYLE_FILE_PATTERN = re.compile('([\S]+).%s$' % STYLE_EXTENSION)
-
+PARENT_STYLES = 'style'
 
 # A list of rcParams that should not be applied from styles
 STYLE_BLACKLIST = {
@@ -91,26 +92,91 @@ def use(style):
     """
     if cbook.is_string_like(style) or hasattr(style, 'keys'):
         # If name is a single str or dict, make it a single element list.
-        styles = [style]
-    else:
-        styles = style
+        style = [style]
+    flattened_style = _flatten_style_dict({PARENT_STYLES: style})
+    _apply_style(flattened_style)
 
-    for style in styles:
-        if not cbook.is_string_like(style):
-            _apply_style(style)
-        elif style == 'default':
-            _apply_style(rcParamsDefault, warn=False)
-        elif style in library:
-            _apply_style(library[style])
+
+def _expand_parent(parent_style):
+    if cbook.is_string_like(parent_style):
+        if parent_style == "default":
+            parent_style = rcParamsDefault
         else:
-            try:
-                rc = rc_params_from_file(style, use_default_template=False)
-                _apply_style(rc)
-            except IOError:
-                msg = ("'%s' not found in the style library and input is "
-                       "not a valid URL or path. See `style.available` for "
-                       "list of available styles.")
-                raise IOError(msg % style)
+            parent_style = get_style_dict(parent_style)
+    return parent_style
+
+
+def flatten_inheritance_dict(child_dict, parent_key,
+                             expand_parent=lambda x: x):
+    """Return a flattened version of dictionary that inherits from a parent.
+
+    Parameters
+    ----------
+    child_dict : dict
+        Dictionary with a special key that points to a dictionary of defaults,
+        or a value that can be expanded to a dictionary of defaults.
+    parent_key : str
+        The key that points to a list of parents.
+    expand_parent : callable(parent) -> dict
+        Function that returns a dictionary from the value corresponding to
+        `parent_key`. By default, this simply returns the value.
+    """
+    if parent_key not in child_dict:
+        return child_dict.copy()
+
+    parents = child_dict[parent_key]
+    if isinstance(parents, dict):
+        parents = [parents]
+    if not isinstance(parents, (list, tuple)):
+        msg = "Parent value must be list or tuple, but given {!r}"
+        raise ValueError(msg.format(parents))
+
+    # Expand any parents defined by `child_dict` into dictionaries.
+    parents = (expand_parent(p) for p in parents)
+
+    # Resolve any grand-parents defined by parents of `child_dict`
+    parents = [flatten_inheritance_dict(p, parent_key, expand_parent)
+               for p in parents]
+
+    # Child will override parent values in `dict.update` so put it last.
+    ordered_dicts = parents + [child_dict]
+
+    # Copy first dictionary and update with subsequent dictionaries.
+    output_dict = ordered_dicts[0].copy()
+    for d in ordered_dicts[1:]:
+        output_dict.update(d)
+
+    # Since the parent data been resolved, remove parent references.
+    del output_dict[parent_key]
+    return output_dict
+
+
+def _flatten_style_dict(style_dict):
+    return flatten_inheritance_dict(style_dict, PARENT_STYLES,
+                                    expand_parent=_expand_parent)
+
+
+def get_style_dict(style):
+    """Returns a dictionnary containing all the parameters from the
+    style file.
+
+    Parameters
+    ----------
+    style : str
+        style from the default library, the personal library or any
+        full path.
+    """
+    if style in library:
+        return library[style]
+    else:
+        try:
+            return rc_params_from_file(style,
+                                       use_default_template=False)
+        except IOError:
+            msg = ("'%s' not found in the style library and input is "
+                   "not a valid URL or path. See `style.available` for "
+                   "list of available styles.")
+            raise IOError(msg % style)
 
 
 @contextlib.contextmanager
