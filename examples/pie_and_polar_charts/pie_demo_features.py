@@ -1,4 +1,8 @@
 """
+===============
+Basic pie chart
+===============
+
 Demo of a basic pie chart plus a few additional features.
 
 In addition to the basic pie chart, this demo shows a few optional features:
