@@ -7,10 +7,10 @@ import six
 import numpy as np
 
 from numpy.testing import assert_array_equal
+import pytest
 
 from matplotlib.path import Path
 from matplotlib.patches import Polygon
-from nose.tools import assert_raises, assert_equal
 from matplotlib.testing.decorators import image_comparison
 import matplotlib.pyplot as plt
 from matplotlib import transforms
@@ -22,7 +22,8 @@ def test_readonly_path():
     def modify_vertices():
         path.vertices = path.vertices * 2.0
 
-    assert_raises(AttributeError, modify_vertices)
+    with pytest.raises(AttributeError):
+        modify_vertices()
 
 
 def test_point_in_path():
@@ -90,7 +91,7 @@ def test_make_compound_path_empty():
     # We should be able to make a compound path with no arguments.
     # This makes it easier to write generic path based code.
     r = Path.make_compound_path()
-    assert_equal(r.vertices.shape, (0, 2))
+    assert r.vertices.shape == (0, 2)
 
 
 @image_comparison(baseline_images=['xkcd'], remove_text=True)
@@ -181,8 +182,3 @@ def test_path_deepcopy():
     path2 = Path(verts, codes)
     copy.deepcopy(path1)
     copy.deepcopy(path2)
-
-
-if __name__ == '__main__':
-    import nose
-    nose.runmodule(argv=['-s', '--with-doctest'], exit=False)

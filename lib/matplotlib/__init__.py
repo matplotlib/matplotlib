@@ -1474,14 +1474,7 @@ def _jupyter_nbextension_paths():
 
 
 default_test_modules = [
-    'matplotlib.tests.test_coding_standards',
-    'matplotlib.tests.test_offsetbox',
-    'matplotlib.tests.test_patches',
-    'matplotlib.tests.test_path',
-    'matplotlib.tests.test_patheffects',
-    'matplotlib.tests.test_pickle',
     'matplotlib.tests.test_png',
-    'matplotlib.tests.test_quiver',
     'matplotlib.tests.test_units',
     'matplotlib.tests.test_widgets',
     'matplotlib.tests.test_cycles',
