@@ -110,7 +110,7 @@ angles : [ 'uv' | 'xy' ], array, optional
     of values in degrees, counter-clockwise from the horizontal axis.
 
     Note: inverting a data axis will correspondingly invert the
-    arrows only with ``angles='xy'```.
+    arrows only with ``angles='xy'``.
 scale : None, float, optional
     Number of data units per arrow length unit, e.g., m/s per plot width; a
     smaller scale parameter makes the arrow longer. Default is *None*.
@@ -164,6 +164,10 @@ Additional :class:`~matplotlib.collections.PolyCollection`
 keyword arguments:
 
 %(PolyCollection)s
+
+Examples
+--------
+.. plot:: mpl_examples/pylab_examples/quiver_simple_demo.py
 
 See Also
 --------
