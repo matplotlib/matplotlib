@@ -7,8 +7,8 @@ from os.path import (join as pjoin, dirname, isdir)
 
 from subprocess import call, Popen, PIPE
 
-from nose import SkipTest
-from nose.tools import assert_true
+import pytest
+
 
 HERE = dirname(__file__)
 TINY_PAGES = pjoin(HERE, 'tinypages')
@@ -19,7 +19,7 @@ def setup_module():
     try:
         ret = call(['sphinx-build', '--help'], stdout=PIPE, stderr=PIPE)
     except OSError:
-        raise SkipTest('Need sphinx-build on path for these tests')
+        pytest.skip('Need sphinx-build on path for these tests')
     if ret != 0:
         raise RuntimeError('sphinx-build does not return 0')
 
@@ -60,29 +60,29 @@ class TestTinyPages(object):
         shutil.rmtree(cls.page_build)
 
     def test_some_plots(self):
-        assert_true(isdir(self.html_dir))
+        assert isdir(self.html_dir)
 
         def plot_file(num):
             return pjoin(self.html_dir, 'some_plots-{0}.png'.format(num))
 
         range_10, range_6, range_4 = [plot_file(i) for i in range(1, 4)]
         # Plot 5 is range(6) plot
-        assert_true(file_same(range_6, plot_file(5)))
+        assert file_same(range_6, plot_file(5))
         # Plot 7 is range(4) plot
-        assert_true(file_same(range_4, plot_file(7)))
+        assert file_same(range_4, plot_file(7))
         # Plot 11 is range(10) plot
-        assert_true(file_same(range_10, plot_file(11)))
+        assert file_same(range_10, plot_file(11))
         # Plot 12 uses the old range(10) figure and the new range(6) figure
-        assert_true(file_same(range_10, plot_file('12_00')))
-        assert_true(file_same(range_6, plot_file('12_01')))
+        assert file_same(range_10, plot_file('12_00'))
+        assert file_same(range_6, plot_file('12_01'))
         # Plot 13 shows close-figs in action
-        assert_true(file_same(range_4, plot_file(13)))
+        assert file_same(range_4, plot_file(13))
         # Plot 14 has included source
         with open(pjoin(self.html_dir, 'some_plots.html'), 'rb') as fobj:
             html_contents = fobj.read()
-        assert_true(b'# Only a comment' in html_contents)
+        assert b'# Only a comment' in html_contents
         # check plot defined in external file.
-        assert_true(file_same(range_4, pjoin(self.html_dir, 'range4.png')))
-        assert_true(file_same(range_6, pjoin(self.html_dir, 'range6.png')))
+        assert file_same(range_4, pjoin(self.html_dir, 'range4.png'))
+        assert file_same(range_6, pjoin(self.html_dir, 'range6.png'))
         # check if figure caption made it into html file
-        assert_true(b'This is the caption for plot 15.' in html_contents)
+        assert b'This is the caption for plot 15.' in html_contents
