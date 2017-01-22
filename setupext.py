@@ -705,7 +705,6 @@ class Matplotlib(SetupPackage):
     def get_packages(self):
         return [
             'matplotlib',
-            'matplotlib._backports',
             'matplotlib.backends',
             'matplotlib.backends.qt_editor',
             'matplotlib.compat',
@@ -718,6 +717,7 @@ class Matplotlib(SetupPackage):
             'matplotlib.testing.nose.plugins',
             'matplotlib.testing.jpl_units',
             'matplotlib.tri',
+            'matplotlib.cbook'
             ]
 
     def get_py_modules(self):
