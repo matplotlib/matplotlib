@@ -17,9 +17,13 @@ from matplotlib.backends.backend_pdf import PdfPages
 from matplotlib import pyplot as plt
 from matplotlib.testing.determinism import (_determinism_source_date_epoch,
                                             _determinism_check)
-from matplotlib.testing.decorators import (image_comparison, knownfailureif,
-                                           cleanup)
+from matplotlib.testing.decorators import image_comparison, cleanup
 from matplotlib import dviread
+
+
+needs_tex = pytest.mark.xfail(
+    not checkdep_tex(),
+    reason="This test needs a TeX installation")
 
 
 @image_comparison(baseline_images=['pdf_use14corefonts'],
@@ -42,10 +46,6 @@ and containing some French characters and the euro symbol:
             verticalalignment='bottom',
             fontsize=14)
     ax.axhline(0.5, linewidth=0.5)
-
-needs_tex = knownfailureif(
-    not checkdep_tex(),
-    "This test needs a TeX installation")
 
 
 @cleanup
