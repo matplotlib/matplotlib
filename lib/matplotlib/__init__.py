@@ -1474,9 +1474,6 @@ def _jupyter_nbextension_paths():
 
 
 default_test_modules = [
-    'matplotlib.tests.test_agg',
-    'matplotlib.tests.test_arrow_patches',
-    'matplotlib.tests.test_artist',
     'matplotlib.tests.test_backend_bases',
     'matplotlib.tests.test_backend_pdf',
     'matplotlib.tests.test_backend_pgf',
@@ -1484,8 +1481,6 @@ default_test_modules = [
     'matplotlib.tests.test_backend_qt4',
     'matplotlib.tests.test_backend_qt5',
     'matplotlib.tests.test_backend_svg',
-    'matplotlib.tests.test_basic',
-    'matplotlib.tests.test_bbox_tight',
     'matplotlib.tests.test_coding_standards',
     'matplotlib.tests.test_dviread',
     'matplotlib.tests.test_figure',

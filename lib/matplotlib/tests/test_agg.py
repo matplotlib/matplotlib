@@ -10,8 +10,7 @@ from distutils.version import LooseVersion as V
 
 import numpy as np
 from numpy.testing import assert_array_almost_equal
-
-from nose.tools import assert_raises
+import pytest
 
 from matplotlib.image import imread
 from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
@@ -297,9 +296,5 @@ def test_agg_filter():
 def test_too_large_image():
     fig = plt.figure(figsize=(300, 1000))
     buff = io.BytesIO()
-    assert_raises(ValueError, fig.savefig, buff)
-
-
-if __name__ == "__main__":
-    import nose
-    nose.runmodule(argv=['-s', '--with-doctest'], exit=False)
+    with pytest.raises(ValueError):
+        fig.savefig(buff)

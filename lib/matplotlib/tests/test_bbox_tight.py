@@ -93,7 +93,3 @@ def test_bbox_inches_tight_raster():
     fig = plt.figure()
     ax = fig.add_subplot(111)
     ax.plot([1.0, 2.0], rasterized=True)
-
-if __name__ == '__main__':
-    import nose
-    nose.runmodule(argv=['-s', '--with-doctest'], exit=False)

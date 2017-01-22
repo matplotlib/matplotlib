@@ -121,8 +121,3 @@ def test_fancyarrow_dash():
                          color='k')
     ax.add_patch(e)
     ax.add_patch(e2)
-
-
-if __name__ == '__main__':
-    import nose
-    nose.runmodule(argv=['-s', '--with-doctest'], exit=False)
