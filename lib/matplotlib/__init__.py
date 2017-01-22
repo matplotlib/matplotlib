@@ -1518,7 +1518,6 @@ default_test_modules = [
     'matplotlib.tests.test_usetex',
     'matplotlib.tests.test_widgets',
     'matplotlib.tests.test_cycles',
-    'matplotlib.tests.test_preprocess_data',
     'matplotlib.sphinxext.tests.test_tinypages',
     'mpl_toolkits.tests.test_mplot3d',
     'mpl_toolkits.tests.test_axes_grid1',
