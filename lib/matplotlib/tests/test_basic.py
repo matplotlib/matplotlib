@@ -4,7 +4,7 @@ from __future__ import (absolute_import, division, print_function,
 import six
 import sys
 
-from ..testing.decorators import knownfailureif, skipif
+from ..testing.decorators import skipif
 
 
 SKIPIF_CONDITION = []
@@ -16,12 +16,6 @@ def setup_module():
 
 def test_simple():
     assert 1 + 1 == 2
-
-
-@knownfailureif(True)
-def test_simple_knownfail():
-    # Test the known fail mechanism.
-    assert 1 + 1 == 3
 
 
 @skipif(True, reason="skipif decorator test with bool condition passed")

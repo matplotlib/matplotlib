@@ -13,14 +13,14 @@ import pytest
 
 import matplotlib.pyplot as plt
 from matplotlib.testing.decorators import cleanup
-from matplotlib.testing.decorators import image_comparison, knownfailureif
+from matplotlib.testing.decorators import image_comparison
 import matplotlib
 from matplotlib import dviread
 
 
-needs_tex = knownfailureif(
+needs_tex = pytest.mark.xfail(
     not matplotlib.checkdep_tex(),
-    "This test needs a TeX installation")
+    reason="This test needs a TeX installation")
 
 
 @cleanup

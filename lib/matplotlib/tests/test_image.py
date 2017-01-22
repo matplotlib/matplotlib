@@ -9,8 +9,7 @@ import warnings
 import numpy as np
 from numpy.testing import assert_array_equal
 
-from matplotlib.testing.decorators import (image_comparison,
-                                           knownfailureif, cleanup)
+from matplotlib.testing.decorators import image_comparison, cleanup
 from matplotlib.image import (AxesImage, BboxImage, FigureImage,
                               NonUniformImage, PcolorImage)
 from matplotlib.transforms import Bbox, Affine2D, TransformedBbox
@@ -31,6 +30,7 @@ try:
     HAS_PIL = True
 except ImportError:
     HAS_PIL = False
+needs_pillow = pytest.mark.xfail(not HAS_PIL, reason='Test requires Pillow')
 
 
 @image_comparison(baseline_images=['image_interps'])
@@ -101,7 +101,7 @@ def test_image_python_io():
     plt.imread(buffer)
 
 
-@knownfailureif(not HAS_PIL)
+@needs_pillow
 def test_imread_pil_uint16():
     img = plt.imread(os.path.join(os.path.dirname(__file__),
                      'baseline_images', 'test_image', 'uint16.tif'))
@@ -480,7 +480,7 @@ def test_nonuniformimage_setnorm():
     im.set_norm(plt.Normalize())
 
 
-@knownfailureif(not HAS_PIL)
+@needs_pillow
 @cleanup
 def test_jpeg_alpha():
     plt.figure(figsize=(1, 1), dpi=300)

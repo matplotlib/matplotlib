@@ -2,9 +2,9 @@ from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
 import numpy as np
+import pytest
 
-from matplotlib.testing.decorators import (image_comparison, cleanup,
-                                           knownfailureif)
+from matplotlib.testing.decorators import image_comparison, cleanup
 import matplotlib.pyplot as plt
 import matplotlib.patheffects as path_effects
 
@@ -76,7 +76,7 @@ def test_patheffect3():
 
 
 @cleanup
-@knownfailureif(True)
+@pytest.mark.xfail
 def test_PathEffect_points_to_pixels():
     fig = plt.figure(dpi=150)
     p1, = plt.plot(range(10))

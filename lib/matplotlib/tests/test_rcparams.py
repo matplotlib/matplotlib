@@ -18,7 +18,7 @@ except ImportError:
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 from matplotlib.tests import assert_str_equal
-from matplotlib.testing.decorators import cleanup, knownfailureif
+from matplotlib.testing.decorators import cleanup
 import matplotlib.colors as mcolors
 from itertools import chain
 import numpy as np

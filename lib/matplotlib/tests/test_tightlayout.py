@@ -6,7 +6,7 @@ import warnings
 
 import numpy as np
 
-from matplotlib.testing.decorators import image_comparison, knownfailureif
+from matplotlib.testing.decorators import image_comparison
 import matplotlib.pyplot as plt
 from matplotlib.offsetbox import AnchoredOffsetbox, DrawingArea
 from matplotlib.patches import Rectangle
