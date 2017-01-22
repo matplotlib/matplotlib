@@ -95,8 +95,3 @@ def test_streamplot_limits():
     # datalim.
     assert_array_almost_equal(ax.dataLim.bounds, (20, 30, 15, 6),
                               decimal=1)
-
-
-if __name__=='__main__':
-    import nose
-    nose.runmodule()

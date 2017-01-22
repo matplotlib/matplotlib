@@ -10,7 +10,7 @@ import matplotlib.pyplot as plt
 
 from matplotlib import patches, path, transforms
 
-from nose.tools import raises
+import pytest
 import io
 
 nan = np.nan
@@ -159,7 +159,6 @@ AAj1//+nPwAA/////w=="""
     assert segs[0][1] == Path.MOVETO
 
 @cleanup
-@raises(OverflowError)
 def test_throw_rendering_complexity_exceeded():
     plt.rcParams['path.simplify'] = False
     xx = np.arange(200000)
@@ -168,10 +167,9 @@ def test_throw_rendering_complexity_exceeded():
     fig = plt.figure()
     ax = fig.add_subplot(111)
     ax.plot(xx, yy)
-    try:
+    with pytest.raises(OverflowError):
         fig.savefig(io.BytesIO())
-    finally:
-        plt.rcParams['path.simplify'] = True
+
 
 @image_comparison(baseline_images=['clipper_edge'], remove_text=True)
 def test_clipper():
@@ -224,8 +222,3 @@ def test_clipping_full():
     simplified = list(p.iter_segments(clip=[0, 0, 100, 100]))
     assert ([(list(x), y) for x, y in simplified] ==
             [([50, 40], 1)])
-
-
-if __name__=='__main__':
-    import nose
-    nose.runmodule(argv=['-s','--with-doctest'], exit=False)
