@@ -204,7 +204,6 @@ def test_pep8_conformance_installed_files():
                           'testing/jpl_units/__init__.py',
                           'tri/triinterpolate.py',
                           'tests/test_axes.py',
-                          'tests/test_bbox_tight.py',
                           'tests/test_image.py',
                           'tests/test_lines.py',
                           'tests/test_mathtext.py',

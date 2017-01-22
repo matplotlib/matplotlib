@@ -1,10 +1,10 @@
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
-import warnings
-import six
 
 import io
+import warnings
 from itertools import chain
+
 import numpy as np
 
 import matplotlib.pyplot as plt
@@ -14,7 +14,6 @@ import matplotlib.path as mpath
 import matplotlib.transforms as mtrans
 import matplotlib.collections as mcollections
 import matplotlib.artist as martist
-import matplotlib as mpl
 from matplotlib.testing.decorators import image_comparison, cleanup
 
 
@@ -70,7 +69,7 @@ def test_collection_transform_of_none():
     ax.set_xlim([1, 3])
     ax.set_ylim([1, 3])
 
-    #draw an ellipse over data coord (2,2) by specifying device coords
+    # draw an ellipse over data coord (2,2) by specifying device coords
     xy_data = (2, 2)
     xy_pix = ax.transData.transform_point(xy_data)
 
@@ -219,8 +218,8 @@ def test_default_edges():
     ax3.set_ylim((-1, 1))
     pp1 = mpatches.PathPatch(
         mpath.Path([(0, 0), (1, 0), (1, 1), (0, 0)],
-             [mpath.Path.MOVETO, mpath.Path.CURVE3,
-              mpath.Path.CURVE3, mpath.Path.CLOSEPOLY]),
+                   [mpath.Path.MOVETO, mpath.Path.CURVE3,
+                    mpath.Path.CURVE3, mpath.Path.CLOSEPOLY]),
         fc="none", transform=ax4.transData)
     ax4.add_patch(pp1)
 
