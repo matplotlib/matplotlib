@@ -185,12 +185,14 @@ def _to_rgba_no_colorcycle(c, alpha=None):
             pass
         raise ValueError("Invalid RGBA argument: {!r}".format(orig_c))
     # tuple color.
-    # Python 2.7 / numpy 1.6 apparently require this to return builtin floats,
-    # not numpy floats.
-    try:
-        c = tuple(map(float, c))
-    except TypeError:
+    c = np.array(c)
+    if not np.can_cast(c.dtype, float) or c.ndim != 1:
+        # Test the dtype explicitly as `map(float, ...)`, `np.array(...,
+        # float)` and `np.array(...).astype(float)` all convert "0.5" to 0.5.
+        # Test dimensionality to reject single floats.
         raise ValueError("Invalid RGBA argument: {!r}".format(orig_c))
+    # Return a tuple to prevent the cached value from being modified.
+    c = tuple(c.astype(float))
     if len(c) not in [3, 4]:
         raise ValueError("RGBA sequence should have length 3 or 4")
     if len(c) == 3 and alpha is None:
