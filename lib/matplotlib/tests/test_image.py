@@ -6,7 +6,6 @@ import io
 import os
 import warnings
 
-from nose.plugins.attrib import attr
 
 import numpy as np
 from numpy.testing import assert_array_equal
@@ -21,6 +20,7 @@ from matplotlib import patches
 import matplotlib.pyplot as plt
 
 from matplotlib import mlab
+import pytest
 
 from copy import copy
 from numpy import ma
@@ -587,7 +587,7 @@ def test_minimized_rasterized():
                 assert False
 
 
-@attr('network')
+@pytest.mark.network
 def test_load_from_url():
     req = six.moves.urllib.request.urlopen(
         "http://matplotlib.org/_static/logo_sidebar_horiz.png")
