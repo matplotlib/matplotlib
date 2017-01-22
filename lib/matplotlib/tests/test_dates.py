@@ -1,12 +1,12 @@
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
-import six
 from six.moves import map
 
 import datetime
 import warnings
 import tempfile
+import pytest
 
 import dateutil
 import pytz
@@ -16,8 +16,8 @@ try:
     from unittest import mock
 except ImportError:
     import mock
-from nose.tools import assert_raises, assert_equal
-from nose.plugins.skip import SkipTest
+
+from numpy.testing import assert_raises, assert_equal
 
 from matplotlib.testing.decorators import image_comparison, cleanup
 import matplotlib.pyplot as plt
@@ -180,18 +180,16 @@ def test_date_formatter_strftime():
             "{hour24:02d} {hour12:02d} {minute:02d} {second:02d} "
             "%{microsecond:06d} %x"
             .format(
-            # weeknum=dt.isocalendar()[1],  # %U/%W {weeknum:02d}
-            # %w Sunday=0, weekday() Monday=0
-            weekday=str((dt.weekday() + 1) % 7),
-            day=dt.day,
-            month=dt.month,
-            year=dt.year % 100,
-            full_year=dt.year,
-            hour24=dt.hour,
-            hour12=((dt.hour-1) % 12) + 1,
-            minute=dt.minute,
-            second=dt.second,
-            microsecond=dt.microsecond))
+                weekday=str((dt.weekday() + 1) % 7),
+                day=dt.day,
+                month=dt.month,
+                year=dt.year % 100,
+                full_year=dt.year,
+                hour24=dt.hour,
+                hour12=((dt.hour-1) % 12) + 1,
+                minute=dt.minute,
+                second=dt.second,
+                microsecond=dt.microsecond))
         assert_equal(formatter.strftime(dt), formatted_date_str)
 
         try:
@@ -446,10 +444,7 @@ def test_date2num_dst():
 def test_date2num_dst_pandas():
     # Test for github issue #3896, but in date2num around DST transitions
     # with a timezone-aware pandas date_range object.
-    try:
-        import pandas as pd
-    except ImportError:
-        raise SkipTest('pandas not installed')
+    pd = pytest.importorskip('pandas')
 
     def tz_convert(*args):
         return pd.DatetimeIndex.tz_convert(*args).astype(datetime.datetime)
@@ -458,18 +453,13 @@ def test_date2num_dst_pandas():
 
 
 def test_DayLocator():
-   assert_raises(ValueError, mdates.DayLocator, interval=-1)
-   assert_raises(ValueError, mdates.DayLocator, interval=-1.5)
-   assert_raises(ValueError, mdates.DayLocator, interval=0)
-   assert_raises(ValueError, mdates.DayLocator, interval=1.3)
-   mdates.DayLocator(interval=1.0)
+    assert_raises(ValueError, mdates.DayLocator, interval=-1)
+    assert_raises(ValueError, mdates.DayLocator, interval=-1.5)
+    assert_raises(ValueError, mdates.DayLocator, interval=0)
+    assert_raises(ValueError, mdates.DayLocator, interval=1.3)
+    mdates.DayLocator(interval=1.0)
 
 
 def test_tz_utc():
     dt = datetime.datetime(1970, 1, 1, tzinfo=mdates.UTC)
     dt.tzname()
-
-
-if __name__ == '__main__':
-    import nose
-    nose.runmodule(argv=['-s', '--with-doctest'], exit=False)
