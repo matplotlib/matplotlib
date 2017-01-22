@@ -1487,7 +1487,6 @@ default_test_modules = [
     'matplotlib.tests.test_basic',
     'matplotlib.tests.test_bbox_tight',
     'matplotlib.tests.test_coding_standards',
-    'matplotlib.tests.test_dates',
     'matplotlib.tests.test_dviread',
     'matplotlib.tests.test_figure',
     'matplotlib.tests.test_font_manager',
