@@ -22,7 +22,7 @@ def plot_func(ax, x, y, ls="x", label=None, w="xyz"):
 
 @_preprocess_data(replace_names=["x", "y"], label_namer="y",
                   positional_parameter_names=["x", "y", "ls", "label", "w"])
-def plot_func_varags(ax, *args, **kwargs):
+def plot_func_varargs(ax, *args, **kwargs):
     all_args = [None, None, "x", None, "xyz"]
     for i, v in enumerate(args):
         all_args[i] = v
@@ -34,7 +34,8 @@ def plot_func_varags(ax, *args, **kwargs):
         list(x), list(y), ls, w, label))
 
 
-all_funcs = [plot_func, plot_func_varags]
+all_funcs = [plot_func, plot_func_varargs]
+all_func_ids = ['plot_func', 'plot_func_varargs']
 
 
 def test_compiletime_checks():
@@ -106,78 +107,78 @@ def test_label_problems_at_runtime():
         func(None, x="a", y="b")
 
 
-def test_function_call_without_data():
+@pytest.mark.parametrize('func', all_funcs, ids=all_func_ids)
+def test_function_call_without_data(func):
     """test without data -> no replacements"""
-    for func in all_funcs:
-        assert (func(None, "x", "y") ==
-                "x: ['x'], y: ['y'], ls: x, w: xyz, label: None")
-        assert (func(None, x="x", y="y") ==
-                "x: ['x'], y: ['y'], ls: x, w: xyz, label: None")
-        assert (func(None, "x", "y", label="") ==
-                "x: ['x'], y: ['y'], ls: x, w: xyz, label: ")
-        assert (func(None, "x", "y", label="text") ==
-                "x: ['x'], y: ['y'], ls: x, w: xyz, label: text")
-        assert (func(None, x="x", y="y", label="") ==
-                "x: ['x'], y: ['y'], ls: x, w: xyz, label: ")
-        assert (func(None, x="x", y="y", label="text") ==
-                "x: ['x'], y: ['y'], ls: x, w: xyz, label: text")
+    assert (func(None, "x", "y") ==
+            "x: ['x'], y: ['y'], ls: x, w: xyz, label: None")
+    assert (func(None, x="x", y="y") ==
+            "x: ['x'], y: ['y'], ls: x, w: xyz, label: None")
+    assert (func(None, "x", "y", label="") ==
+            "x: ['x'], y: ['y'], ls: x, w: xyz, label: ")
+    assert (func(None, "x", "y", label="text") ==
+            "x: ['x'], y: ['y'], ls: x, w: xyz, label: text")
+    assert (func(None, x="x", y="y", label="") ==
+            "x: ['x'], y: ['y'], ls: x, w: xyz, label: ")
+    assert (func(None, x="x", y="y", label="text") ==
+            "x: ['x'], y: ['y'], ls: x, w: xyz, label: text")
 
 
-def test_function_call_with_dict_data():
+@pytest.mark.parametrize('func', all_funcs, ids=all_func_ids)
+def test_function_call_with_dict_data(func):
     """Test with dict data -> label comes from the value of 'x' parameter """
     data = {"a": [1, 2], "b": [8, 9], "w": "NOT"}
-    for func in all_funcs:
-        assert (func(None, "a", "b", data=data) ==
-                "x: [1, 2], y: [8, 9], ls: x, w: xyz, label: b")
-        assert (func(None, x="a", y="b", data=data) ==
-                "x: [1, 2], y: [8, 9], ls: x, w: xyz, label: b")
-        assert (func(None, "a", "b", label="", data=data) ==
-                "x: [1, 2], y: [8, 9], ls: x, w: xyz, label: ")
-        assert (func(None, "a", "b", label="text", data=data) ==
-                "x: [1, 2], y: [8, 9], ls: x, w: xyz, label: text")
-        assert (func(None, x="a", y="b", label="", data=data) ==
-                "x: [1, 2], y: [8, 9], ls: x, w: xyz, label: ")
-        assert (func(None, x="a", y="b", label="text", data=data) ==
-                "x: [1, 2], y: [8, 9], ls: x, w: xyz, label: text")
+    assert (func(None, "a", "b", data=data) ==
+            "x: [1, 2], y: [8, 9], ls: x, w: xyz, label: b")
+    assert (func(None, x="a", y="b", data=data) ==
+            "x: [1, 2], y: [8, 9], ls: x, w: xyz, label: b")
+    assert (func(None, "a", "b", label="", data=data) ==
+            "x: [1, 2], y: [8, 9], ls: x, w: xyz, label: ")
+    assert (func(None, "a", "b", label="text", data=data) ==
+            "x: [1, 2], y: [8, 9], ls: x, w: xyz, label: text")
+    assert (func(None, x="a", y="b", label="", data=data) ==
+            "x: [1, 2], y: [8, 9], ls: x, w: xyz, label: ")
+    assert (func(None, x="a", y="b", label="text", data=data) ==
+            "x: [1, 2], y: [8, 9], ls: x, w: xyz, label: text")
 
 
-def test_function_call_with_dict_data_not_in_data():
+@pytest.mark.parametrize('func', all_funcs, ids=all_func_ids)
+def test_function_call_with_dict_data_not_in_data(func):
     "test for the case that one var is not in data -> half replaces, half kept"
     data = {"a": [1, 2], "w": "NOT"}
-    for func in all_funcs:
-        assert (func(None, "a", "b", data=data) ==
-                "x: [1, 2], y: ['b'], ls: x, w: xyz, label: b")
-        assert (func(None, x="a", y="b", data=data) ==
-                "x: [1, 2], y: ['b'], ls: x, w: xyz, label: b")
-        assert (func(None, "a", "b", label="", data=data) ==
-                "x: [1, 2], y: ['b'], ls: x, w: xyz, label: ")
-        assert (func(None, "a", "b", label="text", data=data) ==
-                "x: [1, 2], y: ['b'], ls: x, w: xyz, label: text")
-        assert (func(None, x="a", y="b", label="", data=data) ==
-                "x: [1, 2], y: ['b'], ls: x, w: xyz, label: ")
-        assert (func(None, x="a", y="b", label="text", data=data) ==
-                "x: [1, 2], y: ['b'], ls: x, w: xyz, label: text")
+    assert (func(None, "a", "b", data=data) ==
+            "x: [1, 2], y: ['b'], ls: x, w: xyz, label: b")
+    assert (func(None, x="a", y="b", data=data) ==
+            "x: [1, 2], y: ['b'], ls: x, w: xyz, label: b")
+    assert (func(None, "a", "b", label="", data=data) ==
+            "x: [1, 2], y: ['b'], ls: x, w: xyz, label: ")
+    assert (func(None, "a", "b", label="text", data=data) ==
+            "x: [1, 2], y: ['b'], ls: x, w: xyz, label: text")
+    assert (func(None, x="a", y="b", label="", data=data) ==
+            "x: [1, 2], y: ['b'], ls: x, w: xyz, label: ")
+    assert (func(None, x="a", y="b", label="text", data=data) ==
+            "x: [1, 2], y: ['b'], ls: x, w: xyz, label: text")
 
 
-def test_function_call_with_pandas_data():
+@pytest.mark.parametrize('func', all_funcs, ids=all_func_ids)
+def test_function_call_with_pandas_data(func):
     """test with pandas dataframe -> label comes from data["col"].name """
     pd = pytest.importorskip('pandas')
 
     data = pd.DataFrame({"a": [1, 2], "b": [8, 9], "w": ["NOT", "NOT"]})
 
-    for func in all_funcs:
-        assert (func(None, "a", "b", data=data) ==
-                "x: [1, 2], y: [8, 9], ls: x, w: xyz, label: b")
-        assert (func(None, x="a", y="b", data=data) ==
-                "x: [1, 2], y: [8, 9], ls: x, w: xyz, label: b")
-        assert (func(None, "a", "b", label="", data=data) ==
-                "x: [1, 2], y: [8, 9], ls: x, w: xyz, label: ")
-        assert (func(None, "a", "b", label="text", data=data) ==
-                "x: [1, 2], y: [8, 9], ls: x, w: xyz, label: text")
-        assert (func(None, x="a", y="b", label="", data=data) ==
-                "x: [1, 2], y: [8, 9], ls: x, w: xyz, label: ")
-        assert (func(None, x="a", y="b", label="text", data=data) ==
-                "x: [1, 2], y: [8, 9], ls: x, w: xyz, label: text")
+    assert (func(None, "a", "b", data=data) ==
+            "x: [1, 2], y: [8, 9], ls: x, w: xyz, label: b")
+    assert (func(None, x="a", y="b", data=data) ==
+            "x: [1, 2], y: [8, 9], ls: x, w: xyz, label: b")
+    assert (func(None, "a", "b", label="", data=data) ==
+            "x: [1, 2], y: [8, 9], ls: x, w: xyz, label: ")
+    assert (func(None, "a", "b", label="text", data=data) ==
+            "x: [1, 2], y: [8, 9], ls: x, w: xyz, label: text")
+    assert (func(None, x="a", y="b", label="", data=data) ==
+            "x: [1, 2], y: [8, 9], ls: x, w: xyz, label: ")
+    assert (func(None, x="a", y="b", label="text", data=data) ==
+            "x: [1, 2], y: [8, 9], ls: x, w: xyz, label: text")
 
 
 def test_function_call_replace_all():
