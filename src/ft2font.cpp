@@ -508,6 +508,7 @@ FT2Font::FT2Font(FT_Open_Args &open_args, long hinting_factor_) : image(), face(
 
     error = FT_Set_Char_Size(face, 12 * 64, 0, 72 * (unsigned int)hinting_factor, 72);
     if (error) {
+        FT_Done_Face(face);
         throw "Could not set the fontsize";
     }
 
