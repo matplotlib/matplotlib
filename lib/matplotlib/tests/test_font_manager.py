@@ -1,7 +1,6 @@
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
-from nose.tools import assert_equal
 import six
 
 import os
@@ -22,7 +21,7 @@ def test_font_priority():
             ['cmmi10', 'Bitstream Vera Sans']}):
         font = findfont(
             FontProperties(family=["sans-serif"]))
-    assert_equal(os.path.basename(font), 'cmmi10.ttf')
+    assert os.path.basename(font) == 'cmmi10.ttf'
 
     # Smoketest get_charmap, which isn't used internally anymore
     font = get_font(font)
@@ -49,8 +48,8 @@ def test_json_serialization():
                      {'family': 'Bitstream Vera Sans', 'weight': 700},
                      {'family': 'no such font family'}):
             fp = FontProperties(**prop)
-            assert_equal(fontManager.findfont(fp, rebuild_if_missing=False),
-                         copy.findfont(fp, rebuild_if_missing=False))
+            assert (fontManager.findfont(fp, rebuild_if_missing=False) ==
+                    copy.findfont(fp, rebuild_if_missing=False))
 
 
 def test_otf():
