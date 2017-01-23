@@ -2,14 +2,12 @@ from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
 import warnings
-import six
-from six.moves import xrange
 
 import numpy
 import matplotlib.pyplot as plt
 from matplotlib.testing.decorators import image_comparison, cleanup
 
-from nose.tools import assert_raises
+import pytest
 
 
 def check_shared(axs, x_shared, y_shared):
@@ -30,7 +28,9 @@ def check_shared(axs, x_shared, y_shared):
 
 
 def check_visible(axs, x_visible, y_visible):
-    tostr = lambda v: "invisible" if v else "visible"
+    def tostr(v):
+        return "invisible" if v else "visible"
+
     for (ax, vx, vy) in zip(axs, x_visible, y_visible):
         for l in ax.get_xticklabels() + [ax.get_xaxis().offsetText]:
             assert l.get_visible() == vx, \
@@ -105,17 +105,22 @@ def test_shared():
 @cleanup
 def test_exceptions():
     # TODO should this test more options?
-    assert_raises(ValueError, plt.subplots, 2, 2, sharex='blah')
-    assert_raises(ValueError, plt.subplots, 2, 2, sharey='blah')
+    with pytest.raises(ValueError):
+        plt.subplots(2, 2, sharex='blah')
+    with pytest.raises(ValueError):
+        plt.subplots(2, 2, sharey='blah')
     # We filter warnings in this test which are genuine since
     # the point of this test is to ensure that this raises.
     with warnings.catch_warnings():
         warnings.filterwarnings('ignore',
                                 message='.*sharex\ argument\ to\ subplots',
                                 category=UserWarning)
-        assert_raises(ValueError, plt.subplots, 2, 2, -1)
-        assert_raises(ValueError, plt.subplots, 2, 2, 0)
-        assert_raises(ValueError, plt.subplots, 2, 2, 5)
+        with pytest.raises(ValueError):
+            plt.subplots(2, 2, -1)
+        with pytest.raises(ValueError):
+            plt.subplots(2, 2, 0)
+        with pytest.raises(ValueError):
+            plt.subplots(2, 2, 5)
 
 
 @image_comparison(baseline_images=['subplots_offset_text'], remove_text=False)
@@ -127,8 +132,3 @@ def test_subplots_offsettext():
     axes[1, 0].plot(x, x)
     axes[0, 1].plot(y, x)
     axes[1, 1].plot(y, x)
-
-
-if __name__ == "__main__":
-    import nose
-    nose.runmodule(argv=['-s', '--with-doctest'], exit=False)
