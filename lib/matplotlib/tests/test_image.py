@@ -6,9 +6,9 @@ import io
 import os
 import warnings
 
-from nose.plugins.attrib import attr
 
 import numpy as np
+from numpy.testing import assert_array_equal
 
 from matplotlib.testing.decorators import (image_comparison,
                                            knownfailureif, cleanup)
@@ -20,17 +20,12 @@ from matplotlib import patches
 import matplotlib.pyplot as plt
 
 from matplotlib import mlab
-from nose.tools import assert_raises
-from numpy.testing import (
-    assert_array_equal, assert_array_almost_equal, assert_allclose)
+import pytest
+
 from copy import copy
 from numpy import ma
 import matplotlib.colors as colors
-import matplotlib.pyplot as plt
-import matplotlib.mlab as mlab
-import numpy as np
 
-import nose
 
 try:
     from PIL import Image
@@ -592,7 +587,7 @@ def test_minimized_rasterized():
                 assert False
 
 
-@attr('network')
+@pytest.mark.network
 def test_load_from_url():
     req = six.moves.urllib.request.urlopen(
         "http://matplotlib.org/_static/logo_sidebar_horiz.png")
@@ -753,7 +748,3 @@ def test_imshow_no_warn_invalid():
         warnings.simplefilter("always")
         plt.imshow([[1, 2], [3, np.nan]])
     assert len(warns) == 0
-
-
-if __name__ == '__main__':
-    nose.runmodule(argv=['-s', '--with-doctest'], exit=False)
