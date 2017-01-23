@@ -11,8 +11,8 @@ from numpy.testing import assert_array_equal
 
 from matplotlib.testing.decorators import (image_comparison,
                                            knownfailureif, cleanup)
-from matplotlib.image import (BboxImage, imread, NonUniformImage,
-                              AxesImage, FigureImage, PcolorImage)
+from matplotlib.image import (AxesImage, BboxImage, FigureImage,
+                              NonUniformImage, PcolorImage)
 from matplotlib.transforms import Bbox, Affine2D, TransformedBbox
 from matplotlib import rcParams, rc_context
 from matplotlib import patches
