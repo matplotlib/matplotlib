@@ -1493,7 +1493,6 @@ default_test_modules = [
     'matplotlib.tests.test_usetex',
     'matplotlib.tests.test_widgets',
     'matplotlib.tests.test_cycles',
-    'matplotlib.sphinxext.tests.test_tinypages',
     ]
 
 
