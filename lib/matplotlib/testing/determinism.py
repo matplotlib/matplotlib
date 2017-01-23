@@ -13,10 +13,10 @@ import re
 import sys
 from subprocess import check_output
 
+import pytest
+
 import matplotlib
 from matplotlib import pyplot as plt
-
-from nose.plugins.skip import SkipTest
 
 
 def _determinism_save(objects='mhi', format="pdf", usetex=False):
@@ -92,11 +92,11 @@ def _determinism_check(objects='mhi', format="pdf", usetex=False):
     format : str
         format string. The default value is "pdf".
     """
-    from nose.tools import assert_equal
     plots = []
     for i in range(3):
         result = check_output([sys.executable, '-R', '-c',
                                'import matplotlib; '
+                               'matplotlib._called_from_pytest = True; '
                                'matplotlib.use(%r); '
                                'from matplotlib.testing.determinism '
                                'import _determinism_save;'
@@ -106,9 +106,9 @@ def _determinism_check(objects='mhi', format="pdf", usetex=False):
     for p in plots[1:]:
         if usetex:
             if p != plots[0]:
-                raise SkipTest("failed, maybe due to ghostscript timestamps")
+                pytest.skip("failed, maybe due to ghostscript timestamps")
         else:
-            assert_equal(p, plots[0])
+            assert p == plots[0]
 
 
 def _determinism_source_date_epoch(format, string, keyword=b"CreationDate"):
@@ -130,6 +130,7 @@ def _determinism_source_date_epoch(format, string, keyword=b"CreationDate"):
     """
     buff = check_output([sys.executable, '-R', '-c',
                          'import matplotlib; '
+                         'matplotlib._called_from_pytest = True; '
                          'matplotlib.use(%r); '
                          'from matplotlib.testing.determinism '
                          'import _determinism_save;'

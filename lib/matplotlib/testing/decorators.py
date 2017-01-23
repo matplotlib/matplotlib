@@ -486,6 +486,7 @@ def switch_backend(backend):
     # Local import to avoid a hard nose dependency and only incur the
     # import time overhead at actual test-time.
     def switch_backend_decorator(func):
+        @functools.wraps(func)
         def backend_switcher(*args, **kwargs):
             try:
                 prev_backend = mpl.get_backend()
