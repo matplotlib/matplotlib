@@ -4,8 +4,8 @@ from __future__ import (absolute_import, division, print_function,
 import six
 from six.moves import xrange
 
-from nose.tools import assert_equal, assert_true
-from matplotlib import rcParams
+from nose.tools import assert_equal, assert_true, assert_raises
+from matplotlib import rcParams, figure
 from matplotlib.testing.decorators import image_comparison, cleanup
 from matplotlib.axes import Axes
 import matplotlib.pyplot as plt
@@ -230,6 +230,17 @@ def test_figaspect():
     assert h / w == 0.5
     w, h = plt.figaspect(np.zeros((2, 2)))
     assert h / w == 1
+
+
+@cleanup
+def test_stack_remove():
+    a = figure.AxesStack()
+    key = '123'
+    axes = plt.figure().add_subplot(111)
+    a.add(key, axes)
+    # Verify some things
+    assert_raises(KeyError, a.add, key, plt.figure().add_subplot(111))
+    assert_equal(a._elements, [(key, (1, axes))])
 
 
 if __name__ == "__main__":
