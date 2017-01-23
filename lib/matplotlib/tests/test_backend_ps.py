@@ -199,8 +199,3 @@ def test_determinism_all():
 def test_determinism_all_tex():
     """Test for reproducible PS/tex output"""
     _determinism_check(format="ps", usetex=True)
-
-
-if __name__ == '__main__':
-    import nose
-    nose.runmodule(argv=['-s', '--with-doctest'], exit=False)
