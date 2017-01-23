@@ -210,7 +210,3 @@ def test_skew_rectange():
                                       alpha=0.5, facecolor='coral'))
 
     plt.subplots_adjust(wspace=0, left=0, right=1, bottom=0)
-
-if __name__ == '__main__':
-    import nose
-    nose.runmodule(argv=['-s', '--with-doctest'], exit=False)

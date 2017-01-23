@@ -1,8 +1,6 @@
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
-import six
-
 import numpy as np
 from numpy.testing import assert_array_almost_equal
 import matplotlib.pyplot as plt
@@ -16,6 +14,7 @@ def velocity_field():
     V = 1 + X - Y**2
     return X, Y, U, V
 
+
 def swirl_velocity_field():
     x = np.linspace(-3., 3., 100)
     y = np.linspace(-3., 3., 100)
@@ -24,6 +23,7 @@ def swirl_velocity_field():
     U = np.cos(a) * (-Y) - np.sin(a) * X
     V = np.sin(a) * (-Y) + np.cos(a) * X
     return x, y, U, V
+
 
 @image_comparison(baseline_images=['streamplot_startpoints'])
 def test_startpoints():
@@ -95,8 +95,3 @@ def test_streamplot_limits():
     # datalim.
     assert_array_almost_equal(ax.dataLim.bounds, (20, 30, 15, 6),
                               decimal=1)
-
-
-if __name__=='__main__':
-    import nose
-    nose.runmodule()
