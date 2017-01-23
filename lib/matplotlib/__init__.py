@@ -1477,7 +1477,6 @@ default_test_modules = [
     'matplotlib.tests.test_png',
     'matplotlib.tests.test_units',
     'matplotlib.tests.test_widgets',
-    'matplotlib.tests.test_cycles',
     ]
 
 
