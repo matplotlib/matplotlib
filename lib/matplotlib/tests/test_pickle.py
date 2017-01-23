@@ -3,7 +3,7 @@ from __future__ import (absolute_import, division, print_function,
 
 import six
 from six.moves import cPickle as pickle
-from six.moves import xrange
+from six.moves import range
 
 from io import BytesIO
 
@@ -104,7 +104,7 @@ def test_simple():
     pickle.dump(ax, BytesIO(), pickle.HIGHEST_PROTOCOL)
 
     ax = plt.axes(projection='polar')
-    plt.plot(list(xrange(10)), label='foobar')
+    plt.plot(np.arange(10), label='foobar')
     plt.legend()
 
     # Uncomment to debug any unpicklable objects. This is slow so is not
@@ -117,12 +117,12 @@ def test_simple():
 #    pickle.dump(ax, BytesIO(), pickle.HIGHEST_PROTOCOL)
 
     plt.figure()
-    plt.bar(left=list(xrange(10)), height=list(xrange(10)))
+    plt.bar(left=np.arange(10), height=np.arange(10))
     pickle.dump(plt.gca(), BytesIO(), pickle.HIGHEST_PROTOCOL)
 
     fig = plt.figure()
     ax = plt.axes()
-    plt.plot(list(xrange(10)))
+    plt.plot(np.arange(10))
     ax.set_yscale('log')
     pickle.dump(fig, BytesIO(), pickle.HIGHEST_PROTOCOL)
 
@@ -140,7 +140,7 @@ def test_complete():
     v = np.sin(v * -0.6)
 
     plt.subplot(3, 3, 1)
-    plt.plot(list(xrange(10)))
+    plt.plot(list(range(10)))  # Ensure lists also pickle correctly.
 
     plt.subplot(3, 3, 2)
     plt.contourf(data, hatches=['//', 'ooo'])
