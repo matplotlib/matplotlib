@@ -1,10 +1,10 @@
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
-import warnings
-import six
 
 import io
+import warnings
 from itertools import chain
+
 import numpy as np
 
 import matplotlib.pyplot as plt
@@ -14,10 +14,7 @@ import matplotlib.path as mpath
 import matplotlib.transforms as mtrans
 import matplotlib.collections as mcollections
 import matplotlib.artist as martist
-import matplotlib as mpl
 from matplotlib.testing.decorators import image_comparison, cleanup
-
-from nose.tools import (assert_true, assert_false)
 
 
 @cleanup
@@ -72,7 +69,7 @@ def test_collection_transform_of_none():
     ax.set_xlim([1, 3])
     ax.set_ylim([1, 3])
 
-    #draw an ellipse over data coord (2,2) by specifying device coords
+    # draw an ellipse over data coord (2,2) by specifying device coords
     xy_data = (2, 2)
     xy_pix = ax.transData.transform_point(xy_data)
 
@@ -184,28 +181,28 @@ def test_remove():
     im = ax.imshow(np.arange(36).reshape(6, 6))
     ln, = ax.plot(range(5))
 
-    assert_true(fig.stale)
-    assert_true(ax.stale)
+    assert fig.stale
+    assert ax.stale
 
     fig.canvas.draw()
-    assert_false(fig.stale)
-    assert_false(ax.stale)
-    assert_false(ln.stale)
+    assert not fig.stale
+    assert not ax.stale
+    assert not ln.stale
 
-    assert_true(im in ax.mouseover_set)
-    assert_true(ln not in ax.mouseover_set)
-    assert_true(im.axes is ax)
+    assert im in ax.mouseover_set
+    assert ln not in ax.mouseover_set
+    assert im.axes is ax
 
     im.remove()
     ln.remove()
 
     for art in [im, ln]:
-        assert_true(art.axes is None)
-        assert_true(art.figure is None)
+        assert art.axes is None
+        assert art.figure is None
 
-    assert_true(im not in ax.mouseover_set)
-    assert_true(fig.stale)
-    assert_true(ax.stale)
+    assert im not in ax.mouseover_set
+    assert fig.stale
+    assert ax.stale
 
 
 @image_comparison(baseline_images=["default_edges"], remove_text=True,
@@ -221,8 +218,8 @@ def test_default_edges():
     ax3.set_ylim((-1, 1))
     pp1 = mpatches.PathPatch(
         mpath.Path([(0, 0), (1, 0), (1, 1), (0, 0)],
-             [mpath.Path.MOVETO, mpath.Path.CURVE3,
-              mpath.Path.CURVE3, mpath.Path.CLOSEPOLY]),
+                   [mpath.Path.MOVETO, mpath.Path.CURVE3,
+                    mpath.Path.CURVE3, mpath.Path.CLOSEPOLY]),
         fc="none", transform=ax4.transData)
     ax4.add_patch(pp1)
 
@@ -254,8 +251,3 @@ def test_setp():
     sio = io.StringIO()
     plt.setp(lines1, 'zorder', file=sio)
     assert sio.getvalue() == '  zorder: any number \n'
-
-
-if __name__ == '__main__':
-    import nose
-    nose.runmodule(argv=['-s', '--with-doctest'], exit=False)
