@@ -1476,7 +1476,6 @@ def _jupyter_nbextension_paths():
 default_test_modules = [
     'matplotlib.tests.test_coding_standards',
     'matplotlib.tests.test_dviread',
-    'matplotlib.tests.test_figure',
     'matplotlib.tests.test_font_manager',
     'matplotlib.tests.test_gridspec',
     'matplotlib.tests.test_image',

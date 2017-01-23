@@ -1,10 +1,7 @@
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
-import six
-from six.moves import xrange
-
-from nose.tools import assert_equal, assert_true
+from numpy.testing import assert_equal
 from matplotlib import rcParams
 from matplotlib.testing.decorators import image_comparison, cleanup
 from matplotlib.axes import Axes
@@ -58,7 +55,7 @@ def test_figure():
     fig = plt.figure('today')
     ax = fig.add_subplot(111)
     ax.set_title(fig.get_label())
-    ax.plot(list(xrange(5)))
+    ax.plot(np.arange(5))
     # plot red line in a different figure.
     plt.figure('tomorrow')
     plt.plot([0, 1], [1, 0], 'r')
@@ -84,35 +81,34 @@ def test_gca():
     fig = plt.figure()
 
     ax1 = fig.add_axes([0, 0, 1, 1])
-    assert_true(fig.gca(projection='rectilinear') is ax1)
-    assert_true(fig.gca() is ax1)
+    assert fig.gca(projection='rectilinear') is ax1
+    assert fig.gca() is ax1
 
     ax2 = fig.add_subplot(121, projection='polar')
-    assert_true(fig.gca() is ax2)
-    assert_true(fig.gca(polar=True)is ax2)
+    assert fig.gca() is ax2
+    assert fig.gca(polar=True)is ax2
 
     ax3 = fig.add_subplot(122)
-    assert_true(fig.gca() is ax3)
+    assert fig.gca() is ax3
 
     # the final request for a polar axes will end up creating one
     # with a spec of 111.
     with warnings.catch_warnings(record=True) as w:
         warnings.simplefilter('always')
         # Changing the projection will throw a warning
-        assert_true(fig.gca(polar=True) is not ax3)
+        assert fig.gca(polar=True) is not ax3
         assert len(w) == 1
-    assert_true(fig.gca(polar=True) is not ax2)
+    assert fig.gca(polar=True) is not ax2
     assert_equal(fig.gca().get_geometry(), (1, 1, 1))
 
     fig.sca(ax1)
-    assert_true(fig.gca(projection='rectilinear') is ax1)
-    assert_true(fig.gca() is ax1)
+    assert fig.gca(projection='rectilinear') is ax1
+    assert fig.gca() is ax1
 
 
 @image_comparison(baseline_images=['figure_suptitle'])
 def test_suptitle():
-    fig = plt.figure()
-    ax = fig.add_subplot(1, 1, 1)
+    fig, _ = plt.subplots()
     fig.suptitle('hello', color='r')
     fig.suptitle('title', color='g', rotation='30')
 
@@ -120,8 +116,7 @@ def test_suptitle():
 @cleanup
 def test_suptitle_fontproperties():
     from matplotlib.font_manager import FontProperties
-    fig = plt.figure()
-    ax = fig.add_subplot(1, 1, 1)
+    fig, ax = plt.subplots()
     fps = FontProperties(size='large', weight='bold')
     txt = fig.suptitle('fontprops title', fontproperties=fps)
     assert_equal(txt.get_fontsize(), fps.get_size_in_points())
@@ -153,7 +148,7 @@ def test_too_many_figures():
     with warnings.catch_warnings(record=True) as w:
         warnings.simplefilter("always")
         for i in range(rcParams['figure.max_open_warning'] + 1):
-            fig = plt.figure()
+            plt.figure()
         assert len(w) == 1
 
 
@@ -184,7 +179,7 @@ def test_iterability_axes_argument():
             return MyAxes, {'myclass': self}
 
     fig = plt.figure()
-    ax = fig.add_subplot(1, 1, 1, projection=MyClass())
+    fig.add_subplot(1, 1, 1, projection=MyClass())
     plt.close(fig)
 
 
@@ -230,8 +225,3 @@ def test_figaspect():
     assert h / w == 0.5
     w, h = plt.figaspect(np.zeros((2, 2)))
     assert h / w == 1
-
-
-if __name__ == "__main__":
-    import nose
-    nose.runmodule(argv=['-s', '--with-doctest'], exit=False)
