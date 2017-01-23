@@ -191,5 +191,55 @@ def test_nan_is_sorted():
     assert_true(not line._is_sorted([3, 5] + [np.nan] * 100 + [0, 2]))
 
 
+@cleanup
+def test_downsample_lines():
+    x = np.hstack((np.zeros(99), np.ones(99)))
+    y = np.hstack([2.0, 8.0, 3 * np.ones(95), 1.0, 5.0,
+                   5.0, 5.5, 6 * np.ones(95), 8.0, 7.0])
+
+    line = mlines.Line2D(x, y, downsample=True)
+
+    _, ax = plt.subplots()
+
+    ax.add_line(line)
+
+    transf_path = line._get_transformed_path()
+    tpath, affine = transf_path.get_transformed_path_and_affine()
+    down_verts = line._downsample_path(tpath, affine).vertices
+
+    expected_down_verts = np.array([
+        [0.0, 2.0],
+        [0.0, 1.0],
+        [0.0, 8.0],
+        [0.0, 5.0],
+        [1.0, 5.0],
+        [1.0, 5.0],
+        [1.0, 8.0],
+        [1.0, 7.0]
+    ])
+    assert_true(np.all(down_verts == expected_down_verts))
+
+
+@cleanup
+def test_downsample_nan_lines():
+    # Creates x and y data, add some NaN values
+    N = 10**5
+    x = np.linspace(0,1,N)
+    y = np.random.normal(size=N)
+    x[10000:30000] = np.nan
+    y[20000:40000] = np.nan
+
+    line = mlines.Line2D(x, y, downsample=True)
+
+    fig, ax = plt.subplots()
+
+    ax.add_line(line)
+
+    fig.canvas.draw()
+
+    # Nothing to assert here, we are just making sure NaN values
+    # do not raise any errors.
+
+
 if __name__ == '__main__':
     nose.runmodule(argv=['-s', '--with-doctest'], exit=False)
