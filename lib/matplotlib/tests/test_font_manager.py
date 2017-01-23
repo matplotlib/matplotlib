@@ -5,9 +5,11 @@ from nose.tools import assert_equal
 import six
 
 import os
-import os.path
-from matplotlib.font_manager import (findfont, FontProperties, get_font,
-                                     is_opentype_cff_font, fontManager as fm)
+import sys
+
+from matplotlib.font_manager import (
+    findfont, FontProperties, get_font,
+    get_fontconfig_fonts, is_opentype_cff_font, fontManager as fm)
 from matplotlib import rc_context
 
 
@@ -36,3 +38,7 @@ def test_otf():
         with open(f, 'rb') as fd:
             res = fd.read(4) == b'OTTO'
         assert res == is_opentype_cff_font(f)
+
+
+def test_get_fontconfig_fonts():
+    assert sys.platform == 'win32' or len(get_fontconfig_fonts()) > 1
