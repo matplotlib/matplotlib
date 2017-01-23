@@ -1497,15 +1497,12 @@ class Grouper(object):
         The iterator is invalid if interleaved with calls to join().
         """
         self.clean()
-
-        class Token:
-            pass
-        token = Token()
+        token = object()
 
         # Mark each group as we come across if by appending a token,
         # and don't yield it twice
         for group in six.itervalues(self._mapping):
-            if not group[-1] is token:
+            if group[-1] is not token:
                 yield [x() for x in group]
                 group.append(token)
 
