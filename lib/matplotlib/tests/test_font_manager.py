@@ -5,17 +5,15 @@ from nose.tools import assert_equal
 import six
 
 import os
-
+import sys
 import tempfile
 import warnings
 
 from matplotlib.font_manager import (
     findfont, FontProperties, fontManager, json_dump, json_load, get_font,
-    is_opentype_cff_font, fontManager as fm)
-import os.path
-
-
+    get_fontconfig_fonts, is_opentype_cff_font, fontManager as fm)
 from matplotlib import rc_context
+from matplotlib.testing.decorators import skipif
 
 
 def test_font_priority():
@@ -65,3 +63,8 @@ def test_otf():
         with open(f, 'rb') as fd:
             res = fd.read(4) == b'OTTO'
         assert res == is_opentype_cff_font(f)
+
+
+@skipif(sys.platform == 'win32', reason='no fontconfig on Windows')
+def test_get_fontconfig_fonts():
+    assert len(get_fontconfig_fonts()) > 1
