@@ -6,7 +6,7 @@ from __future__ import (absolute_import, division, print_function,
 
 import itertools
 import matplotlib.lines as mlines
-from numpy.testing import assert_raises
+import pytest
 from timeit import repeat
 import numpy as np
 from cycler import cycler
@@ -109,7 +109,7 @@ def test_linestyle_variants():
 @cleanup
 def test_valid_linestyles():
     line = mlines.Line2D([], [])
-    with assert_raises(ValueError):
+    with pytest.raises(ValueError):
         line.set_linestyle('aardvark')
 
 
@@ -130,7 +130,7 @@ def test_drawstyle_variants():
 @cleanup
 def test_valid_drawstyles():
     line = mlines.Line2D([], [])
-    with assert_raises(ValueError):
+    with pytest.raises(ValueError):
         line.set_drawstyle('foobar')
 
 

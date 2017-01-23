@@ -8,7 +8,7 @@ from distutils.version import LooseVersion as V
 
 import numpy as np
 
-from numpy.testing import assert_raises, assert_equal
+from numpy.testing import assert_equal
 from numpy.testing.utils import assert_array_equal, assert_array_almost_equal
 
 from matplotlib import cycler
@@ -336,7 +336,8 @@ def test_cmap_and_norm_from_levels_and_colors2():
                                'Wih extend={0!r} and data '
                                'value={1!r}'.format(extend, d_val))
 
-    assert_raises(ValueError, mcolors.from_levels_and_colors, levels, colors)
+    with pytest.raises(ValueError):
+        mcolors.from_levels_and_colors(levels, colors)
 
 
 def test_rgb_hsv_round_trip():
@@ -359,11 +360,8 @@ def test_autoscale_masked():
 
 def test_colors_no_float():
     # Gray must be a string to distinguish 3-4 grays from RGB or RGBA.
-
-    def gray_from_float_rgba():
-        return mcolors.to_rgba(0.4)
-
-    assert_raises(ValueError, gray_from_float_rgba)
+    with pytest.raises(ValueError):
+        mcolors.to_rgba(0.4)
 
 
 @image_comparison(baseline_images=['light_source_shading_topo'],
