@@ -1,6 +1,7 @@
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 import itertools
+import pickle
 from weakref import ref
 import warnings
 
@@ -282,6 +283,10 @@ class Test_callback_registry(object):
 
     def dummy(self):
         pass
+
+    def test_pickling(self):
+        assert hasattr(pickle.loads(pickle.dumps(cbook.CallbackRegistry())),
+                       "callbacks")
 
 
 def test_sanitize_sequence():
