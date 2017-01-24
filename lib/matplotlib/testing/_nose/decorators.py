@@ -4,7 +4,7 @@ from __future__ import (absolute_import, division, print_function,
 import os
 import six
 import sys
-from .. import copy_metadata
+from .. import _copy_metadata
 from . import knownfail
 from .exceptions import KnownFailureDidNotFailTest
 
@@ -31,5 +31,5 @@ def knownfailureif(fail_condition, msg=None, known_exception_class=None):
             if fail_condition and fail_condition != 'indeterminate':
                 raise KnownFailureDidNotFailTest(msg)
             return result
-        return copy_metadata(f, failer)
+        return _copy_metadata(f, failer)
     return known_fail_decorator
