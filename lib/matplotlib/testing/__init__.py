@@ -20,28 +20,6 @@ def is_called_from_pytest():
     return getattr(matplotlib, '_called_from_pytest', False)
 
 
-def xfail(msg=""):
-    """Explicitly fail an currently-executing test with the given message."""
-    __tracebackhide__ = True
-    if is_called_from_pytest():
-        import pytest
-        pytest.xfail(msg)
-    else:
-        from .nose import knownfail
-        knownfail(msg)
-
-
-def skip(msg=""):
-    """Skip an executing test with the given message."""
-    __tracebackhide__ = True
-    if is_called_from_pytest():
-        import pytest
-        pytest.skip(msg)
-    else:
-        from nose import SkipTest
-        raise SkipTest(msg)
-
-
 # stolen from pytest
 def getrawcode(obj, trycall=True):
     """Return code object for given function."""

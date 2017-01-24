@@ -26,7 +26,7 @@ from matplotlib import pyplot as plt
 from matplotlib import ft2font
 from matplotlib.testing.compare import comparable_formats, compare_images, \
      make_test_filename
-from . import copy_metadata, is_called_from_pytest, xfail
+from . import copy_metadata, is_called_from_pytest
 from .exceptions import ImageComparisonFailure
 
 
@@ -270,9 +270,10 @@ class ImageComparisonDecorator(CleanupTest):
         if os.path.exists(orig_expected_fname):
             shutil.copyfile(orig_expected_fname, expected_fname)
         else:
-            xfail("Do not have baseline image {0} because this "
-                  "file does not exist: {1}".format(expected_fname,
-                                                    orig_expected_fname))
+            from .nose import knownfail
+            knownfail("Do not have baseline image {0} because this "
+                      "file does not exist: {1}".format(expected_fname,
+                                                        orig_expected_fname))
         return expected_fname
 
     def compare(self, idx, baseline, extension):

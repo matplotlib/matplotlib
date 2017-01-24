@@ -4,7 +4,7 @@ from __future__ import (absolute_import, division, print_function,
 import os
 import six
 import sys
-from .. import copy_metadata, skip
+from .. import copy_metadata
 from . import knownfail
 from .exceptions import KnownFailureDidNotFailTest
 
