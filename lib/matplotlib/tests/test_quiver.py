@@ -1,7 +1,7 @@
 from __future__ import print_function
 import warnings
 import numpy as np
-from nose.tools import raises
+import pytest
 import sys
 from matplotlib import pyplot as plt
 from matplotlib.testing.decorators import cleanup
@@ -149,7 +149,6 @@ def test_barbs():
 
 
 @cleanup
-@raises(ValueError)
 def test_bad_masked_sizes():
     'Test error handling when given differing sized masked arrays'
     x = np.arange(3)
@@ -159,7 +158,8 @@ def test_bad_masked_sizes():
     u[1] = np.ma.masked
     v[1] = np.ma.masked
     fig, ax = plt.subplots()
-    ax.barbs(x, y, u, v)
+    with pytest.raises(ValueError):
+        ax.barbs(x, y, u, v)
 
 
 @cleanup
@@ -176,7 +176,3 @@ def test_quiverkey_angles():
     # The arrows are only created when the key is drawn
     fig.canvas.draw()
     assert len(qk.verts) == 1
-
-if __name__ == '__main__':
-    import nose
-    nose.runmodule()

@@ -69,7 +69,6 @@ def pytest_configure(config):
     matplotlib._init_tests()
 
     if config.getoption('--no-pep8'):
-        default_test_modules.remove('matplotlib.tests.test_coding_standards')
         IGNORED_TESTS['matplotlib'] += 'test_coding_standards'
 
 

@@ -3,11 +3,10 @@ from __future__ import (absolute_import, division, print_function,
 
 import six
 from six.moves import cPickle as pickle
-from six.moves import xrange
+from six.moves import range
 
 from io import BytesIO
 
-from nose.tools import assert_equal, assert_not_equal
 import numpy as np
 
 from matplotlib.testing.decorators import cleanup, image_comparison
@@ -105,7 +104,7 @@ def test_simple():
     pickle.dump(ax, BytesIO(), pickle.HIGHEST_PROTOCOL)
 
     ax = plt.axes(projection='polar')
-    plt.plot(list(xrange(10)), label='foobar')
+    plt.plot(np.arange(10), label='foobar')
     plt.legend()
 
     # Uncomment to debug any unpicklable objects. This is slow so is not
@@ -118,12 +117,12 @@ def test_simple():
 #    pickle.dump(ax, BytesIO(), pickle.HIGHEST_PROTOCOL)
 
     plt.figure()
-    plt.bar(left=list(xrange(10)), height=list(xrange(10)))
+    plt.bar(left=np.arange(10), height=np.arange(10))
     pickle.dump(plt.gca(), BytesIO(), pickle.HIGHEST_PROTOCOL)
 
     fig = plt.figure()
     ax = plt.axes()
-    plt.plot(list(xrange(10)))
+    plt.plot(np.arange(10))
     ax.set_yscale('log')
     pickle.dump(fig, BytesIO(), pickle.HIGHEST_PROTOCOL)
 
@@ -141,7 +140,7 @@ def test_complete():
     v = np.sin(v * -0.6)
 
     plt.subplot(3, 3, 1)
-    plt.plot(list(xrange(10)))
+    plt.plot(list(range(10)))  # Ensure lists also pickle correctly.
 
     plt.subplot(3, 3, 2)
     plt.contourf(data, hatches=['//', 'ooo'])
@@ -184,16 +183,16 @@ def test_complete():
     plt.close('all')
 
     # make doubly sure that there are no figures left
-    assert_equal(plt._pylab_helpers.Gcf.figs, {})
+    assert plt._pylab_helpers.Gcf.figs == {}
 
     # wind back the fh and load in the figure
     result_fh.seek(0)
     fig = pickle.load(result_fh)
 
     # make sure there is now a figure manager
-    assert_not_equal(plt._pylab_helpers.Gcf.figs, {})
+    assert plt._pylab_helpers.Gcf.figs != {}
 
-    assert_equal(fig.get_label(), 'Figure with a label?')
+    assert fig.get_label() == 'Figure with a label?'
 
 
 @cleanup
@@ -262,13 +261,12 @@ def test_transform():
 
     obj = pickle.loads(pf)
     # Check parent -> child links of TransformWrapper.
-    assert_equal(obj.wrapper._child, obj.composite)
+    assert obj.wrapper._child == obj.composite
     # Check child -> parent links of TransformWrapper.
-    assert_equal(
-        [v() for v in obj.wrapper._parents.values()], [obj.composite2])
+    assert [v() for v in obj.wrapper._parents.values()] == [obj.composite2]
     # Check input and output dimensions are set as expected.
-    assert_equal(obj.wrapper.input_dims, obj.composite.input_dims)
-    assert_equal(obj.wrapper.output_dims, obj.composite.output_dims)
+    assert obj.wrapper.input_dims == obj.composite.input_dims
+    assert obj.wrapper.output_dims == obj.composite.output_dims
 
 
 def test_rrulewrapper():
@@ -278,8 +276,3 @@ def test_rrulewrapper():
     except RecursionError:
         print('rrulewrapper pickling test failed')
         raise
-
-
-if __name__ == '__main__':
-    import nose
-    nose.runmodule(argv=['-s'])
