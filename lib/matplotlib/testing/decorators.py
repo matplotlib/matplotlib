@@ -30,7 +30,7 @@ from . import _copy_metadata, is_called_from_pytest
 from .exceptions import ImageComparisonFailure
 
 
-def knownfailureif(fail_condition, msg=None, known_exception_class=None):
+def _knownfailureif(fail_condition, msg=None, known_exception_class=None):
     """
 
     Assume a will fail if *fail_condition* is True. *fail_condition*
@@ -53,6 +53,12 @@ def knownfailureif(fail_condition, msg=None, known_exception_class=None):
     else:
         from ._nose.decorators import knownfailureif
         return knownfailureif(fail_condition, msg, known_exception_class)
+
+
+@cbook.deprecated('2.1',
+                  alternative='pytest.xfail or import the plugin')
+def knownfailureif(fail_condition, msg=None, known_exception_class=None):
+    _knownfailureif(fail_condition, msg, known_exception_class)
 
 
 def _do_cleanup(original_units_registry, original_settings):
@@ -161,15 +167,15 @@ def check_freetype_version(ver):
     return found >= ver[0] and found <= ver[1]
 
 
-def checked_on_freetype_version(required_freetype_version):
+def _checked_on_freetype_version(required_freetype_version):
     if check_freetype_version(required_freetype_version):
         return lambda f: f
 
     reason = ("Mismatched version of freetype. "
               "Test requires '%s', you have '%s'" %
               (required_freetype_version, ft2font.__freetype_version__))
-    return knownfailureif('indeterminate', msg=reason,
-                          known_exception_class=ImageComparisonFailure)
+    return _knownfailureif('indeterminate', msg=reason,
+                           known_exception_class=ImageComparisonFailure)
 
 
 def remove_ticks_and_titles(figure):
@@ -188,7 +194,7 @@ def remove_ticks_and_titles(figure):
             pass
 
 
-def raise_on_image_difference(expected, actual, tol):
+def _raise_on_image_difference(expected, actual, tol):
     __tracebackhide__ = True
 
     err = compare_images(expected, actual, tol, in_decorator=True)
@@ -202,18 +208,18 @@ def raise_on_image_difference(expected, actual, tol):
             '(RMS %(rms).3f)' % err)
 
 
-def xfail_if_format_is_uncomparable(extension):
+def _xfail_if_format_is_uncomparable(extension):
     will_fail = extension not in comparable_formats()
     if will_fail:
         fail_msg = 'Cannot compare %s files on this system' % extension
     else:
         fail_msg = 'No failure expected'
 
-    return knownfailureif(will_fail, fail_msg,
-                          known_exception_class=ImageComparisonFailure)
+    return _knownfailureif(will_fail, fail_msg,
+                           known_exception_class=ImageComparisonFailure)
 
 
-def mark_xfail_if_format_is_uncomparable(extension):
+def _mark_xfail_if_format_is_uncomparable(extension):
     will_fail = extension not in comparable_formats()
     if will_fail:
         fail_msg = 'Cannot compare %s files on this system' % extension
@@ -270,10 +276,15 @@ class ImageComparisonDecorator(CleanupTest):
         if os.path.exists(orig_expected_fname):
             shutil.copyfile(orig_expected_fname, expected_fname)
         else:
-            from .nose import knownfail
-            knownfail("Do not have baseline image {0} because this "
+            reason = ("Do not have baseline image {0} because this "
                       "file does not exist: {1}".format(expected_fname,
                                                         orig_expected_fname))
+            if is_called_from_pytest():
+                import pytest
+                pytest.xfail(reason)
+            else:
+                from ._nose import knownfail
+                knownfail(reason)
         return expected_fname
 
     def compare(self, idx, baseline, extension):
@@ -293,12 +304,12 @@ class ImageComparisonDecorator(CleanupTest):
         fig.savefig(actual_fname, **kwargs)
 
         expected_fname = self.copy_baseline(baseline, extension)
-        raise_on_image_difference(expected_fname, actual_fname, self.tol)
+        _raise_on_image_difference(expected_fname, actual_fname, self.tol)
 
     def nose_runner(self):
         func = self.compare
-        func = checked_on_freetype_version(self.freetype_version)(func)
-        funcs = {extension: xfail_if_format_is_uncomparable(extension)(func)
+        func = _checked_on_freetype_version(self.freetype_version)(func)
+        funcs = {extension: _xfail_if_format_is_uncomparable(extension)(func)
                  for extension in self.extensions}
         for idx, baseline in enumerate(self.baseline_images):
             for extension in self.extensions:
@@ -307,19 +318,20 @@ class ImageComparisonDecorator(CleanupTest):
     def pytest_runner(self):
         from pytest import mark
 
-        extensions = map(mark_xfail_if_format_is_uncomparable, self.extensions)
+        extensions = map(_mark_xfail_if_format_is_uncomparable,
+                         self.extensions)
 
         if len(set(self.baseline_images)) == len(self.baseline_images):
             @mark.parametrize("extension", extensions)
             @mark.parametrize("idx,baseline", enumerate(self.baseline_images))
-            @checked_on_freetype_version(self.freetype_version)
+            @_checked_on_freetype_version(self.freetype_version)
             def wrapper(idx, baseline, extension):
                 __tracebackhide__ = True
                 self.compare(idx, baseline, extension)
         else:
             # Some baseline images are repeated, so run this in serial.
             @mark.parametrize("extension", extensions)
-            @checked_on_freetype_version(self.freetype_version)
+            @_checked_on_freetype_version(self.freetype_version)
             def wrapper(extension):
                 __tracebackhide__ = True
                 for idx, baseline in enumerate(self.baseline_images):
