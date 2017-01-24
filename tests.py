@@ -14,7 +14,7 @@ import argparse
 
 
 if __name__ == '__main__':
-    from matplotlib import default_test_modules, test
+    from matplotlib import test
 
     parser = argparse.ArgumentParser(add_help=False)
     parser.add_argument('--no-pep8', action='store_true',
@@ -27,10 +27,6 @@ if __name__ == '__main__':
                         help='Shortcut for specifying number of test processes')
     args, extra_args = parser.parse_known_args()
 
-    if args.no_pep8:
-        default_test_modules.remove('matplotlib.tests.test_coding_standards')
-    elif args.pep8:
-        default_test_modules[:] = ['matplotlib.tests.test_coding_standards']
     if args.no_network:
         from matplotlib.testing import disable_internet
         disable_internet.turn_off_internet()

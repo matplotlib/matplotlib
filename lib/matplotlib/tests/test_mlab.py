@@ -3102,13 +3102,3 @@ def test_psd_onesided_norm():
                     sides='onesided')
     Su_1side = np.append([Su[0]], Su[1:4] + Su[4:][::-1])
     assert_allclose(P, Su_1side, atol=1e-06)
-
-
-if __name__ == '__main__':
-    import nose
-    import sys
-
-    args = ['-s', '--with-doctest']
-    argv = sys.argv
-    argv = argv[:1] + args + argv[1:]
-    nose.runmodule(argv=argv, exit=False)

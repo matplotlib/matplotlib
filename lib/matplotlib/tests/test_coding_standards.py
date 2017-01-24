@@ -4,8 +4,7 @@ from __future__ import (absolute_import, division, print_function,
 from fnmatch import fnmatch
 import os
 
-from nose.tools import assert_equal
-from nose.plugins.skip import SkipTest
+import pytest
 from ..testing import xfail
 
 try:
@@ -103,7 +102,7 @@ def assert_pep8_conformance(module=matplotlib, exclude_files=None,
     __tracebackhide__ = True
 
     if not HAS_PEP8:
-        raise SkipTest('The pep8 tool is required for this test')
+        pytest.skip('The pep8 tool is required for this test')
 
     # to get a list of bad files, rather than the specific errors, add
     # "reporter=pep8.FileReport" to the StyleGuide constructor.
@@ -141,7 +140,7 @@ def assert_pep8_conformance(module=matplotlib, exclude_files=None,
                "{0}".format('\n'.join(reporter._global_deferred_print)))
     else:
         msg = "Found code syntax errors (and warnings)."
-    assert_equal(result.total_errors, 0, msg)
+    assert result.total_errors == 0, msg
 
     # If we've been using the exclusions reporter, check that we didn't
     # exclude files unnecessarily.
@@ -287,8 +286,3 @@ def test_pep8_conformance_examples():
                             pep8_additional_ignore=PEP8_ADDITIONAL_IGNORE +
                             ['E116', 'E501', 'E402'],
                             expected_bad_files=expected_bad_files)
-
-
-if __name__ == '__main__':
-    import nose
-    nose.runmodule(argv=['-s', '--with-doctest'], exit=False)
