@@ -1,0 +1,3 @@
+# codecov can find this file anywhere in the repo, so we don't need to clutter
+# the root folder.
+comment: false
