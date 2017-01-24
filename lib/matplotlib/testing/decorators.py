@@ -26,7 +26,7 @@ from matplotlib import pyplot as plt
 from matplotlib import ft2font
 from matplotlib.testing.compare import comparable_formats, compare_images, \
      make_test_filename
-from . import copy_metadata, is_called_from_pytest
+from . import _copy_metadata, is_called_from_pytest
 from .exceptions import ImageComparisonFailure
 
 
@@ -335,7 +335,7 @@ class ImageComparisonDecorator(CleanupTest):
     def __call__(self, func):
         self.delayed_init(func)
         if is_called_from_pytest():
-            return copy_metadata(func, self.pytest_runner())
+            return _copy_metadata(func, self.pytest_runner())
         else:
             import nose.tools
 
@@ -348,7 +348,7 @@ class ImageComparisonDecorator(CleanupTest):
                     # nose bug...
                     self.teardown()
 
-            return copy_metadata(func, runner_wrapper)
+            return _copy_metadata(func, runner_wrapper)
 
 
 def image_comparison(baseline_images=None, extensions=None, tol=0,
@@ -484,7 +484,7 @@ def switch_backend(backend):
                 plt.switch_backend(prev_backend)
             return result
 
-        return copy_metadata(func, backend_switcher)
+        return _copy_metadata(func, backend_switcher)
     return switch_backend_decorator
 
 
