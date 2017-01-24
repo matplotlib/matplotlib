@@ -187,3 +187,6 @@ on_failure:
   - echo zipping images after a failure...
   - 7z a result_images.zip result_images\ |grep -v "Compressing"
   - appveyor PushArtifact result_images.zip
+
+matrix:
+  fast_finish: true
