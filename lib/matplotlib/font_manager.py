@@ -926,6 +926,7 @@ class FontProperties(object):
         return FontProperties(_init=self)
 
 
+@cbook.deprecated("2.1")
 def ttfdict_to_fnames(d):
     """
     flatten a ttfdict to all the filenames it contains
