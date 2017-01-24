@@ -30,20 +30,6 @@ from . import copy_metadata, is_called_from_pytest, xfail
 from .exceptions import ImageComparisonFailure
 
 
-def skipif(condition, *args, **kwargs):
-    """Skip the given test function if eval(condition) results in a True
-    value.
-
-    Optionally specify a reason for better reporting.
-    """
-    if is_called_from_pytest():
-        import pytest
-        return pytest.mark.skipif(condition, *args, **kwargs)
-    else:
-        from ._nose.decorators import skipif
-        return skipif(condition, *args, **kwargs)
-
-
 def knownfailureif(fail_condition, msg=None, known_exception_class=None):
     """
 
@@ -516,6 +502,7 @@ def skip_if_command_unavailable(cmd):
     try:
         check_output(cmd)
     except:
-        return skipif(True, reason='missing command: %s' % cmd[0])
+        import pytest
+        return pytest.mark.skip(reason='missing command: %s' % cmd[0])
 
     return lambda f: f
