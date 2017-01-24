@@ -481,13 +481,18 @@ class CallbackRegistry(object):
         self._cid = 0
         self._func_cid_map = {}
 
+    # In general, callbacks may not be pickled; thus, we simply recreate an
+    # empty dictionary at unpickling.  In order to ensure that `__setstate__`
+    # (which just defers to `__init__`) is called, `__getstate__` must
+    # return a truthy value (for pickle protocol>=3, i.e. Py3, the
+    # *actual* behavior is that `__setstate__` will be called as long as
+    # `__getstate__` does not return `None`, but this is undocumented -- see
+    # http://bugs.python.org/issue12290).
+
     def __getstate__(self):
-        # We cannot currently pickle the callables in the registry, so
-        # return an empty dictionary.
-        return {}
+        return True
 
     def __setstate__(self, state):
-        # re-initialise an empty callback registry
         self.__init__()
 
     def connect(self, s, func):
