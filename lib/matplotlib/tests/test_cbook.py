@@ -1,6 +1,7 @@
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 import itertools
+import pickle
 from weakref import ref
 import warnings
 
@@ -330,6 +331,10 @@ class Test_callback_registry(object):
 
     def dummy(self):
         pass
+
+    def test_pickling(self):
+        assert hasattr(pickle.loads(pickle.dumps(cbook.CallbackRegistry())),
+                       "callbacks")
 
 
 def _kwarg_norm_helper(inp, expected, kwargs_to_norm, warn_count=0):
