@@ -2,8 +2,8 @@
 Overview of axisartist toolkit
 ==============================
 
-.. warning:: 
-   *axisartist* uses a custom Axes class 
+.. warning::
+   *axisartist* uses a custom Axes class
    (derived from the mpl's original Axes class).
    As a side effect, some commands (mostly tick-related) do not work.
 
@@ -84,7 +84,7 @@ Most commands in the axes_grid1 toolkit can take a axes_class keyword
 argument, and the commands creates an axes of the given class. For example,
 to create a host subplot with axisartist.Axes, ::
 
-  import mpl_tookits.axisartist as AA
+  import mpl_toolkits.axisartist as AA
   from mpl_toolkits.axes_grid1 import host_subplot
 
   host = host_subplot(111, axes_class=AA.Axes)
