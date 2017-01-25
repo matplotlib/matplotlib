@@ -388,7 +388,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
         return self._urls
 
     def set_hatch(self, hatch):
-        """
+        r"""
         Set the hatching pattern
 
         *hatch* can be one of::
@@ -415,7 +415,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
         can only be specified for the collection as a whole, not separately
         for each member.
 
-        ACCEPTS: [ '/' | '\\\\' | '|' | '-' | '+' | 'x' | 'o' | 'O' | '.' | '*' ]
+        ACCEPTS: [ '/' | '\\' | '|' | '-' | '+' | 'x' | 'o' | 'O' | '.' | '*' ]
         """
         self._hatch = hatch
         self.stale = True

@@ -487,7 +487,7 @@ class Patch(artist.Artist):
         *hatch* can be one of::
 
           /   - diagonal hatching
-          \   - back diagonal
+          \\   - back diagonal
           |   - vertical
           -   - horizontal
           +   - crossed

@@ -355,8 +355,8 @@ class CallbackRegistry(object):
 
     def process(self, s, *args, **kwargs):
         """
-        process signal *s*.  All of the functions registered to receive
-        callbacks on *s* will be called with *\*args* and *\*\*kwargs*
+        process signal `s`.  All of the functions registered to receive
+        callbacks on `s` will be called with ``**args`` and ``**kwargs``
         """
         if s in self.callbacks:
             for cid, proxy in list(six.iteritems(self.callbacks[s])):
@@ -944,7 +944,7 @@ def wrap(prefix, text, cols):
 # A regular expression used to determine the amount of space to
 # remove.  It looks for the first sequence of spaces immediately
 # following the first newline, or at the beginning of the string.
-_find_dedent_regex = re.compile("(?:(?:\n\r?)|^)( *)\S")
+_find_dedent_regex = re.compile(r"(?:(?:\n\r?)|^)( *)\S")
 # A cache to hold the regexs that actually remove the indent.
 _dedent_regex = {}
 
@@ -1722,7 +1722,7 @@ def boxplot_stats(X, whis=1.5, bootstrap=None, labels=None,
 
     .. math::
 
-        \mathrm{med} \pm 1.57 \\times \\frac{\mathrm{iqr}}{\sqrt{N}}
+        \\mathrm{med} \\pm 1.57 \\times \\frac{\\mathrm{iqr}}{\\sqrt{N}}
 
     General approach from:
     McGill, R., Tukey, J.W., and Larsen, W.A. (1978) "Variations of
@@ -2709,7 +2709,7 @@ class _StringFuncParser(object):
     def _get_key_params(self):
         str_func = self._str_func
         # Checking if it comes with parameters
-        regex = '\{(.*?)\}'
+        regex = r'\{(.*?)\}'
         params = re.findall(regex, str_func)
 
         for i, param in enumerate(params):

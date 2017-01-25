@@ -261,7 +261,7 @@ def to_hex(c, keep_alpha=False):
 ### Backwards-compatible color-conversion API
 
 cnames = CSS4_COLORS
-hexColorPattern = re.compile("\A#[a-fA-F0-9]{6}\Z")
+hexColorPattern = re.compile(r"\A#[a-fA-F0-9]{6}\Z")
 
 
 def rgb2hex(c):
