@@ -4273,13 +4273,18 @@ or tuple of floats
             lattice1 = np.zeros((nx1, ny1))
             lattice2 = np.zeros((nx2, ny2))
 
-            for i in xrange(len(x)):
-                if bdist[i]:
-                    if 0 <= ix1[i] < nx1 and 0 <= iy1[i] < ny1:
-                        lattice1[ix1[i], iy1[i]] += 1
-                else:
-                    if 0 <= ix2[i] < nx2 and 0 <= iy2[i] < ny2:
-                        lattice2[ix2[i], iy2[i]] += 1
+            cond1 = (0 <= ix1) * (ix1 < nx1) * (0 <= iy1) * (iy1 < ny1)
+            cond2 = (0 <= ix2) * (ix2 < nx2) * (0 <= iy2) * (iy2 < ny2)
+
+            cond1 *= bdist
+            cond2 *= np.logical_not(bdist)
+            ix1, iy1 = ix1[cond1], iy1[cond1]
+            ix2, iy2 = ix2[cond2], iy2[cond2]
+
+            for ix, iy in zip(ix1, iy1):
+                lattice1[ix, iy] += 1
+            for ix, iy in zip(ix2, iy2):
+                lattice2[ix, iy] += 1
 
             # threshold
             if mincnt is not None:
