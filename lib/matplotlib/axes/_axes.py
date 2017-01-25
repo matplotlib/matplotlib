@@ -4281,10 +4281,10 @@ or tuple of floats
             ix1, iy1 = ix1[cond1], iy1[cond1]
             ix2, iy2 = ix2[cond2], iy2[cond2]
 
-            for i in xrange(ix1.size):
-                lattice1[ix1[i], iy1[i]] += 1
-            for i in xrange(ix2.size):
-                lattice2[ix2[i], iy2[i]] += 1
+            for ix, iy in zip(ix1, iy1):
+                lattice1[ix, iy] += 1
+            for ix, iy in zip(ix2, iy2):
+                lattice2[ix, iy] += 1
 
             # threshold
             if mincnt is not None:
