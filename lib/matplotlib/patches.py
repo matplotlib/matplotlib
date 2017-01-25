@@ -1803,8 +1803,6 @@ def _pprint_styles(_styles):
     (stylename : styleclass), return a formatted string listing all the
     styles. Used to update the documentation.
     """
-    names, attrss, clss = [], [], []
-
     import inspect
 
     _table = [["Class", "Name", "Attrs"]]
@@ -3057,8 +3055,6 @@ class ConnectionStyle(_Style):
             x1, y1 = posA
             x20, y20 = x2, y2 = posB
 
-            x12, y12 = (x1 + x2) / 2., (y1 + y2) / 2.
-
             theta1 = math.atan2(y2 - y1, x2 - x1)
             dx, dy = x2 - x1, y2 - y1
             dd = (dx * dx + dy * dy) ** .5
@@ -3067,18 +3063,12 @@ class ConnectionStyle(_Style):
             armA, armB = self.armA, self.armB
 
             if self.angle is not None:
-                #angle = self.angle % 180.
-                #if angle < 0. or angle > 180.:
-                #    angle
-                #theta0 = (self.angle%180.)/180.*math.pi
                 theta0 = self.angle / 180. * math.pi
-                #theta0 = (((self.angle+90)%180.)  - 90.)/180.*math.pi
                 dtheta = theta1 - theta0
-                dl = dd * math.sin(dtheta)
 
+                dl = dd * math.sin(dtheta)
                 dL = dd * math.cos(dtheta)
 
-                #x2, y2 = x2 + dl*ddy, y2 - dl*ddx
                 x2, y2 = x1 + dL * math.cos(theta0), y1 + dL * math.sin(theta0)
 
                 armB = armB - dl
@@ -3091,14 +3081,8 @@ class ConnectionStyle(_Style):
             else:
                 dl = 0.
 
-            #if armA > armB:
-            #    armB = armA + dl
-            #else:
-            #    armA = armB - dl
-
             arm = max(armA, armB)
             f = self.fraction * dd + arm
-            #fB = self.fraction*dd + armB
 
             cx1, cy1 = x1 + f * ddy, y1 - f * ddx
             cx2, cy2 = x2 + f * ddy, y2 - f * ddx
