@@ -7,10 +7,9 @@ import sys
 def get_extra_test_plugins():
     from .plugins.performgc import PerformGC
     from .plugins.knownfailure import KnownFailure
-    from .plugins.conversion_cache import ConversionCache
     from nose.plugins import attrib
 
-    return [PerformGC, KnownFailure, attrib.Plugin, ConversionCache]
+    return [PerformGC, KnownFailure, attrib.Plugin]
 
 
 def get_env():
