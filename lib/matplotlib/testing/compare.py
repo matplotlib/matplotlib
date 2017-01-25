@@ -12,6 +12,7 @@ import numpy as np
 import matplotlib
 from matplotlib import cbook
 from matplotlib.compat import subprocess
+from matplotlib.testing import conversion_cache as ccache
 from matplotlib.testing.exceptions import ImageComparisonFailure
 from matplotlib import _png
 
@@ -118,6 +119,25 @@ def comparable_formats():
 
     """
     return ['png'] + list(converter)
+
+
+@cbook.deprecated('2.1', addendum='Use ConversionCache instead')
+def get_cache_dir():
+    return ccache.ConversionCache.get_cache_dir()
+
+
+@cbook.deprecated('2.1', addendum='Use ConversionCache instead')
+def get_file_hash(path, block_size=2 ** 20):
+    if path.endswith('.pdf'):
+        from matplotlib import checkdep_ghostscript
+        version_tag = checkdep_ghostscript()[1].encode('utf-8')
+    elif path.endswith('.svg'):
+        from matplotlib import checkdep_inkscape
+        version_tag = checkdep_inkscape().encode('utf-8')
+    else:
+        version_tag = None
+    return ccache.ConversionCache._get_file_hash_static(
+        path, block_size, version_tag)
 
 
 def convert(filename, cache=None):

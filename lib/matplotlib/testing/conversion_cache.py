@@ -115,6 +115,22 @@ class ConversionCache(object):
     def _get_file_hash(self, path, block_size=2 ** 20):
         if path in self.hash_cache:
             return self.hash_cache[path]
+        _, ext = os.path.splitext(path)
+        version_tag = self.converter_version.get(ext)
+        if version_tag is None:
+            warnings.warn(
+                ("Don't know the external converter for files with extension "
+                 "%s, cannot ensure cache invalidation on version update.")
+                % ext)
+        result = self._get_file_hash_static(path, block_size, version_tag)
+        self.hash_cache[path] = result
+        return result
+
+    @staticmethod
+    def _get_file_hash_static(path, block_size, version_tag):
+        # the parts of _get_file_hash that are called from the deprecated
+        # compare.get_file_hash; can merge into _get_file_hash once that
+        # function is removed
         md5 = hashlib.md5()
         with open(path, 'rb') as fd:
             while True:
@@ -122,18 +138,9 @@ class ConversionCache(object):
                 if not data:
                     break
                 md5.update(data)
-        _, ext = os.path.splitext(path)
-        version_tag = self.converter_version.get(ext)
-        if version_tag:
+        if version_tag is not None:
             md5.update(version_tag)
-        else:
-            warnings.warn(("Don't know the external converter for %s, cannot "
-                           "ensure cache invalidation on version update.")
-                          % path)
-
-        result = md5.hexdigest()
-        self.hash_cache[path] = result
-        return result
+        return md5.hexdigest()
 
     def report(self):
         """Return information about the cache.
