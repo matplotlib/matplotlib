@@ -40,7 +40,7 @@ def skipif(condition, *args, **kwargs):
         import pytest
         return pytest.mark.skipif(condition, *args, **kwargs)
     else:
-        from .nose.decorators import skipif
+        from ._nose.decorators import skipif
         return skipif(condition, *args, **kwargs)
 
 
@@ -65,7 +65,7 @@ def knownfailureif(fail_condition, msg=None, known_exception_class=None):
         return pytest.mark.xfail(condition=fail_condition, reason=msg,
                                  raises=known_exception_class, strict=strict)
     else:
-        from .nose.decorators import knownfailureif
+        from ._nose.decorators import knownfailureif
         return knownfailureif(fail_condition, msg, known_exception_class)
 
 
@@ -340,7 +340,7 @@ class ImageComparisonDecorator(CleanupTest):
 
 
         # sadly we cannot use fixture here because of visibility problems
-        # and for for obvious reason avoid `nose.tools.with_setup`
+        # and for for obvious reason avoid `_nose.tools.with_setup`
         wrapper.setup, wrapper.teardown = self.setup, self.teardown
 
         return wrapper
