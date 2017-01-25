@@ -21,7 +21,7 @@ from matplotlib import checkdep_ghostscript
 from matplotlib import checkdep_inkscape
 
 
-class ConversionCache(object):
+class _ConversionCache(object):
     """A cache that stores png files converted from svg or pdf formats.
 
     The image comparison test cases compare svg and pdf files by
@@ -180,7 +180,7 @@ class ConversionCache(object):
     def get_cache_dir():
         cachedir = _get_cachedir()
         if cachedir is None:
-            raise CacheError('No suitable configuration directory')
+            raise _CacheError('No suitable configuration directory')
         cachedir = os.path.join(cachedir, 'test_cache')
         return cachedir
 
@@ -189,13 +189,14 @@ class ConversionCache(object):
             try:
                 cbook.mkdirs(self.cachedir)
             except IOError as e:
-                raise CacheError("Error creating cache directory %s: %s"
-                                 % (self.cachedir, str(e)))
+                raise _CacheError("Error creating cache directory %s: %s"
+                                  % (self.cachedir, str(e)))
         if not os.access(self.cachedir, os.W_OK):
-            raise CacheError("Cache directory %s not writable" % self.cachedir)
+            raise _CacheError("Cache directory %s not writable"
+                              % self.cachedir)
 
 
-class CacheError(Exception):
+class _CacheError(Exception):
     def __init__(self, message):
         self.message = message
 
@@ -204,4 +205,4 @@ class CacheError(Exception):
 
 
 # A global cache instance, set by the appropriate test runner.
-conversion_cache = None
+_conversion_cache = None

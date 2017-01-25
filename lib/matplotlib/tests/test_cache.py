@@ -13,7 +13,7 @@ import tempfile
 from nose.tools import raises
 
 from matplotlib import cbook
-from matplotlib.testing.conversion_cache import ConversionCache, CacheError
+from matplotlib.testing._conversion_cache import _ConversionCache, _CacheError
 
 
 def test_cache_basic():
@@ -22,7 +22,7 @@ def test_cache_basic():
     def intmp(f):
         return os.path.join(tmpdir, f)
     try:
-        cache = ConversionCache(intmp('cache'))
+        cache = _ConversionCache(intmp('cache'))
         with open(intmp('fake.pdf'), 'w') as pdf:
             pdf.write('this is a fake pdf file')
         with open(intmp('fake.svg'), 'w') as svg:
@@ -63,7 +63,7 @@ def test_cache_expire():
     def intmp(*f):
         return os.path.join(tmpdir, *f)
     try:
-        cache = ConversionCache(intmp('cache'), 10)
+        cache = _ConversionCache(intmp('cache'), 10)
         for i in range(5):
             filename = intmp('cache', 'file%d.png' % i)
             with open(filename, 'w') as f:
@@ -95,9 +95,9 @@ def test_cache_expire():
 
 def test_cache_default_dir():
     try:
-        path = ConversionCache.get_cache_dir()
+        path = _ConversionCache.get_cache_dir()
         assert path.endswith('test_cache')
-    except CacheError:
+    except _CacheError:
         pass
 
 
@@ -107,7 +107,7 @@ def test_cache_default_dir():
 def test_cache_mkdir_error(mkdirs):
     tmpdir = tempfile.mkdtemp()
     try:
-        c = ConversionCache(os.path.join(tmpdir, 'cache'))
+        c = _ConversionCache(os.path.join(tmpdir, 'cache'))
     finally:
         shutil.rmtree(tmpdir)
 
@@ -120,6 +120,6 @@ def test_cache_unwritable_error(access):
     cachedir = os.path.join(tmpdir, 'test_cache')
     try:
         cbook.mkdirs(cachedir)
-        c = ConversionCache(cachedir)
+        c = _ConversionCache(cachedir)
     finally:
         shutil.rmtree(tmpdir)

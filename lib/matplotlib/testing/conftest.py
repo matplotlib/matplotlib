@@ -23,22 +23,23 @@ def pytest_configure(config):
 
     max_size = config.getoption('--conversion-cache-max-size')
     if max_size is not None:
-        ccache.conversion_cache = \
-            ccache.ConversionCache(max_size=int(max_size))
+        ccache._conversion_cache = \
+            ccache._ConversionCache(max_size=int(max_size))
     else:
-        ccache.conversion_cache = ccache.ConversionCache()
+        ccache._conversion_cache = ccache._ConversionCache()
     if config.pluginmanager.hasplugin('xdist'):
         config.pluginmanager.register(DeferPlugin())
 
 
 def pytest_unconfigure(config):
-    ccache.conversion_cache.expire()
+    ccache._conversion_cache.expire()
     matplotlib._called_from_pytest = False
 
 
 def pytest_sessionfinish(session):
     if hasattr(session.config, 'slaveoutput'):
-        session.config.slaveoutput['cache-report'] = ccache.conversion_cache.report()
+        session.config.slaveoutput['cache-report'] = \
+            ccache._conversion_cache.report()
 
 
 def pytest_terminal_summary(terminalreporter):
@@ -50,7 +51,7 @@ def pytest_terminal_summary(terminalreporter):
                 'gets': reduce(lambda x, y: x.union(y),
                                (rep['gets'] for rep in reports))}
     else:
-        data = ccache.conversion_cache.report()
+        data = ccache._conversion_cache.report()
     tr.write_sep('=', 'Image conversion cache report')
     tr.write_line('Hit rate: %d/%d' % (len(data['hits']), len(data['gets'])))
     if tr.config.getoption('--conversion-cache-report-misses'):

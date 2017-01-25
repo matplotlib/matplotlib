@@ -121,12 +121,12 @@ def comparable_formats():
     return ['png'] + list(converter)
 
 
-@cbook.deprecated('2.1', addendum='Use ConversionCache instead')
+@cbook.deprecated('2.1', addendum='Use _ConversionCache instead')
 def get_cache_dir():
-    return ccache.ConversionCache.get_cache_dir()
+    return ccache._ConversionCache.get_cache_dir()
 
 
-@cbook.deprecated('2.1', addendum='Use ConversionCache instead')
+@cbook.deprecated('2.1', addendum='Use _ConversionCache instead')
 def get_file_hash(path, block_size=2 ** 20):
     if path.endswith('.pdf'):
         from matplotlib import checkdep_ghostscript
@@ -136,7 +136,7 @@ def get_file_hash(path, block_size=2 ** 20):
         version_tag = checkdep_inkscape().encode('utf-8')
     else:
         version_tag = None
-    return ccache.ConversionCache._get_file_hash_static(
+    return ccache._ConversionCache._get_file_hash_static(
         path, block_size, version_tag)
 
 
@@ -148,7 +148,7 @@ def convert(filename, cache=None):
     Parameters
     ----------
     filename : str
-    cache : ConversionCache, optional
+    cache : _ConversionCache, optional
 
     Returns
     -------
@@ -263,7 +263,7 @@ def compare_images(expected, actual, tol, in_decorator=False, cache=None):
     in_decorator : bool
         If called from image_comparison decorator, this should be
         True. (default=False)
-    cache : cache.ConversionCache, optional
+    cache : matplotlib.testing._conversion_cache._ConversionCache, optional
 
     Example
     -------
