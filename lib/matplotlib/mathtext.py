@@ -1002,7 +1002,10 @@ class StixFonts(UnicodeFonts):
 
         if mapping is not None:
             if isinstance(mapping, dict):
-                mapping = mapping.get(font_class, 'rm')
+                try:
+                    mapping = mapping[font_class]
+                except KeyError:
+                    mapping = mapping['rm']
 
             # Binary search for the source glyph
             lo = 0
