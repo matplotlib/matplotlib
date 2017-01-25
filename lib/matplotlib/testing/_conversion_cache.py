@@ -37,7 +37,7 @@ class _ConversionCache(object):
     Parameters
     ----------
     directory : str, optional
-        Files are stored in this directory, defaults to `'test_cache'` in
+        Files are stored in this directory. Defaults to `'test_cache'` in
         the overall Matplotlib cache directory.
     max_size : int, optional
         The flush method will delete files until their combined size is
@@ -54,7 +54,8 @@ class _ConversionCache(object):
             self.cachedir = self.get_cache_dir()
         self.ensure_cache_dir()
         if not isinstance(max_size, int):
-            raise ValueError("max_size is %s, expected int" % type(max_size))
+            raise ValueError("max_size is of type %s, expected int" %
+                             type(max_size))
         self.max_size = max_size
         self.cached_ext = '.png'
         self.converter_version = {}
@@ -120,7 +121,9 @@ class _ConversionCache(object):
         if version_tag is None:
             warnings.warn(
                 ("Don't know the external converter for files with extension "
-                 "%s, cannot ensure cache invalidation on version update.")
+                 "%s, cannot ensure cache invalidation on version update. "
+                 "Either the relevant conversion program is missing or caching"
+                 " is attempted for an unknown file type.")
                 % ext)
         result = self._get_file_hash_static(path, block_size, version_tag)
         self.hash_cache[path] = result
