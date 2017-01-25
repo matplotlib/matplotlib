@@ -1511,7 +1511,7 @@ def _init_tests():
             )
         )
 
-    from .testing.nose import check_deps
+    from .testing._nose import check_deps
     check_deps()
 
 
@@ -1519,7 +1519,7 @@ def test(verbosity=1, coverage=False, **kwargs):
     """run the matplotlib test suite"""
     _init_tests()
 
-    from .testing.nose import test as nose_test
+    from .testing._nose import test as nose_test
     return nose_test(verbosity, coverage, **kwargs)
 
 
