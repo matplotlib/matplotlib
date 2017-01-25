@@ -8,8 +8,6 @@ from contextlib import contextmanager
 import matplotlib
 from matplotlib.cbook import is_string_like, iterable
 from matplotlib import rcParams, rcdefaults, use
-# For backward compatibility
-from . import noseclasses
 
 
 def _is_list_like(obj):
