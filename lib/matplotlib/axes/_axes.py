@@ -6718,7 +6718,7 @@ or tuple of floats
         Notes
         -----
         For plotting, the power is plotted as
-        :math:`10\log_{10}(P_{xy})` for decibels, though `P_{xy}` itself
+        :math:`10\\log_{10}(P_{xy})` for decibels, though `P_{xy}` itself
         is returned.
 
         References

@@ -587,7 +587,7 @@ class DviFont(object):
 
 class Vf(Dvi):
     """
-    A virtual font (\*.vf file) containing subroutines for dvi files.
+    A virtual font (\\*.vf file) containing subroutines for dvi files.
 
     Usage::
 
@@ -899,7 +899,7 @@ class PsfontsMap(object):
 
 class Encoding(object):
     """
-    Parses a \*.enc file referenced from a psfonts.map style file.
+    Parses a \\*.enc file referenced from a psfonts.map style file.
     The format this class understands is a very limited subset of
     PostScript.
 

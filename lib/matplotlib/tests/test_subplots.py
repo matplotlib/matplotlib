@@ -113,7 +113,7 @@ def test_exceptions():
     # the point of this test is to ensure that this raises.
     with warnings.catch_warnings():
         warnings.filterwarnings('ignore',
-                                message='.*sharex\ argument\ to\ subplots',
+                                message='.*sharex argument to subplots',
                                 category=UserWarning)
         with pytest.raises(ValueError):
             plt.subplots(2, 2, -1)
