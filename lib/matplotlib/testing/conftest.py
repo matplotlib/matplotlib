@@ -1,10 +1,10 @@
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
-
 from six.moves import reduce
 import pytest
 
 import matplotlib
+from matplotlib.testing import _conversion_cache as ccache
 
 
 def pytest_addoption(parser):

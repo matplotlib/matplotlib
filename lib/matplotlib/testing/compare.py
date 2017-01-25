@@ -12,7 +12,7 @@ import numpy as np
 import matplotlib
 from matplotlib import cbook
 from matplotlib.compat import subprocess
-from matplotlib.testing import conversion_cache as ccache
+from matplotlib.testing import _conversion_cache as ccache
 from matplotlib.testing.exceptions import ImageComparisonFailure
 from matplotlib import _png
 

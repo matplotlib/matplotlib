@@ -101,8 +101,8 @@ def test_cache_default_dir():
         pass
 
 
-@raises(CacheError)
-@mock.patch('matplotlib.testing.conversion_cache.cbook.mkdirs',
+@raises(_CacheError)
+@mock.patch('matplotlib.testing._conversion_cache.cbook.mkdirs',
             side_effect=IOError)
 def test_cache_mkdir_error(mkdirs):
     tmpdir = tempfile.mkdtemp()
@@ -112,8 +112,8 @@ def test_cache_mkdir_error(mkdirs):
         shutil.rmtree(tmpdir)
 
 
-@raises(CacheError)
-@mock.patch('matplotlib.testing.conversion_cache.os.access',
+@raises(_CacheError)
+@mock.patch('matplotlib.testing._conversion_cache.os.access',
             side_effect=[False])
 def test_cache_unwritable_error(access):
     tmpdir = tempfile.mkdtemp()
