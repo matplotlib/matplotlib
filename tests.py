@@ -25,6 +25,8 @@ if __name__ == '__main__':
                         help='Run tests without network connection')
     parser.add_argument('-j', type=int,
                         help='Shortcut for specifying number of test processes')
+    parser.add_argument('--recursionlimit', type=int, default=0,
+                        help='Specify recursionlimit for test run')
     args, extra_args = parser.parse_known_args()
 
     if args.no_network:
@@ -39,5 +41,6 @@ if __name__ == '__main__':
 
     print('Python byte-compilation optimization level: %d' % sys.flags.optimize)
 
-    success = test(argv=sys.argv[0:1] + extra_args, switch_backend_warn=False)
+    success = test(argv=sys.argv[0:1] + extra_args, switch_backend_warn=False,
+                   recursionlimit=args.recursionlimit)
     sys.exit(not success)
