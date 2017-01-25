@@ -103,7 +103,7 @@ def test_cache_default_dir():
 
 @raises(_CacheError)
 @mock.patch('matplotlib.testing._conversion_cache.cbook.mkdirs',
-            side_effect=IOError)
+            side_effect=OSError)
 def test_cache_mkdir_error(mkdirs):
     tmpdir = tempfile.mkdtemp()
     try:

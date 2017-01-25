@@ -191,7 +191,7 @@ class _ConversionCache(object):
         if not os.path.exists(self.cachedir):
             try:
                 cbook.mkdirs(self.cachedir)
-            except IOError as e:
+            except OSError as e:
                 raise _CacheError("Error creating cache directory %s: %s"
                                   % (self.cachedir, str(e)))
         if not os.access(self.cachedir, os.W_OK):
