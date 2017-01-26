@@ -8,6 +8,7 @@ import six
 
 import numpy as np
 from numpy.testing import assert_almost_equal, assert_array_equal
+import pytest
 
 from matplotlib.patches import Polygon
 from matplotlib.patches import Rectangle
@@ -174,7 +175,7 @@ def test_patch_alpha_override():
     ax.set_ylim([-1, 2])
 
 
-@cleanup(style='default')
+@pytest.mark.style('default')
 def test_patch_color_none():
     # Make sure the alpha kwarg does not override 'none' facecolor.
     # Addresses issue #7478.

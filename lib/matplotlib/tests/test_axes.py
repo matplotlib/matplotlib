@@ -200,7 +200,7 @@ def test_autoscale_tiny_range():
         ax[i].plot([0, 1], [1, 1 + y1])
 
 
-@cleanup(style='default')
+@pytest.mark.style('default')
 def test_autoscale_tight():
     fig, ax = plt.subplots(1, 1)
     ax.plot([1, 2, 3, 4])
@@ -210,7 +210,7 @@ def test_autoscale_tight():
     assert_allclose(ax.get_ylim(), (1.0, 4.0))
 
 
-@cleanup(style='default')
+@pytest.mark.style('default')
 def test_autoscale_log_shared():
     # related to github #7587
     # array starts at zero to trigger _minpos handling
@@ -228,7 +228,7 @@ def test_autoscale_log_shared():
     assert_allclose(ax2.get_ylim(), (x[0], x[-1]))
 
 
-@cleanup(style='default')
+@pytest.mark.style('default')
 def test_use_sticky_edges():
     fig, ax = plt.subplots()
     ax.imshow([[0, 1], [2, 3]], origin='lower')
@@ -4573,7 +4573,7 @@ def test_loglog():
     ax.tick_params(length=15, width=2, which='minor')
 
 
-@cleanup('default')
+@pytest.mark.style('default')
 def test_axes_margins():
     fig, ax = plt.subplots()
     ax.plot([0, 1, 2, 3])
@@ -4924,7 +4924,7 @@ def test_fill_betweenx_2d_x2_input():
         ax.fill_betweenx(y, x1, x2)
 
 
-@cleanup(style='default')
+@pytest.mark.style('default')
 def test_fillbetween_cycle():
     fig, ax = plt.subplots()
 

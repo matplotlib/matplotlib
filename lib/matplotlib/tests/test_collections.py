@@ -635,7 +635,7 @@ def test_pandas_indexing():
     Collection(antialiaseds=aa)
 
 
-@cleanup(style='default')
+@pytest.mark.style('default')
 def test_lslw_bcast():
     col = mcollections.PathCollection([])
     col.set_linestyles(['-', '-'])
