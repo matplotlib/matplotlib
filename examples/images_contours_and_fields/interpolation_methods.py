@@ -1,5 +1,8 @@
 '''
-Show all different interpolation methods for imshow
+=================================
+Interpolations for imshow/matshow
+=================================
+
 '''
 
 import matplotlib.pyplot as plt

@@ -1,5 +1,7 @@
 """
-Demo of the streamplot function with starting points.
+========================================
+Streamplot function with starting points
+========================================
 
 This example shows how to fix the streamlines that are plotted, by passing
 an array of seed points to the `start_points` keyword argument.

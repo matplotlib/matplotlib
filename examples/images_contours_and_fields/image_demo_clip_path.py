@@ -1,4 +1,8 @@
 """
+============================
+Clipping images with patches
+============================
+
 Demo of image that's been clipped by a circular patch.
 """
 import matplotlib.pyplot as plt
