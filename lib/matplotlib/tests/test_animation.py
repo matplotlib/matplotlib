@@ -13,7 +13,6 @@ import pytest
 import matplotlib as mpl
 from matplotlib import pyplot as plt
 from matplotlib import animation
-from matplotlib.testing.decorators import cleanup
 
 
 class NullMovieWriter(animation.AbstractMovieWriter):
@@ -109,7 +108,6 @@ WRITER_OUTPUT = [
 # Smoke test for saving animations.  In the future, we should probably
 # design more sophisticated tests which compare resulting frames a-la
 # matplotlib.testing.image_comparison
-@cleanup
 @pytest.mark.parametrize('writer, extension', WRITER_OUTPUT)
 def test_save_animation_smoketest(tmpdir, writer, extension):
     try:
@@ -148,7 +146,6 @@ def test_save_animation_smoketest(tmpdir, writer, extension):
                          "see issues #1891 and #2679")
 
 
-@cleanup
 def test_no_length_frames():
     fig, ax = plt.subplots()
     line, = ax.plot([], [])

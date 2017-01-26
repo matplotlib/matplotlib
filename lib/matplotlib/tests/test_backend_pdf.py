@@ -17,7 +17,7 @@ from matplotlib.backends.backend_pdf import PdfPages
 from matplotlib import pyplot as plt
 from matplotlib.testing.determinism import (_determinism_source_date_epoch,
                                             _determinism_check)
-from matplotlib.testing.decorators import image_comparison, cleanup
+from matplotlib.testing.decorators import image_comparison
 from matplotlib import dviread
 
 
@@ -48,7 +48,6 @@ and containing some French characters and the euro symbol:
     ax.axhline(0.5, linewidth=0.5)
 
 
-@cleanup
 def test_type42():
     rcParams['pdf.fonttype'] = 42
 
@@ -58,7 +57,6 @@ def test_type42():
     fig.savefig(io.BytesIO())
 
 
-@cleanup
 def test_multipage_pagecount():
     with PdfPages(io.BytesIO()) as pdf:
         assert pdf.get_pagecount() == 0
@@ -71,7 +69,6 @@ def test_multipage_pagecount():
         assert pdf.get_pagecount() == 2
 
 
-@cleanup
 def test_multipage_keep_empty():
     from matplotlib.backends.backend_pdf import PdfPages
     from tempfile import NamedTemporaryFile
@@ -106,7 +103,6 @@ def test_multipage_keep_empty():
     os.remove(filename)
 
 
-@cleanup
 def test_composite_image():
     # Test that figures can be saved with and without combining multiple images
     # (on a single set of axes) into a single composite image.
@@ -127,37 +123,31 @@ def test_composite_image():
         assert len(pdf._file._images) == 2
 
 
-@cleanup
 def test_source_date_epoch():
     """Test SOURCE_DATE_EPOCH support for PDF output"""
     _determinism_source_date_epoch("pdf", b"/CreationDate (D:20000101000000Z)")
 
 
-@cleanup
 def test_determinism_plain():
     """Test for reproducible PDF output: simple figure"""
     _determinism_check('', format="pdf")
 
 
-@cleanup
 def test_determinism_images():
     """Test for reproducible PDF output: figure with different images"""
     _determinism_check('i', format="pdf")
 
 
-@cleanup
 def test_determinism_hatches():
     """Test for reproducible PDF output: figure with different hatches"""
     _determinism_check('h', format="pdf")
 
 
-@cleanup
 def test_determinism_markers():
     """Test for reproducible PDF output: figure with different markers"""
     _determinism_check('m', format="pdf")
 
 
-@cleanup
 def test_determinism_all():
     """Test for reproducible PDF output"""
     _determinism_check(format="pdf")
@@ -188,7 +178,6 @@ def test_grayscale_alpha():
     ax.set_yticks([])
 
 
-@cleanup
 @needs_tex
 def test_missing_psfont(monkeypatch):
     """An error is raised if a TeX font lacks a Type-1 equivalent"""

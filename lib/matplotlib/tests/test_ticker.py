@@ -8,7 +8,6 @@ import pytest
 import matplotlib
 import matplotlib.pyplot as plt
 import matplotlib.ticker as mticker
-from matplotlib.testing.decorators import cleanup
 
 import warnings
 
@@ -26,7 +25,6 @@ def test_MaxNLocator():
     assert_almost_equal(loc.tick_values(-1e15, 1e15), test_value)
 
 
-@cleanup
 def test_MaxNLocator_integer():
     loc = mticker.MaxNLocator(nbins=5, integer=True)
     test_value = np.array([-1, 0, 1, 2])
@@ -53,7 +51,6 @@ def test_MultipleLocator():
     assert_almost_equal(loc.tick_values(-7, 10), test_value)
 
 
-@cleanup
 def test_AutoMinorLocator():
     fig, ax = plt.subplots()
     ax.set_xlim(0, 1.39)

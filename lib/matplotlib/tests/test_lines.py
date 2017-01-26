@@ -13,10 +13,9 @@ from cycler import cycler
 
 import matplotlib
 import matplotlib.pyplot as plt
-from matplotlib.testing.decorators import cleanup, image_comparison
+from matplotlib.testing.decorators import image_comparison
 
 
-@cleanup
 def test_invisible_Line_rendering():
     """
     Github issue #1256 identified a bug in Line.draw method
@@ -60,7 +59,6 @@ def test_invisible_Line_rendering():
     assert slowdown_factor < slowdown_threshold
 
 
-@cleanup
 def test_set_line_coll_dash():
     fig = plt.figure()
     ax = fig.add_subplot(1, 1, 1)
@@ -81,7 +79,6 @@ def test_line_dashes():
     ax.plot(range(10), linestyle=(0, (3, 3)), lw=5)
 
 
-@cleanup
 def test_line_colors():
     fig = plt.figure()
     ax = fig.add_subplot(1, 1, 1)
@@ -94,7 +91,6 @@ def test_line_colors():
     assert True
 
 
-@cleanup
 def test_linestyle_variants():
     fig = plt.figure()
     ax = fig.add_subplot(1, 1, 1)
@@ -106,7 +102,6 @@ def test_linestyle_variants():
     assert True
 
 
-@cleanup
 def test_valid_linestyles():
     line = mlines.Line2D([], [])
     with pytest.raises(ValueError):
@@ -127,7 +122,6 @@ def test_drawstyle_variants():
         ax.set(xlim=(0, 2), ylim=(0, 2))
 
 
-@cleanup
 def test_valid_drawstyles():
     line = mlines.Line2D([], [])
     with pytest.raises(ValueError):

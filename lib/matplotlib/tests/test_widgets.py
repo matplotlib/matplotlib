@@ -9,7 +9,7 @@ except ImportError:
 
 import matplotlib.widgets as widgets
 import matplotlib.pyplot as plt
-from matplotlib.testing.decorators import cleanup, image_comparison
+from matplotlib.testing.decorators import image_comparison
 
 from numpy.testing import assert_allclose
 
@@ -76,7 +76,6 @@ def do_event(tool, etype, button=1, xdata=0, ydata=0, key=None, step=1):
     func(event)
 
 
-@cleanup
 def check_rectangle(**kwargs):
     ax = get_ax()
 
@@ -111,7 +110,6 @@ def test_rectangle_selector():
     check_rectangle(rectprops=dict(fill=True))
 
 
-@cleanup
 def test_ellipse():
     """For ellipse, test out the key modifiers"""
     ax = get_ax()
@@ -166,7 +164,6 @@ def test_ellipse():
     assert_allclose(tool.geometry[:, 0], [70., 100])
 
 
-@cleanup
 def test_rectangle_handles():
     ax = get_ax()
 
@@ -203,7 +200,6 @@ def test_rectangle_handles():
     assert tool.extents == (10, 100, 10, 100)
 
 
-@cleanup
 def check_span(*args, **kwargs):
     ax = get_ax()
 
@@ -237,7 +233,6 @@ def test_span_selector():
     check_span('horizontal', rectprops=dict(fill=True))
 
 
-@cleanup
 def check_lasso_selector(**kwargs):
     ax = get_ax()
 
@@ -259,7 +254,6 @@ def test_lasso_selector():
     check_lasso_selector(useblit=True, button=1)
 
 
-@cleanup
 def test_CheckButtons():
     ax = get_ax()
     check = widgets.CheckButtons(ax, ('a', 'b', 'c'), (True, False, True))

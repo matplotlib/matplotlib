@@ -1,7 +1,7 @@
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
-from matplotlib.testing.decorators import image_comparison, cleanup
+from matplotlib.testing.decorators import image_comparison
 import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
 import matplotlib.lines as mlines
@@ -43,7 +43,6 @@ def test_offsetbox_clipping():
     ax.set_ylim((0, 1))
 
 
-@cleanup
 def test_offsetbox_clip_children():
     # - create a plot
     # - put an AnchoredOffsetbox with a child DrawingArea
@@ -81,7 +80,6 @@ def test_offsetbox_clip_children():
     assert fig.stale
 
 
-@cleanup
 def test_offsetbox_loc_codes():
     # Check that valid string location codes all work with an AnchoredOffsetbox
     codes = {'upper right': 1,
