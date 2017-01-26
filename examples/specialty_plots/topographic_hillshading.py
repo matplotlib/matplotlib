@@ -1,4 +1,8 @@
 """
+=======================
+Topographic hillshading
+=======================
+
 Demonstrates the visual effect of varying blend mode and vertical exaggeration
 on "hillshaded" plots.
 
