@@ -1,21 +1,23 @@
-'''
+"""
 =================================
 Interpolations for imshow/matshow
 =================================
 
-'''
+This example displays the difference between interpolation methods for imshow
+and matshow.
+
+If `intperpolation` is None, it defaults to the rc image.interpolation
+parameter. If the interpolation is `none`, then no interpolation is performed
+for the Agg, ps and pdf backends. Other backends will defult to 'nearest'.
+
+For the Agg, ps and pdf backends, interpolation = 'none' works well when a big
+image is scaled down, while interpolation = 'nearest' works well when a small
+image is blown up.
+
+"""
 
 import matplotlib.pyplot as plt
 import numpy as np
-
-# from the docs:
-
-# If interpolation is None, default to rc image.interpolation. See also
-# the filternorm and filterrad parameters. If interpolation is 'none', then
-# no interpolation is performed on the Agg, ps and pdf backends. Other
-# backends will fall back to 'nearest'.
-#
-# http://matplotlib.org/api/pyplot_api.html#matplotlib.pyplot.imshow
 
 methods = [None, 'none', 'nearest', 'bilinear', 'bicubic', 'spline16',
            'spline36', 'hanning', 'hamming', 'hermite', 'kaiser', 'quadric',

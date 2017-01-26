@@ -198,6 +198,7 @@ class Text(Artist):
                  rotation_mode=None,
                  usetex=None,          # defaults to rcParams['text.usetex']
                  wrap=False,
+                 position=None,
                  **kwargs
                  ):
         """
