@@ -1,5 +1,9 @@
 """
-Simple demo of a scatter plot.
+=============
+Scatter plots
+=============
+
+This example showcases a simple scatter plot.
 """
 import numpy as np
 import matplotlib.pyplot as plt
