@@ -9,7 +9,7 @@ import warnings
 import numpy as np
 from numpy.testing import assert_array_equal
 
-from matplotlib.testing.decorators import image_comparison, cleanup
+from matplotlib.testing.decorators import image_comparison
 from matplotlib.image import (AxesImage, BboxImage, FigureImage,
                               NonUniformImage, PcolorImage)
 from matplotlib.transforms import Bbox, Affine2D, TransformedBbox
@@ -90,7 +90,6 @@ def test_figimage():
         fig.figimage(img[:,::-1], xo=100, yo=0, origin='lower')
         fig.figimage(img[::-1,::-1], xo=100, yo=100, origin='lower')
 
-@cleanup
 def test_image_python_io():
     fig = plt.figure()
     ax = fig.add_subplot(111)
@@ -109,7 +108,6 @@ def test_imread_pil_uint16():
     assert np.sum(img) == 134184960
 
 
-@cleanup
 def test_imsave():
     # The goal here is that the user can specify an output logical DPI
     # for the image, but this will not actually add any extra pixels
@@ -180,7 +178,6 @@ def test_image_alpha():
     plt.subplot(133)
     plt.imshow(Z, alpha=0.5, interpolation='nearest')
 
-@cleanup
 def test_cursor_data():
     from matplotlib.backend_bases import MouseEvent
 
@@ -308,7 +305,6 @@ def test_image_shift():
               extent=(tMin, tMax, 1, 100))
     ax.set_aspect('auto')
 
-@cleanup
 def test_image_edges():
     f = plt.figure(figsize=[1, 1])
     ax = f.add_axes([0, 0, 1, 1], frameon=False)
@@ -430,7 +426,6 @@ def test_bbox_image_inverted():
     ax.add_artist(bbox_im)
 
 
-@cleanup
 def test_get_window_extent_for_AxisImage():
     # Create a figure of known size (1000x1000 pixels), place an image
     # object at a given location and check that get_window_extent()
@@ -466,14 +461,12 @@ def test_zoom_and_clip_upper_origin():
     ax.set_xlim(-0.5, 2.0)
 
 
-@cleanup
 def test_nonuniformimage_setcmap():
     ax = plt.gca()
     im = NonUniformImage(ax)
     im.set_cmap('Blues')
 
 
-@cleanup
 def test_nonuniformimage_setnorm():
     ax = plt.gca()
     im = NonUniformImage(ax)
@@ -481,7 +474,6 @@ def test_nonuniformimage_setnorm():
 
 
 @needs_pillow
-@cleanup
 def test_jpeg_alpha():
     plt.figure(figsize=(1, 1), dpi=300)
     # Create an image that is all black, with a gradient from 0-1 in
@@ -508,7 +500,6 @@ def test_jpeg_alpha():
     assert corner_pixel == (254, 0, 0), "corner pixel: %r" % (corner_pixel, )
 
 
-@cleanup
 def test_nonuniformimage_setdata():
     ax = plt.gca()
     im = NonUniformImage(ax)
@@ -520,7 +511,6 @@ def test_nonuniformimage_setdata():
     assert im._A[0, 0] == im._Ax[0] == im._Ay[0] == 0, 'value changed'
 
 
-@cleanup
 def test_axesimage_setdata():
     ax = plt.gca()
     im = AxesImage(ax)
@@ -530,7 +520,6 @@ def test_axesimage_setdata():
     assert im._A[0, 0] == 0, 'value changed'
 
 
-@cleanup
 def test_figureimage_setdata():
     fig = plt.gcf()
     im = FigureImage(fig)
@@ -540,7 +529,6 @@ def test_figureimage_setdata():
     assert im._A[0, 0] == 0, 'value changed'
 
 
-@cleanup
 def test_pcolorimage_setdata():
     ax = plt.gca()
     im = PcolorImage(ax)
@@ -552,7 +540,6 @@ def test_pcolorimage_setdata():
     assert im._A[0, 0] == im._Ax[0] == im._Ay[0] == 0, 'value changed'
 
 
-@cleanup
 def test_minimized_rasterized():
     # This ensures that the rasterized content in the colorbars is
     # only as thick as the colorbar, and doesn't extend to other parts
@@ -636,7 +623,6 @@ def test_rotate_image():
     ax1.set_ylim(0, 4)
 
 
-@cleanup
 def test_image_preserve_size():
     buff = io.BytesIO()
 
@@ -649,7 +635,6 @@ def test_image_preserve_size():
     assert img.shape[:2] == im.shape
 
 
-@cleanup
 def test_image_preserve_size2():
     n = 7
     data = np.identity(n, float)
@@ -741,7 +726,6 @@ def test_imshow_endianess():
     ax2.imshow(Z.astype('>f8'), **kwargs)
 
 
-@cleanup
 def test_imshow_no_warn_invalid():
     with warnings.catch_warnings(record=True) as warns:
         warnings.simplefilter("always")

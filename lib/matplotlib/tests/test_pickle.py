@@ -9,7 +9,7 @@ from io import BytesIO
 
 import numpy as np
 
-from matplotlib.testing.decorators import cleanup, image_comparison
+from matplotlib.testing.decorators import image_comparison
 from matplotlib.dates import rrulewrapper
 import matplotlib.pyplot as plt
 import matplotlib.transforms as mtransforms
@@ -93,7 +93,6 @@ def recursive_pickle(top_obj):
             raise
 
 
-@cleanup
 def test_simple():
     fig = plt.figure()
     # un-comment to debug
@@ -195,7 +194,6 @@ def test_complete():
     assert fig.get_label() == 'Figure with a label?'
 
 
-@cleanup
 def test_no_pyplot():
     # tests pickle-ability of a figure not created with pyplot
     from matplotlib.backends.backend_pdf import FigureCanvasPdf as fc
@@ -208,14 +206,12 @@ def test_no_pyplot():
     pickle.dump(fig, BytesIO(), pickle.HIGHEST_PROTOCOL)
 
 
-@cleanup
 def test_renderer():
     from matplotlib.backends.backend_agg import RendererAgg
     renderer = RendererAgg(10, 20, 30)
     pickle.dump(renderer, BytesIO())
 
 
-@cleanup
 def test_image():
     # Prior to v1.4.0 the Image would cache data which was not picklable
     # once it had been drawn.
@@ -228,7 +224,6 @@ def test_image():
     pickle.dump(fig, BytesIO())
 
 
-@cleanup
 def test_polar():
     ax = plt.subplot(111, polar=True)
     fig = plt.gcf()

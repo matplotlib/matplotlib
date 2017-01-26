@@ -11,7 +11,7 @@ import pytest
 from matplotlib.transforms import Bbox
 import matplotlib
 import matplotlib.pyplot as plt
-from matplotlib.testing.decorators import image_comparison, cleanup
+from matplotlib.testing.decorators import image_comparison
 from matplotlib.figure import Figure
 from matplotlib.text import Annotation, Text
 from matplotlib.backends.backend_agg import RendererAgg
@@ -232,7 +232,6 @@ def test_axes_titles():
     ax.set_title('right', loc='right', fontsize=12, fontweight=400)
 
 
-@cleanup
 def test_set_position():
     fig, ax = plt.subplots()
 
@@ -366,7 +365,6 @@ def test_annotation_negative_fig_coords():
                 va='top')
 
 
-@cleanup
 def test_text_stale():
     fig, (ax1, ax2) = plt.subplots(1, 2)
     plt.draw_all()
@@ -401,7 +399,6 @@ def test_agg_text_clip():
     plt.show()
 
 
-@cleanup
 def test_text_size_binding():
     from matplotlib.font_manager import FontProperties
 

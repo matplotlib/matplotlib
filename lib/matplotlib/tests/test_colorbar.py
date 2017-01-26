@@ -3,7 +3,7 @@ from __future__ import (absolute_import, division, print_function,
 
 import numpy as np
 from matplotlib import rc_context
-from matplotlib.testing.decorators import image_comparison, cleanup
+from matplotlib.testing.decorators import image_comparison
 import matplotlib.pyplot as plt
 from matplotlib.colors import BoundaryNorm, LogNorm
 from matplotlib.cm import get_cmap
@@ -224,7 +224,6 @@ def _test_remove_from_figure(use_gridspec):
     assert (pre_figbox == post_figbox).all()
 
 
-@cleanup
 def test_remove_from_figure_with_gridspec():
     """
     Make sure that `remove_from_figure` removes the colorbar and properly
@@ -233,7 +232,6 @@ def test_remove_from_figure_with_gridspec():
     _test_remove_from_figure(True)
 
 
-@cleanup
 def test_remove_from_figure_no_gridspec():
     """
     Make sure that `remove_from_figure` removes a colorbar that was created
@@ -242,7 +240,6 @@ def test_remove_from_figure_no_gridspec():
     _test_remove_from_figure(False)
 
 
-@cleanup
 def test_colorbarbase():
     # smoke test from #3805
     ax = plt.gca()
@@ -276,7 +273,6 @@ def test_colorbar_closed_patch():
                      extend='neither', values=values)
 
 
-@cleanup
 def test_colorbar_ticks():
     # test fix for #5673
     fig, ax = plt.subplots()
@@ -292,7 +288,6 @@ def test_colorbar_ticks():
     assert len(cbar.ax.xaxis.get_ticklocs()) == len(clevs)
 
 
-@cleanup
 def test_colorbar_get_ticks():
     # test feature for #5792
     plt.figure()
@@ -319,7 +314,6 @@ def test_colorbar_get_ticks():
     assert defTicks.get_ticks().tolist() == levels
 
 
-@cleanup
 def test_colorbar_lognorm_extension():
     # Test that colorbar with lognorm is extended correctly
     f, ax = plt.subplots()

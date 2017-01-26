@@ -12,7 +12,6 @@ import xml.parsers.expat
 import pytest
 
 import matplotlib.pyplot as plt
-from matplotlib.testing.decorators import cleanup
 from matplotlib.testing.decorators import image_comparison
 import matplotlib
 from matplotlib import dviread
@@ -23,7 +22,6 @@ needs_tex = pytest.mark.xfail(
     reason="This test needs a TeX installation")
 
 
-@cleanup
 def test_visibility():
     fig = plt.figure()
     ax = fig.add_subplot(111)
@@ -65,7 +63,6 @@ def test_noscale():
     ax.imshow(Z, cmap='gray', interpolation='none')
 
 
-@cleanup
 def test_composite_images():
     #Test that figures can be saved with and without combining multiple images
     #(on a single set of axes) into a single composite image.
@@ -90,7 +87,6 @@ def test_composite_images():
         assert buff.count(six.b('<image ')) == 2
 
 
-@cleanup
 def test_text_urls():
     fig = plt.figure()
 
@@ -187,20 +183,17 @@ def _test_determinism(filename, usetex):
         assert p == plots[0]
 
 
-@cleanup
 def test_determinism_notex():
     # unique filename to allow for parallel testing
     _test_determinism('determinism_notex.svg', usetex=False)
 
 
-@cleanup
 @needs_tex
 def test_determinism_tex():
     # unique filename to allow for parallel testing
     _test_determinism('determinism_tex.svg', usetex=True)
 
 
-@cleanup
 @needs_tex
 def test_missing_psfont(monkeypatch):
     """An error is raised if a TeX font lacks a Type-1 equivalent"""

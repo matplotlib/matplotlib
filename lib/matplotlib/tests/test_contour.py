@@ -5,7 +5,7 @@ import datetime
 
 import numpy as np
 from matplotlib import mlab
-from matplotlib.testing.decorators import cleanup, image_comparison
+from matplotlib.testing.decorators import image_comparison
 from matplotlib import pyplot as plt
 from numpy.testing import assert_array_almost_equal
 import pytest
@@ -14,7 +14,6 @@ import warnings
 import re
 
 
-@cleanup
 def test_contour_shape_1d_valid():
 
     x = np.arange(10)
@@ -26,7 +25,6 @@ def test_contour_shape_1d_valid():
     ax.contour(x, y, z)
 
 
-@cleanup
 def test_contour_shape_2d_valid():
 
     x = np.arange(10)
@@ -39,7 +37,6 @@ def test_contour_shape_2d_valid():
     ax.contour(xg, yg, z)
 
 
-@cleanup
 def test_contour_shape_mismatch_1():
 
     x = np.arange(9)
@@ -55,7 +52,6 @@ def test_contour_shape_mismatch_1():
         assert exc.args[0] == 'Length of x must be number of columns in z.'
 
 
-@cleanup
 def test_contour_shape_mismatch_2():
 
     x = np.arange(10)
@@ -71,7 +67,6 @@ def test_contour_shape_mismatch_2():
         assert exc.args[0] == 'Length of y must be number of rows in z.'
 
 
-@cleanup
 def test_contour_shape_mismatch_3():
 
     x = np.arange(10)
@@ -93,7 +88,6 @@ def test_contour_shape_mismatch_3():
         assert exc.args[0] == 'Number of dimensions of x and y should match.'
 
 
-@cleanup
 def test_contour_shape_mismatch_4():
 
     g = np.random.random((9, 10))
@@ -120,7 +114,6 @@ def test_contour_shape_mismatch_4():
             exc.args[0]) is not None, exc.args[0]
 
 
-@cleanup
 def test_contour_shape_invalid_1():
 
     x = np.random.random((3, 3, 3))
@@ -136,7 +129,6 @@ def test_contour_shape_invalid_1():
         assert exc.args[0] == 'Inputs x and y must be 1D or 2D.'
 
 
-@cleanup
 def test_contour_shape_invalid_2():
 
     x = np.random.random((3, 3, 3))
@@ -277,7 +269,6 @@ def test_corner_mask():
         plt.contourf(z, corner_mask=corner_mask)
 
 
-@cleanup
 def test_contourf_decreasing_levels():
     # github issue 5477.
     z = [[0.1, 0.3], [0.5, 0.7]]
@@ -292,7 +283,6 @@ def test_contourf_decreasing_levels():
         assert len(w) == 2
 
 
-@cleanup
 def test_vminvmax_warning():
     z = [[0.1, 0.3], [0.5, 0.7]]
     plt.figure()
@@ -313,7 +303,6 @@ def test_vminvmax_warning():
         assert str(w[0].message).startswith(msg)
 
 
-@cleanup
 def test_contourf_symmetric_locator():
     # github issue 7271
     z = np.arange(12).reshape((3, 4))

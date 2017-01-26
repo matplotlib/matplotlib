@@ -12,7 +12,7 @@ import pytest
 
 from matplotlib.patches import Polygon
 from matplotlib.patches import Rectangle
-from matplotlib.testing.decorators import image_comparison, cleanup
+from matplotlib.testing.decorators import image_comparison
 import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
 import matplotlib.collections as mcollections
@@ -213,7 +213,6 @@ def test_patch_custom_linestyle():
     ax.set_ylim([-1, 2])
 
 
-@cleanup
 def test_patch_linestyle_accents():
     #: Test if linestyle can also be specified with short menoics
     #: like "--"

@@ -2,7 +2,7 @@ import pytest
 
 from mpl_toolkits.mplot3d import Axes3D, axes3d, proj3d
 from matplotlib import cm
-from matplotlib.testing.decorators import image_comparison, cleanup
+from matplotlib.testing.decorators import image_comparison
 from matplotlib.collections import LineCollection
 from matplotlib.patches import Circle
 import matplotlib.pyplot as plt
@@ -21,7 +21,6 @@ def test_bar3d():
         ax.bar(xs, ys, zs=z, zdir='y', color=cs, alpha=0.8)
 
 
-@cleanup
 def test_bar3d_dflt_smoke():
     fig = plt.figure()
     ax = fig.add_subplot(111, projection='3d')
@@ -218,7 +217,6 @@ def test_wireframe3dzerorstride():
     ax.plot_wireframe(X, Y, Z, rstride=0, cstride=10)
 
 
-@cleanup
 def test_wireframe3dzerostrideraises():
     fig = plt.figure()
     ax = fig.add_subplot(111, projection='3d')
@@ -227,7 +225,6 @@ def test_wireframe3dzerostrideraises():
         ax.plot_wireframe(X, Y, Z, rstride=0, cstride=0)
 
 
-@cleanup
 def test_mixedsamplesraises():
     fig = plt.figure()
     ax = fig.add_subplot(111, projection='3d')
@@ -345,7 +342,6 @@ def test_axes3d_cla():
     ax.set_axis_off()
     ax.cla()  # make sure the axis displayed is 3D (not 2D)
 
-@cleanup
 def test_plotsurface_1d_raises():
     x = np.linspace(0.5, 10, num=100)
     y = np.linspace(0.5, 10, num=100)
@@ -470,7 +466,6 @@ def test_lines_dists():
     ax.set_ylim(0, 300)
 
 
-@cleanup
 def test_autoscale():
     fig, ax = plt.subplots(subplot_kw={"projection": "3d"})
     ax.margins(x=0, y=.1, z=.2)

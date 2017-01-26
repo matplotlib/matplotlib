@@ -3,14 +3,13 @@ from __future__ import (absolute_import, division, print_function,
 
 from numpy.testing import assert_equal
 from matplotlib import rcParams
-from matplotlib.testing.decorators import image_comparison, cleanup
+from matplotlib.testing.decorators import image_comparison
 from matplotlib.axes import Axes
 import matplotlib.pyplot as plt
 import numpy as np
 import warnings
 
 
-@cleanup
 def test_figure_label():
     # pyplot figure creation, selection and closing with figure label and
     # number
@@ -32,7 +31,6 @@ def test_figure_label():
     assert_equal(plt.get_figlabels(), ['', 'today'])
 
 
-@cleanup
 def test_fignum_exists():
     # pyplot figure creation, selection and closing with fignum_exists
     plt.figure('one')
@@ -49,7 +47,6 @@ def test_fignum_exists():
     assert_equal(plt.fignum_exists(4), False)
 
 
-@cleanup
 def test_clf_keyword():
     # test if existing figure is cleared with figure() and subplots()
     fig0 = plt.figure(num=1)
@@ -94,7 +91,6 @@ def test_figure_legend():
     fig.legend()
 
 
-@cleanup
 def test_gca():
     fig = plt.figure()
 
@@ -131,7 +127,6 @@ def test_suptitle():
     fig.suptitle('title', color='g', rotation='30')
 
 
-@cleanup
 def test_suptitle_fontproperties():
     from matplotlib.font_manager import FontProperties
     fig, ax = plt.subplots()
@@ -161,7 +156,6 @@ def test_alpha():
                                               facecolor='red'))
 
 
-@cleanup
 def test_too_many_figures():
     with warnings.catch_warnings(record=True) as w:
         warnings.simplefilter("always")
@@ -170,7 +164,6 @@ def test_too_many_figures():
         assert len(w) == 1
 
 
-@cleanup
 def test_iterability_axes_argument():
 
     # This is a regression test for matplotlib/matplotlib#3196. If one of the
@@ -201,7 +194,6 @@ def test_iterability_axes_argument():
     plt.close(fig)
 
 
-@cleanup
 def test_set_fig_size():
     fig = plt.figure()
 
@@ -224,7 +216,6 @@ def test_set_fig_size():
     assert_equal(fig.get_figheight(), 3)
 
 
-@cleanup
 def test_axes_remove():
     fig, axes = plt.subplots(2, 2)
     axes[-1, -1].remove()

@@ -4,7 +4,7 @@ from __future__ import (absolute_import, division, print_function,
 import numpy as np
 from numpy.testing import assert_array_almost_equal
 import matplotlib.pyplot as plt
-from matplotlib.testing.decorators import image_comparison, cleanup
+from matplotlib.testing.decorators import image_comparison
 import matplotlib.transforms as mtransforms
 
 
@@ -82,7 +82,6 @@ def test_direction():
                    linewidth=2, density=2)
 
 
-@cleanup
 def test_streamplot_limits():
     ax = plt.axes()
     x = np.linspace(-5, 10, 20)
