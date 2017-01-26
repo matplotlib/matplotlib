@@ -1,7 +1,7 @@
 """
-=============
-Scatter plots
-=============
+============
+Scatter plot
+============
 
 This example showcases a simple scatter plot.
 """
