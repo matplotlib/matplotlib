@@ -21,8 +21,8 @@ def setup(ax):
     ax.patch.set_alpha(0.0)
 
 
-plt.figure(figsize=(8, 5))
-n = 6
+plt.figure(figsize=(8, 6))
+n = 7
 
 # Null formatter
 ax = plt.subplot(n, 1, 1)
@@ -85,6 +85,15 @@ ax.xaxis.set_major_locator(ticker.MultipleLocator(1.00))
 ax.xaxis.set_minor_locator(ticker.MultipleLocator(0.25))
 ax.xaxis.set_major_formatter(ticker.StrMethodFormatter("{x}"))
 ax.text(0.0, 0.1, "StrMethodFormatter('{x}')",
+        fontsize=15, transform=ax.transAxes)
+
+# Percent formatter
+ax = plt.subplot(n, 1, 7)
+setup(ax)
+ax.xaxis.set_major_locator(ticker.MultipleLocator(1.00))
+ax.xaxis.set_minor_locator(ticker.MultipleLocator(0.25))
+ax.xaxis.set_major_formatter(ticker.PercentFormatter(xmax=5))
+ax.text(0.0, 0.1, "PercentFormatter(xmax=5)",
         fontsize=15, transform=ax.transAxes)
 
 # Push the top of the top axes outside the figure because we only show the

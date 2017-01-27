@@ -510,13 +510,40 @@ class TestFormatStrFormatter(object):
         tmp_form = mticker.FormatStrFormatter('%05d')
         assert '00002' == tmp_form(2)
 
-        # test str.format() style formatter
-        tmp_form = mticker.StrMethodFormatter('{x:05d}')
-        assert '00002' == tmp_form(2)
 
-        # test str.format() style formatter with `pos`
-        tmp_form = mticker.StrMethodFormatter('{x:03d}-{pos:02d}')
-        assert '002-01' == tmp_form(2, 1)
+class TestStrMethodFormatter(object):
+    test_data = [
+        ('{x:05d}', (2,), '00002'),
+        ('{x:03d}-{pos:02d}', (2, 1), '002-01'),
+    ]
+
+    @pytest.mark.parametrize('format, input, expected', test_data)
+    def test_basic(self, format, input, expected):
+        fmt = mticker.StrMethodFormatter(format)
+        assert fmt(*input) == expected
+
+
+class TestEngFormatter(object):
+    format_data = [
+        ('', 0.1, u'100 m'),
+        ('', 1, u'1'),
+        ('', 999.9, u'999.9'),
+        ('', 1001, u'1.001 k'),
+        (u's', 0.1, u'100 ms'),
+        (u's', 1, u'1 s'),
+        (u's', 999.9, u'999.9 s'),
+        (u's', 1001, u'1.001 ks'),
+    ]
+
+    @pytest.mark.parametrize('unit, input, expected', format_data)
+    def test_formatting(self, unit, input, expected):
+        """
+        Test the formatting of EngFormatter with some inputs, against
+        instances with and without units. Cases focus on when no SI
+        prefix is present, for values in [1, 1000).
+        """
+        fmt = mticker.EngFormatter(unit)
+        assert fmt(input) == expected
 
 
 class TestPercentFormatter(object):
@@ -525,12 +552,12 @@ class TestPercentFormatter(object):
         (100, 0, '%', 120, 100, '120%'),
         (100, 0, '%', 100, 90, '100%'),
         (100, 0, '%', 90, 50, '90%'),
-        (100, 0, '%', 1.7, 40, '2%'),
+        (100, 0, '%', -1.7, 40, '-2%'),
         (100, 1, '%', 90.0, 100, '90.0%'),
         (100, 1, '%', 80.1, 90, '80.1%'),
         (100, 1, '%', 70.23, 50, '70.2%'),
         # 60.554 instead of 60.55: see https://bugs.python.org/issue5118
-        (100, 1, '%', 60.554, 40, '60.6%'),
+        (100, 1, '%', -60.554, 40, '-60.6%'),
         # Check auto decimals over different intervals and values
         (100, None, '%', 95, 1, '95.00%'),
         (1.0, None, '%', 3, 6, '300%'),
@@ -565,33 +592,24 @@ class TestPercentFormatter(object):
         'Custom percent symbol',
     ]
 
+    latex_data = [
+        (False, False, r'50\{t}%'),
+        (False, True, r'50\\\{t\}\%'),
+        (True, False, r'50\{t}%'),
+        (True, True, r'50\{t}%'),
+    ]
+
     @pytest.mark.parametrize(
             'xmax, decimals, symbol, x, display_range, expected',
             percent_data, ids=percent_ids)
-    def test_percentformatter(self, xmax, decimals, symbol,
-                              x, display_range, expected):
+    def test_basic(self, xmax, decimals, symbol,
+                   x, display_range, expected):
         formatter = mticker.PercentFormatter(xmax, decimals, symbol)
-        assert formatter.format_pct(x, display_range) == expected
+        with matplotlib.rc_context(rc={'text.usetex': False}):
+            assert formatter.format_pct(x, display_range) == expected
 
-
-class TestEngFormatter(object):
-    format_data = [
-        ('', 0.1, u'100 m'),
-        ('', 1, u'1'),
-        ('', 999.9, u'999.9'),
-        ('', 1001, u'1.001 k'),
-        (u's', 0.1, u'100 ms'),
-        (u's', 1, u'1 s'),
-        (u's', 999.9, u'999.9 s'),
-        (u's', 1001, u'1.001 ks'),
-    ]
-
-    @pytest.mark.parametrize('unit, input, expected', format_data)
-    def test_formatting(self, unit, input, expected):
-        """
-        Test the formatting of EngFormatter with some inputs, against
-        instances with and without units. Cases focus on when no SI
-        prefix is present, for values in [1, 1000).
-        """
-        fmt = mticker.EngFormatter(unit)
-        assert fmt(input) == expected
+    @pytest.mark.parametrize('is_latex, usetex, expected', latex_data)
+    def test_latex(self, is_latex, usetex, expected):
+        fmt = mticker.PercentFormatter(symbol='\\{t}%', is_latex=is_latex)
+        with matplotlib.rc_context(rc={'text.usetex': usetex}):
+            assert fmt.format_pct(50, 100) == expected
