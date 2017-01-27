@@ -1040,8 +1040,8 @@ end"""
             for c in characters:
                 ccode = c
                 gind = font.get_char_index(ccode)
-                glyph = font.load_char(ccode, flags=LOAD_NO_HINTING)
-                widths.append((ccode, glyph.horiAdvance / 6))
+                glyph = font.load_char(ccode, flags=LOAD_NO_SCALE|LOAD_NO_HINTING)
+                widths.append((ccode, cvt(glyph.horiAdvance)))
                 if ccode < 65536:
                     cid_to_gid_map[ccode] = unichr(gind)
                 max_ccode = max(ccode, max_ccode)
