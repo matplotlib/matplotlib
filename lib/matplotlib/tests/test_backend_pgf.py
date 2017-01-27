@@ -12,7 +12,7 @@ import matplotlib as mpl
 import matplotlib.pyplot as plt
 from matplotlib.compat import subprocess
 from matplotlib.testing.compare import compare_images, ImageComparisonFailure
-from matplotlib.testing.decorators import _image_directories, switch_backend
+from matplotlib.testing.decorators import _image_directories
 
 baseline_dir, result_dir = _image_directories(lambda: 'dummy func')
 
@@ -82,8 +82,8 @@ def create_figure():
 
 # test compiling a figure to pdf with xelatex
 @needs_xelatex
-@pytest.mark.style('classic')
-@switch_backend('pgf')
+@pytest.mark.style('default')
+@pytest.mark.backend('pgf')
 def test_xelatex():
     rc_xelatex = {'font.family': 'serif',
                   'pgf.rcfonts': False}
@@ -94,8 +94,8 @@ def test_xelatex():
 
 # test compiling a figure to pdf with pdflatex
 @needs_pdflatex
-@pytest.mark.style('classic')
-@switch_backend('pgf')
+@pytest.mark.style('default')
+@pytest.mark.backend('pgf')
 def test_pdflatex():
     import os
     if os.environ.get('APPVEYOR', False):
@@ -116,8 +116,8 @@ def test_pdflatex():
 # test updating the rc parameters for each figure
 @needs_xelatex
 @needs_pdflatex
-@pytest.mark.style('classic')
-@switch_backend('pgf')
+@pytest.mark.style('default')
+@pytest.mark.backend('pgf')
 def test_rcupdate():
     rc_sets = []
     rc_sets.append({'font.family': 'sans-serif',
@@ -147,8 +147,8 @@ def test_rcupdate():
 
 # test backend-side clipping, since large numbers are not supported by TeX
 @needs_xelatex
-@pytest.mark.style('classic')
-@switch_backend('pgf')
+@pytest.mark.style('default')
+@pytest.mark.backend('pgf')
 def test_pathclip():
     rc_xelatex = {'font.family': 'serif',
                   'pgf.rcfonts': False}
@@ -164,8 +164,8 @@ def test_pathclip():
 
 # test mixed mode rendering
 @needs_xelatex
-@pytest.mark.style('classic')
-@switch_backend('pgf')
+@pytest.mark.style('default')
+@pytest.mark.backend('pgf')
 def test_mixedmode():
     rc_xelatex = {'font.family': 'serif',
                   'pgf.rcfonts': False}
@@ -179,8 +179,8 @@ def test_mixedmode():
 
 # test bbox_inches clipping
 @needs_xelatex
-@pytest.mark.style('classic')
-@switch_backend('pgf')
+@pytest.mark.style('default')
+@pytest.mark.backend('pgf')
 def test_bbox_inches():
     rc_xelatex = {'font.family': 'serif',
                   'pgf.rcfonts': False}
