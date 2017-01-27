@@ -2342,7 +2342,7 @@ def test_manage_xticks():
 
 
 @cleanup
-def test_size0_ticks():
+def test_tick_space_size_0():
     # allow font size to be zero, which affects ticks when there is
     # no other text in the figure.
     plt.plot([0, 1], [0, 1])
