@@ -713,8 +713,8 @@ class Matplotlib(SetupPackage):
             'matplotlib.sphinxext',
             'matplotlib.style',
             'matplotlib.testing',
-            'matplotlib.testing.nose',
-            'matplotlib.testing.nose.plugins',
+            'matplotlib.testing._nose',
+            'matplotlib.testing._nose.plugins',
             'matplotlib.testing.jpl_units',
             'matplotlib.tri',
             'matplotlib.cbook'
