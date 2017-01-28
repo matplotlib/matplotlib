@@ -5,6 +5,7 @@ from __future__ import (absolute_import, division, print_function,
 
 import six
 from six.moves import map, zip
+import warnings
 
 import math
 
@@ -113,10 +114,10 @@ class Patch(artist.Artist):
         if antialiased is None:
             antialiased = mpl.rcParams['patch.antialiased']
 
+        self._hatch_color = colors.to_rgba(mpl.rcParams['hatch.color'])
         self._fill = True  # needed for set_facecolor call
         if color is not None:
             if (edgecolor is not None or facecolor is not None):
-                import warnings
                 warnings.warn("Setting the 'color' property will override"
                               "the edgecolor or facecolor properties. ")
             self.set_color(color)
@@ -288,13 +289,18 @@ class Patch(artist.Artist):
         return self.set_antialiased(aa)
 
     def _set_edgecolor(self, color):
+        set_hatch_color = True
         if color is None:
             if (mpl.rcParams['patch.force_edgecolor'] or
                     not self._fill or self._edge_default):
                 color = mpl.rcParams['patch.edgecolor']
             else:
                 color = 'none'
+                set_hatch_color = False
+
         self._edgecolor = colors.to_rgba(color, self._alpha)
+        if set_hatch_color:
+            self._hatch_color = self._edgecolor
         self.stale = True
 
     def set_edgecolor(self, color):
@@ -545,6 +551,12 @@ class Patch(artist.Artist):
 
         if self._hatch:
             gc.set_hatch(self._hatch)
+            try:
+                gc.set_hatch_color(self._hatch_color)
+            except AttributeError:
+                # if we end up with a GC that does not have this method
+                warnings.warn("Your backend does not have support for "
+                              "setting the hatch color.")
 
         if self.get_sketch_params() is not None:
             gc.set_sketch_params(*self.get_sketch_params())
@@ -4286,6 +4298,13 @@ class FancyArrowPatch(Patch):
 
         if self._hatch:
             gc.set_hatch(self._hatch)
+            if self._hatch_color is not None:
+                try:
+                    gc.set_hatch_color(self._hatch_color)
+                except AttributeError:
+                    # if we end up with a GC that does not have this method
+                    warnings.warn("Your backend does not support setting the "
+                                  "hatch color.")
 
         if self.get_sketch_params() is not None:
             gc.set_sketch_params(*self.get_sketch_params())

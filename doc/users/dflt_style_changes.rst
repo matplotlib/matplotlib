@@ -617,20 +617,24 @@ To restore the previous behavior explicitly pass the keyword argument
 Hatching
 ========
 
-The color and width of the lines in a hatch pattern are now configurable by the
-rcParams `hatch.color` and `hatch.linewidth`, with defaults of black and 1
-point, respectively.  The old behaviour for the color was to apply the edge
-color or use black, depending on the artist; the old behavior for the line
-width was different depending on backend:
+
+The color of the lines in the hatch is now determined by
+
+ - If an edge color is explicitly, use that for the hatch color
+ - If the edge color is not explicitly set, use ``rcParam['hatch.color']`` which
+   is looked up at artist creation time.
+
+The width of the lines in a hatch pattern is now configurable by the
+rcParams `hatch.linewidth`, which defaults to 1 point.  The old
+behavior for the line width was different depending on backend:
 
     - PDF: 0.1 pt
     - SVG: 1.0 pt
     - PS:  1 px
     - Agg: 1 px
 
-The old color behavior can not be restored. The old line width behavior can not
-be restored across all backends simultaneously, but can be restored for a
-single backend by setting::
+The old line width behavior can not be restored across all backends
+simultaneously, but can be restored for a single backend by setting::
 
    mpl.rcParams['hatch.linewidth'] = 0.1  # previous pdf hatch linewidth
    mpl.rcParams['hatch.linewidth'] = 1.0  # previous svg hatch linewidth
@@ -643,7 +647,7 @@ The behavior of the PS and Agg backends was DPI dependent, thus::
    mpl.rcParams['hatch.linewidth'] = 1.0 / dpi  # previous ps and Agg hatch linewidth
 
 
-There is no API level control of the hatch color or linewidth.
+There is no direct API level control of the hatch color or linewidth.
 
 Hatching patterns are now rendered at a consistent density, regardless of DPI.
 Formerly, high DPI figures would be more dense than the default, and low DPI
