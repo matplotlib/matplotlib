@@ -468,3 +468,15 @@ def test_lines_dists():
 
     ax.set_xlim(-50, 150)
     ax.set_ylim(0, 300)
+
+
+@cleanup
+def test_autoscale():
+    fig, ax = plt.subplots(subplot_kw={"projection": "3d"})
+    ax.margins(x=0, y=.1, z=.2)
+    ax.plot([0, 1], [0, 1], [0, 1])
+    assert ax.get_w_lims() == (0, 1, -.1, 1.1, -.2, 1.2)
+    ax.autoscale(False)
+    ax.set_autoscalez_on(True)
+    ax.plot([0, 2], [0, 2], [0, 2])
+    assert ax.get_w_lims() == (0, 1, -.1, 1.1, -.4, 2.4)
