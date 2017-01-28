@@ -195,7 +195,6 @@ files['pylab'] = [
     'log_test.py',
     'major_minor_demo1.py',
     'major_minor_demo2.py',
-    'manual_axis.py',
     'masked_demo.py',
     'mathtext_demo.py',
     'mathtext_examples.py',
@@ -237,7 +236,6 @@ files['pylab'] = [
     'subplots_adjust.py',
     'symlog_demo.py',
     'table_demo.py',
-    'text_handles.py',
     'text_rotation.py',
     'text_rotation_relative_to_line.py',
     'transoffset.py',
@@ -307,7 +305,6 @@ files['mplot3d'] = [
 # examples that generate multiple figures
 
 excluded = {
-    'pylab': ['__init__.py', 'toggle_images.py', ],
     'units': ['__init__.py', 'date_support.py', ],
 }
 
