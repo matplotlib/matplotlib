@@ -20,30 +20,8 @@ def is_called_from_pytest():
     return getattr(matplotlib, '_called_from_pytest', False)
 
 
-def xfail(msg=""):
-    """Explicitly fail an currently-executing test with the given message."""
-    __tracebackhide__ = True
-    if is_called_from_pytest():
-        import pytest
-        pytest.xfail(msg)
-    else:
-        from .nose import knownfail
-        knownfail(msg)
-
-
-def skip(msg=""):
-    """Skip an executing test with the given message."""
-    __tracebackhide__ = True
-    if is_called_from_pytest():
-        import pytest
-        pytest.skip(msg)
-    else:
-        from nose import SkipTest
-        raise SkipTest(msg)
-
-
 # stolen from pytest
-def getrawcode(obj, trycall=True):
+def _getrawcode(obj, trycall=True):
     """Return code object for given function."""
     try:
         return obj.__code__
@@ -60,7 +38,7 @@ def getrawcode(obj, trycall=True):
         return obj
 
 
-def copy_metadata(src_func, tgt_func):
+def _copy_metadata(src_func, tgt_func):
     """Replicates metadata of the function. Returns target function."""
     tgt_func.__dict__.update(src_func.__dict__)
     tgt_func.__doc__ = src_func.__doc__
@@ -69,7 +47,7 @@ def copy_metadata(src_func, tgt_func):
     if hasattr(src_func, '__qualname__'):
         tgt_func.__qualname__ = src_func.__qualname__
     if not hasattr(tgt_func, 'compat_co_firstlineno'):
-        tgt_func.compat_co_firstlineno = getrawcode(src_func).co_firstlineno
+        tgt_func.compat_co_firstlineno = _getrawcode(src_func).co_firstlineno
     return tgt_func
 
 

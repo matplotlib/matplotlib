@@ -5,7 +5,9 @@ from __future__ import (absolute_import, division, print_function,
 
 import io
 import re
+
 import numpy as np
+import pytest
 import six
 
 import matplotlib
@@ -13,17 +15,17 @@ import matplotlib.pyplot as plt
 from matplotlib import patheffects
 from matplotlib.testing.determinism import (_determinism_source_date_epoch,
                                             _determinism_check)
-from matplotlib.testing.decorators import cleanup, knownfailureif
+from matplotlib.testing.decorators import cleanup
 
 
-needs_ghostscript = knownfailureif(
+needs_ghostscript = pytest.mark.xfail(
     matplotlib.checkdep_ghostscript()[0] is None,
-    "This test needs a ghostscript installation")
+    reason="This test needs a ghostscript installation")
 
 
-needs_tex = knownfailureif(
+needs_tex = pytest.mark.xfail(
     not matplotlib.checkdep_tex(),
-    "This test needs a TeX installation")
+    reason="This test needs a TeX installation")
 
 
 def _test_savefig_to_stringio(format='ps', use_log=False):

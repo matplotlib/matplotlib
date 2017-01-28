@@ -18,8 +18,7 @@ import matplotlib.cm as cm
 import matplotlib.colorbar as mcolorbar
 import matplotlib.cbook as cbook
 import matplotlib.pyplot as plt
-from matplotlib.testing.decorators import (image_comparison,
-                                           cleanup, knownfailureif)
+from matplotlib.testing.decorators import image_comparison, cleanup
 
 
 def test_resample():
@@ -448,8 +447,8 @@ def test_light_source_shading_default():
     assert_array_almost_equal(rgb, expect, decimal=2)
 
 
-@knownfailureif((V(np.__version__) <= V('1.9.0')
-                and V(np.__version__) >= V('1.7.0')))
+@pytest.mark.xfail(V('1.7.0') <= V(np.__version__) <= V('1.9.0'),
+                   reason='NumPy version is not buggy')
 # Numpy 1.9.1 fixed a bug in masked arrays which resulted in
 # additional elements being masked when calculating the gradient thus
 # the output is different with earlier numpy versions.

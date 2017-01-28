@@ -5,7 +5,6 @@ from fnmatch import fnmatch
 import os
 
 import pytest
-from ..testing import xfail
 
 try:
     import pep8
@@ -249,8 +248,8 @@ def test_pep8_conformance_examples():
             fp, tail = os.path.split(fp)
 
     if mpldir is None:
-        xfail("can not find the examples, set env MPL_REPO_DIR to point "
-              "to the top-level path of the source tree")
+        pytest.xfail("can not find the examples, set env MPL_REPO_DIR to "
+                     "point to the top-level path of the source tree")
 
     exdir = os.path.join(mpldir, 'examples')
     blacklist = ()

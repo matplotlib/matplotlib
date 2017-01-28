@@ -11,7 +11,6 @@ import pytest
 from matplotlib.image import imread
 from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
 from matplotlib.figure import Figure
-from matplotlib.testing import skip
 from matplotlib.testing.decorators import cleanup, image_comparison
 from matplotlib import pyplot as plt
 from matplotlib import collections
@@ -179,9 +178,6 @@ def test_agg_filter():
             t1 = self.gauss_filter.process_image(padded_src, dpi)
             t2 = self.offset_filter.process_image(t1, dpi)
             return t2
-
-    if LooseVersion(np.__version__) < LooseVersion('1.7.0'):
-        skip('Disabled on Numpy < 1.7.0')
 
     fig = plt.figure()
     ax = fig.add_subplot(111)
