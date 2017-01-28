@@ -15,9 +15,6 @@ values is a single line of python
 
   mpl.style.use('classic')
 
-Note that to revert the position of tick labels, you need in addition to set
-the rcParams `ytick.alignment` to "center".
-
 See :ref:`customizing-with-matplotlibrc-files` for details about how to
 persistently and selectively revert many of these changes.
 

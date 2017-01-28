@@ -1143,7 +1143,7 @@ def test_bar_tick_label_multiple():
     ax.bar([1, 2.5], [1, 2], width=[0.2, 0.5], tick_label=['a', 'b'],
            align='center')
 
-@image_comparison(baseline_images=['bar_tick_label_multiple_old_alignment'],
+@image_comparison(baseline_images=['bar_tick_label_multiple_old_label_alignment'],
                   extensions=['png'])
 def test_bar_tick_label_multiple_old_alignment():
     # From 2516: plot bar with array of string labels for x axis

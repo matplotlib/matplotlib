@@ -271,7 +271,6 @@ ytick.major.left     : True   # draw y axis left major ticks
 ytick.major.right    : True   # draw y axis right major ticks
 ytick.minor.left     : True   # draw y axis left minor ticks
 ytick.minor.right    : True   # draw y axis right minor ticks
-ytick.alignment      : center
 
 ### GRIDS
 grid.color       :   k       # grid color
