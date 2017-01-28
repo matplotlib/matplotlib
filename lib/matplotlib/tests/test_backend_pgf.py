@@ -83,7 +83,7 @@ def create_figure():
 
 # test compiling a figure to pdf with xelatex
 @needs_xelatex
-@cleanup(style='classic')
+@cleanup(style='_classic_test')
 @switch_backend('pgf')
 def test_xelatex():
     rc_xelatex = {'font.family': 'serif',
@@ -95,7 +95,7 @@ def test_xelatex():
 
 # test compiling a figure to pdf with pdflatex
 @needs_pdflatex
-@cleanup(style='classic')
+@cleanup(style='_classic_test')
 @switch_backend('pgf')
 def test_pdflatex():
     import os
@@ -117,7 +117,7 @@ def test_pdflatex():
 # test updating the rc parameters for each figure
 @needs_xelatex
 @needs_pdflatex
-@cleanup(style='classic')
+@cleanup(style='_classic_test')
 @switch_backend('pgf')
 def test_rcupdate():
     rc_sets = []
@@ -148,7 +148,7 @@ def test_rcupdate():
 
 # test backend-side clipping, since large numbers are not supported by TeX
 @needs_xelatex
-@cleanup(style='classic')
+@cleanup(style='_classic_test')
 @switch_backend('pgf')
 def test_pathclip():
     rc_xelatex = {'font.family': 'serif',
@@ -165,7 +165,7 @@ def test_pathclip():
 
 # test mixed mode rendering
 @needs_xelatex
-@cleanup(style='classic')
+@cleanup(style='_classic_test')
 @switch_backend('pgf')
 def test_mixedmode():
     rc_xelatex = {'font.family': 'serif',
@@ -180,7 +180,7 @@ def test_mixedmode():
 
 # test bbox_inches clipping
 @needs_xelatex
-@cleanup(style='classic')
+@cleanup(style='_classic_test')
 @switch_backend('pgf')
 def test_bbox_inches():
     rc_xelatex = {'font.family': 'serif',
