@@ -15,24 +15,25 @@ U = np.cos(X)
 V = np.sin(Y)
 
 plt.figure()
+plt.title('scales with plot width, not view')
 Q = plt.quiver(X, Y, U, V, units='width')
 qk = plt.quiverkey(Q, 0.9, 0.95, 2, r'$2 \frac{m}{s}$',
                    labelpos='E',
                    coordinates='figure',
                    fontproperties={'weight': 'bold'})
 plt.axis([-1, 7, -1, 7])
-plt.title('scales with plot width, not view')
 
 plt.figure()
+plt.title("pivot='mid'; every third arrow; units='inches'")
 Q = plt.quiver(X[::3, ::3], Y[::3, ::3], U[::3, ::3], V[::3, ::3],
                pivot='mid', color='r', units='inches')
 qk = plt.quiverkey(Q, 0.5, 0.03, 1, r'$1 \frac{m}{s}$',
                    fontproperties={'weight': 'bold'})
 plt.plot(X[::3, ::3], Y[::3, ::3], 'k.')
 plt.axis([-1, 7, -1, 7])
-plt.title("pivot='mid'; every third arrow; units='inches'")
 
 plt.figure()
+plt.title("scales with x view; pivot='tip'")
 M = np.hypot(U, V)
 Q = plt.quiver(X, Y, U, V, M,
                units='x',
@@ -44,23 +45,25 @@ qk = plt.quiverkey(Q, 0.9, 1.05, 1, r'$1 \frac{m}{s}$',
                    fontproperties={'weight': 'bold'})
 plt.plot(X, Y, 'k.', markersize=2)
 plt.axis([-1, 7, -1, 7])
-plt.title("scales with x view; pivot='tip'")
 
 plt.figure()
+plt.title("triangular head; scale with x view; black edges")
+
 Q = plt.quiver(X[::3, ::3], Y[::3, ::3], U[::3, ::3], V[::3, ::3],
                color='r', units='x',
                linewidths=(0.5,), edgecolors=('k'), headaxislength=5)
 qk = plt.quiverkey(Q, 0.5, 0.03, 1, r'$1 \frac{m}{s}$',
                    fontproperties={'weight': 'bold'})
 plt.axis([-1, 7, -1, 7])
-plt.title("triangular head; scale with x view; black edges")
 
 plt.figure()
+plt.title('Minimal arguments, no kwargs - masked values')
+
 M = np.zeros(U.shape, dtype='bool')
-XMaskStart = U.shape[0]//3
-YMaskStart = U.shape[1]//3
-XMaskStop = 2*U.shape[0]//3
-YMaskStop = 2*U.shape[1]//3
+XMaskStart = U.shape[0] // 3
+YMaskStart = U.shape[1] // 3
+XMaskStop = 2 * U.shape[0] // 3
+YMaskStop = 2 * U.shape[1] // 3
 
 M[XMaskStart:XMaskStop,
   YMaskStart:YMaskStop] = True
@@ -72,7 +75,5 @@ qk = plt.quiverkey(Q, 0.5, 0.96, 2, r'$2 \frac{m}{s}$', labelpos='W',
 l, r, b, t = plt.axis()
 dx, dy = r - l, t - b
 plt.axis([l - 0.05 * dx, r + 0.05 * dx, b - 0.05 * dy, t + 0.05 * dy])
-plt.title('Minimal arguments, no kwargs - masked values')
-
 
 plt.show()
