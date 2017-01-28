@@ -795,10 +795,11 @@ class _AxesBase(martist.Artist):
             place axis elements in different locations.
 
         """
+        labels_valign = matplotlib.rcParams["ytick.alignment"]
         return (self.get_yaxis_transform(which='tick1') +
                 mtransforms.ScaledTranslation(-1 * pad_points / 72.0, 0,
                                               self.figure.dpi_scale_trans),
-                "center_baseline", "right")
+                labels_valign, "right")
 
     def get_yaxis_text2_transform(self, pad_points):
         """
@@ -821,10 +822,12 @@ class _AxesBase(martist.Artist):
             place axis elements in different locations.
 
         """
+        labels_valign = matplotlib.rcParams["ytick.alignment"]
+
         return (self.get_yaxis_transform(which='tick2') +
                 mtransforms.ScaledTranslation(pad_points / 72.0, 0,
                                               self.figure.dpi_scale_trans),
-                "center_baseline", "left")
+                labels_valign, "left")
 
     def _update_transScale(self):
         self.transScale.set(
@@ -2540,13 +2543,10 @@ class _AxesBase(martist.Artist):
                 raise ValueError("scilimits must be a sequence of 2 integers")
         if style[:3] == 'sci':
             sb = True
-        elif style in ['plain', 'comma']:
+        elif style == 'plain':
             sb = False
-            if style == 'plain':
-                cb = False
-            else:
-                cb = True
-                raise NotImplementedError("comma style remains to be added")
+        elif style == 'comma':
+            raise NotImplementedError("comma style remains to be added")
         elif style == '':
             sb = None
         else:
