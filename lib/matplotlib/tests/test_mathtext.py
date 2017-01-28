@@ -10,7 +10,7 @@ import numpy as np
 import pytest
 
 import matplotlib
-from matplotlib.testing.decorators import image_comparison, knownfailureif, cleanup
+from matplotlib.testing.decorators import image_comparison, cleanup
 import matplotlib.pyplot as plt
 from matplotlib import mathtext
 

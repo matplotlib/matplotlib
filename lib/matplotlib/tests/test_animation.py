@@ -13,7 +13,6 @@ import pytest
 import matplotlib as mpl
 from matplotlib import pyplot as plt
 from matplotlib import animation
-from matplotlib.testing import xfail, skip
 from matplotlib.testing.decorators import cleanup
 
 
@@ -121,7 +120,7 @@ def test_save_animation_smoketest(tmpdir, writer, extension):
     except AttributeError:
         pass
     if not animation.writers.is_available(writer):
-        skip("writer '%s' not available on this system" % writer)
+        pytest.skip("writer '%s' not available on this system" % writer)
     fig, ax = plt.subplots()
     line, = ax.plot([], [])
 
@@ -145,8 +144,8 @@ def test_save_animation_smoketest(tmpdir, writer, extension):
         try:
             anim.save('movie.' + extension, fps=30, writer=writer, bitrate=500)
         except UnicodeDecodeError:
-            xfail("There can be errors in the numpy import stack, "
-                  "see issues #1891 and #2679")
+            pytest.xfail("There can be errors in the numpy import stack, "
+                         "see issues #1891 and #2679")
 
 
 @cleanup

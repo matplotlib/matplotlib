@@ -14,7 +14,7 @@ import pytest
 
 import matplotlib.mlab as mlab
 import matplotlib.cbook as cbook
-from matplotlib.testing.decorators import knownfailureif, CleanupTestCase
+from matplotlib.testing.decorators import CleanupTestCase
 
 
 try:
@@ -2837,7 +2837,7 @@ def test_griddata_linear():
                                   np.ma.getmask(correct_zi_masked))
 
 
-@knownfailureif(not HAS_NATGRID)
+@pytest.mark.xfail(not HAS_NATGRID, reason='natgrid not installed')
 def test_griddata_nn():
     # z is a linear function of x and y.
     def get_z(x, y):

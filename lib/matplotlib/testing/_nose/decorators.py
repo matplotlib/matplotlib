@@ -4,48 +4,9 @@ from __future__ import (absolute_import, division, print_function,
 import os
 import six
 import sys
-from .. import copy_metadata, skip
+from .. import _copy_metadata
 from . import knownfail
 from .exceptions import KnownFailureDidNotFailTest
-
-
-def skipif(skip_condition, *args, **kwargs):
-    if isinstance(skip_condition, bool) and 'reason' not in kwargs:
-        raise ValueError("you need to specify reason=STRING "
-                         "when using booleans as conditions.")
-
-    def skip_decorator(func):
-        import inspect
-
-        def skipper(*_args, **_kwargs):
-            condition, msg = skip_condition, kwargs.get('reason')  # local copy
-            if isinstance(condition, six.string_types):
-                globs = {'os': os, 'sys': sys}
-                try:
-                    globs.update(func.__globals__)
-                except AttributeError:
-                    globs.update(func.func_globals)
-                if msg is None:
-                    msg = condition
-                condition = eval(condition, globs)
-            else:
-                condition = bool(condition)
-
-            if condition:
-                skip(msg)
-            else:
-                return func(*_args, **_kwargs)
-
-        if inspect.isclass(func):
-            setup = getattr(func, 'setup_class', classmethod(lambda _: None))
-            setup = skip_decorator(setup.__func__)
-            setup = setup.__get__(func)
-            setattr(func, 'setup_class', setup)
-            return func
-
-        return copy_metadata(func, skipper)
-
-    return skip_decorator
 
 
 def knownfailureif(fail_condition, msg=None, known_exception_class=None):
@@ -70,5 +31,5 @@ def knownfailureif(fail_condition, msg=None, known_exception_class=None):
             if fail_condition and fail_condition != 'indeterminate':
                 raise KnownFailureDidNotFailTest(msg)
             return result
-        return copy_metadata(f, failer)
+        return _copy_metadata(f, failer)
     return known_fail_decorator
