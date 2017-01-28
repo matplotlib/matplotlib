@@ -179,9 +179,6 @@ def test_agg_filter():
             t2 = self.offset_filter.process_image(t1, dpi)
             return t2
 
-    if LooseVersion(np.__version__) < LooseVersion('1.7.0'):
-        pytest.skip('Disabled on Numpy < 1.7.0')
-
     fig = plt.figure()
     ax = fig.add_subplot(111)
 
