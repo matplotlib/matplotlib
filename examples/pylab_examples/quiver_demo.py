@@ -46,14 +46,4 @@ qk = plt.quiverkey(Q, 0.9, 1.05, 1, r'$1 \frac{m}{s}$',
 plt.plot(X, Y, 'k.', markersize=2)
 plt.axis([-1, 7, -1, 7])
 
-plt.figure()
-plt.title("triangular head; scale with x view; black edges")
-
-Q = plt.quiver(X[::3, ::3], Y[::3, ::3], U[::3, ::3], V[::3, ::3],
-               color='r', units='x',
-               linewidths=(0.5,), edgecolors=('k'), headaxislength=5)
-qk = plt.quiverkey(Q, 0.5, 0.03, 1, r'$1 \frac{m}{s}$',
-                   fontproperties={'weight': 'bold'})
-plt.axis([-1, 7, -1, 7])
-
 plt.show()
