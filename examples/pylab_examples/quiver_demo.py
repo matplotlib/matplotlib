@@ -56,24 +56,4 @@ qk = plt.quiverkey(Q, 0.5, 0.03, 1, r'$1 \frac{m}{s}$',
                    fontproperties={'weight': 'bold'})
 plt.axis([-1, 7, -1, 7])
 
-plt.figure()
-plt.title('Minimal arguments, no kwargs - masked values')
-
-M = np.zeros(U.shape, dtype='bool')
-XMaskStart = U.shape[0] // 3
-YMaskStart = U.shape[1] // 3
-XMaskStop = 2 * U.shape[0] // 3
-YMaskStop = 2 * U.shape[1] // 3
-
-M[XMaskStart:XMaskStop,
-  YMaskStart:YMaskStop] = True
-U = ma.masked_array(U, mask=M)
-V = ma.masked_array(V, mask=M)
-Q = plt.quiver(U, V)
-qk = plt.quiverkey(Q, 0.5, 0.96, 2, r'$2 \frac{m}{s}$', labelpos='W',
-                   fontproperties={'weight': 'bold'})
-l, r, b, t = plt.axis()
-dx, dy = r - l, t - b
-plt.axis([l - 0.05 * dx, r + 0.05 * dx, b - 0.05 * dy, t + 0.05 * dy])
-
 plt.show()
