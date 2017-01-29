@@ -313,6 +313,20 @@ value of ``None`` instead of ``2``. If ``None`` is given as ``zorder``,
 :func:`streamplot` has a default ``zorder`` of
 ``matplotlib.lines.Line2D.zorder``.
 
+.. _gc_get_hatch_color_wn:
+
+Extension to `matplotlib.backend_bases.GraphicsContextBase`
+-----------------------------------------------------------
+
+To support standardizing hatch behavior across the backends we ship
+the `matplotlib.backend_bases.GraphicsContextBase.get_hatch_color`
+method as added to `matplotlib.backend_bases.GraphicsContextBase`.
+This is only used during the render process in the backends we ship so
+will not break any third-party backends.
+
+If you maintain a third-party backend which extends
+`~matplotlib.backend_bases.GraphicsContextBase` this method is now
+available to you and should be used to color hatch patterns.
 
 Previous Whats New
 ==================
