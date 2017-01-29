@@ -116,7 +116,7 @@ install:
 
 test_script:
   # Now build the thing..
-  - '%CMD_IN_ENV% python setup.py develop'
+  - '%CMD_IN_ENV% pip install --no-deps -ve .'
   # these should show no z, png, or freetype dll...
   - set "DUMPBIN=%VS140COMNTOOLS%\..\..\VC\bin\dumpbin.exe"
   #- cmd: '"%DUMPBIN%" /DEPENDENTS lib\matplotlib\_png*.pyd'
