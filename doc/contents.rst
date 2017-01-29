@@ -8,6 +8,8 @@ Overview
     :Release: |version|
     :Date: |today|
 
+    Download `PDF <Matplotlib.pdf>`_
+
 
 .. toctree::
    :maxdepth: 2
