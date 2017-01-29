@@ -255,7 +255,8 @@ class MarkerStyle(object):
         elif (isinstance(marker, Sized) and len(marker) in (2, 3) and
                 marker[1] in (0, 1, 2, 3)):
             self._marker_function = self._set_tuple_marker
-        elif not isinstance(marker, list) and marker in self.markers:
+        elif (not isinstance(marker, (np.ndarray, list)) and
+              marker in self.markers):
             self._marker_function = getattr(
                 self, '_set_' + self.markers[marker])
         elif is_string_like(marker) and is_math_text(marker):
