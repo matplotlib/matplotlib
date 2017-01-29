@@ -1,4 +1,8 @@
 """
+===================
+Displaying an image
+===================
+
 Simple demo of the imshow function.
 """
 import matplotlib.pyplot as plt

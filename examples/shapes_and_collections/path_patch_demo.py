@@ -1,5 +1,7 @@
 """
-Demo of a PathPatch object.
+================
+PathPatch object
+================
 """
 import matplotlib.path as mpath
 import matplotlib.patches as mpatches

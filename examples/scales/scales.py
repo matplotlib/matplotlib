@@ -1,4 +1,8 @@
 """
+======
+Scales
+======
+
 Illustrate the scale transformations applied to axes, e.g. log, symlog, logit.
 """
 import numpy as np

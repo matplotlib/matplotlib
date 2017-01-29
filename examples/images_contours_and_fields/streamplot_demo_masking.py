@@ -1,5 +1,7 @@
 """
-Demo of the streamplot function with masking.
+================================
+Streamplot function with masking
+================================
 
 This example shows how streamlines created by the streamplot function skips
 masked regions and NaN values.
