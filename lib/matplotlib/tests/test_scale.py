@@ -29,6 +29,16 @@ def test_logit_scales():
 
 
 @cleanup
+def test_logit_tight_layout():
+    # Check that logit scale works with tight layout
+    fig, axs = plt.subplots(2, 2)
+
+    axs[1, 1].set_yscale('logit')
+    plt.tight_layout()
+    plt.draw()
+
+
+@cleanup
 def test_log_scatter():
     """Issue #1799"""
     fig, ax = plt.subplots(1)
