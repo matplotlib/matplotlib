@@ -52,6 +52,7 @@ files = dict()
 
 files['lines'] = [
     'barh_demo.py',
+    'cohere_demo',
     'fill_demo.py',
     'fill_demo_features.py',
     'line_demo_dash_control.py',
@@ -127,7 +128,6 @@ files['pylab'] = [
     'barcode_demo.py',
     'boxplot_demo.py',
     'broken_barh.py',
-    'cohere_demo.py',
     'color_by_yvalue.py',
     'color_demo.py',
     'colorbar_tick_labelling_demo.py',
