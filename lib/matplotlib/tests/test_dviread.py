@@ -52,7 +52,7 @@ def test_PsfontsMap(monkeypatch):
     # Missing font
     with pytest.raises(KeyError) as exc:
         fontmap[b'no-such-font']
-    assert b'no-such-font' in bytes(exc.value)
+    assert 'no-such-font' in str(exc.value)
 
 
 @skip_if_command_unavailable(["kpsewhich", "-version"])
