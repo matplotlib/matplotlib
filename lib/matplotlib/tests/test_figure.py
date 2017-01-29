@@ -58,12 +58,12 @@ def test_clf_keyword():
 
     fig1 = plt.figure(num=1, clear=False)
     fig1.text(0.5, 0.5, "Really fancy!")
-    assert_true(fig0 is fig1)
+    assert fig0 is fig1
     assert_equal([t.get_text() for t in fig1.texts],
                  ["A fancy plot", 'Really fancy!'])
 
     fig2, ax2 = plt.subplots(2, 1, num=1, clear=True)
-    assert_true(fig0 is fig2)
+    assert fig0 is fig2
     assert_equal([t.get_text() for t in fig2.texts], [])
 
 
