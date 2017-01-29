@@ -96,7 +96,7 @@ def test_make_compound_path_empty():
 def test_xkcd():
     np.random.seed(0)
 
-    x = np.linspace(0, 2.0 * np.pi, 100.0)
+    x = np.linspace(0, 2 * np.pi, 100)
     y = np.sin(x)
 
     with plt.xkcd():
