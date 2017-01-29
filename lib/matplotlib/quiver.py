@@ -63,7 +63,6 @@ arrow more pointed, reduce *headwidth* or increase *headlength* and
 *headaxislength*. To make the head smaller relative to the shaft,
 scale down all the head parameters. You will probably do best to leave
 minshaft alone.
-<<<<<<< HEAD
 
 *linewidths* and *edgecolors* can be used to customize the arrow
 outlines.
@@ -88,32 +87,6 @@ units : [ 'width' | 'height' | 'dots' | 'inches' | 'x' | 'y' | 'xy' ]
 
     'dots' or 'inches': pixels or inches, based on the figure dpi
 
-=======
-
-*linewidths* and *edgecolors* can be used to customize the arrow
-outlines.
-
-Parameters
-----------
-X : 1D or 2D array, sequence, optional
-    The x coordinates of the arrow locations
-Y : 1D or 2D array, sequence, optional
-    The y coordinates of the arrow locations
-U : 1D or 2D array or masked array, sequence
-    The x components of the arrow vectors
-V : 1D or 2D array or masked array, sequence
-    The y components of the arrow vectors
-C : 1D or 2D array, sequence, optional
-    The arrow colors
-units : [ 'width' | 'height' | 'dots' | 'inches' | 'x' | 'y' | 'xy' ]
-    The arrow dimensions (except for *length*) are measured in multiples of
-    this unit.
-
-    'width' or 'height': the width or height of the axis
-
-    'dots' or 'inches': pixels or inches, based on the figure dpi
-
->>>>>>> 430e308... Merge pull request #7913 from dstansby/quiver-doc
     'x', 'y', or 'xy': respectively *X*, *Y*, or :math:`\sqrt{X^2 + Y^2}`
     in data units
 
