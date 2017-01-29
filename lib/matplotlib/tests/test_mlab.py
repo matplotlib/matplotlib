@@ -4,6 +4,7 @@ from __future__ import (absolute_import, division, print_function,
 import six
 
 import tempfile
+import warnings
 
 from numpy.testing import (assert_allclose, assert_almost_equal,
                            assert_array_equal)
@@ -2102,6 +2103,14 @@ class Test_spectral_nosig_real_onesided(CleanupTestCase):
 
         assert spec.shape[0] == freqs.shape[0]
         assert spec.shape[1] == self.t_specgram.shape[0]
+
+    def test_specgram_warn_only1seg(self):
+        """Warning should be raised if len(x) <= len(NFFT). """
+        with warnings.catch_warnings(record=True) as w:
+            mlab.specgram(x=self.y, NFFT=len(self.y), Fs=self.Fs)
+        assert len(w) == 1
+        assert issubclass(w[0].category, UserWarning)
+        assert str(w[0].message).startswith("Only one segment is calculated")
 
     def test_psd_csd_equal(self):
         freqs = self.freqs_density
