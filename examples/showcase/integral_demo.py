@@ -1,5 +1,7 @@
 """
-Plot demonstrating the integral as the area under a curve.
+==================================
+Integral as the area under a curve
+==================================
 
 Although this is a simple example, it demonstrates some important tweaks:
 

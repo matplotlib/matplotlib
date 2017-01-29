@@ -1,4 +1,8 @@
 """
+============================
+Bachelor's degrees by gender
+============================
+
 A graph of multiple time series which demonstrates extensive custom
 styling of plot frame, tick lines and labels, and line graph properties.
 

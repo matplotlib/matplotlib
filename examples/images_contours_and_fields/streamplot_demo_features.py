@@ -1,4 +1,8 @@
 """
+==========
+Streamplot
+==========
+
 Demo of the `streamplot` function.
 
 A streamplot, or streamline plot, is used to display 2D vector fields. This
