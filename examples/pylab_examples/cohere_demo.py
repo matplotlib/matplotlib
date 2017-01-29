@@ -1,5 +1,9 @@
 """
-Compute the coherence of two signals
+=====================================
+Plotting the coherence of two signals
+=====================================
+
+An example showing how to plot the coherence of two signals.
 """
 import numpy as np
 import matplotlib.pyplot as plt
