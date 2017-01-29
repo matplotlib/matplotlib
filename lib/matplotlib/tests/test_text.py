@@ -411,3 +411,16 @@ def test_text_size_binding():
     matplotlib.rcParams['font.size'] = 100
 
     assert sz1 == fp.get_size_in_points()
+
+
+@image_comparison(baseline_images=['font_scaling'],
+                  extensions=['pdf'])
+def test_font_scaling():
+    matplotlib.rcParams['pdf.fonttype'] = 42
+    fig, ax = plt.subplots(figsize=(6.4, 12.4))
+    ax.xaxis.set_major_locator(plt.NullLocator())
+    ax.yaxis.set_major_locator(plt.NullLocator())
+    ax.set_ylim(-10, 600)
+
+    for i, fs in enumerate(range(4, 43, 2)):
+        ax.text(0.1, i*30, "{fs} pt font size".format(fs=fs), fontsize=fs)
