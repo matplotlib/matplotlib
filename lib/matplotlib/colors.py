@@ -58,9 +58,11 @@ are supported.
 
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
-import re
 import six
 from six.moves import zip
+
+from collections import Sized
+import re
 import warnings
 
 import numpy as np
@@ -693,12 +695,12 @@ class LinearSegmentedColormap(Colormap):
         if not cbook.iterable(colors):
             raise ValueError('colors must be iterable')
 
-        if cbook.iterable(colors[0]) and len(colors[0]) == 2 and \
-                not cbook.is_string_like(colors[0]):
+        if (isinstance(colors[0], Sized) and len(colors[0]) == 2
+                and not cbook.is_string_like(colors[0])):
             # List of value, color pairs
-            vals, colors = list(zip(*colors))
+            vals, colors = zip(*colors)
         else:
-            vals = np.linspace(0., 1., len(colors))
+            vals = np.linspace(0, 1, len(colors))
 
         cdict = dict(red=[], green=[], blue=[], alpha=[])
         for val, color in zip(vals, colors):

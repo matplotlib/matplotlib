@@ -33,7 +33,7 @@ import numpy as np
 
 from matplotlib import rcParams
 from matplotlib.artist import Artist, allow_rasterization
-from matplotlib.cbook import is_string_like, iterable, silent_list, is_hashable
+from matplotlib.cbook import is_string_like, silent_list, is_hashable
 from matplotlib.font_manager import FontProperties
 from matplotlib.lines import Line2D
 from matplotlib.patches import Patch, Rectangle, Shadow, FancyBboxPatch
@@ -409,17 +409,6 @@ class Legend(Artist):
         # _legend_box will draw itself at the location of the return
         # value of the find_offset.
         self._loc_real = loc
-        if loc == 0:
-            _findoffset = self._findoffset_best
-        else:
-            _findoffset = self._findoffset_loc
-
-#       def findoffset(width, height, xdescent, ydescent):
-#           return _findoffset(width, height, xdescent, ydescent, renderer)
-
-        self._legend_box.set_offset(_findoffset)
-
-        self._loc_real = loc
         self.stale = True
 
     def _get_loc(self):
@@ -427,24 +416,20 @@ class Legend(Artist):
 
     _loc = property(_get_loc, _set_loc)
 
-    def _findoffset_best(self, width, height, xdescent, ydescent, renderer):
-        "Helper function to locate the legend at its best position"
-        ox, oy = self._find_best_position(width, height, renderer)
-        return ox + xdescent, oy + ydescent
+    def _findoffset(self, width, height, xdescent, ydescent, renderer):
+        "Helper function to locate the legend"
 
-    def _findoffset_loc(self, width, height, xdescent, ydescent, renderer):
-        "Helper function to locate the legend using the location code"
-
-        if iterable(self._loc) and len(self._loc) == 2:
-            # when loc is a tuple of axes(or figure) coordinates.
-            fx, fy = self._loc
-            bbox = self.get_bbox_to_anchor()
-            x, y = bbox.x0 + bbox.width * fx, bbox.y0 + bbox.height * fy
-        else:
+        if self._loc == 0:  # "best".
+            x, y = self._find_best_position(width, height, renderer)
+        elif self._loc in Legend.codes.values():  # Fixed location.
             bbox = Bbox.from_bounds(0, 0, width, height)
             x, y = self._get_anchored_bbox(self._loc, bbox,
                                            self.get_bbox_to_anchor(),
                                            renderer)
+        else:  # Axes or figure coordinates.
+            fx, fy = self._loc
+            bbox = self.get_bbox_to_anchor()
+            x, y = bbox.x0 + bbox.width * fx, bbox.y0 + bbox.height * fy
 
         return x + xdescent, y + ydescent
 
@@ -701,6 +686,7 @@ class Legend(Artist):
                                    children=[self._legend_title_box,
                                              self._legend_handle_box])
         self._legend_box.set_figure(self.figure)
+        self._legend_box.set_offset(self._findoffset)
         self.texts = text_list
         self.legendHandles = handle_list
 
