@@ -52,7 +52,7 @@ files = dict()
 
 files['lines'] = [
     'barh_demo.py',
-    'cohere_demo',
+    'cohere_demo.py',
     'fill_demo.py',
     'fill_demo_features.py',
     'line_demo_dash_control.py',
