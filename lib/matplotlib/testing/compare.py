@@ -217,7 +217,7 @@ def convert(filename, cache):
 verifiers = {}
 
 # Turning this off, because it seems to cause multiprocessing issues
-if matplotlib.checkdep_xmllint() and False:
+if False and matplotlib.checkdep_xmllint():
     verifiers['svg'] = lambda filename: [
         'xmllint', '--valid', '--nowarning', '--noout', filename]
 

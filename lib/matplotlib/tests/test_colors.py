@@ -3,10 +3,11 @@ from __future__ import (absolute_import, division, print_function,
 
 import six
 import itertools
-import pytest
+import warnings
 from distutils.version import LooseVersion as V
 
 import numpy as np
+import pytest
 
 from numpy.testing import assert_equal
 from numpy.testing.utils import assert_array_equal, assert_array_almost_equal
@@ -611,7 +612,10 @@ def test_colormap_reversing():
     """Check the generated _lut data of a colormap and corresponding
     reversed colormap if they are almost the same."""
     for name in cm.cmap_d:
-        cmap = plt.get_cmap(name)
+        with warnings.catch_warnings(record=True) as w:
+            warnings.simplefilter('always')
+            cmap = plt.get_cmap(name)
+        assert len(w) == (1 if name in ('spectral', 'spectral_r') else 0)
         cmap_r = cmap.reversed()
         if not cmap_r._isinit:
             cmap._init()
