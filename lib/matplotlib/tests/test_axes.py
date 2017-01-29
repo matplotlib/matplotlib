@@ -144,6 +144,42 @@ def test_twinx_cla():
     assert ax.yaxis.get_visible()
 
 
+@image_comparison(baseline_images=['twin_autoscale'], extensions=['png'])
+def test_twinx_axis_scales():
+    x = np.array([0, 0.5, 1])
+    y = 0.5 * x
+    x2 = np.array([0, 1, 2])
+    y2 = 2 * x2
+
+    fig = plt.figure()
+    ax = fig.add_axes((0, 0, 1, 1), autoscalex_on=False, autoscaley_on=False)
+    ax.plot(x, y, color='blue', lw=10)
+
+    ax2 = plt.twinx(ax)
+    ax2.plot(x2, y2, 'r--', lw=5)
+
+    ax.margins(0, 0)
+    ax2.margins(0, 0)
+
+
+@cleanup
+def test_twin_inherit_autoscale_setting():
+    fig, ax = plt.subplots()
+    ax_x_on = ax.twinx()
+    ax.set_autoscalex_on(False)
+    ax_x_off = ax.twinx()
+
+    assert ax_x_on.get_autoscalex_on()
+    assert not ax_x_off.get_autoscalex_on()
+
+    ax_y_on = ax.twiny()
+    ax.set_autoscaley_on(False)
+    ax_y_off = ax.twiny()
+
+    assert ax_y_on.get_autoscaley_on()
+    assert not ax_y_off.get_autoscaley_on()
+
+
 @image_comparison(baseline_images=["minorticks_on_rcParams_both"], extensions=['png'])
 def test_minorticks_on_rcParams_both():
     fig = plt.figure()
