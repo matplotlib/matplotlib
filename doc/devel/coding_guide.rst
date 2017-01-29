@@ -62,8 +62,8 @@ PR Review guidelines
 
 * Make sure the Travis tests are passing before merging.
 
-  - The Travis tests automatically test the code on all of the Python versions
-    Matplotlib supports when a pull request is created or updated.
+  - Whenever a pull request is created or updated, Travis automatically runs 
+    the test suite on all versions of Python supported by Matplotlib.
     The `tox` support in Matplotlib may be useful for testing locally.
 
 * Do not self merge, except for 'small' patches to un-break the CI.
