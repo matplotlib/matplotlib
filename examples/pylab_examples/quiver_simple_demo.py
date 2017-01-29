@@ -1,4 +1,8 @@
-'''A simple example of a quiver plot with a quiverkey.'''
+'''
+==================================================
+A simple example of a quiver plot with a quiverkey
+==================================================
+'''
 import matplotlib.pyplot as plt
 import numpy as np
 
