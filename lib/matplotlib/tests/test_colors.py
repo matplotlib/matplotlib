@@ -612,10 +612,13 @@ def test_pandas_iterable():
 def test_colormap_reversing(name):
     """Check the generated _lut data of a colormap and corresponding
     reversed colormap if they are almost the same."""
+    should_have_warning = {'spectral', 'spectral_r', 'Vega10', 'Vega10_r',
+                           'Vega20', 'Vega20_r', 'Vega20b', 'Vega20b_r',
+                           'Vega20c', 'Vega20c_r'}
     with warnings.catch_warnings(record=True) as w:
         warnings.simplefilter('always')
         cmap = plt.get_cmap(name)
-    assert len(w) == (1 if name in ('spectral', 'spectral_r') else 0)
+    assert len(w) == (1 if name in should_have_warning else 0)
     cmap_r = cmap.reversed()
     if not cmap_r._isinit:
         cmap._init()
