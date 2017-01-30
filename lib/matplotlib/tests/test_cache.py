@@ -6,91 +6,78 @@ except ImportError:
     import mock
 
 import os
-import shutil
-import stat
-import tempfile
-
-from nose.tools import raises
 
 from matplotlib import cbook
 from matplotlib.testing._conversion_cache import _ConversionCache, _CacheError
+import pytest
 
 
-def test_cache_basic():
-    tmpdir = tempfile.mkdtemp()
-
+def test_cache_basic(tmpdir):
     def intmp(f):
-        return os.path.join(tmpdir, f)
+        return tmpdir.join(f)
+    def fname(f):
+        return str(intmp(f))
     try:
-        cache = _ConversionCache(intmp('cache'))
-        with open(intmp('fake.pdf'), 'w') as pdf:
-            pdf.write('this is a fake pdf file')
-        with open(intmp('fake.svg'), 'w') as svg:
-            svg.write('this pretends to be an svg file')
-
-        assert not cache.get(intmp('fake.pdf'), intmp('fakepdf.png'))
-        assert not cache.get(intmp('fake.svg'), intmp('fakesvg.png'))
+        cache = _ConversionCache(fname('cache'))
+        intmp('fake.pdf').write_binary(b'this is a fake pdf file')
+        intmp('fake.svg').write_binary(b'this pretends to be an svg file')
+        assert not cache.get(fname('fake.pdf'), fname('fakepdf.png'))
+        assert not cache.get(fname('fake.svg'), fname('fakesvg.png'))
         assert cache.report() == \
-            {'gets': {intmp('fake.pdf'), intmp('fake.svg')},
+            {'gets': {fname('fake.pdf'), fname('fake.svg')},
              'hits': set()}
 
-        with open(intmp('fakepdf.png'), 'w') as png:
-            png.write('generated from the pdf file')
-        cache.put(intmp('fake.pdf'), intmp('fakepdf.png'))
-        assert cache.get(intmp('fake.pdf'), intmp('copypdf.png'))
-        with open(intmp('copypdf.png'), 'r') as copy:
-            assert copy.read() == 'generated from the pdf file'
+        intmp('fakepdf.png').write_binary(b'generated from the pdf file')
+        cache.put(fname('fake.pdf'), fname('fakepdf.png'))
+        assert cache.get(fname('fake.pdf'), fname('copypdf.png'))
+        assert intmp('copypdf.png').read() == 'generated from the pdf file'
         assert cache.report() == \
-            {'gets': {intmp('fake.pdf'), intmp('fake.svg')},
-             'hits': set([intmp('fake.pdf')])}
+            {'gets': {fname('fake.pdf'), fname('fake.svg')},
+             'hits': {fname('fake.pdf')}}
 
-        with open(intmp('fakesvg.png'), 'w') as png:
-            png.write('generated from the svg file')
-        cache.put(intmp('fake.svg'), intmp('fakesvg.png'))
-        assert cache.get(intmp('fake.svg'), intmp('copysvg.png'))
-        with open(intmp('copysvg.png'), 'r') as copy:
-            assert copy.read() == 'generated from the svg file'
+        intmp('fakesvg.png').write_binary(b'generated from the svg file')
+        cache.put(fname('fake.svg'), fname('fakesvg.png'))
+        assert cache.get(fname('fake.svg'), fname('copysvg.png'))
+        assert intmp('copysvg.png').read() == 'generated from the svg file'
         assert cache.report() == \
-            {'gets': {intmp('fake.pdf'), intmp('fake.svg')},
-             'hits': {intmp('fake.pdf'), intmp('fake.svg')}}
+            {'gets': {fname('fake.pdf'), fname('fake.svg')},
+             'hits': {fname('fake.pdf'), fname('fake.svg')}}
     finally:
-        shutil.rmtree(tmpdir)
+        tmpdir.remove(rec=1)
 
 
-def test_cache_expire():
-    tmpdir = tempfile.mkdtemp()
-
+def test_cache_expire(tmpdir):
     def intmp(*f):
-        return os.path.join(tmpdir, *f)
+        return tmpdir.join(*f)
+    def fname(*f):
+        return str(intmp(*f))
     try:
-        cache = _ConversionCache(intmp('cache'), 10)
+        cache = _ConversionCache(fname('cache'), 10)
         for i in range(5):
-            filename = intmp('cache', 'file%d.png' % i)
-            with open(filename, 'w') as f:
-                f.write('1234')
-            os.utime(filename, (i*1000, i*1000))
+            pngfile = intmp('cache', 'file%d.png' % i)
+            pngfile.write_binary(b'1234')
+            os.utime(str(pngfile), (i*1000, i*1000))
 
         cache.expire()
-        assert not os.path.exists(intmp('cache', 'file0.png'))
-        assert not os.path.exists(intmp('cache', 'file1.png'))
-        assert not os.path.exists(intmp('cache', 'file2.png'))
-        assert os.path.exists(intmp('cache', 'file3.png'))
-        assert os.path.exists(intmp('cache', 'file4.png'))
+        assert not os.path.exists(fname('cache', 'file0.png'))
+        assert not os.path.exists(fname('cache', 'file1.png'))
+        assert not os.path.exists(fname('cache', 'file2.png'))
+        assert os.path.exists(fname('cache', 'file3.png'))
+        assert os.path.exists(fname('cache', 'file4.png'))
 
-        with open(intmp('cache', 'onemore.png'), 'w') as f:
-            f.write('x' * 11)
-        os.utime(intmp('cache', 'onemore.png'), (5000, 5000))
+        intmp('cache', 'onemore.png').write_binary(b'x' * 11)
+        os.utime(fname('cache', 'onemore.png'), (5000, 5000))
 
         cache.expire()
-        assert not os.path.exists(intmp('cache', 'file0.png'))
-        assert not os.path.exists(intmp('cache', 'file1.png'))
-        assert not os.path.exists(intmp('cache', 'file2.png'))
-        assert not os.path.exists(intmp('cache', 'file3.png'))
-        assert not os.path.exists(intmp('cache', 'file4.png'))
-        assert not os.path.exists(intmp('cache', 'onemore.png'))
+        assert not os.path.exists(fname('cache', 'file0.png'))
+        assert not os.path.exists(fname('cache', 'file1.png'))
+        assert not os.path.exists(fname('cache', 'file2.png'))
+        assert not os.path.exists(fname('cache', 'file3.png'))
+        assert not os.path.exists(fname('cache', 'file4.png'))
+        assert not os.path.exists(fname('cache', 'onemore.png'))
 
     finally:
-        shutil.rmtree(tmpdir)
+        tmpdir.remove(rec=1)
 
 
 def test_cache_default_dir():
@@ -101,25 +88,23 @@ def test_cache_default_dir():
         pass
 
 
-@raises(_CacheError)
 @mock.patch('matplotlib.testing._conversion_cache.cbook.mkdirs',
             side_effect=OSError)
-def test_cache_mkdir_error(mkdirs):
-    tmpdir = tempfile.mkdtemp()
-    try:
-        c = _ConversionCache(os.path.join(tmpdir, 'cache'))
-    finally:
-        shutil.rmtree(tmpdir)
+def test_cache_mkdir_error(mkdirs, tmpdir):
+    with pytest.raises(_CacheError):
+        try:
+            c = _ConversionCache(str(tmpdir.join('cache')))
+        finally:
+            tmpdir.remove(rec=1)
 
 
-@raises(_CacheError)
 @mock.patch('matplotlib.testing._conversion_cache.os.access',
             side_effect=[False])
-def test_cache_unwritable_error(access):
-    tmpdir = tempfile.mkdtemp()
-    cachedir = os.path.join(tmpdir, 'test_cache')
-    try:
-        cbook.mkdirs(cachedir)
-        c = _ConversionCache(cachedir)
-    finally:
-        shutil.rmtree(tmpdir)
+def test_cache_unwritable_error(access, tmpdir):
+    with pytest.raises(_CacheError):
+        cachedir = tmpdir.join('cache')
+        cachedir.ensure(dir=True)
+        try:
+            c = _ConversionCache(str(cachedir))
+        finally:
+            tmpdir.remove(rec=1)
