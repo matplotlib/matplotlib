@@ -608,19 +608,22 @@ def test_pandas_iterable():
     assert_array_equal(cm1.colors, cm2.colors)
 
 
-def test_colormap_reversing():
+@pytest.mark.parametrize('name', cm.cmap_d)
+def test_colormap_reversing(name):
     """Check the generated _lut data of a colormap and corresponding
     reversed colormap if they are almost the same."""
-    for name in cm.cmap_d:
-        with warnings.catch_warnings(record=True) as w:
-            warnings.simplefilter('always')
-            cmap = plt.get_cmap(name)
-        assert len(w) == (1 if name in ('spectral', 'spectral_r') else 0)
-        cmap_r = cmap.reversed()
-        if not cmap_r._isinit:
-            cmap._init()
-            cmap_r._init()
-        assert_array_almost_equal(cmap._lut[:-3], cmap_r._lut[-4::-1])
+    should_have_warning = {'spectral', 'spectral_r', 'Vega10', 'Vega10_r',
+                           'Vega20', 'Vega20_r', 'Vega20b', 'Vega20b_r',
+                           'Vega20c', 'Vega20c_r'}
+    with warnings.catch_warnings(record=True) as w:
+        warnings.simplefilter('always')
+        cmap = plt.get_cmap(name)
+    assert len(w) == (1 if name in should_have_warning else 0)
+    cmap_r = cmap.reversed()
+    if not cmap_r._isinit:
+        cmap._init()
+        cmap_r._init()
+    assert_array_almost_equal(cmap._lut[:-3], cmap_r._lut[-4::-1])
 
 
 @cleanup
