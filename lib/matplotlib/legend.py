@@ -909,47 +909,25 @@ class Legend(Artist):
                                                 renderer)
                         for x in range(1, len(self.codes))]
 
-#       tx, ty = self.legendPatch.get_x(), self.legendPatch.get_y()
-
         candidates = []
-        for l, b in consider:
+        for idx, (l, b) in enumerate(consider):
             legendBox = Bbox.from_bounds(l, b, width, height)
             badness = 0
             # XXX TODO: If markers are present, it would be good to
-            # take their into account when checking vertex overlaps in
+            # take them into account when checking vertex overlaps in
             # the next line.
-            badness = legendBox.count_contains(verts)
-            badness += legendBox.count_contains(offsets)
-            badness += legendBox.count_overlaps(bboxes)
-            for line in lines:
-                # FIXME: the following line is ill-suited for lines
-                # that 'spiral' around the center, because the bbox
-                # may intersect with the legend even if the line
-                # itself doesn't. One solution would be to break up
-                # the line into its straight-segment components, but
-                # this may (or may not) result in a significant
-                # slowdown if lines with many vertices are present.
-                if line.intersects_bbox(legendBox):
-                    badness += 1
-
-            ox, oy = l, b
+            badness = (legendBox.count_contains(verts)
+                       + legendBox.count_contains(offsets)
+                       + legendBox.count_overlaps(bboxes)
+                       + sum(line.intersects_bbox(legendBox, filled=False)
+                             for line in lines))
             if badness == 0:
-                return ox, oy
+                return l, b
+            # Include the index to favor lower codes in case of a tie.
+            candidates.append((badness, idx, (l, b)))
 
-            candidates.append((badness, (l, b)))
-
-        # rather than use min() or list.sort(), do this so that we are assured
-        # that in the case of two equal badnesses, the one first considered is
-        # returned.
-        # NOTE: list.sort() is stable.But leave as it is for now. -JJL
-        minCandidate = candidates[0]
-        for candidate in candidates:
-            if candidate[0] < minCandidate[0]:
-                minCandidate = candidate
-
-        ox, oy = minCandidate[1]
-
-        return ox, oy
+        _, _, (l, b) = min(candidates)
+        return l, b
 
     def contains(self, event):
         return self.legendPatch.contains(event)
