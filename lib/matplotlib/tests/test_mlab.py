@@ -360,10 +360,10 @@ class Test_csv(CleanupTestCase):
         assert len(array.dtype) == 3
 
     def test_csv2rec_usdate(self):
-        self.fd.write('01/11/14\n' +
-                      '03/05/76 12:00:01 AM\n' +
-                      '07/09/83 5:17:34 PM\n' +
-                      '06/20/2054 2:31:45 PM\n' +
+        self.fd.write('01/11/14\n'
+                      '03/05/76 12:00:01 AM\n'
+                      '07/09/83 5:17:34 PM\n'
+                      '06/20/2054 2:31:45 PM\n'
                       '10/31/00 11:50:23 AM\n')
         expected = [datetime.datetime(2014, 1, 11, 0, 0),
                     datetime.datetime(1976, 3, 5, 0, 0, 1),
@@ -376,9 +376,9 @@ class Test_csv(CleanupTestCase):
 
     def test_csv2rec_dayfirst(self):
         self.fd.write('11/01/14\n' +
-                      '05/03/76 12:00:01 AM\n' +
-                      '09/07/83 5:17:34 PM\n' +
-                      '20/06/2054 2:31:45 PM\n' +
+                      '05/03/76 12:00:01 AM\n'
+                      '09/07/83 5:17:34 PM\n'
+                      '20/06/2054 2:31:45 PM\n'
                       '31/10/00 11:50:23 AM\n')
         expected = [datetime.datetime(2014, 1, 11, 0, 0),
                     datetime.datetime(1976, 3, 5, 0, 0, 1),
@@ -390,10 +390,10 @@ class Test_csv(CleanupTestCase):
         assert_array_equal(array['a'].tolist(), expected)
 
     def test_csv2rec_yearfirst(self):
-        self.fd.write('14/01/11\n' +
-                      '76/03/05 12:00:01 AM\n' +
-                      '83/07/09 5:17:34 PM\n' +
-                      '2054/06/20 2:31:45 PM\n' +
+        self.fd.write('14/01/11\n'
+                      '76/03/05 12:00:01 AM\n'
+                      '83/07/09 5:17:34 PM\n'
+                      '2054/06/20 2:31:45 PM\n'
                       '00/10/31 11:50:23 AM\n')
         expected = [datetime.datetime(2014, 1, 11, 0, 0),
                     datetime.datetime(1976, 3, 5, 0, 0, 1),
@@ -2105,7 +2105,7 @@ class Test_spectral_nosig_real_onesided(CleanupTestCase):
         assert spec.shape[1] == self.t_specgram.shape[0]
 
     def test_specgram_warn_only1seg(self):
-        """Warning should be raised if len(x) <= len(NFFT). """
+        """Warning should be raised if len(x) <= NFFT. """
         with warnings.catch_warnings(record=True) as w:
             mlab.specgram(x=self.y, NFFT=len(self.y), Fs=self.Fs)
         assert len(w) == 1
