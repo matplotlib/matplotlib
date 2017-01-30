@@ -1505,8 +1505,8 @@ def _init_tests():
             "Expected freetype version {0}. "
             "Found freetype version {1}. "
             "Freetype build type is {2}local".format(
-                ft2font.__freetype_version__,
                 LOCAL_FREETYPE_VERSION,
+                ft2font.__freetype_version__,
                 "" if ft2font.__freetype_build_type__ == 'local' else "not "
             )
         )

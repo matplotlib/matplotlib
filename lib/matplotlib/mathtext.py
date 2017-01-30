@@ -2877,21 +2877,18 @@ class Parser(object):
                 return toks[0] # .asList()
             else:
                 nucleus = toks[0]
-        elif len(toks) == 2:
-            op, next = toks
-            nucleus = Hbox(0.0)
+        elif len(toks) in (2, 3):
+            # single subscript or superscript
+            nucleus = toks[0] if len(toks) == 3 else Hbox(0.0)
+            op, next = toks[-2:]
             if op == '_':
                 sub = next
             else:
                 super = next
-        elif len(toks) == 3:
-            nucleus, op, next = toks
-            if op == '_':
-                sub = next
-            else:
-                super = next
-        elif len(toks) == 5:
-            nucleus, op1, next1, op2, next2 = toks
+        elif len(toks) in (4, 5):
+            # subscript and superscript
+            nucleus = toks[0] if len(toks) == 5 else Hbox(0.0)
+            op1, next1, op2, next2 = toks[-4:]
             if op1 == op2:
                 if op1 == '_':
                     raise ParseFatalException("Double subscript")
