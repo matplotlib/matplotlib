@@ -15,8 +15,10 @@ import pytest
 def test_cache_basic(tmpdir):
     def intmp(f):
         return tmpdir.join(f)
+
     def fname(f):
         return str(intmp(f))
+
     try:
         cache = _ConversionCache(fname('cache'))
         intmp('fake.pdf').write_binary(b'this is a fake pdf file')
@@ -49,8 +51,10 @@ def test_cache_basic(tmpdir):
 def test_cache_expire(tmpdir):
     def intmp(*f):
         return tmpdir.join(*f)
+
     def fname(*f):
         return str(intmp(*f))
+
     try:
         cache = _ConversionCache(fname('cache'), 10)
         for i in range(5):
