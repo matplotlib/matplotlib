@@ -61,16 +61,12 @@ class _ConversionCache(object):
         self.max_size = max_size
         self.cached_ext = '.png'
         self.converter_version = {}
-        try:
-            self.converter_version['.pdf'] = \
-                checkdep_ghostscript()[1].encode('utf-8')
-        except:
-            pass
-        try:
-            self.converter_version['.svg'] = \
-                checkdep_inkscape().encode('utf-8')
-        except:
-            pass
+        _, gs_version = checkdep_ghostscript()
+        if gs_version is not None:
+            self.converter_version['.pdf'] = gs_version.encode('utf-8')
+        is_version = checkdep_inkscape()
+        if is_version is not None:
+            self.converter_version['.svg'] = is_version.encode('utf-8')
         self.hash_cache = {}
 
     def get(self, filename, newname):
