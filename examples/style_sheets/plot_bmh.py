@@ -12,6 +12,7 @@ This example demonstrates the style used in the Bayesian Methods for Hackers
 from numpy.random import beta
 import matplotlib.pyplot as plt
 
+
 plt.style.use('bmh')
 
 

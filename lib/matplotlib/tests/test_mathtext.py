@@ -109,6 +109,7 @@ math_tests = [
     r'$6-2$; $-2$; $ -2$; ${-2}$; ${  -2}$; $20^{+3}_{-2}$',
     r'$\overline{\omega}^x \frac{1}{2}_0^x$', # github issue #5444
     r'$,$ $.$ $1{,}234{, }567{ , }890$ and $1,234,567,890$', # github issue 5799
+    r'$\left(X\right)_{a}^{b}$', # github issue 7615
 ]
 
 digits = "0123456789"
