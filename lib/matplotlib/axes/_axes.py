@@ -2114,12 +2114,6 @@ or tuple of floats
 
         args = zip(left, bottom, width, height, color, edgecolor, linewidth)
         for l, b, w, h, c, e, lw in args:
-            if h < 0:
-                b += h
-                h = abs(h)
-            if w < 0:
-                l += w
-                w = abs(w)
             r = mpatches.Rectangle(
                 xy=(l, b), width=w, height=h,
                 facecolor=c,
