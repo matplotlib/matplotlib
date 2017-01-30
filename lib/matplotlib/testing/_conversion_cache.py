@@ -46,7 +46,9 @@ class _ConversionCache(object):
     """
 
     def __init__(self, directory=None, max_size=int(1e8)):
+        # gets is the set of filenames queried from the cache
         self.gets = set()
+        # hits is the set of filenames found in the cache when queried
         self.hits = set()
         if directory is not None:
             self.cachedir = directory

@@ -121,12 +121,12 @@ def comparable_formats():
     return ['png'] + list(converter)
 
 
-@cbook.deprecated('2.1', addendum='Use _ConversionCache instead')
+@cbook.deprecated('2.1')
 def get_cache_dir():
     return ccache._ConversionCache.get_cache_dir()
 
 
-@cbook.deprecated('2.1', addendum='Use _ConversionCache instead')
+@cbook.deprecated('2.1')
 def get_file_hash(path, block_size=2 ** 20):
     if path.endswith('.pdf'):
         from matplotlib import checkdep_ghostscript
