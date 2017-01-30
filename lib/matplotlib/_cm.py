@@ -1384,11 +1384,11 @@ class _deprecation_datad(dict):
                      "Vega20b_r", "Vega20c", "Vega20c_r"]:
             warn_deprecated(
                 "2.0",
-                name="Vega colormaps",
-                alternative="tab",
+                name=key,
+                alternative="tab" + key[4:],
                 obj_type="colormap"
                 )
- 
+
         return super(_deprecation_datad, self).__getitem__(key)
 
 
