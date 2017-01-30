@@ -20,7 +20,7 @@ def test_units_rectangle():
     import matplotlib.testing.jpl_units as U
     U.register()
 
-    p = mpatches.Rectangle( ( 5*U.km, 6*U.km ), 1*U.km, 2*U.km )
+    p = mpatches.Rectangle((5*U.km, 6*U.km), 1*U.km, 2*U.km)
 
     fig = plt.figure()
     ax = plt.subplot(111)
