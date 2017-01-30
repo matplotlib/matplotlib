@@ -3,26 +3,23 @@ Tick locating and formatting
 ============================
 
 This module contains classes to support completely configurable tick
-locating and formatting.  Although the locators know nothing about major
+locating and formatting. Although the locators know nothing about major
 or minor ticks, they are used by the Axis class to support major and
-minor tick locating and formatting.  Generic tick locators and
+minor tick locating and formatting. Generic tick locators and
 formatters are provided, as well as domain specific custom ones.
-
 
 Default Formatter
 -----------------
 
-The default formatter identifies when the x-data being
-plotted is a small range on top of a large off set.  To
-reduce the chances that the ticklabels overlap the ticks
-are labeled as deltas from a fixed offset.  For example::
+The default formatter identifies when the x-data being plotted is a
+small range on top of a large off set. To reduce the chances that the
+ticklabels overlap the ticks are labeled as deltas from a fixed offset.
+For example::
 
    ax.plot(np.arange(2000, 2010), range(10))
 
-will have tick of 0-9 with an offset of +2e3.  If this
-is not desired turn off the use of the offset on the default
-formatter::
-
+will have tick of 0-9 with an offset of +2e3. If this is not desired
+turn off the use of the offset on the default formatter::
 
    ax.get_xaxis().get_major_formatter().set_useOffset(False)
 
@@ -32,11 +29,11 @@ globally, or set a different formatter.
 Tick locating
 -------------
 
-The Locator class is the base class for all tick locators.  The locators
+The Locator class is the base class for all tick locators. The locators
 handle autoscaling of the view limits based on the data limits, and the
-choosing of tick locations.  A useful semi-automatic tick locator is
-MultipleLocator.  You initialize this with a base, e.g., 10, and it
-picks axis limits and ticks that are multiples of your base.
+choosing of tick locations. A useful semi-automatic tick locator is
+`MultipleLocator`. It is initialized with a base, e.g., 10, and it picks
+axis limits and ticks that are multiples of that base.
 
 The Locator subclasses defined here are
 
@@ -61,8 +58,8 @@ The Locator subclasses defined here are
     inside the limits
 
 :class:`MultipleLocator`
-    ticks and range are a multiple of base;
-                  either integer or float
+    ticks and range are a multiple of base; either integer or float
+
 :class:`OldAutoLocator`
     choose a MultipleLocator and dyamically reassign it for
     intelligent ticking during navigation
@@ -76,7 +73,7 @@ The Locator subclasses defined here are
 
 :class:`AutoMinorLocator`
     locator for minor ticks when the axis is linear and the
-    major ticks are uniformly spaced.  It subdivides the major
+    major ticks are uniformly spaced. It subdivides the major
     tick interval into a specified number of minor intervals,
     defaulting to 4 or 5 depending on the major interval.
 
@@ -87,13 +84,13 @@ The Locator subclasses defined here are
 There are a number of locators specialized for date locations - see
 the dates module
 
-You can define your own locator by deriving from Locator.  You must
-override the __call__ method, which returns a sequence of locations,
+You can define your own locator by deriving from Locator. You must
+override the ``__call__`` method, which returns a sequence of locations,
 and you will probably want to override the autoscale method to set the
 view limits from the data limits.
 
 If you want to override the default locator, use one of the above or a
-custom locator and pass it to the x or y axis instance.  The relevant
+custom locator and pass it to the x or y axis instance. The relevant
 methods are::
 
   ax.xaxis.set_major_locator( xmajorLocator )
@@ -107,7 +104,7 @@ default.
 Tick formatting
 ---------------
 
-Tick formatting is controlled by classes derived from Formatter.  The
+Tick formatting is controlled by classes derived from Formatter. The
 formatter operates on a single tick value and returns a string to the
 axis.
 
@@ -155,7 +152,7 @@ axis.
     Format labels as a percentage
 
 You can derive your own formatter from the Formatter base class by
-simply overriding the ``__call__`` method.  The formatter class has
+simply overriding the ``__call__`` method. The formatter class has
 access to the axis view and data limits.
 
 To control the major and minor tick label formats, use one of the
@@ -167,7 +164,7 @@ following methods::
   ax.yaxis.set_minor_formatter( yminorFormatter )
 
 See :ref:`pylab_examples-major_minor_demo1` for an example of setting
-major and minor ticks.  See the :mod:`matplotlib.dates` module for
+major and minor ticks. See the :mod:`matplotlib.dates` module for
 more information and examples of using date locators and formatters.
 """
 
