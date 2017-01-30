@@ -1,4 +1,8 @@
 """
+==================
+Colormap reference
+==================
+
 Reference for colormaps included with Matplotlib.
 
 This reference example shows all colormaps included with Matplotlib. Note that
@@ -35,9 +39,9 @@ Miscellaneous:
 import numpy as np
 import matplotlib.pyplot as plt
 
+
 # Have colormaps separated into categories:
 # http://matplotlib.org/examples/color/colormaps_reference.html
-
 cmaps = [('Perceptually Uniform Sequential',
                             ['viridis', 'inferno', 'plasma', 'magma']),
          ('Sequential',     ['Blues', 'BuGn', 'BuPu',
@@ -65,7 +69,7 @@ gradient = np.linspace(0, 1, 256)
 gradient = np.vstack((gradient, gradient))
 
 
-def plot_color_gradients(cmap_category, cmap_list):
+def plot_color_gradients(cmap_category, cmap_list, nrows):
     fig, axes = plt.subplots(nrows=nrows)
     fig.subplots_adjust(top=0.95, bottom=0.01, left=0.2, right=0.99)
     axes[0].set_title(cmap_category + ' colormaps', fontsize=14)
@@ -81,7 +85,8 @@ def plot_color_gradients(cmap_category, cmap_list):
     for ax in axes:
         ax.set_axis_off()
 
+
 for cmap_category, cmap_list in cmaps:
-    plot_color_gradients(cmap_category, cmap_list)
+    plot_color_gradients(cmap_category, cmap_list, nrows)
 
 plt.show()

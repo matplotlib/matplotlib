@@ -86,7 +86,7 @@ a colon, e.g., (this is assuming the test is installed)::
 If you want to run the full test suite, but want to save wall time try
 running the tests in parallel::
 
-  python tests.py --nocapture --nose-verbose --processes=5 --process-timeout=300
+  python tests.py --nocapture --verbose --processes=5 --process-timeout=300
 
 
 An alternative implementation that does not look at command line
