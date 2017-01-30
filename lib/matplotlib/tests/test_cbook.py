@@ -34,9 +34,6 @@ def test_is_string_like():
     y = np.array(y)
     assert not cbook.is_string_like(y)
 
-    y = np.array(y, dtype=object)
-    assert cbook.is_string_like(y)
-
 
 def test_is_sequence_of_strings():
     y = ['a', 'b', 'c']
