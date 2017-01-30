@@ -83,7 +83,8 @@ LUTSIZE = mpl.rcParams['image.lut']
 
 # Generate the reversed specifications ...
 for cmapname in list(six.iterkeys(datad)):
-    spec = datad[cmapname]
+    # Use superclass method to avoid deprecation warnings during initial load.
+    spec = dict.__getitem__(datad, cmapname)
     spec_reversed = _reverse_cmap_spec(spec)
     datad[cmapname + '_r'] = spec_reversed
 
