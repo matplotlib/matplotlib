@@ -203,9 +203,11 @@ def _raise_on_image_difference(expected, actual, tol):
         raise ImageComparisonFailure('image does not exist: %s' % expected)
 
     if err:
+        for key in ["actual", "expected"]:
+            err[key] = os.path.relpath(err[key])
         raise ImageComparisonFailure(
-            'images not close: %(actual)s vs. %(expected)s '
-            '(RMS %(rms).3f)' % err)
+            'images not close (RMS %(rms).3f):\n\t%(actual)s\n\t%(expected)s '
+             % err)
 
 
 def _xfail_if_format_is_uncomparable(extension):
