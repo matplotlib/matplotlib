@@ -52,12 +52,11 @@ matrix:
     - python: 3.4
     - python: 3.5
       env: PANDAS=pandas DELETE_FONT_CACHE=1
+    - python: 3.6   
     - python: 2.7
       env: TEST_ARGS=--pep8
     - python: 2.7
       env: BUILD_DOCS=true MOCK=mock
-    - python: "3.6-dev"
-      env: PRE=--pre
     - python: "nightly"
       env: PRE=--pre
   allow_failures:
