@@ -6,6 +6,16 @@ import pytest
 import matplotlib
 
 
+def pytest_configure(config):
+    matplotlib.use('agg')
+    matplotlib._called_from_pytest = True
+    matplotlib._init_tests()
+
+
+def pytest_unconfigure(config):
+    matplotlib._called_from_pytest = False
+
+
 @pytest.fixture(autouse=True)
 def mpl_test_settings(request):
     from matplotlib.testing.decorators import _do_cleanup
