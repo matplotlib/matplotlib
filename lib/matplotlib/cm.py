@@ -124,7 +124,7 @@ def register_cmap(name=None, cmap=None, data=None, lut=None):
         except AttributeError:
             raise ValueError("Arguments must include a name or a Colormap")
 
-    if not cbook.is_string_like(name):
+    if not isinstance(name, six.string_types):
         raise ValueError("Colormap name must be a string")
 
     if isinstance(cmap, colors.Colormap):

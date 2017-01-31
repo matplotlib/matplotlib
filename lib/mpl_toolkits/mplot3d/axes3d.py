@@ -2342,7 +2342,7 @@ class Axes3D(Axes):
         s = np.ma.ravel(s)  # This doesn't have to match x, y in size.
 
         if c is not None:
-            cstr = cbook.is_string_like(c) or cbook.is_sequence_of_strings(c)
+            cstr = isinstance(c, six.string_types) or cbook.is_sequence_of_strings(c)
             if not cstr:
                 c = np.asanyarray(c)
                 if c.size == xs.size:

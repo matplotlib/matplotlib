@@ -1256,7 +1256,7 @@ def imread(fname, format=None):
 
     handlers = {'png': _png.read_png, }
     if format is None:
-        if cbook.is_string_like(fname):
+        if isinstance(fname, six.string_types):
             parsed = urlparse(fname)
             # If the string is a URL, assume png
             if len(parsed.scheme) > 1:
@@ -1285,7 +1285,7 @@ def imread(fname, format=None):
     # To handle Unicode filenames, we pass a file object to the PNG
     # reader extension, since Python handles them quite well, but it's
     # tricky in C.
-    if cbook.is_string_like(fname):
+    if isinstance(fname, six.string_types):
         parsed = urlparse(fname)
         # If fname is a URL, download the data
         if len(parsed.scheme) > 1:

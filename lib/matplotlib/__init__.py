@@ -121,7 +121,7 @@ import functools
 # cbook must import matplotlib only within function
 # definitions, so it is safe to import from it here.
 from . import cbook
-from matplotlib.cbook import (is_string_like,
+from matplotlib.cbook import (
                               mplDeprecation,
                               dedent, get_label,
                               sanitize_sequence)
@@ -1225,7 +1225,7 @@ def rc(group, **kwargs):
         'aa':  'antialiased',
         }
 
-    if is_string_like(group):
+    if isinstance(group, six.string_types):
         group = (group,)
     for g in group:
         for k, v in six.iteritems(kwargs):

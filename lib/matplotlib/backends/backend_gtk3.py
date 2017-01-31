@@ -35,7 +35,7 @@ from matplotlib.backend_bases import (ShowBase, ToolContainerBase,
 from matplotlib.backend_managers import ToolManager
 from matplotlib import backend_tools
 
-from matplotlib.cbook import is_string_like, is_writable_file_like
+from matplotlib.cbook import is_writable_file_like
 from matplotlib.figure import Figure
 from matplotlib.widgets import SubplotTool
 
@@ -954,7 +954,7 @@ def error_msg_gtk(msg, parent=None):
         if not parent.is_toplevel():
             parent = None
 
-    if not is_string_like(msg):
+    if not isinstance(msg, six.string_types):
         msg = ','.join(map(str,msg))
 
     dialog = Gtk.MessageDialog(

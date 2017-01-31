@@ -129,7 +129,7 @@ def get_registered_canvas_class(format):
     if format not in _default_backends:
         return None
     backend_class = _default_backends[format]
-    if cbook.is_string_like(backend_class):
+    if isinstance(backend_class, six.string_types):
         backend_class = importlib.import_module(backend_class).FigureCanvas
         _default_backends[format] = backend_class
     return backend_class
@@ -2090,11 +2090,11 @@ class FigureCanvasBase(object):
 
         if format is None:
             # get format from filename, or from backend's default filetype
-            if cbook.is_string_like(filename):
+            if isinstance(filename, six.string_types):
                 format = os.path.splitext(filename)[1][1:]
             if format is None or format == '':
                 format = self.get_default_filetype()
-                if cbook.is_string_like(filename):
+                if isinstance(filename, six.string_types):
                     filename = filename.rstrip('.') + '.' + format
         format = format.lower()
 

@@ -17,7 +17,7 @@ from matplotlib import _preprocess_data
 
 import matplotlib.cbook as cbook
 from matplotlib.cbook import (mplDeprecation, STEP_LOOKUP_MAP,
-                              iterable, is_string_like,
+                              iterable,
                               safe_first_element)
 import matplotlib.collections as mcoll
 import matplotlib.colors as mcolors
@@ -2662,7 +2662,7 @@ or tuple of floats
             if autopct is not None:
                 xt = x + pctdistance * radius * math.cos(thetam)
                 yt = y + pctdistance * radius * math.sin(thetam)
-                if is_string_like(autopct):
+                if isinstance(autopct, six.string_types):
                     s = autopct % (100. * frac)
                 elif callable(autopct):
                     s = autopct(100. * frac)
@@ -5472,8 +5472,8 @@ or tuple of floats
         # makes artifacts that are often disturbing.
         if 'antialiased' in kwargs:
             kwargs['antialiaseds'] = kwargs.pop('antialiased')
-        if 'antialiaseds' not in kwargs and (is_string_like(ec) and
-                                             ec.lower() == "none"):
+        if 'antialiaseds' not in kwargs and (
+                isinstance(ec, six.string_types) and ec.lower() == "none"):
             kwargs['antialiaseds'] = False
 
         kwargs.setdefault('snap', False)
@@ -6380,7 +6380,7 @@ or tuple of floats
 
         if label is None:
             labels = [None]
-        elif is_string_like(label):
+        elif isinstance(label, six.string_types):
             labels = [label]
         else:
             labels = [six.text_type(lab) for lab in label]

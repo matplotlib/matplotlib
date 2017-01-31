@@ -10,7 +10,6 @@ import sys
 import os
 import re
 import traits.api as traits
-from matplotlib.cbook import is_string_like
 from matplotlib.artist import Artist
 
 doprint = True
@@ -75,7 +74,7 @@ tuple_to_rgba.info = 'a RGB or RGBA tuple of floats'
 def hex_to_rgba(ob, name, val):
     rgx = re.compile('^#[0-9A-Fa-f]{6}$')
 
-    if not is_string_like(val):
+    if not isinstance(val, six.string_types):
         raise TypeError
     if rgx.match(val) is None:
         raise ValueError

@@ -51,7 +51,6 @@ del _version_required
 
 from matplotlib.backend_bases import RendererBase, GraphicsContextBase,\
      FigureManagerBase, FigureCanvasBase
-from matplotlib.cbook        import is_string_like
 from matplotlib.figure       import Figure
 from matplotlib.mathtext     import MathTextParser
 from matplotlib.path         import Path
@@ -555,7 +554,7 @@ class FigureCanvasCairo (FigureCanvasBase):
                 raise RuntimeError ('cairo has not been compiled with SVG '
                                     'support enabled')
             if format == 'svgz':
-                if is_string_like(fo):
+                if isinstance(fo, six.string_types):
                     fo = gzip.GzipFile(fo, 'wb')
                 else:
                     fo = gzip.GzipFile(None, 'wb', fileobj=fo)

@@ -18,7 +18,7 @@ from matplotlib.afm import AFM
 from matplotlib.backend_bases import RendererBase, GraphicsContextBase,\
      FigureManagerBase, FigureCanvasBase
 
-from matplotlib.cbook import is_string_like, get_realpath_and_stat, \
+from matplotlib.cbook import get_realpath_and_stat, \
     is_writable_file_like, maxdict, file_requires_unicode
 from matplotlib.compat.subprocess import subprocess
 from matplotlib.figure import Figure
@@ -141,7 +141,7 @@ def _get_papertype(w, h):
         return 'a0'
 
 def _num_to_str(val):
-    if is_string_like(val): return val
+    if isinstance(val, six.string_types): return val
 
     ival = int(val)
     if val==ival: return str(ival)
@@ -977,7 +977,7 @@ class FigureCanvasPS(FigureCanvasBase):
         """
         isEPSF = format == 'eps'
         passed_in_file_object = False
-        if is_string_like(outfile):
+        if isinstance(outfile, six.string_types):
             title = outfile
         elif is_writable_file_like(outfile):
             title = None
@@ -1220,7 +1220,7 @@ class FigureCanvasPS(FigureCanvasBase):
         the key 'Creator' is used.
         """
         isEPSF = format == 'eps'
-        if is_string_like(outfile):
+        if isinstance(outfile, six.string_types):
             title = outfile
         elif is_writable_file_like(outfile):
             title = None

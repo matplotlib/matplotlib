@@ -56,7 +56,6 @@ import warnings
 
 import matplotlib
 from matplotlib import afm, cbook, ft2font, rcParams, get_cachedir
-from matplotlib.cbook import is_string_like
 from matplotlib.compat import subprocess
 from matplotlib.fontconfig_pattern import (
     parse_fontconfig_pattern, generate_fontconfig_pattern)
@@ -234,7 +233,7 @@ def win32InstalledFonts(directory=None, fontext='ttf'):
             for j in range(winreg.QueryInfoKey(local)[1]):
                 try:
                     key, direc, any = winreg.EnumValue( local, j)
-                    if not is_string_like(direc):
+                    if not isinstance(direc, six.string_types):
                         continue
                     if not os.path.dirname(direc):
                         direc = os.path.join(directory, direc)
@@ -688,7 +687,7 @@ class FontProperties(object):
             self.__dict__.update(_init.__dict__)
             return
 
-        if is_string_like(family):
+        if isinstance(family, six.string_types):
             # Treat family as a fontconfig pattern if it is the only
             # parameter provided.
             if (style is None and
@@ -985,7 +984,7 @@ def json_load(filename):
 
 
 def _normalize_font_family(family):
-    if is_string_like(family):
+    if isinstance(family, six.string_types):
         family = [six.text_type(family)]
     elif isinstance(family, Iterable):
         family = [six.text_type(f) for f in family]
@@ -1402,7 +1401,7 @@ if USE_FONTCONFIG and sys.platform != 'win32':
     _fc_match_cache = {}
 
     def findfont(prop, fontext='ttf'):
-        if not is_string_like(prop):
+        if not isinstance(prop, six.string_types):
             prop = prop.get_fontconfig_pattern()
         cached = _fc_match_cache.get(prop)
         if cached is not None:

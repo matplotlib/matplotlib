@@ -330,7 +330,7 @@ def datestr2num(d, default=None):
     default : datetime instance
         The default date to use when fields are missing in `d`.
     """
-    if cbook.is_string_like(d):
+    if isinstance(d, six.string_types):
         dt = dateutil.parser.parse(d, default=default)
         return date2num(dt)
     else:
