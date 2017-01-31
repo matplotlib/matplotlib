@@ -44,8 +44,7 @@ else:
     ParserElement.enablePackrat()
 
 from matplotlib.afm import AFM
-from matplotlib.cbook import (Bunch, get_realpath_and_stat,
-                              maxdict)
+from matplotlib.cbook import Bunch, get_realpath_and_stat, maxdict
 from matplotlib.ft2font import (FT2Image, KERNING_DEFAULT, LOAD_FORCE_AUTOHINT,
                                 LOAD_NO_HINTING)
 from matplotlib.font_manager import findfont, FontProperties, get_font

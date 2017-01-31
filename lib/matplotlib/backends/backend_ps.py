@@ -15,11 +15,11 @@ import io
 from tempfile import mkstemp
 from matplotlib import verbose, __version__, rcParams, checkdep_ghostscript
 from matplotlib.afm import AFM
-from matplotlib.backend_bases import RendererBase, GraphicsContextBase,\
-     FigureManagerBase, FigureCanvasBase
+from matplotlib.backend_bases import (RendererBase, GraphicsContextBase,
+                                      FigureManagerBase, FigureCanvasBase)
 
-from matplotlib.cbook import get_realpath_and_stat, \
-    is_writable_file_like, maxdict, file_requires_unicode
+from matplotlib.cbook import (get_realpath_and_stat, is_writable_file_like,
+                              maxdict, file_requires_unicode)
 from matplotlib.compat.subprocess import subprocess
 from matplotlib.figure import Figure
 
@@ -144,7 +144,7 @@ def _num_to_str(val):
     if isinstance(val, six.string_types): return val
 
     ival = int(val)
-    if val==ival: return str(ival)
+    if val == ival: return str(ival)
 
     s = "%1.3f"%val
     s = s.rstrip("0")

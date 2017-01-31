@@ -501,6 +501,7 @@ def is_string_like(obj):
     return isinstance(obj, (six.string_types, np.str_, np.unicode_))
 
 
+@deprecated('2.1')
 def is_sequence_of_strings(obj):
     """Returns true if *obj* is iterable and contains strings"""
     if not iterable(obj):

@@ -2341,15 +2341,7 @@ class Axes3D(Axes):
 
         s = np.ma.ravel(s)  # This doesn't have to match x, y in size.
 
-        if c is not None:
-            cstr = isinstance(c, six.string_types) or cbook.is_sequence_of_strings(c)
-            if not cstr:
-                c = np.asanyarray(c)
-                if c.size == xs.size:
-                    c = np.ma.ravel(c)
-            xs, ys, zs, s, c = cbook.delete_masked_points(xs, ys, zs, s, c)
-        else:
-            xs, ys, zs, s = cbook.delete_masked_points(xs, ys, zs, s)
+        xs, ys, zs, s, c = cbook.delete_masked_points(xs, ys, zs, s, c)
 
         patches = Axes.scatter(self, xs, ys, s=s, c=c, *args, **kwargs)
         if not cbook.iterable(zs):

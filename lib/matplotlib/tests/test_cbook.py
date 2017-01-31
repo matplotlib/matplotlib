@@ -19,14 +19,6 @@ import matplotlib.colors as mcolors
 from matplotlib.cbook import delete_masked_points as dmp
 
 
-def test_is_sequence_of_strings():
-    y = ['a', 'b', 'c']
-    assert cbook.is_sequence_of_strings(y)
-
-    y = np.array(y, dtype=object)
-    assert cbook.is_sequence_of_strings(y)
-
-
 def test_is_hashable():
     s = 'string'
     assert cbook.is_hashable(s)

@@ -35,7 +35,8 @@ except ImportError:
     try:
         import cairo
     except ImportError:
-        raise ImportError("Cairo backend requires that cairocffi or pycairo is installed.")
+        raise ImportError("Cairo backend requires that cairocffi or pycairo "
+                          "is installed.")
     else:
         HAS_CAIRO_CFFI = False
 else:
@@ -49,8 +50,8 @@ if cairo.version_info < _version_required:
 backend_version = cairo.version
 del _version_required
 
-from matplotlib.backend_bases import RendererBase, GraphicsContextBase,\
-     FigureManagerBase, FigureCanvasBase
+from matplotlib.backend_bases import (
+    RendererBase, GraphicsContextBase, FigureManagerBase, FigureCanvasBase)
 from matplotlib.figure       import Figure
 from matplotlib.mathtext     import MathTextParser
 from matplotlib.path         import Path

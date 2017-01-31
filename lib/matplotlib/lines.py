@@ -16,8 +16,7 @@ import numpy as np
 from . import artist, colors as mcolors, docstring, rcParams
 from .artist import Artist, allow_rasterization
 from .cbook import (
-    iterable, is_numlike, ls_mapper, ls_mapper_r, is_hashable,
-    STEP_LOOKUP_MAP)
+    iterable, is_numlike, ls_mapper, ls_mapper_r, is_hashable, STEP_LOOKUP_MAP)
 from .markers import MarkerStyle
 from .path import Path
 from .transforms import Bbox, TransformedPath, IdentityTransform
