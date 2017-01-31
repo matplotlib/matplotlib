@@ -2886,6 +2886,7 @@ class _AxesBase(martist.Artist):
                 ('Attempting to set identical left==right results\n'
                  'in singular transformations; automatically expanding.\n'
                  'left=%s, right=%s') % (left, right))
+
         left, right = mtransforms.nonsingular(left, right, increasing=False)
 
         if self.get_xscale() == 'log' and (left <= 0.0 or right <= 0.0):
@@ -2894,6 +2895,22 @@ class _AxesBase(martist.Artist):
                 'invalid limits will be ignored.')
         left, right = self.xaxis.limit_range_for_scale(left, right)
 
+        self._set_viewLim_intervalx(left, right, emit=emit, auto=auto)
+        return left, right
+
+    def _set_viewLim_intervalx(self, left, right, emit=True, auto=None):
+        """
+        Set the data limits for the xaxis
+        This should be the only method to change viewLim.intervalx directly.
+
+        Keyword arguments:
+          *emit*: [ *True* | *False* ]
+            Notify observers of limit change
+
+          *auto*: [ *True* | *False* | *None* ]
+            Turn *x* autoscaling on (*True*), off (*False*; default),
+            or leave unchanged (*None*)
+        """
         self.viewLim.intervalx = (left, right)
         if auto is not None:
             self._autoscaleXon = bool(auto)
@@ -2909,7 +2926,6 @@ class _AxesBase(martist.Artist):
                             other.figure.canvas is not None):
                         other.figure.canvas.draw_idle()
         self.stale = True
-        return left, right
 
     def get_xscale(self):
         return self.xaxis.get_scale()
@@ -3190,6 +3206,22 @@ class _AxesBase(martist.Artist):
                 'invalid limits will be ignored.')
         bottom, top = self.yaxis.limit_range_for_scale(bottom, top)
 
+        self._set_viewLim_intervaly(bottom, top, emit=emit, auto=auto)
+        return bottom, top
+
+    def _set_viewLim_intervaly(self, bottom, top, emit=True, auto=None):
+        """
+        Set the data limits for the yaxis
+        This should be the only method to change viewLim.intervaly directly.
+
+        Keyword arguments:
+          *emit*: [ *True* | *False* ]
+            Notify observers of limit change
+
+          *auto*: [ *True* | *False* | *None* ]
+            Turn *x* autoscaling on (*True*), off (*False*; default),
+            or leave unchanged (*None*)
+        """
         self.viewLim.intervaly = (bottom, top)
         if auto is not None:
             self._autoscaleYon = bool(auto)
@@ -3205,7 +3237,6 @@ class _AxesBase(martist.Artist):
                             other.figure.canvas is not None):
                         other.figure.canvas.draw_idle()
         self.stale = True
-        return bottom, top
 
     def get_yscale(self):
         return self.yaxis.get_scale()

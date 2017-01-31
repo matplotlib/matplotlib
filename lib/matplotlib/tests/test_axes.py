@@ -121,6 +121,19 @@ def test_twin_axis_locaters_formatters():
 
 
 @cleanup
+def test_twinx_view_interval():
+    fig, ax = plt.subplots()
+    ax.set_xlim(0, 1)
+    ax.set_ylim(0, 1)
+    ax2 = ax.twinx()
+    ax3 = ax.twiny()
+    ax2.set_xticks([1, 2])
+    ax3.set_yticks([1, 2])
+    assert ax.get_xlim() == ax2.get_xlim()
+    assert ax.get_ylim() == ax3.get_ylim()
+
+
+@cleanup
 def test_twinx_cla():
     fig, ax = plt.subplots()
     ax2 = ax.twinx()
