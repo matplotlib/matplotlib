@@ -462,6 +462,11 @@ validate_verbose = ValidateInStrings(
     'verbose',
     ['silent', 'helpful', 'debug', 'debug-annoying'])
 
+validate_alignment = ValidateInStrings(
+    'alignment',
+    ['center', 'top', 'bottom', 'baseline',
+     'center_baseline'])
+
 def validate_whiskers(s):
     if s == 'range':
         return 'range'
@@ -1213,6 +1218,7 @@ defaultParams = {
     # fontsize of the ytick labels
     'ytick.labelsize':   ['medium', validate_fontsize],
     'ytick.direction':   ['out', six.text_type],            # direction of yticks
+    'ytick.alignment':   ["center_baseline", validate_alignment],
 
     'grid.color':        ['#b0b0b0', validate_color],  # grid color
     'grid.linestyle':    ['-', six.text_type],      # solid

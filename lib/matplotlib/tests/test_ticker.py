@@ -13,7 +13,7 @@ from matplotlib.testing.decorators import cleanup
 import warnings
 
 
-@cleanup(style='classic')
+@cleanup(style='_classic_test')
 def test_MaxNLocator():
     loc = mticker.MaxNLocator(nbins=5)
     test_value = np.array([20., 40., 60., 80., 100.])
@@ -174,7 +174,7 @@ def test_SymmetricalLogLocator_set_params():
     assert sym.numticks == 8
 
 
-@cleanup(style='classic')
+@cleanup(style='_classic_test')
 @pytest.mark.parametrize('left, right, offset',
                          [(123, 189, 0),
                           (-189, -123, 0),
