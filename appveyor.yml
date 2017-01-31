@@ -14,11 +14,11 @@ environment:
     CMD_IN_ENV: "cmd /E:ON /V:ON /C obvci_appveyor_python_build_env.cmd"
     # Workaround for https://github.com/conda/conda-build/issues/636
     PYTHONIOENCODING: "UTF-8"
-    PYTEST_ARGS: -ra --timeout=300 --durations=25 #--cov-report= --cov=lib #-n %NUMBER_OF_PROCESSORS%
+    PYTEST_ARGS: -ra --timeout=300 --durations=25 -n %NUMBER_OF_PROCESSORS% #--cov-report= --cov=lib
     USE_PYTEST: no
-    #PYTHONHASHSEED: 0  # Workaround for pytest-xdist flaky colletion order
-    #                   # https://github.com/pytest-dev/pytest/issues/920
-    #                   # https://github.com/pytest-dev/pytest/issues/1075
+    PYTHONHASHSEED: 0  # Workaround for pytest-xdist flaky collection order
+                       # https://github.com/pytest-dev/pytest/issues/920
+                       # https://github.com/pytest-dev/pytest/issues/1075
 
   matrix:
     # for testing purpose: numpy 1.8 on py2.7, for the rest use 1.10/latest
@@ -96,7 +96,7 @@ install:
   - cmd: echo %PYTHON_VERSION% %TARGET_ARCH%
   - cmd: IF %PYTHON_VERSION% == 2.7 conda install -q functools32
   # pytest-cov>=2.3.1 due to https://github.com/pytest-dev/pytest-cov/issues/124
-  - if x%USE_PYTEST% == xyes conda install -q pytest "pytest-cov>=2.3.1" pytest-timeout #pytest-xdist
+  - if x%USE_PYTEST% == xyes conda install -q pytest "pytest-cov>=2.3.1" pytest-timeout pytest-xdist
 
   # Let the install prefer the static builds of the libs
   - set LIBRARY_LIB=%CONDA_PREFIX%\Library\lib
