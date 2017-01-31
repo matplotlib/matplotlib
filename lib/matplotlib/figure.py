@@ -1555,7 +1555,7 @@ class Figure(Artist):
                 else:
                     warnings.warn('Requested projection is different from '
                                   'current axis projection, creating new axis '
-                                  'with requested projection.')
+                                  'with requested projection.', stacklevel=2)
 
         # no axes found, so create one which spans the figure
         return self.add_subplot(1, 1, 1, **kwargs)
