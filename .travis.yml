@@ -43,7 +43,8 @@ env:
     - OPENBLAS_NUM_THREADS=1
     - PANDAS=
     - NPROC=2
-    - TEST_ARGS=--no-pep8
+    - INSTALL_PEP8=
+    - RUN_PEP8=
     - NOSE_ARGS="-j $NPROC"
     - PYTEST_ARGS="-ra --maxfail=1 --timeout=300 --durations=25 --cov-report= --cov=lib -n $NPROC"
     - PYTHON_ARGS=
@@ -61,9 +62,9 @@ matrix:
     - python: 3.5
       env: BUILD_DOCS=true
     - python: 3.5
-      env: USE_PYTEST=true PANDAS=pandas DELETE_FONT_CACHE=1 TEST_ARGS=
+      env: USE_PYTEST=true PANDAS=pandas DELETE_FONT_CACHE=1
     - python: 3.6
-      env: USE_PYTEST=true DELETE_FONT_CACHE=1 TEST_ARGS=
+      env: USE_PYTEST=true DELETE_FONT_CACHE=1 INSTALL_PEP8=pytest-pep8 RUN_PEP8=--pep8
     - python: "nightly"
       env: PRE=--pre
     - os: osx
@@ -113,14 +114,14 @@ install:
     pip install --upgrade setuptools
   - |
     # Install dependencies from pypi
-    pip install $PRE python-dateutil $NUMPY pyparsing!=2.1.6 $PANDAS pep8 cycler coveralls coverage $MOCK
+    pip install $PRE python-dateutil $NUMPY pyparsing!=2.1.6 $PANDAS cycler coveralls coverage $MOCK
     pip install $PRE -r doc-requirements.txt
 
     # Install nose from a build which has partial
     # support for python36 and suport for coverage output suppressing
     pip install git+https://github.com/jenshnielsen/nose.git@matplotlibnose
     # pytest-cov>=2.3.1 due to https://github.com/pytest-dev/pytest-cov/issues/124
-    pip install $PRE pytest 'pytest-cov>=2.3.1' pytest-timeout pytest-xdist pytest-faulthandler
+    pip install $PRE pytest 'pytest-cov>=2.3.1' pytest-timeout pytest-xdist pytest-faulthandler $INSTALL_PEP8
 
     # We manually install humor sans using the package from Ubuntu 14.10. Unfortunatly humor sans is not
     # availible in the Ubuntu version used by Travis but we can manually install the deb from a later
@@ -154,13 +155,12 @@ script:
       if [[ $DELETE_FONT_CACHE == 1 ]]; then
         rm -rf ~/.cache/matplotlib
       fi
-      export MPL_REPO_DIR=$PWD  # needed for pep8-conformance test of the examples
       if [[ $USE_PYTEST == false ]]; then
-        echo The following args are passed to nose $NOSE_ARGS
+        echo The following args are passed to nose $NOSE_ARGS $RUN_PEP8
         if [[ $TRAVIS_OS_NAME == 'osx' ]]; then
-          python tests.py $NOSE_ARGS $TEST_ARGS
+          python tests.py $NOSE_ARGS $RUN_PEP8
         else
-          gdb -return-child-result -batch -ex r -ex bt --args python $PYTHON_ARGS tests.py $NOSE_ARGS $TEST_ARGS
+          gdb -return-child-result -batch -ex r -ex bt --args python $PYTHON_ARGS tests.py $NOSE_ARGS $RUN_PEP8
         fi
       else
         # Workaround for pytest-xdist flaky colletion order
@@ -169,8 +169,8 @@ script:
         export PYTHONHASHSEED=$(shuf -i 1-4294967295 -n 1)
         echo PYTHONHASHSEED=$PYTHONHASHSEED
 
-        echo The following args are passed to pytest $PYTEST_ARGS
-        py.test $PYTEST_ARGS $TEST_ARGS
+        echo The following args are passed to pytest $PYTEST_ARGS $RUN_PEP8
+        py.test $PYTEST_ARGS $RUN_PEP8
       fi
     else
       cd doc
