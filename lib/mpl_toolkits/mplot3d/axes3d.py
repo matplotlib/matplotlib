@@ -1503,39 +1503,25 @@ class Axes3D(Axes):
         Other arguments are passed on to
         :func:`~matplotlib.axes.Axes.plot`
         '''
-        # FIXME: This argument parsing might be better handled
-        #        when we set later versions of python for
-        #        minimum requirements.  Currently at 2.4.
-        #        Note that some of the reason for the current difficulty
-        #        is caused by the fact that we want to insert a new
-        #        (semi-optional) positional argument 'Z' right before
-        #        many other traditional positional arguments occur
-        #        such as the color, linestyle and/or marker.
         had_data = self.has_data()
-        zs = kwargs.pop('zs', 0)
+
+        # `zs` can be passed positionally or as keyword; checking with
+        # `_is_string_like` matches the behavior of 2D `plot` (via
+        # `_process_plot_var_args`).
+        if args and not cbook.is_string_like(args[0]):
+            zs = args[0]
+            args = args[1:]
+            if 'zs' in kwargs:
+                raise TypeError("plot() for multiple values for argument 'z'")
+        else:
+            zs = kwargs.pop('zs', 0)
         zdir = kwargs.pop('zdir', 'z')
-
-        argsi = 0
-        # First argument is array of zs
-        if args and cbook.iterable(args[0]) and len(xs) == len(args[0]):
-            # So, we know that it is an array with
-            # first dimension the same as xs.
-            # Next, check to see if the data contained
-            # therein (if any) is scalar (and not another array).
-            if len(args[0]) == 0 or cbook.is_scalar(args[0][0]):
-                zs = args[argsi]
-                argsi += 1
-
-        # First argument is z value
-        elif args and cbook.is_scalar(args[0]):
-            zs = args[argsi]
-            argsi += 1
 
         # Match length
         if not cbook.iterable(zs):
             zs = np.ones(len(xs)) * zs
 
-        lines = Axes.plot(self, xs, ys, *args[argsi:], **kwargs)
+        lines = Axes.plot(self, xs, ys, *args, **kwargs)
         for line in lines:
             art3d.line_2d_to_3d(line, zs=zs, zdir=zdir)
 
