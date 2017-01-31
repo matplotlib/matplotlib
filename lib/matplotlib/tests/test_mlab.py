@@ -3111,3 +3111,16 @@ def test_psd_onesided_norm():
                     sides='onesided')
     Su_1side = np.append([Su[0]], Su[1:4] + Su[4:][::-1])
     assert_allclose(P, Su_1side, atol=1e-06)
+
+
+def test_psd_oversampling():
+    """Test the case len(x) < NFFT for psd(). """
+    u = np.array([0, 1, 2, 3, 1, 2, 1])
+    dt = 1.0
+    Su = np.abs(np.fft.fft(u) * dt)**2 / float(dt * u.size)
+    P, f = mlab.psd(u, NFFT=u.size*2, Fs=1/dt, window=mlab.window_none,
+                    detrend=mlab.detrend_none, noverlap=0, pad_to=None,
+                    scale_by_freq=None,
+                    sides='onesided')
+    Su_1side = np.append([Su[0]], Su[1:4] + Su[4:][::-1])
+    assert_almost_equal(np.sum(P), np.sum(Su_1side))  # same energy
