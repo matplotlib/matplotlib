@@ -180,7 +180,7 @@ This is array slicing.  You can read more in the `Numpy tutorial
     plt.imshow(lum_img)
 
 Now, with a luminosity (2D, no color) image, the default colormap (aka lookup table,
-LUT), is applied.  The default is called jet.  There are plenty of
+LUT), is applied.  The default is called viridis.  There are plenty of
 others to choose from.
 
 .. sourcecode:: ipython
