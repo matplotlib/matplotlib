@@ -20,6 +20,7 @@ import glob
 import gzip
 import io
 import locale
+import numbers
 import os
 import re
 import sys
@@ -495,19 +496,8 @@ def iterable(obj):
 
 def is_string_like(obj):
     """Return True if *obj* looks like a string"""
-    if isinstance(obj, six.string_types):
-        return True
-    # numpy strings are subclass of str, ma strings are not
-    if isinstance(obj, np.ma.MaskedArray):
-        if obj.ndim == 0 and obj.dtype.kind in 'SU':
-            return True
-        else:
-            return False
-    try:
-        obj + ''
-    except:
-        return False
-    return True
+    # (np.str_ == np.unicode_ on Py3).
+    return isinstance(obj, (six.string_types, np.str_, np.unicode_))
 
 
 def is_sequence_of_strings(obj):
@@ -560,12 +550,7 @@ def is_scalar(obj):
 
 def is_numlike(obj):
     """return true if *obj* looks like a number"""
-    try:
-        obj + 1
-    except:
-        return False
-    else:
-        return True
+    return isinstance(obj, (numbers.Number, np.number))
 
 
 def to_filehandle(fname, flag='rU', return_opened=False):
