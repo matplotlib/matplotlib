@@ -188,70 +188,63 @@ def test_gridspec_make_colorbar():
     plt.subplots_adjust(top=0.95, right=0.95, bottom=0.2, hspace=0.25)
 
 
-@image_comparison(baseline_images=['colorbar_join_lsc',
-                                   'colorbar_join_lsc_frac',
-                                   'colorbar_join_listed',
-                                   'colorbar_join_listed_frac', ],
+@image_comparison(baseline_images=['colorbar_join',
+                                   'colorbar_join_frac', ],
                   extensions=['png'], remove_text=True,
                   savefig_kwarg={'dpi': 40})
 def test_join_colorbar():
     data = np.arange(1200).reshape(30, 40)
-    levels = [0, 200, 400, 600, 800, 1000, 1200]
 
     # Jet is a LinearSegmentedColormap
-    cmap_lsc = plt.get_cmap('jet', 16)
-    cmap_lst = plt.get_cmap('viridis', 16)
-
-    # join returns the same type of cmap as self
-    # Thus, this is a lsc
-    cmap = cmap_lsc.join(cmap_lst)
-
-    plt.figure()
-    plt.contourf(data, levels=levels, cmap=cmap)
-    plt.colorbar(orientation='vertical')
-
-    # Use the 'frac_self' kwarg for the lsc cmap
-    cmap = cmap_lsc.join(cmap_lst, frac_self=0.7)
-
-    plt.figure()
-    plt.contourf(data, levels=levels, cmap=cmap)
-    plt.colorbar(orientation='vertical')
+    cmap1 = plt.get_cmap('viridis', 5)
+    cmap2 = plt.get_cmap('jet', 5)
 
     # This should be a listed colormap.
-    cmap = cmap_lst.join(cmap_lsc)
+    cmap = cmap1.join(cmap2)
 
     plt.figure()
-    plt.contourf(data, levels=levels, cmap=cmap)
+    plt.pcolormesh(data, cmap=cmap)
     plt.colorbar(orientation='vertical')
 
     # Use the 'frac_self' kwarg for the listed cmap
-    cmap = cmap_lst.join(cmap_lsc, frac_self=0.7)
+    cmap = cmap1.join(cmap2, frac_self=0.7, N=50)
 
     plt.figure()
-    plt.contourf(data, levels=levels, cmap=cmap)
+    plt.pcolormesh(data, cmap=cmap)
     plt.colorbar(orientation='vertical')
 
 
-@image_comparison(baseline_images=['colorbar_truncate_lsc',
-                                   'colorbar_truncate_listed', ],
+@image_comparison(baseline_images=['colorbar_truncate',
+                                   'colorbar_trunc-getitem',
+                                   'colorbar_trunc-getitem-int',
+                                   'colorbar_trunc-getitem-int-1jN', ],
                   extensions=['png'], remove_text=True,
                   savefig_kwarg={'dpi': 40})
 def test_truncate_colorbar():
     data = np.arange(1200).reshape(30, 40)
-    levels = [0, 200, 400, 600, 800, 1000, 1200]
 
-    # jet is a LinearSegmentedColormap
-    cmap = plt.get_cmap('jet', 16).truncate(0.2, 0.7)
+    cmap = plt.get_cmap('viridis', 32).truncate(0.2, 0.7)
 
     plt.figure()
-    plt.contourf(data, levels=levels, cmap=cmap)
+    plt.pcolormesh(data, cmap=cmap)
     plt.colorbar(orientation='vertical')
 
-    # viridis is a ListedColormap
-    cmap = plt.get_cmap('viridis', 16).truncate(0.2, 0.7)
+    cmap = plt.get_cmap('viridis', 128)[0.2:-0.3:16 * 1j]
 
     plt.figure()
-    plt.contourf(data, levels=levels, cmap=cmap)
+    plt.pcolormesh(data, cmap=cmap)
+    plt.colorbar(orientation='vertical')
+
+    cmap = plt.get_cmap('viridis', 128)[25:90]
+
+    plt.figure()
+    plt.pcolormesh(data, cmap=cmap)
+    plt.colorbar(orientation='vertical')
+
+    cmap = plt.get_cmap('viridis', 128)[25:90:16 * 1j]
+
+    plt.figure()
+    plt.pcolormesh(data, cmap=cmap)
     plt.colorbar(orientation='vertical')
 
 
