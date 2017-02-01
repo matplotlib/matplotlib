@@ -2,7 +2,6 @@ from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
 from matplotlib import pyplot as plt
-from matplotlib.testing.decorators import cleanup, switch_backend
 from matplotlib._pylab_helpers import Gcf
 import matplotlib
 import copy
@@ -27,8 +26,7 @@ _, SuperModifier, SuperKey = MODIFIER_KEYS[SUPER]
 _, ShiftModifier, ShiftKey = MODIFIER_KEYS[SHIFT]
 
 
-@cleanup
-@switch_backend('Qt5Agg')
+@pytest.mark.backend('Qt5Agg')
 def test_fig_close():
     # save the state of Gcf.figs
     init_figs = copy.copy(Gcf.figs)
@@ -77,8 +75,7 @@ def test_fig_close():
         'non_unicode_key',
     ]
 )
-@cleanup
-@switch_backend('Qt5Agg')
+@pytest.mark.backend('Qt5Agg')
 def test_correct_key(qt_key, qt_mods, answer):
     """
     Make a figure

@@ -8,12 +8,11 @@ import pytest
 import matplotlib
 import matplotlib.pyplot as plt
 import matplotlib.ticker as mticker
-from matplotlib.testing.decorators import cleanup
 
 import warnings
 
 
-@cleanup(style='classic')
+@pytest.mark.style('classic')
 def test_MaxNLocator():
     loc = mticker.MaxNLocator(nbins=5)
     test_value = np.array([20., 40., 60., 80., 100.])
@@ -26,7 +25,6 @@ def test_MaxNLocator():
     assert_almost_equal(loc.tick_values(-1e15, 1e15), test_value)
 
 
-@cleanup
 def test_MaxNLocator_integer():
     loc = mticker.MaxNLocator(nbins=5, integer=True)
     test_value = np.array([-1, 0, 1, 2])
@@ -53,7 +51,6 @@ def test_MultipleLocator():
     assert_almost_equal(loc.tick_values(-7, 10), test_value)
 
 
-@cleanup
 def test_AutoMinorLocator():
     fig, ax = plt.subplots()
     ax.set_xlim(0, 1.39)
@@ -174,7 +171,7 @@ def test_SymmetricalLogLocator_set_params():
     assert sym.numticks == 8
 
 
-@cleanup(style='classic')
+@pytest.mark.style('classic')
 @pytest.mark.parametrize('left, right, offset',
                          [(123, 189, 0),
                           (-189, -123, 0),
@@ -240,7 +237,7 @@ def _sub_labels(axis, subs=()):
     assert label_test == label_expected
 
 
-@cleanup(style='default')
+@pytest.mark.style('default')
 def test_LogFormatter_sublabel():
     # test label locator
     fig, ax = plt.subplots()
@@ -318,6 +315,7 @@ def test_LogFormatterExponent_blank():
     assert formatter(10**0.1) == ''
 
 
+@pytest.mark.style('default')
 def test_LogFormatterSciNotation():
     test_cases = {
         10: (

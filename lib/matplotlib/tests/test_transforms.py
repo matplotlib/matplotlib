@@ -15,10 +15,9 @@ import matplotlib.patches as mpatches
 import matplotlib.transforms as mtrans
 from matplotlib.path import Path
 from matplotlib.scale import LogScale
-from matplotlib.testing.decorators import cleanup, image_comparison
+from matplotlib.testing.decorators import image_comparison
 
 
-@cleanup
 def test_non_affine_caching():
     class AssertingNonAffineTransform(mtrans.Transform):
         """
@@ -57,7 +56,6 @@ def test_non_affine_caching():
     plt.draw()
 
 
-@cleanup
 def test_external_transform_api():
     class ScaledBy(object):
         def __init__(self, scale_factor):
@@ -112,7 +110,6 @@ def test_pre_transform_plotting():
     ax.barbs(x - 3, y + 5, u**2, v**2, transform=times10 + ax.transData)
 
 
-@cleanup
 def test_contour_pre_transform_limits():
     ax = plt.axes()
     xs, ys = np.meshgrid(np.linspace(15, 20, 15), np.linspace(12.4, 12.5, 20))
@@ -124,7 +121,6 @@ def test_contour_pre_transform_limits():
     assert_almost_equal(expected, ax.dataLim.get_points())
 
 
-@cleanup
 def test_pcolor_pre_transform_limits():
     # Based on test_contour_pre_transform_limits()
     ax = plt.axes()
@@ -137,7 +133,6 @@ def test_pcolor_pre_transform_limits():
     assert_almost_equal(expected, ax.dataLim.get_points())
 
 
-@cleanup
 def test_pcolormesh_pre_transform_limits():
     # Based on test_contour_pre_transform_limits()
     ax = plt.axes()
@@ -503,7 +498,6 @@ def test_transform_single_point():
     assert r.shape == (2,)
 
 
-@cleanup
 def test_log_transform():
     # Tests that the last line runs without exception (previously the
     # transform would fail if one of the axes was logarithmic).
@@ -512,7 +506,6 @@ def test_log_transform():
     ax.transData.transform((1, 1))
 
 
-@cleanup
 def test_nan_overlap():
     a = mtrans.Bbox([[0, 0], [1, 1]])
     b = mtrans.Bbox([[0, 0], [1, np.nan]])

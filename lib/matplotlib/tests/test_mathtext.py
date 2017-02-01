@@ -10,7 +10,7 @@ import numpy as np
 import pytest
 
 import matplotlib
-from matplotlib.testing.decorators import image_comparison, cleanup
+from matplotlib.testing.decorators import image_comparison
 import matplotlib.pyplot as plt
 from matplotlib import mathtext
 
@@ -253,7 +253,6 @@ def test_mathtext_exceptions(math, msg):
     excinfo.match(re.escape(msg))
 
 
-@cleanup
 def test_single_minus_sign():
     plt.figure(figsize=(0.3, 0.3))
     plt.text(0.5, 0.5, '$-$')

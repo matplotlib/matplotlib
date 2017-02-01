@@ -4,7 +4,7 @@ from __future__ import (absolute_import, division, print_function,
 import numpy as np
 import pytest
 
-from matplotlib.testing.decorators import image_comparison, cleanup
+from matplotlib.testing.decorators import image_comparison
 import matplotlib.pyplot as plt
 import matplotlib.patheffects as path_effects
 
@@ -75,7 +75,6 @@ def test_patheffect3():
     t.set_path_effects(pe)
 
 
-@cleanup
 @pytest.mark.xfail
 def test_PathEffect_points_to_pixels():
     fig = plt.figure(dpi=150)

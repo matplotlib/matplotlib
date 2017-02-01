@@ -8,10 +8,11 @@ import six
 
 import numpy as np
 from numpy.testing import assert_almost_equal, assert_array_equal
+import pytest
 
 from matplotlib.patches import Polygon
 from matplotlib.patches import Rectangle
-from matplotlib.testing.decorators import image_comparison, cleanup
+from matplotlib.testing.decorators import image_comparison
 import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
 import matplotlib.collections as mcollections
@@ -174,7 +175,7 @@ def test_patch_alpha_override():
     ax.set_ylim([-1, 2])
 
 
-@cleanup(style='default')
+@pytest.mark.style('default')
 def test_patch_color_none():
     # Make sure the alpha kwarg does not override 'none' facecolor.
     # Addresses issue #7478.
@@ -212,7 +213,6 @@ def test_patch_custom_linestyle():
     ax.set_ylim([-1, 2])
 
 
-@cleanup
 def test_patch_linestyle_accents():
     #: Test if linestyle can also be specified with short menoics
     #: like "--"

@@ -2,7 +2,6 @@ from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
 from matplotlib import pyplot as plt
-from matplotlib.testing.decorators import cleanup, switch_backend
 from matplotlib._pylab_helpers import Gcf
 import matplotlib
 import copy
@@ -34,8 +33,7 @@ if py_qt_ver != 4:
     pytestmark = pytest.mark.xfail(reason='Qt4 is not available')
 
 
-@cleanup
-@switch_backend('Qt4Agg')
+@pytest.mark.backend('Qt4Agg')
 def test_fig_close():
     # save the state of Gcf.figs
     init_figs = copy.copy(Gcf.figs)
@@ -84,8 +82,7 @@ def test_fig_close():
         'non_unicode_key',
     ]
 )
-@cleanup
-@switch_backend('Qt4Agg')
+@pytest.mark.backend('Qt4Agg')
 def test_correct_key(qt_key, qt_mods, answer):
     """
     Make a figure
