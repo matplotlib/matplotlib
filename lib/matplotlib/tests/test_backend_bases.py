@@ -1,6 +1,6 @@
 from matplotlib.backend_bases import FigureCanvasBase
 from matplotlib.backend_bases import RendererBase
-from matplotlib.testing.decorators import image_comparison, cleanup
+from matplotlib.testing.decorators import image_comparison
 
 import matplotlib.pyplot as plt
 import matplotlib.transforms as transforms
@@ -53,7 +53,6 @@ def test_uses_per_path():
     check(id, paths, tforms, offsets, facecolors[0:1], edgecolors)
 
 
-@cleanup
 def test_get_default_filename():
     try:
         test_dir = tempfile.mkdtemp()
@@ -66,7 +65,6 @@ def test_get_default_filename():
         shutil.rmtree(test_dir)
 
 
-@cleanup
 def test_get_default_filename_already_exists():
     # From #3068: Suggest non-existing default filename
     try:

@@ -14,10 +14,9 @@ import matplotlib.path as mpath
 import matplotlib.transforms as mtrans
 import matplotlib.collections as mcollections
 import matplotlib.artist as martist
-from matplotlib.testing.decorators import image_comparison, cleanup
+from matplotlib.testing.decorators import image_comparison
 
 
-@cleanup
 def test_patch_transform_of_none():
     # tests the behaviour of patches added to an Axes with various transform
     # specifications
@@ -60,7 +59,6 @@ def test_patch_transform_of_none():
     assert e._transform == ax.transData
 
 
-@cleanup
 def test_collection_transform_of_none():
     # tests the behaviour of collections added to an Axes with various
     # transform specifications
@@ -127,7 +125,6 @@ def test_clipping():
     ax1.set_ylim([-3, 3])
 
 
-@cleanup
 def test_cull_markers():
     x = np.random.random(20000)
     y = np.random.random(20000)
@@ -175,7 +172,6 @@ def test_hatching():
     ax.set_ylim(0, 9)
 
 
-@cleanup
 def test_remove():
     fig, ax = plt.subplots()
     im = ax.imshow(np.arange(36).reshape(6, 6))
@@ -224,7 +220,6 @@ def test_default_edges():
     ax4.add_patch(pp1)
 
 
-@cleanup
 def test_properties():
     ln = mlines.Line2D([], [])
     with warnings.catch_warnings(record=True) as w:
@@ -234,7 +229,6 @@ def test_properties():
         assert len(w) == 0
 
 
-@cleanup
 def test_setp():
     # Check empty list
     plt.setp([])

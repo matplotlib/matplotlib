@@ -19,7 +19,7 @@ import matplotlib.cm as cm
 import matplotlib.colorbar as mcolorbar
 import matplotlib.cbook as cbook
 import matplotlib.pyplot as plt
-from matplotlib.testing.decorators import image_comparison, cleanup
+from matplotlib.testing.decorators import image_comparison
 
 
 def test_resample():
@@ -226,7 +226,6 @@ def test_SymLogNorm():
     assert_array_almost_equal(normed_vals, expected)
 
 
-@cleanup
 def test_SymLogNorm_colorbar():
     """
     Test un-called SymLogNorm in a colorbar.
@@ -350,7 +349,6 @@ def test_rgb_hsv_round_trip():
             mcolors.rgb_to_hsv(mcolors.hsv_to_rgb(tt)))
 
 
-@cleanup
 def test_autoscale_masked():
     # Test for #2336. Previously fully masked data would trigger a ValueError.
     data = np.ma.masked_all((12, 20))
@@ -626,7 +624,6 @@ def test_colormap_reversing(name):
     assert_array_almost_equal(cmap._lut[:-3], cmap_r._lut[-4::-1])
 
 
-@cleanup
 def test_cn():
     matplotlib.rcParams['axes.prop_cycle'] = cycler('color',
                                                     ['blue', 'r'])

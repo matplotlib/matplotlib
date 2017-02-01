@@ -18,7 +18,6 @@ except ImportError:
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 from matplotlib.tests import assert_str_equal
-from matplotlib.testing.decorators import cleanup
 import matplotlib.colors as mcolors
 from itertools import chain
 import numpy as np
@@ -138,7 +137,6 @@ def test_rcparams_init():
             mpl.RcParams({'figure.figsize': (3.5, 42, 1)})
 
 
-@cleanup
 def test_Bug_2543():
     # Test that it possible to add all values to itself / deepcopy
     # This was not possible because validate_bool_maybe_none did not
@@ -197,7 +195,6 @@ legend_color_test_ids = [
 ]
 
 
-@cleanup
 @pytest.mark.parametrize('color_type, param_dict, target', legend_color_tests,
                          ids=legend_color_test_ids)
 def test_legend_colors(color_type, param_dict, target):

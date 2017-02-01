@@ -1,6 +1,6 @@
 from __future__ import print_function
 
-from matplotlib.testing.decorators import image_comparison, cleanup
+from matplotlib.testing.decorators import image_comparison
 import matplotlib.pyplot as plt
 import numpy as np
 import io
@@ -28,7 +28,6 @@ def test_logit_scales():
     ax.grid(True)
 
 
-@cleanup
 def test_log_scatter():
     """Issue #1799"""
     fig, ax = plt.subplots(1)

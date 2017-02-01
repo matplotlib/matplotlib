@@ -1,6 +1,6 @@
 import warnings
 
-from matplotlib.testing.decorators import image_comparison, cleanup
+from matplotlib.testing.decorators import image_comparison
 from matplotlib.cbook import MatplotlibDeprecationWarning
 import matplotlib.pyplot as plt
 import numpy as np
@@ -148,7 +148,6 @@ def test_property_collision_fill():
     ax.fill(xs, 5 * ys)
 
 
-@cleanup
 def test_valid_input_forms():
     fig, ax = plt.subplots()
     # These should not raise an error.
@@ -170,7 +169,6 @@ def test_valid_input_forms():
     assert True
 
 
-@cleanup
 def test_cycle_reset():
     fig, ax = plt.subplots()
 
@@ -195,7 +193,6 @@ def test_cycle_reset():
         assert prop == got, "expected %s, got %s" % (prop, got)
 
 
-@cleanup
 def test_invalid_input_forms():
     fig, ax = plt.subplots()
 

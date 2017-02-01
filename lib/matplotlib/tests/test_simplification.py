@@ -6,7 +6,7 @@ import io
 import numpy as np
 import pytest
 
-from matplotlib.testing.decorators import image_comparison, cleanup
+from matplotlib.testing.decorators import image_comparison
 import matplotlib.pyplot as plt
 
 from matplotlib import patches, transforms
@@ -47,7 +47,6 @@ def test_diamond():
     ax.set_ylim(ymin=-0.6, ymax=0.6)
 
 
-@cleanup
 def test_noise():
     np.random.seed(0)
     x = np.random.uniform(size=(5000,)) * 50
@@ -63,7 +62,6 @@ def test_noise():
     assert len(simplified) == 3884
 
 
-@cleanup
 def test_sine_plus_noise():
     np.random.seed(0)
     x = (np.sin(np.linspace(0, np.pi * 2.0, 1000)) +
@@ -117,7 +115,6 @@ def test_fft_peaks():
     assert len(simplified) == 20
 
 
-@cleanup
 def test_start_with_moveto():
     # Should be entirely clipped away to a single MOVETO
     data = b"""
@@ -160,7 +157,6 @@ AAj1//+nPwAA/////w=="""
     assert segs[0][1] == Path.MOVETO
 
 
-@cleanup
 def test_throw_rendering_complexity_exceeded():
     plt.rcParams['path.simplify'] = False
     xx = np.arange(200000)

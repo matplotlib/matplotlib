@@ -4,7 +4,6 @@ import numpy as np
 import pytest
 import sys
 from matplotlib import pyplot as plt
-from matplotlib.testing.decorators import cleanup
 from matplotlib.testing.decorators import image_comparison
 
 
@@ -18,7 +17,6 @@ def draw_quiver(ax, **kw):
     return Q
 
 
-@cleanup
 def test_quiver_memory_leak():
     fig, ax = plt.subplots()
 
@@ -31,7 +29,6 @@ def test_quiver_memory_leak():
     assert sys.getrefcount(ttX) == 2
 
 
-@cleanup
 def test_quiver_key_memory_leak():
     fig, ax = plt.subplots()
 
@@ -45,7 +42,6 @@ def test_quiver_key_memory_leak():
     assert sys.getrefcount(qk) == 2
 
 
-@cleanup
 def test_no_warnings():
     fig, ax = plt.subplots()
 
@@ -59,7 +55,6 @@ def test_no_warnings():
     assert len(w) == 0
 
 
-@cleanup
 def test_zero_headlength():
     # Based on report by Doug McNeil:
     # http://matplotlib.1069221.n5.nabble.com/quiver-warnings-td28107.html
@@ -111,7 +106,6 @@ def test_quiver_single():
     ax.quiver([1], [1], [2], [2])
 
 
-@cleanup
 def test_quiver_copy():
     fig, ax = plt.subplots()
     uv = dict(u=np.array([1.1]), v=np.array([2.0]))
@@ -148,7 +142,6 @@ def test_barbs():
              cmap='viridis')
 
 
-@cleanup
 def test_bad_masked_sizes():
     'Test error handling when given differing sized masked arrays'
     x = np.arange(3)
@@ -162,7 +155,6 @@ def test_bad_masked_sizes():
         ax.barbs(x, y, u, v)
 
 
-@cleanup
 def test_quiverkey_angles():
     # Check that only a single arrow is plotted for a quiverkey when an array
     # of angles is given to the original quiver plot

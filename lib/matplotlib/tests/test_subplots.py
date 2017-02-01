@@ -5,7 +5,7 @@ import warnings
 
 import numpy
 import matplotlib.pyplot as plt
-from matplotlib.testing.decorators import image_comparison, cleanup
+from matplotlib.testing.decorators import image_comparison
 
 import pytest
 
@@ -40,7 +40,6 @@ def check_visible(axs, x_visible, y_visible):
                     "Y axis was incorrectly %s" % (tostr(vy))
 
 
-@cleanup
 def test_shared():
     rdim = (4, 4, 2)
     share = {
@@ -102,7 +101,6 @@ def test_shared():
     check_visible(axs, [False, False, True, True], [True, False, True, False])
 
 
-@cleanup
 def test_exceptions():
     # TODO should this test more options?
     with pytest.raises(ValueError):

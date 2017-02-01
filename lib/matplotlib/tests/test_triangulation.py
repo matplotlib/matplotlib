@@ -10,7 +10,7 @@ import pytest
 from numpy.testing import assert_array_equal, assert_array_almost_equal,\
     assert_array_less
 import numpy.ma.testutils as matest
-from matplotlib.testing.decorators import cleanup, image_comparison
+from matplotlib.testing.decorators import image_comparison
 import matplotlib.cm as cm
 from matplotlib.path import Path
 
@@ -1029,7 +1029,6 @@ def test_trianalyzer_mismatched_indices():
     triang2 = analyser._get_compressed_triangulation()
 
 
-@cleanup
 def test_tricontourf_decreasing_levels():
     # github issue 5477.
     x = [0.0, 1.0, 1.0]

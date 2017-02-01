@@ -4,7 +4,7 @@ from __future__ import (absolute_import, division, print_function,
 import numpy as np
 
 import matplotlib.pyplot as plt
-from matplotlib.testing.decorators import image_comparison, cleanup
+from matplotlib.testing.decorators import image_comparison
 
 
 @image_comparison(baseline_images=['spines_axes_positions'])
@@ -46,7 +46,6 @@ def test_spines_capstyle():
     ax.set_yticks([])
 
 
-@cleanup
 def test_label_without_ticks():
     fig = plt.figure()
     ax = fig.add_subplot(1, 1, 1)
