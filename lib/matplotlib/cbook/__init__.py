@@ -543,6 +543,7 @@ def file_requires_unicode(x):
         return False
 
 
+@deprecated('2.1')
 def is_scalar(obj):
     """return true if *obj* is not string like and is not iterable"""
     return not is_string_like(obj) and not iterable(obj)
@@ -582,6 +583,7 @@ def to_filehandle(fname, flag='rU', return_opened=False):
     return fh
 
 
+@deprecated('2.1')
 def is_scalar_or_string(val):
     """Return whether the given object is a scalar or string like."""
     return is_string_like(val) or not iterable(val)
