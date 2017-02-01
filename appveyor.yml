@@ -91,12 +91,12 @@ install:
   - conda create -q -n test-environment python=%PYTHON_VERSION%
     pip setuptools numpy python-dateutil freetype=2.6 msinttypes "tk=8.5"
     pyparsing pytz tornado "libpng>=1.6.21,<1.7" "zlib=1.2" "cycler>=0.10"
-    nose mock sphinx
+    mock sphinx
   - activate test-environment
   - cmd: echo %PYTHON_VERSION% %TARGET_ARCH%
   - cmd: IF %PYTHON_VERSION% == 2.7 conda install -q functools32
   # pytest-cov>=2.3.1 due to https://github.com/pytest-dev/pytest-cov/issues/124
-  - if x%USE_PYTEST% == xyes conda install -q pytest "pytest-cov>=2.3.1" pytest-timeout pytest-xdist
+  - conda install -q pytest "pytest-cov>=2.3.1" pytest-timeout pytest-xdist
 
   # Let the install prefer the static builds of the libs
   - set LIBRARY_LIB=%CONDA_PREFIX%\Library\lib
@@ -135,9 +135,9 @@ test_script:
   # Test import of tkagg backend
   - python -c "import matplotlib as m; m.use('tkagg'); import matplotlib.pyplot as plt; print(plt.get_backend())"
   # tests
-  - if x%USE_PYTEST% == xyes echo The following args are passed to pytest %PYTEST_ARGS%
+  - echo The following args are passed to pytest %PYTEST_ARGS%
   - if x%USE_PYTEST% == xyes py.test %PYTEST_ARGS%
-  - if x%USE_PYTEST% == xno python tests.py
+  - if x%USE_PYTEST% == xno python tests.py %PYTEST_ARGS%
   # Generate a html for visual tests
   - python visual_tests.py
 
