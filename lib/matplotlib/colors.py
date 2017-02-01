@@ -781,15 +781,18 @@ class Colormap(object):
 
         # ### float indexing
         # for float-style indexing, the values must be in [0.0, 1.0]
-        # Truncate the colormap between 20 and 70%
-        new_cm = cmap[0.2, 0.7]
-        # equivalently:
-        new_cm = cmap[0.2:0.7]
+        # Truncate the colormap between 20 and 80%.
+        new_cm = cmap[0.2:0.6]
+        # `new_cm` will have the color-spacing as `cmap` (in this
+        # case: 0.6 - 0.2 = 40% of 128 = 51 colors)
+
+        # negative values are supported
+        # this gives the same result as above
+        new_cm = cmap[0.2:-0.4]
 
         # Same as above, but specify the number of points
-        new_cm = cmap[0.2, 0.7, 64]
-        # equivalently, use `np.mgrid` complex-indexing:
-        new_cm = cmap[0.2:0.7:1j * 64]
+        # using `np.mgrid` complex-indexing:
+        new_cm = cmap[0.2:-0.4:1j * 64]
 
         # ### Int-style indexing
         # for int-style indexing, the values must be in [0, self.N]
@@ -803,19 +806,35 @@ class Colormap(object):
 
         # And so is `np.mgrid` complex-indexing (same as above)
         new_cm = cmap[12:-28:1j * 22]
+
+        # ### Array/list-style indexing
+        # In this case, you specify specific points in the colormap
+        # at which you'd like to create a new colormap.
+
+        # You can index by integers, in which case
+        # all values must be ints in [-self.N, self.N]:
+        new_cm = cmap[[5, 10, 25, -38]]
+
+        # Or by floats in the range [-1, 1]
+        new_cm = cmap[[0.04, 0.08, 0.2, -0.3]]
         """
-        if isinstance(item, tuple):
-            if len(item) == 2:
-                N = self.N
-            elif len(item) == 3:
-                N = item[2]
-            else:
-                raise IndexError("Invalid colorbar itemization")
-            return self.truncate(item[0], item[1], N=N)
-        elif isinstance(item, slice):
-            name = self.name + '[{:s}]'.format(str(item))
+        if isinstance(item, slice):
             sss = [item.start, item.stop, item.step]
-            if any([isinstance(s, int) for s in sss]):
+            name = self.name + '[{}:{}:{}]'.format(*sss)
+            if (all([s is None or abs(s) <= 1 for s in sss[:2]]) and
+                    (sss[2] is None or abs(sss[2]) <= 1 or
+                     isinstance(sss[2], complex))):
+                if sss[0] is None:
+                    sss[0] = 0
+                elif sss[0] < 0:
+                    sss[0] += 1
+                if sss[1] is None:
+                    sss[1] = 1.0
+                elif sss[1] < 0:
+                    sss[1] += 1
+                if sss[2] is None:
+                    sss[2] = self.N * 1j * (sss[1] - sss[0])
+            else:
                 # This is an integer-style itemization
                 if sss[0] is None:
                     sss[0] = 0
@@ -831,27 +850,23 @@ class Colormap(object):
                 sss[1] = sss[1] / self.N
                 if not isinstance(sss[2], complex):
                     sss[2] = sss[2] / self.N
-            else:
-                if sss[0] is None:
-                    sss[0] = 0.0
-                if sss[1] is None:
-                    sss[1] = 1.0
-                if sss[2] is None:
-                    sss[2] = self.N * 1j
-            if sss[0] < 0 or sss[0] >= 1 or sss[1] <= 0 or sss[1] > 1:
-                raise IndexError("Invalid colorbar itemization - outside bounds")
+                if sss[0] < 0 or sss[0] >= 1 or sss[1] <= 0 or sss[1] > 1:
+                    raise IndexError("Invalid colorbar itemization - outside bounds")
             points = np.mgrid[slice(*sss)]
         elif isinstance(item, (list, np.ndarray)):
-            name = self.name + '[...]'
+            name = self.name + '[<indexed>]'
             if isinstance(item, list):
                 item = np.array(item)
             if item.dtype.kind in ('u', 'i'):
                 item = item.astype('f') / self.N
+            item[item < 0] += 1
+            if np.any(item > 1):
+                raise IndexError("Invalid colorbar itemization - outside bounds")
             points = item
         else:
             raise IndexError("Invalid colorbar itemization")
         if len(points) <= 1:
-            raise IndexError("Invalid colorbar itemization - too few points")
+            raise IndexError("Invalid colorbar itemization - a colorbar must contain >1 color.")
         return ListedColormap(self(points), name=name)
 
 
