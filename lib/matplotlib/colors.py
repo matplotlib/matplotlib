@@ -241,8 +241,8 @@ def _to_rgba_no_colorcycle(c, alpha=None):
         match = re.match(r"\A#[a-fA-F0-9]{6}\Z", c)
         if match:
             return (tuple(int(n, 16) / 255
-                          for n in [c[1:3], c[3:5], c[5:7]])
-                    + (alpha if alpha is not None else 1.,))
+                          for n in [c[1:3], c[3:5], c[5:7]]) +
+                    (alpha if alpha is not None else 1.,))
         # hex color with alpha.
         match = re.match(r"\A#[a-fA-F0-9]{8}\Z", c)
         if match:
@@ -851,7 +851,8 @@ class Colormap(object):
                 if not isinstance(sss[2], complex):
                     sss[2] = sss[2] / self.N
                 if sss[0] < 0 or sss[0] >= 1 or sss[1] <= 0 or sss[1] > 1:
-                    raise IndexError("Invalid colorbar itemization - outside bounds")
+                    raise IndexError("Invalid colorbar itemization - outside "
+                                     "bounds")
             points = np.mgrid[slice(*sss)]
         elif isinstance(item, (list, np.ndarray)):
             name = self.name + '[<indexed>]'
@@ -861,12 +862,14 @@ class Colormap(object):
                 item = item.astype('f') / self.N
             item[item < 0] += 1
             if np.any(item > 1):
-                raise IndexError("Invalid colorbar itemization - outside bounds")
+                raise IndexError("Invalid colorbar itemization - outside "
+                                 "bounds")
             points = item
         else:
             raise IndexError("Invalid colorbar itemization")
         if len(points) <= 1:
-            raise IndexError("Invalid colorbar itemization - a colorbar must contain >1 color.")
+            raise IndexError("Invalid colorbar itemization - a colorbar must "
+                             "contain >1 color.")
         return ListedColormap(self(points), name=name)
 
 
