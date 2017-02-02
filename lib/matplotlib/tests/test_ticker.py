@@ -1,7 +1,8 @@
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
-from numpy.testing import assert_almost_equal
+from numpy.testing import (assert_almost_equal,
+                           assert_array_almost_equal)
 import numpy as np
 import pytest
 
@@ -74,6 +75,31 @@ def test_LogLocator():
     loc = mticker.LogLocator(base=2)
     test_value = np.array([0.5, 1., 2., 4., 8., 16., 32., 64., 128., 256.])
     assert_almost_equal(loc.tick_values(1, 100), test_value)
+
+
+class TestFuncLocator(object):
+    def test_call(self):
+        loc = mticker.FuncLocator(np.sqrt, lambda x: x**2)
+        expected = [0., 0.01, 0.04, 0.09, 0.16, 0.25, 0.4,
+                    0.49, 0.6, 0.8, 1.]
+        assert_array_almost_equal(loc(), expected)
+
+    def test_tick_values(self):
+        loc = mticker.FuncLocator(np.sqrt, lambda x: x**2)
+        expected = [0., 0.01, 0.04, 0.09, 0.16, 0.25, 0.4,
+                    0.49, 0.6, 0.8, 1.]
+        assert_array_almost_equal(loc.tick_values(), expected)
+
+    def test_set_params(self):
+        loc = mticker.FuncLocator(lambda x: x, lambda x: x, 6)
+        expected = [0., 0.2, 0.4, 0.6, 0.8, 1.]
+        assert_array_almost_equal(loc.tick_values(), expected)
+        loc.set_params(function=np.sqrt,
+                       inverse=lambda x: x**2,
+                       numticks=11)
+        expected = [0., 0.01, 0.04, 0.09, 0.16, 0.25, 0.4,
+                    0.49, 0.6, 0.8, 1.]
+        assert_array_almost_equal(loc.tick_values(), expected)
 
 
 def test_LinearLocator_set_params():

@@ -140,6 +140,63 @@ def test_BoundaryNorm():
     assert np.all(bn(vals).mask)
 
 
+class TestFuncNorm(object):
+    def test_limits_with_string(self):
+        norm = mcolors.FuncNorm(f='log10', vmin=0.01, vmax=2.)
+        assert_array_equal(norm([0.01, 2]), [0, 1.0])
+
+    def test_limits_with_lambda(self):
+        norm = mcolors.FuncNorm(f=lambda x: np.log10(x),
+                                finv=lambda x: 10.**(x),
+                                vmin=0.01, vmax=2.)
+        assert_array_equal(norm([0.01, 2]), [0, 1.0])
+
+    def test_limits_without_vmin_vmax(self):
+        norm = mcolors.FuncNorm(f='log10')
+        assert_array_equal(norm([0.01, 2]), [0, 1.0])
+
+    def test_limits_without_vmin(self):
+        norm = mcolors.FuncNorm(f='log10', vmax=2.)
+        assert_array_equal(norm([0.01, 2]), [0, 1.0])
+
+    def test_limits_without_vmax(self):
+        norm = mcolors.FuncNorm(f='log10', vmin=0.01)
+        assert_array_equal(norm([0.01, 2]), [0, 1.0])
+
+    def test_clip_true(self):
+        norm = mcolors.FuncNorm(f='log10', vmin=0.01, vmax=2.,
+                                clip=True)
+        assert_array_equal(norm([0.0, 2.5]), [0.0, 1.0])
+
+    def test_clip_false(self):
+        norm = mcolors.FuncNorm(f='log10', vmin=0.01, vmax=2.,
+                                clip=False)
+        assert_array_equal(norm([0.0, 2.5]), [-0.1, 1.1])
+
+    def test_clip_default_false(self):
+        norm = mcolors.FuncNorm(f='log10', vmin=0.01, vmax=2.)
+        assert_array_equal(norm([0.0, 2.5]), [-0.1, 1.1])
+
+    def test_intermediate_values(self):
+        norm = mcolors.FuncNorm(f='log10')
+        assert_array_almost_equal(norm([0.01, 0.5, 2]),
+                                  [0, 0.73835195870437, 1.0])
+
+    def test_inverse(self):
+        norm = mcolors.FuncNorm(f='log10', vmin=0.01, vmax=2.)
+        x = np.linspace(0.01, 2, 10)
+        assert_array_almost_equal(x, norm.inverse(norm(x)))
+
+    def test_scalar(self):
+        norm = mcolors.FuncNorm(f='linear', vmin=1., vmax=2.,
+                                clip=True)
+        assert_equal(norm(1.5), 0.5)
+        assert_equal(norm(1.), 0.)
+        assert_equal(norm(0.5), 0.)
+        assert_equal(norm(2.), 1.)
+        assert_equal(norm(2.5), 1.)
+
+
 def test_LogNorm():
     """
     LogNorm ignored clip, now it has the same
