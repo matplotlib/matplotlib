@@ -256,6 +256,12 @@ or by setting::
 
 In your :file:`matplotlibrc` file.
 
+In addition, the ``forward`` kwarg to
+`~matplotlib.Figure.set_size_inches` now defaults to `True` to improve
+the interactive experience.  Backend canvases that adjust the size of
+their bound `matplotlib.figure.Figure` must pass ``forward=False`` to
+avoid circular behavior.  This default is not configurable.
+
 
 Plotting functions
 ==================
