@@ -1246,7 +1246,7 @@ class BoundaryNorm(Normalize):
     between integer and floating point.
     """
     def __init__(self, boundaries, ncolors, clip=False):
-        """
+        r"""
         Parameters
         ----------
         boundaries : sequence
@@ -1265,9 +1265,9 @@ class BoundaryNorm(Normalize):
 
         Notes
         -----
-        If :code:`b[i] <= v < b[i+1]` then v is mapped to color j;
-        as i varies from 0 to len(boundaries)-2,
-        j goes from 0 to ncolors-1.
+        If :code:`b[i] <= v < b[i+1]` then v is mapped to
+        floor( :math:`\frac{n_{colors}- 1}{n_{bins} - 1} * i`), where nbins is
+        is ``len(boundaries) - 2``.
         """
         self.clip = clip
         self.vmin = boundaries[0]
