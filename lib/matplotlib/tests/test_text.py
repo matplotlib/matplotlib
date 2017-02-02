@@ -30,7 +30,7 @@ def test_font_styles():
     from matplotlib.font_manager import FontProperties, findfont
     warnings.filterwarnings(
         'ignore',
-        ('findfont: Font family \[u?\'Foo\'\] not found. Falling back to .'),
+        "findfont: Font family \[u?'Foo'\] not found. Falling back to .",
         UserWarning,
         module='matplotlib.font_manager')
 
@@ -135,7 +135,7 @@ def test_antialiasing():
     fig = plt.figure(figsize=(5.25, 0.75))
     fig.text(0.5, 0.75, "antialiased", horizontalalignment='center',
              verticalalignment='center')
-    fig.text(0.5, 0.25, "$\sqrt{x}$", horizontalalignment='center',
+    fig.text(0.5, 0.25, r"$\sqrt{x}$", horizontalalignment='center',
              verticalalignment='center')
     # NOTE: We don't need to restore the rcParams here, because the
     # test cleanup will do it for us.  In fact, if we do it here, it

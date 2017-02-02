@@ -2191,7 +2191,7 @@ def identity(n, rank=2, dtype='l', typecode=None):
 
                             /  1  if i0=i1=...=iR,
         id[i0,i1,...,iR] = -|
-                            \  0  otherwise.
+                            \\  0  otherwise.
 
     Optionally a *dtype* (or typecode) may be given (it defaults to 'l').
 
@@ -2869,7 +2869,7 @@ def csv2rec(fname, comments='#', skiprows=0, checkrows=0, delimiter=',',
             break
 
         # remove these chars
-        delete = set("""~!@#$%^&*()-=+~\|]}[{';: /?.>,<""")
+        delete = set(r"""~!@#$%^&*()-=+~\|]}[{';: /?.>,<""")
         delete.add('"')
 
         names = []

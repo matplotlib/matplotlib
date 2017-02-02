@@ -176,7 +176,6 @@ def test_pep8_conformance_installed_files():
     expected_bad_files = ['_cm.py',
                           '_mathtext_data.py',
                           'backend_bases.py',
-                          'collections.py',
                           'font_manager.py',
                           'fontconfig_pattern.py',
                           'gridspec.py',

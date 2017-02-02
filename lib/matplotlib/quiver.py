@@ -750,7 +750,8 @@ class Quiver(mcollections.PolyCollection):
 
     quiver_doc = _quiver_doc
 
-_barbs_doc = """
+
+_barbs_doc = r"""
 Plot a 2-D field of barbs.
 
 Call signatures::

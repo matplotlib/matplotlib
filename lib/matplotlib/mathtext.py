@@ -68,7 +68,7 @@ def get_unicode_index(symbol, math=True):
     """get_unicode_index(symbol, [bool]) -> integer
 
 Return the integer index (from the Unicode table) of symbol.  *symbol*
-can be a single unicode character, a TeX command (i.e. r'\pi'), or a
+can be a single unicode character, a TeX command (i.e. r'\\pi'), or a
 Type1 symbol name (i.e. 'phi').
 If math is False, the current symbol should be treated as a non-math symbol.
 """
@@ -430,7 +430,7 @@ class Fonts(object):
 
         *fontclassX*: TODO
 
-        *symX*: a symbol in raw TeX form. e.g., '1', 'x' or '\sigma'
+        *symX*: a symbol in raw TeX form. e.g., '1', 'x' or '\\sigma'
 
         *fontsizeX*: the fontsize in points
 
@@ -446,7 +446,7 @@ class Fonts(object):
 
         *font_class*: TODO
 
-        *sym*:  a symbol in raw TeX form. e.g., '1', 'x' or '\sigma'
+        *sym*:  a symbol in raw TeX form. e.g., '1', 'x' or '\\sigma'
 
         *fontsize*: font size in points
 
@@ -749,12 +749,12 @@ class BakomaFonts(TruetypeFonts):
         r'>'         : [('cal', 'i'), ('ex', 'E')]
         }
 
-    for alias, target in [('\leftparen', '('),
-                          ('\rightparent', ')'),
-                          ('\leftbrace', '{'),
-                          ('\rightbrace', '}'),
-                          ('\leftbracket', '['),
-                          ('\rightbracket', ']'),
+    for alias, target in [(r'\leftparen', '('),
+                          (r'\rightparent', ')'),
+                          (r'\leftbrace', '{'),
+                          (r'\rightbrace', '}'),
+                          (r'\leftbracket', '['),
+                          (r'\rightbracket', ']'),
                           (r'\{', '{'),
                           (r'\}', '}'),
                           (r'\[', '['),
@@ -1034,7 +1034,7 @@ class StixFonts(UnicodeFonts):
 
     _size_alternatives = {}
     def get_sized_alternatives_for_symbol(self, fontname, sym):
-        fixes = {'\{': '{', '\}': '}', '\[': '[', '\]': ']'}
+        fixes = {'\\{': '{', '\\}': '}', '\\[': '[', '\\]': ']'}
         sym = fixes.get(sym, sym)
 
         alternatives = self._size_alternatives.get(sym)
@@ -2425,12 +2425,12 @@ class Parser(object):
                              Suppress(Literal(r"\sqrt"))
                            - ((Optional(p.lbracket + p.int_literal + p.rbracket, default=None)
                               + p.required_group)
-                           | Error("Expected \sqrt{value}"))
+                           | Error("Expected \\sqrt{value}"))
                          )
 
         p.overline      <<= Group(
                              Suppress(Literal(r"\overline"))
-                           - (p.required_group | Error("Expected \overline{value}"))
+                           - (p.required_group | Error("Expected \\overline{value}"))
                          )
 
         p.unknown_symbol<<= Combine(p.bslash + Regex("[A-Za-z]*"))
@@ -2438,7 +2438,7 @@ class Parser(object):
         p.operatorname  <<= Group(
                              Suppress(Literal(r"\operatorname"))
                            - ((p.lbrace + ZeroOrMore(p.simple | p.unknown_symbol) + p.rbrace)
-                              | Error("Expected \operatorname{value}"))
+                              | Error("Expected \\operatorname{value}"))
                          )
 
         p.placeable     <<= ( p.snowflake # this needs to be before accent so named symbols
@@ -2693,7 +2693,7 @@ class Parser(object):
         # The first 2 entires in the tuple are (font, char, sizescale) for
         # the two symbols under and over.  The third element is the space
         # (in multiples of underline height)
-        r'AA' : (  ('it', 'A', 1.0), (None, '\circ', 0.5), 0.0),
+        r'AA': (('it', 'A', 1.0), (None, '\\circ', 0.5), 0.0),
     }
 
     def c_over_c(self, s, loc, toks):
@@ -2915,7 +2915,7 @@ class Parser(object):
             if super is None:
                 super = Hlist([])
             for i in range(napostrophes):
-                super.children.extend(self.symbol(s, loc, ['\prime']))
+                super.children.extend(self.symbol(s, loc, ['\\prime']))
             # kern() and hpack() needed to get the metrics right after extending
             super.kern()
             super.hpack()
@@ -3288,7 +3288,7 @@ class MathTextParser(object):
     def to_mask(self, texstr, dpi=120, fontsize=14):
         """
         *texstr*
-            A valid mathtext string, e.g., r'IQ: $\sigma_i=15$'
+            A valid mathtext string, e.g., r'IQ: $\\sigma_i=15$'
 
         *dpi*
             The dots-per-inch to render the text
@@ -3314,7 +3314,7 @@ class MathTextParser(object):
     def to_rgba(self, texstr, color='black', dpi=120, fontsize=14):
         """
         *texstr*
-            A valid mathtext string, e.g., r'IQ: $\sigma_i=15$'
+            A valid mathtext string, e.g., r'IQ: $\\sigma_i=15$'
 
         *color*
             Any matplotlib color argument
@@ -3354,7 +3354,7 @@ class MathTextParser(object):
             A writable filename or fileobject
 
         *texstr*
-            A valid mathtext string, e.g., r'IQ: $\sigma_i=15$'
+            A valid mathtext string, e.g., r'IQ: $\\sigma_i=15$'
 
         *color*
             A valid matplotlib color argument
@@ -3378,7 +3378,7 @@ class MathTextParser(object):
         image in pixels.
 
         *texstr*
-            A valid mathtext string, e.g., r'IQ: $\sigma_i=15$'
+            A valid mathtext string, e.g., r'IQ: $\\sigma_i=15$'
 
         *dpi*
             The dots-per-inch to render the text
