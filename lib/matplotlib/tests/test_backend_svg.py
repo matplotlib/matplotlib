@@ -145,15 +145,14 @@ def _test_determinism_save(filename, usetex):
     a, b, c = ax.errorbar(x, y, yerr=yerr, fmt='ko')
     for artist in b:
         artist.set_visible(False)
-    ax.set_title('A string $1+2+\sigma$')
-    ax.set_xlabel('A string $1+2+\sigma$')
-    ax.set_ylabel('A string $1+2+\sigma$')
+    ax.set_title('A string $1+2+\\sigma$')
+    ax.set_xlabel('A string $1+2+\\sigma$')
+    ax.set_ylabel('A string $1+2+\\sigma$')
 
     FigureCanvasSVG(fig).print_svg(filename)
 
 
 def _test_determinism(filename, usetex):
-    import os
     import sys
     from subprocess import check_output, STDOUT, CalledProcessError
     plots = []

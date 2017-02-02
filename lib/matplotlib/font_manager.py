@@ -184,7 +184,7 @@ def win32FontDirectory():
     Return the user-specified font directory for Win32.  This is
     looked up from the registry key::
 
-      \\HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders\Fonts
+      \\\\HKEY_CURRENT_USER\\Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Shell Folders\\Fonts
 
     If the key is not found, $WINDIR/Fonts will be returned.
     """

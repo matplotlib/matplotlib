@@ -7,13 +7,13 @@ sessions
 Requirements:
 
 * latex
-* \*Agg backends: dvipng
+* \\*Agg backends: dvipng
 * PS backend: latex w/ psfrag, dvips, and Ghostscript 8.51
   (older versions do not work properly)
 
 Backends:
 
-* \*Agg
+* \\*Agg
 * PS
 * PDF
 
@@ -22,7 +22,7 @@ as follows::
 
   texmanager = TexManager()
   s = ('\\TeX\\ is Number '
-       '$\\displaystyle\\sum_{n=1}^\\infty\\frac{-e^{i\pi}}{2^n}$!')
+       '$\\displaystyle\\sum_{n=1}^\\infty\\frac{-e^{i\\pi}}{2^n}$!')
   Z = self.texmanager.get_rgba(s, size=12, dpi=80, rgb=(1,0,0))
 
 To enable tex rendering of all text in your matplotlib figure, set
