@@ -14,7 +14,6 @@ environment:
     CMD_IN_ENV: "cmd /E:ON /V:ON /C obvci_appveyor_python_build_env.cmd"
     # Workaround for https://github.com/conda/conda-build/issues/636
     PYTHONIOENCODING: "UTF-8"
-    TEST_ARGS: --no-pep8
     PYTEST_ARGS: -ra --timeout=300 --durations=25 #--cov-report= --cov=lib #-n %NUMBER_OF_PROCESSORS%
     USE_PYTEST: no
     #PYTHONHASHSEED: 0  # Workaround for pytest-xdist flaky colletion order
@@ -137,8 +136,8 @@ test_script:
   - python -c "import matplotlib as m; m.use('tkagg'); import matplotlib.pyplot as plt; print(plt.get_backend())"
   # tests
   - if x%USE_PYTEST% == xyes echo The following args are passed to pytest %PYTEST_ARGS%
-  - if x%USE_PYTEST% == xyes py.test %PYTEST_ARGS% %TEST_ARGS%
-  - if x%USE_PYTEST% == xno python tests.py %TEST_ARGS%
+  - if x%USE_PYTEST% == xyes py.test %PYTEST_ARGS%
+  - if x%USE_PYTEST% == xno python tests.py
   # Generate a html for visual tests
   - python visual_tests.py
 
