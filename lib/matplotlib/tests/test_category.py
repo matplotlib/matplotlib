@@ -121,6 +121,25 @@ def lt(tl):
 
 
 class TestPlot(object):
+    bytes_data = [
+        ['a', 'b', 'c'],
+        [b'a', b'b', b'c'],
+        np.array([b'a', b'b', b'c'])
+    ]
+
+    bytes_ids = ['string list', 'bytes list', 'bytes ndarray']
+
+    numlike_data = [
+        ['1', '11', '3'],
+        np.array(['1', '11', '3']),
+        [b'1', b'11', b'3'],
+        np.array([b'1', b'11', b'3']),
+    ]
+
+    numlike_ids = [
+        'string list', 'string ndarray', 'bytes list', 'bytes ndarray'
+    ]
+
     @pytest.fixture
     def data(self):
         self.d = ['a', 'b', 'c', 'a']
@@ -171,12 +190,7 @@ class TestPlot(object):
         self.axis_test(ax.yaxis, self.dmticks, self.dmlabels, self.dmunit_data)
 
     @pytest.mark.usefixtures("data")
-    @pytest.mark.parametrize("bars",
-                             [['a', 'b', 'c'],
-                              [b'a', b'b', b'c'],
-                              np.array([b'a', b'b', b'c'])],
-                             ids=['string list', 'bytes list',
-                                  'bytes ndarray'])
+    @pytest.mark.parametrize("bars", bytes_data, ids=bytes_ids)
     def test_plot_bytes(self, bars):
         counts = np.array([4, 6, 5])
 
@@ -186,13 +200,7 @@ class TestPlot(object):
 
         self.axis_test(ax.xaxis, self.dticks, self.dlabels, self.dunit_data)
 
-    @pytest.mark.parametrize("bars",
-                             [['1', '11', '3'],
-                              np.array(['1', '11', '3']),
-                              [b'1', b'11', b'3'],
-                              np.array([b'1', b'11', b'3'])],
-                             ids=['string list', 'string ndarray',
-                                  'bytes list', 'bytes ndarray'])
+    @pytest.mark.parametrize("bars", numlike_data, ids=numlike_ids)
     def test_plot_numlike(self, bars):
         counts = np.array([4, 6, 5])
 
