@@ -47,12 +47,6 @@ COLLECT_FILTERS = {
 }
 
 
-def is_nose_class(cls):
-    """Check if supplied class looks like Nose testcase"""
-    return any(name in ['setUp', 'tearDown']
-               for name, _ in inspect.getmembers(cls))
-
-
 def pytest_addoption(parser):
     group = parser.getgroup("matplotlib", "matplotlib custom options")
 
@@ -80,23 +74,3 @@ def pytest_ignore_collect(path, config):
     if path.ext == '.py':
         collect_filter = config.getoption('--collect-filter')
         return COLLECT_FILTERS[collect_filter](path)
-
-
-def pytest_pycollect_makeitem(collector, name, obj):
-    if inspect.isclass(obj):
-        if is_nose_class(obj) and not issubclass(obj, unittest.TestCase):
-            # Workaround unittest-like setup/teardown names in pure classes
-            setup = getattr(obj, 'setUp', None)
-            if setup is not None:
-                obj.setup_method = lambda self, _: obj.setUp(self)
-            tearDown = getattr(obj, 'tearDown', None)
-            if tearDown is not None:
-                obj.teardown_method = lambda self, _: obj.tearDown(self)
-            setUpClass = getattr(obj, 'setUpClass', None)
-            if setUpClass is not None:
-                obj.setup_class = obj.setUpClass
-            tearDownClass = getattr(obj, 'tearDownClass', None)
-            if tearDownClass is not None:
-                obj.teardown_class = obj.tearDownClass
-
-            return pytest.Class(name, parent=collector)

@@ -68,7 +68,7 @@ def test_restrict_dict():
 
 
 class Test_delete_masked_points(object):
-    def setUp(self):
+    def setup_method(self):
         self.mask1 = [False, False, True, True, False, False]
         self.arr0 = np.arange(1.0, 7.0)
         self.arr1 = [1, 2, 3, np.nan, np.nan, 6]
