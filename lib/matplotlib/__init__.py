@@ -1474,9 +1474,10 @@ def _jupyter_nbextension_paths():
 
 
 default_test_modules = [
-    'matplotlib.tests.test_png',
-    'matplotlib.tests.test_units',
-    ]
+    'matplotlib.tests',
+    'matplotlib.sphinxext.tests',
+    'mpl_toolkits.tests',
+]
 
 
 def _init_tests():
@@ -1510,19 +1511,51 @@ def _init_tests():
             )
         )
 
-    from .testing._nose import check_deps
-    check_deps()
+    try:
+        import pytest
+        try:
+            from unittest import mock
+        except ImportError:
+            import mock
+    except ImportError:
+        print("matplotlib.test requires pytest and mock to run.")
+        raise
 
 
-def test(verbosity=1, coverage=False, **kwargs):
+def test(verbosity=None, coverage=False, switch_backend_warn=True,
+         recursionlimit=0, **kwargs):
     """run the matplotlib test suite"""
     _init_tests()
 
-    from .testing._nose import test as nose_test
-    return nose_test(verbosity, coverage, **kwargs)
+    old_backend = get_backend()
+    old_recursionlimit = sys.getrecursionlimit()
+    try:
+        use('agg')
+        if recursionlimit:
+            sys.setrecursionlimit(recursionlimit)
+        import pytest
+
+        args = kwargs.pop('argv', [])
+        if not any(os.path.exists(arg) for arg in args):
+            args += ['--pyargs'] + default_test_modules
+
+        if coverage:
+            args += ['--cov']
+
+        if verbosity:
+            args += ['-' + 'v' * verbosity]
+
+        retcode = pytest.main(args, **kwargs)
+    finally:
+        if old_backend.lower() != 'agg':
+            use(old_backend, warn=switch_backend_warn)
+        if recursionlimit:
+            sys.setrecursionlimit(old_recursionlimit)
+
+    return retcode
 
 
-test.__test__ = False  # nose: this function is not a test
+test.__test__ = False  # pytest: this function is not a test
 
 
 def _replacer(data, key):

@@ -453,7 +453,6 @@ class SubplotSpec(object):
         else:
             return figbox
 
-
     def get_topmost_subplotspec(self):
         'get the topmost SubplotSpec instance associated with the subplot'
         gridspec = self.get_gridspec()
@@ -472,6 +471,10 @@ class SubplotSpec(object):
         return all((self._gridspec == other._gridspec,
                     self.num1 == other.num1,
                     self.num2 == other.num2))
+
+    if six.PY2:
+        def __ne__(self, other):
+            return not self == other
 
     def __hash__(self):
         return (hash(self._gridspec) ^

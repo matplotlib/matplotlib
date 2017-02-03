@@ -3,6 +3,8 @@
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
+from distutils.version import LooseVersion
+
 import pytest
 import numpy as np
 
@@ -10,6 +12,11 @@ import matplotlib.pyplot as plt
 import matplotlib.category as cat
 
 import unittest
+
+
+needs_new_numpy = pytest.mark.xfail(
+    LooseVersion(np.__version__) < LooseVersion('1.8.0'),
+    reason='NumPy < 1.8.0 is broken.')
 
 
 class TestUnitData(object):
@@ -21,12 +28,14 @@ class TestUnitData(object):
 
     ids = ["single", "unicode", "mixed"]
 
+    @needs_new_numpy
     @pytest.mark.parametrize("data, seq, locs", testdata, ids=ids)
     def test_unit(self, data, seq, locs):
         act = cat.UnitData(data)
         assert act.seq == seq
         assert act.locs == locs
 
+    @needs_new_numpy
     def test_update_map(self):
         data = ['a', 'd']
         oseq = ['a', 'd']
@@ -78,6 +87,7 @@ class TestStrCategoryConverter(object):
     def mock_axis(self, request):
         self.cc = cat.StrCategoryConverter()
 
+    @needs_new_numpy
     @pytest.mark.parametrize("data, unitmap, exp", testdata, ids=ids)
     def test_convert(self, data, unitmap, exp):
         MUD = MockUnitData(unitmap)
