@@ -7,8 +7,6 @@
 #
 
 import os
-import six
-
 from collections import defaultdict
 
 
@@ -57,7 +55,7 @@ def run():
 
     failed_rows = []
     body_sections = []
-    for subdir in _subdirs:
+    for subdir in sorted(_subdirs):
         if subdir == "test_compare_images":
             # These are the images which test the image comparison functions.
             continue
@@ -78,7 +76,7 @@ def run():
                 pictures[fn]["c"] = "/".join((subdir, file))
 
         subdir_rows = []
-        for name, test in six.iteritems(pictures):
+        for name, test in sorted(pictures.items()):
             expected_image = test.get('e', '')
             actual_image = test.get('c', '')
 
