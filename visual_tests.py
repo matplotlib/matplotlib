@@ -7,7 +7,6 @@
 #
 
 import os
-import time
 import six
 
 from collections import defaultdict
@@ -48,18 +47,21 @@ linked_image_template = '<a href="{0}"><img src="{0}"></a>'
 
 
 def run():
-    # Build a website for visual comparison
+    """
+    Build a website for visual comparison
+    """
     image_dir = "result_images"
-    # build the website
-    _subdirs = [name for name in os.listdir(image_dir) if os.path.isdir(os.path.join(image_dir, name))]
-    # loop over all pictures
-    _has_failure = False
+    _subdirs = (name
+                for name in os.listdir(image_dir)
+                if os.path.isdir(os.path.join(image_dir, name)))
+
     failed_rows = []
     body_sections = []
     for subdir in _subdirs:
         if subdir == "test_compare_images":
-            # these are the image which test the image comparison functions...
+            # These are the images which test the image comparison functions.
             continue
+
         pictures = defaultdict(dict)
         for file in os.listdir(os.path.join(image_dir, subdir)):
             if os.path.isdir(os.path.join(image_dir, subdir, file)):
@@ -81,8 +83,8 @@ def run():
             actual_image = test.get('c', '')
 
             if 'f' in test:
-                # a real failure in the image generation, resulting in different images
-                _has_failure = True
+                # A real failure in the image generation, resulting in
+                # different images.
                 status = " (failed)"
                 failed = '<a href="{0}">diff</a>'.format(test['f'])
                 current = linked_image_template.format(actual_image)
@@ -90,7 +92,6 @@ def run():
                                                        expected_image, failed))
             elif 'c' not in test:
                 # A failure in the test, resulting in no current image
-                _has_failure = True
                 status = " (failed)"
                 failed = '--'
                 current = '(Failure in test, no image produced)'
@@ -100,13 +101,14 @@ def run():
                 status = " (passed)"
                 failed = '--'
                 current = linked_image_template.format(actual_image)
+
             subdir_rows.append(row_template.format(name, status, current,
                                                    expected_image, failed))
 
         body_sections.append(
             subdir_template.format(subdir=subdir, rows='\n'.join(subdir_rows)))
 
-    if _has_failure:
+    if failed_rows:
         failed = failed_template.format(rows='\n'.join(failed_rows))
     else:
         failed = ''
@@ -121,6 +123,7 @@ def run():
         webbrowser.open(index)
     except:
         print("Open {} in a browser for a visual comparison.".format(index))
+
 
 if __name__ == '__main__':
     run()
