@@ -99,9 +99,8 @@ def test_xelatex():
 def test_pdflatex():
     import os
     if os.environ.get('APPVEYOR', False):
-        from matplotlib.testing import xfail
-        xfail("pdflatex test does not work on appveyor due "
-              "to missing latex fonts")
+        pytest.xfail("pdflatex test does not work on appveyor due to missing "
+                     "LaTeX fonts")
 
     rc_pdflatex = {'font.family': 'serif',
                    'pgf.rcfonts': False,

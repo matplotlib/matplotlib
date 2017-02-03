@@ -45,7 +45,6 @@ env:
     - NPROC=2
     - INSTALL_PEP8=
     - RUN_PEP8=
-    - NOSE_ARGS="-j $NPROC"
     - PYTEST_ARGS="-ra --maxfail=1 --timeout=300 --durations=25 --cov-report= --cov=lib -n $NPROC"
     - PYTHON_ARGS=
     - DELETE_FONT_CACHE=
@@ -58,7 +57,7 @@ matrix:
     - python: 3.4
       env: PYTHON_ARGS=-OO
     - python: 3.5
-      env: PANDAS=pandas NOSE_ARGS=--with-coverage DELETE_FONT_CACHE=1
+      env: PANDAS=pandas DELETE_FONT_CACHE=1
     - python: 3.5
       env: BUILD_DOCS=true
     - python: 3.5
@@ -70,7 +69,7 @@ matrix:
     - os: osx
       osx_image: xcode7.3
       language: generic  # https://github.com/travis-ci/travis-ci/issues/2312
-      env: MOCK=mock NOSE_ARGS=
+      env: MOCK=mock
       cache:
         # As for now travis caches only "$HOME/.cache/pip"
         # https://docs.travis-ci.com/user/caching/#pip-cache
@@ -117,9 +116,6 @@ install:
     pip install $PRE python-dateutil $NUMPY pyparsing!=2.1.6 $PANDAS cycler coveralls coverage $MOCK
     pip install $PRE -r doc-requirements.txt
 
-    # Install nose from a build which has partial
-    # support for python36 and suport for coverage output suppressing
-    pip install git+https://github.com/jenshnielsen/nose.git@matplotlibnose
     # pytest-cov>=2.3.1 due to https://github.com/pytest-dev/pytest-cov/issues/124
     pip install $PRE pytest 'pytest-cov>=2.3.1' pytest-timeout pytest-xdist pytest-faulthandler $INSTALL_PEP8
 
@@ -155,21 +151,20 @@ script:
       if [[ $DELETE_FONT_CACHE == 1 ]]; then
         rm -rf ~/.cache/matplotlib
       fi
+      # Workaround for pytest-xdist flaky collection order
+      # https://github.com/pytest-dev/pytest/issues/920
+      # https://github.com/pytest-dev/pytest/issues/1075
+      export PYTHONHASHSEED=$(shuf -i 1-4294967295 -n 1)
+      echo PYTHONHASHSEED=$PYTHONHASHSEED
+
+      echo The following args are passed to pytest $PYTEST_ARGS $RUN_PEP8
       if [[ $USE_PYTEST == false ]]; then
-        echo The following args are passed to nose $NOSE_ARGS $RUN_PEP8
         if [[ $TRAVIS_OS_NAME == 'osx' ]]; then
-          python tests.py $NOSE_ARGS $RUN_PEP8
+          python tests.py $PYTEST_ARGS $RUN_PEP8
         else
-          gdb -return-child-result -batch -ex r -ex bt --args python $PYTHON_ARGS tests.py $NOSE_ARGS $RUN_PEP8
+          gdb -return-child-result -batch -ex r -ex bt --args python $PYTHON_ARGS tests.py $PYTEST_ARGS $RUN_PEP8
         fi
       else
-        # Workaround for pytest-xdist flaky colletion order
-        # https://github.com/pytest-dev/pytest/issues/920
-        # https://github.com/pytest-dev/pytest/issues/1075
-        export PYTHONHASHSEED=$(shuf -i 1-4294967295 -n 1)
-        echo PYTHONHASHSEED=$PYTHONHASHSEED
-
-        echo The following args are passed to pytest $PYTEST_ARGS $RUN_PEP8
         py.test $PYTEST_ARGS $RUN_PEP8
       fi
     else
@@ -202,6 +197,11 @@ after_failure:
 
 after_success:
   - |
+    if [[ $BUILD_DOCS == false ]]; then
+      coveralls
+      bash <(curl -s https://codecov.io/bash)
+    fi
+  - |
     if [[ $TRAVIS_PULL_REQUEST == false && $TRAVIS_REPO_SLUG == 'matplotlib/matplotlib' && $BUILD_DOCS == true && $TRAVIS_BRANCH == 'master' ]]; then
       cd $TRAVIS_BUILD_DIR
       echo "Uploading documentation"
@@ -224,8 +224,4 @@ after_success:
       git push --set-upstream origin gh-pages --force
     else
       echo "Will only deploy docs build from matplotlib master branch"
-    fi
-    if [[ $NOSE_ARGS =~ "--with-coverage" || $USE_PYTEST == true ]]; then
-      coveralls
-      bash <(curl -s https://codecov.io/bash)
     fi
