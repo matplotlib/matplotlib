@@ -38,7 +38,7 @@ failed_template = """<h2>Only Failed</h2><table>
 """
 
 row_template = ('<tr>'
-                '<td>{0} {1}</td>'
+                '<td>{0}{1}</td>'
                 '<td>{2}</td>'
                 '<td><a href="{3}"><img src="{3}"></a></td>'
                 '<td>{4}</td>'
@@ -80,7 +80,7 @@ def run():
             if test.get("f", None):
                 # a real failure in the image generation, resulting in different images
                 _has_failure = True
-                s = "(failed)"
+                status = " (failed)"
                 failed = '<a href="{0}">diff</a>'.format(test.get("f", ""))
                 current = linked_image_template.format(test.get("c", ""))
                 failed_rows.append(row_template.format(name, "", current,
@@ -89,17 +89,17 @@ def run():
             elif test.get("c", None) is None:
                 # A failure in the test, resulting in no current image
                 _has_failure = True
-                s = "(failed)"
+                status = " (failed)"
                 failed = '--'
                 current = '(Failure in test, no image produced)'
                 failed_rows.append(row_template.format(name, "", current,
                                                        test.get("e", ""),
                                                        failed))
             else:
-                s = "(passed)"
+                status = " (passed)"
                 failed = '--'
                 current = linked_image_template.format(test.get("c", ""))
-            subdir_rows.append(row_template.format(name, "", current,
+            subdir_rows.append(row_template.format(name, status, current,
                                                    test.get("e", ""), failed))
 
         body_sections.append(
