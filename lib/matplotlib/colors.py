@@ -1258,9 +1258,9 @@ class BoundaryNorm(Normalize):
             are below ``boundaries[0]`` or mapped to *ncolors* - 1 if they are
             above ``boundaries[-1]``.
 
-            If clip is *False*, out of range values are mapped to *-1* if they
-            are below *boundaries[0]* or mapped to *ncolors* if they are
-            above *boundaries[-1]*. These are then converted to valid indices
+            If *clip* is ``False``, out of range values are mapped to -1 if
+            they are below ``boundaries[0]`` or mapped to *ncolors* if they are
+            above ``boundaries[-1]``. These are then converted to valid indices
             by :meth:`Colormap.__call__`.
 
         Notes
