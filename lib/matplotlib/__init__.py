@@ -1535,15 +1535,15 @@ def test(verbosity=None, coverage=False, switch_backend_warn=True,
             sys.setrecursionlimit(recursionlimit)
         import pytest
 
-        args = ['--pyargs'] + default_test_modules
+        args = kwargs.pop('argv', [])
+        if not any(os.path.exists(arg) for arg in args):
+            args += ['--pyargs'] + default_test_modules
 
         if coverage:
             args += ['--cov']
 
         if verbosity:
             args += ['-' + 'v' * verbosity]
-
-        args += kwargs.pop('argv', [])
 
         retcode = pytest.main(args, **kwargs)
     finally:
