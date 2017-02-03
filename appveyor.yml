@@ -139,7 +139,7 @@ test_script:
   - if x%USE_PYTEST% == xyes py.test %PYTEST_ARGS%
   - if x%USE_PYTEST% == xno python tests.py %PYTEST_ARGS%
   # Generate a html for visual tests
-  - python visual_tests.py
+  - python visual_tests.py --no-browser
   - pip install codecov
   - codecov -e PYTHON_VERSION PLATFORM
 
@@ -180,7 +180,7 @@ artifacts:
 on_finish:
 
 on_failure:
-  - python visual_tests.py
+  - python visual_tests.py --no-browser
   - echo zipping images after a failure...
   - 7z a result_images.zip result_images\ |grep -v "Compressing"
   - appveyor PushArtifact result_images.zip

@@ -6,6 +6,7 @@
 #   $ python visual_tests.py
 #
 
+import argparse
 import os
 from collections import defaultdict
 
@@ -44,7 +45,7 @@ row_template = ('<tr>'
 linked_image_template = '<a href="{0}"><img src="{0}"></a>'
 
 
-def run():
+def run(show_browser=True):
     """
     Build a website for visual comparison
     """
@@ -116,12 +117,21 @@ def run():
     with open(index, "w") as f:
         f.write(html)
 
-    try:
-        import webbrowser
-        webbrowser.open(index)
-    except:
+    show_message = not show_browser
+    if show_browser:
+        try:
+            import webbrowser
+            webbrowser.open(index)
+        except:
+            show_message = True
+
+    if show_message:
         print("Open {} in a browser for a visual comparison.".format(index))
 
 
 if __name__ == '__main__':
-    run()
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--no-browser', action='store_true',
+                        help="Don't show browser after creating index page.")
+    args = parser.parse_args()
+    run(show_browser=not args.no_browser)
