@@ -197,6 +197,11 @@ after_failure:
 
 after_success:
   - |
+    if [[ $BUILD_DOCS == false ]]; then
+      coveralls
+      bash <(curl -s https://codecov.io/bash)
+    fi
+  - |
     if [[ $TRAVIS_PULL_REQUEST == false && $TRAVIS_REPO_SLUG == 'matplotlib/matplotlib' && $BUILD_DOCS == true && $TRAVIS_BRANCH == 'master' ]]; then
       cd $TRAVIS_BUILD_DIR
       echo "Uploading documentation"
@@ -219,8 +224,4 @@ after_success:
       git push --set-upstream origin gh-pages --force
     else
       echo "Will only deploy docs build from matplotlib master branch"
-    fi
-    if [[ $USE_PYTEST == true ]]; then
-      coveralls
-      bash <(curl -s https://codecov.io/bash)
     fi
