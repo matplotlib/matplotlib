@@ -77,30 +77,31 @@ def run():
 
         subdir_rows = []
         for name, test in six.iteritems(pictures):
-            if test.get("f", None):
+            expected_image = test.get('e', '')
+            actual_image = test.get('c', '')
+
+            if 'f' in test:
                 # a real failure in the image generation, resulting in different images
                 _has_failure = True
                 status = " (failed)"
-                failed = '<a href="{0}">diff</a>'.format(test.get("f", ""))
-                current = linked_image_template.format(test.get("c", ""))
+                failed = '<a href="{0}">diff</a>'.format(test['f'])
+                current = linked_image_template.format(actual_image)
                 failed_rows.append(row_template.format(name, "", current,
-                                                       test.get("e", ""),
-                                                       failed))
-            elif test.get("c", None) is None:
+                                                       expected_image, failed))
+            elif 'c' not in test:
                 # A failure in the test, resulting in no current image
                 _has_failure = True
                 status = " (failed)"
                 failed = '--'
                 current = '(Failure in test, no image produced)'
                 failed_rows.append(row_template.format(name, "", current,
-                                                       test.get("e", ""),
-                                                       failed))
+                                                       expected_image, failed))
             else:
                 status = " (passed)"
                 failed = '--'
-                current = linked_image_template.format(test.get("c", ""))
+                current = linked_image_template.format(actual_image)
             subdir_rows.append(row_template.format(name, status, current,
-                                                   test.get("e", ""), failed))
+                                                   expected_image, failed))
 
         body_sections.append(
             subdir_template.format(subdir=subdir, rows='\n'.join(subdir_rows)))
