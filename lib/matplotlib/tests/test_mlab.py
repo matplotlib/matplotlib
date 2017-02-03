@@ -1630,6 +1630,18 @@ class Test_spectral_nosig_real_onesided(CleanupTestCase):
         assert_allclose(fsp, freqs, atol=1e-06)
         assert spec.shape == freqs.shape
 
+    def test_csd_padding(self):
+        """Test zero padding of csd(). """
+        if self.NFFT_density is None:  # for derived classes
+            return
+        sargs = dict(x=self.y, y=self.y+1, Fs=self.Fs, window=mlab.window_none,
+                     sides=self.sides)
+
+        spec0, _ = mlab.csd(NFFT=self.NFFT_density, **sargs)
+        spec1, _ = mlab.csd(NFFT=self.NFFT_density*2, **sargs)
+        assert_almost_equal(np.sum(np.conjugate(spec0)*spec0).real,
+                            np.sum(np.conjugate(spec1/2)*spec1/2).real)
+
     def test_psd(self):
         freqs = self.freqs_density
         spec, fsp = mlab.psd(x=self.y,
