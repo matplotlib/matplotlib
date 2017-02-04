@@ -1294,7 +1294,7 @@ class PercentFormatter(Formatter):
     def __init__(self, xmax=100, decimals=None, symbol='%'):
         self.xmax = xmax + 0.0
         self.decimals = decimals
-        self.symbol = symbol
+        self.symbol = symbol.replace('%', r'\%') if rcParams['text.usetex'] else symbol
 
     def __call__(self, x, pos=None):
         """
