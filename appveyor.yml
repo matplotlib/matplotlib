@@ -14,7 +14,7 @@ environment:
     CMD_IN_ENV: "cmd /E:ON /V:ON /C obvci_appveyor_python_build_env.cmd"
     # Workaround for https://github.com/conda/conda-build/issues/636
     PYTHONIOENCODING: "UTF-8"
-    PYTEST_ARGS: -ra --timeout=300 --durations=25 -n %NUMBER_OF_PROCESSORS% #--cov-report= --cov=lib
+    PYTEST_ARGS: -ra --timeout=300 --durations=25 -n %NUMBER_OF_PROCESSORS% --cov-report= --cov=lib
     USE_PYTEST: no
     PYTHONHASHSEED: 0  # Workaround for pytest-xdist flaky collection order
                        # https://github.com/pytest-dev/pytest/issues/920
@@ -140,6 +140,8 @@ test_script:
   - if x%USE_PYTEST% == xno python tests.py %PYTEST_ARGS%
   # Generate a html for visual tests
   - python visual_tests.py
+  - if x%USE_PYTEST% == xyes pip install codecov
+  - if x%USE_PYTEST% == xyes codecov -e PYTHON_VERSION PLATFORM
 
 after_test:
   # After the tests were a success, build packages (wheels and conda)
@@ -174,6 +176,8 @@ artifacts:
   - path: result_images\*
     name: result_images
     type: zip
+
+on_finish:
 
 on_failure:
   - python visual_tests.py
