@@ -2,8 +2,9 @@ from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
 import six
-
+import warnings
 import tempfile
+from functools import wraps
 
 from numpy.testing import (assert_allclose, assert_almost_equal,
                            assert_array_equal)
@@ -1514,6 +1515,32 @@ class Test_spectral_nosig_real_onesided(CleanupTestCase):
             del fstimst[-1]
             spect[maxind-5:maxind+5] = 0
 
+    class catch_specgram_warnings(object):
+        # A decorator to catch warnings thrown by specgram
+        def __init__(self, n_specgram_calls):
+            self.n_specgram_calls = n_specgram_calls
+
+        def __call__(self, test_function):
+            @wraps(test_function)
+            def wrapped(self_obj):
+                # Decide how many warnings will be thrown
+                n_warnings = 0
+                if self_obj.NFFT_specgram is None:
+                    if 256 >= len(self_obj.y):
+                        n_warnings = 1
+                elif self_obj.NFFT_specgram >= len(self_obj.y):
+                    n_warnings = 1
+
+                with warnings.catch_warnings(record=True) as w:
+                    warnings.simplefilter('always')
+                    expected_warnings = self.n_specgram_calls * n_warnings
+                    # Run test
+                    test_function(self_obj)
+                    assert len(w) == expected_warnings,\
+                        'warnings:%s, expected:%s'%(len(w), expected_warnings)
+
+            return wrapped
+
     def test_spectral_helper_raises_complex_same_data(self):
         # test that mode 'complex' cannot be used if x is not y
         with pytest.raises(ValueError):
@@ -1960,6 +1987,7 @@ class Test_spectral_nosig_real_onesided(CleanupTestCase):
         assert_allclose(fsp, freqs, atol=1e-06)
         assert spec.shape == freqs.shape
 
+    @catch_specgram_warnings(1)
     def test_specgram_auto(self):
         freqs = self.freqs_specgram
         spec, fsp, t = mlab.specgram(x=self.y,
@@ -1969,7 +1997,6 @@ class Test_spectral_nosig_real_onesided(CleanupTestCase):
                                      pad_to=self.pad_to_specgram,
                                      sides=self.sides)
         specm = np.mean(spec, axis=1)
-
         assert_allclose(fsp, freqs, atol=1e-06)
         assert_allclose(t, self.t_specgram, atol=1e-06)
 
@@ -1983,6 +2010,7 @@ class Test_spectral_nosig_real_onesided(CleanupTestCase):
                             atol=1e-02)
         self.check_freqs(specm, freqs, fsp, self.fstims)
 
+    @catch_specgram_warnings(1)
     def test_specgram_default(self):
         freqs = self.freqs_specgram
         spec, fsp, t = mlab.specgram(x=self.y,
@@ -2007,6 +2035,7 @@ class Test_spectral_nosig_real_onesided(CleanupTestCase):
                             atol=1e-02)
         self.check_freqs(specm, freqs, fsp, self.fstims)
 
+    @catch_specgram_warnings(1)
     def test_specgram_psd(self):
         freqs = self.freqs_specgram
         spec, fsp, t = mlab.specgram(x=self.y,
@@ -2030,6 +2059,7 @@ class Test_spectral_nosig_real_onesided(CleanupTestCase):
                             atol=1e-02)
         self.check_freqs(specm, freqs, fsp, self.fstims)
 
+    @catch_specgram_warnings(1)
     def test_specgram_complex(self):
         freqs = self.freqs_specgram
         spec, fsp, t = mlab.specgram(x=self.y,
@@ -2048,6 +2078,7 @@ class Test_spectral_nosig_real_onesided(CleanupTestCase):
 
         self.check_freqs(specm, freqs, fsp, self.fstims)
 
+    @catch_specgram_warnings(1)
     def test_specgram_magnitude(self):
         freqs = self.freqs_specgram
         spec, fsp, t = mlab.specgram(x=self.y,
@@ -2070,6 +2101,7 @@ class Test_spectral_nosig_real_onesided(CleanupTestCase):
                             atol=1e-02)
         self.check_freqs(specm, freqs, fsp, self.fstims)
 
+    @catch_specgram_warnings(1)
     def test_specgram_angle(self):
         freqs = self.freqs_specgram
         spec, fsp, t = mlab.specgram(x=self.y,
@@ -2086,6 +2118,7 @@ class Test_spectral_nosig_real_onesided(CleanupTestCase):
         assert spec.shape[0] == freqs.shape[0]
         assert spec.shape[1] == self.t_specgram.shape[0]
 
+    @catch_specgram_warnings(1)
     def test_specgram_phase(self):
         freqs = self.freqs_specgram
         spec, fsp, t = mlab.specgram(x=self.y,
@@ -2120,6 +2153,7 @@ class Test_spectral_nosig_real_onesided(CleanupTestCase):
         assert_array_equal(Pxx, Pxy)
         assert_array_equal(freqsxx, freqsxy)
 
+    @catch_specgram_warnings(2)
     def test_specgram_auto_default_equal(self):
         '''test that mlab.specgram without mode and with mode 'default' and
         'psd' are all the same'''
@@ -2141,6 +2175,7 @@ class Test_spectral_nosig_real_onesided(CleanupTestCase):
         assert_array_equal(freqspeca, freqspecb)
         assert_array_equal(ta, tb)
 
+    @catch_specgram_warnings(2)
     def test_specgram_auto_psd_equal(self):
         '''test that mlab.specgram without mode and with mode 'default' and
         'psd' are all the same'''
@@ -2162,6 +2197,7 @@ class Test_spectral_nosig_real_onesided(CleanupTestCase):
         assert_array_equal(freqspeca, freqspecc)
         assert_array_equal(ta, tc)
 
+    @catch_specgram_warnings(2)
     def test_specgram_complex_mag_equivalent(self):
         freqs = self.freqs_specgram
         specc, freqspecc, tc = mlab.specgram(x=self.y,
@@ -2183,6 +2219,7 @@ class Test_spectral_nosig_real_onesided(CleanupTestCase):
         assert_array_equal(tc, tm)
         assert_allclose(np.abs(specc), specm, atol=1e-06)
 
+    @catch_specgram_warnings(2)
     def test_specgram_complex_angle_equivalent(self):
         freqs = self.freqs_specgram
         specc, freqspecc, tc = mlab.specgram(x=self.y,
@@ -2204,6 +2241,7 @@ class Test_spectral_nosig_real_onesided(CleanupTestCase):
         assert_array_equal(tc, ta)
         assert_allclose(np.angle(specc), speca, atol=1e-06)
 
+    @catch_specgram_warnings(2)
     def test_specgram_complex_phase_equivalent(self):
         freqs = self.freqs_specgram
         specc, freqspecc, tc = mlab.specgram(x=self.y,
@@ -2226,6 +2264,7 @@ class Test_spectral_nosig_real_onesided(CleanupTestCase):
         assert_allclose(np.unwrap(np.angle(specc), axis=0), specp,
                         atol=1e-06)
 
+    @catch_specgram_warnings(2)
     def test_specgram_angle_phase_equivalent(self):
         freqs = self.freqs_specgram
         speca, freqspeca, ta = mlab.specgram(x=self.y,
