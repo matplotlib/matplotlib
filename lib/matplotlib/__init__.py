@@ -1536,8 +1536,21 @@ def test(verbosity=None, coverage=False, switch_backend_warn=True,
         import pytest
 
         args = kwargs.pop('argv', [])
-        if not any(os.path.exists(arg) for arg in args):
-            args += ['--pyargs'] + default_test_modules
+        provide_default_modules = True
+        use_pyargs = True
+        for arg in args:
+            if any(arg.startswith(module_path)
+                   for module_path in default_test_modules):
+                provide_default_modules = False
+                break
+            if os.path.exists(arg):
+                provide_default_modules = False
+                use_pyargs = False
+                break
+        if use_pyargs:
+            args += ['--pyargs']
+        if provide_default_modules:
+            args += default_test_modules
 
         if coverage:
             args += ['--cov']
