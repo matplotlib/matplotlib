@@ -252,6 +252,7 @@ class ImageComparisonDecorator(CleanupTest):
 
     def setup(self):
         func = self.func
+        plt.close('all')
         self.setup_class()
         try:
             matplotlib.style.use(self.style)
