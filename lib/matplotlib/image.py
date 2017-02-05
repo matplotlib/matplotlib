@@ -371,9 +371,20 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
                     # this is to work around spurious warnings coming
                     # out of masked arrays.
                     with np.errstate(invalid='ignore'):
-                        rgba[..., 1] = A < 0  # under data
-                        rgba[..., 2] = A > 1  # over data
-                    rgba[..., 3] = ~A.mask  # bad data
+                        rgba[..., 1] = np.where(A < 0, np.nan, 1)  # under data
+                        rgba[..., 2] = np.where(A > 1, np.nan, 1)  # over data
+                    # Have to invert mask, Agg knows what alpha means
+                    # so if you put this in as 0 for 'good' points, they
+                    # all get zeroed out
+                    rgba[..., 3] = 1
+                    if A.mask.shape == A.shape:
+                        # this is the case of a nontrivial mask
+                        mask = np.where(A.mask, np.nan, 1)
+                    else:
+                        # this is the case that the mask is a
+                        # numpy.bool_ of False
+                        mask = A.mask
+                    # ~A.mask  # masked data
                     A = rgba
                     output = np.zeros((out_height, out_width, 4),
                                       dtype=A.dtype)
@@ -414,12 +425,37 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
                 # Convert back to a masked greyscale array so
                 # colormapping works correctly
                 hid_output = output
+                # any pixel where the a masked pixel is included
+                # in the kernel (pulling this down from 1) needs to
+                # be masked in the output
+                if len(mask.shape) == 2:
+                    out_mask = np.empty((out_height, out_width),
+                                        dtype=mask.dtype)
+                    _image.resample(mask, out_mask, t,
+                                    _interpd_[self.get_interpolation()],
+                                    True, 1,
+                                    self.get_filternorm() or 0.0,
+                                    self.get_filterrad() or 0.0)
+                    out_mask = np.isnan(out_mask)
+                else:
+                    out_mask = mask
+                # we need to mask both pixels which came in as masked
+                # and the pixels that Agg is telling us to ignore (relavent
+                # to non-affine transforms)
+                # Use half alpha as the threshold for pixels to mask.
+                out_mask = out_mask | (hid_output[..., 3] < .5)
                 output = np.ma.masked_array(
-                    hid_output[..., 0], hid_output[..., 3] < 0.5)
-                # relabel under data
-                output[hid_output[..., 1] > .5] = -1
+                    hid_output[..., 0],
+                    out_mask)
+                # 'unshare' the mask array to
+                # needed to suppress numpy warning
+                del out_mask
+                invalid_mask = ~output.mask * ~np.isnan(output.data)
+                # relabel under data.  If any of the input data for
+                # the pixel has input out of the norm bounds,
+                output[np.isnan(hid_output[..., 1]) * invalid_mask] = -1
                 # relabel over data
-                output[hid_output[..., 2] > .5] = 2
+                output[np.isnan(hid_output[..., 2]) * invalid_mask] = 2
 
             output = self.to_rgba(output, bytes=True, norm=False)
 
