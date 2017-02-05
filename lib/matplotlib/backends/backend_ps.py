@@ -71,7 +71,7 @@ class PsBackendHelper(object):
             gs_exe = 'gs'
 
         self._cached["gs_exe"] = gs_exe
-        return gs_exe
+        return str(gs_exe)
 
     @property
     def gs_version(self):
@@ -1539,7 +1539,7 @@ def gs_distill(tmpfile, eps=False, ptype='letter', bbox=None, rotated=False):
     else:
         device_name = "pswrite"
 
-    command = [gs_exe, "-dBATCH", "-dNOPAUSE", "-r%d" % dpi,
+    command = [str(gs_exe), "-dBATCH", "-dNOPAUSE", "-r%d" % dpi,
                "-sDEVICE=%s" % device_name, paper_option,
                "-sOutputFile=%s" % psfile, tmpfile]
     verbose.report(command, 'debug')
@@ -1595,13 +1595,13 @@ def xpdf_distill(tmpfile, eps=False, ptype='letter', bbox=None, rotated=False):
             paper_option = "-sPAPERSIZE=%s" % ptype
 
     if sys.platform == "win32":
-        command = ["ps2pdf", "-dAutoFilterColorImages#false",
+        command = [str("ps2pdf"), "-dAutoFilterColorImages#false",
                    "-dAutoFilterGrayImages#false",
                    "-sGrayImageFilter#FlateEncode",
                    "-sColorImageFilter#FlateEncode", paper_option, tmpfile,
                    pdffile]
     else:
-        command = ["ps2pdf", "-dAutoFilterColorImages=false",
+        command = [str("ps2pdf"), "-dAutoFilterColorImages=false",
                    "-dAutoFilterGrayImages=false",
                    "-sGrayImageFilter=FlateEncode",
                    "-sColorImageFilter=FlateEncode", paper_option, tmpfile,
@@ -1622,7 +1622,7 @@ def xpdf_distill(tmpfile, eps=False, ptype='letter', bbox=None, rotated=False):
             verbose.report(fh.read(), 'debug')
     os.remove(outfile)
 
-    command = ["pdftops", "-paper", "match", "-level2", pdffile, psfile]
+    command = [str("pdftops"), "-paper", "match", "-level2", pdffile, psfile]
     verbose.report(command, 'debug')
     try:
         with open(outfile, "w") as fout:
