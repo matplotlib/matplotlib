@@ -773,8 +773,7 @@ def test_empty_imshow():
     im.set_extent([-5, 5, -5, 5])
     fig.canvas.draw()
 
-    with nose.tools.raises(RuntimeError):
-        im.make_image(fig._cachedRenderer)
+    nose.tools.assert_raises(RuntimeError, im.make_image, fig._cachedRenderer)
 
 
 if __name__ == '__main__':
