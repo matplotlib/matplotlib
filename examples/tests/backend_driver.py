@@ -337,19 +337,16 @@ failbackend = dict(
     )
 
 
-try:
-    import subprocess
+from matplotlib.compat import subprocess
 
-    def run(arglist):
-        try:
-            ret = subprocess.call(arglist)
-        except KeyboardInterrupt:
-            sys.exit()
-        else:
-            return ret
-except ImportError:
-    def run(arglist):
-        os.system(arglist)
+
+def run(arglist):
+    try:
+        ret = subprocess.call(arglist)
+    except KeyboardInterrupt:
+        sys.exit()
+    else:
+        return ret
 
 
 def drive(backend, directories, python=['python'], switches=[]):
