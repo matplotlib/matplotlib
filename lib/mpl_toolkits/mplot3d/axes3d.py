@@ -2776,7 +2776,6 @@ pivot='tail', normalize=False, **kwargs)
                  barsabove=False, errorevery=1, ecolor=None, elinewidth=None,
                  capsize=None, capthick=None, xlolims=False, xuplims=False,
                  ylolims=False, yuplims=False, zlolims=False, zuplims=False,
-                 debug_kwargs = {},
                  **kwargs):
         """
         Draws error bars on an Axis3D instance.
@@ -2929,13 +2928,14 @@ pivot='tail', normalize=False, **kwargs)
 
         # TODO: currently, only a scalar number or len(N) objects are ok...
         def _unpack_errs(data, err, lomask, himask):
-            lows =  [d - e if m else d for d, e, m in zip(data, err, lomask)]
+            lows = [d - e if m else d for d, e, m in zip(data, err, lomask)]
             highs = [d + e if m else d for d, e, m in zip(data, err, himask)]
             return lows, highs
 
         # TODO: things to init are barcaps and low-, high-limits
-        errlines, caplines  = [], []
-        coorderrs = [] # list of endpoint coordinates, used for auto-scaling
+        errlines, caplines = [], []
+        # List of endpoint coordinates, used for auto-scaling
+        coorderrs = []
 
         for data, err, i_xyz, lolims, uplims in zip([x, y, z],
                                     [xerr, yerr, zerr], range(3),
@@ -3021,17 +3021,18 @@ pivot='tail', normalize=False, **kwargs)
                 self.add_line(lims_up)
 
             errline = art3d.Line3DCollection(np.array(coorderr).T,
-                                             label = label,
+                                             label=label,
                                              **eb_lines_style)
             self.add_collection(errline)
             errlines.append(errline)
             coorderrs.append(coorderr)
 
         coorderrs = np.array(coorderrs)
+
         def _digout_minmax(err_arr, coord_label):
             key = {'x': 0, 'y': 1, 'z': 2}
             return (np.nanmin(err_arr[:, key[coord_label], :, :]),
-                    np.nanmax(err_arr[:, key[coord_label], :, :]) )
+                    np.nanmax(err_arr[:, key[coord_label], :, :]))
 
         minx, maxx = _digout_minmax(coorderrs, 'x')
         miny, maxy = _digout_minmax(coorderrs, 'y')
