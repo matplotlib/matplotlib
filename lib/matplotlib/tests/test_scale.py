@@ -48,6 +48,14 @@ def test_log_scatter():
     fig.savefig(buf, format='svg')
 
 
+@cleanup
+def test_logscale_subs():
+    fig, ax = plt.subplots()
+    ax.set_yscale('log', subsy=np.array([2, 3, 4]))
+    # force draw
+    fig.canvas.draw()
+
+
 if __name__ == '__main__':
     import nose
     nose.runmodule(argv=['-s', '--with-doctest'], exit=False)
