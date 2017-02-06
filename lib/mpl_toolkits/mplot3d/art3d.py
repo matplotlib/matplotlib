@@ -589,7 +589,8 @@ class Poly3DCollection(PolyCollection):
         '''Set 3D vertices.'''
         self.get_vector(verts)
         # 2D verts will be updated at draw time
-        PolyCollection.set_verts(self, [], closed)
+        PolyCollection.set_verts(self, [], False)
+        self._closed = closed
 
     def set_verts_and_codes(self, verts, codes):
         '''Sets 3D vertices with path codes'''
@@ -654,7 +655,7 @@ class Poly3DCollection(PolyCollection):
             codes = [self._codes3d[idx] for z, s, fc, ec, idx in z_segments_2d]
             PolyCollection.set_verts_and_codes(self, segments_2d, codes)
         else:
-            PolyCollection.set_verts(self, segments_2d)
+            PolyCollection.set_verts(self, segments_2d, self._closed)
 
         self._facecolors2d = [fc for z, s, fc, ec, idx in z_segments_2d]
         if len(self._edgecolors3d) == len(cface):
