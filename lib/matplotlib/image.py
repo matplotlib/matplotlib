@@ -301,6 +301,10 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
         if A is None:
             raise RuntimeError('You must first set the image'
                                ' array or the image attribute')
+        if any(s == 0 for s in A.shape):
+            raise RuntimeError("_make_image must get a non-empty image. "
+                               "Your Artist's draw method must filter before "
+                               "this method is called.")
 
         clipped_bbox = Bbox.intersection(out_bbox, clip_bbox)
 
@@ -478,9 +482,17 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
 
     @allow_rasterization
     def draw(self, renderer, *args, **kwargs):
+        # if not visible, declare victory and return
         if not self.get_visible():
+            self.stale = False
             return
 
+        # for empty images, there is nothing to draw!
+        if self.get_array().size == 0:
+            self.stale = False
+            return
+
+        # actually render the image.
         gc = renderer.new_gc()
         self._set_gc_clip(gc)
         gc.set_alpha(self.get_alpha())

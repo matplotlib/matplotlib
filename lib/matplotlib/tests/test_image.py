@@ -32,6 +32,7 @@ import matplotlib.mlab as mlab
 import numpy as np
 
 import nose
+import nose.tools
 
 try:
     from PIL import Image
@@ -763,6 +764,16 @@ def test_imshow_no_warn_invalid():
         warnings.simplefilter("always")
         plt.imshow([[1, 2], [3, np.nan]])
     assert len(warns) == 0
+
+
+@cleanup
+def test_empty_imshow():
+    fig, ax = plt.subplots()
+    im = ax.imshow([[]])
+    im.set_extent([-5, 5, -5, 5])
+    fig.canvas.draw()
+
+    nose.tools.assert_raises(RuntimeError, im.make_image, fig._cachedRenderer)
 
 
 if __name__ == '__main__':
