@@ -2798,6 +2798,9 @@ or tuple of floats
         .. plot:: mpl_examples/statistics/errorbar_demo.py
         """
         kwargs = cbook.normalize_kwargs(kwargs, _alias_map)
+        # anything that comes in as 'None', drop so the default thing
+        # happens down stream
+        kwargs = {k: v for k, v in kwargs.items() if v is not None}
         kwargs.setdefault('zorder', 2)
 
         if errorevery < 1:
