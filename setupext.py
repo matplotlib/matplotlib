@@ -788,28 +788,28 @@ class Toolkits(OptionalPackage):
 
 class Tests(OptionalPackage):
     name = "tests"
-    nose_min_version = '0.11.1'
+    pytest_min_version = '3.0.0'
     default_config = False
 
     def check(self):
         super(Tests, self).check()
 
         msgs = []
-        msg_template = ('{package} is required to run the matplotlib test '
-                        'suite. Please install it with pip or your preferred'
-                        ' tool to run the test suite')
+        msg_template = ('{package} is required to run the Matplotlib test '
+                        'suite. Please install it with pip or your preferred '
+                        'tool to run the test suite')
 
-        bad_nose = msg_template.format(
-            package='nose %s or later' % self.nose_min_version
+        bad_pytest = msg_template.format(
+            package='pytest %s or later' % self.pytest_min_version
         )
         try:
-            import nose
-            if is_min_version(nose.__version__, self.nose_min_version):
-                msgs += ['using nose version %s' % nose.__version__]
+            import pytest
+            if is_min_version(pytest.__version__, self.pytest_min_version):
+                msgs += ['using pytest version %s' % pytest.__version__]
             else:
-                msgs += [bad_nose]
+                msgs += [bad_pytest]
         except ImportError:
-            msgs += [bad_nose]
+            msgs += [bad_pytest]
 
         if PY3min:
             msgs += ['using unittest.mock']
