@@ -28,6 +28,8 @@ from matplotlib.axes import Axes, rcParams
 from matplotlib.axes._base import _axis_method_wrapper
 from matplotlib.transforms import Bbox
 from matplotlib.tri.triangulation import Triangulation
+from matplotlib.colors import Normalize, LightSource
+from matplotlib.axes._base import _process_plot_format
 
 from . import art3d
 from . import proj3d
@@ -2770,20 +2772,12 @@ pivot='tail', normalize=False, **kwargs)
 
         return polygons
 
-    # TODO: is it ok to redefine Axes.errorbar method?
-    #       some methods seem to append '3d' to the end instead?
-    def errorbar(self, x, y, z, zerr=None, yerr=None, xerr=None,
-                 # TODO: sneak this kwarg in:
-                 #fmt='',
-                 barsabove=False, errorevery=1,
+    def errorbar(self, x, y, z, zerr=None, yerr=None, xerr=None, fmt='',
+                 barsabove=False, errorevery=1, ecolor=None, elinewidth=None,
                  capsize=None, capthick=None, xlolims=False, xuplims=False,
                  ylolims=False, yuplims=False, zlolims=False, zuplims=False,
                  debug_kwargs = {},
                  **kwargs):
-        # TODO: write up a proof of concept analogous to this one here:
-        # http://matplotlib.org/examples/pylab_examples/errorbar_limits.html
-        # TODO: triple-check the docstring: some data forms are probably not
-        #       going to work despite being allowed in the docstring :C
         """
         Draws error bars on an Axis3D instance.
 
@@ -2800,6 +2794,20 @@ pivot='tail', normalize=False, **kwargs)
 
             If a sequence of shape 2xN, errorbars are drawn at -row1
             and +row2 relative to the data.
+
+        fmt : plot format string, optional, default: None
+            The plot format symbol. If fmt is 'none' (case-insensitive),
+            only the errorbars are plotted.  This is used for adding
+            errorbars to a bar plot, for example.  Default is '',
+            an empty plot format string; properties are
+            then identical to the defaults for :meth:`plot`.
+
+        ecolor : mpl color, optional, default: None
+            A matplotlib color arg which gives the color the errorbar lines;
+            if None, use the color of the line connecting the markers.
+
+        elinewidth : scalar, optional, default: None
+            The linewidth of the errorbar lines. If None, use the linewidth.
 
         capsize : scalar, optional, default: None
             The length of the error bar caps in points; if None, it will
@@ -2835,10 +2843,52 @@ pivot='tail', normalize=False, **kwargs)
         if not cbook.iterable(z):
             z = [z]
 
+        if fmt is None:
+            fmt = 'none'
+            msg = ('Use of None object as fmt keyword argument to ' +
+                   'suppress plotting of data values is deprecated ' +
+                   'since 1.4; use the string "none" instead.')
+            warnings.warn(msg)
+
+        plot_line = (fmt.lower() != 'none')
+        label = kwargs.pop("label", None)
+
+        fmt_style_kwargs = {k: v for k, v in
+                            zip(('linestyle', 'marker', 'color'),
+                                _process_plot_format(fmt)) if v is not None}
+
+        if ('color' in kwargs or 'color' in fmt_style_kwargs or
+                ecolor is not None):
+            base_style = {}
+            if 'color' in kwargs:
+                base_style['color'] = kwargs.pop('color')
+        else:
+            base_style = six.next(self._get_lines.prop_cycler)
+
+        base_style.update(fmt_style_kwargs)
+        if 'color' not in base_style:
+            base_style['color'] = 'C0'
+        if ecolor is None:
+            ecolor = base_style['color']
+
+        # make the style dict for the line collections (the bars)
+        eb_lines_style = dict(base_style)
+        eb_lines_style.pop('marker', None)
+        eb_lines_style.pop('linestyle', None)
+        eb_lines_style['color'] = ecolor
+
+        if elinewidth:
+            eb_lines_style['linewidth'] = elinewidth
+        elif 'linewidth' in kwargs:
+            eb_lines_style['linewidth'] = kwargs['linewidth']
+
+        for key in ('transform', 'alpha', 'zorder', 'rasterized'):
+            if key in kwargs:
+                eb_lines_style[key] = kwargs[key]
+
         everymask = np.arange(len(x)) % errorevery == 0
 
-        # TODO: fully adhere to the styling rules in 2d-errorbar later on...
-        plot_line_style = {}
+        plot_line_style = dict(base_style)
         plot_line_style.update(**kwargs)
         if 'zorder' not in kwargs.keys():
             kwargs['zorder'] = 2
@@ -2847,13 +2897,22 @@ pivot='tail', normalize=False, **kwargs)
         else:
             plot_line_style['zorder'] = kwargs['zorder'] + .1
 
-        eb_cap_style = {}
+        # set up cap style dictionary
+        eb_cap_style = dict(base_style)
+        # eject any marker information from format string
+        eb_cap_style.pop('marker', None)
+        eb_cap_style.pop('ls', None)
+        eb_cap_style['linestyle'] = 'none'
         if capsize is None:
             capsize = kwargs.pop('capsize', rcParams["errorbar.capsize"])
         if capsize > 0:
             eb_cap_style['markersize'] = 2. * capsize
         if capthick is not None:
             eb_cap_style['markeredgewidth'] = capthick
+
+        if plot_line:
+            data_line = art3d.Line3D(x, y, z, **plot_line_style)
+            self.add_line(data_line)
 
         def _bool_asarray_helper(d, expected):
             if not cbook.iterable(d):
@@ -2867,21 +2926,6 @@ pivot='tail', normalize=False, **kwargs)
             ys = [l for l, m in zip(ys, mask) if m]
             zs = [l for l, m in zip(zs, mask) if m]
             return xs, ys, zs
-
-        def _debug_floatlists(*args, **kwargs):
-            if 'crash' in kwargs:
-                crash = kwargs.pop('crash')
-                if crash:
-                    raise RuntimeError('you asked for it!')
-            if 'set_trace' in kwargs:
-                set_trace = kwargs.pop('set_trace')
-                if set_trace:
-                    import pdb
-                    pdb.set_trace()
-            for l in args:
-                s = ("["+', '.join(['%.2f']*len(l))+"]") % tuple(l)
-                print(s)
-            print('\n')
 
         # TODO: currently, only a scalar number or len(N) objects are ok...
         def _unpack_errs(data, err, lomask, himask):
@@ -2931,15 +2975,12 @@ pivot='tail', normalize=False, **kwargs)
                          1: {'lower': art3d.lines.CARETRIGHT,
                              'upper': art3d.lines.CARETLEFT},
                          2: {'lower': art3d.lines.CARETUP,
-                             'upper': art3d.lines.CARETDOWN},
-                         }
+                             'upper': art3d.lines.CARETDOWN}}
 
             if nolims.any():
                 if capsize > 0:
                     lo_caps_xyz = _mask_lists(xl, yl, zl, nolims & everymask)
                     hi_caps_xyz = _mask_lists(xh, yh, zh, nolims & everymask)
-                    #_debug_floatlists(*lo_caps_xyz)
-                    #_debug_floatlists(*hi_caps_xyz)
 
                     # NOTE on the caps in 3D plots:
                     # Using markers in interactive 3D plots is confusing to
@@ -2969,7 +3010,6 @@ pivot='tail', normalize=False, **kwargs)
 
                 lolims_xyz = _mask_lists(xup, yup, zup, lolims & everymask)
                 uplims_xyz = _mask_lists(xlo, ylo, zlo, uplims & everymask)
-                _debug_floatlists(*lolims_xyz, **debug_kwargs)
 
                 lims_lo = art3d.Line3D(*lolims_xyz, ls='',
                                        marker=limmarker[i_xyz]['lower'],
@@ -2981,7 +3021,8 @@ pivot='tail', normalize=False, **kwargs)
                 self.add_line(lims_up)
 
             errline = art3d.Line3DCollection(np.array(coorderr).T,
-                                             **plot_line_style)
+                                             label = label,
+                                             **eb_lines_style)
             self.add_collection(errline)
             errlines.append(errline)
             coorderrs.append(coorderr)
