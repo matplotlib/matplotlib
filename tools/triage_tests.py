@@ -11,7 +11,7 @@ To start:
 
     If you ran the tests from the top-level of a source checkout, simply run:
 
-        python tools/test_triage.py
+        python tools/triage_tests.py
 
     Otherwise, you can manually select the location of `result_images`
     on the commandline.
