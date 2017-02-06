@@ -817,6 +817,8 @@ class GraphicsContextBase(object):
         self._linewidth = gc._linewidth
         self._rgb = gc._rgb
         self._hatch = gc._hatch
+        self._hatch_color = gc._hatch_color
+        self._hatch_linewidth = gc._hatch_linewidth
         self._url = gc._url
         self._gid = gc._gid
         self._snap = gc._snap
@@ -1110,6 +1112,12 @@ class GraphicsContextBase(object):
         Gets the color to use for hatching.
         """
         return self._hatch_color
+
+    def set_hatch_color(self, hatch_color):
+        """
+        sets the color to use for hatching.
+        """
+        self._hatch_color = hatch_color
 
     def get_hatch_linewidth(self):
         """

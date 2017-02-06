@@ -19,6 +19,7 @@ import matplotlib.patches as mpatches
 import matplotlib.collections as mcollections
 from matplotlib import path as mpath
 from matplotlib import transforms as mtrans
+import matplotlib.style as mstyle
 
 
 def test_Polygon_close():
@@ -285,6 +286,23 @@ def test_wedge_range():
 
     ax.set_xlim([-2, 8])
     ax.set_ylim([-2, 9])
+
+
+@image_comparison(baseline_images=['multi_color_hatch'],
+                  remove_text=True, style='default')
+def test_multi_color_hatch():
+    fig, ax = plt.subplots()
+
+    rects = ax.bar(range(5), range(1, 6))
+    for i, rect in enumerate(rects):
+        rect.set_facecolor('none')
+        rect.set_edgecolor('C{}'.format(i))
+        rect.set_hatch('/')
+
+    for i in range(5):
+        with mstyle.context({'hatch.color': 'C{}'.format(i)}):
+            r = Rectangle((i-.8/2, 5), .8, 1, hatch='//', fc='none')
+        ax.add_patch(r)
 
 
 if __name__ == '__main__':
