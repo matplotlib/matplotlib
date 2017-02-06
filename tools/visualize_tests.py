@@ -3,7 +3,7 @@
 # This builds a html page of all images from the image comparison tests
 # and opens that page in the browser.
 #
-#   $ python visual_tests.py
+#   $ python tools/visualize_tests.py
 #
 
 import argparse
