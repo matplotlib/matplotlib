@@ -488,7 +488,7 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
             return
 
         # for empty images, there is nothing to draw!
-        if any(s == 0 for s in self.get_size()):
+        if self.get_array().size == 0:
             self.stale = False
             return
 
