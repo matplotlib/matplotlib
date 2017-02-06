@@ -187,8 +187,8 @@ class Dialog(QtWidgets.QDialog):
     def set_large_image(self, index):
         self.thumbnails[self.current_thumbnail].setFrameShape(0)
         self.current_thumbnail = index
-        pixmap = QtGui.QPixmap(
-            self.entries[self.current_entry].thumbnails[self.current_thumbnail])
+        pixmap = QtGui.QPixmap(self.entries[self.current_entry]
+                                   .thumbnails[self.current_thumbnail])
         self.image_display.setPixmap(pixmap)
         self.thumbnails[self.current_thumbnail].setFrameShape(1)
 
@@ -212,9 +212,9 @@ class Dialog(QtWidgets.QDialog):
         elif e.key() == QtCore.Qt.Key_Right:
             self.set_large_image((self.current_thumbnail + 1) % 3)
         elif e.key() == QtCore.Qt.Key_Up:
-            self.set_entry(max((self.current_entry - 1), 0))
+            self.set_entry(max(self.current_entry - 1, 0))
         elif e.key() == QtCore.Qt.Key_Down:
-            self.set_entry(min((self.current_entry + 1), len(self.entries) - 1))
+            self.set_entry(min(self.current_entry + 1, len(self.entries) - 1))
         elif e.key() == QtCore.Qt.Key_A:
             self.accept_test()
         elif e.key() == QtCore.Qt.Key_R:
@@ -249,7 +249,8 @@ class Entry(object):
         self.extension = extension
         self.generated = basename + '.' + extension
         self.expected = basename + '-expected.' + extension
-        self.expected_display = basename + '-expected' + display_extension + '.png'
+        self.expected_display = (basename + '-expected' + display_extension +
+                                 '.png')
         self.generated_display = basename + display_extension + '.png'
         self.name = os.path.join(self.reldir, self.basename)
         self.destdir = self.get_dest_dir(self.reldir)
