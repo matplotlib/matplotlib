@@ -3348,7 +3348,7 @@ def griddata(x, y, z, xi, yi, interp='nn'):
 
     # Remove masked points.
     mask = np.ma.getmask(z)
-    if not (mask is np.ma.nomask):
+    if mask is not np.ma.nomask:
         x = x.compress(~mask)
         y = y.compress(~mask)
         z = z.compressed()
