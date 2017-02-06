@@ -2877,7 +2877,7 @@ class _AxesBase(martist.Artist):
 
         if ((left is not None and not np.isfinite(left)) or
                 (right is not None and not np.isfinite(right))):
-            raise ValueError("xlim limits must be finite. "
+            raise ValueError("Specified x limits must be finite; "
                              "instead, found: (%s, %s)" % (left, right))
 
         old_left, old_right = self.get_xlim()
@@ -3176,8 +3176,8 @@ class _AxesBase(martist.Artist):
 
         if ((top is not None and not np.isfinite(top)) or
                 (bottom is not None and not np.isfinite(bottom))):
-            raise ValueError("ylim limits must be finite. "
-                             "instead, found: (%s, %s)" % (top, bottom))
+            raise ValueError("Specified y limits must be finite; "
+                             "instead, found: (%s, %s)" % (bottom, top))
 
         old_bottom, old_top = self.get_ylim()
 
