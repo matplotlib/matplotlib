@@ -4,6 +4,7 @@ from __future__ import (absolute_import, division, print_function,
 import six
 
 import tempfile
+import warnings
 
 from numpy.testing import (assert_allclose, assert_almost_equal,
                            assert_array_equal)
@@ -359,46 +360,46 @@ class Test_csv(CleanupTestCase):
         assert len(array.dtype) == 3
 
     def test_csv2rec_usdate(self):
-        self.fd.write('01/11/14\n' +
-                '03/05/76 12:00:01 AM\n' +
-                '07/09/83 5:17:34 PM\n' +
-                '06/20/2054 2:31:45 PM\n' +
-                '10/31/00 11:50:23 AM\n')
+        self.fd.write('01/11/14\n'
+                      '03/05/76 12:00:01 AM\n'
+                      '07/09/83 5:17:34 PM\n'
+                      '06/20/2054 2:31:45 PM\n'
+                      '10/31/00 11:50:23 AM\n')
         expected = [datetime.datetime(2014, 1, 11, 0, 0),
-                datetime.datetime(1976, 3, 5, 0, 0, 1),
-                datetime.datetime(1983, 7, 9, 17, 17, 34),
-                datetime.datetime(2054, 6, 20, 14, 31, 45),
-                datetime.datetime(2000, 10, 31, 11, 50, 23)]
+                    datetime.datetime(1976, 3, 5, 0, 0, 1),
+                    datetime.datetime(1983, 7, 9, 17, 17, 34),
+                    datetime.datetime(2054, 6, 20, 14, 31, 45),
+                    datetime.datetime(2000, 10, 31, 11, 50, 23)]
         self.fd.seek(0)
         array = mlab.csv2rec(self.fd, names='a')
         assert_array_equal(array['a'].tolist(), expected)
 
     def test_csv2rec_dayfirst(self):
         self.fd.write('11/01/14\n' +
-                '05/03/76 12:00:01 AM\n' +
-                '09/07/83 5:17:34 PM\n' +
-                '20/06/2054 2:31:45 PM\n' +
-                '31/10/00 11:50:23 AM\n')
+                      '05/03/76 12:00:01 AM\n'
+                      '09/07/83 5:17:34 PM\n'
+                      '20/06/2054 2:31:45 PM\n'
+                      '31/10/00 11:50:23 AM\n')
         expected = [datetime.datetime(2014, 1, 11, 0, 0),
-                datetime.datetime(1976, 3, 5, 0, 0, 1),
-                datetime.datetime(1983, 7, 9, 17, 17, 34),
-                datetime.datetime(2054, 6, 20, 14, 31, 45),
-                datetime.datetime(2000, 10, 31, 11, 50, 23)]
+                    datetime.datetime(1976, 3, 5, 0, 0, 1),
+                    datetime.datetime(1983, 7, 9, 17, 17, 34),
+                    datetime.datetime(2054, 6, 20, 14, 31, 45),
+                    datetime.datetime(2000, 10, 31, 11, 50, 23)]
         self.fd.seek(0)
         array = mlab.csv2rec(self.fd, names='a', dayfirst=True)
         assert_array_equal(array['a'].tolist(), expected)
 
     def test_csv2rec_yearfirst(self):
-        self.fd.write('14/01/11\n' +
-                '76/03/05 12:00:01 AM\n' +
-                '83/07/09 5:17:34 PM\n' +
-                '2054/06/20 2:31:45 PM\n' +
-                '00/10/31 11:50:23 AM\n')
+        self.fd.write('14/01/11\n'
+                      '76/03/05 12:00:01 AM\n'
+                      '83/07/09 5:17:34 PM\n'
+                      '2054/06/20 2:31:45 PM\n'
+                      '00/10/31 11:50:23 AM\n')
         expected = [datetime.datetime(2014, 1, 11, 0, 0),
-                datetime.datetime(1976, 3, 5, 0, 0, 1),
-                datetime.datetime(1983, 7, 9, 17, 17, 34),
-                datetime.datetime(2054, 6, 20, 14, 31, 45),
-                datetime.datetime(2000, 10, 31, 11, 50, 23)]
+                    datetime.datetime(1976, 3, 5, 0, 0, 1),
+                    datetime.datetime(1983, 7, 9, 17, 17, 34),
+                    datetime.datetime(2054, 6, 20, 14, 31, 45),
+                    datetime.datetime(2000, 10, 31, 11, 50, 23)]
         self.fd.seek(0)
         array = mlab.csv2rec(self.fd, names='a', yearfirst=True)
         assert_array_equal(array['a'].tolist(), expected)
@@ -1629,6 +1630,18 @@ class Test_spectral_nosig_real_onesided(CleanupTestCase):
         assert_allclose(fsp, freqs, atol=1e-06)
         assert spec.shape == freqs.shape
 
+    def test_csd_padding(self):
+        """Test zero padding of csd(). """
+        if self.NFFT_density is None:  # for derived classes
+            return
+        sargs = dict(x=self.y, y=self.y+1, Fs=self.Fs, window=mlab.window_none,
+                     sides=self.sides)
+
+        spec0, _ = mlab.csd(NFFT=self.NFFT_density, **sargs)
+        spec1, _ = mlab.csd(NFFT=self.NFFT_density*2, **sargs)
+        assert_almost_equal(np.sum(np.conjugate(spec0)*spec0).real,
+                            np.sum(np.conjugate(spec1/2)*spec1/2).real)
+
     def test_psd(self):
         freqs = self.freqs_density
         spec, fsp = mlab.psd(x=self.y,
@@ -2103,6 +2116,15 @@ class Test_spectral_nosig_real_onesided(CleanupTestCase):
         assert spec.shape[0] == freqs.shape[0]
         assert spec.shape[1] == self.t_specgram.shape[0]
 
+    def test_specgram_warn_only1seg(self):
+        """Warning should be raised if len(x) <= NFFT. """
+        with warnings.catch_warnings(record=True) as w:
+            warnings.simplefilter("always", category=UserWarning)
+            mlab.specgram(x=self.y, NFFT=len(self.y), Fs=self.Fs)
+        assert len(w) == 1
+        assert issubclass(w[0].category, UserWarning)
+        assert str(w[0].message).startswith("Only one segment is calculated")
+
     def test_psd_csd_equal(self):
         freqs = self.freqs_density
         Pxx, freqsxx = mlab.psd(x=self.y,
@@ -2543,7 +2565,7 @@ class Test_spectral_nosig_real_onesided_trim(
         Test_spectral_nosig_real_onesided):
         def setUp(self):
                 self.createStim(fstims=[],
-                                len_x=256,
+                                len_x=1024,
                                 NFFT_density=512, pad_to_spectrum=128,
                                 iscomplex=False, sides='onesided', nsides=1)
 
@@ -2552,7 +2574,7 @@ class Test_spectral_nosig_real_twosided_trim(
         Test_spectral_nosig_real_onesided):
         def setUp(self):
                 self.createStim(fstims=[],
-                                len_x=256,
+                                len_x=1024,
                                 NFFT_density=512, pad_to_spectrum=128,
                                 iscomplex=False, sides='twosided', nsides=2)
 
@@ -2561,7 +2583,7 @@ class Test_spectral_nosig_real_defaultsided_trim(
         Test_spectral_nosig_real_onesided):
         def setUp(self):
                 self.createStim(fstims=[],
-                                len_x=256,
+                                len_x=1024,
                                 NFFT_density=512, pad_to_spectrum=128,
                                 iscomplex=False, sides='default', nsides=1)
 
@@ -2570,7 +2592,7 @@ class Test_spectral_nosig_complex_onesided_trim(
         Test_spectral_nosig_real_onesided):
         def setUp(self):
                 self.createStim(fstims=[],
-                                len_x=256,
+                                len_x=1024,
                                 NFFT_density=512, pad_to_spectrum=128,
                                 iscomplex=True, sides='onesided', nsides=1)
 
@@ -2579,7 +2601,7 @@ class Test_spectral_nosig_complex_twosided_trim(
         Test_spectral_nosig_real_onesided):
         def setUp(self):
                 self.createStim(fstims=[],
-                                len_x=256,
+                                len_x=1024,
                                 NFFT_density=512, pad_to_spectrum=128,
                                 iscomplex=True, sides='twosided', nsides=2)
 
@@ -2705,7 +2727,7 @@ class Test_spectral_nosig_real_onesided_stretch(
         Test_spectral_nosig_real_onesided):
         def setUp(self):
                 self.createStim(fstims=[],
-                                len_x=128,
+                                len_x=256,
                                 NFFT_density=128,
                                 pad_to_density=256, pad_to_spectrum=256,
                                 iscomplex=False, sides='onesided', nsides=1)
@@ -2715,7 +2737,7 @@ class Test_spectral_nosig_real_twosided_stretch(
         Test_spectral_nosig_real_onesided):
         def setUp(self):
                 self.createStim(fstims=[],
-                                len_x=128,
+                                len_x=256,
                                 NFFT_density=128,
                                 pad_to_density=256, pad_to_spectrum=256,
                                 iscomplex=False, sides='twosided', nsides=2)
@@ -2725,7 +2747,7 @@ class Test_spectral_nosig_real_defaultsided_stretch(
         Test_spectral_nosig_real_onesided):
         def setUp(self):
                 self.createStim(fstims=[],
-                                len_x=128,
+                                len_x=256,
                                 NFFT_density=128,
                                 pad_to_density=256, pad_to_spectrum=256,
                                 iscomplex=False, sides='default', nsides=1)
@@ -2735,7 +2757,7 @@ class Test_spectral_nosig_complex_onesided_stretch(
         Test_spectral_nosig_real_onesided):
         def setUp(self):
                 self.createStim(fstims=[],
-                                len_x=128,
+                                len_x=256,
                                 NFFT_density=128,
                                 pad_to_density=256, pad_to_spectrum=256,
                                 iscomplex=True, sides='onesided', nsides=1)
@@ -2745,7 +2767,7 @@ class Test_spectral_nosig_complex_twosided_stretch(
         Test_spectral_nosig_real_onesided):
         def setUp(self):
                 self.createStim(fstims=[],
-                                len_x=128,
+                                len_x=256,
                                 NFFT_density=128,
                                 pad_to_density=256, pad_to_spectrum=256,
                                 iscomplex=True, sides='twosided', nsides=2)
@@ -2755,7 +2777,7 @@ class Test_spectral_nosig_complex_defaultsided_stretch(
         Test_spectral_nosig_real_onesided):
         def setUp(self):
                 self.createStim(fstims=[],
-                                len_x=128,
+                                len_x=256,
                                 NFFT_density=128,
                                 pad_to_density=256, pad_to_spectrum=256,
                                 iscomplex=True, sides='default', nsides=2)
@@ -3102,3 +3124,16 @@ def test_psd_onesided_norm():
                     sides='onesided')
     Su_1side = np.append([Su[0]], Su[1:4] + Su[4:][::-1])
     assert_allclose(P, Su_1side, atol=1e-06)
+
+
+def test_psd_oversampling():
+    """Test the case len(x) < NFFT for psd(). """
+    u = np.array([0, 1, 2, 3, 1, 2, 1])
+    dt = 1.0
+    Su = np.abs(np.fft.fft(u) * dt)**2 / float(dt * u.size)
+    P, f = mlab.psd(u, NFFT=u.size*2, Fs=1/dt, window=mlab.window_none,
+                    detrend=mlab.detrend_none, noverlap=0, pad_to=None,
+                    scale_by_freq=None,
+                    sides='onesided')
+    Su_1side = np.append([Su[0]], Su[1:4] + Su[4:][::-1])
+    assert_almost_equal(np.sum(P), np.sum(Su_1side))  # same energy
