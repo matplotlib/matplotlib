@@ -2770,7 +2770,7 @@ pivot='tail', normalize=False, **kwargs)
 
         return polygons
 
-    # NOTE: is it ok to redefine Axes.errorbar method?
+    # TODO: is it ok to redefine Axes.errorbar method?
     #       some methods seem to append '3d' to the end instead?
     def errorbar(self, x, y, z, zerr=None, yerr=None, xerr=None,
                  # TODO: sneak this kwarg in:
@@ -2778,6 +2778,7 @@ pivot='tail', normalize=False, **kwargs)
                  barsabove=False, errorevery=1,
                  capsize=None, capthick=None, xlolims=False, xuplims=False,
                  ylolims=False, yuplims=False, zlolims=False, zuplims=False,
+                 debug_kwargs = {},
                  **kwargs):
         # TODO: write up a proof of concept analogous to this one here:
         # http://matplotlib.org/examples/pylab_examples/errorbar_limits.html
@@ -2867,7 +2868,16 @@ pivot='tail', normalize=False, **kwargs)
             zs = [l for l, m in zip(zs, mask) if m]
             return xs, ys, zs
 
-        def _debug_floatlists(*args):
+        def _debug_floatlists(*args, **kwargs):
+            if 'crash' in kwargs:
+                crash = kwargs.pop('crash')
+                if crash:
+                    raise RuntimeError('you asked for it!')
+            if 'set_trace' in kwargs:
+                set_trace = kwargs.pop('set_trace')
+                if set_trace:
+                    import pdb
+                    pdb.set_trace()
             for l in args:
                 s = ("["+', '.join(['%.2f']*len(l))+"]") % tuple(l)
                 print(s)
@@ -2911,10 +2921,21 @@ pivot='tail', normalize=False, **kwargs)
             # positions of errorbars in a dimension we're looping over
             coorderr = [_unpack_errs(coord, err*rolling_mask[i], ~lolims,
                         ~uplims) for i, coord in enumerate([x, y, z])]
+            (xl, xh), (yl, yh), (zl, zh) = coorderr
+
+            # define the markers used for errorbar caps and limits below
+            # the dicitonary key is the current ticking value of `i_xyz`
+            capmarker = {0: '|', 1: '|', 2: '_'}
+            limmarker = {0: {'lower': art3d.lines.CARETRIGHT,
+                             'upper': art3d.lines.CARETLEFT},
+                         1: {'lower': art3d.lines.CARETRIGHT,
+                             'upper': art3d.lines.CARETLEFT},
+                         2: {'lower': art3d.lines.CARETUP,
+                             'upper': art3d.lines.CARETDOWN},
+                         }
 
             if nolims.any():
                 if capsize > 0:
-                    (xl, xh), (yl, yh), (zl, zh) = coorderr
                     lo_caps_xyz = _mask_lists(xl, yl, zl, nolims & everymask)
                     hi_caps_xyz = _mask_lists(xh, yh, zh, nolims & everymask)
                     #_debug_floatlists(*lo_caps_xyz)
@@ -2926,7 +2947,6 @@ pivot='tail', normalize=False, **kwargs)
                     # the coordinate axes!
                     # Nevertheless, let's stick to it for now for consistency.
                     # Setting '_' for z-caps and '|' for x- and y-caps:
-                    capmarker = {0: '|', 1: '|', 2: '_'}
                     cap_lo = art3d.Line3D(*lo_caps_xyz, ls='',
                                           marker=capmarker[i_xyz],
                                           **eb_cap_style)
@@ -2937,6 +2957,28 @@ pivot='tail', normalize=False, **kwargs)
                     self.add_line(cap_hi)
                     caplines.append(cap_lo)
                     caplines.append(cap_hi)
+
+            if (lolims | uplims).any():
+                # FIXME: using markers for limits isn't the best idea: for
+                #        example, 180 deg rotation around z-axis would flip
+                #        the markers around... However, this solution is
+                #        spiritually close to that of 2d errorbar function
+                limits = [_unpack_errs(coord, err*rolling_mask[i], uplims,
+                          lolims) for i, coord in enumerate([x, y, z])]
+                (xlo, xup), (ylo, yup), (zlo, zup) = limits
+
+                lolims_xyz = _mask_lists(xup, yup, zup, lolims & everymask)
+                uplims_xyz = _mask_lists(xlo, ylo, zlo, uplims & everymask)
+                _debug_floatlists(*lolims_xyz, **debug_kwargs)
+
+                lims_lo = art3d.Line3D(*lolims_xyz, ls='',
+                                       marker=limmarker[i_xyz]['lower'],
+                                       **eb_cap_style)
+                lims_up = art3d.Line3D(*uplims_xyz, ls='',
+                                       marker=limmarker[i_xyz]['upper'],
+                                       **eb_cap_style)
+                self.add_line(lims_lo)
+                self.add_line(lims_up)
 
             errline = art3d.Line3DCollection(np.array(coorderr).T,
                                              **plot_line_style)
