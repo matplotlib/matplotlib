@@ -35,7 +35,7 @@ directories found here:
 
   * tests - tests used by matplotlib developers to check functionality
     (These tests are still sometimes useful, but mostly developers should
-    use the nosetests which perform automatic image comparison.)
+    use the pytest tests which perform automatic image comparison.)
 
   * units - working with unit data an custom types in matplotlib
 

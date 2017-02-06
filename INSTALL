@@ -110,7 +110,7 @@ To run the test suite, copy the :file:`lib\\matplotlib\\tests` and
 :file:`lib\\mpl_toolkits\\tests` directories from the source
 distribution to :file:`sys.prefix\\Lib\\site-packages\\matplotlib` and
 :file:`sys.prefix\\Lib\\site-packages\\mpl_toolkits` respectively, and
-install `nose <https://pypi.python.org/pypi/nose>`_, `mock
+install `pytest <https://pypi.python.org/pypi/pytest>`_, `mock
 <https://pypi.python.org/pypi/mock>`_, Pillow, MiKTeX, GhostScript,
 ffmpeg, avconv, mencoder, ImageMagick, and `Inkscape
 <https://inkscape.org/>`_.
