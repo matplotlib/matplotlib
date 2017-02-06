@@ -620,7 +620,7 @@ Hatching
 
 The color of the lines in the hatch is now determined by
 
- - If an edge color is explicitly, use that for the hatch color
+ - If an edge color is explicitly set, use that for the hatch color
  - If the edge color is not explicitly set, use ``rcParam['hatch.color']`` which
    is looked up at artist creation time.
 
