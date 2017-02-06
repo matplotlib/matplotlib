@@ -4002,16 +4002,16 @@ or tuple of floats
         else:
             colors = None  # use cmap, norm after collection is created
 
-        # Anything in maskargs will be unchanged unless it is the same length
-        # as x:
-        maskargs = x, y, s, c, colors, edgecolors, linewidths
+        # `delete_masked_points` only modifies arguments of the same length as
+        # `x`.
         x, y, s, c, colors, edgecolors, linewidths =\
-            cbook.delete_masked_points(*maskargs)
+            cbook.delete_masked_points(
+                x, y, s, c, colors, edgecolors, linewidths)
 
         scales = s   # Renamed for readability below.
 
         # to be API compatible
-        if marker is None and not (verts is None):
+        if marker is None and verts is not None:
             marker = (verts, 0)
             verts = None
 
