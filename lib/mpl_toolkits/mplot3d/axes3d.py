@@ -2825,10 +2825,14 @@ pivot='tail', normalize=False, **kwargs)
             if True , will plot the errorbars above the plot
             symbols. Default is below.
 
-        errorevery : positive integer, optional, default:1
-            subsamples the errorbars. e.g., if errorevery=5, errorbars for
-            every 5-th datapoint will be plotted. The data plot itself still
-            shows all data points.
+        errorevery: positive integer or tuple of integers
+            draws error bars on a subset of the data. errorevery=skip draws
+            error bars on the points (x[::skip], y[::skip]).
+            errorevery=(skip,shift) draws error bars on the points
+            (x[skip%%shift::skip], y[shift%%skip::skip]). e.g. errorevery=(6,3)
+            adds error bars to the data at (x[3], x[9], x[15], x[21], ...).
+            Used to avoid overlapping error bars when two series share x-axis
+            values.
 
         Additional keyword arguments for styling errorbar lines are passed to
         :func:`~mpl_toolkits.mplot3d.art3d.Line3DCollection`
@@ -2885,7 +2889,18 @@ pivot='tail', normalize=False, **kwargs)
             if key in kwargs:
                 eb_lines_style[key] = kwargs[key]
 
-        everymask = np.arange(len(x)) % errorevery == 0
+        try:
+            errorevery, offset = errorevery
+        except TypeError:
+            offset = 0
+
+        int_msg = 'errorevery must be positive integer or tuple of integers'
+        if errorevery < 1 or int(errorevery) != errorevery:
+            raise ValueError(int_msg)
+        if int(offset) != offset:
+            raise ValueError(int_msg)
+
+        everymask = (np.arange(len(x)) - offset) % errorevery == 0
 
         plot_line_style = dict(base_style)
         plot_line_style.update(**kwargs)
