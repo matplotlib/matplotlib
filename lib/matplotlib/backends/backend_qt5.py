@@ -68,6 +68,12 @@ SPECIAL_KEYS = {QtCore.Qt.Key_Control: 'control',
                 QtCore.Qt.Key_SysReq: 'sysreq',
                 QtCore.Qt.Key_Clear: 'clear', }
 
+TOUCH_EVENTS = {
+    QtCore.QEvent.TouchBegin: 'TouchBegin',
+    QtCore.QEvent.TouchUpdate: 'TouchUpdate',
+    QtCore.QEvent.TouchEnd: 'TouchEnd',
+}
+
 # define which modifier keys are collected on keyboard events.
 # elements are (mpl names, Modifier Flag, Qt Key) tuples
 SUPER = 0
@@ -243,6 +249,8 @@ class FigureCanvasQT(QtWidgets.QWidget, FigureCanvasBase):
         # http://pyqt.sourceforge.net/Docs/PyQt5/pyqt4_differences.html#cooperative-multi-inheritance
         super(FigureCanvasQT, self).__init__(figure=figure)
         self.figure = figure
+        if matplotlib.rcParams['backend.touch']:
+            self.setAttribute(QtCore.Qt.WA_AcceptTouchEvents, True)
         self.setMouseTracking(True)
         w, h = self.get_width_height()
         self.resize(w, h)
@@ -362,6 +370,42 @@ class FigureCanvasQT(QtWidgets.QWidget, FigureCanvasBase):
         FigureCanvasBase.resize_event(self)
         self.draw_idle()
         QtWidgets.QWidget.resizeEvent(self, event)
+
+    def event(self, event):
+        '''
+        There is no specialized event handler for touch events
+        So have to reimplement the general event()
+        '''
+        if event.type() in TOUCH_EVENTS:
+            etype = TOUCH_EVENTS[event.type()]
+
+            touches = []
+
+            # there is some odd bug (I think in PyQt5) where after a mouse
+            # event, touches register as QMouseEvent instead of QTouchEvent.
+            # But their event.type() is still TouchBegin. ?!
+
+            # in that case there is no touchPoints attribute, so we should
+            # just skip it.
+
+            if not hasattr(event, 'touchPoints'):
+                return False
+
+            for p in event.touchPoints():
+                x, y = self.mouseEventCoords(p.pos())
+                touches.append((p.id(), x, y))
+
+            if etype == 'TouchBegin':
+                FigureCanvasBase.touch_begin_event(self, touches)
+            elif etype == 'TouchUpdate':
+                FigureCanvasBase.touch_update_event(self, touches)
+            elif etype == 'TouchEnd':
+                FigureCanvasBase.touch_end_event(self, touches)
+
+            return True
+
+        else:
+            return QtWidgets.QWidget.event(self, event)
 
     def sizeHint(self):
         w, h = self.get_width_height()

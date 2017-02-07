@@ -66,6 +66,12 @@ backend      : $TEMPLATE_BACKEND
 # you if backend_fallback is True
 #backend_fallback: True
 
+# if you are using Qt4 or Qt5 backend and have a touchscreen or touchpad,
+# you can interact with the plot using touch gestures (pinch to zoom,
+# touch and drag). if this option is set to false, touch events will
+# be interpreted as regular mouse events (disabling touch gestures).
+#backend.touch : True
+
 #interactive  : False
 #toolbar      : toolbar2   # None | toolbar2  ("classic" is deprecated)
 #timezone     : UTC        # a pytz timezone string, e.g., US/Central or Europe/Paris

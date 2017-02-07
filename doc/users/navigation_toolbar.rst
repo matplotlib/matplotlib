@@ -50,6 +50,12 @@ The ``Pan/Zoom`` button
     mouse button.  The radius scale can be zoomed in and out using the
     right mouse button.
 
+    If your system has a touchscreen, with certain backends the figure can
+    be panned by touching and dragging, or zoomed by pinching with two fingers.
+    The Pan/Zoom button does not need to be activated for touchscreen interaction.
+    As above, the 'x' and 'y' keys will constrain movement to the x or y axes,
+    and 'CONTROL' preserves aspect ratio.
+
 .. image:: ../../lib/matplotlib/mpl-data/images/zoom_to_rect_large.png
 
 The ``Zoom-to-rectangle`` button

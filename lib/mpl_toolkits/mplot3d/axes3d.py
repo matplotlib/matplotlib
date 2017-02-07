@@ -1023,7 +1023,10 @@ class Axes3D(Axes):
             c1 = canv.mpl_connect('motion_notify_event', self._on_move)
             c2 = canv.mpl_connect('button_press_event', self._button_press)
             c3 = canv.mpl_connect('button_release_event', self._button_release)
-            self._cids = [c1, c2, c3]
+            ct1 = canv.mpl_connect('touch_begin_event', self._touch_begin)
+            ct2 = canv.mpl_connect('touch_update_event', self._touch_update)
+            ct3 = canv.mpl_connect('touch_end_event', self._touch_end)
+            self._cids = [c1, c2, c3, ct1, ct2, ct3]
         else:
             warnings.warn('Axes3D.figure.canvas is \'None\', mouse rotation disabled.  Set canvas then call Axes3D.mouse_init().')
 
@@ -1136,6 +1139,78 @@ class Axes3D(Axes):
         ys = self.format_ydata(y)
         zs = self.format_zdata(z)
         return 'x=%s, y=%s, z=%s' % (xs, ys, zs)
+
+    def _touch_begin(self, event):
+        if any(t.xdata is None for t in event.touches):
+            return
+
+        self._touches = event.touches
+
+    def _touch_update(self, event):
+        if any(t.xdata is None for t in event.touches):
+            return
+
+        if self.M is None:
+            return
+
+        w = self._pseudo_w
+        h = self._pseudo_h
+
+        orig_IDs = {t.ID for t in self._touches}
+        e_IDs = {t.ID for t in event.touches}
+        if (len(event.touches) != len(self._touches) or
+                not orig_IDs == e_IDs):
+            self._touch_begin(event)
+
+        elif len(event.touches) == 1:
+            # this is a rotation
+
+            touch = event.touches[0]
+            otouch = self._touches[0]
+
+            dx = touch.xdata - otouch.xdata
+            dy = touch.ydata - otouch.ydata
+
+            if dx == 0 and dy == 0:
+                return
+            self.elev = art3d.norm_angle(self.elev - (dy/h)*180)
+            self.azim = art3d.norm_angle(self.azim - (dx/w)*180)
+            self.get_proj()
+            self.figure.canvas.draw_idle()
+
+        elif len(event.touches) == 2:
+
+            ot1, ot2 = self._touches
+            t1, t2 = event.touches
+
+            odist2 = (ot1.x-ot2.x)**2 + (ot1.y-ot2.y)**2
+            dist2 = (t1.x-t2.x)**2 + (t1.y-t2.y)**2
+            df = 1 - np.sqrt(dist2/odist2)
+
+            ocenter = ((ot1.xdata + ot2.xdata)/2, (ot1.ydata + ot2.ydata)/2)
+            center = ((t1.xdata + t2.xdata)/2, (t1.ydata + t2.ydata)/2)
+
+            cdx = center[0] - ocenter[0]
+            cdy = center[1] - ocenter[1]
+
+            minx, maxx, miny, maxy, minz, maxz = self.get_w_lims()
+            dx = (maxx-minx)*df
+            dy = (maxy-miny)*df
+            dz = (maxz-minz)*df
+            self.set_xlim3d(minx - dx, maxx + dx)
+            self.set_ylim3d(miny - dy, maxy + dy)
+            self.set_zlim3d(minz - dz, maxz + dz)
+
+            self.elev = art3d.norm_angle(self.elev - (cdy/h)*180)
+            self.azim = art3d.norm_angle(self.azim - (cdx/w)*180)
+
+            self.get_proj()
+            self.figure.canvas.draw_idle()
+
+        self._touches = event.touches
+
+    def _touch_end(self, event):
+        self._touches = None
 
     def _on_move(self, event):
         """Mouse moving

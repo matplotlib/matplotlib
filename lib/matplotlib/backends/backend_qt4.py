@@ -66,6 +66,8 @@ class FigureCanvasQT(FigureCanvasQT5):
         QtWidgets.QWidget.__init__(self)
         FigureCanvasBase.__init__(self, figure)
         self.figure = figure
+        if matplotlib.rcParams['backend.touch']:
+            self.setAttribute(QtCore.Qt.WA_AcceptTouchEvents, True)
         self.setMouseTracking(True)
         self._idle = True
         w, h = self.get_width_height()
