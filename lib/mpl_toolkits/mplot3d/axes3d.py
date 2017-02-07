@@ -2932,8 +2932,7 @@ pivot='tail', normalize=False, **kwargs)
             highs = [d + e if m else d for d, e, m in zip(data, err, himask)]
             return lows, highs
 
-        # TODO: things to init are barcaps and low-, high-limits
-        errlines, caplines = [], []
+        errlines, caplines, limmarks = [], [], []
         # List of endpoint coordinates, used for auto-scaling
         coorderrs = []
 
@@ -2963,8 +2962,9 @@ pivot='tail', normalize=False, **kwargs)
             # a nested list structure that expands to (xl,xh),(yl,yh),(zl,zh),
             # where x/y/z and l/h correspond to dimensions and low/high
             # positions of errorbars in a dimension we're looping over
-            coorderr = [_unpack_errs(coord, err*rolling_mask[i], ~lolims,
-                        ~uplims) for i, coord in enumerate([x, y, z])]
+            coorderr = [_unpack_errs(coord, err*rolling_mask[i],
+                        ~lolims & everymask, ~uplims & everymask)
+                        for i, coord in enumerate([x, y, z])]
             (xl, xh), (yl, yh), (zl, zh) = coorderr
 
             # define the markers used for errorbar caps and limits below
@@ -3019,6 +3019,8 @@ pivot='tail', normalize=False, **kwargs)
                                        **eb_cap_style)
                 self.add_line(lims_lo)
                 self.add_line(lims_up)
+                limmarks.append(lims_lo)
+                limmarks.append(lims_up)
 
             errline = art3d.Line3DCollection(np.array(coorderr).T,
                                              label=label,
@@ -3039,12 +3041,7 @@ pivot='tail', normalize=False, **kwargs)
         minz, maxz = _digout_minmax(coorderrs, 'z')
         self.auto_scale_xyz((minx, maxx), (miny, maxy), (minz, maxz), had_data)
 
-        # TODO: return one list instead of three maybe?
-        # TODO: make a container of sorts? There's going to be a whole bunch
-        #       of artist objects bundled together here, with all the lines,
-        #       caps, and upper/lower limit arrow indicators...
-        return errlines
-
+        return errlines, caplines, limmarks
 
 docstring.interpd.update(Axes3D=artist.kwdoc(Axes3D))
 docstring.dedent_interpd(Axes3D.__init__)
