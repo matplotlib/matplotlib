@@ -966,8 +966,8 @@ def test_triplot_return():
     triang = mtri.Triangulation(
         [0.0, 1.0, 0.0, 1.0], [0.0, 0.0, 1.0, 1.0],
         triangles=[[0, 1, 3], [3, 2, 0]])
-    if ax.triplot(triang, "b-") is None:
-        raise AssertionError("triplot should return the artist it adds")
+    assert ax.triplot(triang, "b-") is not None, \
+        'triplot should return the artist it adds'
 
 
 def test_trirefiner_fortran_contiguous_triangles():
