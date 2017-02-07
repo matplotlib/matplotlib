@@ -3058,6 +3058,7 @@ pivot='tail', normalize=False, **kwargs)
 
         return errlines, caplines, limmarks
 
+
 docstring.interpd.update(Axes3D=artist.kwdoc(Axes3D))
 docstring.dedent_interpd(Axes3D.__init__)
 
