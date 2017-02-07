@@ -875,7 +875,8 @@ def axes(*args, **kwargs):
       color for the axis, default white.
 
     - ``axes(h)`` where *h* is an axes instance makes *h* the current
-      axis.  An :class:`~matplotlib.axes.Axes` instance is returned.
+      axis and the parent of *h* the current figure.
+      An :class:`~matplotlib.axes.Axes` instance is returned.
 
     =========   ==============   ==============================================
     kwarg       Accepts          Description
@@ -909,7 +910,8 @@ def axes(*args, **kwargs):
     arg = args[0]
 
     if isinstance(arg, Axes):
-        a = gcf().sca(arg)
+        sca(arg)
+        a = arg
     else:
         rect = arg
         a = gcf().add_axes(rect, **kwargs)
