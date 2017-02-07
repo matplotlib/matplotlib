@@ -1,8 +1,6 @@
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
-import six
-
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.tri as mtri
@@ -16,6 +14,7 @@ from matplotlib.path import Path
 
 import sys
 on_win = (sys.platform == 'win32')
+
 
 def test_delaunay():
     # No duplicate points, regular grid.
@@ -236,10 +235,15 @@ def test_trifinder():
     tris = trifinder(xs, ys)
     assert_array_equal(tris, [0, 17])
 
+    #
     # Test triangles with horizontal colinear points.  These are not valid
     # triangulations, but we try to deal with the simplest violations.
-    delta = 0.0  # If +ve, triangulation is OK, if -ve triangulation invalid,
-                 # if zero have colinear points but should pass tests anyway.
+    #
+
+    # If +ve, triangulation is OK, if -ve triangulation invalid,
+    # if zero have colinear points but should pass tests anyway.
+    delta = 0.0
+
     x = [1.5, 0,  1,  2, 3, 1.5,   1.5]
     y = [-1,  0,  0,  0, 0, delta, 1]
     triangles = [[0, 2, 1], [0, 3, 2], [0, 4, 3], [1, 2, 5], [2, 3, 5],
@@ -254,10 +258,15 @@ def test_trifinder():
     assert_array_equal(tris, [[-1, 0, 0, 1, 1, 2, -1],
                               [-1, 6, 6, 6, 7, 7, -1]])
 
+    #
     # Test triangles with vertical colinear points.  These are not valid
     # triangulations, but we try to deal with the simplest violations.
-    delta = 0.0  # If +ve, triangulation is OK, if -ve triangulation invalid,
-                # if zero have colinear points but should pass tests anyway.
+    #
+
+    # If +ve, triangulation is OK, if -ve triangulation invalid,
+    # if zero have colinear points but should pass tests anyway.
+    delta = 0.0
+
     x = [-1, -delta, 0,  0,  0, 0, 1]
     y = [1.5, 1.5,   0,  1,  2, 3, 1.5]
     triangles = [[0, 1, 2], [0, 1, 5], [1, 2, 3], [1, 3, 4], [1, 4, 5],
@@ -281,7 +290,7 @@ def test_trifinder():
     trifinder = triang.get_trifinder()
 
     xs = [-0.2, 0.2, 0.8, 1.2]
-    ys = [ 0.5, 0.5, 0.5, 0.5]
+    ys = [0.5, 0.5, 0.5, 0.5]
     tris = trifinder(xs, ys)
     assert_array_equal(tris, [-1, 0, 1, -1])
 
@@ -591,8 +600,10 @@ def test_triinterp_colinear():
     # We also test interpolation inside a  flat triangle, by forcing
     # *tri_index* in a call to :meth:`_interpolate_multikeys`.
 
-    delta = 0.  # If +ve, triangulation is OK, if -ve triangulation invalid,
-                # if zero have colinear points but should pass tests anyway.
+    # If +ve, triangulation is OK, if -ve triangulation invalid,
+    # if zero have colinear points but should pass tests anyway.
+    delta = 0.
+
     x0 = np.array([1.5, 0,  1,  2, 3, 1.5,   1.5])
     y0 = np.array([-1,  0,  0,  0, 0, delta, 1])
 
