@@ -889,6 +889,26 @@ def validate_animation_writer_path(p):
     return p
 
 
+def validate_grid_linestyle(ls):
+    # Named line style, like u'--' or u'solid'
+    if isinstance(ls, six.text_type):
+        return ls
+    # Sequence of even length of on and off ink in points.
+    # Offset is set to None.
+    try:
+        if len(ls) % 2 != 0:
+            # Expecting a sequence of even length
+            raise ValueError
+        return (None, validate_nseq_float()(ls))
+    except (ValueError, TypeError):
+        # TypeError can be raised by wrong types passed to float()
+        # (called inside the instance of validate_nseq_float).
+        pass
+
+    raise ValueError("'grid.linestyle' must be a string or " +
+                     "a even-length sequence of floats.")
+
+
 # a map from key -> value, converter
 defaultParams = {
     'backend':           ['Agg', validate_backend],  # agg is certainly
@@ -1215,7 +1235,7 @@ defaultParams = {
     'ytick.direction':   ['out', six.text_type],            # direction of yticks
 
     'grid.color':        ['#b0b0b0', validate_color],  # grid color
-    'grid.linestyle':    ['-', six.text_type],      # solid
+    'grid.linestyle':    ['-', validate_grid_linestyle],      # solid
     'grid.linewidth':    [0.8, validate_float],     # in points
     'grid.alpha':        [1.0, validate_float],
 
