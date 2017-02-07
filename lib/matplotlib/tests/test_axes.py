@@ -866,7 +866,7 @@ def test_symlog2():
     ax.set_ylim(-0.1, 0.1)
 
 
-def test_pcolorargs():
+def test_pcolorargs_5205():
     # Smoketest to catch issue found in gh:5205
     x = [-1.5, -1.0, -0.5, 0.0, 0.5, 1.0, 1.5]
     y = [-1.5, -1.25, -1.0, -0.75, -0.5, -0.25, 0,
