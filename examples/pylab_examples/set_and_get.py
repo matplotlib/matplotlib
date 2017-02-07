@@ -77,7 +77,7 @@ lines = plt.plot(x, y1, x, y2)
 l1, l2 = lines
 plt.setp(lines, linestyle='--')       # set both to dashed
 plt.setp(l1, linewidth=2, color='r')  # line1 is thick and red
-plt.setp(l2, linewidth=1, color='g')  # line2 is thicker and green
+plt.setp(l2, linewidth=1, color='g')  # line2 is thinner and green
 
 
 print('Line setters')
