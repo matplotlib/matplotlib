@@ -29,7 +29,8 @@ from matplotlib.rcsetup import (validate_bool_maybe_none,
                                 validate_nseq_float,
                                 validate_cycler,
                                 validate_hatch,
-                                validate_hist_bins)
+                                validate_hist_bins,
+                                validate_grid_linestyle)
 
 
 mpl.rc('text', usetex=False)
@@ -332,6 +333,21 @@ def generate_validator_testcases(valid):
                      (np.arange(15), np.arange(15))
                      ),
          'fail': (('aardvark', ValueError),
+                  )
+         },
+         {'validator': validate_grid_linestyle,
+         'success': (('--', '--'),
+                     ('dotted', 'dotted'),
+                     ('aardvark', 'aardvark'),
+                     (['1.23', '4.56'], (None, [1.23, 4.56])),
+                     ([1.23, 456], (None, [1.23, 456.0])),
+                     ([1, 2, 3, 4], (None, [1.0, 2.0, 3.0, 4.0])),
+                     ),
+         'fail': (((None, [1, 2]), ValueError),
+                  ((0, [1, 2]), ValueError),
+                  ((-1, [1, 2]), ValueError),
+                  ([1, 2, 3], ValueError),
+                  (1.23, ValueError)
                   )
          }
     )
