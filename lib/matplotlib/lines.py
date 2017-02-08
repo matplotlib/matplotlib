@@ -43,7 +43,8 @@ def _get_dash_pattern(style):
     if style in ['solid', 'None']:
         offset, dashes = None, None
     # dashed styles
-    elif style in ['dashed', 'dashdot', 'dotted']:
+    elif style in ['dashed', 'dashdot', 'dotted', 'dashed@loose',
+                   'dashdot@loose', 'dotted@loose']:
         offset = 0
         dashes = tuple(rcParams['lines.{}_pattern'.format(style)])
     #
@@ -239,13 +240,16 @@ class Line2D(Artist):
 
     """
     lineStyles = _lineStyles = {  # hidden names deprecated
-        '-':    '_draw_solid',
-        '--':   '_draw_dashed',
-        '-.':   '_draw_dash_dot',
-        ':':    '_draw_dotted',
-        'None': '_draw_nothing',
-        ' ':    '_draw_nothing',
-        '':     '_draw_nothing',
+        '-':        '_draw_solid',
+        '--':       '_draw_dashed',
+        '-.':       '_draw_dash_dot',
+        ':':        '_draw_dotted',
+        'None':     '_draw_nothing',
+        ' ':        '_draw_nothing',
+        '':         '_draw_nothing',
+        '--@loose': '_draw_dashed_loose',
+        '-.@loose': '_draw_dash_dot_loose',
+        ':@loose':  '_draw_dotted_loose',
     }
 
     _drawStyles_l = {
@@ -1262,6 +1266,21 @@ class Line2D(Artist):
         gc.set_dashes(self._dashOffset, self._dashSeq)
         renderer.draw_path(gc, path, trans)
 
+    def _draw_dashed_loose(self, renderer, gc, path, trans):
+        gc.set_linestyle('dashed@loose')
+        gc.set_dashes(self._dashOffset, self._dashSeq)
+        renderer.draw_path(gc, path, trans)
+
+    def _draw_dash_dot_loose(self, renderer, gc, path, trans):
+        gc.set_linestyle('dashdot@loose')
+        gc.set_dashes(self._dashOffset, self._dashSeq)
+        renderer.draw_path(gc, path, trans)
+
+    def _draw_dotted_loose(self, renderer, gc, path, trans):
+        gc.set_linestyle('dotted@loose')
+        gc.set_dashes(self._dashOffset, self._dashSeq)
+        renderer.draw_path(gc, path, trans)
+
     def update_from(self, other):
         """copy properties from other to self"""
         Artist.update_from(self, other)
@@ -1452,7 +1471,8 @@ class Line2D(Artist):
 
     def is_dashed(self):
         'return True if line is dashstyle'
-        return self._linestyle in ('--', '-.', ':')
+        return self._linestyle in ('--', '-.', ':', '--@loose', '-.@loose',
+                                   ':@loose')
 
 
 class VertexSelector(object):

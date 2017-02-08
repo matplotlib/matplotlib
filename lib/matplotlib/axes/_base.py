@@ -90,12 +90,24 @@ def _process_plot_format(fmt):
 
     # handle the multi char special cases and strip them from the
     # string
-    if fmt.find('--') >= 0:
+    if fmt.find('--@loose') >= 0:
+        linestyle = '--@loose'
+        fmt = fmt.replace('--@loose', '')
+    elif fmt.find('--') >= 0:
         linestyle = '--'
         fmt = fmt.replace('--', '')
-    if fmt.find('-.') >= 0:
+
+    if fmt.find('-.@loose') >= 0:
+        linestyle = '-.@loose'
+        fmt = fmt.replace('-.@loose', '')
+    elif fmt.find('-.') >= 0:
         linestyle = '-.'
         fmt = fmt.replace('-.', '')
+
+    if fmt.find(':@loose') >= 0:
+        linestyle = ':@loose'
+        fmt = fmt.replace(':@loose', '')
+
     if fmt.find(' ') >= 0:
         linestyle = 'None'
         fmt = fmt.replace(' ', '')

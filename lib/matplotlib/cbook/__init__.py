@@ -1896,7 +1896,9 @@ def unmasked_index_ranges(mask, compressed=True):
 
 # The ls_mapper maps short codes for line style to their full name used by
 # backends; the reverse mapper is for mapping full names to short ones.
-ls_mapper = {'-': 'solid', '--': 'dashed', '-.': 'dashdot', ':': 'dotted'}
+ls_mapper = {'-': 'solid', '--': 'dashed', '-.': 'dashdot', ':': 'dotted',
+             '--@loose': 'dashed@loose', '-.@loose': 'dashdot@loose',
+             ':@loose': 'dotted@loose'}
 ls_mapper_r = {v: k for k, v in six.iteritems(ls_mapper)}
 
 

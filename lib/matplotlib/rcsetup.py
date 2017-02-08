@@ -925,6 +925,10 @@ defaultParams = {
     'lines.dashed_pattern':  [[2.8, 1.2], validate_nseq_float()],
     'lines.dashdot_pattern': [[4.8, 1.2, 0.8, 1.2], validate_nseq_float()],
     'lines.dotted_pattern':  [[1.1, 1.1], validate_nseq_float()],
+    'lines.dashed@loose_pattern':  [[2.8, 3.6], validate_nseq_float()],
+    'lines.dashdot@loose_pattern': [[4.8, 3.6, 0.8, 3.6],
+                                    validate_nseq_float()],
+    'lines.dotted@loose_pattern':  [[1.1, 3.3], validate_nseq_float()],
     'lines.scale_dashes':  [True, validate_bool],
 
     # marker props
