@@ -7086,7 +7086,7 @@ or tuple of floats
 
         Examples
         --------
-        .. plot:: mpl_examples/pylab_examples/cohere_demo.py
+        .. plot:: mpl_examples/lines_bars_and_markers/cohere_demo.py
         """
         if not self._hold:
             self.cla()
