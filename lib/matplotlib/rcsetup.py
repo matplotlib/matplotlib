@@ -906,7 +906,7 @@ def validate_grid_linestyle(ls):
         pass
 
     raise ValueError("'grid.linestyle' must be a string or " +
-                     "a even-length sequence of floats.")
+                     "an even-length sequence of floats.")
 
 
 # a map from key -> value, converter
