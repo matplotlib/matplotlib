@@ -1476,6 +1476,15 @@ def test_as_mpl_axes_api():
         'Expected a PolarAxesSubplot, got %s' % type(ax)
     plt.close()
 
+    # test focusing of Axes in other Figure
+    fig1, ax1 = subplots()
+    fig2, ax2 = subplots()
+    assert ax1 is plt.axes(ax1)
+    assert ax1 is plt.gca()
+    assert fig1 is plt.gcf()
+    plt.close(fig1)
+    plt.close(fig2)
+
 
 @image_comparison(baseline_images=['log_scales'])
 def test_log_scales():
