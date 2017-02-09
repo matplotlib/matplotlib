@@ -583,7 +583,6 @@ def to_filehandle(fname, flag='rU', return_opened=False):
     return fh
 
 
-@deprecated('2.1')
 def is_scalar_or_string(val):
     """Return whether the given object is a scalar or string like."""
     return is_string_like(val) or not iterable(val)
