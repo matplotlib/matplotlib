@@ -29,4 +29,3 @@ ax.set_ylabel("Y label")
 ax.set_zlabel("Z label")
 
 plt.show()
-
