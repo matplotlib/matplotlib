@@ -14,13 +14,13 @@ t = np.arange(0, 2*np.pi+.1, 0.01)
 x, y, z = np.sin(t), np.cos(3*t), np.sin(5*t)
 
 fig_zerr_kwargs = dict(zerr=0.2, capsize=2)
-fig_xerr_kwargs = dict(xerr=0.2, errorevery=(2,2))
+fig_xerr_kwargs = dict(xerr=0.2, errorevery=(2, 2))
 
 estep = 15
-zuplims = [True if (not i%estep and i//estep%3==0)
-                else False for i in range(t.size)]
-zlolims = [True if (not i%estep and i//estep%3==2)
-                else False for i in range(t.size)]
+zuplims = [True if (not i % estep and i // estep % 3 == 0)
+           else False for i in range(t.size)]
+zlolims = [True if (not i % estep and i // estep % 3 == 2)
+           else False for i in range(t.size)]
 
 ax.errorbar(x, y, z, 0.2, zuplims=zuplims, zlolims=zlolims, errorevery=estep)
 
@@ -29,3 +29,4 @@ ax.set_ylabel("Y label")
 ax.set_zlabel("Z label")
 
 plt.show()
+
