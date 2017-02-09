@@ -336,18 +336,23 @@ def generate_validator_testcases(valid):
                   )
          },
          {'validator': validate_linestyle,
-         'success': (('--', '--'),
-                     ('dotted', 'dotted'),
-                     ('aardvark', 'aardvark'),
+         'success': (('-', '-'), ('solid', 'solid'),
+                     ('--', '--'), ('dashed', 'dashed'),
+                     ('-.', '-.'), ('dashdot', 'dashdot'),
+                     (':', ':'), ('dotted', 'dotted'),
+                     ('', ''), (' ', ' '),
+                     ('None', 'None'), ('none', 'none'),
                      (['1.23', '4.56'], (None, [1.23, 4.56])),
                      ([1.23, 456], (None, [1.23, 456.0])),
                      ([1, 2, 3, 4], (None, [1.0, 2.0, 3.0, 4.0])),
                      ),
-         'fail': (((None, [1, 2]), ValueError),
-                  ((0, [1, 2]), ValueError),
-                  ((-1, [1, 2]), ValueError),
-                  ([1, 2, 3], ValueError),
-                  (1.23, ValueError)
+         'fail': (('aardvark', ValueError),  # not a valid string
+                  ('DoTtEd', ValueError),  # validation is case-sensitive
+                  ((None, [1, 2]), ValueError),  # (offset, dashes) is not OK
+                  ((0, [1, 2]), ValueError),  # idem
+                  ((-1, [1, 2]), ValueError),  # idem
+                  ([1, 2, 3], ValueError), # not a sequence of even length
+                  (1.23, ValueError)  # not a sequence
                   )
          }
     )

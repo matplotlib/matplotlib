@@ -25,7 +25,7 @@ import os
 import warnings
 import re
 
-from matplotlib.cbook import mplDeprecation
+from matplotlib.cbook import mplDeprecation, ls_mapper
 from matplotlib.fontconfig_pattern import parse_fontconfig_pattern
 from matplotlib.colors import is_color_like
 
@@ -888,13 +888,22 @@ def validate_animation_writer_path(p):
         modules["matplotlib.animation"].writers.set_dirty()
     return p
 
+# A validator dedicated to the named line styles, based on the items in
+# ls_mapper, and a list of possible strings read from Line2D.set_linestyle
+validate_named_linestyle = ValidateInStrings('linestyle',
+                                             list(six.iterkeys(ls_mapper)) +
+                                             list(six.itervalues(ls_mapper)) +
+                                             ['None', 'none', ' ', ''],
+                                             ignorecase=False)
 
+# A validator for all possible line styles, the named ones *and*
+# the on-off ink sequences.
 def validate_linestyle(ls):
     # Named line style, like u'--' or u'solid'
     if isinstance(ls, six.text_type):
-        return ls
+        return validate_named_linestyle(ls)
 
-    # Sequence *of even length* of on and off ink (in points).
+    # On-off ink (in points) sequence *of even length*.
     # Offset is set to None.
     try:
         if len(ls) % 2 != 0:
