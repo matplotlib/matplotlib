@@ -889,11 +889,12 @@ def validate_animation_writer_path(p):
     return p
 
 
-def validate_grid_linestyle(ls):
+def validate_linestyle(ls):
     # Named line style, like u'--' or u'solid'
     if isinstance(ls, six.text_type):
         return ls
-    # Sequence of even length of on and off ink in points.
+
+    # Sequence *of even length* of on and off ink (in points).
     # Offset is set to None.
     try:
         if len(ls) % 2 != 0:
@@ -905,7 +906,7 @@ def validate_grid_linestyle(ls):
         # (called inside the instance of validate_nseq_float).
         pass
 
-    raise ValueError("'grid.linestyle' must be a string or " +
+    raise ValueError("linestyle must be a string or " +
                      "an even-length sequence of floats.")
 
 
@@ -932,7 +933,7 @@ defaultParams = {
 
     # line props
     'lines.linewidth':       [1.5, validate_float],  # line width in points
-    'lines.linestyle':       ['-', six.text_type],             # solid line
+    'lines.linestyle':       ['-', validate_linestyle],  # solid line
     'lines.color':           ['C0', validate_color],  # first color in color cycle
     'lines.marker':          ['None', six.text_type],  # marker name
     'lines.markeredgewidth': [1.0, validate_float],
@@ -981,31 +982,31 @@ defaultParams = {
     'boxplot.flierprops.markerfacecolor': ['none', validate_color_or_auto],
     'boxplot.flierprops.markeredgecolor': ['k', validate_color],
     'boxplot.flierprops.markersize': [6, validate_float],
-    'boxplot.flierprops.linestyle': ['none', six.text_type],
+    'boxplot.flierprops.linestyle': ['none', validate_linestyle],
     'boxplot.flierprops.linewidth': [1.0, validate_float],
 
     'boxplot.boxprops.color': ['k', validate_color],
     'boxplot.boxprops.linewidth': [1.0, validate_float],
-    'boxplot.boxprops.linestyle': ['-', six.text_type],
+    'boxplot.boxprops.linestyle': ['-', validate_linestyle],
 
     'boxplot.whiskerprops.color': ['k', validate_color],
     'boxplot.whiskerprops.linewidth': [1.0, validate_float],
-    'boxplot.whiskerprops.linestyle': ['-', six.text_type],
+    'boxplot.whiskerprops.linestyle': ['-', validate_linestyle],
 
     'boxplot.capprops.color': ['k', validate_color],
     'boxplot.capprops.linewidth': [1.0, validate_float],
-    'boxplot.capprops.linestyle': ['-', six.text_type],
+    'boxplot.capprops.linestyle': ['-', validate_linestyle],
 
     'boxplot.medianprops.color': ['C1', validate_color],
     'boxplot.medianprops.linewidth': [1.0, validate_float],
-    'boxplot.medianprops.linestyle': ['-', six.text_type],
+    'boxplot.medianprops.linestyle': ['-', validate_linestyle],
 
     'boxplot.meanprops.color': ['C2', validate_color],
     'boxplot.meanprops.marker': ['^', six.text_type],
     'boxplot.meanprops.markerfacecolor': ['C2', validate_color],
     'boxplot.meanprops.markeredgecolor': ['C2', validate_color],
     'boxplot.meanprops.markersize': [6, validate_float],
-    'boxplot.meanprops.linestyle': ['--', six.text_type],
+    'boxplot.meanprops.linestyle': ['--', validate_linestyle],
     'boxplot.meanprops.linewidth': [1.0, validate_float],
 
     ## font props
@@ -1235,7 +1236,7 @@ defaultParams = {
     'ytick.direction':   ['out', six.text_type],            # direction of yticks
 
     'grid.color':        ['#b0b0b0', validate_color],  # grid color
-    'grid.linestyle':    ['-', validate_grid_linestyle],      # solid
+    'grid.linestyle':    ['-', validate_linestyle],  # solid
     'grid.linewidth':    [0.8, validate_float],     # in points
     'grid.alpha':        [1.0, validate_float],
 
