@@ -2825,14 +2825,21 @@ pivot='tail', normalize=False, **kwargs)
             if True , will plot the errorbars above the plot
             symbols. Default is below.
 
+        xlolims / ylolims / zlolims : bool, optional, default:None
+            These arguments can be used to indicate that a value gives
+            only lower limits. In that case a caret symbol is being
+            drawn to indicate this. lims-arguments may be of the same
+            type as *xerr* and *yerr*.
+
+        xuplims / yuplims / zuplims : bool, optional, default:None
+            Same as above, but for controlling the upper limits.
+
         errorevery: positive integer or tuple of integers
             draws error bars on a subset of the data. errorevery=skip draws
-            error bars on the points (x[::skip], y[::skip]).
+            error bars on the [::skip] intervals. If a tuple of integers,
             errorevery=(skip,shift) draws error bars on the points
-            (x[skip%%shift::skip], y[shift%%skip::skip]). e.g. errorevery=(6,3)
+            selected as [skip%%shift::skip]. e.g. errorevery=(6,3)
             adds error bars to the data at (x[3], x[9], x[15], x[21], ...).
-            Used to avoid overlapping error bars when two series share x-axis
-            values.
 
         Additional keyword arguments for styling errorbar lines are passed to
         :func:`~mpl_toolkits.mplot3d.art3d.Line3DCollection`
