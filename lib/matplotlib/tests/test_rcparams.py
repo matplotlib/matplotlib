@@ -351,7 +351,7 @@ def generate_validator_testcases(valid):
                   ((None, [1, 2]), ValueError),  # (offset, dashes) is not OK
                   ((0, [1, 2]), ValueError),  # idem
                   ((-1, [1, 2]), ValueError),  # idem
-                  ([1, 2, 3], ValueError), # not a sequence of even length
+                  ([1, 2, 3], ValueError),  # not a sequence of even length
                   (1.23, ValueError)  # not a sequence
                   )
          }
