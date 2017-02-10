@@ -1477,8 +1477,8 @@ def test_as_mpl_axes_api():
     plt.close()
 
     # test focusing of Axes in other Figure
-    fig1, ax1 = subplots()
-    fig2, ax2 = subplots()
+    fig1, ax1 = plt.subplots()
+    fig2, ax2 = plt.subplots()
     assert ax1 is plt.axes(ax1)
     assert ax1 is plt.gca()
     assert fig1 is plt.gcf()
