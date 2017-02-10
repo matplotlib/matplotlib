@@ -1476,6 +1476,8 @@ def test_as_mpl_axes_api():
         'Expected a PolarAxesSubplot, got %s' % type(ax)
     plt.close()
 
+
+def test_pyplot_axes():
     # test focusing of Axes in other Figure
     fig1, ax1 = plt.subplots()
     fig2, ax2 = plt.subplots()
