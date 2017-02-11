@@ -494,7 +494,7 @@ class PdfFile(object):
         self.fontNames = {}     # maps filenames to internal font names
         self.nextFont = 1       # next free internal font name
         self.dviFontInfo = {}   # maps dvi font names to embedding information
-        self.texFontMap = None  # maps TeX font names to PostScript fonts
+        self._texFontMap = None  # maps TeX font names to PostScript fonts
         # differently encoded Type-1 fonts may share the same descriptor
         self.type1Descriptors = {}
         self.used_characters = {}
@@ -663,6 +663,16 @@ class PdfFile(object):
 
         return Fx
 
+    @property
+    def texFontMap(self):
+        # lazy-load texFontMap, it takes a while to parse
+        # and usetex is a relatively rare use case
+        if self._texFontMap is None:
+            self._texFontMap = dviread.PsfontsMap(
+                dviread.find_tex_file('pdftex.map'))
+
+        return self._texFontMap
+
     def dviFontName(self, dvifont):
         """
         Given a dvi font object, return a name suitable for Op.selectfont.
@@ -673,12 +683,6 @@ class PdfFile(object):
         dvi_info = self.dviFontInfo.get(dvifont.texname)
         if dvi_info is not None:
             return dvi_info.pdfname
-
-        # lazy-load texFontMap, it takes a while to parse
-        # and usetex is a relatively rare use case
-        if self.texFontMap is None:
-            self.texFontMap = \
-                dviread.PsfontsMap(dviread.find_tex_file('pdftex.map'))
 
         psfont = self.texFontMap[dvifont.texname]
         if psfont.filename is None:
