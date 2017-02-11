@@ -549,26 +549,88 @@ class TestStrMethodFormatter(object):
 
 
 class TestEngFormatter(object):
-    format_data = [
-        ('', 0.1, u'100 m'),
-        ('', 1, u'1'),
-        ('', 999.9, u'999.9'),
-        ('', 1001, u'1.001 k'),
-        (u's', 0.1, u'100 ms'),
-        (u's', 1, u'1 s'),
-        (u's', 999.9, u'999.9 s'),
-        (u's', 1001, u'1.001 ks'),
+    # (input, expected) where ''expected'' corresponds to the outputs
+    # respectively returned when (places=None, places=0, places=2)
+    raw_format_data = [
+        (-1234.56789, (u'-1.23457 k', u'-1 k', u'-1.23 k')),
+        (-1.23456789, (u'-1.23457', u'-1', u'-1.23')),
+        (-0.123456789, (u'-123.457 m', u'-123 m', u'-123.46 m')),
+        (-0.00123456789, (u'-1.23457 m', u'-1 m', u'-1.23 m')),
+        (-0.0, (u'0', u'0', u'0.00')),
+        (-0, (u'0', u'0', u'0.00')),
+        (0, (u'0', u'0', u'0.00')),
+        (1.23456789e-6, (u'1.23457 \u03bc', u'1 \u03bc', u'1.23 \u03bc')),
+        (0.123456789, (u'123.457 m', u'123 m', u'123.46 m')),
+        (0.1, (u'100 m', u'100 m', u'100.00 m')),
+        (1, (u'1', u'1', u'1.00')),
+        (1.23456789, (u'1.23457', u'1', u'1.23')),
+        (999.9, (u'999.9', u'999', u'999.90')),
+        (1000, (u'1 k', u'1 k', u'1.00 k')),
+        (1001, (u'1.001 k', u'1 k', u'1.00 k')),
+        (100001, (u'100.001 k', u'100 k', u'100.00 k')),
+        (987654.321, (u'987.654 k', u'987 k', u'987.65 k'))
     ]
 
-    @pytest.mark.parametrize('unit, input, expected', format_data)
-    def test_formatting(self, unit, input, expected):
+    @pytest.mark.parametrize('input, expected', raw_format_data)
+    def test_params(self, input, expected):
         """
-        Test the formatting of EngFormatter with some inputs, against
-        instances with and without units. Cases focus on when no SI
-        prefix is present, for values in [1, 1000).
+        Test the formatting of EngFormatter for various values of the 'places'
+        argument, in several cases:
+            0. without unit but with a space separator;
+            1. with both a unit and a space separator;
+            2. with a unit but no space separator;
+            3. with neihter a unit nor a space separator.
         """
-        fmt = mticker.EngFormatter(unit)
-        assert fmt(input) == expected
+
+        UNIT = u's'  # seconds
+        DIGITS = u'0123456789'  # %timeit showed 10-20% faster search than set
+
+        # Case 0: unit='' (default) and space_sep=True (default).
+        # 'expected' already corresponds to this reference case.
+        exp_outputs = (_s for _s in expected)  # simple copy of 'expected'
+        formatters = (
+            mticker.EngFormatter(),  # places=None (default)
+            mticker.EngFormatter(places=0),
+            mticker.EngFormatter(places=2)
+        )
+        for _formatter, _exp_output in zip(formatters, exp_outputs):
+            assert _formatter(input) == _exp_output
+
+        # Case 1: unit=UNIT and space_sep=True (default).
+        # Append a unit symbol to the reference case.
+        # Beware of the values in [1, 1000), where there is no prefix!
+        exp_outputs = (_s + u" " + UNIT if _s[-1] in DIGITS  # case w/o prefix
+                       else _s + UNIT for _s in expected)
+        formatters = (
+            mticker.EngFormatter(unit=UNIT),  # places=None (default)
+            mticker.EngFormatter(unit=UNIT, places=0),
+            mticker.EngFormatter(unit=UNIT, places=2)
+        )
+        for _formatter, _exp_output in zip(formatters, exp_outputs):
+            assert _formatter(input) == _exp_output
+
+        # Case 2: unit=UNIT and space_sep=False.
+        # Remove the space separator from the reference case.
+        exp_outputs = (_s.replace(" ", "") + UNIT for _s in expected)
+        formatters = (
+            mticker.EngFormatter(unit=UNIT, space_sep=False),  # places=None
+            mticker.EngFormatter(unit=UNIT, places=0, space_sep=False),
+            mticker.EngFormatter(unit=UNIT, places=2, space_sep=False)
+        )
+        for _formatter, _exp_output in zip(formatters, exp_outputs):
+            assert _formatter(input) == _exp_output
+
+        # Case 3: unit='' (default) and space_sep=False.
+        # Remove the space separator from the reference case and append
+        # a unit symbol to it.
+        exp_outputs = (_s.replace(" ", "") for _s in expected)
+        formatters = (
+            mticker.EngFormatter(space_sep=False),  # places=None (default)
+            mticker.EngFormatter(places=0, space_sep=False),
+            mticker.EngFormatter(places=2, space_sep=False)
+        )
+        for _formatter, _exp_output in zip(formatters, exp_outputs):
+            assert _formatter(input) == _exp_output
 
 
 class TestPercentFormatter(object):
