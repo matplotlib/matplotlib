@@ -552,23 +552,23 @@ class TestEngFormatter(object):
     # (input, expected) where ''expected'' corresponds to the outputs
     # respectively returned when (places=None, places=0, places=2)
     raw_format_data = [
-        (-1234.56789, (u'-1.23457 k', u'-1 k', u'-1.23 k')),
-        (-1.23456789, (u'-1.23457', u'-1', u'-1.23')),
-        (-0.123456789, (u'-123.457 m', u'-123 m', u'-123.46 m')),
-        (-0.00123456789, (u'-1.23457 m', u'-1 m', u'-1.23 m')),
-        (-0.0, (u'0', u'0', u'0.00')),
-        (-0, (u'0', u'0', u'0.00')),
-        (0, (u'0', u'0', u'0.00')),
-        (1.23456789e-6, (u'1.23457 \u03bc', u'1 \u03bc', u'1.23 \u03bc')),
-        (0.123456789, (u'123.457 m', u'123 m', u'123.46 m')),
-        (0.1, (u'100 m', u'100 m', u'100.00 m')),
-        (1, (u'1', u'1', u'1.00')),
-        (1.23456789, (u'1.23457', u'1', u'1.23')),
-        (999.9, (u'999.9', u'999', u'999.90')),
-        (1000, (u'1 k', u'1 k', u'1.00 k')),
-        (1001, (u'1.001 k', u'1 k', u'1.00 k')),
-        (100001, (u'100.001 k', u'100 k', u'100.00 k')),
-        (987654.321, (u'987.654 k', u'987 k', u'987.65 k'))
+        (-1234.56789, ('-1.23457 k', '-1 k', '-1.23 k')),
+        (-1.23456789, ('-1.23457', '-1', '-1.23')),
+        (-0.123456789, ('-123.457 m', '-123 m', '-123.46 m')),
+        (-0.00123456789, ('-1.23457 m', '-1 m', '-1.23 m')),
+        (-0.0, ('0', '0', '0.00')),
+        (-0, ('0', '0', '0.00')),
+        (0, ('0', '0', '0.00')),
+        (1.23456789e-6, ('1.23457 \u03bc', '1 \u03bc', '1.23 \u03bc')),
+        (0.123456789, ('123.457 m', '123 m', '123.46 m')),
+        (0.1, ('100 m', '100 m', '100.00 m')),
+        (1, ('1', '1', '1.00')),
+        (1.23456789, ('1.23457', '1', '1.23')),
+        (999.9, ('999.9', '999', '999.90')),
+        (1000, ('1 k', '1 k', '1.00 k')),
+        (1001, ('1.001 k', '1 k', '1.00 k')),
+        (100001, ('100.001 k', '100 k', '100.00 k')),
+        (987654.321, ('987.654 k', '987 k', '987.65 k'))
     ]
 
     @pytest.mark.parametrize('input, expected', raw_format_data)
@@ -582,8 +582,8 @@ class TestEngFormatter(object):
             3. with neihter a unit nor a space separator.
         """
 
-        UNIT = u's'  # seconds
-        DIGITS = u'0123456789'  # %timeit showed 10-20% faster search than set
+        UNIT = 's'  # seconds
+        DIGITS = '0123456789'  # %timeit showed 10-20% faster search than set
 
         # Case 0: unit='' (default) and sep=' ' (default).
         # 'expected' already corresponds to this reference case.
@@ -599,7 +599,7 @@ class TestEngFormatter(object):
         # Case 1: unit=UNIT and sep=' ' (default).
         # Append a unit symbol to the reference case.
         # Beware of the values in [1, 1000), where there is no prefix!
-        exp_outputs = (_s + u" " + UNIT if _s[-1] in DIGITS  # case w/o prefix
+        exp_outputs = (_s + " " + UNIT if _s[-1] in DIGITS  # case w/o prefix
                        else _s + UNIT for _s in expected)
         formatters = (
             mticker.EngFormatter(unit=UNIT),  # places=None (default)
