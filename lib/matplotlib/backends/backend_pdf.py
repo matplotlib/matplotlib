@@ -711,7 +711,7 @@ class PdfFile(object):
             Fx = info.pdfname
             matplotlib.verbose.report('Embedding Type-1 font %s from dvi'
                                       % dviname, 'debug')
-            fonts[Fx] = self.embedTeXFont(info)
+            fonts[Fx] = self._embedTeXFont(info)
         for filename in sorted(self.fontNames):
             Fx = self.fontNames[filename]
             matplotlib.verbose.report('Embedding font %s' % filename, 'debug')
@@ -740,7 +740,7 @@ class PdfFile(object):
         self.writeObject(fontdictObject, fontdict)
         return fontdictObject
 
-    def embedTeXFont(self, fontinfo):
+    def _embedTeXFont(self, fontinfo):
         msg = ('Embedding TeX font {0} - fontinfo={1}'
                .format(fontinfo.dvifont.texname, fontinfo.__dict__))
         matplotlib.verbose.report(msg, 'debug')
