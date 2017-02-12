@@ -1193,8 +1193,9 @@ class EngFormatter(Formatter):
     specified in digits after the decimal point (there will be between
     one and three digits before the decimal point).
 
-    `space_sep` controls if there is a space between the number and the
-    prefix/unit. For example, '3.14 mV' if True and '3.14mV' if False.
+    `sep` is the separator (a string) that is used between the number
+    and the prefix/unit. For example, '3.14 mV' if `sep` is " " (default)
+    and '3.14mV' if `sep` is "".
     """
     # The SI engineering prefixes
     ENG_PREFIXES = {
@@ -1217,32 +1218,32 @@ class EngFormatter(Formatter):
          24: "Y"
     }
 
-    def __init__(self, unit="", places=None, space_sep=True):
+    def __init__(self, unit="", places=None, sep=" "):
         """
         Parameters
         ----------
-        unit: str (default: u"")
+        unit: string (default: "")
             Unit symbol to use.
 
         places: int (default: None)
             Precision, i.e. number of digits after the decimal point.
             If it is None, falls back to the floating point format '%g'.
 
-        space_sep: boolean (default: True)
-            If True, a (single) space is used between the value and the
-            prefix/unit, else the prefix/unit is directly appended to the
-            value.
+        sep: string (default: " ")
+            String used between the value and the prefix/unit. Beside the
+            default behavior, some other useful use cases may be:
+                * sep="" to append directly the prefix/unit to the value;
+                * sep="\u00a0" to use a no-break space;
+                * sep="\u202f" to use a narrow no-break space.
         """
         self.unit = unit
         self.places = places
-        if space_sep is True:
-            self.sep = u" "  # 1 space
-        else:
-            self.sep = u""  # no space
+        self.sep = sep
 
     def __call__(self, x, pos=None):
         s = "%s%s" % (self.format_eng(x), self.unit)
-        s = s.strip()  # Remove separator when there is neither prefix nor unit
+        # Remove the trailing separator when there is neither prefix nor unit
+        s = s.strip(self.sep)
         return self.fix_minus(s)
 
     def format_eng(self, num):
