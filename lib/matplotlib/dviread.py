@@ -911,16 +911,23 @@ class PsfontsMap(object):
             effects, encoding, filename = b'', None, None
             words = word_re.finditer(line)
 
+            # The named groups are mutually exclusive and are
+            # referenced below at an estimated order of probability of
+            # occurrence based on looking at my copy of pdftex.map.
+            # The font names are probably unquoted:
             w = next(words)
             texname = w.group('eff2') or w.group('eff1')
             w = next(words)
             psname = w.group('eff2') or w.group('eff1')
 
             for w in words:
+                # Any effects are almost always quoted:
                 eff = w.group('eff1') or w.group('eff2')
                 if eff:
                     effects = eff
                     continue
+                # Encoding files usually have the .enc suffix
+                # and almost never need quoting:
                 enc = (w.group('enc4') or w.group('enc3') or
                        w.group('enc2') or w.group('enc1'))
                 if enc:
@@ -931,6 +938,7 @@ class PsfontsMap(object):
                             'debug')
                     encoding = enc
                     continue
+                # File names are probably unquoted:
                 filename = w.group('file2') or w.group('file1')
 
             effects_dict = {}
