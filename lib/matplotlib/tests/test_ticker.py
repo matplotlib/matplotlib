@@ -576,10 +576,10 @@ class TestEngFormatter(object):
         """
         Test the formatting of EngFormatter for various values of the 'places'
         argument, in several cases:
-            0. without unit but with a space separator;
-            1. with both a unit and a space separator;
-            2. with a unit but no space separator;
-            3. with neihter a unit nor a space separator.
+            0.  without a unit symbol but with a (default) space separator;
+            1.  with both a unit symbol and a (default) space separator;
+            2x. with both a unit symbol and some non default separators;
+            3x. without a unit symbol but with some non default separators.
         """
 
         UNIT = 's'  # seconds
@@ -611,13 +611,12 @@ class TestEngFormatter(object):
 
         # Test several non default separators: no separator, a narrow
         # no-break space (unicode character) and an extravagant string.
-        for _sep in ("","\u202f", "@_@"):
+        for _sep in ("", "\u202f", "@_@"):
             # Case 2x: unit=UNIT and sep=_sep.
             # Remove the space separator from the reference case.
             exp_outputs = (_s + _sep + UNIT if _s[-1] in DIGITS  # no prefix
                            else _s.replace(" ", _sep) + UNIT
                            for _s in expected)
-            #exp_outputs = list(_s.replace(" ", _sep) + UNIT for _s in expected)
             formatters = (
                 mticker.EngFormatter(unit=UNIT, sep=_sep),  # places=None
                 mticker.EngFormatter(unit=UNIT, places=0, sep=_sep),
