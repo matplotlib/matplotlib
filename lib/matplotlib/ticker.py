@@ -1232,9 +1232,10 @@ class EngFormatter(Formatter):
         sep: string (default: " ")
             String used between the value and the prefix/unit. Beside the
             default behavior, some other useful use cases may be:
-                * sep="" to append directly the prefix/unit to the value;
-                * sep="\\u00a0" to use a no-break space;
-                * sep="\\u202f" to use a narrow no-break space.
+            * sep="" to append directly the prefix/unit to the value;
+            * sep="\\u2009" to use a thin space;
+            * sep="\\u202f" to use a narrow no-break space;
+            * sep="\\u00a0" to use a no-break space.
         """
         self.unit = unit
         self.places = places
