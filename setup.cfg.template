@@ -18,7 +18,7 @@
 [status]
 # To suppress display of the dependencies and their versions
 # at the top of the build log, uncomment the following line:
-#suppress = False
+#suppress = True 
 
 [packages]
 # There are a number of subpackages of Matplotlib that are considered
