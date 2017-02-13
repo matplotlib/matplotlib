@@ -30,7 +30,7 @@ from matplotlib.rcsetup import (validate_bool_maybe_none,
                                 validate_cycler,
                                 validate_hatch,
                                 validate_hist_bins,
-                                validate_linestyle)
+                                _validate_linestyle)
 
 
 mpl.rc('text', usetex=False)
@@ -335,19 +335,19 @@ def generate_validator_testcases(valid):
          'fail': (('aardvark', ValueError),
                   )
          },
-         {'validator': validate_linestyle,
+         {'validator': _validate_linestyle,  # NB: case-insensitive
          'success': (('-', '-'), ('solid', 'solid'),
                      ('--', '--'), ('dashed', 'dashed'),
                      ('-.', '-.'), ('dashdot', 'dashdot'),
                      (':', ':'), ('dotted', 'dotted'),
                      ('', ''), (' ', ' '),
-                     ('None', 'None'), ('none', 'none'),
+                     ('None', 'none'), ('none', 'none'),
+                     ('DoTtEd', 'dotted'),
                      (['1.23', '4.56'], (None, [1.23, 4.56])),
                      ([1.23, 456], (None, [1.23, 456.0])),
                      ([1, 2, 3, 4], (None, [1.0, 2.0, 3.0, 4.0])),
                      ),
          'fail': (('aardvark', ValueError),  # not a valid string
-                  ('DoTtEd', ValueError),  # validation is case-sensitive
                   ((None, [1, 2]), ValueError),  # (offset, dashes) is not OK
                   ((0, [1, 2]), ValueError),  # idem
                   ((-1, [1, 2]), ValueError),  # idem
