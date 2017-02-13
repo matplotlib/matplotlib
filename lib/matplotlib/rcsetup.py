@@ -890,18 +890,21 @@ def validate_animation_writer_path(p):
 
 # A validator dedicated to the named line styles, based on the items in
 # ls_mapper, and a list of possible strings read from Line2D.set_linestyle
-validate_named_linestyle = ValidateInStrings('linestyle',
-                                             list(six.iterkeys(ls_mapper)) +
-                                             list(six.itervalues(ls_mapper)) +
-                                             ['None', 'none', ' ', ''],
-                                             ignorecase=False)
+_validate_named_linestyle = ValidateInStrings('linestyle',
+                                              list(six.iterkeys(ls_mapper)) +
+                                              list(six.itervalues(ls_mapper)) +
+                                              ['None', 'none', ' ', ''],
+                                              ignorecase=True)
 
-# A validator for all possible line styles, the named ones *and*
-# the on-off ink sequences.
-def validate_linestyle(ls):
+
+def _validate_linestyle(ls):
+    """
+    A validator for all possible line styles, the named ones *and*
+    the on-off ink sequences.
+    """
     # Named line style, like u'--' or u'solid'
     if isinstance(ls, six.text_type):
-        return validate_named_linestyle(ls)
+        return _validate_named_linestyle(ls)
 
     # On-off ink (in points) sequence *of even length*.
     # Offset is set to None.
@@ -942,7 +945,7 @@ defaultParams = {
 
     # line props
     'lines.linewidth':       [1.5, validate_float],  # line width in points
-    'lines.linestyle':       ['-', validate_linestyle],  # solid line
+    'lines.linestyle':       ['-', _validate_linestyle],  # solid line
     'lines.color':           ['C0', validate_color],  # first color in color cycle
     'lines.marker':          ['None', six.text_type],  # marker name
     'lines.markeredgewidth': [1.0, validate_float],
@@ -991,31 +994,31 @@ defaultParams = {
     'boxplot.flierprops.markerfacecolor': ['none', validate_color_or_auto],
     'boxplot.flierprops.markeredgecolor': ['k', validate_color],
     'boxplot.flierprops.markersize': [6, validate_float],
-    'boxplot.flierprops.linestyle': ['none', validate_linestyle],
+    'boxplot.flierprops.linestyle': ['none', _validate_linestyle],
     'boxplot.flierprops.linewidth': [1.0, validate_float],
 
     'boxplot.boxprops.color': ['k', validate_color],
     'boxplot.boxprops.linewidth': [1.0, validate_float],
-    'boxplot.boxprops.linestyle': ['-', validate_linestyle],
+    'boxplot.boxprops.linestyle': ['-', _validate_linestyle],
 
     'boxplot.whiskerprops.color': ['k', validate_color],
     'boxplot.whiskerprops.linewidth': [1.0, validate_float],
-    'boxplot.whiskerprops.linestyle': ['-', validate_linestyle],
+    'boxplot.whiskerprops.linestyle': ['-', _validate_linestyle],
 
     'boxplot.capprops.color': ['k', validate_color],
     'boxplot.capprops.linewidth': [1.0, validate_float],
-    'boxplot.capprops.linestyle': ['-', validate_linestyle],
+    'boxplot.capprops.linestyle': ['-', _validate_linestyle],
 
     'boxplot.medianprops.color': ['C1', validate_color],
     'boxplot.medianprops.linewidth': [1.0, validate_float],
-    'boxplot.medianprops.linestyle': ['-', validate_linestyle],
+    'boxplot.medianprops.linestyle': ['-', _validate_linestyle],
 
     'boxplot.meanprops.color': ['C2', validate_color],
     'boxplot.meanprops.marker': ['^', six.text_type],
     'boxplot.meanprops.markerfacecolor': ['C2', validate_color],
     'boxplot.meanprops.markeredgecolor': ['C2', validate_color],
     'boxplot.meanprops.markersize': [6, validate_float],
-    'boxplot.meanprops.linestyle': ['--', validate_linestyle],
+    'boxplot.meanprops.linestyle': ['--', _validate_linestyle],
     'boxplot.meanprops.linewidth': [1.0, validate_float],
 
     ## font props
@@ -1081,7 +1084,7 @@ defaultParams = {
     'image.composite_image': [True, validate_bool],
 
     # contour props
-    'contour.negative_linestyle': ['dashed', validate_linestyle],
+    'contour.negative_linestyle': ['dashed', _validate_linestyle],
     'contour.corner_mask':        [True, validate_corner_mask],
 
     # errorbar props
@@ -1244,7 +1247,7 @@ defaultParams = {
     'ytick.direction':   ['out', six.text_type],            # direction of yticks
 
     'grid.color':        ['#b0b0b0', validate_color],  # grid color
-    'grid.linestyle':    ['-', validate_linestyle],  # solid
+    'grid.linestyle':    ['-', _validate_linestyle],  # solid
     'grid.linewidth':    [0.8, validate_float],     # in points
     'grid.alpha':        [1.0, validate_float],
 
