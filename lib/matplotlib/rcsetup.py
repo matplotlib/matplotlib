@@ -530,6 +530,22 @@ validate_fillstyle = ValidateInStrings('markers.fillstyle',
                                         'top', 'none'])
 validate_fillstylelist = _listify_validator(validate_fillstyle)
 
+validate_negative_linestyle = ValidateInStrings('negative_linestyle',
+                                                ['solid', 'dashed'],
+                                                ignorecase=True)
+
+
+def validate_negative_linestyle_legacy(s):
+    try:
+        res = validate_negative_linestyle(s)
+        return res
+    except ValueError:
+        dashes = validate_nseq_float(2)(s)
+        warnings.warn("Deprecated negative_linestyle specification; use "
+                      "'solid' or 'dashed'",
+                      mplDeprecation)
+        return (0, dashes)  # (offset, (solid, blank))
+
 
 def validate_corner_mask(s):
     if s == 'legacy':
