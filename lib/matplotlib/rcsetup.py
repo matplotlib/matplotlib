@@ -541,9 +541,6 @@ def validate_negative_linestyle_legacy(s):
         return res
     except ValueError:
         dashes = validate_nseq_float(2)(s)
-        warnings.warn("Deprecated negative_linestyle specification; use "
-                      "'solid' or 'dashed'",
-                      mplDeprecation)
         return (0, dashes)  # (offset, (solid, blank))
 
 
