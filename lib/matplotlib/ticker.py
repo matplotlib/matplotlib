@@ -1184,19 +1184,8 @@ class EngFormatter(Formatter):
     """
     Formats axis values using engineering prefixes to represent powers
     of 1000, plus a specified unit, e.g., 10 MHz instead of 1e7.
-
-    `unit` is a string containing the abbreviated name of the unit,
-    suitable for use with single-letter representations of powers of
-    1000. For example, 'Hz' or 'm'.
-
-    `places` is the precision with which to display the number,
-    specified in digits after the decimal point (there will be between
-    one and three digits before the decimal point).
-
-    `sep` is the separator (a string) that is used between the number
-    and the prefix/unit. For example, '3.14 mV' if `sep` is " " (default)
-    and '3.14mV' if `sep` is "".
     """
+
     # The SI engineering prefixes
     ENG_PREFIXES = {
         -24: "y",
@@ -1222,20 +1211,26 @@ class EngFormatter(Formatter):
         """
         Parameters
         ----------
-        unit: string (default: "")
-            Unit symbol to use.
+        unit : str (default: "")
+            Unit symbol to use, suitable for use with single-letter
+            representations of powers of 1000. For example, 'Hz' or 'm'.
 
-        places: int (default: None)
-            Precision, i.e. number of digits after the decimal point.
-            If it is None, falls back to the floating point format '%g'.
+        places : int (default: None)
+            Precision with which to display the number, specified in
+            digits after the decimal point (there will be between one
+            and three digits before the decimal point). If it is None,
+            falls back to the floating point format '%g'.
 
-        sep: string (default: " ")
-            String used between the value and the prefix/unit. Beside the
-            default behavior, some other useful use cases may be:
-            * sep="" to append directly the prefix/unit to the value;
-            * sep="\\u2009" to use a thin space;
-            * sep="\\u202f" to use a narrow no-break space;
-            * sep="\\u00a0" to use a no-break space.
+        sep : str (default: " ")
+            Separator used between the value and the prefix/unit. For
+            example, one get '3.14 mV' if ``sep`` is " " (default) and
+            '3.14mV' if ``sep`` is "". Besides the default behavior, some
+            other useful options may be:
+
+            * ``sep=""`` to append directly the prefix/unit to the value;
+            * ``sep="\\u2009"`` to use a thin space;
+            * ``sep="\\u202f"`` to use a narrow no-break space;
+            * ``sep="\\u00a0"`` to use a no-break space.
         """
         self.unit = unit
         self.places = places
@@ -1244,7 +1239,8 @@ class EngFormatter(Formatter):
     def __call__(self, x, pos=None):
         s = "%s%s" % (self.format_eng(x), self.unit)
         # Remove the trailing separator when there is neither prefix nor unit
-        s = s.strip(self.sep)
+        if len(self.sep) > 0 and s.endswith(self.sep):
+            s = s[:-len(self.sep)]
         return self.fix_minus(s)
 
     def format_eng(self, num):

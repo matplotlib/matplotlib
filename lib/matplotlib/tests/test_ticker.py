@@ -576,10 +576,11 @@ class TestEngFormatter(object):
         """
         Test the formatting of EngFormatter for various values of the 'places'
         argument, in several cases:
-            0.  without a unit symbol but with a (default) space separator;
-            1.  with both a unit symbol and a (default) space separator;
-            2x. with both a unit symbol and some non default separators;
-            3x. without a unit symbol but with some non default separators.
+            0. without a unit symbol but with a (default) space separator;
+            1. with both a unit symbol and a (default) space separator;
+            2. with both a unit symbol and some non default separators;
+            3. without a unit symbol but with some non default separators.
+        Note that cases 2. and 3. are looped over several separator strings.
         """
 
         UNIT = 's'  # seconds
@@ -587,7 +588,7 @@ class TestEngFormatter(object):
 
         # Case 0: unit='' (default) and sep=' ' (default).
         # 'expected' already corresponds to this reference case.
-        exp_outputs = (_s for _s in expected)  # simple copy of 'expected'
+        exp_outputs = expected
         formatters = (
             mticker.EngFormatter(),  # places=None (default)
             mticker.EngFormatter(places=0),
@@ -612,8 +613,9 @@ class TestEngFormatter(object):
         # Test several non default separators: no separator, a narrow
         # no-break space (unicode character) and an extravagant string.
         for _sep in ("", "\u202f", "@_@"):
-            # Case 2x: unit=UNIT and sep=_sep.
-            # Remove the space separator from the reference case.
+            # Case 2: unit=UNIT and sep=_sep.
+            # Replace the default space separator from the reference case
+            # with the tested one `_sep` and append a unit symbol to it.
             exp_outputs = (_s + _sep + UNIT if _s[-1] in DIGITS  # no prefix
                            else _s.replace(" ", _sep) + UNIT
                            for _s in expected)
@@ -625,9 +627,9 @@ class TestEngFormatter(object):
             for _formatter, _exp_output in zip(formatters, exp_outputs):
                 assert _formatter(input) == _exp_output
 
-            # Case 3x: unit='' (default) and sep=_sep.
-            # Remove the space separator from the reference case and append
-            # a unit symbol to it.
+            # Case 3: unit='' (default) and sep=_sep.
+            # Replace the default space separator from the reference case
+            # with the tested one `_sep`. Reference case is already unitless.
             exp_outputs = (_s.replace(" ", _sep) for _s in expected)
             formatters = (
                 mticker.EngFormatter(sep=_sep),  # places=None (default)

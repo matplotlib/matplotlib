@@ -17,7 +17,7 @@ prng = np.random.RandomState(19680801)
 # Create artificial data to plot.
 # The x data span over several decades to demonstrate several SI prefixes.
 xs = np.logspace(1, 9, 100)
-ys = (0.8 + 0.4*prng.uniform(size=100))*np.log10(xs)**2
+ys = (0.8 + 0.4 * prng.uniform(size=100)) * np.log10(xs)**2
 
 # Figure width is doubled (2*6.4) to display nicely 2 subplots side by side.
 fig, (ax0, ax1) = plt.subplots(ncols=2, figsize=(12.8, 4.8))
