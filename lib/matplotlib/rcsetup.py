@@ -539,7 +539,7 @@ _validate_negative_linestyle = ValidateInStrings('negative_linestyle',
             addendum=(" See 'validate_negative_linestyle_legacy' " +
                       "deprecation warning for more information."))
 def validate_negative_linestyle(s):
-    _validate_negative_linestyle(s)
+    return _validate_negative_linestyle(s)
 
 
 @deprecated('3.0.0?', pending=True,
