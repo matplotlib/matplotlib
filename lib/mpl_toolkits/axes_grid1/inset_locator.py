@@ -331,10 +331,10 @@ class BboxConnectorPatch(BboxConnector):
         """
         Connect two bboxes with a quadrilateral.
 
-        The quadrilateral is specified by two lines that start and end at corners
-        of the bboxes. The four sides of the quadrilateral are defined by the two
-        lines given, the line between the two corners specified in *bbox1* and the
-        line between the two corners specified in *bbox2*.
+        The quadrilateral is specified by two lines that start and end at
+        corners of the bboxes. The four sides of the quadrilateral are defined
+        by the two lines given, the line between the two corners specified in
+        *bbox1* and the line between the two corners specified in *bbox2*.
 
         Parameters
         ----------
