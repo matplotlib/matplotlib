@@ -312,7 +312,8 @@ class BboxConnector(Patch):
             raise ValueError("transform should not be set")
 
         kwargs["transform"] = IdentityTransform()
-        Patch.__init__(self, fill=False, **kwargs)
+        fill = 'fc' in kwargs
+        Patch.__init__(self, fill=fill, **kwargs)
         self.bbox1 = bbox1
         self.bbox2 = bbox2
         self.loc1 = loc1
