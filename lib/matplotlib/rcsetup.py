@@ -25,7 +25,7 @@ import os
 import warnings
 import re
 
-from matplotlib.cbook import mplDeprecation, ls_mapper
+from matplotlib.cbook import mplDeprecation, deprecated, ls_mapper
 from matplotlib.fontconfig_pattern import parse_fontconfig_pattern
 from matplotlib.colors import is_color_like
 
@@ -530,11 +530,22 @@ validate_fillstyle = ValidateInStrings('markers.fillstyle',
                                         'top', 'none'])
 validate_fillstylelist = _listify_validator(validate_fillstyle)
 
-validate_negative_linestyle = ValidateInStrings('negative_linestyle',
-                                                ['solid', 'dashed'],
-                                                ignorecase=True)
+_validate_negative_linestyle = ValidateInStrings('negative_linestyle',
+                                                 ['solid', 'dashed'],
+                                                 ignorecase=True)
 
 
+@deprecated('3.0.0?', pending=True,
+            addendum=(" See 'validate_negative_linestyle_legacy' " +
+                      "deprecation warning for more information."))
+def validate_negative_linestyle(s):
+    _validate_negative_linestyle(s)
+
+
+@deprecated('3.0.0?', pending=True,
+            addendum=(" The 'contour.negative_linestyle' rcParam now " +
+                      "follows the same validation as the other rcParams " +
+                      "that are related to line style."))
 def validate_negative_linestyle_legacy(s):
     try:
         res = validate_negative_linestyle(s)
