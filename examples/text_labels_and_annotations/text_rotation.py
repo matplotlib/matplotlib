@@ -1,15 +1,15 @@
 """
-===========================
-Text rotation demonstration
-===========================
+===================================
+Default text rotation demonstration
+===================================
 
-The way matplotlib does text layout is counter-intuitive to some, so
-this example is designed to make it a little clearer.  The text is
-aligned by it's bounding box (the rectangular box that surrounds the
-ink rectangle).  The order of operations is rotation then
-alignment, rather than alignment then rotation.  Basically, the text
-is centered at your x,y location, rotated around this point, and then
-aligned according to the bounding box of the rotated text.
+The way Matplotlib does text layout by default is counter-intuitive to some, so
+this example is designed to make it a little clearer.
+
+The text is aligned by its bounding box (the rectangular box that surrounds the
+ink rectangle).  The order of operations is rotation then alignment.
+Basically, the text is centered at your x,y location, rotated around this
+point, and then aligned according to the bounding box of the rotated text.
 
 So if you specify left, bottom alignment, the bottom left of the
 bounding box of the rotated text will be at the x,y coordinate of the
