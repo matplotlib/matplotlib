@@ -28,6 +28,8 @@ def addtext(ax, props):
     ax.text(2.5, 0.5, 'text 135', props, rotation=135)
     ax.text(3.5, 0.5, 'text 225', props, rotation=225)
     ax.text(4.5, 0.5, 'text -45', props, rotation=-45)
+    for x in range(0, 5):
+        ax.scatter(x + 0.5, 0.5, color='r', alpha=0.5)
     ax.set_yticks([0, .5, 1])
     ax.set_xlim(0, 5)
     ax.grid(True)
