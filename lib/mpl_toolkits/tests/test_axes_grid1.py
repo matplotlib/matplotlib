@@ -7,16 +7,34 @@ import matplotlib
 import matplotlib.pyplot as plt
 from matplotlib.testing.decorators import image_comparison
 
+from matplotlib.transforms import Bbox, TransformedBbox,\
+    blended_transform_factory
 from mpl_toolkits.axes_grid1 import host_subplot
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 from mpl_toolkits.axes_grid1 import AxesGrid
-from mpl_toolkits.axes_grid1.inset_locator import zoomed_inset_axes, mark_inset
+from mpl_toolkits.axes_grid1.inset_locator import zoomed_inset_axes,\
+    mark_inset, BboxConnectorPatch
 from mpl_toolkits.axes_grid1.anchored_artists import AnchoredSizeBar
 
 from matplotlib.colors import LogNorm
 from itertools import product
 
 import numpy as np
+
+
+@image_comparison(baseline_images=['BboxConnectorPatch'], style='default',
+                  remove_text=True)
+def test_BboxConnectorPatch():
+    # Simple image test for a BboxConnectorPatch
+    fig, ax = plt.subplots()
+    trans1 = blended_transform_factory(ax.transData, ax.transData)
+    bbox1 = Bbox([[0.1, 0.1], [0.4, 0.4]])
+    bbox1 = TransformedBbox(bbox1, trans1)
+    bbox2 = Bbox([[0.5, 0.5], [0.9, 0.9]])
+    bbox2 = TransformedBbox(bbox2, trans1)
+    p = BboxConnectorPatch(bbox1, bbox2,
+                           loc1a=3, loc2a=2, loc1b=4, loc2b=3, ec="r", fc="b")
+    ax.add_patch(p)
 
 
 @image_comparison(baseline_images=['divider_append_axes'])
