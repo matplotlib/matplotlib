@@ -86,16 +86,16 @@ def test_twin_axes_empty_and_removed():
     matplotlib.rcParams.update({"font.size": 8})
     matplotlib.rcParams.update({"xtick.labelsize": 8})
     matplotlib.rcParams.update({"ytick.labelsize": 8})
-    generators = [ "twinx", "twiny", "twin" ]
-    modifiers = [ "", "host invisible", "twin removed", "twin invisible",
-        "twin removed\nhost invisible" ]
+    generators = ["twinx", "twiny", "twin"]
+    modifiers = ["", "host invisible", "twin removed", "twin invisible",
+                 "twin removed\nhost invisible"]
     # Unmodified host subplot at the beginning for reference
     h = host_subplot(len(modifiers)+1, len(generators), 2)
     h.text(0.5, 0.5, "host_subplot", horizontalalignment="center",
-        verticalalignment="center")
+           verticalalignment="center")
     # Host subplots with various modifications (twin*, visibility) applied
     for i, (mod, gen) in enumerate(product(modifiers, generators),
-        len(generators)+1):
+                                   len(generators)+1):
         h = host_subplot(len(modifiers)+1, len(generators), i)
         t = getattr(h, gen)()
         if "twin invisible" in mod:
@@ -105,7 +105,7 @@ def test_twin_axes_empty_and_removed():
         if "host invisible" in mod:
             h.axis[:].set_visible(False)
         h.text(0.5, 0.5, gen + ("\n" + mod if mod else ""),
-            horizontalalignment="center", verticalalignment="center")
+               horizontalalignment="center", verticalalignment="center")
     plt.subplots_adjust(wspace=0.5, hspace=1)
 
 
