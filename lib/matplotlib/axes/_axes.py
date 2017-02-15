@@ -1503,17 +1503,17 @@ or tuple of floats
         Notable keyword arguments:
 
           *basex*/*basey*: scalar > 1
-            Base of the *x*/*y* logarithm
+            Base of the *x*/*y* logarithm.
 
           *subsx*/*subsy*: [ *None* | sequence ]
             The location of the minor *x*/*y* ticks; *None* defaults
             to autosubs, which depend on the number of decades in the
             plot; see :meth:`matplotlib.axes.Axes.set_xscale` /
-            :meth:`matplotlib.axes.Axes.set_yscale` for details
+            :meth:`matplotlib.axes.Axes.set_yscale` for details.
 
           *nonposx*/*nonposy*: ['mask' | 'clip' ]
             Non-positive values in *x* or *y* can be masked as
-            invalid, or clipped to a very small positive number
+            invalid, or clipped to a very small positive number.
 
         The remaining valid kwargs are
         :class:`~matplotlib.lines.Line2D` properties:
@@ -1571,18 +1571,19 @@ or tuple of floats
 
         Returns
         -------
-        `~matplotlib.pyplot.plot`
-            Log-scaled plot on the *x* axis.
+        `~matplotlib.lines.Line2D`
+            Line instance of the plot.
 
         Other Parameters
         ----------------
+        The remaining valid kwargs are
         :class:`~matplotlib.lines.Line2D` properties:
 
         %(Line2D)s
 
         See Also
         --------
-        loglog : For example code and figure.
+        :meth:`loglog` : For example code and figure.
 
         Notes
         -----
@@ -1608,21 +1609,23 @@ or tuple of floats
     # @_preprocess_data() # let 'plot' do the unpacking..
     @docstring.dedent_interpd
     def semilogy(self, *args, **kwargs):
-        r"""Make a plot with log scaling on the `y` axis.
+        r"""
+        Make a plot with log scaling on the *y* axis.
 
         Parameters
         ----------
-        basey : scalar > 1
-            Base of the `y` logarithm.
+        basey : float, optional
+            Base of the *y* logarithm. The scalar should be larger
+            than 1.
 
-        subsy : None or iterable
-            The location of the minor yticks. None defaults to
+        subsy : array_like, optional
+            The location of the minor yticks; *None* defaults to
             autosubs, which depend on the number of decades in the
-            plot. See :meth:`~matplotlib.axes.Axes.set_yscale` for
+            plot; see :meth:`~matplotlib.axes.Axes.set_xscale` for
             details.
 
-        nonposy : {'mask' | 'clip'} str
-            Non-positive values in `y` can be masked as
+        nonposy : string, optional, {'mask', 'clip'}
+            Non-positive values in *y* can be masked as
             invalid, or clipped to a very small positive number.
 
         Returns
@@ -1632,15 +1635,20 @@ or tuple of floats
 
         Other Parameters
         ----------------
-        kwargs : `~matplotlib.lines.Line2D` properties,
-        `~matplotlib.pylab.plot` and
-        `matplotlib.axes.Axes.set_yscale` arguments.
+        The remaining valid kwargs are
+        :class:`~matplotlib.lines.Line2D` properties:
 
         %(Line2D)s
 
         See also
         --------
         :meth:`loglog`: For example code and figure.
+
+        Notes
+        -----
+        This function supports all the keyword arguments of
+        :func:`~matplotlib.pyplot.plot` and
+        :meth:`matplotlib.axes.Axes.set_yscale`.
 
         """
         if not self._hold:
@@ -4528,7 +4536,8 @@ or tuple of floats
         Add an arrow to the axes.
 
         Draws arrow on specified axis from (`x`, `y`) to (`x` + `dx`,
-        `y` + `dy`). Uses FancyArrow patch to construct the arrow.
+        `y` + `dy`).
+        Uses :class:`~matplotlib.patches.FancyArrow` patch to construct the arrow.
 
         Parameters
         ----------
@@ -4544,12 +4553,12 @@ or tuple of floats
         Returns
         -------
         a : FancyArrow
-            patches.FancyArrow object
+            :class:`matplotlib.patches.FancyArrow` object
 
         Other Parameters
         -----------------
-        Optional kwargs (inherited from FancyArrow patch) control the arrow
-        construction and properties:
+        Optional kwargs (inherited from :class:`~matplotlib.patches.FancyArrow` patch)
+        control the arrow construction and properties:
 
         %(FancyArrow)s
 
