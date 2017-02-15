@@ -1108,7 +1108,7 @@ or tuple of floats
 
         *orientation* : [ 'horizonal' | 'vertical' ]
           'horizonal' : the lines will be vertical and arranged in rows
-          "vertical' : lines will be horizontal and arranged in columns
+          'vertical' : lines will be horizontal and arranged in columns
 
         *lineoffsets* :
           A float or array-like containing floats.
@@ -5182,8 +5182,8 @@ or tuple of floats
         if im.get_clip_path() is None:
             # image does not already have clipping set, clip to axes patch
             im.set_clip_path(self.patch)
-        #if norm is None and shape is None:
-        #    im.set_clim(vmin, vmax)
+        # if norm is None and shape is None:
+        #     im.set_clim(vmin, vmax)
         if vmin is not None or vmax is not None:
             im.set_clim(vmin, vmax)
         else:
@@ -6194,7 +6194,7 @@ or tuple of floats
         if weights is not None:
             w = _normalize_input(weights, 'weights')
         else:
-            w = [None]*nx
+            w = [None] * nx
 
         if len(w) != nx:
             raise ValueError('weights should have the same shape as x')
@@ -6446,10 +6446,10 @@ or tuple of floats
 
         Parameters
         ----------
-        x, y: array_like, shape (n, )
+        x, y : array_like, shape (n, )
             Input values
 
-        bins: [None | int | [int, int] | array_like | [array, array]]
+        bins : [None | int | [int, int] | array_like | [array, array]]
 
             The bin specification:
 
@@ -6651,7 +6651,7 @@ or tuple of floats
         if logi == 0:
             logi = .1
         step = 10 * logi
-        #print vmin, vmax, step, intv, math.floor(vmin), math.ceil(vmax)+1
+        # print(vmin, vmax, step, intv, math.floor(vmin), math.ceil(vmax)+1)
         ticks = np.arange(math.floor(vmin), math.ceil(vmax) + 1, step)
         self.set_yticks(ticks)
 
@@ -6718,7 +6718,7 @@ or tuple of floats
         Returns
         -------
         Pxy : 1-D array
-            The values for the cross spectrum `P_{xy}` before scaling
+            The values for the cross spectrum :math:`P_{xy}` before scaling
             (complex valued)
 
         freqs : 1-D array
@@ -6731,7 +6731,7 @@ or tuple of floats
         Notes
         -----
         For plotting, the power is plotted as
-        :math:`10\\log_{10}(P_{xy})` for decibels, though `P_{xy}` itself
+        :math:`10\\log_{10}(P_{xy})` for decibels, though :math:`P_{xy}` itself
         is returned.
 
         References
@@ -7316,6 +7316,7 @@ or tuple of floats
             axes.
 
             If None, default to rc ``image.aspect`` value.
+
 
         Two plotting styles are available: image or marker. Both
         are available for full arrays, but only the marker style
