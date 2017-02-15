@@ -483,11 +483,11 @@ def figure(num=None,  # autoincrement if None, else integer from 1-N
     Notes
     -----
     If you are creating many figures, make sure you explicitly call "close"
-    on the figures you are not using, because this will enable pylab
+    on the figures you are not using, because this will enable `pylab`
     to properly clean up the memory.
 
-    rcParams defines the default values, which can be modified in the
-    matplotlibrc file
+    :data:`rcParam<matplotlib.rcParams>` defines the default values,
+    which can be modified in the ``matplotlibrc`` file.
 
     """
 
