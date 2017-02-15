@@ -1696,8 +1696,8 @@ or tuple of floats
         -------
         (lags, c, line, b) : where:
 
-          - `lags` are a length 2`maxlags+1 lag vector.
-          - `c` is the 2`maxlags+1 auto correlation vectorI
+          - `lags` are a length 2`maxlags`+1 lag vector.
+          - `c` is the 2`maxlags`+1 auto correlation vector.
           - `line` is a `~matplotlib.lines.Line2D` instance returned by
             `plot`.
           - `b` is the x-axis.
