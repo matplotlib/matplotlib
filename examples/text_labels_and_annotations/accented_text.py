@@ -1,24 +1,36 @@
+# -*- coding: utf-8 -*-
 r"""
 =================================
 Using accented text in matplotlib
 =================================
 
-Matplotlib supports accented characters via TeX mathtext.
-The following accents are provided: \hat, \breve, \grave, \bar,
+Matplotlib supports accented characters via TeX mathtext or unicode.
+
+Using mathtext, the following accents are provided: \hat, \breve, \grave, \bar,
 \acute, \tilde, \vec, \dot, \ddot.  All of them have the same syntax,
 e.g., to make an overbar you do \bar{o} or to make an o umlaut you do
 \ddot{o}.  The shortcuts are also provided, e.g.,: \"o \'e \`e \~n \.x
 \^y
 """
+from __future__ import unicode_literals
 import matplotlib.pyplot as plt
 
-plt.axes([0.1, 0.15, 0.8, 0.75])
-plt.plot(range(10))
+# Mathtext demo
+fig, ax = plt.subplots()
+ax.plot(range(10))
+ax.set_title(r'$\ddot{o}\acute{e}\grave{e}\hat{O}'
+             r'\breve{i}\bar{A}\tilde{n}\vec{q}$', fontsize=20)
 
-plt.title(r'$\ddot{o}\acute{e}\grave{e}\hat{O}'
-          r'\breve{i}\bar{A}\tilde{n}\vec{q}$', fontsize=20)
+# Shorthand is also supported and curly's are optional
+ax.set_xlabel(r"""$\"o\ddot o \'e\`e\~n\.x\^y$""", fontsize=20)
+fig.tight_layout()
 
-# shorthand is also supported and curly's are optional
-plt.xlabel(r"""$\"o\ddot o \'e\`e\~n\.x\^y$""", fontsize=20)
+# Unicode demo
+fig, ax = plt.subplots()
+ax.set_title('Développés et fabriqués')
+ax.set_xlabel("réactivité nous permettent d'être sélectionnés et adoptés")
+ax.set_ylabel('André was here!')
+ax.text(0.2, 0.8, 'Institut für Festkörperphysik', rotation=45)
+ax.text(0.4, 0.2, 'AVA (check kerning)')
 
 plt.show()
