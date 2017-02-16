@@ -1488,9 +1488,6 @@ def _init_tests():
     else:
         faulthandler.enable()
 
-    if not os.path.isdir(os.path.join(os.path.dirname(__file__), 'tests')):
-        raise ImportError("matplotlib test data is not installed")
-
     # The version of FreeType to install locally for running the
     # tests.  This must match the value in `setupext.py`
     LOCAL_FREETYPE_VERSION = '2.6.1'
@@ -1526,6 +1523,8 @@ def test(verbosity=None, coverage=False, switch_backend_warn=True,
          recursionlimit=0, **kwargs):
     """run the matplotlib test suite"""
     _init_tests()
+    if not os.path.isdir(os.path.join(os.path.dirname(__file__), 'tests')):
+        raise ImportError("matplotlib test data is not installed")
 
     old_backend = get_backend()
     old_recursionlimit = sys.getrecursionlimit()
