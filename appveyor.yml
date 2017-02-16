@@ -94,7 +94,7 @@ install:
     mock sphinx
   - activate test-environment
   - cmd: echo %PYTHON_VERSION% %TARGET_ARCH%
-  - cmd: IF %PYTHON_VERSION% == 2.7 conda install -q functools32
+  - cmd: IF %PYTHON_VERSION% == 2.7 conda install -q backports.functools_lru_cache
   # pytest-cov>=2.3.1 due to https://github.com/pytest-dev/pytest-cov/issues/124
   - conda install -q pytest "pytest-cov>=2.3.1" pytest-timeout pytest-xdist
 
