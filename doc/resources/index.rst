@@ -32,6 +32,10 @@
 * `Ten Simple Rules for Better Figures
   <http://journals.plos.org/ploscompbiol/article?id=10.1371/journal.pcbi.1003833>`_
   by Nicolas P. Rougier, Michael Droettboom and Philip E. Bourne
+  
+* `Learning Scientific Programming with Python chapter 7
+  <http://scipython.com/book/chapter-7-matplotlib/>`_
+  by Christian Hill
 
 =======
  Videos
