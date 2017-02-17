@@ -56,10 +56,10 @@ U, V = np.mgrid[-3:3:100j, 0:0:100j]
 
 seed_points = np.array([[-2, 0, 1], [-2, 0, 1]])
 
-fig4, ax = plt.subplots()
+fig3, ax = plt.subplots()
 strm = ax.streamplot(X, Y, U, V, color=U, linewidth=2,
                      cmap="autumn", start_points=seed_points.T)
-fig4.colorbar(strm.lines)
+fig3.colorbar(strm.lines)
 
 ax.plot(seed_points[0], seed_points[1],'bo')
 
