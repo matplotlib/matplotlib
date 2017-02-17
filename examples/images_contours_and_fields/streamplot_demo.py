@@ -61,7 +61,7 @@ strm = ax.streamplot(X, Y, U, V, color=U, linewidth=2,
                      cmap="autumn", start_points=seed_points.T)
 fig3.colorbar(strm.lines)
 
-ax.plot(seed_points[0], seed_points[1],'bo')
+ax.plot(seed_points[0], seed_points[1], 'bo')
 
 ax.axis((-3, 3, -3, 3))
 
