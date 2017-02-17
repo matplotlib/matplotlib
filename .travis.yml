@@ -154,7 +154,7 @@ script:
       # Workaround for pytest-xdist flaky collection order
       # https://github.com/pytest-dev/pytest/issues/920
       # https://github.com/pytest-dev/pytest/issues/1075
-      export PYTHONHASHSEED=$(shuf -i 1-4294967295 -n 1)
+      export PYTHONHASHSEED=$(python -c 'import random; print(random.randint(1, 4294967295))')
       echo PYTHONHASHSEED=$PYTHONHASHSEED
 
       echo The following args are passed to pytest $PYTEST_ARGS $RUN_PEP8
