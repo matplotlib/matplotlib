@@ -27,5 +27,5 @@ Examples of use
 ```````````````
 ::
 
-....grid.linestyle             : (1, 3)   # loosely dotted grid lines
+    grid.linestyle             : (1, 3)   # loosely dotted grid lines
     contour.negative_linestyle : dashdot  # previously only solid or dashed
