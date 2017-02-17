@@ -535,14 +535,14 @@ _validate_negative_linestyle = ValidateInStrings('negative_linestyle',
                                                  ignorecase=True)
 
 
-@deprecated('3.0.0?', pending=True,
+@deprecated('2.1',
             addendum=(" See 'validate_negative_linestyle_legacy' " +
                       "deprecation warning for more information."))
 def validate_negative_linestyle(s):
     return _validate_negative_linestyle(s)
 
 
-@deprecated('3.0.0?', pending=True,
+@deprecated('2.1',
             addendum=(" The 'contour.negative_linestyle' rcParam now " +
                       "follows the same validation as the other rcParams " +
                       "that are related to line style."))
