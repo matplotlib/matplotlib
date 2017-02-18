@@ -4,11 +4,9 @@
 Developer's tips for testing
 ============================
 
-Matplotlib has a testing infrastructure based on pytest_, making it easy to
-write new tests. The tests are in :mod:`matplotlib.tests`, and customizations
-to the pytest testing infrastructure are in :mod:`matplotlib.tests.conftest`
-and :mod:`matplotlib.testing`. (There is other old testing cruft around, please
-ignore it while we consolidate our testing to these locations.)
+Matplotlib's testing infrastructure depends on pytest_. The tests are in
+:file:`lib/matplotlib/tests`, and customizations to the pytest testing
+infrastructure are in :mod:`matplotlib.testing`.
 
 .. _pytest: http://doc.pytest.org/en/latest/
 .. _mock: https://docs.python.org/dev/library/unittest.mock.html>
@@ -16,6 +14,8 @@ ignore it while we consolidate our testing to these locations.)
 .. _Inkscape: https://inkscape.org
 .. _pytest-cov: https://pytest-cov.readthedocs.io/en/latest/
 .. _pytest-pep8: https://pypi.python.org/pypi/pytest-pep8
+.. _pytest-xdist: https://pypi.python.org/pypi/pytest-xdist
+.. _pytest-timeout: https://pypi.python.org/pypi/pytest-timeout
 
 Requirements
 ------------
@@ -31,6 +31,8 @@ Optionally you can install:
 
   - pytest-cov_ to collect coverage information
   - pytest-pep8_ to test coding standards
+  - pytest-timeout_ to limit runtime in case of stuck tests
+  - pytest-xdist_ to run tests in parallel
 
 
 Building matplotlib for image comparison tests
@@ -69,11 +71,11 @@ commands, such as:
 
 ========================  ===========
 ``--pep8``                Perform pep8 checks (requires pytest-pep8_)
-``--no-network``          Disable tests that require network access
+``-m "not network"``      Disable tests that require network access
 ========================  ===========
 
 Additional arguments are passed on to pytest. See the pytest documentation for
-supported arguments. Some of the more important ones are given here:
+`supported arguments`_. Some of the more important ones are given here:
 
 =============================  ===========
 ``--verbose``                  Be more verbose
@@ -84,26 +86,26 @@ supported arguments. Some of the more important ones are given here:
 ``--capture=no`` or ``-s``     Do not capture stdout
 =============================  ===========
 
-To run a single test from the command line, you can provide a dot-separated
-path to the module, optionally followed by the function separated by two
-colons, e.g., (this is assuming the test is installed)::
+To run a single test from the command line, you can provide a file path,
+optionally followed by the function separated by two colons, e.g., (tests do
+not need to be installed, but Matplotlib should be)::
 
-  python tests.py matplotlib.tests.test_simplification::test_clipping
+  py.test lib/matplotlib/tests/test_simplification.py::test_clipping
 
-or by passing a file path, optionally followed by the function separated by two
-colons, e.g., (tests do not need to be installed, but Matplotlib should be)::
+or, if tests are installed, a dot-separated path to the module, optionally
+followed by the function separated by two colons, such as::
 
-  python tests.py lib/matplotlib/tests/test_simplification.py::test_clipping
+  py.test --pyargs matplotlib.tests.test_simplification::test_clipping
 
 If you want to run the full test suite, but want to save wall time try
 running the tests in parallel::
 
-  python tests.py --capture=no --verbose -n 5
+  py.test --verbose -n 5
 
 Depending on your version of Python and pytest-xdist, you may need to set
 ``PYTHONHASHSEED`` to a fixed value when running in parallel::
 
-  PYTHONHASHSEED=0 python tests.py --capture=no --verbose -n 5
+  PYTHONHASHSEED=0 py.test --verbose -n 5
 
 An alternative implementation that does not look at command line arguments
 and works from within Python is to run the tests from the Matplotlib library
@@ -112,16 +114,8 @@ function :func:`matplotlib.test`::
   import matplotlib
   matplotlib.test()
 
-.. hint::
 
-   To run the tests you need to install pytest and mock if using python 2.7::
-
-      pip install pytest
-      pip install mock
-
-
-.. _pytest-xdist: https://pypi.python.org/pypi/pytest-xdist
-.. _pytest-timeout: https://pypi.python.org/pypi/pytest-timeout
+.. _supported arguments: http://doc.pytest.org/en/latest/usage.html
 
 
 Writing a simple test
@@ -140,10 +134,10 @@ Pytest determines which functions are tests by searching for files whose names
 begin with ``"test_"`` and then within those files for functions beginning with
 ``"test"`` or classes beginning with ``"Test"``.
 
-Tests that have side effects that need to be cleaned up, such as created
-figures using the pyplot interface or modified rc params, will be automatically
-reset by the pytest fixture
-:func:`~matplotlib.tests.conftest.mpl_test_settings`.
+Some tests have internal side effects that need to be cleaned up after their
+execution (such as created figures or modified rc params). The pytest fixture
+:func:`~matplotlib.testing.conftest.mpl_test_settings` will automatically clean
+these up; there is no need to do anything further.
 
 
 Writing an image comparison test
