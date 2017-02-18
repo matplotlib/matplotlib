@@ -78,7 +78,6 @@ def create_figure():
 
 
 # test compiling a figure to pdf with xelatex
-@cleanup(style='_classic_test')
 @switch_backend('pgf')
 def test_xelatex():
     if not check_for('xelatex'):
@@ -92,7 +91,6 @@ def test_xelatex():
 
 
 # test compiling a figure to pdf with pdflatex
-@cleanup(style='_classic_test')
 @switch_backend('pgf')
 def test_pdflatex():
     if not check_for('pdflatex'):
@@ -109,7 +107,6 @@ def test_pdflatex():
 
 
 # test updating the rc parameters for each figure
-@cleanup(style='_classic_test')
 @switch_backend('pgf')
 def test_rcupdate():
     if not check_for('xelatex') or not check_for('pdflatex'):
@@ -142,7 +139,6 @@ def test_rcupdate():
 
 
 # test backend-side clipping, since large numbers are not supported by TeX
-@cleanup(style='_classic_test')
 @switch_backend('pgf')
 def test_pathclip():
     if not check_for('xelatex'):
@@ -161,7 +157,6 @@ def test_pathclip():
 
 
 # test mixed mode rendering
-@cleanup(style='_classic_test')
 @switch_backend('pgf')
 def test_mixedmode():
     if not check_for('xelatex'):
@@ -178,7 +173,6 @@ def test_mixedmode():
 
 
 # test bbox_inches clipping
-@cleanup(style='_classic_test')
 @switch_backend('pgf')
 def test_bbox_inches():
     if not check_for('xelatex'):

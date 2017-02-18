@@ -254,6 +254,7 @@ xtick.major.top      : True   # draw x axis top major ticks
 xtick.major.bottom   : True   # draw x axis bottom major ticks
 xtick.minor.top      : True   # draw x axis top minor ticks
 xtick.minor.bottom   : True   # draw x axis bottom minor ticks
+xtick.alignment : center
 
 ytick.left           : True   # draw ticks on the left side
 ytick.right          : True   # draw ticks on the right side
