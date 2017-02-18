@@ -3,8 +3,8 @@ A cache of png files keyed by the MD5 hashes of corresponding svg and
 pdf files, to reduce test suite running times for svg and pdf files
 that stay exactly the same from one run to the next.
 
-There is a corresponding nose plugin in testing/nose/plugins and
-similar pytest code in conftest.py.
+The test setup in matplotlib.tests.conftest sets this up for image
+comparison tests and allows specifying the maximum cache size.
 """
 
 from __future__ import (absolute_import, division, print_function,
