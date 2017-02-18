@@ -57,8 +57,6 @@ matrix:
     - python: 3.4
       env: PYTHON_ARGS=-OO
     - python: 3.5
-      env: PANDAS=pandas DELETE_FONT_CACHE=1
-    - python: 3.5
       env: BUILD_DOCS=true
     - python: 3.5
       env: USE_PYTEST=true PANDAS=pandas DELETE_FONT_CACHE=1
