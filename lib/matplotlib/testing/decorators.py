@@ -245,7 +245,6 @@ class ImageComparisonDecorator(CleanupTest):
         self.style = style
 
     def delayed_init(self, func):
-        assert callable(func), "func must be callable"
         assert self.func is None, "it looks like same decorator used twice"
         self.func = func
         self.baseline_dir, self.result_dir = _image_directories(func)
@@ -258,8 +257,8 @@ class ImageComparisonDecorator(CleanupTest):
             matplotlib.testing.set_font_settings_for_testing()
             func()
             assert len(plt.get_fignums()) == len(self.baseline_images), (
-                'Figures and baseline_images count are not the same'
-                ' (`%s`)' % getattr(func, '__qualname__', func.__name__))
+                "Test generated {} images but there are {} baseline images"
+                .format(len(plt.get_fignums()), len(self.baseline_images)))
         except:
             # Restore original settings before raising errors during the update.
             self.teardown_class()
