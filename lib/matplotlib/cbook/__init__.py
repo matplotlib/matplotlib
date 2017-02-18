@@ -1983,32 +1983,16 @@ def _reshape_2D(X):
 
     v is iterable and can be used to instantiate a 1D array.
     """
-    if hasattr(X, 'shape'):
-        # one item
-        if len(X.shape) == 1:
-            if hasattr(X[0], 'shape'):
-                X = list(X)
-            else:
-                X = [X, ]
-
-        # several items
-        elif len(X.shape) == 2:
-            nrows, ncols = X.shape
-            if nrows == 1:
-                X = [X]
-            elif ncols == 1:
-                X = [X.ravel()]
-            else:
-                X = [X[:, i] for i in xrange(ncols)]
-        else:
-            raise ValueError("input `X` must have 2 or fewer dimensions")
-
-    if not hasattr(X[0], '__len__'):
-        X = [X]
+    # Iterate over columns for ndarrays, over rows otherwise.
+    X = X.T if isinstance(X, np.ndarray) else np.asarray(X)
+    if X.ndim == 1 and X.dtype.type != np.object_:
+        # 1D array of scalars: directly return it.
+        return [X]
+    elif X.ndim in [1, 2]:
+        # 2D array, or 1D array of iterables: flatten them first.
+        return [np.reshape(x, -1) for x in X]
     else:
-        X = [np.ravel(x) for x in X]
-
-    return X
+        raise ValueError("input `X` must have 2 or fewer dimensions")
 
 
 def violin_stats(X, method, points=100):
