@@ -10,17 +10,7 @@ def samplemat(dims):
         aa[i, i] = i
     return aa
 
-# Display 2 matrices of different sizes
-dimlist = [(12, 12), (15, 35)]
-for d in dimlist:
-    plt.matshow(samplemat(d))
-
-# Fixing random state for reproducibility
-np.random.seed(19680801)
-
-
-# Display a random matrix with a specified figure number and a grayscale
-# colormap
-plt.matshow(np.random.rand(64, 64), fignum=100, cmap=plt.cm.gray)
+# Display matrix
+plt.matshow(samplemat((15, 35)))
 
 plt.show()
