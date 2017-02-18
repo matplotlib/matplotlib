@@ -14,7 +14,7 @@ plt.ylabel('voltage (mV)')
 plt.title('About as simple as it gets, folks')
 plt.grid(True)
 
-plt.axes().set_aspect('equal', 'datalim')
+plt.gca().set_aspect('equal', 'datalim')
 
 
 plt.show()
