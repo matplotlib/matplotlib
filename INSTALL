@@ -106,14 +106,15 @@ or example code.
 If you want to try the many demos that come in the matplotlib source
 distribution, download the :file:`*.tar.gz` file and look in the
 :file:`examples` subdirectory.
-To run the test suite, copy the :file:`lib\\matplotlib\\tests` and
-:file:`lib\\mpl_toolkits\\tests` directories from the source
-distribution to :file:`sys.prefix\\Lib\\site-packages\\matplotlib` and
-:file:`sys.prefix\\Lib\\site-packages\\mpl_toolkits` respectively, and
-install `pytest <https://pypi.python.org/pypi/pytest>`_, `mock
-<https://pypi.python.org/pypi/mock>`_, Pillow, MiKTeX, GhostScript,
-ffmpeg, avconv, mencoder, ImageMagick, and `Inkscape
-<https://inkscape.org/>`_.
+To run the test suite:
+
+ * extract the :file:`lib\\matplotlib\\tests` or
+   :file:`lib\\mpl_toolkits\\tests` directories from the source distribution;
+ * install test dependencies: `pytest <https://pypi.python.org/pypi/pytest>`_,
+   `mock <https://pypi.python.org/pypi/mock>`_, Pillow, MiKTeX, GhostScript,
+   ffmpeg, avconv, mencoder, ImageMagick, and `Inkscape
+   <https://inkscape.org/>`_;
+ * run ``py.test path\\to\\tests\\directory``.
 
 
 
