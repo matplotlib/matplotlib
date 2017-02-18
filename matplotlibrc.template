@@ -471,7 +471,7 @@ backend      : $TEMPLATE_BACKEND
                                   # such as a PDF.
 
 ### CONTOUR PLOTS
-#contour.negative_linestyle : dashed # dashed | solid
+#contour.negative_linestyle : dashed # string or on-off ink sequence
 #contour.corner_mask        : True   # True | False | legacy
 
 ### ERRORBAR PLOTS

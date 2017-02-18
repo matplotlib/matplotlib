@@ -25,7 +25,7 @@ import os
 import warnings
 import re
 
-from matplotlib.cbook import mplDeprecation
+from matplotlib.cbook import mplDeprecation, deprecated, ls_mapper
 from matplotlib.fontconfig_pattern import parse_fontconfig_pattern
 from matplotlib.colors import is_color_like
 
@@ -530,20 +530,28 @@ validate_fillstyle = ValidateInStrings('markers.fillstyle',
                                         'top', 'none'])
 validate_fillstylelist = _listify_validator(validate_fillstyle)
 
-validate_negative_linestyle = ValidateInStrings('negative_linestyle',
-                                                ['solid', 'dashed'],
-                                                ignorecase=True)
+_validate_negative_linestyle = ValidateInStrings('negative_linestyle',
+                                                 ['solid', 'dashed'],
+                                                 ignorecase=True)
 
 
+@deprecated('2.1',
+            addendum=(" See 'validate_negative_linestyle_legacy' " +
+                      "deprecation warning for more information."))
+def validate_negative_linestyle(s):
+    return _validate_negative_linestyle(s)
+
+
+@deprecated('2.1',
+            addendum=(" The 'contour.negative_linestyle' rcParam now " +
+                      "follows the same validation as the other rcParams " +
+                      "that are related to line style."))
 def validate_negative_linestyle_legacy(s):
     try:
         res = validate_negative_linestyle(s)
         return res
     except ValueError:
         dashes = validate_nseq_float(2)(s)
-        warnings.warn("Deprecated negative_linestyle specification; use "
-                      "'solid' or 'dashed'",
-                      mplDeprecation)
         return (0, dashes)  # (offset, (solid, blank))
 
 
@@ -888,6 +896,39 @@ def validate_animation_writer_path(p):
         modules["matplotlib.animation"].writers.set_dirty()
     return p
 
+# A validator dedicated to the named line styles, based on the items in
+# ls_mapper, and a list of possible strings read from Line2D.set_linestyle
+_validate_named_linestyle = ValidateInStrings('linestyle',
+                                              list(six.iterkeys(ls_mapper)) +
+                                              list(six.itervalues(ls_mapper)) +
+                                              ['None', 'none', ' ', ''],
+                                              ignorecase=True)
+
+
+def _validate_linestyle(ls):
+    """
+    A validator for all possible line styles, the named ones *and*
+    the on-off ink sequences.
+    """
+    # Named line style, like u'--' or u'solid'
+    if isinstance(ls, six.text_type):
+        return _validate_named_linestyle(ls)
+
+    # On-off ink (in points) sequence *of even length*.
+    # Offset is set to None.
+    try:
+        if len(ls) % 2 != 0:
+            # Expecting a sequence of even length
+            raise ValueError
+        return (None, validate_nseq_float()(ls))
+    except (ValueError, TypeError):
+        # TypeError can be raised by wrong types passed to float()
+        # (called inside the instance of validate_nseq_float).
+        pass
+
+    raise ValueError("linestyle must be a string or " +
+                     "an even-length sequence of floats.")
+
 
 # a map from key -> value, converter
 defaultParams = {
@@ -912,7 +953,7 @@ defaultParams = {
 
     # line props
     'lines.linewidth':       [1.5, validate_float],  # line width in points
-    'lines.linestyle':       ['-', six.text_type],             # solid line
+    'lines.linestyle':       ['-', _validate_linestyle],  # solid line
     'lines.color':           ['C0', validate_color],  # first color in color cycle
     'lines.marker':          ['None', six.text_type],  # marker name
     'lines.markeredgewidth': [1.0, validate_float],
@@ -961,31 +1002,31 @@ defaultParams = {
     'boxplot.flierprops.markerfacecolor': ['none', validate_color_or_auto],
     'boxplot.flierprops.markeredgecolor': ['k', validate_color],
     'boxplot.flierprops.markersize': [6, validate_float],
-    'boxplot.flierprops.linestyle': ['none', six.text_type],
+    'boxplot.flierprops.linestyle': ['none', _validate_linestyle],
     'boxplot.flierprops.linewidth': [1.0, validate_float],
 
     'boxplot.boxprops.color': ['k', validate_color],
     'boxplot.boxprops.linewidth': [1.0, validate_float],
-    'boxplot.boxprops.linestyle': ['-', six.text_type],
+    'boxplot.boxprops.linestyle': ['-', _validate_linestyle],
 
     'boxplot.whiskerprops.color': ['k', validate_color],
     'boxplot.whiskerprops.linewidth': [1.0, validate_float],
-    'boxplot.whiskerprops.linestyle': ['-', six.text_type],
+    'boxplot.whiskerprops.linestyle': ['-', _validate_linestyle],
 
     'boxplot.capprops.color': ['k', validate_color],
     'boxplot.capprops.linewidth': [1.0, validate_float],
-    'boxplot.capprops.linestyle': ['-', six.text_type],
+    'boxplot.capprops.linestyle': ['-', _validate_linestyle],
 
     'boxplot.medianprops.color': ['C1', validate_color],
     'boxplot.medianprops.linewidth': [1.0, validate_float],
-    'boxplot.medianprops.linestyle': ['-', six.text_type],
+    'boxplot.medianprops.linestyle': ['-', _validate_linestyle],
 
     'boxplot.meanprops.color': ['C2', validate_color],
     'boxplot.meanprops.marker': ['^', six.text_type],
     'boxplot.meanprops.markerfacecolor': ['C2', validate_color],
     'boxplot.meanprops.markeredgecolor': ['C2', validate_color],
     'boxplot.meanprops.markersize': [6, validate_float],
-    'boxplot.meanprops.linestyle': ['--', six.text_type],
+    'boxplot.meanprops.linestyle': ['--', _validate_linestyle],
     'boxplot.meanprops.linewidth': [1.0, validate_float],
 
     ## font props
@@ -1051,8 +1092,7 @@ defaultParams = {
     'image.composite_image': [True, validate_bool],
 
     # contour props
-    'contour.negative_linestyle': ['dashed',
-                                    validate_negative_linestyle_legacy],
+    'contour.negative_linestyle': ['dashed', _validate_linestyle],
     'contour.corner_mask':        [True, validate_corner_mask],
 
     # errorbar props
@@ -1215,7 +1255,7 @@ defaultParams = {
     'ytick.direction':   ['out', six.text_type],            # direction of yticks
 
     'grid.color':        ['#b0b0b0', validate_color],  # grid color
-    'grid.linestyle':    ['-', six.text_type],      # solid
+    'grid.linestyle':    ['-', _validate_linestyle],  # solid
     'grid.linewidth':    [0.8, validate_float],     # in points
     'grid.alpha':        [1.0, validate_float],
 
