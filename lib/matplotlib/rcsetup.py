@@ -1200,6 +1200,7 @@ defaultParams = {
     # fontsize of the xtick labels
     'xtick.labelsize':   ['medium', validate_fontsize],
     'xtick.direction':   ['out', six.text_type],            # direction of xticks
+    'xtick.alignment': ["center", _validate_alignment],
 
     'ytick.left':        [True, validate_bool],  # draw ticks on the left side
     'ytick.right':       [False, validate_bool],  # draw ticks on the right side
@@ -1220,7 +1221,6 @@ defaultParams = {
     'ytick.labelsize':   ['medium', validate_fontsize],
     'ytick.direction':   ['out', six.text_type],            # direction of yticks
     'ytick.alignment': ["center_baseline", _validate_alignment],
-    'xtick.alignment': ["center", _validate_alignment],
 
 
     'grid.color':        ['#b0b0b0', validate_color],  # grid color
