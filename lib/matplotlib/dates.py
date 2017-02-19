@@ -901,7 +901,7 @@ class RRuleLocator(DateLocator):
         dates = self.rule.between(vmin, vmax, True)
         if len(dates) == 0:
             return date2num([vmin, vmax])
-        return self.raise_if_exceeds(date2num(dates))
+        return date2num(dates)
 
     def _get_unit(self):
         """

@@ -86,26 +86,6 @@ def test_date_axvline():
     fig.autofmt_xdate()
 
 
-def test_too_many_date_ticks():
-    # Attempt to test SF 2715172, see
-    # https://sourceforge.net/tracker/?func=detail&aid=2715172&group_id=80706&atid=560720
-    # setting equal datetimes triggers and expander call in
-    # transforms.nonsingular which results in too many ticks in the
-    # DayLocator.  This should trigger a Locator.MAXTICKS RuntimeError
-    t0 = datetime.datetime(2000, 1, 20)
-    tf = datetime.datetime(2000, 1, 20)
-    fig = plt.figure()
-    ax = fig.add_subplot(1, 1, 1)
-    with pytest.warns(UserWarning) as rec:
-        ax.set_xlim((t0, tf), auto=True)
-        assert len(rec) == 1
-        assert 'Attempting to set identical left==right' in str(rec[0].message)
-    ax.plot([], [])
-    ax.xaxis.set_major_locator(mdates.DayLocator())
-    with pytest.raises(RuntimeError):
-        fig.savefig('junk.png')
-
-
 @image_comparison(baseline_images=['RRuleLocator_bounds'], extensions=['png'])
 def test_RRuleLocator():
     import matplotlib.testing.jpl_units as units
