@@ -158,7 +158,7 @@ def test_contour_manual_labels():
 
 @image_comparison(baseline_images=['contour_labels_size_color'],
                   extensions=['png'], remove_text=True)
-def test_contour_manual_labels():
+def test_contour_labels_size_color():
 
     x, y = np.meshgrid(np.arange(0, 10), np.arange(0, 10))
     z = np.max(np.dstack([abs(x), abs(y)]), 2)

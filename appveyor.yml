@@ -140,8 +140,8 @@ test_script:
   - if x%USE_PYTEST% == xno python tests.py %PYTEST_ARGS%
   # Generate a html for visual tests
   - python visual_tests.py
-  - if x%USE_PYTEST% == xyes pip install codecov
-  - if x%USE_PYTEST% == xyes codecov -e PYTHON_VERSION PLATFORM
+  - pip install codecov
+  - codecov -e PYTHON_VERSION PLATFORM
 
 after_test:
   # After the tests were a success, build packages (wheels and conda)
