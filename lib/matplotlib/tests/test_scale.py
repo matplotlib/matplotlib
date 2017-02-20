@@ -45,3 +45,10 @@ def test_log_scatter():
 
     buf = io.BytesIO()
     fig.savefig(buf, format='svg')
+
+
+def test_logscale_subs():
+    fig, ax = plt.subplots()
+    ax.set_yscale('log', subsy=np.array([2, 3, 4]))
+    # force draw
+    fig.canvas.draw()
