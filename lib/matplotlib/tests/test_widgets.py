@@ -261,9 +261,7 @@ def test_CheckButtons():
     check.set_active(0)
     assert check.get_status() == [False, False, True]
 
-    def clicked_function():
-        pass
-    cid = check.on_clicked(clicked_function)
+    cid = check.on_clicked(lambda: None)
     check.disconnect(cid)
 
 

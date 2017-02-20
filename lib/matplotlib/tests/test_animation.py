@@ -182,6 +182,8 @@ def test_no_length_frames():
 
     anim = animation.FuncAnimation(fig, animate, init_func=init,
                                    frames=iter(range(5)))
+    writer = NullMovieWriter()
+    anim.save('unused.null', writer=writer)
 
 
 def test_movie_writer_registry():

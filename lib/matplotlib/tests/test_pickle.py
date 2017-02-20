@@ -1,7 +1,6 @@
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
-import six
 from six.moves import cPickle as pickle
 from six.moves import range
 
@@ -15,88 +14,8 @@ import matplotlib.pyplot as plt
 import matplotlib.transforms as mtransforms
 
 
-def depth_getter(obj,
-                 current_depth=0,
-                 depth_stack=None,
-                 nest_info='top level object'):
-    """
-    Returns a dictionary mapping:
-
-        id(obj): (shallowest_depth, obj, nest_info)
-
-    for the given object (and its subordinates).
-
-    This, in conjunction with recursive_pickle, can be used to debug
-    pickling issues, although finding others is sometimes a case of
-    trial and error.
-
-    """
-    if depth_stack is None:
-        depth_stack = {}
-
-    if id(obj) in depth_stack:
-        stack = depth_stack[id(obj)]
-        if stack[0] > current_depth:
-            del depth_stack[id(obj)]
-        else:
-            return depth_stack
-
-    depth_stack[id(obj)] = (current_depth, obj, nest_info)
-
-    if isinstance(obj, (list, tuple)):
-        for i, item in enumerate(obj):
-            depth_getter(item, current_depth=current_depth + 1,
-                         depth_stack=depth_stack,
-                         nest_info=('list/tuple item #%s in '
-                                    '(%s)' % (i, nest_info)))
-    else:
-        if isinstance(obj, dict):
-            state = obj
-        elif hasattr(obj, '__getstate__'):
-            state = obj.__getstate__()
-            if not isinstance(state, dict):
-                state = {}
-        elif hasattr(obj, '__dict__'):
-            state = obj.__dict__
-        else:
-            state = {}
-
-        for key, value in six.iteritems(state):
-            depth_getter(value, current_depth=current_depth + 1,
-                         depth_stack=depth_stack,
-                         nest_info=('attribute "%s" in '
-                                    '(%s)' % (key, nest_info)))
-
-    return depth_stack
-
-
-def recursive_pickle(top_obj):
-    """
-    Recursively pickle all of the given objects subordinates, starting with
-    the deepest first. **Very** handy for debugging pickling issues, but
-    also very slow (as it literally pickles each object in turn).
-
-    Handles circular object references gracefully.
-
-    """
-    objs = depth_getter(top_obj)
-    # sort by depth then by nest_info
-    objs = sorted(six.itervalues(objs), key=lambda val: (-val[0], val[2]))
-
-    for _, obj, location in objs:
-        try:
-            pickle.dump(obj, BytesIO(), pickle.HIGHEST_PROTOCOL)
-        except Exception as err:
-            print(obj)
-            print('Failed to pickle %s. \n Type: %s. Traceback '
-                  'follows:' % (location, type(obj)))
-            raise
-
-
 def test_simple():
     fig = plt.figure()
-    # un-comment to debug
-#    recursive_pickle(fig)
     pickle.dump(fig, BytesIO(), pickle.HIGHEST_PROTOCOL)
 
     ax = plt.subplot(121)
@@ -106,13 +25,9 @@ def test_simple():
     plt.plot(np.arange(10), label='foobar')
     plt.legend()
 
-    # Uncomment to debug any unpicklable objects. This is slow so is not
-    # uncommented by default.
-#    recursive_pickle(fig)
     pickle.dump(ax, BytesIO(), pickle.HIGHEST_PROTOCOL)
 
 #    ax = plt.subplot(121, projection='hammer')
-#    recursive_pickle(ax, 'figure')
 #    pickle.dump(ax, BytesIO(), pickle.HIGHEST_PROTOCOL)
 
     plt.figure()
@@ -138,8 +53,9 @@ def test_complete():
     data = u = v = np.linspace(0, 10, 80).reshape(10, 8)
     v = np.sin(v * -0.6)
 
+    # Ensure lists also pickle correctly.
     plt.subplot(3, 3, 1)
-    plt.plot(list(range(10)))  # Ensure lists also pickle correctly.
+    plt.plot(list(range(10)))
 
     plt.subplot(3, 3, 2)
     plt.contourf(data, hatches=['//', 'ooo'])
@@ -171,11 +87,9 @@ def test_complete():
     plt.subplot(3, 3, 9)
     plt.errorbar(x, x * -0.5, xerr=0.2, yerr=0.4)
 
-    ###### plotting is done, now test its pickle-ability #########
-
-    # Uncomment to debug any unpicklable objects. This is slow (~200 seconds).
-#    recursive_pickle(fig)
-
+    #
+    # plotting is done, now test its pickle-ability
+    #
     result_fh = BytesIO()
     pickle.dump(fig, result_fh, pickle.HIGHEST_PROTOCOL)
 
@@ -227,7 +141,6 @@ def test_image():
 def test_polar():
     ax = plt.subplot(111, polar=True)
     fig = plt.gcf()
-    result = BytesIO()
     pf = pickle.dumps(fig)
     pickle.loads(pf)
     plt.draw()
