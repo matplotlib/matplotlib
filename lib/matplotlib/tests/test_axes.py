@@ -2853,6 +2853,13 @@ def test_empty_eventplot():
     plt.draw()
 
 
+@cleanup
+def test_eventplot_empty_args():
+    fig, ax = plt.subplots()
+    ax.eventplot([1, 2, 3], lineoffsets=[], linelengths=[], linewidths=[],
+                 linestyles=[], colors=[])
+
+
 @image_comparison(baseline_images=['marker_styles'], extensions=['png'], remove_text=True)
 def test_marker_styles():
     fig = plt.figure()

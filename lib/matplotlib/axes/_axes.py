@@ -1111,10 +1111,12 @@ or tuple of floats
           "vertical' : lines will be horizontal and arranged in columns
 
         *lineoffsets* :
-          A float or array-like containing floats.
+          A float or array-like containing floats. If a zero length array,
+          defaults to 0.
 
         *linelengths* :
-          A float or array-like containing floats.
+          A float or array-like containing floats. If a zero length array,
+          defaults to 1.
 
         *linewidths* :
           A float or array-like containing floats.
@@ -1125,7 +1127,7 @@ or tuple of floats
 
         *linestyles* :
           [ 'solid' | 'dashed' | 'dashdot' | 'dotted' ] or an array of these
-          values
+          values. If a zero length array, defaults to 'solid'.
 
         For linelengths, linewidths, colors, and linestyles, if only a single
         value is given, that value is applied to all lines.  If an array-like
@@ -1184,13 +1186,13 @@ or tuple of floats
         linewidths = np.asarray(linewidths)
 
         if len(lineoffsets) == 0:
-            lineoffsets = [None]
+            lineoffsets = [0]
         if len(linelengths) == 0:
-            linelengths = [None]
+            linelengths = [1]
         if len(linewidths) == 0:
-            lineoffsets = [None]
-        if len(linewidths) == 0:
-            lineoffsets = [None]
+            linewidths = [None]
+        if len(linestyles) == 0:
+            linestyles = ['solid']
         if len(colors) == 0:
             colors = [None]
 
