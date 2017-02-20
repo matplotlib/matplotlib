@@ -10,6 +10,30 @@ out what caused the breakage and how to fix it by updating your code.
 For new features that were added to Matplotlib, please see
 :ref:`whats-new`.
 
+API Changes in 2.0.1
+====================
+
+Extensions to `matplotlib.backend_bases.GraphicsContextBase`
+------------------------------------------------------------
+
+To better support controlling the color of hatches, the method
+`matplotlib.backend_bases.GraphicsContextBase.set_hatch_color` was
+added to the expected API of ``GraphicsContext`` classes.  Calls to
+this method are currently wrapped with a ``try:...except Attribute:``
+block to preserve back-compatibility with any third-party backends
+which do not extend `~matplotlib.backend_bases.GraphicsContextBase`.
+
+This value can be accessed in the backends via
+`matplotlib.backend_bases.GraphicsContextBase.get_hatch_color` (which
+was added in 2.0 see :ref:`gc_get_hatch_color_wn`) and should be used
+to color the hatches.
+
+In the future there may also be ``hatch_linewidth`` and
+``hatch_density`` related methods added.  It is encouraged, but not
+required that third-party backends extend
+`~matplotlib.backend_bases.GraphicsContextBase` to make adapting to
+these changes easier.
+
 
 API Changes in 2.0.0
 ====================
