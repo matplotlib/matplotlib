@@ -639,7 +639,7 @@ def _get_config_or_cache_dir(xdg_base):
     h = get_home()
     if h is not None:
         p = os.path.join(h, '.matplotlib')
-    if (sys.platform.startswith('linux') and xdg_base):
+    if sys.platform.startswith(('linux', 'freebsd')) and xdg_base:
         p = os.path.join(xdg_base, 'matplotlib')
 
     if p is not None:
