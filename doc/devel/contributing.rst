@@ -120,14 +120,16 @@ environment is set up properly::
   python tests.py
 
 
-.. _nose: https://nose.readthedocs.io/en/latest/
+.. _pytest: http://doc.pytest.org/en/latest/
 .. _pep8: https://pep8.readthedocs.io/en/latest/
+.. _mock: https://docs.python.org/dev/library/unittest.mock.html
+.. _Ghostscript: https://www.ghostscript.com/
+.. _Inkscape: https://inkscape.org>
 
 .. note::
 
-  **Additional dependencies for testing**: nose_ (version 1.0 or later), `mock
-  <https://docs.python.org/dev/library/unittest.mock.html>`_ (if python < 3.3), `Ghostscript
-  <https://www.ghostscript.com/>`_, `Inkscape <https://inkscape.org>`_
+  **Additional dependencies for testing**: pytest_ (version 3.0 or later),
+  mock_ (if python < 3.3), Ghostscript_, Inkscape_
 
 .. seealso::
 
