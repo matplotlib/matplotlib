@@ -2253,14 +2253,14 @@ class GraphicsContextPdf(GraphicsContextBase):
         name = self.file.alphaState(effective_alphas)
         return [name, Op.setgstate]
 
-    def hatch_cmd(self, hatch):
+    def hatch_cmd(self, hatch, hatch_color):
         if not hatch:
             if self._fillcolor is not None:
                 return self.fillcolor_cmd(self._fillcolor)
             else:
                 return [Name('DeviceRGB'), Op.setcolorspace_nonstroke]
         else:
-            hatch_style = (self._hatch_color, self._fillcolor, hatch)
+            hatch_style = (hatch_color, self._fillcolor, hatch)
             name = self.file.hatchPattern(hatch_style)
             return [Name('Pattern'), Op.setcolorspace_nonstroke,
                     name, Op.setcolor_nonstroke]
@@ -2324,7 +2324,8 @@ class GraphicsContextPdf(GraphicsContextBase):
         (('_linewidth',), linewidth_cmd),
         (('_dashes',), dash_cmd),
         (('_rgb',), rgb_cmd),
-        (('_hatch',), hatch_cmd),  # must come after fillcolor and rgb
+        # must come after fillcolor and rgb
+        (('_hatch', '_hatch_color'), hatch_cmd),
         )
 
     # TODO: _linestyle
@@ -2355,7 +2356,7 @@ class GraphicsContextPdf(GraphicsContextBase):
                     break
 
             # Need to update hatching if we also updated fillcolor
-            if params == ('_hatch',) and fill_performed:
+            if params == ('_hatch', '_hatch_color') and fill_performed:
                 different = True
 
             if different:

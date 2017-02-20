@@ -131,6 +131,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
         self._linewidths = [0]
         self._is_filled = True  # May be modified by set_facecolor().
 
+        self._hatch_color = mcolors.to_rgba(mpl.rcParams['hatch.color'])
         self.set_facecolor(facecolors)
         self.set_edgecolor(edgecolors)
         self.set_linewidth(linewidths)
@@ -260,6 +261,12 @@ class Collection(artist.Artist, cm.ScalarMappable):
 
         if self._hatch:
             gc.set_hatch(self._hatch)
+            try:
+                gc.set_hatch_color(self._hatch_color)
+            except AttributeError:
+                # if we end up with a GC that does not have this method
+                warnings.warn("Your backend does not support setting the "
+                              "hatch color.")
 
         if self.get_sketch_params() is not None:
             gc.set_sketch_params(*self.get_sketch_params())
@@ -648,12 +655,15 @@ class Collection(artist.Artist, cm.ScalarMappable):
     get_edgecolors = get_edgecolor
 
     def _set_edgecolor(self, c):
+        set_hatch_color = True
         if c is None:
             if (mpl.rcParams['patch.force_edgecolor'] or
                     not self._is_filled or self._edge_default):
                 c = mpl.rcParams['patch.edgecolor']
             else:
                 c = 'none'
+                set_hatch_color = False
+
         self._is_stroked = True
         try:
             if c.lower() == 'none':
@@ -668,6 +678,8 @@ class Collection(artist.Artist, cm.ScalarMappable):
         except AttributeError:
             pass
         self._edgecolors = mcolors.to_rgba_array(c, self._alpha)
+        if set_hatch_color and len(self._edgecolors):
+            self._hatch_color = tuple(self._edgecolors[0])
         self.stale = True
 
     def set_edgecolor(self, c):

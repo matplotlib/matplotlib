@@ -679,15 +679,12 @@ class Figure(Artist):
         return im
 
     def set_size_inches(self, w, h=None, forward=True):
-        """
-        set_size_inches(w,h, forward=False)
+        """Set the figure size in inches (1in == 2.54cm)
 
-        Set the figure size in inches (1in == 2.54cm)
-
-        Usage::
+        Usage ::
 
              fig.set_size_inches(w,h)  # OR
-             fig.set_size_inches((w,h) )
+             fig.set_size_inches((w,h))
 
         optional kwarg *forward=True* will cause the canvas size to be
         automatically updated; e.g., you can resize the figure window
