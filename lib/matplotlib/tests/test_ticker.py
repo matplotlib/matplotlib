@@ -239,7 +239,7 @@ class TestScalarFormatter(object):
             assert use_offset == tmp_form.get_useOffset()
 
 
-class TestLogFormatter(object):
+class TestLogFormatterSubLabel(object):
     def _sub_labels(self, axis, subs=()):
         "Test whether locator marks subs to be labeled"
         fmt = axis.get_minor_formatter()
