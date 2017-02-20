@@ -4655,10 +4655,7 @@ def test_broken_barh_empty():
 
 
 def test_pandas_indexing_dates():
-    try:
-        import pandas as pd
-    except ImportError:
-        pytest.skip("Pandas not installed")
+    pd = pytest.importorskip('pandas')
 
     dates = np.arange('2005-02', '2005-03', dtype='datetime64[D]')
     values = np.sin(np.array(range(len(dates))))
@@ -4671,10 +4668,7 @@ def test_pandas_indexing_dates():
 
 
 def test_pandas_errorbar_indexing():
-    try:
-        import pandas as pd
-    except ImportError:
-        pytest.skip("Pandas not installed")
+    pd = pytest.importorskip('pandas')
 
     df = pd.DataFrame(np.random.uniform(size=(5, 4)),
                       columns=['x', 'y', 'xe', 'ye'],
@@ -4684,10 +4678,7 @@ def test_pandas_errorbar_indexing():
 
 
 def test_pandas_indexing_hist():
-    try:
-        import pandas as pd
-    except ImportError:
-        pytest.skip("Pandas not installed")
+    pd = pytest.importorskip('pandas')
 
     ser_1 = pd.Series(data=[1, 2, 2, 3, 3, 4, 4, 4, 4, 5])
     ser_2 = ser_1.iloc[1:]

@@ -4,7 +4,7 @@ import re
 
 import pytest
 
-from .. import _preprocess_data
+from matplotlib import _preprocess_data
 
 
 # Notes on testing the plotting functions itself

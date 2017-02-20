@@ -30,7 +30,7 @@ requirements:
     - freetype 2.6*
     - msinttypes  # [win]
     - cycler >=0.10
-    - nose
+    - pytest >=3.0.0
     - pyparsing
     - pytz
 #    - py2cairo  # [linux and py2k]

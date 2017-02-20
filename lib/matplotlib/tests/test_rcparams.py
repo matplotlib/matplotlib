@@ -17,7 +17,6 @@ except ImportError:
     import mock
 import matplotlib as mpl
 import matplotlib.pyplot as plt
-from matplotlib.tests import assert_str_equal
 import matplotlib.colors as mcolors
 from itertools import chain
 import numpy as np
@@ -94,7 +93,7 @@ RcParams({u'font.cursive': [u'Apple Chancery',
           u'font.size': 12.0,
           u'font.weight': u'normal'})""".lstrip()
 
-    assert_str_equal(expected_repr, repr(rc))
+    assert expected_repr == repr(rc)
 
     if six.PY3:
         expected_str = """
@@ -109,7 +108,7 @@ font.family: [u'sans-serif']
 font.size: 12.0
 font.weight: normal""".lstrip()
 
-    assert_str_equal(expected_str, str(rc))
+    assert expected_str == str(rc)
 
     # test the find_all functionality
     assert ['font.cursive', 'font.size'] == sorted(rc.find_all('i[vz]'))
