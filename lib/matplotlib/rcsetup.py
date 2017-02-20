@@ -963,9 +963,9 @@ defaultParams = {
     'lines.solid_joinstyle': ['round', validate_joinstyle],
     'lines.dash_capstyle':   ['butt', validate_capstyle],
     'lines.solid_capstyle':  ['projecting', validate_capstyle],
-    'lines.dashed_pattern':  [[2.8, 1.2], validate_nseq_float()],
-    'lines.dashdot_pattern': [[4.8, 1.2, 0.8, 1.2], validate_nseq_float()],
-    'lines.dotted_pattern':  [[1.1, 1.1], validate_nseq_float()],
+    'lines.dashed_pattern':  [[3.7, 1.6], validate_nseq_float()],
+    'lines.dashdot_pattern': [[6.4, 1.6, 1, 1.6], validate_nseq_float()],
+    'lines.dotted_pattern':  [[1, 1.65], validate_nseq_float()],
     'lines.scale_dashes':  [True, validate_bool],
 
     # marker props

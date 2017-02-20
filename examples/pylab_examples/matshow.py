@@ -10,6 +10,7 @@ def samplemat(dims):
         aa[i, i] = i
     return aa
 
+
 # Display matrix
 plt.matshow(samplemat((15, 35)))
 

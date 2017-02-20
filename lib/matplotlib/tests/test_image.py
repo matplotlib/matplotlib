@@ -731,3 +731,13 @@ def test_imshow_no_warn_invalid():
         warnings.simplefilter("always")
         plt.imshow([[1, 2], [3, np.nan]])
     assert len(warns) == 0
+
+
+def test_empty_imshow():
+    fig, ax = plt.subplots()
+    im = ax.imshow([[]])
+    im.set_extent([-5, 5, -5, 5])
+    fig.canvas.draw()
+
+    with pytest.raises(RuntimeError):
+        im.make_image(fig._cachedRenderer)
