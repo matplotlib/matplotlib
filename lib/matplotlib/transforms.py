@@ -29,6 +29,10 @@ The backends are not expected to handle non-affine transformations
 themselves.
 """
 
+# Note: There are a number of places in the code where we use `np.min` or
+# `np.minimum` instead of the builtin `min`, and likewise for `max`.  This is
+# done so that `nan`s are propagated, instead of being silently dropped.
+
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
@@ -716,10 +720,10 @@ class BboxBase(TransformNode):
         """
         if not len(bboxes):
             raise ValueError("'bboxes' cannot be empty")
-        x0 = min(bbox.xmin for bbox in bboxes)
-        x1 = max(bbox.xmax for bbox in bboxes)
-        y0 = min(bbox.ymin for bbox in bboxes)
-        y1 = max(bbox.ymax for bbox in bboxes)
+        x0 = np.min([bbox.xmin for bbox in bboxes])
+        x1 = np.max([bbox.xmax for bbox in bboxes])
+        y0 = np.min([bbox.ymin for bbox in bboxes])
+        y1 = np.max([bbox.ymax for bbox in bboxes])
         return Bbox([[x0, y0], [x1, y1]])
 
     @staticmethod
@@ -728,10 +732,10 @@ class BboxBase(TransformNode):
         Return the intersection of the two bboxes or None
         if they do not intersect.
         """
-        x0 = max(bbox1.xmin, bbox2.xmin)
-        x1 = min(bbox1.xmax, bbox2.xmax)
-        y0 = max(bbox1.ymin, bbox2.ymin)
-        y1 = min(bbox1.ymax, bbox2.ymax)
+        x0 = np.maximum(bbox1.xmin, bbox2.xmin)
+        x1 = np.minimum(bbox1.xmax, bbox2.xmax)
+        y0 = np.maximum(bbox1.ymin, bbox2.ymin)
+        y1 = np.minimum(bbox1.ymax, bbox2.ymax)
         return Bbox([[x0, y0], [x1, y1]]) if x0 <= x1 and y0 <= y1 else None
 
 
