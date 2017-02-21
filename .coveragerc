@@ -1,7 +1,9 @@
 [run]
-source=
+branch = true
+source =
     matplotlib
     mpl_toolkits
+omit = matplotlib/_version.py
 
 [report]
 exclude_lines =
