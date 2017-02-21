@@ -13,7 +13,7 @@ from matplotlib.testing.decorators import cleanup
 import warnings
 
 
-@cleanup(style='classic')
+@cleanup(style='_classic_test')
 def test_MaxNLocator():
     loc = mticker.MaxNLocator(nbins=5)
     test_value = np.array([20., 40., 60., 80., 100.])
@@ -172,7 +172,7 @@ def test_SymmetricalLogLocator_set_params():
     nose.tools.assert_equal(sym.numticks, 8)
 
 
-@cleanup(style='classic')
+@cleanup(style='_classic_test')
 def test_ScalarFormatter_offset_value():
     fig, ax = plt.subplots()
     formatter = ax.get_xaxis().get_major_formatter()
