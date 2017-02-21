@@ -11,6 +11,7 @@ from matplotlib.patches import Patch, Rectangle
 from matplotlib.path import Path
 from matplotlib.transforms import Bbox, BboxTransformTo
 from matplotlib.transforms import IdentityTransform, TransformedBbox
+import matplotlib.cbook as cbook
 
 from . import axes_size as Size
 from .parasite_axes import HostAxes
@@ -312,7 +313,9 @@ class BboxConnector(Patch):
             raise ValueError("transform should not be set")
 
         kwargs["transform"] = IdentityTransform()
-        fill = 'fc' in kwargs
+        _alias_map = {'color': ['c'], 'facecolor': ['fc']}
+        kwargs = cbook.normalize_kwargs(kwargs, _alias_map)
+        fill = ('color' in kwargs) or ('facecolor' in kwargs)
         Patch.__init__(self, fill=fill, **kwargs)
         self.bbox1 = bbox1
         self.bbox2 = bbox2
