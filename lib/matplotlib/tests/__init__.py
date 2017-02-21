@@ -6,6 +6,7 @@ import six
 import difflib
 import os
 
+from matplotlib import cbook
 from matplotlib.testing import setup
 
 
@@ -19,6 +20,7 @@ if not os.path.exists(os.path.join(
         'test data.')
 
 
+@cbook.deprecated("2.1")
 def assert_str_equal(reference_str, test_str,
                      format_str=('String {str1} and {str2} do not '
                                  'match:\n{differences}')):
