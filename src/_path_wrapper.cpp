@@ -521,6 +521,39 @@ static PyObject *Py_path_intersects_path(PyObject *self, PyObject *args, PyObjec
     }
 }
 
+const char *Py_path_intersects_rectangle__doc__ = "path_intersects_rectangle(path, rect_x1, rect_y1, rect_x2, rect_y2, filled=False)";
+
+static PyObject *Py_path_intersects_rectangle(PyObject *self, PyObject *args, PyObject *kwds)
+{
+    py::PathIterator path;
+    double rect_x1, rect_y1, rect_x2, rect_y2;
+    int filled = 0;
+    const char *names[] = { "path", "rect_x1", "rect_y1", "rect_x2", "rect_y2", "filled", NULL };
+    bool result;
+
+    if (!PyArg_ParseTupleAndKeywords(args,
+                                     kwds,
+                                     "O&dddd|i:path_intersects_rectangle",
+                                     (char **)names,
+                                     &convert_path,
+                                     &path,
+                                     &rect_x1,
+                                     &rect_y1,
+                                     &rect_x2,
+                                     &rect_y2,
+                                     &filled)) {
+        return NULL;
+    }
+
+    CALL_CPP("path_intersects_rectangle", (result = path_intersects_rectangle(path, rect_x1, rect_y1, rect_x2, rect_y2, filled)));
+
+    if (result) {
+        Py_RETURN_TRUE;
+    } else {
+        Py_RETURN_FALSE;
+    }
+}
+
 const char *Py_convert_path_to_polygons__doc__ =
     "convert_path_to_polygons(path, trans, width=0, height=0)";
 
@@ -819,6 +852,7 @@ extern "C" {
         {"affine_transform", (PyCFunction)Py_affine_transform, METH_VARARGS, Py_affine_transform__doc__},
         {"count_bboxes_overlapping_bbox", (PyCFunction)Py_count_bboxes_overlapping_bbox, METH_VARARGS, Py_count_bboxes_overlapping_bbox__doc__},
         {"path_intersects_path", (PyCFunction)Py_path_intersects_path, METH_VARARGS|METH_KEYWORDS, Py_path_intersects_path__doc__},
+        {"path_intersects_rectangle", (PyCFunction)Py_path_intersects_rectangle, METH_VARARGS|METH_KEYWORDS, Py_path_intersects_rectangle__doc__},
         {"convert_path_to_polygons", (PyCFunction)Py_convert_path_to_polygons, METH_VARARGS|METH_KEYWORDS, Py_convert_path_to_polygons__doc__},
         {"cleanup_path", (PyCFunction)Py_cleanup_path, METH_VARARGS, Py_cleanup_path__doc__},
         {"convert_to_string", (PyCFunction)Py_convert_to_string, METH_VARARGS, Py_convert_to_string__doc__},
