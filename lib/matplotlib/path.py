@@ -558,14 +558,12 @@ class Path(object):
         :class:`~matplotlib.transforms.Bbox`.
 
         *filled*, when True, treats the path as if it was filled.
-        That is, if one path completely encloses the other,
-        :meth:`intersects_path` will return True.
+        That is, if the path completely encloses the bounding box,
+        :meth:`intersects_bbox` will return True.
+
+        The bounding box is always considered filled.
         """
-        from .transforms import BboxTransformTo
-        rectangle = self.unit_rectangle().transformed(
-            BboxTransformTo(bbox))
-        result = self.intersects_path(rectangle, filled)
-        return result
+        return _path.path_intersects_rectangle(self, bbox.x0, bbox.y0, bbox.x1, bbox.y1, filled)
 
     def interpolated(self, steps):
         """
