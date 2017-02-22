@@ -563,7 +563,8 @@ class Path(object):
 
         The bounding box is always considered filled.
         """
-        return _path.path_intersects_rectangle(self, bbox.x0, bbox.y0, bbox.x1, bbox.y1, filled)
+        return _path.path_intersects_rectangle(self,
+            bbox.x0, bbox.y0, bbox.x1, bbox.y1, filled)
 
     def interpolated(self, steps):
         """
