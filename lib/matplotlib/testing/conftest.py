@@ -7,15 +7,6 @@ import matplotlib
 from matplotlib.testing import _conversion_cache as ccache
 
 
-def pytest_addoption(parser):
-    group = parser.getgroup("matplotlib", "matplotlib custom options")
-    group.addoption("--conversion-cache-max-size", action="store",
-                    help="conversion cache maximum size in bytes")
-    group.addoption("--conversion-cache-report-misses",
-                    action="store_true",
-                    help="report conversion cache misses")
-
-
 def pytest_configure(config):
     matplotlib.use('agg')
     matplotlib._called_from_pytest = True
