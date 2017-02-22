@@ -872,6 +872,64 @@ bool path_intersects_path(PathIterator1 &p1, PathIterator2 &p2)
     return false;
 }
 
+// returns whether the segment from (x1,y1) to (x2,y2)
+// intersects the rectangle centered at (cx,cy) with size (w,h)
+inline bool segment_intersects_rectangle(double x1, double y1,
+                                         double x2, double y2,
+                                         double cx, double cy,
+                                         double w, double h) {
+    return fabs(x1 + x2 - 2.0 * cx) < fabs(x1 - x2) + w &&
+           fabs(y1 + y2 - 2.0 * cy) < fabs(y1 - y2) + h &&
+           2.0 * fabs((x1 - cx) * (y1 - y2) - (y1 - cy) * (x1 - x2)) <
+               w * fabs(y1 - y2) + h * fabs(x1 - x2);
+}
+
+template <class PathIterator>
+bool path_intersects_rectangle(PathIterator &path,
+                               double rect_x1, double rect_y1,
+                               double rect_x2, double rect_y2,
+                               bool filled)
+{
+    typedef PathNanRemover<py::PathIterator> no_nans_t;
+    typedef agg::conv_curve<no_nans_t> curve_t;
+
+    if (path.total_vertices() == 0) {
+        return false;
+    }
+
+    no_nans_t no_nans(path, true, path.has_curves());
+    curve_t curve(no_nans);
+
+    double cx = (rect_x1 + rect_x2) * 0.5, cy = (rect_y1 + rect_y2) * 0.5;
+    double w = fabs(rect_x1 - rect_x2), h = fabs(rect_y1 - rect_y2);
+    double xmin = fmin(rect_x1, rect_x2), xmax = fmax(rect_x1, rect_x2);
+    double ymin = fmin(rect_x1, rect_x2), ymax = fmax(rect_x1, rect_x2);
+
+    double x1, y1, x2, y2;
+
+    curve.vertex(&x1, &y1);
+    if(2.0 * fabs(x1 - cx) <= w && 2.0 * fabs(y1 - cy) <= h) {
+        return true;
+    }
+
+    while (curve.vertex(&x2, &y2) != agg::path_cmd_stop) {
+        if (segment_intersects_rectangle(x1, y1, x2, y2, cx, cy, w, h)) {
+            return true;
+        }
+        x1 = x2;
+        y1 = y2;
+    }
+
+    if (filled) {
+        agg::trans_affine trans;
+        if (point_in_path(cx, cy, 0.0, path, trans)) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
 template <class PathIterator>
 void convert_path_to_polygons(PathIterator &path,
                               agg::trans_affine &trans,
