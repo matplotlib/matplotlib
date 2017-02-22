@@ -4436,16 +4436,6 @@ def test_rc_major_minor_tick():
         assert yax._minor_tick_kw['tick2On']
 
 
-def test_bar_negative_width():
-    fig, ax = plt.subplots()
-    res = ax.bar(range(1, 5), range(1, 5), width=-1)
-    assert len(res) == 4
-    for indx, b in enumerate(res):
-        assert b._x == indx
-        assert b._width == 1
-        assert b._height == indx + 1
-
-
 def test_square_plot():
     x = np.arange(4)
     y = np.array([1., 3., 5., 7.])
