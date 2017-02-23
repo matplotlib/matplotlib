@@ -91,6 +91,7 @@ files['pie'] = [
     ]
 
 files['text_labels_and_annotations'] = [
+    'accented_text.py',
     'text_demo_fontdict.py',
     'unicode_demo.py',
     ]
@@ -109,7 +110,6 @@ files['showcase'] = [
     ]
 
 files['pylab'] = [
-    'accented_text.py',
     'alignment_test.py',
     'annotation_demo.py',
     'annotation_demo.py',
