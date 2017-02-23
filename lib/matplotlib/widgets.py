@@ -291,11 +291,11 @@ class Slider(AxesWidget):
 
         valinit : float, optional
             The slider initial position.
-	    Default: 0.5
+        Default: 0.5
 
         valfmt : str, optional
             Used to format the slider value, fprint format string.
-	    Default: '%1.2f' 
+            Default: '%1.2f'
 
         closedmin : bool, optional
             Indicate whether the slider interval is closed on the bottom.
@@ -370,11 +370,11 @@ class Slider(AxesWidget):
         self.slidermin = slidermin
         self.slidermax = slidermax
         self.drag_active = False
-	self._value_in_bounds(valinit)
+        self._value_in_bounds(valinit)
 
     def _value_in_bounds(self, val):
         """ Makes sure self.val is with given bounds."""
-	if val <= self.valmin:
+        if val <= self.valmin:
             if not self.closedmin:
                 return
             val = self.valmin
@@ -416,8 +416,8 @@ class Slider(AxesWidget):
             event.canvas.release_mouse(self.ax)
             return
         val = event.xdata
-	self._value_in_bounds(val)
-        
+        self._value_in_bounds(val)
+
     def set_val(self, val):
         xy = self.poly.xy
         xy[2] = val, 1
