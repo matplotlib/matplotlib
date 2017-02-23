@@ -266,36 +266,8 @@ class Slider(AxesWidget):
     """
     A slider representing a floating point range.
 
-    For the slider to remain responsive you must maintain a
-    reference to it.
-
-    The following attributes are defined
-      *ax*        : the slider :class:`matplotlib.axes.Axes` instance
-
-      *val*       : the current slider value
-
-      *vline*     : a :class:`matplotlib.lines.Line2D` instance
-                     representing the initial value of the slider
-
-      *poly*      : A :class:`matplotlib.patches.Polygon` instance
-                     which is the slider knob
-
-      *valfmt*    : the format string for formatting the slider text
-
-      *label*     : a :class:`matplotlib.text.Text` instance
-                     for the slider label
-
-      *closedmin* : whether the slider is closed on the minimum
-
-      *closedmax* : whether the slider is closed on the maximum
-
-      *slidermin* : another slider - if not *None*, this slider must be
-                     greater than *slidermin*
-
-      *slidermax* : another slider - if not *None*, this slider must be
-                     less than *slidermax*
-
-      *dragging*  : allow for mouse dragging on slider
+    Create a slider from *valmin* to *valmax* in axes *ax*. For the slider to
+    remain responsive you must maintain a reference to it.
 
     Call :meth:`on_changed` to connect to the slider event
     """
@@ -303,54 +275,56 @@ class Slider(AxesWidget):
                  closedmin=True, closedmax=True, slidermin=None,
                  slidermax=None, dragging=True, **kwargs):
         """
-        Create a slider from *valmin* to *valmax* in axes *ax*.
+        Parameters
+        ----------
+        ax : Axes
+            The Axes to put the slider in.
 
+        label : str
+            Slider label.
+
+        valmin : float
+            The minimum value of the slider.
+
+        valmax : float
+            The maximum value of the slider.
+
+        valinit : float, optional
+            The slider initial position.
+	    Default: 0.5
+
+        valfmt : str, optional
+            Used to format the slider value, fprint format string.
+	    Default: '%1.2f' 
+
+        closedmin : bool, optional
+            Indicate whether the slider interval is closed on the bottom.
+            Default: True
+
+        closedmax : bool, optional
+            Indicate whether the slider interval is closed on the top.
+            Default: True
+
+        slidermin : Slider, optional
+            Do not allow the current slider to have a value less than
+            `slidermin.val`.
+            Default: None
+
+        slidermax : Slider, optional
+            Do not allow the current slider to have a value greater than
+            `slidermax.val`.
+            Default: None
+
+        dragging : bool, optional
+            If True the slider can be dragged by the mouse.
+            Default: True
+
+        Notes
+        ----------
         Additional kwargs are passed on to ``self.poly`` which is the
         :class:`matplotlib.patches.Rectangle` that draws the slider
         knob.  See the :class:`matplotlib.patches.Rectangle` documentation for
         valid property names (e.g., *facecolor*, *edgecolor*, *alpha*, ...).
-
-        Parameters
-        ----------
-        ax : Axes
-            The Axes to put the slider in
-
-        label : str
-            Slider label
-
-        valmin : float
-            The minimum value of the slider
-
-        valmax : float
-            The maximum value of the slider
-
-        valinit : float
-            The slider initial position
-
-        label : str
-            The slider label
-
-        valfmt : str
-            Used to format the slider value, fprint format string
-
-        closedmin : bool
-            Indicate whether the slider interval is closed on the bottom
-
-        closedmax : bool
-            Indicate whether the slider interval is closed on the top
-
-        slidermin : Slider or None
-            Do not allow the current slider to have a value less than
-            `slidermin`
-
-        slidermax : Slider or None
-            Do not allow the current slider to have a value greater than
-            `slidermax`
-
-
-        dragging : bool
-            if the slider can be dragged by the mouse
-
         """
         AxesWidget.__init__(self, ax)
 
