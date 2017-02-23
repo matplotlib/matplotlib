@@ -132,10 +132,21 @@ classifiers = [
     ]
 
 
-class NoopTestCommand(TestCommand):
-    def run(self):
-        print("Matplotlib does not support running tests with "
-              "'python setup.py test'. Please run 'python tests.py'")
+class PyTestCommand(TestCommand):
+    user_options = [
+        ("pytest-args=", "a", "Arguments to pass to pytest"),
+        ("local-freetype", None, "setup.cfg back-compatibility; do not use")]
+
+    def initialize_options(self):
+        TestCommand.initialize_options(self)
+        self.pytest_args = ""
+        self.local_freetype = ""
+
+    def run_tests(self):
+        import shlex
+        import pytest
+        errno = pytest.main(shlex.split(self.pytest_args))
+        sys.exit(errno)
 
 
 class BuildExtraLibraries(BuildExtCommand):
@@ -147,7 +158,7 @@ class BuildExtraLibraries(BuildExtCommand):
 
 
 cmdclass = versioneer.get_cmdclass()
-cmdclass['test'] = NoopTestCommand
+cmdclass['test'] = PyTestCommand
 cmdclass['build_ext'] = BuildExtraLibraries
 
 # One doesn't normally see `if __name__ == '__main__'` blocks in a setup.py,
