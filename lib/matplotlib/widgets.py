@@ -370,6 +370,29 @@ class Slider(AxesWidget):
         self.slidermin = slidermin
         self.slidermax = slidermax
         self.drag_active = False
+	self._value_in_bounds(valinit)
+
+    def _value_in_bounds(self, val):
+        """ Makes sure self.val is with given bounds."""
+	if val <= self.valmin:
+            if not self.closedmin:
+                return
+            val = self.valmin
+        elif val >= self.valmax:
+            if not self.closedmax:
+                return
+            val = self.valmax
+
+        if self.slidermin is not None and val <= self.slidermin.val:
+            if not self.closedmin:
+                return
+            val = self.slidermin.val
+
+        if self.slidermax is not None and val >= self.slidermax.val:
+            if not self.closedmax:
+                return
+            val = self.slidermax.val
+        self.set_val(val)
 
     def _update(self, event):
         """update the slider position"""
@@ -392,29 +415,9 @@ class Slider(AxesWidget):
             self.drag_active = False
             event.canvas.release_mouse(self.ax)
             return
-
         val = event.xdata
-        if val <= self.valmin:
-            if not self.closedmin:
-                return
-            val = self.valmin
-        elif val >= self.valmax:
-            if not self.closedmax:
-                return
-            val = self.valmax
-
-        if self.slidermin is not None and val <= self.slidermin.val:
-            if not self.closedmin:
-                return
-            val = self.slidermin.val
-
-        if self.slidermax is not None and val >= self.slidermax.val:
-            if not self.closedmax:
-                return
-            val = self.slidermax.val
-
-        self.set_val(val)
-
+	self._value_in_bounds(val)
+        
     def set_val(self, val):
         xy = self.poly.xy
         xy[2] = val, 1
