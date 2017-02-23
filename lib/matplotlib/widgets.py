@@ -266,7 +266,7 @@ class Slider(AxesWidget):
     """
     A slider representing a floating point range.
 
-    Create a slider from *valmin* to *valmax* in axes *ax*. For the slider to
+    Create a slider from `valmin` to `valmax` in axes `ax`. For the slider to
     remain responsive you must maintain a reference to it.
 
     Call :meth:`on_changed` to connect to the slider event
@@ -290,8 +290,7 @@ class Slider(AxesWidget):
             The maximum value of the slider.
 
         valinit : float, optional
-            The slider initial position.
-        Default: 0.5
+            The slider initial position. Default: 0.5
 
         valfmt : str, optional
             Used to format the slider value, fprint format string.
@@ -307,24 +306,21 @@ class Slider(AxesWidget):
 
         slidermin : Slider, optional
             Do not allow the current slider to have a value less than
-            `slidermin.val`.
-            Default: None
+            the value of the Slider `slidermin`. Default: None
 
         slidermax : Slider, optional
             Do not allow the current slider to have a value greater than
-            `slidermax.val`.
-            Default: None
+            the value of the Slider `slidermax`. Default: None
 
         dragging : bool, optional
-            If True the slider can be dragged by the mouse.
-            Default: True
+            If True the slider can be dragged by the mouse. Default: True
 
         Notes
-        ----------
+        -----
         Additional kwargs are passed on to ``self.poly`` which is the
-        :class:`matplotlib.patches.Rectangle` that draws the slider
-        knob.  See the :class:`matplotlib.patches.Rectangle` documentation for
-        valid property names (e.g., *facecolor*, *edgecolor*, *alpha*, ...).
+        :class:`~matplotlib.patches.Rectangle` that draws the slider
+        knob.  See the :class:`~matplotlib.patches.Rectangle` documentation for
+        valid property names (e.g., `facecolor`, `edgecolor`, `alpha`).
         """
         AxesWidget.__init__(self, ax)
 
@@ -392,7 +388,7 @@ class Slider(AxesWidget):
             if not self.closedmax:
                 return
             val = self.slidermax.val
-        self.set_val(val)
+        return val
 
     def _update(self, event):
         """update the slider position"""
