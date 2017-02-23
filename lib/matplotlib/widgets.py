@@ -330,13 +330,17 @@ class Slider(AxesWidget):
         if slidermax is not None and not hasattr(slidermax, 'val'):
             raise ValueError("Argument slidermax ({}) has no 'val'"
                              .format(type(slidermax)))
-
+        self.closedmin = closedmin
+        self.closedmax = closedmax
+        self.slidermin = slidermin
+        self.slidermax = slidermax
+        self.drag_active = False
         self.valmin = valmin
         self.valmax = valmax
+        valinit = self._value_in_bounds(valinit)
         self.val = valinit
         self.valinit = valinit
         self.poly = ax.axvspan(valmin, valinit, 0, 1, **kwargs)
-
         self.vline = ax.axvline(valinit, 0, 1, color='r', lw=1)
 
         self.valfmt = valfmt
@@ -361,12 +365,7 @@ class Slider(AxesWidget):
         self.cnt = 0
         self.observers = {}
 
-        self.closedmin = closedmin
-        self.closedmax = closedmax
-        self.slidermin = slidermin
-        self.slidermax = slidermax
-        self.drag_active = False
-        self._value_in_bounds(valinit)
+        self.set_val(valinit)
 
     def _value_in_bounds(self, val):
         """ Makes sure self.val is with given bounds."""
@@ -388,7 +387,7 @@ class Slider(AxesWidget):
             if not self.closedmax:
                 return
             val = self.slidermax.val
-        return val
+	return val
 
     def _update(self, event):
         """update the slider position"""
@@ -412,7 +411,7 @@ class Slider(AxesWidget):
             event.canvas.release_mouse(self.ax)
             return
         val = event.xdata
-        self._value_in_bounds(val)
+        self.set_val(self._value_in_bounds(val))
 
     def set_val(self, val):
         xy = self.poly.xy
