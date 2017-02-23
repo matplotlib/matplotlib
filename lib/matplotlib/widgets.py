@@ -328,6 +328,13 @@ class Slider(AxesWidget):
         """
         AxesWidget.__init__(self, ax)
 
+        if slidermin is not None and not hasattr(slidermin, 'val'):
+            raise ValueError("Argument slidermin ({}) has no 'val'"
+                             .format(type(slidermin)))
+        if slidermax is not None and not hasattr(slidermax, 'val'):
+            raise ValueError("Argument slidermax ({}) has no 'val'"
+                             .format(type(slidermax)))
+
         self.valmin = valmin
         self.valmax = valmax
         self.val = valinit
