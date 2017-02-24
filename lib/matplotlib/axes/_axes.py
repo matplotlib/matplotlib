@@ -2705,11 +2705,11 @@ or tuple of floats
 
         Parameters
         ----------
-        x : scalar
-        y : scalar
+        x : scalar or array-like
+        y : scalar or array-like
 
-        xerr/yerr : scalar or array-like, shape(n,1) or shape(2,n), optional
-            If a scalar number, len(N) array-like object, or an Nx1
+        xerr/yerr : scalar or array-like, shape(N,) or shape(2,N), optional
+            If a scalar number, len(N) array-like object, or a N
             array-like object, errorbars are drawn at +/-value relative
             to the data. Default is None.
 
