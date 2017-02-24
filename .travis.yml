@@ -75,6 +75,7 @@ before_install:
 
 install:
   - ccache -s
+  - git describe
   # Upgrade pip and setuptools. Mock has issues with the default version of
   # setuptools
   - |
