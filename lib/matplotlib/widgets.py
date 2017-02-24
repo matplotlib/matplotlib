@@ -289,31 +289,28 @@ class Slider(AxesWidget):
         valmax : float
             The maximum value of the slider.
 
-        valinit : float, optional
-            The slider initial position. Default: 0.5
+        valinit : float, optional, default: 0.5
+            The slider initial position.
 
-        valfmt : str, optional
+        valfmt : str, optional, default: "%1.2f"
             Used to format the slider value, fprint format string.
-            Default: '%1.2f'
 
-        closedmin : bool, optional
+        closedmin : bool, optional, default: True
             Indicate whether the slider interval is closed on the bottom.
-            Default: True
 
-        closedmax : bool, optional
+        closedmax : bool, optional, default: True
             Indicate whether the slider interval is closed on the top.
-            Default: True
 
-        slidermin : Slider, optional
+        slidermin : Slider, optional, default: None
             Do not allow the current slider to have a value less than
-            the value of the Slider `slidermin`. Default: None
+            the value of the Slider `slidermin`.
 
-        slidermax : Slider, optional
+        slidermax : Slider, optional, default: None
             Do not allow the current slider to have a value greater than
-            the value of the Slider `slidermax`. Default: None
+            the value of the Slider `slidermax`.
 
-        dragging : bool, optional
-            If True the slider can be dragged by the mouse. Default: True
+        dragging : bool, optional, default: True
+            If True the slider can be dragged by the mouse.
 
         Notes
         -----
