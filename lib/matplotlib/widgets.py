@@ -384,7 +384,7 @@ class Slider(AxesWidget):
             if not self.closedmax:
                 return
             val = self.slidermax.val
-	return val
+        return val
 
     def _update(self, event):
         """update the slider position"""
