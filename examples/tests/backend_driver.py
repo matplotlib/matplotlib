@@ -93,7 +93,6 @@ files['pie'] = [
 files['text_labels_and_annotations'] = [
     'accented_text.py',
     'text_demo_fontdict.py',
-    'unicode_demo.py',
     ]
 
 files['ticks_and_spines'] = [
