@@ -20,8 +20,8 @@ axalpha = 0.05
 figcolor = 'white'
 dpi = 80
 fig = plt.figure(figsize=(6, 1.1), dpi=dpi)
-fig.figurePatch.set_edgecolor(figcolor)
-fig.figurePatch.set_facecolor(figcolor)
+fig.patch.set_edgecolor(figcolor)
+fig.patch.set_facecolor(figcolor)
 
 
 def add_math_background():
@@ -57,7 +57,7 @@ def add_matplotlib_text(ax):
 def add_polar_bar():
     ax = fig.add_axes([0.025, 0.075, 0.2, 0.85], projection='polar')
 
-    ax.axesPatch.set_alpha(axalpha)
+    ax.patch.set_alpha(axalpha)
     ax.set_axisbelow(True)
     N = 7
     arc = 2. * np.pi

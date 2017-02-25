@@ -1080,11 +1080,10 @@ class _AxesBase(martist.Artist):
             _title.set_clip_box(None)
             self._set_artist_props(_title)
 
-        # the patch draws the background of the axes.  we want this to
-        # be below the other artists; the axesPatch name is
-        # deprecated.  We use the frame to draw the edges so we are
-        # setting the edgecolor to None
-        self.patch = self.axesPatch = self._gen_axes_patch()
+        # The patch draws the background of the axes.  We want this to be below
+        # the other artists.  We use the frame to draw the edges so we are
+        # setting the edgecolor to None.
+        self.patch = self._gen_axes_patch()
         self.patch.set_figure(self.figure)
         self.patch.set_facecolor(self._facecolor)
         self.patch.set_edgecolor('None')
@@ -1106,6 +1105,10 @@ class _AxesBase(martist.Artist):
             self.yaxis.set_visible(yaxis_visible)
             self.patch.set_visible(patch_visible)
         self.stale = True
+
+    @cbook.deprecated("2.1", alternative="Axes.patch")
+    def axesPatch(self):
+        return self.patch
 
     def clear(self):
         """clear the axes"""
