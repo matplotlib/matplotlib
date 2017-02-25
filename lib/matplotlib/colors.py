@@ -1249,17 +1249,17 @@ class BoundaryNorm(Normalize):
         """
         Parameters
         ----------
-        boundaries : sequence
+        boundaries : array-like
             Monotonically increasing sequence of boundaries
         ncolors : int
             Number of colors in the colormap to be used
         clip : bool, optional
-            If *clip* is ``True``, out of range values are mapped to 0 if they
-            are below ``boundaries[0]`` or mapped to *ncolors* - 1 if they are
+            If clip is ``True``, out of range values are mapped to 0 if they
+            are below ``boundaries[0]`` or mapped to ncolors - 1 if they are
             above ``boundaries[-1]``.
 
-            If *clip* is ``False``, out of range values are mapped to -1 if
-            they are below ``boundaries[0]`` or mapped to *ncolors* if they are
+            If clip is ``False``, out of range values are mapped to -1 if
+            they are below ``boundaries[0]`` or mapped to ncolors if they are
             above ``boundaries[-1]``. These are then converted to valid indices
             by :meth:`Colormap.__call__`.
 
