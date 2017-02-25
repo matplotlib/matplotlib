@@ -326,16 +326,6 @@ the method mentioned last in the following list will be used, e.g. calling
    globally, e.g. in your ``.bashrc`` or ``.profile``, is discouraged as it
    might lead to counter-intuitive behavior.
 
-#. To set the backend for a single script, you can alternatively use the `-d`
-   command line argument::
-
-       > python script.py -dbackend
-
-   This method is **deprecated** as the `-d` argument might conflict with
-   scripts which parse command line arguments (see issue
-   `#1986 <https://github.com/matplotlib/matplotlib/issues/1986>`_). You
-   should use :envvar:`MPLBACKEND` instead.
-
 #. If your script depends on a specific backend you can use the
    :func:`~matplotlib.use` function::
 
