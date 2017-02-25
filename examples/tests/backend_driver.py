@@ -93,6 +93,7 @@ files['pie'] = [
 files['text_labels_and_annotations'] = [
     'accented_text.py',
     'text_demo_fontdict.py',
+    'text_rotation.py',
     'unicode_demo.py',
     ]
 
@@ -236,7 +237,6 @@ files['pylab'] = [
     'subplots_adjust.py',
     'symlog_demo.py',
     'table_demo.py',
-    'text_rotation.py',
     'text_rotation_relative_to_line.py',
     'transoffset.py',
     'xcorr_demo.py',
