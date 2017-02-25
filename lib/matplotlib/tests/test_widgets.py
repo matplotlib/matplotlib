@@ -13,6 +13,8 @@ from matplotlib.testing.decorators import image_comparison
 
 from numpy.testing import assert_allclose
 
+import pytest
+
 
 def get_ax():
     fig, ax = plt.subplots(1, 1)
@@ -275,3 +277,39 @@ def test_check_radio_buttons_image():
     widgets.RadioButtons(rax1, ('Radio 1', 'Radio 2', 'Radio 3'))
     widgets.CheckButtons(rax2, ('Check 1', 'Check 2', 'Check 3'),
                          (False, True, True))
+
+
+def test_slider_slidermin_slidermax_invalid():
+    fig, ax = plt.subplots()
+    # test min/max with floats
+    with pytest.raises(ValueError):
+        widgets.Slider(ax=ax, label='', valmin=0.0, valmax=24.0,
+                       slidermin=10.0)
+    with pytest.raises(ValueError):
+        widgets.Slider(ax=ax, label='', valmin=0.0, valmax=24.0,
+                       slidermax=10.0)
+
+
+def test_slider_slidermin_slidermax():
+    fig, ax = plt.subplots()
+    slider_ = widgets.Slider(ax=ax, label='', valmin=0.0, valmax=24.0,
+                             valinit=5.0)
+
+    slider = widgets.Slider(ax=ax, label='', valmin=0.0, valmax=24.0,
+                            valinit=1.0, slidermin=slider_)
+    assert slider.val == slider_.val
+
+    slider = widgets.Slider(ax=ax, label='', valmin=0.0, valmax=24.0,
+                            valinit=10.0, slidermax=slider_)
+    assert slider.val == slider_.val
+
+
+def test_slider_valmin_valmax():
+    fig, ax = plt.subplots()
+    slider = widgets.Slider(ax=ax, label='', valmin=0.0, valmax=24.0,
+                            valinit=-10.0)
+    assert slider.val == slider.valmin
+
+    slider = widgets.Slider(ax=ax, label='', valmin=0.0, valmax=24.0,
+                            valinit=25.0)
+    assert slider.val == slider.valmax
