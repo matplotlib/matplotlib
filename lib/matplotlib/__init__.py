@@ -1338,6 +1338,7 @@ def rc_file_defaults():
     """
     rcParams.update(rcParamsOrig)
 
+
 _use_error_msg = """
 This call to matplotlib.use() has no effect because the backend has already
 been chosen; matplotlib.use() must be called *before* pylab, matplotlib.pyplot,
@@ -1408,6 +1409,12 @@ def use(arg, warn=True, force=False):
         reload(sys.modules['matplotlib.backends'])
 
 
+try:
+    use(os.environ['MPLBACKEND'])
+except KeyError:
+    pass
+
+
 def get_backend():
     """Return the name of the current backend."""
     return rcParams['backend']
@@ -1434,33 +1441,6 @@ def tk_window_focus():
     if rcParams['backend'] != 'TkAgg':
         return False
     return rcParams['tk.window_focus']
-
-# Now allow command line to override
-
-# Allow command line access to the backend with -d (MATLAB compatible
-# flag)
-
-for s in sys.argv[1:]:
-    # cast to str because we are using unicode_literals,
-    # and argv is always str
-    if s.startswith(str('-d')) and len(s) > 2:  # look for a -d flag
-        try:
-            use(s[2:])
-            warnings.warn("Using the -d command line argument to select a "
-                          "matplotlib backend is deprecated. Please use the "
-                          "MPLBACKEND environment variable instead.",
-                          mplDeprecation)
-            break
-        except (KeyError, ValueError):
-            pass
-        # we don't want to assume all -d flags are backends, e.g., -debug
-else:
-    # no backend selected from the command line, so we check the environment
-    # variable MPLBACKEND
-    try:
-        use(os.environ['MPLBACKEND'])
-    except KeyError:
-        pass
 
 
 # Jupyter extension paths
