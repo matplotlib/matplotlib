@@ -874,6 +874,7 @@ bool path_intersects_path(PathIterator1 &p1, PathIterator2 &p2)
 
 // returns whether the segment from (x1,y1) to (x2,y2)
 // intersects the rectangle centered at (cx,cy) with size (w,h)
+// see doc/segment_intersects_rectangle.svg for a more detailed explanation
 inline bool segment_intersects_rectangle(double x1, double y1,
                                          double x2, double y2,
                                          double cx, double cy,
