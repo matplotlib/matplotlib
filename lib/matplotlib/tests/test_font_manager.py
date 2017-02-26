@@ -40,8 +40,9 @@ def test_score_weight():
     assert (0 ==
             fontManager.score_weight("regular", "regular") ==
             fontManager.score_weight("bold", "bold") <
-            fontManager.score_weight("normal", "regular") ==
-            fontManager.score_weight(400, 400) <
+            fontManager.score_weight(400, 400) ==
+            # "normal" and "regular" have the same numerical weight
+            fontManager.score_weight("normal", "regular") <
             fontManager.score_weight("normal", "bold"))
 
 

@@ -1204,8 +1204,8 @@ class FontManager(object):
 
         # exact match of the weight names (e.g. weight1 == weight2 == "regular")
         if (isinstance(weight1, six.string_types) and
-            isinstance(weight2, six.string_types) and
-            weight1 == weight2):
+                isinstance(weight2, six.string_types) and
+                weight1 == weight2):
             return 0.0
         try:
             weightval1 = int(weight1)
