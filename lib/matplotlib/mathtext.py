@@ -2397,7 +2397,7 @@ class Parser(object):
                              Suppress(Literal(r"\frac"))
                            - ((p.required_group + p.required_group) | Error(r"Expected \frac{num}{den}"))
                          )
-        
+
         p.dfrac         <<= Group(
                              Suppress(Literal(r"\dfrac"))
                            - ((p.required_group + p.required_group) | Error(r"Expected \dfrac{num}{den}"))
@@ -3050,8 +3050,8 @@ class Parser(object):
             state.font, state.fontsize, state.dpi)
 
         rule = float(rule)
-        
-        # If style != displaystyle == 0, shrink the num and den 
+
+        # If style != displaystyle == 0, shrink the num and den
         if style:
             num.shrink()
             den.shrink()
@@ -3087,14 +3087,14 @@ class Parser(object):
         return result
 
     def genfrac(self, s, loc, toks):
-        assert(len(toks)==1)
-        assert(len(toks[0])==6)
+        assert(len(toks) == 1)
+        assert(len(toks[0]) == 6)
 
         return self._genfrac(*tuple(toks[0]))
 
     def frac(self, s, loc, toks):
-        assert(len(toks)==1)
-        assert(len(toks[0])==2)
+        assert(len(toks) == 1)
+        assert(len(toks[0]) == 2)
         state = self.get_state()
 
         thickness = state.font_output.get_underline_thickness(
@@ -3104,8 +3104,8 @@ class Parser(object):
         return self._genfrac('', '', thickness, 1, num, den)
 
     def dfrac(self, s, loc, toks):
-        assert(len(toks)==1)
-        assert(len(toks[0])==2)
+        assert(len(toks) == 1)
+        assert(len(toks[0]) == 2)
         state = self.get_state()
 
         thickness = state.font_output.get_underline_thickness(
@@ -3115,15 +3115,15 @@ class Parser(object):
         return self._genfrac('', '', thickness, 0, num, den)
 
     def stackrel(self, s, loc, toks):
-        assert(len(toks)==1)
-        assert(len(toks[0])==2)
+        assert(len(toks) == 1)
+        assert(len(toks[0]) == 2)
         num, den = toks[0]
 
         return self._genfrac('', '', 0.0, 1, num, den)
 
     def binom(self, s, loc, toks):
-        assert(len(toks)==1)
-        assert(len(toks[0])==2)
+        assert(len(toks) == 1)
+        assert(len(toks[0]) == 2)
         num, den = toks[0]
 
         return self._genfrac('(', ')', 0.0, 1, num, den)
