@@ -12,42 +12,48 @@
 .. _git: https://git-scm.com/
 .. _github: https://github.com
 .. _github help: https://help.github.com
-.. _msysgit: http://code.google.com/p/msysgit/downloads/list
-.. _git-osx-installer: https://code.google.com/archive/p/git-osx-installer/downloads
+.. _msysgit: https://git-scm.com/download/win
+.. _git-osx-installer: https://git-scm.com/download/mac
 .. _subversion: http://subversion.tigris.org/
-.. _git cheat sheet: http://cheat.errtheblog.com/s/git
-.. _pro git book: https://git-scm.com/book/en/v2
+.. _git cheat sheet: https://help.github.com/git-cheat-sheets/
+.. _pro git book: https://progit.org/
 .. _git svn crash course: https://git-scm.com/course/svn.html
-.. _learn.github: http://learn.github.com/
 .. _network graph visualizer: https://github.com/blog/39-say-hello-to-the-network-graph-visualizer
-.. _git user manual: https://schacon.github.com/git/user-manual.html
-.. _git tutorial: https://schacon.github.com/git/gittutorial.html
+.. _git user manual: https://schacon.github.io/git/user-manual.html
+.. _git tutorial: https://schacon.github.io/git/gittutorial.html
 .. _git community book: https://git-scm.com/book/en/v2
-.. _git ready: http://www.gitready.com/
-.. _git casts: http://www.gitcasts.com/
+.. _git ready: http://gitready.com/
 .. _Fernando's git page: http://www.fperez.org/py4science/git.html
 .. _git magic: http://www-cs-students.stanford.edu/~blynn/gitmagic/index.html
 .. _git concepts: https://www.sbf5.com/~cduan/technical/git/
-.. _git clone: http://schacon.github.io/git/git-clone.html
-.. _git checkout: http://schacon.github.io/git/git-checkout.html
-.. _git commit: http://schacon.github.io/git/git-commit.html
-.. _git push: http://schacon.github.io/git/git-push.html
-.. _git pull: http://schacon.github.io/git/git-pull.html
-.. _git add: http://schacon.github.io/git/git-add.html
-.. _git status: http://schacon.github.io/git/git-status.html
-.. _git diff: http://schacon.github.io/git/git-diff.html
-.. _git log: http://schacon.github.io/git/git-log.html
-.. _git branch: http://schacon.github.io/git/git-branch.html
-.. _git remote: http://schacon.github.io/git/git-remote.html
-.. _git config: http://schacon.github.io/git/git-config.html
+.. _git clone: https://schacon.github.io/git/git-clone.html
+.. _git checkout: https://schacon.github.io/git/git-checkout.html
+.. _git commit: https://schacon.github.io/git/git-commit.html
+.. _git push: https://schacon.github.io/git/git-push.html
+.. _git pull: https://schacon.github.io/git/git-pull.html
+.. _git add: https://schacon.github.io/git/git-add.html
+.. _git status: https://schacon.github.io/git/git-status.html
+.. _git diff: https://schacon.github.io/git/git-diff.html
+.. _git log: https://schacon.github.io/git/git-log.html
+.. _git branch: https://schacon.github.io/git/git-branch.html
+.. _git remote: https://schacon.github.io/git/git-remote.html
+.. _git rebase: https://schacon.github.io/git/git-rebase.html
+.. _git config: https://schacon.github.io/git/git-config.html
 .. _why the -a flag?: http://gitready.com/beginner/2009/01/18/the-staging-area.html
 .. _git staging area: http://gitready.com/beginner/2009/01/18/the-staging-area.html
 .. _tangled working copy problem: http://2ndscale.com/rtomayko/2008/the-thing-about-git
-.. _linux git workflow: http://www.mail-archive.com/dri-devel@lists.sourceforge.net/msg39091.html
+.. _git management: https://web.archive.org/web/20090224195437/http://kerneltrap.org/Linux/Git_Management
+.. _linux git workflow: https://www.mail-archive.com/dri-devel@lists.sourceforge.net/msg39091.html
 .. _git parable: http://tom.preston-werner.com/2009/05/19/the-git-parable.html
-.. _git foundation: http://matthew-brett.github.io/pydagogue/foundation.html
+.. _git foundation: https://matthew-brett.github.io/pydagogue/foundation.html
+.. _deleting master on github: https://matthew-brett.github.io/pydagogue/gh_delete_master.html
+.. _rebase without tears: https://matthew-brett.github.io/pydagogue/rebase_without_tears.html
+.. _resolving a merge: https://schacon.github.io/git/user-manual.html#resolving-a-merge
+.. _ipython git workflow: https://mail.scipy.org/pipermail/ipython-dev/2010-October/006746.html
 
 .. other stuff
-.. _python: http://www.python.org
+.. _python: https://www.python.org
 
 .. |emdash| unicode:: U+02014
+
+.. vim: ft=rst

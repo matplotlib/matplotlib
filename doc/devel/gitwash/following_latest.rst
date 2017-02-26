@@ -1,3 +1,5 @@
+.. highlight:: bash
+
 .. _following-latest:
 
 =============================
@@ -5,12 +7,12 @@
 =============================
 
 These are the instructions if you just want to follow the latest
-*matplotlib* source, but you don't need to do any development for now.
+*Matplotlib* source, but you don't need to do any development for now.
 
 The steps are:
 
 * :ref:`install-git`
-* get local copy of the git repository from github_
+* get local copy of the `Matplotlib github`_ git repository
 * update local copy from time to time
 
 Get the local copy of the code
