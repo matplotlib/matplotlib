@@ -31,11 +31,6 @@ def test_font_priority():
     assert cmap[8729] == 30
 
 
-def test_ttflist_weight():
-    assert all(isinstance(f.weight, six.string_types)
-               for f in fontManager.ttflist)
-
-
 def test_score_weight():
     assert 0 == fontManager.score_weight("regular", "regular")
     assert 0 == fontManager.score_weight("bold", "bold")
