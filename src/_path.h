@@ -902,8 +902,8 @@ bool path_intersects_rectangle(PathIterator &path,
 
     double cx = (rect_x1 + rect_x2) * 0.5, cy = (rect_y1 + rect_y2) * 0.5;
     double w = fabs(rect_x1 - rect_x2), h = fabs(rect_y1 - rect_y2);
-    double xmin = fmin(rect_x1, rect_x2), xmax = fmax(rect_x1, rect_x2);
-    double ymin = fmin(rect_x1, rect_x2), ymax = fmax(rect_x1, rect_x2);
+    double xmin = std::min(rect_x1, rect_x2), xmax = std::max(rect_x1, rect_x2);
+    double ymin = std::min(rect_x1, rect_x2), ymax = std::max(rect_x1, rect_x2);
 
     double x1, y1, x2, y2;
 
