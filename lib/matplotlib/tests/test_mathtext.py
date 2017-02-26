@@ -110,6 +110,7 @@ math_tests = [
     r'$\overline{\omega}^x \frac{1}{2}_0^x$', # github issue #5444
     r'$,$ $.$ $1{,}234{, }567{ , }890$ and $1,234,567,890$', # github issue 5799
     r'$\left(X\right)_{a}^{b}$', # github issue 7615
+    r'$\dfrac{\$100.00}{y}$', # github issue #1888
 ]
 
 digits = "0123456789"
@@ -223,6 +224,8 @@ def test_fontinfo():
         (r'$\rightF$', r'Unknown symbol: \rightF'),
         (r'$\left(\right$', r'Expected a delimiter'),
         (r'$\left($', r'Expected "\right"'),
+        (r'$\dfrac$', r'Expected \dfrac{num}{den}'),
+        (r'$\dfrac{}{}$', r'Expected \dfrac{num}{den}'),
     ],
     ids=[
         'hspace without value',
@@ -243,6 +246,8 @@ def test_fontinfo():
         'right with invalid delimiter',
         'unclosed parentheses with sizing',
         'unclosed parentheses without sizing',
+        'dfrac without parameters',
+        'dfrac with empty parameters',
     ]
 )
 def test_mathtext_exceptions(math, msg):
