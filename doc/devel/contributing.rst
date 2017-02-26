@@ -415,7 +415,7 @@ Developing a new backend
 
 If you are working on a custom backend, the *backend* setting in
 :file:`matplotlibrc` (:ref:`customizing-matplotlib`) supports an
-external backend via the ``module`` directive.  if
+external backend via the ``module`` directive.  If
 :file:`my_backend.py` is a Matplotlib backend in your
 :envvar:`PYTHONPATH`, you can set it on one of several ways
 
@@ -423,15 +423,10 @@ external backend via the ``module`` directive.  if
 
     backend : module://my_backend
 
-
 * with the :envvar:`MPLBACKEND` environment variable::
 
     > export MPLBACKEND="module://my_backend"
     > python simple_plot.py
-
-* from the command shell with the `-d` flag::
-
-    > python simple_plot.py -dmodule://my_backend
 
 * with the use directive in your script::
 
