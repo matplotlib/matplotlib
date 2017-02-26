@@ -1,0 +1,1 @@
+The autofmt_xdate of the figure.Figure class previously formatted only major tick labels but now formats both minor and major tick labels by passing the argument "which = {None, 'minor', 'major', 'both'}".
