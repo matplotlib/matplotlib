@@ -118,7 +118,7 @@ class Axes3D(Axes):
         self.mouse_init()
         self.set_top_view()
 
-        self.axesPatch.set_linewidth(0)
+        self.patch.set_linewidth(0)
         # Calculate the pseudo-data width and height
         pseudo_bbox = self.transLimits.inverted().transform([(0, 0), (1, 1)])
         self._pseudo_w, self._pseudo_h = pseudo_bbox[1] - pseudo_bbox[0]
@@ -245,7 +245,7 @@ class Axes3D(Axes):
 
     def draw(self, renderer):
         # draw the background patch
-        self.axesPatch.draw(renderer)
+        self.patch.draw(renderer)
         self._frameon = False
 
         # first, set the aspect
