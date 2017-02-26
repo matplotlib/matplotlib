@@ -1,3 +1,5 @@
+.. highlight:: bash
+
 .. _set-up-fork:
 
 ==================
@@ -25,7 +27,9 @@ Clone your fork
    git@github.com:your-user-name/matplotlib.git``
 #. Investigate.  Change directory to your new repo: ``cd matplotlib``. Then
    ``git branch -a`` to show you all branches.  You'll get something
-   like::
+   like:
+
+   .. code-block:: none
 
       * master
       remotes/origin/master
@@ -33,9 +37,9 @@ Clone your fork
    This tells you that you are currently on the ``master`` branch, and
    that you also have a ``remote`` connection to ``origin/master``.
    What remote repository is ``remote/origin``? Try ``git remote -v`` to
-   see the URLs for the remote.  They will point to your github_ fork.
+   see the URLs for the remote.  They will point to your github fork.
 
-   Now you want to connect to the upstream `matplotlib github`_ repository, so
+   Now you want to connect to the upstream `Matplotlib github`_ repository, so
    you can merge in changes from trunk.
 
 .. _linking-to-upstream:
@@ -49,41 +53,21 @@ Linking your repository to the upstream repo
    git remote add upstream git://github.com/matplotlib/matplotlib.git
 
 ``upstream`` here is just the arbitrary name we're using to refer to the
-main matplotlib_ repository at `matplotlib github`_.
+main `Matplotlib`_ repository at `Matplotlib github`_.
 
 Note that we've used ``git://`` for the URL rather than ``git@``.  The
-``git://`` URL is read only.  This means that we can't accidentally
+``git://`` URL is read only.  This means we that we can't accidentally
 (or deliberately) write to the upstream repo, and we are only going to
 use it to merge into our own code.
 
-Note this command needs to be run on every clone of the repository
-that you make.  It is not tracked in your personal repository on
-github_.
-
 Just for your own satisfaction, show yourself that you now have a new
-'remote', with ``git remote -v``, giving you something like::
+'remote', with ``git remote -v show``, giving you something like:
 
-   upstream     git://github.com/matplotlib/matplotlib.git (fetch)
-   upstream     git://github.com/matplotlib/matplotlib.git (push)
-   origin       git@github.com:your-user-name/matplotlib.git (fetch)
-   origin       git@github.com:your-user-name/matplotlib.git (push)
+.. code-block:: none
 
-
-Read-only remote / push access to ``matplotlib/matplotlib``
------------------------------------------------------------
-
-If you have commit rights to ``matplotlib/matplotlib`` the ``git://``
-protocol URL will still be read-only (due to it not supporting
-authentication and restrictions on github's side).  To reduce the
-chance of accidentally pushing to upstream, we suggest setting up a
-read-only remote of upstream as above and a read/write remote as ::
-
-   git remote add DANGER git@github.com:matplotlib/matplotlib.git
-
-or ::
-
-  git remote add HOLY_COMMIT_RIGHTS_BATMAN https://github.com/matplotlib/matplotlib.git
-
-
+   upstream	git://github.com/matplotlib/matplotlib.git (fetch)
+   upstream	git://github.com/matplotlib/matplotlib.git (push)
+   origin	git@github.com:your-user-name/matplotlib.git (fetch)
+   origin	git@github.com:your-user-name/matplotlib.git (push)
 
 .. include:: links.inc
