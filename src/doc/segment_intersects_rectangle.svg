@@ -656,9 +656,9 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="3.36"
-     inkscape:cx="462.42703"
-     inkscape:cy="327.529"
+     inkscape:zoom="1.68"
+     inkscape:cx="303.94241"
+     inkscape:cy="571.51541"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="true"
@@ -761,7 +761,7 @@
          x="450"
          y="419.18631"
          style="font-size:13.33333302px;text-align:center;text-anchor:middle"
-         id="tspan7127">Minkowsky difference contains the origin.</tspan></text>
+         id="tspan7127">Minkowski difference contains the origin.</tspan></text>
     <text
        xml:space="preserve"
        style="color:#000000;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:13.33333302px;font-family:'DejaVu Sans';-inkscape-font-specification:'DejaVu Sans';text-indent:0;text-align:center;text-decoration:none;text-decoration-line:none;letter-spacing:0px;word-spacing:0px;text-transform:none;writing-mode:lr-tb;direction:ltr;baseline-shift:baseline;text-anchor:middle;display:inline;overflow:visible;visibility:visible;fill:#000000;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker:none;enable-background:accumulate"
@@ -1353,7 +1353,7 @@
          x="300"
          y="682.51965"
          style="font-size:13.33333302px;text-align:center;text-anchor:middle"
-         id="tspan7127-8">The Minkowsky difference can be constructed as the intersection of three regions.</tspan><tspan
+         id="tspan7127-8">The Minkowski difference can be constructed as the intersection of three regions.</tspan><tspan
          sodipodi:role="line"
          x="302.12238"
          y="699.18634"
