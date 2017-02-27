@@ -64,12 +64,12 @@ install matplotlib using pip_::
     python -m pip install matplotlib
 
 In case Python 2.7 or 3.4 are not installed for all users,
-the Microsoft Visual C++ 2008 (
-`64 bit <https://www.microsoft.com/en-us/download/details.aspx?id=15336>`__
+the Microsoft Visual C++ 2008
+(`64 bit <https://www.microsoft.com/en-us/download/details.aspx?id=15336>`__
 or
 `32 bit <https://www.microsoft.com/en-us/download/details.aspx?id=29>`__
-for Python 2.7) or Microsoft Visual C++ 2010 (
-`64 bit <https://www.microsoft.com/en-us/download/details.aspx?id=14632>`__
+for Python 2.7) or Microsoft Visual C++ 2010
+(`64 bit <https://www.microsoft.com/en-us/download/details.aspx?id=14632>`__
 or
 `32 bit <https://www.microsoft.com/en-us/download/details.aspx?id=5555>`__
 for Python 3.4) redistributable packages need to be installed.
@@ -134,13 +134,15 @@ latest git version :ref:`install-from-git`.
 The standard environment variables `CC`, `CXX`, `PKG_CONFIG` are respected.
 This means you can set them if your toolchain is prefixed. This may be used for
 cross compiling.
+::
 
   export CC=x86_64-pc-linux-gnu-gcc
   export CXX=x86_64-pc-linux-gnu-g++
   export PKG_CONFIG=x86_64-pc-linux-gnu-pkg-config
 
 Once you have satisfied the requirements detailed below (mainly
-python, numpy, libpng and freetype), you can build matplotlib::
+python, numpy, libpng and freetype), you can build matplotlib.
+::
 
   cd matplotlib
   python setup.py build
