@@ -1269,7 +1269,7 @@ class BoundaryNorm(Normalize):
         is mapped to the color with the same index.
 
         If the number of bins doesn't equal *ncolors*, the color is chosen
-        by linear inpolation of the bin number onto color numbers.
+        by linear interpolation of the bin number onto color numbers.
         """
         self.clip = clip
         self.vmin = boundaries[0]
