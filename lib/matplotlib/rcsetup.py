@@ -914,24 +914,40 @@ def _validate_linestyle(ls):
     A validator for all possible line styles, the named ones *and*
     the on-off ink sequences.
     """
-    # Named line style, like u'--' or u'solid'
-    if isinstance(ls, six.text_type):
-        return _validate_named_linestyle(ls)
+    # Look first for a valid named line style, like '--' or 'solid'
+    if isinstance(ls, six.string_types):
+        try:
+            return _validate_named_linestyle(ls)
+        except (UnicodeDecodeError, KeyError):
+            # On Python 2, string-like *ls*, like for example
+            # 'solid'.encode('utf-16'), may raise a unicode error.
+            raise ValueError("the linestyle string {!r} is not a valid "
+                             "string.".format(ls))
 
-    # On-off ink (in points) sequence *of even length*.
+    if isinstance(ls, (bytes, bytearray)):
+        # On Python 2, a string-like *ls* should already have lead to a
+        # successful return or to raising an exception. On Python 3, we have
+        # to manually raise an exception in the case of a byte-like *ls*.
+        # Otherwise, if *ls* is of even-length, it will be passed to the
+        # instance of validate_nseq_float, which will return an absurd on-off
+        # ink sequence...
+        raise ValueError("linestyle {!r} neither looks like an on-off ink "
+                         "sequence nor a valid string.".format(ls))
+
+    # Look for an on-off ink sequence (in points) *of even length*.
     # Offset is set to None.
     try:
         if len(ls) % 2 != 0:
-            # Expecting a sequence of even length
-            raise ValueError
-        return (None, validate_nseq_float()(ls))
-    except (ValueError, TypeError):
-        # TypeError can be raised by wrong types passed to float()
-        # (called inside the instance of validate_nseq_float).
-        pass
+            raise ValueError("the linestyle sequence {!r} is not of even "
+                             "length.".format(ls))
 
-    raise ValueError("linestyle must be a string or " +
-                     "an even-length sequence of floats.")
+        return (None, validate_nseq_float()(ls))
+
+    except (ValueError, TypeError):
+        # TypeError can be raised inside the instance of validate_nseq_float,
+        # by wrong types passed to float(), like NoneType.
+        raise ValueError("linestyle {!r} is not a valid on-off ink "
+                         "sequence.".format(ls))
 
 
 # a map from key -> value, converter
