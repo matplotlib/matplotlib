@@ -622,25 +622,23 @@ class TestTransformFormatter(object):
     def transform2(self, x):
         return 2 * x
 
-    @pytest.fixture()
+    @pytest.fixture
     def empty_fmt(self):
         return mticker.TransformFormatter(self.transform1)
 
-    @pytest.fixture()
-    def fmt(self):
-        fmt = self.empty_fmt()
-        fmt.create_dummy_axis()
-        return fmt
+    @pytest.fixture
+    def fmt(self, empty_fmt):
+        empty_fmt.create_dummy_axis()
+        return empty_fmt
 
-    @pytest.fixture()
-    def loc_fmt(self):
-        fmt = self.fmt()
+    @pytest.fixture
+    def loc_fmt(self, fmt):
         fmt.set_locs([1, 2, 3])
         return fmt
 
     def test_attributes(self, empty_fmt):
         # Using == is the right way to compare bound methods:
-        # http://stackoverflow.com/q/41900639/2988730
+        # https://stackoverflow.com/q/41900639/2988730
         assert empty_fmt.transform == self.transform1
         assert isinstance(empty_fmt.formatter, mticker.ScalarFormatter)
 

@@ -37,38 +37,22 @@ class LinearTransform:
     def __init__(self, in_start=0.0, in_end=None, out_start=0.0, out_end=None):
         """
         Sets up the transformation such that `in_start` gets mapped to
-        `out_start` and `in_end` gets mapped to `out_end`. The following
-        shortcuts apply when only some of the inputs are specified:
+        `out_start` and `in_end` gets mapped to `out_end`.
 
-          - none: no-op
-          - in_start: translation to zero
-          - out_start: translation from zero
-          - in_end: scaling to one (divide input by in_end)
-          - out_end: scaling from one (multiply input by in_end)
-          - in_start, out_start: translation
-          - in_end, out_end: scaling (in_start and out_start zero)
-          - in_start, out_end: in_end=out_end, out_start=0
-          - in_end, out_start: in_start=0, out_end=in_end
+        Configuration arguments set up the mapping and do not impose
+        any restriction on the subsequent arguments to `__call__`. None
+        of the configuration arguments are required.
 
-        Based on the following rules:
+        A missing `in_start` or `out_start` defaults to zero. A missing
+        `in_end` and `out_end` default to `in_start + 1.0` and
+        `out_start + 1.0`, respectively.
 
-          - start missing: set start to zero
-          - both ends are missing: set ranges to 1.0
-          - one end is missing: set it to the other end
+        A simple scaling transformation can be created by only
+        supplying the end arguments. A translation can be obtained by
+        only supplying the start arguments.
         """
-        if in_end is not None:
-            in_scale = in_end - in_start
-        elif out_end is not None:
-            in_scale = out_end - in_start
-        else:
-            in_scale = 1.0
-
-        if out_end is not None:
-            out_scale = out_end - out_start
-        elif in_end is not None:
-            out_scale = in_end - out_start
-        else:
-            out_scale = 1.0
+        in_scale = 1.0 if in_end is None else in_end - in_start
+        out_scale = 1.0 if out_end is None else out_end - out_start
 
         self._scale = out_scale / in_scale
         self._offset = out_start - self._scale * in_start
@@ -114,9 +98,9 @@ ax1.yaxis.set_major_locator(MaxNLocator(integer=True))
 ax1.yaxis.set_major_formatter(
         TransformFormatter(int, StrMethodFormatter('{x:02X}')))
 
-ax1.set_xlabel('Temperature (\u00B0C)')
+ax1.set_xlabel('Temperature (\N{DEGREE SIGN}C)')
 ax1.set_ylabel('Samples (Hex)')
-ax2.set_xlabel('Temperature (\u00B0R)')
+ax2.set_xlabel('Temperature (\N{DEGREE SIGN}R)')
 
 ax1.xaxis.tick_top()
 ax1.xaxis.set_label_position('top')

@@ -1518,7 +1518,7 @@ class TransformFormatter(Formatter):
         transformed values.
 
         The input may be an instance of
-        :class:`matplotlib.ticker.Formatter` or an other callable with
+        :class:`matplotlib.ticker.Formatter` or another callable with
         the same signature.
 
         .. note::
