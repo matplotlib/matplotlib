@@ -2620,6 +2620,7 @@ or tuple of floats
             x, y = center
             theta2 = (theta1 + frac) if counterclock else (theta1 - frac)
             thetam = 2 * math.pi * 0.5 * (theta1 + theta2)
+            thetamd = 360 * 0.5 * (theta1 + theta2)
             x += expl * math.cos(thetam)
             y += expl * math.sin(thetam)
 
@@ -2643,11 +2644,15 @@ or tuple of floats
             xt = x + labeldistance * radius * math.cos(thetam)
             yt = y + labeldistance * radius * math.sin(thetam)
             label_alignment = xt > 0 and 'left' or 'right'
+            label_rotation = 'horizontal'
+            if labelrotate:
+                label_rotation = thetamd + (0 if xt > 0 else 180)
 
             t = self.text(xt, yt, label,
                           size=rcParams['xtick.labelsize'],
                           horizontalalignment=label_alignment,
                           verticalalignment='center',
+                          rotation=label_rotation,
                           **textprops)
 
             texts.append(t)
