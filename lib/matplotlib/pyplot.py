@@ -3208,7 +3208,7 @@ def phase_spectrum(x, Fs=None, Fc=None, window=None, pad_to=None, sides=None,
 def pie(x, explode=None, labels=None, colors=None, autopct=None,
         pctdistance=0.6, shadow=False, labeldistance=1.1, startangle=None,
         radius=None, counterclock=True, wedgeprops=None, textprops=None,
-        center=(0, 0), frame=False, hold=None, data=None):
+        center=(0, 0), frame=False, labelrotate=False, hold=None, data=None):
     ax = gca()
     # Deprecated: allow callers to override the hold state
     # by passing hold=True|False
@@ -3225,7 +3225,7 @@ def pie(x, explode=None, labels=None, colors=None, autopct=None,
                      labeldistance=labeldistance, startangle=startangle,
                      radius=radius, counterclock=counterclock,
                      wedgeprops=wedgeprops, textprops=textprops, center=center,
-                     frame=frame, data=data)
+                     frame=frame, labelrotate=labelrotate, data=data)
     finally:
         ax._hold = washold
 

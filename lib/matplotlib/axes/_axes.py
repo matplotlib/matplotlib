@@ -2475,7 +2475,7 @@ or tuple of floats
             autopct=None, pctdistance=0.6, shadow=False, labeldistance=1.1,
             startangle=None, radius=None, counterclock=True,
             wedgeprops=None, textprops=None, center=(0, 0),
-            frame=False):
+            frame=False, labelrotate=False):
         r"""
         Plot a pie chart.
 
@@ -2541,6 +2541,9 @@ or tuple of floats
 
           *frame*: [ *False* | *True* ]
             Plot axes frame with the chart.
+
+		  *labelrotate*: [ *False* | *True* ]
+			Rotate each label to the angle of the corresponding slice.
 
         The pie chart will probably look best if the figure and axes are
         square, or the Axes aspect is equal.  e.g.::
