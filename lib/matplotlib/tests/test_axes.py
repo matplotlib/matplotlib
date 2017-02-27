@@ -2462,7 +2462,7 @@ def test_errobar_nonefmt():
     plotline, _, barlines = plt.errorbar(x, y, xerr=1, yerr=1, fmt='none')
     assert plotline is None
     for errbar in barlines:
-        assert np.any(errbar.get_color() != [0, 0, 0, 0])
+        assert np.all(errbar.get_color() == mcolors.to_rgba('C0'))
 
 
 @image_comparison(baseline_images=['hist_stacked_stepfilled',
