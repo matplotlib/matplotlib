@@ -2454,6 +2454,7 @@ def test_errorbar_limits():
     ax.set_title('Errorbar upper and lower limits')
 
 
+@cleanup
 def test_errobar_nonefmt():
     # Check that passing 'none' as a format still plots errorbars
     x = np.arange(5)
