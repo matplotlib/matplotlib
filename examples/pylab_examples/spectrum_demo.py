@@ -25,19 +25,19 @@ cnse = cnse[:len(t)]
 
 s = 0.1*np.sin(2*np.pi*t) + cnse  # the signal
 
-fig, axx = plt.subplots(3, 2)
+fig, axes = plt.subplots(nrows=3, ncols=2)
 
 # plot time signal:
-axx[0, 0].plot(t, s)
-axx[0, 0].set_xlabel("Time $t$")
-axx[0, 0].set_ylabel("Signal $s(t)$")
+axes[0, 0].plot(t, s)
+axes[0, 0].set_xlabel("Time")
+axes[0, 0].set_ylabel("Amplitude")
 
 # plot different spectrum types:
-axx[1, 0].magnitude_spectrum(s, Fs=Fs)
-axx[2, 0].phase_spectrum(s, Fs=Fs)
-axx[0, 1].remove()  # don't display empty ax
-axx[1, 1].magnitude_spectrum(s, Fs=Fs, scale='dB')
-axx[2, 1].angle_spectrum(s, Fs=Fs)
+axes[1, 0].magnitude_spectrum(s, Fs=Fs)
+axes[1, 1].magnitude_spectrum(s, Fs=Fs, scale='dB')
+axes[2, 0].phase_spectrum(s, Fs=Fs)
+axes[2, 1].angle_spectrum(s, Fs=Fs)
+axes[0, 1].remove()  # don't display empty ax
 
 fig.tight_layout()
 plt.show()
