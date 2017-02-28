@@ -3,8 +3,8 @@
 Multicolored lines
 ==================
 
-This example shows how to make a multi-colored line. In this example, we color
-the line based on its derivate.
+This example shows how to make a multi-colored line. In this example, the line
+is colored based on its derivative.
 '''
 
 import numpy as np
@@ -22,6 +22,7 @@ dydx = np.cos(0.5 * (x[:-1] + x[1:]))  # first derivative
 points = np.array([x, y]).T.reshape(-1, 1, 2)
 segments = np.concatenate([points[:-1], points[1:]], axis=1)
 
+# Create a norm to map from data points to colors
 norm = plt.Normalize(dydx.min(), dydx.max())
 lc = LineCollection(segments, cmap='viridis', norm=norm)
 # Set the values used for colormapping
