@@ -483,11 +483,11 @@ def figure(num=None,  # autoincrement if None, else integer from 1-N
     Notes
     -----
     If you are creating many figures, make sure you explicitly call "close"
-    on the figures you are not using, because this will enable pylab
+    on the figures you are not using, because this will enable `pylab`
     to properly clean up the memory.
 
-    rcParams defines the default values, which can be modified in the
-    matplotlibrc file
+    :data:`rcParam<matplotlib.rcParams>` defines the default values,
+    which can be modified in the ``matplotlibrc`` file.
 
     """
 
@@ -894,10 +894,11 @@ def axes(*args, **kwargs):
                                  :meth:`~matplotlib.axes.Axes.set_aspect`.
     =========   ==============   ==============================================
 
-    Examples:
+    Examples
+    --------
 
-    * :file:`examples/pylab_examples/axes_demo.py` places custom axes.
-    * :file:`examples/pylab_examples/shared_axis_demo.py` uses
+    * :file:`mpl_examples/pylab_examples/axes_demo.py` places custom axes.
+    * :file:`mpl_examples/pylab_examples/shared_axis_demo.py` uses
       *sharex* and *sharey*.
 
     """
@@ -1037,7 +1038,7 @@ def subplot(*args, **kwargs):
             For additional information on :func:`axes` and
             :func:`subplot` keyword arguments.
 
-        :file:`examples/pie_and_polar_charts/polar_scatter_demo.py`
+        :file:`mpl_examples/pie_and_polar_charts/polar_scatter_demo.py`
             For an example
 
     **Example:**
@@ -1045,9 +1046,9 @@ def subplot(*args, **kwargs):
     .. plot:: mpl_examples/subplots_axes_and_figures/subplot_demo.py
 
     """
-    # if subplot called without arguments, create subplot(1,1,1)
-    if len(args)==0:
-        args=(1,1,1)
+    # if subplot called without arguments, create subplot(1, 1, 1)
+    if len(args) == 0:
+        args=(1, 1, 1)
 
     # This check was added because it is very easy to type
     # subplot(1, 2, False) when subplots(1, 2, False) was intended
@@ -1055,7 +1056,7 @@ def subplot(*args, **kwargs):
     # ever occur, but mysterious behavior can result because what was
     # intended to be the sharex argument is instead treated as a
     # subplot index for subplot()
-    if len(args) >= 3 and isinstance(args[2], bool) :
+    if len(args) >= 3 and isinstance(args[2], bool):
         warnings.warn("The subplot index argument to subplot() appears"
                       " to be a boolean. Did you intend to use subplots()?")
 
@@ -1064,10 +1065,12 @@ def subplot(*args, **kwargs):
     bbox = a.bbox
     byebye = []
     for other in fig.axes:
-        if other==a: continue
+        if other == a:
+            continue
         if bbox.fully_overlaps(other.bbox):
             byebye.append(other)
-    for ax in byebye: delaxes(ax)
+    for ax in byebye:
+        delaxes(ax)
 
     return a
 
@@ -1240,11 +1243,11 @@ def twinx(ax=None):
 
     .. seealso::
 
-       :file:`examples/api_examples/two_scales.py`
+       :file:`mpl_examples/api_examples/two_scales.py`
           For an example
     """
     if ax is None:
-        ax=gca()
+        ax = gca()
     ax1 = ax.twinx()
     return ax1
 
@@ -1257,7 +1260,7 @@ def twiny(ax=None):
     returned.
     """
     if ax is None:
-        ax=gca()
+        ax = gca()
     ax1 = ax.twiny()
     return ax1
 
@@ -1294,7 +1297,7 @@ def subplot_tool(targetfig=None):
 
     A :class:`matplotlib.widgets.SubplotTool` instance is returned.
     """
-    tbar = rcParams['toolbar'] # turn off the navigation toolbar for the toolfig
+    tbar = rcParams['toolbar']  # turn off the navigation toolbar for the toolfig
     rcParams['toolbar'] = 'None'
     if targetfig is None:
         manager = get_current_fig_manager()
@@ -1302,12 +1305,14 @@ def subplot_tool(targetfig=None):
     else:
         # find the manager for this figure
         for manager in _pylab_helpers.Gcf._activeQue:
-            if manager.canvas.figure==targetfig: break
-        else: raise RuntimeError('Could not find manager for targetfig')
+            if manager.canvas.figure == targetfig:
+                break
+        else:
+            raise RuntimeError('Could not find manager for targetfig')
 
-    toolfig = figure(figsize=(6,3))
+    toolfig = figure(figsize=(6, 3))
     toolfig.subplots_adjust(top=0.9)
-    ret =  SubplotTool(targetfig, toolfig)
+    ret = SubplotTool(targetfig, toolfig)
     rcParams['toolbar'] = tbar
     _pylab_helpers.Gcf.set_active(manager)  # restore the current figure
     return ret
@@ -1619,16 +1624,17 @@ def xticks(*args, **kwargs):
     """
     ax = gca()
 
-    if len(args)==0:
+    if len(args) == 0:
         locs = ax.get_xticks()
         labels = ax.get_xticklabels()
-    elif len(args)==1:
+    elif len(args) == 1:
         locs = ax.set_xticks(args[0])
         labels = ax.get_xticklabels()
-    elif len(args)==2:
+    elif len(args) == 2:
         locs = ax.set_xticks(args[0])
         labels = ax.set_xticklabels(args[1], **kwargs)
-    else: raise TypeError('Illegal number of arguments to xticks')
+    else:
+        raise TypeError('Illegal number of arguments to xticks')
     if len(kwargs):
         for l in labels:
             l.update(kwargs)
@@ -1659,24 +1665,24 @@ def yticks(*args, **kwargs):
     """
     ax = gca()
 
-    if len(args)==0:
+    if len(args) == 0:
         locs = ax.get_yticks()
         labels = ax.get_yticklabels()
-    elif len(args)==1:
+    elif len(args) == 1:
         locs = ax.set_yticks(args[0])
         labels = ax.get_yticklabels()
-    elif len(args)==2:
+    elif len(args) == 2:
         locs = ax.set_yticks(args[0])
         labels = ax.set_yticklabels(args[1], **kwargs)
-    else: raise TypeError('Illegal number of arguments to yticks')
+    else:
+        raise TypeError('Illegal number of arguments to yticks')
     if len(kwargs):
         for l in labels:
             l.update(kwargs)
 
-
-    return ( locs,
-             silent_list('Text yticklabel', labels)
-             )
+    return (locs,
+            silent_list('Text yticklabel', labels)
+            )
 
 
 def minorticks_on():
@@ -1730,14 +1736,14 @@ def rgrids(*args, **kwargs):
     ax = gca()
     if not isinstance(ax, PolarAxes):
         raise RuntimeError('rgrids only defined for polar axes')
-    if len(args)==0:
+    if len(args) == 0:
         lines = ax.yaxis.get_gridlines()
         labels = ax.yaxis.get_ticklabels()
     else:
         lines, labels = ax.set_rgrids(*args, **kwargs)
 
-    return ( silent_list('Line2D rgridline', lines),
-             silent_list('Text rgridlabel', labels) )
+    return (silent_list('Line2D rgridline', lines),
+            silent_list('Text rgridlabel', labels))
 
 
 def thetagrids(*args, **kwargs):
@@ -1790,7 +1796,7 @@ def thetagrids(*args, **kwargs):
     ax = gca()
     if not isinstance(ax, PolarAxes):
         raise RuntimeError('rgrids only defined for polar axes')
-    if len(args)==0:
+    if len(args) == 0:
         lines = ax.xaxis.get_ticklines()
         labels = ax.xaxis.get_ticklabels()
     else:
@@ -2172,6 +2178,7 @@ def _setup_pyplot_info_docstrings():
 
     plotting.__doc__ = '\n'.join(lines)
 
+
 ## Plotting part 1: manually generated functions and wrappers ##
 
 def colorbar(mappable=None, cax=None, ax=None, **kw):
@@ -2185,7 +2192,7 @@ def colorbar(mappable=None, cax=None, ax=None, **kw):
     if ax is None:
         ax = gca()
 
-    ret = gcf().colorbar(mappable, cax = cax, ax=ax, **kw)
+    ret = gcf().colorbar(mappable, cax=cax, ax=ax, **kw)
     return ret
 colorbar.__doc__ = matplotlib.colorbar.colorbar_doc
 
@@ -2235,7 +2242,6 @@ def set_cmap(cmap):
         im.set_cmap(cmap)
 
 
-
 @docstring.copy_dedent(_imread)
 def imread(*args, **kwargs):
     return _imread(*args, **kwargs)
@@ -2279,7 +2285,7 @@ def matshow(A, fignum=None, **kw):
     else:
         # Extract actual aspect ratio of array and make appropriately sized figure
         fig = figure(fignum, figsize=figaspect(A))
-        ax  = fig.add_axes([0.15, 0.09, 0.775, 0.775])
+        ax = fig.add_axes([0.15, 0.09, 0.775, 0.775])
 
     im = ax.matshow(A, **kw)
     sci(im)
@@ -2369,7 +2375,7 @@ def plotfile(fname, cols=(0,), plotfuncs=None,
     else:
         fig = gcf()
 
-    if len(cols)<1:
+    if len(cols) < 1:
         raise ValueError('must have at least one column of data')
 
     if plotfuncs is None:
@@ -2390,8 +2396,8 @@ def plotfile(fname, cols=(0,), plotfuncs=None,
     xname, x = getname_val(cols[0])
     ynamelist = []
 
-    if len(cols)==1:
-        ax1 = fig.add_subplot(1,1,1)
+    if len(cols) == 1:
+        ax1 = fig.add_subplot(1, 1, 1)
         funcname = plotfuncs.get(cols[0], 'plot')
         func = getattr(ax1, funcname)
         func(x, **kwargs)
@@ -2400,12 +2406,12 @@ def plotfile(fname, cols=(0,), plotfuncs=None,
         N = len(cols)
         for i in range(1,N):
             if subplots:
-                if i==1:
-                    ax = ax1 = fig.add_subplot(N-1,1,i)
+                if i == 1:
+                    ax = ax1 = fig.add_subplot(N-1, 1, i)
                 else:
-                    ax = fig.add_subplot(N-1,1,i, sharex=ax1)
-            elif i==1:
-                ax = fig.add_subplot(1,1,1)
+                    ax = fig.add_subplot(N-1, 1, i, sharex=ax1)
+            elif i == 1:
+                ax = fig.add_subplot(1, 1, 1)
 
             yname, y = getname_val(cols[i])
             ynamelist.append(yname)
@@ -2424,14 +2430,14 @@ def plotfile(fname, cols=(0,), plotfuncs=None,
     if not subplots:
         ax.legend(ynamelist, loc='best')
 
-    if xname=='date':
+    if xname == 'date':
         fig.autofmt_xdate()
 
 
 def _autogen_docstring(base):
     """Autogenerated wrappers will get their docstring from a base function
     with an addendum."""
-    #msg = "\n\nAdditional kwargs: hold = [True|False] overrides default hold state"
+    # msg = "\n\nAdditional kwargs: hold = [True|False] overrides default hold state"
     msg = ''
     addendum = docstring.Appender(msg, '\n\n')
     return lambda func: addendum(docstring.copy_dedent(base)(func))
@@ -2785,7 +2791,8 @@ def contour(*args, **kwargs):
         ret = ax.contour(*args, **kwargs)
     finally:
         ax._hold = washold
-    if ret._A is not None: sci(ret)
+    if ret._A is not None:
+        sci(ret)
     return ret
 
 # This function was autogenerated by boilerplate.py.  Do not edit as
@@ -2806,7 +2813,8 @@ def contourf(*args, **kwargs):
         ret = ax.contourf(*args, **kwargs)
     finally:
         ax._hold = washold
-    if ret._A is not None: sci(ret)
+    if ret._A is not None:
+        sci(ret)
     return ret
 
 # This function was autogenerated by boilerplate.py.  Do not edit as
@@ -3551,7 +3559,8 @@ def tricontour(*args, **kwargs):
         ret = ax.tricontour(*args, **kwargs)
     finally:
         ax._hold = washold
-    if ret._A is not None: sci(ret)
+    if ret._A is not None:
+        sci(ret)
     return ret
 
 # This function was autogenerated by boilerplate.py.  Do not edit as
@@ -3572,7 +3581,8 @@ def tricontourf(*args, **kwargs):
         ret = ax.tricontourf(*args, **kwargs)
     finally:
         ax._hold = washold
-    if ret._A is not None: sci(ret)
+    if ret._A is not None:
+        sci(ret)
     return ret
 
 # This function was autogenerated by boilerplate.py.  Do not edit as

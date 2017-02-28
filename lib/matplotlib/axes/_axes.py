@@ -1108,7 +1108,7 @@ or tuple of floats
 
         *orientation* : [ 'horizonal' | 'vertical' ]
           'horizonal' : the lines will be vertical and arranged in rows
-          "vertical' : lines will be horizontal and arranged in columns
+          'vertical' : lines will be horizontal and arranged in columns
 
         *lineoffsets* :
           A float or array-like containing floats.
@@ -1503,17 +1503,17 @@ or tuple of floats
         Notable keyword arguments:
 
           *basex*/*basey*: scalar > 1
-            Base of the *x*/*y* logarithm
+            Base of the *x*/*y* logarithm.
 
           *subsx*/*subsy*: [ *None* | sequence ]
             The location of the minor *x*/*y* ticks; *None* defaults
             to autosubs, which depend on the number of decades in the
             plot; see :meth:`matplotlib.axes.Axes.set_xscale` /
-            :meth:`matplotlib.axes.Axes.set_yscale` for details
+            :meth:`matplotlib.axes.Axes.set_yscale` for details.
 
           *nonposx*/*nonposy*: ['mask' | 'clip' ]
             Non-positive values in *x* or *y* can be masked as
-            invalid, or clipped to a very small positive number
+            invalid, or clipped to a very small positive number.
 
         The remaining valid kwargs are
         :class:`~matplotlib.lines.Line2D` properties:
@@ -1571,18 +1571,19 @@ or tuple of floats
 
         Returns
         -------
-        `~matplotlib.pyplot.plot`
-            Log-scaled plot on the *x* axis.
+        `~matplotlib.lines.Line2D`
+            Line instance of the plot.
 
         Other Parameters
         ----------------
+        The remaining valid kwargs are
         :class:`~matplotlib.lines.Line2D` properties:
 
         %(Line2D)s
 
         See Also
         --------
-        loglog : For example code and figure.
+        :meth:`loglog` : For example code and figure.
 
         Notes
         -----
@@ -1608,21 +1609,23 @@ or tuple of floats
     # @_preprocess_data() # let 'plot' do the unpacking..
     @docstring.dedent_interpd
     def semilogy(self, *args, **kwargs):
-        r"""Make a plot with log scaling on the `y` axis.
+        r"""
+        Make a plot with log scaling on the *y* axis.
 
         Parameters
         ----------
-        basey : scalar > 1
-            Base of the `y` logarithm.
+        basey : float, optional
+            Base of the *y* logarithm. The scalar should be larger
+            than 1.
 
-        subsy : None or iterable
-            The location of the minor yticks. None defaults to
+        subsy : array_like, optional
+            The location of the minor yticks; *None* defaults to
             autosubs, which depend on the number of decades in the
-            plot. See :meth:`~matplotlib.axes.Axes.set_yscale` for
+            plot; see :meth:`~matplotlib.axes.Axes.set_xscale` for
             details.
 
-        nonposy : {'mask' | 'clip'} str
-            Non-positive values in `y` can be masked as
+        nonposy : string, optional, {'mask', 'clip'}
+            Non-positive values in *y* can be masked as
             invalid, or clipped to a very small positive number.
 
         Returns
@@ -1632,15 +1635,20 @@ or tuple of floats
 
         Other Parameters
         ----------------
-        kwargs : `~matplotlib.lines.Line2D` properties,
-        `~matplotlib.pylab.plot` and
-        `matplotlib.axes.Axes.set_yscale` arguments.
+        The remaining valid kwargs are
+        :class:`~matplotlib.lines.Line2D` properties:
 
         %(Line2D)s
 
         See also
         --------
         :meth:`loglog`: For example code and figure.
+
+        Notes
+        -----
+        This function supports all the keyword arguments of
+        :func:`~matplotlib.pyplot.plot` and
+        :meth:`matplotlib.axes.Axes.set_yscale`.
 
         """
         if not self._hold:
@@ -1688,8 +1696,8 @@ or tuple of floats
         -------
         (lags, c, line, b) : where:
 
-          - `lags` are a length 2`maxlags+1 lag vector.
-          - `c` is the 2`maxlags+1 auto correlation vectorI
+          - `lags` are a length 2`maxlags`+1 lag vector.
+          - `c` is the 2`maxlags`+1 auto correlation vector.
           - `line` is a `~matplotlib.lines.Line2D` instance returned by
             `plot`.
           - `b` is the x-axis.
@@ -4525,7 +4533,8 @@ or tuple of floats
         Add an arrow to the axes.
 
         Draws arrow on specified axis from (`x`, `y`) to (`x` + `dx`,
-        `y` + `dy`). Uses FancyArrow patch to construct the arrow.
+        `y` + `dy`).
+        Uses :class:`~matplotlib.patches.FancyArrow` patch to construct the arrow.
 
         Parameters
         ----------
@@ -4541,12 +4550,12 @@ or tuple of floats
         Returns
         -------
         a : FancyArrow
-            patches.FancyArrow object
+            :class:`matplotlib.patches.FancyArrow` object
 
         Other Parameters
         -----------------
-        Optional kwargs (inherited from FancyArrow patch) control the arrow
-        construction and properties:
+        Optional kwargs (inherited from :class:`~matplotlib.patches.FancyArrow` patch)
+        control the arrow construction and properties:
 
         %(FancyArrow)s
 
@@ -5170,8 +5179,8 @@ or tuple of floats
         if im.get_clip_path() is None:
             # image does not already have clipping set, clip to axes patch
             im.set_clip_path(self.patch)
-        #if norm is None and shape is None:
-        #    im.set_clim(vmin, vmax)
+        # if norm is None and shape is None:
+        #     im.set_clim(vmin, vmax)
         if vmin is not None or vmax is not None:
             im.set_clim(vmin, vmax)
         else:
@@ -6182,7 +6191,7 @@ or tuple of floats
         if weights is not None:
             w = _normalize_input(weights, 'weights')
         else:
-            w = [None]*nx
+            w = [None] * nx
 
         if len(w) != nx:
             raise ValueError('weights should have the same shape as x')
@@ -6434,10 +6443,10 @@ or tuple of floats
 
         Parameters
         ----------
-        x, y: array_like, shape (n, )
+        x, y : array_like, shape (n, )
             Input values
 
-        bins: [None | int | [int, int] | array_like | [array, array]]
+        bins : [None | int | [int, int] | array_like | [array, array]]
 
             The bin specification:
 
@@ -6639,7 +6648,7 @@ or tuple of floats
         if logi == 0:
             logi = .1
         step = 10 * logi
-        #print vmin, vmax, step, intv, math.floor(vmin), math.ceil(vmax)+1
+        # print(vmin, vmax, step, intv, math.floor(vmin), math.ceil(vmax)+1)
         ticks = np.arange(math.floor(vmin), math.ceil(vmax) + 1, step)
         self.set_yticks(ticks)
 
@@ -6706,7 +6715,7 @@ or tuple of floats
         Returns
         -------
         Pxy : 1-D array
-            The values for the cross spectrum `P_{xy}` before scaling
+            The values for the cross spectrum :math:`P_{xy}` before scaling
             (complex valued)
 
         freqs : 1-D array
@@ -6719,7 +6728,7 @@ or tuple of floats
         Notes
         -----
         For plotting, the power is plotted as
-        :math:`10\\log_{10}(P_{xy})` for decibels, though `P_{xy}` itself
+        :math:`10\\log_{10}(P_{xy})` for decibels, though :math:`P_{xy}` itself
         is returned.
 
         References
@@ -7304,6 +7313,7 @@ or tuple of floats
             axes.
 
             If None, default to rc ``image.aspect`` value.
+
 
         Two plotting styles are available: image or marker. Both
         are available for full arrays, but only the marker style
