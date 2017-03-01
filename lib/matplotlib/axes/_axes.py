@@ -1106,9 +1106,9 @@ or tuple of floats
         arrival times of people to a business on each day of the month or the
         date of hurricanes each year of the last century.
 
-        *orientation* : [ 'horizonal' | 'vertical' ]
-          'horizonal' : the lines will be vertical and arranged in rows
-          "vertical' : lines will be horizontal and arranged in columns
+        *orientation* : [ 'horizontal' | 'vertical' ]
+          'horizontal' : the lines will be vertical and arranged in rows
+          'vertical' : lines will be horizontal and arranged in columns
 
         *lineoffsets* :
           A float or array-like containing floats.
