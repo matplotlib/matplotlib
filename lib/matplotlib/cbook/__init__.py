@@ -2281,9 +2281,7 @@ def safe_first_element(obj):
 
 def sanitize_sequence(data):
     """Converts dictview object to list"""
-    if six.PY3 and isinstance(data, collections.abc.MappingView):
-        return list(data)
-    return data
+    return list(data) if isinstance(data, collections.MappingView) else data
 
 
 def normalize_kwargs(kw, alias_mapping=None, required=(), forbidden=(),
