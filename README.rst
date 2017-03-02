@@ -17,7 +17,7 @@
    :alt: Join the chat at https://gitter.im/matplotlib/matplotlib
    :target: https://gitter.im/matplotlib/matplotlib?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge
 
-.. |Depsy| image::
+.. |Depsy| image:: http://depsy.org/api/package/pypi/matplotlib/badge.svg
 .. _Depsy: http://depsy.org/package/python/matplotlib
 
 ##########
