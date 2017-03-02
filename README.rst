@@ -1,4 +1,4 @@
-|Travis|_ |AppVeyor|_ |Codecov|_ |Python35|_ |PyPi|_ |Gitter|_ |Depsy|_
+|Travis|_ |AppVeyor|_ |Codecov|_ |PyPi|_ |Gitter|_ |Depsy|_
 
 
 .. |Travis| image:: https://api.travis-ci.org/matplotlib/matplotlib.png?branch=master
@@ -15,7 +15,7 @@
 
 .. |Gitter| image:: https://badges.gitter.im/Join%20Chat.svg
    :alt: Join the chat at https://gitter.im/matplotlib/matplotlib
-   :target: https://gitter.im/matplotlib/matplotlib?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge
+.. _Gitter: https://gitter.im/matplotlib/matplotlib?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge
 
 .. |Depsy| image:: http://depsy.org/api/package/pypi/matplotlib/badge.svg
 .. _Depsy: http://depsy.org/package/python/matplotlib
