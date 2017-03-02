@@ -508,9 +508,7 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
         # actually render the image.
         gc = renderer.new_gc()
         self._set_gc_clip(gc)
-        # If the alpha channel is not a sclar, just use full opacity for the artist
-        alpha = self.get_alpha()
-        gc.set_alpha(alpha if np.isscalar(alpha) else 1.0)
+        gc.set_alpha(self.get_alpha())
         gc.set_url(self.get_url())
         gc.set_gid(self.get_gid())
 
