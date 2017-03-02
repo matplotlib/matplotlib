@@ -1,3 +1,21 @@
+|Travis|_ |PyPi|_ |Gitter|_ |Depsy|_
+
+.. image:: https://img.shields.io/travis/rust-lang/rust.svg
+   :alt: Travis build at https://travis-ci.org/matplotlib/matplotlib
+   :target: https://travis-ci.org/matplotlib/matplotlib
+
+.. image:: https://badge.fury.io/py/matplotlib.svg
+   :alt: Pypi package at https://pypi.python.org/pypi/matplotlib/2.0.0
+   :target: https://badge.fury.io/py/matplotlib
+
+.. image:: https://badges.gitter.im/Join%20Chat.svg
+   :alt: Join the chat at https://gitter.im/matplotlib/matplotlib
+   :target: https://gitter.im/matplotlib/matplotlib?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge
+
+.. image:: http://depsy.org/api/package/pypi/matplotlib/badge.svg
+   :alt: Depsy http://depsy.org/package/python/matplotlib
+   :target: http://depsy.org/package/python/matplotlib
+
 ##########
 matplotlib
 ##########
@@ -38,14 +56,6 @@ matplotlib's communication channels include active mailing lists:
 * `Users <https://mail.python.org/mailman/listinfo/matplotlib-users>`_ mailing list: matplotlib-users@python.org
 * `Announcement  <https://mail.python.org/mailman/listinfo/matplotlib-announce>`_ mailing list: matplotlib-announce@python.org
 * `Development <https://mail.python.org/mailman/listinfo/matplotlib-devel>`_ mailing list: matplotlib-devel@python.org
-
-
-The first is a good starting point for general questions and discussions.
-
-
-.. image:: https://badges.gitter.im/Join%20Chat.svg
-   :alt: Join the chat at https://gitter.im/matplotlib/matplotlib
-   :target: https://gitter.im/matplotlib/matplotlib?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge
 
 Contribute
 ==========
