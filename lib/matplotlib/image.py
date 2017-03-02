@@ -237,6 +237,7 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
         self.axes = ax
 
         self._imcache = None
+        self._array_alpha = None
 
         self.update(kwargs)
 
@@ -260,7 +261,11 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
 
         ACCEPTS: float
         """
-        martist.Artist.set_alpha(self, alpha)
+        if np.isscalar(alpha):
+            martist.Artist.set_alpha(self, alpha)
+        else:
+            self._array_alpha = alpha
+            martist.Artist.set_alpha(self, 1.0)
         self._imcache = None
 
     def changed(self):
@@ -409,6 +414,10 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
                 if alpha is None:
                     alpha = 1.0
 
+            # Apply the array alpha if provided
+            if self._array_alpha is not None:
+                A[..., 3] *= self._array_alpha
+
             _image.resample(
                 A, output, t, _interpd_[self.get_interpolation()],
                 self.get_resample(), alpha,
@@ -419,13 +428,17 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
                 # colormapping works correctly
                 hid_output = output
                 output = np.ma.masked_array(
-                    hid_output[..., 0], hid_output[..., 3] < 0.5)
+                    hid_output[..., 0], hid_output[..., 3] == 0)
                 # relabel under data
                 output[hid_output[..., 1] > .5] = -1
                 # relabel over data
                 output[hid_output[..., 2] > .5] = 2
 
             output = self.to_rgba(output, bytes=True, norm=False)
+
+            # Restore the alpha channel
+            if created_rgba_mask:
+                output[..., 3] = (output[..., 3] * hid_output[..., 3]).astype(output.dtype)
 
             # Apply alpha *after* if the input was greyscale without a mask
             if A.ndim == 2 or created_rgba_mask:
@@ -495,7 +508,9 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
         # actually render the image.
         gc = renderer.new_gc()
         self._set_gc_clip(gc)
-        gc.set_alpha(self.get_alpha())
+        # If the alpha channel is not a sclar, just use full opacity for the artist
+        alpha = self.get_alpha()
+        gc.set_alpha(alpha if np.isscalar(alpha) else 1.0)
         gc.set_url(self.get_url())
         gc.set_gid(self.get_gid())
 
