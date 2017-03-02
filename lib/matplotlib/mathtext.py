@@ -2224,6 +2224,10 @@ class Parser(object):
     The grammar is based directly on that in TeX, though it cuts a few
     corners.
     """
+
+    _math_style_dict = dict(displaystyle=0, textstyle=1,
+                            scriptstyle=2, scriptscriptstyle=3)
+
     _binary_operators = set('''
       + * -
       \\pm             \\sqcap                   \\rhd
@@ -3052,7 +3056,7 @@ class Parser(object):
         rule = float(rule)
 
         # If style != displaystyle == 0, shrink the num and den
-        if style:
+        if style != self._math_style_dict['displaystyle']:
             num.shrink()
             den.shrink()
         cnum = HCentered([num])
@@ -3101,7 +3105,8 @@ class Parser(object):
             state.font, state.fontsize, state.dpi)
         num, den = toks[0]
 
-        return self._genfrac('', '', thickness, 1, num, den)
+        return self._genfrac('', '', thickness,
+                             self._math_style_dict['textstyle'], num, den)
 
     def dfrac(self, s, loc, toks):
         assert(len(toks) == 1)
@@ -3112,21 +3117,24 @@ class Parser(object):
             state.font, state.fontsize, state.dpi)
         num, den = toks[0]
 
-        return self._genfrac('', '', thickness, 0, num, den)
+        return self._genfrac('', '', thickness,
+                             self._math_style_dict['displaystyle'], num, den)
 
     def stackrel(self, s, loc, toks):
         assert(len(toks) == 1)
         assert(len(toks[0]) == 2)
         num, den = toks[0]
 
-        return self._genfrac('', '', 0.0, 1, num, den)
+        return self._genfrac('', '', 0.0,
+                             self._math_style_dict['textstyle'], num, den)
 
     def binom(self, s, loc, toks):
         assert(len(toks) == 1)
         assert(len(toks[0]) == 2)
         num, den = toks[0]
 
-        return self._genfrac('(', ')', 0.0, 1, num, den)
+        return self._genfrac('(', ')', 0.0,
+                             self._math_style_dict['textstyle'], num, den)
 
     def sqrt(self, s, loc, toks):
         #~ print "sqrt", toks
