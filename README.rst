@@ -1,3 +1,25 @@
+|Travis|_ |AppVeyor|_ |Codecov|_ |PyPi|_ |Gitter|_ |Depsy|_
+
+
+.. |Travis| image:: https://travis-ci.org/matplotlib/matplotlib.svg?branch=master
+.. _Travis: https://travis-ci.org/matplotlib/matplotlib
+
+.. |AppVeyor| image:: https://ci.appveyor.com/api/projects/status/github/matplotlib/matplotlib?branch=master&svg=true
+.. _AppVeyor: https://ci.appveyor.com/project/matplotlib/matplotlib
+
+.. |Codecov| image:: https://codecov.io/github/matplotlib/matplotlib/badge.svg?branch=master&service=github
+.. _Codecov: https://codecov.io/github/matplotlib/matplotlib?branch=master
+
+.. |PyPi| image:: https://badge.fury.io/py/matplotlib.svg
+.. _PyPi: https://badge.fury.io/py/matplotlib
+
+.. |Gitter| image:: https://badges.gitter.im/Join%20Chat.svg
+   :alt: Join the chat at https://gitter.im/matplotlib/matplotlib
+.. _Gitter: https://gitter.im/matplotlib/matplotlib?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge
+
+.. |Depsy| image:: http://depsy.org/api/package/pypi/matplotlib/badge.svg
+.. _Depsy: http://depsy.org/package/python/matplotlib
+
 ##########
 matplotlib
 ##########
@@ -44,9 +66,7 @@ matplotlib's communication channels include active mailing lists:
 The first is a good starting point for general questions and discussions.
 
 
-.. image:: https://badges.gitter.im/Join%20Chat.svg
-   :alt: Join the chat at https://gitter.im/matplotlib/matplotlib
-   :target: https://gitter.im/matplotlib/matplotlib?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge
+
 
 Contribute
 ==========
