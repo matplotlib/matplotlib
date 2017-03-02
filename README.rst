@@ -1,7 +1,7 @@
 |Travis|_ |AppVeyor|_ |Codecov|_ |PyPi|_ |Gitter|_ |Depsy|_
 
 
-.. |Travis| image:: https://api.travis-ci.org/matplotlib/matplotlib.png?branch=master
+.. |Travis| image:: https://travis-ci.org/matplotlib/matplotlib.svg?branch=master
 .. _Travis: https://travis-ci.org/matplotlib/matplotlib
 
 .. |AppVeyor| image:: https://ci.appveyor.com/api/projects/status/github/matplotlib/matplotlib?branch=master&svg=true
