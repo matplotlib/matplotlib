@@ -1146,12 +1146,15 @@ class FreeType(SetupPackage):
                     os.path.isfile(tarball_cache_path)):
                 if get_file_hash(tarball_cache_path) == LOCAL_FREETYPE_HASH:
                     try:
-                        # fail on Lpy, oh well
-                        os.makedirs('build', exist_ok=True)
+                        os.makedirs('build')
+                    except OSError:
+                        # Don't care if it exists.
+                        pass
+                    try:
                         shutil.copy(tarball_cache_path, tarball_path)
                         print('Using cached tarball: {}'
                               .format(tarball_cache_path))
-                    except:
+                    except OSError:
                         # If this fails, oh well just re-download
                         pass
 
@@ -1186,12 +1189,15 @@ class FreeType(SetupPackage):
                     raise IOError("Failed to download freetype")
                 if get_file_hash(tarball_path) == LOCAL_FREETYPE_HASH:
                     try:
-                        # this will fail on LPy, oh well
-                        os.makedirs(tarball_cache_dir, exist_ok=True)
+                        os.makedirs(tarball_cache_dir)
+                    except OSError:
+                        # Don't care if it exists.
+                        pass
+                    try:
                         shutil.copy(tarball_path, tarball_cache_path)
                         print('Cached tarball at: {}'
                               .format(tarball_cache_path))
-                    except:
+                    except OSError:
                         # again, we do not care if this fails, can
                         # always re download
                         pass
