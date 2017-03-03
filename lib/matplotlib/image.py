@@ -438,7 +438,9 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
 
             # Restore the alpha channel
             if created_rgba_mask:
-                output[..., 3] = (output[..., 3] * hid_output[..., 3]).astype(output.dtype)
+                output[..., 3] = (output[..., 3] * hid_output[..., 3]).astype(
+                    output.dtype
+                    )
 
             # Apply alpha *after* if the input was greyscale without a mask
             if A.ndim == 2 or created_rgba_mask:
