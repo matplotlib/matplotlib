@@ -437,7 +437,7 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
             output = self.to_rgba(output, bytes=True, norm=False)
 
             # Restore the alpha channel
-            if created_rgba_mask:
+            if created_rgba_mask and self._array_alpha is not None:
                 output[..., 3] = (output[..., 3] * hid_output[..., 3]).astype(
                     output.dtype
                     )
