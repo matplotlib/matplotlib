@@ -178,6 +178,8 @@ script:
       pip install $PRE requests==2.9.2 linkchecker
       linkchecker build/html/index.html
     fi
+
+before_cache:
   - rm -rf $HOME/.cache/matplotlib/tex.cache
   - rm -rf $HOME/.cache/matplotlib/test_cache
 
