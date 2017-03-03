@@ -1165,12 +1165,12 @@ class FreeType(SetupPackage):
                     os.makedirs('build')
 
                 sourceforge_url = (
-                    'http://downloads.sourceforge.net/project/freetype'
+                    'https://downloads.sourceforge.net/project/freetype'
                     '/freetype2/{0}/'.format(LOCAL_FREETYPE_VERSION)
                 )
                 url_fmts = (
                     sourceforge_url + '{0}',
-                    'http://download.savannah.gnu.org/releases/freetype/{0}'
+                    'https://download.savannah.gnu.org/releases/freetype/{0}'
                     )
                 for url_fmt in url_fmts:
                     tarball_url = url_fmt.format(tarball)
