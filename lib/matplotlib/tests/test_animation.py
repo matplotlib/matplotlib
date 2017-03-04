@@ -74,6 +74,26 @@ def test_null_movie_writer():
     assert writer._count == num_frames
 
 
+def test_movie_writer_dpi_default():
+    # Test setting up movie writer with figure.dpi default.
+
+    fig = plt.figure()
+
+    filename = "unused.null"
+    fps = 5
+    codec = "unused"
+    bitrate = 1
+    extra_args = ["unused"]
+
+    def run():
+        pass
+
+    writer = animation.MovieWriter(fps, codec, bitrate, extra_args)
+    writer._run = run
+    writer.setup(fig, filename)
+    assert writer.dpi == fig.dpi
+
+
 @animation.writers.register('null')
 class RegisteredNullMovieWriter(NullMovieWriter):
 
@@ -162,6 +182,8 @@ def test_no_length_frames():
 
     anim = animation.FuncAnimation(fig, animate, init_func=init,
                                    frames=iter(range(5)))
+    writer = NullMovieWriter()
+    anim.save('unused.null', writer=writer)
 
 
 def test_movie_writer_registry():

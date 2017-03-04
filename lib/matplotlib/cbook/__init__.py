@@ -583,7 +583,6 @@ def to_filehandle(fname, flag='rU', return_opened=False):
     return fh
 
 
-@deprecated('2.1')
 def is_scalar_or_string(val):
     """Return whether the given object is a scalar or string like."""
     return is_string_like(val) or not iterable(val)
@@ -1497,15 +1496,12 @@ class Grouper(object):
         The iterator is invalid if interleaved with calls to join().
         """
         self.clean()
-
-        class Token:
-            pass
-        token = Token()
+        token = object()
 
         # Mark each group as we come across if by appending a token,
         # and don't yield it twice
         for group in six.itervalues(self._mapping):
-            if not group[-1] is token:
+            if group[-1] is not token:
                 yield [x() for x in group]
                 group.append(token)
 
@@ -2285,9 +2281,7 @@ def safe_first_element(obj):
 
 def sanitize_sequence(data):
     """Converts dictview object to list"""
-    if six.PY3 and isinstance(data, collections.abc.MappingView):
-        return list(data)
-    return data
+    return list(data) if isinstance(data, collections.MappingView) else data
 
 
 def normalize_kwargs(kw, alias_mapping=None, required=(), forbidden=(),

@@ -52,6 +52,7 @@ files = dict()
 
 files['lines'] = [
     'barh_demo.py',
+    'cohere_demo.py',
     'fill_demo.py',
     'fill_demo_features.py',
     'line_demo_dash_control.py',
@@ -90,7 +91,9 @@ files['pie'] = [
     ]
 
 files['text_labels_and_annotations'] = [
+    'accented_text.py',
     'text_demo_fontdict.py',
+    'text_rotation.py',
     'unicode_demo.py',
     ]
 
@@ -108,7 +111,6 @@ files['showcase'] = [
     ]
 
 files['pylab'] = [
-    'accented_text.py',
     'alignment_test.py',
     'annotation_demo.py',
     'annotation_demo.py',
@@ -127,7 +129,6 @@ files['pylab'] = [
     'barcode_demo.py',
     'boxplot_demo.py',
     'broken_barh.py',
-    'cohere_demo.py',
     'color_by_yvalue.py',
     'color_demo.py',
     'colorbar_tick_labelling_demo.py',
@@ -236,7 +237,6 @@ files['pylab'] = [
     'subplots_adjust.py',
     'symlog_demo.py',
     'table_demo.py',
-    'text_rotation.py',
     'text_rotation_relative_to_line.py',
     'transoffset.py',
     'xcorr_demo.py',

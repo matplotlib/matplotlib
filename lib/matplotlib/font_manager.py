@@ -64,7 +64,7 @@ from matplotlib.fontconfig_pattern import (
 try:
     from functools import lru_cache
 except ImportError:
-    from functools32 import lru_cache
+    from backports.functools_lru_cache import lru_cache
 
 
 USE_FONTCONFIG = False
@@ -1041,7 +1041,7 @@ class FontManager(object):
     # Increment this version number whenever the font cache data
     # format or behavior has changed and requires a existing font
     # cache files to be rebuilt.
-    __version__ = 200
+    __version__ = 201
 
     def __init__(self, size=None, weight='normal'):
         self._version = self.__version__

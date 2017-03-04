@@ -64,12 +64,12 @@ install matplotlib using pip_::
     python -m pip install matplotlib
 
 In case Python 2.7 or 3.4 are not installed for all users,
-the Microsoft Visual C++ 2008 (
-`64 bit <https://www.microsoft.com/en-us/download/details.aspx?id=15336>`__
+the Microsoft Visual C++ 2008
+(`64 bit <https://www.microsoft.com/en-us/download/details.aspx?id=15336>`__
 or
 `32 bit <https://www.microsoft.com/en-us/download/details.aspx?id=29>`__
-for Python 2.7) or Microsoft Visual C++ 2010 (
-`64 bit <https://www.microsoft.com/en-us/download/details.aspx?id=14632>`__
+for Python 2.7) or Microsoft Visual C++ 2010
+(`64 bit <https://www.microsoft.com/en-us/download/details.aspx?id=14632>`__
 or
 `32 bit <https://www.microsoft.com/en-us/download/details.aspx?id=5555>`__
 for Python 3.4) redistributable packages need to be installed.
@@ -106,14 +106,15 @@ or example code.
 If you want to try the many demos that come in the matplotlib source
 distribution, download the :file:`*.tar.gz` file and look in the
 :file:`examples` subdirectory.
-To run the test suite, copy the :file:`lib\\matplotlib\\tests` and
-:file:`lib\\mpl_toolkits\\tests` directories from the source
-distribution to :file:`sys.prefix\\Lib\\site-packages\\matplotlib` and
-:file:`sys.prefix\\Lib\\site-packages\\mpl_toolkits` respectively, and
-install `nose <https://pypi.python.org/pypi/nose>`_, `mock
-<https://pypi.python.org/pypi/mock>`_, Pillow, MiKTeX, GhostScript,
-ffmpeg, avconv, mencoder, ImageMagick, and `Inkscape
-<https://inkscape.org/>`_.
+To run the test suite:
+
+ * extract the :file:`lib\\matplotlib\\tests` or
+   :file:`lib\\mpl_toolkits\\tests` directories from the source distribution;
+ * install test dependencies: `pytest <https://pypi.python.org/pypi/pytest>`_,
+   `mock <https://pypi.python.org/pypi/mock>`_, Pillow, MiKTeX, GhostScript,
+   ffmpeg, avconv, mencoder, ImageMagick, and `Inkscape
+   <https://inkscape.org/>`_;
+ * run ``py.test path\\to\\tests\\directory``.
 
 
 
@@ -133,13 +134,15 @@ latest git version :ref:`install-from-git`.
 The standard environment variables `CC`, `CXX`, `PKG_CONFIG` are respected.
 This means you can set them if your toolchain is prefixed. This may be used for
 cross compiling.
+::
 
   export CC=x86_64-pc-linux-gnu-gcc
   export CXX=x86_64-pc-linux-gnu-g++
   export PKG_CONFIG=x86_64-pc-linux-gnu-pkg-config
 
 Once you have satisfied the requirements detailed below (mainly
-python, numpy, libpng and freetype), you can build matplotlib::
+python, numpy, libpng and freetype), you can build matplotlib.
+::
 
   cd matplotlib
   python setup.py build
@@ -222,7 +225,7 @@ Required Dependencies
 Dependencies for python 2
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 
-`functools32 <https://pypi.python.org/pypi/functools32>`_
+`backports.functools_lru_cache <https://pypi.python.org/pypi/backports.functools_lru_cache>`_
     Required for compatibility if running on Python 2.7.
 
 `subprocess32 <https://pypi.python.org/pypi/subprocess32/>`_

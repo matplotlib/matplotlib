@@ -90,20 +90,23 @@ Backports
 When doing backports please include the branch you backported the
 commit to along with the SHA in a comment on the original PR.
 
-Assuming we have ``matplotlib`` as a read-only remote to the
-matplotlib/matplotlib repo and ``DANGER`` as a read/write remote to
-the matplotlib/matplotlib repo, we do a backport from master to 2.x.
+We do a backport from master to v2.0.x assuming:
+
+* ``matplotlib`` is a read-only remote branch of the matplotlib/matplotlib repo 
+
+* ``DANGER`` is a read/write remote branch of the matplotlib/matplotlib repo
+
 The ``TARGET_SHA`` is the hash of the merge commit you would like to
 backport.  This can be read off of the github PR page (in the UI with
 the merge notification) or through the git CLI tools.::
 
   git fetch matplotlib
-  git checkout v2.x
-  git merge --ff-only matplotlib/v2.x
+  git checkout v2.0.x
+  git merge --ff-only matplotlib/v2.0.x
   git cherry-pick -m 1 TARGET_SHA
-  gitk   # to look at it
+  git log --graph --decorate  # to look at it
   # local tests? (use your judgment)
-  git push DANGER v2.x
+  git push DANGER v2.0.x
   # leave a comment on PR noting sha of the resulting commit
   # from the cherry-pick + branch it was moved to
 

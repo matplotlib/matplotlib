@@ -788,28 +788,28 @@ class Toolkits(OptionalPackage):
 
 class Tests(OptionalPackage):
     name = "tests"
-    nose_min_version = '0.11.1'
+    pytest_min_version = '3.0.0'
     default_config = False
 
     def check(self):
         super(Tests, self).check()
 
         msgs = []
-        msg_template = ('{package} is required to run the matplotlib test '
-                        'suite. Please install it with pip or your preferred'
-                        ' tool to run the test suite')
+        msg_template = ('{package} is required to run the Matplotlib test '
+                        'suite. Please install it with pip or your preferred '
+                        'tool to run the test suite')
 
-        bad_nose = msg_template.format(
-            package='nose %s or later' % self.nose_min_version
+        bad_pytest = msg_template.format(
+            package='pytest %s or later' % self.pytest_min_version
         )
         try:
-            import nose
-            if is_min_version(nose.__version__, self.nose_min_version):
-                msgs += ['using nose version %s' % nose.__version__]
+            import pytest
+            if is_min_version(pytest.__version__, self.pytest_min_version):
+                msgs += ['using pytest version %s' % pytest.__version__]
             else:
-                msgs += [bad_nose]
+                msgs += [bad_pytest]
         except ImportError:
-            msgs += [bad_nose]
+            msgs += [bad_pytest]
 
         if PY3min:
             msgs += ['using unittest.mock']
@@ -1523,25 +1523,25 @@ class Dateutil(SetupPackage):
         return [dateutil]
 
 
-class FuncTools32(SetupPackage):
-    name = "functools32"
+class BackportsFuncToolsLRUCache(SetupPackage):
+    name = "backports.functools_lru_cache"
 
     def check(self):
         if not PY3min:
             try:
-                import functools32
+                import backports.functools_lru_cache
             except ImportError:
                 return (
-                    "functools32 was not found. It is required for"
+                    "backports.functools_lru_cache was not found. It is required for"
                     "Python versions prior to 3.2")
 
-            return "using functools32"
+            return "using backports.functools_lru_cache"
         else:
             return "Not required"
 
     def get_install_requires(self):
         if not PY3min:
-            return ['functools32']
+            return ['backports.functools_lru_cache']
         else:
             return []
 

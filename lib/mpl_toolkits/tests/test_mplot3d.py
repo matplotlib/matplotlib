@@ -1,6 +1,6 @@
 import pytest
 
-from mpl_toolkits.mplot3d import Axes3D, axes3d, proj3d
+from mpl_toolkits.mplot3d import Axes3D, axes3d, proj3d, art3d
 from matplotlib import cm
 from matplotlib.testing.decorators import image_comparison
 from matplotlib.collections import LineCollection
@@ -310,6 +310,22 @@ def test_quiver3d_pivot_tail():
             np.sin(np.pi * z))
 
     ax.quiver(x, y, z, u, v, w, length=0.1, pivot='tail', normalize=True)
+
+
+@image_comparison(baseline_images=['poly3dcollection_closed'],
+                  remove_text=True)
+def test_poly3dcollection_closed():
+    fig = plt.figure()
+    ax = fig.gca(projection='3d')
+
+    poly1 = np.array([[0, 0, 1], [0, 1, 1], [0, 0, 0]], np.float)
+    poly2 = np.array([[0, 1, 1], [1, 1, 1], [1, 1, 0]], np.float)
+    c1 = art3d.Poly3DCollection([poly1], linewidths=3, edgecolor='k',
+                                facecolor=(0.5, 0.5, 1, 0.5), closed=True)
+    c2 = art3d.Poly3DCollection([poly2], linewidths=3, edgecolor='k',
+                                facecolor=(1, 0.5, 0.5, 0.5), closed=False)
+    ax.add_collection3d(c1)
+    ax.add_collection3d(c2)
 
 
 @image_comparison(baseline_images=['axes3d_labelpad'], extensions=['png'])

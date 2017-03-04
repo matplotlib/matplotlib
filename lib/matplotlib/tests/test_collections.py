@@ -383,16 +383,6 @@ def check_segments(coll, positions, linelength, lineoffset, orientation):
         assert_equal(segment[1, pos2], positions[i])
 
 
-def check_allprop(values, target):
-    '''
-    check to make sure all values match the given target
-
-    note: this is not a test, it is used by tests
-    '''
-    for value in values:
-        assert_equal(value, target)
-
-
 def check_allprop_array(values, target):
     '''
     check to make sure all values match the given target if arrays

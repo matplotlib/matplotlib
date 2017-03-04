@@ -7,7 +7,7 @@
 :: # this package is only available in the conda-forge channel
 :: conda install -c conda-forge msinttypes
 :: if you build on py2.7:
-:: conda install -c conda-forge functools32
+:: conda install -c conda-forge backports.functools_lru_cache
 
 set TARGET=bdist_wheel
 IF [%1]==[] (

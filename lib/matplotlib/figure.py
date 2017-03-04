@@ -332,12 +332,9 @@ class Figure(Artist):
 
         self.transFigure = BboxTransformTo(self.bbox)
 
-        # the figurePatch name is deprecated
-        self.patch = self.figurePatch = Rectangle(
+        self.patch = Rectangle(
             xy=(0, 0), width=1, height=1,
-            facecolor=facecolor, edgecolor=edgecolor,
-            linewidth=linewidth)
-
+            facecolor=facecolor, edgecolor=edgecolor, linewidth=linewidth)
         self._set_artist_props(self.patch)
         self.patch.set_aa(False)
 
@@ -357,6 +354,10 @@ class Figure(Artist):
         self._axstack = AxesStack()  # track all figure axes and current axes
         self.clf()
         self._cachedRenderer = None
+
+    @cbook.deprecated("2.1", alternative="Figure.patch")
+    def figurePatch(self):
+        return self.patch
 
     # TODO: I'd like to dynamically add the _repr_html_ method
     # to the figure in the right context, but then IPython doesn't
@@ -679,15 +680,12 @@ class Figure(Artist):
         return im
 
     def set_size_inches(self, w, h=None, forward=True):
-        """
-        set_size_inches(w,h, forward=False)
+        """Set the figure size in inches (1in == 2.54cm)
 
-        Set the figure size in inches (1in == 2.54cm)
-
-        Usage::
+        Usage ::
 
              fig.set_size_inches(w,h)  # OR
-             fig.set_size_inches((w,h) )
+             fig.set_size_inches((w,h))
 
         optional kwarg *forward=True* will cause the canvas size to be
         automatically updated; e.g., you can resize the figure window

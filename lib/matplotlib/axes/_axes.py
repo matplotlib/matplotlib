@@ -1106,9 +1106,9 @@ or tuple of floats
         arrival times of people to a business on each day of the month or the
         date of hurricanes each year of the last century.
 
-        *orientation* : [ 'horizonal' | 'vertical' ]
-          'horizonal' : the lines will be vertical and arranged in rows
-          "vertical' : lines will be horizontal and arranged in columns
+        *orientation* : [ 'horizontal' | 'vertical' ]
+          'horizontal' : the lines will be vertical and arranged in rows
+          'vertical' : lines will be horizontal and arranged in columns
 
         *lineoffsets* :
           A float or array-like containing floats.
@@ -2114,12 +2114,6 @@ or tuple of floats
 
         args = zip(left, bottom, width, height, color, edgecolor, linewidth)
         for l, b, w, h, c, e, lw in args:
-            if h < 0:
-                b += h
-                h = abs(h)
-            if w < 0:
-                l += w
-                w = abs(w)
             r = mpatches.Rectangle(
                 xy=(l, b), width=w, height=h,
                 facecolor=c,
@@ -2711,11 +2705,11 @@ or tuple of floats
 
         Parameters
         ----------
-        x : scalar
-        y : scalar
+        x : scalar or array-like
+        y : scalar or array-like
 
-        xerr/yerr : scalar or array-like, shape(n,1) or shape(2,n), optional
-            If a scalar number, len(N) array-like object, or an Nx1
+        xerr/yerr : scalar or array-like, shape(N,) or shape(2,N), optional
+            If a scalar number, len(N) array-like object, or a N-element
             array-like object, errorbars are drawn at +/-value relative
             to the data. Default is None.
 
@@ -2798,6 +2792,9 @@ or tuple of floats
         .. plot:: mpl_examples/statistics/errorbar_demo.py
         """
         kwargs = cbook.normalize_kwargs(kwargs, _alias_map)
+        # anything that comes in as 'None', drop so the default thing
+        # happens down stream
+        kwargs = {k: v for k, v in kwargs.items() if v is not None}
         kwargs.setdefault('zorder', 2)
 
         if errorevery < 1:
@@ -4002,16 +3999,16 @@ or tuple of floats
         else:
             colors = None  # use cmap, norm after collection is created
 
-        # Anything in maskargs will be unchanged unless it is the same length
-        # as x:
-        maskargs = x, y, s, c, colors, edgecolors, linewidths
+        # `delete_masked_points` only modifies arguments of the same length as
+        # `x`.
         x, y, s, c, colors, edgecolors, linewidths =\
-            cbook.delete_masked_points(*maskargs)
+            cbook.delete_masked_points(
+                x, y, s, c, colors, edgecolors, linewidths)
 
         scales = s   # Renamed for readability below.
 
         # to be API compatible
-        if marker is None and not (verts is None):
+        if marker is None and verts is not None:
             marker = (verts, 0)
             verts = None
 
@@ -7086,7 +7083,7 @@ or tuple of floats
 
         Examples
         --------
-        .. plot:: mpl_examples/pylab_examples/cohere_demo.py
+        .. plot:: mpl_examples/lines_bars_and_markers/cohere_demo.py
         """
         if not self._hold:
             self.cla()

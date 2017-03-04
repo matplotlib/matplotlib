@@ -155,7 +155,7 @@ class AbstractMovieWriter(six.with_metaclass(abc.ABCMeta)):
     '''
 
     @abc.abstractmethod
-    def setup(self, fig, outfile, dpi):
+    def setup(self, fig, outfile, dpi=None):
         '''
         Perform setup for writing the movie file.
 
@@ -163,9 +163,9 @@ class AbstractMovieWriter(six.with_metaclass(abc.ABCMeta)):
             The figure object that contains the information for frames
         outfile: string
             The filename of the resulting movie file
-        dpi: int
+        dpi: int, optional
             The DPI (or resolution) for the file.  This controls the size
-            in pixels of the resulting movie file.
+            in pixels of the resulting movie file. Default is fig.dpi.
         '''
 
     @abc.abstractmethod
@@ -281,7 +281,7 @@ class MovieWriter(AbstractMovieWriter):
         verbose.report('frame size in pixels is %s x %s' % self.frame_size,
                        level='debug')
 
-    def setup(self, fig, outfile, dpi):
+    def setup(self, fig, outfile, dpi=None):
         '''
         Perform setup for writing the movie file.
 
@@ -292,12 +292,14 @@ class MovieWriter(AbstractMovieWriter):
             The figure object that contains the information for frames
         outfile : string
             The filename of the resulting movie file
-        dpi : int
+        dpi : int, optional
             The DPI (or resolution) for the file.  This controls the size
-            in pixels of the resulting movie file.
+            in pixels of the resulting movie file. Default is fig.dpi.
         '''
         self.outfile = outfile
         self.fig = fig
+        if dpi is None:
+            dpi = self.fig.dpi
         self.dpi = dpi
         self._adjust_frame_size()
 
@@ -404,7 +406,8 @@ class FileMovieWriter(MovieWriter):
         MovieWriter.__init__(self, *args, **kwargs)
         self.frame_format = rcParams['animation.frame_format']
 
-    def setup(self, fig, outfile, dpi, frame_prefix='_tmp', clear_temp=True):
+    def setup(self, fig, outfile, dpi=None, frame_prefix='_tmp',
+              clear_temp=True):
         '''Perform setup for writing the movie file.
 
         Parameters
@@ -413,9 +416,10 @@ class FileMovieWriter(MovieWriter):
             The figure to grab the rendered frames from.
         outfile : str
             The filename of the resulting movie file.
-        dpi : number
+        dpi : number, optional
             The dpi of the output file. This, with the figure size,
             controls the size in pixels of the resulting movie file.
+            Default is fig.dpi.
         frame_prefix : str, optional
             The filename prefix to use for temporary files.  Defaults to
             '_tmp'.
@@ -427,6 +431,8 @@ class FileMovieWriter(MovieWriter):
         '''
         self.fig = fig
         self.outfile = outfile
+        if dpi is None:
+            dpi = self.fig.dpi
         self.dpi = dpi
         self._adjust_frame_size()
 

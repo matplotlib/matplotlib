@@ -645,7 +645,7 @@ def _get_config_or_cache_dir(xdg_base):
     h = get_home()
     if h is not None:
         p = os.path.join(h, '.matplotlib')
-    if sys.platform.startswith('linux'):
+    if sys.platform.startswith('linux') or sys.platform.startswith('freebsd'):
         p = None
         if xdg_base is not None:
             p = os.path.join(xdg_base, 'matplotlib')
@@ -1338,6 +1338,7 @@ def rc_file_defaults():
     """
     rcParams.update(rcParamsOrig)
 
+
 _use_error_msg = """
 This call to matplotlib.use() has no effect because the backend has already
 been chosen; matplotlib.use() must be called *before* pylab, matplotlib.pyplot,
@@ -1408,6 +1409,12 @@ def use(arg, warn=True, force=False):
         reload(sys.modules['matplotlib.backends'])
 
 
+try:
+    use(os.environ['MPLBACKEND'])
+except KeyError:
+    pass
+
+
 def get_backend():
     """Return the name of the current backend."""
     return rcParams['backend']
@@ -1435,33 +1442,6 @@ def tk_window_focus():
         return False
     return rcParams['tk.window_focus']
 
-# Now allow command line to override
-
-# Allow command line access to the backend with -d (MATLAB compatible
-# flag)
-
-for s in sys.argv[1:]:
-    # cast to str because we are using unicode_literals,
-    # and argv is always str
-    if s.startswith(str('-d')) and len(s) > 2:  # look for a -d flag
-        try:
-            use(s[2:])
-            warnings.warn("Using the -d command line argument to select a "
-                          "matplotlib backend is deprecated. Please use the "
-                          "MPLBACKEND environment variable instead.",
-                          mplDeprecation)
-            break
-        except (KeyError, ValueError):
-            pass
-        # we don't want to assume all -d flags are backends, e.g., -debug
-else:
-    # no backend selected from the command line, so we check the environment
-    # variable MPLBACKEND
-    try:
-        use(os.environ['MPLBACKEND'])
-    except KeyError:
-        pass
-
 
 # Jupyter extension paths
 def _jupyter_nbextension_paths():
@@ -1487,9 +1467,6 @@ def _init_tests():
         pass
     else:
         faulthandler.enable()
-
-    if not os.path.isdir(os.path.join(os.path.dirname(__file__), 'tests')):
-        raise ImportError("matplotlib test data is not installed")
 
     # The version of FreeType to install locally for running the
     # tests.  This must match the value in `setupext.py`
@@ -1526,6 +1503,8 @@ def test(verbosity=None, coverage=False, switch_backend_warn=True,
          recursionlimit=0, **kwargs):
     """run the matplotlib test suite"""
     _init_tests()
+    if not os.path.isdir(os.path.join(os.path.dirname(__file__), 'tests')):
+        raise ImportError("matplotlib test data is not installed")
 
     old_backend = get_backend()
     old_recursionlimit = sys.getrecursionlimit()
@@ -1536,8 +1515,21 @@ def test(verbosity=None, coverage=False, switch_backend_warn=True,
         import pytest
 
         args = kwargs.pop('argv', [])
-        if not any(os.path.exists(arg) for arg in args):
-            args += ['--pyargs'] + default_test_modules
+        provide_default_modules = True
+        use_pyargs = True
+        for arg in args:
+            if any(arg.startswith(module_path)
+                   for module_path in default_test_modules):
+                provide_default_modules = False
+                break
+            if os.path.exists(arg):
+                provide_default_modules = False
+                use_pyargs = False
+                break
+        if use_pyargs:
+            args += ['--pyargs']
+        if provide_default_modules:
+            args += default_test_modules
 
         if coverage:
             args += ['--cov']

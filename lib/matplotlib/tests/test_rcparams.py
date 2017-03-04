@@ -17,7 +17,6 @@ except ImportError:
     import mock
 import matplotlib as mpl
 import matplotlib.pyplot as plt
-from matplotlib.tests import assert_str_equal
 import matplotlib.colors as mcolors
 from itertools import chain
 import numpy as np
@@ -29,7 +28,8 @@ from matplotlib.rcsetup import (validate_bool_maybe_none,
                                 validate_nseq_float,
                                 validate_cycler,
                                 validate_hatch,
-                                validate_hist_bins)
+                                validate_hist_bins,
+                                _validate_linestyle)
 
 
 mpl.rc('text', usetex=False)
@@ -93,7 +93,7 @@ RcParams({u'font.cursive': [u'Apple Chancery',
           u'font.size': 12.0,
           u'font.weight': u'normal'})""".lstrip()
 
-    assert_str_equal(expected_repr, repr(rc))
+    assert expected_repr == repr(rc)
 
     if six.PY3:
         expected_str = """
@@ -108,7 +108,7 @@ font.family: [u'sans-serif']
 font.size: 12.0
 font.weight: normal""".lstrip()
 
-    assert_str_equal(expected_str, str(rc))
+    assert expected_str == str(rc)
 
     # test the find_all functionality
     assert ['font.cursive', 'font.size'] == sorted(rc.find_all('i[vz]'))
@@ -332,6 +332,26 @@ def generate_validator_testcases(valid):
                      (np.arange(15), np.arange(15))
                      ),
          'fail': (('aardvark', ValueError),
+                  )
+         },
+         {'validator': _validate_linestyle,  # NB: case-insensitive
+         'success': (('-', '-'), ('solid', 'solid'),
+                     ('--', '--'), ('dashed', 'dashed'),
+                     ('-.', '-.'), ('dashdot', 'dashdot'),
+                     (':', ':'), ('dotted', 'dotted'),
+                     ('', ''), (' ', ' '),
+                     ('None', 'none'), ('none', 'none'),
+                     ('DoTtEd', 'dotted'),
+                     (['1.23', '4.56'], (None, [1.23, 4.56])),
+                     ([1.23, 456], (None, [1.23, 456.0])),
+                     ([1, 2, 3, 4], (None, [1.0, 2.0, 3.0, 4.0])),
+                     ),
+         'fail': (('aardvark', ValueError),  # not a valid string
+                  ((None, [1, 2]), ValueError),  # (offset, dashes) is not OK
+                  ((0, [1, 2]), ValueError),  # idem
+                  ((-1, [1, 2]), ValueError),  # idem
+                  ([1, 2, 3], ValueError),  # not a sequence of even length
+                  (1.23, ValueError)  # not a sequence
                   )
          }
     )

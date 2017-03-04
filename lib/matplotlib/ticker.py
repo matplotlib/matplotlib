@@ -1285,16 +1285,19 @@ class PercentFormatter(Formatter):
     situation is where `xmax` is 1.0.
 
     `symbol` is a string which will be appended to the label. It may be
-    `None` or empty to indicate that no symbol should be used.
+    `None` or empty to indicate that no symbol should be used. LaTeX
+    special characters are escaped in `symbol` whenever latex mode is
+    enabled, unless `is_latex` is `True`.
 
     `decimals` is the number of decimal places to place after the point.
     If it is set to `None` (the default), the number will be computed
     automatically.
     """
-    def __init__(self, xmax=100, decimals=None, symbol='%'):
+    def __init__(self, xmax=100, decimals=None, symbol='%', is_latex=False):
         self.xmax = xmax + 0.0
         self.decimals = decimals
-        self.symbol = symbol
+        self._symbol = symbol
+        self._is_latex = is_latex
 
     def __call__(self, x, pos=None):
         """
@@ -1350,12 +1353,34 @@ class PercentFormatter(Formatter):
             decimals = self.decimals
         s = '{x:0.{decimals}f}'.format(x=x, decimals=int(decimals))
 
-        if self.symbol:
-            return s + self.symbol
-        return s
+        return s + self.symbol
 
     def convert_to_pct(self, x):
         return 100.0 * (x / self.xmax)
+
+    @property
+    def symbol(self):
+        """
+        The configured percent symbol as a string.
+
+        If LaTeX is enabled via ``rcParams['text.usetex']``, the special
+        characters `{'#', '$', '%', '&', '~', '_', '^', '\\', '{', '}'}`
+        are automatically escaped in the string.
+        """
+        symbol = self._symbol
+        if not symbol:
+            symbol = ''
+        elif rcParams['text.usetex'] and not self._is_latex:
+            # Source: http://www.personal.ceu.hu/tex/specchar.htm
+            # Backslash must be first for this to work correctly since
+            # it keeps getting added in
+            for spec in r'\#$%&~_^{}':
+                symbol = symbol.replace(spec, '\\' + spec)
+        return symbol
+
+    @symbol.setter
+    def symbol(self):
+        self._symbol = symbol
 
 
 class Locator(TickHelper):

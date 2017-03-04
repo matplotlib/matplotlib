@@ -239,56 +239,6 @@ class TestScalarFormatter(object):
             assert use_offset == tmp_form.get_useOffset()
 
 
-class TestLogFormatter(object):
-    def _sub_labels(self, axis, subs=()):
-        "Test whether locator marks subs to be labeled"
-        fmt = axis.get_minor_formatter()
-        minor_tlocs = axis.get_minorticklocs()
-        fmt.set_locs(minor_tlocs)
-        coefs = minor_tlocs / 10**(np.floor(np.log10(minor_tlocs)))
-        label_expected = [np.round(c) in subs for c in coefs]
-        label_test = [fmt(x) != '' for x in minor_tlocs]
-        assert label_test == label_expected
-
-    @pytest.mark.style('default')
-    def test_sublabel(self):
-        # test label locator
-        fig, ax = plt.subplots()
-        ax.set_xscale('log')
-        ax.xaxis.set_major_locator(mticker.LogLocator(base=10, subs=[]))
-        ax.xaxis.set_minor_locator(mticker.LogLocator(base=10,
-                                                      subs=np.arange(2, 10)))
-        ax.xaxis.set_major_formatter(mticker.LogFormatter(labelOnlyBase=True))
-        ax.xaxis.set_minor_formatter(mticker.LogFormatter(labelOnlyBase=False))
-        # axis range above 3 decades, only bases are labeled
-        ax.set_xlim(1, 1e4)
-        fmt = ax.xaxis.get_major_formatter()
-        fmt.set_locs(ax.xaxis.get_majorticklocs())
-        show_major_labels = [fmt(x) != ''
-                             for x in ax.xaxis.get_majorticklocs()]
-        assert np.all(show_major_labels)
-        self._sub_labels(ax.xaxis, subs=[])
-
-        # For the next two, if the numdec threshold in LogFormatter.set_locs
-        # were 3, then the label sub would be 3 for 2-3 decades and (2,5)
-        # for 1-2 decades.  With a threshold of 1, subs are not labeled.
-        # axis range at 2 to 3 decades
-        ax.set_xlim(1, 800)
-        self._sub_labels(ax.xaxis, subs=[])
-
-        # axis range at 1 to 2 decades
-        ax.set_xlim(1, 80)
-        self._sub_labels(ax.xaxis, subs=[])
-
-        # axis range at 0.4 to 1 decades, label subs 2, 3, 4, 6
-        ax.set_xlim(1, 8)
-        self._sub_labels(ax.xaxis, subs=[2, 3, 4, 6])
-
-        # axis range at 0 to 0.4 decades, label all
-        ax.set_xlim(0.5, 0.9)
-        self._sub_labels(ax.xaxis, subs=np.arange(2, 10, dtype=int))
-
-
 class FakeAxis(object):
     """Allow Formatter to be called without having a "full" plot set up."""
     def __init__(self, vmin=1, vmax=10):
@@ -503,6 +453,54 @@ class TestLogFormatter(object):
         label = fmt.pprint_val(value, domain)
         assert label == expected
 
+    def _sub_labels(self, axis, subs=()):
+        "Test whether locator marks subs to be labeled"
+        fmt = axis.get_minor_formatter()
+        minor_tlocs = axis.get_minorticklocs()
+        fmt.set_locs(minor_tlocs)
+        coefs = minor_tlocs / 10**(np.floor(np.log10(minor_tlocs)))
+        label_expected = [np.round(c) in subs for c in coefs]
+        label_test = [fmt(x) != '' for x in minor_tlocs]
+        assert label_test == label_expected
+
+    @pytest.mark.style('default')
+    def test_sublabel(self):
+        # test label locator
+        fig, ax = plt.subplots()
+        ax.set_xscale('log')
+        ax.xaxis.set_major_locator(mticker.LogLocator(base=10, subs=[]))
+        ax.xaxis.set_minor_locator(mticker.LogLocator(base=10,
+                                                      subs=np.arange(2, 10)))
+        ax.xaxis.set_major_formatter(mticker.LogFormatter(labelOnlyBase=True))
+        ax.xaxis.set_minor_formatter(mticker.LogFormatter(labelOnlyBase=False))
+        # axis range above 3 decades, only bases are labeled
+        ax.set_xlim(1, 1e4)
+        fmt = ax.xaxis.get_major_formatter()
+        fmt.set_locs(ax.xaxis.get_majorticklocs())
+        show_major_labels = [fmt(x) != ''
+                             for x in ax.xaxis.get_majorticklocs()]
+        assert np.all(show_major_labels)
+        self._sub_labels(ax.xaxis, subs=[])
+
+        # For the next two, if the numdec threshold in LogFormatter.set_locs
+        # were 3, then the label sub would be 3 for 2-3 decades and (2,5)
+        # for 1-2 decades.  With a threshold of 1, subs are not labeled.
+        # axis range at 2 to 3 decades
+        ax.set_xlim(1, 800)
+        self._sub_labels(ax.xaxis, subs=[])
+
+        # axis range at 1 to 2 decades
+        ax.set_xlim(1, 80)
+        self._sub_labels(ax.xaxis, subs=[])
+
+        # axis range at 0.4 to 1 decades, label subs 2, 3, 4, 6
+        ax.set_xlim(1, 8)
+        self._sub_labels(ax.xaxis, subs=[2, 3, 4, 6])
+
+        # axis range at 0 to 0.4 decades, label all
+        ax.set_xlim(0.5, 0.9)
+        self._sub_labels(ax.xaxis, subs=np.arange(2, 10, dtype=int))
+
 
 class TestFormatStrFormatter(object):
     def test_basic(self):
@@ -510,13 +508,40 @@ class TestFormatStrFormatter(object):
         tmp_form = mticker.FormatStrFormatter('%05d')
         assert '00002' == tmp_form(2)
 
-        # test str.format() style formatter
-        tmp_form = mticker.StrMethodFormatter('{x:05d}')
-        assert '00002' == tmp_form(2)
 
-        # test str.format() style formatter with `pos`
-        tmp_form = mticker.StrMethodFormatter('{x:03d}-{pos:02d}')
-        assert '002-01' == tmp_form(2, 1)
+class TestStrMethodFormatter(object):
+    test_data = [
+        ('{x:05d}', (2,), '00002'),
+        ('{x:03d}-{pos:02d}', (2, 1), '002-01'),
+    ]
+
+    @pytest.mark.parametrize('format, input, expected', test_data)
+    def test_basic(self, format, input, expected):
+        fmt = mticker.StrMethodFormatter(format)
+        assert fmt(*input) == expected
+
+
+class TestEngFormatter(object):
+    format_data = [
+        ('', 0.1, u'100 m'),
+        ('', 1, u'1'),
+        ('', 999.9, u'999.9'),
+        ('', 1001, u'1.001 k'),
+        (u's', 0.1, u'100 ms'),
+        (u's', 1, u'1 s'),
+        (u's', 999.9, u'999.9 s'),
+        (u's', 1001, u'1.001 ks'),
+    ]
+
+    @pytest.mark.parametrize('unit, input, expected', format_data)
+    def test_formatting(self, unit, input, expected):
+        """
+        Test the formatting of EngFormatter with some inputs, against
+        instances with and without units. Cases focus on when no SI
+        prefix is present, for values in [1, 1000).
+        """
+        fmt = mticker.EngFormatter(unit)
+        assert fmt(input) == expected
 
 
 class TestPercentFormatter(object):
@@ -525,12 +550,12 @@ class TestPercentFormatter(object):
         (100, 0, '%', 120, 100, '120%'),
         (100, 0, '%', 100, 90, '100%'),
         (100, 0, '%', 90, 50, '90%'),
-        (100, 0, '%', 1.7, 40, '2%'),
+        (100, 0, '%', -1.7, 40, '-2%'),
         (100, 1, '%', 90.0, 100, '90.0%'),
         (100, 1, '%', 80.1, 90, '80.1%'),
         (100, 1, '%', 70.23, 50, '70.2%'),
         # 60.554 instead of 60.55: see https://bugs.python.org/issue5118
-        (100, 1, '%', 60.554, 40, '60.6%'),
+        (100, 1, '%', -60.554, 40, '-60.6%'),
         # Check auto decimals over different intervals and values
         (100, None, '%', 95, 1, '95.00%'),
         (1.0, None, '%', 3, 6, '300%'),
@@ -565,33 +590,24 @@ class TestPercentFormatter(object):
         'Custom percent symbol',
     ]
 
+    latex_data = [
+        (False, False, r'50\{t}%'),
+        (False, True, r'50\\\{t\}\%'),
+        (True, False, r'50\{t}%'),
+        (True, True, r'50\{t}%'),
+    ]
+
     @pytest.mark.parametrize(
             'xmax, decimals, symbol, x, display_range, expected',
             percent_data, ids=percent_ids)
-    def test_percentformatter(self, xmax, decimals, symbol,
-                              x, display_range, expected):
+    def test_basic(self, xmax, decimals, symbol,
+                   x, display_range, expected):
         formatter = mticker.PercentFormatter(xmax, decimals, symbol)
-        assert formatter.format_pct(x, display_range) == expected
+        with matplotlib.rc_context(rc={'text.usetex': False}):
+            assert formatter.format_pct(x, display_range) == expected
 
-
-class TestEngFormatter(object):
-    format_data = [
-        ('', 0.1, u'100 m'),
-        ('', 1, u'1'),
-        ('', 999.9, u'999.9'),
-        ('', 1001, u'1.001 k'),
-        (u's', 0.1, u'100 ms'),
-        (u's', 1, u'1 s'),
-        (u's', 999.9, u'999.9 s'),
-        (u's', 1001, u'1.001 ks'),
-    ]
-
-    @pytest.mark.parametrize('unit, input, expected', format_data)
-    def test_formatting(self, unit, input, expected):
-        """
-        Test the formatting of EngFormatter with some inputs, against
-        instances with and without units. Cases focus on when no SI
-        prefix is present, for values in [1, 1000).
-        """
-        fmt = mticker.EngFormatter(unit)
-        assert fmt(input) == expected
+    @pytest.mark.parametrize('is_latex, usetex, expected', latex_data)
+    def test_latex(self, is_latex, usetex, expected):
+        fmt = mticker.PercentFormatter(symbol='\\{t}%', is_latex=is_latex)
+        with matplotlib.rc_context(rc={'text.usetex': usetex}):
+            assert fmt.format_pct(50, 100) == expected
