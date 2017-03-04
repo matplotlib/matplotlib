@@ -1193,6 +1193,15 @@ or tuple of floats
             lineoffsets = [None]
         if len(colors) == 0:
             colors = [None]
+        try:
+            # Early conversion of the colors into RGBA values to take care
+            # of cases like colors='0.5' or colors='C1'.  (Issue #8193)
+            colors = mcolors.to_rgba_array(colors)
+        except ValueError:
+            # Will fail if any element of *colors* is None. But as long
+            # as len(colors) == 1 or len(positions), the rest of the
+            # code should process *colors* properly.
+            pass
 
         if len(lineoffsets) == 1 and len(positions) != 1:
             lineoffsets = np.tile(lineoffsets, len(positions))
