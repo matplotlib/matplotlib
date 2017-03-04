@@ -67,6 +67,8 @@ The first is a good starting point for general questions and discussions.
    :alt: Join the chat at https://gitter.im/matplotlib/matplotlib
       :target: https://gitter.im/matplotlib/matplotlib?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge
 
+The gitter is for coordinating development and asking questions directly related to contributing to matplotlib.
+
 Contribute
 ==========
 You've discovered a bug or something else you want to change - excellent!
