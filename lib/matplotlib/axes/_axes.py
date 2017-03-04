@@ -635,7 +635,7 @@ or tuple of floats
                 x=x, y=y, text=s)
         else:
             t = mtext.Text(
-                x=x, y=y, text=s)
+                x=x, y=y, text=s, usetex=kwargs.get('usetex'))
 
         t.update(default)
         if fontdict is not None:

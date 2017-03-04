@@ -1261,6 +1261,7 @@ class Text(Artist):
             self._usetex = rcParams['text.usetex']
         else:
             self._usetex = bool(usetex)
+        rcParams['text.usetex'] = self._usetex
         self.stale = True
 
     def get_usetex(self):
