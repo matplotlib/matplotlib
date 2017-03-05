@@ -1240,15 +1240,15 @@ class EventCollection(LineCollection):
     '''
     A collection of discrete events.
 
-    An event is a 1-dimensional value, usually the position of something along
-    an axis, such as time or length.  Events do not have an amplitude.  They
-    are displayed as v
+    The events are given by a 1-dimensional array, usually the position of
+    something along an axis, such as time or length.  They do not have an
+    amplitude and are displayed as vertical or horizontal parallel bars.
     '''
 
     _edge_default = True
 
     def __init__(self,
-                 positions,     # Can be None.
+                 positions,     # Cannot be None.
                  orientation=None,
                  lineoffset=0,
                  linelength=1,
@@ -1259,58 +1259,60 @@ class EventCollection(LineCollection):
                  **kwargs
                  ):
         """
-        *positions*
-            a sequence of numerical values or a 1D numpy array.  Can be None
+        Parameters
+        ----------
+        positions : 1D array-like object
+            Each value is an event.
 
-        *orientation* [ 'horizontal' | 'vertical' | None ]
-            defaults to 'horizontal' if not specified or None
+        orientation : {None, 'horizontal', 'vertical'}, optional
+            The orientation of the **collection** (the event bars are along
+            the orthogonal direction). Defaults to 'horizontal' if not
+            specified or None.
 
-        *lineoffset*
-            a single numerical value, corresponding to the offset of the center
-            of the markers from the origin
+        lineoffset : scalar, optional, default: 0
+            The offset of the center of the markers from the origin, in the
+            direction orthogonal to *orientation*.
 
-        *linelength*
-            a single numerical value, corresponding to the total height of the
-            marker (i.e. the marker stretches from lineoffset+linelength/2 to
-            lineoffset-linelength/2).  Defaults to 1
+        linelength : scalar, optional, default: 1
+            The total height of the marker (i.e. the marker stretches from
+            ``lineoffset - linelength/2`` to ``lineoffset + linelength/2``).
 
-        *linewidth*
-            a single numerical value
+        linewidth : scalar or None, optional, default: None
+            If it is None, defaults to its rcParams setting, in sequence form.
 
-        *color*
-            must be a sequence of RGBA tuples (e.g., arbitrary color
-            strings, etc, not allowed).
+        color : color, sequence of colors or None, optional, default: None
+            If it is None, defaults to its rcParams setting, in sequence form.
 
-        *linestyle* [ 'solid' | 'dashed' | 'dashdot' | 'dotted' ]
+        linestyle : str or tuple, optional, default: 'solid'
+            Valid strings are ['solid', 'dashed', 'dashdot', 'dotted',
+            '-', '--', '-.', ':']. Dash tuples should be of the form::
 
-        *antialiased*
-            1 or 2
+                (offset, onoffseq),
 
-        If *linewidth*, *color*, or *antialiased* is None, they
-        default to their rcParams setting, in sequence form.
+            where *onoffseq* is an even length tuple of on and off ink
+            in points.
 
-        *norm*
-            None (optional for :class:`matplotlib.cm.ScalarMappable`)
-        *cmap*
-            None (optional for :class:`matplotlib.cm.ScalarMappable`)
+        antialiased : {None, 1, 2}, optional
+            If it is None, defaults to its rcParams setting, in sequence form.
 
-        *pickradius* is the tolerance for mouse clicks picking a line.
-        The default is 5 pt.
+        **kwargs : optional
+            Other keyword arguments are line collection properties.  See
+            :class:`~matplotlib.collections.LineCollection` for a list of
+            the valid properties.
 
-        The use of :class:`~matplotlib.cm.ScalarMappable` is optional.
-        If the :class:`~matplotlib.cm.ScalarMappable` array
-        :attr:`~matplotlib.cm.ScalarMappable._A` is not None (i.e., a call to
-        :meth:`~matplotlib.cm.ScalarMappable.set_array` has been made), at
-        draw time a call to scalar mappable will be made to set the colors.
+        Example
+        -------
+
+        .. plot:: mpl_examples/pylab_examples/eventcollection_demo.py
         """
 
         segment = (lineoffset + linelength / 2.,
                    lineoffset - linelength / 2.)
-        if len(positions) == 0:
+        if positions is None or len(positions) == 0:
             segments = []
         elif hasattr(positions, 'ndim') and positions.ndim > 1:
-            raise ValueError('if positions is an ndarry it cannot have '
-                             'dimensionality great than 1 ')
+            raise ValueError('positions cannot have a dimensionality greater '
+                             'than 1 (in the ndarray sense)')
         elif (orientation is None or orientation.lower() == 'none' or
               orientation.lower() == 'horizontal'):
             positions.sort()
