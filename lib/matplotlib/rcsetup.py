@@ -310,7 +310,8 @@ class validate_nseq_float(object):
 
         try:
             return [float(val)
-                    if not self.allow_none and val is not None
+                    if self.allow_none and val is not None
+                    or not self.allow_none
                     else val
                     for val in s]
         except ValueError:
@@ -965,10 +966,10 @@ defaultParams = {
     'lines.solid_joinstyle': ['round', validate_joinstyle],
     'lines.dash_capstyle':   ['butt', validate_capstyle],
     'lines.solid_capstyle':  ['projecting', validate_capstyle],
-    'lines.dashed_pattern':  [[3.7, 1.6], validate_nseq_float(allow_none=True)],
+    'lines.dashed_pattern':  [[3.7, 1.6], validate_nseq_float()],
     'lines.dashdot_pattern': [[6.4, 1.6, 1, 1.6],
-                              validate_nseq_float(allow_none=True)],
-    'lines.dotted_pattern':  [[1, 1.65], validate_nseq_float(allow_none=True)],
+                              validate_nseq_float()],
+    'lines.dotted_pattern':  [[1, 1.65], validate_nseq_float()],
     'lines.scale_dashes':  [True, validate_bool],
 
     # marker props
