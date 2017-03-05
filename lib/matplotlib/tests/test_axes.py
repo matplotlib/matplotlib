@@ -4984,3 +4984,32 @@ def test_invalid_axis_limits():
         plt.ylim(np.nan)
     with pytest.raises(ValueError):
         plt.ylim(np.inf)
+
+
+def test_tick_label_selection():
+    #test feature #8128
+    pd = pytest.importorskip('pandas')
+    # all posibilities for the parameter we are testing
+    which = {None, 'minor', 'major', 'both'}
+
+    for w in which:
+        fig, ax = plt.subplots()
+        df = pd.DataFrame(data=[1] * 5,
+                     index=pd.date_range(start='2017-01-01', periods=5),
+                     columns=['A'])
+        df.plot(ax=ax)
+
+        #format the tick labels with the given parameter value
+        fig.autofmt_xdate(0.2, 30, 'right', w)
+
+        #keep a boolean of whether or not the major & minor axis should be rotated
+        is_rotated_minor = (w == 'both') or (w == 'minor')
+        is_rotated_major = (w == 'both') or (w == 'major') or (w == None)
+
+        #check if the major axis were formatted (or not) as expected
+        for label in fig.axes[0].get_xticklabels(False, 'major'):
+            assert (label.get_rotation() == 30) == is_rotated_major
+
+        #check if the minor axis were formatted (or not) as expected
+        for label in fig.axes[0].get_xticklabels(False, 'minor'):
+            assert (label.get_rotation() == 30) == is_rotated_minor
