@@ -2937,6 +2937,7 @@ def test_eventplot_colors(colors):
     for coll, color in zip(collections, expected):
         assert_allclose(coll.get_color(), color)
 
+
 @image_comparison(baseline_images=['test_eventplot_problem_kwargs'],
                   extensions=['png'], remove_text=True)
 def test_eventplot_problem_kwargs():
