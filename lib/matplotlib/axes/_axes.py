@@ -2542,8 +2542,8 @@ or tuple of floats
           *frame*: [ *False* | *True* ]
             Plot axes frame with the chart.
 
-		  *labelrotate*: [ *False* | *True* ]
-			Rotate each label to the angle of the corresponding slice.
+          *labelrotate*: [ *False* | *True* ]
+            Rotate each label to the angle of the corresponding slice.
 
         The pie chart will probably look best if the figure and axes are
         square, or the Axes aspect is equal.  e.g.::
