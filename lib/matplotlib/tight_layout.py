@@ -11,11 +11,12 @@ for some cases (for example, left or right margin is affected by xlabel).
 
 import warnings
 
-import matplotlib
-from matplotlib.transforms import TransformedBbox, Bbox
+import numpy as np
 
+import matplotlib
+from matplotlib import rcParams
+from matplotlib.transforms import TransformedBbox, Bbox
 from matplotlib.font_manager import FontProperties
-rcParams = matplotlib.rcParams
 
 
 def _get_left(tight_bbox, axes_bbox):
@@ -193,13 +194,19 @@ def auto_adjust_subplotpars(fig, renderer,
                 for i in range(rows)
                 for s in hspaces[i * (cols + 1) + 1:(i + 1) * (cols + 1) - 1])
             + hpad_inches / fig_width_inch)
-        h_axes = (1 - margin_right - margin_left - hspace * (cols - 1)) / cols
+        # Make sure that `h_axes` (and, below, `v_axes`) stays positive, even
+        # when the axes are cramped.
+        h_axes = max(
+            (1 - margin_right - margin_left - hspace * (cols - 1)) / cols,
+            np.finfo(float).resolution)
         kwargs["wspace"] = hspace / h_axes
 
     if rows > 1:
         vspace = (max(sum(s) for s in vspaces[cols:-cols])
                   + vpad_inches / fig_height_inch)
-        v_axes = (1 - margin_top - margin_bottom - vspace * (rows - 1)) / rows
+        v_axes = max(
+            (1 - margin_top - margin_bottom - vspace * (rows - 1)) / rows,
+            np.finfo(float).resolution)
         kwargs["hspace"] = vspace / v_axes
 
     return kwargs
