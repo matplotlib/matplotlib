@@ -2475,7 +2475,7 @@ or tuple of floats
             autopct=None, pctdistance=0.6, shadow=False, labeldistance=1.1,
             startangle=None, radius=None, counterclock=True,
             wedgeprops=None, textprops=None, center=(0, 0),
-            frame=False, labelrotate=False):
+            frame=False, rotatelabels=False):
         r"""
         Plot a pie chart.
 
@@ -2542,7 +2542,7 @@ or tuple of floats
           *frame*: [ *False* | *True* ]
             Plot axes frame with the chart.
 
-          *labelrotate*: [ *False* | *True* ]
+          *rotatelabels*: [ *False* | *True* ]
             Rotate each label to the angle of the corresponding slice.
 
         The pie chart will probably look best if the figure and axes are
@@ -2620,7 +2620,6 @@ or tuple of floats
             x, y = center
             theta2 = (theta1 + frac) if counterclock else (theta1 - frac)
             thetam = 2 * math.pi * 0.5 * (theta1 + theta2)
-            thetamd = 360 * 0.5 * (theta1 + theta2)
             x += expl * math.cos(thetam)
             y += expl * math.sin(thetam)
 
@@ -2643,15 +2642,17 @@ or tuple of floats
 
             xt = x + labeldistance * radius * math.cos(thetam)
             yt = y + labeldistance * radius * math.sin(thetam)
-            label_alignment = xt > 0 and 'left' or 'right'
+            label_alignment_h = xt > 0 and 'left' or 'right'
+            label_alignment_v = 'center'
             label_rotation = 'horizontal'
-            if labelrotate:
-                label_rotation = thetamd + (0 if xt > 0 else 180)
+            if rotatelabels:
+                label_alignment_v = yt > 0 and 'bottom' or 'top'
+                label_rotation = np.rad2deg(thetam) + (0 if xt > 0 else 180)
 
             t = self.text(xt, yt, label,
                           size=rcParams['xtick.labelsize'],
-                          horizontalalignment=label_alignment,
-                          verticalalignment='center',
+                          horizontalalignment=label_alignment_h,
+                          verticalalignment=label_alignment_v,
                           rotation=label_rotation,
                           **textprops)
 

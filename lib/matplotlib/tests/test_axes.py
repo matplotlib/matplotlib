@@ -4242,17 +4242,17 @@ def test_pie_frame_grid():
     plt.axis('equal')
 
 
-@image_comparison(baseline_images=['pie_labelrotate_true'], extensions=['png'])
-def test_pie_labelrotate_true():
+@image_comparison(baseline_images=['pie_rotatelabels_true'], extensions=['png'])
+def test_pie_rotatelabels_true():
     # The slices will be ordered and plotted counter-clockwise.
-    labels = 'Frogs', 'Hogs', 'Dogs', 'Logs'
+    labels = 'Hogwarts', 'Frogs', 'Dogs', 'Logs'
     sizes = [15, 30, 45, 10]
     colors = ['yellowgreen', 'gold', 'lightskyblue', 'lightcoral']
     explode = (0, 0.1, 0, 0)  # only "explode" the 2nd slice (i.e. 'Hogs')
 
     plt.pie(sizes, explode=explode, labels=labels, colors=colors,
             autopct='%1.1f%%', shadow=True, startangle=90,
-            labelrotate=True)
+            rotatelabels=True)
     # Set aspect ratio to be equal so that pie is drawn as a circle.
     plt.axis('equal')
 
