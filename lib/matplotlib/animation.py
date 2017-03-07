@@ -874,6 +874,12 @@ class Animation(object):
         if self._blit:
             self._setup_blit()
 
+        # Saves the animation is the figure class to prevent Python's garbage
+        # collection from deleteing the animation.
+        if (not hasattr(fig, 'animations')):
+            fig.animations = []
+        fig.animations.append(self)
+
     def _start(self, *args):
         '''
         Starts interactive animation. Adds the draw frame command to the GUI

@@ -164,7 +164,38 @@ def test_save_animation_smoketest(tmpdir, writer, extension):
         except UnicodeDecodeError:
             pytest.xfail("There can be errors in the numpy import stack, "
                          "see issues #1891 and #2679")
+        try:
+            length = len(fig.animations)
+            assert(length != 0)
+        except AttributeError:
+            pytest.fail("animations save failed, python garbage collector may "
+                        "delete the animation objects.")
 
+
+def test_animation_on_save():
+    fig = plt.figure()
+
+    def update_line(num, data, line):
+        line.set_data(data[..., :num])
+        return line,
+
+    # Fixing random state for reproducibility
+    np.random.seed(19680801)
+
+    data = np.random.rand(2, 25)
+    l, = plt.plot([], [], 'r-')
+    plt.xlim(0, 1)
+    plt.ylim(0, 1)
+    plt.xlabel('x')
+    plt.title('test')
+    animation.FuncAnimation(fig, update_line,
+                            25, fargs=(data, l), interval=50, blit=True)
+    try:
+        length = len(fig.animations)
+        assert(length != 0)
+    except AttributeError:
+        pytest.fail("animations save failed, python garbage collector may"
+                    " delete the animation objects.")
 
 def test_no_length_frames():
     fig, ax = plt.subplots()
