@@ -6,6 +6,7 @@ Controlling style of text and labels using a dictionary
 This example shows how to share parameters across many text objects and labels
 by creating a dictionary of options passed across several functions.
 """
+
 import numpy as np
 import matplotlib.pyplot as plt
 

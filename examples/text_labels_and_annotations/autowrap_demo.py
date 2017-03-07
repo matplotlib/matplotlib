@@ -5,8 +5,8 @@ Auto-wrapping text
 
 Matplotlib can wrap text automatically, but if it's too long, the text will be
 displayed slightly outside of the boundaries of the axis anyways.
-
 """
+
 import matplotlib.pyplot as plt
 
 fig = plt.figure()
