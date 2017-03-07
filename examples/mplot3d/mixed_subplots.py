@@ -2,6 +2,7 @@
 ============================================
 Demonstrate the mixing of 2d and 3d subplots
 ============================================
+
 This example shows a how to plot a 2D and 3D plot on the same figure.
 """
 

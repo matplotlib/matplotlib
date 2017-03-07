@@ -18,7 +18,7 @@ class DataDisplayDownsampler(object):
     def __init__(self, xdata, ydata):
         self.origYData = ydata
         self.origXData = xdata
-        self.ratio = 50
+        self.ratio = 5
         self.delta = xdata[-1] - xdata[0]
 
     def downsample(self, xstart, xend):
