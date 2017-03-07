@@ -288,7 +288,7 @@ details.  More examples can be found in
 :ref:`pylab_examples-annotation_demo`.
 
 
-Logarithmic and other nonlinear axis
+Logarithmic and other nonlinear axes
 ====================================
 
 :mod:`matplotlib.pyplot` supports not only linear axis scales, but also
