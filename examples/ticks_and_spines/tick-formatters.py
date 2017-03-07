@@ -1,5 +1,9 @@
 """
-Show the different tick formatters
+===============
+Tick formatters
+===============
+
+Show the different tick formatters.
 """
 
 import numpy as np
