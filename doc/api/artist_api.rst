@@ -16,6 +16,7 @@
 ``Artist`` class
 ================
 
+.. autoclass:: Artist
 
 Interactive
 -----------
