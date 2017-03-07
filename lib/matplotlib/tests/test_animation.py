@@ -167,9 +167,6 @@ def test_save_animation_smoketest(tmpdir, writer, extension):
         try:
             length = len(fig.animations)
             assert(length != 0)
-        except AttributeError:
-            pytest.fail("animations save failed, python garbage collector may "
-                        "delete the animation objects.")
 
 
 def test_animation_on_save():
@@ -193,9 +190,7 @@ def test_animation_on_save():
     try:
         length = len(fig.animations)
         assert(length != 0)
-    except AttributeError:
-        pytest.fail("animations save failed, python garbage collector may"
-                    " delete the animation objects.")
+
 
 def test_no_length_frames():
     fig, ax = plt.subplots()
