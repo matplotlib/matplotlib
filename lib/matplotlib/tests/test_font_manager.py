@@ -4,7 +4,6 @@ from __future__ import (absolute_import, division, print_function,
 import six
 
 import os
-import sys
 import tempfile
 import warnings
 
@@ -14,6 +13,14 @@ from matplotlib.font_manager import (
     findfont, FontProperties, fontManager, json_dump, json_load, get_font,
     get_fontconfig_fonts, is_opentype_cff_font, fontManager as fm)
 from matplotlib import rc_context
+
+if six.PY2:
+    from distutils.spawn import find_executable
+    has_fclist = find_executable('fc-list') is not None
+else:
+    # py >= 3.3
+    from shutil import which
+    has_fclist = which('fc-list') is not None
 
 
 def test_font_priority():
@@ -65,6 +72,6 @@ def test_otf():
         assert res == is_opentype_cff_font(f)
 
 
-@pytest.mark.skipif(sys.platform == 'win32', reason='no fontconfig on Windows')
+@pytest.mark.skipif(not has_fclist, reason='no fontconfig installed')
 def test_get_fontconfig_fonts():
     assert len(get_fontconfig_fonts()) > 1
