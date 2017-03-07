@@ -221,7 +221,6 @@ copy_if_out_of_date('../INSTALL', 'users/installing.rst')
 # Create the examples symlink, if it doesn't exist
 
 required_symlinks = [
-    ('mpl_examples', '../examples/'),
     ('mpl_toolkits/axes_grid1/examples', '../../../examples/axes_grid1/'),
     ('mpl_toolkits/axisartist/examples', '../../../examples/axisartist/')
     ]
