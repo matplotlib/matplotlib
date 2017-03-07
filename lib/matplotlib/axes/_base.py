@@ -2873,6 +2873,11 @@ class _AxesBase(martist.Artist):
             left, right = left
 
         self._process_unit_info(xdata=(left, right))
+
+        if ((np.isscalar(left)) and not (np.isfinite(left))) \
+                or ((np.isscalar(right)) and (not np.isfinite(right))):
+            raise ValueError('left/right should be finite values')
+
         if left is not None:
             left = self.convert_xunits(left)
         if right is not None:
@@ -3166,6 +3171,10 @@ class _AxesBase(martist.Artist):
 
         if top is None and iterable(bottom):
             bottom, top = bottom
+
+        if ((np.isscalar(top)) and not (np.isfinite(top))) \
+                or ((np.isscalar(bottom)) and (not np.isfinite(bottom))):
+            raise ValueError('top/bottom should be finite values')
 
         if bottom is not None:
             bottom = self.convert_yunits(bottom)

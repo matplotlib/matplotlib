@@ -173,6 +173,50 @@ def test_text3d():
     ax.set_zlabel('Z axis')
 
 
+def test_axes3d():
+    fig = plt.figure()
+    ax = fig.gca(projection='3d')
+
+    zdirs = (None, 'x', 'y', 'z', (1, 1, 0), (1, 1, 1))
+    xs = (2, 6, 4, 9, 7, 2)
+    ys = (6, 4, 8, 7, 2, 2)
+    zs = (4, 2, 5, 6, 1, 7)
+
+    for zdir, x, y, z in zip(zdirs, xs, ys, zs):
+        label = '(%d, %d, %d), dir=%s' % (x, y, z, zdir)
+        ax.text(x, y, z, label, zdir)
+
+    ax.text(1, 1, 1, "red", color='red')
+    ax.text2D(0.05, 0.95, "2D Text", transform=ax.transAxes)
+
+    with pytest.raises(ValueError):
+        ax.set_xlim3d(left=np.nan)
+    with pytest.raises(ValueError):
+        ax.set_xlim3d(left=np.inf)
+    with pytest.raises(ValueError):
+        ax.set_xlim3d(right=np.nan)
+    with pytest.raises(ValueError):
+        ax.set_xlim3d(right=np.inf)
+
+    with pytest.raises(ValueError):
+        ax.set_ylim3d(top=np.nan)
+    with pytest.raises(ValueError):
+        ax.set_ylim3d(top=np.inf)
+    with pytest.raises(ValueError):
+        ax.set_ylim3d(bottom=np.nan)
+    with pytest.raises(ValueError):
+        ax.set_ylim3d(bottom=np.inf)
+
+    with pytest.raises(ValueError):
+        ax.set_zlim3d(top=np.nan)
+    with pytest.raises(ValueError):
+        ax.set_zlim3d(top=np.inf)
+    with pytest.raises(ValueError):
+        ax.set_zlim3d(bottom=np.nan)
+    with pytest.raises(ValueError):
+        ax.set_zlim3d(bottom=np.inf)
+
+
 @image_comparison(baseline_images=['trisurf3d'], remove_text=True, tol=0.03)
 def test_trisurf3d():
     n_angles = 36

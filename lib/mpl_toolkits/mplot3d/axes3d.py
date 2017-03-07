@@ -602,6 +602,10 @@ class Axes3D(Axes):
         if right is None and cbook.iterable(left):
             left, right = left
 
+        if ((np.isscalar(left)) and not (np.isfinite(left))) \
+                or ((np.isscalar(right)) and (not np.isfinite(right))):
+            raise ValueError('left/right should be finite values')
+
         self._process_unit_info(xdata=(left, right))
         if left is not None:
             left = self.convert_xunits(left)
@@ -655,6 +659,10 @@ class Axes3D(Axes):
 
         if top is None and cbook.iterable(bottom):
             bottom, top = bottom
+
+        if ((np.isscalar(top)) and not (np.isfinite(top))) \
+                or ((np.isscalar(bottom)) and (not np.isfinite(bottom))):
+            raise ValueError('top/bottom should be finite values')
 
         self._process_unit_info(ydata=(bottom, top))
         if bottom is not None:
@@ -711,6 +719,11 @@ class Axes3D(Axes):
             bottom, top = bottom
 
         self._process_unit_info(zdata=(bottom, top))
+
+        if ((np.isscalar(top)) and not (np.isfinite(top))) \
+                or ((np.isscalar(bottom)) and (not np.isfinite(bottom))):
+            raise ValueError('top/bottom should be finite values')
+
         if bottom is not None:
             bottom = self.convert_zunits(bottom)
         if top is not None:

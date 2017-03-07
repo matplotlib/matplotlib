@@ -996,6 +996,31 @@ def test_pcolorargs():
         ax.pcolormesh(X, Y, Z[:-1, :-1], shading="gouraud")
 
 
+def test_axes():
+    fig = plt.figure()
+    x = np.linspace(0, 10, 10)
+    y1 = 1.0 * x
+    y2 = 2.0 * x + 1
+    y3 = 3.0 * x + 2
+    ax = fig.add_subplot(1, 1, 1)
+    ax.stackplot(x, y1, y2, y3)
+    with pytest.raises(ValueError):
+        ax.set_xlim(left=np.nan)
+    with pytest.raises(ValueError):
+        ax.set_xlim(left=np.inf)
+    with pytest.raises(ValueError):
+        ax.set_xlim(right=np.nan)
+    with pytest.raises(ValueError):
+        ax.set_xlim(right=np.inf)
+    with pytest.raises(ValueError):
+        ax.set_ylim(top=np.nan)
+    with pytest.raises(ValueError):
+        ax.set_ylim(top=np.inf)
+    with pytest.raises(ValueError):
+        ax.set_ylim(bottom=np.nan)
+    with pytest.raises(ValueError):
+        ax.set_ylim(bottom=np.inf)
+
 @image_comparison(baseline_images=['canonical'])
 def test_canonical():
     fig, ax = plt.subplots()
