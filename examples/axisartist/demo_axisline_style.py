@@ -1,6 +1,6 @@
 """
 ================
-Axis Line Styles
+Axis line styles
 ================
 
 This example shows some configurations for axis style.
@@ -18,12 +18,12 @@ if 1:
     for direction in ["xzero", "yzero"]:
         # adds arrows at the ends of each axis
         ax.axis[direction].set_axisline_style("-|>")
-        
+
         # adds X and Y-axis from the origin
         ax.axis[direction].set_visible(True)
 
     for direction in ["left", "right", "bottom", "top"]:
-        # hides boarders
+        # hides borders
         ax.axis[direction].set_visible(False)
 
     x = np.linspace(-0.5, 1., 100)
