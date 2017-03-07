@@ -5099,8 +5099,10 @@ or tuple of floats
             luminance data.  Note if you pass a `norm` instance, your
             settings for `vmin` and `vmax` will be ignored.
 
-        alpha : scalar, optional, default: None
-            The alpha blending value, between 0 (transparent) and 1 (opaque)
+        alpha : [scalar | array_like], optional, default: None
+            The alpha blending value, between 0 (transparent) and 1 (opaque).
+            If `scalar` is an array, the alpha blending values are applied
+            pixel by pixel, and `scalar` must have the same shape as `X`.
 
         origin : ['upper' | 'lower'], optional, default: None
             Place the [0,0] index of the array in the upper left or lower left
