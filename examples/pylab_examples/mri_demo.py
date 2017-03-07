@@ -3,7 +3,8 @@
 MRI
 ===
 
-This example illustrates how to read an image (of an MRI) into a numpy array, and display it in greyscale using `ax.imshow`.
+This example illustrates how to read an image (of an MRI) into a NumPy array,
+and display it in greyscale using `imshow`.
 
 """
 

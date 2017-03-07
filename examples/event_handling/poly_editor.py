@@ -4,8 +4,7 @@ Poly Editor
 ==========
 
 This is an example to show how to build cross-GUI applications using
-matplotlib event handling to interact with objects on the canvas
-
+matplotlib event handling to interact with objects on the canvas.
 """
 import numpy as np
 from matplotlib.lines import Line2D

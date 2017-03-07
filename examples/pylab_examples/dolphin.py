@@ -1,9 +1,10 @@
 """
-=======
-Dophins
-=======
+========
+Dolphins
+========
 
-This example shows how to draw, and manipulate shapes given verticies and nodes using the patches, path and transforms classes.
+This example shows how to draw, and manipulate shapes given vertices and nodes
+using the `patches`, `path` and `transforms` classes.
 """
 
 import matplotlib.cm as cm
