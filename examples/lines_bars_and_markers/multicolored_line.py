@@ -19,7 +19,7 @@ dydx = np.cos(0.5 * (x[:-1] + x[1:]))  # first derivative
 # Create a set of line segments so that we can color them individually
 # This creates the points as a N x 1 x 2 array so that we can stack points
 # together easily to get the segments. The segments array for line collection
-# needs to be numlines x points per line x 2 (x and y)
+# needs to be (numlines) x (points per line) x 2 (for x and y)
 points = np.array([x, y]).T.reshape(-1, 1, 2)
 segments = np.concatenate([points[:-1], points[1:]], axis=1)
 
