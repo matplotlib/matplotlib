@@ -1,3 +1,11 @@
+"""
+========
+Log Axis
+========
+
+This is an example of assigning a log-scale for the x-axis using `semilogx`.
+"""
+
 import matplotlib.pyplot as plt
 import numpy as np
 

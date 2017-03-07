@@ -1,3 +1,12 @@
+"""
+======================
+Geographic Projections
+======================
+
+This shows 4 possible projections using subplot.
+Matplotlib also supports the <a href='http://matplotlib.org/basemap/'>Basemaps Toolkit</a> for geographic projections.
+"""
+
 import matplotlib.pyplot as plt
 
 plt.figure()

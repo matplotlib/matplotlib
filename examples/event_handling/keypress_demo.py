@@ -1,4 +1,8 @@
 """
+=========
+Key Press
+=========
+
 Show how to connect to keypress events
 """
 from __future__ import print_function

@@ -1,4 +1,11 @@
-"""Displays an MRI image."""
+"""
+===
+MRI
+===
+
+This example illustrates how to read an image (of an MRI) into a numpy array, and display it in greyscale using `ax.imshow`.
+
+"""
 
 import matplotlib.pyplot as plt
 import matplotlib.cbook as cbook
