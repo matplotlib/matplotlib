@@ -1,4 +1,8 @@
 """
+=============
+Tick locators
+=============
+
 Show the different tick locators
 """
 
