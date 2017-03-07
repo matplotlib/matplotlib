@@ -1,5 +1,9 @@
 '''
-Demonstrating plotting a parametric curve in 3D.
+================
+Parametric Curve
+================
+
+This example demonstrates plotting a parametric curve in 3D.
 '''
 
 import matplotlib as mpl

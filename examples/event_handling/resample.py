@@ -1,13 +1,20 @@
+"""
+===============
+Resampling Data
+===============
+
+Downsampling lowers the sample rate or sample size of a signal. In this tutorial, the signal is downsampled when the plot is adjusted through dragging and zooming.
+"""
+
 import numpy as np
 import matplotlib.pyplot as plt
-
 
 # A class that will downsample the data and recompute when zoomed.
 class DataDisplayDownsampler(object):
     def __init__(self, xdata, ydata):
         self.origYData = ydata
         self.origXData = xdata
-        self.ratio = 5
+        self.ratio = 50
         self.delta = xdata[-1] - xdata[0]
 
     def downsample(self, xstart, xend):

@@ -1,4 +1,8 @@
 '''
+=========================
+Automatic Text Offsetting
+=========================
+
 This example demonstrates mplot3d's offset text display.
 As one rotates the 3D figure, the offsets should remain oriented the
 same way as the axis label, and should also be located "away"

@@ -1,5 +1,9 @@
 # -*- coding: utf-8 -*-
 """
+=========================
+Selective Text Coloration
+=========================
+
 The example shows how to string together several text objects.
 
 HISTORY
