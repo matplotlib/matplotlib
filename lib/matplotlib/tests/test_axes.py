@@ -4972,3 +4972,15 @@ def test_bar_single_height():
     ax.bar(range(4), 1)
     # Check that a horizontal chart with one width works
     ax.bar(0, 1, bottom=range(4), width=1, orientation='horizontal')
+
+
+def test_invalid_axis_limits():
+    plt.plot([0, 1], [0, 1])
+    with pytest.raises(ValueError):
+        plt.xlim(np.nan)
+    with pytest.raises(ValueError):
+        plt.xlim(np.inf)
+    with pytest.raises(ValueError):
+        plt.ylim(np.nan)
+    with pytest.raises(ValueError):
+        plt.ylim(np.inf)
