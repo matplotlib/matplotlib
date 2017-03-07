@@ -2,6 +2,8 @@
 =======
 Firefox
 =======
+
+This example shows how to create the firefox logo with path and patches.
 """
 
 import re
