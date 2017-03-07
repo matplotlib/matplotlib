@@ -878,7 +878,8 @@ bool path_intersects_path(PathIterator1 &p1, PathIterator2 &p2)
 inline bool segment_intersects_rectangle(double x1, double y1,
                                          double x2, double y2,
                                          double cx, double cy,
-                                         double w, double h) {
+                                         double w, double h)
+{
     return fabs(x1 + x2 - 2.0 * cx) < fabs(x1 - x2) + w &&
            fabs(y1 + y2 - 2.0 * cy) < fabs(y1 - y2) + h &&
            2.0 * fabs((x1 - cx) * (y1 - y2) - (y1 - cy) * (x1 - x2)) <
@@ -909,7 +910,7 @@ bool path_intersects_rectangle(PathIterator &path,
     double x1, y1, x2, y2;
 
     curve.vertex(&x1, &y1);
-    if(2.0 * fabs(x1 - cx) <= w && 2.0 * fabs(y1 - cy) <= h) {
+    if (2.0 * fabs(x1 - cx) <= w && 2.0 * fabs(y1 - cy) <= h) {
         return true;
     }
 
