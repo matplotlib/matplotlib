@@ -927,7 +927,7 @@ class AutoDateLocator(DateLocator):
             YEARLY  : [1, 2, 4, 5, 10, 20, 40, 50, 100, 200, 400, 500,
                       1000, 2000, 4000, 5000, 10000],
             MONTHLY : [1, 2, 3, 4, 6],
-            DAILY   : [1, 2, 3, 7, 14],
+            DAILY   : [1, 2, 3, 7, 14, 21],
             HOURLY  : [1, 2, 3, 4, 6, 12],
             MINUTELY: [1, 5, 10, 15, 30],
             SECONDLY: [1, 5, 10, 15, 30],
@@ -951,7 +951,7 @@ class AutoDateLocator(DateLocator):
                        SECONDLY, MICROSECONDLY]
         self.minticks = minticks
 
-        self.maxticks = {YEARLY: 11, MONTHLY: 12, DAILY: 11, HOURLY: 12,
+        self.maxticks = {YEARLY: 11, MONTHLY: 8, DAILY: 6, HOURLY: 12,
                          MINUTELY: 11, SECONDLY: 11, MICROSECONDLY: 8}
         if maxticks is not None:
             try:

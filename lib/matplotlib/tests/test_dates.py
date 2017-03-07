@@ -467,3 +467,12 @@ def test_DayLocator():
 def test_tz_utc():
     dt = datetime.datetime(1970, 1, 1, tzinfo=mdates.UTC)
     dt.tzname()
+
+
+@image_comparison(baseline_images=['date_no_tick_overlap.png'],
+                      extensions=['png'])
+def test_datetime_tick_overlap():
+    #test issue 7712
+    dates = [datetime.datetime(2017,1,i) for i in range(1,30)]
+    values = list(range(1,30))
+    plt.plot(dates, values)    
