@@ -4972,3 +4972,32 @@ def test_bar_single_height():
     ax.bar(range(4), 1)
     # Check that a horizontal chart with one width works
     ax.bar(0, 1, bottom=range(4), width=1, orientation='horizontal')
+
+
+def test_axhline_datetime_limits():
+    # Plot horizontal line with other lines in
+    # different order and check if they have the same limits
+    date1 = datetime.datetime(2016, 1, 1, 0, 0, 0)
+    date2 = datetime.datetime(2016, 1, 30, 0, 0, 0)
+    date3 = datetime.datetime(2016, 1, 10, 0, 0, 0)
+
+    dates1 = [date1, date2]
+    values1 = [1, 2]
+
+    dates2 = [date1, date3]
+    values2 = [0, 5]
+
+    fig, (ax1, ax2) = plt.subplots(2, 1)
+
+    ax1.axhline(1.5)
+    ax1.plot(dates1, values1)
+
+    ax2.plot(dates1, values1)
+    ax2.axhline(1.5)
+
+    assert ax1.get_xlim() == ax2.get_xlim()
+
+    ax1.plot(dates2, values2)
+    ax2.plot(dates2, values2)
+
+    assert ax1.get_xlim() == ax2.get_xlim()

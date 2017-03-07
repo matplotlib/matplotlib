@@ -724,8 +724,12 @@ or tuple of floats
 
         trans = self.get_yaxis_transform(which='grid')
         l = mlines.Line2D([xmin, xmax], [y, y], transform=trans, **kwargs)
+
+        # Save state for ignoring existing data limits and set it back later
+        ignore = self.ignore_existing_data_limits
         self.add_line(l)
         self.autoscale_view(scalex=False, scaley=scaley)
+        self.ignore_existing_data_limits = ignore
         return l
 
     @docstring.dedent_interpd
