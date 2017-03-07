@@ -1,10 +1,11 @@
 '''
-====================
-The Lorenz Attractor
-====================
+================
+Lorenz Attractor
+================
 
-Plot of the Lorenz Attractor based on Edward Lorenz's 1963 "Deterministic
-Nonperiodic Flow" publication.
+This is an example of plotting Edward Lorenz's 1963 "Deterministic
+Nonperiodic Flow" in a 3-dimensional space using mplot3d.
+
 http://journals.ametsoc.org/doi/abs/10.1175/1520-0469%281963%29020%3C0130%3ADNF%3E2.0.CO%3B2
 
 Note: Because this is a simple non-linear ODE, it would be more easily

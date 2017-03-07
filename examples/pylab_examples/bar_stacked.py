@@ -1,10 +1,15 @@
 """
-===========
-Bar Stacked
-===========
+=================
+Stacked Bar Graph
+=================
 
-A stacked bar plot with errorbars.
+This is an example of creating a stacked bar plot with error bars
+using `plt.bar`.  Note the parameters `yerr` used for error bars, and
+`bottom` to stack the women's bars on top of the men's bars.
+
 """
+
+# a stacked bar plot with errorbars
 import numpy as np
 import matplotlib.pyplot as plt
 
