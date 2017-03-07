@@ -1542,6 +1542,8 @@ class QuadContourSet(ContourSet):
 
         if z.ndim != 2:
             raise TypeError("Input z must be a 2D array.")
+        elif z.shape[0] < 2 or z.shape[1] < 2:
+            raise TypeError("Input z must be at least a 2x2 array.")
         else:
             Ny, Nx = z.shape
 
@@ -1590,6 +1592,8 @@ class QuadContourSet(ContourSet):
         """
         if z.ndim != 2:
             raise TypeError("Input must be a 2D array.")
+        elif z.shape[0] < 2 or z.shape[1] < 2:
+            raise TypeError("Input z must be at least a 2x2 array.")
         else:
             Ny, Nx = z.shape
         if self.origin is None:  # Not for image-matching.
