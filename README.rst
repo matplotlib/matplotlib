@@ -61,11 +61,9 @@ matplotlib's communication channels include active mailing lists:
 * `Announcement  <https://mail.python.org/mailman/listinfo/matplotlib-announce>`_ mailing list: matplotlib-announce@python.org
 * `Development <https://mail.python.org/mailman/listinfo/matplotlib-devel>`_ mailing list: matplotlib-devel@python.org
 
-
 The first is a good starting point for general questions and discussions.
 
-
-
+`Gitter <https://gitter.im/matplotlib/matplotlib>`_ is for coordinating development and asking questions directly related to contributing to matplotlib.
 
 Contribute
 ==========

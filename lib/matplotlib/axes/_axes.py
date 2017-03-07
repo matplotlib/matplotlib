@@ -2362,7 +2362,7 @@ or tuple of floats
         If no *x* values are provided, the default is (0, 1, ..., len(y) - 1)
 
         Return value is a tuple (*markerline*, *stemlines*,
-        *baseline*).
+        *baseline*). See :class:`~matplotlib.container.StemContainer`
 
         .. seealso::
             This
