@@ -4991,3 +4991,15 @@ def test_datetime_axhline_same_axes():
     axs[1].plot(xvalues, yvalues)
 
     assert (axs[0].get_xlim() == axs[1].get_xlim())
+
+
+def test_invalid_axis_limits():
+    plt.plot([0, 1], [0, 1])
+    with pytest.raises(ValueError):
+        plt.xlim(np.nan)
+    with pytest.raises(ValueError):
+        plt.xlim(np.inf)
+    with pytest.raises(ValueError):
+        plt.ylim(np.nan)
+    with pytest.raises(ValueError):
+        plt.ylim(np.inf)
