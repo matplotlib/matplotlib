@@ -876,8 +876,6 @@ class Animation(object):
 
         # Saves the animation is the figure class to prevent Python's garbage
         # collection from deleteing the animation.
-        if (not hasattr(fig, 'animations')):
-            fig.animations = []
         fig.animations.append(self)
 
     def _start(self, *args):

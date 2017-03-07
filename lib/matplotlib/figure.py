@@ -354,6 +354,7 @@ class Figure(Artist):
         self._axstack = AxesStack()  # track all figure axes and current axes
         self.clf()
         self._cachedRenderer = None
+        self.animations = []
 
     @cbook.deprecated("2.1", alternative="Figure.patch")
     def figurePatch(self):
