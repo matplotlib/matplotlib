@@ -4,9 +4,9 @@ Creating adjacent subplots
 ==========================
 
 To create plots that share a common axes (visually) you can set the
-hspace between the subplots close to zero (do not use zero itself). Passing
-sharex=True when creating the subplots will automatically turn of all x ticks
-and labels apart from on the bottom axis.
+hspace between the subplots to zero. Passing sharex=True when creating the
+subplots will automatically turn of all x ticks and labels apart from on the
+bottom axis.
 
 In this example the plots share a common xaxis but you can follow the
 same logic to supply a common y axis.
@@ -22,7 +22,7 @@ s3 = s1 * s2
 
 fig, axs = plt.subplots(3, 1, sharex=True)
 # Remove horizontal space between axes
-fig.subplots_adjust(hspace=0.001)
+fig.subplots_adjust(hspace=0)
 
 # Plot each graph, and manually set the y tick values
 axs[0].plot(t, s1)
