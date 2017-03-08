@@ -29,9 +29,10 @@ sys.path.append(os.path.abspath('.'))
 extensions = ['matplotlib.sphinxext.mathmpl', 'sphinxext.math_symbol_table',
               'sphinx.ext.autodoc', 'matplotlib.sphinxext.only_directives',
               'sphinx.ext.doctest', 'sphinx.ext.autosummary',
-              'matplotlib.sphinxext.plot_directive',
               'sphinx.ext.inheritance_diagram',
-              'sphinxext.gen_gallery', 'sphinxext.gen_rst',
+              'sphinx_gallery.gen_gallery',
+              'sphinxext.gen_rst',
+              'matplotlib.sphinxext.plot_directive',
               'sphinxext.github',
               'numpydoc']
 
@@ -95,6 +96,14 @@ except ImportError:
 autosummary_generate = True
 
 autodoc_docstring_signature = True
+
+
+# Sphinx gallery configuration
+sphinx_gallery_conf = {
+   # path to your examples scripts
+    'examples_dirs' : '../examples',
+    # path where to save gallery generated examples
+    'gallery_dirs'  : 'auto_examples'}
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
