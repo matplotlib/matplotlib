@@ -4,8 +4,8 @@ Precise text layout
 ===================
 
 You can precisely layout text in data or axes (0,1) coordinates.  This
-example shows you some of the alignment and rotation specifications to
-layout text.
+example shows you some of the alignment and rotation specifications for text
+layout.
 """
 
 import matplotlib.pyplot as plt
