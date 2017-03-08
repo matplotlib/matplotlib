@@ -3,9 +3,9 @@
 .. Therefore, you must edit INSTALL, *not* doc/users/installing.rst!
 .. _pip: https://pypi.python.org/pypi/pip/
 
-**********
+==========
 Installing
-**********
+==========
 
 There are many different ways to install matplotlib, and the best way
 depends on what operating system you are using, what you already have
@@ -325,7 +325,32 @@ can get the libpng and freetype requirements (darwinports, fink,
 /usr/X11R6) and the different architectures (e.g., x86, ppc, universal) and
 the different OSX version (e.g., 10.4 and 10.5). We recommend that you build
 the way we do for the OSX release: get the source from the tarball or the
-git repository and follow the instruction in :file:`README.osx`.
+git repository and install the required dependencies through a third-party
+package manager: two widely used package managers are homebrew, and MacPorts.
+The following example illustrates how to install libpng and freetype using
+brew:
+
+Example usage::
+
+  brew install libpng freetype pkg-config
+
+If you are using MacPorts, execute the following instead:
+
+Example usage::
+
+  port install libpng freetype pkgconfig
+
+To install matplotlib from source, execute:
+
+Example usage::
+
+  python setup.py install
+
+
+Note that your environment is somewhat important. Some conda users have 
+found that, to run the tests, their PYTHONPATH must include 
+/path/to/anaconda/.../site-packages and their DYLD_FALLBACK_LIBRARY_PATH 
+must include /path/to/anaconda/lib.
 
 
 .. _build_windows:
@@ -341,3 +366,71 @@ with the same compiler.
 Since there is no canonical Windows package manager, the methods for building
 freetype, zlib, and libpng from source code are documented as a build script
 at `matplotlib-winbuild <https://github.com/jbmohler/matplotlib-winbuild>`_.
+
+
+There are a few possibilities to build matplotlib on Windows:
+
+* Wheels via `matplotlib-winbuild <https://github.com/jbmohler/matplotlib-winbuild>`_
+* Wheels by using conda packages
+* Conda packages
+
+Wheel builds using conda packages
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+This is a wheel build, but we use conda packages to get all the requirements. The binary
+requirements (png, freetype,...) are statically linked and therefore not needed during the wheel
+install.
+
+The commands below assume that you can compile a native python lib for the python version of your
+choice. See `this howto <http://blog.ionelmc.ro/2014/12/21/compiling-python-extensions-on-windows/>`_
+how to install and setup such environments. If in doubt: use python 3.5 as it mostly works
+without fiddling with environment variables::
+
+  # create a new environment with the required packages
+  conda create  -n "matplotlib_build" python=3.4 numpy python-dateutil pyparsing pytz tornado "cycler>=0.10" tk libpng zlib freetype
+  activate matplotlib_build
+  # if you want a qt backend, you also have to install pyqt (be aware that pyqt doesn't mix well if
+  # you have created the environment with conda-forge already activated...)
+  conda install pyqt
+  # this package is only available in the conda-forge channel
+  conda install -c conda-forge msinttypes
+  # for python 2.7
+  conda install -c conda-forge backports.functools_lru_cache
+
+  # copy the libs which have "wrong" names
+  set LIBRARY_LIB=%CONDA_DEFAULT_ENV%\Library\lib
+  mkdir lib || cmd /c "exit /b 0"
+  copy %LIBRARY_LIB%\zlibstatic.lib lib\z.lib
+  copy %LIBRARY_LIB%\libpng_static.lib lib\png.lib
+
+  # Make the header files and the rest of the static libs available during the build
+  # CONDA_DEFAULT_ENV is a env variable which is set to the currently active environment path
+  set MPLBASEDIRLIST=%CONDA_DEFAULT_ENV%\Library\;.
+
+  # build the wheel
+  python setup.py bdist_wheel
+
+The `build_alllocal.cmd` script in the root folder automates these steps if
+you already created and activated the conda environment.
+
+
+Conda packages
+^^^^^^^^^^^^^^
+
+This needs a `working installed C
+compiler
+<http://blog.ionelmc.ro/2014/12/21/compiling-python-extensions-on-windows/>`_
+for the version of python you are compiling the package for but you don't need
+to setup the environment variables::
+
+  # only the first time...
+  conda install conda-build
+
+  # the python version you want a package for...
+  set CONDA_PY=3.5
+
+  # builds the package, using a clean build environment
+  conda build ci\conda_recipe
+
+  # install the new package
+  conda install --use-local matplotlib
