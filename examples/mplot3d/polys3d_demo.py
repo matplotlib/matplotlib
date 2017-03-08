@@ -3,7 +3,7 @@
 Generate polygons to fill under 3D line graph
 =============================================
 
-Demonstrate how to create polygons which fill the space under a line 
+Demonstrate how to create polygons which fill the space under a line
 graph. In this example polygons are semi-transparent, creating a sort
 of 'jagged stained glass' effect.
 """
