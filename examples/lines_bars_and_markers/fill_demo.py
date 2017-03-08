@@ -21,7 +21,6 @@ fig, ax = plt.subplots()
 
 ax.fill(x, y, zorder=10)
 ax.grid(True, zorder=5)
-plt.show()
 
 x = np.linspace(0, 2 * np.pi, 500)
 y1 = np.sin(x)
