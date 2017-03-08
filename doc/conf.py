@@ -14,6 +14,7 @@
 import os
 import sys
 import sphinx
+import six
 
 # If your extensions are in another directory, add it here. If the directory
 # is relative to the documentation root, use os.path.abspath to make it
@@ -66,6 +67,23 @@ except ImportError:
     except ImportError:
         raise ImportError("No module named mock - you need to install "
                           "mock to build the documentation")
+
+try:
+    from PIL import Image
+except ImportError:
+    raise ImportError("No module named Image - you need to install "
+                      "pillow to build the documentation")
+
+if six.PY2:
+    from distutils.spawn import find_executable
+    has_dot = find_executable('dot') is not None
+else:
+    from shutil import which  # Python >= 3.3
+    has_dot = which('dot') is not None
+if not has_dot:
+    raise OSError(
+        "No binary named dot - you need to install the Graph Visualization "
+        "software (usually packaged as 'graphviz') to build the documentation")
 
 try:
     import matplotlib
