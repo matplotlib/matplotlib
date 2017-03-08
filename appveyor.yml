@@ -63,6 +63,10 @@ platform:
 # all our python builds have to happen in tests_script...
 build: false
 
+cache:
+  - '%LOCALAPPDATA%\pip\Cache'
+  - '%USERPROFILE%\.cache\matplotlib'
+
 init:
   - cmd: "ECHO %PYTHON_VERSION% PYTEST=%USE_PYTEST% %CONDA_INSTALL_LOCN%"
 
