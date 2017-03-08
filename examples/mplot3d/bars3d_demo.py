@@ -1,3 +1,12 @@
+"""
+========================================
+Create 2D bar graphs in different planes
+========================================
+
+Demonstrates making a 3D plot which has 2D bar graphs projected onto
+planes y=0, y=1, etc.
+"""
+
 from mpl_toolkits.mplot3d import Axes3D
 import matplotlib.pyplot as plt
 import numpy as np

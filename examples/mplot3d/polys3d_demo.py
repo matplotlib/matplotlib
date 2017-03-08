@@ -1,3 +1,13 @@
+"""
+=============================================
+Generate polygons to fill under 3D line graph
+=============================================
+
+Demonstrate how to create polygons which fill the space under a line
+graph. In this example polygons are semi-transparent, creating a sort
+of 'jagged stained glass' effect.
+"""
+
 from mpl_toolkits.mplot3d import Axes3D
 from matplotlib.collections import PolyCollection
 import matplotlib.pyplot as plt

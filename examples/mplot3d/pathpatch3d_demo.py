@@ -1,3 +1,11 @@
+"""
+============================
+Draw flat objects in 3D plot
+============================
+
+Demonstrate using pathpatch_2d_to_3d to 'draw' shapes and text on a 3D plot.
+"""
+
 import matplotlib.pyplot as plt
 from matplotlib.patches import Circle, PathPatch
 # register Axes3D class with matplotlib by importing Axes3D
