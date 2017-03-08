@@ -13,7 +13,7 @@ When ``Path.intersects_bbox`` is called with ``filled`` set to ``True``
 (the default value), there is no change in behavior. For those rare cases where
 ``Path.intersects_bbox`` was called with ``filled`` set to ``False`` and where
 the old behavior is actually desired, the suggested workaround is to call
-``Path.intersects_path`` with a rectangle as the path:
+``Path.intersects_path`` with a rectangle as the path::
 
     from matplotlib.path import Path
     from matplotlib.transforms import Bbox, BboxTransformTo
