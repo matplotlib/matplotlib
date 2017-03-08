@@ -4242,7 +4242,8 @@ def test_pie_frame_grid():
     plt.axis('equal')
 
 
-@image_comparison(baseline_images=['pie_rotatelabels_true'], extensions=['png'])
+@image_comparison(baseline_images=['pie_rotatelabels_true'],
+                  extensions=['png'])
 def test_pie_rotatelabels_true():
     # The slices will be ordered and plotted counter-clockwise.
     labels = 'Hogwarts', 'Frogs', 'Dogs', 'Logs'
