@@ -1,6 +1,6 @@
 """
 =============================================
-Generate polygons to fill under 3d line graph
+Generate polygons to fill under 3D line graph
 =============================================
 
 Demonstrate how to create polygons which fill the space under a line 
