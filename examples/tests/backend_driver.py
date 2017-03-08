@@ -173,7 +173,6 @@ files['pylab'] = [
     'hatch_demo.py',
     'hexbin_demo.py',
     'hexbin_demo2.py',
-    'hist_colormapped.py',
     'vline_hline_demo.py',
 
     'image_clip_path.py',
