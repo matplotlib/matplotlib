@@ -1,5 +1,9 @@
 """
-Small demonstration of the hlines and vlines plots.
+=================
+hlines and vlines
+=================
+
+This example showcases the functions hlines and vlines.
 """
 
 import matplotlib.pyplot as plt
