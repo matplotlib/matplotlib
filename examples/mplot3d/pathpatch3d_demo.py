@@ -1,6 +1,6 @@
 """
 ============================
-Draw flat objects in 3d plot
+Draw flat objects in 3D plot
 ============================
 
 Demonstrate using pathpatch_2d_to_3d to 'draw' shapes and text on a 3D plot.
