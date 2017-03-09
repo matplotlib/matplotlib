@@ -32,6 +32,7 @@ extensions = ['matplotlib.sphinxext.mathmpl', 'sphinxext.math_symbol_table',
               'sphinx.ext.inheritance_diagram',
               'sphinx_gallery.gen_gallery',
               'sphinxext.gen_rst',
+              'sphinxext.gen_gallery',
               'matplotlib.sphinxext.plot_directive',
               'sphinxext.github',
               'numpydoc']
@@ -105,6 +106,7 @@ sphinx_gallery_conf = {
     # path where to save gallery generated examples
     'gallery_dirs'  : 'auto_examples'}
 
+plot_gallery = True
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
 

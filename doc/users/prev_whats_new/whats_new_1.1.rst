@@ -205,6 +205,6 @@ Other improvements
 
 * Pim Schellart added a new colormap called "cubehelix".
   Sameer Grover also added a colormap called "coolwarm". See it and all
-  other colormaps :ref:`here <color-colormaps_reference>`.
+  other colormaps :ref:`here <color-plot_colormaps_reference>`.
 
 * Many bug fixes and documentation improvements.
