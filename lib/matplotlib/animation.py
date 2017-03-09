@@ -876,7 +876,7 @@ class Animation(object):
 
         # Saves the animation is the figure class to prevent Python's garbage
         # collection from deleteing the animation.
-        fig.animations.append(self)
+        fig._keep_alives.append(self)
 
     def _start(self, *args):
         '''

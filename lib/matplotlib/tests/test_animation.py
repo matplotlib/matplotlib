@@ -164,7 +164,7 @@ def test_save_animation_smoketest(tmpdir, writer, extension):
         except UnicodeDecodeError:
             pytest.xfail("There can be errors in the numpy import stack, "
                          "see issues #1891 and #2679")
-        length = len(fig.animations)
+        length = len(fig._keep_alives)
         assert(length != 0)
 
 
@@ -186,7 +186,7 @@ def test_animation_on_save():
     plt.title('test')
     animation.FuncAnimation(fig, update_line,
                             25, fargs=(data, l), interval=50, blit=True)
-    length = len(fig.animations)
+    length = len(fig._keep_alives)
     assert(length != 0)
 
 
