@@ -267,7 +267,7 @@ class MovieWriter(AbstractMovieWriter):
     def frame_size(self):
         'A tuple (width,height) in pixels of a movie frame.'
         w, h = self.fig.get_size_inches()
-        return int(w * self.dpi), int(h * self.dpi)
+        return round(w * self.dpi), round(h * self.dpi)
 
     def _adjust_frame_size(self):
         if self.codec == 'h264':
