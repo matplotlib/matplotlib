@@ -1021,6 +1021,7 @@ def test_axes():
     with pytest.raises(ValueError):
         ax.set_ylim(bottom=np.inf)
 
+
 @image_comparison(baseline_images=['canonical'])
 def test_canonical():
     fig, ax = plt.subplots()
