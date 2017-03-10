@@ -62,10 +62,19 @@ else:
 # how-to-encode-series-of-images-into-h264-using-x264-api-c-c )
 
 
+def correct_roundoff(x, dpi, n):
+    if int(x*dpi) % n != 0:
+        if int(np.nextafter(x, np.inf)*dpi) % n == 0:
+            x = np.nextafter(x, np.inf)
+        if int(np.nextafter(x, -np.inf)*dpi) % n == 0:
+            x = np.nextafter(x, -np.inf)
+    return x
+
+
 def adjusted_figsize(w, h, dpi, n):
-    wnew = np.round(int(w * dpi / n) * n / dpi)
-    hnew = np.round(int(h * dpi / n) * n / dpi)
-    return wnew, hnew
+    wnew = int(w * dpi / n) * n / dpi
+    hnew = int(h * dpi / n) * n / dpi
+    return (correct_roundoff(wnew, dpi, n), correct_roundoff(hnew, dpi, n))
 
 
 # A registry for available MovieWriter classes
