@@ -281,12 +281,7 @@ class ImageComparisonDecorator(CleanupTest):
             reason = ("Do not have baseline image {0} because this "
                       "file does not exist: {1}".format(expected_fname,
                                                         orig_expected_fname))
-            if is_called_from_pytest():
-                import pytest
-                pytest.xfail(reason)
-            else:
-                from ._nose import knownfail
-                knownfail(reason)
+            raise ImageComparisonFailure(reason)
         return expected_fname
 
     def compare(self, idx, baseline, extension):
