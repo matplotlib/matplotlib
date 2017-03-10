@@ -1068,39 +1068,46 @@ class FigureCanvasPS(FigureCanvasBase):
         else:
             creator_str = "matplotlib version " + __version__ + \
                 ", http://matplotlib.org/"
+
         def print_figure_impl():
             # write the PostScript headers
-            if isEPSF: print("%!PS-Adobe-3.0 EPSF-3.0", file=fh)
-            else: print("%!PS-Adobe-3.0", file=fh)
-            if title: print("%%Title: "+title, file=fh)
+            if isEPSF:
+                print("%!PS-Adobe-3.0 EPSF-3.0", file=fh)
+            else:
+                print("%!PS-Adobe-3.0", file=fh)
+            if title:
+                print("%%Title: "+title, file=fh)
             print("%%Creator: " + creator_str, file=fh)
             # get source date from SOURCE_DATE_EPOCH, if set
             # See https://reproducible-builds.org/specs/source-date-epoch/
             source_date_epoch = os.getenv("SOURCE_DATE_EPOCH")
             if source_date_epoch:
                 source_date = datetime.datetime.utcfromtimestamp(
-                    int(source_date_epoch) ).strftime("%a %b %d %H:%M:%S %Y")
+                    int(source_date_epoch)).strftime("%a %b %d %H:%M:%S %Y")
             else:
                 source_date = time.ctime()
             print("%%CreationDate: "+source_date, file=fh)
             print("%%Orientation: " + orientation, file=fh)
-            if not isEPSF: print("%%DocumentPaperSizes: "+papertype, file=fh)
+            if not isEPSF:
+                print("%%DocumentPaperSizes: "+papertype, file=fh)
             print("%%%%BoundingBox: %d %d %d %d" % bbox, file=fh)
-            if not isEPSF: print("%%Pages: 1", file=fh)
+            if not isEPSF:
+                print("%%Pages: 1", file=fh)
             print("%%EndComments", file=fh)
 
             Ndict = len(psDefs)
             print("%%BeginProlog", file=fh)
             if not rcParams['ps.useafm']:
                 Ndict += len(ps_renderer.used_characters)
-            print("/mpldict %d dict def"%Ndict, file=fh)
+            print("/mpldict %d dict def" % Ndict, file=fh)
             print("mpldict begin", file=fh)
             for d in psDefs:
-                d=d.strip()
+                d = d.strip()
                 for l in d.split('\n'):
                     print(l.strip(), file=fh)
             if not rcParams['ps.useafm']:
-                for font_filename, chars in six.itervalues(ps_renderer.used_characters):
+                for font_filename, chars in six.itervalues(
+                        ps_renderer.used_characters):
                     if len(chars):
                         font = get_font(font_filename)
                         glyph_ids = []
@@ -1120,21 +1127,29 @@ class FigureCanvasPS(FigureCanvasBase):
                         # STIX fonts).  This will simply turn that off to avoid
                         # errors.
                         if is_opentype_cff_font(font_filename):
-                            raise RuntimeError("OpenType CFF fonts can not be saved using the internal Postscript backend at this time.\nConsider using the Cairo backend.")
+                            msg = ("OpenType CFF fonts can not be saved "
+                                   "using the internal Postscript backend "
+                                   "at this time.\nConsider using the "
+                                   "Cairo backend.")
+                            raise RuntimeError(msg)
                         else:
                             fh.flush()
                             convert_ttf_to_ps(
-                                font_filename.encode(sys.getfilesystemencoding()),
+                                font_filename.encode(
+                                    sys.getfilesystemencoding()),
                                 fh, fonttype, glyph_ids)
             print("end", file=fh)
             print("%%EndProlog", file=fh)
 
-            if not isEPSF: print("%%Page: 1 1", file=fh)
+            if not isEPSF:
+                print("%%Page: 1 1", file=fh)
             print("mpldict begin", file=fh)
-            #print >>fh, "gsave"
-            print("%s translate"%_nums_to_str(xo, yo), file=fh)
-            if rotation: print("%d rotate"%rotation, file=fh)
-            print("%s clipbox"%_nums_to_str(width*72, height*72, 0, 0), file=fh)
+
+            print("%s translate" % _nums_to_str(xo, yo), file=fh)
+            if rotation:
+                print("%d rotate" % rotation, file=fh)
+            print("%s clipbox" % _nums_to_str(width*72, height*72, 0, 0),
+                  file=fh)
 
             # write the figure
             content = self._pswriter.getvalue()
@@ -1143,10 +1158,10 @@ class FigureCanvasPS(FigureCanvasBase):
             print(content, file=fh)
 
             # write the trailer
-            #print >>fh, "grestore"
             print("end", file=fh)
             print("showpage", file=fh)
-            if not isEPSF: print("%%EOF", file=fh)
+            if not isEPSF:
+                print("%%EOF", file=fh)
             fh.flush()
 
         if rcParams['ps.usedistiller']:
@@ -1161,8 +1176,9 @@ class FigureCanvasPS(FigureCanvasBase):
                 requires_unicode = file_requires_unicode(outfile)
 
                 if (not requires_unicode and
-                    (six.PY3 or not isinstance(outfile, StringIO))):
+                        (six.PY3 or not isinstance(outfile, StringIO))):
                     fh = io.TextIOWrapper(outfile, encoding="latin-1")
+
                     # Prevent the io.TextIOWrapper from closing the
                     # underlying file
                     def do_nothing():
