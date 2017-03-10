@@ -23,6 +23,7 @@ from __future__ import (absolute_import, division, print_function,
 import six
 from six.moves import xrange, zip
 
+import numpy as np
 import os
 import platform
 import sys
@@ -62,8 +63,8 @@ else:
 
 
 def adjusted_figsize(w, h, dpi, n):
-    wnew = int(w * dpi / n) * n / dpi
-    hnew = int(h * dpi / n) * n / dpi
+    wnew = np.round(int(w * dpi / n) * n / dpi)
+    hnew = np.round(int(h * dpi / n) * n / dpi)
     return wnew, hnew
 
 
