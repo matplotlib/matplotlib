@@ -353,7 +353,8 @@ some ratio which controls the ratio::
 
 .. htmlonly::
 
-    See :ref:`pylab_examples-equal_aspect_ratio` for a complete example.
+    See :ref:`subplots_axes_and_figures-plot_equal_aspect_ratio` for a complete
+    example.
 
 
 .. _howto-twoscale:
