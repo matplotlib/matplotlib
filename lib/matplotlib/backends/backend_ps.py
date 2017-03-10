@@ -1069,7 +1069,7 @@ class FigureCanvasPS(FigureCanvasBase):
             creator_str = "matplotlib version " + __version__ + \
                 ", http://matplotlib.org/"
 
-        def print_figure_impl():
+        def print_figure_impl(fh):
             # write the PostScript headers
             if isEPSF:
                 print("%!PS-Adobe-3.0 EPSF-3.0", file=fh)
@@ -1169,7 +1169,7 @@ class FigureCanvasPS(FigureCanvasBase):
             # Write to a temporary file.
             fd, tmpfile = mkstemp()
             with io.open(fd, 'w', encoding='latin-1') as fh:
-                print_figure_impl()
+                print_figure_impl(fh)
         else:
             # Write directly to outfile.
             if passed_in_file_object:
@@ -1187,10 +1187,10 @@ class FigureCanvasPS(FigureCanvasBase):
                 else:
                     fh = outfile
 
-                print_figure_impl()
+                print_figure_impl(fh)
             else:
                 with io.open(outfile, 'w', encoding='latin-1') as fh:
-                    print_figure_impl()
+                    print_figure_impl(fh)
 
         if rcParams['ps.usedistiller']:
             if rcParams['ps.usedistiller'] == 'ghostscript':
