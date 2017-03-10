@@ -126,7 +126,8 @@ def auto_adjust_subplotpars(fig, renderer,
         if all([not ax.get_visible() for ax in subplots]):
             continue
 
-        tight_bbox_raw = union([ax.get_tightbbox(renderer) for ax in subplots])
+        tight_bbox_raw = union([ax.get_tightbbox(renderer) for ax in subplots
+                                if ax.get_visible()])
         tight_bbox = TransformedBbox(tight_bbox_raw,
                                      fig.transFigure.inverted())
 
