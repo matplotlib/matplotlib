@@ -1234,7 +1234,7 @@ class FigureCanvasPS(FigureCanvasBase):
         else:
             raise ValueError("outfile must be a path or a file-like object")
 
-        self.figure.dpi = 72 # ignore the dpi kwarg
+        self.figure.dpi = 72  # ignore the dpi kwarg
         width, height = self.figure.get_size_inches()
         xo = 0
         yo = 0
@@ -1262,18 +1262,17 @@ class FigureCanvasPS(FigureCanvasBase):
         else:
             self._pswriter = io.StringIO()
 
-
         # mixed mode rendering
         _bbox_inches_restore = kwargs.pop("bbox_inches_restore", None)
         ps_renderer = self._renderer_class(width, height,
                                            self._pswriter, imagedpi=dpi)
         renderer = MixedModeRenderer(self.figure,
-            width, height, dpi, ps_renderer,
-            bbox_inches_restore=_bbox_inches_restore)
+                                     width, height, dpi, ps_renderer,
+                                     bbox_inches_restore=_bbox_inches_restore)
 
         self.figure.draw(renderer)
 
-        if dryrun: # return immediately if dryrun (tightbbox=True)
+        if dryrun:  # return immediately if dryrun (tightbbox=True)
             return
 
         self.figure.set_facecolor(origfacecolor)
@@ -1287,18 +1286,22 @@ class FigureCanvasPS(FigureCanvasBase):
                 ", http://matplotlib.org/"
 
         # write to a temp file, we'll move it to outfile when done
+
         fd, tmpfile = mkstemp()
+
         with io.open(fd, 'w', encoding='latin-1') as fh:
             # write the Encapsulated PostScript headers
             print("%!PS-Adobe-3.0 EPSF-3.0", file=fh)
-            if title: print("%%Title: "+title, file=fh)
+            if title:
+                print("%%Title: "+title, file=fh)
             print("%%Creator: " + creator_str, file=fh)
             # get source date from SOURCE_DATE_EPOCH, if set
             # See https://reproducible-builds.org/specs/source-date-epoch/
             source_date_epoch = os.getenv("SOURCE_DATE_EPOCH")
             if source_date_epoch:
                 source_date = datetime.datetime.utcfromtimestamp(
-                    int(source_date_epoch) ).strftime("%a %b %d %H:%M:%S %Y")
+                    int(source_date_epoch)).strftime(
+                        "%a %b %d %H:%M:%S %Y")
             else:
                 source_date = time.ctime()
             print("%%CreationDate: "+source_date, file=fh)
@@ -1307,30 +1310,29 @@ class FigureCanvasPS(FigureCanvasBase):
 
             Ndict = len(psDefs)
             print("%%BeginProlog", file=fh)
-            print("/mpldict %d dict def"%Ndict, file=fh)
+            print("/mpldict %d dict def" % Ndict, file=fh)
             print("mpldict begin", file=fh)
             for d in psDefs:
-                d=d.strip()
+                d = d.strip()
                 for l in d.split('\n'):
                     print(l.strip(), file=fh)
             print("end", file=fh)
             print("%%EndProlog", file=fh)
 
             print("mpldict begin", file=fh)
-            #print >>fh, "gsave"
-            print("%s translate"%_nums_to_str(xo, yo), file=fh)
-            print("%s clipbox"%_nums_to_str(width*72, height*72, 0, 0), file=fh)
+            print("%s translate" % _nums_to_str(xo, yo), file=fh)
+            print("%s clipbox" % _nums_to_str(width*72, height*72, 0, 0),
+                  file=fh)
 
             # write the figure
             print(self._pswriter.getvalue(), file=fh)
 
             # write the trailer
-            #print >>fh, "grestore"
             print("end", file=fh)
             print("showpage", file=fh)
             fh.flush()
 
-        if isLandscape: # now we are ready to rotate
+        if isLandscape:  # now we are ready to rotate
             isLandscape = True
             width, height = height, width
             bbox = (lly, llx, ury, urx)
@@ -1344,16 +1346,17 @@ class FigureCanvasPS(FigureCanvasBase):
                 paperWidth, paperHeight = paperHeight, paperWidth
         else:
             temp_papertype = _get_papertype(width, height)
-            if papertype=='auto':
+            if papertype == 'auto':
                 papertype = temp_papertype
                 paperWidth, paperHeight = papersize[temp_papertype]
             else:
                 paperWidth, paperHeight = papersize[papertype]
-                if (width>paperWidth or height>paperHeight) and isEPSF:
+                if (width > paperWidth or height > paperHeight) and isEPSF:
                     paperWidth, paperHeight = papersize[temp_papertype]
-                    verbose.report('Your figure is too big to fit on %s paper. %s \
-    paper will be used to prevent clipping.'%(papertype, temp_papertype), 'helpful')
-
+                    verbose.report(
+                        ('Your figure is too big to fit on %s paper. %s '
+                         'paper will be used to prevent clipping.'
+                         ) % (papertype, temp_papertype), 'helpful')
 
         texmanager = ps_renderer.get_texmanager()
         font_preamble = texmanager.get_font_preamble()
@@ -1361,7 +1364,8 @@ class FigureCanvasPS(FigureCanvasBase):
 
         psfrag_rotated = convert_psfrags(tmpfile, ps_renderer.psfrag,
                                          font_preamble,
-                                         custom_preamble, paperWidth, paperHeight,
+                                         custom_preamble, paperWidth,
+                                         paperHeight,
                                          orientation)
 
         if rcParams['ps.usedistiller'] == 'ghostscript':
@@ -1371,9 +1375,11 @@ class FigureCanvasPS(FigureCanvasBase):
             xpdf_distill(tmpfile, isEPSF, ptype=papertype, bbox=bbox,
                          rotated=psfrag_rotated)
         elif rcParams['text.usetex']:
-            if False: pass # for debugging
-            else: gs_distill(tmpfile, isEPSF, ptype=papertype, bbox=bbox,
-                             rotated=psfrag_rotated)
+            if False:
+                pass  # for debugging
+            else:
+                gs_distill(tmpfile, isEPSF, ptype=papertype, bbox=bbox,
+                           rotated=psfrag_rotated)
 
         if is_writable_file_like(outfile):
             if file_requires_unicode(outfile):
@@ -1388,6 +1394,7 @@ class FigureCanvasPS(FigureCanvasBase):
             mode = os.stat(outfile).st_mode
             shutil.move(tmpfile, outfile)
             os.chmod(outfile, mode)
+
 
 def convert_psfrags(tmpfile, psfrags, font_preamble, custom_preamble,
                     paperWidth, paperHeight, orientation):
