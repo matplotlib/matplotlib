@@ -6499,7 +6499,7 @@ or tuple of floats
 
         Examples
         --------
-        .. plot:: mpl_examples/pylab_examples/hist2d_demo.py
+        .. plot:: mpl_examples/statistics/plot_hist.py
         """
 
         # xrange becomes range after 2to3
