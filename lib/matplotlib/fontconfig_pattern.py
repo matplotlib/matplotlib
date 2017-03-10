@@ -176,12 +176,21 @@ def generate_fontconfig_pattern(d):
     props = []
     families = ''
     size = ''
-    for key in 'family style variant weight stretch file size'.split():
+    # Handle 'family' first and escape it properly
+    family = d.get_family()
+    if family:
+        if type(family) == list:
+           family = [family_escape( r'\\\1', str(x)) for x in family if x]
+           if family:
+               family = ','.join(family)
+        props.append("%s" % family)
+
+    for key in ['style', 'variant', 'weight', 'stretch', 'file', 'size']:
         val = getattr(d, 'get_' + key)()
-        if val is not None and val != []:
+        if val:
             if type(val) == list:
-                val = [value_escape(r'\\\1', str(x)) for x in val if x is not None]
-                if val != []:
+                val = [value_escape(r'\\\1', str(x)) for x in val if x]
+                if val:
                     val = ','.join(val)
             props.append(":%s=%s" % (key, val))
     return ''.join(props)
