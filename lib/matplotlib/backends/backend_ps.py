@@ -1168,8 +1168,31 @@ class FigureCanvasPS(FigureCanvasBase):
             # We are going to use an external program to process the output.
             # Write to a temporary file.
             fd, tmpfile = mkstemp()
-            with io.open(fd, 'w', encoding='latin-1') as fh:
-                print_figure_impl(fh)
+            try:
+                with io.open(fd, 'w', encoding='latin-1') as fh:
+                    print_figure_impl(fh)
+                if rcParams['ps.usedistiller'] == 'ghostscript':
+                    gs_distill(tmpfile, isEPSF, ptype=papertype, bbox=bbox)
+                elif rcParams['ps.usedistiller'] == 'xpdf':
+                    xpdf_distill(tmpfile, isEPSF, ptype=papertype, bbox=bbox)
+
+                if passed_in_file_object:
+                    if file_requires_unicode(outfile):
+                        with io.open(tmpfile, 'rb') as fh:
+                            outfile.write(fh.read().decode('latin-1'))
+                    else:
+                        with io.open(tmpfile, 'rb') as fh:
+                            outfile.write(fh.read())
+                else:
+                    with io.open(outfile, 'w') as fh:
+                        pass
+                    mode = os.stat(outfile).st_mode
+                    shutil.move(tmpfile, outfile)
+                    os.chmod(outfile, mode)
+            finally:
+                if os.path.isfile(tmpfile):
+                    os.unlink(tmpfile)
+
         else:
             # Write directly to outfile.
             if passed_in_file_object:
@@ -1191,26 +1214,6 @@ class FigureCanvasPS(FigureCanvasBase):
             else:
                 with io.open(outfile, 'w', encoding='latin-1') as fh:
                     print_figure_impl(fh)
-
-        if rcParams['ps.usedistiller']:
-            if rcParams['ps.usedistiller'] == 'ghostscript':
-                gs_distill(tmpfile, isEPSF, ptype=papertype, bbox=bbox)
-            elif rcParams['ps.usedistiller'] == 'xpdf':
-                xpdf_distill(tmpfile, isEPSF, ptype=papertype, bbox=bbox)
-
-            if passed_in_file_object:
-                if file_requires_unicode(outfile):
-                    with io.open(tmpfile, 'rb') as fh:
-                        outfile.write(fh.read().decode('latin-1'))
-                else:
-                    with io.open(tmpfile, 'rb') as fh:
-                        outfile.write(fh.read())
-            else:
-                with io.open(outfile, 'w') as fh:
-                    pass
-                mode = os.stat(outfile).st_mode
-                shutil.move(tmpfile, outfile)
-                os.chmod(outfile, mode)
 
     def _print_figure_tex(self, outfile, format, dpi, facecolor, edgecolor,
                           orientation, isLandscape, papertype, metadata=None,
