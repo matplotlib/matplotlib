@@ -338,6 +338,7 @@ class MovieWriter(AbstractMovieWriter):
         verbose.report('MovieWriter.grab_frame: Grabbing frame.',
                        level='debug')
         try:
+            self._adjust_frame_size()
             # Tell the figure to save its data to the sink, using the
             # frame format and dpi.
             self.fig.savefig(self._frame_sink(), format=self.frame_format,
