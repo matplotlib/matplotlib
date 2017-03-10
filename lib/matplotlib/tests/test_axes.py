@@ -1002,6 +1002,32 @@ def test_canonical():
     ax.plot([1, 2, 3])
 
 
+@image_comparison(baseline_images=['arc_angles'], remove_text=True,
+                  style='default', extensions=['png'])
+def test_arc_angles():
+    from matplotlib import patches
+    # Ellipse parameters
+    w = 2
+    h = 1
+    centre = (0.2, 0.5)
+
+    fig, axs = plt.subplots(3, 3)
+    for i, ax in enumerate(axs.flat):
+        theta2 = i * 360 / 9
+        theta1 = theta2 - 45
+        ax.add_patch(patches.Ellipse(centre, w, h, alpha=0.3))
+        ax.add_patch(patches.Arc(centre, w, h, theta1=theta1, theta2=theta2))
+        # Straight lines intersecting start and end of arc
+        ax.plot([2 * np.cos(np.deg2rad(theta1)) + centre[0],
+                 centre[0],
+                 2 * np.cos(np.deg2rad(theta2)) + centre[0]],
+                [2 * np.sin(np.deg2rad(theta1)) + centre[1],
+                 centre[1],
+                 2 * np.sin(np.deg2rad(theta2)) + centre[1]])
+        ax.set_xlim(-2, 2)
+        ax.set_ylim(-2, 2)
+
+
 @image_comparison(baseline_images=['arc_ellipse'],
                   remove_text=True)
 def test_arc_ellipse():
@@ -1010,15 +1036,14 @@ def test_arc_ellipse():
     width, height = 1e-1, 3e-1
     angle = -30
 
-    theta = np.arange(0.0, 360.0, 1.0)*np.pi/180.0
-    x = width/2. * np.cos(theta)
-    y = height/2. * np.sin(theta)
+    theta = np.arange(0.0, 360.0, 1.0) * np.pi / 180.0
+    x = width / 2. * np.cos(theta)
+    y = height / 2. * np.sin(theta)
 
-    rtheta = angle*np.pi/180.
+    rtheta = angle * np.pi / 180.
     R = np.array([
-        [np.cos(rtheta),  -np.sin(rtheta)],
-        [np.sin(rtheta), np.cos(rtheta)],
-        ])
+        [np.cos(rtheta), -np.sin(rtheta)],
+        [np.sin(rtheta), np.cos(rtheta)]])
 
     x, y = np.dot(R, np.array([x, y]))
     x += xcenter
