@@ -21,7 +21,7 @@ np.random.seed(19680801)
 #
 # To generate a 1D histogram we only need a single vector of numbers. For a 2D
 # histogram we'll need a second vector. We'll generate both below, and show
-# the histogram for each vector
+# the histogram for each vector.
 
 N_points = 100000
 n_bins = 20
@@ -44,7 +44,7 @@ axs[1].hist(y, bins=n_bins)
 # The histogram method returns (among other things) a `patches` object. This
 # gives us access to the properties of the objects drawn. Using this, we can
 # edit the histogram to our liking. Let's change the color of each bar
-# based on its y value
+# based on its y value.
 
 fig, axs = plt.subplots(1, 2, figsize=(10, 5), tight_layout=True)
 
@@ -62,7 +62,7 @@ for thisfrac, thispatch in zip(fracs, patches):
     color = plt.cm.viridis(norm(thisfrac))
     thispatch.set_facecolor(color)
 
-# We can also normalize our inputs by the total number of counts.
+# We can also normalize our inputs by the total number of counts
 axs[1].hist(x, bins=n_bins, normed=True)
 
 # Now we format the y-axis to display percentage
@@ -79,12 +79,13 @@ axs[1].yaxis.set_major_formatter(PercentFormatter(xmax=1))
 fig, ax = plt.subplots(tight_layout=True)
 hist = ax.hist2d(x, y)
 
+
 ###############################################################################
 # Customizing your histogram
 # --------------------------
 #
 # Customizing a 2D histogram is similar to the 1D case, you can control
-# visual components such as the bin size or color normalization
+# visual components such as the bin size or color normalization.
 
 fig, axs = plt.subplots(1, 3, figsize=(15, 5), sharex=True, sharey=True,
                         tight_layout=True)
