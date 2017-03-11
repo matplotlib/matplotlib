@@ -2954,6 +2954,8 @@ class Figure(FigureBase):
         if not np.isfinite(size).all() or (size < 0).any():
             raise ValueError(f'figure size must be positive finite not {size}')
         self.bbox_inches.p1 = size
+        if tuple(size) == (w, h) and not forward:
+            return
         if forward:
             manager = self.canvas.manager
             if manager is not None:
