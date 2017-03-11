@@ -352,7 +352,7 @@ git. Please also add a line to the README in doc/pyplots for any additional
 requirements necessary to generate a new figure. Once these steps have been
 taken, these figures can be included in the usual way::
 
-   .. plot:: mpl_examples/pyplots/tex_unicode_demo.py
+   .. plot:: mpl_examples/text_labels_and_annotations/tex_demo.py
       :include-source:
 
 Examples

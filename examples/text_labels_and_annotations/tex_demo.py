@@ -1,7 +1,7 @@
 """
-========
-Tex Demo
-========
+=================================
+Rendering math equation using TeX
+=================================
 
 You can use TeX to render all of your matplotlib text if the rc
 parameter text.usetex is set.  This works currently on the agg and ps
@@ -12,6 +12,8 @@ you will see a lot of output from tex and associated tools.  The next
 time, the run may be silent, as a lot of the information is cached in
 ~/.tex.cache
 
+Notice how the the label for the y axis is provided using unicode!
+
 """
 from __future__ import unicode_literals
 import numpy as np
@@ -21,32 +23,17 @@ matplotlib.rcParams['text.latex.unicode'] = True
 import matplotlib.pyplot as plt
 
 
-plt.rc('font', family='serif')
-plt.figure(1, figsize=(6, 4))
-ax = plt.axes([0.1, 0.1, 0.8, 0.7])
 t = np.linspace(0.0, 1.0, 100)
 s = np.cos(4 * np.pi * t) + 2
-plt.plot(t, s)
 
-plt.xlabel(r'\textbf{time (s)}')
-plt.ylabel(r'\textit{voltage (mV)}', fontsize=16)
-plt.title(r'\TeX\ is Number $\displaystyle\sum_{n=1}^\infty'
-          r'\frac{-e^{i\pi}}{2^n}$!', fontsize=16, color='r')
-plt.grid(True)
-plt.savefig('tex_demo')
-plt.show()
-
-
-
-plt.figure(2, figsize=(6, 4))
-ax = plt.axes([0.1, 0.1, 0.8, 0.7])
 t = np.arange(0.0, 1.0 + 0.01, 0.01)
 s = np.cos(2*2*np.pi*t) + 2
-plt.plot(t, s)
 
-plt.xlabel(r'\textbf{time (s)}')
-plt.ylabel('\\textit{Velocity (\u00B0/sec)}', fontsize=16)
-plt.title(r'\TeX\ is Number $\displaystyle\sum_{n=1}^\infty'
-          r'\frac{-e^{i\pi}}{2^n}$!', fontsize=16, color='r')
-plt.grid(True)
+fig, ax = plt.subplots(figsize=(6, 4), tight_layout=True)
+ax.plot(t, s)
+
+ax.set_xlabel(r'\textbf{time (s)}')
+ax.set_ylabel('\\textit{Velocity (\u00B0/sec)}')
+ax.set_title(r'\TeX\ is Number $\displaystyle\sum_{n=1}^\infty'
+             r'\frac{-e^{i\pi}}{2^n}$!')
 plt.show()

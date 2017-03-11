@@ -53,12 +53,12 @@ matplotlibrc use::
 
 Here is the standard example, `tex_demo.py`:
 
-.. figure:: ../../gallery/pyplots/images/sphx_glr_tex_demo_001.png
-   :target: ../../gallery/pyplots/tex_demo.html
+.. figure:: ../../gallery/text_labels_and_annotations/images/sphx_glr_tex_demo_001.png
+   :target: ../../gallery/text_labels_and_annotations/tex_demo.html
    :align: center
    :scale: 50
 
-   Tex Demo
+   TeX Demo
 
 Note that display math mode (``$$ e=mc^2 $$``) is  not supported, but adding the
 command ``\displaystyle``, as in `tex_demo.py`, will produce the same
@@ -76,15 +76,16 @@ results.
 
 usetex with unicode
 ===================
-It is also possible to use unicode strings with the LaTeX text manager, here is
-an example taken from `tex_unicode_demo.py`:
 
-.. figure:: ../../gallery/pylab_examples/images/sphx_glr_tex_unicode_demo_001.png
-   :target: ../../gallery/pylab_examples/tex_unicode_demo.html
+It is also possible to use unicode strings with the LaTeX text manager, here is
+an example taken from `tex_demo.py`. The axis labels include Unicode text:
+
+.. figure:: ../../gallery/text_labels_and_annotations/images/sphx_glr_tex_demo_001.png
+   :target: ../../gallery/text_labels_and_annotations/tex_demo.html
    :align: center
    :scale: 50
 
-   Tex Unicode Demo
+   TeX Unicode Demo
 
 .. _usetex-postscript:
 
