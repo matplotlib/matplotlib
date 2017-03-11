@@ -289,8 +289,8 @@ Known examples of using legend
 Here is a non-exhaustive list of the examples available involving legend
 being used in various ways:
 
-* :ref:`lines_bars_and_markers-scatter_with_legend`
 * :ref:`api-plot_legend`
+* :ref:`lines_bars_and_markers-plot_scatter_with_legend`
 * :ref:`pylab_examples-contourf_hatching`
 * :ref:`pylab_examples-figlegend_demo`
 * :ref:`pylab_examples-scatter_symbol`

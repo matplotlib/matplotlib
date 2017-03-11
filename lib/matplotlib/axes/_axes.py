@@ -4699,7 +4699,7 @@ or tuple of floats
 
         Examples
         --------
-        .. plot:: mpl_examples/lines_bars_and_markers/fill_demo.py
+        .. plot:: auto_examples/lines_bars_and_markers/plot_fill.py
 
 
         """
@@ -7067,7 +7067,7 @@ or tuple of floats
 
         Examples
         --------
-        .. plot:: mpl_examples/lines_bars_and_markers/cohere_demo.py
+        .. plot:: auto_examples/lines_bars_and_markers/plot_cohere.py
         """
         if not self._hold:
             self.cla()
