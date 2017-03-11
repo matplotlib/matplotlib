@@ -32,7 +32,7 @@ Histograms
 The :func:`~matplotlib.pyplot.hist` command automatically generates
 histograms and returns the bin counts or probabilities:
 
-.. plot:: mpl_examples/statistics/histogram_demo_features.py
+.. plot:: auto_examples/statistics/plot_histogram_features.py
 
 
 .. _screenshots_path_demo:

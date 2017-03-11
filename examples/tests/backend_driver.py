@@ -76,12 +76,12 @@ files['images'] = [
     ]
 
 files['statistics'] = [
-    'errorbar_demo.py',
-    'errorbar_demo_features.py',
-    'histogram_demo_cumulative.py',
-    'histogram_demo_features.py',
-    'histogram_demo_histtypes.py',
-    'histogram_demo_multihist.py',
+    'plot_errorbar.py',
+    'plot_errorbar_features.py',
+    'plot_histogram_cumulative.py',
+    'plot_histogram_features.py',
+    'plot_histogram_histtypes.py',
+    'plot_histogram_multihist.py',
     ]
 
 files['pie'] = [

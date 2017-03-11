@@ -2799,7 +2799,8 @@ or tuple of floats
 
         Examples
         --------
-        .. plot:: mpl_examples/statistics/errorbar_demo.py
+        .. plot:: auto_examples/statistics/plot_errorbar.py
+
         """
         kwargs = cbook.normalize_kwargs(kwargs, _alias_map)
         # anything that comes in as 'None', drop so the default thing
@@ -3270,7 +3271,7 @@ or tuple of floats
 
         Examples
         --------
-        .. plot:: mpl_examples/statistics/boxplot_demo.py
+        .. plot:: auto_examples/statistics/plot_boxplot.py
 
         """
 
@@ -3540,7 +3541,7 @@ or tuple of floats
         Examples
         --------
 
-        .. plot:: mpl_examples/statistics/bxp_demo.py
+        .. plot:: auto_examples/statistics/plot_bxp.py
 
         """
         # lists of artists to be output
@@ -6102,7 +6103,7 @@ or tuple of floats
 
         Examples
         --------
-        .. plot:: mpl_examples/statistics/histogram_demo_features.py
+        .. plot:: auto_examples/statistics/plot_histogram_features.py
 
         """
         # Avoid shadowing the builtin.
@@ -6486,7 +6487,7 @@ or tuple of floats
 
         Examples
         --------
-        .. plot:: mpl_examples/statistics/plot_hist.py
+        .. plot:: auto_examples/statistics/plot_hist.py
         """
 
         h, xedges, yedges = np.histogram2d(x, y, bins=bins, range=range,

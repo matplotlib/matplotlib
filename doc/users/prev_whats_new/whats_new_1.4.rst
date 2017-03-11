@@ -82,8 +82,8 @@ with :func:`~matplotlib.Axes.bxp`.
 Lastly, each artist (e.g., the box, outliers, cap, notches) can now be
 toggled on or off and their styles can be passed in through individual
 kwargs. See the examples:
-:ref:`statistics-boxplot_demo` and
-:ref:`statistics-bxp_demo`
+:ref:`statistics-plot_boxplot` and
+:ref:`statistics-plot_bxp`
 
 Added a bool kwarg, :code:`manage_xticks`, which if False disables the management
 of the ticks and limits on the x-axis by :func:`~matplotlib.axes.Axes.bxp`.
