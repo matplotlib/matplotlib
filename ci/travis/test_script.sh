@@ -23,14 +23,10 @@ if [[ $BUILD_DOCS == false ]]; then
   echo PYTHONHASHSEED=$PYTHONHASHSEED
 
   echo The following args are passed to pytest $PYTEST_ARGS $RUN_PEP8
-  if [[ $USE_PYTEST == false ]]; then
-    if [[ $TRAVIS_OS_NAME == 'osx' ]]; then
-      python tests.py $PYTEST_ARGS $RUN_PEP8
-    else
-      gdb -return-child-result -batch -ex r -ex bt --args python $PYTHON_ARGS tests.py $PYTEST_ARGS $RUN_PEP8
-    fi
+  if [[ $TRAVIS_OS_NAME == 'osx' ]]; then
+    python tests.py $PYTEST_ARGS $RUN_PEP8
   else
-    py.test $PYTEST_ARGS $RUN_PEP8
+    gdb -return-child-result -batch -ex r -ex bt --args python $PYTHON_ARGS tests.py $PYTEST_ARGS $RUN_PEP8
   fi
 else
   cd doc
