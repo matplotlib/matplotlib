@@ -2959,7 +2959,7 @@ class Figure(FigureBase):
         if forward:
             manager = self.canvas.manager
             if manager is not None:
-                manager.resize(*(size * self.dpi).astype(int))
+                manager.resize(*np.round((size * self.dpi)).astype(int))
         self.stale = True
 
     def get_size_inches(self):
