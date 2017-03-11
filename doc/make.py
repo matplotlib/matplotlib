@@ -40,12 +40,16 @@ def check_build():
 
 def doctest():
     """Execute Sphinx 'doctest' target. """
-    os.system('sphinx-build -b doctest -d build/doctrees . build/doctest')
+    subprocess.call(
+        [sys.executable]
+        + '-msphinx -b doctest -d build/doctrees . build/doctest'.split())
 
 
 def linkcheck():
     """Execute Sphinx 'linkcheck' target. """
-    os.system('sphinx-build -b linkcheck -d build/doctrees . build/linkcheck')
+    subprocess.call(
+        [sys.executable]
+        + '-msphinx -b linkcheck -d build/doctrees . build/linkcheck'.split())
 
 
 # For generating PNGs of the top row of index.html:
@@ -81,7 +85,8 @@ def generate_frontpage_pngs(only_if_needed=True):
             continue  # do nothing if png is newer
 
         # Execute python as subprocess (preferred over os.system()):
-        subprocess.check_call(["python", pn_py])  # raises CalledProcessError()
+        subprocess.check_call(
+            [sys.executable, pn_py])  # raises CalledProcessError()
         os.rename(fn_png, pn_png)  # move file to _static/ directory
 
 
@@ -96,14 +101,16 @@ def html(buildername='html'):
         rc = default_rc
     copy_if_out_of_date(rc, '_static/matplotlibrc')
 
+    options = ['-j{}'.format(n_proc),
+               '-b{}'.format(buildername),
+               '-dbuild/doctrees']
     if small_docs:
-        options = "-D plot_formats=png:100"
-    else:
-        options = ''
+        options += ['-Dplot_formats=png:100']
     if warnings_as_errors:
-        options = options + ' -W'
-    if os.system('sphinx-build -j %d %s -b %s -d build/doctrees . build/%s' % (
-            n_proc, options, buildername, buildername)):
+        options += ['-W']
+    if subprocess.call(
+            [sys.executable, '-msphinx', '.', 'build/{}'.format(buildername)]
+            + options):
         raise SystemExit("Building HTML failed.")
 
     # Clean out PDF files from the _images directory
@@ -132,7 +139,9 @@ def latex():
     # figs()
     if sys.platform != 'win32':
         # LaTeX format.
-        if os.system('sphinx-build -b latex -d build/doctrees . build/latex'):
+        if subprocess.call(
+                [sys.executable]
+                + '-msphinx -b latex -d build/doctrees . build/latex'.split()):
             raise SystemExit("Building LaTeX failed.")
 
         # Produce pdf.
@@ -153,8 +162,9 @@ def texinfo():
     # figs()
     if sys.platform != 'win32':
         # Texinfo format.
-        if os.system(
-                'sphinx-build -b texinfo -d build/doctrees . build/texinfo'):
+        if subprocess.call(
+                [sys.executable]
+                + '-msphinx -b texinfo -d build/doctrees . build/texinfo'.split()):
             raise SystemExit("Building Texinfo failed.")
 
         # Produce info file.
