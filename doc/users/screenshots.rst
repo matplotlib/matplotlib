@@ -117,7 +117,7 @@ exploding one or more wedges from the center of the pie, and a shadow effect.
 Take a close look at the attached code, which generates this figure in just
 a few lines of code.
 
-.. plot:: mpl_examples/pie_and_polar_charts/pie_demo_features.py
+.. plot:: auto_examples/pie_and_polar_charts/plot_pie_features.py
 
 .. _screenshots_table_demo:
 

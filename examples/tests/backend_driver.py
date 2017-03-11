@@ -86,8 +86,8 @@ files['statistics'] = [
 
 files['pie'] = [
     'pie_demo.py',
-    'polar_bar_demo.py',
-    'polar_scatter_demo.py',
+    'plot_polar_bar.py',
+    'plot_polar_scatter.py',
     ]
 
 files['text_labels_and_annotations'] = [
