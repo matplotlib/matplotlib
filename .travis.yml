@@ -68,6 +68,7 @@ matrix:
       osx_image: xcode7.3
       language: generic  # https://github.com/travis-ci/travis-ci/issues/2312
       env: MOCK=mock
+      only: master
       cache:
         # As for now travis caches only "$HOME/.cache/pip"
         # https://docs.travis-ci.com/user/caching/#pip-cache
@@ -79,6 +80,7 @@ matrix:
           - $HOME/.cache/matplotlib
   allow_failures:
     - python: "nightly"
+    - python: 2.7
 
 before_install:
   - |
