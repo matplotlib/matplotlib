@@ -47,12 +47,20 @@ static int PyQuadContourGenerator_init(PyQuadContourGenerator* self, PyObject* a
         y.dim(1) != x.dim(1) || z.dim(1) != x.dim(1)) {
         PyErr_SetString(PyExc_ValueError,
             "x, y and z must all be 2D arrays with the same dimensions");
+        return -1;
+    }
+
+    if (z.dim(0) < 2 || z.dim(1) < 2) {
+        PyErr_SetString(PyExc_ValueError,
+            "x, y and z must all be at least 2x2 arrays");
+        return -1;
     }
 
     // Mask array is optional, if set must be same size as other arrays.
     if (!mask.empty() && (mask.dim(0) != x.dim(0) || mask.dim(1) != x.dim(1))) {
         PyErr_SetString(PyExc_ValueError,
             "If mask is set it must be a 2D array with the same dimensions as x.");
+        return -1;
     }
 
     CALL_CPP_INIT("QuadContourGenerator",
@@ -101,6 +109,7 @@ static PyObject* PyQuadContourGenerator_create_filled_contour(PyQuadContourGener
     {
         PyErr_SetString(PyExc_ValueError,
             "filled contour levels must be increasing");
+        return NULL;
     }
 
     PyObject* result;
