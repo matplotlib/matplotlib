@@ -22,7 +22,7 @@ Installing an official release
 Matplotlib and most of its dependencies all available as wheel packages for
 OSX, windows and many linux distributions::
 
-  pip install -U numpy scipy scikit-learn
+  pip install -U matplotlib
 
 Third-party distributions of Matplotlib
 =======================================
@@ -73,28 +73,9 @@ or
 `32 bit <https://www.microsoft.com/en-us/download/details.aspx?id=5555>`__
 for Python 3.4) redistributable packages need to be installed.
 
-Matplotlib depends on `Pillow <https://pypi.python.org/pypi/Pillow>`_
-for reading and saving JPEG, BMP, and TIFF image files.
-Matplotlib requires `MiKTeX <https://miktex.org/>`_ and
-`GhostScript <https://ghostscript.com/download/>`_ for rendering text
-with LaTeX.
-`FFmpeg <https://www.ffmpeg.org/>`_, `avconv <https://libav.org/>`_,
-`mencoder <http://www.mplayerhq.hu>`_, or
-`ImageMagick <http://www.imagemagick.org/script/index.php>`_ are required for the
-animation module.
 
 The following backends should work out of the box: agg, tkagg, ps,
 pdf and svg.
-For other backends you may need to install
-`pycairo <https://pypi.python.org/pypi/pycairo>`_,
-`PyQt4 <https://pypi.python.org/pypi/PyQt4>`_,
-`PyQt5 <https://pypi.python.org/pypi/PyQt5>`_,
-`PySide <https://pypi.python.org/pypi/PySide>`_,
-`wxPython <https://pypi.python.org/pypi/wxPython>`_,
-`PyGTK <https://pypi.python.org/pypi/PyGTK>`_,
-`Tornado <https://pypi.python.org/pypi/tornado>`_,
-or GhostScript.
-
 TkAgg is probably the best backend for interactive use from the
 standard Python shell or IPython.  It is enabled as the default backend
 for the official binaries.  GTK3 is not supported on Windows.
@@ -115,6 +96,17 @@ To run the test suite:
    <https://inkscape.org/>`_;
  * run ``py.test path\\to\\tests\\directory``.
 
+.. note::
+
+   The following backends work out of the box: Agg, TkAgg, ps, pdf and svg.
+   TkAgg is probably the best backend for interactive use from the standard
+   Python shell or from IPython and is enabled as default.
+
+   GTK3 is not supported on windows.
+
+   For support for other backend, LaTeX rendering, animation input/output and
+   larger selection of file format, you may need to install `additional
+   dependencies <_install_requirements>`.
 
 
 .. _install_from_source:
@@ -176,24 +168,30 @@ Matplotlib requires a large number of dependencies:
   * `pyparsing <https://pyparsing.wikispaces.com/>`__
   * `libpng <http://www.libpng.org>`__ ( >= 1.2) 
   * `pytz <http://pytz.sourceforge.net/>`__
-  * FreeType` (>= 2.3)
+  * FreeType (>= 2.3)
   * `cycler <http://matplotlib.org/cycler/>`__ (>= 0.10.0)
   * `six <https://pypi.python.org/pypi/six>`_
   * `backports.functools_lru_cache <https://pypi.python.org/pypi/backports.functools_lru_cache>`_
     (for Python 2.7 only)
   * `subprocess32 <https://pypi.python.org/pypi/subprocess32/>`_ (for Python
-    2.7 only)
+    2.7 only, on Linux and mac os X only)
 
 Optionally, you can also install a number of packages to enables better user
 interface toolkit. See :ref:`what-is-a-backend` for more details on the
 optional Matplotlib backends and the capabilities they provide.
 
   * :term:`tk` (>= 8.3, != 8.6.0 or 8.6.1): for the TkAgg backend;
-  * :term:`pyqt` (>= 4.4): for the Qt4Agg backend;
+  * `PyQt4 <https://pypi.python.org/pypi/PyQt4>`_ (>= 4.4): for the Qt4Agg backend;
+  * `PyQt5 <https://pypi.python.org/pypi/PyQt5>`_: for the Qt5Agg backend;
   * :term:`pygtk` (>= 2.4): for the GTK and the GTKAgg backend;
-  * :term:`wxpython` (>= 2.8 or later): for the WX or WXAgg backend.
+  * :term:`wxpython` (>= 2.8 or later): for the WX or WXAgg backend;
+  * `pycairo <https://pypi.python.org/pypi/pycairo>`_;
+  * `PySide <https://pypi.python.org/pypi/PySide>`_;
+  * `PyGTK <https://pypi.python.org/pypi/PyGTK>`_;
+  * `Tornado <https://pypi.python.org/pypi/tornado>`_: for the WebAgg backend.
 
-For better support of animation output format and image file format, you can
+For better support of animation output format and image file format, LaTeX,
+etc you can
 install the following:
 
   * `ffmpeg <https://www.ffmpeg.org/>`__/`avconv
@@ -202,7 +200,9 @@ install the following:
   * `ImageMagick <http://www.imagemagick.org/script/index.php>`__ (for saving
     animated gifs);
   * `Pillow <http://python-pillow.org/>`__ (for a larger selection of image
-    file format).
+    file format: JPEG, BMP, and TIFF image files);
+  * `Latex <https://miktex.org/>`_ and `GhostScript <https://ghostscript.com/download/>`_ 
+    (for rendering text with LaTeX);
 
 .. note::
 
@@ -212,6 +212,13 @@ install the following:
    more smoothly if the libraries and headers are not in the expected
    locations.
 
+.. note::
+
+  The following libraries are shipped with Matplotlib:
+
+    - `Agg`: the antigrain C++ rendering engine;
+    - `qhull`: to compute Delaunay triangulation;
+    - `ttconv`: a true type font utility.
 
 .. _build_linux:
 
