@@ -1042,7 +1042,7 @@ def subplot(*args, **kwargs):
 
     **Example:**
 
-    .. plot:: mpl_examples/subplots_axes_and_figures/subplot_demo.py
+    .. plot:: auto_examples/subplots_axes_and_figures/plot_subplot.py
 
     """
     # if subplot called without arguments, create subplot(1,1,1)

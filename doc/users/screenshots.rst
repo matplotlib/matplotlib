@@ -22,7 +22,7 @@ Subplot demo
 Multiple axes (i.e. subplots) are created with the
 :func:`~matplotlib.pyplot.subplot` command:
 
-.. plot:: mpl_examples/subplots_axes_and_figures/subplot_demo.py
+.. plot:: auto_examples/subplots_axes_and_figures/plot_subplot.py
 
 .. _screenshots_histogram_demo:
 
