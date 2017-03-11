@@ -56,6 +56,12 @@ except ImportError:
                       "numpydoc to build the documentation.")
 
 try:
+    import sphinx_gallery
+except ImportError:
+    raise ImportError("No module named sphinx-gallery - you need to install "
+                      "numpydoc to build the documentation.")
+
+try:
     import colorspacious
 except ImportError:
     raise ImportError("No module named colorspacious - you need to install "
