@@ -224,7 +224,7 @@ n_proc = 1
 # Change directory to the one containing this file
 current_dir = os.getcwd()
 os.chdir(os.path.dirname(os.path.join(current_dir, __file__)))
-copy_if_out_of_date('../INSTALL', 'users/installing.rst')
+copy_if_out_of_date('../INSTALL.rst', 'users/installing.rst')
 
 # Create the examples symlink, if it doesn't exist
 
