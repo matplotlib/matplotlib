@@ -404,7 +404,7 @@ class FigureCanvasAgg(FigureCanvasBase):
 
     @_api.delete_parameter("3.6", "cleared", alternative="renderer.clear()")
     def get_renderer(self, cleared=False):
-        w, h = self.figure.bbox.size
+        w, h = np.round(self.figure.bbox.size).astype(int)
         key = w, h, self.figure.dpi
         reuse_renderer = (self._lastKey == key)
         if not reuse_renderer:
