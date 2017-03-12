@@ -4,8 +4,8 @@ List of changes to Matplotlib prior to 2015
 ===========================================
 
 This is a list of the changes made to Matplotlib from 2003 to 2015. For more
-recent changes, please refer to the `what's new <../whats_new>`_ or
-the `API changes <../api/api_changes>`_.
+recent changes, please refer to the `what's new <../whats_new.html>`_ or
+the `API changes <../../api/api_changes.html>`_.
 
 2015-11-16 Levels passed to contour(f) and tricontour(f) must be in increasing
            order.
