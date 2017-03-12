@@ -35,9 +35,6 @@ Documentation
 
 * See :ref:`documenting-matplotlib` for our documentation style guide.
 
-* If your changes are non-trivial, please make an entry in the
-  :file:`CHANGELOG`.
-
 * If your change is a major new feature, add an entry to
   :file:`doc/users/whats_new.rst`.
 
@@ -80,7 +77,6 @@ PR Review guidelines
   documentation or example PRs.  If you find yourself making many
   small suggestions, either open a PR against the original branch or
   merge the PR and then open a new PR against upstream.
-
 
 
 Backports

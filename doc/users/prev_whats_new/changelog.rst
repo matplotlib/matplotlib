@@ -1,3 +1,11 @@
+.. _old_changelog:
+
+List of changes to Matplotlib prior to 2015
+===========================================
+
+This is a list of the changes made to Matplotlib from 2003 to 2015. For more
+recent changes, please refer to the `what's new <../whats_new>`_ or
+the `API changes <../api/api_changes>`_.
 
 2015-11-16 Levels passed to contour(f) and tricontour(f) must be in increasing
            order.
@@ -186,6 +194,7 @@
               - _axes.py contains the Axes class. This class now inherits from
                 _AxesBase: it contains all "plotting" methods and labelling
                 methods.
+
            This refactoring should not affect the API. Only private methods
            are not importable from the axes module anymore.
 
@@ -668,36 +677,35 @@
            list, and changed its API to return axes as a numpy object array
            (with control of dimensions via squeeze keyword). FP.
 
-2010-03-13 Manually brought in commits from branch
-
-  ------------------------------------------------------------------------
-  r8191 | leejjoon | 2010-03-13 17:27:57 -0500 (Sat, 13 Mar 2010) | 1 line
+2010-03-13 Manually brought in commits from branch::
+ 
+    ------------------------------------------------------------------------
+    r8191 | leejjoon | 2010-03-13 17:27:57 -0500 (Sat, 13 Mar 2010) | 1 line
 
   fix the bug that handles for scatter are incorrectly set when dpi!=72.
   Thanks to Ray Speth for the bug report.
 
 
-2010-03-03 Manually brought in commits from branch via diff/patch
-        (svnmerge is broken)
+2010-03-03 Manually brought in commits from branch via diff/patch (svnmerge is broken)::
 
-  ------------------------------------------------------------------------
-  r8175 | leejjoon | 2010-03-03 10:03:30 -0800 (Wed, 03 Mar 2010) | 1 line
+    ------------------------------------------------------------------------
+    r8175 | leejjoon | 2010-03-03 10:03:30 -0800 (Wed, 03 Mar 2010) | 1 line
 
-  fix arguments of allow_rasterization.draw_wrapper
-  ------------------------------------------------------------------------
-  r8174 | jdh2358 | 2010-03-03 09:15:58 -0800 (Wed, 03 Mar 2010) | 1 line
+    fix arguments of allow_rasterization.draw_wrapper
+    ------------------------------------------------------------------------
+    r8174 | jdh2358 | 2010-03-03 09:15:58 -0800 (Wed, 03 Mar 2010) | 1 line
 
-  added support for favicon in docs build
-  ------------------------------------------------------------------------
-  r8173 | jdh2358 | 2010-03-03 08:56:16 -0800 (Wed, 03 Mar 2010) | 1 line
+    added support for favicon in docs build
+    ------------------------------------------------------------------------
+    r8173 | jdh2358 | 2010-03-03 08:56:16 -0800 (Wed, 03 Mar 2010) | 1 line
 
-  applied Mattias get_bounds patch
-  ------------------------------------------------------------------------
-  r8172 | jdh2358 | 2010-03-03 08:31:42 -0800 (Wed, 03 Mar 2010) | 1 line
+    applied Mattias get_bounds patch
+    ------------------------------------------------------------------------
+    r8172 | jdh2358 | 2010-03-03 08:31:42 -0800 (Wed, 03 Mar 2010) | 1 line
 
-  fix svnmerge download instructions
-  ------------------------------------------------------------------------
-  r8171 | jdh2358 | 2010-03-03 07:47:48 -0800 (Wed, 03 Mar 2010) | 1 line
+    fix svnmerge download instructions
+    ------------------------------------------------------------------------
+    r8171 | jdh2358 | 2010-03-03 07:47:48 -0800 (Wed, 03 Mar 2010) | 1 line
 
 
 
@@ -833,6 +841,7 @@
            filename extension used by savefig. - JKS
 
 ===============================================
+
 2009-09-21 Tagged for release 0.99.1
 
 2009-09-20 Fix usetex spacing errors in pdf backend. - JKS
@@ -1096,7 +1105,7 @@
            macosx collections; speedups can be 20x.  Also fixes some
            bugs in which gc got into inconsistent state
 
-======================================================================
+-----------------------
 
 2008-05-17 Release 0.98.5.3 at r7107 from the branch - JDH
 
@@ -1352,7 +1361,8 @@
 
 2008-12-18 add new arrow style, a line + filled triangles. -JJL
 
-==================================================================
+----------------
+
 2008-12-18 Re-Released 0.98.5.2 from v0_98_5_maint at r6679
            Released 0.98.5.2 from v0_98_5_maint at r6667
 
@@ -1382,7 +1392,7 @@
            support symlinks, these become copies, and the font files
            are large, so the distro becomes unneccessarily bloaded.
            Keeping the mpl_examples dir because relative links are
-           harder for the plot directive and the *.py files are not so
+           harder for the plot directive and the \*.py files are not so
            large. - JDH
 
 2008-12-15 Fix \$ in non-math text with usetex off.  Document
@@ -1415,7 +1425,8 @@
 2008-12-12 Added support to asign labels to histograms of multiple
            data. - MM
 
-=================================================================
+-------------------------
+
 2008-12-11 Released 0.98.5 at svn r6573
 
 2008-12-11 Use subprocess.Popen instead of os.popen in dviread
@@ -1424,7 +1435,8 @@
 2008-12-10 Added Michael's font_manager fix and Jae-Joon's
            figure/subplot fix.  Bumped version number to 0.98.5 - JDH
 
-=================================================================
+----------------------------
+
 2008-12-09 Released 0.98.4 at svn r6536
 
 2008-12-08 Added mdehoon's native macosx backend from sf patch 2179017 - JDH
@@ -1621,9 +1633,10 @@
            (which does not handle NaNs or infs) will be turned off automatically
            when infs or NaNs are present.  Also masked arrays are now converted
            to arrays with NaNs for consistent handling of masks and NaNs
-            - MGD and EF
+           - MGD and EF
 
-=================================================================
+------------------------
+
 2008-08-03 Released 0.98.3 at svn r5947
 
 2008-08-01 Backported memory leak fixes in _ttconv.cpp - MGD
@@ -1726,7 +1739,8 @@
 
 2008-06-25 Fix rendering quality of pcolor - MGD
 
-=================================================================
+----------------------------
+
 2008-06-24 Released 0.98.2 at svn r5667 - (source only for debian) JDH
 
 2008-06-24 Added "transparent" kwarg to savefig. - MGD
@@ -1736,7 +1750,8 @@
 
 2008-06-23 Use splines to render circles in scatter plots - MGD
 
-===============================================================
+----------------------------
+
 2008-06-22 Released 0.98.1 at revision 5637
 
 2008-06-22 Removed axes3d support and replaced it with a
@@ -1824,7 +1839,8 @@
 2008-06-02 Added support for log to hist with histtype='step' and fixed
            a bug for log-scale stacked histograms - MM
 
-===============================================================
+-----------------------------
+
 2008-05-29 Released 0.98.0 at revision 5314
 
 2008-05-29 matplotlib.image.imread now no longer always returns RGBA
@@ -1835,8 +1851,8 @@
 2008-05-29 Implement path clipping in PS backend - JDH
 
 2008-05-29 Fixed two bugs in texmanager.py:
-               improved comparison of dvipng versions
-               fixed a bug introduced when get_grey method was added
+           improved comparison of dvipng versions
+           fixed a bug introduced when get_grey method was added
            - DSD
 
 2008-05-28 Fix crashing of PDFs in xpdf and ghostscript when two-byte
@@ -2075,7 +2091,8 @@
 2008-01-10 Use setup.cfg to set the default parameters (tkagg,
            numpy) when building windows installers - DSD
 
-===============================================================
+--------------------
+
 2008-01-06 Released 0.91.2 at revision 4802
 
 2007-12-26 Reduce too-late use of matplotlib.use() to a warning
@@ -2121,10 +2138,12 @@
 
 2007-12-04 Support '|' as a character in mathtext - MGD
 
-===============================================================
+-----------------------------------------------------
+
 2007-11-27 Released 0.91.1 at revision 4517
 
-===============================================================
+-----------------------------------------------------
+
 2007-11-27 Released 0.91.0 at revision 4478
 
 2007-11-13 All backends now support writing to a file-like object, not
@@ -2265,10 +2284,10 @@
 
            - Sharing an axis across figures is now done in exactly
              the same way as sharing an axis between two axes in the
-             same figure:
+             same figure::
 
-                      fig1 = figure()
-                   fig2 = figure()
+                  fig1 = figure()
+                  fig2 = figure()
 
                    ax1 = fig1.add_subplot(111)
                    ax2 = fig2.add_subplot(111, sharex=ax1, sharey=ax1)
@@ -2586,7 +2605,8 @@
 2007-06-03 Turned mathtext in SVG into single <text> with multiple <tspan>
            objects (easier to edit in inkscape). - NN
 
-===============================================================
+----------------------------
+
 2007-06-02 Released 0.90.1 at revision 3352
 
 2007-06-02 Display only meaningful labels when calling legend()
@@ -2770,7 +2790,8 @@
            references to text()/latin1(), plus some improvements
            to the toolbar layout - DSD
 
-===============================================================
+---------------------------
+
 2007-02-06 Released 0.90.0 at revision 3003
 
 2007-01-22 Extended the new picker API to text, patches and patch
@@ -2936,7 +2957,8 @@
            http://sourceforge.net/tracker/index.php?func=detail&aid=1587359&group_id=80706&atid=560722
            JDH
 
-===============================================================
+-------------------------
+
 2006-10-26 Released 0.87.7 at revision 2835
 
 2006-10-25 Made "tiny" kwarg in Locator.nonsingular much smaller - EF
@@ -2998,7 +3020,8 @@
 
 2006-09-29 setup.py: check for required pygtk versions, fixes bug #1460783 - SC
 
-===============================================================
+---------------------------------
+
 2006-09-27 Released 0.87.6 at revision 2783
 
 2006-09-24 Added line pointers to the Annotation code, and a pylab
@@ -3017,7 +3040,8 @@
            yet whether inheriting from TextWithDash is the right base
            class or if another approach is needed - JDH
 
-===============================================================
+------------------------------
+
 2006-09-05 Released 0.87.5 at revision 2761
 
 2006-09-04 Added nxutils for some numeric add-on extension code --
@@ -3137,7 +3161,8 @@
 2006-07-12 Add support to render the scientific notation label
            over the right-side y-axis - DSD
 
-===============================================================
+------------------------------
+
 2006-07-11 Released 0.87.4 at revision 2558
 
 2006-07-07 Fixed a usetex bug with older versions of latex - DSD
@@ -3229,7 +3254,8 @@
 2006-06-08 Minor bug fix to make ticker.py draw proper minus signs
            with usetex - DSD
 
-===============================================================
+-----------------------
+
 2006-06-06 Released 0.87.3 at revision 2432
 
 2006-05-30 More partial support for polygons with outline or fill,
@@ -3362,7 +3388,7 @@
 2006-03-21 Added Rob Knight's arrow code; see examples/arrow_demo.py - JDH
 
 2006-03-20 Added support for masking values with nan's, using ADS's
-           isnan module and the new API. Works for *Agg backends - DSD
+           isnan module and the new API. Works for \*Agg backends - DSD
 
 2006-03-20 Added contour.negative_linestyle rcParam - ADS
 
@@ -3401,7 +3427,8 @@
 2006-03-16 Added John Porter's 3D handling code
 
 
-===============================================================
+------------------------
+
 2006-03-16 Released 0.87.2 at revision 2150
 
 2006-03-15 Fixed bug in MaxNLocator revealed by daigos@infinito.it.
@@ -3444,7 +3471,8 @@
            Supported page sizes include letter, legal, ledger,
            A0-A10, and B0-B10 - DSD
 
-===============================================================
+------------------------------------
+
 2006-03-07 Released 0.87.1
 
 2006-03-04 backend_cairo.py:
@@ -3489,7 +3517,8 @@
            Ray Jones, and fixed incorrect fix found by Jeff
            Whitaker - EF
 
-===============================================================
+--------------------------------
+
 2006-02-22 Released 0.87
 
 2006-02-21 Fixed portrait/landscape orientation in postscript backend - DSD
@@ -3544,7 +3573,7 @@
 
 2006-01-29 Fixed tex's caching to include font.family rc information - DSD
 
-2006-01-29 Fixed subpixel rendering bug in *Agg that was causing
+2006-01-29 Fixed subpixel rendering bug in \*Agg that was causing
            uneven gridlines - JDH
 
 2006-01-28 Added fontcmd to backend_ps's RendererPS.draw_tex, to support other
@@ -3577,7 +3606,8 @@
 2006-01-24 Fixed some bugs in usetex's and ps.usedistiller's dependency
            checking - DSD
 
-===============================================================
+-------------------------------
+
 2006-01-24 Released 0.86.2
 
 2006-01-20 Added a converters dict to pylab load to convert selected
@@ -3588,7 +3618,7 @@
            or sequence of strings to a matplotlib datenum
 
 2006-01-18 Added quadrilateral pcolormesh patch 1409190 by Alex Mont
-           and Paul Kienzle -- this is *Agg only for now.  See
+           and Paul Kienzle -- this is \*Agg only for now.  See
            examples/quadmesh_demo.py - JDH
 
 2006-01-18 Added Jouni's boxplot patch - JDH
@@ -3600,7 +3630,8 @@
 
 2006-1-12 Fixed numpy / numeric to use .dtype.char to keep in SYNC with numpy SVN
 
-===============================================================
+---------------------------
+
 2006-1-11 Released 0.86.1
 
 2006-1-11 Fixed setup.py for win32 build and added rc template to the MANIFEST.in
@@ -3615,7 +3646,8 @@
 
 2006-1-10 Added checks for usetex dependencies. - DSD
 
-=======================================================================
+---------------------------------
+
 2006-1-9 Released 0.86
 
 2006-1-4 Changed to support numpy (new name for scipy_core) - TEO
@@ -3626,6 +3658,7 @@
 
 2005-12-27 Altered numerix/scipy to support new scipy package
            structure - TEO
+
 2005-12-20 Fixed Jame's Boyles date tick reversal problem - JDH
 
 2005-12-20 Added Jouni's rc patch to support lists of keys to set on -
@@ -3694,7 +3727,8 @@
 
 2005-11-25 Changed text.py to ensure color is hashable. EF
 
-=======================================================================
+--------------------------------
+
 2005-11-16 Released 0.85
 
 2005-11-16 Changed the default default linewidth in rc to 1.0
@@ -3756,7 +3790,8 @@
            colorbar will follow suit. Fixed a bug introduced in
            0.84, in which contourf(...,colors=...) was broken - EF
 
-=======================================================================
+-------------------------------
+
 2005-09-19 Released 0.84
 
 2005-09-14 Added a new 'resize_event' which triggers a callback with a
@@ -3834,7 +3869,7 @@
            to a separate png file, fixes bug #1245306 (thanks to Norbert Nemec
            for the patch) - SC
 
-=======================================================================
+---------------------------
 
 2005-07-29 Released 0.83.2
 
@@ -3843,6 +3878,7 @@
 
 2005-07-27 Applied sf patch 1244732: Scale axis such that circle
            looks like circle - JDH
+
 2005-07-29 Improved message reporting in texmanager and backend_ps - DSD
 
 2005-07-28 backend_gtk.py: update FigureCanvasGTK.draw() (needed due to the
@@ -3967,7 +4003,7 @@
 
 2005-06-16 Applied David Cooke's subplot make_key patch
 
-========================================================
+----------------------------------
 
 2005-06-15 0.82 released
 
@@ -3982,7 +4018,7 @@
 
 2005-06-14 Wrote some GUI neutral widgets (Button, Slider,
            RadioButtons, CheckButtons) in matplotlib.widgets.  See
-           examples/widgets/*.py - JDH
+           examples/widgets/\*.py - JDH
 
 2005-06-14 Exposed subplot parameters as rc vars and as the fig
            SubplotParams instance subplotpars.  See
@@ -4018,7 +4054,7 @@
            - DSD
 
 
-=====================================================================
+----------------------
 
 2005-06-07 matplotlib-0.81 released
 
@@ -4169,7 +4205,8 @@
 2005-04-13 Applied Tim Leslie's arrow key event handling patch - JDH
 
 
-=================================================================
+---------------------------
+
 0.80 released
 
 2005-04-11 Applied a variant of rick's xlim/ylim/axis patch.  These
@@ -4194,7 +4231,7 @@
 
 2005-04-01 Added editable polygon example
 
-==========================================================================
+------------------------------
 
 2005-03-31 0.74 released
 
@@ -4220,7 +4257,7 @@
 2005-03-27 Added sprint legend patch plus John Gill's tests and fix --
            see examples/legend_auto.py  - JDH
 
-==========================================================================
+---------------------------
 
 2005-03-19 0.73.1 released
 
@@ -4228,7 +4265,8 @@
 
 2005-03-18 Add .number attribute to figure objects returned by figure() - FP
 
-===========================================================================
+---------------------------
+
 2005-03-18 0.73 released
 
 2005-03-16 Fixed labelsep bug
@@ -4241,22 +4279,22 @@
 
 2005-03-15 backend_gtkagg.py: changed to use double buffering, this fixes
            the problem reported Joachim Berdal Haga - "Parts of plot lagging
-       from previous frame in animation". Tested with anim.py and it makes
+           from previous frame in animation". Tested with anim.py and it makes
            no noticable difference to performance (23.7 before, 23.6 after)
-       - SC
+           - SC
 
 2005-03-14 add src/_backend_gdk.c extension to provide a substitute function
-       for pixbuf.get_pixels_array(). Currently pixbuf.get_pixels_array()
+           for pixbuf.get_pixels_array(). Currently pixbuf.get_pixels_array()
            only works with Numeric, and then only works if pygtk has been
-       compiled with Numeric support. The change provides a function
-       pixbuf_get_pixels_array() which works with Numeric and numarray and
-       is always available. It means that backend_gtk should be able to
-       display images and mathtext in all circumstances. - SC
+           compiled with Numeric support. The change provides a function
+           pixbuf_get_pixels_array() which works with Numeric and numarray and
+           is always available. It means that backend_gtk should be able to
+           display images and mathtext in all circumstances. - SC
 
 2005-03-11 Upgraded CXX to 5.3.1
 
 2005-03-10 remove GraphicsContextPS.set_linestyle()
-       and GraphicsContextSVG.set_linestyle() since they do no more than
+           and GraphicsContextSVG.set_linestyle() since they do no more than
            the base class GraphicsContext.set_linestyle() - SC
 
 2005-03-09 Refactored contour functionality into dedicated module
@@ -4296,7 +4334,7 @@
 2005-02-24 colors.py change ColorConverter.to_rgb() so it always returns rgb
            (and not rgba), allow cnames keys to be cached, change the exception
            raised from RuntimeError to ValueError (like hex2color())
-       hex2color() use a regular expression to check the color string is
+           hex2color() use a regular expression to check the color string is
            valid  - SC
 
 
@@ -4312,7 +4350,8 @@
            drawing routines for greater flexibility - JDH
 
 
-===========================================================
+--------------------------------
+
 2005-02-22 0.72.1 released
 
 2005-02-21 fixed linestyles for collections -- contour now dashes for
@@ -4330,7 +4369,7 @@
 
 2005-02-14 Added enthought traits to matplotlib tree - JDH
 
-===========================================================
+------------------------
 
 2005-02-14 0.72 released
 
@@ -4411,7 +4450,7 @@
 2005-01-24 Fixed contour to work w/ interactive changes in colormaps,
            clim, etc - JDH
 
-===============================================================
+-----------------------------
 
 2005-01-21 matplotlib-0.71 released
 
@@ -4456,7 +4495,7 @@
 
 2005-01-15 backend_cairo: added PDF support which requires pycairo 0.1.4.
            Its not usable yet, but is ready for when the Cairo PDF backend
-       matures - SC
+           matures - SC
 
 2005-01-15 Added Nadia's x,y contour fix
 
@@ -4477,7 +4516,8 @@
 2005-01-06 Add patch from Ben Vanhaeren to make the FigureManagerGTK vbox a
            public attribute - SC
 
-====================================================================
+----------------------------
+
 2004-12-30 Release 0.70
 
 2004-12-28 Added coord location to key press and added a
@@ -4506,7 +4546,7 @@
            to explain and demonstrate how text rotations and alignment
            work in matplotlib. - JDH
 
-======================================================================
+-----------------------
 
 2004-12-22 0.65.1 released - JDH
 
@@ -4548,7 +4588,7 @@
 
 2004-12-13 dates.py: removed all timezone() calls, except for UTC - SC
 
-======================================================================
+----------------------------
 
 2004-12-13 0.65 released - JDH
 
@@ -4587,16 +4627,16 @@
            - backend_gdk.py - an image backend
            - backend_gtk.py - A GUI backend that uses GDK - SC
 
-2004-12-08 backend_gtk.py: remove quit_after_print_xvfb(*args), show_xvfb(),
-       Dialog_MeasureTool(gtk.Dialog) one month after sending mail to
+2004-12-08 backend_gtk.py: remove quit_after_print_xvfb(\*args), show_xvfb(),
+           Dialog_MeasureTool(gtk.Dialog) one month after sending mail to
            matplotlib-users asking if anyone still uses these functions - SC
 
 2004-12-02 backend_bases.py, backend_template.py: updated some of the method
            documentation to make them consistent with each other - SC
 
 2004-12-04 Fixed multiple bindings per event for TkAgg mpl_connect and
-    mpl_disconnect.  Added a "test_disconnect" command line
-    parameter to coords_demo.py  JTM
+           mpl_disconnect.  Added a "test_disconnect" command line
+           parameter to coords_demo.py  JTM
 
 2004-12-04 Fixed some legend bugs JDH
 
@@ -4610,7 +4650,7 @@
 
 2004-11-29 Added the over command to the matlab interface.  over
            allows you to add an overlay plot regardless of hold
-       state. - JDH
+           state. - JDH
 
 2004-11-25 Added Printf to mplutils for printf style format string
            formatting in C++ (should help write better exceptions)
@@ -4636,13 +4676,13 @@
            Cairo and get saved using backend_gtk.print_figure() - SC
 
 2004-11-13 backend_cairo.py: Discovered the magic number (96) required for
-       Cairo PS plots to come out the right size. Restored Cairo PS output
-       and added support for landscape mode - SC
+           Cairo PS plots to come out the right size. Restored Cairo PS output
+           and added support for landscape mode - SC
 
 2004-11-13 Added ishold - JDH
 
 2004-11-12 Added many new matlab colormaps - autumn bone cool copper
-      flag gray hot hsv jet pink prism spring summer winter - PG
+           flag gray hot hsv jet pink prism spring summer winter - PG
 
 2004-11-11 greatly simplify the emitted postscript code - JV
 
@@ -4658,12 +4698,13 @@
            py2exe (or similar) - is used by backend_gtk.py - SC
 
 2004-11-09 backend_gtk.py: Made fix suggested by maffew@cat.org.au
-       to prevent problems when py2exe calls pygtk.require(). - SC
+           to prevent problems when py2exe calls pygtk.require(). - SC
 
 2004-11-09 backend_cairo.py: Added support for printing to a fileobject.
            Disabled cairo PS output which is not working correctly. - SC
 
-==============================================================
+----------------------------------
+
 2004-11-08 matplotlib-0.64 released
 
 2004-11-04 Changed -dbackend processing to only use known backends, so
@@ -4708,7 +4749,7 @@
            draw_image() and clipping. gtkcairo works reasonably well. cairo
            does not yet create any files since I can't figure how to set the
            'target surface', I don't think pycairo wraps the required functions
-       - SC
+           - SC
 
 2004-10-28 backend_gtk.py: Improved the save dialog (GTK 2.4 only) so it
            presents the user with a menu of supported image formats - SC
@@ -4757,7 +4798,7 @@
 
 2004-09-29 Added a Verbose class for reporting - JDH
 
-==============================================================
+------------------------------------
 
 2004-09-28 Released 0.63.0
 
@@ -4798,25 +4839,26 @@
            backend maintenance.  Added his numutils to mlab.  JDH
 
 2004-09-16 Re-designated all files in matplotlib/images as binary and
-       w/o keyword substitution using "cvs admin -kb *.svg ...".
-       See binary files in "info cvs" under Linux.  This was messing
-       up builds from CVS on windows since CVS was doing lf -> cr/lf
-       and keyword substitution on the bitmaps.  - JTM
+           w/o keyword substitution using "cvs admin -kb \*.svg ...".
+           See binary files in "info cvs" under Linux.  This was messing
+           up builds from CVS on windows since CVS was doing lf -> cr/lf
+           and keyword substitution on the bitmaps.  - JTM
 
 2004-09-15 Modified setup to build array-package-specific extensions
-       for those extensions which are array-aware.  Setup builds
-       extensions automatically for either Numeric, numarray, or
-       both, depending on what you have installed.  Python proxy
-       modules for the array-aware extensions import the version
-       optimized for numarray or Numeric determined by numerix.
+           for those extensions which are array-aware.  Setup builds
+           extensions automatically for either Numeric, numarray, or
+           both, depending on what you have installed.  Python proxy
+           modules for the array-aware extensions import the version
+           optimized for numarray or Numeric determined by numerix.
            - JTM
 
 2004-09-15 Moved definitions of infinity from mlab to numerix to avoid
-       divide by zero warnings for numarray - JTM
+           divide by zero warnings for numarray - JTM
 
 2004-09-09 Added axhline, axvline, axhspan and axvspan
 
-==============================================================
+-------------------------------
+
 2004-08-30 matplotlib 0.62.4 released
 
 2004-08-30 Fixed a multiple images with different extent bug,
@@ -4850,7 +4892,8 @@
 
 2004-08-11 Added Gregory's fltkagg backend
 
-==========================================================================
+------------------------------
+
 2004-08-09 matplotlib-0.61.0 released
 
 2004-08-08 backend_gtk.py: get rid of the final PyGTK deprecation warning by
@@ -4919,7 +4962,7 @@
 
 2004-07-20 Added new icons for toolbar2 - JDH
 
-2004-07-19 Added vertical mathtext for *Agg and GTK - thanks Jim
+2004-07-19 Added vertical mathtext for \*Agg and GTK - thanks Jim
            Benson! - JDH
 
 2004-07-16 Added ps/eps/svg savefig options to wx and gtk JDH
@@ -4956,7 +4999,7 @@
 2004-07-09 added default arg None to matplotlib.matlab grid command to
            toggle current grid state
 
-============================
+---------------------
 
 2004-07-08 0.60.2 released
 
@@ -4964,7 +5007,7 @@
 
 2004-07-08 added some numarray bug workarounds
 
-=======
+--------------------------
 
 2004-07-07 0.60 released
 
@@ -5044,6 +5087,7 @@
 
 
 ---------------------------------------------------------------
+
 2004-06-09 0.54.2 released
 
 2004-06-08 Rewrote ft2font using CXX as part of general memory leak
@@ -5079,6 +5123,7 @@
            propertly support clim - JDH
 
 -----------------------------------------------------------------
+
 2004-05-27 0.54.1 released
 
 2004-05-27 Lots of small bug fixes: rotated text at negative angles,
@@ -5094,6 +5139,7 @@
        in 2 draws per figure mangager show().      - JTM
 
 ------------------------------------------------------------
+
 2004-05-19 0.54 released
 
 2004-05-18 Added newline seperated text with rotations to text.Text
@@ -5103,14 +5149,14 @@
 
 2004-05-14 Added fast polygon collections - changed scatter to use
            them.  Added multiple symbols to scatter.  10x speedup on
-       large scatters using *Agg and 5X speedup for ps. - JDH
+           large scatters using \*Agg and 5X speedup for ps. - JDH
 
 2004-05-14 On second thought... created an "nx" namespace in
-       in numerix which maps type names onto typecodes
-       the same way for both numarray and Numeric.  This
-       undoes my previous change immediately below. To get a
-       typename for Int16 useable in a Numeric extension:
-       say nx.Int16. - JTM
+           in numerix which maps type names onto typecodes
+           the same way for both numarray and Numeric.  This
+           undoes my previous change immediately below. To get a
+           typename for Int16 useable in a Numeric extension:
+           say nx.Int16. - JTM
 
 2004-05-15 Rewrote transformation class in extension code, simplified
            all the artist constructors - JDH
@@ -5147,7 +5193,7 @@
 
 2004-05-03 Removed the close buttons on all GUIs and added the python
            #! bang line to the examples following Steve Chaplin's
-       advice on matplotlib dev
+           advice on matplotlib dev
 
 2004-04-29 Added CXX and rewrote backend_agg using it; tracked down
            and fixed agg memory leak - JDH
@@ -5165,6 +5211,7 @@
            and pcolor().  Deleted duplicate pcolor(). - JTM
 
 ------------------------------------------------------------
+
 2004-04-21 matplotlib 0.53 release
 
 2004-04-19 Fixed vertical alignment bug in PS backend - JDH
@@ -5198,18 +5245,18 @@
 2004-04-08 Fixed viewlim set problem on axes and axis. - JDH
 
 2004-04-07 Added validate_comma_sep_str and font properties paramaters to
-       __init__.  Removed font families and added rcParams to
-       FontProperties __init__ arguments in font_manager.  Added
-       default font property parameters to .matplotlibrc file with
-       descriptions.  Added deprecation warnings to the get_- and
-       set_fontXXX methods of the Text object. - PEB
+           __init__.  Removed font families and added rcParams to
+           FontProperties __init__ arguments in font_manager.  Added
+           default font property parameters to .matplotlibrc file with
+           descriptions.  Added deprecation warnings to the get\_ - and
+           set_fontXXX methods of the Text object. - PEB
 
 2004-04-06 Added load and save commands for ASCII data - JDH
 
 2004-04-05 Improved font caching by not reading AFM fonts until needed.
-       Added better documentation.  Changed the behaviour of the
+           Added better documentation.  Changed the behaviour of the
            get_family, set_family, and set_name methods of FontProperties.
-       - PEB
+           - PEB
 
 2004-04-05 Added WXAgg backend - JDH
 
@@ -5219,14 +5266,8 @@
 2004-03-29 Fixed fontdicts and kwargs to work with new font manager -
            JDH
 
-
-
-
-
-
-
-
 --------------------------------------------
+
 This is the Old, stale, never used changelog
 
 2002-12-10 - Added a TODO file and CHANGELOG.  Lots to do -- get
@@ -5272,12 +5313,12 @@ This is the Old, stale, never used changelog
 2003-04-25 Implemented new functions errorbar, scatter and hist
 
            Added a new line type '|' which is a vline.  syntax is
-       plot(x, Y, '|') where y.shape = len(x),2 and each row gives
-       the ymin,ymax for the respective values of x.  Previously I
-       had implemented vlines as a list of lines, but I needed the
-       efficientcy of the numeric clipping for large numbers of
-       vlines outside the viewport, so I wrote a dedicated class
-       Vline2D which derives from Line2D
+           plot(x, Y, '|') where y.shape = len(x),2 and each row gives
+           the ymin,ymax for the respective values of x.  Previously I
+           had implemented vlines as a list of lines, but I needed the
+           efficientcy of the numeric clipping for large numbers of
+           vlines outside the viewport, so I wrote a dedicated class
+           Vline2D which derives from Line2D
 
 
 2003-05-01
@@ -5363,6 +5404,7 @@ This is the Old, stale, never used changelog
 
 2003-11-10 - 2003-11-11
    - major refactoring.
+
      * Ticks (with labels, lines and grid) handled by dedicated class
      * Artist now know bounding box and dpi
      * Bounding boxes and transforms handled by dedicated classes
