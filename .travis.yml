@@ -48,26 +48,26 @@ env:
     - PYTEST_ARGS="-ra --maxfail=1 --timeout=300 --durations=25 --cov-report= --cov=lib -n $NPROC"
     - PYTHON_ARGS=
     - DELETE_FONT_CACHE=
-    - USE_PYTEST=false
 
 matrix:
   include:
     - python: 2.7
-      env: MOCK=mock NUMPY=numpy==1.7.1
+      env: MOCK=mock NUMPY=numpy==1.7.1 PANDAS=pandas
+    - python: 2.7
+      env: BUILD_DOCS=true
     - python: 3.4
       env: PYTHON_ARGS=-OO
     - python: 3.5
       env: BUILD_DOCS=true
-    - python: 3.5
-      env: USE_PYTEST=true PANDAS=pandas DELETE_FONT_CACHE=1
     - python: 3.6
-      env: USE_PYTEST=true DELETE_FONT_CACHE=1 INSTALL_PEP8=pytest-pep8 RUN_PEP8=--pep8
+      env: DELETE_FONT_CACHE=1 INSTALL_PEP8=pytest-pep8 RUN_PEP8=--pep8
     - python: "nightly"
       env: PRE=--pre
     - os: osx
       osx_image: xcode7.3
       language: generic  # https://github.com/travis-ci/travis-ci/issues/2312
       env: MOCK=mock
+      only: master
       cache:
         # As for now travis caches only "$HOME/.cache/pip"
         # https://docs.travis-ci.com/user/caching/#pip-cache
@@ -138,47 +138,7 @@ install:
     # Install matplotlib
     pip install -ve .
 
-script:
-  # The number of processes is hardcoded, because using too many causes the
-  # Travis VM to run out of memory (since so many copies of inkscape and
-  # ghostscript are running at the same time).
-  - |
-    echo Testing import of tkagg backend
-    MPLBACKEND="tkagg" python -c 'import matplotlib.pyplot as plt; print(plt.get_backend())'
-    if [[ $BUILD_DOCS == false ]]; then
-      if [[ $DELETE_FONT_CACHE == 1 ]]; then
-        rm -rf ~/.cache/matplotlib
-      fi
-      # Workaround for pytest-xdist flaky collection order
-      # https://github.com/pytest-dev/pytest/issues/920
-      # https://github.com/pytest-dev/pytest/issues/1075
-      export PYTHONHASHSEED=$(python -c 'import random; print(random.randint(1, 4294967295))')
-      echo PYTHONHASHSEED=$PYTHONHASHSEED
-
-      echo The following args are passed to pytest $PYTEST_ARGS $RUN_PEP8
-      if [[ $USE_PYTEST == false ]]; then
-        if [[ $TRAVIS_OS_NAME == 'osx' ]]; then
-          python tests.py $PYTEST_ARGS $RUN_PEP8
-        else
-          gdb -return-child-result -batch -ex r -ex bt --args python $PYTHON_ARGS tests.py $PYTEST_ARGS $RUN_PEP8
-        fi
-      else
-        py.test $PYTEST_ARGS $RUN_PEP8
-      fi
-    else
-      cd doc
-      python make.py html -n 2
-      # We don't build the LaTeX docs here, so linkchecker will complain
-      touch build/html/Matplotlib.pdf
-      # Linkchecker only works with python 2.7 for the time being
-      deactivate
-      source ~/virtualenv/python2.7/bin/activate
-      pip install pip --upgrade
-      # linkchecker is currently broken with requests 2.10.0 so force an earlier version
-      pip install $PRE requests==2.9.2 linkchecker
-      linkchecker build/html/index.html
-    fi
-
+script: source ci/travis/test_script.sh
 before_cache:
   - rm -rf $HOME/.cache/matplotlib/tex.cache
   - rm -rf $HOME/.cache/matplotlib/test_cache
