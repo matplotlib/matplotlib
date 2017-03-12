@@ -95,8 +95,13 @@ def _listify_validator(scalar_validator, allow_stringlist=False):
             return [scalar_validator(v) for v in s
                     if not isinstance(v, six.string_types) or v]
         else:
-            msg = "{0!r} must be of type: string or non-dictionary iterable.".format(s)
-            raise ValueError(msg)
+            raise ValueError("{!r} must be of type: string or non-dictionary "
+                             "iterable".format(s))
+    # Cast `str` to keep Py2 happy despite `unicode_literals`.
+    try:
+        f.__name__ = str("{}list".format(scalar_validator.__name__))
+    except AttributeError:  # class instance.
+        f.__name__ = str("{}List".format(type(scalar_validator).__name__))
     f.__doc__ = scalar_validator.__doc__
     return f
 
