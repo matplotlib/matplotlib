@@ -145,6 +145,14 @@ def test_save_animation_smoketest(tmpdir, writer, extension):
     ax.set_xlim(0, 10)
     ax.set_ylim(-1, 1)
 
+    dpi = None
+    codec = None
+    if writer == 'ffmpeg':
+        # Issue #8253
+        fig.set_size_inches((10.85, 9.2000000000000011))
+        dpi = 100.
+        codec = 'h264'
+
     def init():
         line.set_data([], [])
         return line,
@@ -160,7 +168,8 @@ def test_save_animation_smoketest(tmpdir, writer, extension):
     with tmpdir.as_cwd():
         anim = animation.FuncAnimation(fig, animate, init_func=init, frames=5)
         try:
-            anim.save('movie.' + extension, fps=30, writer=writer, bitrate=500)
+            anim.save('movie.' + extension, fps=30, writer=writer, bitrate=500,
+                      dpi=dpi, codec=codec)
         except UnicodeDecodeError:
             pytest.xfail("There can be errors in the numpy import stack, "
                          "see issues #1891 and #2679")

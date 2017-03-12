@@ -13,6 +13,7 @@ addons:
     packages:
       - inkscape
       - libav-tools
+      - libavcodec-extra-53
       - gdb
       - mencoder
       - dvipng

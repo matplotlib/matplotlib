@@ -288,8 +288,11 @@ class MovieWriter(AbstractMovieWriter):
                 verbose.report('figure size (inches) has been adjusted '
                                'from %s x %s to %s x %s' % (wo, ho, w, h),
                                level='helpful')
+        else:
+            w, h = self.fig.get_size_inches()
         verbose.report('frame size in pixels is %s x %s' % self.frame_size,
                        level='debug')
+        return w, h
 
     def setup(self, fig, outfile, dpi=None):
         '''
@@ -311,7 +314,7 @@ class MovieWriter(AbstractMovieWriter):
         if dpi is None:
             dpi = self.fig.dpi
         self.dpi = dpi
-        self._adjust_frame_size()
+        self._w, self._h = self._adjust_frame_size()
 
         # Run here so that grab_frame() can write the data to a pipe. This
         # eliminates the need for temp files.
@@ -347,7 +350,7 @@ class MovieWriter(AbstractMovieWriter):
         verbose.report('MovieWriter.grab_frame: Grabbing frame.',
                        level='debug')
         try:
-            self._adjust_frame_size()
+            self.fig.set_size_inches(self._w, self._h)
             # Tell the figure to save its data to the sink, using the
             # frame format and dpi.
             self.fig.savefig(self._frame_sink(), format=self.frame_format,
