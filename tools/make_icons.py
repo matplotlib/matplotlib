@@ -11,7 +11,7 @@ Generates SVG, PDF in one size (size they are vectors) and PNG, PPM and GIF in
 """
 
 import matplotlib
-matplotlib.use('agg')
+matplotlib.use('agg')  # noqa
 
 import six
 
