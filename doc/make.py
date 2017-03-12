@@ -110,8 +110,6 @@ def html(buildername='html'):
     for filename in glob.glob('build/%s/_images/*.pdf' % buildername):
         os.remove(filename)
 
-    shutil.copy('../CHANGELOG', 'build/%s/_static/CHANGELOG' % buildername)
-
 
 def htmlhelp():
     """Build Sphinx 'htmlhelp' target. """
