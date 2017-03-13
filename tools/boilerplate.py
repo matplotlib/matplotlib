@@ -365,7 +365,7 @@ def boilerplate_gen():
 
 
 def build_pyplot():
-    pyplot_path = os.path.join("../", os.path.dirname(__file__), 'lib',
+    pyplot_path = os.path.join(os.path.dirname(__file__), "..", 'lib',
                                'matplotlib', 'pyplot.py')
 
     pyplot_orig = open(pyplot_path, 'r').readlines()
