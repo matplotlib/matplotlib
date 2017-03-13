@@ -400,15 +400,20 @@ class MovieWriter(AbstractMovieWriter):
         if not bin_path:
             return False
         try:
-            p = subprocess.Popen(bin_path,
-                             shell=False,
-                             stdout=subprocess.PIPE,
-                             stderr=subprocess.PIPE,
-                             creationflags=subprocess_creation_flags)
-            p.communicate()
-            return True
+            p = subprocess.Popen(
+                bin_path,
+                shell=False,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                creationflags=subprocess_creation_flags)
+            return cls._handle_subprocess(p)
         except OSError:
             return False
+
+    @classmethod
+    def _handle_subprocess(cls, process):
+        process.communicate()
+        return True
 
 
 class FileMovieWriter(MovieWriter):
@@ -584,10 +589,18 @@ class FFMpegBase(object):
 
         return args + ['-y', self.outfile]
 
+    @classmethod
+    def _handle_subprocess(cls, process):
+        _, err = process.communicate()
+        # Ubuntu 12.04 ships a broken ffmpeg binary which we shouldn't use
+        if 'Libav' in err.decode():
+            return False
+        return True
+
 
 # Combine FFMpeg options with pipe-based writing
 @writers.register('ffmpeg')
-class FFMpegWriter(MovieWriter, FFMpegBase):
+class FFMpegWriter(FFMpegBase, MovieWriter):
     '''Pipe-based ffmpeg writer.
 
     Frames are streamed directly to ffmpeg via a pipe and written in a single
@@ -608,7 +621,7 @@ class FFMpegWriter(MovieWriter, FFMpegBase):
 
 # Combine FFMpeg options with temp file-based writing
 @writers.register('ffmpeg_file')
-class FFMpegFileWriter(FileMovieWriter, FFMpegBase):
+class FFMpegFileWriter(FFMpegBase, FileMovieWriter):
     '''File-based ffmpeg writer.
 
     Frames are written to temporary files on disk and then stitched
