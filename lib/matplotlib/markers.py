@@ -694,10 +694,8 @@ class MarkerStyle(object):
         self._path = self._line_marker_path
 
     def _set_hline(self):
-        self._transform = Affine2D().scale(0.5).rotate_deg(90)
-        self._snap_threshold = 1.0
-        self._filled = False
-        self._path = self._line_marker_path
+        self._set_vline()
+        self._transform = self._transform.rotate_deg(90)
 
     _tickhoriz_path = Path([[0.0, 0.0], [1.0, 0.0]])
 
