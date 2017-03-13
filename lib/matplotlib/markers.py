@@ -739,22 +739,16 @@ class MarkerStyle(object):
         self._path = self._tri_path
 
     def _set_tri_up(self):
-        self._transform = Affine2D().scale(0.5).rotate_deg(180)
-        self._snap_threshold = 5.0
-        self._filled = False
-        self._path = self._tri_path
+        self._set_tri_down()
+        self._transform = self._transform.rotate_deg(180)
 
     def _set_tri_left(self):
-        self._transform = Affine2D().scale(0.5).rotate_deg(270)
-        self._snap_threshold = 5.0
-        self._filled = False
-        self._path = self._tri_path
+        self._set_tri_down()
+        self._transform = self._transform.rotate_deg(270)
 
     def _set_tri_right(self):
-        self._transform = Affine2D().scale(0.5).rotate_deg(90)
-        self._snap_threshold = 5.0
-        self._filled = False
-        self._path = self._tri_path
+        self._set_tri_down()
+        self._transform = self._transform.rotate_deg(90)
 
     _caret_path = Path([[-1.0, 1.5], [0.0, 0.0], [1.0, 1.5]])
 
