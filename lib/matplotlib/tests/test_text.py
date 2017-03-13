@@ -30,7 +30,7 @@ def test_font_styles():
     from matplotlib.font_manager import FontProperties, findfont
     warnings.filterwarnings(
         'ignore',
-        "findfont: Font family \[u?'Foo'\] not found. Falling back to .",
+        r"findfont: Font family \[u?'Foo'\] not found. Falling back to .",
         UserWarning,
         module='matplotlib.font_manager')
 
