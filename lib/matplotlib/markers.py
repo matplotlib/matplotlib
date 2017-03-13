@@ -725,17 +725,6 @@ class MarkerStyle(object):
         self._filled = False
         self._path = self._tickvert_path
 
-    _plus_path = Path([[-1.0, 0.0], [1.0, 0.0],
-                       [0.0, -1.0], [0.0, 1.0]],
-                      [Path.MOVETO, Path.LINETO,
-                       Path.MOVETO, Path.LINETO])
-
-    def _set_plus(self):
-        self._transform = Affine2D().scale(0.5)
-        self._snap_threshold = 1.0
-        self._filled = False
-        self._path = self._plus_path
-
     _tri_path = Path([[0.0, 0.0], [0.0, -1.0],
                       [0.0, 0.0], [0.8, 0.5],
                       [0.0, 0.0], [-0.8, 0.5]],
@@ -826,6 +815,17 @@ class MarkerStyle(object):
         self._filled = False
         self._path = self._caret_path_base
         self._joinstyle = 'miter'
+
+    _plus_path = Path([[-1.0, 0.0], [1.0, 0.0],
+                       [0.0, -1.0], [0.0, 1.0]],
+                      [Path.MOVETO, Path.LINETO,
+                       Path.MOVETO, Path.LINETO])
+
+    def _set_plus(self):
+        self._transform = Affine2D().scale(0.5)
+        self._snap_threshold = 1.0
+        self._filled = False
+        self._path = self._plus_path
 
     _x_path = Path([[-1.0, -1.0], [1.0, 1.0],
                     [-1.0, 1.0], [1.0, -1.0]],
