@@ -343,7 +343,13 @@ class TextToPath(object):
 
                 font = get_font(font_bunch.filename)
 
-                for charmap_name, charmap_code in [("ADOBE_CUSTOM",
+                # The chmap codes are defined in freetype.h L603-786
+                # in freetype 2.6.1
+                # def FT_ENC_TAG(a, b, c, d):
+                #     a, b, c, d = [ord(_) for _ in (a, b, c, d)]
+                #     return (a << 24) | (b << 16) | (c << 8) | d
+                for charmap_name, charmap_code in [('unic', 1970170211),
+                                                   ("ADOBE_CUSTOM",
                                                     1094992451),
                                                    ("ADOBE_STANDARD",
                                                     1094995778)]:
