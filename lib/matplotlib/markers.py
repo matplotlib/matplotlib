@@ -760,55 +760,34 @@ class MarkerStyle(object):
         self._joinstyle = 'miter'
 
     def _set_caretup(self):
-        self._transform = Affine2D().scale(0.5).rotate_deg(180)
-        self._snap_threshold = 3.0
-        self._filled = False
-        self._path = self._caret_path
-        self._joinstyle = 'miter'
+        self._set_caretdown()
+        self._transform = self._transform.rotate_deg(180)
 
     def _set_caretleft(self):
-        self._transform = Affine2D().scale(0.5).rotate_deg(270)
-        self._snap_threshold = 3.0
-        self._filled = False
-        self._path = self._caret_path
-        self._joinstyle = 'miter'
+        self._set_caretdown()
+        self._transform = self._transform.rotate_deg(270)
 
     def _set_caretright(self):
-        self._transform = Affine2D().scale(0.5).rotate_deg(90)
-        self._snap_threshold = 3.0
-        self._filled = False
-        self._path = self._caret_path
-        self._joinstyle = 'miter'
+        self._set_caretdown()
+        self._transform = self._transform.rotate_deg(90)
 
     _caret_path_base = Path([[-1.0, 0.0], [0.0, -1.5], [1.0, 0]])
 
     def _set_caretdownbase(self):
-        self._transform = Affine2D().scale(0.5)
-        self._snap_threshold = 3.0
-        self._filled = False
+        self._set_caretdown()
         self._path = self._caret_path_base
-        self._joinstyle = 'miter'
 
     def _set_caretupbase(self):
-        self._transform = Affine2D().scale(0.5).rotate_deg(180)
-        self._snap_threshold = 3.0
-        self._filled = False
-        self._path = self._caret_path_base
-        self._joinstyle = 'miter'
+        self._set_caretdownbase()
+        self._transform = self._transform.rotate_deg(180)
 
     def _set_caretleftbase(self):
-        self._transform = Affine2D().scale(0.5).rotate_deg(270)
-        self._snap_threshold = 3.0
-        self._filled = False
-        self._path = self._caret_path_base
-        self._joinstyle = 'miter'
+        self._set_caretdownbase()
+        self._transform = self._transform.rotate_deg(270)
 
     def _set_caretrightbase(self):
-        self._transform = Affine2D().scale(0.5).rotate_deg(90)
-        self._snap_threshold = 3.0
-        self._filled = False
-        self._path = self._caret_path_base
-        self._joinstyle = 'miter'
+        self._set_caretdownbase()
+        self._transform = self._transform.rotate_deg(90)
 
     _plus_path = Path([[-1.0, 0.0], [1.0, 0.0],
                        [0.0, -1.0], [0.0, 1.0]],
