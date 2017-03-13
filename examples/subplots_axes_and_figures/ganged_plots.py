@@ -3,13 +3,13 @@
 Creating adjacent subplots
 ==========================
 
-To create plots that share a common axes (visually) you can set the
-hspace between the subplots to zero. Passing sharex=True when creating the
-subplots will automatically turn off all x ticks and labels except those on the
-bottom axis.
+To create plots that share a common axis (visually) you can set the hspace
+between the subplots to zero. Passing sharex=True when creating the subplots
+will automatically turn off all x ticks and labels except those on the bottom
+axis.
 
-In this example the plots share a common xaxis but you can follow the
-same logic to supply a common y axis.
+In this example the plots share a common x axis but you can follow the same
+logic to supply a common y axis.
 """
 import matplotlib.pyplot as plt
 import numpy as np
