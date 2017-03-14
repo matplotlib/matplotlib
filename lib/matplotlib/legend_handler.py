@@ -719,7 +719,11 @@ class HandlerText(HandlerBase):
 
 class HandlerAnnotation(HandlerBase):
     """
-    Handler for FancyArrowPatch instances.
+    Handler for Annotation instances.
+
+    Defers to HandlerText to draw the annotation text (if any).
+    Defers to HandlerFancyArrowPatch to draw the annotation arrow (if any).
+    For annotations made of both text and arrow, HandlerTuple is used to draw them side by side.
     """
     def create_artists(self, legend, orig_handle,
                        xdescent, ydescent, width, height, fontsize, trans):
