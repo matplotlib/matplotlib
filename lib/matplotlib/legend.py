@@ -36,7 +36,8 @@ from matplotlib.artist import Artist, allow_rasterization
 from matplotlib.cbook import is_string_like, silent_list, is_hashable
 from matplotlib.font_manager import FontProperties
 from matplotlib.lines import Line2D
-from matplotlib.patches import Patch, Rectangle, Shadow, FancyBboxPatch
+from matplotlib.patches import Patch, Rectangle, Shadow, FancyBboxPatch, FancyArrowPatch
+from matplotlib.text import Text, Annotation
 from matplotlib.collections import (LineCollection, RegularPolyCollection,
                                     CircleCollection, PathCollection,
                                     PolyCollection)
@@ -493,7 +494,10 @@ class Legend(Artist):
             update_func=legend_handler.update_from_first_child),
         tuple: legend_handler.HandlerTuple(),
         PathCollection: legend_handler.HandlerPathCollection(),
-        PolyCollection: legend_handler.HandlerPolyCollection()
+        PolyCollection: legend_handler.HandlerPolyCollection(),
+        Text:legend_handler.HandlerText(),
+        FancyArrowPatch:legend_handler.HandlerFancyArrowPatch(),
+        Annotation:legend_handler.HandlerAnnotation(),
         }
 
     # (get|set|update)_default_handler_maps are public interfaces to
