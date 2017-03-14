@@ -690,3 +690,26 @@ class HandlerPolyCollection(HandlerBase):
         self.update_prop(p, orig_handle, legend)
         p.set_transform(trans)
         return [p]
+
+
+class HandlerText(HandlerBase):
+    """
+    Handler for Text instances.
+    """
+    def create_artists(self, legend, orig_handle,
+                       xdescent, ydescent, width, height, fontsize, trans):
+        t = Text(x=-xdescent + width / 3,
+                 y=-ydescent + height / 4,
+                 text="a")
+
+        # Use original text if it is short
+        text = orig_handle.get_text()
+        if len(text) < 2:
+            t.set_text(text)
+
+        # Copy text attributes, except fontsize
+        self.update_prop(t, orig_handle, legend)
+        t.set_transform(trans)
+        t.set_fontsize(2 * fontsize / 3)
+
+        return [t]
