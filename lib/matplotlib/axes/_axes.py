@@ -263,7 +263,8 @@ class Axes(_AxesBase):
 
         """
         handles_original = (self.lines + self.patches +
-                            self.collections + self.containers)
+                            self.collections + self.containers +
+                            self.texts)
         handler_map = mlegend.Legend.get_default_handler_map()
 
         if legend_handler_map is not None:
