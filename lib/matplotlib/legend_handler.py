@@ -34,9 +34,11 @@ from itertools import cycle
 import numpy as np
 
 from matplotlib.lines import Line2D
-from matplotlib.patches import Rectangle
+from matplotlib.patches import Rectangle, FancyArrowPatch
+from matplotlib.text import Text, Annotation
 import matplotlib.collections as mcoll
 import matplotlib.colors as mcolors
+
 
 
 def update_from_first_child(tgt, src):
@@ -713,3 +715,36 @@ class HandlerText(HandlerBase):
         t.set_fontsize(2 * fontsize / 3)
 
         return [t]
+
+
+class HandlerAnnotation(HandlerBase):
+    """
+    Handler for FancyArrowPatch instances.
+    """
+    def create_artists(self, legend, orig_handle,
+                       xdescent, ydescent, width, height, fontsize, trans):
+        if (orig_handle.arrow_patch is not None) and (orig_handle.get_text() is not ""):
+            # Draw a tuple (text, arrow)
+            handler = HandlerTuple(ndivide=2, pad=None, width_ratios=[1,4])
+
+            # Create a Text instance from annotation text
+            text_handle = Text(text=orig_handle.get_text())
+            text_handle.update_from(orig_handle)
+            handle  = (text_handle, orig_handle.arrow_patch)
+        elif orig_handle.arrow_patch is not None:
+            # Arrow without text
+            handler = HandlerFancyArrowPatch()
+            handle  = orig_handle.arrow_patch
+        elif orig_handle.get_text() is not "":
+            # Text without arrow
+            handler = HandlerText()
+            handle  = orig_handle
+        else:
+            # No text, no arrow
+            handler = HandlerPatch()
+            handle  = Rectangle(xy=[0,0],width=0,height=0,color='w')
+
+        return handler.create_artists(legend, handle,
+                                       xdescent, ydescent,
+                                       width, height,
+                                       fontsize, trans)
