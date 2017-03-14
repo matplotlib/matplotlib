@@ -390,8 +390,6 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
                         mask = A.mask
                     # ~A.mask  # masked data
                     A = rgba
-                    output = np.zeros((out_height, out_width, 4),
-                                      dtype=A.dtype)
                     alpha = 1.0
                     created_rgba_mask = True
                 else:
@@ -414,11 +412,11 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
                 elif A.shape[2] != 4:
                     raise ValueError("Invalid dimensions, got %s" % (A.shape,))
 
-                output = np.zeros((out_height, out_width, 4), dtype=A.dtype)
-
                 alpha = self.get_alpha()
                 if alpha is None:
                     alpha = 1.0
+
+            output = np.zeros((out_height, out_width, 4), dtype=A.dtype)
 
             _image.resample(
                 A, output, t, _interpd_[self.get_interpolation()],
