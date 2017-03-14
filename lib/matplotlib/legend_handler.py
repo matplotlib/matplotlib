@@ -578,18 +578,25 @@ class HandlerTuple(HandlerBase):
         The number of sections to divide the legend area into.  If None,
         use the length of the input tuple. Default is 1.
 
-
     pad : float, optional
         If None, fall back to `legend.borderpad` as the default.
         In units of fraction of font size. Default is None.
 
-
+    width_ratios : tuple, optional
+        The relative width of sections. Must be of length ndivide.
+        If None, all sections will have the same width. Default is None.
 
     """
-    def __init__(self, ndivide=1, pad=None, **kwargs):
+    def __init__(self, ndivide=1, pad=None, width_ratios=None, **kwargs):
 
         self._ndivide = ndivide
         self._pad = pad
+
+        if (width_ratios is not None) and (len(width_ratios) == ndivide):
+            self._width_ratios = width_ratios
+        else:
+            self._width_ratios = None
+
         HandlerBase.__init__(self, **kwargs)
 
     def create_artists(self, legend, orig_handle,
@@ -608,10 +615,16 @@ class HandlerTuple(HandlerBase):
         else:
             pad = self._pad * fontsize
 
-        if ndivide > 1:
-            width = (width - pad*(ndivide - 1)) / ndivide
+        if self._width_ratios is not None:
+            sumratios = sum(self._width_ratios)
+            widths = [(width - pad * (ndivide - 1)) * ratio / sumratios
+                      for ratio in self._width_ratios]
+        else:
+            widths = [(width - pad * (ndivide - 1)) / ndivide
+                      for _ in range(ndivide)]
+        widths_cycle = cycle(widths)
 
-        xds = [xdescent - (width + pad) * i for i in range(ndivide)]
+        xds = [xdescent - (widths[-i-1] + pad) * i for i in range(ndivide)]
         xds_cycle = cycle(xds)
 
         a_list = []
@@ -620,7 +633,8 @@ class HandlerTuple(HandlerBase):
             _a_list = handler.create_artists(legend, handle1,
                                              six.next(xds_cycle),
                                              ydescent,
-                                             width, height,
+                                             six.next(widths_cycle),
+                                             height,
                                              fontsize,
                                              trans)
             a_list.extend(_a_list)
