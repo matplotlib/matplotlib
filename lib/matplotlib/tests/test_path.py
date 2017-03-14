@@ -117,6 +117,19 @@ def test_marker_paths_pdf():
     plt.ylim(-1, 7)
 
 
+@image_comparison(baseline_images=['nan_path'], style='default',
+                  remove_text=True, extensions=['pdf', 'svg', 'eps', 'png'])
+def test_nan_isolated_points():
+
+    y0 = [0, np.nan, 2, np.nan, 4, 5, 6]
+    y1 = [np.nan, 7, np.nan, 9, 10, np.nan, 12]
+
+    fig, ax = plt.subplots()
+
+    ax.plot(y0, '-o')
+    ax.plot(y1, '-o')
+
+
 def test_path_no_doubled_point_in_to_polygon():
     hand = np.array(
         [[1.64516129, 1.16145833],

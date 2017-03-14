@@ -343,6 +343,7 @@ class PathClipper : public EmbeddedQueue<3>
     unsigned vertex(double *x, double *y)
     {
         unsigned code;
+        bool emit_moveto = false;
 
         if (m_do_clipping) {
             /* This is the slow path where we actually do clipping */
@@ -352,6 +353,8 @@ class PathClipper : public EmbeddedQueue<3>
             }
 
             while ((code = m_source->vertex(x, y)) != agg::path_cmd_stop) {
+                emit_moveto = false;
+
                 switch (code) {
                 case (agg::path_cmd_end_poly | agg::path_flags_close):
                     if (m_has_init) {
@@ -363,10 +366,30 @@ class PathClipper : public EmbeddedQueue<3>
                     goto exit_loop;
 
                 case agg::path_cmd_move_to:
+
+                    // was the last command a moveto (and we have
+                    // seen at least one command ?
+                    // if so, shove it in the queue if in clip box
+                    if (m_moveto && m_has_init &&
+                        m_lastX >= m_cliprect.x1 &&
+                        m_lastX <= m_cliprect.x2 &&
+                        m_lastY >= m_cliprect.y1 &&
+                        m_lastY <= m_cliprect.y2) {
+                        // push the last moveto onto the queue
+                        queue_push(agg::path_cmd_move_to, m_lastX, m_lastY);
+                        // flag that we need to emit it
+                        emit_moveto = true;
+                    }
+                    // update the internal state for this moveto
                     m_initX = m_lastX = *x;
                     m_initY = m_lastY = *y;
                     m_has_init = true;
                     m_moveto = true;
+                    // if the last command was moveto exit the loop to emit the code
+                    if (emit_moveto) {
+                        goto exit_loop;
+                    }
+                    // else, break and get the next point
                     break;
 
                 case agg::path_cmd_line_to:
