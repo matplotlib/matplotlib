@@ -39,7 +39,9 @@ for subdir, _, f in os.walk('../'):
 excluded_dirs = ['user_interfaces']
 # dict of files to not run on any backend
 excluded_files = {'units': ['date_support.py'],
-                  'widgets': ['lasso_selector_demo.py']}
+                  'widgets': ['lasso_selector_demo.py'],
+                  'pylab_examples': ['ginput_demo.py',
+                                     'ginput_manual_clabel.py']}
 # dict of files to not run on specific backend
 failbackend = {'svg': ['tex_demo.py'],
                'agg': ['hyperlinks.py'],
