@@ -256,6 +256,21 @@ class HandlerPatch(HandlerBase):
         return [p]
 
 
+class HandlerFancyArrowPatch(HandlerPatch):
+    """
+    Handler for FancyArrowPatch instances.
+    """
+    def _create_patch(self, legend, orig_handle,
+                      xdescent, ydescent, width, height, fontsize):
+        arrow = FancyArrowPatch( [-xdescent,
+                                 -ydescent + height / 2],
+                                [-xdescent + width,
+                                 -ydescent + height / 2],
+                                mutation_scale=width / 3)
+        arrow.set_arrowstyle(orig_handle.get_arrowstyle())
+        return arrow
+
+
 class HandlerLineCollection(HandlerLine2D):
     """
     Handler for LineCollection instances.
