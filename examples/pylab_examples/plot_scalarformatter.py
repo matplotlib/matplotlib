@@ -1,3 +1,16 @@
+"""
+===========================
+Example For ScalerFromatter
+===========================
+
+The example shows use of ScalerFormater with different settings.
+
+Example 1 : Default
+
+Example 2 : With no Numerical Offset
+
+Example 3 : With Mathtext
+"""
 import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib.ticker import ScalarFormatter
