@@ -14,7 +14,7 @@ is assumed to be at bottom right.
 You can add additional cells outside this range to have convenient
 ways of positioning more interesting grids.
 
-Author    : John Gill <jng@europe.renre.com>
+Author    : John Gill <swfiua@gmail.com>
 Copyright : 2004 John Gill and John Hunter
 License   : matplotlib license
 
@@ -89,11 +89,11 @@ class Cell(Rectangle):
     def auto_set_font_size(self, renderer):
         """ Shrink font size until text fits. """
         fontsize = self.get_fontsize()
-        required = self.get_required_width(renderer)
-        while fontsize > 1 and required > self.get_width():
+        width, height = self.get_required_dimensions(renderer)
+        while fontsize > 1 and (width > self.get_width() or height > self.get_height()):
             fontsize -= 1
             self.set_fontsize(fontsize)
-            required = self.get_required_width(renderer)
+            width, height = self.get_required_dimensions(renderer)
 
         return fontsize
 
@@ -144,6 +144,13 @@ class Cell(Rectangle):
         """ Get width required for this cell. """
         l, b, w, h = self.get_text_bounds(renderer)
         return w * (1.0 + (2.0 * self.PAD))
+
+    def get_required_dimensions(self, renderer):
+        """ Get width and height required for this cell. """
+        l, b, w, h = self.get_text_bounds(renderer)
+        width = w * (1.0 + (2.0 * self.PAD))
+        height = h * (1.0 + (2.0 * self.PAD))
+        return width, height
 
     def set_text_props(self, **kwargs):
         'update the text properties with kwargs'
@@ -558,7 +565,10 @@ def table(ax,
           rowLabels=None, rowColours=None, rowLoc='left',
           colLabels=None, colColours=None, colLoc='center',
           loc='bottom', bbox=None, edges='closed',
+          cellEdgeColour=None,
           cellEdgeColours=None,
+          rowEdgeColours=None,
+          colEdgeColours=None,
           **kwargs):
     """
     TABLE(cellText=None, cellColours=None,
@@ -600,6 +610,10 @@ def table(ax,
     else:
         cellColours = ['w' * cols] * rows
 
+
+    if cellEdgeColour is None:
+        cellEdgeColour = 'k'
+        
     if cellEdgeColours is not None:
         if len(cellEdgeColours) != rows:
             raise ValueError("'cellEdgeColours' must have {0} rows".format(rows))
@@ -608,7 +622,7 @@ def table(ax,
                 msg = "Each row in 'cellColours' must have {0} columns"
                 raise ValueError(msg.format(cols))
     else:
-        cellEdgeColours = ['k' * cols] * rows
+        cellEdgeColours = [[cellEdgeColour] * cols] * rows
 
     # Set colwidths if not given
     if colWidths is None:
@@ -628,6 +642,9 @@ def table(ax,
         if len(rowLabels) != rows:
             raise ValueError("'rowLabels' must be of length {0}".format(rows))
 
+    if rowEdgeColours is None:
+        rowEdgeColours = [cellEdgeColour] * rows
+
     # If we have column labels, need to shift
     # the text and colour arrays down 1 row
     offset = 1
@@ -639,6 +656,9 @@ def table(ax,
     elif colColours is None:
         colColours = 'w' * cols
 
+    if colEdgeColours is None:
+        colEdgeColours = [cellEdgeColour] * cols
+        
     # Set up cell colours if not given
     if cellColours is None:
         cellColours = ['w' * cols] * rows
@@ -663,6 +683,7 @@ def table(ax,
             table.add_cell(0, col,
                            width=colWidths[col], height=height,
                            text=colLabels[col], facecolor=colColours[col],
+                           edgecolor=colEdgeColours[col],
                            loc=colLoc)
 
     # Do row labels
@@ -671,6 +692,7 @@ def table(ax,
             table.add_cell(row + offset, -1,
                            width=rowLabelWidth or 1e-15, height=height,
                            text=rowLabels[row], facecolor=rowColours[row],
+                           edgecolor=rowEdgeColours[row],
                            loc=rowLoc)
         if rowLabelWidth == 0:
             table.auto_set_column_width(-1)
