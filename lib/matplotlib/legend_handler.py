@@ -746,7 +746,7 @@ class HandlerAnnotation(HandlerBase):
         else:
             # No text, no arrow
             handler = HandlerPatch()
-            handle  = Rectangle(xy=[0,0],width=0,height=0,color='w')
+            handle  = Rectangle(xy=[0, 0], width=0, height=0, color='w', alpha=0.0)
 
         return handler.create_artists(legend, handle,
                                        xdescent, ydescent,
