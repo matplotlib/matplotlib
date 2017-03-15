@@ -91,7 +91,10 @@ class Cell(Rectangle):
         if hint:
             self.set_fontsize(hint)
         fontsize = self.get_fontsize()
+
         width, height = self.get_required_dimensions(renderer)
+
+        if width == 0: return fontsize
 
         # make sure font is large enough
         while width < self.get_width() and height < self.get_height():
