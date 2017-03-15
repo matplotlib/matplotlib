@@ -1,9 +1,9 @@
 """
-===========================
-Example For ScalerFromatter
-===========================
+=========================================
+Tick formatting using the ScalarFromatter
+=========================================
 
-The example shows use of ScalerFormater with different settings.
+The example shows use of ScalarFormatter with different settings.
 
 Example 1 : Default
 
