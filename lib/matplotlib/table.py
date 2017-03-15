@@ -86,10 +86,18 @@ class Cell(Rectangle):
         'Return the cell fontsize'
         return self._text.get_fontsize()
 
-    def auto_set_font_size(self, renderer):
+    def auto_set_font_size(self, renderer, hint=None):
         """ Shrink font size until text fits. """
-        fontsize = self.get_fontsize()
+        fontsize = hint or self.get_fontsize()
         width, height = self.get_required_dimensions(renderer)
+
+        # make sure font is large enough
+        while width < self.get_width() and height < self.get_height():
+            fontsize += 1
+            self.set_fontsize(fontsize)
+            width, height = self.get_required_dimensions(renderer)
+
+        # now shrink until it fits
         while fontsize > 1 and (width > self.get_width() or height > self.get_height()):
             fontsize -= 1
             self.set_fontsize(fontsize)
@@ -460,13 +468,13 @@ class Table(Artist):
 
         if len(self._cells) == 0:
             return
-        fontsize = list(six.itervalues(self._cells))[0].get_fontsize()
+        fontsize = self.FONTSIZE
         cells = []
         for key, cell in six.iteritems(self._cells):
             # ignore auto-sized columns
             if key[1] in self._autoColumns:
                 continue
-            size = cell.auto_set_font_size(renderer)
+            size = cell.auto_set_font_size(renderer, hint=fontsize)
             fontsize = min(fontsize, size)
             cells.append(cell)
 
