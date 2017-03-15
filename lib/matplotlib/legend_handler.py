@@ -603,11 +603,17 @@ class HandlerTuple(HandlerBase):
         The relative width of sections. Must be of length ndivide.
         If None, all sections will have the same width. Default is None.
 
-    """
-    def __init__(self, ndivide=1, pad=None, width_ratios=None, **kwargs):
+    handlers : tuple, optionnal
+        The list of handlers to call for each section. Must be of length ndivide.
+        If None, the handlers will be fetched automatically fromt the legend handler map.
+        Default is None.
 
-        self._ndivide = ndivide
-        self._pad = pad
+    """
+    def __init__(self, ndivide=1, pad=None, width_ratios=None, handlers=None, **kwargs):
+
+        self._ndivide  = ndivide
+        self._pad      = pad
+        self._handlers = handlers
 
         if (width_ratios is not None) and (len(width_ratios) == ndivide):
             self._width_ratios = width_ratios
@@ -645,8 +651,12 @@ class HandlerTuple(HandlerBase):
         xds_cycle = cycle(xds)
 
         a_list = []
-        for handle1 in orig_handle:
-            handler = legend.get_legend_handler(handler_map, handle1)
+        for i, handle1 in enumerate(orig_handle):
+            if self._handlers is not None:
+                handler = self._handlers[i]
+            else:
+                handler = legend.get_legend_handler(handler_map, handle1)
+
             _a_list = handler.create_artists(legend, handle1,
                                              six.next(xds_cycle),
                                              ydescent,
