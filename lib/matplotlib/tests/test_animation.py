@@ -149,7 +149,7 @@ def test_save_animation_smoketest(tmpdir, writer, extension):
     codec = None
     if writer == 'ffmpeg':
         # Issue #8253
-        fig.set_size_inches((10.85, 9.2000000000000011))
+        fig.set_size_inches((10.85, 9.21))
         dpi = 100.
         codec = 'h264'
 

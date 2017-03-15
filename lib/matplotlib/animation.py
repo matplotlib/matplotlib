@@ -66,7 +66,7 @@ def correct_roundoff(x, dpi, n):
     if int(x*dpi) % n != 0:
         if int(np.nextafter(x, np.inf)*dpi) % n == 0:
             x = np.nextafter(x, np.inf)
-        if int(np.nextafter(x, -np.inf)*dpi) % n == 0:
+        elif int(np.nextafter(x, -np.inf)*dpi) % n == 0:
             x = np.nextafter(x, -np.inf)
     return x
 
