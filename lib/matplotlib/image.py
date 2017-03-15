@@ -413,14 +413,12 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
                     raise ValueError("Invalid dimensions, got %s" % (A.shape,))
 
                 alpha = self.get_alpha()
-                if alpha is None:
-                    alpha = 1.0
 
             output = np.zeros((out_height, out_width, 4), dtype=A.dtype)
 
             _image.resample(
                 A, output, t, _interpd_[self.get_interpolation()],
-                self.get_resample(), alpha,
+                self.get_resample(), alpha if alpha is not None else 1,
                 self.get_filternorm() or 0.0, self.get_filterrad() or 0.0)
 
             if created_rgba_mask:
@@ -445,7 +443,7 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
                 # and the pixels that Agg is telling us to ignore (relavent
                 # to non-affine transforms)
                 # Use half alpha as the threshold for pixels to mask.
-                out_mask = out_mask | (hid_output[..., 3] < .5)
+                out_mask = out_mask | (hid_output[..., 3] == 0)
                 output = np.ma.masked_array(
                     hid_output[..., 0],
                     out_mask)
@@ -463,9 +461,9 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
 
             # Apply alpha *after* if the input was greyscale without a mask
             if A.ndim == 2 or created_rgba_mask:
+                alpha_channel = output[:, :, 3]
                 alpha = self.get_alpha()
                 if alpha is not None and alpha != 1.0:
-                    alpha_channel = output[:, :, 3]
                     alpha_channel[:] = np.asarray(
                         np.asarray(alpha_channel, np.float32) * alpha,
                         np.uint8)
