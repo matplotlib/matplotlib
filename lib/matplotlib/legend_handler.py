@@ -725,25 +725,27 @@ class HandlerText(HandlerBase):
 
         self._rep_str    = rep_str
         self._rep_maxlen = rep_maxlen
-        print('rep_str', rep_str)
 
         HandlerBase.__init__(self, **kwargs)
 
     def create_artists(self, legend, orig_handle,
                        xdescent, ydescent, width, height, fontsize, trans):
-        t = Text(x=-xdescent + width / 3,
-                 y=-ydescent + height / 4,
-                 text=self._rep_str)
-
         # Use original text if it is short
         text = orig_handle.get_text()
-        if len(text) <= self._rep_maxlen:
-            t.set_text(text)
-        print('t', text, t.get_text(), self._rep_str)
+        if len(text) > self._rep_maxlen:
+            text = self._rep_str
+
+        # Use smaller fontsize for text repr
+        text_fontsize = 2 * fontsize / 3
+
+        t = Text(x=-xdescent + width / 2 - len(text) * text_fontsize / 4,
+                 y=-ydescent + height / 4,
+                 text=text)
+
         # Copy text attributes, except fontsize
         self.update_prop(t, orig_handle, legend)
         t.set_transform(trans)
-        t.set_fontsize(2 * fontsize / 3)
+        t.set_fontsize(text_fontsize)
 
         return [t]
 
