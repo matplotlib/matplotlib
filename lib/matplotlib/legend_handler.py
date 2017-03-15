@@ -748,20 +748,43 @@ class HandlerText(HandlerBase):
         return [t]
 
 
-class HandlerAnnotation(HandlerBase):
+class HandlerAnnotation(HandlerText):
     """
     Handler for Annotation instances.
 
     Defers to HandlerText to draw the annotation text (if any).
     Defers to HandlerFancyArrowPatch to draw the annotation arrow (if any).
     For annotations made of both text and arrow, HandlerTuple is used to draw them side by side.
+
+    Additional kwargs are passed through to `HandlerText`.
+
+    Parameters
+    ----------
+
+    pad : float, optional
+        If None, fall back to `legend.borderpad` asstr the default.
+        In units of fraction of font size. Default is None.
+
+    width_ratios : tuple, optional
+        The relative width of text and arrow sections. Must be of length 2.
+        Default is [1,4].
+
     """
+    def __init__(self, pad=None, width_ratios=[1,4], **kwargs):
+
+        self._pad          = pad
+        self._width_ratios = width_ratios
+
+        HandlerText.__init__(self, **kwargs)
+
     def create_artists(self, legend, orig_handle,
                        xdescent, ydescent, width, height, fontsize, trans):
         if (orig_handle.arrow_patch is not None) and (orig_handle.get_text() is not ""):
             # Draw a tuple (text, arrow)
-            handler = HandlerTuple(ndivide=2, pad=None, width_ratios=[1,4])
-
+            handler = HandlerTuple(ndivide=2, pad=self._pad, width_ratios=self._width_ratios,
+                                    handlers=[HandlerText(rep_str=self._rep_str,
+                                                          rep_maxlen=self._rep_maxlen),
+                                              HandlerFancyArrowPatch()])
             # Create a Text instance from annotation text
             text_handle = Text(text=orig_handle.get_text())
             text_handle.update_from(orig_handle)
@@ -772,7 +795,7 @@ class HandlerAnnotation(HandlerBase):
             handle  = orig_handle.arrow_patch
         elif orig_handle.get_text() is not "":
             # Text without arrow
-            handler = HandlerText()
+            handler = HandlerText(rep_str=self._rep_str, rep_maxlen=self._rep_maxlen)
             handle  = orig_handle
         else:
             # No text, no arrow
