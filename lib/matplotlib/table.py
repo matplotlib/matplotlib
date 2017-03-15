@@ -88,7 +88,9 @@ class Cell(Rectangle):
 
     def auto_set_font_size(self, renderer, hint=None):
         """ Shrink font size until text fits. """
-        fontsize = hint or self.get_fontsize()
+        if hint:
+            self.set_fontsize(hint)
+        fontsize = self.get_fontsize()
         width, height = self.get_required_dimensions(renderer)
 
         # make sure font is large enough
@@ -469,18 +471,16 @@ class Table(Artist):
         if len(self._cells) == 0:
             return
         fontsize = self.FONTSIZE
-        cells = []
+
         for key, cell in six.iteritems(self._cells):
             # ignore auto-sized columns
             if key[1] in self._autoColumns:
                 continue
-            size = cell.auto_set_font_size(renderer, hint=fontsize)
+            size = cell.auto_set_font_size(renderer, hint=None)
             fontsize = min(fontsize, size)
-            cells.append(cell)
 
         # now set all fontsizes equal
-        for cell in six.itervalues(self._cells):
-            cell.set_fontsize(fontsize)
+        self.set_fontsize(fontsize)
 
     def scale(self, xscale, yscale):
         """ Scale column widths by xscale and row heights by yscale. """
@@ -494,7 +494,6 @@ class Table(Artist):
 
         ACCEPTS: a float in points
         """
-
         for cell in six.itervalues(self._cells):
             cell.set_fontsize(size)
         self.stale = True
