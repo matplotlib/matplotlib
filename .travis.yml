@@ -102,9 +102,12 @@ before_install:
     fi
 
 install:
+  # Upgrade pip and setuptools. Mock has issues with the default version of
+  # setuptools
   - |
     # Setup environment
     ccache -s
+    git describe
     # Upgrade pip and setuptools and wheel to get as clean an install as possible
     pip install --upgrade pip
     pip install --upgrade wheel
