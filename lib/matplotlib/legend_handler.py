@@ -697,18 +697,39 @@ class HandlerPolyCollection(HandlerBase):
 class HandlerText(HandlerBase):
     """
     Handler for Text instances.
+
+    Additional kwargs are passed through to `HandlerBase`.
+
+    Parameters
+    ----------
+
+    rep_str : string, optional
+        Replacement string used in the legend when the Text string is longer than rep_maxlen.
+        Default is 'Aa'.
+
+    rep_maxlen : int, optional
+        Maximum length of Text string to be used in the legend. Default is 2.
+
     """
+    def __init__(self, rep_str='Aa', rep_maxlen=2, **kwargs):
+
+        self._rep_str    = rep_str
+        self._rep_maxlen = rep_maxlen
+        print('rep_str', rep_str)
+
+        HandlerBase.__init__(self, **kwargs)
+
     def create_artists(self, legend, orig_handle,
                        xdescent, ydescent, width, height, fontsize, trans):
         t = Text(x=-xdescent + width / 3,
                  y=-ydescent + height / 4,
-                 text="a")
+                 text=self._rep_str)
 
         # Use original text if it is short
         text = orig_handle.get_text()
-        if len(text) < 2:
+        if len(text) <= self._rep_maxlen:
             t.set_text(text)
-
+        print('t', text, t.get_text(), self._rep_str)
         # Copy text attributes, except fontsize
         self.update_prop(t, orig_handle, legend)
         t.set_transform(trans)
