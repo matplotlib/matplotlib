@@ -6,7 +6,7 @@
 # Install the documentation requirements with:
 #     pip install -r doc-requirements.txt
 #
-sphinx>1.3,!=1.5.0
+sphinx>=1.3,!=1.5.0
 numpydoc
 ipython
 mock
