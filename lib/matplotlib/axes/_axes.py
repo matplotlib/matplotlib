@@ -2829,6 +2829,9 @@ or tuple of floats
         fmt_style_kwargs = {k: v for k, v in
                             zip(('linestyle', 'marker', 'color'),
                                 _process_plot_format(fmt)) if v is not None}
+        if fmt == 'none':
+            # Remove alpha=0 color that _process_plot_format returns
+            fmt_style_kwargs.pop('color')
 
         if ('color' in kwargs or 'color' in fmt_style_kwargs or
                 ecolor is not None):
