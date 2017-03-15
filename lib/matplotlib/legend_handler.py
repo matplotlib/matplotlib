@@ -605,8 +605,7 @@ class HandlerTuple(HandlerBase):
 
     handlers : tuple, optionnal
         The list of handlers to call for each section. Must be of length ndivide.
-        If None, the handlers will be fetched automatically fromt the legend handler map.
-        Default is None.
+        If None, the default handlers will be fetched automatically. Default is None.
 
     """
     def __init__(self, ndivide=1, pad=None, width_ratios=None, handlers=None, **kwargs):
