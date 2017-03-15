@@ -124,6 +124,15 @@ def persp_transformation(zfront, zback):
                      [0,0,-1,0]
                      ])
 
+def ortho_transformation(zfront, zback):
+    a = -(zfront + zback)
+    b = -(zfront - zback)
+    return np.array([[2,0,0,0],
+                     [0,2,0,0],
+                     [0,0,-2,0],
+                     [0,0,a,b]
+                     ])
+
 def proj_transform_vec(vec, M):
     vecw = np.dot(M, vec)
     w = vecw[3]

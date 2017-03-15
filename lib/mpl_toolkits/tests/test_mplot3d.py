@@ -491,3 +491,13 @@ def test_autoscale():
     ax.set_autoscalez_on(True)
     ax.plot([0, 2], [0, 2], [0, 2])
     assert ax.get_w_lims() == (0, 1, -.1, 1.1, -.4, 2.4)
+
+
+@image_comparison(baseline_images=['axes3d_persp_false'])
+def test_axes3d_persp_false():
+    fig = plt.figure()
+    ax = fig.gca(projection='3d')
+    ax.set_persp(False)
+    ax.set_xlabel('X')
+    ax.set_ylabel('Y')
+    ax.set_zlabel('Z')
