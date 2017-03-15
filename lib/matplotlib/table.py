@@ -118,7 +118,7 @@ class Cell(Rectangle):
         l, b, w, h = bbox.bounds
 
         # draw in center vertically
-        self._text.set_verticalalignment('center')
+        self._text.set_verticalalignment('center_baseline')
         y = b + (h / 2.0)
 
         # now position horizontally
@@ -558,6 +558,7 @@ def table(ax,
           rowLabels=None, rowColours=None, rowLoc='left',
           colLabels=None, colColours=None, colLoc='center',
           loc='bottom', bbox=None, edges='closed',
+          cellEdgeColours=None,
           **kwargs):
     """
     TABLE(cellText=None, cellColours=None,
@@ -598,6 +599,16 @@ def table(ax,
                 raise ValueError(msg.format(cols))
     else:
         cellColours = ['w' * cols] * rows
+
+    if cellEdgeColours is not None:
+        if len(cellEdgeColours) != rows:
+            raise ValueError("'cellEdgeColours' must have {0} rows".format(rows))
+        for row in cellEdgeColours:
+            if len(row) != cols:
+                msg = "Each row in 'cellColours' must have {0} columns"
+                raise ValueError(msg.format(cols))
+    else:
+        cellEdgeColours = ['k' * cols] * rows
 
     # Set colwidths if not given
     if colWidths is None:
@@ -644,6 +655,7 @@ def table(ax,
                            width=colWidths[col], height=height,
                            text=cellText[row][col],
                            facecolor=cellColours[row][col],
+                           edgecolor=cellEdgeColours[row][col],
                            loc=cellLoc)
     # Do column labels
     if colLabels is not None:
