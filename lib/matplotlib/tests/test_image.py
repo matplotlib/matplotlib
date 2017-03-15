@@ -24,7 +24,7 @@ from nose.tools import assert_raises
 from numpy.testing import (
     assert_array_equal, assert_array_almost_equal, assert_allclose)
 from matplotlib.testing.noseclasses import KnownFailureTest
-from copy import copy
+from copy import deepcopy
 from numpy import ma
 import matplotlib.image as mimage
 import matplotlib.colors as colors
@@ -155,6 +155,7 @@ def test_imsave():
 
     assert_array_equal(arr_dpi1, arr_dpi100)
 
+@cleanup
 def test_imsave_color_alpha():
     # Test that imsave accept arrays with ndim=3 where the third dimension is
     # color and alpha without raising any exceptions, and that the data is
@@ -698,7 +699,7 @@ def test_mask_image_over_under():
     Z2 = mlab.bivariate_normal(X, Y, 1.5, 0.5, 1, 1)
     Z = 10*(Z2 - Z1)  # difference of Gaussians
 
-    palette = copy(plt.cm.gray)
+    palette = deepcopy(plt.cm.gray)
     palette.set_over('r', 1.0)
     palette.set_under('g', 1.0)
     palette.set_bad('b', 1.0)
@@ -761,7 +762,7 @@ def test_imshow_endianess():
                   remove_text=True, style='default')
 def test_imshow_masked_interpolation():
 
-    cm = copy(plt.get_cmap('viridis'))
+    cm = deepcopy(plt.get_cmap('viridis'))
     cm.set_over('r')
     cm.set_under('b')
     cm.set_bad('k')
