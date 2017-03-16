@@ -4996,16 +4996,16 @@ def test_datetime_axhline_same_axes():
 def test_datetime_axvline_same_axes():
     # This is similar to test above
     from datetime import datetime
-    fig, axs = plt.subplots(2,1)
+    fig, axs = plt.subplots(2, 1)
     xvalues = [1, 2]
     yvalues = [datetime(2016, 1, 1, 0, 0, 0), datetime(2016, 1, 2, 0, 0, 0)]
 
     axs[0].plot(xvalues, yvalues)
     axs[0].axvline(1.5)
-    
+
     axs[1].axvline(1.5)
     axs[1].plot(xvalues, yvalues)
-    
+
     assert (axs[0].get_ylim() == axs[1].get_ylim())
 
 
