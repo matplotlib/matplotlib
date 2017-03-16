@@ -40,7 +40,6 @@ import matplotlib.text as mtext
 import matplotlib.ticker as mticker
 import matplotlib.transforms as mtransforms
 import matplotlib.tri as mtri
-import matplotlib.transforms as mtrans
 from matplotlib.container import BarContainer, ErrorbarContainer, StemContainer
 from matplotlib.axes._base import _AxesBase
 from matplotlib.axes._base import _process_plot_format
@@ -4251,8 +4250,8 @@ or tuple of floats
             ymin, ymax = (np.min(y), np.max(y)) if len(y) else (0, 1)
 
             # to avoid issues with singular data, expand the min/max pairs
-            xmin, xmax = mtrans.nonsingular(xmin, xmax, expander=0.1)
-            ymin, ymax = mtrans.nonsingular(ymin, ymax, expander=0.1)
+            xmin, xmax = mtransforms.nonsingular(xmin, xmax, expander=0.1)
+            ymin, ymax = mtransforms.nonsingular(ymin, ymax, expander=0.1)
 
         # In the x-direction, the hexagons exactly cover the region from
         # xmin to xmax. Need some padding to avoid roundoff errors.
