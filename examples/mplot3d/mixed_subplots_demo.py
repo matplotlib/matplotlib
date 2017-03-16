@@ -1,4 +1,8 @@
 """
+==================
+2D and 3D subplots
+==================
+
 Demonstrate the mixing of 2d and 3d subplots.
 """
 
