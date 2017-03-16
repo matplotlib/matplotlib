@@ -45,7 +45,8 @@ If you are on Linux, you might prefer to use your package manager.  Matplotlib
 is packaged for almost every major Linux distribution.
 
 * Debian / Ubuntu: ``sudo apt-get install python-matplotlib``
-* Fedora / Red Hat: ``sudo yum install python-matplotlib``
+* Fedora: ``sudo dnf install python-matplotlib``
+* Red Hat: ``sudo yum install python-matplotlib``
 * Arch: ``sudo pacman -S python-matplotlib``
 
 .. _installing_windows:
@@ -227,9 +228,13 @@ required to build Matplotlib with::
 
    sudo apt-get build-dep python-matplotlib
 
-If you are on Fedora/RedHat, you can get all the dependencies required
-to build Matplotlib by first installing ``yum-builddep`` and then
-running::
+If you are on Fedora, you can get all the dependencies required to build
+Matplotlib with::
+
+   sudo dnf builddep python-matplotlib
+
+If you are on RedHat, you can get all the dependencies required to build
+Matplotlib by first installing ``yum-builddep`` and then running::
 
    su -c "yum-builddep python-matplotlib"
 
