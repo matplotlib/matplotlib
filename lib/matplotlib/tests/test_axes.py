@@ -4973,23 +4973,25 @@ def test_bar_single_height():
     # Check that a horizontal chart with one width works
     ax.bar(0, 1, bottom=range(4), width=1, orientation='horizontal')
 
+
 def test_datetime_axhline_same_axes():
     # This test was suggested by Paul Hobson (@phobson) regarding issue 7742
-    # Check when ploting datetime data and horizontal line 
+    # Check when ploting datetime data and horizontal line
     # order of plotting doesn't matter.
     # axhline() should not change x axis limits.
     from datetime import datetime
     fig, axs = plt.subplots(2, 1)
     xvalues = [datetime(2016, 1, 1, 0, 0, 0), datetime(2016, 1, 2, 0, 0, 0)]
     yvalues = [1, 2]
-    
+
     axs[0].plot(xvalues, yvalues)
     axs[0].axhline(1.5)
-    
+
     axs[1].axhline(1.5)
     axs[1].plot(xvalues, yvalues)
-    
+
     assert (axs[0].get_xlim() == axs[1].get_xlim())
+
 
 def test_datetime_axvline_same_axes():
     # This is similar to test above
@@ -5005,3 +5007,15 @@ def test_datetime_axvline_same_axes():
     axs[1].plot(xvalues, yvalues)
     
     assert (axs[0].get_ylim() == axs[1].get_ylim())
+
+
+def test_invalid_axis_limits():
+    plt.plot([0, 1], [0, 1])
+    with pytest.raises(ValueError):
+        plt.xlim(np.nan)
+    with pytest.raises(ValueError):
+        plt.xlim(np.inf)
+    with pytest.raises(ValueError):
+        plt.ylim(np.nan)
+    with pytest.raises(ValueError):
+        plt.ylim(np.inf)
