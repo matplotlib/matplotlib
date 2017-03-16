@@ -313,7 +313,7 @@ Another handy use of filled regions is to highlight horizontal or
 vertical spans of an axes -- for that matplotlib has some helper
 functions :meth:`~matplotlib.axes.Axes.axhspan` and
 :meth:`~matplotlib.axes.Axes.axvspan` and example
-:ref:`pylab_examples-axhspan_demo`.
+:ref:`lines_bars_and_markers-plot_axhspan`.
 
 
 Transparent, fancy legends

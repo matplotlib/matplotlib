@@ -1,4 +1,11 @@
+"""
+=========
+Log scale
+=========
 
+This example shows various ways to apply a log scale to an axis.
+
+"""
 import numpy as np
 import matplotlib.pyplot as plt
 

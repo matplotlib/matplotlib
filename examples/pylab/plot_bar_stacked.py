@@ -1,3 +1,11 @@
+"""
+===============================
+Stacked bar plot with errorbars
+===============================
+
+This example shows how to add errorbars to a bar chart!
+"""
+
 # a stacked bar plot with errorbars
 import numpy as np
 import matplotlib.pyplot as plt

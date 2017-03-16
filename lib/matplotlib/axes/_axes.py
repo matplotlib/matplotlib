@@ -508,7 +508,7 @@ or tuple of floats
         Examples
         --------
 
-        .. plot:: mpl_examples/api/legend_demo.py
+        .. plot:: mpl_examples/pylab/plot_legend.py
 
         """
         handlers = kwargs.get('handler_map', {}) or {}
@@ -836,7 +836,7 @@ or tuple of floats
 
         Examples
         --------
-        .. plot:: mpl_examples/pylab_examples/axhspan_demo.py
+        .. plot:: mpl_examples/lines_bars_and_markers/plot_axhspan.py
 
         """
         trans = self.get_yaxis_transform(which='grid')
@@ -1141,7 +1141,7 @@ or tuple of floats
 
         **Example:**
 
-        .. plot:: mpl_examples/pylab_examples/eventplot_demo.py
+        .. plot:: mpl_examples/pylab/plot_eventplot.py
         """
         self._process_unit_info(xdata=positions,
                                 ydata=[lineoffsets, linelengths],
@@ -1522,7 +1522,7 @@ or tuple of floats
 
         **Example:**
 
-        .. plot:: mpl_examples/pylab_examples/log_demo.py
+        .. plot:: mpl_examples/pylab/plot_log.py
 
         """
         if not self._hold:
@@ -1966,7 +1966,7 @@ or tuple of floats
 
         **Example:** A stacked bar chart.
 
-        .. plot:: mpl_examples/pylab_examples/bar_stacked.py
+        .. plot:: mpl_examples/pylab/plot_bar_stacked.py
         """
         kwargs = cbook.normalize_kwargs(kwargs, mpatches._patch_alias_map)
         if not self._hold:
@@ -5160,7 +5160,7 @@ or tuple of floats
         Examples
         --------
 
-        .. plot:: mpl_examples/pylab_examples/image_demo.py
+        .. plot:: mpl_examples/images_contours_and_fields/plot_image.py
 
         """
 
@@ -7417,7 +7417,7 @@ or tuple of floats
 
         Examples
         --------
-        .. plot:: mpl_examples/pylab_examples/matshow.py
+        .. plot:: mpl_examples/images_contours_and_fields/plot_matshow.py
 
         """
         Z = np.asanyarray(Z)

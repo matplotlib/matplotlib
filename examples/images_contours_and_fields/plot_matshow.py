@@ -1,4 +1,10 @@
-"""Simple matshow() example."""
+"""
+================================
+Displaying matrices with matshow
+================================
+
+This example shows how to use matshow to display a matrix.
+"""
 import matplotlib.pyplot as plt
 import numpy as np
 
@@ -12,6 +18,7 @@ def samplemat(dims):
 
 
 # Display matrix
-plt.matshow(samplemat((15, 35)))
+fig, ax = plt.subplots()
+ax.matshow(samplemat((15, 35)))
 
 plt.show()

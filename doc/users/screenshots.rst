@@ -193,7 +193,7 @@ The :func:`~matplotlib.pyplot.semilogx`,
 :func:`~matplotlib.pyplot.loglog` functions simplify the creation of
 logarithmic plots.
 
-.. plot:: mpl_examples/pylab_examples/log_demo.py
+.. plot:: mpl_examples/pylab/plot_log.py
 
 Thanks to Andrew Straw, Darren Dale and Gregory Lielens for contributions
 log-scaling infrastructure.
@@ -217,7 +217,7 @@ The :func:`~matplotlib.pyplot.legend` command automatically
 generates figure legends, with MATLAB-compatible legend placement
 commands.
 
-.. plot:: mpl_examples/api/legend_demo.py
+.. plot:: mpl_examples/pylab/plot_legend.py
 
 Thanks to Charles Twardy for input on the legend command.
 
