@@ -14,16 +14,16 @@ Installing
     :ref:`install the latest development version<install_from_source>`.
 
 
-
-.. contents.. 
+.. contents..
 
 Installing an official release
 ==============================
 
-Matplotlib and most of its dependencies arr all available as wheel packages for
+Matplotlib and most of its dependencies are all available as wheel packages for
 macOS, Windows and Linux distributions::
 
   pip install -U matplotlib
+
 
 Third-party distributions of Matplotlib
 =======================================
@@ -101,9 +101,9 @@ To run the test suite:
 
    GTK3 is not supported on Windows.
 
-   For support for other backend, LaTeX rendering, animation input/output and
-   larger selection of file format, you may need to install `additional
-   dependencies <_install_requirements>`.
+   For support for other backends, LaTeX rendering, animation input/output and
+   a larger selection of file formats, you may need to install `additional
+   dependencies <_install_requirements>`_.
 
 
 .. _install_from_source:
@@ -147,7 +147,7 @@ packaging Matplotlib.
 If you have installed prerequisites to nonstandard places and need to
 inform Matplotlib where they are, edit ``setupext.py`` and add the base
 dirs to the ``basedir`` dictionary entry for your ``sys.platform``;
-e.g., if the header to some required library is in
+e.g., if the header of some required library is in
 ``/some/path/include/someheader.h``, put ``/some/path`` in the
 ``basedir`` list for your platform.
 
@@ -161,7 +161,7 @@ Matplotlib requires a large number of dependencies:
   * `Python <https://www.python.org/downloads/>`_ (>= 2.7 or >= 3.4)
   * `NumPy <http://www.numpy.org>`_ (>= |minimum_numpy_version|)
   * `setuptools <https://setuptools.readthedocs.io/en/latest/>`__
-  * `dateutil` (>= 1.1)
+  * dateutil (>= 1.1)
   * `pyparsing <https://pyparsing.wikispaces.com/>`__
   * `libpng <http://www.libpng.org>`__ (>= 1.2)
   * `pytz <http://pytz.sourceforge.net/>`__
@@ -173,22 +173,21 @@ Matplotlib requires a large number of dependencies:
   * `subprocess32 <https://pypi.python.org/pypi/subprocess32/>`_ (for Python
     2.7 only, on Linux and macOS only)
 
-Optionally, you can also install a number of packages to enables better user
-interface toolkit. See :ref:`what-is-a-backend` for more details on the
+Optionally, you can also install a number of packages to enable better user
+interface toolkits. See :ref:`what-is-a-backend` for more details on the
 optional Matplotlib backends and the capabilities they provide.
 
   * :term:`tk` (>= 8.3, != 8.6.0 or 8.6.1): for the TkAgg backend;
-  * `PyQt4 <https://pypi.python.org/pypi/PyQt4>`_ (>= 4.4): for the Qt4Agg backend;
+  * `PyQt4 <https://pypi.python.org/pypi/PyQt4>`_ (>= 4.4) or
+    `PySide <https://pypi.python.org/pypi/PySide>`_: for the Qt4Agg backend;
   * `PyQt5 <https://pypi.python.org/pypi/PyQt5>`_: for the Qt5Agg backend;
   * :term:`pygtk` (>= 2.4): for the GTK and the GTKAgg backend;
   * :term:`wxpython` (>= 2.8 or later): for the WX or WXAgg backend;
   * `pycairo <https://pypi.python.org/pypi/pycairo>`_: for GTK3Cairo;
-  * `PySide <https://pypi.python.org/pypi/PySide>`_: for the Qt4Agg backend;
   * `Tornado <https://pypi.python.org/pypi/tornado>`_: for the WebAgg backend.
 
 For better support of animation output format and image file formats, LaTeX,
-etc you can
-install the following:
+etc., you can install the following:
 
   * `ffmpeg <https://www.ffmpeg.org/>`__/`avconv
     <https://libav.org/avconv.html>`__ or `mencoder
@@ -196,7 +195,7 @@ install the following:
   * `ImageMagick <https://www.imagemagick.org/script/index.php>`__ (for saving
     animated gifs);
   * `Pillow <https://python-pillow.org/>`__ (for a larger selection of image
-    file format: JPEG, BMP, and TIFF image files);
+    file formats: JPEG, BMP, and TIFF image files);
   * `LaTeX <https://miktex.org/>`_ and `GhostScript <https://ghostscript.com/download/>`_
     (for rendering text with LaTeX);
 
@@ -204,8 +203,8 @@ install the following:
 
    Matplotlib depends on a large number of non-Python libraries.
    `pkg-config <https://www.freedesktop.org/wiki/Software/pkg-config/>`__
-   can be used to find required non-Python libraries and thus make install go
-   more smoothly if the libraries and headers are not in the expected
+   can be used to find required non-Python libraries and thus make the install
+   go more smoothly if the libraries and headers are not in the expected
    locations.
 
 .. note::
@@ -238,7 +237,7 @@ Matplotlib by first installing ``yum-builddep`` and then running::
 
    su -c "yum-builddep python-matplotlib"
 
-This does not build Matplotlib, but it does get and install the
+These commands do not build Matplotlib, but instead get and install the
 build dependencies, which will make building from source easier.
 
 
@@ -249,13 +248,13 @@ Building on macOS
 
 The build situation on macOS is complicated by the various places one
 can get the libpng and FreeType requirements (MacPorts, Fink,
-/usr/X11R6) and the different architectures (e.g., x86, ppc, universal),
-the different macOS version (e.g., 10.4 and 10.5). We recommend that you build
+/usr/X11R6), the different architectures (e.g., x86, ppc, universal), and
+the different macOS versions (e.g., 10.4 and 10.5). We recommend that you build
 the way we do for the macOS release: get the source from the tarball or the
 git repository and install the required dependencies through a third-party
 package manager. Two widely used package managers are Homebrew, and MacPorts.
 The following example illustrates how to install libpng and FreeType using
-brew::
+``brew``::
 
   brew install libpng freetype pkg-config
 
@@ -263,14 +262,14 @@ If you are using MacPorts, execute the following instead::
 
   port install libpng freetype pkgconfig
 
-To install Matplotlib from source, execute::
+After installing the above requirements, install Matplotlib from source by
+executing::
 
   python setup.py install
 
-
-Note that your environment is somewhat important. Some conda users have 
-found that, to run the tests, their PYTHONPATH must include 
-/path/to/anaconda/.../site-packages and their DYLD_FALLBACK_LIBRARY_PATH 
+Note that your environment is somewhat important. Some conda users have
+found that, to run the tests, their PYTHONPATH must include
+/path/to/anaconda/.../site-packages and their DYLD_FALLBACK_LIBRARY_PATH
 must include /path/to/anaconda/lib.
 
 
@@ -304,7 +303,7 @@ install.
 
 The commands below assume that you can compile a native Python lib for the Python version of your
 choice. See `this howto <https://blog.ionelmc.ro/2014/12/21/compiling-python-extensions-on-windows/>`_
-how to install and setup such environments. If in doubt: use Python >= 3.5 as it mostly works
+for how to install and setup such environments. If in doubt: use Python >= 3.5 as it mostly works
 without fiddling with environment variables::
 
   # create a new environment with the required packages
@@ -332,7 +331,7 @@ without fiddling with environment variables::
   python setup.py bdist_wheel
 
 The `build_alllocal.cmd` script in the root folder automates these steps if
-you already created and activated the conda environment.
+you have already created and activated the conda environment.
 
 
 Conda packages
