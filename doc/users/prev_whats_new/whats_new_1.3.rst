@@ -91,7 +91,7 @@ before creating your plot. For really fine control, it is also possible
 to modify each artist's sketch parameters individually with
 :meth:`matplotlib.artist.Artist.set_sketch_params`.
 
-.. plot:: mpl_examples/showcase/xkcd.py
+.. plot:: auto_examples/showcase/plot_xkcd.py
 
 Updated Axes3D.contour methods
 ------------------------------

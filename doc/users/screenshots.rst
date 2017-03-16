@@ -278,4 +278,4 @@ XKCD-style sketch plots
 matplotlib supports plotting in the style of `xkcd
 <http://www.xkcd.com/>`.
 
-.. plot:: mpl_examples/showcase/xkcd.py
+.. plot:: mpl_examples/showcase/plot_xkcd.py
