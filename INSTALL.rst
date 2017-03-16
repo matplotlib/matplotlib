@@ -21,7 +21,7 @@ Installing an official release
 ==============================
 
 Matplotlib and most of its dependencies arr all available as wheel packages for
-OSX, windows and Linux distributions::
+OSX, Windows and Linux distributions::
 
   pip install -U matplotlib
 
@@ -53,7 +53,7 @@ is packaged for almost every major Linux distribution.
 Windows
 -------
 
-We strongly recommend using `scipy-stack compatible Python distributions
+We strongly recommend using `SciPy-stack compatible Python distributions
 <https://www.scipy.org/install.html>`_ such as WinPython, Python(x,y),
 Enthought Canopy, or Continuum Anaconda, which have Matplotlib and its
 dependencies, plus other useful packages, preinstalled.
@@ -98,7 +98,7 @@ To run the test suite:
    TkAgg is probably the best backend for interactive use from the standard
    Python shell or from IPython and is enabled as default.
 
-   GTK3 is not supported on windows.
+   GTK3 is not supported on Windows.
 
    For support for other backend, LaTeX rendering, animation input/output and
    larger selection of file format, you may need to install `additional
@@ -128,7 +128,7 @@ cross compiling.
   export PKG_CONFIG=x86_64-pc-linux-gnu-pkg-config
 
 Once you have satisfied the requirements detailed below (mainly
-python, numpy, libpng and freetype), you can build Matplotlib.
+Python, NumPy, libpng and FreeType), you can build Matplotlib.
 ::
 
   cd matplotlib
@@ -158,11 +158,11 @@ Dependencies
 Matplotlib requires a large number of dependencies:
 
   * `Python <https://www.python.org/downloads/>`_ (>= 2.7 or >= 3.4)
-  * `numpy <http://www.numpy.org>`_ (>= |minimum_numpy_version|)
+  * `NumPy <http://www.numpy.org>`_ (>= |minimum_numpy_version|)
   * `setuptools <https://setuptools.readthedocs.io/en/latest/>`__
   * `dateutil` (>= 1.1)
   * `pyparsing <https://pyparsing.wikispaces.com/>`__
-  * `libpng <http://www.libpng.org>`__ ( >= 1.2) 
+  * `libpng <http://www.libpng.org>`__ (>= 1.2)
   * `pytz <http://pytz.sourceforge.net/>`__
   * FreeType (>= 2.3)
   * `cycler <http://matplotlib.org/cycler/>`__ (>= 0.10.0)
@@ -181,8 +181,8 @@ optional Matplotlib backends and the capabilities they provide.
   * `PyQt5 <https://pypi.python.org/pypi/PyQt5>`_: for the Qt5Agg backend;
   * :term:`pygtk` (>= 2.4): for the GTK and the GTKAgg backend;
   * :term:`wxpython` (>= 2.8 or later): for the WX or WXAgg backend;
-  * `pycairo <https://pypi.python.org/pypi/pycairo>`_: for gtk3cairo;
-  * `PySide <https://pypi.python.org/pypi/PySide>`_: for the qt4Agg;
+  * `pycairo <https://pypi.python.org/pypi/pycairo>`_: for GTK3Cairo;
+  * `PySide <https://pypi.python.org/pypi/PySide>`_: for the Qt4Agg backend;
   * `Tornado <https://pypi.python.org/pypi/tornado>`_: for the WebAgg backend.
 
 For better support of animation output format and image file formats, LaTeX,
@@ -196,14 +196,14 @@ install the following:
     animated gifs);
   * `Pillow <https://python-pillow.org/>`__ (for a larger selection of image
     file format: JPEG, BMP, and TIFF image files);
-  * `Latex <https://miktex.org/>`_ and `GhostScript <https://ghostscript.com/download/>`_ 
+  * `LaTeX <https://miktex.org/>`_ and `GhostScript <https://ghostscript.com/download/>`_
     (for rendering text with LaTeX);
 
 .. note::
 
-   Matplotlib depends on a large number of non-python libraries. 
+   Matplotlib depends on a large number of non-Python libraries.
    `pkg-config <https://www.freedesktop.org/wiki/Software/pkg-config/>`__
-   can be used to find required non-python libraries and thus make install go
+   can be used to find required non-Python libraries and thus make install go
    more smoothly if the libraries and headers are not in the expected
    locations.
 
@@ -211,7 +211,7 @@ install the following:
 
   The following libraries are shipped with Matplotlib:
 
-    - `Agg`: the antigrain C++ rendering engine;
+    - `Agg`: the Anti-Grain Geometry C++ rendering engine;
     - `qhull`: to compute Delaunay triangulation;
     - `ttconv`: a true type font utility.
 
@@ -243,13 +243,13 @@ Building on OSX
 ---------------
 
 The build situation on OSX is complicated by the various places one
-can get the libpng and freetype requirements (darwinports, fink,
+can get the libpng and FreeType requirements (MacPorts, Fink,
 /usr/X11R6) and the different architectures (e.g., x86, ppc, universal),
 the different OSX version (e.g., 10.4 and 10.5). We recommend that you build
 the way we do for the OSX release: get the source from the tarball or the
 git repository and install the required dependencies through a third-party
-package manager. Two widely used package managers are homebrew, and MacPorts.
-The following example illustrates how to install libpng and freetype using
+package manager. Two widely used package managers are Homebrew, and MacPorts.
+The following example illustrates how to install libpng and FreeType using
 brew::
 
   brew install libpng freetype pkg-config
@@ -280,11 +280,11 @@ Visual Studio 2015 for 3.5 and 3.6.  Python extensions are recommended to be com
 with the same compiler.
 
 Since there is no canonical Windows package manager, the methods for building
-freetype, zlib, and libpng from source code are documented as a build script
+FreeType, zlib, and libpng from source code are documented as a build script
 at `matplotlib-winbuild <https://github.com/jbmohler/matplotlib-winbuild>`_.
 
 
-There are a few possibilities to build matplotlib on Windows:
+There are a few possibilities to build Matplotlib on Windows:
 
 * Wheels via `matplotlib-winbuild <https://github.com/jbmohler/matplotlib-winbuild>`_
 * Wheels by using conda packages
@@ -294,10 +294,10 @@ Wheel builds using conda packages
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 This is a wheel build, but we use conda packages to get all the requirements. The binary
-requirements (png, freetype,...) are statically linked and therefore not needed during the wheel
+requirements (png, FreeType,...) are statically linked and therefore not needed during the wheel
 install.
 
-The commands below assume that you can compile a native python lib for the python version of your
+The commands below assume that you can compile a native Python lib for the Python version of your
 choice. See `this howto <https://blog.ionelmc.ro/2014/12/21/compiling-python-extensions-on-windows/>`_
 how to install and setup such environments. If in doubt: use Python >= 3.5 as it mostly works
 without fiddling with environment variables::
@@ -310,7 +310,7 @@ without fiddling with environment variables::
   conda install pyqt
   # this package is only available in the conda-forge channel
   conda install -c conda-forge msinttypes
-  # for python 2.7
+  # for Python 2.7
   conda install -c conda-forge backports.functools_lru_cache
 
   # copy the libs which have "wrong" names
@@ -335,13 +335,13 @@ Conda packages
 
 This needs a `working installed C compiler
 <https://blog.ionelmc.ro/2014/12/21/compiling-python-extensions-on-windows/>`_
-for the version of python you are compiling the package for but you don't need
+for the version of Python you are compiling the package for but you don't need
 to setup the environment variables::
 
   # only the first time...
   conda install conda-build
 
-  # the python version you want a package for...
+  # the Python version you want a package for...
   set CONDA_PY=3.5
 
   # builds the package, using a clean build environment
