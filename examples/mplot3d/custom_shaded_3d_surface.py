@@ -1,4 +1,8 @@
 """
+=======================================
+Custom hillshading in a 3D surface plot
+=======================================
+
 Demonstrates using custom hillshading in a 3D surface plot.
 """
 
