@@ -21,7 +21,7 @@ Installing an official release
 ==============================
 
 Matplotlib and most of its dependencies arr all available as wheel packages for
-OSX, Windows and Linux distributions::
+macOS, Windows and Linux distributions::
 
   pip install -U matplotlib
 
@@ -35,7 +35,7 @@ The first option is to use one of the pre-packaged Python distributions that
 already provide Matplotlib built-in.  Both `Anaconda
 <https://www.continuum.io/downloads/>`_ and `Canopy
 <https://www.enthought.com/products/canopy/>`_ are both excellent choices that
-"just work" out of the box for Windows, OSX and common Linux platforms.  Both
+"just work" out of the box for Windows, macOS and common Linux platforms.  Both
 of these distributions include Matplotlib and *lots* of other useful tools.
 
 Linux : using your package manager
@@ -171,7 +171,7 @@ Matplotlib requires a large number of dependencies:
   * `backports.functools_lru_cache <https://pypi.python.org/pypi/backports.functools_lru_cache>`_
     (for Python 2.7 only)
   * `subprocess32 <https://pypi.python.org/pypi/subprocess32/>`_ (for Python
-    2.7 only, on Linux and Mac OSX only)
+    2.7 only, on Linux and macOS only)
 
 Optionally, you can also install a number of packages to enables better user
 interface toolkit. See :ref:`what-is-a-backend` for more details on the
@@ -244,14 +244,14 @@ build dependencies, which will make building from source easier.
 
 .. _build_osx:
 
-Building on OSX
----------------
+Building on macOS
+-----------------
 
-The build situation on OSX is complicated by the various places one
+The build situation on macOS is complicated by the various places one
 can get the libpng and FreeType requirements (MacPorts, Fink,
 /usr/X11R6) and the different architectures (e.g., x86, ppc, universal),
-the different OSX version (e.g., 10.4 and 10.5). We recommend that you build
-the way we do for the OSX release: get the source from the tarball or the
+the different macOS version (e.g., 10.4 and 10.5). We recommend that you build
+the way we do for the macOS release: get the source from the tarball or the
 git repository and install the required dependencies through a third-party
 package manager. Two widely used package managers are Homebrew, and MacPorts.
 The following example illustrates how to install libpng and FreeType using
