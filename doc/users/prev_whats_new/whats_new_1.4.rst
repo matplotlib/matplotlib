@@ -160,7 +160,7 @@ matplotlib internals were cleaned up to support using such transforms in
 :class:`~matplotlib.Axes`. This transform is important for some plot types,
 specifically the Skew-T used in meteorology.
 
-.. plot:: mpl_examples/api/skewt.py
+.. plot:: mpl_examples/api/plot_skewt.py
 
 Support for specifying properties of wedge and text in pie charts.
 ``````````````````````````````````````````````````````````````````
