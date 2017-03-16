@@ -792,6 +792,7 @@ or tuple of floats
         trans = self.get_xaxis_transform(which='grid')
         l = mlines.Line2D([x, x], [ymin, ymax], transform=trans, **kwargs)
         self.add_line(l)
+        self.ignore_existing_data_limits = True
         self.autoscale_view(scalex=scalex, scaley=False)
         return l
 
