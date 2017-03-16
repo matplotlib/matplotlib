@@ -54,7 +54,7 @@ Windows
 -------
 
 We strongly recommend using `scipy-stack compatible Python distributions
-<http://www.scipy.org/install.html>`_ such as WinPython, Python(x,y),
+<https://www.scipy.org/install.html>`_ such as WinPython, Python(x,y),
 Enthought Canopy, or Continuum Anaconda, which have Matplotlib and its
 dependencies, plus other useful packages, preinstalled.
 
@@ -191,10 +191,10 @@ install the following:
 
   * `ffmpeg <https://www.ffmpeg.org/>`__/`avconv
     <https://libav.org/avconv.html>`__ or `mencoder
-    <http://www.mplayerhq.hu/design7/news.html>`__ (for saving movies);
-  * `ImageMagick <http://www.imagemagick.org/script/index.php>`__ (for saving
+    <https://mplayerhq.hu/design7/news.html>`__ (for saving movies);
+  * `ImageMagick <https://www.imagemagick.org/script/index.php>`__ (for saving
     animated gifs);
-  * `Pillow <http://python-pillow.org/>`__ (for a larger selection of image
+  * `Pillow <https://python-pillow.org/>`__ (for a larger selection of image
     file format: JPEG, BMP, and TIFF image files);
   * `Latex <https://miktex.org/>`_ and `GhostScript <https://ghostscript.com/download/>`_ 
     (for rendering text with LaTeX);
@@ -298,7 +298,7 @@ requirements (png, freetype,...) are statically linked and therefore not needed 
 install.
 
 The commands below assume that you can compile a native python lib for the python version of your
-choice. See `this howto <http://blog.ionelmc.ro/2014/12/21/compiling-python-extensions-on-windows/>`_
+choice. See `this howto <https://blog.ionelmc.ro/2014/12/21/compiling-python-extensions-on-windows/>`_
 how to install and setup such environments. If in doubt: use Python >= 3.5 as it mostly works
 without fiddling with environment variables::
 
@@ -333,9 +333,8 @@ you already created and activated the conda environment.
 Conda packages
 ^^^^^^^^^^^^^^
 
-This needs a `working installed C
-compiler
-<http://blog.ionelmc.ro/2014/12/21/compiling-python-extensions-on-windows/>`_
+This needs a `working installed C compiler
+<https://blog.ionelmc.ro/2014/12/21/compiling-python-extensions-on-windows/>`_
 for the version of python you are compiling the package for but you don't need
 to setup the environment variables::
 
