@@ -1,6 +1,7 @@
-.. The source of this document is INSTALL. During the doc build process,
+.. The source of this document is INSTALL.rst. During the doc build process,
 .. this file is copied over to doc/users/installing.rst.
-.. Therefore, you must edit INSTALL, *not* doc/users/installing.rst!
+.. Therefore, you must edit INSTALL.rst, *not* doc/users/installing.rst!
+
 .. _pip: https://pypi.python.org/pypi/pip/
 
 ==========
@@ -19,8 +20,8 @@ Installing
 Installing an official release
 ==============================
 
-Matplotlib and most of its dependencies all available as wheel packages for
-OSX, windows and many linux distributions::
+Matplotlib and most of its dependencies arr all available as wheel packages for
+OSX, windows and Linux distributions::
 
   pip install -U matplotlib
 
@@ -28,7 +29,7 @@ Third-party distributions of Matplotlib
 =======================================
 
 Scientific Python distributions: Conda, Canopy...
---------------------------------------------------
+-------------------------------------------------
 
 The first option is to use one of the pre-packaged Python distributions that
 already provide Matplotlib built-in.  Both `Anaconda
@@ -43,8 +44,9 @@ Linux : using your package manager
 If you are on Linux, you might prefer to use your package manager.  Matplotlib
 is packaged for almost every major Linux distribution.
 
-* Debian / Ubuntu : ``sudo apt-get install python-matplotlib``
-* Fedora / Redhat : ``sudo yum install python-matplotlib``
+* Debian / Ubuntu: ``sudo apt-get install python-matplotlib``
+* Fedora / Red Hat: ``sudo yum install python-matplotlib``
+* Arch: ``sudo pacman -S python-matplotlib``
 
 .. _installing_windows:
 
@@ -53,7 +55,7 @@ Windows
 
 We strongly recommend using `scipy-stack compatible Python distributions
 <http://www.scipy.org/install.html>`_ such as WinPython, Python(x,y),
-Enthought Canopy, or Continuum Anaconda, which have Matplotlib and many of its
+Enthought Canopy, or Continuum Anaconda, which have Matplotlib and its
 dependencies, plus other useful packages, preinstalled.
 
 For `standard Python <https://www.python.org/downloads/>`_ installations,
@@ -74,12 +76,6 @@ or
 for Python 3.4) redistributable packages need to be installed.
 
 
-The following backends should work out of the box: agg, tkagg, ps,
-pdf and svg.
-TkAgg is probably the best backend for interactive use from the
-standard Python shell or IPython.  It is enabled as the default backend
-for the official binaries.  GTK3 is not supported on Windows.
-
 The Windows wheels (:file:`*.whl`) on the `PyPI download page
 <https://pypi.python.org/pypi/matplotlib/>`_ do not contain test data
 or example code.
@@ -94,7 +90,7 @@ To run the test suite:
    `mock <https://pypi.python.org/pypi/mock>`_, Pillow, MiKTeX, GhostScript,
    ffmpeg, avconv, mencoder, ImageMagick, and `Inkscape
    <https://inkscape.org/>`_;
- * run ``py.test path\\to\\tests\\directory``.
+ * run ``py.test path\to\tests\directory``.
 
 .. note::
 
@@ -149,7 +145,7 @@ packaging Matplotlib.
 
 If you have installed prerequisites to nonstandard places and need to
 inform Matplotlib where they are, edit ``setupext.py`` and add the base
-dirs to the ``basedir`` dictionary entry for your ``sys.platform``.
+dirs to the ``basedir`` dictionary entry for your ``sys.platform``;
 e.g., if the header to some required library is in
 ``/some/path/include/someheader.h``, put ``/some/path`` in the
 ``basedir`` list for your platform.
@@ -174,7 +170,7 @@ Matplotlib requires a large number of dependencies:
   * `backports.functools_lru_cache <https://pypi.python.org/pypi/backports.functools_lru_cache>`_
     (for Python 2.7 only)
   * `subprocess32 <https://pypi.python.org/pypi/subprocess32/>`_ (for Python
-    2.7 only, on Linux and mac os X only)
+    2.7 only, on Linux and Mac OSX only)
 
 Optionally, you can also install a number of packages to enables better user
 interface toolkit. See :ref:`what-is-a-backend` for more details on the
@@ -185,12 +181,11 @@ optional Matplotlib backends and the capabilities they provide.
   * `PyQt5 <https://pypi.python.org/pypi/PyQt5>`_: for the Qt5Agg backend;
   * :term:`pygtk` (>= 2.4): for the GTK and the GTKAgg backend;
   * :term:`wxpython` (>= 2.8 or later): for the WX or WXAgg backend;
-  * `pycairo <https://pypi.python.org/pypi/pycairo>`_;
-  * `PySide <https://pypi.python.org/pypi/PySide>`_;
-  * `PyGTK <https://pypi.python.org/pypi/PyGTK>`_;
+  * `pycairo <https://pypi.python.org/pypi/pycairo>`_: for gtk3cairo;
+  * `PySide <https://pypi.python.org/pypi/PySide>`_: for the qt4Agg;
   * `Tornado <https://pypi.python.org/pypi/tornado>`_: for the WebAgg backend.
 
-For better support of animation output format and image file format, LaTeX,
+For better support of animation output format and image file formats, LaTeX,
 etc you can
 install the following:
 
@@ -249,27 +244,21 @@ Building on OSX
 
 The build situation on OSX is complicated by the various places one
 can get the libpng and freetype requirements (darwinports, fink,
-/usr/X11R6) and the different architectures (e.g., x86, ppc, universal) and
+/usr/X11R6) and the different architectures (e.g., x86, ppc, universal),
 the different OSX version (e.g., 10.4 and 10.5). We recommend that you build
 the way we do for the OSX release: get the source from the tarball or the
 git repository and install the required dependencies through a third-party
-package manager: two widely used package managers are homebrew, and MacPorts.
+package manager. Two widely used package managers are homebrew, and MacPorts.
 The following example illustrates how to install libpng and freetype using
-brew:
-
-Example usage::
+brew::
 
   brew install libpng freetype pkg-config
 
-If you are using MacPorts, execute the following instead:
-
-Example usage::
+If you are using MacPorts, execute the following instead::
 
   port install libpng freetype pkgconfig
 
-To install Matplotlib from source, execute:
-
-Example usage::
+To install Matplotlib from source, execute::
 
   python setup.py install
 
@@ -310,7 +299,7 @@ install.
 
 The commands below assume that you can compile a native python lib for the python version of your
 choice. See `this howto <http://blog.ionelmc.ro/2014/12/21/compiling-python-extensions-on-windows/>`_
-how to install and setup such environments. If in doubt: use python 3.5 as it mostly works
+how to install and setup such environments. If in doubt: use Python >= 3.5 as it mostly works
 without fiddling with environment variables::
 
   # create a new environment with the required packages
