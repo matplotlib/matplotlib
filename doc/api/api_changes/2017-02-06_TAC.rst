@@ -1,11 +1,11 @@
-Do not clip lw when scaling dashes
-``````````````````````````````````
+Do not clip line width when scaling dashes
+``````````````````````````````````````````
 
-Slightly change the algorithm to no longer clip the scaling factor,
-thus the patterns will continue to shrink at thin line widths.  If the
-line width is smaller than the effective pixel size, this may result
-in dashed lines turning into solid gray lines.  This also required
-slightly tweaking the default patterns for '--', ':', and '.-' so that
-with the default line-width the final patterns would not change.
+The algorithm to scale dashes was changed to no longer clip the
+scaling factor: the dash patterns now continue to shrink at thin line widths.
+If the line width is smaller than the effective pixel size, this may result in
+dashed lines turning into solid gray-ish lines.  This also required slightly
+tweaking the default patterns for '--', ':', and '.-' so that with the default
+line width the final patterns would not change.
 
-There is no way to restore the old behavior
+There is no way to restore the old behavior.
