@@ -354,20 +354,20 @@ def test_contourf_clip_path_kwarg():
 
     fig = plt.figure()
     ax = fig.add_subplot(111)
-    arrow = mpatches.Arrow(0, 0.5, 0.5, 0, 
-        transform=ax.transAxes)
+    arrow = mpatches.Arrow(0, 0.5, 0.5, 0,
+                           transform=ax.transAxes)
     plt.contourf(data, clip_path=arrow)
 
     fig = plt.figure()
     ax = fig.add_subplot(111)
-    circle = mpatches.Circle([0.5, 0.5], 0.5, 
-        transform=ax.transAxes)
+    circle = mpatches.Circle([0.5, 0.5], 0.5,
+                             transform=ax.transAxes)
     plt.contourf(data, clip_path=circle)
 
     fig = plt.figure()
     ax = fig.add_subplot(111)
-    polygon = mpatches.RegularPolygon([0.5,  0.5], 5, 0.5, 
-        transform=ax.transAxes)
+    polygon = mpatches.RegularPolygon([0.5,  0.5], 5, 0.5,
+                                      transform=ax.transAxes)
     plt.contourf(data, clip_path=polygon)
 
     fig = plt.figure()
@@ -386,20 +386,20 @@ def test_contourf_set_clip_path():
 
     fig = plt.figure()
     ax = fig.add_subplot(111)
-    arrow = mpatches.Arrow(0, 0.5, 0.5, 0, 
-        transform=ax.transAxes)
+    arrow = mpatches.Arrow(0, 0.5, 0.5, 0,
+                           transform=ax.transAxes)
     plt.contourf(data).set_clip_path(arrow)
 
     fig = plt.figure()
     ax = fig.add_subplot(111)
-    circle = mpatches.Circle([0.5, 0.5], 0.5, 
-        transform=ax.transAxes)
+    circle = mpatches.Circle([0.5, 0.5], 0.5,
+                             transform=ax.transAxes)
     plt.contourf(data).set_clip_path(circle)
 
     fig = plt.figure()
     ax = fig.add_subplot(111)
-    polygon = mpatches.RegularPolygon([0.5,  0.5], 5, 0.5, 
-        transform=ax.transAxes)
+    polygon = mpatches.RegularPolygon([0.5,  0.5], 5, 0.5,
+                                      transform=ax.transAxes)
     plt.contourf(data).set_clip_path(polygon)
 
     fig = plt.figure()
@@ -407,14 +407,13 @@ def test_contourf_set_clip_path():
     plt.contourf(data).set_clip_path(None)
 
 
-@cleanup
 def test_contourf_get_clip_path():
     # Issue 2369
     data = np.arange(100).reshape(10, 10)
     fig = plt.figure()
     ax = fig.add_subplot(111)
     polygon = mpatches.RegularPolygon([0.5,  0.5], 5, 0.5,
-        transform=ax.transAxes)
+                                      transform=ax.transAxes)
     cs = plt.contourf(data)
     cs.set_clip_path(polygon)
     # Get clip_path of the ContourSet
@@ -430,8 +429,8 @@ def test_contourf_reset_clip_path_none_to_shape():
     data = np.arange(100).reshape(10, 10)
     fig = plt.figure()
     ax = fig.add_subplot(111)
-    polygon = mpatches.RegularPolygon([0.5,  0.5], 5, 0.5, 
-        transform=ax.transAxes)
+    polygon = mpatches.RegularPolygon([0.5,  0.5], 5, 0.5,
+                                      transform=ax.transAxes)
     cs = plt.contourf(data)
     cs.set_clip_path(None)
     cs.set_clip_path(polygon)
@@ -444,8 +443,8 @@ def test_contourf_reset_clip_path_shape_to_none():
     data = np.arange(100).reshape(10, 10)
     fig = plt.figure()
     ax = fig.add_subplot(111)
-    polygon = mpatches.RegularPolygon([0.5,  0.5], 5, 0.5, 
-        transform=ax.transAxes)
+    polygon = mpatches.RegularPolygon([0.5,  0.5], 5, 0.5,
+                                      transform=ax.transAxes)
     cs = plt.contourf(data)
     cs.set_clip_path(polygon)
     cs.set_clip_path(None)
@@ -459,9 +458,9 @@ def test_contourf_reset_clip_path_shape_to_shape():
     fig = plt.figure()
     ax = fig.add_subplot(111)
     polygon = mpatches.RegularPolygon([0.5,  0.5], 5, 0.5,
-        transform=ax.transAxes)
+                                      transform=ax.transAxes)
     arrow = mpatches.Arrow(0, 0.5, 0.5, 0,
-        transform=ax.transAxes)
+                           transform=ax.transAxes)
     cs = plt.contourf(data)
     cs.set_clip_path(polygon)
     cs.set_clip_path(arrow)
