@@ -529,7 +529,18 @@ class Colormap(object):
         if vtype == 'scalar':
             rgba = tuple(rgba[0, :])
         return rgba
-
+    
+    def __copy__(self):
+        """Create new object with the same class and update attributes
+           If object is initialized, copy the elements of _lut list
+        """
+        cls = self.__class__
+    	newCMapObj = cls.__new__(cls)
+    	newCMapObj.__dict__.update(self.__dict__)
+        if self._isinit:
+            newCMapObj._lut = np.copy(self._lut)
+        return newCMapObj
+    
     def set_bad(self, color='k', alpha=None):
         """Set color to be used for masked values.
         """
