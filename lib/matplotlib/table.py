@@ -88,8 +88,10 @@ class Cell(Rectangle):
 
     def auto_set_font_size(self, renderer, hint=None):
         """ Shrink font size until text fits. """
+
         if hint:
             self.set_fontsize(hint)
+
         fontsize = self.get_fontsize()
 
         width, height = self.get_required_dimensions(renderer)
@@ -479,7 +481,7 @@ class Table(Artist):
             # ignore auto-sized columns
             if key[1] in self._autoColumns:
                 continue
-            size = cell.auto_set_font_size(renderer, hint=None)
+            size = cell.auto_set_font_size(renderer, hint=self.FONTSIZE)
             fontsize = min(fontsize, size)
 
         # now set all fontsizes equal
