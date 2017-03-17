@@ -7,6 +7,7 @@ import numpy as np
 from matplotlib import mlab
 from matplotlib.testing.decorators import image_comparison
 from matplotlib import pyplot as plt
+import matplotlib.patches as mpatches
 from numpy.testing import assert_array_almost_equal
 import pytest
 import warnings
@@ -340,3 +341,67 @@ def test_internal_cpp_api():
     with pytest.raises(ValueError) as excinfo:
         qcg.create_filled_contour(1, 0)
     excinfo.match(r'filled contour levels must be increasing')
+
+
+@image_comparison(baseline_images=['contour_clip_path_arrow',
+                                   'contour_clip_path_circle',
+                                   'contour_clip_path_polygon',
+                                   'contour_clip_path_none'],
+                  extensions=['png'])
+def test_contourf_clip_path_kwarg():
+    # GitHub Issue 2369
+    data = np.arange(100).reshape(10, 10)
+
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+    arrow = mpatches.Arrow(0, 0.5, 0.5, 0, 
+        transform=ax.transAxes)
+    plt.contourf(data, clip_path=arrow)
+
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+    circle = mpatches.Circle([0.5, 0.5], 0.5, 
+        transform=ax.transAxes)
+    plt.contourf(data, clip_path=circle)
+
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+    polygon = mpatches.RegularPolygon([0.5,  0.5], 5, 0.5, 
+        transform=ax.transAxes)
+    plt.contourf(data, clip_path=polygon)
+
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+    plt.contourf(data, clip_path=None)
+
+
+@image_comparison(baseline_images=['contour_clip_path_arrow',
+                                   'contour_clip_path_circle',
+                                   'contour_clip_path_polygon',
+                                   'contour_clip_path_none'],
+                  extensions=['png'])
+def test_contourf_set_clip_path():
+    # GitHub Issue 2369
+    data = np.arange(100).reshape(10, 10)
+
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+    arrow = mpatches.Arrow(0, 0.5, 0.5, 0, 
+        transform=ax.transAxes)
+    plt.contourf(data).set_clip_path(arrow)
+
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+    circle = mpatches.Circle([0.5, 0.5], 0.5, 
+        transform=ax.transAxes)
+    plt.contourf(data).set_clip_path(circle)
+
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+    polygon = mpatches.RegularPolygon([0.5,  0.5], 5, 0.5, 
+        transform=ax.transAxes)
+    plt.contourf(data).set_clip_path(polygon)
+
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+    plt.contourf(data).set_clip_path(None)

@@ -808,6 +808,7 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
         self.hatches = kwargs.get('hatches', [None])
 
         self.alpha = kwargs.get('alpha', None)
+        self.clip_path = kwargs.get('clip_path', None)
         self.origin = kwargs.get('origin', None)
         self.extent = kwargs.get('extent', None)
         cmap = kwargs.get('cmap', None)
@@ -957,6 +958,7 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
             col.sticky_edges.y[:] = [self._mins[1], self._maxs[1]]
         self.ax.update_datalim([self._mins, self._maxs])
         self.ax.autoscale_view(tight=True)
+        self.set_clip_path(self.clip_path)
 
         self.changed()  # set the colors
 
@@ -1321,6 +1323,26 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
         """sets alpha for all ContourSet artists"""
         self.alpha = alpha
         self.changed()
+
+    def get_clip_path(self):
+        """Returns clip_path to be applied to all ContourSet artists."""
+        return self.clip_path
+
+    def set_clip_path(self, path, transform=None):
+        """
+        Sets clip_path for all ContourSet artists.
+
+        Optional keyword arguments:
+
+          *transform*:
+            A :class:`~matplotlib.transforms.Transform` instance
+            which will be applied to the path before using it for
+            clipping. May be provided if *path* is a
+            :class:`~matplotlib.path.Path` instance.
+
+        """
+        for col in self.collections:
+            col.set_clip_path(path, transform)
 
     def find_nearest_contour(self, x, y, indices=None, pixel=True):
         """
@@ -1782,6 +1804,12 @@ class QuadContourSet(ContourSet):
             on to the backend and also requires slightly less RAM.  It can
             however introduce rendering artifacts at chunk boundaries depending
             on the backend, the *antialiased* flag and value of *alpha*.
+
+          *clip_path*: [ *None* | Patch | Path ]
+            A :class:`~matplotlib.patches.Patch` (or subclass), or
+            :class:`~matplotlib.path.Path` instance for setting a clip_path
+            for the ContourSet. If *clip_path* is *None* then the clipping
+            path is removed.
 
         contour-only keyword arguments:
 
