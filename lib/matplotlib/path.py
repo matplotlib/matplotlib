@@ -317,9 +317,6 @@ class Path(object):
         of polygons with equal numbers of sides XY is a (numpolys x
         numsides x 2) numpy array of vertices.  Return object is a
         :class:`Path`
-
-        .. plot:: mpl_examples/api/histogram_path_demo.py
-
         """
 
         # for each poly: 1 for the MOVETO, (numsides-1) for the LINETO, 1 for
