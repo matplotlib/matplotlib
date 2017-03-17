@@ -147,12 +147,12 @@ def parse_options():
     parser = ArgumentParser(description=doc[0].strip(),
                             epilog='\n'.join(doc[1:]))
 
-    helpstr = 'Run only the tests in these directories; comma-separated list'
+    helpstr = 'Run only the tests in these directories'
     parser.add_argument('-d', '--dirs', '--directories', type=str,
                         dest='dirs', help=helpstr, nargs='+')
 
-    helpstr = ('Run tests only for these backends; comma-separated list of '
-               'one or more of: agg, ps, svg, pdf, template, cairo, Default '
+    helpstr = ('Run tests only for these backends; list of '
+               'one or more of: agg, ps, svg, pdf, template, cairo. Default '
                'is everything except cairo.')
     parser.add_argument('-b', '--backends', type=str, dest='backends',
                         help=helpstr, nargs='+')
