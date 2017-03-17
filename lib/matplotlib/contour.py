@@ -1341,6 +1341,7 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
             :class:`~matplotlib.path.Path` instance.
 
         """
+        self.clip_path = path
         for col in self.collections:
             col.set_clip_path(path, transform)
 

@@ -405,3 +405,63 @@ def test_contourf_set_clip_path():
     fig = plt.figure()
     ax = fig.add_subplot(111)
     plt.contourf(data).set_clip_path(None)
+
+
+@cleanup
+def test_contourf_get_clip_path():
+    # Issue 2369
+    data = np.arange(100).reshape(10, 10)
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+    polygon = mpatches.RegularPolygon([0.5,  0.5], 5, 0.5,
+        transform=ax.transAxes)
+    cs = plt.contourf(data)
+    cs.set_clip_path(polygon)
+    # Get clip_path of the ContourSet
+    get_polygon = cs.get_clip_path()
+    # Getter should return the same clip_path
+    assert polygon == get_polygon
+
+
+@image_comparison(baseline_images=['contour_clip_path_polygon'],
+                  extensions=['png'])
+def test_contourf_reset_clip_path_none_to_shape():
+    # Issue 2369
+    data = np.arange(100).reshape(10, 10)
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+    polygon = mpatches.RegularPolygon([0.5,  0.5], 5, 0.5, 
+        transform=ax.transAxes)
+    cs = plt.contourf(data)
+    cs.set_clip_path(None)
+    cs.set_clip_path(polygon)
+
+
+@image_comparison(baseline_images=['contour_clip_path_none'],
+                  extensions=['png'])
+def test_contourf_reset_clip_path_shape_to_none():
+    # Issue 2369
+    data = np.arange(100).reshape(10, 10)
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+    polygon = mpatches.RegularPolygon([0.5,  0.5], 5, 0.5, 
+        transform=ax.transAxes)
+    cs = plt.contourf(data)
+    cs.set_clip_path(polygon)
+    cs.set_clip_path(None)
+
+
+@image_comparison(baseline_images=['contour_clip_path_arrow'],
+                  extensions=['png'])
+def test_contourf_reset_clip_path_shape_to_shape():
+    # Issue 2369
+    data = np.arange(100).reshape(10, 10)
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+    polygon = mpatches.RegularPolygon([0.5,  0.5], 5, 0.5,
+        transform=ax.transAxes)
+    arrow = mpatches.Arrow(0, 0.5, 0.5, 0,
+        transform=ax.transAxes)
+    cs = plt.contourf(data)
+    cs.set_clip_path(polygon)
+    cs.set_clip_path(arrow)
