@@ -102,8 +102,8 @@ To run the test suite:
    GTK3 is not supported on Windows.
 
    For support for other backends, LaTeX rendering, animation input/output and
-   a larger selection of file formats, you may need to install `additional
-   dependencies <_install_requirements>`_.
+   a larger selection of file formats, you may need to install :ref:`additional
+   dependencies <install_requirements>`.
 
 
 .. _install_from_source:
