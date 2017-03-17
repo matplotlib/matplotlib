@@ -205,7 +205,7 @@ files['pylab'] = [
     'multiline.py',
     'multiple_figs_demo.py',
     'nan_test.py',
-    'newscalarformatter_demo.py',
+    'plot_scalarformatter.py',
     'pcolor_demo.py',
     'pcolor_log.py',
     'pcolor_small.py',
