@@ -17,7 +17,7 @@ talking to user interface toolkits like `wxPython
 <https://www.wxpython.org>`_ or drawing languages like PostScript®, and
 the ``Artist`` handles all the high level constructs like representing
 and laying out the figure, text, and lines.  The typical user will
-spend 95% of his time working with the ``Artists``.
+spend 95% of their time working with the ``Artists``.
 
 There are two types of ``Artists``: primitives and containers.  The primitives
 represent the standard graphical objects we want to paint onto our canvas:
