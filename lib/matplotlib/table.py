@@ -86,11 +86,11 @@ class Cell(Rectangle):
         'Return the cell fontsize'
         return self._text.get_fontsize()
 
-    def auto_set_font_size(self, renderer, hint=None):
+    def auto_set_font_size(self, renderer, size_hint=None, grow=False):
         """ Shrink font size until text fits. """
 
-        if hint:
-            self.set_fontsize(hint)
+        if size_hint:
+            self.set_fontsize(size_hint)
 
         fontsize = self.get_fontsize()
 
@@ -99,10 +99,12 @@ class Cell(Rectangle):
         if width == 0: return fontsize
 
         # make sure font is large enough
-        while width < self.get_width() and height < self.get_height():
-            fontsize += 1
-            self.set_fontsize(fontsize)
-            width, height = self.get_required_dimensions(renderer)
+        if grow:
+            while width < self.get_width() and height < self.get_height():
+                fontsize += 1
+        
+                self.set_fontsize(fontsize)
+                width, height = self.get_required_dimensions(renderer)
 
         # now shrink until it fits
         while fontsize > 1 and (width > self.get_width() or height > self.get_height()):
@@ -290,7 +292,6 @@ class Table(Artist):
         # use axes coords
         self.set_transform(ax.transAxes)
 
-        self._texts = []
         self._cells = {}
         self._edges = None
         self._autoRows = []
@@ -475,14 +476,25 @@ class Table(Artist):
 
         if len(self._cells) == 0:
             return
-        fontsize = self.FONTSIZE
 
+        fontsize = None
+        grow = self._bbox
         for key, cell in six.iteritems(self._cells):
             # ignore auto-sized columns
             if key[1] in self._autoColumns:
                 continue
-            size = cell.auto_set_font_size(renderer, hint=self.FONTSIZE)
-            fontsize = min(fontsize, size)
+            size = cell.auto_set_font_size(
+                renderer,
+                size_hint=fontsize or self.FONTSIZE,
+                grow=grow)
+
+            # no point in trying bigger font after first
+            grow = False
+
+            if fontsize:
+                fontsize = min(fontsize, size)
+            else:
+                fontsize = size
 
         # now set all fontsizes equal
         self.set_fontsize(fontsize)
@@ -515,12 +527,13 @@ class Table(Artist):
         # called from renderer to allow more precise estimates of
         # widths and heights with get_window_extent
 
-        # Do any auto width setting
-        for col in self._autoColumns:
-            self._auto_set_column_width(col, renderer)
 
         if self._autoFontsize:
             self._auto_set_font_size(renderer)
+
+        # Do any auto width setting
+        for col in self._autoColumns:
+            self._auto_set_column_width(col, renderer)
 
         # Align all the cells
         self._do_cell_alignment()
@@ -678,7 +691,11 @@ def table(ax,
     # Now create the table
     table = Table(ax, loc, bbox, **kwargs)
     table.edges = edges
-    height = table._approx_text_height()
+
+    if table._bbox:
+        height = 1.0 / rows
+    else:
+        height = table._approx_text_height()
 
     # Add the cells
     for row in xrange(rows):
