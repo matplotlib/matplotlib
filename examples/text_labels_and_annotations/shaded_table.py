@@ -36,6 +36,7 @@ def draw_table():
         patches = axes.plot(row)
         rcolours.append(patches[0].get_color())
 
+
     rcolours = [colors.to_rgba(x, 0.2) for x in rcolours]
 
     means = [sum(x) / len(x) for x in data]
@@ -55,6 +56,7 @@ def draw_table():
     tab = axes.table(
         rowLabels = rlabels,
         rowColours = rcolours,
+        rowEdgeColours = rcolours,
         cellText = text,
         cellColours = colours,
         cellEdgeColours=colours,
