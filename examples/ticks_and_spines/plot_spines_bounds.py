@@ -1,4 +1,8 @@
 """
+===================
+Custom spine bounds
+===================
+
 Demo of spines using custom bounds to limit the extent of the spine.
 """
 import numpy as np

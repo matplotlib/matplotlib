@@ -13,9 +13,8 @@
 .. |PyPi| image:: https://badge.fury.io/py/matplotlib.svg
 .. _PyPi: https://badge.fury.io/py/matplotlib
 
-.. |Gitter| image:: https://badges.gitter.im/Join%20Chat.svg
-   :alt: Join the chat at https://gitter.im/matplotlib/matplotlib
-.. _Gitter: https://gitter.im/matplotlib/matplotlib?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge
+.. |Gitter| image:: https://img.shields.io/gitter/room/nwjs/nw.js.svg   
+   :target: https://gitter.im/matplotlib/matplotlib?utm_source=share-link&utm_medium=link&utm_campaign=share-link
 
 .. |Depsy| image:: http://depsy.org/api/package/pypi/matplotlib/badge.svg
 .. _Depsy: http://depsy.org/package/python/matplotlib
@@ -61,11 +60,9 @@ matplotlib's communication channels include active mailing lists:
 * `Announcement  <https://mail.python.org/mailman/listinfo/matplotlib-announce>`_ mailing list: matplotlib-announce@python.org
 * `Development <https://mail.python.org/mailman/listinfo/matplotlib-devel>`_ mailing list: matplotlib-devel@python.org
 
-
 The first is a good starting point for general questions and discussions.
 
-
-
+`Gitter <https://gitter.im/matplotlib/matplotlib>`_ is for coordinating development and asking questions directly related to contributing to matplotlib.
 
 Contribute
 ==========

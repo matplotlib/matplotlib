@@ -1,4 +1,3 @@
-#!/usr/bin/python
 
 #
 # Example boxplot code

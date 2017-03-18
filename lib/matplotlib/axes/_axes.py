@@ -2362,7 +2362,7 @@ or tuple of floats
         If no *x* values are provided, the default is (0, 1, ..., len(y) - 1)
 
         Return value is a tuple (*markerline*, *stemlines*,
-        *baseline*).
+        *baseline*). See :class:`~matplotlib.container.StemContainer`
 
         .. seealso::
             This
@@ -2475,7 +2475,7 @@ or tuple of floats
             autopct=None, pctdistance=0.6, shadow=False, labeldistance=1.1,
             startangle=None, radius=None, counterclock=True,
             wedgeprops=None, textprops=None, center=(0, 0),
-            frame=False):
+            frame=False, rotatelabels=False):
         r"""
         Plot a pie chart.
 
@@ -2541,6 +2541,9 @@ or tuple of floats
 
           *frame*: [ *False* | *True* ]
             Plot axes frame with the chart.
+
+          *rotatelabels*: [ *False* | *True* ]
+            Rotate each label to the angle of the corresponding slice.
 
         The pie chart will probably look best if the figure and axes are
         square, or the Axes aspect is equal.  e.g.::
@@ -2639,12 +2642,18 @@ or tuple of floats
 
             xt = x + labeldistance * radius * math.cos(thetam)
             yt = y + labeldistance * radius * math.sin(thetam)
-            label_alignment = xt > 0 and 'left' or 'right'
+            label_alignment_h = xt > 0 and 'left' or 'right'
+            label_alignment_v = 'center'
+            label_rotation = 'horizontal'
+            if rotatelabels:
+                label_alignment_v = yt > 0 and 'bottom' or 'top'
+                label_rotation = np.rad2deg(thetam) + (0 if xt > 0 else 180)
 
             t = self.text(xt, yt, label,
                           size=rcParams['xtick.labelsize'],
-                          horizontalalignment=label_alignment,
-                          verticalalignment='center',
+                          horizontalalignment=label_alignment_h,
+                          verticalalignment=label_alignment_v,
+                          rotation=label_rotation,
                           **textprops)
 
             texts.append(t)
@@ -2820,6 +2829,9 @@ or tuple of floats
         fmt_style_kwargs = {k: v for k, v in
                             zip(('linestyle', 'marker', 'color'),
                                 _process_plot_format(fmt)) if v is not None}
+        if fmt == 'none':
+            # Remove alpha=0 color that _process_plot_format returns
+            fmt_style_kwargs.pop('color')
 
         if ('color' in kwargs or 'color' in fmt_style_kwargs or
                 ecolor is not None):
@@ -3902,7 +3914,7 @@ or tuple of floats
 
         Examples
         --------
-        .. plot:: mpl_examples/shapes_and_collections/scatter_demo.py
+        .. plot:: mpl_examples/shapes_and_collections/plot_scatter.py
 
         """
 
@@ -6499,7 +6511,7 @@ or tuple of floats
 
         Examples
         --------
-        .. plot:: mpl_examples/pylab_examples/hist2d_demo.py
+        .. plot:: mpl_examples/statistics/plot_hist.py
         """
 
         # xrange becomes range after 2to3

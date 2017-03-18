@@ -1566,8 +1566,6 @@ class Arc(Ellipse):
         self.theta1 = theta1
         self.theta2 = theta2
 
-        self._path = Path.arc(self.theta1, self.theta2)
-
     @allow_rasterization
     def draw(self, renderer):
         """
@@ -1619,15 +1617,25 @@ class Arc(Ellipse):
 
         self._recompute_transform()
 
-        # Get the width and height in pixels
         width = self.convert_xunits(self.width)
         height = self.convert_yunits(self.height)
+
+        # If the width and height of ellipse are not equal, take into account
+        # stretching when calculating angles to draw between
+        def theta_stretch(theta, scale):
+            theta = np.deg2rad(theta)
+            x = np.cos(theta)
+            y = np.sin(theta)
+            return np.rad2deg(np.arctan2(scale * y, x))
+        theta1 = theta_stretch(self.theta1, width / height)
+        theta2 = theta_stretch(self.theta2, width / height)
+
+        # Get width and height in pixels
         width, height = self.get_transform().transform_point(
             (width, height))
         inv_error = (1.0 / 1.89818e-6) * 0.5
-
         if width < inv_error and height < inv_error:
-            # self._path = Path.arc(self.theta1, self.theta2)
+            self._path = Path.arc(theta1, theta2)
             return Patch.draw(self, renderer)
 
         def iter_circle_intersect_on_line(x0, y0, x1, y1):
@@ -1682,8 +1690,6 @@ class Arc(Ellipse):
             self.get_transform().inverted()
         box_path = box_path.transformed(box_path_transform)
 
-        theta1 = self.theta1
-        theta2 = self.theta2
         thetas = set()
         # For each of the point pairs, there is a line segment
         for p0, p1 in zip(box_path.vertices[:-1], box_path.vertices[1:]):

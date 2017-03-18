@@ -336,3 +336,4 @@ Previous Whats New
    :maxdepth: 1
 
    prev_whats_new/whats_new_*
+   prev_whats_new/changelog
