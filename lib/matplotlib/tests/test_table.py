@@ -220,3 +220,33 @@ def test_edge_colour():
         cellColours=colours,
         cellEdgeColour='#cccccc',
         loc='best')
+
+
+@image_comparison(baseline_images=['table_bbox'],
+                  extensions=['png'])
+def test_bbox_table():
+
+    fig = plt.figure()
+
+    data = [
+        [1, 10, 100],
+        [2, 40,  50],
+        [1, 10,  80],
+        [4, 20,  60]]
+
+    norm = Normalize()
+    colours = plt.cm.RdYlGn(norm(data))
+
+    alpha = 0.2
+    colours[:, :, 3] = alpha
+    ax = fig.add_subplot(1, 1, 1)
+    ax.axis('off')
+
+    ax.table(
+        cellText=data,
+        cellColours=colours,
+        cellEdgeColour='#cccccc',
+        bbox = (.0, .0, 1, 1))
+
+    plt.draw()
+    
