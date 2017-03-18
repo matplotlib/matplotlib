@@ -188,3 +188,12 @@ def test_determinism_all():
 def test_determinism_all_tex():
     """Test for reproducible PS/tex output"""
     _determinism_check(format="ps", usetex=True)
+
+
+@needs_tex
+def test_usetex_param():
+    """Test for Issue #7741 (this shouldn't crash)"""
+    fig = plt.figure()
+    plt.text(0.5, 0.5, 'some text, $math mode$',
+             ha='center', va='center', usetex=True)
+    fig.savefig('test.ps')
