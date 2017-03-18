@@ -95,8 +95,13 @@ def _listify_validator(scalar_validator, allow_stringlist=False):
             return [scalar_validator(v) for v in s
                     if not isinstance(v, six.string_types) or v]
         else:
-            msg = "{0!r} must be of type: string or non-dictionary iterable.".format(s)
-            raise ValueError(msg)
+            raise ValueError("{!r} must be of type: string or non-dictionary "
+                             "iterable".format(s))
+    # Cast `str` to keep Py2 happy despite `unicode_literals`.
+    try:
+        f.__name__ = str("{}list".format(scalar_validator.__name__))
+    except AttributeError:  # class instance.
+        f.__name__ = str("{}List".format(type(scalar_validator).__name__))
     f.__doc__ = scalar_validator.__doc__
     return f
 
@@ -294,8 +299,9 @@ _str_err_msg = ('You must supply exactly {n} comma-separated values, you '
 
 
 class validate_nseq_float(object):
-    def __init__(self, n=None):
+    def __init__(self, n=None, allow_none=False):
         self.n = n
+        self.allow_none = allow_none
 
     def __call__(self, s):
         """return a seq of n floats or raise"""
@@ -309,7 +315,10 @@ class validate_nseq_float(object):
             raise ValueError(err_msg.format(n=self.n, num=len(s), s=s))
 
         try:
-            return [float(val) for val in s]
+            return [float(val)
+                    if not self.allow_none or val is not None
+                    else val
+                    for val in s]
         except ValueError:
             raise ValueError('Could not convert all entries to floats')
 
@@ -461,6 +470,11 @@ validate_mathtext_default = ValidateInStrings(
 validate_verbose = ValidateInStrings(
     'verbose',
     ['silent', 'helpful', 'debug', 'debug-annoying'])
+
+_validate_alignment = ValidateInStrings(
+    'alignment',
+    ['center', 'top', 'bottom', 'baseline',
+     'center_baseline'])
 
 def validate_whiskers(s):
     if s == 'range':
@@ -697,7 +711,7 @@ def validate_hatch(s):
         raise ValueError("Unknown hatch symbol(s): %s" % list(unknown))
     return s
 validate_hatchlist = _listify_validator(validate_hatch)
-validate_dashlist = _listify_validator(validate_nseq_float())
+validate_dashlist = _listify_validator(validate_nseq_float(allow_none=True))
 
 _prop_validators = {
         'color': _listify_validator(validate_color_for_prop_cycle,
@@ -910,24 +924,40 @@ def _validate_linestyle(ls):
     A validator for all possible line styles, the named ones *and*
     the on-off ink sequences.
     """
-    # Named line style, like u'--' or u'solid'
-    if isinstance(ls, six.text_type):
-        return _validate_named_linestyle(ls)
+    # Look first for a valid named line style, like '--' or 'solid'
+    if isinstance(ls, six.string_types):
+        try:
+            return _validate_named_linestyle(ls)
+        except (UnicodeDecodeError, KeyError):
+            # On Python 2, string-like *ls*, like for example
+            # 'solid'.encode('utf-16'), may raise a unicode error.
+            raise ValueError("the linestyle string {!r} is not a valid "
+                             "string.".format(ls))
 
-    # On-off ink (in points) sequence *of even length*.
+    if isinstance(ls, (bytes, bytearray)):
+        # On Python 2, a string-like *ls* should already have lead to a
+        # successful return or to raising an exception. On Python 3, we have
+        # to manually raise an exception in the case of a byte-like *ls*.
+        # Otherwise, if *ls* is of even-length, it will be passed to the
+        # instance of validate_nseq_float, which will return an absurd on-off
+        # ink sequence...
+        raise ValueError("linestyle {!r} neither looks like an on-off ink "
+                         "sequence nor a valid string.".format(ls))
+
+    # Look for an on-off ink sequence (in points) *of even length*.
     # Offset is set to None.
     try:
         if len(ls) % 2 != 0:
-            # Expecting a sequence of even length
-            raise ValueError
-        return (None, validate_nseq_float()(ls))
-    except (ValueError, TypeError):
-        # TypeError can be raised by wrong types passed to float()
-        # (called inside the instance of validate_nseq_float).
-        pass
+            raise ValueError("the linestyle sequence {!r} is not of even "
+                             "length.".format(ls))
 
-    raise ValueError("linestyle must be a string or " +
-                     "an even-length sequence of floats.")
+        return (None, validate_nseq_float()(ls))
+
+    except (ValueError, TypeError):
+        # TypeError can be raised inside the instance of validate_nseq_float,
+        # by wrong types passed to float(), like NoneType.
+        raise ValueError("linestyle {!r} is not a valid on-off ink "
+                         "sequence.".format(ls))
 
 
 # a map from key -> value, converter
@@ -963,9 +993,10 @@ defaultParams = {
     'lines.solid_joinstyle': ['round', validate_joinstyle],
     'lines.dash_capstyle':   ['butt', validate_capstyle],
     'lines.solid_capstyle':  ['projecting', validate_capstyle],
-    'lines.dashed_pattern':  [[3.7, 1.6], validate_nseq_float()],
-    'lines.dashdot_pattern': [[6.4, 1.6, 1, 1.6], validate_nseq_float()],
-    'lines.dotted_pattern':  [[1, 1.65], validate_nseq_float()],
+    'lines.dashed_pattern':  [[3.7, 1.6], validate_nseq_float(allow_none=True)],
+    'lines.dashdot_pattern': [[6.4, 1.6, 1, 1.6],
+                              validate_nseq_float(allow_none=True)],
+    'lines.dotted_pattern':  [[1, 1.65], validate_nseq_float(allow_none=True)],
     'lines.scale_dashes':  [True, validate_bool],
 
     # marker props
@@ -1234,6 +1265,7 @@ defaultParams = {
     # fontsize of the xtick labels
     'xtick.labelsize':   ['medium', validate_fontsize],
     'xtick.direction':   ['out', six.text_type],            # direction of xticks
+    'xtick.alignment': ["center", _validate_alignment],
 
     'ytick.left':        [True, validate_bool],  # draw ticks on the left side
     'ytick.right':       [False, validate_bool],  # draw ticks on the right side
@@ -1253,6 +1285,8 @@ defaultParams = {
     # fontsize of the ytick labels
     'ytick.labelsize':   ['medium', validate_fontsize],
     'ytick.direction':   ['out', six.text_type],            # direction of yticks
+    'ytick.alignment': ["center_baseline", _validate_alignment],
+
 
     'grid.color':        ['#b0b0b0', validate_color],  # grid color
     'grid.linestyle':    ['-', _validate_linestyle],  # solid

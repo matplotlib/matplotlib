@@ -173,7 +173,6 @@ files['pylab'] = [
     'hatch_demo.py',
     'hexbin_demo.py',
     'hexbin_demo2.py',
-    'hist_colormapped.py',
     'vline_hline_demo.py',
 
     'image_clip_path.py',
@@ -206,7 +205,7 @@ files['pylab'] = [
     'multiline.py',
     'multiple_figs_demo.py',
     'nan_test.py',
-    'newscalarformatter_demo.py',
+    'plot_scalarformatter.py',
     'pcolor_demo.py',
     'pcolor_log.py',
     'pcolor_small.py',

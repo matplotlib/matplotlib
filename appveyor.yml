@@ -15,7 +15,6 @@ environment:
     # Workaround for https://github.com/conda/conda-build/issues/636
     PYTHONIOENCODING: "UTF-8"
     PYTEST_ARGS: -ra --timeout=300 --durations=25 -n %NUMBER_OF_PROCESSORS% --cov-report= --cov=lib -m "not network"
-    USE_PYTEST: no
     PYTHONHASHSEED: 0  # Workaround for pytest-xdist flaky collection order
                        # https://github.com/pytest-dev/pytest/issues/920
                        # https://github.com/pytest-dev/pytest/issues/1075
@@ -37,13 +36,6 @@ environment:
       PYTHON_VERSION: "3.5"
       TEST_ALL: "no"
       CONDA_INSTALL_LOCN: "C:\\Miniconda35-x64"
-    - TARGET_ARCH: "x64"
-      CONDA_PY: "35"
-      CONDA_NPY: "110"
-      PYTHON_VERSION: "3.5"
-      TEST_ALL: "no"
-      CONDA_INSTALL_LOCN: "C:\\Miniconda35-x64"
-      USE_PYTEST: yes
     - TARGET_ARCH: "x86"
       CONDA_PY: "27"
       CONDA_NPY: "18"
@@ -63,8 +55,12 @@ platform:
 # all our python builds have to happen in tests_script...
 build: false
 
+cache:
+  - '%LOCALAPPDATA%\pip\Cache'
+  - '%USERPROFILE%\.cache\matplotlib'
+
 init:
-  - cmd: "ECHO %PYTHON_VERSION% PYTEST=%USE_PYTEST% %CONDA_INSTALL_LOCN%"
+  - cmd: "ECHO %PYTHON_VERSION% %CONDA_INSTALL_LOCN%"
 
 install:
   - cmd: set PATH=%CONDA_INSTALL_LOCN%;%CONDA_INSTALL_LOCN%\scripts;%PATH%;
@@ -136,10 +132,9 @@ test_script:
   - python -c "import matplotlib as m; m.use('tkagg'); import matplotlib.pyplot as plt; print(plt.get_backend())"
   # tests
   - echo The following args are passed to pytest %PYTEST_ARGS%
-  - if x%USE_PYTEST% == xyes py.test %PYTEST_ARGS%
-  - if x%USE_PYTEST% == xno python tests.py %PYTEST_ARGS%
+  - python tests.py %PYTEST_ARGS%
   # Generate a html for visual tests
-  - python visual_tests.py
+  - python tools/visualize_tests.py --no-browser
   - pip install codecov
   - codecov -e PYTHON_VERSION PLATFORM
 
@@ -180,7 +175,7 @@ artifacts:
 on_finish:
 
 on_failure:
-  - python visual_tests.py
+  - python tools/visualize_tests.py --no-browser
   - echo zipping images after a failure...
   - 7z a result_images.zip result_images\ |grep -v "Compressing"
   - appveyor PushArtifact result_images.zip

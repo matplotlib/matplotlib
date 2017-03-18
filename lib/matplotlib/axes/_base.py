@@ -718,10 +718,12 @@ class _AxesBase(martist.Artist):
             place axis elements in different locations.
 
         """
+        labels_align = matplotlib.rcParams["xtick.alignment"]
+
         return (self.get_xaxis_transform(which='tick1') +
                 mtransforms.ScaledTranslation(0, -1 * pad_points / 72.0,
                                               self.figure.dpi_scale_trans),
-                "top", "center")
+                "top", labels_align)
 
     def get_xaxis_text2_transform(self, pad_points):
         """
@@ -744,10 +746,11 @@ class _AxesBase(martist.Artist):
             place axis elements in different locations.
 
         """
+        labels_align = matplotlib.rcParams["xtick.alignment"]
         return (self.get_xaxis_transform(which='tick2') +
                 mtransforms.ScaledTranslation(0, pad_points / 72.0,
                                               self.figure.dpi_scale_trans),
-                "bottom", "center")
+                "bottom", labels_align)
 
     def get_yaxis_transform(self, which='grid'):
         """
@@ -795,10 +798,11 @@ class _AxesBase(martist.Artist):
             place axis elements in different locations.
 
         """
+        labels_align = matplotlib.rcParams["ytick.alignment"]
         return (self.get_yaxis_transform(which='tick1') +
                 mtransforms.ScaledTranslation(-1 * pad_points / 72.0, 0,
                                               self.figure.dpi_scale_trans),
-                "center_baseline", "right")
+                labels_align, "right")
 
     def get_yaxis_text2_transform(self, pad_points):
         """
@@ -821,10 +825,12 @@ class _AxesBase(martist.Artist):
             place axis elements in different locations.
 
         """
+        labels_align = matplotlib.rcParams["ytick.alignment"]
+
         return (self.get_yaxis_transform(which='tick2') +
                 mtransforms.ScaledTranslation(pad_points / 72.0, 0,
                                               self.figure.dpi_scale_trans),
-                "center_baseline", "left")
+                labels_align, "left")
 
     def _update_transScale(self):
         self.transScale.set(
@@ -2541,13 +2547,10 @@ class _AxesBase(martist.Artist):
                 raise ValueError("scilimits must be a sequence of 2 integers")
         if style[:3] == 'sci':
             sb = True
-        elif style in ['plain', 'comma']:
+        elif style == 'plain':
             sb = False
-            if style == 'plain':
-                cb = False
-            else:
-                cb = True
-                raise NotImplementedError("comma style remains to be added")
+        elif style == 'comma':
+            raise NotImplementedError("comma style remains to be added")
         elif style == '':
             sb = None
         else:
@@ -2878,6 +2881,11 @@ class _AxesBase(martist.Artist):
         if right is not None:
             right = self.convert_xunits(right)
 
+        if ((left is not None and not np.isfinite(left)) or
+                (right is not None and not np.isfinite(right))):
+            raise ValueError("Specified x limits must be finite; "
+                             "instead, found: (%s, %s)" % (left, right))
+
         old_left, old_right = self.get_xlim()
         if left is None:
             left = old_left
@@ -3171,6 +3179,11 @@ class _AxesBase(martist.Artist):
             bottom = self.convert_yunits(bottom)
         if top is not None:
             top = self.convert_yunits(top)
+
+        if ((top is not None and not np.isfinite(top)) or
+                (bottom is not None and not np.isfinite(bottom))):
+            raise ValueError("Specified y limits must be finite; "
+                             "instead, found: (%s, %s)" % (bottom, top))
 
         old_bottom, old_top = self.get_ylim()
 
