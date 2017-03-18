@@ -1,3 +1,13 @@
+"""
+===============
+Resampling Data
+===============
+
+Downsampling lowers the sample rate or sample size of a signal. In this
+tutorial, the signal is downsampled when the plot is adjusted through dragging
+and zooming.
+"""
+
 import numpy as np
 import matplotlib.pyplot as plt
 

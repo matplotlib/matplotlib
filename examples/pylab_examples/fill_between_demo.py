@@ -1,3 +1,12 @@
+"""
+==============================
+Filling the area between lines
+==============================
+
+This example shows how to use `fill_between` to color between lines based on
+user-defined logic.
+"""
+
 import matplotlib.pyplot as plt
 import numpy as np
 
