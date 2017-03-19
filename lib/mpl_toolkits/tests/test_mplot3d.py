@@ -370,26 +370,37 @@ def test_plotsurface_1d_raises():
         ax.plot_surface(X, Y, z)
 
 
-def _test_proj_make_M():
+def _test_proj_make_M(proj='persp'):
     # eye point
     E = np.array([1000, -1000, 2000])
     R = np.array([100, 100, 100])
     V = np.array([0, 0, 1])
     viewM = proj3d.view_transformation(E, R, V)
-    perspM = proj3d.persp_transformation(100, -100)
-    M = np.dot(perspM, viewM)
-    return M
+    if proj == 'persp':
+        projM = proj3d.persp_transformation(-100, 100)
+    else:
+        projM = proj3d.ortho_transformation(-100, 100)
+    return np.dot(projM, viewM)
 
 
 def test_proj_transform():
-    M = _test_proj_make_M()
-
     xs = np.array([0, 1, 1, 0, 0, 0, 1, 1, 0, 0]) * 300.0
     ys = np.array([0, 0, 1, 1, 0, 0, 0, 1, 1, 0]) * 300.0
     zs = np.array([0, 0, 0, 0, 0, 1, 1, 1, 1, 1]) * 300.0
 
-    txs, tys, tzs = proj3d.proj_transform(xs, ys, zs, M)
-    ixs, iys, izs = proj3d.inv_transform(txs, tys, tzs, M)
+    # perspective
+    perspM = _test_proj_make_M()
+    txs, tys, tzs = proj3d.proj_transform(xs, ys, zs, perspM)
+    ixs, iys, izs = proj3d.inv_transform(txs, tys, tzs, perspM)
+
+    np.testing.assert_almost_equal(ixs, xs)
+    np.testing.assert_almost_equal(iys, ys)
+    np.testing.assert_almost_equal(izs, zs)
+
+    # orthographic
+    orthoM = _test_proj_make_M(proj='ortho')
+    txs, tys, tzs = proj3d.proj_transform(xs, ys, zs, orthoM)
+    ixs, iys, izs = proj3d.inv_transform(txs, tys, tzs, orthoM)
 
     np.testing.assert_almost_equal(ixs, xs)
     np.testing.assert_almost_equal(iys, ys)
@@ -435,6 +446,29 @@ def test_proj_axes_cube():
     ax.set_xlim(-0.2, 0.2)
     ax.set_ylim(-0.2, 0.2)
 
+
+@image_comparison(baseline_images=['proj3d_axes_cube_ortho'],
+                  extensions=['png'], remove_text=True, style='default')
+def test_proj_axes_cube_ortho():
+    M = _test_proj_make_M(proj='ortho')
+
+    ts = '0 1 2 3 0 4 5 6 7 4'.split()
+    xs = np.array([0, 1, 1, 0, 0, 0, 1, 1, 0, 0]) * 300.0
+    ys = np.array([0, 0, 1, 1, 0, 0, 0, 1, 1, 0]) * 300.0
+    zs = np.array([0, 0, 0, 0, 0, 1, 1, 1, 1, 1]) * 300.0
+
+    txs, tys, tzs = proj3d.proj_transform(xs, ys, zs, M)
+
+    fig, ax = _test_proj_draw_axes(M, s=400)
+
+    ax.scatter(txs, tys, c=tzs)
+    ax.plot(txs, tys, c='r')
+    for x, y, t in zip(txs, tys, ts):
+        ax.text(x, y, t)
+
+    ax.set_xlim(-5, 5)
+    ax.set_ylim(-5, 5)
+    # assertFalse()
 
 def test_rot():
     V = [1, 0, 0, 1]
@@ -493,11 +527,8 @@ def test_autoscale():
     assert ax.get_w_lims() == (0, 1, -.1, 1.1, -.4, 2.4)
 
 
-@image_comparison(baseline_images=['axes3d_persp_false'])
-def test_axes3d_persp_false():
+@image_comparison(baseline_images=['axes3d_ortho'], style='default')
+def test_axes3d_ortho():
     fig = plt.figure()
     ax = fig.gca(projection='3d')
-    ax.set_persp(False)
-    ax.set_xlabel('X')
-    ax.set_ylabel('Y')
-    ax.set_zlabel('Z')
+    ax.set_proj('ortho')
