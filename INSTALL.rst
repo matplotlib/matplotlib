@@ -14,7 +14,7 @@ Installing
     :ref:`install the latest development version<install_from_source>`.
 
 
-.. contents..
+.. contents::
 
 Installing an official release
 ==============================
