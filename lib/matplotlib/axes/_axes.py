@@ -508,7 +508,7 @@ or tuple of floats
         Examples
         --------
 
-        .. plot:: mpl_examples/api/legend_demo.py
+        .. plot:: mpl_examples/api/plot_legend.py
 
         """
         handlers = kwargs.get('handler_map', {}) or {}
