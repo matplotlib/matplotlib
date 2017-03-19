@@ -32,7 +32,6 @@ extensions = ['matplotlib.sphinxext.mathmpl', 'sphinxext.math_symbol_table',
               'sphinx.ext.inheritance_diagram',
               'sphinx_gallery.gen_gallery',
               'sphinxext.gen_rst',
-              'sphinxext.gen_gallery',
               'matplotlib.sphinxext.plot_directive',
               'sphinxext.github',
               'numpydoc']
@@ -251,7 +250,6 @@ html_sidebars = {
 # Additional templates that should be rendered to pages, maps page names to
 # template names.
 html_additional_pages = {'index': 'index.html',
-                         'gallery':'gallery.html',
                          'citing': 'citing.html'}
 
 # If false, no module index is generated.

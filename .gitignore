@@ -59,7 +59,6 @@ lib/matplotlib/mpl-data/matplotlibrc
 # Documentation generated files #
 #################################
 doc/examples
-doc/_templates/gallery.html
 doc/users/installing.rst
 doc/_static/matplotlibrc
 doc/pyplots/tex_demo.png
