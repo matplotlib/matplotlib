@@ -16,6 +16,9 @@ import matplotlib.pyplot as plt
 from matplotlib.testing.decorators import image_comparison
 
 
+# Runtimes on a loaded system are inherently flaky. Not so much that a rerun
+# won't help, hopefully.
+@pytest.mark.flaky(reruns=3)
 def test_invisible_Line_rendering():
     """
     Github issue #1256 identified a bug in Line.draw method
