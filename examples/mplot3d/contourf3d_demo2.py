@@ -1,4 +1,8 @@
 '''
+======================================
+Projecting filled contour onto a graph
+======================================
+
 Demonstrates displaying a 3D surface while also projecting filled contour
 'profiles' onto the 'walls' of the graph.
 
