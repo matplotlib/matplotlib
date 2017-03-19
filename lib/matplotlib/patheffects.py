@@ -10,8 +10,9 @@ from __future__ import (absolute_import, division, print_function,
 import six
 
 from matplotlib.backend_bases import RendererBase
-from matplotlib import (
-    colors as mcolors, patches as mpatches, transforms as mtransforms)
+from matplotlib import colors as mcolors
+from matplotlib import patches as mpatches
+from matplotlib import transforms as mtransforms
 
 
 class AbstractPathEffect(object):

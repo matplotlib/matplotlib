@@ -12,14 +12,14 @@ import pytest
 
 import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
-import matplotlib.transforms as mtrans
+import matplotlib.transforms as mtransforms
 from matplotlib.path import Path
 from matplotlib.scale import LogScale
 from matplotlib.testing.decorators import image_comparison
 
 
 def test_non_affine_caching():
-    class AssertingNonAffineTransform(mtrans.Transform):
+    class AssertingNonAffineTransform(mtransforms.Transform):
         """
         This transform raises an assertion error when called when it
         shouldn't be and self.raise_on_transform is True.
@@ -29,9 +29,9 @@ def test_non_affine_caching():
         is_affine = False
 
         def __init__(self, *args, **kwargs):
-            mtrans.Transform.__init__(self, *args, **kwargs)
+            mtransforms.Transform.__init__(self, *args, **kwargs)
             self.raise_on_transform = False
-            self.underlying_transform = mtrans.Affine2D().scale(10, 10)
+            self.underlying_transform = mtransforms.Affine2D().scale(10, 10)
 
         def transform_path_non_affine(self, path):
             assert not self.raise_on_transform, \
@@ -62,7 +62,7 @@ def test_external_transform_api():
             self._scale_factor = scale_factor
 
         def _as_mpl_transform(self, axes):
-            return mtrans.Affine2D().scale(self._scale_factor) + axes.transData
+            return mtransforms.Affine2D().scale(self._scale_factor) + axes.transData
 
     ax = plt.axes()
     line, = plt.plot(np.arange(10), transform=ScaledBy(10))
@@ -70,7 +70,7 @@ def test_external_transform_api():
     ax.set_ylim(0, 100)
     # assert that the top transform of the line is the scale transform.
     assert_allclose(line.get_transform()._a.get_matrix(),
-                    mtrans.Affine2D().scale(10).get_matrix())
+                    mtransforms.Affine2D().scale(10).get_matrix())
 
 
 @image_comparison(baseline_images=['pre_transform_data'],
@@ -80,7 +80,7 @@ def test_pre_transform_plotting():
     # pre-transforming the data NOTE: The axis range is important in this
     # plot. It should be x10 what the data suggests it should be
     ax = plt.axes()
-    times10 = mtrans.Affine2D().scale(10)
+    times10 = mtransforms.Affine2D().scale(10)
 
     ax.contourf(np.arange(48).reshape(6, 8), transform=times10 + ax.transData)
 
@@ -114,7 +114,7 @@ def test_contour_pre_transform_limits():
     ax = plt.axes()
     xs, ys = np.meshgrid(np.linspace(15, 20, 15), np.linspace(12.4, 12.5, 20))
     ax.contourf(xs, ys, np.log(xs * ys),
-                transform=mtrans.Affine2D().scale(0.1) + ax.transData)
+                transform=mtransforms.Affine2D().scale(0.1) + ax.transData)
 
     expected = np.array([[1.5, 1.24],
                          [2., 1.25]])
@@ -126,7 +126,7 @@ def test_pcolor_pre_transform_limits():
     ax = plt.axes()
     xs, ys = np.meshgrid(np.linspace(15, 20, 15), np.linspace(12.4, 12.5, 20))
     ax.pcolor(xs, ys, np.log(xs * ys),
-              transform=mtrans.Affine2D().scale(0.1) + ax.transData)
+              transform=mtransforms.Affine2D().scale(0.1) + ax.transData)
 
     expected = np.array([[1.5, 1.24],
                          [2., 1.25]])
@@ -138,7 +138,7 @@ def test_pcolormesh_pre_transform_limits():
     ax = plt.axes()
     xs, ys = np.meshgrid(np.linspace(15, 20, 15), np.linspace(12.4, 12.5, 20))
     ax.pcolormesh(xs, ys, np.log(xs * ys),
-                  transform=mtrans.Affine2D().scale(0.1) + ax.transData)
+                  transform=mtransforms.Affine2D().scale(0.1) + ax.transData)
 
     expected = np.array([[1.5, 1.24],
                          [2., 1.25]])
@@ -151,32 +151,32 @@ def test_Affine2D_from_values():
                        [-1, 0],
                        ])
 
-    t = mtrans.Affine2D.from_values(1, 0, 0, 0, 0, 0)
+    t = mtransforms.Affine2D.from_values(1, 0, 0, 0, 0, 0)
     actual = t.transform(points)
     expected = np.array([[0, 0], [10, 0], [-1, 0]])
     assert_almost_equal(actual, expected)
 
-    t = mtrans.Affine2D.from_values(0, 2, 0, 0, 0, 0)
+    t = mtransforms.Affine2D.from_values(0, 2, 0, 0, 0, 0)
     actual = t.transform(points)
     expected = np.array([[0, 0], [0, 20], [0, -2]])
     assert_almost_equal(actual, expected)
 
-    t = mtrans.Affine2D.from_values(0, 0, 3, 0, 0, 0)
+    t = mtransforms.Affine2D.from_values(0, 0, 3, 0, 0, 0)
     actual = t.transform(points)
     expected = np.array([[0, 0], [60, 0], [0, 0]])
     assert_almost_equal(actual, expected)
 
-    t = mtrans.Affine2D.from_values(0, 0, 0, 4, 0, 0)
+    t = mtransforms.Affine2D.from_values(0, 0, 0, 4, 0, 0)
     actual = t.transform(points)
     expected = np.array([[0, 0], [0, 80], [0, 0]])
     assert_almost_equal(actual, expected)
 
-    t = mtrans.Affine2D.from_values(0, 0, 0, 0, 5, 0)
+    t = mtransforms.Affine2D.from_values(0, 0, 0, 0, 5, 0)
     actual = t.transform(points)
     expected = np.array([[5, 0], [5, 0], [5, 0]])
     assert_almost_equal(actual, expected)
 
-    t = mtrans.Affine2D.from_values(0, 0, 0, 0, 0, 6)
+    t = mtransforms.Affine2D.from_values(0, 0, 0, 0, 0, 6)
     actual = t.transform(points)
     expected = np.array([[0, 6], [0, 6], [0, 6]])
     assert_almost_equal(actual, expected)
@@ -190,8 +190,8 @@ def test_clipping_of_log():
     path = Path(points, codes)
 
     # something like this happens in plotting logarithmic histograms
-    trans = mtrans.BlendedGenericTransform(mtrans.Affine2D(),
-                                           LogScale.Log10Transform('clip'))
+    trans = mtransforms.BlendedGenericTransform(mtransforms.Affine2D(),
+                                                LogScale.Log10Transform('clip'))
     tpath = trans.transform_path_non_affine(path)
     result = tpath.iter_segments(trans.get_affine(),
                                  clip=(0, 0, 100, 100),
@@ -201,7 +201,7 @@ def test_clipping_of_log():
     assert_allclose(tcodes, [M, L, L, L, C])
 
 
-class NonAffineForTest(mtrans.Transform):
+class NonAffineForTest(mtransforms.Transform):
     """
     A class which looks like a non affine transform, but does whatever
     the given transform does (even if it is affine). This is very useful
@@ -214,7 +214,7 @@ class NonAffineForTest(mtrans.Transform):
 
     def __init__(self, real_trans, *args, **kwargs):
         self.real_trans = real_trans
-        mtrans.Transform.__init__(self, *args, **kwargs)
+        mtransforms.Transform.__init__(self, *args, **kwargs)
 
     def transform_non_affine(self, values):
         return self.real_trans.transform(values)
@@ -226,15 +226,15 @@ class NonAffineForTest(mtrans.Transform):
 class BasicTransformTests(unittest.TestCase):
     def setUp(self):
 
-        self.ta1 = mtrans.Affine2D(shorthand_name='ta1').rotate(np.pi / 2)
-        self.ta2 = mtrans.Affine2D(shorthand_name='ta2').translate(10, 0)
-        self.ta3 = mtrans.Affine2D(shorthand_name='ta3').scale(1, 2)
+        self.ta1 = mtransforms.Affine2D(shorthand_name='ta1').rotate(np.pi / 2)
+        self.ta2 = mtransforms.Affine2D(shorthand_name='ta2').translate(10, 0)
+        self.ta3 = mtransforms.Affine2D(shorthand_name='ta3').scale(1, 2)
 
-        self.tn1 = NonAffineForTest(mtrans.Affine2D().translate(1, 2),
+        self.tn1 = NonAffineForTest(mtransforms.Affine2D().translate(1, 2),
                                     shorthand_name='tn1')
-        self.tn2 = NonAffineForTest(mtrans.Affine2D().translate(1, 2),
+        self.tn2 = NonAffineForTest(mtransforms.Affine2D().translate(1, 2),
                                     shorthand_name='tn2')
-        self.tn3 = NonAffineForTest(mtrans.Affine2D().translate(1, 2),
+        self.tn3 = NonAffineForTest(mtransforms.Affine2D().translate(1, 2),
                                     shorthand_name='tn3')
 
         # creates a transform stack which looks like ((A, (N, A)), A)
@@ -379,7 +379,7 @@ class TestTransformPlotInterface(unittest.TestCase):
         # a simple line in data coordinates in the y component, and in axes
         # coordinates in the x
         ax = plt.axes()
-        trans = mtrans.blended_transform_factory(ax.transAxes, ax.transData)
+        trans = mtransforms.blended_transform_factory(ax.transAxes, ax.transData)
         ax.plot([0.1, 1.2, 0.8], [35, -5, 18], transform=trans)
         assert_array_equal(ax.dataLim.get_points(),
                            np.array([[np.inf, -5.],
@@ -389,7 +389,7 @@ class TestTransformPlotInterface(unittest.TestCase):
     def test_line_extent_predata_transform_coords(self):
         # a simple line in (offset + data) coordinates
         ax = plt.axes()
-        trans = mtrans.Affine2D().scale(10) + ax.transData
+        trans = mtransforms.Affine2D().scale(10) + ax.transData
         ax.plot([0.1, 1.2, 0.8], [35, -5, 18], transform=trans)
         assert_array_equal(ax.dataLim.get_points(),
                            np.array([[1., -50.], [12., 350.]]))
@@ -399,8 +399,8 @@ class TestTransformPlotInterface(unittest.TestCase):
         # a simple line in (offset + data) coordinates in the y component, and
         # in axes coordinates in the x
         ax = plt.axes()
-        trans = mtrans.blended_transform_factory(
-            ax.transAxes, mtrans.Affine2D().scale(10) + ax.transData)
+        trans = mtransforms.blended_transform_factory(
+            ax.transAxes, mtransforms.Affine2D().scale(10) + ax.transData)
         ax.plot([0.1, 1.2, 0.8], [35, -5, 18], transform=trans)
         assert_array_equal(ax.dataLim.get_points(),
                            np.array([[np.inf, -50.], [-np.inf, 350.]]))
@@ -408,23 +408,23 @@ class TestTransformPlotInterface(unittest.TestCase):
 
     def test_line_extents_affine(self):
         ax = plt.axes()
-        offset = mtrans.Affine2D().translate(10, 10)
+        offset = mtransforms.Affine2D().translate(10, 10)
         plt.plot(np.arange(10), transform=offset + ax.transData)
         expected_data_lim = np.array([[0., 0.], [9.,  9.]]) + 10
         assert_array_almost_equal(ax.dataLim.get_points(), expected_data_lim)
 
     def test_line_extents_non_affine(self):
         ax = plt.axes()
-        offset = mtrans.Affine2D().translate(10, 10)
-        na_offset = NonAffineForTest(mtrans.Affine2D().translate(10, 10))
+        offset = mtransforms.Affine2D().translate(10, 10)
+        na_offset = NonAffineForTest(mtransforms.Affine2D().translate(10, 10))
         plt.plot(np.arange(10), transform=offset + na_offset + ax.transData)
         expected_data_lim = np.array([[0., 0.], [9.,  9.]]) + 20
         assert_array_almost_equal(ax.dataLim.get_points(), expected_data_lim)
 
     def test_pathc_extents_non_affine(self):
         ax = plt.axes()
-        offset = mtrans.Affine2D().translate(10, 10)
-        na_offset = NonAffineForTest(mtrans.Affine2D().translate(10, 10))
+        offset = mtransforms.Affine2D().translate(10, 10)
+        na_offset = NonAffineForTest(mtransforms.Affine2D().translate(10, 10))
         pth = Path(np.array([[0, 0], [0, 10], [10, 10], [10, 0]]))
         patch = mpatches.PathPatch(pth,
                                    transform=offset + na_offset + ax.transData)
@@ -434,7 +434,7 @@ class TestTransformPlotInterface(unittest.TestCase):
 
     def test_pathc_extents_affine(self):
         ax = plt.axes()
-        offset = mtrans.Affine2D().translate(10, 10)
+        offset = mtransforms.Affine2D().translate(10, 10)
         pth = Path(np.array([[0, 0], [0, 10], [10, 10], [10, 0]]))
         patch = mpatches.PathPatch(pth, transform=offset + ax.transData)
         ax.add_patch(patch)
@@ -444,7 +444,7 @@ class TestTransformPlotInterface(unittest.TestCase):
     def test_line_extents_for_non_affine_transData(self):
         ax = plt.axes(projection='polar')
         # add 10 to the radius of the data
-        offset = mtrans.Affine2D().translate(0, 10)
+        offset = mtransforms.Affine2D().translate(0, 10)
 
         plt.plot(np.arange(10), transform=offset + ax.transData)
         # the data lim of a polar plot is stored in coordinates
@@ -459,8 +459,8 @@ def assert_bbox_eq(bbox1, bbox2):
 
 
 def test_bbox_intersection():
-    bbox_from_ext = mtrans.Bbox.from_extents
-    inter = mtrans.Bbox.intersection
+    bbox_from_ext = mtransforms.Bbox.from_extents
+    inter = mtransforms.Bbox.intersection
 
     r1 = bbox_from_ext(0, 0, 1, 1)
     r2 = bbox_from_ext(0.5, 0.5, 1.5, 1.5)
@@ -481,8 +481,8 @@ def test_bbox_intersection():
 
 
 def test_bbox_as_strings():
-    b = mtrans.Bbox([[.5, 0], [.75, .75]])
-    assert_bbox_eq(b, eval(repr(b), {'Bbox': mtrans.Bbox}))
+    b = mtransforms.Bbox([[.5, 0], [.75, .75]])
+    assert_bbox_eq(b, eval(repr(b), {'Bbox': mtransforms.Bbox}))
     asdict = eval(str(b), {'Bbox': dict})
     for k, v in asdict.items():
         assert getattr(b, k) == v
@@ -493,7 +493,7 @@ def test_bbox_as_strings():
 
 
 def test_transform_single_point():
-    t = mtrans.Affine2D()
+    t = mtransforms.Affine2D()
     r = t.transform_affine((1, 1))
     assert r.shape == (2,)
 
@@ -507,13 +507,13 @@ def test_log_transform():
 
 
 def test_nan_overlap():
-    a = mtrans.Bbox([[0, 0], [1, 1]])
-    b = mtrans.Bbox([[0, 0], [1, np.nan]])
+    a = mtransforms.Bbox([[0, 0], [1, 1]])
+    b = mtransforms.Bbox([[0, 0], [1, np.nan]])
     assert not a.overlaps(b)
 
 
 def test_transform_angles():
-    t = mtrans.Affine2D()  # Identity transform
+    t = mtransforms.Affine2D()  # Identity transform
     angles = np.array([20, 45, 60])
     points = np.array([[0, 0], [1, 1], [2, 2]])
 
@@ -535,12 +535,12 @@ def test_nonsingular():
     zero_expansion = np.array([-0.001, 0.001])
     cases = [(0, np.nan), (0, 0), (0, 7.9e-317)]
     for args in cases:
-        out = np.array(mtrans.nonsingular(*args))
+        out = np.array(mtransforms.nonsingular(*args))
         assert_array_equal(out, zero_expansion)
 
 
 def test_invalid_arguments():
-    t = mtrans.Affine2D()
+    t = mtransforms.Affine2D()
     # There are two different exceptions, since the wrong number of
     # dimensions is caught when constructing an array_view, and that
     # raises a ValueError, and a wrong shape with a possible number
@@ -565,8 +565,8 @@ def test_transformed_path():
     codes = [Path.MOVETO, Path.LINETO, Path.LINETO, Path.CLOSEPOLY]
     path = Path(points, codes)
 
-    trans = mtrans.Affine2D()
-    trans_path = mtrans.TransformedPath(path, trans)
+    trans = mtransforms.Affine2D()
+    trans_path = mtransforms.TransformedPath(path, trans)
     assert_allclose(trans_path.get_fully_transformed_path().vertices, points)
 
     # Changing the transform should change the result.
@@ -584,10 +584,10 @@ def test_transformed_path():
 
 
 def test_transformed_patch_path():
-    trans = mtrans.Affine2D()
+    trans = mtransforms.Affine2D()
     patch = mpatches.Wedge((0, 0), 1, 45, 135, transform=trans)
 
-    tpatch = mtrans.TransformedPatchPath(patch)
+    tpatch = mtransforms.TransformedPatchPath(patch)
     points = tpatch.get_fully_transformed_path().vertices
 
     # Changing the transform should change the result.
