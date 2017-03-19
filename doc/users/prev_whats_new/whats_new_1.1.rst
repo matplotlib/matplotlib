@@ -17,10 +17,11 @@ Sankey Diagrams
 
 Kevin Davies has extended Yannick Copin's original Sankey example into a module
 (:mod:`~matplotlib.sankey`) and provided new examples
-(:ref:`api-sankey_demo_basics`, :ref:`api-sankey_demo_links`,
-:ref:`api-sankey_demo_rankine`).
+(:ref:`api-plot_sankey_basics`, :ref:`api-plot_sankey_links`,
+:ref:`api-plot_sankey_rankine`).
 
-.. plot:: mpl_examples/api/sankey_demo_rankine.py
+.. plot:: mpl_examples/api/plot_sankey_rankine.py
+
 
 Animation
 ---------

@@ -178,7 +178,7 @@ Date demo
 You can plot date data with major and minor ticks and custom tick formatters
 for both.
 
-.. plot:: mpl_examples/api/date_demo.py
+.. plot:: mpl_examples/api/plot_date.py
 
 See :mod:`matplotlib.ticker` and :mod:`matplotlib.dates` for details and usage.
 
@@ -217,7 +217,7 @@ The :func:`~matplotlib.pyplot.legend` command automatically
 generates figure legends, with MATLAB-compatible legend placement
 commands.
 
-.. plot:: mpl_examples/api/legend_demo.py
+.. plot:: mpl_examples/api/plot_legend.py
 
 Thanks to Charles Twardy for input on the legend command.
 

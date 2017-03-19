@@ -317,7 +317,7 @@ class Path(object):
         numsides x 2) numpy array of vertices.  Return object is a
         :class:`Path`
 
-        .. plot:: mpl_examples/api/histogram_path_demo.py
+        .. plot:: mpl_examples/api/plot_histogram_path.py
 
         """
 

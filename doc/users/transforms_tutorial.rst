@@ -452,4 +452,4 @@ best way to learn more is to open the source for those packages and
 see how to make your own, since matplotlib supports extensible axes
 and projections.  Michael Droettboom has provided a nice tutorial
 example of creating a hammer projection axes; see
-:ref:`api-custom_projection_example`.
+:ref:`api-plot_custom_projection_example`.
