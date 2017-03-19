@@ -1,6 +1,7 @@
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
+import copy
 import six
 import itertools
 import warnings
@@ -21,7 +22,19 @@ import matplotlib.cbook as cbook
 import matplotlib.pyplot as plt
 from matplotlib.testing.decorators import image_comparison
 
+def test_copy():
+    cm = plt.cm.Reds
+    cm([-1, 0, .5, np.nan, np.inf])
+    cm.set_bad('y')
+    cm2 = copy.copy(cm)
+    cm2.set_bad('b')
+    cm.set_under('k')
+    cm2.set_under('r')
+    cm.set_over('c')
+    cm2.set_over('m')
 
+    assert_equal(np.not_equal(cm._lut, cm2._lut), True)
+    
 def test_resample():
     """
     Github issue #6025 pointed to incorrect ListedColormap._resample;
