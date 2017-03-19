@@ -1,4 +1,8 @@
 '''
+===============
+Filled contours
+===============
+
 contourf differs from contour in that it creates filled contours, ie.
 a discrete number of colours are used to shade the domain.
 
