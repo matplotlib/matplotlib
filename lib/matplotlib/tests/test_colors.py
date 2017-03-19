@@ -52,8 +52,8 @@ def test_colormap_copy():
     cm.set_under('k')
     cm2.set_under('r')
     cm.set_over('c')
-    cm2.set_over('m')    
-    assert_equal(np.not_equal(cm._lut, cm2._lut), True)
+    cm2.set_over('m')
+    assert_equal(np.array_equal(cm._lut, cm2._lut), False)
 
 
 def test_colormap_endian():
