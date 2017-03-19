@@ -4022,8 +4022,9 @@ class FancyArrowPatch(Patch):
 
         Parameters
         ----------
+
         posA, posB: None, tuple, optional (default: None)
-            (x,y) co-ordinates of arrow tail and arrow head respectively.
+            (x,y) coordinates of arrow tail and arrow head respectively.
 
         path: None, Path (default: None)
             :class:`matplotlib.path.Path` instance. If provided, an arrow is
@@ -4137,7 +4138,7 @@ class FancyArrowPatch(Patch):
         Parameters
         ----------
         posA, posB: None, tuple
-            (x,y) co-ordinates of arrow tail and arrow head respectively. If
+            (x,y) coordinates of arrow tail and arrow head respectively. If
             `None` use current value.
         """
         if posA is not None:
@@ -4280,9 +4281,9 @@ class FancyArrowPatch(Patch):
 
     def get_path(self):
         """
-        Return the path of the arrow in the data co-ordinates. Use
+        Return the path of the arrow in the data coordinates. Use
         get_path_in_displaycoord() method to retrieve the arrow path
-        in display co-ordinates.
+        in display coordinates.
         """
         _path, fillable = self.get_path_in_displaycoord()
 
@@ -4293,7 +4294,7 @@ class FancyArrowPatch(Patch):
 
     def get_path_in_displaycoord(self):
         """
-        Return the mutated path of the arrow in display co-ordinates.
+        Return the mutated path of the arrow in display coordinates.
         """
 
         dpi_cor = self.get_dpi_cor()
