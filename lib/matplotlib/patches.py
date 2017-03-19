@@ -3407,8 +3407,7 @@ class ArrowStyle(_Style):
             return _path, _fillable
 
     class Curve(_Curve):
-        """
-        A simple curve without any arrow head.
+        """A simple curve without any arrow head.
         """
 
         def __init__(self):
@@ -3418,17 +3417,18 @@ class ArrowStyle(_Style):
     _style_list["-"] = Curve
 
     class CurveA(_Curve):
-        """
-        An arrow with a head at its begin point.
+        """An arrow with a head at its begin point.
         """
 
         def __init__(self, head_length=.4, head_width=.2):
             """
-            *head_length*
-              length of the arrow head
+            Parameters
+            ----------
+            head_length : float, optional
+                        Length of the arrow head
 
-            *head_width*
-              width of the arrow head
+            head_width : float, optional
+                       Width of the arrow head
             """
 
             super(ArrowStyle.CurveA, self).__init__(
@@ -3438,17 +3438,18 @@ class ArrowStyle(_Style):
     _style_list["<-"] = CurveA
 
     class CurveB(_Curve):
-        """
-        An arrow with a head at its end point.
+        """An arrow with a head at its end point.
         """
 
         def __init__(self, head_length=.4, head_width=.2):
             """
-            *head_length*
-              length of the arrow head
+            Parameters
+            ----------
+            head_length : float, optional
+                        Length of the arrow head
 
-            *head_width*
-              width of the arrow head
+            head_width : float, optional
+                       Width of the arrow head
             """
 
             super(ArrowStyle.CurveB, self).__init__(
@@ -3458,17 +3459,18 @@ class ArrowStyle(_Style):
     _style_list["->"] = CurveB
 
     class CurveAB(_Curve):
-        """
-        An arrow with heads both at the begin and the end point.
+        """An arrow with heads both at the begin and the end point.
         """
 
         def __init__(self, head_length=.4, head_width=.2):
             """
-            *head_length*
-              length of the arrow head
+            Parameters
+            ----------
+            head_length : float, optional
+                        Length of the arrow head
 
-            *head_width*
-              width of the arrow head
+            head_width : float, optional
+                       Width of the arrow head
             """
 
             super(ArrowStyle.CurveAB, self).__init__(
@@ -3478,17 +3480,18 @@ class ArrowStyle(_Style):
     _style_list["<->"] = CurveAB
 
     class CurveFilledA(_Curve):
-        """
-        An arrow with filled triangle head at the begin.
+        """An arrow with filled triangle head at the begin.
         """
 
         def __init__(self, head_length=.4, head_width=.2):
             """
-            *head_length*
-              length of the arrow head
+            Parameters
+            ----------
+            head_length : float, optional
+                        Length of the arrow head
 
-            *head_width*
-              width of the arrow head
+            head_width : float, optional
+                       Width of the arrow head
             """
 
             super(ArrowStyle.CurveFilledA, self).__init__(
@@ -3499,17 +3502,18 @@ class ArrowStyle(_Style):
     _style_list["<|-"] = CurveFilledA
 
     class CurveFilledB(_Curve):
-        """
-        An arrow with filled triangle head at the end.
+        """An arrow with filled triangle head at the end.
         """
 
         def __init__(self, head_length=.4, head_width=.2):
             """
-            *head_length*
-              length of the arrow head
+            Parameters
+            ----------
+            head_length : float, optional
+                        Length of the arrow head
 
-            *head_width*
-              width of the arrow head
+            head_width : float, optional
+                       Width of the arrow head
             """
 
             super(ArrowStyle.CurveFilledB, self).__init__(
@@ -3520,18 +3524,19 @@ class ArrowStyle(_Style):
     _style_list["-|>"] = CurveFilledB
 
     class CurveFilledAB(_Curve):
-        """
-        An arrow with filled triangle heads both at the begin and the end
+        """An arrow with filled triangle heads both at the begin and the end
         point.
         """
 
         def __init__(self, head_length=.4, head_width=.2):
             """
-            *head_length*
-              length of the arrow head
+            Parameters
+            ----------
+            head_length : float, optional
+                        Length of the arrow head
 
-            *head_width*
-              width of the arrow head
+            head_width : float, optional
+                       Width of the arrow head
             """
 
             super(ArrowStyle.CurveFilledAB, self).__init__(
@@ -3619,31 +3624,32 @@ class ArrowStyle(_Style):
             return p, False
 
     class BracketAB(_Bracket):
-        """
-        An arrow with a bracket(])  at both ends.
+        """An arrow with a bracket(])  at both ends.
         """
 
         def __init__(self,
                      widthA=1., lengthA=0.2, angleA=None,
                      widthB=1., lengthB=0.2, angleB=None):
             """
-            *widthA*
-              width of the bracket
+            Parameters
+            ----------
+            widthA : float, optional
+                   Width of the bracket
 
-            *lengthA*
-              length of the bracket
+            lengthA : float, optional
+                    Length of the bracket
 
-            *angleA*
-              angle between the bracket and the line
+            angleA : float, optional
+                   Angle between the bracket and the line
 
-            *widthB*
-              width of the bracket
+            widthB : float, optional
+                   Width of the bracket
 
-            *lengthB*
-              length of the bracket
+            lengthB : float, optional
+                    Length of the bracket
 
-            *angleB*
-              angle between the bracket and the line
+            angleB : float, optional
+                   Angle between the bracket and the line
             """
 
             super(ArrowStyle.BracketAB, self).__init__(
@@ -3654,20 +3660,21 @@ class ArrowStyle(_Style):
     _style_list["]-["] = BracketAB
 
     class BracketA(_Bracket):
-        """
-        An arrow with a bracket(])  at its end.
+        """An arrow with a bracket(])  at its end.
         """
 
         def __init__(self, widthA=1., lengthA=0.2, angleA=None):
             """
-            *widthA*
-              width of the bracket
+            Parameters
+            ----------
+            widthA : float, optional
+                   Width of the bracket
 
-            *lengthA*
-              length of the bracket
+            lengthA : float, optional
+                    Length of the bracket
 
-            *angleA*
-              angle between the bracket and the line
+            angleA : float, optional
+                   Angle between the bracket and the line
             """
 
             super(ArrowStyle.BracketA, self).__init__(True, None,
@@ -3678,20 +3685,21 @@ class ArrowStyle(_Style):
     _style_list["]-"] = BracketA
 
     class BracketB(_Bracket):
-        """
-        An arrow with a bracket([)  at its end.
+        """An arrow with a bracket([)  at its end.
         """
 
         def __init__(self, widthB=1., lengthB=0.2, angleB=None):
             """
-            *widthB*
-              width of the bracket
+            Parameters
+            ----------
+            widthB : float, optional
+                   Width of the bracket
 
-            *lengthB*
-              length of the bracket
+            lengthB : float, optional
+                    Length of the bracket
 
-            *angleB*
-              angle between the bracket and the line
+            angleB : float, optional
+                   Angle between the bracket and the line
             """
 
             super(ArrowStyle.BracketB, self).__init__(None, True,
@@ -3702,31 +3710,32 @@ class ArrowStyle(_Style):
     _style_list["-["] = BracketB
 
     class BarAB(_Bracket):
-        """
-        An arrow with a bar(|) at both ends.
+        """An arrow with a bar(|) at both ends.
         """
 
         def __init__(self,
                      widthA=1., angleA=None,
                      widthB=1., angleB=None):
             """
-            *widthA*
-              width of the bracket
+            Parameters
+            ----------
+            widthA : float, optional
+                   Width of the bracket
 
-            *lengthA*
-              length of the bracket
+            lengthA : int
+                    Length of the bracket
 
-            *angleA*
-              angle between the bracket and the line
+            angleA : float, optional
+                   Angle between the bracket and the line
 
-            *widthB*
-              width of the bracket
+            widthB : float, optional
+                   Width of the bracket
 
-            *lengthB*
-              length of the bracket
+            lengthB : int
+                    Length of the bracket
 
-            *angleB*
-              angle between the bracket and the line
+            angleB : float, optional
+                   Angle between the bracket and the line
             """
 
             super(ArrowStyle.BarAB, self).__init__(
@@ -3736,21 +3745,21 @@ class ArrowStyle(_Style):
     _style_list["|-|"] = BarAB
 
     class Simple(_Base):
-        """
-        A simple arrow. Only works with a quadratic bezier curve.
+        """A simple arrow. Only works with a quadratic bezier curve.
         """
 
         def __init__(self, head_length=.5, head_width=.5, tail_width=.2):
             """
-            *head_length*
-              length of the arrow head
+            Parameters
+            ----------
+            head_length : float, optional
+                        Length of the arrow head
 
-            *head_with*
-              width of the arrow head
+            head_width : float, optional
+                       Width of the arrow head
 
-            *tail_width*
-              width of the arrow tail
-
+            tail_width : float, optional
+                       Width of the arrow tail
             """
 
             self.head_length, self.head_width, self.tail_width = \
@@ -3822,21 +3831,21 @@ class ArrowStyle(_Style):
     _style_list["simple"] = Simple
 
     class Fancy(_Base):
-        """
-        A fancy arrow. Only works with a quadratic bezier curve.
+        """A fancy arrow. Only works with a quadratic bezier curve.
         """
 
         def __init__(self, head_length=.4, head_width=.4, tail_width=.4):
             """
-            *head_length*
-              length of the arrow head
+            Parameters
+            ----------
+            head_length : float, optional
+                        Length of the arrow head
 
-            *head_with*
-              width of the arrow head
+            head_with : float, optional
+                      Width of the arrow head
 
-            *tail_width*
-              width of the arrow tail
-
+            tail_width : float, optional
+                       Width of the arrow tail
             """
 
             self.head_length, self.head_width, self.tail_width = \
@@ -3928,16 +3937,17 @@ class ArrowStyle(_Style):
         Wedge(?) shape. Only works with a quadratic bezier curve.  The
         begin point has a width of the tail_width and the end point has a
         width of 0. At the middle, the width is shrink_factor*tail_width.
-
         """
 
         def __init__(self, tail_width=.3, shrink_factor=0.5):
             """
-            *tail_width*
-              width of the tail
+            Parameters
+            ----------
+            tail_width : float, optional
+                       Width of the tail
 
-            *shrink_factor*
-              fraction of the arrow width at the middle point
+            shrink_factor : float, optional
+                          Fraction of the arrow width at the middle point
             """
 
             self.tail_width = tail_width
@@ -3980,8 +3990,7 @@ docstring.interpd.update(
 
 
 class FancyArrowPatch(Patch):
-    """
-    A fancy arrow patch. It draws an arrow using the :class:ArrowStyle.
+    """A fancy arrow patch. It draws an arrow using the :class:ArrowStyle.
     """
     _edge_default = True
 
