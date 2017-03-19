@@ -54,7 +54,7 @@ The mplot3d toolkit (see :ref:`toolkit_mplot3d-tutorial` and
 :ref:`mplot3d-examples-index`) has support for simple 3d graphs
 including surface, wireframe, scatter, and bar charts.
 
-.. plot:: mpl_examples/mplot3d/surface3d_demo.py
+.. plot:: auto_examples/mplot3d/plot_surface3d.py
 
 Thanks to John Porter, Jonathon Taylor, Reinier Heeres, and Ben Root for
 the `mplot3d` toolkit. This toolkit is included with all standard matplotlib

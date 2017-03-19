@@ -61,7 +61,7 @@ Damon McDougall added a new plotting method for the
 :mod:`~mpl_toolkits.mplot3d` toolkit called
 :meth:`~mpl_toolkits.mplot3d.axes3d.Axes3D.plot_trisurf`.
 
-.. plot:: mpl_examples/mplot3d/trisurf3d_demo.py
+.. plot:: auto_examples/mplot3d/plot_trisurf3d.py
 
 Control the lengths of colorbar extensions
 ------------------------------------------

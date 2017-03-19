@@ -135,12 +135,12 @@ as 2D plotting, Ben Root has made several improvements to the
 
 * Ticker offset display added:
 
-.. plot:: mpl_examples/mplot3d/offset_demo.py
+.. plot:: auto_examples/mplot3d/plot_offset.py
 
 * :meth:`~mpl_toolkits.mplot3d.axes3d.Axes3D.contourf`
   gains *zdir* and *offset* kwargs. You can now do this:
 
-.. plot:: mpl_examples/mplot3d/contourf3d_demo2.py
+.. plot:: auto_examples/mplot3d/plot_contourf3d_2.py
 
 Numerix support removed
 -----------------------
