@@ -14,7 +14,7 @@ environment:
     CMD_IN_ENV: cmd /E:ON /V:ON /C obvci_appveyor_python_build_env.cmd
     # Workaround for https://github.com/conda/conda-build/issues/636
     PYTHONIOENCODING: UTF-8
-    PYTEST_ARGS: -raw --timeout=300 --durations=25 -n %NUMBER_OF_PROCESSORS% --cov-report= --cov=lib -m "not network"
+    PYTEST_ARGS: -rawR --timeout=300 --durations=25 -n %NUMBER_OF_PROCESSORS% --cov-report= --cov=lib -m "not network"
     PYTHONHASHSEED: 0  # Workaround for pytest-xdist flaky collection order
                        # https://github.com/pytest-dev/pytest/issues/920
                        # https://github.com/pytest-dev/pytest/issues/1075
@@ -95,7 +95,7 @@ install:
   - if %PYTHON_VERSION% == 2.7 conda install -q backports.functools_lru_cache
   # pytest-cov>=2.3.1 due to https://github.com/pytest-dev/pytest-cov/issues/124
   - conda install -q pytest "pytest-cov>=2.3.1" pytest-timeout pytest-xdist
-  - pip install -q pytest-warnings
+  - pip install -q pytest-rerunfailures pytest-warnings
 
   # Let the install prefer the static builds of the libs
   - set LIBRARY_LIB=%CONDA_PREFIX%\Library\lib

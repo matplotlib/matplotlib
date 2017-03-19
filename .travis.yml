@@ -46,7 +46,7 @@ env:
     - INSTALL_PEP8=
     - RUN_PEP8=
     - NOSE=
-    - PYTEST_ARGS="-raw --maxfail=1 --timeout=300 --durations=25 --cov-report= --cov=lib -n $NPROC"
+    - PYTEST_ARGS="-rawR --maxfail=1 --timeout=300 --durations=25 --cov-report= --cov=lib -n $NPROC"
     - PYTHON_ARGS=
     - DELETE_FONT_CACHE=
 
@@ -119,7 +119,7 @@ install:
     pip install $PRE -r doc-requirements.txt
 
     # pytest-cov>=2.3.1 due to https://github.com/pytest-dev/pytest-cov/issues/124
-    pip install $PRE pytest 'pytest-cov>=2.3.1' pytest-faulthandler pytest-timeout pytest-warnings pytest-xdist $INSTALL_PEP8
+    pip install $PRE pytest 'pytest-cov>=2.3.1' pytest-faulthandler pytest-rerunfailures pytest-timeout pytest-warnings pytest-xdist $INSTALL_PEP8
 
     # We manually install humor sans using the package from Ubuntu 14.10. Unfortunatly humor sans is not
     # availible in the Ubuntu version used by Travis but we can manually install the deb from a later
