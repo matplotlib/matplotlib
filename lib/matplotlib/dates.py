@@ -718,6 +718,9 @@ class rrulewrapper(object):
             return self.__dict__[name]
         return getattr(self._rrule, name)
 
+    def __setstate__(self, state):
+        self.__dict__.update(state)
+
 
 class DateLocator(ticker.Locator):
     """
