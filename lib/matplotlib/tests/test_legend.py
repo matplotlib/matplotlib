@@ -12,7 +12,7 @@ import numpy as np
 from matplotlib.testing.decorators import image_comparison
 import matplotlib.pyplot as plt
 import matplotlib as mpl
-import matplotlib.transforms as mtrans
+import matplotlib.transforms as mtransforms
 import matplotlib.collections as mcollections
 from matplotlib.legend_handler import HandlerTuple
 
@@ -293,7 +293,7 @@ def test_not_covering_scatter():
                   extensions=['png'])
 def test_not_covering_scatter_transform():
     # Offsets point to top left, the default auto position
-    offset = mtrans.Affine2D().translate(-20, 20)
+    offset = mtransforms.Affine2D().translate(-20, 20)
     x = np.linspace(0, 30, 1000)
     plt.plot(x, x)
 
