@@ -21,7 +21,8 @@ import matplotlib.colorbar as mcolorbar
 import matplotlib.cbook as cbook
 import matplotlib.pyplot as plt
 from matplotlib.testing.decorators import image_comparison
-    
+
+
 def test_resample():
     """
     Github issue #6025 pointed to incorrect ListedColormap._resample;
@@ -42,6 +43,7 @@ def test_resample():
                          [1.0, 0.2, 0.0, 0.7]], float)
     assert_array_almost_equal(lsc3([0, 0.5, 1]), expected)
     assert_array_almost_equal(lc3([0, 0.5, 1]), expected)
+
 
 def test_colormap_copy():
     cm = plt.cm.Reds
