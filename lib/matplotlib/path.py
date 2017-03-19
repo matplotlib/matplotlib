@@ -22,9 +22,8 @@ from weakref import WeakValueDictionary
 
 import numpy as np
 
-from matplotlib import _path
-from matplotlib.cbook import simple_linear_interpolation, maxdict
-from matplotlib import rcParams
+from . import _path, rcParams
+from .cbook import simple_linear_interpolation, maxdict
 
 
 class Path(object):
@@ -493,9 +492,14 @@ class Path(object):
         """
         if transform is not None:
             transform = transform.frozen()
-        result = _path.point_in_path(point[0], point[1], radius, self,
-                                     transform)
-        return result
+        # `point_in_path` does not handle nonlinear transforms, so we
+        # transform the path ourselves.  If `transform` is affine, letting
+        # `point_in_path` handle the transform avoids allocating an extra
+        # buffer.
+        if transform and not transform.is_affine:
+            self = transform.transform_path(self)
+            transform = None
+        return _path.point_in_path(point[0], point[1], radius, self, transform)
 
     def contains_points(self, points, transform=None, radius=0.0):
         """
