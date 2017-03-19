@@ -1,3 +1,11 @@
+"""
+=======
+axhspan
+=======
+
+This example shows how to span a horizontal line across the axis.
+"""
+
 import numpy as np
 import matplotlib.pyplot as plt
 

@@ -1,3 +1,11 @@
+"""
+===============================
+Displaying an image with imshow
+===============================
+
+This example plots an image with a bilinear interpolation.
+"""
+
 import numpy as np
 import matplotlib.cm as cm
 import matplotlib.mlab as mlab

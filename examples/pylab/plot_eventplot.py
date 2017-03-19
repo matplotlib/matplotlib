@@ -1,4 +1,8 @@
 '''
+=========
+eventplot
+=========
+
 An eventplot showing sequences of events with various line properties.
 The plot is shown in both horizontal and vertical orientations.
 '''

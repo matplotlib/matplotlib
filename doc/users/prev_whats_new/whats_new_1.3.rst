@@ -107,7 +107,7 @@ New eventplot plot type
 Todd Jennings added a :func:`~matplotlib.pyplot.eventplot` function to
 create multiple rows or columns of identical line segments
 
-.. plot:: mpl_examples/pylab_examples/eventplot_demo.py
+.. plot:: mpl_examples/pylab/plot_eventplot.py
 
 As part of this feature, there is a new
 :class:`~matplotlib.collections.EventCollection` class that allows for
