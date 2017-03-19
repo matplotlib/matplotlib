@@ -21,19 +21,6 @@ import matplotlib.colorbar as mcolorbar
 import matplotlib.cbook as cbook
 import matplotlib.pyplot as plt
 from matplotlib.testing.decorators import image_comparison
-
-def test_copy():
-    cm = plt.cm.Reds
-    cm([-1, 0, .5, np.nan, np.inf])
-    cm.set_bad('y')
-    cm2 = copy.copy(cm)
-    cm2.set_bad('b')
-    cm.set_under('k')
-    cm2.set_under('r')
-    cm.set_over('c')
-    cm2.set_over('m')
-
-    assert_equal(np.not_equal(cm._lut, cm2._lut), True)
     
 def test_resample():
     """
@@ -55,6 +42,18 @@ def test_resample():
                          [1.0, 0.2, 0.0, 0.7]], float)
     assert_array_almost_equal(lsc3([0, 0.5, 1]), expected)
     assert_array_almost_equal(lc3([0, 0.5, 1]), expected)
+
+def test_colormap_copy():
+    cm = plt.cm.Reds
+    cm([-1, 0, .5, np.nan, np.inf])
+    cm.set_bad('y')
+    cm2 = copy.copy(cm)
+    cm2.set_bad('b')
+    cm.set_under('k')
+    cm2.set_under('r')
+    cm.set_over('c')
+    cm2.set_over('m')    
+    assert_equal(np.not_equal(cm._lut, cm2._lut), True)
 
 
 def test_colormap_endian():
