@@ -43,7 +43,7 @@ Path demo
 You can add arbitrary paths in matplotlib using the
 :mod:`matplotlib.path` module:
 
-.. plot:: mpl_examples/shapes_and_collections/path_patch_demo.py
+.. plot:: mpl_examples/shapes_and_collections/plot_path_patch.py
 
 .. _screenshots_mplot3d_surface:
 

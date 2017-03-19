@@ -2,6 +2,9 @@
 ================
 PathPatch object
 ================
+
+This example shows how to create `Path`\s and `PathPatch` objects through
+Matplotlib's API.
 """
 import matplotlib.path as mpath
 import matplotlib.patches as mpatches

@@ -191,10 +191,9 @@ def make_pdf_to_png_converter():
     # pick converter
     if "pdftocairo" in tools_available:
         def cairo_convert(pdffile, pngfile, dpi):
-            cmd = [str("pdftocairo"), "-singlefile", "-png",
-                   "-r %d" % dpi, pdffile, os.path.splitext(pngfile)[0]]
-            # for some reason this doesn't work without shell
-            check_output(cmd, shell=True, stderr=subprocess.STDOUT)
+            cmd = [str("pdftocairo"), "-singlefile", "-png", "-r", "%d" % dpi,
+                   pdffile, os.path.splitext(pngfile)[0]]
+            check_output(cmd, stderr=subprocess.STDOUT)
         return cairo_convert
     elif "gs" in tools_available:
         def gs_convert(pdffile, pngfile, dpi):

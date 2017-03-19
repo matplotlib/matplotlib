@@ -1247,6 +1247,17 @@ def test_bar_tick_label_multiple():
            align='center')
 
 
+@image_comparison(
+    baseline_images=['bar_tick_label_multiple_old_label_alignment'],
+    extensions=['png'])
+def test_bar_tick_label_multiple_old_alignment():
+    # Test that the algnment for class is backward compatible
+    matplotlib.rcParams["ytick.alignment"] = "center"
+    ax = plt.gca()
+    ax.bar([1, 2.5], [1, 2], width=[0.2, 0.5], tick_label=['a', 'b'],
+           align='center')
+
+
 @image_comparison(baseline_images=['barh_tick_label'],
                   extensions=['png'])
 def test_barh_tick_label():
@@ -2557,6 +2568,17 @@ def test_errorbar_limits():
                  color='cyan')
     ax.set_xlim((0, 5.5))
     ax.set_title('Errorbar upper and lower limits')
+
+
+def test_errobar_nonefmt():
+    # Check that passing 'none' as a format still plots errorbars
+    x = np.arange(5)
+    y = np.arange(5)
+
+    plotline, _, barlines = plt.errorbar(x, y, xerr=1, yerr=1, fmt='none')
+    assert plotline is None
+    for errbar in barlines:
+        assert np.all(errbar.get_color() == mcolors.to_rgba('C0'))
 
 
 @image_comparison(baseline_images=['hist_stacked_stepfilled',
