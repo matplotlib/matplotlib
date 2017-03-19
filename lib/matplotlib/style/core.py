@@ -32,7 +32,7 @@ BASE_LIBRARY_PATH = os.path.join(mpl.get_data_path(), 'stylelib')
 # Users may want multiple library paths, so store a list of paths.
 USER_LIBRARY_PATHS = [os.path.join(mpl._get_configdir(), 'stylelib')]
 STYLE_EXTENSION = 'mplstyle'
-STYLE_FILE_PATTERN = re.compile('([\S]+).%s$' % STYLE_EXTENSION)
+STYLE_FILE_PATTERN = re.compile(r'([\S]+).%s$' % STYLE_EXTENSION)
 
 
 # A list of rcParams that should not be applied from styles
