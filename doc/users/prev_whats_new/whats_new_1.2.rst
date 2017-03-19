@@ -152,7 +152,7 @@ In addition to simply plotting the streamlines of the vector field,
 line widths of the streamlines to a separate parameter, such as the speed or
 local intensity of the vector field.
 
-.. plot:: mpl_examples/images_contours_and_fields/plot_streamplot_features.py
+.. plot:: auto_examples/images_contours_and_fields/plot_streamplot_features.py
 
 
 New hist functionality

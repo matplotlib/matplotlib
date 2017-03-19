@@ -507,7 +507,7 @@ or tuple of floats
         Examples
         --------
 
-        .. plot:: mpl_examples/api/plot_legend.py
+        .. plot:: auto_examples/api/plot_legend.py
 
         """
         handlers = kwargs.get('handler_map', {}) or {}
@@ -3917,7 +3917,7 @@ or tuple of floats
 
         Examples
         --------
-        .. plot:: mpl_examples/shapes_and_collections/plot_scatter.py
+        .. plot:: auto_examples/shapes_and_collections/plot_scatter.py
 
         """
 

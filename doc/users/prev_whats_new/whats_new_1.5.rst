@@ -367,7 +367,7 @@ kwargs names is not ideal, but `Axes.fill_between` already has a
 
 This is particularly useful for plotting pre-binned histograms.
 
-.. plot:: mpl_examples/api/plot_filled_step.py
+.. plot:: auto_examples/api/plot_filled_step.py
 
 
 Square Plot

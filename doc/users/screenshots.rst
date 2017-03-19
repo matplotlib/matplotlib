@@ -43,7 +43,7 @@ Path demo
 You can add arbitrary paths in matplotlib using the
 :mod:`matplotlib.path` module:
 
-.. plot:: mpl_examples/shapes_and_collections/plot_path_patch.py
+.. plot:: auto_examples/shapes_and_collections/plot_path_patch.py
 
 .. _screenshots_mplot3d_surface:
 
@@ -166,7 +166,7 @@ Fill demo
 The :func:`~matplotlib.pyplot.fill` command lets you
 plot filled curves and polygons:
 
-.. plot:: mpl_examples/lines_bars_and_markers/plot_fill.py
+.. plot:: auto_examples/lines_bars_and_markers/plot_fill.py
 
 Thanks to Andrew Straw for adding this function.
 
@@ -178,7 +178,7 @@ Date demo
 You can plot date data with major and minor ticks and custom tick formatters
 for both.
 
-.. plot:: mpl_examples/api/plot_date.py
+.. plot:: auto_examples/api/plot_date.py
 
 See :mod:`matplotlib.ticker` and :mod:`matplotlib.dates` for details and usage.
 
@@ -217,7 +217,7 @@ The :func:`~matplotlib.pyplot.legend` command automatically
 generates figure legends, with MATLAB-compatible legend placement
 commands.
 
-.. plot:: mpl_examples/api/plot_legend.py
+.. plot:: auto_examples/api/plot_legend.py
 
 Thanks to Charles Twardy for input on the legend command.
 
@@ -278,4 +278,4 @@ XKCD-style sketch plots
 matplotlib supports plotting in the style of `xkcd
 <http://www.xkcd.com/>`.
 
-.. plot:: mpl_examples/showcase/plot_xkcd.py
+.. plot:: auto_examples/showcase/plot_xkcd.py

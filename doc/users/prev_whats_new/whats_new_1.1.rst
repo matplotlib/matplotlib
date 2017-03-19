@@ -20,7 +20,7 @@ Kevin Davies has extended Yannick Copin's original Sankey example into a module
 (:ref:`api-plot_sankey_basics`, :ref:`api-plot_sankey_links`,
 :ref:`api-plot_sankey_rankine`).
 
-.. plot:: mpl_examples/api/plot_sankey_rankine.py
+.. plot:: auto_examples/api/plot_sankey_rankine.py
 
 
 Animation
