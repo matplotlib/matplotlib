@@ -3913,7 +3913,7 @@ or tuple of floats
 
         Examples
         --------
-        .. plot:: mpl_examples/shapes_and_collections/scatter_demo.py
+        .. plot:: mpl_examples/shapes_and_collections/plot_scatter.py
 
         """
 
