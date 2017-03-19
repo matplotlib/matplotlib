@@ -1,5 +1,7 @@
 #! /bin/bash
 
+set -e
+
 # This script is meant to be called by the "script" step defined in
 # .travis.yml. See http://docs.travis-ci.com/ for more details.
 # The behavior of the script is controlled by environment variabled defined
@@ -34,7 +36,6 @@ else
   # We don't build the LaTeX docs here, so linkchecker will complain
   touch build/html/Matplotlib.pdf
   # Linkchecker only works with python 2.7 for the time being
-  deactivate
   source ~/virtualenv/python2.7/bin/activate
   pip install pip --upgrade
   # linkchecker is currently broken with requests 2.10.0 so force an earlier version
