@@ -34,7 +34,7 @@ graphical user interface toolkits.
 Installation
 ============
 
-For installation instructions and requirements, see the INSTALL file or the
+For installation instructions and requirements, see the INSTALL.rst file or the
 `install <http://matplotlib.org/users/installing.html>`_ documentation. If you
 think you may want to contribute to matplotlib, check out the `guide to
 working with the source code
