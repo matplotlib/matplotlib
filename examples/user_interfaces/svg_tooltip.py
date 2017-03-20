@@ -37,12 +37,12 @@ rect2 = plt.Rectangle((-20, 15), 10, 5, fc='green')
 shapes = [rect1, rect2]
 labels = ['This is a blue rectangle.', 'This is a green rectangle']
 
-for i, item in enumerate(shapes):
+for i, (item, label) in enumerate(zip(shapes, labels)):
     patch = ax.add_patch(item)
     annotate = ax.annotate(labels[i], xy=item.get_xy(), xytext=(0, 0), 
                            textcoords='offset points', color='w', ha='center', 
                            fontsize=8, bbox=dict(boxstyle='round, pad=.5', fc=(.1, .1, .1, .92), 
-                           ec=(1., 1., 1.), lw=1, zorder=1))
+                                                 ec=(1., 1., 1.), lw=1, zorder=1))
 
     ax.add_patch(patch)
     patch.set_gid('mypatch_%d' % i)
@@ -101,4 +101,5 @@ script = """
 
 # Insert the script at the top of the file and save it.
 tree.insert(0, ET.XML(script))
-ET.ElementTree(tree).write('svg_tooltip.svg')
+ET.ElementTree(tree).write('/Users/davidlehrer/Desktop/svg_tooltip.svg')
+
