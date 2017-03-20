@@ -3426,10 +3426,10 @@ class ArrowStyle(_Style):
             """
             Parameters
             ----------
-            head_length : float, optional, default : .4
+            head_length : float, optional, default : 0.4
                         Length of the arrow head
 
-            head_width : float, optional, default : .2
+            head_width : float, optional, default : 0.2
                         Width of the arrow head
             """
 
@@ -3448,10 +3448,10 @@ class ArrowStyle(_Style):
             """
             Parameters
             ----------
-            head_length : float, optional, default : .4
+            head_length : float, optional, default : 0.4
                         Length of the arrow head
 
-            head_width : float, optional, default : .2
+            head_width : float, optional, default : 0.2
                         Width of the arrow head
             """
 
@@ -3470,10 +3470,10 @@ class ArrowStyle(_Style):
             """
             Parameters
             ----------
-            head_length : float, optional, default : .4
+            head_length : float, optional, default : 0.4
                         Length of the arrow head
 
-            head_width : float, optional, default : .2
+            head_width : float, optional, default : 0.2
                         Width of the arrow head
             """
 
@@ -3492,10 +3492,10 @@ class ArrowStyle(_Style):
             """
             Parameters
             ----------
-            head_length : float, optional, default : .4
+            head_length : float, optional, default : 0.4
                         Length of the arrow head
 
-            head_width : float, optional, default : .2
+            head_width : float, optional, default : 0.2
                         Width of the arrow head
             """
 
@@ -3515,10 +3515,10 @@ class ArrowStyle(_Style):
             """
             Parameters
             ----------
-            head_length : float, optional, default : .4
+            head_length : float, optional, default : 0.4
                         Length of the arrow head
 
-            head_width : float, optional, default : .2
+            head_width : float, optional, default : 0.2
                         Width of the arrow head
             """
 
@@ -3538,10 +3538,10 @@ class ArrowStyle(_Style):
             """
             Parameters
             ----------
-            head_length : float, optional, default : .4
+            head_length : float, optional, default : 0.4
                         Length of the arrow head
 
-            head_width : float, optional, default : .2
+            head_width : float, optional, default : 0.2
                         Width of the arrow head
             """
 
@@ -3640,7 +3640,7 @@ class ArrowStyle(_Style):
             """
             Parameters
             ----------
-            widthA : float, optional, default : 1.
+            widthA : float, optional, default : 1.0
                     Width of the bracket
 
             lengthA : float, optional, default : 0.2
@@ -3649,7 +3649,7 @@ class ArrowStyle(_Style):
             angleA : float, optional, default : None
                     Angle between the bracket and the line
 
-            widthB : float, optional, default : 1.
+            widthB : float, optional, default : 1.0
                     Width of the bracket
 
             lengthB : float, optional, default : 0.2
@@ -3675,7 +3675,7 @@ class ArrowStyle(_Style):
             """
             Parameters
             ----------
-            widthA : float, optional, default : 1.
+            widthA : float, optional, default : 1.0
                     Width of the bracket
 
             lengthA : float, optional, default : 0.2
@@ -3701,7 +3701,7 @@ class ArrowStyle(_Style):
             """
             Parameters
             ----------
-            widthB : float, optional, default : 1.
+            widthB : float, optional, default : 1.0
                     Width of the bracket
 
             lengthB : float, optional, default : 0.2
@@ -3729,7 +3729,7 @@ class ArrowStyle(_Style):
             """
             Parameters
             ----------
-            widthA : float, optional, default : 1.
+            widthA : float, optional, default : 1.0
                     Width of the bracket
 
             lengthA : int
@@ -3738,7 +3738,7 @@ class ArrowStyle(_Style):
             angleA : float, optional, default : None
                     Angle between the bracket and the line
 
-            widthB : float, optional, default : 1.
+            widthB : float, optional, default : 1.0
                     Width of the bracket
 
             lengthB : int
@@ -3763,13 +3763,13 @@ class ArrowStyle(_Style):
             """
             Parameters
             ----------
-            head_length : float, optional, default : .5
+            head_length : float, optional, default : 0.5
                         Length of the arrow head
 
-            head_width : float, optional, default : .5
+            head_width : float, optional, default : 0.5
                         Width of the arrow head
 
-            tail_width : float, optional, default : .2
+            tail_width : float, optional, default : 0.2
                         Width of the arrow tail
             """
 
@@ -3850,13 +3850,13 @@ class ArrowStyle(_Style):
             """
             Parameters
             ----------
-            head_length : float, optional, default : .4
+            head_length : float, optional, default : 0.4
                         Length of the arrow head
 
-            head_width : float, optional, default : .4
+            head_width : float, optional, default : 0.4
                         Width of the arrow head
 
-            tail_width : float, optional, default : .4
+            tail_width : float, optional, default : 0.4
                         Width of the arrow tail
             """
 
@@ -3955,7 +3955,7 @@ class ArrowStyle(_Style):
             """
             Parameters
             ----------
-            tail_width : float, optional, default : .3
+            tail_width : float, optional, default : 0.3
                         Width of the tail
 
             shrink_factor : float, optional, default : 0.5
