@@ -6062,6 +6062,10 @@ or tuple of floats
         .. plot:: mpl_examples/statistics/histogram_demo_features.py
 
         """
+        # Avoid shadowing the builtin.
+        bin_range = range
+        del range
+
         def _normalize_input(inp, ename='input'):
             """Normalize 1 or 2d input into list of np.ndarray or
             a single 2D np.ndarray.
@@ -6105,13 +6109,6 @@ or tuple of floats
 
         if bins is None:
             bins = rcParams['hist.bins']
-
-        # xrange becomes range after 2to3
-        bin_range = range
-        range = __builtins__["range"]
-
-        # NOTE: the range keyword overwrites the built-in func range !!!
-        #       needs to be fixed in numpy                           !!!
 
         # Validate string inputs here so we don't have to clutter
         # subsequent code.
@@ -6478,10 +6475,7 @@ or tuple of floats
         .. plot:: mpl_examples/pylab_examples/hist2d_demo.py
         """
 
-        # xrange becomes range after 2to3
-        bin_range = range
-        range = __builtins__["range"]
-        h, xedges, yedges = np.histogram2d(x, y, bins=bins, range=bin_range,
+        h, xedges, yedges = np.histogram2d(x, y, bins=bins, range=range,
                                            normed=normed, weights=weights)
 
         if cmin is not None:
