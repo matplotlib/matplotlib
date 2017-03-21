@@ -5048,38 +5048,12 @@ def test_invalid_axis_limits():
     with pytest.raises(ValueError):
         plt.ylim(np.inf)
 
-
-# Test for x and y axes both symlog
-def test_minorticks_symlog():
+# Test all 4 combinations of logs/symlogs for minorticks_on()
+@pytest.mark.parametrize('xscale', ['symlog', 'log'])
+@pytest.mark.parametrize('yscale', ['symlog', 'log'])
+def test_minorticks_on(xscale, yscale):
     ax = plt.subplot(111)
-    plt.plot([1, 2, 3, 4])
-    ax.set_xscale('symlog')
-    ax.set_yscale('symlog')
-    ax.minorticks_on()
-
-
-# Test for x and y axes both log
-def test_minorticks_log():
-    ax = plt.subplot(111)
-    plt.plot([1, 2, 3, 4])
-    ax.set_xscale('log')
-    ax.set_yscale('log')
-    ax.minorticks_on()
-
-
-# Test for x-axis log and y-axis symlog
-def test_minorticks_different_logs():
-    ax = plt.subplot(111)
-    plt.plot([1, 2, 3, 4])
-    ax.set_xscale('log')
-    ax.set_yscale('symlog')
-    ax.minorticks_on()
-
-
-# Test for x-axis symlog and y-axis log
-def test_minorticks_different_logs2():
-    ax = plt.subplot(111)
-    plt.plot([1, 2, 3, 4])
-    ax.set_xscale('symlog')
-    ax.set_yscale('log')
+    ax.plot([1, 2, 3, 4])
+    ax.set_xscale(xscale)
+    ax.set_yscale(yscale)
     ax.minorticks_on()
