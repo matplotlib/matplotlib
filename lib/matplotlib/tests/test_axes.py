@@ -5051,36 +5051,35 @@ def test_invalid_axis_limits():
 
 # Test for x and y axes both symlog
 def test_minorticks_symlog():
-    plt.plot([1,2,3,4])
-    ax = plt.gca()
+    ax = plt.subplot(111)
+    plt.plot([1, 2, 3, 4])
     ax.set_xscale('symlog')
     ax.set_yscale('symlog')
     ax.minorticks_on()
- 
+
 
 # Test for x and y axes both log
 def test_minorticks_log():
-    plt.plot([1,2,3,4])
-    ax = plt.gca()
+    ax = plt.subplot(111)
+    plt.plot([1, 2, 3, 4])
     ax.set_xscale('log')
     ax.set_yscale('log')
     ax.minorticks_on()
-  
 
-# Test for x-axis log and y-axis symlog        
+
+# Test for x-axis log and y-axis symlog
 def test_minorticks_different_logs():
-    plt.plot([1,2,3,4])
-    ax = plt.gca()
+    ax = plt.subplot(111)
+    plt.plot([1, 2, 3, 4])
     ax.set_xscale('log')
     ax.set_yscale('symlog')
     ax.minorticks_on()
 
 
-# Test for x-axis symlog and y-axis log       
+# Test for x-axis symlog and y-axis log
 def test_minorticks_different_logs2():
-    plt.plot([1,2,3,4])
-    ax = plt.gca()
+    ax = plt.subplot(111)
+    plt.plot([1, 2, 3, 4])
     ax.set_xscale('symlog')
     ax.set_yscale('log')
-    ax.minorticks_on() 
-        
+    ax.minorticks_on()
