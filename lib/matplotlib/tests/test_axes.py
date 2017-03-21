@@ -5048,6 +5048,7 @@ def test_invalid_axis_limits():
     with pytest.raises(ValueError):
         plt.ylim(np.inf)
 
+
 # Test all 4 combinations of logs/symlogs for minorticks_on()
 @pytest.mark.parametrize('xscale', ['symlog', 'log'])
 @pytest.mark.parametrize('yscale', ['symlog', 'log'])
