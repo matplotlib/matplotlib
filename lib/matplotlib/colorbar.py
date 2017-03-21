@@ -687,9 +687,10 @@ class ColorbarBase(cm.ScalarMappable):
                 self.norm.vmin = 0
                 self.norm.vmax = 1
 
-            self.norm.vmin, self.norm.vmax = mtransforms.nonsingular(self.norm.vmin,
-                                                                     self.norm.vmax,
-                                                                     expander=0.1)
+            self.norm.vmin, self.norm.vmax = mtransforms.nonsingular(
+                self.norm.vmin,
+                self.norm.vmax,
+                expander=0.1)
 
             b = self.norm.inverse(self._uniform_y(self.cmap.N + 1))
 
@@ -1126,8 +1127,8 @@ def make_axes(parents, location=None, orientation=None, fraction=0.15,
                          'parents share the same figure.')
 
     # take a bounding box around all of the given axes
-    parents_bbox = mtransforms.Bbox.union([ax.get_position(original=True).frozen()
-                                           for ax in parents])
+    parents_bbox = mtransforms.Bbox.union(
+        [ax.get_position(original=True).frozen() for ax in parents])
 
     pb = parents_bbox
     if location in ('left', 'right'):
