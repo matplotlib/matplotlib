@@ -14,7 +14,7 @@ from numpy import ma
 
 import matplotlib
 from matplotlib import _preprocess_data
-    
+
 import matplotlib.cbook as cbook
 from matplotlib.cbook import (mplDeprecation, STEP_LOOKUP_MAP,
                               iterable, is_string_like,
