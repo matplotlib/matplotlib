@@ -3427,10 +3427,10 @@ class ArrowStyle(_Style):
             Parameters
             ----------
             head_length : float, optional, default : 0.4
-                        Length of the arrow head
+                Length of the arrow head
 
             head_width : float, optional, default : 0.2
-                        Width of the arrow head
+                Width of the arrow head
             """
 
             super(ArrowStyle.CurveA, self).__init__(
@@ -3449,10 +3449,10 @@ class ArrowStyle(_Style):
             Parameters
             ----------
             head_length : float, optional, default : 0.4
-                        Length of the arrow head
+                Length of the arrow head
 
             head_width : float, optional, default : 0.2
-                        Width of the arrow head
+                Width of the arrow head
             """
 
             super(ArrowStyle.CurveB, self).__init__(
@@ -3471,10 +3471,10 @@ class ArrowStyle(_Style):
             Parameters
             ----------
             head_length : float, optional, default : 0.4
-                        Length of the arrow head
+                Length of the arrow head
 
             head_width : float, optional, default : 0.2
-                        Width of the arrow head
+                Width of the arrow head
             """
 
             super(ArrowStyle.CurveAB, self).__init__(
@@ -3493,10 +3493,10 @@ class ArrowStyle(_Style):
             Parameters
             ----------
             head_length : float, optional, default : 0.4
-                        Length of the arrow head
+                Length of the arrow head
 
             head_width : float, optional, default : 0.2
-                        Width of the arrow head
+                Width of the arrow head
             """
 
             super(ArrowStyle.CurveFilledA, self).__init__(
@@ -3516,10 +3516,10 @@ class ArrowStyle(_Style):
             Parameters
             ----------
             head_length : float, optional, default : 0.4
-                        Length of the arrow head
+                Length of the arrow head
 
             head_width : float, optional, default : 0.2
-                        Width of the arrow head
+                Width of the arrow head
             """
 
             super(ArrowStyle.CurveFilledB, self).__init__(
@@ -3539,10 +3539,10 @@ class ArrowStyle(_Style):
             Parameters
             ----------
             head_length : float, optional, default : 0.4
-                        Length of the arrow head
+                Length of the arrow head
 
             head_width : float, optional, default : 0.2
-                        Width of the arrow head
+                Width of the arrow head
             """
 
             super(ArrowStyle.CurveFilledAB, self).__init__(
@@ -3641,22 +3641,22 @@ class ArrowStyle(_Style):
             Parameters
             ----------
             widthA : float, optional, default : 1.0
-                    Width of the bracket
+                Width of the bracket
 
             lengthA : float, optional, default : 0.2
-                    Length of the bracket
+                Length of the bracket
 
             angleA : float, optional, default : None
-                    Angle between the bracket and the line
+                Angle between the bracket and the line
 
             widthB : float, optional, default : 1.0
-                    Width of the bracket
+                Width of the bracket
 
             lengthB : float, optional, default : 0.2
-                    Length of the bracket
+                Length of the bracket
 
             angleB : float, optional, default : None
-                    Angle between the bracket and the line
+                Angle between the bracket and the line
             """
 
             super(ArrowStyle.BracketAB, self).__init__(
@@ -3676,13 +3676,13 @@ class ArrowStyle(_Style):
             Parameters
             ----------
             widthA : float, optional, default : 1.0
-                    Width of the bracket
+                Width of the bracket
 
             lengthA : float, optional, default : 0.2
-                    Length of the bracket
+                Length of the bracket
 
             angleA : float, optional, default : None
-                    Angle between the bracket and the line
+                Angle between the bracket and the line
             """
 
             super(ArrowStyle.BracketA, self).__init__(True, None,
@@ -3702,13 +3702,13 @@ class ArrowStyle(_Style):
             Parameters
             ----------
             widthB : float, optional, default : 1.0
-                    Width of the bracket
+                Width of the bracket
 
             lengthB : float, optional, default : 0.2
-                    Length of the bracket
+                Length of the bracket
 
             angleB : float, optional, default : None
-                    Angle between the bracket and the line
+                Angle between the bracket and the line
             """
 
             super(ArrowStyle.BracketB, self).__init__(None, True,
@@ -3730,22 +3730,22 @@ class ArrowStyle(_Style):
             Parameters
             ----------
             widthA : float, optional, default : 1.0
-                    Width of the bracket
+                Width of the bracket
 
             lengthA : int
-                    Length of the bracket
+                Length of the bracket
 
             angleA : float, optional, default : None
-                    Angle between the bracket and the line
+                Angle between the bracket and the line
 
             widthB : float, optional, default : 1.0
-                    Width of the bracket
+                Width of the bracket
 
             lengthB : int
-                    Length of the bracket
+                Length of the bracket
 
             angleB : float, optional, default : None
-                    Angle between the bracket and the line
+                Angle between the bracket and the line
             """
 
             super(ArrowStyle.BarAB, self).__init__(
@@ -3764,13 +3764,13 @@ class ArrowStyle(_Style):
             Parameters
             ----------
             head_length : float, optional, default : 0.5
-                        Length of the arrow head
+                Length of the arrow head
 
             head_width : float, optional, default : 0.5
-                        Width of the arrow head
+                Width of the arrow head
 
             tail_width : float, optional, default : 0.2
-                        Width of the arrow tail
+                Width of the arrow tail
             """
 
             self.head_length, self.head_width, self.tail_width = \
@@ -3851,13 +3851,13 @@ class ArrowStyle(_Style):
             Parameters
             ----------
             head_length : float, optional, default : 0.4
-                        Length of the arrow head
+                Length of the arrow head
 
             head_width : float, optional, default : 0.4
-                        Width of the arrow head
+                Width of the arrow head
 
             tail_width : float, optional, default : 0.4
-                        Width of the arrow tail
+                Width of the arrow tail
             """
 
             self.head_length, self.head_width, self.tail_width = \
@@ -3956,10 +3956,10 @@ class ArrowStyle(_Style):
             Parameters
             ----------
             tail_width : float, optional, default : 0.3
-                        Width of the tail
+                Width of the tail
 
             shrink_factor : float, optional, default : 0.5
-                            Fraction of the arrow width at the middle point
+                Fraction of the arrow width at the middle point
             """
 
             self.tail_width = tail_width
