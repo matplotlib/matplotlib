@@ -62,7 +62,8 @@ def test_external_transform_api():
             self._scale_factor = scale_factor
 
         def _as_mpl_transform(self, axes):
-            return mtransforms.Affine2D().scale(self._scale_factor) + axes.transData
+            return (mtransforms.Affine2D().scale(self._scale_factor)
+                    + axes.transData)
 
     ax = plt.axes()
     line, = plt.plot(np.arange(10), transform=ScaledBy(10))
@@ -191,7 +192,7 @@ def test_clipping_of_log():
 
     # something like this happens in plotting logarithmic histograms
     trans = mtransforms.BlendedGenericTransform(mtransforms.Affine2D(),
-                                                LogScale.Log10Transform('clip'))
+                                            LogScale.Log10Transform('clip'))
     tpath = trans.transform_path_non_affine(path)
     result = tpath.iter_segments(trans.get_affine(),
                                  clip=(0, 0, 100, 100),
@@ -379,7 +380,8 @@ class TestTransformPlotInterface(unittest.TestCase):
         # a simple line in data coordinates in the y component, and in axes
         # coordinates in the x
         ax = plt.axes()
-        trans = mtransforms.blended_transform_factory(ax.transAxes, ax.transData)
+        trans = mtransforms.blended_transform_factory(ax.transAxes,
+                                                      ax.transData)
         ax.plot([0.1, 1.2, 0.8], [35, -5, 18], transform=trans)
         assert_array_equal(ax.dataLim.get_points(),
                            np.array([[np.inf, -5.],
@@ -399,8 +401,8 @@ class TestTransformPlotInterface(unittest.TestCase):
         # a simple line in (offset + data) coordinates in the y component, and
         # in axes coordinates in the x
         ax = plt.axes()
-        trans = mtransforms.blended_transform_factory(
-            ax.transAxes, mtransforms.Affine2D().scale(10) + ax.transData)
+        trans = mtransforms.blended_transform_factory(ax.transAxes,
+            mtransforms.Affine2D().scale(10) + ax.transData)
         ax.plot([0.1, 1.2, 0.8], [35, -5, 18], transform=trans)
         assert_array_equal(ax.dataLim.get_points(),
                            np.array([[np.inf, -50.], [-np.inf, 350.]]))
