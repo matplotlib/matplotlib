@@ -175,3 +175,5 @@ Windrose
 adjustText
 ===============
 `adjustText <https://github.com/Phlya/adjustText>`_ is a small library for automatically adjusting text position in matplotlib plots to minimize overlaps between them, specified points and other objects.
+
+.. image:: /_static/adjustText.png
