@@ -593,6 +593,10 @@ class _AxesBase(martist.Artist):
                 artist._remove_method = container.remove
         self._stale = True
 
+    def __iadd__(self, artist):
+        self.add_artist(artist)
+        return self
+
     def get_window_extent(self, *args, **kwargs):
         """
         get the axes bounding box in display space; *args* and
