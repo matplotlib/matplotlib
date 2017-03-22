@@ -1,3 +1,6 @@
+#! /usr/bin/env python
+# -*- coding: utf-8 -*-
+
 """
 SVG tooltip example
 ===================
@@ -45,8 +48,8 @@ for i, (item, label) in enumerate(zip(shapes, labels)):
                                                  ec=(1., 1., 1.), lw=1, zorder=1))
 
     ax.add_patch(patch)
-    patch.set_gid('mypatch_%d' % i)
-    annotate.set_gid('mytooltip_%d' % i)
+    patch.set_gid('mypatch_{:03d}'.format(i))
+    annotate.set_gid('mytooltip_{:03d}'.format(i))
 
 # Save the figure in a fake file object
 ax.set_xlim(-30, 30)
@@ -64,10 +67,10 @@ tree.set('onload', 'init(evt)')
 
 for i, y in enumerate(shapes):
     # Hide the tooltips
-    tooltip = xmlid['mytooltip_%d' % i]
+    tooltip = xmlid['mytooltip_{:03d}'.format(i)]
     tooltip.set('visibility', 'hidden')
     # Assign onmouseover and onmouseout callbacks to patches.
-    mypatch = xmlid['mypatch_%d' % i]
+    mypatch = xmlid['mypatch_{:03d}'.format(i)]
     mypatch.set('onmouseover', "ShowTooltip(this)")
     mypatch.set('onmouseout', "HideTooltip(this)")
 
@@ -83,14 +86,13 @@ script = """
         }
 
     function ShowTooltip(obj) {
-        var cur = obj.id.slice(-1);
-
+        var cur = obj.id.split("_")[1];
         var tip = svgDocument.getElementById('mytooltip_' + cur);
         tip.setAttribute('visibility',"visible")
         }
 
     function HideTooltip(obj) {
-        var cur = obj.id.slice(-1);
+        var cur = obj.id.split("_")[1];
         var tip = svgDocument.getElementById('mytooltip_' + cur);
         tip.setAttribute('visibility',"hidden")
         }
@@ -101,5 +103,4 @@ script = """
 
 # Insert the script at the top of the file and save it.
 tree.insert(0, ET.XML(script))
-ET.ElementTree(tree).write('/Users/davidlehrer/Desktop/svg_tooltip.svg')
-
+ET.ElementTree(tree).write('svg_tooltip.svg')
