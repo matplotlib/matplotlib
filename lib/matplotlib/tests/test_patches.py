@@ -17,7 +17,7 @@ import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
 import matplotlib.collections as mcollections
 from matplotlib import path as mpath
-from matplotlib import transforms as mtrans
+from matplotlib import transforms as mtransforms
 import matplotlib.style as mstyle
 
 import sys
@@ -113,7 +113,7 @@ def test_clip_to_bbox():
         combined, alpha=0.5, facecolor='coral', edgecolor='none')
     ax.add_patch(patch)
 
-    bbox = mtrans.Bbox([[-12, -77.5], [50, -110]])
+    bbox = mtransforms.Bbox([[-12, -77.5], [50, -110]])
     result_path = combined.clip_to_bbox(bbox)
     result_patch = mpatches.PathPatch(
         result_path, alpha=0.5, facecolor='green', lw=4, edgecolor='black')
