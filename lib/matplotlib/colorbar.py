@@ -39,7 +39,7 @@ import matplotlib.gridspec as gridspec
 import matplotlib.patches as mpatches
 import matplotlib.path as mpath
 import matplotlib.ticker as ticker
-import matplotlib.transforms as mtrans
+import matplotlib.transforms as mtransforms
 
 from matplotlib import docstring
 
@@ -687,9 +687,10 @@ class ColorbarBase(cm.ScalarMappable):
                 self.norm.vmin = 0
                 self.norm.vmax = 1
 
-            self.norm.vmin, self.norm.vmax = mtrans.nonsingular(self.norm.vmin,
-                                                                self.norm.vmax,
-                                                                expander=0.1)
+            self.norm.vmin, self.norm.vmax = mtransforms.nonsingular(
+                self.norm.vmin,
+                self.norm.vmax,
+                expander=0.1)
 
             b = self.norm.inverse(self._uniform_y(self.cmap.N + 1))
 
@@ -1126,8 +1127,8 @@ def make_axes(parents, location=None, orientation=None, fraction=0.15,
                          'parents share the same figure.')
 
     # take a bounding box around all of the given axes
-    parents_bbox = mtrans.Bbox.union([ax.get_position(original=True).frozen()
-                                      for ax in parents])
+    parents_bbox = mtransforms.Bbox.union(
+        [ax.get_position(original=True).frozen() for ax in parents])
 
     pb = parents_bbox
     if location in ('left', 'right'):
@@ -1148,12 +1149,12 @@ def make_axes(parents, location=None, orientation=None, fraction=0.15,
 
     # define a transform which takes us from old axes coordinates to
     # new axes coordinates
-    shrinking_trans = mtrans.BboxTransform(parents_bbox, pb1)
+    shrinking_trans = mtransforms.BboxTransform(parents_bbox, pb1)
 
     # transform each of the axes in parents using the new transform
     for ax in parents:
         new_posn = shrinking_trans.transform(ax.get_position())
-        new_posn = mtrans.Bbox(new_posn)
+        new_posn = mtransforms.Bbox(new_posn)
         ax.set_position(new_posn)
         if parent_anchor is not False:
             ax.set_anchor(parent_anchor)
