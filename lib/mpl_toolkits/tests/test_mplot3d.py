@@ -21,7 +21,12 @@ def test_bar3d():
         ax.bar(xs, ys, zs=z, zdir='y', color=cs, alpha=0.8)
 
 
-def test_bar3d_dflt_smoke():
+@image_comparison(
+    baseline_images=['bar3d_shaded'],
+    remove_text=True,
+    extensions=['png']
+)
+def test_bar3d_shaded():
     fig = plt.figure()
     ax = fig.add_subplot(111, projection='3d')
     x = np.arange(4)
@@ -29,7 +34,24 @@ def test_bar3d_dflt_smoke():
     x2d, y2d = np.meshgrid(x, y)
     x2d, y2d = x2d.ravel(), y2d.ravel()
     z = x2d + y2d
-    ax.bar3d(x2d, y2d, x2d * 0, 1, 1, z)
+    ax.bar3d(x2d, y2d, x2d * 0, 1, 1, z, shade=True)
+    fig.canvas.draw()
+
+
+@image_comparison(
+    baseline_images=['bar3d_notshaded'],
+    remove_text=True,
+    extensions=['png']
+)
+def test_bar3d_notshaded():
+    fig = plt.figure()
+    ax = fig.add_subplot(111, projection='3d')
+    x = np.arange(4)
+    y = np.arange(5)
+    x2d, y2d = np.meshgrid(x, y)
+    x2d, y2d = x2d.ravel(), y2d.ravel()
+    z = x2d + y2d
+    ax.bar3d(x2d, y2d, x2d * 0, 1, 1, z, shade=False)
     fig.canvas.draw()
 
 
