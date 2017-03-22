@@ -56,7 +56,7 @@ _alias_map = {'color': ['c'],
               'markeredgecolor': ['mec'],
               'markeredgewidth': ['mew'],
               'markersize': ['ms'],
-              }
+             }
 
 
 def _plot_args_replacer(args, data):
@@ -1063,7 +1063,7 @@ or tuple of floats
 
         verts = [((thisx, thisymin), (thisx, thisymax))
                  for thisx, thisymin, thisymax in zip(x, ymin, ymax)]
-        # print 'creating line collection'
+        #print 'creating line collection'
         lines = mcoll.LineCollection(verts, colors=colors,
                                      linestyles=linestyles, label=label)
         self.add_collection(lines, autolim=False)
@@ -1082,9 +1082,9 @@ or tuple of floats
         return lines
 
     @_preprocess_data(replace_names=["positions", "lineoffsets",
-                                     "linelengths", "linewidths",
-                                     "colors", "linestyles"],
-                      label_namer=None)
+                                        "linelengths", "linewidths",
+                                        "colors", "linestyles"],
+                         label_namer=None)
     @docstring.dedent_interpd
     def eventplot(self, positions, orientation='horizontal', lineoffsets=1,
                   linelengths=1, linewidths=None, colors=None,
@@ -1226,7 +1226,7 @@ or tuple of floats
         colls = []
         for position, lineoffset, linelength, linewidth, color, linestyle in \
             zip(positions, lineoffsets, linelengths, linewidths,
-                colors, linestyles):
+                           colors, linestyles):
             coll = mcoll.EventCollection(position,
                                          orientation=orientation,
                                          lineoffset=lineoffset,
@@ -1263,8 +1263,8 @@ or tuple of floats
     # ### Basic plotting
     # The label_naming happens in `matplotlib.axes._base._plot_args`
     @_preprocess_data(replace_names=["x", "y"],
-                      positional_parameter_names=_plot_args_replacer,
-                      label_namer=None)
+                         positional_parameter_names=_plot_args_replacer,
+                         label_namer=None)
     @docstring.dedent_interpd
     def plot(self, *args, **kwargs):
         """
@@ -1857,10 +1857,10 @@ or tuple of floats
         return self.plot(x, y, *args, **kwargs)
 
     @_preprocess_data(replace_names=["left", "height", "width", "bottom",
-                                     "color", "edgecolor", "linewidth",
-                                     "tick_label", "xerr", "yerr",
-                                     "ecolor"],
-                      label_namer=None)
+                                        "color", "edgecolor", "linewidth",
+                                        "tick_label", "xerr", "yerr",
+                                        "ecolor"],
+                         label_namer=None)
     @docstring.dedent_interpd
     def bar(self, left, height, width=0.8, bottom=None, **kwargs):
         """
@@ -2469,13 +2469,14 @@ or tuple of floats
         return stem_container
 
     @_preprocess_data(replace_names=['x', 'explode', 'labels', 'colors'],
-                      label_namer=None)
+                         label_namer=None)
     def pie(self, x, explode=None, labels=None, colors=None,
             autopct=None, pctdistance=0.6, shadow=False, labeldistance=1.1,
             startangle=None, radius=None, counterclock=True,
             wedgeprops=None, textprops=None, center=(0, 0),
             frame=False, rotatelabels=False):
-        r"""Plot a pie chart.
+        r"""
+        Plot a pie chart.
 
         Make a pie chart of array *x*.  The fractional area of each
         wedge is given by x/sum(x).  If sum(x) <= 1, then the values
@@ -2483,94 +2484,90 @@ or tuple of floats
         be normalized.  The wedges are plotted counterclockwise,
         by default starting from the x-axis.
 
-        Parameters
-        ----------
-        x : array
-            The input array used to make the pie chart.
+        Keyword arguments:
 
-        explode: None or array
+          *explode*: [ *None* | len(x) sequence ]
             If not *None*, is a ``len(x)`` array which specifies the
             fraction of the radius with which to offset each wedge.
 
-        colors: None or array
+          *colors*: [ *None* | color sequence ]
             A sequence of matplotlib color args through which the pie chart
             will cycle.  If `None`, will use the colors in the currently
             active cycle.
 
-        labels: None or list
+          *labels*: [ *None* | len(x) sequence of strings ]
             A sequence of strings providing the labels for each wedge
 
-        autopct: None or string or function
+          *autopct*: [ *None* | format string | format function ]
             If not *None*, is a string or function used to label the wedges
             with their numeric value.  The label will be placed inside the
             wedge.  If it is a format string, the label will be ``fmt%pct``.
             If it is a function, it will be called.
 
-        pctdistance: float
+          *pctdistance*: scalar
             The ratio between the center of each pie slice and the
             start of the text generated by *autopct*.  Ignored if
             *autopct* is *None*; default is 0.6.
 
-        labeldistance: float
+          *labeldistance*: scalar
             The radial distance at which the pie labels are drawn
 
-        shadow: bool
+          *shadow*: [ *False* | *True* ]
             Draw a shadow beneath the pie.
 
-        startangle: None or Offset angle
+          *startangle*: [ *None* | Offset angle ]
             If not *None*, rotates the start of the pie chart by *angle*
             degrees counterclockwise from the x-axis.
 
-        radius: None or float
+          *radius*: [ *None* | scalar ]
           The radius of the pie, if *radius* is *None* it will be set to 1.
 
-        counterclock: bool
+          *counterclock*: [ *False* | *True* ]
             Specify fractions direction, clockwise or counterclockwise.
 
-        wedgeprops: None or dict
+          *wedgeprops*: [ *None* | dict of key value pairs ]
             Dict of arguments passed to the wedge objects making the pie.
             For example, you can pass in wedgeprops = { 'linewidth' : 3 }
             to set the width of the wedge border lines equal to 3.
             For more details, look at the doc/arguments of the wedge object.
             By default `clip_on=False`.
 
-        textprops: None or dict
+          *textprops*: [ *None* | dict of key value pairs ]
             Dict of arguments to pass to the text objects.
 
-        center:  list of int
-          Center position of the chart. Takes value (0,0) or is a sequence
-          of 2 scalars.
+          *center*: [ (0,0) | sequence of 2 scalars ]
+          Center position of the chart.
 
-        frame: bool
-            Plot axes frame with the chart if true.
+          *frame*: [ *False* | *True* ]
+            Plot axes frame with the chart.
 
-        rotatelabels: bool
-            Rotate each label to the angle of the corresponding slice if true.
+          *rotatelabels*: [ *False* | *True* ]
+            Rotate each label to the angle of the corresponding slice.
 
-        Returns
-        -------
-        patches: list
-            A sequence of :class:`matplotlib.patches.Wedge` instances
-
-        texts: list
-            A is a list of the label :class:`matplotlib.text.Text` instances.
-
-        autotexts: list
-            A is a list of :class:`~matplotlib.text.Text` instances for the
-            numeric labels. Is returned only is if parameter *autopct* is
-            not *None*. If *autopct* is *None*, the tuple returned
-            is (patches, texts).
-
-        Examples
-        --------
         The pie chart will probably look best if the figure and axes are
-        square, or the Axes aspect is equal.
+        square, or the Axes aspect is equal.  e.g.::
 
-        >>> figure(figsize=(8,8))
-        >>> ax = axes([0.1, 0.1, 0.8, 0.8])
+          figure(figsize=(8,8))
+          ax = axes([0.1, 0.1, 0.8, 0.8])
 
-        >>> axes(aspect=1)
+        or::
 
+          axes(aspect=1)
+
+        Return value:
+          If *autopct* is *None*, return the tuple (*patches*, *texts*):
+
+            - *patches* is a sequence of
+              :class:`matplotlib.patches.Wedge` instances
+
+            - *texts* is a list of the label
+              :class:`matplotlib.text.Text` instances.
+
+          If *autopct* is not *None*, return the tuple (*patches*,
+          *texts*, *autotexts*), where *patches* and *texts* are as
+          above, and *autotexts* is a list of
+          :class:`~matplotlib.text.Text` instances for the numeric
+          labels.
         """
 
         x = np.array(x, np.float32)
@@ -2626,9 +2623,9 @@ or tuple of floats
             y += expl * math.sin(thetam)
 
             w = mpatches.Wedge((x, y), radius, 360. * min(theta1, theta2),
-                               360. * max(theta1, theta2),
-                               facecolor=get_next_color(),
-                               **wedgeprops)
+                            360. * max(theta1, theta2),
+                            facecolor=get_next_color(),
+                            **wedgeprops)
             slices.append(w)
             self.add_patch(w)
             w.set_label(label)
@@ -2685,9 +2682,9 @@ or tuple of floats
             self.set_frame_on(False)
 
             self.set_xlim((-1.25 + center[0],
-                          1.25 + center[0]))
+                            1.25 + center[0]))
             self.set_ylim((-1.25 + center[1],
-                          1.25 + center[1]))
+                            1.25 + center[1]))
             self.set_xticks([])
             self.set_yticks([])
 
@@ -2697,7 +2694,7 @@ or tuple of floats
             return slices, texts, autotexts
 
     @_preprocess_data(replace_names=["x", "y", "xerr", "yerr"],
-                      label_namer="y")
+                         label_namer="y")
     @docstring.dedent_interpd
     def errorbar(self, x, y, yerr=None, xerr=None,
                  fmt='', ecolor=None, elinewidth=None, capsize=None,
@@ -3308,8 +3305,7 @@ or tuple of floats
                 dictionary = dict()
             for prop_dict in properties:
                 dictionary.setdefault(prop_dict,
-                                      rcParams[rc_str.format(rc_name,
-                                                             prop_dict)])
+                                rcParams[rc_str.format(rc_name, prop_dict)])
             return dictionary
 
         # Common property dictionnaries loading from rc
@@ -3319,7 +3315,7 @@ or tuple of floats
 
         boxprops = _update_dict(boxprops, 'boxprops', default_props)
         whiskerprops = _update_dict(whiskerprops, 'whiskerprops',
-                                    default_props)
+                                                            default_props)
         capprops = _update_dict(capprops, 'capprops', default_props)
         medianprops = _update_dict(medianprops, 'medianprops', default_props)
         meanprops = _update_dict(meanprops, 'meanprops', default_props)
@@ -3811,9 +3807,9 @@ or tuple of floats
                     medians=medians, fliers=fliers, means=means)
 
     @_preprocess_data(replace_names=["x", "y", "s", "linewidths",
-                                     "edgecolors", "c", 'facecolor',
-                                     'facecolors', 'color'],
-                      label_namer="y")
+                                        "edgecolors", "c", 'facecolor',
+                                        'facecolors', 'color'],
+                         label_namer="y")
     def scatter(self, x, y, s=None, c=None, marker=None, cmap=None, norm=None,
                 vmin=None, vmax=None, alpha=None, linewidths=None,
                 verts=None, edgecolors=None,
@@ -4617,7 +4613,7 @@ or tuple of floats
     stackplot.__doc__ = mstack.stackplot.__doc__
 
     @_preprocess_data(replace_names=["x", "y", "u", "v", "start_points"],
-                      label_namer=None)
+                         label_namer=None)
     def streamplot(self, x, y, u, v, density=1, linewidth=None, color=None,
                    cmap=None, norm=None, arrowsize=1, arrowstyle='-|>',
                    minlength=0.1, transform=None, zorder=None,
@@ -4717,7 +4713,7 @@ or tuple of floats
         return patches
 
     @_preprocess_data(replace_names=["x", "y1", "y2", "where"],
-                      label_namer=None)
+                         label_namer=None)
     @docstring.dedent_interpd
     def fill_between(self, x, y1, y2=0, where=None, interpolate=False,
                      step=None,
@@ -4886,7 +4882,7 @@ or tuple of floats
         return collection
 
     @_preprocess_data(replace_names=["y", "x1", "x2", "where"],
-                      label_namer=None)
+                         label_namer=None)
     @docstring.dedent_interpd
     def fill_betweenx(self, y, x1, x2=0, where=None,
                       step=None, interpolate=False, **kwargs):
@@ -5185,7 +5181,7 @@ or tuple of floats
         if im.get_clip_path() is None:
             # image does not already have clipping set, clip to axes patch
             im.set_clip_path(self.patch)
-        # if norm is None and shape is None:
+        #if norm is None and shape is None:
         #    im.set_clim(vmin, vmax)
         if vmin is not None or vmax is not None:
             im.set_clim(vmin, vmax)
@@ -5245,7 +5241,7 @@ or tuple of floats
         if X.shape != Y.shape:
             raise TypeError(
                 'Incompatible X, Y inputs to %s; see help(%s)' % (
-                            funcname, funcname))
+                funcname, funcname))
         if allmatch:
             if not (Nx == numCols and Ny == numRows):
                 raise TypeError('Dimensions of C %s are incompatible with'
@@ -5497,7 +5493,7 @@ or tuple of floats
         # Transform from native to data coordinates?
         t = collection._transform
         if (not isinstance(t, mtransforms.Transform) and
-                hasattr(t, '_as_mpl_transform')):
+            hasattr(t, '_as_mpl_transform')):
             t = t._as_mpl_transform(self.axes)
 
         if t and any(t.contains_branch_seperately(self.transData)):
@@ -5649,7 +5645,7 @@ or tuple of floats
         # Transform from native to data coordinates?
         t = collection._transform
         if (not isinstance(t, mtransforms.Transform) and
-                hasattr(t, '_as_mpl_transform')):
+            hasattr(t, '_as_mpl_transform')):
             t = t._as_mpl_transform(self.axes)
 
         if t and any(t.contains_branch_seperately(self.transData)):
@@ -7348,7 +7344,7 @@ or tuple of floats
             nr, nc = Z.shape
             extent = [-0.5, nc - 0.5, nr - 0.5, -0.5]
             ret = self.imshow(mask, interpolation='nearest', aspect=aspect,
-                              extent=extent, origin=origin, **kwargs)
+                                extent=extent, origin=origin, **kwargs)
         else:
             if hasattr(Z, 'tocoo'):
                 c = Z.tocoo()
@@ -7368,8 +7364,7 @@ or tuple of floats
             if markersize is None:
                 markersize = 10
             marks = mlines.Line2D(x, y, linestyle='None',
-                                  marker=marker, markersize=markersize,
-                                  **kwargs)
+                         marker=marker, markersize=markersize, **kwargs)
             self.add_line(marks)
             nr, nc = Z.shape
             self.set_xlim(xmin=-0.5, xmax=nc - 0.5)
@@ -7380,9 +7375,11 @@ or tuple of floats
         self.xaxis.tick_top()
         self.xaxis.set_ticks_position('both')
         self.xaxis.set_major_locator(mticker.MaxNLocator(nbins=9,
-                                     steps=[1, 2, 5, 10], integer=True))
+                                                 steps=[1, 2, 5, 10],
+                                                 integer=True))
         self.yaxis.set_major_locator(mticker.MaxNLocator(nbins=9,
-                                     steps=[1, 2, 5, 10], integer=True))
+                                                 steps=[1, 2, 5, 10],
+                                                 integer=True))
         return ret
 
     def matshow(self, Z, **kwargs):
@@ -7427,10 +7424,11 @@ or tuple of floats
         self.xaxis.tick_top()
         self.xaxis.set_ticks_position('both')
         self.xaxis.set_major_locator(mticker.MaxNLocator(nbins=9,
-                                     steps=[1, 2, 5, 10], integer=True))
+                                                 steps=[1, 2, 5, 10],
+                                                 integer=True))
         self.yaxis.set_major_locator(mticker.MaxNLocator(nbins=9,
-                                                         steps=[1, 2, 5, 10],
-                                                         integer=True))
+                                                 steps=[1, 2, 5, 10],
+                                                 integer=True))
         return im
 
     @_preprocess_data(replace_names=["dataset"], label_namer=None)
