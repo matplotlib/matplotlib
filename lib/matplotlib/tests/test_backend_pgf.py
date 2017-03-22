@@ -81,9 +81,13 @@ def create_figure():
 
 
 # test compiling a figure to pdf with xelatex
+<<<<<<< HEAD
 @needs_xelatex
 @pytest.mark.style('default')
 @pytest.mark.backend('pgf')
+=======
+@switch_backend('pgf')
+>>>>>>> 40d5e418e... FIX small nitpicks
 def test_xelatex():
     rc_xelatex = {'font.family': 'serif',
                   'pgf.rcfonts': False}
@@ -93,9 +97,13 @@ def test_xelatex():
 
 
 # test compiling a figure to pdf with pdflatex
+<<<<<<< HEAD
 @needs_pdflatex
 @pytest.mark.style('default')
 @pytest.mark.backend('pgf')
+=======
+@switch_backend('pgf')
+>>>>>>> 40d5e418e... FIX small nitpicks
 def test_pdflatex():
     import os
     if os.environ.get('APPVEYOR', False):
@@ -113,10 +121,14 @@ def test_pdflatex():
 
 
 # test updating the rc parameters for each figure
+<<<<<<< HEAD
 @needs_xelatex
 @needs_pdflatex
 @pytest.mark.style('default')
 @pytest.mark.backend('pgf')
+=======
+@switch_backend('pgf')
+>>>>>>> 40d5e418e... FIX small nitpicks
 def test_rcupdate():
     rc_sets = []
     rc_sets.append({'font.family': 'sans-serif',
@@ -145,9 +157,13 @@ def test_rcupdate():
 
 
 # test backend-side clipping, since large numbers are not supported by TeX
+<<<<<<< HEAD
 @needs_xelatex
 @pytest.mark.style('default')
 @pytest.mark.backend('pgf')
+=======
+@switch_backend('pgf')
+>>>>>>> 40d5e418e... FIX small nitpicks
 def test_pathclip():
     rc_xelatex = {'font.family': 'serif',
                   'pgf.rcfonts': False}
@@ -162,9 +178,13 @@ def test_pathclip():
 
 
 # test mixed mode rendering
+<<<<<<< HEAD
 @needs_xelatex
 @pytest.mark.style('default')
 @pytest.mark.backend('pgf')
+=======
+@switch_backend('pgf')
+>>>>>>> 40d5e418e... FIX small nitpicks
 def test_mixedmode():
     rc_xelatex = {'font.family': 'serif',
                   'pgf.rcfonts': False}
@@ -177,9 +197,13 @@ def test_mixedmode():
 
 
 # test bbox_inches clipping
+<<<<<<< HEAD
 @needs_xelatex
 @pytest.mark.style('default')
 @pytest.mark.backend('pgf')
+=======
+@switch_backend('pgf')
+>>>>>>> 40d5e418e... FIX small nitpicks
 def test_bbox_inches():
     rc_xelatex = {'font.family': 'serif',
                   'pgf.rcfonts': False}
