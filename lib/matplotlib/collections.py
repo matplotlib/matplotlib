@@ -1314,8 +1314,8 @@ class EventCollection(LineCollection):
         if positions is None or len(positions) == 0:
             segments = []
         elif hasattr(positions, 'ndim') and positions.ndim > 1:
-            raise ValueError('positions cannot have a dimensionality greater '
-                             'than 1 (in the ndarray sense)')
+            raise ValueError('positions cannot be an array with more than '
+                             'one dimension.')
         elif (orientation is None or orientation.lower() == 'none' or
               orientation.lower() == 'horizontal'):
             positions.sort()
