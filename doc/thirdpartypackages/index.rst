@@ -105,7 +105,7 @@ Miscellaneous Toolkits
 
 mpl-probscale
 =============
-`mpl-probscale <http://phobson.github.io/mpl-probscale/index.html>`_
+`mpl-probscale <http://matplotlib.org/mpl-probscale/>`_
 is a small extension that allows matplotlib users to specify probabilty
 scales. Simply importing the ``probscale`` module registers the scale
 with matplotlib, making it accessible via e.g.,
