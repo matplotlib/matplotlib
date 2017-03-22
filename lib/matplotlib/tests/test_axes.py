@@ -5047,3 +5047,11 @@ def test_invalid_axis_limits():
         plt.ylim(np.nan)
     with pytest.raises(ValueError):
         plt.ylim(np.inf)
+
+
+def test_iadd():
+    # Addresses issue 7082
+    from matplotlib.patches import Circle
+    fig, ax = plt.subplots()
+    ax += Circle((.5, .5), .3)
+    assert len(ax.artists) == 1
