@@ -65,12 +65,14 @@ plt.savefig(f, format="svg")
 tree, xmlid = ET.XMLID(f.getvalue())
 tree.set('onload', 'init(evt)')
 
-for i in enumerate(shapes):
+for i in shapes:
+    # Get the index of the shape
+    index = shapes.index(i)
     # Hide the tooltips
-    tooltip = xmlid['mytooltip_{:03d}'.format(i[0])]
+    tooltip = xmlid['mytooltip_{:03d}'.format(index)]
     tooltip.set('visibility', 'hidden')
     # Assign onmouseover and onmouseout callbacks to patches.
-    mypatch = xmlid['mypatch_{:03d}'.format(i[0])]
+    mypatch = xmlid['mypatch_{:03d}'.format(index)]
     mypatch.set('onmouseover', "ShowTooltip(this)")
     mypatch.set('onmouseout', "HideTooltip(this)")
 
