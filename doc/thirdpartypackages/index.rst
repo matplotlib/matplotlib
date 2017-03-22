@@ -171,3 +171,9 @@ pyupset
 Windrose
 ===============
 `Windrose <https://github.com/scls19fr/windrose>`_ is a Python Matplotlib, Numpy library to manage wind data, draw windrose (also known as a polar rose plot), draw probability density function and fit Weibull distribution
+
+adjustText
+===============
+`adjustText <https://github.com/Phlya/adjustText>`_ is a small library for automatically adjusting text position in matplotlib plots to minimize overlaps between them, specified points and other objects.
+
+.. image:: /_static/adjustText.png
