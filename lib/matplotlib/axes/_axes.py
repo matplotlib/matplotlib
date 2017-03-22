@@ -1155,8 +1155,7 @@ or tuple of floats
         For *linelengths*, *linewidths*, *colors*, and *linestyles*, if only
         a single value is given, that value is applied to all lines.  If an
         array-like is given, it must have the same length as *positions*, and
-        each row of the array will be applied to the corresponding row or
-        column of events.
+        each value will be applied to the corresponding row of the array.
 
         Example
         -------
