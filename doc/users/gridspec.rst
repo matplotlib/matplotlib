@@ -25,26 +25,26 @@ Basic Example of using subplot2grid
 To use subplot2grid, you provide geometry of the grid and the location
 of the subplot in the grid. For a simple single-cell subplot::
 
-  ax = plt.subplot2grid((2,2),(0, 0))
+  ax = plt.subplot2grid((2, 2), (0, 0))
 
 is identical to ::
 
-  ax = plt.subplot(2,2,1)
+  ax = plt.subplot(2, 2, 1)
 
 Note that, unlike matplotlib's subplot, the index starts from 0 in gridspec.
 
 To create a subplot that spans multiple cells, ::
 
-  ax2 = plt.subplot2grid((3,3), (1, 0), colspan=2)
-  ax3 = plt.subplot2grid((3,3), (1, 2), rowspan=2)
+  ax2 = plt.subplot2grid((3, 3), (1, 0), colspan=2)
+  ax3 = plt.subplot2grid((3, 3), (1, 2), rowspan=2)
 
 For example, the following commands  ::
 
-  ax1 = plt.subplot2grid((3,3), (0,0), colspan=3)
-  ax2 = plt.subplot2grid((3,3), (1,0), colspan=2)
-  ax3 = plt.subplot2grid((3,3), (1, 2), rowspan=2)
-  ax4 = plt.subplot2grid((3,3), (2, 0))
-  ax5 = plt.subplot2grid((3,3), (2, 1))
+  ax1 = plt.subplot2grid((3, 3), (0, 0), colspan=3)
+  ax2 = plt.subplot2grid((3, 3), (1, 0), colspan=2)
+  ax3 = plt.subplot2grid((3, 3), (1, 2), rowspan=2)
+  ax4 = plt.subplot2grid((3, 3), (2, 0))
+  ax5 = plt.subplot2grid((3, 3), (2, 1))
 
 creates
 
@@ -58,7 +58,7 @@ You can create GridSpec explicitly and use them to create a Subplot.
 
 For example, ::
 
-  ax = plt.subplot2grid((2,2),(0, 0))
+  ax = plt.subplot2grid((2, 2),(0, 0))
 
 is equal to ::
 
@@ -70,17 +70,17 @@ A gridspec instance provides array-like (2d or 1d) indexing that
 returns the SubplotSpec instance. For, SubplotSpec that spans multiple
 cells, use slice. ::
 
-  ax2 = plt.subplot(gs[1,:-1])
+  ax2 = plt.subplot(gs[1, :-1])
   ax3 = plt.subplot(gs[1:, -1])
 
 The above example becomes ::
 
   gs = gridspec.GridSpec(3, 3)
   ax1 = plt.subplot(gs[0, :])
-  ax2 = plt.subplot(gs[1,:-1])
+  ax2 = plt.subplot(gs[1, :-1])
   ax3 = plt.subplot(gs[1:, -1])
-  ax4 = plt.subplot(gs[-1,0])
-  ax5 = plt.subplot(gs[-1,-2])
+  ax4 = plt.subplot(gs[-1, 0])
+  ax5 = plt.subplot(gs[-1, -2])
 
 .. plot:: users/plotting/examples/demo_gridspec02.py
 
@@ -147,8 +147,8 @@ relative heights and widths of rows and columns. Note that absolute
 values are meaningless, only their relative ratios matter. ::
 
   gs = gridspec.GridSpec(2, 2,
-                         width_ratios=[1,2],
-                         height_ratios=[4,1]
+                         width_ratios=[1, 2],
+                         height_ratios=[4, 1]
                          )
 
   ax1 = plt.subplot(gs[0])
