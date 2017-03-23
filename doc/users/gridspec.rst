@@ -5,25 +5,26 @@
 Customizing Location of Subplot Using GridSpec
 **********************************************
 
-    ``GridSpec``
+    :class:`~matplotlib.gridspec.GridSpec`
         specifies the geometry of the grid that a subplot will be
         placed. The number of rows and number of columns of the grid
         need to be set. Optionally, the subplot layout parameters
         (e.g., left, right, etc.) can be tuned.
 
-    ``SubplotSpec``
+    :class:`~matplotlib.gridspec.SubplotSpec`
         specifies the location of the subplot in the given *GridSpec*.
 
-    ``subplot2grid``
-        a helper function that is similar to "pyplot.subplot" but uses
-        0-based indexing and let subplot to occupy multiple cells.
+    :func:`~matplotlib.pyplot.subplot2grid`
+        a helper function that is similar to :func:`~matplotlib.pyplot.subplot`
+        but uses 0-based indexing and let subplot to occupy multiple cells.
 
 
 Basic Example of using subplot2grid
 ===================================
 
-To use subplot2grid, you provide geometry of the grid and the location
-of the subplot in the grid. For a simple single-cell subplot::
+To use :func:`~matplotlib.pyplot.subplot2grid`, you provide geometry of
+the grid and the location of the subplot in the grid. For a simple
+single-cell subplot::
 
   ax = plt.subplot2grid((2, 2), (0, 0))
 
@@ -31,7 +32,7 @@ is identical to ::
 
   ax = plt.subplot(2, 2, 1)
 
-Note that, unlike matplotlib's subplot, the index starts from 0 in GridSpec.
+Note that, unlike Matplotlib's subplot, the index starts from 0 in GridSpec.
 
 To create a subplot that spans multiple cells, ::
 
@@ -54,11 +55,12 @@ creates
 GridSpec and SubplotSpec
 ========================
 
-You can create GridSpec explicitly and use them to create a Subplot.
+You can create :class:`~matplotlib.gridspec.GridSpec` explicitly and use
+them to create a subplot.
 
 For example, ::
 
-  ax = plt.subplot2grid((2, 2),(0, 0))
+  ax = plt.subplot2grid((2, 2), (0, 0))
 
 is equal to ::
 
@@ -67,7 +69,7 @@ is equal to ::
   ax = plt.subplot(gs[0, 0])
 
 A GridSpec instance provides array-like (2d or 1d) indexing that
-returns the SubplotSpec instance. For, SubplotSpec that spans multiple
+returns the SubplotSpec instance. For a SubplotSpec that spans multiple
 cells, use slice. ::
 
   ax2 = plt.subplot(gs[1, :-1])
@@ -93,8 +95,8 @@ parameters of subplots that are created from the GridSpec. ::
   gs1 = gridspec.GridSpec(3, 3)
   gs1.update(left=0.05, right=0.48, wspace=0.05)
 
-This is similar to *subplots_adjust*, but it only affects the subplots
-that are created from the given GridSpec.
+This is similar to :func:`~matplotlib.pyplot.subplots_adjust`, but it only
+affects the subplots that are created from the given GridSpec.
 
 The code below ::
 
@@ -117,8 +119,9 @@ creates
 GridSpec using SubplotSpec
 ==========================
 
-You can create GridSpec from the SubplotSpec, in which case its layout
-parameters are set to that of the location of the given SubplotSpec. ::
+You can create GridSpec from the :class:`~matplotlib.gridspec.SubplotSpec`,
+in which case its layout parameters are set to that of the location of
+the given SubplotSpec. ::
 
   gs0 = gridspec.GridSpec(1, 2)
 
