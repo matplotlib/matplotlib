@@ -71,7 +71,7 @@ a vector field. In addition to simply plotting the streamlines, it allows you
 to map the colors and/or line widths of streamlines to a separate parameter,
 such as the speed or local intensity of the vector field.
 
-.. plot:: gallery/images_contours_and_fields/streamplot_features.py
+.. plot:: mpl_examples/images_contours_and_fields/streamplot_demo.py
 
 This feature complements the :meth:`~matplotlib.pyplot.quiver` function for
 plotting vector fields. Thanks to Tom Flannaghan and Tony Yu for adding the
