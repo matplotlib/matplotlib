@@ -108,7 +108,10 @@ def test_lines3d():
     ax.plot(x, y, z)
 
 
-@image_comparison(baseline_images=['mixedsubplot'], remove_text=True)
+# Reason for flakiness of SVG test is still unknown.
+@image_comparison(baseline_images=['mixedsubplot'], remove_text=True,
+                  extensions=['png', 'pdf',
+                              pytest.mark.xfail('svg', strict=False)])
 def test_mixedsubplots():
     def f(t):
         s1 = np.cos(2*np.pi*t)
