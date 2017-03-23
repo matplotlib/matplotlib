@@ -3732,17 +3732,11 @@ class ArrowStyle(_Style):
             widthA : float, optional, default : 1.0
                 Width of the bracket
 
-            lengthA : int
-                Length of the bracket
-
             angleA : float, optional, default : None
                 Angle between the bracket and the line
 
             widthB : float, optional, default : 1.0
                 Width of the bracket
-
-            lengthB : int
-                Length of the bracket
 
             angleB : float, optional, default : None
                 Angle between the bracket and the line
