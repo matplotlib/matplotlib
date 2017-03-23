@@ -4861,6 +4861,18 @@ def test_eventplot_legend():
     plt.legend()
 
 
+# Test all 4 combinations of logs/symlogs for minorticks_on()
+@cleanup
+def test_minorticks_on():
+    for xscale in ['symlog', 'log']:
+        for yscale in ['symlog', 'log']:
+            fig, ax = plt.subplots()
+            ax.plot([1, 2, 3, 4])
+            ax.set_xscale(xscale)
+            ax.set_yscale(yscale)
+            ax.minorticks_on()
+
+
 if __name__ == '__main__':
     import nose
     import sys
