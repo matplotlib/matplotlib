@@ -20,21 +20,25 @@
 .. _Depsy: http://depsy.org/package/python/matplotlib
 
 ##########
-matplotlib
+Matplotlib
 ##########
 
-matplotlib is a Python 2D plotting library which produces publication-quality
-figures in a variety of hardcopy formats and interactive
-environments across platforms. matplotlib can be used in Python
-scripts, the Python and IPython shell (ala MATLAB or Mathematica), web
-application servers, and various graphical user interface toolkits.
+Matplotlib is a Python 2D plotting library which produces publication-quality
+figures in a variety of hardcopy formats and interactive environments across
+platforms. Matplotlib can be used in Python scripts, the Python and IPython
+shell (à la MATLAB or Mathematica), web application servers, and various
+graphical user interface toolkits.
 
 `Home page <http://matplotlib.org/>`_
 
 Installation
-=============
+============
 
-For installation instructions and requirements, see the INSTALL file or the `install <http://matplotlib.org/users/installing.html>`_ documentation. If you think you may want to contribute to matplotlib, check out the `guide to working with the source code <http://matplotlib.org/devel/gitwash/index.html>`_.
+For installation instructions and requirements, see the INSTALL.rst file or the
+`install <http://matplotlib.org/users/installing.html>`_ documentation. If you
+think you may want to contribute to matplotlib, check out the `guide to
+working with the source code
+<http://matplotlib.org/devel/gitwash/index.html>`_.
 
 Testing
 =======
