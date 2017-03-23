@@ -31,7 +31,7 @@ is identical to ::
 
   ax = plt.subplot(2, 2, 1)
 
-Note that, unlike matplotlib's subplot, the index starts from 0 in gridspec.
+Note that, unlike matplotlib's subplot, the index starts from 0 in GridSpec.
 
 To create a subplot that spans multiple cells, ::
 
@@ -66,7 +66,7 @@ is equal to ::
   gs = gridspec.GridSpec(2, 2)
   ax = plt.subplot(gs[0, 0])
 
-A gridspec instance provides array-like (2d or 1d) indexing that
+A GridSpec instance provides array-like (2d or 1d) indexing that
 returns the SubplotSpec instance. For, SubplotSpec that spans multiple
 cells, use slice. ::
 
@@ -88,7 +88,7 @@ Adjust GridSpec layout
 ======================
 
 When a GridSpec is explicitly used, you can adjust the layout
-parameters of subplots that are created from the gridspec. ::
+parameters of subplots that are created from the GridSpec. ::
 
   gs1 = gridspec.GridSpec(3, 3)
   gs1.update(left=0.05, right=0.48, wspace=0.05)
@@ -132,8 +132,8 @@ parameters are set to that of the location of the given SubplotSpec. ::
 A Complex Nested GridSpec using SubplotSpec
 ===========================================
 
-Here's a more sophisticated example of nested gridspec where we put
-a box around each cell of the outer 4x4 grid, by hiding appropriate 
+Here's a more sophisticated example of nested GridSpec where we put
+a box around each cell of the outer 4x4 grid, by hiding appropriate
 spines in each of the inner 3x3 grids.
 
 .. plot:: users/plotting/examples/demo_gridspec06.py
