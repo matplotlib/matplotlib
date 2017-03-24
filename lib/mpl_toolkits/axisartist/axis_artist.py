@@ -310,7 +310,6 @@ class Ticks(Line2D, AttributeCopier):
 
 
         gc = renderer.new_gc()
-        self._set_gc_clip(gc)
         gc.set_foreground(self.get_markeredgecolor())
         gc.set_linewidth(self.get_markeredgewidth())
         gc.set_alpha(self._alpha)
@@ -327,11 +326,13 @@ class Ticks(Line2D, AttributeCopier):
         marker_transform = marker_scale + marker_rotation
 
         for loc, angle in self.locs_angles:
-            marker_rotation.rotate_deg(angle+add_angle)
+            marker_rotation.clear().rotate_deg(angle+add_angle)
             locs = path_trans.transform_non_affine([loc])
+            if (self.axes and
+                    not self.axes.viewLim.contains(locs[0][0], locs[0][1])):
+                continue
             renderer.draw_markers(gc, self._tickvert_path, marker_transform,
                                   Path(locs), path_trans.get_affine())
-            marker_rotation.clear()
 
         gc.restore()
 
