@@ -2560,11 +2560,13 @@ or tuple of floats
             numeric labels. Is returned only if parameter *autopct* is
             not *None*. 
 
-        Examples
-        --------
+        Notes
+        -----
         The pie chart will probably look best if the figure and axes are
         square, or the Axes aspect is equal.
 
+        Examples
+        --------
         .. plot:: mpl_examples/pie_and_polar_charts/pie_demo_features.py
 
 
