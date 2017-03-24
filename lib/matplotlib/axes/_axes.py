@@ -918,8 +918,8 @@ or tuple of floats
         self.autoscale_view(scaley=False)
         return p
 
-    @_preprocess_data(replace_names=['y', 'xmin', 'xmax', 'colors'],
-                      label_namer='y')
+    @_preprocess_data(replace_names=["y", "xmin", "xmax", "colors"],
+                      label_namer="y")
     def hlines(self, y, xmin, xmax, colors='k', linestyles='solid',
                label='', **kwargs):
         """
@@ -998,8 +998,8 @@ or tuple of floats
 
         return lines
 
-    @_preprocess_data(replace_names=['x', 'ymin', 'ymax', 'colors'],
-                      label_namer='x')
+    @_preprocess_data(replace_names=["x", "ymin", "ymax", "colors"],
+                      label_namer="x")
     def vlines(self, x, ymin, ymax, colors='k', linestyles='solid',
                label='', **kwargs):
         """
@@ -2467,7 +2467,7 @@ or tuple of floats
 
         return stem_container
 
-    @_preprocess_data(replace_names=['x', 'explode', 'labels', 'colors'],
+    @_preprocess_data(replace_names=["x", "explode", "labels", "colors"],
                       label_namer=None)
     def pie(self, x, explode=None, labels=None, colors=None,
             autopct=None, pctdistance=0.6, shadow=False, labeldistance=1.1,
@@ -3809,8 +3809,8 @@ or tuple of floats
                     medians=medians, fliers=fliers, means=means)
 
     @_preprocess_data(replace_names=["x", "y", "s", "linewidths",
-                                     "edgecolors", "c", 'facecolor',
-                                     'facecolors', 'color'],
+                                     "edgecolors", "c", "facecolor",
+                                     "facecolors", "color"],
                       label_namer="y")
     def scatter(self, x, y, s=None, c=None, marker=None, cmap=None, norm=None,
                 vmin=None, vmax=None, alpha=None, linewidths=None,
