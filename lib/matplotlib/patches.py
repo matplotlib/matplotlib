@@ -4011,7 +4011,7 @@ class FancyArrowPatch(Patch):
                  dpi_cor=1,
                  **kwargs):
         """
-        If *posA* and *posB* are given, a path connecting two points are
+        If *posA* and *posB* are given, a path connecting two points is
         created according to *connectionstyle*. The path will be
         clipped with *patchA* and *patchB* and further shrunken by
         *shrinkA* and *shrinkB*. An arrow is drawn along this
@@ -4031,7 +4031,7 @@ class FancyArrowPatch(Patch):
             drawn along this path and *patchA*, *patchB*, *shrinkA*, and
             *shrinkB* are ignored.
 
-        arrowstyle: ArrowStyle or string, optional (default: 'simple')
+        arrowstyle: str or ArrowStyle, optional (default: 'simple')
             Describes how the fancy arrow will be
             drawn. It can be string of the available arrowstyle names,
             with optional comma-separated attributes, or an
@@ -4043,7 +4043,7 @@ class FancyArrowPatch(Patch):
 
         arrow_transmuter:
 
-        connectionstyle: ConnectionStyle instance or string, optional
+        connectionstyle: str, ConnectionStyle, or None, optional
         (default: 'arc3')
             Describes how *posA* and *posB* are connected. It can be an
             instance of the :class:`ConnectionStyle` class or a string of the
@@ -4061,8 +4061,8 @@ class FancyArrowPatch(Patch):
         shrinkA, shrinkB: scalar, optional (default: 2)
 
         mutation_scale: scalar, optional (default: 1)
-            Value with which attributes of arrowstyle (e.g., head_length)
-            will be scaled. (default value is 1)
+            Value with which attributes of *arrowstyle* (e.g., *head_length*)
+            will be scaled.
 
         mutation_aspect: None, scalar, optional (default: None)
             The height of the rectangle will be squeezed by this value before
@@ -4186,7 +4186,7 @@ class FancyArrowPatch(Patch):
 
                 set_connectionstyle("arc", angleA=0,armA=30,rad=10)
 
-            Without any arguments (or with connectionstyle=None), return
+            Without any arguments (or with ``connectionstyle=None``), return
             available styles as a list of strings.
         """
 
@@ -4209,12 +4209,12 @@ class FancyArrowPatch(Patch):
     def set_arrowstyle(self, arrowstyle=None, **kw):
         """
         Set the arrow style. Old attributes are forgotten. Without arguments
-        (or with `arrowstyle=None`) returns available box styles as a list of
+        (or with ``arrowstyle=None``) returns available box styles as a list of
         strings.
 
         Parameters
         ----------
-        arrowstyle: None, ArrowStyle, string, optional (default: None)
+        arrowstyle: None, ArrowStyle, str, optional (default: None)
             Can be a string with arrowstyle name with optional comma-separated
             attributes, eg.::
 
