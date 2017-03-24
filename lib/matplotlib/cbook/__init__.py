@@ -1744,7 +1744,7 @@ def boxplot_stats(X, whis=1.5, bootstrap=None, labels=None,
     bxpstats = []
 
     # convert X to a list of lists
-    X = _reshape_2D(X)
+    X = _reshape_2D(X, "X")
 
     ncols = len(X)
     if labels is None:
@@ -1974,14 +1974,16 @@ def _check_1d(x):
             return np.atleast_1d(x)
 
 
-def _reshape_2D(X):
+def _reshape_2D(X, name):
     """
-    Converts a non-empty list or an ndarray of two or fewer dimensions
-    into a list of iterable objects so that in
+    Use Fortran ordering to convert ndarrays and lists of iterables to lists of
+    1D arrays.
 
-        for v in _reshape_2D(X):
+    Lists of iterables are converted by applying `np.asarray` to each of their
+    elements.  1D ndarrays are returned in a singleton list containing them.
+    2D ndarrays are converted to the list of their *columns*.
 
-    v is iterable and can be used to instantiate a 1D array.
+    *name* is used to generate the error message for invalid inputs.
     """
     # Iterate over columns for ndarrays, over rows otherwise.
     X = X.T if isinstance(X, np.ndarray) else np.asarray(X)
@@ -1992,7 +1994,7 @@ def _reshape_2D(X):
         # 2D array, or 1D array of iterables: flatten them first.
         return [np.reshape(x, -1) for x in X]
     else:
-        raise ValueError("input `X` must have 2 or fewer dimensions")
+        raise ValueError("{} must have 2 or fewer dimensions".format(name))
 
 
 def violin_stats(X, method, points=100):
@@ -2039,7 +2041,7 @@ def violin_stats(X, method, points=100):
     vpstats = []
 
     # Want X to be a list of data sequences
-    X = _reshape_2D(X)
+    X = _reshape_2D(X, "X")
 
     for x in X:
         # Dictionary of results for this distribution
