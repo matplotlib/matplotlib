@@ -328,7 +328,7 @@ class Ticks(Line2D, AttributeCopier):
 
         for loc, angle in self.locs_angles:
             marker_rotation.rotate_deg(angle+add_angle)
-            locs = path_trans.transform_non_affine(np.array([loc, loc]))
+            locs = path_trans.transform_non_affine([loc])
             renderer.draw_markers(gc, self._tickvert_path, marker_transform,
                                   Path(locs), path_trans.get_affine())
             marker_rotation.clear()
