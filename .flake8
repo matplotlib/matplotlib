@@ -61,8 +61,7 @@ per-file-ignores =
     matplotlib/type1font.py: E731
 
     mpl_toolkits/__init__.py: E261
-    mpl_toolkits/axes_grid/axes_divider.py: E501
-    mpl_toolkits/axes_grid/axes_rgb.py: E302, E501
+    mpl_toolkits/axes_grid/axes_rgb.py: E501
     mpl_toolkits/axes_grid1/axes_divider.py: E402, E501
     mpl_toolkits/axes_grid1/axes_grid.py: E225
     mpl_toolkits/axes_grid1/axes_rgb.py: E231
