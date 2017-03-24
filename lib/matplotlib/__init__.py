@@ -575,26 +575,15 @@ def _create_tmp_config_dir():
 
     Returns None if a writable temporary directory could not be created.
     """
-    import getpass
-    import tempfile
-    from matplotlib.cbook import mkdirs
-
     try:
         tempdir = tempfile.gettempdir()
     except NotImplementedError:
         # Some restricted platforms (such as Google App Engine) do not provide
         # gettempdir.
         return None
-    try:
-        username = getpass.getuser()
-    except KeyError:
-        username = str(os.getuid())
-
-    tempdir = tempfile.mkdtemp(prefix='matplotlib-%s-' % username, dir=tempdir)
-
-    os.environ['MPLCONFIGDIR'] = tempdir
-
-    return tempdir
+    configdir = os.environ['MPLCONFIGDIR'] = (
+        tempfile.mkdtemp(prefix='matplotlib-', dir=tempdir))
+    return configdir
 
 
 get_home = verbose.wrap('$HOME=%s', _get_home, always=False)
@@ -805,34 +794,24 @@ def matplotlib_fname():
     - Lastly, it looks in `$MATPLOTLIBDATA/matplotlibrc` for a
       system-defined copy.
     """
-    if six.PY2:
-        cwd = os.getcwdu()
-    else:
-        cwd = os.getcwd()
-    fname = os.path.join(cwd, 'matplotlibrc')
-    if os.path.exists(fname):
-        return fname
 
-    if 'MATPLOTLIBRC' in os.environ:
-        path = os.environ['MATPLOTLIBRC']
-        if os.path.exists(path):
-            if os.path.isfile(path):
-                return path
-            fname = os.path.join(path, 'matplotlibrc')
-            if os.path.exists(fname):
-                return fname
+    def gen_candidates():
+        yield os.path.join(six.moves.getcwd(), 'matplotlibrc')
+        try:
+            matplotlibrc = os.environ['MATPLOTLIBRC']
+        except KeyError:
+            pass
+        else:
+            yield matplotlibrc
+            yield os.path.join(matplotlibrc, 'matplotlibrc')
+        yield os.path.join(_get_configdir(), 'matplotlibrc')
+        yield os.path.join(get_data_path(), 'matplotlibrc')
 
-    configdir = _get_configdir()
-    if os.path.exists(configdir):
-        fname = os.path.join(configdir, 'matplotlibrc')
-        if os.path.exists(fname):
-            return fname
-
-    path = get_data_path()  # guaranteed to exist or raise
-    fname = os.path.join(path, 'matplotlibrc')
-    if not os.path.exists(fname):
-        warnings.warn('Could not find matplotlibrc; using defaults')
-
+    for fname in gen_candidates():
+        if os.path.isfile(fname):
+            break
+    # Return first candidate that is a file, or last candidate if none is
+    # valid (in that case, a warning is raised at startup by `rc_params`).
     return fname
 
 
