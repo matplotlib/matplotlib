@@ -5,9 +5,17 @@ Matplotlib documentation
 Building the documentation
 --------------------------
 
-A list of dependencies can be found in ../doc-requirements.txt.
+To build the documentation, you will need additional dependencies:
 
-All of these dependencies can be installed through pip::
+* Sphinx-1.3 or later(Version 1.5.0 is not supported)
+* numpydoc 0.4 or later
+* IPython
+* Mock
+* colorspacious
+* pillow
+* graphviz.
+
+All of these dependencies except graphviz can be installed through pip::
 
   pip install -r ../doc-requirements.txt
 
