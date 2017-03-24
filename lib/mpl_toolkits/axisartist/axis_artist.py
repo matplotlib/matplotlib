@@ -337,23 +337,6 @@ class Ticks(Line2D, AttributeCopier):
         gc.restore()
 
 
-def test_ticks():
-    import matplotlib.pyplot as plt
-    fig = plt.figure(1)
-    fig.clf()
-    ax = fig.add_subplot(111)
-    ax.xaxis.set_visible(False)
-    ax.yaxis.set_visible(False)
-    ticks = Ticks(ticksize=10, axis=ax.xaxis)
-    ax.add_artist(ticks)
-    locs_angles = [((0.2, 0.), 90),
-                          ((0.4, 0.), 120)]
-    ticks.set_locs_angles(locs_angles)
-    plt.draw()
-
-
-
-
 class LabelBase(mtext.Text):
     """
     A base class for AxisLabel and TickLabels. The position and angle
@@ -463,33 +446,6 @@ class LabelBase(mtext.Text):
         self.set_rotation(angle_orig)
 
         return bbox
-
-
-
-def test_labelbase():
-    import matplotlib.pyplot as plt
-    fig = plt.figure(1)
-    fig.clf()
-    ax = fig.add_subplot(111)
-
-    ax.plot([0.5], [0.5], "o")
-    label = LabelBase(0.5, 0.5, "Test")
-
-    a = -90
-    label._set_ref_angle(a)
-    label._set_offset_radius(offset_radius=50)
-    label.set_rotation(-90)
-    label.set(ha="center", va="top")
-
-    ax.add_artist(label)
-    plt.draw()
-
-
-
-
-
-
-
 
 
 class AxisLabel(LabelBase, AttributeCopier):
@@ -845,47 +801,6 @@ class TickLabels(AxisLabel, AttributeCopier): # mtext.Text
             whd_list.append(whd)
 
         return whd_list
-
-
-
-def test_ticklabels():
-    import matplotlib.pyplot as plt
-    fig = plt.figure(1)
-    fig.clf()
-    ax = fig.add_subplot(111)
-    ax.xaxis.set_visible(False)
-    ax.yaxis.set_visible(False)
-    ax.plot([0.2, 0.4], [0.5, 0.5], "o")
-    ticks = Ticks(ticksize=10, axis=ax.xaxis)
-    ax.add_artist(ticks)
-    locs_angles_labels = [((0.2, 0.5), -90, "0.2"),
-                          ((0.4, 0.5), -120, "0.4")]
-    tick_locs_angles = [(xy, a+180) for xy, a, l in locs_angles_labels]
-    ticks.set_locs_angles(tick_locs_angles)
-
-
-    ax.plot([0.5], [0.5], ",")
-    axislabel = AxisLabel(0.5, 0.5, "Test")
-    axislabel._set_offset_radius(20)
-    axislabel._set_ref_angle(0)
-    axislabel.set_axis_direction("bottom")
-    #axislabel._text_follow_ref_angle = True
-    #axislabel.set(va="center", ha="right")
-    ax.add_artist(axislabel)
-
-    if 1:
-        ticklabels = TickLabels(axis_direction="left")
-        ticklabels._locs_angles_labels = locs_angles_labels
-        #ticklabels.set_rotation(90)
-        ticklabels.set_pad(10)
-
-        ax.add_artist(ticklabels)
-
-    ax.set_xlim(0, 1); ax.set_ylim(0, 1)
-
-    plt.draw()
-
-
 
 
 class GridlinesCollection(LineCollection):
@@ -1611,81 +1526,3 @@ class AxisArtist(martist.Artist):
             self.minor_ticklabels.set_visible(_ticklabels)
         if _label is not None:
             self.label.set_visible(_label)
-
-
-
-
-
-def test_axis_artist():
-    global axisline
-
-    #self._axislines[loc] = new_fixed_axis(loc=loc, axes=axes)
-    from mpl_toolkits.axisartist import AxisArtistHelperRectlinear
-    fig = plt.figure(1)
-    fig.clf()
-    ax=fig.add_subplot(111)
-    ax.xaxis.set_visible(False)
-    ax.yaxis.set_visible(False)
-
-    if 1:
-
-        _helper = AxisArtistHelperRectlinear.Fixed(ax, loc="left")
-        axisline = AxisArtist(ax, _helper, offset=None, axis_direction="left")
-        ax.add_artist(axisline)
-        _helper = AxisArtistHelperRectlinear.Fixed(ax, loc="right")
-        axisline = AxisArtist(ax, _helper, offset=None, axis_direction="right")
-        ax.add_artist(axisline)
-
-    _helper = AxisArtistHelperRectlinear.Fixed(ax, loc="bottom")
-    axisline = AxisArtist(ax, _helper, offset=None, axis_direction="bottom")
-    axisline.set_label("TTT")
-    #axisline.label.set_visible(False)
-    ax.add_artist(axisline)
-
-    #axisline.major_ticklabels.set_axis_direction("bottom")
-    axisline.major_ticks.set_tick_out(False)
-
-    ax.set_ylabel("Test")
-
-    axisline.label.set_pad(5)
-
-
-    plt.draw()
-
-def test_axis_artist2():
-    global axisline
-
-    #self._axislines[loc] = new_fixed_axis(loc=loc, axes=axes)
-    from mpl_toolkits.axislines import AxisArtistHelperRectlinear
-    fig = plt.figure(1)
-    fig.clf()
-    ax=fig.add_subplot(111)
-    ax.xaxis.set_visible(False)
-    ax.yaxis.set_visible(False)
-
-
-    _helper = AxisArtistHelperRectlinear.Fixed(ax, loc="bottom")
-    axisline = AxisArtist(ax, _helper, offset=None, axis_direction="bottom")
-    axisline.set_label("TTT")
-    ax.add_artist(axisline)
-
-    #axisline.major_ticklabels.set_axis_direction("bottom")
-    axisline.major_ticks.set_tick_out(False)
-
-
-    ax.set_ylabel("Test")
-
-    plt.draw()
-
-if __name__ == "__main__":
-    #test_labelbase()
-    #test_ticklabels()
-    test_axis_artist()
-    #test_axis_artist2()
-
-
-# DONE
-# *. ticks, ticklabels, axislabels
-# *. workon axisartist
-
-# TODO
