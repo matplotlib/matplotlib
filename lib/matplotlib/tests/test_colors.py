@@ -55,7 +55,20 @@ def test_colormap_copy():
     cm2.set_under('r')
     cm.set_over('c')
     cm2.set_over('m')
-    assert_equal(np.array_equal(cm._lut, cm2._lut), False)
+    
+    expected1 = plt.cm.Reds
+    expected2 = plt.cm.Reds
+    expected1([-1, 0, .5, np.nan, np.inf])
+    expected2([-1, 0, .5, np.nan, np.inf])
+    expected1.set_bad('y')
+    expected2.set_bad('b')
+    expected1.set_under('k')
+    expected2.set_under('r')
+    expected1.set_over('c')
+    expected2.set_over('m')
+    
+    assert_array_equal(cm._lut, expected1._lut)
+    assert_array_equal(cm2._lut, expected2._lut)
 
 
 def test_colormap_endian():
