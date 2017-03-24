@@ -26,7 +26,7 @@ import matplotlib.mlab as mlab
 import matplotlib.mathtext as mathtext
 import matplotlib.patches as mpatches
 import matplotlib.texmanager as texmanager
-import matplotlib.transforms as mtrans
+import matplotlib.transforms as mtransforms
 from matplotlib.cbook import mplDeprecation
 
 # Import needed for adding manual selection capability to clabel
@@ -967,7 +967,7 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
         """
         if self._transform is None:
             self._transform = self.ax.transData
-        elif (not isinstance(self._transform, mtrans.Transform)
+        elif (not isinstance(self._transform, mtransforms.Transform)
               and hasattr(self._transform, '_as_mpl_transform')):
             self._transform = self._transform._as_mpl_transform(self.ax)
         return self._transform
@@ -1542,6 +1542,8 @@ class QuadContourSet(ContourSet):
 
         if z.ndim != 2:
             raise TypeError("Input z must be a 2D array.")
+        elif z.shape[0] < 2 or z.shape[1] < 2:
+            raise TypeError("Input z must be at least a 2x2 array.")
         else:
             Ny, Nx = z.shape
 
@@ -1590,6 +1592,8 @@ class QuadContourSet(ContourSet):
         """
         if z.ndim != 2:
             raise TypeError("Input must be a 2D array.")
+        elif z.shape[0] < 2 or z.shape[1] < 2:
+            raise TypeError("Input z must be at least a 2x2 array.")
         else:
             Ny, Nx = z.shape
         if self.origin is None:  # Not for image-matching.

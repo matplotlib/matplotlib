@@ -105,7 +105,7 @@ Miscellaneous Toolkits
 
 mpl-probscale
 =============
-`mpl-probscale <http://phobson.github.io/mpl-probscale/index.html>`_
+`mpl-probscale <http://matplotlib.org/mpl-probscale/>`_
 is a small extension that allows matplotlib users to specify probabilty
 scales. Simply importing the ``probscale`` module registers the scale
 with matplotlib, making it accessible via e.g.,
@@ -171,3 +171,9 @@ pyupset
 Windrose
 ===============
 `Windrose <https://github.com/scls19fr/windrose>`_ is a Python Matplotlib, Numpy library to manage wind data, draw windrose (also known as a polar rose plot), draw probability density function and fit Weibull distribution
+
+adjustText
+===============
+`adjustText <https://github.com/Phlya/adjustText>`_ is a small library for automatically adjusting text position in matplotlib plots to minimize overlaps between them, specified points and other objects.
+
+.. image:: /_static/adjustText.png

@@ -353,7 +353,8 @@ some ratio which controls the ratio::
 
 .. htmlonly::
 
-    See :ref:`pylab_examples-equal_aspect_ratio` for a complete example.
+    See :ref:`subplots_axes_and_figures-plot_equal_aspect_ratio` for a complete
+    example.
 
 
 .. _howto-twoscale:
@@ -397,7 +398,7 @@ locators as desired because the two axes are independent.
 
 .. htmlonly::
 
-    See :ref:`api-two_scales` for a complete example
+    See :ref:`api-plot_two_scales` for a complete example
 
 .. _howto-batch:
 
@@ -643,7 +644,7 @@ For more on configuring your backend, see
 
 Alternatively, you can avoid pylab/pyplot altogether, which will give
 you a little more control, by calling the API directly as shown in
-:ref:`api-agg_oo`.
+:ref:`api-plot_agg_oo`.
 
 You can either generate hardcopy on the filesystem by calling savefig::
 

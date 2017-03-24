@@ -21,9 +21,15 @@ from __future__ import (absolute_import, division, print_function,
 
 import six
 
-import re, sys
-from pyparsing import Literal, ZeroOrMore, \
-     Optional, Regex, StringEnd, ParseException, Suppress
+import re
+import sys
+from pyparsing import (Literal, ZeroOrMore, Optional, Regex, StringEnd,
+                       ParseException, Suppress)
+
+try:
+    from functools import lru_cache
+except ImportError:
+    from backports.functools_lru_cache import lru_cache
 
 family_punc = r'\\\-:,'
 family_unescape = re.compile(r'\\([%s])' % family_punc).sub
@@ -166,7 +172,13 @@ class FontconfigPatternParser(object):
             self._properties.setdefault(key, []).extend(val)
         return []
 
-parse_fontconfig_pattern = FontconfigPatternParser().parse
+
+# `parse_fontconfig_pattern` is a bottleneck during the tests because it is
+# repeatedly called when the rcParams are reset (to validate the default
+# fonts).  In practice, the cache size doesn't grow beyond a few dozen entries
+# during the test suite.
+parse_fontconfig_pattern = lru_cache()(FontconfigPatternParser().parse)
+
 
 def generate_fontconfig_pattern(d):
     """
@@ -180,7 +192,8 @@ def generate_fontconfig_pattern(d):
         val = getattr(d, 'get_' + key)()
         if val is not None and val != []:
             if type(val) == list:
-                val = [value_escape(r'\\\1', str(x)) for x in val if x is not None]
+                val = [value_escape(r'\\\1', str(x)) for x in val
+                       if x is not None]
                 if val != []:
                     val = ','.join(val)
             props.append(":%s=%s" % (key, val))

@@ -18,6 +18,7 @@ values is a single line of python
 See :ref:`customizing-with-matplotlibrc-files` for details about how to
 persistently and selectively revert many of these changes.
 
+
 .. contents:: Table of Contents
    :depth: 2
    :local:

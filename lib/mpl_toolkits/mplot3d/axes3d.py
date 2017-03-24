@@ -2409,39 +2409,65 @@ class Axes3D(Axes):
         return patches
 
     def bar3d(self, x, y, z, dx, dy, dz, color=None,
-              zsort='average', *args, **kwargs):
-        '''
-        Generate a 3D bar, or multiple bars.
+              zsort='average', shade=True, *args, **kwargs):
+        """Generate a 3D barplot.
 
-        When generating multiple bars, x, y, z have to be arrays.
-        dx, dy, dz can be arrays or scalars.
+        This method creates three dimensional barplot where the width,
+        depth, height, and color of the bars can all be uniquely set.
 
-        *color* can be:
+        Parameters
+        ----------
+        x, y, z : array-like
+            The coordinates of the anchor point of the bars.
 
-         - A single color value, to color all bars the same color.
+        dx, dy, dz : scalar or array-like
+            The width, depth, and height of the bars, respectively.
 
-         - An array of colors of length N bars, to color each bar
-           independently.
+        color : sequence of valid color specifications, optional
+            The color of the bars can be specified globally or
+            individually. This parameter can be:
 
-         - An array of colors of length 6, to color the faces of the
-           bars similarly.
+              - A single color value, to color all bars the same color.
+              - An array of colors of length N bars, to color each bar
+                independently.
+              - An array of colors of length 6, to color the faces of the
+                bars similarly.
+              - An array of colors of length 6 * N bars, to color each face
+                independently.
 
-         - An array of colors of length 6 * N bars, to color each face
-           independently.
+            When coloring the faces of the boxes specifically, this is
+            the order of the coloring:
 
-         When coloring the faces of the boxes specifically, this is
-         the order of the coloring:
+              1. -Z (bottom of box)
+              2. +Z (top of box)
+              3. -Y
+              4. +Y
+              5. -X
+              6. +X
 
-          1. -Z (bottom of box)
-          2. +Z (top of box)
-          3. -Y
-          4. +Y
-          5. -X
-          6. +X
+        zsort : str, optional
+            The z-axis sorting scheme passed onto
+            :func:`~mpl_toolkits.mplot3d.art3d.Poly3DCollection`
 
-        Keyword arguments are passed onto
+        shade : bool, optional (default = True)
+            When true, this shades the dark sides of the bars (relative
+            to the plot's source of light).
+
+        Any additional keyword arguments are passed onto
         :func:`~mpl_toolkits.mplot3d.art3d.Poly3DCollection`
-        '''
+
+        Returns
+        -------
+        collection : Poly3DCollection
+            A collection of three dimensional polygons representing
+            the bars.
+
+        Examples
+        --------
+        .. plot:: mpl_examples/mplot3d/plot_3d_bars.py
+
+        """
+
         had_data = self.has_data()
 
         if not cbook.iterable(x):
@@ -2512,8 +2538,12 @@ class Axes3D(Axes):
             if len(facecolors) < len(x):
                 facecolors *= (6 * len(x))
 
-        normals = self._generate_normals(polys)
-        sfacecolors = self._shade_colors(facecolors, normals)
+        if shade:
+            normals = self._generate_normals(polys)
+            sfacecolors = self._shade_colors(facecolors, normals)
+        else:
+            sfacecolors = facecolors
+
         col = art3d.Poly3DCollection(polys,
                                      zsort=zsort,
                                      facecolor=sfacecolors,

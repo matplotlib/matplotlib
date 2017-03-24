@@ -13,29 +13,32 @@
 .. |PyPi| image:: https://badge.fury.io/py/matplotlib.svg
 .. _PyPi: https://badge.fury.io/py/matplotlib
 
-.. |Gitter| image:: https://badges.gitter.im/Join%20Chat.svg
-   :alt: Join the chat at https://gitter.im/matplotlib/matplotlib
-.. _Gitter: https://gitter.im/matplotlib/matplotlib?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge
+.. |Gitter| image:: https://img.shields.io/gitter/room/nwjs/nw.js.svg   
+   :target: https://gitter.im/matplotlib/matplotlib?utm_source=share-link&utm_medium=link&utm_campaign=share-link
 
 .. |Depsy| image:: http://depsy.org/api/package/pypi/matplotlib/badge.svg
 .. _Depsy: http://depsy.org/package/python/matplotlib
 
 ##########
-matplotlib
+Matplotlib
 ##########
 
-matplotlib is a Python 2D plotting library which produces publication-quality
-figures in a variety of hardcopy formats and interactive
-environments across platforms. matplotlib can be used in Python
-scripts, the Python and IPython shell (ala MATLAB or Mathematica), web
-application servers, and various graphical user interface toolkits.
+Matplotlib is a Python 2D plotting library which produces publication-quality
+figures in a variety of hardcopy formats and interactive environments across
+platforms. Matplotlib can be used in Python scripts, the Python and IPython
+shell (à la MATLAB or Mathematica), web application servers, and various
+graphical user interface toolkits.
 
 `Home page <http://matplotlib.org/>`_
 
 Installation
-=============
+============
 
-For installation instructions and requirements, see the INSTALL file or the `install <http://matplotlib.org/users/installing.html>`_ documentation. If you think you may want to contribute to matplotlib, check out the `guide to working with the source code <http://matplotlib.org/devel/gitwash/index.html>`_.
+For installation instructions and requirements, see the INSTALL.rst file or the
+`install <http://matplotlib.org/users/installing.html>`_ documentation. If you
+think you may want to contribute to matplotlib, check out the `guide to
+working with the source code
+<http://matplotlib.org/devel/gitwash/index.html>`_.
 
 Testing
 =======
@@ -61,11 +64,9 @@ matplotlib's communication channels include active mailing lists:
 * `Announcement  <https://mail.python.org/mailman/listinfo/matplotlib-announce>`_ mailing list: matplotlib-announce@python.org
 * `Development <https://mail.python.org/mailman/listinfo/matplotlib-devel>`_ mailing list: matplotlib-devel@python.org
 
-
 The first is a good starting point for general questions and discussions.
 
-
-
+`Gitter <https://gitter.im/matplotlib/matplotlib>`_ is for coordinating development and asking questions directly related to contributing to matplotlib.
 
 Contribute
 ==========

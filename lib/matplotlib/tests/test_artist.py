@@ -11,7 +11,7 @@ import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
 import matplotlib.lines as mlines
 import matplotlib.path as mpath
-import matplotlib.transforms as mtrans
+import matplotlib.transforms as mtransforms
 import matplotlib.collections as mcollections
 import matplotlib.artist as martist
 from matplotlib.testing.decorators import image_comparison
@@ -39,13 +39,13 @@ def test_patch_transform_of_none():
                          transform=None, alpha=0.5)
     assert e.is_transform_set() is True
     ax.add_patch(e)
-    assert isinstance(e._transform, mtrans.IdentityTransform)
+    assert isinstance(e._transform, mtransforms.IdentityTransform)
 
     # Providing an IdentityTransform puts the ellipse in device coordinates.
     e = mpatches.Ellipse(xy_pix, width=100, height=100,
-                         transform=mtrans.IdentityTransform(), alpha=0.5)
+                         transform=mtransforms.IdentityTransform(), alpha=0.5)
     ax.add_patch(e)
-    assert isinstance(e._transform, mtrans.IdentityTransform)
+    assert isinstance(e._transform, mtransforms.IdentityTransform)
 
     # Not providing a transform, and then subsequently "get_transform" should
     # not mean that "is_transform_set".
@@ -84,14 +84,15 @@ def test_collection_transform_of_none():
                                      alpha=0.5)
     c.set_transform(None)
     ax.add_collection(c)
-    assert isinstance(c.get_transform(), mtrans.IdentityTransform)
+    assert isinstance(c.get_transform(), mtransforms.IdentityTransform)
 
     # providing an IdentityTransform puts the ellipse in device coordinates
     e = mpatches.Ellipse(xy_pix, width=100, height=100)
-    c = mcollections.PatchCollection([e], transform=mtrans.IdentityTransform(),
-                                     alpha=0.5)
+    c = mcollections.PatchCollection([e],
+                                 transform=mtransforms.IdentityTransform(),
+                                 alpha=0.5)
     ax.add_collection(c)
-    assert isinstance(c._transOffset, mtrans.IdentityTransform)
+    assert isinstance(c._transOffset, mtransforms.IdentityTransform)
 
 
 @image_comparison(baseline_images=["clip_path_clipping"], remove_text=True)

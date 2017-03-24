@@ -1002,6 +1002,32 @@ def test_canonical():
     ax.plot([1, 2, 3])
 
 
+@image_comparison(baseline_images=['arc_angles'], remove_text=True,
+                  style='default', extensions=['png'])
+def test_arc_angles():
+    from matplotlib import patches
+    # Ellipse parameters
+    w = 2
+    h = 1
+    centre = (0.2, 0.5)
+
+    fig, axs = plt.subplots(3, 3)
+    for i, ax in enumerate(axs.flat):
+        theta2 = i * 360 / 9
+        theta1 = theta2 - 45
+        ax.add_patch(patches.Ellipse(centre, w, h, alpha=0.3))
+        ax.add_patch(patches.Arc(centre, w, h, theta1=theta1, theta2=theta2))
+        # Straight lines intersecting start and end of arc
+        ax.plot([2 * np.cos(np.deg2rad(theta1)) + centre[0],
+                 centre[0],
+                 2 * np.cos(np.deg2rad(theta2)) + centre[0]],
+                [2 * np.sin(np.deg2rad(theta1)) + centre[1],
+                 centre[1],
+                 2 * np.sin(np.deg2rad(theta2)) + centre[1]])
+        ax.set_xlim(-2, 2)
+        ax.set_ylim(-2, 2)
+
+
 @image_comparison(baseline_images=['arc_ellipse'],
                   remove_text=True)
 def test_arc_ellipse():
@@ -1010,15 +1036,14 @@ def test_arc_ellipse():
     width, height = 1e-1, 3e-1
     angle = -30
 
-    theta = np.arange(0.0, 360.0, 1.0)*np.pi/180.0
-    x = width/2. * np.cos(theta)
-    y = height/2. * np.sin(theta)
+    theta = np.arange(0.0, 360.0, 1.0) * np.pi / 180.0
+    x = width / 2. * np.cos(theta)
+    y = height / 2. * np.sin(theta)
 
-    rtheta = angle*np.pi/180.
+    rtheta = angle * np.pi / 180.
     R = np.array([
-        [np.cos(rtheta),  -np.sin(rtheta)],
-        [np.sin(rtheta), np.cos(rtheta)],
-        ])
+        [np.cos(rtheta), -np.sin(rtheta)],
+        [np.sin(rtheta), np.cos(rtheta)]])
 
     x, y = np.dot(R, np.array([x, y]))
     x += xcenter
@@ -1217,6 +1242,17 @@ def test_bar_ticklabel_fail():
                   extensions=['png'])
 def test_bar_tick_label_multiple():
     # From 2516: plot bar with array of string labels for x axis
+    ax = plt.gca()
+    ax.bar([1, 2.5], [1, 2], width=[0.2, 0.5], tick_label=['a', 'b'],
+           align='center')
+
+
+@image_comparison(
+    baseline_images=['bar_tick_label_multiple_old_label_alignment'],
+    extensions=['png'])
+def test_bar_tick_label_multiple_old_alignment():
+    # Test that the algnment for class is backward compatible
+    matplotlib.rcParams["ytick.alignment"] = "center"
     ax = plt.gca()
     ax.bar([1, 2.5], [1, 2], width=[0.2, 0.5], tick_label=['a', 'b'],
            align='center')
@@ -2532,6 +2568,17 @@ def test_errorbar_limits():
                  color='cyan')
     ax.set_xlim((0, 5.5))
     ax.set_title('Errorbar upper and lower limits')
+
+
+def test_errobar_nonefmt():
+    # Check that passing 'none' as a format still plots errorbars
+    x = np.arange(5)
+    y = np.arange(5)
+
+    plotline, _, barlines = plt.errorbar(x, y, xerr=1, yerr=1, fmt='none')
+    assert plotline is None
+    for errbar in barlines:
+        assert np.all(errbar.get_color() == mcolors.to_rgba('C0'))
 
 
 @image_comparison(baseline_images=['hist_stacked_stepfilled',
@@ -4242,6 +4289,22 @@ def test_pie_frame_grid():
     plt.axis('equal')
 
 
+@image_comparison(baseline_images=['pie_rotatelabels_true'],
+                  extensions=['png'])
+def test_pie_rotatelabels_true():
+    # The slices will be ordered and plotted counter-clockwise.
+    labels = 'Hogwarts', 'Frogs', 'Dogs', 'Logs'
+    sizes = [15, 30, 45, 10]
+    colors = ['yellowgreen', 'gold', 'lightskyblue', 'lightcoral']
+    explode = (0, 0.1, 0, 0)  # only "explode" the 2nd slice (i.e. 'Hogs')
+
+    plt.pie(sizes, explode=explode, labels=labels, colors=colors,
+            autopct='%1.1f%%', shadow=True, startangle=90,
+            rotatelabels=True)
+    # Set aspect ratio to be equal so that pie is drawn as a circle.
+    plt.axis('equal')
+
+
 @image_comparison(baseline_images=['set_get_ticklabels'], extensions=['png'])
 def test_set_get_ticklabels():
     # test issue 2246
@@ -4972,3 +5035,26 @@ def test_bar_single_height():
     ax.bar(range(4), 1)
     # Check that a horizontal chart with one width works
     ax.bar(0, 1, bottom=range(4), width=1, orientation='horizontal')
+
+
+def test_invalid_axis_limits():
+    plt.plot([0, 1], [0, 1])
+    with pytest.raises(ValueError):
+        plt.xlim(np.nan)
+    with pytest.raises(ValueError):
+        plt.xlim(np.inf)
+    with pytest.raises(ValueError):
+        plt.ylim(np.nan)
+    with pytest.raises(ValueError):
+        plt.ylim(np.inf)
+
+
+# Test all 4 combinations of logs/symlogs for minorticks_on()
+@pytest.mark.parametrize('xscale', ['symlog', 'log'])
+@pytest.mark.parametrize('yscale', ['symlog', 'log'])
+def test_minorticks_on(xscale, yscale):
+    ax = plt.subplot(111)
+    ax.plot([1, 2, 3, 4])
+    ax.set_xscale(xscale)
+    ax.set_yscale(yscale)
+    ax.minorticks_on()

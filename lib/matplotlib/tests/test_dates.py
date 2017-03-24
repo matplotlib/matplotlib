@@ -94,12 +94,6 @@ def test_too_many_date_ticks():
     # setting equal datetimes triggers and expander call in
     # transforms.nonsingular which results in too many ticks in the
     # DayLocator.  This should trigger a Locator.MAXTICKS RuntimeError
-    warnings.filterwarnings(
-        'ignore',
-        'Attempting to set identical left==right results\\nin singular '
-        'transformations; automatically expanding.\\nleft=\d*\.\d*, '
-        'right=\d*\.\d*',
-        UserWarning, module='matplotlib.axes')
     t0 = datetime.datetime(2000, 1, 20)
     tf = datetime.datetime(2000, 1, 20)
     fig = plt.figure()

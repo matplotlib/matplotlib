@@ -1,4 +1,8 @@
 '''
+===================
+3D parametric curve
+===================
+
 Demonstrating plotting a parametric curve in 3D.
 '''
 

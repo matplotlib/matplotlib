@@ -11,11 +11,10 @@ environment:
     # SDK v7.0 MSVC Express 2008's SetEnv.cmd script will fail if the
     # /E:ON and /V:ON options are not enabled in the batch script intepreter
     # See: http://stackoverflow.com/a/13751649/163740
-    CMD_IN_ENV: "cmd /E:ON /V:ON /C obvci_appveyor_python_build_env.cmd"
+    CMD_IN_ENV: cmd /E:ON /V:ON /C obvci_appveyor_python_build_env.cmd
     # Workaround for https://github.com/conda/conda-build/issues/636
-    PYTHONIOENCODING: "UTF-8"
+    PYTHONIOENCODING: UTF-8
     PYTEST_ARGS: -ra --timeout=300 --durations=25 -n %NUMBER_OF_PROCESSORS% --cov-report= --cov=lib -m "not network"
-    USE_PYTEST: no
     PYTHONHASHSEED: 0  # Workaround for pytest-xdist flaky collection order
                        # https://github.com/pytest-dev/pytest/issues/920
                        # https://github.com/pytest-dev/pytest/issues/1075
@@ -37,13 +36,6 @@ environment:
       PYTHON_VERSION: "3.5"
       TEST_ALL: "no"
       CONDA_INSTALL_LOCN: "C:\\Miniconda35-x64"
-    - TARGET_ARCH: "x64"
-      CONDA_PY: "35"
-      CONDA_NPY: "110"
-      PYTHON_VERSION: "3.5"
-      TEST_ALL: "no"
-      CONDA_INSTALL_LOCN: "C:\\Miniconda35-x64"
-      USE_PYTEST: yes
     - TARGET_ARCH: "x86"
       CONDA_PY: "27"
       CONDA_NPY: "18"
@@ -63,26 +55,32 @@ platform:
 # all our python builds have to happen in tests_script...
 build: false
 
+cache:
+  - '%LOCALAPPDATA%\pip\Cache'
+  - '%USERPROFILE%\.cache\matplotlib'
+
 init:
-  - cmd: "ECHO %PYTHON_VERSION% PYTEST=%USE_PYTEST% %CONDA_INSTALL_LOCN%"
+  - echo %PYTHON_VERSION% %CONDA_INSTALL_LOCN%
 
 install:
-  - cmd: set PATH=%CONDA_INSTALL_LOCN%;%CONDA_INSTALL_LOCN%\scripts;%PATH%;
-  - cmd: set PYTHONUNBUFFERED=1
+  - set PATH=%CONDA_INSTALL_LOCN%;%CONDA_INSTALL_LOCN%\scripts;%PATH%;
+  - set PYTHONUNBUFFERED=1
   # for obvci_appveyor_python_build_env.cmd
-  - cmd: conda install -c pelson/channel/development --yes --quiet obvious-ci
+  - conda install -c pelson/channel/development --yes --quiet obvious-ci
   # for msinttypes and newer stuff
-  - cmd: conda config --add channels conda-forge
-  - cmd: conda config --set show_channel_urls yes
-  - cmd: conda config --set always_yes true
+  # conda-forge may serve outdated versions of certain packages (e.g. conda
+  # itself), so append it to the end of the list.
+  - conda config --append channels conda-forge
+  - conda config --set show_channel_urls yes
+  - conda config --set always_yes true
   # For building conda packages
-  - cmd: conda install --yes conda-build jinja2 anaconda-client
+  - conda install --yes conda-build jinja2 anaconda-client
   # this is now the downloaded conda...
   - conda info -a
 
   # Fix the appveyor build environment to work with conda build
   # workaround for missing vcvars64.bat in py34 64bit
-  - cmd: copy ci\appveyor\vcvars64.bat "C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\amd64"
+  - copy ci\appveyor\vcvars64.bat "C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\amd64"
 
   # For building, use a new environment which only includes the requirements for mpl
   # same things as the requirements in ci/conda_recipe/meta.yaml
@@ -93,16 +91,16 @@ install:
     pyparsing pytz tornado "libpng>=1.6.21,<1.7" "zlib=1.2" "cycler>=0.10"
     mock sphinx
   - activate test-environment
-  - cmd: echo %PYTHON_VERSION% %TARGET_ARCH%
-  - cmd: IF %PYTHON_VERSION% == 2.7 conda install -q backports.functools_lru_cache
+  - echo %PYTHON_VERSION% %TARGET_ARCH%
+  - if %PYTHON_VERSION% == 2.7 conda install -q backports.functools_lru_cache
   # pytest-cov>=2.3.1 due to https://github.com/pytest-dev/pytest-cov/issues/124
   - conda install -q pytest "pytest-cov>=2.3.1" pytest-timeout pytest-xdist
 
   # Let the install prefer the static builds of the libs
   - set LIBRARY_LIB=%CONDA_PREFIX%\Library\lib
-  - cmd: 'mkdir lib || cmd /c "exit /b 0"'
-  - copy /Y %LIBRARY_LIB%\zlibstatic.lib lib\z.lib
-  - copy /Y %LIBRARY_LIB%\libpng_static.lib lib\png.lib
+  - mkdir lib || cmd /c "exit /b 0"
+  - copy /y %LIBRARY_LIB%\zlibstatic.lib lib\z.lib
+  - copy /y %LIBRARY_LIB%\libpng_static.lib lib\png.lib
   # These z.lib / png.lib are not static versions but files which end up as
   # dependencies to the dll file. This is fine for the conda build, but not here
   # and for the wheels
@@ -119,27 +117,23 @@ test_script:
   - '%CMD_IN_ENV% pip install --no-deps -ve .'
   # these should show no z, png, or freetype dll...
   - set "DUMPBIN=%VS140COMNTOOLS%\..\..\VC\bin\dumpbin.exe"
-  #- cmd: '"%DUMPBIN%" /DEPENDENTS lib\matplotlib\_png*.pyd'
-  #- cmd: '"%DUMPBIN%" /DEPENDENTS lib\matplotlib\ft2font*.pyd'
-  - cmd: '"%DUMPBIN%" /DEPENDENTS lib\matplotlib\ft2font*.pyd | findstr freetype.*.dll && exit  /b 1 || exit /b 0'
-  - cmd: '"%DUMPBIN%" /DEPENDENTS lib\\matplotlib\\_png*.pyd | findstr z.*.dll && exit /b 1 || exit /b 0'
-  - cmd: '"%DUMPBIN%" /DEPENDENTS lib\\matplotlib\\_png*.pyd | findstr png.*.dll && exit /b 1 || exit /b 0'
+  - '"%DUMPBIN%" /DEPENDENTS lib\matplotlib\ft2font*.pyd | findstr freetype.*.dll && exit /b 1 || exit /b 0'
+  - '"%DUMPBIN%" /DEPENDENTS lib\matplotlib\_png*.pyd | findstr z.*.dll && exit /b 1 || exit /b 0'
+  - '"%DUMPBIN%" /DEPENDENTS lib\matplotlib\_png*.pyd | findstr png.*.dll && exit /b 1 || exit /b 0'
 
   # this are optional dependencies so that we don't skip so many tests...
-  - cmd: if x%TEST_ALL% == xyes; conda install -q pillow miktex inkscape
-  # missing packages on conda-forge for ffmpeg avconv mencoder imagemagick
-  - cmd: if x%TEST_ALL% == xyes; conda install -q -c menpo ffmpeg # a repackaged version
+  - if x%TEST_ALL% == xyes conda install -q ffmpeg inkscape miktex pillow
+  # missing packages on conda-forge for avconv mencoder imagemagick
   # This install sometimes failed randomly :-(
-  #- cmd: choco install imagemagick
+  #- choco install imagemagick
 
   # Test import of tkagg backend
   - python -c "import matplotlib as m; m.use('tkagg'); import matplotlib.pyplot as plt; print(plt.get_backend())"
   # tests
   - echo The following args are passed to pytest %PYTEST_ARGS%
-  - if x%USE_PYTEST% == xyes py.test %PYTEST_ARGS%
-  - if x%USE_PYTEST% == xno python tests.py %PYTEST_ARGS%
+  - python tests.py %PYTEST_ARGS%
   # Generate a html for visual tests
-  - python visual_tests.py
+  - python tools/visualize_tests.py --no-browser
   - pip install codecov
   - codecov -e PYTHON_VERSION PLATFORM
 
@@ -148,26 +142,26 @@ after_test:
 
   # Build the wheel with the static libs
   # Hide the output, the copied files really clutter the build log...
-  - cmd: '%CMD_IN_ENV% python setup.py bdist_wheel > NUL:'
+  - '%CMD_IN_ENV% python setup.py bdist_wheel > NUL:'
 
   # And now the conda build after a cleanup...
   # cleanup build files so that they don't pollute the conda build but keep the wheel in dist...
-  - cmd: git clean -d -x -f -e dist/
+  - git clean -xdfq -e dist/
   # cleanup the environment so that the test-environment does not leak into the conda build...
-  - cmd: set MPLBASEDIRLIST=
-  - cmd: set LIBRARY_LIB=
-  - cmd: deactivate
-  - cmd: path
-  - cmd: where python
-  - cmd: '%CMD_IN_ENV% conda config --get channels'
-  - cmd: '%CMD_IN_ENV% conda build -q .\ci\conda_recipe'
+  - set MPLBASEDIRLIST=
+  - set LIBRARY_LIB=
+  - deactivate
+  - path
+  - where python
+  - '%CMD_IN_ENV% conda config --get channels'
+  - '%CMD_IN_ENV% conda build -q .\ci\conda_recipe'
 
   # Move the conda package into the dist directory, to register it
   # as an "artifact" for Appveyor.
-  - cmd: 'copy /Y %CONDA_INSTALL_LOCN%\conda-bld\win-32\*.bz2 dist || cmd /c "exit /b 0"'
-  - cmd: 'copy /Y %CONDA_INSTALL_LOCN%\conda-bld\win-64\*.bz2 dist || cmd /c "exit /b 0"'
-  - cmd: dir dist\
-  - cmd: echo finished...
+  - copy /y %CONDA_INSTALL_LOCN%\conda-bld\win-32\*.bz2 dist || cmd /c "exit /b 0"
+  - copy /y %CONDA_INSTALL_LOCN%\conda-bld\win-64\*.bz2 dist || cmd /c "exit /b 0"
+  - dir dist\
+  - echo finished...
 
 artifacts:
   - path: dist\*
@@ -180,9 +174,9 @@ artifacts:
 on_finish:
 
 on_failure:
-  - python visual_tests.py
+  - python tools/visualize_tests.py --no-browser
   - echo zipping images after a failure...
-  - 7z a result_images.zip result_images\ |grep -v "Compressing"
+  - 7z a result_images.zip result_images\ | grep -v "Compressing"
   - appveyor PushArtifact result_images.zip
 
 matrix:

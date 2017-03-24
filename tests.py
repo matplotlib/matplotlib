@@ -14,15 +14,16 @@ import argparse
 
 if __name__ == '__main__':
 
+    import dateutil.parser
     try:
         import setuptools
     except ImportError:
         pass
 
     # The warnings need to be before any of matplotlib imports, but after
-    # setuptools (if present) which has syntax error with the warnings enabled.
-    # Filtering by module does not work as this will be raised by Python itself
-    # so `module=matplotlib.*` is out of questions.
+    # dateutil.parser and setuptools (if present) which has syntax error with
+    # the warnings enabled.  Filtering by module does not work as this will be
+    # raised by Python itself so `module=matplotlib.*` is out of question.
 
     import warnings
 

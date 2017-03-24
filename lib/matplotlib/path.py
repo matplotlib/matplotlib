@@ -22,9 +22,8 @@ from weakref import WeakValueDictionary
 
 import numpy as np
 
-from matplotlib import _path
-from matplotlib.cbook import simple_linear_interpolation, maxdict
-from matplotlib import rcParams
+from . import _path, rcParams
+from .cbook import simple_linear_interpolation, maxdict
 
 
 class Path(object):
@@ -318,7 +317,7 @@ class Path(object):
         numsides x 2) numpy array of vertices.  Return object is a
         :class:`Path`
 
-        .. plot:: mpl_examples/api/histogram_path_demo.py
+        .. plot:: mpl_examples/api/plot_histogram_path.py
 
         """
 
@@ -493,9 +492,14 @@ class Path(object):
         """
         if transform is not None:
             transform = transform.frozen()
-        result = _path.point_in_path(point[0], point[1], radius, self,
-                                     transform)
-        return result
+        # `point_in_path` does not handle nonlinear transforms, so we
+        # transform the path ourselves.  If `transform` is affine, letting
+        # `point_in_path` handle the transform avoids allocating an extra
+        # buffer.
+        if transform and not transform.is_affine:
+            self = transform.transform_path(self)
+            transform = None
+        return _path.point_in_path(point[0], point[1], radius, self, transform)
 
     def contains_points(self, points, transform=None, radius=0.0):
         """
@@ -558,14 +562,13 @@ class Path(object):
         :class:`~matplotlib.transforms.Bbox`.
 
         *filled*, when True, treats the path as if it was filled.
-        That is, if one path completely encloses the other,
-        :meth:`intersects_path` will return True.
+        That is, if the path completely encloses the bounding box,
+        :meth:`intersects_bbox` will return True.
+
+        The bounding box is always considered filled.
         """
-        from .transforms import BboxTransformTo
-        rectangle = self.unit_rectangle().transformed(
-            BboxTransformTo(bbox))
-        result = self.intersects_path(rectangle, filled)
-        return result
+        return _path.path_intersects_rectangle(self,
+            bbox.x0, bbox.y0, bbox.x1, bbox.y1, filled)
 
     def interpolated(self, steps):
         """

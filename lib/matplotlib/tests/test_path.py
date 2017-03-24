@@ -45,6 +45,27 @@ def test_contains_points_negative_radius():
     assert np.all(result == expected)
 
 
+def test_point_in_path_nan():
+    box = np.array([[0, 0], [1, 0], [1, 1], [0, 1], [0, 0]])
+    p = Path(box)
+    test = np.array([[np.nan, 0.5]])
+    contains = p.contains_points(test)
+    assert len(contains) == 1
+    assert not contains[0]
+
+
+def test_nonlinear_containment():
+    fig, ax = plt.subplots()
+    ax.set(xscale="log", ylim=(0, 1))
+    polygon = ax.axvspan(1, 10)
+    assert polygon.get_path().contains_point(
+        ax.transData.transform_point((5, .5)), ax.transData)
+    assert not polygon.get_path().contains_point(
+        ax.transData.transform_point((.5, .5)), ax.transData)
+    assert not polygon.get_path().contains_point(
+        ax.transData.transform_point((50, .5)), ax.transData)
+
+
 @image_comparison(baseline_images=['path_clipping'],
                   extensions=['svg'], remove_text=True)
 def test_path_clipping():
@@ -64,15 +85,6 @@ def test_path_clipping():
         ax.set_ylim(bbox[1], bbox[1] + bbox[3])
         ax.add_patch(Polygon(
             xy, facecolor='none', edgecolor='red', closed=True))
-
-
-def test_point_in_path_nan():
-    box = np.array([[0, 0], [1, 0], [1, 1], [0, 1], [0, 0]])
-    p = Path(box)
-    test = np.array([[np.nan, 0.5]])
-    contains = p.contains_points(test)
-    assert len(contains) == 1
-    assert not contains[0]
 
 
 @image_comparison(baseline_images=['semi_log_with_zero'], extensions=['png'])
