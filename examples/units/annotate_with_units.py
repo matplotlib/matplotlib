@@ -1,3 +1,12 @@
+"""
+=====================
+Annotation with units
+=====================
+
+The example illustrates how to create text and arrow
+annotations using a centimeter-scale plot.
+
+"""
 import matplotlib.pyplot as plt
 from basic_units import cm
 
