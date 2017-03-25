@@ -13,6 +13,7 @@ multiple axes at drawing time.
 import functools
 
 import matplotlib.transforms as mtransforms
+from matplotlib import cbook
 from matplotlib.axes import SubplotBase
 from . import axes_size as Size
 
@@ -863,54 +864,18 @@ class VBoxDivider(HBoxDivider):
         return mtransforms.Bbox.from_bounds(x1, y1, w1, h1)
 
 
+@cbook.deprecated('3.0',
+                  addendum=' There is no alternative. Deriving from '
+                           'matplotlib.axes.Axes provides this functionality '
+                           'already.')
 class LocatableAxesBase(object):
-    def __init__(self, *kl, **kw):
-
-        self._axes_class.__init__(self, *kl, **kw)
-
-        self._locator = None
-        self._locator_renderer = None
-
-    def set_axes_locator(self, locator):
-        self._locator = locator
-
-    def get_axes_locator(self):
-        return self._locator
-
-    def apply_aspect(self, position=None):
-
-        if self.get_axes_locator() is None:
-            self._axes_class.apply_aspect(self, position)
-        else:
-            pos = self.get_axes_locator()(self, self._locator_renderer)
-            self._axes_class.apply_aspect(self, position=pos)
-
-    def draw(self, renderer=None, inframe=False):
-
-        self._locator_renderer = renderer
-
-        self._axes_class.draw(self, renderer, inframe)
-
-    def _make_twin_axes(self, *kl, **kwargs):
-        """
-        Need to overload so that twinx/twiny will work with
-        these axes.
-        """
-        if 'sharex' in kwargs and 'sharey' in kwargs:
-            raise ValueError("Twinned Axes may share only one axis.")
-        ax2 = type(self)(self.figure, self.get_position(True), *kl, **kwargs)
-        ax2.set_axes_locator(self.get_axes_locator())
-        self.figure.add_axes(ax2)
-        self.set_adjustable('datalim')
-        ax2.set_adjustable('datalim')
-        self._twinned_axes.join(self, ax2)
-        return ax2
+    pass
 
 
 @functools.lru_cache(None)
 def locatable_axes_factory(axes_class):
     return type("Locatable%s" % axes_class.__name__,
-                (LocatableAxesBase, axes_class),
+                (axes_class, ),
                 {'_axes_class': axes_class})
 
 
