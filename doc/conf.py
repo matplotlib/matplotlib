@@ -57,8 +57,8 @@ except ImportError:
 try:
     import sphinx_gallery
 except ImportError:
-    raise ImportError("No module named sphinx-gallery - you need to install "
-                      "numpydoc to build the documentation.")
+    raise ImportError("No module named sphinx_gallery - you need to install "
+                      "sphinx_gallery to build the documentation.")
 
 try:
     import colorspacious
@@ -112,6 +112,7 @@ sphinx_gallery_conf = {
     'gallery_dirs'  : 'auto_examples'}
 
 plot_gallery = True
+
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
 

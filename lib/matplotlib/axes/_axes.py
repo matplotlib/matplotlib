@@ -2567,7 +2567,7 @@ or tuple of floats
 
         Examples
         --------
-        .. plot:: mpl_examples/pie_and_polar_charts/pie_demo_features.py
+        .. plot:: mpl_examples/pie_and_polar_charts/plot_pie_features.py
 
 
         """
