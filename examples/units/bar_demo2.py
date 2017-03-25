@@ -1,4 +1,8 @@
 """
+===================
+Bar demo with units
+===================
+
 plot using a variety of cm vs inches conversions.  The example shows
 how default unit instrospection works (ax1), how various keywords can
 be used to set the x and y units to override the defaults (ax2, ax3,
@@ -30,7 +34,7 @@ ax3.set_xlim(2, 6)  # scalars are interpreted in current units
 
 ax4 = fig.add_subplot(2, 2, 4)
 ax4.bar(cms, cms, bottom=bottom, width=width, xunits=inch, yunits=inch)
-#fig.savefig('simple_conversion_plot.png')
+# fig.savefig('simple_conversion_plot.png')
 ax4.set_xlim(2*cm, 6*cm)  # cm are converted to inches
 
 plt.show()
