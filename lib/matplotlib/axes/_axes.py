@@ -6109,41 +6109,6 @@ or tuple of floats
         bin_range = range
         del range
 
-        def _normalize_input(inp, ename='input'):
-            """Normalize 1 or 2d input into list of np.ndarray or
-            a single 2D np.ndarray.
-
-            Parameters
-            ----------
-            inp : iterable
-            ename : str, optional
-                Name to use in ValueError if `inp` can not be normalized
-
-            """
-            if (isinstance(x, np.ndarray) or
-                    not iterable(cbook.safe_first_element(inp))):
-                # TODO: support masked arrays;
-                inp = np.asarray(inp)
-                if inp.ndim == 2:
-                    # 2-D input with columns as datasets; switch to rows
-                    inp = inp.T
-                elif inp.ndim == 1:
-                    # new view, single row
-                    inp = inp.reshape(1, inp.shape[0])
-                else:
-                    raise ValueError(
-                        "{ename} must be 1D or 2D".format(ename=ename))
-                if inp.shape[1] < inp.shape[0]:
-                    warnings.warn(
-                        '2D hist input should be nsamples x nvariables;\n '
-                        'this looks transposed '
-                        '(shape is %d x %d)' % inp.shape[::-1])
-            else:
-                # multiple hist with data of different length
-                inp = [np.asarray(xi) for xi in inp]
-
-            return inp
-
         if not self._hold:
             self.cla()
 
@@ -6178,20 +6143,18 @@ or tuple of floats
         binsgiven = (cbook.iterable(bins) or bin_range is not None)
 
         # basic input validation
-        flat = np.ravel(x)
-
-        input_empty = len(flat) == 0
+        input_empty = np.size(x) == 0
 
         # Massage 'x' for processing.
         if input_empty:
             x = np.array([[]])
         else:
-            x = _normalize_input(x, 'x')
+            x = cbook._reshape_2D(x, 'x')
         nx = len(x)  # number of datasets
 
         # We need to do to 'weights' what was done to 'x'
         if weights is not None:
-            w = _normalize_input(weights, 'weights')
+            w = cbook._reshape_2D(weights, 'weights')
         else:
             w = [None]*nx
 
