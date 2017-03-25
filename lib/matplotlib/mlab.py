@@ -2709,8 +2709,7 @@ def csv2rec(fname, comments='#', skiprows=0, checkrows=0, delimiter=',',
       http://labix.org/python-dateutil#head-b95ce2094d189a89f80f5ae52a05b4ab7b41af47
       for further information.
 
-      If no rows are found, *None* is returned -- see
-      :file:`examples/loadrec.py`
+      If no rows are found, *None* is returned
     """
 
     if converterd is None:
