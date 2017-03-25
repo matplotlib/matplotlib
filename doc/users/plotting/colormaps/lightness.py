@@ -17,14 +17,14 @@ from colormaps import cmaps  # the colormaps, grouped by category
 
 mpl.rcParams.update({'font.size': 12})
 
-# Number of colormap par subplot for particular cmap categories
+# Number of colormap per subplot for particular cmap categories
 _DSUBS = {'Perceptually Uniform Sequential': 4, 'Sequential': 6,
-          'Sequential (2)': 5, 'Diverging': 6, 'Qualitative': 4,
+          'Sequential (2)': 6, 'Diverging': 6, 'Qualitative': 4,
           'Miscellaneous': 6}
 
 # Spacing between the colormaps of a subplot
-_DC = {'Perceptually Uniform Sequential': 1.15, 'Sequential': 0.6,
-       'Sequential (2)': 1.15, 'Diverging': 1.3, 'Qualitative': 1.3,
+_DC = {'Perceptually Uniform Sequential': 1.4, 'Sequential': 0.7,
+       'Sequential (2)': 1.4, 'Diverging': 1.4, 'Qualitative': 1.4,
        'Miscellaneous': 1.4}
 
 # Indices to step through colormap
@@ -35,7 +35,7 @@ for cmap_category, cmap_list in cmaps:
 
     # Do subplots so that colormaps have enough space.
     # Default is 5 colormaps per subplot.
-    dsub = _DSUBS.get(cmap_category, 5)
+    dsub = _DSUBS.get(cmap_category, 6)
     nsubplots = int(np.ceil(len(cmap_list) / float(dsub)))
 
     # squeeze=False to handle similarly the case of a single subplot
@@ -67,15 +67,15 @@ for cmap_category, cmap_list in cmaps:
                 y_ = lab[0, :, 0]
                 c_ = x
 
-            dc = _DC.get(cmap_category, 1.2)  # cmaps horizontal spacing
+            dc = _DC.get(cmap_category, 1.4)  # cmaps horizontal spacing
             ax.scatter(x + j*dc, y_, c=c_, cmap=cmap, s=300, linewidths=0.0)
 
             # Store locations for colormap labels
             if cmap_category in ('Perceptually Uniform Sequential',
-                                 'Sequential', 'Sequential (2)'):
+                                 'Sequential'):
                 locs.append(x[-1] + j*dc)
             elif cmap_category in ('Diverging', 'Qualitative',
-                                   'Miscellaneous'):
+                                   'Miscellaneous', 'Sequential (2)'):
                 locs.append(x[int(x.size/2.)] + j*dc)
 
         # Set up the axis limits:
