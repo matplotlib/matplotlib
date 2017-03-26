@@ -4023,15 +4023,15 @@ class FancyArrowPatch(Patch):
         Parameters
         ----------
 
-        posA, posB: None, tuple, optional (default: None)
+        posA, posB : None, tuple, optional (default: None)
             (x,y) coordinates of arrow tail and arrow head respectively.
 
-        path: None, Path (default: None)
+        path : None, Path (default: None)
             :class:`matplotlib.path.Path` instance. If provided, an arrow is
             drawn along this path and *patchA*, *patchB*, *shrinkA*, and
             *shrinkB* are ignored.
 
-        arrowstyle: str or ArrowStyle, optional (default: 'simple')
+        arrowstyle : str or ArrowStyle, optional (default: 'simple')
             Describes how the fancy arrow will be
             drawn. It can be string of the available arrowstyle names,
             with optional comma-separated attributes, or an
@@ -4041,9 +4041,9 @@ class FancyArrowPatch(Patch):
 
             %(AvailableArrowstyles)s
 
-        arrow_transmuter:
+        arrow_transmuter :
 
-        connectionstyle: str, ConnectionStyle, or None, optional
+        connectionstyle : str, ConnectionStyle, or None, optional
         (default: 'arc3')
             Describes how *posA* and *posB* are connected. It can be an
             instance of the :class:`ConnectionStyle` class or a string of the
@@ -4052,24 +4052,24 @@ class FancyArrowPatch(Patch):
 
             %(AvailableConnectorstyles)s
 
-        connector:
+        connector :
 
-        patchA, patchB: None, Patch, optional (default: None)
+        patchA, patchB : None, Patch, optional (default: None)
             Head and tail patch respectively. :class:`matplotlib.patch.Patch`
             instance.
 
-        shrinkA, shrinkB: scalar, optional (default: 2)
+        shrinkA, shrinkB : scalar, optional (default: 2)
 
-        mutation_scale: scalar, optional (default: 1)
+        mutation_scale : scalar, optional (default: 1)
             Value with which attributes of *arrowstyle* (e.g., *head_length*)
             will be scaled.
 
-        mutation_aspect: None, scalar, optional (default: None)
+        mutation_aspect : None, scalar, optional (default: None)
             The height of the rectangle will be squeezed by this value before
             the mutation and the mutated box will be stretched by the inverse
             of it.
 
-        dpi_cor: scalar, optional (defualt: 1)
+        dpi_cor : scalar, optional (defualt: 1)
             dpi_cor is currently used for linewidth-related things and shrink
             factor. Mutation scale is affected by this.
 
@@ -4115,7 +4115,7 @@ class FancyArrowPatch(Patch):
 
         Parameters
         ----------
-        dpi_cor: scalar
+        dpi_cor : scalar
         """
         self._dpi_cor = dpi_cor
         self.stale = True
@@ -4127,7 +4127,7 @@ class FancyArrowPatch(Patch):
 
         Returns
         -------
-        dpi_cor: scalar
+        dpi_cor : scalar
         """
         return self._dpi_cor
 
@@ -4137,7 +4137,7 @@ class FancyArrowPatch(Patch):
 
         Parameters
         ----------
-        posA, posB: None, tuple
+        posA, posB : None, tuple
             (x,y) coordinates of arrow tail and arrow head respectively. If
             `None` use current value.
         """
@@ -4153,7 +4153,7 @@ class FancyArrowPatch(Patch):
 
         Parameters
         ----------
-        patchA: Patch
+        patchA : Patch
             :class:`matplotlib.patch.Patch` instance.
         """
         self.patchA = patchA
@@ -4165,6 +4165,7 @@ class FancyArrowPatch(Patch):
 
         Parameters
         ----------
+        patchB : Patch
             :class:`matplotlib.patch.Patch` instance.
         """
         self.patchB = patchB
@@ -4176,7 +4177,7 @@ class FancyArrowPatch(Patch):
 
         Parameters
         ----------
-        connectionstyle: None, ConnectionStyle instance, or string
+        connectionstyle : None, ConnectionStyle instance, or string
             Can be a string with connectionstyle name with
             optional comma-separated attributes, eg::
 
@@ -4214,7 +4215,7 @@ class FancyArrowPatch(Patch):
 
         Parameters
         ----------
-        arrowstyle: None, ArrowStyle, str, optional (default: None)
+        arrowstyle : None, ArrowStyle, str, optional (default: None)
             Can be a string with arrowstyle name with optional comma-separated
             attributes, eg.::
 
@@ -4247,7 +4248,7 @@ class FancyArrowPatch(Patch):
 
         Parameters
         ----------
-        scale: scalar
+        scale : scalar
         """
         self._mutation_scale = scale
         self.stale = True
@@ -4258,7 +4259,7 @@ class FancyArrowPatch(Patch):
 
         Returns
         ----------
-        scale: scalar
+        scale : scalar
         """
         return self._mutation_scale
 
@@ -4268,7 +4269,7 @@ class FancyArrowPatch(Patch):
 
         Parameters
         ----------
-        aspect: scalar
+        aspect : scalar
         """
         self._mutation_aspect = aspect
         self.stale = True
