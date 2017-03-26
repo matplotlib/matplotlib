@@ -53,3 +53,19 @@ def mpl_test_settings(request):
             plt.switch_backend(prev_backend)
         _do_cleanup(original_units_registry,
                     original_settings)
+
+
+@pytest.fixture
+def mpl_image_comparison_parameters(request, extension):
+    # This fixture is applied automatically by the image_comparison decorator.
+    #
+    # The sole purpose of this fixture is to provide an indirect method of
+    # obtaining parameters *without* modifying the decorated function
+    # signature. In this way, the function signature can stay the same and
+    # pytest won't get confused.
+    # We annotate the decorated function with any parameters captured by this
+    # fixture so that they can be used by the wrapper in image_comparison.
+    func = request.function
+    func.__wrapped__.parameters = (extension, )
+    yield
+    delattr(func.__wrapped__, 'parameters')
