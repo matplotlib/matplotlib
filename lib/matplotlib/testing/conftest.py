@@ -31,7 +31,7 @@ def mpl_test_settings(request):
         backend = backend_marker.args[0]
         prev_backend = matplotlib.get_backend()
 
-    style = 'classic'
+    style = '_classic_test'  # Default of cleanup and image_comparison too.
     style_marker = request.keywords.get('style')
     if style_marker is not None:
         assert len(style_marker.args) == 1, \
