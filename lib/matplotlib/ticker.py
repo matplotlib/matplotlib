@@ -1970,8 +1970,6 @@ class LogLocator(Locator):
                     return np.array([])  # no minor or major ticks
                 else:
                     subs = np.array([1.0])  # major ticks
-            elif numdec > 5 and b >= 6:
-                subs = np.arange(_first, b, 2.0)
             else:
                 subs = np.arange(_first, b)
         else:
@@ -1987,17 +1985,25 @@ class LogLocator(Locator):
             while numdec // stride + 1 > numticks:
                 stride += 1
 
+        # Does subs include anything other than 1?
+        have_subs = len(subs) > 1 or (len(subs == 1) and subs[0] != 1.0)
+
         decades = np.arange(math.floor(vmin) - stride,
                             math.ceil(vmax) + 2 * stride, stride)
+
         if hasattr(self, '_transform'):
             ticklocs = self._transform.inverted().transform(decades)
-            if len(subs) > 1 or (len(subs == 1) and subs[0] != 1.0):
-                ticklocs = np.ravel(np.outer(subs, ticklocs))
+            if have_subs:
+                if stride == 1:
+                    ticklocs = np.ravel(np.outer(subs, ticklocs))
+                else:
+                    ticklocs = []
         else:
-            if len(subs) > 1 or (len(subs == 1) and subs[0] != 1.0):
+            if have_subs:
                 ticklocs = []
-                for decadeStart in b ** decades:
-                    ticklocs.extend(subs * decadeStart)
+                if stride == 1:
+                    for decadeStart in b ** decades:
+                        ticklocs.extend(subs * decadeStart)
             else:
                 ticklocs = b ** decades
 
