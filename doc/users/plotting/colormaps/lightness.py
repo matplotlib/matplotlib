@@ -34,7 +34,7 @@ x = np.linspace(0.0, 1.0, 100)
 for cmap_category, cmap_list in cmaps:
 
     # Do subplots so that colormaps have enough space.
-    # Default is 5 colormaps per subplot.
+    # Default is 6 colormaps per subplot.
     dsub = _DSUBS.get(cmap_category, 6)
     nsubplots = int(np.ceil(len(cmap_list) / float(dsub)))
 
