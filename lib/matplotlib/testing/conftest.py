@@ -65,7 +65,13 @@ def mpl_image_comparison_parameters(request, extension):
     # pytest won't get confused.
     # We annotate the decorated function with any parameters captured by this
     # fixture so that they can be used by the wrapper in image_comparison.
+    baseline_images = request.keywords['baseline_images'].args[0]
+    if baseline_images is None:
+        # Allow baseline image list to be produced on the fly based on current
+        # parametrization.
+        baseline_images = request.getfixturevalue('baseline_images')
+
     func = request.function
-    func.__wrapped__.parameters = (extension, )
+    func.__wrapped__.parameters = (baseline_images, extension)
     yield
     delattr(func.__wrapped__, 'parameters')
