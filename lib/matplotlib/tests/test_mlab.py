@@ -15,7 +15,6 @@ import pytest
 
 import matplotlib.mlab as mlab
 import matplotlib.cbook as cbook
-from matplotlib.testing.decorators import CleanupTestCase
 
 
 try:
@@ -25,7 +24,7 @@ except ImportError:
     HAS_NATGRID = False
 
 
-class Test_general(CleanupTestCase):
+class TestGeneral(object):
     def test_colinear_pca(self):
         a = mlab.PCA._get_colinear()
         pca = mlab.PCA(a)
@@ -66,7 +65,7 @@ class Test_general(CleanupTestCase):
         assert_almost_equal(targ, res)
 
 
-class Test_spacing(CleanupTestCase):
+class TestSpacing(object):
     def test_logspace_tens(self):
         xmin = .01
         xmax = 1000.
@@ -102,7 +101,7 @@ class Test_spacing(CleanupTestCase):
         assert res.size == 1
 
 
-class Test_stride(CleanupTestCase):
+class TestStride(object):
     def get_base(self, x):
         y = x
         while y.base is not None:
@@ -314,15 +313,15 @@ class Test_stride(CleanupTestCase):
         assert_array_equal(y_strided, 0.3)
 
 
-class Test_csv(CleanupTestCase):
-    def setUp(self):
+class TestCSV(object):
+    def setup(self):
         if six.PY3:
             self.fd = tempfile.TemporaryFile(suffix='csv', mode="w+",
                                              newline='')
         else:
             self.fd = tempfile.TemporaryFile(suffix='csv', mode="wb+")
 
-    def tearDown(self):
+    def teardown(self):
         self.fd.close()
 
     def test_recarray_csv_roundtrip(self):
@@ -405,24 +404,23 @@ class Test_csv(CleanupTestCase):
         assert_array_equal(array['a'].tolist(), expected)
 
 
-class Test_rec2txt(CleanupTestCase):
-    def test_csv2txt_basic(self):
-        # str() calls around field names necessary b/c as of numpy 1.11
-        # dtype doesn't like unicode names (caused by unicode_literals import)
-        a = np.array([(1.0, 2, 'foo', 'bing'),
-                      (2.0, 3, 'bar', 'blah')],
-                     dtype=np.dtype([(str('x'), np.float32),
-                                     (str('y'), np.int8),
-                                     (str('s'), str, 3),
-                                     (str('s2'), str, 4)]))
-        truth = ('       x   y   s     s2\n'
-                 '   1.000   2   foo   bing   \n'
-                 '   2.000   3   bar   blah   ').splitlines()
-        assert mlab.rec2txt(a).splitlines() == truth
+def test_rec2txt_basic():
+    # str() calls around field names necessary b/c as of numpy 1.11
+    # dtype doesn't like unicode names (caused by unicode_literals import)
+    a = np.array([(1.0, 2, 'foo', 'bing'),
+                  (2.0, 3, 'bar', 'blah')],
+                 dtype=np.dtype([(str('x'), np.float32),
+                                 (str('y'), np.int8),
+                                 (str('s'), str, 3),
+                                 (str('s2'), str, 4)]))
+    truth = ('       x   y   s     s2\n'
+             '   1.000   2   foo   bing   \n'
+             '   2.000   3   bar   blah   ').splitlines()
+    assert mlab.rec2txt(a).splitlines() == truth
 
 
-class Test_window(CleanupTestCase):
-    def setUp(self):
+class TestWindow(object):
+    def setup(self):
         np.random.seed(0)
         self.n = 1000
         self.x = np.arange(0., self.n)
@@ -673,8 +671,8 @@ class Test_window(CleanupTestCase):
         assert_allclose(ycontrol.T, result, atol=1e-08)
 
 
-class Test_detrend(CleanupTestCase):
-    def setUp(self):
+class TestDetrend(object):
+    def setup(self):
         np.random.seed(0)
         n = 1000
         x = np.linspace(0., 100, n)
@@ -1266,8 +1264,8 @@ class Test_detrend(CleanupTestCase):
         assert_allclose(res, targ, atol=self.atol)
 
 
-class Test_spectral_nosig_real_onesided(CleanupTestCase):
-    def setUp(self):
+class Test_spectral_nosig_real_onesided(object):
+    def setup(self):
         self.createStim(fstims=[],
                         iscomplex=False, sides='onesided', nsides=1)
 
@@ -2225,126 +2223,126 @@ class Test_spectral_nosig_real_onesided(CleanupTestCase):
 
 class Test_spectral_nosig_real_twosided(
         Test_spectral_nosig_real_onesided):
-        def setUp(self):
+        def setup(self):
                 self.createStim(fstims=[],
                                 iscomplex=False, sides='twosided', nsides=2)
 
 
 class Test_spectral_nosig_real_defaultsided(
         Test_spectral_nosig_real_onesided):
-        def setUp(self):
+        def setup(self):
                 self.createStim(fstims=[],
                                 iscomplex=False, sides='default', nsides=1)
 
 
 class Test_spectral_nosig_complex_onesided(
         Test_spectral_nosig_real_onesided):
-        def setUp(self):
+        def setup(self):
                 self.createStim(fstims=[],
                                 iscomplex=True, sides='onesided', nsides=1)
 
 
 class Test_spectral_nosig_complex_twosided(
         Test_spectral_nosig_real_onesided):
-        def setUp(self):
+        def setup(self):
                 self.createStim(fstims=[],
                                 iscomplex=True, sides='twosided', nsides=2)
 
 
 class Test_spectral_nosig_complex_defaultsided(
         Test_spectral_nosig_real_onesided):
-        def setUp(self):
+        def setup(self):
                 self.createStim(fstims=[],
                                 iscomplex=True, sides='default', nsides=2)
 
 
 class Test_spectral_Fs4_real_onesided(
         Test_spectral_nosig_real_onesided):
-        def setUp(self):
+        def setup(self):
                 self.createStim(fstims=[4],
                                 iscomplex=False, sides='onesided', nsides=1)
 
 
 class Test_spectral_Fs4_real_twosided(
         Test_spectral_nosig_real_onesided):
-        def setUp(self):
+        def setup(self):
                 self.createStim(fstims=[4],
                                 iscomplex=False, sides='twosided', nsides=2)
 
 
 class Test_spectral_Fs4_real_defaultsided(
         Test_spectral_nosig_real_onesided):
-        def setUp(self):
+        def setup(self):
                 self.createStim(fstims=[4],
                                 iscomplex=False, sides='default', nsides=1)
 
 
 class Test_spectral_Fs4_complex_onesided(
         Test_spectral_nosig_real_onesided):
-        def setUp(self):
+        def setup(self):
                 self.createStim(fstims=[4],
                                 iscomplex=True, sides='onesided', nsides=1)
 
 
 class Test_spectral_Fs4_complex_twosided(
         Test_spectral_nosig_real_onesided):
-        def setUp(self):
+        def setup(self):
                 self.createStim(fstims=[4],
                                 iscomplex=True, sides='twosided', nsides=2)
 
 
 class Test_spectral_Fs4_complex_defaultsided(
         Test_spectral_nosig_real_onesided):
-        def setUp(self):
+        def setup(self):
                 self.createStim(fstims=[4],
                                 iscomplex=True, sides='default', nsides=2)
 
 
 class Test_spectral_FsAll_real_onesided(
         Test_spectral_nosig_real_onesided):
-        def setUp(self):
+        def setup(self):
                 self.createStim(fstims=[4, 5, 10],
                                 iscomplex=False, sides='onesided', nsides=1)
 
 
 class Test_spectral_FsAll_real_twosided(
         Test_spectral_nosig_real_onesided):
-        def setUp(self):
+        def setup(self):
                 self.createStim(fstims=[4, 5, 10],
                                 iscomplex=False, sides='twosided', nsides=2)
 
 
 class Test_spectral_FsAll_real_defaultsided(
         Test_spectral_nosig_real_onesided):
-        def setUp(self):
+        def setup(self):
                 self.createStim(fstims=[4, 5, 10],
                                 iscomplex=False, sides='default', nsides=1)
 
 
 class Test_spectral_FsAll_complex_onesided(
         Test_spectral_nosig_real_onesided):
-        def setUp(self):
+        def setup(self):
                 self.createStim(fstims=[4, 5, 10],
                                 iscomplex=True, sides='onesided', nsides=1)
 
 
 class Test_spectral_FsAll_complex_twosided(
         Test_spectral_nosig_real_onesided):
-        def setUp(self):
+        def setup(self):
                 self.createStim(fstims=[4, 5, 10],
                                 iscomplex=True, sides='twosided', nsides=2)
 
 
 class Test_spectral_FsAll_complex_defaultsided(
         Test_spectral_nosig_real_onesided):
-        def setUp(self):
+        def setup(self):
                 self.createStim(fstims=[4, 5, 10],
                                 iscomplex=True, sides='default', nsides=2)
 
 
 class Test_spectral_nosig_real_onesided_noNFFT(
         Test_spectral_nosig_real_onesided):
-        def setUp(self):
+        def setup(self):
                 self.createStim(fstims=[],
                                 NFFT_density=None, pad_to_spectrum=None,
                                 iscomplex=False, sides='onesided', nsides=1)
@@ -2352,7 +2350,7 @@ class Test_spectral_nosig_real_onesided_noNFFT(
 
 class Test_spectral_nosig_real_twosided_noNFFT(
         Test_spectral_nosig_real_onesided):
-        def setUp(self):
+        def setup(self):
                 self.createStim(fstims=[],
                                 NFFT_density=None, pad_to_spectrum=None,
                                 iscomplex=False, sides='twosided', nsides=2)
@@ -2360,7 +2358,7 @@ class Test_spectral_nosig_real_twosided_noNFFT(
 
 class Test_spectral_nosig_real_defaultsided_noNFFT(
         Test_spectral_nosig_real_onesided):
-        def setUp(self):
+        def setup(self):
                 self.createStim(fstims=[],
                                 NFFT_density=None, pad_to_spectrum=None,
                                 iscomplex=False, sides='default', nsides=1)
@@ -2368,7 +2366,7 @@ class Test_spectral_nosig_real_defaultsided_noNFFT(
 
 class Test_spectral_nosig_complex_onesided_noNFFT(
         Test_spectral_nosig_real_onesided):
-        def setUp(self):
+        def setup(self):
                 self.createStim(fstims=[],
                                 NFFT_density=None, pad_to_spectrum=None,
                                 iscomplex=True, sides='onesided', nsides=1)
@@ -2376,7 +2374,7 @@ class Test_spectral_nosig_complex_onesided_noNFFT(
 
 class Test_spectral_nosig_complex_twosided_noNFFT(
         Test_spectral_nosig_real_onesided):
-        def setUp(self):
+        def setup(self):
                 self.createStim(fstims=[],
                                 NFFT_density=None, pad_to_spectrum=None,
                                 iscomplex=True, sides='twosided', nsides=2)
@@ -2384,7 +2382,7 @@ class Test_spectral_nosig_complex_twosided_noNFFT(
 
 class Test_spectral_nosig_complex_defaultsided_noNFFT(
         Test_spectral_nosig_real_onesided):
-        def setUp(self):
+        def setup(self):
                 self.createStim(fstims=[],
                                 NFFT_density=None, pad_to_spectrum=None,
                                 iscomplex=True, sides='default', nsides=2)
@@ -2392,7 +2390,7 @@ class Test_spectral_nosig_complex_defaultsided_noNFFT(
 
 class Test_spectral_nosig_real_onesided_nopad_to(
         Test_spectral_nosig_real_onesided):
-        def setUp(self):
+        def setup(self):
                 self.createStim(fstims=[],
                                 pad_to_density=None, pad_to_spectrum=None,
                                 iscomplex=False, sides='onesided', nsides=1)
@@ -2400,7 +2398,7 @@ class Test_spectral_nosig_real_onesided_nopad_to(
 
 class Test_spectral_nosig_real_twosided_nopad_to(
         Test_spectral_nosig_real_onesided):
-        def setUp(self):
+        def setup(self):
                 self.createStim(fstims=[],
                                 pad_to_density=None, pad_to_spectrum=None,
                                 iscomplex=False, sides='twosided', nsides=2)
@@ -2408,7 +2406,7 @@ class Test_spectral_nosig_real_twosided_nopad_to(
 
 class Test_spectral_nosig_real_defaultsided_nopad_to(
         Test_spectral_nosig_real_onesided):
-        def setUp(self):
+        def setup(self):
                 self.createStim(fstims=[],
                                 pad_to_density=None, pad_to_spectrum=None,
                                 iscomplex=False, sides='default', nsides=1)
@@ -2416,7 +2414,7 @@ class Test_spectral_nosig_real_defaultsided_nopad_to(
 
 class Test_spectral_nosig_complex_onesided_nopad_to(
         Test_spectral_nosig_real_onesided):
-        def setUp(self):
+        def setup(self):
                 self.createStim(fstims=[],
                                 pad_to_density=None, pad_to_spectrum=None,
                                 iscomplex=True, sides='onesided', nsides=1)
@@ -2424,7 +2422,7 @@ class Test_spectral_nosig_complex_onesided_nopad_to(
 
 class Test_spectral_nosig_complex_twosided_nopad_to(
         Test_spectral_nosig_real_onesided):
-        def setUp(self):
+        def setup(self):
                 self.createStim(fstims=[],
                                 NFFT_density=None,
                                 pad_to_density=None, pad_to_spectrum=None,
@@ -2433,7 +2431,7 @@ class Test_spectral_nosig_complex_twosided_nopad_to(
 
 class Test_spectral_nosig_complex_defaultsided_nopad_to(
         Test_spectral_nosig_real_onesided):
-        def setUp(self):
+        def setup(self):
                 self.createStim(fstims=[],
                                 NFFT_density=None,
                                 pad_to_density=None, pad_to_spectrum=None,
@@ -2442,7 +2440,7 @@ class Test_spectral_nosig_complex_defaultsided_nopad_to(
 
 class Test_spectral_nosig_real_onesided_noNFFT_no_pad_to(
         Test_spectral_nosig_real_onesided):
-        def setUp(self):
+        def setup(self):
                 self.createStim(fstims=[],
                                 NFFT_density=None,
                                 pad_to_density=None, pad_to_spectrum=None,
@@ -2451,7 +2449,7 @@ class Test_spectral_nosig_real_onesided_noNFFT_no_pad_to(
 
 class Test_spectral_nosig_real_twosided_noNFFT_no_pad_to(
         Test_spectral_nosig_real_onesided):
-        def setUp(self):
+        def setup(self):
                 self.createStim(fstims=[],
                                 NFFT_density=None,
                                 pad_to_density=None, pad_to_spectrum=None,
@@ -2460,7 +2458,7 @@ class Test_spectral_nosig_real_twosided_noNFFT_no_pad_to(
 
 class Test_spectral_nosig_real_defaultsided_noNFFT_no_pad_to(
         Test_spectral_nosig_real_onesided):
-        def setUp(self):
+        def setup(self):
                 self.createStim(fstims=[],
                                 NFFT_density=None,
                                 pad_to_density=None, pad_to_spectrum=None,
@@ -2469,7 +2467,7 @@ class Test_spectral_nosig_real_defaultsided_noNFFT_no_pad_to(
 
 class Test_spectral_nosig_complex_onesided_noNFFT_no_pad_to(
         Test_spectral_nosig_real_onesided):
-        def setUp(self):
+        def setup(self):
                 self.createStim(fstims=[],
                                 NFFT_density=None,
                                 pad_to_density=None, pad_to_spectrum=None,
@@ -2478,7 +2476,7 @@ class Test_spectral_nosig_complex_onesided_noNFFT_no_pad_to(
 
 class Test_spectral_nosig_complex_twosided_noNFFT_no_pad_to(
         Test_spectral_nosig_real_onesided):
-        def setUp(self):
+        def setup(self):
                 self.createStim(fstims=[],
                                 NFFT_density=None,
                                 pad_to_density=None, pad_to_spectrum=None,
@@ -2487,7 +2485,7 @@ class Test_spectral_nosig_complex_twosided_noNFFT_no_pad_to(
 
 class Test_spectral_nosig_complex_defaultsided_noNFFT_no_pad_to(
         Test_spectral_nosig_real_onesided):
-        def setUp(self):
+        def setup(self):
                 self.createStim(fstims=[],
                                 NFFT_density=None,
                                 pad_to_density=None, pad_to_spectrum=None,
@@ -2496,7 +2494,7 @@ class Test_spectral_nosig_complex_defaultsided_noNFFT_no_pad_to(
 
 class Test_spectral_nosig_real_onesided_trim(
         Test_spectral_nosig_real_onesided):
-        def setUp(self):
+        def setup(self):
                 self.createStim(fstims=[],
                                 len_x=1024,
                                 NFFT_density=512, pad_to_spectrum=128,
@@ -2505,7 +2503,7 @@ class Test_spectral_nosig_real_onesided_trim(
 
 class Test_spectral_nosig_real_twosided_trim(
         Test_spectral_nosig_real_onesided):
-        def setUp(self):
+        def setup(self):
                 self.createStim(fstims=[],
                                 len_x=1024,
                                 NFFT_density=512, pad_to_spectrum=128,
@@ -2514,7 +2512,7 @@ class Test_spectral_nosig_real_twosided_trim(
 
 class Test_spectral_nosig_real_defaultsided_trim(
         Test_spectral_nosig_real_onesided):
-        def setUp(self):
+        def setup(self):
                 self.createStim(fstims=[],
                                 len_x=1024,
                                 NFFT_density=512, pad_to_spectrum=128,
@@ -2523,7 +2521,7 @@ class Test_spectral_nosig_real_defaultsided_trim(
 
 class Test_spectral_nosig_complex_onesided_trim(
         Test_spectral_nosig_real_onesided):
-        def setUp(self):
+        def setup(self):
                 self.createStim(fstims=[],
                                 len_x=1024,
                                 NFFT_density=512, pad_to_spectrum=128,
@@ -2532,7 +2530,7 @@ class Test_spectral_nosig_complex_onesided_trim(
 
 class Test_spectral_nosig_complex_twosided_trim(
         Test_spectral_nosig_real_onesided):
-        def setUp(self):
+        def setup(self):
                 self.createStim(fstims=[],
                                 len_x=1024,
                                 NFFT_density=512, pad_to_spectrum=128,
@@ -2541,7 +2539,7 @@ class Test_spectral_nosig_complex_twosided_trim(
 
 class Test_spectral_nosig_complex_defaultsided_trim(
         Test_spectral_nosig_real_onesided):
-        def setUp(self):
+        def setup(self):
                 self.createStim(fstims=[],
                                 len_x=256,
                                 NFFT_density=128, pad_to_spectrum=128,
@@ -2550,7 +2548,7 @@ class Test_spectral_nosig_complex_defaultsided_trim(
 
 class Test_spectral_nosig_real_onesided_odd(
         Test_spectral_nosig_real_onesided):
-        def setUp(self):
+        def setup(self):
                 self.createStim(fstims=[],
                                 len_x=256,
                                 pad_to_density=33, pad_to_spectrum=257,
@@ -2559,7 +2557,7 @@ class Test_spectral_nosig_real_onesided_odd(
 
 class Test_spectral_nosig_real_twosided_odd(
         Test_spectral_nosig_real_onesided):
-        def setUp(self):
+        def setup(self):
                 self.createStim(fstims=[],
                                 len_x=256,
                                 pad_to_density=33, pad_to_spectrum=257,
@@ -2568,7 +2566,7 @@ class Test_spectral_nosig_real_twosided_odd(
 
 class Test_spectral_nosig_real_defaultsided_odd(
         Test_spectral_nosig_real_onesided):
-        def setUp(self):
+        def setup(self):
                 self.createStim(fstims=[],
                                 len_x=256,
                                 pad_to_density=33, pad_to_spectrum=257,
@@ -2577,7 +2575,7 @@ class Test_spectral_nosig_real_defaultsided_odd(
 
 class Test_spectral_nosig_complex_onesided_odd(
         Test_spectral_nosig_real_onesided):
-        def setUp(self):
+        def setup(self):
                 self.createStim(fstims=[],
                                 len_x=256,
                                 pad_to_density=33, pad_to_spectrum=257,
@@ -2586,7 +2584,7 @@ class Test_spectral_nosig_complex_onesided_odd(
 
 class Test_spectral_nosig_complex_twosided_odd(
         Test_spectral_nosig_real_onesided):
-        def setUp(self):
+        def setup(self):
                 self.createStim(fstims=[],
                                 len_x=256,
                                 pad_to_density=33, pad_to_spectrum=257,
@@ -2595,7 +2593,7 @@ class Test_spectral_nosig_complex_twosided_odd(
 
 class Test_spectral_nosig_complex_defaultsided_odd(
         Test_spectral_nosig_real_onesided):
-        def setUp(self):
+        def setup(self):
                 self.createStim(fstims=[],
                                 len_x=256,
                                 pad_to_density=33, pad_to_spectrum=257,
@@ -2604,7 +2602,7 @@ class Test_spectral_nosig_complex_defaultsided_odd(
 
 class Test_spectral_nosig_real_onesided_oddlen(
         Test_spectral_nosig_real_onesided):
-        def setUp(self):
+        def setup(self):
                 self.createStim(fstims=[],
                                 len_x=255,
                                 NFFT_density=33, pad_to_spectrum=None,
@@ -2613,7 +2611,7 @@ class Test_spectral_nosig_real_onesided_oddlen(
 
 class Test_spectral_nosig_real_twosided_oddlen(
         Test_spectral_nosig_real_onesided):
-        def setUp(self):
+        def setup(self):
                 self.createStim(fstims=[],
                                 len_x=255,
                                 NFFT_density=33, pad_to_spectrum=None,
@@ -2622,7 +2620,7 @@ class Test_spectral_nosig_real_twosided_oddlen(
 
 class Test_spectral_nosig_real_defaultsided_oddlen(
         Test_spectral_nosig_real_onesided):
-        def setUp(self):
+        def setup(self):
                 self.createStim(fstims=[],
                                 len_x=255,
                                 NFFT_density=33, pad_to_spectrum=None,
@@ -2631,7 +2629,7 @@ class Test_spectral_nosig_real_defaultsided_oddlen(
 
 class Test_spectral_nosig_complex_onesided_oddlen(
         Test_spectral_nosig_real_onesided):
-        def setUp(self):
+        def setup(self):
                 self.createStim(fstims=[],
                                 len_x=255,
                                 NFFT_density=33, pad_to_spectrum=None,
@@ -2640,7 +2638,7 @@ class Test_spectral_nosig_complex_onesided_oddlen(
 
 class Test_spectral_nosig_complex_twosided_oddlen(
         Test_spectral_nosig_real_onesided):
-        def setUp(self):
+        def setup(self):
                 self.createStim(fstims=[],
                                 len_x=255,
                                 NFFT_density=33, pad_to_spectrum=None,
@@ -2649,7 +2647,7 @@ class Test_spectral_nosig_complex_twosided_oddlen(
 
 class Test_spectral_nosig_complex_defaultsided_oddlen(
         Test_spectral_nosig_real_onesided):
-        def setUp(self):
+        def setup(self):
                 self.createStim(fstims=[],
                                 len_x=255,
                                 NFFT_density=128, pad_to_spectrum=None,
@@ -2658,7 +2656,7 @@ class Test_spectral_nosig_complex_defaultsided_oddlen(
 
 class Test_spectral_nosig_real_onesided_stretch(
         Test_spectral_nosig_real_onesided):
-        def setUp(self):
+        def setup(self):
                 self.createStim(fstims=[],
                                 len_x=256,
                                 NFFT_density=128,
@@ -2668,7 +2666,7 @@ class Test_spectral_nosig_real_onesided_stretch(
 
 class Test_spectral_nosig_real_twosided_stretch(
         Test_spectral_nosig_real_onesided):
-        def setUp(self):
+        def setup(self):
                 self.createStim(fstims=[],
                                 len_x=256,
                                 NFFT_density=128,
@@ -2678,7 +2676,7 @@ class Test_spectral_nosig_real_twosided_stretch(
 
 class Test_spectral_nosig_real_defaultsided_stretch(
         Test_spectral_nosig_real_onesided):
-        def setUp(self):
+        def setup(self):
                 self.createStim(fstims=[],
                                 len_x=256,
                                 NFFT_density=128,
@@ -2688,7 +2686,7 @@ class Test_spectral_nosig_real_defaultsided_stretch(
 
 class Test_spectral_nosig_complex_onesided_stretch(
         Test_spectral_nosig_real_onesided):
-        def setUp(self):
+        def setup(self):
                 self.createStim(fstims=[],
                                 len_x=256,
                                 NFFT_density=128,
@@ -2698,7 +2696,7 @@ class Test_spectral_nosig_complex_onesided_stretch(
 
 class Test_spectral_nosig_complex_twosided_stretch(
         Test_spectral_nosig_real_onesided):
-        def setUp(self):
+        def setup(self):
                 self.createStim(fstims=[],
                                 len_x=256,
                                 NFFT_density=128,
@@ -2708,7 +2706,7 @@ class Test_spectral_nosig_complex_twosided_stretch(
 
 class Test_spectral_nosig_complex_defaultsided_stretch(
         Test_spectral_nosig_real_onesided):
-        def setUp(self):
+        def setup(self):
                 self.createStim(fstims=[],
                                 len_x=256,
                                 NFFT_density=128,
@@ -2718,7 +2716,7 @@ class Test_spectral_nosig_complex_defaultsided_stretch(
 
 class Test_spectral_nosig_real_onesided_overlap(
         Test_spectral_nosig_real_onesided):
-        def setUp(self):
+        def setup(self):
                 self.createStim(fstims=[],
                                 nover_density=32,
                                 iscomplex=False, sides='onesided', nsides=1)
@@ -2726,7 +2724,7 @@ class Test_spectral_nosig_real_onesided_overlap(
 
 class Test_spectral_nosig_real_twosided_overlap(
         Test_spectral_nosig_real_onesided):
-        def setUp(self):
+        def setup(self):
                 self.createStim(fstims=[],
                                 nover_density=32,
                                 iscomplex=False, sides='twosided', nsides=2)
@@ -2734,7 +2732,7 @@ class Test_spectral_nosig_real_twosided_overlap(
 
 class Test_spectral_nosig_real_defaultsided_overlap(
         Test_spectral_nosig_real_onesided):
-        def setUp(self):
+        def setup(self):
                 self.createStim(fstims=[],
                                 nover_density=32,
                                 iscomplex=False, sides='default', nsides=1)
@@ -2742,7 +2740,7 @@ class Test_spectral_nosig_real_defaultsided_overlap(
 
 class Test_spectral_nosig_complex_onesided_overlap(
         Test_spectral_nosig_real_onesided):
-        def setUp(self):
+        def setup(self):
                 self.createStim(fstims=[],
                                 nover_density=32,
                                 iscomplex=True, sides='onesided', nsides=1)
@@ -2750,7 +2748,7 @@ class Test_spectral_nosig_complex_onesided_overlap(
 
 class Test_spectral_nosig_complex_twosided_overlap(
         Test_spectral_nosig_real_onesided):
-        def setUp(self):
+        def setup(self):
                 self.createStim(fstims=[],
                                 nover_density=32,
                                 iscomplex=True, sides='twosided', nsides=2)
@@ -2758,7 +2756,7 @@ class Test_spectral_nosig_complex_twosided_overlap(
 
 class Test_spectral_nosig_complex_defaultsided_overlap(
         Test_spectral_nosig_real_onesided):
-        def setUp(self):
+        def setup(self):
                 self.createStim(fstims=[],
                                 nover_density=32,
                                 iscomplex=True, sides='default', nsides=2)
@@ -2837,7 +2835,7 @@ def test_griddata_nn():
 # https://github.com/scipy/scipy/blob/master/scipy/stats/tests/test_kdeoth.py
 #*****************************************************************
 
-class Test_gaussian_kde(object):
+class TestGaussianKDE(object):
 
     def test_kde_integer_input(self):
         """Regression test for #1181."""
@@ -2882,7 +2880,7 @@ class Test_gaussian_kde(object):
         assert kdepdf.all() == kdepdf3.all()
 
 
-class Test_gaussian_kde_custom(object):
+class TestGaussianKDECustom(object):
     def test_no_data(self):
         """Pass no data into the GaussianKDE class."""
         with pytest.raises(ValueError):
@@ -2971,7 +2969,7 @@ class Test_gaussian_kde_custom(object):
             mlab.GaussianKDE(data, bw_method="invalid")
 
 
-class Test_gaussian_kde_evaluate(object):
+class TestGaussianKDEEvaluate(object):
 
     def test_evaluate_diff_dim(self):
         """Test the evaluate method when the dim's of dataset and points are
