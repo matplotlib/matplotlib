@@ -66,40 +66,22 @@ def test_norm():
     assert_almost_equal(targ, res)
 
 
-class TestSpacing(object):
-    def test_logspace_tens(self):
-        xmin = .01
-        xmax = 1000.
-        N = 6
-        res = mlab.logspace(xmin, xmax, N)
-        targ = np.logspace(np.log10(xmin), np.log10(xmax), N)
-        assert_allclose(targ, res)
-
-    def test_logspace_primes(self):
-        xmin = .03
-        xmax = 1313.
-        N = 7
-        res = mlab.logspace(xmin, xmax, N)
-        targ = np.logspace(np.log10(xmin), np.log10(xmax), N)
-        assert_allclose(targ, res)
-
-    def test_logspace_none(self):
-        xmin = .03
-        xmax = 1313.
-        N = 0
-        res = mlab.logspace(xmin, xmax, N)
-        targ = np.logspace(np.log10(xmin), np.log10(xmax), N)
-        assert_array_equal(targ, res)
-        assert res.size == 0
-
-    def test_logspace_single(self):
-        xmin = .03
-        xmax = 1313.
-        N = 1
-        res = mlab.logspace(xmin, xmax, N)
-        targ = np.logspace(np.log10(xmin), np.log10(xmax), N)
-        assert_array_equal(targ, res)
-        assert res.size == 1
+@pytest.mark.parametrize('xmin, xmax, N', [
+    (.01, 1000., 6),
+    (.03, 1313., 7),
+    (.03, 1313., 0),
+    (.03, 1313., 1),
+], ids=[
+    'tens',
+    'primes',
+    'none',
+    'single',
+])
+def test_logspace(xmin, xmax, N):
+    res = mlab.logspace(xmin, xmax, N)
+    targ = np.logspace(np.log10(xmin), np.log10(xmax), N)
+    assert_allclose(targ, res)
+    assert res.size == N
 
 
 class TestStride(object):
