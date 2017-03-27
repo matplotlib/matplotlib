@@ -1,34 +1,26 @@
 =============================================
- MEP 28: Remove Complexity from Axes.boxplot
+ MEP28: Remove Complexity from Axes.boxplot
 =============================================
 
 .. contents::
    :local:
 
+
 Status
 ======
-
-..
-.. MEPs go through a number of phases in their lifetime:
-
 **Discussion**
-..
-.. - **Progress**: Consensus was reached on the mailing list and
-..  implementation work has begun.
-..
-.. - **Completed**: The implementation has been merged into master.
-..
-.. - **Superseded**: This MEP has been abandoned in favor of another
-..   approach.
 
 Branches and Pull requests
 ==========================
 
-Adding pre- & post-processing options to ``cbook.boxplot_stats``: https://github.com/phobson/matplotlib/tree/boxplot-stat-transforms
-Exposing ``cbook.boxplot_stats`` through ``Axes.boxplot`` kwargs: None
-Remove redundant statistical kwargs in ``Axes.boxplot``: None
-Remove redundant style options in ``Axes.boxplot``: None
-Remaining items that arise through discussion: None
+The following lists any open PRs or branches related to this MEP:
+
+#. Adding pre- & post-processing options to ``cbook.boxplot_stats``: https://github.com/phobson/matplotlib/tree/boxplot-stat-transforms
+#. Deprecated passings 2D numpy arrays as input: None
+#. Exposing ``cbook.boxplot_stats`` through ``Axes.boxplot`` kwargs: None
+#. Remove redundant statistical kwargs in ``Axes.boxplot``: None
+#. Remove redundant style options in ``Axes.boxplot``: None
+#. 6Remaining items that arise through discussion: None
 
 Abstract
 ========
@@ -121,7 +113,7 @@ data differently depending one these types of transforms.
    ax.set_yscale('log')
    data = np.random.lognormal(-1.75, 2.75, size=37)
 
-   stats = cbook.boxplot_stats(data, labels=['arimetic'])
+   stats = cbook.boxplot_stats(data, labels=['arithmetic'])
    logstats = cbook.boxplot_stats(np.log(data), labels=['log-transformed'])
 
    for lsdict in logstats:
