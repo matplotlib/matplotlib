@@ -195,11 +195,21 @@ Schedule
 An accelerated timeline could look like the following:
 
 #. v2.0.1 add transforms to ``cbook.boxplots_stats``, expose in ``Axes.boxplot``
-#. v2.1.0 deprecate ``usermedians``, ``conf_intervals``, ``sym`` parameters
-#. v2.2.0 make deprecations noisier
-#. v2.3.0 remove ``usermedians``, ``conf_intervals``, ``sym`` parameters
-#. v2.3.0 deprecate ``notch`` in favor of ``shownotches`` to be consistent with other parameters and ``Axes.bxp``
-#. v2.4.0 remove ``notch`` parameter, move all style and artist toggling logic to ``Axes.bxp``. ``Axes.boxplot`` is little more than a broker between ``Axes.bxp`` and ``cbook.boxplots_stats``
+#. v2.1.0 Initial Deprecations , and using 2D numpy arrays as input
+
+    a. Using 2D numpy arrays as input. The semantics around 2D arrays are generally confusing.
+    b. ``usermedians``, ``conf_intervals``, ``sym`` parameters
+
+#. v2.2.0
+
+    a. remove ``usermedians``, ``conf_intervals``, ``sym`` parameters
+    b. deprecate ``notch`` in favor of ``shownotches`` to be consistent with
+       other parameters and ``Axes.bxp``
+
+#. v2.3.0
+    a. remove ``notch`` parameter
+    b. move all style and artist toggling logic to ``Axes.bxp`` such ``Axes.boxplot``
+       is little more than a broker between ``Axes.bxp`` and ``cbook.boxplots_stats``
 
 
 Anticipated Impacts to Users
