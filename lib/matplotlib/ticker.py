@@ -212,16 +212,7 @@ def _divmod(x, y):
 
 
 def _mathdefault(s):
-    """
-    For backward compatibility, in classic mode we display
-    sub/superscripted text in a mathdefault block.  As of 2.0, the
-    math font already matches the default font, so we don't need to do
-    that anymore.
-    """
-    if rcParams['_internal.classic_mode']:
-        return '\\mathdefault{%s}' % s
-    else:
-        return '{%s}' % s
+    return '\\mathdefault{%s}' % s
 
 
 class _DummyAxis(object):
