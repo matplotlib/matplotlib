@@ -105,50 +105,35 @@ class TestStride(object):
             result[:, i] = x[ind[i]:ind[i]+NFFT]
         return result
 
-    def test_stride_windows_2D_ValueError(self):
-        x = np.arange(10)[np.newaxis]
+    @pytest.mark.parametrize('shape', [(), (10, 1)], ids=['0D', '2D'])
+    def test_stride_windows_invalid_input_shape(self, shape):
+        x = np.arange(np.prod(shape)).reshape(shape)
         with pytest.raises(ValueError):
             mlab.stride_windows(x, 5)
 
-    def test_stride_windows_0D_ValueError(self):
-        x = np.array(0)
-        with pytest.raises(ValueError):
-            mlab.stride_windows(x, 5)
-
-    def test_stride_windows_noverlap_gt_n_ValueError(self):
+    @pytest.mark.parametrize('n, noverlap',
+                             [(0, None), (11, None), (2, 2), (2, 3)],
+                             ids=['n less than 1', 'n greater than input',
+                                  'noverlap greater than n',
+                                  'noverlap equal to n'])
+    def test_stride_windows_invalid_params(self, n, noverlap):
         x = np.arange(10)
         with pytest.raises(ValueError):
-            mlab.stride_windows(x, 2, 3)
+            mlab.stride_windows(x, n, noverlap)
 
-    def test_stride_windows_noverlap_eq_n_ValueError(self):
-        x = np.arange(10)
-        with pytest.raises(ValueError):
-            mlab.stride_windows(x, 2, 2)
-
-    def test_stride_windows_n_gt_lenx_ValueError(self):
-        x = np.arange(10)
-        with pytest.raises(ValueError):
-            mlab.stride_windows(x, 11)
-
-    def test_stride_windows_n_lt_1_ValueError(self):
-        x = np.arange(10)
-        with pytest.raises(ValueError):
-            mlab.stride_windows(x, 0)
-
-    def test_stride_repeat_2D_ValueError(self):
-        x = np.arange(10)[np.newaxis]
+    @pytest.mark.parametrize('shape', [(), (10, 1)], ids=['0D', '2D'])
+    def test_stride_repeat_invalid_input_shape(self, shape):
+        x = np.arange(np.prod(shape)).reshape(shape)
         with pytest.raises(ValueError):
             mlab.stride_repeat(x, 5)
 
-    def test_stride_repeat_axis_lt_0_ValueError(self):
+    @pytest.mark.parametrize('axis', [-1, 2],
+                             ids=['axis less than 0',
+                                  'axis greater than input shape'])
+    def test_stride_repeat_invalid_axis(self, axis):
         x = np.array(0)
         with pytest.raises(ValueError):
-            mlab.stride_repeat(x, 5, axis=-1)
-
-    def test_stride_repeat_axis_gt_1_ValueError(self):
-        x = np.array(0)
-        with pytest.raises(ValueError):
-            mlab.stride_repeat(x, 5, axis=2)
+            mlab.stride_repeat(x, 5, axis=axis)
 
     def test_stride_repeat_n_lt_1_ValueError(self):
         x = np.arange(10)
