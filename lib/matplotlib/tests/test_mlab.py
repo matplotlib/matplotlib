@@ -24,45 +24,46 @@ except ImportError:
     HAS_NATGRID = False
 
 
-class TestGeneral(object):
-    def test_colinear_pca(self):
-        a = mlab.PCA._get_colinear()
-        pca = mlab.PCA(a)
+def test_colinear_pca():
+    a = mlab.PCA._get_colinear()
+    pca = mlab.PCA(a)
 
-        assert_allclose(pca.fracs[2:], 0., atol=1e-8)
-        assert_allclose(pca.Y[:, 2:], 0., atol=1e-8)
+    assert_allclose(pca.fracs[2:], 0., atol=1e-8)
+    assert_allclose(pca.Y[:, 2:], 0., atol=1e-8)
 
-    def test_prctile(self):
-        # test odd lengths
-        x = [1, 2, 3]
-        assert mlab.prctile(x, 50) == np.median(x)
 
-        # test even lengths
-        x = [1, 2, 3, 4]
-        assert mlab.prctile(x, 50) == np.median(x)
+def test_prctile():
+    # test odd lengths
+    x = [1, 2, 3]
+    assert mlab.prctile(x, 50) == np.median(x)
 
-        # derived from email sent by jason-sage to MPL-user on 20090914
-        ob1 = [1, 1, 2, 2, 1, 2, 4, 3, 2, 2, 2, 3,
-               4, 5, 6, 7, 8, 9, 7, 6, 4, 5, 5]
-        p = [0, 75, 100]
-        expected = [1, 5.5, 9]
+    # test even lengths
+    x = [1, 2, 3, 4]
+    assert mlab.prctile(x, 50) == np.median(x)
 
-        # test vectorized
-        actual = mlab.prctile(ob1, p)
-        assert_allclose(expected, actual)
+    # derived from email sent by jason-sage to MPL-user on 20090914
+    ob1 = [1, 1, 2, 2, 1, 2, 4, 3, 2, 2, 2, 3,
+           4, 5, 6, 7, 8, 9, 7, 6, 4, 5, 5]
+    p = [0, 75, 100]
+    expected = [1, 5.5, 9]
 
-        # test scalar
-        for pi, expectedi in zip(p, expected):
-            actuali = mlab.prctile(ob1, pi)
-            assert_allclose(expectedi, actuali)
+    # test vectorized
+    actual = mlab.prctile(ob1, p)
+    assert_allclose(expected, actual)
 
-    def test_norm(self):
-        np.random.seed(0)
-        N = 1000
-        x = np.random.standard_normal(N)
-        targ = np.linalg.norm(x)
-        res = mlab._norm(x)
-        assert_almost_equal(targ, res)
+    # test scalar
+    for pi, expectedi in zip(p, expected):
+        actuali = mlab.prctile(ob1, pi)
+        assert_allclose(expectedi, actuali)
+
+
+def test_norm():
+    np.random.seed(0)
+    N = 1000
+    x = np.random.standard_normal(N)
+    targ = np.linalg.norm(x)
+    res = mlab._norm(x)
+    assert_almost_equal(targ, res)
 
 
 class TestSpacing(object):
