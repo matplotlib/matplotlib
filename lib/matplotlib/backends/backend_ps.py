@@ -1458,20 +1458,17 @@ def convert_psfrags(tmpfile, psfrags, font_preamble, custom_preamble,
                                "rcParam.", 'helpful')
                 raise
 
-    # the split drive part of the command is necessary for windows users with
-    # multiple
-    if sys.platform == 'win32': precmd = '%s &&'% os.path.splitdrive(tmpdir)[0]
-    else: precmd = ''
     #Replace \\ for / so latex does not think there is a function call
     latexfile = latexfile.replace("\\", "/")
     # Replace ~ so Latex does not think it is line break
     latexfile = latexfile.replace("~", "\\string~")
-    command = '%s cd "%s" && latex -interaction=nonstopmode "%s" > "%s"'\
-                %(precmd, tmpdir, latexfile, outfile)
+    command = [str("latex"), "-interaction=nonstopmode",
+               '"%s"' % latexfile]
     verbose.report(command, 'debug')
     try:
-        output = subprocess.check_output(command, shell=True,
-                                         stderr=subprocess.STDOUT)
+        with open(outfile, "w") as fout:
+            subprocess.check_call(command, cwd=tmpdir,
+                                  stdout=fout, stderr=subprocess.STDOUT)
     except subprocess.CalledProcessError as exc:
         with io.open(outfile, 'rb') as fh:
             raise RuntimeError('LaTeX was not able to process your file: '
@@ -1482,12 +1479,13 @@ def convert_psfrags(tmpfile, psfrags, font_preamble, custom_preamble,
             verbose.report(fh.read(), 'debug')
     os.remove(outfile)
 
-    command = '%s cd "%s" && dvips -q -R0 -o "%s" "%s" > "%s"'%(precmd, tmpdir,
-                os.path.split(psfile)[-1], os.path.split(dvifile)[-1], outfile)
+    command = [str('dvips'), '-q', '-R0', '-o', os.path.basename(psfile),
+               os.path.basename(dvifile)]
     verbose.report(command, 'debug')
     try:
-        output = subprocess.check_output(command, shell=True,
-                                         stderr=subprocess.STDOUT)
+        with open(outfile, "w") as fout:
+            subprocess.check_call(command, cwd=tmpdir,
+                                    stdout=fout, stderr=subprocess.STDOUT)
     except subprocess.CalledProcessError as exc:
         with io.open(outfile, 'rb') as fh:
             raise RuntimeError('dvips was not able to process the following '
