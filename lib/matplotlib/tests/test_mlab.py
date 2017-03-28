@@ -143,25 +143,14 @@ class TestStride(object):
             mlab.stride_repeat(x, 0)
 
     @pytest.mark.parametrize('axis', [0, 1], ids=['axis0', 'axis1'])
-    def test_stride_repeat_n1(self, axis):
+    @pytest.mark.parametrize('n', [1, 5], ids=['n1', 'n5'])
+    def test_stride_repeat(self, n, axis):
         x = np.arange(10)
-        y = mlab.stride_repeat(x, 1, axis=axis)
+        y = mlab.stride_repeat(x, n, axis=axis)
 
         expected_shape = [10, 10]
-        expected_shape[axis] = 1
-
-        assert tuple(expected_shape) == y.shape
-        assert_array_equal(x, y.flat)
-        assert self.get_base(y) is x
-
-    @pytest.mark.parametrize('axis', [0, 1], ids=['axis0', 'axis1'])
-    def test_stride_repeat_n5(self, axis):
-        x = np.arange(10)
-        y = mlab.stride_repeat(x, 5, axis=axis)
-
-        expected_shape = [10, 10]
-        expected_shape[axis] = 5
-        yr = np.repeat(np.expand_dims(x, axis), 5, axis=axis)
+        expected_shape[axis] = n
+        yr = np.repeat(np.expand_dims(x, axis), n, axis=axis)
 
         assert yr.shape == y.shape
         assert_array_equal(yr, y)
@@ -169,55 +158,18 @@ class TestStride(object):
         assert self.get_base(y) is x
 
     @pytest.mark.parametrize('axis', [0, 1], ids=['axis0', 'axis1'])
-    def test_stride_windows_n1_noverlap0(self, axis):
-        x = np.arange(10)
-        y = mlab.stride_windows(x, 1, axis=axis)
-
-        expected_shape = [10, 10]
-        expected_shape[axis] = 1
-        yt = self.calc_window_target(x, 1, axis=axis)
-
-        assert yt.shape == y.shape
-        assert_array_equal(yt, y)
-        assert tuple(expected_shape) == y.shape
-        assert self.get_base(y) is x
-
-    @pytest.mark.parametrize('axis', [0, 1], ids=['axis0', 'axis1'])
-    def test_stride_windows_n5_noverlap0(self, axis):
+    @pytest.mark.parametrize('n, noverlap',
+                             [(1, 0), (5, 0), (15, 2), (13, -3)],
+                             ids=['n1-noverlap0', 'n5-noverlap0',
+                                  'n15-noverlap2', 'n13-noverlapn3'])
+    def test_stride_windows(self, n, noverlap, axis):
         x = np.arange(100)
-        y = mlab.stride_windows(x, 5, axis=axis)
+        y = mlab.stride_windows(x, n, noverlap=noverlap, axis=axis)
 
-        expected_shape = [20, 20]
-        expected_shape[axis] = 5
-        yt = self.calc_window_target(x, 5, axis=axis)
-
-        assert yt.shape == y.shape
-        assert_array_equal(yt, y)
-        assert tuple(expected_shape) == y.shape
-        assert self.get_base(y) is x
-
-    @pytest.mark.parametrize('axis', [0, 1], ids=['axis0', 'axis1'])
-    def test_stride_windows_n15_noverlap2(self, axis):
-        x = np.arange(100)
-        y = mlab.stride_windows(x, 15, 2, axis=axis)
-
-        expected_shape = [7, 7]
-        expected_shape[axis] = 15
-        yt = self.calc_window_target(x, 15, 2, axis=axis)
-
-        assert yt.shape == y.shape
-        assert_array_equal(yt, y)
-        assert tuple(expected_shape) == y.shape
-        assert self.get_base(y) is x
-
-    @pytest.mark.parametrize('axis', [0, 1], ids=['axis0', 'axis1'])
-    def test_stride_windows_n13_noverlapn3(self, axis):
-        x = np.arange(100)
-        y = mlab.stride_windows(x, 13, -3, axis=axis)
-
-        expected_shape = [6, 6]
-        expected_shape[axis] = 13
-        yt = self.calc_window_target(x, 13, -3, axis=axis)
+        expected_shape = [0, 0]
+        expected_shape[axis] = n
+        expected_shape[1 - axis] = 100 // (n - noverlap)
+        yt = self.calc_window_target(x, n, noverlap=noverlap, axis=axis)
 
         assert yt.shape == y.shape
         assert_array_equal(yt, y)
