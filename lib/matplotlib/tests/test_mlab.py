@@ -1145,22 +1145,25 @@ class TestDetrend(object):
         assert_allclose(res, targ, atol=self.atol)
 
 
+@pytest.mark.parametrize(
+    'fstims,iscomplex,sides,nsides,len_x,NFFT_density,nover_density,'
+    'pad_to_density,pad_to_spectrum',
+    [([], False, 'onesided', 1, None, -1, -1, -1, -1)],
+    ids=['nosig_real_onesided'],
+    scope='class'
+)
 class Test_spectral_nosig_real_onesided(object):
-    def setup(self):
-        self.createStim(fstims=[],
-                        iscomplex=False, sides='onesided', nsides=1)
-
-    def createStim(self, fstims, iscomplex, sides, nsides, len_x=None,
-                   NFFT_density=-1, nover_density=-1, pad_to_density=-1,
-                   pad_to_spectrum=-1):
+    @pytest.fixture(scope='class', autouse=True)
+    def stim(self, request, fstims, iscomplex, sides, nsides, len_x,
+             NFFT_density, nover_density, pad_to_density, pad_to_spectrum):
         Fs = 100.
 
-        x = np.arange(0, 10, 1/Fs)
+        x = np.arange(0, 10, 1 / Fs)
         if len_x is not None:
             x = x[:len_x]
 
         # get the stimulus frequencies, defaulting to None
-        fstims = [Fs/fstim for fstim in fstims]
+        fstims = [Fs / fstim for fstim in fstims]
 
         # get the constants, default to calculated values
         if NFFT_density is None:
@@ -1173,7 +1176,7 @@ class Test_spectral_nosig_real_onesided(object):
         if nover_density is None:
             nover_density_real = 0
         elif nover_density < 0:
-            nover_density_real = nover_density = NFFT_density_real//2
+            nover_density_real = nover_density = NFFT_density_real // 2
         else:
             nover_density_real = nover_density
 
@@ -1208,56 +1211,56 @@ class Test_spectral_nosig_real_onesided(object):
             # frequencies for specgram, psd, and csd
             # need to handle even and odd differently
             if pad_to_density_real % 2:
-                freqs_density = np.linspace(0, Fs/2,
+                freqs_density = np.linspace(0, Fs / 2,
                                             num=pad_to_density_real,
                                             endpoint=False)[::2]
             else:
-                freqs_density = np.linspace(0, Fs/2,
-                                            num=pad_to_density_real//2+1)
+                freqs_density = np.linspace(0, Fs / 2,
+                                            num=pad_to_density_real // 2 + 1)
 
             # frequencies for complex, magnitude, angle, and phase spectrums
             # need to handle even and odd differently
             if pad_to_spectrum_real % 2:
-                freqs_spectrum = np.linspace(0, Fs/2,
+                freqs_spectrum = np.linspace(0, Fs / 2,
                                              num=pad_to_spectrum_real,
                                              endpoint=False)[::2]
             else:
-                freqs_spectrum = np.linspace(0, Fs/2,
-                                             num=pad_to_spectrum_real//2+1)
+                freqs_spectrum = np.linspace(0, Fs / 2,
+                                             num=pad_to_spectrum_real // 2 + 1)
         else:
             # frequencies for specgram, psd, and csd
             # need to handle even and odd differentl
             if pad_to_density_real % 2:
-                freqs_density = np.linspace(-Fs/2, Fs/2,
-                                            num=2*pad_to_density_real,
+                freqs_density = np.linspace(-Fs / 2, Fs / 2,
+                                            num=2 * pad_to_density_real,
                                             endpoint=False)[1::2]
             else:
-                freqs_density = np.linspace(-Fs/2, Fs/2,
+                freqs_density = np.linspace(-Fs / 2, Fs / 2,
                                             num=pad_to_density_real,
                                             endpoint=False)
 
             # frequencies for complex, magnitude, angle, and phase spectrums
             # need to handle even and odd differently
             if pad_to_spectrum_real % 2:
-                freqs_spectrum = np.linspace(-Fs/2, Fs/2,
-                                             num=2*pad_to_spectrum_real,
+                freqs_spectrum = np.linspace(-Fs / 2, Fs / 2,
+                                             num=2 * pad_to_spectrum_real,
                                              endpoint=False)[1::2]
             else:
-                freqs_spectrum = np.linspace(-Fs/2, Fs/2,
+                freqs_spectrum = np.linspace(-Fs / 2, Fs / 2,
                                              num=pad_to_spectrum_real,
                                              endpoint=False)
 
         freqs_specgram = freqs_density
         # time points for specgram
-        t_start = NFFT_specgram_real//2
-        t_stop = len(x) - NFFT_specgram_real//2+1
+        t_start = NFFT_specgram_real // 2
+        t_stop = len(x) - NFFT_specgram_real // 2 + 1
         t_step = NFFT_specgram_real - nover_specgram_real
         t_specgram = x[t_start:t_stop:t_step]
         if NFFT_specgram_real % 2:
-            t_specgram += 1/Fs/2
+            t_specgram += 1 / Fs / 2
         if len(t_specgram) == 0:
-            t_specgram = np.array([NFFT_specgram_real/(2*Fs)])
-        t_spectrum = np.array([NFFT_spectrum_real/(2*Fs)])
+            t_specgram = np.array([NFFT_specgram_real / (2 * Fs)])
+        t_spectrum = np.array([NFFT_spectrum_real / (2 * Fs)])
         t_density = t_specgram
 
         y = np.zeros_like(x)
@@ -1267,32 +1270,37 @@ class Test_spectral_nosig_real_onesided(object):
         if iscomplex:
             y = y.astype('complex')
 
-        self.Fs = Fs
-        self.sides = sides
-        self.fstims = fstims
+        # Interestingly, the instance on which this fixture is called is not
+        # the same as the one on which a test is run. So we need to modify the
+        # class itself when using a class-scoped fixture.
+        cls = request.cls
 
-        self.NFFT_density = NFFT_density
-        self.nover_density = nover_density
-        self.pad_to_density = pad_to_density
+        cls.Fs = Fs
+        cls.sides = sides
+        cls.fstims = fstims
 
-        self.NFFT_spectrum = NFFT_spectrum
-        self.nover_spectrum = nover_spectrum
-        self.pad_to_spectrum = pad_to_spectrum
+        cls.NFFT_density = NFFT_density
+        cls.nover_density = nover_density
+        cls.pad_to_density = pad_to_density
 
-        self.NFFT_specgram = NFFT_specgram
-        self.nover_specgram = nover_specgram
-        self.pad_to_specgram = pad_to_specgram
+        cls.NFFT_spectrum = NFFT_spectrum
+        cls.nover_spectrum = nover_spectrum
+        cls.pad_to_spectrum = pad_to_spectrum
 
-        self.t_specgram = t_specgram
-        self.t_density = t_density
-        self.t_spectrum = t_spectrum
-        self.y = y
+        cls.NFFT_specgram = NFFT_specgram
+        cls.nover_specgram = nover_specgram
+        cls.pad_to_specgram = pad_to_specgram
 
-        self.freqs_density = freqs_density
-        self.freqs_spectrum = freqs_spectrum
-        self.freqs_specgram = freqs_specgram
+        cls.t_specgram = t_specgram
+        cls.t_density = t_density
+        cls.t_spectrum = t_spectrum
+        cls.y = y
 
-        self.NFFT_density_real = NFFT_density_real
+        cls.freqs_density = freqs_density
+        cls.freqs_spectrum = freqs_spectrum
+        cls.freqs_specgram = freqs_specgram
+
+        cls.NFFT_density_real = NFFT_density_real
 
     def check_freqs(self, vals, targfreqs, resfreqs, fstims):
         assert resfreqs.argmin() == 0
