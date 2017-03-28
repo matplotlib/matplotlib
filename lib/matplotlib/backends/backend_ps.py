@@ -84,7 +84,7 @@ class PsBackendHelper(object):
             pass
 
         from matplotlib.compat.subprocess import Popen, PIPE
-        s = Popen([self.gs_exe, "--version"], stdout=PIPE)
+        s = Popen([str(self.gs_exe), "--version"], stdout=PIPE)
         pipe, stderr = s.communicate()
         if six.PY3:
             ver = pipe.decode('ascii')
