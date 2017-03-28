@@ -208,95 +208,83 @@ class TestStride(object):
         assert_array_equal(y_strided, 0.3)
 
 
-class TestCSV(object):
-    def setup(self):
-        if six.PY3:
-            self.fd = tempfile.TemporaryFile(suffix='csv', mode="w+",
-                                             newline='')
-        else:
-            self.fd = tempfile.TemporaryFile(suffix='csv', mode="wb+")
+@pytest.fixture
+def tempcsv():
+    if six.PY2:
+        fd = tempfile.TemporaryFile(suffix='csv', mode="wb+")
+    else:
+        fd = tempfile.TemporaryFile(suffix='csv', mode="w+", newline='')
+    with fd:
+        yield fd
 
-    def teardown(self):
-        self.fd.close()
 
-    def test_recarray_csv_roundtrip(self):
-        expected = np.recarray((99,),
-                               [(str('x'), float),
-                                (str('y'), float),
-                                (str('t'), float)])
-        # initialising all values: uninitialised memory sometimes produces
-        # floats that do not round-trip to string and back.
-        expected['x'][:] = np.linspace(-1e9, -1, 99)
-        expected['y'][:] = np.linspace(1, 1e9, 99)
-        expected['t'][:] = np.linspace(0, 0.01, 99)
+def test_recarray_csv_roundtrip(tempcsv):
+    expected = np.recarray((99,),
+                           [(str('x'), float),
+                            (str('y'), float),
+                            (str('t'), float)])
+    # initialising all values: uninitialised memory sometimes produces
+    # floats that do not round-trip to string and back.
+    expected['x'][:] = np.linspace(-1e9, -1, 99)
+    expected['y'][:] = np.linspace(1, 1e9, 99)
+    expected['t'][:] = np.linspace(0, 0.01, 99)
 
-        mlab.rec2csv(expected, self.fd)
-        self.fd.seek(0)
-        actual = mlab.csv2rec(self.fd)
+    mlab.rec2csv(expected, tempcsv)
+    tempcsv.seek(0)
+    actual = mlab.csv2rec(tempcsv)
 
-        assert_allclose(expected['x'], actual['x'])
-        assert_allclose(expected['y'], actual['y'])
-        assert_allclose(expected['t'], actual['t'])
+    assert_allclose(expected['x'], actual['x'])
+    assert_allclose(expected['y'], actual['y'])
+    assert_allclose(expected['t'], actual['t'])
 
-    def test_rec2csv_bad_shape_ValueError(self):
-        bad = np.recarray((99, 4), [(str('x'), float),
-                                    (str('y'), float)])
 
-        # the bad recarray should trigger a ValueError for having ndim > 1.
-        with pytest.raises(ValueError):
-            mlab.rec2csv(bad, self.fd)
+def test_rec2csv_bad_shape_ValueError(tempcsv):
+    bad = np.recarray((99, 4), [(str('x'), float),
+                                (str('y'), float)])
 
-    def test_csv2rec_names_with_comments(self):
-        self.fd.write('# comment\n1,2,3\n4,5,6\n')
-        self.fd.seek(0)
-        array = mlab.csv2rec(self.fd, names='a,b,c')
-        assert len(array) == 2
-        assert len(array.dtype) == 3
+    # the bad recarray should trigger a ValueError for having ndim > 1.
+    with pytest.raises(ValueError):
+        mlab.rec2csv(bad, tempcsv)
 
-    def test_csv2rec_usdate(self):
-        self.fd.write('01/11/14\n'
-                      '03/05/76 12:00:01 AM\n'
-                      '07/09/83 5:17:34 PM\n'
-                      '06/20/2054 2:31:45 PM\n'
-                      '10/31/00 11:50:23 AM\n')
-        expected = [datetime.datetime(2014, 1, 11, 0, 0),
-                    datetime.datetime(1976, 3, 5, 0, 0, 1),
-                    datetime.datetime(1983, 7, 9, 17, 17, 34),
-                    datetime.datetime(2054, 6, 20, 14, 31, 45),
-                    datetime.datetime(2000, 10, 31, 11, 50, 23)]
-        self.fd.seek(0)
-        array = mlab.csv2rec(self.fd, names='a')
-        assert_array_equal(array['a'].tolist(), expected)
 
-    def test_csv2rec_dayfirst(self):
-        self.fd.write('11/01/14\n' +
-                      '05/03/76 12:00:01 AM\n'
-                      '09/07/83 5:17:34 PM\n'
-                      '20/06/2054 2:31:45 PM\n'
-                      '31/10/00 11:50:23 AM\n')
-        expected = [datetime.datetime(2014, 1, 11, 0, 0),
-                    datetime.datetime(1976, 3, 5, 0, 0, 1),
-                    datetime.datetime(1983, 7, 9, 17, 17, 34),
-                    datetime.datetime(2054, 6, 20, 14, 31, 45),
-                    datetime.datetime(2000, 10, 31, 11, 50, 23)]
-        self.fd.seek(0)
-        array = mlab.csv2rec(self.fd, names='a', dayfirst=True)
-        assert_array_equal(array['a'].tolist(), expected)
+def test_csv2rec_names_with_comments(tempcsv):
+    tempcsv.write('# comment\n1,2,3\n4,5,6\n')
+    tempcsv.seek(0)
+    array = mlab.csv2rec(tempcsv, names='a,b,c')
+    assert len(array) == 2
+    assert len(array.dtype) == 3
 
-    def test_csv2rec_yearfirst(self):
-        self.fd.write('14/01/11\n'
-                      '76/03/05 12:00:01 AM\n'
-                      '83/07/09 5:17:34 PM\n'
-                      '2054/06/20 2:31:45 PM\n'
-                      '00/10/31 11:50:23 AM\n')
-        expected = [datetime.datetime(2014, 1, 11, 0, 0),
-                    datetime.datetime(1976, 3, 5, 0, 0, 1),
-                    datetime.datetime(1983, 7, 9, 17, 17, 34),
-                    datetime.datetime(2054, 6, 20, 14, 31, 45),
-                    datetime.datetime(2000, 10, 31, 11, 50, 23)]
-        self.fd.seek(0)
-        array = mlab.csv2rec(self.fd, names='a', yearfirst=True)
-        assert_array_equal(array['a'].tolist(), expected)
+
+@pytest.mark.parametrize('input, kwargs', [
+    ('01/11/14\n'
+     '03/05/76 12:00:01 AM\n'
+     '07/09/83 5:17:34 PM\n'
+     '06/20/2054 2:31:45 PM\n'
+     '10/31/00 11:50:23 AM\n',
+     {}),
+    ('11/01/14\n'
+     '05/03/76 12:00:01 AM\n'
+     '09/07/83 5:17:34 PM\n'
+     '20/06/2054 2:31:45 PM\n'
+     '31/10/00 11:50:23 AM\n',
+     {'dayfirst': True}),
+    ('14/01/11\n'
+     '76/03/05 12:00:01 AM\n'
+     '83/07/09 5:17:34 PM\n'
+     '2054/06/20 2:31:45 PM\n'
+     '00/10/31 11:50:23 AM\n',
+     {'yearfirst': True}),
+], ids=['usdate', 'dayfirst', 'yearfirst'])
+def test_csv2rec_dates(tempcsv, input, kwargs):
+    tempcsv.write(input)
+    expected = [datetime.datetime(2014, 1, 11, 0, 0),
+                datetime.datetime(1976, 3, 5, 0, 0, 1),
+                datetime.datetime(1983, 7, 9, 17, 17, 34),
+                datetime.datetime(2054, 6, 20, 14, 31, 45),
+                datetime.datetime(2000, 10, 31, 11, 50, 23)]
+    tempcsv.seek(0)
+    array = mlab.csv2rec(tempcsv, names='a', **kwargs)
+    assert_array_equal(array['a'].tolist(), expected)
 
 
 def test_rec2txt_basic():
