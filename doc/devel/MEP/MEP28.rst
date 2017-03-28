@@ -15,12 +15,14 @@ Branches and Pull requests
 
 The following lists any open PRs or branches related to this MEP:
 
-#. Adding pre- & post-processing options to ``cbook.boxplot_stats``: https://github.com/phobson/matplotlib/tree/boxplot-stat-transforms
-#. Deprecated passings 2D numpy arrays as input: None
+#. Deprecate redundant statistical kwargs in ``Axes.boxplot``: https://github.com/phobson/matplotlib/tree/MEP28-initial-deprecations
+#. Deprecate redundant style options in ``Axes.boxplot``: https://github.com/phobson/matplotlib/tree/MEP28-initial-deprecations
+#. Deprecate passings 2D numpy arrays as input: None
+#. Add pre- & post-processing options to ``cbook.boxplot_stats``: https://github.com/phobson/matplotlib/tree/boxplot-stat-transforms
 #. Exposing ``cbook.boxplot_stats`` through ``Axes.boxplot`` kwargs: None
 #. Remove redundant statistical kwargs in ``Axes.boxplot``: None
 #. Remove redundant style options in ``Axes.boxplot``: None
-#. 6Remaining items that arise through discussion: None
+#. Remaining items that arise through discussion: None
 
 Abstract
 ========
