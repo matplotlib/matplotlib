@@ -86,7 +86,7 @@ def new_figure_manager_given_figure(num, figure):
     Create a new figure manager instance for the given figure.
     """
     _focus = windowing.FocusManager()
-    window = Tk.Tk()
+    window = Tk.Tk(className="matplotlib")
     window.withdraw()
 
     if Tk.TkVersion >= 8.5:
