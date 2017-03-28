@@ -305,12 +305,10 @@ def test_rec2txt_basic():
 class TestWindow(object):
     def setup(self):
         np.random.seed(0)
-        self.n = 1000
-        self.x = np.arange(0., self.n)
+        n = 1000
 
-        self.sig_rand = np.random.standard_normal(self.n) + 100.
-        self.sig_ones = np.ones_like(self.x)
-        self.sig_slope = np.linspace(-10., 90., self.n)
+        self.sig_rand = np.random.standard_normal(n) + 100.
+        self.sig_ones = np.ones(n)
 
     def check_window_apply_repeat(self, x, window, NFFT, noverlap):
         '''This is an adaptation of the original window application
