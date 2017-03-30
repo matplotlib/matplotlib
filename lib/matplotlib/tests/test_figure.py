@@ -234,3 +234,30 @@ def test_figaspect():
     assert h / w == 0.5
     w, h = plt.figaspect(np.zeros((2, 2)))
     assert h / w == 1
+
+def test_set_axis_break_x():
+    x = np.linspace(0,10,100)
+    x[75:] = np.linspace(40,42.5,25)
+    y = np.sin(x)
+    fig = plt.figure()    
+    
+    try:
+        break_limit = fig.set_axis_break_x(7,3,pts)
+    except ValueError:
+        assert(True)
+
+    break_limit = fig.set_axis_break_x(7.5,40,x,y)
+    assert break_limit == (7.5,40)
+
+def test_set_axis_break_y():
+    pts = np.array([
+        1,3,5,2,6,100,105])
+    fig = plt.figure()
+    
+    try:
+        break_limit = fig.set_axis_break_y(7,3,pts)
+    except ValueError:
+        assert(True)
+        
+    break_limit = fig.set_axis_break_y(7,99,pts)
+    assert break_limit == (7,99)
