@@ -12,15 +12,13 @@ import numpy as np
 t = np.arange(0.0, 1.0 + 0.01, 0.01)
 s = np.cos(2 * 2 * np.pi * t)
 
-fig, ax = plt.subplots()
-ax.plot(t, s, '-', lw=2)
+plt.plot(t, s, '-', lw=2)
 
-ax.set_xlabel('Time (s)')
-ax.set_ylabel('Voltage (mV)')
-ax.set_title('About as simple as it gets, folks')
-ax.grid(True)
+plt.xlabel('time (s)')
+plt.ylabel('voltage (mV)')
+plt.title('About as simple as it gets, folks')
+plt.grid(True)
 
-ax.set_aspect('equal', 'datalim')
+plt.gca().set_aspect('equal', 'datalim')
 
-fig.tight_layout()
 plt.show()
