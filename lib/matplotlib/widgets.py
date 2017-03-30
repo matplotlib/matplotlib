@@ -2598,7 +2598,9 @@ class PolygonSelector(_SelectorWidget):
             self._polygon_completed = True
 
         # Place new vertex.
-        elif not self._polygon_completed and 'move_all' not in self.state:
+        elif (not self._polygon_completed
+              and 'move_all' not in self.state
+              and 'move_vertex' not in self.state):
             self._xs.insert(-1, event.xdata)
             self._ys.insert(-1, event.ydata)
 
