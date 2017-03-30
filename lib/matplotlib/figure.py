@@ -355,6 +355,7 @@ class Figure(Artist):
         self.clf()
         self._cachedRenderer = None
 
+	
     @cbook.deprecated("2.1", alternative="Figure.patch")
     def figurePatch(self):
         return self.patch
@@ -416,6 +417,112 @@ class Figure(Artist):
         self.dpi_scale_trans.clear().scale(dpi, dpi)
         self.callbacks.process('dpi_changed', self)
     dpi = property(_get_dpi, _set_dpi)
+
+
+    def set_axis_break_y(self, bottom, top, *args):
+        """
+        Add a line break on the y-axis
+
+        Parameters
+        ----------
+
+        bottom, top : scalar
+            Controls where the line break is on the y-axis
+
+        args*:
+            A variable length argument, allowing for multiple *x*, *y* pairs
+
+        Returns
+        -------
+
+        break : tuple
+            The break values (bottom, top)
+
+        """
+
+        if (bottom >= top):
+            raise ValueError
+        (ax, ax2) = self.subplots(2,1,sharex=True)
+        lines = ax.plot(*args)
+        ax2.plot(*args)
+        
+        y = []
+        for line in lines:
+            for ycoord in line.get_ydata():
+                y.append(ycoord)
+        
+        ax.set_ylim(top, max(max(y), top))
+        ax2.set_ylim(min(min(y),bottom), bottom)
+
+        ax.spines['bottom'].set_visible(False)
+        ax2.spines['top'].set_visible(False)
+        ax.xaxis.tick_top()
+        ax.tick_params(labeltop='off')
+        ax2.xaxis.tick_bottom()
+
+        d = .015
+        kwargs = dict(transform=ax.transAxes, color='k', clip_on=False)
+        ax.plot((-d, +d), (-d, +d), **kwargs)
+        ax.plot((1 - d, 1 + d), (-d, +d), **kwargs)
+
+        kwargs.update(transform=ax2.transAxes)
+        ax2.plot((-d, +d), (1 - d, 1 + d), **kwargs)
+        ax2.plot((1 - d, 1 + d), (1 - d, 1 + d), **kwargs)
+
+
+    def set_axis_break_x(self, left, right, *args):
+        """
+        Add a line break on the x-axis
+
+        Parameters
+        ----------
+
+        left, right : scalar
+            Controls where the line break is on the x-axis
+
+        args* : 
+            A variable length argument, allowing for multiple *x*, *y* pairs
+
+        Returns
+        -------
+
+        break : tuple
+           The break values (left, right)
+
+        """
+
+        if (left >= right):
+            raise ValueError
+
+        (ax, ax2) = self.subplots(1,2,sharey=True)
+        
+        lines=ax.plot(*args)
+        ax2.plot(*args)
+        
+        x = []
+        for line in lines:
+            for xcoord in line.get_xdata():
+                x.append(xcoord)    
+
+        ax.set_xlim(min(min(x), left), left)
+        ax2.set_xlim(right, max(max(x), right))
+
+        ax.spines['right'].set_visible(False)
+        ax2.spines['left'].set_visible(False)
+        ax.yaxis.tick_left()
+        ax.tick_params(labelright='off')
+        ax2.yaxis.tick_right()
+
+        d = .015
+        kwargs = dict(transform=ax.transAxes, color='k', clip_on=False)
+        ax.plot((1 - d, 1 + d), (-d, +d), **kwargs)
+        ax.plot((1 - d, 1 + d), (1 - d, 1 + d), **kwargs)
+
+        kwargs.update(transform=ax2.transAxes)
+        ax2.plot((-d, +d), (1 - d, 1 + d), **kwargs)
+        ax2.plot((-d, +d), (-d, +d), **kwargs)
+
+
 
     def get_tight_layout(self):
         """
