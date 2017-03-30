@@ -2533,20 +2533,9 @@ class PolygonSelector(_SelectorWidget):
         if the mouse click is within `vertex_select_radius` pixels of the
         vertex.
 
-    Examples
+    See Also
     --------
-    >>> import numpy as np
-    >>> import matplotlib.pyplot as plt
-    >>> from matplotlib.widgets import PolygonSelector
-    >>> def poly_onselect(vertices):
-    >>>     print('Vertices:')
-    >>>     for x, y in vertices:
-    >>>         print("(%3.2f, %3.2f)" % (x, y))
-    >>> grid_size = 5
-    >>> grid_x = np.tile(np.arange(grid_size), grid_size)
-    >>> grid_y = np.repeat(np.arange(grid_size), grid_size)
-    >>> plt.plot(grid_x, grid_y, 'ob')
-    >>> sel = PolygonSelector(plt.gca(), poly_onselect, useblit=True)
+    :ref:`widgets-polygon_selector_demo`
     """
 
     def __init__(self, ax, onselect, useblit=False, interactive=False,
