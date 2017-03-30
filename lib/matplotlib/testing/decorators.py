@@ -281,7 +281,7 @@ class _ImageComparisonBase(object):
         _raise_on_image_difference(expected_fname, actual_fname, self.tol)
 
 
-class ImageComparisonDecorator(CleanupTest, _ImageComparisonBase):
+class ImageComparisonTest(CleanupTest, _ImageComparisonBase):
     def __init__(self, baseline_images, extensions, tol,
                  freetype_version, remove_text, savefig_kwargs, style):
         _ImageComparisonBase.__init__(self, tol, remove_text, savefig_kwargs)
@@ -308,6 +308,12 @@ class ImageComparisonDecorator(CleanupTest, _ImageComparisonBase):
 
     def teardown(self):
         self.teardown_class()
+
+    @staticmethod
+    @cbook.deprecated('2.1',
+                      alternative='remove_ticks_and_titles')
+    def remove_text(figure):
+        remove_ticks_and_titles(figure)
 
     def nose_runner(self):
         func = self.compare
@@ -437,7 +443,7 @@ def image_comparison(baseline_images, extensions=None, tol=0,
         if baseline_images is None:
             raise ValueError('baseline_images must be specified')
 
-        return ImageComparisonDecorator(
+        return ImageComparisonTest(
             baseline_images=baseline_images, extensions=extensions, tol=tol,
             freetype_version=freetype_version, remove_text=remove_text,
             savefig_kwargs=savefig_kwarg, style=style)
