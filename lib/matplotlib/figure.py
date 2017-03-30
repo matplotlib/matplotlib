@@ -355,7 +355,6 @@ class Figure(Artist):
         self.clf()
         self._cachedRenderer = None
 
-	
     @cbook.deprecated("2.1", alternative="Figure.patch")
     def figurePatch(self):
         return self.patch
@@ -418,7 +417,6 @@ class Figure(Artist):
         self.callbacks.process('dpi_changed', self)
     dpi = property(_get_dpi, _set_dpi)
 
-
     def set_axis_break_y(self, bottom, top, *args):
         """
         Add a line break on the y-axis
@@ -442,17 +440,17 @@ class Figure(Artist):
 
         if (bottom >= top):
             raise ValueError
-        (ax, ax2) = self.subplots(2,1,sharex=True)
+        (ax, ax2) = self.subplots(2, 1, sharex=True)
         lines = ax.plot(*args)
         ax2.plot(*args)
-        
+
         y = []
         for line in lines:
             for ycoord in line.get_ydata():
                 y.append(ycoord)
-        
+
         ax.set_ylim(top, max(max(y), top))
-        ax2.set_ylim(min(min(y),bottom), bottom)
+        ax2.set_ylim(min(min(y), bottom), bottom)
 
         ax.spines['bottom'].set_visible(False)
         ax2.spines['top'].set_visible(False)
@@ -469,7 +467,6 @@ class Figure(Artist):
         ax2.plot((-d, +d), (1 - d, 1 + d), **kwargs)
         ax2.plot((1 - d, 1 + d), (1 - d, 1 + d), **kwargs)
 
-
     def set_axis_break_x(self, left, right, *args):
         """
         Add a line break on the x-axis
@@ -480,7 +477,7 @@ class Figure(Artist):
         left, right : scalar
             Controls where the line break is on the x-axis
 
-        args* : 
+        args* :
             A variable length argument, allowing for multiple *x*, *y* pairs
 
         Returns
@@ -494,15 +491,15 @@ class Figure(Artist):
         if (left >= right):
             raise ValueError
 
-        (ax, ax2) = self.subplots(1,2,sharey=True)
-        
-        lines=ax.plot(*args)
+        (ax, ax2) = self.subplots(1, 2, sharey=True)
+
+        lines = ax.plot(*args)
         ax2.plot(*args)
-        
+
         x = []
         for line in lines:
             for xcoord in line.get_xdata():
-                x.append(xcoord)    
+                x.append(xcoord)
 
         ax.set_xlim(min(min(x), left), left)
         ax2.set_xlim(right, max(max(x), right))
@@ -521,8 +518,6 @@ class Figure(Artist):
         kwargs.update(transform=ax2.transAxes)
         ax2.plot((-d, +d), (1 - d, 1 + d), **kwargs)
         ax2.plot((-d, +d), (-d, +d), **kwargs)
-
-
 
     def get_tight_layout(self):
         """
