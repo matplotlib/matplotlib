@@ -91,7 +91,6 @@ def _plot_args_replacer(args, data):
 # The axes module contains all the wrappers to plotting functions.
 # All the other methods should go in the _AxesBase class.
 
-
 class Axes(_AxesBase):
     """
     The :class:`Axes` contains most of the figure elements:
@@ -5852,9 +5851,9 @@ or tuple of floats
     #### Data analysis
 
     @_preprocess_data(replace_names=["x", 'weights'], label_namer="x")
-    def hist(self, x, bins=None, range=None, normed=False, weights=None,
-             cumulative=False, bottom=None, histtype='bar', align='mid',
-             orientation='vertical', rwidth=None, log=False,
+    def hist(self, x, bins=None, range=None, density=None, normed=None,
+             weights=None, cumulative=False, bottom=None, histtype='bar',
+             align='mid', orientation='vertical', rwidth=None, log=False,
              color=None, label=None, stacked=False,
              **kwargs):
         """
@@ -5900,7 +5899,7 @@ or tuple of floats
 
             Default is ``None``
 
-        normed : boolean, optional
+        density : boolean, optional
             If `True`, the first element of the return tuple will
             be the counts normalized to form a probability density, i.e.,
             the area (or integral) under the histogram will sum to 1.
@@ -5909,7 +5908,11 @@ or tuple of floats
             of observations. If `stacked` is also `True`, the sum of the
             histograms is normalized to 1.
 
-            Default is ``False``
+            Default is ``None``, behaves as ``False``.
+
+        normed : boolean, optional
+            Will be deprecated, same role as density. For consistency
+            with NumPy 2.0.0 keyword density has been introduced.
 
         weights : (n, ) array_like or None, optional
             An array of weights, of the same shape as `x`.  Each value in `x`
@@ -6069,6 +6072,11 @@ or tuple of floats
         if histtype == 'barstacked' and not stacked:
             stacked = True
 
+        if density is not None and normed is not None:
+            raise ValueError("kwargs 'density' and 'normed' cannot be used"
+                            "simultaneously. Please only use 'density', since "
+                            "'normed' will be deprecated. ")
+
         # process the unit information
         self._process_unit_info(xdata=x, kwargs=kwargs)
         x = self.convert_xunits(x)
@@ -6120,11 +6128,11 @@ or tuple of floats
                     xmin = min(xmin, xi.min())
                     xmax = max(xmax, xi.max())
             bin_range = (xmin, xmax)
-
-        # hist_kwargs = dict(range=range, normed=bool(normed))
-        # We will handle the normed kwarg within mpl until we
-        # get to the point of requiring numpy >= 1.5.
-        hist_kwargs = dict(range=bin_range)
+        density = bool(density) or bool(normed)
+        if density and not stacked:
+            hist_kwargs = dict(range=bin_range, density=density)
+        else:
+            hist_kwargs = dict(range=bin_range)
 
         n = []
         mlast = None
@@ -6135,9 +6143,7 @@ or tuple of floats
             m = m.astype(float)  # causes problems later if it's an int
             if mlast is None:
                 mlast = np.zeros(len(bins)-1, m.dtype)
-            if normed and not stacked:
-                db = np.diff(bins)
-                m = (m.astype(float) / db) / m.sum()
+
             if stacked:
                 if mlast is None:
                     mlast = np.zeros(len(bins)-1, m.dtype)
@@ -6145,7 +6151,7 @@ or tuple of floats
                 mlast[:] = m
             n.append(m)
 
-        if stacked and normed:
+        if stacked and density:
             db = np.diff(bins)
             for m in n:
                 m[:] = (m.astype(float) / db) / n[-1].sum()
@@ -6154,7 +6160,7 @@ or tuple of floats
             if cbook.is_numlike(cumulative) and cumulative < 0:
                 slc = slice(None, None, -1)
 
-            if normed:
+            if density:
                 n = [(m * np.diff(bins))[slc].cumsum()[slc] for m in n]
             else:
                 n = [m[slc].cumsum()[slc] for m in n]
@@ -6241,13 +6247,14 @@ or tuple of floats
                 # Setting a minimum of 0 results in problems for log plots
                 if np.min(bottom) > 0:
                     minimum = np.min(bottom)
-                elif normed or weights is not None:
-                    # For normed data, set to minimum data value / logbase
-                    # (gives 1 full tick-label unit for the lowest filled bin)
+                elif density or weights is not None:
+                    # For normed (density = True) data full tick-label unit
+                    # for the lowest filled bin)
                     ndata = np.array(n)
                     minimum = (np.min(ndata[ndata > 0])) / logbase
                 else:
-                    # For non-normed data, set the min to 1 / log base,
+                    # For non-normed (density = False) data,
+                    # set the min to 1 / log base,
                     # again so that there is 1 full tick-label unit
                     # for the lowest bin
                     minimum = 1.0 / logbase
