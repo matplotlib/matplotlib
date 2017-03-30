@@ -335,6 +335,7 @@ def check_polygon_selector(event_sequence, expected_result, selections_cnt):
     ax = get_ax()
 
     ax._onselect_cnt = 0
+
     def onselect(vertices):
         ax._onselect_cnt += 1
         ax._current_result = vertices
