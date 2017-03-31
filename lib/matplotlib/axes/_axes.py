@@ -32,6 +32,7 @@ import matplotlib.markers as mmarkers
 import matplotlib.mlab as mlab
 import matplotlib.path as mpath
 import matplotlib.patches as mpatches
+import matplotlib.patheffects as mpatheffects
 import matplotlib.quiver as mquiver
 import matplotlib.stackplot as mstack
 import matplotlib.streamplot as mstream
@@ -2702,6 +2703,7 @@ or tuple of floats
                  fmt='', ecolor=None, elinewidth=None, capsize=None,
                  barsabove=False, lolims=False, uplims=False,
                  xlolims=False, xuplims=False, errorevery=1, capthick=None,
+                 border=None, borderwidth=3,
                  **kwargs):
         """
         Plot an errorbar graph.
@@ -2769,6 +2771,14 @@ or tuple of floats
             subsamples the errorbars. e.g., if errorevery=5, errorbars for
             every 5-th datapoint will be plotted. The data plot itself still
             shows all data points.
+
+        border : string, optional, default: None
+            A string denoting the desired color of the border of the errorbar.
+            Default, no border is drawn around the errorbar.
+
+        borderwidth : positive integer, optional, default:3
+            Sets the thickness of the border around the errorbar.
+            Irrelevant if border=None.
 
         Returns
         -------
@@ -2980,6 +2990,12 @@ or tuple of floats
                     in cbook.safezip(data, err)]
             return low, high
 
+        # Define errorbar border effect
+        if border is not None:
+            path_effects = [mpatheffects.Stroke(linewidth=borderwidth,
+                            foreground=border),
+                            mpatheffects.Normal()]
+
         if xerr is not None:
             left, right = extract_err(xerr, x)
             # select points without upper/lower limits in x and
@@ -2988,7 +3004,14 @@ or tuple of floats
             if noxlims.any():
                 yo, _ = xywhere(y, right, noxlims & everymask)
                 lo, ro = xywhere(left, right, noxlims & everymask)
-                barcols.append(self.hlines(yo, lo, ro, **eb_lines_style))
+
+                if border is not None:
+                    barcols.append(self.hlines(yo, lo, ro,
+                                   **eb_lines_style)
+                                   .set_path_effects(path_effects))
+                else:
+                    barcols.append(self.hlines(yo, lo, ro, **eb_lines_style))
+
                 if capsize > 0:
                     caplines.append(mlines.Line2D(lo, yo, marker='|',
                                                   **eb_cap_style))
@@ -2998,15 +3021,30 @@ or tuple of floats
             if xlolims.any():
                 yo, _ = xywhere(y, right, xlolims & everymask)
                 lo, ro = xywhere(x, right, xlolims & everymask)
-                barcols.append(self.hlines(yo, lo, ro, **eb_lines_style))
+
+                if border is not None:
+                    barcols.append(self.hlines(yo, lo, ro,
+                                               **eb_lines_style)
+                                               .set_path_effects(path_effects))
+                else:
+                    barcols.append(self.hlines(yo, lo, ro, **eb_lines_style))
+
                 rightup, yup = xywhere(right, y, xlolims & everymask)
                 if self.xaxis_inverted():
                     marker = mlines.CARETLEFTBASE
                 else:
                     marker = mlines.CARETRIGHTBASE
-                caplines.append(
-                    mlines.Line2D(rightup, yup, ls='None', marker=marker,
-                                  **eb_cap_style))
+
+                if border is not None:
+                    caplines.append(
+                        mlines.Line2D(rightup, yup, ls='None', marker=marker,
+                                      path_effects=path_effects,
+                                      **eb_cap_style))
+                else:
+                    caplines.append(
+                        mlines.Line2D(rightup, yup, ls='None', marker=marker,
+                                      **eb_cap_style))
+
                 if capsize > 0:
                     xlo, ylo = xywhere(x, y, xlolims & everymask)
                     caplines.append(mlines.Line2D(xlo, ylo, marker='|',
@@ -3015,15 +3053,29 @@ or tuple of floats
             if xuplims.any():
                 yo, _ = xywhere(y, right, xuplims & everymask)
                 lo, ro = xywhere(left, x, xuplims & everymask)
-                barcols.append(self.hlines(yo, lo, ro, **eb_lines_style))
+
+                if (border is not None):
+                    barcols.append(self.hlines(yo, lo, ro, **eb_lines_style)
+                        .set_path_effects(path_effects))
+                else:
+                    barcols.append(self.hlines(yo, lo, ro, **eb_lines_style))
+
                 leftlo, ylo = xywhere(left, y, xuplims & everymask)
                 if self.xaxis_inverted():
                     marker = mlines.CARETRIGHTBASE
                 else:
                     marker = mlines.CARETLEFTBASE
-                caplines.append(
-                    mlines.Line2D(leftlo, ylo, ls='None', marker=marker,
-                                  **eb_cap_style))
+
+                if border is not None:
+                    caplines.append(
+                        mlines.Line2D(leftlo, ylo, ls='None', marker=marker,
+                                      path_effects=path_effects,
+                                      **eb_cap_style))
+                else:
+                    caplines.append(
+                        mlines.Line2D(leftlo, ylo, ls='None', marker=marker,
+                                      **eb_cap_style))
+
                 if capsize > 0:
                     xup, yup = xywhere(x, y, xuplims & everymask)
                     caplines.append(mlines.Line2D(xup, yup, marker='|',
@@ -3037,7 +3089,13 @@ or tuple of floats
             if noylims.any():
                 xo, _ = xywhere(x, lower, noylims & everymask)
                 lo, uo = xywhere(lower, upper, noylims & everymask)
-                barcols.append(self.vlines(xo, lo, uo, **eb_lines_style))
+
+                if border is not None:
+                    barcols.append(self.vlines(xo, lo, uo, **eb_lines_style)
+                        .set_path_effects(path_effects))
+                else:
+                    barcols.append(self.vlines(xo, lo, uo, **eb_lines_style))
+
                 if capsize > 0:
                     caplines.append(mlines.Line2D(xo, lo, marker='_',
                                                   **eb_cap_style))
@@ -3047,15 +3105,29 @@ or tuple of floats
             if lolims.any():
                 xo, _ = xywhere(x, lower, lolims & everymask)
                 lo, uo = xywhere(y, upper, lolims & everymask)
-                barcols.append(self.vlines(xo, lo, uo, **eb_lines_style))
+
+                if (border is not None):
+                    barcols.append(self.vlines(xo, lo, uo, **eb_lines_style)
+                        .set_path_effects(path_effects))
+                else:
+                    barcols.append(self.vlines(xo, lo, uo, **eb_lines_style))
+
                 xup, upperup = xywhere(x, upper, lolims & everymask)
                 if self.yaxis_inverted():
                     marker = mlines.CARETDOWNBASE
                 else:
                     marker = mlines.CARETUPBASE
-                caplines.append(
-                    mlines.Line2D(xup, upperup, ls='None', marker=marker,
-                                  **eb_cap_style))
+
+                if border is not None:
+                    caplines.append(
+                        mlines.Line2D(xup, upperup, ls='None', marker=marker,
+                                      path_effects=path_effects,
+                                      **eb_cap_style))
+                else:
+                    caplines.append(
+                        mlines.Line2D(xup, upperup, ls='None', marker=marker,
+                                      **eb_cap_style))
+
                 if capsize > 0:
                     xlo, ylo = xywhere(x, y, lolims & everymask)
                     caplines.append(mlines.Line2D(xlo, ylo, marker='_',
@@ -3064,15 +3136,29 @@ or tuple of floats
             if uplims.any():
                 xo, _ = xywhere(x, lower, uplims & everymask)
                 lo, uo = xywhere(lower, y, uplims & everymask)
-                barcols.append(self.vlines(xo, lo, uo, **eb_lines_style))
+
+                if border is not None:
+                    barcols.append(self.vlines(xo, lo, uo, **eb_lines_style)
+                        .set_path_effects(path_effects))
+                else:
+                    barcols.append(self.vlines(xo, lo, uo, **eb_lines_style))
+
                 xlo, lowerlo = xywhere(x, lower, uplims & everymask)
                 if self.yaxis_inverted():
                     marker = mlines.CARETUPBASE
                 else:
                     marker = mlines.CARETDOWNBASE
-                caplines.append(
-                    mlines.Line2D(xlo, lowerlo, ls='None', marker=marker,
-                                  **eb_cap_style))
+
+                if border is not None:
+                    caplines.append(
+                        mlines.Line2D(xlo, lowerlo, ls='None', marker=marker,
+                                      path_effects=path_effects,
+                                      **eb_cap_style))
+                else:
+                    caplines.append(
+                        mlines.Line2D(xlo, lowerlo, ls='None', marker=marker,
+                                      **eb_cap_style))
+
                 if capsize > 0:
                     xup, yup = xywhere(x, y, uplims & everymask)
                     caplines.append(mlines.Line2D(xup, yup, marker='_',
