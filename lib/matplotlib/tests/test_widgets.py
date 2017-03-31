@@ -437,3 +437,15 @@ def test_polygon_selector():
                       + polygon_place_vertex(50, 150)
                       + polygon_place_vertex(50, 50))
     check_polygon_selector(event_sequence, expected_result, 1)
+
+    # Try to place vertex out-of-bounds, then reset, and start a new polygon.
+    expected_result = [(50, 50), (150, 50), (50, 150)]
+    event_sequence = (polygon_place_vertex(50, 50)
+                      + polygon_place_vertex(250, 50)
+                      + [('on_key_press', dict(key='escape')),
+                         ('on_key_release', dict(key='escape'))]
+                      + polygon_place_vertex(50, 50)
+                      + polygon_place_vertex(150, 50)
+                      + polygon_place_vertex(50, 150)
+                      + polygon_place_vertex(50, 50))
+    check_polygon_selector(event_sequence, expected_result, 1)

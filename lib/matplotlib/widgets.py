@@ -2678,6 +2678,7 @@ class PolygonSelector(_SelectorWidget):
             self._draw_polygon()
         # Reset the polygon if the released key is the 'clear' key.
         elif event.key == self.state_modifier_keys.get('clear'):
+            event = self._clean_event(event)
             self._xs, self._ys = [event.xdata], [event.ydata]
             self._polygon_completed = False
             self.set_visible(True)
