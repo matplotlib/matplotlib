@@ -5910,9 +5910,9 @@ or tuple of floats
     #### Data analysis
 
     @_preprocess_data(replace_names=["x", 'weights'], label_namer="x")
-    def hist(self, x, bins=None, range=None, density=None, normed=None, weights=None,
-             cumulative=False, bottom=None, histtype='bar', align='mid',
-             orientation='vertical', rwidth=None, log=False,
+    def hist(self, x, bins=None, range=None, density=None, normed=None,
+             weights=None, cumulative=False, bottom=None, histtype='bar',
+             align='mid', orientation='vertical', rwidth=None, log=False,
              color=None, label=None, stacked=False,
              **kwargs):
         """
@@ -6135,9 +6135,9 @@ or tuple of floats
         if histtype == 'barstacked' and not stacked:
             stacked = True
 
-        if density is not None and normed is not None and not normed == density :
-            raise ValueError("kwargs density and normed cannot have different values.\
-            Use density only, since normed will be deprecated.")
+        if density is not None and normed is not None and normed != density:
+            raise ValueError("kwargs density and normed cannot have different\
+            values. Use density only, since normed will be deprecated.")
 
         # process the unit information
         self._process_unit_info(xdata=x, kwargs=kwargs)
@@ -6193,7 +6193,7 @@ or tuple of floats
                     xmin = min(xmin, xi.min())
                     xmax = max(xmax, xi.max())
             bin_range = (xmin, xmax)
-        density=bool(density) or bool(normed)
+        density = bool(density) or bool(normed)
         if density and not stacked:
             hist_kwargs = dict(range=bin_range, density=density)
         else:
@@ -6208,7 +6208,6 @@ or tuple of floats
             m = m.astype(float)  # causes problems later if it's an int
             if mlast is None:
                 mlast = np.zeros(len(bins)-1, m.dtype)
-
 
             if stacked:
                 if mlast is None:
@@ -6314,11 +6313,13 @@ or tuple of floats
                 if np.min(bottom) > 0:
                     minimum = np.min(bottom)
                 elif density or weights is not None:
-                    # For normed (density = True) data full tick-label unit for the lowest filled bin)
+                    # For normed (density = True) data full tick-label unit
+                    # for the lowest filled bin)
                     ndata = np.array(n)
                     minimum = (np.min(ndata[ndata > 0])) / logbase
                 else:
-                    # For non-normed (density = False) data, set the min to 1 / log base,
+                    # For non-normed (density = False) data,
+                    # set the min to 1 / log base,
                     # again so that there is 1 full tick-label unit
                     # for the lowest bin
                     minimum = 1.0 / logbase
