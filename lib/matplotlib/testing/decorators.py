@@ -360,7 +360,7 @@ class ImageComparisonDecorator(CleanupTest):
             return _copy_metadata(func, runner_wrapper)
 
 
-def image_comparison(baseline_images=None, extensions=None, tol=0,
+def image_comparison(baseline_images, extensions=None, tol=0,
                      freetype_version=None, remove_text=False,
                      savefig_kwarg=None, style='_classic_test'):
     """
@@ -400,8 +400,6 @@ def image_comparison(baseline_images=None, extensions=None, tol=0,
         '_classic_test' style.
 
     """
-    if baseline_images is None:
-        raise ValueError('baseline_images must be specified')
 
     if extensions is None:
         # default extensions to test
