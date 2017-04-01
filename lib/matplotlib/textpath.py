@@ -44,13 +44,6 @@ class TextToPath(object):
 
         self._texmanager = None
 
-        self._adobe_standard_encoding = None
-
-    def _get_adobe_standard_encoding(self):
-        enc_name = dviread.find_tex_file('8a.enc')
-        enc = dviread.Encoding(enc_name)
-        return {c: i for i, c in enumerate(enc.encoding)}
-
     def _get_font(self, prop):
         """
         find a ttf font.
@@ -299,13 +292,11 @@ class TextToPath(object):
         # codes are modstly borrowed from pdf backend.
 
         texmanager = self.get_texmanager()
+        use_glyph = False
 
         if self.tex_font_map is None:
             self.tex_font_map = dviread.PsfontsMap(
                                     dviread.find_tex_file('pdftex.map'))
-
-        if self._adobe_standard_encoding is None:
-            self._adobe_standard_encoding = self._get_adobe_standard_encoding()
 
         fontsize = prop.get_size_in_points()
         if hasattr(texmanager, "get_dvi"):
@@ -358,11 +349,21 @@ class TextToPath(object):
                     warnings.warn("No supported encoding in font (%s)." %
                                   font_bunch.filename)
 
+                # Character is a glyph and needs to be mapped to corresponding index
                 if charmap_name == "ADOBE_STANDARD" and font_bunch.encoding:
+                    use_glyph = True
                     enc0 = dviread.Encoding(font_bunch.encoding)
-                    enc = {i: self._adobe_standard_encoding.get(c, None)
-                           for i, c in enumerate(enc0.encoding)}
+
+                    # Make a list of each glyph by splitting the encoding
+                    enc0_list = []
+                    for e in enc0.encoding:
+                        enc0_list += e.split("/")
+
+                    # Encoding provided by the font file mapping names to index
+                    enc = {i: font.get_name_index(c) or None
+                           for i, c in enumerate(enc0_list)}
                 else:
+                    use_glyph = False
                     enc = {}
                 self._ps_fontd[dvifont.texname] = font, enc
 
@@ -382,7 +383,10 @@ class TextToPath(object):
                     charcode = glyph
 
                 if charcode is not None:
-                    glyph0 = font.load_char(charcode, flags=ft2font_flag)
+                    if use_glyph:
+                        glyph0 = font.load_glyph(charcode, flags=ft2font_flag)
+                    else:
+                        glyph0 = font.load_char(charcode, flags=ft2font_flag)
                 else:
                     warnings.warn("The glyph (%d) of font (%s) cannot be "
                                   "converted with the encoding. Glyph may "
