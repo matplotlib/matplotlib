@@ -370,37 +370,26 @@ def test_plotsurface_1d_raises():
         ax.plot_surface(X, Y, z)
 
 
-def _test_proj_make_M(proj='persp'):
+def _test_proj_make_M():
     # eye point
     E = np.array([1000, -1000, 2000])
     R = np.array([100, 100, 100])
     V = np.array([0, 0, 1])
     viewM = proj3d.view_transformation(E, R, V)
-    if proj == 'persp':
-        projM = proj3d.persp_transformation(-100, 100)
-    else:
-        projM = proj3d.ortho_transformation(-100, 100)
-    return np.dot(projM, viewM)
+    perspM = proj3d.persp_transformation(100, -100)
+    M = np.dot(perspM, viewM)
+    return M
 
 
 def test_proj_transform():
+    M = _test_proj_make_M()
+
     xs = np.array([0, 1, 1, 0, 0, 0, 1, 1, 0, 0]) * 300.0
     ys = np.array([0, 0, 1, 1, 0, 0, 0, 1, 1, 0]) * 300.0
     zs = np.array([0, 0, 0, 0, 0, 1, 1, 1, 1, 1]) * 300.0
 
-    # perspective
-    perspM = _test_proj_make_M()
-    txs, tys, tzs = proj3d.proj_transform(xs, ys, zs, perspM)
-    ixs, iys, izs = proj3d.inv_transform(txs, tys, tzs, perspM)
-
-    np.testing.assert_almost_equal(ixs, xs)
-    np.testing.assert_almost_equal(iys, ys)
-    np.testing.assert_almost_equal(izs, zs)
-
-    # orthographic
-    orthoM = _test_proj_make_M(proj='ortho')
-    txs, tys, tzs = proj3d.proj_transform(xs, ys, zs, orthoM)
-    ixs, iys, izs = proj3d.inv_transform(txs, tys, tzs, orthoM)
+    txs, tys, tzs = proj3d.proj_transform(xs, ys, zs, M)
+    ixs, iys, izs = proj3d.inv_transform(txs, tys, tzs, M)
 
     np.testing.assert_almost_equal(ixs, xs)
     np.testing.assert_almost_equal(iys, ys)
