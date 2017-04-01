@@ -208,3 +208,24 @@ def test_missing_psfont(monkeypatch):
     ax.text(0.5, 0.5, 'hello')
     with tempfile.TemporaryFile() as tmpfile, pytest.raises(ValueError):
         fig.savefig(tmpfile, format='svg')
+
+
+@needs_tex
+def test_unicode_won():
+    from pylab import rcParams, plot, ylabel, savefig
+    rcParams.update({'text.usetex': True, 'text.latex.unicode': True})
+
+    plot(1, 1)
+    ylabel(r'\textwon')
+
+    fd = BytesIO()
+    savefig(fd, format='svg')
+    fd.seek(0)
+    buf = fd.read().decode()
+    fd.close()
+
+    won_id = 'Computer_Modern_Sans_Serif-142'
+    def_regex = re.compile(r'<path d=(.|\s)*?id="{0}"/>'.format(won_id))
+    use_regex = re.compile(r'<use[^/>]*? xlink:href="#{0}"/>'.format(won_id))
+    assertTrue(bool(def_regex.search(buf)))
+    assertTrue(bool(use_regex.search(buf)))
