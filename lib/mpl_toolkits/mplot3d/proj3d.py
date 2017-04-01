@@ -125,6 +125,7 @@ def persp_transformation(zfront, zback):
                      ])
 
 def ortho_transformation(zfront, zback):
+    # note: w component in the resulting vector will be (zback-zfront), not 1
     a = -(zfront + zback)
     b = -(zfront - zback)
     return np.array([[2,0,0,0],

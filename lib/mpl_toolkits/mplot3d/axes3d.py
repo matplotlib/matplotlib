@@ -63,7 +63,7 @@ class Axes3D(Axes):
           *elev*             Elevation viewing angle (default 30)
           *zscale*           [%(scale)s]
           *sharez*           Other axes to share z-limits with
-          *proj*             'persp' or 'ortho' (default 'persp')
+          *proj_type*        'persp' or 'ortho' (default 'persp')
           ================   =========================================
 
         .. versionadded :: 1.2.1
@@ -79,7 +79,7 @@ class Axes3D(Axes):
         self.initial_elev = kwargs.pop('elev', 30)
         zscale = kwargs.pop('zscale', None)
         sharez = kwargs.pop('sharez', None)
-        self.set_proj(kwargs.pop('projection', 'persp'))
+        self.set_proj_type(kwargs.pop('proj_type', 'persp'))
 
         self.xy_viewLim = unit_bbox()
         self.zz_viewLim = unit_bbox()
@@ -263,7 +263,7 @@ class Axes3D(Axes):
             self.apply_aspect()
 
         # add the projection matrix to the renderer
-        self.M = self.get_proj_matrix()
+        self.M = self.get_proj()
         renderer.M = self.M
         renderer.vvec = self.vvec
         renderer.eye = self.eye
@@ -961,9 +961,15 @@ class Axes3D(Axes):
         else:
             self.azim = azim
 
-    def set_proj(self, proj):
+    def set_proj_type(self, proj):
         """
-        Set the type of projection.
+        Set the projection type.
+
+        Parameters
+        ----------
+        proj : str
+            Type of projection, accepts 'persp' and 'ortho'.
+
         """
         if proj == 'persp':
             self._projection = proj3d.persp_transformation
@@ -972,7 +978,7 @@ class Axes3D(Axes):
         else:
             raise ValueError("unrecognized projection: %s" % proj)
 
-    def get_proj_matrix(self):
+    def get_proj(self):
         """
         Create the projection matrix from the current viewing position.
 
@@ -1188,7 +1194,7 @@ class Axes3D(Axes):
                 return
             self.elev = art3d.norm_angle(self.elev - (dy/h)*180)
             self.azim = art3d.norm_angle(self.azim - (dx/w)*180)
-            self.get_proj_matrix()
+            self.get_proj()
             self.figure.canvas.draw_idle()
 
 #        elif self.button_pressed == 2:
@@ -1209,7 +1215,7 @@ class Axes3D(Axes):
             self.set_xlim3d(minx - dx, maxx + dx)
             self.set_ylim3d(miny - dy, maxy + dy)
             self.set_zlim3d(minz - dz, maxz + dz)
-            self.get_proj_matrix()
+            self.get_proj()
             self.figure.canvas.draw_idle()
 
     def set_zlabel(self, zlabel, fontdict=None, labelpad=None, **kwargs):
