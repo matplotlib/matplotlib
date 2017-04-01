@@ -961,22 +961,22 @@ class Axes3D(Axes):
         else:
             self.azim = azim
 
-    def set_proj_type(self, proj):
+    def set_proj_type(self, proj_type):
         """
         Set the projection type.
 
         Parameters
         ----------
-        proj : str
+        proj_type : str
             Type of projection, accepts 'persp' and 'ortho'.
 
         """
-        if proj == 'persp':
+        if proj_type == 'persp':
             self._projection = proj3d.persp_transformation
-        elif proj == 'ortho':
+        elif proj_type == 'ortho':
             self._projection = proj3d.ortho_transformation
         else:
-            raise ValueError("unrecognized projection: %s" % proj)
+            raise ValueError("unrecognized projection: %s" % proj_type)
 
     def get_proj(self):
         """
