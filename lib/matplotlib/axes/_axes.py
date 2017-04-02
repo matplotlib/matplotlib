@@ -6135,7 +6135,7 @@ or tuple of floats
         if histtype == 'barstacked' and not stacked:
             stacked = True
 
-        if density is not None and normed is not None and normed != density:
+        if density is not None and normed is not None:
             raise ValueError("kwargs 'density' and 'normed' cannot be used"
                             "simultaneously. Please only use 'density', since "
                             "'normed' will be deprecated. ")
