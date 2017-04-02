@@ -1,39 +1,37 @@
 '''
-Show what matplotlib colormaps look like in grayscale.
+==================================
+Grayscale version of the colormaps
+==================================
+
+Show what Matplotlib colormaps look like in grayscale.
 Uses lightness L* as a proxy for grayscale value.
 '''
 
-from colormaps import cmaps
-
-#from skimage import color
-# we are using a local copy of colorconv from scikit-image to reduce dependencies.
-# You should probably use the one from scikit-image in most cases.
 import numpy as np
+import matplotlib as mpl
 import matplotlib.pyplot as plt
 from matplotlib import cm
-import matplotlib as mpl
 from colorspacious import cspace_converter
+from colormaps import cmaps  # the colormaps, grouped by category
 
 mpl.rcParams.update({'font.size': 14})
 
-
-# indices to step through colormap
+# Indices to step through colormap.
 x = np.linspace(0.0, 1.0, 100)
 
-# nrows = max(len(cmap_list) for cmap_category, cmap_list in cmaps)
 gradient = np.linspace(0, 1, 256)
 gradient = np.vstack((gradient, gradient))
 
+
 def plot_color_gradients(cmap_category, cmap_list):
-    nrows = len(cmap_list)
-    fig, axes = plt.subplots(nrows=nrows, ncols=2)
+    fig, axes = plt.subplots(nrows=len(cmap_list), ncols=2)
     fig.subplots_adjust(top=0.95, bottom=0.01, left=0.2, right=0.99,
                         wspace=0.05)
     fig.suptitle(cmap_category + ' colormaps', fontsize=14, y=1.0, x=0.6)
 
     for ax, name in zip(axes, cmap_list):
 
-        # Get rgb values for colormap
+        # Get RGB values for colormap.
         rgb = cm.get_cmap(plt.get_cmap(name))(x)[np.newaxis,:,:3]
 
         # Get colormap in CAM02-UCS colorspace. We want the lightness.
@@ -49,9 +47,9 @@ def plot_color_gradients(cmap_category, cmap_list):
         fig.text(x_text, y_text, name, va='center', ha='right', fontsize=10)
 
     # Turn off *all* ticks & spines, not just the ones with colormaps.
-    for ax in axes:
-        ax[0].set_axis_off()
-        ax[1].set_axis_off()
+    for ax in axes.flat:
+        ax.set_axis_off()
+
     plt.show()
 
 
