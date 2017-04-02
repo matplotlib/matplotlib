@@ -3280,6 +3280,7 @@ or tuple of floats
             whis = rcParams['boxplot.whiskers']
         if bootstrap is None:
             bootstrap = rcParams['boxplot.bootstrap']
+
         bxpstats = cbook.boxplot_stats(x, whis=whis, bootstrap=bootstrap,
                                        labels=labels, autorange=autorange)
         if notch is None:
