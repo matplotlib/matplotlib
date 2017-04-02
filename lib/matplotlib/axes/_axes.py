@@ -6136,8 +6136,9 @@ or tuple of floats
             stacked = True
 
         if density is not None and normed is not None and normed != density:
-            raise ValueError("kwargs density and normed cannot have different\
-            values. Use density only, since normed will be deprecated.")
+            raise ValueError("kwargs 'density' and 'normed' cannot be used"
+                            "simultaneously. Please only use 'density', since "
+                            "'normed' will be deprecated. ")
 
         # process the unit information
         self._process_unit_info(xdata=x, kwargs=kwargs)
