@@ -49,6 +49,14 @@ def check_save_animation(writer, extension='mp4'):
     ax.set_xlim(0, 10)
     ax.set_ylim(-1, 1)
 
+    dpi = None
+    codec = None
+    if writer == 'ffmpeg':
+        # Issue #8253
+        fig.set_size_inches((10.85, 9.21))
+        dpi = 100.
+        codec = 'h264'
+
     def init():
         line.set_data([], [])
         return line,
@@ -64,7 +72,8 @@ def check_save_animation(writer, extension='mp4'):
     F.close()
     anim = animation.FuncAnimation(fig, animate, init_func=init, frames=5)
     try:
-        anim.save(F.name, fps=30, writer=writer, bitrate=500)
+        anim.save(F.name, fps=30, writer=writer, bitrate=500,
+                  dpi=dpi, codec=codec)
     except UnicodeDecodeError:
         raise KnownFailureTest("There can be errors in the numpy " +
                                "import stack, " +
