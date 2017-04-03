@@ -1,7 +1,7 @@
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
-from collections import OrderedDict, deque
+from collections import OrderedDict
 
 import six
 from six import unichr, raise_from
@@ -607,7 +607,7 @@ class RendererSVG(RendererBase):
         """
         Open a grouping element with label *s*. If *gid* is given, use
         *gid* as the id of the group.
-    
+
         If *gid* is a key in `self.gid_data`,
         include the value of *gid* in `self.gid_data` in  the attributes of
         the new group.

@@ -8,10 +8,13 @@ from io import BytesIO
 import os
 import tempfile
 import xml.parsers.expat
+from xml.etree import ElementTree
 
 import pytest
 
 import matplotlib.pyplot as plt
+from matplotlib import figure, patches as mpatches
+from matplotlib.backends.backend_svg import FigureCanvasSVG
 from matplotlib.testing.decorators import image_comparison
 import matplotlib
 from matplotlib import dviread
@@ -208,3 +211,64 @@ def test_missing_psfont(monkeypatch):
     ax.text(0.5, 0.5, 'hello')
     with tempfile.TemporaryFile() as tmpfile, pytest.raises(ValueError):
         fig.savefig(tmpfile, format='svg')
+
+
+def test_gid_data():
+    def draw_graphics(ax):
+        rect = mpatches.Rectangle((0.5, 0.5), 1.5, 1.5, fc='red', alpha=0.5)
+        rect.set_gid("rectangle-of-paint")
+        ax.add_patch(rect)
+        tx = ax.text(0.15, 0.0, "Wet Paint")
+        tx.set_gid("warning-message")
+        ax.set_xlim(0, 5)
+        ax.set_ylim(0, 5)
+        ax.xaxis.set_visible(False)
+        ax.yaxis.set_visible(False)
+        for spine in ax.spines.values():
+            spine.set_visible(False)
+
+    fig = figure.Figure((2, 2))
+    canvas = FigureCanvasSVG(fig)
+    ax = fig.add_subplot(1, 1, 1)
+    draw_graphics(ax)
+    figure_buffer = BytesIO()
+    svg_attribs = {
+        'extra_content': b"""
+    <defs>
+        <style id='my-style'>
+            #rectangle-of-paint path {
+                stroke: blue;
+            }
+        </style>
+        <script type='text/javascript'>
+            function foo(elt) {
+                elt.style.fill = "purple"
+            }
+        </script>
+    </defs>
+        """,
+        'viewBox': "-30 30 144 144"
+    }
+    svg_gid_data = {
+        "rectangle-of-paint": {
+            "class": "wet-paint",
+            "data-lead-level": 77.5,
+            "onclick": "alert(\"Caution! Wet Paint. Lead Level: \" + this.dataset.leadLevel)"
+        },
+        "warning-message": {
+            "onmouseover": "foo(this)"
+        }
+    }
+    fig.savefig(figure_buffer, format='svg', svg_attribs=svg_attribs.copy(),
+                svg_gid_data=svg_gid_data.copy())
+    figure_buffer.seek(0)
+    text = figure_buffer.read()
+    root, id_map = ElementTree.XMLID(text)
+    assert id_map['rectangle-of-paint'].attrib['data-lead-level'] == "77.5"
+    assert root.attrib['viewBox'] == "-30 30 144 144"
+
+    figure_buffer = BytesIO()
+    svg_attribs['extra_content'] = svg_attribs['extra_content'].replace(b"<defs>", b"<defs")
+    with pytest.raises(ValueError):
+        fig.savefig(figure_buffer, format='svg', svg_attribs=svg_attribs.copy(),
+                    svg_gid_data=svg_gid_data.copy())
