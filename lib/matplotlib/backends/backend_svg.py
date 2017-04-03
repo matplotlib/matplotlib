@@ -1,17 +1,20 @@
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
-from collections import OrderedDict
+from collections import OrderedDict, deque
 
 import six
-from six import unichr
+from six import unichr, raise_from
 from six.moves import xrange
+
 
 import os, base64, tempfile, gzip, io, sys, codecs, re
 
 import numpy as np
 
 from hashlib import md5
+from xml.etree import ElementTree
+
 import uuid
 
 from matplotlib import verbose, __version__, rcParams
@@ -71,6 +74,7 @@ backend_version = __version__
 # --------------------------------------------------------------------
 
 def escape_cdata(s):
+    s = force_str(s)
     s = s.replace("&", "&amp;")
     s = s.replace("<", "&lt;")
     s = s.replace(">", "&gt;")
@@ -82,6 +86,7 @@ def escape_comment(s):
     return _escape_xml_comment.sub('- ', s)
 
 def escape_attrib(s):
+    s = force_str(s)
     s = s.replace("&", "&amp;")
     s = s.replace("'", "&apos;")
     s = s.replace("\"", "&quot;")
@@ -95,6 +100,51 @@ def short_float_fmt(x):
     formatting with trailing zeros and the decimal point removed.
     """
     return '{0:f}'.format(x).rstrip('0').rstrip('.')
+
+
+def validate_xml(text):
+    """Validates that `text` is well-formed XML
+    
+    Parameters
+    ----------
+    text : str
+        XML text to validate
+    
+    Returns
+    -------
+    bool
+    
+    Raises
+    ------
+    ValueError
+    """
+    try:
+        ElementTree.fromstring(text)
+    except ElementTree.ParseError as e:
+        raise_from(ValueError("Invalid XML: %s" % e.msg), e)
+    return True
+
+
+def force_str(obj):
+    """Convert `obj` into a `str` at all costs. Need
+    to ensure that XML santitization functions receive
+    the expected API and encoding assumptions.
+    
+    Parameters
+    ----------
+    obj : object
+        Any object to be included in an XML tag's attribute set
+    
+    Returns
+    -------
+    str
+    """
+    if isinstance(obj, str):
+        return obj
+    elif isinstance(obj, bytes):
+        return obj.decode("utf8")
+    else:
+        return str(obj)
 
 ##
 # XML writer class.
@@ -256,11 +306,18 @@ def generate_css(attrib={}):
     return ''
 
 _capstyle_d = {'projecting' : 'square', 'butt' : 'butt', 'round': 'round',}
+
+
 class RendererSVG(RendererBase):
     FONT_SCALE = 100.0
     fontd = maxdict(50)
 
-    def __init__(self, width, height, svgwriter, basename=None, image_dpi=72):
+    def __init__(self, width, height, svgwriter, basename=None, image_dpi=72,
+                 svg_gid_data=None, svg_attribs=None):
+        if svg_gid_data is None:
+            svg_gid_data = dict()
+        if svg_attribs is None:
+            svg_attribs = dict()
         self.width = width
         self.height = height
         self.writer = XMLWriter(svgwriter)
@@ -282,18 +339,35 @@ class RendererSVG(RendererBase):
         self._fonts = OrderedDict()
         self.mathtext_parser = MathTextParser('SVG')
 
+        self.gid_data = svg_gid_data
+        self.svg_attribs = svg_attribs
+
         RendererBase.__init__(self)
         self._glyph_map = dict()
 
-        svgwriter.write(svgProlog)
-        self._start_id = self.writer.start(
-            'svg',
+        if self.svg_attribs.get("extra_content") is not None:
+            extra_content = self.svg_attribs.pop("extra_content")
+            if isinstance(extra_content, bytes):
+                extra_content = extra_content.decode('utf8')
+            validate_xml(extra_content)
+        else:
+            extra_content = None
+
+        svg_attrs = dict(
             width='%ipt' % width, height='%ipt' % height,
             viewBox='0 0 %i %i' % (width, height),
             xmlns="http://www.w3.org/2000/svg",
             version="1.1",
             attrib={'xmlns:xlink': "http://www.w3.org/1999/xlink"})
+        svg_attrs.update(self.svg_attribs)
+
+        svgwriter.write(svgProlog)
+        self._start_id = self.writer.start(
+            'svg',
+            **svg_attrs)
         self._write_default_style()
+        if extra_content is not None:
+            svgwriter.write(extra_content)
 
     def finalize(self):
         self._write_clips()
@@ -533,9 +607,23 @@ class RendererSVG(RendererBase):
         """
         Open a grouping element with label *s*. If *gid* is given, use
         *gid* as the id of the group.
+    
+        If *gid* is a key in `self.gid_data`,
+        include the value of *gid* in `self.gid_data` in  the attributes of
+        the new group.
         """
         if gid:
-            self.writer.start('g', id=gid)
+            if gid in self.gid_data:
+                extra_attrs = self.gid_data[gid]
+                try:
+                    extra_attrs = dict(extra_attrs)
+                except (ValueError, TypeError):
+                    raise ValueError(
+                        ("gid_data for \"{}\" is invalid. Expected dict, got {}. "
+                         "All gid_data values must be Mapping-like!").format(gid, type(extra_attrs)))
+            else:
+                extra_attrs = {}
+            self.writer.start('g', id=gid, **extra_attrs)
         else:
             self._groupd[s] = self._groupd.get(s, 0) + 1
             self.writer.start('g', id="%s_%d" % (s, self._groupd[s]))
@@ -584,7 +672,6 @@ class RendererSVG(RendererBase):
     def draw_markers(self, gc, marker_path, marker_trans, path, trans, rgbFace=None):
         if not len(path.vertices):
             return
-
         writer = self.writer
         path_data = self._convert_path(
             marker_path,
@@ -691,7 +778,6 @@ class RendererSVG(RendererBase):
         # The line between the stop points is perpendicular to the
         # opposite edge.  Underlying these three gradients is a solid
         # triangle whose color is the average of all three points.
-
         writer = self.writer
         if not self._has_gouraud:
             self._has_gouraud = True
@@ -1150,6 +1236,7 @@ class RendererSVG(RendererBase):
 
     def draw_text(self, gc, x, y, s, prop, angle, ismath=False, mtext=None):
         clipid = self._get_clip(gc)
+
         if clipid is not None:
             # Cannot apply clip-path directly to the text, because
             # is has a transformation
@@ -1230,18 +1317,22 @@ class FigureCanvasSVG(FigureCanvasBase):
             raise ValueError("filename must be a path or a file-like object")
 
         with gzip.GzipFile(mode='w', **options) as gzipwriter:
-            return self.print_svg(gzipwriter)
+            return self.print_svg(gzipwriter, **kwargs)
 
-    def _print_svg(self, filename, svgwriter, **kwargs):
+    def _print_svg(self, filename, svgwriter, svg_gid_data=None,
+                   svg_attribs=None, **kwargs):
         image_dpi = kwargs.pop("dpi", 72)
         self.figure.set_dpi(72.0)
         width, height = self.figure.get_size_inches()
-        w, h = width*72, height*72
+        w, h = width * 72, height * 72
 
         _bbox_inches_restore = kwargs.pop("bbox_inches_restore", None)
         renderer = MixedModeRenderer(
             self.figure,
-            width, height, image_dpi, RendererSVG(w, h, svgwriter, filename, image_dpi),
+            width, height, image_dpi, RendererSVG(
+                w, h, svgwriter, filename, image_dpi,
+                svg_gid_data=svg_gid_data,
+                svg_attribs=svg_attribs),
             bbox_inches_restore=_bbox_inches_restore)
 
         self.figure.draw(renderer)
