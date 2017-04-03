@@ -253,7 +253,8 @@ def test_gid_data():
         "rectangle-of-paint": {
             "class": "wet-paint",
             "data-lead-level": 77.5,
-            "onclick": "alert(\"Caution! Wet Paint. Lead Level: \" + this.dataset.leadLevel)"
+            "onclick": ("alert(\"Caution! Wet Paint. Lead Level:"
+                        " \" + this.dataset.leadLevel)")
         },
         "warning-message": {
             "onmouseover": "foo(this)"
@@ -268,7 +269,9 @@ def test_gid_data():
     assert root.attrib['viewBox'] == "-30 30 144 144"
 
     figure_buffer = BytesIO()
-    svg_attribs['extra_content'] = svg_attribs['extra_content'].replace(b"<defs>", b"<defs")
+    svg_attribs['extra_content'] = svg_attribs['extra_content'].replace(
+        b"<defs>", b"<defs")
     with pytest.raises(ValueError):
-        fig.savefig(figure_buffer, format='svg', svg_attribs=svg_attribs.copy(),
+        fig.savefig(figure_buffer, format='svg',
+                    svg_attribs=svg_attribs.copy(),
                     svg_gid_data=svg_gid_data.copy())

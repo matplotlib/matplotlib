@@ -139,10 +139,13 @@ def force_str(obj):
     -------
     str
     """
-    if isinstance(obj, str):
-        return obj
-    elif isinstance(obj, bytes):
-        return obj.decode("utf8")
+    if six.PY3:
+        if isinstance(obj, str):
+            return obj
+        elif isinstance(obj, bytes):
+            return obj.decode("utf8")
+        else:
+            return str(obj)
     else:
         return str(obj)
 
