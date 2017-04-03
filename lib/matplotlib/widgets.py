@@ -2538,7 +2538,7 @@ class PolygonSelector(_SelectorWidget):
     :ref:`widgets-polygon_selector_demo`
     """
 
-    def __init__(self, ax, onselect, useblit=False, interactive=False,
+    def __init__(self, ax, onselect, useblit=False,
                  lineprops=None, markerprops=None, vertex_select_radius=15):
         # The state modifiers 'move', 'square', and 'center' are expected by
         # _SelectorWidget but are not supported by PolygonSelector
