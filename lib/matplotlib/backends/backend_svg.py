@@ -74,7 +74,7 @@ backend_version = __version__
 # --------------------------------------------------------------------
 
 def escape_cdata(s):
-    s = force_str(s)
+    s = force_textual(s)
     s = s.replace("&", "&amp;")
     s = s.replace("<", "&lt;")
     s = s.replace(">", "&gt;")
@@ -86,7 +86,7 @@ def escape_comment(s):
     return _escape_xml_comment.sub('- ', s)
 
 def escape_attrib(s):
-    s = force_str(s)
+    s = force_textual(s)
     s = s.replace("&", "&amp;")
     s = s.replace("'", "&apos;")
     s = s.replace("\"", "&quot;")
@@ -125,7 +125,7 @@ def validate_xml(text):
     return True
 
 
-def force_str(obj):
+def force_textual(obj):
     """Convert `obj` into a `str` at all costs. Need
     to ensure that XML santitization functions receive
     the expected API and encoding assumptions.
@@ -147,7 +147,7 @@ def force_str(obj):
         else:
             return str(obj)
     else:
-        return str(obj)
+        return unicode(obj)
 
 ##
 # XML writer class.
