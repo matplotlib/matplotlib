@@ -587,6 +587,19 @@ class Axes3D(Axes):
             xmax += 0.05
         return (xmin, xmax)
 
+    def _validate_axis_limits(self, limit, convert):
+        """
+        If the axis limits being set are infinite, this function
+
+        raises an error.
+
+        """
+        if limit is not None:
+            if (isinstance(limit, float) and
+                    (not np.isreal(limit) or not np.isfinite(limit))):
+                raise ValueError("NaN or Inf cannot be the argument values")
+            return convert(limit)
+
     def set_xlim3d(self, left=None, right=None, emit=True, auto=False, **kw):
         """
         Set 3D x limits.
@@ -605,10 +618,8 @@ class Axes3D(Axes):
             left, right = left
 
         self._process_unit_info(xdata=(left, right))
-        if left is not None:
-            left = self.convert_xunits(left)
-        if right is not None:
-            right = self.convert_xunits(right)
+        left = self._validate_axis_limits(left, self.convert_xunits)
+        right = self._validate_axis_limits(right, self.convert_xunits)
 
         old_left, old_right = self.get_xlim()
         if left is None:
@@ -665,10 +676,8 @@ class Axes3D(Axes):
             top = self.convert_yunits(top)
 
         old_bottom, old_top = self.get_ylim()
-        if bottom is None:
-            bottom = old_bottom
-        if top is None:
-            top = old_top
+        bottom = self._validate_axis_limits(bottom, self.convert_yunits)
+        top = self._validate_axis_limits(top, self.convert_yunits)
 
         if top == bottom:
             warnings.warn(('Attempting to set identical bottom==top results\n'
@@ -713,10 +722,8 @@ class Axes3D(Axes):
             bottom, top = bottom
 
         self._process_unit_info(zdata=(bottom, top))
-        if bottom is not None:
-            bottom = self.convert_zunits(bottom)
-        if top is not None:
-            top = self.convert_zunits(top)
+        bottom = self._validate_axis_limits(bottom, self.convert_yunits)
+        top = self._validate_axis_limits(top, self.convert_yunits)
 
         old_bottom, old_top = self.get_zlim()
         if bottom is None:
