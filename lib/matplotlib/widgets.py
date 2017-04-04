@@ -2528,10 +2528,10 @@ class PolygonSelector(_SelectorWidget):
         The markers for the vertices of the polygon are drawn with
         `markerprops`. The default is ``dict(marker='o', markersize=7, mec='k',
         mfc='k', alpha=0.5)``.
-    vertex_select_radius : int
+    vertex_select_radius : float, optional
         A vertex is selected (to complete the polygon or to move a vertex)
         if the mouse click is within `vertex_select_radius` pixels of the
-        vertex.
+        vertex. The default radius is 15 pixels.
 
     See Also
     --------
