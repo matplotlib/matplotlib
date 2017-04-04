@@ -232,10 +232,4 @@ def test_chunksize():
     ax.plot(x, np.sin(x))
     plt.show()
 
-    # Test with big chunksize
-    rcParams['agg.path.chunksize'] = 8000000
-    with pytest.raises(OverflowError):
-        ax.plot(x, np.sin(x))
-        plt.show()
-
     rcParams['agg.path.chunksize'] = tmp
