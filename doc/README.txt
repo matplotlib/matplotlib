@@ -19,7 +19,7 @@ All of these dependencies *except graphviz* can be installed through pip::
 
   pip install -r ../doc-requirements.txt
 
-or all of them conda and pip::
+or all of them via conda and pip::
 
   conda install sphinx numpydoc ipython mock graphviz pillow
   pip install colorspacious
