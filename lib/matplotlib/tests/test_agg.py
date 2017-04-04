@@ -14,7 +14,7 @@ from matplotlib.figure import Figure
 from matplotlib.testing.decorators import image_comparison
 from matplotlib import pyplot as plt
 from matplotlib import collections
-from matplotlib import path
+from matplotlib import path, rcParams
 from matplotlib import transforms as mtransforms
 
 
@@ -219,3 +219,23 @@ def test_too_large_image():
     buff = io.BytesIO()
     with pytest.raises(ValueError):
         fig.savefig(buff)
+
+
+def test_chunksize():
+    x = range(9000000)
+    fig = plt.figure()
+    ax = fig.add_subplot(1, 1, 1)
+
+    # Test with small chunksize
+    tmp = rcParams['agg.path.chunksize']
+    rcParams['agg.path.chunksize'] = 500
+    ax.plot(x, np.sin(x))
+    plt.show()
+
+    # Test with big chunksize
+    rcParams['agg.path.chunksize'] = 8000000
+    with pytest.raises(OverflowError):
+        ax.plot(x, np.sin(x))
+        plt.show()
+
+    rcParams['agg.path.chunksize'] = tmp
