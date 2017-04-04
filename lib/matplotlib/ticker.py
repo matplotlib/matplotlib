@@ -1075,7 +1075,7 @@ class LogFormatterMathtext(LogFormatter):
             return (r'$%s%s^{%.2f}$') % (sign_string, base, fx)
         else:
             return ('$%s$' % _mathdefault('%s%s^{%.2f}' %
-                (sign_string, base, fx)))
+                                          (sign_string, base, fx)))
 
     def __call__(self, x, pos=None):
         """
@@ -1084,6 +1084,8 @@ class LogFormatterMathtext(LogFormatter):
         The position `pos` is ignored.
         """
         usetex = rcParams['text.usetex']
+        min_exp = rcParams['axes.formatter.min_exponent']
+
         if x == 0:  # Symlog
             if usetex:
                 return '$0$'
@@ -1099,6 +1101,8 @@ class LogFormatterMathtext(LogFormatter):
         is_x_decade = is_close_to_int(fx)
         exponent = np.round(fx) if is_x_decade else np.floor(fx)
         coeff = np.round(x / b ** exponent)
+        if is_x_decade:
+            fx = nearest_long(fx)
 
         if self.labelOnlyBase and not is_x_decade:
             return ''
@@ -1111,7 +1115,13 @@ class LogFormatterMathtext(LogFormatter):
         else:
             base = '%s' % b
 
-        if not is_x_decade:
+        if np.abs(fx) < min_exp:
+            if usetex:
+                return r'${0}{1:g}$'.format(sign_string, x)
+            else:
+                return '${0}$'.format(_mathdefault(
+                    '{0}{1:g}'.format(sign_string, x)))
+        elif not is_x_decade:
             return self._non_decade_format(sign_string, base, fx, usetex)
         else:
             if usetex:

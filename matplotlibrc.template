@@ -315,6 +315,7 @@ backend      : $TEMPLATE_BACKEND
                                    # separator in the fr_FR locale.
 #axes.formatter.use_mathtext : False # When True, use mathtext for scientific
                                      # notation.
+#axes.formatter.min_exponent: 0 # minimum exponent to format in scientific notation
 #axes.formatter.useoffset      : True    # If True, the tick label formatter
                                          # will default to labeling ticks relative
                                          # to an offset when the data range is
