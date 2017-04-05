@@ -4042,6 +4042,7 @@ class FancyArrowPatch(Patch):
             %(AvailableArrowstyles)s
 
         arrow_transmuter :
+            Ignored
 
         connectionstyle : str, ConnectionStyle, or None, optional
         (default: 'arc3')
@@ -4053,12 +4054,14 @@ class FancyArrowPatch(Patch):
             %(AvailableConnectorstyles)s
 
         connector :
+            Ignored
 
         patchA, patchB : None, Patch, optional (default: None)
             Head and tail patch respectively. :class:`matplotlib.patch.Patch`
             instance.
 
         shrinkA, shrinkB : scalar, optional (default: 2)
+            Shrinking factor of the tail and head of the arrow respectively
 
         mutation_scale : scalar, optional (default: 1)
             Value with which attributes of *arrowstyle* (e.g., *head_length*)
@@ -4106,7 +4109,6 @@ class FancyArrowPatch(Patch):
         self._mutation_aspect = mutation_aspect
 
         self.set_dpi_cor(dpi_cor)
-        # self._draw_in_display_coordinate = True
 
     def set_dpi_cor(self, dpi_cor):
         """
@@ -4179,11 +4181,11 @@ class FancyArrowPatch(Patch):
         ----------
         connectionstyle : None, ConnectionStyle instance, or string
             Can be a string with connectionstyle name with
-            optional comma-separated attributes, eg::
+            optional comma-separated attributes, e.g.::
 
                 set_connectionstyle("arc,angleA=0,armA=30,rad=10")
 
-            Alternatively, the attributes can be provided as keywords, eg::
+            Alternatively, the attributes can be provided as keywords, e.g.::
 
                 set_connectionstyle("arc", angleA=0,armA=30,rad=10)
 
@@ -4217,11 +4219,11 @@ class FancyArrowPatch(Patch):
         ----------
         arrowstyle : None, ArrowStyle, str, optional (default: None)
             Can be a string with arrowstyle name with optional comma-separated
-            attributes, eg.::
+            attributes, e.g.::
 
                 set_arrowstyle("Fancy,head_length=0.2")
 
-            Alternatively attributes can be provided as keywords, eg.::
+            Alternatively attributes can be provided as keywords, e.g.::
 
                 set_arrowstyle("fancy", head_length=0.2)
 
@@ -4258,7 +4260,7 @@ class FancyArrowPatch(Patch):
         Return the mutation scale.
 
         Returns
-        ----------
+        -------
         scale : scalar
         """
         return self._mutation_scale
