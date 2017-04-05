@@ -5,15 +5,24 @@ Matplotlib documentation
 Building the documentation
 --------------------------
 
-A list of dependencies can be found in ../doc-requirements.txt.
+To build the documentation, you will need additional dependencies:
 
-All of these dependencies can be installed through pip::
+* Sphinx-1.3 or later (version 1.5.0 is not supported)
+* numpydoc 0.4 or later
+* IPython
+* mock
+* colorspacious
+* pillow
+* graphviz
+
+All of these dependencies *except graphviz* can be installed through pip::
 
   pip install -r ../doc-requirements.txt
 
-or conda::
+or all of them via conda and pip::
 
-  conda install sphinx numpydoc ipython mock colorspacious pillow
+  conda install sphinx numpydoc ipython mock graphviz pillow
+  pip install colorspacious
 
 To build the HTML documentation, type ``python make.py html`` in this
 directory. The top file of the results will be ./build/html/index.html
