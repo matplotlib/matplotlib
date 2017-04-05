@@ -315,7 +315,7 @@ def test_slider_valmin_valmax():
     assert slider.val == slider.valmax
 
 
-def check_polygon_selector(event_sequence, expected_result, selections_cnt):
+def check_polygon_selector(event_sequence, expected_result, selections_count):
     """Helper function to test Polygon Selector
 
     Parameters
@@ -325,19 +325,19 @@ def check_polygon_selector(event_sequence, expected_result, selections_cnt):
         where the first element of the tuple is an etype (e.g., 'onmove',
         'press', etc.), and the second element of the tuple is a dictionary of
          the arguments for the event (e.g., xdata=5, key='shift', etc.).
-    expected_result : list or vertices (xdata, ydata)
+    expected_result : list of vertices (xdata, ydata)
         The list of vertices that are expected to result from the event
         sequence.
-    selections_cnt : int
-        Wait for the tool to call its `onselect` function `selections_cnt`
+    selections_count : int
+        Wait for the tool to call its `onselect` function `selections_count`
         times, before comparing the result to the `expected_result`
     """
     ax = get_ax()
 
-    ax._onselect_cnt = 0
+    ax._selections_count = 0
 
     def onselect(vertices):
-        ax._onselect_cnt += 1
+        ax._selections_count += 1
         ax._current_result = vertices
 
     tool = widgets.PolygonSelector(ax, onselect)
@@ -345,7 +345,7 @@ def check_polygon_selector(event_sequence, expected_result, selections_cnt):
     for (etype, event_args) in event_sequence:
         do_event(tool, etype, **event_args)
 
-    assert ax._onselect_cnt == selections_cnt
+    assert ax._selections_count == selections_count
     assert ax._current_result == expected_result
 
 
@@ -399,9 +399,9 @@ def test_polygon_selector():
                       + polygon_place_vertex(50, 150)
                       + polygon_place_vertex(50, 50)
                       + [('onmove', dict(xdata=50, ydata=50)),
-                        ('press', dict(xdata=50, ydata=50)),
-                        ('onmove', dict(xdata=75, ydata=50)),
-                        ('release', dict(xdata=75, ydata=50))])
+                         ('press', dict(xdata=50, ydata=50)),
+                         ('onmove', dict(xdata=75, ydata=50)),
+                         ('release', dict(xdata=75, ydata=50))])
     check_polygon_selector(event_sequence, expected_result, 2)
 
     # Move all vertices after completing the polygon.

@@ -2505,9 +2505,9 @@ class PolygonSelector(_SelectorWidget):
     Place vertices with each mouse click, and make the selection by completing
     the polygon (clicking on the first vertex). Hold the *ctrl* key and click
     and drag a vertex to reposition it (the *ctrl* key is not necessary if the
-    polygon has already be completed). Hold the *shift* key and click and drag
-    anywhere in the axes to move all vertices. Press the *esc* key to start a
-    new polygon.
+    polygon has already been completed). Hold the *shift* key and click and
+    drag anywhere in the axes to move all vertices. Press the *esc* key to
+    start a new polygon.
 
     For the selector to remain responsive you must keep a reference to
     it.
@@ -2522,12 +2522,13 @@ class PolygonSelector(_SelectorWidget):
         ``(xdata, ydata)`` tuples.
     useblit : bool, optional
     lineprops : dict, optional
-        The line for the sides of the polygon is drawn with `lineprops`. The
-        default is ``dict(color='k', linestyle='-', linewidth=2, alpha=0.5)``.
+        The line for the sides of the polygon is drawn with the properties
+        given by `lineprops`. The default is ``dict(color='k', linestyle='-',
+        linewidth=2, alpha=0.5)``.
     markerprops : dict, optional
-        The markers for the vertices of the polygon are drawn with
-        `markerprops`. The default is ``dict(marker='o', markersize=7, mec='k',
-        mfc='k', alpha=0.5)``.
+        The markers for the vertices of the polygon are drawn with the
+        properties given by `markerprops`. The default is ``dict(marker='o',
+        markersize=7, mec='k', mfc='k', alpha=0.5)``.
     vertex_select_radius : float, optional
         A vertex is selected (to complete the polygon or to move a vertex)
         if the mouse click is within `vertex_select_radius` pixels of the
@@ -2577,7 +2578,7 @@ class PolygonSelector(_SelectorWidget):
         """Button press event handler"""
         # Check for selection of a tool handle.
         if ((self._polygon_completed or 'move_vertex' in self.state)
-            and len(self._xs) > 0):
+                and len(self._xs) > 0):
             h_idx, h_dist = self._polygon_handles.closest(event.x, event.y)
             if h_dist < self.vertex_select_radius:
                 self._active_handle_idx = h_idx
@@ -2671,7 +2672,8 @@ class PolygonSelector(_SelectorWidget):
         # Add back the pending vertex if leaving the 'move_vertex' or
         # 'move_all' mode (by checking the released key)
         if (not self._polygon_completed
-            and (event.key == self.state_modifier_keys.get('move_vertex')
+                and
+                (event.key == self.state_modifier_keys.get('move_vertex')
                  or event.key == self.state_modifier_keys.get('move_all'))):
             self._xs.append(event.xdata)
             self._ys.append(event.ydata)
@@ -2690,9 +2692,9 @@ class PolygonSelector(_SelectorWidget):
         # if the polygon is completed or the user is locked on to the start
         # vertex.
         if (self._polygon_completed
-            or (len(self._xs) > 3
-                and self._xs[-1] == self._xs[0]
-                and self._ys[-1] == self._ys[0])):
+                or (len(self._xs) > 3
+                    and self._xs[-1] == self._xs[0]
+                    and self._ys[-1] == self._ys[0])):
             self._polygon_handles.set_data(self._xs[:-1], self._ys[:-1])
         else:
             self._polygon_handles.set_data(self._xs, self._ys)
