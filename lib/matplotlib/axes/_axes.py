@@ -6456,7 +6456,20 @@ or tuple of floats
 
         Other parameters
         ----------------
-        kwargs : :meth:`pcolorfast` properties.
+        cmap : {Colormap, string}, optional
+            A :class:`matplotlib.colors.Colormap` instance.  If not set, use rc
+            settings.
+
+        norm : Normalize, optional
+            A :class:`matplotlib.colors.Normalize` instance is used to
+            scale luminance data to ``[0, 1]``. If not set, defaults to
+            ``Normalize()``.
+
+        vmin/vmax : {None, scalar}, optional
+            Arguments passed to the `Normalize` instance.
+
+        alpha : ``0 <= scalar <= 1`` or ``None``, optional
+            The alpha blending value.
 
         See also
         --------
