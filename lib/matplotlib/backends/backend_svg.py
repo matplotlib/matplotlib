@@ -330,9 +330,9 @@ class XMLWriter(object):
         text : str, optional
             The text content of the element to write
         attrib : dict, optional
-            As `attrib` of :meth:`start`
+            As attrib argument of :meth:`start`
         **extra
-            As `**extra` of :meth:`start`
+            As extra argument of :meth:`start`
         """
         self.start(*(tag, attrib), **extra)
         if text:
