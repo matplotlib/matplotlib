@@ -322,7 +322,7 @@ class XMLWriter(object):
         """Adds an entire element.  This is the same as calling :meth:`__start`,
         :meth:`__data`, and :meth:`__end` in sequence. The `text` argument can
         be omitted.
-        
+
         Parameters
         ----------
         tag : str
