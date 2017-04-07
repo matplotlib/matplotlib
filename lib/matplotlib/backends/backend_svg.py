@@ -229,7 +229,7 @@ class XMLWriter(object):
         Returns
         -------
         int
-            The size of the :attrib:`__tags`, the current tag stack, - 1
+            The size of the :attr:`__tags`, the current tag stack, - 1
         """
         self.__flush()
         tag = escape_cdata(tag)
@@ -277,7 +277,7 @@ class XMLWriter(object):
         """Closes the current element (opened by the most recent call to
         :meth:`start`).
 
-        This method will pop the end off :attrib:`__tags`, and should not
+        This method will pop the end off :attr:`__tags`, and should not
         be used without at least one open element on the stack.
 
         This method will flush the internal buffer.
@@ -319,8 +319,8 @@ class XMLWriter(object):
             self.end()
 
     def element(self, tag, text=None, attrib={}, **extra):
-        """Adds an entire element.  This is the same as calling :meth:`__start`,
-        :meth:`__data`, and :meth:`__end` in sequence. The `text` argument can
+        """Adds an entire element.  This is the same as calling :meth:`__start` ,
+        :meth:`__data` , and :meth:`__end` in sequence. The `text` argument can
         be omitted.
 
         Parameters
