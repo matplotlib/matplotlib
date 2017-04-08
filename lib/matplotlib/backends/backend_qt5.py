@@ -582,7 +582,9 @@ class NavigationToolbar2QT(NavigationToolbar2, QtWidgets.QToolBar):
     def _icon(self, name):
         if is_pyqt5():
             name = name.replace('.png', '_large.png')
-        return QtGui.QIcon(os.path.join(self.basedir, name))
+        pm = QtGui.QPixmap(os.path.join(self.basedir, name))
+        pm.setDevicePixelRatio(self.canvas._dpi_ratio)
+        return QtGui.QIcon(pm)
 
     def _init_toolbar(self):
         self.basedir = os.path.join(matplotlib.rcParams['datapath'], 'images')
@@ -592,7 +594,7 @@ class NavigationToolbar2QT(NavigationToolbar2, QtWidgets.QToolBar):
                 self.addSeparator()
             else:
                 a = self.addAction(self._icon(image_file + '.png'),
-                                         text, getattr(self, callback))
+                                   text, getattr(self, callback))
                 self._actions[callback] = a
                 if callback in ['zoom', 'pan']:
                     a.setCheckable(True)
@@ -614,7 +616,7 @@ class NavigationToolbar2QT(NavigationToolbar2, QtWidgets.QToolBar):
                     QtCore.Qt.AlignRight | QtCore.Qt.AlignTop)
             self.locLabel.setSizePolicy(
                 QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding,
-                                  QtWidgets.QSizePolicy.Ignored))
+                                      QtWidgets.QSizePolicy.Ignored))
             labelAction = self.addWidget(self.locLabel)
             labelAction.setVisible(True)
 
