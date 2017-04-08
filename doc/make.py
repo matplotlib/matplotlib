@@ -10,6 +10,7 @@ import re
 import argparse
 import subprocess
 import matplotlib
+import six
 
 
 def copy_if_out_of_date(original, derived):
@@ -90,10 +91,38 @@ def generate_frontpage_pngs(only_if_needed=True):
         os.rename(fn_png, pn_png)  # move file to _static/ directory
 
 
+DEPSY_PATH = "_static/depsy_badge.svg"
+DEPSY_URL = "http://depsy.org/api/package/pypi/matplotlib/badge.svg"
+DEPSY_DEFAULT = "_static/depsy_badge_default.svg"
+
+
+def fetch_depsy_badge():
+    """Fetches a static copy of the depsy badge.
+
+    If there is any network error, use a static copy from git.
+
+    This is to avoid a mixed-content warning when serving matplotlib.org
+    over https, see https://github.com/Impactstory/depsy/issues/77
+
+    The downside is that the badge only updates when the documentation
+    is rebuilt."""
+    try:
+        request = six.moves.urllib.request.urlopen(DEPSY_URL)
+        try:
+            data = request.read().decode('utf-8')
+            with open(DEPSY_PATH, 'w') as output:
+                output.write(data)
+        finally:
+            request.close()
+    except six.moves.urllib.error.URLError:
+        shutil.copyfile(DEPSY_DEFAULT, DEPSY_PATH)
+
+
 def html(buildername='html'):
     """Build Sphinx 'html' target. """
     check_build()
     generate_frontpage_pngs()
+    fetch_depsy_badge()
 
     rc = '../lib/matplotlib/mpl-data/matplotlibrc'
     default_rc = os.path.join(matplotlib._get_data_path(), 'matplotlibrc')
