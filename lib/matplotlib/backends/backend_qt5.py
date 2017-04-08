@@ -149,7 +149,11 @@ def _create_qApp():
             qApp = app
 
     if is_pyqt5():
-        qApp.setAttribute(QtCore.Qt.AA_UseHighDpiPixmaps)
+        try:
+            qApp.setAttribute(QtCore.Qt.AA_UseHighDpiPixmaps)
+            qApp.setAttribute(QtCore.Qt.AA_EnableHighDpiScaling)
+        except AttributeError:
+            pass
 
 
 class Show(ShowBase):
@@ -158,6 +162,7 @@ class Show(ShowBase):
         signal.signal(signal.SIGINT, signal.SIG_DFL)
         global qApp
         qApp.exec_()
+
 
 show = Show()
 
