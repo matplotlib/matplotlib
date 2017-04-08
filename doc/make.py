@@ -107,10 +107,13 @@ def fetch_depsy_badge():
     The downside is that the badge only updates when the documentation
     is rebuilt."""
     try:
-        with six.moves.urllib.request.urlopen(DEPSY_URL) as request:
+        request = six.moves.urllib.request.urlopen(DEPSY_URL)
+        try:
             data = request.read().decode('utf-8')
             with open(DEPSY_PATH, 'w') as output:
                 output.write(data)
+        finally:
+            request.close()
     except six.moves.urllib.error.URLError:
         shutil.copyfile(DEPSY_DEFAULT, DEPSY_PATH)
 
