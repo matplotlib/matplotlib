@@ -505,9 +505,9 @@ def test_jpeg_alpha():
 def test_nonuniformimage_setdata():
     ax = plt.gca()
     im = NonUniformImage(ax)
-    x = np.arange(3, dtype=np.float64)
-    y = np.arange(4, dtype=np.float64)
-    z = np.arange(12, dtype=np.float64).reshape((4, 3))
+    x = np.arange(3, dtype=float)
+    y = np.arange(4, dtype=float)
+    z = np.arange(12, dtype=float).reshape((4, 3))
     im.set_data(x, y, z)
     x[0] = y[0] = z[0, 0] = 9.9
     assert im._A[0, 0] == im._Ax[0] == im._Ay[0] == 0, 'value changed'
@@ -516,7 +516,7 @@ def test_nonuniformimage_setdata():
 def test_axesimage_setdata():
     ax = plt.gca()
     im = AxesImage(ax)
-    z = np.arange(12, dtype=np.float64).reshape((4, 3))
+    z = np.arange(12, dtype=float).reshape((4, 3))
     im.set_data(z)
     z[0, 0] = 9.9
     assert im._A[0, 0] == 0, 'value changed'
@@ -525,7 +525,7 @@ def test_axesimage_setdata():
 def test_figureimage_setdata():
     fig = plt.gcf()
     im = FigureImage(fig)
-    z = np.arange(12, dtype=np.float64).reshape((4, 3))
+    z = np.arange(12, dtype=float).reshape((4, 3))
     im.set_data(z)
     z[0, 0] = 9.9
     assert im._A[0, 0] == 0, 'value changed'
@@ -534,9 +534,9 @@ def test_figureimage_setdata():
 def test_pcolorimage_setdata():
     ax = plt.gca()
     im = PcolorImage(ax)
-    x = np.arange(3, dtype=np.float64)
-    y = np.arange(4, dtype=np.float64)
-    z = np.arange(6, dtype=np.float64).reshape((3, 2))
+    x = np.arange(3, dtype=float)
+    y = np.arange(4, dtype=float)
+    z = np.arange(6, dtype=float).reshape((3, 2))
     im.set_data(x, y, z)
     x[0] = y[0] = z[0, 0] = 9.9
     assert im._A[0, 0] == im._Ax[0] == im._Ay[0] == 0, 'value changed'
@@ -778,3 +778,8 @@ def test_empty_imshow():
 
     with pytest.raises(RuntimeError):
         im.make_image(fig._cachedRenderer)
+
+
+def test_imshow_float128():
+    fig, ax = plt.subplots()
+    ax.imshow(np.zeros((3, 3), dtype=np.longdouble))
