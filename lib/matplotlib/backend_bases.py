@@ -1354,6 +1354,7 @@ class Event(object):
         self.guiEvent = guiEvent
 
 
+@cbook.deprecated("2.1")
 class IdleEvent(Event):
     """
     An event triggered by the GUI backend when it is idle -- useful
@@ -1952,6 +1953,7 @@ class FigureCanvasBase(object):
         event = Event('figure_enter_event', self, guiEvent)
         self.callbacks.process('figure_enter_event', event)
 
+    @cbook.deprecated("2.1")
     def idle_event(self, guiEvent=None):
         """Called when GUI is idle."""
         s = 'idle_event'
