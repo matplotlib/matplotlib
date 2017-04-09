@@ -1086,6 +1086,10 @@ class Axes3D(Axes):
             self.zaxis._set_scale(self._sharez.zaxis.get_scale())
         else:
             self.zaxis._set_scale('linear')
+            try:
+                self.set_zlim(0, 1)
+            except TypeError:
+                pass
 
         self._autoscaleZon = True
         self._zmargin = 0
