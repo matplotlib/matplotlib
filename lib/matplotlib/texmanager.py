@@ -263,18 +263,6 @@ Could not rename old TeX cache dir "%s": a suitable configuration
         """returns a string containing user additions to the tex preamble"""
         return '\n'.join(rcParams['text.latex.preamble'])
 
-    def _get_shell_cmd(self, *args):
-        """
-        On windows, changing directories can be complicated by the presence of
-        multiple drives. get_shell_cmd deals with this issue.
-        """
-        if sys.platform == 'win32':
-            command = ['%s' % os.path.splitdrive(self.texcache)[0]]
-        else:
-            command = []
-        command.extend(args)
-        return ' && '.join(command)
-
     def make_tex(self, tex, fontsize):
         """
         Generate a tex file to render the tex string at a specific font size
