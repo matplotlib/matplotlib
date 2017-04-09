@@ -8,15 +8,12 @@ from __future__ import (absolute_import, division, print_function,
 import six
 from six.moves import StringIO
 
-import glob, math, os, shutil, sys, time, datetime
+import glob, os, shutil, sys, time, datetime
 def _fn_name(): return sys._getframe(1).f_code.co_name
 import io
 
-from hashlib import md5
-
 from tempfile import mkstemp
 from matplotlib import verbose, __version__, rcParams, checkdep_ghostscript
-from matplotlib._pylab_helpers import Gcf
 from matplotlib.afm import AFM
 from matplotlib.backend_bases import RendererBase, GraphicsContextBase,\
      FigureManagerBase, FigureCanvasBase
@@ -31,7 +28,6 @@ from matplotlib.ft2font import KERNING_DEFAULT, LOAD_NO_HINTING
 from matplotlib.ttconv import convert_ttf_to_ps
 from matplotlib.mathtext import MathTextParser
 from matplotlib._mathtext_data import uni2type1
-from matplotlib.text import Text
 from matplotlib.path import Path
 from matplotlib import _path
 from matplotlib.transforms import Affine2D
@@ -474,8 +470,6 @@ grestore
         self._pswriter.write(ps)
 
     def _convert_path(self, path, transform, clip=False, simplify=None):
-        ps = []
-        last_points = None
         if clip:
             clip = (0.0, 0.0, self.width * 72.0,
                     self.height * 72.0)
@@ -515,8 +509,6 @@ grestore
         transformed by the transform
         """
         if debugPS: self._pswriter.write('% draw_markers \n')
-
-        write = self._pswriter.write
 
         if rgbFace:
             if rgbFace[0]==rgbFace[1] and rgbFace[0]==rgbFace[2]:
@@ -885,7 +877,6 @@ grestore
         write("grestore\n")
 
 
-
 class GraphicsContextPS(GraphicsContextBase):
     def get_capstyle(self):
         return {'butt':0,
@@ -901,6 +892,7 @@ class GraphicsContextPS(GraphicsContextBase):
         return (self.get_linewidth() > 0.0 and
                 (len(self.get_rgb()) <= 3 or self.get_rgb()[3] != 0.0))
 
+
 def new_figure_manager(num, *args, **kwargs):
     FigureClass = kwargs.pop('FigureClass', Figure)
     thisFig = FigureClass(*args, **kwargs)
@@ -914,6 +906,7 @@ def new_figure_manager_given_figure(num, figure):
     canvas = FigureCanvasPS(figure)
     manager = FigureManagerPS(canvas, num)
     return manager
+
 
 class FigureCanvasPS(FigureCanvasBase):
     _renderer_class = RendererPS
@@ -1415,8 +1408,10 @@ def convert_psfrags(tmpfile, psfrags, font_preamble, custom_preamble,
     dvifile = tmpfile+'.dvi'
     psfile = tmpfile+'.ps'
 
-    if orientation=='landscape': angle = 90
-    else: angle = 0
+    if orientation == 'landscape':
+        angle = 90
+    else:
+        angle = 0
 
     if rcParams['text.latex.unicode']:
         unicode_preamble = """\\usepackage{ucs}
@@ -1519,8 +1514,10 @@ def gs_distill(tmpfile, eps=False, ptype='letter', bbox=None, rotated=False):
     operators. The output is low-level, converting text to outlines.
     """
 
-    if eps: paper_option = "-dEPSCrop"
-    else: paper_option = "-sPAPERSIZE=%s" % ptype
+    if eps:
+        paper_option = "-dEPSCrop"
+    else:
+        paper_option = "-sPAPERSIZE=%s" % ptype
 
     psfile = tmpfile + '.ps'
     dpi = rcParams['ps.distiller.res']
@@ -1622,6 +1619,7 @@ def xpdf_distill(tmpfile, eps=False, ptype='letter', bbox=None, rotated=False):
     for fname in glob.glob(tmpfile+'.*'):
         os.remove(fname)
 
+
 def get_bbox_header(lbrt, rotated=False):
     """
     return a postscript header stringfor the given bbox lbrt=(l, b, r, t).
@@ -1629,7 +1627,7 @@ def get_bbox_header(lbrt, rotated=False):
     """
 
     l, b, r, t = lbrt
-    if  rotated:
+    if rotated:
         rotate = "%.2f %.2f  translate\n90 rotate" % (l+r, 0)
     else:
         rotate = ""
@@ -1643,13 +1641,13 @@ def get_bbox_header(lbrt, rotated=False):
 # find the bounding box, as the required bounding box is alread known.
 def get_bbox(tmpfile, bbox):
     """
-    Use ghostscript's bbox device to find the center of the bounding box. Return
-    an appropriately sized bbox centered around that point. A bit of a hack.
+    Use ghostscript's bbox device to find the center of the bounding box.
+    Return an appropriately sized bbox centered around that point. A bit of a
+    hack.
     """
 
     gs_exe = ps_backend_helper.gs_exe
-    command = '%s -dBATCH -dNOPAUSE -sDEVICE=bbox "%s"' %\
-                (gs_exe, tmpfile)
+    command = '%s -dBATCH -dNOPAUSE -sDEVICE=bbox "%s"' % (gs_exe, tmpfile)
     verbose.report(command, 'debug')
     stdin, stdout, stderr = os.popen3(command)
     verbose.report(stdout.read(), 'debug-annoying')
