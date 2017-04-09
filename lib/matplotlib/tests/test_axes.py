@@ -208,7 +208,7 @@ def test_inverted_cla():
     assert ax.yaxis_inverted()
 
     # 5. two shared axes. Clearing the master axis should bring axes in shared
-    # axies back to normal
+    # axes back to normal
     ax0 = plt.subplot(211)
     ax1 = plt.subplot(212, sharey=ax0)
     ax0.imshow(img)
