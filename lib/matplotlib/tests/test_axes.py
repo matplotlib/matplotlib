@@ -178,7 +178,6 @@ def test_twin_inherit_autoscale_setting():
     assert not ax_y_off.get_autoscaley_on()
 
 
-@cleanup
 def test_inverted_cla():
     # Github PR #5450. Setting autoscale should reset
     # axes to be non-inverted.
@@ -222,6 +221,9 @@ def test_inverted_cla():
     ax1.plot(x, np.cos(x))
     ax1.cla()
     assert ax.yaxis_inverted()
+
+    # clean up
+    plt.close(fig)
 
 @image_comparison(baseline_images=["minorticks_on_rcParams_both"],
                   extensions=['png'])
