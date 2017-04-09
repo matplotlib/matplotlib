@@ -459,7 +459,7 @@ Could not rename old TeX cache dir "%s": a suitable configuration
 
             # find the box extent information in the latex output
             # file and store them in ".baseline" file
-            m = TexManager._re_vbox.search(report)
+            m = TexManager._re_vbox.search(report.decode("utf-8"))
             with open(basefile + '.baseline', "w") as fh:
                 fh.write(" ".join(m.groups()))
 
