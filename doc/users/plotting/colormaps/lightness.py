@@ -40,7 +40,7 @@ for cmap_category, cmap_list in cmaps:
 
     # squeeze=False to handle similarly the case of a single subplot
     fig, axes = plt.subplots(nrows=nsubplots, squeeze=False,
-                            figsize=(7, 2.6*nsubplots))
+                             figsize=(7, 2.6*nsubplots))
 
     for i, ax in enumerate(axes.flat):
 
