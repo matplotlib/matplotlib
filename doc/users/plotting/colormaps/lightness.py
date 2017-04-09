@@ -40,7 +40,7 @@ for cmap_category, cmap_list in cmaps:
 
     # squeeze=False to handle similarly the case of a single subplot
     fig, axes = plt.subplots(nrows=nsubplots, squeeze=False,
-                            figsize=(7, 2.6*nsubplots))
+                             figsize=(7, 2.6*nsubplots))
 
     for i, ax in enumerate(axes.flat):
 
@@ -90,7 +90,8 @@ for cmap_category, cmap_list in cmaps:
         ax.xaxis.set_major_locator(ticker)
         formatter = mpl.ticker.FixedFormatter(cmap_list[i*dsub:(i+1)*dsub])
         ax.xaxis.set_major_formatter(formatter)
-        ax.xaxis.set_tick_params(rotation=50)
+        for label in ax.get_xticklabels():
+            label.set_rotation(50)
 
     ax.set_xlabel(cmap_category + ' colormaps', fontsize=14)
     fig.text(0.0, 0.55, 'Lightness $L^*$', fontsize=12,
