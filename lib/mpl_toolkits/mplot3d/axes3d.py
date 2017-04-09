@@ -1090,6 +1090,8 @@ class Axes3D(Axes):
                 self.set_zlim(0, 1)
             except TypeError:
                 pass
+            except AttributeError:
+                pass
 
         self._autoscaleZon = True
         self._zmargin = 0
