@@ -112,6 +112,8 @@ class AxesStack(Stack):
         """
         Add Axes *a*, with key *key*, to the stack, and return the stack.
 
+        If *key* is unhashable, replace it by a unique, arbitrary object.
+
         If *a* is already on the stack, don't add it again, but
         return *None*.
         """
@@ -122,8 +124,7 @@ class AxesStack(Stack):
         try:
             hash(key)
         except TypeError:
-            raise ValueError(
-                "first argument, {!r}, is not a valid key".format(key))
+            key = object()
 
         a_existing = self.get(key)
         if a_existing is not None:
