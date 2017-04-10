@@ -63,6 +63,7 @@ class Axes3D(Axes):
           *elev*             Elevation viewing angle (default 30)
           *zscale*           [%(scale)s]
           *sharez*           Other axes to share z-limits with
+          *proj_type*        'persp' or 'ortho' (default 'persp')
           ================   =========================================
 
         .. versionadded :: 1.2.1
@@ -78,6 +79,7 @@ class Axes3D(Axes):
         self.initial_elev = kwargs.pop('elev', 30)
         zscale = kwargs.pop('zscale', None)
         sharez = kwargs.pop('sharez', None)
+        self.set_proj_type(kwargs.pop('proj_type', 'persp'))
 
         self.xy_viewLim = unit_bbox()
         self.zz_viewLim = unit_bbox()
@@ -959,6 +961,23 @@ class Axes3D(Axes):
         else:
             self.azim = azim
 
+    def set_proj_type(self, proj_type):
+        """
+        Set the projection type.
+
+        Parameters
+        ----------
+        proj_type : str
+            Type of projection, accepts 'persp' and 'ortho'.
+
+        """
+        if proj_type == 'persp':
+            self._projection = proj3d.persp_transformation
+        elif proj_type == 'ortho':
+            self._projection = proj3d.ortho_transformation
+        else:
+            raise ValueError("unrecognized projection: %s" % proj_type)
+
     def get_proj(self):
         """
         Create the projection matrix from the current viewing position.
@@ -1001,9 +1020,9 @@ class Axes3D(Axes):
         zfront, zback = -self.dist, self.dist
 
         viewM = proj3d.view_transformation(E, R, V)
-        perspM = proj3d.persp_transformation(zfront, zback)
+        projM = self._projection(zfront, zback)
         M0 = np.dot(viewM, worldM)
-        M = np.dot(perspM, M0)
+        M = np.dot(projM, M0)
         return M
 
     def mouse_init(self, rotate_btn=1, zoom_btn=3):

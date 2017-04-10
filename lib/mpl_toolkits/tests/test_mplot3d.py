@@ -458,6 +458,33 @@ def test_proj_axes_cube():
     ax.set_ylim(-0.2, 0.2)
 
 
+@image_comparison(baseline_images=['proj3d_axes_cube_ortho'],
+                  extensions=['png'], remove_text=True, style='default')
+def test_proj_axes_cube_ortho():
+    E = np.array([200, 100, 100])
+    R = np.array([0, 0, 0])
+    V = np.array([0, 0, 1])
+    viewM = proj3d.view_transformation(E, R, V)
+    orthoM = proj3d.ortho_transformation(-1, 1)
+    M = np.dot(orthoM, viewM)
+
+    ts = '0 1 2 3 0 4 5 6 7 4'.split()
+    xs = np.array([0, 1, 1, 0, 0, 0, 1, 1, 0, 0]) * 100
+    ys = np.array([0, 0, 1, 1, 0, 0, 0, 1, 1, 0]) * 100
+    zs = np.array([0, 0, 0, 0, 0, 1, 1, 1, 1, 1]) * 100
+
+    txs, tys, tzs = proj3d.proj_transform(xs, ys, zs, M)
+
+    fig, ax = _test_proj_draw_axes(M, s=150)
+
+    ax.scatter(txs, tys, s=300-tzs)
+    ax.plot(txs, tys, c='r')
+    for x, y, t in zip(txs, tys, ts):
+        ax.text(x, y, t)
+
+    ax.set_xlim(-200, 200)
+    ax.set_ylim(-200, 200)
+
 def test_rot():
     V = [1, 0, 0, 1]
     rotated_V = proj3d.rot_x(V, np.pi / 6)
@@ -513,3 +540,10 @@ def test_autoscale():
     ax.set_autoscalez_on(True)
     ax.plot([0, 2], [0, 2], [0, 2])
     assert ax.get_w_lims() == (0, 1, -.1, 1.1, -.4, 2.4)
+
+
+@image_comparison(baseline_images=['axes3d_ortho'], style='default')
+def test_axes3d_ortho():
+    fig = plt.figure()
+    ax = fig.gca(projection='3d')
+    ax.set_proj_type('ortho')
