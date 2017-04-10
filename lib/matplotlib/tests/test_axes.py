@@ -2153,7 +2153,6 @@ def test_boxplot_autorange_whiskers():
     ax2.set_ylim((-5, 5))
 
 
-
 def _rc_test_bxp_helper(ax, rc_dict):
     x = np.linspace(-7, 7, 140)
     x = np.hstack([-25, x, 25])
