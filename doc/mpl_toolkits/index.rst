@@ -30,7 +30,7 @@ plotting (scatter, surf, line, mesh) tools.  Not the fastest or feature
 complete 3D library out there, but ships with Matplotlib and thus may be a
 lighter weight solution for some use cases.
 
-.. plot:: auto_examples/mplot3d/plot_contourf3d_2.py
+.. plot:: examples_gallery/mplot3d/plot_contourf3d_2.py
 
 .. _toolkit_axes_grid1:
 

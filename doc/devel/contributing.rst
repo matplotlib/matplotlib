@@ -442,7 +442,7 @@ We have hundreds of examples in subdirectories of
 :file:`matplotlib/examples`, and these are automatically generated
 when the website is built to show up both in the `examples
 <../examples/index.html>`_ and `gallery
-<../auto_examples/index.html>`_ sections of the website.
+<../examples_gallery/index.html>`_ sections of the website.
 
 Any sample data that the example uses should be kept small and
 distributed with Matplotlib in the

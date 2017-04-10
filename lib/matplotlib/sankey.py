@@ -118,7 +118,7 @@ class Sankey(object):
 
         **Examples:**
 
-            .. plot:: auto_examples/api/plot_sankey_basics.py
+            .. plot:: examples_gallery/api/plot_sankey_basics.py
         """
         # Check the arguments.
         if gap < 0:

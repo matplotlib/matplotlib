@@ -1911,8 +1911,8 @@ class Axes3D(Axes):
 
         **Examples:**
 
-        .. plot:: auto_examples/mplot3d/plot_trisurf3d.py
-        .. plot:: auto_examples/mplot3d/plot_trisurf3d_2.py
+        .. plot:: examples_gallery/mplot3d/plot_trisurf3d.py
+        .. plot:: examples_gallery/mplot3d/plot_trisurf3d_2.py
 
         .. versionadded:: 1.2.0
             This plotting function was added for the v1.2.0 release.
