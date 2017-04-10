@@ -30,7 +30,7 @@ if [[ $BUILD_DOCS == false ]]; then
   fi
 else
   cd doc
-  python make.py html -n 2
+  python make.py html
   # We don't build the LaTeX docs here, so linkchecker will complain
   touch build/html/Matplotlib.pdf
   # Linkchecker only works with python 2.7 for the time being

@@ -82,8 +82,8 @@ with :func:`~matplotlib.Axes.bxp`.
 Lastly, each artist (e.g., the box, outliers, cap, notches) can now be
 toggled on or off and their styles can be passed in through individual
 kwargs. See the examples:
-:ref:`statistics-boxplot_demo` and
-:ref:`statistics-bxp_demo`
+:ref:`statistics-plot_boxplot` and
+:ref:`statistics-plot_bxp`
 
 Added a bool kwarg, :code:`manage_xticks`, which if False disables the management
 of the ticks and limits on the x-axis by :func:`~matplotlib.axes.Axes.bxp`.
@@ -160,7 +160,7 @@ matplotlib internals were cleaned up to support using such transforms in
 :class:`~matplotlib.Axes`. This transform is important for some plot types,
 specifically the Skew-T used in meteorology.
 
-.. plot:: mpl_examples/api/plot_skewt.py
+.. plot:: auto_examples/api/plot_skewt.py
 
 Support for specifying properties of wedge and text in pie charts.
 ``````````````````````````````````````````````````````````````````
@@ -243,7 +243,7 @@ term project. This feature is documented in :func:`~mpl_toolkits.mplot3d.Axes3D.
 The team members are: Ryan Steve D'Souza, Victor B, xbtsw, Yang Wang, David,
 Caradec Bisesar and Vlad Vassilovski.
 
-.. plot:: mpl_examples/mplot3d/quiver3d_demo.py
+.. plot:: auto_examples/mplot3d/plot_quiver3d.py
 
 polar-plot r-tick locations
 ```````````````````````````

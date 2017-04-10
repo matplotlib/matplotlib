@@ -32,6 +32,7 @@
 build
 # sphinx build directory
 doc/_build
+doc/auto_examples
 # setup.py dist directory
 dist
 # Egg metadata
@@ -58,7 +59,6 @@ lib/matplotlib/mpl-data/matplotlibrc
 # Documentation generated files #
 #################################
 doc/examples
-doc/_templates/gallery.html
 doc/users/installing.rst
 doc/_static/matplotlibrc
 doc/pyplots/tex_demo.png

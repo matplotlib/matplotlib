@@ -51,13 +51,13 @@ dirs = dict(files=os.path.join('..', 'lines_bars_and_markers'),
 files = dict()
 
 files['lines'] = [
-    'barh_demo.py',
-    'cohere_demo.py',
-    'fill_demo.py',
+    'plot_barh.py',
+    'plot_cohere.py',
+    'plot_fill.py',
     'fill_demo_features.py',
-    'line_demo_dash_control.py',
-    'line_styles_reference.py',
-    'scatter_with_legend.py'
+    'plot_line_demo_dash_control.py',
+    'plot_line_styles_reference.py',
+    'plot_scatter_with_legend.py'
     ]
 
 files['shapes'] = [
@@ -76,18 +76,18 @@ files['images'] = [
     ]
 
 files['statistics'] = [
-    'errorbar_demo.py',
-    'errorbar_demo_features.py',
-    'histogram_demo_cumulative.py',
-    'histogram_demo_features.py',
-    'histogram_demo_histtypes.py',
-    'histogram_demo_multihist.py',
+    'plot_errorbar.py',
+    'plot_errorbar_features.py',
+    'plot_histogram_cumulative.py',
+    'plot_histogram_features.py',
+    'plot_histogram_histtypes.py',
+    'plot_histogram_multihist.py',
     ]
 
 files['pie'] = [
     'pie_demo.py',
-    'polar_bar_demo.py',
-    'polar_scatter_demo.py',
+    'plot_polar_bar.py',
+    'plot_polar_scatter.py',
     ]
 
 files['text_labels_and_annotations'] = [

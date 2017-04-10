@@ -1397,7 +1397,7 @@ Issues (889):
 * :ghissue:`6509`: pylab image_masked is broken
 * :ghissue:`6657`: appveyor is failing on pre-install
 * :ghissue:`6610`: Icons for Tk are not antialiased.
-* :ghissue:`6687`: Small issues with the example ``polar_scatter_demo.py``
+* :ghissue:`6687`: Small issues with the example ``plot_polar_scatter.py``
 * :ghissue:`6541`: Time to deprecate the GTK backend
 * :ghissue:`6680`: Minor typo in the docstring of ``IdentityTransform``?
 * :ghissue:`6670`: plt.text object updating incorrectly with blit=False

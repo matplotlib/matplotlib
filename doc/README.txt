@@ -21,7 +21,8 @@ All of these dependencies *except graphviz* can be installed through pip::
 
 or all of them via conda and pip::
 
-  conda install sphinx numpydoc ipython mock graphviz pillow
+  conda install sphinx numpydoc ipython mock graphviz pillow \
+    sphinx-gallery
   pip install colorspacious
 
 To build the HTML documentation, type ``python make.py html`` in this

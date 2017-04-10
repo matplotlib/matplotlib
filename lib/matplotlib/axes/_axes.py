@@ -507,7 +507,7 @@ or tuple of floats
         Examples
         --------
 
-        .. plot:: mpl_examples/api/plot_legend.py
+        .. plot:: auto_examples/api/plot_legend.py
 
         """
         handlers = kwargs.get('handler_map', {}) or {}
@@ -2567,7 +2567,7 @@ or tuple of floats
 
         Examples
         --------
-        .. plot:: mpl_examples/pie_and_polar_charts/pie_demo_features.py
+        .. plot:: mpl_examples/pie_and_polar_charts/plot_pie_features.py
 
 
         """
@@ -2799,7 +2799,8 @@ or tuple of floats
 
         Examples
         --------
-        .. plot:: mpl_examples/statistics/errorbar_demo.py
+        .. plot:: auto_examples/statistics/plot_errorbar.py
+
         """
         kwargs = cbook.normalize_kwargs(kwargs, _alias_map)
         # anything that comes in as 'None', drop so the default thing
@@ -3270,7 +3271,7 @@ or tuple of floats
 
         Examples
         --------
-        .. plot:: mpl_examples/statistics/boxplot_demo.py
+        .. plot:: auto_examples/statistics/plot_boxplot.py
 
         """
 
@@ -3540,7 +3541,7 @@ or tuple of floats
         Examples
         --------
 
-        .. plot:: mpl_examples/statistics/bxp_demo.py
+        .. plot:: auto_examples/statistics/plot_bxp.py
 
         """
         # lists of artists to be output
@@ -3916,7 +3917,7 @@ or tuple of floats
 
         Examples
         --------
-        .. plot:: mpl_examples/shapes_and_collections/plot_scatter.py
+        .. plot:: auto_examples/shapes_and_collections/plot_scatter.py
 
         """
 
@@ -4699,7 +4700,7 @@ or tuple of floats
 
         Examples
         --------
-        .. plot:: mpl_examples/lines_bars_and_markers/fill_demo.py
+        .. plot:: auto_examples/lines_bars_and_markers/plot_fill.py
 
 
         """
@@ -6102,7 +6103,7 @@ or tuple of floats
 
         Examples
         --------
-        .. plot:: mpl_examples/statistics/histogram_demo_features.py
+        .. plot:: auto_examples/statistics/plot_histogram_features.py
 
         """
         # Avoid shadowing the builtin.
@@ -6486,7 +6487,7 @@ or tuple of floats
 
         Examples
         --------
-        .. plot:: mpl_examples/statistics/plot_hist.py
+        .. plot:: auto_examples/statistics/plot_hist.py
         """
 
         h, xedges, yedges = np.histogram2d(x, y, bins=bins, range=range,
@@ -7067,7 +7068,7 @@ or tuple of floats
 
         Examples
         --------
-        .. plot:: mpl_examples/lines_bars_and_markers/cohere_demo.py
+        .. plot:: auto_examples/lines_bars_and_markers/plot_cohere.py
         """
         if not self._hold:
             self.cla()
