@@ -507,7 +507,7 @@ or tuple of floats
         Examples
         --------
 
-        .. plot:: examples_gallery/api/plot_legend.py
+        .. plot:: gallery/api/plot_legend.py
 
         """
         handlers = kwargs.get('handler_map', {}) or {}
@@ -2799,7 +2799,7 @@ or tuple of floats
 
         Examples
         --------
-        .. plot:: examples_gallery/statistics/plot_errorbar.py
+        .. plot:: gallery/statistics/plot_errorbar.py
 
         """
         kwargs = cbook.normalize_kwargs(kwargs, _alias_map)
@@ -3271,7 +3271,7 @@ or tuple of floats
 
         Examples
         --------
-        .. plot:: examples_gallery/statistics/plot_boxplot.py
+        .. plot:: gallery/statistics/plot_boxplot.py
 
         """
 
@@ -3541,7 +3541,7 @@ or tuple of floats
         Examples
         --------
 
-        .. plot:: examples_gallery/statistics/plot_bxp.py
+        .. plot:: gallery/statistics/plot_bxp.py
 
         """
         # lists of artists to be output
@@ -3917,7 +3917,7 @@ or tuple of floats
 
         Examples
         --------
-        .. plot:: examples_gallery/shapes_and_collections/plot_scatter.py
+        .. plot:: gallery/shapes_and_collections/plot_scatter.py
 
         """
 
@@ -4700,7 +4700,7 @@ or tuple of floats
 
         Examples
         --------
-        .. plot:: examples_gallery/lines_bars_and_markers/plot_fill.py
+        .. plot:: gallery/lines_bars_and_markers/plot_fill.py
 
 
         """
@@ -6103,7 +6103,7 @@ or tuple of floats
 
         Examples
         --------
-        .. plot:: examples_gallery/statistics/plot_histogram_features.py
+        .. plot:: gallery/statistics/plot_histogram_features.py
 
         """
         # Avoid shadowing the builtin.
@@ -6487,7 +6487,7 @@ or tuple of floats
 
         Examples
         --------
-        .. plot:: examples_gallery/statistics/plot_hist.py
+        .. plot:: gallery/statistics/plot_hist.py
         """
 
         h, xedges, yedges = np.histogram2d(x, y, bins=bins, range=range,
@@ -7068,7 +7068,7 @@ or tuple of floats
 
         Examples
         --------
-        .. plot:: examples_gallery/lines_bars_and_markers/plot_cohere.py
+        .. plot:: gallery/lines_bars_and_markers/plot_cohere.py
         """
         if not self._hold:
             self.cla()

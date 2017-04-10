@@ -160,7 +160,7 @@ matplotlib internals were cleaned up to support using such transforms in
 :class:`~matplotlib.Axes`. This transform is important for some plot types,
 specifically the Skew-T used in meteorology.
 
-.. plot:: examples_gallery/api/plot_skewt.py
+.. plot:: gallery/api/plot_skewt.py
 
 Support for specifying properties of wedge and text in pie charts.
 ``````````````````````````````````````````````````````````````````
@@ -243,7 +243,7 @@ term project. This feature is documented in :func:`~mpl_toolkits.mplot3d.Axes3D.
 The team members are: Ryan Steve D'Souza, Victor B, xbtsw, Yang Wang, David,
 Caradec Bisesar and Vlad Vassilovski.
 
-.. plot:: examples_gallery/mplot3d/plot_quiver3d.py
+.. plot:: gallery/mplot3d/plot_quiver3d.py
 
 polar-plot r-tick locations
 ```````````````````````````
