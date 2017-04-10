@@ -29,9 +29,10 @@ sys.path.append(os.path.abspath('.'))
 extensions = ['matplotlib.sphinxext.mathmpl', 'sphinxext.math_symbol_table',
               'sphinx.ext.autodoc', 'matplotlib.sphinxext.only_directives',
               'sphinx.ext.doctest', 'sphinx.ext.autosummary',
-              'matplotlib.sphinxext.plot_directive',
               'sphinx.ext.inheritance_diagram',
-              'sphinxext.gen_gallery', 'sphinxext.gen_rst',
+              'sphinx_gallery.gen_gallery',
+              'sphinxext.gen_rst',
+              'matplotlib.sphinxext.plot_directive',
               'sphinxext.github',
               'numpydoc']
 
@@ -52,6 +53,12 @@ try:
 except ImportError:
     raise ImportError("No module named numpydoc - you need to install "
                       "numpydoc to build the documentation.")
+
+try:
+    import sphinx_gallery
+except ImportError:
+    raise ImportError("No module named sphinx_gallery - you need to install "
+                      "sphinx_gallery to build the documentation.")
 
 try:
     import colorspacious
@@ -95,6 +102,16 @@ except ImportError:
 autosummary_generate = True
 
 autodoc_docstring_signature = True
+
+
+# Sphinx gallery configuration
+sphinx_gallery_conf = {
+   # path to your examples scripts
+    'examples_dirs' : '../examples',
+    # path where to save gallery generated examples
+    'gallery_dirs'  : 'auto_examples'}
+
+plot_gallery = True
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
@@ -234,7 +251,6 @@ html_sidebars = {
 # Additional templates that should be rendered to pages, maps page names to
 # template names.
 html_additional_pages = {'index': 'index.html',
-                         'gallery':'gallery.html',
                          'citing': 'citing.html'}
 
 # If false, no module index is generated.

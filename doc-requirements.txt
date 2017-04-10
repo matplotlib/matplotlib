@@ -12,3 +12,4 @@ ipython
 mock
 colorspacious
 pillow
+sphinx-gallery
