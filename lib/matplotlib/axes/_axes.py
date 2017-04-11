@@ -507,7 +507,7 @@ or tuple of floats
         Examples
         --------
 
-        .. plot:: gallery/api/plot_legend.py
+        .. plot:: gallery/api/legend.py
 
         """
         handlers = kwargs.get('handler_map', {}) or {}
@@ -2567,7 +2567,7 @@ or tuple of floats
 
         Examples
         --------
-        .. plot:: mpl_examples/pie_and_polar_charts/plot_pie_features.py
+        .. plot:: mpl_examples/pie_and_polar_charts/pie_features.py
 
 
         """
@@ -2799,7 +2799,7 @@ or tuple of floats
 
         Examples
         --------
-        .. plot:: gallery/statistics/plot_errorbar.py
+        .. plot:: gallery/statistics/errorbar.py
 
         """
         kwargs = cbook.normalize_kwargs(kwargs, _alias_map)
@@ -3271,7 +3271,7 @@ or tuple of floats
 
         Examples
         --------
-        .. plot:: gallery/statistics/plot_boxplot.py
+        .. plot:: gallery/statistics/boxplot.py
 
         """
 
@@ -3541,7 +3541,7 @@ or tuple of floats
         Examples
         --------
 
-        .. plot:: gallery/statistics/plot_bxp.py
+        .. plot:: gallery/statistics/bxp.py
 
         """
         # lists of artists to be output
@@ -3917,7 +3917,7 @@ or tuple of floats
 
         Examples
         --------
-        .. plot:: gallery/shapes_and_collections/plot_scatter.py
+        .. plot:: gallery/shapes_and_collections/scatter.py
 
         """
 
@@ -4700,7 +4700,7 @@ or tuple of floats
 
         Examples
         --------
-        .. plot:: gallery/lines_bars_and_markers/plot_fill.py
+        .. plot:: gallery/lines_bars_and_markers/fill.py
 
 
         """
@@ -6103,7 +6103,7 @@ or tuple of floats
 
         Examples
         --------
-        .. plot:: gallery/statistics/plot_histogram_features.py
+        .. plot:: gallery/statistics/histogram_features.py
 
         """
         # Avoid shadowing the builtin.
@@ -6487,7 +6487,7 @@ or tuple of floats
 
         Examples
         --------
-        .. plot:: gallery/statistics/plot_hist.py
+        .. plot:: gallery/statistics/hist.py
         """
 
         h, xedges, yedges = np.histogram2d(x, y, bins=bins, range=range,
@@ -7068,7 +7068,7 @@ or tuple of floats
 
         Examples
         --------
-        .. plot:: gallery/lines_bars_and_markers/plot_cohere.py
+        .. plot:: gallery/lines_bars_and_markers/cohere.py
         """
         if not self._hold:
             self.cla()

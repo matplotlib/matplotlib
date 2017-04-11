@@ -1911,8 +1911,8 @@ class Axes3D(Axes):
 
         **Examples:**
 
-        .. plot:: gallery/mplot3d/plot_trisurf3d.py
-        .. plot:: gallery/mplot3d/plot_trisurf3d_2.py
+        .. plot:: gallery/mplot3d/trisurf3d.py
+        .. plot:: gallery/mplot3d/trisurf3d_2.py
 
         .. versionadded:: 1.2.0
             This plotting function was added for the v1.2.0 release.
@@ -2464,7 +2464,7 @@ class Axes3D(Axes):
 
         Examples
         --------
-        .. plot:: mpl_examples/mplot3d/plot_3d_bars.py
+        .. plot:: mpl_examples/mplot3d/3d_bars.py
 
         """
 

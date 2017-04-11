@@ -106,10 +106,9 @@ autodoc_docstring_signature = True
 
 # Sphinx gallery configuration
 sphinx_gallery_conf = {
-   # path to your examples scripts
-    'examples_dirs' : '../examples',
-    # path where to save gallery generated examples
-    'gallery_dirs'  : 'gallery'}
+    'examples_dirs': '../examples',
+    'filename_pattern': '\.py$',
+    'gallery_dirs': 'gallery'}
 
 plot_gallery = True
 

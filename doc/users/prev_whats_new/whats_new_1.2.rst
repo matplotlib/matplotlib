@@ -62,7 +62,7 @@ Damon McDougall added a new plotting method for the
 :mod:`~mpl_toolkits.mplot3d` toolkit called
 :meth:`~mpl_toolkits.mplot3d.axes3d.Axes3D.plot_trisurf`.
 
-.. plot:: gallery/mplot3d/plot_trisurf3d.py
+.. plot:: gallery/mplot3d/trisurf3d.py
 
 Control the lengths of colorbar extensions
 ------------------------------------------
@@ -153,7 +153,7 @@ In addition to simply plotting the streamlines of the vector field,
 line widths of the streamlines to a separate parameter, such as the speed or
 local intensity of the vector field.
 
-.. plot:: gallery/images_contours_and_fields/plot_streamplot_features.py
+.. plot:: gallery/images_contours_and_fields/streamplot_features.py
 
 
 New hist functionality

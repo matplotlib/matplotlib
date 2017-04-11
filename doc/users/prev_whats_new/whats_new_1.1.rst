@@ -17,10 +17,10 @@ Sankey Diagrams
 
 Kevin Davies has extended Yannick Copin's original Sankey example into a module
 (:mod:`~matplotlib.sankey`) and provided new examples
-(:ref:`api-plot_sankey_basics`, :ref:`api-plot_sankey_links`,
-:ref:`api-plot_sankey_rankine`).
+(:ref:`api-sankey_basics`, :ref:`api-sankey_links`,
+:ref:`api-sankey_rankine`).
 
-.. plot:: gallery/api/plot_sankey_rankine.py
+.. plot:: gallery/api/sankey_rankine.py
 
 
 Animation
@@ -135,12 +135,12 @@ as 2D plotting, Ben Root has made several improvements to the
 
 * Ticker offset display added:
 
-.. plot:: gallery/mplot3d/plot_offset.py
+.. plot:: gallery/mplot3d/offset.py
 
 * :meth:`~mpl_toolkits.mplot3d.axes3d.Axes3D.contourf`
   gains *zdir* and *offset* kwargs. You can now do this:
 
-.. plot:: gallery/mplot3d/plot_contourf3d_2.py
+.. plot:: gallery/mplot3d/contourf3d_2.py
 
 Numerix support removed
 -----------------------
@@ -205,6 +205,6 @@ Other improvements
 
 * Pim Schellart added a new colormap called "cubehelix".
   Sameer Grover also added a colormap called "coolwarm". See it and all
-  other colormaps :ref:`here <color-plot_colormaps_reference>`.
+  other colormaps :ref:`here <color-colormaps_reference>`.
 
 * Many bug fixes and documentation improvements.
