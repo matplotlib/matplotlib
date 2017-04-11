@@ -103,7 +103,7 @@ command, which includes customizations such as error bars:
 It's also simple to create stacked bars
 (`bar_stacked.py <../examples/pylab_examples/bar_stacked.html>`_),
 or horizontal bar charts
-(`barh.py <../examples/lines_bars_and_markers/plot_barh.html>`_).
+(`barh.py <../examples/lines_bars_and_markers/barh.html>`_).
 
 .. _screenshots_pie_demo:
 
