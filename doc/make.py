@@ -57,10 +57,10 @@ def linkcheck():
 FRONTPAGE_PY_PATH = "../examples/frontpage/"  # python scripts location
 FRONTPAGE_PNG_PATH = "_static/"  # png files location
 # png files and corresponding generation scripts:
-FRONTPAGE_PNGS = {"surface3d_frontpage.png": "plot_3D.py",
-                  "contour_frontpage.png":   "plot_contour.py",
-                  "histogram_frontpage.png": "plot_histogram.py",
-                  "membrane_frontpage.png":  "plot_membrane.py"}
+FRONTPAGE_PNGS = {"surface3d_frontpage.png": "3D.py",
+                  "contour_frontpage.png":   "contour.py",
+                  "histogram_frontpage.png": "histogram.py",
+                  "membrane_frontpage.png":  "membrane.py"}
 
 
 def generate_frontpage_pngs(only_if_needed=True):

@@ -109,7 +109,7 @@ You can even multiply cyclers, which is like using `itertools.product()`
 on two or more property cycles. Remember to use parentheses if writing
 a multi-line `prop_cycle` parameter.
 
-.. plot:: mpl_examples/color/color_cycle_demo.py
+.. plot:: gallery/color/color_cycle.py
 
 
 New Colormaps
@@ -367,7 +367,7 @@ kwargs names is not ideal, but `Axes.fill_between` already has a
 
 This is particularly useful for plotting pre-binned histograms.
 
-.. plot:: mpl_examples/api/plot_filled_step.py
+.. plot:: gallery/api/filled_step.py
 
 
 Square Plot

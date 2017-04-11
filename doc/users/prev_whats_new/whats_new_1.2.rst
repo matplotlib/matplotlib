@@ -7,6 +7,7 @@ New in matplotlib 1.2
 .. contents:: Table of Contents
    :depth: 2
 
+
 .. note::
 
    matplotlib 1.2 supports Python 2.6, 2.7, and 3.1
@@ -61,7 +62,7 @@ Damon McDougall added a new plotting method for the
 :mod:`~mpl_toolkits.mplot3d` toolkit called
 :meth:`~mpl_toolkits.mplot3d.axes3d.Axes3D.plot_trisurf`.
 
-.. plot:: mpl_examples/mplot3d/trisurf3d_demo.py
+.. plot:: gallery/mplot3d/trisurf3d.py
 
 Control the lengths of colorbar extensions
 ------------------------------------------
@@ -152,7 +153,7 @@ In addition to simply plotting the streamlines of the vector field,
 line widths of the streamlines to a separate parameter, such as the speed or
 local intensity of the vector field.
 
-.. plot:: mpl_examples/images_contours_and_fields/streamplot_demo_features.py
+.. plot:: gallery/images_contours_and_fields/streamplot_features.py
 
 
 New hist functionality

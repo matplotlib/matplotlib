@@ -36,7 +36,7 @@ Line plots
 ====================
 .. automethod:: Axes3D.plot
 
-.. plot:: mpl_examples/mplot3d/lines3d_demo.py
+.. plot:: gallery/mplot3d/lines3d.py
 
 .. _scatter3d:
 
@@ -44,7 +44,7 @@ Scatter plots
 =============
 .. automethod:: Axes3D.scatter
 
-.. plot:: mpl_examples/mplot3d/scatter3d_demo.py
+.. plot:: gallery/mplot3d/scatter3d.py
 
 .. _wireframe:
 
@@ -52,7 +52,7 @@ Wireframe plots
 ===============
 .. automethod:: Axes3D.plot_wireframe
 
-.. plot:: mpl_examples/mplot3d/wire3d_demo.py
+.. plot:: gallery/mplot3d/wire3d.py
 
 .. _surface:
 
@@ -60,9 +60,9 @@ Surface plots
 =============
 .. automethod:: Axes3D.plot_surface
 
-.. plot:: mpl_examples/mplot3d/surface3d_demo.py
-.. plot:: mpl_examples/mplot3d/surface3d_demo2.py
-.. plot:: mpl_examples/mplot3d/surface3d_demo3.py
+.. plot:: gallery/mplot3d/surface3d.py
+.. plot:: gallery/mplot3d/surface3d_2.py
+.. plot:: gallery/mplot3d/surface3d_3.py
 
 .. _trisurface:
 
@@ -70,7 +70,7 @@ Tri-Surface plots
 =================
 .. automethod:: Axes3D.plot_trisurf
 
-.. plot:: mpl_examples/mplot3d/trisurf3d_demo.py
+.. plot:: gallery/mplot3d/trisurf3d.py
 
 
 .. _contour3d:
@@ -79,9 +79,9 @@ Contour plots
 =============
 .. automethod:: Axes3D.contour
 
-.. plot:: mpl_examples/mplot3d/contour3d_demo.py
-.. plot:: mpl_examples/mplot3d/contour3d_demo2.py
-.. plot:: mpl_examples/mplot3d/contour3d_demo3.py
+.. plot:: gallery/mplot3d/contour3d.py
+.. plot:: gallery/mplot3d/contour3d_2.py
+.. plot:: gallery/mplot3d/contour3d_3.py
 
 .. _contourf3d:
 
@@ -89,8 +89,8 @@ Filled contour plots
 ====================
 .. automethod:: Axes3D.contourf
 
-.. plot:: mpl_examples/mplot3d/contourf3d_demo.py
-.. plot:: mpl_examples/mplot3d/contourf3d_demo2.py
+.. plot:: gallery/mplot3d/contourf3d.py
+.. plot:: gallery/mplot3d/contourf3d_2.py
 
 .. versionadded:: 1.1.0
    The feature demoed in the second contourf3d example was enabled as a
@@ -102,7 +102,7 @@ Polygon plots
 ====================
 .. automethod:: Axes3D.add_collection3d
 
-.. plot:: mpl_examples/mplot3d/polys3d_demo.py
+.. plot:: gallery/mplot3d/polys3d.py
 
 .. _bar3d:
 
@@ -110,7 +110,7 @@ Bar plots
 ====================
 .. automethod:: Axes3D.bar
 
-.. plot:: mpl_examples/mplot3d/bars3d_demo.py
+.. plot:: gallery/mplot3d/bars3d.py
 
 .. _quiver3d:
 
@@ -118,13 +118,13 @@ Quiver
 ====================
 .. automethod:: Axes3D.quiver
 
-.. plot:: mpl_examples/mplot3d/quiver3d_demo.py
+.. plot:: gallery/mplot3d/quiver3d.py
 
 .. _2dcollections3d:
 
 2D plots in 3D
 ====================
-.. plot:: mpl_examples/mplot3d/2dcollections3d_demo.py
+.. plot:: gallery/mplot3d/2dcollections3d.py
 
 .. _text3d:
 
@@ -132,7 +132,7 @@ Text
 ====================
 .. automethod:: Axes3D.text
 
-.. plot:: mpl_examples/mplot3d/text3d_demo.py
+.. plot:: gallery/mplot3d/text3d.py
 
 .. _3dsubplots:
 
@@ -146,5 +146,5 @@ in the same figure.
    Subplotting 3D plots was added in v1.0.0.  Earlier version can not
    do this.
 
-.. plot:: mpl_examples/mplot3d/subplot3d_demo.py
-.. plot:: mpl_examples/mplot3d/mixed_subplots_demo.py
+.. plot:: gallery/mplot3d/subplot3d.py
+.. plot:: gallery/mplot3d/mixed_subplots.py

@@ -142,6 +142,7 @@ install:
     pip install -ve .
 
 script: source ci/travis/test_script.sh
+
 before_cache:
   - rm -rf $HOME/.cache/matplotlib/tex.cache
   - rm -rf $HOME/.cache/matplotlib/test_cache

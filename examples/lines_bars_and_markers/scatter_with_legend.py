@@ -1,5 +1,7 @@
 '''
-Demo of a scatter plot (scatter) with a legend.
+===========================
+Scatter plots with a legend
+===========================
 
 Also demonstrates how transparency of the markers
 can be adjusted by giving ``alpha`` a value between

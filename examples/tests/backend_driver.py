@@ -51,9 +51,9 @@ dirs = dict(files=os.path.join('..', 'lines_bars_and_markers'),
 files = dict()
 
 files['lines'] = [
-    'barh_demo.py',
-    'cohere_demo.py',
-    'fill_demo.py',
+    'barh.py',
+    'cohere.py',
+    'fill.py',
     'fill_demo_features.py',
     'line_demo_dash_control.py',
     'line_styles_reference.py',
@@ -76,18 +76,18 @@ files['images'] = [
     ]
 
 files['statistics'] = [
-    'errorbar_demo.py',
-    'errorbar_demo_features.py',
-    'histogram_demo_cumulative.py',
-    'histogram_demo_features.py',
-    'histogram_demo_histtypes.py',
-    'histogram_demo_multihist.py',
+    'errorbar.py',
+    'errorbar_features.py',
+    'histogram_cumulative.py',
+    'histogram_features.py',
+    'histogram_histtypes.py',
+    'histogram_multihist.py',
     ]
 
 files['pie'] = [
     'pie_demo.py',
-    'polar_bar_demo.py',
-    'polar_scatter_demo.py',
+    'polar_bar.py',
+    'polar_scatter.py',
     ]
 
 files['text_labels_and_annotations'] = [
@@ -205,7 +205,7 @@ files['pylab'] = [
     'multiline.py',
     'multiple_figs_demo.py',
     'nan_test.py',
-    'plot_scalarformatter.py',
+    'scalarformatter.py',
     'pcolor_demo.py',
     'pcolor_log.py',
     'pcolor_small.py',

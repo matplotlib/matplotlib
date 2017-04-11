@@ -1037,12 +1037,12 @@ def subplot(*args, **kwargs):
             For additional information on :func:`axes` and
             :func:`subplot` keyword arguments.
 
-        :file:`examples/pie_and_polar_charts/polar_scatter_demo.py`
+        :file:`gallery/pie_and_polar_charts/polar_scatter.py`
             For an example
 
     **Example:**
 
-    .. plot:: mpl_examples/subplots_axes_and_figures/subplot_demo.py
+    .. plot:: gallery/subplots_axes_and_figures/subplot.py
 
     """
     # if subplot called without arguments, create subplot(1,1,1)
