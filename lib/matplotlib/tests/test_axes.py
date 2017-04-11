@@ -225,6 +225,7 @@ def test_inverted_cla():
     # clean up
     plt.close(fig)
 
+
 @image_comparison(baseline_images=["minorticks_on_rcParams_both"],
                   extensions=['png'])
 def test_minorticks_on_rcParams_both():
