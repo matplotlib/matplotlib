@@ -51,13 +51,13 @@ dirs = dict(files=os.path.join('..', 'lines_bars_and_markers'),
 files = dict()
 
 files['lines'] = [
-    'plot_barh.py',
-    'plot_cohere.py',
-    'plot_fill.py',
+    'barh.py',
+    'cohere.py',
+    'fill.py',
     'fill_demo_features.py',
-    'plot_line_demo_dash_control.py',
-    'plot_line_styles_reference.py',
-    'plot_scatter_with_legend.py'
+    'line_demo_dash_control.py',
+    'line_styles_reference.py',
+    'scatter_with_legend.py'
     ]
 
 files['shapes'] = [
@@ -76,18 +76,18 @@ files['images'] = [
     ]
 
 files['statistics'] = [
-    'plot_errorbar.py',
-    'plot_errorbar_features.py',
-    'plot_histogram_cumulative.py',
-    'plot_histogram_features.py',
-    'plot_histogram_histtypes.py',
-    'plot_histogram_multihist.py',
+    'errorbar.py',
+    'errorbar_features.py',
+    'histogram_cumulative.py',
+    'histogram_features.py',
+    'histogram_histtypes.py',
+    'histogram_multihist.py',
     ]
 
 files['pie'] = [
     'pie_demo.py',
-    'plot_polar_bar.py',
-    'plot_polar_scatter.py',
+    'polar_bar.py',
+    'polar_scatter.py',
     ]
 
 files['text_labels_and_annotations'] = [
@@ -205,7 +205,7 @@ files['pylab'] = [
     'multiline.py',
     'multiple_figs_demo.py',
     'nan_test.py',
-    'plot_scalarformatter.py',
+    'scalarformatter.py',
     'pcolor_demo.py',
     'pcolor_log.py',
     'pcolor_small.py',
