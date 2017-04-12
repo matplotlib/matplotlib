@@ -1156,11 +1156,9 @@ class Transform(TransformNode):
         raise TypeError(
             "Can not add Transform to object of type '%s'" % type(other))
 
-    def __eq__(self, other):
-        # equality is based on transform object id. Hence:
-        # Transform() != Transform().
-        # Some classes, such as TransformWrapper & AffineBase, will override.
-        return self is other
+    # Equality is based on object identity for `Transform`s (so we don't
+    # override `__eq__`), but some subclasses, such as TransformWrapper &
+    # AffineBase, override this behavior.
 
     def _iter_break_from_left_to_right(self):
         """
