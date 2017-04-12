@@ -578,9 +578,11 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
 
     def set_data(self, A):
         """
-        Set the image array
+        Set the image array.
 
         ACCEPTS: numpy/PIL Image A
+
+        Note that this function does *not* update the normalization used.
         """
         # check if data is PIL Image without importing Image
         if hasattr(A, 'getpixel'):
