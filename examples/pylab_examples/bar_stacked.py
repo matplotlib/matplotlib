@@ -4,7 +4,7 @@ Stacked Bar Graph
 =================
 
 This is an example of creating a stacked bar plot with error bars using
-`plt.bar`. Note the parameters `yerr` used for error bars, and `bottom`
+plt.bar. Note the parameters *yerr* used for error bars, and *bottom*
 to stack the women's bars on top of the men's bars.
 """
 

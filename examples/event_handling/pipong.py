@@ -4,8 +4,8 @@ Pong
 ====
 
 A Matplotlib based game of Pong illustrating one way to write interactive
-animations which are easily ported to multiple backends pipong.py was written
-by <a href='http://pirsquared.org'>Paul Ivanov</a>.
+animations which are easily ported to multiple backends. pipong.py was written
+by `Paul Ivanov <http://pirsquared.org>`_.
 """
 from __future__ import print_function
 
