@@ -3997,7 +3997,7 @@ docstring.interpd.update(
 
 class FancyArrowPatch(Patch):
     """
-    A fancy arrow patch. It draws an arrow using the :class:ArrowStyle.
+    A fancy arrow patch. It draws an arrow using the :class:`ArrowStyle`.
     """
     _edge_default = True
 
@@ -4006,10 +4006,10 @@ class FancyArrowPatch(Patch):
         if self._posA_posB is not None:
             (x1, y1), (x2, y2) = self._posA_posB
             return self.__class__.__name__ \
-                   + "(%g,%g->%g,%g)" % (x1, y1, x2, y2)
+                + "(%g,%g->%g,%g)" % (x1, y1, x2, y2)
         else:
             return self.__class__.__name__ \
-                   + "(%s)" % (str(self._path_original),)
+                + "(%s)" % (str(self._path_original),)
 
     @docstring.dedent_interpd
     def __init__(self, posA=None, posB=None,
@@ -4020,46 +4020,80 @@ class FancyArrowPatch(Patch):
                  connector=None,
                  patchA=None,
                  patchB=None,
-                 shrinkA=2.,
-                 shrinkB=2.,
-                 mutation_scale=1.,
+                 shrinkA=2,
+                 shrinkB=2,
+                 mutation_scale=1,
                  mutation_aspect=None,
-                 dpi_cor=1.,
+                 dpi_cor=1,
                  **kwargs):
         """
-        If *posA* and *posB* is given, a path connecting two point are
-        created according to the connectionstyle. The path will be
+        If *posA* and *posB* are given, a path connecting two points is
+        created according to *connectionstyle*. The path will be
         clipped with *patchA* and *patchB* and further shrunken by
         *shrinkA* and *shrinkB*. An arrow is drawn along this
-        resulting path using the *arrowstyle* parameter. If *path*
-        provided, an arrow is drawn along this path and *patchA*,
-        *patchB*, *shrinkA*, and *shrinkB* are ignored.
+        resulting path using the *arrowstyle* parameter.
 
-        The *connectionstyle* describes how *posA* and *posB* are
-        connected. It can be an instance of the ConnectionStyle class
-        (matplotlib.patches.ConnectionStlye) or a string of the
-        connectionstyle name, with optional comma-separated
-        attributes.  The following connection styles are available.
+        Alternatively if *path* is provided, an arrow is drawn along this path
+        and *patchA*, *patchB*, *shrinkA*, and *shrinkB* are ignored.
 
-        %(AvailableConnectorstyles)s
+        Parameters
+        ----------
 
+        posA, posB : None, tuple, optional (default: None)
+            (x,y) coordinates of arrow tail and arrow head respectively.
 
-        The *arrowstyle* describes how the fancy arrow will be
-        drawn. It can be string of the available arrowstyle names,
-        with optional comma-separated attributes, or one of the
-        ArrowStyle instance. The optional attributes are meant to be
-        scaled with the *mutation_scale*. The following arrow styles are
-        available.
+        path : None, Path (default: None)
+            :class:`matplotlib.path.Path` instance. If provided, an arrow is
+            drawn along this path and *patchA*, *patchB*, *shrinkA*, and
+            *shrinkB* are ignored.
 
-        %(AvailableArrowstyles)s
+        arrowstyle : str or ArrowStyle, optional (default: 'simple')
+            Describes how the fancy arrow will be
+            drawn. It can be string of the available arrowstyle names,
+            with optional comma-separated attributes, or an
+            :class:`ArrowStyle` instance. The optional attributes are meant to
+            be scaled with the *mutation_scale*. The following arrow styles are
+            available:
 
-        *mutation_scale* : a value with which attributes of arrowstyle
-            (e.g., head_length) will be scaled. default=1.
+            %(AvailableArrowstyles)s
 
-        *mutation_aspect* : The height of the rectangle will be
-            squeezed by this value before the mutation and the mutated
-            box will be stretched by the inverse of it. default=None.
+        arrow_transmuter :
+            Ignored
 
+        connectionstyle : str, ConnectionStyle, or None, optional
+        (default: 'arc3')
+            Describes how *posA* and *posB* are connected. It can be an
+            instance of the :class:`ConnectionStyle` class or a string of the
+            connectionstyle name, with optional comma-separated attributes. The
+            following connection styles are available:
+
+            %(AvailableConnectorstyles)s
+
+        connector :
+            Ignored
+
+        patchA, patchB : None, Patch, optional (default: None)
+            Head and tail patch respectively. :class:`matplotlib.patch.Patch`
+            instance.
+
+        shrinkA, shrinkB : scalar, optional (default: 2)
+            Shrinking factor of the tail and head of the arrow respectively
+
+        mutation_scale : scalar, optional (default: 1)
+            Value with which attributes of *arrowstyle* (e.g., *head_length*)
+            will be scaled.
+
+        mutation_aspect : None, scalar, optional (default: None)
+            The height of the rectangle will be squeezed by this value before
+            the mutation and the mutated box will be stretched by the inverse
+            of it.
+
+        dpi_cor : scalar, optional (defualt: 1)
+            dpi_cor is currently used for linewidth-related things and shrink
+            factor. Mutation scale is affected by this.
+
+        Notes
+        -----
         Valid kwargs are:
         %(Patch)s
         """
@@ -4091,14 +4125,16 @@ class FancyArrowPatch(Patch):
         self._mutation_aspect = mutation_aspect
 
         self.set_dpi_cor(dpi_cor)
-        #self._draw_in_display_coordinate = True
 
     def set_dpi_cor(self, dpi_cor):
         """
         dpi_cor is currently used for linewidth-related things and
         shrink factor. Mutation scale is affected by this.
-        """
 
+        Parameters
+        ----------
+        dpi_cor : scalar
+        """
         self._dpi_cor = dpi_cor
         self.stale = True
 
@@ -4106,13 +4142,22 @@ class FancyArrowPatch(Patch):
         """
         dpi_cor is currently used for linewidth-related things and
         shrink factor. Mutation scale is affected by this.
-        """
 
+        Returns
+        -------
+        dpi_cor : scalar
+        """
         return self._dpi_cor
 
     def set_positions(self, posA, posB):
-        """ set the begin and end positions of the connecting
-        path. Use current value if None.
+        """
+        Set the begin and end positions of the connecting path.
+
+        Parameters
+        ----------
+        posA, posB : None, tuple
+            (x,y) coordinates of arrow tail and arrow head respectively. If
+            `None` use current value.
         """
         if posA is not None:
             self._posA_posB[0] = posA
@@ -4121,39 +4166,54 @@ class FancyArrowPatch(Patch):
         self.stale = True
 
     def set_patchA(self, patchA):
-        """ set the begin patch.
+        """
+        Set the tail patch.
+
+        Parameters
+        ----------
+        patchA : Patch
+            :class:`matplotlib.patch.Patch` instance.
         """
         self.patchA = patchA
         self.stale = True
 
     def set_patchB(self, patchB):
-        """ set the begin patch
+        """
+        Set the head patch.
+
+        Parameters
+        ----------
+        patchB : Patch
+            :class:`matplotlib.patch.Patch` instance.
         """
         self.patchB = patchB
         self.stale = True
 
     def set_connectionstyle(self, connectionstyle, **kw):
         """
-        Set the connection style.
+        Set the connection style. Old attributes are forgotten.
 
-        *connectionstyle* can be a string with connectionstyle name with
-         optional comma-separated attributes. Alternatively, the attrs can be
-         provided as keywords.
+        Parameters
+        ----------
+        connectionstyle : None, ConnectionStyle instance, or string
+            Can be a string with connectionstyle name with
+            optional comma-separated attributes, e.g.::
 
-         set_connectionstyle("arc,angleA=0,armA=30,rad=10")
-         set_connectionstyle("arc", angleA=0,armA=30,rad=10)
+                set_connectionstyle("arc,angleA=0,armA=30,rad=10")
 
-        Old attrs simply are forgotten.
+            Alternatively, the attributes can be provided as keywords, e.g.::
 
-        Without argument (or with connectionstyle=None), return
-        available styles as a list of strings.
+                set_connectionstyle("arc", angleA=0,armA=30,rad=10)
+
+            Without any arguments (or with ``connectionstyle=None``), return
+            available styles as a list of strings.
         """
 
         if connectionstyle is None:
             return ConnectionStyle.pprint_styles()
 
-        if (isinstance(connectionstyle, ConnectionStyle._Base)
-                or callable(connectionstyle)):
+        if (isinstance(connectionstyle, ConnectionStyle._Base) or
+                callable(connectionstyle)):
             self._connector = connectionstyle
         else:
             self._connector = ConnectionStyle(connectionstyle, **kw)
@@ -4161,25 +4221,28 @@ class FancyArrowPatch(Patch):
 
     def get_connectionstyle(self):
         """
-        Return the ConnectionStyle instance
+        Return the :class:`ConnectionStyle` instance.
         """
         return self._connector
 
     def set_arrowstyle(self, arrowstyle=None, **kw):
         """
-        Set the arrow style.
+        Set the arrow style. Old attributes are forgotten. Without arguments
+        (or with ``arrowstyle=None``) returns available box styles as a list of
+        strings.
 
-        *arrowstyle* can be a string with arrowstyle name with optional
-         comma-separated attributes. Alternatively, the attrs can
-         be provided as keywords.
+        Parameters
+        ----------
+        arrowstyle : None, ArrowStyle, str, optional (default: None)
+            Can be a string with arrowstyle name with optional comma-separated
+            attributes, e.g.::
 
-         set_arrowstyle("Fancy,head_length=0.2")
-         set_arrowstyle("fancy", head_length=0.2)
+                set_arrowstyle("Fancy,head_length=0.2")
 
-        Old attrs simply are forgotten.
+            Alternatively attributes can be provided as keywords, e.g.::
 
-        Without argument (or with arrowstyle=None), return
-        available box styles as a list of strings.
+                set_arrowstyle("fancy", head_length=0.2)
+
         """
 
         if arrowstyle is None:
@@ -4193,7 +4256,7 @@ class FancyArrowPatch(Patch):
 
     def get_arrowstyle(self):
         """
-        Return the arrowstyle object
+        Return the arrowstyle object.
         """
         return self._arrow_transmuter
 
@@ -4201,7 +4264,9 @@ class FancyArrowPatch(Patch):
         """
         Set the mutation scale.
 
-        ACCEPTS: float
+        Parameters
+        ----------
+        scale : scalar
         """
         self._mutation_scale = scale
         self.stale = True
@@ -4209,6 +4274,10 @@ class FancyArrowPatch(Patch):
     def get_mutation_scale(self):
         """
         Return the mutation scale.
+
+        Returns
+        -------
+        scale : scalar
         """
         return self._mutation_scale
 
@@ -4216,7 +4285,9 @@ class FancyArrowPatch(Patch):
         """
         Set the aspect ratio of the bbox mutation.
 
-        ACCEPTS: float
+        Parameters
+        ----------
+        aspect : scalar
         """
         self._mutation_aspect = aspect
         self.stale = True
@@ -4229,9 +4300,9 @@ class FancyArrowPatch(Patch):
 
     def get_path(self):
         """
-        return the path of the arrow in the data coordinate. Use
+        Return the path of the arrow in the data coordinates. Use
         get_path_in_displaycoord() method to retrieve the arrow path
-        in the display coord.
+        in display coordinates.
         """
         _path, fillable = self.get_path_in_displaycoord()
 
@@ -4242,7 +4313,7 @@ class FancyArrowPatch(Patch):
 
     def get_path_in_displaycoord(self):
         """
-        Return the mutated path of the arrow in the display coord
+        Return the mutated path of the arrow in display coordinates.
         """
 
         dpi_cor = self.get_dpi_cor()
@@ -4260,13 +4331,12 @@ class FancyArrowPatch(Patch):
             _path = self.get_transform().transform_path(self._path_original)
 
         _path, fillable = self.get_arrowstyle()(
-                                        _path,
-                                        self.get_mutation_scale() * dpi_cor,
-                                        self.get_linewidth() * dpi_cor,
-                                        self.get_mutation_aspect()
-                                        )
+            _path,
+            self.get_mutation_scale() * dpi_cor,
+            self.get_linewidth() * dpi_cor,
+            self.get_mutation_aspect())
 
-        #if not fillable:
+        # if not fillable:
         #    self._fill = False
 
         return _path, fillable
@@ -4313,7 +4383,7 @@ class FancyArrowPatch(Patch):
         # FIXME : dpi_cor is for the dpi-dependecy of the
         # linewidth. There could be room for improvement.
         #
-        #dpi_cor = renderer.points_to_pixels(1.)
+        # dpi_cor = renderer.points_to_pixels(1.)
         self.set_dpi_cor(renderer.points_to_pixels(1.))
         path, fillable = self.get_path_in_displaycoord()
 
