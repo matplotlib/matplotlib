@@ -520,7 +520,7 @@ class GridHelperRectlinear(GridHelperBase):
         _helper = AxisArtistHelperRectlinear.Floating( \
             axes, nth_coord, value, axis_direction)
 
-        axisline = AxisArtist(axes, _helper)
+        axisline = AxisArtist(axes, _helper, axis_direction=axis_direction)
 
         axisline.line.set_clip_on(True)
         axisline.line.set_clip_box(axisline.axes.bbox)
