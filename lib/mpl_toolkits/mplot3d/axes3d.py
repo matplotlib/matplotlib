@@ -1076,6 +1076,7 @@ class Axes3D(Axes):
         # Disabling mouse interaction might have been needed a long
         # time ago, but I can't find a reason for it now - BVR (2012-03)
         #self.disable_mouse_rotation()
+        Axes.cla(self)
         self.zaxis.cla()
 
         if self._sharez is not None:
@@ -1096,7 +1097,6 @@ class Axes3D(Axes):
         self._autoscaleZon = True
         self._zmargin = 0
 
-        Axes.cla(self)
 
         self.grid(rcParams['axes3d.grid'])
 
