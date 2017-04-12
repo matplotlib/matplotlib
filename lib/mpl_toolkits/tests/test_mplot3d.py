@@ -560,7 +560,7 @@ def test_axes3d_ortho():
 ])
 def test_invalid_axes_limits(setter, side, value):
     limit = {side: value}
+    fig = plt.figure()
+    obj = fig.add_subplot(111, projection='3d')
     with pytest.raises(ValueError):
-        fig = plt.figure()
-        obj = fig.add_subplot(111, projection='3d')
         getattr(obj, setter)(**limit)
