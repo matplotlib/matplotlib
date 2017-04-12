@@ -1232,7 +1232,18 @@ class AxisArtist(martist.Artist):
         ticklabel_add_angle = self._ticklabel_add_angle
 
         for loc, angle_normal, angle_tangent, label in tick_iter:
-            angle_label = angle_tangent  - 90
+            angle_label = angle_tangent - 90
+
+            if (self._axis_direction == "top" or self._axis_direction == "bottom"):
+                for x in self.axes.get_xticklabels():
+                    if label == x.get_text():
+                        angle_label += x.get_rotation()
+                    angle_label += ticklabel_add_angle
+            elif (self._axis_direction == "right" or self._axis_direction == "left"):
+                for x in self.axes.get_yticklabels():
+                    if label == x.get_text():
+                        angle_label += x.get_rotation()
+                    angle_label += ticklabel_add_angle
             angle_label += ticklabel_add_angle
 
             if np.cos((angle_label - angle_normal)/180.*np.pi) < 0.:
