@@ -461,7 +461,8 @@ class Figure(Artist):
             The horizontal alignment of the xticklabels
 
         which : {None, 'major', 'minor', 'both'}
-            Selects which ticklabels to rotate
+            Selects which ticklabels to rotate (default is None which works
+            same as major)
         """
         allsubplots = all(hasattr(ax, 'is_last_row') for ax in self.axes)
         if len(self.axes) == 1:
@@ -1844,6 +1845,7 @@ class Figure(Artist):
 
         Right clicking cancels last input.
 
+        The buttons used for the various actions (adding points, removing
         points, terminating the inputs) can be overriden via the
         arguments *mouse_add*, *mouse_pop* and *mouse_stop*, that give
         the associated mouse button: 1 for left, 2 for middle, 3 for
