@@ -3,7 +3,7 @@ container
 *********
 
 :mod:`matplotlib.container`
-====================
+===========================
 
 .. automodule:: matplotlib.container
    :members:
