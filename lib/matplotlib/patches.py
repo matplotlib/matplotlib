@@ -1248,7 +1248,7 @@ class FancyArrow(Polygon):
                     # The half-arrows contain the midpoint of the stem,
                     # which we can omit from the full arrow. Including it
                     # twice caused a problem with xpdf.
-                    coords = np.concatenate([left_half_arrow[:-2],
+                    coords = np.concatenate([left_half_arrow[:-1],
                                              right_half_arrow[-2::-1]])
                 else:
                     raise ValueError("Got unknown shape: %s" % shape)
