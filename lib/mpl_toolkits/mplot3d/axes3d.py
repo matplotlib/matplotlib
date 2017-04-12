@@ -607,8 +607,12 @@ class Axes3D(Axes):
         self._process_unit_info(xdata=(left, right))
         if left is not None:
             left = self.convert_xunits(left)
+            if ((np.isscalar(left)) and not (np.isfinite(left))):
+                raise ValueError('left/right should be finite values')
         if right is not None:
             right = self.convert_xunits(right)
+            if ((np.isscalar(right)) and (not np.isfinite(right))):
+                raise ValueError('left/right should be finite values')
 
         old_left, old_right = self.get_xlim()
         if left is None:
@@ -661,8 +665,12 @@ class Axes3D(Axes):
         self._process_unit_info(ydata=(bottom, top))
         if bottom is not None:
             bottom = self.convert_yunits(bottom)
+            if ((np.isscalar(bottom)) and not (np.isfinite(bottom))):
+                raise ValueError('bottom should be finite values')
         if top is not None:
             top = self.convert_yunits(top)
+            if ((np.isscalar(top)) and (not np.isfinite(top))):
+                raise ValueError('top should be finite values')
 
         old_bottom, old_top = self.get_ylim()
         if bottom is None:
@@ -713,10 +721,15 @@ class Axes3D(Axes):
             bottom, top = bottom
 
         self._process_unit_info(zdata=(bottom, top))
+
         if bottom is not None:
             bottom = self.convert_zunits(bottom)
+            if ((np.isscalar(bottom)) and not (np.isfinite(bottom))):
+                raise ValueError('bottom should be finite values')
         if top is not None:
             top = self.convert_zunits(top)
+            if ((np.isscalar(top)) and (not np.isfinite(top))):
+                raise ValueError('top should be finite values')
 
         old_bottom, old_top = self.get_zlim()
         if bottom is None:
